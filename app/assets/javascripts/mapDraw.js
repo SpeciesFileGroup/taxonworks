@@ -91,9 +91,9 @@ function initializeGoogleMapWithDrawManager(widget_name) {
   // a legal feature collection and map-center value in the widget is required, or the code fails
   var fcdata = widget.data('feature-collection');
 
-  var map_center= widget.data('map-center');
-
-  var map = initializeGoogleMap("widget_canvas", fcdata, map_center);
+  var map_center = widget.data('map-center');
+    var map_canvas = widget.data('map-canvas');
+  var map = initializeGoogleMap(map_canvas, fcdata, map_center);
   var drawingManager = initializeDrawingManager(map);
 
   return [map, drawingManager];

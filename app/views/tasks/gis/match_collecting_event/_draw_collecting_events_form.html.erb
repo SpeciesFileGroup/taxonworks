@@ -2,12 +2,13 @@
      hidden="hidden"
      data-feature-collection='<%= Gis::GeoJSON.feature_collection([]).to_json.html_safe %>'
      data-map-center='POINT (0.0 0.0 0.0)'
+     data-map-canvas="draw_ce_canvas"
 >
 
   <table border="1">
     <tr>
       <td>
-        <div id="widget_canvas" style="width:512px; height:256px;"></div>
+        <div id="draw_ce_canvas" style="width:512px; height:256px;"></div>
 
       </td>
     </tr>

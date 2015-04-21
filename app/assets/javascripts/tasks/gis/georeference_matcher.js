@@ -5,6 +5,7 @@ _init_collecting_event_map_widget = function init_collecting_event_map() {
 
         var setup = [];
         setup = initializeGoogleMapWithDrawManager("#_draw_ce_form");
+        setup = initializeGoogleMapWithDrawManager("#_draw_gr_form");
 
         $(".filter-ce").click(function (event) {
 
@@ -121,6 +122,7 @@ _init_collecting_event_map_widget = function init_collecting_event_map() {
             $("#_recent_gr_form").attr("hidden", true);
             $('#_selecting_ce_form').attr('hidden', true);
             _init_georeference_map_widget();
+            //_init_georeference_map_widget();
 
             event.preventDefault();
         });
