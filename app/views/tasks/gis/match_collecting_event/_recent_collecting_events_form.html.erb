@@ -2,14 +2,15 @@
   <%= form_tag(recent_collecting_events_url, {method: 'get', id: 'recent_count'}) do %>
       <table border="1">
         <tr>
-          <div class="field">
-            <td>Return</td>
-            <td><input id="how_many_recent" size="5"></td>
-            <td>most recent</td>
-          </div>
+          <td>
+            <div class="field">
+              <label for="how_many_recent">Return</label>
+              <input id="how_many_recent" size="5">most recent
+            </div>
+          </td>
         </tr>
       </table>
-      <%=	 hidden_field_tag('how_many') %>
+      <%= hidden_field_tag('how_many') %>
   <% end %>
-  <div><input type="button" id="submit_recent_ce" value="Find" /></div>
+  <div><input type="button" id="submit_recent_ce" value="Find"/></div>
 </div>

@@ -54,11 +54,11 @@ _init_collecting_event_map_widget = function init_collecting_event_map() {
         });
         $("#submit_recent_ce").click(function (event) {
             $('#how_many').val($('#how_many_recent').val());
-            extra = $('form#recent_count').serialize();
+            var extra = $('form#recent_count').serialize();
             $.get('recent_collecting_events', extra, function (local_data) {
                 // what to do with the json we get back....
                 $("#_recent_ce_form").attr("hidden", true);
-                selecting = $('#_selecting_ce_form');
+                var selecting = $('#_selecting_ce_form');
                 selecting.removeAttr('hidden');
                 selecting.html(local_data['html']);
             });
