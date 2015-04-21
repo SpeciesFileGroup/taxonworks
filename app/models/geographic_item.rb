@@ -1,3 +1,5 @@
+require 'rgeo'
+
 # A GeographicItem is one and only one of [point, line_string, polygon, multi_point, multi_line_string,
 # multi_polygon, geometry_collection] which describes a position, path, or area on the globe, generally associated
 # with a geographic_area (through a geographic_area_geographic_item entry), and sometimes only with a georeference.
