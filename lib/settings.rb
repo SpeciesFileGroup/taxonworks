@@ -16,17 +16,24 @@ module Settings
   ]
 
   @@default_data_directory = nil
-  @@mail_domain = nil 
+  @@mail_domain = nil
+  @@config_hash = nil 
 
   def self.load_from_hash(config, hash)
     invalid_sections = hash.keys - VALID_SECTIONS
     raise "#{invalid_sections} are not valid sections" unless invalid_sections.empty?
+
+    @@config_hash = hash.deep_dup
 
     load_exception_notification(config, hash[:exception_notification])
     load_default_data_directory(hash[:default_data_directory])
     load_action_mailer_smtp_settings(config, hash[:action_mailer_smtp_settings])
     load_action_mailer_url_host(config, hash[:action_mailer_url_host])
     load_mail_domain(config, hash[:mail_domain])
+  end
+  
+  def self.get_config_hash
+    @@config_hash
   end
   
   def self.load_from_file(config, path, set_name)

@@ -1,6 +1,7 @@
 require 'rails_helper'
 
 describe Settings do
+  before(:all) { @current_settings_hash = Settings.get_config_hash }
   let(:valid_full_config) do
     { default_data_directory: 'tmp',
       exception_notification: {
@@ -13,6 +14,13 @@ describe Settings do
   let(:rails_config) {
     double('config', middleware: double('middleware'), action_mailer: double('action_mailer'))
   }
+  after(:all) do
+    config = {
+      default_data_directory: @current_settings_hash[:default_data_directory],
+      mail_domain: @current_settings_hash[:mail_domain]
+    }
+    Settings.load_from_hash({ }, config)
+  end
         
   describe '::load_from_hash' do
     let(:valid_config) { { exception_notification: valid_full_config[:exception_notification] } }
@@ -182,6 +190,14 @@ describe Settings do
       
     end
     
+  end
+  
+  describe '::get_config_hash' do
+    let(:config) { { mail_domain: 'example.com' } }
+    it "returns the latest config hash used" do
+      Settings.load_from_hash(rails_config, config)
+      expect(Settings.get_config_hash).to eq(config)
+    end  
   end
   
   describe '::load_from_file' do
