@@ -11,12 +11,10 @@ _init_collecting_event_map_widget = function init_collecting_event_map() {
             // unhide this form
             $("#_filter_ce_form").removeAttr("hidden");
             // hide everything else:  tag; drawing; recent;
-            $("#_tag_ce_form").attr("hidden", true)
-            $("#_draw_ce_form").attr("hidden", true)
-            $("#_recent_ce_form").attr("hidden", true)
+            $("#_tag_ce_form").attr("hidden", true);
+            $("#_draw_ce_form").attr("hidden", true);
+            $("#_recent_ce_form").attr("hidden", true);
             event.preventDefault();
-
-            return;
         });
 
         $(".tag-ce").click(function (event) {
@@ -24,13 +22,11 @@ _init_collecting_event_map_widget = function init_collecting_event_map() {
             // unhide this form
             $("#_tag_ce_form").removeAttr("hidden");
             // hide everything else: filter; drawing; recent;
-            $("#_filter_ce_form").attr("hidden", true)
-            $("#_draw_ce_form").attr("hidden", true)
-            $("#_recent_ce_form").attr("hidden", true)
+            $("#_filter_ce_form").attr("hidden", true);
+            $("#_draw_ce_form").attr("hidden", true);
+            $("#_recent_ce_form").attr("hidden", true);
 
             event.preventDefault();
-
-            return;
         });
 
         $(".draw-ce").click(function (event) {
@@ -38,13 +34,11 @@ _init_collecting_event_map_widget = function init_collecting_event_map() {
             // unhide this form
             $("#_draw_ce_form").removeAttr("hidden");
             // hide everything else: filter; tag; recent;
-            $("#_filter_ce_form").attr("hidden", true)
-            $("#_tag_ce_form").attr("hidden", true)
-            $("#_recent_ce_form").attr("hidden", true)
+            $("#_filter_ce_form").attr("hidden", true);
+            $("#_tag_ce_form").attr("hidden", true);
+            $("#_recent_ce_form").attr("hidden", true);
             _init_collecting_event_map_widget();
             event.preventDefault();
-
-            return;
         });
 
         $(".recent-ce").click(function (event) {
@@ -52,22 +46,24 @@ _init_collecting_event_map_widget = function init_collecting_event_map() {
             // unhide this form
             $("#_recent_ce_form").removeAttr("hidden");
             // hide everything else: filter; tag; drawing;
-            $("#_filter_ce_form").attr("hidden", true)
-            $("#_tag_ce_form").attr("hidden", true)
-            $("#_draw_ce_form").attr("hidden", true)
+            $("#_filter_ce_form").attr("hidden", true);
+            $("#_tag_ce_form").attr("hidden", true);
+            $("#_draw_ce_form").attr("hidden", true);
 
             event.preventDefault();
-
-            return;
         });
         $("#submit_recent_ce").click(function (event) {
             $('#how_many').val($('#how_many_recent').val());
-            extra = $('form#funny_farm').serialize();
+            extra = $('form#recent_count').serialize();
             $.get('recent_collecting_events', extra, function (local_data) {
                 // what to do with the json we get back....
-                $('#_selecting_ce_form').removeAttr('hidden');
-                $('#_selecting_ce_form').html(local_data['html']);
-            })
+                $("#_recent_ce_form").attr("hidden", true);
+                selecting = $('#_selecting_ce_form');
+                selecting.removeAttr('hidden');
+                selecting.html(local_data['html']);
+            });
+
+            event.preventDefault();
         });
 
         $(".filter-gr").click(function (event) {
@@ -75,12 +71,11 @@ _init_collecting_event_map_widget = function init_collecting_event_map() {
             // unhide this form
             $("#_filter_gr_form").removeAttr("hidden");
             // hide everything else:  tag; drawing; recent;
-            $("#_tag_gr_form").attr("hidden", true)
-            $("#_draw_gr_form").attr("hidden", true)
-            $("#_recent_gr_form").attr("hidden", true)
-            event.preventDefault();
+            $("#_tag_gr_form").attr("hidden", true);
+            $("#_draw_gr_form").attr("hidden", true);
+            $("#_recent_gr_form").attr("hidden", true);
 
-            return;
+            event.preventDefault();
         });
 
         $(".tag-gr").click(function (event) {
@@ -88,13 +83,11 @@ _init_collecting_event_map_widget = function init_collecting_event_map() {
             // unhide this form
             $("#_tag_gr_form").removeAttr("hidden");
             // hide everything else: filter; drawing; recent;
-            $("#_filter_gr_form").attr("hidden", true)
-            $("#_draw_gr_form").attr("hidden", true)
-            $("#_recent_gr_form").attr("hidden", true)
+            $("#_filter_gr_form").attr("hidden", true);
+            $("#_draw_gr_form").attr("hidden", true);
+            $("#_recent_gr_form").attr("hidden", true);
 
             event.preventDefault();
-
-            return;
         });
 
         $(".draw-gr").click(function (event) {
@@ -102,13 +95,12 @@ _init_collecting_event_map_widget = function init_collecting_event_map() {
             // unhide this form
             $("#_draw_gr_form").removeAttr("hidden");
             // hide everything else: filter; tag; recent;
-            $("#_filter_gr_form").attr("hidden", true)
-            $("#_tag_gr_form").attr("hidden", true)
-            $("#_recent_gr_form").attr("hidden", true)
+            $("#_filter_gr_form").attr("hidden", true);
+            $("#_tag_gr_form").attr("hidden", true);
+            $("#_recent_gr_form").attr("hidden", true);
             _init_georeference_map_widget();
-            event.preventDefault();
 
-            return;
+            event.preventDefault();
         });
 
         $(".recent-gr").click(function (event) {
@@ -116,13 +108,11 @@ _init_collecting_event_map_widget = function init_collecting_event_map() {
             // unhide this form
             $("#_recent_gr_form").removeAttr("hidden");
             // hide everything else: filter; tag; drawing;
-            $("#_filter_gr_form").attr("hidden", true)
-            $("#_tag_gr_form").attr("hidden", true)
-            $("#_draw_gr_form").attr("hidden", true)
+            $("#_filter_gr_form").attr("hidden", true);
+            $("#_tag_gr_form").attr("hidden", true);
+            $("#_draw_gr_form").attr("hidden", true);
 
             event.preventDefault();
-
-            return;
         });
 
         // this is the find submits ajax request, get's FC response and draws it on the map
