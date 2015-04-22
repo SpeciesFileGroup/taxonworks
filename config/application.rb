@@ -19,9 +19,10 @@ module TaxonWorks
 
     # Pre-load all libraries in /lib
 
-    # config.autoload_paths += %W(#{config.root}/lib) # #{config.root}/extras
+    config.autoload_paths += %W(#{config.root}/lib) # #{config.root}/extras
 
-    config.eager_load_paths += %W(#{config.root}/lib) # #{config.root}/extras
+    # Breaks rake/loading becahse of existing Rails.application.eager_load! statements 
+    # config.eager_load_paths += %W(#{config.root}/lib) # #{config.root}/extras
 
     # Set Time.zone default to the specified zone and make Active Record auto-convert to this zone.
     # Run "rake -D time" for a list of tasks for finding time zone names. Default is UTC.
@@ -35,5 +36,7 @@ module TaxonWorks
     # :sql - because low level :sql will not be correct for spatial db
     # @see http://dazuma.github.io/activerecord-postgis-adapter/rdoc/Documentation_rdoc.html
     config.active_record.schema_format :ruby
+
+
   end
 end
