@@ -606,6 +606,8 @@ describe TaxonName, :type => :model do
         species.source_classified_as = family
         species.save
         species.reload
+
+        t = species.created_at
         expect(species.cached).to eq('Aus aus')
         expect(species.cached_html).to eq('<em>Aus aus</em>')
         expect(species.cached_original_combination).to eq('<em>Bus aus</em>')
@@ -627,6 +629,7 @@ describe TaxonName, :type => :model do
         family.save
         species.reload
         expect(species.cached_classified_as).to eq(' (as Cicadellidae)')
+        expect(species.created_at).to eq(t)
       end
       specify 'original_combination' do
       end
