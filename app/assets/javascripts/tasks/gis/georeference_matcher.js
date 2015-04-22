@@ -1,11 +1,11 @@
-var _init_collecting_event_map_widget;
+var _init_match_georeference_page_widget;
 
-_init_collecting_event_map_widget = function init_collecting_event_map() {
+_init_match_georeference_page_widget = function init_match_georeference_page() {
     if ($('#match_georeference_widget').length) {
 
         var setup = [];
-        setup = initializeGoogleMapWithDrawManager("#_draw_ce_form");
-        setup = initializeGoogleMapWithDrawManager("#_draw_gr_form");
+        //setup = initializeGoogleMapWithDrawManager("#_draw_ce_form");
+        //setup = initializeGoogleMapWithDrawManager("#_draw_gr_form");
 
         $(".filter-ce").click(function (event) {
 
@@ -55,7 +55,8 @@ _init_collecting_event_map_widget = function init_collecting_event_map() {
             $("#_tag_ce_form").attr("hidden", true);
             $("#_recent_ce_form").attr("hidden", true);
             $('#_selecting_ce_form').attr('hidden', true);
-            _init_collecting_event_map_widget();
+
+            setup = initializeGoogleMapWithDrawManager("#_draw_ce_form");
 
             event.preventDefault();
         });
@@ -121,8 +122,8 @@ _init_collecting_event_map_widget = function init_collecting_event_map() {
             $("#_tag_gr_form").attr("hidden", true);
             $("#_recent_gr_form").attr("hidden", true);
             $('#_selecting_ce_form').attr('hidden', true);
-            //_init_georeference_map_widget();
-            //_init_georeference_map_widget();
+
+            setup = initializeGoogleMapWithDrawManager("#_draw_gr_form");
 
             event.preventDefault();
         });
@@ -148,5 +149,5 @@ _init_collecting_event_map_widget = function init_collecting_event_map() {
     }
 };
 
-$(document).ready(_init_collecting_event_map_widget);
-$(document).on("page:load", _init_collecting_event_map_widget);
+$(document).ready(_init_match_georeference_page_widget);
+$(document).on("page:load", _init_match_georeference_page_widget);

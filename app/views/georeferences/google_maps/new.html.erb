@@ -19,9 +19,10 @@
 
     <div id="google_maps_georeference_widget" data-georeference="<%= @georeference %>"
          data-feature-collection='<%= Gis::GeoJSON.feature_collection(@georeference.collecting_event.georeferences).to_json.html_safe %>'
-         data-map-center='<%= @georeference.collecting_event.verbatim_center_coordinates %>'>
-
-      <div id="widget_canvas" style="width:640px; height:480px;"></div>
+         data-map-center='<%= @georeference.collecting_event.verbatim_center_coordinates %>'
+        data-map-canvas="map_canvas"
+         >
+      <div id="map_canvas" style="width:640px; height:480px;"></div>
     </div>
 
 
