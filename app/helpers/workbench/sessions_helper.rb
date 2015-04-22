@@ -21,10 +21,19 @@ module Workbench::SessionsHelper
     sessions_current_user ? sessions_current_user.id : nil
   end
 
-  def sessions_sign_in(user)
+  def sessions_sign_in(user, request)
     remember_token = User.secure_random_token
     cookies.permanent[:remember_token] = remember_token
-    user.update_attribute(:remember_token, User.encrypt(remember_token))
+
+    user.update_columns(
+      remember_token: User.encrypt(remember_token),
+      sign_in_count: (user.sign_in_count + 1), 
+      last_sign_in_at: user.current_sign_in_at,
+      current_sign_in_at: Time.now,
+      last_sign_in_ip: user.current_sign_in_ip, 
+      current_sign_in_ip: request.ip
+    )
+
     self.sessions_current_user = user
   end
 
