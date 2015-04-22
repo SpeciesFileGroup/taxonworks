@@ -242,8 +242,8 @@ class TaxonNameRelationship < ActiveRecord::Base
         elsif self.is_combination?
           t = self.object_taxon_name
           t.update_columns(:cached_original_combination => t.get_original_combination,
-                           :cached => t.get_full_name_no_html,
-                           :cached_html => t.get_full_name)
+                           :cached => t.get_full_name,
+                           :cached_html => t.get_full_name_html)
         elsif self.type_name =~/SourceClassifiedAs/
           t = self.subject_taxon_name
           t.update_column(:cached_classified_as, t.get_cached_classified_as)
@@ -252,8 +252,8 @@ class TaxonNameRelationship < ActiveRecord::Base
           if self.type_name =~/Misspelling/
             t.update_column(:cached_misspelling, t.get_cached_misspelling)
           end
-          t.update_columns(:cached => t.get_full_name_no_html,
-                           :cached_html => t.get_full_name)
+          t.update_columns(:cached => t.get_full_name,
+                           :cached_html => t.get_full_name_html)
         end
 
       end
@@ -558,7 +558,7 @@ class TaxonNameRelationship < ActiveRecord::Base
             end
           when :reverse
             if date1 > date2 && invalid_statuses.empty?
-              if self.type_name =~ /TaxonNameRelationship::(Typification|Combination|OriginalCombination|SourceClassifiedAs)/
+              if self.type_name =~ /TaxonNameRelationship::(Typification|Combination|OriginalCombination)/ && self.type_name != 'TaxonNameRelationship::Typification::Genus::RulingByCommission'
                 soft_validations.add(:subject_taxon_name_id, "#{self.type_class.object_relationship_name.capitalize} should not be younger than the taxon")
               else
                 soft_validations.add(:type, "#{self.type_class.object_relationship_name.capitalize} should not be younger than related taxon")

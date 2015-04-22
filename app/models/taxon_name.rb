@@ -505,8 +505,8 @@ class TaxonName < ActiveRecord::Base
         classified_as_relationships = TaxonNameRelationship.where_object_is_taxon_name(self).with_type_contains('SourceClassifiedAs')
         unless dependants.empty?
           dependants.each do |i|
-            i.update_columns(:cached => i.get_full_name_no_html,
-                             :cached_html => i.get_full_name)
+            i.update_columns(:cached => i.get_full_name,
+                             :cached_html => i.get_full_name_html)
           end
         end
 
@@ -622,8 +622,7 @@ class TaxonName < ActiveRecord::Base
 
   # @return [String]
   #  a monomial if names is above genus, or a full epithet if below. 
-  # TODO: rename to get_full_name (when name is available)
-  def get_full_name_no_html
+  def get_full_name
     return name unless self.type == 'Combination' ||  GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_string)
     d        = full_name_hash
     elements = []
@@ -635,10 +634,9 @@ class TaxonName < ActiveRecord::Base
   end
 
 
-  # TODO: rename to get_full_name_html
   # @return [String]
   #  a monomial if names is above genus, or a full epithet if below, includes html
-  def get_full_name
+  def get_full_name_html
     return name unless self.type == 'Combination' || GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_string) 
     d        = full_name_hash
     elements = []
@@ -654,7 +652,7 @@ class TaxonName < ActiveRecord::Base
       elements.push(d[r][0], "#{eo}#{d[r][1]}#{ec}") if d[r]
     end
 
-    elements.flatten.compact.join(" ").gsub(/\(\s*\)/, '').gsub(/\(\s/, '(').gsub(/\s\)/, ')').squish.gsub('</em> <em>', ' ')
+    elements.flatten.compact.join(' ').gsub(/\(\s*\)/, '').gsub(/\(\s/, '(').gsub(/\s\)/, ')').squish.gsub('</em> <em>', ' ')
   end
 
   def genus_name_elements(*args)
@@ -1112,7 +1110,7 @@ class TaxonName < ActiveRecord::Base
     is_cached = false if self.cached_author_year != get_author_and_year
 
     if self.class == Protonym && cached # don't run the tests if it's already false
-      if self.cached_html != get_full_name ||
+      if self.cached_html != get_full_name_html ||
           self.cached_misspelling != get_cached_misspelling ||
           self.cached_original_combination != get_original_combination ||
           self.cached_higher_classification != get_higher_classification ||

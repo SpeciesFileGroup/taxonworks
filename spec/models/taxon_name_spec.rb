@@ -352,19 +352,19 @@ describe TaxonName, :type => :model do
           specify 'different gender' do
             s = FactoryGirl.create(:iczn_species, parent: @genus)
             expect(s.save).to be_truthy
-            expect(s.get_full_name).to eq('<em>Erythroneura vitis</em>')
+            expect(s.get_full_name_html).to eq('<em>Erythroneura vitis</em>')
             s.masculine_name = 'vitus'
             s.feminine_name  = 'vita'
             s.neuter_name    = 'vitum'
             expect(s.save).to be_truthy
             gender = FactoryGirl.create(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::Gender::Masculine')
-            expect(s.get_full_name).to eq('<em>Erythroneura vitus</em>')
+            expect(s.get_full_name_html).to eq('<em>Erythroneura vitus</em>')
             gender.type = 'TaxonNameClassification::Latinized::Gender::Feminine'
             expect(gender.save).to be_truthy
-            expect(s.get_full_name).to eq('<em>Erythroneura vita</em>')
+            expect(s.get_full_name_html).to eq('<em>Erythroneura vita</em>')
             gender.type = 'TaxonNameClassification::Latinized::Gender::Neuter'
             expect(gender.save).to be_truthy
-            expect(s.get_full_name).to eq('<em>Erythroneura vitum</em>')
+            expect(s.get_full_name_html).to eq('<em>Erythroneura vitum</em>')
           end
 
           specify 'misspelled original combination' do

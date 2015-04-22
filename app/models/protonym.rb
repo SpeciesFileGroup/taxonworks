@@ -723,11 +723,11 @@ class Protonym < TaxonName
   end
 
   def set_cached
-    self.cached = get_full_name_no_html
+    self.cached = get_full_name
   end
 
   def set_cached_html
-    self.cached_html = get_full_name
+    self.cached_html = get_full_name_html
   end
 
   def set_cached_misspelling
