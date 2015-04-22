@@ -24,6 +24,4 @@ module ApplicationEnumeration
     file_name.split(/app\/models\//).last[0..-4].split(/\\/).collect{|b| b.camelize}.join("::").safe_constantize
   end
 
-
-
 end
