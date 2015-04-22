@@ -33,7 +33,7 @@
     <% end %>
     <h3> Has one </h3>
     <% object.class.reflect_on_all_associations(:has_one).sort { |a, b| a.name <=> b.name }.each do |r| -%>
-        <%= r.name.to_s.humanize -%>
+        <%= reflect_on_all_associations -%>
         <%= content_tag(:strong, object_tag(object.send(r.name.to_s))) -%>
         <br>
     <% end %>

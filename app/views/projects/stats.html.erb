@@ -1,0 +1,14 @@
+
+<%= content_for :head do -%>
+<%= javascript_include_tag "//www.google.com/jsapi", "chartkick" %>
+<% end %>
+
+<h1> Stats for <%= @project.name -%> </h1>
+
+<%= link_to 'Back', project_path(@project) %> 
+
+<% @project.has_many_relationships.each do |r| -%>
+  <h2> <%= r.humanize.to_s -%> </h2>
+  <%= line_chart @project.send(r).group_by_day(:created_at).count %>
+<% end %>
+

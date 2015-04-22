@@ -34,6 +34,7 @@ TaxonWorks::Application.routes.draw do
     member do
       get 'select'
       get 'settings_for'
+      get 'stats'
     end
   end
 

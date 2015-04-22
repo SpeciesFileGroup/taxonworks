@@ -79,6 +79,9 @@ gem 'modularity', '~> 2.0.1'
 
 gem 'colored', '~> 1.2'
 
+gem 'chartkick'
+gem 'groupdate'
+
 group :test, :development do
   gem 'faker', '~> 1.4.3'
   gem 'rspec-rails', '~> 3.0'

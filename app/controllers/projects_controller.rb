@@ -2,7 +2,7 @@ class ProjectsController < ApplicationController
   before_action :require_sign_in
   before_action :require_administrator_sign_in, only: [:new, :create, :index, :destroy]
   before_action :require_superuser_sign_in, only: [:show, :edit, :update]
-  before_action :set_project, only: [:show, :edit, :update, :destroy, :select]
+  before_action :set_project, only: [:show, :edit, :update, :destroy, :select, :stats]
 
   # GET /projects
   # GET /projects.json
@@ -77,6 +77,11 @@ class ProjectsController < ApplicationController
 
   def settings_for
     redirect_to edit_project_path(sessions_current_project)
+  end
+
+  def stats
+    Rails.application.eager_load!
+   # @data = @project.data_breakdown
   end
 
   def list

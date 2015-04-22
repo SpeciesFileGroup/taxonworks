@@ -29,7 +29,7 @@ class Project < ActiveRecord::Base
   #   based on whether the project has successfully been deleted.  Can also raise on detected problems with configuration.
   def nuke
     known = ActiveRecord::Base.subclasses.select{|a| a.column_names.include?('project_id') }.map(&:name)
-    
+
     order = %w{
      AlternateValue
      DataAttribute 
@@ -86,7 +86,7 @@ class Project < ActiveRecord::Base
         klass = o.constantize
         klass.where(project_id: id).delete_all
       end
-      
+
       self.destroy
 
       true
@@ -94,6 +94,41 @@ class Project < ActiveRecord::Base
       raise e 
     end
   end
+
+  def data_breakdown
+
+    Rails.application.eager_load!
+
+    data = { }
+    has_many_relationships.each do |name|
+      total = self.send(name).in_project(self).count
+      today = self.send(name).updated_today.in_project(self).count
+      this_week = self.send(name).updated_this_week.in_project(self).count
+
+      if total > 0
+        data.merge!(r.name.to_s.humanize => {
+          total: total,
+          today: today,
+          this_week: this_week
+        })
+      end
+    end
+    data
+  end
+
+  def has_many_relationships
+    Rails.application.eager_load!
+    relationships = []
+
+    Project.reflect_on_all_associations(:has_many).each do |r|
+      name = r.name.to_s
+      if self.respond_to?(r.name) && self.send(name).respond_to?(:in_project)
+        relationships.push name
+      end
+    end 
+    relationships.sort
+  end
+
 
   protected
 

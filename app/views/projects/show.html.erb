@@ -1,9 +1,8 @@
 <h1> <%= @project.name -%> </h1>
-
+<%= link_to 'Edit', edit_project_path(@project) %> 
 <div class="flexbox">
   <div class="item item1">
     <h2> Attributes </h2>
-  <%= link_to 'Edit', edit_project_path(@project) %> 
     <%= render partial: 'attributes' -%>
   </div>
   
@@ -17,8 +16,11 @@
       <em> No members added yet! </em>
     <% end %>
     <%= add_project_member_link(@project.to_param) -%>
-
   </div>
+  
+  <div class="item item3">
+    <h2> Stats </h2>
+    <%= link_to 'data', stats_project_path -%>   </div>
 </div>
 
 
