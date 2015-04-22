@@ -36,7 +36,7 @@ module UserTasks
     #  true if this task should be linked to from the hub
     attr_accessor :hub
 
-    attr_reader :defaults
+    # attr_reader :defaults
 
     def initialize(data)
       raise "Improperly defined user task #{data} in user_tasks.yml." if data.nil? || data[0].nil? 
@@ -47,10 +47,10 @@ module UserTasks
       @related = attributes['related']
       @hub = (attributes['hub'] ? true : false) 
 
-      route = Rails.application.routes.named_routes.get('update_serial_find_task')
+     #route = Rails.application.routes.named_routes.get('update_serial_find_task')
 
-      @defaults = route.required_defaults 
-      @defaults.merge!(verb: route.verb)
+     #@defaults = route.required_defaults 
+     #@defaults.merge!(verb: route.verb)
     end
 
     # @return [String]
