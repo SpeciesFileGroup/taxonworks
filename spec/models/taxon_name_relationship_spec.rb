@@ -211,6 +211,32 @@ describe TaxonNameRelationship, :type => :model do
     end
   end
 
+  context 'after save' do
+    specify 'update cached values' do
+      g1 = FactoryGirl.create(:relationship_genus, name: 'Aus', parent: @family)
+      g2 = FactoryGirl.create(:relationship_genus, name: 'Bus', parent: @family)
+      s1 = FactoryGirl.create(:relationship_species, name: 'aus', parent: g1)
+      s2 = FactoryGirl.create(:relationship_species, name: 'bus', parent: g2)
+      r1 = FactoryGirl.build(:taxon_name_relationship, subject_taxon_name: g2, object_taxon_name: s1, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
+      r1.save
+      expect(s1.cached).to eq('Aus aus')
+      expect(s1.cached_html).to eq('<em>Aus aus</em>')
+      expect(s1.cached_misspelling).to be_falsey
+      expect(s1.cached_original_combination).to eq('<em>Bus aus</em>')
+      r2 = FactoryGirl.build(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: @family, type: 'TaxonNameRelationship::SourceClassifiedAs')
+      r2.save
+      expect(s1.cached_classified_as).to eq(' (as Erythroneuridae)')
+      r3 = FactoryGirl.build(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling')
+      r3.soft_validate(:synonym_linked_to_valid_name)
+      expect(r3.soft_validations.messages_on(:subject_taxon_name_id).size).to eq(1)
+      r3.fix_soft_validations
+      r3.save
+      expect(s1.cached_misspelling).to be_truthy
+      expect(s1.cached).to eq('Bus aus')
+      expect(s1.cached_html).to eq('<em>Bus aus</em>')
+    end
+  end
+
   context 'soft validation' do
     specify 'required relationship' do
       s = FactoryGirl.create(:relationship_species, parent: @genus)

@@ -10,6 +10,8 @@ class TaxonNameRelationship < ActiveRecord::Base
   belongs_to :object_taxon_name, class_name: 'TaxonName', foreign_key: :object_taxon_name_id   # right side
   belongs_to :source
 
+  after_save :set_cached_names_for_taxon_names
+
   validates_presence_of :type, message: 'Relationship type should be specified'
   validates_presence_of :subject_taxon_name_id, message: 'Taxon is not selected'
   validates_presence_of :object_taxon_name_id, message: 'Taxon is not selected'
@@ -39,7 +41,6 @@ class TaxonNameRelationship < ActiveRecord::Base
   soft_validate(:sv_validate_priority, set: :validate_priority)
   soft_validate(:sv_validate_homonym_relationships, set: :validate_homonym_relationships)
   soft_validate(:sv_coordinated_taxa, set: :coordinated_taxa)
-  # @proceps: this method doesn't seem to exist:  soft_validate(:sv_matching_types, set: :matching_types)
 
   scope :where_subject_is_taxon_name, -> (taxon_name) {where(subject_taxon_name_id: taxon_name)}
   scope :where_object_is_taxon_name, -> (taxon_name) {where(object_taxon_name_id: taxon_name)}
@@ -52,7 +53,7 @@ class TaxonNameRelationship < ActiveRecord::Base
 
   # TODO: SourceClassifiedAs is not really Combination in the other sense
   def is_combination?
-    !!/TaxonNameRelationship::(OriginalCombination|Combination|SourceClassifiedAs)/.match(self.type) 
+    !!/TaxonNameRelationship::(OriginalCombination|Combination)/.match(self.type)
   end.to_s
 
   def aliases
@@ -228,6 +229,38 @@ class TaxonNameRelationship < ActiveRecord::Base
     if /Typification/.match(self.type_name) && !TaxonNameRelationship.where(object_taxon_name_id: self.object_taxon_name_id).with_type_contains('Typification').not_self(self).empty?
       errors.add(:object_taxon_name_id, 'Only one type relationship is allowed')
     end
+  end
+
+  def set_cached_names_for_taxon_names
+    dependants = []
+    begin
+      TaxonName.transaction do
+
+        if self.type_name =~/OriginalCombination/
+          t = self.object_taxon_name
+          t.update_column(:cached_original_combination, t.get_original_combination)
+        elsif self.is_combination?
+          t = self.object_taxon_name
+          t.update_columns(:cached_original_combination => t.get_original_combination,
+                           :cached => t.get_full_name_no_html,
+                           :cached_html => t.get_full_name)
+        elsif self.type_name =~/SourceClassifiedAs/
+          t = self.subject_taxon_name
+          t.update_column(:cached_classified_as, t.get_cached_classified_as)
+        elsif TAXON_NAME_RELATIONSHIP_NAMES_INVALID.include?(self.type_name)
+          t = self.subject_taxon_name
+          if self.type_name =~/Misspelling/
+            t.update_column(:cached_misspelling, t.get_cached_misspelling)
+          end
+          t.update_columns(:cached => t.get_full_name_no_html,
+                           :cached_html => t.get_full_name)
+        end
+
+      end
+    rescue
+    end
+    false
+
   end
 
   #endregion
@@ -483,7 +516,7 @@ class TaxonNameRelationship < ActiveRecord::Base
         subj.parent_id = obj.parent_id
         begin
           TaxonName.transaction do
-            self.save
+            subj.save
             return true
           end
         rescue
