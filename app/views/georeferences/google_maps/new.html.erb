@@ -1,5 +1,6 @@
 <h1>New Google Map georeference</h1>
-<p class="instruction"> Draw a shape on the map. Shapes can be edited by clicking the hand tool. Once a shape is drawn the georeference can be created. </p>
+<p class="instruction"> Draw a shape on the map. Shapes can be edited by clicking the hand tool. Once a shape is drawn
+  the georeference can be created. </p>
 <div class="flexbox">
   <div class="item item1">
     <% if !@georeference.collecting_event_id.blank? -%>
@@ -20,8 +21,8 @@
     <div id="google_maps_georeference_widget" data-georeference="<%= @georeference %>"
          data-feature-collection='<%= Gis::GeoJSON.feature_collection(@georeference.collecting_event.georeferences).to_json.html_safe %>'
          data-map-center='<%= @georeference.collecting_event.verbatim_center_coordinates %>'
-        data-map-canvas="map_canvas"
-         >
+         data-map-canvas="map_canvas"
+    >
       <div id="map_canvas" style="width:640px; height:480px;"></div>
     </div>
 
