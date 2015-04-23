@@ -82,6 +82,8 @@ gem 'colored', '~> 1.2'
 gem 'chartkick'
 gem 'groupdate'
 
+gem 'taxonifi'
+
 group :test, :development do
   gem 'faker', '~> 1.4.3'
   gem 'rspec-rails', '~> 3.0'
