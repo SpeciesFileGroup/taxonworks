@@ -1,9 +1,16 @@
 # Concern that provides housekeeping and related methods for models that belong_to a creator and updator
+#
+#  !! https://github.com/ankane/groupdate is now included in TW, and includes many grouping scopes!
+#
 module Housekeeping::Timestamps
   extend ActiveSupport::Concern
 
   module ClassMethods
+
+    # 
     # Scopes
+    #
+    
     def created_this_week
       where(created_at: 1.weeks.ago..Time.now) 
     end
@@ -29,6 +36,8 @@ module Housekeeping::Timestamps
     def updated_in_last(time)
       where(updated_at: time.ago..Time.now)
     end
+  
   end
+
 end
 

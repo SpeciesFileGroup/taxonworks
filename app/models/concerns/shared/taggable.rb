@@ -13,4 +13,10 @@ module Shared::Taggable
     self.tags.any?
   end
 
+  module ClassMethods
+    def tagged_with_keyword(keyword)
+      joins(:tags).where(tags: {keyword: keyword})
+    end
+  end
+
 end

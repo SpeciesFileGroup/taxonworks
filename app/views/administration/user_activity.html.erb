@@ -7,11 +7,21 @@
 <%= link_to 'Back', administration_path() %> 
 
 <div class="flexbox">
+
   <div class="item item1">
-    <h2> By last sign in </h2>
+    <h2> Last 20 logins </h2>
+    <ol>
+      <% User.limit(20).order(current_sign_in_at: :desc).where('current_sign_in_at IS NOT NULL').each do |u| -%>
+        <li> <%=  user_link(u) %> <%= content_tag :span, time_ago_in_words(u.current_sign_in_at) + " ago", class: :subtle -%> </li> 
+      <% end %> 
+    </ol>
+  </div>
+
+  <div class="item item2">
+    <h2> By last sign in</h2>
     <%= line_chart User.group_by_day(:last_sign_in_at).count %>
 
-    <h2> By times signed in </h2>
+    <h2> By times signed in</h2>
     <%= column_chart User.group(:sign_in_count).count, discrete: true %>
   </div>
 </div>

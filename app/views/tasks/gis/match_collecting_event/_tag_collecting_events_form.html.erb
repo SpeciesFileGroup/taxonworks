@@ -4,14 +4,22 @@
       <table border="1">
         <tr>
           <td>
-            <div class="field">
-              <label for="what_keyword">Keyword</label>
-              <input id="what_keyword" name="what_keyword">
-            </div>
-            <%#= tags_search_form %>
+            Keyword 
           </td>
+          <td>
+              <%= render partial: 'workbench/elements/forms/ajax_select',
+                locals:  {controller: '/keywords',
+                          object:     nil,
+                          method:     'keyword_id',
+                          tag_id:     'keyword_term_id_for_collecting_event_filter_form',
+                          size:       '',
+                          display:    ''} %>
+ 
+                      </td>
         </tr>
       </table>
-  <% end %>
-  <div><input type="button" id="submit_tag_ce" value="Find"/></div>
+
+    <div><input type="button" id="submit_tag_ce" value="Find"/></div>
+    <% end %>       <!-- PUT YOUR BUTTON INSIDE THE FORM!!! --> 
+
 </div>
