@@ -38,7 +38,16 @@ TaxonWorks::Application.routes.draw do
     end
   end
 
-  match '/administration', to: 'administration#index', via: 'get'
+  scope :administration, controller: :administration do
+    match '/', to: :index, as: 'administration', via: :get
+    get 'user_activity'
+  end
+
+# namespace :administration do
+#   get 'index'
+#   match '/administration', to: 'user_preferences#favorite_page', via: :post
+# end
+  
 
   resources :project_members, except: [:index, :show]
   resources :pinboard_items, only: [:create, :destroy]

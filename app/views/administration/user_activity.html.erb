@@ -1,0 +1,17 @@
+<%= content_for :head do -%>
+<%= javascript_include_tag "//www.google.com/jsapi", "chartkick" %>
+<% end %>
+
+<h1> Administration - User activity </h1>
+
+<%= link_to 'Back', administration_path() %> 
+
+<div class="flexbox">
+  <div class="item item1">
+    <h2> By last sign in </h2>
+    <%= line_chart User.group_by_day(:last_sign_in_at).count %>
+
+    <h2> By times signed in </h2>
+    <%= column_chart User.group(:sign_in_count).count, discrete: true %>
+  </div>
+</div>

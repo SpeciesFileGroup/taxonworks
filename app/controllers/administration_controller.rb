@@ -3,4 +3,7 @@ class AdministrationController < ApplicationController
 
   def index
   end
+
+  def user_activity
+  end
 end
