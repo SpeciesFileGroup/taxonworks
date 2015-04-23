@@ -119,7 +119,6 @@ describe 'Hub', :type => :feature do
       expect(page).to have_link('b [Otu]')
       expect(page).to have_link('c [Otu]')
       expect(page).to have_link('Otus')
-      #The last line of this test will fail until Matt fixes TW-262
-    end
+     end
   end
 end

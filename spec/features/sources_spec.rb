@@ -137,6 +137,7 @@ describe 'Sources', :type => :feature, :group => :sources do
       expect(find_field('Author').value).to eq('Person, Test')
       expect(find_field('Journal').value).to eq('Journal of Test Articles')
       expect(find_field('Year').value).to eq('1000')
+      expect(page.has_field?('Verbatim')).to be_truthy # bibtex records may have verbatim field
       fill_in('Author', with: 'Wombat, H.P.') # change Author to 'Wombat, H.P.'
       fill_in('Year', with: '1920') # change Year to '1920'
       click_button('Update Source')
@@ -156,14 +157,10 @@ describe 'Sources', :type => :feature, :group => :sources do
       # expect(page.has_checked_field?('source_type_sourceverbatim')).to be_truthy
       
       expect(page.find_field('Verbatim').value).to eq(tmp)
-      # TODO shelved until Matt fixes the coffee script
-      #       expect(find_field('Title').value).to eq('I am a soft valid article')
-      #       expect(find_field('Author').value).to eq('Person, Test')
-      #       expect(find_field('Journal').value).to eq('Journal of Test Articles')
-      #       expect(find_field('Year').value).to eq('1000')
-      #       fill_in('Author', with: 'Wombat, H.P.') # change Author to 'Wombat, H.P.'
-      #       fill_in('Year', with: '1920')  # change Year to '1920'
-      fill_in('Verbatim', with: 'New Verbatim source')
+      expect(page.has_field?('Author')).to be_falsey
+      expect(page.has_field?('Journal')).to be_falsey
+      expect(page.has_field?('Year')).to be_falsey
+       fill_in('Verbatim', with: 'New Verbatim source')
       click_button('Update Source')
       expect(page).to have_content('Source was successfully updated.')
       expect(page).to have_content('New Verbatim source')
