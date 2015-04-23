@@ -1,6 +1,9 @@
 require 'rails_helper'
+include FormHelper
 
 describe 'DataAttributes', :type => :feature do
+  Capybara.default_wait_time = 15  # slows down Capybara enough to see what's happening on the form
+
   let(:index_path) { data_attributes_path }
   let(:page_index_name) { 'Data attributes' }
 
@@ -27,7 +30,7 @@ describe 'DataAttributes', :type => :feature do
     #     it_behaves_like 'a_data_model_with_standard_list'
     #   end
 
-    specify 'add a data attribute' do
+    specify 'add a data attribute', js: true do
 =begin
 with an OTU created
 with a Predicate created
@@ -37,15 +40,31 @@ with a Predicate created
              and I select the Predicate from the ajax selector
              and I enter the value "42"
              when I click "Create Data attribute"
-                 then I get the message "Data attribute successfully created."
+                 then I get the message "Data attribute was successfully created."
                  and I can see the predicate rendered under annotations/data attributes
 
 =end
       # signed in above
       otu = Otu.new(name: 'a', by: @user, project: @project)
-      otu.save!
+      otu.save!  # create otu
 
       # create a predicate (controlled vocabulary term)
+      pred = Predicate.new(by: @user, project: @project)
+      pred.name = 'testPredicate'
+      pred.definition = 'A predicate created for testing data attributes'
+      pred.save!
+
+      visit (otu_path(otu))
+      expect(page).to have_link('Add data attribute')
+      click_link('Add data attribute')
+      fill_autocomplete('controlled_vocabulary_term_id_for_data_attribute',
+                        with: 'testPredicate')
+      fill_in('Value', with: '42')
+      click_button('Create Data attribute')
+      expect(page).to have_content('Data attribute was successfully created.')
+      expect(page).to have_selector('h3', 'Annotations')
+      expect(page).to have_selector('h4', 'Data attributes')
+      expect(page).to have_content('testPredicate: 42')
     end
   end
 end
