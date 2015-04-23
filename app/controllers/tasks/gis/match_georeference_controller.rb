@@ -23,6 +23,8 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
 
   def tagged_collecting_events
     @motion            = 'tagged_collecting_events'
+    # step_1 = Tag.find_for_autocomplete(term: params['what_keyword'])
+    # step_1 = ControlledVocabularyTerm.where('name like %?%', params['what_keyword'])
     @collecting_events = CollectingEvent.where(project_id: $project_id).order(updated_at: :desc).limit(10)
     render_ce_select_json
   end
