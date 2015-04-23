@@ -23,6 +23,11 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
 
   def tagged_collecting_events
     @motion            = 'tagged_collecting_events'
+    # step_1 = Tag.find_for_autocomplete(term: params['what_keyword'])
+    step_1             = ControlledVocabularyTerm.where("type = 'Keyword' and name like \'%#{params['what_keyword']}%\'").pluck(:id)
+    step_2 = Tag.where('tag_object_type = \'CollectingEvent\' and (keyword_id in (?))', step_1).pluck(:tag_object_id).uniq
+    @collecting_events = CollectingEvent.where(project_id: $project_id).order(updated_at: :desc).where('id in (?)', step_2)
+    render_ce_select_json
 
     if params[:keyword_id] 
       keyword = Keyword.find(params[:keyword_id])
@@ -76,7 +81,8 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
   # @return [JSON]
   def render_ce_select_json
     # retval = render_to_html
-    render json: {html: render_to_html} and return
+    retval = render json: {html: render_to_html}
+    retval
   end
 
   # @return [String] of html for partial
