@@ -1,5 +1,5 @@
-<div id="_recent_ce_form" name="_recent_ce_form" hidden="hidden">
-  <%= form_tag(recent_collecting_events_url, {method: 'get', id: 'recent_count'}) do %>
+<div id="_recent_ce_form" name="_recent_ce_form" hidden >
+  <%= form_tag(recent_collecting_events_url, {method: 'get', id: 'recent_count', remote: true}) do %>
       <table border="1">
         <tr>
           <td>
@@ -10,6 +10,6 @@
           </td>
         </tr>
       </table>
-  <% end %>
-  <div><input type="button" id="submit_recent_ce" value="Find"/></div>
+<%= submit_tag('Find') %>
+<% end %>
 </div>

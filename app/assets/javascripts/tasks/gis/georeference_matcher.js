@@ -73,19 +73,30 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
 
             event.preventDefault();
         });
-        $("#submit_recent_ce").click(function (event) {
-           // $('#how_many').val($('#how_many_recent').val());
-            var extra = $('form#recent_count').serialize();
-            $.get('recent_collecting_events', extra, function (local_data) {
-                // what to do with the json we get back....
-                $("#_recent_ce_form").attr("hidden", true);
-                var selecting = $('#_selecting_ce_form');
-                selecting.removeAttr('hidden');
-                selecting.html(local_data['html']);
+
+             $("#recent_count").on("ajax:success", function(e, data, status, xhr) {
+                 $("#_selecting_ce_form").html(xhr.responseJSON['html']);
+                 $("#_recent_ce_form").attr("hidden", true);
+                 var selecting = $('#_selecting_ce_form');
+                 selecting.removeAttr('hidden');
+                 return true;
+             }).on("ajax:error", function(e, xhr, status, error) {
+                 $("#new_article").append("<p>ERROR</p>");
             });
 
-            event.preventDefault();
-        });
+        //$("#submit_recent_ce").click(function (event) {
+        //   // $('#how_many').val($('#how_many_recent').val());
+        //    var extra = $('form#recent_count').serialize();
+        //    $.get('recent_collecting_events', extra, function (local_data) {
+        //        // what to do with the json we get back....
+        //        $("#_recent_ce_form").attr("hidden", true);
+        //        var selecting = $('#_selecting_ce_form');
+        //        selecting.removeAttr('hidden');
+        //        selecting.html(local_data['html']);
+        //    });
+        //
+        //    event.preventDefault();
+        //});
 
         $(".filter-gr").click(function (event) {
 
