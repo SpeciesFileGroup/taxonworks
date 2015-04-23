@@ -531,7 +531,7 @@ describe TaxonName, :type => :model do
           expect(s.soft_validations.messages_on(:name).empty?).to be_falsey
         end
 
-        specify 'valid icn names' do
+        xspecify 'valid icn names' do
           gen = FactoryGirl.create(:icn_genus)
           [ 'aus', 'a-aus', 'aus-aus', 'aus × bus', '× aus' ].each do |name|
             s = FactoryGirl.build_stubbed(:icn_species, parent: gen, name: name )
@@ -544,7 +544,7 @@ describe TaxonName, :type => :model do
           expect(s.soft_validations.messages_on(:name).empty?).to be_falsey
         end
 
-        specify 'unavailable' do
+        xspecify 'unavailable' do
           s = FactoryGirl.create(:relationship_species, parent: @genus, name: 'aus a')
           s.soft_validate(:validate_name)
           expect(s.soft_validations.messages_on(:name).count).to eq(1)
@@ -553,7 +553,8 @@ describe TaxonName, :type => :model do
           s.soft_validate(:validate_name)
           expect(s.soft_validations.messages_on(:name).empty?).to be_truthy
         end
-        specify 'misspelling' do
+
+        xspecify 'misspelling' do
           s = FactoryGirl.create(:relationship_species, parent: @genus, name: 'a a')
           s.soft_validate(:validate_name)
           expect(s.soft_validations.messages_on(:name).count).to eq(1)
@@ -562,6 +563,7 @@ describe TaxonName, :type => :model do
           s.soft_validate(:validate_name)
           expect(s.soft_validations.messages_on(:name).empty?).to be_truthy
         end
+
       end
 
       context 'possible homonyms' do
