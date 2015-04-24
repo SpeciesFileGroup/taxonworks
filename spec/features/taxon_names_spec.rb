@@ -106,18 +106,24 @@ describe 'TaxonNames', :type => :feature do
       click_button('Create Taxon name')
       expect(page).to have_content("Taxon name 'specius' was successfully created.")
       # Note that we're now on the show page for species1 # When I show that species
-      expect(page).to have_content('Cached original combination: specius')
-      # TODO when cached values are correctly updating, the above may need to change to 'Aus specius'
+      expect(page).to have_content('Cached name: Aus specius')
+      expect(page.has_content?('Cached original combination: Aus specius')).to be_falsey
       expect(page).to have_link('Edit original combination')  # There is an 'Edit original combination link'
       click_link('Edit original combination') # When I click that link
       expect(page).to have_content('Editing original combination for Aus specius')
+      fill_autocomplete('subject_taxon_name_id_for_tn_rel_0', with: 'Aus')
+      # Set the original combination for the first time: select 'Aus' for the original genus ajax select
+      click_button('Save changes') # click 'Save changes'
+      expect(page).to have_content('Successfully updated the original combination.') # success msg
+      expect(page).to have_content('Cached original combination: Aus specius')
+
+      click_link('Edit original combination') # When I click that link
       fill_autocomplete('subject_taxon_name_id_for_tn_rel_0', with: 'Bus')
       # select 'Bus' for the original genus ajax select
       click_button('Save changes') # click 'Save changes'
       # I am returned to show for the species in question
       expect(page).to have_content('Successfully updated the original combination.') # success msg
-      # TODO The following test needs to be added back in once the protonym cached values are updating correctly
-      # expect(page).to have_content('Cached original combination: Bus specius')  # show page original genus is changed
+      expect(page).to have_content('Cached original combination: Bus specius')  # show page original genus is changed
     end
     pending "Fix 'edit original combination' to update the cached values" do
       expect(true).to be_falsey
