@@ -7,9 +7,17 @@ module ApplicationEnumeration
 
   # return [Array]
   #   a list symbols that represent of populated, non "cached", non "_id", non reserved attributes
+  def self.alternate_value_attributes(object)
+    if object.class::ALTERNATE_VALUES_FOR.blank?
+      raise("#{object.class} attempted to annotate a class without ALTERNATE_VALUES_FOR -  please inform the programmers")
+    else
+      object.attributes.select{|k,v| !v.blank? && object.class::ALTERNATE_VALUES_FOR.include?(k.to_sym)}.keys.map(&:to_sym)
+    end
+
+  end
   def self.annotatable_attributes(object)
     object.attributes.select{|k,v| !v.blank? && !(k =~ /.*_id\z|cached_*.*/)}.keys.map(&:to_sym) - RESERVED_ATTRIBUTES
-  end 
+  end
 
   # !! See the built in self.descendants for actual inheritance tracking, this is path based.
   # Return all models in the /app/models/#{klass.name} (not necessarily inheriting) as an Array of Classes.

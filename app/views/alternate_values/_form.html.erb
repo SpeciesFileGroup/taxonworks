@@ -7,7 +7,7 @@
       <%= f.label :alternate_value_object_attribute %>
       <br>
       <%= f.select :alternate_value_object_attribute, 
-        options_for_select(ApplicationEnumeration.annotatable_attributes(@alternate_value.alternate_value_object), selected = @alternate_value.alternate_value_object_attribute) -%>
+        options_for_select(ApplicationEnumeration.alternate_value_attributes(@alternate_value.alternate_value_object), selected = @alternate_value.alternate_value_object_attribute) -%>
     </div>
 
     <div class="field">

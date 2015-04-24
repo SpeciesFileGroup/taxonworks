@@ -137,7 +137,8 @@ describe 'Sources', :type => :feature, :group => :sources do
       expect(find_field('Author').value).to eq('Person, Test')
       expect(find_field('Journal').value).to eq('Journal of Test Articles')
       expect(find_field('Year').value).to eq('1000')
-      expect(page.has_field?('Verbatim')).to be_truthy # bibtex records may have verbatim field
+      expect(page.has_field?('Verbatim contents')).to be_truthy
+      expect(page.has_field?('source_verbatim')).to be_falsey
       fill_in('Author', with: 'Wombat, H.P.') # change Author to 'Wombat, H.P.'
       fill_in('Year', with: '1920') # change Year to '1920'
       click_button('Update Source')
@@ -160,7 +161,10 @@ describe 'Sources', :type => :feature, :group => :sources do
       expect(page.has_field?('Author')).to be_falsey
       expect(page.has_field?('Journal')).to be_falsey
       expect(page.has_field?('Year')).to be_falsey
-       fill_in('Verbatim', with: 'New Verbatim source')
+      expect(page.has_field?('Verbatim contents')).to be_falsey
+      expect(page.has_field?('source_verbatim')).to be_truthy
+
+      fill_in('Verbatim', with: 'New Verbatim source')
       click_button('Update Source')
       expect(page).to have_content('Source was successfully updated.')
       expect(page).to have_content('New Verbatim source')
