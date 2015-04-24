@@ -343,6 +343,10 @@ describe TaxonName, :type => :model do
             @subspecies.original_species = @species
             @subspecies.reload
             expect(@subspecies.get_original_combination).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitis vitata</em>')
+            @subspecies.original_variety = @subspecies
+            @subspecies.reload
+            expect(@subspecies.get_original_combination).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitis</em> var. <em>vitata</em>')
+
             expect(@subgenus.get_original_combination).to eq('<em>Erythroneura</em>')
             @subgenus.original_genus = @genus
             @subgenus.reload
