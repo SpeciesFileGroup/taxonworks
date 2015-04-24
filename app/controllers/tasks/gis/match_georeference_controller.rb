@@ -67,7 +67,7 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
   def drawn_georeferences
     @motion            = 'drawn_georeferences'
     @collecting_events = [] # replace [] with CollectingEvent.filter(params)
-    render_ce_select_json
+    render_cr_select_json
   end
 
   def batch_create
@@ -83,6 +83,10 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
     # retval = render_to_html
     retval = render json: {html: render_to_html}
     retval
+  end
+
+  def render_gr_select_json
+    render json: {html: render_to_html}   # not really, render geojson feature collection
   end
 
   # @return [String] of html for partial

@@ -63,14 +63,16 @@
       <%= link_to_georeference_match_type('draw', 'gr') %> |
       <%= link_to_georeference_match_type('recent', 'gr') %>
 
-      <br>-------_filter_gr_form------------------
+      <br>--------_filter_gr_form------------------
       <%= render(partial: 'filter_georeferences_form') %>
-      <br>---------_tag_gr_form---------------
+      <br>-----------_tag_gr_form---------------
       <%= render(partial: 'tag_georeferences_form') %>
-      <br>-------_draw_gr_form--------------
+      <br>----------_draw_gr_form--------------
       <%= render(partial: 'draw_georeferences_form') %>
       <br>----------_recent_gr_form-------------
       <%= render(partial: 'recent_georeferences_form') %>
+      <br>----------_show_gr_form---------------
+      <%= render(partial: 'georeferences_selections_form') %>
       <br>--------------------------------------
 
     </div>

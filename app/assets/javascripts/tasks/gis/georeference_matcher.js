@@ -74,8 +74,8 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
             event.preventDefault();
         });
 
-             $("#recent_count").on("ajax:success", function(e, data, status, xhr) {
-                 $("#_selecting_ce_form").html(xhr.responseJSON['html']);
+             $("#recent_count").on("ajax:success", function(e, data, status, local_data) {
+                 $("#_selecting_ce_form").html(local_data.responseJSON['html']);
                  $("#_recent_ce_form").attr("hidden", true);
                  var selecting = $('#_selecting_ce_form');
                  selecting.removeAttr('hidden');
