@@ -171,7 +171,7 @@ class TaxonNameRelationship < ActiveRecord::Base
 
   def validate_subject_and_object_are_not_identical
     if self.object_taxon_name_id == self.subject_taxon_name_id
-      errors.add(:object_taxon_name_id, 'Taxon should not refer to itself')
+      errors.add(:object_taxon_name_id, 'Taxon should not refer to itself') unless self.type =~ /OriginalCombination/
     end
   end
 

@@ -1,6 +1,7 @@
 require 'rails_helper'
 
 describe Protonym, :type => :model do
+
   let(:protonym) { Protonym.new }
 
   before(:all) do
@@ -482,27 +483,25 @@ describe Protonym, :type => :model do
       end
 
       ### This could be obsolete since the the author and year may come from publication.
-=begin
-      specify 'fix author and year from the source' do
-        @source.update(year: 1758, author: 'Linnaeus, C.')
-        @source.save
-        
-        @kingdom.source = @source
-
-        @kingdom.soft_validate(:missing_fields)
-        expect(@kingdom.soft_validations.messages_on(:verbatim_author).empty?).to be_falsey
-        expect(@kingdom.soft_validations.messages_on(:year_of_publication).empty?).to be_falsey
-
-        @kingdom.fix_soft_validations  # get author and year from the source
-        
-        @kingdom.soft_validate(:missing_fields)
-        expect(@kingdom.soft_validations.messages_on(:verbatim_author).empty?).to be_truthy
-        expect(@kingdom.soft_validations.messages_on(:year_of_publication).empty?).to be_truthy
-        expect(@kingdom.author_string).to eq('Linnaeus') 
-        
-        expect(@kingdom.year_of_publication).to eq(1758)
-      end
-=end
+#      specify 'fix author and year from the source' do
+#        @source.update(year: 1758, author: 'Linnaeus, C.')
+#        @source.save
+#
+#        @kingdom.source = @source
+#
+#        @kingdom.soft_validate(:missing_fields)
+#        expect(@kingdom.soft_validations.messages_on(:verbatim_author).empty?).to be_falsey
+#        expect(@kingdom.soft_validations.messages_on(:year_of_publication).empty?).to be_falsey
+#
+#        @kingdom.fix_soft_validations  # get author and year from the source
+#
+#        @kingdom.soft_validate(:missing_fields)
+#        expect(@kingdom.soft_validations.messages_on(:verbatim_author).empty?).to be_truthy
+#        expect(@kingdom.soft_validations.messages_on(:year_of_publication).empty?).to be_truthy
+#        expect(@kingdom.author_string).to eq('Linnaeus')
+#
+#        expect(@kingdom.year_of_publication).to eq(1758)
+#      end
 
     end
 
@@ -911,6 +910,26 @@ describe Protonym, :type => :model do
         g3.soft_validate(:missing_relationships)
         expect(g3.soft_validations.messages_on(:base).empty?).to be_truthy
       end
+      specify 'missing original combination relationships to self' do
+        g = FactoryGirl.create(:relationship_genus)
+        s1 = FactoryGirl.create(:relationship_species, parent: g)
+        s2 = FactoryGirl.create(:relationship_species, parent: g)
+        s1.soft_validate(:original_combination_relationships)
+        expect(s1.soft_validations.messages_on(:base).empty?).to be_truthy
+        TaxonNameRelationship.create(subject_taxon_name: g, object_taxon_name: s1, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
+        s1.reload
+        s1.soft_validate(:original_combination_relationships)
+        expect(s1.soft_validations.messages_on(:base).size).to eq(1) # relationship to self is not selected
+        r = TaxonNameRelationship.create(subject_taxon_name: s1, object_taxon_name: s1, type: 'TaxonNameRelationship::OriginalCombination::OriginalSpecies')
+        s1.reload
+        s1.soft_validate(:original_combination_relationships)
+        expect(s1.soft_validations.messages_on(:base).empty?).to be_truthy
+        TaxonNameRelationship.create(subject_taxon_name: s2, object_taxon_name: s1, type: 'TaxonNameRelationship::OriginalCombination::OriginalVariety')
+        s1.reload
+        s1.soft_validate(:original_combination_relationships)
+       expect(s1.soft_validations.messages_on(:base).size).to eq(1) # relationship is not selected at the lowest nomenclatural rank
+      end
+
     end
     context 'fossils' do
       skip 'validate that the extant species does not have extinct parent'
@@ -931,9 +950,9 @@ describe Protonym, :type => :model do
       TaxonName.delete_all
     }
 
-    before(:each) {
-      TaxonNameRelationship.delete_all
-    }
+#    before(:each) {
+#      TaxonNameRelationship.delete_all
+#    }
 
     specify 'named' do
       expect(Protonym.named('vitis').count).to eq(1)
@@ -971,7 +990,7 @@ describe Protonym, :type => :model do
     end
 
     context 'relationships' do
-      before(:each) do
+      before(:all) do
         @s.original_genus = @g   # @g 'TaxonNameRelationship::OriginalCombination::OriginalGenus' @s
         @s.save
         @s.reload
@@ -1049,8 +1068,8 @@ describe Protonym, :type => :model do
 
     context 'classifications' do
       before(:all) do
-        FactoryGirl.create(:taxon_name_classification, type_class: TaxonNameClassification::Iczn::Available, taxon_name: @s)
-        FactoryGirl.create(:taxon_name_classification, type_class: TaxonNameClassification::Iczn::Available::Valid, taxon_name: @g )
+        FactoryGirl.create(:taxon_name_classification, type: 'TaxonNameClassification::Iczn::Available', taxon_name: @s)
+        FactoryGirl.create(:taxon_name_classification, type: 'TaxonNameClassification::Iczn::Available::Valid', taxon_name: @g )
       end
 
       after(:all) do

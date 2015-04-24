@@ -107,13 +107,6 @@ class Protonym < TaxonName
     where("taxon_names.id NOT IN (SELECT subject_taxon_name_id FROM taxon_name_relationships WHERE type LIKE 'TaxonNameRelationship::Iczn::Invalidating%' OR type LIKE 'TaxonNameRelationship::Icn::Unaccepting%')")
   }
 
-  validate :name_is_latinized
-
-  def name_is_latinized
-    if name =~ /[^a-zA-Z|\-]/
-      errors.add(:name, 'must be latinized, no digits or spaces allowed')
-    end
-  end
 
   soft_validate(:sv_validate_parent_rank, set: :validate_parent_rank)
   soft_validate(:sv_missing_relationships, set: :missing_relationships)
@@ -127,7 +120,7 @@ class Protonym < TaxonName
   soft_validate(:sv_homotypic_synonyms, set: :homotypic_synonyms)
   soft_validate(:sv_potential_homonyms, set: :potential_homonyms)
   soft_validate(:sv_source_not_older_then_description, set: :dates)
-  soft_validate(:sv_missing_current_combination, set: :missing_combination)
+  soft_validate(:sv_original_combination_relationships, set: :original_combination_relationships)
 
   before_validation :check_format_of_name,
     :validate_rank_class_class,
@@ -135,7 +128,8 @@ class Protonym < TaxonName
     :check_new_rank_class,
     :check_new_parent_class,
     :validate_source_type,
-    :new_parent_taxon_name
+    :new_parent_taxon_name,
+    :name_is_latinized
 
   # @return [Array of Strings]
   #   genera where the species was placed
@@ -257,7 +251,7 @@ class Protonym < TaxonName
       new_relations.push( r.new(object_taxon_name: self) ) if !created_already.include?(r)
     end
 
-    (new_relations + defined_relations).sort{|a,b| 
+    (new_relations + defined_relations).sort{|a,b|
       display_order.index(a.class.inverse_assignment_method) <=> display_order.index(b.class.inverse_assignment_method) 
     }
   end
@@ -272,6 +266,12 @@ class Protonym < TaxonName
       if self.parent != r.object_taxon_name
         errors.add(:parent_id, "Taxon has a relationship 'incertae sedis' - delete the relationship before changing the parent")
       end
+    end
+  end
+
+  def name_is_latinized
+    if name =~ /[^a-zA-Z|\-]/
+      errors.add(:name, 'must be latinized, no digits or spaces allowed')
     end
   end
 
@@ -297,7 +297,7 @@ class Protonym < TaxonName
 
   def sv_missing_relationships
     if SPECIES_RANK_NAMES.include?(self.rank_class.to_s)
-      soft_validations.add(:base, 'Original genus is missing') if self.original_genus.nil?
+      soft_validations.add(:base, 'Original genus is not selected') if self.original_genus.nil?
     elsif GENUS_RANK_NAMES.include?(self.rank_class.to_s)
       soft_validations.add(:base, 'Type species is not selected') if self.type_species.nil?
     elsif FAMILY_RANK_NAMES.include?(self.rank_class.to_s)
@@ -701,9 +701,20 @@ class Protonym < TaxonName
     end
   end
 
-  def sv_missing_current_combination
+  def sv_original_combination_relationships
 
+    relationships = self.original_combination_relationships
 
+    unless relationships.empty?
+      relationships = relationships.sort_by{|r| r.type_class.order_index }
+      ids = relationships.collect{|r| r.subject_taxon_name_id}
+
+      if !ids.include?(self.id)
+        soft_validations.add(:base, 'Original relationship to self is not specified')
+      elsif ids.last != self.id
+        soft_validations.add(:base, 'Original relationship to self should be selected at lowest nomeclatural rank of the original relationships')
+      end
+    end
   end
 
   def set_cached_names

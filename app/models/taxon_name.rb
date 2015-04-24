@@ -755,17 +755,21 @@ class TaxonName < ActiveRecord::Base
             species += 'subvar. <em>' + i.subject_taxon_name.name_with_misspelling(gender) + '</em> '
           when 'original form' 
             species += 'f. <em>' + i.subject_taxon_name.name_with_misspelling(gender) + '</em> '
+          when 'original subform'
+            species += 'subf. <em>' + i.subject_taxon_name.name_with_misspelling(gender) + '</em> '
         end
       end
-      if self.rank_string =~ /Genus/
-        if genus.blank?
-          genus += '<em>' + self.name_with_misspelling(nil) + '</em> '
-        else
-          subgenus += '<em>' + self.name_with_misspelling(nil) + '</em> '
+      if relationships.collect{|i| i.subject_taxon_name_id}.last != self.id
+        if self.rank_string =~ /Genus/
+          if genus.blank?
+            genus += '<em>' + self.name_with_misspelling(nil) + '</em> '
+          else
+            subgenus += '<em>' + self.name_with_misspelling(nil) + '</em> '
+          end
+        elsif self.rank_string =~ /Species/
+          species += '<em>' + self.name_with_misspelling(nil) + '</em> '
+          genus   = '<em>' + self.ancestor_at_rank('genus').name_with_misspelling(nil) + '</em> ' if genus.empty? && !self.ancestor_at_rank('genus').nil?
         end
-      elsif self.rank_string =~ /Species/
-        species += '<em>' + self.name_with_misspelling(nil) + '</em> '
-        genus   = '<em>' + self.ancestor_at_rank('genus').name_with_misspelling(nil) + '</em> ' if genus.empty? && !self.ancestor_at_rank('genus').nil?
       end
       subgenus    = '(' + subgenus.squish + ') ' unless subgenus.empty?
       cached_html = (genus + subgenus + superspecies + species).squish.gsub('</em> <em>', ' ')

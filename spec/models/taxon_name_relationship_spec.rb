@@ -473,17 +473,21 @@ describe TaxonNameRelationship, :type => :model do
       end
 
       specify 'secondary homonyms missing combination' do
-        g1 = FactoryGirl.create(:relationship_genus, name: 'Aus', parent: @family)
+        f = FactoryGirl.create(:relationship_family)
+        g1 = FactoryGirl.create(:relationship_genus, name: 'Aus', parent: f)
+        g2 = FactoryGirl.create(:relationship_genus, name: 'Bus', parent: f)
         s1 = FactoryGirl.create(:relationship_species, parent: g1)
-      
+        s2 = FactoryGirl.create(:relationship_species, parent: g2)
+
         expect(s1.all_generic_placements).to eq([s1.ancestor_at_rank('genus').name])
 
-        r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: @species, type: 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary::Secondary1961')
+        r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary::Secondary1961')
         r1.soft_validate('specific_relationship')
         expect(r1.soft_validations.messages_on(:base).size).to eq(1)
 
+        c = Combination.new(genus: g2, species: s1)
 
-        c = Combination.new(genus: @genus, species: s1)
+        expect(c.valid?).to be_truthy
         expect(c.save).to be_truthy
         s1.reload
         @species.save
@@ -707,9 +711,10 @@ describe TaxonNameRelationship, :type => :model do
   end
 
   context 'usage' do
-    specify 'can be created through assignment by reference to named through relationship' do 
-      s = FactoryGirl.create(:relationship_species, parent: @genus)
-      s.original_genus = @genus
+    specify 'can be created through assignment by reference to named through relationship' do
+      g = FactoryGirl.create(:relationship_genus)
+      s = FactoryGirl.create(:relationship_species, parent: g)
+      s.original_genus = g
       expect(s.save).to be_truthy
       s.reload
       expect(s.all_taxon_name_relationships.count).to be > 0
