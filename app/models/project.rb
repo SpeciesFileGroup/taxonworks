@@ -129,6 +129,9 @@ class Project < ActiveRecord::Base
     relationships.sort
   end
 
+  def root_taxon_name
+    self.taxon_names.first.root
+  end
 
   protected
 

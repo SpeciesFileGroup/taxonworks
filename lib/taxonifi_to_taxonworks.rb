@@ -1,6 +1,5 @@
 require 'taxonifi'
 
-
 # 
 # Batch loading of otherwise undocumented names
 # Nomenclature code is taken from the parent name if provided
@@ -38,12 +37,14 @@ module TaxonifiToTaxonworks
     # The names that were not added in a :warn run
     attr_accessor :names_not_added
 
-    def initialize(project: nil, user: nil, import_level: :warn, data: nil, parent_taxon_name: nil)
+    def initialize(project: nil, user: nil, import_level: :warn, data: nil, parent_taxon_name: nil, nomenclature_code: nil)
       @project = project
       @user = user
       @parent_taxon_name = parent_taxon_name
       @import_level = import_level
       @data = data
+
+      @nomenclature_code = nomenclature_code
 
       @names_added = []
       @names_not_added = []
@@ -55,7 +56,7 @@ module TaxonifiToTaxonworks
     end
 
     def data=(value)
-      raise TaxonifiToTaxonworks::ParamError, 'not legal CSV' if value.class != String 
+      raise TaxonifiToTaxonworks::ParamError, 'not legal input' if value.class != String 
       @data = value
       csv
       @data 
@@ -79,21 +80,24 @@ module TaxonifiToTaxonworks
 
     def build_name_collection
       return false if @data.nil? || @csv.nil? 
-      @name_collection = Taxonifi::Lumper.create_name_collection(csv: csv)
+      @name_collection ||= Taxonifi::Lumper.create_name_collection(csv: csv)
     end
-
 
     def build_protonyms
       return false unless valid?
 
       parents = {}
 
+      csv
+      build_name_collection 
+
       @name_collection.collection.each do |n|
         p = Protonym.new(
           name: n.name,
           verbatim_author: n.author,
           year_of_publication: n.year,
-          rank_class: Ranks.lookup(@nomenclature_code, n.rank)
+          rank_class: Ranks.lookup(@nomenclature_code, n.rank),
+          by: @user
         )
         
         if n.parent.nil?
@@ -110,24 +114,27 @@ module TaxonifiToTaxonworks
           @names_not_added.push(p)
         end
       end
-    end
 
+      true 
+    end
   end
 
-  # Pass a CSV.parsed file 
-  def self.build_name_collection(csv)
+
+  def self.preview(file)
+    [] 
+  end
+
+  # Intent is a form set of params
+  def self.create(params)
+
     begin
-      nc = 1
+      a = TaxonifiToTaxonworks::Import.new(params)
+      a.build_name_collection 
+      a.build_protonyms
     rescue
+      raise
     end
-  end
-
-  def self.create_from_scratch(taxonifi_result)
-    parent
-  end
-
-  def self.create_attached_to_parent(parent, taxonifi_result)
-
+    a.names_added
   end
 
 

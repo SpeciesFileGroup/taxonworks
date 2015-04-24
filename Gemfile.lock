@@ -323,7 +323,7 @@ GEM
     timeliness (0.3.7)
     timers (4.0.1)
       hitimes
-    tins (1.4.2)
+    tins (1.5.1)
     treetop (1.4.15)
       polyglot
       polyglot (>= 0.3.1)

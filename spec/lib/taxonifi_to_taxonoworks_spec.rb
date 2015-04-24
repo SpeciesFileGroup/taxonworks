@@ -139,8 +139,6 @@ describe TaxonifiToTaxonworks, type: :model do
         end
       end
 
-        
-
 
     end
   end

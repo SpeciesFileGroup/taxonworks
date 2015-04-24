@@ -196,12 +196,18 @@ TaxonWorks::Application.routes.draw do
   resources :tags, except: [:edit, :show] do
     concerns [:data_routes]
   end
+  
   resources :taxon_determinations do
     concerns [:data_routes]
   end
 
   resources :taxon_names do
     concerns [:data_routes]
+
+    collection do
+      post :preview_simple_batch_load # should be get
+      post :create_simple_batch_load
+    end
   end
 
   # resources :taxon_name_classifications, only: [:new, :create, :update, :destroy]

@@ -100,6 +100,44 @@ class TaxonNamesController < ApplicationController
     send_data ControlledVocabularyTerm.generate_download( TaxonName.where(project_id: $project_id) ), type: 'text', filename: "taxon_names_#{DateTime.now.to_s}.csv"
   end
 
+
+  def batch_load
+  end
+
+  def preview_simple_batch_load 
+    @taxon_name_preview  = TaxonifiToTaxonworks.preview(params[:file].tempfile)
+    @taxon_names = []
+    sha256 = Digest::SHA256.file(params[:file].tempfile)
+    cookies[:batch_simple_taxon_names_md5] = sha256.hexdigest
+    render 'taxon_names/batch_load/batch_preview'
+  end
+
+  def create_simple_batch_load
+    sha256 = Digest::SHA256.file(params[:file].tempfile)
+    if cookies[:batch_simple_taxon_names_md5] == sha256.hexdigest
+      project = Project.find($project_id) 
+   
+     # change to params/require/permit 
+      if @taxon_names = TaxonifiToTaxonworks.create(
+          data: params[:file].tempfile.read,
+          parent_taxon_name: project.root_taxon_name,
+          nomenclature_code: :iczn, 
+          project: project,
+          user: @sessions_current_user
+      )
+        flash[:notice] = "Successfully batch created #{@taxon_names.count} sources."
+      else
+        flash[:notice] = 'Failed to create the sources.'
+      end
+    else
+      flash[:notice] = 'Batch upload must be previewed before it can be created.'
+    end
+    redirect_to taxon_names_path
+  end
+
+
+
+
   private
   # Use callbacks to share common setup or constraints between actions.
   def set_taxon_name
