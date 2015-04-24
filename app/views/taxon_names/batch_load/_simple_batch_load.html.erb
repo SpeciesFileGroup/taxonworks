@@ -1,0 +1,31 @@
+<div>
+  <h2> Simple batchload </h2>
+  <div class="flexbox">
+    <div class="item item1 one_third_width">
+      <h3> Description and requirements </h3> 
+      <p> Creates a hierarchy of taxon names, automatically finding unique enteries. Synonym is not handled.  <em> A text file with unix line endings is required.</em>  </p> 
+    </div>
+
+    <div class="item item2">
+      <h3> Example file </h3> 
+      <p> A tab delimited formatted file, with any number of taxonomic rank headers, and optional author, year columns. In the example whitespace is a tab. </p>
+
+      <pre class="fixed_width_font">
+        family genus species author year
+        Aidae Aus bus Smith 1920
+        Aidae Aus cus Jones 1930
+        Bidae Bus eus Franklin 1934
+      </pre>
+    </div>
+
+    <div class="item item3">
+      <h3> Go! </h3> 
+
+      <%= form_tag preview_simple_batch_load_taxon_names_path, multipart: true do -%>
+        Select a file <%= file_field_tag :file -%> 
+
+        <%= submit_tag 'preview' -%> 
+    <% end %>  
+  </div>
+</div>
+
