@@ -124,7 +124,7 @@ describe 'Sources', :type => :feature, :group => :sources do
 
       fill_autocomplete('source_id_for_quick_search_form', with: @src_bibtex.title)
       click_button('Show')
-      expect(page).to have_content('Person, T. (1000) I am a soft valid article. Journal of Test Articles.')
+      expect(page).to have_content('Person, T. (1700) I am a soft valid article. Journal of Test Articles.')
       expect(page).to have_link('Edit')
       click_link('Edit')
      
@@ -136,7 +136,7 @@ describe 'Sources', :type => :feature, :group => :sources do
       expect(find_field('Title').value).to eq('I am a soft valid article')
       expect(find_field('Author').value).to eq('Person, Test')
       expect(find_field('Journal').value).to eq('Journal of Test Articles')
-      expect(find_field('Year').value).to eq('1000')
+      expect(find_field('Year').value).to eq('1700')
       expect(page.has_field?('Verbatim contents')).to be_truthy
       expect(page.has_field?('source_verbatim')).to be_falsey
       fill_in('Author', with: 'Wombat, H.P.') # change Author to 'Wombat, H.P.'

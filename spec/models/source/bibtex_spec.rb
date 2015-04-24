@@ -517,7 +517,7 @@ describe Source::Bibtex, type: :model, group: :sources do
         end
 
         specify 'which equals...(currently failing due to problems with citeproc)' do
-          expect(l_src.cached).to eq('Person, T. (1000) I am a soft valid article. Journal of Test Articles.')
+          expect(l_src.cached).to eq('Person, T. (1700) I am a soft valid article. Journal of Test Articles.')
         end
 
         specify 'cached author should be set' do
