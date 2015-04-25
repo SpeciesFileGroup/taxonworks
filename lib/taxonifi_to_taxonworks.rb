@@ -80,7 +80,7 @@ module TaxonifiToTaxonworks
 
     def build_name_collection
       return false if @data.nil? || @csv.nil? 
-      @name_collection ||= Taxonifi::Lumper.create_name_collection(csv: csv)
+      @name_collection ||= ::Taxonifi::Lumper.create_name_collection(csv: csv)
     end
 
     def build_protonyms
