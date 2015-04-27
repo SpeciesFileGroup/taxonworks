@@ -1,16 +1,15 @@
-<div id="_recent_gr_form" name="_recent_gr_form" hidden="hidden">
-  <%= form_for(@georeference) do |f| %>
+<div id="_recent_gr_form" name="_recent_gr_form" hidden=>
+  <%= form_tag(recent_georeferences_url, {method: 'get', id: 'recent_gr_count', remote: true}) do %>
       <table border="1">
         <tr>
-          <div class="field">
-            <td><%= f.label 'return' %></td>
-            <td><%= f.text_field :error_depth, size: 5 %></td>
-            <td>most recent</td>
-          </div>
+          <td>
+            <div class="field">
+              <label for="how_many">Return</label>
+              <input id="how_many" size="5" name="how_many"/>most recent
+            </div>
+          </td>
         </tr>
       </table>
-  <% end %>
-  <%= form_tag(recent_georeferences_path, method: 'get') do %>
-      <div><%= submit_tag('Find') %></div>
+      <%= submit_tag('Find') %>
   <% end %>
 </div>

@@ -28,10 +28,10 @@ module TagsHelper
 
   def link_to_add_tag(link_text, f)
     new_object = f.object.class.reflect_on_association(:tags).klass.new(
-        {tag_object_type: f.object.class.base_class.name,
-         tag_object_id: f.object.id,
-         tag_object_attribute: 'name'})
-    fields = f.fields_for(:tags, new_object, :child_index => 'new_tags') do |builder|
+      {tag_object_type:      f.object.class.base_class.name,
+       tag_object_id:        f.object.id,
+       tag_object_attribute: 'name'})
+    fields     = f.fields_for(:tags, new_object, :child_index => 'new_tags') do |builder|
       render('tags/tag_fields', :avf => builder)
     end
     link_to(link_text, '', class: 'tag-add', association: 'tags', content: "#{fields}")
@@ -39,9 +39,9 @@ module TagsHelper
 
   def add_tag_link(object: object, attribute: nil)
     link_to('Add tag', new_tag_path(tag: {
-                                        tag_object_type: object.class.base_class.name,
-                                        tag_object_id: object.id,
-                                        tag_object_attribute: attribute})) if object.has_tags?
+                                      tag_object_type:      object.class.base_class.name,
+                                      tag_object_id:        object.id,
+                                      tag_object_attribute: attribute})) if object.has_tags?
   end
 
   def edit_tag_link(tag)
