@@ -13,6 +13,17 @@ class Protonym < TaxonName
 
   alias_method :original_combination_source, :source
 
+  validate :check_format_of_name,
+    :validate_rank_class_class,
+    :validate_parent_rank_is_higher,
+    :check_new_rank_class,
+    :check_new_parent_class,
+    :validate_source_type,
+    :new_parent_taxon_name,
+    :name_is_latinized
+
+  after_create :create_otu,  if: 'self.also_create_otu'
+
   has_one :type_taxon_name_relationship, -> {
     where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Typification::%'")
   }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
@@ -107,7 +118,6 @@ class Protonym < TaxonName
     where("taxon_names.id NOT IN (SELECT subject_taxon_name_id FROM taxon_name_relationships WHERE type LIKE 'TaxonNameRelationship::Iczn::Invalidating%' OR type LIKE 'TaxonNameRelationship::Icn::Unaccepting%')")
   }
 
-
   soft_validate(:sv_validate_parent_rank, set: :validate_parent_rank)
   soft_validate(:sv_missing_relationships, set: :missing_relationships)
   soft_validate(:sv_missing_classifications, set: :missing_classifications)
@@ -121,15 +131,6 @@ class Protonym < TaxonName
   soft_validate(:sv_potential_homonyms, set: :potential_homonyms)
   soft_validate(:sv_source_not_older_then_description, set: :dates)
   soft_validate(:sv_original_combination_relationships, set: :original_combination_relationships)
-
-  before_validation :check_format_of_name,
-    :validate_rank_class_class,
-    :validate_parent_rank_is_higher,
-    :check_new_rank_class,
-    :check_new_parent_class,
-    :validate_source_type,
-    :new_parent_taxon_name,
-    :name_is_latinized
 
   # @return [Array of Strings]
   #   genera where the species was placed
@@ -257,6 +258,10 @@ class Protonym < TaxonName
   end
 
   protected
+
+  def create_otu
+    Otu.create(by: self.creator, project: self.project, taxon_name_id: self.id)
+  end
 
   #region Validation
 
