@@ -1,15 +1,15 @@
-<div id="_tag_gr_form" name="_tag_gr_form" hidden="hidden">
-  <%= form_tag(tagged_georeferences_path, method: 'get') do %>
-      Find georeferences tagged with
-      <table border="1">
-        <tr>
-          <td>Keyword</td>
-          <td><label for="what_keyword"></label><input id="what_keyword"></td>
-        </tr>
-      </table>
-      <div><%= submit_tag('Find') %></div>
-  <% end %>
-</div>
+<!--<div id="_tag_gr_form" name="_tag_gr_form" hidden="hidden">-->
+  <!--<%#= form_tag(tagged_georeferences_path, method: 'get') do %>-->
+      <!--Find georeferences tagged with-->
+      <!--<table border="1">-->
+        <!--<tr>-->
+          <!--<td>Keyword</td>-->
+          <!--<td><label for="what_keyword"></label><input id="what_keyword"></td>-->
+        <!--</tr>-->
+      <!--</table>-->
+      <!--<div><%#= submit_tag('Find') %></div>-->
+  <!--<%# end %>-->
+<!--</div>-->
 
 <div id="tag_gr_form" hidden>
   <%= form_tag(tagged_georeferences_url, {method: 'get', id: 'tagged_gr_keyword'}) do %>
