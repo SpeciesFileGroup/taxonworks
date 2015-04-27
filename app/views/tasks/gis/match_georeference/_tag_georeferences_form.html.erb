@@ -3,7 +3,7 @@
       Find georeferences tagged with
       <table border="1">
         <tr>
-          <td>Keyword </td>
+          <td>Keyword</td>
           <td><label for="what_keyword"></label><input id="what_keyword"></td>
         </tr>
       </table>
@@ -12,5 +12,24 @@
 </div>
 
 <div id="tag_gr_form" hidden>
-  <%=	 form_tag(tagged_georeferences_url, {method: 'get', id: 'tagged_gr_keyword'}) %>
+  <%= form_tag(tagged_georeferences_url, {method: 'get', id: 'tagged_gr_keyword'}) do %>
+      Find georeferences tagged with
+      <table border="1">
+        <tr>
+          <td>
+            Keyword
+          </td>
+          <td>
+            <%= render partial: 'workbench/elements/forms/ajax_select',
+                       locals:  {controller: '/keywords',
+                                 object:     nil,
+                                 method:     'keyword_id',
+                                 tag_id:     'keyword_term_id_for_georeference_tagging_form',
+                                 size:       '',
+                                 display:    ''} %>
+          </td>
+        </tr>
+      </table>
+      <div><input type="button" id="submit_tag_ce" value="Find"/></div>
+  <% end %>
 </div>

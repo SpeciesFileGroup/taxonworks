@@ -34,7 +34,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
         });
         $("#submit_tag_ce").click(function (event) {
             //$('#how_many').val($('#how_many_recent').val());
-            var extra = $('form#tagged_keyword').serialize();
+            var extra = $('form#tagged_ce_keyword').serialize();
             $.get('tagged_collecting_events', extra, function (local_data) {
                 // what to do with the json we get back....
                 $("#_tag_ce_form").attr("hidden", true);
