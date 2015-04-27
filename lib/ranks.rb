@@ -11,6 +11,7 @@ module Ranks
   # Returns a String representing the name of the NomenclaturalRank class
   #   Ranks::lookup(:iczn, 'superfamily')   # => 'NomenclaturalRank::Iczn::FamilyGroup::Superfamily'
   def self.lookup(code, rank)
+    rank = rank.to_s
     raise if ![:iczn, :icn].include?(code)
     r = rank.downcase
     case code
