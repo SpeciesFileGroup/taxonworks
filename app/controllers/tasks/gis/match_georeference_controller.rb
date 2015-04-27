@@ -61,13 +61,13 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
 
   def tagged_georeferences
     @motion            = 'tagged_georeferences'
-    @collecting_events = [] # replace [] with CollectingEvent.filter(params)
+    @georeferences = [] # replace [] with CollectingEvent.filter(params)
     render_ce_select_json
   end
 
   def drawn_georeferences
     @motion            = 'drawn_georeferences'
-    @collecting_events = [] # replace [] with CollectingEvent.filter(params)
+    @georeferences = [] # replace [] with CollectingEvent.filter(params)
     render_gr_select_json
   end
 
@@ -79,13 +79,14 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
 
   end
 
-  # @return [JSON]
+  # @return [JSON] with html for collecting events display (table of selectable collecting events)
   def render_ce_select_json
     # retval = render_to_html
     retval = render json: {html: ce_render_to_html}
     retval
   end
 
+  # @return [JSON] with html for georeferences display (feature collection)
   def render_gr_select_json
     retval = render json: {html: gr_render_to_html}
     retval
