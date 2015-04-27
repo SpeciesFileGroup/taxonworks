@@ -82,7 +82,7 @@ gem 'colored', '~> 1.2'
 gem 'chartkick'
 gem 'groupdate'
 
-gem 'taxonifi', '~> 0.3.2'
+gem 'taxonifi', '~> 0.3.3'
 
 group :test, :development do
   gem 'faker', '~> 1.4.3'

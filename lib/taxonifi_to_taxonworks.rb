@@ -1,5 +1,3 @@
-require 'taxonifi'
-
 # 
 # Batch loading of otherwise undocumented names
 # Nomenclature code is taken from the parent name if provided
