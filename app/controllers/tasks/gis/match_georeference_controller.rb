@@ -5,6 +5,7 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
     @collecting_event  = CollectingEvent.new
     @georeference      = Georeference.new
     @collecting_events = CollectingEvent.where(verbatim_label: 'nothing')
+    @georeferences     = Georeference.where(type: 'bologna')
   end
 
   # NOT TESTED, but something like 
@@ -87,6 +88,7 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
 
   def render_gr_select_json
     retval = render json: {html: gr_render_to_html}
+    retval
   end
 
   # @return [String] of html for partial
@@ -98,7 +100,7 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
 
   # @return [String] of html for partial
   def gr_render_to_html
-    render_to_string(partial: 'tasks/gis/match_georeference/show_select_georeferences_form',
+    render_to_string(partial: 'tasks/gis/match_georeference/georeferences_selections_form',
                      locals:  {georeferences: @georeferences,
                                motion:        @motion})
   end

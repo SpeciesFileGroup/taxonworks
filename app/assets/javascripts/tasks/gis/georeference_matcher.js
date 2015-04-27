@@ -74,7 +74,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
             event.preventDefault();
         });
 
-        $("#recent_count").on("ajax:success", function (e, data, status, local_data) {
+        $("#recent_ce_count").on("ajax:success", function (e, data, status, local_data) {
             $("#_selecting_ce_form").html(local_data.responseJSON['html']);
             $("#_recent_ce_form").attr("hidden", true);
             var selecting = $('#_selecting_ce_form');
@@ -86,8 +86,8 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
 
         //$("#submit_recent_ce").click(function (event) {
         //   // $('#how_many').val($('#how_many_recent').val());
-        //    var extra = $('form#recent_count').serialize();
-        //    $.get('recent_collecting_events', extra, function (local_data) {
+        //    var extra = $('form#recent_ce_count').serialize();
+        //    $.get('recent_ce_collecting_events', extra, function (local_data) {
         //        // what to do with the json we get back....
         //        $("#_recent_ce_form").attr("hidden", true);
         //        var selecting = $('#_selecting_ce_form');
