@@ -236,7 +236,7 @@ describe 'Users' do
     before(:all) { spin_up_project_and_users }
     before { visit root_path }
     
-    feature 'password reset' do
+    feature 'forgotten password reset' do
       before { click_link 'forgot password?' }
       
       scenario 'invalid email' do
@@ -276,6 +276,25 @@ describe 'Users' do
           visit path
           expect(page).to have_content('The token is not valid or has been expired.')
         end
+      end
+    end
+
+    feature 'flagged for password reset', js: true do
+      before { 
+          User.create!(name: 'Test',
+            email: 'flagged@example.com',
+            password: '12345678',
+            password_confirmation: '12345678',
+            self_created: true,
+            is_flagged_for_password_reset: true)
+      }
+      scenario 'requesting password reset from sign in process' do
+        visit root_path
+        fill_in 'Email', with: 'flagged@example.com'
+        fill_in 'Password', with: '12345678'
+        click_button 'Sign in'
+        click_button 'Send e-mail'
+        expect(page).to have_content('Password reset request sent!')
       end
     end
   end
