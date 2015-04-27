@@ -105,6 +105,8 @@ class TaxonName < ActiveRecord::Base
 
   acts_as_nested_set scope: [:project_id], dependent: :restrict_with_exception, touch: false
 
+  attr_accessor :also_create_otu
+
   before_validation :set_type_if_empty
   before_save :set_cached_names
   after_save :create_new_combination_if_absent,

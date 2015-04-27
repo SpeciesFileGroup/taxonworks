@@ -70,8 +70,12 @@
       <br>
       <%= f.text_field :neuter_name %>
     </div>
-
-
+    
+    <div class="field">
+      <%= f.label :also_create_otu %>
+      <br>
+      <%= f.check_box :also_create_otu %>
+    </div>
 
     <%= f.hidden_field :type %>
 

@@ -14,11 +14,16 @@ development.
     include Housekeeping
     acts_as_nested_set
 
+    # Aliases
+
     # Class constants
     BLORF = 123
 
     # Class variables
     @@foo = 1
+
+    # Instance variables
+    attr_accessor :foo
 
     # Callbacks
     after_save :attack!
