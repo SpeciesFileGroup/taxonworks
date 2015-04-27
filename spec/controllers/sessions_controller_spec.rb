@@ -37,7 +37,7 @@ describe SessionsController, :type => :controller do
       end
       
       context "when flagged for password reset" do
-        before { 
+        let!(:user) { 
           User.create!(name: 'Test',
             email: email,
             password: password,
@@ -46,9 +46,11 @@ describe SessionsController, :type => :controller do
             is_flagged_for_password_reset: true)
         }
                 
-        it "redirects to password reset when password is valid" do
+        it "renders password reset request and does not sign in the user when password is valid" do
           post :create, { session: { email: email, password: password } }
-          expect(controller.sessions_signed_in?).to be_falsey          
+          expect(response).to render_template("request_password_reset")
+          expect(assigns(:user)).to eq(user)
+          expect(controller.sessions_signed_in?).to be_falsey
         end
         
         it "does not sign in the user when password is invalid" do
