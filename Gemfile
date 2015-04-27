@@ -71,7 +71,7 @@ gem 'bcrypt', '~> 3.1.7'
 # API view template engine
 gem 'rabl'
 
-gem 'rmagick', '~> 2.13.3'
+gem 'rmagick', '~> 2.14'
 
 gem 'exception_notification'
 
@@ -101,7 +101,7 @@ group :development do
   gem 'better_errors', '~> 2.0'
   gem 'binding_of_caller'
   gem 'spring-commands-rspec', '~> 1.0.2'
-  gem 'guard-rspec', '~> 4.3.1', require: false
+  gem 'guard-rspec', '~> 4.5', require: false
 
 end
 
