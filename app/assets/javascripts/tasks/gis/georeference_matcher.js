@@ -74,20 +74,20 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
             event.preventDefault();
         });
 
-             $("#recent_count").on("ajax:success", function(e, data, status, local_data) {
-                 $("#_selecting_ce_form").html(local_data.responseJSON['html']);
-                 $("#_recent_ce_form").attr("hidden", true);
-                 var selecting = $('#_selecting_ce_form');
-                 selecting.removeAttr('hidden');
-                 return true;
-             }).on("ajax:error", function(e, xhr, status, error) {
-                 $("#new_article").append("<p>ERROR</p>");
-            });
+        $("#recent_ce_count").on("ajax:success", function (e, data, status, local_data) {
+            $("#_selecting_ce_form").html(local_data.responseJSON['html']);
+            $("#_recent_ce_form").attr("hidden", true);
+            var selecting = $('#_selecting_ce_form');
+            selecting.removeAttr('hidden');
+            return true;
+        }).on("ajax:error", function (e, xhr, status, error) {
+            $("#new_article").append("<p>ERROR</p>");
+        });
 
         //$("#submit_recent_ce").click(function (event) {
         //   // $('#how_many').val($('#how_many_recent').val());
-        //    var extra = $('form#recent_count').serialize();
-        //    $.get('recent_collecting_events', extra, function (local_data) {
+        //    var extra = $('form#recent_ce_count').serialize();
+        //    $.get('recent_ce_collecting_events', extra, function (local_data) {
         //        // what to do with the json we get back....
         //        $("#_recent_ce_form").attr("hidden", true);
         //        var selecting = $('#_selecting_ce_form');
@@ -151,6 +151,17 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
 
             event.preventDefault();
         });
+
+        $("#recent_gr_count").on("ajax:success", function (e, data, status, local_data) {
+            var selecting = $('#_selecting_gr_form');
+            selecting.html(local_data.responseJSON['html']);
+            $("#_recent_gr_form").attr("hidden", true);
+            selecting.removeAttr('hidden');
+            return true;
+        }).on("ajax:error", function (e, xhr, status, error) {
+            $("#new_article").append("<p>ERROR</p>");
+        });
+
 
         // this is the find submits ajax request, get's FC response and draws it on the map
 

@@ -39,13 +39,15 @@
       <br>------_selected_gr-------------------
       <%#= form_for(@georeference) do |f| %>
       <div id="_selected_gr_form"
-        data-feature-collection='<%= Gis::GeoJSON.feature_collection([]).to_json.html_safe %>'
-        data-map-center='POINT (0.0 0.0 0.0)'
-        data-map-canvas="select_gr_canvas"
+           data-feature-collection='<%= Gis::GeoJSON.feature_collection([]).to_json.html_safe %>'
+           data-map-center='POINT (0.0 0.0 0.0)'
+           data-map-canvas="select_gr_canvas"
       >
         <table border="1">
           <tr>
-            <td><div id="select_gr_canvas" style="width:512px; height: 256px;"></div></td>
+            <td>
+              <div id="select_gr_canvas" style="width:512px; height: 256px;"></div>
+            </td>
           </tr>
         </table>
         <%= form_tag(tagged_georeferences_path) do %>

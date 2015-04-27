@@ -4,22 +4,21 @@
       <table border="1">
         <tr>
           <td>
-            Keyword 
+            Keyword
           </td>
           <td>
-              <%= render partial: 'workbench/elements/forms/ajax_select',
-                locals:  {controller: '/keywords',
-                          object:     nil,
-                          method:     'keyword_id',
-                          tag_id:     'keyword_term_id_for_collecting_event_filter_form',
-                          size:       '',
-                          display:    ''} %>
- 
-                      </td>
+            <%= render partial: 'workbench/elements/forms/ajax_select',
+                       locals:  {controller: '/keywords',
+                                 object:     nil,
+                                 method:     'keyword_id',
+                                 tag_id:     'keyword_term_id_for_collecting_event_filter_form',
+                                 size:       '',
+                                 display:    ''} %>
+
+          </td>
         </tr>
       </table>
-
-    <div><input type="button" id="submit_tag_ce" value="Find"/></div>
-    <% end %>       <!-- PUT YOUR BUTTON INSIDE THE FORM!!! --> 
+      <div><input type="button" id="submit_tag_ce" value="Find"/></div>
+  <% end %>       <!-- PUT YOUR BUTTON INSIDE THE FORM!!! -->
 
 </div>
