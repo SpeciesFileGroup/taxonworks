@@ -157,6 +157,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
             selecting.html(local_data.responseJSON['html']);
             $("#_recent_gr_form").attr("hidden", true);
             selecting.removeAttr('hidden');
+            setup = initializeGoogleMapWithDrawManager("#_select_gr_form");
             return true;
         }).on("ajax:error", function (e, xhr, status, error) {
             $("#new_article").append("<p>ERROR</p>");

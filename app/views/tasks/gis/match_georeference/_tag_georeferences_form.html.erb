@@ -10,3 +10,7 @@
       <div><%= submit_tag('Find') %></div>
   <% end %>
 </div>
+
+<div id="tag_gr_form" hidden>
+  <%=	 form_tag(tagged_georeferences_url, {method: 'get', id: 'tagged_gr_keyword'}) %>
+</div>
