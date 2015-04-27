@@ -97,7 +97,8 @@ module TaxonifiToTaxonworks
           verbatim_author: n.author,
           year_of_publication: n.year,
           rank_class: Ranks.lookup(@nomenclature_code, n.rank),
-          by: @user
+          by: @user,
+          project: @project
         )
         
         if n.parent.nil?
