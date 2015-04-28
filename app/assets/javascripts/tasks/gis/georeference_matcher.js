@@ -32,18 +32,22 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
 
             event.preventDefault();
         });
-        $("#submit_tag_ce").click(function (event) {
-            //$('#how_many').val($('#how_many_recent').val());
-            var extra = $('form#tagged_ce_keyword').serialize();
-            $.get('tagged_collecting_events', extra, function (local_data) {
-                // what to do with the json we get back....
-                $("#_tag_ce_form").attr("hidden", true);
-                var selecting = $('#_selecting_ce_form');
-                selecting.removeAttr('hidden');
-                selecting.html(local_data['html']);
-            });
-
-            event.preventDefault();
+        // this DOM object represents the form for retrieving the keyword for
+        // selecting collecting events. In this case
+        //      div.id = '_tag_ce_form'
+        //      form.id = 'tagged_ce_keyword'
+        $("#tagged_ce_keyword").on("ajax:success", function (e, data, status, local_data) {
+            // make a local object of the selecting form so we can use it later
+            var selecting = $('#_selecting_ce_form');
+            // shove the returning html into the local form
+            selecting.html(local_data.responseJSON['html']);
+            // hide the filter div
+            $("#_tag_ce_form").attr("hidden", true);
+            // unhide the local div
+            selecting.removeAttr('hidden');
+            return true;
+        }).on("ajax:error", function (e, xhr, status, error) {
+            $("#new_article").append("<p>ERROR</p>");
         });
 
         $(".draw-ce").click(function (event) {
@@ -122,6 +126,25 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
             $('#_selecting_ce_form').attr('hidden', true);
 
             event.preventDefault();
+        });
+        // this DOM object represents the form for retrieving the keyword for
+        // selecting collecting events. In this case
+        //      div.id = '_tag_gr_form'
+        //      form.id = 'tagged_gr_keyword'
+        $("#tagged_gr_keyword").on("ajax:success", function (e, data, status, local_data) {
+            // make a local object of the selecting form so we can use it later
+            var selecting = $('#_selecting_gr_form');
+            // shove the returning html into the local form
+            selecting.html(local_data.responseJSON['html']);
+            // hide the filter div
+            $("#_tag_gr_form").attr("hidden", true);
+            // unhide the local div
+            selecting.removeAttr('hidden');
+            // start the map process
+            setup = initializeMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
+            return true;
+        }).on("ajax:error", function (e, xhr, status, error) {
+            $("#new_article").append("<p>ERROR</p>");
         });
 
         $(".draw-gr").click(function (event) {

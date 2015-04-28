@@ -24,10 +24,6 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
 
   def tagged_collecting_events
     @motion = 'tagged_collecting_events'
-    # step_1             = ControlledVocabularyTerm.where("type = 'Keyword' and name like \'%#{params['what_keyword']}%\'").pluck(:id)
-    # step_2 = Tag.where('tag_object_type = \'CollectingEvent\' and (keyword_id in (?))', step_1).pluck(:tag_object_id).uniq
-    # @collecting_events = CollectingEvent.where(project_id: $project_id).order(updated_at: :desc).where('id in (?)', step_2)
-    # render_ce_select_json
 
     if params[:keyword_id]
       keyword            = Keyword.find(params[:keyword_id])
@@ -60,13 +56,20 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
   end
 
   def tagged_georeferences
-    @motion            = 'tagged_georeferences'
-    @georeferences = [] # replace [] with CollectingEvent.filter(params)
-    render_ce_select_json
+    @motion = 'tagged_georeferences'
+
+    if params[:keyword_id]
+      keyword        = Keyword.find(params[:keyword_id])
+      @georeferences = CollectingEvent.where(project_id: $project_id).order(updated_at: :desc).tagged_with_keyword(keyword).map(&:georeferences).to_a.flatten
+    else
+      # render json: {html: 'Empty set'} #and return
+      @georeferences = []
+    end
+    render_gr_select_json
   end
 
   def drawn_georeferences
-    @motion            = 'drawn_georeferences'
+    @motion        = 'drawn_georeferences'
     @georeferences = [] # replace [] with CollectingEvent.filter(params)
     render_gr_select_json
   end

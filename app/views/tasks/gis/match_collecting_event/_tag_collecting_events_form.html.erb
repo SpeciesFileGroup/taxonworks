@@ -1,5 +1,5 @@
 <div id="_tag_ce_form" hidden>
-  <%= form_tag(tagged_collecting_events_url, {method: 'get', id: 'tagged_ce_keyword'}) do %>
+  <%= form_tag(tagged_collecting_events_url, {method: 'get', id: 'tagged_ce_keyword', remote: true}) do %>
       Find collecting event tagged with
       <table border="1">
         <tr>
@@ -18,7 +18,9 @@
           </td>
         </tr>
       </table>
-      <div><input type="button" id="submit_tag_ce" value="Find"/></div>
-  <% end %>       <!-- PUT YOUR BUTTON INSIDE THE FORM!!! -->
+      <div>
+        <%= submit_tag('Find') %>
+      </div>
+  <% end %>
 
 </div>
