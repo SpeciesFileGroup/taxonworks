@@ -161,8 +161,8 @@ function get_window_center(bounds) {      // for use with home-brew geoJSON scan
     gzoom = 2
   }
   ;
-  if (wx > 160.0 || (wx + wy) == 0) {
-    gzoom = 1
+  if (wx > 160.0/* || (wx + wy) == 0*/) {  // amended to not focus on whole earth on latter condition (single point???)
+    gzoom = 1                               // wait for exceptional case to revert or rewrite condition
   }
   ;
   bounds.center_lat = center_lat;
