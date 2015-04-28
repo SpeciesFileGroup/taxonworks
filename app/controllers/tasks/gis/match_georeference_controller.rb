@@ -8,7 +8,6 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
     @georeferences     = Georeference.where(type: 'bologna')
   end
 
-  # NOT TESTED, but something like 
   def filtered_collecting_events
     @motion            = 'filtered_collecting_events'
     @collecting_events = [] # replace [] with CollectingEvent.filter(params)
@@ -17,23 +16,27 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
 
   def recent_collecting_events
     @motion            = 'recent_collecting_events'
+    message            = ''
     how_many           = params['how_many']
     @collecting_events = CollectingEvent.where(project_id: $project_id).order(updated_at: :desc).limit(how_many.to_i)
-    render_ce_select_json
+    if @collecting_events.length == 0
+    else
+      message = 'no recent objects selected'
+    end
+    render_ce_select_json(message)
   end
 
   def tagged_collecting_events
     @motion = 'tagged_collecting_events'
-
+    message = ''
     if params[:keyword_id]
       keyword            = Keyword.find(params[:keyword_id])
       @collecting_events = CollectingEvent.where(project_id: $project_id).order(updated_at: :desc).tagged_with_keyword(keyword)
-      render_ce_select_json
     else
       # You have to figure out how to catch a bad search request and return not a list but back to the form
-      render json: {html: 'Empty set'} #and return
+      message = 'no tagged objects selected' #and return
     end
-
+    render_ce_select_json(message)
   end
 
   def drawn_collecting_events
@@ -50,22 +53,29 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
 
   def recent_georeferences
     @motion        = 'recent_georeferences'
+    message        = ''
     how_many       = params['how_many']
     @georeferences = Georeference.where(project_id: $project_id).order(updated_at: :desc).limit(how_many.to_i)
-    render_gr_select_json
+    if @georeferences.length == 0
+      message = 'no recent georeferences selected'
+    end
+    render_gr_select_json(message)
   end
 
   def tagged_georeferences
     @motion = 'tagged_georeferences'
+    message = ''
 
-    if params[:keyword_id]
-      keyword        = Keyword.find(params[:keyword_id])
-      @georeferences = CollectingEvent.where(project_id: $project_id).order(updated_at: :desc).tagged_with_keyword(keyword).map(&:georeferences).to_a.flatten
-    else
+    # todo: this needs to be rationalized, but works, after a fashion.
+    if params[:keyword_id].blank?
       # render json: {html: 'Empty set'} #and return
       @georeferences = []
+      message        = 'no tagged objects selected'
+    else
+      keyword        = Keyword.find(params[:keyword_id])
+      @georeferences = CollectingEvent.where(project_id: $project_id).order(updated_at: :desc).tagged_with_keyword(keyword).map(&:georeferences).to_a.flatten
     end
-    render_gr_select_json
+    render_gr_select_json(message)
   end
 
   def drawn_georeferences
@@ -82,16 +92,18 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
 
   end
 
+  # @param [String] message to be conveyed to client side
   # @return [JSON] with html for collecting events display (table of selectable collecting events)
-  def render_ce_select_json
+  def render_ce_select_json(message = '')
     # retval = render_to_html
-    retval = render json: {html: ce_render_to_html}
+    retval = render json: {message: message, html: ce_render_to_html}
     retval
   end
 
+  # @param [String] message to be conveyed to client side
   # @return [JSON] with html for georeferences display (feature collection)
-  def render_gr_select_json
-    retval = render json: {html: gr_render_to_html}
+  def render_gr_select_json(message = '')
+    retval = render json: {message: message, html: gr_render_to_html}
     retval
   end
 

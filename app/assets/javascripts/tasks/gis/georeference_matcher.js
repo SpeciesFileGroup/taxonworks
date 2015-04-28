@@ -39,7 +39,9 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
         $("#tagged_ce_keyword").on("ajax:success", function (e, data, status, local_data) {
             // make a local object of the selecting form so we can use it later
             var selecting = $('#_selecting_ce_form');
-            // shove the returning html into the local form
+            // see what the message was, if anything
+            var message = local_data.responseJSON['message'];
+// shove the returning html into the local form
             selecting.html(local_data.responseJSON['html']);
             // hide the filter div
             $("#_tag_ce_form").attr("hidden", true);
@@ -80,6 +82,8 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
 
         $("#recent_ce_count").on("ajax:success", function (e, data, status, local_data) {
             var selecting = $('#_selecting_ce_form');
+            // see what the message was, if anything
+            var message = local_data.responseJSON['message'];
             selecting.html(local_data.responseJSON['html']);
             $("#_recent_ce_form").attr("hidden", true);
             selecting.removeAttr('hidden');
@@ -110,7 +114,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
             $("#_tag_gr_form").attr("hidden", true);
             $("#_draw_gr_form").attr("hidden", true);
             $("#_recent_gr_form").attr("hidden", true);
-            $('#_selecting_ce_form').attr('hidden', true);
+            $('#_selecting_gr_form').attr('hidden', true);
 
             event.preventDefault();
         });
@@ -123,7 +127,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
             $("#_filter_gr_form").attr("hidden", true);
             $("#_draw_gr_form").attr("hidden", true);
             $("#_recent_gr_form").attr("hidden", true);
-            $('#_selecting_ce_form').attr('hidden', true);
+            $('#_selecting_gr_form').attr('hidden', true);
 
             event.preventDefault();
         });
@@ -134,6 +138,8 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
         $("#tagged_gr_keyword").on("ajax:success", function (e, data, status, local_data) {
             // make a local object of the selecting form so we can use it later
             var selecting = $('#_selecting_gr_form');
+            // see what the message was, if anything
+            var message = local_data.responseJSON['message'];
             // shove the returning html into the local form
             selecting.html(local_data.responseJSON['html']);
             // hide the filter div
@@ -155,7 +161,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
             $("#_filter_gr_form").attr("hidden", true);
             $("#_tag_gr_form").attr("hidden", true);
             $("#_recent_gr_form").attr("hidden", true);
-            $('#_selecting_ce_form').attr('hidden', true);
+            $('#_selecting_gr_form').attr('hidden', true);
 
             setup = initializeGoogleMapWithDrawManager("#_draw_gr_form");
 
@@ -170,17 +176,24 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
             $("#_filter_gr_form").attr("hidden", true);
             $("#_tag_gr_form").attr("hidden", true);
             $("#_draw_gr_form").attr("hidden", true);
-            $('#_selecting_ce_form').attr('hidden', true);
+            $('#_selecting_gr_form').attr('hidden', true);
 
             event.preventDefault();
         });
 
         $("#recent_gr_count").on("ajax:success", function (e, data, status, local_data) {
             var selecting = $('#_selecting_gr_form');
-            selecting.html(local_data.responseJSON['html']);
-            $("#_recent_gr_form").attr("hidden", true);
+            // see what the message was, if anything
+            var message = local_data.responseJSON['message'];
+            if (message.length) {
+                selecting.html(message);
+            }
+            else {
+                selecting.html(local_data.responseJSON['html']);
+                $("#_recent_gr_form").attr("hidden", true);
+                setup = initializeMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
+            }
             selecting.removeAttr('hidden');
-            setup = initializeMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
             return true;
         }).on("ajax:error", function (e, xhr, status, error) {
             $("#new_article").append("<p>ERROR</p>");
