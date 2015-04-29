@@ -131,6 +131,7 @@ class Protonym < TaxonName
   soft_validate(:sv_potential_homonyms, set: :potential_homonyms)
   soft_validate(:sv_source_not_older_then_description, set: :dates)
   soft_validate(:sv_original_combination_relationships, set: :original_combination_relationships)
+  soft_validate(:sv_extant_children, set: :extant_children)
 
   # @return [Array of Strings]
   #   genera where the species was placed
@@ -140,6 +141,15 @@ class Protonym < TaxonName
     descendants_and_self = valid_name.descendants + [self] + self.combinations
     relationships        = TaxonNameRelationship.where_object_in_taxon_names(descendants_and_self).with_two_type_bases('TaxonNameRelationship::OriginalCombination::OriginalGenus', 'TaxonNameRelationship::Combination::Genus')
     relationships.collect { |r| r.subject_taxon_name.name } + [self.ancestor_at_rank('genus').name]
+  end
+
+  # @return [boolean]
+  def is_fassil?
+    if !TaxonNameClassification.where_taxon_name(self).with_type_contains('::Fossil').empty?
+      true
+    else
+      false
+    end
   end
 
   # TODO: make a constant somewhere, it's def not a instance method
@@ -718,6 +728,19 @@ class Protonym < TaxonName
         soft_validations.add(:base, 'Original relationship to self is not specified')
       elsif ids.last != self.id
         soft_validations.add(:base, 'Original relationship to self should be selected at lowest nomeclatural rank of the original relationships')
+      end
+    end
+  end
+
+  def sv_extant_children
+    unless self.parent_id.blank?
+      if self.is_fassil?
+        taxa = Protonym.where(parent_id: self.id)
+        unless taxa.empty?
+          taxa.each do |t|
+            soft_validations.add(:base, 'Extinct taxon has extant children') unless t.is_fassil?
+          end
+        end
       end
     end
   end

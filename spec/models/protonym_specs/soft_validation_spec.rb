@@ -3,12 +3,14 @@ require 'rails_helper'
 describe Protonym, type: :model, group: [:nomenclature, :protonym] do
 
   before(:all) do
-    TaxonName.delete_all
     TaxonNameRelationship.delete_all
+    TaxonNameClassification.delete_all
+    TaxonName.delete_all
   end
 
   after(:all) do
     TaxonNameRelationship.delete_all
+    TaxonNameClassification.delete_all
     TaxonName.delete_all
     Source.delete_all
   end
@@ -513,7 +515,18 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
     end
 
     context 'fossils' do
-      skip 'validate that the extant species does not have extinct parent'
+      specify 'extinct genus with extant species' do
+        g = FactoryGirl.create(:relationship_genus)
+        s = FactoryGirl.create(:relationship_species, parent: g)
+        FactoryGirl.create(:taxon_name_classification, taxon_name: g, type: 'TaxonNameClassification::Iczn::Fossil')
+        g.reload
+        g.soft_validate(:extant_children)
+        expect(g.soft_validations.messages_on(:base).size).to eq(1)
+        FactoryGirl.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Iczn::Fossil')
+        g.reload
+        g.soft_validate(:extant_children)
+        expect(g.soft_validations.messages_on(:base).empty?).to be_truthy
+      end
     end
 
   end
