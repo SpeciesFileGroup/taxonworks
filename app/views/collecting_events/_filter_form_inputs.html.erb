@@ -19,13 +19,13 @@
                 </tr>
                 <tr>
                   <td>
-                    <input type=text id="start_date_day" size="2"/>
+                    <input type=text id="start_date_day" name="start_date_day" size="2"/>
                   </td>
                   <td>
                     <%= select_tag('start_date_month', options_for_select(Utilities::Dates::MONTHS_FOR_SELECT, selected: @collecting_event.start_date_month), include_blank: true) -%>
                   </td>
                   <td>
-                    <input type=text id="start_date_year" size="4"/>
+                    <input type=text id="start_date_year" name="start_date_year" size="4"/>
                   </td>
                 </tr>
               </table>
@@ -51,13 +51,13 @@
               </tr>
               <tr>
                 <td>
-                  <input type=text id="end_date_day" size="2"/>
+                  <input type=text name="end_date_day" id="end_date_day" size="2"/>
                 </td>
                 <td>
                   <%= select_tag('end_date_month', options_for_select(Utilities::Dates::MONTHS_FOR_SELECT, selected: @collecting_event.end_date_month), include_blank: true) -%>
                 </td>
                 <td>
-                  <input type=text id="end_date_year" size="4"/>
+                  <input type=text name="end_date_year" id="end_date_year" size="4"/>
                 </td>
               </tr>
             </table>
@@ -69,13 +69,13 @@
           <label for="verbatim_locality_text">Verbatim locality containing</label>
         </td>
         <td>
-          <input type=text id="verbatim_locality_text" size="35"/>
+          <input type=text name="verbatim_locality_text" id="verbatim_locality_text" size="35"/>
         </td>
       </tr>
       <tr>
         <td class="field"><label for="verbatim_label_text">Any label containing</label></td>
         <td>
-          <input type=text id="verbatim_label_text" size="35"/>
+          <input type=text id="verbatim_label_text" name="verbatim_label_text" size="35"/>
         </td>
       </tr>
       <tr>
@@ -83,7 +83,7 @@
           <label for="identifier_text">An identifier containing</label>
         </td>
         <td>
-          <input type=text id="identifier_text" size="35"/>
+          <input type=text name="identifier_text" id="identifier_text" size="35"/>
         </td>
       </tr>
     </table>

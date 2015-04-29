@@ -10,8 +10,12 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
 
   def filtered_collecting_events
     @motion            = 'filtered_collecting_events'
+    message = ''
     @collecting_events = [] # replace [] with CollectingEvent.filter(params)
-    render_ce_select_json
+    if @collecting_events.length == 0
+      message = 'no collecting events selected'
+    end
+    render_ce_select_json(message)
   end
 
   def recent_collecting_events
