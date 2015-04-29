@@ -17,6 +17,14 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
   let(:root) { Protonym.where(name: 'Root').first  }
 
   context 'methods' do
+    specify 'is_fassil' do
+      g = FactoryGirl.create(:relationship_genus)
+      expect(g.is_fassil?).to be_falsey
+      FactoryGirl.create(:taxon_name_classification, taxon_name: g, type: 'TaxonNameClassification::Iczn::Fossil')
+      g.reload
+      expect(g.is_fassil?).to be_truthy
+    end
+
     specify 'all_generic_placements' do
       family = FactoryGirl.create(:relationship_family)
       genus = FactoryGirl.create(:relationship_genus, name: 'Aus', parent: family)
