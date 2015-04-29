@@ -1,0 +1,36 @@
+<%= content_for :head do -%>
+  <%= javascript_include_tag "//www.google.com/jsapi", "chartkick" %>
+<% end %>
+
+<h1> Administration - Data overview </h1>
+
+<%= link_to 'Back', administration_path() %> 
+
+<p> Plots axes are number of records create by date created. </p>
+
+<div class="flexbox">
+
+  <div class="item item1">
+
+    <h2> Community based </h2>
+    <%= line_chart ApplicationEnumeration.community_data_classes.map{|k| 
+      { name: k.name.titleize, data: k.all.group_by_week(:created_at).count}  
+    } %>
+
+
+    <h2> Project based </h2>
+    <ol>
+      <% ApplicationEnumeration.project_data_classes.each do |k| %>
+        <h3> <%= k.name.titleize %> </h3>
+        <%= line_chart Project.all.map{|p| 
+          {name: p.name, data: k.all.where(project_id: p.id).group_by_week(:created_at).count}
+        } %>
+      <% end %> 
+    </ol>
+  </div>
+
+  <div class="item item2">
+  </div>
+
+</div>
+
