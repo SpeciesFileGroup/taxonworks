@@ -23,7 +23,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
         // selecting collecting events. In this case
         //      div.id = '_filter_ce_form'
         //      form.id = 'filtering_data'
-        $("#filtering_data").on("ajax:success", function (e, data, status, local_data) {
+        $("#filtering_ce_data").on("ajax:success", function (e, data, status, local_data) {
             // make a local object of the selecting form so we can use it later
             var selecting = $('#_selecting_ce_form');
             // see what the message was, if anything

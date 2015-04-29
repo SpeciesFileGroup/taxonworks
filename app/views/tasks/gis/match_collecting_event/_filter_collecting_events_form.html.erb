@@ -1,7 +1,7 @@
 <div id="_filter_ce_form" name="_filter_ce_form">
   Find collecting events matching
   <br>------------filter_form_inputs------
-  <%= render(partial: 'collecting_events/filter_form_inputs', locals: {side: 'ce'}) %>
+  <%= render(partial: 'collecting_events/filter_form_inputs', locals: {side: 'ce', url: filtered_collecting_events_url, id: 'filtering_ce_data'}) %>
   <br>--------------------------------------
   <!--<%#= form_tag(filtered_collecting_events_path, {method: 'get', id: 'filtering_ce_data', remote: true}) do %>-->
   <!--<div><%#= submit_tag('Find') %></div>-->

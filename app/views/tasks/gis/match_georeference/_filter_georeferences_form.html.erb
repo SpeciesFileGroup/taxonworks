@@ -1,7 +1,7 @@
 <div id="_filter_gr_form" name="_filter_gr_form">
   Find georeferences attached to collecting events matching
   <br>------------filter_form_inputs------
-  <%= render(partial: 'collecting_events/filter_form_inputs', locals: {side: 'gr'}) %>
+  <%= render(partial: 'collecting_events/filter_form_inputs', locals: {side: 'gr', url: filtered_georeferences_url, id: 'filtering_gr_data'}) %>
   <br>--------------------------------------
   <!--<%#= form_tag(filtered_georeferences_path, method: 'get') do %>-->
   <!--<div><%#= submit_tag('Find') %></div>-->
