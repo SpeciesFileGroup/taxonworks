@@ -17,11 +17,18 @@ initializeMap = function(canvas, feature_collection) {
   var data = feature_collection;
 
   map.data.setStyle({
-    fillColor: '#440000',
+      icon: '/assets/mapicons/mm_20_gray.png',
+      fillColor: '#440000',
+      strokeOpacity: 0.5,
+      strokeColor: "black",
+      strokeWeight: 1,
+      fillOpacity: 0.2/*,
+
+      fillColor: '#440000',
     strokeOpacity: 0.5,
     strokeColor: "black",
     strokeWeight: 1,
-    fillOpacity: 0.3
+    fillOpacity: 0.3*/
   });
   map.data.addGeoJson(data);
 
@@ -40,6 +47,7 @@ initializeMap = function(canvas, feature_collection) {
       color = feature.getProperty('fillColor');   //
     }
     return /** @type {google.maps.Data.StyleOptions} */({
+        icon: '/assets/mapicons/mm_20_red.png',
       fillColor: color,
       strokeColor: "black",
       strokeWeight: 1
