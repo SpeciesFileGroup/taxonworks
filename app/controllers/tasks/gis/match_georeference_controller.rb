@@ -9,9 +9,38 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
   end
 
   def filtered_collecting_events
-    @motion            = 'filtered_collecting_events'
-    message = ''
-    @collecting_events = [] # replace [] with CollectingEvent.filter(params)
+    @motion    = 'filtered_collecting_events'
+    message    = ''
+    start_time = fix_time(params['start_date_year'],
+                          params['start_date_month'],
+                          params['start_date_day'])
+    end_time   = fix_time(params['end_date_year'],
+                          params['end_date_month'],
+                          params['end_date_day'])
+    if end_time == start_time
+      end_time = Time.now
+    end
+    st_year, st_month, st_day    = params['start_date_year'], params['start_date_month'], params['start_date_day']
+    end_year, end_month, end_day = params['end_date_year'], params['end_date_month'], params['end_date_day']
+    v_locality_fragment          = params['verbatim_locality_text']
+    any_label_fragment           = params['any_label_text']
+    id_fragment                  = params['identifier_text']
+    unless st_year.blank? and end_year.blank and st_month.blank? and end_month.blank? and st_day.blank? and end_day.blank?
+      sql_string = "(start_date_year is not null and start_date_year between #{st_year} and #{end_year})"
+      sql_string += " or (end_date_year is not null and end_date_year between #{st_year} and #{end_year})"
+    end
+    # sql_string += "(end_date_year is not null and end_date_year between #{start_time.year} and #{end_time.year})"
+    unless v_locality_fragment.blank?
+      sql_string += " or verbatim_locality ilike '%#{v_locality_fragment}%'"
+    end
+    unless any_label_fragment.blank?
+      sql_string += " or (verbatim_label ilike '%#{any_label_fragment}%'"
+      sql_string += " or print_label ilike '%#{any_label_fragment}%'"
+      sql_string += " or document_label ilike '%#{any_label_fragment}%'"
+      sql_string += ')'
+    end
+    @collecting_events = CollectingEvent.where(sql_string).uniq
+
     if @collecting_events.length == 0
       message = 'no collecting events selected'
     end
@@ -123,5 +152,19 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
     render_to_string(partial: 'tasks/gis/match_georeference/georeferences_selections_form',
                      locals:  {georeferences: @georeferences,
                                motion:        @motion})
+  end
+
+  def fix_time(year, month, day)
+    start = Time.new(1970, 1, 1)
+    if year.blank?
+      year = start.year
+    end
+    if month.blank?
+      month = start.month
+    end
+    if day.blank?
+      day = start.day
+    end
+    Time.new(year, month, day)
   end
 end
