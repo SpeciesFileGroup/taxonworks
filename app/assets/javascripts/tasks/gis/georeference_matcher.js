@@ -19,6 +19,30 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
 
             event.preventDefault();
         });
+        // this DOM object represents the form for retrieving the filtering data for
+        // selecting collecting events. In this case
+        //      div.id = '_filter_ce_form'
+        //      form.id = 'filtering_data'
+        $("#filtering_data").on("ajax:success", function (e, data, status, local_data) {
+            // make a local object of the selecting form so we can use it later
+            var selecting = $('#_selecting_ce_form');
+            // see what the message was, if anything
+            var message = local_data.responseJSON['message'];
+            if (message.length) {
+                selecting.html(message);
+            }
+            else {
+                // shove the returning html into the local form
+                selecting.html(local_data.responseJSON['html']);
+                // hide the filter div
+                $("#_filter_ce_form").attr("hidden", true);
+            }
+            // unhide the local div
+            selecting.removeAttr('hidden');
+            return true;
+        }).on("ajax:error", function (e, xhr, status, error) {
+            $("#new_article").append("<p>ERROR</p>");
+        });
 
         $(".tag-ce").click(function (event) {
 
@@ -41,7 +65,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
             var selecting = $('#_selecting_ce_form');
             // see what the message was, if anything
             var message = local_data.responseJSON['message'];
-// shove the returning html into the local form
+            // shove the returning html into the local form
             selecting.html(local_data.responseJSON['html']);
             // hide the filter div
             $("#_tag_ce_form").attr("hidden", true);
