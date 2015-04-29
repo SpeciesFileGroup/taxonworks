@@ -9,8 +9,14 @@ describe 'Identifiers', :type => :feature do
   context 'signed in as a user, with some records created' do
     before {
       sign_in_user_and_select_project
-      # todo @mjy, need to build object explicitly with user and project
-      # 10.times { factory_girl_create_for_user_and_project(:valid_identifier, @user, @project) }
+
+      namespace = Namespace.create!(name: 'Matt Ids', short_name: "MID", by: @user)
+
+
+      (1..3).each do |n|
+        o = Otu.create(name: "O", by: @user, project: @project)
+       Identifier::Local::CatalogNumber.create!(namespace: namespace, identifier_object: o, identifier: n, by: @user, project: @project)
+      end
     }
 
     describe 'GET /identifiers' do
@@ -21,12 +27,11 @@ describe 'Identifiers', :type => :feature do
       it_behaves_like 'a_data_model_with_annotations_index'
     end
 
-    # todo @mjy, following lines commented out until we can create a valid object
-    # describe 'GET /identifiers/list' do
-    #   before { visit list_identifiers_path }
-    #
-    #   it_behaves_like 'a_data_model_with_standard_list'
-    # end
+    describe 'GET /identifiers/list' do
+      before { visit list_identifiers_path }
+
+      it_behaves_like 'a_data_model_with_standard_list'
+    end
   end
 end
 

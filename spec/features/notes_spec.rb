@@ -9,8 +9,8 @@ describe 'Notes', :type => :feature do
   context 'signed in as a user, with some records created' do
     before {
       sign_in_user_and_select_project
-      # todo @mjy, need to build object explicitly with user and project
-      # 10.times { factory_girl_create_for_user_and_project(:valid_note, @user, @project) }
+      o = Otu.create!(name: 'Cow', by: @user, project: @project)
+      3.times { Note.create!( text: Faker::Lorem.sentence, note_object: o, by: @user, project: @project) }
     }
 
     describe 'GET /Notes' do
@@ -20,11 +20,10 @@ describe 'Notes', :type => :feature do
       it_behaves_like 'a_data_model_with_annotations_index'
     end
 
-    # todo @mjy, following lines commented out until we can create a valid object
-    # describe 'GET /notes/list' do
-    #   before { visit list_notes_path }
-    #
-    #   it_behaves_like 'a_data_model_with_standard_list'
-    # end
+    describe 'GET /notes/list' do
+      before { visit list_notes_path }
+
+      it_behaves_like 'a_data_model_with_standard_list'
+    end
   end
 end

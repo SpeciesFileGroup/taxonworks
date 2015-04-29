@@ -9,8 +9,17 @@ describe 'Tags', :type => :feature do
   context 'signed in as a user, with some records created' do
     before {
       sign_in_user_and_select_project
-      # todo @mjy, need to build object explicitly with user and project
-      # 10.times { factory_girl_create_for_user_and_project(:valid_tag, @user, @project) }
+
+      o = Otu.create!(name: 'Cow', by: @user, project: @project)
+
+      keywords = []
+      ['slow', 'medium', 'fast'].each do |n|
+        keywords.push FactoryGirl.create(:valid_keyword, name: n, by: @user, project: @project)
+      end
+
+      (0..2).each do |i|
+        Tag.create!(tag_object: o, keyword: keywords[i], by: @user, project: @project)
+      end
     }
 
     describe 'GET /tags' do
@@ -21,16 +30,15 @@ describe 'Tags', :type => :feature do
       it_behaves_like 'a_data_model_with_annotations_index'
     end
 
-    # todo @mjy, following lines commented out until we can create a valid object
-    # describe 'GET /tags/list' do
-    #   before { visit list_tags_path }
-    #
-    #   it_behaves_like 'a_data_model_with_standard_list'
-    # end
+    describe 'GET /tags/list' do
+      before { visit list_tags_path }
+
+      it_behaves_like 'a_data_model_with_standard_list'
+    end
+
+
+    pending 'clicking a tag link anywhere renders the tagged object in <some> view'
+
   end
-
-  pending 'clicking a tag link anywhere renders the tagged object in <some> view'
-
 end
-
 

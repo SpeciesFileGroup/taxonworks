@@ -9,20 +9,19 @@ describe 'TaxonNameClassifications', :type => :feature do
   context 'signed in as a user, with some records created' do
     before {
       sign_in_user_and_select_project
-      root = factory_girl_create_for_user_and_project(:root_taxon_name, @user, @project) 
+      root = factory_girl_create_for_user_and_project(:root_taxon_name, @user, @project)
       taxon_name = Protonym.create!(
-        parent: root, 
-        name: 'Aus',
-        rank_class: Ranks.lookup(:iczn, 'genus'),
-        by: @user,
-        project: @project
+          parent: root,
+          name: 'Aus',
+          rank_class: Ranks.lookup(:iczn, 'genus'),
+          by: @user,
+          project: @project
       )
 
       TaxonNameClassification::Iczn::Available::Valid.create!(taxon_name: taxon_name, by: @user, project: @project)
       TaxonNameClassification::Iczn::Available::Valid::NomenDubium.create!(taxon_name: taxon_name, by: @user, project: @project)
-      TaxonNameClassification::Iczn::Available.create!(taxon_name: taxon_name, by: @user, project: @project) 
+      TaxonNameClassification::Iczn::Available.create!(taxon_name: taxon_name, by: @user, project: @project)
     }
-
 
     describe 'GET /taxon_name_classifications' do
       before { visit taxon_name_classifications_path }
@@ -35,37 +34,20 @@ describe 'TaxonNameClassifications', :type => :feature do
       it_behaves_like 'a_data_model_with_standard_list'
     end
 
-   # TODO:  there is no GET /taxon_name_classifications, context is to TaxonName
-   #describe 'GET /taxon_name_classifications/n' do
-   #  before {
-   #    visit taxon_name_classification_path(TaxonNameClassification.second)
-   #  }
-   # 
-   #  # it_behaves_like 'a_data_model_with_standard_show'
-   # end
-  end
+    # There is no GET /taxon_name_classifications, context is to TaxonName
+    describe 'Showing a taxon classification' do
+      before {
+        visit list_taxon_name_classifications_path
+      }
+      specify 'Clicking a recent link resolves to the corresponding taxon page' do
+        # need to specify which of 3 Context links to click, select matchers
+        first('a', text: 'Context').click
 
-  context 'resource routes' do
-    #  before {
-    #    sign_in_user_and_select_project
-    #  }
-
-    # The scenario for creating TaxonNameClassifications has not been developed. 
-    # It must handle these three calls for logged in/not logged in users.
-    # It may be that these features are ultimately tested in a task.
-    describe 'POST /create' do
-    end
-
-    describe 'PATCH /update' do
-    end
-
-    describe 'DELETE /destroy' do
-    end
-
-    describe 'the partial form rendered in context of NEW on some other page' do
+        expect(page).to have_content('Taxon names')
+        expect(page).to have_content('Aus')
+      end
     end
   end
-
 end
 
 

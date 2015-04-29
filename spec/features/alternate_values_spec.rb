@@ -9,8 +9,12 @@ describe "AlternateValues", :type => :feature do
   context 'signed in as a user, with some records created' do
     before {
       sign_in_user_and_select_project
-      # todo @mjy, need to build object explicitly with user and project
-      # 10.times { factory_girl_create_for_user_and_project(:valid_alternate_value, @user, @project) }
+
+      k = Keyword.create!(name: 'Dictionary', definition: "Book with words", by: @user, project: @project)
+
+      ['D.', 'Dict.', 'Di.'].each do |n|
+        AlternateValue::Abbreviation.create!(alternate_value_object: k, value: n, alternate_value_object_attribute: :name, by: @user, project: @project)
+      end
     }
 
     describe 'GET /alternate_values' do
@@ -20,12 +24,11 @@ describe "AlternateValues", :type => :feature do
       it_behaves_like 'a_data_model_with_annotations_index'
     end
 
-    # todo @mjy, following lines commented out until we can create a valid object
-    # describe 'GET /alternate_values/list' do
-    #   before { visit list_alternate_values_path }
-    #
-    #   it_behaves_like 'a_data_model_with_standard_list'
-    # end
+    describe 'GET /alternate_values/list' do
+      before { visit list_alternate_values_path }
+
+      it_behaves_like 'a_data_model_with_standard_list'
+    end
 
     context 'create an alternate value' do
       specify 'for Source::Bibtex', js: true do

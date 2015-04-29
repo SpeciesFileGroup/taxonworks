@@ -211,8 +211,7 @@ TaxonWorks::Application.routes.draw do
     end
   end
 
-  # resources :taxon_name_classifications, only: [:new, :create, :update, :destroy]
-  resources :taxon_name_classifications do
+   resources :taxon_name_classifications, except: [:show] do
     concerns [:data_routes]
   end
 
