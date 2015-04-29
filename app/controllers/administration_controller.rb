@@ -6,4 +6,9 @@ class AdministrationController < ApplicationController
 
   def user_activity
   end
+
+  def data_overview
+  end
+
+
 end

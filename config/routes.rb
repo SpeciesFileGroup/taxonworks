@@ -41,6 +41,7 @@ TaxonWorks::Application.routes.draw do
   scope :administration, controller: :administration do
     match '/', to: :index, as: 'administration', via: :get
     get 'user_activity'
+    get 'data_overview'
   end
 
 # namespace :administration do
