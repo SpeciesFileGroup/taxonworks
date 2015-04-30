@@ -21,13 +21,33 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
       end_time = Time.now
     end
     st_year, st_month, st_day    = params['start_date_year'], params['start_date_month'], params['start_date_day']
+    st_blank                     = (st_year.blank? and st_month.blank? and st_day.blank?)
     end_year, end_month, end_day = params['end_date_year'], params['end_date_month'], params['end_date_day']
+    end_blank                    = (end_year.blank? and end_month.blank? and end_day.blank?)
     v_locality_fragment          = params['verbatim_locality_text']
     any_label_fragment           = params['any_label_text']
     id_fragment                  = params['identifier_text']
-    unless st_year.blank? and end_year.blank and st_month.blank? and end_month.blank? and st_day.blank? and end_day.blank?
-      sql_string = "(start_date_year is not null and start_date_year between #{st_year} and #{end_year})"
-      sql_string += " or (end_date_year is not null and end_date_year between #{st_year} and #{end_year})"
+    sql_string                   = ''
+    # if all the date information is blank, skip the date testing
+    unless st_blank and end_blank
+
+      # if one or the other of the dates are completely blank, make it equal to the other,
+      # indicating a one-day event
+      # todo: one might argue that a blank start date should be set to some time in the late
+      # 1700s and that a blank end date should be set to now.
+      if st_blank and not end_blank
+        st_year, st_month, st_day = end_year, end_month, end_day
+      end
+      if not st_blank and end_blank
+        end_year, end_month, end_day = st_year, st_month, st_day
+      end
+
+      # start and end year may be different, or the same, but both may be blank
+      unless st_year.blank? and end_year.blank?
+        # eliminate records with unset dates? todo: what to do with records which have unset dates?
+        sql_string = "(start_date_year is not null and start_date_year between #{st_year} and #{end_year})"
+        sql_string += " or (end_date_year is not null and end_date_year between #{st_year} and #{end_year})"
+      end
     end
     # sql_string += "(end_date_year is not null and end_date_year between #{start_time.year} and #{end_time.year})"
     unless v_locality_fragment.blank?
@@ -74,14 +94,15 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
 
   def drawn_collecting_events
     @motion            = 'drawn_collecting_events'
+    message            = ''
     @collecting_events = [] # replace [] with CollectingEvent.filter(params)
-    render_ce_select_json
+    render_ce_select_json(message)
   end
 
   def filtered_georeferences
     @motion            = 'filtered_georeference'
     @collecting_events = [] # replace [] with CollectingEvent.filter(params)
-    render_ce_select_json
+    render_ce_select_json(message)
   end
 
   def recent_georeferences
@@ -113,8 +134,9 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
 
   def drawn_georeferences
     @motion        = 'drawn_georeferences'
+    message        = ''
     @georeferences = [] # replace [] with CollectingEvent.filter(params)
-    render_gr_select_json
+    render_gr_select_json(message)
   end
 
   def batch_create
@@ -127,7 +149,7 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
 
   # @param [String] message to be conveyed to client side
   # @return [JSON] with html for collecting events display (table of selectable collecting events)
-  def render_ce_select_json(message = '')
+  def render_ce_select_json(message)
     # retval = render_to_html
     retval = render json: {message: message, html: ce_render_to_html}
     retval
@@ -135,7 +157,7 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
 
   # @param [String] message to be conveyed to client side
   # @return [JSON] with html for georeferences display (feature collection)
-  def render_gr_select_json(message = '')
+  def render_gr_select_json(message)
     retval = render json: {message: message, html: gr_render_to_html}
     retval
   end
