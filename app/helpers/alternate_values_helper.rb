@@ -49,7 +49,7 @@ module AlternateValuesHelper
 
   def alternate_value_link(alternate_value)
     return nil if alternate_value.nil?
-    link_to(alternate_value_tag(alternate_value).html_safe, alternate_value)
+    link_to(alternate_value_tag(alternate_value).html_safe, alternate_value.annotated_object.metamorphosize)
   end
 
   def alternate_values_search_form
