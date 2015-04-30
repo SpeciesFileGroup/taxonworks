@@ -5,13 +5,14 @@ module Workbench::DisplayHelper
   # General wrapper around individual <model_name>_tag methods
   #   object_tag(@otu) 
   def object_tag(object)
-    return nil if object.nil? 
+    return nil if object.nil?
+    klass_name = object.class.base_class.name
 
     # meh, exceptions  
-    return send("taxon_works_content_tag", object).html_safe if object.class.base_class.name == 'Content' 
-    return image_tag(object.image_file.url(:thumb)) if object.class.base_class.name == 'Image' 
+    return send("taxon_works_content_tag", object).html_safe if klass_name == 'Content' 
+    return image_tag(object.image_file.url(:thumb)) if klass_name == 'Image' 
    
-    send("#{object.class.base_class.name.underscore}_tag", object).html_safe
+    send("#{klass_name.underscore}_tag", object).html_safe
   end
 
   def model_name_title

@@ -4,20 +4,29 @@
     <p><strong><%= @data_attribute.attribute_subject.class.name %>
       :</strong> <%= object_tag(@data_attribute.attribute_subject) -%>  </p>
 
-    <%= f.hidden_field :type, value: 'InternalAttribute' %>
+    <%= f.hidden_field :type, value: (@data_attribute.type.blank? ? 'InternalAttribute' : @data_attribute.type) %>
     <%= f.hidden_field :attribute_subject_type %>
     <%= f.hidden_field :attribute_subject_id %>
     <div class="field">
+
       <%= f.label 'Predicate' %>
       <br>
-      <%= render :partial => 'workbench/elements/forms/ajax_select',
-                 :locals => {:controller => 'predicates',
-                             :object => 'data_attribute',
-                             :method => 'controlled_vocabulary_term_id',
-                             :tag_id => 'controlled_vocabulary_term_id_for_data_attribute',
-                             :display => object_tag(@data_attribute.import_predicate),
-                            :size => 40} %>
+
+      <% if @data_attribute.type == 'InternalAttribute' || @data_attribute.type.blank? %>
+
+      <%= render(partial: 'workbench/elements/forms/ajax_select',
+                 locals: {controller:  'predicates',
+                             object: 'data_attribute',
+                             method: 'controlled_vocabulary_term_id',
+                             tag_id: 'controlled_vocabulary_term_id_for_data_attribute',
+                             display: data_attribute_predicate_tag(@data_attribute),
+                            size:  40}) %>
+      <% else %>
+          <%= f.text_field :import_predicate %>
+      <% end %>
     </div>
+
+
     <div class="field">
       <%= f.label :value %>
       <br>

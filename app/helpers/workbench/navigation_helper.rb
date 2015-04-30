@@ -1,7 +1,6 @@
 # Methods for 1) generating paths; or 2) generating links.
 module Workbench::NavigationHelper
 
-
   def quick_bar
     render(partial: '/workbench/navigation/quick_bar') if is_data_controller?
   end
@@ -46,7 +45,7 @@ module Workbench::NavigationHelper
   end
 
   def new_for_model_link(model)
-    if model.annotates?
+    if %w{Note Tag Citation Identifier DataAttribute AlternateValue}.include?(model.name)
       nil
     else
       link_to('new', new_path_for_model(model))
@@ -71,7 +70,15 @@ module Workbench::NavigationHelper
 
   def object_link(object)
     return nil if object.nil?
-    link_to(object_tag(object).html_safe, object.metamorphosize)
+    klass_name = object.class.base_class.name.underscore
+    link_method = klass_name + '_link'
+
+    # if a customized link to method is available use that, otherwise use a generic
+    if self.respond_to?(link_method)
+      send(link_method, object)
+    else
+      link_to(object_tag(object).html_safe, object.metamorphosize)
+    end
   end
 
   def edit_object_path(object)
@@ -124,7 +131,6 @@ module Workbench::NavigationHelper
      add_tag_link(object: object)
     ].compact.join('<br>').html_safe
   end
-
 
   def safe_object_from_attributes(hsh)
     if hsh['object_type'] && hsh['object_type']
