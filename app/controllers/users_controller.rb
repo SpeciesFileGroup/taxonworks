@@ -94,6 +94,7 @@ class UsersController < ApplicationController
     $user_id = @user.id
     @user.require_password_presence
     @user.password_reset_token = nil
+    @user.is_flagged_for_password_reset = false
     if @user.update_attributes(params.require(:user).permit([:password, :password_confirmation]))
       flash[:success] = 'Password successfuly changed.'
       redirect_to root_path

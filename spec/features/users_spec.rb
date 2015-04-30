@@ -289,12 +289,23 @@ describe 'Users' do
             is_flagged_for_password_reset: true)
       }
       scenario 'requesting password reset from sign in process' do
+        password = '12345678abcd'
         visit root_path
         fill_in 'Email', with: 'flagged@example.com'
         fill_in 'Password', with: '12345678'
         click_button 'Sign in'
         click_button 'Send e-mail'
         expect(page).to have_content('Password reset request sent!')
+        mail = ActionMailer::Base.deliveries.last
+        visit mail.body.match(/http(s)?:\/\/[^\/]+(?<path>\S+)/)['path']
+        fill_in 'Password', with: password
+        fill_in 'Password confirmation', with: password
+        click_button 'Change password'
+        expect(page).to have_content('Password successfuly changed')
+        fill_in 'Email', with: 'flagged@example.com'
+        fill_in 'Password', with: password
+        click_button 'Sign in'
+        expect(page).to have_content('Dashboard')
       end
     end
   end
