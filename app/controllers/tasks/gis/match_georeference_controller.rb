@@ -33,8 +33,7 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
 
       # if one or the other of the dates are completely blank, make it equal to the other,
       # indicating a one-day event
-      # todo: one might argue that a blank start date should be set to some time in the late
-      # 1700s and that a blank end date should be set to now.
+      # todo: one might argue that a blank start date should be set to some time in the late 1700s and that a blank end date should be set to now.
       if st_blank and not end_blank
         st_year, st_month, st_day = end_year, end_month, end_day
       end
