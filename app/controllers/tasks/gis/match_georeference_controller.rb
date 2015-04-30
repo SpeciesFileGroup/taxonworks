@@ -11,41 +11,77 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
   def filtered_collecting_events
     @motion    = 'filtered_collecting_events'
     message    = ''
-    start_time = fix_time(params['start_date_year'],
-                          params['start_date_month'],
-                          params['start_date_day'])
-    end_time   = fix_time(params['end_date_year'],
-                          params['end_date_month'],
-                          params['end_date_day'])
-    if end_time == start_time
-      end_time = Time.now
+    start_time = Time.now
+    end_time   = nil
+
+    st_date, end_date         = params['st_datepicker'], params['en_datepicker']
+
+    # processing start date data
+    st_year, st_month, st_day = params['start_date_year'], params['start_date_month'], params['start_date_day']
+    unless st_date.blank?
+      parts                     = st_date.split('/')
+      st_year, st_month, st_day = parts[2], parts[0], parts[1]
     end
-    st_year, st_month, st_day    = params['start_date_year'], params['start_date_month'], params['start_date_day']
     st_blank                     = (st_year.blank? and st_month.blank? and st_day.blank?)
+    st_full                      = (!st_year.blank? and !st_month.blank? and !st_day.blank?)
+    st_partial                   = (!st_blank and (st_year.blank? or st_month.blank? or st_day.blank?))
+    start_time                   = fix_time(params['start_date_year'],
+                                            params['start_date_month'],
+                                            params['start_date_day']) if st_full
+
+    # processing end date data
     end_year, end_month, end_day = params['end_date_year'], params['end_date_month'], params['end_date_day']
-    end_blank                    = (end_year.blank? and end_month.blank? and end_day.blank?)
-    v_locality_fragment          = params['verbatim_locality_text']
-    any_label_fragment           = params['any_label_text']
-    id_fragment                  = params['identifier_text']
-    sql_string                   = ''
+    unless end_date.blank?
+      parts                        = end_date.split('/')
+      end_year, end_month, end_day = parts[2], parts[0], parts[1]
+    end
+    end_blank           = (end_year.blank? and end_month.blank? and end_day.blank?)
+    end_full            = (!end_year.blank? and !end_month.blank? and !end_day.blank?)
+    end_partial         = (!end_blank and (end_year.blank? or end_month.blank? or end_day.blank?))
+    end_time            = fix_time(params['end_date_year'],
+                                   params['end_date_month'],
+                                   params['end_date_day']) if end_full
+
+    # processing text data
+    v_locality_fragment = params['verbatim_locality_text']
+    any_label_fragment  = params['any_label_text']
+    id_fragment         = params['identifier_text']
+
+    sql_string = ''
     # if all the date information is blank, skip the date testing
     unless st_blank and end_blank
 
-      # if one or the other of the dates are completely blank, make it equal to the other,
-      # indicating a one-day event
-      # todo: one might argue that a blank start date should be set to some time in the late 1700s and that a blank end date should be set to now.
-      if st_blank and not end_blank
-        st_year, st_month, st_day = end_year, end_month, end_day
+      if end_blank # !st_blank = st_partial
+        # if we have only a start date there are three cases: d/m/y, m/y, y
+        unless st_year.blank? # nothing we can do about no year
+          sql_string += '(start_date_day '
+          if st_day.blank?
+            sql_string += 'between 1 and 31)'
+          else
+            sql_string += "= #{st_day})"
+          end
+          sql_string += ' and (start_date_month '
+          if st_month.blank?
+            sql_string += 'between 1 and 12)'
+          else
+            sql_string += "= #{st_month})"
+          end
+          sql_string += "and start_date_year = #{st_year}"
+        end
+
       end
-      if not st_blank and end_blank
-        end_year, end_month, end_day = st_year, st_month, st_day
+      if st_partial and not st_year.blank?
+        sql_string += "(start_date_year = #{st_year})"
       end
 
       # start and end year may be different, or the same, but both may be blank
-      unless st_year.blank? and end_year.blank?
-        # eliminate records with unset dates? todo: what to do with records which have unset dates?
-        sql_string = "(start_date_year is not null and start_date_year between #{st_year} and #{end_year})"
-        sql_string += " or (end_date_year is not null and end_date_year between #{st_year} and #{end_year})"
+      unless st_blank and end_blank
+        unless st_partial and not st_year.blank?
+          sql_string += "(start_date_year between #{st_year} and #{end_year})"
+        end
+        unless end_partial and not end_year.blanl?
+          sql_string += " or (end_date_year between #{st_year} and #{end_year})"
+        end
       end
     end
     # sql_string += "(end_date_year is not null and end_date_year between #{start_time.year} and #{end_time.year})"
@@ -188,4 +224,5 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
     end
     Time.new(year, month, day)
   end
+
 end
