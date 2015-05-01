@@ -50,6 +50,19 @@ class Person < ActiveRecord::Base
     [self.first_name, self.prefix, self.last_name, self.suffix].compact.join(' ').strip
   end
 
+  # @return [String]
+  #   The person's name in BibTeX format (von last, Jr, first)
+  def bibtex_name
+    out = ''
+    out << self.prefix + ' ' unless self.prefix.blank?
+    out << self.last_name unless self.last_name.blank?
+    out << ', ' unless out.blank? || (self.first_name.blank? && self.suffix.blank?)
+    out << self.suffix unless self.suffix.blank?
+    out << ', ' unless out.end_with?(', ') || self.first_name.blank? || out.blank?
+    out << self.first_name unless self.first_name.blank?
+    out.strip
+  end
+
   def is_author?
     self.author_roles.to_a.length > 0
   end

@@ -13,7 +13,7 @@ FactoryGirl.define do
     factory :source_person_prefix do
       last_name 'Adams'
       first_name 'John'
-      prefix 'Dr.'
+      prefix 'Von'
     end
 
     factory :source_person_suffix do
@@ -26,7 +26,7 @@ FactoryGirl.define do
       last_name 'Adams'
       first_name 'Janet'
       suffix 'III'
-      prefix 'Ms.'
+      prefix 'Von'
     end
 
   end

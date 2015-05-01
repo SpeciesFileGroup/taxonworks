@@ -34,6 +34,25 @@ describe Person, :type => :model do
     end
   end
 
+  context 'instance methods' do
+    specify '#bibtex_name formats correctly' do
+      p = FactoryGirl.build(:source_person_jones) #  Mike Jones
+      expect(p.bibtex_name).to eq('Jones, Mike')
+      p = FactoryGirl.build(:source_person_prefix) #  John Von Adams
+      expect(p.bibtex_name).to eq('Von Adams, John')
+      p = FactoryGirl.build(:source_person_suffix) #  James Adams Jr.
+      expect(p.bibtex_name).to eq('Adams, Jr., James')
+      p = FactoryGirl.build(:source_person_both_ps) #  Janet Von Adams III
+      expect(p.bibtex_name).to eq('Von Adams, III, Janet')
+      p = FactoryGirl.build(:source_person_jones)
+      p.first_name = ''             # Jones
+      expect(p.bibtex_name).to eq('Jones')
+      p.first_name = 'Sarah'
+      p.last_name = ''
+      expect(p.bibtex_name).to eq('Sarah')
+    end
+  end
+
   context 'class methods' do
     skip '.parser(name_string)'
     skip '.parse_to_people(name_srting)'
