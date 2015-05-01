@@ -3,9 +3,9 @@ var _init_match_georeference_page_widget;
 _init_match_georeference_page_widget = function init_match_georeference_page() {
     if ($('#match_georeference_widget').length) {
 
-        var setup = [];
-        //setup = initializeGoogleMapWithDrawManager("#_draw_ce_form");
-        //setup = initializeGoogleMapWithDrawManager("#_draw_gr_form");
+        var this_map = [];
+        //this_map = initializeGoogleMapWithDrawManager("#_draw_ce_form");
+        //this_map = initializeGoogleMapWithDrawManager("#_draw_gr_form");
 
         $(".filter-ce").click(function (event) {
 
@@ -86,7 +86,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
             $("#_recent_ce_form").attr("hidden", true);
             $('#_selecting_ce_form').attr('hidden', true);
 
-            setup = initializeGoogleMapWithDrawManager("#_draw_ce_form");
+            this_map = initializeGoogleMapWithDrawManager("#_draw_ce_form");
 
             event.preventDefault();
         });
@@ -171,8 +171,8 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
             // unhide the local div
             selecting.removeAttr('hidden');
             // start the map process
-            setup = initializeMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
-            add_match_georeferences_map_listeners(setup);
+            this_map = initializeMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
+            add_match_georeferences_map_listeners(this_map);
             return true;
         }).on("ajax:error", function (e, xhr, status, error) {
             $("#new_article").append("<p>ERROR</p>");
@@ -188,7 +188,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
             $("#_recent_gr_form").attr("hidden", true);
             $('#_selecting_gr_form').attr('hidden', true);
 
-            setup = initializeGoogleMapWithDrawManager("#_draw_gr_form");
+            this_map = initializeGoogleMapWithDrawManager("#_draw_gr_form");
 
             event.preventDefault();
         });
@@ -216,8 +216,8 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
             else {
                 selecting.html(local_data.responseJSON['html']);
                 $("#_recent_gr_form").attr("hidden", true);
-                setup = initializeMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
-                add_match_georeferences_map_listeners(setup);
+                this_map = initializeMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
+                add_match_georeferences_map_listeners(this_map);
             }
             selecting.removeAttr('hidden');
             return true;
@@ -229,7 +229,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
         // this is the find submits ajax request, get's FC response and draws it on the map
 
         // within above, bind click events to copy FC item to FC item
-        // setup = initializeGoogleMapWithDrawManager("#_draw_ce_form");
+        // this_map = initializeGoogleMapWithDrawManager("#_draw_ce_form");
 
     }
 };
@@ -339,14 +339,13 @@ function add_match_georeferences_map_listeners(map) {      // 4 listeners, one f
             event.feature.setProperty('isColorful', true);
             event.feature.setProperty('fillColor', "#CC0000");  //brighter red
     // selectable area has been clicked, get the feature
-            var selected_feature_georeference_id = event.feature["A"].georeference.id;
-          //  alert(selected_feature_georeference_id + '\n' + $("#_select_gr_form").data('feature-collection').features[0].properties['georeference'].id) ;  //$("#_select_gr_form").data('feature-collection').features[0].properties['georeference'].id
-            var feature_collection = $("#_select_gr_form").data('feature-collection');
-            for (var i = 0; i < feature_collection.features.length; i++) {
-                if (selected_feature_georeference_id == feature_collection.features[i].properties['georeference'].id) {
-                    var fc = {"type": "FeatureCollection", "features": []};
-                    fc.features.push(feature_collection.features[i]);
-                    initializeMap("select_gr_canvas", fc);
+            var selected_feature_georeference_id = event.feature["A"].georeference.id;      // unfortunate Google maps reference
+            var feature_collection = $("#_select_gr_form").data('feature-collection');      // literal-based form data reference
+            for (var i = 0; i < feature_collection.features.length; i++) {                  // scan the feature_collection
+                if (selected_feature_georeference_id == feature_collection.features[i].properties['georeference'].id) {  // for the match
+                    var fc = {"type": "FeatureCollection", "features": []};         // construct the new feature collection for the target
+                    fc.features.push(feature_collection.features[i]);           // inject the matching feature found by georeference id
+                    initializeMap("select_gr_canvas", fc);              // plto it on the center map, knowing literally where it is
                 }
             }
         };
