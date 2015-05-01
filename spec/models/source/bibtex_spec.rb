@@ -953,9 +953,9 @@ describe Source::Bibtex, type: :model, group: :sources do
 
     context 'associations' do
       context 'roles' do
-        before(:each) {
-          @valid_person = FactoryGirl.create(:valid_person)
-        }
+
+        let(:vp1) { FactoryGirl.create(:valid_person) } # Smith
+        let(:vp2) { FactoryGirl.create(:source_person_prefix) } # Von Adams, John
 
         specify 'after create/saved populate author/editor roles' do
           # bs1 was saved in the "before", since the authors already exist in the db,
@@ -970,8 +970,27 @@ describe Source::Bibtex, type: :model, group: :sources do
       skip
 =end
 
-        specify 'if authors/editors are updated' do
-          skip
+        context 'update author' do
+          specify 'cached strings are correct' do
+            src1 =  FactoryGirl.create(:soft_valid_bibtex_source_article)
+            src1.save
+            expect(src1.cached).to eq('Person, T. (1700) I am a soft valid article. Journal of Test Articles.')
+            expect(src1.cached_author_string).to eq('Person')
+
+            src1.authors << vp1
+            expect(src1.save).to be_truthy
+            expect(src1.cached).to eq('Smith (1700) I am a soft valid article. Journal of Test Articles.')
+            expect(src1.cached_author_string).to eq('Smith')
+
+            src1.authors << vp2
+            expect(src1.save).to be_truthy
+            expect(src1.cached).to eq('Smith & Von Adams, J. (1700) I am a soft valid article. Journal of Test Articles.')
+            expect(src1.cached_author_string).to eq('Smith and Von Adams')
+          end
+        end
+
+        context 'update editor' do
+          specify 'cached strings are correct'
         end
 
         context 'on validation' do
@@ -990,9 +1009,9 @@ describe Source::Bibtex, type: :model, group: :sources do
             bibtex.title       = 'valid record'
             bibtex.bibtex_type = 'book'
             expect(bibtex.save).to be_truthy # save record to get an ID
-            expect(bibtex.send(method) << @valid_person).to be_truthy # assigns author but doesn't save role
+            expect(bibtex.send(method) << vp1).to be_truthy # assigns author but doesn't save role
             expect(bibtex.save).to be_truthy # saving bibtex also saves role
-            expect(bibtex.send(method).first).to eq(@valid_person)
+            expect(bibtex.send(method).first).to eq(vp1)
           end
 
           specify "#{i}_roles" do
@@ -1002,12 +1021,15 @@ describe Source::Bibtex, type: :model, group: :sources do
             bibtex.title       = 'valid record'
             bibtex.bibtex_type = 'book'
             expect(bibtex.save).to be_truthy
-            expect(bibtex.send("#{i}s") << @valid_person).to be_truthy
+            expect(bibtex.send("#{i}s") << vp1).to be_truthy
             expect(bibtex.save).to be_truthy
             expect(bibtex.send(method).size).to eq(1)
           end
         end
+
+        pending 'test TW identifiers'
       end
+
     end
   end
 

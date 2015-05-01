@@ -63,6 +63,16 @@ class Person < ActiveRecord::Base
     out.strip
   end
 
+  # @return [String]
+  #   The person's full last name including prefix & suffix (von last Jr)
+  def full_last_name
+    out = ''
+    out << self.prefix + ' ' unless self.prefix.blank?
+    out << self.last_name unless self.last_name.blank?
+    out << ' ' + self.suffix unless self.suffix.blank?
+    out.strip
+  end
+
   def is_author?
     self.author_roles.to_a.length > 0
   end

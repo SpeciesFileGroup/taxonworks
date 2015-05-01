@@ -373,7 +373,20 @@ class Source::Bibtex < Source
     b[:note] = concatenated_notes_string if !concatenated_notes_string.blank? # see Notable 
     # TODO add conversion of Serial ID to journal name
 
-    b.key    = self.id unless self.new_record? # id.blank?
+    case self.authors.size
+      when 0
+        b.author = self.author
+      when 1
+        b.author = self.authors.first.bibtex_name
+      else
+        b.author = self.authors.collect { |a| a.bibtex_name }.join(' and ')
+    end
+
+    if self.editors.count > 0
+      b.editor = self.editors.map(&:bibtex_name).join(' and ')
+    end
+
+    b.key = self.id unless self.new_record? # id.blank?
     b
   end
 
@@ -499,7 +512,7 @@ class Source::Bibtex < Source
       when 1
         return (authors.all.first.last_name)
       else
-        return self.authors.collect { |a| a.last_name }.to_sentence(:last_word_connector => ' & ')
+        return self.authors.collect { |a| a.full_last_name }.to_sentence(:last_word_connector => ' & ')
     end
   end
 
@@ -608,7 +621,7 @@ class Source::Bibtex < Source
   #TODO if language is set => set language_id
   #endregion getters & setters
 
-   #region has_<attribute>? section
+  #region has_<attribute>? section
   def has_authors? # is there a bibtex author or author roles?
     return true if !(self.author.blank?)
     # author attribute is empty
