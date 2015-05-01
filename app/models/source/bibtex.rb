@@ -357,7 +357,7 @@ class Source::Bibtex < Source
   end
 
   # @return [BibTeX::Entry]
-  #   entry equvalent to self
+  #   entry equivalent to self
   def to_bibtex
     b = BibTeX::Entry.new(:bibtex_type => self[:bibtex_type])
     ::BIBTEX_FIELDS.each do |f|
@@ -373,22 +373,29 @@ class Source::Bibtex < Source
     b[:note] = concatenated_notes_string if !concatenated_notes_string.blank? # see Notable 
     # TODO add conversion of Serial ID to journal name
 
-    case self.authors.size
-      when 0
-        b.author = self.author
-      when 1
-        b.author = self.authors.first.bibtex_name
-      else
-        b.author = self.authors.collect { |a| a.bibtex_name }.join(' and ')
-    end
-
-    if self.editors.count > 0
-      b.editor = self.editors.map(&:bibtex_name).join(' and ')
-    end
+    b.author = self.compute_bibtex_names('author') unless (self.authors.size == 0 && self.author.blank?)
+    b.editor = self.compute_bibtex_names('editor') unless (self.editors.size == 0 && self.editor.blank?)
 
     b.key = self.id unless self.new_record? # id.blank?
     b
   end
+
+  # @param type [String] either author or editor
+  # @return [String]
+  #   the bibtex version of the name strings created from the TW people
+  def compute_bibtex_names(type)
+    method = type
+    methods = type + 's'
+    case self.send(methods).size
+      when 0
+        return self.send(method)
+      when 1
+        return self.send(methods).first.bibtex_name
+      else
+        return self.send(methods).collect { |a| a.bibtex_name }.join(' and ')
+    end
+  end
+
 
   # TODO add conversion of identifiers to ruby-bibtex fields
   # TODO if it finds one & only one match for serial assigns the serial ID, and if not it just store in journal title
@@ -429,13 +436,13 @@ class Source::Bibtex < Source
     s
   end
 
-  # @return[String] A string that represents the year with suffix as seen in a BibTeX bibliography.
+  # @return [String] A string that represents the year with suffix as seen in a BibTeX bibliography.
   #   returns "" if neither :year or :year_suffix are set.
   def year_with_suffix
     self[:year].to_s + self[:year_suffix].to_s
   end
 
-  # @return[String] A string that represents the authors last_names and year (no suffix)
+  # @return [String] A string that represents the authors last_names and year (no suffix)
   def author_year
     return 'not yet calculated' if self.new_record?
     [cached_author_string, year].compact.join(", ")
@@ -727,6 +734,7 @@ class Source::Bibtex < Source
     end
   end
 
+  # set cached values and copies active record relations into bibtex values
   def set_cached
     if self.errors.empty?
       tmp                       = cached_string('text')
@@ -736,6 +744,14 @@ class Source::Bibtex < Source
       #   end
       self.cached               = tmp
       self.cached_author_string = authority_name
+
+      if self.authors.size > 0
+        self.author = self.compute_bibtex_names('author')
+      end
+
+      if self.editors.size > 0
+        self.editor = self.compute_bibtex_names('editor')
+      end
     end
   end
 

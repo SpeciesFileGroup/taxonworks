@@ -50,5 +50,13 @@ FactoryGirl.define do
       year 1940
     end
 
+    factory :src_editor do
+      bibtex_type 'article'
+      title 'I am a soft valid article'
+      editor 'Person, Test'
+      journal 'Journal of Test Articles'
+      year 1700
+
+    end
   end
 end

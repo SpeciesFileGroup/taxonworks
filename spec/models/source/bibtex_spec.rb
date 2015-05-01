@@ -970,8 +970,8 @@ describe Source::Bibtex, type: :model, group: :sources do
       skip
 =end
 
-        context 'update author' do
-          specify 'cached strings are correct' do
+        context 'check cached strings after update' do
+          specify 'authors' do
             src1 =  FactoryGirl.create(:soft_valid_bibtex_source_article)
             src1.save
             expect(src1.cached).to eq('Person, T. (1700) I am a soft valid article. Journal of Test Articles.')
@@ -987,10 +987,20 @@ describe Source::Bibtex, type: :model, group: :sources do
             expect(src1.cached).to eq('Smith & Von Adams, J. (1700) I am a soft valid article. Journal of Test Articles.')
             expect(src1.cached_author_string).to eq('Smith and Von Adams')
           end
-        end
 
-        context 'update editor' do
-          specify 'cached strings are correct'
+          specify 'editors' do
+            src1 =  FactoryGirl.create(:src_editor)
+            src1.save
+            expect(src1.cached).to eq('Person, T. ed. (1700) I am a soft valid article. Journal of Test Articles.')
+
+            src1.editors << vp1
+            expect(src1.save).to be_truthy
+            expect(src1.cached).to eq('Smith ed. (1700) I am a soft valid article. Journal of Test Articles.')
+
+            src1.editors << vp2
+            expect(src1.save).to be_truthy
+            expect(src1.cached).to eq('Smith & Von Adams, J. eds. (1700) I am a soft valid article. Journal of Test Articles.')
+          end
         end
 
         context 'on validation' do
