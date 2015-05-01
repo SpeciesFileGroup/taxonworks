@@ -15,7 +15,18 @@
 
     <div>
       <h2> New Biocuration Group </h2>
-      <%= render(partial: 'controlled_vocabulary_terms/local_form', locals: {controlled_vocabulary_term: @new_biocuration_group, hide_type: true}) -%>
+      <%= render 'shared/errors', object: @new_biocuration_group %>
+      <%= form_for(@new_biocuration_group.metamorphosize, url: create_biocuration_group_url) do |f| %>
+
+        <%= render(partial: 'controlled_vocabulary_terms/local_form_elements', locals: {
+          f: f,
+          controlled_vocabulary_term: @new_biocuration_group,
+          hide_type: true
+        } ) -%>
+
+      <%= submit_tag -%>
+
+      <% end %>
     </div>
   </div>
 
@@ -28,7 +39,17 @@
 
     <div>
       <h2> New Biocuration Class </h2>
-      <%= render(partial: 'controlled_vocabulary_terms/local_form', locals: {controlled_vocabulary_term: @new_biocuration_class, hide_type: true}) -%>
+      <%= render 'shared/errors', object: @new_biocuration_class %>
+      
+      <%= form_for(@new_biocuration_class.metamorphosize, url: create_biocuration_class_url) do |f| %>
+        <%= render(partial: 'controlled_vocabulary_terms/local_form_elements', locals: {
+          f: f,
+          controlled_vocabulary_term: @new_biocuration_class,
+          hide_type: true
+        } ) -%>
+      <%= submit_tag -%>
+    <% end %>
+
     </div>
   </div>
   <br style='clear:both;'>

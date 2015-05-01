@@ -302,6 +302,10 @@ TaxonWorks::Application.routes.draw do
       scope :biocuration, controller: 'tasks/controlled_vocabularies/biocuration' do
         get 'build_collection', as: 'build_biocuration_groups_task'
         post 'build_biocuration_group', as: 'build_biocuration_group_task'
+
+        post 'create_biocuration_group'
+        post 'create_biocuration_class'
+
       end
     end
   end

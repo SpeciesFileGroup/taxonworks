@@ -1,40 +1,12 @@
 <%= form_for(@controlled_vocabulary_term.metamorphosize) do |f| %>
     <%= render 'shared/errors', object: @controlled_vocabulary_term %>
 
-    <div class="required">
-      <div class="field">
-        <%= f.label :type %>
-        <br>
-        <%= f.select :type, options_for_select(controlled_vocabulary_term_type_select_options, @controlled_vocabulary_term.type) %>
-      </div>
-
-      <div class="field">
-        <%= f.label :name %>
-        <br>
-        <%= f.text_field :name %>
-      </div>
-
-      <div class="field">
-        <%= f.label :definition %>
-        <br>
-        <%= f.text_area :definition %>
-      </div>
-    </div>
-
-    <div class="field">
-      <%= f.label :uri %>
-      <br>
-      <%= f.text_area :uri %>
-    </div>
-
-    <div class="field">
-      <%= f.label :uri_relation %>
-      <br>
-      <%= f.select :uri_relation, options_for_select(SKOS_RELATIONS.keys, @controlled_vocabulary_term.uri_relation), include_blank: true -%> 
-    </div>
-
-    <%= hidden_field_tag :return_path, @return_path %>
-
+    <%= render(partial: 'local_form_elements', locals: {
+      f: f,
+      controlled_vocabulary_term: @controlled_vocabulary_term,
+      hide_type: false
+    } ) -%>
+  
     <div class="actions">
       <%= f.submit %>
     </div>
