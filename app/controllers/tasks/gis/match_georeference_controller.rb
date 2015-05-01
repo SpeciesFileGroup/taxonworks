@@ -9,10 +9,11 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
   end
 
   def filtered_collecting_events
-    @motion    = 'filtered_collecting_events'
-    message    = ''
-    start_time = Time.now
-    end_time   = nil
+    @motion            = 'filtered_collecting_events'
+    message            = ''
+    prefix             = ''
+    @collecting_events = [] # not strictly necessary, but makes testing easier
+
 
     st_date, end_date         = params['st_datepicker'], params['en_datepicker']
 
@@ -60,41 +61,53 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
           else
             sql_string += "= #{st_day})"
           end
-          sql_string += ' and (start_date_month '
+          unless sql_string.blank?
+            prefix = ' and '
+          end
+          sql_string += "#{prefix}(start_date_month::integer "
           if st_month.blank?
             sql_string += 'between 1 and 12)'
           else
             sql_string += "= #{st_month})"
           end
-          sql_string += "and start_date_year = #{st_year}"
+          unless sql_string.blank?
+            prefix = ' and '
+          end
+          sql_string += "#{prefix}(start_date_year = #{st_year})"
         end
-
       end
-      if st_partial and not st_year.blank?
-        sql_string += "(start_date_year = #{st_year})"
-      end
+      # if st_partial and not st_year.blank?
+      #   sql_string += "(start_date_year = #{st_year})"
+      # end
 
-      # start and end year may be different, or the same, but both may be blank
-      unless st_blank and end_blank
-        unless st_partial and not st_year.blank?
-          sql_string += "(start_date_year between #{st_year} and #{end_year})"
-        end
-        unless end_partial and not end_year.blanl?
-          sql_string += " or (end_date_year between #{st_year} and #{end_year})"
-        end
+      # start and end year may be different, or the same, but not blank
+      if !st_year.blank? and !end_year.blank?
+        sql_string += "(start_date_year between #{st_year} and #{end_year})"
+        sql_string += " or (end_date_year between #{st_year} and #{end_year})"
       end
     end
     # sql_string += "(end_date_year is not null and end_date_year between #{start_time.year} and #{end_time.year})"
+
     unless v_locality_fragment.blank?
-      sql_string += " or verbatim_locality ilike '%#{v_locality_fragment}%'"
+      unless sql_string.blank?
+        prefix = ' and '
+      end
+      sql_string += "#{ prefix }verbatim_locality ilike '%#{v_locality_fragment}%'"
     end
     unless any_label_fragment.blank?
-      sql_string += " or (verbatim_label ilike '%#{any_label_fragment}%'"
+      unless sql_string.blank?
+        prefix = 'and '
+      end
+      sql_string += "#{ prefix }(verbatim_label ilike '%#{any_label_fragment}%'"
       sql_string += " or print_label ilike '%#{any_label_fragment}%'"
       sql_string += " or document_label ilike '%#{any_label_fragment}%'"
       sql_string += ')'
     end
-    @collecting_events = CollectingEvent.where(sql_string).uniq
+
+    # find the records
+    unless sql_string.blank?
+      @collecting_events = CollectingEvent.where(sql_string).uniq
+    end
 
     if @collecting_events.length == 0
       message = 'no collecting events selected'
