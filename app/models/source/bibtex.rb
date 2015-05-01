@@ -710,13 +710,19 @@ class Source::Bibtex < Source
       bx_entry.key = 'tmpID'
     end
 
+    if bx_entry.year.blank?  # cludge to fix render problem with year
+      bx_entry.year = '0000'
+    end
+
     key             = bx_entry.key
     bx_bibliography = BibTeX::Bibliography.new
     bx_bibliography.add(bx_entry)
 
     cp = CiteProc::Processor.new(style: 'zootaxa', format: format)
     cp.import(bx_bibliography.to_citeproc)
-    cp.render(:bibliography, id: key).first.strip
+    output = cp.render(:bibliography, id: key).first.strip
+
+    output.sub('(0ADAD)', '') # citeproc renders year 0000 as (0ADAD)
   end
 
   protected
