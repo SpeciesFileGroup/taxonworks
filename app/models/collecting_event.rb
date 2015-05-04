@@ -673,7 +673,7 @@ TODO: @mjy: please fill in any other paths you can think of for the acquisition 
   # @param params [Hash] of parameters for this search
   # @return [Scope] of collecting_events found by (partial) verbatim_locality
   def self.find_for_autocomplete(params)
-    Queries::CollectingEventAutocompleteQuery.new(params[:term]).all
+    Queries::CollectingEventAutocompleteQuery.new(params[:term]).all.where(project_id: params[:project_id])
   end
 
   # @param [Scope]

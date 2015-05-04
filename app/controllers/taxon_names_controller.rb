@@ -97,7 +97,7 @@ class TaxonNamesController < ApplicationController
 
   # GET /taxon_names/download
   def download
-    send_data ControlledVocabularyTerm.generate_download( TaxonName.where(project_id: $project_id) ), type: 'text', filename: "taxon_names_#{DateTime.now.to_s}.csv"
+    send_data TaxonName.generate_download( TaxonName.where(project_id: $project_id) ), type: 'text', filename: "taxon_names_#{DateTime.now.to_s}.csv"
   end
 
 
@@ -134,9 +134,6 @@ class TaxonNamesController < ApplicationController
     end
     redirect_to taxon_names_path
   end
-
-
-
 
   private
   # Use callbacks to share common setup or constraints between actions.

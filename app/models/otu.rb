@@ -97,7 +97,7 @@ class Otu < ActiveRecord::Base
   #endregion
 
   def self.find_for_autocomplete(params)
-    Queries::OtuAutocompleteQuery.new(params[:term]).all
+    Queries::OtuAutocompleteQuery.new(params[:term]).all.where(project_id: params[:project_id])
   end
 
   # Generate a CSV version of the raw Otus table for the given project_id

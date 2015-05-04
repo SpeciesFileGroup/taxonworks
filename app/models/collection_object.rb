@@ -115,7 +115,7 @@ class CollectionObject < ActiveRecord::Base
   end
 
   def self.find_for_autocomplete(params)
-    Queries::BiologicalCollectionObjectAutocompleteQuery.new(params[:term]).all 
+    Queries::BiologicalCollectionObjectAutocompleteQuery.new(params[:term]).all.where(project_id: params[:project_id])
   end
 
   def self.breakdown_status(collection_objects)

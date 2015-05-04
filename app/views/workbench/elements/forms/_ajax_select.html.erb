@@ -12,8 +12,8 @@
                   escape:     false}) -%>
 
 <input autocomplete="off"
-       title="Find and select a <%= object_name -%>. You must click or tab off a row to choose the item."
-       placeholder='Select a <%= object_name -%>'
+       title="Find and select a <%= object_name.gsub(/\//, '') -%>. You must click or tab off a row to choose the item."
+       placeholder='Select a <%= object_name.gsub(/\//, '') -%>'
        class="mx-autocomplete <%= css_class -%>"
        id="<%= tag_id %>"
        data-mx-autocomplete-url='<%= url %>'

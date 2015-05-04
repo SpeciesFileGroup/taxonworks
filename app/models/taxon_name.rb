@@ -879,16 +879,10 @@ class TaxonName < ActiveRecord::Base
     nil
   end
 
+  # return [Scope]
+  #   a scoped query for autocomplete purposes
   def self.find_for_autocomplete(params)
-    t = params[:term]
-    limit = 10 
-    case t.length
-    when 0..3
-    else
-      limit = 20
-    end
-    
-    where('(cached  ~~* ?) OR (name  ~~* ?)', t, t).with_project_id(params[:project_id]).limit(limit).order(:name, :cached)
+    Queries::TaxonNameAutocompleteQuery.new(params[:term]).all.where(project_id: params[:project_id])
   end
 
   # A proxy for a scope
