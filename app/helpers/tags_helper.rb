@@ -2,7 +2,7 @@ module TagsHelper
 
   def self.tag_tag(tag)
     return nil if tag.nil?
-    tag.keyword.name
+    tag.controlled_vocabulary_term.name
   end
 
   def tag_tag(tag)
