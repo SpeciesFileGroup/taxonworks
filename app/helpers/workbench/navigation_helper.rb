@@ -45,7 +45,7 @@ module Workbench::NavigationHelper
   end
 
   def new_for_model_link(model)
-    if %w{Note Tag Citation Identifier DataAttribute AlternateValue}.include?(model.name)
+    if %w{Note Tag Citation Identifier DataAttribute AlternateValue GeographicArea}.include?(model.name)
       nil
     else
       link_to('new', new_path_for_model(model))
