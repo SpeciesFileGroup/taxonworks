@@ -57,19 +57,6 @@ new_biocuration_class
         </div>
 
         <div class="field">
-          <%= f.label :accession_provider %>
-          <br>
-          <%= render(partial: 'workbench/elements/forms/ajax_select',
-                     locals:  {controller: 'people',
-                               object:     'person',
-                               method:     'accession_provider_id',
-                               tag_id:     'accession_provider_id_for_collection_object',
-                               display:    object_tag(@collection_object.accession_provider),
-                               size:       20
-                     }) %>
-        </div>
-
-        <div class="field">
           <%= f.label :accessioned_at %>
           <br>
           <%= f.date_field :accessioned_at -%>
@@ -79,19 +66,6 @@ new_biocuration_class
           <%= f.label :deaccessioned_at %>
           <br>
           <%= f.date_field :deaccessioned_at -%>
-        </div>
-
-        <div class="field">
-          <%= f.label :deaccession_recipient %>
-          <br>
-          <%= render(partial: 'workbench/elements/forms/ajax_select',
-                     locals:  {controller: 'people',
-                               object:     'person',
-                               method:     'deaccession_recipient_id',
-                               tag_id:     'deaccession_recipient_id_for_collection_object',
-                               display:    object_tag(@collection_object.deaccession_recipient),
-                               size:       20
-                     }) %>
         </div>
 
         <div class="field">
