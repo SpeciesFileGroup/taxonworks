@@ -25,7 +25,8 @@ class TaxonNameRelationship < ActiveRecord::Base
       :validate_uniqueness_of_typification_object,
       :validate_uniqueness_of_synonym_subject,
       :validate_object_must_equal_subject_for_uncertain_placement,
-      :validate_subject_and_object_ranks
+      :validate_subject_and_object_ranks,
+      :validate_rank_group
   end
 
   soft_validate(:sv_validate_required_relationships, set: :validate_required_relationships)
@@ -53,7 +54,7 @@ class TaxonNameRelationship < ActiveRecord::Base
 
   # TODO: SourceClassifiedAs is not really Combination in the other sense
   def is_combination?
-    !!/TaxonNameRelationship::(OriginalCombination|Combination)/.match(self.type)
+    !!/TaxonNameRelationship::(OriginalCombination|Combination)/.match(self.type.to_s)
   end.to_s
 
   def aliases
@@ -148,11 +149,11 @@ class TaxonNameRelationship < ActiveRecord::Base
   #region Validation
 
   def validate_type
-    if !TAXON_NAME_RELATIONSHIP_NAMES.include?(type)
+    unless TAXON_NAME_RELATIONSHIP_NAMES.include?(type)
       errors.add(:type, "'#{type}' is not a valid taxon name relationship")
     end
 
-    if object_taxon_name.class.to_s == 'Protonym'
+    if object_taxon_name.class.to_s == 'Protonym' || object_taxon_name.class.to_s == 'Hybrid'
       errors.add(:type, "'#{type}' is not a valid taxon name relationship") if /TaxonNameRelationship::Combination::/.match(self.type)
     end
 
@@ -228,6 +229,14 @@ class TaxonNameRelationship < ActiveRecord::Base
   def validate_uniqueness_of_typification_object
     if /Typification/.match(self.type_name) && !TaxonNameRelationship.where(object_taxon_name_id: self.object_taxon_name_id).with_type_contains('Typification').not_self(self).empty?
       errors.add(:object_taxon_name_id, 'Only one type relationship is allowed')
+    end
+  end
+
+  def validate_rank_group
+    if self.type =~ /Hybrid/ && self.subject_taxon_name && self.object_taxon_name
+      if self.subject_taxon_name.rank_class.parent != self.object_taxon_name.rank_class.parent
+        errors.add(:subject_taxon_name_id, "Rank of taxon (#{self.subject_taxon_name.rank_class.rank_name}) is not compatible with the rank of hybrid (#{self.object_taxon_name.rank_class.rank_name})")
+      end
     end
   end
 

@@ -70,7 +70,7 @@ describe Combination, :type => :model do
       expect(combination.errors.include?(:name)).to be_falsey
     end
 
-    # Double check?!
+    #TODO: Double check?!
     specify 'rank_class is optional' do
       expect(combination.errors.include?(:rank_class)).to be_falsey
     end

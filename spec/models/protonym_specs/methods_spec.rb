@@ -19,10 +19,10 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
   context 'methods' do
     specify 'is_fassil' do
       g = FactoryGirl.create(:relationship_genus)
-      expect(g.is_fassil?).to be_falsey
+      expect(g.is_fossil?).to be_falsey
       FactoryGirl.create(:taxon_name_classification, taxon_name: g, type: 'TaxonNameClassification::Iczn::Fossil')
       g.reload
-      expect(g.is_fassil?).to be_truthy
+      expect(g.is_fossil?).to be_truthy
     end
 
     specify 'all_generic_placements' do
