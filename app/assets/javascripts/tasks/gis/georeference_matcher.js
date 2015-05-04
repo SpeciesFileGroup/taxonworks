@@ -236,7 +236,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
 
    Jim - something in this block of code (that is run on every page- is that intended?)
    is raising an error on every page and preventing the source -> new javascript from
-   running */
+   running
 
   $(function () {
     $("#st_datepicker").datepicker();
@@ -266,7 +266,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
     dateInput.datepicker('setDate', $.datepicker.parseDate(format, dateInput.val()));
   });
 
-  /*     ---- end block --- */
+      ---- end block --- */
 };
 
 $(document).ready(_init_match_georeference_page_widget);
