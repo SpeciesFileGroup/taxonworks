@@ -106,7 +106,7 @@ class CollectionObjectsController < ApplicationController
   end
 
   def collection_object_params
-    params.require(:collection_object).permit(:total, :preparation_type_id, :repository_id, :ranged_lot_category_id, :collecting_event_id, :buffered_collecting_event, :buffered_deteriminations, :buffered_other_labels, :deaccessioned_at, :accession_provider, :deaccesion_recipient, :deaccession_reason)
+    params.require(:collection_object).permit(:total, :preparation_type_id, :repository_id, :ranged_lot_category_id, :collecting_event_id, :buffered_collecting_event, :buffered_deteriminations, :buffered_other_labels, :deaccessioned_at, :deaccession_reason)
   end
 
 end
