@@ -343,6 +343,7 @@ function add_click_services_to_match_georeferences_map(map, event) {     // clic
 
 function add_match_georeferences_map_listeners(map) {      // 4 listeners, one for map as a whole 3 for map.data features
   // When the user clicks, set 'isColorful', changing the color of the feature.
+    var selected_map;
   map.data.addListener('click', function (event) {
     if (event.feature.getProperty('isColorful')) {           // reset selected color if
       event.feature.setProperty('isColorful', false);     // previously selected
@@ -358,8 +359,8 @@ function add_match_georeferences_map_listeners(map) {      // 4 listeners, one f
         if (selected_feature_georeference_id == feature_collection.features[i].properties['georeference'].id) {  // for the match
           var fc = {"type": "FeatureCollection", "features": []};         // construct the new feature collection for the target
           fc.features.push(feature_collection.features[i]);           // inject the matching feature found by georeference id
-          initializeMap("select_gr_canvas", fc);              // plto it on the center map, knowing literally where it is
-        }
+          selected_map = ("selected_gr_canvas", fc);              // plot it on the center map, knowing literally where it is
+        }                                                   // selected_map can be used to bind other listeners
       }
     }
     ;
