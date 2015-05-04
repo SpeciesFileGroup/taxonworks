@@ -232,47 +232,45 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
     // this_map = initializeGoogleMapWithDrawManager("#_draw_ce_form");
 
   }
+  /* ----
+
+   Jim - something in this block of code (that is run on every page- is that intended?)
+   is raising an error on every page and preventing the source -> new javascript from
+   running */
+
+  $(function () {
+    $("#st_datepicker").datepicker();
+  });
+
+  $(function () {
+    $("#en_datepicker").datepicker();
+  });
+
+
+  // https://api.jqueryui.com/datepicker/
+  //# This makes the pop-up show the actual db date by fixing a format difference.
+  $(function () {
+    var dateInput = $("#st_datepicker");
+    var format = 'dd-MM-yy';
+    dateInput.datepicker({dateFormat: format});
+    dateInput.datepicker('setDate', $.datepicker.parseDate(format, dateInput.val()));
+  });
+
+
+  // https://api.jqueryui.com/datepicker/
+  //# This makes the pop-up show the actual db date by fixing a format difference.
+  $(function () {
+    var dateInput = $("#en_datepicker");
+    var format = 'yy-mm-dd';
+    dateInput.datepicker({dateFormat: format});
+    dateInput.datepicker('setDate', $.datepicker.parseDate(format, dateInput.val()));
+  });
+
+  /*     ---- end block --- */
 };
 
 $(document).ready(_init_match_georeference_page_widget);
 $(document).on("page:load", _init_match_georeference_page_widget);
-
-/* ----
-
-  Jim - something in this block of code (that is run on every page- is that intended?)
-   is raising an error on every page and preventing the source -> new javascript from
-   running
-
-$(function () {
-  $("#st_datepicker").datepicker();
-});
-
-$(function () {
-  $("#en_datepicker").datepicker();
-});
-
-
-// https://api.jqueryui.com/datepicker/
-//# This makes the pop-up show the actual db date by fixing a format difference.
-$(function () {
-  var dateInput = $("#st_datepicker");
-  var format = 'dd-MM-yy';
-  dateInput.datepicker({dateFormat: format});
-  dateInput.datepicker('setDate', $.datepicker.parseDate(format, dateInput.val()));
-});
-
-
-
-// https://api.jqueryui.com/datepicker/
-//# This makes the pop-up show the actual db date by fixing a format difference.
-$(function () {
-  var dateInput = $("#en_datepicker");
-  var format = 'yy-mm-dd';
-  dateInput.datepicker({dateFormat: format});
-  dateInput.datepicker('setDate', $.datepicker.parseDate(format, dateInput.val()));
-});
-
----- end block --- */
 
 
 function add_click_services_to_match_georeferences_map(map, event) {     // click event passed in
