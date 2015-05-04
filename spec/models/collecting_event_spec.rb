@@ -98,8 +98,8 @@ describe CollectingEvent, type: :model, group: :geo do
       expect(collecting_event.errors.include?(:end_date_year)).to be_truthy
     end
 
-    specify 'start_date_month is invalid when not included in LEGAL_MONTHS' do
-      ['ab', :jani, 'Febuary', 13, 0].each do |m|
+    specify 'start_date_month is invalid when not included in 1-12' do
+      ['ab', 'February', 13, 0].each do |m|
         collecting_event.start_date_month = m
         collecting_event.valid?
         expect(collecting_event.errors.include?(:start_date_month)).to be_truthy
@@ -126,8 +126,8 @@ describe CollectingEvent, type: :model, group: :geo do
       expect(collecting_event.errors.include?(:start_date_month)).to be_truthy
     end
 
-    specify 'end_date_month is invalid when not included in LEGAL_MONTHS' do
-      ['ab', :jani, 'Febuary', 13, 0].each do |m|
+    specify 'end_date_month is invalid when not included in 1-12' do
+      ['ab', 'February', 13, 0].each do |m|
         collecting_event.end_date_month = m
         collecting_event.valid?
         expect(collecting_event.errors.include?(:end_date_month)).to be_truthy
