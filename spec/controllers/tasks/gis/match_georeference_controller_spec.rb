@@ -46,14 +46,26 @@ describe Tasks::Gis::MatchGeoreferenceController, type: :controller do
     context 'checking date processing' do
       context 'inclusions' do
 
-        it 'processes case 1my: start date' do
-          ce1.save
-          ce2.save
-          ce3.save
-          get :filtered_collecting_events, {start_date_month: '1', start_date_year: '2015'}
-          # pending 'date completion'
-          expect(assigns(:collecting_events)).to contain_exactly(ce2, ce1)
+        it 'processes case 1y: start date' do
+          [ce1, ce2, ce3].map(&:save)
+          get :filtered_collecting_events, {start_date_year: '2001'}
+          expect(assigns(:collecting_events)).to contain_exactly(ce3)
         end
+      end
+
+      it 'processes case 1my: start date' do
+        [ce1, ce2, ce3].map(&:save)
+        get :filtered_collecting_events, {start_date_month: '1',
+                                          start_date_year: '2015'}
+        expect(assigns(:collecting_events)).to contain_exactly(ce1, ce2)
+      end
+
+      it 'processes case 1dmy: start date' do
+        [ce1, ce2, ce3].map(&:save)
+        get :filtered_collecting_events, {start_date_day: '15',
+                                          start_date_month: '1',
+                                          start_date_year: '2015'}
+        expect(assigns(:collecting_events)).to contain_exactly(ce2)
       end
 
       context 'exclusions' do

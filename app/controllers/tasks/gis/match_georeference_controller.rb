@@ -58,14 +58,12 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
           unless st_day.blank?
             sql_string += "(start_date_day = #{st_day})"
           end
+          # if the request contains no day
           unless sql_string.blank?
             prefix = ' and '
           end
-          sql_string += "#{prefix}(start_date_month::integer "
-          if st_month.blank?
-            sql_string += 'between 1 and 12)'
-          else
-            sql_string += "= #{st_month})"
+          unless st_month.blank?
+            sql_string += "#{prefix}(start_date_month::integer = #{st_month})"
           end
           unless sql_string.blank?
             prefix = ' and '
