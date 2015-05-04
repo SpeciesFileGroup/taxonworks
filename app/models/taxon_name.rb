@@ -916,7 +916,7 @@ class TaxonName < ActiveRecord::Base
   end
 
   def check_format_of_name
-    if self.rank_class && self.rank_class.respond_to?(:validate_name_format)
+    if self.type == 'Protonym' && self.rank_class && self.rank_class.respond_to?(:validate_name_format)
       self.rank_class.validate_name_format(self)
     end
   end
@@ -940,7 +940,10 @@ class TaxonName < ActiveRecord::Base
     if self.type == 'Combination'
       errors.add(:rank_class, 'Combination should not have rank') if !!self.rank_class
     elsif self.type == 'Protonym'
-      errors.add(:rank_class, 'Rank not found') unless Ranks.valid?(rank_class)
+      #errors.add(:rank_class, 'Rank not found') unless Ranks.valid?(rank_class)
+      errors.add(:rank_class, 'Rank not found') unless RANKS.include?(rank_class.to_s)
+    elsif self.type == 'Hybrid'
+      errors.add(:rank_class, 'It is not an ICN rank') unless ICN.include?(rank_class.to_s)
     end
   end
 

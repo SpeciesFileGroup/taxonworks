@@ -144,7 +144,7 @@ class Protonym < TaxonName
   end
 
   # @return [boolean]
-  def is_fassil?
+  def is_fossil?
     if !TaxonNameClassification.where_taxon_name(self).with_type_contains('::Fossil').empty?
       true
     else
@@ -734,11 +734,11 @@ class Protonym < TaxonName
 
   def sv_extant_children
     unless self.parent_id.blank?
-      if self.is_fassil?
+      if self.is_fossil?
         taxa = Protonym.where(parent_id: self.id)
         unless taxa.empty?
           taxa.each do |t|
-            soft_validations.add(:base, 'Extinct taxon has extant children') unless t.is_fassil?
+            soft_validations.add(:base, 'Extinct taxon has extant children') unless t.is_fossil?
           end
         end
       end

@@ -1,0 +1,6 @@
+class Hybrid < Protonym
+
+
+
+
+end
