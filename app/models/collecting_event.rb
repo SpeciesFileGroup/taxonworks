@@ -112,7 +112,7 @@ class CollectingEvent < ActiveRecord::Base
             allow_nil:    true,
             numericality: {
               only_integer: true,
-              in:           (0..23),
+              greater_than: -1, less_than: 24,
               message:      'start time hour must be 0-23'
             }
 
@@ -120,7 +120,7 @@ class CollectingEvent < ActiveRecord::Base
             allow_nil:    true,
             numericality: {
               only_integer: true,
-              in:           (0..59),
+              greater_than: -1, less_than: 60,
               message:      'start time minute must be 0-59'
             }
 
@@ -128,7 +128,7 @@ class CollectingEvent < ActiveRecord::Base
             allow_nil:    true,
             numericality: {
               only_integer: true,
-              in:           (0..59),
+              greater_than: -1, less_than: 60,
               message:      'start time second must be 0-59'
             }
 
@@ -179,13 +179,13 @@ class CollectingEvent < ActiveRecord::Base
             allow_nil:    true
 
   # TODO: these are just simple integer validations now, fix!
-  validates_inclusion_of :start_date_month,
-                         in:     Utilities::Dates::LEGAL_MONTHS,
-                         unless: 'start_date_month.blank?'
+  validates :start_date_month,
+    numericality: { only_integer: true, greater_than: 0, less_than: 13},
+    unless: 'start_date_month.blank?'
 
-  validates_inclusion_of :end_date_month,
-                         in:     Utilities::Dates::LEGAL_MONTHS,
-                         unless: 'end_date_month.blank?'
+  validates :end_date_month,
+    numericality: { only_integer: true, greater_than: 0, less_than: 13},
+    unless: 'end_date_month.blank?'
 
   validates_presence_of :start_date_month,
                         if: '!start_date_day.nil?'
