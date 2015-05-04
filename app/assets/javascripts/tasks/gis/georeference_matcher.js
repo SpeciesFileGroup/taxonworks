@@ -359,7 +359,7 @@ function add_match_georeferences_map_listeners(map) {      // 4 listeners, one f
         if (selected_feature_georeference_id == feature_collection.features[i].properties['georeference'].id) {  // for the match
           var fc = {"type": "FeatureCollection", "features": []};         // construct the new feature collection for the target
           fc.features.push(feature_collection.features[i]);           // inject the matching feature found by georeference id
-          selected_map = ("selected_gr_canvas", fc);              // plot it on the center map, knowing literally where it is
+          selected_map = initializeMap("selected_gr_canvas", fc);              // plot it on the center map, knowing literally where it is
         }                                                   // selected_map can be used to bind other listeners
       }
     }
