@@ -17,9 +17,14 @@ class GeographicAreasController < ApplicationController
     # GeographicArea.idontknow()
   end
 
+  # GET /geographic_areas/new
+  def new
+    @geographic_area = GeographicArea.new
+  end
+
   def display_coordinates
     @asserted_distribution = AssertedDistribution.new
-    @json_coors = params.to_json
+    @json_coors            = params.to_json
     render partial: '/asserted_distributions/quick_form'
   end
 
@@ -32,12 +37,12 @@ class GeographicAreasController < ApplicationController
       redirect_to geographic_area_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
     else
       redirect_to geographic_area_path(params[:id])
-     end
+    end
   end
 
   def autocomplete
     @geographic_areas = GeographicArea.find_for_autocomplete(params)
-    data = @geographic_areas.collect do |t|
+    data              = @geographic_areas.collect do |t|
       show_this = GeographicAreasHelper.geographic_area_autocomplete_tag(t, params[:term])
       {id:              t.id,
        label:           GeographicAreasHelper.geographic_area_tag(t),
@@ -52,7 +57,7 @@ class GeographicAreasController < ApplicationController
 
   # GET /geographic_areas/download
   def download
-    send_data GeographicArea.generate_download( GeographicArea.all ), type: 'text', filename: "geographic_areas_#{DateTime.now.to_s}.csv"
+    send_data GeographicArea.generate_download(GeographicArea.all), type: 'text', filename: "geographic_areas_#{DateTime.now.to_s}.csv"
   end
 
   private
@@ -62,7 +67,7 @@ class GeographicAreasController < ApplicationController
   # Use callbacks to share common setup or constraints between actions.
   def set_geographic_area
     @geographic_area = GeographicArea.find(params[:id])
-    @recent_object = @geographic_area 
+    @recent_object   = @geographic_area
   end
 
   # Never trust parameters from the scary internet, only allow the white list through.

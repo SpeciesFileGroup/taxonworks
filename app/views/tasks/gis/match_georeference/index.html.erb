@@ -28,16 +28,11 @@
     </div>
     <div class="item item2">
       <h2>Current Georeference</h2>
-      <br>------_find_gr-------------------
-      <div id="_find_gr" name="_find_gr">
+      <br>------_find_gr_form-------------------
+      <div id="_find_gr_form" name="_find_gr_form">
         Find a georeference at right and select it.
       </div>
-      <br>------_select_gr-------------------
-      <div id="_select_gr" name="_select_gr" hidden="hidden">
-        Select a georeference at right.
-      </div>
-      <br>------_selected_gr-------------------
-      <%#= form_for(@georeference) do |f| %>
+      <br>------_selected_gr_form-------------------
       <div id="_selected_gr_form"
            data-feature-collection='<%= Gis::GeoJSON.feature_collection([]).to_json.html_safe %>'
            data-map-center='POINT (0.0 0.0 0.0)'
@@ -50,10 +45,7 @@
             </td>
           </tr>
         </table>
-        <%= form_tag(tagged_georeferences_path) do %>
-            <div><%= submit_tag('clear selection') %></div>
-        <% end %>
-        <%# end %>
+        <input type='button' id="btn_clear_selection" name="btn_clear_selection" value="clear selection"/>
       </div>
 
     </div>

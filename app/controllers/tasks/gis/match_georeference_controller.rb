@@ -55,11 +55,8 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
       if end_blank # !st_blank = st_partial
         # if we have only a start date there are three cases: d/m/y, m/y, y
         unless st_year.blank? # nothing we can do about no year
-          sql_string += '(start_date_day '
-          if st_day.blank?
-            sql_string += 'between 1 and 31)'
-          else
-            sql_string += "= #{st_day})"
+          unless st_day.blank?
+            sql_string += "(start_date_day = #{st_day})"
           end
           unless sql_string.blank?
             prefix = ' and '
@@ -75,6 +72,8 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
           end
           sql_string += "#{prefix}(start_date_year = #{st_year})"
         end
+      else
+        # end date only, don't do anything
       end
       # if st_partial and not st_year.blank?
       #   sql_string += "(start_date_year = #{st_year})"

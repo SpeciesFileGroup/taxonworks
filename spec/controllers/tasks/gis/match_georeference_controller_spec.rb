@@ -51,8 +51,8 @@ describe Tasks::Gis::MatchGeoreferenceController, type: :controller do
           ce2.save
           ce3.save
           get :filtered_collecting_events, {start_date_month: '1', start_date_year: '2015'}
-          pending 'date completion'
-          expect(assigns(:collecting_events)).to contain_exactly(ce1, ce2)
+          # pending 'date completion'
+          expect(assigns(:collecting_events)).to contain_exactly(ce2, ce1)
         end
       end
 
