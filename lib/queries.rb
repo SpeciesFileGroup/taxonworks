@@ -26,7 +26,7 @@ module Queries
     end
 
     def build_terms
-      @terms = @query_string.split(/\s/).collect{|t| [t, "#{t}%"]}.flatten # , "#{t}%", "%#{t}%"
+      @terms = @query_string.split(/\s/).collect{|t| [t, "#{t}%", "%#{t}%"]}.flatten # , "#{t}%", "%#{t}%"
     end
 
     def dynamic_limit
