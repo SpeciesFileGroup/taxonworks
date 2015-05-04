@@ -218,6 +218,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
         $("#_recent_gr_form").attr("hidden", true);
         this_map = initializeMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
         add_match_georeferences_map_listeners(this_map);
+          initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_selected_gr_form").data('feature-collection'));
       }
       selecting.removeAttr('hidden');
       return true;
@@ -225,7 +226,11 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
       $("#new_article").append("<p>ERROR</p>");
     });
 
-
+    $("#btn_clear_selection").click(function(event) {
+        initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_selected_gr_form").data('feature-collection'));
+        event.preventDefault();
+      }
+    );
     // this is the find submits ajax request, get's FC response and draws it on the map
 
     // within above, bind click events to copy FC item to FC item

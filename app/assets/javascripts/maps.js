@@ -30,14 +30,14 @@ initializeMap = function(canvas, feature_collection) {
     strokeWeight: 1,
     fillOpacity: 0.3*/
   });
-  map.data.addGeoJson(data);
+  if (data != undefined) { if (data["type"] = "FeatureCollection") {map.data.addGeoJson(data)}};  // put data on the map if present
 
 
 // bounds for calculating center point
   var bounds = {};    //xminp: xmaxp: xminm: xmaxm: ymin: ymax: -90.0, center_long: center_lat: gzoom:
   getData(data, bounds);               // scan var data as feature collection with homebrew traverser, collecting bounds
   var center_lat_long = get_window_center(bounds);      // compute center_lat_long from bounds and compute zoom level as gzoom
-  $("#map_coords").html('Center: \xA0 \xA0 \xA0 \xA0Latitude = ' + bounds.center_lat.toFixed(6) + ' , Longitude = ' + bounds.center_long.toFixed(6));
+ // $("#map_coords").html('Center: \xA0 \xA0 \xA0 \xA0Latitude = ' + bounds.center_lat.toFixed(6) + ' , Longitude = ' + bounds.center_long.toFixed(6));
   map.setCenter(center_lat_long);
   map.setZoom(bounds.gzoom);
 
@@ -126,7 +126,7 @@ function get_window_center(bounds) {      // for use with home-brew geoJSON scan
   var sw = new google.maps.LatLng(ymin, xmm);
   var ne = new google.maps.LatLng(ymax, xmp);
   var box = new google.maps.LatLngBounds(sw, ne);
-  if (wy > 0.5 * wx) {
+  if (wy > 0.5 * wx) {                              ///// this looks wrong or wx is wrong JRF 04MAY2015
     wx = wy * 2.0
   }       // VERY crude proportionality adjustment
   if (wx <= 0.1) {
