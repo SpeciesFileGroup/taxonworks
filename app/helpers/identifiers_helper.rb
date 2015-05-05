@@ -34,7 +34,7 @@ module IdentifiersHelper
 
   def identifier_link(identifier)
     return nil if identifier.nil?
-    link_to(identifier(identifier).html_safe, data_attribute)
+    link_to(identifier_tag(identifier).html_safe, identifier.identifier_object)
   end
 
   def identifiers_search_form
