@@ -1,0 +1,58 @@
+<%= form_for(@depiction, multipart: true) do |f| %>
+    <%= render 'shared/errors', object: @depiction %>
+
+    <div class="field" id="depiction_edit">
+      <%= f.label :depiction_object_type %><br>
+      Otu <%= f.radio_button :depiction_object_type, 'Otu', id: :otu %> <br>
+      Collection object <%= f.radio_button :depiction_object_type, 'CollectionObject', id: :collection_object %> <br>
+      Collecting event <%= f.radio_button :depiction_object_type, 'CollectingEvent', id: :collecting_event %>
+    </div>
+
+    <div id='fields_for_otu'>
+      <%= f.label :otu %><br>
+      <%= render partial: 'workbench/elements/forms/ajax_select',
+                 locals:  {controller: '/otus',
+                           object:     'depiction',
+                           method:     'depiction_object_id',
+                           tag_id:     'otu_id_for_depiction_object_id',
+                           display:    (@depiction.depiction_object ? object_tag(@depiction.depiction_object.metamorphosize) : nil)} %>
+    </div>
+
+    <div id='fields_for_collecting_event'>
+
+      <%= f.label :collecting_event %><br>
+      <%= render partial: 'workbench/elements/forms/ajax_select',
+                 locals:  {controller: '/collecting_events',
+                           object:     'depiction',
+                           method:     'depiction_object_id',
+                           tag_id:     'collecting_event_id_for_depiction_object_id',
+                           display:    (@depiction.depiction_object ? object_tag(@depiction.depiction_object.metamorphosize) : nil)} %>
+
+
+    </div>
+
+    <div id='fields_for_collection_object'>
+      <%= f.label :collection_object %><br>
+      <%= render partial: 'workbench/elements/forms/ajax_select',
+                 locals:  {controller: '/collection_objects',
+                           object:     'depiction',
+                           method:     'depiction_object_id',
+                           tag_id:     'collection_object_id_for_depiction_object_id',
+                           display:    (@depiction.depiction_object ? object_tag(@depiction.depiction_object.metamorphosize) : nil)} %>
+    </div>
+
+
+    <%= f.fields_for :image_attributes do |i| %>
+        <div class="field">
+          <%= i.label :image_file %><br>
+          <div> <%= image_tag(@depiction.image.image_file.url(:thumb)) if @depiction.image -%> </div>
+          <%= i.file_field :image_file, class: :required_for_submit %>
+        </div>
+    <% end %>
+
+
+    <div class="actions">
+      <%= f.submit %>
+    </div>
+<% end %>
+

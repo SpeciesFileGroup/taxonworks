@@ -62,6 +62,7 @@ class CollectionObject < ActiveRecord::Base
   include Shared::Notable
   include Shared::Taggable
   include Shared::IsData
+  include Shared::Depictions
   include SoftValidation
 
   has_paper_trail
@@ -72,6 +73,8 @@ class CollectionObject < ActiveRecord::Base
   has_one :accession_provider, through: :accession_provider_role, source: :person
   has_one :deaccession_recipient_role, class_name: 'DeaccessionRecipient', as: :role_object
   has_one :deaccession_recipient, through: :deaccession_recipient_role, source: :person
+
+  has_many :depictions, as: :depiction_object 
 
   belongs_to :collecting_event, inverse_of: :collection_objects
   belongs_to :preparation_type, inverse_of: :collection_objects
