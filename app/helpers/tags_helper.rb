@@ -44,9 +44,6 @@ module TagsHelper
                                       tag_object_attribute: attribute})) if object.has_tags?
   end
 
-  def edit_tag_link(tag)
-    edit_object_link(tag)
-  end
 
   def destroy_tag_link(tag)
     destroy_object_link(tag)
