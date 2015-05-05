@@ -95,14 +95,31 @@ module Workbench::NavigationHelper
     end
   end
 
+  # return [Boolean]
+  #   true if there is a route to edit for the object (some objects are not editable, like Tags)
+  def is_editable?(object)
+    self.respond_to?(edit_object_path_string(object))
+  end
+
+  # return [Boolean]
+  #  true if the current user has permissions to edit the object in question (does not test whether it is actually editable)
+  def user_can_edit?(object)
+    @sessions_current_user.is_administrator? || user_is_creator?(object)
+  end
+
+  # return [Boolean]
+  #  true if the current user created this object
+  def user_is_creator?(object)
+    object.created_by_id == $user_id
+  end
+
+  # return [A tag, nil]
+  #   a link, or disabled link
   def edit_object_link(object)
-    # TODO  We need to think more about what the rules will be to allow editing on shared objects.
-    # currently this is only allows the creator to edit a shared object.
-    if (!@sessions_current_user.is_administrator?) && ((@is_shared_data_model && object.created_by_id != $user_id)||
-      !self.respond_to?(edit_object_path_string(object)) )
-      content_tag(:span, 'Edit', class: :disabled)
-    else
+    if is_editable?(object) && user_can_edit?(object)
       link_to('Edit', edit_object_path(object.metamorphosize))
+    else
+      content_tag(:span, 'Edit', class: :disabled)
     end
   end
 
