@@ -68,6 +68,7 @@ class CollectingEvent < ActiveRecord::Base
   include Shared::Notable
   include Shared::Taggable
   include Shared::IsData
+  include Shared::Depictions
   include SoftValidation
 
   has_paper_trail

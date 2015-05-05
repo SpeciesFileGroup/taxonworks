@@ -28,6 +28,8 @@ class Image < ActiveRecord::Base
   #constants
   MISSING_IMAGE_PATH = '/public/images/missing.jpg'
 
+  has_many :depictions, inverse_of: :image
+
   before_save :extract_tw_attributes
 
   has_attached_file :image_file,

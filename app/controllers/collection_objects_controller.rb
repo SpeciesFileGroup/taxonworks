@@ -1,7 +1,7 @@
 class CollectionObjectsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_collection_object, only: [:show, :edit, :update, :destroy]
+  before_action :set_collection_object, only: [:show, :edit, :update, :destroy, :depictions]
 
   # GET /collection_objects
   # GET /collection_objects.json
@@ -13,6 +13,11 @@ class CollectionObjectsController < ApplicationController
   # GET /collection_objects/1
   # GET /collection_objects/1.json
   def show
+  end
+
+  # GET /collection_objects/depictions/1
+  # GET /collection_objects/depictions/1.json
+  def depictions
   end
 
   # GET /collection_objects/new

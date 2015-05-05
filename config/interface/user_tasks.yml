@@ -69,4 +69,8 @@ build_biocuration_group_task:
   name: 
   related: 
     - build_biocuration_groups_task
+imaged_material_task:
+  hub: true
+  name: 'Add specimen metatada by image.'
+  description: 'Associated collection objects with their images.'
 
