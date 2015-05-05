@@ -90,6 +90,12 @@ TaxonWorks::Application.routes.draw do
     end
   end
 
+  resources :languages, only: [] do
+    collection do
+      get 'autocomplete'
+    end
+  end
+
   resources :keywords, only: [] do
     collection do
       get 'autocomplete'
@@ -115,6 +121,8 @@ TaxonWorks::Application.routes.draw do
   end
   resources :geographic_areas_geographic_items, except: [:index, :show]
   resources :geographic_items
+
+  
 
   resources :georeferences, only: [:index, :destroy, :new, :show, :edit] do
     concerns [:data_routes]

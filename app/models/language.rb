@@ -16,6 +16,10 @@ class Language < ActiveRecord::Base
   # Scopes
   scope :with_english_name_containing, ->(name) {where('english_name ILIKE ?', "%#{name}%")}  # non-case sensitive comparison
 
+  #Validations
+  validates_presence_of :english_name, :alpha_3_bibliographic
+
+
   def self.with_english_name_or_abbreviation(value)
     value = [value] if value.class == String
 
@@ -28,7 +32,9 @@ class Language < ActiveRecord::Base
 
   end
 
-  #Validations
-  validates_presence_of :english_name, :alpha_3_bibliographic
- 
+  def self.find_for_autocomplete(params)
+    term = "#{params[:term]}%"
+    where('english_name ILIKE ? OR english_name = ?', term, params[:term] )  
+  end
+
 end

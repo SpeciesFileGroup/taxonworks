@@ -1,4 +1,4 @@
-<%= form_for(@alternate_value) do |f| %>
+<%= form_for(@alternate_value.metamorphosize) do |f| %>
     <%= render 'shared/errors', object: @alternate_value %>
 
     <p> <strong><%= @alternate_value.alternate_value_object.class.name %>:</strong> <%= object_tag(@alternate_value.alternate_value_object) -%>  </p>
@@ -20,10 +20,18 @@
       <br>
       <%= f.select :type, options_for_select([['abbreviation', 'AlternateValue::Abbreviation'], ['translation', 'AlternateValue::Translation'], ['alternate spelling', 'AlternateValue::AlternateSpelling'], ['misspelled', 'AlternateValue::Misspelling']], selected = @alternate_value.type) -%>
     </div>
+
+
     <div class="field">
       <%= f.label :language_id %>
       <br>
-      <%= f.number_field :language_id %>
+       <%= render partial:  'workbench/elements/forms/ajax_select',
+                   locals: {controller:  'languages',
+                               object:     'alternate_value',
+                               method:     'language_id',
+                               tag_id:     'language_id_for_alternate_value',
+                               display:     object_tag(@alternate_value.language),
+                               size: 40} %>
     </div>
 
     <%= f.hidden_field :alternate_value_object_type %>
