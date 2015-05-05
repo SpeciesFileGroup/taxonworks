@@ -1,33 +1,35 @@
 <div id="_select_ce_form" name="_select_ce_form">
-  <table border="1">
-    <tr>
-      <th>Collecting Event</th>
-      <th>Verbatim Locality</th>
-      <th>ID</th>
-      <th></th>
-    </tr>
-    <tbody>
-    <% @collecting_events.each { |collecting_event| %>
+  <%= form_tag(batch_create_url, name: 'create_georeferences', id: 'create_georeferences', method: 'get', remote: true) do %>
+      <table border="1">
         <tr>
-          <td>
-            <%= link_to(collecting_event_tag(collecting_event), collecting_event_path(collecting_event.to_param)) %>
-          </td>
-          <td>
-            <%= collecting_event.verbatim_locality %>
-          </td>
-          <td>
-            <%=	 collecting_event.to_param %>
-          </td>
-          <td>
-            <%= check_box_tag('', collecting_event.id) %>
-          </td>
+          <th>Collecting Event</th>
+          <th>Verbatim Locality</th>
+          <th>ID</th>
+          <th></th>
         </tr>
-    <% } %>
-    </tbody>
-  </table>
-  <br>
-  <%= hidden_field_tag('georeference_id') %>
-  <%= form_tag(filtered_collecting_events_path) do %>
-      <div><%= submit_tag('Create Georeference(s)') %></div>
-  <% end %>
+        <tbody>
+        <% @collecting_events.each { |collecting_event| %>
+            <tr>
+              <td>
+                <%= link_to(collecting_event_tag(collecting_event), collecting_event_path(collecting_event.to_param)) %>
+              </td>
+              <td>
+                <%= collecting_event.verbatim_locality %>
+              </td>
+              <td>
+                <%= collecting_event.to_param %>
+              </td>
+              <td>
+                <%= check_box_tag('', collecting_event.id) %>
+              </td>
+            </tr>
+        <% } %>
+        </tbody>
+      </table>
+      <%= hidden_field_tag('georeference_id') %>
+      <input type='button'  id="btn_create_georeferences" name="btn_create_georeferences" value="Create Georeference(s)"/>
+<% end %>
+
+  <!--<%#= hidden_field_tag('georeference_id') %>-->
+  <!--<div><%#= submit_tag('Create Georeference(s)') %></div>-->
 </div>

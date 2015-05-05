@@ -23,6 +23,9 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
       parts                     = st_date.split('/')
       st_year, st_month, st_day = parts[2], parts[0], parts[1]
     end
+    st_my                        = (!st_month.blank? and !st_year.blank?)
+    st_m                         = (!st_month.blank? and st_year.blank?)
+    st_y                         = (st_month.blank? and !st_year.blank?)
     st_blank                     = (st_year.blank? and st_month.blank? and st_day.blank?)
     st_full                      = (!st_year.blank? and !st_month.blank? and !st_day.blank?)
     st_partial                   = (!st_blank and (st_year.blank? or st_month.blank? or st_day.blank?))
@@ -36,6 +39,9 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
       parts                        = end_date.split('/')
       end_year, end_month, end_day = parts[2], parts[0], parts[1]
     end
+    end_my              = (!end_month.blank? and !end_year.blank?)
+    end_m               = (!end_month.blank? and end_year.blank?)
+    end_y               = (end_month.blank? and !end_year.blank?)
     end_blank           = (end_year.blank? and end_month.blank? and end_day.blank?)
     end_full            = (!end_year.blank? and !end_month.blank? and !end_day.blank?)
     end_partial         = (!end_blank and (end_year.blank? or end_month.blank? or end_day.blank?))
@@ -51,39 +57,35 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
     sql_string = ''
     # if all the date information is blank, skip the date testing
     unless st_blank and end_blank
+      # only start and end year
+      if st_y and end_y
+        # start and end year may be different, or the same
+        sql_string += "(start_date_year >= #{st_year} and end_date_year <= #{end_year})"
+      end
 
       if end_blank # !st_blank = st_partial
         # if we have only a start date there are three cases: d/m/y, m/y, y
-        unless st_year.blank? # nothing we can do about no year
-          unless st_day.blank?
-            sql_string += "(start_date_day = #{st_day})"
-          end
-          # if the request contains no day
-          unless sql_string.blank?
-            prefix = ' and '
-          end
-          unless st_month.blank?
-            sql_string += "#{prefix}(start_date_month::integer = #{st_month})"
-          end
-          unless sql_string.blank?
-            prefix = ' and '
-          end
-          sql_string += "#{prefix}(start_date_year = #{st_year})"
+        if st_year.blank?
+          sql_string = add_st_month(sql_string, st_month)
+        else
+          sql_string = add_st_day(sql_string, st_day)
+          sql_string = add_st_month(sql_string, st_month)
+          sql_string = add_st_year(sql_string, st_year)
         end
       else
         # end date only, don't do anything
       end
-      # if st_partial and not st_year.blank?
-      #   sql_string += "(start_date_year = #{st_year})"
-      # end
 
-      # start and end year may be different, or the same, but not blank
-      if !st_year.blank? and !end_year.blank?
-        sql_string += "(start_date_year between #{st_year} and #{end_year})"
-        sql_string += " or (end_date_year between #{st_year} and #{end_year})"
+      if not st_blank and not end_blank and (st_year <= end_year)
+        # we have two dates of some kind, complete with years
+        # three specific cases:
+        #   case 1: start year, (start month, (start day)) forward
+        #   case 2: end year, (end month, (end day)) backward
+        #   case 3: any intervening year(s) complete
+        if st_year
+        end
       end
     end
-    # sql_string += "(end_date_year is not null and end_date_year between #{start_time.year} and #{end_time.year})"
 
     unless v_locality_fragment.blank?
       unless sql_string.blank?
@@ -99,6 +101,10 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
       sql_string += " or print_label ilike '%#{any_label_fragment}%'"
       sql_string += " or document_label ilike '%#{any_label_fragment}%'"
       sql_string += ')'
+    end
+
+    unless id_fragment.blank?
+
     end
 
     # find the records
@@ -219,6 +225,36 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
     render_to_string(partial: 'tasks/gis/match_georeference/georeferences_selections_form',
                      locals:  {georeferences: @georeferences,
                                motion:        @motion})
+  end
+
+  def add_st_year(sql, st_year)
+    unless st_year.blank?
+      unless sql.blank?
+        prefix = ' and '
+      end
+      sql += "#{prefix}(start_date_year = #{st_year})"
+    end
+    sql
+  end
+
+  def add_st_month(sql, st_month)
+    unless st_month.blank?
+      unless sql.blank?
+        prefix = ' and '
+      end
+      sql += "#{prefix}(start_date_month = #{st_month})"
+    end
+    sql
+  end
+
+  def add_st_day(sql, st_day)
+    unless st_day.blank?
+      unless sql.blank?
+        prefix = ' and '
+      end
+      sql += "#{prefix}(start_date_day = #{st_day})"
+    end
+    sql
   end
 
   def fix_time(year, month, day)
