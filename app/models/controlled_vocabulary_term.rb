@@ -23,8 +23,10 @@ class ControlledVocabularyTerm < ActiveRecord::Base
   validate :uri_relation_is_a_skos_relation, unless: 'uri_relation.blank?'
 
   def self.find_for_autocomplete(params)
+ 
     term = "#{params[:term]}%"
-    where('name LIKE ? OR definition ILIKE ? OR name ILIKE ? OR name = ?', term, "#{term}%", "%term", term )
+    where('name LIKE ? OR definition ILIKE ? OR name ILIKE ? OR name = ?', term, "#{term}%", "%term", term ).where(project_id: params[:project_id])
+  
   end
 
   def self.generate_download(scope)
