@@ -190,11 +190,12 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
     render_gr_select_json(message)
   end
 
-  def batch_create
-    count = Georeference.batch_create_from_georeference_matcher(params)
-    if count > 0
-      render json: {html: "There #{pluralize(count 'was', 'were')} #{count} #{pluralize(count, 'georeference')} created"}
-    end
+  def batch_create_match_georeferences
+    # count = Georeference.batch_create_from_georeference_matcher(params)
+    # if count > 0
+    #   render json: {html: "There #{pluralize(count 'was', 'were')} #{count} #{pluralize(count, 'georeference')} created"}
+    # end
+count= 0
 
   end
 
