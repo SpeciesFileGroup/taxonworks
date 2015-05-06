@@ -281,7 +281,7 @@ TaxonWorks::Application.routes.draw do
       get 'tagged_georeferences'
       get 'drawn_georeferences'
 
-      get 'batch_create_match_georeferences'
+      post 'batch_create_match_georeferences'
     end
 
     scope :serials, controller: 'tasks/serials/similar' do
