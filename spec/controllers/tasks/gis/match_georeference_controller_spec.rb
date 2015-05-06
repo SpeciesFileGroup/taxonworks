@@ -89,6 +89,13 @@ describe Tasks::Gis::MatchGeoreferenceController, type: :controller do
         expect(assigns(:collecting_events)).to contain_exactly(ce2, ce1, ce3)
       end
 
+      it 'processes case 2mm: start date, end date' do
+        [ce1, ce2, ce3, ce4].map(&:save)
+        get :filtered_collecting_events, {start_date_month: '5',
+                                          end_date_month:   '8'}
+        expect(assigns(:collecting_events)).to contain_exactly(ce4)
+      end
+
       context 'exclusions' do
 
         it 'processes case 0: no dates' do
@@ -111,8 +118,14 @@ describe Tasks::Gis::MatchGeoreferenceController, type: :controller do
                                             end_date_year:  '2015'}
           expect(assigns(:collecting_events)).to be_empty
         end
-      end
 
+        it 'processes case 2mm: start date, end date' do
+          [ce1, ce2, ce3, ce4].map(&:save)
+          get :filtered_collecting_events, {start_date_month: '2',
+                                            end_date_month:   '6'}
+          expect(assigns(:collecting_events)).to be_empty
+        end
+      end
     end
 
     context 'checking text processing' do
