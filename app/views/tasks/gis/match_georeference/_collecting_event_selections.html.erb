@@ -1,5 +1,5 @@
-  <%= form_tag(batch_create_match_georeferences_url, name: 'create_georeferences', id: 'create_georeferences', method: 'get', remote: true) do %>
-      <div id="_select_ce_form" name="_select_ce_form">
+<div id="_select_ce_form" name="_select_ce_form">
+<%= form_tag(batch_create_match_georeferences_url, name: 'create_georeferences', id: 'create_georeferences', method: 'get', remote: true) do %>
       <table border="1">
         <tr>
           <th>Collecting Event</th>
@@ -28,8 +28,8 @@
       </table>
       <%= hidden_field_tag('georeference_id') %>
         <input type='button' id="btn_create_georeferences" name="btn_create_georeferences" value="Create Georeference(s)"/>
-      </div>
 <% end %>
+</div>
 
   <!--<%#= hidden_field_tag('georeference_id') %>-->
   <!--<div><%#= submit_tag('Create Georeference(s)') %></div>-->
