@@ -3,6 +3,8 @@ include FormHelper
 
 RSpec.describe "TypeMaterials", :type => :feature do
   #Capybara.default_wait_time = 10
+
+
   let(:page_index_name) { 'Type materials' }
   let(:index_path) { type_materials_path }
 
@@ -13,14 +15,17 @@ RSpec.describe "TypeMaterials", :type => :feature do
       sign_in_user_and_select_project
     }
 
+    let!(:root) { factory_girl_create_for_user_and_project(:root_taxon_name, @user, @project) }
+
     context 'with some records created' do
-      let!(:o) { factory_girl_create_for_user_and_project(:valid_otu, @user, @project) }
+
+      let!(:p) { Protonym.create!(name: 'aus', rank_class: Ranks.lookup(:iczn, 'species'), parent: root, by: @user, project: project) } 
       let!(:s) { factory_girl_create_for_user_and_project(:valid_specimen, @user, @project) }
       before do
         10.times {
           FactoryGirl.create(:valid_type_material,
-                             otu: o,
                              material: s,
+                             protonym: p,
                              type: 'paratype',
                              project: @project,
                              creator: @user,
@@ -29,9 +34,8 @@ RSpec.describe "TypeMaterials", :type => :feature do
         }
 
         describe 'GET /type_materials' do
-          before {
-            visit type_materials_path }
-
+          before { visit type_materials_path }
+          
           it_behaves_like 'a_data_model_with_standard_index'
         end
 
@@ -57,7 +61,6 @@ RSpec.describe "TypeMaterials", :type => :feature do
         expect(page).to have_link('new') # it has a new link
       end
       context 'testing the new type_materials form' do
-        let!(:r) { factory_girl_create_for_user_and_project(:root_taxon_name, @user, @project) }
         #  - a namespace short name 'INHSIC' is created
         let(:namesp) { FactoryGirl.create(:namespace, {creator: @user, updater: @user,
                                                        name: 'INHSIC', short_name: 'INHSIC',
@@ -68,10 +71,10 @@ RSpec.describe "TypeMaterials", :type => :feature do
 
         specify 'filling out the form', js: true do
           f = Protonym.new(name: 'Aaidae', rank_class: Ranks.lookup(:iczn, 'family'),
-                           parent: r,
+                           parent: root,
                            creator: @user, updater: @user, project: @project)
           expect(f.save).to be_truthy
-          g = Protonym.new(name: 'Bus', rank_class: Ranks.lookup(:iczn, 'Genus'),
+          g = Protonym.new(name: 'Cus', rank_class: Ranks.lookup(:iczn, 'Genus'),
                            parent: f,
                            creator: @user, updater: @user, project: @project)
           expect(g.save).to be_truthy
@@ -95,7 +98,7 @@ RSpec.describe "TypeMaterials", :type => :feature do
 
           click_link('new') # when I click the new link
 
-          fill_autocomplete('protonym_id_for_type_material', with: 'Bus bus') # I fill out the name field with "bus"
+          fill_autocomplete('protonym_id_for_type_material', with: 'Cus bus') # I fill out the name field with "bus"
           # I click 'Bus bus (species)' from drop down list
           # NOTES: need the full name (genus & species) and I'm not getting the species name set correctly.
           fill_autocomplete('biological_object_id_for_type_material', with: 'INHSIC 1234')
@@ -105,7 +108,7 @@ RSpec.describe "TypeMaterials", :type => :feature do
           select('paratype', from: 'type_material_type_type') # select 'paratype' from the dropdown
           click_button 'Create Type material' # click the 'Create type material' button
           # then I get the message "Type material (paratype) for Aus bus was successfully created"
-          expect(page).to have_content('Type material (paratype) for Bus bus was successfully created.')
+          expect(page).to have_content('Type material (paratype) for Cus bus was successfully created.')
         end
       end
     end
