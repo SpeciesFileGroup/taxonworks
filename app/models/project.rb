@@ -33,6 +33,7 @@ class Project < ActiveRecord::Base
     order = %w{
      AlternateValue
      DataAttribute 
+     Depiction
      Note
      PinboardItem
      Tag
