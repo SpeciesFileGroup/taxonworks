@@ -9,9 +9,9 @@ describe 'RangedLotCategories', :type => :feature do
   context 'signed in as a user, with some records created' do
     before {
       sign_in_user_and_select_project
-      5.times {
-        FactoryGirl.create(:valid_ranged_lot_category, user_project_attributes(@user, @project))
-      }
+      %w{small medium large jumbo ginormous}.each do |w|
+        FactoryGirl.create(:valid_ranged_lot_category,  user_project_attributes(@user, @project).merge(name: w))
+      end 
     }
 
     describe 'GET /ranged_lot_categories' do
