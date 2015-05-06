@@ -109,17 +109,17 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
       // see what the message was, if anything
       var message = local_data.responseJSON['message'];
       selecting.html(local_data.responseJSON['html']);      // render the table
-        $("#btn_create_georeferences").click(function(event) {      // register the click handler
-                $("#georeference_id").val($("#selected_georeference_id").val());  // get the stored value from center map form
-                $.get('batch_create_match_georeferences', $('form#create_georeferences').serialize(), function(return_data) {
-                        initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_selected_gr_form").data('feature-collection'));
-                    }
-                );
-                event.preventDefault();
+      $("#btn_create_georeferences").click(function (event) {      // register the click handler
+          $("#georeference_id").val($("#selected_georeference_id").val());  // get the stored value from center map form
+          $.get('batch_create_match_georeferences', $('#create_georeferences').serialize(), function (return_data) {
+              initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_selected_gr_form").data('feature-collection'));
             }
-        );
+          );
+          event.preventDefault();
+        }
+      );
 
-        $("#_recent_ce_form").attr("hidden", true);
+      $("#_recent_ce_form").attr("hidden", true);
       selecting.removeAttr('hidden');
       return true;
     }).on("ajax:error", function (e, xhr, status, error) {
@@ -228,7 +228,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
         $("#_recent_gr_form").attr("hidden", true);
         this_map = initializeMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
         add_match_georeferences_map_listeners(this_map);
-          initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_selected_gr_form").data('feature-collection'));
+        initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_selected_gr_form").data('feature-collection'));
       }
       selecting.removeAttr('hidden');
       return true;
@@ -236,28 +236,28 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
       $("#new_article").append("<p>ERROR</p>");
     });
 
-      $("#btn_clear_selection").click(function(event) {
-              initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_selected_gr_form").data('feature-collection'));
-              event.preventDefault();
-          }
-      );
+    $("#btn_clear_selection").click(function (event) {
+        initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_selected_gr_form").data('feature-collection'));
+        event.preventDefault();
+      }
+    );
 
 
-      //$("#submit_recent_ce").click(function (event) {
-      //   // $('#how_many').val($('#how_many_recent').val());
-      //    var extra = $('form#recent_ce_count').serialize();
-      //    $.get('recent_ce_collecting_events', extra, function (local_data) {
-      //        // what to do with the json we get back....
-      //        $("#_recent_ce_form").attr("hidden", true);
-      //        var selecting = $('#_selecting_ce_form');
-      //        selecting.removeAttr('hidden');
-      //        selecting.html(local_data['html']);
-      //    });
-      //
-      //    event.preventDefault();
-      //});
+    //$("#submit_recent_ce").click(function (event) {
+    //   // $('#how_many').val($('#how_many_recent').val());
+    //    var extra = $('form#recent_ce_count').serialize();
+    //    $.get('recent_ce_collecting_events', extra, function (local_data) {
+    //        // what to do with the json we get back....
+    //        $("#_recent_ce_form").attr("hidden", true);
+    //        var selecting = $('#_selecting_ce_form');
+    //        selecting.removeAttr('hidden');
+    //        selecting.html(local_data['html']);
+    //    });
+    //
+    //    event.preventDefault();
+    //});
 
-      // this is the find submits ajax request, get's FC response and draws it on the map
+    // this is the find submits ajax request, get's FC response and draws it on the map
 
     // within above, bind click events to copy FC item to FC item
     // this_map = initializeGoogleMapWithDrawManager("#_draw_ce_form");
@@ -269,35 +269,35 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
    is raising an error on every page and preventing the source -> new javascript from
    running, logged as TW-273
 
-  $(function () {
-    $("#st_datepicker").datepicker();
-  });
+   $(function () {
+   $("#st_datepicker").datepicker();
+   });
 
-  $(function () {
-    $("#en_datepicker").datepicker();
-  });
-
-
-  // https://api.jqueryui.com/datepicker/
-  //# This makes the pop-up show the actual db date by fixing a format difference.
-  $(function () {
-    var dateInput = $("#st_datepicker");
-    var format = 'dd-MM-yy';
-    dateInput.datepicker({dateFormat: format});
-    dateInput.datepicker('setDate', $.datepicker.parseDate(format, dateInput.val()));
-  });
+   $(function () {
+   $("#en_datepicker").datepicker();
+   });
 
 
-  // https://api.jqueryui.com/datepicker/
-  //# This makes the pop-up show the actual db date by fixing a format difference.
-  $(function () {
-    var dateInput = $("#en_datepicker");
-    var format = 'yy-mm-dd';
-    dateInput.datepicker({dateFormat: format});
-    dateInput.datepicker('setDate', $.datepicker.parseDate(format, dateInput.val()));
-  });
+   // https://api.jqueryui.com/datepicker/
+   //# This makes the pop-up show the actual db date by fixing a format difference.
+   $(function () {
+   var dateInput = $("#st_datepicker");
+   var format = 'dd-MM-yy';
+   dateInput.datepicker({dateFormat: format});
+   dateInput.datepicker('setDate', $.datepicker.parseDate(format, dateInput.val()));
+   });
 
-      ---- end block --- */
+
+   // https://api.jqueryui.com/datepicker/
+   //# This makes the pop-up show the actual db date by fixing a format difference.
+   $(function () {
+   var dateInput = $("#en_datepicker");
+   var format = 'yy-mm-dd';
+   dateInput.datepicker({dateFormat: format});
+   dateInput.datepicker('setDate', $.datepicker.parseDate(format, dateInput.val()));
+   });
+
+   ---- end block --- */
 };
 
 $(document).ready(_init_match_georeference_page_widget);
@@ -374,7 +374,7 @@ function add_click_services_to_match_georeferences_map(map, event) {     // clic
 
 function add_match_georeferences_map_listeners(map) {      // 4 listeners, one for map as a whole 3 for map.data features
   // When the user clicks, set 'isColorful', changing the color of the feature.
-    var selected_map;
+  var selected_map;
   map.data.addListener('click', function (event) {
     if (event.feature.getProperty('isColorful')) {           // reset selected color if
       event.feature.setProperty('isColorful', false);     // previously selected
@@ -385,7 +385,7 @@ function add_match_georeferences_map_listeners(map) {      // 4 listeners, one f
       event.feature.setProperty('fillColor', "#CC0000");  //brighter red
       // selectable area has been clicked, get the feature
       var selected_feature_georeference_id = event.feature["C"].georeference.id;      // unfortunate Google maps reference
-        $("#selected_georeference_id").val(selected_feature_georeference_id);           // plant the clicked ID in a safe place
+      $("#selected_georeference_id").val(selected_feature_georeference_id);           // plant the clicked ID in a safe place
 //      $("#georeference_id").val($("#selected_georeference_id").val());
       var feature_collection = $("#_select_gr_form").data('feature-collection');      // literal-based form data reference
       for (var i = 0; i < feature_collection.features.length; i++) {                  // scan the feature_collection

@@ -14,78 +14,12 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
     prefix             = ''
     @collecting_events = [] # not strictly necessary, but makes testing easier
 
-
-    st_date, end_date         = params['st_datepicker'], params['en_datepicker']
-
-    # processing start date data
-    st_year, st_month, st_day = params['start_date_year'], params['start_date_month'], params['start_date_day']
-    unless st_date.blank?
-      parts                     = st_date.split('/')
-      st_year, st_month, st_day = parts[2], parts[0], parts[1]
-    end
-    st_my                        = (!st_month.blank? and !st_year.blank?)
-    st_m                         = (!st_month.blank? and st_year.blank?)
-    st_y                         = (st_month.blank? and !st_year.blank?)
-    st_blank                     = (st_year.blank? and st_month.blank? and st_day.blank?)
-    st_full                      = (!st_year.blank? and !st_month.blank? and !st_day.blank?)
-    st_partial                   = (!st_blank and (st_year.blank? or st_month.blank? or st_day.blank?))
-    start_time                   = fix_time(params['start_date_year'],
-                                            params['start_date_month'],
-                                            params['start_date_day']) if st_full
-
-    # processing end date data
-    end_year, end_month, end_day = params['end_date_year'], params['end_date_month'], params['end_date_day']
-    unless end_date.blank?
-      parts                        = end_date.split('/')
-      end_year, end_month, end_day = parts[2], parts[0], parts[1]
-    end
-    end_my              = (!end_month.blank? and !end_year.blank?)
-    end_m               = (!end_month.blank? and end_year.blank?)
-    end_y               = (end_month.blank? and !end_year.blank?)
-    end_blank           = (end_year.blank? and end_month.blank? and end_day.blank?)
-    end_full            = (!end_year.blank? and !end_month.blank? and !end_day.blank?)
-    end_partial         = (!end_blank and (end_year.blank? or end_month.blank? or end_day.blank?))
-    end_time            = fix_time(params['end_date_year'],
-                                   params['end_date_month'],
-                                   params['end_date_day']) if end_full
+    sql_string          = date_sql_from_params(params)
 
     # processing text data
     v_locality_fragment = params['verbatim_locality_text']
     any_label_fragment  = params['any_label_text']
     id_fragment         = params['identifier_text']
-
-    sql_string = ''
-    # if all the date information is blank, skip the date testing
-    unless st_blank and end_blank
-      # only start and end year
-      if st_y and end_y
-        # start and end year may be different, or the same
-        sql_string += "(start_date_year >= #{st_year} and end_date_year <= #{end_year})"
-      end
-
-      if end_blank # !st_blank = st_partial
-        # if we have only a start date there are three cases: d/m/y, m/y, y
-        if st_year.blank?
-          sql_string = add_st_month(sql_string, st_month)
-        else
-          sql_string = add_st_day(sql_string, st_day)
-          sql_string = add_st_month(sql_string, st_month)
-          sql_string = add_st_year(sql_string, st_year)
-        end
-      else
-        # end date only, don't do anything
-      end
-
-      if not st_blank and not end_blank and (st_year <= end_year)
-        # we have two dates of some kind, complete with years
-        # three specific cases:
-        #   case 1: start year, (start month, (start day)) forward
-        #   case 2: end year, (end month, (end day)) backward
-        #   case 3: any intervening year(s) complete
-        if st_year
-        end
-      end
-    end
 
     unless v_locality_fragment.blank?
       unless sql_string.blank?
@@ -191,11 +125,11 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
   end
 
   def batch_create_match_georeferences
-    # count = Georeference.batch_create_from_georeference_matcher(params)
-    # if count > 0
-    #   render json: {html: "There #{pluralize(count 'was', 'were')} #{count} #{pluralize(count, 'georeference')} created"}
-    # end
-count= 0
+    count = Georeference.batch_create_from_georeference_matcher(params)
+    if count > 0
+      render json: {message: '', html: "There #{pluralize(count 'was', 'were')} #{count} #{pluralize(count, 'georeference')} created"}
+    end
+    count= 0
 
   end
 
@@ -270,6 +204,86 @@ count= 0
       day = start.day
     end
     Time.new(year, month, day)
+  end
+
+  # @return [String] of sql to test dates
+  # @param [Hash] params
+  def date_sql_from_params(params)
+    st_date, end_date         = params['st_datepicker'], params['en_datepicker']
+# processing start date data
+    st_year, st_month, st_day = params['start_date_year'], params['start_date_month'], params['start_date_day']
+    unless st_date.blank?
+      parts                     = st_date.split('/')
+      st_year, st_month, st_day = parts[2], parts[0], parts[1]
+    end
+    st_my                        = (!st_month.blank? and !st_year.blank?)
+    st_m                         = (!st_month.blank? and st_year.blank?)
+    st_y                         = (st_month.blank? and !st_year.blank?)
+    st_blank                     = (st_year.blank? and st_month.blank? and st_day.blank?)
+    st_full                      = (!st_year.blank? and !st_month.blank? and !st_day.blank?)
+    st_partial                   = (!st_blank and (st_year.blank? or st_month.blank? or st_day.blank?))
+    start_time                   = fix_time(params['start_date_year'],
+                                            params['start_date_month'],
+                                            params['start_date_day']) if st_full
+
+# processing end date data
+    end_year, end_month, end_day = params['end_date_year'], params['end_date_month'], params['end_date_day']
+    unless end_date.blank?
+      parts                        = end_date.split('/')
+      end_year, end_month, end_day = parts[2], parts[0], parts[1]
+    end
+    end_my      = (!end_month.blank? and !end_year.blank?)
+    end_m       = (!end_month.blank? and end_year.blank?)
+    end_y       = (end_month.blank? and !end_year.blank?)
+    end_blank   = (end_year.blank? and end_month.blank? and end_day.blank?)
+    end_full    = (!end_year.blank? and !end_month.blank? and !end_day.blank?)
+    end_partial = (!end_blank and (end_year.blank? or end_month.blank? or end_day.blank?))
+    end_time    = fix_time(params['end_date_year'],
+                           params['end_date_month'],
+                           params['end_date_day']) if end_full
+
+    sql_string = ''
+# if all the date information is blank, skip the date testing
+    unless st_blank and end_blank
+      # only start and end year
+      if st_y and end_y
+        # start and end year may be different, or the same
+        # we ignore all records which have a null start year,
+        # but include all records for the end year test
+        sql_string += "(start_date_year >= #{st_year} and (end_date_year is null or end_date_year <= #{end_year}))"
+      end
+
+      # only start month and end month
+      if st_m and end_m
+        # todo: This case really needs additional consideration
+        # maybe build a string of included month and use an 'in ()' construct
+        sql_string += "(start_date_month between #{st_month} and #{end_month})"
+      end
+
+      if end_blank # !st_blank = st_partial
+        # if we have only a start date there are three cases: d/m/y, m/y, y
+        if st_year.blank?
+          sql_string = add_st_month(sql_string, st_month)
+        else
+          sql_string = add_st_day(sql_string, st_day)
+          sql_string = add_st_month(sql_string, st_month)
+          sql_string = add_st_year(sql_string, st_year)
+        end
+      else
+        # end date only, don't do anything
+      end
+
+      if ((st_y or st_my) and (end_y or end_my)) and not (st_y and end_y)
+        # we have two dates of some kind, complete with years
+        # three specific cases:
+        #   case 1: start year, (start month, (start day)) forward
+        #   case 2: end year, (end month, (end day)) backward
+        #   case 3: any intervening year(s) complete
+        if st_year
+        end
+      end
+    end
+    sql_string
   end
 
 end
