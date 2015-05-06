@@ -100,7 +100,6 @@ RSpec.describe "TypeMaterials", :type => :feature do
           # NOTES: need the full name (genus & species) and I'm not getting the species name set correctly.
           fill_autocomplete('biological_object_id_for_type_material', with: 'INHSIC\ 1234')
           
-          byebug
           # NOTES: still not finding the correct record.
           # I fill out the Material field with 'INHSIC 1234'
           #      and I click on the only record returned*
