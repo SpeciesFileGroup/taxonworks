@@ -20,15 +20,30 @@ require 'rails_helper'
 
 RSpec.describe DepictionsController, type: :controller do
 
+  before(:each) {
+    sign_in
+  }
+
+
+  let(:specimen) { FactoryGirl.create(:valid_specimen) }
+
   # This should return the minimal set of attributes required to create a valid
   # Depiction. As you add validations to Depiction, be sure to
   # adjust the attributes here as well.
-  let(:valid_attributes) {
-    skip("Add a hash of attributes valid for your model")
+  let(:valid_attributes) { 
+    {
+      depiction_object_type: 'CollectionObject',
+      depiction_object_id: specimen.id,
+      image_attributes: { image_file: fixture_file_upload((Rails.root + 'spec/files/images/tiny.png'), 'image/png')}
+    }
   }
 
-  let(:invalid_attributes) {
-    skip("Add a hash of attributes invalid for your model")
+  let(:invalid_attributes) { 
+    {
+      depiction_object_type: 'CollectionObject',
+      depiction_object_id: nil,
+      image_attributes: { image_file: fixture_file_upload((Rails.root + 'spec/files/images/tiny.png'), 'image/png')}
+    }
   }
 
   # This should return the minimal set of values that should be in the session
@@ -37,10 +52,10 @@ RSpec.describe DepictionsController, type: :controller do
   let(:valid_session) { {} }
 
   describe "GET #index" do
-    it "assigns all depictions as @depictions" do
+    it "assigns all depictions as @recent_objects" do
       depiction = Depiction.create! valid_attributes
       get :index, {}, valid_session
-      expect(assigns(:depictions)).to eq([depiction])
+      expect(assigns(:recent_objects)).to eq([depiction])
     end
   end
 
@@ -102,15 +117,17 @@ RSpec.describe DepictionsController, type: :controller do
 
   describe "PUT #update" do
     context "with valid params" do
+      let(:specimen2) { FactoryGirl.create(:valid_specimen) }
+
       let(:new_attributes) {
-        skip("Add a hash of attributes valid for your model")
+        { depiction_object_id: specimen2.id }
       }
 
       it "updates the requested depiction" do
         depiction = Depiction.create! valid_attributes
         put :update, {:id => depiction.to_param, :depiction => new_attributes}, valid_session
         depiction.reload
-        skip("Add assertions for updated state")
+        expect(depiction.depiction_object_id).to eq(specimen2.id) 
       end
 
       it "assigns the requested depiction as @depiction" do
