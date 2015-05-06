@@ -8,7 +8,6 @@ RSpec.describe Depiction, type: :model do
  specify 'new depiction also creates new (nested) image' do
     depiction.image_attributes = {image_file: image_file }
     depiction.depiction_object = specimen
-    byebug
     expect(depiction.save).to be_truthy
  
     expect(depiction.image.reload).to be_truthy
