@@ -108,8 +108,18 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
       var selecting = $('#_selecting_ce_form');
       // see what the message was, if anything
       var message = local_data.responseJSON['message'];
-      selecting.html(local_data.responseJSON['html']);
-      $("#_recent_ce_form").attr("hidden", true);
+      selecting.html(local_data.responseJSON['html']);      // render the table
+        $("#btn_create_georeferences").click(function(event) {      // register the click handler
+                $("#georeference_id").val($("#selected_georeference_id").val());  // get the stored value from center map form
+                $.get('batch_create_match_georeferences', $('form#create_georeferences').serialize(), function(return_data) {
+                        initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_selected_gr_form").data('feature-collection'));
+                    }
+                );
+                event.preventDefault();
+            }
+        );
+
+        $("#_recent_ce_form").attr("hidden", true);
       selecting.removeAttr('hidden');
       return true;
     }).on("ajax:error", function (e, xhr, status, error) {
@@ -232,15 +242,6 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
           }
       );
 
-      $("#btn_create_georeferences").click(function(event) {
-              $("#georeference_id").val($("#selected_georeference_id").val());  // get the stored value from center map form
-              $.get('batch_create_match_georeferences', $('form#create_georeferences').serialize(), function(return_data) {
-                 initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_selected_gr_form").data('feature-collection'));
-               }
-              );
-              event.preventDefault();
-          }
-      );
 
       //$("#submit_recent_ce").click(function (event) {
       //   // $('#how_many').val($('#how_many_recent').val());
