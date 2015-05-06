@@ -2,7 +2,8 @@ require 'rails_helper'
 include FormHelper
 
 describe 'TaxonNames', :type => :feature do
-  Capybara.default_wait_time = 1 # change to 15 to see what's happening on form
+  # Capybara.default_wait_time = 1 # change to 15 to see what's happening on form
+  
   let(:page_index_name) { 'taxon names' }
   let(:index_path) { taxon_names_path }
 

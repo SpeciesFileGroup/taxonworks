@@ -13,10 +13,8 @@ describe 'GeographicAreas', type: :feature do
     }
 
     describe 'GET /geographic_areas' do
-      before {
-        visit geographic_areas_path }
-
-      it_behaves_like 'a_data_model_with_standard_index'
+      before { visit geographic_areas_path }
+       it_behaves_like 'a_data_model_with_standard_index', true # <- this true says "no new link" 
     end
 
     describe 'GET /geographic_areas/list' do

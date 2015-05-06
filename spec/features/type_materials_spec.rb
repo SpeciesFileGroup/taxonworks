@@ -70,38 +70,37 @@ RSpec.describe "TypeMaterials", :type => :feature do
         let(:specimen) { FactoryGirl.create(:valid_specimen, user_project_attributes(@user, @project)) }
 
         specify 'filling out the form', js: true do
-          f = Protonym.new(name: 'Aaidae', rank_class: Ranks.lookup(:iczn, 'family'),
-                           parent: root,
-                           creator: @user, updater: @user, project: @project)
-          expect(f.save).to be_truthy
-          g = Protonym.new(name: 'Cus', rank_class: Ranks.lookup(:iczn, 'Genus'),
-                           parent: f,
-                           creator: @user, updater: @user, project: @project)
-          expect(g.save).to be_truthy
-          #  - a species 'bus' with parent 'Bus' is created
-          sp = Protonym.new(name: 'bus', rank_class: Ranks.lookup(:iczn, 'Species'),
-                            parent: g,
-                            creator: @user, updater: @user, project: @project)
-          expect(sp.save).to be_truthy
 
-          # ident = Identifier::Local::CatalogNumber.new(namespace:  namesp, identifier_object: specimen,
-          #                                              identifier: '1234')
-          ident = Identifier::Local::CatalogNumber.new(identifier_object: specimen,
+          f = Protonym.create!(name: 'Aaidae', rank_class: Ranks.lookup(:iczn, 'family'),
+                           parent: root,
+                           by: @user, project: @project)
+          g = Protonym.create!(name: 'Cus', rank_class: Ranks.lookup(:iczn, 'Genus'),
+                           parent: f,
+                           by: @user, project: @project)
+          
+          #  - a species 'bus' with parent 'Cus' is created
+          sp = Protonym.create!(name: 'bus', rank_class: Ranks.lookup(:iczn, 'Species'),
+                            parent: g,
+                            by: @user, project: @project)
+
+          ident = Identifier::Local::CatalogNumber.create!(identifier_object: specimen,
                                                        identifier: '1234',
                                                        namespace_id: namesp.id,
-                                                       creator: @user, updater: @user, project: @project)
+                                                       by: @user, project: @project)
+
           #  - an identifier with Namespace 'INHSIC' and identifier '1234' attached to specimen is created
-          expect(ident.save).to be_truthy
           expect(ident.cached).to eq('INHSIC 1234')
 
           visit type_materials_path
 
           click_link('new') # when I click the new link
 
-          fill_autocomplete('protonym_id_for_type_material', with: 'Cus bus') # I fill out the name field with "bus"
+          fill_autocomplete('protonym_id_for_type_material', with: 'Cus\ bus') # I fill out the name field with "bus"
           # I click 'Bus bus (species)' from drop down list
           # NOTES: need the full name (genus & species) and I'm not getting the species name set correctly.
-          fill_autocomplete('biological_object_id_for_type_material', with: 'INHSIC 1234')
+          fill_autocomplete('biological_object_id_for_type_material', with: 'INHSIC\ 1234')
+          
+          byebug
           # NOTES: still not finding the correct record.
           # I fill out the Material field with 'INHSIC 1234'
           #      and I click on the only record returned*

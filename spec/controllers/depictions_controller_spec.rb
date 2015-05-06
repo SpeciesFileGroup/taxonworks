@@ -24,6 +24,11 @@ RSpec.describe DepictionsController, type: :controller do
     sign_in
   }
 
+  
+  after(:all) {
+    nuke_image_folder 
+  }
+
 
   let(:specimen) { FactoryGirl.create(:valid_specimen) }
 

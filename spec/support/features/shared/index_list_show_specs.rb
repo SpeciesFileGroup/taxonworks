@@ -1,11 +1,19 @@
 # Test basic functionality of data models with shared views, e.g., forward/back, list, download, etc.
-shared_examples 'a_data_model_with_standard_index' do
+shared_examples 'a_data_model_with_standard_index' do | no_new_link |
   specify 'has model name' do
     expect(page).to have_content(page_index_name)
   end
-  specify "has new link" do
-    expect(page).to have_link('new')
+
+  if no_new_link
+    specify "does not have new link" do
+      expect(page).to_not have_link('new')
+    end
+  else
+    specify "has new link" do
+      expect(page).to have_link('new')
+    end
   end
+
   specify "has list link" do
     expect(page).to have_link('list')
   end
