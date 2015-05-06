@@ -72,7 +72,7 @@ class TypeMaterial < ActiveRecord::Base
   def self.find_for_autocomplete(params)
     term = params[:term]
     include(:protonym, :material, :source).
-        where(protonyms: {id: term}, collection_objects: {id: term}, sources: {id: term})
+        where(protonyms: {id: term}, collection_objects: {id: term}, sources: {id: term}).with_project_id(params[:project_id])
   end
 
   def self.generate_download(scope)

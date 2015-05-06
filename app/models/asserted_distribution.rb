@@ -30,7 +30,7 @@ class AssertedDistribution < ActiveRecord::Base
     # where('geographic_area LIKE ?', "%#{params[:term]}%").with_project_id(params[:project_id])
     term = params[:term]
     include(:geographic_area, :otu, :source).
-      where(geographic_areas: {name: term}, otus: {name: term}, sources: {cached: term})
+      where(geographic_areas: {name: term}, otus: {name: term}, sources: {cached: term}).with_project_id(params[:project_id])
   end
 
   #region Soft validation

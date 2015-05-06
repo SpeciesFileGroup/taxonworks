@@ -17,7 +17,7 @@ class Citation < ActiveRecord::Base
     term    = params['term']
     ending  = term + '%'
     wrapped = '%' + term + '%'
-    joins(:source).where('sources.cached ILIKE ? OR sources.cached ILIKE ? OR citation_object_type LIKE ?', ending, wrapped, ending)
+    joins(:source).where('sources.cached ILIKE ? OR sources.cached ILIKE ? OR citation_object_type LIKE ?', ending, wrapped, ending).with_project_id(params[:project_id])
   end
 
   # @return [NoteObject]

@@ -137,7 +137,7 @@ class TaxonNameRelationship < ActiveRecord::Base
   end
 
   def self.find_for_autocomplete(params)
-    where(id: params[:term])
+    where(id: params[:term]).with_project_id(params[:project_id])
   end
 
   def self.nomen_uri

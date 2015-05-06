@@ -186,7 +186,7 @@ class TaxonNameClassification < ActiveRecord::Base
   #endregion
 
   def self.find_for_autocomplete(params)
-    where(id: params[:term])
+    where(id: params[:term]).with_project_id(params[:project_id])
   end
 
   def self.generate_download(scope)
