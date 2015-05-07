@@ -140,7 +140,7 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
 
     count = Georeference.batch_create_from_georeference_matcher(arguments)
     if count > 0
-      render json: {message: '', html: "There #{pluralize(count 'was', 'were')} #{count} #{pluralize(count, 'georeference')} created"}
+      render json: {message: '', html: "There was/were #{count} georeference(s) created"}
     end
     # count = 0
 
