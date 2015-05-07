@@ -231,7 +231,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
         $("#_recent_gr_form").attr("hidden", true);
         this_map = initializeMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
         add_match_georeferences_map_listeners(this_map);
-        initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_selected_gr_form").data('feature-collection'));
+        this_map = initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_selected_gr_form").data('feature-collection'));
       }
       selecting.removeAttr('hidden');
       return true;
@@ -387,7 +387,8 @@ function add_match_georeferences_map_listeners(map) {      // 4 listeners, one f
       event.feature.setProperty('isColorful', true);
       event.feature.setProperty('fillColor', "#CC0000");  //brighter red
       // selectable area has been clicked, get the feature
-      var selected_feature_georeference_id = event.feature["A"].georeference.id;      // unfortunate Google maps reference
+      //  var selected_feature_georeference_id = event.feature["A"].georeference.id;      // unfortunate Google maps reference
+        var selected_feature_georeference_id = event.feature.getProperty('georeference').id;      // unfortunate Google maps reference
       $("#selected_georeference_id").val(selected_feature_georeference_id);           // plant the clicked ID in a safe place
 //      $("#georeference_id").val($("#selected_georeference_id").val());
       var feature_collection = $("#_select_gr_form").data('feature-collection');      // literal-based form data reference
