@@ -21,7 +21,6 @@
       <%= f.select :type, options_for_select([['abbreviation', 'AlternateValue::Abbreviation'], ['translation', 'AlternateValue::Translation'], ['alternate spelling', 'AlternateValue::AlternateSpelling'], ['misspelled', 'AlternateValue::Misspelling']], selected = @alternate_value.type) -%>
     </div>
 
-
     <div class="field">
       <%= f.label :language_id %>
       <br>
@@ -35,7 +34,6 @@
     </div>
 
     <%= f.hidden_field :alternate_value_object_type %>
-
     <%= f.hidden_field :alternate_value_object_id %>
 
     <div class="actions">
