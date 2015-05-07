@@ -125,24 +125,29 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
   end
 
   def batch_create_match_georeferences
-    # we want to repackage the checkmarks we get from the client side into an array of ids with which
-    # to feed Georeference.
-    keys        = params.keys
-    checked_ids = []
-    arguments   = {}
-    keys.each { |key|
-      if /check\d+/ =~ key
-        checked_ids.push(params[key].to_i)
-      end
-    }
-    arguments.merge!(georeference_id: params['georeference_id'])
-    arguments.merge!(checked_ids: checked_ids)
 
-    count = Georeference.batch_create_from_georeference_matcher(arguments)
-    if count > 0
-      render json: {message: '', html: "There was/were #{count} georeference(s) created"}
+    respond_to do |format|
+      format.json {
+        # we want to repackage the checkmarks we get from the client side into an array of ids with which
+        # to feed Georeference.
+        keys        = params.keys
+        checked_ids = []
+        arguments   = {}
+        keys.each { |key|
+          if /check\d+/ =~ key
+            checked_ids.push(params[key].to_i)
+          end
+        }
+        arguments.merge!(georeference_id: params['georeference_id'])
+        arguments.merge!(checked_ids: checked_ids)
+
+        count = Georeference.batch_create_from_georeference_matcher(arguments)
+        if count > 0
+          render json: {message: '', html: "There was/were #{count} georeference(s) created"}
+        end
+        # count = 0
+      }
     end
-    # count = 0
 
   end
 
