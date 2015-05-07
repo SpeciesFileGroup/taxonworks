@@ -212,7 +212,7 @@ class Georeference < ActiveRecord::Base
   def self.batch_create_from_georeference_matcher(params)
     gr                    = Georeference.find(params['georeference_id'])
     retval                = 0
-    collecting_event_list = params['collecting_events']
+    collecting_event_list = params['checked_ids']
     collecting_event_list.each do |event_id|
       new_gr                     = gr.dup
       new_gr.collecting_event_id = event_id
