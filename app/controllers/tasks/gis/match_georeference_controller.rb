@@ -129,7 +129,7 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
     if count > 0
       render json: {message: '', html: "There #{pluralize(count 'was', 'were')} #{count} #{pluralize(count, 'georeference')} created"}
     end
-    count= 0
+    # count = 0
 
   end
 
