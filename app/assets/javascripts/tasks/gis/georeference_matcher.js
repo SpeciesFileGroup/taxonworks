@@ -111,6 +111,8 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
       selecting.html(local_data.responseJSON['html']);      // render the table
       $("#btn_create_georeferences").click(function (event) {      // register the click handler
           $("#georeference_id").val($("#selected_georeference_id").val());  // get the stored value from center map form
+          // Before we invoke this method, we need to package the ids of the collecting events into an array
+          // so that the receiving function can process them easily
           $.post('batch_create_match_georeferences', $('form#create_georeferences').serialize(), function (return_data) {
               initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_selected_gr_form").data('feature-collection'));
             }

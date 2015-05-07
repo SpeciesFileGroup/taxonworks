@@ -208,17 +208,20 @@ class Georeference < ActiveRecord::Base
   end
 
   # todo: not yet sure what the params are going to look like. what is below just represents a guess
-  # @param [Hash] params from _collecting_event_selection form
-  def self.batch_create_from_georeference_matcher(params)
-    gr                    = Georeference.find(params['georeference_id'])
+  # @param [Hash] arguments from _collecting_event_selection form
+  def self.batch_create_from_georeference_matcher(arguments)
+    gr                    = Georeference.find(arguments[:georeference_id].to_i)
     retval                = 0
-    collecting_event_list = params['checked_ids']
-    collecting_event_list.each do |event_id|
-      new_gr                     = gr.dup
-      new_gr.collecting_event_id = event_id
-      new_gr.save
-      retval += 1
-    end unless collecting_event_list.nil?
+    collecting_event_list = arguments[:checked_ids]
+
+    unless collecting_event_list.nil?
+      collecting_event_list.each { |event_id|
+        new_gr                     = gr.dup
+        new_gr.collecting_event_id = event_id
+        new_gr.save!
+        retval += 1
+      }
+    end
     retval
   end
 
