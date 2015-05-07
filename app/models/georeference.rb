@@ -217,7 +217,7 @@ class Georeference < ActiveRecord::Base
     unless collecting_event_list.nil?
       collecting_event_list.each { |event_id|
         new_gr                     = gr.dup
-        new_gr.collecting_event_id = event_id
+        new_gr.collecting_event_id = event_id.to_i
         new_gr.save!
         retval += 1
       }
