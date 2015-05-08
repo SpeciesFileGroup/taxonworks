@@ -82,7 +82,8 @@ module Workbench::SessionsHelper
   end 
 
   def is_superuser?
-    sessions_signed_in? && ( is_administrator? || is_project_administrator? ) # @sessions_current_user.is_superuser?(@sessions_current_project_id)
+    sessions_signed_in? && @sessions_current_user.is_superuser?
+    # sessions_signed_in? && ( is_administrator? || is_project_administrator? )
   end 
 
   def is_project_member?(user, project)
