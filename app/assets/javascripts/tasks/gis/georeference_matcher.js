@@ -114,7 +114,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
           // Before we invoke this method, we need to package the ids of the collecting events into an array
           // so that the receiving function can process them easily
           $.post('batch_create_match_georeferences', $('form#create_georeferences').serialize(), function (return_data) {
-
+              selecting.html(return_data.responseJSON['html']);
               initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_selected_gr_form").data('feature-collection'));
             }
           );
@@ -388,7 +388,7 @@ function add_match_georeferences_map_listeners(map) {      // 4 listeners, one f
       event.feature.setProperty('fillColor', "#CC0000");  //brighter red
       // selectable area has been clicked, get the feature
       //  var selected_feature_georeference_id = event.feature["A"].georeference.id;      // unfortunate Google maps reference
-        var selected_feature_georeference_id = event.feature.getProperty('georeference').id;      // unfortunate Google maps reference
+      var selected_feature_georeference_id = event.feature.getProperty('georeference').id;      // unfortunate Google maps reference
       $("#selected_georeference_id").val(selected_feature_georeference_id);           // plant the clicked ID in a safe place
 //      $("#georeference_id").val($("#selected_georeference_id").val());
       var feature_collection = $("#_select_gr_form").data('feature-collection');      // literal-based form data reference

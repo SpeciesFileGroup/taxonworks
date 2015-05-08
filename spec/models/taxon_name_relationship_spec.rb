@@ -235,6 +235,22 @@ describe TaxonNameRelationship, :type => :model do
       expect(s1.cached).to eq('Bus aus')
       expect(s1.cached_html).to eq('<em>Bus aus</em>')
     end
+    specify 'destroy relationship' do
+      g1 = FactoryGirl.create(:relationship_genus, name: 'Aus', parent: @family)
+      s1 = FactoryGirl.create(:relationship_species, name: 'aus', parent: g1)
+      r1 = FactoryGirl.build(:taxon_name_relationship, subject_taxon_name: g1, object_taxon_name: s1, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
+      r2 = FactoryGirl.build(:taxon_name_relationship, subject_taxon_name: g1, object_taxon_name: s1, type: 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus')
+      r3 = FactoryGirl.build(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s1, type: 'TaxonNameRelationship::OriginalCombination::OriginalSpecies')
+      r1.save
+      r2.save
+      r3.save
+      s1.reload
+      s1.save
+      expect(s1.cached_original_combination).to eq('<em>Aus</em> (<em>Aus</em>) <em>aus</em>')
+      r2.destroy
+      s1.reload
+#      expect(s1.cached_original_combination).to eq('<em>Aus aus</em>')
+    end
   end
 
   context 'soft validation' do
