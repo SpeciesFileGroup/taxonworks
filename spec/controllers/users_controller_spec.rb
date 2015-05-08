@@ -24,7 +24,7 @@ describe UsersController, :type => :controller do
   # User. As you add validations to User, be sure to
   # adjust the attributes here as well.
 
-  let(:valid_attributes) { {name: 'uzer', password: '123aBc!!!', password_confirmation: '123aBc!!!', email: 'foo@bar.com', created_by_id: 1, updated_by_id: 1} }
+  let(:valid_attributes) { {name: 'uzer', password: '123aBc!!!', password_confirmation: '123aBc!!!', email: 'foo@example.com', created_by_id: 1, updated_by_id: 1} }
   let(:invalid_attributes) {{  "email" => "invalid value" }  } 
 
   # This should return the minimal set of values that should be in the session
@@ -89,6 +89,11 @@ describe UsersController, :type => :controller do
         post :create, {:user => valid_attributes}, valid_session
         expect(assigns(:user)).to be_a(User)
         expect(assigns(:user)).to be_persisted
+      end
+      
+      it "flags the newly created user for password reset when created by a superuser" do
+        post :create, {:user => valid_attributes}, valid_session
+        expect(User.find_by_email(valid_attributes[:email]).is_flagged_for_password_reset).to be_truthy
       end
 
       # TODO: maybe not
