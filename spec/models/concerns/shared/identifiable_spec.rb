@@ -10,8 +10,7 @@ describe 'Identifiable', :type => :model do
     end
   end
 
-  context "methods" do
-
+   context "methods" do
     specify ".identified?" do
       expect(identifiable_instance.identified?).to eq(false)
     end
@@ -47,6 +46,15 @@ describe 'Identifiable', :type => :model do
         expect(identifiable_class.with_identifier('INHSIC 123').count).to eq(1)
         expect(identifiable_class.with_identifier(['INHSIC 123', 'CNC 789']).count).to eq(2)
       end
+
+      context 'on destroy' do
+        specify 'attached identifiers are destroyed' do
+          expect(identifiable_instance.identifiers.count).to eq(3)
+          expect(identifiable_instance.destroy).to be_truthy
+          expect(Identifier.count).to eq(0) 
+        end
+      end
+ 
     end
   end
 
