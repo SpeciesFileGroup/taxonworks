@@ -508,16 +508,19 @@ class TaxonName < ActiveRecord::Base
         unless dependants.empty?
           dependants.each do |i|
             i.update_columns(:cached => i.get_full_name,
-                             :cached_html => i.get_full_name_html)
+                             :cached_html => i.get_full_name_html,
+                             :cached_secondary_homonym => i.get_genus_species(:current, :self),
+                             :cached_secondary_homonym_alternative_spelling => i.get_genus_species(:current, :alternative))
           end
         end
 
         unless original_combination_relationships.empty?
           related_taxa = original_combination_relationships.collect{|i| i.object_taxon_name}.uniq
           related_taxa.each do |i|
-            i.update_column(:cached_original_combination, i.get_original_combination)
+            i.update_columns(:cached_original_combination => i.get_original_combination,
+                             :cached_primary_homonym => i.get_genus_species(:original, :self),
+                             :cached_primary_homonym_alternative_spelling => i.get_genus_species(:original, :alternative))
 
-            j = 1
           end
         end
 

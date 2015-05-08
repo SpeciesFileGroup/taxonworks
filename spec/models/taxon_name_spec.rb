@@ -119,7 +119,6 @@ describe TaxonName, :type => :model do
       end
     end
 
-
     context 'instance methods' do
       context 'verbatim_author' do
         specify 'parens are allowed' do
@@ -330,6 +329,13 @@ describe TaxonName, :type => :model do
           specify 'parent without parentheses' do
             c = FactoryGirl.build(:relationship_species, parent: nil, verbatim_author: 'Dmitriev', year_of_publication: 2000)
             expect(c.get_author_and_year).to eq('Dmitriev, 2000')
+          end
+
+          specify 'no original combination relationships' do
+            ssp = FactoryGirl.build(:iczn_subspecies, parent: @species)
+            expect(ssp.get_original_combination.nil?).to be_truthy
+            ssp.save
+            expect(ssp.cached_original_combination.nil?).to be_truthy
           end
 
           specify 'original genus subgenus' do

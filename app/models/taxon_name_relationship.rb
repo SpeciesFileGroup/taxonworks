@@ -248,7 +248,9 @@ class TaxonNameRelationship < ActiveRecord::Base
 
         if self.type_name =~/OriginalCombination/
           t = self.object_taxon_name
-          t.update_column(:cached_original_combination, t.get_original_combination)
+          t.update_columns(:cached_original_combination => t.get_original_combination,
+                           :cached_primary_homonym => t.get_genus_species(:original, :self),
+                           :cached_primary_homonym_alternative_spelling => t.get_genus_species(:original, :alternative))
         elsif self.is_combination?
           t = self.object_taxon_name
           t.update_columns(:cached_original_combination => t.get_original_combination,

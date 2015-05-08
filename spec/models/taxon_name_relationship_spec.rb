@@ -223,6 +223,7 @@ describe TaxonNameRelationship, :type => :model do
       expect(s1.cached_html).to eq('<em>Aus aus</em>')
       expect(s1.cached_misspelling).to be_falsey
       expect(s1.cached_original_combination).to eq('<em>Bus aus</em>')
+      expect(s1.cached_primary_homonym).to eq('Bus aus')
       r2 = FactoryGirl.build(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: @family, type: 'TaxonNameRelationship::SourceClassifiedAs')
       r2.save
       expect(s1.cached_classified_as).to eq(' (as Erythroneuridae)')
