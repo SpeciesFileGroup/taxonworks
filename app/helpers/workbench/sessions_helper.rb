@@ -76,12 +76,13 @@ module Workbench::SessionsHelper
     sessions_signed_in? && @sessions_current_user.is_administrator?
   end 
 
+  # Can be optimized to just look at ProjectMembers likely
   def is_project_administrator?
     sessions_signed_in? && sessions_project_selected? && @sessions_current_project.project_members.where(is_administrator: true).includes?(@sessions_current_user) 
   end 
 
   def is_superuser?
-    sessions_signed_in? && @sessions_current_user.is_superuser?
+    sessions_signed_in? && ( is_administrator? || is_project_administrator? ) # @sessions_current_user.is_superuser?(@sessions_current_project_id)
   end 
 
   def is_project_member?(user, project)
