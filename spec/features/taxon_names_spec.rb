@@ -131,18 +131,13 @@ describe 'TaxonNames', :type => :feature do
       page.find_link('Edit original combination').click
       # click_link('Edit original combination') # When I click that link
       fill_autocomplete('subject_taxon_name_id_for_tn_rel_0',
-                        with: 'Bus', select: 'Bus (genus, parent Rootidae)')
+                        with: 'Bus', select: 'Bus')
       # select 'Bus' for the original genus ajax select
       click_button('Save changes') # click 'Save changes'
       # I am returned to show for the species in question
       expect(page).to have_content('Successfully updated the original combination.') # success msg
       expect(page).to have_content('Cached original combination: Bus specius')  # show page original genus is changed
     end
-    pending "Fix 'edit original combination' to update the cached values" do
-      expect(true).to be_falsey
-      #This is just a place holder for commented out sections of the above test
-    end
-
   end
 end
 
