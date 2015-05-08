@@ -2,7 +2,7 @@ require 'rails_helper'
 include FormHelper
 
 describe 'TaxonNames', :type => :feature do
-  # Capybara.default_wait_time = 1 # change to 15 to see what's happening on form
+  # Capybara.default_wait_time = 15 # change to 15 to see what's happening on form
   
   let(:page_index_name) { 'taxon names' }
   let(:index_path) { taxon_names_path }
@@ -103,23 +103,35 @@ describe 'TaxonNames', :type => :feature do
       click_link('new')
       fill_in('Name', with: 'specius')
       select('species (ICZN)', from: 'taxon_name_rank_class')
-      fill_autocomplete('parent_id_for_name', with: 'Aus')
+      fill_autocomplete('parent_id_for_name', with: 'Aus', select: 'Aus')
       click_button('Create Taxon name')
       expect(page).to have_content("Taxon name 'specius' was successfully created.")
       # Note that we're now on the show page for species1 # When I show that species
       expect(page).to have_content('Cached name: Aus specius')
       expect(page.has_content?('Cached original combination: Aus specius')).to be_falsey
       expect(page).to have_link('Edit original combination')  # There is an 'Edit original combination link'
-      click_link('Edit original combination') # When I click that link
+      # click_link('Edit original combination') # When I click that link
+      # page.find_link('Edit original combination').click
+      # above not working for an unknown reason (see
+      # http://stackoverflow.com/questions/6693993/capybara-with-selenium-webdriver-click-link-does-not-work-when-link-text-has-lin )
+      # link = find_link('Edit original combination')
+      # #link.native.send_keys([:return])
+      # link.click
+      page.find_link('Edit original combination').click
       expect(page).to have_content('Editing original combination for Aus specius')
-      fill_autocomplete('subject_taxon_name_id_for_tn_rel_0', with: 'Aus')
+      fill_autocomplete('subject_taxon_name_id_for_tn_rel_0', with: "Aus",
+                        select: 'Aus (genus, parent Rootidae)')
       # Set the original combination for the first time: select 'Aus' for the original genus ajax select
-      click_button('Save changes') # click 'Save changes'
+      # Had to add the '\r' to get the auto select to correctly select Aus, but the return
+      # also is equivalent to the submit button
+     click_button('Save changes') # click 'Save changes'
       expect(page).to have_content('Successfully updated the original combination.') # success msg
       expect(page).to have_content('Cached original combination: Aus specius')
 
-      click_link('Edit original combination') # When I click that link
-      fill_autocomplete('subject_taxon_name_id_for_tn_rel_0', with: 'Bus')
+      page.find_link('Edit original combination').click
+      # click_link('Edit original combination') # When I click that link
+      fill_autocomplete('subject_taxon_name_id_for_tn_rel_0',
+                        with: 'Bus', select: 'Bus (genus, parent Rootidae)')
       # select 'Bus' for the original genus ajax select
       click_button('Save changes') # click 'Save changes'
       # I am returned to show for the species in question
