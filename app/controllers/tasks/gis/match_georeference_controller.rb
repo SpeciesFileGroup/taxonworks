@@ -126,6 +126,7 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
 
   def batch_create_match_georeferences
 
+    @motion = 'returning_results'
     respond_to do |format|
       format.json {
         # we want to repackage the checkmarks we get from the client side into an array of ids with which
@@ -141,14 +142,16 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
         arguments.merge!(georeference_id: params['georeference_id'])
         arguments.merge!(checked_ids: checked_ids)
 
-        count = Georeference.batch_create_from_georeference_matcher(arguments)
-        if count > 0
-          render json: {message: '', html: "There was/were #{count} georeference(s) created"}
-        end
-        # count = 0
+        results = Georeference.batch_create_from_georeference_matcher(arguments)
+        # todo: Rich: missing partial error
+        # render json: {message: '',
+        #               html:    render_to_string(partial: 'tasks/gis/match_georeference/georeference_success',
+        #                                         locals:  {georeferences_results: results,
+        #                                                   motion:                @motion})}
+        render json: {message: '',
+                      html:    results}
       }
     end
-
   end
 
   # @param [String] message to be conveyed to client side

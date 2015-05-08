@@ -4,7 +4,7 @@
         <tr>
           <th>Collecting Event</th>
           <th>Verbatim Locality</th>
-          <th>Georef #</th>
+          <th>GR #</th>
           <th>ID</th>
           <th></th>
         </tr>
@@ -18,7 +18,7 @@
                 <%= collecting_event.verbatim_locality %>
               </td>
               <td>
-                <%=	 collecting_event.georeferences.count %>
+                <%= collecting_event.georeferences.count %>
               </td>
               <td>
                 <%= collecting_event.to_param %>
