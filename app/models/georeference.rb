@@ -210,12 +210,14 @@ class Georeference < ActiveRecord::Base
   # todo: not yet sure what the params are going to look like. what is below just represents a guess
   # @param [Hash] arguments from _collecting_event_selection form
   def self.batch_create_from_georeference_matcher(arguments)
-    gr                    = Georeference.find(arguments[:georeference_id].to_i)
-    retval                = {}
+    gr                    = Georeference.find(arguments[:georeference_id].to_param)
+
+    result = []
+
     collecting_event_list = arguments[:checked_ids]
 
     unless collecting_event_list.nil?
-      collecting_event_list.each { |event_id|
+      collecting_event_list.each do |event_id|
         new_gr = Georeference.new(collecting_event_id:      event_id.to_i,
                                   geographic_item_id:       gr.geographic_item_id,
                                   error_radius:             gr.error_radius,
@@ -223,26 +225,15 @@ class Georeference < ActiveRecord::Base
                                   error_geographic_item_id: gr.error_geographic_item_id,
                                   type:                     gr.type,
                                   source_id:                gr.source_id,
-                                  position:                 gr.position,
-                                  # created_at:               gr.created_at,
-                                  # updated_at:               gr.updated_at,
                                   is_public:                gr.is_public,
                                   api_request:              gr.api_request,
-                                  # created_by_id:            gr.created_by_id,
-                                  # updated_by_id:            gr.updated_by_id,
-                                  project_id:               gr.project_id,
                                   is_undefined_z:           gr.is_undefined_z,
                                   is_median_z:              gr.is_median_z)
-        pass   = new_gr.valid?
-        if pass
-          new_gr.save
-          retval.merge!(event_id => {gr: new_gr, valid?: 'Success'})
-        else
-          retval.merge!(event_id => {gr: new_gr, valid?: gr.errors})
-        end
-      }
+        new_gr.save
+        result.push new_gr
+      end
     end
-    retval
+    result
   end
 
   protected
