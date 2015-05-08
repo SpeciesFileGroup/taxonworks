@@ -11,6 +11,7 @@ class TaxonNameRelationship < ActiveRecord::Base
   belongs_to :source
 
   after_save :set_cached_names_for_taxon_names
+  after_destroy :set_cached_names_for_taxon_names
 
   validates_presence_of :type, message: 'Relationship type should be specified'
   validates_presence_of :subject_taxon_name_id, message: 'Taxon is not selected'
@@ -269,7 +270,6 @@ class TaxonNameRelationship < ActiveRecord::Base
     rescue
     end
     false
-
   end
 
   #endregion
