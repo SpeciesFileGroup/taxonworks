@@ -74,6 +74,7 @@ RSpec.describe "TypeMaterials", :type => :feature do
           f = Protonym.create!(name: 'Aaidae', rank_class: Ranks.lookup(:iczn, 'family'),
                            parent: root,
                            by: @user, project: @project)
+        
           g = Protonym.create!(name: 'Cus', rank_class: Ranks.lookup(:iczn, 'Genus'),
                            parent: f,
                            by: @user, project: @project)
@@ -95,10 +96,10 @@ RSpec.describe "TypeMaterials", :type => :feature do
 
           click_link('new') # when I click the new link
 
-          fill_autocomplete('protonym_id_for_type_material', with: 'Cus\ bus') # I fill out the name field with "bus"
+          fill_autocomplete('protonym_id_for_type_material', with: 'Cus bus') # I fill out the name field with "bus"
           # I click 'Bus bus (species)' from drop down list
           # NOTES: need the full name (genus & species) and I'm not getting the species name set correctly.
-          fill_autocomplete('biological_object_id_for_type_material', with: 'INHSIC\ 1234')
+          fill_autocomplete('biological_object_id_for_type_material', with: 'INHSIC 1234')
           
           # NOTES: still not finding the correct record.
           # I fill out the Material field with 'INHSIC 1234'

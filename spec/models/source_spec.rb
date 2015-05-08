@@ -16,17 +16,24 @@ describe Source, type: :model, group: :sources do
   # needs VCR
   context '#new_from_citation' do
     let(:citation) { 'Yoder, M. J., A. A. Valerio, A. Polaszek, L. Masner, and N. F. Johnson. 2009. Revision of Scelio pulchripennis - group species (Hymenoptera, Platygastroidea, Platygastridae). ZooKeys 20:53-118.' }
+
     specify 'when citation is < 5 characters false is returned' do
-      expect(Source.new_from_citation(citation: 'ABC')).to eq(false)
+      VCR.use_cassette('source_citation_abc') {
+        expect(Source.new_from_citation(citation: 'ABC')).to eq(false)
+      }
     end
     
     specify 'when citation is > than 5 characters but unresolvable a Source::Verbatim instance is returned' do
-      expect(Source.new_from_citation(citation: 'ABCDE XYZ').class).to eq(Source::Verbatim)
+      VCR.use_cassette('source_citation_xyz') {
+        expect(Source.new_from_citation(citation: 'ABCDE XYZ').class).to eq(Source::Verbatim)
+      } 
     end
 
     specify 'when citation is resolvable a Source::Bibtex instance is returned' do
-      s =  Source.new_from_citation(citation: citation)
-      expect(s.class).to eq(Source::Bibtex)
+      VCR.use_cassette('source_citation_polaszek') {
+        s =  Source.new_from_citation(citation: citation)
+        expect(s.class).to eq(Source::Bibtex)
+      }
     end
   end
 
