@@ -144,12 +144,17 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
 
         results = Georeference.batch_create_from_georeference_matcher(arguments)
         # todo: Rich: missing partial error
-        # render json: {message: '',
-        #               html:    render_to_string(partial: 'tasks/gis/match_georeference/georeference_success',
-        #                                         locals:  {georeferences_results: results,
-        #                                                   motion:                @motion})}
+
+        html = render_to_string(partial: 'georeference_success', formats: 'html',
+                                locals:  {georeferences_results: results,
+                                          motion:                @motion}
+        )
+
         render json: {message: '',
-                      html:    results}
+                      html: html
+                          }
+        # render json: {message: '',
+        #               html:    results}
       }
     end
   end

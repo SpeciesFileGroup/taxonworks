@@ -11,7 +11,7 @@ module FormHelper
 
     expect(page).to have_selector('ul.ui-autocomplete li.ui-menu-item a')
     #sleep 2  # here only so a human eye can see what is happening - remove in final test
-    page.execute_script %Q{ $('#{selector}').trigger('mouseenter').click() }
+    page.execute_script %Q{ $('#{selector}').first().trigger('mouseenter').click() }
   end
 
 end

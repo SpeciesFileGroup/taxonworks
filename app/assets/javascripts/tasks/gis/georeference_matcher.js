@@ -104,25 +104,37 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
       event.preventDefault();
     });
 
+//  search for recent collecting events success
     $("#recent_ce_count").on("ajax:success", function (e, data, status, local_data) {
       var selecting = $('#_selecting_ce_form');
       // see what the message was, if anything
       var message = local_data.responseJSON['message'];
       selecting.html(local_data.responseJSON['html']);      // render the table
-      $("#btn_create_georeferences").click(function (event) {      // register the click handler
-          $("#georeference_id").val($("#selected_georeference_id").val());  // get the stored value from center map form
-          // Before we invoke this method, we need to package the ids of the collecting events into an array
-          // so that the receiving function can process them easily
-          $.post('batch_create_match_georeferences', $('form#create_georeferences').serialize(), function (return_data) {
-              selecting.html(return_data.responseJSON['html']);
-              initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_selected_gr_form").data('feature-collection'));
-            }
-          );
-          event.preventDefault();
-        }
-      );
 
-      $("#_recent_ce_form").attr("hidden", true);
+      //$("#btn_create_georeferences").click(function (event) {      // register the click handler for the made-from-scratch-button
+      //    $("#georeference_id").val($("#selected_georeference_id").val());  // get the stored value from center map form
+      //    // Before we invoke this method, we need to package the ids of the collecting events into an array
+      //    // so that the receiving function can process them easily
+      //    $.post('batch_create_match_georeferences', $('form#create_georeferences').serialize(), function (return_data) {
+      //        selecting.html(return_data.responseJSON['html']);
+      //        initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_selected_gr_form").data('feature-collection'));
+      //      }
+      //    );
+      //    event.preventDefault();
+      //  }
+      //);
+// plant the id for the submit
+      $("#create").click(function (event) {      // register the click handler for the made-from-scratch-button
+        $("#georeference_id").val($("#selected_georeference_id").val());  // get the stored value from center map form
+
+      }
+      )
+      $("#create_georeferences").on("ajax:success", function (e, data, status, local_data) {
+        $("#result_from_post").html(local_data.responseJSON['html']);
+        initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_selected_gr_form").data('feature-collection'));
+      }
+      )
+        $("#_recent_ce_form").attr("hidden", true);
       selecting.removeAttr('hidden');
       return true;
     }).on("ajax:error", function (e, xhr, status, error) {
@@ -231,7 +243,13 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
         $("#_recent_gr_form").attr("hidden", true);
         this_map = initializeMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
         add_match_georeferences_map_listeners(this_map);
-        this_map = initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_selected_gr_form").data('feature-collection'));
+        if ($("#_select_gr_form").data('feature-collection').features.length == 1) {
+
+          this_map = initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
+        }
+        else {
+          this_map = initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_selected_gr_form").data('feature-collection'));
+        }
       }
       selecting.removeAttr('hidden');
       return true;
@@ -401,7 +419,7 @@ function add_match_georeferences_map_listeners(map) {      // 4 listeners, one f
       }
     }
     ;
-    add_click_services_to_match_georeferences_map(map, event);
+    //add_click_services_to_match_georeferences_map(map, event);
   });
 
   // When the user hovers, tempt them to click by outlining the letters.

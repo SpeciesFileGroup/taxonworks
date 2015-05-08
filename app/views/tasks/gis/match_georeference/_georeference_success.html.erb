@@ -1,5 +1,4 @@
 <div id="_result_ce_form">
-  <%= form_tag(batch_create_match_georeferences_url, name: 'georeference_success', id: 'georeference_success', method: :post, remote: true) do %>
       <table border="1">
         <tr>
           <th>Georeference</th>
@@ -8,22 +7,19 @@
           <th></th>
         </tr>
         <tbody>
-        <% @georeferences_results.each { |gr_result| %>
+        <% georeferences_results.each do  |g| %>
             <tr>
               <td>
-                <%= link_to(georeference_tag(get_gr(gr_result)), georeference_path(get_gr(gr_result).to_param)) %>
+                <%= g.valid? ? link_to("show", g) : 'not saved'  %>
               </td>
               <td>
-                <%= get_result(gr_result) %>
+                <%= g.valid? %>
               </td>
               <td>
-                <%= get_gr(gr_result).collecting_events.count %>
+                <%= object_tag(g.collecting_event) %>
               </td>
             </tr>
-        <% } %>
+            <% end %>
         </tbody>
       </table>
-      <%= submit_tag('Submit') %>
-      <input type='submit' id="btn_georeference_success" name="btn_georeference_success" value="Rich's Button to dismiss this message box"/>
-  <% end %>
 </div>
