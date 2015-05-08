@@ -15,7 +15,8 @@
     <% else  %>
       <em> No members added yet! </em>
     <% end %>
-    <%= add_project_member_link(@project.to_param) -%>
+    <%= add_project_member_link(@project.to_param) -%><br>
+    <%= link_to('Add new user', signup_path) -%>
   </div>
   
   <div class="item item3">
