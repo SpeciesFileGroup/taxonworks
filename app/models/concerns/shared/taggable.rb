@@ -2,7 +2,7 @@ module Shared::Taggable
   extend ActiveSupport::Concern
 
   included do
-    has_many :tags, as: :tag_object, validate: false
+    has_many :tags, as: :tag_object, validate: false, dependent: :destroy
     has_many :keywords, through: :tags 
 
     scope :with_tags, -> { joins(:tags) }

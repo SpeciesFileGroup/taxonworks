@@ -54,6 +54,16 @@ describe 'Taggable', :type => :model do
       class_with_tags.tags << Tag.new(keyword: FactoryGirl.create(:valid_keyword))
       expect(class_with_tags.has_tags?).to eq(true)
     end
+    context 'object with notes on destroy' do
+      specify 'attached notes are destroyed' do
+        expect(Tag.count).to eq(0)
+        class_with_tags.tags << Tag.new(keyword: FactoryGirl.create(:valid_keyword))
+        class_with_tags.save
+        expect(Tag.count).to eq(1)
+        expect(class_with_tags.destroy).to be_truthy
+        expect(Tag.count).to eq(0)
+      end
+    end
   end
 end
 
