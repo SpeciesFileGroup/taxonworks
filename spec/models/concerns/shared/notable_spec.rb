@@ -25,6 +25,19 @@ describe 'Notable', type: :model do
     expect(class_with_note.notes[0].text).to eq('foo')
   end
 
+  context 'object with notes when destroyed' do
+    specify 'attached notes are destroyed' do
+      expect(Note.count).to eq(0)
+      notes = {notes_attributes: [{text: "a"}, {text: "b"}]}
+      class_with_note.attributes = notes
+      expect(class_with_note.save).to be_truthy
+      expect(Note.count).to eq(2)
+      expect(class_with_note.notes.count).to eq(2)
+      expect(class_with_note.destroy).to be_truthy
+      expect(Note.count).to eq(0)
+    end
+
+  end
   # <snip> Validity of note on a particular attribute is tested via AttributeAnnotation tests
 
 end

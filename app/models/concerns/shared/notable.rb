@@ -3,7 +3,7 @@ module Shared::Notable
 
   included do
     # Validation happens on the parent side!
-    has_many :notes, as: :note_object, validate: true
+    has_many :notes, as: :note_object, validate: true, dependent: :destroy
 
     accepts_nested_attributes_for :notes
   end 
