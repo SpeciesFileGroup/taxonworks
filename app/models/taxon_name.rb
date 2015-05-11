@@ -110,7 +110,7 @@ class TaxonName < ActiveRecord::Base
   before_validation :set_type_if_empty
   before_save :set_cached_names
   after_save :create_new_combination_if_absent,
-             :set_cached_names_for_dependants
+             :set_cached_names_for_dependants_and_self
 
   validate :check_format_of_name,
     :validate_rank_class_class,
@@ -463,7 +463,7 @@ class TaxonName < ActiveRecord::Base
       # if updated, update also sv_cached_names
       set_cached_html
       set_cached_author_year
-      set_cached_classified_as
+      #set_cached_classified_as
       set_cached_original_combination
     end
   end
@@ -494,7 +494,7 @@ class TaxonName < ActiveRecord::Base
     end
   end
 
-  def set_cached_names_for_dependants
+  def set_cached_names_for_dependants_and_self
     dependants = []
     original_combination_relationships = []
     begin
@@ -504,13 +504,16 @@ class TaxonName < ActiveRecord::Base
           dependants = TaxonName.descendants_of(self).with_type('Protonym')
           original_combination_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('OriginalCombination')
         end
+        dependants.push(self)
         classified_as_relationships = TaxonNameRelationship.where_object_is_taxon_name(self).with_type_contains('SourceClassifiedAs')
         unless dependants.empty?
           dependants.each do |i|
             i.update_columns(:cached => i.get_full_name,
-                             :cached_html => i.get_full_name_html,
-                             :cached_secondary_homonym => i.get_genus_species(:current, :self),
-                             :cached_secondary_homonym_alternative_spelling => i.get_genus_species(:current, :alternative))
+                             :cached_html => i.get_full_name_html)
+            if i.rank_string =~/Species/
+              i.update_columns(:cached_secondary_homonym => i.get_genus_species(:current, :self),
+                               :cached_secondary_homonym_alternative_spelling => i.get_genus_species(:current, :alternative))
+            end
           end
         end
 
@@ -520,7 +523,6 @@ class TaxonName < ActiveRecord::Base
             i.update_columns(:cached_original_combination => i.get_original_combination,
                              :cached_primary_homonym => i.get_genus_species(:original, :self),
                              :cached_primary_homonym_alternative_spelling => i.get_genus_species(:original, :alternative))
-
           end
         end
 
@@ -649,67 +651,67 @@ class TaxonName < ActiveRecord::Base
     ec       = '</em>'
     d.merge!('genus' => [nil, '[GENUS NOT PROVIDED]']) if !d['genus']
 
-    elements.push("#{eo}#{d['genus'][1]}#{ec}")
-    elements.push ['(', %w{subgenus section subsection series subseries}.collect { |r| d[r] ? [d[r][0], "#{eo}#{d[r][1]}#{ec}"] : nil }, ')']
-    elements.push ['(', eo, d['superspecies'], ec, ')'] if d['superspecies']
+    elements.push("#{eo}#{d['genus'][1]}#{ec}#{d['genus'][3]}")
+    elements.push ['(', %w{subgenus section subsection series subseries}.collect { |r| d[r] ? [d[r][0], "#{eo}#{d[r][1]}#{ec}#{d[r][3]}"] : nil }, ')']
+    elements.push ['(', eo, d['superspecies'][1], ec, d['superspecies'][3], ')'] if d['superspecies']
 
     %w{species subspecies variety subvariety form subform}.each do |r|
-      elements.push(d[r][0], "#{eo}#{d[r][1]}#{ec}") if d[r]
+      elements.push(d[r][0], "#{eo}#{d[r][1]}#{ec}#{d[r][3]}") if d[r]
     end
 
-    elements.flatten.compact.join(' ').gsub(/\(\s*\)/, '').gsub(/\(\s/, '(').gsub(/\s\)/, ')').squish.gsub('</em> <em>', ' ')
+    elements.flatten.compact.join(' ').gsub(/\(\s*\)/, '').gsub(/\(\s/, '(').gsub(/\s\)/, ')').squish.gsub(' [sic]', ec + ' [sic]' + eo).gsub(ec + ' ' + eo, ' ').gsub(eo + ec, '').gsub(eo + ' ', ' ' + eo)
   end
 
   def genus_name_elements(*args)
-    [nil, args[0].name]
+    [nil, args[0].name_with_misspelling(args[1])]
   end
 
   def subgenus_name_elements(*args)
-    [nil, args[0].name]
+    [nil, args[0].name_with_misspelling(args[1])]
   end
 
   def section_name_elements(*args)
-    ['sect.', args[0].name]
+    ['sect.', args[0].name_with_misspelling(args[1])]
   end
 
   def subsection_name_elements(*args)
-    ['subsect.', args[0].name]
+    ['subsect.', args[0].name_with_misspelling(args[1])]
   end
 
   def series_name_elements(*args)
-    ['ser.', args[0].name]
+    ['ser.', args[0].name_with_misspelling(args[1])]
   end
 
   def subseries_name_elements(*args)
-    ['subser.', args[0].name]
+    ['subser.', args[0].name_with_misspelling(args[1])]
   end
 
   def species_group_name_elements(*args)
-    [nil, args[0].name_in_gender(args[1])]
+    [nil, args[0].name_with_misspelling(args[1])]
   end
 
   def species_name_elements(*args)
-    [nil, args[0].name_in_gender(args[1])]
+    [nil, args[0].name_with_misspelling(args[1])]
   end
 
   def subspecies_name_elements(*args)
-    [nil, args[0].name_in_gender(args[1])]
+    [nil, args[0].name_with_misspelling(args[1])]
   end
 
   def variety_name_elements(*args)
-    ['var.', args[0].name_in_gender(args[1])]
+    ['var.', args[0].name_with_misspelling(args[1])]
   end
 
   def subvariety_name_elements(*args)
-    ['subvar.', args[0].name_in_gender(args[1])]
+    ['subvar.', args[0].name_with_misspelling(args[1])]
   end
 
   def form_name_elements(*args)
-    ['form', args[0].name_in_gender(args[1])]
+    ['form', args[0].name_with_misspelling(args[1])]
   end
 
   def subform_name_elements(*args)
-    ['subform', args[0].name_in_gender(args[1])]
+    ['subform', args[0].name_with_misspelling(args[1])]
   end
 
   def name_with_misspelling(gender)
@@ -764,7 +766,7 @@ class TaxonName < ActiveRecord::Base
             species += 'subf. <em>' + i.subject_taxon_name.name_with_misspelling(gender) + '</em> '
         end
       end
-      if relationships.collect{|i| i.subject_taxon_name_id}.last != self.id
+      if !relationships.empty? && relationships.collect{|i| i.subject_taxon_name_id}.last != self.id
         if self.rank_string =~ /Genus/
           if genus.blank?
             genus += '<em>' + self.name_with_misspelling(nil) + '</em> '
@@ -777,7 +779,7 @@ class TaxonName < ActiveRecord::Base
         end
       end
       subgenus    = '(' + subgenus.squish + ') ' unless subgenus.empty?
-      cached_html = (genus + subgenus + superspecies + species).squish.gsub('</em> <em>', ' ')
+      cached_html = (genus + subgenus + superspecies + species).gsub(' [sic]', '</em> [sic]<em>').gsub('</em> <em>', ' ').gsub('<em></em>', '').gsub('<em> ', ' <em>').squish
       cached_html.blank? ? nil : cached_html
     end
   end
@@ -791,6 +793,8 @@ class TaxonName < ActiveRecord::Base
       genus = self.original_genus
     elsif genus_option == :current
       genus = self.ancestor_at_rank('genus')
+    else
+      return false
     end
     genus = genus.name unless genus.blank?
 
@@ -1115,7 +1119,7 @@ class TaxonName < ActiveRecord::Base
     is_cached = true
     is_cached = false if self.cached_author_year != get_author_and_year
 
-    if self.class == Protonym && cached # don't run the tests if it's already false
+    if self.class == Protonym && is_cached # don't run the tests if it's already false
       if self.cached_html != get_full_name_html ||
           self.cached_misspelling != get_cached_misspelling ||
           self.cached_original_combination != get_original_combination ||

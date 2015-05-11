@@ -256,6 +256,9 @@ class TaxonNameRelationship < ActiveRecord::Base
           t.update_columns(:cached_original_combination => t.get_original_combination,
                            :cached => t.get_full_name,
                            :cached_html => t.get_full_name_html)
+        elsif self.type_name =~/Misspelling/
+          t = self.subject_taxon_name
+          t.update_column(:cached_misspelling, t.get_cached_misspelling)
         elsif self.type_name =~/SourceClassifiedAs/
           t = self.subject_taxon_name
           t.update_column(:cached_classified_as, t.get_cached_classified_as)

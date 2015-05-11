@@ -334,12 +334,20 @@ describe TaxonName, :type => :model do
           specify 'no original combination relationships' do
             ssp = FactoryGirl.build(:iczn_subspecies, parent: @species)
             expect(ssp.get_original_combination.nil?).to be_truthy
+            expect(ssp.get_genus_species(:original, :self).nil?).to be_truthy
+            expect(ssp.get_genus_species(:original, :alternative).nil?).to be_truthy
+#            expect(ssp.get_genus_species(:current, :self).nil?).to be_falsey
+#            expect(ssp.get_genus_species(:current, :alternative).nil?).to be_falsey
             ssp.save
             expect(ssp.cached_original_combination.nil?).to be_truthy
+            expect(ssp.cached_primary_homonym.nil?).to be_truthy
+            expect(ssp.cached_primary_homonym_alternative_spelling.nil?).to be_truthy
+            expect(ssp.cached_secondary_homonym).to eq('Erythroneura vitata')
+            expect(ssp.cached_secondary_homonym_alternative_spelling).to eq('Erythroneura uitata')
           end
 
           specify 'original genus subgenus' do
-            expect(@subspecies.get_original_combination).to eq('<em>Erythroneura vitata</em>')
+            expect(@subspecies.get_original_combination.nil?).to be_truthy
             @subspecies.original_genus = @genus
             @subspecies.reload
             expect(@subspecies.get_original_combination).to eq('<em>Erythroneura vitata</em>')
@@ -353,7 +361,7 @@ describe TaxonName, :type => :model do
             @subspecies.reload
             expect(@subspecies.get_original_combination).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitis</em> var. <em>vitata</em>')
 
-            expect(@subgenus.get_original_combination).to eq('<em>Erythroneura</em>')
+            expect(@subgenus.get_original_combination.nil?).to be_truthy
             @subgenus.original_genus = @genus
             @subgenus.reload
             expect(@subgenus.get_original_combination).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>)')
@@ -383,8 +391,8 @@ describe TaxonName, :type => :model do
             expect(g.save).to be_truthy
             @subspecies.original_genus = g
             @subspecies.reload
-            expect(g.get_original_combination).to eq('<em>Errorneura [sic]</em>')
-            expect(@subspecies.get_original_combination).to eq('<em>Errorneura [sic] vitata</em>')
+            expect(g.get_full_name_html).to eq('<em>Errorneura</em> [sic]')
+            expect(@subspecies.get_original_combination).to eq('<em>Errorneura</em> [sic] <em>vitata</em>')
             expect(@subspecies.get_author_and_year).to eq ('(McAtee, 1900)')
           end
 
@@ -453,9 +461,11 @@ describe TaxonName, :type => :model do
           context 'mismatching cached values' do
             before(:all) do
               @g = FactoryGirl.create(:relationship_genus, name: 'Cus', parent: @family)
-              @s = FactoryGirl.create(:relationship_species, name: 'dus', parent: @g)
+              @s = FactoryGirl.build(:relationship_species, name: 'dus', parent: @g)
             end
             specify 'missing cached values' do
+              @s.save
+              @s.update_column(:cached_original_combination, 'aaa')
               @s.soft_validate(:cached_names)
               expect(@s.soft_validations.messages_on(:base).count).to eq(1)
               @s.fix_soft_validations
