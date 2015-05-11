@@ -2,7 +2,7 @@ module Shared::AlternateValues
   extend ActiveSupport::Concern
 
   included do
-    has_many :alternate_values, as: :alternate_value_object, validate: false
+    has_many :alternate_values, as: :alternate_value_object, validate: false, dependent: :destroy
   end
 
   def alternate_valued?

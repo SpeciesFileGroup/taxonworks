@@ -20,7 +20,7 @@ describe 'Identifiable', :type => :model do
       expect(identifiable_instance.identified?).to eq(true)
     end
 
-    context "with some records created" do
+    context 'with some records created' do
       let(:namespace_name1) {'INHSIC'}
       let(:namespace_name2) {'NCSU'}
       let(:namespace_name3) {'CNC'}
