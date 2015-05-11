@@ -2,7 +2,7 @@ module Shared::DataAttributes
   extend ActiveSupport::Concern
 
   included do
-    has_many :data_attributes, as: :attribute_subject, validate: true
+    has_many :data_attributes, as: :attribute_subject, validate: true, dependent: :destroy
     accepts_nested_attributes_for :data_attributes
   end 
 

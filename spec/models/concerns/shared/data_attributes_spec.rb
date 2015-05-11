@@ -32,6 +32,19 @@ describe 'DataAttributes', :type => :model do
       class_with_data_attributes.data_attributes << FactoryGirl.build(:valid_data_attribute_internal_attribute, value: 'purple', predicate: FactoryGirl.build(:valid_controlled_vocabulary_term_predicate, name: 'Color') )
       expect(class_with_data_attributes.keyword_value_hash).to eq('legs' => '10', 'Color' => 'purple')
     end
+
+    context 'object with attributes' do
+      context 'on destroy' do
+        specify 'attached attributes are destroyed' do
+          expect(DataAttribute.count).to eq(0)
+          class_with_data_attributes.data_attributes << FactoryGirl.build(:data_attribute_import_attribute, value: '10', import_predicate: 'legs')
+          class_with_data_attributes.data_attributes << FactoryGirl.build(:valid_data_attribute_internal_attribute, value: 'purple', predicate: FactoryGirl.build(:valid_controlled_vocabulary_term_predicate, name: 'Color') )
+          expect(class_with_data_attributes.data_attributes.size).to eq(2)
+          expect(class_with_data_attributes.destroy).to be_truthy
+          expect(DataAttribute.count).to eq(0)
+        end
+      end
+    end
   end
 
   context 'adding lots of attributes' do
