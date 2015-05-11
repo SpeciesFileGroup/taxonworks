@@ -23,6 +23,19 @@ describe 'Citable', :type => :model do
       expect(class_with_citations.cited?).to eq(true)
     end
   end
+
+  context 'object with citations' do
+     context 'on destroy' do
+       specify 'attached citations are destroyed' do
+         cite =  Citation.new(source: FactoryGirl.create(:valid_source_bibtex))
+         class_with_citations.citations << cite
+         class_with_citations.save
+         expect(class_with_citations.citations.count).to eq(1)
+         expect(class_with_citations.destroy)
+         expect(Citation.count).to eq(0)
+       end
+     end
+  end
 end
 
 class TestCitable < ActiveRecord::Base
