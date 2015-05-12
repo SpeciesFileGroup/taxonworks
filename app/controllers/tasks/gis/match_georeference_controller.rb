@@ -121,6 +121,9 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
     @motion        = 'drawn_georeferences'
     message        = ''
     @georeferences = [] # replace [] with CollectingEvent.filter(params)
+    # receive shape from form:  polygon or circle
+    # create georeference object instance to match against?
+    # compare with asserted distributions code
     render_gr_select_json(message)
   end
 
@@ -143,7 +146,6 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
         arguments.merge!(checked_ids: checked_ids)
 
         results = Georeference.batch_create_from_georeference_matcher(arguments)
-        # todo: Rich: missing partial error
 
         html = render_to_string(partial: 'georeference_success', formats: 'html',
                                 locals:  {georeferences_results: results,

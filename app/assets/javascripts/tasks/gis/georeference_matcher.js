@@ -3,6 +3,11 @@ var _init_match_georeference_page_widget;
 _init_match_georeference_page_widget = function init_match_georeference_page() {
   if ($('#match_georeference_widget').length) {
 
+// TODO:  find glitch in right-hand map centereing
+//        send polygon or circle to controller from right-hand draw map
+//        reconfigure drawn map to mimic asseted distributions behavior
+//        construct callback to transition from draw map to selecting map
+
     var this_map = [];
     //this_map = initializeGoogleMapWithDrawManager("#_draw_ce_form");
     //this_map = initializeGoogleMapWithDrawManager("#_draw_gr_form");
@@ -155,6 +160,11 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
     //    event.preventDefault();
     //});
 
+
+///////////////////////////////////////////////////////////
+//   georeference (right) side handlers
+///////////////////////////////////////////////////////////
+
     $(".filter-gr").click(function (event) {
 
       // unhide this form
@@ -217,6 +227,13 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
 
       event.preventDefault();
     });
+
+    $("#drawn_georeferences").on("ajax:success", function(e,data,status,result_data) {
+
+//  on successful upload and processing of polygon or shape file,
+//  instantiate a selecting form and map
+    }
+    )
 
     $(".recent-gr").click(function (event) {
 
