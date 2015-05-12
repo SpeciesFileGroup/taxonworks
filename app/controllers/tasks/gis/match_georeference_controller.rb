@@ -119,7 +119,7 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
 
   def drawn_georeferences
     @motion        = 'drawn_georeferences'
-    message        = ''
+    message        = 'I got here'
     @georeferences = [] # replace [] with CollectingEvent.filter(params)
     # receive shape from form:  polygon or circle
     # create georeference object instance to match against?

@@ -24,6 +24,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
 
       event.preventDefault();
     });
+
     // this DOM object represents the form for retrieving the filtering data for
     // selecting collecting events. In this case
     //      div.id = '_filter_ce_form'
@@ -61,6 +62,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
 
       event.preventDefault();
     });
+
     // this DOM object represents the form for retrieving the keyword for
     // selecting collecting events. In this case
     //      div.id = '_tag_ce_form'
@@ -134,6 +136,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
 
       }
       )
+
       $("#create_georeferences").on("ajax:success", function (e, data, status, local_data) {
         $("#result_from_post").html(local_data.responseJSON['html']);
         initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_selected_gr_form").data('feature-collection'));
@@ -221,7 +224,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
       $("#_filter_gr_form").attr("hidden", true);
       $("#_tag_gr_form").attr("hidden", true);
       $("#_recent_gr_form").attr("hidden", true);
-      $('#_selecting_gr_form').attr('hidden', true);
+      $('#_selecting_gr_form').removeAttr('hidden');  ////// temp make visible
 
       this_map = initializeGoogleMapWithDrawManager("#_draw_gr_form");
 
@@ -232,8 +235,12 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
 
 //  on successful upload and processing of polygon or shape file,
 //  instantiate a selecting form and map
+        initializeMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
+        return true;
     }
-    )
+    ).on("ajax:error", function (e, xhr, status, error) {
+
+      });
 
     $(".recent-gr").click(function (event) {
 
