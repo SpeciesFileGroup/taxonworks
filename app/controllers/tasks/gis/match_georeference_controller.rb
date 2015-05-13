@@ -121,6 +121,10 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
     @motion        = 'drawn_georeferences'
     message        = 'I got here'
     @georeferences = [] # replace [] with CollectingEvent.filter(params)
+    # fake data for connectivity testing
+    keyword = Keyword.find('1')   # Urbania
+    @georeferences = CollectingEvent.where(project_id: $project_id).order(updated_at: :desc).tagged_with_keyword(keyword).map(&:georeferences).to_a.flatten
+    keyword = ''
     # receive shape from form:  polygon or circle
     # create georeference object instance to match against?
     # compare with asserted distributions code
