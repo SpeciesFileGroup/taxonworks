@@ -505,7 +505,7 @@ class TaxonName < ActiveRecord::Base
           original_combination_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('OriginalCombination')
         end
         dependants.push(self)
-        classified_as_relationships = TaxonNameRelationship.where_object_is_taxon_name(self).with_type_contains('SourceClassifiedAs')
+        classified_as_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('SourceClassifiedAs')
         unless dependants.empty?
           dependants.each do |i|
             i.update_columns(:cached => i.get_full_name,
