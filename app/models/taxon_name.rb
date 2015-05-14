@@ -463,7 +463,7 @@ class TaxonName < ActiveRecord::Base
       # if updated, update also sv_cached_names
       set_cached_html
       set_cached_author_year
-      #set_cached_classified_as
+      set_cached_classified_as
       set_cached_original_combination
     end
   end
@@ -505,7 +505,7 @@ class TaxonName < ActiveRecord::Base
           original_combination_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('OriginalCombination')
         end
         dependants.push(self)
-        classified_as_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('SourceClassifiedAs')
+        classified_as_relationships = TaxonNameRelationship.where_object_is_taxon_name(self).with_type_contains('SourceClassifiedAs')
         unless dependants.empty?
           dependants.each do |i|
             i.update_columns(:cached => i.get_full_name,
