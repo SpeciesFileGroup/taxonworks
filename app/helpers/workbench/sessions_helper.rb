@@ -57,7 +57,7 @@ module Workbench::SessionsHelper
 
   def sessions_current_project
    return nil unless sessions_current_project_id
-   if @sessions_current_project.nil? #|| @sessions_current_project.id != sessions_current_project_id  
+   if @sessions_current_project.nil? || @sessions_current_project.id != sessions_current_project_id  
      @sessions_current_project = Project.find(sessions_current_project_id)
    end
      @sessions_current_project
