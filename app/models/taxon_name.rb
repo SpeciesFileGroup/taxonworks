@@ -136,6 +136,10 @@ class TaxonName < ActiveRecord::Base
   has_many :taxon_name_classifications, dependent: :destroy, foreign_key: :taxon_name_id
   has_many :taxon_name_relationships, foreign_key: :subject_taxon_name_id, dependent: :destroy
 
+  has_many :hybrid_relationships, -> {
+    where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Hybrid'")
+  }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
+
   # NOTE: Protonym subclassed methods might not be nicely tracked here, we'll have to see.  Placement is after has_many relationships. (?)
   has_paper_trail
 
@@ -361,6 +365,14 @@ class TaxonName < ActiveRecord::Base
   # @return [True|False]
   def fossil?
     if !TaxonNameClassification.where_taxon_name(self).with_type_contains('Fossil').empty?
+      true
+    else
+      false
+    end
+  end
+
+  def hybrid?
+    if !TaxonNameClassification.where_taxon_name(self).with_type_contains('Icn::Hybrid').empty?
       true
     else
       false
@@ -640,37 +652,48 @@ class TaxonName < ActiveRecord::Base
   #  a monomial if names is above genus, or a full epithet if below. 
   def get_full_name
     return name unless self.type == 'Combination' ||  GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_string)
-    d        = full_name_hash
-    elements = []
-    elements.push(d['genus'])
-    elements.push ['(', d['subgenus'], d['section'], d['subsection'], d['series'], d['subseries'], ')']
-    elements.push ['(', d['superspecies'], ')']
-    elements.push(d['species'], d['subspecies'], d['variety'], d['subvariety'], d['form'], d['subform'])
-    elements.flatten.compact.join(" ").gsub(/\(\s*\)/, '').gsub(/\(\s/, '(').gsub(/\s\)/, ')').squish
+    unless self.type == 'Hybrid'
+      d  = full_name_hash
+      elements = []
+      elements.push(d['genus'])
+      elements.push ['(', d['subgenus'], d['section'], d['subsection'], d['series'], d['subseries'], ')']
+      elements.push ['(', d['superspecies'], ')']
+      elements.push(d['species'], d['subspecies'], d['variety'], d['subvariety'], d['form'], d['subform'])
+      elements.flatten.compact.join(' ').gsub(/\(\s*\)/, '').gsub(/\(\s/, '(').gsub(/\s\)/, ')').squish
+    else
+      hr = self.hybrid_relationships
+      hr.empty? ? '[HYBRID TAXA NOT SELECTED]' : hr.collect{|i| i.subject_taxon_name.cached}.sort.join(' &#215; ')
+    end
   end
 
 
   # @return [String]
   #  a monomial if names is above genus, or a full epithet if below, includes html
   def get_full_name_html
-    return name unless self.type == 'Combination' || GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_string) 
-    d        = full_name_hash
-    elements = []
-    eo       = '<em>'
-    ec       = '</em>'
-    d.merge!('genus' => [nil, '[GENUS NOT PROVIDED]']) if !d['genus']
+    return name unless self.type == 'Combination' || GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_string)
+    unless self.type == 'Hybrid'
+      d        = full_name_hash
+      elements = []
+      eo       = '<em>'
+      ec       = '</em>'
+      d.merge!('genus' => [nil, '[GENUS NOT PROVIDED]']) if !d['genus']
 
-    elements.push("#{eo}#{d['genus'][1]}#{ec}#{d['genus'][3]}")
-    elements.push ['(', %w{subgenus section subsection series subseries}.collect { |r| d[r] ? [d[r][0], "#{eo}#{d[r][1]}#{ec}#{d[r][3]}"] : nil }, ')']
-    elements.push ['(', eo, d['superspecies'][1], ec, d['superspecies'][3], ')'] if d['superspecies']
+      elements.push("#{eo}#{d['genus'][1]}#{ec}#{d['genus'][3]}")
+      elements.push ['(', %w{subgenus section subsection series subseries}.collect { |r| d[r] ? [d[r][0], "#{eo}#{d[r][1]}#{ec}#{d[r][3]}"] : nil }, ')']
+      elements.push ['(', eo, d['superspecies'][1], ec, d['superspecies'][3], ')'] if d['superspecies']
 
-    %w{species subspecies variety subvariety form subform}.each do |r|
-      elements.push(d[r][0], "#{eo}#{d[r][1]}#{ec}#{d[r][3]}") if d[r]
+      %w{species subspecies variety subvariety form subform}.each do |r|
+        elements.push(d[r][0], "#{eo}#{d[r][1]}#{ec}#{d[r][3]}") if d[r]
+      end
+
+      html = elements.flatten.compact.join(' ').gsub(/\(\s*\)/, '').gsub(/\(\s/, '(').gsub(/\s\)/, ')').squish.gsub(' [sic]', ec + ' [sic]' + eo).gsub(ec + ' ' + eo, ' ').gsub(eo + ec, '').gsub(eo + ' ', ' ' + eo)
+      html = self.fossil? ? '&#8224; ' + html : html
+      html = self.hybrid? ? '&#215; ' + html : html
+      html
+    else
+      hr = self.hybrid_relationships
+      hr.empty? ? '[HYBRID TAXA NOT SELECTED]' : hr.collect{|i| i.subject_taxon_name.cached_html}.sort.join(' &#215; ')
     end
-
-    html = elements.flatten.compact.join(' ').gsub(/\(\s*\)/, '').gsub(/\(\s/, '(').gsub(/\s\)/, ')').squish.gsub(' [sic]', ec + ' [sic]' + eo).gsub(ec + ' ' + eo, ' ').gsub(eo + ec, '').gsub(eo + ' ', ' ' + eo)
-    html = self.fossil? ? '&#8224; ' + html : html
-    html
   end
 
   def genus_name_elements(*args)

@@ -297,6 +297,14 @@ describe TaxonName, :type => :model do
             expect(sp.cached_html).to eq('&#8224; <em>Erythroneura vitis</em>')
           end
 
+          specify 'hybrid' do
+            sp = FactoryGirl.create(:relationship_species, parent: @genus)
+            c = FactoryGirl.create(:taxon_name_classification, taxon_name: sp, type: 'TaxonNameClassification::Icn::Hybrid')
+            sp.reload
+            expect(sp.get_full_name_html).to eq('× <em>Erythroneura vitis</em>')
+            expect(sp.cached_html).to eq('× <em>Erythroneura vitis</em>')
+          end
+
           specify 'ICZN subspecies' do
             expect(@subspecies.cached_higher_classification).to eq('Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini:Erythroneurina')
             expect(@subspecies.cached_author_year).to eq('McAtee, 1900')
