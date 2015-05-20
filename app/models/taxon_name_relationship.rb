@@ -194,13 +194,6 @@ class TaxonNameRelationship < ActiveRecord::Base
     end
 
     unless self.type_class.blank? # only validate if it is set
-#      if TAXON_NAME_RELATIONSHIP_NAMES.include?(tname)
-#        unless self.type_class.valid_subject_ranks.include?(self.subject_taxon_name.rank_class.to_s)
-#          errors.add(:subject_taxon_name_id, "The rank of taxon is not compatible with relationship '#{self.type_class.object_relationship_name}'")
-#          errors.add(:type, 'Not compatible with the rank of this taxon')
-#        end
-#      end
-
       if object_taxon_name
         if object_taxon_name.type == 'Protonym' || object_taxon_name.type == 'Hybrid'
           unless self.type_class.valid_object_ranks.include?(self.object_taxon_name.rank_class.to_s)
@@ -217,12 +210,8 @@ class TaxonNameRelationship < ActiveRecord::Base
             soft_validations.add(:type, 'Not compatible with the rank of subject taxon')
           end
         end
-
       end
-
     end
-
-
   end
 
   def validate_uniqueness_of_synonym_subject

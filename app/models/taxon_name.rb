@@ -358,6 +358,15 @@ class TaxonName < ActiveRecord::Base
     end
   end
 
+  # @return [True|False]
+  def fossil?
+    if !TaxonNameClassification.where_taxon_name(self).with_type_contains('Fossil').empty?
+      true
+    else
+      false
+    end
+  end
+
   # @return [TaxonName]
   #   a valid taxon_name for an invalid name or self for valid name.
   def get_valid_taxon_name 
@@ -659,7 +668,9 @@ class TaxonName < ActiveRecord::Base
       elements.push(d[r][0], "#{eo}#{d[r][1]}#{ec}#{d[r][3]}") if d[r]
     end
 
-    elements.flatten.compact.join(' ').gsub(/\(\s*\)/, '').gsub(/\(\s/, '(').gsub(/\s\)/, ')').squish.gsub(' [sic]', ec + ' [sic]' + eo).gsub(ec + ' ' + eo, ' ').gsub(eo + ec, '').gsub(eo + ' ', ' ' + eo)
+    html = elements.flatten.compact.join(' ').gsub(/\(\s*\)/, '').gsub(/\(\s/, '(').gsub(/\s\)/, ')').squish.gsub(' [sic]', ec + ' [sic]' + eo).gsub(ec + ' ' + eo, ' ').gsub(eo + ec, '').gsub(eo + ' ', ' ' + eo)
+    html = self.fossil? ? '&#8224; ' + html : html
+    html
   end
 
   def genus_name_elements(*args)
