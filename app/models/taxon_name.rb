@@ -934,7 +934,7 @@ class TaxonName < ActiveRecord::Base
   def get_cached_classified_as
     return nil unless self.type == 'Combination' || self.type == 'Protonym'
 
-    c = self.source_classified_as
+    c = self.source_classified_as(true)
     unless c.blank?
       return " (as #{c.name})"
     end
