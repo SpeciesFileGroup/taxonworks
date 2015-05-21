@@ -226,9 +226,8 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
       $("#_recent_gr_form").attr("hidden", true);
       $('#_selecting_gr_form').removeAttr('hidden');  ////// temp make visible
 
-      this_map = initializeGoogleMapWithDrawManager("#_draw_gr_form");
+      this_map = initializeGoogleMapWithDrawManager("#_draw_gr_form");  //set up a blank draw canvas
       google.maps.event.addListener(this_map[1], 'overlaycomplete', function (event) {
-
           // Remove the last created shape if it exists.
           //if (last != null) {
           //  if (last[0] != null) {
@@ -236,20 +235,10 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
           //  }
           //}
           //
-          last = [event.overlay, event.type];
-
-
-            var feature = buildFeatureCollectionFromShape(last[0], last[1]);
-            $("#geographic_item_attributes_shape").val(JSON.stringify(feature[0]));
+          var feature = buildFeatureCollectionFromShape(event.overlay, event.type);
+          $("#geographic_item_attributes_shape").val(JSON.stringify(feature[0]));
            }
       );
-
-      //$("#btn_find_georef_near").click(function(event) {
-      //    var find_feature = buildFeatureCollectionFromShape(event.overlay, event.type);
-      //    $("#geographic_item_attributes_shape").val(JSON.stringify(find_feature[0]));
-      //  }
-      //);
-
       event.preventDefault();
     });
 
@@ -261,7 +250,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
         return true;
     }
     ).on("ajax:error", function (e, xhr, status, error) {
-
+        alert("ERROR");
       });
 
     $(".recent-gr").click(function (event) {
