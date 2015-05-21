@@ -227,20 +227,25 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
       $('#_selecting_gr_form').removeAttr('hidden');  ////// temp make visible
 
       this_map = initializeGoogleMapWithDrawManager("#_draw_gr_form");
+      $("#btn_find_georef_near").click(function(event) {
+          var find_reature = buildFeatureCollectionFromShape(event.overlay, event.type);
+          $("#geographic_item_attributes_shape").val(JSON.stringify(feature[0]));
+        }
+      );
 
       event.preventDefault();
     });
 
-    $("#drawn_georeferences").on("ajax:success", function(e,data,status,result_data) {
-
-//  on successful upload and processing of polygon or shape file,
-//  instantiate a selecting form and map
-        initializeMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
-        return true;
-    }
-    ).on("ajax:error", function (e, xhr, status, error) {
-
-      });
+//    $("#drawn_georeferences").on("ajax:success", function(e,data,status,result_data) {
+//
+////  on successful upload and processing of polygon or shape file,
+////  instantiate a selecting form and map
+//        initializeMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
+//        return true;
+//    }
+//    ).on("ajax:error", function (e, xhr, status, error) {
+//
+//      });
 
     $(".recent-gr").click(function (event) {
 
@@ -286,6 +291,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
         event.preventDefault();
       }
     );
+
 
 
     //$("#submit_recent_ce").click(function (event) {
@@ -357,7 +363,7 @@ function add_click_services_to_match_georeferences_map(map, event) {     // clic
   // sets mouseover/mouseout behavior for buttons via forEach(function(feature))
   //   in map.data corresponding to "button_nnnn" where nnnn is area id
   // resizes, recenters map based on new features
-  /*    var mapLatLng = event.latLng;
+  //   var mapLatLng = event.latLng;
 
    //$("#map_coords").html('Coordinates: Latitude = ' + mapLatLng.lat().toFixed(6) + ' , Longitude = ' + mapLatLng.lng().toFixed(6)) ;
    //if(new_asserted_distribution_check_preemption()) {return;};
@@ -365,55 +371,54 @@ function add_click_services_to_match_georeferences_map(map, event) {     // clic
    //$("#latitude").val(mapLatLng.lat());
    //$("#longitude").val(mapLatLng.lng());
 
-   $.get( 'generate_choices', $('#_select_gr_form').serialize(), function(local_data) {
-   $("#choices").html(local_data['html']);      // local_data contains html(selection forms)
+   $.get( 'drawn_georeferences', $('form#_select_gr_form').serialize(), function(local_data) {
+   //$("#choices").html(local_data['html']);      // local_data contains html(selection forms)
    // quick_new_asserted_distribution_form and feature collection geoJSON
-   map.data.forEach(function(feature) {map.data.remove(feature);});    // clear the map.data
-
+   //map.data.forEach(function(feature) {map.data.remove(feature);});    // clear the map.data
+  map = initializeMap("show_gr_canvas", local_data['feature_collection'])
    map.data.addGeoJson(local_data['feature_collection']);      // add the geo features corresponding to the forms
 
    // select buttons of the form: "button_nnnn" with jquery, and bind the listener events
 
-   $("[id^=button_]").mouseover(function() {       // set mouseover for each area
-   var this_id = this.id;
-   var area_id = this_id.slice(7,this_id.length);      // 'button_'.length, 'button_abc...xyz'.length
-   map.data.forEach(function(feature) {        // find by geographic area id
-   //this_feature = map.data.getFeatureById(jj); // not used, 0-reference fault in google maps
-   this_feature = feature;
-   this_property = this_feature.getProperty('geographic_area');
-   if(this_property.id != area_id) {
-   //map.data.getFeatureById(01).getProperty('geographic_area')
-   //map.data.overrideStyle(this_feature, {fillColor: '#000000'});     //  black
-   map.data.overrideStyle(this_feature, {strokeWeight: 0.0});       // erase borders
-   map.data.overrideStyle(this_feature, {fillOpacity: 0.0});       // transparent
-   }
-   if(this_property.id == area_id) {
-   map.data.overrideStyle(this_feature, {fillColor: '#FF0000'});  //  red
-   map.data.overrideStyle(this_feature, {strokeWeight: 2});       //embolden borders
-   map.data.overrideStyle(this_feature, {fillOpacity: 1.0});       // transparent
-   }
-   });
-   })
-
-   $("[id^=button_]").mouseout(function() {        // set mouseout for each area (condensed)
-   var this_id = this.id;                      // var this since it goes out of scope with .forEach
-   map.data.forEach(function(feature) {        // find by geographic area id
-   if(feature.getProperty('geographic_area').id == this_id.slice(7,this_id.length)) { map.data.revertStyle(); }
-   // 'button_'.length, 'button_abc...xyz'.length
-   });
-   })
-
-   var data = local_data['feature_collection'];
-   var bounds = {};
-   getData(data, bounds);
-   var center_lat_long = get_window_center(bounds);
-   map.setCenter(center_lat_long);
-   map.setZoom(bounds.gzoom);
-   //map.fitBounds(bounds.box);
+   //$("[id^=button_]").mouseover(function() {       // set mouseover for each area
+   //var this_id = this.id;
+   //var area_id = this_id.slice(7,this_id.length);      // 'button_'.length, 'button_abc...xyz'.length
+   //map.data.forEach(function(feature) {        // find by geographic area id
+   ////this_feature = map.data.getFeatureById(jj); // not used, 0-reference fault in google maps
+   //this_feature = feature;
+   //this_property = this_feature.getProperty('geographic_area');
+   //if(this_property.id != area_id) {
+   ////map.data.getFeatureById(01).getProperty('geographic_area')
+   ////map.data.overrideStyle(this_feature, {fillColor: '#000000'});     //  black
+   //map.data.overrideStyle(this_feature, {strokeWeight: 0.0});       // erase borders
+   //map.data.overrideStyle(this_feature, {fillOpacity: 0.0});       // transparent
+   //}
+   //if(this_property.id == area_id) {
+   //map.data.overrideStyle(this_feature, {fillColor: '#FF0000'});  //  red
+   //map.data.overrideStyle(this_feature, {strokeWeight: 2});       //embolden borders
+   //map.data.overrideStyle(this_feature, {fillOpacity: 1.0});       // transparent
+   //}
+   //});
+   //})
+   //
+   //$("[id^=button_]").mouseout(function() {        // set mouseout for each area (condensed)
+   //var this_id = this.id;                      // var this since it goes out of scope with .forEach
+   //map.data.forEach(function(feature) {        // find by geographic area id
+   //if(feature.getProperty('geographic_area').id == this_id.slice(7,this_id.length)) { map.data.revertStyle(); }
+   //// 'button_'.length, 'button_abc...xyz'.length
+   //});
+   //})
+   //
+   //var data = local_data['feature_collection'];
+   //var bounds = {};
+   //getData(data, bounds);
+   //var center_lat_long = get_window_center(bounds);
+   //map.setCenter(center_lat_long);
+   //map.setZoom(bounds.gzoom);
+   ////map.fitBounds(bounds.box);
    },
    'json' // I expect a JSON response
    );
-   */
 }
 
 
@@ -462,5 +467,7 @@ function add_match_georeferences_map_listeners(map) {      // 4 listeners, one f
   google.maps.event.addListener(map, 'click', function (event) {
     add_click_services_to_match_georeferences_map(map, event);
   });
+
+
 }           // add_listeners end
 

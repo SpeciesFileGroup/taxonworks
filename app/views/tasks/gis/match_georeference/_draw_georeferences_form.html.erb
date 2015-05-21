@@ -3,14 +3,16 @@
      data-map-center='POINT (0.0 0.0 0.0)'
      data-map-canvas="draw_gr_canvas"
 >
-  <table border="1">
+  <%= form_tag(drawn_georeferences_path, method: 'get', remote: true) do %>
+
+<table border="1">
     <tr>
       <td>
         <div id="draw_gr_canvas" style="width:512px; height: 256px;"></div>
       </td>
     </tr>
   </table>
-  <%= form_tag(drawn_georeferences_path, method: 'get', remote: true) do %>
-      <div><%= submit_tag('Find') %></div>
+      <input type="hidden" id="geographic_item_attributes_shape" />
+      <div><input type="button" id="btn_find_georef_near" name="btn_findgeoref_near" value="Find" /></div>
   <% end %>
 </div>
