@@ -70,7 +70,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         species.save
         species.original_genus_relationship.destroy!
         species.reload
-        expect(species.cached_original_combination).to eq('<em>Aus aus</em>')
+        expect(species.cached_original_combination).to eq(nil)
       end
     end
 

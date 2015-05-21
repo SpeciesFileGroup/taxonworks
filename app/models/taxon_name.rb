@@ -530,8 +530,8 @@ class TaxonName < ActiveRecord::Base
         classified_as_relationships = TaxonNameRelationship.where_object_is_taxon_name(self).with_type_contains('SourceClassifiedAs')
         unless dependants.empty?
           dependants.each do |i|
-            i.update_columns(:cached => i.get_full_name,
-                             :cached_html => i.get_full_name_html)
+            i.update_columns(cached: i.get_full_name,
+                             cached_html: i.get_full_name_html)
             if i.rank_string =~/Species/
               i.update_columns(:cached_secondary_homonym => i.get_genus_species(:current, :self),
                                :cached_secondary_homonym_alternative_spelling => i.get_genus_species(:current, :alternative))
@@ -775,9 +775,8 @@ class TaxonName < ActiveRecord::Base
     if GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_string) && self.class == Protonym
       relationships = self.original_combination_relationships(true) # force a reload of the relationships
 
-      if relationships.count == 0
-        return get_full_name_html
-      end
+
+      return nil if relationships.count == 0
 
       # This can be greatly simplified by swapping in names to the hash method
 
