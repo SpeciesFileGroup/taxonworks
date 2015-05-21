@@ -693,8 +693,12 @@ class TaxonName < ActiveRecord::Base
 
       html = elements.flatten.compact.join(' ').gsub(/\(\s*\)/, '').gsub(/\(\s/, '(').gsub(/\s\)/, ')').squish.gsub(' [sic]', ec + ' [sic]' + eo).gsub(ec + ' ' + eo, ' ').gsub(eo + ec, '').gsub(eo + ' ', ' ' + eo)
       html = self.fossil? ? '&#8224; ' + html : html
+ 
+
+      # Proceps: Why would this be hit here?  It's not type Hybrid. 
       html = self.hybrid? ? '&#215; ' + html : html
       html
+  
     else
       hr = self.hybrid_relationships
       hr.empty? ? '[HYBRID TAXA NOT SELECTED]' : hr.collect{|i| i.subject_taxon_name.cached_html}.sort.join(' &#215; ')
@@ -766,15 +770,11 @@ class TaxonName < ActiveRecord::Base
   # TODO: refactor to use us a hash!
   # Returns a String representing the name as originally published
   def get_original_combination
-
     # strategy is to get the original hash, and swap in values for pertinent relationships
-
-    # cached_html is an attribute!
     str = nil 
 
     if GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_string) && self.class == Protonym
       relationships = self.original_combination_relationships(true) # force a reload of the relationships
-
 
       return nil if relationships.count == 0
 
