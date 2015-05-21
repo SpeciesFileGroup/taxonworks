@@ -27,7 +27,7 @@ describe TaxonNameRelationship::Hybrid, :type => :model do
       h.reload
       r2 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s2, object_taxon_name: h, type: 'TaxonNameRelationship::Hybrid')
       h.reload
-      expect(h.cached).to eq('Aus aus &#215; Aus bus')
+      expect(h.cached).to eq('Aus aus x Aus bus')
       expect(h.cached_html).to eq('<em>Aus aus</em> &#215; <em>Aus bus</em>')
     end
 
