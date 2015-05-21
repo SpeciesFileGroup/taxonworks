@@ -227,25 +227,42 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
       $('#_selecting_gr_form').removeAttr('hidden');  ////// temp make visible
 
       this_map = initializeGoogleMapWithDrawManager("#_draw_gr_form");
-      $("#btn_find_georef_near").click(function(event) {
-          var find_reature = buildFeatureCollectionFromShape(event.overlay, event.type);
-          $("#geographic_item_attributes_shape").val(JSON.stringify(feature[0]));
-        }
+      google.maps.event.addListener(this_map[1], 'overlaycomplete', function (event) {
+
+          // Remove the last created shape if it exists.
+          //if (last != null) {
+          //  if (last[0] != null) {
+          //    removeItemFromMap(last[0]);
+          //  }
+          //}
+          //
+          last = [event.overlay, event.type];
+
+
+            var feature = buildFeatureCollectionFromShape(last[0], last[1]);
+            $("#geographic_item_attributes_shape").val(JSON.stringify(feature[0]));
+           }
       );
+
+      //$("#btn_find_georef_near").click(function(event) {
+      //    var find_feature = buildFeatureCollectionFromShape(event.overlay, event.type);
+      //    $("#geographic_item_attributes_shape").val(JSON.stringify(find_feature[0]));
+      //  }
+      //);
 
       event.preventDefault();
     });
 
-//    $("#drawn_georeferences").on("ajax:success", function(e,data,status,result_data) {
-//
-////  on successful upload and processing of polygon or shape file,
-////  instantiate a selecting form and map
-//        initializeMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
-//        return true;
-//    }
-//    ).on("ajax:error", function (e, xhr, status, error) {
-//
-//      });
+    $("#drawn_georeferences").on("ajax:success", function(e,data,status,result_data) {
+
+//  on successful upload and processing of polygon or shape file,
+//  instantiate a selecting form and map
+        initializeMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
+        return true;
+    }
+    ).on("ajax:error", function (e, xhr, status, error) {
+
+      });
 
     $(".recent-gr").click(function (event) {
 
