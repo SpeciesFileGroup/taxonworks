@@ -250,12 +250,12 @@ class TaxonNameRelationship < ActiveRecord::Base
     begin
       TaxonName.transaction do
 
-        if self.type_name =~/OriginalCombination/
-          t = self.object_taxon_name
-          t.update_columns(:cached_original_combination => t.get_original_combination,
-                           :cached_primary_homonym => t.get_genus_species(:original, :self),
-                           :cached_primary_homonym_alternative_spelling => t.get_genus_species(:original, :alternative))
-        elsif self.is_combination?
+       #if self.type_name =~/OriginalCombination/
+       #  t = self.object_taxon_name
+       #  t.update_columns(:cached_original_combination => t.get_original_combination,
+       #                   :cached_primary_homonym => t.get_genus_species(:original, :self),
+       #                   :cached_primary_homonym_alternative_spelling => t.get_genus_species(:original, :alternative))
+        if self.is_combination?
           t = self.object_taxon_name
           t.update_columns(:cached_original_combination => t.get_original_combination,
                            :cached => t.get_full_name,
@@ -274,9 +274,11 @@ class TaxonNameRelationship < ActiveRecord::Base
           t.update_columns(:cached => t.get_full_name,
                            :cached_html => t.get_full_name_html)
         end
-
       end
+
+    # no point in rescuing and not returning somthing
     rescue
+      raise
     end
     false
   end

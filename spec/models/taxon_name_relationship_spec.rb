@@ -5,12 +5,6 @@ describe TaxonNameRelationship, :type => :model do
   let(:taxon_name_relationship) { TaxonNameRelationship.new }
 
   before(:all) do
-    #TaxonName.delete_all
-    #TaxonNameRelationship.delete_all
-
-    #@taxon_name_relationship = FactoryGirl.build(:taxon_name_relationship)
-    #@taxon_name_relationship.valid?
-
     @species = FactoryGirl.create(:relationship_species)
     @genus = @species.ancestor_at_rank('genus')
     @family = @species.ancestor_at_rank('family')
@@ -212,21 +206,56 @@ describe TaxonNameRelationship, :type => :model do
   end
 
   context 'after save' do
-    specify 'update cached values' do
-      g1 = FactoryGirl.create(:relationship_genus, name: 'Aus', parent: @family)
-      g2 = FactoryGirl.create(:relationship_genus, name: 'Bus', parent: @family)
-      s1 = FactoryGirl.create(:relationship_species, name: 'aus', parent: g1)
-      s2 = FactoryGirl.create(:relationship_species, name: 'bus', parent: g2)
-      r1 = FactoryGirl.build(:taxon_name_relationship, subject_taxon_name: g2, object_taxon_name: s1, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
-      r1.save
+ 
+   context 'cached values are set' do  
+    let(:g1) { FactoryGirl.create(:relationship_genus, name: 'Aus', parent: @family) }  
+    let(:g2) { FactoryGirl.create(:relationship_genus, name: 'Bus', parent: @family) }
+    let(:s1) { FactoryGirl.create(:relationship_species, name: 'aus', parent: g1) }
+    let(:s2) { FactoryGirl.create(:relationship_species, name: 'bus', parent: g2) }
+
+    specify 'for cached' do
       expect(s1.cached).to eq('Aus aus')
+    end
+
+    specify 'for cached_html' do
       expect(s1.cached_html).to eq('<em>Aus aus</em>')
+    end
+
+    specify 'for cached_misspelling' do
       expect(s1.cached_misspelling).to be_falsey
-      expect(s1.cached_original_combination).to eq('<em>Bus aus</em>')
-      expect(s1.cached_primary_homonym).to eq('Bus aus')
-      r2 = FactoryGirl.build(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: @family, type: 'TaxonNameRelationship::SourceClassifiedAs')
-      r2.save
-      expect(s1.cached_classified_as).to eq(' (as Erythroneuridae)')
+    end 
+
+   # TODO: this can be moved out to the new original_combination specs
+   specify 'for cached_original_combination' do
+     # Use non FactoryGirl to get callbacks
+     s1.original_genus = g2
+     s1.save!
+     expect(s1.cached_original_combination).to eq('<em>Bus aus</em>')
+   end
+
+   specify 'for cached_primary_homony' do
+     s1.original_genus = g2
+     s1.save!
+     expect(s1.cached_primary_homonym).to eq('Bus aus')
+   end
+
+   specify 'for cached_classified_as' do
+     r2 = FactoryGirl.build(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: @family, type: 'TaxonNameRelationship::SourceClassifiedAs')
+     r2.save
+     expect(s1.cached_classified_as).to eq(' (as Erythroneuridae)')
+   end
+
+   # TODO: notice that alone they pass, we need a seperate method for setting cached_classified_as, i.e. decouple it from original combination cache setting 
+   specify 'for cached_classified_as with original genus present' do
+     s1.original_genus = g2
+     s1.save!
+     r2 = FactoryGirl.build(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: @family, type: 'TaxonNameRelationship::SourceClassifiedAs')
+     r2.save
+     expect(s1.cached_classified_as).to eq(' (as Erythroneuridae)')
+   end
+  
+   # TODO: this is at the end of the tests, it seems to mix a couple of things, rename the specify to explain what's going on 
+   specify 'doing something else?!' do  
       r3 = FactoryGirl.build(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling')
       r3.soft_validate(:synonym_linked_to_valid_name)
       expect(r3.soft_validations.messages_on(:subject_taxon_name_id).size).to eq(1)
@@ -236,21 +265,24 @@ describe TaxonNameRelationship, :type => :model do
       expect(s1.cached).to eq('Bus aus')
       expect(s1.cached_html).to eq('<em>Bus aus</em>')
     end
+
+   end
+
     specify 'destroy relationship' do
       g1 = FactoryGirl.create(:relationship_genus, name: 'Aus', parent: @family)
       s1 = FactoryGirl.create(:relationship_species, name: 'aus', parent: g1)
       r1 = FactoryGirl.build(:taxon_name_relationship, subject_taxon_name: g1, object_taxon_name: s1, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
       r2 = FactoryGirl.build(:taxon_name_relationship, subject_taxon_name: g1, object_taxon_name: s1, type: 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus')
       r3 = FactoryGirl.build(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s1, type: 'TaxonNameRelationship::OriginalCombination::OriginalSpecies')
+    
       r1.save
       r2.save
       r3.save
-      s1.reload
+     #  s1.reload # <- not needed with relationships(true) that forces reload on cached building
       s1.save
       expect(s1.cached_original_combination).to eq('<em>Aus</em> (<em>Aus</em>) <em>aus</em>')
       r2.destroy
-      s1.reload
-#      expect(s1.cached_original_combination).to eq('<em>Aus aus</em>')
+      expect(s1.cached_original_combination).to eq('<em>Aus aus</em>')
     end
   end
 

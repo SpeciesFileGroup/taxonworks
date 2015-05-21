@@ -497,6 +497,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         g3.soft_validate(:missing_relationships)
         expect(g3.soft_validations.messages_on(:base).empty?).to be_truthy
       end
+
       specify 'missing original combination relationships to self' do
         g = FactoryGirl.create(:relationship_genus)
         s1 = FactoryGirl.create(:relationship_species, parent: g)

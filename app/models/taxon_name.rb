@@ -504,6 +504,7 @@ class TaxonName < ActiveRecord::Base
           dependants = TaxonName.descendants_of(self).with_type('Protonym')
           original_combination_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('OriginalCombination')
         end
+
         dependants.push(self)
         classified_as_relationships = TaxonNameRelationship.where_object_is_taxon_name(self).with_type_contains('SourceClassifiedAs')
         unless dependants.empty?
@@ -517,12 +518,11 @@ class TaxonName < ActiveRecord::Base
           end
         end
 
+        # this seems to be duplicated code with 
         unless original_combination_relationships.empty?
           related_taxa = original_combination_relationships.collect{|i| i.object_taxon_name}.uniq
           related_taxa.each do |i|
-            i.update_columns(:cached_original_combination => i.get_original_combination,
-                             :cached_primary_homonym => i.get_genus_species(:original, :self),
-                             :cached_primary_homonym_alternative_spelling => i.get_genus_species(:original, :alternative))
+            i.update_cached_original_combinations
           end
         end
 
@@ -537,6 +537,12 @@ class TaxonName < ActiveRecord::Base
       rescue
     end
     false
+  end
+
+  def update_cached_original_combinations
+    self.update_columns(cached_original_combination: self.get_original_combination,
+                        cached_primary_homonym: self.get_genus_species(:original, :self),
+                        cached_primary_homonym_alternative_spelling: self.get_genus_species(:original, :alternative))
   end
 
   # Abstract method 
@@ -631,7 +637,7 @@ class TaxonName < ActiveRecord::Base
   #  a monomial if names is above genus, or a full epithet if below. 
   def get_full_name
     return name unless self.type == 'Combination' ||  GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_string)
-    d        = full_name_hash
+    d = full_name_hash
     elements = []
     elements.push(d['genus'])
     elements.push ['(', d['subgenus'], d['section'], d['subsection'], d['series'], d['subseries'], ')']
@@ -639,7 +645,6 @@ class TaxonName < ActiveRecord::Base
     elements.push(d['species'], d['subspecies'], d['variety'], d['subvariety'], d['form'], d['subform'])
     elements.flatten.compact.join(" ").gsub(/\(\s*\)/, '').gsub(/\(\s/, '(').gsub(/\s\)/, ')').squish
   end
-
 
   # @return [String]
   #  a monomial if names is above genus, or a full epithet if below, includes html
@@ -725,18 +730,30 @@ class TaxonName < ActiveRecord::Base
   end
 
   # TODO: refactor to use us a hash!
-  # Returns a String representing the name as originally published
+  #   Returns a String representing the name as originally published
   def get_original_combination
-    unless GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_string) && self.class == Protonym
-      cached_html = nil
-    else
-      relationships = self.original_combination_relationships
+
+    # strategy is to get the original hash, and swap in values for pertinent relationships
+
+    # cached_html is an attribute!
+    str = nil 
+
+    if GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_string) && self.class == Protonym
+      relationships = self.original_combination_relationships(true) # force a reload of the relationships
+
+      if relationships.count == 0
+        return get_full_name_html
+      end
+
+      # This can be greatly simplified by swapping in names to the hash method
+
       relationships = relationships.sort_by{|r| r.type_class.order_index }
       genus         = ''
       subgenus      = ''
       superspecies  = ''
       species       = ''
       gender        = nil
+
       relationships.each do |i|
         case i.type_class.object_relationship_name
           when 'original genus'
@@ -766,6 +783,7 @@ class TaxonName < ActiveRecord::Base
             species += 'subf. <em>' + i.subject_taxon_name.name_with_misspelling(gender) + '</em> '
         end
       end
+
       if !relationships.empty? && relationships.collect{|i| i.subject_taxon_name_id}.last != self.id
         if self.rank_string =~ /Genus/
           if genus.blank?
@@ -778,9 +796,12 @@ class TaxonName < ActiveRecord::Base
           genus   = '<em>' + self.ancestor_at_rank('genus').name_with_misspelling(nil) + '</em> ' if genus.empty? && !self.ancestor_at_rank('genus').nil?
         end
       end
+
       subgenus    = '(' + subgenus.squish + ') ' unless subgenus.empty?
-      cached_html = (genus + subgenus + superspecies + species).gsub(' [sic]', '</em> [sic]<em>').gsub('</em> <em>', ' ').gsub('<em></em>', '').gsub('<em> ', ' <em>').squish
-      cached_html.blank? ? nil : cached_html
+      str = (genus + subgenus + superspecies + species).gsub(' [sic]', '</em> [sic]<em>').gsub('</em> <em>', ' ').gsub('<em></em>', '').gsub('<em> ', ' <em>').squish
+      str.blank? ? nil : str
+
+
     end
   end
 
@@ -975,7 +996,6 @@ class TaxonName < ActiveRecord::Base
         end
       end
     end
-
   end
 
   def validate_source_type

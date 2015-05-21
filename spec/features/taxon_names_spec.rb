@@ -108,7 +108,9 @@ describe 'TaxonNames', :type => :feature do
       expect(page).to have_content("Taxon name 'specius' was successfully created.")
       # Note that we're now on the show page for species1 # When I show that species
       expect(page).to have_content('Cached name: Aus specius')
-      expect(page.has_content?('Cached original combination: Aus specius')).to be_falsey
+      
+      expect(page.has_content?('Cached original combination: Aus specius')).to be_truthy
+     
       expect(page).to have_link('Edit original combination')  # There is an 'Edit original combination link'
       # click_link('Edit original combination') # When I click that link
       # page.find_link('Edit original combination').click
