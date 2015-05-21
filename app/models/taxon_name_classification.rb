@@ -26,6 +26,9 @@ class TaxonNameClassification < ActiveRecord::Base
   soft_validate(:sv_validate_disjoint_classes, set: :validate_disjoint_classes)
   soft_validate(:sv_not_specific_classes, set: :not_specific_classes)
 
+  after_save :set_cached_names_for_taxon_names
+  after_destroy :set_cached_names_for_taxon_names
+
   def type_name
     r = self.type.to_s
     TAXON_NAME_CLASSIFICATION_NAMES.include?(r) ? r : nil
@@ -106,6 +109,18 @@ class TaxonNameClassification < ActiveRecord::Base
     const_defined?(:NOMEN_URI, false) ? self::NOMEN_URI : nil
   end
 
+  def set_cached_names_for_taxon_names
+    begin
+      TaxonName.transaction do
+        if self.type_name =~/Fossil|Hybrid/
+          t = self.taxon_name
+          t.update_column(:cached_html, t.get_full_name_html)
+        end
+      end
+    rescue
+    end
+    false
+  end
 
   #region Validation
   #TODO: validate, that all the taxon_classes in the table could be linked to taxon_classes in classes (if those had changed)

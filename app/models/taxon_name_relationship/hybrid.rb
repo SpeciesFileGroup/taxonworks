@@ -26,7 +26,7 @@ class TaxonNameRelationship::Hybrid < TaxonNameRelationship
   end
 
   def self.disjoint_object_classes
-    ::ICZN
+    ::ICZN + ['TaxonNameClassification::Icn::Hybrid']
   end
 
 end
