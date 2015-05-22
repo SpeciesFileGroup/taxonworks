@@ -13,7 +13,9 @@ describe TaxonNameRelationship::Hybrid, :type => :model do
       r2 = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: g, object_taxon_name: h, type: 'TaxonNameRelationship::Hybrid')
       expect(r2.valid?).to be_falsey
     end
-    specify 'cached values' do
+  end
+  context 'cached values' do
+    specify 'hybrid relationships' do
       g = FactoryGirl.create(:icn_genus, name: 'Aus')
       s1 = FactoryGirl.build(:icn_species, name: 'bus', parent: g)
       s2 = FactoryGirl.build(:icn_species, name: 'aus', parent: g)
@@ -29,6 +31,26 @@ describe TaxonNameRelationship::Hybrid, :type => :model do
       h.reload
       expect(h.cached).to eq('Aus aus x Aus bus')
       expect(h.cached_html).to eq('<em>Aus aus</em> &#215; <em>Aus bus</em>')
+    end
+  end
+  context 'soft validation' do
+    specify 'at least two relationships to non hybrid taxa are required' do
+      g = FactoryGirl.create(:icn_genus, name: 'Aus')
+      s1 = FactoryGirl.build(:icn_species, name: 'bus', parent: g)
+      s2 = FactoryGirl.build(:icn_species, name: 'aus', parent: g)
+      s1.save
+      s2.save
+      h = FactoryGirl.create(:valid_hybrid)
+      h.soft_validate(:hybrid_name_relationships)
+      expect(h.soft_validations.messages_on(:base).count).to eq(1)
+      r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: h, type: 'TaxonNameRelationship::Hybrid')
+      h.reload
+      h.soft_validate(:hybrid_name_relationships)
+      expect(h.soft_validations.messages_on(:base).count).to eq(1)
+      r2 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s2, object_taxon_name: h, type: 'TaxonNameRelationship::Hybrid')
+      h.reload
+      h.soft_validate(:hybrid_name_relationships)
+      expect(h.soft_validations.messages_on(:base).empty?).to be_truthy
     end
 
   end
