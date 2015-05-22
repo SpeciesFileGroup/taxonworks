@@ -15,6 +15,7 @@ class Protonym < TaxonName
 
   FAMILY_GROUP_ENDINGS = %w{ini ina inae idae oidae odd ad oidea}
 
+  validates_presence_of :name
   validate :check_format_of_name,
     :validate_rank_class_class,
     :validate_parent_rank_is_higher,
@@ -88,7 +89,9 @@ class Protonym < TaxonName
     end
   end
 
+  # this is not really needed
   scope :named, -> (name) {where(name: name)}
+  
   scope :with_name_in_array, -> (array) { where('name in (?)', array) }  
 
   # find classifications for taxon

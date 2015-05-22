@@ -1,4 +1,4 @@
-class Hybrid < Protonym
+class Hybrid < TaxonName 
 
   def get_full_name_html
     hr = self.hybrid_relationships(true)
