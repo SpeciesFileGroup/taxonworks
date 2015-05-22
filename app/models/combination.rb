@@ -272,4 +272,9 @@ class Combination < TaxonName
     end
   end
 
+  
+  def validate_rank_class_class
+    errors.add(:rank_class, 'Combination should not have rank') if !!self.rank_class
+  end
+
 end

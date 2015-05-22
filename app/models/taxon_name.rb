@@ -136,10 +136,6 @@ class TaxonName < ActiveRecord::Base
   has_many :taxon_name_classifications, dependent: :destroy, foreign_key: :taxon_name_id
   has_many :taxon_name_relationships, foreign_key: :subject_taxon_name_id, dependent: :destroy
 
-  has_many :hybrid_relationships, -> {
-    where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Hybrid'")
-  }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
-
   # NOTE: Protonym subclassed methods might not be nicely tracked here, we'll have to see.  Placement is after has_many relationships. (?)
   has_paper_trail
 
@@ -977,15 +973,9 @@ class TaxonName < ActiveRecord::Base
     end
   end
 
+  # See subclasses
   def validate_rank_class_class
-    if self.type == 'Combination'
-      errors.add(:rank_class, 'Combination should not have rank') if !!self.rank_class
-    elsif self.type == 'Protonym'
-      #errors.add(:rank_class, 'Rank not found') unless Ranks.valid?(rank_class)
-      errors.add(:rank_class, 'Rank not found') unless RANKS.include?(rank_class.to_s)
-    elsif self.type == 'Hybrid'
-      errors.add(:rank_class, 'It is not an ICN rank') unless ICN.include?(rank_class.to_s)
-    end
+    true
   end
 
   # @proceps self.rank_class_was is not a class method anywhere, so this comparison is vs. nil

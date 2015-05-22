@@ -288,6 +288,10 @@ class Protonym < TaxonName
     end
   end
 
+  def validate_rank_class_class
+    errors.add(:rank_class, 'Rank not found') unless RANKS.include?(rank_class.to_s)
+  end 
+
   #endregion
 
   #region Soft validation
