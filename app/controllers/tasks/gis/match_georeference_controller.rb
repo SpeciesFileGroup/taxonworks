@@ -176,8 +176,7 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
   # @param [String] message to be conveyed to client side
   # @return [JSON] with html for georeferences display (feature collection)
   def render_gr_select_json(message)
-    retval = render json: {message: message, html: gr_render_to_html}
-    retval
+    render json: {message: message, html: gr_render_to_html}
   end
 
   # @return [String] of html for partial

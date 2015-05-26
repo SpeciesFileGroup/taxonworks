@@ -242,10 +242,15 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
       event.preventDefault();
     });
 
-    $("#drawn_georeferences").on("ajax:success", function(e,data,status,result_data) {
+    $("#_draw_gr_form").on("ajax:success", function(e,data,status,result_data) {
 
 //  on successful upload and processing of polygon or shape file,
 //  instantiate a selecting form and map
+        var selecting = $('#_selecting_gr_form');
+        // see what the message was, if anything
+        var message = result_data.responseJSON['message'];
+        // shove the returning html into the local form
+        selecting.html(result_data.responseJSON['html']);
         initializeMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
         return true;
     }
