@@ -23,6 +23,15 @@ describe Tasks::Gis::MatchGeoreferenceController, type: :controller do
         expect(response).to have_http_status(:success)
       end
     end
+    context 'GET drawn_georeferences' do
+      it 'finds things inside a supplied polygon' do
+        feature = ''
+      end
+      it 'finds things inside a supplied circle' do
+        params = {'geographic_item_attributes_shape' => '"{"type":"Feature","geometry":{"type":"Point","coordinates":[-90,38.69922951739095]},"properties":{"radius":525421.7928904477}}"'}
+        feature = ''
+      end
+    end
   end
 
   context 'GET filtered_collecting_events' do

@@ -119,15 +119,28 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
 
   def drawn_georeferences
     @motion        = 'drawn_georeferences'
-    message        = 'I got here'
+    message        = ''
     @georeferences = [] # replace [] with CollectingEvent.filter(params)
-    # fake data for connectivity testing
-    keyword = Keyword.find('1')   # Urbania
-    @georeferences = CollectingEvent.where(project_id: $project_id).order(updated_at: :desc).tagged_with_keyword(keyword).map(&:georeferences).to_a.flatten
-    keyword = ''
-    # receive shape from form:  polygon or circle
-    # create georeference object instance to match against?
-    # compare with asserted distributions code
+    value          = params['geographic_item_attributes_shape']
+    geom           = RGeo::GeoJSON.decode(value, :json_parser => :json)
+    pieces         = JSON.parse(value)
+    this_type      = pieces['geometry']['type']
+    radius         = pieces['properties']['radius']
+    case this_type
+      when 'Point'
+        @georeferences = GeographicItem.within_radius_of('any', "#{geom}", radius)
+      when 'polygon'
+      else
+    end
+
+    boundary       = GeographicItem.new
+    boundary.shape = params['geographic_item_attributes_shape']
+
+    # receive shape from form:  polygon or circle, in 'geographic_item_attributes_shape'
+    # create geographic_item object instance to match against?
+
+    @georeferences = GeographicItem.where('ST_contains()')
+    # @georeferences =GeographicItem.are_contained_in('point', boundary)
     render_gr_select_json(message)
   end
 
@@ -157,8 +170,8 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
         )
 
         render json: {message: '',
-                      html: html
-                          }
+                      html:    html
+               }
         # render json: {message: '',
         #               html:    results}
       }
