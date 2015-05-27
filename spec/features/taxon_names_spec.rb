@@ -108,7 +108,7 @@ describe 'TaxonNames', :type => :feature do
       expect(page).to have_content("Taxon name 'specius' was successfully created.")
       # Note that we're now on the show page for species1 # When I show that species
       expect(page).to have_content('Cached name: Aus specius')
-      expect(page.has_content?('Cached original combination: Aus specius')).to be_falsey
+      
       expect(page).to have_link('Edit original combination')  # There is an 'Edit original combination link'
       # click_link('Edit original combination') # When I click that link
       # page.find_link('Edit original combination').click
@@ -120,12 +120,13 @@ describe 'TaxonNames', :type => :feature do
       page.find_link('Edit original combination').click
       expect(page).to have_content('Editing original combination for Aus specius')
       fill_autocomplete('subject_taxon_name_id_for_tn_rel_0', with: "Aus",
-                        select: 'Aus (genus, parent Rootidae)')
+                        select: 'Aus')
       # Set the original combination for the first time: select 'Aus' for the original genus ajax select
       # Had to add the '\r' to get the auto select to correctly select Aus, but the return
       # also is equivalent to the submit button
-     click_button('Save changes') # click 'Save changes'
+      click_button('Save changes') # click 'Save changes'
       expect(page).to have_content('Successfully updated the original combination.') # success msg
+
       expect(page).to have_content('Cached original combination: Aus specius')
 
       page.find_link('Edit original combination').click

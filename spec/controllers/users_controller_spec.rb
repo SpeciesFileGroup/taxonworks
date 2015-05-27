@@ -77,7 +77,8 @@ describe UsersController, :type => :controller do
   end
 
   describe "POST create" do
-    before { sign_in_administrator } 
+    before { sign_in_project_administrator }
+     
     describe "with valid params" do
       it "creates a new User" do
         expect {
@@ -92,7 +93,7 @@ describe UsersController, :type => :controller do
       end
       
       it "flags the newly created user for password reset when created by a superuser" do
-        post :create, {:user => valid_attributes}, valid_session
+        post :create, {:user => valid_attributes}, { project_id: 1 }
         expect(User.find_by_email(valid_attributes[:email]).is_flagged_for_password_reset).to be_truthy
       end
 

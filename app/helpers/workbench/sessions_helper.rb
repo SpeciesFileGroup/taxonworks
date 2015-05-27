@@ -11,8 +11,7 @@ module Workbench::SessionsHelper
   end
 
   def sessions_current_user
-    remember_token = User.encrypt(cookies[:remember_token])
-    @sessions_current_user ||= User.find_by(remember_token: remember_token)
+    @sessions_current_user ||= User.find_by(remember_token: User.encrypt(cookies[:remember_token]))
   end
 
   alias_method :current_user, :sessions_current_user
@@ -49,22 +48,24 @@ module Workbench::SessionsHelper
   end
 
   def sessions_current_project_id=(project_id)
-    @sessions_current_project_id = project_id
+    session[:project_id] = project_id
   end
 
   def sessions_current_project_id
-    @sessions_current_project_id = session[:project_id]
+    session[:project_id]
   end
 
   def sessions_current_project
-   return nil unless sessions_current_project_id 
-   @sessions_current_project ||= Project.find(@sessions_current_project_id)
+   return nil unless sessions_current_project_id
+   if @sessions_current_project.nil? || @sessions_current_project.id != sessions_current_project_id  
+     @sessions_current_project = Project.find(sessions_current_project_id)
+   end
+     @sessions_current_project
   end
 
   def sessions_select_project(project)
-   self.sessions_current_project_id = project.id
-   session[:project_id] = @sessions_current_project_id 
-   @sessions_current_project ||= Project.find(@sessions_current_project_id)
+   self.sessions_current_project_id = project.id 
+   sessions_current_project
   end
 
   def sessions_clear_selected_project
@@ -73,17 +74,17 @@ module Workbench::SessionsHelper
 
   # Authorization methods
   def is_administrator?
-    sessions_signed_in? && @sessions_current_user.is_administrator?
+    sessions_signed_in? && sessions_current_user.is_administrator?
   end 
 
   # Can be optimized to just look at ProjectMembers likely
   def is_project_administrator?
-    sessions_signed_in? && sessions_project_selected? && @sessions_current_project.project_members.where(is_administrator: true).includes?(@sessions_current_user) 
+    sessions_signed_in? && sessions_project_selected? && 
+    sessions_current_project.project_members.exists?(is_project_administrator: true, user_id: sessions_current_user_id) 
   end 
 
   def is_superuser?
-    sessions_signed_in? && @sessions_current_user.is_superuser?
-    # sessions_signed_in? && ( is_administrator? || is_project_administrator? )
+    sessions_signed_in? && ( is_administrator? || is_project_administrator? )
   end 
 
   def is_project_member?(user, project)
@@ -129,7 +130,7 @@ module Workbench::SessionsHelper
   end
 
   def favorite_page_link
-    if @sessions_current_user.favorite_routes.include?(request.fullpath)
+    if sessions_current_user.favorite_routes.include?(request.fullpath)
       content_tag(:em, 'favourited', html: {class: 'subtle'})  
     else
       link_to('Favorite page', favorite_page_path(favorited_route: request.fullpath), method: :post)

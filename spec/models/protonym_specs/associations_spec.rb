@@ -33,10 +33,6 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
     end
 
     context 'has_many' do
-      specify 'original_combination_relationships' do 
-        expect(protonym).to respond_to(:original_combination_relationships)
-      end
-
       specify 'combination_relationships' do 
         expect(protonym).to respond_to(:combination_relationships)
       end
@@ -47,10 +43,6 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
     end
 
     context 'has_one' do
-      specify 'original_combination_source' do
-        expect(protonym).to respond_to(:original_combination_source)
-      end
-
       specify 'originally classified' do
         expect(protonym.source_classified_as = Protonym.new).to be_truthy
       end

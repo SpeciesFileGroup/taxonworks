@@ -4,7 +4,7 @@ describe Tasks::Gis::MatchGeoreferenceController, type: :controller do
   let(:ce1) { CollectingEvent.new(verbatim_label:    'One of these',
                                   verbatim_locality: 'Hazelwood Rock') }
 
-  context '/tasks/gis/match_georeferenc' do
+  context '/tasks/gis/match_georeference' do
     before(:all) {
       generate_ce_test_objects
     }
@@ -21,6 +21,16 @@ describe Tasks::Gis::MatchGeoreferenceController, type: :controller do
         # pending 'proper specification of the route'
         get :index
         expect(response).to have_http_status(:success)
+      end
+    end
+    context 'GET drawn_georeferences' do
+      it 'finds things inside a supplied polygon' do
+        get :drawn_georeferences, {geographic_item_attributes_shape: '{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[1.0,-11.0],[8.0,-11.0],[8.0,-18.0],[1.0,-18.0],[1.0,-11.0]]]},"properties":{}}'}
+        expect(assigns(:georeferences)).to contain_exactly(@gr05, @gr06, @gr07, @gr08, @gr09)
+      end
+      it 'finds things inside a supplied circle' do
+        get :drawn_georeferences,  {geographic_item_attributes_shape:  '"{"type":"Feature","geometry":{"type":"Point","coordinates":[5.0,-16.0]},"properties":{"radius":3000.0}}"'}
+        expect(assigns(:georeferences)).to contain_exactly(@gr05, @gr06, @gr07, @gr08, @gr09)
       end
     end
   end

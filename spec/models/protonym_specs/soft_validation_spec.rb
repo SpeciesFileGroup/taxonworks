@@ -23,7 +23,6 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
   context 'soft_validation' do
     before(:each) do
       @subspecies = FactoryGirl.create(:iczn_subspecies)
-      @variety = FactoryGirl.create(:icn_variety)
 
       @kingdom = @subspecies.ancestor_at_rank('kingdom')
       @family = @subspecies.ancestor_at_rank('family')
@@ -33,10 +32,9 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
       @genus = @subspecies.ancestor_at_rank('genus')
       @subgenus = @subspecies.ancestor_at_rank('subgenus')
       @species = @subspecies.ancestor_at_rank('species')
-      @subtribe.source = @tribe.source
-      @subtribe.save
-      @subgenus.source = @genus.source
-      @subgenus.save
+      
+      @subtribe.update_column(:source_id, @tribe.source.id)
+      @subgenus.update_column(:source_id, @genus.source.id)
     end
 
     specify 'sanity check that project_id is set correctly in factories' do
@@ -48,6 +46,10 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
     end
 
     context 'valid parent rank' do
+      before {
+        @variety = FactoryGirl.create(:icn_variety)
+      }
+
       specify 'parent rank should be valid' do
         taxa = @subspecies.ancestors + [@subspecies] + @variety.ancestors + [@variety]
         taxa.each do |t|
@@ -55,6 +57,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
           expect(t.soft_validations.messages_on(:rank_class).empty?).to be_truthy
         end
       end
+
       specify 'invalid parent rank' do
         t = FactoryGirl.build(:iczn_subgenus, parent: @family)
         t.soft_validate(:validate_parent_rank)
@@ -88,6 +91,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
     end
 
     context 'coordinated taxa' do
+
       specify 'mismatching author in genus' do
         sgen = FactoryGirl.create(:iczn_subgenus, verbatim_author: nil, year_of_publication: nil, parent: @genus, source: @genus.source)
         sgen.original_genus = @genus
@@ -110,6 +114,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         expect(sgen.soft_validations.messages_on(:verbatim_author).empty?).to be_truthy
         expect(sgen.soft_validations.messages_on(:year_of_publication).empty?).to be_truthy
       end
+
       specify 'mismatching author, year and type genus in family' do
         tribe = FactoryGirl.create(:iczn_tribe, name: 'Typhlocybini', verbatim_author: nil, year_of_publication: nil, parent: @subfamily)
         genus = FactoryGirl.create(:relationship_genus, verbatim_author: 'Dmitriev', name: 'Typhlocyba', year_of_publication: 2013, parent: tribe)
@@ -492,6 +497,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         g3.soft_validate(:missing_relationships)
         expect(g3.soft_validations.messages_on(:base).empty?).to be_truthy
       end
+
       specify 'missing original combination relationships to self' do
         g = FactoryGirl.create(:relationship_genus)
         s1 = FactoryGirl.create(:relationship_species, parent: g)

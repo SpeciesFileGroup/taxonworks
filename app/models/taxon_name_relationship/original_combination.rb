@@ -8,6 +8,13 @@ class TaxonNameRelationship::OriginalCombination < TaxonNameRelationship
 
   validates_uniqueness_of :object_taxon_name_id, scope: :type
 
+  # after_save :set_cached_original_combination
+  after_destroy :set_cached_original_combination
+
+  def set_cached_original_combination
+    self.object_taxon_name.update_cached_original_combinations
+  end
+
   def self.nomenclatural_priority
     :reverse
   end

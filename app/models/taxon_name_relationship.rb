@@ -193,32 +193,25 @@ class TaxonNameRelationship < ActiveRecord::Base
       end
     end
 
-    if !self.type_class.blank? # only validate if it is set
-      if TAXON_NAME_RELATIONSHIP_NAMES.include?(tname)
-        unless self.type_class.valid_subject_ranks.include?(self.subject_taxon_name.rank_class.to_s)
-          errors.add(:subject_taxon_name_id, "The rank of taxon is not compatible with relationship '#{self.type_class.object_relationship_name}'")
-          errors.add(:type, 'Not compatible with the rank of this taxon')
+    unless self.type_class.blank? # only validate if it is set
+      if object_taxon_name
+        if object_taxon_name.type == 'Protonym' || object_taxon_name.type == 'Hybrid'
+          unless self.type_class.valid_object_ranks.include?(self.object_taxon_name.rank_class.to_s)
+            errors.add(:object_taxon_name_id, 'Rank of this taxon is not compatible with the relationship')
+            errors.add(:type, 'Not compatible with the rank of object taxon')
+          end
         end
       end
 
-      if object_taxon_name
-        if object_taxon_name.type == 'Protonym'
-          unless self.type_class.valid_object_ranks.include?(self.object_taxon_name.rank_class.to_s)
-            errors.add(:object_taxon_name_id, 'Rank of the taxon is not compatible with the status')
-            errors.add(:type, 'Not compatible with the rank of related taxon')
-          end
-        end
-
-        if object_taxon_name.type == 'Combination'
-          unless self.type_class.valid_object_ranks.include?(self.object_taxon_name.parent.rank_class.to_s)
-            soft_validations.add(:object_taxon_name_id, 'Rank of the taxon is not compatible with the status')
-            soft_validations.add(:type, 'Not compatible with the rank of related taxon')
+      if subject_taxon_name
+        if subject_taxon_name.type == 'Protonym' || subject_taxon_name.type == 'Hybrid'
+          unless self.type_class.valid_subject_ranks.include?(self.subject_taxon_name.parent.rank_class.to_s)
+            soft_validations.add(:subject_taxon_name_id, 'Rank of this taxon is not compatible with the relationship')
+            soft_validations.add(:type, 'Not compatible with the rank of subject taxon')
           end
         end
       end
     end
-
-
   end
 
   def validate_uniqueness_of_synonym_subject
@@ -246,12 +239,12 @@ class TaxonNameRelationship < ActiveRecord::Base
     begin
       TaxonName.transaction do
 
-        if self.type_name =~/OriginalCombination/
-          t = self.object_taxon_name
-          t.update_columns(:cached_original_combination => t.get_original_combination,
-                           :cached_primary_homonym => t.get_genus_species(:original, :self),
-                           :cached_primary_homonym_alternative_spelling => t.get_genus_species(:original, :alternative))
-        elsif self.is_combination?
+       #if self.type_name =~/OriginalCombination/
+       #  t = self.object_taxon_name
+       #  t.update_columns(:cached_original_combination => t.get_original_combination,
+       #                   :cached_primary_homonym => t.get_genus_species(:original, :self),
+       #                   :cached_primary_homonym_alternative_spelling => t.get_genus_species(:original, :alternative))
+        if self.is_combination?
           t = self.object_taxon_name
           t.update_columns(:cached_original_combination => t.get_original_combination,
                            :cached => t.get_full_name,
@@ -259,6 +252,10 @@ class TaxonNameRelationship < ActiveRecord::Base
         elsif self.type_name =~/Misspelling/
           t = self.subject_taxon_name
           t.update_column(:cached_misspelling, t.get_cached_misspelling)
+        elsif self.type_name =~/TaxonNameRelationship::Hybrid/
+          t = self.object_taxon_name
+          t.update_columns(:cached => t.get_full_name,
+                           :cached_html => t.get_full_name_html)
         elsif self.type_name =~/SourceClassifiedAs/
           t = self.subject_taxon_name
           t.update_column(:cached_classified_as, t.get_cached_classified_as)
@@ -270,9 +267,11 @@ class TaxonNameRelationship < ActiveRecord::Base
           t.update_columns(:cached => t.get_full_name,
                            :cached_html => t.get_full_name_html)
         end
-
       end
+
+    # no point in rescuing and not returning somthing
     rescue
+      raise
     end
     false
   end

@@ -75,7 +75,7 @@ class TaxonNamesController < ApplicationController
   end
 
   def autocomplete
-    @taxon_names = TaxonName.find_for_autocomplete(params.merge(project_id: @sessions_current_project_id))
+    @taxon_names = TaxonName.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
 
     data = @taxon_names.collect do |t|
       str = render_to_string(partial: 'autocomplete_tag', locals: {taxon_name: t, term: params[:term] })

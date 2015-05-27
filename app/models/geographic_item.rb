@@ -315,7 +315,8 @@ SELECT round(CAST(
     where (q)
   end
 
-  # @param [String, GeographicItem]
+  # @param [String] name of column to search
+  # @param [GeographicItem] item or array of geographic_item containing result
   # @return [Scope]
   #
   # If this scope is given an Array of GeographicItems as a second parameter,

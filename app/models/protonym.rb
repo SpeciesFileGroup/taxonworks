@@ -13,6 +13,8 @@ class Protonym < TaxonName
 
   alias_method :original_combination_source, :source
 
+  FAMILY_GROUP_ENDINGS = %w{ini ina inae idae oidae odd ad oidea}
+
   validate :check_format_of_name,
     :validate_rank_class_class,
     :validate_parent_rank_is_higher,
@@ -152,9 +154,6 @@ class Protonym < TaxonName
     end
   end
 
-  # TODO: make a constant somewhere, it's def not a instance method
-
-  FAMILY_GROUP_ENDINGS = %w{ini ina inae idae oidae odd ad oidea}
 
   def list_of_coordinated_names
     list = []
@@ -177,11 +176,7 @@ class Protonym < TaxonName
           list = Protonym.ancestors_and_descendants_of(self).
             with_rank_class_including(search_rank).
             with_name_in_array(search_name).
-            as_subject_without_taxon_name_relationship_base('TaxonNameRelationship::Iczn::Invalidating::Synonym') # <- use this
-          #list1 = self.ancestors_and_descendants                               # scope with parens
-          #list1 = list1.select{|i| /#{search_rank}.*/.match(i.rank_class.to_s)} # scope on rank_class
-          #list1 = list1.select{|i| /#{search_name}/.match(i.name)}              # scope on named
-          #list1 = list1.reject{|i| i.unavailable_or_invalid?}                   # scope with join on taxon_name_relationships and where > 1 on them
+            as_subject_without_taxon_name_relationship_base('TaxonNameRelationship::Iczn::Invalidating::Synonym') 
         else
           list = []
         end
