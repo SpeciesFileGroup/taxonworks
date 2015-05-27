@@ -302,16 +302,17 @@ SELECT round(CAST(
       pieces = []
 
       DATA_TYPES.each { |column|
-        pieces.push(GeographicItem.within_radius_of("#{column}", geometry, distance))
+        pieces.push(GeographicItem.within_radius_of_object("#{column}", geometry, distance).to_a)
       }
 
       GeographicItem.where(id: pieces.flatten.map(&:id))
     else
-      if check_geo_params(column_name, geographic_item)
-        where("st_distance(#{column_name}, (#{select_geography_sql(geometry, geographic_item.geo_object_type)})) < #{distance}")
-      else
-        where("false")
-      end
+      # if check_geo_params(column_name, geographic_item)
+      q = "ST_Distance(#{column_name}, ST_GeogFromText('srid=4326;#{geometry}')) < #{distance}"
+      # else
+      #   q = "false"
+      # end
+      where(q)
     end
   end
 

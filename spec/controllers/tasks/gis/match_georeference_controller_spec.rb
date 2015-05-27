@@ -30,9 +30,9 @@ describe Tasks::Gis::MatchGeoreferenceController, type: :controller do
         expect(assigns(:georeferences).to_a).to contain_exactly(@gr05, @gr06, @gr07, @gr08, @gr09)
       end
       it 'finds things inside a supplied circle' do
-        get :drawn_georeferences,  {geographic_item_attributes_shape:  '"{"type":"Feature","geometry":{"type":"Point","coordinates":[5.0,-16.0]},"properties":{"radius":3000.0}}"'}
+        get :drawn_georeferences,  {geographic_item_attributes_shape:  '{"type":"Feature","geometry":{"type":"Point","coordinates":[5.0,-16.0]},"properties":{"radius":448000.0}}'}
         pending 'construction of GeographicItem.within_radius_of_object'
-        expect(assigns(:georeferences)).to contain_exactly(@gr05, @gr06, @gr07, @gr08, @gr09)
+        expect(assigns(:georeferences).to_a).to contain_exactly(@gr05, @gr06, @gr07, @gr08, @gr09)
       end
     end
   end
