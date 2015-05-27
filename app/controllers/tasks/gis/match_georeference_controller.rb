@@ -122,24 +122,30 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
     message        = ''
     @georeferences = [] # replace [] with CollectingEvent.filter(params)
     value          = params['geographic_item_attributes_shape']
-    geom           = RGeo::GeoJSON.decode(value, :json_parser => :json)
-    pieces         = JSON.parse(value)
-    this_type      = pieces['geometry']['type']
-    radius         = pieces['properties']['radius']
+    feature        = RGeo::GeoJSON.decode(value, :json_parser => :json)
+    # isolate the WKT
+    geometry       = feature.geometry
+    this_type      = geometry.geometry_type.to_s.downcase
+    geometry       = geometry.as_text
+    # pieces         = JSON.parse(value)
+    radius         = feature['radius']
     case this_type
-      when 'Point'
-        @georeferences = GeographicItem.within_radius_of('any', "#{geom}", radius)
+      when 'point'
+        @georeferences =  GeographicItem.within_radius_of_object('any', geometry, radius).map(&:georeferences).uniq.flatten
       when 'polygon'
+        @georeferences =  GeographicItem.are_contained_in_object('any', geometry).map(&:georeferences).uniq.flatten
       else
+        @georeferences = []
     end
 
-    boundary       = GeographicItem.new
-    boundary.shape = params['geographic_item_attributes_shape']
+
+    # boundary       = GeographicItem.new
+    # boundary.shape = params['geographic_item_attributes_shape']
 
     # receive shape from form:  polygon or circle, in 'geographic_item_attributes_shape'
     # create geographic_item object instance to match against?
 
-    @georeferences = GeographicItem.where('ST_contains()')
+    # @georeferences = GeographicItem.where('ST_contains()')
     # @georeferences =GeographicItem.are_contained_in('point', boundary)
     render_gr_select_json(message)
   end

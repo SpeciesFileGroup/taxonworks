@@ -83,12 +83,12 @@ class GeographicItem < ActiveRecord::Base
     g2               = georeferences.alias('b')
 
     c = geographic_items.join(g1, Arel::Nodes::OuterJoin).on(geographic_items[:id].eq(g1[:geographic_item_id])).
-        join(g2, Arel::Nodes::OuterJoin).on(geographic_items[:id].eq(g2[:error_geographic_item_id]))
+      join(g2, Arel::Nodes::OuterJoin).on(geographic_items[:id].eq(g2[:error_geographic_item_id]))
 
     GeographicItem.joins(# turn the Arel back into scope
-        c.join_sources # translate the Arel join to a join hash(?)
+      c.join_sources # translate the Arel join to a join hash(?)
     ).where(
-        g1[:id].not_eq(nil).or(g2[:id].not_eq(nil)) # returns a Arel::Nodes::Grouping
+      g1[:id].not_eq(nil).or(g2[:id].not_eq(nil)) # returns a Arel::Nodes::Grouping
     ).distinct
   end
 
@@ -297,6 +297,24 @@ SELECT round(CAST(
     end
   end
 
+  def self.within_radius_of_object(column_name, geometry, distance)
+    if column_name.downcase == 'any'
+      pieces = []
+
+      DATA_TYPES.each { |column|
+        pieces.push(GeographicItem.within_radius_of("#{column}", geometry, distance))
+      }
+
+      GeographicItem.where(id: pieces.flatten.map(&:id))
+    else
+      if check_geo_params(column_name, geographic_item)
+        where("st_distance(#{column_name}, (#{select_geography_sql(geometry, geographic_item.geo_object_type)})) < #{distance}")
+      else
+        where("false")
+      end
+    end
+  end
+
   # @param [Integer, String]
   # @return [String]
   #   a SQL select statement that returns the geography for the geographic_item with the specified id
@@ -349,6 +367,41 @@ SELECT round(CAST(
         }.join(' or ')
         where(q) # .excluding(geographic_items)
     end
+  end
+
+  # @param [String] column_name
+  # @param [String] geometry of WKT
+  # @return [Scope]
+  # a single WKT geometry is compared against column or columns (except geometry_collection) to find geographic_items
+  # which are contained in the WKT
+  def self.are_contained_in_object(column_name, geometry)
+    column_name.downcase!
+    # column_name = 'point'
+    case column_name
+      when 'any'
+        part = []
+        DATA_TYPES.each { |column|
+          unless column == :geometry_collection
+            part.push(GeographicItem.are_contained_in_object("#{column}", geometry).to_a)
+          end
+        }
+        # todo: change 'id in (?)' to some other sql construct
+        GeographicItem.where(id: part.flatten.map(&:id))
+      when 'any_poly', 'any_line'
+        part = []
+        DATA_TYPES.each { |column|
+          if column.to_s.index(column_name.gsub('any_', ''))
+            part.push(GeographicItem.are_contained_in_object("#{column}", geometry).to_a)
+          end
+        }
+        # todo: change 'id in (?)' to some other sql construct
+        GeographicItem.where(id: part.flatten.map(&:id))
+      else
+        # column = points, geometry = square
+        q = "ST_Contains(ST_GeomFromEWKT('srid=4326;#{geometry}'), #{column_name}::geometry)"
+        where(q) # .excluding(geographic_items)
+    end
+
   end
 
   # @return [Scope]
@@ -404,8 +457,8 @@ SELECT round(CAST(
   def self.ordered_by_longest_distance_from(column_name, geographic_item)
     if check_geo_params(column_name, geographic_item)
       q = select_distance_with_geo_object(column_name, geographic_item).
-          where_distance_greater_than_zero(column_name, geographic_item).
-          order('distance desc')
+        where_distance_greater_than_zero(column_name, geographic_item).
+        order('distance desc')
       q
     else
       where ('false')
@@ -560,12 +613,12 @@ SELECT round(CAST(
   def to_geo_json_feature
     @geometry ||= to_geo_json
     {
-        'type'       => 'Feature',
-        'geometry'   => self.geometry,
-        'properties' => {
-            'geographic_item' => {
-                'id' => self.id}
-        }
+      'type'       => 'Feature',
+      'geometry'   => self.geometry,
+      'properties' => {
+        'geographic_item' => {
+          'id' => self.id}
+      }
     }
   end
 
