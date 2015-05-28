@@ -276,9 +276,11 @@ SELECT round(CAST(
     end
   end # class << self
 
-  # @param [String, GeographicItem, Double]
-  # @return [Scope]
-  #   distance is measured in meters
+  #
+  # @param [String] column_name
+  # @param [GeographicItem] geographic_item
+  # @param [Float] distance is measured in meters
+  # @return [ActiveRecord::Relation]
   def self.within_radius_of_item(column_name, geographic_item, distance) # ultimately it should be geographic_item_id
     if column_name.downcase == 'any'
       pieces = []
@@ -297,17 +299,29 @@ SELECT round(CAST(
     end
   end
 
+  # @param [String] column_name
+  # @param [GeographicItem] geographic_item
+  # @param [Float] distance is measured in meters
+  # @return [ActiveRecord::Relation]
   def self.within_radius_of_wkt(column_name, geometry, distance)
     if column_name.downcase == 'any'
       pieces = []
 
       DATA_TYPES.each { |column|
-        pieces.push(GeographicItem.within_radius_of_wkt("#{column}", geometry, distance).to_a)
+        unless column == :geometry_collection
+          pieces.push(GeographicItem.within_radius_of_wkt("#{column}", geometry, distance).pluck(:id).to_a)
+        end
       }
 
-      GeographicItem.where(id: pieces.flatten.map(&:id))
+      GeographicItem.where(id: pieces.flatten)
     else
-      q = "ST_Distance(#{column_name}, ST_GeogFromText('srid=4326;#{geometry}')) < #{distance}"
+      # q = "ST_Distance(#{column_name}, ST_GeogFromText('srid=4326;#{geometry}')) < #{distance}"
+      # NOTO BENNY:
+      # Since we are using geometries here, and NOT geographies, the distance (in meters)
+      # has to be converted to degrees (Spatial Reference System units for geometries)
+      # by dividing the Spatial Reference System unit (degrees) by meters/degree
+      # This won't work that well near the poles (Stay out of PoLand)
+      q = "ST_Contains(ST_Buffer(ST_GeomFromEWKT('srid=4326;#{geometry}'), #{distance / 111319.444444444}), #{column_name}::geometry)"
       where(q)
     end
   end
@@ -379,20 +393,20 @@ SELECT round(CAST(
         part = []
         DATA_TYPES.each { |column|
           unless column == :geometry_collection
-            part.push(GeographicItem.are_contained_in_wkt("#{column}", geometry).to_a)
+            part.push(GeographicItem.are_contained_in_wkt("#{column}", geometry).pluck(:id).to_a)
           end
         }
         # todo: change 'id in (?)' to some other sql construct
-        GeographicItem.where(id: part.flatten.map(&:id))
+        GeographicItem.where(id: part.flatten)
       when 'any_poly', 'any_line'
         part = []
         DATA_TYPES.each { |column|
           if column.to_s.index(column_name.gsub('any_', ''))
-            part.push(GeographicItem.are_contained_in_wkt("#{column}", geometry).to_a)
+            part.push(GeographicItem.are_contained_in_wkt("#{column}", geometry).pluck(:id).to_a)
           end
         }
         # todo: change 'id in (?)' to some other sql construct
-        GeographicItem.where(id: part.flatten.map(&:id))
+        GeographicItem.where(id: part.flatten)
       else
         # column = points, geometry = square
         q = "ST_Contains(ST_GeomFromEWKT('srid=4326;#{geometry}'), #{column_name}::geometry)"

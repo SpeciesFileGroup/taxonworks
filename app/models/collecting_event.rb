@@ -634,6 +634,49 @@ TODO: @mjy: please fill in any other paths you can think of for the acquisition 
 
   # class methods
 
+  # @param [Array] of parameters in the style of 'params'
+  # @return [Scope] of selected collecting_events
+  def self.filter(params)
+
+    if params.blank? # for now, this will prevent this function from interfering
+      sql_string          = date_sql_from_params(params)
+
+      # processing text data
+      v_locality_fragment = params['verbatim_locality_text']
+      any_label_fragment  = params['any_label_text']
+      id_fragment         = params['identifier_text']
+
+      unless v_locality_fragment.blank?
+        unless sql_string.blank?
+          prefix = ' and '
+        end
+        sql_string += "#{ prefix }verbatim_locality ilike '%#{v_locality_fragment}%'"
+      end
+      unless any_label_fragment.blank?
+        unless sql_string.blank?
+          prefix = 'and '
+        end
+        sql_string += "#{ prefix }(verbatim_label ilike '%#{any_label_fragment}%'"
+        sql_string += " or print_label ilike '%#{any_label_fragment}%'"
+        sql_string += " or document_label ilike '%#{any_label_fragment}%'"
+        sql_string += ')'
+      end
+
+      unless id_fragment.blank?
+        #   TODO: this still needs to be dealt with
+      end
+
+    end
+    # find the records
+    if sql_string.blank?
+      collecting_events = CollectingEvent.where('false')
+    else
+      collecting_events = CollectingEvent.where(sql_string).uniq
+    end
+
+    collecting_events
+  end
+
   # @param geographic_item [GeographicItem]
   # @return [Scope]
   def self.find_others_contained_within(geographic_item)
