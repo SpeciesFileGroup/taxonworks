@@ -224,7 +224,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
       $("#_filter_gr_form").attr("hidden", true);
       $("#_tag_gr_form").attr("hidden", true);
       $("#_recent_gr_form").attr("hidden", true);
-      $('#_selecting_gr_form').removeAttr('hidden');  ////// temp make visible
+      //$('#_selecting_gr_form').removeAttr('hidden');  ////// temp make visible
 
       this_map = initializeGoogleMapWithDrawManager("#_draw_gr_form");  //set up a blank draw canvas
       google.maps.event.addListener(this_map[1], 'overlaycomplete', function (event) {
@@ -253,6 +253,8 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
         selecting.html(result_data.responseJSON['html']);
         this_map = initializeMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
         add_match_georeferences_map_listeners(this_map);
+        $("#_draw_gr_form").attr("hidden", true);
+        $("#_selecting_gr_form").removeAttr('hidden');
         return true;
     }
     ).on("ajax:error", function (e, xhr, status, error) {
