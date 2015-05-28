@@ -250,15 +250,15 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
         // see what the message was, if anything
         var message = result_data.responseJSON['message'];
         // shove the returning html into the local form
+        $("#_selecting_gr_form").removeAttr('hidden');
         selecting.html(result_data.responseJSON['html']);
         this_map = initializeMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
         add_match_georeferences_map_listeners(this_map);
         $("#_draw_gr_form").attr("hidden", true);
-        $("#_selecting_gr_form").removeAttr('hidden');
         return true;
     }
     ).on("ajax:error", function (e, xhr, status, error) {
-        alert("ERROR");
+        $("#new_article").append("<p>ERROR</p>");
       });
 
     $(".recent-gr").click(function (event) {
