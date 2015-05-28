@@ -131,9 +131,9 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
     radius         = feature['radius']
     case this_type
       when 'point'
-        @georeferences =  GeographicItem.within_radius_of_object('any', geometry, radius).map(&:georeferences).uniq.flatten
+        @georeferences = GeographicItem.within_radius_of_wkt('any', geometry, radius).map(&:georeferences).uniq.flatten
       when 'polygon'
-        @georeferences =  GeographicItem.are_contained_in_object('any', geometry).map(&:georeferences).uniq.flatten
+        @georeferences = GeographicItem.are_contained_in_wkt('any', geometry).map(&:georeferences).uniq.flatten
       else
         @georeferences = []
     end

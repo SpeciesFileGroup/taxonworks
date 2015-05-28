@@ -419,7 +419,7 @@ describe GeographicItem, type: :model, group: :geo do
     end
 
     specify '::within_radius_of to find all objects which are within a specific distance of an object.' do
-      expect(GeographicItem).to respond_to(:within_radius_of)
+      expect(GeographicItem).to respond_to(:within_radius_of_item)
     end
 
     specify '::intersecting method to intersecting an \'or\' list of objects.' do
@@ -483,35 +483,35 @@ describe GeographicItem, type: :model, group: :geo do
         #  expect(GeographicItem.are_contained_in('point', 'Some devious SQL string').to_a).to eq([])
 
         specify 'one thing inside k' do
-          expect(GeographicItem.are_contained_in('polygon', @p1).to_a).to eq([@k])
+          expect(GeographicItem.are_contained_in_item('polygon', @p1).to_a).to eq([@k])
         end
 
         specify 'three things inside k' do
-          expect(GeographicItem.are_contained_in('polygon', [@p1, @p2, @p3]).to_a).to eq([@k])
+          expect(GeographicItem.are_contained_in_item('polygon', [@p1, @p2, @p3]).to_a).to eq([@k])
         end
 
         specify 'one thing outside k' do
-          expect(GeographicItem.are_contained_in('polygon', @p4).to_a).to eq([])
+          expect(GeographicItem.are_contained_in_item('polygon', @p4).to_a).to eq([])
         end
 
         specify ' one thing inside two things (overlapping)' do
-          expect(GeographicItem.are_contained_in('polygon', @p12).to_a.sort).to contain_exactly(@e1, @e2)
+          expect(GeographicItem.are_contained_in_item('polygon', @p12).to_a.sort).to contain_exactly(@e1, @e2)
         end
 
         specify 'three things inside and one thing outside k' do
-          expect(GeographicItem.are_contained_in('polygon', [@p1, @p2, @p3, @p11]).to_a).to contain_exactly(@e1, @k)
+          expect(GeographicItem.are_contained_in_item('polygon', [@p1, @p2, @p3, @p11]).to_a).to contain_exactly(@e1, @k)
         end
 
         specify 'one thing inside one thing, and another thing inside another thing' do
-          expect(GeographicItem.are_contained_in('polygon', [@p1, @p11]).to_a).to contain_exactly(@e1, @k)
+          expect(GeographicItem.are_contained_in_item('polygon', [@p1, @p11]).to_a).to contain_exactly(@e1, @k)
         end
 
         specify 'two things inside one thing, and (1)' do
-          expect(GeographicItem.are_contained_in('polygon', @p18).to_a).to contain_exactly(@b1, @b2)
+          expect(GeographicItem.are_contained_in_item('polygon', @p18).to_a).to contain_exactly(@b1, @b2)
         end
 
         specify 'two things inside one thing, and (2)' do
-          expect(GeographicItem.are_contained_in('polygon', @p19).to_a).to contain_exactly(@b1, @b)
+          expect(GeographicItem.are_contained_in_item('polygon', @p19).to_a).to contain_exactly(@b1, @b)
         end
       end
 
@@ -588,11 +588,11 @@ describe GeographicItem, type: :model, group: :geo do
       end
 
       specify '::within_radius_of returns objects within a specific distance of an object.' do
-        expect(GeographicItem.within_radius_of('polygon', @p0, 1000000)).to contain_exactly(@e2, @e3, @e4, @e5, @item_a, @item_b, @item_c, @item_d)
+        expect(GeographicItem.within_radius_of_item('polygon', @p0, 1000000)).to contain_exactly(@e2, @e3, @e4, @e5, @item_a, @item_b, @item_c, @item_d)
       end
 
       specify '::within_radius_of("any", ...)' do
-        expect(GeographicItem.within_radius_of('any', @p0, 1000000)).to include(@e2, @e3, @e4, @e5, @item_a, @item_b, @item_c, @item_d)
+        expect(GeographicItem.within_radius_of_item('any', @p0, 1000000)).to include(@e2, @e3, @e4, @e5, @item_a, @item_b, @item_c, @item_d)
       end
 
       specify "::intersecting list of objects (uses 'or')" do

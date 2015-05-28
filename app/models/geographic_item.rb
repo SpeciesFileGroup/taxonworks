@@ -279,12 +279,12 @@ SELECT round(CAST(
   # @param [String, GeographicItem, Double]
   # @return [Scope]
   #   distance is measured in meters
-  def self.within_radius_of(column_name, geographic_item, distance) # ultimately it should be geographic_item_id
+  def self.within_radius_of_item(column_name, geographic_item, distance) # ultimately it should be geographic_item_id
     if column_name.downcase == 'any'
       pieces = []
 
       DATA_TYPES.each { |column|
-        pieces.push(GeographicItem.within_radius_of("#{column}", geographic_item, distance))
+        pieces.push(GeographicItem.within_radius_of_item("#{column}", geographic_item, distance))
       }
 
       GeographicItem.where(id: pieces.flatten.map(&:id))
@@ -297,21 +297,17 @@ SELECT round(CAST(
     end
   end
 
-  def self.within_radius_of_object(column_name, geometry, distance)
+  def self.within_radius_of_wkt(column_name, geometry, distance)
     if column_name.downcase == 'any'
       pieces = []
 
       DATA_TYPES.each { |column|
-        pieces.push(GeographicItem.within_radius_of_object("#{column}", geometry, distance).to_a)
+        pieces.push(GeographicItem.within_radius_of_wkt("#{column}", geometry, distance).to_a)
       }
 
       GeographicItem.where(id: pieces.flatten.map(&:id))
     else
-      # if check_geo_params(column_name, geographic_item)
       q = "ST_Distance(#{column_name}, ST_GeogFromText('srid=4326;#{geometry}')) < #{distance}"
-      # else
-      #   q = "false"
-      # end
       where(q)
     end
   end
@@ -341,14 +337,14 @@ SELECT round(CAST(
   # If this scope is given an Array of GeographicItems as a second parameter,
   # it will return the 'or' of each of the objects against the table.
   # SELECT COUNT(*) FROM "geographic_items"  WHERE (ST_Contains(polygon::geometry, GeomFromEWKT('srid=4326;POINT (0.0 0.0 0.0)')) or ST_Contains(polygon::geometry, GeomFromEWKT('srid=4326;POINT (-9.8 5.0 0.0)')))
-  def self.are_contained_in(column_name, *geographic_items)
+  def self.are_contained_in_item(column_name, *geographic_items)
     column_name.downcase!
     case column_name
       when 'any'
         part = []
         DATA_TYPES.each { |column|
           unless column == :geometry_collection
-            part.push(GeographicItem.are_contained_in("#{column}", geographic_items).to_a)
+            part.push(GeographicItem.are_contained_in_item("#{column}", geographic_items).to_a)
           end
         }
         # todo: change 'id in (?)' to some other sql construct
@@ -357,7 +353,7 @@ SELECT round(CAST(
         part = []
         DATA_TYPES.each { |column|
           if column.to_s.index(column_name.gsub('any_', ''))
-            part.push(GeographicItem.are_contained_in("#{column}", geographic_items).to_a)
+            part.push(GeographicItem.are_contained_in_item("#{column}", geographic_items).to_a)
           end
         }
         # todo: change 'id in (?)' to some other sql construct
@@ -375,7 +371,7 @@ SELECT round(CAST(
   # @return [Scope]
   # a single WKT geometry is compared against column or columns (except geometry_collection) to find geographic_items
   # which are contained in the WKT
-  def self.are_contained_in_object(column_name, geometry)
+  def self.are_contained_in_wkt(column_name, geometry)
     column_name.downcase!
     # column_name = 'point'
     case column_name
@@ -383,7 +379,7 @@ SELECT round(CAST(
         part = []
         DATA_TYPES.each { |column|
           unless column == :geometry_collection
-            part.push(GeographicItem.are_contained_in_object("#{column}", geometry).to_a)
+            part.push(GeographicItem.are_contained_in_wkt("#{column}", geometry).to_a)
           end
         }
         # todo: change 'id in (?)' to some other sql construct
@@ -392,7 +388,7 @@ SELECT round(CAST(
         part = []
         DATA_TYPES.each { |column|
           if column.to_s.index(column_name.gsub('any_', ''))
-            part.push(GeographicItem.are_contained_in_object("#{column}", geometry).to_a)
+            part.push(GeographicItem.are_contained_in_wkt("#{column}", geometry).to_a)
           end
         }
         # todo: change 'id in (?)' to some other sql construct

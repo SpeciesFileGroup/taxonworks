@@ -84,7 +84,7 @@ class Georeference < ActiveRecord::Base
   # @param [GeographicItem, Double]
   # @return [Scope] Georeferences
   #   all Georeferences within some distance of a geographic_item
-  def self.within_radius_of(geographic_item, distance)
+  def self.within_radius_of_item(geographic_item, distance)
     #.where{geographic_item_id in GeographicItem.within_radius_of('polygon', geographic_item, distance)}
     # geographic_item may be a polygon, or a point
 
@@ -95,9 +95,9 @@ class Georeference < ActiveRecord::Base
     # point         => stored through the GeoLocate process
     #
     # TODO: or this with AREL
-    temp = GeographicItem.within_radius_of('multi_polygon', geographic_item, distance) +
-      GeographicItem.within_radius_of('polygon', geographic_item, distance) +
-      GeographicItem.within_radius_of('point', geographic_item, distance)
+    temp = GeographicItem.within_radius_of_item('multi_polygon', geographic_item, distance) +
+      GeographicItem.within_radius_of_item('polygon', geographic_item, distance) +
+      GeographicItem.within_radius_of_item('point', geographic_item, distance)
 
     partials = GeographicItem.where('id in (?)', temp.map(&:id))
 
@@ -210,7 +210,7 @@ class Georeference < ActiveRecord::Base
   # todo: not yet sure what the params are going to look like. what is below just represents a guess
   # @param [Hash] arguments from _collecting_event_selection form
   def self.batch_create_from_georeference_matcher(arguments)
-    gr                    = Georeference.find(arguments[:georeference_id].to_param)
+    gr = Georeference.find(arguments[:georeference_id].to_param)
 
     result = []
 
