@@ -254,6 +254,13 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
         selecting.html(result_data.responseJSON['html']);
         this_map = initializeMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
         add_match_georeferences_map_listeners(this_map);
+        if ($("#_select_gr_form").data('feature-collection').features.length == 1) {
+
+          this_map = initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
+        }
+        else {
+          this_map = initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_selected_gr_form").data('feature-collection'));
+        }
         $("#_draw_gr_form").attr("hidden", true);
         return true;
     }
@@ -282,6 +289,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
         selecting.html(message);
       }
       else {
+        selecting.removeAttr('hidden');
         selecting.html(local_data.responseJSON['html']);
         $("#_recent_gr_form").attr("hidden", true);
         this_map = initializeMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
@@ -294,7 +302,6 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
           this_map = initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_selected_gr_form").data('feature-collection'));
         }
       }
-      selecting.removeAttr('hidden');
       return true;
     }).on("ajax:error", function (e, xhr, status, error) {
       $("#new_article").append("<p>ERROR</p>");
