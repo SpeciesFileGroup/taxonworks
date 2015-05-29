@@ -113,7 +113,7 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
       message        = 'no tagged objects selected'
     else
       keyword        = Keyword.find(params[:keyword_id])
-      @georeferences = CollectingEvent.where(project_id: $project_id).order(updated_at: :desc).tagged_with_keyword(keyword).map(&:georeferences).to_a.flatten
+      @georeferences = Georeference.where(project_id: $project_id).order(updated_at: :desc).tagged_with_keyword(keyword)
     end
     render_gr_select_json(message)
   end

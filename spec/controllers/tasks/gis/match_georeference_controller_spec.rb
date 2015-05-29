@@ -4,7 +4,7 @@ describe Tasks::Gis::MatchGeoreferenceController, type: :controller do
   let(:ce1) { CollectingEvent.new(verbatim_label:    'One of these',
                                   verbatim_locality: 'Hazelwood Rock') }
 
-  context '/tasks/gis/match_georeference' do
+  context '/tasks/gis/match_georeference with prebuilt geo objects' do
     before(:all) {
       generate_ce_test_objects
     }
@@ -16,19 +16,21 @@ describe Tasks::Gis::MatchGeoreferenceController, type: :controller do
     after(:all) {
       clean_slate_geo
     }
-    describe "GET index" do
+    context "GET index" do
       it "returns http success" do
         # pending 'proper specification of the route'
         get :index
         expect(response).to have_http_status(:success)
       end
     end
+
     context 'GET drawn_georeferences' do
       it 'finds things inside a supplied polygon' do
         get :drawn_georeferences, {geographic_item_attributes_shape: '{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[1.0,-11.0],[8.0,-11.0],[8.0,-18.0],[1.0,-18.0],[1.0,-11.0]]]},"properties":{}}'}
         # pending 'construction of GeographicItem.are_contained_in_object'
         expect(assigns(:georeferences).to_a).to contain_exactly(@gr05, @gr06, @gr07, @gr08, @gr09)
       end
+
       it 'finds things inside a supplied circle' do
         get :drawn_georeferences, {geographic_item_attributes_shape: '{"type":"Feature","geometry":{"type":"Point","coordinates":[5.0,-16.0]},"properties":{"radius":448000.0}}'}
         # pending 'construction of GeographicItem.within_radius_of_object'
@@ -54,6 +56,33 @@ describe Tasks::Gis::MatchGeoreferenceController, type: :controller do
           get :filtered_georeferences, {any_label_text: 'ZeroSum Game'}
           expect(assigns(:georeferences).to_a).to be_empty
         end
+      end
+    end
+
+    context 'GET tagged_collecting_events' do
+      let(:cvt0) { FactoryGirl.build(:controlled_vocabulary_term, {type:       'Keyword',
+                                                                   name:       'first collecting event',
+                                                                   definition: 'tag for first ce'}) }
+      let(:tag0) { Tag.new(keyword_id: cvt0.id) }
+      before(:each) {
+        sign_in
+        [cvt0, tag0].map(&:save)
+        @ce_p0.tags << tag0
+        @ce_p0.save
+        @gr00.tags << tag0
+        @gr10.tags << tag0
+        [@gr00, @gr10].map(&:save)
+      }
+
+      it 'finds a tagged collecting event' do
+        get :tagged_collecting_events, {keyword_id: cvt0.id}
+        expect(assigns(:collecting_events)).to contain_exactly(@ce_p0)
+      end
+
+      it 'finds a tagged georeference' do
+        pending 'finding a tagged georeference'
+        get :tagged_georeferences, {keyword_id: cvt0.id}
+        expect(assigns(:georeferences)).to contain_exactly(@gr00, @gr10)
       end
     end
   end
