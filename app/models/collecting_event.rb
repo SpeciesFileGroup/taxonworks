@@ -638,8 +638,8 @@ TODO: @mjy: please fill in any other paths you can think of for the acquisition 
   # @return [Scope] of selected collecting_events
   def self.filter(params)
 
-    if params.blank? # for now, this will prevent this function from interfering
-      sql_string          = date_sql_from_params(params)
+    unless params.blank? # not strictly necessary, but handy for debugging
+      sql_string          = Utilities::Dates.date_sql_from_params(params)
 
       # processing text data
       v_locality_fragment = params['verbatim_locality_text']

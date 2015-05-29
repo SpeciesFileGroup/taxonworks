@@ -12,40 +12,40 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
     @motion            = 'filtered_collecting_events'
     message            = ''
     prefix             = ''
-    @collecting_events = [] # not strictly necessary, but makes testing easier
+    @collecting_events = CollectingEvent.filter(params) #
 
-    sql_string          = date_sql_from_params(params)
-
-    # processing text data
-    v_locality_fragment = params['verbatim_locality_text']
-    any_label_fragment  = params['any_label_text']
-    id_fragment         = params['identifier_text']
-
-    unless v_locality_fragment.blank?
-      unless sql_string.blank?
-        prefix = ' and '
-      end
-      sql_string += "#{ prefix }verbatim_locality ilike '%#{v_locality_fragment}%'"
-    end
-    unless any_label_fragment.blank?
-      unless sql_string.blank?
-        prefix = 'and '
-      end
-      sql_string += "#{ prefix }(verbatim_label ilike '%#{any_label_fragment}%'"
-      sql_string += " or print_label ilike '%#{any_label_fragment}%'"
-      sql_string += " or document_label ilike '%#{any_label_fragment}%'"
-      sql_string += ')'
-    end
-
-    unless id_fragment.blank?
-
-    end
-
-    # find the records
-    unless sql_string.blank?
-      @collecting_events = CollectingEvent.where(sql_string).uniq
-    end
-
+    # sql_string          = Utilities::Dates.date_sql_from_params(params)
+    #
+    # # processing text data
+    # v_locality_fragment = params['verbatim_locality_text']
+    # any_label_fragment  = params['any_label_text']
+    # id_fragment         = params['identifier_text']
+    #
+    # unless v_locality_fragment.blank?
+    #   unless sql_string.blank?
+    #     prefix = ' and '
+    #   end
+    #   sql_string += "#{ prefix }verbatim_locality ilike '%#{v_locality_fragment}%'"
+    # end
+    # unless any_label_fragment.blank?
+    #   unless sql_string.blank?
+    #     prefix = 'and '
+    #   end
+    #   sql_string += "#{ prefix }(verbatim_label ilike '%#{any_label_fragment}%'"
+    #   sql_string += " or print_label ilike '%#{any_label_fragment}%'"
+    #   sql_string += " or document_label ilike '%#{any_label_fragment}%'"
+    #   sql_string += ')'
+    # end
+    #
+    # unless id_fragment.blank?
+    #
+    # end
+    #
+    # # find the records
+    # unless sql_string.blank?
+    #   @collecting_events = CollectingEvent.where(sql_string).uniq
+    # end
+    #
     if @collecting_events.length == 0
       message = 'no collecting events selected'
     end
@@ -135,7 +135,7 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
       when 'polygon'
         @georeferences = GeographicItem.are_contained_in_wkt('any', geometry).map(&:georeferences).uniq.flatten
       else
-        @georeferences = []
+        @georeferences = Georeference.where('false')
     end
 
 
@@ -212,7 +212,7 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
                                motion:        @motion})
   end
 
-  def add_st_year(sql, st_year)
+  def not_add_st_year(sql, st_year)
     unless st_year.blank?
       unless sql.blank?
         prefix = ' and '
@@ -222,7 +222,7 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
     sql
   end
 
-  def add_st_month(sql, st_month)
+  def not_add_st_month(sql, st_month)
     unless st_month.blank?
       unless sql.blank?
         prefix = ' and '
@@ -232,7 +232,7 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
     sql
   end
 
-  def add_st_day(sql, st_day)
+  def not_add_st_day(sql, st_day)
     unless st_day.blank?
       unless sql.blank?
         prefix = ' and '
@@ -242,7 +242,7 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
     sql
   end
 
-  def fix_time(year, month, day)
+  def not_fix_time(year, month, day)
     start = Time.new(1970, 1, 1)
     if year.blank?
       year = start.year
@@ -258,7 +258,7 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
 
   # @return [String] of sql to test dates
   # @param [Hash] params
-  def date_sql_from_params(params)
+  def not_date_sql_from_params(params)
     st_date, end_date         = params['st_datepicker'], params['en_datepicker']
 # processing start date data
     st_year, st_month, st_day = params['start_date_year'], params['start_date_month'], params['start_date_day']

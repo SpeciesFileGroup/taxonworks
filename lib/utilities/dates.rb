@@ -79,65 +79,9 @@ module Utilities::Dates
     date_string
   end
 
-  # @param [String] sql
-  # @param [Integer] st_year
-  # @return [String] of sql
-  def add_st_year(sql, st_year)
-    unless st_year.blank?
-      unless sql.blank?
-        prefix = ' and '
-      end
-      sql += "#{prefix}(start_date_year = #{st_year})"
-    end
-    sql
-  end
-
-  # @param [String] sql
-  # @param [Integer] st_month
-  # @return [String] of sql
-  def add_st_month(sql, st_month)
-    unless st_month.blank?
-      unless sql.blank?
-        prefix = ' and '
-      end
-      sql += "#{prefix}(start_date_month = #{st_month})"
-    end
-    sql
-  end
-
-  # @param [String] sql
-  # @param [Integer] st_day
-  # @return [String] of sql
-  def add_st_day(sql, st_day)
-    unless st_day.blank?
-      unless sql.blank?
-        prefix = ' and '
-      end
-      sql += "#{prefix}(start_date_day = #{st_day})"
-    end
-    sql
-  end
-
-  # @param [Integer] year
-  # @param [Integer] month
-  # @param [Integer] day
-  # @return [Time]
-  def fix_time(year, month, day)
-    start = Time.new(1970, 1, 1)
-    if year.blank?
-      year = start.year
-    end
-    if month.blank?
-      month = start.month
-    end
-    if day.blank?
-      day = start.day
-    end
-    Time.new(year, month, day)
-  end
-
   # @return [String] of sql to test dates
   # @param [Hash] params
+  # TODO: still needs more work for some date combinations
   def self.date_sql_from_params(params)
     st_date, end_date         = params['st_datepicker'], params['en_datepicker']
 # processing start date data
@@ -152,7 +96,7 @@ module Utilities::Dates
     st_blank                     = (st_year.blank? and st_month.blank? and st_day.blank?)
     st_full                      = (!st_year.blank? and !st_month.blank? and !st_day.blank?)
     st_partial                   = (!st_blank and (st_year.blank? or st_month.blank? or st_day.blank?))
-    start_time                   = fix_time(st_year, st_month, st_day) if st_full
+# start_time                   = fix_time(st_year, st_month, st_day) if st_full
 
 # processing end date data
     end_year, end_month, end_day = params['end_date_year'], params['end_date_month'], params['end_date_day']
@@ -166,9 +110,9 @@ module Utilities::Dates
     end_blank   = (end_year.blank? and end_month.blank? and end_day.blank?)
     end_full    = (!end_year.blank? and !end_month.blank? and !end_day.blank?)
     end_partial = (!end_blank and (end_year.blank? or end_month.blank? or end_day.blank?))
-    end_time    = fix_time(end_year, end_month, end_day) if end_full
+# end_time    = fix_time(end_year, end_month, end_day) if end_full
 
-    sql_string = ''
+    sql_string  = ''
 # if all the date information is blank, skip the date testing
     unless st_blank and end_blank
       # only start and end year
@@ -219,6 +163,65 @@ module Utilities::Dates
     m       = ("%02d" % minute) if minute
     s       = ("%02d" % second) if second
     [h, m, s].compact.join(":")
+  end
+
+  private_class_method
+
+  # @param [String] sql
+  # @param [Integer] st_year
+  # @return [String] of sql
+  def self.add_st_year(sql, st_year)
+    unless st_year.blank?
+      unless sql.blank?
+        prefix = ' and '
+      end
+      sql += "#{prefix}(start_date_year = #{st_year})"
+    end
+    sql
+  end
+
+  # @param [String] sql
+  # @param [Integer] st_month
+  # @return [String] of sql
+  def self.add_st_month(sql, st_month)
+    unless st_month.blank?
+      unless sql.blank?
+        prefix = ' and '
+      end
+      sql += "#{prefix}(start_date_month = #{st_month})"
+    end
+    sql
+  end
+
+  # @param [String] sql
+  # @param [Integer] st_day
+  # @return [String] of sql
+  def self.add_st_day(sql, st_day)
+    unless st_day.blank?
+      unless sql.blank?
+        prefix = ' and '
+      end
+      sql += "#{prefix}(start_date_day = #{st_day})"
+    end
+    sql
+  end
+
+  # @param [Integer] year
+  # @param [Integer] month
+  # @param [Integer] day
+  # @return [Time]
+  def self.fix_time(year, month, day)
+    start = Time.new(1970, 1, 1)
+    if year.blank?
+      year = start.year
+    end
+    if month.blank?
+      month = start.month
+    end
+    if day.blank?
+      day = start.day
+    end
+    Time.new(year, month, day)
   end
 
 end
