@@ -85,8 +85,9 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
   end
 
   def filtered_georeferences
-    @motion            = 'filtered_georeference'
-    @collecting_events = [] # replace [] with CollectingEvent.filter(params)
+    @motion        = 'filtered_georeference'
+    message        = ''
+    @georeferences = Georeference.filter(params)
     render_ce_select_json(message)
   end
 

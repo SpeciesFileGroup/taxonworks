@@ -28,7 +28,6 @@ describe Georeference, type: :model, group: :geo do
     CollectingEvent.new(verbatim_locality: 'without geographic area')
   }
 
-
   let!(:gagi) { GeographicAreasGeographicItem.create(geographic_item: item_d, geographic_area: g_a) }
 
   context 'associations' do

@@ -1,5 +1,5 @@
 require 'rails_helper'
-require_relative '../support/geo/geo'
+require_relative '../support/geo/build_rspec_geo'
 
 # include the subclasses, perhaps move this out
 Dir[Rails.root.to_s + '/app/models/geographic_item/**/*.rb'].each { |file| require_dependency file }

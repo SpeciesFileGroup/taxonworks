@@ -35,6 +35,27 @@ describe Tasks::Gis::MatchGeoreferenceController, type: :controller do
         expect(assigns(:georeferences).to_a).to contain_exactly(@gr05, @gr06, @gr07, @gr08, @gr09)
       end
     end
+
+    context 'GET filtered_georeferences' do
+      context 'inclusion' do
+        it 'finds one georeference through filtering collecing events labels' do
+          get :filtered_georeferences, {any_label_text: 'ce_a'}
+          expect(assigns(:georeferences).to_a).to contain_exactly(@gr_area_d)
+        end
+
+        it 'finds multiple georeferences through filtering collecing events labels' do
+          get :filtered_georeferences, {any_label_text: 'ce_p2 collect_'}
+          expect(assigns(:georeferences).to_a).to contain_exactly(@gr02, @gr121, @gr122)
+        end
+      end
+
+      context 'exclusion' do
+        it 'does no find any if none exist' do
+          get :filtered_georeferences, {any_label_text: 'ZeroSum Game'}
+          expect(assigns(:georeferences).to_a).to be_empty
+        end
+      end
+    end
   end
 
   context 'GET filtered_collecting_events' do
@@ -238,4 +259,5 @@ describe Tasks::Gis::MatchGeoreferenceController, type: :controller do
       end
     end
   end
+
 end

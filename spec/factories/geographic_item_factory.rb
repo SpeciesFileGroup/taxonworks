@@ -1,4 +1,4 @@
-require_relative '../support/geo/geo'
+require_relative '../support/geo/build_rspec_geo'
 FactoryGirl.define do
 
   minLat = -85
