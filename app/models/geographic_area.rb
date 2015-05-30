@@ -184,7 +184,7 @@ class GeographicArea < ActiveRecord::Base
   def self.are_contained_in(geographic_area)
     pieces = nil
     if geographic_area.geographic_items.any?
-      pieces = GeographicItem.are_contained_in('any_poly', geographic_area.geo_object)
+      pieces = GeographicItem.are_contained_in_item('any_poly', geographic_area.geo_object)
       others = []
       pieces.each { |other|
         others.push(other.geographic_areas.to_a)

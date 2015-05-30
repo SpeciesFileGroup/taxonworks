@@ -516,6 +516,8 @@ class TaxonName < ActiveRecord::Base
 
         dependants.push(self)
         classified_as_relationships = TaxonNameRelationship.where_object_is_taxon_name(self).with_type_contains('SourceClassifiedAs')
+        hybrid_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('Hybrid')
+
         unless dependants.empty?
           dependants.each do |i|
             i.update_columns(cached: i.get_full_name,
@@ -527,7 +529,6 @@ class TaxonName < ActiveRecord::Base
           end
         end
 
-        # this seems to be duplicated code with 
         unless original_combination_relationships.empty?
           related_taxa = original_combination_relationships.collect{|i| i.object_taxon_name}.uniq
           related_taxa.each do |i|
@@ -542,6 +543,13 @@ class TaxonName < ActiveRecord::Base
           end
         end
 
+        unless hybrid_relationships.empty?
+          related_taxa = classified_as_relationships.collect{|i| i.object_taxon_name}.uniq
+          related_taxa.each do |i|
+            i.update_columns(cached: i.get_full_name,
+                             cached_html: i.get_full_name_html)
+          end
+        end
       end
       rescue
     end
@@ -676,7 +684,8 @@ class TaxonName < ActiveRecord::Base
     html = elements.flatten.compact.join(' ').gsub(/\(\s*\)/, '').gsub(/\(\s/, '(').gsub(/\s\)/, ')').squish.gsub(' [sic]', ec + ' [sic]' + eo).gsub(ec + ' ' + eo, ' ').gsub(eo + ec, '').gsub(eo + ' ', ' ' + eo)
     html = self.fossil? ? '&#8224; ' + html : html
 
-    # Proceps: Why would this be hit here?  It's not type Hybrid 
+    # Proceps: Why would this be hit here?  It's not type Hybrid
+    #
     html = self.hybrid? ? '&#215; ' + html : html
     html
   end
@@ -1224,6 +1233,10 @@ class TaxonName < ActiveRecord::Base
 
   def sv_combination_duplicates
     true # see validation in Combination.rb
+  end
+
+  def sv_hybrid_name_relationships
+    true # see validation in Hybrid.rb
   end
 
   #endregion

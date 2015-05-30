@@ -45,8 +45,7 @@ module ControllerSpecHelper
 
     administrator = User.create!(name: 'Pat the Administrator', email: 'administrator@example.com', password: pwd, password_confirmation: pwd, is_administrator: true, self_created: true)
 
-    project = Project.create!(name: 'My Project', creator: administrator, updater: administrator, without_root_taxon_name: true)
-    project.project_members.create!(creator: administrator, updater: administrator, user: user, is_project_administrator: true) 
+    Project.find(1).project_members.create!(creator: administrator, updater: administrator, user: user, is_project_administrator: true) 
 
     set_user_project(user.id, 1)
   end
@@ -54,8 +53,8 @@ module ControllerSpecHelper
   # We do this to handle the pre-request stubbing of objects in controllers. 
   # It mocks the behaviour of having accessed at least one page post login. 
   def set_user_project(user_id, project_id)
-    $user_id ||= user_id
-    $project_id ||= project_id
+    $user_id = user_id
+    $project_id = project_id
   end
 
   # Sign in user 1, but do not set project

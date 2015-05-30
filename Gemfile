@@ -102,7 +102,7 @@ group :development do
   gem 'binding_of_caller'
   gem 'spring-commands-rspec', '~> 1.0.2'
   gem 'guard-rspec', '~> 4.5', require: false
-
+  gem 'parallel_tests'
 end
 
 group :doc do

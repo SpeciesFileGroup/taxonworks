@@ -295,19 +295,15 @@ describe TaxonName, :type => :model do
             sp.reload
             expect(sp.get_full_name_html).to eq('&#8224; <em>Erythroneura vitis</em>')
             expect(sp.cached_html).to eq('&#8224; <em>Erythroneura vitis</em>')
+            expect(sp.cached).to eq('Erythroneura vitis')
           end
 
           specify 'hybrid' do
             sp = FactoryGirl.create(:relationship_species, parent: @genus)
             c = FactoryGirl.create(:taxon_name_classification, taxon_name: sp, type: 'TaxonNameClassification::Icn::Hybrid')
             sp.reload
-            
-            # get_full_name_html is used to populate cached_html, they should be the same 
-            expect(sp.get_full_name_html).to eq('&#215; <em>Erythroneura vitis</em>')
             expect(sp.cached_html).to eq('&#215; <em>Erythroneura vitis</em>')
-
-            # This is different
-            expect(sp.cached).to eq('x Erythroneura vitis')
+            expect(sp.cached).to eq('Erythroneura vitis')
           end
 
           specify 'ICZN subspecies' do

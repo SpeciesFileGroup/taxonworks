@@ -12,40 +12,40 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
     @motion            = 'filtered_collecting_events'
     message            = ''
     prefix             = ''
-    @collecting_events = [] # not strictly necessary, but makes testing easier
+    @collecting_events = CollectingEvent.filter(params) #
 
-    sql_string          = date_sql_from_params(params)
-
-    # processing text data
-    v_locality_fragment = params['verbatim_locality_text']
-    any_label_fragment  = params['any_label_text']
-    id_fragment         = params['identifier_text']
-
-    unless v_locality_fragment.blank?
-      unless sql_string.blank?
-        prefix = ' and '
-      end
-      sql_string += "#{ prefix }verbatim_locality ilike '%#{v_locality_fragment}%'"
-    end
-    unless any_label_fragment.blank?
-      unless sql_string.blank?
-        prefix = 'and '
-      end
-      sql_string += "#{ prefix }(verbatim_label ilike '%#{any_label_fragment}%'"
-      sql_string += " or print_label ilike '%#{any_label_fragment}%'"
-      sql_string += " or document_label ilike '%#{any_label_fragment}%'"
-      sql_string += ')'
-    end
-
-    unless id_fragment.blank?
-
-    end
-
-    # find the records
-    unless sql_string.blank?
-      @collecting_events = CollectingEvent.where(sql_string).uniq
-    end
-
+    # sql_string          = Utilities::Dates.date_sql_from_params(params)
+    #
+    # # processing text data
+    # v_locality_fragment = params['verbatim_locality_text']
+    # any_label_fragment  = params['any_label_text']
+    # id_fragment         = params['identifier_text']
+    #
+    # unless v_locality_fragment.blank?
+    #   unless sql_string.blank?
+    #     prefix = ' and '
+    #   end
+    #   sql_string += "#{ prefix }verbatim_locality ilike '%#{v_locality_fragment}%'"
+    # end
+    # unless any_label_fragment.blank?
+    #   unless sql_string.blank?
+    #     prefix = 'and '
+    #   end
+    #   sql_string += "#{ prefix }(verbatim_label ilike '%#{any_label_fragment}%'"
+    #   sql_string += " or print_label ilike '%#{any_label_fragment}%'"
+    #   sql_string += " or document_label ilike '%#{any_label_fragment}%'"
+    #   sql_string += ')'
+    # end
+    #
+    # unless id_fragment.blank?
+    #
+    # end
+    #
+    # # find the records
+    # unless sql_string.blank?
+    #   @collecting_events = CollectingEvent.where(sql_string).uniq
+    # end
+    #
     if @collecting_events.length == 0
       message = 'no collecting events selected'
     end
@@ -85,8 +85,9 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
   end
 
   def filtered_georeferences
-    @motion            = 'filtered_georeference'
-    @collecting_events = [] # replace [] with CollectingEvent.filter(params)
+    @motion        = 'filtered_georeference'
+    message        = ''
+    @georeferences = Georeference.filter(params)
     render_ce_select_json(message)
   end
 
@@ -112,22 +113,41 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
       message        = 'no tagged objects selected'
     else
       keyword        = Keyword.find(params[:keyword_id])
-      @georeferences = CollectingEvent.where(project_id: $project_id).order(updated_at: :desc).tagged_with_keyword(keyword).map(&:georeferences).to_a.flatten
+      @georeferences = Georeference.where(project_id: $project_id).order(updated_at: :desc).tagged_with_keyword(keyword)
     end
     render_gr_select_json(message)
   end
 
   def drawn_georeferences
     @motion        = 'drawn_georeferences'
-    message        = 'I got here'
+    message        = ''
     @georeferences = [] # replace [] with CollectingEvent.filter(params)
-    # fake data for connectivity testing
-    keyword = Keyword.find('1')   # Urbania
-    @georeferences = CollectingEvent.where(project_id: $project_id).order(updated_at: :desc).tagged_with_keyword(keyword).map(&:georeferences).to_a.flatten
-    keyword = ''
-    # receive shape from form:  polygon or circle
-    # create georeference object instance to match against?
-    # compare with asserted distributions code
+    value          = params['geographic_item_attributes_shape']
+    feature        = RGeo::GeoJSON.decode(value, :json_parser => :json)
+    # isolate the WKT
+    geometry       = feature.geometry
+    this_type      = geometry.geometry_type.to_s.downcase
+    geometry       = geometry.as_text
+    # pieces         = JSON.parse(value)
+    radius         = feature['radius']
+    case this_type
+      when 'point'
+        @georeferences = GeographicItem.within_radius_of_wkt('any', geometry, radius).map(&:georeferences).uniq.flatten
+      when 'polygon'
+        @georeferences = GeographicItem.are_contained_in_wkt('any', geometry).map(&:georeferences).uniq.flatten
+      else
+        @georeferences = Georeference.where('false')
+    end
+
+
+    # boundary       = GeographicItem.new
+    # boundary.shape = params['geographic_item_attributes_shape']
+
+    # receive shape from form:  polygon or circle, in 'geographic_item_attributes_shape'
+    # create geographic_item object instance to match against?
+
+    # @georeferences = GeographicItem.where('ST_contains()')
+    # @georeferences =GeographicItem.are_contained_in('point', boundary)
     render_gr_select_json(message)
   end
 
@@ -157,8 +177,8 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
         )
 
         render json: {message: '',
-                      html: html
-                          }
+                      html:    html
+               }
         # render json: {message: '',
         #               html:    results}
       }
@@ -176,8 +196,7 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
   # @param [String] message to be conveyed to client side
   # @return [JSON] with html for georeferences display (feature collection)
   def render_gr_select_json(message)
-    retval = render json: {message: message, html: gr_render_to_html}
-    retval
+    render json: {message: message, html: gr_render_to_html}
   end
 
   # @return [String] of html for partial
@@ -194,7 +213,7 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
                                motion:        @motion})
   end
 
-  def add_st_year(sql, st_year)
+  def not_add_st_year(sql, st_year)
     unless st_year.blank?
       unless sql.blank?
         prefix = ' and '
@@ -204,7 +223,7 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
     sql
   end
 
-  def add_st_month(sql, st_month)
+  def not_add_st_month(sql, st_month)
     unless st_month.blank?
       unless sql.blank?
         prefix = ' and '
@@ -214,7 +233,7 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
     sql
   end
 
-  def add_st_day(sql, st_day)
+  def not_add_st_day(sql, st_day)
     unless st_day.blank?
       unless sql.blank?
         prefix = ' and '
@@ -224,7 +243,7 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
     sql
   end
 
-  def fix_time(year, month, day)
+  def not_fix_time(year, month, day)
     start = Time.new(1970, 1, 1)
     if year.blank?
       year = start.year
@@ -240,7 +259,7 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
 
   # @return [String] of sql to test dates
   # @param [Hash] params
-  def date_sql_from_params(params)
+  def not_date_sql_from_params(params)
     st_date, end_date         = params['st_datepicker'], params['en_datepicker']
 # processing start date data
     st_year, st_month, st_day = params['start_date_year'], params['start_date_month'], params['start_date_day']

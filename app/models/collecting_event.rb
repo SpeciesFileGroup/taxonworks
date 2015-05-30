@@ -181,12 +181,12 @@ class CollectingEvent < ActiveRecord::Base
 
   # TODO: these are just simple integer validations now, fix!
   validates :start_date_month,
-    numericality: { only_integer: true, greater_than: 0, less_than: 13},
-    unless: 'start_date_month.blank?'
+            numericality: {only_integer: true, greater_than: 0, less_than: 13},
+            unless:       'start_date_month.blank?'
 
   validates :end_date_month,
-    numericality: { only_integer: true, greater_than: 0, less_than: 13},
-    unless: 'end_date_month.blank?'
+            numericality: {only_integer: true, greater_than: 0, less_than: 13},
+            unless:       'end_date_month.blank?'
 
   validates_presence_of :start_date_month,
                         if: '!start_date_day.nil?'
@@ -213,7 +213,6 @@ class CollectingEvent < ActiveRecord::Base
 
   soft_validate(:sv_minimally_check_for_a_label)
 
- 
 
   # @param [String]
   def verbatim_label=(value)
@@ -332,7 +331,7 @@ class CollectingEvent < ActiveRecord::Base
     # starting with self, find all (other) CEs which have GIs or EGIs (through georeferences) which are within a
     # specific distance (in meters)
     gi     = geographic_items.first
-    pieces = GeographicItem.joins(:georeferences).within_radius_of('any', gi, distance)
+    pieces = GeographicItem.joins(:georeferences).within_radius_of_item('any', gi, distance)
 
     ce = []
     pieces.each { |o|
@@ -412,11 +411,11 @@ class CollectingEvent < ActiveRecord::Base
       # use geographic_area only if there are no GIs or EGIs
       unless self.geographic_area.nil?
         # we need to use the geographic_area directly
-        gi_list << GeographicItem.are_contained_in('any', self.geographic_area.geographic_items)
+        gi_list << GeographicItem.are_contained_in_item('any', self.geographic_area.geographic_items)
       end
     else
       # gather all the GIs which contain this GI or EGI
-      gi_list << GeographicItem.are_contained_in('any', self.geographic_items.to_a + self.error_geographic_items.to_a)
+      gi_list << GeographicItem.are_contained_in_item('any', self.geographic_items.to_a + self.error_geographic_items.to_a)
     end
 
     # there are a few ways we can end up with no GIs
@@ -634,6 +633,49 @@ TODO: @mjy: please fill in any other paths you can think of for the acquisition 
 
 
   # class methods
+
+  # @param [Array] of parameters in the style of 'params'
+  # @return [Scope] of selected collecting_events
+  def self.filter(params)
+
+    unless params.blank? # not strictly necessary, but handy for debugging
+      sql_string          = Utilities::Dates.date_sql_from_params(params)
+
+      # processing text data
+      v_locality_fragment = params['verbatim_locality_text']
+      any_label_fragment  = params['any_label_text']
+      id_fragment         = params['identifier_text']
+
+      unless v_locality_fragment.blank?
+        unless sql_string.blank?
+          prefix = ' and '
+        end
+        sql_string += "#{ prefix }verbatim_locality ilike '%#{v_locality_fragment}%'"
+      end
+      unless any_label_fragment.blank?
+        unless sql_string.blank?
+          prefix = 'and '
+        end
+        sql_string += "#{ prefix }(verbatim_label ilike '%#{any_label_fragment}%'"
+        sql_string += " or print_label ilike '%#{any_label_fragment}%'"
+        sql_string += " or document_label ilike '%#{any_label_fragment}%'"
+        sql_string += ')'
+      end
+
+      unless id_fragment.blank?
+        #   TODO: this still needs to be dealt with
+      end
+
+    end
+    # find the records
+    if sql_string.blank?
+      collecting_events = CollectingEvent.where('false')
+    else
+      collecting_events = CollectingEvent.where(sql_string).uniq
+    end
+
+    collecting_events
+  end
 
   # @param geographic_item [GeographicItem]
   # @return [Scope]
