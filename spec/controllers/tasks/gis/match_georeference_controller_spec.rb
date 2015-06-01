@@ -16,8 +16,8 @@ describe Tasks::Gis::MatchGeoreferenceController, type: :controller do
     after(:all) {
       clean_slate_geo
     }
-    context "GET index" do
-      it "returns http success" do
+    context 'GET index' do
+      it 'returns http success' do
         # pending 'proper specification of the route'
         get :index
         expect(response).to have_http_status(:success)
@@ -60,27 +60,29 @@ describe Tasks::Gis::MatchGeoreferenceController, type: :controller do
     end
 
     context 'GET tagged_collecting_events' do
-      let(:cvt0) { FactoryGirl.build(:controlled_vocabulary_term, {type:       'Keyword',
+      let(:cvt0) { FactoryGirl.create(:controlled_vocabulary_term, {type:       'Keyword',
                                                                    name:       'first collecting event',
                                                                    definition: 'tag for first ce'}) }
       let(:tag0) { Tag.new(keyword_id: cvt0.id) }
+      let(:tag1) { Tag.new(keyword_id: cvt0.id) }
+      let(:tag2) { Tag.new(keyword_id: cvt0.id) }
       before(:each) {
         sign_in
-        [cvt0, tag0].map(&:save)
+        # [tag0, tag1, tag2].map(&:save)
         @ce_p0.tags << tag0
-        @gr00.tags << tag0
-        @gr10.tags << tag0
-        [@ce_p0, @gr00, @gr10].map(&:save)
+        @gr00.tags << tag1
+        @gr10.tags << tag2
+        # [@ce_p0, @gr00, @gr10].map(&:save)
       }
 
       it 'finds a tagged collecting event' do
         get :tagged_collecting_events, {keyword_id: cvt0.id}
-        pending 'finding a tagged collecting event'
+        # pending 'finding a tagged collecting event'
         expect(assigns(:collecting_events)).to contain_exactly(@ce_p0)
       end
 
       it 'finds a tagged georeference' do
-        pending 'finding a tagged georeference'
+        # pending 'finding a tagged georeference'
         get :tagged_georeferences, {keyword_id: cvt0.id}
         expect(assigns(:georeferences)).to contain_exactly(@gr00, @gr10)
       end
