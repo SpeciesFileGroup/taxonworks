@@ -83,12 +83,12 @@ class GeographicItem < ActiveRecord::Base
     g2               = georeferences.alias('b')
 
     c = geographic_items.join(g1, Arel::Nodes::OuterJoin).on(geographic_items[:id].eq(g1[:geographic_item_id])).
-        join(g2, Arel::Nodes::OuterJoin).on(geographic_items[:id].eq(g2[:error_geographic_item_id]))
+      join(g2, Arel::Nodes::OuterJoin).on(geographic_items[:id].eq(g2[:error_geographic_item_id]))
 
     GeographicItem.joins(# turn the Arel back into scope
-        c.join_sources # translate the Arel join to a join hash(?)
+      c.join_sources # translate the Arel join to a join hash(?)
     ).where(
-        g1[:id].not_eq(nil).or(g2[:id].not_eq(nil)) # returns a Arel::Nodes::Grouping
+      g1[:id].not_eq(nil).or(g2[:id].not_eq(nil)) # returns a Arel::Nodes::Grouping
     ).distinct
   end
 
@@ -276,15 +276,17 @@ SELECT round(CAST(
     end
   end # class << self
 
-  # @param [String, GeographicItem, Double]
-  # @return [Scope]
-  #   distance is measured in meters
-  def self.within_radius_of(column_name, geographic_item, distance) # ultimately it should be geographic_item_id
+  #
+  # @param [String] column_name
+  # @param [GeographicItem] geographic_item
+  # @param [Float] distance is measured in meters
+  # @return [ActiveRecord::Relation]
+  def self.within_radius_of_item(column_name, geographic_item, distance) # ultimately it should be geographic_item_id
     if column_name.downcase == 'any'
       pieces = []
 
       DATA_TYPES.each { |column|
-        pieces.push(GeographicItem.within_radius_of("#{column}", geographic_item, distance))
+        pieces.push(GeographicItem.within_radius_of_item("#{column}", geographic_item, distance))
       }
 
       GeographicItem.where(id: pieces.flatten.map(&:id))
@@ -294,6 +296,33 @@ SELECT round(CAST(
       else
         where("false")
       end
+    end
+  end
+
+  # @param [String] column_name
+  # @param [GeographicItem] geographic_item
+  # @param [Float] distance is measured in meters
+  # @return [ActiveRecord::Relation]
+  def self.within_radius_of_wkt(column_name, geometry, distance)
+    if column_name.downcase == 'any'
+      pieces = []
+
+      DATA_TYPES.each { |column|
+        unless column == :geometry_collection
+          pieces.push(GeographicItem.within_radius_of_wkt("#{column}", geometry, distance).pluck(:id).to_a)
+        end
+      }
+
+      GeographicItem.where(id: pieces.flatten)
+    else
+      # q = "ST_Distance(#{column_name}, ST_GeogFromText('srid=4326;#{geometry}')) < #{distance}"
+      # NOTO BENNY:
+      # Since we are using geometries here, and NOT geographies, the distance (in meters)
+      # has to be converted to degrees (Spatial Reference System units for geometries)
+      # by dividing the Spatial Reference System unit (degrees) by meters/degree
+      # This won't work that well near the poles (Stay out of PoLand)
+      q = "ST_Contains(ST_Buffer(ST_GeomFromEWKT('srid=4326;#{geometry}'), #{distance / 111319.444444444}), #{column_name}::geometry)"
+      where(q)
     end
   end
 
@@ -322,14 +351,14 @@ SELECT round(CAST(
   # If this scope is given an Array of GeographicItems as a second parameter,
   # it will return the 'or' of each of the objects against the table.
   # SELECT COUNT(*) FROM "geographic_items"  WHERE (ST_Contains(polygon::geometry, GeomFromEWKT('srid=4326;POINT (0.0 0.0 0.0)')) or ST_Contains(polygon::geometry, GeomFromEWKT('srid=4326;POINT (-9.8 5.0 0.0)')))
-  def self.are_contained_in(column_name, *geographic_items)
+  def self.are_contained_in_item(column_name, *geographic_items)
     column_name.downcase!
     case column_name
       when 'any'
         part = []
         DATA_TYPES.each { |column|
           unless column == :geometry_collection
-            part.push(GeographicItem.are_contained_in("#{column}", geographic_items).to_a)
+            part.push(GeographicItem.are_contained_in_item("#{column}", geographic_items).to_a)
           end
         }
         # todo: change 'id in (?)' to some other sql construct
@@ -338,7 +367,7 @@ SELECT round(CAST(
         part = []
         DATA_TYPES.each { |column|
           if column.to_s.index(column_name.gsub('any_', ''))
-            part.push(GeographicItem.are_contained_in("#{column}", geographic_items).to_a)
+            part.push(GeographicItem.are_contained_in_item("#{column}", geographic_items).to_a)
           end
         }
         # todo: change 'id in (?)' to some other sql construct
@@ -349,6 +378,41 @@ SELECT round(CAST(
         }.join(' or ')
         where(q) # .excluding(geographic_items)
     end
+  end
+
+  # @param [String] column_name
+  # @param [String] geometry of WKT
+  # @return [Scope]
+  # a single WKT geometry is compared against column or columns (except geometry_collection) to find geographic_items
+  # which are contained in the WKT
+  def self.are_contained_in_wkt(column_name, geometry)
+    column_name.downcase!
+    # column_name = 'point'
+    case column_name
+      when 'any'
+        part = []
+        DATA_TYPES.each { |column|
+          unless column == :geometry_collection
+            part.push(GeographicItem.are_contained_in_wkt("#{column}", geometry).pluck(:id).to_a)
+          end
+        }
+        # todo: change 'id in (?)' to some other sql construct
+        GeographicItem.where(id: part.flatten)
+      when 'any_poly', 'any_line'
+        part = []
+        DATA_TYPES.each { |column|
+          if column.to_s.index(column_name.gsub('any_', ''))
+            part.push(GeographicItem.are_contained_in_wkt("#{column}", geometry).pluck(:id).to_a)
+          end
+        }
+        # todo: change 'id in (?)' to some other sql construct
+        GeographicItem.where(id: part.flatten)
+      else
+        # column = points, geometry = square
+        q = "ST_Contains(ST_GeomFromEWKT('srid=4326;#{geometry}'), #{column_name}::geometry)"
+        where(q) # .excluding(geographic_items)
+    end
+
   end
 
   # @return [Scope]
@@ -404,8 +468,8 @@ SELECT round(CAST(
   def self.ordered_by_longest_distance_from(column_name, geographic_item)
     if check_geo_params(column_name, geographic_item)
       q = select_distance_with_geo_object(column_name, geographic_item).
-          where_distance_greater_than_zero(column_name, geographic_item).
-          order('distance desc')
+        where_distance_greater_than_zero(column_name, geographic_item).
+        order('distance desc')
       q
     else
       where ('false')
@@ -560,12 +624,12 @@ SELECT round(CAST(
   def to_geo_json_feature
     @geometry ||= to_geo_json
     {
-        'type'       => 'Feature',
-        'geometry'   => self.geometry,
-        'properties' => {
-            'geographic_item' => {
-                'id' => self.id}
-        }
+      'type'       => 'Feature',
+      'geometry'   => self.geometry,
+      'properties' => {
+        'geographic_item' => {
+          'id' => self.id}
+      }
     }
   end
 

@@ -28,7 +28,6 @@ describe Georeference, type: :model, group: :geo do
     CollectingEvent.new(verbatim_locality: 'without geographic area')
   }
 
-
   let!(:gagi) { GeographicAreasGeographicItem.create(geographic_item: item_d, geographic_area: g_a) }
 
   context 'associations' do
@@ -334,8 +333,8 @@ describe Georeference, type: :model, group: :geo do
     }
 
     specify '.within_radius_of(geographic_item, distance)' do
-      expect(Georeference).to respond_to :within_radius_of
-      expect(Georeference.within_radius_of(@gr_point.geographic_item, 112000).to_a).to eq([@gr_poly, @gr_point])
+      expect(Georeference).to respond_to :within_radius_of_item
+      expect(Georeference.within_radius_of_item(@gr_point.geographic_item, 112000).to_a).to eq([@gr_poly, @gr_point])
       # but specifically *not* @gr1
     end
 

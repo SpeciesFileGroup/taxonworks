@@ -50,6 +50,7 @@
 #
 class Georeference < ActiveRecord::Base
   include Housekeeping
+  include Shared::Taggable
   include Shared::IsData
 
   attr_accessor :iframe_response # used to pass the geolocate from Tulane through
@@ -81,68 +82,13 @@ class Georeference < ActiveRecord::Base
 
   accepts_nested_attributes_for :geographic_item, :error_geographic_item
 
-  # @param [GeographicItem, Double]
-  # @return [Scope] Georeferences
-  #   all Georeferences within some distance of a geographic_item
-  def self.within_radius_of(geographic_item, distance)
-    #.where{geographic_item_id in GeographicItem.within_radius_of('polygon', geographic_item, distance)}
-    # geographic_item may be a polygon, or a point
-
-    # TODO: Add different types of GeographicItems as we learn about why they are stored.
-    # types of GeographicItems about which we currently know:
-    # multipolygon  => stored through the NE/TDWG/GADM object load process
-    # polygon       => stored through the GeoLocate process
-    # point         => stored through the GeoLocate process
-    #
-    # TODO: or this with AREL
-    temp = GeographicItem.within_radius_of('multi_polygon', geographic_item, distance) +
-      GeographicItem.within_radius_of('polygon', geographic_item, distance) +
-      GeographicItem.within_radius_of('point', geographic_item, distance)
-
-    partials = GeographicItem.where('id in (?)', temp.map(&:id))
-
-    # the use of 'pluck(:id)' here, instead of 'map(&:id)' is because pluck instantiates just the ids,
-    # and not the entire record, the way map does. pluck is only available on ActiveRecord::Relation
-    # and related objects.
-    Georeference.where('geographic_item_id in (?)', partials.pluck(:id))
-  end
+  # instance methods
 
   # @return [String, nil]
   #   the underscored version of the type, e.g. Georeference::GoogleMap => 'google_map'
   def method_name
     return nil if type.blank?
     type.demodulize.underscore
-  end
-
-  # @param [String] locality string
-  # @return [Scope] Georeferences
-  #   all Georeferences which are attached to a CollectingEvent which has a verbatim_locality which
-  # includes String somewhere
-  # Joins collecting_event.rb and matches %String% against verbatim_locality
-  # .where(id in CollectingEvent.where{verbatim_locality like "%var%"})
-  def self.with_locality_like(string)
-    with_locality_as(string, true)
-  end
-
-  # @param [String] locality string
-  # @return [Scope] Georeferences
-  # return all Georeferences which are attached to a CollectingEvent which has a verbatim_locality which
-  # equals String somewhere
-  # Joins collecting_event.rb and matches %String% against verbatim_locality
-  # .where(id in CollectingEvent.where{verbatim_locality like "%var%"})
-  def self.with_locality(string)
-    with_locality_as(string, false)
-  end
-
-  # @param [GeographicArea]
-  # @return [Scope] Georeferences
-  # returns all georeferences which have collecting_events which have geographic_areas which match
-  # geographic_areas as a GeographicArea
-  # TODO: or, (in the future) a string matching a geographic_area.name
-  def self.with_geographic_area(geographic_area)
-    partials   = CollectingEvent.where(geographic_area: geographic_area)
-    partial_gr = Georeference.where('collecting_event_id in (?)', partials.pluck(:id))
-    partial_gr
   end
 
   # @return [GeographicItem]
@@ -196,6 +142,74 @@ class Georeference < ActiveRecord::Base
     retval
   end
 
+  # class methods
+
+  # @param [Array] of parameters in the style of 'params'
+  # @return [Scope] of selected georeferences
+  def self.filter(params)
+    collecting_events = CollectingEvent.filter(params)
+
+    georeferences = Georeference.where('collecting_event_id in (?)', collecting_events.pluck(:id))
+    georeferences
+  end
+
+  # @param [GeographicItem, Double]
+  # @return [Scope] Georeferences
+  #   all Georeferences within some distance of a geographic_item
+  def self.within_radius_of_item(geographic_item, distance)
+    #.where{geographic_item_id in GeographicItem.within_radius_of('polygon', geographic_item, distance)}
+    # geographic_item may be a polygon, or a point
+
+    # TODO: Add different types of GeographicItems as we learn about why they are stored.
+    # types of GeographicItems about which we currently know:
+    # multipolygon  => stored through the NE/TDWG/GADM object load process
+    # polygon       => stored through the GeoLocate process
+    # point         => stored through the GeoLocate process
+    #
+    # TODO: or this with AREL
+    temp = GeographicItem.within_radius_of_item('multi_polygon', geographic_item, distance) +
+      GeographicItem.within_radius_of_item('polygon', geographic_item, distance) +
+      GeographicItem.within_radius_of_item('point', geographic_item, distance)
+
+    partials = GeographicItem.where('id in (?)', temp.map(&:id))
+
+    # the use of 'pluck(:id)' here, instead of 'map(&:id)' is because pluck instantiates just the ids,
+    # and not the entire record, the way map does. pluck is only available on ActiveRecord::Relation
+    # and related objects.
+    Georeference.where('geographic_item_id in (?)', partials.pluck(:id))
+  end
+
+  # @param [String] locality string
+  # @return [Scope] Georeferences
+  #   all Georeferences which are attached to a CollectingEvent which has a verbatim_locality which
+  # includes String somewhere
+  # Joins collecting_event.rb and matches %String% against verbatim_locality
+  # .where(id in CollectingEvent.where{verbatim_locality like "%var%"})
+  def self.with_locality_like(string)
+    with_locality_as(string, true)
+  end
+
+  # @param [String] locality string
+  # @return [Scope] Georeferences
+  # return all Georeferences which are attached to a CollectingEvent which has a verbatim_locality which
+  # equals String somewhere
+  # Joins collecting_event.rb and matches %String% against verbatim_locality
+  # .where(id in CollectingEvent.where{verbatim_locality like "%var%"})
+  def self.with_locality(string)
+    with_locality_as(string, false)
+  end
+
+  # @param [GeographicArea]
+  # @return [Scope] Georeferences
+  # returns all georeferences which have collecting_events which have geographic_areas which match
+  # geographic_areas as a GeographicArea
+  # TODO: or, (in the future) a string matching a geographic_area.name
+  def self.with_geographic_area(geographic_area)
+    partials   = CollectingEvent.where(geographic_area: geographic_area)
+    partial_gr = Georeference.where('collecting_event_id in (?)', partials.pluck(:id))
+    partial_gr
+  end
+
   def self.generate_download(scope)
     CSV.generate do |csv|
       csv << column_names
@@ -210,7 +224,7 @@ class Georeference < ActiveRecord::Base
   # todo: not yet sure what the params are going to look like. what is below just represents a guess
   # @param [Hash] arguments from _collecting_event_selection form
   def self.batch_create_from_georeference_matcher(arguments)
-    gr                    = Georeference.find(arguments[:georeference_id].to_param)
+    gr = Georeference.find(arguments[:georeference_id].to_param)
 
     result = []
 
@@ -255,6 +269,8 @@ class Georeference < ActiveRecord::Base
     partial_gr = Georeference.where('collecting_event_id in (?)', partial_ce.pluck(:id))
     partial_gr
   end
+
+  # validation methods
 
   # @return [Boolean]
   #   true if geographic_item is completely contained in error_geographic_item
