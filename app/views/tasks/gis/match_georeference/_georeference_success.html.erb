@@ -10,7 +10,7 @@
         <% georeferences_results.each do  |g| %>
             <tr>
               <td>
-                <%= g.valid? ? link_to("show", g) : 'not saved'  %>
+                <%= g.valid? ? link_to("show", g.metamorphosize) : 'not saved'  %>
               </td>
               <td>
                 <%= g.valid? %>

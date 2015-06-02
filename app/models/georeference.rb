@@ -67,6 +67,7 @@ class Georeference < ActiveRecord::Base
   validates :type, presence: true
 
   validates_presence_of :geographic_item
+  validates_uniqueness_of :collecting_event_id, scope: [:type, :geographic_item_id, :project_id]
 
   # validate :proper_data_is_provided
   validate :add_error_radius

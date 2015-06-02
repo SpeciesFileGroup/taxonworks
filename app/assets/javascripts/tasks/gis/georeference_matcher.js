@@ -139,7 +139,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
 
       $("#create_georeferences").on("ajax:success", function (e, data, status, local_data) {
         $("#result_from_post").html(local_data.responseJSON['html']);
-        initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_selected_gr_form").data('feature-collection'));
+        //initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_selected_gr_form").data('feature-collection'));
       }
       )
         $("#_recent_ce_form").attr("hidden", true);

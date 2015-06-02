@@ -86,6 +86,7 @@ function get_window_center(bounds) {      // for use with home-brew geoJSON scan
     if ((xmaxm == -180.0) && (xminm == 0.0)) {    //if no points, null out the range for this hemisphere
       xmaxm = 0.0;
     }
+    // case of singleton poiint in either hemisphere not well treated below
     wm = xmaxm - xminm;    // width of western area, if present
     wp = xmaxp - xminp;    // width of eastern area, if present
     var xmm = xminm + 0.5 * wm;     // midpoint of west
