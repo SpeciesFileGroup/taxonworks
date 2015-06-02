@@ -14,7 +14,17 @@ class Georeference::GeoLocate < Georeference
   def iframe_response=(response_string)
     lat, long, error_radius, uncertainty_points = Georeference::GeoLocate.parse_iframe_result(response_string)
     make_geographic_item([long, lat])
-    make_error_geographic_item(uncertainty_points, error_radius)
+    if uncertainty_points.nil?
+      # make a circle from the geographic_item
+      value = GeographicItem.connection.select_all(
+        "SELECT ST_BUFFER('#{self.geographic_item.geo_object}', #{error_radius.to_f / 111319.444444444});").first['st_buffer']
+      circle = Gis::FACTORY.parse_wkb(value)
+      # make_error_geographic_item([[long, lat], [long, lat], [long, lat]], error_radius)
+      self.error_geographic_item = GeographicItem.new(polygon: circle)
+    else
+      make_error_geographic_item(uncertainty_points, error_radius)
+    end
+    self.geographic_item
   end
 
   def request_hash
@@ -66,9 +76,9 @@ class Georeference::GeoLocate < Georeference
   def self.parse_iframe_result(response_string)
     lat, long, error_radius, uncertainty_polygon = response_string.split("|")
     unless uncertainty_polygon.nil?
-      if uncertainty_polygon =~ /unavailable/i  # todo: there are many more possible error conditions
+      if uncertainty_polygon =~ /unavailable/i # todo: there are many more possible error conditions
         uncertainty_points = nil
-        else
+      else
         uncertainty_points = uncertainty_polygon.split(',').reverse.in_groups_of(2)
       end
     end

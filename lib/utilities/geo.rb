@@ -32,7 +32,8 @@ module Utilities::Geo
   # DEGREES_PER_RADIAN = 180.0/::Math::PI
 
 
-  ONE_WEST  = 111319.490779206 # meters/degree
+  # ONE_WEST  = 111319.490779206 # meters/degree
+  ONE_WEST  = 111319.444444444 # meters/degree (calculated mean)
   ONE_NORTH = 110574.38855796 # meters/degree
 
   class ConvertToDecimalDegrees
@@ -179,12 +180,12 @@ module Utilities::Geo
     delta_y = error_radius / ONE_NORTH
 
     Gis::FACTORY.polygon(Gis::FACTORY.line_string(
-                                    [Gis::FACTORY.point(p0.x - delta_x, p0.y + delta_y), # northwest
-                                     Gis::FACTORY.point(p0.x + delta_x, p0.y + delta_y), # northeast
-                                     Gis::FACTORY.point(p0.x + delta_x, p0.y - delta_y), # southeast
-                                     Gis::FACTORY.point(p0.x - delta_x, p0.y - delta_y) # southwest
-                                    ]
-                                  )
+                           [Gis::FACTORY.point(p0.x - delta_x, p0.y + delta_y), # northwest
+                            Gis::FACTORY.point(p0.x + delta_x, p0.y + delta_y), # northeast
+                            Gis::FACTORY.point(p0.x + delta_x, p0.y - delta_y), # southeast
+                            Gis::FACTORY.point(p0.x - delta_x, p0.y - delta_y) # southwest
+                           ]
+                         )
     )
   end
 
@@ -196,10 +197,10 @@ module Utilities::Geo
     delta_y = error_radius / ONE_NORTH
 
     retval = Gis::FACTORY.polygon(Gis::FACTORY.line_string([Gis::FACTORY.point(p0.x, p0.y + delta_y), # north
-                                                 Gis::FACTORY.point(p0.x + delta_x, p0.y), # east
-                                                 Gis::FACTORY.point(p0.x, p0.y - delta_y), # south
-                                                 Gis::FACTORY.point(p0.x - delta_x, p0.y) # west
-                                                 ]))
+                                                            Gis::FACTORY.point(p0.x + delta_x, p0.y), # east
+                                                            Gis::FACTORY.point(p0.x, p0.y - delta_y), # south
+                                                            Gis::FACTORY.point(p0.x - delta_x, p0.y) # west
+                                                           ]))
     box    = RGeo::Cartesian::BoundingBox.new(Gis::FACTORY)
     box.add(retval)
     box_geom = box.to_geometry

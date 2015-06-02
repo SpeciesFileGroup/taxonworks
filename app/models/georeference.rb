@@ -126,7 +126,7 @@ class Georeference < ActiveRecord::Base
   def error_radius_buffer_polygon
     return nil if self.error_radius.nil? || self.geographic_item.nil?
     value = GeographicItem.connection.select_all(
-      "SELECT ST_BUFFER('#{self.geographic_item.geo_object}', #{self.error_radius});").first['st_buffer']
+      "SELECT ST_BUFFER('#{self.geographic_item.geo_object}', #{self.error_radius / 111319.444444444});").first['st_buffer']
     Gis::FACTORY.parse_wkb(value)
   end
 
@@ -382,7 +382,7 @@ class Georeference < ActiveRecord::Base
   # @return [Boolean] true iff collecting_event area contains georeference error_geographic_item.
   def add_error_geo_item_inside_area
     unless check_error_geo_item_inside_area
-      problem = 'collecting_event area must contain georeference error_geographic_item.'
+      problem = 'collecting_event geographic area must contain georeference error_geographic_item.'
       errors.add(:error_geographic_item, problem)
       errors.add(:collecting_event, problem)
     end
@@ -391,7 +391,7 @@ class Georeference < ActiveRecord::Base
   # @return [Boolean] true iff collecting_event area contains georeference error_radius bounding box.
   def add_error_radius_inside_area
     unless check_error_radius_inside_area
-      problem = 'collecting_event area must contain georeference error_radius bounding box.'
+      problem = 'collecting_event geographic area must contain georeference error_radius bounding box.'
       errors.add(:error_radius, problem)
       errors.add(:collecting_event, problem) # probably don't need error here
     end
