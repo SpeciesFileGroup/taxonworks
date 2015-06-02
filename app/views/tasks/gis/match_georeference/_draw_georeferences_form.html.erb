@@ -5,13 +5,13 @@
 >
   <%= form_tag(drawn_georeferences_path, method: 'get', remote: true) do %>
 
-<table border="1">
-    <tr>
-      <td>
-        <div id="draw_gr_canvas" style="width:512px; height: 256px;"></div>
-      </td>
-    </tr>
-  </table>
+      <table border="1">
+        <tr>
+          <td>
+            <div id="draw_gr_canvas" style="width:512px; height: 256px;"></div>
+          </td>
+        </tr>
+      </table>
       <%= hidden_field_tag('geographic_item_attributes_shape') %>
       <%= submit_tag('Find') %>
   <% end %>
