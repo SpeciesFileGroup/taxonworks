@@ -73,7 +73,7 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
     @motion        = 'filtered_georeference'
     message        = ''
     @georeferences = Georeference.filter(params)
-    if @georeferences.length = 0
+    if @georeferences.length == 0
       message = 'no georeferences found'
     end
     render_gr_select_json(message)
