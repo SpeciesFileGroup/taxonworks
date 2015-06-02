@@ -38,9 +38,8 @@ describe Tasks::Gis::MatchGeoreferenceController, type: :controller do
         expect(assigns(:collecting_events).to_a).to contain_exactly(@ce_p5, @ce_p6, @ce_p7, @ce_p8, @ce_p9)
       end
     end
-  end
 
-  context 'GET drawn_georeferences' do
+    context 'GET drawn_georeferences' do
       it 'finds georeferences inside a supplied polygon' do
         get :drawn_georeferences, {geographic_item_attributes_shape: '{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[1.0,-11.0],[8.0,-11.0],[8.0,-18.0],[1.0,-18.0],[1.0,-11.0]]]},"properties":{}}'}
         # pending 'construction of GeographicItem.are_contained_in_object'
@@ -103,6 +102,7 @@ describe Tasks::Gis::MatchGeoreferenceController, type: :controller do
         expect(assigns(:georeferences)).to contain_exactly(@gr00, @gr10)
       end
     end
+  end
 
   context 'GET filtered_collecting_events' do
     let(:ce1) { CollectingEvent.new(verbatim_label:    'One of these',
