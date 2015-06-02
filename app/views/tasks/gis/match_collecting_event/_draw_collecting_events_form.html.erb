@@ -4,7 +4,7 @@
      data-map-center='POINT (0.0 0.0 0.0)'
      data-map-canvas="draw_ce_canvas"
 >
-  <%= form_tag(drawn_collecting_events_path, method: 'get') do %>
+  <%= form_tag(drawn_collecting_events_path, method: 'get', remote: true) do %>
 
       <table border="1">
         <tr>
