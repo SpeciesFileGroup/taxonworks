@@ -108,6 +108,7 @@ class TaxonName < ActiveRecord::Base
   attr_accessor :also_create_otu
 
   before_validation :set_type_if_empty
+
   before_save :set_cached_names
   after_save :create_new_combination_if_absent,
              :set_cached_names_for_dependants_and_self
@@ -121,6 +122,7 @@ class TaxonName < ActiveRecord::Base
     :validate_source_type,
     :validate_one_root_per_project
 
+  validates_presence_of :type, message: 'is not specified'
   belongs_to :source
 
   has_one :source_classified_as_relationship, -> {
@@ -191,10 +193,6 @@ class TaxonName < ActiveRecord::Base
 
   scope :with_cached_original_combination, -> (original_combination) { where(cached_original_combination: original_combination) }
   scope :with_cached_html, -> (html) { where(cached_html: html) }
-
-  validates_presence_of :type, message: 'is not specified'
-  validates_presence_of :rank_class, message: 'is a required field', if: Proc.new { |tn| [Protonym].include?(tn.class) }
-  validates_presence_of :name, message: 'is a required field', if: Proc.new { |tn| [Protonym].include?(tn.class) }
 
   soft_validate(:sv_validate_name, set: :validate_name)
   soft_validate(:sv_missing_fields, set: :missing_fields)

@@ -206,7 +206,6 @@ describe TaxonName, :type => :model do
           end
         end
       end
-
     end
 
     context 'soft validation' do
@@ -221,9 +220,7 @@ describe TaxonName, :type => :model do
       end
 
       context 'required fields' do
-        specify 'rank' do
-          expect(taxon_name.errors.include?(:rank_class)).to be_truthy
-        end
+
         specify 'type' do
           expect(taxon_name.type).to eq('Protonym')
         end
@@ -250,7 +247,6 @@ describe TaxonName, :type => :model do
           t.valid?
           expect(t.errors.include?(:rank_class)).to be_truthy
         end
-
       end
 
       context 'source' do
@@ -266,22 +262,7 @@ describe TaxonName, :type => :model do
         end
       end
 
-      context 'rank_class' do
-        specify 'is validly_published when a NomenclaturalRank subclass' do
-          taxon_name.rank_class = Ranks.lookup(:iczn, 'order')
-          taxon_name.name       = 'Aaa'
-          taxon_name.valid?
-          expect(taxon_name.errors.include?(:rank_class)).to be_falsey
-        end
-
-        specify 'is invalidly_published when not a NomenclaturalRank subclass' do
-          taxon_name.rank_class = 'foo'
-          taxon_name.valid?
-          expect(taxon_name.errors.include?(:rank_class)).to be_truthy
-        end
-      end
-
-      context 'name' do
+     context 'name' do
         context 'validate cached values' do
           specify 'ICZN ' do
             expect(@subspecies.cached_higher_classification).to eq('Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini:Erythroneurina')

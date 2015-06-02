@@ -22,6 +22,21 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
   context 'validation' do
     before { protonym.valid? }
 
+    context 'rank_class' do
+      specify 'is validly_published when a NomenclaturalRank subclass' do
+        protonym.rank_class = Ranks.lookup(:iczn, 'order')
+        protonym.name       = 'Aaa'
+        protonym.valid?
+        expect(protonym.errors.include?(:rank_class)).to be_falsey
+      end
+
+      specify 'is invalidly_published when not a NomenclaturalRank subclass' do
+        protonym.rank_class = 'foo'
+        protonym.valid?
+        expect(protonym.errors.include?(:rank_class)).to be_truthy
+      end
+    end
+
     specify 'name' do
       expect(protonym.errors.include?(:name)).to be_truthy
     end

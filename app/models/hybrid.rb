@@ -1,8 +1,17 @@
+# A hybrid taxon, defined by adding relationships to this anonymous node.
+#
+# If only one name is asserted to be a hybrid (i.e. without reference to 
+# multiple names) then this can be indicated 
+# by creating a Protonym and applying the status of Hybrid.
+# 
+#
 class Hybrid < TaxonName 
 
   has_many :hybrid_relationships, -> {
     where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Hybrid'")
   }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
+
+  validates_presence_of :rank_class, message: 'is a required field'
 
   soft_validate(:sv_hybrid_name_relationships, set: :hybrid_name_relationships)
 

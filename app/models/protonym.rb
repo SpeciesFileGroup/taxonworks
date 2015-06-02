@@ -16,6 +16,9 @@ class Protonym < TaxonName
   FAMILY_GROUP_ENDINGS = %w{ini ina inae idae oidae odd ad oidea}
 
   validates_presence_of :name
+  validates_presence_of :rank_class, message: 'is a required field' 
+  validates_presence_of :name, message: 'is a required field' 
+  
   validate :check_format_of_name,
     :validate_rank_class_class,
     :validate_parent_rank_is_higher,

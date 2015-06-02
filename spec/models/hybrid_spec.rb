@@ -6,10 +6,10 @@ describe Hybrid, type: :model, group: [:nomenclature]  do
   let(:hybrid) { Hybrid.new }
   let(:valid_hybrid) { FactoryGirl.create(:valid_hybrid) }
 
-  let(:hybrid_relationship) { TaxonNameRelationship::Hybrid.new }
-  let(:g) { Protonym.create(name: 'Aus', parent: root, rank_class: Ranks.lookup(:icn, :genus)) }
-  let(:s1) { Protonym.create(name: 'aus', parent: g, rank_class: Ranks.lookup(:icn, :species)) }
-  let(:s2) { Protonym.create(name: 'bus', parent: g, rank_class: Ranks.lookup(:icn, :species)) }
+# let(:hybrid_relationship) { TaxonNameRelationship::Hybrid.new }
+# let(:g) { Protonym.create(name: 'Aus', parent: root, rank_class: Ranks.lookup(:icn, :genus)) }
+# let(:s1) { Protonym.create(name: 'aus', parent: g, rank_class: Ranks.lookup(:icn, :species)) }
+# let(:s2) { Protonym.create(name: 'bus', parent: g, rank_class: Ranks.lookup(:icn, :species)) }
 
 
   specify 'type is Hybrid' do
@@ -37,7 +37,6 @@ describe Hybrid, type: :model, group: [:nomenclature]  do
 
     specify 'is not soft valid when at least two relationships to non hybrid taxa are required' do
       valid_hybrid.hybrid_relationships.first.destroy
-      
       valid_hybrid.reload
       valid_hybrid.soft_validate(:hybrid_name_relationships)
       expect(valid_hybrid.soft_validations.messages_on(:base).count).to eq(1)
@@ -46,14 +45,12 @@ describe Hybrid, type: :model, group: [:nomenclature]  do
 
   context 'validation' do
     before{ hybrid.valid? }
-    specify 'is invalid without at least two protonyms' do
-      #expect(hybrid.errors.include?(:base)).to be_truthy
-    end
-
-    specify 'species combination is valid with two protonyms' do
-    end
 
     specify 'protonyms in the same nomenclatural rank group' do
+    end
+
+    specify 'rank_class' do
+      expect(hybrid.errors.include?(:rank_class)).to be_truthy
     end
 
     specify 'name must be nil' do
@@ -65,7 +62,9 @@ describe Hybrid, type: :model, group: [:nomenclature]  do
       expect(hybrid.errors.include?(:rank_class)).to be_truthy
     end
 
-    specify 'rank  is valid when ICN rank' do 
+
+
+    specify 'rank is valid when ICN rank' do 
       hybrid.rank_class = 'NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup::Species'
       hybrid.valid?
       expect(hybrid.errors.include?(:rank_class)).to be_falsey
