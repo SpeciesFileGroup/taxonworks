@@ -1,57 +1,29 @@
 require 'rails_helper'
 
-describe TaxonNameRelationship::Hybrid, :type => :model do
+describe TaxonNameRelationship::Hybrid, type: :model, group: [:nomenclature] do
+  # must be executed first so that it is the root name used in the valid_hybrid
+  let!(:root) { FactoryGirl.create(:root_taxon_name) }
+
+  let(:hybrid_relationship) { TaxonNameRelationship::Hybrid.new }
+  let(:valid_hybrid) { FactoryGirl.create(:valid_hybrid) }
+  let(:g) { Protonym.create(name: 'Aus', parent: root, rank_class: Ranks.lookup(:icn, :genus)) }
+  let(:s1) { Protonym.create(name: 'aus', parent: g, rank_class: Ranks.lookup(:icn, :species)) }
+
   context 'validate' do
-    specify 'validate_rank_group' do
-      h = FactoryGirl.create(:valid_hybrid)
-      g = h.ancestor_at_rank('genus')
-      s = FactoryGirl.create(:icn_species, parent: g)
+    before {
+      hybrid_relationship.object_taxon_name = valid_hybrid
+    }
 
-      expect(h.valid?).to be_truthy
-      r1 = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: h, type: 'TaxonNameRelationship::Hybrid')
-      expect(r1.valid?).to be_truthy
-      r2 = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: g, object_taxon_name: h, type: 'TaxonNameRelationship::Hybrid')
-      expect(r2.valid?).to be_falsey
-    end
-  end
-  context 'cached values' do
-    specify 'hybrid relationships' do
-      g = FactoryGirl.create(:icn_genus, name: 'Aus')
-      s1 = FactoryGirl.build(:icn_species, name: 'bus', parent: g)
-      s2 = FactoryGirl.build(:icn_species, name: 'aus', parent: g)
-      s1.save
-      s2.save
-      h = FactoryGirl.build(:valid_hybrid)
-      h.save
-      expect(h.cached).to eq('[HYBRID TAXA NOT SELECTED]')
-      expect(h.cached_html).to eq('[HYBRID TAXA NOT SELECTED]')
-      r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: h, type: 'TaxonNameRelationship::Hybrid')
-      h.reload
-      r2 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s2, object_taxon_name: h, type: 'TaxonNameRelationship::Hybrid')
-      h.reload
-      expect(h.cached).to eq('Aus aus x Aus bus')
-      expect(h.cached_html).to eq('<em>Aus aus</em> &#215; <em>Aus bus</em>')
-    end
-  end
-  context 'soft validation' do
-    specify 'at least two relationships to non hybrid taxa are required' do
-      g = FactoryGirl.create(:icn_genus, name: 'Aus')
-      s1 = FactoryGirl.build(:icn_species, name: 'bus', parent: g)
-      s2 = FactoryGirl.build(:icn_species, name: 'aus', parent: g)
-      s1.save
-      s2.save
-      h = FactoryGirl.create(:valid_hybrid)
-      h.soft_validate(:hybrid_name_relationships)
-      expect(h.soft_validations.messages_on(:base).count).to eq(1)
-      r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: h, type: 'TaxonNameRelationship::Hybrid')
-      h.reload
-      h.soft_validate(:hybrid_name_relationships)
-      expect(h.soft_validations.messages_on(:base).count).to eq(1)
-      r2 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s2, object_taxon_name: h, type: 'TaxonNameRelationship::Hybrid')
-      h.reload
-      h.soft_validate(:hybrid_name_relationships)
-      expect(h.soft_validations.messages_on(:base).empty?).to be_truthy
+    specify 'when subject is species then relationship is valid' do
+      hybrid_relationship.subject_taxon_name = s1
+      expect(hybrid_relationship.valid?).to be_truthy
     end
 
+    specify 'when subject is genus then relationship is invalid' do
+      hybrid_relationship.subject_taxon_name = g 
+      expect(hybrid_relationship.valid?).to be_falsey
+      expect(hybrid_relationship.errors.include?(:subject_taxon_name_id)).to be_truthy
+    end
   end
+
 end

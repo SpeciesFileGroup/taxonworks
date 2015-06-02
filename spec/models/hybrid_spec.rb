@@ -1,14 +1,51 @@
 require 'rails_helper'
-describe Hybrid, :type => :model do
+describe Hybrid, type: :model, group: [:nomenclature]  do
+  # must be executed first so that it is the root name used in the valid_hybrid
+  let!(:root) { FactoryGirl.create(:root_taxon_name) }
 
   let(:hybrid) { Hybrid.new }
+  let(:valid_hybrid) { FactoryGirl.create(:valid_hybrid) }
+
+  let(:hybrid_relationship) { TaxonNameRelationship::Hybrid.new }
+  let(:g) { Protonym.create(name: 'Aus', parent: root, rank_class: Ranks.lookup(:icn, :genus)) }
+  let(:s1) { Protonym.create(name: 'aus', parent: g, rank_class: Ranks.lookup(:icn, :species)) }
+  let(:s2) { Protonym.create(name: 'bus', parent: g, rank_class: Ranks.lookup(:icn, :species)) }
+
 
   specify 'type is Hybrid' do
     expect(hybrid.type).to eq('Hybrid')
   end
 
+  # These are  not relationship tests!
+  context 'cached values' do
+    # valid_hybrid factory includes relationships now
+
+    specify 'cached_html' do
+      expect(valid_hybrid.cached_html).to eq('<em>Aus cus</em> &#215; <em>Aus dus</em>')     
+    end 
+
+    specify 'cached' do
+      expect(valid_hybrid.cached).to eq('Aus cus x Aus dus')
+    end
+  end
+
+  context 'soft validation' do
+    specify 'is soft valid when at least two relationships to non hybrid taxa are required' do
+      valid_hybrid.soft_validate(:hybrid_name_relationships)
+      expect(valid_hybrid.soft_validations.messages_on(:base).count).to eq(0)
+    end
+
+    specify 'is not soft valid when at least two relationships to non hybrid taxa are required' do
+      valid_hybrid.hybrid_relationships.first.destroy
+      
+      valid_hybrid.reload
+      valid_hybrid.soft_validate(:hybrid_name_relationships)
+      expect(valid_hybrid.soft_validations.messages_on(:base).count).to eq(1)
+    end
+  end
+
   context 'validation' do
-    before{hybrid.valid?}
+    before{ hybrid.valid? }
     specify 'is invalid without at least two protonyms' do
       #expect(hybrid.errors.include?(:base)).to be_truthy
     end
@@ -28,13 +65,16 @@ describe Hybrid, :type => :model do
       expect(hybrid.errors.include?(:rank_class)).to be_truthy
     end
 
-    specify 'rank should be ICN rank' do
-      hybrid.rank_class = 'NomenclaturalRank::Iczn::SpeciesGroup::Species'
-      hybrid.valid?
-      expect(hybrid.errors.include?(:rank_class)).to be_truthy
+    specify 'rank  is valid when ICN rank' do 
       hybrid.rank_class = 'NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup::Species'
       hybrid.valid?
       expect(hybrid.errors.include?(:rank_class)).to be_falsey
+    end
+
+    specify 'rank is invalid when ICZN rank' do
+      hybrid.rank_class = 'NomenclaturalRank::Iczn::SpeciesGroup::Species'
+      hybrid.valid?
+      expect(hybrid.errors.include?(:rank_class)).to be_truthy
     end
   end
 
