@@ -28,7 +28,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
     // this DOM object represents the form for retrieving the filtering data for
     // selecting collecting events. In this case
     //      div.id = '_filter_ce_form'
-    //      form.id = 'filtering_data'
+    //      form.id = 'filtering_ce_data'
     $("#filtering_ce_data").on("ajax:success", function (e, data, status, local_data) {
       // make a local object of the selecting form so we can use it later
       var selecting = $('#_selecting_ce_form');
@@ -180,6 +180,48 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
 
       event.preventDefault();
     });
+    // this DOM object represents the form for retrieving the filtering data for
+    // selecting georeferences. In this case
+    //      div.id = '_filter_gr_form'
+    //      form.id = 'filtering_gr_data'    ???
+    $("#filtering_gr_data").on("ajax:success", function (e, data, status, local_data) {
+      // make a local object of the selecting form so we can use it later
+      var selecting = $('#_selecting_gr_form');
+      // unhide the local div
+      selecting.removeAttr('hidden');
+      // see what the message was, if anything
+      var message = local_data.responseJSON['message'];
+      if (message.length) {
+        selecting.html(message);
+      }
+      else {
+        // shove the returning html into the local form
+        selecting.html(local_data.responseJSON['html']);
+        // hide the filter div
+        $("#_filter_gr_form").attr("hidden", true);
+
+      // start the map process
+      this_map = initializeMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
+      add_match_georeferences_map_listeners(this_map);
+      }
+      return true;
+    }).on("ajax:error", function (e, xhr, status, error) {
+      $("#new_article").append("<p>ERROR</p>");
+    });
+
+    $(".tag-ce").click(function (event) {
+
+      // unhide this form
+      $("#_tag_ce_form").removeAttr("hidden");
+      // hide everything else: filter; drawing; recent;
+      $("#_filter_ce_form").attr("hidden", true);
+      $("#_draw_ce_form").attr("hidden", true);
+      $("#_recent_ce_form").attr("hidden", true);
+      $('#_selecting_ce_form').attr('hidden', true);
+
+      event.preventDefault();
+    });
+
 
     $(".tag-gr").click(function (event) {
 

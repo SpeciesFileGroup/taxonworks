@@ -56,16 +56,16 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
     pieces    = []
     case this_type
       when 'point'
-        pieces = GeographicItem.with_collecting_event_through_georeferences.within_radius_of_wkt('any', geometry, radius).map(&:georeferences).uniq.flatten.map(&:collecting_event)
+        @collecting_events = GeographicItem.with_collecting_event_through_georeferences.within_radius_of_wkt('any', geometry, radius).map(&:georeferences).uniq.flatten.map(&:collecting_event)
       when 'polygon'
-        pieces = GeographicItem.with_collecting_event_through_georeferences.are_contained_in_wkt('any', geometry).map(&:georeferences).uniq.flatten.map(&:collecting_event)
+        @collecting_events = GeographicItem.with_collecting_event_through_georeferences.are_contained_in_wkt('any', geometry).map(&:georeferences).uniq.flatten.map(&:collecting_event)
       else
-        pieces = CollectingEvent.where('false')
+        @collecting_events = CollectingEvent.where('false')
     end
-    gr = []
 
-
-    @collecting_events = pieces
+    if @collecting_events.length == 0
+      message = 'no georeferences found'
+    end
     render_ce_select_json(message)
   end
 
@@ -73,7 +73,10 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
     @motion        = 'filtered_georeference'
     message        = ''
     @georeferences = Georeference.filter(params)
-    render_ce_select_json(message)
+    if @georeferences.length == 0
+      message = 'no georeferences found'
+    end
+    render_gr_select_json(message)
   end
 
   def recent_georeferences
