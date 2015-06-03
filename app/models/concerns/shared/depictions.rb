@@ -8,7 +8,7 @@ module Shared::Depictions
   end
 
   def has_depictions?
-    self.depiction.size > 0
+    self.depictions.size > 0
   end
 
 end

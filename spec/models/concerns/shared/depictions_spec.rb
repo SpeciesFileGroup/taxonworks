@@ -6,8 +6,8 @@ describe 'Depictions', type: :model do
   context 'associations' do
     specify 'has many depictions/#has_depictions?' do
       # test that the method notations exists
-      expect(instance_with_depiction).to respond_to(:depiction)
-      expect(instance_with_depiction.depiction.size == 0).to be_truthy
+      expect(instance_with_depiction).to respond_to(:depictions)
+      expect(instance_with_depiction.depictions.size == 0).to be_truthy
       # currently has no depictions
     end
   end
@@ -18,9 +18,9 @@ describe 'Depictions', type: :model do
       expect(instance_with_depiction.has_depictions?).to be_falsey
     end
     specify '#has_depictions? (1)' do
-      expect(instance_with_depiction.depiction << Depiction.new).to be_truthy
+      expect(instance_with_depiction.depictions << Depiction.new).to be_truthy
       expect(instance_with_depiction.has_depictions?).to be_truthy
-      expect(instance_with_depiction.depiction.size == 1).to be_truthy
+      expect(instance_with_depiction.depictions.size == 1).to be_truthy
     end
   end
 
