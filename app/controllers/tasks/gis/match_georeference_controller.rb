@@ -47,7 +47,7 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
   def drawn_collecting_events
     @motion   = 'drawn_collecting_events'
     message   = ''
-    value     = params['geographic_item_attributes_shape']
+    value     = params['ce_geographic_item_attributes_shape']
     feature   = RGeo::GeoJSON.decode(value, :json_parser => :json)
     geometry  = feature.geometry
     this_type = geometry.geometry_type.to_s.downcase
@@ -109,7 +109,7 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
   def drawn_georeferences
     @motion   = 'drawn_georeferences'
     message   = ''
-    value     = params['geographic_item_attributes_shape']
+    value     = params['gr_geographic_item_attributes_shape']
     feature   = RGeo::GeoJSON.decode(value, :json_parser => :json)
     # isolate the WKT
     geometry  = feature.geometry

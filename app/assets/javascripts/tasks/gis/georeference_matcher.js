@@ -103,7 +103,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
           //}
           //
           var feature = buildFeatureCollectionFromShape(event.overlay, event.type);
-          $("#geographic_item_attributes_shape").val(JSON.stringify(feature[0]));
+          $("#ce_geographic_item_attributes_shape").val(JSON.stringify(feature[0]));
         }
       );
       event.preventDefault();
@@ -127,6 +127,15 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
         //else {
         //  this_map = initializeMap($("#_selected_ce_form").data('map-canvas'), $("#_selected_ce_form").data('feature-collection'));
         //}
+// plant the id for the submit
+        $("#create").click(function (event) {      // register the click handler for the made-from-scratch-button
+            $("#georeference_id").val($("#selected_georeference_id").val());  // get the stored value from center map form
+          $("#create_georeferences").on ("ajax:success", function(e,data,status,result_data) {
+            $('#_selecting_ce_form').html(result_data.responseJSON['html']);
+          })
+            return true;
+          }
+        )
         $("#_draw_ce_form").attr("hidden", true);
         $("#_selecting_ce_form").removeAttr('hidden');
         return true;
@@ -315,7 +324,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
           //}
           //
           var feature = buildFeatureCollectionFromShape(event.overlay, event.type);
-          $("#geographic_item_attributes_shape").val(JSON.stringify(feature[0]));
+          $("#gr_geographic_item_attributes_shape").val(JSON.stringify(feature[0]));
            }
       );
       event.preventDefault();
