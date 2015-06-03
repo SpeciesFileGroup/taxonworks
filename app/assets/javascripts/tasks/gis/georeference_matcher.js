@@ -28,7 +28,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
     // this DOM object represents the form for retrieving the filtering data for
     // selecting collecting events. In this case
     //      div.id = '_filter_ce_form'
-    //      form.id = 'filtering_data'
+    //      form.id = 'filtering_ce_data'
     $("#filtering_ce_data").on("ajax:success", function (e, data, status, local_data) {
       // make a local object of the selecting form so we can use it later
       var selecting = $('#_selecting_ce_form');
@@ -93,10 +93,47 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
       $("#_recent_ce_form").attr("hidden", true);
       $('#_selecting_ce_form').attr('hidden', true);
 
-      this_map = initializeGoogleMapWithDrawManager("#_draw_ce_form");
-
+      this_map = initializeGoogleMapWithDrawManager("#_draw_ce_form");  //set up a blank draw canvas
+      google.maps.event.addListener(this_map[1], 'overlaycomplete', function (event) {
+          // Remove the last created shape if it exists.
+          //if (last != null) {
+          //  if (last[0] != null) {
+          //    removeItemFromMap(last[0]);
+          //  }
+          //}
+          //
+          var feature = buildFeatureCollectionFromShape(event.overlay, event.type);
+          $("#geographic_item_attributes_shape").val(JSON.stringify(feature[0]));
+        }
+      );
       event.preventDefault();
     });
+
+    $("#_draw_ce_form").on("ajax:success", function(e,data,status,result_data) {
+
+//  on successful upload and processing of polygon or shape file,
+//  instantiate a selecting form and map
+        var selecting = $('#_selecting_ce_form');
+        // see what the message was, if anything
+        var message = result_data.responseJSON['message'];
+        // shove the returning html into the local form
+        selecting.html(result_data.responseJSON['html']);
+        //this_map = initializeMap($("#_select_ce_form").data('map-canvas'), $("#_select_ce_form").data('feature-collection'));
+        //add_match_georeferences_map_listeners(this_map);
+        //if ($("#_select_ce_form").data('feature-collection').features.length == 1) {
+        //
+        //  this_map = initializeMap($("#_selected_ce_form").data('map-canvas'), $("#_select_ce_form").data('feature-collection'));
+        //}
+        //else {
+        //  this_map = initializeMap($("#_selected_ce_form").data('map-canvas'), $("#_selected_ce_form").data('feature-collection'));
+        //}
+        $("#_draw_ce_form").attr("hidden", true);
+        $("#_selecting_ce_form").removeAttr('hidden');
+        return true;
+      }
+    ).on("ajax:error", function (e, xhr, status, error) {
+        $("#new_article").append("<p>ERROR</p>");
+      });
 
     $(".recent-ce").click(function (event) {
 
@@ -139,7 +176,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
 
       $("#create_georeferences").on("ajax:success", function (e, data, status, local_data) {
         $("#result_from_post").html(local_data.responseJSON['html']);
-        initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_selected_gr_form").data('feature-collection'));
+        //initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_selected_gr_form").data('feature-collection'));
       }
       )
         $("#_recent_ce_form").attr("hidden", true);
@@ -180,6 +217,48 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
 
       event.preventDefault();
     });
+    // this DOM object represents the form for retrieving the filtering data for
+    // selecting georeferences. In this case
+    //      div.id = '_filter_gr_form'
+    //      form.id = 'filtering_gr_data'    ???
+    $("#filtering_gr_data").on("ajax:success", function (e, data, status, local_data) {
+      // make a local object of the selecting form so we can use it later
+      var selecting = $('#_selecting_gr_form');
+      // unhide the local div
+      selecting.removeAttr('hidden');
+      // see what the message was, if anything
+      var message = local_data.responseJSON['message'];
+      if (message.length) {
+        selecting.html(message);
+      }
+      else {
+        // shove the returning html into the local form
+        selecting.html(local_data.responseJSON['html']);
+        // hide the filter div
+        $("#_filter_gr_form").attr("hidden", true);
+
+      // start the map process
+      this_map = initializeMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
+      add_match_georeferences_map_listeners(this_map);
+      }
+      return true;
+    }).on("ajax:error", function (e, xhr, status, error) {
+      $("#new_article").append("<p>ERROR</p>");
+    });
+
+    $(".tag-ce").click(function (event) {
+
+      // unhide this form
+      $("#_tag_ce_form").removeAttr("hidden");
+      // hide everything else: filter; drawing; recent;
+      $("#_filter_ce_form").attr("hidden", true);
+      $("#_draw_ce_form").attr("hidden", true);
+      $("#_recent_ce_form").attr("hidden", true);
+      $('#_selecting_ce_form').attr('hidden', true);
+
+      event.preventDefault();
+    });
+
 
     $(".tag-gr").click(function (event) {
 
@@ -224,7 +303,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
       $("#_filter_gr_form").attr("hidden", true);
       $("#_tag_gr_form").attr("hidden", true);
       $("#_recent_gr_form").attr("hidden", true);
-      //$('#_selecting_gr_form').removeAttr('hidden');  ////// temp make visible
+      $('#_selecting_gr_form').attr("hidden", true);
 
       this_map = initializeGoogleMapWithDrawManager("#_draw_gr_form");  //set up a blank draw canvas
       google.maps.event.addListener(this_map[1], 'overlaycomplete', function (event) {

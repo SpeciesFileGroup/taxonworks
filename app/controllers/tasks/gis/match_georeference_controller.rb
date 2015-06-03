@@ -11,41 +11,8 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
   def filtered_collecting_events
     @motion            = 'filtered_collecting_events'
     message            = ''
-    prefix             = ''
     @collecting_events = CollectingEvent.filter(params) #
 
-    # sql_string          = Utilities::Dates.date_sql_from_params(params)
-    #
-    # # processing text data
-    # v_locality_fragment = params['verbatim_locality_text']
-    # any_label_fragment  = params['any_label_text']
-    # id_fragment         = params['identifier_text']
-    #
-    # unless v_locality_fragment.blank?
-    #   unless sql_string.blank?
-    #     prefix = ' and '
-    #   end
-    #   sql_string += "#{ prefix }verbatim_locality ilike '%#{v_locality_fragment}%'"
-    # end
-    # unless any_label_fragment.blank?
-    #   unless sql_string.blank?
-    #     prefix = 'and '
-    #   end
-    #   sql_string += "#{ prefix }(verbatim_label ilike '%#{any_label_fragment}%'"
-    #   sql_string += " or print_label ilike '%#{any_label_fragment}%'"
-    #   sql_string += " or document_label ilike '%#{any_label_fragment}%'"
-    #   sql_string += ')'
-    # end
-    #
-    # unless id_fragment.blank?
-    #
-    # end
-    #
-    # # find the records
-    # unless sql_string.blank?
-    #   @collecting_events = CollectingEvent.where(sql_string).uniq
-    # end
-    #
     if @collecting_events.length == 0
       message = 'no collecting events selected'
     end
@@ -78,9 +45,27 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
   end
 
   def drawn_collecting_events
-    @motion            = 'drawn_collecting_events'
-    message            = ''
-    @collecting_events = [] # replace [] with CollectingEvent.filter(params)
+    @motion   = 'drawn_collecting_events'
+    message   = ''
+    value     = params['geographic_item_attributes_shape']
+    feature   = RGeo::GeoJSON.decode(value, :json_parser => :json)
+    geometry  = feature.geometry
+    this_type = geometry.geometry_type.to_s.downcase
+    geometry  = geometry.as_text
+    radius    = feature['radius']
+    pieces    = []
+    case this_type
+      when 'point'
+        @collecting_events = GeographicItem.with_collecting_event_through_georeferences.within_radius_of_wkt('any', geometry, radius).map(&:georeferences).uniq.flatten.map(&:collecting_event)
+      when 'polygon'
+        @collecting_events = GeographicItem.with_collecting_event_through_georeferences.are_contained_in_wkt('any', geometry).map(&:georeferences).uniq.flatten.map(&:collecting_event)
+      else
+        @collecting_events = CollectingEvent.where('false')
+    end
+
+    if @collecting_events.length == 0
+      message = 'no georeferences found'
+    end
     render_ce_select_json(message)
   end
 
@@ -88,7 +73,10 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
     @motion        = 'filtered_georeference'
     message        = ''
     @georeferences = Georeference.filter(params)
-    render_ce_select_json(message)
+    if @georeferences.length == 0
+      message = 'no georeferences found'
+    end
+    render_gr_select_json(message)
   end
 
   def recent_georeferences
@@ -119,17 +107,16 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
   end
 
   def drawn_georeferences
-    @motion        = 'drawn_georeferences'
-    message        = ''
-    @georeferences = [] # replace [] with CollectingEvent.filter(params)
-    value          = params['geographic_item_attributes_shape']
-    feature        = RGeo::GeoJSON.decode(value, :json_parser => :json)
+    @motion   = 'drawn_georeferences'
+    message   = ''
+    value     = params['geographic_item_attributes_shape']
+    feature   = RGeo::GeoJSON.decode(value, :json_parser => :json)
     # isolate the WKT
-    geometry       = feature.geometry
-    this_type      = geometry.geometry_type.to_s.downcase
-    geometry       = geometry.as_text
+    geometry  = feature.geometry
+    this_type = geometry.geometry_type.to_s.downcase
+    geometry  = geometry.as_text
     # pieces         = JSON.parse(value)
-    radius         = feature['radius']
+    radius    = feature['radius']
     case this_type
       when 'point'
         @georeferences = GeographicItem.within_radius_of_wkt('any', geometry, radius).map(&:georeferences).uniq.flatten
@@ -139,15 +126,6 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
         @georeferences = Georeference.where('false')
     end
 
-
-    # boundary       = GeographicItem.new
-    # boundary.shape = params['geographic_item_attributes_shape']
-
-    # receive shape from form:  polygon or circle, in 'geographic_item_attributes_shape'
-    # create geographic_item object instance to match against?
-
-    # @georeferences = GeographicItem.where('ST_contains()')
-    # @georeferences =GeographicItem.are_contained_in('point', boundary)
     render_gr_select_json(message)
   end
 

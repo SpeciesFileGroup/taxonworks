@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe TaxonNameRelationship, :type => :model do
+describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
 
   let(:taxon_name_relationship) { TaxonNameRelationship.new }
 

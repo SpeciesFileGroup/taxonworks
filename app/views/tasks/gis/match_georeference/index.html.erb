@@ -11,28 +11,28 @@
       <%= link_to_georeference_match_type('draw', 'ce') %> |
       <%= link_to_georeference_match_type('recent', 'ce') %>
 
-      <br>--------_filter_ce_form-------------
+      <!--<br>&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;_filter_ce_form-&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;-->
       <%= render(partial: 'tasks/gis/match_collecting_event/filter_collecting_events_form') %>
-      <br>--------_tag_ce_form-------------
+      <!--<br>&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;_tag_ce_form-&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;-->
       <%= render(partial: 'tasks/gis/match_collecting_event/tag_collecting_events_form') %>
-      <br>---------_draw_ce_form----------------
+      <!--<br>-&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;_draw_ce_form&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;-->
       <%= render(partial: 'tasks/gis/match_collecting_event/draw_collecting_events_form') %>
-      <br>---------_recent_ce_form--------------
+      <!--<br>-&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;_recent_ce_form&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;-->
       <%= render(partial: 'tasks/gis/match_collecting_event/recent_collecting_events_form') %>
-      <br>-------_selecting_ce_form---------------
+      <!--<br>-&#45;&#45;&#45;&#45;&#45;&#45;_selecting_ce_form-&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;-->
       <div id="_selecting_ce_form" hidden>
         <%#= render(partial: 'tasks/gis/match_georeference/collecting_event_selections') %>
       </div>
-      <br>--------------------------------------
+      <!--<br>&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;-->
 
     </div>
     <div class="item item2">
       <h2>Current Georeference</h2>
-      <br>------_find_gr_form-------------------
+      <!--<br>&#45;&#45;&#45;&#45;&#45;&#45;_find_gr_form-&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;-->
       <div id="_find_gr_form" name="_find_gr_form">
         Find a georeference at right and select it.
       </div>
-      <br>------_selected_gr_form-------------------
+      <!--<br>&#45;&#45;&#45;&#45;&#45;&#45;_selected_gr_form-&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;-->
       <div id="_selected_gr_form"
            data-feature-collection='<%= Gis::GeoJSON.feature_collection([]).to_json.html_safe %>'
            data-map-center='POINT (0.0 0.0 0.0)'
@@ -58,19 +58,19 @@
       <%= link_to_georeference_match_type('draw', 'gr') %> |
       <%= link_to_georeference_match_type('recent', 'gr') %>
 
-      <br>--------_filter_gr_form------------------
+      <!--<br>&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;_filter_gr_form&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;-->
       <%= render(partial: 'filter_georeferences_form') %>
-      <br>-----------_tag_gr_form---------------
+      <!--<br>-&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;_tag_gr_form-&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;-->
       <%= render(partial: 'tag_georeferences_form') %>
-      <br>----------_draw_gr_form--------------
+      <!--<br>&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;_draw_gr_form&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;-->
       <%= render(partial: 'draw_georeferences_form') %>
-      <br>----------_recent_gr_form-------------
+      <!--<br>&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;_recent_gr_form-&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;-->
       <%= render(partial: 'recent_georeferences_form') %>
-      <br>----------_show_gr_form---------------
+      <!--<br>&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;_selecting_gr_form-&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;-->
       <div id="_selecting_gr_form" hidden>
         <%#= render(partial: 'georeferences_selections_form') %>
       </div>
-      <br>--------------------------------------
+      <!--<br>&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;-->
 
     </div>
   </div>

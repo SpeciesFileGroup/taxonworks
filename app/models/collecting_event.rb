@@ -252,6 +252,7 @@ class CollectingEvent < ActiveRecord::Base
     Utilities::Dates.format_to_hours_minutes_seconds(time_end_hour, time_end_minute, time_end_second)
   end
 
+  # @param [Boolean] reference_self
   # @return [self, false]
   #   generates (creates) a Georeference::VerbatimReference from verbatim_latitude and verbatim_longitude values
   def generate_verbatim_data_georeference(reference_self = false)
