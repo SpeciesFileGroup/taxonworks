@@ -27,13 +27,13 @@ describe Tasks::Gis::MatchGeoreferenceController, type: :controller do
     context 'GET drawn_collecting_events' do
 
       it 'finds collecting events inside a supplied circle' do
-        get :drawn_collecting_events, {geographic_item_attributes_shape: '{"type":"Feature","geometry":{"type":"Point","coordinates":[5.0,-16.0]},"properties":{"radius":448000.0}}'}
+        get :drawn_collecting_events, {ce_geographic_item_attributes_shape: '{"type":"Feature","geometry":{"type":"Point","coordinates":[5.0,-16.0]},"properties":{"radius":448000.0}}'}
         # pending 'fixing drawn_collecting_events for Circle'
         expect(assigns(:collecting_events).to_a).to contain_exactly(@ce_p5, @ce_p6, @ce_p7, @ce_p8, @ce_p9)
       end
 
       it 'finds collecting events inside a supplied polygon' do
-        get :drawn_collecting_events, {geographic_item_attributes_shape: '{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[1.0,-11.0],[8.0,-11.0],[8.0,-18.0],[1.0,-18.0],[1.0,-11.0]]]},"properties":{}}'}
+        get :drawn_collecting_events, {ce_geographic_item_attributes_shape: '{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[1.0,-11.0],[8.0,-11.0],[8.0,-18.0],[1.0,-18.0],[1.0,-11.0]]]},"properties":{}}'}
         # pending 'fixing drawn_collecting_events for polyon'
         expect(assigns(:collecting_events).to_a).to contain_exactly(@ce_p5, @ce_p6, @ce_p7, @ce_p8, @ce_p9)
       end
@@ -42,13 +42,13 @@ describe Tasks::Gis::MatchGeoreferenceController, type: :controller do
     context 'GET drawn_georeferences' do
 
       it 'finds georeferences inside a supplied circle' do
-        get :drawn_georeferences, {geographic_item_attributes_shape: '{"type":"Feature","geometry":{"type":"Point","coordinates":[5.0,-16.0]},"properties":{"radius":448000.0}}'}
+        get :drawn_georeferences, {gr_geographic_item_attributes_shape: '{"type":"Feature","geometry":{"type":"Point","coordinates":[5.0,-16.0]},"properties":{"radius":448000.0}}'}
         # pending 'construction of GeographicItem.within_radius_of_object'
         expect(assigns(:georeferences).to_a).to contain_exactly(@gr05, @gr06, @gr07, @gr08, @gr09)
       end
 
       it 'finds georeferences inside a supplied polygon' do
-        get :drawn_georeferences, {geographic_item_attributes_shape: '{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[1.0,-11.0],[8.0,-11.0],[8.0,-18.0],[1.0,-18.0],[1.0,-11.0]]]},"properties":{}}'}
+        get :drawn_georeferences, {gr_geographic_item_attributes_shape: '{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[1.0,-11.0],[8.0,-11.0],[8.0,-18.0],[1.0,-18.0],[1.0,-11.0]]]},"properties":{}}'}
         # pending 'construction of GeographicItem.are_contained_in_object'
         expect(assigns(:georeferences).to_a).to contain_exactly(@gr05, @gr06, @gr07, @gr08, @gr09)
       end

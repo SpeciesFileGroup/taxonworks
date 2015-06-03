@@ -32,8 +32,8 @@ module Utilities::Geo
   # DEGREES_PER_RADIAN = 180.0/::Math::PI
 
 
-  # ONE_WEST  = 111319.490779206 # meters/degree
-  ONE_WEST  = 111319.444444444 # meters/degree (calculated mean)
+  ONE_WEST  = 111319.490779206 # meters/degree
+  # ONE_WEST  = 111319.444444444 # meters/degree (calculated mean)
   ONE_NORTH = 110574.38855796 # meters/degree
 
   class ConvertToDecimalDegrees

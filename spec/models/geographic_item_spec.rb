@@ -465,20 +465,21 @@ describe GeographicItem, type: :model, group: :geo do
 
       specify '::with_collecting_event_through_georeferences' do
         pieces = GeographicItem.with_collecting_event_through_georeferences.order('id').to_a
-        expect(pieces.count).to eq(26) # @k only listed once
-        expect(pieces).to include(@p0, @p1, @p2, @p3,
-                                  @p4, @p5, @p6, @p7,
-                                  @p8, @p9, @p10, @p11,
-                                  @p12, @p13, @p14, @p15,
-                                  @p16, @p17, @p18, @p19,
-                                  @item_d, @e1, @e2, @k) #
+        expect(pieces.count).to eq(27) # @k only listed once
+        expect(pieces).to contain_exactly(@p0, @p1, @p2, @p3,
+                                          @p4, @p5, @p6, @p7,
+                                          @p8, @p9, @p10, @p11,
+                                          @p12, @p12c, @p13, @p14,
+                                          @p15, @p16, @p17, @p18,
+                                          @p19, @item_d, @e1, @e2,
+                                          @k, @b, @b2) #
         expect(pieces).not_to include(@e4)
       end
 
       specify '::include_collecting_event' do
         # skip 'construction of method'
         pieces = GeographicItem.include_collecting_event.order('id').to_a
-        expect(pieces.count).to eq(60)
+        expect(pieces.count).to eq(61)
         expect(pieces).to eq(@all_gi)
       end
 
@@ -529,7 +530,7 @@ describe GeographicItem, type: :model, group: :geo do
         end
 
         specify 'three things inside and one thing outside k' do
-          expect(GeographicItem.is_contained_by('any', [@e2, @k]).excluding([@k, @e2]).to_a).to contain_exactly(@p0, @p1, @p2, @p3, @p12, @p13, @item_a)
+          expect(GeographicItem.is_contained_by('any', [@e2, @k]).excluding([@k, @e2]).to_a).to contain_exactly(@p0, @p1, @p2, @p3, @p12, @p12c, @p13, @item_a)
         end
 
         # other objects are returned as well, we just don't care about them:
@@ -606,7 +607,7 @@ describe GeographicItem, type: :model, group: :geo do
 
       specify '::within_radius_of_wkt("any", ...)' do
         # Utilities::Geo.ONE_WEST = 111319.490779206
-        expect(GeographicItem.within_radius_of_wkt('any', @p0.geo_object.to_s, ((9 * 1.414) * 111319.444444444))).to contain_exactly(@p0, @p12, @p13, @p20, @p21, @p22, @e3, @e4, @item_a, @item_b, @item_c, @item_d)
+        expect(GeographicItem.within_radius_of_wkt('any', @p0.geo_object.to_s, ((9 * 1.414) * 111319.444444444))).to contain_exactly(@p0, @p12, @p12c, @p13, @p20, @p21, @p22, @e3, @e4, @item_a, @item_b, @item_c, @item_d)
       end
 
       specify "::intersecting list of objects (uses 'or')" do

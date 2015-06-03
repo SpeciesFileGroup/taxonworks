@@ -303,9 +303,9 @@ describe Georeference, type: :model, group: :geo do
         ce2.save
         arguments = {georeference_id: georeference.id.to_s, checked_ids: [ce1.id.to_s, ce2.id.to_s]}
         Georeference.batch_create_from_georeference_matcher(arguments)
-        expect(ce1.georeferences.count).to eq(2)
+        expect(ce1.georeferences.count).to eq(1)
         expect(ce2.georeferences.count).to eq(1)
-        expect(Georeference.all.count).to eq(3)
+        expect(Georeference.all.count).to eq(2)
       end
     end
   end

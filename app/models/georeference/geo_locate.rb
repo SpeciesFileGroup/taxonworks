@@ -16,11 +16,13 @@ class Georeference::GeoLocate < Georeference
     make_geographic_item([long, lat])
     if uncertainty_points.nil?
       # make a circle from the geographic_item
-      value = GeographicItem.connection.select_all(
-        "SELECT ST_BUFFER('#{self.geographic_item.geo_object}', #{error_radius.to_f / 111319.444444444});").first['st_buffer']
-      circle = Gis::FACTORY.parse_wkb(value)
-      # make_error_geographic_item([[long, lat], [long, lat], [long, lat]], error_radius)
-      self.error_geographic_item = GeographicItem.new(polygon: circle)
+      unless error_radius.blank?
+        value                      = GeographicItem.connection.select_all(
+          "SELECT ST_BUFFER('#{self.geographic_item.geo_object}', #{error_radius.to_f / 111319.444444444});").first['st_buffer']
+        circle                     = Gis::FACTORY.parse_wkb(value)
+        # make_error_geographic_item([[long, lat], [long, lat], [long, lat]], error_radius)
+        self.error_geographic_item = GeographicItem.new(polygon: circle)
+      end
     else
       make_error_geographic_item(uncertainty_points, error_radius)
     end
