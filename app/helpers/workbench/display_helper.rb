@@ -11,8 +11,9 @@ module Workbench::DisplayHelper
     # meh, exceptions  
     return send("taxon_works_content_tag", object).html_safe if klass_name == 'Content' 
     return image_tag(object.image_file.url(:thumb)) if klass_name == 'Image' 
-   
-    send("#{klass_name.underscore}_tag", object).html_safe
+
+    html = send("#{klass_name.underscore}_tag", object)
+    html ? html.html_safe : nil
   end
 
   def model_name_title

@@ -11,10 +11,11 @@ class Repository < ActiveRecord::Base
   has_many :collection_objects, inverse_of: :repository, dependent: :restrict_with_error
   validates_presence_of :name, :url, :acronym, :status
 
-  # TODO: @mjy What *is* the right construct for 'Repository'?
   def self.find_for_autocomplete(params)
-    where('name LIKE ?', "#{params[:term]}%")
+    Queries::RepositoryAutocompleteQuery.new(params[:term]).all
   end
+
+
 
   def self.generate_download(scope)
     CSV.generate do |csv|

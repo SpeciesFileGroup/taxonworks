@@ -18,8 +18,17 @@
     </div>
 
     <h2>Repository</h2>
+
     <div class="field">
-      <%= select :repository, :id, options_from_collection_for_select(@repositories, :id, :name, @repository.id) %>
+      <%= render partial: 'workbench/elements/forms/ajax_select',
+        locals:  {controller: '/repositories',
+                  object:     'repository',
+                  method:     'id',
+                  tag_id:     'repository_id_for_bulk_verbatim',
+                  size: 60,
+                  display:    object_tag(@repository)
+      } %>
+
       <%= check_box :locks, :repository %>
       <%= label_tag 'lock' %>
     </div>
