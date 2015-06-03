@@ -82,7 +82,9 @@ gem 'colored', '~> 1.2'
 gem 'chartkick'
 gem 'groupdate'
 
+# SFG gems
 gem 'taxonifi', '~> 0.3.3'
+gem 'sqed', '~> 0.0.2' 
 
 group :test, :development do
   gem 'faker', '~> 1.4.3'
