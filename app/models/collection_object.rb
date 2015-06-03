@@ -74,7 +74,9 @@ class CollectionObject < ActiveRecord::Base
   has_one :deaccession_recipient_role, class_name: 'DeaccessionRecipient', as: :role_object
   has_one :deaccession_recipient, through: :deaccession_recipient_role, source: :person
 
-  has_many :depictions, as: :depiction_object 
+  has_many :derived_collection_objects, inverse_of: :collection_object
+  has_many :collection_object_observations, through: :derived_collection_objects, inverse_of: :collection_objects
+
 
   belongs_to :collecting_event, inverse_of: :collection_objects
   belongs_to :preparation_type, inverse_of: :collection_objects

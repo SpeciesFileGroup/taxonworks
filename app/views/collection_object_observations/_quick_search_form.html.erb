@@ -1,0 +1,10 @@
+<%= form_tag(search_collection_object_observations_path, {method: :get}) do %>
+    <%= render partial: 'workbench/elements/forms/ajax_select',
+               locals:  {controller: 'collection_object_observations',
+                         object:     nil,
+                         method:     'id',
+                         tag_id:     'collection_object_observations_id_for_quick_search_form',
+                         size:       '',
+                         display:    ''} %>
+    <%= submit_tag 'Show' %>
+<% end %>

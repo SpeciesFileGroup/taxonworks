@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'Otus', :type => :feature do
+describe 'Otus', type: :feature do
   let(:index_path) { otus_path }
   let(:page_index_name) { 'otus' }
 
