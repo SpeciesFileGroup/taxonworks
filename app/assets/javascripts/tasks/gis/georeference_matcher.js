@@ -74,7 +74,16 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
       var message = local_data.responseJSON['message'];
       // shove the returning html into the local form
       selecting.html(local_data.responseJSON['html']);
-      // hide the filter div
+// plant the id for the submit
+      $("#create").click(function (event) {      // register the click handler for the made-from-scratch-button
+          $("#georeference_id").val($("#selected_georeference_id").val());  // get the stored value from center map form
+          $("#create_georeferences").on ("ajax:success", function(e,data,status,result_data) {
+            $('#_selecting_ce_form').html(result_data.responseJSON['html']);
+          })
+          return true;
+        }
+      )
+      // hide the tag div
       $("#_tag_ce_form").attr("hidden", true);
       // unhide the local div
       selecting.removeAttr('hidden');
