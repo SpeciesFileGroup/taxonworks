@@ -26,9 +26,13 @@ describe 'Depictions', type: :model do
 
   context 'object with depictions' do
     context 'on destroy' do
-      pending 'attached depictions are destroyed' do
-        expect(True).to be_falsey
-        #let(:depict1) {FactoryGirl.create(:valid_depiction)}
+      specify 'attached depictions are destroyed' do
+        expect(Depiction.count).to eq(0)
+        instance_with_depiction.depictions << FactoryGirl.build(:valid_depiction)
+        instance_with_depiction.save
+        expect(Depiction.count).to eq(1)
+        expect(instance_with_depiction.destroy).to be_truthy
+        expect(Depiction.count).to eq(0)
       end
     end
   end
