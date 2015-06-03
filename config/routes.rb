@@ -1,6 +1,6 @@
 TaxonWorks::Application.routes.draw do
 
-  # All models that use data controllers should include this concern.
+    # All models that use data controllers should include this concern.
   # See http://api.rubyonrails.org/classes/ActionDispatch/Routing/Mapper/Concerns.html to extend it to take options if need be.
   # TODO: This will have to be broken down to core_data_routes, and supporting_data_routes
   concern :data_routes do |options|
@@ -79,11 +79,18 @@ TaxonWorks::Application.routes.draw do
       get 'list'
     end
   end
+
+  resources :collection_object_observations do
+    concerns [:data_routes]
+  end
+  
   resources :containers, only: [:create, :update, :destroy]
   resources :container_items, only: [:create, :update, :destroy]
+
   resources :contents do
     concerns [:data_routes]
   end
+
   resources :controlled_vocabulary_terms do
     concerns [:data_routes]
   end

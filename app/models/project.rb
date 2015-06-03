@@ -34,6 +34,8 @@ class Project < ActiveRecord::Base
      AlternateValue
      DataAttribute 
      Depiction
+     CollectionObjectObservation  
+     DerivedCollectionObject        
      Note
      PinboardItem
      Tag

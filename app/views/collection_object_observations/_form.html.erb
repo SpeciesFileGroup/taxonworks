@@ -1,0 +1,12 @@
+<%= form_for(@collection_object_observation) do |f| %>
+  <%= render 'shared/errors', object: @collection_object_observation %>
+  <div class="field">
+    <%= f.label :data %><br>
+    <%= f.text_area :data, rows: 30, cols: 50 %>
+  </div>
+  
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+
+<% end %>

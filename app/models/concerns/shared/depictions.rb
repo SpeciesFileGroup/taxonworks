@@ -3,7 +3,7 @@ module Shared::Depictions
   extend ActiveSupport::Concern
 
   included do
-    has_many :depiction, as: :role_object
+    has_many :depictions, as: :depiction_object 
   end
 
   def has_depictions?

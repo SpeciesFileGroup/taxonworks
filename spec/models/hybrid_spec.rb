@@ -62,8 +62,6 @@ describe Hybrid, type: :model, group: [:nomenclature]  do
       expect(hybrid.errors.include?(:rank_class)).to be_truthy
     end
 
-
-
     specify 'rank is valid when ICN rank' do 
       hybrid.rank_class = 'NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup::Species'
       hybrid.valid?
