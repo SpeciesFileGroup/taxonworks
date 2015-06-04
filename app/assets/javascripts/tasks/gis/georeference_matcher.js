@@ -213,21 +213,6 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
       $("#new_article").append("<p>ERROR</p>");
     });
 
-    //$("#submit_recent_ce").click(function (event) {
-    //   // $('#how_many').val($('#how_many_recent').val());
-    //    var extra = $('form#recent_ce_count').serialize();
-    //    $.get('recent_ce_collecting_events', extra, function (local_data) {
-    //        // what to do with the json we get back....
-    //        $("#_recent_ce_form").attr("hidden", true);
-    //        var selecting = $('#_selecting_ce_form');
-    //        selecting.removeAttr('hidden');
-    //        selecting.html(local_data['html']);
-    //    });
-    //
-    //    event.preventDefault();
-    //});
-
-
 ///////////////////////////////////////////////////////////
 //   georeference (right) side handlers
 ///////////////////////////////////////////////////////////
@@ -574,6 +559,8 @@ function add_match_georeferences_map_listeners(map) {      // 4 listeners, one f
       var selected_feature_georeference_id = event.feature.getProperty('georeference').id;      // unfortunate Google maps reference
       $("#selected_georeference_id").val(selected_feature_georeference_id);           // plant the clicked ID in a safe place
 //      $("#georeference_id").val($("#selected_georeference_id").val());
+      $("#_find_gr_form").attr("hidden", true);
+      $("#_selected_gr_form").removeAttr("hidden");
       var feature_collection = $("#_select_gr_form").data('feature-collection');      // literal-based form data reference
       for (var i = 0; i < feature_collection.features.length; i++) {                  // scan the feature_collection
         if (selected_feature_georeference_id == feature_collection.features[i].properties['georeference'].id) {  // for the match
