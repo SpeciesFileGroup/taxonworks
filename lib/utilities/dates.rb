@@ -45,7 +45,7 @@ module Utilities::Dates
         end
 
         if !i.nil? && i > 0 && i < 13
-          h[k] = DateTime.new(1, i, 1).strftime("%b").downcase.to_sym
+          h[k] = DateTime.new(1, i, 1).strftime('%b').downcase.to_sym
         else # return the value passed if it doesn't match
           k
         end
@@ -96,7 +96,7 @@ module Utilities::Dates
     st_blank                     = (st_year.blank? and st_month.blank? and st_day.blank?)
     st_full                      = (!st_year.blank? and !st_month.blank? and !st_day.blank?)
     st_partial                   = (!st_blank and (st_year.blank? or st_month.blank? or st_day.blank?))
-# start_time                   = fix_time(st_year, st_month, st_day) if st_full
+    start_time                   = fix_time(st_year, st_month, st_day) if st_full
 
 # processing end date data
     end_year, end_month, end_day = params['end_date_year'], params['end_date_month'], params['end_date_day']
@@ -110,9 +110,9 @@ module Utilities::Dates
     end_blank   = (end_year.blank? and end_month.blank? and end_day.blank?)
     end_full    = (!end_year.blank? and !end_month.blank? and !end_day.blank?)
     end_partial = (!end_blank and (end_year.blank? or end_month.blank? or end_day.blank?))
-# end_time    = fix_time(end_year, end_month, end_day) if end_full
+    end_time    = fix_time(end_year, end_month, end_day) if end_full
 
-    sql_string  = ''
+    sql_string = ''
 # if all the date information is blank, skip the date testing
     unless st_blank and end_blank
       # only start and end year
@@ -159,10 +159,10 @@ module Utilities::Dates
   # Pass integers
   def self.format_to_hours_minutes_seconds(hour, minute, second)
     h, m, s = nil, nil, nil
-    h       = ("%02d" % hour) if hour
-    m       = ("%02d" % minute) if minute
-    s       = ("%02d" % second) if second
-    [h, m, s].compact.join(":")
+    h       = ('%02d' % hour) if hour
+    m       = ('%02d' % minute) if minute
+    s       = ('%02d' % second) if second
+    [h, m, s].compact.join(':')
   end
 
   private_class_method
@@ -172,10 +172,8 @@ module Utilities::Dates
   # @return [String] of sql
   def self.add_st_year(sql, st_year)
     unless st_year.blank?
-      unless sql.blank?
-        prefix = ' and '
-      end
-      sql += "#{prefix}(start_date_year = #{st_year})"
+      prefix = sql.blank? ? '' : ' and '
+      sql    += "#{prefix}(start_date_year = #{st_year})"
     end
     sql
   end
@@ -185,10 +183,8 @@ module Utilities::Dates
   # @return [String] of sql
   def self.add_st_month(sql, st_month)
     unless st_month.blank?
-      unless sql.blank?
-        prefix = ' and '
-      end
-      sql += "#{prefix}(start_date_month = #{st_month})"
+      prefix = sql.blank? ? '' : ' and '
+      sql    += "#{prefix}(start_date_month = #{st_month})"
     end
     sql
   end
@@ -198,10 +194,8 @@ module Utilities::Dates
   # @return [String] of sql
   def self.add_st_day(sql, st_day)
     unless st_day.blank?
-      unless sql.blank?
-        prefix = ' and '
-      end
-      sql += "#{prefix}(start_date_day = #{st_day})"
+      prefix = sql.blank? ? '' : ' and '
+      sql    += "#{prefix}(start_date_day = #{st_day})"
     end
     sql
   end
