@@ -32,6 +32,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
     $("#filtering_ce_data").on("ajax:success", function (e, data, status, local_data) {
       // make a local object of the selecting form so we can use it later
       var selecting = $('#_selecting_ce_form');
+      selecting.removeAttr('hidden');
       // see what the message was, if anything
       var message = local_data.responseJSON['message'];
       if (message.length) {
@@ -40,11 +41,10 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
       else {
         // shove the returning html into the local form
         selecting.html(local_data.responseJSON['html']);
-        // hide the filter div
-        $("#_filter_ce_form").attr("hidden", true);
       }
       // unhide the local div
-      selecting.removeAttr('hidden');
+      // hide the filter div
+      $("#_filter_ce_form").attr("hidden", true);
       return true;
     }).on("ajax:error", function (e, xhr, status, error) {
       $("#new_article").append("<p>ERROR</p>");
@@ -75,17 +75,17 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
       if (message.length) {
         selecting.html(message);
       }
-    else {
-      // shove the returning html into the local form
-      selecting.html(local_data.responseJSON['html']);
+      else {
+        // shove the returning html into the local form
+        selecting.html(local_data.responseJSON['html']);
 // plant the id for the submit
-      $("#create").click(function (event) {      // register the click handler for the made-from-scratch-button
-        $("#georeference_id").val($("#selected_georeference_id").val());  // get the stored value from center map form
-        $("#create_georeferences").on("ajax:success", function (e, data, status, result_data) {
-          $('#_selecting_ce_form').html(result_data.responseJSON['html']);
-        })
-      }
-      )
+        $("#create").click(function (event) {      // register the click handler for the made-from-scratch-button
+            $("#georeference_id").val($("#selected_georeference_id").val());  // get the stored value from center map form
+            $("#create_georeferences").on("ajax:success", function (e, data, status, result_data) {
+              $('#_selecting_ce_form').html(result_data.responseJSON['html']);
+            })
+          }
+        )
       }
       // hide the tag div
       $("#_tag_ce_form").attr("hidden", true);
@@ -127,6 +127,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
 //  on successful upload and processing of polygon or shape file,
 //  instantiate a selecting form and map
         var selecting = $('#_selecting_ce_form');
+        selecting.removeAttr('hidden');
         // see what the message was, if anything
         var message = result_data.responseJSON['message'];
         // shove the returning html into the local form
@@ -150,7 +151,6 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
           }
         )
         $("#_draw_ce_form").attr("hidden", true);
-        $("#_selecting_ce_form").removeAttr('hidden');
         return true;
       }
     ).on("ajax:error", function (e, xhr, status, error) {
@@ -247,12 +247,12 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
         // shove the returning html into the local form
         selecting.html(local_data.responseJSON['html']);
         // hide the filter div
-        $("#_filter_gr_form").attr("hidden", true);
 
         // start the map process
         this_map = initializeMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
         add_match_georeferences_map_listeners(this_map);
       }
+      $("#_filter_gr_form").attr("hidden", true);
       return true;
     }).on("ajax:error", function (e, xhr, status, error) {
       $("#new_article").append("<p>ERROR</p>");
@@ -346,22 +346,22 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
         $("#_selecting_gr_form").removeAttr('hidden');
         // see what the message was, if anything
         var message = result_data.responseJSON['message'];
-      if (message.length) {
-        selecting.html(message);
-      }
-      else {
-        // shove the returning html into the local form
-        selecting.html(result_data.responseJSON['html']);
-        this_map = initializeMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
-        add_match_georeferences_map_listeners(this_map);
-        if ($("#_select_gr_form").data('feature-collection').features.length == 1) {
-
-          this_map = initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
+        if (message.length) {
+          selecting.html(message);
         }
         else {
-          this_map = initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_selected_gr_form").data('feature-collection'));
+          // shove the returning html into the local form
+          selecting.html(result_data.responseJSON['html']);
+          this_map = initializeMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
+          add_match_georeferences_map_listeners(this_map);
+          if ($("#_select_gr_form").data('feature-collection').features.length == 1) {
+
+            this_map = initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
+          }
+          else {
+            this_map = initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_selected_gr_form").data('feature-collection'));
+          }
         }
-      }
         $("#_draw_gr_form").attr("hidden", true);
         return true;
       }
