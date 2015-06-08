@@ -204,7 +204,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
             $("#georeference_id").val($("#selected_georeference_id").val());  // get the stored value from center map form
 
           }
-        )
+        );
 
         $("#create_georeferences").on("ajax:success", function (e, data, status, local_data) {
             $("#result_from_post").html(local_data.responseJSON['html']);
@@ -263,18 +263,18 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
       $("#new_article").append("<p>ERROR</p>");
     });
 
-    $(".tag-ce").click(function (event) {
-
-      // unhide this form
-      $("#_tag_ce_form").removeAttr("hidden");
-      // hide everything else: filter; drawing; recent;
-      $("#_filter_ce_form").attr("hidden", true);
-      $("#_draw_ce_form").attr("hidden", true);
-      $("#_recent_ce_form").attr("hidden", true);
-      $('#_selecting_ce_form').attr('hidden', true);
-
-      event.preventDefault();
-    });
+    //$(".tag-ce").click(function (event) {
+    //
+    //  // unhide this form
+    //  $("#_tag_ce_form").removeAttr("hidden");
+    //  // hide everything else: filter; drawing; recent;
+    //  $("#_filter_ce_form").attr("hidden", true);
+    //  $("#_draw_ce_form").attr("hidden", true);
+    //  $("#_recent_ce_form").attr("hidden", true);
+    //  $('#_selecting_ce_form').attr('hidden', true);
+    //
+    //  event.preventDefault();
+    //});
 
 
     $(".tag-gr").click(function (event) {
@@ -348,7 +348,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
 //  on successful upload and processing of polygon or shape file,
 //  instantiate a selecting form and map
         var selecting = $('#_selecting_gr_form');
-        $("#_selecting_gr_form").removeAttr('hidden');
+        selecting.removeAttr('hidden');
         // see what the message was, if anything
         var message = result_data.responseJSON['message'];
         if (message.length) {
@@ -575,7 +575,6 @@ function add_match_georeferences_map_listeners(map) {      // 4 listeners, one f
         }                                                   // selected_map can be used to bind other listeners
       }
     }
-    ;
     //add_click_services_to_match_georeferences_map(map, event);
   });
 
@@ -595,7 +594,5 @@ function add_match_georeferences_map_listeners(map) {      // 4 listeners, one f
   google.maps.event.addListener(map, 'click', function (event) {
     add_click_services_to_match_georeferences_map(map, event);
   });
-
-
 }           // add_listeners end
 

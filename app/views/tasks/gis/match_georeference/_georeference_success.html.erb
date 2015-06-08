@@ -4,16 +4,16 @@
       <th>Georeference</th>
       <th>Result</th>
       <th>CE #</th>
-      <th></th>
+      <!--<th></th>-->
     </tr>
     <tbody>
     <% georeferences_results.each do |g| %>
         <tr>
           <td>
-            <%= g.valid? ? link_to("show", g.metamorphosize) : 'not saved' %>
+            <%= g.new_record? ? 'not saved' : link_to("show", g.metamorphosize) %>
           </td>
           <td>
-            <%= g.valid? %>
+            <%= g.new_record? ? false : true %>
           </td>
           <td>
             <%= object_tag(g.collecting_event) %>
