@@ -186,26 +186,10 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
       }
       else {
         selecting.html(local_data.responseJSON['html']);      // render the table
-
-        //$("#btn_create_georeferences").click(function (event) {      // register the click handler for the made-from-scratch-button
-        //    $("#georeference_id").val($("#selected_georeference_id").val());  // get the stored value from center map form
-        //    // Before we invoke this method, we need to package the ids of the collecting events into an array
-        //    // so that the receiving function can process them easily
-        //    $.post('batch_create_match_georeferences', $('form#create_georeferences').serialize(), function (return_data) {
-        //        selecting.html(return_data.responseJSON['html']);
-        //        initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_selected_gr_form").data('feature-collection'));
-        //      }
-        //    );
-        //    event.preventDefault();
-        //  }
-        //);
-// plant the id for the submit
-        $("#create").click(function (event) {      // register the click handler for the made-from-scratch-button
-            $("#georeference_id").val($("#selected_georeference_id").val());  // get the stored value from center map form
-
+        $("#create").click(function (event) {      // register the click handler for the form button
+            $("#georeference_id").val($("#selected_georeference_id").val());  // get the stored value from center map form for the submit
           }
         );
-
         $("#create_georeferences").on("ajax:success", function (e, data, status, local_data) {
             $("#result_from_post").html(local_data.responseJSON['html']);
             //initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_selected_gr_form").data('feature-collection'));
