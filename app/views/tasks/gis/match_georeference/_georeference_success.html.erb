@@ -16,7 +16,7 @@
             <%= g.new_record? ? false : true %>
           </td>
           <td>
-            <%= object_tag(g.collecting_event) %>
+            <%= g.new_record? ? '-' : g.collecting_events.count %>
           </td>
         </tr>
     <% end %>
