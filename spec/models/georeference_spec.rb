@@ -334,27 +334,45 @@ describe Georeference, type: :model, group: :geo do
 
     specify '.within_radius_of(geographic_item, distance)' do
       expect(Georeference).to respond_to :within_radius_of_item
-      expect(Georeference.within_radius_of_item(@gr_point.geographic_item, 112000).to_a).to eq([@gr_poly, @gr_point])
+      expect(Georeference.within_radius_of_item(@gr_point.geographic_item, 112000).to_a).to contain_exactly(@gr_poly, @gr_point)
       # but specifically *not* @gr1
     end
 
-    specify '.with_locality_like(string)' do
+    context '.with_locality_like(string)' do
       # return all Georeferences that are attached to a CollectingEvent that has a verbatim_locality that includes String somewhere
       # Joins collecting_event.rb and matches %String% against verbatim_locality 
 
       # .where(id in CollectingEvent.where{verbatim_locality like "%var%"})
-      expect(Georeference).to respond_to :with_locality_like
-      # TODO: (04/15/14) these have to be turned into ActiveRecord::Relationship
-      expect(Georeference.with_locality_like('Illinois').to_a).to eq([@gr_point])
-      expect(Georeference.with_locality_like('Locality ').to_a).to eq([@gr1.becomes(Georeference::VerbatimData), @gr_poly])
-      expect(Georeference.with_locality_like('Saskatoon').to_a).to eq([])
+      specify 'respondes to .with_locality_like' do
+        expect(Georeference).to respond_to :with_locality_like
+      end
+
+      specify 'finds one' do
+        expect(Georeference.with_locality_like('Illinois')).to contain_exactly(@gr_point)
+      end
+
+      specify 'finds more than one' do
+        expect(Georeference.with_locality_like('Locality ')).to contain_exactly(@gr1.becomes(Georeference::VerbatimData), @gr_poly)
+      end
+
+      specify 'finds none' do
+        expect(Georeference.with_locality_like('Saskatoon')).to contain_exactly # nothing
+      end
     end
 
-    specify '.with_locality(String)' do
-      expect(Georeference).to respond_to :with_locality
-      expect(Georeference.with_locality('Champaign Co., Illinois').to_a).to eq([@gr_point])
-      expect(Georeference.with_locality('Saskatoon, Saskatchewan, Canada').to_a).to eq([])
-      # expect(Georeference.with_locality('Locality 8 for testing...').to_a).to eq([@gr1.becomes(Georeference::VerbatimData)])
+    context '.with_locality(String)' do
+
+      specify 'responds to .with_locality' do
+        expect(Georeference).to respond_to :with_locality
+      end
+
+      specify 'finds one' do
+        expect(Georeference.with_locality('Champaign Co., Illinois')).to contain_exactly(@gr_point)
+      end
+
+      specify 'finds none' do
+        expect(Georeference.with_locality('Saskatoon, Saskatchewan, Canada')).to contain_exactly # nothing
+      end
     end
 
     specify '.with_geographic_area(geographic_area)' do

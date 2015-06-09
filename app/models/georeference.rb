@@ -262,13 +262,9 @@ class Georeference < ActiveRecord::Base
   # TODO: Arelize
   def self.with_locality_as(string, like)
     likeness = like ? '%' : ''
-    like     = like ? 'like' : '='
-    query    = "verbatim_locality #{like} '#{likeness}#{string}#{likeness}'"
+    query    = "verbatim_locality #{like ? 'ilike' : '='} '#{likeness}#{string}#{likeness}'"
 
-    partial_ce = CollectingEvent.where(query)
-
-    partial_gr = Georeference.where('collecting_event_id in (?)', partial_ce.pluck(:id))
-    partial_gr
+    Georeference.where('collecting_event_id in (?)', CollectingEvent.where(query).pluck(:id))
   end
 
   # validation methods
@@ -409,14 +405,14 @@ class Georeference < ActiveRecord::Base
 
   # @return [Boolean] true iff error_radius contains geographic_item.
   def add_obj_inside_err_radius
-    if !check_obj_inside_err_radius
+    unless check_obj_inside_err_radius
       errors.add(:error_radius, 'must contain geographic_item.')
     end
   end
 
   # @return [Boolean] true iff error_geographic_item contains geographic_item.
   def add_obj_inside_err_geo_item
-    if !check_obj_inside_err_geo_item
+    unless check_obj_inside_err_geo_item
       errors.add(:error_geographic_item, 'must contain geographic_item.')
     end
   end
