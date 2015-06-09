@@ -3,7 +3,6 @@ var _init_match_georeference_page_widget;
 _init_match_georeference_page_widget = function init_match_georeference_page() {
   if ($('#match_georeference_widget').length) {
 
-// TODO:  find glitch in right-hand map centereing
 //        send polygon or circle to controller from right-hand draw map
 //        reconfigure drawn map to mimic asseted distributions behavior
 //        construct callback to transition from draw map to selecting map
@@ -39,9 +38,20 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
         selecting.html(message);
       }
       else {
-        // shove the returning html into the local form
-        selecting.html(local_data.responseJSON['html']);
+        selecting.html(local_data.responseJSON['html']);      // render the table
+        $("#create").click(function (event) {      // register the click handler for the form button
+            $("#georeference_id").val($("#selected_georeference_id").val());  // get the stored value from center map form for the submit
+          }
+        );
+        $("#create_georeferences").on("ajax:success", function (e, data, status, local_data) {
+            $("#result_from_post").html(local_data.responseJSON['html']);
+          }
+        )
       }
+      //else {
+      //  // shove the returning html into the local form
+      //  selecting.html(local_data.responseJSON['html']);
+      //}
       // unhide the local div
       // hide the filter div
       $("#_filter_ce_form").attr("hidden", true);
@@ -82,8 +92,9 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
         $("#create").click(function (event) {      // register the click handler for the made-from-scratch-button
             $("#georeference_id").val($("#selected_georeference_id").val());  // get the stored value from center map form
             $("#create_georeferences").on("ajax:success", function (e, data, status, result_data) {
-              $('#_selecting_ce_form').html(result_data.responseJSON['html']);
-            })
+                $('#_selecting_ce_form').html(result_data.responseJSON['html']);
+              }
+            )
           }
         )
       }
@@ -134,24 +145,14 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
           selecting.html(message);
         }
         else {
-// shove the returning html into the local form
+          // shove the returning html into the local form
           selecting.html(result_data.responseJSON['html']);
-          //this_map = initializeMap($("#_select_ce_form").data('map-canvas'), $("#_select_ce_form").data('feature-collection'));
-          //add_match_georeferences_map_listeners(this_map);
-          //if ($("#_select_ce_form").data('feature-collection').features.length == 1) {
-          //
-          //  this_map = initializeMap($("#_selected_ce_form").data('map-canvas'), $("#_select_ce_form").data('feature-collection'));
-          //}
-          //else {
-          //  this_map = initializeMap($("#_selected_ce_form").data('map-canvas'), $("#_selected_ce_form").data('feature-collection'));
-          //}
 // plant the id for the submit
           $("#create").click(function (event) {      // register the click handler for the made-from-scratch-button
               $("#georeference_id").val($("#selected_georeference_id").val());  // get the stored value from center map form
               $("#create_georeferences").on("ajax:success", function (e, data, status, result_data) {
                 $('#_selecting_ce_form').html(result_data.responseJSON['html']);
-              });
-              //return true;
+              })
             }
           )
         }
@@ -402,27 +403,6 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
         event.preventDefault();
       }
     );
-
-
-    //$("#submit_recent_ce").click(function (event) {
-    //   // $('#how_many').val($('#how_many_recent').val());
-    //    var extra = $('form#recent_ce_count').serialize();
-    //    $.get('recent_ce_collecting_events', extra, function (local_data) {
-    //        // what to do with the json we get back....
-    //        $("#_recent_ce_form").attr("hidden", true);
-    //        var selecting = $('#_selecting_ce_form');
-    //        selecting.removeAttr('hidden');
-    //        selecting.html(local_data['html']);
-    //    });
-    //
-    //    event.preventDefault();
-    //});
-
-    // this is the find submits ajax request, get's FC response and draws it on the map
-
-    // within above, bind click events to copy FC item to FC item
-    // this_map = initializeGoogleMapWithDrawManager("#_draw_ce_form");
-
   }
   /* ----
 
@@ -466,66 +446,11 @@ $(document).on("page:load", _init_match_georeference_page_widget);
 
 
 function add_click_services_to_match_georeferences_map(map, event) {     // click event passed in
-  // captures and displays map coordinates from click event thru asserted_distribution/new.html.erb..span:map_coords
-  // checks for preemptive condition
-  // requests and displays choices from asserted_distribution_controller thru .../new...span:qnadf
   // clears previous map data features
-  // sets mouseover/mouseout behavior for buttons via forEach(function(feature))
-  //   in map.data corresponding to "button_nnnn" where nnnn is area id
-  // resizes, recenters map based on new features
-  //   var mapLatLng = event.latLng;
-
-  //$("#map_coords").html('Coordinates: Latitude = ' + mapLatLng.lat().toFixed(6) + ' , Longitude = ' + mapLatLng.lng().toFixed(6)) ;
-  //if(new_asserted_distribution_check_preemption()) {return;};
-  //
-  //$("#latitude").val(mapLatLng.lat());
-  //$("#longitude").val(mapLatLng.lng());
-
   $.get('drawn_georeferences', $('form#_select_gr_form').serialize(), function (local_data) {
-      //$("#choices").html(local_data['html']);      // local_data contains html(selection forms)
-      // quick_new_asserted_distribution_form and feature collection geoJSON
       //map.data.forEach(function(feature) {map.data.remove(feature);});    // clear the map.data
       map = initializeMap("show_gr_canvas", local_data['feature_collection'])
       map.data.addGeoJson(local_data['feature_collection']);      // add the geo features corresponding to the forms
-
-      // select buttons of the form: "button_nnnn" with jquery, and bind the listener events
-
-      //$("[id^=button_]").mouseover(function() {       // set mouseover for each area
-      //var this_id = this.id;
-      //var area_id = this_id.slice(7,this_id.length);      // 'button_'.length, 'button_abc...xyz'.length
-      //map.data.forEach(function(feature) {        // find by geographic area id
-      ////this_feature = map.data.getFeatureById(jj); // not used, 0-reference fault in google maps
-      //this_feature = feature;
-      //this_property = this_feature.getProperty('geographic_area');
-      //if(this_property.id != area_id) {
-      ////map.data.getFeatureById(01).getProperty('geographic_area')
-      ////map.data.overrideStyle(this_feature, {fillColor: '#000000'});     //  black
-      //map.data.overrideStyle(this_feature, {strokeWeight: 0.0});       // erase borders
-      //map.data.overrideStyle(this_feature, {fillOpacity: 0.0});       // transparent
-      //}
-      //if(this_property.id == area_id) {
-      //map.data.overrideStyle(this_feature, {fillColor: '#FF0000'});  //  red
-      //map.data.overrideStyle(this_feature, {strokeWeight: 2});       //embolden borders
-      //map.data.overrideStyle(this_feature, {fillOpacity: 1.0});       // transparent
-      //}
-      //});
-      //})
-      //
-      //$("[id^=button_]").mouseout(function() {        // set mouseout for each area (condensed)
-      //var this_id = this.id;                      // var this since it goes out of scope with .forEach
-      //map.data.forEach(function(feature) {        // find by geographic area id
-      //if(feature.getProperty('geographic_area').id == this_id.slice(7,this_id.length)) { map.data.revertStyle(); }
-      //// 'button_'.length, 'button_abc...xyz'.length
-      //});
-      //})
-      //
-      //var data = local_data['feature_collection'];
-      //var bounds = {};
-      //getData(data, bounds);
-      //var center_lat_long = get_window_center(bounds);
-      //map.setCenter(center_lat_long);
-      //map.setZoom(bounds.gzoom);
-      ////map.fitBounds(bounds.box);
     },
     'json' // I expect a JSON response
   );
@@ -547,9 +472,9 @@ function add_match_georeferences_map_listeners(map) {      // 4 listeners, one f
       //  var selected_feature_georeference_id = event.feature["A"].georeference.id;      // unfortunate Google maps reference
       var selected_feature_georeference_id = event.feature.getProperty('georeference').id;      // unfortunate Google maps reference
       $("#selected_georeference_id").val(selected_feature_georeference_id);           // plant the clicked ID in a safe place
-//      $("#georeference_id").val($("#selected_georeference_id").val());
+//    literal-based hide the "instructions" div
       $("#_find_gr_form").attr("hidden", true);
-      $("#_selected_gr_form").removeAttr("hidden");
+      $("#_selected_gr_form").removeAttr("hidden");   // literal-based reveal the map
       var feature_collection = $("#_select_gr_form").data('feature-collection');      // literal-based form data reference
       for (var i = 0; i < feature_collection.features.length; i++) {                  // scan the feature_collection
         if (selected_feature_georeference_id == feature_collection.features[i].properties['georeference'].id) {  // for the match

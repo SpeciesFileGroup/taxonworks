@@ -113,11 +113,12 @@ function initializeGoogleMap(map_canvas, fcdata, map_center) {
     //
     var bounds = {};    //xminp: xmaxp: xminm: xmaxm: ymin: ymax: -90.0, center_long: center_lat: gzoom:
 
-   // a map center looks like  'POINT (0.0 0.0 0.0)'
+   // a map center looks like  'POINT (0.0 0.0 0.0)' as (x, y, z)
 
     var map_center_parts  = map_center.split("(");
-    var lat = map_center_parts[1].split(' ')[1];
-    var lng = map_center_parts[1].split(' ')[0];
+    var map_center_coords = map_center_parts[1].split(' ');
+    var lat = map_center_coords[1]; // y
+    var lng = map_center_coords[0]; // x
 
     // TODO: what does this actually do, should it be calculateCenter()?  If it is
     // setting a value for bounds then it should be assinging bounds to a function
