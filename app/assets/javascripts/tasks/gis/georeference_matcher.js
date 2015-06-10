@@ -82,6 +82,8 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
     $("#tagged_ce_keyword").on("ajax:success", function (e, data, status, local_data) {
       // make a local object of the selecting form so we can use it later
       var selecting = $('#_selecting_ce_form');
+      // unhide the local div
+      selecting.removeAttr('hidden');
       // see what the message was, if anything
       var message = local_data.responseJSON['message'];
       if (message.length) {
@@ -102,7 +104,6 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
       }
       // hide the tag div
       $("#_tag_ce_form").attr("hidden", true);
-      // unhide the local div
       selecting.removeAttr('hidden');
       return true;
     }).on("ajax:error", function (e, xhr, status, error) {
@@ -110,7 +111,6 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
     });
 
     $(".draw-ce").click(function (event) {
-
       // unhide this form
       $("#_draw_ce_form").removeAttr("hidden");
       // hide everything else: filter; tag; recent;
