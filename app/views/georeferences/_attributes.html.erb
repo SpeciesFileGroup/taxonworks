@@ -1,6 +1,6 @@
 <%= render(partial: 'layouts/map_header') -%>
 
-<div class="attributes"> 
+<div class="attributes">
   <p>
     <strong>Geographic item:</strong>
     <%= geographic_item_link(@georeference.geographic_item) -%>
@@ -14,9 +14,15 @@
        data-feature-collection='<%= Gis::GeoJSON.feature_collection([@georeference.geographic_item, @georeference.error_geographic_item]).to_json.html_safe %>'></div>
   <div id="georeference_google_map_canvas" style="width:512px; height: 256px;"></div>
   <span id="map_coords"></span>
+
   <p>
     <strong>Collecting event:</strong>
     <%= collecting_event_link(@georeference.collecting_event) %>
+  </p>
+
+  <p>
+    <strong>Count of collecting events using the same geographic item:</strong>
+    <%= collecting_events_count_using_this_georeference(@georeference.geographic_item_id) %>
   </p>
 
   <p>

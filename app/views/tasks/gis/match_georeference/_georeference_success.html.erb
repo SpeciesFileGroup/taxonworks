@@ -3,6 +3,7 @@
     <tr>
       <th>Georeference</th>
       <th>Result</th>
+      <th>CE Id</th>
       <th>CE #</th>
       <!--<th></th>-->
     </tr>
@@ -10,13 +11,16 @@
     <% georeferences_results.each do |g| %>
         <tr>
           <td>
-            <%= g.new_record? ? 'not saved' : link_to("show", g.metamorphosize) %>
+            <%= g.new_record? ? 'not saved' : link_to('show', g.metamorphosize) %>
           </td>
           <td>
             <%= g.new_record? ? false : true %>
           </td>
           <td>
-            <%= g.new_record? ? '-' : g.collecting_events.count %>
+            <%= g.collecting_event_id %>
+          </td>
+          <td>
+            <%= collecting_events_count_using_this_georeference(g.geographic_item_id) %>
           </td>
         </tr>
     <% end %>
