@@ -14,10 +14,6 @@
     <%= forward_back_links(@geographic_item) -%> <br><br>
 
     <div id="geographic_item_map_canvas" style="width:512px; height: 256px;"></div>
-    <script language="javascript">
-        initGAmap();        // could/should use separate function initGImap
-    </script>
-
     <p>
       <strong>Count of collecting events using <br> this geographic item for georeference:</strong>
       <%= collecting_events_count_using_this_georeference(@geographic_item.id) %>

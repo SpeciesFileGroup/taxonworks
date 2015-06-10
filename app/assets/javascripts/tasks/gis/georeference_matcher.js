@@ -12,7 +12,6 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
     //this_map = initializeGoogleMapWithDrawManager("#_draw_gr_form");
 
     $(".filter-ce").click(function (event) {
-
       // unhide this form
       $("#_filter_ce_form").removeAttr("hidden");
       // hide everything else:  tag; drawing; recent;
@@ -32,6 +31,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
     $("#filtering_ce_data").on("ajax:success", function (e, data, status, local_data) {
       // make a local object of the selecting form so we can use it later
       var selecting = $('#_selecting_ce_form');
+      // unhide the local div
       selecting.removeAttr('hidden');
       // see what the message was, if anything
       var message = local_data.responseJSON['message'];
@@ -39,30 +39,28 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
         selecting.html(message);
       }
       else {
+        // shove the returning html into the local form
         selecting.html(local_data.responseJSON['html']);      // render the table
+// plant the id for the submit
         $("#create").click(function (event) {      // register the click handler for the form button
             $("#georeference_id").val($("#selected_georeference_id").val());  // get the stored value from center map form for the submit
           }
         );
         $("#create_georeferences").on("ajax:success", function (e, data, status, local_data) {
-            $("#result_from_post").html(local_data.responseJSON['html']);
+            $("#result_from_post").html(local_data.responseJSON['html']);    // shove the returning html into the local form
           }
-        )
+        ).on("ajax:error", function (e, xhr, status, error) {
+            $("#new_article").append("<p>ERROR</p>");
+          });
       }
-      //else {
-      //  // shove the returning html into the local form
-      //  selecting.html(local_data.responseJSON['html']);
-      //}
-      // unhide the local div
       // hide the filter div
-      $("#_filter_ce_form").attr("hidden", true);
+      //$("#_filter_ce_form").attr("hidden", true);
       return true;
     }).on("ajax:error", function (e, xhr, status, error) {
       $("#new_article").append("<p>ERROR</p>");
     });
 
     $(".tag-ce").click(function (event) {
-
       // unhide this form
       $("#_tag_ce_form").removeAttr("hidden");
       // hide everything else: filter; drawing; recent;
@@ -84,7 +82,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
       var selecting = $('#_selecting_ce_form');
       // unhide the local div
       selecting.removeAttr('hidden');
-      // see what the message was, if anything
+      // see what the first response message was, if anything
       var message = local_data.responseJSON['message'];
       if (message.length) {
         selecting.html(message);
@@ -95,16 +93,17 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
 // plant the id for the submit
         $("#create").click(function (event) {      // register the click handler for the made-from-scratch-button
             $("#georeference_id").val($("#selected_georeference_id").val());  // get the stored value from center map form
-            $("#create_georeferences").on("ajax:success", function (e, data, status, result_data) {
-                $('#_selecting_ce_form').html(result_data.responseJSON['html']);
-              }
-            )
           }
-        )
+        );
+        $("#create_georeferences").on("ajax:success", function (e, data, status, result_data) {
+            $('#_selecting_ce_form').html(result_data.responseJSON['html']);
+          }
+        ).on("ajax:error", function (e, xhr, status, error) {
+            $("#new_article").append("<p>ERROR</p>");
+          });
       }
       // hide the tag div
-      $("#_tag_ce_form").attr("hidden", true);
-      selecting.removeAttr('hidden');
+      //$("#_tag_ce_form").attr("hidden", true);
       return true;
     }).on("ajax:error", function (e, xhr, status, error) {
       $("#new_article").append("<p>ERROR</p>");
@@ -488,7 +487,7 @@ function add_match_georeferences_map_listeners(map) {      // 4 listeners, one f
         }                                                   // selected_map can be used to bind other listeners
       }
     }
-    //add_click_services_to_match_georeferences_map(map, event);
+    // DON'T: none to add at this point; add_click_services_to_match_georeferences_map(map, event);
   });
 
   // When the user hovers, tempt them to click by outlining the letters.
@@ -502,10 +501,6 @@ function add_match_georeferences_map_listeners(map) {      // 4 listeners, one f
 
   map.data.addListener('mouseout', function (event) {
     map.data.revertStyle();
-  });
-
-  google.maps.event.addListener(map, 'click', function (event) {
-    add_click_services_to_match_georeferences_map(map, event);
   });
 }           // add_listeners end
 
