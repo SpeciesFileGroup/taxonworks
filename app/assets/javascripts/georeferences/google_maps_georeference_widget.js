@@ -5,7 +5,7 @@ var _initialize_google_maps_georeference_widget;
 
 _initialize_google_maps_georeference_widget = function init_new_georeference_google_map() {
     if ($('#google_maps_georeference_widget').length) {  // preempt omni-listener affecting wrong canvas
-        var setup = initializeGoogleMapWithDrawManager("# g");
+        var setup = initializeGoogleMapWithDrawManager("#google_maps_georeference_widget");
         var map = setup[0];
         var drawingManager = setup[1];
 
