@@ -132,7 +132,7 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
   end
 
   def batch_create_match_georeferences
-
+    message = ''
     respond_to do |format|
       format.json {
         # we want to repackage the checkmarks we get from the client side into an array of ids with which
@@ -150,11 +150,15 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
 
         results = Georeference.batch_create_from_georeference_matcher(arguments)
 
+        if results.length == 0
+          message = 'No collecting events were selected.'
+        end
+
         html = render_to_string(partial: 'georeference_success', formats: 'html',
                                 locals:  {georeferences_results: results}
         )
 
-        render json: {message: '',
+        render json: {message: message,
                       html:    html
                }
         # render json: {message: '',
