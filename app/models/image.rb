@@ -32,6 +32,7 @@ class Image < ActiveRecord::Base
 
   before_save :extract_tw_attributes
 
+  # also using https://github.com/teeparham/paperclip-meta
   has_attached_file :image_file,
                     styles:           {:medium => '300x300>', :thumb => '100x100>'},
                     default_url:      MISSING_IMAGE_PATH,

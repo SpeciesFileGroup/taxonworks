@@ -303,6 +303,13 @@ TaxonWorks::Application.routes.draw do
     end
 
     scope :accessions do
+
+      scope :breakdown do
+        scope :sqed, controller: 'tasks/accessions/breakdown/sqed' do
+          get 'index/:depiction_id', action: :index, as: 'sqed_breakdown_task'
+        end
+      end
+
       scope :verify do
         scope :material, controller: 'tasks/accessions/verify/material' do
           get 'index/:by', action: :index, as: 'verify_accessions_task'

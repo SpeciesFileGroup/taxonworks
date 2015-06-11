@@ -1,0 +1,12 @@
+
+
+<%= image_tag(@depiction.image.image_file(:thumb)) -%>
+
+<%= image_tag(@filename, width: 300) -%>
+
+
+<%= ap(@sqed.attributes).html_safe -%>
+
+<%= ap(@sqed_result.boundary_coordinates).html_safe -%>
+
+<%= @tempfile.path -%>  <br />
