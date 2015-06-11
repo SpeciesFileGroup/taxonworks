@@ -62,7 +62,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
           }
         ).on("ajax:error", function (e, xhr, status, error) {
             $("#new_article").append("<p>ERROR</p>");
-          });
+          })
       }
       // hide the filter div
       //$("#_filter_ce_form").attr("hidden", true);
@@ -120,7 +120,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
           }
         ).on("ajax:error", function (e, xhr, status, error) {
             $("#new_article").append("<p>ERROR</p>");
-          });
+          })
       }
       // hide the tag div
       //$("#_tag_ce_form").attr("hidden", true);
@@ -232,7 +232,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
           }
         ).on("ajax:error", function (e, xhr, status, error) {
             $("#new_article").append("<p>ERROR</p>");
-          });
+          })
       }
       // hide the filter div
       // $("#_recent_ce_form").attr("hidden", true);
