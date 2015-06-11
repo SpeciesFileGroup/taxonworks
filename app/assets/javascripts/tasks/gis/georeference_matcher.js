@@ -8,7 +8,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
 //        construct callback to transition from draw map to selecting map
 
     var this_map = [];
-
+    var last = null;
 ///////////////////////////////////////////////////////////
 //   collecting event (left) side handlers
 ///////////////////////////////////////////////////////////
@@ -144,12 +144,14 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
       this_map = initializeGoogleMapWithDrawManager("#_draw_ce_form");  //set up a blank draw canvas
       google.maps.event.addListener(this_map[1], 'overlaycomplete', function (event) {
           // Remove the last created shape if it exists.
-          //if (last != null) {
-          //  if (last[0] != null) {
-          //    removeItemFromMap(last[0]);
-          //  }
-          //}
-          //
+          if (last != null) {
+            if (last[0] != null) {
+              removeItemFromMap(last[0]);
+            }
+          }
+
+          last = [event.overlay, event.type];
+
           var feature = buildFeatureCollectionFromShape(event.overlay, event.type);
           $("#ce_geographic_item_attributes_shape").val(JSON.stringify(feature[0]));
         }
@@ -303,20 +305,6 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
       $("#new_article").append("<p>ERROR</p>");
     });
 
-    //$(".tag-ce").click(function (event) {
-    //
-    //  // unhide this form
-    //  $("#_tag_ce_form").removeAttr("hidden");
-    //  // hide everything else: filter; drawing; recent;
-    //  $("#_filter_ce_form").attr("hidden", true);
-    //  $("#_draw_ce_form").attr("hidden", true);
-    //  $("#_recent_ce_form").attr("hidden", true);
-    //  $('#_selecting_ce_form').attr('hidden', true);
-    //
-    //  event.preventDefault();
-    //});
-
-
     $(".tag-gr").click(function (event) {
 
       // unhide this form
@@ -370,12 +358,14 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
       this_map = initializeGoogleMapWithDrawManager("#_draw_gr_form");  //set up a blank draw canvas
       google.maps.event.addListener(this_map[1], 'overlaycomplete', function (event) {
           // Remove the last created shape if it exists.
-          //if (last != null) {
-          //  if (last[0] != null) {
-          //    removeItemFromMap(last[0]);
-          //  }
-          //}
-          //
+          if (last != null) {
+            if (last[0] != null) {
+              removeItemFromMap(last[0]);
+            }
+          }
+
+          last = [event.overlay, event.type];
+
           var feature = buildFeatureCollectionFromShape(event.overlay, event.type);
           $("#gr_geographic_item_attributes_shape").val(JSON.stringify(feature[0]));
         }
