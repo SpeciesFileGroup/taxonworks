@@ -8,8 +8,10 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
 //        construct callback to transition from draw map to selecting map
 
     var this_map = [];
-    //this_map = initializeGoogleMapWithDrawManager("#_draw_ce_form");
-    //this_map = initializeGoogleMapWithDrawManager("#_draw_gr_form");
+
+///////////////////////////////////////////////////////////
+//   collecting event (left) side handlers
+///////////////////////////////////////////////////////////
 
     $(".filter-ce").click(function (event) {
       // unhide this form
@@ -197,7 +199,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
       event.preventDefault();
     });
 
-//  search for recent collecting events success
+    //  search for recent collecting events success
     $("#recent_ce_count").on("ajax:success", function (e, data, status, local_data) {
       var selecting = $('#_selecting_ce_form');
       selecting.removeAttr('hidden');
@@ -478,7 +480,7 @@ function add_click_services_to_match_georeferences_map(map, event) {     // clic
   // clears previous map data features
   $.get('drawn_georeferences', $('form#_select_gr_form').serialize(), function (local_data) {
       //map.data.forEach(function(feature) {map.data.remove(feature);});    // clear the map.data
-      map = initializeMap("show_gr_canvas", local_data['feature_collection'])
+      map = initializeMap("show_gr_canvas", local_data['feature_collection']);
       map.data.addGeoJson(local_data['feature_collection']);      // add the geo features corresponding to the forms
     },
     'json' // I expect a JSON response
