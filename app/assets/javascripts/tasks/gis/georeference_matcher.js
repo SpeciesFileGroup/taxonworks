@@ -201,7 +201,9 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
 
     //  search for recent collecting events success
     $("#recent_ce_count").on("ajax:success", function (e, data, status, local_data) {
+      // make a local object of the selecting form so we can use it later
       var selecting = $('#_selecting_ce_form');
+      // unhide the local div
       selecting.removeAttr('hidden');
       // see what the message was, if anything
       var message = local_data.responseJSON['message'];
@@ -209,7 +211,9 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
         selecting.html(message);
       }
       else {
+        // shove the returning html into the local form
         selecting.html(local_data.responseJSON['html']);      // render the table
+// plant the id for the submit
         $("#create").click(function (event) {      // register the click handler for the form button
             $("#georeference_id").val($("#selected_georeference_id").val());  // get the stored value from center map form for the submit
           }
@@ -226,9 +230,12 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
               $("#result_from_post").html(local_data.responseJSON['html']);    // shove the 3rd phase returning html into the local form
             }
           }
-        )
+        ).on("ajax:error", function (e, xhr, status, error) {
+            $("#new_article").append("<p>ERROR</p>");
+          });
       }
-      $("#_recent_ce_form").attr("hidden", true);
+      // hide the filter div
+      // $("#_recent_ce_form").attr("hidden", true);
       return true;
     }).on("ajax:error", function (e, xhr, status, error) {
       $("#new_article").append("<p>ERROR</p>");
