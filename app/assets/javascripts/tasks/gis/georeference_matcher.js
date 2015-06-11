@@ -19,7 +19,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
       $("#_draw_ce_form").attr("hidden", true);
       $("#_recent_ce_form").attr("hidden", true);
       $('#_selecting_ce_form').attr('hidden', true);
-      $('#_result_ce_form').attr('hidden', true);
+      $("#result_from_post").attr("hidden", true);
 
       event.preventDefault();
     });
@@ -47,7 +47,16 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
           }
         );
         $("#create_georeferences").on("ajax:success", function (e, data, status, local_data) {
-            $("#result_from_post").html(local_data.responseJSON['html']);    // shove the returning html into the local form
+            $("#_filter_ce_form").attr("hidden", true);
+            $("#result_from_post").removeAttr("hidden");
+            message = local_data.responseJSON['message'];
+            if (message.length) {
+              $("#result_from_post").html(message);    // shove the 3rd phase returning error message into the local form
+            }
+            else {
+              // shove the returning html into the local form
+              $("#result_from_post").html(local_data.responseJSON['html']);    // shove the 3rd phase returning html into the local form
+            }
           }
         ).on("ajax:error", function (e, xhr, status, error) {
             $("#new_article").append("<p>ERROR</p>");
@@ -68,7 +77,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
       $("#_draw_ce_form").attr("hidden", true);
       $("#_recent_ce_form").attr("hidden", true);
       $('#_selecting_ce_form').attr('hidden', true);
-      $('#_result_ce_form').attr('hidden', true);
+      $("#result_from_post").attr("hidden", true);
 
       event.preventDefault();
     });
@@ -95,8 +104,17 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
             $("#georeference_id").val($("#selected_georeference_id").val());  // get the stored value from center map form
           }
         );
-        $("#create_georeferences").on("ajax:success", function (e, data, status, result_data) {
-            $('#_selecting_ce_form').html(result_data.responseJSON['html']);
+        $("#create_georeferences").on("ajax:success", function (e, data, status, local_data) {
+            $("#_tag_ce_form").attr("hidden", true);
+            $("#result_from_post").removeAttr("hidden");
+            message = local_data.responseJSON['message'];
+            if (message.length) {
+              $("#result_from_post").html(message);    // shove the 3rd phase returning error message into the local form
+            }
+            else {
+              // shove the returning html into the local form
+              $("#result_from_post").html(local_data.responseJSON['html']);    // shove the 3rd phase returning html into the local form
+            }
           }
         ).on("ajax:error", function (e, xhr, status, error) {
             $("#new_article").append("<p>ERROR</p>");
@@ -117,7 +135,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
       $("#_tag_ce_form").attr("hidden", true);
       $("#_recent_ce_form").attr("hidden", true);
       $('#_selecting_ce_form').attr('hidden', true);
-      $('#_result_ce_form').attr('hidden', true);
+      $("#result_from_post").attr("hidden", true);
 
       this_map = initializeGoogleMapWithDrawManager("#_draw_ce_form");  //set up a blank draw canvas
       google.maps.event.addListener(this_map[1], 'overlaycomplete', function (event) {
@@ -174,7 +192,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
       $("#_tag_ce_form").attr("hidden", true);
       $("#_draw_ce_form").attr("hidden", true);
       $('#_selecting_ce_form').attr('hidden', true);
-      $('#_result_ce_form').attr('hidden', true);
+      $("#result_from_post").attr("hidden", true);
 
       event.preventDefault();
     });
@@ -195,8 +213,16 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
           }
         );
         $("#create_georeferences").on("ajax:success", function (e, data, status, local_data) {
-            $("#result_from_post").html(local_data.responseJSON['html']);
-            //initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_selected_gr_form").data('feature-collection'));
+            $("#_recent_ce_form").attr("hidden", true);
+            $("#result_from_post").removeAttr("hidden");
+            message = local_data.responseJSON['message'];
+            if (message.length) {
+              $("#result_from_post").html(message);    // shove the 3rd phase returning error message into the local form
+            }
+            else {
+              // shove the returning html into the local form
+              $("#result_from_post").html(local_data.responseJSON['html']);    // shove the 3rd phase returning html into the local form
+            }
           }
         )
       }

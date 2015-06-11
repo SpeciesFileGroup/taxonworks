@@ -1,6 +1,7 @@
 <div id="_select_ce_form" name="_select_ce_form">
   <%= form_tag(batch_create_match_georeferences_url, name: 'create_georeferences', id: 'create_georeferences', method: :post, remote: true) do %>
       <table border="1">
+        <tbody>
         <tr>
           <th>Collecting Event</th>
           <th>Verbatim Locality</th>
@@ -8,7 +9,6 @@
           <th>ID</th>
           <th></th>
         </tr>
-        <tbody>
         <% @collecting_events.each { |collecting_event| %>
             <tr>
               <td>
