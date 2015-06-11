@@ -53,6 +53,7 @@ gem 'kaminari'
 
 # File upload manager & image processor
 gem 'paperclip', '~> 4.2'
+gem 'paperclip-meta', '~> 1.2.0'
 
 # Ordering records
 gem 'acts_as_list'
@@ -84,7 +85,7 @@ gem 'groupdate'
 
 # SFG gems
 gem 'taxonifi', '~> 0.3.3'
-gem 'sqed', '~> 0.1.0' 
+gem 'sqed', '~> 0.1.5' 
 
 group :test, :development do
   gem 'faker', '~> 1.4.3'
