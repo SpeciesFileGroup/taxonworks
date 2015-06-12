@@ -3,113 +3,33 @@
 
 <table>
   <thead>
-    <tr>
-      <th>Serial</th>
-      <th>Address</th>
-      <th>Annote</th>
-      <th>Author</th>
-      <th>Booktitle</th>
-      <th>Chapter</th>
-      <th>Crossref</th>
-      <th>Edition</th>
-      <th>Editor</th>
-      <th>Howpublished</th>
-      <th>Institution</th>
-      <th>Journal</th>
-      <th>Key</th>
-      <th>Month</th>
-      <th>Note</th>
-      <th>Number</th>
-      <th>Organization</th>
-      <th>Pages</th>
-      <th>Publisher</th>
-      <th>School</th>
-      <th>Series</th>
-      <th>Title</th>
-      <th>Type</th>
-      <th>Volume</th>
-      <th>Doi</th>
-      <th>Abstract</th>
-      <th>Copyright</th>
-      <th>Language</th>
-      <th>Stated year</th>
-      <th>Verbatim</th>
-      <th>Cached</th>
-      <th>Cached author string</th>
-      <th>Bibtex type</th>
-      <th>Created by</th>
-      <th>Updated by</th>
-      <th>Nomenclature date</th>
-      <th>Day</th>
-      <th>Year</th>
-      <th>Isbn</th>
-      <th>Issn</th>
-      <th>Verbatim contents</th>
-      <th>Verbatim keywords</th>
-      <th>Language</th>
-      <th>Translator</th>
-      <th>Year suffix</th>
-      <th>Url</th>
-      <th></th>
-      <th></th>
-      <th></th>
-    </tr>
+  <tr>
+    <th>Cached</th>
+    <th>Verbatim keywords</th>
+    <th>Language</th>
+    <th>Abstract</th>
+    <th>Type</th>
+    <th>Bibtex type</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
   </thead>
 
   <tbody>
-    <% @sources.each do |source| %>
+  <% @sources.each do |source| %>
       <tr>
-        <td><%= source.serial_id %></td>
-        <td><%= source.address %></td>
-        <td><%= source.annote %></td>
-        <td><%= source.author %></td>
-        <td><%= source.booktitle %></td>
-        <td><%= source.chapter %></td>
-        <td><%= source.crossref %></td>
-        <td><%= source.edition %></td>
-        <td><%= source.editor %></td>
-        <td><%= source.howpublished %></td>
-        <td><%= source.institution %></td>
-        <td><%= source.journal %></td>
-        <td><%= source.key %></td>
-        <td><%= source.month %></td>
-        <td><%= source.note %></td>
-        <td><%= source.number %></td>
-        <td><%= source.organization %></td>
-        <td><%= source.pages %></td>
-        <td><%= source.publisher %></td>
-        <td><%= source.school %></td>
-        <td><%= source.series %></td>
-        <td><%= source.title %></td>
-        <td><%= source.type %></td>
-        <td><%= source.volume %></td>
-        <td><%= source.doi %></td>
-        <td><%= source.abstract %></td>
-        <td><%= source.copyright %></td>
-        <td><%= source.language %></td>
-        <td><%= source.stated_year %></td>
-        <td><%= source.verbatim %></td>
         <td><%= source.cached %></td>
-        <td><%= source.cached_author_string %></td>
-        <td><%= source.bibtex_type %></td>
-        <td><%= source.created_by_id %></td>
-        <td><%= source.updated_by_id %></td>
-        <td><%= source.cached_nomenclature_date %></td>
-        <td><%= source.day %></td>
-        <td><%= source.year %></td>
-        <td><%= source.isbn %></td>
-        <td><%= source.issn %></td>
-        <td><%= source.verbatim_contents %></td>
         <td><%= source.verbatim_keywords %></td>
         <td><%= source.language_id %></td>
-        <td><%= source.translator %></td>
-        <td><%= source.year_suffix %></td>
-        <td><%= source.url %></td>
+        <td><%= source.abstract %></td>
+        <td><%= source.type %></td>
+        <td><%= source.bibtex_type %></td>
         <td><%= link_to 'Show', source.metamorphosize %></td>
         <td><%= link_to 'Edit', edit_source_path(source.metamorphosize) %></td>
-        <td><%= link_to 'Destroy', source.becomes(Source), method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        <td><%= link_to 'Destroy', source.becomes(Source), method: :delete, data: {confirm: 'Are you sure?'} %></td>
       </tr>
-    <% end %>
+  <% end %>
   </tbody>
 </table>
 
