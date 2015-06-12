@@ -45,6 +45,8 @@ TaxonWorks::Application.configure do
     mail_domain: "example.com"
   })  
 
+  Paperclip::Attachment.default_options[:path] = "#{Rails.root}/spec/test_files/:class/:id_partition/:style.:extension"
+
   # Post scaffolding changes 
   require 'taxonworks'
   require 'taxonworks_autoload'

@@ -23,13 +23,7 @@ RSpec.describe DepictionsController, type: :controller do
   before(:each) {
     sign_in
   }
-
   
-  after(:all) {
-    nuke_image_folder 
-  }
-
-
   let(:specimen) { FactoryGirl.create(:valid_specimen) }
 
   # This should return the minimal set of attributes required to create a valid

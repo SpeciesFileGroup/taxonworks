@@ -104,6 +104,10 @@ RSpec.configure do |config|
     DatabaseCleaner.clean_with(:truncation, except: %w(spatial_ref_sys))
   end
 
+  config.after(:suite) do
+    FileUtils.rm_rf(Dir["#{Rails.root}/spec/test_files/"])
+  end
+
   config.before(:each) do
     DatabaseCleaner.strategy = :transaction
   end
@@ -119,4 +123,6 @@ RSpec.configure do |config|
   config.after(:each) do
     DatabaseCleaner.clean
   end 
+
+
 end

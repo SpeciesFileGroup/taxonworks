@@ -229,10 +229,8 @@ describe Project, type: :model do
       before(:each) {
         p.nuke
       }
-      
-      after(:each) {
-        nuke_image_folder
-      }
+     
+      # need to wipe image folder here
 
       specify '#nuke nukes "everything"' do
         # loop through all the valid_ factories, for each find the class that they build

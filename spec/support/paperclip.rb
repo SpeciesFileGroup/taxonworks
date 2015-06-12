@@ -15,5 +15,5 @@ end
 # 
 # !! The sub folder is automatically rebuilt during subsequent tests. 
 def nuke_image_folder
-  FileUtils.remove_dir(Rails.root + 'public/system/images/image_files')
+  FileUtils.rm_rf(Dir["#{Rails.root}/spec/test_files/"])
 end
