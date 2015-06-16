@@ -1,5 +1,6 @@
 
 <%= form_for(@source.metamorphosize) do |f| %>
+    <%= render partial: '/people/role_picker', locals: {role: :author} %>
     <%= render 'shared/errors', object: @source %>
 
     <div class="field" id="source_edit_type">
