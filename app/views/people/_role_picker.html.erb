@@ -1,18 +1,24 @@
-<h2><%= role %></h2>
+<div id="role_picker" class="flexbox">
 
-<%= text_field_tag :foo, nil, id: :autocomplete %>
+  <div class="item item1">
+    <h2><%= role %></h2>
+    <ul id="author_list"></ul>
 
-<div id="new_person">
-  <div>
-    <span id="name_label"></span>
-    <%= link_to "switch", '#', id: :switch %>
-    <%= link_to "add new", '#', id: :add_new %>
-    <%= link_to "expand", '#', id: :expand %>
+    <%= text_field_tag :foo, nil, id: :autocomplete %>
   </div>
-<div id="person_form">
-  <%= form_for(Person.new) do |fp| %>
-  <%= render partial: '/people/form_elements', locals: {f: fp} %>
-  <% end %>
-</div>
 
+  <div id="new_person" class="item item2" hidden>
+    <div>
+      <span id="name_label"></span>
+      <%= link_to "switch", '#', id: :switch %>
+      <%= link_to "add new", '#', id: :add_new %>
+      <%= link_to "expand", '#', id: :expand %>
+    </div>
+    <div id="person_form" hidden>
+      <%= form_for(Person.new) do |fp| %>
+          <%= render partial: '/people/form_elements', locals: {f: fp} %>
+      <% end %>
+    </div>
+
+  </div>
 </div>
