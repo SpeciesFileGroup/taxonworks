@@ -366,7 +366,8 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
 
           last = [event.overlay, event.type];
 
-          var feature = buildFeatureCollectionFromShape(event.overlay, event.type);
+          //var feature = buildFeatureCollectionFromShape(event.overlay, event.type);
+          var feature = buildFeatureCollectionFromShape(last[0], last[1]);
           $("#gr_geographic_item_attributes_shape").val(JSON.stringify(feature[0]));
         }
       );
@@ -389,6 +390,12 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
           selecting.html(result_data.responseJSON['html']);
           this_map = initializeMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
           add_match_georeferences_map_listeners(this_map);
+          $("#commit").click(function (event) {      // register the click handler for the form button
+              var feature = buildFeatureCollectionFromShape(last[0], last[1]);
+              $("#gr_geographic_item_attributes_shape").val(JSON.stringify(feature[0]));
+            }
+          );
+
           if ($("#_select_gr_form").data('feature-collection').features.length == 1) {
 
             this_map = initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
