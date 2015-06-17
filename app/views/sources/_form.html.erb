@@ -171,7 +171,13 @@
           </div>
          <div class="field">
             <%= f.label :language_id %><br>
-            <%= f.number_field :language_id %>
+           <%= render :partial => 'workbench/elements/forms/ajax_select',
+                      locals:  {controller: 'languages',
+                                object:     'source',
+                                method:     'language_id',
+                                tag_id:     'language_id_for_source',
+                                size:       '50',
+                                display:    @source.respond_to?(:language_id) ? language_tag(@source.language_id) : nil} %>
           </div>
           <div class="field">
             <%= f.label :translator %><br>
