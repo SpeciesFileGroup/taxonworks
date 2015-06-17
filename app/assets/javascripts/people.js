@@ -8,14 +8,10 @@ function get_last_name(string) {
 }
 function get_full_name(first_name, last_name) {
     var separator = "";
-    if (last_name == undefined) {
-        last_name = first_name;
-        first_name = "";
-    }
-    else {
+    if (!last_name.trim() || !first_name.trim()) {
         separator = ", ";
     }
-    return last_name + separator + first_name;
+    return ($.grep([last_name, separator, first_name], Boolean).join());
 }
 
 function clear_role_picker(target) {
@@ -82,7 +78,7 @@ _initialize_role_picker_widget = function
         $("#person_form").toggle();
     });
 
-    $("#person_form input").on("change keypress", function () {
+    $("#person_form input").on("change keyup", function () {
         // update mirrored label
         $("#name_label").html(get_full_name($("#person_first_name").val(), $("#person_last_name").val()));
         // build full name out of individual labels
