@@ -1,6 +1,9 @@
-function clear_role_picker(picker) {
+function clear_role_picker(target) {
     // empties search text box and hides new_person div
-    $(picker).val("");
+
+    var role_picker;
+    role_picker = $(target).closest("#role_picker").find("#autocomplete");
+    $(role_picker).val("");
     //$("#autocomplete").val("");
     //$("#autocomplete").text("");
     $('#new_person').attr("hidden", true);
@@ -17,7 +20,11 @@ _initialize_role_picker_widget = function
                 $("#name_label").text()
             )
         )
-
+        // unset form fields
+        // hide the form field
+        $('#new_person').attr("hidden", true);
+        // unset autocomplete input box
+        clear_role_picker(this);
     });
 
     $("#autocomplete").autocomplete({
@@ -36,6 +43,20 @@ _initialize_role_picker_widget = function
     $("#autocomplete").keyup(function () {
         // copies search textbox content to new_person name_label
         var input_term = $("#autocomplete").val();
+        var last_name;
+        var first_name;
+        var separator = "";
+        // split on (white) space
+        first_name = input_term.split(" ", 1)[0];
+        last_name = input_term.split(" ", 2)[1];
+        if (last_name == undefined){
+            last_name = first_name;
+            first_name = "";
+             }
+        else {
+            separator = ", "
+        }
+
         if (input_term.length == 0) {
             //alert('hello');
             $('#new_person').attr("hidden", true);
@@ -43,7 +64,7 @@ _initialize_role_picker_widget = function
         else {
             $('#new_person').removeAttr("hidden");
         }
-        $("#name_label").html(input_term);
+              $("#name_label").html(last_name + separator + first_name);
     });
 
     $("#expand").click(function () {
@@ -51,8 +72,7 @@ _initialize_role_picker_widget = function
         $("#person_form").toggle();
     });
 
-}
-;
+};
 
 $(document).ready(_initialize_role_picker_widget);
 $(document).on("page:load", _initialize_role_picker_widget);
