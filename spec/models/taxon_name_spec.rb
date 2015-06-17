@@ -684,6 +684,11 @@ describe TaxonName, :type => :model do
           expect(root2.save).to be_truthy
           expect(root1.save).to be_truthy
         end
+
+        specify 'scope project_root' do
+          root1.save
+          expect(TaxonName.project_root(1).first).to eq(root1)
+        end
       end
 
       # run through the awesome_nested_set methods: https://github.com/collectiveidea/awesome_nested_set/wiki/_pages

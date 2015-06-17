@@ -385,39 +385,40 @@ namespace :tw do
           end
 
           # from handle taxa
-          data.keywords.merge!(  
+          data.keywords.merge!(
+              'TaxonCode' => BiocurationClass.create(name: 'Taxa:TaxonCode', definition: 'The verbatim value on import from Taxa#TaxonCode.'),
               'Taxa:Synonyms' => Predicate.create(name: 'Taxa:Synonyms', definition: 'The verbatim value on import from Taxa#Synonyms.'),
               'Taxa:References' => Predicate.create(name: 'Taxa:References', definition: 'The verbatim value on import Taxa#References.')
           )
 
           # from handle specimens
-          data.keywords.merge!(  
-                               'AdultMale' => BiocurationClass.create(name: 'AdultMale', definition: 'The collection object is comprised of adult male(s).'), 
-                               'AdultFemale' => BiocurationClass.create(name: 'AdultFemale', definition: 'The collection object is comprised of adult female(s).'), 
-                               'Immature' => BiocurationClass.create(name: 'Immature', definition: 'The collection object is comprised of immature(s).'), 
-                               'Pupa' => BiocurationClass.create(name: 'Pupa', definition: 'The collection object is comprised of pupa.'), 
-                               'Exuvium' => BiocurationClass.create(name: 'Exuvia', definition: 'The collection object is comprised of exuvia.'),
-                               'AdultUnsexed' => BiocurationClass.create(name: 'AdultUnsexed', definition: 'The collection object is comprised of adults, with sex undetermined.'), 
-                               'AgeUnknown' => BiocurationClass.create(name: 'AgeUnknown', definition: 'The collection object is comprised of individuals of indtermined age.'), 
-                               'OtherSpecimens' => BiocurationClass.create(name: 'OtherSpecimens', definition: 'The collection object that is asserted to be unclassified in any manner.'), 
-                               'ZeroTotal' => Keyword.create(name: 'ZeroTotal', definition: 'On import there were 0 total specimens recorded in the FM database.'),
-                               'IdentifiedBy' => Predicate.create(name: 'IdentifiedBy', definition: 'The verbatim value in the identified by field.'),
-                               'YearIdentified' => Predicate.create(name: 'YearIdentified', definition: 'The verbatim value in the year identified field.'),
-                               'OldIdentifiedBy' => Predicate.create(name: 'OriginalIdentifiedBy', definition: 'Imported value: Old identified by.'),
-                               'LocalityCode' => Predicate.create(name: 'LocalityCode', definition: 'Imported value: Locality Code.'),
-                               'Country' => Predicate.create(name: 'Country', definition: 'Imported value: Country.'),
-                               'State' => Predicate.create(name: 'State', definition: 'Imported value: State.'),
-                               'County' => Predicate.create(name: 'County', definition: 'Imported value: County.'),
-                               'Locality' => Predicate.create(name: 'Locality', definition: 'Imported value: Locality.'),
-                               'Park' => Predicate.create(name: 'Park', definition: 'Imported value: Park.'),
-                               'BodyOfWater' => Predicate.create(name: 'BodyOfWater', definition: 'The verbatim value in the Body Of Water.'),
-                               'DrainageBasinLesser' => Predicate.create(name: 'DrainageBasinLesser', definition: 'The verbatim value in the Drainage Basin Lesser.'),
-                               'DrainageBasinGreater' => Predicate.create(name: 'DrainageBasinGreater', definition: 'The verbatim value in the Drainage Basin Greater.'),
-                               'StreamSize' => Predicate.create(name: 'StreamSize', definition: 'The verbatim value in the StreamSize.'),
-                               'INDrainage' => Predicate.create(name: 'INDrainage', definition: 'The verbatim value in the INDrainage.'),
-                               'WisconsinGlaciated' => Predicate.create(name: 'WisconsinGlaciated', definition: 'The verbatim value in the Wisconsin Glaciated.'),
-                               'OldLocalityCode' => Predicate.create(name: 'OldLocalityCode', definition: 'Imported value: Old Locality Code.'),
-                               'Host' => Predicate.create(name: 'Host', definition: 'The verbatim value in the Host.'),
+          data.keywords.merge!(
+              'AdultMale' => BiocurationClass.create(name: 'Specimens:AdultMale', definition: 'The collection object is comprised of adult male(s).'),
+              'AdultFemale' => BiocurationClass.create(name: 'Specimens:AdultFemale', definition: 'The collection object is comprised of adult female(s).'),
+              'Immature' => BiocurationClass.create(name: 'Specimens:Immature', definition: 'The collection object is comprised of immature(s).'),
+              'Pupa' => BiocurationClass.create(name: 'Specimens:Pupa', definition: 'The collection object is comprised of pupa.'),
+              'Exuvium' => BiocurationClass.create(name: 'Specimens:Exuvia', definition: 'The collection object is comprised of exuvia.'),
+              'AdultUnsexed' => BiocurationClass.create(name: 'Specimens:AdultUnsexed', definition: 'The collection object is comprised of adults, with sex undetermined.'),
+              'AgeUnknown' => BiocurationClass.create(name: 'Specimens:AgeUnknown', definition: 'The collection object is comprised of individuals of indtermined age.'),
+              'OtherSpecimens' => BiocurationClass.create(name: 'Specimens:OtherSpecimens', definition: 'The collection object that is asserted to be unclassified in any manner.'),
+              'ZeroTotal' => Keyword.create(name: 'Specimens:ZeroTotal', definition: 'On import there were 0 total specimens recorded in the FM database.'),
+              'IdentifiedBy' => Predicate.create(name: 'Specimens:IdentifiedBy', definition: 'The verbatim value in the identified by field.'),
+              'YearIdentified' => Predicate.create(name: 'Specimens:YearIdentified', definition: 'The verbatim value in the year identified field.'),
+              'OldIdentifiedBy' => Predicate.create(name: 'Specimens:OriginalIdentifiedBy', definition: 'Imported value: Old identified by.'),
+              'LocalityCode' => Predicate.create(name: 'Specimens:LocalityCode', definition: 'Imported value: Locality Code.'),
+              'Country' => Predicate.create(name: 'Country', definition: 'Imported value: Country.'),
+              'State' => Predicate.create(name: 'State', definition: 'Imported value: State.'),
+              'County' => Predicate.create(name: 'County', definition: 'Imported value: County.'),
+              'Locality' => Predicate.create(name: 'Locality', definition: 'Imported value: Locality.'),
+              'Park' => Predicate.create(name: 'Park', definition: 'Imported value: Park.'),
+              'BodyOfWater' => Predicate.create(name: 'BodyOfWater', definition: 'The verbatim value in the Body Of Water.'),
+              'DrainageBasinLesser' => Predicate.create(name: 'DrainageBasinLesser', definition: 'The verbatim value in the Drainage Basin Lesser.'),
+              'DrainageBasinGreater' => Predicate.create(name: 'DrainageBasinGreater', definition: 'The verbatim value in the Drainage Basin Greater.'),
+              'StreamSize' => Predicate.create(name: 'StreamSize', definition: 'The verbatim value in the StreamSize.'),
+              'INDrainage' => Predicate.create(name: 'INDrainage', definition: 'The verbatim value in the INDrainage.'),
+              'WisconsinGlaciated' => Predicate.create(name: 'WisconsinGlaciated', definition: 'The verbatim value in the Wisconsin Glaciated.'),
+              'OldLocalityCode' => Predicate.create(name: 'OldLocalityCode', definition: 'Imported value: Old Locality Code.'),
+              'Host' => Predicate.create(name: 'Host', definition: 'The verbatim value in the Host.'),
                               )
 
           import.metadata['controlled_vocabulary'] = true
@@ -627,7 +628,8 @@ namespace :tw do
             author ||= nil
             code = :icn if code == :iczn && row['Name'] == 'Plantae'
             rank = Ranks.lookup(code, row['Rank'])
-            rank ||= NomenclaturalRank
+            rank ||= 'NomenclaturalRank'
+            name = 'Root' if rank == 'NomenclaturalRank'
 
             p = Protonym.new(
               name: name,
@@ -636,13 +638,14 @@ namespace :tw do
               rank_class: rank,
               created_by_id: find_or_create_collection_user(row['CreatedBy'], data),
               updated_by_id: find_or_create_collection_user(row['ModifiedBy'], data),
-              #creator: find_or_create_user(row['CreatedBy'], data),
-              #updater: find_or_create_user(row['ModifiedBy'], data),
               created_at: time_from_field(row['CreatedOn']),
               updated_at: time_from_field(row['ModifiedOn'])
             )
             p.parent_id = parent_index[row['Parent'].to_s].id unless row['Parent'].blank? || parent_index[row['Parent'].to_s].nil?
-            if rank == NomenclaturalRank || !p.parent_id.blank?
+            if rank == 'NomenclaturalRank'
+              p = Protonym.with_rank_class('NomenclaturalRank').first
+              parent_index.merge!(row['ID'] => p)
+            elsif !p.parent_id.blank?
               bench = Benchmark.measure {
                 p.save
                 build_otu(row, p, data)
@@ -664,6 +667,7 @@ namespace :tw do
 
             p.data_attributes.create(type: 'InternalAttribute', predicate: data.keywords['Taxa:Synonyms'], value: row['Synonyms'])     unless row['Synonyms'].blank?
             p.data_attributes.create(type: 'InternalAttribute', predicate: data.keywords['Taxa:References'], value: row['References']) unless row['References'].blank?
+            p.data_attributes.create(type: 'ImportAttribute', predicate: data.keywords['Taxa:TaxonCode'], value: row['TaxonCode']) unless row['TaxonCode'].blank?
             p.notes.create(text: row['Remarks']) unless row['Remarks'].blank?
 
             #p.parent_id = p.parent.id if p.parent && !p.parent.id.blank?
