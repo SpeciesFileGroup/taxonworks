@@ -1,3 +1,23 @@
+function get_first_name(string) {
+    // split on (white) space
+    return string.split(" ", 2)[0];
+}
+function get_last_name(string) {
+    // split on (white) space
+    return string.split(" ", 2)[1];
+}
+function get_full_name(first_name, last_name) {
+    var separator = "";
+    if (last_name == undefined) {
+        last_name = first_name;
+        first_name = "";
+    }
+    else {
+        separator = ", ";
+    }
+    return last_name + separator + first_name;
+}
+
 function clear_role_picker(target) {
     // empties search text box and hides new_person div
 
@@ -43,19 +63,8 @@ _initialize_role_picker_widget = function
     $("#autocomplete").keyup(function () {
         // copies search textbox content to new_person name_label
         var input_term = $("#autocomplete").val();
-        var last_name;
-        var first_name;
-        var separator = "";
-        // split on (white) space
-        first_name = input_term.split(" ", 1)[0];
-        last_name = input_term.split(" ", 2)[1];
-        if (last_name == undefined){
-            last_name = first_name;
-            first_name = "";
-             }
-        else {
-            separator = ", "
-        }
+        var last_name = get_last_name(input_term);
+        var first_name = get_first_name(input_term);
 
         if (input_term.length == 0) {
             //alert('hello');
@@ -64,12 +73,19 @@ _initialize_role_picker_widget = function
         else {
             $('#new_person').removeAttr("hidden");
         }
-              $("#name_label").html(last_name + separator + first_name);
+        $("#person_first_name").val(first_name).change();
+        $("#person_last_name").val(last_name).change();
     });
 
     $("#expand").click(function () {
         // alternately hides and displays person_form
         $("#person_form").toggle();
+    });
+
+    $("#person_form input").on("change keypress", function () {
+        // update mirrored label
+        $("#name_label").html(get_full_name($("#person_first_name").val(), $("#person_last_name").val()));
+        // build full name out of individual labels
     });
 
 };
