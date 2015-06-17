@@ -1,11 +1,11 @@
-function exists(string) {
-    //if (string != undefined && string != "") {
-    //    return true;}
-    //else
-    //    {
-    //        return false;
-    //    }
-    }
+//function exists(string) {
+//    if (string != undefined && string != "") {
+//        return true;}
+//    else
+//        {
+//            return false;
+//        }
+//    }
 
 
     function get_first_name(string) {
@@ -18,12 +18,15 @@ function exists(string) {
         return string.split(" ", 2)[1];
     }
 
+      // first_name and last_name must be strings
     function get_full_name(first_name, last_name) {
-        var separator;
-        if (!!last_name || !!first_name) {
+        var separator = "";
+        if (!!last_name && !!first_name) {
+            //alert("both have values");
             separator = ", ";
         }
-        return ($.grep([last_name, separator, first_name], Boolean).join());
+        return (last_name + separator + first_name);
+        //return ($.grep([last_name, separator, first_name], Boolean).join());
     }
 
     function clear_role_picker(target) {
