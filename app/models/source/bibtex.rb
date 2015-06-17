@@ -289,7 +289,10 @@ class Source::Bibtex < Source
     :stated_year
   ] # either year or stated_year is acceptable
 
-  belongs_to :serial
+  belongs_to :serial, inverse_of: :sources
+  belongs_to :source_language, class_name: "Language",foreign_key: :language_id, inverse_of: :sources
+  # above to handle clash with bibtex language field.
+
   has_many :author_roles, -> { order('roles.position ASC') }, class_name: 'SourceAuthor', as: :role_object, validate: true
   has_many :authors, -> { order('roles.position ASC') }, through: :author_roles, source: :person, validate: true # self.author & self.authors should match or one of them should be empty
   has_many :editor_roles, -> { order('roles.position ASC') }, class_name: 'SourceEditor', as: :role_object, validate: true # ditto for self.editor & self.editors
@@ -409,7 +412,8 @@ class Source::Bibtex < Source
   end
 
   # Instantiates a Source::Bibtex instance from a BibTeX::Entry
-  # Note: note conversion is handled in note setter. 
+  # Note: note conversion is handled in note setter.
+  #       identifiers are handled in associated setter.
   # !! Unrecognized attributes are added as import attributes.
   #
   # Usage:
@@ -540,19 +544,20 @@ class Source::Bibtex < Source
     write_attribute(:month, v)
   end
 
-  # def note=(value)
-  #   write_attribute(:note, value)
-  #   if !self.note.blank? && self.new_record?
-  #     if value.include?('|')
-  #       a = value.split(/|/)
-  #       a.each do |n|
-  #         self.notes.build({text: n + ' [Created on import from BibTeX.]'})
-  #       end
-  #     else
-  #       self.notes.build({text: value + ' [Created on import from BibTeX.]'})
-  #     end
-  #   end
-  # end
+  # Used only on import from BibTeX records
+  def note=(value)
+    write_attribute(:note, value)
+    if !self.note.blank? && self.new_record?
+      if value.include?('|')
+        a = value.split(/|/)
+        a.each do |n|
+          self.notes.build({text: n + ' [Created on import from BibTeX.]'})
+        end
+      else
+        self.notes.build({text: value + ' [Created on import from BibTeX.]'})
+      end
+    end
+  end
 
   #region identifiers
   def isbn=(value)
@@ -626,6 +631,9 @@ class Source::Bibtex < Source
   #endregion identifiers
 
   #TODO if language is set => set language_id
+  # def language=(value)
+  #
+  # end
   #endregion getters & setters
 
   #region has_<attribute>? section
