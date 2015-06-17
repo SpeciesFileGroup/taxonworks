@@ -10,8 +10,8 @@ class Language < ActiveRecord::Base
   include Shared::IsData 
   include Shared::IsApplicationData
 
-  has_many :serials
-  has_many :sources
+  has_many :serials, inverse_of: :language
+  has_many :sources, inverse_of: :source_language
 
   # Scopes
   scope :with_english_name_containing, ->(name) {where('english_name ILIKE ?', "%#{name}%")}  # non-case sensitive comparison
