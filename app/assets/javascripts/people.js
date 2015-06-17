@@ -11,13 +11,22 @@ var _initialize_role_picker_widget;
 _initialize_role_picker_widget = function
     init_role_picker() {
 
+    $("#add_new").click(function () {
+        $("#role_list").append(
+            $('<li>').append(
+                $("#name_label").text()
+            )
+        )
+
+    });
+
     $("#autocomplete").autocomplete({
         source: '/people/lookup_person',
         select: function (event, ui) {
             // execute on select event in search text box
 
             // add name to list
-            $("#author_list").append($('<li>').append(ui.item.value))
+            $("#role_list").append($('<li>').append(ui.item.value));
             // clear search form
             clear_role_picker(this);
             return false;
@@ -42,7 +51,8 @@ _initialize_role_picker_widget = function
         $("#person_form").toggle();
     });
 
-};
+}
+;
 
 $(document).ready(_initialize_role_picker_widget);
 $(document).on("page:load", _initialize_role_picker_widget);
