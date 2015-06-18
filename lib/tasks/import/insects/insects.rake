@@ -167,9 +167,7 @@ namespace :tw do
         handle_namespaces(@data, @import)
         handle_preparation_types(@data, @import)
         handle_controlled_vocabulary(@data, @import)
-
         handle_people(@data, @import) ## !created as new
-
         handle_taxa(@data, @import)
 
         checkpoint_save(@import) if ENV['no_transaction']
@@ -178,7 +176,6 @@ namespace :tw do
         handle_collecting_events(@data, @import)
         handle_specimens(@data, @import)
 
-        # handle_users(@data, @import)
 
         @import.save!
         puts "\n\n !! Success \n\n"
@@ -189,7 +186,7 @@ namespace :tw do
         email = 'inhs_admin@replace.me'
         project_name = 'INHS Insect Collection'
         user_name = 'INHS Insect Collection Import'
-        user, project = nil, nil
+        $user_id, $project_id = nil, nil
         if import.metadata['project_and_users']
           print "from database.\n"
           project = Project.where(name: project_name).first
@@ -222,10 +219,9 @@ namespace :tw do
         end
 
         $repository = Repository.where(institutional_LSID: 'urn:lsid:biocol.org:col:34797').first
-        @data.user_index.merge!('0' => user.id)
-        @data.user_index.merge!('' => user.id)
-        @data.user_index.merge!(nil => user.id)
-        #data.users.merge!(user.email => user)
+        @data.user_index.merge!('0' => user)
+        @data.user_index.merge!('' => user)
+        @data.user_index.merge!(nil => user)
 
       end
 
@@ -260,12 +256,12 @@ namespace :tw do
         ]
 
         if import.metadata['namespaces']
-          @import_namespace = Namespace.where(institution: 'INHS Insect Collection', name: 'INHS Import Identifiers', short_name: 'Import').first
+          @taxon_namespace = Namespace.where(institution: 'INHS Insect Collection', name: 'INHS Taxon Code', short_name: 'Taxon Code').first
           @accession_namespace = Namespace.where(institution: 'INHS Insect Collection', name: 'INHS Legacy Accession Code', short_name: 'Accession Code').first
           print "from database.\n"
         else
           print "as newly parsed.\n"
-          @import_namespace = Namespace.create(institution: 'INHS Insect Collection', name: 'INHS Import Identifiers', short_name: 'Import')
+          @taxon_namespace = Namespace.create(institution: 'INHS Insect Collection', name: 'INHS Taxon Code', short_name: 'Taxon Code')
           @accession_namespace = Namespace.create(institution: 'INHS Insect Collection', name: 'INHS Legacy Accession Code', short_name: 'Accession Code')
           import.metadata['namespaces'] = true
         end
@@ -280,7 +276,7 @@ namespace :tw do
           data.namespaces.merge!(cn => n)
         end
 
-        data.namespaces.merge!(import_namespace: @import_namespace)
+        data.namespaces.merge!(taxon_namespace: @taxon_namespace)
         data.namespaces.merge!(accession_namespace: @accession_namespace)
       end
 
@@ -301,27 +297,29 @@ namespace :tw do
       def handle_preparation_types(data, import)
         print "Handling namespaces "
 
-        preparation_types = [
-            'Bulk dry',
-            'Envelope',
-            'Jar',
-            'Pill box',
-            'Pin',
-            'Slide',
-            'Vial'
-          ]
+        preparation_types = {
+            'Bulk dry' => 'Unsorted dry specimens',
+            'Envelope' => 'Dry specimen(s) in envelope',
+            'Pill box' => 'Specimens in pill box',
+            'Jar' => 'Specimen(s) in jar',
+            'Pin' => 'Specimen(s) on pin',
+            'Slide' => 'Specimen(s) on slide',
+            'Vial' => 'Specimen(s) in vial'
+        }
         preparation_types.each do |pt|
-          t = PreparationType.where(name: pt)
+          t = PreparationType.where(name: pt[0])
           if t.empty?
-            t = PreparationType.create(name: pt) if t.nil?
+            t = PreparationType.create(name: pt[0], definition: pt[1])
           else
             t = t.first
           end
-          data.preparation_types.merge!(pt => t)
+          data.preparation_types.merge!(pt[0] => t)
         end
         data.preparation_types.merge!('Slides' => data.preparation_types['Slide'])
         data.preparation_types.merge!('Vials' => data.preparation_types['Vial'])
+        data.preparation_types.merge!('Jars' => data.preparation_types['Jar'])
         data.preparation_types.merge!('pill box' => data.preparation_types['Pill box'])
+        import.metadata['preparation_types'] = true
       end
 
 
@@ -425,7 +423,6 @@ namespace :tw do
         end
       end
 
-
       def find_or_create_collection_user(id, data)
         if id.blank?
           $user_id
@@ -455,10 +452,8 @@ namespace :tw do
         end
       end
 
-
       $found_geographic_areas = 0
       $matchless_for_geographic_area =[]
-
 
       def find_or_create_collecting_event(ce, data)
 
@@ -558,10 +553,9 @@ namespace :tw do
             data.user_index.merge!(u.value => u.attribute_subject)
           end
 
-          DataAttribute.where(import_predicate: 'People:PeopleID', attribute_subject_type: 'People').each do |p|
+          DataAttribute.where(import_predicate: 'People:PeopleID', attribute_subject_type: 'Person').each do |p|
             data.people_index.merge!(p.value => p.attribute_subject)
           end
-
           print "done.\n"
         else
           print "as newly parsed.\n"
@@ -578,21 +572,11 @@ namespace :tw do
                 last_name: ln || 'Not Provided',
                 first_name: row['FirstName'],
                 suffix: sf
-#                data_attributes_attributes: [ {value: row['PeopleID'], import_predicate: data.keywords['PeopleID'], type: 'ImportAttribute'} ]
             )
-
-#            'SupervisorID' => Predicate.create(name: 'People:SupervisorID', definition: 'People:SupervisorID from FileMaker.'),
-#                'Honorarium' => Predicate.create(name: 'People:Honorarium', definition: 'People:Honorarium from FileMaker.'),
-#                'Address' => Predicate.create(name: 'People:Address', definition: 'People:Address from FileMaker.'),
-#                'Email' => Predicate.create(name: 'People:Email', definition: 'People:Email from FileMaker.'),
-#                'Phone' => Predicate.create(name: 'People:Phone', definition: 'People:Phone from FileMaker.')
-
-
 
             p.notes.build(text: row['Comments']) if !row['Comments'].blank?
             data.keywords.each do |k|
- #             byebug
-              p.data_attributes.build(type: 'ImportAttribute', import_predicate: k[0], controlled_vocabulary_term_id: k[1].id, value: row[k[0]]) unless row[k[0]].blank?
+              p.data_attributes.build(type: 'ImportAttribute', import_predicate: k[1].name, controlled_vocabulary_term_id: k[1].id, value: row[k[0]]) unless row[k[0]].blank?
             end
             p.save!
 
@@ -625,11 +609,11 @@ namespace :tw do
         print "Handling taxa "
         if import.metadata['taxa']
           print "from database.  Indexing OTUs by TaxonCode..."
-          Otu.includes(:identifiers).each do |o|
-            # There is only one identifier added at this point, so we are safe here. If this changes specify here.
-            data.otus.merge!(o.identifiers.first.identifier => o)
+          Identifier.where(namespace_id: @taxon_namespace.id).each do |i|
+            data.otus.merge!(i.identifier => i.identifier_object)
           end
-          print "done.\n" 
+          print "done.\n"
+          byebug
         else
           print "as newly parsed.\n"
           puts
@@ -668,7 +652,7 @@ namespace :tw do
             elsif !p.parent_id.blank?
               bench = Benchmark.measure {
                 data.keywords.each do |k|
-                  p.data_attributes.build(type: 'ImportAttribute', import_predicate: k[0], controlled_vocabulary_term_id: k[1].id, value: row[k[0]]) unless row[k[0]].blank?
+                  p.data_attributes.build(type: 'ImportAttribute', import_predicate: k[1].name, controlled_vocabulary_term_id: k[1].id, value: row[k[0]]) unless row[k[0]].blank?
                 end
                 p.save!
                 build_otu(row, p, data)
@@ -687,14 +671,7 @@ namespace :tw do
               puts "\n  No parent for #{p.name}.\n"
             end
 
-
-#            p.data_attributes.create(type: 'InternalAttribute', predicate: data.keywords['Synonyms'], value: row['Synonyms'])     unless row['Synonyms'].blank?
-#            p.data_attributes.create(type: 'InternalAttribute', predicate: data.keywords['References'], value: row['References']) unless row['References'].blank?
-#            p.data_attributes.create(type: 'ImportAttribute', predicate: data.keywords['TaxonCode'], value: row['TaxonCode']) unless row['TaxonCode'].blank?
             p.notes.create(text: row['Remarks']) unless row['Remarks'].blank?
-
-            #p.parent_id = p.parent.id if p.parent && !p.parent.id.blank?
-
           end
 
           import.metadata['taxa'] = true
@@ -708,9 +685,8 @@ namespace :tw do
         end
         o =  Otu.create(
           taxon_name_id: taxon_name.id,
-          identifiers_attributes: [  {identifier: row['TaxonCode'], namespace: @identifier_namespace, type: 'Identifier::Local::OtuUtility'} ]
+          identifiers_attributes: [  {identifier: row['TaxonCode'], namespace: @taxon_namespace, type: 'Identifier::Local::OtuUtility'} ]
         )
-
         data.otus.merge!(row['TaxonCode'] => o)
         o
       end
