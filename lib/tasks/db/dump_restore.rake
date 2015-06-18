@@ -5,13 +5,17 @@ namespace :tw do
   namespace :db do
     desc 'Dump the data to a PostgreSQL custom-format dump file'
     task :dump => [:environment, :data_directory, :db_user] do
+
+      if Rails.env == 'production'
+        puts 'You may be prompted for the production password...'.yellow
+      end
+
       if Support::Database.pg_database_exists?
         database = ActiveRecord::Base.connection.current_database
         path     = File.join(@args[:data_directory], Time.now.utc.strftime('%Y-%m-%d_%H%M%S%Z') + '.dump')
 
         puts "Dumping #{database} to #{path}"
-        # puts(Benchmark.measure { `pg_dump --username=#{ENV["db_user"]} --format=custom #{database} --file=#{path}` })
-        puts(Benchmark.measure { `pg_dump --username=taxonworks_development --host=localhost --format=custom #{database} --file=#{path}` })
+        puts(Benchmark.measure { `pg_dump --username=#{ENV["db_user"]} --host=localhost --format=custom #{database} --file=#{path}` })
         raise "pg_dump failed with exit code #{$?.to_i}" unless $? == 0
         puts 'Dump complete'
 
@@ -43,8 +47,7 @@ namespace :tw do
       database = ActiveRecord::Base.connection.current_database
       path     = File.join(@args[:data_directory], ENV["file"])
       puts "Restoring #{database} from #{path}"
-      # puts(Benchmark.measure { `pg_restore --username=#{ENV["db_user"]} --format=custom --disable-triggers --dbname=#{database} #{path}` })
-      puts(Benchmark.measure { `pg_restore --username=taxonworks_development --host=localhost --format=custom --disable-triggers --dbname=#{database} #{path}` })
+      puts(Benchmark.measure { `pg_restore --username=#{ENV["db_user"]} --host=localhost --format=custom --disable-triggers --dbname=#{database} #{path}` })
       raise "pg_restore failed with exit code #{$?.to_i}" unless $? == 0
       puts 'Restore complete'
     end
