@@ -5,28 +5,46 @@ namespace :tw do
   namespace :db do
     desc 'Dump the data to a PostgreSQL custom-format dump file'
     task :dump => [:environment, :data_directory, :db_user] do
-      database = ActiveRecord::Base.connection.current_database
-      path     = File.join(@args[:data_directory], Time.now.utc.strftime('%Y-%m-%d_%H%M%S%Z') + '.dump')
+      if Support::Database.pg_database_exists?
+        database = ActiveRecord::Base.connection.current_database
+        path     = File.join(@args[:data_directory], Time.now.utc.strftime('%Y-%m-%d_%H%M%S%Z') + '.dump')
 
-      puts "Dumping #{database} to #{path}"
-      puts(Benchmark.measure { `pg_dump --username=#{ENV["db_user"]} --format=custom #{database} --file=#{path}` })
-      raise "pg_dump failed with exit code #{$?.to_i}" unless $? == 0
-      puts 'Dump complete'
+        puts "Dumping #{database} to #{path}"
+        # puts(Benchmark.measure { `pg_dump --username=#{ENV["db_user"]} --format=custom #{database} --file=#{path}` })
+        puts(Benchmark.measure { `pg_dump --username=taxonworks_development --host=localhost --format=custom #{database} --file=#{path}` })
+        raise "pg_dump failed with exit code #{$?.to_i}" unless $? == 0
+        puts 'Dump complete'
 
-      raise 'Failed to create dump file' unless File.exists?(path)
+        raise 'Failed to create dump file' unless File.exists?(path)
+      end
     end
 
+    #TODO: @mjy These routines WILL NOT WORK for taxonworks_production, although they can serve as templates
+    # there are at least three failure cases when using restore_last:
+    # 1)  drop fails because database is in use by other processes.
+    # Remedy: Not much can be done about this here, except check to see how many connections to the database exist. Don't
+    # know how to do that at the moment.
+    # 2)  drop fails because database does not exist.
+    # Remedy: If the database does *not* exist, do not drop it. Don't know how to detect whether or not the
+    # database exists.
+    # 3)  restore fails because the dump was written by a 'login role' (user) which does not exist on the target
+    #     server, i.e., written by tuckerjd, and read by jrflood.
+    # Remedy: Write the database out with a user know to everyone. That user should be 'taxonworks_development'
+    # (See GitHub README)
     desc 'Dump the data as a backup, then restore the db from the specified file.'
     task :restore => [:dump, :environment, :data_directory, :db_user] do
       raise 'Specify a dump file: rake tw:db:restore file=myfile.dump' if not ENV['file']
-      Rake::Task['db:drop'].invoke
-      raise "'db:drop' failed with exit code #{$?.to_i}" unless $? == 0
+      if Support::Database.pg_database_exists?
+        Rake::Task['db:drop'].invoke
+        raise "'db:drop' failed with exit code #{$?.to_i}" unless $? == 0
+      end
       Rake::Task['db:create'].invoke
-      raise "'db:create' failed with exit code #{$?.to_i}" unless $? == 0
+      raise "'db:create' failed with exit code #{$?.to_i}" unless ($?.nil? or $? == 0)
       database = ActiveRecord::Base.connection.current_database
       path     = File.join(@args[:data_directory], ENV["file"])
       puts "Restoring #{database} from #{path}"
-      puts(Benchmark.measure { `pg_restore --username=#{ENV["db_user"]} --format=custom --disable-triggers --dbname=#{database} #{path}` })
+      # puts(Benchmark.measure { `pg_restore --username=#{ENV["db_user"]} --format=custom --disable-triggers --dbname=#{database} #{path}` })
+      puts(Benchmark.measure { `pg_restore --username=taxonworks_development --host=localhost --format=custom --disable-triggers --dbname=#{database} #{path}` })
       raise "pg_restore failed with exit code #{$?.to_i}" unless $? == 0
       puts 'Restore complete'
     end
