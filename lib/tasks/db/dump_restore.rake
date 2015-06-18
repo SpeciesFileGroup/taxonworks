@@ -23,18 +23,12 @@ namespace :tw do
       end
     end
 
-    #TODO: @mjy These routines WILL NOT WORK for taxonworks_production, although they can serve as templates
-    # there are at least three failure cases when using restore_last:
+    # there are at least two failure cases when using restore_last:
     # 1)  drop fails because database is in use by other processes.
     # Remedy: Not much can be done about this here, except check to see how many connections to the database exist. Don't
     # know how to do that at the moment.
     # 2)  drop fails because database does not exist.
-    # Remedy: If the database does *not* exist, do not drop it. Don't know how to detect whether or not the
-    # database exists.
-    # 3)  restore fails because the dump was written by a 'login role' (user) which does not exist on the target
-    #     server, i.e., written by tuckerjd, and read by jrflood.
-    # Remedy: Write the database out with a user know to everyone. That user should be 'taxonworks_development'
-    # (See GitHub README)
+    # Remedy: If the database does *not* exist, do not drop it.
     desc 'Dump the data as a backup, then restore the db from the specified file.'
     task :restore => [:dump, :environment, :data_directory, :db_user] do
       raise 'Specify a dump file: rake tw:db:restore file=myfile.dump' if not ENV['file']
