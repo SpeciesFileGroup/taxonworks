@@ -7,8 +7,12 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
 //        reconfigure drawn map to mimic asseted distributions behavior
 //        construct callback to transition from draw map to selecting map
 
-    var this_map = [];
-    var last = null;
+    var ce_map = [];        // map and item containers are cross-pollenating each other
+    var ce_last = null;     // causing drawn areas to be erased, but left as features in form
+    var gr_map = [];        // drawn georeference search area
+    var gr_last = null;     // last item drawn
+    var sa_map = [];        // selectable gr map
+    var sg_map = [];        // selected gr map
 ///////////////////////////////////////////////////////////
 //   collecting event (left) side handlers
 ///////////////////////////////////////////////////////////
@@ -141,21 +145,27 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
       $('#_selecting_ce_form').attr('hidden', true);
       $("#result_from_post").attr("hidden", true);
 
-      this_map = initializeGoogleMapWithDrawManager("#_draw_ce_form");  //set up a blank draw canvas
-      google.maps.event.addListener(this_map[1], 'overlaycomplete', function (event) {
-          // Remove the last created shape if it exists.
-          if (last != null) {
-            if (last[0] != null) {
-              removeItemFromMap(last[0]);
-            }
-          }
-
-          last = [event.overlay, event.type];
-
-          var feature = buildFeatureCollectionFromShape(event.overlay, event.type);
+      ce_map = initializeGoogleMapWithDrawManager("#_draw_ce_form");  //set up a blank draw canvas
+      $("#ce_commit").click(function (event) {      // register the click handler for the made-from-scratch-button
+          var feature = buildFeatureCollectionFromShape(ce_last[0], ce_last[1]);
           $("#ce_geographic_item_attributes_shape").val(JSON.stringify(feature[0]));
         }
       );
+      google.maps.event.addListener(ce_map[1], 'overlaycomplete', function (event) {
+          // Remove the last created shape if it exists.
+          if (ce_last != null) {
+            if (ce_last[0] != null) {
+              removeItemFromMap(ce_last[0]);
+            }
+          }
+
+          ce_last = [event.overlay, event.type];
+          var feature = buildFeatureCollectionFromShape(ce_last[0], ce_last[1]);
+          $("#ce_geographic_item_attributes_shape").val(JSON.stringify(feature[0]));
+
+        }
+      );
+
       event.preventDefault();
     });
 
@@ -296,8 +306,8 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
         // hide the filter div
 
         // start the map process
-        this_map = initializeMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
-        add_match_georeferences_map_listeners(this_map);
+        sa_map = initializeMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
+        add_match_georeferences_map_listeners(sa_map);
       }
       $("#_filter_gr_form").attr("hidden", true);
       return true;
@@ -336,8 +346,8 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
         // hide the filter div
         // unhide the local div
         // start the map process
-        this_map = initializeMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
-        add_match_georeferences_map_listeners(this_map);
+        sa_map = initializeMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
+        add_match_georeferences_map_listeners(sa_map);
       }
       $("#_tag_gr_form").attr("hidden", true);    // hide submitted tag form
       return true;
@@ -355,19 +365,19 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
       $("#_recent_gr_form").attr("hidden", true);
       $('#_selecting_gr_form').attr("hidden", true);
 
-      this_map = initializeGoogleMapWithDrawManager("#_draw_gr_form");  //set up a blank draw canvas
-      google.maps.event.addListener(this_map[1], 'overlaycomplete', function (event) {
+      gr_map = initializeGoogleMapWithDrawManager("#_draw_gr_form");  //set up a blank draw canvas
+      google.maps.event.addListener(gr_map[1], 'overlaycomplete', function (event) {
           // Remove the last created shape if it exists.
-          if (last != null) {
-            if (last[0] != null) {
-              removeItemFromMap(last[0]);
+          if (gr_last != null) {
+            if (gr_last[0] != null) {
+              removeItemFromMap(gr_last[0]);
             }
           }
 
-          last = [event.overlay, event.type];
+          gr_last = [event.overlay, event.type];
 
           //var feature = buildFeatureCollectionFromShape(event.overlay, event.type);
-          var feature = buildFeatureCollectionFromShape(last[0], last[1]);
+          var feature = buildFeatureCollectionFromShape(gr_last[0], gr_last[1]);
           $("#gr_geographic_item_attributes_shape").val(JSON.stringify(feature[0]));
         }
       );
@@ -398,10 +408,10 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
 
           if ($("#_select_gr_form").data('feature-collection').features.length == 1) {
 
-            this_map = initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
+            sg_map = initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
           }
           else {
-            this_map = initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_selected_gr_form").data('feature-collection'));
+            sa_map = initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_selected_gr_form").data('feature-collection'));
           }
         }
         $("#_draw_gr_form").attr("hidden", true);
@@ -434,8 +444,8 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
       }
       else {
         selecting.html(local_data.responseJSON['html']);
-        this_map = initializeMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
-        add_match_georeferences_map_listeners(this_map);
+        sa_map = initializeMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
+        add_match_georeferences_map_listeners(sa_map);
         if ($("#_select_gr_form").data('feature-collection').features.length == 1) {
 
           this_map = initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
@@ -451,7 +461,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
     });
 
     $("#btn_clear_selection").click(function (event) {
-        initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_selected_gr_form").data('feature-collection'));
+        sg_map = initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_selected_gr_form").data('feature-collection'));
         event.preventDefault();
       }
     );
