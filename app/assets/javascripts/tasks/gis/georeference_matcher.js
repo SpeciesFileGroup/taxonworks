@@ -366,6 +366,11 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
       $('#_selecting_gr_form').attr("hidden", true);
 
       gr_map = initializeGoogleMapWithDrawManager("#_draw_gr_form");  //set up a blank draw canvas
+      $("#gr_commit").click(function (event) {      // register the click handler for the made-from-scratch-button
+          var feature = buildFeatureCollectionFromShape(gr_last[0], gr_last[1]);
+          $("#gr_geographic_item_attributes_shape").val(JSON.stringify(feature[0]));
+        }
+      );
       google.maps.event.addListener(gr_map[1], 'overlaycomplete', function (event) {
           // Remove the last created shape if it exists.
           if (gr_last != null) {
