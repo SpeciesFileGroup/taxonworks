@@ -389,21 +389,21 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
       event.preventDefault();
     });
 
-    $("#_draw_gr_form").on("ajax:success", function (e, data, status, result_data) {
+    $("#_draw_gr_form").on("ajax:success", function (e, data, status, local_data) {
 
 //  on successful upload and processing of polygon or shape file,
 //  instantiate a selecting form and map
         var selecting = $('#_selecting_gr_form');
-        selecting.removeAttr('hidden');        // unhide the local div
+        selecting.removeAttr('hidden');        // unhide the found items wrapper div
         // see what the message was, if anything
-        var message = result_data.responseJSON['message'];
+        var message = local_data.responseJSON['message'];
         if (message.length) {
-          selecting.html(message);
+          selecting.html(message);          // write any message to the wrapper div
         }
         else {
-          // shove the returning html into the local form
-          selecting.html(result_data.responseJSON['html']);
-          this_map = initializeMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
+          selecting.html(local_data.responseJSON['html']);          // shove the returning html into the ?(local response form)?
+
+          sa_map = initializeMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
           add_match_georeferences_map_listeners(this_map);
           if ($("#_select_gr_form").data('feature-collection').features.length == 1) {
 
@@ -441,7 +441,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
         selecting.html(message);
       }
       else {
-        selecting.html(local_data.responseJSON['html']);        // shove the returning html into the local form
+        selecting.html(local_data.responseJSON['html']);        // shove the returning html into the local response form
         // start the map process
         sa_map = initializeMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
         add_match_georeferences_map_listeners(sa_map);
