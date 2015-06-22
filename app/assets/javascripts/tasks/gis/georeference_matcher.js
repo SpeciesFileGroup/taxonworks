@@ -298,15 +298,19 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
         selecting.html(message);
       }
       else {
-        // shove the returning html into the local form
-        selecting.html(local_data.responseJSON['html']);
-        // hide the filter div
-
+        selecting.html(local_data.responseJSON['html']);        // shove the returning html into the local form
         // start the map process
         sa_map = initializeMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
         add_match_georeferences_map_listeners(sa_map);
+        if ($("#_select_gr_form").data('feature-collection').features.length == 1) {
+
+          sg_map = initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
+        }
+        else {
+          sa_map = initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_selected_gr_form").data('feature-collection'));
+        }
       }
-      $("#_filter_gr_form").attr("hidden", true);
+      //$("#_filter_gr_form").attr("hidden", true);
       return true;
     }).on("ajax:error", function (e, xhr, status, error) {
       $("#new_article").append("<p>ERROR</p>");
@@ -331,22 +335,25 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
     $("#tagged_gr_keyword").on("ajax:success", function (e, data, status, local_data) {
       // make a local object of the selecting form so we can use it later
       var selecting = $('#_selecting_gr_form');
-      selecting.removeAttr('hidden');
-      // see what the message was, if anything
-      var message = local_data.responseJSON['message'];
+      selecting.removeAttr('hidden');        // unhide the local div
+      var message = local_data.responseJSON['message'];         // see what the message was, if anything
       if (message.length) {
         selecting.html(message);
       }
       else {
-        // shove the returning html into the local form
-        selecting.html(local_data.responseJSON['html']);
-        // hide the filter div
-        // unhide the local div
+        selecting.html(local_data.responseJSON['html']);        // shove the returning html into the local form
         // start the map process
         sa_map = initializeMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
         add_match_georeferences_map_listeners(sa_map);
+        if ($("#_select_gr_form").data('feature-collection').features.length == 1) {
+
+          sg_map = initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
+        }
+        else {
+          sa_map = initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_selected_gr_form").data('feature-collection'));
+        }
       }
-      $("#_tag_gr_form").attr("hidden", true);    // hide submitted tag form
+      //$("#_tag_gr_form").attr("hidden", true);    // hide submitted tag form no more, leave until acted upon
       return true;
     }).on("ajax:error", function (e, xhr, status, error) {
       $("#new_article").append("<p>ERROR</p>");
@@ -354,8 +361,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
 
     $(".draw-gr").click(function (event) {
 
-      // unhide this form
-      $("#_draw_gr_form").removeAttr("hidden");
+      $("#_draw_gr_form").removeAttr("hidden");        // unhide the draw div
       // hide everything else: filter; tag; recent;
       $("#_filter_gr_form").attr("hidden", true);
       $("#_tag_gr_form").attr("hidden", true);
@@ -435,7 +441,8 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
         selecting.html(message);
       }
       else {
-        selecting.html(local_data.responseJSON['html']);
+        selecting.html(local_data.responseJSON['html']);        // shove the returning html into the local form
+        // start the map process
         sa_map = initializeMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
         add_match_georeferences_map_listeners(sa_map);
         if ($("#_select_gr_form").data('feature-collection').features.length == 1) {
