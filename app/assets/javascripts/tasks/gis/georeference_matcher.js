@@ -158,14 +158,11 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
               removeItemFromMap(ce_last[0]);
             }
           }
-
           ce_last = [event.overlay, event.type];
           var feature = buildFeatureCollectionFromShape(ce_last[0], ce_last[1]);
           $("#ce_geographic_item_attributes_shape").val(JSON.stringify(feature[0]));
-
         }
       );
-
       event.preventDefault();
     });
 
@@ -174,8 +171,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
 //  on successful upload and processing of polygon or shape file,
 //  instantiate a selecting form and map
         var selecting = $('#_selecting_ce_form');
-        // unhide the local div
-        selecting.removeAttr('hidden');
+        selecting.removeAttr('hidden');        // unhide the local div
         // see what the message was, if anything
         var message = local_data.responseJSON['message'];
         if (message.length) {
@@ -184,7 +180,8 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
         else {
           // shove the returning html into the local form
           selecting.html(local_data.responseJSON['html']);
-// plant the id for the submit
+
+// plant the id for the submit in the found ce form
           $("#create").click(function (event) {      // register the click handler for the ajaxy-button
               $("#georeference_id").val($("#selected_georeference_id").val());  // get the stored value from center map form
             }
@@ -378,10 +375,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
               removeItemFromMap(gr_last[0]);
             }
           }
-
           gr_last = [event.overlay, event.type];
-
-          //var feature = buildFeatureCollectionFromShape(event.overlay, event.type);
           var feature = buildFeatureCollectionFromShape(gr_last[0], gr_last[1]);
           $("#gr_geographic_item_attributes_shape").val(JSON.stringify(feature[0]));
         }
@@ -394,7 +388,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
 //  on successful upload and processing of polygon or shape file,
 //  instantiate a selecting form and map
         var selecting = $('#_selecting_gr_form');
-        selecting.removeAttr('hidden');
+        selecting.removeAttr('hidden');        // unhide the local div
         // see what the message was, if anything
         var message = result_data.responseJSON['message'];
         if (message.length) {
@@ -405,12 +399,6 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
           selecting.html(result_data.responseJSON['html']);
           this_map = initializeMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
           add_match_georeferences_map_listeners(this_map);
-          $("#commit").click(function (event) {      // register the click handler for the form button
-              var feature = buildFeatureCollectionFromShape(last[0], last[1]);
-              $("#gr_geographic_item_attributes_shape").val(JSON.stringify(feature[0]));
-            }
-          );
-
           if ($("#_select_gr_form").data('feature-collection').features.length == 1) {
 
             sg_map = initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
@@ -419,7 +407,6 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
             sa_map = initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_selected_gr_form").data('feature-collection'));
           }
         }
-        $("#_draw_gr_form").attr("hidden", true);
         return true;
       }
     ).on("ajax:error", function (e, xhr, status, error) {
@@ -453,13 +440,13 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
         add_match_georeferences_map_listeners(sa_map);
         if ($("#_select_gr_form").data('feature-collection').features.length == 1) {
 
-          this_map = initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
+          sg_map = initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
         }
         else {
-          this_map = initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_selected_gr_form").data('feature-collection'));
+          sa_map = initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_selected_gr_form").data('feature-collection'));
         }
       }
-      $("#_recent_gr_form").attr("hidden", true);
+      //$("#_recent_gr_form").attr("hidden", true);
       return true;
     }).on("ajax:error", function (e, xhr, status, error) {
       $("#new_article").append("<p>ERROR</p>");
@@ -540,7 +527,10 @@ function add_match_georeferences_map_listeners(map) {      // 4 listeners, one f
       var selected_feature_georeference_id = event.feature.getProperty('georeference').id;      // unfortunate Google maps reference
       $("#selected_georeference_id").val(selected_feature_georeference_id);           // plant the clicked ID in a safe place
 //    literal-based hide the "instructions" div
-      $("#_find_gr_form").attr("hidden", true);
+      $("#_filter_gr_form").attr("hidden", true);   //CLEAR EVERYTHING (all gr-selectors) if we click a found feature
+      $("#_tag_gr_form").attr("hidden", true);
+      $("#_draw_gr_form").attr("hidden", true);
+      $("#_recent_gr_form").attr("hidden", true);
       $("#_selected_gr_form").removeAttr("hidden");   // literal-based reveal the map
       var feature_collection = $("#_select_gr_form").data('feature-collection');      // literal-based form data reference
       for (var i = 0; i < feature_collection.features.length; i++) {                  // scan the feature_collection
