@@ -393,7 +393,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
 
 //  on successful upload and processing of polygon or shape file,
 //  instantiate a selecting form and map
-        var selecting = $('#_selecting_gr_form');
+        var selecting = $('#_selecting_gr_form');   // outer wrapper
         selecting.removeAttr('hidden');        // unhide the found items wrapper div
         // see what the message was, if anything
         var message = local_data.responseJSON['message'];
@@ -401,10 +401,12 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
           selecting.html(message);          // write any message to the wrapper div
         }
         else {
-          selecting.html(local_data.responseJSON['html']);          // shove the returning html into the ?(local response form)?
+          selecting.html(local_data.responseJSON['html']);          // shove the returning html into the synthesized _select_gr_form via partial
+          var child_form = "#" + $("#_selecting_gr_form").children(0).attr("id");
 
-          sa_map = initializeMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
-          add_match_georeferences_map_listeners(this_map);
+          sa_map = initializeMap($(child_form).data('map-canvas'), $(child_form).data('feature-collection'));
+          //sa_map = initializeMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
+          add_match_georeferences_map_listeners(sa_map);
           if ($("#_select_gr_form").data('feature-collection').features.length == 1) {
 
             sg_map = initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
