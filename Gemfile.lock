@@ -438,6 +438,3 @@ DEPENDENCIES
   validates_timeliness (~> 3.0.14)
   vcr (~> 2.9.2)
   webmock (~> 1.21.0)
-
-BUNDLED WITH
-   1.10.4
