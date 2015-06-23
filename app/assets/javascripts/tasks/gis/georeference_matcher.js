@@ -146,7 +146,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
       $("#result_from_post").attr("hidden", true);
 
       ce_map = initializeGoogleMapWithDrawManager("#_draw_ce_form");  //set up a blank draw canvas
-      $("#commit").click(function (event) {      // register the click handler for the made-from-scratch-button
+      $("#ce_commit").click(function (event) {      // register the click handler for the made-from-scratch-button
           var feature = buildFeatureCollectionFromShape(ce_last[0], ce_last[1]);
           $("#ce_geographic_item_attributes_shape").val(JSON.stringify(feature[0]));
         }
@@ -158,14 +158,11 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
               removeItemFromMap(ce_last[0]);
             }
           }
-
           ce_last = [event.overlay, event.type];
           var feature = buildFeatureCollectionFromShape(ce_last[0], ce_last[1]);
           $("#ce_geographic_item_attributes_shape").val(JSON.stringify(feature[0]));
-
         }
       );
-
       event.preventDefault();
     });
 
@@ -174,8 +171,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
 //  on successful upload and processing of polygon or shape file,
 //  instantiate a selecting form and map
         var selecting = $('#_selecting_ce_form');
-        // unhide the local div
-        selecting.removeAttr('hidden');
+        selecting.removeAttr('hidden');        // unhide the local div
         // see what the message was, if anything
         var message = local_data.responseJSON['message'];
         if (message.length) {
@@ -184,7 +180,8 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
         else {
           // shove the returning html into the local form
           selecting.html(local_data.responseJSON['html']);
-// plant the id for the submit
+
+// plant the id for the submit in the found ce form
           $("#create").click(function (event) {      // register the click handler for the ajaxy-button
               $("#georeference_id").val($("#selected_georeference_id").val());  // get the stored value from center map form
             }
@@ -301,15 +298,19 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
         selecting.html(message);
       }
       else {
-        // shove the returning html into the local form
-        selecting.html(local_data.responseJSON['html']);
-        // hide the filter div
-
+        selecting.html(local_data.responseJSON['html']);        // shove the returning html into the local form
         // start the map process
         sa_map = initializeMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
         add_match_georeferences_map_listeners(sa_map);
+        if ($("#_select_gr_form").data('feature-collection').features.length == 1) {
+
+          sg_map = initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
+        }
+        else {
+          sa_map = initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_selected_gr_form").data('feature-collection'));
+        }
       }
-      $("#_filter_gr_form").attr("hidden", true);
+      //$("#_filter_gr_form").attr("hidden", true);
       return true;
     }).on("ajax:error", function (e, xhr, status, error) {
       $("#new_article").append("<p>ERROR</p>");
@@ -334,22 +335,25 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
     $("#tagged_gr_keyword").on("ajax:success", function (e, data, status, local_data) {
       // make a local object of the selecting form so we can use it later
       var selecting = $('#_selecting_gr_form');
-      selecting.removeAttr('hidden');
-      // see what the message was, if anything
-      var message = local_data.responseJSON['message'];
+      selecting.removeAttr('hidden');        // unhide the local div
+      var message = local_data.responseJSON['message'];         // see what the message was, if anything
       if (message.length) {
         selecting.html(message);
       }
       else {
-        // shove the returning html into the local form
-        selecting.html(local_data.responseJSON['html']);
-        // hide the filter div
-        // unhide the local div
+        selecting.html(local_data.responseJSON['html']);        // shove the returning html into the local form
         // start the map process
         sa_map = initializeMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
         add_match_georeferences_map_listeners(sa_map);
+        if ($("#_select_gr_form").data('feature-collection').features.length == 1) {
+
+          sg_map = initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
+        }
+        else {
+          sa_map = initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_selected_gr_form").data('feature-collection'));
+        }
       }
-      $("#_tag_gr_form").attr("hidden", true);    // hide submitted tag form
+      //$("#_tag_gr_form").attr("hidden", true);    // hide submitted tag form no more, leave until acted upon
       return true;
     }).on("ajax:error", function (e, xhr, status, error) {
       $("#new_article").append("<p>ERROR</p>");
@@ -357,8 +361,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
 
     $(".draw-gr").click(function (event) {
 
-      // unhide this form
-      $("#_draw_gr_form").removeAttr("hidden");
+      $("#_draw_gr_form").removeAttr("hidden");        // unhide the draw div
       // hide everything else: filter; tag; recent;
       $("#_filter_gr_form").attr("hidden", true);
       $("#_tag_gr_form").attr("hidden", true);
@@ -366,6 +369,11 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
       $('#_selecting_gr_form').attr("hidden", true);
 
       gr_map = initializeGoogleMapWithDrawManager("#_draw_gr_form");  //set up a blank draw canvas
+      $("#gr_commit").click(function (event) {      // register the click handler for the made-from-scratch-button
+          var feature = buildFeatureCollectionFromShape(gr_last[0], gr_last[1]);
+          $("#gr_geographic_item_attributes_shape").val(JSON.stringify(feature[0]));
+        }
+      );
       google.maps.event.addListener(gr_map[1], 'overlaycomplete', function (event) {
           // Remove the last created shape if it exists.
           if (gr_last != null) {
@@ -373,10 +381,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
               removeItemFromMap(gr_last[0]);
             }
           }
-
           gr_last = [event.overlay, event.type];
-
-          //var feature = buildFeatureCollectionFromShape(event.overlay, event.type);
           var feature = buildFeatureCollectionFromShape(gr_last[0], gr_last[1]);
           $("#gr_geographic_item_attributes_shape").val(JSON.stringify(feature[0]));
         }
@@ -384,28 +389,24 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
       event.preventDefault();
     });
 
-    $("#_draw_gr_form").on("ajax:success", function (e, data, status, result_data) {
+    $("#_draw_gr_form").on("ajax:success", function (e, data, status, local_data) {
 
 //  on successful upload and processing of polygon or shape file,
 //  instantiate a selecting form and map
-        var selecting = $('#_selecting_gr_form');
-        selecting.removeAttr('hidden');
+        var selecting = $('#_selecting_gr_form');   // outer wrapper
+        selecting.removeAttr('hidden');        // unhide the found items wrapper div
         // see what the message was, if anything
-        var message = result_data.responseJSON['message'];
+        var message = local_data.responseJSON['message'];
         if (message.length) {
-          selecting.html(message);
+          selecting.html(message);          // write any message to the wrapper div
         }
         else {
-          // shove the returning html into the local form
-          selecting.html(result_data.responseJSON['html']);
-          this_map = initializeMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
-          add_match_georeferences_map_listeners(this_map);
-          $("#commit").click(function (event) {      // register the click handler for the form button
-              var feature = buildFeatureCollectionFromShape(last[0], last[1]);
-              $("#gr_geographic_item_attributes_shape").val(JSON.stringify(feature[0]));
-            }
-          );
+          selecting.html(local_data.responseJSON['html']);          // shove the returning html into the synthesized _select_gr_form via partial
+          var child_form = "#" + $("#_selecting_gr_form").children(0).attr("id");
 
+          sa_map = initializeMap($(child_form).data('map-canvas'), $(child_form).data('feature-collection'));
+          //sa_map = initializeMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
+          add_match_georeferences_map_listeners(sa_map);
           if ($("#_select_gr_form").data('feature-collection').features.length == 1) {
 
             sg_map = initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
@@ -414,7 +415,6 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
             sa_map = initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_selected_gr_form").data('feature-collection'));
           }
         }
-        $("#_draw_gr_form").attr("hidden", true);
         return true;
       }
     ).on("ajax:error", function (e, xhr, status, error) {
@@ -443,18 +443,19 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
         selecting.html(message);
       }
       else {
-        selecting.html(local_data.responseJSON['html']);
+        selecting.html(local_data.responseJSON['html']);        // shove the returning html into the local response form
+        // start the map process
         sa_map = initializeMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
         add_match_georeferences_map_listeners(sa_map);
         if ($("#_select_gr_form").data('feature-collection').features.length == 1) {
 
-          this_map = initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
+          sg_map = initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
         }
         else {
-          this_map = initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_selected_gr_form").data('feature-collection'));
+          sa_map = initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_selected_gr_form").data('feature-collection'));
         }
       }
-      $("#_recent_gr_form").attr("hidden", true);
+      //$("#_recent_gr_form").attr("hidden", true);
       return true;
     }).on("ajax:error", function (e, xhr, status, error) {
       $("#new_article").append("<p>ERROR</p>");
@@ -535,7 +536,10 @@ function add_match_georeferences_map_listeners(map) {      // 4 listeners, one f
       var selected_feature_georeference_id = event.feature.getProperty('georeference').id;      // unfortunate Google maps reference
       $("#selected_georeference_id").val(selected_feature_georeference_id);           // plant the clicked ID in a safe place
 //    literal-based hide the "instructions" div
-      $("#_find_gr_form").attr("hidden", true);
+      $("#_filter_gr_form").attr("hidden", true);   //CLEAR EVERYTHING (all gr-selectors) if we click a found feature
+      $("#_tag_gr_form").attr("hidden", true);
+      $("#_draw_gr_form").attr("hidden", true);
+      $("#_recent_gr_form").attr("hidden", true);
       $("#_selected_gr_form").removeAttr("hidden");   // literal-based reveal the map
       var feature_collection = $("#_select_gr_form").data('feature-collection');      // literal-based form data reference
       for (var i = 0; i < feature_collection.features.length; i++) {                  // scan the feature_collection
