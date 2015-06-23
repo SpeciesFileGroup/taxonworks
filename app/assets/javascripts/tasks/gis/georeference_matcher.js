@@ -11,8 +11,8 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
     var ce_last = null;     // causing drawn areas to be erased, but left as features in form
     var gr_map = [];        // drawn georeference search area
     var gr_last = null;     // last item drawn
-    var sa_map = [];        // selectable gr map
-    var sg_map = [];        // selected gr map
+    var selectable_gr_map = [];        // selectable gr map
+    var selected_gr_map = [];        // selected gr map
 ///////////////////////////////////////////////////////////
 //   collecting event (left) side handlers
 ///////////////////////////////////////////////////////////
@@ -300,14 +300,14 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
       else {
         selecting.html(local_data.responseJSON['html']);        // shove the returning html into the local form
         // start the map process
-        sa_map = initializeMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
-        add_match_georeferences_map_listeners(sa_map);
+        selectable_gr_map = initializeMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
+        add_match_georeferences_map_listeners(selectable_gr_map);
         if ($("#_select_gr_form").data('feature-collection').features.length == 1) {
 
-          sg_map = initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
+          selected_gr_map = initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
         }
         else {
-          sa_map = initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_selected_gr_form").data('feature-collection'));
+          selectable_gr_map = initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_selected_gr_form").data('feature-collection'));
         }
       }
       //$("#_filter_gr_form").attr("hidden", true);
@@ -343,14 +343,14 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
       else {
         selecting.html(local_data.responseJSON['html']);        // shove the returning html into the local form
         // start the map process
-        sa_map = initializeMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
-        add_match_georeferences_map_listeners(sa_map);
+        selectable_gr_map = initializeMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
+        add_match_georeferences_map_listeners(selectable_gr_map);
         if ($("#_select_gr_form").data('feature-collection').features.length == 1) {
 
-          sg_map = initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
+          selected_gr_map = initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
         }
         else {
-          sa_map = initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_selected_gr_form").data('feature-collection'));
+          selectable_gr_map = initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_selected_gr_form").data('feature-collection'));
         }
       }
       //$("#_tag_gr_form").attr("hidden", true);    // hide submitted tag form no more, leave until acted upon
@@ -402,20 +402,22 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
         }
         else {
           selecting.html(local_data.responseJSON['html']);          // shove the returning html into the synthesized _select_gr_form via partial
-          var child_form = "#" + $("#_selecting_gr_form").children(0).attr("id");
-
-          sa_map = initializeMap($(child_form).data('map-canvas'), $(child_form).data('feature-collection'));
-          //sa_map = initializeMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
-          add_match_georeferences_map_listeners(sa_map);
-          if ($("#_select_gr_form").data('feature-collection').features.length == 1) {
-
-            sg_map = initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
+          //var child_form = $("#" + $("#_selecting_gr_form").children(0).attr("id"));
+          var child_form = selecting.children(0);   // we know this container only has one child
+          // map object below renders the response feature collection from child form data-object to right hand result canvas
+          selectable_gr_map = initializeMap(child_form.data('map-canvas'), child_form.data('feature-collection'));
+          //////selectable_gr_map = initializeMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
+          add_match_georeferences_map_listeners(selectable_gr_map);   // listen on features in right hand result map
+          if (child_form.data('feature-collection').features.length == 1) {
+            //  render the center map (literally _selected_gr_form) with the same feature collection
+            selected_gr_map = initializeMap($("#_selected_gr_form").data('map-canvas'), child_form.data('feature-collection'));
           }
           else {
-            sa_map = initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_selected_gr_form").data('feature-collection'));
+            // render an empty center map by using its default STATIC degenerate feature colletion
+            selected_gr_map = initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_selected_gr_form").data('feature-collection'));
           }
         }
-        return true;
+        return true;$()
       }
     ).on("ajax:error", function (e, xhr, status, error) {
         $("#new_article").append("<p>ERROR</p>");
@@ -445,14 +447,14 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
       else {
         selecting.html(local_data.responseJSON['html']);        // shove the returning html into the local response form
         // start the map process
-        sa_map = initializeMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
-        add_match_georeferences_map_listeners(sa_map);
+        selectable_gr_map = initializeMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
+        add_match_georeferences_map_listeners(selectable_gr_map);
         if ($("#_select_gr_form").data('feature-collection').features.length == 1) {
 
-          sg_map = initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
+          selected_gr_map = initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
         }
         else {
-          sa_map = initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_selected_gr_form").data('feature-collection'));
+          selectable_gr_map = initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_selected_gr_form").data('feature-collection'));
         }
       }
       //$("#_recent_gr_form").attr("hidden", true);
@@ -462,7 +464,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
     });
 
     $("#btn_clear_selection").click(function (event) {
-        sg_map = initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_selected_gr_form").data('feature-collection'));
+        selected_gr_map = initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_selected_gr_form").data('feature-collection'));
         event.preventDefault();
       }
     );
