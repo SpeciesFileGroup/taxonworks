@@ -402,7 +402,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
         }
         else {
           selecting.html(local_data.responseJSON['html']);          // shove the returning html into the synthesized _select_gr_form via partial
-var child_form = "#" + $("#selecting_gr_form").children(0).attr("id");
+          var child_form = "#" + $("#_selecting_gr_form").children(0).attr("id");
 
           sa_map = initializeMap($(child_form).data('map-canvas'), $(child_form).data('feature-collection'));
           //sa_map = initializeMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
