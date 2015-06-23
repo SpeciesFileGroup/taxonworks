@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 ruby '2.1.5'
 
-gem 'rails', '~> 4.1.9'
+gem 'rails', '~> 4.1.11'
 gem 'psych', '~> 2.0.3'
 
 # PostgreSQL

@@ -26,5 +26,13 @@ module Support
       $?.to_i
     end
 
+    def self.pg_database_exists?
+      ActiveRecord::Base.connection
+    rescue ActiveRecord::NoDatabaseError
+      false
+    else
+      true
+    end
   end
+
 end
