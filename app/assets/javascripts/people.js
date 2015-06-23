@@ -8,6 +8,18 @@
 //    }
 
 
+function bind_hover() {
+    // bind a hover event to an ellipsis
+    hiConfig = {
+        sensitivity: 3, // number = sensitivity threshold (must be 1 or higher)
+        interval: 400, // number = milliseconds for onMouseOver polling interval
+        timeout: 200, // number = milliseconds delay before onMouseOut
+        over: function() { alert('hi'); }, // function = onMouseOver callback (REQUIRED)
+        out: function() { alert('bye');  } // function = onMouseOut callback (REQUIRED)
+    };
+    $('.hoverme').hoverIntent(hiConfig);
+}
+
 function get_first_name(string) {
     // split on (white) space
     return string.split(" ", 2)[0];
@@ -50,7 +62,7 @@ _initialize_role_picker_widget = function
             $('<li>').append(
                 $("#name_label").text()
             )
-        )
+        );
         // unset form fields
         // hide the form field
         $('#new_person').attr("hidden", true);
@@ -60,6 +72,9 @@ _initialize_role_picker_widget = function
 
     $("#autocomplete").autocomplete({
         source: '/people/lookup_person',
+        open: function( event, ui ) {
+            bind_hover(); //alert('open');
+        },
         select: function (event, ui) {
             // execute on select event in search text box
 
@@ -69,7 +84,11 @@ _initialize_role_picker_widget = function
             clear_role_picker(this);
             return false;
         }
-    });
+    }).autocomplete( "instance" )._renderItem = function( ul, item ) {
+        return $( "<li>" )
+            .append( "<a>" + item.label + " <span class='hoverme'>...</span> " + "</a>" )
+            .appendTo( ul );
+    };
 
     $("#autocomplete").keyup(function () {
         // copies search textbox content to new_person name_label
@@ -90,10 +109,10 @@ _initialize_role_picker_widget = function
 
     $("#switch").click(function () {
         // switch the values in the first & last names
-        var tmp = $("#person_first_name").val()
+        var tmp = $("#person_first_name").val();
         $("#person_first_name").val($("#person_last_name").val()).change();
         $("#person_last_name").val(tmp).change();
-    })
+    });
 
     $("#expand").click(function () {
         // alternately hides and displays person_form
