@@ -632,7 +632,8 @@ describe Source::Bibtex, type: :model, group: :sources do
         expect(s.roles.count).to eq(0)
         s.authors << Person.create(last_name: 'Jones')
         expect(s.save).to be_truthy
-        expect(s.roles.count).to eq(1)
+        expect(s.roles(true).size).to eq(1)
+        expect(s.roles.first.valid?).to be_truthy
         expect(s.roles.first.creator.nil?).to be_falsey
         expect(s.roles.first.updater.nil?).to be_falsey
         expect(s.roles.first.project_id.nil?).to be_truthy
