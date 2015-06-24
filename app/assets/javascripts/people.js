@@ -7,7 +7,6 @@
 //        }
 //    }
 
-
 function bind_hover() {
     // bind a hover event to an ellipsis
     hiConfig = {
