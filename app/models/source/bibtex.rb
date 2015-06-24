@@ -290,7 +290,7 @@ class Source::Bibtex < Source
   ] # either year or stated_year is acceptable
 
   belongs_to :serial, inverse_of: :sources
-  belongs_to :source_language, class_name: "Language",foreign_key: :language_id, inverse_of: :sources
+  belongs_to :source_language, class_name: "Language", foreign_key: :language_id, inverse_of: :sources
   # above to handle clash with bibtex language field.
 
   has_many :author_roles, -> { order('roles.position ASC') }, class_name: 'SourceAuthor', as: :role_object, validate: true
@@ -381,7 +381,7 @@ class Source::Bibtex < Source
     b.author = self.compute_bibtex_names('author') unless (self.authors.size == 0 && self.author.blank?)
     b.editor = self.compute_bibtex_names('editor') unless (self.editors.size == 0 && self.editor.blank?)
 
-    b.key = self.id unless self.new_record? # id.blank?
+    b.key    = self.id unless self.new_record? # id.blank?
     b
   end
 
@@ -389,7 +389,7 @@ class Source::Bibtex < Source
   # @return [String]
   #   the bibtex version of the name strings created from the TW people
   def compute_bibtex_names(type)
-    method = type
+    method  = type
     methods = type + 's'
     case self.send(methods).size
       when 0
@@ -525,7 +525,8 @@ class Source::Bibtex < Source
       when 1
         return (authors.all.first.last_name)
       else
-        return self.authors.collect { |a| a.full_last_name }.to_sentence(:last_word_connector => ' & ')
+        return self.authors.collect { |a| a.full_last_name }.to_sentence(last_word_connector: ' & ',
+                                                                         two_words_connector: ' & ')
     end
   end
 
@@ -720,7 +721,7 @@ class Source::Bibtex < Source
       bx_entry.key = 'tmpID'
     end
 
-    if bx_entry.year.blank?  # cludge to fix render problem with year
+    if bx_entry.year.blank? # cludge to fix render problem with year
       bx_entry.year = '0000'
     end
 

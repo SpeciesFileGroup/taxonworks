@@ -997,7 +997,7 @@ describe Source::Bibtex, type: :model, group: :sources do
             src1.authors << vp2
             expect(src1.save).to be_truthy
             expect(src1.cached).to eq('Smith & Von Adams, J. (1700) I am a soft valid article. Journal of Test Articles.')
-            expect(src1.cached_author_string).to eq('Smith and Von Adams')
+            expect(src1.cached_author_string).to eq('Smith & Von Adams')
           end
 
           specify 'editors' do
@@ -1242,10 +1242,14 @@ describe Source::Bibtex, type: :model, group: :sources do
           expect(b.authors(true).size).to eq(3)
         end
         specify 'update updates position' do
+          expect(b.authors(true).count).to eq(3)
+          expect(b.authority_name).to eq('un, deux & trois')
           expect(b.update(params)).to be_truthy
+          expect(b.authors(true).count).to eq(2)
+          expect(b.authority_name).to eq('un & trois')
           expect(b.roles(true).first.position).to eq(1)
           expect(b.roles.last.position).to eq(2)
-          expect(b.authors(true).last.last_name).to eq('trois')
+          expect(b.authors.last.last_name).to eq('trois')
         end
       end
 
@@ -1255,8 +1259,12 @@ describe Source::Bibtex, type: :model, group: :sources do
             author_roles_attributes: [{id: b.roles.second.id, position: 1}, {id: b.roles.third.id, position: 2}, {id: b.roles.first.id, position: 3}]
         } }
         specify 'update updates position' do
+          expect(b.authors(true).count).to eq(3)
+          expect(b.authority_name).to eq('un, deux & trois')
           expect(b.update(params)).to be_truthy
           expect(b.authors(true).collect { |a| a.last_name }).to eq(%w{deux trois un})
+          expect(b.authors(true).count).to eq(3)
+          expect(b.authority_name).to eq('deux, trois & un')
         end
       end
     end
