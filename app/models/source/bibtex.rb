@@ -297,7 +297,8 @@ class Source::Bibtex < Source
   has_many :authors, -> { order('roles.position ASC') }, through: :author_roles, source: :person, validate: true # self.author & self.authors should match or one of them should be empty
   has_many :editor_roles, -> { order('roles.position ASC') }, class_name: 'SourceEditor', as: :role_object, validate: true # ditto for self.editor & self.editors
   has_many :editors, -> { order('roles.position ASC') }, through: :editor_roles, source: :person, validate: true
-  accepts_nested_attributes_for :authors, :editors, :author_roles, :editor_roles, reject_if: :all_blank, allow_destroy: true
+  accepts_nested_attributes_for :authors, :editors, :author_roles, :editor_roles, allow_destroy: true
+  # accepts_nested_attributes_for :authors, :editors, :author_roles, :editor_roles, reject_if: :all_blank, allow_destroy: true
 
   before_validation :create_authors, if: '!authors_to_create.nil?'
   before_validation :check_has_field

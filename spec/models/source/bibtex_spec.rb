@@ -1156,6 +1156,7 @@ describe Source::Bibtex, type: :model, group: :sources do
     let(:person2) { Person::Unvetted.create!(last_name: "deux") }
     let(:person3) { Person::Unvetted.create!(last_name: "trois") }
     let(:required_params) { {bibtex_type: 'article', title: "Three Frenchmen"} }
+
     context 'with new source' do
       context 'creates new author role with existing person' do
         let(:params) { required_params.merge(
@@ -1169,6 +1170,7 @@ describe Source::Bibtex, type: :model, group: :sources do
           expect(b.authors(true).size).to eq(1)
         end
       end
+
       context 'creates new author role and new person' do
         let(:params) { required_params.merge(
             author_roles_attributes: [{person_attributes: {last_name: 'nom'}}]
@@ -1181,6 +1183,7 @@ describe Source::Bibtex, type: :model, group: :sources do
           expect(b.authors(true).size).to eq(1)
         end
       end
+
       context 'authors (roles) are created in order' do
         let(:params) { required_params.merge(
             author_roles_attributes: [{person_id: person1.id}, {person_id: person2.id}, {person_id: person3.id}]
@@ -1197,6 +1200,7 @@ describe Source::Bibtex, type: :model, group: :sources do
       let(:one_author_params) { {author_roles_attributes: [{person_id: person1.id}]} }
       let(:three_author_params) { {author_roles_attributes: [{person_id: person1.id}, {person_id: person2.id}, {person_id: person3.id}]
       } }
+
       context 'creates new author role with existing person' do
         let(:params) { required_params.merge(one_author_params) }
         specify 'update adds role' do
@@ -1204,6 +1208,7 @@ describe Source::Bibtex, type: :model, group: :sources do
           expect(b.roles(true).size).to eq(1)
         end
       end
+
       context 'creates new author role and new person' do
         let(:params) { required_params.merge(
             author_roles_attributes: [{person_attributes: {last_name: 'nom'}}]
@@ -1213,6 +1218,7 @@ describe Source::Bibtex, type: :model, group: :sources do
           expect(b.roles(true).size).to eq(1)
         end
       end
+
       context 'deletes existing author role' do
         before { b.update(one_author_params) }
         context 'verify existing person is not deleted' do
@@ -1226,6 +1232,7 @@ describe Source::Bibtex, type: :model, group: :sources do
           end
         end
       end
+
       context 'with three authors, deleting the middle author role maintains position' do
         before { b.update(three_author_params) }
         let(:params) { {
@@ -1235,22 +1242,26 @@ describe Source::Bibtex, type: :model, group: :sources do
           expect(b.authors(true).size).to eq(3)
         end
         specify 'update updates position' do
-          # puts b.authority_name
-          # expect(b.authority_name).to eq('')
           expect(b.update(params)).to be_truthy
-          # puts b.authority_name
           expect(b.roles(true).first.position).to eq(1)
-          expect(b.roles(true).last.position).to eq(2)
+          expect(b.roles.last.position).to eq(2)
           expect(b.authors(true).last.last_name).to eq('trois')
         end
-
       end
+
       context 'authors (roles) are rearranged in proper order' do
-
+        before {b.update(three_author_params)}
+        let(:params) { {
+            author_roles_attributes: [{id: b.roles.second.id, position: 1}, {id: b.roles.third.id, position: 2}, {id: b.roles.first.id, position: 3}]
+        } }
+        specify 'update updates position' do
+          expect(b.update(params)).to be_truthy
+          expect(b.authors(true).collect { |a| a.last_name }).to eq(%w{deux trois un})
+        end
       end
-
     end
   end
+
 
   context('Beth') do
 =begin
