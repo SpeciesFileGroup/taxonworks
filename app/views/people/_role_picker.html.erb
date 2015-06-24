@@ -2,7 +2,9 @@
 
   <div class="item item1">
     <h2><%= role %></h2>
-    <ul id="role_list"></ul>
+    <ul id="role_list">
+      <!-- Have to inject hidden field with input (element) "names" to be properly nested -->
+    </ul>
 
     <%= text_field_tag :foo, nil, id: :autocomplete %>
   </div>
