@@ -628,32 +628,34 @@ describe Source::Bibtex, type: :model, group: :sources do
 
     context 'with a new object' do
       let(:s) { Source::Bibtex.new(title: 'Roles II', year: 1924, bibtex_type: 'book') }
-      specify 'with new object, <<, and existing Person' do
-        expect(s.roles.count).to eq(0)
-        s.authors << Person.create(last_name: 'Jones')
-        expect(s.save).to be_truthy
-        expect(s.roles(true).size).to eq(1)
-        expect(s.roles.first.valid?).to be_truthy
-        expect(s.roles.first.creator.nil?).to be_falsey
-        expect(s.roles.first.updater.nil?).to be_falsey
-        expect(s.roles.first.project_id.nil?).to be_truthy
-
-        expect(s.authors.first.creator.nil?).to be_falsey
-        expect(s.authors.first.updater.nil?).to be_falsey
-      end
-
-      specify 'with new object, <<, and new Person' do
-        expect(s.roles.count).to eq(0)
-        s.authors << Person.new(last_name: 'Jones')
-        expect(s.save).to be_truthy
-        expect(s.roles.count).to eq(1)
-        expect(s.roles.first.creator.nil?).to be_falsey
-        expect(s.roles.first.updater.nil?).to be_falsey
-        expect(s.roles.first.project_id.nil?).to be_truthy
-
-        expect(s.authors.first.creator.nil?).to be_falsey
-        expect(s.authors.first.updater.nil?).to be_falsey
-      end
+      # Deprecated for accepts_nested_attributes_for
+      # todo: Beth, write new tests.
+      # specify 'with new object, <<, and existing Person' do
+      #   expect(s.roles.count).to eq(0)
+      #   s.authors << Person.create(last_name: 'Jones')
+      #   expect(s.save).to be_truthy
+      #   expect(s.roles(true).size).to eq(1)
+      #   expect(s.roles.first.valid?).to be_truthy
+      #   expect(s.roles.first.creator.nil?).to be_falsey
+      #   expect(s.roles.first.updater.nil?).to be_falsey
+      #   expect(s.roles.first.project_id.nil?).to be_truthy
+      #
+      #   expect(s.authors.first.creator.nil?).to be_falsey
+      #   expect(s.authors.first.updater.nil?).to be_falsey
+      # end
+      #
+      # specify 'with new object, <<, and new Person' do
+      #   expect(s.roles.count).to eq(0)
+      #   s.authors << Person.new(last_name: 'Jones')
+      #   expect(s.save).to be_truthy
+      #   expect(s.roles.count).to eq(1)
+      #   expect(s.roles.first.creator.nil?).to be_falsey
+      #   expect(s.roles.first.updater.nil?).to be_falsey
+      #   expect(s.roles.first.project_id.nil?).to be_truthy
+      #
+      #   expect(s.authors.first.creator.nil?).to be_falsey
+      #   expect(s.authors.first.updater.nil?).to be_falsey
+      # end
 
       # A setter solution that approximates nested_attributes_for (which can't be used on polymorphic through)
       specify 'with new and authors_to_create pattern' do
@@ -1150,9 +1152,9 @@ describe Source::Bibtex, type: :model, group: :sources do
 
   context 'nested attributes' do
     #let(:b){Source::Bibtex.new}
-    let(:person1) { FactoryGirl.create(:valid_person, last_name: "un") }
-    let(:person2) { FactoryGirl.create(:valid_person, last_name: "deux") }
-    let(:person3) { FactoryGirl.create(:valid_person, last_name: "trois") }
+    let(:person1) { Person::Unvetted.create!(last_name: "un") }
+    let(:person2) { Person::Unvetted.create!(last_name: "deux") }
+    let(:person3) { Person::Unvetted.create!(last_name: "trois") }
     let(:required_params) { {bibtex_type: 'article', title: "Three Frenchmen"} }
     context 'with new source' do
       context 'creates new author role with existing person' do
@@ -1179,29 +1181,68 @@ describe Source::Bibtex, type: :model, group: :sources do
           expect(b.authors(true).size).to eq(1)
         end
       end
-      context 'deletes existing author role' do
-        context 'verify existing person is not deleted' do
-
+      context 'authors (roles) are created in order' do
+        let(:params) { required_params.merge(
+            author_roles_attributes: [{person_id: person1.id}, {person_id: person2.id}, {person_id: person3.id}]
+        ) }
+        let(:b) { Source::Bibtex.create!(params) }
+        specify 'author order is correct' do
+          expect(b.authors.to_a).to eq([person1, person2, person3])
         end
-      end
-      context 'author roles are created in order' do
-
       end
     end
 
     context 'with existing source' do
+      let!(:b) { Source::Bibtex.create!(required_params) }
+      let(:one_author_params) { {author_roles_attributes: [{person_id: person1.id}]} }
+      let(:three_author_params) { {author_roles_attributes: [{person_id: person1.id}, {person_id: person2.id}, {person_id: person3.id}]
+      } }
       context 'creates new author role with existing person' do
-
+        let(:params) { required_params.merge(one_author_params) }
+        specify 'update adds role' do
+          expect(b.update(params)).to be_truthy
+          expect(b.roles(true).size).to eq(1)
+        end
       end
       context 'creates new author role and new person' do
-
+        let(:params) { required_params.merge(
+            author_roles_attributes: [{person_attributes: {last_name: 'nom'}}]
+        ) }
+        specify 'update adds role' do
+          expect(b.update(params)).to be_truthy
+          expect(b.roles(true).size).to eq(1)
+        end
       end
       context 'deletes existing author role' do
+        before { b.update(one_author_params) }
         context 'verify existing person is not deleted' do
-
+          let(:params) { {
+              author_roles_attributes: [{id: b.roles.first.id, _destroy: 1}]
+          } }
+          specify 'update destroys role' do
+            expect(b.roles(true).size).to eq(1)
+            expect(b.update(params)).to be_truthy
+            expect(b.roles(true).size).to eq(0)
+          end
         end
       end
       context 'with three authors, deleting the middle author role maintains position' do
+        before { b.update(three_author_params) }
+        let(:params) { {
+            author_roles_attributes: [{id: b.roles.second.id, _destroy: 1}]
+        } }
+        specify 'three authors exist' do
+          expect(b.authors(true).size).to eq(3)
+        end
+        specify 'update updates position' do
+          # puts b.authority_name
+          # expect(b.authority_name).to eq('')
+          expect(b.update(params)).to be_truthy
+          # puts b.authority_name
+          expect(b.roles(true).first.position).to eq(1)
+          expect(b.roles(true).last.position).to eq(2)
+          expect(b.authors(true).last.last_name).to eq('trois')
+        end
 
       end
       context 'authors (roles) are rearranged in proper order' do
