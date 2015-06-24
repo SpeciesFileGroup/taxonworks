@@ -1253,7 +1253,7 @@ describe Source::Bibtex, type: :model, group: :sources do
         end
       end
 
-      context 'authors (roles) are rearranged in proper order' do
+      context 'authors (roles) are rearranged according to specified position' do
         before {b.update(three_author_params)}
         let(:params) { {
             author_roles_attributes: [{id: b.roles.second.id, position: 1}, {id: b.roles.third.id, position: 2}, {id: b.roles.first.id, position: 3}]
