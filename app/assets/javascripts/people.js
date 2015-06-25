@@ -13,8 +13,12 @@ function bind_hover() {
         sensitivity: 3, // number = sensitivity threshold (must be 1 or higher)
         interval: 400, // number = milliseconds for onMouseOver polling interval
         timeout: 200, // number = milliseconds delay before onMouseOut
-        over: function() { alert('hi'); }, // function = onMouseOver callback (REQUIRED)
-        out: function() { alert('bye');  } // function = onMouseOut callback (REQUIRED)
+        over: function () {
+            alert('hi');
+        }, // function = onMouseOver callback (REQUIRED)
+        out: function () {
+            alert('bye');
+        } // function = onMouseOut callback (REQUIRED)
     };
     $('.hoverme').hoverIntent(hiConfig);
 }
@@ -72,6 +76,8 @@ _initialize_role_picker_widget = function
             $('<li>').append(
                 $("#name_label").text()
             )
+            //.append("<input type='hidden' name='source[role_attributes_attributes][0][person_attributes_attributes][0][last_name]' value='" + 'jonesjonesjones' + "'>")
+
         );
         // unset form fields
         // hide the form field
@@ -82,7 +88,7 @@ _initialize_role_picker_widget = function
 
     $("#autocomplete").autocomplete({
         source: '/people/lookup_person',
-        open: function( event, ui ) {
+        open: function (event, ui) {
             bind_hover(); //alert('open');
         },
         select: function (event, ui) {
@@ -94,10 +100,10 @@ _initialize_role_picker_widget = function
             clear_role_picker(this);
             return false;
         }
-    }).autocomplete( "instance" )._renderItem = function( ul, item ) {
-        return $( "<li>" )
-            .append( "<a>" + item.label + " <span class='hoverme'>...</span> " + "</a>" )
-            .appendTo( ul );
+    }).autocomplete("instance")._renderItem = function (ul, item) {
+        return $("<li>")
+            .append("<a>" + item.label + " <span class='hoverme'>...</span> " + "</a>")
+            .appendTo(ul);
     };
 
     $("#autocomplete").keyup(function () {
