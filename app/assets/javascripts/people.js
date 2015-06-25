@@ -21,12 +21,23 @@ function bind_hover() {
 
 function get_first_name(string) {
     // split on (white) space
-    return string.split(" ", 2)[0];
+    //return string.split(" ", 2)[0];
+  // split on (white) space or commma
+  var delimiter;
+  if(string.indexOf(",") > 1) {delimiter = ","}
+  if(string.indexOf(", ") > 1) {delimiter = ", "}
+  if(string.indexOf(" ") > 1 && delimiter != ", ") {delimiter = " "}
+   return string.split(delimiter, 2)[0];
 }
 
 function get_last_name(string) {
-    // split on (white) space
-    return string.split(" ", 2)[1];
+    // split on (white) space or commma
+  var delimiter;
+  if(string.indexOf(",") > 1) {delimiter = ","}
+  if(string.indexOf(", ") > 1) {delimiter = ", "}
+  if(string.indexOf(" ") > 1 && delimiter != ", ") {delimiter = " "}
+
+  return string.split(delimiter, 2)[1];
 }
 
 // first_name and last_name must be strings
@@ -102,7 +113,13 @@ _initialize_role_picker_widget = function
         else {
             $('#new_person').removeAttr("hidden");
         }
-        $("#person_first_name").val(first_name).change();
+      if(input_term.indexOf(",") > 1) {   //last name, first name format
+        var swap = first_name;
+        first_name = last_name;
+        last_name = swap;
+      }
+
+      $("#person_first_name").val(first_name).change();
         $("#person_last_name").val(last_name).change();
     });
 
