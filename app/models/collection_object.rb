@@ -1,4 +1,4 @@
-# A CollectionObject is on or more physical things that have been collected.  Ennumerating how many things (@!total) is a task of the curator.
+# A CollectionObject is on or more physical things that have been collected.  Enumerating how many things (@!total) is a task of the curator.
 #
 # A CollectiongObjects immediate disposition is handled through its relation to containers.  Containers can be nested, labeled, and interally subdivided as necessary.
 # 
