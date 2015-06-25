@@ -70,10 +70,9 @@ describe Otu, :type => :model do
     end
   end
 
-
   context 'batch loading' do
     let(:file) {
-      f = File.new('/tmp/temp', 'w+')
+      f   = File.new('/tmp/temp', 'w+')
       str = CSV.generate do |csv|
         csv << ["Aus"]
         csv << ["Bus"]
@@ -119,8 +118,8 @@ describe Otu, :type => :model do
     context '.batch_create' do
       let(:params) {
         {otus:
-             {'1' => {'name' => 'Aus'},
-              '2' => {'name' => 'Bus'}}
+           {'1' => {'name' => 'Aus'},
+            '2' => {'name' => 'Bus'}}
         }
       }
 
@@ -151,5 +150,25 @@ describe Otu, :type => :model do
     it_behaves_like 'notable'
     it_behaves_like 'taggable'
     it_behaves_like 'is_data'
+  end
+
+  context 'complex interactions' do
+    context 'distribution' do
+      let(:a_d) { FactoryGirl.create(:valid_asserted_distribution) }
+      let(:otu) { a_d.otu }
+      let(:t_d) { FactoryGirl.create(:valid_taxon_determination, {otu: otu})}
+
+      specify 'the otu can find its asserted distribution' do
+        expect(otu.asserted_distributions.count).to eq(1)
+        expect(otu.asserted_distributions).to contain_exactly(a_d)
+      end
+
+      specify 'the otu can find its taxon_determinations' do
+        t_d.save
+
+        expect(otu.taxon_determinations.count).to eq(1)
+        expect(otu.taxon_determinations).to contain_exactly(t_d)
+      end
+    end
   end
 end

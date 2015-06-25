@@ -4,7 +4,7 @@
 # in matrices, taxon pages, individuals or populations, or arbitrary clusters of organisms (e.g. 'unsorted specimens in this container').
 # Otus are a primary unit of work in TaxonWorks.
 #
-# OTU is labeled with a name, either arbitrarily given or specificly linked to a taxon_name_id.
+# OTU is labeled with a name, either arbitrarily given or specifically linked to a taxon_name_id.
 #
 # TODO: Add simple semantics (same_as etc.) describing taxon_name_id
 #
@@ -31,8 +31,10 @@ class Otu < ActiveRecord::Base
   has_many :taxon_determinations, inverse_of: :otu, dependent: :destroy
   has_many :collection_objects, through: :taxon_determinations, source: :biological_collection_object, inverse_of: :otus
   has_many :collection_profiles # @proceps dependent: what?
+  has_many :collecting_events, through: :collection_objects
   has_many :topics, through: :contents, source: :topic
-  
+  has_many :asserted_distributions
+  has_many :geographic_areas, through: :asserted_distributions
 
   scope :with_taxon_name_id, -> (taxon_name_id) { where(taxon_name_id: taxon_name_id) }
   scope :with_name, -> (name) { where(name: name) }
@@ -44,16 +46,6 @@ class Otu < ActiveRecord::Base
   soft_validate(:sv_taxon_name, set: :taxon_name)
   soft_validate(:sv_duplicate_otu, set: :duplicate_otu)
 
-  def otu_name
-    if !self.name.blank?
-      self.name
-    elsif !self.taxon_name_id.nil?
-      self.taxon_name.cached_name_and_author_year
-    else
-      nil
-    end
-  end
-
   #region Validation
 
   def check_required_fields
@@ -63,26 +55,7 @@ class Otu < ActiveRecord::Base
     end
   end
 
-  #end region
-
-  # Hernán - this is extremely hacky, I'd like to
-  # map core keys to procs, use yield:, use cached values,
-  # add logic for has_many handling (e.g. identifiers) etc.
-  # ultmately, each key maps to a proc that returns a value
-  #
-  def dwca_core
-    core = Dwca::GbifProfile::CoreTaxon.new
-    
-    core.nomenclaturalCode = (taxon_name.rank_class.nomenclatural_code.to_s.upcase)
-    core.taxonomicStatus = (taxon_name.unavailable_or_invalid? ? nil : 'accepted')
-    core.nomenclaturalStatus = (taxon_name.unavailable? ? nil : 'available')
-    core.scientificName =  taxon_name.cached
-    core.scientificNameAuthorship = taxon_name.cached_author_year
-    core.scientificNameID = taxon_name.identifiers.first.identifier      
-    core.taxonRank = taxon_name.rank  
-    core.namePublishedIn = taxon_name.source.cached  
-    core
-  end
+  #endregion
 
   #region Soft validation
   def sv_taxon_name
@@ -98,6 +71,7 @@ class Otu < ActiveRecord::Base
 
   #endregion
 
+  #region class methods
   def self.find_for_autocomplete(params)
     Queries::OtuAutocompleteQuery.new(params[:term]).all.where(project_id: params[:project_id])
   end
@@ -152,9 +126,50 @@ class Otu < ActiveRecord::Base
     new_otus
   end
 
+  #endregion
 
+  #region instance methods
+  # Hernán - this is extremely hacky, I'd like to
+  # map core keys to procs, use yield:, use cached values,
+  # add logic for has_many handling (e.g. identifiers) etc.
+  # ultmately, each key maps to a proc that returns a value
+  #
+  def dwca_core
+    core = Dwca::GbifProfile::CoreTaxon.new
 
+    core.nomenclaturalCode        = (taxon_name.rank_class.nomenclatural_code.to_s.upcase)
+    core.taxonomicStatus          = (taxon_name.unavailable_or_invalid? ? nil : 'accepted')
+    core.nomenclaturalStatus      = (taxon_name.unavailable? ? nil : 'available')
+    core.scientificName           = taxon_name.cached
+    core.scientificNameAuthorship = taxon_name.cached_author_year
+    core.scientificNameID         = taxon_name.identifiers.first.identifier
+    core.taxonRank                = taxon_name.rank
+    core.namePublishedIn          = taxon_name.source.cached
+    core
+  end
 
+  def otu_name
+    if !self.name.blank?
+      self.name
+    elsif !self.taxon_name_id.nil?
+      self.taxon_name.cached_name_and_author_year
+    else
+      nil
+    end
+  end
+
+  def distributions_to_geo_json_feature_collection
+    Gis::GeoJSON.feature_collection(geographic_areas, :asserted_distributions)
+  end
+
+  def collection_objects_to_geo_json_feature_collection
+    Gis::GeoJSON.feature_collection(collection_objects, :collection_objects)
+  end
+
+  def collecting_events_to_geo_json_feature_collection
+    Gis::GeoJSON.feature_collection(collecting_events, :collecting_events)
+  end
+  #endregion
 end
 
 
