@@ -154,20 +154,36 @@ describe Otu, :type => :model do
 
   context 'complex interactions' do
     context 'distribution' do
-      let(:a_d) { FactoryGirl.create(:valid_asserted_distribution) }
-      let(:otu) { a_d.otu }
-      let(:t_d) { FactoryGirl.create(:valid_taxon_determination, {otu: otu})}
+      let(:a_d1) { FactoryGirl.create(:valid_asserted_distribution) }
+      let(:a_d2) { FactoryGirl.create(:valid_asserted_distribution) }
+      let(:a_d3) { FactoryGirl.create(:valid_asserted_distribution) }
+      let(:otu1) { a_d1.otu }
+      let(:otu2) { a_d2.otu }
+      let(:t_d1) { FactoryGirl.create(:valid_taxon_determination, {otu: otu1}) }
+      let(:t_d2) { FactoryGirl.create(:valid_taxon_determination, {otu: otu2}) }
+      let(:t_d3) { FactoryGirl.create(:valid_taxon_determination, {otu: otu1}) }
+
+      before(:each) {
+        a_d3.otu = otu1
+        [a_d1, a_d2, a_d3, otu1, otu2, t_d1, t_d2, t_d3].map(&:save)
+      }
 
       specify 'the otu can find its asserted distribution' do
-        expect(otu.asserted_distributions.count).to eq(1)
-        expect(otu.asserted_distributions).to contain_exactly(a_d)
+        a_ds1 = otu1.asserted_distributions
+        a_ds2 = otu2.asserted_distributions
+        expect(a_ds1.count).to eq(2)
+        expect(a_ds1).to contain_exactly(a_d1, a_d3)
+        expect(a_ds2.count).to eq(1)
+        expect(a_ds2).to contain_exactly(a_d2)
       end
 
       specify 'the otu can find its taxon_determinations' do
-        t_d.save
-
-        expect(otu.taxon_determinations.count).to eq(1)
-        expect(otu.taxon_determinations).to contain_exactly(t_d)
+        t_ds1 = otu1.taxon_determinations
+        t_ds2 = otu2.taxon_determinations
+        expect(t_ds1.count).to eq(2)
+        expect(t_ds1).to contain_exactly(t_d1, t_d3)
+        expect(t_ds2.count).to eq(1)
+        expect(t_ds2).to contain_exactly(t_d2)
       end
     end
   end

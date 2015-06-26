@@ -76,6 +76,7 @@ class CollectionObject < ActiveRecord::Base
 
   has_many :derived_collection_objects, inverse_of: :collection_object
   has_many :collection_object_observations, through: :derived_collection_objects, inverse_of: :collection_objects
+  has_many :otus, through: :taxon_determinations, inverse_of: :collection_objects
 
 
   belongs_to :collecting_event, inverse_of: :collection_objects
@@ -98,8 +99,8 @@ class CollectionObject < ActiveRecord::Base
   end
 
   def sv_missing_deaccession_fields
-    soft_validations.add(:deaccessioned_at, 'Date is not selected') if self.deaccessioned_at.nil? && !self.deaccession_reason.blank? 
-    soft_validations.add(:base, 'Recipient is not selected')  if self.deaccession_recipient.nil? && self.deaccession_reason && self.deaccessioned_at
+    soft_validations.add(:deaccessioned_at, 'Date is not selected') if self.deaccessioned_at.nil? && !self.deaccession_reason.blank?
+    soft_validations.add(:base, 'Recipient is not selected') if self.deaccession_recipient.nil? && self.deaccession_reason && self.deaccessioned_at
     soft_validations.add(:deaccession_reason, 'Reason is is not defined') if self.deaccession_reason.blank? && self.deaccession_recipient && self.deaccessioned_at
   end
 
@@ -127,18 +128,18 @@ class CollectionObject < ActiveRecord::Base
     collection_objects = [collection_objects] if !(collection_objects.class == Array)
 
     breakdown = {
-      total_objects: collection_objects.length,
+      total_objects:     collection_objects.length,
       collecting_events: {},
-      determinations: {},
-      bio_overview: []
+      determinations:    {},
+      bio_overview:      []
     }
 
     breakdown.merge!(breakdown_buffered(collection_objects))
 
     collection_objects.each do |co|
-      breakdown[:collecting_events].merge!(co => co.collecting_event) if co.collecting_event 
-      breakdown[:determinations].merge!(co => co.taxon_determinations)  if co.taxon_determinations.any?
-      breakdown[:bio_overview].push([co.total, co.biocuration_classes.collect{|a| a.name}])
+      breakdown[:collecting_events].merge!(co => co.collecting_event) if co.collecting_event
+      breakdown[:determinations].merge!(co => co.taxon_determinations) if co.taxon_determinations.any?
+      breakdown[:bio_overview].push([co.total, co.biocuration_classes.collect { |a| a.name }])
     end
 
     breakdown
@@ -148,12 +149,12 @@ class CollectionObject < ActiveRecord::Base
   #   a unque list of buffered_ values observed in the collection objects passed
   def self.breakdown_buffered(collection_objects)
     collection_objects = [collection_objects] if !(collection_objects.class == Array)
-    breakdown = {}
-    categories = BUFFERED_ATTRIBUTES 
-    
-    categories.each do |c| 
+    breakdown          = {}
+    categories         = BUFFERED_ATTRIBUTES
+
+    categories.each do |c|
       breakdown[c] = []
-    end 
+    end
 
     categories.each do |c|
       collection_objects.each do |co|
@@ -161,7 +162,7 @@ class CollectionObject < ActiveRecord::Base
       end
     end
 
-    categories.each do |c| 
+    categories.each do |c|
       breakdown[c].uniq!
     end
 
@@ -175,9 +176,9 @@ class CollectionObject < ActiveRecord::Base
   end
 
   def annotations
-    h = annotations_hash 
+    h = annotations_hash
     h.merge!('biocuration classifications' => self.biocuration_classes) if self.biological? && self.biocuration_classifications.any?
-    h 
+    h
   end
 
   def self.generate_download(scope)
@@ -202,16 +203,15 @@ class CollectionObject < ActiveRecord::Base
   end
 
   def assign_type_if_total_or_ranged_lot_category_id_provided
-      if self.total == 1
-        self.type = 'Specimen'
-      elsif self.total.to_i > 1
-        self.type = 'Lot'
-      elsif total.nil? && !ranged_lot_category_id.blank?
-        self.type = 'RangedLot'
-      end
+    if self.total == 1
+      self.type = 'Specimen'
+    elsif self.total.to_i > 1
+      self.type = 'Lot'
+    elsif total.nil? && !ranged_lot_category_id.blank?
+      self.type = 'RangedLot'
+    end
     true
   end
-
 
 
   # # TODO: Write this. Changing from one type to another is ONLY allowed via this method, not by updating attributes
