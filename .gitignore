@@ -52,3 +52,6 @@ public/system
 
 # temp until we decide how will we deal with repeatability in integration tests with external APIs
 /spec/fixtures/vcr_cassettes
+
+# home for paperclip in test mode
+spec/test_files/
