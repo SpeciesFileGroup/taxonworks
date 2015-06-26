@@ -13,6 +13,11 @@ TaxonWorks::Application.routes.draw do
       get 'autocomplete'
       get 'search'
     end
+
+    member do
+      get 'related'
+    end
+
   end
 
   root 'dashboard#index'
@@ -354,6 +359,7 @@ TaxonWorks::Application.routes.draw do
   patch '/set_password/:token', to: 'users#set_password', as: 'set_password'
 
   match '/papertrail', to: 'papertrail#papertrail', via: :get
+  match '/papertrail/:id', to: 'papertrail#show', as: 'paper_trail_version',  via: :get
 
   # API STUB
   get '/api/v1/taxon_names/' => 'api/v1/taxon_names#all'
