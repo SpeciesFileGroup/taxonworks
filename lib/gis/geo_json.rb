@@ -39,14 +39,18 @@ module Gis::GeoJSON
 
 # @param objects [Array of instances that respond to .to_geo_json_feature]
   def self.feature_collection(objects, properties = nil)
-    count = 0
+    count  = 0
     result = {
       'type'     => 'FeatureCollection',
       'features' => []
     }
     objects.each_with_index do |object, i|
       unless object.nil?
-        json = object.to_geo_json_feature.merge('id' => i + 1) # offset by one, since google getFeatureById(0) fails
+        if object.class.to_s == 'Array'
+          json = object
+        else
+          json = object.to_geo_json_feature.merge('id' => i + 1) # offset by one, since google getFeatureById(0) fails
+        end
         result['features'].push(json)
         count += 1
       end

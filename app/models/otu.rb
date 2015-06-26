@@ -158,17 +158,20 @@ class Otu < ActiveRecord::Base
     end
   end
 
-  def distributions_to_geo_json_feature_collection
-    Gis::GeoJSON.feature_collection(geographic_areas, :asserted_distributions)
+  def distribution_geoJSON
+    Gis::GeoJSON.feature_collection(
+      [
+        # Gis::GeoJSON.feature_collection(collection_objects, :collection_objects),
+        # Gis::GeoJSON.feature_collection(taxon_determininations, :taxon_detetminations),
+        Gis::GeoJSON.feature_collection(geographic_areas, :asserted_distributions)
+      ],
+      :distribution
+    )
   end
 
-  def collection_objects_to_geo_json_feature_collection
-    Gis::GeoJSON.feature_collection(collection_objects, :collection_objects)
-  end
-
-  def collecting_events_to_geo_json_feature_collection
-    Gis::GeoJSON.feature_collection(collecting_events, :collecting_events)
-  end
+  # def collecting_event_geoJSON
+  #   Gis::GeoJSON.feature_collection(collecting_events, :collecting_events)
+  # end
   #endregion
 end
 

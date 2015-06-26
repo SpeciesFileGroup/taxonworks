@@ -1,7 +1,7 @@
 FactoryGirl.define do
 
-  trait :random_verbatim_label do 
-    verbatim_label { Utilities::Strings.random_string(8)}
+  trait :random_verbatim_label do
+    verbatim_label { Utilities::Strings.random_string(8) }
   end
 
   sequence :verbatim_label do |n|
@@ -25,7 +25,7 @@ FactoryGirl.define do
     # !! Need an after to set the verbatim values off of the generated values!!
     factory :collecting_event_with_random_point_georeference do
       association :verbatim_georeference, factory: :georeference_verbatim_data_with_random_point
-   end
+    end
 
     factory :collecting_event_my_office do
       verbatim_locality 'Champaign Co., Illinois'

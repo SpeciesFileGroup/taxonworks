@@ -159,13 +159,23 @@ describe Otu, :type => :model do
       let(:a_d3) { FactoryGirl.create(:valid_asserted_distribution) }
       let(:otu1) { a_d1.otu }
       let(:otu2) { a_d2.otu }
-      let(:t_d1) { FactoryGirl.create(:valid_taxon_determination, {otu: otu1}) }
-      let(:t_d2) { FactoryGirl.create(:valid_taxon_determination, {otu: otu2}) }
-      let(:t_d3) { FactoryGirl.create(:valid_taxon_determination, {otu: otu1}) }
+      let(:c_e1) { FactoryGirl.create(:valid_collecting_event) }
+      let(:c_e2) { FactoryGirl.create(:valid_collecting_event) }
+      let(:c_e3) { FactoryGirl.create(:valid_collecting_event) }
+      let(:c_o1) { FactoryGirl.create(:valid_collection_object, {collecting_event: c_e1}) }
+      let(:c_o2) { FactoryGirl.create(:valid_collection_object, {collecting_event: c_e2}) }
+      let(:c_o3) { FactoryGirl.create(:valid_collection_object, {collecting_event: c_e3}) }
+      let(:t_d1) { FactoryGirl.create(:valid_taxon_determination, {otu: otu1, biological_collection_object: c_o1}) }
+      let(:t_d2) { FactoryGirl.create(:valid_taxon_determination, {otu: otu2, biological_collection_object: c_o2}) }
+      let(:t_d3) { FactoryGirl.create(:valid_taxon_determination, {otu: otu1, biological_collection_object: c_o3}) }
 
       before(:each) {
         a_d3.otu = otu1
-        [a_d1, a_d2, a_d3, otu1, otu2, t_d1, t_d2, t_d3].map(&:save)
+        [a_d1, a_d2, a_d3,
+         otu1, otu2,
+         c_e1, c_e2, c_e3,
+         c_o1, c_o2, c_o3,
+         t_d1, t_d2, t_d3].map(&:save)
       }
 
       specify 'the otu can find its asserted distribution' do
@@ -179,11 +189,22 @@ describe Otu, :type => :model do
 
       specify 'the otu can find its taxon_determinations' do
         t_ds1 = otu1.taxon_determinations
-        t_ds2 = otu2.taxon_determinations
         expect(t_ds1.count).to eq(2)
         expect(t_ds1).to contain_exactly(t_d1, t_d3)
+
+        t_ds2 = otu2.taxon_determinations
         expect(t_ds2.count).to eq(1)
         expect(t_ds2).to contain_exactly(t_d2)
+      end
+
+      specify 'the otu can find its collecting_events' do
+        c_es1 = otu1.collecting_events
+        expect(c_es1.count).to eq(2)
+        expect(c_es1).to contain_exactly(c_e1, c_e3)
+
+        c_es2 = otu2.collecting_events
+        expect(c_es2.count).to eq(1)
+        expect(c_es2).to contain_exactly(c_e2)
       end
     end
   end
