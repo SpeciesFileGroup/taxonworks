@@ -44,9 +44,14 @@ module TagsHelper
                                       tag_object_attribute: attribute})) if object.has_tags?
   end
 
-
   def destroy_tag_link(tag)
     destroy_object_link(tag)
+  end
+
+  # @return [True]
+  #   indicates a custom partial should be used, see list_helper.rb
+  def tags_recent_objects_partial
+    true 
   end
 
 end

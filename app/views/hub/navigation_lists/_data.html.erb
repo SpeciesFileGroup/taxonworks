@@ -15,6 +15,7 @@
     <%= content_tag(:li, 'Collection profile', class: :disabled) %>
     <%= content_tag :li, link_to('Collection object observations', collection_object_observations_path) %>
     <%= content_tag(:li, 'Contents', class: :disabled) %>
+    <%= content_tag :li, link_to('Depictions', depictions_path) %>
     <%= content_tag :li, link_to('Georeferences', georeferences_path) %>
     <%= content_tag :li, link_to('Images', images_path) %>
     <%= content_tag(:li, 'Loans', class: :disabled) %>
@@ -31,7 +32,6 @@
     <%= content_tag :li, link_to('Alternate values', alternate_values_path) %>
     <%= content_tag :li, link_to('Citations', citations_path) %>
     <%= content_tag :li, link_to('Data attributes', data_attributes_path) %>
-    <%= content_tag :li, link_to('Depictions', depictions_path) %>
     <%= content_tag :li, link_to('Identifiers', identifiers_path) %>
     <%= content_tag :li, link_to('Notes', notes_path) %>
     <%= content_tag :li, link_to('Tags', tags_path) %>
