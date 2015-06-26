@@ -30,33 +30,33 @@ class TaxonDetermination < ActiveRecord::Base
   include Shared::IsData
 
   belongs_to :otu, inverse_of: :taxon_determinations
-  belongs_to :biological_collection_object, class_name: 'CollectionObject::BiologicalCollectionObject', inverse_of: :taxon_determinations
+  belongs_to :biological_collection_object, class_name: 'CollectionObject', inverse_of: :taxon_determinations
 
   has_one :determiner_role, class_name: 'Determiner', as: :role_object
   has_one :determiner, through: :determiner_role, source: :person
 
   # TODO: factor these out (see also TaxonDetermination, Source::Bibtex)
   validates_numericality_of :year_made,
-    only_integer: true, 
-    greater_than: 0,
-    less_than_or_equal_to: Time.now.year,
-    allow_nil: true,
-    message: ' must be a 4 digit integer greater than 0'
+                            only_integer:          true,
+                            greater_than:          0,
+                            less_than_or_equal_to: Time.now.year,
+                            allow_nil:             true,
+                            message:               ' must be a 4 digit integer greater than 0'
   validates_inclusion_of :month_made,
-    in: 1..12, 
-    allow_nil: true,
-    message: ' is not an integer from 1-12'
+                         in:        1..12,
+                         allow_nil: true,
+                         message:   ' is not an integer from 1-12'
   validates_numericality_of :day_made,
-    unless: 'year_made.nil? || month_made.nil? || ![*(1..12)].include?(month_made)',
-    allow_nil: true,
-    only_integer: true,
-    greater_than: 0,
-    less_than: 32,
-    less_than_or_equal_to: Proc.new { |a| Time.utc(a.year_made, a.month_made).end_of_month.day },
-    message: '%{value} is not valid for the month provided'
+                            unless:                'year_made.nil? || month_made.nil? || ![*(1..12)].include?(month_made)',
+                            allow_nil:             true,
+                            only_integer:          true,
+                            greater_than:          0,
+                            less_than:             32,
+                            less_than_or_equal_to: Proc.new { |a| Time.utc(a.year_made, a.month_made).end_of_month.day },
+                            message:               '%{value} is not valid for the month provided'
 
   validates :otu, presence: true
-  validates :biological_collection_object, presence: true 
+  validates :biological_collection_object, presence: true
 
   before_save :set_made_fields_if_not_provided
 
@@ -83,9 +83,9 @@ class TaxonDetermination < ActiveRecord::Base
 
   def set_made_fields_if_not_provided
     if self.year_made.blank? && self.month_made.blank? && self.day_made.blank?
-      self.year_made = Time.now.year 
+      self.year_made  = Time.now.year
       self.month_made = Time.now.month
-      self.day_made = Time.now.day
+      self.day_made   = Time.now.day
     end
   end
 

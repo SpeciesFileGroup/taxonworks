@@ -31,7 +31,7 @@ class Otu < ActiveRecord::Base
   has_many :taxon_determinations, inverse_of: :otu, dependent: :destroy
   has_many :collection_objects, through: :taxon_determinations, source: :biological_collection_object, inverse_of: :otus
   has_many :collection_profiles # @proceps dependent: what?
-  has_many :collecting_events, through: :collection_objects
+  has_many :collecting_events, -> { uniq }, through: :collection_objects
   has_many :topics, through: :contents, source: :topic
   has_many :asserted_distributions
   has_many :geographic_areas, through: :asserted_distributions
