@@ -1,5 +1,7 @@
 module Settings
 
+  class Error < RuntimeError; end;
+
   EXCEPTION_NOTIFICATION_SETTINGS = [
     :email_prefix,
     :sender_address,
@@ -21,7 +23,7 @@ module Settings
 
   def self.load_from_hash(config, hash)
     invalid_sections = hash.keys - VALID_SECTIONS
-    raise "#{invalid_sections} are not valid sections" unless invalid_sections.empty?
+    raise Error, "#{invalid_sections} are not valid sections" unless invalid_sections.empty?
 
     @@config_hash = hash.deep_dup
 
@@ -38,7 +40,7 @@ module Settings
   
   def self.load_from_file(config, path, set_name)
     hash = YAML.load_file(path)
-    raise "#{set_name} settings set not found" unless hash.keys.include?(set_name.to_s)
+    raise Error, "#{set_name} settings set not found" unless hash.keys.include?(set_name.to_s)
     self.load_from_hash(config, symbolize_keys(hash[set_name.to_s] || { }))
   end
   
@@ -62,7 +64,7 @@ module Settings
     @@default_data_directory = nil
     if !path.nil?
       full_path = File.absolute_path(path)
-      raise "Directory #{full_path} does not exist" unless Dir.exists?(full_path)
+      raise Error, "Directory #{full_path} does not exist" unless Dir.exists?(full_path)
       @@default_data_directory = full_path
     end
   end
@@ -70,12 +72,12 @@ module Settings
   def self.load_exception_notification(config, settings)
     if settings      
       missing = EXCEPTION_NOTIFICATION_SETTINGS - settings.keys
-      raise "Missing #{missing} settings in exception_notification" unless missing.empty?
+      raise Error, "Missing #{missing} settings in exception_notification" unless missing.empty?
       
       invalid = settings.keys - EXCEPTION_NOTIFICATION_SETTINGS
-      raise "#{invalid} are not valid settings for exception_notification" unless invalid.empty?
+      raise Error, "#{invalid} are not valid settings for exception_notification" unless invalid.empty?
       
-      raise ":exception_recipients must be an Array" unless settings[:exception_recipients].class == Array
+      raise Error, ":exception_recipients must be an Array" unless settings[:exception_recipients].class == Array
 
       config.middleware.use ExceptionNotification::Rack, email: settings
     end    

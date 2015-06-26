@@ -2,6 +2,7 @@ require 'rails_helper'
 
 describe Settings do
   before(:all) { @current_settings_hash = Settings.get_config_hash }
+
   let(:valid_full_config) do
     { default_data_directory: 'tmp',
       exception_notification: {
@@ -11,15 +12,18 @@ describe Settings do
       }
     }
   end
+  
   let(:rails_config) {
     double('config', middleware: double('middleware'), action_mailer: double('action_mailer'))
   }
+  
   after(:all) do
+    current_settings_hash =  Settings.get_config_hash
     config = {
-      default_data_directory: @current_settings_hash[:default_data_directory],
-      mail_domain: @current_settings_hash[:mail_domain]
+      default_data_directory: current_settings_hash[:default_data_directory],
+      mail_domain: current_settings_hash[:mail_domain]
     }
-    Settings.load_from_hash({ }, config)
+    Settings.load_from_hash({}, config)
   end
         
   describe '::load_from_hash' do
@@ -38,28 +42,25 @@ describe Settings do
           expect(rails_config.middleware).not_to receive(:use)
           Settings.load_from_hash(rails_config, { })
         end
-      
       end
 
       context 'when invalid settings' do  
-                
         it "throws error when a setting is missing" do
           valid_config[:exception_notification].delete(:email_prefix)
-          expect { Settings.load_from_hash(rails_config, valid_config) }.to raise_error(/.*\[\:email_prefix\].*/)
+          expect { Settings.load_from_hash(rails_config, valid_config) }.to raise_error(Settings::Error, /.*\[\:email_prefix\].*/)
         end
 
         it "throws error when a setting is invalid" do
           valid_config[:exception_notification][:invalid_setting] = 'INVALID'
-          expect { Settings.load_from_hash(rails_config, valid_config) }.to raise_error(/.*\[\:invalid_setting\].*/)
+          expect { Settings.load_from_hash(rails_config, valid_config) }.to raise_error(Settings::Error, /.*\[\:invalid_setting\].*/)
         end
 
         it "throws error when :exception_recipients is not an Array" do
           valid_config[:exception_notification][:exception_recipients] = 'NOT AN ARRAY'
-          expect { Settings.load_from_hash(rails_config, valid_config) }.to raise_error(/.* Array*/) 
+          expect { Settings.load_from_hash(rails_config, valid_config) }.to raise_error(Settings::Error, /.* Array*/) 
         end
 
       end
-    
     end
     
     describe "default_data_directory" do
