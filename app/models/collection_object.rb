@@ -77,7 +77,7 @@ class CollectionObject < ActiveRecord::Base
   has_many :derived_collection_objects, inverse_of: :collection_object
   has_many :collection_object_observations, through: :derived_collection_objects, inverse_of: :collection_objects
   has_many :otus, through: :taxon_determinations, inverse_of: :collection_objects
-
+  has_many :taxon_determinations, foreign_key: :biological_collection_objects, inverse_of: :biological_collection_object
 
   belongs_to :collecting_event, inverse_of: :collection_objects
   belongs_to :preparation_type, inverse_of: :collection_objects
