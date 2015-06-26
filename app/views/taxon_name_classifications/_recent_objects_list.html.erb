@@ -1,6 +1,6 @@
 <ul>
   <% @recent_objects.each do |r| -%>
-      <li> <%= link_to(object_tag(r), r.taxon_name.metamorphosize) -%> <%= object_time_since_update_tag(r) -%>
+    <li> <%= link_to(object_tag(r) + " on " + object_tag(r.taxon_name), r.taxon_name.metamorphosize) -%> <%= object_time_since_update_tag(r) -%> 
         ago
       </li>
   <% end %>

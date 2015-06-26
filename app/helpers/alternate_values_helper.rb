@@ -56,4 +56,10 @@ module AlternateValuesHelper
     render('/alternate_values/quick_search_form')
   end
 
+  # @return [True]
+  #   indicates a custom partial should be used, see list_helper.rb
+  def alternate_values_recent_objects_partial
+    true 
+  end
+
 end

@@ -177,16 +177,7 @@ module Workbench::NavigationHelper
   #   a link to the related data page
   def related_data_link(object)
     return nil if object.nil?
-    link_to('Related', send("related_#{base_path(metamorphosize_if(object))}_path", object)) 
+    link_to('Related', send("related_#{member_base_path(metamorphosize_if(object))}_path", object)) 
   end
-
-  # @return [String]
-  #   the member path base for the object, object should be metamorphosized before passing.
-  def base_path(object)
-    object.class.name.tableize.singularize
-  end
-
-
-
 
 end

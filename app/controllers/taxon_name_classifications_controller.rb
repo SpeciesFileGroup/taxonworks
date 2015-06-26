@@ -41,9 +41,15 @@ class TaxonNameClassificationsController < ApplicationController
   end
 
   def new
+    taxon_name_id = params[:taxon_name_classification].try(:[], :taxon_name_id)
+
+    taxon_name = TaxonName.where(
+        id:  taxon_name_id,
+        project_id: $project_id
+    ).first
+
     @taxon_name_classification = TaxonNameClassification.new(
-      taxon_name: TaxonName.find(
-        params.permit(taxon_name_classification: [:taxon_name_id, :type])['taxon_name_classification']['taxon_name_id'])
+      taxon_name: taxon_name ? taxon_name : TaxonName.new()
     )
   end
 
