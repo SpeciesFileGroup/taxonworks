@@ -105,19 +105,16 @@ describe Image, type: :model do
       expect(i.save).to be_truthy
       expect(File.exist?(i.image_file.path)).to be_truthy
     end
+
     specify 'destroying an image should remove it from the filesystem' do
+      path = i.image_file.path
       expect(i.destroy).to be_truthy
-
-      # TODO: Update when Paperclip or Rspec gets modified, or transaction integration gets resolved
-      # This causes the necessary callback to get fired within an rspec test, clearing the images.
-      # Any destroy method will have to use the same.
-      i.run_callbacks(:commit)
-
-      expect(File.exist?(i.image_file.url)).to be_falsey
+      #  i.run_callbacks(:commit) #       # NOTE: apparently resolved in Paperclip 
+      expect(File.exist?(path)).to be_falsey
     end
   end
 
-  specify 'is the missing image gif path set & present' do
+  specify 'is the missing image jpg path set & present' do
     # TODO we'll need to test that this actually works like we think it does.
     # I believe that paperclip just looks for that path as stated in the const.
     expect(File.exists?(Rails.root.to_s + Image::MISSING_IMAGE_PATH)).to be_truthy
