@@ -1,6 +1,7 @@
 class PreparationType < ActiveRecord::Base
   include Housekeeping::Users
-  include Shared::IsData 
+  include Shared::IsData
+  include Shared::Taggable
   include Shared::SharedAcrossProjects
  
   has_paper_trail

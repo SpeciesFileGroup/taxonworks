@@ -103,7 +103,11 @@ class TaxonName < ActiveRecord::Base
   include Shared::IsData
   include SoftValidation
 
-  acts_as_nested_set scope: [:project_id], dependent: :restrict_with_exception, touch: false
+  if ENV['NO_TAXON_NESTING']
+    belongs_to :parent, class_name: TaxonName, foreign_key: :parent_id
+  else
+    acts_as_nested_set scope: [:project_id], dependent: :restrict_with_exception, touch: false
+  end
 
   attr_accessor :also_create_otu
 
