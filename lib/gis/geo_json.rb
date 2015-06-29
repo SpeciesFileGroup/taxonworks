@@ -46,7 +46,7 @@ module Gis::GeoJSON
     }
     objects.each_with_index do |object, i|
       unless object.nil?
-        if object.class.to_s == 'Array'
+        if object.class.to_s == 'Hash'
           json = object
         else
           json = object.to_geo_json_feature.merge('id' => i + 1) # offset by one, since google getFeatureById(0) fails

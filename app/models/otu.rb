@@ -34,7 +34,8 @@ class Otu < ActiveRecord::Base
   has_many :collecting_events, -> { uniq }, through: :collection_objects
   has_many :topics, through: :contents, source: :topic
   has_many :asserted_distributions
-  has_many :geographic_areas, through: :asserted_distributions
+  has_many :geographic_areas_from_asserted_distributions, through: :asserted_distributions, source: :geographic_area
+  has_many :geographic_areas_from_collecting_events, through: :collecting_events, source: :geographic_area
 
   scope :with_taxon_name_id, -> (taxon_name_id) { where(taxon_name_id: taxon_name_id) }
   scope :with_name, -> (name) { where(name: name) }
@@ -159,14 +160,15 @@ class Otu < ActiveRecord::Base
   end
 
   def distribution_geoJSON
-    Gis::GeoJSON.feature_collection(
+    retval = Gis::GeoJSON.feature_collection(
       [
-        # Gis::GeoJSON.feature_collection(collection_objects, :collection_objects),
-        # Gis::GeoJSON.feature_collection(taxon_determininations, :taxon_detetminations),
-        Gis::GeoJSON.feature_collection(geographic_areas, :asserted_distributions)
+        Gis::GeoJSON.feature_collection(collecting_events, :collecting_events_georeferences),
+        Gis::GeoJSON.feature_collection(geographic_areas_from_collecting_events, :collecting_events_geographic_area),
+        Gis::GeoJSON.feature_collection(geographic_areas_from_asserted_distributions, :asserted_distributions)
       ],
       :distribution
     )
+    retval
   end
 
   # def collecting_event_geoJSON
