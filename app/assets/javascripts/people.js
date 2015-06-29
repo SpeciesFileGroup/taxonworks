@@ -7,63 +7,55 @@
 //        }
 //    }
 
+// bind a hover event to an ellipsis
 function bind_hover() {
-    // bind a hover event to an ellipsis
-    hiConfig = {
-        sensitivity: 3, // number = sensitivity threshold (must be 1 or higher)
-        interval: 400, // number = milliseconds for onMouseOver polling interval
-        timeout: 200, // number = milliseconds delay before onMouseOut
-        over: function () {
-            alert('hi');
-        }, // function = onMouseOver callback (REQUIRED)
-        out: function () {
-            alert('bye');
-        } // function = onMouseOut callback (REQUIRED)
-    };
-    $('.hoverme').hoverIntent(hiConfig);
+  hiConfig = {
+    sensitivity: 3, // number = sensitivity threshold (must be 1 or higher)
+    interval: 400, // number = milliseconds for onMouseOver polling interval
+    timeout: 200, // number = milliseconds delay before onMouseOut
+    over: function () {
+      alert('hi');
+    }, // function = onMouseOver callback (REQUIRED)
+    out: function () {
+      alert('bye');
+    } // function = onMouseOut callback (REQUIRED)
+  };
+  $('.hoverme').hoverIntent(hiConfig);
 }
 
+// Return a first name, splits on (white) space or comma
 function get_first_name(string) {
-    // split on (white) space
-    //return string.split(" ", 2)[0];
-  // split on (white) space or commma
   var delimiter;
   if(string.indexOf(",") > 1) {delimiter = ","}
   if(string.indexOf(", ") > 1) {delimiter = ", "}
   if(string.indexOf(" ") > 1 && delimiter != ", ") {delimiter = " "}
-   return string.split(delimiter, 2)[0];
+  return string.split(delimiter, 2)[0];
 }
 
+// Return a last name split on (white) space or commma
 function get_last_name(string) {
-    // split on (white) space or commma
   var delimiter;
   if(string.indexOf(",") > 1) {delimiter = ","}
   if(string.indexOf(", ") > 1) {delimiter = ", "}
   if(string.indexOf(" ") > 1 && delimiter != ", ") {delimiter = " "}
-
   return string.split(delimiter, 2)[1];
 }
 
 // first_name and last_name must be strings
 function get_full_name(first_name, last_name) {
-    var separator = "";
-    if (!!last_name && !!first_name) {
-        //alert("both have values");
-        separator = ", ";
-    }
-    return (last_name + separator + first_name);
-    //return ($.grep([last_name, separator, first_name], Boolean).join());
+  var separator = "";
+  if (!!last_name && !!first_name) {
+    separator = ", ";
+  }
+  return (last_name + separator + first_name);
 }
 
+// Empties search text box and hide new_person div
 function clear_role_picker(target) {
-    // empties search text box and hides new_person div
-
-    var role_picker;
-    role_picker = $(target).closest("#role_picker").find("#autocomplete");
-    $(role_picker).val("");
-    //$("#autocomplete").val("");
-    //$("#autocomplete").text("");
-    $('#new_person').attr("hidden", true);
+  var role_picker;
+  role_picker = $(target).closest("#role_picker").find("#autocomplete");
+  $(role_picker).val("");
+  $('#new_person').attr("hidden", true);
 }
 
 var _initialize_role_picker_widget;
@@ -71,83 +63,89 @@ var _initialize_role_picker_widget;
 _initialize_role_picker_widget = function
     init_role_picker() {
 
-    $("#add_new").click(function () {
-        $("#role_list").append(
-            $('<li>').append(
-                $("#name_label").text()
-            )
-            //.append("<input type='hidden' name='source[role_attributes_attributes][0][person_attributes_attributes][0][last_name]' value='" + 'jonesjonesjones' + "'>")
+  // Add a role to the list via the custom add new box
+  $("#add_new").click(function () {
+    $("#role_list").append(
+        $('<li>').append(
+            $("#name_label").text()
+        )
+        .append('<input hidden name="source[role_attributes_attributes][0][person_attributes_attributes][0][last_name]"' +
+            ' value="' + 'jonesjonesjones' + '" >')
 
-        );
-        // unset form fields
-        // hide the form field
-        $('#new_person').attr("hidden", true);
-        // unset autocomplete input box
-        clear_role_picker(this);
-    });
+    );
+    // unset form fields
+    // hide the form field
+    $('#new_person').attr("hidden", true);
+    // unset autocomplete input box
+    clear_role_picker(this);
+  });
 
-    $("#autocomplete").autocomplete({
-        source: '/people/lookup_person',
-        open: function (event, ui) {
-            bind_hover(); //alert('open');
-        },
-        select: function (event, ui) {
-            // execute on select event in search text box
+  // Transform input to an autocomplete input
+  //   TODO: change to class, use data-role="" to define the role related
+  //      properties of the auocomplete
+  $("#autocomplete").autocomplete({
+    source: '/people/lookup_person',
+    open: function (event, ui) {
+      bind_hover(); //alert('open');
+    },
+    select: function (event, ui) {       // execute on select event in search text box
+      // add name to list
+      $("#role_list").append($('<li>').append(ui.item.value));
+      // clear search form
+      clear_role_picker(this);
+      return false;
+    }
+  }).autocomplete("instance")._renderItem = function (ul, item) {
+    return $("<li>")
+        .append("<a>" + item.label + " <span class='hoverme'>...</span> " + "</a>")
+        .appendTo(ul);
+  };
 
-            // add name to list
-            $("#role_list").append($('<li>').append(ui.item.value));
-            // clear search form
-            clear_role_picker(this);
-            return false;
-        }
-    }).autocomplete("instance")._renderItem = function (ul, item) {
-        return $("<li>")
-            .append("<a>" + item.label + " <span class='hoverme'>...</span> " + "</a>")
-            .appendTo(ul);
-    };
 
-    $("#autocomplete").keyup(function () {
-        // copies search textbox content to new_person name_label
-        var input_term = $("#autocomplete").val();
-        var last_name = get_last_name(input_term);
-        var first_name = get_first_name(input_term);
+  // copies search textbox content to new_person name_label
+  $("#autocomplete").keyup(function () {
+    var input_term = $("#autocomplete").val();
+    var last_name = get_last_name(input_term);
+    var first_name = get_first_name(input_term);
 
-        if (input_term.length == 0) {
-            //alert('hello');
-            $('#new_person').attr("hidden", true);
-        }
-        else {
-            $('#new_person').removeAttr("hidden");
-        }
-      if(input_term.indexOf(",") > 1) {   //last name, first name format
-        var swap = first_name;
-        first_name = last_name;
-        last_name = swap;
-      }
+    if (input_term.length == 0) {
+      //alert('hello');
+      $('#new_person').attr("hidden", true);
+    }
+    else {
+      $('#new_person').removeAttr("hidden");
+    }
+    if(input_term.indexOf(",") > 1) {   //last name, first name format
+      var swap = first_name;
+      first_name = last_name;
+      last_name = swap;
+    }
 
-      $("#person_first_name").val(first_name).change();
-        $("#person_last_name").val(last_name).change();
-    });
+    $("#person_first_name").val(first_name).change();
+    $("#person_last_name").val(last_name).change();
+  });
 
-    $("#switch").click(function () {
-        // switch the values in the first & last names
-        var tmp = $("#person_first_name").val();
-        $("#person_first_name").val($("#person_last_name").val()).change();
-        $("#person_last_name").val(tmp).change();
-    });
 
-    $("#expand").click(function () {
-        // alternately hides and displays person_form
-        $("#person_form").toggle();
-    });
+  // switch the values in the first & last names
+  $("#switch").click(function () {
+    var tmp = $("#person_first_name").val();
+    $("#person_first_name").val($("#person_last_name").val()).change();
+    $("#person_last_name").val(tmp).change();
+  });
 
-    $("#person_form input").on("change keyup", function () {
-        // update mirrored label
-        $("#name_label").html(get_full_name($("#person_first_name").val(), $("#person_last_name").val()));
-        // build full name out of individual labels
-    });
+  // alternately hides and displays person_form
+  $("#expand").click(function () {
+    $("#person_form").toggle();
+  });
+
+  // update mirrored label
+  $("#person_form input").on("change keyup", function () {
+    $("#name_label").html(get_full_name($("#person_first_name").val(), $("#person_last_name").val()));
+    // build full name out of individual labels
+  });
 
 };
 
+// Initialize the script on page load
 $(document).ready(_initialize_role_picker_widget);
 $(document).on("page:load", _initialize_role_picker_widget);
