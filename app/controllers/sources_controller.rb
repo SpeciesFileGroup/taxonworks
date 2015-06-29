@@ -32,6 +32,8 @@ class SourcesController < ApplicationController
   # POST /sources
   # POST /sources.json
   def create
+    byebug
+
     @source = Source.new(source_params)
 
     respond_to do |format|
@@ -56,6 +58,7 @@ class SourcesController < ApplicationController
   # PATCH/PUT /sources/1
   # PATCH/PUT /sources/1.json
   def update
+    byebug
     respond_to do |format|
       if @source.update(source_params)
         format.html { redirect_to @source.metamorphosize, notice: 'Source was successfully updated.' }
@@ -138,6 +141,15 @@ class SourcesController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def source_params
-    params.require(:source).permit(:serial_id, :address, :annote, :author, :booktitle, :chapter, :crossref, :edition, :editor, :howpublished, :institution, :journal, :key, :month, :note, :number, :organization, :pages, :publisher, :school, :series, :title, :type, :volume, :doi, :abstract, :copyright, :language, :stated_year, :verbatim, :bibtex_type, :day, :year, :isbn, :issn, :verbatim_contents, :verbatim_keywords, :language_id, :translator, :year_suffix, :url, :type)
+    params.require(:source).permit(
+      :serial_id, :address, :annote, :author, :booktitle, :chapter,
+      :crossref, :edition, :editor, :howpublished, :institution,
+      :journal, :key, :month, :note, :number, :organization, :pages,
+      :publisher, :school, :series, :title, :type, :volume, :doi,
+      :abstract, :copyright, :language, :stated_year, :verbatim,
+      :bibtex_type, :day, :year, :isbn, :issn, :verbatim_contents,
+      :verbatim_keywords, :language_id, :translator, :year_suffix, :url, :type,
+      roles_attributes: [:id, person_attributes: [:last_name, :first_name, :suffix, :prefix]]
+    )
   end
 end
