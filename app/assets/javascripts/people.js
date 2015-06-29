@@ -65,7 +65,9 @@ function clear_role_picker(target) {
   var role_picker;
   role_picker = $(target).closest(".role_picker").find("#autocomplete");
   $(role_picker).val("");
-  $('#new_person').attr("hidden", true);
+
+  $(target).closest(".new_person").attr("hidden", true);
+  //  $('#new_person').attr("hidden", true);
 }
 
 var _initialize_role_picker_widget;
@@ -74,20 +76,20 @@ _initialize_role_picker_widget = function
     init_role_picker() {
 
   // Add a role to the list via the custom add new box
-  $("#add_new").click(function () {
-    $(this).closest(".role_picker").find(".role_list").append(
-
-//    $("#role_list").append(
-        $('<li>').append(
+      $("#add_new").click(function () {
+        $(this).closest(".role_picker").find(".role_list").append(
+          $('<li>').append(
             $("#name_label").text()
-        )
-        .append('<input hidden name="source[roles_attributes][4][person_attributes][last_name]"' +
+            )
+          .append('<input hidden name="source[roles_attributes][4][person_attributes][last_name]"' +
             ' value="' + 'jonesjonesjones' + '" >')
 
-    );
-    // unset form fields
+          );
+        // unset form fields
     // hide the form field
-    $('#new_person').attr("hidden", true);
+
+    $(this).closest(".role_picker").find(".new_person").attr("hidden", true);
+    //  $('#new_person').attr("hidden", true);
     // unset autocomplete input box
     clear_role_picker(this);
   });
@@ -102,10 +104,8 @@ _initialize_role_picker_widget = function
     },
     select: function (event, ui) {       // execute on select event in search text box
       // add name to list
-      //
       $(this).closest(".role_picker").find(".role_list").append($('<li>').append(ui.item.value));
 
-//      $("#role_list").append($('<li>').append(ui.item.value));
       // clear search form
       clear_role_picker(this);
       return false;
@@ -125,10 +125,12 @@ _initialize_role_picker_widget = function
 
     if (input_term.length == 0) {
       //alert('hello');
-      $('#new_person').attr("hidden", true);
+      $(this).closest(".role_picker").find(".new_person").attr("hidden", true);
+//      $('#new_person').attr("hidden", true);
     }
     else {
-      $('#new_person').removeAttr("hidden");
+      $(this).closest(".role_picker").find(".new_person").removeAttr("hidden");
+//      $('#new_person').removeAttr("hidden");
     }
     if(input_term.indexOf(",") > 1) {   //last name, first name format
       var swap = first_name;
