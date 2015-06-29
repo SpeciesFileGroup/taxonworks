@@ -16,8 +16,9 @@
       <%= link_to "add new", '#', id: :add_new %>
       <%= link_to "expand", '#', id: :expand %>
     </div>
+
     <div id="person_form" hidden>
-      <%= form_for(Person.new) do |fp| %>
+      <%= fields_for(Person.new) do |fp| %>
           <%= render partial: '/people/form_elements2', locals: {f: fp} %>
       <% end %>
     </div>
