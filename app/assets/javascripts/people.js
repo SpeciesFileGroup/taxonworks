@@ -75,7 +75,9 @@ _initialize_role_picker_widget = function
 
   // Add a role to the list via the custom add new box
   $("#add_new").click(function () {
-    $("#role_list").append(
+    $(this).closest(".role_picker").find(".role_list").append(
+
+//    $("#role_list").append(
         $('<li>').append(
             $("#name_label").text()
         )
@@ -100,7 +102,10 @@ _initialize_role_picker_widget = function
     },
     select: function (event, ui) {       // execute on select event in search text box
       // add name to list
-      $("#role_list").append($('<li>').append(ui.item.value));
+      //
+      $(this).closest(".role_picker").find(".role_list").append($('<li>').append(ui.item.value));
+
+//      $("#role_list").append($('<li>').append(ui.item.value));
       // clear search form
       clear_role_picker(this);
       return false;
