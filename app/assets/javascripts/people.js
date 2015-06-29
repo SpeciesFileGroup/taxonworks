@@ -23,6 +23,16 @@ function bind_hover() {
   $('.hoverme').hoverIntent(hiConfig);
 }
 
+
+ // Enumerate the existing role pickers on this page
+ // $('.role_picker').each( function() {
+
+ //   // Get the type of role
+ //   var rol_type =  $(this).data('role-type');
+
+ //   // Initialize each one according to its type
+ // }); "
+
 // Return a first name, splits on (white) space or comma
 function get_first_name(string) {
   var delimiter;
@@ -53,7 +63,7 @@ function get_full_name(first_name, last_name) {
 // Empties search text box and hide new_person div
 function clear_role_picker(target) {
   var role_picker;
-  role_picker = $(target).closest("#role_picker").find("#autocomplete");
+  role_picker = $(target).closest(".role_picker").find("#autocomplete");
   $(role_picker).val("");
   $('#new_person').attr("hidden", true);
 }
@@ -69,7 +79,7 @@ _initialize_role_picker_widget = function
         $('<li>').append(
             $("#name_label").text()
         )
-        .append('<input hidden name="source[role_attributes_attributes][0][person_attributes_attributes][0][last_name]"' +
+        .append('<input hidden name="source[roles_attributes][4][person_attributes][last_name]"' +
             ' value="' + 'jonesjonesjones' + '" >')
 
     );

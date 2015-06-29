@@ -1,4 +1,4 @@
-<div id="role_picker" class="flexbox">
+  <div class="role_picker flexbox" id="<%= role %>_role_picker" data-role-type='<%= role -%>' >
 
   <div class="item item1">
     <h2><%= role %></h2>
@@ -16,9 +16,8 @@
       <%= link_to "add new", '#', id: :add_new %>
       <%= link_to "expand", '#', id: :expand %>
     </div>
-
     <div id="person_form" hidden>
-      <%= fields_for(Person.new) do |fp| %>
+      <%= form_for(Person.new) do |fp| %>
           <%= render partial: '/people/form_elements2', locals: {f: fp} %>
       <% end %>
     </div>
