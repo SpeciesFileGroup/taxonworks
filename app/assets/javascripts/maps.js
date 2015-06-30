@@ -249,7 +249,12 @@ function getData(feature_collection_data, bounds) {
 };              //getData
 
 function getFeature(thisFeature, bounds) {
-  getTypeData(thisFeature.geometry, bounds);
+  if(thisFeature.type == "FeatureCollection") {
+    getTypeData(thisFeature, bounds);   // if it requires recursion on FC
+  }
+  else {
+    getTypeData(thisFeature.geometry, bounds);
+  }
 }
 
 function getTypeData(thisType, bounds) {        // this version does not create google objects
