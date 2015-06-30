@@ -75,26 +75,18 @@ function initialize_role_picker( form, role_type) {
   console.log(form);
   console.log(role_type);
 
-  // Transform input to an autocomplete input
-  //   TODO: change to class, use data-role="" to define the role related
-  //      properties of the auocomplete
-  
-  // $("#autocomplete").autocomplete({
+  // turn the input into an jQuery autocompleter
+  // https://jqueryui.com/autocomplete/ 
   form.find(".autocomplete").autocomplete({
     source: '/people/lookup_person',
     open: function (event, ui) {
-      bind_hover(); //alert('open');
+      bind_hover(); 
     },
-    select: function (event, ui) {       // execute on select event in search text box
+    select: function (event, ui) {    // execute on select event in search text box
       // add name to list
-
-      //$(this).closest(".role_picker").find(".role_list").append($('<li>').append(ui.item.value));
       form.find(".role_list").append($('<li>').append(ui.item.value));
-
       // clear search form
-      //clear_role_picker(this);
       clear_role_picker(form);
-
       return false;
     }
   }).autocomplete("instance")._renderItem = function (ul, item) {
@@ -102,6 +94,33 @@ function initialize_role_picker( form, role_type) {
       .append("<a>" + item.label + " <span class='hoverme'>...</span> " + "</a>")
       .appendTo(ul);
   };
+
+  // Copy search textbox content to .new_person .name_label
+  $("#autocomplete").keyup(function () {
+    var input_term = $("#autocomplete").val();
+    var last_name = get_last_name(input_term);
+    var first_name = get_first_name(input_term);
+
+    if (input_term.length == 0) {
+      // $(this).closest(".role_picker").find(".new_person").attr("hidden", true);
+      form.find(".new_person").attr("hidden", true);
+    }
+    else {
+      // $(this).closest(".role_picker").find(".new_person").removeAttr("hidden");
+      form.find(".new_person").removeAttr("hidden");
+    };
+
+    if (input_term.indexOf(",") > 1) {   //last name, first name format
+      var swap = first_name;
+      first_name = last_name;
+      last_name = swap;
+    }
+
+//    $("#person_first_name").val(first_name).change();
+//    $("#person_last_name").val(last_name).change();
+    form.find("#person_first_name").val(first_name).change();
+    form.find("#person_last_name").val(last_name).change();
+  });
 
 
 
@@ -124,9 +143,6 @@ function initialize_role_picker( form, role_type) {
     // clear_role_picker(this);
     clear_role_picker(form); 
   });
-
-
-
 };
 
 
@@ -139,30 +155,6 @@ _initialize_role_picker_widget = function
         var role_type = $(this).data('role-type');
         initialize_role_picker($(this), role_type); 
       });
-
-
-  // copies search textbox content to .new_person .name_label
-  $("#autocomplete").keyup(function () {
-    var input_term = $("#autocomplete").val();
-    var last_name = get_last_name(input_term);
-    var first_name = get_first_name(input_term);
-
-    if (input_term.length == 0) {
-      $(this).closest(".role_picker").find(".new_person").attr("hidden", true);
-    }
-    else {
-      $(this).closest(".role_picker").find(".new_person").removeAttr("hidden");
-    }
-    if(input_term.indexOf(",") > 1) {   //last name, first name format
-      var swap = first_name;
-      first_name = last_name;
-      last_name = swap;
-    }
-
-    $("#person_first_name").val(first_name).change();
-    $("#person_last_name").val(last_name).change();
-  });
-
 
   // switch the values in the first & last names
   $("#switch").click(function () {
