@@ -114,12 +114,7 @@ function initialize_autocomplete(form) {
   });
 };
 
-function initialize_role_picker( form, role_type) {
-  // turn the input into an jQuery autocompleter
-  // https://jqueryui.com/autocomplete/ 
-
-  initialize_autocomplete(form);
-
+function bind_new_link(form) {
   // Add a role to the list via the custom add new box
   form.find("#add_new").click(function () {
     form.closest(".role_picker").find(".role_list").append(   
@@ -138,19 +133,34 @@ function initialize_role_picker( form, role_type) {
     // clear_role_picker(this);
     clear_role_picker(form); 
   });
+}
 
-  // switch the values in the first & last names
+function bind_switch_link(form) {
+  // click switches the values in the first & last names
   form.find("#switch").click(function () {
     var tmp = form.find("#person_first_name").val();
     form.find("#person_first_name").val(form.find("#person_last_name").val()).change();
     form.find("#person_last_name").val(tmp).change();
   });
+};
 
-  // alternately hides and displays person_form
+function bind_expand_link(form) {
+  // click alternately hides and displays person_form
   form.find("#expand").click(function () {
     form.find("#person_form").toggle();
   });
+}
 
+
+function initialize_role_picker( form, role_type) {
+  // turn the input into an jQuery autocompleter
+  // https://jqueryui.com/autocomplete/ 
+
+  initialize_autocomplete(form);
+  bind_new_link(form);
+  bind_switch_link(form);
+  bind_expand_link(form);
+ 
   // update mirrored label
   form.find("#person_form input").on("change keyup", function () {
     form.find(".name_label").html(
