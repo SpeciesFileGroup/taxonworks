@@ -267,6 +267,7 @@ function getTypeData(thisType, bounds) {        // this version does not create 
       ;     //thisType != undefined
     }
     ;        //for i
+    return
   }
   ;
 

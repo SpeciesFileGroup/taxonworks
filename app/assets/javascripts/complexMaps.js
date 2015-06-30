@@ -35,12 +35,12 @@ initializeComplexMap = function(canvas, feature_collection) {
       if (data.properties.distribution.count > 0) {
         var distribution = data.features;
         for (var i=0; i < distribution.length; i++) {
-        map.data.addGeoJson(distribution[i]);}
+        map.data.addGeoJson(distribution[i])
+        }
       }
     }
     ;  // put data on the map if present
   }
-
 // bounds for calculating center point
   var bounds = {};    //xminp: xmaxp: xminm: xmaxm: ymin: ymax: -90.0, center_long: center_lat: gzoom:
   getComplexData(data, bounds);               // scan var data as feature collection with homebrew traverser, collecting bounds

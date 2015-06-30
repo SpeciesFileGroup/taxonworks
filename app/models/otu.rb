@@ -163,10 +163,10 @@ class Otu < ActiveRecord::Base
     retval = Gis::GeoJSON.feature_collection(
 
         [
-            Gis::GeoJSON.feature_collection(geographic_areas_from_asserted_distributions, :asserted_distributions),
-            # Gis::GeoJSON.feature_collection(collecting_events, :collecting_events_georeferences),
-            # Gis::GeoJSON.feature_collection(geographic_areas_from_collecting_events, :collecting_events_geographic_area)
-        ],
+            Gis::GeoJSON.feature_collection(geographic_areas_from_collecting_events, :collecting_events_geographic_area),
+            Gis::GeoJSON.feature_collection(collecting_events, :collecting_events_georeferences),
+    Gis::GeoJSON.feature_collection(geographic_areas_from_asserted_distributions, :asserted_distributions),
+    ],
         :distribution
     )
 
