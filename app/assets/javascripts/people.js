@@ -84,7 +84,7 @@ function initialize_autocomplete(form) {
 
 function bind_new_link(form) {
   // Add a role to the list via the custom add new box
-  form.find("#add_new").click(function () {
+  form.find(".role_picker_add_new").click(function () {
     form.find(".role_list").append(   
       $('<li>').append(
         form.find('.name_label').text()
@@ -95,7 +95,7 @@ function bind_new_link(form) {
     // unset form fields
 
     // hide the form field
-    // TODO: fails after first expand?
+    // TODO: !! fails after first expand?
     form.find('.new_person').attr("hidden", true);
 
     // unset autocomplete input box
@@ -106,7 +106,7 @@ function bind_new_link(form) {
 
 function bind_switch_link(form) {
   // click switches the values in the first & last names
-  form.find("#switch").click(function () {
+  form.find(".role_picker_switch").click(function () {
     var tmp = form.find(".first_name").val();
     form.find(".first_name").val(form.find(".last_name").val()).change();
     form.find(".last_name").val(tmp).change();
@@ -115,7 +115,7 @@ function bind_switch_link(form) {
 
 function bind_expand_link(form) {
   // click alternately hides and displays person_form
-  form.find("#expand").click(function () {
+  form.find(".role_picker_expand").click(function () {
     form.find("#person_form").toggle();
   });
 }
