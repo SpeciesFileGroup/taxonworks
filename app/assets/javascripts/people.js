@@ -151,6 +151,16 @@ function bind_expand_link(form) {
   });
 }
 
+function bind_label_mirroring(form) {
+  // update mirrored label
+  form.find("#person_form input").on("change keyup", function () {
+    form.find(".name_label").html(
+      get_full_name(form.find("#person_first_name").val(), form.find("#person_last_name").val())
+      );
+
+    // build full name out of individual labels
+  });
+}
 
 function initialize_role_picker( form, role_type) {
   // turn the input into an jQuery autocompleter
@@ -160,17 +170,7 @@ function initialize_role_picker( form, role_type) {
   bind_new_link(form);
   bind_switch_link(form);
   bind_expand_link(form);
- 
-  // update mirrored label
-  form.find("#person_form input").on("change keyup", function () {
-    form.find(".name_label").html(
-      get_full_name(form.find("#person_first_name").val(), form.find("#person_last_name").val())
-      );
-
-    // build full name out of individual labels
-  });
-
-
+  bind_label_mirroring(form); 
 };
 
 
