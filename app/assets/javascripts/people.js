@@ -1,37 +1,4 @@
-//function exists(string) {
-//    if (string != undefined && string != "") {
-//        return true;}
-//    else
-//        {
-//            return false;
-//        }
-//    }
 
-// bind a hover event to an ellipsis
-function bind_hover() {
-  hiConfig = {
-    sensitivity: 3, // number = sensitivity threshold (must be 1 or higher)
-    interval: 400, // number = milliseconds for onMouseOver polling interval
-    timeout: 200, // number = milliseconds delay before onMouseOut
-    over: function () {
-      alert('hi');
-    }, // function = onMouseOver callback (REQUIRED)
-    out: function () {
-      alert('bye');
-    } // function = onMouseOut callback (REQUIRED)
-  };
-  $('.hoverme').hoverIntent(hiConfig);
-}
-
-
- // Enumerate the existing role pickers on this page
- // $('.role_picker').each( function() {
-
- //   // Get the type of role
- //   var rol_type =  $(this).data('role-type');
-
- //   // Initialize each one according to its type
- // }); "
 
 
 // Return a first name, splits on (white) space or comma
@@ -114,6 +81,11 @@ function initialize_autocomplete(form) {
   });
 };
 
+
+//
+// Binding actions (clicks) to links 
+//
+
 function bind_new_link(form) {
   // Add a role to the list via the custom add new box
   form.find("#add_new").click(function () {
@@ -162,10 +134,25 @@ function bind_label_mirroring(form) {
   });
 }
 
+// bind a hover event to an ellipsis
+function bind_hover() {
+  hiConfig = {
+    sensitivity: 3, // number = sensitivity threshold (must be 1 or higher)
+    interval: 400, // number = milliseconds for onMouseOver polling interval
+    timeout: 200, // number = milliseconds delay before onMouseOut
+    over: function () {
+      alert('hi');
+    }, // function = onMouseOver callback (REQUIRED)
+    out: function () {
+      alert('bye');
+    } // function = onMouseOut callback (REQUIRED)
+  };
+  $('.hoverme').hoverIntent(hiConfig);
+}
+
 function initialize_role_picker( form, role_type) {
   // turn the input into an jQuery autocompleter
   // https://jqueryui.com/autocomplete/ 
-
   initialize_autocomplete(form);
   bind_new_link(form);
   bind_switch_link(form);
@@ -173,18 +160,14 @@ function initialize_role_picker( form, role_type) {
   bind_label_mirroring(form); 
 };
 
-
 var _initialize_role_picker_widget;
 
 _initialize_role_picker_widget = function
-    init_role_picker() {
-
-      $('.role_picker').each( function() {
-        var role_type = $(this).data('role-type');
-        initialize_role_picker($(this), role_type); 
-      });
-
-
+  init_role_picker() {
+    $('.role_picker').each( function() {
+      var role_type = $(this).data('role-type');
+      initialize_role_picker($(this), role_type); 
+    });
 };
 
 // Initialize the script on page load
