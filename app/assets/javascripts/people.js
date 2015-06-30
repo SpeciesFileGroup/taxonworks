@@ -1,6 +1,4 @@
 
-
-
 // Return a first name, splits on (white) space or comma
 function get_first_name(string) {
   var delimiter;
@@ -29,14 +27,12 @@ function get_full_name(first_name, last_name) {
 }
 
 // Empties search text box and hide new_person div
-function clear_role_picker(target) {
+function clear_role_picker(form) {
   var role_picker;
-  role_picker = $(target).closest(".role_picker").find("#autocomplete");
+  role_picker = form.find("#autocomplete");
   $(role_picker).val("");
-
-  $(target).closest(".new_person").attr("hidden", true);
+  form.find(".new_person").attr("hidden", true);
 }
-
 
 function initialize_autocomplete(form) {
   form.find(".autocomplete").autocomplete({
