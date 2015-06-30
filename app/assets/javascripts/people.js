@@ -71,24 +71,19 @@ function clear_role_picker(target) {
 }
 
 
-function initialize_role_picker( form, role_type) {
-  console.log(form);
-  console.log(role_type);
-
-  // turn the input into an jQuery autocompleter
-  // https://jqueryui.com/autocomplete/ 
+function initialize_autocomplete(form) {
   form.find(".autocomplete").autocomplete({
     source: '/people/lookup_person',
-    open: function (event, ui) {
-      bind_hover(); 
-    },
-    select: function (event, ui) {    // execute on select event in search text box
-      // add name to list
-      form.find(".role_list").append($('<li>').append(ui.item.value));
-      // clear search form
-      clear_role_picker(form);
-      return false;
-    }
+  open: function (event, ui) {
+    bind_hover(); 
+  },
+  select: function (event, ui) {    // execute on select event in search text box
+    // add name to list
+    form.find(".role_list").append($('<li>').append(ui.item.value));
+    // clear search form
+    clear_role_picker(form);
+    return false;
+  }
   }).autocomplete("instance")._renderItem = function (ul, item) {
     return $("<li>")
       .append("<a>" + item.label + " <span class='hoverme'>...</span> " + "</a>")
@@ -113,10 +108,17 @@ function initialize_role_picker( form, role_type) {
       first_name = last_name;
       last_name = swap;
     }
-    
+
     form.find("#person_first_name").val(first_name).change();
     form.find("#person_last_name").val(last_name).change();
   });
+};
+
+function initialize_role_picker( form, role_type) {
+  // turn the input into an jQuery autocompleter
+  // https://jqueryui.com/autocomplete/ 
+
+  initialize_autocomplete(form);
 
   // Add a role to the list via the custom add new box
   form.find("#add_new").click(function () {
@@ -149,17 +151,12 @@ function initialize_role_picker( form, role_type) {
     form.find("#person_form").toggle();
   });
 
-
   // update mirrored label
-  // $("#person_form input").on("change keyup", function () {
   form.find("#person_form input").on("change keyup", function () {
-    
-    //$(this).closest(".role_picker").find(".name_label").html(get_full_name($("#person_first_name").val(), $("#person_last_name").val()));
     form.find(".name_label").html(
       get_full_name(form.find("#person_first_name").val(), form.find("#person_last_name").val())
       );
 
-    // $("#name_label").html(get_full_name($("#person_first_name").val(), $("#person_last_name").val()));
     // build full name out of individual labels
   });
 
