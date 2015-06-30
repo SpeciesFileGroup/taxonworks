@@ -75,30 +75,55 @@ function initialize_role_picker( form, role_type) {
   console.log(form);
   console.log(role_type);
 
+  // Transform input to an autocomplete input
+  //   TODO: change to class, use data-role="" to define the role related
+  //      properties of the auocomplete
+  
+  // $("#autocomplete").autocomplete({
+  form.find(".autocomplete").autocomplete({
+    source: '/people/lookup_person',
+    open: function (event, ui) {
+      bind_hover(); //alert('open');
+    },
+    select: function (event, ui) {       // execute on select event in search text box
+      // add name to list
+
+      //$(this).closest(".role_picker").find(".role_list").append($('<li>').append(ui.item.value));
+      form.find(".role_list").append($('<li>').append(ui.item.value));
+
+      // clear search form
+      //clear_role_picker(this);
+      clear_role_picker(form);
+
+      return false;
+    }
+  }).autocomplete("instance")._renderItem = function (ul, item) {
+    return $("<li>")
+      .append("<a>" + item.label + " <span class='hoverme'>...</span> " + "</a>")
+      .appendTo(ul);
+  };
+
+
+
+
   // Add a role to the list via the custom add new box
   form.find("#add_new").click(function () {
-
-    // $(this).closest(".role_picker").find(".role_list").append(
     form.closest(".role_picker").find(".role_list").append(   
-        $('<li>').append(
-          //  $(this).closest(".role_picker").find(".name_label").text()
-          form.find('.name_label').text()
-          )
-        .append('<input hidden name="source[roles_attributes][4][person_attributes][last_name]"' +
-          ' value="' + 'jonesjonesjones' + '" >')
-        );
-
+      $('<li>').append(
+        form.find('.name_label').text()
+        )
+      .append('<input hidden name="source[roles_attributes][4][person_attributes][last_name]"' +
+        ' value="' + 'jonesjonesjones' + '" >')
+      );
     // unset form fields
 
     // hide the form field
     form.find('.new_person').attr("hidden", true);
-    //$(this).closest(".role_picker").find(".new_person").attr("hidden", true);
 
     // unset autocomplete input box
     // clear_role_picker(this);
     clear_role_picker(form); 
   });
-
 
 
 
@@ -114,29 +139,6 @@ _initialize_role_picker_widget = function
         var role_type = $(this).data('role-type');
         initialize_role_picker($(this), role_type); 
       });
-
-
-  // Transform input to an autocomplete input
-  //   TODO: change to class, use data-role="" to define the role related
-  //      properties of the auocomplete
-  $("#autocomplete").autocomplete({
-    source: '/people/lookup_person',
-    open: function (event, ui) {
-      bind_hover(); //alert('open');
-    },
-    select: function (event, ui) {       // execute on select event in search text box
-      // add name to list
-      $(this).closest(".role_picker").find(".role_list").append($('<li>').append(ui.item.value));
-
-      // clear search form
-      clear_role_picker(this);
-      return false;
-    }
-  }).autocomplete("instance")._renderItem = function (ul, item) {
-    return $("<li>")
-        .append("<a>" + item.label + " <span class='hoverme'>...</span> " + "</a>")
-        .appendTo(ul);
-  };
 
 
   // copies search textbox content to .new_person .name_label
