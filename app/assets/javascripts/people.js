@@ -29,13 +29,15 @@ function get_full_name(first_name, last_name) {
 // Empties search text box and hide new_person div
 function clear_role_picker(form) {
   var role_picker;
-  role_picker = form.find("#autocomplete");
+  role_picker = form.find('.role_picker_autocomplete');
   $(role_picker).val("");
   form.find(".new_person").attr("hidden", true);
 }
 
 function initialize_autocomplete(form) {
-  form.find(".autocomplete").autocomplete({
+  var autocomplete_input = form.find(".role_picker_autocomplete");
+
+  autocomplete_input.autocomplete({
     source: '/people/lookup_person',
   open: function (event, ui) {
     bind_hover(); 
@@ -54,8 +56,8 @@ function initialize_autocomplete(form) {
   };
 
   // Copy search textbox content to .new_person .name_label
-  $("#autocomplete").keyup(function () {
-    var input_term = $("#autocomplete").val();
+  autocomplete_input.keyup(function () {
+    var input_term = autocomplete_input.val();
     var last_name = get_last_name(input_term);
     var first_name = get_first_name(input_term);
 
