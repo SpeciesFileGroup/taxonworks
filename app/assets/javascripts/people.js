@@ -138,17 +138,18 @@ function initialize_role_picker( form, role_type) {
   });
 
   // switch the values in the first & last names
-  //$("#switch").click(function () {
   form.find("#switch").click(function () {
-    // var tmp = $("#person_first_name").val();
     var tmp = form.find("#person_first_name").val();
-    // $("#person_first_name").val($("#person_last_name").val()).change();
-    // $("#person_last_name").val(tmp).change();
-  
     form.find("#person_first_name").val(form.find("#person_last_name").val()).change();
     form.find("#person_last_name").val(tmp).change();
   });
 
+  // alternately hides and displays person_form
+  //$("#expand").click(function () {
+  form.find("#expand").click(function () {
+    //$("#person_form").toggle();
+    form.find("#person_form").toggle();
+  });
 
 };
 
@@ -163,10 +164,7 @@ _initialize_role_picker_widget = function
         initialize_role_picker($(this), role_type); 
       });
 
-  // alternately hides and displays person_form
-  $("#expand").click(function () {
-    $("#person_form").toggle();
-  });
+
 
   // update mirrored label
   $("#person_form input").on("change keyup", function () {
