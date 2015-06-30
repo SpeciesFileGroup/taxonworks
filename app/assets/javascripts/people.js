@@ -145,11 +145,24 @@ function initialize_role_picker( form, role_type) {
   });
 
   // alternately hides and displays person_form
-  //$("#expand").click(function () {
   form.find("#expand").click(function () {
-    //$("#person_form").toggle();
     form.find("#person_form").toggle();
   });
+
+
+  // update mirrored label
+  // $("#person_form input").on("change keyup", function () {
+  form.find("#person_form input").on("change keyup", function () {
+    
+    //$(this).closest(".role_picker").find(".name_label").html(get_full_name($("#person_first_name").val(), $("#person_last_name").val()));
+    form.find(".name_label").html(
+      get_full_name(form.find("#person_first_name").val(), form.find("#person_last_name").val())
+      );
+
+    // $("#name_label").html(get_full_name($("#person_first_name").val(), $("#person_last_name").val()));
+    // build full name out of individual labels
+  });
+
 
 };
 
@@ -164,15 +177,6 @@ _initialize_role_picker_widget = function
         initialize_role_picker($(this), role_type); 
       });
 
-
-
-  // update mirrored label
-  $("#person_form input").on("change keyup", function () {
-    $(this).closest(".role_picker").find(".name_label").html(get_full_name($("#person_first_name").val(), $("#person_last_name").val()));
-
-    // $("#name_label").html(get_full_name($("#person_first_name").val(), $("#person_last_name").val()));
-    // build full name out of individual labels
-  });
 
 };
 
