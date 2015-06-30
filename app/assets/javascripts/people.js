@@ -116,15 +116,15 @@ function bind_switch_link(form) {
 };
 
 function bind_expand_link(form) {
-  // click alternately hides and displays person_form
+  // click alternately hides and displays role_picker_person_form
   form.find(".role_picker_expand").click(function () {
-    form.find("#person_form").toggle();
+    form.find(".role_picker_person_form").toggle();
   });
 }
 
 function bind_label_mirroring(form) {
   // update mirrored label
-  form.find("#person_form input").on("change keyup", function () {
+  form.find(".role_picker_person_form input").on("change keyup", function () {
     form.find(".name_label").html(
       get_full_name(form.find(".first_name").val(), form.find(".last_name").val())
       );

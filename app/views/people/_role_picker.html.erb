@@ -17,7 +17,7 @@
       <%= link_to "add new", '#', class: :role_picker_add_new %>
       <%= link_to "expand", '#', class: :role_picker_expand %>
     </div>
-    <div id="person_form" hidden>
+    <div class="role_picker_person_form" hidden>
       <%= form_for(Person.new) do |fp| %>
           <%= render partial: '/people/form_elements2', locals: {role: role, f: fp} %>
       <% end %>
