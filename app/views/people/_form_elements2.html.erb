@@ -1,20 +1,20 @@
 <!--This version of the people form is the formatted to match the wireframe for roles-->
 <div class="field">
   <%= f.label :given_name %><br>
-  <%= f.text_field :first_name, size: 28, placeholder: "Given names (includes middle names)" %>
+  <%= f.text_field :first_name, size: 28, placeholder: "Given names (includes middle names)", class: :first_name, id: "#{role}_person_first_name" %>
 </div>
 
 <div class="field">
   <%= f.label :family_name_prefix %><br>
-  <%= f.text_field :prefix, size: 28, placeholder: "Family name prefix (e.g Von or de)" %>
+  <%= f.text_field :prefix, size: 28, placeholder: "Family name prefix (e.g Von or de)", class: :prefix, id: "#{role}_person_prefix" %>
 </div>
 
 <div class="field">
   <%= f.label :family_name %><br>
-  <%= f.text_field :last_name, size: 28, placeholder: "Family name" %>
+  <%= f.text_field :last_name, size: 28, placeholder: "Family name", class: :last_name, id: "#{role}_person_last_name" %>
 </div>
 
 <div class="field">
   <%= f.label :family_name_suffix %><br>
-  <%= f.text_field :suffix, size: 28, placeholder: "Name suffix (e.g. Jr., or III)" %>
+  <%= f.text_field :suffix, size: 28, placeholder: "Name suffix (e.g. Jr., or III)", class: :suffix, id: "#{role}_person_suffix" %>
 </div>

@@ -19,7 +19,7 @@
     </div>
     <div id="person_form" hidden>
       <%= form_for(Person.new) do |fp| %>
-          <%= render partial: '/people/form_elements2', locals: {f: fp} %>
+          <%= render partial: '/people/form_elements2', locals: {role: role, f: fp} %>
       <% end %>
     </div>
 

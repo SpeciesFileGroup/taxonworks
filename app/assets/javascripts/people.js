@@ -72,8 +72,8 @@ function initialize_autocomplete(form) {
       last_name = swap;
     }
 
-    form.find("#person_first_name").val(first_name).change();
-    form.find("#person_last_name").val(last_name).change();
+    form.find(".first_name").val(first_name).change();
+    form.find(".last_name").val(last_name).change();
   });
 };
 
@@ -95,6 +95,7 @@ function bind_new_link(form) {
     // unset form fields
 
     // hide the form field
+    // TODO: fails after first expand?
     form.find('.new_person').attr("hidden", true);
 
     // unset autocomplete input box
@@ -106,9 +107,9 @@ function bind_new_link(form) {
 function bind_switch_link(form) {
   // click switches the values in the first & last names
   form.find("#switch").click(function () {
-    var tmp = form.find("#person_first_name").val();
-    form.find("#person_first_name").val(form.find("#person_last_name").val()).change();
-    form.find("#person_last_name").val(tmp).change();
+    var tmp = form.find(".first_name").val();
+    form.find(".first_name").val(form.find(".last_name").val()).change();
+    form.find(".last_name").val(tmp).change();
   });
 };
 
@@ -123,7 +124,7 @@ function bind_label_mirroring(form) {
   // update mirrored label
   form.find("#person_form input").on("change keyup", function () {
     form.find(".name_label").html(
-      get_full_name(form.find("#person_first_name").val(), form.find("#person_last_name").val())
+      get_full_name(form.find(".first_name").val(), form.find(".last_name").val())
       );
 
     // build full name out of individual labels
