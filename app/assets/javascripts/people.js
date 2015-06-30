@@ -85,7 +85,7 @@ function initialize_autocomplete(form) {
 function bind_new_link(form) {
   // Add a role to the list via the custom add new box
   form.find("#add_new").click(function () {
-    form.closest(".role_picker").find(".role_list").append(   
+    form.find(".role_list").append(   
       $('<li>').append(
         form.find('.name_label').text()
         )
