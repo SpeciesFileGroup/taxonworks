@@ -33,6 +33,7 @@ function bind_hover() {
  //   // Initialize each one according to its type
  // }); "
 
+
 // Return a first name, splits on (white) space or comma
 function get_first_name(string) {
   var delimiter;
@@ -67,7 +68,6 @@ function clear_role_picker(target) {
   $(role_picker).val("");
 
   $(target).closest(".new_person").attr("hidden", true);
-  //  $('#new_person').attr("hidden", true);
 }
 
 var _initialize_role_picker_widget;
@@ -79,7 +79,9 @@ _initialize_role_picker_widget = function
       $("#add_new").click(function () {
         $(this).closest(".role_picker").find(".role_list").append(
           $('<li>').append(
-            $("#name_label").text()
+
+            $(this).closest(".role_picker").find(".name_label").text()
+//            $("#name_label").text()
             )
           .append('<input hidden name="source[roles_attributes][4][person_attributes][last_name]"' +
             ' value="' + 'jonesjonesjones' + '" >')
@@ -89,7 +91,7 @@ _initialize_role_picker_widget = function
     // hide the form field
 
     $(this).closest(".role_picker").find(".new_person").attr("hidden", true);
-    //  $('#new_person').attr("hidden", true);
+    
     // unset autocomplete input box
     clear_role_picker(this);
   });
@@ -117,20 +119,17 @@ _initialize_role_picker_widget = function
   };
 
 
-  // copies search textbox content to new_person name_label
+  // copies search textbox content to .new_person .name_label
   $("#autocomplete").keyup(function () {
     var input_term = $("#autocomplete").val();
     var last_name = get_last_name(input_term);
     var first_name = get_first_name(input_term);
 
     if (input_term.length == 0) {
-      //alert('hello');
       $(this).closest(".role_picker").find(".new_person").attr("hidden", true);
-//      $('#new_person').attr("hidden", true);
     }
     else {
       $(this).closest(".role_picker").find(".new_person").removeAttr("hidden");
-//      $('#new_person').removeAttr("hidden");
     }
     if(input_term.indexOf(",") > 1) {   //last name, first name format
       var swap = first_name;
@@ -157,7 +156,10 @@ _initialize_role_picker_widget = function
 
   // update mirrored label
   $("#person_form input").on("change keyup", function () {
-    $("#name_label").html(get_full_name($("#person_first_name").val(), $("#person_last_name").val()));
+
+    $(this).closest(".role_picker").find(".name_label").html(get_full_name($("#person_first_name").val(), $("#person_last_name").val()));
+
+    // $("#name_label").html(get_full_name($("#person_first_name").val(), $("#person_last_name").val()));
     // build full name out of individual labels
   });
 
