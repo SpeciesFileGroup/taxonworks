@@ -70,31 +70,51 @@ function clear_role_picker(target) {
   $(target).closest(".new_person").attr("hidden", true);
 }
 
+
+function initialize_role_picker( form, role_type) {
+  console.log(form);
+  console.log(role_type);
+
+  // Add a role to the list via the custom add new box
+  form.find("#add_new").click(function () {
+
+    // $(this).closest(".role_picker").find(".role_list").append(
+    form.closest(".role_picker").find(".role_list").append(   
+        $('<li>').append(
+          //  $(this).closest(".role_picker").find(".name_label").text()
+          form.find('.name_label').text()
+          )
+        .append('<input hidden name="source[roles_attributes][4][person_attributes][last_name]"' +
+          ' value="' + 'jonesjonesjones' + '" >')
+        );
+
+    // unset form fields
+
+    // hide the form field
+    form.find('.new_person').attr("hidden", true);
+    //$(this).closest(".role_picker").find(".new_person").attr("hidden", true);
+
+    // unset autocomplete input box
+    // clear_role_picker(this);
+    clear_role_picker(form); 
+  });
+
+
+
+
+};
+
+
 var _initialize_role_picker_widget;
 
 _initialize_role_picker_widget = function
     init_role_picker() {
 
-  // Add a role to the list via the custom add new box
-      $("#add_new").click(function () {
-        $(this).closest(".role_picker").find(".role_list").append(
-          $('<li>').append(
+      $('.role_picker').each( function() {
+        var role_type = $(this).data('role-type');
+        initialize_role_picker($(this), role_type); 
+      });
 
-            $(this).closest(".role_picker").find(".name_label").text()
-//            $("#name_label").text()
-            )
-          .append('<input hidden name="source[roles_attributes][4][person_attributes][last_name]"' +
-            ' value="' + 'jonesjonesjones' + '" >')
-
-          );
-        // unset form fields
-    // hide the form field
-
-    $(this).closest(".role_picker").find(".new_person").attr("hidden", true);
-    
-    // unset autocomplete input box
-    clear_role_picker(this);
-  });
 
   // Transform input to an autocomplete input
   //   TODO: change to class, use data-role="" to define the role related
@@ -156,6 +176,7 @@ _initialize_role_picker_widget = function
 
   // update mirrored label
   $("#person_form input").on("change keyup", function () {
+
 
     $(this).closest(".role_picker").find(".name_label").html(get_full_name($("#person_first_name").val(), $("#person_last_name").val()));
 

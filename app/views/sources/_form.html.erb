@@ -1,5 +1,15 @@
 
 <%= form_for(@source.metamorphosize) do |f| %>
+
+  <%= f.fields_for :roles, @source.author_roles do |author_role_fields| %>
+    id: <%= author_role_fields.text_field :id %>
+      <%= author_role_fields.fields_for :person do |person_fields| %>
+        id: <%= person_fields.text_field :id %>
+    <% end %>
+    <br>
+  <% end %>
+
+
   <%= render partial: '/people/role_picker', locals: {role: :author, f: f} %>
   <%= render 'shared/errors', object: @source %>
 
@@ -37,7 +47,6 @@
             <%= f.label :pages %><br>
             <%= f.text_field :pages %>
           </div>
-
 
           <div class="field">
             <%= f.label :stated_year %><br>
