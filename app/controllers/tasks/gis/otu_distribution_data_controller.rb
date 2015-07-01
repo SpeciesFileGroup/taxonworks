@@ -1,5 +1,5 @@
 class Tasks::Gis::OtuDistributionDataController < ApplicationController
   def show
-    @otu = Otu.first
+    @otu = Otu.find(params[:id])
   end
 end

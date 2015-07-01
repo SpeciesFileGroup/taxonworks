@@ -159,6 +159,54 @@ describe Otu, :type => :model do
       let(:a_d3) { FactoryGirl.create(:valid_asserted_distribution) }
       let(:otu1) { a_d1.otu }
       let(:otu2) { a_d2.otu }
+      let(:list_t1) { RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-1, 1, 0.0),
+                                                     RSPEC_GEO_FACTORY.point(1, 1, 0.0),
+                                                     RSPEC_GEO_FACTORY.point(1, -1, 0.0),
+                                                     RSPEC_GEO_FACTORY.point(-1, -1, 0.0)]) }
+      let(:list_t2) { RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-2, 2, 0.0),
+                                                     RSPEC_GEO_FACTORY.point(2, 2, 0.0),
+                                                     RSPEC_GEO_FACTORY.point(2, -2, 0.0),
+                                                     RSPEC_GEO_FACTORY.point(-2, -2, 0.0)]) }
+      let(:list_t3) { RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-3, 3, 0.0),
+                                                     RSPEC_GEO_FACTORY.point(3, 3, 0.0),
+                                                     RSPEC_GEO_FACTORY.point(3, -3, 0.0),
+                                                     RSPEC_GEO_FACTORY.point(-3, -3, 0.0)]) }
+      let(:list_t4) { RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-4, 4, 0.0),
+                                                     RSPEC_GEO_FACTORY.point(4, 4, 0.0),
+                                                     RSPEC_GEO_FACTORY.point(4, -4, 0.0),
+                                                     RSPEC_GEO_FACTORY.point(-4, -4, 0.0)]) }
+      let(:box_1) { RSPEC_GEO_FACTORY.multi_polygon([list_t1]) }
+      let(:box_2) { RSPEC_GEO_FACTORY.multi_polygon([list_t2]) }
+      let(:box_3) { RSPEC_GEO_FACTORY.multi_polygon([list_t3]) }
+      let(:box_4) { RSPEC_GEO_FACTORY.multi_polygon([list_t4]) }
+      # let(:item_a) { FactoryGirl.create(:geographic_item_with_multi_polygon, multi_polygon: box_1) }
+      # let(:item_b) { FactoryGirl.create(:geographic_item_multi_polygon, multi_polygon: box_2) }
+      # let(:item_c) { FactoryGirl.create(:geographic_item_multi_polygon, multi_polygon: box_3) }
+      # let(:item_d) { FactoryGirl.create(:geographic_item_multi_polygon, multi_polygon: box_4) }
+      # let(:p0) { FactoryGirl.create(:geographic_item_point, point: POINT0.as_binary) }
+      # let(:c_e1) { FactoryGirl.create(:valid_collecting_event, geographic_item: item_a) }
+      # let(:c_e2) { FactoryGirl.create(:valid_collecting_event, geographic_item: item_b) }
+      # let(:c_e3) { FactoryGirl.create(:valid_collecting_event, geographic_item: item_c) }
+      # let(:g_r1) { FactoryGirl.create(:georeference_verbatim_data,
+      #                                 api_request:           'gr00_a',
+      #                                 collecting_event:      c_e1,
+      #                                 error_geographic_item: item_a,
+      #                                 geographic_item:       p0) }
+      # let(:g_r2) { FactoryGirl.create(:georeference_verbatim_data,
+      #                                 api_request:           'gr00_b',
+      #                                 collecting_event:      c_e2,
+      #                                 error_geographic_item: item_b,
+      #                                 geographic_item:       p0) }
+      # let(:g_r3) { FactoryGirl.create(:georeference_verbatim_data,
+      #                                 api_request:           'gr00_c',
+      #                                 collecting_event:      c_e3,
+      #                                 error_geographic_item: item_c,
+      #                                 geographic_item:       p0) }
+      # let(:g_r4) { FactoryGirl.create(:georeference_verbatim_data,
+      #                                 api_request:           'gr00_d',
+      #                                 collecting_event:      c_e1,
+      #                                 error_geographic_item: item_d,
+      #                                 geographic_item:       p0) }
       let(:c_e1) { FactoryGirl.create(:valid_collecting_event) }
       let(:c_e2) { FactoryGirl.create(:valid_collecting_event) }
       let(:c_e3) { FactoryGirl.create(:valid_collecting_event) }
@@ -170,6 +218,7 @@ describe Otu, :type => :model do
       let(:t_d3) { FactoryGirl.create(:valid_taxon_determination, {otu: otu1, biological_collection_object: c_o3}) }
 
       before(:each) {
+        # a_d1.geographic_area.geographic_items.push(item_a)
         a_d3.otu = otu1
         [a_d1, a_d2, a_d3,
          otu1, otu2,
