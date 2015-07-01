@@ -17,7 +17,7 @@ function get_last_name(string) {
   return string.split(delimiter, 2)[1];
 }
 
-// first_name and last_name must be strings
+// Build a name string - first_name and last_name must be strings
 function get_full_name(first_name, last_name) {
   var separator = "";
   if (!!last_name && !!first_name) {
@@ -25,6 +25,7 @@ function get_full_name(first_name, last_name) {
   }
   return (last_name + separator + first_name);
 }
+
 
 // Empties search text box and hide new_person div
 function clear_role_picker(form) {
@@ -87,13 +88,9 @@ function initialize_autocomplete(form) {
 function bind_new_link(form) {
   // Add a role to the list via the custom add new box
   form.find(".role_picker_add_new").click(function () {
-    form.find(".role_list").append(   
-      $('<li>').append(
-        form.find('.name_label').text()
-        )
-      .append('<input hidden name="source[roles_attributes][4][person_attributes][last_name]"' +
-        ' value="' + 'jonesjonesjones' + '" >')
-      );
+
+    insert_new_person(form);
+   
     // unset form fields
 
     // hide the form field
@@ -105,6 +102,19 @@ function bind_new_link(form) {
     clear_role_picker(form); 
   });
 }
+
+function insert_new_person(form) {
+
+  form.find(".role_list").append(   
+      $('<li>').append(
+        form.find('.name_label').text()
+        )
+      .append('<input hidden name="source[roles_attributes][4][person_attributes][last_name]"' +
+        ' value="' + 'jonesjonesjones' + '" >')
+      );
+};
+
+
 
 function bind_switch_link(form) {
   // click switches the values in the first & last names
@@ -149,6 +159,10 @@ function bind_hover() {
   $('.hoverme').hoverIntent(hiConfig);
 }
 
+
+//
+// Initialize the widget
+//
 function initialize_role_picker( form, role_type) {
   // turn the input into an jQuery autocompleter
   // https://jqueryui.com/autocomplete/ 
