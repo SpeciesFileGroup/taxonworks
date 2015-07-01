@@ -1,20 +1,33 @@
 
 // Return a first name, splits on (white) space or comma
 function get_first_name(string) {
-  var delimiter;
-  if(string.indexOf(",") > 1) {delimiter = ","}
-  if(string.indexOf(", ") > 1) {delimiter = ", "}
-  if(string.indexOf(" ") > 1 && delimiter != ", ") {delimiter = " "}
-  return string.split(delimiter, 2)[0];
+
+  // if there is no space or , there is no first name
+  if (string.includes(',') || string.includes(" ")) {
+    var delimiter;
+    if(string.indexOf(",") > 1) {delimiter = ","}
+    if(string.indexOf(", ") > 1) {delimiter = ", "}
+    if(string.indexOf(" ") > 1 && delimiter != ", ") {delimiter = " "}
+    return string.split(delimiter, 2)[0];
+  } else {
+    return null;
+  };
+
 }
 
 // Return a last name split on (white) space or commma
 function get_last_name(string) {
-  var delimiter;
-  if(string.indexOf(",") > 1) {delimiter = ","}
-  if(string.indexOf(", ") > 1) {delimiter = ", "}
-  if(string.indexOf(" ") > 1 && delimiter != ", ") {delimiter = " "}
-  return string.split(delimiter, 2)[1];
+
+  // if there no space or comma then the whole string is the *last* name
+  if (string.includes(',') || string.includes(" ")) {
+    var delimiter;
+    if(string.indexOf(",") > 1) {delimiter = ","}
+    if(string.indexOf(", ") > 1) {delimiter = ", "}
+    if(string.indexOf(" ") > 1 && delimiter != ", ") {delimiter = " "}
+    return string.split(delimiter, 2)[1];
+  } else {
+    return string
+  };
 }
 
 // Build a name string - first_name and last_name must be strings
@@ -94,8 +107,6 @@ function bind_new_link(form) {
 
     insert_new_person(form);
    
-    // unset form fields
-
     // hide the form field
     // TODO: !! fails after first expand?
     form.find('.new_person').attr("hidden", true);
@@ -193,19 +204,19 @@ function bind_hover() {
   $('.hoverme').hoverIntent(hiConfig);
 }
 
-// bind the remove action/functionality to a links
+// Bind the remove action/functionality to a links
 function bind_remove_links(links) {
   links.click(function () {
     list_item = $(this).parent('li');
     var role_id = list_item.data('role-id');
     if (role_id) {
       var role_list = list_item.closest('.role_list');
-      // if there is an ID from an existing item add a destroy link     
-
+      
+      // if there is an ID from an existing item add the necessary (hidden) _destroy input
       role_list.append($('<input hidden name="source[roles_attributes][' +  role_id + '][id]" value="' + role_id + '" >') );
       role_list.append($('<input hidden name="source[roles_attributes][' +  role_id + '][_destroy]" value="1" >') );
 
-      // Provide a warnign that the list must be saved to properly delete the records, tweak if we think necessary
+      // Provide a warning that the list must be saved to properly delete the records, tweak if we think necessary
       role_list.siblings('.role_picker_header').addClass('subtle');
       role_list.siblings('.role_picker_header').append(' (save required to update removals)');
     }
