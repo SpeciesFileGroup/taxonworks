@@ -11,6 +11,38 @@
       <h2>
         <%= "#{otu_tag(@otu)} - an Otu" %>
       </h2>
+      <table border="1">
+        <tbody>
+        <tr>
+          <th><h1>Data</h1></th>
+          <th></th>
+        </tr>
+        <tr>
+          <td>
+            <%= check_box_tag("check_dist", nil, true) %>
+          </td>
+          <td>
+            <%=	 "distributions (#{@otu.asserted_distributions.count})" %>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <%= check_box_tag("check_c_o", nil, true) %>
+          </td>
+          <td>
+            <%=	 "collection_objects (#{@otu.collection_objects.count})" %>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <%= check_box_tag("check_c_e", nil, true) %>
+          </td>
+          <td>
+            <%=	 "collecting event gazeteer records (#{@otu.collecting_events.count})" %>
+          </td>
+        </tr>
+        </tbody>
+      </table>
     </div>
     <div class="item item2">
       <div id="_displayed_distribution_form"
