@@ -138,14 +138,14 @@ class Otu < ActiveRecord::Base
   def dwca_core
     core = Dwca::GbifProfile::CoreTaxon.new
 
-    core.nomenclaturalCode = (taxon_name.rank_class.nomenclatural_code.to_s.upcase)
-    core.taxonomicStatus = (taxon_name.unavailable_or_invalid? ? nil : 'accepted')
-    core.nomenclaturalStatus = (taxon_name.unavailable? ? nil : 'available')
-    core.scientificName = taxon_name.cached
+    core.nomenclaturalCode        = (taxon_name.rank_class.nomenclatural_code.to_s.upcase)
+    core.taxonomicStatus          = (taxon_name.unavailable_or_invalid? ? nil : 'accepted')
+    core.nomenclaturalStatus      = (taxon_name.unavailable? ? nil : 'available')
+    core.scientificName           = taxon_name.cached
     core.scientificNameAuthorship = taxon_name.cached_author_year
-    core.scientificNameID = taxon_name.identifiers.first.identifier
-    core.taxonRank = taxon_name.rank
-    core.namePublishedIn = taxon_name.source.cached
+    core.scientificNameID         = taxon_name.identifiers.first.identifier
+    core.taxonRank                = taxon_name.rank
+    core.namePublishedIn          = taxon_name.source.cached
     core
   end
 
@@ -162,12 +162,12 @@ class Otu < ActiveRecord::Base
   def distribution_geoJSON
     retval = Gis::GeoJSON.feature_collection(
 
-        [
-            Gis::GeoJSON.feature_collection(geographic_areas_from_collecting_events, :collecting_events_geographic_area),
-            Gis::GeoJSON.feature_collection(collecting_events, :collecting_events_georeferences),
-    Gis::GeoJSON.feature_collection(geographic_areas_from_asserted_distributions, :asserted_distributions),
-    ],
-        :distribution
+      [
+        Gis::GeoJSON.feature_collection(geographic_areas_from_asserted_distributions, :asserted_distributions),
+        Gis::GeoJSON.feature_collection(collecting_events, :collecting_events_georeferences),
+        Gis::GeoJSON.feature_collection(geographic_areas_from_collecting_events, :collecting_events_geographic_area)
+      ],
+      :distribution
     )
 
     retval

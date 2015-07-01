@@ -3,7 +3,7 @@
 
 var initializeComplexMap;
 
-initializeComplexMap = function(canvas, feature_collection) {
+initializeComplexMap = function (canvas, feature_collection) {
   var myOptions = {
     zoom: 1,
     center: {lat: 0, lng: 0}, //center_lat_long, set to 0,0
@@ -17,35 +17,39 @@ initializeComplexMap = function(canvas, feature_collection) {
   var data = feature_collection;
 
   map.data.setStyle({
-      icon: '/assets/mapicons/mm_20_gray.png',
-      fillColor: '#440000',
-      strokeOpacity: 0.5,
-      strokeColor: "black",
-      strokeWeight: 1,
-      fillOpacity: 0.2/*,
-
-      fillColor: '#440000',
+    icon: '/assets/mapicons/mm_20_gray.png',
+    fillColor: '#440000',
     strokeOpacity: 0.5,
     strokeColor: "black",
     strokeWeight: 1,
-    fillOpacity: 0.3*/
+    fillOpacity: 0.2/*,
+
+     fillColor: '#440000',
+     strokeOpacity: 0.5,
+     strokeColor: "black",
+     strokeWeight: 1,
+     fillOpacity: 0.3*/
   });
   if (data != undefined) {
+    var chained = JSON.parse('{"type":"FeatureCollection","features":[]}'); // container for the distribution
     if (data["type"] = "FeatureCollection") {    //test for (currently) outer wrapper with property distribution
-      if (data.properties.distribution.count > 0) {
-        var distribution = data.features;
-        for (var i=0; i < distribution.length; i++) {
-        map.data.addGeoJson(distribution[i])
+      if (data.features.length > 0) {
+        var featureCollection = data.features;
+        for (var i = 0; i < featureCollection.length; i++) {
+          for (var j = 0; j < featureCollection[i].features.length; j++) {
+            chained.features.push(featureCollection[i].features[j])
+          }
         }
       }
     }
     ;  // put data on the map if present
+    map.data.addGeoJson(chained)
   }
 // bounds for calculating center point
   var bounds = {};    //xminp: xmaxp: xminm: xmaxm: ymin: ymax: -90.0, center_long: center_lat: gzoom:
   getComplexData(data, bounds);               // scan var data as feature collection with homebrew traverser, collecting bounds
   var center_lat_long = get_window_center(bounds);      // compute center_lat_long from bounds and compute zoom level as gzoom
- // $("#map_coords").html('Center: \xA0 \xA0 \xA0 \xA0Latitude = ' + bounds.center_lat.toFixed(6) + ' , Longitude = ' + bounds.center_long.toFixed(6));
+  // $("#map_coords").html('Center: \xA0 \xA0 \xA0 \xA0Latitude = ' + bounds.center_lat.toFixed(6) + ' , Longitude = ' + bounds.center_long.toFixed(6));
   map.setCenter(center_lat_long);
   map.setZoom(bounds.gzoom);
 
@@ -55,7 +59,7 @@ initializeComplexMap = function(canvas, feature_collection) {
       color = feature.getProperty('fillColor');   //
     }
     return /** @type {google.maps.Data.StyleOptions} */({
-        icon: '/assets/mapicons/mm_20_red.png',
+      icon: '/assets/mapicons/mm_20_red.png',
       fillColor: color,
       strokeColor: "black",
       strokeWeight: 1
