@@ -45,7 +45,10 @@ function initialize_autocomplete(form) {
   },
   select: function (event, ui) {    // execute on select event in search text box
     // add name to list
-    form.find(".role_list").append($('<li>').append(ui.item.value));
+    
+    // form.find(".role_list").append($('<li>').append(ui.item.value));
+    insert_existing_person(form, ui.item.object_id) 
+
     // clear search form
     clear_role_picker(form);
     return false;
@@ -103,13 +106,30 @@ function bind_new_link(form) {
   });
 }
 
+function insert_existing_person(form, person_id) {
+  var role_type = 'Source' + capitalize(form.data('role-type')) ;
+  var random_index = new Date().getTime(); 
+  var role_list = form.find(".role_list");
+  var person_base = 'source[roles_attributes][' + random_index + '][person_attributes]'; 
+
+  // type
+  role_list.append( $('<input hidden name="source[roles_attributes][' +  random_index + '][type]" value="' + role_type +  '" >') );
+  role_list.append( $('<input hidden name="source[roles_attributes][' +  random_index + '][person_id]" value="' + person_id +  '" >') );
+
+  // insert visible list item
+  role_list.append(   
+      $('<li>').append(
+        form.find('.name_label').text()
+        )
+      );
+};
+
 function insert_new_person(form) {
   var role_type = 'Source' + capitalize(form.data('role-type')) ;
   var random_index = new Date().getTime(); 
   var role_list = form.find(".role_list");
   var person_base = 'source[roles_attributes][' + random_index + '][person_attributes]'; 
 
-  // insert hiddend field (data)
   // type
   role_list.append( $('<input hidden name="source[roles_attributes][' +  random_index + '][type]" value="' + role_type +  '" >') );
 
@@ -126,7 +146,6 @@ function insert_new_person(form) {
         )
       );
 };
-
 
 
 function bind_switch_link(form) {

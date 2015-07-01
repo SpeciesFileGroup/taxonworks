@@ -114,8 +114,9 @@ class PeopleController < ApplicationController
     # end
     #
     render :json => @people.collect{|p|
-             {label: p.bibtex_name,
-              foo: p.id}
+             {
+              label: p.bibtex_name,
+              object_id: p.id}
            }
   end
 
