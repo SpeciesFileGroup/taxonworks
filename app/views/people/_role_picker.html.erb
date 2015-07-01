@@ -1,7 +1,8 @@
   <div class="role_picker flexbox" id="<%= role %>_role_picker" data-role-type='<%= role -%>' >
 
-  <div class="item item1">
-    <h2><%= role.to_s.pluralize.capitalize %></h2>
+      <div class="item item1">
+
+    <h2 class="role_picker_header"><%= role.to_s.pluralize.capitalize %></h2>
 
     <ul class="role_list">
       <% if object.respond_to?("#{role}_roles") -%>

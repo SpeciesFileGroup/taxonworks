@@ -130,16 +130,22 @@ function insert_new_person(form) {
   var role_list = form.find(".role_list");
   var person_base = 'source[roles_attributes][' + random_index + '][person_attributes]'; 
 
+  var remove_link = $('<a href="#" class="remove_role">remove</a>');
+
+  bind_remove_links(remove_link);
+
   // type
-  role_list.append('<li>')
-  .append(form.find('.name_label').text())
+  role_list.append($('<li>')
+  .append(form.find('.name_label').text() + '&nbsp;' )
   .append( $('<input hidden name="source[roles_attributes][' +  random_index + '][type]" value="' + role_type +  '" >') )
 
   // names 
   .append( $('<input hidden name="' + person_base + '[last_name]" value="' + form.find(".last_name").val() + '" >') )
   .append( $('<input hidden name="' + person_base + '[first_name]" value="' + form.find(".first_name").val() + '" >') )
   .append( $('<input hidden name="' + person_base + '[suffix]" value="' + form.find(".suffix").val() + '" >') )
-  .append( $('<input hidden name="' + person_base + '[prefix]" value="' + form.find(".prefix").val() + '" >') );
+  .append( $('<input hidden name="' + person_base + '[prefix]" value="' + form.find(".prefix").val() + '" >') )
+  .append(remove_link)
+  );
 
 };
 
@@ -193,11 +199,17 @@ function bind_remove_links(links) {
     list_item = $(this).parent('li');
     var role_id = list_item.data('role-id');
     if (role_id) {
+      var role_list = list_item.closest('.role_list');
       // if there is an ID from an existing item add a destroy link     
-      list_item.closest('.role_list')
-       .append($('<input hidden name="source[roles_attributes][' +  role_id + '][id]" value="' + role_id + '" >') )
-       .append($('<input hidden name="source[roles_attributes][' +  role_id + '][_destroy]" value="1" >') )
+
+      role_list.append($('<input hidden name="source[roles_attributes][' +  role_id + '][id]" value="' + role_id + '" >') );
+      role_list.append($('<input hidden name="source[roles_attributes][' +  role_id + '][_destroy]" value="1" >') );
+
+      // Provide a warnign that the list must be saved to properly delete the records, tweak if we think necessary
+      role_list.siblings('.role_picker_header').addClass('subtle');
+      role_list.siblings('.role_picker_header').append(' (save required to update removals)');
     }
+    
     list_item.remove();
   });
 };
