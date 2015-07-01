@@ -127,6 +127,10 @@ class Source < ActiveRecord::Base
     end
   end
 
+  def is_bibtex?
+    type == 'Source::Bibtex'
+  end
+
   protected
 
   def set_cached
