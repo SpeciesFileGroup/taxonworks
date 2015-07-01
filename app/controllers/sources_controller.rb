@@ -33,7 +33,6 @@ class SourcesController < ApplicationController
   # POST /sources.json
   def create
     byebug
-
     @source = Source.new(source_params)
 
     respond_to do |format|
@@ -149,7 +148,7 @@ class SourcesController < ApplicationController
       :abstract, :copyright, :language, :stated_year, :verbatim,
       :bibtex_type, :day, :year, :isbn, :issn, :verbatim_contents,
       :verbatim_keywords, :language_id, :translator, :year_suffix, :url, :type,
-      roles_attributes: [:id, person_attributes: [:last_name, :first_name, :suffix, :prefix]]
+      roles_attributes: [:id, :_destroy, :type, person_attributes: [:last_name, :first_name, :suffix, :prefix]]
     )
   end
 end

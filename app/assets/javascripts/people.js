@@ -104,13 +104,26 @@ function bind_new_link(form) {
 }
 
 function insert_new_person(form) {
+  var role_type = 'Source' + capitalize(form.data('role-type')) ;
+  var random_index = new Date().getTime(); 
+  var role_list = form.find(".role_list");
+  var person_base = 'source[roles_attributes][' + random_index + '][person_attributes]'; 
 
-  form.find(".role_list").append(   
+  // insert hiddend field (data)
+  // type
+  role_list.append( $('<input hidden name="source[roles_attributes][' +  random_index + '][type]" value="' + role_type +  '" >') );
+
+  // names 
+  role_list.append( $('<input hidden name="' + person_base + '[last_name]" value="' + form.find(".last_name").val() + '" >') );
+  role_list.append( $('<input hidden name="' + person_base + '[first_name]" value="' + form.find(".first_name").val() + '" >') );
+  role_list.append( $('<input hidden name="' + person_base + '[suffix]" value="' + form.find(".suffix").val() + '" >') );
+  role_list.append( $('<input hidden name="' + person_base + '[prefix]" value="' + form.find(".prefix").val() + '" >') );
+
+  // insert visible list item
+  role_list.append(   
       $('<li>').append(
         form.find('.name_label').text()
         )
-      .append('<input hidden name="source[roles_attributes][4][person_attributes][last_name]"' +
-        ' value="' + 'jonesjonesjones' + '" >')
       );
 };
 
