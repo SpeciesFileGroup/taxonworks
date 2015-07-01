@@ -117,7 +117,7 @@ module Workbench::NavigationHelper
   #   a link, or disabled link
   def edit_object_link(object)
     if is_editable?(object) && user_can_edit?(object)
-      link_to('Edit', edit_object_path(metamorphosize_if(object)))
+      link_to('Edit', edit_object_path(metamorphosize_if(object)), 'data-no-turbolink' => true)
     else
       content_tag(:span, 'Edit', class: :disabled)
     end
