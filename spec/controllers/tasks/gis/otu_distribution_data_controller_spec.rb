@@ -1,10 +1,16 @@
 require 'rails_helper'
 
-RSpec.describe Tasks::Gis::OtuDistributionDataController, type: :controller do
+describe Tasks::Gis::OtuDistributionDataController, type: :controller do
+  before(:each) {
+    sign_in
+  }
+  let(:otu) { FactoryGirl.create(:valid_otu) }
 
   describe "GET #show" do
     it "returns http success" do
-      get :show
+      get :show, {:id => otu.to_param}
+      # get 'tasks/gis/otu_distribution_data'
+      # pending 'construction of proper otu in this context'
       expect(response).to have_http_status(:success)
     end
   end
