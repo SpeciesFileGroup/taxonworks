@@ -103,21 +103,11 @@ class PeopleController < ApplicationController
 
   def lookup_person
     @people = Person.find_for_autocomplete(params)
-    # data = @people.collect do |t|
-    #   {id:              t.id,
-    #    label:           t.name,
-    #    response_values: {
-    #        params[:method] => t.id
-    #    },
-    #    label_html:     t.name
-    #   }
-    # end
-    #
     render :json => @people.collect{|p|
-             {
-              label: p.bibtex_name,
-              object_id: p.id}
-           }
+      {
+        label: p.bibtex_name,
+        object_id: p.id}
+    }
   end
 
   private

@@ -4,7 +4,14 @@
     <h2><%= role %></h2>
 
     <ul class="role_list">
-      <!-- Have to inject hidden field with input (element) "names" to be properly nested -->
+
+      <% if object.respond_to?("#{role}_roles") -%>
+        <%= f.fields_for :roles, object.send("#{role}_roles") do |role_fields| %>
+          <%= content_tag(:li, object_tag( role_fields.object ) ) -%>
+          <%= role_fields.check_box :_destroy %>
+      <% end %>
+    <% end %>
+
     </ul>
 
     <%= text_field_tag :foo, nil, class: :role_picker_autocomplete %>

@@ -2,17 +2,7 @@
 
     <%= render 'shared/errors', object: @source %>
 
-    <% if @source.is_bibtex? -%>
-        <%= f.fields_for :roles, @source.author_roles do |author_role_fields| %>
-            id: <%= author_role_fields.text_field :id %>
-            <%= author_role_fields.fields_for :person do |person_fields| %>
-                id: <%= person_fields.text_field :id %>
-            <% end %>
-            <br>
-        <% end %>
-    <% end %>
-
-    <%= render partial: '/people/role_picker', locals: {role: :author, f: f} %>
+    <%= render partial: '/people/role_picker', locals: {role: :author, object: @source, f: f} %>
     
     <div class="field" id="source_edit_type">
       <%= f.label :type %><br>
