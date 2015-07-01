@@ -131,20 +131,16 @@ function insert_new_person(form) {
   var person_base = 'source[roles_attributes][' + random_index + '][person_attributes]'; 
 
   // type
-  role_list.append( $('<input hidden name="source[roles_attributes][' +  random_index + '][type]" value="' + role_type +  '" >') );
+  role_list.append('<li>')
+  .append(form.find('.name_label').text())
+  .append( $('<input hidden name="source[roles_attributes][' +  random_index + '][type]" value="' + role_type +  '" >') )
 
   // names 
-  role_list.append( $('<input hidden name="' + person_base + '[last_name]" value="' + form.find(".last_name").val() + '" >') );
-  role_list.append( $('<input hidden name="' + person_base + '[first_name]" value="' + form.find(".first_name").val() + '" >') );
-  role_list.append( $('<input hidden name="' + person_base + '[suffix]" value="' + form.find(".suffix").val() + '" >') );
-  role_list.append( $('<input hidden name="' + person_base + '[prefix]" value="' + form.find(".prefix").val() + '" >') );
+  .append( $('<input hidden name="' + person_base + '[last_name]" value="' + form.find(".last_name").val() + '" >') )
+  .append( $('<input hidden name="' + person_base + '[first_name]" value="' + form.find(".first_name").val() + '" >') )
+  .append( $('<input hidden name="' + person_base + '[suffix]" value="' + form.find(".suffix").val() + '" >') )
+  .append( $('<input hidden name="' + person_base + '[prefix]" value="' + form.find(".prefix").val() + '" >') );
 
-  // insert visible list item
-  role_list.append(   
-      $('<li>').append(
-        form.find('.name_label').text()
-        )
-      );
 };
 
 
@@ -194,7 +190,15 @@ function bind_hover() {
 // bind the remove action/functionality to a links
 function bind_remove_links(links) {
   links.click(function () {
-   $(this).parent('li').remove(); 
+    list_item = $(this).parent('li');
+    var role_id = list_item.data('role-id');
+    if (role_id) {
+      // if there is an ID from an existing item add a destroy link     
+      list_item.closest('.role_list')
+       .append($('<input hidden name="source[roles_attributes][' +  role_id + '][id]" value="' + role_id + '" >') )
+       .append($('<input hidden name="source[roles_attributes][' +  role_id + '][_destroy]" value="1" >') )
+    }
+    list_item.remove();
   });
 };
 

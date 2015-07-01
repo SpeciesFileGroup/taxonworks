@@ -6,7 +6,7 @@
     <ul class="role_list">
       <% if object.respond_to?("#{role}_roles") -%>
         <%= f.fields_for :roles, object.send("#{role}_roles") do |role_fields| %>
-          <li>
+          <li data-role-id="<%= role_fields.object.id -%>" >
           <%= object_tag(role_fields.object)  -%> <%= link_to('remove', "#", class: :remove_role) -%>
           </li>
         <% end %>
