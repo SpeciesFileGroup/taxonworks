@@ -39,7 +39,6 @@ function get_full_name(first_name, last_name) {
   return (last_name + separator + first_name);
 }
 
-
 // Empties search text box and hide new_person div
 function clear_role_picker(form) {
   var role_picker;
@@ -225,18 +224,27 @@ function bind_remove_links(links) {
   });
 };
 
+function make_role_list_sortable(form) {
+  var list_items = form.find('.role_list');
+  list_items.sortable();
+  list_items.disableSelection();
+}
+
 //
 // Initialize the widget
 //
 function initialize_role_picker( form, role_type) {
   // turn the input into an jQuery autocompleter
   // https://jqueryui.com/autocomplete/ 
+  //
+  // all of these should likely be renamed for namespacing purposes
   initialize_autocomplete(form);
   bind_new_link(form);
   bind_switch_link(form);
   bind_expand_link(form);
   bind_label_mirroring(form);
   bind_remove_links(form.find('.remove_role')); 
+  make_role_list_sortable(form);
 };
 
 var _initialize_role_picker_widget;
