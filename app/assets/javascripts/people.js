@@ -191,6 +191,12 @@ function bind_hover() {
   $('.hoverme').hoverIntent(hiConfig);
 }
 
+// bind the remove action/functionality to a links
+function bind_remove_links(links) {
+  links.click(function () {
+   $(this).parent('li').remove(); 
+  });
+};
 
 //
 // Initialize the widget
@@ -202,7 +208,8 @@ function initialize_role_picker( form, role_type) {
   bind_new_link(form);
   bind_switch_link(form);
   bind_expand_link(form);
-  bind_label_mirroring(form); 
+  bind_label_mirroring(form);
+  bind_remove_links(form.find('.remove_role')); 
 };
 
 var _initialize_role_picker_widget;

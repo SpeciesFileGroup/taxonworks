@@ -1,20 +1,19 @@
   <div class="role_picker flexbox" id="<%= role %>_role_picker" data-role-type='<%= role -%>' >
 
   <div class="item item1">
-    <h2><%= role %></h2>
+    <h2><%= role.to_s.pluralize.capitalize %></h2>
 
     <ul class="role_list">
-
       <% if object.respond_to?("#{role}_roles") -%>
         <%= f.fields_for :roles, object.send("#{role}_roles") do |role_fields| %>
-          <%= content_tag(:li, object_tag( role_fields.object ) ) -%>
-          <%= role_fields.check_box :_destroy %>
+          <li>
+          <%= object_tag(role_fields.object)  -%> <%= link_to('remove', "#", class: :remove_role) -%>
+          </li>
+        <% end %>
       <% end %>
-    <% end %>
-
     </ul>
 
-    <%= text_field_tag :foo, nil, class: :role_picker_autocomplete %>
+    <%= text_field_tag "#{role}_autocomplete", nil, class: :role_picker_autocomplete %>
   </div>
 
   <div class="new_person item item2" hidden>
