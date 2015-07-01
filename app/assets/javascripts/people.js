@@ -145,7 +145,7 @@ function insert_new_person(form) {
   bind_remove_links(remove_link);
 
   // type
-  role_list.append($('<li>')
+  role_list.append($('<li class="role_item" data-role-id="' + random_index + '" >')
   .append(form.find('.name_label').text() + '&nbsp;' )
   .append( $('<input hidden name="source[roles_attributes][' +  random_index + '][type]" value="' + role_type +  '" >') )
 
@@ -224,10 +224,27 @@ function bind_remove_links(links) {
   });
 };
 
+
 function make_role_list_sortable(form) {
   var list_items = form.find('.role_list');
   list_items.sortable();
   list_items.disableSelection();
+}
+
+
+function bind_position_handling_to_submit_button(form) {
+  form.closest('form').find('input[name="commit"]').click(function () {
+    var i = 1;
+    var role_id;
+    form.find('.role_item').each( function() {
+      console.log($(this));
+      role_id = $(this).data('role-id');
+      $(this).append(
+        $('<input hidden name="source[roles_attributes][' +  role_id + '][position]" value="' + i + '" >')
+        );
+      i = i + 1; 
+    });
+  });
 }
 
 //
@@ -245,6 +262,7 @@ function initialize_role_picker( form, role_type) {
   bind_label_mirroring(form);
   bind_remove_links(form.find('.remove_role')); 
   make_role_list_sortable(form);
+  bind_position_handling_to_submit_button(form);
 };
 
 var _initialize_role_picker_widget;
