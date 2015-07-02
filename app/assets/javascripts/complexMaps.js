@@ -15,21 +15,28 @@ initializeComplexMap = function (canvas, feature_collection) {
 
   var map = initialize_complex_map(canvas, myOptions);
   var data = feature_collection;
-
-  map.data.setStyle({
+  var this_style = {
     icon: '/assets/mapicons/mm_20_gray.png',
-    fillColor: '#440000',
+    fillColor: '#FF0000',
     strokeOpacity: 0.5,
     strokeColor: "black",
     strokeWeight: 1,
-    fillOpacity: 0.2/*,
-
-     fillColor: '#440000',
-     strokeOpacity: 0.5,
-     strokeColor: "black",
-     strokeWeight: 1,
-     fillOpacity: 0.3*/
-  });
+    fillOpacity: 0.2
+  }
+  //map.data.setStyle({
+  //  icon: '/assets/mapicons/mm_20_gray.png',
+  //  fillColor: '#FF0000',
+  //  strokeOpacity: 0.5,
+  //  strokeColor: "black",
+  //  strokeWeight: 1,
+  //  fillOpacity: 0.2/*,
+  //
+  //   fillColor: '#440000',
+  //   strokeOpacity: 0.5,
+  //   strokeColor: "black",
+  //   strokeWeight: 1,
+  //   fillOpacity: 0.3*/
+  //});
   if (data != undefined) {
     var chained = JSON.parse('{"type":"FeatureCollection","features":[]}'); // container for the distribution
     if ((data["type"] = "FeatureCollection") && data.features[0].type == "FeatureCollection") {    //test for (currently) outer wrapper with property distribution
@@ -38,16 +45,29 @@ initializeComplexMap = function (canvas, feature_collection) {
         for (var i = 0; i < featureCollection.length; i++) {
           for (var j = 0; j < featureCollection[i].features.length; j++) {
             var prefix;
-            var fill_color;
+            var this_style;
             var this_feature = featureCollection[i].features[j];
-            if (featureCollection[i].properties.asserted_distributions != undefined) {prefix = 'ad_'; fill_color = '#440000';}
-            if (featureCollection[i].properties.collecting_events_georeferences != undefined) {prefix = 'co_'; fill_color = '#004400';}
-            if (featureCollection[i].properties.collecting_events_geographic_area != undefined) {prefix = 'ce_'; fill_color = '#000044';}
+            if (featureCollection[i].properties.asserted_distributions != undefined) {
+              prefix = 'ad_';
+              this_style.fillColor = '#440000';
+              //this_style = '{ "icon": "/assets/mapicons/mm_20_gray.png", "fill": #440000, "stroke_opacity": 0.5, "stroke_width": 1, "fill_opacity": 0.2 }';
+            }
+            if (featureCollection[i].properties.collecting_events_georeferences != undefined) {
+              prefix = 'co_';
+              this_style.fillColor = '#004400';
+              //this_style = '{ "icon": "/assets/mapicons/mm_20_gray.png", "fill": #004400, "stroke_opacity": 0.5, "stroke_width": 1, "fill_opacity": 0.2 }';
+            }
+            if (featureCollection[i].properties.collecting_events_geographic_area != undefined) {
+              prefix = 'ce_';
+              this_style.fillColor = '#000044';
+              //this_style = '{ "icon": "/assets/mapicons/mm_20_gray.png", "fill": #000044, "stroke_opacity": 0.5, "stroke_width": 1, "fill_opacity": 0.2 }';
+            }
             this_feature.id = prefix + this_feature.id.toString();
+            this_feature.style = this_style;
             chained.features.push(this_feature);
-            var this_style = '{fillColor: ' + fill_color.toString() + '}';
-            map.data.setStyle(this_style);
-            map.data.addGeoJson(this_feature);
+            //var this_style = '{fillColor: ' + fill_color.toString() + '}';
+            //map.data.setStyle(this_style);
+            map.data.addGeoJson(this_feature, this_style);
           }
         }
       }
@@ -63,18 +83,18 @@ initializeComplexMap = function (canvas, feature_collection) {
   map.setCenter(center_lat_long);
   map.setZoom(bounds.gzoom);
 
-  map.data.setStyle(function (feature) {
-    var color = '#440000';  // dimmer red as default feature color
-    if (feature.getProperty('isColorful')) {        // isColorful property signals this area/feature was clicked
-      color = feature.getProperty('fillColor');   //
-    }
-    return /** @type {google.maps.Data.StyleOptions} */({
-      icon: '/assets/mapicons/mm_20_red.png',
-      fillColor: color,
-      strokeColor: "black",
-      strokeWeight: 1
-    });
-  });
+  //map.data.setStyle(function (feature) {
+  //  var color = '#440000';  // dimmer red as default feature color
+  //  if (feature.getProperty('isColorful')) {        // isColorful property signals this area/feature was clicked
+  //    color = feature.getProperty('fillColor');   //
+  //  }
+  //  return /** @type {google.maps.Data.StyleOptions} */({
+  //    icon: '/assets/mapicons/mm_20_red.png',
+  //    fillColor: color,
+  //    strokeColor: "black",
+  //    strokeWeight: 1
+  //  });
+  //});
   return map;             // now no global map object, use this object to add listeners to THIS map
 };
 
