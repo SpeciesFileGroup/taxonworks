@@ -61,6 +61,9 @@ namespace :tw do
         'U. S. A. ' => 'United States'
       }
 
+      def geo_translate(name)
+        GEO_NAME_TRANSLATOR[name] ? GEO_NAME_TRANSLATOR[name] : name
+      end
 
       # Attributes to use from specimens.txt
       SPECIMENS_COLUMNS = %w{LocalityCode DateCollectedBeginning DateCollectedEnding Collector CollectionMethod Habitat}
@@ -137,7 +140,7 @@ namespace :tw do
         handle_controlled_vocabulary(@data, @import)
         handle_preparation_types(@data, @import)
         handle_people(@data, @import)
-        #handle_taxa(@data, @import)
+        ####handle_taxa(@data, @import)
 
         checkpoint_save(@import) if ENV['no_transaction']
 
@@ -149,17 +152,17 @@ namespace :tw do
 #        invalid_specimens = {}
 #        unmatched_taxa = {}
 
-        #build_localities_index(@data)
+        build_localities_index(@data)
 
         puts "Indexing collecting events."
-        index_collecting_events_from_accessions_new(@data, @import)
+        ####index_collecting_events_from_accessions_new(@data, @import)
+        index_collecting_events_from_ledgers(@data, @import)
 
         #index_specimen_records_from_specimens(unmatched_localities, unmatched_taxa, invalid_specimens, data, import)
 
 
 
         #index_collecting_events_from_specimens_new(collecting_events_index, unmatched_localities)
-        #index_collecting_events_from_ledgers(collecting_events_index)
         puts "\nTotal collecting events to build: #{collecting_events_index.keys.length}."
 
 
@@ -331,11 +334,16 @@ namespace :tw do
           'Country',
           'County',
           'State',
+          'LedgersCountry',
+          'LedgersState',
+          'LedgersCounty',
+          'LedgersLocality',
 
           #"AccessionNumber",
           'BodyOfWater',
           'Collection',
-          'Comments',
+          'LedgersComments',
+          'Remarks',
 
           #"Datum",
           'Description',
@@ -362,7 +370,7 @@ namespace :tw do
           'PrecisionCode',    # tag on Georeference
       ]
 
-            # Builds all the controlled vocabulary terms (tags/keywords)
+      # Builds all the controlled vocabulary terms (tags/keywords)
       def handle_controlled_vocabulary(data, import)
         print "Handling CV "
         if import.metadata['controlled_vocabulary']
@@ -374,6 +382,7 @@ namespace :tw do
           print "as newly parsed.\n"
 
           data.keywords.merge!('INHS' => Keyword.create(name: 'INHS Insect Collection', definition: 'Belongs to INHS Insect collection.'))
+          data.keywords.merge!('INHS_imported' => Keyword.create(name: 'Imported from INHS Insect Collection Database', definition: 'Imported from INHS Insect collection database.'))
 
           # from collecting_events
           PREDICATES.each do |p|
@@ -432,7 +441,7 @@ namespace :tw do
         if id.blank?
           $user_id
         elsif data.user_index[id]
-          data.user_index[id]
+          data.user_index[id].id
         elsif data.people_id[id]
           p = data.people_id[id]
           email = p['Email']
@@ -441,19 +450,26 @@ namespace :tw do
             email = p['LastName'] + id + '@no_email_provided.net'
           end if
 
-          user_name = p['LastName'] + ', ' + p['FirstName'] + ' - imported'
+          user_name = p['LastName'] + ', ' + p['FirstName']
 
-          user = User.create(email: email, password: '3242341aas', password_confirmation: '3242341aas', name: user_name,
-                 data_attributes_attributes: [ {value: p['PeopleID'], import_predicate: data.keywords['PeopleID'].name, controlled_vocabulary_term_id: data.keywords['PeopleID'].id, type: 'ImportAttribute'} ] )
+          existing_user = User.where(email: email)
+
+          if existing_user.empty?
+            user = User.create(email: email, password: '3242341aas', password_confirmation: '3242341aas', name: user_name,
+                   data_attributes_attributes: [ {value: p['PeopleID'], import_predicate: data.keywords['PeopleID'].name, controlled_vocabulary_term_id: data.keywords['PeopleID'].id, type: 'ImportAttribute'} ] )
+            user.tags.create(keyword: data.keywords['INHS_imported'])
+          else
+            user = existing_user.first
+          end
 
           unless p['SupervisorID'].blank?
             s = data.people_id[p['SupervisorID']]
             user.notes.create(text: 'Student of ' + s['FirstName'] + ' ' + s['LastName']) unless s.blank?
           end
           data.user_index.merge!(id => user)
-          user
+          user.id
         else
-          data.user_id
+          $user_id
         end
       end
 
@@ -531,7 +547,11 @@ namespace :tw do
           end
           if collecting_event.identifiers.empty? && !tmp_ce['AccessionNumber'].nil?
             byebug
-            collecting_event.identifiers.create(identifier: tmp_ce['AccessionNumber'], namespace: @accession_namespace, type: 'Identifier::Local::AccessionCode')
+            if !ce['AccessionNumber'].blank? && !ce['Collection'].blank?
+              c.identifiers.create(identifier: ce['Collection'] + ' ' + ce['AccessionNumber'], namespace: @accession_namespace, type: 'Identifier::Local::AccessionCode')
+            elsif !ce['AccessionNumber'].blank?
+              c.identifiers.create(identifier: ce['AccessionNumber'], namespace: @accession_namespace, type: 'Identifier::Local::AccessionCode')
+            end
           end
           if collecting_event.identifiers.empty? || collecting_event.identifiers.first.identifier == tmp_ce['AccessionNumber']
             return collecting_event
@@ -544,6 +564,8 @@ namespace :tw do
         geographic_area = parse_geographic_area(ce)
         geolocation_uncertainty = parse_geolocation_uncertainty(ce)
         locality =  ce['Park'].blank? ? ce['Locality'] : ce['Locality'].to_s + ', ' + ce['Park'].to_s
+        created_by = find_or_create_collection_user(ce['CreatedBy'], data)
+        updated_by = find_or_create_collection_user(ce['ModifiedBy'], data)
 
         c = CollectingEvent.new(
             geographic_area_id: geographic_area,
@@ -567,9 +589,8 @@ namespace :tw do
             verbatim_datum: ce['Datum'],
             field_notes: nil,
             verbatim_date: nil,
-            #verbatim_trip_identifier: ce['AccessionNumber'],
-            created_by_id: find_or_create_collection_user(ce['CreatedBy'], data),
-            updated_by_id: find_or_create_collection_user(ce['ModifiedBy'], data),
+            created_by_id: created_by,
+            updated_by_id: updated_by,
             created_at: time_from_field(ce['CreatedOn']),
             updated_at: time_from_field(ce['ModifiedOn'])
         )
@@ -580,9 +601,22 @@ namespace :tw do
           data.keywords.each do |k|
             c.data_attributes.create(type: 'ImportAttribute', import_predicate: k[1].name, controlled_vocabulary_term_id: k[1].id, value: ce[k[0]]) unless ce[k[0]].blank?
           end
-          c.identifiers.create(identifier: ce['AccessionNumber'], namespace: @accession_namespace, type: 'Identifier::Local::AccessionCode') unless ce['AccessionNumber'].blank?
+
+          if !ce['AccessionNumber'].blank? && !ce['Collection'].blank?
+            c.identifiers.create(identifier: ce['Collection'] + ' ' + ce['AccessionNumber'], namespace: @accession_namespace, type: 'Identifier::Local::AccessionCode')
+          elsif !ce['AccessionNumber'].blank?
+            c.identifiers.create(identifier: ce['AccessionNumber'], namespace: @accession_namespace, type: 'Identifier::Local::AccessionCode')
+          end
 
           c.generate_verbatim_data_georeference
+
+          glc = c.georeferences.first
+          unless glc.nil?
+            glc.error_radius = geolocation_uncertainty
+            glc.is_public = true
+            glc.save!
+          end
+
           data.collecting_event_index.merge!(tmp_ce => c)
           return c
         else
@@ -774,6 +808,11 @@ namespace :tw do
           locality_fields.each do |c|
             tmp_l.merge!(c => row[c]) unless row[c].blank?
           end
+
+          tmp_l['County'] = geo_translate(tmp_l['County']) unless tmp_l['County'].blank?
+          tmp_l['State'] = geo_translate(tmp_l['State']) unless tmp_l['State'].blank?
+          tmp_l['Country'] = geo_translate(tmp_l['Country']) unless tmp_l['Country'].blank?
+
           data.localities_index.merge!(row['LocalityCode'] => tmp_l)
         end
         print "done\n"
@@ -922,72 +961,26 @@ namespace :tw do
         puts "\n!! The following are locality codes in specimensNew without corresponding values in localities (#{unmatched_localities.keys.count}): " + unmatched_localities.keys.sort.join(", ")
       end
 
-      #  LocalityCode
-      #  Collector
-      #  DateCollectedBeginning
-      #  DateCollectedEnding
-      #
-      #  Collection
-      #  AccessionNumber
-      #  LedgerBook
-      #
-      #  Country
-      #  State
-      #  County
-      #  Locality
-      #  HostGenus
-      #  HostSpecies
-      #  Description
-      #  Remarks
-      #  OldLocalityCode
-      #
-      #  CreatedBy
-      #  CreatedOn
-      #
-      #  Comments
-      #  Order
-      #  Family
-      #  Genus
-      #  Species
-      #  Sex
-      # SPECIMENS_COLUMNS = %w{LocalityCode DateCollectedBeginning DateCollectedEnding Collector CollectionMethod Habitat}
-
-      def index_collecting_events_from_ledgers(collecting_events_index)
-        path = @args[:data_directory] + 'TXT/ledgers.txt'
-        raise 'file not found' if not File.exists?(path)
-        le = CSV.open(path, col_sep: "\t", :headers => true)
-
-        puts "\n  from ledgers\n"
-        le.each_with_index do |row, i|
-          print "\r#{i}      "
-          tmp_ce = { }
-          SPECIMENS_COLUMNS.each do |c|
-            tmp_ce.merge!(c => row[c]) unless row[c].blank?
-          end
-          #Utilities::Hashes.puts_collisions(tmp_ce, LOCALITIES[locality_code])
-          puts "\n!! Duplicate collecting event: #{row['Collection']} #{row['AccessionNumber']}" unless collecting_events_index[tmp_ce].nil?
-
-          collecting_events_index.merge!(tmp_ce => row.to_h)
-          #collecting_events_index.merge!(Utilities::Hashes.delete_keys(row.to_h, STRIP_LIST) => nil)
-        end
-        puts "\n Number of collecting events processed from Ledgers: #{collecting_events_index.keys.count} "
-      end
-
       def  index_collecting_events_from_accessions_new(data, import)
         path = @args[:data_directory] + 'TXT/accessions_new.txt' # self contained
         raise 'file not found' if not File.exists?(path)
 
         ac = CSV.open(path, col_sep: "\t", :headers => true)
 
-        accessions_new_fields = %w{ LocalityLabel Habitat Host AccessionNumber Country State County Locality Park DateCollectedBeginning DateCollectedEnding Collector CollectionMethod Elev_m Elev_ft NS Lat_deg Lat_min Lat_sec EW Long_deg Long_min Long_sec Comments PrecisionCode Datum ModifiedBy ModifiedOn }
+        fields = %w{ LocalityLabel Habitat Host AccessionNumber Country State County Locality Park DateCollectedBeginning DateCollectedEnding Collector CollectionMethod Elev_m Elev_ft NS Lat_deg Lat_min Lat_sec EW Long_deg Long_min Long_sec Comments PrecisionCode Datum ModifiedBy ModifiedOn }
 
         puts "\naccession new records\n"
         ac.each_with_index do |row, i|
           print "\r#{i}"
           tmp_ce = { }
-          accessions_new_fields.each do |c|
+          fields.each do |c|
             tmp_ce.merge!(c => row[c]) unless row[c].blank?
           end
+          tmp_ce['County'] = geo_translate(tmp_ce['County']) unless tmp_ce['County'].blank?
+          tmp_ce['State'] = geo_translate(tmp_ce['State']) unless tmp_ce['State'].blank?
+          tmp_ce['Country'] = geo_translate(tmp_ce['Country']) unless tmp_ce['Country'].blank?
+
+          tmp_ce.merge!('CreatedBy' => '1031', 'CreatedOn' => '01/20/2014 12:00:00')
 
           find_or_create_collecting_event(tmp_ce, data)
 
@@ -996,7 +989,62 @@ namespace :tw do
           #collecting_events_index.merge!(tmp_ce => row.to_h)
           #collecting_events_index.merge!( Utilities::Hashes.delete_keys(row.to_h, STRIP_LIST)  => nil)
         end
-        puts "\n Number of collecting events processed from Accessions_new: #{data.collecting_event_index.count} "
+        puts "\n Number of collecting events processed from Accessions_new: #{data.collecting_event_index.keys.count} "
+      end
+
+      def index_collecting_events_from_ledgers(data, import)
+        starting_number = data.collecting_event_index.empty? ? 0 : data.collecting_event_index.keys.count
+
+        path = @args[:data_directory] + 'TXT/ledgers.txt'
+        raise 'file not found' if not File.exists?(path)
+        le = CSV.open(path, col_sep: "\t", :headers => true)
+
+        fields = %w{ Collection AccessionNumber LedgerBook LedgersCountry LedgersState LedgersCounty LedgersLocality DateCollectedBeginning DateCollectedEnding Collector Order Family Genus Species HostGenus HostSpecies Sex LedgersComments Description Remarks LocalityCode OldLocalityCode CreatedBy CreatedOn }
+
+        puts "\n  from ledgers\n"
+
+        le.each_with_index do |row, i|
+          print "\r#{i}"
+          tmp_ce = { }
+          fields.each do |c|
+            tmp_ce.merge!(c => row[c]) unless row[c].blank?
+          end
+          unless tmp_ce['LocalityCode'].nil?
+            if data.localities_index[tmp_ce['LocalityCode']].nil?
+              print "\nLocality Code #{tmp_ce['LocalityCode']} does not exist!\n"
+            else
+              tmp_ce.merge!(data.localities_index[tmp_ce['LocalityCode']])
+            end
+          end
+
+          tmp_ce['LedgersCounty'] = geo_translate(tmp_ce['LedgersCounty']) unless tmp_ce['LedgersCounty'].blank?
+          tmp_ce['LedgersState'] = geo_translate(tmp_ce['LedgersState']) unless tmp_ce['LedgersState'].blank?
+          tmp_ce['LedgersCountry'] = geo_translate(tmp_ce['LedgersCountry']) unless tmp_ce['LedgersCountry'].blank?
+          tmp_ce['County'] = geo_translate(tmp_ce['County']) unless tmp_ce['County'].blank?
+          tmp_ce['State'] = geo_translate(tmp_ce['State']) unless tmp_ce['State'].blank?
+          tmp_ce['Country'] = geo_translate(tmp_ce['Country']) unless tmp_ce['Country'].blank?
+
+          tmp_ce.delete('LedgersCountry') if !tmp_ce['LedgersCountry'].nil? && tmp_ce['LedgersCountry'] == tmp_ce['Country']
+          tmp_ce.delete('LedgersState') if !tmp_ce['LedgersState'].nil? && tmp_ce['LedgersState'] == tmp_ce['State']
+          tmp_ce.delete('LedgersCounty') if !tmp_ce['LedgersCounty'].nil? && tmp_ce['LedgersCounty'] == tmp_ce['County']
+          tmp_ce.delete('LedgersLocality') if !tmp_ce['LedgersLocality'].nil? && tmp_ce['LedgersLocality'] == tmp_ce['Locality']
+
+          find_or_create_collecting_event(tmp_ce, data)
+        end
+
+#        le.each_with_index do |row, i|
+#          print "\r#{i}      "
+#          tmp_ce = { }
+#          SPECIMENS_COLUMNS.each do |c|
+#            tmp_ce.merge!(c => row[c]) unless row[c].blank?
+#          end
+#          #Utilities::Hashes.puts_collisions(tmp_ce, LOCALITIES[locality_code])
+#          puts "\n!! Duplicate collecting event: #{row['Collection']} #{row['AccessionNumber']}" unless collecting_events_index[tmp_ce].nil?#
+#
+#          collecting_events_index.merge!(tmp_ce => row.to_h)
+#          #collecting_events_index.merge!(Utilities::Hashes.delete_keys(row.to_h, STRIP_LIST) => nil)
+#        end
+        puts "\n Number of collecting events processed from Ledgers: #{data.collecting_event_index.keys.count - starting_number} "
       end
 
       def parse_geographic_area(ce)
@@ -1005,10 +1053,10 @@ namespace :tw do
           geog_search.push( GEO_NAME_TRANSLATOR[v] ? GEO_NAME_TRANSLATOR[v] : v) if !v.blank?
         end
 
-        match = GeographicArea.find_by_self_and_parents(geog_search)            
+        match = geog_search.empty? ? [] : GeographicArea.find_by_self_and_parents(geog_search)
         geographic_area = nil
 
-        if match.count == 0
+        if match.empty?
           #puts "\nNo matching geographic area for: #{geog_search}"
           if $matchless_for_geographic_area[geog_search]
             $matchless_for_geographic_area[geog_search] += 1
