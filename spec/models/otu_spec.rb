@@ -158,22 +158,6 @@ describe Otu, :type => :model do
     let(:a_d3) { FactoryGirl.create(:valid_asserted_distribution) }
     let(:otu1) { a_d1.otu }
     let(:otu2) { a_d2.otu }
-    # let(:list_t1) { RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-1, 1, 0.0),
-    #                                                RSPEC_GEO_FACTORY.point(1, 1, 0.0),
-    #                                                RSPEC_GEO_FACTORY.point(1, -1, 0.0),
-    #                                                RSPEC_GEO_FACTORY.point(-1, -1, 0.0)]) }
-    # let(:list_t2) { RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-2, 2, 0.0),
-    #                                                RSPEC_GEO_FACTORY.point(2, 2, 0.0),
-    #                                                RSPEC_GEO_FACTORY.point(2, -2, 0.0),
-    #                                                RSPEC_GEO_FACTORY.point(-2, -2, 0.0)]) }
-    # let(:list_t3) { RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-3, 3, 0.0),
-    #                                                RSPEC_GEO_FACTORY.point(3, 3, 0.0),
-    #                                                RSPEC_GEO_FACTORY.point(3, -3, 0.0),
-    #                                                RSPEC_GEO_FACTORY.point(-3, -3, 0.0)]) }
-    # let(:list_t4) { RSPEC_GEO_FACTORY.line_string([RSPEC_GEO_FACTORY.point(-4, 4, 0.0),
-    #                                                RSPEC_GEO_FACTORY.point(4, 4, 0.0),
-    #                                                RSPEC_GEO_FACTORY.point(4, -4, 0.0),
-    #                                                RSPEC_GEO_FACTORY.point(-4, -4, 0.0)]) }
     let(:box_1) { RSPEC_GEO_FACTORY.multi_polygon([RSPEC_GEO_FACTORY.polygon(LIST_T1)]) }
     let(:box_2) { RSPEC_GEO_FACTORY.multi_polygon([RSPEC_GEO_FACTORY.polygon(LIST_T1)]) }
     let(:box_3) { RSPEC_GEO_FACTORY.multi_polygon([RSPEC_GEO_FACTORY.polygon(LIST_T1)]) }
