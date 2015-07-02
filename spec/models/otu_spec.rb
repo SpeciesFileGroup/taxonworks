@@ -257,7 +257,7 @@ describe Otu, :type => :model do
       end
 
       specify 'the otu can produce some geo_JSON' do
-        # pending 'proper declaration of result geoJSON'
+        pending 'proper declaration of result geoJSON'
         expect(otu1.distribution_geoJSON).to eq('')
       end
     end
