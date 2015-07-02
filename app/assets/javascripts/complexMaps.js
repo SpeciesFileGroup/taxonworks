@@ -37,14 +37,23 @@ initializeComplexMap = function (canvas, feature_collection) {
         var featureCollection = data.features;
         for (var i = 0; i < featureCollection.length; i++) {
           for (var j = 0; j < featureCollection[i].features.length; j++) {
-            chained.features.push(featureCollection[i].features[j])
-            //featureCollection[i].features[j].setMap(map);
+            var prefix;
+            var fill_color;
+            var this_feature = featureCollection[i].features[j];
+            if (featureCollection[i].properties.asserted_distributions != undefined) {prefix = 'ad_'; fill_color = '#440000';}
+            if (featureCollection[i].properties.collecting_events_georeferences != undefined) {prefix = 'co_'; fill_color = '#004400';}
+            if (featureCollection[i].properties.collecting_events_geographic_area != undefined) {prefix = 'ce_'; fill_color = '#000044';}
+            this_feature.id = prefix + this_feature.id.toString();
+            chained.features.push(this_feature);
+            var this_style = '{fillColor: ' + fill_color.toString() + '}';
+            map.data.setStyle(this_style);
+            map.data.addGeoJson(this_feature);
           }
         }
       }
     }
     ;  // put data on the map if present
-    map.data.addGeoJson(chained)
+    //map.data.addGeoJson(chained)
   }
 // bounds for calculating center point
   var bounds = {};    //xminp: xmaxp: xminm: xmaxm: ymin: ymax: -90.0, center_long: center_lat: gzoom:
