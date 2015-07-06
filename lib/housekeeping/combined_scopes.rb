@@ -8,7 +8,15 @@ module Housekeeping::CombinedScopes
   module ClassMethods
 
     def recent_from_project_id(project_id)
-      where(project_id: project_id).created_this_week
+      t = self.arel_table
+
+      c = t[:project_id].eq(project_id).and(
+        t[:created_at].gt(1.weeks.ago).
+        or(t[:updated_at].gt(1.weeks.ago)
+          )
+      )
+
+      where(c.to_sql) 
     end
 
   end
