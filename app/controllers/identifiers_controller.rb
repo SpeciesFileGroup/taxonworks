@@ -22,7 +22,6 @@ class IdentifiersController < ApplicationController
   # POST /identifiers
   # POST /identifiers.json
   def create
-
     @identifier = Identifier.new(identifier_params)
     respond_to do |format|
       if @identifier.save

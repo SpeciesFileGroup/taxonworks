@@ -530,7 +530,7 @@ class Source::Bibtex < Source
   #   end
   # end
 
-  # @return [String, '']
+  # @return [String]
   #   last names formatted as displayed in nomenclatural authority (iczn), prioritizes
   #   normalized people records before bibtex author string
   def authority_name
@@ -540,11 +540,7 @@ class Source::Bibtex < Source
       else 
         b = self.to_bibtex
         b.parse_names
-        if b.author.tokens.count == 0
-          return ('') # shouldn't ever get here
-        else
-          return b.author.tokens.collect{ |t| t.last }.to_sentence(last_word_connector:  ' & ')
-        end
+        return b.author.tokens.collect{ |t| t.last }.to_sentence(last_word_connector: ' & ')
       end
     else # use normalized records 
       return self.authors.collect{ |a| a.full_last_name }.to_sentence(last_word_connector: ' & ')

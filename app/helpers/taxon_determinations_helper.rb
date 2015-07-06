@@ -2,7 +2,10 @@ module TaxonDeterminationsHelper
 
   def taxon_determination_tag(taxon_determination) 
     return nil if taxon_determination.nil?
-    # "foo"
-    otu_tag(taxon_determination.otu) + " for " + object_tag(taxon_determination.biological_collection_object.metamorphosize)
+    name =  otu_tag(taxon_determination.otu)
+    object = object_tag(taxon_determination.biological_collection_object.metamorphosize)
+    by = object_tag(taxon_determination.taxon_determiners) 
+
   end
+
 end
