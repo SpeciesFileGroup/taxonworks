@@ -45,30 +45,34 @@ initializeComplexMap = function (canvas, feature_collection) {
         var featureCollection = data.features;
         for (var i = 0; i < featureCollection.length; i++) {
           for (var j = 0; j < featureCollection[i].features.length; j++) {
+            var push_this = false;
             var prefix;
             var this_feature = featureCollection[i].features[j];
             var this_property_key = Object.keys(featureCollection[i].properties);
-            if (this_property_key == "asserted_distributions") {
+            if (this_property_key == "asserted_distributions" && document.getElementById('check_dist').checked) {
               prefix = 'ad_';
               this_style.fillColor = '#440000';
-              this_style = '{ "icon": "/assets/mapicons/mm_20_gray.png", "fill": #440000, "stroke_opacity": 0.5, "stroke_width": 1, "fill_opacity": 0.2 }';
+              //this_style = '{ "icon": "/assets/mapicons/mm_20_gray.png", "fill": #440000, "stroke_opacity": 0.5, "stroke_width": 1, "fill_opacity": 0.2 }';
+            push_this = true;
             }
-            if (this_property_key == "collecting_events_georeferences") {
+            if (this_property_key == "collecting_events_georeferences" && document.getElementById('check_c_o').checked) {
               prefix = 'co_';
               this_style.fillColor = '#004400';
-              this_style = '{ "icon": "/assets/mapicons/mm_20_gray.png", "fill": #004400, "stroke_opacity": 0.5, "stroke_width": 1, "fill_opacity": 0.2 }';
+              //this_style = '{ "icon": "/assets/mapicons/mm_20_gray.png", "fill": #004400, "stroke_opacity": 0.5, "stroke_width": 1, "fill_opacity": 0.2 }';
+              push_this = true;
             }
-            if (this_property_key == "collecting_events_geographic_area") {
+            if (this_property_key == "collecting_events_geographic_area" && document.getElementById('check_c_e').checked) {
               prefix = 'ce_';
               this_style.fillColor = '#000044';
-              this_style = '{ "icon": "/assets/mapicons/mm_20_gray.png", "fill": #000044, "stroke_opacity": 0.5, "stroke_width": 1, "fill_opacity": 0.2 }';
+              //this_style = '{ "icon": "/assets/mapicons/mm_20_gray.png", "fill": #000044, "stroke_opacity": 0.5, "stroke_width": 1, "fill_opacity": 0.2 }';
+              push_this = true;
             }
             this_feature.id = prefix + this_feature.id.toString();
             this_feature.properties[this_property_key] = this_property_key.toString();
             //map.data.addGeoJson(this_feature);
 
             //this_feature.style = this_style;
-            chained.features.push(this_feature);
+            if (push_this) {chained.features.push(this_feature)};
             //var this_style = '{fillColor: ' + fill_color.toString() + '}';
             //map.data.setStyle(this_style);
           }
@@ -83,30 +87,35 @@ initializeComplexMap = function (canvas, feature_collection) {
     this_feature = feature;
     this_property = this_feature.getProperty('asserted_distributions');
     if(this_property != undefined) {
-      map.data.overrideStyle(this_feature, {fillColor: '#880000'});     //  red
-      map.data.overrideStyle(this_feature, {strokeWeight: 1.0});       // lightborders
-      map.data.overrideStyle(this_feature, {fillOpacity: 0.3});       // semi-transparent
-      map.data.overrideStyle(this_feature, {icon: '/assets/mapicons/mm_20_gray.png'});
-    }
-    this_property = this_feature.getProperty('collecting_events_geographic_area');
-    if(this_property != undefined) {
-      map.data.overrideStyle(this_feature, {fillColor: '#008800'});     //  green
-      map.data.overrideStyle(this_feature, {strokeWeight: 1.0});       // lightborders
-      map.data.overrideStyle(this_feature, {fillOpacity: 0.3});       // semi-transparent
-      map.data.overrideStyle(this_feature, {icon: '/assets/mapicons/mm_20_gray.png'});
+      if (document.getElementById('check_dist').checked) {
+        map.data.overrideStyle(this_feature, {fillColor: '#880000'});     //  red
+        map.data.overrideStyle(this_feature, {strokeWeight: 1.0});       // lightborders
+        map.data.overrideStyle(this_feature, {fillOpacity: 0.3});       // semi-transparent
+        map.data.overrideStyle(this_feature, {icon: '/assets/mapicons/mm_20_gray.png'});
+      }
     }
     this_property = this_feature.getProperty('collecting_events_georeferences');
     if(this_property != undefined) {
-      map.data.overrideStyle(this_feature, {fillColor: '#000088'});     //  blue
-      map.data.overrideStyle(this_feature, {strokeWeight: 1.0});       // lightborders
-      map.data.overrideStyle(this_feature, {fillOpacity: 0.3});       // semi-transparent
-      map.data.overrideStyle(this_feature, {icon: '/assets/mapicons/mm_20_gray.png'});
+      if (document.getElementById('check_c_o').checked) {
+        map.data.overrideStyle(this_feature, {fillColor: '#008800'});     //  green
+        map.data.overrideStyle(this_feature, {strokeWeight: 1.0});       // lightborders
+        map.data.overrideStyle(this_feature, {fillOpacity: 0.3});       // semi-transparent
+        map.data.overrideStyle(this_feature, {icon: '/assets/mapicons/mm_20_gray.png'});
+      }
     }
-
+    this_property = this_feature.getProperty('collecting_events_geographic_area');
+    if(this_property != undefined) {
+      if (document.getElementById('check_c_e').checked) {
+        map.data.overrideStyle(this_feature, {fillColor: '#000088'});     //  blue
+        map.data.overrideStyle(this_feature, {strokeWeight: 1.0});       // lightborders
+        map.data.overrideStyle(this_feature, {fillOpacity: 0.3});       // semi-transparent
+        map.data.overrideStyle(this_feature, {icon: '/assets/mapicons/mm_20_gray.png'});
+      }
+    }
   });
 // bounds for calculating center point
   var bounds = {};    //xminp: xmaxp: xminm: xmaxm: ymin: ymax: -90.0, center_long: center_lat: gzoom:
-  getComplexData(data, bounds);               // scan var data as feature collection with homebrew traverser, collecting bounds
+  getComplexData(chained, bounds);               // scan var data as feature collection with homebrew traverser, collecting bounds
   var center_lat_long = get_window_center(bounds);      // compute center_lat_long from bounds and compute zoom level as gzoom
   // $("#map_coords").html('Center: \xA0 \xA0 \xA0 \xA0Latitude = ' + bounds.center_lat.toFixed(6) + ' , Longitude = ' + bounds.center_long.toFixed(6));
   map.setCenter(center_lat_long);
