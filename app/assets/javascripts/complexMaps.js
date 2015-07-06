@@ -39,7 +39,7 @@ initializeComplexMap = function (canvas, feature_collection) {
   //});
   if (data != undefined) {
     var chained = JSON.parse('{"type":"FeatureCollection","features":[]}'); // container for the distribution
-    if ((data["type"] = "FeatureCollection") && data.features[0].type == "FeatureCollection") {    //test for (currently) outer wrapper with property distribution
+    if ((data["type"] = "Aggregation") && data.features[0].type == "FeatureCollection") {    //test for (currently) outer wrapper with property distribution
       if (data.features.length > 0) {
         var featureCollection = data.features;
         for (var i = 0; i < featureCollection.length; i++) {

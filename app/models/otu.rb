@@ -160,7 +160,7 @@ class Otu < ActiveRecord::Base
   end
 
   def distribution_geoJSON
-    retval = Gis::GeoJSON.feature_collection(
+    retval = Gis::GeoJSON.aggregation(
 
       [
         Gis::GeoJSON.feature_collection(geographic_areas_from_asserted_distributions, :asserted_distributions),
