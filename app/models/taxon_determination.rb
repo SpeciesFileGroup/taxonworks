@@ -60,6 +60,10 @@ class TaxonDetermination < ActiveRecord::Base
 
   before_save :set_made_fields_if_not_provided
 
+  def date
+    [year_made, month_made, day_made].compact.join("-")
+  end
+
   def sort_date
     Utilities::Dates.nomenclature_date(day_made, month_made, year_made)
   end
