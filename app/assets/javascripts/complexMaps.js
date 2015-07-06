@@ -266,7 +266,7 @@ function getComplexData(feature_collection_data, bounds) {
     ;
     for (var i = 0; i < data.length; i++) {
       if (typeof (data[i].type) != "undefined") {
-        if (data[i].type == "FeatureCollection") {
+        if (data[i].type == "FeatureCollection" || data[i].type == 'Aggregation') {
           for (var j = 0; j < data[i].features.length; j++) {
             //getFeature(data[i].features[j]);
             getFeature(data[i].features[j], bounds);  //getTypeData(data[i].features[j].geometry);
