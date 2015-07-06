@@ -37,6 +37,7 @@ initializeComplexMap = function (canvas, feature_collection) {
   //   strokeWeight: 1,
   //   fillOpacity: 0.3*/
   //});
+  var this_style;
   if (data != undefined) {
     var chained = JSON.parse('{"type":"FeatureCollection","features":[]}'); // container for the distribution
     if ((data["type"] = "Aggregation") && data.features[0].type == "FeatureCollection") {    //test for (currently) outer wrapper with property distribution
@@ -45,36 +46,64 @@ initializeComplexMap = function (canvas, feature_collection) {
         for (var i = 0; i < featureCollection.length; i++) {
           for (var j = 0; j < featureCollection[i].features.length; j++) {
             var prefix;
-            var this_style;
             var this_feature = featureCollection[i].features[j];
-            if (featureCollection[i].properties.asserted_distributions != undefined) {
+            var this_property_key = Object.keys(featureCollection[i].properties);
+            if (this_property_key == "asserted_distributions") {
               prefix = 'ad_';
               this_style.fillColor = '#440000';
-              //this_style = '{ "icon": "/assets/mapicons/mm_20_gray.png", "fill": #440000, "stroke_opacity": 0.5, "stroke_width": 1, "fill_opacity": 0.2 }';
+              this_style = '{ "icon": "/assets/mapicons/mm_20_gray.png", "fill": #440000, "stroke_opacity": 0.5, "stroke_width": 1, "fill_opacity": 0.2 }';
             }
-            if (featureCollection[i].properties.collecting_events_georeferences != undefined) {
+            if (this_property_key == "collecting_events_georeferences") {
               prefix = 'co_';
               this_style.fillColor = '#004400';
-              //this_style = '{ "icon": "/assets/mapicons/mm_20_gray.png", "fill": #004400, "stroke_opacity": 0.5, "stroke_width": 1, "fill_opacity": 0.2 }';
+              this_style = '{ "icon": "/assets/mapicons/mm_20_gray.png", "fill": #004400, "stroke_opacity": 0.5, "stroke_width": 1, "fill_opacity": 0.2 }';
             }
-            if (featureCollection[i].properties.collecting_events_geographic_area != undefined) {
+            if (this_property_key == "collecting_events_geographic_area") {
               prefix = 'ce_';
               this_style.fillColor = '#000044';
-              //this_style = '{ "icon": "/assets/mapicons/mm_20_gray.png", "fill": #000044, "stroke_opacity": 0.5, "stroke_width": 1, "fill_opacity": 0.2 }';
+              this_style = '{ "icon": "/assets/mapicons/mm_20_gray.png", "fill": #000044, "stroke_opacity": 0.5, "stroke_width": 1, "fill_opacity": 0.2 }';
             }
             this_feature.id = prefix + this_feature.id.toString();
-            this_feature.style = this_style;
+            this_feature.properties[this_property_key] = this_property_key.toString();
+            //map.data.addGeoJson(this_feature);
+
+            //this_feature.style = this_style;
             chained.features.push(this_feature);
             //var this_style = '{fillColor: ' + fill_color.toString() + '}';
             //map.data.setStyle(this_style);
-            map.data.addGeoJson(this_feature, this_style);
           }
         }
       }
     }
     ;  // put data on the map if present
-    //map.data.addGeoJson(chained)
+    map.data.addGeoJson(chained)
   }
+  map.data.forEach(function(feature) {        // traverse map data for features
+
+    this_feature = feature;
+    this_property = this_feature.getProperty('asserted_distributions');
+    if(this_property != undefined) {
+      map.data.overrideStyle(this_feature, {fillColor: '#880000'});     //  red
+      map.data.overrideStyle(this_feature, {strokeWeight: 1.0});       // lightborders
+      map.data.overrideStyle(this_feature, {fillOpacity: 0.3});       // semi-transparent
+      map.data.overrideStyle(this_feature, {icon: '/assets/mapicons/mm_20_gray.png'});
+    }
+    this_property = this_feature.getProperty('collecting_events_geographic_area');
+    if(this_property != undefined) {
+      map.data.overrideStyle(this_feature, {fillColor: '#008800'});     //  green
+      map.data.overrideStyle(this_feature, {strokeWeight: 1.0});       // lightborders
+      map.data.overrideStyle(this_feature, {fillOpacity: 0.3});       // semi-transparent
+      map.data.overrideStyle(this_feature, {icon: '/assets/mapicons/mm_20_gray.png'});
+    }
+    this_property = this_feature.getProperty('collecting_events_georeferences');
+    if(this_property != undefined) {
+      map.data.overrideStyle(this_feature, {fillColor: '#000088'});     //  blue
+      map.data.overrideStyle(this_feature, {strokeWeight: 1.0});       // lightborders
+      map.data.overrideStyle(this_feature, {fillOpacity: 0.3});       // semi-transparent
+      map.data.overrideStyle(this_feature, {icon: '/assets/mapicons/mm_20_gray.png'});
+    }
+
+  });
 // bounds for calculating center point
   var bounds = {};    //xminp: xmaxp: xminm: xmaxm: ymin: ymax: -90.0, center_long: center_lat: gzoom:
   getComplexData(data, bounds);               // scan var data as feature collection with homebrew traverser, collecting bounds
@@ -84,7 +113,7 @@ initializeComplexMap = function (canvas, feature_collection) {
   map.setZoom(bounds.gzoom);
 
   //map.data.setStyle(function (feature) {
-  //  var color = '#440000';  // dimmer red as default feature color
+  //  var color = '#004400';  // dimmer red as default feature color
   //  if (feature.getProperty('isColorful')) {        // isColorful property signals this area/feature was clicked
   //    color = feature.getProperty('fillColor');   //
   //  }

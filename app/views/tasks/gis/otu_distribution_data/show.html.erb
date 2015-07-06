@@ -22,7 +22,7 @@
             <%= check_box_tag("check_dist", nil, true) %>
           </td>
           <td>
-            <%=	 "distributions (#{@otu.asserted_distributions.count})" %>
+            <%=	 "distributions (#{@otu.asserted_distributions.count}) (asserted distributions)" %>
           </td>
         </tr>
         <tr>
@@ -30,7 +30,7 @@
             <%= check_box_tag("check_c_o", nil, true) %>
           </td>
           <td>
-            <%=	 "collection_objects (#{@otu.collection_objects.count})" %>
+            <%=	 "collection_objects (#{@otu.collection_objects.count}) (collecting events georeferences)" %>
           </td>
         </tr>
         <tr>
@@ -38,7 +38,7 @@
             <%= check_box_tag("check_c_e", nil, true) %>
           </td>
           <td>
-            <%=	 "collecting event gazeteer records (#{@otu.collecting_events.count})" %>
+            <%=	 "collecting event gazeteer records (#{@otu.collecting_events.count}) (collecting events geographic areas)" %>
           </td>
         </tr>
         </tbody>

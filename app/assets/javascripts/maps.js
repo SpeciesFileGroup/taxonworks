@@ -53,7 +53,7 @@ initializeMap = function(canvas, feature_collection) {
       strokeWeight: 1
     });
   });
-  return map;             // now no global map object, use this object to add listeners to THIS map
+  return map;             // now no global map object, use this object to add s to THIS map
 };
 
 function initialize_map(canvas, options) {
