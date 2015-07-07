@@ -124,13 +124,13 @@ function insert_existing_person(form, person_id, label) {
   role_list.append( $('<input hidden name="source[roles_attributes][' +  random_index + '][type]" value="' + role_type +  '" >') );
   role_list.append( $('<input hidden name="source[roles_attributes][' +  random_index + '][person_id]" value="' + person_id +  '" >') );
 
-
-//  var remove_link = $('<a href="#" class="remove_role">remove</a>');
-
-//  bind_remove_links(remove_link);
+  // TODO: update remove link generation to be the same for both pages
+  var remove_link = $('<a href="#" class="remove_role">remove</a>');
 
   // insert visible list item
-  role_list.append( $('<li>').append( label ) );
+  role_list.append( $('<li>').append( label).append('&nbsp;').append(remove_link) );
+
+  bind_remove_links(remove_link);
 };
 
 function insert_new_person(form) {
