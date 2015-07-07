@@ -54,12 +54,7 @@ function initialize_autocomplete(form) {
     bind_hover(); 
   },
   select: function (event, ui) {    // execute on select event in search text box
-    // add name to list
-    
-    // form.find(".role_list").append($('<li>').append(ui.item.value));
     insert_existing_person(form, ui.item.object_id, ui.item.label) 
-
-    // clear search form
     clear_role_picker(form);
     return false;
   }
@@ -128,7 +123,7 @@ function insert_existing_person(form, person_id, label) {
   var remove_link = $('<a href="#" class="remove_role">remove</a>');
 
   // insert visible list item
-  role_list.append( $('<li>').append( label).append('&nbsp;').append(remove_link) );
+  role_list.append( $('<li class="role_item" data-role-index="' + random_index + '">').append( label).append('&nbsp;').append(remove_link) );
 
   bind_remove_links(remove_link);
 };
@@ -180,8 +175,6 @@ function bind_label_mirroring(form) {
     form.find(".name_label").html(
       get_full_name(form.find(".first_name").val(), form.find(".last_name").val())
       );
-
-    // build full name out of individual labels
   });
 }
 
