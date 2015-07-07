@@ -3,7 +3,7 @@
 function get_first_name(string) {
 
   // if there is no space or , there is no first name
-  if (string.indexOf("," > 1) || string.indexOf(" " > 1)) {
+  if ((string.indexOf(",") > 1) || (string.indexOf(" ") > 1)) {
     var delimiter;
     if(string.indexOf(",") > 1) {delimiter = ","}
     if(string.indexOf(", ") > 1) {delimiter = ", "}
@@ -17,7 +17,7 @@ function get_first_name(string) {
 // Return a last name split on (white) space or commma
 function get_last_name(string) {
   // if there no space or comma then the whole string is the *last* name
-  if (string.indexOf("," > 1) || string.indexOf(" " > 1)) {
+  if ((string.indexOf(",") > 1) || (string.indexOf(" ") > 1) ) {
     var delimiter;
     if(string.indexOf(",") > 1) {delimiter = ","}
     if(string.indexOf(", ") > 1) {delimiter = ", "}
@@ -124,9 +124,13 @@ function insert_existing_person(form, person_id, label) {
   role_list.append( $('<input hidden name="source[roles_attributes][' +  random_index + '][type]" value="' + role_type +  '" >') );
   role_list.append( $('<input hidden name="source[roles_attributes][' +  random_index + '][person_id]" value="' + person_id +  '" >') );
 
+
+//  var remove_link = $('<a href="#" class="remove_role">remove</a>');
+
+//  bind_remove_links(remove_link);
+
   // insert visible list item
-  role_list.append(   
-      $('<li>').append( label ) );
+  role_list.append( $('<li>').append( label ) );
 };
 
 function insert_new_person(form) {
