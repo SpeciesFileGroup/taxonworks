@@ -141,8 +141,6 @@ function insert_new_person(form) {
 
   var remove_link = $('<a href="#" class="remove_role">remove</a>');
 
-  bind_remove_links(remove_link);
-
   // type
   role_list.append($('<li class="role_item" data-role-id="' + random_index + '" >')
   .append(form.find('.name_label').text() + '&nbsp;' )
@@ -156,6 +154,7 @@ function insert_new_person(form) {
   .append(remove_link)
   );
 
+  bind_remove_links(remove_link);
 };
 
 
