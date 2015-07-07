@@ -1,13 +1,13 @@
-  <div class="role_picker flexbox" id="<%= role %>_role_picker" data-role-type='<%= role -%>' >
+<div class="role_picker flexbox" id="<%= role %>_role_picker" data-role-type='<%= role -%>' >
 
-      <div class="item item1">
+  <div class="item item1">
 
-        <h2 class="role_picker_header"><%= role.to_s.pluralize.capitalize %> <span class='role_picker_alert' hidden></span> </h2>
+    <h2 class="role_picker_header"><%= role.to_s.pluralize.capitalize %> <span class='role_picker_alert' hidden></span> </h2>
 
     <ul class="role_list">
       <% if object.respond_to?("#{role}_roles") -%>
         <%= f.fields_for :roles, object.send("#{role}_roles") do |role_fields| %>
-          <li class="role_item" data-role-id="<%= role_fields.index -%>" >
+          <li class="role_item" data-role-id="<%= role_fields.object.id -%>" data-role-index="<%= role_fields.index -%>" >
           <%= role_fields.text_field :id, hidden: true -%>
           <%= object_tag(role_fields.object)  -%> <%= link_to('remove', "#", class: :remove_role) -%>
           </li>
@@ -27,7 +27,7 @@
     </div>
     <div class="role_picker_person_form" hidden>
       <%= f.fields_for Person.new do |fp| %>
-          <%= render partial: '/people/form_elements2', locals: {role: role, f: fp} %>
+        <%= render partial: '/people/form_elements2', locals: {role: role, f: fp} %>
       <% end %>
     </div>
 

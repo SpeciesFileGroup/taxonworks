@@ -142,7 +142,7 @@ function insert_new_person(form) {
   var remove_link = $('<a href="#" class="remove_role">remove</a>');
 
   // type
-  role_list.append($('<li class="role_item" data-new-person="true" data-role-id="' + random_index + '" >')
+  role_list.append($('<li class="role_item" data-new-person="true" data-role-index="' + random_index + '" >')
   .append(form.find('.name_label').text() + '&nbsp;' )
   .append( $('<input hidden name="source[roles_attributes][' +  random_index + '][type]" value="' + role_type +  '" >') )
 
@@ -206,14 +206,16 @@ function bind_remove_links(links) {
   links.click(function () {
     list_item = $(this).parent('li');
     var role_id = list_item.data('role-id');
-    if (role_id) {
+    var role_index = list_item.data('role-index');
+
+    if (role_id != undefined) {
       var role_list = list_item.closest('.role_list');
      
       // if this is not a new person 
-      if (!(list_item.data('new-person')) ) {
+      if (list_item.data('new-person') != "true")  {
         // if there is an ID from an existing item add the necessary (hidden) _destroy input
-        role_list.append($('<input hidden name="source[roles_attributes][' +  role_id + '][id]" value="' + role_id + '" >') );
-        role_list.append($('<input hidden name="source[roles_attributes][' +  role_id + '][_destroy]" value="1" >') );
+        role_list.append($('<input hidden name="source[roles_attributes][' +  role_index + '][id]" value="' + role_id + '" >') );
+        role_list.append($('<input hidden name="source[roles_attributes][' +  role_index + '][_destroy]" value="1" >') );
 
         // Provide a warning that the list must be saved to properly delete the records, tweak if we think necessary
         role_list.siblings('.role_picker_header').addClass('subtle');
@@ -236,12 +238,12 @@ function make_role_list_sortable(form) {
 function bind_position_handling_to_submit_button(form) {
   form.closest('form').find('input[name="commit"]').click(function () {
     var i = 1;
-    var role_id;
+    var role_index;
     form.find('.role_item').each( function() {
       console.log($(this));
-      role_id = $(this).data('role-id');
+      role_index = $(this).data('role-index');
       $(this).append(
-        $('<input hidden name="source[roles_attributes][' +  role_id + '][position]" value="' + i + '" >')
+        $('<input hidden name="source[roles_attributes][' +  role_index + '][position]" value="' + i + '" >')
         );
       i = i + 1; 
     });
