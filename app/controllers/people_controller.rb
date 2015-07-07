@@ -110,6 +110,12 @@ class PeopleController < ApplicationController
     }
   end
 
+  # GET /person/:id/details
+  def details 
+    @person = Person.includes(:roles).find(params[:id])
+    render partial: '/people/picker_details', locals: {person:  @person} 
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_person

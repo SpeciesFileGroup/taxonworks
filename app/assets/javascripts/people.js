@@ -51,7 +51,7 @@ function initialize_autocomplete(form) {
   autocomplete_input.autocomplete({
     source: '/people/lookup_person',
     open: function (event, ui) {
-      bind_hover(); 
+      bind_hover(form); 
     },
     select: function (event, ui) {    // execute on select event in search text box
       insert_existing_person(form, ui.item.object_id, ui.item.label) 
@@ -60,7 +60,7 @@ function initialize_autocomplete(form) {
     }
   }).autocomplete("instance")._renderItem = function (ul, item) {
     return $("<li>")
-      .append("<a>" + item.label + " <span class='hoverme'>...</span> " + "</a>")
+      .append("<a>" + item.label + ' <span class="hoverme" data-person-id="' + item.object_id + '">...</span></a>')
       .appendTo(ul);
   };
 
@@ -169,16 +169,19 @@ function bind_label_mirroring(form) {
 }
 
 // bind a hover event to an ellipsis
-function bind_hover() {
+function bind_hover(form) {
   hiConfig = {
     sensitivity: 3, // number = sensitivity threshold (must be 1 or higher)
     interval: 400, // number = milliseconds for onMouseOver polling interval
     timeout: 200, // number = milliseconds delay before onMouseOut
     over: function () {
-      alert('hi');
+      var url = ('/people/' + $(this).data('personId') + '/details');
+      $.get(url, function( data ) {
+        form.find(".person_details" ).html( data );
+      });
     }, // function = onMouseOver callback (REQUIRED)
     out: function () {
-      alert('bye');
+      form.find(".person_details" ).html('');
     } // function = onMouseOut callback (REQUIRED)
   };
   $('.hoverme').hoverIntent(hiConfig);
@@ -265,4 +268,3 @@ _initialize_role_picker_widget = function
 $(document).ready(_initialize_role_picker_widget);
 
 // This event is added by jquery.turbolinks automatically!? - see https://github.com/rails/turbolinks#jqueryturbolinks
-// $(document).on("page:load", _initialize_role_picker_widget);

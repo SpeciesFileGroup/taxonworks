@@ -191,6 +191,7 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
     member do
       get :roles
+      get :details
     end
     collection do
       get :lookup_person
