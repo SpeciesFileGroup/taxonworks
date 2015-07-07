@@ -50,14 +50,14 @@ function initialize_autocomplete(form) {
 
   autocomplete_input.autocomplete({
     source: '/people/lookup_person',
-  open: function (event, ui) {
-    bind_hover(); 
-  },
-  select: function (event, ui) {    // execute on select event in search text box
-    insert_existing_person(form, ui.item.object_id, ui.item.label) 
+    open: function (event, ui) {
+      bind_hover(); 
+    },
+    select: function (event, ui) {    // execute on select event in search text box
+      insert_existing_person(form, ui.item.object_id, ui.item.label) 
     clear_role_picker(form);
-    return false;
-  }
+  return false;
+    }
   }).autocomplete("instance")._renderItem = function (ul, item) {
     return $("<li>")
       .append("<a>" + item.label + " <span class='hoverme'>...</span> " + "</a>")
@@ -263,4 +263,6 @@ _initialize_role_picker_widget = function
 
 // Initialize the script on page load
 $(document).ready(_initialize_role_picker_widget);
-$(document).on("page:load", _initialize_role_picker_widget);
+
+// This event is added by jquery.turbolinks automatically!? - see https://github.com/rails/turbolinks#jqueryturbolinks
+// $(document).on("page:load", _initialize_role_picker_widget);
