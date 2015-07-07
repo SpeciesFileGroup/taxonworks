@@ -3,7 +3,7 @@
 function get_first_name(string) {
 
   // if there is no space or , there is no first name
-  if (string.includes(',') || string.includes(" ")) {
+  if (string.indexOf("," > 1) || string.indexOf(" " > 1)) {
     var delimiter;
     if(string.indexOf(",") > 1) {delimiter = ","}
     if(string.indexOf(", ") > 1) {delimiter = ", "}
@@ -12,14 +12,12 @@ function get_first_name(string) {
   } else {
     return null;
   };
-
 }
 
 // Return a last name split on (white) space or commma
 function get_last_name(string) {
-
   // if there no space or comma then the whole string is the *last* name
-  if (string.includes(',') || string.includes(" ")) {
+  if (string.indexOf("," > 1) || string.indexOf(" " > 1)) {
     var delimiter;
     if(string.indexOf(",") > 1) {delimiter = ","}
     if(string.indexOf(", ") > 1) {delimiter = ", "}
