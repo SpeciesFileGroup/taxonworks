@@ -59,7 +59,7 @@ function initialize_autocomplete(form) {
     // add name to list
     
     // form.find(".role_list").append($('<li>').append(ui.item.value));
-    insert_existing_person(form, ui.item.object_id) 
+    insert_existing_person(form, ui.item.object_id, ui.item.label) 
 
     // clear search form
     clear_role_picker(form);
@@ -116,7 +116,7 @@ function bind_new_link(form) {
   });
 }
 
-function insert_existing_person(form, person_id) {
+function insert_existing_person(form, person_id, label) {
   var role_type = 'Source' + capitalize(form.data('role-type')) ;
   var random_index = new Date().getTime(); 
   var role_list = form.find(".role_list");
@@ -128,10 +128,7 @@ function insert_existing_person(form, person_id) {
 
   // insert visible list item
   role_list.append(   
-      $('<li>').append(
-        form.find('.name_label').text()
-        )
-      );
+      $('<li>').append( label ) );
 };
 
 function insert_new_person(form) {
