@@ -142,7 +142,7 @@ function insert_new_person(form) {
   var remove_link = $('<a href="#" class="remove_role">remove</a>');
 
   // type
-  role_list.append($('<li class="role_item" data-role-id="' + random_index + '" >')
+  role_list.append($('<li class="role_item" data-new-person="true" data-role-id="' + random_index + '" >')
   .append(form.find('.name_label').text() + '&nbsp;' )
   .append( $('<input hidden name="source[roles_attributes][' +  random_index + '][type]" value="' + role_type +  '" >') )
 
@@ -208,16 +208,19 @@ function bind_remove_links(links) {
     var role_id = list_item.data('role-id');
     if (role_id) {
       var role_list = list_item.closest('.role_list');
-      
-      // if there is an ID from an existing item add the necessary (hidden) _destroy input
-      role_list.append($('<input hidden name="source[roles_attributes][' +  role_id + '][id]" value="' + role_id + '" >') );
-      role_list.append($('<input hidden name="source[roles_attributes][' +  role_id + '][_destroy]" value="1" >') );
+     
+      // if this is not a new person 
+      if (!(list_item.data('new-person')) ) {
+        // if there is an ID from an existing item add the necessary (hidden) _destroy input
+        role_list.append($('<input hidden name="source[roles_attributes][' +  role_id + '][id]" value="' + role_id + '" >') );
+        role_list.append($('<input hidden name="source[roles_attributes][' +  role_id + '][_destroy]" value="1" >') );
 
-      // Provide a warning that the list must be saved to properly delete the records, tweak if we think necessary
-      role_list.siblings('.role_picker_header').addClass('subtle');
-      role_list.siblings('.role_picker_header').append(' (save required to update removals)');
+        // Provide a warning that the list must be saved to properly delete the records, tweak if we think necessary
+        role_list.siblings('.role_picker_header').addClass('subtle');
+        role_list.siblings('.role_picker_header').append(' (save required to update removals)');
+      }
     }
-    
+
     list_item.remove();
   });
 };
