@@ -1,15 +1,16 @@
 <%= content_for :do do -%>
     <ul class="no_bullets">
       <%= content_tag(:li, link_to('Add new asserted distribution by map',
-                                   new_asserted_distribution_task_path(asserted_distribution: {otu_id: @otu.to_param}), 'data-no-turbolink' => true)
+                                   new_asserted_distribution_task_path(asserted_distribution: {otu_id: @otu.to_param}),
+                                   'data-no-turbolink' => true)
           ) %>
     </ul>
 <% end %>
-
 <%= content_for :see do -%>
     <ul class="no_bullets">
-      <%= content_tag(:li, link_to('Distribution', otu_distribution_data_task_path, 'data-no-turbolink' => true)
-          ) %>
+      <%= content_tag(:li, link_to('Distribution',
+                                   otu_distribution_data_task_path,
+                                   'data-no-turbolink' => true)) %>
     </ul>
 <% end %>
 
