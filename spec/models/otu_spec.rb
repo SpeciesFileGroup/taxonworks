@@ -159,17 +159,24 @@ describe Otu, :type => :model do
     let(:otu1) { a_d1.otu }
     let(:otu2) { a_d2.otu }
     let(:box_1) { RSPEC_GEO_FACTORY.multi_polygon([RSPEC_GEO_FACTORY.polygon(LIST_T1)]) }
-    let(:box_2) { RSPEC_GEO_FACTORY.multi_polygon([RSPEC_GEO_FACTORY.polygon(LIST_T1)]) }
-    let(:box_3) { RSPEC_GEO_FACTORY.multi_polygon([RSPEC_GEO_FACTORY.polygon(LIST_T1)]) }
-    let(:box_4) { RSPEC_GEO_FACTORY.multi_polygon([RSPEC_GEO_FACTORY.polygon(LIST_T1)]) }
+    let(:box_2) { RSPEC_GEO_FACTORY.multi_polygon([RSPEC_GEO_FACTORY.polygon(LIST_T2)]) }
+    let(:box_3) { RSPEC_GEO_FACTORY.multi_polygon([RSPEC_GEO_FACTORY.polygon(LIST_T3)]) }
+    let(:box_4) { RSPEC_GEO_FACTORY.multi_polygon([RSPEC_GEO_FACTORY.polygon(LIST_T4)]) }
     let(:item_a) { FactoryGirl.create(:geographic_item_multi_polygon, multi_polygon: box_1) }
     let(:item_b) { FactoryGirl.create(:geographic_item_multi_polygon, multi_polygon: box_2) }
     let(:item_c) { FactoryGirl.create(:geographic_item_multi_polygon, multi_polygon: box_3) }
     let(:item_d) { FactoryGirl.create(:geographic_item_multi_polygon, multi_polygon: box_4) }
+    let(:area_a) { FactoryGirl.create(:valid_geographic_area, {name: 'Area_A'}) }
+    let(:area_b) { FactoryGirl.create(:valid_geographic_area, {name: 'Area_B'}) }
+    let(:area_c) { FactoryGirl.create(:valid_geographic_area, {name: 'Area_C'}) }
+    let(:area_d) { FactoryGirl.create(:valid_geographic_area, {name: 'Area_D'}) }
     let(:p0) { FactoryGirl.create(:geographic_item_point, point: POINT0.as_binary) }
-    let(:c_e1) { FactoryGirl.create(:valid_collecting_event, geographic_item: item_a) }
-    let(:c_e2) { FactoryGirl.create(:valid_collecting_event, geographic_item: item_b) }
-    let(:c_e3) { FactoryGirl.create(:valid_collecting_event, geographic_item: item_c) }
+    let(:c_e1) { FactoryGirl.create(:valid_collecting_event, {geographic_area: area_a,
+                                                              verbatim_label:  'c_e1'}) }
+    let(:c_e2) { FactoryGirl.create(:valid_collecting_event, {geographic_area: area_b,
+                                                              verbatim_label:  'c_e2'}) }
+    let(:c_e3) { FactoryGirl.create(:valid_collecting_event, {geographic_area: area_c,
+                                                              verbatim_label:  'c_e3'}) }
     let(:g_r1) { FactoryGirl.create(:georeference_verbatim_data,
                                     api_request:           'gr00_a',
                                     collecting_event:      c_e1,
@@ -190,9 +197,6 @@ describe Otu, :type => :model do
                                     collecting_event:      c_e1,
                                     error_geographic_item: item_d,
                                     geographic_item:       p0) }
-    let(:c_e1) { FactoryGirl.create(:valid_collecting_event) }
-    let(:c_e2) { FactoryGirl.create(:valid_collecting_event) }
-    let(:c_e3) { FactoryGirl.create(:valid_collecting_event) }
     let(:c_o1) { FactoryGirl.create(:valid_collection_object, {collecting_event: c_e1}) }
     let(:c_o2) { FactoryGirl.create(:valid_collection_object, {collecting_event: c_e2}) }
     let(:c_o3) { FactoryGirl.create(:valid_collection_object, {collecting_event: c_e3}) }
@@ -201,11 +205,18 @@ describe Otu, :type => :model do
     let(:t_d3) { FactoryGirl.create(:valid_taxon_determination, {otu: otu1, biological_collection_object: c_o3}) }
 
     before(:each) {
-      a_d1.geographic_area.geographic_items.push(item_a)
-      a_d3.otu = otu1
+      area_a.geographic_items.push(item_a)
+      area_b.geographic_items.push(item_b)
+      area_c.geographic_items.push(item_c)
+      area_d.geographic_items.push(item_d)
+      [area_a, area_b, area_c, area_d].map(&:save)
+      a_d1.geographic_area = area_a
+      a_d3.geographic_area = area_c
+      a_d3.otu             = otu1
       [a_d1, a_d2, a_d3,
        otu1, otu2,
        c_e1, c_e2, c_e3,
+       g_r1, g_r2, g_r3,
        c_o1, c_o2, c_o3,
        t_d1, t_d2, t_d3].map(&:save)
     }
@@ -213,9 +224,12 @@ describe Otu, :type => :model do
 
       specify 'the otu can find its asserted distribution' do
         a_ds1 = otu1.asserted_distributions
-        a_ds2 = otu2.asserted_distributions
         expect(a_ds1.count).to eq(2)
         expect(a_ds1).to contain_exactly(a_d1, a_d3)
+        expect(a_ds1.first.geographic_area.name).to eq('Area_A')
+        expect(a_ds1.last.geographic_area.name).to eq('Area_C')
+
+        a_ds2 = otu2.asserted_distributions
         expect(a_ds2.count).to eq(1)
         expect(a_ds2).to contain_exactly(a_d2)
       end
@@ -241,8 +255,29 @@ describe Otu, :type => :model do
       end
 
       specify 'the otu can produce some geo_JSON' do
-        pending 'proper declaration of result geoJSON'
-        expect(otu1.distribution_geoJSON).to eq('')
+        # pending 'proper declaration of result geoJSON'
+        geo_data = otu1.distribution_geoJSON
+        expect(geo_data['type']).to eq('Aggregation')
+        expect(geo_data['features'].count).to eq(3)
+        expect(geo_data['properties'].keys).to contain_exactly('distribution')
+        expect(geo_data['properties']['distribution']).to eq(geo_data['features'].count)
+
+        expect(geo_data['features'][0]['type']).to eq('FeatureCollection')
+        expect(geo_data['features'][0]['properties']).to eq({asserted_distributions: {'count' => 2}})
+        expect(geo_data['features'][0]['features'][0]['type']).to eq('Feature')
+        expect(geo_data['features'][0]['features'][0]['geometry']['type']).to eq('MultiPolygon')
+        expect(geo_data['features'][0]['features'][0]['geometry']['coordinates'][0][0][0]).to eq([-1, 1, 0])
+        expect(geo_data['features'][0]['features'][0]['geometry']['coordinates'][0][0][4]).to eq([-1, 1, 0])
+        expect(geo_data['features'][0]['features'][1]['geometry']['coordinates'][0][0][0]).to eq([-3, 3, 0])
+        expect(geo_data['features'][0]['features'][1]['geometry']['coordinates'][0][0][4]).to eq([-3, 3, 0])
+        expect(geo_data['features'][0]['features'][0]['properties']['geographic_area']).to eq({'id' => area_a.id})
+        expect(geo_data['features'][0]['features'][1]['properties']['geographic_area']).to eq({'id' => area_c.id})
+
+        expect(geo_data['features'][1]['type']).to eq('FeatureCollection')
+        expect(geo_data['features'][1]['properties']).to eq({collecting_events_georeferences: {'count' => 2}})
+
+        expect(geo_data['features'][2]['type']).to eq('FeatureCollection')
+        expect(geo_data['features'][2]['properties']).to eq({collecting_events_geographic_area: {'count' => 2}})
       end
     end
   end

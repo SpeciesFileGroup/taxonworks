@@ -582,6 +582,7 @@ TODO: @mjy: please fill in any other paths you can think of for the acquisition 
   #   the first geographic item of the first georeference on this collecting event
   def to_geo_json_feature
     # !! avoid loading the whole geographic item, just grab the bits we need:
+    # self.georeferences(true)  # do this to
     geo_item_id, t = self.geographic_items.pluck(:id, :type).first
     geo_type       = t.demodulize.tableize.singularize # geo_item.geo_object_type.to_s
     geometry       = JSON.parse(GeographicItem.connection.select_all("select ST_AsGeoJSON(#{geo_type}::geometry) geo_json from geographic_items where id=#{geo_item_id};")[0]['geo_json'])
