@@ -218,8 +218,8 @@ function bind_remove_links(links) {
         role_list.append($('<input hidden name="source[roles_attributes][' +  role_index + '][_destroy]" value="1" >') );
 
         // Provide a warning that the list must be saved to properly delete the records, tweak if we think necessary
-        role_list.siblings('.role_picker_header').addClass('subtle');
-        role_list.siblings('.role_picker_header').append(' (save required to update removals)');
+        role_list.siblings('.role_picker_message').addClass('warning');
+        role_list.siblings('.role_picker_message').html('Update required to confirm removals.');
       }
     }
 

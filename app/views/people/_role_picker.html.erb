@@ -4,6 +4,8 @@
 
     <h2 class="role_picker_header"><%= role.to_s.pluralize.capitalize %> <span class='role_picker_alert' hidden></span> </h2>
 
+    <span class="role_picker_message"> </span>
+
     <ul class="role_list">
       <% if object.respond_to?("#{role}_roles") -%>
         <%= f.fields_for :roles, object.send("#{role}_roles") do |role_fields| %>
