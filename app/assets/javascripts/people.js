@@ -94,18 +94,11 @@ function initialize_autocomplete(form) {
 //
 
 function bind_new_link(form) {
-  // Add a role to the list via the custom add new box
+  // Add a role to the list via the add new form 
   form.find(".role_picker_add_new").click(function () {
-
     insert_new_person(form);
-   
-    // hide the form field
-    // TODO: !! fails after first expand?
-    form.find('.new_person').attr("hidden", true);
-
-    // unset autocomplete input box
-    // clear_role_picker(this);
-    clear_role_picker(form); 
+    form.find('.new_person').attr("hidden", true); // hide the form fields
+    clear_role_picker(form); // clear autocomplete input box
   });
 }
 
@@ -119,13 +112,8 @@ function insert_existing_person(form, person_id, label) {
   role_list.append( $('<input hidden name="source[roles_attributes][' +  random_index + '][type]" value="' + role_type +  '" >') );
   role_list.append( $('<input hidden name="source[roles_attributes][' +  random_index + '][person_id]" value="' + person_id +  '" >') );
 
-  // TODO: update remove link generation to be the same for both pages
-  var remove_link = $('<a href="#" class="remove_role">remove</a>');
-
   // insert visible list item
-  role_list.append( $('<li class="role_item" data-role-index="' + random_index + '">').append( label).append('&nbsp;').append(remove_link) );
-
-  bind_remove_links(remove_link);
+  role_list.append( $('<li class="role_item" data-role-index="' + random_index + '">').append( label).append('&nbsp;').append(remove_link()) );
 };
 
 function insert_new_person(form) {
@@ -133,8 +121,6 @@ function insert_new_person(form) {
   var random_index = new Date().getTime(); 
   var role_list = form.find(".role_list");
   var person_base = 'source[roles_attributes][' + random_index + '][person_attributes]'; 
-
-  var remove_link = $('<a href="#" class="remove_role">remove</a>');
 
   // type
   role_list.append($('<li class="role_item" data-new-person="true" data-role-index="' + random_index + '" >')
@@ -146,12 +132,16 @@ function insert_new_person(form) {
   .append( $('<input hidden name="' + person_base + '[first_name]" value="' + form.find(".first_name").val() + '" >') )
   .append( $('<input hidden name="' + person_base + '[suffix]" value="' + form.find(".suffix").val() + '" >') )
   .append( $('<input hidden name="' + person_base + '[prefix]" value="' + form.find(".prefix").val() + '" >') )
-  .append(remove_link)
+  .append(remove_link())
   );
 
-  bind_remove_links(remove_link);
 };
 
+function remove_link() {
+  var link = $('<a href="#" class="remove_role">remove</a>');
+  bind_remove_links(link);
+  return link;
+}
 
 function bind_switch_link(form) {
   // click switches the values in the first & last names
