@@ -3,7 +3,9 @@
     <%= render 'shared/errors', object: @source %>
 
     <%= render partial: '/people/role_picker', locals: {role: :author, object: @source, f: f} %>
-    
+
+    <%= render partial: '/people/role_picker', locals: {role: :editor, object: @source, f: f} %>
+
     <div class="field" id="source_edit_type">
       <%= f.label :type %><br>
       BibTeX <%= f.radio_button :type, 'Source::Bibtex' %>
