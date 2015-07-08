@@ -18,11 +18,11 @@
     </ul>
 
     <div>
-      
+      <%= content_tag :div, '', class: 'person_details left_float' -%>
+
       <div> 
         <%= text_field_tag "#{role}_autocomplete", nil, class: 'role_picker_autocomplete left_float' %>
       </div>
-      <%= content_tag :div, '', class: 'person_details right_float' -%>
     </div>
 
   </div>

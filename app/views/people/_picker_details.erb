@@ -1,8 +1,15 @@
 
-<div class="muted_blue" >
+<div class="muted_blue one_quarter_width" >
   <h3> Details </h3>
   <%= @person.name -%> <br/> 
-  <%= @person.type -%>
-  etc ... 
+  <%= @person.type.demodulize -%> <br>
+  <% @person.roles.group_by{|a| a.class.human_name}.each do |group, roles| %>
+      <strong><%= group -%>:</strong> <br>
+      <% roles.each do |role| -%>
+          <%= object_tag(role.role_object) -%> <br>
+          <%#= object_link(role.role_object) -%>
+      <% end %>
+  <% end %>
+  etc ...
 </div>
 
