@@ -592,9 +592,9 @@ TODO: @mjy: please fill in any other paths you can think of for the acquisition 
       'geometry'   => geometry,
       'properties' => {
         'collecting_event' => {
-          'id' => self.id},
-        'tag' => (geo_area_id.nil? ? 'NoName' : "#{GeographicArea.find(geo_area_id['geographic_area_id']).name}")
-      }
+          'id'  => self.id,
+          'tag' => (geo_area_id.nil? ? 'NoName' : "#{GeographicArea.find(geo_area_id['geographic_area_id']).name}")
+        }}
     }
     retval
   end
