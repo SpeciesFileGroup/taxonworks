@@ -15,14 +15,14 @@ initializeComplexMap = function (canvas, feature_collection) {
 
   var map = initialize_complex_map(canvas, myOptions);
   var data = feature_collection;
-  var this_style = {
-    icon: '/assets/mapicons/mm_20_gray.png',
-    fillColor: '#FF0000',
-    strokeOpacity: 0.5,
-    strokeColor: "black",
-    strokeWeight: 1,
-    fillOpacity: 0.2
-  }
+  //var this_style = {
+  //  icon: '/assets/mapicons/mm_20_gray.png',
+  //  fillColor: '#FF0000',
+  //  strokeOpacity: 0.5,
+  //  strokeColor: "black",
+  //  strokeWeight: 1,
+  //  fillOpacity: 0.2
+  //}
   //map.data.setStyle({
   //  icon: '/assets/mapicons/mm_20_gray.png',
   //  fillColor: '#FF0000',
@@ -37,7 +37,7 @@ initializeComplexMap = function (canvas, feature_collection) {
   //   strokeWeight: 1,
   //   fillOpacity: 0.3*/
   //});
-  var this_style;
+  var this_style = {};
   if (data != undefined) {
     var chained = JSON.parse('{"type":"FeatureCollection","features":[]}'); // container for the distribution
     if ((data["type"] = "Aggregation") && data.features[0].type == "FeatureCollection") {    //test for (currently) outer wrapper with property distribution
@@ -51,24 +51,26 @@ initializeComplexMap = function (canvas, feature_collection) {
             var this_property_key = Object.keys(featureCollection[i].properties);
             if (this_property_key == "asserted_distributions" && document.getElementById('check_dist').checked) {
               prefix = 'ad_';
-              this_style.fillColor = '#440000';
+              this_style.fillColor = '#880000';
               //this_style = '{ "icon": "/assets/mapicons/mm_20_gray.png", "fill": #440000, "stroke_opacity": 0.5, "stroke_width": 1, "fill_opacity": 0.2 }';
             push_this = true;
             }
             if (this_property_key == "collecting_events_georeferences" && document.getElementById('check_c_o').checked) {
               prefix = 'co_';
-              this_style.fillColor = '#004400';
+              this_style.fillColor = '#008800';
               //this_style = '{ "icon": "/assets/mapicons/mm_20_gray.png", "fill": #004400, "stroke_opacity": 0.5, "stroke_width": 1, "fill_opacity": 0.2 }';
               push_this = true;
             }
             if (this_property_key == "collecting_events_geographic_area" && document.getElementById('check_c_e').checked) {
               prefix = 'ce_';
-              this_style.fillColor = '#000044';
+              this_style.fillColor = '#000088';
               //this_style = '{ "icon": "/assets/mapicons/mm_20_gray.png", "fill": #000044, "stroke_opacity": 0.5, "stroke_width": 1, "fill_opacity": 0.2 }';
               push_this = true;
             }
-            this_feature.id = prefix + this_feature.id.toString();
+            this_feature_id = this_feature.id.toString().split('_',2);   //isolate non-auto-generated part
+            this_feature.id = prefix + this_feature_id;
             this_feature.properties[this_property_key] = this_property_key.toString();
+            this_feature.properties["fillColor"] = this_style.fillColor;
             //map.data.addGeoJson(this_feature);
 
             //this_feature.style = this_style;
@@ -88,30 +90,48 @@ initializeComplexMap = function (canvas, feature_collection) {
     this_property = this_feature.getProperty('asserted_distributions');
     if(this_property != undefined) {
       if (document.getElementById('check_dist').checked) {
-        map.data.overrideStyle(this_feature, {fillColor: '#880000'});     //  red
-        map.data.overrideStyle(this_feature, {strokeWeight: 1.0});       // lightborders
-        map.data.overrideStyle(this_feature, {fillOpacity: 0.3});       // semi-transparent
-        map.data.overrideStyle(this_feature, {icon: '/assets/mapicons/mm_20_gray.png'});
+        this_style.fillColor = '#880000';     //  red
       }
     }
     this_property = this_feature.getProperty('collecting_events_georeferences');
     if(this_property != undefined) {
       if (document.getElementById('check_c_o').checked) {
-        map.data.overrideStyle(this_feature, {fillColor: '#008800'});     //  green
-        map.data.overrideStyle(this_feature, {strokeWeight: 1.0});       // lightborders
-        map.data.overrideStyle(this_feature, {fillOpacity: 0.3});       // semi-transparent
-        map.data.overrideStyle(this_feature, {icon: '/assets/mapicons/mm_20_gray.png'});
+        this_style.fillColor = '#008800'     //  green
       }
     }
     this_property = this_feature.getProperty('collecting_events_geographic_area');
     if(this_property != undefined) {
       if (document.getElementById('check_c_e').checked) {
-        map.data.overrideStyle(this_feature, {fillColor: '#000088'});     //  blue
-        map.data.overrideStyle(this_feature, {strokeWeight: 1.0});       // lightborders
-        map.data.overrideStyle(this_feature, {fillOpacity: 0.3});       // semi-transparent
-        map.data.overrideStyle(this_feature, {icon: '/assets/mapicons/mm_20_gray.png'});
+        this_style.fillColor = '#000088'     //  blue
       }
     }
+    map.data.overrideStyle(this_feature, {fillColor: this_feature.getProperty("fillColor")});     //  whichever color
+    map.data.overrideStyle(this_feature, {strokeWeight: 1});       // lightborders
+    map.data.overrideStyle(this_feature, {fillOpacity: 0.3});       // semi-transparent
+    map.data.overrideStyle(this_feature, {icon: '/assets/mapicons/mm_20_gray.png'});
+
+    map.data.addListener('mouseover', function(event) {     // interim color shift on mousover paradigm changed to opacity
+      //map.data.revertStyle(event.feature);
+      //var fill_Color = event.feature.getProperty('fillColor')
+      //fill_Color = parseInt('0X' + this_style.fillColor.slice(1,7))*1.5;
+      //fill_Color = '#' + fill_Color.toString(16);
+      //if(fill_Color == '#880000') {fill_Color = '#FF0000'}   // give up on computed bightener
+      //if(fill_Color == '#008800') {fill_Color = '#00FF00'}
+      //if(fill_Color == '#000088') {fill_Color = '#0000FF'}
+      //map.data.overrideStyle(event.feature, {fillColor: fill_Color});  // brighter
+      map.data.overrideStyle(event.feature, {fillOpacity: 0.7});  // bolder
+      //map.data.overrideStyle(event.feature, {strokeWeight: 2});       //embolden borders
+      if(event.feature.getProperty('geographic_area') != undefined) {
+        $("#displayed_distribution_style").html(event.feature.getProperty('geographic_area').tag);
+      }
+    });
+
+    map.data.addListener('mouseout', function(event) {
+      //map.data.revertStyle(event.feature);
+      //map.data.overrideStyle(event.feature, {fillColor: event.feature.getProperty('fillColor')});   //get original color
+      map.data.overrideStyle(event.feature, {fillOpacity: 0.3});  // dimmer
+      $("#displayed_distribution_style").html('');
+    });
   });
 // bounds for calculating center point
   var bounds = {};    //xminp: xmaxp: xminm: xmaxm: ymin: ymax: -90.0, center_long: center_lat: gzoom:
