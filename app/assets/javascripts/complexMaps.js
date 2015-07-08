@@ -67,7 +67,14 @@ initializeComplexMap = function (canvas, feature_collection) {
               //this_style = '{ "icon": "/assets/mapicons/mm_20_gray.png", "fill": #000044, "stroke_opacity": 0.5, "stroke_width": 1, "fill_opacity": 0.2 }';
               push_this = true;
             }
-            this_feature_id = this_feature.id.toString().split('_',2);   //isolate non-auto-generated part
+            var index = this_feature.id.toString().indexOf(prefix);
+            if(index >= 0) {
+              this_feature_id = /*prefix +*/ this_feature.id.toString().slice(index + 3);   //isolate non-auto-generated part
+            }
+            else {
+              this_feature_id = /*prefix +*/ this_feature.id.toString();
+            }
+
             this_feature.id = prefix + this_feature_id;
             this_feature.properties[this_property_key] = this_property_key.toString();
             this_feature.properties["fillColor"] = this_style.fillColor;
