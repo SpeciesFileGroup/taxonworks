@@ -124,6 +124,9 @@ initializeComplexMap = function (canvas, feature_collection) {
       if(event.feature.getProperty('geographic_area') != undefined) {
         $("#displayed_distribution_style").html(event.feature.getProperty('geographic_area').tag);
       }
+      if(event.feature.getProperty('collecting_event') != undefined) {
+        $("#displayed_distribution_style").html(event.feature.getProperty('collecting_event').tag);
+      }
     });
 
     map.data.addListener('mouseout', function(event) {
