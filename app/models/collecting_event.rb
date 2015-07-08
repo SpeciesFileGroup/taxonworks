@@ -586,12 +586,14 @@ TODO: @mjy: please fill in any other paths you can think of for the acquisition 
     geo_item_id, t = self.geographic_items.pluck(:id, :type).first
     geo_type       = t.demodulize.tableize.singularize # geo_item.geo_object_type.to_s
     geometry       = JSON.parse(GeographicItem.connection.select_all("select ST_AsGeoJSON(#{geo_type}::geometry) geo_json from geographic_items where id=#{geo_item_id};")[0]['geo_json'])
+    geo_area_id = GeographicAreasGeographicItem.connection.select_all("select geographic_area_id from geographic_areas_geographic_items where geographic_item_id=#{geo_item_id}; ").first
     retval         = {
       'type'       => 'Feature',
       'geometry'   => geometry,
       'properties' => {
         'collecting_event' => {
-          'id' => self.id}
+          'id' => self.id},
+        'tag' => (geo_area_id.nil? ?  'NoName' : "#{GeographicArea.find(geo_area_id['geographic_area_id']).name}")
       }
     }
     retval

@@ -289,7 +289,8 @@ class GeographicArea < ActiveRecord::Base
       'geometry'   => self.geographic_items.order(:id).first.to_geo_json,
       'properties' => {
         'geographic_area' => {
-          'id' => self.id}
+          'id' => self.id},
+        'tag' => self.name
       }
     }
     retval

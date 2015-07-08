@@ -160,15 +160,10 @@ class Otu < ActiveRecord::Base
   end
 
   def distribution_geoJSON
-    retval = Gis::GeoJSON.aggregation(
-      [
-        Gis::GeoJSON.feature_collection(geographic_areas_from_asserted_distributions, :asserted_distributions),
-        Gis::GeoJSON.feature_collection(collecting_events, :collecting_events_georeferences),
-        Gis::GeoJSON.feature_collection(geographic_areas_from_collecting_events, :collecting_events_geographic_area)
-      ],
-      :distribution
-    )
-
+    a_ds   = Gis::GeoJSON.feature_collection(geographic_areas_from_asserted_distributions, :asserted_distributions)
+    c_os   = Gis::GeoJSON.feature_collection(collecting_events, :collecting_events_georeferences)
+    c_es   = Gis::GeoJSON.feature_collection(geographic_areas_from_collecting_events, :collecting_events_geographic_area)
+    retval = Gis::GeoJSON.aggregation([a_ds, c_os, c_es], :distribution)
     retval
   end
 
