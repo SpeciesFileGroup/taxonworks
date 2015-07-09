@@ -583,20 +583,29 @@ TODO: @mjy: please fill in any other paths you can think of for the acquisition 
   def to_geo_json_feature
     # !! avoid loading the whole geographic item, just grab the bits we need:
     # self.georeferences(true)  # do this to
-    geo_item_id, t = self.geographic_items.pluck(:id, :type).first
-    geo_type       = t.demodulize.tableize.singularize # geo_item.geo_object_type.to_s
-    geometry       = JSON.parse(GeographicItem.connection.select_all("select ST_AsGeoJSON(#{geo_type}::geometry) geo_json from geographic_items where id=#{geo_item_id};")[0]['geo_json'])
-    geo_area_id    = GeographicAreasGeographicItem.connection.select_all("select geographic_area_id from geographic_areas_geographic_items where geographic_item_id=#{geo_item_id}; ").first
-    retval         = {
-      'type'       => 'Feature',
-      'geometry'   => geometry,
+    to_simple_json_feature.merge( {
       'properties' => {
         'collecting_event' => {
           'id'  => self.id,
-          'tag' => (geo_area_id.nil? ? 'NoName' : "#{GeographicArea.find(geo_area_id['geographic_area_id']).name}")
-        }}
+          'tag' => "Collecting event #{self.id}." 
+        }
+      }
+    })
+  end
+
+  # TODO: parametrize to include gazeteer 
+  #   i.e. geographic_areas_geogrpahic_items.where( gaz = 'some string')
+  def to_simple_json_feature
+   # !! avoid loading the whole geographic item, just grab the bits we need:
+    geo_item_id, t = self.geographic_items.pluck(:id, :type).first
+    geo_type       = t.demodulize.tableize.singularize # geo_item.geo_object_type.to_s
+    geometry       = JSON.parse(GeographicItem.connection.select_all("select ST_AsGeoJSON(#{geo_type}::geometry) geo_json from geographic_items where id=#{geo_item_id};")[0]['geo_json'])
+  
+    { 
+      'type'       => 'Feature', 
+      'geometry'   => geometry,
+      'properties' => { }                                                       
     }
-    retval
   end
 
   # @return [CollectingEvent]
@@ -735,6 +744,7 @@ TODO: @mjy: please fill in any other paths you can think of for the acquisition 
       end
     end
   end
+
 
   protected
 

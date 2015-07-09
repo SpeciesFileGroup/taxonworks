@@ -18,7 +18,7 @@ initializeComplexMap = function (canvas, feature_collection) {
   var this_style = {};
   if (data != undefined) {
     var chained = JSON.parse('{"type":"FeatureCollection","features":[]}'); // container for the distribution
-    if ((data["type"] = "Aggregation") && data.features[0].type == "FeatureCollection") {    //test for (currently) outer wrapper with property distribution
+    if ((data["type"] == "Aggregation") && data.features[0].type == "FeatureCollection") {    //test for (currently) outer wrapper with property distribution
       if (data.features.length > 0) {
         var featureCollection = data.features;
         for (var i = 0; i < featureCollection.length; i++) {
@@ -66,7 +66,11 @@ initializeComplexMap = function (canvas, feature_collection) {
         }
       }
     }
+      else {
+        chained = feature_collection;
+      }
     ;  // put data on the map if present
+   
     map.data.addGeoJson(chained)
   }
   map.data.forEach(function(feature) {        // traverse map data for features

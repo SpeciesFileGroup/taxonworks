@@ -164,7 +164,7 @@ describe Gis::GeoJSON, group: :geo, type: :model do
                             'features' => [{'type'       => 'Feature',
                                             'geometry'   => {'type'        => 'Point',
                                                              'coordinates' => [36.5, 27.5, 0]},
-                                            'properties' => {'collecting_event' => {'id' => object.id, 'tag' => 'NoName'}},
+                                            'properties' => {'collecting_event' => {'id' => object.id, 'tag' => "Collecting event #{@ce_p1.id}."}},
                                             'id'         => feature_index.to_i}]})
       end
     end
@@ -301,7 +301,7 @@ describe Gis::GeoJSON, group: :geo, type: :model do
                                           'geometry'   => {'type'        => 'Point',
                                                            'coordinates' => [34.5, 25.5, 0]},
                                           'properties' => {'collecting_event' => {'id' => objects[0].id,
-                                                                                  'tag' => 'NoName'}},
+                                                                                  'tag' => "Collecting event #{@ce_old_boxia_2}."}},
                                           'id'         => (feature_index.to_i + 0)},
                                          {'type'       => 'Feature',
                                           'geometry'   => {'type'        => 'MultiPolygon',

@@ -296,7 +296,10 @@ TaxonWorks::Application.routes.draw do
 
     scope :gis, controller: 'tasks/gis/otu_distribution_data' do
       get 'otu_distribution_data/:id', action: 'show', as: 'otu_distribution_data_task'
-      get 'otu_distribution_data', action: 'show', as: 'first_otu_distribution_data_task'
+      
+      get 'otu_distribution_data/:id/show2', action: 'show2', as: 'otu_distribution_data_task2'
+
+     # get 'otu_distribution_data', action: 'show', as: 'first_otu_distribution_data_task'
     end
 
     scope :serials, controller: 'tasks/serials/similar' do

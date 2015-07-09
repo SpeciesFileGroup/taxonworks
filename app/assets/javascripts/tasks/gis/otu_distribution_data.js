@@ -6,11 +6,16 @@ _init_otu_distribution_data_widget = function init_otu_distribution_data() {
       var newfcdata = $("#_displayed_distribution_form");
       var fcdata = newfcdata.data('feature-collection');
       var map_canvas = newfcdata.data('map-canvas');
+
+
+
       var otu_map = initializeComplexMap(map_canvas, fcdata);
       //add_map_listeners();
       $('input[type="checkbox"]').change(function () {
         initializeComplexMap(map_canvas, newfcdata.data('feature-collection'));
       });
+
+
     }
   }
 };
