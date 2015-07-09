@@ -73,30 +73,30 @@ initializeComplexMap = function (canvas, feature_collection) {
   }
   ;  // put data on the map if present
    
-    map.data.addGeoJson(chained);
   //}  // put data on the map if present
   map.data.forEach(function(feature) {        // traverse map data for features
 
     this_feature = feature;
-    this_property = this_feature.getProperty('asserted_distributions');
-    if(this_property != undefined) {
+    this_property = this_feature.getProperty('source_type');
+    if(this_property == 'asserted_distribution') {
       if (document.getElementById('check_dist').checked) {
         this_style.fillColor = '#880000';     //  red
       }
     }
-    this_property = this_feature.getProperty('collecting_events_georeferences');
-    if(this_property != undefined) {
+    //this_property = this_feature.getProperty('collecting_events_georeferences');
+    if(this_property == 'collecting_events_georeferences') {
       if (document.getElementById('check_c_o').checked) {
         this_style.fillColor = '#008800';     //  green
       }
     }
-    this_property = this_feature.getProperty('collecting_events_geographic_area');
-    if(this_property != undefined) {
+    //this_property = this_feature.getProperty('collecting_events_geographic_area');
+    if(this_property == 'collecting_events_geographic_area') {
       if (document.getElementById('check_c_e').checked) {
         this_style.fillColor = '#000088';     //  blue
       }
     }
-    map.data.overrideStyle(this_feature, {fillColor: this_feature.getProperty("fillColor")});     //  whichever color
+    //map.data.overrideStyle(this_feature, {fillColor: this_feature.getProperty("fillColor")});     //  whichever color
+    map.data.overrideStyle(this_feature, {fillColor: this_style.fillColor});     //  whichever color
     map.data.overrideStyle(this_feature, {strokeWeight: 1});       // lightborders
     map.data.overrideStyle(this_feature, {fillOpacity: 0.3});       // semi-transparent
     map.data.overrideStyle(this_feature, {icon: '/assets/mapicons/mm_20_gray.png'});
