@@ -98,6 +98,7 @@ class TaxonName < ActiveRecord::Base
 
   include Housekeeping
   include Shared::DataAttributes
+  include Shared::Taggable
   include Shared::Identifiable
   include Shared::Notable
   include Shared::IsData

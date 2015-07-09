@@ -30,7 +30,8 @@ module Utilities::Strings
 
   def self.generate_md5(text)
     return nil if text.blank?
-    Digest::MD5.hexdigest(text.gsub(/\s*/, '').downcase)
+    text = text.downcase.gsub(/[\s\.,;:\?!]*/, '')
+    Digest::MD5.hexdigest(text)
   end
 
   def self.increment_contained_integer(string)

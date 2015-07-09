@@ -1,12 +1,15 @@
 module Shared::Taggable
+
   extend ActiveSupport::Concern
 
   included do
-    has_many :tags, as: :tag_object, validate: false, dependent: :destroy
+    has_many :tags, as: :tag_object, validate: true, dependent: :destroy
     has_many :keywords, through: :tags 
 
     scope :with_tags, -> { joins(:tags) }
     scope :without_tags, -> { includes(:tags).where(tags: {id: nil}) }
+
+    accepts_nested_attributes_for :tags
   end 
 
   def has_tags?

@@ -19,10 +19,6 @@ describe Tag, type: :model, group: :annotators do
       tag.valid?
     end
 
-    specify 'a tag object is required' do 
-      expect(tag.errors.include?(:tag_object)).to be_truthy
-    end
-
     specify 'a keyword is required' do
       expect(tag.errors.include?(:keyword)).to be_truthy
     end

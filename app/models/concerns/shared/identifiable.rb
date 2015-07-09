@@ -1,4 +1,5 @@
 module Shared::Identifiable
+
   extend ActiveSupport::Concern
   included do
     # Validation happens on the parent side!
