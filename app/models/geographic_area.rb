@@ -284,16 +284,24 @@ class GeographicArea < ActiveRecord::Base
     # geo_id = self.geographic_items.order(:id).pluck(:id).first
     # geometry = JSON.parse(GeographicItem.connection.select_all("select ST_AsGeoJSON(multi_polygon::geometry) geo_json from geographic_items where id=#{geo_id};")[0]['geo_json'])
     # end
-    retval = {
-      'type'       => 'Feature',
-      'geometry'   => self.geographic_items.order(:id).first.to_geo_json,
+    to_simple_json_feature.merge(
       'properties' => {
         'geographic_area' => {
           'id'  => self.id,
           'tag' => self.name
-        }}
+        }
+      }
+    )
+  end
+
+  # TODO: parametrize to include gazeteer 
+  #   i.e. geographic_areas_geogrpahic_items.where( gaz = 'some string')
+  def to_simple_json_feature
+    { 
+      'type'       => 'Feature',
+      'geometry'   => self.geographic_items.order(:id).first.to_geo_json,
+      'properties' => { }                                                       
     }
-    retval
   end
 
   # Find a centroid by scaling this object tree up to the first antecedent which provides a geographic_item, and
