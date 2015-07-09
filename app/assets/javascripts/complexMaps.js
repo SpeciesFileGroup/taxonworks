@@ -65,14 +65,16 @@ initializeComplexMap = function (canvas, feature_collection) {
           }
         }
       }
+    }   // if aggregation or
+    else {
+      chained = feature_collection;
     }
-      else {
-        chained = feature_collection;
-      }
-    ;  // put data on the map if present
-   
-    map.data.addGeoJson(chained)
+    map.data.addGeoJson(chained);
   }
+  ;  // put data on the map if present
+   
+    map.data.addGeoJson(chained);
+  //}  // put data on the map if present
   map.data.forEach(function(feature) {        // traverse map data for features
 
     this_feature = feature;
@@ -85,13 +87,13 @@ initializeComplexMap = function (canvas, feature_collection) {
     this_property = this_feature.getProperty('collecting_events_georeferences');
     if(this_property != undefined) {
       if (document.getElementById('check_c_o').checked) {
-        this_style.fillColor = '#008800'     //  green
+        this_style.fillColor = '#008800';     //  green
       }
     }
     this_property = this_feature.getProperty('collecting_events_geographic_area');
     if(this_property != undefined) {
       if (document.getElementById('check_c_e').checked) {
-        this_style.fillColor = '#000088'     //  blue
+        this_style.fillColor = '#000088';     //  blue
       }
     }
     map.data.overrideStyle(this_feature, {fillColor: this_feature.getProperty("fillColor")});     //  whichever color
