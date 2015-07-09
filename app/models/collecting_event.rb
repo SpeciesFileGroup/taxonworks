@@ -98,18 +98,15 @@ class CollectingEvent < ActiveRecord::Base
 
   accepts_nested_attributes_for :verbatim_data_georeference
 
-  validate :check_verbatim_geolocation_uncertainty,
-    :check_date_range,
-    :check_elevation_range
-
-  # TODO: write specs, this is failing when GeographicArea is set.
-  # before_save :set_cached
+  before_validation :check_verbatim_geolocation_uncertainty,
+                    :check_date_range,
+                    :check_elevation_range
+  before_save :set_cached
   before_save :set_times_to_nil_if_form_provided_blank
 
   validates_uniqueness_of :md5_of_verbatim_label, scope: [:project_id], unless: 'verbatim_label.blank?'
   validates_presence_of :verbatim_longitude, if: '!verbatim_latitude.blank?'
   validates_presence_of :verbatim_latitude, if: '!verbatim_longitude.blank?'
-  
   validates :geographic_area, presence: true, allow_nil: true
 
   validates :time_start_hour,
@@ -586,29 +583,20 @@ TODO: @mjy: please fill in any other paths you can think of for the acquisition 
   def to_geo_json_feature
     # !! avoid loading the whole geographic item, just grab the bits we need:
     # self.georeferences(true)  # do this to
-    to_simple_json_feature.merge( {
-      'properties' => {
-        'collecting_event' => {
-          'id'  => self.id,
-          'tag' => "Collecting event #{self.id}." 
-        }
-      }
-    })
-  end
-
-  # TODO: parametrize to include gazeteer 
-  #   i.e. geographic_areas_geogrpahic_items.where( gaz = 'some string')
-  def to_simple_json_feature
-   # !! avoid loading the whole geographic item, just grab the bits we need:
     geo_item_id, t = self.geographic_items.pluck(:id, :type).first
     geo_type       = t.demodulize.tableize.singularize # geo_item.geo_object_type.to_s
     geometry       = JSON.parse(GeographicItem.connection.select_all("select ST_AsGeoJSON(#{geo_type}::geometry) geo_json from geographic_items where id=#{geo_item_id};")[0]['geo_json'])
-  
-    { 
-      'type'       => 'Feature', 
+    geo_area_id    = GeographicAreasGeographicItem.connection.select_all("select geographic_area_id from geographic_areas_geographic_items where geographic_item_id=#{geo_item_id}; ").first
+    retval         = {
+      'type'       => 'Feature',
       'geometry'   => geometry,
-      'properties' => { }                                                       
+      'properties' => {
+        'collecting_event' => {
+          'id'  => self.id,
+          'tag' => (geo_area_id.nil? ? 'NoName' : "#{GeographicArea.find(geo_area_id['geographic_area_id']).name}")
+        }}
     }
+    retval
   end
 
   # @return [CollectingEvent]
@@ -748,16 +736,17 @@ TODO: @mjy: please fill in any other paths you can think of for the acquisition 
     end
   end
 
-
   protected
 
   def set_cached
     string = nil
+
     if verbatim_label.blank?
       string = [country_name, state_name, county_name, "\n", verbatim_locality, start_date, end_date, "\n", verbatim_collectors].compact.join
     else
       string = [verbatim_label, print_label, document_label].compact.first
     end
+
     string      = "[#{self.id.to_param}]" if string.strip.length == 0
     self.cached = string
   end

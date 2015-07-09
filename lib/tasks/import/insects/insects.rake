@@ -149,14 +149,14 @@ namespace :tw do
         handle_controlled_vocabulary(@data, @import)
         handle_preparation_types(@data, @import)
         handle_people(@data, @import)
-        handle_taxa(@data, @import)
+        #####handle_taxa(@data, @import)
 
         # !! The following can not be loaded from the database they are always created anew.
 
         build_localities_index(@data)
 
         puts "Indexing collecting events."
-        index_collecting_events_from_accessions_new(@data, @import)
+        ######index_collecting_events_from_accessions_new(@data, @import)
         index_collecting_events_from_ledgers(@data, @import)
         index_specimen_records_from_specimens(@data, @import)
 
@@ -474,7 +474,7 @@ namespace :tw do
 
           user_name = p['LastName'] + ', ' + p['FirstName']
 
-          existing_user = User.where(email: email)
+          existing_user = User.where(email: email.downcase)
 
           if existing_user.empty?
             user = User.create(email: email, password: '3242341aas', password_confirmation: '3242341aas', name: user_name,
@@ -484,6 +484,9 @@ namespace :tw do
 #                   data_attributes_attributes: [ {value: p['PeopleID'], import_predicate: data.keywords['PeopleID'].name, controlled_vocabulary_term_id: data.keywords['PeopleID'].id, type: 'ImportAttribute'} ],
 
             #user.tags.create(keyword: data.keywords['INHS_imported'])
+            unless user.valid?
+              byebug
+            end
           else
             user = existing_user.first
           end
@@ -604,7 +607,7 @@ namespace :tw do
         updated_by = find_or_create_collection_user(ce['ModifiedBy'], data)
 
         c = CollectingEvent.new(
-            geographic_area_id: geographic_area,
+            geographic_area: geographic_area,
             verbatim_label: ce['LocalityLabel'],
             verbatim_locality: locality,
             verbatim_collectors: ce['Collector'],
@@ -1090,6 +1093,9 @@ namespace :tw do
           tmp_ce.delete('LedgersCounty') if !tmp_ce['LedgersCounty'].nil? && tmp_ce['LedgersCounty'] == tmp_ce['County']
           tmp_ce.delete('LedgersLocality') if !tmp_ce['LedgersLocality'].nil? && tmp_ce['LedgersLocality'] == tmp_ce['Locality']
 
+          if i == 185
+            #byebug
+          end
           find_or_create_collecting_event(tmp_ce, data)
         end
 
@@ -1311,8 +1317,8 @@ namespace :tw do
           objects.push(o)
         end
 
-        add_identifiers(objects, row)
-        add_determinations(objects, row)
+        #add_identifiers(objects, row)
+        #add_determinations(objects, row)
         add_collecting_event(objects, row)
 
         objects

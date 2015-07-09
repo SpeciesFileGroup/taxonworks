@@ -260,8 +260,9 @@ class GeographicArea < ActiveRecord::Base
       WHEN 'gadm' THEN 3
       ELSE 4
       END, id"
-    ).first.geographic_item
-    retval
+    )
+    return nil if retval.empty?
+    retval.first.geographic_item
   end
 
   # # @return [GeoJSON] of the default GeographicItem
