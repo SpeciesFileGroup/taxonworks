@@ -1,15 +1,17 @@
-
-<div class="muted_blue one_quarter_width" >
+<div class="muted_blue one_third_width" style="padding-left:15em;">
   <h3> Details </h3>
-  <%= @person.name -%> <br/> 
-  <%= @person.type.demodulize -%> <br>
-  <% @person.roles.group_by{|a| a.class.human_name}.each do |group, roles| %>
-      <strong><%= group -%>:</strong> <br>
-      <% roles.each do |role| -%>
-          <%= object_tag(role.role_object) -%> <br>
-          <%#= object_link(role.role_object) -%>
-      <% end %>
+    <%= @person.name -%> <br>
+    <%= @person.type.demodulize -%> <br>
+    <% @person.roles.group_by { |a| a.class.human_name }.each do |group, roles| %>
+      <em><%= group -%>:</em> <br>
+      <ul>
+        <% roles.each do |role| -%>
+            <li>
+              <%= object_tag(role.role_object) -%> </li>
+            <br>
+            <%#= object_link(role.role_object) -%>
+        <% end %> </ul>
   <% end %>
-  etc ...
+    Why is my inline padding not working? Purple is.
 </div>
 
