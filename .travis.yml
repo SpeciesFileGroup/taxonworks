@@ -20,8 +20,8 @@ before_script:
   - psql -U postgres -c 'create role taxonworks_development login createdb superuser;' 
   - bundle exec rake db:drop  
   - bundle exec rake db:create
-  - bundle rake db:migrate
-  - bundle rake db:migrate HPS_ENV=test 
+  - bundle exec rake db:migrate
+  - bundle exec rake db:migrate HPS_ENV=test 
 notifications:
   email:
     - diapriid@gmail.com 
