@@ -12,7 +12,8 @@ _init_otu_distribution_data_widget = function init_otu_distribution_data() {
       var otu_map = initializeComplexMap(map_canvas, fcdata);
       //add_map_listeners();
       $('input[type="checkbox"]').change(function () {
-        initializeComplexMap(map_canvas, newfcdata.data('feature-collection'));
+        var this_map = initializeComplexMap(map_canvas, newfcdata.data('feature-collection'));
+        //add_mouseOver_Out_listeners(map);
       });
 
 
