@@ -1,4 +1,5 @@
 language: ruby
+cache: bundler
 sudo: false
 rvm:
   - 2.1.5
@@ -17,10 +18,10 @@ before_script:
   - sh -e /etc/init.d/xvfb start
   - cp config/database.yml.example config/database.yml
   - psql -U postgres -c 'create role taxonworks_development login createdb superuser;' 
-  - rake db:drop  
-  - rake db:create
-  - rake db:migrate
-  - rake db:migrate HPS_ENV=test 
+  - bundle exec rake db:drop  
+  - bundle exec rake db:create
+  - bundle rake db:migrate
+  - bundle rake db:migrate HPS_ENV=test 
 notifications:
   email:
     - diapriid@gmail.com 
