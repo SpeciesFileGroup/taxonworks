@@ -77,7 +77,7 @@ match_georeference_task:
   hub: true
   name: 'Match georeferences'
   description: 'Re-use georeference efforts from past collecting events.'
-first_otu_distribution_data_task:
+otu_distribution_data_task:
   hub: true
   name: 'Otu distribution data'
   description: 'Display distribution data for an otu.'
