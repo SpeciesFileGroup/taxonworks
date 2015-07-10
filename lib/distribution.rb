@@ -98,7 +98,7 @@ class Distribution
   end
 
   def get_data_for_collecting_event_georeferences(otu)
-    otu.georeferences
+    [otu]
   end
 
 

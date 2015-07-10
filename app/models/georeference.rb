@@ -134,13 +134,26 @@ class Georeference < ActiveRecord::Base
   # Called by Gis::GeoJSON.feature_collection
   # @return [Hash] formed as a GeoJSON 'Feature'
   def to_geo_json_feature
+    to_simple_json_feature.merge(
+      'properties' => {
+        'georeference' => {
+          'id'  => self.id,
+          'tag' => "Georeference ID = #{self.id}"
+        }
+      }
+    )
+    retval
+  end
+
+  # TODO: parametrize to include gazeteer
+  #   i.e. geographic_areas_geogrpahic_items.where( gaz = 'some string')
+  def to_simple_json_feature
     geometry = RGeo::GeoJSON.encode(self.geographic_item.geo_object)
-    retval   = {
+    {
       'type'       => 'Feature',
       'geometry'   => geometry,
-      'properties' => {'georeference' => {'id' => self.id}}
+      'properties' => {}
     }
-    retval
   end
 
   # class methods
