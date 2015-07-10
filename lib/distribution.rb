@@ -1,4 +1,3 @@
-
 # An array of OTU distributions
 #
 #
@@ -25,14 +24,14 @@ class Distribution
 
   attr_accessor :preferred_georeference_only
 
-  def initialize( 
-                 source_object_types: [
-                   :asserted_distribution, 
-                   :collecting_event_geographic_area,
-                   :collecting_event_georeference], 
-                 otus: [],
-                 preferred_georeference_only: false # does nothing at present
-                )
+  def initialize(
+      source_object_types: [
+          :asserted_distribution,
+          :collecting_event_geographic_area,
+          :collecting_event_georeference],
+      otus: [],
+      preferred_georeference_only: false # does nothing at present
+  )
     @preferred_georeference_only = preferred_georeference_only
     @source_object_types = source_object_types
     @otus = otus
@@ -47,7 +46,7 @@ class Distribution
     otus.each do |o|
       @map_source_objects.merge!(o.id => [])
       source_object_types.each do |t|
-        insert_source_objects(o, t) 
+        insert_source_objects(o, t)
       end
     end
     @map_source_objects
@@ -77,7 +76,7 @@ class Distribution
   end
 
   def insert_source_object(otu, source, data, type)
-    @map_source_objects[otu.id].push( [ source, data, type] )
+    @map_source_objects[otu.id].push([source, data, type])
   end
 
   def geographic_item_for_collecting_event_geographic_area(collecting_event)
@@ -104,36 +103,38 @@ class Distribution
 
   def to_json
     result = {
-      'otu_ids' => map_source_objects.keys
+        'otu_ids' => map_source_objects.keys
     }
 
     i = 1
     map_source_objects.keys.each do |otu_id|
-      feature_collection = { 
-        'type' => 'FeatureCollection',
-        'features' => []
+      feature_collection = {
+          'type' => 'FeatureCollection',
+          'features' => []
       }
-
+      colors = {'asserted_distribution' => "#880000", 'collecting_event_georeference' => "#008800", 'collecting_event_geographic_area' => "#000088" }
       map_source_objects[otu_id].each do |source, data, type|
         source_class = source.class.name
         route_base = source.class.table_name
 
         json = data.to_simple_json_feature
         json['properties'].merge!(
-          'id' => i,
-          'source' => source_class,
-          'source_type' => type.to_s,
-          'metadata' => { source_class => source.attributes },
-          'api' => {
-            'concise_details' => "/#{route_base}/#{data.id}/concise_details",
-            'expanded_details' => "/#{route_base}/#{data.id}/expanded_details",
-          }
+            'id' => i,
+            'source' => source_class,
+            'source_type' => type.to_s,
+            'metadata' => {source_class => source.attributes},
+            'api' => {
+                'concise_details' => "/#{route_base}/#{data.id}/concise_details",
+                'expanded_details' => "/#{route_base}/#{data.id}/expanded_details"
+
+            },
+            'fillColor' => colors[type.to_s]
 
         )
 
         send("#{type}_properties", json, source, data)
 
-        feature_collection['features'].push(json)   
+        feature_collection['features'].push(json)
         i = i + 1
       end
 
@@ -154,7 +155,7 @@ class Distribution
   end
 
   def collecting_event_georeference_properties(json, georeference, data)
-    json['properties'].merge!('label' => "Collecting event #{data.id}.") 
+    json['properties'].merge!('label' => "Collecting event #{data.id}.")
   end
 
 end

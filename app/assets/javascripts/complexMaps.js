@@ -15,53 +15,22 @@ initializeComplexMap = function (canvas, feature_collection) {
 
   var map = initialize_complex_map(canvas, myOptions);
   var data = feature_collection;
-  var this_style = {};
   if (data != undefined) {
     var chained = JSON.parse('{"type":"FeatureCollection","features":[]}'); // container for the distribution
-    if ((data["type"] == "Aggregation") && data.features[0].type == "FeatureCollection") {    //test for (currently) outer wrapper with property distribution
+    if (data["type"] == "FeatureCollection") {    //test for (revised) outer wrapper with depackaged property distribution
       if (data.features.length > 0) {
-        var featureCollection = data.features;
-        for (var i = 0; i < featureCollection.length; i++) {
-          for (var j = 0; j < featureCollection[i].features.length; j++) {
-            var push_this = false;
-            var prefix;
-            var this_feature = featureCollection[i].features[j];
-            var this_property_key = Object.keys(featureCollection[i].properties);
-            if (this_property_key == "asserted_distributions" && document.getElementById('check_dist').checked) {
-              prefix = 'ad_';
-              this_style.fillColor = '#880000';
-              //this_style = '{ "icon": "/assets/mapicons/mm_20_gray.png", "fill": #440000, "stroke_opacity": 0.5, "stroke_width": 1, "fill_opacity": 0.2 }';
-            push_this = true;
-            }
-            if (this_property_key == "collecting_events_georeferences" && document.getElementById('check_c_o').checked) {
-              prefix = 'co_';
-              this_style.fillColor = '#008800';
-              //this_style = '{ "icon": "/assets/mapicons/mm_20_gray.png", "fill": #004400, "stroke_opacity": 0.5, "stroke_width": 1, "fill_opacity": 0.2 }';
-              push_this = true;
-            }
-            if (this_property_key == "collecting_events_geographic_area" && document.getElementById('check_c_e').checked) {
-              prefix = 'ce_';
-              this_style.fillColor = '#000088';
-              //this_style = '{ "icon": "/assets/mapicons/mm_20_gray.png", "fill": #000044, "stroke_opacity": 0.5, "stroke_width": 1, "fill_opacity": 0.2 }';
-              push_this = true;
-            }
-            var index = this_feature.id.toString().indexOf(prefix);
-            if(index >= 0) {
-              this_feature_id = /*prefix +*/ this_feature.id.toString().slice(index + 3);   //isolate non-auto-generated part
-            }
-            else {
-              this_feature_id = /*prefix +*/ this_feature.id.toString();
-            }
-
-            this_feature.id = prefix + this_feature_id;
-            this_feature.properties[this_property_key] = this_property_key.toString();
-            this_feature.properties["fillColor"] = this_style.fillColor;
-            //map.data.addGeoJson(this_feature);
-
-            //this_feature.style = this_style;
-            if (push_this) {chained.features.push(this_feature)};
-            //var this_style = '{fillColor: ' + fill_color.toString() + '}';
-            //map.data.setStyle(this_style);
+        var featureCollection = data;
+        for (var i = 0; i < featureCollection.features.length; i++) {
+          var this_feature = featureCollection.features[i];
+          var this_property_key = this_feature.properties.source_type;
+          if (this_property_key == "asserted_distribution" && document.getElementById('check_dist').checked) {
+            chained.features.push(this_feature)
+          }
+          if (this_property_key == "collecting_event_georeference" && document.getElementById('check_c_o').checked) {
+            chained.features.push(this_feature)
+          }
+          if (this_property_key == "collecting_event_geographic_area" && document.getElementById('check_c_e').checked) {
+            chained.features.push(this_feature)
           }
         }
       }
@@ -72,50 +41,59 @@ initializeComplexMap = function (canvas, feature_collection) {
     map.data.addGeoJson(chained);
   }
   ;  // put data on the map if present
-   
+
   //}  // put data on the map if present
-  map.data.forEach(function(feature) {        // traverse map data for features
+  map.data.forEach(function (feature) {        // traverse map data for features
 
     this_feature = feature;
-    this_property = this_feature.getProperty('source_type');
-    if(this_property == 'asserted_distribution') {
-      if (document.getElementById('check_dist').checked) {
-        this_style.fillColor = '#880000';     //  red
-      }
-    }
-    //this_property = this_feature.getProperty('collecting_events_georeferences');
-    if(this_property == 'collecting_events_georeferences') {
-      if (document.getElementById('check_c_o').checked) {
-        this_style.fillColor = '#008800';     //  green
-      }
-    }
-    //this_property = this_feature.getProperty('collecting_events_geographic_area');
-    if(this_property == 'collecting_events_geographic_area') {
-      if (document.getElementById('check_c_e').checked) {
-        this_style.fillColor = '#000088';     //  blue
-      }
-    }
-    //map.data.overrideStyle(this_feature, {fillColor: this_feature.getProperty("fillColor")});     //  whichever color
-    map.data.overrideStyle(this_feature, {fillColor: this_style.fillColor});     //  whichever color
+    /*    this_property = this_feature.getProperty('source_type');
+     if(this_property == 'asserted_distribution') {
+     if (document.getElementById('check_dist').checked) {
+     this_style.fillColor = '#880000';     //  red
+     }
+     }
+     //this_property = this_feature.getProperty('collecting_events_georeferences');
+     if(this_property == 'collecting_event_georeference') {
+     if (document.getElementById('check_c_o').checked) {
+     this_style.fillColor = '#008800';     //  green
+     }
+     }
+     //this_property = this_feature.getProperty('collecting_events_geographic_area');
+     if(this_property == 'collecting_event_geographic_area') {
+     if (document.getElementById('check_c_e').checked) {
+     this_style.fillColor = '#000088';     //  blue
+     }
+     }
+     */
+    map.data.overrideStyle(this_feature, {fillColor: this_feature.getProperty("fillColor")});     //  whichever model color
+    //map.data.overrideStyle(this_feature, {fillColor: this_style.fillColor});     //  whichever color
     map.data.overrideStyle(this_feature, {strokeWeight: 1});       // lightborders
     map.data.overrideStyle(this_feature, {fillOpacity: 0.3});       // semi-transparent
     map.data.overrideStyle(this_feature, {icon: '/assets/mapicons/mm_20_gray.png'});
 
 ///////////// SOMEHOW THESE LISTENERS BECAME BROKEN ON 08JUL15  ///////////////
-    map.data.addListener('mouseover', function(event) {     // interim color shift on mousover paradigm changed to opacity
+    map.data.addListener('mouseover', function (event) {     // interim color shift on mousover paradigm changed to opacity
       map.data.overrideStyle(event.feature, {fillOpacity: 0.7});  // bolder
-      if(event.feature.getProperty('geographic_area') != undefined) {
-        $("#displayed_distribution_style").html(event.feature.getProperty('geographic_area').tag);
-      }
-      if(event.feature.getProperty('collecting_event') != undefined) {
-        $("#displayed_distribution_style").html(event.feature.getProperty('collecting_event').tag);
+      if (event.feature.getProperty('source_type') != undefined) {
+        $("#displayed_distribution_style").html(event.feature.getProperty('label'));
       }
     });
 
-    map.data.addListener('mouseout', function(event) {
+    map.data.addListener('mouseout', function (event) {
       map.data.overrideStyle(event.feature, {fillOpacity: 0.3});  // dimmer
       $("#displayed_distribution_style").html('');
     });
+
+    //map.data.addListener('mouseover', function(event) {
+    //  map.data.revertStyle();
+    //  map.data.overrideStyle(event.feature, {fillColor: '#880000'});  // mid-level red
+    //  map.data.overrideStyle(event.feature, {strokeWeight: 2});       //embolden borders
+    //});
+    //
+    //map.data.addListener('mouseout', function(event) {
+    //  map.data.revertStyle();
+    //});
+
   });
 // bounds for calculating center point
   var bounds = {};    //xminp: xmaxp: xminm: xmaxm: ymin: ymax: -90.0, center_long: center_lat: gzoom:
