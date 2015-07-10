@@ -7,7 +7,9 @@ branches:
       - master
 addons:
   postgresql: "9.3"
-before_install: ./travis/before_install.sh
+  packages:
+    - libgeos-dev
+    - libproj-dev
 before_script:
   - export DISPLAY=:99.0
   - sh -e /etc/init.d/xvfb start
@@ -15,7 +17,6 @@ before_script:
   - psql -U postgres -c 'create role taxonworks_development login createdb superuser;' 
   - rake db:drop  
   - rake db:create
-  #- ./travis/before_script.sh
   - rake db:migrate
   - rake db:migrate HPS_ENV=test 
 notifications:
