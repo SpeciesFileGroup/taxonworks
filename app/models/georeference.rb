@@ -142,7 +142,6 @@ class Georeference < ActiveRecord::Base
         }
       }
     )
-    retval
   end
 
   # TODO: parametrize to include gazeteer
