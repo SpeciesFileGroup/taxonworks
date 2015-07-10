@@ -11,7 +11,6 @@ class Tag < ActiveRecord::Base
   # Not all tagged subclasses are keyword based, use this object for display
   belongs_to :controlled_vocabulary_term, foreign_key: :keyword_id 
 
-  validates :tag_object, presence: true
   validates :keyword, presence: true
   validate :keyword_is_allowed_on_object, :object_can_be_tagged_with_keyword
 

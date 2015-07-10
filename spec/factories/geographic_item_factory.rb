@@ -47,6 +47,7 @@ FactoryGirl.define do
 
     factory :geographic_item_with_multi_polygon do
       multi_polygon { GI_MULTI_POLYGON }
+      type 'GeographicItem::MultiPolygon'
     end
   end
 end

@@ -1,0 +1,36 @@
+<h1> Related data </h1>
+
+<h2> for <%= object_tag(@object) -%> (a <%= @object.class.name -%>)</h2>
+
+<%= link_to 'back', metamorphosize_if(@object) -%>
+
+<h3> Has many </h3>
+
+<% @object.class.reflect_on_all_associations(:has_many).sort { |a, b| a.name <=> b.name }.each do |r| -%>
+  <% if @object.respond_to?(r.name) -%>
+    <% if @object.send(r.name.to_s).count > 0-%>
+      <%= content_tag(:h3, r.name.to_s.humanize + ' (' + @object.send(r.name.to_s).count.to_s + ')' ) -%> 
+      <ul> 
+        <% @object.send(r.name.to_s).all.each do |o| -%>
+          <%= content_tag(:li, object_link(metamorphosize_if(o))) -%>
+        <% end %>
+      <% end %>
+    </ul>
+  <% else %>
+    <mark> requires method rename!</mark>
+  <% end %>
+<% end %>
+
+<h3> Has one </h3>
+<% @object.class.reflect_on_all_associations(:has_one).sort { |a, b| a.name <=> b.name }.each do |r| -%>
+  <%= r.name.to_s.humanize -%>
+  <%= object_link(metamorphosize_if(@object)) -%>
+  <br>
+<% end %>
+
+<h3> Belongs to </h3>
+<% @object.class.reflect_on_all_associations(:belongs_to).sort { |a, b| a.name <=> b.name }.each do |r| -%>
+  <%= r.name.to_s.humanize -%>
+  <%= object_link(metamorphosize_if(@object)) -%>
+  <br>
+<% end %>

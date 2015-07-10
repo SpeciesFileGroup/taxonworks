@@ -137,7 +137,8 @@ describe Gis::GeoJSON, group: :geo, type: :model do
                             'features' => [{'type'       => 'Feature',
                                             'geometry'   => {'type'        => 'MultiPolygon',
                                                              'coordinates' => [[[[36, 28, 0], [37, 28, 0], [37, 27, 0], [36, 27, 0], [36, 28, 0]]]]},
-                                            'properties' => {'geographic_area' => {'id' => object.id}},
+                                            'properties' => {'geographic_area' => {'id' => object.id,
+                                                                                   'tag' => 'P1'}},
                                             'id'         => feature_index.to_i}]})
       end
     end
@@ -163,7 +164,7 @@ describe Gis::GeoJSON, group: :geo, type: :model do
                             'features' => [{'type'       => 'Feature',
                                             'geometry'   => {'type'        => 'Point',
                                                              'coordinates' => [36.5, 27.5, 0]},
-                                            'properties' => {'collecting_event' => {'id' => object.id}},
+                                            'properties' => {'collecting_event' => {'id' => object.id, 'tag' => "Collecting event #{@ce_p1.id}."}},
                                             'id'         => feature_index.to_i}]})
       end
     end
@@ -299,12 +300,14 @@ describe Gis::GeoJSON, group: :geo, type: :model do
                           'features' => [{'type'       => 'Feature',
                                           'geometry'   => {'type'        => 'Point',
                                                            'coordinates' => [34.5, 25.5, 0]},
-                                          'properties' => {'collecting_event' => {'id' => objects[0].id}},
+                                          'properties' => {'collecting_event' => {'id' => objects[0].id,
+                                                                                  'tag' => "Collecting event #{@ce_old_boxia_2}."}},
                                           'id'         => (feature_index.to_i + 0)},
                                          {'type'       => 'Feature',
                                           'geometry'   => {'type'        => 'MultiPolygon',
                                                            'coordinates' => [[[[33, 28, 0], [37, 28, 0], [37, 26, 0], [33, 26, 0], [33, 28, 0]]]]},
-                                          'properties' => {'geographic_area' => {'id' => objects[1].id}},
+                                          'properties' => {'geographic_area' => {'id' => objects[1].id,
+                                                                                 'tag' => 'Q'}},
                                           'id'         => (feature_index.to_i + 1)},
                                          {'type'       => 'Feature',
                                           'geometry'   => {'type'        => 'Point',

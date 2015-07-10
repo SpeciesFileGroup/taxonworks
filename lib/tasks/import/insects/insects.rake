@@ -21,7 +21,9 @@ namespace :tw do
       # A utility class to index data.
       class ImportedData
         attr_accessor :people_index, :people_id, :keywords, :user_index, :collection_objects, :otus, :namespaces,
-                      :preparation_types, :collection_event_index, :user_index, :taxa_index
+                      :preparation_types, :collecting_event_index, :user_index, :taxa_index, :localities_index,
+                      :unmatched_localities, :invalid_speciemsn, :unmatched_taxa, :duplicate_specimen_ids,
+                      :invalid_type_names
         def initialize()
           @keywords = {}                  # keyword -> ControlledVocabularyTerm
           @namespaces = {}                # SpecimenIDPrefix -> NameSpace class
@@ -33,6 +35,14 @@ namespace :tw do
           @taxa_index = {}                # TaxonCode -> Protonym object
           @collecting_event_index = {}
           @collection_objects = {}
+          @localities_index = {}          #LocalityCode -> Locality row
+
+          @unmatched_localities = {}
+          @invalid_specimens = {}
+          @unmatched_taxa = {}
+          @duplicate_specimen_ids = {}
+          @invalid_type_names = {}
+
         end
 
         def export_to_pg(data_directory) 
@@ -60,41 +70,12 @@ namespace :tw do
         'U. S. A. ' => 'United States'
       }
 
+      def geo_translate(name)
+        GEO_NAME_TRANSLATOR[name] ? GEO_NAME_TRANSLATOR[name] : name
+      end
 
       # Attributes to use from specimens.txt
       SPECIMENS_COLUMNS = %w{LocalityCode DateCollectedBeginning DateCollectedEnding Collector CollectionMethod Habitat}
-
-      LOCALITY_COLUMNS = %w{
-           Country
-           State
-           County
-           Locality
-           Park
-           BodyOfWater
-           DrainageBasinLesser
-           DrainageBasinGreater
-           StreamSize
-           INDrainage
-           WisconsinGlaciated
-           NS
-           Lat_deg
-           Lat_min
-           Lat_sec
-           EW
-           Long_deg
-           Long_min
-           Long_sec
-           Elev_m
-           Elev_ft
-           Datum
-           PrecisionCode
-           Habitat
-           Host
-           DateCollectedBeginning
-           DateCollectedEnding
-           Collector
-           CollectionMethod
-           Comments}
 
       # Attributes to strip on CollectingEvent creation
       STRIP_LIST = %w{ModifiedBy ModifiedOn CreatedBy CreatedOn Latitude Longitude Elevation} # the last three are calculated
@@ -110,7 +91,6 @@ namespace :tw do
       task :import_insects => [:environment, :data_directory] do |t, args|
         puts @args
         Utilities::Files.lines_per_file(Dir["#{@args[:data_directory]}/TXT/**/*.txt"])
-        LOCALITIES = build_localities_index(@args[:data_directory])        
 
         @dump_directory = dump_directory(@args[:data_directory]) 
         @data =  ImportedData.new
@@ -141,8 +121,8 @@ namespace :tw do
       #--- mostly done 
       #  people.txt
       #  taxa_hierarchical.txt
+      #--- mostly done
       #  localities.txt
-      #--- mostly done 
       #  geography.txt
       #  accessions_new.txt
       #  associations.txt
@@ -157,6 +137,7 @@ namespace :tw do
       #  specimens_new.txt
       #  specimens_new_partially_resolved.txt
       #  types.txt
+      #  neon.txt
 
 
       def main_build_loop
@@ -165,16 +146,39 @@ namespace :tw do
         handle_projects_and_users(@data, @import)
         raise '$project_id or $user_id not set.'  if $project_id.nil? || $user_id.nil?
         handle_namespaces(@data, @import)
-        handle_preparation_types(@data, @import)
         handle_controlled_vocabulary(@data, @import)
-        handle_people(@data, @import) ## !created as new
-        handle_taxa(@data, @import)
-
-        checkpoint_save(@import) if ENV['no_transaction']
+        handle_preparation_types(@data, @import)
+        handle_people(@data, @import)
+        #####handle_taxa(@data, @import)
 
         # !! The following can not be loaded from the database they are always created anew.
-        handle_collecting_events(@data, @import)
-        handle_specimens(@data, @import)
+
+        build_localities_index(@data)
+
+        puts "Indexing collecting events."
+        ######index_collecting_events_from_accessions_new(@data, @import)
+        index_collecting_events_from_ledgers(@data, @import)
+        index_specimen_records_from_specimens(@data, @import)
+
+        #index_collecting_events_from_specimens_new(collecting_events_index, unmatched_localities)
+        puts "\nTotal collecting events to build: #{@data.collecting_events_index.keys.length}."
+
+        puts "\n!! Unmatched localities: (#{@data.unmatched_localities.keys.count}): " + @data.unmatched_localities.keys.sort.join(", ")
+        puts "\n!! Unmatched taxa: (#{@data.unmatched_taxa.keys.count}): " + @data.unmatched_taxa.keys.sort.join(", ")
+        puts "\n!! Invalid_specimens: (#{@data.invalid_specimens.keys.count}): " + @data.invalid_specimens.sort.join(", ")
+        puts "\n!! Duplicate_specimen_IDs: (#{@data.duplicate_specimen_ids.keys.count}): " + @data.duplicate_specimen_ids.sort.join(", ")
+        puts "\n!! Invalid_type_names: (#{@data.invalid_type_names.keys.count}): " + @data.invalid_type_names.sort.join(", ")
+
+        # Debugging code, turn this on if you want to inspect all the columns that
+        # are used to index a unique collecting event.
+        # all_keys = []
+        # collecting_events_index.keys.each_with_index do |hsh, i|
+        #   all_keys.push hsh.keys
+        #   all_keys.flatten!.uniq!
+        # end
+        # all_keys.sort!
+
+        #handle_specimens(@data, @import)
 
 
         @import.save!
@@ -280,22 +284,48 @@ namespace :tw do
         data.namespaces.merge!(accession_namespace: @accession_namespace)
       end
 
-
       CONTAINER_TYPE = {
+          nil => 'Container::Virtual',
           '' => 'Container::Virtual',
           'Amber' => 'Container::Box',
           'Bulk dry' => 'Container::PillBox',
           'Envelope' => 'Container::Envelope',
           'Jar' => 'Container::Jar',
           'pill box' => 'Container::PillBox',
+          'Pill box' => 'Container::PillBox',
           'Pin' => 'Container::Pin',
           'Slide' => 'Container::Slide',
           'Slides' => 'Container::Slide',
           'Vial' => 'Container::Vial'
       }
 
+      TYPE_TYPE = {
+          'allolectotype' => 'lectotype',
+          'allotype' => 'paratype',
+          'cotype' => 'syntype',
+          'holotype' => 'holotype',
+          'holotype, allotype, paratype' => 'paratype',
+          'holotype, paratype' => 'paratype',
+          'holotype, paratype, allotype' => 'paratype',
+          'lectoallotype' => 'lectotype',
+          'lecto-allotype' => 'lectotype',
+          'lectotype' => 'lectotype',
+          'lectotype designated by' => 'lectotype',
+          'lectotype, lectoallotype' => 'paralectotype',
+          'lectotype, lecto-allotype' => 'paralectotype',
+          'lectotype, paratype' => 'paratype',
+          'neotype' => 'neotype',
+          'paralectotype' => 'paralectotype',
+          'parallotype' => 'paralectotype',
+          'paratype' => 'paratype',
+          'paratype, allotype' => 'paratype',
+          'paratypes' => 'paratype',
+          'syntype' => 'syntype',
+          'syntypes' => 'syntype'
+      }
+
       def handle_preparation_types(data, import)
-        print "Handling namespaces "
+        print "Handling namespaces \n"
 
         preparation_types = {
             'Bulk dry' => 'Unsorted dry specimens',
@@ -310,6 +340,7 @@ namespace :tw do
           t = PreparationType.where(name: pt[0])
           if t.empty?
             t = PreparationType.create(name: pt[0], definition: pt[1])
+            t.tags.create(keyword: data.keywords['INHS'])
           else
             t = t.first
           end
@@ -322,24 +353,27 @@ namespace :tw do
         import.metadata['preparation_types'] = true
       end
 
-
       # These are largely collecting event related
       PREDICATES = [
           'Country',
           'County',
           'State',
+          'LedgersCountry',
+          'LedgersState',
+          'LedgersCounty',
+          'LedgersLocality',
 
           #"AccessionNumber",
           'BodyOfWater',
           'Collection',
-          'Comments',
+          'LedgersComments',
+          'Remarks',
 
           #"Datum",
           'Description',
           'DrainageBasinGreater',
           'DrainageBasinLesser',
           'Family',
-
           'Genus',
           'Host',
           'HostGenus',
@@ -349,6 +383,7 @@ namespace :tw do
           'LocalityCode',
           'OldLocalityCode',
           'Order',
+          'LedgerBook',
           'Locality',
           'Park',
           'Sex',
@@ -359,7 +394,7 @@ namespace :tw do
           'PrecisionCode',    # tag on Georeference
       ]
 
-            # Builds all the controlled vocabulary terms (tags/keywords)
+      # Builds all the controlled vocabulary terms (tags/keywords)
       def handle_controlled_vocabulary(data, import)
         print "Handling CV "
         if import.metadata['controlled_vocabulary']
@@ -369,57 +404,61 @@ namespace :tw do
           end
         else
           print "as newly parsed.\n"
+
+          data.keywords.merge!('INHS' => Keyword.create(name: 'INHS', definition: 'Belongs to INHS Insect collection.'))
+          data.keywords.merge!('INHS_imported' => Keyword.create(name: 'INHS_imported', definition: 'Imported from INHS Insect collection database.'))
+
           # from collecting_events
           PREDICATES.each do |p|
-            data.keywords.merge!(p => Predicate.create(name: "CollectingEvents:#{p}", definition: "The verbatim value imported from INHS FileMaker database for #{p}.")  )
+            data.keywords.merge!(p => Predicate.create(name: "#{p}", definition: "The verbatim value imported from INHS FileMaker database for #{p}.")  )
           end
 
           # from handle taxa
           data.keywords.merge!(
-              'Taxa:TaxonCode' => Predicate.create(name: 'Taxa:TaxonCode', definition: 'The verbatim value on import from INHS FileMaker database for Taxa#TaxonCode.'),
-              'Taxa:Synonyms' => Predicate.create(name: 'Taxa:Synonyms', definition: 'The verbatim value on import from INHS FileMaker database for Taxa#Synonyms.'),
-              'Taxa:References' => Predicate.create(name: 'Taxa:References', definition: 'The verbatim value on import INHS FileMaker database for Taxa#References.')
+              'Taxa:TaxonCode' => Predicate.create(name: 'TaxonCode', definition: 'The verbatim value on import from INHS FileMaker database for Taxa#TaxonCode.'),
+              'Taxa:Synonyms' => Predicate.create(name: 'Synonyms', definition: 'The verbatim value on import from INHS FileMaker database for Taxa#Synonyms.'),
+              'Taxa:References' => Predicate.create(name: 'References', definition: 'The verbatim value on import INHS FileMaker database for Taxa#References.')
           )
 
           # from handle people
           data.keywords.merge!(
-              'PeopleID' => Predicate.create(name: 'People:PeopleID', definition: 'PeopleID imported from INHS FileMaker database.'),
-              'SupervisorID' => Predicate.create(name: 'People:SupervisorID', definition: 'People:SupervisorID imported from INHS FileMaker database.'),
-              'Honorarium' => Predicate.create(name: 'People:Honorarium', definition: 'People:Honorarium imported from INHS FileMaker database.'),
-              'Address' => Predicate.create(name: 'People:Address', definition: 'People:Address imported from INHS FileMaker database.'),
-              'Email' => Predicate.create(name: 'People:Email', definition: 'People:Email imported from INHS FileMaker database.'),
-              'Phone' => Predicate.create(name: 'People:Phone', definition: 'People:Phone imported from INHS FileMaker database.')
+              'PeopleID' => Predicate.create(name: 'PeopleID', definition: 'PeopleID imported from INHS FileMaker database.'),
+              'SupervisorID' => Predicate.create(name: 'SupervisorID', definition: 'People:SupervisorID imported from INHS FileMaker database.'),
+              'Honorarium' => Predicate.create(name: 'Honorarium', definition: 'People:Honorarium imported from INHS FileMaker database.'),
+              'Address' => Predicate.create(name: 'Address', definition: 'People:Address imported from INHS FileMaker database.'),
+              'Email' => Predicate.create(name: 'Email', definition: 'People:Email imported from INHS FileMaker database.'),
+              'Phone' => Predicate.create(name: 'Phone', definition: 'People:Phone imported from INHS FileMaker database.')
           )
-
 
           # from handle specimens
           data.keywords.merge!(
-              'AdultMale' => BiocurationClass.create(name: 'Specimens:AdultMale', definition: 'The collection object is comprised of adult male(s).'),
-              'AdultFemale' => BiocurationClass.create(name: 'Specimens:AdultFemale', definition: 'The collection object is comprised of adult female(s).'),
-              'Immature' => BiocurationClass.create(name: 'Specimens:Immature', definition: 'The collection object is comprised of immature(s).'),
-              'Pupa' => BiocurationClass.create(name: 'Specimens:Pupa', definition: 'The collection object is comprised of pupa.'),
-              'Exuvium' => BiocurationClass.create(name: 'Specimens:Exuvia', definition: 'The collection object is comprised of exuvia.'),
-              'AdultUnsexed' => BiocurationClass.create(name: 'Specimens:AdultUnsexed', definition: 'The collection object is comprised of adults, with sex undetermined.'),
-              'AgeUnknown' => BiocurationClass.create(name: 'Specimens:AgeUnknown', definition: 'The collection object is comprised of individuals of indtermined age.'),
-              'OtherSpecimens' => BiocurationClass.create(name: 'Specimens:OtherSpecimens', definition: 'The collection object that is asserted to be unclassified in any manner.'),
+              'AdultMale' => BiocurationClass.create(name: 'AdultMale', definition: 'The collection object is comprised of adult male(s).'),
+              'AdultFemale' => BiocurationClass.create(name: 'AdultFemale', definition: 'The collection object is comprised of adult female(s).'),
+              'Immature' => BiocurationClass.create(name: 'Immature', definition: 'The collection object is comprised of immature(s).'),
+              'Pupa' => BiocurationClass.create(name: 'Pupa', definition: 'The collection object is comprised of pupa.'),
+              'Exuvium' => BiocurationClass.create(name: 'Exuvia', definition: 'The collection object is comprised of exuvia.'),
+              'AdultUnsexed' => BiocurationClass.create(name: 'AdultUnsexed', definition: 'The collection object is comprised of adults, with sex undetermined.'),
+              'AgeUnknown' => BiocurationClass.create(name: 'AgeUnknown', definition: 'The collection object is comprised of individuals of indtermined age.'),
+              'OtherSpecimens' => BiocurationClass.create(name: 'OtherSpecimens', definition: 'The collection object that is asserted to be unclassified in any manner.'),
 
-              'ZeroTotal' => Keyword.create(name: 'Specimens:ZeroTotal', definition: 'On import there were 0 total specimens recorded in INHS FileMaker database.'),
-              'Prefix' => Predicate.create(name: 'Specimens:Prefix', definition: 'CatalogNumberPrefix imported from INHS FileMaker database.'),
-              'CatalogNumber' => Predicate.create(name: 'Specimens:CatalogNumber', definition: 'CatalogNumber imported from INHS FileMaker database.'),
-              'IdentifiedBy' => Predicate.create(name: 'Specimens:IdentifiedBy', definition: 'IdentifiedBy field imported from INHS FileMaker database.'),
-              'YearIdentified' => Predicate.create(name: 'Specimens:YearIdentified', definition: 'YearIdentified field imported from INHS FileMaker database.'),
-              'LocalityCode' => Predicate.create(name: 'Specimens:LocalityCode', definition: 'LocalityCode field imported from INHS FileMaker database.'),
-              'OldIdentifiedBy' => Predicate.create(name: 'Specimens:OriginalIdentifiedBy', definition: 'OldIdentifiedBy field imported from INHS FileMaker database.'),
-              'OldLocalityCode' => Predicate.create(name: 'Specimens:OldLocalityCode', definition: 'OldLocalityCode field imported from INHS FileMaker database.'),
-              'Type' => Predicate.create(name: 'Specimens:Type', definition: 'Type field imported from INHS FileMaker database.'),
-              'TypeName' => Predicate.create(name: 'Specimens:TypeName', definition: 'TypeName field imported from INHS FileMaker database.'),
-              'AccessionNumberLabel' => Predicate.create(name: 'Specimens:AccessionNumberLabel', definition: 'AccessionNumberLabel field imported from INHS FileMaker database.'),
-              'SpecialCollection' => Predicate.create(name: 'Specimens:SpecialCollection', definition: 'SpecialCollection field imported from INHS FileMaker database.'),
-              'OldCollector' => Predicate.create(name: 'Specimens:OldCollector', definition: 'OldCollector field imported from INHS FileMaker database.'),
-              'Host' => Predicate.create(name: 'Specimens:Host', definition: 'Host field imported from INHS FileMaker database.'),
+              'ZeroTotal' => Keyword.create(name: 'ZeroTotal', definition: 'On import there were 0 total specimens recorded in INHS FileMaker database.'),
+              'Prefix' => Predicate.create(name: 'Prefix', definition: 'CatalogNumberPrefix imported from INHS FileMaker database.'),
+              'CatalogNumber' => Predicate.create(name: 'CatalogNumber', definition: 'CatalogNumber imported from INHS FileMaker database.'),
+              'IdentifiedBy' => Predicate.create(name: 'IdentifiedBy', definition: 'IdentifiedBy field imported from INHS FileMaker database.'),
+              'YearIdentified' => Predicate.create(name: 'YearIdentified', definition: 'YearIdentified field imported from INHS FileMaker database.'),
+              'LocalityCode' => Predicate.create(name: 'LocalityCode', definition: 'LocalityCode field imported from INHS FileMaker database.'),
+              'OldIdentifiedBy' => Predicate.create(name: 'OriginalIdentifiedBy', definition: 'OldIdentifiedBy field imported from INHS FileMaker database.'),
+              'OldLocalityCode' => Predicate.create(name: 'OldLocalityCode', definition: 'OldLocalityCode field imported from INHS FileMaker database.'),
+              'Type' => Predicate.create(name: 'Type', definition: 'Type field imported from INHS FileMaker database.'),
+              'TypeName' => Predicate.create(name: 'TypeName', definition: 'TypeName field imported from INHS FileMaker database.'),
+              'AccessionNumberLabel' => Predicate.create(name: 'AccessionNumberLabel', definition: 'AccessionNumberLabel field imported from INHS FileMaker database.'),
+              'SpecialCollection' => Predicate.create(name: 'SpecialCollection', definition: 'SpecialCollection field imported from INHS FileMaker database.'),
+              'OldCollector' => Predicate.create(name: 'OldCollector', definition: 'OldCollector field imported from INHS FileMaker database.'),
+              'Host' => Predicate.create(name: 'Host', definition: 'Host field imported from INHS FileMaker database.'),
                )
 
           import.metadata['controlled_vocabulary'] = true
+          checkpoint_save(@import) if ENV['no_transaction']
         end
       end
 
@@ -427,33 +466,76 @@ namespace :tw do
         if id.blank?
           $user_id
         elsif data.user_index[id]
-          data.user_index[id]
+          data.user_index[id].id
         elsif data.people_id[id]
           p = data.people_id[id]
-          email = p['Email']
-          if email.blank?
-            puts 'PeopleID = ' + id.to_s + ' does not have e-mail' if email.blank?
-            $user_id
-          else
-            user_name = p['LastName'] + ', ' + p['FirstName'] + ' - imported'
+          email = p['Email'].nil? ? nil : p['Email'].downcase
+          email = p['LastName'] + id + '@unavailable.email.net' if email.blank?
 
+          user_name = p['LastName'] + ', ' + p['FirstName']
+
+          existing_user = User.where(email: email.downcase)
+
+          if existing_user.empty?
             user = User.create(email: email, password: '3242341aas', password_confirmation: '3242341aas', name: user_name,
-                   data_attributes_attributes: [ {value: p['PeopleID'], import_predicate: data.keywords['PeopleID'].name, controlled_vocabulary_term_id: data.keywords['PeopleID'].id, type: 'ImportAttribute'} ] )
+                   data_attributes_attributes: [ {value: p['PeopleID'], import_predicate: 'PeopleID', type: 'ImportAttribute'} ],
+                   tags_attributes:   [ { keyword: data.keywords['INHS_imported'] } ]
+            )
+#                   data_attributes_attributes: [ {value: p['PeopleID'], import_predicate: data.keywords['PeopleID'].name, controlled_vocabulary_term_id: data.keywords['PeopleID'].id, type: 'ImportAttribute'} ],
 
-            unless p['SupervisorID'].blank?
-              s = data.people_id[p['SupervisorID']]
-              user.notes.create(text: 'Student of ' + s['FirstName'] + ' ' + s['LastName']) unless s.blank?
+            #user.tags.create(keyword: data.keywords['INHS_imported'])
+            unless user.valid?
+              byebug
             end
-            data.user_index.merge!(id => user)
-            user
+          else
+            user = existing_user.first
           end
+
+          unless p['SupervisorID'].blank?
+            s = data.people_id[p['SupervisorID']]
+            user.notes.create(text: 'Student of ' + s['FirstName'] + ' ' + s['LastName']) unless s.blank?
+          end
+          data.user_index.merge!(id => user)
+          user.id
         else
-          data.user_id
+          $user_id
         end
       end
 
-      $found_geographic_areas = 0
-      $matchless_for_geographic_area =[]
+      $found_geographic_areas = {}
+      $matchless_for_geographic_area ={}
+
+      LOCALITY_COLUMNS = %w{
+           Country
+           State
+           County
+           Locality
+           Park
+           BodyOfWater
+           DrainageBasinLesser
+           DrainageBasinGreater
+           StreamSize
+           INDrainage
+           WisconsinGlaciated
+           NS
+           Lat_deg
+           Lat_min
+           Lat_sec
+           EW
+           Long_deg
+           Long_min
+           Long_sec
+           Elev_m
+           Elev_ft
+           Datum
+           PrecisionCode
+           Habitat
+           Host
+           DateCollectedBeginning
+           DateCollectedEnding
+           Collector
+           CollectionMethod
+           Comments}
 
       def find_or_create_collecting_event(ce, data)
 
@@ -462,16 +544,57 @@ namespace :tw do
           tmp_ce.merge!(c => ce[c]) unless ce[c].blank?
         end
 
+        unless ce['AccessionNumber'].blank?
+          if !ce['Collection'].blank?
+            c = Identifier.where(identifier: ce['Collection'] + ' ' + ce['AccessionNumber'], namespace_id: @accession_namespace, type: 'Identifier::Local::AccessionCode', project_id: $project_id)
+          else
+            c = Identifier.where(identifier: ce['AccessionNumber'], namespace_id: @accession_namespace, type: 'Identifier::Local::AccessionCode', project_id: $project_id)
+          end
+          unless c.empty?
+            c = c.first.annotated_object
+            data.collecting_event_index.merge!(tmp_ce => c)
+            return c
+          end
+        end
+
+        if !ce['LocalityLabel'].blank? && ce['LocalityLabel'].to_s.length > 5
+          md5 = Utilities::Strings.generate_md5(ce['LocalityLabel'])
+          c = CollectingEvent.where(md5_of_verbatim_label: md5, project_id: $project_id)
+          unless c.empty?
+            c = c.first
+            data.collecting_event_index.merge!(tmp_ce => c)
+            if !ce['AccessionNumber'].blank? && !ce['Collection'].blank?
+              c.identifiers.create(identifier: ce['Collection'] + ' ' + ce['AccessionNumber'], namespace: @accession_namespace, type: 'Identifier::Local::AccessionCode')
+            elsif !ce['AccessionNumber'].blank?
+              c.identifiers.create(identifier: ce['AccessionNumber'], namespace: @accession_namespace, type: 'Identifier::Local::AccessionCode')
+            end
+            return c
+          end
+        end
+
         unless data.collecting_event_index[tmp_ce].nil?
           collecting_event = data.collecting_event_index[tmp_ce]
-          if collecting_event.data_attributes['LocalityCode'].nil? && !tmp_ce['LocalityCode'].nil?
-            collecting_event.data_attributes.create(predicate: 'LocalityCode', value: tmp_ce['LocalityCode'], type: 'ImportAttribute')
+          if collecting_event.data_attributes.where(import_predicate: 'LocalityCode').nil? && !tmp_ce['LocalityCode'].blank?
+            byebug
+            collecting_event.data_attributes.create(import_predicate: 'LocalityCode', value: tmp_ce['LocalityCode'].to_s, type: 'ImportAttribute')
+            #collecting_event.data_attributes.create(import_predicate: 'LocalityCode', value: tmp_ce['LocalityCode'].to_s, type: 'ImportAttribute', controlled_vocabulary_term_id: data.keywords['LocalityCode'].id)
           end
           if collecting_event.verbatim_locality.nil? && !tmp_ce['LocalityLabel'].nil?
+            byebug
             collecting_event.verbatim_locality = tmp_ce['LocalityLabel']
             collecting_event.save!
           end
-          return collecting_event
+          if collecting_event.identifiers.empty? && !tmp_ce['AccessionNumber'].nil?
+            byebug
+            if !ce['AccessionNumber'].blank? && !ce['Collection'].blank?
+              c.identifiers.create(identifier: ce['Collection'] + ' ' + ce['AccessionNumber'], namespace: @accession_namespace, type: 'Identifier::Local::AccessionCode')
+            elsif !ce['AccessionNumber'].blank?
+              c.identifiers.create(identifier: ce['AccessionNumber'], namespace: @accession_namespace, type: 'Identifier::Local::AccessionCode')
+            end
+          end
+          if collecting_event.identifiers.empty? || collecting_event.identifiers.first.identifier == tmp_ce['AccessionNumber']
+            return collecting_event
+          end
         end
 
         latitude, longitude = parse_lat_long(ce)
@@ -479,11 +602,14 @@ namespace :tw do
         elevation, verbatim_elevation = parse_elevation(ce)
         geographic_area = parse_geographic_area(ce)
         geolocation_uncertainty = parse_geolocation_uncertainty(ce)
+        locality =  ce['Park'].blank? ? ce['Locality'] : ce['Locality'].to_s + ', ' + ce['Park'].to_s
+        created_by = find_or_create_collection_user(ce['CreatedBy'], data)
+        updated_by = find_or_create_collection_user(ce['ModifiedBy'], data)
 
         c = CollectingEvent.new(
-            geographic_area_id: geographic_area,
+            geographic_area: geographic_area,
             verbatim_label: ce['LocalityLabel'],
-            verbatim_locality: (ce['Locality'] + ' ' + ce['Park']).squish,
+            verbatim_locality: locality,
             verbatim_collectors: ce['Collector'],
             verbatim_method: ce['CollectionMethod'],
             start_date_day: sdd,
@@ -494,27 +620,43 @@ namespace :tw do
             end_date_year: edy,
             verbatim_habitat: ce['Habitat'],
             minimum_elevation: elevation,
+            maximum_elevation: nil,
             verbatim_elevation: verbatim_elevation,
             verbatim_latitude: latitude,
             verbatim_longitude: longitude,
             verbatim_geolocation_uncertainty: geolocation_uncertainty,
             verbatim_datum: ce['Datum'],
-            verbatim_trip_identifier: ce['AccessionNumber'],
-            created_by_id: find_or_create_collection_user(ce['CreatedBy'], data),
-            updated_by_id: find_or_create_collection_user(ce['ModifiedBy'], data),
+            field_notes: nil,
+            verbatim_date: nil,
+            created_by_id: created_by,
+            updated_by_id: updated_by,
             created_at: time_from_field(ce['CreatedOn']),
             updated_at: time_from_field(ce['ModifiedOn'])
         )
         if c.valid?
           c.save!
           c.notes.create(text: ce['Comments']) unless ce['Comments'].blank?
-          ce.select{|k,v| !v.nil?}.each do |a,b|
-            if PREDICATES.include?(a)
-              c.data_attributes.create(predicate: data.keywords[a], value: b, type: 'ImportAttribute')
-            end
+
+          data.keywords.each do |k|
+            c.data_attributes.create(type: 'InternalAttribute', controlled_vocabulary_term_id: k[1].id, value: tmp_ce[k[0]]) unless tmp_ce[k[0]].blank?
           end
 
-          c.generate_verbatim_georeference
+          if !ce['AccessionNumber'].blank? && !ce['Collection'].blank?
+            c.identifiers.create(identifier: ce['Collection'] + ' ' + ce['AccessionNumber'], namespace: @accession_namespace, type: 'Identifier::Local::AccessionCode')
+          elsif !ce['AccessionNumber'].blank?
+            c.identifiers.create(identifier: ce['AccessionNumber'], namespace: @accession_namespace, type: 'Identifier::Local::AccessionCode')
+          end
+
+          c.generate_verbatim_data_georeference
+
+          glc = c.georeferences.first
+          unless glc.nil?
+            glc.error_radius = geolocation_uncertainty
+            glc.is_public = true
+            glc.save
+            c.data_attributes.create(type: 'ImportAttribute', import_predicate: 'georeference_error', value: 'Geolocation uncertainty is conflicting with geographic area') unless glc.valid?
+          end
+
           data.collecting_event_index.merge!(tmp_ce => c)
           return c
         else
@@ -549,11 +691,11 @@ namespace :tw do
             data.people_id.merge!(row['PeopleID'] => row)
           end
 
-          DataAttribute.where(import_predicate: 'People:PeopleID', attribute_subject_type: 'User').each do |u|
+          DataAttribute.where(import_predicate: 'PeopleID', attribute_subject_type: 'User').each do |u|
             data.user_index.merge!(u.value => u.attribute_subject)
           end
 
-          DataAttribute.where(import_predicate: 'People:PeopleID', attribute_subject_type: 'Person').each do |p|
+          DataAttribute.where(import_predicate: 'PeopleID', attribute_subject_type: 'Person').each do |p|
             data.people_index.merge!(p.value => p.attribute_subject)
           end
           print "done.\n"
@@ -568,22 +710,22 @@ namespace :tw do
               ln = ln[0..-6]
             end
 
-            p = Person::Vetted.new(
+            p = Person::Vetted.create(
                 last_name: ln || 'Not Provided',
                 first_name: row['FirstName'],
                 suffix: sf
             )
 
-            p.notes.build(text: row['Comments']) if !row['Comments'].blank?
+            p.notes.create(text: row['Comments']) if !row['Comments'].blank?
             data.keywords.each do |k|
-              p.data_attributes.build(type: 'ImportAttribute', import_predicate: k[1].name, controlled_vocabulary_term_id: k[1].id, value: row[k[0]]) unless row[k[0]].blank?
+              InternalAttribute.create(attribute_subject: p, predicate: k[1], value: row[k[0]]) unless row[k[0]].blank?
             end
-            p.save!
 
             data.people_id.merge!(row['PeopleID'] => row)
             data.people_index.merge!(row['PeopleID'] => p)
           end
           import.metadata['people'] = true
+          checkpoint_save(@import) if ENV['no_transaction']
         end
       end
 
@@ -613,7 +755,6 @@ namespace :tw do
             data.otus.merge!(i.identifier => i.identifier_object)
           end
           print "done.\n"
-          byebug
         else
           print "as newly parsed.\n"
           puts
@@ -626,7 +767,7 @@ namespace :tw do
 
           code = :iczn
 
-          f.first(500).each_with_index do |row, i|             #f.first(500).each_with_index
+          f.each_with_index do |row, i|             #f.first(500).each_with_index
             name = row['Name']
             author = (row['Parens'] ? "(#{row['Author']})" : row['Author']) unless row['Author'].blank?
             author ||= nil
@@ -652,16 +793,16 @@ namespace :tw do
             elsif !p.parent_id.blank?
               bench = Benchmark.measure {
                 data.keywords.each do |k|
-                  p.data_attributes.build(type: 'ImportAttribute', import_predicate: k[1].name, controlled_vocabulary_term_id: k[1].id, value: row[k[0]]) unless row[k[0]].blank?
+                  p.data_attributes.build(type: 'InternalAttribute', predicate: k[1], value: row[k[0]]) unless row[k[0]].blank?
                 end
-                p.save!
-                build_otu(row, p, data)
               }
 
+              print "\r#{i}\t#{bench.to_s.strip}  #{name}  (Taxon code: #{row['TaxonCode']})                         " #  \t\t#{rank}
               if p.valid?
+                p.save!
+                build_otu(row, p, data)
                 parent_index.merge!(row['ID'] => p)
                 data.taxa_index.merge!(row['TaxonCode'] => p)
-                print "\r#{i}\t#{bench.to_s.strip}  #{name}                           " #  \t\t#{rank}
               else
                 puts "\n#{p.name}"
                 puts p.errors.messages
@@ -675,6 +816,7 @@ namespace :tw do
           end
 
           import.metadata['taxa'] = true
+          checkpoint_save(@import) if ENV['no_transaction']
         end
       end
 
@@ -691,51 +833,15 @@ namespace :tw do
         o
       end
 
-      def handle_collecting_events(data, import)
-        matchless_for_geographic_area = []
-        found = 0
-
-        collecting_events_index = {}
-        unmatched_localities = {}
-        invalid_specimens = {}
-        unmatched_taxa = {}
-
-        puts "Indexing collecting events."
-        index_collecting_events_from_accessions_new(data)
-        index_specimen_records_from_specimens(unmatched_localities, unmatched_taxa, invalid_specimens, data)
-
-
-
-        index_collecting_events_from_specimens_new(collecting_events_index, unmatched_localities)
-        #index_collecting_events_from_ledgers(collecting_events_index)
-        puts "\nTotal collecting events to build: #{collecting_events_index.keys.length}."
-
-
-        puts "\nUnmatched localities: #{unmatched_localities.to_s}."
-        puts "\nUnmatched taxa: #{unmatched_taxa.to_s}."
-        puts "\nInvalid_specimens: #{invalid_specimens.to_s}."
-
-        # Debugging code, turn this on if you want to inspect all the columns that 
-        # are used to index a unique collecting event.
-        # all_keys = [] 
-        # collecting_events_index.keys.each_with_index do |hsh, i|
-        #   all_keys.push hsh.keys
-        #   all_keys.flatten!.uniq!
-        # end
-        # all_keys.sort!
-
-      end
-
       # Index localities by their collective column=>data pairs
-      def build_localities_index(data_directory)
-
+      def build_localities_index(data)
         locality_fields = %w{ LocalityCode Country State County Locality Park BodyOfWater NS Lat_deg Lat_min Lat_sec EW Long_deg Long_min Long_sec Latitude Longitude Elev_m Elev_ft Elevation PrecisionCode Comments DrainageBasinLesser DrainageBasinGreater StreamSize INDrainage WisconsinGlaciated OldLocalityCode CreatedOn ModifiedOn CreatedBy ModifiedBy }
 
-        localities_file = data_directory + 'TXT/localities.txt'
-        raise 'file not found' if not File.exists?(localities_file)
-        lo = CSV.open(localities_file, col_sep: "\t", :headers => true)
+        path = @args[:data_directory] + 'TXT/localities.txt'
+        raise 'file not found' if not File.exists?(path)
+        lo = CSV.open(path, col_sep: "\t", :headers => true)
 
-        puts "Indexing localities."
+        print "Indexing localities..."
 
         localities = {}
         lo.each do |row|
@@ -743,27 +849,19 @@ namespace :tw do
           locality_fields.each do |c|
             tmp_l.merge!(c => row[c]) unless row[c].blank?
           end
-          localities.merge!(row['LocalityCode'] => tmp_l)
-        end
 
-        localities
+          tmp_l['County'] = geo_translate(tmp_l['County']) unless tmp_l['County'].blank?
+          tmp_l['State'] = geo_translate(tmp_l['State']) unless tmp_l['State'].blank?
+          tmp_l['Country'] = geo_translate(tmp_l['Country']) unless tmp_l['Country'].blank?
+
+          data.localities_index.merge!(row['LocalityCode'] => tmp_l)
+        end
+        print "done\n"
       end
 
-      # Relevant columns
-      # -    LocalityCode --- 
-      # -    DateCollectedBeginning
-      # -    DateCollectedEnding
-      # -    Collector
-      # -    CollectionMethod
-      # -    Habitat
-      # -    OldLocalityCode    # tags on CE
-      # -    OldCollector       # tags on CE
-      # --- not used 
-      #     LocalityCompare     # related to hash md5
-
-      # SPECIMENS_COLUMNS = %w{LocalityCode DateCollectedBeginning DateCollectedEnding Collector CollectionMethod Habitat}
-      def index_specimen_records_from_specimens(unmatched_localities, unmatched_taxa, invalid_specimens, data)
-        puts " specimen records from specimens.text"
+      def index_specimen_records_from_specimens(data, import)
+        start = data.collecting_event_index.keys.count
+        puts " specimen records from specimens.txt"
         path = @args[:data_directory] + 'TXT/specimens.txt'
         raise 'file not found' if not File.exists?(path)
 
@@ -776,24 +874,26 @@ namespace :tw do
           print "\r#{i}      "
 
           locality_code = row['LocalityCode']
-          tmp_ce = { }   
-          SPECIMENS_COLUMNS.each do |c|
-            tmp_ce.merge!(c => row[c]) unless row[c].blank?
-          end
+          se = { }
 
-          if LOCALITIES[locality_code]
+          if !data.localities_index[locality_code].nil?
             #Utilities::Hashes.puts_collisions(tmp_ce, LOCALITIES[locality_code])
-            tmp_ce.merge!(LOCALITIES[locality_code])
+            se.merge!(data.localities_index[locality_code])
           else
-            unmatched_localities.merge!(row['LocalityCode'] => nil) unless locality_code.blank?
+            data.unmatched_localities.merge!(locality_code => nil) unless locality_code.blank?
+          end
+          specimen_fields.each do |c|
+            se.merge!(c => row[c]) unless row[c].blank?
           end
 
-          #collecting_events_index.merge!(tmp_ce  => nil)
-          #collecting_events_index.merge!(Utilities::Hashes.delete_keys(tmp_ce, STRIP_LIST)  => nil)
+          collecting_event = find_or_create_collecting_event(se, data)
+          preparation_type = data.preparation_types[se['preparation_type']]
 
-          collecting_event = find_or_create_collecting_event(tmp_ce, data)
-          otu = data.otus['TaxonCode']
-          preparation_type = $preparation_types[se['preparation_type']]
+          no_specimens = false
+          if count_fields.collect{ |f| se[f] }.select{ |n| !n.nil? }.empty?
+            se.merge!('OtherSpecimens' => '1')
+            no_specimens = true
+          end
 
           objects = []
           count_fields.each do |count|
@@ -813,52 +913,85 @@ namespace :tw do
               created_at: time_from_field(se['CreatedOn']),
               updated_at: time_from_field(se['ModifiedOn'])
               )
+
               if specimen.valid?
                 specimen.save!
-                objects += specimen
+                objects += [specimen]
                 specimen.notes.create(text: se['Remarks']) unless se['Remarks'].blank?
-                se.select{|k,v| !v.nil?}.each do |a,b|
-                  if PREDICATES.include?(a)
-                    c.data_attributes.create(predicate: data.keywords[a], value: b, type: 'ImportAttribute')
-                  end
-                end
-                if data.otus[se['TaxonCode']]
-                  td = TaxonDetermination.create(
-                     biological_collection_object_id: specimen,
-                     otu_id: data.otus[se['TaxonCode']],
-                     year_made: se['YearIdentified']
-                      )
-                  td.data_attributes.create(predicate: 'DetermidedBy', value: se['IdentifiedBy'], type: 'ImportAttribute')
 
-                  if !se['Type'].blank? && !se['TypeName'].blank?
-                    tm = TypeMaterial.create(
-                        protonym_id: TAXA[se['TaxonCode']],
-                        biological_object_id: specimen,
-                        type_type: se['Type'],
-                    )
-                    tm.data_attributes.create(predicate: 'TypeName', value: se['TypeName'], type: 'ImportAttribute')
-                  end
-
-                else
-                  unmatched_taxa.merge!(se['TaxonCode'] => nil) unless se['TaxonCode'].blank?
+                data.keywords.each do |k|
+                  specimen.data_attributes.create(type: 'InternalAttribute', controlled_vocabulary_term_id: k[1].id, value: se[k[0]]) unless se[k[0]].blank?
                 end
 
-                Role.create(person: PEOPLE[se['AccessionSource'], role_object: specimen, type: 'AccessionSource']) unless se['AccessionSource'].blank?
-                Role.create(person: PEOPLE[se['DeaccessionRecipient'], role_object: specimen, type: 'DeaccessionRecipient']) unless se['DeaccessionRecipient'].blank?
+                specimen.tags.create(keyword: data.keywords['ZeroTotal']) if no_specimens
 
+                Role.create(person: data.people_index[se['AccessionSource']], role_object: specimen, type: 'AccessionProvider') unless se['AccessionSource'].blank?
+                Role.create(person: data.people_index[se['DeaccessionRecipient']], role_object: specimen, type: 'DeaccessionRecipient') unless se['DeaccessionRecipient'].blank?
               else
-                invalid_specimens.merge!(se['Prefix'] + ' ' + se['CatalogueNumber'] => nil)
+                data.invalid_specimens.merge!(se['Prefix'] + ' ' + se['CatalogueNumber'] => nil)
               end
 
+              unless specimen.valid?
+                byebug
+              end
             end
           end
-          add_identifiers(objects, row)
-
+          add_identifiers(objects, row, data)
+          add_determinations(objects, row, data)
         end
 
-        puts "\n Number of collecting events processed from specimens: #{collecting_events_index.keys.count} "
-        puts "\n!! The following are locality codes in specimens without corresponding values in localities (#{unmatched_localities.keys.count}): " + unmatched_localities.keys.sort.join(", ")
+        puts "\n Number of collecting events processed from specimens: #{data.collecting_events_index.keys.count - start} "
       end
+
+      def add_identifiers(objects, row, data)
+        puts "no catalog number for #{row['ID']}" if row['CatalogNumber'].blank?
+
+        identifier = Identifier::Local::CatalogNumber.new(namespace: @data.namespaces[row['Prefix']], identifier: row['CatalogNumber']) unless row['CatalogNumber'].blank?
+
+        if objects.count > 1 # Identifier on container.
+          c = Container.containerize(objects, CONTAINER_TYPE[row['PreparationType'].to_s].constantize )
+          c.save
+          c.identifiers << identifier if identifier
+          c.save
+
+        elsif objects.count == 1 # Identifer on object
+          objects.first.identifiers << identifier if identifier
+          objects.first.save
+        else
+          raise 'No objects in container.'
+        end
+        data.duplicate_specimen_ids.merge!(row['Prefix'].to_s + ' ' + row['CatalogueNumber'].to_s => nil) unless identifier.valid?
+      end
+
+      def add_determinations(objects, row, data)
+        otu = data.otus[row['TaxonCode']]
+        objects.each do |o|
+          unless otu.nil?
+            td = TaxonDetermination.create(
+                biological_collection_object: o,
+                otu: otu,
+                year_made: row['YearIdentified']
+            )
+
+            if !row['Type'].blank?
+              type = TYPE_TYPE[row['Type'].downcase]
+              unless type.nil?
+                type = type + 's' if o.type == "Lot"
+                tm = TypeMaterial.create(protonym_id: otu.taxon_name_id, material: o, type_type: type )
+                if tm.valid?
+                  tm.data_attributes.create(type: 'InternalAttribute', controlled_vocabulary_term_id: data.keywords['TypeName'], value: row['TypeName']) unless row['TypeName'].blank?
+                else
+                  byebug
+                  data.invalid_type_names.merge!(row['Type'].downcase => nil)
+                end
+              end
+            end
+          else
+            data.unmatched_taxa.merge!(row['TaxonCode'] => nil) unless row['TaxonCode'].blank?
+          end
+        end
+      end
+
 
       def index_collecting_events_from_specimens_new(collecting_events_index, unmatched_localities)
         puts " from specimens_new"
@@ -892,74 +1025,26 @@ namespace :tw do
         puts "\n!! The following are locality codes in specimensNew without corresponding values in localities (#{unmatched_localities.keys.count}): " + unmatched_localities.keys.sort.join(", ")
       end
 
-      #  LocalityCode
-      #  Collector
-      #  DateCollectedBeginning
-      #  DateCollectedEnding
-      #
-      #  Collection
-      #  AccessionNumber
-      #  LedgerBook
-      #
-      #  Country
-      #  State
-      #  County
-      #  Locality
-      #  HostGenus
-      #  HostSpecies
-      #  Description
-      #  Remarks
-      #  OldLocalityCode
-      #
-      #  CreatedBy
-      #  CreatedOn
-      #
-      #  Comments
-      #  Order
-      #  Family
-      #  Genus
-      #  Species
-      #  Sex
-      # SPECIMENS_COLUMNS = %w{LocalityCode DateCollectedBeginning DateCollectedEnding Collector CollectionMethod Habitat}
-
-      def index_collecting_events_from_ledgers(collecting_events_index)
-        path = @args[:data_directory] + 'TXT/ledgers.txt'
-        raise 'file not found' if not File.exists?(path)
-        le = CSV.open(path, col_sep: "\t", :headers => true)
-
-        puts "\n  from ledgers\n"
-        le.each_with_index do |row, i|
-          print "\r#{i}      "
-          tmp_ce = { }
-          SPECIMENS_COLUMNS.each do |c|
-            tmp_ce.merge!(c => row[c]) unless row[c].blank?
-          end
-          #Utilities::Hashes.puts_collisions(tmp_ce, LOCALITIES[locality_code])
-          puts "\n!! Duplicate collecting event: #{row['Collection']} #{row['AccessionNumber']}" unless collecting_events_index[tmp_ce].nil?
-
-          collecting_events_index.merge!(tmp_ce => row.to_h)
-          #collecting_events_index.merge!(Utilities::Hashes.delete_keys(row.to_h, STRIP_LIST) => nil)
-        end
-        puts "\n Number of collecting events processed from Ledgers: #{collecting_events_index.keys.count} "
-      end
-
-      def  index_collecting_events_from_accessions_new(data)
+      def  index_collecting_events_from_accessions_new(data, import)
         path = @args[:data_directory] + 'TXT/accessions_new.txt' # self contained
         raise 'file not found' if not File.exists?(path)
 
         ac = CSV.open(path, col_sep: "\t", :headers => true)
-        #ac = CSV.open(path, col_sep: "\t", :headers => true)
 
-
-        accessions_new_fields = %w{ LocalityLabel Habitat Host AccessionNumber Country State County Locality Park DateCollectedBeginning DateCollectedEnding Collector CollectionMethod Elev_m Elev_ft NS Lat_deg Lat_min Lat_sec EW Long_deg Long_min Long_sec Comments PrecisionCode Datum ModifiedBy ModifiedOn }
+        fields = %w{ LocalityLabel Habitat Host AccessionNumber Country State County Locality Park DateCollectedBeginning DateCollectedEnding Collector CollectionMethod Elev_m Elev_ft NS Lat_deg Lat_min Lat_sec EW Long_deg Long_min Long_sec Comments PrecisionCode Datum ModifiedBy ModifiedOn }
 
         puts "\naccession new records\n"
         ac.each_with_index do |row, i|
           print "\r#{i}"
           tmp_ce = { }
-          accessions_new_fields.each do |c|
+          fields.each do |c|
             tmp_ce.merge!(c => row[c]) unless row[c].blank?
           end
+          tmp_ce['County'] = geo_translate(tmp_ce['County']) unless tmp_ce['County'].blank?
+          tmp_ce['State'] = geo_translate(tmp_ce['State']) unless tmp_ce['State'].blank?
+          tmp_ce['Country'] = geo_translate(tmp_ce['Country']) unless tmp_ce['Country'].blank?
+
+          tmp_ce.merge!('CreatedBy' => '1031', 'CreatedOn' => '01/20/2014 12:00:00')
 
           find_or_create_collecting_event(tmp_ce, data)
 
@@ -968,10 +1053,66 @@ namespace :tw do
           #collecting_events_index.merge!(tmp_ce => row.to_h)
           #collecting_events_index.merge!( Utilities::Hashes.delete_keys(row.to_h, STRIP_LIST)  => nil)
         end
-        puts "\n Number of collecting events processed from Accessions_new: #{$collecting_events_index.keys.count} "
+        puts "\n Number of collecting events processed from Accessions_new: #{data.collecting_event_index.keys.count} "
       end
 
+      def index_collecting_events_from_ledgers(data, import)
+        starting_number = data.collecting_event_index.empty? ? 0 : data.collecting_event_index.keys.count
 
+        path = @args[:data_directory] + 'TXT/ledgers.txt'
+        raise 'file not found' if not File.exists?(path)
+        le = CSV.open(path, col_sep: "\t", :headers => true)
+
+        fields = %w{ Collection AccessionNumber LedgerBook LedgersCountry LedgersState LedgersCounty LedgersLocality DateCollectedBeginning DateCollectedEnding Collector Order Family Genus Species HostGenus HostSpecies Sex LedgersComments Description Remarks LocalityCode OldLocalityCode CreatedBy CreatedOn }
+
+        puts "\n  from ledgers\n"
+
+        le.each_with_index do |row, i|
+          print "\r#{i}"
+          tmp_ce = { }
+          fields.each do |c|
+            tmp_ce.merge!(c => row[c]) unless row[c].blank?
+          end
+          unless tmp_ce['LocalityCode'].nil?
+            if data.localities_index[tmp_ce['LocalityCode']].nil?
+              print "\nLocality Code #{tmp_ce['LocalityCode']} does not exist!\n"
+            else
+              tmp_ce.merge!(data.localities_index[tmp_ce['LocalityCode']])
+            end
+          end
+
+          tmp_ce['LedgersCounty'] = geo_translate(tmp_ce['LedgersCounty']) unless tmp_ce['LedgersCounty'].blank?
+          tmp_ce['LedgersState'] = geo_translate(tmp_ce['LedgersState']) unless tmp_ce['LedgersState'].blank?
+          tmp_ce['LedgersCountry'] = geo_translate(tmp_ce['LedgersCountry']) unless tmp_ce['LedgersCountry'].blank?
+          tmp_ce['County'] = geo_translate(tmp_ce['County']) unless tmp_ce['County'].blank?
+          tmp_ce['State'] = geo_translate(tmp_ce['State']) unless tmp_ce['State'].blank?
+          tmp_ce['Country'] = geo_translate(tmp_ce['Country']) unless tmp_ce['Country'].blank?
+
+          tmp_ce.delete('LedgersCountry') if !tmp_ce['LedgersCountry'].nil? && tmp_ce['LedgersCountry'] == tmp_ce['Country']
+          tmp_ce.delete('LedgersState') if !tmp_ce['LedgersState'].nil? && tmp_ce['LedgersState'] == tmp_ce['State']
+          tmp_ce.delete('LedgersCounty') if !tmp_ce['LedgersCounty'].nil? && tmp_ce['LedgersCounty'] == tmp_ce['County']
+          tmp_ce.delete('LedgersLocality') if !tmp_ce['LedgersLocality'].nil? && tmp_ce['LedgersLocality'] == tmp_ce['Locality']
+
+          if i == 185
+            #byebug
+          end
+          find_or_create_collecting_event(tmp_ce, data)
+        end
+
+#        le.each_with_index do |row, i|
+#          print "\r#{i}      "
+#          tmp_ce = { }
+#          SPECIMENS_COLUMNS.each do |c|
+#            tmp_ce.merge!(c => row[c]) unless row[c].blank?
+#          end
+#          #Utilities::Hashes.puts_collisions(tmp_ce, LOCALITIES[locality_code])
+#          puts "\n!! Duplicate collecting event: #{row['Collection']} #{row['AccessionNumber']}" unless collecting_events_index[tmp_ce].nil?#
+#
+#          collecting_events_index.merge!(tmp_ce => row.to_h)
+#          #collecting_events_index.merge!(Utilities::Hashes.delete_keys(row.to_h, STRIP_LIST) => nil)
+#        end
+        puts "\n Number of collecting events processed from Ledgers: #{data.collecting_event_index.keys.count - starting_number} "
+      end
 
       def parse_geographic_area(ce)
         geog_search = []
@@ -979,17 +1120,29 @@ namespace :tw do
           geog_search.push( GEO_NAME_TRANSLATOR[v] ? GEO_NAME_TRANSLATOR[v] : v) if !v.blank?
         end
 
-        match = GeographicArea.find_by_self_and_parents(geog_search)            
+        match = geog_search.empty? ? [] : GeographicArea.find_by_self_and_parents(geog_search)
         geographic_area = nil
 
-        if match.count == 0
+        if match.empty?
           #puts "\nNo matching geographic area for: #{geog_search}"
-          $matchless_for_geographic_area.push geog_search
+          if $matchless_for_geographic_area[geog_search]
+            $matchless_for_geographic_area[geog_search] += 1
+          else
+            $matchless_for_geographic_area.merge!(geog_search => 1)
+          end
         elsif match.count > 1
           #puts "\nMultiple geographic areas match #{geog_search}\n"
-          $matchless_for_geographic_area.push geog_search
+          if $matchless_for_geographic_area[geog_search]
+            $matchless_for_geographic_area[geog_search] += 1
+          else
+            $matchless_for_geographic_area.merge!(geog_search => 1)
+          end
         elsif match.count == 1
-          $found_geographic_areas += 1
+          if $found_geographic_areas[geog_search]
+            $found_geographic_areas[geog_search] += 1
+          else
+            $found_geographic_areas.merge!(geog_search => 1)
+          end
           geographic_area = match[0]
         else
           puts "\nHuh?! not zero, 1 or more than one matches"
@@ -999,15 +1152,14 @@ namespace :tw do
 
       def parse_lat_long(ce)
         latitude, longitude = nil, nil
-        # TODO: needs refactoring, Lat_deg contains a mix of decimal degrees and otherwise
-        nlt = ce['NS'] #  (ce['NS'].downcase == 's' ? '-' : nil) if !ce['NS'].blank?
+        nlt = ce['NS'].blank? ? nil : ce['NS'].capitalize #  (ce['NS'].downcase == 's' ? '-' : nil) if !ce['NS'].blank?
         ltd = ce['Lat_deg'].blank? ? nil : "#{ce['Lat_deg']}º"
         ltm = ce['Lat_min'].blank? ? nil : "#{ce['Lat_min']}'"
         lts = ce['Lat_sec'].blank? ? nil : "#{ce['Lat_sec']}\""
         latitude = [nlt,ltd,ltm,lts].compact.join
         latitude = nil if latitude == '-'
 
-        nll = ce['EW'] # (ce['EW'].downcase == 'w' ? '-' : nil ) if !ce['EW'].blank?
+        nll = ce['EW'].blank? ? nil : ce['EW'].capitalize # (ce['EW'].downcase == 'w' ? '-' : nil ) if !ce['EW'].blank?
         lld = ce['Long_deg'].blank? ? nil : "#{ce['Long_deg']}º"
         llm = ce['Long_min'].blank? ? nil : "#{ce['Long_min']}'"
         lls = ce['Long_sec'].blank? ? nil : "#{ce['Long_sec']}\""
@@ -1042,12 +1194,12 @@ namespace :tw do
         ( sdm, sdd, sdy = ce['DateCollectedBeginning'].split("/") ) if !ce['DateCollectedBeginning'].blank?
         ( edm, edd, edy = ce['DateCollectedEnding'].split("/")    ) if !ce['DateCollectedEnding'].blank?
 
-        sdy = sdy.to_i if sdy 
-        edy = edy.to_i if edy
-        sdd = sdd.to_i if sdd
-        edd = edd.to_i if edd
-        sdm = sdm.to_i if sdm
-        edm = edy.to_i if edm
+        sdy = sdy.to_i unless sdy.blank?
+        edy = edy.to_i unless edy.blank?
+        sdd = sdd.to_i unless sdd.blank?
+        edd = edd.to_i unless edd.blank?
+        sdm = sdm.to_i unless sdm.blank?
+        edm = edm.to_i unless edm.blank?
         [sdm, sdd, sdy, edm, edd, edy]
       end
 
@@ -1063,7 +1215,7 @@ namespace :tw do
 
         if !ce['Elev_ft'].blank?
           elevation = ce['Elev_ft'].to_i * 0.305
-          verbatim_elevation = ce['Elev_ft'] & ' ft.'
+          verbatim_elevation = ce['Elev_ft'] + ' ft.'
         elsif !ce['Elev_m'].blank?
           elevation = ce['Elev_m'].to_i
         end
@@ -1165,8 +1317,8 @@ namespace :tw do
           objects.push(o)
         end
 
-        add_identifiers(objects, row)
-        add_determinations(objects, row)
+        #add_identifiers(objects, row)
+        #add_determinations(objects, row)
         add_collecting_event(objects, row)
 
         objects
@@ -1193,44 +1345,6 @@ namespace :tw do
           o.update(collecting_event: data.collecting_events(tmp_ce) )
         end
       end 
-
-      def add_identifiers(objects, row)
-        puts "no catalog number for #{row['ID']}" if row['CatalogNumber'].blank?
-
-        identifier = Identifier::Local::CatalogNumber.new(namespace: @data.namespaces[row['Prefix']], identifier: row['CatalogNumber']) if !row['CatalogNumber'].blank?
-        #accession_number = InternalAttribute.new(value: row['AccessionNumber'], predicate: @data.keywords['AccessionCode']) if !row['AccessionNumber'].blank?
-
-        if objects.count > 1 
-          puts "More than one in a #{row['PreparationType']}"
-
-         # objects.each do |o|
-         #   o.data_attributes << accession_number.dup if accession_number
-         #   o.save!
-         # end
-
-          # Identifier on container. 
-          c = Container.containerize(objects)
-          c.type = CONTAINER_TYPE[row['PreparationType'].to_s.downcase]
-          c.save!
-          c.identifiers << identifier if identifier
-          c.save! 
-          # Identifer on object
-        elsif objects.count == 1
-          objects.first.identifiers << identifier if identifier
-          # objects.first.data_attributes << accession_number if accession_number
-          objects.first.save!
-        else
-          raise 'No objects in container.'
-        end
-      end
-
-      def add_determinations(objects, row)
-        objects.each do |o|
-          %w{IdentifiedBy YearIdentified OldIdentifiedBy}.each do |c|
-            o.data_attributes.build(predicate: @data.keywords[c], value: row[c], type: 'InternalAttribute')  if !row[c].blank?
-          end
-        end
-      end
 
       def dump_directory(base)
         base + 'pg_dumps/'

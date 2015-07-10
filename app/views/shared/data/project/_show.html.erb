@@ -45,7 +45,9 @@
 
     <div class="see">
       <h2> See </h2>
-      <%= papertrail_link(object) -%>
+      <%= papertrail_link(object) -%><br>
+      <%= related_data_link(object) -%>
+
       <br>
       <br>
       <%= yield :see -%>

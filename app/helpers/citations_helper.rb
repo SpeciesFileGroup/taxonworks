@@ -27,4 +27,12 @@ module CitationsHelper
     edit_object_link(citation)
   end
 
+  # @return [True]
+  #   indicates a custom partial should be used, see list_helper.rb
+  def citations_recent_objects_partial
+    true 
+  end
+
+
+
 end

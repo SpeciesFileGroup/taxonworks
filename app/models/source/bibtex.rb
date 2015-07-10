@@ -386,6 +386,7 @@ class Source::Bibtex < Source
   # @param type [String] either author or editor
   # @return [String]
   #   the bibtex version of the name strings created from the TW people
+  # !! TODO: this is an and b/w all people for > 1 person, likely not correct
   def compute_bibtex_names(type)
     method = type
     methods = type + 's'
@@ -502,31 +503,6 @@ class Source::Bibtex < Source
 
   #region getters & setters
 
-  # Return a String of last names as displayed in nomenclatural authority.
-  def authority_name
-    case self.authors.count
-      when 0
-        if self.author.blank?
-          return ('')
-        else # build off the last names only of .authors
-          b = self.to_bibtex
-          b.parse_names
-          case b.author.tokens.count
-            when 0
-              return ('') # shouldn't ever get here
-            when 1
-              return(b.author[0].last)
-            else
-              return b.author.tokens.collect { |t| t.last }.to_sentence(:last_word_connector => ' & ')
-          end
-        end
-      when 1
-        return (authors.all.first.last_name)
-      else
-        return self.authors.collect { |a| a.full_last_name }.to_sentence(:last_word_connector => ' & ')
-    end
-  end
-
   def year=(value)
     if value.class == String
       value =~ /\A(\d\d\d\d)([a-zA-Z]*)\z/
@@ -556,6 +532,23 @@ class Source::Bibtex < Source
       else
         self.notes.build({text: value + ' [Created on import from BibTeX.]'})
       end
+    end
+  end
+
+  # @return [String]
+  #   last names formatted as displayed in nomenclatural authority (iczn), prioritizes
+  #   normalized people records before bibtex author string
+  def authority_name
+    if self.authors.count == 0 # no normalized people, use string
+      if self.author.blank?
+        return ('')
+      else 
+        b = self.to_bibtex
+        b.parse_names
+        return b.author.tokens.collect{ |t| t.last }.to_sentence(last_word_connector: ' & ')
+      end
+    else # use normalized records 
+      return self.authors.collect{ |a| a.full_last_name }.to_sentence(last_word_connector: ' & ')
     end
   end
 
@@ -687,26 +680,9 @@ class Source::Bibtex < Source
 
   #endregion    time/date related
 
-  # def cached_string
-  #   bx_entry = self.to_bibtex
-  #
-  #   if bx_entry.key.blank?
-  #     bx_entry.key = 'tmpID'
-  #   end
-  #
-  #   key = bx_entry.key
-  #   bx_bibliography = BibTeX::Bibliography.new
-  #   bx_bibliography.add(bx_entry)
-  #
-  #   # cp = CiteProc::Processor.new(style: 'zootaxa', format: 'text')
-  #   cp = CiteProc::Processor.new(style: 'zootaxa', format: 'html')
-  #   # cp.engine.format = 'html'
-  #   cp.import(bx_bibliography.to_citeproc)
-  #   cp.render(:bibliography, id: key).first.strip
-  # end
-
   # @return [String]
-  #   can not return nil or ""
+  #   a full representation, using bibtex
+  # String must be length > 0
   def cached_string(format)
     unless (format == 'text') || (format == 'html')
       return(nil)
@@ -752,10 +728,6 @@ class Source::Bibtex < Source
   def set_cached
     if self.errors.empty?
       tmp                       = cached_string('text')
-      #   if tmp.nil?
-      #     errors.add(:cached, 'unable to build cached_string')
-      #     return
-      #   end
       self.cached               = tmp
       self.cached_author_string = authority_name
 

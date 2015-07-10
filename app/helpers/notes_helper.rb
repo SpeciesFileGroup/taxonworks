@@ -48,4 +48,10 @@ module NotesHelper
     render('/notes/quick_search_form')
   end
 
+   # @return [True]
+  #   indicates a custom partial should be used, see list_helper.rb
+  def notes_recent_objects_partial
+    true 
+  end
+
 end

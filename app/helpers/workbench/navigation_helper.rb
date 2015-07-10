@@ -77,7 +77,7 @@ module Workbench::NavigationHelper
     if self.respond_to?(link_method)
       send(link_method, object)
     else
-      link_to(object_tag(object).html_safe, object.metamorphosize)
+      link_to(object_tag(object).html_safe, metamorphosize_if(object))
     end
   end
 
@@ -86,7 +86,7 @@ module Workbench::NavigationHelper
   end
 
   def edit_object_path_string(object)
-    default = "edit_#{object.class.base_class.name.underscore}_path"  
+    default = "edit_#{metamorphosize_if(object).class.base_class.name.underscore}_path"
     specific = default + '_string' 
     if self.respond_to?(specific)
       self.send(specific, object)
@@ -117,7 +117,7 @@ module Workbench::NavigationHelper
   #   a link, or disabled link
   def edit_object_link(object)
     if is_editable?(object) && user_can_edit?(object)
-      link_to('Edit', edit_object_path(object.metamorphosize))
+      link_to('Edit', edit_object_path(metamorphosize_if(object)))
     else
       content_tag(:span, 'Edit', class: :disabled)
     end
@@ -171,6 +171,13 @@ module Workbench::NavigationHelper
     else
       content_tag(:em, 'Data no longer available.', class: :warning)
     end
+  end
+
+  # @return [<a> tag, nil] 
+  #   a link to the related data page
+  def related_data_link(object)
+    return nil if object.nil?
+    link_to('Related', send("related_#{member_base_path(metamorphosize_if(object))}_path", object)) 
   end
 
 end

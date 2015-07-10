@@ -1,20 +1,28 @@
 <%= form_for(@taxon_name_classification) do |f| %>
     <%= render 'shared/errors', object: @taxon_name_classification %>
 
-  <div class="field">
-    <%= f.label :for %><br>
-    <h3><%= object_tag(@taxon_name_classification.taxon_name) -%></h3>
-  </div>
+    <div class="field">
+      <%= f.label :for %><br>
+      <% if !@taxon_name_classification.taxon_name.new_record? -%>
+          <h3><%= object_tag(@taxon_name_classification.taxon_name) -%></h3>
+          <%= f.hidden_field :taxon_name_id %>
+      <% else %>
+          <%= render :partial => 'workbench/elements/forms/ajax_select',
+                     :locals => {:controller => 'taxon_names',
+                                 :object => 'taxon_name_classification',
+                                 :method => 'taxon_name_id',
+                                 :tag_id => 'taxon_name_id_for_taxon_name_classification',
+                                 :display => object_tag(@taxon_name_classification.taxon_name),
+                                 :size => 20} %>
+      <% end %>
+    </div>
 
-  <%= f.hidden_field :taxon_name_id %>
+    <div class="field">
+      <%= f.label :type, 'Classification/status' %><br>
+      <%= f.select :type,  taxon_name_classification_options(@taxon_name_classification.taxon_name) %>
+    </div>
 
-  <div class="field">
-    <%= f.label :type, 'Classification/status' %><br>
-    <%= f.select :type,  taxon_name_classification_options(@taxon_name_classification.taxon_name) %>
-  </div>
-
-
-  <div class="actions">
-    <%= f.submit %>
-  </div>
+    <div class="actions">
+      <%= f.submit %>
+    </div>
 <% end %>

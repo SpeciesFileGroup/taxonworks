@@ -1,7 +1,6 @@
 # Generic wrappers around AR instances, these should not include link generation, but may call out to other helpers that do generate links. 
 #
 module Workbench::DisplayHelper
-
   # General wrapper around individual <model_name>_tag methods
   #   object_tag(@otu) 
   def object_tag(object)
@@ -11,6 +10,7 @@ module Workbench::DisplayHelper
     # meh, exceptions  
     return send("taxon_works_content_tag", object).html_safe if klass_name == 'Content' 
     return image_tag(object.image_file.url(:thumb)) if klass_name == 'Image' 
+    return "Revision #{object.index}" if  klass_name == 'PaperTrail::Version' #  papertrail_link(object)
 
     html = send("#{klass_name.underscore}_tag", object)
     html ? html.html_safe : nil
@@ -18,6 +18,10 @@ module Workbench::DisplayHelper
 
   def model_name_title
     controller_name.humanize
+  end
+
+  def kind(object)
+    object.class.name.humanize
   end
 
   def object_attributes_partial_path(object)

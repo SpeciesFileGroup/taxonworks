@@ -9,7 +9,8 @@ production:
       - exceptions@example.com
       - root@example.com
   action_mailer_smtp_settings:
-  	address: 'smtp.example.com'
+  	address: "smtp.example.com"
   	port: 25
-  	domain: 'example.com' 
-empty:
+  	domain: "example.com"
+  mail_domain: "example.com"
+  action_mailer_url_host: "www.example.com"

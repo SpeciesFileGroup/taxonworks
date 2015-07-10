@@ -5,7 +5,7 @@ module Utilities::Strings
     ('a'..'z').to_a.shuffle[0, string_length].join
   end
 
-  # ! NICE!
+  # ! NICE !
   def self.random_taxon_name
     'Aus bus'
   end
@@ -30,7 +30,8 @@ module Utilities::Strings
 
   def self.generate_md5(text)
     return nil if text.blank?
-    Digest::MD5.hexdigest(text.gsub(/\s*/, '').downcase)
+    text = text.downcase.gsub(/[\s\.,;:\?!]*/, '')
+    Digest::MD5.hexdigest(text)
   end
 
   def self.increment_contained_integer(string)
@@ -45,5 +46,15 @@ module Utilities::Strings
     return nil if string.blank?
     string.gsub("'", "''")
   end
+
+  # @return [Array]
+  #   returns an array of strings that are or() matchable, includes wildcards
+  #   !! Make sure your string is safe !!
+  def self.termify(string)
+    return [] if !string || !string.class == String 
+    [string, "%#{string}", "%#{string}%", "%#{string}%"] + string.split(/\s/).collect{|t| [t, "#{t}%"]}.flatten 
+  end
+
+
 end
 

@@ -16,11 +16,24 @@ module Workbench::ListHelper
   end
 
   def recent_objects_list(model, recent_objects)
-    if model.annotates?
-      render partial: "/#{params[:controller]}/recent_objects_list", locals: {recent_objects: recent_objects}
+    partial = nil
+    base = model.name.tableize  
+    if self.respond_to?("#{base}_recent_objects_partial") 
+      partial =  "/#{base}/recent_objects_list"
     else
-      render partial: '/shared/data/project/recent_objects_list', locals: {recent_objects: recent_objects}
+      partial = '/shared/data/project/recent_objects_list'
     end
+
+    render partial: partial , locals: {recent_objects: recent_objects}
   end
+
+#   elsif model.annotates?
+#     render partial: "/#{params[:controller]}/recent_objects_list", locals: {recent_objects: recent_objects}
+#   else
+#     render partial: , locals: {recent_objects: recent_objects}
+#   end
+# end
+
+
 
 end

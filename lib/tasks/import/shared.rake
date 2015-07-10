@@ -24,7 +24,11 @@ namespace :tw do
 
     def time_from_field(time)
       return nil if time.nil?
-      Time.strptime("#{time} GMT", "%m/%d/%Y %H:%M:%S %Z")
+      if time =~ /\d+\/\d+\/\d+ \d+:\d+:\d+/
+        Time.strptime("#{time} GMT", "%m/%d/%Y %H:%M:%S %Z")
+      elsif time =~ /\d+\/\d+\/\d+/
+        Time.strptime("#{time} 0:00:00 GMT", "%m/%d/%Y %H:%M:%S %Z")
+      end
     end
 
     def find_or_create_user(id, data)

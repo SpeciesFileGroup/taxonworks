@@ -129,7 +129,11 @@ class Person < ActiveRecord::Base
   end
 
   def self.find_for_autocomplete(params)
-    where('last_name LIKE ?', "#{params[:term]}%") # todo: Is last_name correct?
+    terms = Utilities::Strings.termify(params[:term])
+
+    t = Person.arel_table 
+
+    where('last_name LIKE ? OR last_name LIKE ? or last_name = ', "#{params[:term]}%") # todo: Is last_name correct?
   end
 
 end
