@@ -111,6 +111,19 @@ function add_new_asserted_distribution_map_listeners(map) {      // 4 listeners,
     });
 }           // add_listeners end
 
+function add_mouseOver_Out_listeners(map) {
+  // When the user clicks, set 'isColorful', changing the color of the feature.
+  map.data.addListener('click', function(event) {
+    if(event.feature.getProperty('isColorful')) {           // reset selected color if
+      event.feature.setProperty('isColorful', false);     // previously selected
+      event.feature.setProperty('fillColor', "#440000");  // to dimmer red
+    }
+    else {      // if not already "Colorful", make it so
+      event.feature.setProperty('isColorful', true);
+      event.feature.setProperty('fillColor', "#CC0000");  //brighter red
+    };
+  });
+}
 
 var _init_asserted_distributions_map;
 
