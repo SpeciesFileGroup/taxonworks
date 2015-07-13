@@ -275,8 +275,8 @@ describe Otu, :type => :model do
 
         expect(geo_data['features'][1]['type']).to eq('FeatureCollection')
         expect(geo_data['features'][1]['properties']).to eq({collecting_events_georeferences: {'count' => 2}})
-        expect(geo_data['features'][1]['features'][0]['properties']).to eq('collecting_event' => {'id' => c_e1.id, 'tag' => 'NoName'})
-        expect(geo_data['features'][1]['features'][1]['properties']).to eq('collecting_event' => {'id' => c_e3.id, 'tag' => 'NoName'})
+        expect(geo_data['features'][1]['features'][0]['properties']).to eq('collecting_event' => {'id' => c_e1.id, 'tag' => "Collecting event #{c_e1.id}."})
+        expect(geo_data['features'][1]['features'][1]['properties']).to eq('collecting_event' => {'id' => c_e3.id, 'tag' => "Collecting event #{c_e3.id}."})
 
         expect(geo_data['features'][2]['type']).to eq('FeatureCollection')
         expect(geo_data['features'][2]['properties']).to eq({collecting_events_geographic_area: {'count' => 2}})
