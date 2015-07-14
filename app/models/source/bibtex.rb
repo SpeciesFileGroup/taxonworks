@@ -290,13 +290,15 @@ class Source::Bibtex < Source
   ] # either year or stated_year is acceptable
 
   belongs_to :serial, inverse_of: :sources
-  belongs_to :source_language, class_name: "Language",foreign_key: :language_id, inverse_of: :sources
+  belongs_to :source_language, class_name: "Language", foreign_key: :language_id, inverse_of: :sources
   # above to handle clash with bibtex language field.
 
   has_many :author_roles, -> { order('roles.position ASC') }, class_name: 'SourceAuthor', as: :role_object, validate: true
   has_many :authors, -> { order('roles.position ASC') }, through: :author_roles, source: :person, validate: true # self.author & self.authors should match or one of them should be empty
   has_many :editor_roles, -> { order('roles.position ASC') }, class_name: 'SourceEditor', as: :role_object, validate: true # ditto for self.editor & self.editors
   has_many :editors, -> { order('roles.position ASC') }, through: :editor_roles, source: :person, validate: true
+  accepts_nested_attributes_for :authors, :editors, :author_roles, :editor_roles, allow_destroy: true
+  # accepts_nested_attributes_for :authors, :editors, :author_roles, :editor_roles, reject_if: :all_blank, allow_destroy: true
 
   before_validation :create_authors, if: '!authors_to_create.nil?'
   before_validation :check_has_field
@@ -379,7 +381,7 @@ class Source::Bibtex < Source
     b.author = self.compute_bibtex_names('author') unless (self.authors.size == 0 && self.author.blank?)
     b.editor = self.compute_bibtex_names('editor') unless (self.editors.size == 0 && self.editor.blank?)
 
-    b.key = self.id unless self.new_record? # id.blank?
+    b.key    = self.id unless self.new_record? # id.blank?
     b
   end
 
@@ -388,7 +390,7 @@ class Source::Bibtex < Source
   #   the bibtex version of the name strings created from the TW people
   # !! TODO: this is an and b/w all people for > 1 person, likely not correct
   def compute_bibtex_names(type)
-    method = type
+    method  = type
     methods = type + 's'
     case self.send(methods).size
       when 0
@@ -502,7 +504,7 @@ class Source::Bibtex < Source
   #endregion  ruby-bibtex related
 
   #region getters & setters
-
+ 
   def year=(value)
     if value.class == String
       value =~ /\A(\d\d\d\d)([a-zA-Z]*)\z/
@@ -694,7 +696,7 @@ class Source::Bibtex < Source
       bx_entry.key = 'tmpID'
     end
 
-    if bx_entry.year.blank?  # cludge to fix render problem with year
+    if bx_entry.year.blank? # cludge to fix render problem with year
       bx_entry.year = '0000'
     end
 

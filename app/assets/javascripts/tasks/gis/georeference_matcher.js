@@ -505,7 +505,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
 };
 
 $(document).ready(_init_match_georeference_page_widget);
-$(document).on("page:load", _init_match_georeference_page_widget);
+// $(document).on("page:load", _init_match_georeference_page_widget);
 
 
 function add_click_services_to_match_georeferences_map(map, event) {     // click event passed in

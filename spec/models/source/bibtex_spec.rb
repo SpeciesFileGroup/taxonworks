@@ -628,31 +628,34 @@ describe Source::Bibtex, type: :model, group: :sources do
 
     context 'with a new object' do
       let(:s) { Source::Bibtex.new(title: 'Roles II', year: 1924, bibtex_type: 'book') }
-      specify 'with new object, <<, and existing Person' do
-        expect(bibtex.roles.count).to eq(0)
-        s.authors << Person.create(last_name: 'Jones')
-        expect(s.save).to be_truthy
-        expect(s.roles.count).to eq(1)
-        expect(s.roles.first.creator.nil?).to be_falsey
-        expect(s.roles.first.updater.nil?).to be_falsey
-        expect(s.roles.first.project_id.nil?).to be_truthy
-
-        expect(s.authors.first.creator.nil?).to be_falsey
-        expect(s.authors.first.updater.nil?).to be_falsey
-      end
-
-      specify 'with new object, <<, and new Person' do
-        expect(bibtex.roles.count).to eq(0)
-        s.authors << Person.new(last_name: 'Jones')
-        expect(s.save).to be_truthy
-        expect(s.roles.count).to eq(1)
-        expect(s.roles.first.creator.nil?).to be_falsey
-        expect(s.roles.first.updater.nil?).to be_falsey
-        expect(s.roles.first.project_id.nil?).to be_truthy
-
-        expect(s.authors.first.creator.nil?).to be_falsey
-        expect(s.authors.first.updater.nil?).to be_falsey
-      end
+      # Deprecated for accepts_nested_attributes_for
+      # todo: Beth, write new tests.
+      # specify 'with new object, <<, and existing Person' do
+      #   expect(s.roles.count).to eq(0)
+      #   s.authors << Person.create(last_name: 'Jones')
+      #   expect(s.save).to be_truthy
+      #   expect(s.roles(true).size).to eq(1)
+      #   expect(s.roles.first.valid?).to be_truthy
+      #   expect(s.roles.first.creator.nil?).to be_falsey
+      #   expect(s.roles.first.updater.nil?).to be_falsey
+      #   expect(s.roles.first.project_id.nil?).to be_truthy
+      #
+      #   expect(s.authors.first.creator.nil?).to be_falsey
+      #   expect(s.authors.first.updater.nil?).to be_falsey
+      # end
+      #
+      # specify 'with new object, <<, and new Person' do
+      #   expect(s.roles.count).to eq(0)
+      #   s.authors << Person.new(last_name: 'Jones')
+      #   expect(s.save).to be_truthy
+      #   expect(s.roles.count).to eq(1)
+      #   expect(s.roles.first.creator.nil?).to be_falsey
+      #   expect(s.roles.first.updater.nil?).to be_falsey
+      #   expect(s.roles.first.project_id.nil?).to be_truthy
+      #
+      #   expect(s.authors.first.creator.nil?).to be_falsey
+      #   expect(s.authors.first.updater.nil?).to be_falsey
+      # end
 
       # A setter solution that approximates nested_attributes_for (which can't be used on polymorphic through)
       specify 'with new and authors_to_create pattern' do
@@ -936,25 +939,25 @@ describe Source::Bibtex, type: :model, group: :sources do
       end
 
       context '#cached_string correctly formats ' do
-       
-        let(:src1) {  
+
+        let(:src1) {
           VCR.use_cassette('source_citation_brauer') {
-            Source.new_from_citation( citation: 'Brauer, A. (1909) Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer. Smithsonian Institution.', resolve: true )
-          } 
+            Source.new_from_citation(citation: 'Brauer, A. (1909) Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer. Smithsonian Institution.', resolve: true)
+          }
         }
 
-        let(:src2) { 
-          VCR.use_cassette('source_citation_kevan') { 
+        let(:src2) {
+          VCR.use_cassette('source_citation_kevan') {
             Source.new_from_citation(citation: 'Kevan, D.K.M. & Wighton. 1981. Paleocene orthopteroids from south-central Alberta, Canada. Canadian Journal of Earth Sciences. 18(12):1824-1837', resolve: true)
           }
         }
-        
+
         specify 'text' do
-          expect(src1.cached_string('text')).to eq('Brauer, A. (1909) Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer. G. Fischer, Available from: http://dx.doi.org/10.5962/bhl.title.1086.')
+          expect(src1.cached_string('text')).to eq('Brauer, A. (1909) Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer. Smithsonian Institution. Available from: http://dx.doi.org/10.5962/bhl.title.1086.')
           expect(src2.cached_string('text')).to eq('Kevan, D.K.M.E. & Wighton, D.C. (1981) Paleocene orthopteroids from south-central Alberta, Canada. Can. J. Earth Sci. 18, 1824–1837.')
         end
         specify 'html' do
-          expect(src1.cached_string('html')).to eq('Brauer, A. (1909) <i>Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer.</i> G. Fischer, Available from: http://dx.doi.org/10.5962/bhl.title.1086.')
+          expect(src1.cached_string('html')).to eq('Brauer, A. (1909) <i>Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer.</i> Smithsonian Institution. Available from: http://dx.doi.org/10.5962/bhl.title.1086.')
           expect(src2.cached_string('html')).to eq('Kevan, D.K.M.E. &amp; Wighton, D.C. (1981) Paleocene orthopteroids from south-central Alberta, Canada. <i>Can. J. Earth Sci.</i> 18, 1824–1837.')
         end
       end
@@ -981,7 +984,7 @@ describe Source::Bibtex, type: :model, group: :sources do
 
         context 'check cached strings after update' do
           specify 'authors' do
-            src1 =  FactoryGirl.create(:soft_valid_bibtex_source_article)
+            src1 = FactoryGirl.create(:soft_valid_bibtex_source_article)
             src1.save
             expect(src1.cached).to eq('Person, T. (1700) I am a soft valid article. Journal of Test Articles.')
             expect(src1.cached_author_string).to eq('Person')
@@ -998,7 +1001,7 @@ describe Source::Bibtex, type: :model, group: :sources do
           end
 
           specify 'editors' do
-            src1 =  FactoryGirl.create(:src_editor)
+            src1 = FactoryGirl.create(:src_editor)
             src1.save
             expect(src1.cached).to eq('Person, T. ed. (1700) I am a soft valid article. Journal of Test Articles.')
 
@@ -1146,6 +1149,127 @@ describe Source::Bibtex, type: :model, group: :sources do
 
     skip 'test sv_has_notes? runs correctly when there is no src_bibtex.note but does have src_bibtex.notes'
   end
+
+  context 'nested attributes' do
+    #let(:b){Source::Bibtex.new}
+    let(:person1) { Person::Unvetted.create!(last_name: "un") }
+    let(:person2) { Person::Unvetted.create!(last_name: "deux") }
+    let(:person3) { Person::Unvetted.create!(last_name: "trois") }
+    let(:required_params) { {bibtex_type: 'article', title: "Three Frenchmen"} }
+
+    context 'with new source' do
+      context 'creates new author role with existing person' do
+        let(:params) { required_params.merge(
+          author_roles_attributes: [{person_id: person1.id}]
+        ) }
+        let(:b) { Source::Bibtex.create!(params) }
+        specify 'has one role' do
+          expect(b.roles(true).size).to eq(1)
+        end
+        specify 'has one author' do
+          expect(b.authors(true).size).to eq(1)
+        end
+      end
+
+      context 'creates new author role and new person' do
+        let(:params) { required_params.merge(
+          author_roles_attributes: [{person_attributes: {last_name: 'nom'}}]
+        ) }
+        let(:b) { Source::Bibtex.create!(params) }
+        specify 'has one role' do
+          expect(b.roles(true).size).to eq(1)
+        end
+        specify 'has one author' do
+          expect(b.authors(true).size).to eq(1)
+        end
+      end
+
+      context 'authors (roles) are created in order' do
+        let(:params) { required_params.merge(
+          author_roles_attributes: [{person_id: person1.id}, {person_id: person2.id}, {person_id: person3.id}]
+        ) }
+        let(:b) { Source::Bibtex.create!(params) }
+        specify 'author order is correct' do
+          expect(b.authors.to_a).to eq([person1, person2, person3])
+        end
+      end
+    end
+
+    context 'with existing source' do
+      let!(:b) { Source::Bibtex.create!(required_params) }
+      let(:one_author_params) { {author_roles_attributes: [{person_id: person1.id}]} }
+      let(:three_author_params) { {author_roles_attributes: [{person_id: person1.id}, {person_id: person2.id}, {person_id: person3.id}]
+      } }
+
+      context 'creates new author role with existing person' do
+        let(:params) { required_params.merge(one_author_params) }
+        specify 'update adds role' do
+          expect(b.update(params)).to be_truthy
+          expect(b.roles(true).size).to eq(1)
+        end
+      end
+
+      context 'creates new author role and new person' do
+        let(:params) { required_params.merge(
+          author_roles_attributes: [{person_attributes: {last_name: 'nom'}}]
+        ) }
+        specify 'update adds role' do
+          expect(b.update(params)).to be_truthy
+          expect(b.roles(true).size).to eq(1)
+        end
+      end
+
+      context 'deletes existing author role' do
+        before { b.update(one_author_params) }
+        context 'verify existing person is not deleted' do
+          let(:params) { {
+            author_roles_attributes: [{id: b.roles.first.id, _destroy: 1}]
+          } }
+          specify 'update destroys role' do
+            expect(b.roles(true).size).to eq(1)
+            expect(b.update(params)).to be_truthy
+            expect(b.roles(true).size).to eq(0)
+          end
+        end
+      end
+
+      context 'with three authors, deleting the middle author role maintains position' do
+        before { b.update(three_author_params) }
+        let(:params) { {
+          author_roles_attributes: [{id: b.roles.second.id, _destroy: 1}]
+        } }
+        specify 'three authors exist' do
+          expect(b.authors(true).size).to eq(3)
+        end
+        specify 'update updates position' do
+          expect(b.authors(true).count).to eq(3)
+          expect(b.authority_name).to eq('un, deux & trois')
+          expect(b.update(params)).to be_truthy
+          expect(b.authors(true).count).to eq(2)
+          expect(b.authority_name).to eq('un and trois')
+          expect(b.roles(true).first.position).to eq(1)
+          expect(b.roles.last.position).to eq(2)
+          expect(b.authors.last.last_name).to eq('trois')
+        end
+      end
+
+      context 'authors (roles) are rearranged according to specified position' do
+        before { b.update(three_author_params) }
+        let(:params) { {
+          author_roles_attributes: [{id: b.roles.second.id, position: 1}, {id: b.roles.third.id, position: 2}, {id: b.roles.first.id, position: 3}]
+        } }
+        specify 'update updates position' do
+          expect(b.authors(true).count).to eq(3)
+          expect(b.authority_name).to eq('un, deux & trois')
+          expect(b.update(params)).to be_truthy
+          expect(b.authors(true).collect { |a| a.last_name }).to eq(%w{deux trois un})
+          expect(b.authors(true).count).to eq(3)
+          expect(b.authority_name).to eq('deux, trois & un')
+        end
+      end
+    end
+  end
+
 
   context('Beth') do
 =begin

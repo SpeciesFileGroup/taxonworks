@@ -1,10 +1,14 @@
-
 <%= form_for(@source.metamorphosize) do |f| %>
+
     <%= render 'shared/errors', object: @source %>
+
+    <%= render partial: '/people/role_picker', locals: {role: :author, object: @source, f: f} %>
+
+    <%= render partial: '/people/role_picker', locals: {role: :editor, object: @source, f: f} %>
 
     <div class="field" id="source_edit_type">
       <%= f.label :type %><br>
-      BibTeX <%= f.radio_button :type, 'Source::Bibtex'  %>
+      BibTeX <%= f.radio_button :type, 'Source::Bibtex' %>
       Verbatim <%= f.radio_button :type, 'Source::Verbatim' %>
       <span class="disabled"> Person </span> <%= f.radio_button :type, 'Source::Person', disabled: true %>
     </div>
@@ -14,7 +18,7 @@
         <div class="item item1">
           <div class="field">
             <%= f.label :bibtex_type %><br>
-            <%= f.select :bibtex_type, options_for_select(VALID_BIBTEX_TYPES,f.object.bibtex_type), :include_blank => true %>
+            <%= f.select :bibtex_type, options_for_select(VALID_BIBTEX_TYPES, f.object.bibtex_type), :include_blank => true %>
           </div>
 
           <div class="field">
@@ -36,7 +40,6 @@
             <%= f.label :pages %><br>
             <%= f.text_field :pages %>
           </div>
-
 
           <div class="field">
             <%= f.label :stated_year %><br>
@@ -168,15 +171,15 @@
             <%= f.label :issn %><br>
             <%= f.text_field :issn %>
           </div>
-         <div class="field">
+          <div class="field">
             <%= f.label :language_id %><br>
-           <%= render :partial => 'workbench/elements/forms/ajax_select',
-                      locals:  {controller: 'languages',
-                                object:     'source',
-                                method:     'language_id',
-                                tag_id:     'language_id_for_source',
-                                size:       '50',
-                                display:    @source.respond_to?(:language_id) ? language_tag(@source.language_id) : nil} %>
+            <%= render :partial => 'workbench/elements/forms/ajax_select',
+                       locals:  {controller: 'languages',
+                                 object:     'source',
+                                 method:     'language_id',
+                                 tag_id:     'language_id_for_source',
+                                 size:       '50',
+                                 display:    @source.respond_to?(:language_id) ? language_tag(@source.language_id) : nil} %>
           </div>
           <div class="field">
             <%= f.label :translator %><br>
@@ -190,7 +193,8 @@
             <%= f.label :url %><br>
             <%= f.text_field :url %>
           </div>
-        <br>
+          <br>
+
           <div class="field">
             <%= f.label :verbatim_contents %><br>
             <%= f.text_area :verbatim_contents %>
@@ -199,7 +203,7 @@
             <%= f.label :verbatim_keywords %><br>
             <%= f.text_area :verbatim_keywords %>
           </div>
-         </div>
+        </div>
 
       </div>
     </div>

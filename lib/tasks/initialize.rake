@@ -156,6 +156,7 @@ namespace :tw do
       puts "#{users.length} users loaded.".bold
     end
 
+    desc "Fully initialize a production server"
     task :all => [
       :environment,
       :check_for_clean_database,

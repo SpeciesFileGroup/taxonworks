@@ -138,6 +138,15 @@ class SourcesController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def source_params
-    params.require(:source).permit(:serial_id, :address, :annote, :author, :booktitle, :chapter, :crossref, :edition, :editor, :howpublished, :institution, :journal, :key, :month, :note, :number, :organization, :pages, :publisher, :school, :series, :title, :type, :volume, :doi, :abstract, :copyright, :language, :stated_year, :verbatim, :bibtex_type, :day, :year, :isbn, :issn, :verbatim_contents, :verbatim_keywords, :language_id, :translator, :year_suffix, :url, :type)
+    params.require(:source).permit(
+      :serial_id, :address, :annote, :author, :booktitle, :chapter,
+      :crossref, :edition, :editor, :howpublished, :institution,
+      :journal, :key, :month, :note, :number, :organization, :pages,
+      :publisher, :school, :series, :title, :type, :volume, :doi,
+      :abstract, :copyright, :language, :stated_year, :verbatim,
+      :bibtex_type, :day, :year, :isbn, :issn, :verbatim_contents,
+      :verbatim_keywords, :language_id, :translator, :year_suffix, :url, :type,
+      roles_attributes: [:id, :_destroy, :type, :person_id, :position, person_attributes: [:last_name, :first_name, :suffix, :prefix]]
+    )
   end
 end

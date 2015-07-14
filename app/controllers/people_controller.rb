@@ -101,6 +101,21 @@ class PeopleController < ApplicationController
 
   end
 
+  def lookup_person
+    @people = Person.find_for_autocomplete(params)
+    render :json => @people.collect{|p|
+      {
+        label: p.bibtex_name,
+        object_id: p.id}
+    }
+  end
+
+  # GET /person/:id/details
+  def details 
+    @person = Person.includes(:roles).find(params[:id])
+    render partial: '/people/picker_details', locals: {person:  @person} 
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_person

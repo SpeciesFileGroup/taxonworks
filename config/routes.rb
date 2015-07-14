@@ -55,7 +55,6 @@ TaxonWorks::Application.routes.draw do
   #   match '/administration', to: 'user_preferences#favorite_page', via: :post
   # end
 
-
   resources :project_members, except: [:index, :show]
   resources :pinboard_items, only: [:create, :destroy]
 
@@ -189,6 +188,10 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
     member do
       get :roles
+      get :details
+    end
+    collection do
+      get :lookup_person
     end
   end
   resources :preparation_types do
@@ -365,7 +368,7 @@ TaxonWorks::Application.routes.draw do
 
   match '/papertrail', to: 'papertrail#papertrail', via: :get
   match '/papertrail/:id', to: 'papertrail#show', as: 'paper_trail_version', via: :get
-
+ 
   # API STUB
   get '/api/v1/taxon_names/' => 'api/v1/taxon_names#all'
 

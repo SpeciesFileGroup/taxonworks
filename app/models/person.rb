@@ -130,11 +130,7 @@ class Person < ActiveRecord::Base
   end
 
   def self.find_for_autocomplete(params)
-    terms = Utilities::Strings.termify(params[:term])
-
-    t = Person.arel_table 
-
-    where('last_name LIKE ? OR last_name LIKE ? or last_name = ', "#{params[:term]}%") # todo: Is last_name correct?
+    where('last_name ILIKE ? or last_name ILIKE ? or last_name = ?', "#{params[:term]}%", "%#{params[:term]}%", params[:term]) # todo: Is last_name correct?
   end
 
   # set cached values and copies active record relations into bibtex values

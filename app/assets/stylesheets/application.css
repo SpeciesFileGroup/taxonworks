@@ -19,6 +19,6 @@ body {
 
 .scrollable_div { height: 80px; overflow: auto;  }
 .hidden {visibility:hidden;}
-.collapsed {visibility: collapse;}
+.collapsed {visibility: collapse;}     /* valid for tables only */
 
 

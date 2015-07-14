@@ -1,0 +1,44 @@
+<div class="role_picker flexbox" id="<%= role %>_role_picker" data-role-type='<%= role -%>' >
+
+  <div class="item item1">
+
+    <h2 class="role_picker_header"><%= role.to_s.pluralize.capitalize %> <span class='role_picker_alert' hidden></span> </h2>
+
+    <span class="role_picker_message"> </span>
+
+    <ul class="role_list">
+      <% if object.respond_to?("#{role}_roles") -%>
+        <%= f.fields_for :roles, object.send("#{role}_roles") do |role_fields| %>
+          <li class="role_item" data-role-id="<%= role_fields.object.id -%>" data-role-index="<%= role_fields.index -%>" >
+          <%= role_fields.text_field :id, hidden: true -%>
+          <%= object_tag(role_fields.object)  -%> <%= link_to('remove', "#", class: :remove_role) -%>
+          </li>
+        <% end %>
+      <% end %>
+    </ul>
+
+    <div>
+      <%= content_tag :div, '', class: 'person_details left_float' -%>
+
+      <div> 
+        <%= text_field_tag "#{role}_autocomplete", nil, class: 'role_picker_autocomplete left_float' %>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="new_person item item2" hidden>
+    <div>
+      <span class="name_label"></span>
+      <%= link_to "switch", '#', class: :role_picker_switch  %>
+      <%= link_to "add new", '#', class: :role_picker_add_new %>
+      <%= link_to "expand", '#', class: :role_picker_expand %>
+    </div>
+    <div class="role_picker_person_form" hidden>
+      <%= f.fields_for Person.new do |fp| %>
+        <%= render partial: '/people/form_elements2', locals: {role: role, f: fp} %>
+      <% end %>
+    </div>
+
+  </div>
+</div>
