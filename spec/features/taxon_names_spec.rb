@@ -124,6 +124,9 @@ describe 'TaxonNames', :type => :feature do
       # Set the original combination for the first time: select 'Aus' for the original genus ajax select
       # Had to add the '\r' to get the auto select to correctly select Aus, but the return
       # also is equivalent to the submit button
+
+      # TODO add an expect here to see that the selection of Aus actually occurred
+
       click_button('Save changes') # click 'Save changes'
       expect(page).to have_content('Successfully updated the original combination.') # success msg
 
