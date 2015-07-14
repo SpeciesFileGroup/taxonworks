@@ -3,6 +3,7 @@ module PeopleHelper
   def person_tag(person)
     return nil if person.nil?
     person.name
+    person.cached ? person.cached : 'WARNING CACHE NOT BUILT ADMIN TEST'
   end
 
   def people_search_form

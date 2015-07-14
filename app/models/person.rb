@@ -16,6 +16,7 @@ class Person < ActiveRecord::Base
   before_validation :set_type_if_blank
 
   # after_save :update_bibtex_sources
+  before_save :set_cached
 
   validates :type, inclusion: {in:      ['Person::Vetted', 'Person::Unvetted'],
                                message: "%{value} is not a validly_published type"}
@@ -134,6 +135,11 @@ class Person < ActiveRecord::Base
     t = Person.arel_table 
 
     where('last_name LIKE ? OR last_name LIKE ? or last_name = ', "#{params[:term]}%") # todo: Is last_name correct?
+  end
+
+  # set cached values and copies active record relations into bibtex values
+  def set_cached
+    self.cached = self.bibtex_name if self.errors.empty?
   end
 
 end
