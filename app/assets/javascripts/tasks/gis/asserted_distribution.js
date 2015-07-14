@@ -111,7 +111,7 @@ function add_new_asserted_distribution_map_listeners(map) {      // 4 listeners,
     });
 }           // add_listeners end
 
-function add_mouseOver_Out_listeners(map) {
+function add_mouseOver_Out_listeners(map) {   //created to isolate functions above and debug mouseover
   // When the user clicks, set 'isColorful', changing the color of the feature.
   map.data.addListener('click', function(event) {
     if(event.feature.getProperty('isColorful')) {           // reset selected color if
@@ -123,6 +123,16 @@ function add_mouseOver_Out_listeners(map) {
       event.feature.setProperty('fillColor', "#CC0000");  //brighter red
     };
   });
+  map.data.addListener('mouseover', function(event) {
+    map.data.revertStyle();
+    map.data.overrideStyle(event.feature, {fillColor: '#880000'});  // mid-level red
+    map.data.overrideStyle(event.feature, {strokeWeight: 2});       //embolden borders
+  });
+
+  map.data.addListener('mouseout', function(event) {
+    map.data.revertStyle();
+  });
+
 }
 
 var _init_asserted_distributions_map;

@@ -79,7 +79,7 @@ initializeComplexMap = function (canvas, feature_collection) {
     map.data.overrideStyle(event.feature, {fillOpacity: 0.3});  // dimmer
     //$("#displayed_distribution_style").html('');
   });
-
+//add_mouseOver_Out_listeners(map);
 // bounds for calculating center point
   var bounds = {};    //xminp: xmaxp: xminm: xmaxm: ymin: ymax: -90.0, center_long: center_lat: gzoom:
   //getComplexData(chained, bounds);               // scan var data as feature collection with homebrew traverser, collecting bounds
