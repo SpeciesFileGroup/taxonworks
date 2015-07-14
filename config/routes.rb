@@ -1,6 +1,6 @@
 TaxonWorks::Application.routes.draw do
 
-    # All models that use data controllers should include this concern.
+  # All models that use data controllers should include this concern.
   # See http://api.rubyonrails.org/classes/ActionDispatch/Routing/Mapper/Concerns.html to extend it to take options if need be.
   # TODO: This will have to be broken down to core_data_routes, and supporting_data_routes
   concern :data_routes do |options|
@@ -50,11 +50,10 @@ TaxonWorks::Application.routes.draw do
     get 'data_overview'
   end
 
-# namespace :administration do
-#   get 'index'
-#   match '/administration', to: 'user_preferences#favorite_page', via: :post
-# end
-  
+  # namespace :administration do
+  #   get 'index'
+  #   match '/administration', to: 'user_preferences#favorite_page', via: :post
+  # end
 
   resources :project_members, except: [:index, :show]
   resources :pinboard_items, only: [:create, :destroy]
@@ -88,7 +87,7 @@ TaxonWorks::Application.routes.draw do
   resources :collection_object_observations do
     concerns [:data_routes]
   end
-  
+
   resources :containers, only: [:create, :update, :destroy]
   resources :container_items, only: [:create, :update, :destroy]
 
@@ -119,7 +118,6 @@ TaxonWorks::Application.routes.draw do
   end
 
 
-
   resources :combinations, only: [:create, :edit, :update, :destroy, :new] do
     concerns [:data_routes]
   end
@@ -143,7 +141,6 @@ TaxonWorks::Application.routes.draw do
   resources :geographic_areas_geographic_items, except: [:index, :show]
   resources :geographic_items
 
-  
 
   resources :georeferences, only: [:index, :destroy, :new, :show, :edit] do
     concerns [:data_routes]
@@ -230,7 +227,7 @@ TaxonWorks::Application.routes.draw do
   resources :tags, except: [:edit, :show] do
     concerns [:data_routes]
   end
-  
+
   resources :taxon_determinations do
     concerns [:data_routes]
   end
@@ -244,7 +241,7 @@ TaxonWorks::Application.routes.draw do
     end
   end
 
-   resources :taxon_name_classifications, except: [:show] do
+  resources :taxon_name_classifications, except: [:show] do
     concerns [:data_routes]
   end
 
@@ -298,6 +295,13 @@ TaxonWorks::Application.routes.draw do
       get 'drawn_georeferences'
 
       post 'batch_create_match_georeferences'
+    end
+
+    scope :gis, controller: 'tasks/gis/otu_distribution_data' do
+      get 'otu_distribution_data/(:id)', action: 'show', as: 'otu_distribution_data_task'
+      get 'otu_distribution_data/((:id)/show2)', action: 'show2', as: 'otu_distribution_data_task2'
+
+     # get 'otu_distribution_data', action: 'show', as: 'first_otu_distribution_data_task'
     end
 
     scope :serials, controller: 'tasks/serials/similar' do
@@ -363,8 +367,8 @@ TaxonWorks::Application.routes.draw do
   patch '/set_password/:token', to: 'users#set_password', as: 'set_password'
 
   match '/papertrail', to: 'papertrail#papertrail', via: :get
-  match '/papertrail/:id', to: 'papertrail#show', as: 'paper_trail_version',  via: :get
-
+  match '/papertrail/:id', to: 'papertrail#show', as: 'paper_trail_version', via: :get
+ 
   # API STUB
   get '/api/v1/taxon_names/' => 'api/v1/taxon_names#all'
 

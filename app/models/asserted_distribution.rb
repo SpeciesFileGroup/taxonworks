@@ -85,11 +85,15 @@ class AssertedDistribution < ActiveRecord::Base
       'geometry'   => RGeo::GeoJSON.encode(self.geographic_area.geographic_items.first.geo_object),
       'properties' => {
         'asserted_distribution' => {
-          'id' => self.id}
+          'id' => self.id
+        }
       }
     }
     retval
   end
+
+
+
 
   #end region
 

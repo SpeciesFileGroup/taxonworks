@@ -174,6 +174,7 @@ module Utilities::Geo
     nearby_distance  = digit * decade
   end
 
+  # confirm that this says that the error radius is one degree or smaller
   def self.point_keystone_error_box(geo_object, error_radius)
     p0      = geo_object
     delta_x = (error_radius / ONE_WEST) / ::Math.cos(p0.y)

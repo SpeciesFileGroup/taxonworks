@@ -376,6 +376,8 @@ SELECT round(CAST(
         q = geographic_items.flatten.collect { |geographic_item|
           GeographicItem.containing_sql(column_name, geographic_item.id, geographic_item.geo_object_type)
         }.join(' or ')
+        q = 'FALSE' if q.blank? # this will prevent the invocation of *ALL* of the GeographicItems, if there are
+        # no GeographicItems in the request (see CollectingEvent.name_hash(types)).
         where(q) # .excluding(geographic_items)
     end
   end

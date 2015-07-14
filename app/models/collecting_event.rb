@@ -98,15 +98,18 @@ class CollectingEvent < ActiveRecord::Base
 
   accepts_nested_attributes_for :verbatim_data_georeference
 
-  before_validation :check_verbatim_geolocation_uncertainty,
-                    :check_date_range,
-                    :check_elevation_range
+  validate :check_verbatim_geolocation_uncertainty,
+           :check_date_range,
+           :check_elevation_range
+
+  # TODO: write specs, this is failing when GeographicArea is set.
   before_save :set_cached
   before_save :set_times_to_nil_if_form_provided_blank
 
   validates_uniqueness_of :md5_of_verbatim_label, scope: [:project_id], unless: 'verbatim_label.blank?'
   validates_presence_of :verbatim_longitude, if: '!verbatim_latitude.blank?'
   validates_presence_of :verbatim_latitude, if: '!verbatim_longitude.blank?'
+
   validates :geographic_area, presence: true, allow_nil: true
 
   validates :time_start_hour,
@@ -412,11 +415,13 @@ class CollectingEvent < ActiveRecord::Base
       # use geographic_area only if there are no GIs or EGIs
       unless self.geographic_area.nil?
         # we need to use the geographic_area directly
-        gi_list << GeographicItem.are_contained_in_item('any', self.geographic_area.geographic_items)
+        # unless self.geographic_area.geographic_items.empty?
+        gi_list << GeographicItem.are_contained_in_item('any_poly', self.geographic_area.geographic_items)
+        # end
       end
     else
       # gather all the GIs which contain this GI or EGI
-      gi_list << GeographicItem.are_contained_in_item('any', self.geographic_items.to_a + self.error_geographic_items.to_a)
+      gi_list << GeographicItem.are_contained_in_item('any_poly', self.geographic_items.to_a + self.error_geographic_items.to_a)
     end
 
     # there are a few ways we can end up with no GIs
@@ -582,18 +587,30 @@ TODO: @mjy: please fill in any other paths you can think of for the acquisition 
   #   the first geographic item of the first georeference on this collecting event
   def to_geo_json_feature
     # !! avoid loading the whole geographic item, just grab the bits we need:
+    # self.georeferences(true)  # do this to
+    to_simple_json_feature.merge({
+                                   'properties' => {
+                                     'collecting_event' => {
+                                       'id'  => self.id,
+                                       'tag' => "Collecting event #{self.id}."
+                                     }
+                                   }
+                                 })
+  end
+
+  # TODO: parametrize to include gazeteer 
+  #   i.e. geographic_areas_geogrpahic_items.where( gaz = 'some string')
+  def to_simple_json_feature
+    # !! avoid loading the whole geographic item, just grab the bits we need:
     geo_item_id, t = self.geographic_items.pluck(:id, :type).first
     geo_type       = t.demodulize.tableize.singularize # geo_item.geo_object_type.to_s
     geometry       = JSON.parse(GeographicItem.connection.select_all("select ST_AsGeoJSON(#{geo_type}::geometry) geo_json from geographic_items where id=#{geo_item_id};")[0]['geo_json'])
-    retval         = {
+
+    {
       'type'       => 'Feature',
       'geometry'   => geometry,
-      'properties' => {
-        'collecting_event' => {
-          'id' => self.id}
-      }
+      'properties' => {}
     }
-    retval
   end
 
   # @return [CollectingEvent]
@@ -733,17 +750,16 @@ TODO: @mjy: please fill in any other paths you can think of for the acquisition 
     end
   end
 
+
   protected
 
   def set_cached
     string = nil
-
     if verbatim_label.blank?
-      string = [country_name, state_name, county_name, "\n", verbatim_locality, start_date, end_date, "\n", verbatim_collectors].compact.join
+      string = [country_name, state_name, county_name, "\n", verbatim_locality, start_date, end_date, "\n", verbatim_collectors].compact.join(', ')
     else
       string = [verbatim_label, print_label, document_label].compact.first
     end
-
     string      = "[#{self.id.to_param}]" if string.strip.length == 0
     self.cached = string
   end

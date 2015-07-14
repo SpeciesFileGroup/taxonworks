@@ -1,4 +1,6 @@
 language: ruby
+cache: bundler
+sudo: false
 rvm:
   - 2.1.5
 bundler_args: --without development
@@ -7,17 +9,19 @@ branches:
       - master
 addons:
   postgresql: "9.3"
-before_install: ./travis/before_install.sh
+  apt:
+    packages:
+      - libgeos-dev
+      - libproj-dev
 before_script:
   - export DISPLAY=:99.0
   - sh -e /etc/init.d/xvfb start
   - cp config/database.yml.example config/database.yml
   - psql -U postgres -c 'create role taxonworks_development login createdb superuser;' 
-  - rake db:drop  
-  - rake db:create
-  #- ./travis/before_script.sh
-  - rake db:migrate
-  - rake db:migrate HPS_ENV=test 
+  - bundle exec rake db:drop  
+  - bundle exec rake db:create
+  - bundle exec rake db:migrate
+  - bundle exec rake db:migrate HPS_ENV=test 
 notifications:
   email:
     - diapriid@gmail.com 

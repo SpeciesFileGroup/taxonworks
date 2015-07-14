@@ -1,9 +1,4 @@
-<div class="attributes">
-  <p>
-    <strong>Type:</strong>
-    <%= @source.type %>
-  </p>
-
+<div class="attributes"> 
   <div class='attribute_set' data-title="BibTeX Attributes" >
     <p>
     <strong>Bibtex type:</strong>
@@ -190,13 +185,10 @@
     <%= serial_tag(@source.serial) if @source.respond_to?(:serial) %>
   </p>
 
-
-    <% if @source.type != 'Source::Human' %>
-      <p>
-        <strong>Language (TW):</strong>
-        <%= object_tag(@source.source_language) %>
-      </p>
-  <% end %>
+  <p>
+  <strong>Language (TW):</strong>
+  <%= object_tag(@source.language) %>
+  </p>
 
   <div class='attribute_set' data-title="Other attributes" >
 

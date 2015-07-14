@@ -30,8 +30,8 @@ gem 'jquery-ui-rails', '~> 5.0.5'
 
 # Turbolinks makes following links in your web application faster.
 # Read more: https://github.com/rails/turbolinks
-gem 'turbolinks', '~> 2.5'
-gem 'jquery-turbolinks', '~> 2.1'
+gem 'turbolinks'
+gem 'jquery-turbolinks'
 
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
 gem 'jbuilder', '~> 2.0'
@@ -40,10 +40,10 @@ gem 'chronic', '~> 0.10'
 gem 'awesome_nested_set', '~> 3.0.2' 
 
 # BibTex handling
-gem 'csl', '~> 1.4.3' # git: 'https://github.com/inukshuk/csl-ruby' 
+gem 'csl', git: 'https://github.com/inukshuk/csl-ruby' 
 gem 'bibtex-ruby', '~> 4.0.12'
 gem 'citeproc-ruby', '~> 1.1.0'
-gem 'csl-styles', '~> 1.0.1.6'
+gem 'csl-styles'
 
 gem 'ref2bibtex', '~> 0.0.3'
 gem 'latex-decode', '~> 0.2.2'
