@@ -22,6 +22,11 @@ function init_otu_distribution_data() {
 
 function add_otu_distribution_data_listeners(map) {
 
+  map.data.addListener('click', function (event) {
+    map.data.revertStyle();
+    map.data.overrideStyle(event.feature, {fillOpacity: 0.5});
+  });
+
   map.data.addListener('mouseover', function (event) {     // interim color shift on mousover paradigm changed to opacity
     map.data.revertStyle();
     map.data.overrideStyle(event.feature, {fillOpacity: 0.7});  // bolder
