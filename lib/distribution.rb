@@ -146,7 +146,7 @@ class Distribution
   def asserted_distribution_properties(json, asserted_distribution, data)
     json['properties'].merge!('label' => asserted_distribution.geographic_area.name)
     json['properties']['metadata'].merge!('GeographicArea' => asserted_distribution.geographic_area.attributes)
-    json['properties']['metadata'].merge!('Source' => asserted_distribution.geographic_area.attributes)
+    json['properties']['metadata'].merge!('Source' => asserted_distribution.source.attributes)
   end
 
   def collecting_event_geographic_area_properties(json, collecting_event, data)
