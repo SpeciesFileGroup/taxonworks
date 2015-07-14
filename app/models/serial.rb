@@ -27,7 +27,7 @@ class Serial < ActiveRecord::Base
   belongs_to :translated_from_serial, foreign_key: :translated_from_serial_id, class_name: 'Serial'
   belongs_to :language, foreign_key: :primary_language_id
 
-  has_many :sources, inverse_of: :serial, dependent: :restrict_with_error
+  has_many :sources, class_name: 'Source::Bibtex', inverse_of: :serial, dependent: :restrict_with_error
 
   has_many :translations, foreign_key: :translated_from_serial_id, class_name: 'Serial'
 
