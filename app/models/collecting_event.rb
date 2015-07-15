@@ -103,7 +103,7 @@ class CollectingEvent < ActiveRecord::Base
            :check_elevation_range
 
   # TODO: write specs, this is failing when GeographicArea is set.
-  before_save :set_cached
+  before_save :set_cached ###### it takes too much time to process.
   before_save :set_times_to_nil_if_form_provided_blank
 
   validates_uniqueness_of :md5_of_verbatim_label, scope: [:project_id], unless: 'verbatim_label.blank?'
