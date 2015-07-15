@@ -20,10 +20,13 @@ _init_otu_distribution_data_widget = function init_otu_distribution_data() {
 
 function add_otu_distribution_data_listeners(map) {
 
-  //map.data.addListener('click', function (event) {
-  //  map.data.revertStyle();
-  //  map.data.overrideStyle(event.feature, {fillOpacity: 0.5});
-  //});
+  map.data.addListener('click', function (event) {
+    map.data.revertStyle();
+    map.data.overrideStyle(event.feature, {fillOpacity: 0.5});
+    //$("#displayed_distribution_style").html(event.feature.getProperty('metadata').Source.type);
+    document.getElementById("displayed_distribution_style").textContent = event.feature.getProperty('metadata').Source.type;
+    var xx = 0;
+  });
 
   map.data.addListener('mouseover', function (event) {     // interim color shift on mousover paradigm changed to opacity
     map.data.revertStyle();
@@ -36,7 +39,7 @@ function add_otu_distribution_data_listeners(map) {
 
   map.data.addListener('mouseout', function (event) {
     map.data.revertStyle();
-    map.data.overrideStyle(event.feature, {fillOpacity: 0.3});  // dimmer
+    //map.data.overrideStyle(event.feature, {fillOpacity: 0.3});  // dimmer
     $("#displayed_distribution_style").html('');
   });
 }
