@@ -53,15 +53,10 @@ function initializeComplexMap(canvas, feature_collection) {
     map.data.addGeoJson(chained);
   };  // put data on the map if present
 
-///////////// SOMEHOW THESE LISTENERS BECAME BROKEN ON 08JUL15  ///////////////
-
-//add_mouseOver_Out_listeners(map);
 // bounds for calculating center point
   var bounds = {};    //xminp: xmaxp: xminm: xmaxm: ymin: ymax: -90.0, center_long: center_lat: gzoom:
-  //getComplexData(chained, bounds);               // scan var data as feature collection with homebrew traverser, collecting bounds
   getData(chained, bounds);               // scan var data as feature collection with homebrew traverser, collecting bounds
   var center_lat_long = get_window_center(bounds);      // compute center_lat_long from bounds and compute zoom level as gzoom
-  // $("#map_coords").html('Center: \xA0 \xA0 \xA0 \xA0Latitude = ' + bounds.center_lat.toFixed(6) + ' , Longitude = ' + bounds.center_long.toFixed(6));
   map.setCenter(center_lat_long);
   map.setZoom(bounds.gzoom);
   return map;             // now no global map object, use this object to add listeners to THIS map
