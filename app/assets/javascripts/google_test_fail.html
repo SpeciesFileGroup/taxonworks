@@ -1,0 +1,84 @@
+<html>
+<title>Google test:: Data Layer: Dynamic Styling</title>
+<script src="https://maps.googleapis.com/maps/api/js?v=3"></script>
+
+<script>
+    //        var map;
+    function initialize() {
+        var myOptions = {
+            zoom: 10,
+            center: {lat: 41.8, lng: -82.8}, //center_lat_long, set to 0,0
+        };
+
+        var fcdata = JSON.parse(document.getElementById("_displayed_distribution_form").dataset["featureCollection"]);
+        var map = new google.maps.Map(document.getElementById('map-canvas'), myOptions);
+        map.data.addGeoJson(fcdata);
+
+
+// When the user hovers, tempt them to click by outlining the letters.
+// Call revertStyle() to remove all overrides. This will use the style rules
+// defined in the function passed to setStyle()
+        map.data.addListener('mouseover', function (event) {
+            map.data.revertStyle();
+            map.data.overrideStyle(event.feature, {fillOpacity: 0.7});
+            document.getElementById("shape_name").textContent = event.feature.getProperty('label');
+        });
+
+        map.data.addListener('mouseout', function (event) {
+            map.data.revertStyle();
+        });
+    }
+
+    google.maps.event.addDomListener(window, 'load', initialize);
+
+</script>
+</head>
+<body>
+
+<div>
+    <br/><br/><br/><br/><br/><br/><br/><span id="shape_name">foo</span>
+</div>
+<div id="map-canvas" style="width:1024px; height: 512px;"></div>
+
+
+<div id="_displayed_distribution_form"
+     data-feature-collection='{
+                "type": "FeatureCollection",
+                "features": [{
+                    "type": "Feature",
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[-82.69667815882713, 41.82077065356853, 0.0], [-82.63007354456931, 41.838166491166184, 0.0], [-82.60947417933494, 41.785964797532955, 0.0], [-82.60260772425681, 41.74601715298353, 0.0], [-82.65547942835838, 41.71270845030756, 0.0], [-82.69599151331931, 41.7214216249138, 0.0], [-82.71933746058494, 41.7675305138624, 0.0], [-82.69667815882713, 41.82077065356853, 0.0]]]
+                    },
+                    "properties": {
+                        "id": 4,
+                        "source": "Otu",
+                        "source_type": "collecting_event_georeference",
+                        "metadata": {
+                            "Otu": {
+                                "id": 1,
+                                "name": "passive agressive",
+                                "created_at": "2015-03-09T13:10:27.541Z",
+                                "updated_at": "2015-03-09T13:10:27.541Z",
+                                "created_by_id": 1,
+                                "updated_by_id": 1,
+                                "project_id": 1,
+                                "taxon_name_id": null
+                            }
+                        },
+                        "api": {
+                            "concise_details": "/otus/56/concise_details",
+                            "expanded_details": "/otus/56/expanded_details"
+                        },
+                        "fillColor": "#008800",
+                        "label": "Collecting event 56."
+                    }
+                }]
+            }'
+     data-map-center='POINT (0.0 0.0 0.0)'
+     data-map-canvas="displayed_distribution_canvas"
+        >
+</div>
+
+</body>
+</html>
