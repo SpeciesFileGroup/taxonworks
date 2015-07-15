@@ -1,16 +1,14 @@
-<div class="muted_blue one_third_width" style="padding-left:15em;">
-  <h3> Details </h3>
-    <%= @person.name -%> <br>
-    <%= @person.type.demodulize -%> <br>
-    <% @person.roles.group_by { |a| a.class.human_name }.each do |group, roles| %>
-      <em><%= group -%>:</em> <br>
-      <ul>
-        <% roles.each do |role| -%>
-            <li>
-              <%= object_tag(role.role_object) -%> </li>
-            <br>
-            <%#= object_link(role.role_object) -%>
-        <% end %> </ul>
-  <% end %>
-</div>
+<h3> Details </h3>
+<%= @person.name -%> <br>
+<%= @person.type.demodulize -%> <br>
+<% @person.roles.group_by { |a| a.class.human_name }.each do |group, roles| %>
+  <em><%= group -%>:</em> <br>
+  <ul>
+    <% roles.each do |role| -%>
+      <li>
+      <%= object_tag(role.role_object) -%> </li>
+      <br>
+      <%#= object_link(role.role_object) -%>
+    <% end %> </ul>
+<% end %>
 

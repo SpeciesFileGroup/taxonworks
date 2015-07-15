@@ -51,7 +51,7 @@ function initialize_autocomplete(form) {
   autocomplete_input.autocomplete({
     source: '/people/lookup_person',
     open: function (event, ui) {
-      bind_hover(form); 
+      bind_hover(form);
     },
     select: function (event, ui) {    // execute on select event in search text box
       insert_existing_person(form, ui.item.object_id, ui.item.label) 
@@ -59,7 +59,7 @@ function initialize_autocomplete(form) {
   return false;
     }
   }).autocomplete("instance")._renderItem = function (ul, item) {
-    return $("<li>")
+    return $("<li class='foo'>")
       .append("<a>" + item.label + ' <span class="hoverme" data-person-id="' + item.object_id + '">...</span></a>')
       .appendTo(ul);
   };
