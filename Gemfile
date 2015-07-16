@@ -1,14 +1,14 @@
 source 'https://rubygems.org'
 ruby '2.1.5'
 
-gem 'rails', '~> 4.1.11'
+gem 'rails', '~> 4.2.0'
 gem 'psych', '~> 2.0.3'
 
 # PostgreSQL
 gem 'pg', '~> 0.18.1'
 
 # Postgis
-gem 'activerecord-postgis-adapter', '~> 2.2.0'
+gem 'activerecord-postgis-adapter', '~> 3.0.0'
 
 # rgeo support
 gem 'ffi-geos'
@@ -108,6 +108,7 @@ group :development do
   gem 'spring-commands-rspec', '~> 1.0.2'
   gem 'guard-rspec', '~> 4.5', require: false
   gem 'parallel_tests', '~> 1.5'
+  gem 'web-console', '~> 2.0'
 end
 
 group :doc do
