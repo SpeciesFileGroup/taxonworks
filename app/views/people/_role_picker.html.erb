@@ -1,6 +1,6 @@
 <div class="role_picker" id="<%= role %>_role_picker" data-role-type='<%= role -%>' >
   <div>
-    <h2 class="role_picker_header"><%= role.to_s.pluralize.capitalize %> <span class='role_picker_alert' hidden></span> </h2>
+    <h2 class="role_picker_header"><%= role.to_s.titleize.pluralize.capitalize %> <span class='role_picker_alert' hidden></span> </h2>
     <span class="role_picker_message"></span>
     <ul class="role_list">
       <% if object.respond_to?("#{role}_roles") -%>

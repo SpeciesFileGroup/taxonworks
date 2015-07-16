@@ -98,6 +98,7 @@ class TaxonName < ActiveRecord::Base
 
   include Housekeeping
   include Shared::DataAttributes
+  include Shared::HasRoles
   include Shared::Taggable
   include Shared::Identifiable
   include Shared::Notable
@@ -147,6 +148,7 @@ class TaxonName < ActiveRecord::Base
   has_paper_trail
 
   accepts_nested_attributes_for :related_taxon_name_relationships, allow_destroy: true, reject_if: proc { |attributes| attributes['type'].blank? || attributes['subject_taxon_name_id'].blank? }
+  accepts_nested_attributes_for :taxon_name_authors, :taxon_name_author_roles, allow_destroy: true
 
   scope :with_type, -> (type) {where(type: type)}
   scope :ordered_by_rank, -> { order(:lft) } # TODO: test

@@ -1,5 +1,6 @@
 <%= form_for(@taxon_determination) do |f| %>
     <%= render 'shared/errors', object: @taxon_determination %>
+    <%= render partial: '/people/role_picker', locals: {role: :determiner, object: @taxon_determination, f: f} %>
 
   <div class="field">
     <%= f.label :biological_collection_object_id %><br>

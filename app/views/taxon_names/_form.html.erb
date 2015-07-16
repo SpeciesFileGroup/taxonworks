@@ -1,5 +1,6 @@
 <%= form_for(@taxon_name.metamorphosize) do |f| %>
     <%= render 'shared/errors', object: @taxon_name %>
+    <%= render partial: '/people/role_picker', locals: {role: :taxon_name_author, object: @taxon_name, f: f} %>
 
     <div class="field">
       <%= f.label :parent %>

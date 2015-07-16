@@ -64,6 +64,7 @@ class CollectingEvent < ActiveRecord::Base
   include Housekeeping
   include Shared::Citable
   include Shared::DataAttributes
+  include Shared::HasRoles
   include Shared::Identifiable
   include Shared::Notable
   include Shared::Taggable
@@ -97,6 +98,7 @@ class CollectingEvent < ActiveRecord::Base
   has_one :verbatim_data_georeference, class_name: 'Georeference::VerbatimData'
 
   accepts_nested_attributes_for :verbatim_data_georeference
+  accepts_nested_attributes_for :collectors, :collector_roles, allow_destroy: true
 
   validate :check_verbatim_geolocation_uncertainty,
            :check_date_range,

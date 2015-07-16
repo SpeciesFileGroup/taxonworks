@@ -35,6 +35,8 @@ class TaxonDetermination < ActiveRecord::Base
   has_one :determiner_role, class_name: 'Determiner', as: :role_object
   has_one :determiner, through: :determiner_role, source: :person
 
+  accepts_nested_attributes_for :determiner, :determiner_role, allow_destroy: true
+
   # TODO: factor these out (see also TaxonDetermination, Source::Bibtex)
   validates_numericality_of :year_made,
                             only_integer:          true,
