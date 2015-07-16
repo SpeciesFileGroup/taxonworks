@@ -35,20 +35,20 @@ function initializeComplexMap(canvas, feature_collection) {
         for (var i = 0; i < featureCollection.features.length; i++) {
           var this_feature = featureCollection.features[i];
           var this_property_key = this_feature.properties.source_type;
-          if (this_property_key == "asserted_distribution" && document.getElementById('check_dist').checked) {
-            chained.features.push(this_feature)
+          var this_control = 'check_' + this_property_key;
+          if (document.getElementById(this_control) != undefined) {   // if checkbox control exists
+            if (document.getElementById(this_control).checked) {      // if checked
+              chained.features.push(this_feature);
+            }
           }
-          if (this_property_key == "collecting_event_georeference" && document.getElementById('check_c_o').checked) {
-            chained.features.push(this_feature)
+          else {
+            chained.features.push(this_feature);    //functionality for non-checkbox-connected data
           }
-          if (this_property_key == "collecting_event_geographic_area" && document.getElementById('check_c_e').checked) {
-            chained.features.push(this_feature)
-          }
-        }
+         }
       }
     }   // if data.type == 'FeatureCollection'
     else {
-      chained = data;
+      chained = data;   // and good luck with this ...
     }
     map.data.addGeoJson(chained);
   };  // put data on the map if present

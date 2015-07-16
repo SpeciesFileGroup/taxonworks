@@ -24,7 +24,7 @@ function add_otu_distribution_data_listeners(map) {
     map.data.revertStyle();
     map.data.overrideStyle(event.feature, {fillOpacity: 0.5});
     //$("#displayed_distribution_style").html(event.feature.getProperty('metadata').Source.type);
-    document.getElementById("displayed_distribution_style").textContent = event.feature.getProperty('metadata').Source.type;
+    document.getElementById("displayed_distribution_style").textContent = event.feature.getProperty('source');
     var xx = 0;
   });
 
@@ -40,7 +40,7 @@ function add_otu_distribution_data_listeners(map) {
   map.data.addListener('mouseout', function (event) {
     map.data.revertStyle();
     //map.data.overrideStyle(event.feature, {fillOpacity: 0.3});  // dimmer
-    $("#displayed_distribution_style").html('');
+    $("#displayed_distribution_style").html('<br />');
   });
 }
 
