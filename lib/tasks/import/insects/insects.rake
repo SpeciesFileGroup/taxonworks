@@ -519,7 +519,7 @@ namespace :tw do
         elsif data.people_id[id]
           p = data.people_id[id]
           email = p['Email'].nil? ? nil : p['Email'].downcase
-          email = p['LastName'].to_s + id + '@unavailable.email.net' if email.blank?
+          email = 'user_' + id + '@unavailable.email.net' if email.blank?
 
           user_name = ([p['LastName']] + [p['FirstName']]).compact.join(', ')
 
@@ -531,11 +531,7 @@ namespace :tw do
                    tags_attributes:   [ { keyword: data.keywords['INHS_imported'] } ]
             )
 #                   data_attributes_attributes: [ {value: p['PeopleID'], import_predicate: data.keywords['PeopleID'].name, controlled_vocabulary_term_id: data.keywords['PeopleID'].id, type: 'ImportAttribute'} ],
-
             #user.tags.create(keyword: data.keywords['INHS_imported'])
-            unless user.valid?
-              byebug
-            end
           else
             user = existing_user.first
           end
