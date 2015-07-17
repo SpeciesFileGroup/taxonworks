@@ -3,6 +3,7 @@ ruby '2.1.5'
 
 gem 'rails', '~> 4.2.0'
 gem 'psych', '~> 2.0.3'
+gem 'responders', '~> 2.0'
 
 # PostgreSQL
 gem 'pg', '~> 0.18.1'
