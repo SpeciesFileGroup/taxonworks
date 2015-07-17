@@ -29,25 +29,25 @@ function initializeComplexMap(canvas, feature_collection) {
   var data = feature_collection;
   if (data != undefined) {
     var chained = JSON.parse('{"type":"FeatureCollection","features":[]}'); // container for the distribution
-    if (data["type"] == "FeatureCollection") {    //test for (revised) outer wrapper with depackaged property distribution
+    if (data["type"] == "FeatureCollection") {  // once again, only looking for feature collections, but with properties
       if (data.features.length > 0) {
         var featureCollection = data;
-        for (var i = 0; i < featureCollection.features.length; i++) {
-          var this_feature = featureCollection.features[i];
+        for (var i = 0; i < featureCollection.features.length; i++) { // this loop looks for (currently) checkboxes that
+          var this_feature = featureCollection.features[i];           // indicate inclusion into the google maps features
           var this_property_key = this_feature.properties.source_type;
           var this_control = 'check_' + this_property_key;
           if (document.getElementById(this_control) != undefined) {   // if checkbox control exists
-            if (document.getElementById(this_control).checked) {      // if checked
-              chained.features.push(this_feature);
-            }
+            if (document.getElementById(this_control).checked) {      // if checked, and only
+              chained.features.push(this_feature);                    // if checked, insert this feature/properties
+            }                                                         // otherwise skip this feature
           }
-          else {
-            chained.features.push(this_feature);    //functionality for non-checkbox-connected data
+          else {                                    // if no corresponding control property, do not block insertion
+            chained.features.push(this_feature);    // functionality for non-checkbox-connected data
           }
          }
       }
-    }   // if data.type == 'FeatureCollection'
-    else {
+    }   // end: if data.type == 'FeatureCollection'
+    else {              // this is not a feature collection and presumably is a feature,
       chained = data;   // and good luck with this ...
     }
     map.data.addGeoJson(chained);
