@@ -37,6 +37,10 @@ module TaxonWorks
     # @see http://dazuma.github.io/activerecord-postgis-adapter/rdoc/Documentation_rdoc.html
     config.active_record.schema_format :ruby
 
+    RGeo::ActiveRecord::SpatialFactoryStore.instance.tap do |config|
+      # By default, use the GEOS implementation for spatial columns.
+      config.default = RGeo::Geos.factory_generator
+    end
 
   end
 end

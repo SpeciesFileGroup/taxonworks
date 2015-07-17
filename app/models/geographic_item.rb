@@ -29,10 +29,10 @@ class GeographicItem < ActiveRecord::Base
                 :multi_polygon,
                 :geometry_collection]
 
-  column_factory = Gis::FACTORY
-  DATA_TYPES.each do |t|
-    set_rgeo_factory_for_column(t, column_factory)
-  end
+#  column_factory = Gis::FACTORY
+#  DATA_TYPES.each do |t|
+#    set_rgeo_factory_for_column(t, column_factory)
+#  end
 
   # validates_uniquness_of if !.blank.
 
