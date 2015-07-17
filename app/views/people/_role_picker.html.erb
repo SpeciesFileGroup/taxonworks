@@ -1,6 +1,6 @@
 <div class="role_picker" id="<%= role %>_role_picker" data-role-type='<%= role -%>' >
   <div>
-    <h2 class="role_picker_header"><%= role.to_s.titleize.pluralize.capitalize %> <span class='role_picker_alert' hidden></span> </h2>
+    <h3 class="role_picker_header"><%= role.to_s.titleize.pluralize.capitalize %> <span class='role_picker_alert' hidden></span> </h3>
     <span class="role_picker_message"></span>
     <ul class="role_list">
       <% if object.respond_to?("#{role}_roles") -%>
@@ -15,7 +15,7 @@
   </div>
 
   <div style="display: flex; flex-direction: row; align-items: stretch; align-content: flex-start;">
-    <div style=""><%= text_field_tag "#{role}_autocomplete", nil, class: 'role_picker_autocomplete' %></div>
+    <div style=""><%= text_field_tag "#{role}_autocomplete", nil, class: 'role_picker_autocomplete', placeholder: "Family name, Given name" %></div>
 
     <div class="person_details"></div> 
 
