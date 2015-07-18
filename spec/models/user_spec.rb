@@ -217,7 +217,7 @@ describe User, :type => :model do
 
       specify 'with a route and a recent object' do
         user.add_recently_visited_to_footprint(object_route, otu)
-        expect(user.footprints).to eq('recently_visited' => [ {object_route => {'object_type' => 'Otu', 'object_id' => otu.id}} ])
+        expect(user.footprints).to eq('recently_visited' => [ {object_route => {object_type: 'Otu', object_id: otu.id}} ])
       end
 
       specify 'with the same route and recent object > 1x' do
@@ -225,7 +225,7 @@ describe User, :type => :model do
         user.add_recently_visited_to_footprint(object_route, otu)
         user.add_recently_visited_to_footprint(object_route, otu)
         
-        expect(user.footprints).to eq('recently_visited' => [ {object_route => {'object_type' => 'Otu', 'object_id' => otu.id}} ])
+        expect(user.footprints).to eq('recently_visited' => [ {object_route => {object_type: 'Otu', object_id: otu.id}} ])
       end
 
       specify 'current limit is 10 items' do
