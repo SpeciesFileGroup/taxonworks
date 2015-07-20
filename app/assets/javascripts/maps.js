@@ -13,6 +13,7 @@ initializeMap = function (canvas, feature_collection) {
     mapTypeId: google.maps.MapTypeId.TERRAIN
   };
 
+  /*  ORIGINAL maps.js code
   var map = initialize_map(canvas, myOptions);
   var data = feature_collection;
 
@@ -24,6 +25,7 @@ initializeMap = function (canvas, feature_collection) {
     strokeWeight: 1,
     fillOpacity: 0.2
   });
+
   if (data != undefined) {
     if (data["type"] = "FeatureCollection") {
       map.data.addGeoJson(data)
@@ -44,14 +46,61 @@ initializeMap = function (canvas, feature_collection) {
     if (feature.getProperty('isColorful')) {        // isColorful property signals this area/feature was clicked
       color = feature.getProperty('fillColor');   //
     }
-    return /** @type {google.maps.Data.StyleOptions} */({
+    return ({
       icon: '/assets/mapicons/mm_20_red.png',
       fillColor: color,
       strokeColor: "black",
       strokeWeight: 1
-    });
+    }); // @type {google.maps.Data.StyleOptions}
   });
   return map;             // now no global map object, use this object to add s to THIS map
+}; */
+  var map = initialize_map(canvas, myOptions);
+  var data = feature_collection;
+
+  map.data.setStyle(function (feature) {
+    color = feature.getProperty('fillColor');   //
+    return ({
+      icon: '/assets/mapicons/mm_20_gray.png',
+      fillColor: color,
+      strokeColor: "black",
+      strokeWeight: 1
+    });   // @type {google.maps.Data.StyleOptions}
+  });
+
+  if (data != undefined) {
+    var chained = JSON.parse('{"type":"FeatureCollection","features":[]}'); // container for the distribution
+    if (data["type"] == "FeatureCollection") {  // once again, only looking for feature collections, but with properties
+      if (data.features.length > 0) {
+        var featureCollection = data;
+        for (var i = 0; i < featureCollection.features.length; i++) { // this loop looks for (currently) checkboxes that
+          var this_feature = featureCollection.features[i];           // indicate inclusion into the google maps features
+          var this_property_key = this_feature.properties.source_type;
+          var this_control = 'check_' + this_property_key;
+          if (document.getElementById(this_control) != undefined) {   // if checkbox control exists
+            if (document.getElementById(this_control).checked) {      // if checked, and only
+              chained.features.push(this_feature);                    // if checked, insert this feature/properties
+            }                                                         // otherwise skip this feature
+          }
+          else {                                    // if no corresponding control property, do not block insertion
+            chained.features.push(this_feature);    // functionality for non-checkbox-connected data
+          }
+        }
+      }
+    }   // end: if data.type == 'FeatureCollection'
+    else {              // this is not a feature collection and presumably is a feature,
+      chained = data;   // and good luck with this ...
+    }
+    map.data.addGeoJson(chained);
+  };  // put data on the map if present
+
+// bounds for calculating center point
+  var bounds = {};    //xminp: xmaxp: xminm: xmaxm: ymin: ymax: -90.0, center_long: center_lat: gzoom:
+  getData(chained, bounds);               // scan var data as feature collection with homebrew traverser, collecting bounds
+  var center_lat_long = get_window_center(bounds);      // compute center_lat_long from bounds and compute zoom level as gzoom
+  map.setCenter(center_lat_long);
+  map.setZoom(bounds.gzoom);
+  return map;             // now no global map object, use this object to add listeners to THIS map
 };
 
 function initialize_map(canvas, options) {
