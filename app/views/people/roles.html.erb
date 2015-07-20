@@ -1,7 +1,7 @@
 <h2>Show roles for
   <%= @person.name %></h2>
 
-<%#= this is an error %>
+<%#= when uncommented, this will throw an error %>
 
 <% @person.roles.group_by{|a| a.class.human_name}.each do |group, roles| %>
     <h3><%= group -%></h3>

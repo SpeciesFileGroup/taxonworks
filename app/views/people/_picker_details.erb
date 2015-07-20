@@ -1,14 +1,24 @@
 <h3> Details </h3>
 <%= @person.name -%> <br>
 <%= @person.type.demodulize -%> <br>
+
+<br>
+<% @person.annotations.each do |title, values| -%>
+    <%= content_tag(:em, "#{title.humanize}:")  -%>   <!-- //:em, title.humanize) -%>: -->
+    <ul>
+      <% values.each do |v| -%>
+          <%= content_tag :li, object_tag(v) -%>
+      <% end %>
+    </ul>
+<% end %>
+
 <% @person.roles.group_by { |a| a.class.human_name }.each do |group, roles| %>
-  <em><%= group -%>:</em> <br>
-  <ul>
-    <% roles.each do |role| -%>
-      <li>
-      <%= object_tag(role.role_object) -%> </li>
-      <br>
-      <%#= object_link(role.role_object) -%>
-    <% end %> </ul>
+    <em><%= group -%>:</em> <br>
+    <ul>
+      <% roles.each do |role| -%>
+          <li>
+            <%= object_tag(role.role_object) -%> </li>
+          <%#= object_link(role.role_object) -%>
+      <% end %> </ul>
 <% end %>
 
