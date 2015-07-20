@@ -3,7 +3,7 @@
 
 var initializeMap;
 
-initializeMap = function(canvas, feature_collection) {
+initializeMap = function (canvas, feature_collection) {
   var myOptions = {
     zoom: 1,
     center: {lat: 0, lng: 0}, //center_lat_long, set to 0,0
@@ -17,27 +17,32 @@ initializeMap = function(canvas, feature_collection) {
   var data = feature_collection;
 
   map.data.setStyle({
-      icon: '/assets/mapicons/mm_20_gray.png',
-      fillColor: '#440000',
-      strokeOpacity: 0.5,
-      strokeColor: "black",
-      strokeWeight: 1,
-      fillOpacity: 0.2/*,
-
-      fillColor: '#440000',
+    icon: '/assets/mapicons/mm_20_gray.png',
+    fillColor: '#440000',
     strokeOpacity: 0.5,
     strokeColor: "black",
     strokeWeight: 1,
-    fillOpacity: 0.3*/
+    fillOpacity: 0.2/*,
+
+     fillColor: '#440000',
+     strokeOpacity: 0.5,
+     strokeColor: "black",
+     strokeWeight: 1,
+     fillOpacity: 0.3*/
   });
-  if (data != undefined) { if (data["type"] = "FeatureCollection") {map.data.addGeoJson(data)}};  // put data on the map if present
+  if (data != undefined) {
+    if (data["type"] = "FeatureCollection") {
+      map.data.addGeoJson(data)
+    }
+  }
+  ;  // put data on the map if present
 
 
 // bounds for calculating center point
   var bounds = {};    //xminp: xmaxp: xminm: xmaxm: ymin: ymax: -90.0, center_long: center_lat: gzoom:
   getData(data, bounds);               // scan var data as feature collection with homebrew traverser, collecting bounds
   var center_lat_long = get_window_center(bounds);      // compute center_lat_long from bounds and compute zoom level as gzoom
- // $("#map_coords").html('Center: \xA0 \xA0 \xA0 \xA0Latitude = ' + bounds.center_lat.toFixed(6) + ' , Longitude = ' + bounds.center_long.toFixed(6));
+  // $("#map_coords").html('Center: \xA0 \xA0 \xA0 \xA0Latitude = ' + bounds.center_lat.toFixed(6) + ' , Longitude = ' + bounds.center_long.toFixed(6));
   map.setCenter(center_lat_long);
   map.setZoom(bounds.gzoom);
 
@@ -47,7 +52,7 @@ initializeMap = function(canvas, feature_collection) {
       color = feature.getProperty('fillColor');   //
     }
     return /** @type {google.maps.Data.StyleOptions} */({
-        icon: '/assets/mapicons/mm_20_red.png',
+      icon: '/assets/mapicons/mm_20_red.png',
       fillColor: color,
       strokeColor: "black",
       strokeWeight: 1
@@ -86,27 +91,42 @@ function get_window_center(bounds) {      // for use with home-brew geoJSON scan
     if ((xmaxm == -180.0) && (xminm == 0.0)) {    //if no points, null out the range for this hemisphere
       xmaxm = 0.0;
     }
-    // case of singleton poiint in either hemisphere not well treated below
+    /*  ORIGINAL CODE
+     // case of singleton poiint in either hemisphere not well treated below
+     wm = xmaxm - xminm;    // width of western area, if present
+     wp = xmaxp - xminp;    // width of eastern area, if present
+     var xmm = xminm + 0.5 * wm;     // midpoint of west
+     var xmp = xminp + 0.5 * wp;     // midpoint of east
+     var wx = wm + wp;                               // total width of "contiguous" area
+     center_long = xmm + xmp;    //as signed, unless overlaps +/-180
+     if (wm > wp) {                // serious cheat: pick mean longitude of wider group
+     center_long = xmm;       // "works" since there are so few cases that span
+     }                           // the Antimeridian
+     if (wm < wp) {
+     center_long = xmp
+     }
+     */  //END ORIGINAL CODE
+
+    // case of singleton poiint in either hemisphere not well treated below (still true? - JRF 20JUL2015)
     wm = xmaxm - xminm;    // width of western area, if present
     wp = xmaxp - xminp;    // width of eastern area, if present
     var xmm = xminm + 0.5 * wm;     // midpoint of west
     var xmp = xminp + 0.5 * wp;     // midpoint of east
     var wx = wm + wp;                               // total width of "contiguous" area
-    //if (xmaxm < 0 && xmaxp > 0) {
-      if (xminm > -1 && xminp < 1) {
-      center_long = (xminm + xmaxp)/2;  // case disjoint areas divided by prime meridian
-    }
-    else {
-      center_long = xmm + xmp;    //as signed, unless overlaps +/-180
-      if (wm > wp) {                // serious cheat: pick mean longitude of wider group
-        center_long = xmm;       // "works" since there are so few cases that span
-      }                           // the Antimeridian
-      if (wm < wp) {
-        center_long = xmp
+
+    if (xmaxp > 179 && xminm < 179) {      // Antimeridian span test
+      if (wm > wp) {                       // determine wider group
+        center_long = xmm - wp / 2;        // adjust western mid/mean point by half width of eastern
+      }
+      else {
+        center_long = xmp + wm / 2;        //  adjust positive mean/mid point by half width of western
       }
     }
+    else {                                 // i.e., if not Antimeridian span, center on extents about 0
+      center_long = (xminm + xmaxp) / 2;   // case disjoint areas divided by prime meridian
+    }
+    ;
   }
-  ;
   if (center_lat == undefined) {
     if ((ymax == -90) && (ymin == 90)) {      // no data, so set whole earth limits
       ymax = 90.0;
@@ -184,7 +204,8 @@ function get_window_center(bounds) {      // for use with home-brew geoJSON scan
   bounds.center_long = center_long;
   bounds.gzoom = gzoom;
   bounds.box = box;
-  return new google.maps.LatLng(center_lat, center_long); /* DO NOT place comments between code center_lat_long =*/
+  return new google.maps.LatLng(center_lat, center_long);
+  /* DO NOT place comments between code center_lat_long =*/
 };
 
 // bounds for calculating center point
@@ -255,7 +276,7 @@ function getData(feature_collection_data, bounds) {
 };              //getData
 
 function getFeature(thisFeature, bounds) {
-  if(thisFeature.type == "FeatureCollection") {
+  if (thisFeature.type == "FeatureCollection") {
     getTypeData(thisFeature, bounds);   // if it requires recursion on FC
   }
   else {
