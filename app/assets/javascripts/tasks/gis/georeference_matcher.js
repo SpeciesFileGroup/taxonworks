@@ -560,6 +560,7 @@ function add_match_georeferences_map_listeners(map) {      // 4 listeners, one f
     map.data.revertStyle();
     map.data.overrideStyle(event.feature, {fillColor: '#880000'});  // mid-level red
     map.data.overrideStyle(event.feature, {strokeWeight: 2});       //embolden borders
+    map.data.overrideStyle(event.feature, {icon: '/assets/mapicons/mm_20_brown.png'});       // highlight markers
   });
 
   map.data.addListener('mouseout', function (event) {
