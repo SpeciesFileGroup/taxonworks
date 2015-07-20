@@ -92,25 +92,31 @@ function get_window_center(bounds) {      // for use with home-brew geoJSON scan
     var xmm = xminm + 0.5 * wm;     // midpoint of west
     var xmp = xminp + 0.5 * wp;     // midpoint of east
     var wx = wm + wp;                               // total width of "contiguous" area
-    center_long = xmm + xmp;    //as signed, unless overlaps +/-180
-    if (wm > wp) {                // serious cheat: pick mean longitude of wider group
-      center_long = xmm;       // "works" since there are so few cases that span
-    }                           // the Antimeridian
-    if (wm < wp) {
-      center_long = xmp
+    //if (xmaxm < 0 && xmaxp > 0) {
+      if (xminm > -1 && xminp < 1) {
+      center_long = (xminm + xmaxp)/2;  // case disjoint areas divided by prime meridian
+    }
+    else {
+      center_long = xmm + xmp;    //as signed, unless overlaps +/-180
+      if (wm > wp) {                // serious cheat: pick mean longitude of wider group
+        center_long = xmm;       // "works" since there are so few cases that span
+      }                           // the Antimeridian
+      if (wm < wp) {
+        center_long = xmp
+      }
     }
   }
   ;
   if (center_lat == undefined) {
-    if ((ymax == -90) && (ymin == 90)) {
+    if ((ymax == -90) && (ymin == 90)) {      // no data, so set whole earth limits
       ymax = 90.0;
       ymin = -90.0;
-    }      // no data, so set whole earth limits
+    }
     var wy = ymax - ymin;
     center_lat = 0.5 * (ymax + ymin);
     if (Math.abs(center_lat) > 1.0) {        // if vertical center very close to equator
       var cutoff = 65.0;
-      if (/*Math.abs(center_lat) > 45.0 &&*/ (ymax > cutoff || ymin < -cutoff)) {
+      if ((ymax > cutoff || ymin < -cutoff)) {
         var angle = ymax - cutoff;
         if (center_lat < 0) {
           angle = ymin + cutoff;
