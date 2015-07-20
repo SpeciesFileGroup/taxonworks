@@ -22,13 +22,7 @@ initializeMap = function (canvas, feature_collection) {
     strokeOpacity: 0.5,
     strokeColor: "black",
     strokeWeight: 1,
-    fillOpacity: 0.2/*,
-
-     fillColor: '#440000',
-     strokeOpacity: 0.5,
-     strokeColor: "black",
-     strokeWeight: 1,
-     fillOpacity: 0.3*/
+    fillOpacity: 0.2
   });
   if (data != undefined) {
     if (data["type"] = "FeatureCollection") {
@@ -36,7 +30,6 @@ initializeMap = function (canvas, feature_collection) {
     }
   }
   ;  // put data on the map if present
-
 
 // bounds for calculating center point
   var bounds = {};    //xminp: xmaxp: xminm: xmaxm: ymin: ymax: -90.0, center_long: center_lat: gzoom:
@@ -66,7 +59,6 @@ function initialize_map(canvas, options) {
   return map;
 }
 
-
 function get_window_center(bounds) {      // for use with home-brew geoJSON scanner/enumerator
   var xminp = bounds.xminp;
   var xmaxp = bounds.xmaxp;
@@ -91,22 +83,6 @@ function get_window_center(bounds) {      // for use with home-brew geoJSON scan
     if ((xmaxm == -180.0) && (xminm == 0.0)) {    //if no points, null out the range for this hemisphere
       xmaxm = 0.0;
     }
-    /*  ORIGINAL CODE
-     // case of singleton poiint in either hemisphere not well treated below
-     wm = xmaxm - xminm;    // width of western area, if present
-     wp = xmaxp - xminp;    // width of eastern area, if present
-     var xmm = xminm + 0.5 * wm;     // midpoint of west
-     var xmp = xminp + 0.5 * wp;     // midpoint of east
-     var wx = wm + wp;                               // total width of "contiguous" area
-     center_long = xmm + xmp;    //as signed, unless overlaps +/-180
-     if (wm > wp) {                // serious cheat: pick mean longitude of wider group
-     center_long = xmm;       // "works" since there are so few cases that span
-     }                           // the Antimeridian
-     if (wm < wp) {
-     center_long = xmp
-     }
-     */  //END ORIGINAL CODE
-
     // case of singleton poiint in either hemisphere not well treated below (still true? - JRF 20JUL2015)
     wm = xmaxm - xminm;    // width of western area, if present
     wp = xmaxp - xminp;    // width of eastern area, if present
@@ -117,16 +93,16 @@ function get_window_center(bounds) {      // for use with home-brew geoJSON scan
     if (xmaxp > 179 && xminm < 179) {      // Antimeridian span test
       if (wm > wp) {                       // determine wider group
         center_long = xmm - wp / 2;        // adjust western mid/mean point by half width of eastern
-      }
+      }                                    // e.g., USA
       else {
         center_long = xmp + wm / 2;        //  adjust positive mean/mid point by half width of western
       }
     }
     else {                                 // i.e., if not Antimeridian span, center on extents about 0
       center_long = (xminm + xmaxp) / 2;   // case disjoint areas divided by prime meridian
-    }
-    ;
-  }
+    }                                      // e.g., USA
+  }   // END center_long == undefined
+
   if (center_lat == undefined) {
     if ((ymax == -90) && (ymin == 90)) {      // no data, so set whole earth limits
       ymax = 90.0;
@@ -145,68 +121,56 @@ function get_window_center(bounds) {      // for use with home-brew geoJSON scan
         offset = 0.1 * (ymax - ymin) / offset;
         center_lat = center_lat + offset;
       }
-      ;
     }
-    ;
   }
-  ;
+
   var sw = new google.maps.LatLng(ymin, xmm);
   var ne = new google.maps.LatLng(ymax, xmp);
   var box = new google.maps.LatLngBounds(sw, ne);
   if (wy > 0.5 * wx) {                              ///// this looks wrong or wx is wrong JRF 04MAY2015
     wx = wy * 2.0
   }       // VERY crude proportionality adjustment
+  // quick and dirty zoom range based on size
   if (wx <= 0.1) {
     gzoom = 11
   }
-  ;
   if (wx > 0.1) {
     gzoom = 10
   }
-  ;             // quick and dirty zoom range based on size
   if (wx > 0.2) {
     gzoom = 9
   }
-  ;
   if (wx > 0.5) {
     gzoom = 8
   }
-  ;
   if (wx > 1.0) {
     gzoom = 7
   }
-  ;
   if (wx > 2.5) {
     gzoom = 6
   }
-  ;
   if (wx > 5.0) {
     gzoom = 5
   }
-  ;
   if (wx > 10.0) {
     gzoom = 4
   }
-  ;
   if (wx > 40.0) {
     gzoom = 3
   }
-  ;
   if (wx > 80.0) {
     gzoom = 2
   }
-  ;
   if (wx > 160.0/* || (wx + wy) == 0*/) {  // amended to not focus on whole earth on latter condition (single point???)
     gzoom = 1                               // wait for exceptional case to revert or rewrite condition
   }
-  ;
+
   bounds.center_lat = center_lat;
   bounds.center_long = center_long;
   bounds.gzoom = gzoom;
   bounds.box = box;
   return new google.maps.LatLng(center_lat, center_long);
-  /* DO NOT place comments between code center_lat_long =*/
-};
+}
 
 // bounds for calculating center point
 // divide longitude checks by hemisphere
@@ -214,8 +178,8 @@ function get_window_center(bounds) {      // for use with home-brew geoJSON scan
 // used to clear previous history
 // so that center is recalculated
 function reset_center_and_bounds(bounds) {
-  bounds.center_long = undefined;
-  bounds.center_lat = undefined;
+  bounds.center_long = undefined;     // current data-elements always (wrongly) contain -map-center='POINT (0.0 0.0 0.0)'
+  bounds.center_lat = undefined;      // this section should set these bounds from data element when properly present
 
   bounds.xminp = 180.0;       // use 0
   bounds.xmaxp = 0.0;        // to
@@ -248,7 +212,6 @@ function getData(feature_collection_data, bounds) {
       data = [];
       data[0] = dataArray[0];
     }
-    ;
     for (var i = 0; i < data.length; i++) {
       if (typeof (data[i].type) != "undefined") {
         if (data[i].type == "FeatureCollection") {
@@ -261,19 +224,14 @@ function getData(feature_collection_data, bounds) {
           for (var j = 0; j < data[i].geometries.length; j++) {
             getTypeData(data[i].geometries[j], bounds);
           }
-          ;
         }
         else {
           getTypeData(data[i], bounds);
-        }
-        ;  //data[i].type
-      }
-      ;     //data[i] != undefined
-    }
-    ;        // for i
-  }
-  ;           //data != undefined
-};              //getData
+        }  //data[i].type
+      }     //data[i] != undefined
+    }        // for i
+  }           //data != undefined
+}             //getData
 
 function getFeature(thisFeature, bounds) {
   if (thisFeature.type == "FeatureCollection") {
@@ -290,48 +248,37 @@ function getTypeData(thisType, bounds) {        // this version does not create 
     for (var i = 0; i < thisType.features.length; i++) {
       if (typeof (thisType.features[i].type) != "undefined") {
         getFeature(thisType.features[i], bounds);		//  recurse if FeatureCollection
-      }
-      ;     //thisType != undefined
-    }
-    ;        //for i
+      }     //thisType != undefined
+    }        //for i
     return
   }
-  ;
 
   if (thisType.type == "GeometryCollection") {
     for (var i = 0; i < thisType.geometries.length; i++) {
       if (typeof (thisType.geometries[i].type) != "undefined") {
         getTypeData(thisType.geometries[i], bounds);		//  recurse if GeometryCollection
-      }
-      ;     //thisType != undefined
-    }
-    ;       //for i
+      }     //thisType != undefined
+    }       //for i
   }
-  ;
 
   if (thisType.type == "Point") {
     xgtlt(bounds, thisType.coordinates[0]);
     ygtlt(bounds, thisType.coordinates[1]); //box check
   }
-  ;
 
   if (thisType.type == "MultiPoint") {
     for (var l = 0; l < thisType.coordinates.length; l++) {
       xgtlt(bounds, thisType.coordinates[l][0]);
       ygtlt(bounds, thisType.coordinates[l][1]); //box check
     }
-    ;
   }
-  ;
 
   if (thisType.type == "LineString") {
     for (var l = 0; l < thisType.coordinates.length; l++) {
       xgtlt(bounds, thisType.coordinates[l][0]);
       ygtlt(bounds, thisType.coordinates[l][1]); //box check
     }
-    ;
   }
-  ;
 
   if (thisType.type == "MultiLineString") {
     for (var k = 0; k < thisType.coordinates.length; k++) {   //k enumerates linestrings, l enums points
@@ -339,11 +286,8 @@ function getTypeData(thisType, bounds) {        // this version does not create 
         xgtlt(bounds, thisType.coordinates[k][l][0]);
         ygtlt(bounds, thisType.coordinates[k][l][1]); //box check
       }
-      ;
     }
-    ;
   }
-  ;
 
   if (thisType.type == "Polygon") {
     for (var k = 0; k < thisType.coordinates.length; k++) {
@@ -352,11 +296,8 @@ function getTypeData(thisType, bounds) {        // this version does not create 
         xgtlt(bounds, thisType.coordinates[k][l][0]);
         ygtlt(bounds, thisType.coordinates[k][l][1]); //box check
       }
-      ;
     }
-    ;
   }
-  ;
 
   if (thisType.type == "MultiPolygon") {
     for (var j = 0; j < thisType.coordinates.length; j++) {		// j iterates over multipolygons   *-
@@ -365,14 +306,10 @@ function getTypeData(thisType, bounds) {        // this version does not create 
           xgtlt(bounds, thisType.coordinates[j][k][l][0]);
           ygtlt(bounds, thisType.coordinates[j][k][l][1]); //box check
         }
-        ;
       }
-      ;
     }
-    ;
   }
-  ;
-};        //getFeatureData
+}        //getFeatureData
 
 
 function xgtlt(bounds, xtest) {         // point-wise x-bound extender
@@ -385,7 +322,6 @@ function xgtlt(bounds, xtest) {         // point-wise x-bound extender
       bounds.xminm = xtest;
     }
   }
-  ;
   if (xtest >= 0) {                  // eastern hemisphere
     if (xtest >= bounds.xmaxp) {   // xmaxp initially 0
       bounds.xmaxp = xtest;
@@ -394,18 +330,15 @@ function xgtlt(bounds, xtest) {         // point-wise x-bound extender
       bounds.xminp = xtest;
     }
   }
-  ;
-};
+}
 
 function ygtlt(bounds, ytest) {         // point-wise y-bound extender
   if (ytest > bounds.ymax) {
     bounds.ymax = ytest;
   }
-  ;
   if (ytest < bounds.ymin) {
     bounds.ymin = ytest;
   }
-  ;
-};
+}
 
 
