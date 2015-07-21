@@ -358,7 +358,9 @@ class Georeference < ActiveRecord::Base
     # case 6
     retval = true
     unless collecting_event.nil?
-      unless collecting_event.geographic_area.nil? || !geographic_item.geo_object || collecting_event.geographic_area.default_geographic_item.nil?
+      unless collecting_event.geographic_area.nil? ||
+        !geographic_item.geo_object ||
+        collecting_event.geographic_area.default_geographic_item.nil?
         retval = collecting_event.geographic_area.default_geographic_item.contains?(geographic_item.geo_object)
       end
     end

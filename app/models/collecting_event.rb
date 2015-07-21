@@ -105,7 +105,7 @@ class CollectingEvent < ActiveRecord::Base
            :check_elevation_range
 
   # TODO: write specs, this is failing when GeographicArea is set.
-  # before_save :set_cached ###### it takes too much time to process.
+  before_save :set_cached ###### it takes too much time to process.
   before_save :set_times_to_nil_if_form_provided_blank
 
   validates_uniqueness_of :md5_of_verbatim_label, scope: [:project_id], unless: 'verbatim_label.blank?'
@@ -756,14 +756,23 @@ TODO: @mjy: please fill in any other paths you can think of for the acquisition 
   protected
 
   def set_cached
-    string = nil
-    if verbatim_label.blank?
-      string = [country_name, state_name, county_name, "\n", verbatim_locality, start_date, end_date, "\n", verbatim_collectors].compact.join(', ')
-    else
-      string = [verbatim_label, print_label, document_label].compact.first
+    if self.cached.blank?
+      if verbatim_label.blank?
+        unless self.geographic_area.nil?
+          if self.geographic_area.geographic_items.count == 0
+            name = self.geographic_area.name
+          else
+            name = [country_name, state_name, county_name].compact.join(", ")
+          end
+        end
+        place_date = [verbatim_locality, start_date, end_date].compact.join(', ')
+        string     = [name, "\n", place_date, "\n", verbatim_collectors].compact.join
+      else
+        string = [verbatim_label, print_label, document_label].compact.first
+      end
+      string      = "[#{self.id.to_param}]" if string.strip.length == 0
+      self.cached = string
     end
-    string      = "[#{self.id.to_param}]" if string.strip.length == 0
-    self.cached = string
   end
 
   def set_times_to_nil_if_form_provided_blank
