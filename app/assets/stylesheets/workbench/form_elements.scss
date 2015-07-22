@@ -26,14 +26,19 @@ form div.required {
   }
 }
 
-.field {
+.side_by_side_fields {
+  overflow: auto;
+  .field {
+    float: left;
+    padding-right: 1em
+  }
+}
 
+.field {
   &.label_above { 
     br { display:inline ;} 
     label {float: left; display: block;}
-        
   }
-  
 }
 
 h4 {

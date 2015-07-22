@@ -1,10 +1,6 @@
-<%= form_for(@source, as: :source, url: sources_path) do |f| %>
+<%= form_for(@source, as: :source, url: (@source.new_record? ? sources_path : source_path(@source)), method: (@source.new_record? ? :post : :patch)) do |f| %>
 
     <%= render 'shared/errors', object: @source %>
-
-    <%= render partial: '/people/role_picker', locals: {role: :author, object: @source, f: f} %>
-
-    <%= render partial: '/people/role_picker', locals: {role: :editor, object: @source, f: f} %>
 
     <div class="field" id="source_edit_type">
       <%= f.label :type %><br>
@@ -15,9 +11,10 @@
 
     <div id='fields_for_bibtex'>
       <div class="flexbox">
+
         <div class="item item1">
           <div class="field">
-            <%= f.label :bibtex_type %><br>
+            <%= f.label :bibtex_type, "BibTeX type" %><br>
             <%= f.select :bibtex_type, options_for_select(VALID_BIBTEX_TYPES, f.object.bibtex_type), :include_blank => true %>
           </div>
 
@@ -26,39 +23,29 @@
             <%= f.text_area :title, cols: 40, rows: 2 %>
           </div>
 
+          <%= render partial: '/people/role_picker', locals: {role: :author, object: @source, f: f} %>
+
           <div class="field">
-            <%= f.label :author %><br>
+            <%= f.label :author, 'Author(s) (verbatim/BibTeX)' %><br>
             <%= f.text_field :author %>
           </div>
 
-          <div class="field">
-            <%= f.label :year %><br>
-            <%= f.number_field :year %>
-          </div>
+          <div class="side_by_side_fields">
+            <div class="field">
+              <%= f.label :year %><br>
+              <%= f.text_field :year, size: 6 %>
+            </div>
 
-          <div class="field">
-            <%= f.label :pages %><br>
-            <%= f.text_field :pages %>
-          </div>
-
-          <div class="field">
-            <%= f.label :stated_year %><br>
-            <%= f.text_field :stated_year %>
-          </div>
-
-          <div class="field">
-            <%= f.label :volume %><br>
-            <%= f.text_field :volume %>
-          </div>
-          <div class="field">
-            <%= f.label :number %><br>
-            <%= f.text_field :number %>
+            <div class="field">
+              <%= f.label :stated_year %><br>
+              <%= f.text_field :stated_year, size: 6 %>
+            </div>
           </div>
 
           <div class="field">
             <%= f.label :serial %>
             <br>
-            <%= render :partial => 'workbench/elements/forms/ajax_select',
+            <%= render partial: 'workbench/elements/forms/ajax_select',
                        locals:  {controller: 'serials',
                                  object:     'source',
                                  method:     'serial_id',
@@ -68,9 +55,27 @@
           </div>
 
           <div class="field">
-            <%= f.label :journal %><br>
+            <%= f.label :journal, 'Journal (verbatim/BibTeX)' %><br>
             <%= f.text_field :journal %>
           </div>
+
+          <div class="side_by_side_fields">
+            <div class="field">
+              <%= f.label :volume %><br>
+              <%= f.text_field :volume, size: 6 %>
+            </div>
+            <div class="field">
+              <%= f.label :number %><br>
+              <%= f.text_field :number, size: 6 %>
+            </div>
+          </div>
+
+          <div class="field">
+            <%= f.label :pages %><br>
+            <%= f.text_field :pages %>
+          </div>
+
+
 
         </div>
 
@@ -99,10 +104,14 @@
             <%= f.label :edition %><br>
             <%= f.text_field :edition %>
           </div>
+
+          <%= render partial: '/people/role_picker', locals: {role: :editor, object: @source, f: f} %>
+
           <div class="field">
-            <%= f.label :editor %><br>
+            <%= f.label :editor, 'Editor(s) (verbatimBibTex)' %><br>
             <%= f.text_field :editor %>
           </div>
+
           <div class="field">
             <%= f.label :howpublished %><br>
             <%= f.text_field :howpublished %>

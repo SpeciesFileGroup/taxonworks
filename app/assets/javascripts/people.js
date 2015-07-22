@@ -204,19 +204,27 @@ function bind_remove_links(links) {
         role_list.append($('<input hidden name="source[roles_attributes][' +  role_index + '][_destroy]" value="1" >') );
 
         // Provide a warning that the list must be saved to properly delete the records, tweak if we think necessary
-        role_list.siblings('.role_picker_message').addClass('warning');
-        role_list.siblings('.role_picker_message').html('Update required to confirm removals.');
+        warn_for_save(role_list.siblings('.role_picker_message'));
       }
     }
-
     list_item.remove();
   });
 };
 
+function warn_for_save(msg_div) {
+  msg_div.addClass('warning');
+  msg_div.html('Update required to confirm removal/reorder.');
+}
 
 function make_role_list_sortable(form) {
   var list_items = form.find('.role_list');
-  list_items.sortable();
+  list_items.sortable({
+    stop: function( event, ui ) {
+      if ($('form[id="new_source"]').length == 0) {
+        warn_for_save(form.find('.role_picker_message')); 
+      }
+    }  
+  });
   list_items.disableSelection();
 }
 
