@@ -10,7 +10,8 @@ class Tasks::Accessions::Breakdown::SqedController < ApplicationController
   end
 
   def index
-    @depiction = Depiction.find(params[:depiction_id])
+    @depiction = Depiction.find(params[:depiction_id]) # restrict to those on collection objects only
+
     @sqed = Sqed.new(image: Magick::Image.read(@depiction.image.image_file.path(:thumb)).first, pattern: :cross, has_border: false)
     @sqed_result = @sqed.result
     

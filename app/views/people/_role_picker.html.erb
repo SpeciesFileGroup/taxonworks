@@ -2,13 +2,24 @@
   <div>
     <h3 class="role_picker_header"><%= role.to_s.titleize.pluralize.capitalize %> <span class='role_picker_alert' hidden></span> </h3>
     <span class="role_picker_message"></span>
+
     <ul class="role_list">
-      <% if object.respond_to?("#{role}_roles") -%>
-        <%= f.fields_for :roles, object.send("#{role}_roles") do |role_fields| %>
-          <li class="role_item" data-role-id="<%= role_fields.object.id -%>" data-role-index="<%= role_fields.index -%>" >
-          <%= role_fields.text_field :id, hidden: true -%>
-          <%= object_tag(role_fields.object)  -%> <%= link_to('remove', "#", class: :remove_role) -%>
-          </li>
+      <% if roles = object.roles.select{|r| r.type == Role::TYPE_INFLECTIONS[role.to_sym] } -%>
+        <%= f.fields_for :roles, roles do |role_fields| %>
+          <% if role.new_record? %>
+
+            <% content_tag(:li, 'data-role-id' => role_fields.object.id, 'data-role-index' => role_fields.index) do -%>
+              <%= role_fields.text_field :id, hidden: true -%>
+              <%= object_tag(role_fields.object) -%> <%= link_to('remove', "#", class: :remove_role) -%>
+            <% end %>
+            </li>
+
+          <% else %>
+            <li class="role_item" data-role-id="<%= role_fields.object.id -%>" data-role-index="<%= role_fields.index -%>" >
+            <%= role_fields.text_field :id, hidden: true -%>
+            <%= object_tag(role_fields.object) -%> <%= link_to('remove', "#", class: :remove_role) -%>
+            </li>
+          <% end %>
         <% end %>
       <% end %>
     </ul>

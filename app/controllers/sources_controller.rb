@@ -36,7 +36,7 @@ class SourcesController < ApplicationController
 
     respond_to do |format|
       if @source.save
-        case @source.class.to_s
+        case @source.type
           when 'Source::Bibtex'
             format.html { redirect_to @source.metamorphosize, notice: "Source by '#{@source.author}' was successfully created." }
           when 'Source::Verbatim'

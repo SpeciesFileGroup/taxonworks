@@ -1,6 +1,14 @@
 # A Role relates a Person (a Person is data in TaxonWorks) to other data.
 #
 class Role < ActiveRecord::Base
+
+  TYPE_INFLECTIONS = {
+    author: 'SourceAuthor',
+    editor: 'SourceEditor',
+    collector: 'Collector',
+    source: 'SourceSource'
+  }
+
   include Housekeeping::Users
   include Shared::IsData
 

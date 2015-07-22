@@ -318,9 +318,14 @@ TaxonWorks::Application.routes.draw do
     scope :accessions do
 
       scope :breakdown do
-        scope :sqed, controller: 'tasks/accessions/breakdown/sqed' do
-          get 'index/:depiction_id', action: :index, as: 'sqed_breakdown_task'
+        scope :depiction, controller: 'tasks/accessions/breakdown/depiction' do
+          get ':depiction_id', action: :index, as: 'depiction_breakdown_task'
+          post :breakdown, action: :breakdown, as: 'depiction_breakdown_create_task'
         end
+
+        # scope :sqed, controller: 'tasks/accessions/breakdown/sqed' do
+        #   get 'index/:depiction_id', action: :index, as: 'sqed_breakdown_task'
+        # end
       end
 
       scope :verify do
@@ -338,7 +343,8 @@ TaxonWorks::Application.routes.draw do
         get 'new', as: 'imaged_material_task'
         post 'create', as: 'create_imaged_material_task'
       end
-    end
+
+        end
 
     scope :bibliography do
       scope :verbatim_reference, controller: 'tasks/bibliography/verbatim_reference' do
