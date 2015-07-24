@@ -219,7 +219,7 @@ function warn_for_save(msg_div) {
 function make_role_list_sortable(form) {
   var list_items = form.find('.role_list');
   list_items.sortable({
-    stop: function( event, ui ) {
+    change: function( event, ui ) {
       if ($('form[id="new_source"]').length == 0) {
         warn_for_save(form.find('.role_picker_message')); 
       }
