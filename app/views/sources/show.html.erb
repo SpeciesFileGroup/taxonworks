@@ -19,4 +19,6 @@
     <% end %>
  <% end %>
 
+<%= source_attributes_for(@source) -%>
+
 <%= render(partial: 'shared/data/community/user_defined/show', locals: {object: @source}) -%>

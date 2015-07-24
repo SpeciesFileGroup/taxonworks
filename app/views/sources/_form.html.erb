@@ -25,15 +25,15 @@
 
           <%= render partial: '/people/role_picker', locals: {role: :author, object: @source, f: f} %>
 
-          <div class="field">
-            <%= f.label :author, 'Author(s) (verbatim/BibTeX)' %><br>
-            <%= f.text_field :author %>
-          </div>
-
           <div class="side_by_side_fields">
             <div class="field">
               <%= f.label :year %><br>
               <%= f.text_field :year, size: 6 %>
+            </div>
+
+            <div class="field">
+              <%= f.label :year_suffix %><br>
+              <%= f.text_field :year_suffix, size: 2 %>
             </div>
 
             <div class="field">
@@ -54,10 +54,7 @@
                                  display:    @source.respond_to?(:serial) ? serial_for_select(@source.serial) : nil} %>
           </div>
 
-          <div class="field">
-            <%= f.label :journal, 'Journal (verbatim/BibTeX)' %><br>
-            <%= f.text_field :journal %>
-          </div>
+
 
           <div class="side_by_side_fields">
             <div class="field">
@@ -75,20 +72,23 @@
             <%= f.text_field :pages %>
           </div>
 
+          <div class="field">
+            <%= f.label :language_id %><br>
+            <%= render :partial => 'workbench/elements/forms/ajax_select',
+              locals:  {controller: 'languages',
+                        object:     'source',
+                        method:     'language_id',
+                        tag_id:     'language_id_for_source',
+                        size:       '50',
+                        display:    @source.respond_to?(:language_id) ? language_tag(@source.language_id) : nil} %>
+                    </div>
 
 
-        </div>
+
+                  </div>
 
         <div class="item item2 inline_fields">
-          <div class="field">
-            <%= f.label :address %><br>
-            <%= f.text_field :address %>
-          </div>
-          <div class="field">
-            <%= f.label :annote %><br>
-            <%= f.text_field :annote %>
-          </div>
-          <div class="field">
+         <div class="field">
             <%= f.label :booktitle %><br>
             <%= f.text_field :booktitle %>
           </div>
@@ -96,122 +96,165 @@
             <%= f.label :chapter %><br>
             <%= f.text_field :chapter %>
           </div>
-          <div class="field">
-            <%= f.label :crossref %><br>
-            <%= f.text_field :crossref %>
-          </div>
+          
           <div class="field">
             <%= f.label :edition %><br>
             <%= f.text_field :edition %>
           </div>
 
+          <div class="field">
+            <%= f.label :series %><br>
+            <%= f.text_field :series %>
+          </div>
+ 
           <%= render partial: '/people/role_picker', locals: {role: :editor, object: @source, f: f} %>
 
-          <div class="field">
-            <%= f.label :editor, 'Editor(s) (verbatimBibTex)' %><br>
-            <%= f.text_field :editor %>
+         <div class="field">
+            <%= f.label :organization %><br>
+            <%= f.text_field :organization %>
+          </div>
+
+         <div class="field">
+            <%= f.label :institution %><br>
+            <%= f.text_field :institution %>
           </div>
 
           <div class="field">
             <%= f.label :howpublished %><br>
             <%= f.text_field :howpublished %>
           </div>
+ 
           <div class="field">
-            <%= f.label :institution %><br>
-            <%= f.text_field :institution %>
+            <%= f.label :publisher %><br>
+            <%= f.text_field :publisher %>
           </div>
+
           <div class="field">
-            <%= f.label :key %><br>
-            <%= f.text_field :key %>
+            <%= f.label :address %><br>
+            <%= f.text_field :address %>
           </div>
+
           <div class="field">
-            <%= f.label :month %><br>
-            <%= f.text_field :month %>
+            <%= f.label :school %><br>
+            <%= f.text_field :school %>
           </div>
+
+          <div class="side_by_side_fields">
+            <div class="field">
+              <%= f.label :month %><br>
+              <%= f.text_field :month, size: 10 %>
+            </div>
+
+            <div class="field">
+              <%= f.label :day %><br>
+              <%= f.text_field :day, size: 4 %>
+            </div>
+          </div>
+
           <div class="field">
-            <%= f.label :day %><br>
-            <%= f.number_field :day %>
+            <%= f.label :copyright %><br>
+            <%= f.text_field :copyright %>
           </div>
+
+          <div class="field">
+            <%= f.label :translator %><br>
+            <%= f.text_field :translator %>
+          </div>
+
+          <div class="field">
+            <%= f.label :language %><br>
+            <%= f.text_field :language %>
+          </div>
+        </div>
+
+        <div class="item item3 inline_fields">
+
+          <div class="field">
+            <%= f.label :abstract %><br>
+            <%= f.text_area :abstract %>
+          </div>
+
+
+          <div class="side_by_side_fields">
+            <div class="field">
+              <%= f.label :key %><br>
+              <%= f.text_field :key, size: 6 %>
+            </div>
+
+            <div class="field">
+              <%= f.label :crossref %><br>
+              <%= f.text_field :crossref, size: 6 %>
+            </div>
+          </div>
+
+
+          <div class="field">
+            <%= f.label :url %><br>
+            <%= f.text_field :url %>
+          </div>
+
+
+          <h3 title="..." > Verbatim from BibTeX  </h3>
+  
+          <div class="field">
+          <%= f.label :author, 'Author(s)' %><br>
+          <%= f.text_field :author %>
+        </div>
+
+        <div class="field">
+          <%= f.label :editor, 'Editor(s)' %><br>
+          <%= f.text_field :editor %>
+        </div>
+
+          <div class="field">
+            <%= f.label :journal, 'Journal' %><br>
+            <%= f.text_field :journal %>
+          </div>
+
+          <h3 title="These data are from BibTeX but variously automatically translated to normalized values in TW." > BibTeX crosslinks  </h3> 
+  
+          <div class="field">
+            <%= f.label :doi %><br>
+            <%= f.text_field :doi %>
+          </div>
+
+          <div class="field">
+            <%= f.label :isbn, title: "asfasfsad" %><br>
+            <%= f.text_field :isbn %>
+          </div>
+
+          <div class="field">
+            <%= f.label :issn %><br>
+            <%= f.text_field :issn %>
+          </div>
+
+  
 
           <div class="field">
             <%= f.label :note %><br>
             <%= f.text_field :note %>
           </div>
-          <div class="field">
-            <%= f.label :organization %><br>
-            <%= f.text_field :organization %>
-          </div>
-          <div class="field">
-            <%= f.label :publisher %><br>
-            <%= f.text_field :publisher %>
-          </div>
-        </div>
 
-        <div class="item item3 inline_fields">
           <div class="field">
-            <%= f.label :school %><br>
-            <%= f.text_field :school %>
+            <%= f.label :annote %><br>
+            <%= f.text_field :annote %>
           </div>
-          <div class="field">
-            <%= f.label :series %><br>
-            <%= f.text_field :series %>
-          </div>
-          <div class="field">
-            <%= f.label :doi %><br>
-            <%= f.text_field :doi %>
-          </div>
-          <div class="field">
-            <%= f.label :abstract %><br>
-            <%= f.text_field :abstract %>
-          </div>
-          <div class="field">
-            <%= f.label :copyright %><br>
-            <%= f.text_field :copyright %>
-          </div>
-          <div class="field">
-            <%= f.label :language %><br>
-            <%= f.text_field :language %>
-          </div>
-          <div class="field">
-            <%= f.label :isbn %><br>
-            <%= f.text_field :isbn %>
-          </div>
-          <div class="field">
-            <%= f.label :issn %><br>
-            <%= f.text_field :issn %>
-          </div>
-          <div class="field">
-            <%= f.label :language_id %><br>
-            <%= render :partial => 'workbench/elements/forms/ajax_select',
-                       locals:  {controller: 'languages',
-                                 object:     'source',
-                                 method:     'language_id',
-                                 tag_id:     'language_id_for_source',
-                                 size:       '50',
-                                 display:    @source.respond_to?(:language_id) ? language_tag(@source.language_id) : nil} %>
-          </div>
-          <div class="field">
-            <%= f.label :translator %><br>
-            <%= f.text_field :translator %>
-          </div>
-          <div class="field">
-            <%= f.label :year_suffix %><br>
-            <%= f.text_field :year_suffix %>
-          </div>
-          <div class="field">
-            <%= f.label :url %><br>
-            <%= f.text_field :url %>
-          </div>
-          <br>
 
+
+          <h3 title="" > TW attributes  </h3>
+          
           <div class="field">
             <%= f.label :verbatim_contents %><br>
             <%= f.text_area :verbatim_contents %>
           </div>
+
           <div class="field">
             <%= f.label :verbatim_keywords %><br>
             <%= f.text_area :verbatim_keywords %>
           </div>
+
+
+
         </div>
 
       </div>
