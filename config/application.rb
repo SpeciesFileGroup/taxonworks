@@ -38,8 +38,9 @@ module TaxonWorks
     config.active_record.schema_format :ruby
 
     RGeo::ActiveRecord::SpatialFactoryStore.instance.tap do |config|
-      # By default, use the GEOS implementation for spatial columns.
-      config.default = RGeo::Geos.factory_generator
+      config.default = RGeo::Geographic.projected_factory(
+        projection_proj4: '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs', 
+        has_z_coordinate: true)
     end
 
   end
