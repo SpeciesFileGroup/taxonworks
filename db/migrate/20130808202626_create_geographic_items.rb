@@ -6,7 +6,7 @@ class CreateGeographicItems < ActiveRecord::Migration
       t.line_string :a_simple_line, :geographic => true
       t.line_string :a_complex_line, :geographic => true
       t.line_string :a_linear_ring, :geographic => true
-      t.st_polygon :a_polygon, :geographic => true
+      t.polygon :a_polygon, :geographic => true
       t.multi_point :a_multi_point, :geographic => true, :has_z => true, :has_m => true
       t.multi_line_string :a_multi_line_string, :geographic => true
       t.multi_polygon :a_multi_polygon, :geographic => true
