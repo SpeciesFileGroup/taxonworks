@@ -66,8 +66,7 @@ describe 'Sources', :type => :feature, :group => :sources do
     #   expect(page).to have_link('new') # it has a new link
     # end
     specify 'can create a new BibTeX source', js: true do
-      s = Serial.new(name: 'My Serial', creator: @user, updater: @user)
-      expect(s.save).to be_truthy
+      s = Serial.create!(name: 'My Serial', creator: @user, updater: @user)
 
       click_link('new') #   when I click the new link
       # The BibTeX radio button is selected (default).
@@ -84,7 +83,7 @@ describe 'Sources', :type => :feature, :group => :sources do
       fill_in('Title', with: 'Unicorns and Honey Badgers') # fill out Title with 'Unicorns and Honey Badgers'
       fill_in('Author', with: 'Wombat, H.P.') # fill out Author with 'Wombat, H.P.'
       fill_in('Year', with: '1920') # fill out Year with '1920'
-      fill_autocomplete('serial_id_for_source', with: 'My Serial') # fill out Serial autocomplete with 'My Serial'
+      fill_autocomplete('serial_id_for_source', with: 'My Serial', select: s.id) # fill out Serial autocomplete with 'My Serial'
       # select the row with 'My Serial'
       click_button('Create Source') # when I click the 'Create Source' button
       # I get the message "Source by 'Wombat, H.P.' was successfully created." (just use the author field only to keep it simple for now).
@@ -122,7 +121,7 @@ describe 'Sources', :type => :feature, :group => :sources do
     specify 'I can find my bibtex source and it has an edit link & I can edit the source', js: true do
       @src_bibtex = factory_girl_create_for_user(:soft_valid_bibtex_source_article, @user)
 
-      fill_autocomplete('source_id_for_quick_search_form', with: @src_bibtex.title)
+      fill_autocomplete('source_id_for_quick_search_form', with: @src_bibtex.title, select: @src_bibtex.id)
       click_button('Show')
       expect(page).to have_content('Person, T. (1700) I am a soft valid article. Journal of Test Articles.')
       expect(page).to have_link('Edit')
@@ -148,7 +147,7 @@ describe 'Sources', :type => :feature, :group => :sources do
     specify 'I can find my verbatim source and it has an edit link & I can edit the source', js: true do
       @src_verbatim = factory_girl_create_for_user(:valid_source_verbatim, @user)
       tmp           = @src_verbatim.verbatim
-      fill_autocomplete('source_id_for_quick_search_form', with: @src_verbatim.cached)
+      fill_autocomplete('source_id_for_quick_search_form', with: @src_verbatim.cached, select: @src_verbatim.id)
       click_button('Show')
       expect(page).to have_content(@src_verbatim.cached)
       expect(page).to have_link('Edit')

@@ -96,11 +96,11 @@ RSpec.describe "TypeMaterials", :type => :feature do
 
           click_link('new') # when I click the new link
 
-          fill_autocomplete('protonym_id_for_type_material', with: 'Cus bus', select: 'Cus bus')
+          fill_autocomplete('protonym_id_for_type_material', with: 'Cus bus', select: 'Cus bus', select: sp.id)
           # I fill out the name field with "bus"
           # I click 'Bus bus (species)' from drop down list
           # NOTES: need the full name (genus & species) and I'm not getting the species name set correctly.
-          fill_autocomplete('biological_object_id_for_type_material', with: 'INHSIC 1234', select: 'Specimen' )
+          fill_autocomplete('biological_object_id_for_type_material', with: 'INHSIC 1234', select: specimen.id )
           
           # NOTES: still not finding the correct record.
           # I fill out the Material field with 'INHSIC 1234'

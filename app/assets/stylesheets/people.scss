@@ -1,8 +1,14 @@
 .role_picker {
-  margin: .2em;
+  margin: .2em .2em 1.1em .2em;
+  .role_picker_header {
+    border-bottom: 1px dashed silver;
+    width: 98%;
+  }
   .person_details {
     margin-left: 1em;
     padding: .2em;
+    width: auto;
+    word-break: keep-all;
     h3 {
       padding-top: 0;
       margin-top: 0;
@@ -11,5 +17,11 @@
   .new_person {
     margin-left: 1em;
     padding: .2em;
+  }
+  .role_picker_selection {
+    display: flex; 
+    flex-direction: row; 
+    align-items: stretch; 
+    align-content: flex-start;
   }
 }

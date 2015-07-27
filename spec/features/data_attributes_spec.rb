@@ -68,7 +68,7 @@ with a Predicate created
       expect(page).to have_link('Add data attribute')
       click_link('Add data attribute')
       fill_autocomplete('controlled_vocabulary_term_id_for_data_attribute',
-                        with: 'testPredicate')
+                        with: 'testPredicate', select: pred.id)
       fill_in('Value', with: '42')
       click_button('Create Data attribute')
       expect(page).to have_content('Data attribute was successfully created.')

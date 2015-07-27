@@ -404,7 +404,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
           var child_form = selecting.children(0);   // we know this container only has one child
           // map object below renders the response feature collection from child form data-object to right hand result canvas
           selectable_gr_map = initializeMap(child_form.data('map-canvas'), child_form.data('feature-collection'));
-          //////selectable_gr_map = initializeMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
+          //////selectable_gr_map = initializeComplexMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
           add_match_georeferences_map_listeners(selectable_gr_map);   // listen on features in right hand result map
           if (child_form.data('feature-collection').features.length == 1) {
             //  render the center map (literally _selected_gr_form) with the same feature collection
@@ -560,6 +560,7 @@ function add_match_georeferences_map_listeners(map) {      // 4 listeners, one f
     map.data.revertStyle();
     map.data.overrideStyle(event.feature, {fillColor: '#880000'});  // mid-level red
     map.data.overrideStyle(event.feature, {strokeWeight: 2});       //embolden borders
+    map.data.overrideStyle(event.feature, {icon: '/assets/mapicons/mm_20_brown.png'});       // highlight markers
   });
 
   map.data.addListener('mouseout', function (event) {

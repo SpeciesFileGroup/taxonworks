@@ -3,6 +3,7 @@ class TypeMaterial < ActiveRecord::Base
   include Shared::Citable
   include Shared::IsData
   include Shared::DataAttributes
+  include Shared::HasRoles
   include Shared::Taggable
   include Shared::Identifiable
   include Shared::Notable
@@ -41,6 +42,8 @@ class TypeMaterial < ActiveRecord::Base
   belongs_to :source
   has_many :type_designator_roles, class_name: 'TypeDesignator', as: :role_object
   has_many :type_designators, through: :type_designator_roles, source: :person
+
+  accepts_nested_attributes_for :type_designators, :type_designator_roles, allow_destroy: true
 
   scope :where_protonym, -> (taxon_name) {where(protonym_id: taxon_name)}
   scope :with_type_string, -> (base_string) {where('type_type LIKE ?', "#{base_string}" ) }

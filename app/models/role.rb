@@ -1,6 +1,14 @@
 # A Role relates a Person (a Person is data in TaxonWorks) to other data.
 #
 class Role < ActiveRecord::Base
+
+  TYPE_INFLECTIONS = {
+    author: 'SourceAuthor',
+    editor: 'SourceEditor',
+    collector: 'Collector',
+    source: 'SourceSource'
+  }
+
   include Housekeeping::Users
   include Shared::IsData
 
@@ -18,18 +26,9 @@ class Role < ActiveRecord::Base
 
   validates_uniqueness_of :person_id, scope: [:role_object_id, :role_object_type, :type]
 
-  # This permits FactoryGirl testing using foo.collectors << @person type usage
-  # it won't be needed, but shouldn't hurt, in production
-  # before_validation :set_creator_and_updater_from_person_if_possible
-
   # after save :vet_people
 
   protected
-
-  #def set_creator_and_updater_from_person_if_possible
-  #  self.creator = self.person.creator if self.person && self.creator.nil?
-  #  self.updater = self.person.updater if self.person && self.updater.nil?
-  #end
 
   def vet_person
     # if a person is ever used in 2 different roles they are considered vetted.

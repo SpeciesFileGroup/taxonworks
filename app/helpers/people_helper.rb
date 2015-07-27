@@ -2,8 +2,11 @@ module PeopleHelper
 
   def person_tag(person)
     return nil if person.nil?
-    person.name
-    person.cached ? person.cached : 'WARNING CACHE NOT BUILT ADMIN TEST'
+    if person.new_record?
+      person.bibtex_name 
+    else
+      person.cached ? person.cached : 'CACHED VALUE NOT BUILT, CONTACT AN ADMIN.'
+    end
   end
 
   def people_search_form

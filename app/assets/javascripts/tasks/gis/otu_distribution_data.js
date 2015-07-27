@@ -7,11 +7,11 @@ _init_otu_distribution_data_widget = function init_otu_distribution_data() {
       var map_canvas = newfcdata.data('map-canvas');
 
 
-      var otu_map = initializeComplexMap(map_canvas, fcdata);
+      var otu_map = initializeMap(map_canvas, fcdata);
       add_otu_distribution_data_listeners(otu_map);
 
       $('input[type="checkbox"]').change(function () {    // on checkbox change, reset to original feature data
-        otu_map = initializeComplexMap(map_canvas, newfcdata.data('feature-collection'));
+        otu_map = initializeMap(map_canvas, newfcdata.data('feature-collection'));
         add_otu_distribution_data_listeners(otu_map);
       });
     }
@@ -24,13 +24,14 @@ function add_otu_distribution_data_listeners(map) {
     map.data.revertStyle();
     map.data.overrideStyle(event.feature, {fillOpacity: 0.5});
     //$("#displayed_distribution_style").html(event.feature.getProperty('metadata').Source.type);
-    document.getElementById("displayed_distribution_style").textContent = event.feature.getProperty('metadata').Source.type;
+    document.getElementById("displayed_distribution_style").textContent = event.feature.getProperty('source');
     var xx = 0;
   });
 
   map.data.addListener('mouseover', function (event) {     // interim color shift on mousover paradigm changed to opacity
     map.data.revertStyle();
     map.data.overrideStyle(event.feature, {fillOpacity: 0.7});  // bolder
+    map.data.overrideStyle(event.feature, {icon: '/assets/mapicons/mm_20_brown.png'});       // highlight markers
     //if (event.feature.getProperty('label') != undefined) {
     document.getElementById("displayed_distribution_style").textContent = event.feature.getProperty('label');
     //$("#displayed_distribution_style").html(event.feature.getProperty('label'));
@@ -40,7 +41,7 @@ function add_otu_distribution_data_listeners(map) {
   map.data.addListener('mouseout', function (event) {
     map.data.revertStyle();
     //map.data.overrideStyle(event.feature, {fillOpacity: 0.3});  // dimmer
-    $("#displayed_distribution_style").html('');
+    $("#displayed_distribution_style").html('<br />');
   });
 }
 

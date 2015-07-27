@@ -1,21 +1,41 @@
 <div class="role_picker" id="<%= role %>_role_picker" data-role-type='<%= role -%>' >
+
   <div>
-    <h2 class="role_picker_header"><%= role.to_s.pluralize.capitalize %> <span class='role_picker_alert' hidden></span> </h2>
+    <div class="role_picker_header"><%= role.to_s.titleize.pluralize.capitalize %> <span class='role_picker_alert' hidden></span> </div>
     <span class="role_picker_message"></span>
+
     <ul class="role_list">
-      <% if object.respond_to?("#{role}_roles") -%>
-        <%= f.fields_for :roles, object.send("#{role}_roles") do |role_fields| %>
-          <li class="role_item" data-role-id="<%= role_fields.object.id -%>" data-role-index="<%= role_fields.index -%>" >
-          <%= role_fields.text_field :id, hidden: true -%>
-          <%= object_tag(role_fields.object)  -%> <%= link_to('remove', "#", class: :remove_role) -%>
-          </li>
+      <% if roles = object.roles.select{|r| r.type == Role::TYPE_INFLECTIONS[role.to_sym] } -%>
+        <%= f.fields_for :roles, roles do |role_fields| %>
+
+          <% if role_fields.object.new_record? %>
+            <% inc_index = "#{Time.now.to_i}#{role_fields.object.id}" %>
+
+            <%= content_tag(:li, 'data-role-index' => inc_index) do -%>
+              <%= role_fields.hidden_field :type -%> 
+              <%= role_fields.fields_for :person do |person_fields| %>
+                <%= person_fields.hidden_field :last_name -%> 
+                <%= person_fields.hidden_field :first_name-%> 
+                <%= person_fields.hidden_field :prefix -%> 
+                <%= person_fields.hidden_field :suffix -%> 
+                <%= object_tag(role_fields.object) -%> <%= link_to('remove', "#", class: :remove_role) -%>
+              <% end %>
+            <% end %>
+
+
+          <% else %>
+            <li class="role_item" data-role-id="<%= role_fields.object.id -%>" data-role-index="<%= role_fields.index -%>" >
+            <%= role_fields.text_field :id, hidden: true -%>
+            <%= object_tag(role_fields.object) -%> <%= link_to('remove', "#", class: :remove_role) -%>
+            </li>
+          <% end %>
         <% end %>
       <% end %>
     </ul>
   </div>
 
-  <div style="display: flex; flex-direction: row; align-items: stretch; align-content: flex-start;">
-    <div style=""><%= text_field_tag "#{role}_autocomplete", nil, class: 'role_picker_autocomplete' %></div>
+  <div class="role_picker_selection">
+    <div><%= text_field_tag "#{role}_autocomplete", nil, class: 'role_picker_autocomplete', placeholder: "Family name, Given name" %></div>
 
     <div class="person_details"></div> 
 
@@ -35,5 +55,4 @@
     </div>
 
   </div>
-
 </div>

@@ -100,6 +100,7 @@ function add_new_asserted_distribution_map_listeners(map) {      // 4 listeners,
         map.data.revertStyle();
         map.data.overrideStyle(event.feature, {fillColor: '#880000'});  // mid-level red
         map.data.overrideStyle(event.feature, {strokeWeight: 2});       //embolden borders
+        map.data.overrideStyle(event.feature, {icon: '/assets/mapicons/mm_20_brown.png'});       // highlight markers
     });
 
     map.data.addListener('mouseout', function(event) {
@@ -127,6 +128,7 @@ function add_mouseOver_Out_listeners(map) {   //created to isolate functions abo
     map.data.revertStyle();
     map.data.overrideStyle(event.feature, {fillColor: '#880000'});  // mid-level red
     map.data.overrideStyle(event.feature, {strokeWeight: 2});       //embolden borders
+    map.data.overrideStyle(event.feature, {icon: '/assets/mapicons/mm_20_brown.png'});       // highlight markers
   });
 
   map.data.addListener('mouseout', function(event) {

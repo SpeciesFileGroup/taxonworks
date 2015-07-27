@@ -196,6 +196,8 @@ describe CollectingEvent, type: :model, group: :geo do
   context '#cached' do
     specify 'after save there is always some value' do
       collecting_event.save!
+      # TODO: CollectingEvent.cached takes too much time to complete, turned off by Dmitry 07/17/15
+      # pending 'resolution of collecting_event caching delay'
       expect(collecting_event.cached.blank?).to be_falsey, collecting_event.cached
     end
   end

@@ -1,24 +1,37 @@
-<div class="attributes">
-  <p id="notice"><%= notice %></p>
+<%= render(partial: 'layouts/map_header') -%>
+<!-- This map display uses the same widget process as otu_distribution -->
+<div id="otu_distribution_widget">
+  <div class="attributes">
+    <p id="notice"><%= notice %></p>
 
-  <p>
-    <strong>Otu:</strong>
-    <%= object_link(@asserted_distribution.otu) %>
-  </p>
+    <p>
+      <strong>Otu:</strong>
+      <%= object_link(@asserted_distribution.otu) %>
+    </p>
 
-  <p>
-    <strong>Geographic area:</strong>
-    <%= object_link(@asserted_distribution.geographic_area) %>
-  </p>
+    <p>
+      <strong>Geographic area:</strong>
+      <%= object_link(@asserted_distribution.geographic_area) %>
 
-  <p>
-    <strong>Source:</strong>
-    <%= object_link(@asserted_distribution.source) %>
-  </p>
+    <div id="_displayed_distribution_form"
+         data-feature-collection='<%= Gis::GeoJSON.feature_collection([@asserted_distribution.geographic_area.geographic_items.first]).to_json.html_safe %>'
+         data-map-center='POINT (0.0 0.0 0.0)'
+         data-map-canvas="displayed_distribution_canvas"
+    ></div>
+    <div id="displayed_distribution_canvas" style="width:512px; height: 256px;"></div>
+    <span id="map_coords"></span>
 
-  <p>
-    <strong>Is absent:</strong>
-    <%= @asserted_distribution.is_absent %>
-  </p>
+    </p>
 
+    <p>
+      <strong>Source:</strong>
+      <%= object_link(@asserted_distribution.source) %>
+    </p>
+
+    <p>
+      <strong>Is absent:</strong>
+      <%= @asserted_distribution.is_absent %>
+    </p>
+
+  </div>
 </div>

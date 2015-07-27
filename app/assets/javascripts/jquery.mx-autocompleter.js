@@ -90,7 +90,7 @@
         return $( "<li></li>" )
           .data( "item.autocomplete", item )
           .append(
-            $("<a>")
+            $("<a data-model-id='" + item.id + "'>")
             .append(item.label_html || item.label ) // Just add the HTML from the label in directly
           )
           .appendTo( ul );

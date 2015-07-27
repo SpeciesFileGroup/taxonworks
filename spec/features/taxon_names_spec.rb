@@ -51,23 +51,21 @@ describe 'TaxonNames', :type => :feature do
     end
   end
 
-  context 'creating a new TaxonName' do
+  context 'creating a new TaxonName, when I visit taxon_names_path()' do
     before {
       sign_in_user_and_select_project
-      visit taxon_names_path # when I visit the taxon_names_path
-      FactoryGirl.create(:root_taxon_name, user_project_attributes(@user, @project).merge(source: nil))
+      visit taxon_names_path 
     }
+
+    let(:root) { FactoryGirl.create(:root_taxon_name, user_project_attributes(@user, @project).merge(source: nil)) }
+
     specify 'testing new TaxonName', js: true do
-      click_link('new') # when I click the new link
-
-      fill_in('Name', with: 'Fooidae') # and I fill out the name field with "Fooidae"
-      # and I select 'family (ICZN)' from the Rank select *
+      click_link('new') 
+      fill_in('Name', with: 'Fooidae') 
       select('family (ICZN)', from: 'taxon_name_rank_class')
-
-      fill_autocomplete('parent_id_for_name', with: 'root')
-
-      click_button('Create Taxon name') # when I click the 'Create Taxon name' button
-      # then I get the message "Taxon name 'Foodiae' was successfully created."
+      fill_autocomplete('parent_id_for_name', with: 'root', select: root.id)
+     
+      click_button('Create Taxon name')
       expect(page).to have_content("Taxon name 'Fooidae' was successfully created.")
     end
   end
@@ -75,72 +73,71 @@ describe 'TaxonNames', :type => :feature do
   context 'editing an original combination' do
     before {
       sign_in_user_and_select_project
+      up_attrs = user_project_attributes(@user, @project)
       # create the parent genera :
       # With a species created (you'll need a genus 'Aus', family, root)
       # With a different genus ('Bus') created under the same family
-      @root    = FactoryGirl.create(:root_taxon_name,
-                                    user_project_attributes(@user,
-                                                            @project).merge(source:     nil))
-      @family    = Protonym.new(user_project_attributes(@user,
-                                                        @project).merge(parent:     @root,
-                                                                        name:       'Rootidae',
-                                                                        rank_class: Ranks.lookup(:iczn, 'Family')))
-      @family.save
-      @genus_a = Protonym.new(user_project_attributes(@user,
-                                                      @project).merge(parent:     @family,
-                                                                      name:       'Aus',
-                                                                      rank_class: Ranks.lookup(:iczn, 'Genus')))
-      @genus_a.save
-      @genus_b = Protonym.new(user_project_attributes(@user,
-                                                      @project).merge(parent:     @family,
-                                                                      name:       'Bus',
-                                                                      rank_class: Ranks.lookup(:iczn, 'Genus')))
-      @genus_b.save
-      visit taxon_names_path # when I visit the taxon_names_path
+      @root = FactoryGirl.create(:root_taxon_name, up_attrs) # user_project_attributes(@user, @project).merge(source: nil))
+
+      @family  = Protonym.create!(up_attrs.merge(parent: @root, name:  'Rootidae', rank_class: Ranks.lookup(:iczn, 'family')))
+      @genus_a = Protonym.create!(up_attrs.merge(parent: @family, name: 'Aus', rank_class: Ranks.lookup(:iczn, 'genus')))
+      @genus_b = Protonym.create!(up_attrs.merge(parent: @family, name: 'Bus', rank_class: Ranks.lookup(:iczn, 'genus')))
+      @species = Protonym.create!(up_attrs.merge(parent: @genus_a, name: 'specius', rank_class: Ranks.lookup(:iczn, 'species')))
+
+      visit taxon_name_path(@species) # when I visit the taxon_names_path
     }
-    specify 'change the original combination of a species to a different genus', js: true do
-      # create the original combination Note: couldn't figure out how to do it directly so just used the web interface
-      click_link('new')
-      fill_in('Name', with: 'specius')
-      select('species (ICZN)', from: 'taxon_name_rank_class')
-      fill_autocomplete('parent_id_for_name', with: 'Aus', select: 'Aus')
-      click_button('Create Taxon name')
-      expect(page).to have_content("Taxon name 'specius' was successfully created.")
-      # Note that we're now on the show page for species1 # When I show that species
+
+    specify 'the original combination is set based on parent relationships' do
       expect(page).to have_content('Cached name: Aus specius')
-      
+    end
+
+    specify 'there is an edit combination link' do
       expect(page).to have_link('Edit original combination')  # There is an 'Edit original combination link'
-      # click_link('Edit original combination') # When I click that link
+    end
+
+    context 'when I click the edit combination link'  do
+
+      # click_link('Edit original combination') 
       # page.find_link('Edit original combination').click
       # above not working for an unknown reason (see
       # http://stackoverflow.com/questions/6693993/capybara-with-selenium-webdriver-click-link-does-not-work-when-link-text-has-lin )
-      # link = find_link('Edit original combination')
-      # #link.native.send_keys([:return])
-      # link.click
-      page.find_link('Edit original combination').click
-      expect(page).to have_content('Editing original combination for Aus specius')
-      fill_autocomplete('subject_taxon_name_id_for_tn_rel_0', with: "Aus",
-                        select: 'Aus')
-      # Set the original combination for the first time: select 'Aus' for the original genus ajax select
-      # Had to add the '\r' to get the auto select to correctly select Aus, but the return
-      # also is equivalent to the submit button
+      before{ page.find_link('Edit original combination').click }
+      
+      specify 'there is header text' do
+        expect(page).to have_content('Editing original combination for Aus specius')
+      end
 
-      # TODO add an expect here to see that the selection of Aus actually occurred
+      context 'when I add an original genus',js: true do
+        before {  
+          fill_autocomplete('subject_taxon_name_id_for_tn_rel_0', with: "Aus", select: @genus_a.id)       
+          click_button('Save changes') 
+        }
 
-      click_button('Save changes') # click 'Save changes'
-      expect(page).to have_content('Successfully updated the original combination.') # success msg
+        specify 'I see a successful update message' do
+          expect(page).to have_content('Successfully updated the original combination.') # success msg
+        end  
 
-      expect(page).to have_content('Cached original combination: Aus specius')
+        specify 'I see the updated cached original combination' do
+          expect(page).to have_content('Cached original combination: Aus specius')
+        end
 
-      page.find_link('Edit original combination').click
-      # click_link('Edit original combination') # When I click that link
-      fill_autocomplete('subject_taxon_name_id_for_tn_rel_0',
-                        with: 'Bus', select: 'Bus')
-      # select 'Bus' for the original genus ajax select
-      click_button('Save changes') # click 'Save changes'
-      # I am returned to show for the species in question
-      expect(page).to have_content('Successfully updated the original combination.') # success msg
-      expect(page).to have_content('Cached original combination: Bus specius')  # show page original genus is changed
+        context 'when I change the original genus',js: true do
+          before {
+            page.find_link('Edit original combination').click
+            fill_autocomplete('subject_taxon_name_id_for_tn_rel_0', with: 'Bus', select: @genus_b.id)
+            click_button('Save changes') 
+          }
+
+          specify 'I see a success message' do
+            expect(page).to have_content('Successfully updated the original combination.') # success msg
+          end
+
+          specify 'I see the updated original combination' do
+            expect(page).to have_content('Cached original combination: Bus specius')  # show page original genus is changed
+          end
+        end
+      end
+
     end
   end
 end

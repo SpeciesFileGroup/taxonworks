@@ -64,6 +64,7 @@ class CollectingEvent < ActiveRecord::Base
   include Housekeeping
   include Shared::Citable
   include Shared::DataAttributes
+  include Shared::HasRoles
   include Shared::Identifiable
   include Shared::Notable
   include Shared::Taggable
@@ -97,6 +98,7 @@ class CollectingEvent < ActiveRecord::Base
   has_one :verbatim_data_georeference, class_name: 'Georeference::VerbatimData'
 
   accepts_nested_attributes_for :verbatim_data_georeference
+  accepts_nested_attributes_for :collectors, :collector_roles, allow_destroy: true
 
   validate :check_verbatim_geolocation_uncertainty,
            :check_date_range,
@@ -754,14 +756,23 @@ TODO: @mjy: please fill in any other paths you can think of for the acquisition 
   protected
 
   def set_cached
-    string = nil
-    if verbatim_label.blank?
-      string = [country_name, state_name, county_name, "\n", verbatim_locality, start_date, end_date, "\n", verbatim_collectors].compact.join(', ')
-    else
-      string = [verbatim_label, print_label, document_label].compact.first
+    if self.cached.blank?
+      if verbatim_label.blank?
+        unless self.geographic_area.nil?
+          if self.geographic_area.geographic_items.count == 0
+            name = self.geographic_area.name
+          else
+            name = [country_name, state_name, county_name].compact.join(", ")
+          end
+        end
+        place_date = [verbatim_locality, start_date, end_date].compact.join(', ')
+        string     = [name, "\n", place_date, "\n", verbatim_collectors].compact.join
+      else
+        string = [verbatim_label, print_label, document_label].compact.first
+      end
+      string      = "[#{self.id.to_param}]" if string.strip.length == 0
+      self.cached = string
     end
-    string      = "[#{self.id.to_param}]" if string.strip.length == 0
-    self.cached = string
   end
 
   def set_times_to_nil_if_form_provided_blank

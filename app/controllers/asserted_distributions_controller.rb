@@ -13,6 +13,7 @@ class AssertedDistributionsController < ApplicationController
   # GET /asserted_distributions/1
   # GET /asserted_distributions/1.json
   def show
+    # @asserted_distribution = AssertedDistribution.find(params[:id])
   end
 
   # GET /asserted_distributions/new
@@ -31,12 +32,12 @@ class AssertedDistributionsController < ApplicationController
     respond_to do |format|
       if @asserted_distribution.save
         if params[:return_to]
-          source_id    = ( params.permit('lock_source') ? params[:asserted_distribution][:source_id] : nil)
+          source_id = (params.permit('lock_source') ? params[:asserted_distribution][:source_id] : nil)
           format.html { redirect_to new_asserted_distribution_task_path(
-            asserted_distribution: {
-              otu_id:    @asserted_distribution.otu.to_param,
-              source_id: source_id}),
-              notice: 'Asserted distribution was successfully created.' }
+                                      asserted_distribution: {
+                                        otu_id:    @asserted_distribution.otu.to_param,
+                                        source_id: source_id}),
+                                    notice: 'Asserted distribution was successfully created.' }
         else
           format.html { redirect_to @asserted_distribution, notice: 'Asserted distribution was successfully created.' }
         end
@@ -100,14 +101,14 @@ class AssertedDistributionsController < ApplicationController
 
   # GET /asserted_distributions/download
   def download
-    send_data AssertedDistribution.generate_download( AssertedDistribution.where(project_id: $project_id) ), type: 'text', filename: "asserted_distributions_#{DateTime.now.to_s}.csv"
+    send_data AssertedDistribution.generate_download(AssertedDistribution.where(project_id: $project_id)), type: 'text', filename: "asserted_distributions_#{DateTime.now.to_s}.csv"
   end
 
   private
   # Use callbacks to share common setup or constraints between actions.
   def set_asserted_distribution
     @asserted_distribution = AssertedDistribution.with_project_id($project_id).find(params[:id])
-    @recent_object = @asserted_distribution
+    @recent_object         = @asserted_distribution
   end
 
   # Never trust parameters from the scary internet, only allow the white list through.

@@ -22,8 +22,8 @@ toggle_source_form_fields = (type_label) ->
 $(document).on 'ready page:load', ->
   if $('#source_edit_type').length
     current_type = $('#source_edit_type input[checked="checked"]').first()
-
-    if current_type.val() == undefined
+    
+    if $('form[id="new_source"]').length == 1 # current_type.val() == undefined
       # new record
       toggle_source_form_fields('Source::Bibtex')
       $('#source_type_sourcebibtex').attr('checked', true)
