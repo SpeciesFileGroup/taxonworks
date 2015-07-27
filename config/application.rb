@@ -37,6 +37,9 @@ module TaxonWorks
     # @see http://dazuma.github.io/activerecord-postgis-adapter/rdoc/Documentation_rdoc.html
     config.active_record.schema_format :ruby
 
+    # Raise error on `after_rollback`/`after_commit` callbacks
+    config.active_record.raise_in_transactional_callbacks = true
+
     RGeo::ActiveRecord::SpatialFactoryStore.instance.tap do |config|
       config.default = RGeo::Geographic.projected_factory(
         projection_proj4: '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs', 
