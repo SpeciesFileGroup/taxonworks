@@ -31,7 +31,7 @@ module Shared::Identifiable
       # join self to identifiers
       l = s.join(i).on(s[:id].eq(i[:identifier_object_id]).and(i[:identifier_object_type].eq(self.base_class.name)))
 
-      self.joins(l.join_sql, j.join_sql).where(c1.and(c2).to_sql)
+      self.joins(l.join_sources, j.join_sources).where(c1.and(c2).to_sql)
     end
 
     # Exact match on the full identifier (use for any class of identifiers)
