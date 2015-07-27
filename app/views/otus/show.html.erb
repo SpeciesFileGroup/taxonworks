@@ -9,7 +9,7 @@
 <%= content_for :see do -%>
     <ul class="no_bullets">
       <%= content_tag(:li, link_to('Distribution',
-                                   otu_distribution_data_task_path,
+                                   otu_distribution_data_task_path(@otu.to_param),
                                    'data-no-turbolink' => true)) %>
     </ul>
 <% end %>

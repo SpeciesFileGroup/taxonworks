@@ -299,9 +299,9 @@ TaxonWorks::Application.routes.draw do
 
     scope :gis, controller: 'tasks/gis/otu_distribution_data' do
       get 'otu_distribution_data/(:id)', action: 'show', as: 'otu_distribution_data_task'
-      get 'otu_distribution_data/((:id)/show2)', action: 'show2', as: 'otu_distribution_data_task2'
+      # get 'otu_distribution_data/((:id)/show2)', action: 'show2', as: 'otu_distribution_data_task2'
 
-     # get 'otu_distribution_data', action: 'show', as: 'first_otu_distribution_data_task'
+      get 'otu_distribution_data', action: 'show', as: 'first_otu_distribution_data_task'
     end
 
     scope :serials, controller: 'tasks/serials/similar' do
@@ -344,7 +344,7 @@ TaxonWorks::Application.routes.draw do
         post 'create', as: 'create_imaged_material_task'
       end
 
-        end
+    end
 
     scope :bibliography do
       scope :verbatim_reference, controller: 'tasks/bibliography/verbatim_reference' do
@@ -374,7 +374,7 @@ TaxonWorks::Application.routes.draw do
 
   match '/papertrail', to: 'papertrail#papertrail', via: :get
   match '/papertrail/:id', to: 'papertrail#show', as: 'paper_trail_version', via: :get
- 
+
   # API STUB
   get '/api/v1/taxon_names/' => 'api/v1/taxon_names#all'
 
