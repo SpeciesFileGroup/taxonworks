@@ -37,7 +37,7 @@ module Dwca::Import
       klass = object.class.name.underscore.to_sym
       DWC2TW[klass].keys.each do |attr|
         method = DWC2TW[klass][attr][:in]
-        if object.respond_to?(method)
+        if method && object.respond_to?(method)
           object.send(method, cell(row, attr))
         end
       end
