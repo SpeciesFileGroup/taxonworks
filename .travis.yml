@@ -7,7 +7,7 @@ bundler_args: --without development
 branches:
   only:
       - master
-      - Rails-4.2
+      - Rails-5.0
 addons:
   postgresql: "9.3"
   apt:
