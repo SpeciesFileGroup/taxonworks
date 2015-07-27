@@ -79,7 +79,7 @@ class UsersController < ApplicationController
       token = user.generate_password_reset_token
       $user_id = user.id
       user.save
-      UserMailer.password_reset_email(user, token).deliver
+      UserMailer.password_reset_email(user, token).deliver_now
     end
   end
   
