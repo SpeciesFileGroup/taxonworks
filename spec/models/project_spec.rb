@@ -177,7 +177,7 @@ describe Project, type: :model do
       exceptions = [:valid_project, :valid_user, :valid_taxon_name]
 
       FactoryGirl.factories.each { |factory|
-        f_name = factory.name
+        f_name = factory.to_s
         next if exceptions.include?(f_name)
 
         if f_name =~ /^valid_/
@@ -261,7 +261,7 @@ describe Project, type: :model do
         # We may need a constant that stores a *string* representative of the shared classes to loop through,
         #   but for now just enumerate a number of them
         FactoryGirl.factories.each { |factory|
-          f_name = factory.name
+          f_name = factory.to_s
           if f_name =~ /^valid_/
             this_class = factory.build_class
             model      = this_class.to_s.constantize
