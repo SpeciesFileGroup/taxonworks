@@ -104,7 +104,6 @@ class CollectingEvent < ActiveRecord::Base
            :check_date_range,
            :check_elevation_range
 
-  # TODO: write specs, this is failing when GeographicArea is set.
   before_save :set_cached ###### it takes too much time to process.
   before_save :set_times_to_nil_if_form_provided_blank
 
@@ -409,41 +408,48 @@ class CollectingEvent < ActiveRecord::Base
   #   which are country_level, and have GIs containing the (GI and/or EGI) of this CE
   # @param [String]
   # @return [Hash]
+  # TODO: this needs more work, possibily direct AREL table manipulation.
   def name_hash(types)
     retval  = {} # changed from []
-    gi_list = []
+    gi_list = nil
+
 
     if self.georeferences.count == 0
       # use geographic_area only if there are no GIs or EGIs
       unless self.geographic_area.nil?
-        # we need to use the geographic_area directly
         # unless self.geographic_area.geographic_items.empty?
-        gi_list << GeographicItem.are_contained_in_item('any_poly', self.geographic_area.geographic_items)
+        # we need to use the geographic_area directly
+        gi_list = GeographicItem.are_contained_in_item('any_poly', self.geographic_area.geographic_items).pluck(:id).uniq
         # end
       end
     else
       # gather all the GIs which contain this GI or EGI
-      gi_list << GeographicItem.are_contained_in_item('any_poly', self.geographic_items.to_a + self.error_geographic_items.to_a)
+      gi_list = GeographicItem.are_contained_in_item('any_poly', self.geographic_items.to_a + self.error_geographic_items.to_a).pluck(:id).uniq
     end
 
     # there are a few ways we can end up with no GIs
-    unless gi_list.count == 0
-      # map the resulting GIs to their corresponding GAs
-      pieces  = GeographicItem.where(id: gi_list.flatten.map(&:id).uniq)
-      ga_list = GeographicArea.includes(:geographic_area_type, :geographic_areas_geographic_items).
-        where(geographic_area_types:             {name: types},
-              geographic_areas_geographic_items: {geographic_item_id: pieces}).uniq
+    unless gi_list.nil? # no references GeographicAreas or Georeferences at all, or
+      unless gi_list.empty? # no available GeographicItems to test
+        # map the resulting GIs to their corresponding GAs
+        # pieces  = GeographicItem.where(id: gi_list.flatten.map(&:id).uniq)
+        # pieces = gi_list
+        ga_list = GeographicArea.joins(:geographic_area_type, :geographic_areas_geographic_items).
+          where(geographic_area_types:             {name: types},
+                geographic_areas_geographic_items: {geographic_item_id: gi_list}).uniq
 
-      # WAS: now find all of the GAs which have the same names as the ones we collected.
+        # WAS: now find all of the GAs which have the same names as the ones we collected.
 
-      # map the names to an array of results
-      ga_list.each { |i|
-        retval[i.name] ||= [] # if we haven't come across this name yet, set it to point to a blank array
-        retval[i.name].push i # we now have at least a blank array, push the result into it
-      }
+        # map the names to an array of results
+        ga_list.each { |i|
+          retval[i.name] ||= [] # if we haven't come across this name yet, set it to point to a blank array
+          retval[i.name].push i # we now have at least a blank array, push the result into it
+        }
+      end
     end
     retval
   end
+
+  # pile = CollectingEvent.all.includes(:geographic_area).sort.each { |ce| instance_variable_set("@ce#{sprintf("%02d", ce.id.to_s)}", ce)}
 
   # @return [Hash]
   def countries_hash
@@ -755,6 +761,8 @@ TODO: @mjy: please fill in any other paths you can think of for the acquisition 
 
   protected
 
+  # TODO: This configuration (sort of) defetes the purpose of before_save, but offers a quick solution
+  # for large imports
   def set_cached
     if self.cached.blank?
       if verbatim_label.blank?

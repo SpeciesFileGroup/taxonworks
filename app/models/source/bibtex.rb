@@ -361,6 +361,9 @@ class Source::Bibtex < Source
     [read_attribute(:journal), (self.serial.blank? ? nil : self.serial.name)].compact.first
   end
 
+  def verbatim_journal
+    read_attribute(:journal)
+  end
   # @return [BibTeX::Entry]
   #   entry equivalent to self
   def to_bibtex
@@ -633,9 +636,8 @@ class Source::Bibtex < Source
 
   #region has_<attribute>? section
   def has_authors? # is there a bibtex author or author roles?
-    return true if !(self.author.blank?)
-    # author attribute is empty
-    return false if self.new_record?
+    return true if !(self.author.blank?) # author attribute is empty
+    return false if self.new_record?   # nothing saved yet, so no author roles are saved yet
     # self exists in the db
     (self.authors.count > 0) ? (return true) : (return false)
   end
