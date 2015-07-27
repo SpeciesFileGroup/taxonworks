@@ -140,7 +140,7 @@ describe 'Sources', :type => :feature, :group => :sources do
       expect(page.has_field?('source_verbatim')).to be_falsey
       fill_in('Author', with: 'Wombat, H.P.') # change Author to 'Wombat, H.P.'
       fill_in('Year', with: '1920') # change Year to '1920'
-      click_button('Update Source')
+      click_button('Update Bibtex')
       expect(page).to have_content("Source was successfully updated.")
       expect(page).to have_content('Wombat, H.P. (1920) I am a soft valid article. Journal of Test Articles.')
     end
@@ -164,17 +164,20 @@ describe 'Sources', :type => :feature, :group => :sources do
       expect(page.has_field?('source_verbatim')).to be_truthy
 
       fill_in('Verbatim', with: 'New Verbatim source')
-      click_button('Update Source')
+      click_button('Update Verbatim')
       expect(page).to have_content('Source was successfully updated.')
       expect(page).to have_content('New Verbatim source')
     end
 
 =begin
-    With a source created by the current user
-    when I show that source
-    there is a 'edit' link
-    when I click 'edit'
-    then I see the edit form
+    With a bibtex source created by the current user with Roles defined
+    when I edit form
+    I can add an author from the author list and the cached fields are properly updated
+    I can add an editor from the editor list and the cached fields are properly updated
+    I can change an author from the author list and the cached fields are properly updated
+    I can change an editor from the editor list and the cached fields are properly updated
+    I can delete an author from the author list and the cached fields are properly updated
+    I can delete an editor from the editor list and the cached fields are properly updated
 =end
 
   end
