@@ -12,6 +12,7 @@ gem 'pg', '~> 0.18.1'
 gem 'activerecord-postgis-adapter', '~> 3.0.0'
 
 # rgeo support
+gem 'ffi-geos'
 gem 'rgeo-shapefile'
 gem 'rgeo-geojson'
 
