@@ -352,13 +352,53 @@ SELECT round(CAST(
   # it will return the 'or' of each of the objects against the table.
   # SELECT COUNT(*) FROM "geographic_items"  WHERE (ST_Contains(polygon::geometry, GeomFromEWKT('srid=4326;POINT (0.0 0.0 0.0)')) or ST_Contains(polygon::geometry, GeomFromEWKT('srid=4326;POINT (-9.8 5.0 0.0)')))
   def self.are_contained_in_item(column_name, *geographic_items)
+    are_contained_in_item_by_id(column_name, geographic_items.flatten.map(&:id))
+    # column_name.downcase!
+    # case column_name
+    #   when 'any'
+    #     part = []
+    #     DATA_TYPES.each { |column|
+    #       unless column == :geometry_collection
+    #         part.push(GeographicItem.are_contained_in_item("#{column}", geographic_items).to_a)
+    #       end
+    #     }
+    #     # todo: change 'id in (?)' to some other sql construct
+    #     GeographicItem.where(id: part.flatten.map(&:id))
+    #   when 'any_poly', 'any_line'
+    #     part = []
+    #     DATA_TYPES.each { |column|
+    #       if column.to_s.index(column_name.gsub('any_', ''))
+    #         part.push(GeographicItem.are_contained_in_item("#{column}", geographic_items).to_a)
+    #       end
+    #     }
+    #     # todo: change 'id in (?)' to some other sql construct
+    #     GeographicItem.where(id: part.flatten.map(&:id))
+    #   else
+    #     q = geographic_items.flatten.collect { |geographic_item|
+    #       GeographicItem.containing_sql(column_name, geographic_item.id, geographic_item.geo_object_type)
+    #     }.join(' or ')
+    #     q = 'FALSE' if q.blank? # this will prevent the invocation of *ALL* of the GeographicItems, if there are
+    #     # no GeographicItems in the request (see CollectingEvent.name_hash(types)).
+    #     where(q) # .excluding(geographic_items)
+    # end
+  end
+
+  # @param [String] name of column to search
+  # @param [GeographicItem] geographic_item id or array of geographic_item ids to be tested.
+  # @return [Scope]
+  #
+  # If this scope is given an Array of GeographicItems ids as a second parameter,
+  # it will return the 'or' of each of the objects against the table.
+  # SELECT COUNT(*) FROM "geographic_items"  WHERE (ST_Contains(polygon::geometry, GeomFromEWKT('srid=4326;POINT (0.0 0.0 0.0)')) or ST_Contains(polygon::geometry, GeomFromEWKT('srid=4326;POINT (-9.8 5.0 0.0)')))
+  def self.are_contained_in_item_by_id(column_name, *geographic_item_ids)
+    geographic_item_ids.flatten! # in case there is a array of arrays, or multiple objects
     column_name.downcase!
     case column_name
       when 'any'
         part = []
         DATA_TYPES.each { |column|
           unless column == :geometry_collection
-            part.push(GeographicItem.are_contained_in_item("#{column}", geographic_items).to_a)
+            part.push(GeographicItem.are_contained_in_item_by_id("#{column}", geographic_item_ids).to_a)
           end
         }
         # todo: change 'id in (?)' to some other sql construct
@@ -367,14 +407,16 @@ SELECT round(CAST(
         part = []
         DATA_TYPES.each { |column|
           if column.to_s.index(column_name.gsub('any_', ''))
-            part.push(GeographicItem.are_contained_in_item("#{column}", geographic_items).to_a)
+            part.push(GeographicItem.are_contained_in_item_by_id("#{column}", geographic_item_ids).to_a)
           end
         }
         # todo: change 'id in (?)' to some other sql construct
         GeographicItem.where(id: part.flatten.map(&:id))
       else
-        q = geographic_items.flatten.collect { |geographic_item|
-          GeographicItem.containing_sql(column_name, geographic_item.id, geographic_item.geo_object_type)
+        q = geographic_item_ids.flatten.collect { |geographic_item_id|
+          b = GeographicItem.where(id: geographic_item_id).pluck(:type)[0].split(':')[2].downcase.gsub('lti', 'lti_')
+          # a = GeographicItem.find(geographic_item_id).geo_object_type
+          GeographicItem.containing_sql(column_name, geographic_item_id, b)
         }.join(' or ')
         q = 'FALSE' if q.blank? # this will prevent the invocation of *ALL* of the GeographicItems, if there are
         # no GeographicItems in the request (see CollectingEvent.name_hash(types)).
