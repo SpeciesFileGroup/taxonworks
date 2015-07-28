@@ -259,7 +259,8 @@ describe GeographicItem, type: :model, group: :geo do
       f2  = f.geometry_n(1)
       p16 = @p16.geo_object
 
-      expect(a.intersection(p16)).to eq(P16_ON_A)
+     
+      expect(a.intersection(p16).to_s).to eq(P16_ON_A.to_s)
 
       # f1crosses2 = RSPEC_FACTORY.parse_wkt("POINT (-23.6 -4.0 0.0)")
 
