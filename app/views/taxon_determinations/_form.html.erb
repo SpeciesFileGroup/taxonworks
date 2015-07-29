@@ -1,6 +1,7 @@
 <%= form_for(@taxon_determination) do |f| %>
-    <%= render 'shared/errors', object: @taxon_determination %>
-    <%= render partial: '/people/role_picker', locals: {role: :determiner, object: @taxon_determination, f: f} %>
+  <%= render 'shared/errors', object: @taxon_determination %>
+
+  <%= render partial: '/people/role_picker', locals: {role: Determiner.new(), object: @taxon_determination, f: f} %>
 
   <div class="field">
     <%= f.label :biological_collection_object_id %><br>
@@ -10,7 +11,7 @@
                          method:     'biological_collection_object_id',
                          tag_id:     'biological_collection_object_id_for_taxon_determination',
                          size:       '',
-                         display:    ''} %>
+                         display:    collection_object_tag(@taxon_determination.biological_collection_object) } %>
   </div>
 
   <div class="field">
@@ -21,7 +22,7 @@
                          method:     'otu_id',
                          tag_id:     'otu_id_for_taxon_determination',
                          size:       '',
-                         display:    ''} %>
+                         display:    otu_tag(@taxon_determination.otu)} %>
   </div>
 
   <div class="field">
