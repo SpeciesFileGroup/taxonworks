@@ -12,18 +12,13 @@
     <% end %>
 <% end %>
 
-<%= content_for :tasks do %>
-    <!--<ul class="no_bullets">-->
-    <!--<%#= content_tag(:li, link_to('Georeference', new_georeference_path(georeference: {collecting_event_id: @collecting_event.to_param}))) -%>-->
-    <!--</ul>-->
-<% end %>
 
 <%= content_for :related_attributes do %>
     <% if @collecting_event.collectors.any? %>
         <h3>Collectors</h3>
         <ul>
           <% @collecting_event.collectors.each do |collector| %>
-              <%= content_tag(:li, collector.last_name) %>
+            <%= content_tag(:li, object_link(collector)) %>
           <% end %>
         </ul>
     <% end %>

@@ -144,7 +144,11 @@ class TaxonNamesController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def taxon_name_params
-    params.require(:taxon_name).permit(:name, :parent_id, :source_id, :year_of_publication, :verbatim_author, :rank_class, :type, :masculine_name, :feminine_name, :neuter_name, :also_create_otu)
+    params.require(:taxon_name).permit(:name, :parent_id, :source_id, :year_of_publication,
+                                       :verbatim_author, :rank_class, :type, :masculine_name,
+                                       :feminine_name, :neuter_name, :also_create_otu,
+                                       roles_attributes: [:id, :_destroy, :type, :person_id, :position, person_attributes: [:last_name, :first_name, :suffix, :prefix]]
+                                      )
   end
 
 end

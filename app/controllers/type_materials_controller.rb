@@ -102,6 +102,9 @@ class TypeMaterialsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def type_material_params
-      params.require(:type_material).permit(:protonym_id, :biological_object_id, :type_type, :source_id)
+      params.require(:type_material).permit(
+        :protonym_id, :biological_object_id, :type_type, :source_id,
+        roles_attributes: [:id, :_destroy, :type, :person_id, :position, person_attributes: [:last_name, :first_name, :suffix, :prefix]]
+      )
     end
 end

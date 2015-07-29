@@ -107,6 +107,9 @@ class TaxonDeterminationsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def taxon_determination_params
-      params.require(:taxon_determination).permit(:biological_collection_object_id, :otu_id, :position, :year_made, :month_made, :day_made)
+      params.require(:taxon_determination).permit(
+        :biological_collection_object_id, :otu_id, :year_made, :month_made, :day_made,
+        roles_attributes: [:id, :_destroy, :type, :person_id, :position, person_attributes: [:last_name, :first_name, :suffix, :prefix]]
+      )
     end
 end

@@ -73,7 +73,7 @@
       </div>
 
       <div class="item item2 inline_fields">
-        <%= render partial: '/people/role_picker', locals: {role: :collector, object: @collecting_event, f: f} %>
+        <%= render partial: '/people/role_picker', locals: {role: Collector.new(), object: @collecting_event, f: f} %>
 
         <h3> Parsed data </h3>
 

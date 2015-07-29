@@ -3,15 +3,25 @@
     <%=  link_to('Add status/classification', new_taxon_name_classification_path(taxon_name_classification: {taxon_name_id: @taxon_name.to_param})) -%> <br/>
     <%= new_combination_for_protonym_link(@taxon_name) -%>
   <% end %>
+<% end %>
 
-  <% content_for :tasks do %>
-    <%= render(partial: 'tasks') -%>
-  <% end %>
-
+<% content_for :tasks do %>
+  <%= render(partial: 'tasks') -%>
 <% end %>
 
 <% content_for :show_navigation do %>
   <%= render('parent_navigator', taxon_name: @taxon_name) -%>
+<% end %>
+
+<%= content_for :related_attributes do %>
+  <% if @taxon_name.taxon_name_authors.any? %>
+    <h3>Taxon name authors</h3>
+    <ul>
+      <% @taxon_name.taxon_name_authors.each do |taxon_name_author| %>
+        <%= content_tag(:li, object_link(taxon_name_author)) %>
+      <% end %>
+    </ul>
+  <% end %>
 <% end %>
 
 <% content_for :see do %>
@@ -23,6 +33,5 @@
     <%= render(partial: '/combinations/unordered_list', locals: {combinations: @taxon_name.combinations}) -%>
   <% end %>
 <% end %>
-
 
 <%= render(partial: 'shared/data/project/show', locals: {object: @taxon_name}) -%>

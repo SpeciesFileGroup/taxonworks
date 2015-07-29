@@ -23,7 +23,7 @@
             <%= f.text_area :title, cols: 40, rows: 2 %>
           </div>
 
-          <%= render partial: '/people/role_picker', locals: {role: :author, object: @source, f: f} %>
+          <%= render partial: '/people/role_picker', locals: {role: SourceAuthor.new(), object: @source, f: f} %>
 
           <div class="side_by_side_fields">
             <div class="field">
@@ -107,7 +107,7 @@
             <%= f.text_field :series %>
           </div>
  
-          <%= render partial: '/people/role_picker', locals: {role: :editor, object: @source, f: f} %>
+          <%= render partial: '/people/role_picker', locals: {role: SourceEditor.new(), object: @source, f: f} %>
 
          <div class="field">
             <%= f.label :organization %><br>

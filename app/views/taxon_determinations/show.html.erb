@@ -1,1 +1,13 @@
+
+<%= content_for :related_attributes do %>
+  <% if @taxon_determination.determiners.any? %>
+    <h3>Determiners</h3>
+    <ul>
+      <% @taxon_determination.determiners.each do |determiner| %>
+        <%= content_tag(:li, object_link(determiner)) %>
+      <% end %>
+    </ul>
+  <% end %>
+<% end %>
+
 <%= render(partial: '/shared/data/project/show', locals: {object: @taxon_determination}) -%>

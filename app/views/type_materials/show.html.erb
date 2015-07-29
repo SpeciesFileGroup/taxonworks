@@ -1,1 +1,12 @@
+<%= content_for :related_attributes do %>
+  <% if @type_material.type_designators.any? %>
+    <h3>Type designators</h3>
+    <ul>
+      <% @type_material.type_designators.each do |type_designator| %>
+        <%= content_tag(:li, object_link(type_designator)) %>
+      <% end %>
+    </ul>
+  <% end %>
+<% end %>
+
 <%= render(partial: 'shared/data/project/show', locals: {object: @type_material}) -%>

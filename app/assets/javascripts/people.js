@@ -103,29 +103,28 @@ function bind_new_link(form) {
 }
 
 function insert_existing_person(form, person_id, label) {
-  var role_type = 'Source' + capitalize(form.data('role-type')) ;
+  var base_class = form.data('base-class');
   var random_index = new Date().getTime(); 
   var role_list = form.find(".role_list");
-  var person_base = 'source[roles_attributes][' + random_index + '][person_attributes]'; 
 
   // type
-  role_list.append( $('<input hidden name="source[roles_attributes][' +  random_index + '][type]" value="' + role_type +  '" >') );
-  role_list.append( $('<input hidden name="source[roles_attributes][' +  random_index + '][person_id]" value="' + person_id +  '" >') );
+  role_list.append( $('<input hidden name="' + base_class + '[roles_attributes][' +  random_index + '][type]" value="' + form.data('role-type') +  '" >') );
+  role_list.append( $('<input hidden name="' + base_class + '[roles_attributes][' +  random_index + '][person_id]" value="' + person_id +  '" >') );
 
   // insert visible list item
   role_list.append( $('<li class="role_item" data-role-index="' + random_index + '">').append( label).append('&nbsp;').append(remove_link()) );
 };
 
 function insert_new_person(form) {
-  var role_type = 'Source' + capitalize(form.data('role-type')) ;
+  var base_class = form.data('base-class');
   var random_index = new Date().getTime(); 
+  var person_base = base_class + '[roles_attributes][' + random_index + '][person_attributes]'; 
   var role_list = form.find(".role_list");
-  var person_base = 'source[roles_attributes][' + random_index + '][person_attributes]'; 
 
   // type
   role_list.append($('<li class="role_item" data-new-person="true" data-role-index="' + random_index + '" >')
   .append(form.find('.name_label').text() + '&nbsp;' )
-  .append( $('<input hidden name="source[roles_attributes][' +  random_index + '][type]" value="' + role_type +  '" >') )
+  .append( $('<input hidden name="' + base_class + '[roles_attributes][' +  random_index + '][type]" value="' + form.data('role-type') +  '" >') )
 
   // names 
   .append( $('<input hidden name="' + person_base + '[last_name]" value="' + form.find(".last_name").val() + '" >') )
@@ -191,8 +190,10 @@ function bind_hover(form) {
 function bind_remove_links(links) {
   links.click(function () {
     list_item = $(this).parent('li');
+    var role_picker = list_item.closest('.role_picker');
     var role_id = list_item.data('role-id');
     var role_index = list_item.data('role-index');
+    var base_class = role_picker.data('base-class');
 
     if (role_id != undefined) {
       var role_list = list_item.closest('.role_list');
@@ -200,8 +201,8 @@ function bind_remove_links(links) {
       // if this is not a new person 
       if (list_item.data('new-person') != "true")  {
         // if there is an ID from an existing item add the necessary (hidden) _destroy input
-        role_list.append($('<input hidden name="source[roles_attributes][' +  role_index + '][id]" value="' + role_id + '" >') );
-        role_list.append($('<input hidden name="source[roles_attributes][' +  role_index + '][_destroy]" value="1" >') );
+        role_list.append($('<input hidden name="' + base_class + '[roles_attributes][' +  role_index + '][id]" value="' + role_id + '" >') );
+        role_list.append($('<input hidden name="' + base_class + '[roles_attributes][' +  role_index + '][_destroy]" value="1" >') );
 
         // Provide a warning that the list must be saved to properly delete the records, tweak if we think necessary
         warn_for_save(role_list.siblings('.role_picker_message'));
@@ -220,7 +221,7 @@ function make_role_list_sortable(form) {
   var list_items = form.find('.role_list');
   list_items.sortable({
     change: function( event, ui ) {
-      if ($('form[id="new_source"]').length == 0) {
+      if ($('form[id^="new_"]').length == 0) {
         warn_for_save(form.find('.role_picker_message')); 
       }
     }  
@@ -230,6 +231,8 @@ function make_role_list_sortable(form) {
 
 
 function bind_position_handling_to_submit_button(form) {
+  var base_class = form.data('base-class');
+  
   form.closest('form').find('input[name="commit"]').click(function () {
     var i = 1;
     var role_index;
@@ -237,7 +240,7 @@ function bind_position_handling_to_submit_button(form) {
       console.log($(this));
       role_index = $(this).data('role-index');
       $(this).append(
-        $('<input hidden name="source[roles_attributes][' +  role_index + '][position]" value="' + i + '" >')
+        $('<input hidden name="' + base_class + '[roles_attributes][' +  role_index + '][position]" value="' + i + '" >')
         );
       i = i + 1; 
     });

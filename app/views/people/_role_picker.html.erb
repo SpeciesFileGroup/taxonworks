@@ -1,11 +1,11 @@
-<div class="role_picker" id="<%= role %>_role_picker" data-role-type='<%= role -%>' >
+<div class="role_picker" id="<%= role.type.underscore %>_role_picker" data-role-type='<%= role.type -%>' data-base-class='<%= object.metamorphosize.class.name.underscore -%>' >
 
   <div>
-    <div class="role_picker_header"><%= role.to_s.titleize.pluralize.capitalize %> <span class='role_picker_alert' hidden></span> </div>
+    <div class="role_picker_header"><%= role.type.titleize  %> <span class='role_picker_alert' hidden></span> </div>
     <span class="role_picker_message"></span>
 
     <ul class="role_list">
-      <% if roles = object.roles.select{|r| r.type == Role::TYPE_INFLECTIONS[role.to_sym] } -%>
+      <% if roles = object.roles.select{|r| r.type == role.type } -%>
         <%= f.fields_for :roles, roles do |role_fields| %>
 
           <% if role_fields.object.new_record? %>
@@ -35,7 +35,7 @@
   </div>
 
   <div class="role_picker_selection">
-    <div><%= text_field_tag "#{role}_autocomplete", nil, class: 'role_picker_autocomplete', placeholder: "Family name, Given name" %></div>
+    <div><%= text_field_tag "#{role.type.underscore}_autocomplete", nil, class: 'role_picker_autocomplete', placeholder: "Family name, Given name" %></div>
 
     <div class="person_details"></div> 
 
@@ -49,7 +49,7 @@
 
       <div class="role_picker_person_form" hidden>
         <%= f.fields_for Person.new do |fp| %>
-          <%= render partial: '/people/form_elements2', locals: {role: role, f: fp} %>
+          <%= render partial: '/people/form_elements2', locals: {role_object_type: object.class.name.underscore, f: fp} %>
         <% end %>
       </div>
     </div>
