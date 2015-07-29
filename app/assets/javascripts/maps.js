@@ -13,48 +13,6 @@ initializeMap = function (canvas, feature_collection) {
     mapTypeId: google.maps.MapTypeId.TERRAIN
   };
 
-  /*  ORIGINAL maps.js code
-  var map = initialize_map(canvas, myOptions);
-  var data = feature_collection;
-
-  map.data.setStyle({
-    icon: '/assets/mapicons/mm_20_gray.png',
-    fillColor: '#440000',
-    strokeOpacity: 0.5,
-    strokeColor: "black",
-    strokeWeight: 1,
-    fillOpacity: 0.2
-  });
-
-  if (data != undefined) {
-    if (data["type"] = "FeatureCollection") {
-      map.data.addGeoJson(data)
-    }
-  }
-  ;  // put data on the map if present
-
-// bounds for calculating center point
-  var bounds = {};    //xminp: xmaxp: xminm: xmaxm: ymin: ymax: -90.0, center_long: center_lat: gzoom:
-  getData(data, bounds);               // scan var data as feature collection with homebrew traverser, collecting bounds
-  var center_lat_long = get_window_center(bounds);      // compute center_lat_long from bounds and compute zoom level as gzoom
-  // $("#map_coords").html('Center: \xA0 \xA0 \xA0 \xA0Latitude = ' + bounds.center_lat.toFixed(6) + ' , Longitude = ' + bounds.center_long.toFixed(6));
-  map.setCenter(center_lat_long);
-  map.setZoom(bounds.gzoom);
-
-  map.data.setStyle(function (feature) {
-    var color = '#440000';  // dimmer red as default feature color
-    if (feature.getProperty('isColorful')) {        // isColorful property signals this area/feature was clicked
-      color = feature.getProperty('fillColor');   //
-    }
-    return ({
-      icon: '/assets/mapicons/mm_20_red.png',
-      fillColor: color,
-      strokeColor: "black",
-      strokeWeight: 1
-    }); // @type {google.maps.Data.StyleOptions}
-  });
-  return map;             // now no global map object, use this object to add s to THIS map
-}; */
   var map = initialize_map(canvas, myOptions);
   var data = feature_collection;
 
@@ -92,11 +50,25 @@ initializeMap = function (canvas, feature_collection) {
       chained = data;   // and good luck with this ...
     }
     map.data.addGeoJson(chained);
-  };  // put data on the map if present
+  }
+  ;  // put data on the map if present
 
 // bounds for calculating center point
+  var width;
+  var height;
+  var canvas_ratio = 1.0;     // default value
+  var style = document.getElementById(canvas).style;
+
+  if (style != null) {      // null short for undefined in js
+    if (style.width != undefined && style.height != undefined) {
+      width = style.width.toString().split('px')[0];
+      height = style.height.toString().split('px')[0];
+      canvas_ratio = width / height;
+    }
+  }
   var bounds = {};    //xminp: xmaxp: xminm: xmaxm: ymin: ymax: -90.0, center_long: center_lat: gzoom:
   getData(chained, bounds);               // scan var data as feature collection with homebrew traverser, collecting bounds
+  bounds.canvas_ratio = canvas_ratio;
   var center_lat_long = get_window_center(bounds);      // compute center_lat_long from bounds and compute zoom level as gzoom
   map.setCenter(center_lat_long);
   map.setZoom(bounds.gzoom);
@@ -121,8 +93,7 @@ function get_window_center(bounds) {      // for use with home-brew geoJSON scan
   var center_lat = bounds.center_lat;
   var gzoom = bounds.gzoom;
 
-  if (center_long == undefined) {
-    //determine case of area extent
+  if (center_long == undefined) {    //determine case of area extent
     center_long = 0.0;
     var wm = 0.0;        // western hemisphere default area width
     var wp = 0.0;        // eastern hemisphere default area width
@@ -139,8 +110,12 @@ function get_window_center(bounds) {      // for use with home-brew geoJSON scan
     var xmp = xminp + 0.5 * wp;     // midpoint of east
     var wx;                               // total width of all areas
     wx = xmaxp - xminm;             // data in both hemispheres default
-    if (wp == 0) {wx = wm;}         // override for single sided western hemisphere
-    if (wm == 0) {wx = wp;}         // override for single sided eastern hemisphere
+    if (wp == 0) {
+      wx = wm;
+    }         // override for single sided western hemisphere
+    if (wm == 0) {
+      wx = wp;
+    }         // override for single sided eastern hemisphere
     if (xmaxp > 179 && xminm < 179) {      // Antimeridian span test
       wx = wm + wp;                        // total width of eastern and western
       if (wm > wp) {                       // determine wider group
@@ -151,10 +126,14 @@ function get_window_center(bounds) {      // for use with home-brew geoJSON scan
       }
     }
     else {                                 // i.e., if not Antimeridian span, center on extents about 0
-                                           // case disjoint areas divided by prime meridian
+      // case disjoint areas divided by prime meridian
       center_long = (xminm + xmaxp) / 2;        // default calculation for both hemisperes having data
-      if (wp == 0) {center_long = xmm;}         // override for single sided western hemisphere
-      if (wm == 0) {center_long = xmp;}         // override for single sided eastern hemisphere
+      if (wp == 0) {
+        center_long = xmm;
+      }         // override for single sided western hemisphere
+      if (wm == 0) {
+        center_long = xmp;
+      }         // override for single sided eastern hemisphere
     }                                      // e.g., USA
   }   // END center_long == undefined
 
@@ -182,10 +161,9 @@ function get_window_center(bounds) {      // for use with home-brew geoJSON scan
   var sw = new google.maps.LatLng(ymin, center_long - 0.5 * wx);     // correct x JRF 29JUL2015
   var ne = new google.maps.LatLng(ymax, center_long + 0.5 * wx);     // correct x
   var box = new google.maps.LatLngBounds(sw, ne);
-  //if (wy > 0.5 * wx) {
-  //  wx = wy * 2.0
-  if (wy > wx) {
-    wx = wy;
+
+  if (wy > wx / bounds.canvas_ratio) {      // this test and calculation may bot be exactly right,
+    wx = wy;                                // but no contradictory cases found for tall skinny areas
   }       // VERY crude proportionality adjustment
   // quick and dirty zoom range based on size
   if (wx <= 0.1) {
@@ -218,9 +196,6 @@ function get_window_center(bounds) {      // for use with home-brew geoJSON scan
   if (wx > 50.0) {
     gzoom = 2
   }
-  if (wx > 100.0) {
-    gzoom = 2
-  }
   if (wx > 160.0/* || (wx + wy) == 0*/) {  // amended to not focus on whole earth on latter condition (single point???)
     gzoom = 1                               // wait for exceptional case to revert or rewrite condition
   }
@@ -251,6 +226,7 @@ function reset_center_and_bounds(bounds) {
 
   bounds.gzoom = 1;   // default zoom to whole earth
   bounds.box = new google.maps.LatLngBounds(new google.maps.LatLng(bounds.ymax, bounds.xmaxm), new google.maps.LatLng(bounds.ymin, bounds.xminp));
+  bounds.canvas_ratio = 1;    // overridable prior to get_window_center
 }
 
 // this is the scanner version; no google objects are created
