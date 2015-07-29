@@ -250,17 +250,20 @@ describe GeographicItem, type: :model, group: :geo do
     end
 
     specify 'Two different object types have various intersections.' do
-      a   = @a.geo_object
-      k   = @k.geo_object
-      l   = @l.geo_object
-      e   = @e.geo_object
-      f   = @f.geo_object
-      f1  = f.geometry_n(0)
-      f2  = f.geometry_n(1)
-      p16 = @p16.geo_object
+      a        = @a.geo_object
+      k        = @k.geo_object
+      l        = @l.geo_object
+      e        = @e.geo_object
+      f        = @f.geo_object
+      f1       = f.geometry_n(0)
+      f2       = f.geometry_n(1)
+      p16      = @p16.geo_object
+      p16_on_a = P16_ON_A
+      r        = a.intersection(p16)
 
+      expect(r.factory.projection_factory).to eq(p16_on_a.factory.projection_factory)
       # Now that these are the same factory the equivalence is the "same"
-      expect(a.intersection(p16)).to eq(P16_ON_A)
+      expect(r).to eq(p16_on_a)
 
       expect(l.intersects?(k)).to be_truthy
       expect(l.intersects?(e)).to be_falsey
