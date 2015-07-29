@@ -204,9 +204,10 @@ GEM
     notiffany (0.0.7)
       nenv (~> 0.1)
       shellany (~> 0.0)
-    paper_trail (3.0.8)
-      activerecord (>= 3.0, < 5.0)
-      activesupport (>= 3.0, < 5.0)
+    paper_trail (4.0.0.rc2)
+      activerecord (>= 3.0, < 6.0)
+      activesupport (>= 3.0, < 6.0)
+      request_store (~> 1.1)
     paperclip (4.3.0)
       activemodel (>= 3.2.0)
       activesupport (>= 3.2.0)
@@ -221,7 +222,7 @@ GEM
     parsley-store (0.3.5)
       biodiversity (~> 3.1)
       redis (~> 3.0)
-    passenger (5.0.14)
+    passenger (5.0.15)
       rack
       rake (>= 0.8.1)
     pg (0.18.2)
@@ -268,6 +269,7 @@ GEM
       json (~> 1.4)
     redis (3.2.1)
     ref2bibtex (0.0.3)
+    request_store (1.2.0)
     require_all (1.3.2)
     responders (2.1.0)
       railties (>= 4.2.0, < 5)
@@ -436,7 +438,7 @@ DEPENDENCIES
   kaminari
   latex-decode (~> 0.2.2)
   modularity (~> 2.0.1)
-  paper_trail (~> 3.0.5)
+  paper_trail (~> 4.0.0.rc)
   paperclip (~> 4.3)
   paperclip-meta (~> 1.2.0)
   parallel_tests (~> 1.5)
@@ -466,3 +468,6 @@ DEPENDENCIES
   vcr (~> 2.9.2)
   web-console (~> 2.0)
   webmock (~> 1.21.0)
+
+BUNDLED WITH
+   1.10.5
