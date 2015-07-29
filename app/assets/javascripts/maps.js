@@ -137,8 +137,10 @@ function get_window_center(bounds) {      // for use with home-brew geoJSON scan
     wp = xmaxp - xminp;    // width of eastern area, if present
     var xmm = xminm + 0.5 * wm;     // midpoint of west
     var xmp = xminp + 0.5 * wp;     // midpoint of east
-    var wx = wm + wp;                               // total width of "contiguous" area
-
+    var wx;                               // total width of all areas
+    wx = xmaxp - xminm;             // data in both hemispheres default
+    if (wp == 0) {wx = wm;}         // override for single sided western hemisphere
+    if (wm == 0) {wx = wp;}         // override for single sided eastern hemisphere
     if (xmaxp > 179 && xminm < 179) {      // Antimeridian span test
       if (wm > wp) {                       // determine wider group
         center_long = xmm - wp / 2;        // adjust western mid/mean point by half width of eastern
@@ -148,7 +150,10 @@ function get_window_center(bounds) {      // for use with home-brew geoJSON scan
       }
     }
     else {                                 // i.e., if not Antimeridian span, center on extents about 0
-      center_long = (xminm + xmaxp) / 2;   // case disjoint areas divided by prime meridian
+                                           // case disjoint areas divided by prime meridian
+      center_long = (xminm + xmaxp) / 2;        // default calculation for both hemisperes having data
+      if (wp == 0) {center_long = xmm;}         // override for single sided western hemisphere
+      if (wm == 0) {center_long = xmp;}         // override for single sided eastern hemisphere
     }                                      // e.g., USA
   }   // END center_long == undefined
 
@@ -173,10 +178,10 @@ function get_window_center(bounds) {      // for use with home-brew geoJSON scan
     }
   }
 
-  var sw = new google.maps.LatLng(ymin, xmm);
-  var ne = new google.maps.LatLng(ymax, xmp);
+  var sw = new google.maps.LatLng(ymin, xmm);     //// incorrect x JRF 29JUL2015
+  var ne = new google.maps.LatLng(ymax, xmp);     //// incorrect x
   var box = new google.maps.LatLngBounds(sw, ne);
-  if (wy > 0.5 * wx) {                              ///// this looks wrong or wx is wrong JRF 04MAY2015
+  if (wy > 0.5 * wx) {
     wx = wy * 2.0
   }       // VERY crude proportionality adjustment
   // quick and dirty zoom range based on size
