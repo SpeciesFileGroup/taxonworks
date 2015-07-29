@@ -81,7 +81,7 @@ describe TaxonName, :type => :model do
           # TaxonNameRelationships in which the taxon name is the subject OR object
           specify 'respond to all_taxon_name_relationships' do
             expect(@taxon_name).to respond_to (:all_taxon_name_relationships)
-            expect(@taxon_name.all_taxon_name_relationships.map { |i| i.type_name }).to eq([@relationship1.type_name, @relationship2.type_name])
+            expect(@taxon_name.all_taxon_name_relationships.map{ |i| i.type_name }).to contain_exactly(@relationship1.type_name, @relationship2.type_name)
           end
 
           # TaxonNames related by all_taxon_name_relationships
