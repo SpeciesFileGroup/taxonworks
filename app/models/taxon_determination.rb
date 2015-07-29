@@ -32,10 +32,13 @@ class TaxonDetermination < ActiveRecord::Base
   belongs_to :otu, inverse_of: :taxon_determinations
   belongs_to :biological_collection_object, class_name: 'CollectionObject', inverse_of: :taxon_determinations
 
-  has_one :determiner_role, class_name: 'Determiner', as: :role_object
-  has_one :determiner, through: :determiner_role, source: :person
+  has_many :determiner_roles, class_name: 'Determiner', as: :role_object
+  has_many :determiners, through: :determiner_roles, source: :person
 
-  accepts_nested_attributes_for :determiner, :determiner_role, allow_destroy: true
+  validates :biological_collection_object, presence: true
+  validates :otu, presence: true
+
+  accepts_nested_attributes_for :determiners, :otu, :biological_collection_object, :determiner_roles, allow_destroy: true
 
   # TODO: factor these out (see also TaxonDetermination, Source::Bibtex)
   validates_numericality_of :year_made,
@@ -56,9 +59,6 @@ class TaxonDetermination < ActiveRecord::Base
                             less_than:             32,
                             less_than_or_equal_to: Proc.new { |a| Time.utc(a.year_made, a.month_made).end_of_month.day },
                             message:               '%{value} is not valid for the month provided'
-
-  validates :otu, presence: true
-  validates :biological_collection_object, presence: true
 
   before_save :set_made_fields_if_not_provided
 

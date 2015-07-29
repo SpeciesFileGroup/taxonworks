@@ -26,7 +26,8 @@ module TaxonDeterminationsHelper
   # @return [String]
   #   the "by" clause of the determination
   def taxon_determination_by(taxon_determination)
-    taxon_determination.determiner ? "by #{taxon_determination.determiner.last_name}" : nil
+    names = taxon_determination.determiners.collect{|d| d.last_name }
+    names == [] ? nil :  "by #{names.join(', ')}"
   end
 
   # @return [String]

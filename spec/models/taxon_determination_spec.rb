@@ -15,9 +15,9 @@ describe TaxonDetermination, :type => :model do
       end
     end
 
-    context 'has_one' do
-      specify 'determiner' do
-        expect(taxon_determination).to respond_to(:determiner)
+    context 'has_many' do
+      specify 'determiners' do
+        expect(taxon_determination).to respond_to(:determiners)
       end
     end
   end
