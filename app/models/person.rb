@@ -130,10 +130,9 @@ class Person < ActiveRecord::Base
   end
 
   def self.find_for_autocomplete(params)
-    where('last_name ILIKE ? or last_name ILIKE ? or last_name = ?', "#{params[:term]}%", "%#{params[:term]}%", params[:term]) # todo: Is last_name correct?
+    where('cached ILIKE ? OR cached ILIKE ? OR cached = ?', "#{params[:term]}%", "%#{params[:term]}%", params[:term]) 
   end
 
-  # set cached values and copies active record relations into bibtex values
   def set_cached
     self.cached = self.bibtex_name if self.errors.empty?
   end
