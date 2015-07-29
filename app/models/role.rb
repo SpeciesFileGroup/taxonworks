@@ -2,13 +2,6 @@
 #
 class Role < ActiveRecord::Base
 
-  TYPE_INFLECTIONS = {
-    author: 'SourceAuthor',
-    editor: 'SourceEditor',
-    collector: 'Collector',
-    source: 'SourceSource'
-  }
-
   include Housekeeping::Users
   include Shared::IsData
 
@@ -39,3 +32,10 @@ class Role < ActiveRecord::Base
     end
   end
 end
+
+require_dependency 'source_source'
+require_dependency 'source_author'
+require_dependency 'source_editor'
+require_dependency 'determiner'
+require_dependency 'collector'
+require_dependency 'taxon_name_author'
