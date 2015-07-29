@@ -11,7 +11,7 @@ class Tasks::Accessions::Quick::VerbatimMaterialController < ApplicationControll
 
   # POST tasks_accessions_quick_verbatim_material_create_path
   def create
-    @material = Material.create_quick_verbatim(params.to_h)
+    @material = Material.create_quick_verbatim(params)
 
     saved, errors = @material.save
 
