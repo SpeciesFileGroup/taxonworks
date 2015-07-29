@@ -179,8 +179,8 @@ function get_window_center(bounds) {      // for use with home-brew geoJSON scan
     }
   }
 
-  var sw = new google.maps.LatLng(ymin, xmm);     //// incorrect x JRF 29JUL2015
-  var ne = new google.maps.LatLng(ymax, xmp);     //// incorrect x
+  var sw = new google.maps.LatLng(ymin, center_long - 0.5 * wx);     // correct x JRF 29JUL2015
+  var ne = new google.maps.LatLng(ymax, center_long + 0.5 * wx);     // correct x
   var box = new google.maps.LatLngBounds(sw, ne);
   //if (wy > 0.5 * wx) {
   //  wx = wy * 2.0
