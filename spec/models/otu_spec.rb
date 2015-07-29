@@ -165,7 +165,9 @@ describe Otu, :type => :model do
       let(:c_o1) { FactoryGirl.create(:valid_collection_object, {collecting_event: c_e1}) }
       let(:c_o2) { FactoryGirl.create(:valid_collection_object, {collecting_event: c_e2}) }
       let(:c_o3) { FactoryGirl.create(:valid_collection_object, {collecting_event: c_e3}) }
+
       let(:t_d1) { FactoryGirl.create(:valid_taxon_determination, {otu: otu1, biological_collection_object: c_o1}) }
+
       let(:t_d2) { FactoryGirl.create(:valid_taxon_determination, {otu: otu2, biological_collection_object: c_o2}) }
       let(:t_d3) { FactoryGirl.create(:valid_taxon_determination, {otu: otu1, biological_collection_object: c_o3}) }
 

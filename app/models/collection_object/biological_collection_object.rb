@@ -1,6 +1,7 @@
 class CollectionObject::BiologicalCollectionObject < CollectionObject
   has_many :biocuration_classifications,  inverse_of: :biological_collection_object
   has_many :biocuration_classes, through: :biocuration_classifications, inverse_of: :biological_collection_objects
+  
   has_many :otus, through: :taxon_determinations, inverse_of: :taxon_determinations
   has_many :taxon_determinations, inverse_of: :biological_collection_object
  
@@ -58,3 +59,9 @@ class CollectionObject::BiologicalCollectionObject < CollectionObject
   end
 
 end
+
+require_dependency 'lot'
+require_dependency 'specimen'
+require_dependency 'ranged_lot'
+
+

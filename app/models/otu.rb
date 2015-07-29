@@ -23,56 +23,29 @@ class Otu < ActiveRecord::Base
 
   has_paper_trail
 
-  # Class constants
-
   belongs_to :taxon_name, inverse_of: :otus
 
-  has_many :contents, inverse_of: :otu, dependent: :destroy
-  has_many :taxon_determinations, inverse_of: :otu, dependent: :destroy
-  has_many :collection_objects, through: :taxon_determinations, source: :biological_collection_object, inverse_of: :otus
-  has_many :collection_profiles # @proceps dependent: what?
-  has_many :collecting_events, -> { uniq }, through: :collection_objects
-  has_many :topics, through: :contents, source: :topic
   has_many :asserted_distributions
+  has_many :collecting_events, -> { uniq }, through: :collection_objects
+  
+  has_many :collection_objects, through: :taxon_determinations, source: :biological_collection_object, inverse_of: :otus, class_name: 'CollectionObject::BiologicalCollectionObject'
+  has_many :taxon_determinations, inverse_of: :otu, dependent: :destroy
+
+  has_many :collection_profiles # @proceps dependent: what?
+  has_many :contents, inverse_of: :otu, dependent: :destroy
   has_many :geographic_areas_from_asserted_distributions, through: :asserted_distributions, source: :geographic_area
   has_many :geographic_areas_from_collecting_events, through: :collecting_events, source: :geographic_area
-
   has_many :georeferences, through: :collecting_events
+ 
+  has_many :topics, through: :contents, source: :topic
 
   scope :with_taxon_name_id, -> (taxon_name_id) { where(taxon_name_id: taxon_name_id) }
   scope :with_name, -> (name) { where(name: name) }
-
-  #  validates_uniqueness_of :name, scope: :taxon_name_id
 
   before_validation :check_required_fields
 
   soft_validate(:sv_taxon_name, set: :taxon_name)
   soft_validate(:sv_duplicate_otu, set: :duplicate_otu)
-
-  #region Validation
-
-  def check_required_fields
-    if self.taxon_name_id.nil? && self.name.blank?
-      errors.add(:taxon_name_id, 'and/or name should be selected')
-      errors.add(:name, 'and/or taxon name should be selected')
-    end
-  end
-
-  #endregion
-
-  #region Soft validation
-  def sv_taxon_name
-    soft_validations.add(:taxon_name_id, 'Taxon is not selected') if self.taxon_name_id.nil?
-  end
-
-  def sv_duplicate_otu
-    unless Otu.with_taxon_name_id(self.taxon_name_id).with_name(self.name).not_self(self).with_project_id(self.project_id).empty?
-      soft_validations.add(:taxon_name_id, 'Duplicate Taxon and Name combination')
-      soft_validations.add(:name, 'Duplicate Taxon and Name combination')
-    end
-  end
-
-  #endregion
 
   #region class methods
   def self.find_for_autocomplete(params)
@@ -167,6 +140,26 @@ class Otu < ActiveRecord::Base
     c_es   = Gis::GeoJSON.feature_collection(geographic_areas_from_collecting_events, :collecting_events_geographic_area)
     retval = Gis::GeoJSON.aggregation([a_ds, c_os, c_es], :distribution)
     retval
+  end
+
+  protected
+
+  def check_required_fields
+    if self.taxon_name_id.nil? && self.name.blank?
+      errors.add(:taxon_name_id, 'and/or name should be selected')
+      errors.add(:name, 'and/or taxon name should be selected')
+    end
+  end
+
+  def sv_taxon_name
+    soft_validations.add(:taxon_name_id, 'Taxon is not selected') if self.taxon_name_id.nil?
+  end
+
+  def sv_duplicate_otu
+    unless Otu.with_taxon_name_id(self.taxon_name_id).with_name(self.name).not_self(self).with_project_id(self.project_id).empty?
+      soft_validations.add(:taxon_name_id, 'Duplicate Taxon and Name combination')
+      soft_validations.add(:name, 'Duplicate Taxon and Name combination')
+    end
   end
 
   # def collecting_event_geoJSON
