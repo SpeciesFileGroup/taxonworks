@@ -183,8 +183,7 @@ describe Person, :type => :model do
         expect(@vp).to respond_to(:is_determiner?)
         expect(@vp.is_determiner?).to be_falsey
         taxon_determination = FactoryGirl.create(:valid_taxon_determination)
-        taxon_determination.determiner = @vp
-        taxon_determination.save!
+        taxon_determination.determiners << @vp
         @vp.reload # vp is getting set to 1, not @vp.id with this format
         expect(@vp.is_determiner?).to be_truthy
       end
