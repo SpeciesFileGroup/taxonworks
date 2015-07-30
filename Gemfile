@@ -26,7 +26,7 @@ gem 'uglifier', '~> 2.4'
 gem 'coffee-rails', '~> 4.0'
 
 # Use jquery as the JavaScript library
-gem 'jquery-rails', '~> 3.1.3'
+gem 'jquery-rails', '~> 4.0.4'
 gem 'jquery-ui-rails', '~> 5.0.5'
 
 # Turbolinks makes following links in your web application faster.
@@ -41,7 +41,7 @@ gem 'chronic', '~> 0.10'
 gem 'awesome_nested_set', '~> 3.0.2' 
 
 # BibTex handling
-gem 'csl', '~> 1.4.3' # git: 'https://github.com/inukshuk/csl-ruby'
+gem 'csl', '~> 1.4.3' # git: 'https://github.com/inkshuk/csl-ruby'
 gem 'bibtex-ruby', '~> 4.0.12'
 gem 'citeproc-ruby', '~> 1.1.0'
 gem 'csl-styles', '~> 1.0.1.6'
