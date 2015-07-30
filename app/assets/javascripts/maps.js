@@ -179,10 +179,10 @@ function get_window_center(bounds) {      // for use with home-brew geoJSON scan
   var ne = new google.maps.LatLng(ymax, center_long + 0.5 * wx);     // correct x
   var box = new google.maps.LatLngBounds(sw, ne);
 
-  if (wy > wx / bounds.canvas_ratio) {      // this test and calculation may bot be exactly right,
-    wx = wy;                                // but no contradictory cases found for tall skinny areas
+  if (wy > wx / bounds.canvas_ratio) {    // this test and calculation may both be exactly right, presumes wide-ish map
+    wx = wy * bounds.canvas_ratio;        // multiplying by aspect ratio effectively zooms out more
   }       // VERY crude proportionality adjustment
-  // quick and dirty zoom range based on size
+  // quick and dirty zoom range based on size // not perfect, could use at least another level of depth
   if (wx <= 0.1) {
     gzoom = 11
   }
