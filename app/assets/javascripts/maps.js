@@ -110,31 +110,48 @@ function get_window_center(bounds) {      // for use with home-brew geoJSON scan
     var xmp = xminp + 0.5 * wp;     // midpoint of east
     var wx;                               // total width of all areas
     wx = xmaxp - xminm;             // data in both hemispheres default
-    if (wp == 0) {
-      wx = wm;
-    }         // override for single sided western hemisphere
-    if (wm == 0) {
-      wx = wp;
-    }         // override for single sided eastern hemisphere
-    if (xmaxp > 179 && xminm < 179) {      // Antimeridian span test
-      wx = wm + wp;                        // total width of eastern and western
-      if (wm > wp) {                       // determine wider group
-        center_long = xmm - wp / 2;        // adjust western mid/mean point by half width of eastern
-      }                                    // e.g., USA
-      else {
-        center_long = xmp + wm / 2;        //  adjust positive mean/mid point by half width of western
-      }
+    if (wx > 180 && wm == 0 && wp == 0) {           //// hack: assume areas are < 180 degrees wide
+      wx = 360 - wx;                              // so revert to < 180 degree width
+      center_long = (xminm + xmaxp) / 2 - 180;   // left-hand expression is near antimerdian
     }
-    else {                                 // i.e., if not Antimeridian span, center on extents about 0
-      // case disjoint areas divided by prime meridian
-      center_long = (xminm + xmaxp) / 2;        // default calculation for both hemisperes having data
+    else
+    {            // not an overwide calculation
       if (wp == 0) {
-        center_long = xmm;
+        wx = wm;
       }         // override for single sided western hemisphere
       if (wm == 0) {
-        center_long = xmp;
+        wx = wp;
       }         // override for single sided eastern hemisphere
-    }                                      // e.g., USA
+      if (xmaxp > 179 && xminm < 179) {      // Antimeridian span test
+        wx = wm + wp;                        // total width of eastern and western
+        if (wm > wp) {                       // determine wider group
+          center_long = xmm - wp / 2;        // adjust western mid/mean point by half width of eastern
+        }                                    // e.g., USA
+        else {
+          center_long = xmp + wm / 2;        //  adjust positive mean/mid point by half width of western
+        }
+      }
+      else {                                 // i.e., if not Antimeridian span, center on extents about 0
+        // case disjoint areas divided by prime meridian or single point
+        if (wx != 0) {
+          center_long = (xminm + xmaxp) / 2;        // default calculation for both hemisperes having data
+          if (wp == 0) {
+            center_long = xmm;
+          }         // override for single sided western hemisphere
+          if (wm == 0) {
+            center_long = xmp;
+          }         // override for single sided eastern hemisphere
+        }
+        else {        // single point
+          if (xmm == 0) {
+            center_long = xmp;
+          }
+          if (xmp == 0) {
+            center_long = xmm;
+          }
+        }
+      }
+    }// e.g., USA
   }   // END center_long == undefined
 
   if (center_lat == undefined) {
