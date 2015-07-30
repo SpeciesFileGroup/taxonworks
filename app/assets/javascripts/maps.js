@@ -180,39 +180,48 @@ function get_window_center(bounds) {      // for use with home-brew geoJSON scan
   var box = new google.maps.LatLngBounds(sw, ne);
 
   if (wy > wx / bounds.canvas_ratio) {    // this test and calculation may both be exactly right, presumes wide-ish map
-    wx = wy * bounds.canvas_ratio;        // multiplying by aspect ratio effectively zooms out more
+    wx = wy * bounds.canvas_ratio * 2;        // multiplying by aspect ratio effectively zooms out more
   }       // VERY crude proportionality adjustment
   // quick and dirty zoom range based on size // not perfect, could use at least another level of depth
-  if (wx <= 0.1) {
+  if (wx <= 0.09765625) {
+    gzoom = 13
+  }
+  if (wx > 0.09765625) {
+    gzoom = 12
+  }
+  if (wx > 0.1953123) {
     gzoom = 11
   }
-  if (wx > 0.1) {
+  if (wx > 0.390625) {
     gzoom = 10
   }
-  if (wx > 0.2) {
+  if (wx > 0.78125) {
     gzoom = 9
   }
-  if (wx > 0.5) {
+  if (wx > 1.5625) {
     gzoom = 8
   }
-  if (wx > 1.0) {
+  if (wx > 3.125) {
     gzoom = 7
   }
-  if (wx > 2.5) {
+  if (wx > 6.25) {
     gzoom = 6
   }
-  if (wx > 5.0) {
+  if (wx > 12.5) {
     gzoom = 5
   }
-  if (wx > 10.0) {
+  if (wx > 25.0) {
     gzoom = 4
   }
-  if (wx > 25.0) {
+  if (wx > 50.0) {
     gzoom = 3
   }
-  if (wx > 50.0) {
+  if (wx > 100.0) {
     gzoom = 2
   }
+  //if (wx > 120.0) {
+  //  gzoom = 1
+  //}
   if (wx > 160.0/* || (wx + wy) == 0*/) {  // amended to not focus on whole earth on latter condition (single point???)
     gzoom = 1                               // wait for exceptional case to revert or rewrite condition
   }
