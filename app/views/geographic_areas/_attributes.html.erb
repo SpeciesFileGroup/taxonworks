@@ -59,7 +59,7 @@
         <%= link_to('(Collecting events within)', within_locality_task_path(@geographic_area.geographic_items.first.id)) %>
 
       <div id="feature_collection"
-           data-feature-collection='<%= Gis::GeoJSON.feature_collection([@geographic_area]).to_json.html_safe %>'></div>
+           data-feature-collection='<%= Gis::GeoJSON.feature_collection([@geographic_area]).to_json %>'></div>
       <div id="geographic_item_map_canvas" style="width:512px; height: 256px;"></div>
       <span id="map_coords"></span>
       <script language="javascript">

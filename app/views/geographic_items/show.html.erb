@@ -8,7 +8,7 @@
 <div class="flexbox">
   <div class="item item1">
     <div id="feature_collection"
-         data-feature-collection='<%= Gis::GeoJSON.feature_collection([@geographic_item]).to_json.html_safe %>'
+         data-feature-collection='<%= Gis::GeoJSON.feature_collection([@geographic_item]).to_json %>'
     >
     </div>
     <%= forward_back_links(@geographic_item) -%> <br><br>

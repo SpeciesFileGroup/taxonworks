@@ -19,7 +19,7 @@
     <%= render(partial: 'layouts/map_header') -%>
 
     <div id="google_maps_georeference_widget" data-georeference="<%= @georeference %>"
-         data-feature-collection='<%= Gis::GeoJSON.feature_collection(@georeference.collecting_event.georeferences).to_json.html_safe %>'
+         data-feature-collection='<%= Gis::GeoJSON.feature_collection(@georeference.collecting_event.georeferences).to_json %>'
          data-map-center='<%= @georeference.collecting_event.verbatim_center_coordinates %>'
          data-map-canvas="map_canvas"
     >
