@@ -69,15 +69,22 @@ initializeMap = function (canvas, feature_collection) {
   var bounds = {};    //xminp: xmaxp: xminm: xmaxm: ymin: ymax: -90.0, center_long: center_lat: gzoom:
   getData(chained, bounds);               // scan var data as feature collection with homebrew traverser, collecting bounds
   bounds.canvas_ratio = canvas_ratio;
+  bounds.canvas_width = width;
+  bounds.canvas_height = height;
   var center_lat_long = get_window_center(bounds);      // compute center_lat_long from bounds and compute zoom level as gzoom
   map.setCenter(center_lat_long);
   map.setZoom(bounds.gzoom);
+  //map.fitBounds(bounds.box);
   return map;             // now no global map object, use this object to add listeners to THIS map
 };
 
 function initialize_map(canvas, options) {
   var map = new google.maps.Map(document.getElementById(canvas), options);
   return map;
+}
+
+function log_2(x) {
+  return Math.log(x) / Math.LN2 ;  // log_2(x) = ln(x)/ln(2)
 }
 
 function get_window_center(bounds) {      // for use with home-brew geoJSON scanner/enumerator
@@ -179,52 +186,63 @@ function get_window_center(bounds) {      // for use with home-brew geoJSON scan
   var ne = new google.maps.LatLng(ymax, center_long + 0.5 * wx);     // correct x
   var box = new google.maps.LatLngBounds(sw, ne);
 
-  if (wy > wx / bounds.canvas_ratio) {    // this test and calculation may both be exactly right, presumes wide-ish map
-    wx = wy * bounds.canvas_ratio * 2;        // multiplying by aspect ratio effectively zooms out more
-  }       // VERY crude proportionality adjustment
-  // quick and dirty zoom range based on size // not perfect, could use at least another level of depth
-  if (wx <= 0.09765625) {
-    gzoom = 13
-  }
-  if (wx > 0.09765625) {
-    gzoom = 12
-  }
-  if (wx > 0.1953123) {
-    gzoom = 11
-  }
-  if (wx > 0.390625) {
-    gzoom = 10
-  }
-  if (wx > 0.78125) {
-    gzoom = 9
-  }
-  if (wx > 1.5625) {
-    gzoom = 8
-  }
-  if (wx > 3.125) {
-    gzoom = 7
-  }
-  if (wx > 6.25) {
-    gzoom = 6
-  }
-  if (wx > 12.5) {
-    gzoom = 5
-  }
-  if (wx > 25.0) {
-    gzoom = 4
-  }
-  if (wx > 50.0) {
-    gzoom = 3
-  }
-  if (wx > 100.0) {
+  var x_deg_per_pix = 360.0 / bounds.canvas_width;
+  var y_deg_per_pix = 180.0 / bounds.canvas_height;
+
+  var x_pixels = wx / x_deg_per_pix;
+  var y_pixels = wy / y_deg_per_pix;
+
+  var xzoom = 9.2 - log_2(x_pixels);      // empirical inversion of log result
+  var yzoom = 9.2 - log_2(y_pixels);
+
+  gzoom = Math.floor(Math.min(xzoom, yzoom));
+
+  //if (wy > wx / bounds.canvas_ratio) {    // this test and calculation may both be exactly right, presumes wide-ish map
+  //  wx = wy * bounds.canvas_ratio * 2;        // multiplying by aspect ratio effectively zooms out more
+  //}       // VERY crude proportionality adjustment
+  //// quick and dirty zoom range based on size // not perfect, could use at least another level of depth
+  //if (wx <= 0.09765625) {
+  //  gzoom = 13
+  //}
+  //if (wx > 0.09765625) {
+  //  gzoom = 12
+  //}
+  //if (wx > 0.1953123) {
+  //  gzoom = 11
+  //}
+  //if (wx > 0.390625) {
+  //  gzoom = 10
+  //}
+  //if (wx > 0.78125) {
+  //  gzoom = 9
+  //}
+  //if (wx > 1.5625) {
+  //  gzoom = 8
+  //}
+  //if (wx > 3.125) {
+  //  gzoom = 7
+  //}
+  //if (wx > 6.25) {
+  //  gzoom = 6
+  //}
+  //if (wx > 12.5) {
+  //  gzoom = 5
+  //}
+  //if (wx > 25.0) {
+  //  gzoom = 4
+  //}
+  //if (wx > 50.0) {
+  //  gzoom = 3
+  //}
+  if (wx > 90.0 || wy > 45.0) {
     gzoom = 2
   }
-  //if (wx > 120.0) {
-  //  gzoom = 1
-  //}
-  if (wx > 160.0/* || (wx + wy) == 0*/) {  // amended to not focus on whole earth on latter condition (single point???)
-    gzoom = 1                               // wait for exceptional case to revert or rewrite condition
+  if (wx > 120.0) {
+    gzoom = 1
   }
+  ////if (wx > 160.0/* || (wx + wy) == 0*/) {  // amended to not focus on whole earth on latter condition (single point???)
+  ////  gzoom = 1                               // wait for exceptional case to revert or rewrite condition
+  ////}
 
   bounds.center_lat = center_lat;
   bounds.center_long = center_long;
