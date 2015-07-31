@@ -194,8 +194,23 @@ function get_window_center(bounds) {      // for use with home-brew geoJSON scan
 
   var xzoom = 9.2 - log_2(x_pixels);      // empirical inversion of log result
   var yzoom = 9.2 - log_2(y_pixels);
-
   gzoom = Math.floor(Math.min(xzoom, yzoom));
+
+  //var xzoom = -log_2(x_pixels / bounds.canvas_width);      // empirical inversion of log result
+  //var yzoom = -log_2(y_pixels / bounds.canvas_height);
+  //gzoom = Math.floor(Math.min(xzoom, yzoom));
+
+  //var xpower = -log_2(wx / 360.0);      // empirical inversion of log result
+  //var ypower = -log_2(wy * bounds.canvas_ratio / 180.0);      // terms expanded for debugging purposes
+  //var xzoom = -Math.floor(xpower);      // since log_2 result < 0, make powers > 0
+  //var yzoom = -Math.floor(ypower);      // and get the integer parts
+  //gzoom = -Math.min(xzoom, yzoom);
+
+  //var xpower = log_2(wx / 360.0);      // empirical inversion of log result
+  //var ypower = log_2(wy * bounds.canvas_ratio / 180.0);      // terms expanded for debugging purposes
+  //var xzoom = -xpower;      // since log_2 result < 0, make powers > 0
+  //var yzoom = -ypower;      // and get the integer parts
+  //gzoom = Math.floor(Math.min(xzoom, yzoom));
 
   //if (wy > wx / bounds.canvas_ratio) {    // this test and calculation may both be exactly right, presumes wide-ish map
   //  wx = wy * bounds.canvas_ratio * 2;        // multiplying by aspect ratio effectively zooms out more
@@ -234,7 +249,7 @@ function get_window_center(bounds) {      // for use with home-brew geoJSON scan
   //if (wx > 50.0) {
   //  gzoom = 3
   //}
-  if (wx > 90.0 || wy > 45.0) {
+  if (wx > 90.0 || wy > 45.0) {   // Band-aids to cover USA, etc.
     gzoom = 2
   }
   if (wx > 120.0) {
