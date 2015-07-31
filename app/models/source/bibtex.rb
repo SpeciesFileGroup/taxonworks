@@ -67,7 +67,10 @@ require 'csl/styles'
 # @!attribute annote
 #   BibTeX standard field (ignored by standard processors)
 #   An annotation. It is not used by the standard bibliography styles, but
-#   may be used by others that produce an annotated bibliography. (compare to a note which is any additional information which may be useful to the reader)
+#   may be used by others that produce an annotated bibliography.
+#   (compare to a note which is any additional information which may be useful to the reader)
+#   In most cases these are personal annotations; TW will translate these into notes with a specified project so
+#   they will only be visible within the project where the note was made. <== Under debate with Matt.
 #   @return [String] the annotation
 #   @return [nil] means the attribute is not stored in the database.
 #
@@ -435,6 +438,10 @@ class Source::Bibtex < Source
     s                 = Source::Bibtex.new(bibtex_type: bibtex_entry.type.to_s)
     import_attributes = []
     bibtex_entry.fields.each do |key, value|
+      if key == :keywords
+        s.verbatim_keywords = value
+        next
+      end
       v = value.to_s.strip
       if s.respond_to?(key.to_sym)
         s.send("#{key}=", v)
@@ -684,6 +691,9 @@ class Source::Bibtex < Source
 
   #endregion    time/date related
 
+  #region cached values section
+  #
+
   # @return [String]
   #   a full representation, using bibtex
   # String must be length > 0
@@ -712,6 +722,8 @@ class Source::Bibtex < Source
 
     output.sub('(0ADAD)', '') # citeproc renders year 0000 as (0ADAD)
   end
+
+  #endregion cached values section
 
   protected
 
