@@ -59,7 +59,7 @@ class Note < ActiveRecord::Base
 
   def no_pipes
     if !self.text.blank?
-      errors.add(:text, 'TW notes may not contain a pipe (|)') if self.text.include?('|')
+      errors.add(:text, 'TW notes may not contain a pipe (¶)') if self.text.include?('¶')
     end
   end
 end

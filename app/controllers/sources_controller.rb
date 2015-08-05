@@ -102,37 +102,46 @@ class SourcesController < ApplicationController
   def batch_load
   end
 
-  def preview_bibtex_batch_load 
-    @sources  = Source.batch_preview(file: params[:file].tempfile)
-    sha256 = Digest::SHA256.file(params[:file].tempfile)
-    cookies[:batch_sources_md5] = sha256.hexdigest
-    render 'sources/batch_load/batch_preview'
+  def preview_bibtex_batch_load
+    if params[:file].nil?
+      redirect_to batch_load_sources_path, notice: 'no file has been selected'
+    else
+      @sources                    = Source.batch_preview(file: params[:file].tempfile)
+      sha256                      = Digest::SHA256.file(params[:file].tempfile)
+      cookies[:batch_sources_md5] = sha256.hexdigest
+      render 'sources/batch_load/batch_preview'
+      #TODO it would be nice to be preload the filename for the create from here.
+    end
   end
 
   def create_bibtex_batch_load
-    sha256 = Digest::SHA256.file(params[:file].tempfile)
-    if cookies[:batch_sources_md5] == sha256.hexdigest
-      if @sources = Source.batch_create(params.symbolize_keys.to_h)
-        flash[:notice] = "Successfully batch created #{@sources.count} sources."
-      else
-        flash[:notice] = 'Failed to create the sources.'
-      end
+    if params[:file].nil?
+      redirect_to batch_load_sources_path, notice: 'no file has been selected'
     else
-      flash[:notice] = 'Batch upload must be previewed before it can be created.'
+      sha256 = Digest::SHA256.file(params[:file].tempfile)
+      if cookies[:batch_sources_md5] == sha256.hexdigest
+        if @sources = Source.batch_create(params.symbolize_keys.to_h)
+          flash[:notice] = "Successfully batch created #{@sources.count} sources."
+        else
+          flash[:notice] = 'Failed to create the sources.'
+        end
+      else
+        flash[:notice] = 'Batch upload must be previewed before it can be created.'
+      end
+      redirect_to sources_path
     end
-    redirect_to sources_path
   end
 
   # GET /sources/download
   def download
-    send_data Source.generate_download( Source.all ), type: 'text', filename: "sources_#{DateTime.now.to_s}.csv"
+    send_data Source.generate_download(Source.all), type: 'text', filename: "sources_#{DateTime.now.to_s}.csv"
   end
 
   private
 
   # Use callbacks to share common setup or constraints between actions.
   def set_source
-    @source = Source.find(params[:id])
+    @source        = Source.find(params[:id])
     @recent_object = @source
   end
 

@@ -536,8 +536,8 @@ class Source::Bibtex < Source
   def note=(value)
     write_attribute(:note, value)
     if !self.note.blank? && self.new_record?
-      if value.include?('|')
-        a = value.split(/|/)
+      if value.include?('¶')
+        a = value.split(/¶/)
         a.each do |n|
           self.notes.build({text: n + ' [Created on import from BibTeX.]'})
         end
