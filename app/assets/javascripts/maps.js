@@ -199,6 +199,14 @@ function get_window_center(bounds) {      // for use with home-brew geoJSON scan
   var ne = new google.maps.LatLng(ymax, center_long + 0.5 * wx);     // correct x
   var box = new google.maps.LatLngBounds(sw, ne);
 
+  var xzoom;
+  var yzoom;
+
+  ///// Google Maps only shows whole earth at zoom 1 if square canvas
+  ///// Google Maps cuts off latitude at ~83+/- degrees
+  ///// Hence vertical degrees yield twice as many pixels per degree as horizontal ones
+  /////
+
   var x_deg_per_pix = 360.0 / bounds.canvas_width;
   var y_deg_per_pix = 180.0 / bounds.canvas_height / bounds.canvas_ratio;
 
@@ -211,41 +219,58 @@ function get_window_center(bounds) {      // for use with home-brew geoJSON scan
   x_pixels = wx * x_pixels_per_degree;
   y_pixels = wy * y_pixels_per_degree;
 
-  //var xzoom = 11.2 - log_2(x_pixels);      // empirical inversion of log result
+
+  //xzoom = 11.2 - log_2(x_pixels);      // empirical inversion of log result
   //if (xzoom > 15 || xzoom == Infinity) {xzoom = 15;}
-  //var yzoom =11.2 - log_2(y_pixels);
+  //yzoom =11.2 - log_2(y_pixels);
   //if (yzoom > 15 || yzoom == Infinity) {yzoom = 15;}
   //gzoom = Math.floor(Math.min(xzoom, yzoom));   // clip at higher magnifications
 
-  //var xzoom = -log_2(x_pixels / bounds.canvas_width);      // empirical inversion of log result
-  //var yzoom = -log_2(y_pixels / bounds.canvas_height);
+  //xzoom = -log_2(x_pixels / bounds.canvas_width);      // empirical inversion of log result
+  //yzoom = -log_2(y_pixels / bounds.canvas_height);
   //gzoom = Math.floor(Math.min(xzoom, yzoom));
 
   //var xpower = -log_2(wx / 360.0);      // empirical inversion of log result
   //var ypower = -log_2(wy * bounds.canvas_ratio / 180.0);      // terms expanded for debugging purposes
-  //var xzoom = -Math.floor(xpower);      // since log_2 result < 0, make powers > 0
-  //var yzoom = -Math.floor(ypower);      // and get the integer parts
+  //xzoom = -Math.floor(xpower);      // since log_2 result < 0, make powers > 0
+  //yzoom = -Math.floor(ypower);      // and get the integer parts
   //gzoom = -Math.min(xzoom, yzoom);
 
-  var xzoom = -log_2(wx / 360.0);      // empirical inversion of log result
+  xzoom = -log_2(wx / 360.0);      // empirical inversion of log result
   if (xzoom > 15 || xzoom == Infinity) {xzoom = 15;}
-  var yzoom = -log_2((wy / 180.0) / bounds.canvas_ratio);      // terms expanded for debugging purposes
+  yzoom = -log_2((wy / 180.0) / bounds.canvas_ratio);      // terms expanded for debugging purposes
   if (yzoom > 15 || yzoom == Infinity) {yzoom = 15;}
-  //var xzoom = -1.0 * xpower;      // since log_2 result < 0, make powers > 0
-  //var yzoom = -1.0 * ypower;      // and get the integer parts
+  //xzoom = -1.0 * xpower;      // since log_2 result < 0, make powers > 0
+  //yzoom = -1.0 * ypower;      // and get the integer parts
   gzoom = Math.floor(Math.min(xzoom, yzoom));
 
   //gzoom = Math.floor(Math.min(-xzoom, -yzoom));
-  var xzoom = -log_2(x_pixels / bounds.canvas_width);      // empirical inversion of log result
+  xzoom = -log_2(x_pixels / bounds.canvas_width);      // empirical inversion of log result
   if (xzoom > 15 || xzoom == Infinity) {xzoom = 15;}
-  var yzoom = -log_2((y_pixels / bounds.canvas_height) / bounds.canvas_ratio);      // terms expanded for debugging purposes
+  yzoom = -log_2((y_pixels / bounds.canvas_height) / bounds.canvas_ratio);      // terms expanded for debugging purposes
   if (yzoom > 15 || yzoom == Infinity) {yzoom = 15;}
-  //var xzoom = -1.0 * xpower;      // since log_2 result < 0, make powers > 0
-  //var yzoom = -1.0 * ypower;      // and get the integer parts
+  //xzoom = -1.0 * xpower;      // since log_2 result < 0, make powers > 0
+  //yzoom = -1.0 * ypower;      // and get the integer parts
   gzoom = Math.floor(Math.max(xzoom + 0.5, yzoom + 0.5));
 
-  //var aspect_ratio = wx / wy;
-  //if (aspect_ratio > bounds.canvas_ratio)
+  var aspect_ratio = x_pixels / y_pixels;   //changed from wx/wy//
+  if (aspect_ratio < bounds.canvas_ratio) {     // taller
+    // pick x-axis
+    xzoom = -log_2(x_pixels / bounds.canvas_width);      // empirical inversion of log result
+    if (xzoom > 15 || xzoom == Infinity) {xzoom = 15;}
+    gzoom = Math.floor(xzoom);
+    if (y_pixels * gzoom /aspect_ratio < bounds.canvas_height * 1.10) {
+      gzoom = gzoom + 1;
+    }
+  }
+  else {                                        // wider
+    // pick y-axis
+    yzoom = -log_2((y_pixels / bounds.canvas_height) / bounds.canvas_ratio);      // terms expanded for debugging purposes
+    if (yzoom > 15 || yzoom == Infinity) {yzoom = 15;}
+    gzoom = Math.floor(yzoom);
+  if (x_pixels * gzoom /aspect_ratio < bounds.canvas_width * 1.10) {
+      gzoom = gzoom + 1;}
+  }
 
   //if (wy > wx / bounds.canvas_ratio) {    // this test and calculation may both be exactly right, presumes wide-ish map
   //  wx = wy * bounds.canvas_ratio * 2;        // multiplying by aspect ratio effectively zooms out more
