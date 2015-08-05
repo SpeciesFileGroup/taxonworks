@@ -74,7 +74,8 @@ initializeMap = function (canvas, feature_collection) {
   var center_lat_long = get_window_center(bounds);      // compute center_lat_long from bounds and compute zoom level as gzoom
   map.setCenter(center_lat_long);
   map.setZoom(bounds.gzoom);
-  //map.fitBounds(bounds.box);
+  //map.fitBounds(bounds.box);  /// no better results on non 2:1 canvas ratios
+  document.getElementById("map_coords").textContent = 'LAT: ' + center_lat_long['lat']() + ' - LNG: ' + center_lat_long['lng']() +' - ZOOM: ' + bounds.gzoom;
   return map;             // now no global map object, use this object to add listeners to THIS map
 };
 
@@ -104,11 +105,16 @@ function get_window_center(bounds) {      // for use with home-brew geoJSON scan
     center_long = 0.0;
     var wm = 0.0;        // western hemisphere default area width
     var wp = 0.0;        // eastern hemisphere default area width
-    if ((xminp == 180.0) && (xmaxp == 0.0)) {    //if no points, null out the range for this hemisphere
-      xminp = 0.0;
-    }
-    if ((xmaxm == -180.0) && (xminm == 0.0)) {    //if no points, null out the range for this hemisphere
-      xmaxm = 0.0;
+      if ((xminp == 180.0) && (xmaxp == 0.0)) {    //if no points, null out the range for this hemisphere
+        xminp = 0.0;
+      }
+      if ((xmaxm == -180.0) && (xminm == 0.0)) {    //if no points, null out the range for this hemisphere
+        xmaxm = 0.0;
+      }
+    if ((xminp == 0.0) && (xmaxp == 0.0) && (xmaxm == 0.0) && (xminm == 0.0)) {
+      xminm = -180.0;     // this calculation is to reflect
+      xmaxp = 180.0;      // latitude calculation below
+      center_long = 0.0;
     }
     // case of singleton poiint in either hemisphere not well treated below (still true? - JRF 20JUL2015)
     wm = xmaxm - xminm;    // width of western area, if present
@@ -129,14 +135,20 @@ function get_window_center(bounds) {      // for use with home-brew geoJSON scan
       if (wm == 0) {
         wx = wp;
       }         // override for single sided eastern hemisphere
-      if (xmaxp > 179 && xminm < 179) {      // Antimeridian span test
+      if (xmaxp > 179 && xminm < -179) {      // Antimeridian span test
         wx = wm + wp;                        // total width of eastern and western
         if (wm > wp) {                       // determine wider group
           center_long = xmm - wp / 2;        // adjust western mid/mean point by half width of eastern
+          if(center_long < -180) {
+            center_long =  360 - center_long; }       // bias from -180
         }                                    // e.g., USA
         else {
-          center_long = xmp + wm / 2;        //  adjust positive mean/mid point by half width of western
+          center_long = xmp + wm / 2;        // adjust positive mean/mid point by half width of western
+          if(center_long > 180) {
+            center_long = center_long - 360;}        // bias from +180
         }
+        // assume: calculate center about +/- 180 over contiguous spanning area
+        //center_long = (xminp + xmaxm) / 2.0;    // revised simplified calculation JRF 04AUG2015
       }
       else {                                 // i.e., if not Antimeridian span, center on extents about 0
         // case disjoint areas divided by prime meridian or single point
@@ -165,6 +177,7 @@ function get_window_center(bounds) {      // for use with home-brew geoJSON scan
     if ((ymax == -90) && (ymin == 90)) {      // no data, so set whole earth limits
       ymax = 90.0;
       ymin = -90.0;
+      center_lat = 0.0;
     }
     var wy = ymax - ymin;
     center_lat = 0.5 * (ymax + ymin);
@@ -187,14 +200,22 @@ function get_window_center(bounds) {      // for use with home-brew geoJSON scan
   var box = new google.maps.LatLngBounds(sw, ne);
 
   var x_deg_per_pix = 360.0 / bounds.canvas_width;
-  var y_deg_per_pix = 180.0 / bounds.canvas_height;
+  var y_deg_per_pix = 180.0 / bounds.canvas_height / bounds.canvas_ratio;
+
+  var x_pixels_per_degree = bounds.canvas_width / 360;
+  var y_pixels_per_degree = bounds.canvas_height / 166; // mercator cutoff latitude
 
   var x_pixels = wx / x_deg_per_pix;
   var y_pixels = wy / y_deg_per_pix;
 
-  var xzoom = 9.2 - log_2(x_pixels);      // empirical inversion of log result
-  var yzoom = 9.2 - log_2(y_pixels);
-  gzoom = Math.floor(Math.min(xzoom, yzoom));
+  x_pixels = wx * x_pixels_per_degree;
+  y_pixels = wy * y_pixels_per_degree;
+
+  //var xzoom = 11.2 - log_2(x_pixels);      // empirical inversion of log result
+  //if (xzoom > 15 || xzoom == Infinity) {xzoom = 15;}
+  //var yzoom =11.2 - log_2(y_pixels);
+  //if (yzoom > 15 || yzoom == Infinity) {yzoom = 15;}
+  //gzoom = Math.floor(Math.min(xzoom, yzoom));   // clip at higher magnifications
 
   //var xzoom = -log_2(x_pixels / bounds.canvas_width);      // empirical inversion of log result
   //var yzoom = -log_2(y_pixels / bounds.canvas_height);
@@ -206,11 +227,25 @@ function get_window_center(bounds) {      // for use with home-brew geoJSON scan
   //var yzoom = -Math.floor(ypower);      // and get the integer parts
   //gzoom = -Math.min(xzoom, yzoom);
 
-  //var xpower = log_2(wx / 360.0);      // empirical inversion of log result
-  //var ypower = log_2(wy * bounds.canvas_ratio / 180.0);      // terms expanded for debugging purposes
-  //var xzoom = -xpower;      // since log_2 result < 0, make powers > 0
-  //var yzoom = -ypower;      // and get the integer parts
-  //gzoom = Math.floor(Math.min(xzoom, yzoom));
+  var xzoom = -log_2(wx / 360.0);      // empirical inversion of log result
+  if (xzoom > 15 || xzoom == Infinity) {xzoom = 15;}
+  var yzoom = -log_2((wy / 180.0) / bounds.canvas_ratio);      // terms expanded for debugging purposes
+  if (yzoom > 15 || yzoom == Infinity) {yzoom = 15;}
+  //var xzoom = -1.0 * xpower;      // since log_2 result < 0, make powers > 0
+  //var yzoom = -1.0 * ypower;      // and get the integer parts
+  gzoom = Math.floor(Math.min(xzoom, yzoom));
+
+  //gzoom = Math.floor(Math.min(-xzoom, -yzoom));
+  var xzoom = -log_2(x_pixels / bounds.canvas_width);      // empirical inversion of log result
+  if (xzoom > 15 || xzoom == Infinity) {xzoom = 15;}
+  var yzoom = -log_2((y_pixels / bounds.canvas_height) / bounds.canvas_ratio);      // terms expanded for debugging purposes
+  if (yzoom > 15 || yzoom == Infinity) {yzoom = 15;}
+  //var xzoom = -1.0 * xpower;      // since log_2 result < 0, make powers > 0
+  //var yzoom = -1.0 * ypower;      // and get the integer parts
+  gzoom = Math.floor(Math.max(xzoom + 0.5, yzoom + 0.5));
+
+  //var aspect_ratio = wx / wy;
+  //if (aspect_ratio > bounds.canvas_ratio)
 
   //if (wy > wx / bounds.canvas_ratio) {    // this test and calculation may both be exactly right, presumes wide-ish map
   //  wx = wy * bounds.canvas_ratio * 2;        // multiplying by aspect ratio effectively zooms out more
@@ -249,15 +284,18 @@ function get_window_center(bounds) {      // for use with home-brew geoJSON scan
   //if (wx > 50.0) {
   //  gzoom = 3
   //}
-  if (wx > 90.0 || wy > 45.0) {   // Band-aids to cover USA, etc.
+  if (wx > 90.0 || wy * bounds.canvas_ratio  > 45.0) {   // Band-aids to cover USA, etc.
     gzoom = 2
   }
-  if (wx > 120.0) {
+  if (wx > 180.0) {
     gzoom = 1
   }
   ////if (wx > 160.0/* || (wx + wy) == 0*/) {  // amended to not focus on whole earth on latter condition (single point???)
   ////  gzoom = 1                               // wait for exceptional case to revert or rewrite condition
   ////}
+  //if (bounds.canvas_ratio < 2.0) {  // amended to not focus on whole earth on latter condition (single point???)
+  //  gzoom = 2;                               // wait for exceptional case to revert or rewrite condition
+  //}
 
   bounds.center_lat = center_lat;
   bounds.center_long = center_long;

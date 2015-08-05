@@ -113,6 +113,21 @@ function initializeGoogleMap(map_canvas, fcdata, map_center) {
     //
     var bounds = {};    //xminp: xmaxp: xminm: xmaxm: ymin: ymax: -90.0, center_long: center_lat: gzoom:
 
+/////////// previously omitted update to maps.js //////////////
+// bounds for calculating center point
+  var width;
+  var height;
+  var canvas_ratio = 1.0;     // default value
+  var style = document.getElementById(map_canvas).style;
+
+  if (style != null) {      // null short for undefined in js
+    if (style.width != undefined && style.height != undefined) {
+      width = style.width.toString().split('px')[0];
+      height = style.height.toString().split('px')[0];
+      canvas_ratio = width / height;
+    }
+  }
+///////////////////////////////////////////////////////////////
    // a map center looks like  'POINT (0.0 0.0 0.0)' as (x, y, z)
 
     var map_center_parts  = map_center.split("(");
@@ -124,12 +139,22 @@ function initializeGoogleMap(map_canvas, fcdata, map_center) {
     // setting a value for bounds then it should be assinging bounds to a function
     // that returns bounds
     getData(mapData, bounds);  // scan var data as feature collection with homebrew traverser, collecting bounds
+/////////// previously omitted update to maps.js //////////////
+  bounds.canvas_ratio = canvas_ratio;
+  bounds.canvas_width = width;
+  bounds.canvas_height = height;
+///////////////////////////////////////////////////////////////
     var center_lat_long = get_window_center(bounds);      // compute center_lat_long from bounds and compute zoom level as gzoom
 
-    // override computed center with verbatim center
-    if (bounds.center_lat == 0 && bounds.center_long == 0) {
-        center_lat_long = new google.maps.LatLng(lat, lng)
-    }
+  //// override computed center with verbatim center
+  //if (bounds.center_lat == 0 && bounds.center_long == 0) {
+  //    center_lat_long = new google.maps.LatLng(lat, lng)
+  //}
+  // override computed center with verbatim center
+  if ((lat != undefined && lat != '0.0') && (lng != undefined && lng != '0.0')) {   // if nonzero center supplied
+      center_lat_long = new google.maps.LatLng(lat, lng);
+      if (bounds.gzoom > 1) {bounds.gzoom -= 1;}
+  }
 
     var mapOptions = {
         center: center_lat_long,
@@ -148,7 +173,7 @@ function initializeGoogleMap(map_canvas, fcdata, map_center) {
     });
 
     map.data.addGeoJson(mapData);
-
+    document.getElementById("map_coords").textContent = 'LAT: ' + center_lat_long[0] + ' - LNG: ' + center_lat_long[1] +' - ZOOM: ' + bounds.gzoom;
     return map;
 }
 
