@@ -173,7 +173,9 @@ function initializeGoogleMap(map_canvas, fcdata, map_center) {
     });
 
     map.data.addGeoJson(mapData);
-    document.getElementById("map_coords").textContent = 'LAT: ' + center_lat_long[0] + ' - LNG: ' + center_lat_long[1] +' - ZOOM: ' + bounds.gzoom;
+  if(document.getElementById("map_coords") != undefined) {
+    document.getElementById("map_coords").textContent = 'LAT: ' + center_lat_long['lat']() + ' - LNG: ' + center_lat_long['lng']() + ' - ZOOM: ' + bounds.gzoom;
+  }
     return map;
 }
 

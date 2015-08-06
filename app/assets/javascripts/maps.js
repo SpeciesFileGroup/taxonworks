@@ -75,7 +75,9 @@ initializeMap = function (canvas, feature_collection) {
   map.setCenter(center_lat_long);
   map.setZoom(bounds.gzoom);
   //map.fitBounds(bounds.box);  /// no better results on non 2:1 canvas ratios
-  document.getElementById("map_coords").textContent = 'LAT: ' + center_lat_long['lat']() + ' - LNG: ' + center_lat_long['lng']() +' - ZOOM: ' + bounds.gzoom;
+  if(document.getElementById("map_coords") != undefined) {
+    document.getElementById("map_coords").textContent = 'LAT: ' + center_lat_long['lat']() + ' - LNG: ' + center_lat_long['lng']() + ' - ZOOM: ' + bounds.gzoom;
+  }
   return map;             // now no global map object, use this object to add listeners to THIS map
 };
 
@@ -172,7 +174,7 @@ function get_window_center(bounds) {      // for use with home-brew geoJSON scan
       }
     }// e.g., USA
   }   // END center_long == undefined
-
+  var offset = 0;                 // scope extended to be used in zoom calculation later
   if (center_lat == undefined) {
     if ((ymax == -90) && (ymin == 90)) {      // no data, so set whole earth limits
       ymax = 90.0;
@@ -181,15 +183,15 @@ function get_window_center(bounds) {      // for use with home-brew geoJSON scan
     }
     var wy = ymax - ymin;
     center_lat = 0.5 * (ymax + ymin);
-    if (Math.abs(center_lat) > 1.0) {        // if vertical center very close to equator
-      var cutoff = 65.0;
-      if ((ymax > cutoff || ymin < -cutoff)) {
-        var angle = ymax - cutoff;
-        if (center_lat < 0) {
-          angle = ymin + cutoff;
+    if (Math.abs(center_lat) > 1.0) {           // if vertical center not very close to equator
+      var cutoff = 65.0;                        // empirically determined latitude
+      if ((ymax > cutoff || ymin < -cutoff)) {  // if any vertical extent beyond cutoff
+        var angle = ymax - cutoff;              // calculate
+        if (center_lat < 0) {                   // angular distance
+          angle = ymin + cutoff;                //  beyond cutoff
         }
-        var offset = Math.cos((angle /*- center_lat*/) / (180.0 / 3.1415926535));
-        offset = 0.1 * (ymax - ymin) / offset;
+        offset = Math.cos((angle /*- center_lat*/) / (180.0 / 3.1415926535));
+        offset = 0.1 * (ymax - ymin) / offset;    // result in degrees(?)
         center_lat = center_lat + offset;
       }
     }
@@ -203,124 +205,54 @@ function get_window_center(bounds) {      // for use with home-brew geoJSON scan
   var yzoom;
 
   ///// Google Maps only shows whole earth at zoom 1 if square canvas
-  ///// Google Maps cuts off latitude at ~83+/- degrees
+  ///// Google Maps cuts off latitude at ~85+/- degrees
   ///// Hence vertical degrees yield twice as many pixels per degree as horizontal ones
+  ///// for a square canvas
+  ///// NOTE:  Google maps alias longitudes at zoom 1 unless canvas width is 2^n
   /////
 
   var x_deg_per_pix = 360.0 / bounds.canvas_width;
-  var y_deg_per_pix = 180.0 / bounds.canvas_height / bounds.canvas_ratio;
+  var y_deg_per_pix = 170.0 / bounds.canvas_height / bounds.canvas_ratio;    // ?;
+  y_deg_per_pix = (170.0 / bounds.canvas_ratio) / bounds.canvas_height;    // ?;
+  y_deg_per_pix = 170.0 / (bounds.canvas_ratio * bounds.canvas_height);    // ?;
 
   var x_pixels_per_degree = bounds.canvas_width / 360;
-  var y_pixels_per_degree = bounds.canvas_height / 166; // mercator cutoff latitude
+  var y_pixels_per_degree = bounds.canvas_height / 170  * bounds.canvas_ratio; // mercator cutoff latitude
+      y_pixels_per_degree = bounds.canvas_height / (170  / bounds.canvas_ratio); // mercator cutoff latitude
+  // need mercator adjustment: approximate by
 
   var x_pixels = wx / x_deg_per_pix;
   var y_pixels = wy / y_deg_per_pix;
 
   x_pixels = wx * x_pixels_per_degree;
-  y_pixels = wy * y_pixels_per_degree;
-
-
-  //xzoom = 11.2 - log_2(x_pixels);      // empirical inversion of log result
-  //if (xzoom > 15 || xzoom == Infinity) {xzoom = 15;}
-  //yzoom =11.2 - log_2(y_pixels);
-  //if (yzoom > 15 || yzoom == Infinity) {yzoom = 15;}
-  //gzoom = Math.floor(Math.min(xzoom, yzoom));   // clip at higher magnifications
-
-  //xzoom = -log_2(x_pixels / bounds.canvas_width);      // empirical inversion of log result
-  //yzoom = -log_2(y_pixels / bounds.canvas_height);
-  //gzoom = Math.floor(Math.min(xzoom, yzoom));
-
-  //var xpower = -log_2(wx / 360.0);      // empirical inversion of log result
-  //var ypower = -log_2(wy * bounds.canvas_ratio / 180.0);      // terms expanded for debugging purposes
-  //xzoom = -Math.floor(xpower);      // since log_2 result < 0, make powers > 0
-  //yzoom = -Math.floor(ypower);      // and get the integer parts
-  //gzoom = -Math.min(xzoom, yzoom);
-
-  xzoom = -log_2(wx / 360.0);      // empirical inversion of log result
-  if (xzoom > 15 || xzoom == Infinity) {xzoom = 15;}
-  yzoom = -log_2((wy / 180.0) / bounds.canvas_ratio);      // terms expanded for debugging purposes
-  if (yzoom > 15 || yzoom == Infinity) {yzoom = 15;}
-  //xzoom = -1.0 * xpower;      // since log_2 result < 0, make powers > 0
-  //yzoom = -1.0 * ypower;      // and get the integer parts
-  gzoom = Math.floor(Math.min(xzoom, yzoom));
-
-  //gzoom = Math.floor(Math.min(-xzoom, -yzoom));
-  xzoom = -log_2(x_pixels / bounds.canvas_width);      // empirical inversion of log result
-  if (xzoom > 15 || xzoom == Infinity) {xzoom = 15;}
-  yzoom = -log_2((y_pixels / bounds.canvas_height) / bounds.canvas_ratio);      // terms expanded for debugging purposes
-  if (yzoom > 15 || yzoom == Infinity) {yzoom = 15;}
-  //xzoom = -1.0 * xpower;      // since log_2 result < 0, make powers > 0
-  //yzoom = -1.0 * ypower;      // and get the integer parts
-  gzoom = Math.floor(Math.max(xzoom + 0.5, yzoom + 0.5));
+  //y_pixels = wy * y_pixels_per_degree;
+  y_pixels = wy * y_pixels_per_degree / (Math.cos((offset) / (180.0 / 3.1415926535)));
 
   var aspect_ratio = x_pixels / y_pixels;   //changed from wx/wy//
-  if (aspect_ratio < bounds.canvas_ratio) {     // taller
+  if (x_pixels / bounds.canvas_width > y_pixels / bounds.canvas_height) {     // wider
     // pick x-axis
-    xzoom = -log_2(x_pixels / bounds.canvas_width);      // empirical inversion of log result
+    xzoom = 1.0 - log_2(x_pixels / bounds.canvas_width);      // empirical inversion of log result
     if (xzoom > 15 || xzoom == Infinity) {xzoom = 15;}
     gzoom = Math.floor(xzoom);
-    if (y_pixels * gzoom /aspect_ratio < bounds.canvas_height * 1.10) {
+    if ((x_pixels * Math.pow(2, gzoom) * 2 < bounds.canvas_width) && (y_pixels * Math.pow(2, gzoom) * 2 < bounds.canvas_height)) {   // if I zoom again will it be not too wide?
       gzoom = gzoom + 1;
     }
   }
   else {                                        // wider
     // pick y-axis
-    yzoom = -log_2((y_pixels / bounds.canvas_height) / bounds.canvas_ratio);      // terms expanded for debugging purposes
+    yzoom = 1.2 - log_2((y_pixels / bounds.canvas_height) /*/ bounds.canvas_ratio*/);      // terms expanded for debugging purposes
     if (yzoom > 15 || yzoom == Infinity) {yzoom = 15;}
     gzoom = Math.floor(yzoom);
-  if (x_pixels * gzoom /aspect_ratio < bounds.canvas_width * 1.10) {
+    if ((x_pixels * Math.pow(2, gzoom) < bounds.canvas_width) && (y_pixels * Math.pow(2, gzoom) < bounds.canvas_height)) {   // if I zoom again will it be not too wide?
       gzoom = gzoom + 1;}
   }
 
-  //if (wy > wx / bounds.canvas_ratio) {    // this test and calculation may both be exactly right, presumes wide-ish map
-  //  wx = wy * bounds.canvas_ratio * 2;        // multiplying by aspect ratio effectively zooms out more
-  //}       // VERY crude proportionality adjustment
-  //// quick and dirty zoom range based on size // not perfect, could use at least another level of depth
-  //if (wx <= 0.09765625) {
-  //  gzoom = 13
-  //}
-  //if (wx > 0.09765625) {
-  //  gzoom = 12
-  //}
-  //if (wx > 0.1953123) {
-  //  gzoom = 11
-  //}
-  //if (wx > 0.390625) {
-  //  gzoom = 10
-  //}
-  //if (wx > 0.78125) {
-  //  gzoom = 9
-  //}
-  //if (wx > 1.5625) {
-  //  gzoom = 8
-  //}
-  //if (wx > 3.125) {
-  //  gzoom = 7
-  //}
-  //if (wx > 6.25) {
-  //  gzoom = 6
-  //}
-  //if (wx > 12.5) {
-  //  gzoom = 5
-  //}
-  //if (wx > 25.0) {
-  //  gzoom = 4
-  //}
-  //if (wx > 50.0) {
-  //  gzoom = 3
-  //}
   if (wx > 90.0 || wy * bounds.canvas_ratio  > 45.0) {   // Band-aids to cover USA, etc.
     gzoom = 2
   }
   if (wx > 180.0) {
     gzoom = 1
   }
-  ////if (wx > 160.0/* || (wx + wy) == 0*/) {  // amended to not focus on whole earth on latter condition (single point???)
-  ////  gzoom = 1                               // wait for exceptional case to revert or rewrite condition
-  ////}
-  //if (bounds.canvas_ratio < 2.0) {  // amended to not focus on whole earth on latter condition (single point???)
-  //  gzoom = 2;                               // wait for exceptional case to revert or rewrite condition
-  //}
 
   bounds.center_lat = center_lat;
   bounds.center_long = center_long;
