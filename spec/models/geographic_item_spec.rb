@@ -522,6 +522,45 @@ describe GeographicItem, type: :model, group: :geo do
         end
       end
 
+      context '::are_contained_in_item_by_id - returns objects which contained in another object.' do
+
+        specify 'one thing inside k' do
+          expect(GeographicItem.are_contained_in_item_by_id('polygon', @p1.id).to_a).to eq([@k])
+        end
+
+        specify 'three things inside k (in array)' do
+          expect(GeographicItem.are_contained_in_item_by_id('polygon', [@p1.id, @p2.id, @p3.id]).to_a).to eq([@k])
+        end
+
+        specify 'three things inside k (as seperate parameters)' do
+          expect(GeographicItem.are_contained_in_item_by_id('polygon', @p1.id, @p2.id, @p3.id).to_a).to eq([@k])
+        end
+
+        specify 'one thing outside k' do
+          expect(GeographicItem.are_contained_in_item_by_id('polygon', @p4.id).to_a).to eq([])
+        end
+
+        specify ' one thing inside two things (overlapping)' do
+          expect(GeographicItem.are_contained_in_item_by_id('polygon', @p12.id).to_a.sort).to contain_exactly(@e1, @e2)
+        end
+
+        specify 'three things inside and one thing outside k' do
+          expect(GeographicItem.are_contained_in_item_by_id('polygon', [@p1.id, @p2.id, @p3.id, @p11.id]).to_a).to contain_exactly(@e1, @k)
+        end
+
+        specify 'one thing inside one thing, and another thing inside another thing' do
+          expect(GeographicItem.are_contained_in_item_by_id('polygon', [@p1.id, @p11.id]).to_a).to contain_exactly(@e1, @k)
+        end
+
+        specify 'two things inside one thing, and (1)' do
+          expect(GeographicItem.are_contained_in_item_by_id('polygon', @p18.id).to_a).to contain_exactly(@b1, @b2)
+        end
+
+        specify 'two things inside one thing, and (2)' do
+          expect(GeographicItem.are_contained_in_item_by_id('polygon', @p19.id).to_a).to contain_exactly(@b1, @b)
+        end
+      end
+
       context '::is_contained_by - returns objects which are contained by other objects.' do
         specify ' three things inside k' do
           expect(GeographicItem.is_contained_by('any', @k).excluding(@k).to_a).to contain_exactly(@p1, @p2, @p3)

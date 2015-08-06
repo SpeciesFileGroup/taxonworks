@@ -414,13 +414,15 @@ SELECT round(CAST(
         GeographicItem.where(id: part.flatten.map(&:id))
       else
         q = geographic_item_ids.flatten.collect { |geographic_item_id|
+          # discover the item types, and convert type to database type for 'multi_'
           b = GeographicItem.where(id: geographic_item_id).pluck(:type)[0].split(':')[2].downcase.gsub('lti', 'lti_')
           # a = GeographicItem.find(geographic_item_id).geo_object_type
           GeographicItem.containing_sql(column_name, geographic_item_id, b)
         }.join(' or ')
         q = 'FALSE' if q.blank? # this will prevent the invocation of *ALL* of the GeographicItems, if there are
         # no GeographicItems in the request (see CollectingEvent.name_hash(types)).
-        where(q) # .excluding(geographic_items)
+        retval = where(q) # .excluding(geographic_items)
+      retval
     end
   end
 
