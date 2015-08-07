@@ -87,7 +87,7 @@ gem 'chartkick'
 gem 'groupdate'
 
 # SFG gems
-gem 'taxonifi', '~> 0.3.4'
+gem 'taxonifi', '0.3.5'
 gem 'sqed', '~> 0.1.5'
 
 group :test, :development do
