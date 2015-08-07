@@ -1,8 +1,13 @@
 $standard_padding: 1em;
-
 $pane_padding: 1em;
 $pane_border: 1px solid silver;
 $pane_margin: .2em;
+
+.full_viewport_whitespace {
+  .item {
+    padding: $standard_padding;
+  }
+}
 
 
 

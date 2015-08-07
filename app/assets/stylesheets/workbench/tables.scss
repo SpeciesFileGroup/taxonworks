@@ -1,6 +1,6 @@
 @import 'palette';
 
-.underlined_rows {
+.underlined_elements {
      border-spacing: 0; 
   th {
     border-bottom: 1px solid $color-secondary-1-4;
@@ -10,3 +10,10 @@
     border-bottom: 1px solid $color-secondary-1-3;
   }
 }
+
+.top_align_text {
+  td {
+    vertical-align: top; 
+  }
+}
+
