@@ -9,7 +9,7 @@ module Shared::Notable
   end 
   
   def concatenated_notes_string
-    s = notes.order(updated_at: :desc).collect{|n| n.note_string}.join('|') 
+    s = notes.order(updated_at: :desc).collect{|n| n.note_string}.join('||')
     s == "" ? nil : s
   end
 

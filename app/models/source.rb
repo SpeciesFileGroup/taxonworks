@@ -94,6 +94,7 @@ class Source < ActiveRecord::Base
   def self.batch_create(file: nil, ** args)
     sources = []
     begin
+      error_msg = []
       Source.transaction do
         bibliography = BibTeX.parse(file.read.force_encoding('UTF-8'))
         error_msg = ''
@@ -101,7 +102,7 @@ class Source < ActiveRecord::Base
           a = Source::Bibtex.new_from_bibtex(record)
           if !a.valid?
             #TODO Matt How do I send an error message here? one problem found is badly formed ISSN.
-            error_msg += "#{a.cached} not created because #{a.errors.messages.to_s}"
+            error_msg << "#{a.cached} not created because #{a.errors.messages.to_s}"
            else
              a.save!
              sources.push(a)
@@ -109,7 +110,7 @@ class Source < ActiveRecord::Base
         end
       end
     rescue
-      raise
+      raise error_msg.to_s
     end
     sources
   end

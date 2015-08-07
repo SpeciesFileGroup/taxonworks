@@ -86,10 +86,10 @@ describe Note, type: :model, group: :annotator do
         expect(note.errors.include?(:text)).to be_truthy
       end
 
-      specify 'text does not contain pipes (|)' do
+      specify 'text does not contain pipes (||)' do
         bad_note = FactoryGirl.build(:invalid_pipe)
         expect(bad_note.valid?).to be_falsey
-        expect(bad_note.errors.messages[:text].include?('TW notes may not contain a pipe (|)')).to be_truthy
+        expect(bad_note.errors.messages[:text].include?('TW notes may not contain a pipe (||)')).to be_truthy
       end
     end
   end
