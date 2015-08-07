@@ -25,14 +25,12 @@ class Role < ActiveRecord::Base
   protected
 
   def vet_person
-    
-    # If a person is ever used in 2 different roles they are considered vetted.
-    #TODO write test for this
     if Role.where(person_id: self.person_id).count > 1
       p = Person.find(person_id)
       p.update(type: 'Person::Vetted')
     end
   end
+
 end
 
 require_dependency 'source_source'
