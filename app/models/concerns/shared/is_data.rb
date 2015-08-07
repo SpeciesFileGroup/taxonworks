@@ -60,6 +60,18 @@ module Shared::IsData
     annotations_hash
   end
 
+  def errors_excepting(*keys)
+    self.valid?
+    keys.each do |k|
+      self.errors.delete(k)
+    end
+    self.errors
+  end
+
+  def full_error_messages_excepting(*keys)
+    errors_excepting(*keys).full_messages
+  end
+
   module ClassMethods
 
     # @return [Boolean]
