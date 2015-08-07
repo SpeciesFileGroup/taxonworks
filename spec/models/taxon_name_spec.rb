@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe TaxonName, :type => :model do
+describe TaxonName, type: :model, group: [:nomenclature] do
 
   let(:taxon_name) { TaxonName.new }
 
@@ -393,7 +393,8 @@ describe TaxonName, :type => :model do
             expect(@subspecies.get_original_combination).to eq('<em>Errorneura</em> [sic] <em>vitata</em>')
             expect(@subspecies.get_author_and_year).to eq ('(McAtee, 1900)')
           end
-
+         
+          # What code is this supposed to catch? 
           specify 'moving nominotypical taxon' do
             sp           = FactoryGirl.create(:iczn_species, name: 'aaa', parent: @genus)
             subsp        = FactoryGirl.create(:iczn_subspecies, name: 'aaa', parent: sp)

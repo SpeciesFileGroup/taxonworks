@@ -248,17 +248,14 @@ class TaxonName < ActiveRecord::Base
     Ranks.valid?(r) ? r.safe_constantize : r
   end
 
-  # This is the baseline means of displaying taxon name authorship. 
-  # @return
-  #   the author for this taxon, last name only
+  # @return [String, nil]
+  #   the baseline means of displaying name authorship, i.e. the author for this taxon, last name only.
+  # Important, string format priority is 1) as provided verbatim, 2) as generated from people, and 3) as taken from the source.
   def author_string
-    if !self.verbatim_author.nil?
-      self.verbatim_author
-    elsif !self.source_id.nil?
-      self.source.authority_name
-    else
-      nil
-    end
+    return self.verbatim_author if !self.verbatim_author.nil?
+    return self.taxon_name_authors.collect{|p| p.last_name}.to_sentence if self.taxon_name_authors.length > 0
+    return self.source.authority_name if !self.source_id.nil?
+    nil
   end
 
   # @return [Integer]
@@ -557,6 +554,7 @@ class TaxonName < ActiveRecord::Base
                              cached_html: i.get_full_name_html)
           end
         end
+
       end
       rescue
     end
@@ -825,8 +823,6 @@ class TaxonName < ActiveRecord::Base
       subgenus    = '(' + subgenus.squish + ') ' unless subgenus.empty?
       str = (genus + subgenus + superspecies + species).gsub(' [sic]', '</em> [sic]<em>').gsub('</em> <em>', ' ').gsub('<em></em>', '').gsub('<em> ', ' <em>').squish
       str.blank? ? nil : str
-
-
     end
   end
 
@@ -853,69 +849,95 @@ class TaxonName < ActiveRecord::Base
     (genus.to_s + ' ' + name1.to_s).squish
   end
 
-  # Returns a String with the author and year of the name. Adds parenthesis.
-  #
+  # return [Boolean] whether there is missaplication relationship
+  def name_is_missapplied?
+    TaxonNameRelationship.where_subject_is_taxon_name(self).
+      with_type_string('TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication').empty?
+  end
+
+  # return [String]
+  #   the author and year of the name, adds parenthesis where asserted
   def get_author_and_year
     return ([self.author_string] + [self.year_integer]).compact.join(', ') if self.rank.nil?
-    rank = self.rank_class
-
-    if rank.nomenclatural_code == :iczn
-      misapplication = TaxonNameRelationship.where_subject_is_taxon_name(self).
-        with_type_string('TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication')
-      a = [self.author_string]
-
-      if a[0] =~ /^\(.+\)$/ # (Author)
-        a[0] = a[0][1..-2]
-        p = true
-      else
-        p = false
-      end
-
-      ay = (a + [self.year_integer]).compact.join(', ')
-      obj = misapplication.empty? ? nil : misapplication.first.object_taxon_name
-
-      unless misapplication.empty? || obj.author_string.blank?
-        ay += ' nec ' + ([obj.author_string] + [obj.year_integer]).compact.join(', ')
-      end
-
-      if SPECIES_RANK_NAMES_ICZN.include?(rank.to_s)
-        if p
-          ay = '(' + ay + ')' unless ay.empty?
-        else
-          og = self.original_genus
-          cg = self.ancestor_at_rank('genus')
-          unless og.nil? || cg.nil?
-            ay = '(' + ay + ')' unless ay.empty? if og.name != cg.name
-          end
-        #((self.original_genus.name != self.ancestor_at_rank('genus').name) && !self.original_genus.name.to_s.empty?)
-        end
-      end
-
-    elsif rank.nomenclatural_code == :icn
-      basionym = TaxonNameRelationship.where_object_is_taxon_name(self).
-          with_type_string('TaxonNameRelationship::Icn::Unaccepting::Usage::Basionym')
-      misapplication = TaxonNameRelationship.where_subject_is_taxon_name(self).
-          with_type_string('TaxonNameRelationship::Icn::Unaccepting::Usage::Misapplication')
-      b_sub = basionym.empty? ? nil : basionym.first.subject_taxon_name
-      m_obj = misapplication.empty? ? nil : misapplication.first.object_taxon_name
-
-
-      t  = [self.author_string]
-      t  += ['(' + self.year_integer.to_s + ')'] unless self.year_integer.nil?
-      ay = t.compact.join(' ')
-
-      unless basionym.empty? || b_sub.author_string.blank?
-        ay = '(' + b_sub.author_string + ') ' + ay
-      end
-      unless misapplication.empty? || m_obj.author_string.blank?
-        ay += ' nec ' + [m_obj.author_string]
-        t  += ['(' + m_obj.year_integer.to_s + ')'] unless m_obj.year_integer.nil?
-      end
+    case self.rank_class.nomenclatural_code
+    when :iczn
+      iczn_author_and_year
+    when :icn
+      icn_author_and_year
     else
-      ay = ([self.author_string] + [self.year_integer]).compact.join(' ')
+      ([self.author_string] + [self.year_integer]).compact.join(' ')
+    end
+  end
+
+  def icn_author_and_year
+    ay = nil
+
+    basionym = TaxonNameRelationship.where_object_is_taxon_name(self).
+      with_type_string('TaxonNameRelationship::Icn::Unaccepting::Usage::Basionym')
+    b_sub = basionym.empty? ? nil : basionym.first.subject_taxon_name
+
+    misapplication = TaxonNameRelationship.where_subject_is_taxon_name(self).
+      with_type_string('TaxonNameRelationship::Icn::Unaccepting::Usage::Misapplication')
+    m_obj = misapplication.empty? ? nil : misapplication.first.object_taxon_name
+
+    t  = [self.author_string]
+    t  += ['(' + self.year_integer.to_s + ')'] unless self.year_integer.nil?
+    
+    ay = t.compact.join(' ')
+
+    unless basionym.empty? || b_sub.author_string.blank?
+      ay = '(' + b_sub.author_string + ') ' + ay
+    end
+
+    unless misapplication.empty? || m_obj.author_string.blank?
+      ay += ' nec ' + [m_obj.author_string]
+   
+      # @proceps - This t assigment does nothing at this point!, i.e. it isn't reflected back into ay, add a test
+      t  += ['(' + m_obj.year_integer.to_s + ')'] unless m_obj.year_integer.nil? 
+    end
+    
+    ay
+  end
+
+  def iczn_author_and_year
+    ay = nil
+    p = nil
+
+    misapplication = TaxonNameRelationship.where_subject_is_taxon_name(self).
+      with_type_string('TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication')
+
+    a = [self.author_string]
+
+    if a[0] =~ /^\(.+\)$/ # (Author)
+      a[0] = a[0][1..-2]
+      p = true
+    else
+      p = false
+    end
+
+    ay = (a + [self.year_integer]).compact.join(', ')
+
+    obj = misapplication.empty? ? nil : misapplication.first.object_taxon_name
+
+    unless misapplication.empty? || obj.author_string.blank?
+      ay += ' nec ' + ([obj.author_string] + [obj.year_integer]).compact.join(', ')
+    end
+
+    if SPECIES_RANK_NAMES_ICZN.include?(self.rank_class.to_s)
+      if p
+        ay = '(' + ay + ')' unless ay.empty?
+      else
+        og = self.original_genus
+        cg = self.ancestor_at_rank('genus')
+        unless og.nil? || cg.nil?
+          ay = '(' + ay + ')' unless ay.empty? if og.name != cg.name
+        end
+        #((self.original_genus.name != self.ancestor_at_rank('genus').name) && !self.original_genus.name.to_s.empty?)
+      end
     end
     ay
   end
+
 
   def get_higher_classification
     # see config/initializers/ranks for FAMILY_AND_ABOVE_RANK_NAMES
@@ -958,19 +980,17 @@ class TaxonName < ActiveRecord::Base
     end
   end
 
+  def parent_is_set?
+    !self.parent_id.nil? || (self.parent && self.parent.persisted?)
+  end
+
   protected
 
   #region Validation
 
   def validate_parent_is_set
     if !(self.rank_class == NomenclaturalRank) && !(self.type == 'Combination')
-      errors.add(:parent_id, 'is not selected') if self.parent_id.blank?
-    end
-  end
-
-  def check_format_of_name
-    if self.type == 'Protonym' && self.rank_class && self.rank_class.respond_to?(:validate_name_format)
-      self.rank_class.validate_name_format(self)
+      errors.add(:parent_id, 'is not selected') if !parent_is_set?  # self.parent_id.blank? && (self.parent.blank? || !self.parent.persisted?)
     end
   end
 
@@ -986,6 +1006,30 @@ class TaxonName < ActiveRecord::Base
         RANKS.index(self.rank_string) >= self.children.collect { |r| RANKS.index(r.rank_string) }.max
         errors.add(:rank_class, "The taxon rank (#{self.rank_class.rank_name}) is not higher than child ranks")
       end
+    end
+  end
+
+  def validate_one_root_per_project
+    if new_record? || project_id_changed?
+      if !parent_is_set? && TaxonName.where(parent_id: nil, project_id: self.project_id).count > 0
+        errors.add(:parent_id, 'is empty, only one root is allowed per project') 
+      end
+    end 
+  end
+
+  def check_new_parent_class
+    if self.parent_id != self.parent_id_was && !self.parent_id_was.nil? && self.rank_class.nomenclatural_code == :iczn
+      if old_parent = TaxonName.find_by(id: self.parent_id_was)
+        if (self.rank_class.rank_name == 'subgenus' || self.rank_class.rank_name == 'subspecies') && old_parent.name == self.name
+          errors.add(:parent_id, "The nominotypical #{self.rank_class.rank_name} #{self.name} could not be moved out of the nominal #{old_parent.rank_class.rank_name}")
+        end
+      end
+    end
+  end
+
+  def check_format_of_name
+    if self.type == 'Protonym' && self.rank_class && self.rank_class.respond_to?(:validate_name_format)
+      self.rank_class.validate_name_format(self)
     end
   end
 
@@ -1005,27 +1049,10 @@ class TaxonName < ActiveRecord::Base
     end
   end
 
-  def check_new_parent_class
-    if self.parent_id != self.parent_id_was && !self.parent_id_was.nil? && self.rank_class.nomenclatural_code == :iczn
-      old_parent = TaxonName.where(id: self.parent_id_was)
-      if old_parent.any?
-        old_parent = old_parent.first
-        if (self.rank_class.rank_name == 'subgenus' || self.rank_class.rank_name == 'subspecies') && old_parent.name == self.name
-          errors.add(:parent_id, "The nominotypical #{self.rank_class.rank_name} #{self.name} could not be moved out of the nominal #{old_parent.rank_class.rank_name}")
-        end
-      end
-    end
-  end
-
   def validate_source_type
     errors.add(:source_id, 'must be a Bibtex') if self.source && self.source.type != 'Source::Bibtex'
   end
 
-  def validate_one_root_per_project
-    if new_record? || project_id_changed?
-      errors.add(:parent_id, 'is empty, only one root is allowed per project') if parent_id.nil? && TaxonName.where(parent_id: nil, project_id: self.project_id).count > 0
-    end 
-  end
 
   #TODO: validate, that all the ranks in the table could be linked to ranks in classes (if those had changed)
 
