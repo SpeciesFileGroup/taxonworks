@@ -63,6 +63,11 @@ TaxonWorks::Application.routes.draw do
   end
   resources :asserted_distributions do
     concerns [:data_routes]
+    
+    collection do
+      post :preview_simple_batch_load # should be get
+      post :create_simple_batch_load
+    end
   end
   resources :biocuration_classifications, only: [:create, :update, :destroy]
   resources :citation_topics, only: [:create, :update, :destroy]
@@ -174,7 +179,6 @@ TaxonWorks::Application.routes.draw do
     collection do
       get :list
     end
-
   end
 
   resources :otus do
@@ -184,6 +188,7 @@ TaxonWorks::Application.routes.draw do
       post :create_simple_batch_load
     end
   end
+
   resources :people do
     concerns [:data_routes]
     member do
@@ -194,6 +199,7 @@ TaxonWorks::Application.routes.draw do
       get :lookup_person
     end
   end
+
   resources :preparation_types do
     concerns [:data_routes]
   end

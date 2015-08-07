@@ -104,15 +104,48 @@ class AssertedDistributionsController < ApplicationController
     send_data AssertedDistribution.generate_download(AssertedDistribution.where(project_id: $project_id)), type: 'text', filename: "asserted_distributions_#{DateTime.now.to_s}.csv"
   end
 
+  # GET /asserted_distributions/batch_load
+  def batch_load
+  end
+
+  def preview_simple_batch_load 
+    if params[:file]
+      @result =  BatchLoad::Import::AssertedDistributions.new(batch_params)
+      digest_cookie(params[:file].tempfile, :batch_asserted_distributions_md5)
+      render 'asserted_distributions/batch_load/simple/preview'
+    else
+      flash[:notice] = "No file provided!"
+      redirect_to action: :batch_load 
+    end
+  end
+
+  def create_simple_batch_load
+    if params[:file] && digested_cookie_exists?(params[:file].tempfile, :batch_asserted_distributions_md5)
+      @result =  BatchLoad::Import::AssertedDistributions.new(batch_params)
+      if @result.create 
+        flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} asserted distributions were created."
+        render 'asserted_distributions/batch_load/simple/create' and return
+      else
+        flash[:alert] = 'Batch import failed.'
+      end
+    else
+      flash[:alert] = 'File to batch upload must be supplied.'
+    end
+    render :batch_load 
+  end
+
   private
-  # Use callbacks to share common setup or constraints between actions.
+  
   def set_asserted_distribution
     @asserted_distribution = AssertedDistribution.with_project_id($project_id).find(params[:id])
     @recent_object         = @asserted_distribution
   end
 
-  # Never trust parameters from the scary internet, only allow the white list through.
   def asserted_distribution_params
     params.require(:asserted_distribution).permit(:otu_id, :geographic_area_id, :source_id, :is_absent)
+  end
+
+  def batch_params
+    params.permit(:file, :import_level).merge(user_id: sessions_current_user_id, project_id: $project_id).symbolize_keys
   end
 end
