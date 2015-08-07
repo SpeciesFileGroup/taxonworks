@@ -15,8 +15,7 @@ class AssertedDistribution < ActiveRecord::Base
   validates :otu, presence: true
   validates :source, presence: true
 
-
-  validates_uniqueness_of :geographic_area_id, scope: [:otu_id, :source_id], message: 'Duplicate record'
+  validates_uniqueness_of :geographic_area_id, scope: [:otu_id, :source_id], message: 'record for this source/otu combination already exists'
 
   scope :with_otu_id, -> (otu_id) { where(otu_id: otu_id) }
   scope :with_geographic_area_id, -> (geographic_area_id) { where(geographic_area_id: geographic_area_id) }
@@ -63,7 +62,6 @@ class AssertedDistribution < ActiveRecord::Base
     result
   end
 
-# Is generate_download a class or instance?
   def self.generate_download(scope)
     CSV.generate do |csv|
       csv << column_names
@@ -76,8 +74,6 @@ class AssertedDistribution < ActiveRecord::Base
   end
 
   #end region
-
-  #region Instance methods
 
   def to_geo_json_feature
     retval = {
@@ -92,9 +88,5 @@ class AssertedDistribution < ActiveRecord::Base
     retval
   end
 
-
-
-
-  #end region
 
 end
