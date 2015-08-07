@@ -1,3 +1,31 @@
+# A human. Data only, not users. There are two classes of people, vetted, and unvetted.
+#
+# A vetted person
+# * Has two or more roles
+# * Has one or more annotations
+#
+# An unvetted person
+# * Has no or 1 role.
+# * Has no annotations
+#
+# A unvetted person becomes automatically vetted when they have > 1 roles or they 
+# have an annotation associated with them.
+#
+# @!attribute last_name 
+#   @return [String] the last/family name
+#     
+# @!attribute first name 
+#   @return [String] the first name, includes initials if the are provided 
+#
+# @!attribute prefix 
+#   @return [String] string preceeding the *last/family* name
+#
+# @!attribute suffix
+#   @return [String]  string following the *last/family* name
+#
+# @!attribute type
+#   @return [String] Person::Vetted or Person::Unvetted 
+#
 class Person < ActiveRecord::Base
   include Housekeeping::Users
   include Shared::AlternateValues
