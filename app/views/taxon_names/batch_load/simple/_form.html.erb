@@ -1,0 +1,36 @@
+<%= form_tag url, multipart: true do -%>
+
+  <div class="field">
+    <%= label_tag :file, 'Select a file' -%>
+    <br>
+    <%= file_field_tag :file -%> 
+  </div>
+
+  <div class="field">
+    <%= label_tag :parent_taxon_name,  'Attach names as children of' %>
+    <br>
+    <%= render partial:  'workbench/elements/forms/ajax_select',
+      locals: {
+      controller:  '/taxon_names',
+      object:  '',
+      method: 'parent_taxon_name_id',
+      tag_id: 'parent_taxon_name_id_for_simple_batch_laod',
+      size:  20} %>
+  </div>
+
+  <div class="field">
+    <%= label_tag :nomenclature_code,  'Nomenclature code (required only if parent is Root)' %><br>
+    <%= radio_button_tag 'nomenclature_code', 'iczn' -%> ICZN <br>
+    <%= radio_button_tag 'nomenclature_code', 'icn' -%> ICN <br>
+  </div>
+
+  <div class="field">
+    <%= label_tag :also_create_otu, 'Also create OTU?' -%>
+    <br>
+    <%= check_box_tag :also_create_otu -%> 
+  </div>
+
+  <%= content_for :warn_level -%>
+
+  <%= submit_tag submit  -%>
+<% end %>
