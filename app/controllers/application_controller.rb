@@ -1,11 +1,24 @@
 class ApplicationController < ActionController::Base
+  include Workbench::SessionsHelper
+  include ProjectsHelper
+
   # Prevent CSRF attacks by raising an exception.
   # For APIs, you may want to use :null_session instead.
   protect_from_forgery with: :exception
   rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
 
-  include Workbench::SessionsHelper
-  include ProjectsHelper
+  # In use
+  attr_writer :is_data_controller, :is_task_controller 
+
+  # Potentially used
+  attr_writer   :meta_title, :meta_data, :site_name
+  attr_accessor :meta_description, :meta_keywords, :page_title
+
+  # In use 
+  helper_method :is_data_controller?, :is_task_controller?
+
+  # Potentially used.
+  helper_method :meta_title, :meta_data, :site_name, :page_title
 
   before_filter :set_project_and_user_variables
   after_filter :log_user_recent_route
@@ -25,19 +38,6 @@ class ApplicationController < ActionController::Base
     $project_id = nil 
     $user_id = nil 
   end
-
-  # In use
-  attr_writer :is_data_controller, :is_task_controller 
-
-  # Potentially used
-  attr_writer   :meta_title, :meta_data, :site_name
-  attr_accessor :meta_description, :meta_keywords, :page_title
-
-  # In use 
-  helper_method :is_data_controller?, :is_task_controller?
-
-  # Potentially used.
-  helper_method :meta_title, :meta_data, :site_name, :page_title
 
   # Returns true if the controller is that of data class. See controllers/concerns/data_controller_configuration/ concern.
   # Data controllers can not be task controllers.
@@ -66,7 +66,17 @@ class ApplicationController < ActionController::Base
   def site_name
     @site_name ||= 'TaxonWorks'
   end
- 
+
+  def digest_cookie(file, key)
+    sha256 = Digest::SHA256.file(file)
+    cookies[key] = sha256.hexdigest
+  end
+
+  def digested_cookie_exists?(file, key)
+    sha256 = Digest::SHA256.file(file)
+    cookies[key] == sha256.hexdigest
+  end
+
   private
  
    def record_not_found
