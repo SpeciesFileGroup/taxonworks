@@ -47,8 +47,9 @@
       <% end %>
     </div>
     <div class="item item2">
+      <%#=	 break_it_here %>
       <div id="_displayed_distribution_form"
-           data-feature-collection='<%= @distribution.to_json[@distribution.otus.first.id].to_json -%>'
+           data-feature-collection='<%= @distribution.to_json.to_json -%>'
            data-map-center='POINT (0.0 0.0 0.0)'
            data-map-canvas="displayed_distribution_canvas"
       >
