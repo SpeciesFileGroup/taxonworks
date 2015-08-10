@@ -25,7 +25,12 @@
 <% end %>
 
 <% content_for :see do %>
-  <% if @taxon_name.is_protonym? -%>
+    <ul class="no_bullets">
+      <%= content_tag(:li, link_to('Distribution',
+                                   taxon_name_distribution_data_task_path(@taxon_name.to_param),
+                                   'data-no-turbolink' => true)) %>
+    </ul>
+    <% if @taxon_name.is_protonym? -%>
     <h3> Classifications / Status </h3>
     <%= render(partial: '/taxon_name_classifications/unordered_list', locals: {taxon_name_classifications: @taxon_name.taxon_name_classifications}) -%>
 
