@@ -48,8 +48,21 @@ class Otu < ActiveRecord::Base
   soft_validate(:sv_duplicate_otu, set: :duplicate_otu)
 
   #region class methods
+
   def self.find_for_autocomplete(params)
     Queries::OtuAutocompleteQuery.new(params[:term]).all.where(project_id: params[:project_id])
+  end
+
+  # return [Scope] the otus bound to that taxon name and its descendants
+  def self.for_taxon_name(taxon_name)
+    tn = nil
+    if taxon_name.class.name == 'String' || 'Fixnum' || 'Integer'
+      tn = TaxonName.find(taxon_name) 
+    else
+      tn = taxon_name
+    end
+
+    Otu.joins(:taxon_name).where("(taxon_names.project_id = ? and (taxon_names.id = ? OR (taxon_names.lft >= ? and taxon_names.lft <= ?)))", tn.project_id, tn.id, tn.lft, tn.rgt)
   end
 
   # Generate a CSV version of the raw Otus table for the given project_id
