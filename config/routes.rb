@@ -308,6 +308,8 @@ TaxonWorks::Application.routes.draw do
       # get 'otu_distribution_data/((:id)/show2)', action: 'show2', as: 'otu_distribution_data_task2'
 
       get 'otu_distribution_data', action: 'show', as: 'first_otu_distribution_data_task'
+
+      get 'taxon_name_distribution_data/:id', action: 'show_for_taxon_name', as: 'taxon_name_distribution_data_task'
     end
 
     scope :serials, controller: 'tasks/serials/similar' do

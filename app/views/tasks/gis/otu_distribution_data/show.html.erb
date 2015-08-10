@@ -9,7 +9,7 @@
   <div class="flexbox">
     <div class="item item1">
       <h2>
-        <%= link_to(otu_tag(@otu), otu_path(@otu.to_param)) %> - an Otu
+        <%# link_to(otu_tag(@otu), otu_path(@otu.to_param)) %> - an Otu
       </h2>
       <table border="1">
         <tbody>
@@ -22,7 +22,7 @@
             <%= check_box_tag("check_asserted_distribution", nil, true) %>
           </td>
           <td>
-            <%= "distributions (#{@otu.asserted_distributions.count}) (asserted distributions)" %>
+            <%# "distributions (#{@otu.asserted_distributions.count}) (asserted distributions)" %>
           </td>
         </tr>
         <tr>
@@ -30,7 +30,7 @@
             <%= check_box_tag("check_collecting_event_georeference", nil, true) %>
           </td>
           <td>
-            <%= "collection_objects (#{@otu.collection_objects.count}) (collecting events georeferences)" %>
+            <%# "collection_objects (#{@otu.collection_objects.count}) (collecting events georeferences)" %>
           </td>
         </tr>
         <tr>
@@ -38,7 +38,7 @@
             <%= check_box_tag("check_collecting_event_geographic area", nil, true) %>
           </td>
           <td>
-            <%= "collecting event gazeteer records (#{@otu.collecting_events.count}) (collecting events geographic area)" %>
+            <%# "collecting event gazeteer records (#{@otu.collecting_events.count}) (collecting events geographic area)" %>
           </td>
         </tr>
         </tbody>
@@ -46,7 +46,7 @@
     </div>
     <div class="item item2">
       <div id="_displayed_distribution_form"
-           data-feature-collection='<%= @distribution.to_json[@otu.id].to_json -%>'
+           data-feature-collection='<%= @distribution.to_json[@distribution.otus.first.id].to_json -%>'
            data-map-center='POINT (0.0 0.0 0.0)'
            data-map-canvas="displayed_distribution_canvas"
       >
