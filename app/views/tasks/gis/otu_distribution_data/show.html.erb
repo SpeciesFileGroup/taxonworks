@@ -9,39 +9,46 @@
   <div class="flexbox">
     <div class="item item1">
       <% @distribution.otus.each do |otu| %>
-          <h2>
-            <%= link_to(otu_tag(otu), otu_path(otu.to_param)) %> - an Otu
-          </h2>
           <table border="1">
             <tbody>
             <tr>
-              <th><h3>Data</h3></th>
-              <th></th>
+              <th><h3>Otu</h3></th>
+              <th>
+                <h3>
+                  <%= link_to(otu_tag(otu), otu_path(otu.to_param)) %>
+                </h3>
+              </th>
             </tr>
-            <tr>
-              <td>
-                <%= check_box_tag("check_asserted_distribution", nil, (otu.asserted_distributions.count > 0) ? true : false) %>
-              </td>
-              <td>
-                <%= "distributions (#{otu.asserted_distributions.count}) (asserted distributions)" %>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <%= check_box_tag("check_collecting_event_georeference", nil, (otu.collection_objects.count > 0) ? true : false) %>
-              </td>
-              <td>
-                <%= "collection_objects (#{otu.collection_objects.count}) (collecting events georeferences)" %>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <%= check_box_tag("check_collecting_event_geographic area", nil, (otu.collecting_events.count > 0) ? true : false) %>
-              </td>
-              <td>
-                <%= "collecting event gazeteer records (#{otu.collecting_events.count}) (collecting events geographic area)" %>
-              </td>
-            </tr>
+            <% if otu.asserted_distributions.count > 0 %>
+                <tr>
+                  <td>
+                    <%= check_box_tag("check_asserted_distribution", nil, true) %>
+                  </td>
+                  <td>
+                    <%= "distributions (#{otu.asserted_distributions.count}) (asserted distributions)" %>
+                  </td>
+                </tr>
+            <% end %>
+            <% if otu.collection_objects.count > 0 %>
+                <tr>
+                  <td>
+                    <%= check_box_tag("check_collecting_event_georeference", nil, true) %>
+                  </td>
+                  <td>
+                    <%= "collection_objects (#{otu.collection_objects.count}) (collecting events georeferences)" %>
+                  </td>
+                </tr>
+            <% end %>
+            <% if otu.collecting_events.count > 0 %>
+                <tr>
+                  <td>
+                    <%= check_box_tag("check_collecting_event_geographic area", nil, true) %>
+                  </td>
+                  <td>
+                    <%= "collecting event gazeteer records (#{otu.collecting_events.count}) (collecting events geographic area)" %>
+                  </td>
+                </tr>
+            <% end %>
             </tbody>
           </table>
       <% end %>
