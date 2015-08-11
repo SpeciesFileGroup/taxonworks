@@ -104,7 +104,7 @@ class TaxonNamesController < ApplicationController
   end
 
   def preview_simple_batch_load 
-    if params[:file] && params[:parent_taxon_name_id]
+    if params[:file] 
       @result =  BatchLoad::Import::TaxonifiToTaxonworks.new(batch_params)
       digest_cookie(params[:file].tempfile, :simple_taxon_names_md5)
       render 'taxon_names/batch_load/simple/preview'

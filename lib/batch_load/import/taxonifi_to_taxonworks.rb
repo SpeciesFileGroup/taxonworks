@@ -16,13 +16,20 @@ module BatchLoad
     attr_accessor :also_create_otu
 
     def initialize( nomenclature_code: nil, parent_taxon_name_id: nil, also_create_otu: false, **args)
-      @also_create_otu = also_create_otu
+
+      begin
+        @parent_taxon_name = TaxonName.find(parent_taxon_name_id)
+      rescue ActiveRecord::RecordNotFound
+        @errors = [ 'Parent taxon not provided.' ]
+      end
+
       @nomenclature_code = nomenclature_code
-      @parent_taxon_name = TaxonName.find(parent_taxon_name_id)
       @nomenclature_code ||= @parent_taxon_name.rank_class.nomenclatural_code
       @nomenclature_code = @nomenclature_code.to_sym
 
-      super(args)
+      @also_create_otu = also_create_otu
+
+      super(args)     
     end
 
     def build

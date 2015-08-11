@@ -60,7 +60,7 @@ module BatchLoad
       @user = User.find(@user_id)
 
       @file_errors = [] 
-      @errors = []
+      @errors ||= [] # can be set in subclasses in some cases
 
       @create_attempted = false 
 
@@ -165,7 +165,7 @@ module BatchLoad
 
     # return [Array] the line numbers that resulted in saved records
     def successful_rows 
-      @successful_rows ||= processed_rows.keys.collect{|i| processed_rows[i].has_persisted_objects? ? i : nil}.sort.compact
+      @successful_rows ||= processed_rows.keys.collect{|i| processed_rows[i].has_persisted_objects? ? i : nil}.compact.sort
     end
 
     # return [Integer] the total number of records created
