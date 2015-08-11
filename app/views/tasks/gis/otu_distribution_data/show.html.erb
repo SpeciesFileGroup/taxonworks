@@ -22,7 +22,7 @@
             <% if otu.asserted_distributions.count > 0 %>
                 <tr>
                   <td>
-                    <%= check_box_tag("check_asserted_distribution", nil, true) %>
+                    <%= check_box_tag("check_asserted_distribution_#{otu.id}" , nil, true) %>
                   </td>
                   <td>
                     <%= "distributions (#{otu.asserted_distributions.count}) (asserted distributions)" %>
@@ -32,7 +32,7 @@
             <% if otu.collection_objects.count > 0 %>
                 <tr>
                   <td>
-                    <%= check_box_tag("check_collecting_event_georeference", nil, true) %>
+                    <%= check_box_tag("check_collecting_event_georeference_#{otu.id}", nil, true) %>
                   </td>
                   <td>
                     <%= "collection_objects (#{otu.collection_objects.count}) (collecting events georeferences)" %>
@@ -42,7 +42,7 @@
             <% if otu.collecting_events.count > 0 %>
                 <tr>
                   <td>
-                    <%= check_box_tag("check_collecting_event_geographic area", nil, true) %>
+                    <%= check_box_tag("check_collecting_event_geographic area_#{otu.id}", nil, true) %>
                   </td>
                   <td>
                     <%= "collecting event gazeteer records (#{otu.collecting_events.count}) (collecting events geographic area)" %>

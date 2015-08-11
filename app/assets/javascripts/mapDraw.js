@@ -188,7 +188,7 @@ function initializeGoogleMap(map_canvas, fcdata, map_center) {
   var bounds_box = {
     "type": "Feature",
     "geometry": {
-      "type": "polygon",
+      "type": "multilinestring",
       "coordinates": coordList
     },
     "properties": {}
