@@ -176,6 +176,24 @@ function initializeGoogleMap(map_canvas, fcdata, map_center) {
   if(document.getElementById("map_coords") != undefined) {
     document.getElementById("map_coords").textContent = 'LAT: ' + center_lat_long['lat']() + ' - LNG: ' + center_lat_long['lng']() + ' - ZOOM: ' + bounds.gzoom;
   }
+  var sw = bounds.sw;
+  var ne = bounds.ne;
+  var coordList = [ [
+    [sw['lng'](), sw['lat']()],
+    [sw['lng'](), ne['lat']()],
+    [ne['lng'](), ne['lat']()],
+    [ne['lng'](), sw['lat']()],
+    [sw['lng'](), sw['lat']()]
+  ] ];
+  var bounds_box = {
+    "type": "Feature",
+    "geometry": {
+      "type": "polygon",
+      "coordinates": coordList
+    },
+    "properties": {}
+  };
+  map.data.addGeoJson(bounds_box);
     return map;
 }
 
