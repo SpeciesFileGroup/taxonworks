@@ -112,7 +112,9 @@ class Distribution
           'type' => 'FeatureCollection',
           'features' => []
       }
-      colors = {'asserted_distribution' => "#880000", 'collecting_event_georeference' => "#008800", 'collecting_event_geographic_area' => "#000088" }
+#      colors = {'asserted_distribution' => "#880000", 'collecting_event_georeference' => "#008800", 'collecting_event_geographic_area' => "#000088" }
+      colors = [ "#000000", "#880000", "#008800",  "#000088" ]
+      opacities = {'asserted_distribution' => 0.8, 'collecting_event_georeference' => 0.5, 'collecting_event_geographic_area' => 0.25 }
       map_source_objects[otu_id].each do |source, data, type|
         source_class = source.class.name
         route_base = source.class.table_name
@@ -128,8 +130,8 @@ class Distribution
                 'expanded_details' => "/#{route_base}/#{data.id}/expanded_details"
 
             },
-            'fillColor' => colors[type.to_s]
-
+            'fillColor' => colors[otu_id],
+            'fillOpacity' => opacities[type.to_s]
         )
 
         send("#{type}_properties", json, source, data)

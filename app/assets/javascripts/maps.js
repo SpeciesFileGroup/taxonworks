@@ -22,6 +22,7 @@ initializeMap = function (canvas, feature_collection) {
       icon: '/assets/mapicons/mm_20_gray.png',
       fillColor: color,
       strokeColor: "black",
+      strokeOpacity: 0.5,
       strokeWeight: 1
     });   // @type {google.maps.Data.StyleOptions}
   });
@@ -29,25 +30,19 @@ initializeMap = function (canvas, feature_collection) {
   if (data != undefined) {
     var chained = JSON.parse('{"type":"FeatureCollection","features":[]}'); // container for the distribution
     if (data["type"] == "FeatureCollection") {  // once again, only looking for feature collections, but with properties
-      if (data.features.length > 0) {
-        var featureCollection = data;
-        for (var i = 0; i < featureCollection.features.length; i++) { // this loop looks for (currently) checkboxes that
-          var this_feature = featureCollection.features[i];           // indicate inclusion into the google maps features
-          var this_property_key = this_feature.properties.source_type;
-          var this_control = 'check_' + this_property_key;
-          if (document.getElementById(this_control) != undefined) {   // if checkbox control exists
-            if (document.getElementById(this_control).checked) {      // if checked, and only
-              chained.features.push(this_feature);                    // if checked, insert this feature/properties
-            }                                                         // otherwise skip this feature
-          }
-          else {                                    // if no corresponding control property, do not block insertion
-            chained.features.push(this_feature);    // functionality for non-checkbox-connected data
-          }
+      doFeatureCollection(data, null, chained);
+    }   // end: if data.type == 'FeatureCollection'
+    else {              // this is not a feature collection, so what is it?
+      if (data["otu_ids"] != undefined) {
+        for (var j = 0; j < data["otu_ids"].length; j++) {
+          this_otu_id = data["otu_ids"][j];
+          this_feature_collection = data[this_otu_id];
+          doFeatureCollection(this_feature_collection, this_otu_id, chained);
         }
       }
-    }   // end: if data.type == 'FeatureCollection'
-    else {              // this is not a feature collection and presumably is a feature,
-      chained = data;   // and good luck with this ...
+      else {
+        chained = data;   // and good luck with this ...
+      }
     }
     map.data.addGeoJson(chained);
   }
@@ -83,18 +78,22 @@ initializeMap = function (canvas, feature_collection) {
   var coordList = [];
   coordList.push([sw['lng'](), sw['lat']()]);
   coordList.push([sw['lng'](), ne['lat']()]);
-  if (sw['lng']() > 0 &&  ne['lng']() < 0) { coordList.push([ 180.0, ne['lat']()])}
+  if (sw['lng']() > 0 && ne['lng']() < 0) {
+    coordList.push([180.0, ne['lat']()])
+  }
   coordList.push([ne['lng'](), ne['lat']()]);
-    coordList.push([ne['lng'](), sw['lat']()]);
-  if (sw['lng']() > 0 &&  ne['lng']() < 0) { coordList.push( [ -180.0, sw['lat']()])}
-    coordList.push([sw['lng'](), sw['lat']()]);
+  coordList.push([ne['lng'](), sw['lat']()]);
+  if (sw['lng']() > 0 && ne['lng']() < 0) {
+    coordList.push([-180.0, sw['lat']()])
+  }
+  coordList.push([sw['lng'](), sw['lat']()]);
   var temparray = [];
   temparray[0] = coordList;
   coordList = temparray;        // this is an expedient kludge to get [[[lng,lat],...]]
   var bounds_box = {
     "type": "Feature",
     "geometry": {
-      "type": "polygon",
+      "type": "multilinestring",
       "coordinates": coordList
     },
     "properties": {}
@@ -106,6 +105,27 @@ initializeMap = function (canvas, feature_collection) {
 function initialize_map(canvas, options) {
   var map = new google.maps.Map(document.getElementById(canvas), options);
   return map;
+}
+
+function doFeatureCollection(featureCollection, otu_id, chained) {
+  if (featureCollection.features.length > 0) {
+    for (var i = 0; i < featureCollection.features.length; i++) { // this loop looks for (currently) checkboxes that
+      var this_feature = featureCollection.features[i];           // indicate inclusion into the google maps features
+      var this_property_key = this_feature.properties.source_type;
+      var this_control = 'check_' + this_property_key;    // + '_' + OTU_ID
+      if (otu_id != null) {
+        this_control += '_' + otu_id
+      }
+      if (document.getElementById(this_control) != undefined) {   // if checkbox control exists
+        if (document.getElementById(this_control).checked) {      // if checked, and only
+          chained.features.push(this_feature);                    // if checked, insert this feature/properties
+        }                                                         // otherwise skip this feature
+      }
+      else {                                    // if no corresponding control property, do not block insertion
+        chained.features.push(this_feature);    // functionality for non-checkbox-connected data
+      }
+    }
+  }
 }
 
 function log_2(x) {
@@ -203,7 +223,7 @@ function get_window_center(bounds) {      // for use with home-brew geoJSON scan
         }
 
       }
-       else {            // not an overwide calculation
+      else {            // not an overwide calculation
         if (wp == 0) {
           wx = wm;
         }         // override for single sided western hemisphere
