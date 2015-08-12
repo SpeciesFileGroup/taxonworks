@@ -30,8 +30,8 @@ function add_otu_distribution_data_listeners(map) {
 
   map.data.addListener('mouseover', function (event) {     // interim color shift on mousover paradigm changed to opacity
     map.data.revertStyle();
-    map.data.overrideStyle(event.feature, {fillOpacity: 0.7});  // bolder
-    map.data.overrideStyle(event.feature, {icon: '/assets/mapicons/mm_20_brown.png'});       // highlight markers
+    map.data.overrideStyle(event.feature, {fillOpacity: 1.0});  // bolder
+    map.data.overrideStyle(event.feature, {icon: '/assets/mapicons/mm_20_white.png'});       // highlight markers
     //if (event.feature.getProperty('label') != undefined) {
     document.getElementById("displayed_distribution_style").textContent = event.feature.getProperty('label');
     //$("#displayed_distribution_style").html(event.feature.getProperty('label'));

@@ -107,17 +107,29 @@ class Distribution
     }
 
     i = 1
+    j = 0
     map_source_objects.keys.each do |otu_id|
       feature_collection = {
           'type' => 'FeatureCollection',
           'features' => []
       }
 #      colors = {'asserted_distribution' => "#880000", 'collecting_event_georeference' => "#008800", 'collecting_event_geographic_area' => "#000088" }
-      colors = [ "#000000", "#880000", "#008800",  "#000088", "#880000", "#008800",  "#000088", "#880000", "#008800",  "#000088" ]
-      opacities = {'asserted_distribution' => 0.25, 'collecting_event_georeference' => 0.5, 'collecting_event_geographic_area' => 0.75 }
+#       colors = {
+#           "black" => "#000000", "brown" => "#223300", "red" => "#330000", "orange" => "#332200",
+#           "yellow" => "#333300", "green" => "#003300", "blue" => "#000033",  "purple" => "#220022",
+#           "gray" => "#", "white" => "#", "shadow"  => "#"}
+      colors = [
+          ["black", 0x000000], ["brown", 0x664400], ["red", 0x880000], ["orange", 0xDD6600],
+          ["yellow", 0xAAAA55], ["green", 0x008800], ["blue", 0x000088], ["purple", 0x880088],
+          ["gray", 0x666666], ["white", 0xFFFFFF], ["shadow" , 0x888888]]
+      opacities = {'asserted_distribution' => 0.66, 'collecting_event_georeference' => 0.44, 'collecting_event_geographic_area' => 0.22 }
       map_source_objects[otu_id].each do |source, data, type|
         source_class = source.class.name
         route_base = source.class.table_name
+
+        color_index = (j + 1) % 8     # only 8 colors, excluding black and white (mousover color)
+        color_name = colors[color_index][0]
+        color = sprintf('#%06X', colors[color_index][1])
 
         json = data.to_simple_json_feature
         json['properties'].merge!(
@@ -130,7 +142,8 @@ class Distribution
                 'expanded_details' => "/#{route_base}/#{data.id}/expanded_details"
 
             },
-            'fillColor' => colors[otu_id],
+            'colorName' => color_name,
+            'fillColor' => color,
             'fillOpacity' => opacities[type.to_s]
         )
 
@@ -139,7 +152,7 @@ class Distribution
         feature_collection['features'].push(json)
         i = i + 1
       end
-
+      j = j + 1
       result.merge!(otu_id => feature_collection)
     end
     result

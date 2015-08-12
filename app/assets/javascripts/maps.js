@@ -17,10 +17,20 @@ initializeMap = function (canvas, feature_collection) {
   var data = feature_collection;
 
   map.data.setStyle(function (feature) {
-    color = feature.getProperty('fillColor');   //
+    var color = feature.getProperty('fillColor');   //
+    var icon = '/assets/mapicons/mm_20_gray.png';
+    var color_name = feature.getProperty('colorName');
+    if (color_name != undefined) {
+      icon = '/assets/mapicons/mm_20_' + color_name + '.png'
+    }
+    var fill_opacity = feature.getProperty('fillOpacity');
+    if (fill_opacity == undefined) {
+      fill_opacity = 0.3;
+    }
     return ({
-      icon: '/assets/mapicons/mm_20_gray.png',
+      icon: icon,
       fillColor: color,
+      fillOpacity: fill_opacity,
       strokeColor: "black",
       strokeOpacity: 0.5,
       strokeWeight: 1
