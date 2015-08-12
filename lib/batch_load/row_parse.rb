@@ -11,10 +11,10 @@ class BatchLoad::RowParse
 
 
   def initialize
-    @created = false
-    @parsed = false
+    @created      = false
+    @parsed       = false
     @parse_errors = []
-    @objects = {}
+    @objects      = {}
   end
 
   def has_parse_errors?
@@ -22,11 +22,11 @@ class BatchLoad::RowParse
   end
 
   def has_object_errors?
-    objects.select{|o| !o.valid?} > 0
+    objects.select { |o| !o.valid? } > 0
   end
 
   def persisted_objects
-    objects.collect{|type, objs| objs.select{|o| o.persisted?}}.flatten
+    objects.collect { |type, objs| objs.select { |o| o.persisted? } }.flatten
   end
 
   def has_persisted_objects?
@@ -38,11 +38,11 @@ class BatchLoad::RowParse
   end
 
   def errored_objects
-    objects.collect{|type, objs| objs.select{|o| !o.valid?}}.flatten
+    objects.collect { |type, objs| objs.select { |o| !o.valid? } }.flatten
   end
 
   def all_objects
-    objects.collect{|type, objs| objs}.flatten
+    objects.collect { |type, objs| objs }.flatten
   end
 
   def total_objects
@@ -54,7 +54,7 @@ class BatchLoad::RowParse
   end
 
   def valid_objects
-    objects.collect{|type, objs| objs.select{|o| o.valid?}}.flatten
+    objects.collect { |type, objs| objs.select { |o| o.valid? } }.flatten
   end
 
 end

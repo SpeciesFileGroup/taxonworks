@@ -63,7 +63,7 @@ TaxonWorks::Application.routes.draw do
   end
   resources :asserted_distributions do
     concerns [:data_routes]
-    
+
     collection do
       post :preview_simple_batch_load # should be get
       post :create_simple_batch_load

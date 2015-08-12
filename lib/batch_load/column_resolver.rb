@@ -3,7 +3,7 @@
 # values at this point
 # 
 module BatchLoad::ColumnResolver
-  class << self 
+  class << self
     def otu(columns)
       otus = []
       if columns['otu_id']
@@ -27,7 +27,7 @@ module BatchLoad::ColumnResolver
           sources.push Source.find(columns['source_id'])
         rescue ActiveRecord::RecordNotFound
         end
-      elsif columns['doi'] 
+      elsif columns['doi']
         sources = Source.where(doi: columns['doi']) # identifier is cached here, so we don't have to join Identifers
       elsif columns['citation']
         sources = Source.where(cached: columns['citation'])
@@ -43,9 +43,9 @@ module BatchLoad::ColumnResolver
         rescue ActiveRecord::RecordNotFound
         end
       elsif columns['geographic_area_name']
-        geographic_areas = GeographicArea.where(name: columns['geographic_area_name'] )
+        geographic_areas = GeographicArea.where(name: columns['geographic_area_name'])
       elsif columns['country'] || columns['state'] || columns['county']
-        geographic_areas = GeographicArea.with_name_and_parent_names( [columns['country'], columns['state'], columns['county']].compact  )
+        geographic_areas = GeographicArea.with_name_and_parent_names([columns['country'], columns['state'], columns['county']].compact)
       end
 
       geographic_areas.size == 1 ? geographic_areas.first : nil

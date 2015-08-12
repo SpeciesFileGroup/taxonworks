@@ -1,23 +1,29 @@
 <div>
   <h2> Simple batchload </h2>
+
   <div class="flexbox full_viewport_whitespace">
     <div class="item item1">
-      <h3> Description and requirements </h3> 
-      <p> Creates asserted distributions (distribution records for taxa, not specimens, from published accounts).  
-      You must provide at least one of otu_name OR otu_id, if both provided otu_id will be used.
-      You must provide at least one of country, state, county, if more than one provided all will be used to match and the finest recorded.
-      You must provide at least one of source_id, doi, citation, if more than provided priority of use is source_id, doi, then citation.
-      <em> A text file with unix line endings is required.</em>  
-      </p> 
+      <h3> Description and requirements </h3>
+
+      <p> Creates asserted distributions (distribution records for taxa, not specimens, from published accounts).
+        You must provide at least one of otu_name OR otu_id, if both provided otu_id will be used.
+        You must provide at least one of country, state, county, if more than one provided all will be used to match and
+        the finest recorded.
+        You must provide at least one of source_id, doi, citation, if more than provided priority of use is source_id,
+        doi, then citation.
+        <em> A text file with unix line endings is required.</em>
+      </p>
     </div>
 
     <div class="item item2">
-      <h3> Example file </h3> 
-      <table> 
+      <h3> Example file </h3>
+      <table>
 
         <tr class="underlined_rows">
           <td colspan="2">one of these</td>
-          <td colspan="4">this  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; OR one or more of these</td>
+          <td colspan="4">this &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            OR one or more of these
+          </td>
           <td colspan="3">one of these</td>
         </tr>
 
@@ -60,8 +66,8 @@
     </div>
 
     <div class="item item3">
-      <h3> Go! </h3> 
-      <%= render partial: '/asserted_distributions/batch_load/simple/form', locals: { url: preview_simple_batch_load_asserted_distributions_path, submit: :preview } -%>
+      <h3> Go! </h3>
+      <%= render partial: '/asserted_distributions/batch_load/simple/form', locals: {url: preview_simple_batch_load_asserted_distributions_path, submit: :preview} -%>
     </div>
 
   </div>

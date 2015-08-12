@@ -5,7 +5,7 @@ module BatchLoad
     attr_accessor :asserted_distributions
 
     def initialize(**args)
-      @asserted_distributions = {} 
+      @asserted_distributions = {}
       super(args)
     end
 
@@ -14,7 +14,7 @@ module BatchLoad
       csv.each do |row|
         i += 1
 
-        next if row.empty? || row.all?{|h, v| v.nil? || v.length == ""} 
+        next if row.empty? || row.all? { |h, v| v.nil? || v.length == "" }
 
         rp = BatchLoad::RowParse.new
         @processed_rows.merge!(i => rp)
@@ -24,17 +24,17 @@ module BatchLoad
         g = BatchLoad::ColumnResolver.geographic_area(row)
 
         if o && s && g
-          rp.objects[:asserted_distributions] =  [AssertedDistribution.new(otu: o, source: s, geographic_area: g, project_id: @project_id, by: @user)]
+          rp.objects[:asserted_distributions] = [AssertedDistribution.new(otu: o, source: s, geographic_area: g, project_id: @project_id, by: @user)]
         else
           rp.parse_errors << 'OTU was not determinable' if !o
           rp.parse_errors << 'Geographic area was not determinable' if !g
           rp.parse_errors << 'Source was not determinable' if !s
         end
       end
-      @total_lines = i - 1 
+      @total_lines = i - 1
     end
 
-    def build 
+    def build
       if valid?
         build_asserted_distributions
         @processed = true
