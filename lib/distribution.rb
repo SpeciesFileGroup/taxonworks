@@ -113,8 +113,8 @@ class Distribution
           'features' => []
       }
 #      colors = {'asserted_distribution' => "#880000", 'collecting_event_georeference' => "#008800", 'collecting_event_geographic_area' => "#000088" }
-      colors = [ "#000000", "#880000", "#008800",  "#000088" ]
-      opacities = {'asserted_distribution' => 0.8, 'collecting_event_georeference' => 0.5, 'collecting_event_geographic_area' => 0.25 }
+      colors = [ "#000000", "#880000", "#008800",  "#000088", "#880000", "#008800",  "#000088", "#880000", "#008800",  "#000088" ]
+      opacities = {'asserted_distribution' => 0.25, 'collecting_event_georeference' => 0.5, 'collecting_event_geographic_area' => 0.75 }
       map_source_objects[otu_id].each do |source, data, type|
         source_class = source.class.name
         route_base = source.class.table_name

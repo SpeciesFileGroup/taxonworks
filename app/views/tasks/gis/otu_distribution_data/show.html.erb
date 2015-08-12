@@ -1,9 +1,6 @@
 <%= render(partial: 'layouts/map_header') -%>
 
 <h1>Task: <%= "#{@type_tag}" %>  distribution</h1>
-<!--<p>-->
-<!--<%#= @otu.distribution_geoJSON.to_json %>-->
-<!--</p>-->
 
 <div id="otu_distribution_widget">
   <div class="flexbox">
@@ -19,7 +16,7 @@
                 </h3>
               </th>
             </tr>
-            <% if otu.asserted_distributions.count > 0 %>
+            <% unless otu.asserted_distributions.empty? %>
                 <tr>
                   <td>
                     <%= check_box_tag("check_asserted_distribution_#{otu.id}" , nil, true) %>
@@ -29,7 +26,7 @@
                   </td>
                 </tr>
             <% end %>
-            <% if otu.collection_objects.count > 0 %>
+            <% unless otu.collection_objects.empty? %>
                 <tr>
                   <td>
                     <%= check_box_tag("check_collecting_event_georeference_#{otu.id}", nil, true) %>
@@ -39,7 +36,7 @@
                   </td>
                 </tr>
             <% end %>
-            <% if otu.collecting_events.count > 0 %>
+            <% unless otu.collecting_events.empty? %>
                 <tr>
                   <td>
                     <%= check_box_tag("check_collecting_event_geographic area_#{otu.id}", nil, true) %>
