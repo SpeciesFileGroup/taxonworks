@@ -56,7 +56,7 @@ function add_click_services_to_new_asserted_distribution_map(map, event) {     /
                         map.data.overrideStyle(this_feature, {fillOpacity: 1.0});       // transparent
                     }
                 });
-            })
+            });
 
             $("[id^=button_]").mouseout(function() {        // set mouseout for each area (condensed)
                 var this_id = this.id;                      // var this since it goes out of scope with .forEach
@@ -64,7 +64,7 @@ function add_click_services_to_new_asserted_distribution_map(map, event) {     /
                     if(feature.getProperty('geographic_area').id == this_id.slice(7,this_id.length)) { map.data.revertStyle(); }
                     // 'button_'.length, 'button_abc...xyz'.length
                 });
-            })
+            });
 
             var data = local_data['feature_collection'];
             var bounds = {};
