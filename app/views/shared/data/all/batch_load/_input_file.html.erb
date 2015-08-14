@@ -1,4 +1,4 @@
-<table> 
+<table border="1">
   <tr><th></th> <%= csv.headers.collect{|h| content_tag(:th, h)}.join.html_safe -%>  </tr>
   <% csv.each_with_index do |row, i| -%>
     <tr > 
