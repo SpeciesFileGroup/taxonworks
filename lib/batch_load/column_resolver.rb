@@ -45,7 +45,7 @@ module BatchLoad::ColumnResolver
       elsif columns['geographic_area_name']
         geographic_areas = GeographicArea.where(name: columns['geographic_area_name'])
       elsif columns['country'] || columns['state'] || columns['county']
-        geographic_areas = GeographicArea.with_name_and_parent_names([columns['country'], columns['state'], columns['county']].compact)
+        geographic_areas = GeographicArea.with_name_and_parent_names([columns['county'], columns['state'], columns['country']].compact)
       end
 
       geographic_areas.size == 1 ? geographic_areas.first : nil

@@ -19,6 +19,43 @@ _init_otu_distribution_data_widget = function init_otu_distribution_data() {
 };
 
 function add_otu_distribution_data_listeners(map) {
+  var this_id = this.id;
+  var otu_id = 1; //this_id.slice(7,this_id.length);      // 'button_'.length, 'button_abc...xyz'.length
+
+
+  $("[check_asserted_distribution_]").mouseover(function () {
+    var this_id = this.id;
+    var otu_id = 1; //this_id.slice(7,this_id.length);      // 'button_'.length, 'button_abc...xyz'.length
+    addListenerForCheckboxes(otu_id, map);
+  });
+
+  $("[check_collecting_event_georeference_]").mouseover(function () {
+    var this_id = this.id;
+    var otu_id = 1; //this_id.slice(7,this_id.length);      // 'button_'.length, 'button_abc...xyz'.length
+    addListenerForCheckboxes(otu_id, map);
+  });
+
+  $("[check_collecting_event_geographic_area_]").mouseover(function () {
+    var this_id = this.id;
+    var otu_id = 1; //this_id.slice(7,this_id.length);      // 'button_'.length, 'button_abc...xyz'.length
+    addListenerForCheckboxes(otu_id, map);
+  });
+}
+
+  function addListenerForCheckboxes(id, map) {
+    map.data.forEach(function(feature) {        // find by geographic area id
+        //this_feature = map.data.getFeatureById(jj); // not used, 0-reference fault in google maps
+        this_feature = feature;
+        this_property = this_feature.getProperty('otu_id');
+        //if(this_property.id != otu_id) {
+        //  map.data.overrideStyle(this_feature, {strokeWeight: 0.0});       // erase borders
+        //  map.data.overrideStyle(this_feature, {fillOpacity: 0.0});       // transparent
+        //}
+        if (this_property.id == otu_id) {
+          map.data.overrideStyle(this_feature, {fillOpacity: 1.0});       // saturate
+        }
+      }
+      );
 
   map.data.addListener('click', function (event) {
     map.data.revertStyle();

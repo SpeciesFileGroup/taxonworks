@@ -117,11 +117,15 @@ class GeographicArea < ActiveRecord::Base
   # Matches GeographicAreas that match name, parent name, parent.parent name.
   # Call via find_by_self_and_parents(%w{Champaign Illinois United\ States}).
   scope :with_name_and_parent_names, -> (names) {
-    joins('join geographic_areas ga on ga.id = geographic_areas.parent_id').
-      joins('join geographic_areas gb on gb.id = ga.parent_id').
-      where(name: names[0]).
-      where(['ga.name = ?', names[1]]).
-      where(['gb.name = ?', names[2]])
+    if names[2].nil?
+      GeographicArea.with_name_and_parent_name(names)
+    else
+      joins('join geographic_areas ga on ga.id = geographic_areas.parent_id').
+        joins('join geographic_areas gb on gb.id = ga.parent_id').
+        where(name: names[0]).
+        where(['ga.name = ?', names[1]]).
+        where(['gb.name = ?', names[2]])
+    end
   }
 
   # @param array [Array] of strings of names for areas
@@ -298,10 +302,10 @@ class GeographicArea < ActiveRecord::Base
   # TODO: parametrize to include gazeteer 
   #   i.e. geographic_areas_geogrpahic_items.where( gaz = 'some string')
   def to_simple_json_feature
-    { 
+    {
       'type'       => 'Feature',
       'geometry'   => self.geographic_items.order(:id).first.to_geo_json,
-      'properties' => { }                                                       
+      'properties' => {}
     }
   end
 

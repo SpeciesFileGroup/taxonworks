@@ -12,17 +12,19 @@
               <th><h3>Otu</h3></th>
               <th>
                 <h3>
-                  <%= link_to(otu_tag(otu), otu_path(otu.to_param)) %>
+                  <%= link_to(otu_tag(otu), otu_path(otu.to_param), {name: "link_otu_#{otu.id}"}) %>
                 </h3>
               </th>
             </tr>
             <% unless otu.asserted_distributions.empty? %>
                 <tr>
                   <td>
-                    <%= check_box_tag("check_asserted_distribution_#{otu.id}" , nil, true) %>
+                    <%= check_box_tag("check_asserted_distribution_#{otu.id}", nil, true) %>
                   </td>
                   <td>
+                    <span id='<%= "span_asserted_distributions_otu_id_#{otu.id}" %>'>
                     <%= "distributions (#{otu.asserted_distributions.count}) (asserted distributions)" %>
+                        </span>
                   </td>
                 </tr>
             <% end %>
@@ -32,7 +34,9 @@
                     <%= check_box_tag("check_collecting_event_georeference_#{otu.id}", nil, true) %>
                   </td>
                   <td>
-                    <%= "collection_objects (#{otu.collection_objects.count}) (collecting events georeferences)" %>
+                    <span id="<%= "span_collecting_events_georeferences_otu_id_#{otu.id}" %>">
+                        <%= "collection_objects (#{otu.collection_objects.count}) (collecting events georeferences)" %>
+                    </span>
                   </td>
                 </tr>
             <% end %>
@@ -42,7 +46,9 @@
                     <%= check_box_tag("check_collecting_event_geographic area_#{otu.id}", nil, true) %>
                   </td>
                   <td>
-                    <%= "collecting event gazeteer records (#{otu.collecting_events.count}) (collecting events geographic area)" %>
+                    <span id="<%= "span_collecting_events_geographic_area_otu_id_#{otu.id}" %>">
+                        <%= "collecting event gazeteer records (#{otu.collecting_events.count}) (collecting events geographic area)" %>
+                    </span>
                   </td>
                 </tr>
             <% end %>
