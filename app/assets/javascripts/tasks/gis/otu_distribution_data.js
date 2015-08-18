@@ -6,7 +6,6 @@ _init_otu_distribution_data_widget = function init_otu_distribution_data() {
       var fcdata = newfcdata.data('feature-collection');
       var map_canvas = newfcdata.data('map-canvas');
 
-
       var otu_map = initializeMap(map_canvas, fcdata);
       add_otu_distribution_data_listeners(otu_map);
 
@@ -19,48 +18,43 @@ _init_otu_distribution_data_widget = function init_otu_distribution_data() {
 };
 
 function add_otu_distribution_data_listeners(map) {
-  var this_id = this.id;
-  var otu_id = 1; //this_id.slice(7,this_id.length);      // 'button_'.length, 'button_abc...xyz'.length
+  var this_id;
+  var otu_id;
+  var split1;
+  var split2;
+  var this_type;
 
+  $("[id^=link_otu_]").mouseover(function () {
+      this_id = this.id;
+      split1 = this_id.split('link_otu_');
+      otu_id = split1[1];
+      addMouseoverListenerForOtuSpans(otu_id, null, map);
+    }
+  );
+
+  $("[id^=link_otu_]").mouseout(function () {
+      map.data.revertStyle();        // just revert EVERYTHING
+    }
+  );
 
   $("[id^=span_]").mouseover(function () {
-    var this_id = this.id;
-    var split1 =  this_id.split('span_');
-    var split2 = split1[1].split("_otu_id_");
-    var this_type = split2[0];
-    var otu_id = split2[1]; //this_id.slice(7,this_id.length);      // 'button_'.length, 'button_abc...xyz'.length
+    this_id = this.id;
+    split1 = this_id.split('span_');
+    split2 = split1[1].split("_otu_id_");
+    this_type = split2[0];
+    otu_id = split2[1];
     addMouseoverListenerForOtuSpans(otu_id, this_type, map);
   });
 
   $("[id^=span_]").mouseout(function () {
-    var this_id = this.id;
-    var split1 =  this_id.split('span_');
-    var split2 = split1[1].split("_otu_id_");
-    var this_type = split2[0];
-    var otu_id = split2[1]; //this_id.slice(7,this_id.length);      // 'button_'.length, 'button_abc...xyz'.length
-    map.data.forEach(function (feature) {        // find by ??
       map.data.revertStyle();
     }
-    );
-    }
   );
-
-  //$("[id^=check_collecting_event_georeference_]").mouseover(function () {
-  //  var this_id = this.id;
-  //  var otu_id = 1; //this_id.slice(7,this_id.length);      // 'button_'.length, 'button_abc...xyz'.length
-  //  addListenerForCheckboxes(otu_id, map);
-  //});
-  //
-  //$("[id^=check_collecting_event_geographic_area_]").mouseover(function () {
-  //  var this_id = this.id;
-  //  var otu_id = 1; //this_id.slice(7,this_id.length);      // 'button_'.length, 'button_abc...xyz'.length
-  //  addListenerForCheckboxes(otu_id, type,  map);
-  //});
 
   map.data.addListener('click', function (event) {
     map.data.revertStyle();
     map.data.overrideStyle(event.feature, {fillOpacity: 0.5});
-    //$("#displayed_distribution_style").html(event.feature.getProperty('metadata').Source.type);
+    map.data.overrideStyle(event.feature, {icon: '/assets/mapicons/mm_20_black.png'});       // highlight markers
     document.getElementById("displayed_distribution_style").textContent = event.feature.getProperty('source');
     var xx = 0;
   });
@@ -77,31 +71,25 @@ function add_otu_distribution_data_listeners(map) {
 
   map.data.addListener('mouseout', function (event) {
     map.data.revertStyle();
-    //map.data.overrideStyle(event.feature, {fillOpacity: 0.3});  // dimmer
     $("#displayed_distribution_style").html('<br />');
   });
 }
 
 
 function addMouseoverListenerForOtuSpans(otu_id, type, map) {
-  map.data.forEach(function (feature) {        // find by ??
-
+  map.data.forEach(function (feature) {
+      // now serves both spans and links
       var this_feature = feature;
       var this_object = (this_feature.getProperty('source_type'));
       var this_otu_id = (this_feature.getProperty('otu_id'));
-      //
-      ///// qualify by type as well, may need more drilling info for access to otu_id
-      //
-        if(this_otu_id != otu_id) {
+      if ((this_otu_id == otu_id) && ((this_object == type) || (type == null))) {   // if type is specified, qualify by type as well
+        map.data.overrideStyle(this_feature, {fillOpacity: 1.0});       // saturate
+        //map.data.overrideStyle(this_feature, {icon: '/assets/mapicons/mm_20_white.png'});       // highlight markers
+      }
+      else /*if(this_otu_id != otu_id)*/ {
         map.data.overrideStyle(this_feature, {strokeWeight: 0.0});       // erase borders
         map.data.overrideStyle(this_feature, {fillOpacity: 0.0});       // transparent
-          map.data.overrideStyle(this_feature, {icon: '/assets/mapicons/mm_20_shadow.png'});
-      }
-      if (this_otu_id == otu_id) {
-        if (this_object == type) {
-          map.data.overrideStyle(this_feature, {fillOpacity: 1.0});       // saturate
-         // map.data.overrideStyle(this_feature, {icon: '/assets/mapicons/mm_20_white.png'});       // highlight markers
-        }
+        map.data.overrideStyle(this_feature, {icon: '/assets/mapicons/mm_20_empty.png'});
       }
     }
   );
