@@ -146,6 +146,6 @@ class AssertedDistributionsController < ApplicationController
   end
 
   def batch_params
-    params.permit(:file, :import_level).merge(user_id: sessions_current_user_id, project_id: $project_id).symbolize_keys
+    params.permit(:data_origin, :file, :import_level).merge(user_id: sessions_current_user_id, project_id: $project_id).symbolize_keys
   end
 end
