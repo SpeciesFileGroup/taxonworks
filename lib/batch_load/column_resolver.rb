@@ -66,7 +66,7 @@ module BatchLoad::ColumnResolver
       elsif columns['country'] || columns['state'] || columns['county']
 
         # @tuckerjd - tweak as necessary to include data_origin
-        r.assign GeographicArea.with_name_and_parent_names([columns['county'], columns['state'], columns['country']].compact)
+        r.assign GeographicArea.with_name_and_parent_names([columns['county'], columns['state'], columns['country']].compact).where(data_origin: data_origin)
 
         # @tuckerjd - tweak as necessary
         r.error_messages << "Multiple matches to the <something> <some columns> were found." if r.multiple_matches?

@@ -24,14 +24,14 @@ module BatchLoad
 
         o = BatchLoad::ColumnResolver.otu(row)
         s = BatchLoad::ColumnResolver.source(row)
-        g = BatchLoad::ColumnResolver.geographic_area(row)
+        g = BatchLoad::ColumnResolver.geographic_area(row, @data_origin)
 
         if o.resolvable? && s.resolvable? && g.resolvable?
           rp.objects[:asserted_distributions] = [AssertedDistribution.new(otu: o.item, source: s.item, geographic_area: g.item, project_id: @project_id, by: @user)]
         else
-          rp.parse_errors += o.error_messages if !o.resolvable?
-          rp.parse_errors += g.error_messages if !g.resolvable?
-          rp.parse_errors += s.error_messages if !s.resolvable?
+          rp.parse_errors += o.error_messages unless o.resolvable?
+          rp.parse_errors += g.error_messages unless g.resolvable?
+          rp.parse_errors += s.error_messages unless s.resolvable?
         end
       end
       @total_lines = i - 1

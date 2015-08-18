@@ -1,9 +1,9 @@
 module BatchLoad
   class ParamError < StandardError;
-  end;
+  end
 
   class FileError < StandardError;
-  end;
+  end
 
   # A generic object for managing CSV based imports
   class Import
@@ -116,7 +116,7 @@ module BatchLoad
 
     def strict_level_ok?
       all_objects.each do |o|
-        return false if !o.valid?
+        return false unless o.valid?
       end
       true
     end
@@ -139,15 +139,15 @@ module BatchLoad
           end
         end
       else
-        @errors << "Import level #{import_level} has prevented creation." if !import_level_ok?
-        @errors << "CSV has not been processed." if !processed?
-        @errors << "One of user_id, project_id or file has not been provided." if !valid?
+        @errors << "Import level #{import_level} has prevented creation." unless import_level_ok?
+        @errors << 'CSV has not been processed.' unless processed?
+        @errors << 'One of user_id, project_id or file has not been provided.' unless valid?
       end
       true
     end
 
     def build
-      raise 'This method must provided in each respective subclass.'
+      raise 'This method must be provided in each respective subclass.'
     end
 
     # return [Boolean] whether an attempt at creating records has occured 
