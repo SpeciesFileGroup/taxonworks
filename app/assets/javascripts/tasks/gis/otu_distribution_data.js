@@ -29,8 +29,21 @@ function add_otu_distribution_data_listeners(map) {
     var split2 = split1[1].split("_otu_id_");
     var this_type = split2[0];
     var otu_id = split2[1]; //this_id.slice(7,this_id.length);      // 'button_'.length, 'button_abc...xyz'.length
-    addListenerForOtuSpans(otu_id, this_type, map);
+    addMouseoverListenerForOtuSpans(otu_id, this_type, map);
   });
+
+  $("[id^=span_]").mouseout(function () {
+    var this_id = this.id;
+    var split1 =  this_id.split('span_');
+    var split2 = split1[1].split("_otu_id_");
+    var this_type = split2[0];
+    var otu_id = split2[1]; //this_id.slice(7,this_id.length);      // 'button_'.length, 'button_abc...xyz'.length
+    map.data.forEach(function (feature) {        // find by ??
+      map.data.revertStyle();
+    }
+    );
+    }
+  );
 
   //$("[id^=check_collecting_event_georeference_]").mouseover(function () {
   //  var this_id = this.id;
@@ -70,21 +83,25 @@ function add_otu_distribution_data_listeners(map) {
 }
 
 
-function addListenerForOtuSpans(id, type, map) {
-  map.data.forEach(function (feature) {        // find by geographic area id
-      //this_feature = map.data.getFeatureById(jj); // not used, 0-reference fault in google maps
-      this_feature = feature;
-      this_property = this_feature.getProperty('otu_id');
-      this_type = this_feature.getProperty(type);
+function addMouseoverListenerForOtuSpans(otu_id, type, map) {
+  map.data.forEach(function (feature) {        // find by ??
+
+      var this_feature = feature;
+      var this_object = (this_feature.getProperty('source_type'));
+      var this_otu_id = (this_feature.getProperty('otu_id'));
       //
       ///// qualify by type as well, may need more drilling info for access to otu_id
       //
-      //if(this_property.id != otu_id) {
-      //  map.data.overrideStyle(this_feature, {strokeWeight: 0.0});       // erase borders
-      //  map.data.overrideStyle(this_feature, {fillOpacity: 0.0});       // transparent
-      //}
-      if (this_property.id == otu_id) {
-        map.data.overrideStyle(this_feature, {fillOpacity: 1.0});       // saturate
+        if(this_otu_id != otu_id) {
+        map.data.overrideStyle(this_feature, {strokeWeight: 0.0});       // erase borders
+        map.data.overrideStyle(this_feature, {fillOpacity: 0.0});       // transparent
+          map.data.overrideStyle(this_feature, {icon: '/assets/mapicons/mm_20_shadow.png'});
+      }
+      if (this_otu_id == otu_id) {
+        if (this_object == type) {
+          map.data.overrideStyle(this_feature, {fillOpacity: 1.0});       // saturate
+         // map.data.overrideStyle(this_feature, {icon: '/assets/mapicons/mm_20_white.png'});       // highlight markers
+        }
       }
     }
   );
