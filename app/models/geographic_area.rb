@@ -106,9 +106,13 @@ class GeographicArea < ActiveRecord::Base
   # A scope. Matches GeographicAreas that have name and parent name.
   # Call via find_by_self_and_parents(%w{Champaign Illinois}).
   scope :with_name_and_parent_name, -> (names) {
-    joins('join geographic_areas ga on ga.id = geographic_areas.parent_id').
-      where(name: names[0]).
-      where(['ga.name = ?', names[1]])
+    if names[1].nil?
+      where(name: names[0])
+    else
+      joins('join geographic_areas ga on ga.id = geographic_areas.parent_id').
+        where(name: names[0]).
+        where(['ga.name = ?', names[1]])
+    end
   }
 
   # @param  [Array] names of self and parents
@@ -118,7 +122,7 @@ class GeographicArea < ActiveRecord::Base
   # Call via find_by_self_and_parents(%w{Champaign Illinois United\ States}).
   scope :with_name_and_parent_names, -> (names) {
     if names[2].nil?
-      GeographicArea.with_name_and_parent_name(names)
+      with_name_and_parent_name(names.compact)
     else
       joins('join geographic_areas ga on ga.id = geographic_areas.parent_id').
         joins('join geographic_areas gb on gb.id = ga.parent_id').
