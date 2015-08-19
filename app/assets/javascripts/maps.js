@@ -128,6 +128,7 @@ function doFeatureCollection(featureCollection, otu_id, chained) {
       }
       if (document.getElementById(this_control) != undefined) {   // if checkbox control exists
         if (document.getElementById(this_control).checked) {      // if checked, and only
+          this_feature.properties.otu_id = otu_id;
           chained.features.push(this_feature);                    // if checked, insert this feature/properties
         }                                                         // otherwise skip this feature
       }

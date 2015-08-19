@@ -38,4 +38,8 @@ module GeographicAreasHelper
     end
   end
 
+  def geographic_area_data_origin_select_tag
+    select_tag(:data_origin, options_for_select(GeographicArea.pluck(:data_origin).uniq), include_blank: true) 
+  end
+
 end

@@ -4,8 +4,11 @@ module BatchLoad
 
     attr_accessor :asserted_distributions
 
-    def initialize(**args)
+    attr_accessor :data_origin
+
+    def initialize(data_origin: nil, **args)
       @asserted_distributions = {}
+      @data_origin = data_origin 
       super(args)
     end
 
@@ -21,14 +24,14 @@ module BatchLoad
 
         o = BatchLoad::ColumnResolver.otu(row)
         s = BatchLoad::ColumnResolver.source(row)
-        g = BatchLoad::ColumnResolver.geographic_area(row)
+        g = BatchLoad::ColumnResolver.geographic_area(row, @data_origin)
 
-        if o && s && g
-          rp.objects[:asserted_distributions] = [AssertedDistribution.new(otu: o, source: s, geographic_area: g, project_id: @project_id, by: @user)]
+        if o.resolvable? && s.resolvable? && g.resolvable?
+          rp.objects[:asserted_distributions] = [AssertedDistribution.new(otu: o.item, source: s.item, geographic_area: g.item, project_id: @project_id, by: @user)]
         else
-          rp.parse_errors << 'OTU was not determinable' if !o
-          rp.parse_errors << 'Geographic area was not determinable' if !g
-          rp.parse_errors << 'Source was not determinable' if !s
+          rp.parse_errors += o.error_messages unless o.resolvable?
+          rp.parse_errors += g.error_messages unless g.resolvable?
+          rp.parse_errors += s.error_messages unless s.resolvable?
         end
       end
       @total_lines = i - 1

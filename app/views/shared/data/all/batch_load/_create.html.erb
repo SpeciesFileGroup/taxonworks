@@ -1,34 +1,34 @@
 <h2> Batch create result </h2>
-<%= render partial: "shared/data/all/batch_load/import_file_properties" %>
+<%= render partial: 'shared/data/all/batch_load/import_file_properties' %>
 
 <h3> Overview </h3>
-<ul> 
+<ul>
   <li> Records created: <%= @result.total_records_created %> </li>
-  <%= @result.errors.collect{|e| content_tag(:li, e, class: "warning")}.join.html_safe -%>
+  <%= @result.errors.collect { |e| content_tag(:li, e, class: 'warning') }.join.html_safe -%>
 </ul>
 
 <h3> Line breakdown </h3>
 <% if content_for?(:line_breakdown) -%>
-  <%= yield :line_breakdown -%>
+    <%= yield :line_breakdown -%>
 <% else %>
 
-  <table class="top_align_text"> 
-    <tr>
-      <th>line</th>
-      <th>data created</th>
-      <th>data errors</th>
-      <th>parse errors</th>
-    </tr>
-
-    <% @result.sorted_processed_rows.each do |i, rp| -%>
+    <table class="top_align_text" border="1">
       <tr>
-        <%= batch_line_link_td(i) -%> 
-        <%= batch_data_created_td(rp) -%>
-        <%= batch_data_errors_td(rp) -%>
-        <%= batch_parse_errors_td(rp) -%>
+        <th>line</th>
+        <th>data created</th>
+        <th>data errors</th>
+        <th>parse errors</th>
       </tr>
-    <% end -%>  
-  </table>
+
+      <% @result.sorted_processed_rows.each do |i, rp| -%>
+          <tr>
+            <%= batch_line_link_td(i) -%>
+            <%= batch_data_created_td(rp) -%>
+            <%= batch_data_errors_td(rp) -%>
+            <%= batch_parse_errors_td(rp) -%>
+          </tr>
+      <% end -%>
+    </table>
 <% end %>
 
 <h3> Input file </h3>

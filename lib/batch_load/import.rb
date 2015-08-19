@@ -1,7 +1,9 @@
 module BatchLoad
-  class ParamError < StandardError; end;
+  class ParamError < StandardError;
+  end
 
-  class FileError < StandardError; end;
+  class FileError < StandardError;
+  end
 
   # A generic object for managing CSV based imports
   class Import
@@ -48,21 +50,21 @@ module BatchLoad
     attr_accessor :errors
 
     def initialize(project_id: nil, user_id: nil, file: nil, process: true, import_level: :warn)
-      @processed = false
+      @processed    = false
       @import_level = import_level
-      @project_id = project_id
-      @user_id = user_id
-      @file = file 
+      @project_id   = project_id
+      @user_id      = user_id
+      @file         = file
 
-      @processed_rows = {}
+      @processed_rows  = {}
       @successful_rows = nil
 
       @user = User.find(@user_id)
 
-      @file_errors = [] 
-      @errors ||= [] # can be set in subclasses in some cases
+      @file_errors = []
+      @errors      ||= [] # can be set in subclasses in some cases
 
-      @create_attempted = false 
+      @create_attempted = false
 
       process && build
     end
@@ -72,7 +74,7 @@ module BatchLoad
     def file=(value)
       @file = value
       csv
-      @file 
+      @file
     end
 
     def csv
@@ -92,19 +94,19 @@ module BatchLoad
 
     # return [Boolean] whether the instance is configured 
     def ready_to_create?
-      valid? && processed? && import_level_ok?  
+      valid? && processed? && import_level_ok?
     end
 
     def import_level_ok?
       case import_level.to_sym
-      when :warn
-        warn_level_ok? 
-      when :strict
-        strict_level_ok?
-      when :line_strict
-        line_strict_level_ok?
-      else
-        false
+        when :warn
+          warn_level_ok?
+        when :strict
+          strict_level_ok?
+        when :line_strict
+          line_strict_level_ok?
+        else
+          false
       end
     end
 
@@ -114,7 +116,7 @@ module BatchLoad
 
     def strict_level_ok?
       all_objects.each do |o|
-        return false if !o.valid?
+        return false unless o.valid?
       end
       true
     end
@@ -126,8 +128,8 @@ module BatchLoad
     # Iterates in line order and attempts to save each record
     # return [true] 
     def create
-       @create_attempted = true
-      if ready_to_create? 
+      @create_attempted = true
+      if ready_to_create?
         # TODO: (additional!?) enumerate order per klass for save off
         sorted_processed_rows.each do |i, rp|
           rp.objects.each do |object_type, objs|
@@ -137,15 +139,15 @@ module BatchLoad
           end
         end
       else
-        @errors << "Import level #{import_level} has prevented creation." if !import_level_ok?
-        @errors << "CSV has not been processed." if !processed?
-        @errors << "One of user_id, project_id or file has not been provided." if !valid?
+        @errors << "Import level #{import_level} has prevented creation." unless import_level_ok?
+        @errors << 'CSV has not been processed.' unless processed?
+        @errors << 'One of user_id, project_id or file has not been provided.' unless valid?
       end
       true
     end
 
     def build
-      raise 'This method must provided in each respective subclass.'
+      raise 'This method must be provided in each respective subclass.'
     end
 
     # return [Boolean] whether an attempt at creating records has occured 
@@ -154,7 +156,7 @@ module BatchLoad
     end
 
     # return [Boolean] whether an attempt to process the input file has occured
-    def processed? 
+    def processed?
       processed
     end
 
@@ -164,13 +166,13 @@ module BatchLoad
     end
 
     # return [Array] the line numbers that resulted in saved records
-    def successful_rows 
-      @successful_rows ||= processed_rows.keys.collect{|i| processed_rows[i].has_persisted_objects? ? i : nil}.compact.sort
+    def successful_rows
+      @successful_rows ||= processed_rows.keys.collect { |i| processed_rows[i].has_persisted_objects? ? i : nil }.compact.sort
     end
 
     # return [Integer] the total number of records created
     def total_records_created
-      successful_rows.inject(t = 0){|t, i| t += processed_rows[i].persisted_objects.size }
+      successful_rows.inject(t = 0) { |t, i| t += processed_rows[i].persisted_objects.size }
     end
 
     # return [Hash] proccesed rows, sorted by line number
@@ -181,12 +183,12 @@ module BatchLoad
 
     # return [Array] all objects (parsed records) that are .valid?
     def valid_objects
-      all_objects.select{|o| o.valid?} 
+      all_objects.select { |o| o.valid? }
     end
 
     # return [Array] all objects (parsed records)
     def all_objects
-      processed_rows.collect{|i, rp| rp.all_objects}.flatten
+      processed_rows.collect { |i, rp| rp.all_objects }.flatten
     end
 
   end
