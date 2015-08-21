@@ -306,11 +306,12 @@ class GeographicArea < ActiveRecord::Base
   # TODO: parametrize to include gazeteer 
   #   i.e. geographic_areas_geogrpahic_items.where( gaz = 'some string')
   def to_simple_json_feature
-    {
+    result = {
       'type'       => 'Feature',
-      'geometry'   => self.geographic_items.order(:id).first.to_geo_json,
       'properties' => {}
     }
+    area   = self.geographic_items.order(:id)
+    result.merge!('geometry' => area.first.to_geo_json) unless area.empty?
   end
 
   # Find a centroid by scaling this object tree up to the first antecedent which provides a geographic_item, and
