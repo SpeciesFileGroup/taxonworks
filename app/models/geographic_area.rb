@@ -312,6 +312,7 @@ class GeographicArea < ActiveRecord::Base
     }
     area   = self.geographic_items.order(:id)
     result.merge!('geometry' => area.first.to_geo_json) unless area.empty?
+    result
   end
 
   # Find a centroid by scaling this object tree up to the first antecedent which provides a geographic_item, and
