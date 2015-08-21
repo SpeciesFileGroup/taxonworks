@@ -455,8 +455,8 @@ function getFeature(thisFeature, bounds) {
 
 function getTypeData(thisType, bounds) {        // this version does not create google objects
 
-  if (thisType == undefined) {
-    return
+  if (thisType == undefined) {      // this test if to avoid js errors from  features without geometry
+    return                          // google maps forgives features wthout geometries
   }
   if (thisType.type == "FeatureCollection") {
     for (var i = 0; i < thisType.features.length; i++) {
