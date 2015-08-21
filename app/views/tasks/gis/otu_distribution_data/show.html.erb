@@ -23,7 +23,7 @@
                   </td>
                   <td>
                     <span id='<%= "span_asserted_distribution_otu_id_#{otu.id}" %>'>
-                    <%= "distributions (#{otu.asserted_distributions.count}) (asserted distributions)" %>
+                    <%= "distributions (#{otu.asserted_distributions.count}#{without_shape?(otu.asserted_distributions)}) (asserted distributions)" %>
                         </span>
                   </td>
                 </tr>
