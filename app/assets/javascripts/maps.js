@@ -449,7 +449,9 @@ function getFeature(thisFeature, bounds) {
     getTypeData(thisFeature, bounds);   // if it requires recursion on FC
   }
   else {
-    getTypeData(thisFeature.geometry, bounds);
+    if (thisFeature.geometry != undefined) {    // only look for a geometry if JDT is so kind
+      getTypeData(thisFeature.geometry, bounds);
+    }
   }
 }
 
