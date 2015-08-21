@@ -449,14 +449,15 @@ function getFeature(thisFeature, bounds) {
     getTypeData(thisFeature, bounds);   // if it requires recursion on FC
   }
   else {
-    if (thisFeature.geometry != undefined) {    // only look for a geometry if JDT is so kind
-      getTypeData(thisFeature.geometry, bounds);
-    }
+    getTypeData(thisFeature.geometry, bounds);
   }
 }
 
 function getTypeData(thisType, bounds) {        // this version does not create google objects
 
+  if (thisType == undefined) {
+    return
+  }
   if (thisType.type == "FeatureCollection") {
     for (var i = 0; i < thisType.features.length; i++) {
       if (typeof (thisType.features[i].type) != "undefined") {
