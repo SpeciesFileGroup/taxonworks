@@ -652,6 +652,43 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         expect(species.cached_classified_as).to eq(' (as Cicadellidae)')
         expect(species.created_at).to eq(t)
       end
+
+      specify 'genus with gender change' do
+        family = FactoryGirl.create(:relationship_family)
+        genus1 = FactoryGirl.create(:relationship_genus, name: 'Aus', parent: family)
+        genus2 = FactoryGirl.create(:relationship_genus, name: 'Ba', parent: family)
+        c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: genus1, type: 'TaxonNameClassification::Latinized::Gender::Masculine')
+        c2 = FactoryGirl.create(:taxon_name_classification, taxon_name: genus2, type: 'TaxonNameClassification::Latinized::Gender::Feminine')
+        genus1.reload
+        genus2.reload
+        species = FactoryGirl.build(:relationship_species, name: 'aus', parent: genus1, verbatim_author: 'Linnaeus', year_of_publication: 1758, masculine_name: 'aus', feminine_name: 'aa', neuter_name: 'aum')
+        species.save
+        expect(species.cached_html).to eq('<em>Aus aus</em>')
+        expect(species.cached).to eq('Aus aus')
+        species.parent = genus2
+        species.save
+        species.reload
+        expect(species.cached_html).to eq('<em>Ba aa</em>')
+        expect(species.cached).to eq('Ba aa')
+      end
+      specify 'gender of genus change change' do
+        family = FactoryGirl.create(:relationship_family)
+        genus1 = FactoryGirl.create(:relationship_genus, name: 'Aus', parent: family)
+        c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: genus1, type: 'TaxonNameClassification::Latinized::Gender::Masculine')
+        genus1.reload
+        species = FactoryGirl.build(:relationship_species, name: 'aus', parent: genus1, verbatim_author: 'Linnaeus', year_of_publication: 1758, masculine_name: 'aus', feminine_name: 'aa', neuter_name: 'aum')
+        species.save
+        expect(species.cached_html).to eq('<em>Aus aus</em>')
+        expect(species.cached).to eq('Aus aus')
+        c1.type = 'TaxonNameClassification::Latinized::Gender::Feminine'
+        c1.save
+        genus1.reload
+        species.reload
+        species.save
+        species.reload
+        expect(species.cached_html).to eq('<em>Aus aa</em>')
+        expect(species.cached).to eq('Aus aa')
+      end
       specify 'original_combination' do
       end
     end
