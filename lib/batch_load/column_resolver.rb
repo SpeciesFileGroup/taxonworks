@@ -12,20 +12,21 @@ module BatchLoad::ColumnResolver
       if columns['otu_id']
         begin
           r.assign Otu.find(columns['otu_id'])
-        rescue ActiveRecord::RecordNotFound
+        rescue => e  # ActiveRecord::RecordNotFound
           r.error_messages << "No OTU with id #{columns['otu_id']} exists."
         end
       elsif columns['otu_name']
         r.assign Otu.where(name: columns['otu_name'], project_id: columns['project_id']).limit(10).to_a
-        r.error_messages << "Multiple OTUs matched the name #{columns['otu_name']}." if r.multiple_matches?
+        r.error_messages << "Multiple OTUs matched the name '#{columns['otu_name']}'." if r.multiple_matches?
+        r.error_messages << "No OTU with name '#{columns['otu_name']}' exists." if r.no_matches?
       elsif columns['taxon_name']
         r.assign Otu.joins(:taxon_names).where(taxon_names: {cached: columns['taxon_name']}, project_id: columns['project_id']).limit(10).to_a
-        r.error_messages << "Multiple OTUs matched the taxon name #{columns['taxon_name']}." if r.multiple_matches?
+        r.error_messages << "Multiple OTUs matched the taxon name '#{columns['taxon_name']}'." if r.multiple_matches?
       else
-        r.error_messages << 'No column suitable for OTU resolution was provided.' 
+        r.error_messages << 'No column suitable for OTU resolution was provided.'
       end
 
-      r      
+      r
     end
 
     def source(columns)
@@ -39,10 +40,11 @@ module BatchLoad::ColumnResolver
         end
       elsif columns['doi']
         r.assign Source.where(doi: columns['doi']).limit(10).to_a # identifier is cached here, so we don't have to join Identifers
-        r.error_messages << "Multiple matches to the DOI #{column['doi']} were found." if r.multiple_matches?
+        r.error_messages << "Multiple matches to the DOI '#{column['doi']}' were found." if r.multiple_matches?
       elsif columns['citation']
         r.assign Source.where(cached: columns['citation']).limit(10).to_a
-        r.error_messages << "Multiple matches to the citation #{column['citation']} were found." if r.multiple_matches?
+        r.error_messages << "Multiple matches to the citation '#{column['citation']}' were found." if r.multiple_matches?
+        r.error_messages << "No source with citation '#{columns['citation']}' exists." if r.no_matches?
       end
 
       r
@@ -53,29 +55,42 @@ module BatchLoad::ColumnResolver
 
       if columns['geographic_area_id']
         begin
-          r.assign GeographicArea.find(columns['geographic_area_id'])
+          r.assign(GeographicArea.find(columns['geographic_area_id']))
         rescue ActiveRecord::RecordNotFound
+          r.error_messages << "No Geographic area with id #{columns['source_id']} exists."
         end
       elsif columns['geographic_area_name']
+        search_list = columns['geographic_area_name']
         # @tuckerjd - fix the data_origin logic
-        r.assign GeographicArea.where(name: columns['geographic_area_name'], data_origin: data_origin).limit(10).to_a
+        if data_origin.blank?
+          data_origin = 'blank'
+          r.assign(GeographicArea.where(name: search_list).limit(10).to_a)
+        else
+          r.assign(GeographicArea.where(name: search_list, data_origin: data_origin).limit(10).to_a)
+        end
+
 
         # @tuckerjd - tweak as necessary
-        r.error_messages << "Multiple matches to the geographic area name #{column['geographic_area_name']} were found." if r.multiple_matches?
+        r.error_messages <<  "Multiple matches to '#{search_list}' (data_origin: #{data_origin}) were found." if r.multiple_matches?
 
       elsif columns['country'] || columns['state'] || columns['county']
+        search_list = [columns['country'], columns['state'], columns['county']].compact.join(', ')
 
         # @tuckerjd - tweak as necessary to include data_origin
-        r.assign GeographicArea.with_name_and_parent_names([columns['county'], columns['state'], columns['country']].compact).where(data_origin: data_origin)
-
+        if data_origin.blank?
+          data_origin = 'blank'
+          r.assign(GeographicArea.with_name_and_parent_names([columns['county'], columns['state'], columns['country']].compact).to_a)
+        else
+          r.assign(GeographicArea.where(data_origin: data_origin).with_name_and_parent_names([columns['county'], columns['state'], columns['country']].compact).to_a)
+        end
         # @tuckerjd - tweak as necessary
-        r.error_messages << "Multiple matches to the <something> <some columns> were found." if r.multiple_matches?
+        r.error_messages << "'#{search_list}' (data_origin: #{data_origin}): Geographic area was not determinable." if r.no_matches?
+        r.error_messages << "Multiple matches to '#{search_list}' (data_origin: #{data_origin}) were found." if r.multiple_matches?
       end
 
-      r  
+      r
     end
   end
 
-  
 
 end

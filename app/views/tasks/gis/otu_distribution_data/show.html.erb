@@ -1,6 +1,7 @@
 <%= render(partial: 'layouts/map_header') -%>
 
 <h1>Task: <%= "#{@type_tag}" %>  distribution</h1>
+<h3>Taxon name: <%= object_link(@distribution.otus.first.taxon_name) %></h3>
 
 <div id="otu_distribution_widget">
   <div class="flexbox">
@@ -23,7 +24,7 @@
                   </td>
                   <td>
                     <span id='<%= "span_asserted_distribution_otu_id_#{otu.id}" %>'>
-                    <%= "distributions (#{otu.asserted_distributions.count}) (asserted distributions)" %>
+                    <%= "distributions (#{otu.asserted_distributions.count}#{without_shape?(otu.asserted_distributions)}) (asserted distributions)" %>
                         </span>
                   </td>
                 </tr>

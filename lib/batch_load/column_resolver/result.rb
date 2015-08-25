@@ -22,11 +22,15 @@ module BatchLoad::ColumnResolver
     end
 
     def resolvable?
-     item && error_messages.size == 0 && items == [] # a little redundant, but keep it safe 
+     item && error_messages.size == 0 && items == [] # a little redundant, but keep it safe
     end
 
-    def multiple_matches? 
+    def multiple_matches?
       items.size > 0
+    end
+
+    def no_matches?
+      item.nil? and items.empty?
     end
 
     def assign(objects)
@@ -38,7 +42,7 @@ module BatchLoad::ColumnResolver
         end
       else
         @item = objects
-      end 
+      end
     end
 
   end

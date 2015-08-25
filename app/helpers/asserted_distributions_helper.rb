@@ -18,4 +18,8 @@ module AssertedDistributionsHelper
     render('/asserted_distributions/quick_search_form')
   end
 
+  def no_geographic_items?
+    ' (has no geographic items)' if @asserted_distribution.geographic_area.geographic_items.empty?
+  end
+
 end
