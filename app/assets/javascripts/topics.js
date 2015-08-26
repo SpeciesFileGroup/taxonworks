@@ -62,8 +62,38 @@ function initialize_topic_autocomplete(form) {
 //    clear_topic_picker(form); // clear autocomplete input box
 //  });
 //}
+function make_topic_list_sortable(form) {
+  var list_items = form.find('.topic_list');
+  list_items.sortable({
+    change: function( event, ui ) {
+      if ($('form[id^="new_"]').length == 0) {
+        warn_for_save(form.find('.topic_picker_message'));
+      }
+    }
+  });
+  list_items.disableSelection();
+}
 
-function insert_existing_person(form, topic_id, label) {
+
+function bind_topic_position_handling_to_submit_button(form) {
+  var base_class = form.data('base-class');
+
+  form.closest('form').find('input[name="commit"]').click(function () {
+    var i = 1;
+    var topic_index;
+    form.find('.topic_item').each( function() {
+      console.log($(this));
+      topic_index = $(this).data('topic-index');
+      $(this).append(
+        $('<input hidden name="' + base_class + '[topic_attributes][' +  topic_index + '][position]" value="' + i + '" >')
+      );
+      i = i + 1;
+    });
+  });
+}
+
+
+function insert_existing_topic(form, topic_id, label) {
   var base_class = form.data('base-class');
   var random_index = new Date().getTime();
   var topic_list = form.find(".topic_list");
@@ -76,13 +106,31 @@ function insert_existing_person(form, topic_id, label) {
   topic_list.append( $('<li class="topic_item" data-topic-index="' + random_index + '">').append( label).append('&nbsp;').append(remove_link()) );
 };
 
+//
+// Initialize the widget
+//
+function initialize_topic_picker( form, topic_type) {
+  // turn the input into an jQuery autocompleter
+  // https://jqueryui.com/autocomplete/
+  //
+  // all of these should likely be renamed for namespacing purposes
+  initialize_topic_autocomplete(form);
+  //bind_new_link(form);
+  //bind_switch_link(form);
+  bind_expand_link(form);
+  //bind_label_mirroring(form);
+  bind_remove_links(form.find('.remove_role'));
+  make_topic_list_sortable(form);
+  bind_topic_position_handling_to_submit_button(form);
+};
+
 var _initialize_topic_picker_widget;
 
 _initialize_topic_picker_widget = function
   init_topic_picker() {
   $('.topic_picker').each( function() {
     var topic_type = $(this).data('topic-type');
-    initialize_topic_picker($(this), topic_type);
+    initialize_topic_autocomplete($(this), topic_type);
   });
 };
 
