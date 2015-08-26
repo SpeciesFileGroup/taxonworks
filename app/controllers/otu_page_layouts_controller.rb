@@ -18,6 +18,7 @@ class OtuPageLayoutsController < ApplicationController
   # GET /otu_page_layouts/new
   def new
     @otu_page_layout = OtuPageLayout.new
+    @topic_list = ControlledVocabularyTerm.where(type: 'Topic', name: nil)
   end
 
   # GET /otu_page_layouts/1/edit
@@ -62,6 +63,17 @@ class OtuPageLayoutsController < ApplicationController
       format.html { redirect_to otu_page_layouts_url }
       format.json { head :no_content }
     end
+  end
+
+  def autocomplete
+    @topics = Topic.find_for_autocomplete(params)
+    data = @topics.collect do |t|
+      {id:              t.id,
+       label:           t.name
+      }
+    end
+
+    render :json => data
   end
 
   private

@@ -8,7 +8,7 @@
     <ul class="topic_list">
 
       <% @topic_list.each do |topic| %>
-          <li class="topic_item" data-topic-id="<%= topic.object.id -%>" data-topic-index="<%= topic.index -%>">
+          <li class="topic_item" data-topic-id="<%= topic.id -%>" data-topic-index="<%= topic.index -%>">
             <%= topic.text_field :id, hidden: true -%>
             <%= object_tag(topic.object) -%> <%= link_to('remove', "#", class: :remove_topic) -%>
           </li>
