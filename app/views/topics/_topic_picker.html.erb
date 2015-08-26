@@ -1,37 +1,24 @@
 <div class="topic_picker">
 
-  <!-- taken from role_picker -->
-
   <div>
-    <div class="topic_picker_header"><%= "topics".titleize  %> <span class='topic_picker_alert' hidden></span> </div>
+    <div class="topic_picker_header"><%= "OTU layout topics".titleize %> <span class='topic_picker_alert' hidden></span>
+    </div>
     <span class="topic_picker_message"></span>
 
     <ul class="topic_list">
-        <%= f.fields_for :topics, topics do |topic_fields| %>
 
-          <% if topic_fields.object.new_record? %>
-            <% inc_index = "#{Time.now.to_i}#{topic_fields.object.id}" %>
-
-            <%= content_tag(:li, 'data-topic-index' => inc_index) do -%>
-              <%= topic_fields.hidden_field :type -%>
-                <%= object_tag(topic_fields.object) -%> <%= link_to('remove', "#", class: :remove_topic) -%>
-            <% end %>
-
-
-          <% else %>
-            <li class="topic_item" data-topic-id="<%= topic_fields.object.id -%>" data-topic-index="<%= topic_fields.index -%>" >
-            <%= topic_fields.text_field :id, hidden: true -%>
-            <%= object_tag(topic_fields.object) -%> <%= link_to('remove', "#", class: :remove_topic) -%>
-            </li>
-          <% end %>
-        <% end %>
+      <% @topic_list.each do |topic| %>
+          <li class="topic_item" data-topic-id="<%= topic.object.id -%>" data-topic-index="<%= topic.index -%>">
+            <%= topic.text_field :id, hidden: true -%>
+            <%= object_tag(topic.object) -%> <%= link_to('remove', "#", class: :remove_topic) -%>
+          </li>
+      <% end %>
     </ul>
   </div>
 
   <div class="topic_picker_selection">
-    <div><%= text_field_tag "topic_autocomplete", nil, class: 'topic_picker_autocomplete', placeholder: "Topic" %></div>
-
-    </div>
+    <div><%= text_field_tag("topic_autocomplete", nil, class: 'topic_picker_autocomplete', placeholder: "Topic name") %></div>
 
   </div>
+
 </div>

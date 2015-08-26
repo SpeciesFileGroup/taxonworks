@@ -17,4 +17,14 @@ class TopicsController < ApplicationController
     render :json => data
   end
 
+  def lookup_topic
+    @topics = Topic.find_for_autocomplete(params)
+    render :json => @topics.collect{|t|
+             {
+                 label: t.name,
+                 object_id: t.id}
+           }
+  end
+
+
 end
