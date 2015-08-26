@@ -12,6 +12,8 @@ collection_objects:
   - collecting_events 
   - taxon_determinations
   - repositories
+contents:
+  - controlled_vocabulary_terms
 tags:
   - controlled_vocabulary_terms
 repositories:
