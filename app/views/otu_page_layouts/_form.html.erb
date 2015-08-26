@@ -7,7 +7,7 @@
       <%= f.text_field :name %>
     </div>
 
-    <%= render partial: '/contents/content_picker', locals: {object: @otu_page_layout, f: f} %>
+    <%= render partial: '/topics/topic_picker', locals: {object: @otu_page_layout, f: f} %>
 
     <div class="actions">
       <%= f.submit %>
