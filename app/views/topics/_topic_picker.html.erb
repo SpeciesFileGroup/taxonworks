@@ -7,9 +7,9 @@
 
     <ul class="topic_list">
 
-      <% @topic_list.each do |topic| %>
+      <% @topics.each do |topic| %>
           <li class="topic_item" data-topic-id="<%= topic.id -%>" data-topic-index="<%= topic.index -%>">
-            <%= topic.text_field :id, hidden: true -%>
+            <%= topic.text_field( :id, hidden: true )-%>
             <%= object_tag(topic.object) -%> <%= link_to('remove', "#", class: :remove_topic) -%>
           </li>
       <% end %>
@@ -17,7 +17,7 @@
   </div>
 
   <div class="topic_picker_selection">
-    <div><%= text_field_tag("topic_autocomplete", nil, class: 'topic_picker_autocomplete', placeholder: "Topic name") %></div>
+    <div><%= text_field_tag('topic_autocomplete', nil, class: 'topic_autocomplete', placeholder: 'Topic name') %></div>
 
   </div>
 

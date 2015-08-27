@@ -18,7 +18,8 @@ class OtuPageLayoutsController < ApplicationController
   # GET /otu_page_layouts/new
   def new
     @otu_page_layout = OtuPageLayout.new
-    @topic_list = ControlledVocabularyTerm.where(type: 'Topic', name: nil)
+    # generate an empty ActiveRecord::Relation
+    @topics = ControlledVocabularyTerm.where(type: 'Topic', name: nil)
   end
 
   # GET /otu_page_layouts/1/edit
