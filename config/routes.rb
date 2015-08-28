@@ -173,7 +173,14 @@ TaxonWorks::Application.routes.draw do
   resources :notes, except: [:show] do
     concerns [:data_routes]
   end
+
   resources :otu_page_layout_sections, only: [:create, :update, :destroy]
+
+  resources :topics do
+    collection do
+      get :lookup_topic
+    end
+  end
 
   resources :otu_page_layouts do
     collection do

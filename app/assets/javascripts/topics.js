@@ -10,7 +10,7 @@ function initialize_topic_autocomplete(form) {
   var autocomplete_input = form.find(".topic_picker_autocomplete");
 
   autocomplete_input.autocomplete({
-    source: '/otu_page_layouts/lookup_topic',
+    source: '/topics/lookup_topic',
     open: function (event, ui) {
       bind_hover(form);
     },
@@ -20,7 +20,7 @@ function initialize_topic_autocomplete(form) {
       return false;
     }
   }).autocomplete("instance")._renderItem = function (ul, item) {
-    return $("<li class='foo'>")
+    return $("<li class='topic'>")
       .append("<a>" + item.label + ' <span class="hoverme" data-topic-id="' + item.object_id + '">...</span></a>')
       .appendTo(ul);
   };
@@ -117,9 +117,9 @@ function initialize_topic_picker(form, topic_type) {
   initialize_topic_autocomplete(form);
   //bind_new_link(form);
   //bind_switch_link(form);
-  bind_expand_link(form);
+  //bind_expand_link(form);
   //bind_label_mirroring(form);
-  bind_remove_links(form.find('.remove_role'));
+  //bind_remove_links(form.find('.remove_role'));   // not wrong, but butt UGLY
   make_topic_list_sortable(form);
   bind_topic_position_handling_to_submit_button(form);
 };
@@ -129,8 +129,7 @@ var _initialize_topic_picker_widget;
 _initialize_topic_picker_widget = function
   init_topic_picker() {
   $('.topic_picker').each(function () {
-    var topic_type = $(this).data('topic-type');
-    initialize_topic_autocomplete($(this), topic_type);
+    initialize_topic_autocomplete($(this));
   });
 };
 
