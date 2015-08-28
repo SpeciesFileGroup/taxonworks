@@ -178,6 +178,7 @@ TaxonWorks::Application.routes.draw do
   resources :otu_page_layouts do
     collection do
       get :list
+      get :lookup_topic, controller: 'topics'
     end
   end
 
