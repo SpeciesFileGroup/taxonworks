@@ -17,6 +17,7 @@ function initialize_topic_autocomplete(form) {
     select: function (event, ui) {    // execute on select event in search text box
       insert_existing_topic(form, ui.item.object_id, ui.item.label)
       clear_topic_picker(form);
+      make_topic_list_sortable(form);     // was this inadvertantly lost?
       return false;
     }
   }).autocomplete("instance")._renderItem = function (ul, item) {
@@ -63,11 +64,11 @@ function initialize_topic_autocomplete(form) {
 //  });
 //}
 function make_topic_list_sortable(form) {
-  var list_items = form.find('.topic_list');
+  var list_items = form.find(".topic_list");
   list_items.sortable({
     change: function (event, ui) {
       if ($('form[id^="new_"]').length == 0) {
-        warn_for_save(form.find('.topic_picker_message'));
+        warn_for_save(form.find(".topic_picker_message"));
       }
     }
   });
@@ -78,7 +79,7 @@ function make_topic_list_sortable(form) {
 function bind_topic_position_handling_to_submit_button(form) {
   var base_class = form.data('base-class');
 
-  form.closest('form').find('input[name="commit"]').click(function () {
+  form.closest("form").find('input[name="commit"]').click(function () {
     var i = 1;
     var topic_index;
     form.find('.topic_item').each(function () {
