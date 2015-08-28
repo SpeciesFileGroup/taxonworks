@@ -9,7 +9,7 @@ module TopicsHelper
     TopicsHelper.topic_tag(topic)
   end
 
-  def topic_search_form
+  def topics_search_form
     render('/topics/quick_search_form')
   end
 
