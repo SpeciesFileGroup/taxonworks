@@ -10,7 +10,7 @@ function initialize_topic_autocomplete(form) {
   var autocomplete_input = form.find(".topic_picker_autocomplete");
 
   autocomplete_input.autocomplete({
-    source: '/topics/lookup_topic',
+    source: '/otu_page_layouts/lookup_topic',
     open: function (event, ui) {
       bind_hover(form);
     },
@@ -65,7 +65,7 @@ function initialize_topic_autocomplete(form) {
 function make_topic_list_sortable(form) {
   var list_items = form.find('.topic_list');
   list_items.sortable({
-    change: function( event, ui ) {
+    change: function (event, ui) {
       if ($('form[id^="new_"]').length == 0) {
         warn_for_save(form.find('.topic_picker_message'));
       }
@@ -81,11 +81,11 @@ function bind_topic_position_handling_to_submit_button(form) {
   form.closest('form').find('input[name="commit"]').click(function () {
     var i = 1;
     var topic_index;
-    form.find('.topic_item').each( function() {
+    form.find('.topic_item').each(function () {
       console.log($(this));
       topic_index = $(this).data('topic-index');
       $(this).append(
-        $('<input hidden name="' + base_class + '[topic_attributes][' +  topic_index + '][position]" value="' + i + '" >')
+        $('<input hidden name="' + base_class + '[topic_attributes][' + topic_index + '][position]" value="' + i + '" >')
       );
       i = i + 1;
     });
@@ -99,17 +99,17 @@ function insert_existing_topic(form, topic_id, label) {
   var topic_list = form.find(".topic_list");
 
   // type
-  topic_list.append( $('<input hidden name="' + base_class + '[topics_attributes][' +  random_index + '][type]" value="' + form.data('topic-type') +  '" >') );
-  topic_list.append( $('<input hidden name="' + base_class + '[topics_attributes][' +  random_index + '][topic_id]" value="' + topic_id +  '" >') );
+  topic_list.append($('<input hidden name="' + base_class + '[topics_attributes][' + random_index + '][type]" value="' + form.data('topic-type') + '" >'));
+  topic_list.append($('<input hidden name="' + base_class + '[topics_attributes][' + random_index + '][topic_id]" value="' + topic_id + '" >'));
 
   // insert visible list item
-  topic_list.append( $('<li class="topic_item" data-topic-index="' + random_index + '">').append( label).append('&nbsp;').append(remove_link()) );
+  topic_list.append($('<li class="topic_item" data-topic-index="' + random_index + '">').append(label).append('&nbsp;').append(remove_link()));
 };
 
 //
 // Initialize the widget
 //
-function initialize_topic_picker( form, topic_type) {
+function initialize_topic_picker(form, topic_type) {
   // turn the input into an jQuery autocompleter
   // https://jqueryui.com/autocomplete/
   //
@@ -128,7 +128,7 @@ var _initialize_topic_picker_widget;
 
 _initialize_topic_picker_widget = function
   init_topic_picker() {
-  $('.topic_picker').each( function() {
+  $('.topic_picker').each(function () {
     var topic_type = $(this).data('topic-type');
     initialize_topic_autocomplete($(this), topic_type);
   });
