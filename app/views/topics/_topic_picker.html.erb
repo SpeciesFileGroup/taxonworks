@@ -6,10 +6,9 @@
     <span class="topic_picker_message"></span>
 
     <ul class="topic_list">
-
       <% @topics.each do |topic| %>
           <li class="topic_item" data-topic-id="<%= topic.id -%>" data-topic-index="<%= topic.index -%>">
-            <%= topic.text_field( :id, hidden: true )-%>
+            <%= topic.text_field(:id, hidden: true) -%>
             <%= object_tag(topic) -%> <%= link_to('remove', "#", class: :remove_topic) -%>
           </li>
       <% end %>

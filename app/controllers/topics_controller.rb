@@ -6,11 +6,11 @@ class TopicsController < ApplicationController
 
     data = predicates.collect do |t|
       str = t.name + ": " + t.definition
-      {id: t.id,
-       label: str,
+      {id:              t.id,
+       label:           str,
        response_values: {
          params[:method] => t.id},
-       label_html: str
+       label_html:      str
       }
     end
 
@@ -19,10 +19,10 @@ class TopicsController < ApplicationController
 
   def lookup_topic
     @topics = Topic.find_for_autocomplete(params)
-    render :json => @topics.collect{|t|
+    render :json => @topics.collect { |t|
              {
-                 label: t.name,
-                 object_id: t.id}
+               label:     t.name,
+               object_id: t.id}
            }
   end
 
