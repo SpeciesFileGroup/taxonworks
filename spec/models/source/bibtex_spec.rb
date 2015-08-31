@@ -1193,7 +1193,7 @@ describe Source::Bibtex, type: :model, group: :sources do
       expect(source_bibtex.soft_validations.messages_on(:note).empty?).to be_falsey
       expect(source_bibtex.soft_validations.messages).to include 'Valid BibTeX requires a note with an unpublished source.'
       source_bibtex.note = 'test note 1.'
-      source.save
+      expect(source_bibtex.save).to be_truthy
       source_bibtex.soft_validate()
       expect(source_bibtex.soft_validations.messages_on(:note).empty?).to be_truthy
     end
