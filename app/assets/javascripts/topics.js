@@ -20,9 +20,10 @@ function initialize_topic_autocomplete(form) {
       make_topic_list_sortable(form);     // was this inadvertantly lost?
       return false;
     }
+
   }).autocomplete("instance")._renderItem = function (ul, item) {
     return $("<li class='topic'>")
-      .append("<a>" + item.label + ' <span class="hoverme" data-topic-id="' + item.object_id + '">...</span></a>')
+      .append("<a>" + item.label + '</a>')
       .appendTo(ul);
   };
 
