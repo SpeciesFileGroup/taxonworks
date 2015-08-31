@@ -286,24 +286,49 @@ describe Source::Bibtex, type: :model, group: :sources do
       #     expect(b[:note].to_s =~ /#{n2}/).to be_truthy
       #     expect(b[:note].to_s).to eq(out_note3 + '|' + out_note2 + '|' + out_note1) # should be 3 notes or'ed together.
       #   end
+      context 'TW serial conversion' do
+        let(:src) { FactoryGirl.build(:soft_valid_bibtex_source_article) }
+        let(:serial1) { FactoryGirl.create(:valid_serial) }  # create so serial1 has an ID
 
-      specify 'serial gets converted properly to bibtex journal' do
-        src = FactoryGirl.build(:soft_valid_bibtex_source_article)
-        expect(src.valid?).to be_truthy
-        src.soft_validate()
-        expect(src.soft_valid?).to be_truthy
-        expect(src.journal).to eq('Journal of Test Articles')
-        src.journal = nil
-        src.soft_validate()
-        expect(src.soft_validations.messages).to include 'This article is missing a journal name or serial.'
-        journal = Serial.new(name: 'test journal')
-        journal.save
-        src.serial = journal
-        src.save
-        src.soft_validate()
-        expect(src.soft_valid?).to be_truthy
-        bib = src.to_bibtex
-        expect(bib.journal).to eq('test journal')
+        specify 'serial gets converted properly to bibtex journal' do
+          expect(src.valid?).to be_truthy
+          src.soft_validate()
+          expect(src.soft_valid?).to be_truthy
+          expect(src.journal).to eq('Journal of Test Articles')
+          src.journal = nil
+          src.soft_validate()
+          expect(src.soft_validations.messages).to include 'This article is missing a journal name or serial.'
+          src.serial = serial1
+          src.save
+          src.soft_validate()
+          expect(src.soft_valid?).to be_truthy
+          bib = src.to_bibtex
+          expect(bib.journal).to eq(serial1.name)
+        end
+
+        specify 'issn gets converted properly' do
+          issn = FactoryGirl.build(:issn_identifier)
+          serial1.identifiers <<  issn
+          expect(serial1.save).to be_truthy
+          src.serial = serial1
+          expect(src.save ).to be_truthy
+          src.soft_validate()
+          expect(src.soft_valid?).to be_truthy
+          bib = src.to_bibtex
+          expect(bib.issn).to eq(serial1.identifiers.of_type(:issn).first.identifier)
+        end
+      end
+
+      specify 'url gets converted properly' do
+
+      end
+
+      specify 'isbn gets converted properly' do
+
+      end
+
+      specify 'doi gets converted properly' do
+
       end
     end
 
@@ -614,7 +639,7 @@ describe Source::Bibtex, type: :model, group: :sources do
     end
   end
 
-  # sanity check for Housekeeping, which is also tested elsewhere 
+  # sanity check for Housekeeping, which is also tested elsewhere
   context 'roles and housekeeping' do
     let(:bibtex) { Source::Bibtex.create(title: 'Roles', year: 1923, bibtex_type: 'book') }
 
