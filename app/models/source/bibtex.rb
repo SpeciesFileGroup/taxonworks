@@ -382,8 +382,12 @@ class Source::Bibtex < Source
     end
 
     b[:note] = concatenated_notes_string if !concatenated_notes_string.blank? # see Notable
-    if !self.serial.blank?
+    unless self.serial.nil?
       b[:journal] = self.serial.name
+      issns = self.serial.identifiers.of_type(:issn)
+      unless issns.empty?
+        b[:issn] = issns.first.identifier # assuming the serial has only 1 ISSN
+      end
     end
 
     b.author = self.compute_bibtex_names('author') unless (self.authors.size == 0 && self.author.blank?)
