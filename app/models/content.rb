@@ -1,4 +1,3 @@
-
 # Content is text related blocks, at present it only pertains to Otus.
 # # It requires both a Topic and an Otu.
 # Future extensions may be added to use the model for Projects etc. via STI.
@@ -16,7 +15,7 @@ class Content < ActiveRecord::Base
   include Housekeeping
   include Shared::IsData
 
-  has_paper_trail 
+  has_paper_trail
 
   belongs_to :otu, inverse_of: :contents
   belongs_to :topic, inverse_of: :contents
@@ -25,6 +24,10 @@ class Content < ActiveRecord::Base
   validates_presence_of :text
   validates :topic, presence: true
   validates :otu, presence: true
+
+  # scope :for_otu_page_layout, -> (otu_page_layout_id) {
+  #   where('otu_page_layout_id = ?', otu_page_layout.od)
+  # }
 
   # @return [Boolean]
   #    true if this content has been published
@@ -37,7 +40,7 @@ class Content < ActiveRecord::Base
     to_publish = {
       topic: self.topic,
       text:  self.text,
-      otu: self.otu
+      otu:   self.otu
     }
 
     self.public_content.delete if self.public_content
@@ -47,6 +50,25 @@ class Content < ActiveRecord::Base
 
   def unpublish
     self.public_content.destroy
+  end
+
+  # OTU_PAGE_LAYOUTS
+  #       V
+  # OTU_PAGE_LAYOUT_SECTIONS  ????
+  #       V
+  #     TOPICS
+  #       V
+  #    CONTENTS
+  #       ^
+  #      OTU
+  #
+  # For this otu_page_layout, find the topics (ControlledVocabularyTerm.of_type(:topic))
+  def for_page_layout(otu_page_layout_id)
+    Content.where(id: 0)
+    #
+    # not very much progress here, because I was missing the connection between Topic and OtuPageLayout
+    #where()
+    # cvts = ControlledVocabularyTerm.of_type(:topic).includes(:contents).where(topic_id: ).pluck(:id)
   end
 
   def self.find_for_autocomplete(params)

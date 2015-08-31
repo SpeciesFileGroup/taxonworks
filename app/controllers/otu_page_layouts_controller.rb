@@ -19,7 +19,7 @@ class OtuPageLayoutsController < ApplicationController
   def new
     @otu_page_layout = OtuPageLayout.new
     # generate an empty ActiveRecord::Relation
-    @topics = ControlledVocabularyTerm.where(type: 'Topic', name: nil)
+    @topics          = ControlledVocabularyTerm.where(type: 'Topic', name: nil)
   end
 
   # GET /otu_page_layouts/1/edit
@@ -68,9 +68,9 @@ class OtuPageLayoutsController < ApplicationController
 
   def autocomplete
     @topics = Topic.find_for_autocomplete(params)
-    data = @topics.collect do |t|
-      {id:              t.id,
-       label:           t.name
+    data    = @topics.collect do |t|
+      {id:    t.id,
+       label: t.name
       }
     end
 
@@ -78,14 +78,15 @@ class OtuPageLayoutsController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_otu_page_layout
-      @otu_page_layout = OtuPageLayout.with_project_id($project_id).find(params[:id])
-      @recent_object = @otu_page_layout 
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_otu_page_layout
+    @otu_page_layout = OtuPageLayout.with_project_id($project_id).find(params[:id])
+    @recent_object   = @otu_page_layout
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def otu_page_layout_params
-      params.require(:otu_page_layout).permit(:name)
-    end
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def otu_page_layout_params
+    params.require(:otu_page_layout).permit(:name,
+                                            :topic => [:id])
+  end
 end
