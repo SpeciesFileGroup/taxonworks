@@ -18,7 +18,7 @@ class TopicsController < ApplicationController
   end
 
   def lookup_topic
-    @topics = Topic.find_for_autocomplete(params)
+    @topics = Topic.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
     render(:json => @topics.collect { |t|
              {
                label:     t.name,
