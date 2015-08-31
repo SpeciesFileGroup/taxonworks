@@ -859,7 +859,7 @@ class Source::Bibtex < Source
   end
 
   def sv_has_note
-    if (self.note.blank?) && (self.notes.count = 0)
+    if (self.note.blank?) && (self.notes.count == 0)
       soft_validations.add(:note, 'Valid BibTeX requires a note with an unpublished source.')
     end
   end
