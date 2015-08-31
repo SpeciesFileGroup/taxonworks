@@ -174,7 +174,7 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
   end
 
-  resources :otu_page_layout_sections, only: [:create, :update, :destroy]
+   # resources :otu_page_layout_sections, only: [:create, :update, :destroy]
 
   resources :topics do
     collection do
@@ -182,12 +182,18 @@ TaxonWorks::Application.routes.draw do
     end
   end
 
+
   resources :otu_page_layouts do
     collection do
       get :list
       get :lookup_topic, controller: 'topics'
     end
+    
+    member do
+      get 'related'
+    end
   end
+
 
   resources :otus do
     concerns [:data_routes]
