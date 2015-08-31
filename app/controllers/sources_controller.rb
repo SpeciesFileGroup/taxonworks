@@ -110,7 +110,6 @@ class SourcesController < ApplicationController
       sha256                      = Digest::SHA256.file(params[:file].tempfile)
       cookies[:batch_sources_md5] = sha256.hexdigest
       render 'sources/batch_load/batch_preview'
-      #TODO it would be nice to be preload the filename for the create from here.
     end
   end
 

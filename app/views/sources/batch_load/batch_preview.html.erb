@@ -2,16 +2,38 @@
 
 <p> Import includes <%= @sources.count -%> records. </p>
 
-<p> To complete this import, select the file again and click create: 
-<%= form_tag create_bibtex_batch_load_sources_path, multipart: true do -%>
-  <%= file_field_tag :file -%>
-  <%= submit_tag 'Create' -%>
-<% end %>
+<p> To complete this import, select the file again and click create:
+  <%= form_tag create_bibtex_batch_load_sources_path, multipart: true do -%>
+      <%= file_field_tag :file -%>
+      <%= submit_tag 'Create' -%>
+  <% end %>
+</p>
+
+<p> <span style='color:green'>Green</span> lines will be imported. If there are soft validation errors
+they will appear below the green line in <span style="color:brown">brown</span>.
+  <span style="color:red">Red</span> lines will not be imported and are followed by a list of the associated errors.
 </p>
 
 <ol>
   <% @sources.each_with_index do |s, i| %>
-    <%= content_tag(:li, s.cached_string('html').html_safe) -%>
+      <% if s.valid? %>
+          <%= content_tag(:li, s.cached_string('html').html_safe, class: 'green') -%>
+          <% if s.errors.messages.count > 0 %>
+              <ul>
+                <% s.errors.messages.each do |e| %>
+                    <%= content_tag(:li, e.to_s.html_safe, class: 'brown') -%>
+                <% end %>
+              </ul>
+          <% end %>
+      <% else %>
+          <%= content_tag(:li, s.cached_string('html').html_safe, class: 'red') -%>
+          <ul>
+            <% s.errors.messages.each do |e| %>
+                <%= content_tag(:li, e.to_s.html_safe) -%>
+            <% end %>
+          </ul>
+
+<% end %>
   <% end %>
 </ol>
 

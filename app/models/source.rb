@@ -86,6 +86,8 @@ class Source < ActiveRecord::Base
     @sources     = []
     bibliography.each do |record|
       a = Source::Bibtex.new_from_bibtex(record)
+      v = a.valid?
+      a.soft_validate()
       @sources.push(a)
     end
     @sources
@@ -97,13 +99,9 @@ class Source < ActiveRecord::Base
       error_msg = []
       Source.transaction do
         bibliography = BibTeX.parse(file.read.force_encoding('UTF-8'))
-        error_msg = ''
         bibliography.each do |record|
           a = Source::Bibtex.new_from_bibtex(record)
-          if !a.valid?
-            #TODO Matt How do I send an error message here? one problem found is badly formed ISSN.
-            error_msg << "#{a.cached} not created because #{a.errors.messages.to_s}"
-           else
+          if a.valid?
              a.save!
              sources.push(a)
           end
