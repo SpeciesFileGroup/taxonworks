@@ -1,45 +1,48 @@
  # This is used in the quick bar for navigation, it is meant to map closely related data classes together for quick access.  At most 3-4 classes should be used for each category.
 ---
-otus: 
-  - taxon_names
-  - taxon_determinations
-taxon_names: 
-  - otus
-  - taxon_name_relationships
-taxon_name_relationships:
-  - taxon_names
 collection_objects:
-  - collecting_events 
+  - collecting_events
   - taxon_determinations
   - repositories
-contents:
-  - controlled_vocabulary_terms
-tags:
-  - controlled_vocabulary_terms
-repositories:
-  - collection_objects
-sources:
-  - serials
-  - people
-serials: 
-  - sources
-  - people
-geographic_areas:
-  - collecting_events
-  - georeferences
 collecting_events:
   - georeferences
+contents:
+  - controlled_vocabulary_terms
 controlled_vocabulary_terms:
   - tags
   - data_attributes
-people:
-  - sources 
+geographic_areas:
   - collecting_events
-  - taxon_determinations
+  - georeferences
 geographic_items:
   - geographic_areas
   - georeferences
   - collecting_events
 loans:
   - collection_profiles
-  - repositories  
+  - repositories
+otus:
+  - taxon_names
+  - taxon_determinations
+otu_page_layouts:
+  - controlled_vocabulary_terms
+people:
+  - sources
+  - collecting_events
+  - taxon_determinations
+repositories:
+  - collection_objects
+serials:
+  - sources
+  - people
+sources:
+  - serials
+  - people
+tags:
+  - controlled_vocabulary_terms
+taxon_names:
+  - otus
+  - taxon_name_relationships
+taxon_name_relationships:
+  - taxon_names
+
