@@ -18,9 +18,9 @@ they will appear below the green line in <span style="color:brown">brown</span>.
   <% @sources.each_with_index do |s, i| %>
       <% if s.valid? %>
           <%= content_tag(:li, s.cached_string('html').html_safe, class: 'green') -%>
-          <% if s.errors.messages.count > 0 %>
+          <% if s.soft_validations.messages.count > 0 %>
               <ul>
-                <% s.errors.messages.each do |e| %>
+                <% s.soft_validations.messages.each do |e| %>
                     <%= content_tag(:li, e.to_s.html_safe, class: 'brown') -%>
                 <% end %>
               </ul>

@@ -86,7 +86,7 @@ class Source < ActiveRecord::Base
     @sources     = []
     bibliography.each do |record|
       a = Source::Bibtex.new_from_bibtex(record)
-      v = a.valid?
+      # v = a.valid?
       a.soft_validate()
       @sources.push(a)
     end
