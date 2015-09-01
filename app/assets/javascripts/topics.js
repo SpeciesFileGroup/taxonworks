@@ -20,10 +20,9 @@ function initialize_topic_autocomplete(form) {
       make_topic_list_sortable(form);     // was this inadvertantly lost?
       return false;
     }
-
   }).autocomplete("instance")._renderItem = function (ul, item) {
     return $("<li class='topic'>")
-      .append("<a>" + item.label + '</a>')
+      .append("<a>" + item.label + "</a>")
       .appendTo(ul);
   };
 
@@ -87,7 +86,7 @@ function bind_topic_position_handling_to_submit_button(form) {
       console.log($(this));
       topic_index = $(this).data('topic-index');
       $(this).append(
-        $('<input hidden name="' + base_class + '[topic_attributes][' + topic_index + '][position]" value="' + i + '" >')
+        $('<input hidden name="' + base_class + '[otu_page_layout_section_attributes][' + topic_index + '][position]" value="' + i + '" >')
       );
       i = i + 1;
     });
@@ -101,8 +100,9 @@ function insert_existing_topic(form, topic_id, label) {
   var topic_list = form.find(".topic_list");
 
   // type
-  topic_list.append($('<input hidden name="' + base_class + '[topics_attributes][' + random_index + '][type]" value="' + form.data('topic-type') + '" >'));
-  topic_list.append($('<input hidden name="' + base_class + '[topics_attributes][' + random_index + '][topic_id]" value="' + topic_id + '" >'));
+
+  topic_list.append($('<input hidden name="' + base_class + '[otu_page_layout_sections][' + random_index + '][type]" value="OtuPageLayoutSection::StandardSection'" >'));
+  topic_list.append($('<input hidden name="' + base_class + '[otu_page_layout_sections][' + random_index + '][topic_id]" value="' + topic_id + '" >'));
 
   // insert visible list item
   topic_list.append($('<li class="topic_item" data-topic-index="' + random_index + '">').append(label).append('&nbsp;').append(remove_link()));
