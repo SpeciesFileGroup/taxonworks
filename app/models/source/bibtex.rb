@@ -381,10 +381,16 @@ class Source::Bibtex < Source
       b.year = self.year_with_suffix
     end
 
+    unless self.verbatim_keywords.blank?
+      b[:keywords] = self.verbatim_keywords
+    end
+
     b[:note] = concatenated_notes_string if !concatenated_notes_string.blank? # see Notable
+    # TODO need to consider project specific notes as bibtex annote
+
     unless self.serial.nil?
       b[:journal] = self.serial.name
-      issns = self.serial.identifiers.of_type(:issn)
+      issns       = self.serial.identifiers.of_type(:issn)
       unless issns.empty?
         b[:issn] = issns.first.identifier # assuming the serial has only 1 ISSN
       end
@@ -397,7 +403,12 @@ class Source::Bibtex < Source
 
     isbns = self.identifiers.of_type(:isbn)
     unless isbns.empty?
-      b[:isbn] = isbns.first.identifier # TW only allows one URI per object
+      b[:isbn] = isbns.first.identifier # TW only allows one ISBN per object
+    end
+
+    dois = self.identifiers.of_type(:doi)
+    unless dois.empty?
+      b[:idoi] = dois.first.identifier # TW only allows one DOI per object
     end
 
     b.author = self.compute_bibtex_names('author') unless (self.authors.size == 0 && self.author.blank?)
@@ -425,11 +436,6 @@ class Source::Bibtex < Source
   end
 
 
-  # TODO add conversion of identifiers to ruby-bibtex fields
-  # TODO if it finds one & only one match for serial assigns the serial ID, and if not it just store in journal title
-  # serial with alternate_value on name .count = 1 assign .first
-  # before validate assign serial if matching & not doesn't have a serial currently assigned.
-
   # @return [Boolean]
   #   whether the BibTeX::Entry representation of this source is valid
   def valid_bibtex?
@@ -446,9 +452,13 @@ class Source::Bibtex < Source
   #    b = Source::Bibtex.new(a)
   # 
   # @param bibtex_entry [BibTex::Entry] the BibTex::Entry to convert 
-  # @return [Source::BibTex.new] a new instance 
+  # @return [Source::BibTex.new] a new instance
+  # TODO annote to project specific note?
+  # TODO if it finds one & only one match for serial assigns the serial ID, and if not it just store in journal title
+  # serial with alternate_value on name .count = 1 assign .first
+  # before validate assign serial if matching & not doesn't have a serial currently assigned.
+  # TODO if there is an ISSN it should look up to see it the serial already exists.
   def self.new_from_bibtex(bibtex_entry = nil)
-    # TODO On input, convert ruby-bibtex.url to an identifier
 
     return false if !bibtex_entry.kind_of?(::BibTeX::Entry)
     s                 = Source::Bibtex.new(bibtex_type: bibtex_entry.type.to_s)
@@ -622,14 +632,19 @@ class Source::Bibtex < Source
   def issn=(value)
     write_attribute(:issn, value)
     unless value.blank?
-      if tw_issn = self.identifiers.where(type: 'Identifier::Global::Issn').first
-        if tw_issn.identifier != value
-          tw_issn.destroy
-          self.identifiers.build(type: 'Identifier::Global::Issn', identifier: value)
-        end
-      else
-        self.identifiers.build(type: 'Identifier::Global::Issn', identifier: value)
+      tw_issn = self.identifiers.where(type: 'Identifier::Global::Issn').first
+      unless tw_issn.nil? || tw_issn.identifier != value
+        tw_issn.destroy
       end
+      self.identifiers.build(type: 'Identifier::Global::Issn', identifier: value)
+      # if tw_issn.nil?
+      #   self.identifiers.build(type: 'Identifier::Global::Issn', identifier: value)
+      # else
+      #   if tw_issn.identifier != value
+      #     tw_issn.destroy
+      #     self.identifiers.build(type: 'Identifier::Global::Issn', identifier: value)
+      #   end
+      # end
     end
   end
 
@@ -791,8 +806,9 @@ class Source::Bibtex < Source
 
   #region Soft_validation_methods
   def sv_has_authors
+    # only used in validating BibTeX output
     if !(has_authors?)
-      soft_validations.add(:author, 'There is no author associated with this source.')
+      soft_validations.add(:author, 'Valid BibTeX requires an author with this type of source.')
     end
   end
 
@@ -804,7 +820,9 @@ class Source::Bibtex < Source
 
   def sv_has_title
     if self.title.blank?
-      soft_validations.add(:title, 'There is no title associated with this source.')
+      unless self.soft_validations.messages.include?('There is no title associated with this source.')
+        soft_validations.add(:title, 'There is no title associated with this source.')
+      end
     end
   end
 
@@ -815,8 +833,9 @@ class Source::Bibtex < Source
   end
 
   def sv_year_exists
+    # only used in validating BibTeX output
     if year.blank?
-      soft_validations.add(:year, 'There is no year associated with this source.')
+      soft_validations.add(:year, 'Valid BibTeX requires a year with this type of source.')
     elsif year < 1700
       soft_validations.add(:year, 'This year is prior to the 1700s')
     end
@@ -857,15 +876,15 @@ class Source::Bibtex < Source
   end
 
   def sv_has_school
-      if self.school.blank?
-        soft_validations.add(:school, 'Valid BibTeX requires a school associated with any thesis.')
-      end
+    if self.school.blank?
+      soft_validations.add(:school, 'Valid BibTeX requires a school associated with any thesis.')
+    end
   end
 
   def sv_has_institution
-      if self.institution.blank?
-        soft_validations.add(:institution, 'Valid BibTeX requires an institution with a tech report.')
-      end
+    if self.institution.blank?
+      soft_validations.add(:institution, 'Valid BibTeX requires an institution with a tech report.')
+    end
   end
 
   def sv_has_note

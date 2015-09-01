@@ -340,11 +340,16 @@ describe Source::Bibtex, type: :model, group: :sources do
           expect(src.soft_valid?).to be_truthy
           bib = src.to_bibtex
           expect(bib.isbn).to eq(src.identifiers.of_type(:isbn).first.identifier)
-
         end
 
         specify 'doi gets converted properly' do
-
+          doi = FactoryGirl.build(:doi_identifier)
+          src.identifiers << doi
+          expect(src.save).to be_truthy
+          src.soft_validate()
+          expect(src.soft_valid?).to be_truthy
+          bib = src.to_bibtex
+          expect(bib.doi).to eq(src.identifiers.of_type(:doi).first.identifier)
         end
       end
 
