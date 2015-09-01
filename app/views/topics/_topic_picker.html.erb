@@ -1,23 +1,25 @@
 <div class="topic_picker" data-base-class='<%= object.metamorphosize.class.name.underscore -%>' >
 
   <div>
-    <div class="topic_picker_header"><%= "OTU layout topics".titleize %> <span class='topic_picker_alert' hidden></span>
+    <div class="topic_picker_header"><%= "Topic sections" %> 
+      <span class='topic_picker_alert' hidden></span>
     </div>
     <span class="topic_picker_message"></span>
 
+    <%# ap( @otu_page_layout.standard_sections).html_safe -%>
+
     <ul class="topic_list">
-      <% @topics.each do |topic| %>
-          <li class="topic_item" data-topic-id="<%= topic.id -%>" data-topic-index="<%= topic.index -%>">
-            <%= topic.text_field(:id, hidden: true) -%>
-            <%= object_tag(topic) -%> <%= link_to('remove', "#", class: :remove_topic) -%>
-          </li>
+      <%= f.fields_for :standard_sections do |section_fields| %>
+        <li class="topic_item" data-topic-id="<%= section_fields.object.id -%>" data-topic-index="<%= section_fields.index -%>">
+          <%= section_fields.text_field(:id, hidden: true) -%>
+          <%= object_tag(section_fields.object.topic) -%> <%= link_to('remove', "#", class: :remove_topic) -%>
+        </li>
       <% end %>
     </ul>
   </div>
 
   <div class="topic_picker_selection">
     <div><%= text_field_tag('topic_picker_autocomplete', nil, class: 'topic_picker_autocomplete', placeholder: 'Topic name') %></div>
-
   </div>
 
 </div>

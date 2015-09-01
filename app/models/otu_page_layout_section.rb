@@ -5,6 +5,11 @@ class OtuPageLayoutSection < ActiveRecord::Base
   include Shared::IsData 
 
   belongs_to :otu_page_layout
-  belongs_to :topic
+
   validates_presence_of :type
+  validates_uniqueness_of :topic_id, scope: [:otu_page_layout]
+
 end
+
+
+

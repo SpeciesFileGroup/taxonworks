@@ -1,1 +1,12 @@
+
+<%= content_for :related_attributes do -%>
+  <h3> Topics </h3>
+  <ul>
+  <% @otu_page_layout.topics.each do |t| -%> 
+    <%= content_tag(:li, topic_tag(t)) -%>
+  <% end %> 
+</ul>
+<% end %>
+
 <%= render(partial: 'shared/data/project/show', locals: {object: @otu_page_layout}) -%>
+

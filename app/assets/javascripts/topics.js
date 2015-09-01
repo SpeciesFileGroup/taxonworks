@@ -25,8 +25,44 @@ function initialize_topic_autocomplete(form) {
       .append("<a>" + item.label + "</a>")
       .appendTo(ul);
   };
+
+  // Copy search textbox content to .new_person .name_label ////// not used here
+  //autocomplete_input.keyup(function () {
+  //  var input_term = autocomplete_input.val();
+  //  var last_name = get_last_name(input_term);
+  //  var first_name = get_first_name(input_term);
+  //
+  //  if (input_term.length == 0) {
+  //    form.find(".new_person").attr("hidden", true);
+  //  }
+  //  else {
+  //    form.find(".new_person").removeAttr("hidden");
+  //  };
+  //
+  //  if (input_term.indexOf(",") > 1) {   //last name, first name format
+  //    var swap = first_name;
+  //    first_name = last_name;
+  //    last_name = swap;
+  //  }
+  //
+  //  form.find(".first_name").val(first_name).change();
+  //  form.find(".last_name").val(last_name).change();
+  //});
 };
 
+
+//
+// Binding actions (clicks) to links
+//
+
+//function bind_new_link(form) {     ////// not used here
+//  // Add a role to the list via the add new form
+//  form.find(".topic_picker_add_new").click(function () {
+//    insert_new_topic(form);
+//    form.find('.new_topic').attr("hidden", true); // hide the form fields
+//    clear_topic_picker(form); // clear autocomplete input box
+//  });
+//}
 function make_topic_list_sortable(form) {
   var list_items = form.find(".topic_list");
   list_items.sortable({
@@ -38,56 +74,6 @@ function make_topic_list_sortable(form) {
   });
   list_items.disableSelection();
 }
-// bind a hover event to an ellipsis
-function bind_hover_topic(form) {
-  hiConfig = {
-    sensitivity: 3, // number = sensitivity threshold (must be 1 or higher)
-    interval: 400, // number = milliseconds for onMouseOver polling interval
-    timeout: 200, // number = milliseconds delay before onMouseOut
-    over: function () {
-      //var url = ('/people/' + $(this).data('personId') + '/details');
-      //$.get(url, function( data ) {
-      //  form.find(".person_details" ).html( data );
-      //});
-    }, // function = onMouseOver callback (REQUIRED)
-    out: function () {
-      //form.find(".person_details" ).html('');
-    } // function = onMouseOut callback (REQUIRED)
-  };
-  $('.hoverme').hoverIntent(hiConfig);
-}
-
-function remove_topic_link() {
-  var link = $('<a href="#" class="remove_topic">remove</a>');
-  bind_remove_topic_links(link);
-  return link;
-}
-
-// Bind the remove action/functionality to a links
-function bind_remove_topic_links(links) {
-  links.click(function () {
-    list_item = $(this).parent('li');
-    var topic_picker = list_item.closest('.topic_picker');
-    var topic_id = list_item.data('topic-id');
-    var topic_index = list_item.data('topic-index');
-    var base_class = 'Otu_layout';    // topic_picker.data('base-class');
-
-    if (topic_id != undefined) {
-      var topic_list = list_item.closest('.topic_list');
-
-      // if this is not a new person
-      //if (list_item.data('new-person') != "true")  {
-        // if there is an ID from an existing item add the necessary (hidden) _destroy input
-        topic_list.append($('<input hidden name="' + base_class + '[roles_attributes][' +  topic_index + '][id]" value="' + topic_id + '" >') );
-        topic_list.append($('<input hidden name="' + base_class + '[roles_attributes][' +  topic_index + '][_destroy]" value="1" >') );
-
-        // Provide a warning that the list must be saved to properly delete the records, tweak if we think necessary
-        warn_for_save(role_list.siblings('.topic_picker_message'));
-      //}
-    }
-    list_item.remove();
-  });
-};
 
 
 function bind_topic_position_handling_to_submit_button(form) {
@@ -100,13 +86,12 @@ function bind_topic_position_handling_to_submit_button(form) {
       console.log($(this));
       topic_index = $(this).data('topic-index');
       $(this).append(
-        $('<input hidden name="' + base_class + '[otu_page_layout_section_attributes][' + topic_index + '][position]" value="' + i + '" >')
+        $('<input hidden name="' + base_class + '[standard_sections_attributes][' + topic_index + '][position]" value="' + i + '" >')
       );
       i = i + 1;
     });
   });
 }
-
 
 function insert_existing_topic(form, topic_id, label) {
   var base_class = form.data('base-class');
@@ -115,11 +100,36 @@ function insert_existing_topic(form, topic_id, label) {
 
   // type
 
-  topic_list.append($('<input hidden name="' + base_class + '[otu_page_layout_sections][' + random_index + '][type]" value="OtuPageLayoutSection::StandardSection'" >'));
-  topic_list.append($('<input hidden name="' + base_class + '[otu_page_layout_sections][' + random_index + '][topic_id]" value="' + topic_id + '" >'));
+  topic_list.append($('<input hidden name="' + base_class + '[standard_sections_attributes][' + random_index + '][type]" value="OtuPageLayoutSection::StandardSection">'));
+  topic_list.append($('<input hidden name="' + base_class + '[standard_sections_attributes][' + random_index + '][topic_id]" value="' + topic_id + '" >'));
 
   // insert visible list item
   topic_list.append($('<li class="topic_item" data-topic-index="' + random_index + '">').append(label).append('&nbsp;').append(remove_link()));
+};
+
+function bind_remove_section_links(links) {
+  links.click(function () {
+    list_item = $(this).parent('li');
+    var role_picker = list_item.closest('.role_picker');
+    var role_id = list_item.data('role-id');
+    var role_index = list_item.data('role-index');
+    var base_class = role_picker.data('base-class');
+
+    if (role_id != undefined) {
+      var role_list = list_item.closest('.role_list');
+     
+      // if this is not a new person 
+      if (list_item.data('new-person') != "true")  {
+        // if there is an ID from an existing item add the necessary (hidden) _destroy input
+        role_list.append($('<input hidden name="' + base_class + '[standard_sections_attributes][' +  role_index + '][id]" value="' + role_id + '" >') );
+        role_list.append($('<input hidden name="' + base_class + '[standard_sections_attributes][' +  role_index + '][_destroy]" value="1" >') );
+
+        // Provide a warning that the list must be saved to properly delete the records, tweak if we think necessary
+        warn_for_save(role_list.siblings('.role_picker_message'));
+      }
+    }
+    list_item.remove();
+  });
 };
 
 //
@@ -135,7 +145,7 @@ function initialize_topic_picker(form, topic_type) {
   //bind_switch_link(form);
   //bind_expand_link(form);
   //bind_label_mirroring(form);
-  //bind_remove_links(form.find('.remove_role'));   // not wrong, but butt UGLY
+  bind_remove_section_links(form.find('.remove_role'));   // not wrong, but butt UGLY
   make_topic_list_sortable(form);
   bind_topic_position_handling_to_submit_button(form);
 };
