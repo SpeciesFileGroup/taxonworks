@@ -29,6 +29,9 @@ class OtuPageLayoutsController < ApplicationController
   # POST /otu_page_layouts
   # POST /otu_page_layouts.json
   def create
+
+    byebug
+
     @otu_page_layout = OtuPageLayout.new(otu_page_layout_params)
 
     respond_to do |format|
@@ -86,6 +89,9 @@ class OtuPageLayoutsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def otu_page_layout_params
-      params.require(:otu_page_layout).permit(:name)
+      params.require(:otu_page_layout).permit(
+        :name,
+        otu_page_layout_sections: [:topic_id, :_destroy, :type]
+      )
     end
 end
