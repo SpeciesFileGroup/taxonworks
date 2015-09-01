@@ -390,6 +390,11 @@ class Source::Bibtex < Source
       end
     end
 
+    uris = self.identifiers.of_type(:url)
+    unless uris.empty?
+      b[:url] = uris.first.identifier # TW only allows one URI per object
+    end
+
     b.author = self.compute_bibtex_names('author') unless (self.authors.size == 0 && self.author.blank?)
     b.editor = self.compute_bibtex_names('editor') unless (self.editors.size == 0 && self.editor.blank?)
 

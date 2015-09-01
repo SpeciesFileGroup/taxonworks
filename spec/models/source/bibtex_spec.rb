@@ -288,7 +288,7 @@ describe Source::Bibtex, type: :model, group: :sources do
       #   end
       context 'TW serial conversion' do
         let(:src) { FactoryGirl.build(:soft_valid_bibtex_source_article) }
-        let(:serial1) { FactoryGirl.create(:valid_serial) }  # create so serial1 has an ID
+        let(:serial1) { FactoryGirl.create(:valid_serial) } # create so serial1 has an ID
 
         specify 'serial gets converted properly to bibtex journal' do
           expect(src.valid?).to be_truthy
@@ -308,10 +308,10 @@ describe Source::Bibtex, type: :model, group: :sources do
 
         specify 'issn gets converted properly' do
           issn = FactoryGirl.build(:issn_identifier)
-          serial1.identifiers <<  issn
+          serial1.identifiers << issn
           expect(serial1.save).to be_truthy
           src.serial = serial1
-          expect(src.save ).to be_truthy
+          expect(src.save).to be_truthy
           src.soft_validate()
           expect(src.soft_valid?).to be_truthy
           bib = src.to_bibtex
@@ -319,17 +319,28 @@ describe Source::Bibtex, type: :model, group: :sources do
         end
       end
 
-      specify 'url gets converted properly' do
+      context 'identifiers to bibtex' do
+        let(:src) { FactoryGirl.build(:soft_valid_bibtex_source_article) }
 
+        specify 'url gets converted properly' do
+          url = FactoryGirl.build(:uri_identifier)
+          src.identifiers << url
+          expect(src.save).to be_truthy
+          src.soft_validate()
+          expect(src.soft_valid?).to be_truthy
+          bib = src.to_bibtex
+          expect(bib.url).to eq(src.identifiers.of_type(:url).first.identifier)
+        end
+
+        specify 'isbn gets converted properly' do
+
+        end
+
+        specify 'doi gets converted properly' do
+
+        end
       end
 
-      specify 'isbn gets converted properly' do
-
-      end
-
-      specify 'doi gets converted properly' do
-
-      end
     end
 
     context 'validate bibtex' do
