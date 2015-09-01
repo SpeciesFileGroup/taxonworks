@@ -2,9 +2,8 @@ class OtuPageLayout < ActiveRecord::Base
   include Housekeeping
   include Shared::IsData 
 
-  has_many :otu_page_layout_sections, inverse_of: :otu_page_layout, dependent: :destroy
-
-  has_many :standard_sections, class_name: 'OtuPageLayoutSection::StandardSection', inverse_of: :otu_page_layout, dependent: :destroy
+  has_many :otu_page_layout_sections, -> { order(:position) }, inverse_of: :otu_page_layout, dependent: :destroy
+  has_many :standard_sections, -> { order(:position) }, class_name: 'OtuPageLayoutSection::StandardSection', inverse_of: :otu_page_layout, dependent: :destroy
 
   has_many :topics, through: :standard_sections
 

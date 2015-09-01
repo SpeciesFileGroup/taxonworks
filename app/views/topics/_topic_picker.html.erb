@@ -9,10 +9,18 @@
     <%# ap( @otu_page_layout.standard_sections).html_safe -%>
 
     <ul class="topic_list">
-      <%= f.fields_for :standard_sections do |section_fields| %>
-        <li class="topic_item" data-topic-id="<%= section_fields.object.id -%>" data-topic-index="<%= section_fields.index -%>">
-          <%= section_fields.text_field(:id, hidden: true) -%>
-          <%= object_tag(section_fields.object.topic) -%> <%= link_to('remove', "#", class: :remove_topic) -%>
+      <%= f.fields_for :standard_sections, @otu_page_layout.standard_sections.sort{|a, b| a.position <=> b.position} do |section_fields| %>
+
+        <li class="topic_item" data-section-id="<%= section_fields.object.id -%>" data-section-index="<%= section_fields.index -%>">
+        <% if section_fields.object.new_record? -%>
+          <%= section_fields.object.topic_id -%>
+            <%= section_fields.text_field(:topic_id, hidden: true) -%>
+            <%= section_fields.text_field(:type, hidden: true ) -%>
+          <% else %>
+            <%= section_fields.text_field(:id, hidden: true) -%>
+          <% end %>
+
+          <%= section_fields.object.position -%> : <%= object_tag(section_fields.object.topic) -%> <%= link_to('remove', "#", class: :remove_topic) -%>
         </li>
       <% end %>
     </ul>

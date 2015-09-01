@@ -88,7 +88,7 @@ class OtuPageLayoutsController < ApplicationController
   def otu_page_layout_params
       params.require(:otu_page_layout).permit(
         :name,
-        standard_sections_attributes: [:topic_id, :_destroy, :type]
+        standard_sections_attributes: [:topic_id, :_destroy, :type, :id, :position]
       )
   end
 end
