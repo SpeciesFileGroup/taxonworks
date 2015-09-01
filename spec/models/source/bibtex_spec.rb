@@ -333,6 +333,13 @@ describe Source::Bibtex, type: :model, group: :sources do
         end
 
         specify 'isbn gets converted properly' do
+          isbn = FactoryGirl.build(:isbn_identifier)
+          src.identifiers << isbn
+          expect(src.save).to be_truthy
+          src.soft_validate()
+          expect(src.soft_valid?).to be_truthy
+          bib = src.to_bibtex
+          expect(bib.isbn).to eq(src.identifiers.of_type(:isbn).first.identifier)
 
         end
 
