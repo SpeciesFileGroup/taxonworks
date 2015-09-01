@@ -87,6 +87,6 @@ class OtuPageLayoutsController < ApplicationController
   # Never trust parameters from the scary internet, only allow the white list through.
   def otu_page_layout_params
     params.require(:otu_page_layout).permit(:name,
-                                            :topic => [:id])
+                                            :topic_attributes => [:id])
   end
 end
