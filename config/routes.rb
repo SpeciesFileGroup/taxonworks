@@ -361,10 +361,6 @@ TaxonWorks::Application.routes.draw do
         post 'create', as: 'create_verbatim_material_task'
       end
 
-      scope :depiction, controller: 'tasks/accessions/breakdown/depiction' do
-        get 'index', as: 'depiction_breakdown_task'
-      end
-
     end
 
     scope :bibliography do
@@ -385,7 +381,9 @@ TaxonWorks::Application.routes.draw do
     end
 
     scope :contents, controller: 'tasks/content/preview'  do
-      get ':otu_id/:otu_page_template_id', action: :otu_content_for_layout, as: 'preview_otu_content_for_layout'  # this needs to be fixed see, otu_content.html.erb
+     # get ':otu_id/:otu_page_layout_id', action: :otu_content_for_layout, as: 'preview_otu_content_for_layout'  # this needs to be fixed see, otu_content.html.erb
+      
+      get 'otu_content_for_layout/:otu_id', action: :otu_content_for_layout, as: 'preview_otu_content_for_layout'  # this needs to be fixed see, otu_content.html.erb
       get ':otu_id',  action: 'otu_content', as: 'preview_otu_content'
     end
 
