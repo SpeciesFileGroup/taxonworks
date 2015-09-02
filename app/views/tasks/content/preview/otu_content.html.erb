@@ -1,8 +1,8 @@
 
 
-Preview page: for <%= otu_tag(@otu) -%>
+Preview page: for <%= otu_tag(@otu) -%> <%= link_to 'Show', otu_path(@otu) -%>
 
-<%= form_tag(preview_otu_content_for_layout_path(otu_id: @otu), method: :get, remote: true, id: :otu_page_layout_selector) do -%> <%# this route needs to be fixed to accept the param -%>
+<%= form_tag(preview_otu_content_for_layout_path(otu_id: @otu), method: :get, remote: true, id: :otu_page_layout_selector) do -%>
   Select a layout: <%= otu_page_layout_select_tag -%>
   <%= submit_tag :show -%>
 <% end %>
