@@ -45,13 +45,15 @@ function bind_hover_topic(form) {
     interval: 400, // number = milliseconds for onMouseOver polling interval
     timeout: 200, // number = milliseconds delay before onMouseOut
     over: function () {
-      //var url = ('/otu_page_layouts/' + $(this).data('topic_id') + '/details');
-      //$.get(url, function( data ) {
-      //  form.find(".person_details" ).html( data );
-      //});
+      var url = ('/topics/get_definition/' + $(this).data('topicId'));   // + '/details');
+      $.get(url, function( data ) {
+        $("#topic_definition" ).html( data['definition'] );
+        //document.getElementsByClassName('topic_picker_message')[0].textContent = data.definition;   // since sole element
+      });
     }, // function = onMouseOver callback (REQUIRED)
     out: function () {
-      //form.find(".person_details" ).html('');
+      //form.find(".topic_picker_message" ).html('');
+      form.find("#topic_definition" ).html('');
     } // function = onMouseOut callback (REQUIRED)
   };
   $('.hoverme').hoverIntent(hiConfig);

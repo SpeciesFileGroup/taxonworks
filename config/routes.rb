@@ -179,6 +179,7 @@ TaxonWorks::Application.routes.draw do
   resources :topics do
     collection do
       get :lookup_topic
+      get 'get_definition/:id', action: 'get_definition'
     end
   end
 
