@@ -7,10 +7,16 @@
     </ul>
 <% end %>
 <%= content_for :see do -%>
-    <ul class="no_bullets">
-      <%= content_tag(:li, link_to_if((@otu.asserted_distributions.count > 0), 'Distribution',
-                                   otu_distribution_data_task_path(@otu.to_param),
-                                   'data-no-turbolink' => true)) %>
+  <ul class="no_bullets">
+    <%= content_tag(:li, link_to_if((@otu.asserted_distributions.count > 0), 'Distribution',
+                                    otu_distribution_data_task_path(@otu.to_param),
+                                    'data-no-turbolink' => true)) 
+                                  %>
+
+                                <%= content_tag(:li, link_to('Contents', preview_otu_content_path(@otu.id), 'data-no-turbolink' => true)) %>
+
+
+
     </ul>
 <% end %>
 
