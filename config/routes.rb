@@ -382,9 +382,14 @@ TaxonWorks::Application.routes.draw do
 
         post 'create_biocuration_group'
         post 'create_biocuration_class'
-
       end
     end
+
+    scope :contents, controller: 'tasks/content/preview'  do
+      get ':otu_id/:otu_page_template_id', action: :otu_content_for_layout, as: 'preview_otu_content_for_layout'  # this needs to be fixed see, otu_content.html.erb
+      get ':otu_id',  action: 'otu_content', as: 'preview_otu_content'
+    end
+
   end
 
   resources :users, except: :new
