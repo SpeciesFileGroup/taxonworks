@@ -66,7 +66,7 @@ class Content < ActiveRecord::Base
   # For this otu_page_layout, find the topics (ControlledVocabularyTerm.of_type(:topic))
 
   def self.for_page_layout(otu_page_layout_id)
-    where('topic_id in (?)', OtuPageLayout.where(id: 1).first.topics.pluck(:id))
+    where('topic_id in (?)', OtuPageLayout.where(id: otu_page_layout_id).first.topics.pluck(:id))
   end
 
   def self.find_for_autocomplete(params)
