@@ -74,7 +74,30 @@ function make_topic_list_sortable(form) {
   });
   list_items.disableSelection();
 }
+// bind a hover event to an ellipsis
+function bind_hover_topic(form) {
+  hiConfig = {
+    sensitivity: 3, // number = sensitivity threshold (must be 1 or higher)
+    interval: 400, // number = milliseconds for onMouseOver polling interval
+    timeout: 200, // number = milliseconds delay before onMouseOut
+    over: function () {
+      //var url = ('/people/' + $(this).data('personId') + '/details');
+      //$.get(url, function( data ) {
+      //  form.find(".person_details" ).html( data );
+      //});
+    }, // function = onMouseOver callback (REQUIRED)
+    out: function () {
+      //form.find(".person_details" ).html('');
+    } // function = onMouseOut callback (REQUIRED)
+  };
+  $('.hoverme').hoverIntent(hiConfig);
+}
 
+function remove_topic_link() {
+  var link = $('<a href="#" class="remove_topic">remove</a>');
+  bind_remove_topic_links(link);
+  return link;
+}
 
 function bind_topic_position_handling_to_submit_button(form) {
   var base_class = form.data('base-class');
@@ -104,7 +127,7 @@ function insert_existing_topic(form, topic_id, label) {
   topic_list.append($('<input hidden name="' + base_class + '[standard_sections_attributes][' + random_index + '][topic_id]" value="' + topic_id + '" >'));
 
   // insert visible list item
-  topic_list.append($('<li class="topic_item" data-section-index="' + random_index + '">').append(label).append('&nbsp;').append(remove_link()));
+  topic_list.append($('<li class="topic_item" data-topic-index="' + random_index + '">').append(label).append('&nbsp;').append(remove_topic_link()));
 };
 
 function bind_remove_section_links(links) {
