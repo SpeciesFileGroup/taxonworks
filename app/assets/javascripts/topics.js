@@ -45,15 +45,15 @@ function bind_hover_topic(form) {
     interval: 400, // number = milliseconds for onMouseOver polling interval
     timeout: 200, // number = milliseconds delay before onMouseOut
     over: function () {
-      var url = ('/topics/get_definition/' + $(this).data('topicId'));   // + '/details');
+      var this_topic_hover;
+      this_topic_hover = $(this);
+      var url = ('/topics/get_definition/' + this_topic_hover.data('topicId'));
       $.get(url, function( data ) {
-        $("#topic_definition" ).html( data['definition'] );
-        //document.getElementsByClassName('topic_picker_message')[0].textContent = data.definition;   // since sole element
+        this_topic_hover.html('... '+  data.definition);
       });
     }, // function = onMouseOver callback (REQUIRED)
     out: function () {
-      //form.find(".topic_picker_message" ).html('');
-      form.find("#topic_definition" ).html('');
+      this.textContent = '...';   // how weird is this this?
     } // function = onMouseOut callback (REQUIRED)
   };
   $('.hoverme').hoverIntent(hiConfig);
