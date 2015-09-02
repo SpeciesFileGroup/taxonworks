@@ -54,21 +54,19 @@ class Content < ActiveRecord::Base
 
   # OTU_PAGE_LAYOUTS
   #       V
-  # OTU_PAGE_LAYOUT_SECTIONS  ????
+  # OTU_PAGE_LAYOUT_SECTIONS ^ .otu_page_layout_id v .topic_id
   #       V
   #     TOPICS
   #       V
-  #    CONTENTS
+  #    CONTENTS              v otu_id              ^ .topic_id
   #       ^
   #      OTU
   #
+  # Given an otu_page_layout id. find all the topics
   # For this otu_page_layout, find the topics (ControlledVocabularyTerm.of_type(:topic))
-  def for_page_layout(otu_page_layout_id)
-    Content.where(id: 0)
-    #
-    # not very much progress here, because I was missing the connection between Topic and OtuPageLayout
-    #where()
-    # cvts = ControlledVocabularyTerm.of_type(:topic).includes(:contents).where(topic_id: ).pluck(:id)
+
+  def self.for_page_layout(otu_page_layout_id)
+    where('topic_id in (?)', OtuPageLayout.where(id: 1).first.topics.pluck(:id))
   end
 
   def self.find_for_autocomplete(params)
