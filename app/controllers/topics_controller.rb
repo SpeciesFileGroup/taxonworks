@@ -22,9 +22,15 @@ class TopicsController < ApplicationController
     render(:json => @topics.collect { |t|
              {
                label:     t.name,
-               object_id: t.id}
+               object_id: t.id,
+               definition: t.definition
+             }
            })
   end
 
+  def get_definition
+    @topic = Topic.find(params[:id])
+    render(:json => {definition: @topic.definition})
+  end
 
 end
