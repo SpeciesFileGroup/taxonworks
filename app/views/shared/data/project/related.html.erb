@@ -30,7 +30,7 @@
 
 <h3> Belongs to </h3>
 <% @object.class.reflect_on_all_associations(:belongs_to).sort { |a, b| a.name <=> b.name }.each do |r| -%>
-  <%= r.name.to_s.humanize -%>
-  <%= object_link(metamorphosize_if(@object)) -%>
+  <%= r.name.to_s.humanize -%>: 
+  <%= object_link(metamorphosize_if(@object.send(r.name))) -%>
   <br>
 <% end %>
