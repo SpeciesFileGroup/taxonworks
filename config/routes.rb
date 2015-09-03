@@ -162,6 +162,9 @@ TaxonWorks::Application.routes.draw do
   end
   resources :images do
     concerns [:data_routes]
+    member do
+      get 'extract/:x/:y/:width/:height', action: :extract
+    end
   end
   resources :loan_items, only: [:create, :update, :destroy]
   resources :loans do

@@ -96,6 +96,20 @@ class ImagesController < ApplicationController
     send_data Image.generate_download( Image.where(project_id: $project_id) ), type: 'text', filename: "images_#{DateTime.now.to_s}.csv"
   end
 
+  # GET /images/:id/extract/:x/:y/:height/:width
+  def extract
+    image = Image.find(params[:id])
+    img = Magick::Image.read(image.image_file.path(:original)).first
+
+    cropped = img.crop(   
+                       params[:x].to_i,
+                       params[:y].to_i,
+                       params[:height].to_i,
+                       params[:width].to_i,
+             true
+            )
+    send_data cropped.to_blob, type: 'image/jpg', disposition: 'inline'
+  end
 
   private
   # Use callbacks to share common setup or constraints between actions.
