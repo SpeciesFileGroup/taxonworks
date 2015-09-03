@@ -448,6 +448,7 @@ DEPENDENCIES
   psych (~> 2.0.3)
   rabl
   rails (~> 4.2.0)
+  redis (~> 3.2.1)
   ref2bibtex (~> 0.0.3)
   responders (~> 2.0)
   rgeo-geojson
@@ -469,3 +470,6 @@ DEPENDENCIES
   vcr (~> 2.9.2)
   web-console (~> 2.0)
   webmock (~> 1.21.0)
+
+BUNDLED WITH
+   1.10.6

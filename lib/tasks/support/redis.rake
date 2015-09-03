@@ -47,7 +47,13 @@ namespace :tw do
       test_redis.set('this is the key', [1, 2, 3].to_json)
 
       puts "Redis installed as ''#{redis_id}''"
+      test_redis.flushall
       test_redis
+    end
+
+    desc 'Add code here to experiment with Redis'
+    task :redis_experiment => [:init_redis] do
+
     end
   end
 end
