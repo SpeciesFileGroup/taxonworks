@@ -1,4 +1,6 @@
 class Tasks::Gis::MatchGeoreferenceController < ApplicationController
+  include TaskControllerConfiguration
+  
 
   def index
     # some things on to which to hang one's hat.

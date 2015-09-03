@@ -286,8 +286,48 @@ describe Source::Bibtex, type: :model, group: :sources do
       #     expect(b[:note].to_s =~ /#{n2}/).to be_truthy
       #     expect(b[:note].to_s).to eq(out_note3 + '|' + out_note2 + '|' + out_note1) # should be 3 notes or'ed together.
       #   end
+      context 'TW serial conversion' do
+        let(:src) { FactoryGirl.build(:soft_valid_bibtex_source_article) }
+        let(:serial1) { FactoryGirl.create(:valid_serial) }  # create so serial1 has an ID
 
-      skip 'serial gets converted properly to bibtex journal' do
+        specify 'serial gets converted properly to bibtex journal' do
+          expect(src.valid?).to be_truthy
+          src.soft_validate()
+          expect(src.soft_valid?).to be_truthy
+          expect(src.journal).to eq('Journal of Test Articles')
+          src.journal = nil
+          src.soft_validate()
+          expect(src.soft_validations.messages).to include 'This article is missing a journal name or serial.'
+          src.serial = serial1
+          src.save
+          src.soft_validate()
+          expect(src.soft_valid?).to be_truthy
+          bib = src.to_bibtex
+          expect(bib.journal).to eq(serial1.name)
+        end
+
+        specify 'issn gets converted properly' do
+          issn = FactoryGirl.build(:issn_identifier)
+          serial1.identifiers <<  issn
+          expect(serial1.save).to be_truthy
+          src.serial = serial1
+          expect(src.save ).to be_truthy
+          src.soft_validate()
+          expect(src.soft_valid?).to be_truthy
+          bib = src.to_bibtex
+          expect(bib.issn).to eq(serial1.identifiers.of_type(:issn).first.identifier)
+        end
+      end
+
+      specify 'url gets converted properly' do
+
+      end
+
+      specify 'isbn gets converted properly' do
+
+      end
+
+      specify 'doi gets converted properly' do
 
       end
     end
@@ -299,7 +339,7 @@ describe Source::Bibtex, type: :model, group: :sources do
       specify 'soft_validate bibtex fields - get error messages' do
         @s.soft_validate(:bibtex_fields)
         expect(@s.soft_validations.messages_on(:publisher).empty?).to be_falsey
-        expect(@s.soft_validations.messages).to include 'There is no publisher associated with this source.'
+        expect(@s.soft_validations.messages).to include 'Valid BibTeX requires a publisher to be associated with this source.'
       end
       specify 'make it valid' do
         @s.publisher = 'Silly Books Inc'
@@ -374,10 +414,10 @@ describe Source::Bibtex, type: :model, group: :sources do
 
     specify 'must have one of the following fields: :author, :booktitle, :editor, :journal,
       :title, :year, :url, :stated_year' do
-      error_message = 'no core data provided'
+      error_message = 'There is no core data provided.'
       local_src     = Source::Bibtex.new()
       expect(local_src.valid?).to be_falsey
-      expect(local_src.errors.messages[:base].include?(error_message)).to be_truthy
+      expect(local_src.errors.messages[:base]).to include error_message
       local_src.title = 'Test book'
       local_src.valid?
       expect(local_src.errors.full_messages.include?(error_message)).to be_falsey
@@ -599,7 +639,7 @@ describe Source::Bibtex, type: :model, group: :sources do
     end
   end
 
-  # sanity check for Housekeeping, which is also tested elsewhere 
+  # sanity check for Housekeeping, which is also tested elsewhere
   context 'roles and housekeeping' do
     let(:bibtex) { Source::Bibtex.create(title: 'Roles', year: 1923, bibtex_type: 'book') }
 
@@ -1123,16 +1163,16 @@ describe Source::Bibtex, type: :model, group: :sources do
 =end
 
   context 'soft validations' do
-    let(:source_bibtex) { FactoryGirl.build(:valid_source_bibtex) }
+    let(:source_bibtex) { FactoryGirl.build(:soft_valid_bibtex_source_article) }
 
     specify 'missing authors' do
       source_bibtex.soft_validate(:recommended_fields)
-      expect(source_bibtex.soft_validations.messages_on(:author).empty?).to be_falsey
-      expect(source_bibtex.soft_validations.messages).to include('There is neither an author, nor editor associated with this source.')
-      source_bibtex.author = 'Smith, Bill'
+      expect(source_bibtex.soft_validations.messages_on(:base).empty?).to be_truthy
+      source_bibtex.author = nil
       source_bibtex.save
       source_bibtex.soft_validate(:recommended_fields)
-      expect(source_bibtex.soft_validations.messages_on(:author).empty?).to be_truthy
+      expect(source_bibtex.soft_validations.messages_on(:base).empty?).to be_falsey
+      expect(source_bibtex.soft_validations.messages).to include('There is neither author, nor editor associated with this source.')
     end
 
     specify 'year is before 1700 (before nomenclature)' do
@@ -1147,7 +1187,16 @@ describe Source::Bibtex, type: :model, group: :sources do
       expect(source_bibtex.soft_validations.messages_on(:year).empty?).to be_truthy
     end
 
-    skip 'test sv_has_notes? runs correctly when there is no src_bibtex.note but does have src_bibtex.notes'
+    specify 'unpublished sources require a note' do
+      source_bibtex.bibtex_type = 'unpublished'
+      source_bibtex.soft_validate()
+      expect(source_bibtex.soft_validations.messages_on(:note).empty?).to be_falsey
+      expect(source_bibtex.soft_validations.messages).to include 'Valid BibTeX requires a note with an unpublished source.'
+      source_bibtex.note = 'test note 1.'
+      expect(source_bibtex.save).to be_truthy
+      source_bibtex.soft_validate()
+      expect(source_bibtex.soft_validations.messages_on(:note).empty?).to be_truthy
+    end
   end
 
   context 'nested attributes' do

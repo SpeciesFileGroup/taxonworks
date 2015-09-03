@@ -1,4 +1,5 @@
 class Tasks::Gis::OtuDistributionDataController < ApplicationController
+  include TaskControllerConfiguration
 
   # show_for_otu
   def show

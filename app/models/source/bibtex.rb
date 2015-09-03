@@ -352,7 +352,6 @@ class Source::Bibtex < Source
   soft_validate(:sv_has_some_type_of_year, set: :recommended_fields)
   soft_validate(:sv_contains_a_writer, set: :recommended_fields)
   soft_validate(:sv_has_title, set: :recommended_fields)
-  soft_validate(:sv_has_some_type_of_year, set: :recommended_fields)
   soft_validate(:sv_is_article_missing_journal, set: :recommended_fields)
   #  soft_validate(:sv_has_url, set: :recommended_fields) # probably should be sv_has_identifier instead of sv_has_url
   soft_validate(:sv_missing_required_bibtex_fields, set: :bibtex_fields)
@@ -367,6 +366,7 @@ class Source::Bibtex < Source
   def verbatim_journal
     read_attribute(:journal)
   end
+
   # @return [BibTeX::Entry]
   #   entry equivalent to self
   def to_bibtex
@@ -381,8 +381,14 @@ class Source::Bibtex < Source
       b.year = self.year_with_suffix
     end
 
-    b[:note] = concatenated_notes_string if !concatenated_notes_string.blank? # see Notable 
-    # TODO add conversion of Serial ID to journal name
+    b[:note] = concatenated_notes_string if !concatenated_notes_string.blank? # see Notable
+    unless self.serial.nil?
+      b[:journal] = self.serial.name
+      issns = self.serial.identifiers.of_type(:issn)
+      unless issns.empty?
+        b[:issn] = issns.first.identifier # assuming the serial has only 1 ISSN
+      end
+    end
 
     b.author = self.compute_bibtex_names('author') unless (self.authors.size == 0 && self.author.blank?)
     b.editor = self.compute_bibtex_names('editor') unless (self.editors.size == 0 && self.editor.blank?)
@@ -514,7 +520,7 @@ class Source::Bibtex < Source
   #endregion  ruby-bibtex related
 
   #region getters & setters
- 
+
   def year=(value)
     if value.class == String
       value =~ /\A(\d\d\d\d)([a-zA-Z]*)\z/
@@ -554,13 +560,13 @@ class Source::Bibtex < Source
     if self.authors.count == 0 # no normalized people, use string
       if self.author.blank?
         return ('')
-      else 
+      else
         b = self.to_bibtex
         b.parse_names
-        return b.author.tokens.collect{ |t| t.last }.to_sentence(last_word_connector: ' & ')
+        return b.author.tokens.collect { |t| t.last }.to_sentence(last_word_connector: ' & ')
       end
     else # use normalized records 
-      return self.authors.collect{ |a| a.full_last_name }.to_sentence(last_word_connector: ' & ')
+      return self.authors.collect { |a| a.full_last_name }.to_sentence(last_word_connector: ' & ')
     end
   end
 
@@ -644,7 +650,7 @@ class Source::Bibtex < Source
   #region has_<attribute>? section
   def has_authors? # is there a bibtex author or author roles?
     return true if !(self.author.blank?) # author attribute is empty
-    return false if self.new_record?   # nothing saved yet, so no author roles are saved yet
+    return false if self.new_record? # nothing saved yet, so no author roles are saved yet
     # self exists in the db
     (self.authors.count > 0) ? (return true) : (return false)
   end
@@ -768,7 +774,7 @@ class Source::Bibtex < Source
         break
       end
     end
-    errors.add(:base, 'no core data provided') if !valid
+    errors.add(:base, 'There is no core data provided.') if !valid
   end
 
   #endregion  hard validations
@@ -782,8 +788,7 @@ class Source::Bibtex < Source
 
   def sv_contains_a_writer # neither author nor editor
     if !has_writer?
-      soft_validations.add(:author, 'There is neither an author, nor editor associated with this source.')
-      soft_validations.add(:editor, 'There is neither an author, nor editor associated with this source.')
+      soft_validations.add(:base, 'There is neither author, nor editor associated with this source.')
     end
   end
 
@@ -795,8 +800,7 @@ class Source::Bibtex < Source
 
   def sv_has_some_type_of_year
     if !has_some_year?
-      soft_validations.add(:year, 'There is no year or stated year associated with this source.')
-      soft_validations.add(:stated_year, 'There is no or stated year year associated with this source.')
+      soft_validations.add(:base, 'There is no year nor is there a stated year associated with this source.')
     end
   end
 
@@ -808,53 +812,55 @@ class Source::Bibtex < Source
     end
   end
 
-  def sv_missing_journal
-    soft_validations.add(:bibtex_type, 'The source is missing a journal name.') if self.journal.blank?
-  end
+  # def sv_missing_journal
+  # never used
+  #   soft_validations.add(:bibtex_type, 'The source is missing a journal name.') if self.journal.blank?
+  # end
 
   def sv_is_article_missing_journal
     if self.bibtex_type == 'article'
-      if self.journal.blank?
-        soft_validations.add(:bibtex_type, 'The article is missing a journal name.')
+      if self.journal.blank? and self.serial.blank?
+        soft_validations.add(:bibtex_type, 'This article is missing a journal name or serial.')
       end
     end
   end
 
   def sv_has_a_publisher
     if self.publisher.blank?
-      soft_validations.add(:publisher, 'There is no publisher associated with this source.')
+      soft_validations.add(:publisher, 'Valid BibTeX requires a publisher to be associated with this source.')
     end
   end
 
   def sv_has_booktitle
     if self.booktitle.blank?
-      soft_validations.add(:booktitle, 'There is no book title associated with this source.')
+      soft_validations.add(:booktitle, 'Valid BibTeX requires a book title to be associated with this source.')
     end
   end
 
   def sv_is_contained_has_chapter_or_pages
     if self.chapter.blank? && self.pages.blank?
-      soft_validations.add(:chapter, 'There is neither a chapter nor pages with this source.')
-      soft_validations.add(:pages, 'There is neither a chapter nor pages with this source.')
+      soft_validations.add(:bibtex_type, 'Valid BibTeX requires either a chapter or pages with sources of type inbook.')
+
+      #  soft_validations.add(:chapter, 'Valid BibTeX requires either a chapter or pages with sources of type inbook.')
+      # soft_validations.add(:pages, 'Valid BibTeX requires either a chapter or pages with sources of type inbook.')
     end
   end
 
   def sv_has_school
-    if self.school.blank?
-      soft_validations.add(:school, 'There is no school associated with this thesis.')
-    end
+      if self.school.blank?
+        soft_validations.add(:school, 'Valid BibTeX requires a school associated with any thesis.')
+      end
   end
 
   def sv_has_institution
-    if self.institution.blank?
-      soft_validations.add(:institution, 'There is not institution associated with this tech report.')
-    end
+      if self.institution.blank?
+        soft_validations.add(:institution, 'Valid BibTeX requires an institution with a tech report.')
+      end
   end
 
   def sv_has_note
-    # TODO we may need to check of a note in the TW sense as well - has_note? above.
-    if (self.note.blank?) && (self.notes.count = 0)
-      soft_validations.add(:note, 'There is no note associated with this source.')
+    if (self.note.blank?) && (self.notes.count == 0)
+      soft_validations.add(:note, 'Valid BibTeX requires a note with an unpublished source.')
     end
   end
 

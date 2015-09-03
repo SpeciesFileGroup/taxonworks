@@ -1,4 +1,6 @@
 class Tasks::Gis::DrawMapItemController < ApplicationController
+  include TaskControllerConfiguration
+  
   before_action :disable_turbolinks, only: [:new_map_item, :collect_item]
 
   def new_map_item
