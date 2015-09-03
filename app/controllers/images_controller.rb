@@ -98,17 +98,7 @@ class ImagesController < ApplicationController
 
   # GET /images/:id/extract/:x/:y/:height/:width
   def extract
-    image = Image.find(params[:id])
-    img = Magick::Image.read(image.image_file.path(:original)).first
-
-    cropped = img.crop(   
-                       params[:x].to_i,
-                       params[:y].to_i,
-                       params[:height].to_i,
-                       params[:width].to_i,
-             true
-            )
-    send_data cropped.to_blob, type: 'image/jpg', disposition: 'inline'
+    send_data Image.cropped_blob(params), type: 'image/jpg', disposition: 'inline'
   end
 
   private
