@@ -1,5 +1,5 @@
 # AlternateValue(s) are annotations on an object or object attribute. Use only when the annotations are related
-#   to the same thing. (e.g. Hernán vs. Hernan, NOT Bean Books (publisher1) vs. Dell Books(publisher2))
+# to the same thing. (e.g. Hernán vs. Hernan, NOT Bean Books (publisher1) vs. Dell Books(publisher2))
 #
 # @!attribute attribute_subject_id
 #   the ID of the thing being annotated
