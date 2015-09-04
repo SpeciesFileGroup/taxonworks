@@ -322,7 +322,7 @@ describe Source::Bibtex, type: :model, group: :sources do
       context 'identifiers to bibtex' do
         let(:src) { FactoryGirl.build(:soft_valid_bibtex_source_article) }
 
-        specify 'url gets converted properly' do
+        pending 'url gets converted properly' do
           url = FactoryGirl.build(:uri_identifier)
           src.identifiers << url
           expect(src.save).to be_truthy
@@ -342,7 +342,7 @@ describe Source::Bibtex, type: :model, group: :sources do
           expect(bib.isbn).to eq(src.identifiers.of_type(:isbn).first.identifier)
         end
 
-        specify 'doi gets converted properly' do
+        pending 'doi gets converted properly' do
           doi = FactoryGirl.build(:doi_identifier)
           src.identifiers << doi
           expect(src.save).to be_truthy
