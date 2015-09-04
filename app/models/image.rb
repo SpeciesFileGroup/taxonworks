@@ -173,6 +173,30 @@ class Image < ActiveRecord::Base
     end
   end
 
+ #  def filename(layout_section_type)
+ #    'tmp/' + tempfile(layout_section_type).path.split('/').last
+ #  end
+
+ #  def tempfile(layout_section_type)
+ #    tempfile = Tempfile.new([layout_section_type.to_s, '.jpg'], "#{Rails.root.to_s}/public/images/tmp", encoding: 'ASCII-8BIT' ) 
+ #    tempfile.write(zoomed_image(layout_section_type).to_blob)
+ #    tempfile
+ #  end
+
+  def self.cropped_blob(params)
+    image = Image.find(params[:id])
+    img = Magick::Image.read(image.image_file.path(:original)).first
+
+    cropped = img.crop(   
+                       params[:x].to_i,
+                       params[:y].to_i,
+                       params[:width].to_i,
+                       params[:height].to_i,
+                       true
+                      )
+    cropped.to_blob
+  end
+
   protected
 
   def extract_tw_attributes

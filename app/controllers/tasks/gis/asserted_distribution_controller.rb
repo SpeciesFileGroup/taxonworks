@@ -1,4 +1,6 @@
 class Tasks::Gis::AssertedDistributionController < ApplicationController
+  include TaskControllerConfiguration
+  
   # before_action :disable_turbolinks, only: [:new, :generate_choices]
 
   def new

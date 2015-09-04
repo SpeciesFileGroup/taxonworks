@@ -448,6 +448,7 @@ DEPENDENCIES
   psych (~> 2.0.3)
   rabl
   rails (~> 4.2.0)
+  redis (~> 3.2.1)
   ref2bibtex (~> 0.0.3)
   responders (~> 2.0)
   rgeo-geojson

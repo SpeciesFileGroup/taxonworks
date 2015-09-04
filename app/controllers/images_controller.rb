@@ -96,6 +96,10 @@ class ImagesController < ApplicationController
     send_data Image.generate_download( Image.where(project_id: $project_id) ), type: 'text', filename: "images_#{DateTime.now.to_s}.csv"
   end
 
+  # GET /images/:id/extract/:x/:y/:height/:width
+  def extract
+    send_data Image.cropped_blob(params), type: 'image/jpg', disposition: 'inline'
+  end
 
   private
   # Use callbacks to share common setup or constraints between actions.

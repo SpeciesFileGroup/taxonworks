@@ -1,0 +1,98 @@
+<h2> Task: Transcribe depiction </h2>
+
+<div class="flexbox">
+
+  <div class="item item1">
+    <div class="extracted_images">
+
+      <% @result.image_sections.each do |section| -%>
+        <%= image_tag(@result.image_path_for(section), alt: 'annotated_specimen', size: '100x100') -%>
+      <% end %>
+
+    </div>
+  </div>
+
+  <div class="item item2">
+
+    <div class="extracted_header">
+      <% @result.image_sections.each do |section| -%>
+        <div> <%= section -%> <%= @result.thumb_sqed_result.text_for(section) -%> </div>
+      <% end %>
+
+    </div>
+
+    <div class="extracted_form">
+
+      <%= form_for(@result.depiction.depiction_object, as: :collection_object, url: depiction_breakdown_create_task_path) do |f| -%>
+
+        <%= hidden_field_tag :id, @result.depiction.id -%>
+
+          <div>
+            <%= f.fields_for(:otus) do |o| -%>
+                <div class="field">
+                  <%= o.label :name %><br>
+                  <%= render(partial: '/workbench/elements/forms/ajax_select',
+                             locals:  {controller: '/otus',
+                                       object:     'specimen[otus_attributes][0]',
+                                       method:     'id',
+                                       tag_id:     'namespace_id_for_identifier',
+                                       display:    nil, size: 20}) %>
+                </div>
+            <% end %>
+
+            <%= f.fields_for(:identifiers) do |i| -%>
+                <div class="field">
+                  <%= i.label :identifier %><br>
+                  <%= i.text_field :identifier %>
+                </div>
+
+                <%= i.hidden_field :type, value: 'Identifier::Local::CatalogNumber' -%>
+
+                <div class="field">
+                  <%= i.label :namespace_id %><br>
+                  <%= render(partial: '/workbench/elements/forms/ajax_select',
+                             locals:  {controller: '/namespaces',
+                                       object:     'specimen[identifiers_attributes][0]',
+                                       method:     'namespace_id',
+                                       tag_id:     'namespace_id_for_identifier',
+                                       display:    nil,
+                                       size:       20}) %>
+                </div>
+
+              <% end %>
+          </div>
+
+          <div>
+            <div class="field">
+              <%= f.label :buffered_collecting_event %>
+              <br>
+              <%= f.text_area :buffered_collecting_event, cols: 40, rows: 6 -%>
+            </div>
+
+            <div class="field">
+              <%= f.label :buffered_determinations %>
+              <br>
+              <%= f.text_area :buffered_determinations, cols: 40, rows: 5 -%>
+            </div>
+
+            <div class="field">
+              <%= f.label :buffered_other_labels %>
+              <br>
+              <%= f.text_area :buffered_other_labels, cols: 40, rows: 6 -%>
+            </div>
+
+          </div>
+          <%= submit_tag -%> 
+          <br class="clear_both">
+      <% end %>
+
+
+    </div>
+
+    <div class="extracted_history">
+    </div>
+
+
+  </div>
+
+</div>
