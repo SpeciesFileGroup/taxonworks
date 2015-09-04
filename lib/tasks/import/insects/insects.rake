@@ -11,6 +11,17 @@ require 'benchmark'
 #
 # Be aware of shared methods in lib/tasks/import/shared.rake.
 #
+#
+# redis-server /usr/local/etc/redis.conf          ## to start redis
+# a = Redis.new
+# a.set(a, b)
+# a.get(a)
+# hash.sort
+
+
+
+
+
 
 namespace :tw do
   namespace :project_import do
@@ -20,8 +31,8 @@ namespace :tw do
 
       # A utility class to index data.
       class ImportedData
-        attr_accessor :people_index, :people_id, :keywords, :user_index, :collection_objects, :otus, :namespaces,
-                      :preparation_types, :collecting_event_index, :user_index, :taxa_index, :localities_index,
+        attr_accessor :people_id, :keywords, :user_index, :collection_objects, :namespaces, :people_index, # :otus,
+                      :preparation_types, :taxa_index, :localities_index, # :collecting_event_index,
                       :unmatched_localities, :invalid_speciemsn, :unmatched_taxa, :duplicate_specimen_ids,
                       :partially_resolved_index, :biocuration_classes
         def initialize()
@@ -31,9 +42,9 @@ namespace :tw do
           @people_index = {}              # PeopleID -> Person object
           @people_id = {}                 # PeopleID -> People row
           @user_index = {}                # PeopleID -> User object
-          @otus = {}                      # TaxonCode -> Otu object
+          # @otus = {}                      # TaxonCode -> Otu object
           @taxa_index = {}                # TaxonCode -> Protonym object
-          @collecting_event_index = {}
+          #@collecting_event_index = {}
           @collection_objects = {}
           @localities_index = {}          #LocalityCode -> Locality row
 
@@ -59,6 +70,7 @@ namespace :tw do
       $user_index = {}
       $collecting_event_index = {}
       $invalid_collecting_event_index = {}
+      $redis = Redis.new
 
 
       # TODO: Lots could be added here, it could also be yamlified
@@ -159,8 +171,8 @@ namespace :tw do
         build_localities_index(@data)
 
         puts "Indexing collecting events."
-        #####index_collecting_events_from_accessions_new(@data, @import)
-        #####Sindex_collecting_events_from_ledgers(@data, @import)
+        index_collecting_events_from_accessions_new(@data, @import)
+        index_collecting_events_from_ledgers(@data, @import)
         index_specimen_records_from_specimens(@data, @import)
         index_specimen_records_from_specimens_new(@data, @import)
         index_specimen_records_from_neon(@data, @import)
@@ -171,18 +183,6 @@ namespace :tw do
         puts "\n!! Unmatched taxa: (#{@data.unmatched_taxa.keys.count}): " + @data.unmatched_taxa.keys.sort.join(", ")
         puts "\n!! Invalid_specimens: (#{@data.invalid_specimens.keys.count}): " + @data.invalid_specimens.sort.join(", ")
         puts "\n!! Duplicate_specimen_IDs: (#{@data.duplicate_specimen_ids.keys.count}): " + @data.duplicate_specimen_ids.sort.join(", ")
-
-        # Debugging code, turn this on if you want to inspect all the columns that
-        # are used to index a unique collecting event.
-        # all_keys = []
-        # collecting_events_index.keys.each_with_index do |hsh, i|
-        #   all_keys.push hsh.keys
-        #   all_keys.flatten!.uniq!
-        # end
-        # all_keys.sort!
-
-        #handle_specimens(@data, @import)
-
 
         @import.save!
         puts "\n\n !! Success \n\n"
@@ -317,16 +317,26 @@ namespace :tw do
           nil => 'Container::Virtual',
           '' => 'Container::Virtual',
           'Amber' => 'Container::Box',
+          'amber' => 'Container::Box',
           'Bulk dry' => 'Container::PillBox',
+          'bulk dry' => 'Container::PillBox',
           'Envelope' => 'Container::Envelope',
+          'envelope' => 'Container::Envelope',
           'Jar' => 'Container::Jar',
+          'jar' => 'Container::Jar',
           'pill box' => 'Container::PillBox',
           'Pill box' => 'Container::PillBox',
           'Pill Box' => 'Container::PillBox',
           'Pin' => 'Container::Pin',
+          'pin' => 'Container::Pin',
+          'pins' => 'Container::Pin',
+          'Pins' => 'Container::Pin',
           'Slide' => 'Container::Slide',
           'Slides' => 'Container::Slide',
-          'Vial' => 'Container::Vial'
+          'slide' => 'Container::Slide',
+          'slides' => 'Container::Slide',
+          'Vial' => 'Container::Vial',
+          'vial' => 'Container::Vial'
       }
 
       TYPE_TYPE = {
@@ -377,9 +387,19 @@ namespace :tw do
           data.preparation_types.merge!(pt[0] => t)
         end
         data.preparation_types.merge!('Slides' => data.preparation_types['Slide'])
+        data.preparation_types.merge!('slides' => data.preparation_types['Slide'])
+        data.preparation_types.merge!('slide' => data.preparation_types['Slide'])
         data.preparation_types.merge!('Vials' => data.preparation_types['Vial'])
+        data.preparation_types.merge!('vials' => data.preparation_types['Vial'])
+        data.preparation_types.merge!('vial' => data.preparation_types['Vial'])
         data.preparation_types.merge!('Jars' => data.preparation_types['Jar'])
+        data.preparation_types.merge!('jars' => data.preparation_types['Jar'])
+        data.preparation_types.merge!('jar' => data.preparation_types['Jar'])
         data.preparation_types.merge!('pill box' => data.preparation_types['Pill box'])
+        data.preparation_types.merge!('Pill Box' => data.preparation_types['Pill box'])
+        data.preparation_types.merge!('envelope' => data.preparation_types['Envelope'])
+        data.preparation_types.merge!('pin' => data.preparation_types['Pin'])
+        data.preparation_types.merge!('Pins' => data.preparation_types['Pin'])
         import.metadata['preparation_types'] = true
       end
 
@@ -413,7 +433,6 @@ namespace :tw do
           'LocalityCode',
           'OldLocalityCode',
           'Order',
-          'LedgerBook',
           'Locality',
           'Park',
           'Sex',
@@ -480,15 +499,12 @@ namespace :tw do
               'CatalogNumber' => Predicate.create(name: 'CatalogNumber', definition: 'CatalogNumber imported from INHS FileMaker database.'),
               'IdentifiedBy' => Predicate.create(name: 'IdentifiedBy', definition: 'IdentifiedBy field imported from INHS FileMaker database.'),
               'YearIdentified' => Predicate.create(name: 'YearIdentified', definition: 'YearIdentified field imported from INHS FileMaker database.'),
-              'LocalityCode' => Predicate.create(name: 'LocalityCode', definition: 'LocalityCode field imported from INHS FileMaker database.'),
               'OldIdentifiedBy' => Predicate.create(name: 'OriginalIdentifiedBy', definition: 'OldIdentifiedBy field imported from INHS FileMaker database.'),
-              'OldLocalityCode' => Predicate.create(name: 'OldLocalityCode', definition: 'OldLocalityCode field imported from INHS FileMaker database.'),
               'Type' => Predicate.create(name: 'Type', definition: 'Type field imported from INHS FileMaker database.'),
               'TypeName' => Predicate.create(name: 'TypeName', definition: 'TypeName field imported from INHS FileMaker database.'),
               'AccessionNumberLabel' => Predicate.create(name: 'AccessionNumberLabel', definition: 'AccessionNumberLabel field imported from INHS FileMaker database.'),
               'SpecialCollection' => Predicate.create(name: 'SpecialCollection', definition: 'SpecialCollection field imported from INHS FileMaker database.'),
               'OldCollector' => Predicate.create(name: 'OldCollector', definition: 'OldCollector field imported from INHS FileMaker database.'),
-              'Host' => Predicate.create(name: 'Host', definition: 'Host field imported from INHS FileMaker database.'),
                )
 
           # from neon
@@ -512,7 +528,8 @@ namespace :tw do
       end
 
       def find_or_create_collection_user(id, data)
-        if id.blank?
+#      DataAttribute.where(attribute_subject_type: "User", import_predicate: "PeopleID", project_id: $project_id).first.attribute_subject
+       if id.blank?
           $user_id
         elsif data.user_index[id]
           data.user_index[id].id
@@ -587,7 +604,6 @@ namespace :tw do
            SiteCode}
 
       def find_or_create_collecting_event(ce, data)
-
         tmp_ce = { }
         LOCALITY_COLUMNS.each do |c|
           tmp_ce.merge!(c => ce[c]) unless ce[c].blank?
@@ -601,7 +617,8 @@ namespace :tw do
           end
           unless c.empty?
             c = c.first.annotated_object
-            data.collecting_event_index.merge!(tmp_ce => c)
+            $redis.set(tmp_ce.sort.to_s, c.id)
+            #data.collecting_event_index.merge!(tmp_ce => c)
             return c
           end
         end
@@ -611,7 +628,8 @@ namespace :tw do
           c = CollectingEvent.where(md5_of_verbatim_label: md5, project_id: $project_id)
           unless c.empty?
             c = c.first
-            data.collecting_event_index.merge!(tmp_ce => c)
+            $redis.set(tmp_ce.sort.to_s, c.id)
+            # data.collecting_event_index.merge!(tmp_ce => c)
             if !ce['AccessionNumber'].blank? && !ce['Collection'].blank?
               c.identifiers.create(identifier: ce['Collection'] + ' ' + ce['AccessionNumber'], namespace: @accession_namespace, type: 'Identifier::Local::AccessionCode')
             elsif !ce['AccessionNumber'].blank?
@@ -620,12 +638,12 @@ namespace :tw do
             return c
           end
         end
-        unless data.collecting_event_index[tmp_ce].nil?
-          collecting_event = data.collecting_event_index[tmp_ce]
+        collecting_event_id = $redis.get(tmp_ce.sort.to_s)
+        unless collecting_event_id.nil?
+          collecting_event = CollectingEvent.where(id: collecting_event_id).first
           if collecting_event.data_attributes.where(import_predicate: 'LocalityCode').nil? && !tmp_ce['LocalityCode'].blank?
             byebug
             collecting_event.data_attributes.create(import_predicate: 'LocalityCode', value: tmp_ce['LocalityCode'].to_s, type: 'ImportAttribute')
-            #collecting_event.data_attributes.create(import_predicate: 'LocalityCode', value: tmp_ce['LocalityCode'].to_s, type: 'ImportAttribute', controlled_vocabulary_term_id: data.keywords['LocalityCode'].id)
           end
           if collecting_event.verbatim_locality.nil? && !tmp_ce['LocalityLabel'].nil?
             byebug
@@ -639,7 +657,7 @@ namespace :tw do
             elsif !ce['AccessionNumber'].blank?
               c.identifiers.create(identifier: ce['AccessionNumber'], namespace: @accession_namespace, type: 'Identifier::Local::AccessionCode')
             end
-          end
+         end
           if collecting_event.identifiers.empty? || collecting_event.identifiers.first.identifier == tmp_ce['AccessionNumber']
             return collecting_event
           end
@@ -682,7 +700,12 @@ namespace :tw do
             updated_at: time_from_field(ce['ModifiedOn'])
         )
         if c.valid?
+
+          #bench = Benchmark.measure {
           c.save!
+          #}
+          #print "\r#\t#{bench.to_s.strip}"
+          #byebug
           c.notes.create(text: ce['Comments']) unless ce['Comments'].blank?
 
           data.keywords.each do |k|
@@ -705,7 +728,8 @@ namespace :tw do
             c.data_attributes.create(type: 'ImportAttribute', import_predicate: 'georeference_error', value: 'Geolocation uncertainty is conflicting with geographic area') unless glc.valid?
           end
 
-          data.collecting_event_index.merge!(tmp_ce => c)
+          $redis.set(tmp_ce.sort.to_s, c.id)
+          #data.collecting_event_index.merge!(tmp_ce => c)
           return c
         else
           $invalid_collecting_event_index.merge!(tmp_ce => nil)
@@ -799,9 +823,9 @@ namespace :tw do
         print "Handling taxa "
         if import.metadata['taxa']
           print "from database.  Indexing OTUs by TaxonCode..."
-          Identifier.where(namespace_id: @taxon_namespace.id).each do |i|
-            data.otus.merge!(i.identifier => i.identifier_object)
-          end
+#          Identifier.where(namespace_id: @taxon_namespace.id).each do |i|
+#            data.otus.merge!(i.identifier => i.identifier_object)
+#          end
           print "done.\n"
         else
           print "as newly parsed.\n"
@@ -876,7 +900,7 @@ namespace :tw do
           taxon_name_id: taxon_name.id,
           identifiers_attributes: [  {identifier: row['TaxonCode'], namespace: @taxon_namespace, type: 'Identifier::Local::OtuUtility'} ]
         )
-        data.otus.merge!(row['TaxonCode'] => o)
+        # data.otus.merge!(row['TaxonCode'] => o)
         o
       end
 
@@ -938,7 +962,8 @@ namespace :tw do
       end
 
       def index_specimen_records_from_specimens(data, import)
-        start = data.collecting_event_index.keys.count
+        start = $redis.keys.count
+        collecting_event = nil
         puts " specimen records from specimens.txt"
         path = @args[:data_directory] + 'TXT/specimens.txt'
         raise 'file not found' if not File.exists?(path)
@@ -949,7 +974,7 @@ namespace :tw do
         count_fields = %w{ AdultMale AdultFemale Immature Pupa Exuvium AdultUnsexed AgeUnknown OtherSpecimens }
 
         sp.each_with_index do |row, i|
-          print "\r#{i}      "
+          ##### if i > 291700 ########################################
 
           locality_code = row['LocalityCode']
           se = { }
@@ -964,7 +989,12 @@ namespace :tw do
             se.merge!(c => row[c]) unless row[c].blank?
           end
 
-          collecting_event = find_or_create_collecting_event(se, data)
+          bench = Benchmark.measure {
+            collecting_event = find_or_create_collecting_event(se, data)
+          }
+
+          print "\r#{i} \t#{bench.to_s.strip}                            "
+
           preparation_type = data.preparation_types[se['preparation_type']]
 
           no_specimens = false
@@ -1017,15 +1047,16 @@ namespace :tw do
           end
           add_identifiers(objects, row, data)
           add_determinations(objects, row, data)
+          ###### end #########################################
         end
 
-        puts "\n Number of collecting events processed from specimens: #{data.collecting_event_index.keys.count - start} "
+        puts "\n Number of collecting events processed from specimens: #{$redis.keys.count - start} "
       end
 
       def index_specimen_records_from_specimens_new(data, import)
         build_partially_resolved_index(data)
 
-        start = data.collecting_event_index.keys.count
+        start = $redis.keys.count
         puts " specimen records from specimens_new.txt"
         path = @args[:data_directory] + 'TXT/specimens_new.txt'
         raise 'file not found' if not File.exists?(path)
@@ -1127,11 +1158,11 @@ namespace :tw do
           add_determinations(objects, row, data)
         end
 
-        puts "\n Number of collecting events processed from specimens: #{data.collecting_event_index.keys.count - start} "
+        puts "\n Number of collecting events processed from specimens: #{$redis.keys.count - start} "
       end
 
       def index_specimen_records_from_neon(data, import)
-        start = data.collecting_event_index.keys.count
+        start = $redis.keys.count
         puts " specimen records from neon.txt"
         path = @args[:data_directory] + 'TXT/neon.txt'
         raise 'file not found' if not File.exists?(path)
@@ -1197,7 +1228,7 @@ namespace :tw do
           add_determinations(objects, row, data)
         end
 
-        puts "\n Number of collecting events processed from specimens: #{data.collecting_event_index.keys.count - start} "
+        puts "\n Number of collecting events processed from specimens: #{$redis.keys.count - start} "
       end
 
       def add_identifiers(objects, row, data)
@@ -1207,6 +1238,7 @@ namespace :tw do
         identifier = Identifier::Local::CatalogNumber.new(namespace: @data.namespaces['NEON'], identifier: row['SampleID']) unless row['SampleID'].blank?
 
         if objects.count > 1 # Identifier on container.
+
           c = Container.containerize(objects, CONTAINER_TYPE[row['PreparationType'].to_s].constantize )
           c.save
           c.identifiers << identifier if identifier
@@ -1232,7 +1264,14 @@ namespace :tw do
 
 
       def add_determinations(objects, row, data)
-        otu = data.otus[row['TaxonCode']]
+        identifier = Identifier.where(namespace_id: @taxon_namespace.id, identifier: '15406', project_id: $project_id)
+        if identifier.empty?
+          otu = nil
+        else
+          otu = identifier.first.identifier_object
+        end
+
+#        otu = data.otus[row['TaxonCode']]
         objects.each do |o|
           unless otu.nil?
             td = TaxonDetermination.new(
@@ -1240,11 +1279,7 @@ namespace :tw do
                 otu: otu,
                 year_made: row['YearIdentified']
             )
-            if td.valid?
-              td.save
-            else
-              byebug
-            end
+            td.save
 
             if !row['Type'].blank?
               type = TYPE_TYPE[row['Type'].downcase]
@@ -1262,6 +1297,76 @@ namespace :tw do
             data.unmatched_taxa.merge!(row['TaxonCode'] => nil) unless row['TaxonCode'].blank?
           end
         end
+      end
+
+      def  index_collecting_events_from_accessions_new(data, import)
+        path = @args[:data_directory] + 'TXT/accessions_new.txt' # self contained
+        raise 'file not found' if not File.exists?(path)
+
+        ac = CSV.open(path, col_sep: "\t", :headers => true)
+
+        fields = %w{ LocalityLabel Habitat Host AccessionNumber Country State County Locality Park DateCollectedBeginning DateCollectedEnding Collector CollectionMethod Elev_m Elev_ft NS Lat_deg Lat_min Lat_sec EW Long_deg Long_min Long_sec Comments PrecisionCode Datum ModifiedBy ModifiedOn }
+
+        puts "\naccession new records\n"
+        ac.each_with_index do |row, i|
+          print "\r#{i}"
+          tmp_ce = { }
+          fields.each do |c|
+            tmp_ce.merge!(c => row[c]) unless row[c].blank?
+          end
+          tmp_ce['County'] = geo_translate(tmp_ce['County']) unless tmp_ce['County'].blank?
+          tmp_ce['State'] = geo_translate(tmp_ce['State']) unless tmp_ce['State'].blank?
+          tmp_ce['Country'] = geo_translate(tmp_ce['Country']) unless tmp_ce['Country'].blank?
+
+          tmp_ce.merge!('CreatedBy' => '1031', 'CreatedOn' => '01/20/2014 12:00:00')
+
+          find_or_create_collecting_event(tmp_ce, data)
+        end
+        puts "\n Number of collecting events processed from Accessions_new: #{data.collecting_event_index.keys.count} "
+      end
+
+      def index_collecting_events_from_ledgers(data, import)
+        starting_number = $redis.keys.empty? ? 0 : $redis.keys.count
+
+        path = @args[:data_directory] + 'TXT/ledgers.txt'
+        raise 'file not found' if not File.exists?(path)
+        le = CSV.open(path, col_sep: "\t", :headers => true)
+
+        fields = %w{ Collection AccessionNumber LedgerBook LedgersCountry LedgersState LedgersCounty LedgersLocality DateCollectedBeginning DateCollectedEnding Collector Order Family Genus Species HostGenus HostSpecies Sex LedgersComments Description Remarks LocalityCode OldLocalityCode CreatedBy CreatedOn }
+
+        puts "\n  from ledgers\n"
+
+        le.each_with_index do |row, i|
+          tmp_ce = { }
+          fields.each do |c|
+            tmp_ce.merge!(c => row[c]) unless row[c].blank?
+          end
+          unless tmp_ce['LocalityCode'].nil?
+            if data.localities_index[tmp_ce['LocalityCode']].nil?
+              print "\nLocality Code #{tmp_ce['LocalityCode']} does not exist!\n"
+            else
+              tmp_ce.merge!(data.localities_index[tmp_ce['LocalityCode']])
+            end
+          end
+
+          tmp_ce['LedgersCounty'] = geo_translate(tmp_ce['LedgersCounty']) unless tmp_ce['LedgersCounty'].blank?
+          tmp_ce['LedgersState'] = geo_translate(tmp_ce['LedgersState']) unless tmp_ce['LedgersState'].blank?
+          tmp_ce['LedgersCountry'] = geo_translate(tmp_ce['LedgersCountry']) unless tmp_ce['LedgersCountry'].blank?
+          tmp_ce['County'] = geo_translate(tmp_ce['County']) unless tmp_ce['County'].blank?
+          tmp_ce['State'] = geo_translate(tmp_ce['State']) unless tmp_ce['State'].blank?
+          tmp_ce['Country'] = geo_translate(tmp_ce['Country']) unless tmp_ce['Country'].blank?
+
+          tmp_ce.delete('LedgersCountry') if !tmp_ce['LedgersCountry'].nil? && tmp_ce['LedgersCountry'] == tmp_ce['Country']
+          tmp_ce.delete('LedgersState') if !tmp_ce['LedgersState'].nil? && tmp_ce['LedgersState'] == tmp_ce['State']
+          tmp_ce.delete('LedgersCounty') if !tmp_ce['LedgersCounty'].nil? && tmp_ce['LedgersCounty'] == tmp_ce['County']
+          tmp_ce.delete('LedgersLocality') if !tmp_ce['LedgersLocality'].nil? && tmp_ce['LedgersLocality'] == tmp_ce['Locality']
+
+          bench = Benchmark.measure {
+            find_or_create_collecting_event(tmp_ce, data)
+          }
+          print "\r#{i}\t#{bench.to_s.strip}"
+        end
+        puts "\n Number of collecting events processed from Ledgers: #{$redis.keys.count - starting_number} "
       end
 
       def parse_geographic_area(ce)
@@ -1377,75 +1482,6 @@ namespace :tw do
         [elevation, verbatim_elevation]
       end
 
-
-      # -- Collection Object
-      # *   AccessionNumber               # catalog_number of particular namespace Legacy Namespace
-      # *   LocalityLabel                 # buffered_collecting_event
-      # *   OtherLabel                    # buffered
-      # -- Taxon Determination
-      # *   DeterminationLabel      # buffered
-      # *  IdentifiedBy             # internal attribute 
-      # *  YearIdentified           # internal attribute  
-      # *  OldIdentifiedBy          # internal attribute 
-
-      # *  PreparationType          # Biocuration classification
-
-      # *   AccessionSource        # people_id  # Asserts a person donated the specimen.
-      # *   DeaccessionRecipient   # people_id  # Asserts the specimen was given to a person, and the (and nothing else).
-      # *   DeaccessionCause       # cause      # A reason the specimen is no longer (= owned (= under the responsibility of an organization) by) the identified repository_id
-      # *   DeaccessionDate        # date       # Date ownership was given up. 
-
-      # * -- Identifier
-      # *     Prefix
-      # *     CatalogNumber
-
-      # *  -- Otu   
-      # *      TaxonCode
-      def handle_specimens(data, import)
-        path = @args[:data_directory] + 'TXT/specimens.txt'
-        raise 'file not found' if not File.exists?(path)
-        co = CSV.open(path, col_sep: "\t", :headers => true)
-
-        tmp_namespaces = {} 
-        co.each do |row|
-          tmp_namespaces.merge!(row['Prefix'] => nil)
-        end
-
-        tmp_namespaces.keys.delete_if{|k,v| k.nil? || k.to_s == ""} 
-        tmp_namespaces.keys.each do |k|
-          data.namespaces.merge!(k => Namespace.create(short_name: k) ) 
-        end
-
-        co.rewind
-        co.each_with_index do |row, i|
-          if data.otus[row['TaxonCode']] 
-            data.collection_objects.merge!(i => objects_from_co_row(row) )
-          end
-        end
-      end
-
-      def ce_from_specimens_row(row)
-        tmp_ce = {}
-
-        # pull from the row 
-        SPECIMENS_COLUMNS.each do |c|
-          tmp_ce.merge!(c => row[c]) if !row[c].blank?
-        end
-
-        # pull from the locality index 
-        if v = LOCALITIES[row['LocalityCode']]
-          tmp_ce.merge!(v) 
-        end
-        tmp_ce
-      end
-
-      def add_collecting_event(objects, row)
-        tmp_ce = ce_from_specimens_row(row)
-        objects.each do |o|
-          o.update(collecting_event: data.collecting_events(tmp_ce) )
-        end
-      end 
-
       def dump_directory(base)
         base + 'pg_dumps/'
       end
@@ -1456,8 +1492,6 @@ namespace :tw do
         ActiveRecord::Base.connection.execute('delete from schema_migrations')
         Support::Database.pg_restore_all('taxonworks_development', dump_directory(@args[:data_directory]),  'all.dump')
       end
-
-
 
     end
   end

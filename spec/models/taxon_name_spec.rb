@@ -2,6 +2,13 @@ require 'rails_helper'
 
 describe TaxonName, type: :model, group: [:nomenclature] do
 
+#  before(:all) do
+#    GC.disable
+#  end
+#  after(:all) do
+#    GC.enable
+#  end
+
   let(:taxon_name) { TaxonName.new }
 
   context 'using before :all' do
