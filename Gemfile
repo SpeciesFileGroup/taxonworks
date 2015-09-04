@@ -17,6 +17,8 @@ gem 'rgeo-shapefile'
 gem 'rgeo-geojson'
 
 # Redis support
+#   http://redis.io/clients#ruby
+gem 'hiredis', '~> 0.6.0'
 gem 'redis', '~> 3.2.1'
 
 # Use SCSS for stylesheets
