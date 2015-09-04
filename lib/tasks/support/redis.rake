@@ -10,7 +10,7 @@ namespace :tw do
           or
           redis-server /usr/local/etc/redis.conf
 
-      4)  gem install redis
+      4)  gem install hiredis, redis
           or
           (Include in Gemfile and) bundle install
 
