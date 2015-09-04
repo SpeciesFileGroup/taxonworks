@@ -21,8 +21,5 @@ class Tasks::Accessions::Breakdown::DepictionController < ApplicationController
     params.require(:collection_object).permit()
   end
 
-  protected
-
-
 
 end

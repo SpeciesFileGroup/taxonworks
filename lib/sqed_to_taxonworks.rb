@@ -6,9 +6,9 @@ module SqedToTaxonworks
 
     attr_accessor :depiction_id 
 
-    attr_accessor :thumb_sqed
+    attr_accessor :sqed
    
-    attr_accessor :thumb_sqed_result
+    attr_accessor :sqed_result
 
     attr_accessor :width_ratio, :height_ratio
 
@@ -39,45 +39,22 @@ module SqedToTaxonworks
       end
     end
 
-    def thumb_sqed
-      @thumb_sqed ||= Sqed.new(image: Magick::Image.read(depiction.image.image_file.path(:thumb)).first, pattern: pattern, has_border: false)
+    def sqed
+      @sqed ||= Sqed.new(image: original_image, pattern: pattern, has_border: false)
     end
 
-    def thumb_sqed_result
-      @thumb_sqed_result ||= thumb_sqed.result
-    end
-
-    def width_ratio
-      @width_ratio ||= depiction.image.image_file.width(:original).to_f / depiction.image.image_file.width(:thumb).to_f
-    end
-
-    def height_ratio
-      @height_ratio ||= depiction.image.image_file.height(:original).to_f /  depiction.image.image_file.height(:thumb).to_f
+    def sqed_result
+      @sqed_result ||= sqed.result
     end
 
     def original_image
       @original_image ||= Magick::Image.read(depiction.image.image_file.path(:original)).first
     end
 
-
-    # Temporary image handling support
-
-    def thumb_coordinates(layout_section_type)
-       thumb_sqed_result.boundary_coordinates[layout_section_type]
-    end
-
-    def zoomed_coordinates(layout_section_type)
-      x = (thumb_coordinates(layout_section_type)[0].to_f * width_ratio.to_f).to_i
-      y = (thumb_coordinates(layout_section_type)[1].to_f * height_ratio.to_f).to_i
-      w = (thumb_coordinates(layout_section_type)[2].to_f * width_ratio.to_f).to_i
-      h = (thumb_coordinates(layout_section_type)[3].to_f * height_ratio.to_f).to_i
-      [ x, y, w, h ]
-    end
-
     # instance methods
 
     def image_path_for(layout_section_type)
-      c = zoomed_coordinates(layout_section_type)
+      c = sqed.boundaries.for(layout_section_type)
       "/images/#{depiction.image.id}/extract/#{c[0]}/#{c[1]}/#{c[2]}/#{c[3]}"
     end
 

@@ -16,9 +16,8 @@
 
     <div class="extracted_header">
       <% @result.image_sections.each do |section| -%>
-        <div> <%= section -%> <%= @result.sqed_result.text_for(section) -%> </div>
+        <div> <%= section -%> <%= @result.thumb_sqed_result.text_for(section) -%> </div>
       <% end %>
-
 
     </div>
 
