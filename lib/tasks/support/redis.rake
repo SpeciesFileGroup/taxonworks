@@ -2,6 +2,12 @@ namespace :tw do
   namespace :redis do
     desc 'Initialization of Redis'
 =begin
+  Redis performance: redis.conf should replace /usr/local/etc/redis.conf so that there is no disk save file. See line
+  120 for more information.
+  In our case (for the moment: 09/04/15), we are only using this for a speed enhancement for insect.rake.
+  To use this config file, copy it to the indicated directory, and stop/start redis:
+    launchctl stop homebrew.mxcl.redis
+    launchctl start homebrew.mxcl.redis
 
     On a command line:
       1)  brew install redis
@@ -32,7 +38,7 @@ namespace :tw do
         e.message
 # => Timed out connecting to Redis on 10.0.1.1:6380
         puts "#{e.inspect}"
-        return e.inspect
+        e.inspect
       end
 
       test_redis.set('Able', 'Baker')
