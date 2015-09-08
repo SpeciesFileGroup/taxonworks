@@ -278,7 +278,7 @@ class Source::Bibtex < Source
 
   attr_accessor :authors_to_create
 
-  # TODO :update_authors_editor_if_changed? if: Proc.new { |a| a.password.blank? }
+  # @todo :update_authors_editor_if_changed? if: Proc.new { |a| a.password.blank? }
 
   # TW required fields (must have one of these fields filled in)
   TW_REQUIRED_FIELDS = [
@@ -316,7 +316,7 @@ class Source::Bibtex < Source
                         if:      '!month.blank? || !stated_year.blank?',
                         message: 'year is required when month or stated_year is provided'
 
-  # TODO: refactor out date validation methods so that they can be unified (TaxonDetermination, CollectingEvent)
+  # @todo : refactor out date validation methods so that they can be unified (TaxonDetermination, CollectingEvent)
   validates_numericality_of :year,
                             only_integer:          true, greater_than: 999,
                             less_than_or_equal_to: Time.now.year + 2,
@@ -386,7 +386,7 @@ class Source::Bibtex < Source
     end
 
     b[:note] = concatenated_notes_string if !concatenated_notes_string.blank? # see Notable
-    # TODO need to consider project specific notes as bibtex annote
+    # @todo need to consider project specific notes as bibtex annote
 
     unless self.serial.nil?
       b[:journal] = self.serial.name
@@ -396,7 +396,7 @@ class Source::Bibtex < Source
       end
     end
 
-    uris = self.identifiers.of_type(:url)
+    uris = self.identifiers.of_type(:uri)
     unless uris.empty?
       b[:url] = uris.first.identifier # TW only allows one URI per object
     end
@@ -408,7 +408,7 @@ class Source::Bibtex < Source
 
     dois = self.identifiers.of_type(:doi)
     unless dois.empty?
-      b[:idoi] = dois.first.identifier # TW only allows one DOI per object
+      b[:doi] = dois.first.identifier # TW only allows one DOI per object
     end
 
     b.author = self.compute_bibtex_names('author') unless (self.authors.size == 0 && self.author.blank?)
@@ -453,11 +453,11 @@ class Source::Bibtex < Source
   # 
   # @param bibtex_entry [BibTex::Entry] the BibTex::Entry to convert 
   # @return [Source::BibTex.new] a new instance
-  # TODO annote to project specific note?
-  # TODO if it finds one & only one match for serial assigns the serial ID, and if not it just store in journal title
+  # @TODO annote to project specific note?
+  # @TODO if it finds one & only one match for serial assigns the serial ID, and if not it just store in journal title
   # serial with alternate_value on name .count = 1 assign .first
   # before validate assign serial if matching & not doesn't have a serial currently assigned.
-  # TODO if there is an ISSN it should look up to see it the serial already exists.
+  # @TODO if there is an ISSN it should look up to see it the serial already exists.
   def self.new_from_bibtex(bibtex_entry = nil)
 
     return false if !bibtex_entry.kind_of?(::BibTeX::Entry)
@@ -535,7 +535,7 @@ class Source::Bibtex < Source
       suffix:     bibtex_author.suffix)
   end
 
-  #TODO create related Serials
+  # @TODO create related Serials
 
   #endregion  ruby-bibtex related
 
@@ -627,7 +627,7 @@ class Source::Bibtex < Source
     identifier_string_of_type(:doi)
   end
 
-  # TODO: Are ISSN only Serials now? Maybe - the raw bibtex source may come in with an ISSN in which case
+  # @TODO: Are ISSN only Serials now? Maybe - the raw bibtex source may come in with an ISSN in which case
   # we need to set the serial based on ISSN.
   def issn=(value)
     write_attribute(:issn, value)
@@ -657,7 +657,7 @@ class Source::Bibtex < Source
     URI(self.url) unless self.url.blank?
   end
 
-  # TODO: Turn this into a has_one relationship
+  # aTODO: Turn this into a has_one relationship
   def identifier_string_of_type(type)
     # This relies on the identifier class to enforce a single version of any identifier
     identifiers = self.identifiers.of_type(type)
@@ -666,7 +666,7 @@ class Source::Bibtex < Source
 
   #endregion identifiers
 
-  #TODO if language is set => set language_id
+  # @TODO if language is set => set language_id
   # def language=(value)
   #
   # end

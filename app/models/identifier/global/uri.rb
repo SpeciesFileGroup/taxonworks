@@ -1,4 +1,4 @@
-URI_SCHEMES = URI.scheme_list.keys # + ['UDP']
+ URI_SCHEMES = URI.scheme_list.keys # + ['UDP']
 
 class Identifier::Global::Uri < Identifier::Global
   # Universal Resource Identifier

@@ -315,21 +315,21 @@ describe Source::Bibtex, type: :model, group: :sources do
           src.soft_validate()
           expect(src.soft_valid?).to be_truthy
           bib = src.to_bibtex
-          expect(bib.issn).to eq(serial1.identifiers.of_type(:issn).first.identifier)
+          expect(bib[:issn]).to eq(serial1.identifiers.of_type(:issn).first.identifier)
         end
       end
 
       context 'identifiers to bibtex' do
         let(:src) { FactoryGirl.build(:soft_valid_bibtex_source_article) }
 
-        pending 'url gets converted properly' do
+        specify 'url gets converted properly' do
           url = FactoryGirl.build(:uri_identifier)
           src.identifiers << url
           expect(src.save).to be_truthy
           src.soft_validate()
           expect(src.soft_valid?).to be_truthy
           bib = src.to_bibtex
-          expect(bib.url).to eq(src.identifiers.of_type(:url).first.identifier)
+          expect(bib[:url]).to eq(src.identifiers.of_type(:uri).first.identifier)
         end
 
         specify 'isbn gets converted properly' do
@@ -339,17 +339,17 @@ describe Source::Bibtex, type: :model, group: :sources do
           src.soft_validate()
           expect(src.soft_valid?).to be_truthy
           bib = src.to_bibtex
-          expect(bib.isbn).to eq(src.identifiers.of_type(:isbn).first.identifier)
+          expect(bib[:isbn]).to eq(src.identifiers.of_type(:isbn).first.identifier)
         end
 
-        pending 'doi gets converted properly' do
+        specify 'doi gets converted properly' do
           doi = FactoryGirl.build(:doi_identifier)
           src.identifiers << doi
           expect(src.save).to be_truthy
           src.soft_validate()
           expect(src.soft_valid?).to be_truthy
           bib = src.to_bibtex
-          expect(bib.doi).to eq(src.identifiers.of_type(:doi).first.identifier)
+          expect(bib[:doi]).to eq(src.identifiers.of_type(:doi).first.identifier)
         end
       end
 
