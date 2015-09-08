@@ -8,25 +8,25 @@ describe CollectingEvent, type: :model, group: :geo do
       specify 'if time_start_minute provided time_start_hour_required' do
         collecting_event.time_start_minute = '44'
         collecting_event.valid?
-        expect(collecting_event.errors.include?(:time_start_hour)).to be_truthy 
+        expect(collecting_event.errors.include?(:time_start_hour)).to be_truthy
       end
 
       specify 'if time_start_second provided time_start_minute_required' do
         collecting_event.time_start_second = '44'
         collecting_event.valid?
-        expect(collecting_event.errors.include?(:time_start_minute)).to be_truthy 
+        expect(collecting_event.errors.include?(:time_start_minute)).to be_truthy
       end
 
       specify 'if time_end_minute provided time_end_hour_required' do
         collecting_event.time_end_minute = '44'
         collecting_event.valid?
-        expect(collecting_event.errors.include?(:time_end_hour)).to be_truthy 
+        expect(collecting_event.errors.include?(:time_end_hour)).to be_truthy
       end
 
       specify 'if time_end_second provided time_end_minute_required' do
         collecting_event.time_end_second = '44'
         collecting_event.valid?
-        expect(collecting_event.errors.include?(:time_end_minute)).to be_truthy 
+        expect(collecting_event.errors.include?(:time_end_minute)).to be_truthy
       end
     end
 
@@ -214,37 +214,37 @@ describe CollectingEvent, type: :model, group: :geo do
 
       context 'on new()' do
         specify 'creates a verbatim georeference using new()' do
-          c = CollectingEvent.new(verbatim_latitude: '10.001', verbatim_longitude: '10', project: @project, with_verbatim_data_georeference: true )
+          c = CollectingEvent.new(verbatim_latitude: '10.001', verbatim_longitude: '10', project: @project, with_verbatim_data_georeference: true)
           expect(c.save!).to be_truthy
           expect(c.verbatim_data_georeference.id).to be_truthy
         end
       end
 
       context 'on create()' do
-        let(:c) { CollectingEvent.create!(verbatim_latitude: '10.001', verbatim_longitude: '10',  project: @project, with_verbatim_data_georeference: true ) }
+        let(:c) { CollectingEvent.create!(verbatim_latitude: '10.001', verbatim_longitude: '10', project: @project, with_verbatim_data_georeference: true) }
 
         specify '#verbatim_data_georeference.id is set' do
-          expect(c.verbatim_data_georeference.id).to be_truthy 
+          expect(c.verbatim_data_georeference.id).to be_truthy
         end
 
         specify '#verbatim_data_georeference.geographic_item.id is set' do
-          expect(c.verbatim_data_georeference.geographic_item.id).to be_truthy 
+          expect(c.verbatim_data_georeference.geographic_item.id).to be_truthy
         end
 
         specify '#verbatim_data_georeference.project_id is set' do
-          expect(c.verbatim_data_georeference.project_id).to be_truthy 
+          expect(c.verbatim_data_georeference.project_id).to be_truthy
         end
       end
 
-      specify'creates a geo object that acurately represents the verbatim values' do
-        c = CollectingEvent.create(verbatim_latitude: '10.001', verbatim_longitude: '10', project: @project, with_verbatim_data_georeference: true )
+      specify 'creates a geo object that acurately represents the verbatim values' do
+        c = CollectingEvent.create(verbatim_latitude: '10.001', verbatim_longitude: '10', project: @project, with_verbatim_data_georeference: true)
         # ! do points have to be decimalized?
         expect(c.verbatim_data_georeference.geographic_item.geo_object.to_s).to eq('POINT (10.0 10.001 0.0)')
       end
 
       context "using by cascades creator/updater to georeference and geographic_item" do
         let(:other_user) { FactoryGirl.create(:valid_user, name: 'other', email: 'other@test.com') }
-        let(:c) { CollectingEvent.create(verbatim_latitude: '10.001', verbatim_longitude: '10', project: @project, with_verbatim_data_georeference: true, by: other_user )}
+        let(:c) { CollectingEvent.create(verbatim_latitude: '10.001', verbatim_longitude: '10', project: @project, with_verbatim_data_georeference: true, by: other_user) }
 
         specify 'sets collecting event updater' do
           expect(c.updater).to eq(other_user)
@@ -253,7 +253,7 @@ describe CollectingEvent, type: :model, group: :geo do
         specify 'sets collecting event creator' do
           expect(c.updater).to eq(other_user)
         end
-        
+
         specify 'sets verbatim_data_georeference updater' do
           expect(c.verbatim_data_georeference.updater).to eq(other_user)
         end
@@ -270,7 +270,7 @@ describe CollectingEvent, type: :model, group: :geo do
           expect(c.verbatim_data_georeference.geographic_item.creator).to eq(other_user)
         end
       end
-    end 
+    end
 
     # Jim- querying across multiple columns (polygon, multi-polygon etc.) is going to be tricky,
     # we will likely need to write some sql generators to do this efficiently.  To start
@@ -355,7 +355,7 @@ describe CollectingEvent, type: :model, group: :geo do
 
       context 'geolocate_ui_params_hash' do
         specify 'geolocate_ui_params_hash from locality' do
-         # @ce_n3 was built with locality, with no verbatim_lat/long
+          # @ce_n3 was built with locality, with no verbatim_lat/long
           expect(@ce_n3.geolocate_ui_params_hash).to eq({:country       => 'Old Boxia',
                                                          :state         => 'N3',
                                                          :county        => nil,
@@ -455,7 +455,7 @@ describe CollectingEvent, type: :model, group: :geo do
   end
 
   context 'geopolitical labels' do
- 
+
     # this context is here 2x, see if we can simlify it 
     before(:all) {
       # create some bogus countries, states, provinces, counties, and a parish
@@ -694,15 +694,15 @@ describe CollectingEvent, type: :model, group: :geo do
     end
   end
 
-  specify '#time_start pads' do 
-    collecting_event.time_start_hour = 4
+  specify '#time_start pads' do
+    collecting_event.time_start_hour   = 4
     collecting_event.time_start_minute = 2
     collecting_event.time_start_second = 1
     expect(collecting_event.time_start).to eq('04:02:01')
   end
 
-  specify '#time_end pads' do 
-    collecting_event.time_end_hour = 4
+  specify '#time_end pads' do
+    collecting_event.time_end_hour   = 4
     collecting_event.time_end_minute = 2
     collecting_event.time_end_second = 1
     expect(collecting_event.time_end).to eq('04:02:01')
@@ -715,6 +715,26 @@ describe CollectingEvent, type: :model, group: :geo do
     it_behaves_like 'notable'
     it_behaves_like 'taggable'
     it_behaves_like 'is_data'
+  end
+
+  context 'Collecting events storage and comparison timing tests' do
+    let(:gi) { FactoryGirl.create(:geographic_item_with_multi_polygon) }
+    let(:ga) { FactoryGirl.create(:level2_geographic_area) }
+    let(:ce) { FactoryGirl.create(:valid_collecting_event, {geographic_area: ga}) }
+
+    specify 'collecting event can be saved in some period of time' do
+      ga.geographic_items << gi
+      if ce.valid?
+        time = Benchmark.measure {
+          ce.save
+        }
+        # puts time.real
+        # pending 'this should work right'
+        expect(ce.valid?).to be_truthy
+        expect(time.real < 0.1).to be_truthy
+      end
+    end
+
   end
 
 end
