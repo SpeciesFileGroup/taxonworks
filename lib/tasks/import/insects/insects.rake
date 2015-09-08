@@ -73,6 +73,7 @@ namespace :tw do
       $redis = Redis.new
 
 
+
       # TODO: Lots could be added here, it could also be yamlified
       GEO_NAME_TRANSLATOR = {
         'U.S.A.' => 'United States',
@@ -171,7 +172,13 @@ namespace :tw do
         build_localities_index(@data)
 
         puts "Indexing collecting events."
-        index_collecting_events_from_accessions_new(@data, @import)
+        #### should be run to clear redis database. if specimen from diffrent tables run one buy one, data could be left in Redis and reused
+
+        ### $redis.keys.each do |key|
+        ###  $redis.del(key)
+        ### end
+
+        #### index_collecting_events_from_accessions_new(@data, @import)
         index_collecting_events_from_ledgers(@data, @import)
         index_specimen_records_from_specimens(@data, @import)
         index_specimen_records_from_specimens_new(@data, @import)
@@ -912,7 +919,7 @@ namespace :tw do
         raise 'file not found' if not File.exists?(path)
         lo = CSV.open(path, col_sep: "\t", :headers => true)
 
-        print "Indexing localities..."
+        print "\nIndexing localities..."
 
 #        localities = {}
         lo.each do |row|
@@ -1322,7 +1329,7 @@ namespace :tw do
 
           find_or_create_collecting_event(tmp_ce, data)
         end
-        puts "\n Number of collecting events processed from Accessions_new: #{data.collecting_event_index.keys.count} "
+        puts "\n Number of collecting events processed from Accessions_new: #{$redis.keys.count} "
       end
 
       def index_collecting_events_from_ledgers(data, import)
