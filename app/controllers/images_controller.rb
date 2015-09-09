@@ -101,6 +101,17 @@ class ImagesController < ApplicationController
     send_data Image.cropped_blob(params), type: 'image/jpg', disposition: 'inline'
   end
 
+  # GET /images/:id/ocr/:x/:y/:height/:width
+  def ocr 
+    tempfile = Tempfile.new(['ocr', '.jpg'], "#{Rails.root.to_s}/public/images/tmp", encoding: 'ASCII-8BIT' ) 
+    tempfile.write( Image.cropped_blob(params) )
+    tempfile.rewind
+
+    send_data RTesseract.new(Magick::Image.read(tempfile.path).first), type: 'text', disposition: 'inline'
+  end
+
+
+
   private
   # Use callbacks to share common setup or constraints between actions.
   def set_image
