@@ -1,23 +1,26 @@
 # AlternateValue(s) are annotations on an object or object attribute. Use only when the annotations are related
-# to the same thing. (e.g. Hernán vs. Hernan, NOT Bean Books (publisher1) vs. Dell Books(publisher2))
-#
-# @!attribute attribute_subject_id
-#   the ID of the thing being annotated
-#
-# @!attribute attribute_subject_type
-#   the kind of thing being annotated
+# to the same thing. (e.g. Hernán vs. Hernan, NOT Bean Books (publisher1) vs. Dell Books (publisher2))
 #
 # @!attribute value
 #   the annotated value
 #
-# @!attribute controlled_vocabulary_term_id
-#   the ID of the controlled vocabulary term - used only for InternalAttribute
-#   Use InternalAttributes when you can precisely define what the alternate value is (e.g. note, MX_ID)
+# @!attribute type
+#   the annotated type
 #
-# @!attribute import_predicate
-#   a string describing the data that has been imported from elsewhere that TW does not have a precise definition for.
-#   Used only with ImportAttribute - use when importing outside data and you don't have a definition of the field.
-#   (e.g. verbatim_notebook_field_6)
+# @!attribute alternate_value_object_attribute
+#   @todo
+#
+# @!attribute attribute_value_object_id
+#   the ID of the thing being annotated
+#
+# @!attribute alternate_value_object_type
+#   the kind of thing being annotated
+#
+# @!attribute language_id
+#   the ID of the language used for translation
+#
+# @!attribute project_id
+#   the project ID
 #
 class AlternateValue < ActiveRecord::Base
   include Housekeeping
@@ -44,7 +47,6 @@ class AlternateValue < ActiveRecord::Base
   def type_class
     r = read_attribute(:type).to_s
     r = ALTERNATE_VALUE_CLASS_NAMES.include?(r) ? r.safe_constantize : nil
-    r
   end
 
   def self.class_name

@@ -1,4 +1,5 @@
-# A biocuration class is used to organize a collection according to some biological categories (attributes).  
+# A biocuration class is used to organize a collection according to some biological categories (attributes).
+#
 # For example, in an insect collection, this may be things like "adult", "pupae", "male", "female".  More
 # generally they could be categories like "wet", "dry", "skulls", "furs".  It is important to note that
 # these categorizations are for *organization*, they do not also assert that the collection object itself has
