@@ -174,6 +174,7 @@ namespace :tw do
         puts "Indexing collecting events."
         #### should be run to clear redis database. if specimen from diffrent tables run one buy one, data could be left in Redis and reused
 
+        $redis.flushall
         ### $redis.keys.each do |key|
         ###  $redis.del(key)
         ### end

@@ -849,7 +849,11 @@ class CollectingEvent < ActiveRecord::Base
           if self.geographic_area.geographic_items.count == 0
             name = self.geographic_area.name
           else
-            name = [country_name, state_name, county_name].compact.join(", ")
+            names = geographic_area.ancestors.map(&:name)
+            names.push(geographic_area.name)
+            # name = [country_name, state_name, county_name].compact.join(", ")
+            names.delete('Earth')
+            name = names.compact.join(', ')
           end
         end
         place_date = [verbatim_locality, start_date, end_date].compact.join(', ')
