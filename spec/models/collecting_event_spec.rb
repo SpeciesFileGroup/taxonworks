@@ -718,12 +718,15 @@ describe CollectingEvent, type: :model, group: :geo do
   end
 
   context 'Collecting events storage and comparison timing tests' do
-    let(:gi) { FactoryGirl.create(:geographic_item_with_multi_polygon) }
+    let(:gi_co) { FactoryGirl.build(:geographic_item_with_multi_polygon, multi_polygon: CHAMPAIGN_CO) }
+    let(:gi_il) { FactoryGirl.build(:geographic_item_with_multi_polygon, multi_polygon: ILLINOIS) }
     let(:ga) { FactoryGirl.create(:level2_geographic_area) }
     let(:ce) { FactoryGirl.create(:valid_collecting_event, {geographic_area: ga}) }
 
+
     specify 'collecting event can be saved in some period of time' do
-      ga.geographic_items << gi
+      ga.geographic_items << gi_co
+      ga.parent.geographic_items << gi_il
       if ce.valid?
         time = Benchmark.measure {
           ce.save

@@ -29,6 +29,14 @@ namespace :tw do
     # know how to do that at the moment.
     # 2)  drop fails because database does not exist.
     # Remedy: If the database does *not* exist, do not drop it.
+    #
+    # During restore, the primary indexs of all the tables are not reset; as a result, the next added record may have
+    # an index with a (large) gap. The remedy will be something like:
+    #   'SELECT setval('tbl_tbl_id_seq', max(tbl_id)) from tbl;'
+    # (See http://stackoverflow.com/questions/244243/how-to-reset-postgres-primary-key-sequence-when-it-falls-out-of-sync)
+    #
+    # if the table has *any* records, this should work:
+    #       'select setval('tbl_id_seq', (select max(id) from tbl));'
     desc 'Dump the data as a backup, then restore the db from the specified file.'
     task :restore => [:dump, :environment, :data_directory, :db_user] do
       raise 'Specify a dump file: rake tw:db:restore file=myfile.dump' if not ENV['file']
@@ -43,6 +51,9 @@ namespace :tw do
       puts "Restoring #{database} from #{path}"
       puts(Benchmark.measure { `pg_restore --username=#{ENV["db_user"]} --host=localhost --format=custom --disable-triggers --dbname=#{database} #{path}` })
       raise "pg_restore failed with exit code #{$?.to_i}" unless $? == 0
+      # reset table indexes for all tables (restores currval(id_seq) to (presumed) previous value
+      # (i.e., MAX(id) from table) )
+      ActiveRecord::Base.connection.tables.each { |t| ActiveRecord::Base.connection.reset_pk_sequence!(t) }
       puts 'Restore complete'
     end
 

@@ -1,3 +1,18 @@
+# A citation topic is...
+#   @todo
+#
+# @!attribute topic_id
+#   @todo
+#
+# @!citation_id
+#   @todo
+#
+# @!attribute pages
+#   @todo
+#
+# @!attribute project_id
+#   the project ID
+#
 class CitationTopic < ActiveRecord::Base
 
   include Housekeeping

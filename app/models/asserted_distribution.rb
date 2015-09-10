@@ -1,3 +1,21 @@
+# Asserted distribution is...
+#   @todo
+#
+# @!attribute otu_id
+#   the OTU ID
+#
+# @!attribute geographic_area_id
+#   the geographic area ID
+#
+# @!attribute source_id
+#   the source ID
+#
+# @!attribute project_id
+#   the project ID
+#
+# @!attribute is_absent
+#   @todo
+#
 class AssertedDistribution < ActiveRecord::Base
   include Housekeeping
   include Shared::Notable

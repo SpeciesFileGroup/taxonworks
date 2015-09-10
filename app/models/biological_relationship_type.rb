@@ -1,3 +1,18 @@
+# A biological relationship type is...
+#   @todo
+#
+# @!attribute type
+#   @todo
+#
+# @!attribute biological_property_id
+#   @todo
+#
+# @!attribute biological_relationship_id
+#   @todo
+#
+# @!attribute project_id
+#   the project ID
+#
 class BiologicalRelationshipType < ActiveRecord::Base
   include Housekeeping
   include Shared::IsData 

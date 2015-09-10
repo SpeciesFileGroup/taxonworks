@@ -1,11 +1,11 @@
-# A human. Data only, not users. There are two classes of people, vetted, and unvetted.
+# A human. Data only, not users. There are two classes of people: vetted and unvetted.
 #
 # A vetted person
 # * Has two or more roles
 # * Has one or more annotations
 #
 # An unvetted person
-# * Has no or 1 role.
+# * Has no or 1 role
 # * Has no annotations
 #
 # A unvetted person becomes automatically vetted when they have > 1 roles or they 
@@ -18,7 +18,7 @@
 #   @return [String] the first name, includes initials if the are provided 
 #
 # @!attribute prefix 
-#   @return [String] string preceeding the *last/family* name
+#   @return [String] string preceding the *last/family* name
 #
 # @!attribute suffix
 #   @return [String]  string following the *last/family* name

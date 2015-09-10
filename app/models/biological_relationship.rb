@@ -1,3 +1,18 @@
+# A biological relationship is...
+#   @todo
+#
+# @!attribute name
+#   @todo
+#
+# @!attribute is_transitive
+#   @todo
+#
+# @!attribute is_reflexive
+#   @todo
+#
+# @!attribute project_id
+#   the project ID
+#
 class BiologicalRelationship < ActiveRecord::Base
   include Housekeeping
   include Shared::IsData 

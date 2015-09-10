@@ -1,65 +1,144 @@
 # A collecting event is the unique combination of who, where, when, and how.
 # 
-# @!attribute field_notes 
+# @!attribute verbatim_label
 #   @return [String]
-#   Any/all field notes that this collecting event was derived from, or that supplement this collecting event.
-# @!attribute verbatim_label 
-#   @return [String]
-#   A verbatim representation of label that defined this collecting event, typically, but not exclusively, 
+#   A verbatim representation of label that defined this collecting event, typically, but not exclusively,
 #   used for retroactive data capture.
-# @!attribute print_label 
+#
+# @!attribute print_label
 #   @return [String]
 #   A print-formatted ready representation of this collecting event.  !! Do not assume that this remains static,
 #   it can change over time with user needs.
-# @!attribute document_label 
+#
+# @!attribute document_label
 #   @return [String]
 #   A print-ready expanded/clarified version of a verbatim_label intended to clarify interpretation of that label.
 #   To be used, for example, when reporting Holotype labels.
+#
 # @!attribute verbatim_locality
 #   @return [String]
 #     a string, typically sliced from verbatim_label, that represents the locality, including any modifiers (2 mi NE).
-# @!attribute verbatim_date
-#   @return [String]
-#     a string typically sliced from verbatim_label, that represents the collective date. Is not calculated on. Same as http://rs.tdwg.org/dwc/terms/verbatimEventDate.
+#
 # @!attribute verbatim_longitude
 #   @return [String]
 #   A string, typically sliced from verbatim_label, that represents the longitude. Is used to derive mappable values, but does not get mapped itself
+#
 # @!attribute verbatim_latitude
 #   @return [String]
-#   A string, typically sliced from verbatim_label, that represents the latitude. Is used to derive mappable values, but does not get mapped itself. 
+#   A string, typically sliced from verbatim_label, that represents the latitude. Is used to derive mappable values, but does not get mapped itself.
+#
 # @!attribute verbatim_geolocation_uncertainty
 #   @return [String]
 #   A string, typically sliced from verbatim_label, that represents the provided uncertainty value.
-# @!attribute verbatim_elevation
+#
+# @!attribute verbatim_trip_identifier
 #   @return [String]
-#   A string, typically sliced from verbatim_label, that represents all elevation data (min/max/precision) as recorded there.
+#   @todo
+#
+# @!attribute verbatim_collectors
+#   @return [String]
+#   @todo
+#
+# @!attribute verbatim_method
+#   @return [String]
+#   @todo
+#
+# @!attribute geographic_area_id
+#   @return [integer]
+#   @todo
+#
 # @!attribute minimum_elevation
 #   @return [String]
 #   A float, in meters.
+#
 # @!attribute maximum_elevation
 #   @return [String]
 #   A float, in meters.
+#
 # @!attribute elevation_precision
 #   @return [String]
 #   A float, in meters.
-# @!attribute time_start_hour 
+#
+# @!attribute field_notes
+#   @return [String]
+#   Any/all field notes that this collecting event was derived from, or that supplement this collecting event.
+#
+# @!attribute md5_of_verbatim_label
+#   @return [String]
+#   @todo
+#
+# @!attribute cached
+#   @return [text]
+#   A string, typically sliced from verbatim_label, that represents the provided uncertainty value.
+#
+# @!attribute project_id
+#   @return [integer]
+#   the project ID
+#
+# @!attribute start_date_year
+#   @return [integer]
+#   @todo
+#
+# @!attribute end_date_year
+#   @return [integer]
+#   @todo
+#
+# @!attribute start_date_day
+#   @return [integer]
+#   @todo
+#
+# @!attribute end_date_day
+#   @return [integer]
+#   @todo
+#
+# @!attribute verbatim_elevation
+#   @return [String]
+#   A string, typically sliced from verbatim_label, that represents all elevation data (min/max/precision) as recorded there.
+#
+# @!attribute verbatim_habitat
+#   @return [text]
+#   @todo
+#
+# @!attribute verbatim_datum
+#   @return [String]
+#   @todo
+#
+# @!attribute time_start_hour
 #   @return [integer]
 #     0-23
+#
 # @!attribute time_start_minute
 #   @return [integer]
 #     0-59
-# @!attribute time_start_seconds
+#
+# @!attribute time_start_second
 #   @return [integer]
 #     0-59 
-# @!attribute time_end_hour 
+#
+# @!attribute time_end_hour
 #   @return [integer]
 #     0-23
+#
 # @!attribute time_end_minute
 #   @return [integer]
 #     0-59
-# @!attribute time_end_seconds
+#
+# @!attribute time_end_second
 #   @return [integer]
 #     0-59 
+#
+# @!attribute verbatim_date
+#   @return [String]
+#   @todo
+#
+# @!attribute start_date_month
+#   @return [integer]
+#   @todo
+#
+# @!attribute end_date_month
+#   @return [integer]
+#   @todo
+#
 class CollectingEvent < ActiveRecord::Base
   include Housekeeping
   include Shared::Citable
@@ -166,7 +245,7 @@ class CollectingEvent < ActiveRecord::Base
   validates_presence_of :time_end_hour, if: '!self.time_end_minute.blank?'
 
 
-  # TODO: factor these out (see also TaxonDetermination, Source::Bibtex)
+  # @todo factor these out (see also TaxonDetermination, Source::Bibtex)
   validates :start_date_year,
             numericality: {only_integer: true,
                            greater_than: 1000,
@@ -183,7 +262,7 @@ class CollectingEvent < ActiveRecord::Base
             length:       {is: 4},
             allow_nil:    true
 
-  # TODO: these are just simple integer validations now, fix!
+  # @todo these are just simple integer validations now, fix!
   validates :start_date_month,
             numericality: {only_integer: true, greater_than: 0, less_than: 13},
             unless:       'start_date_month.blank?'
@@ -295,10 +374,10 @@ class CollectingEvent < ActiveRecord::Base
     return nil if verbatim_geolocation_uncertainty.blank?
     return verbatim_geolocation_uncertainty.to_i if is.number?(verbatim_geolocation_uncertainty)
     nil
-    # TODO: figure out how to convert verbatim_geolocation_uncertainty in different units (ft, m, km, mi) into meters
+    # @todo figure out how to convert verbatim_geolocation_uncertainty in different units (ft, m, km, mi) into meters
   end
 
-  # TODO: 'figure out what it actually means' (@mjy) 20140718
+  # @todo 'figure out what it actually means' (@mjy) 20140718
   # @return [Scope] geographic_items associated with this collecting_event
   def all_geographic_items
     event   = nil
@@ -359,7 +438,7 @@ class CollectingEvent < ActiveRecord::Base
       gr.push(o.collecting_events_through_georeference_error_geographic_item.to_a)
     }
 
-    # todo: change 'id in (?)' to some other sql construct
+    # @todo change 'id in (?)' to some other sql construct
     pieces = CollectingEvent.where(id: gr.flatten.map(&:id).uniq)
     pieces.excluding(self)
   end
@@ -383,7 +462,7 @@ class CollectingEvent < ActiveRecord::Base
       ce.push(o.collecting_events_through_georeference_error_geographic_item.to_a)
     }
 
-    # TODO: Directly map this
+    # @todo Directly map this
     pieces = CollectingEvent.where(id: ce.flatten.map(&:id).uniq)
     pieces.excluding(self)
   end
@@ -408,7 +487,7 @@ class CollectingEvent < ActiveRecord::Base
   #   which are country_level, and have GIs containing the (GI and/or EGI) of this CE
   # @param [String]
   # @return [Hash]
-  # TODO: this needs more work, possibily direct AREL table manipulation.
+  # @todo this needs more work, possibily direct AREL table manipulation.
   def name_hash(types)
     retval  = {} # changed from []
     gi_list = nil
@@ -515,7 +594,7 @@ class CollectingEvent < ActiveRecord::Base
   end
 
 =begin
-TODO: @mjy: please fill in any other paths you can think of for the acquisition of information for the seven below listed items
+# @todo @mjy: please fill in any other paths you can think of for the acquisition of information for the seven below listed items
   ce.georeference.geographic_item.centroid
   ce.georeference.error_geographic_item.centroid
   ce.verbatim_georeference
@@ -577,7 +656,7 @@ TODO: @mjy: please fill in any other paths you can think of for the acquisition 
       parameters[:Latitude]  = focus.point.y
     end
 
-    # TODO: no point in @ these variables
+    # @todo no point in @ these variables
     @geolocate_request = Georeference::GeoLocate::RequestUI.new(parameters)
     @geolocate_string  = @geolocate_request.request_params_string
     @geolocate_hash    = @geolocate_request.request_params_hash
@@ -689,7 +768,7 @@ TODO: @mjy: please fill in any other paths you can think of for the acquisition 
       end
 
       unless id_fragment.blank?
-        #   TODO: this still needs to be dealt with
+        # @todo this still needs to be dealt with
       end
 
     end
@@ -761,7 +840,7 @@ TODO: @mjy: please fill in any other paths you can think of for the acquisition 
 
   protected
 
-  # TODO: This configuration (sort of) defetes the purpose of before_save, but offers a quick solution
+  # @todo This configuration (sort of) defetes the purpose of before_save, but offers a quick solution
   # for large imports
   def set_cached
     if self.cached.blank?

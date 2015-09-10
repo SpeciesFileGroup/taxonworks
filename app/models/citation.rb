@@ -1,5 +1,21 @@
 # Citation is like Roles in that it is also a linking table between a data object & a source.
 # (Assertion that the subject was referenced in a source)
+#
+# @!attribute citation_object_type
+#   @todo
+#
+# @!attribute source_id
+#   the source ID
+#
+# @!attribute project_id
+#   the project ID
+#
+# @!attribute citation_object_id
+#   @todo
+#
+# @!attribute pages
+#   @todo
+#
 class Citation < ActiveRecord::Base
   include Housekeeping
   include Shared::IsData

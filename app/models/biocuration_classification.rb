@@ -1,3 +1,18 @@
+# A biocuration classification is...
+#   @todo
+#
+# @!attribute biocuration_class_id
+#   the biocuration class ID
+#
+# @!attribute biological_collection_object_id
+#   the biological collection object ID
+#
+# @!attribute position
+#   @todo
+#
+# @!attribute project_id
+#   the project ID
+#
 class BiocurationClassification < ActiveRecord::Base
   acts_as_list scope: [:biological_collection_object]
 
