@@ -44,7 +44,7 @@
 #   @todo
 #
 # @!attribute geographic_area_id
-#   @return [integer]
+#   @return [Integer]
 #   @todo
 #
 # @!attribute minimum_elevation
@@ -68,27 +68,27 @@
 #   @todo
 #
 # @!attribute cached
-#   @return [text]
+#   @return [String]
 #   A string, typically sliced from verbatim_label, that represents the provided uncertainty value.
 #
 # @!attribute project_id
-#   @return [integer]
+#   @return [Integer]
 #   the project ID
 #
 # @!attribute start_date_year
-#   @return [integer]
+#   @return [Integer]
 #   @todo
 #
 # @!attribute end_date_year
-#   @return [integer]
+#   @return [Integer]
 #   @todo
 #
 # @!attribute start_date_day
-#   @return [integer]
+#   @return [Integer]
 #   @todo
 #
 # @!attribute end_date_day
-#   @return [integer]
+#   @return [Integer]
 #   @todo
 #
 # @!attribute verbatim_elevation
@@ -96,7 +96,7 @@
 #   A string, typically sliced from verbatim_label, that represents all elevation data (min/max/precision) as recorded there.
 #
 # @!attribute verbatim_habitat
-#   @return [text]
+#   @return [String]
 #   @todo
 #
 # @!attribute verbatim_datum
@@ -104,27 +104,27 @@
 #   @todo
 #
 # @!attribute time_start_hour
-#   @return [integer]
+#   @return [Integer]
 #     0-23
 #
 # @!attribute time_start_minute
-#   @return [integer]
+#   @return [Integer]
 #     0-59
 #
 # @!attribute time_start_second
-#   @return [integer]
+#   @return [Integer]
 #     0-59 
 #
 # @!attribute time_end_hour
-#   @return [integer]
+#   @return [Integer]
 #     0-23
 #
 # @!attribute time_end_minute
-#   @return [integer]
+#   @return [Integer]
 #     0-59
 #
 # @!attribute time_end_second
-#   @return [integer]
+#   @return [Integer]
 #     0-59 
 #
 # @!attribute verbatim_date
@@ -132,11 +132,11 @@
 #   @todo
 #
 # @!attribute start_date_month
-#   @return [integer]
+#   @return [Integer]
 #   @todo
 #
 # @!attribute end_date_month
-#   @return [integer]
+#   @return [Integer]
 #   @todo
 #
 class CollectingEvent < ActiveRecord::Base
