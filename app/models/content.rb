@@ -10,7 +10,7 @@
 # @!attribute topic_id 
 #   @return [Integer] When OtuContent::Text the id of the Topic the content pertains to. At present required.
 # @!attribute revision_id 
-#   @return [integer] Stubbed placeholder for Revision (sensus taxonomy) model.  NOT PRESENTLY USED. 
+#   @return [Integer] Stubbed placeholder for Revision (sensus taxonomy) model.  NOT PRESENTLY USED.
 #
 class Content < ActiveRecord::Base
   include Housekeeping

@@ -25,7 +25,7 @@
 #  Same as http://rs.tdwg.org/dwc/terms/catalogNumber , but brodened in scope to be used for any data.
 #
 ## @!attribute namespace_id 
-#   @return [integer]
+#   @return [Integer]
 #   The Namespace for this identifier.
 #
 ## @!attribute type 
@@ -33,7 +33,7 @@
 #   The Rails STI subclass of this identifier.   
 
 ## @!attribute cached
-#   @return [Text]
+#   @return [String]
 #   The full identifier, for display, i.e. namespace + identifier (local), or identifier (global).
 #   
 class Identifier < ActiveRecord::Base
