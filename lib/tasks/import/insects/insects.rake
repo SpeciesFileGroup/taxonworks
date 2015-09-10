@@ -57,7 +57,7 @@ namespace :tw do
 
         end
 
-        def export_to_pg(data_directory) 
+        def export_to_pg(data_directory)
           puts "\nExporting snapshot of datababase to all.dump."
           Support::Database.pg_dump_all('taxonworks_development', data_directory, 'all.dump')
         end
@@ -106,7 +106,7 @@ namespace :tw do
         puts @args
         Utilities::Files.lines_per_file(Dir["#{@args[:data_directory]}/TXT/**/*.txt"])
 
-        @dump_directory = dump_directory(@args[:data_directory]) 
+        @dump_directory = dump_directory(@args[:data_directory])
         @data =  ImportedData.new
 
         restore_from_pg_dump if ENV['restore_from_dump'] && File.exists?(@dump_directory + 'all.dump')
@@ -116,8 +116,8 @@ namespace :tw do
             puts 'Importing without a transaction (data will be left in the database).'
             main_build_loop
           else
-            ActiveRecord::Base.transaction do 
-              main_build_loop 
+            ActiveRecord::Base.transaction do
+              main_build_loop
               raise
             end
           end
@@ -156,8 +156,8 @@ namespace :tw do
 
 
       def main_build_loop
-        @import = Import.find_or_create_by(name: IMPORT_NAME)  
-        @import.metadata ||= {} 
+        @import = Import.find_or_create_by(name: IMPORT_NAME)
+        @import.metadata ||= {}
         handle_projects_and_users(@data, @import)
         raise '$project_id or $user_id not set.'  if $project_id.nil? || $user_id.nil?
         handle_namespaces(@data, @import)
@@ -846,6 +846,9 @@ namespace :tw do
           f = CSV.open(path, col_sep: "\t", :headers => true)
 
           code = :iczn
+          root = Protonym.find_or_create_by(name: 'Root',
+                                            rank_class: 'NomenclaturalRank',
+                                            project_id: $project_id)
           f.each_with_index do |row, i|             #f.first(500).each_with_index
             name = row['Name']
             author = (row['Parens'] ? "(#{row['Author']})" : row['Author']) unless row['Author'].blank?
@@ -867,7 +870,7 @@ namespace :tw do
             )
             p.parent_id = parent_index[row['Parent'].to_s].id unless row['Parent'].blank? || parent_index[row['Parent'].to_s].nil?
             if rank == 'NomenclaturalRank'
-              p = Protonym.with_rank_class('NomenclaturalRank').first
+              p = root
               parent_index.merge!(row['ID'] => p)
             elsif !p.parent_id.blank?
               bench = Benchmark.measure {
@@ -878,6 +881,7 @@ namespace :tw do
 
               print "\r#{i}\t#{bench.to_s.strip}  #{name}  (Taxon code: #{row['TaxonCode']})                         " #  \t\t#{rank}
               if p.valid?
+                # byebug
                 p.save!
                 build_otu(row, p, data)
                 parent_index.merge!(row['ID'] => p)
@@ -1473,7 +1477,7 @@ namespace :tw do
 
       def parse_elevation(ce)
         ft =  ce['Elev_ft']
-        m = ce['Elev_m'] 
+        m = ce['Elev_m']
 
         if !ft.blank? && !m.blank? && !Utilities::Measurements.feet_equals_meters(ft, m)
           puts "\n !! Feet and meters both providing and not equal: #{ft}, #{m}."
