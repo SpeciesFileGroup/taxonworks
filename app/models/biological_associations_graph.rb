@@ -1,3 +1,15 @@
+# A biological associations graph is...
+#   @todo
+#
+# @!attribute project_id
+#   the project ID
+#
+# @!attribute name
+#   @todo
+#
+# @!attribute source_id
+#   the source ID
+#
 class BiologicalAssociationsGraph < ActiveRecord::Base
   include Housekeeping
   include Shared::Citable

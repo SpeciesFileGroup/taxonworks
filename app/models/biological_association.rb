@@ -1,3 +1,24 @@
+# A biological association is...
+#   @todo
+#
+# @!attribute biological_relationship_id
+#   the biological relationship ID
+#
+# @!attribute biological_association_subject_id
+#   @todo
+#
+# @!attribute biological_association_subject_type
+#   @todo
+#
+# @!attribute biological_association_object_id
+#   @todo
+#
+# @!attribute biological_association_object_type
+#   @todo
+#
+# @!attribute project_id
+#   the project ID
+#
 class BiologicalAssociation < ActiveRecord::Base
   include Housekeeping
   include Shared::Citable
