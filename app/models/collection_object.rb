@@ -2,56 +2,62 @@
 #
 # A CollectiongObjects immediate disposition is handled through its relation to containers.  Containers can be nested, labeled, and interally subdivided as necessary.
 # 
-## @!attribute total 
+# @!attribute total
 #   @return [Integer]
 #   The enumerated number of things, as asserted by the person managing the record.  Different totals will default to different subclasses.  How you enumerate your collection objects is up to you.  If you want to call one chunk of coral 50 things, that's fine (total = 50), if you want to call one coral one thing (total = 1) that's fine too.  If not nil then ranged_lot_category_id must be nil.  When =1 the subclass is Specimen, when > 1 the subclass is Lot.
 # 
-## @!attribute ranged_lot_category_id 
+# @!attribute type
 #   @return [Integer]
-#   The id of the user-defined ranged lot category.  See RangedLotCategory.  When present the subclass is "RangedLot". 
+#   @todo
 #
-# @!attribute collecting_event_id 
+# @!attribute preparation_type_id
 #   @return [Integer]
-#   The id of the collecting event from whence this object came.  See CollectingEvent. 
+#   How the collection object was prepared.  Draws from a controlled set of values shared by all projects.  For example "slide mounted".  See PreparationType.
 #
 # @!attribute respository_id
 #   @return [Integer]
 #   The id of the Repository.  This is the "home" repository, *not* where the specimen currently is located.  Repositories may indicate ownership BUT NOT ALWAYS. The assertion is only that "if this collection object was not being used, then it should be in this repository".
 #
-# @!attribute preparation_type_id 
+# @!attribute project_id
 #   @return [Integer]
-#   How the collection object was prepared.  Draws from a controlled set of values shared by all projects.  For example "slide mounted".  See PreparationType. 
-# 
-# @!attribute buffered_collecting_event 
+#   the project ID
+#
+# @!attribute buffered_collecting_event
 #   @return [String]
-#   An incoming, typically verbatim, block of data typically as seens as a locality/method/etc. label.  All buffered_ attributes are written but not intended 
+#   An incoming, typically verbatim, block of data typically as seens as a locality/method/etc. label.  All buffered_ attributes are written but not intended
 #   to be deleted or otherwise updated.  Buffered_ attributes are typically only used in rapid data capture, primarily in historical situations.
 #
 # @!attribute buffered_determinations
 #   @return [String]
-#   An incoming, typically verbatim, block of data typically as seen a taxonomic determination label.  All buffered_ attributes are written but not intended 
+#   An incoming, typically verbatim, block of data typically as seen a taxonomic determination label.  All buffered_ attributes are written but not intended
 #   to be deleted or otherwise updated.  Buffered_ attributes are typically only used in rapid data capture, primarily in historical situations.
 #
 # @!attribute buffered_other_labels
 #   @return [String]
 #   An incoming, typically verbatim, block of data, as typically found on label that is unrelated to determinations or collecting events.  All buffered_ attributes are written but not intended to be deleted or otherwise updated.  Buffered_ attributes are typically only used in rapid data capture, primarily in historical situations.
-#  
+#
+# @!attribute ranged_lot_category_id
+#   @return [Integer]
+#   The id of the user-defined ranged lot category.  See RangedLotCategory.  When present the subclass is "RangedLot".
+#
+# @!attribute collecting_event_id
+#   @return [Integer]
+#   The id of the collecting event from whence this object came.  See CollectingEvent. 
+#
 # @!attribute accessioned_at
 #   @return [Date]
 #   The date when the object was accessioned to the Repository (not necessarily it's current disposition!). If present Repository must be present.
+#
+# @!attribute deaccession_reason
+#   @return [String]
+#   A free text explanation of why the object was removed from tracking.
 #
 # @!attribute deaccessioned_at
 #   @return [Date]
 #   The date when the object was removed from tracking.  If provide then Repository must be null?! TODO: resolve
 #
-# @!attribute deaccession_reason
-#   @return [String]
-#   A free text explanation of why the object was removed from tracking. 
-#
-#
-#
 class CollectionObject < ActiveRecord::Base
-  # TODO: DDA: may be buffered_accession_number should be added.  MJY: This would promote non-"barcoded" data capture, I'm not sure we want to do this?!
+  # @todo DDA: may be buffered_accession_number should be added.  MJY: This would promote non-"barcoded" data capture, I'm not sure we want to do this?!
 
   include Housekeeping
   include Shared::Citable
@@ -215,7 +221,7 @@ class CollectionObject < ActiveRecord::Base
   end
 
 
-  # # TODO: Write this. Changing from one type to another is ONLY allowed via this method, not by updating attributes
+  # @todo Write this. Changing from one type to another is ONLY allowed via this method, not by updating attributes
   # def transmogrify_to(new_type)
   # end
 

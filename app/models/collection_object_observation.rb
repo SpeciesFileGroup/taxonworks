@@ -8,6 +8,14 @@
 # 2) While working in a collection a user rapidly types all labels/metadata from a specimen into one field, and moves on.  This data
 # is later broken down into individual records
 #
+# @!attribute data
+#   @return [String]
+#   @todo
+#
+# @!attribute project_id
+#   @return [Integer]
+#   the project ID
+#
 class CollectionObjectObservation < ActiveRecord::Base
   include Housekeeping
   include Shared::IsData
