@@ -1,4 +1,30 @@
-
+# A controlled vocabulary term is...
+#   @todo
+#
+# @!attribute type
+#   @return [String]
+#   @todo
+#
+# @!attribute name
+#   @return [String]
+#   @todo
+#
+# @!attribute definition
+#   @return [String]
+#   @todo
+#
+# @!attribute project_id
+#   @return [Integer]
+#   the project ID
+#
+# @!attribute uri
+#   @return [String]
+#   @todo
+#
+# @!attribute uri_relation
+#   @return [String]
+#   @todo
+#
 class ControlledVocabularyTerm < ActiveRecord::Base
 
   include Housekeeping
