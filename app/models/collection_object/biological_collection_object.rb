@@ -5,7 +5,8 @@ class CollectionObject::BiologicalCollectionObject < CollectionObject
   has_many :otus, through: :taxon_determinations, inverse_of: :taxon_determinations
   has_many :taxon_determinations, inverse_of: :biological_collection_object
  
-  accepts_nested_attributes_for :biocuration_classes, :biocuration_classifications, :taxon_determinations, :otus
+  accepts_nested_attributes_for :biocuration_classes, :biocuration_classifications, :otus
+  accepts_nested_attributes_for :taxon_determinations, allow_destroy: true, reject_if: :reject_taxon_determinations
 
   soft_validate(:sv_missing_determination, set: :missing_determination)
   soft_validate(:sv_missing_collecting_event, set: :missing_collecting_event)
@@ -56,6 +57,10 @@ class CollectionObject::BiologicalCollectionObject < CollectionObject
 
   def sv_missing_repository
     soft_validations.add(:repository_id, 'Repository is not selected') if self.repository_id.nil?
+  end
+
+  def reject_taxon_determinations(attributed)
+    attributed['otu_id'].blank?
   end
 
 end
