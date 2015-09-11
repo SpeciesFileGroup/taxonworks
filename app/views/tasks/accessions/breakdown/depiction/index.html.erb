@@ -1,13 +1,17 @@
 <h2> Task: Transcribe depiction </h2>
-
 <div class="flexbox">
-
   <div class="item item1">
-    <div class="extracted_images">
 
-      <% @result.image_sections.each do |section| -%>
-        <%= image_tag(@result.image_path_for(section), alt: 'annotated_specimen', size: '100x100') -%>
-      <% end %>
+    <div id="extracted_images">
+      <div id="bigbox" style="height: 400px;"> 
+        <%= image_tag(@result.image_path_for(@result.primary_image), alt: @result.primary_image, width: 400, class: 'clickable' ) -%>   
+      </div>
+
+      <div id="littlebox">  
+        <% @result.secondary_sections.each_with_index do |section, i| -%>
+          <%= image_tag(@result.image_path_for(section), alt: section, width:  100, class: 'clickable' ) -%>
+        <% end %>
+      </div> 
 
     </div>
   </div>
@@ -15,75 +19,91 @@
   <div class="item item2">
 
     <div class="extracted_header">
-      <% @result.image_sections.each do |section| -%>
-        <div> <%= section -%> <%= @result.thumb_sqed_result.text_for(section) -%> </div>
-      <% end %>
+      <div class="side_by_side_fields">
+        <% @result.image_sections.each do |section| -%>
+          <div class="field">
+            <%= label_tag section %><br>
+            <%= text_area_tag(section, "calculating...", id: "text_for_#{section}", cols: 25, rows: 10) %>
+          </div>
 
+        <% end %>
+      </div>
     </div>
 
     <div class="extracted_form">
 
-      <%= form_for(@result.depiction.depiction_object, as: :collection_object, url: depiction_breakdown_create_task_path) do |f| -%>
+      <%= form_for(@result.depiction.depiction_object, as: :collection_object, url: depiction_breakdown_update_task_path(@result.depiction)) do |f| -%>
 
-        <%= hidden_field_tag :id, @result.depiction.id -%>
+        <div>
+           <h3> Taxon Determinations </h3>
+          <%= f.fields_for(:taxon_determinations, @result.depiction.depiction_object.taxon_determinations ) do |o| -%>
+            <div class="field">
+              <%= o.label :name %><br>
+              <%= render(
+                partial: '/workbench/elements/forms/ajax_select', 
+                locals: {
+                  controller: '/otus',
+                  object:     "collection_object[taxon_determinations_attributes][#{o.index}]",
+                  method:     'otu_id',
+                  tag_id:     "otu_id_for_identifier_#{o.index}",
+                  display:    otu_tag(o.object.otu),
+                  size: 20 }) 
+                %>
+            </div>
+          <% end %>
 
-          <div>
-            <%= f.fields_for(:otus) do |o| -%>
-                <div class="field">
-                  <%= o.label :name %><br>
-                  <%= render(partial: '/workbench/elements/forms/ajax_select',
-                             locals:  {controller: '/otus',
-                                       object:     'specimen[otus_attributes][0]',
-                                       method:     'id',
-                                       tag_id:     'namespace_id_for_identifier',
-                                       display:    nil, size: 20}) %>
-                </div>
-            <% end %>
+          <h3> Identifiers </h3>
+          <%= f.fields_for(:identifiers, @result.depiction.depiction_object.identifiers ) do |i| -%>
+            <%= i.hidden_field :type -%>
 
-            <%= f.fields_for(:identifiers) do |i| -%>
-                <div class="field">
-                  <%= i.label :identifier %><br>
-                  <%= i.text_field :identifier %>
-                </div>
+            <div class="side_by_side_fields"> 
+            
+              <div class="field">
+                <%= i.label :namespace_id %><br>
+                <%= render(
+                  partial: '/workbench/elements/forms/ajax_select', 
+                  locals: {
+                    controller: '/namespaces',
+                    object:     "collection_object[identifiers_attributes][#{i.index}]",
+                    method:     'namespace_id',
+                    tag_id:     "namespace_id_for_identifier_#{i.index}",
+                    display:    i.object.namespace ? i.object.namespace.short_name : nil,
+                    size:       20,
+                    fields_for_object: i}) 
+                  %>
+              </div>
 
-                <%= i.hidden_field :type, value: 'Identifier::Local::CatalogNumber' -%>
+              <div class="field">
+                <%= i.label :identifier %><br>
+                <%= i.text_field :identifier %>
+              </div>
 
-                <div class="field">
-                  <%= i.label :namespace_id %><br>
-                  <%= render(partial: '/workbench/elements/forms/ajax_select',
-                             locals:  {controller: '/namespaces',
-                                       object:     'specimen[identifiers_attributes][0]',
-                                       method:     'namespace_id',
-                                       tag_id:     'namespace_id_for_identifier',
-                                       display:    nil,
-                                       size:       20}) %>
-                </div>
+            </div><!-- end side by side -->
+          <% end %>
+        </div>
 
-              <% end %>
+        <div class="side_by_side_fields">
+          <div class="field">
+            <%= f.label :buffered_collecting_event %>
+            <br>
+            <%= f.text_area :buffered_collecting_event, cols: 40, rows: 6 -%>
           </div>
 
-          <div>
-            <div class="field">
-              <%= f.label :buffered_collecting_event %>
-              <br>
-              <%= f.text_area :buffered_collecting_event, cols: 40, rows: 6 -%>
-            </div>
-
-            <div class="field">
-              <%= f.label :buffered_determinations %>
-              <br>
-              <%= f.text_area :buffered_determinations, cols: 40, rows: 5 -%>
-            </div>
-
-            <div class="field">
-              <%= f.label :buffered_other_labels %>
-              <br>
-              <%= f.text_area :buffered_other_labels, cols: 40, rows: 6 -%>
-            </div>
-
+          <div class="field">
+            <%= f.label :buffered_determinations %>
+            <br>
+            <%= f.text_area :buffered_determinations, cols: 40, rows: 5 -%>
           </div>
-          <%= submit_tag -%> 
-          <br class="clear_both">
+
+          <div class="field">
+            <%= f.label :buffered_other_labels %>
+            <br>
+            <%= f.text_area :buffered_other_labels, cols: 40, rows: 6 -%>
+          </div>
+
+        </div>
+        <%= submit_tag -%> 
+        <br class="clear_both">
       <% end %>
 
 
@@ -91,8 +111,28 @@
 
     <div class="extracted_history">
     </div>
-
-
   </div>
+
+  
+  <script>
+    <% @result.image_sections.each do |section| -%>
+      $.get("<%= @result.ocr_path_for(section) -%>", function(data) {
+            $("#text_for_<%= section -%>").val(data.text);
+          }, 'json'
+          ) ;
+    <% end %> 
+
+    $('.clickable').on('click', function() {
+        var little_detached = $(this).detach();
+        little_detached.attr('width', 400); 
+
+        var big_detached = $('#bigbox img').detach();
+        big_detached.attr('width', 100); 
+        
+        $("#littlebox").append(big_detached);
+        $("#bigbox").append(little_detached);
+      });
+
+  </script> 
 
 </div>
