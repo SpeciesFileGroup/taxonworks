@@ -332,7 +332,7 @@ TaxonWorks::Application.routes.draw do
       scope :breakdown do
         scope :depiction, controller: 'tasks/accessions/breakdown/depiction' do
           get ':depiction_id', action: :index, as: 'depiction_breakdown_task'
-          post :breakdown, action: :breakdown, as: 'depiction_breakdown_create_task'
+          patch 'update/:id', action: :update, as: 'depiction_breakdown_update_task'
         end
 
         # scope :sqed, controller: 'tasks/accessions/breakdown/sqed' do
