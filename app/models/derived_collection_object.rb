@@ -1,3 +1,22 @@
+# A derived collect object is...
+#   @todo
+#
+# @!attribute collection_object_observation_id
+#   @return [Integer]
+#   @todo
+#
+# @!attribute collection_object_id
+#   @return [Integer]
+#   @todo
+#
+# @!attribute position
+#   @return [Integer]
+#   @todo
+#
+# @!attribute project_id
+#   @return [Integer]
+#   the project ID
+#
 class DerivedCollectionObject < ActiveRecord::Base
   include Housekeeping
   include Shared::IsData
