@@ -4,7 +4,7 @@ module Shared::Identifiable
   included do
     # Validation happens on the parent side!
     has_many :identifiers, as: :identifier_object, validate: true, dependent: :destroy
-    accepts_nested_attributes_for :identifiers
+    accepts_nested_attributes_for :identifiers, reject_if: :reject_identifiers 
   end
 
   module ClassMethods
@@ -43,6 +43,10 @@ module Shared::Identifiable
       a = t[:cached].eq_any(value)
       self.joins(:identifiers).where(a.to_sql).references(:identifiers)
     end
+  end
+
+  def reject_identifiers(attributed)
+    attributed['identifier'].blank? || attributed['type'].blank?
   end
 
   def identified?
