@@ -47,6 +47,29 @@ module Utilities::Geo
 
   end
 
+  # 12345       (presume meters)
+  # 123.45
+  # 123 ft > 123 ft. > 123 feet > 1 foot > 123 f > 123 f.
+  # 123 m > 123 meters > 123 m.
+  # 123 km > 123 km. > 123 kilometers
+
+  def self.elevation_in_meters(elev_in)
+    elev_in = '0.0 meters' if elev_in.blank?
+    elev_in.strip.downcase!
+    pieces = elev_in.split(' ')
+
+    /(?<ft>f[oe]*[t]*\.*)|(?<m>[^k]m(eters)*[\.]*)|(?<km>kilometer(s)*|k[m]*[\.]*)/ =~ pieces[1]
+    scale = $&
+
+    scale = 1.0
+    scale = 0.3048 unless ft.blank?
+    scale = 1000.0 unless km.blank?
+
+    elev = pieces[0].to_f * scale
+
+    elev
+  end
+
   # 42∞5'18.1"S88∞11'43.3"W
   # S42∞5'18.1"W88∞11'43.3"
   # S42∞5.18'W88∞11.43'

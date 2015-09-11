@@ -9,7 +9,7 @@ describe Georeference::VerbatimData, type: :model, group: :geo do
       expect(georeference.is_median_z).to be_falsey
       expect(georeference.is_undefined_z).to be_truthy
       expect(georeference.save).to be_truthy
-      expect(georeference.geographic_item.geo_object.to_s).to eq('POINT (-88.195361 40.092067 0.0)')
+      expect(georeference.geographic_item.geo_object.to_s).to eq('POINT (-88.195361 40.092067 735.0)')
     end
 
     specify 'with *only* minimum elevation' do
@@ -20,7 +20,7 @@ describe Georeference::VerbatimData, type: :model, group: :geo do
       expect(georeference.is_median_z).to be_falsey
       expect(georeference.is_undefined_z).to be_falsey
       expect(georeference.save).to be_truthy
-      expect(georeference.geographic_item.geo_object.to_s).to eq('POINT (-88.249519 40.092067 759.0)')
+      expect(georeference.geographic_item.geo_object.to_s).to eq('POINT (-88.249519 40.092067 735.0)')
     end
 
     specify 'with minimum and maximim elevation' do
@@ -32,7 +32,7 @@ describe Georeference::VerbatimData, type: :model, group: :geo do
       expect(georeference.is_median_z).to be_truthy
       expect(georeference.is_undefined_z).to be_falsey
       expect(georeference.save).to be_truthy
-      expect(georeference.geographic_item.geo_object.to_s).to eq('POINT (-88.249519 40.092067 809.0)')
+      expect(georeference.geographic_item.geo_object.to_s).to eq('POINT (-88.249519 40.092067 735.0)')
     end
   end
 

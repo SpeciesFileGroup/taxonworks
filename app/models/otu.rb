@@ -55,7 +55,10 @@ class Otu < ActiveRecord::Base
 
   # return [Scope] the otus bound to that taxon name and its descendants
   def self.for_taxon_name(taxon_name)
-    tn = nil
+    # tn = nil
+    #
+    # alternate multiple string test:
+    #   ['String', 'Fixnum', 'Integer'].include?(taxon_name.class.name)
     case taxon_name.class.name
       when 'String', 'Fixnum', 'Integer'
         tn = TaxonName.find(taxon_name)

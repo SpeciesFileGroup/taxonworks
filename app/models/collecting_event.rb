@@ -362,7 +362,8 @@ class CollectingEvent < ActiveRecord::Base
       local_longitude = self.verbatim_longitude
       local_latitude  = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(local_latitude)
       local_longitude = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(local_longitude)
-      point           = Gis::FACTORY.point(local_latitude, local_longitude)
+      elev            = Utilities::Geo.elevation_in_meters(verbatim_elevation)
+      point           = Gis::FACTORY.point(local_latitude, local_longitude, elev)
       GeographicItem.new(point: point)
     else
       nil
@@ -719,9 +720,11 @@ class CollectingEvent < ActiveRecord::Base
   # @return [RGeo point]
   def map_center(delta_z = 0.0)
     unless verbatim_latitude.blank? or verbatim_longitude.blank?
-      lat    = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_latitude.to_s).to_f
-      long   = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_longitude.to_s).to_f
-      retval = Gis::FACTORY.point(long, lat, delta_z)
+      lat     = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_latitude.to_s)
+      long    = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_longitude.to_s)
+      elev    = Utilities::Geo.elevation_in_meters(verbatim_elevation.to_s)
+      delta_z = elev unless elev == 0.0
+      retval  = Gis::FACTORY.point(long, lat, delta_z)
       retval
     end
   end
@@ -844,25 +847,25 @@ class CollectingEvent < ActiveRecord::Base
   # for large imports
   def set_cached
     # if self.cached.blank?
-      if verbatim_label.blank?
-        unless self.geographic_area.nil?
-          if self.geographic_area.geographic_items.count == 0
-            name = self.geographic_area.name
-          else
-            names = geographic_area.ancestors.map(&:name)
-            names.push(geographic_area.name)
-            # name = [country_name, state_name, county_name].compact.join(", ")
-            names.delete('Earth')
-            name = names.compact.join(', ')
-          end
+    if verbatim_label.blank?
+      unless self.geographic_area.nil?
+        if self.geographic_area.geographic_items.count == 0
+          name = self.geographic_area.name
+        else
+          names = geographic_area.ancestors.map(&:name)
+          names.push(geographic_area.name)
+          # name = [country_name, state_name, county_name].compact.join(", ")
+          names.delete('Earth')
+          name = names.compact.join(', ')
         end
-        place_date = [verbatim_locality, start_date, end_date].compact.join(', ')
-        string     = [name, "\n", place_date, "\n", verbatim_collectors].compact.join
-      else
-        string = [verbatim_label, print_label, document_label].compact.first
       end
-      string      = "[#{self.id.to_param}]" if string.strip.length == 0
-      self.cached = string
+      place_date = [verbatim_locality, start_date, end_date].compact.join(', ')
+      string     = [name, "\n", place_date, "\n", verbatim_collectors].compact.join
+    else
+      string = [verbatim_label, print_label, document_label].compact.first
+    end
+    string      = "[#{self.id.to_param}]" if string.strip.length == 0
+    self.cached = string
     # end
   end
 

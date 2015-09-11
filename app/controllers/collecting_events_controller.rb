@@ -68,7 +68,7 @@ class CollectingEventsController < ApplicationController
   end
 
   def list
-    @collecting_events = CollectingEvent.with_project_id($project_id).order(:id).page(params[:page]) 
+    @collecting_events = CollectingEvent.with_project_id($project_id).order(:id).page(params[:page])
   end
 
   # GET /collecting_events/search
@@ -77,20 +77,20 @@ class CollectingEventsController < ApplicationController
       redirect_to collecting_event_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
     else
       redirect_to collecting_event_path(params[:id])
-     end
+    end
   end
 
   def autocomplete
-    @collecting_events = CollectingEvent.find_for_autocomplete(params.merge(project_id: sessions_current_project_id)) 
+    @collecting_events = CollectingEvent.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
 
     data = @collecting_events.collect do |t|
       str = render_to_string(partial: 'tag', locals: {collecting_event: t})
       {id:              t.id,
-       label:           str, 
+       label:           str,
        response_values: {
          params[:method] => t.id
        },
-       label_html:      str  
+       label_html:      str
       }
     end
 
@@ -99,7 +99,7 @@ class CollectingEventsController < ApplicationController
 
   # GET /collecting_events/download
   def download
-    send_data CollectingEvent.generate_download( CollectingEvent.where(project_id: $project_id) ), type: 'text', filename: "collecting_events_#{DateTime.now.to_s}.csv"
+    send_data CollectingEvent.generate_download(CollectingEvent.where(project_id: $project_id)), type: 'text', filename: "collecting_events_#{DateTime.now.to_s}.csv"
   end
 
   private
@@ -107,7 +107,7 @@ class CollectingEventsController < ApplicationController
   # Use callbacks to share common setup or constraints between actions.
   def set_collecting_event
     @collecting_event = CollectingEvent.with_project_id($project_id).find(params[:id])
-    @recent_object = @collecting_event 
+    @recent_object    = @collecting_event
   end
 
   # Never trust parameters from the scary internet, only allow the white list through.
@@ -120,8 +120,10 @@ class CollectingEventsController < ApplicationController
       :elevation_precision, :time_start_hour, :time_start_minute, :time_start_second,
       :time_end_hour, :time_end_minute, :time_end_second, :start_date_day,
       :start_date_month, :start_date_year, :end_date_day, :end_date_month,
-      :end_date_year, :verbatim_habitat,  :field_notes, :verbatim_datum, 
-      roles_attributes: [:id, :_destroy, :type, :person_id, :position, person_attributes: [:last_name, :first_name, :suffix, :prefix]]
+      :end_date_year, :verbatim_habitat, :field_notes, :verbatim_datum,
+      :verbatim_elevation,
+      roles_attributes: [:id, :_destroy, :type, :person_id, :position,
+                         person_attributes: [:last_name, :first_name, :suffix, :prefix]]
     )
   end
 end
