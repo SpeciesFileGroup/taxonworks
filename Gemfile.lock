@@ -349,7 +349,7 @@ GEM
       actionpack (>= 3.0)
       activesupport (>= 3.0)
       sprockets (>= 2.8, < 4.0)
-    sqed (0.1.5)
+    sqed (0.1.6)
       rake
       rmagick (~> 2.14)
       rtesseract (~> 1.2.6)
@@ -463,7 +463,7 @@ DEPENDENCIES
   sdoc
   selenium-webdriver (~> 2.46.2)
   spring-commands-rspec (~> 1.0.2)
-  sqed (~> 0.1.5)
+  sqed (= 0.1.6)
   taxonifi (= 0.3.5)
   timecop (~> 0.7.1)
   turbolinks (~> 2.5)
