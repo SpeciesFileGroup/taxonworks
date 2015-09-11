@@ -27,6 +27,20 @@ module Workbench::ListHelper
     render partial: partial , locals: {recent_objects: recent_objects}
   end
 
+
+  def list_tag(object, method)
+    return content_tag(:div, object_tag(object) + "has no method #{method}") unless object.respond_to?(method)
+    if object.send(method).any?
+      content_tag(:ul) do
+        object.send(method).collect{|i|
+          content_tag(:li, object_tag(i))
+        }.join.html_safe
+      end
+    else
+      content_tag(:span, "No #{method} attached.", class: :warning)
+    end
+  end
+
 #   elsif model.annotates?
 #     render partial: "/#{params[:controller]}/recent_objects_list", locals: {recent_objects: recent_objects}
 #   else
