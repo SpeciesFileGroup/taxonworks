@@ -11,14 +11,23 @@ class Tasks::Accessions::Breakdown::DepictionController < ApplicationController
     )
   end
 
-  def create
+  def update 
     @depiction = Depiction.find(params[:id])
-    @depiction.depiction_object.update(collection_object_params)
+    
+    if @depiction.depiction_object.update(collection_object_params)
+      flash[:notice] = 'Successfully updated'
+    else
+      flash[:alert] = 'Failed to update! ' + @depiction.depiction_object.errors.full_messages.join("; ").html_safe
+    end
     redirect_to depiction_breakdown_task_path(@depiction)
   end
 
   def collection_object_params
-    params.require(:collection_object).permit()
+    params.require(:collection_object).permit(
+      :buffered_collecting_event, :buffered_other_labels, :buffered_determinations,
+      identifiers_attributes: [:id, :namespace_id, :identifier, :type, :_destroy],
+      taxon_determinations_attributes: [:otu_id, :_destroy]
+    )
   end
 
 
