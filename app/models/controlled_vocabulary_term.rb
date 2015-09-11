@@ -71,3 +71,11 @@ class ControlledVocabularyTerm < ActiveRecord::Base
   end
 
 end
+
+require_dependency 'biocuration_class'
+require_dependency 'biological_property'
+require_dependency 'keyword'
+require_dependency 'predicate'
+require_dependency 'topic'
+
+
