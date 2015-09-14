@@ -2,20 +2,41 @@
 #
 # This class relies on the paperclip gem and the ImageMagik app to link, store and manipulate images.
 #
-# @!attribute id
-#   The ActiveRecord id, which is used by paperclip to organize the images in the filesystem.
+# @!attribute user_file_name
+#   @return [String]
+#   The name of the file as uploaded by the user.
 #
-# @!attribute user_file_name The name of the file as uploaded by the user.
 # @!attribute height
-# @!attribute width
+#   @return [Integer]
+#   @todo
 #
-# @!group attributes added by paperclip
-# @!attribute image_file_fingerprint MD5 for the image file
-# @!attribute image_file_file_name The filename after processing to remove special characters.
-# @!attribute image_file_content_type The MIME (must be image) and file type (e.g. image/png).
+# @!attribute width
+#   @return [Integer]
+#   @todo
+#
+# @!attribute image_file_fingerprint
+#   @return [String]
+#   Added by paperclip; MD5 for the image file
+#
+# @!attribute image_file_file_name
+#   @return [String]
+#   Added by paperclip; the filename after processing to remove special characters.
+#
+# @!attribute image_file_content_type
+#   @return [String]
+#   Added by paperclip; the MIME (must be image) and file type (e.g. image/png).
+#
 # @!attribute image_file_file_size
+#   @return [Integer]
+#   Added by paperclip
+#
 # @!attribute image_file_updated_at
-# @!endgroup
+#   @return [Integer]
+#   Added by paperclip
+#
+# @!attribute image_file_meta
+#   @return (String)
+#   Added by paperclip_meta; @todo
 #
 class Image < ActiveRecord::Base
   include Housekeeping

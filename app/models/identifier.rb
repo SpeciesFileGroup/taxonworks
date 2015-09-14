@@ -7,37 +7,39 @@
 # are subclassed by type, and do not include a namespace,
 # or local, in which case they have a namespace.
 #
-#
 # !! Identifiers should always be created in the context of their parents see spec/lib/identifier_spec.rb for examples  !!
 #
-#
-## @!attribute identifier_object_id 
-#   @return [Integer]
-#   The id of the identified object, used in a polymorphic relationship.
-#
-## @!attribute identifier_object_id 
+# @!attribute identifier
 #   @return [String]
-#   The type of the identified object, used in a polymorphic relationship.
+#   The string identifying the object.  Must be unique within the Namespace if provided.
+#   Same as http://rs.tdwg.org/dwc/terms/catalogNumber, but broadened in scope to be used for any data.
 #
-## @!attribute identifier 
+# @!attribute type
 #   @return [String]
-#  The string identifying the object.  Must be unique within the Namespace if provided. 
-#  Same as http://rs.tdwg.org/dwc/terms/catalogNumber , but brodened in scope to be used for any data.
+#   The Rails STI subclass of this identifier.
 #
-## @!attribute namespace_id 
+# @!attribute namespace_id
 #   @return [Integer]
 #   The Namespace for this identifier.
 #
-## @!attribute type 
-#   @return [String]
-#   The Rails STI subclass of this identifier.   
-
-## @!attribute cached
+# @!attribute project_id
+#   @return [Integer]
+#   The project ID.
+#
+# @!attribute cached
 #   @return [String]
 #   The full identifier, for display, i.e. namespace + identifier (local), or identifier (global).
-#   
+#
+# @!attribute identifier_object_id
+#   @return [Integer]
+#   The id of the identified object, used in a polymorphic relationship.
+#
+# @!attribute identifier_object_id
+#   @return [String]
+#   The type of the identified object, used in a polymorphic relationship.
+#
 class Identifier < ActiveRecord::Base
-  # TODO: @mjy resolve this to not require project id 
+  # @todo @mjy resolve this to not require project id
   include Housekeeping
   include Shared::IsData 
   include Shared::DualAnnotator
@@ -47,7 +49,7 @@ class Identifier < ActiveRecord::Base
   # must come before SHORT_NAMES for weird inheritance issue
   belongs_to :identifier_object, polymorphic: :true
 
-  # TODO: this likely has to be refactored/considered
+  # @todo this likely has to be refactored/considered
   # !! If there are inheritance issues with validation the position
   # !! of this constant is likely the problem
   SHORT_NAMES = {
@@ -71,7 +73,7 @@ class Identifier < ActiveRecord::Base
   #   validates_presence_of :identifier_object_type, :identifier_object_id
   validates_presence_of :type, :identifier
 
-  # TODO: test  - pendings are in the identifier_spec
+  # @todo test  - pendings are in the identifier_spec
   scope :of_type, -> (type) { where(type: Identifier::SHORT_NAMES[type].to_s) }
 
   def self.find_for_autocomplete(params)
