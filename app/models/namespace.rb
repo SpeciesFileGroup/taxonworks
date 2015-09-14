@@ -3,7 +3,6 @@
 #
 # In TW Identifiers + namespaces are used for differentiating/disambiguating one datum from another. 
 #
-#
 # Namespaces are minted in TW on a first come first serve basis.  Their short and
 # long names must be unique across instances.  When conflicts arise new values must be minted for
 # record keeping purposes.  In this case a verbatim_short_name can be provided, and this 
@@ -38,7 +37,6 @@
 #   TW enforces uniqueness of short names.  When a short name exists for historical reasons but it has already
 #   been included in TW then a new short name must be minted, and a verbatim_short_name used to indicate the 
 #   physically/and or historically recorded value.
-#
 #
 class Namespace < ActiveRecord::Base
   include Housekeeping::Users
