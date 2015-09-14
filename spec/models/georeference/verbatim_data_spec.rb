@@ -15,24 +15,26 @@ describe Georeference::VerbatimData, type: :model, group: :geo do
     specify 'with *only* minimum elevation' do
       georeference = Georeference::VerbatimData.new(collecting_event: FactoryGirl.build(:valid_collecting_event,
                                                                                         minimum_elevation:  759,
+                                                                                        verbatim_elevation: nil,
                                                                                         verbatim_latitude:  '40.092067',
                                                                                         verbatim_longitude: '-88.249519'))
       expect(georeference.is_median_z).to be_falsey
       expect(georeference.is_undefined_z).to be_falsey
       expect(georeference.save).to be_truthy
-      expect(georeference.geographic_item.geo_object.to_s).to eq('POINT (-88.249519 40.092067 735.0)')
+      expect(georeference.geographic_item.geo_object.to_s).to eq('POINT (-88.249519 40.092067 759.0)')
     end
 
     specify 'with minimum and maximim elevation' do
       georeference = Georeference::VerbatimData.new(collecting_event: FactoryGirl.build(:valid_collecting_event,
                                                                                         minimum_elevation:  759,
                                                                                         maximum_elevation:  859,
+                                                                                        verbatim_elevation: nil,
                                                                                         verbatim_latitude:  '40.092067',
                                                                                         verbatim_longitude: '-88.249519'))
       expect(georeference.is_median_z).to be_truthy
       expect(georeference.is_undefined_z).to be_falsey
       expect(georeference.save).to be_truthy
-      expect(georeference.geographic_item.geo_object.to_s).to eq('POINT (-88.249519 40.092067 735.0)')
+      expect(georeference.geographic_item.geo_object.to_s).to eq('POINT (-88.249519 40.092067 809.0)')
     end
   end
 
