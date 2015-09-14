@@ -1,4 +1,5 @@
 # A georeference is an assertion that some shape, as derived from some method, describes the location of some collecting event.
+#
 # A georeference contains three components:
 #    1) A reference to a CollectingEvent (who, where, when, how)
 #    2) A reference to a GeographicItem (a shape)
@@ -9,44 +10,59 @@
 #
 # @!attribute geographic_item_id
 #   @return [Integer]
-#     The id of a GeographicItem which represents the (non-error) representation of this georeference definition.
-#     Generally, it will represent a point.
+#   The id of a GeographicItem which represents the (non-error) representation of this georeference definition.
+#   Generally, it will represent a point.
+#
 # @!attribute collecting_event_id
 #   @return [Integer]
-#     The id of a CollectingEvent which represents the event of this georeference definition.
+#   The id of a CollectingEvent which represents the event of this georeference definition.
+#
 # @!attribute error_radius
 #   @return [Integer]
-#     the radius of the area of horizontal uncertainty of the accuracy of the location of
-#     this georeference definition. Measured in meters. Corresponding error areas are draw from the st_centroid() of the geographic item.
+#   the radius of the area of horizontal uncertainty of the accuracy of the location of
+#   this georeference definition. Measured in meters. Corresponding error areas are draw from the st_centroid() of the geographic item.
+#
 # @!attribute error_depth
 #   @return [Integer]
-#     The distance in meters of the radius of the area of vertical uncertainty of the accuracy of the location of
-#     this georeference definition.
+#   The distance in meters of the radius of the area of vertical uncertainty of the accuracy of the location of
+#   this georeference definition.
+#
 # @!attribute error_geographic_item_id
 #   @return [Integer]
-#     The id of a GeographicItem which represents the (error) representation of this georeference definition.
-#     Generally, it will represent a polygon.
+#   The id of a GeographicItem which represents the (error) representation of this georeference definition.
+#    Generally, it will represent a polygon.
+#
 # @!attribute type
 #   @return [String]
-#     The type name of the this georeference definition.
+#   The type name of the this georeference definition.
+#
 # @!attribute source_id
 #   @return [Integer]
-#     When provided, asserts that this data originated in the specified source.
+#   When provided, asserts that this data originated in the specified source.
+#
 # @!attribute position
 #   @return [Integer]
-#     An arbitrary ordering mechanism, the first georeference is routinely defaulted to in the application
+#   An arbitrary ordering mechanism, the first georeference is routinely defaulted to in the application.
+#
 # @!attribute is_public
 #   @return [Boolean]
-#     True if this georeference can be shared, otherwise false.
+#   True if this georeference can be shared, otherwise false.
+#
 # @!attribute api_request
 #   @return [String]
-#     The text of the GeoLocation request (::GeoLocate), or the verbatim data (VerbatimData)
+#   The text of the GeoLocation request (::GeoLocate), or the verbatim data (VerbatimData).
+#
+# @!attribute project_id
+#   @return [Integer]
+#   the project ID
+#
 # @!attribute is_undefined_z
 #   @return [Boolean]
-#     True if this georeference cannot be located vertically, otherwise false.
+#   True if this georeference cannot be located vertically, otherwise false.
+#
 # @!attribute is_median_z
 #   @return [Boolean]
-#     True if this georeference represents an average vertical distance, otherwise false.
+#   True if this georeference represents an average vertical distance, otherwise false.
 #
 class Georeference < ActiveRecord::Base
   include Housekeeping

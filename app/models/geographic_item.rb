@@ -4,11 +4,33 @@ require 'rgeo'
 # multi_polygon, geometry_collection] which describes a position, path, or area on the globe, generally associated
 # with a geographic_area (through a geographic_area_geographic_item entry), and sometimes only with a georeference.
 #
-# # @!attribute geo_object
-#   @return [geographic RGeo object]
-#     While no an attribute, per se, this instance method returns whatever sort of RGeo object it contains.  The actual
-#     related column names we support are enumerated in the above description.
-#     (See http://rubydoc.info/github/dazuma/rgeo/RGeo/Feature)
+# @!attribute point
+#   @return [RGeo::Geographic::ProjectedPointImpl]
+#   @todo check @return type
+#
+# @!attribute line_string
+#   @return [RGeo::Geographic::ProjectedLineStringImpl]
+#   @todo check @return type
+#
+# @!attribute polygon
+#   @return [RGeo::Geographic::ProjectedPolygonImpl]
+#   @todo check @return type
+#
+# @!attribute multi_point
+#   @return [RGeo::Geographic::ProjectedMultiPointImpl]
+#   @todo check @return type
+#
+# @!attribute multi_line_string
+#   @return [RGeo::Geographic::ProjectedMultiLineStringImpl]
+#   @todo check @return type
+#
+# @!attribute multi_polygon
+#   @return [RGeo::Geographic::ProjectedMultiPolygonImpl]
+#   @todo check @return type
+#
+# @!attribute type
+#   @return [String]
+#   @todo
 #
 class GeographicItem < ActiveRecord::Base
   include Housekeeping::Users
@@ -186,7 +208,7 @@ SELECT round(CAST(
 
   # @return [String(?)]
   #   distance in meters from this object to supplied 'geo_object'
-  # TODO: use a geographic_item_id rather than a geo_object
+  # @todo use a geographic_item_id rather than a geo_object
   def st_distance(geo_object)
     GeographicItem.where(id: self.id).pluck("ST_Distance_Spheroid('#{self.geo_object}','#{geo_object}','#{Gis::SPHEROID}') as distance").first
   end
@@ -199,7 +221,7 @@ SELECT round(CAST(
   def self.same(geo_object_a, geo_object_b)
     # http://postgis.refractions.net/documentation/manual-1.4/ST_Geometry_Same.html
     # boolean ~=( geometry A , geometry B );
-    # TODO: not sure how to specify '~=', syntactically substituting 'same'
+    # @todo not sure how to specify '~=', syntactically substituting 'same'
     where(st_geometry_same(geo_object_a, geo_object_b))
     # returns true if the two objects are, vertex-by-vertex, the same
   end
@@ -237,14 +259,14 @@ SELECT round(CAST(
   # See comments https://groups.google.com/forum/#!topic/postgis-users/0nzm2SRUZVU on why this might not work
   # For the record: the problem was caused by incorrect escaping of strings.
   # I solved it by setting standard_conforming_strings = off in postgresql.conf
-  # TODO: @mjy: Do you think this is a permanent change in PG configuration?
+  # @todo @mjy: Do you think this is a permanent change in PG configuration?
   def self.contains?(geo_object_a, geo_object_b)
     # ST_Contains(geometry, geometry) or
     # ST_Contains(geography, geography)
     where { st_contains(st_geomfromewkb(geo_object_a), st_geomfromewkb(geo_object_b)) }
   end
 
-  # TODO(?): as per http://danshultz.github.io/talks/mastering_activerecord_arel/#/7/1
+  # @todo ? as per http://danshultz.github.io/talks/mastering_activerecord_arel/#/7/1
   class << self
     # @param [String, GeographicItems]
     # @return [Scope]
@@ -255,7 +277,7 @@ SELECT round(CAST(
           pieces.push(GeographicItem.intersecting("#{column}", geographic_items).to_a)
         }
 
-        # todo: change 'id in (?)' to some other sql construct
+        # @todo change 'id in (?)' to some other sql construct
 
         GeographicItem.where(id: pieces.flatten.map(&:id))
       else
@@ -269,7 +291,7 @@ SELECT round(CAST(
 
     # @param [String, Geometry]
     # @return [Scope]
-    # TODO: not used?
+    # @todo not used?
     def st_intersects(column_name = :multi_polygon, geometry)
       geographic_item = GeographicItem.arel_table
       Arel::Nodes::NamedFunction.new('ST_Intersects', geographic_item[column_name], geometry)
@@ -475,7 +497,7 @@ SELECT round(CAST(
             part.push(GeographicItem.is_contained_by("#{column}", geographic_items).to_a)
           end
         }
-        # todo: change 'id in (?)' to some other sql construct
+        # @todo change 'id in (?)' to some other sql construct
         GeographicItem.where(id: part.flatten.map(&:id))
 
       when 'any_poly', 'any_line'
@@ -487,7 +509,7 @@ SELECT round(CAST(
             end
           end
         }
-        # todo: change 'id in (?)' to some other sql construct
+        # @todo change 'id in (?)' to some other sql construct
         GeographicItem.where(id: part.flatten.map(&:id))
 
       else
@@ -613,6 +635,12 @@ SELECT round(CAST(
 
   # @return [RGeo instance, nil]
   #    the Rgeo shape
+  # @todo what follows, copied from top of file after overview
+  # @!attribute geo_object
+  #   @return [geographic RGeo object]
+  #   While no an attribute, per se, this instance method returns whatever sort of RGeo object it contains.  The actual
+  #   related column names we support are enumerated in the above description.
+  #   (See http://rubydoc.info/github/dazuma/rgeo/RGeo/Feature)
   def geo_object
     if r = geo_object_type
       self.send(r)
@@ -635,7 +663,7 @@ SELECT round(CAST(
     self.geo_object.within?(geo_object)
   end
 
-  # TODO: doesn't work?
+  # @todo doesn't work?
   # @param [geo_object]
   # @return [Boolean]
   def distance?(geo_object)
@@ -810,8 +838,8 @@ SELECT round(CAST(
     {polygons: self.to_a}
   end
 
-  # TODO: refactor to subclasses or remove completely, likely not useful given geojson capabilities
-  # TODO: deprecate fully in favour of providing ids
+  # @todo refactor to subclasses or remove completely, likely not useful given geojson capabilities
+  # @todo deprecate fully in favour of providing ids
   # @return [Boolean]
   def self.check_geo_params(column_name, geographic_item)
     return true
