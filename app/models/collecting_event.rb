@@ -315,12 +315,14 @@ class CollectingEvent < ActiveRecord::Base
 
   # @return [Utilities::Dates]
   def end_date
-    Utilities::Dates.nomenclature_date(end_date_day, end_date_month, end_date_year)
+    date = Utilities::Dates.nomenclature_date(end_date_day, end_date_month, end_date_year)
+    "#{'%02d' % date.day}/#{'%02d' % date.month}/#{'%4d' % date.year}" unless date.nil?
   end
 
   # @return [Utilities::Dates]
   def start_date
-    Utilities::Dates.nomenclature_date(start_date_day, start_date_month, start_date_year)
+    date = Utilities::Dates.nomenclature_date(start_date_day, start_date_month, start_date_year)
+    "#{'%02d' % date.day}/#{'%02d' % date.month}/#{'%4d' % date.year}" unless date.nil?
   end
 
   # @return [String]
@@ -859,7 +861,8 @@ class CollectingEvent < ActiveRecord::Base
           name = names.compact.join(', ')
         end
       end
-      place_date = [verbatim_locality, start_date, end_date].compact.join(', ')
+      date = [start_date, end_date].compact.join('-')
+      place_date = [verbatim_locality, date].compact.join(', ')
       string     = [name, "\n", place_date, "\n", verbatim_collectors].compact.join
     else
       string = [verbatim_label, print_label, document_label].compact.first
@@ -881,6 +884,7 @@ class CollectingEvent < ActiveRecord::Base
 
   def check_date_range
     errors.add(:base, 'End date is earlier than start date.') if has_start_date? && has_end_date? && (start_date > end_date)
+    errors.add(:base, 'End date without start date.') if (has_end_date? && !has_start_date?)
   end
 
   def check_elevation_range
