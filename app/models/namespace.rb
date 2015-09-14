@@ -54,7 +54,7 @@ class Namespace < ActiveRecord::Base
 
   def self.find_for_autocomplete(params)
     match = "#{params[:term]}%"
-    where('name LIKE ? OR short_name LIKE ? OR verbatim_short_name LIKE ?', match, match, match)
+    where('name ILIKE ? OR short_name ILIKE ? OR verbatim_short_name ILIKE ?', match, match, match)
   end
 
   def self.generate_download(scope)

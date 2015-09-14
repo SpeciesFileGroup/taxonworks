@@ -1,3 +1,30 @@
+# A container item is...
+#   @todo
+#
+# @!attribute container_id
+#   @return [Integer]
+#   @todo
+#
+# @!attribute position
+#   @return [Integer]
+#   @todo
+#
+# @!attribute contained_object_id
+#   @return [Integer]
+#   @todo
+#
+# @!attribute contained_object_type
+#   @return [String]
+#   @todo
+#
+# @!attribute localization
+#   @return [String]
+#   @todo
+#
+# @!attribute project_id
+#   @return [Integer]
+#   the project ID
+#
 class ContainerItem < ActiveRecord::Base
   include Housekeeping
   include Shared::IsData 

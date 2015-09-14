@@ -29,7 +29,11 @@ module IdentifiersHelper
 
   def identifier_tag(identifier)
     return nil if identifier.nil?
-    "#{identifier.cached} (#{identifier.type.demodulize.titleize.humanize})"
+    if identifier.new_record?
+      nil  
+    else
+      "#{identifier.cached} (#{identifier.type.demodulize.titleize.humanize})"
+    end
   end
 
   def identifier_link(identifier)
@@ -52,8 +56,5 @@ module IdentifiersHelper
   def identifier_recent_objects_partial
     true 
   end
-
-
-
 
 end

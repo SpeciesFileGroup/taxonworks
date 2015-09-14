@@ -1,3 +1,22 @@
+# A depiction is...
+#   @todo
+#
+# @!attribute depicktion_object_type
+#   @return [String]
+#   @todo
+#
+# @!attribute depiction_object_id
+#   @return [Integer]
+#   @todo
+#
+# @!attribute image_id
+#   @return [Integer]
+#   @todo
+#
+# @!attribute project_id
+#   @return [Integer]
+#   the project ID
+#
 class Depiction < ActiveRecord::Base
   include Housekeeping
   include Shared::Taggable

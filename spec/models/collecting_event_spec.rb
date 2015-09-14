@@ -168,6 +168,16 @@ describe CollectingEvent, type: :model, group: :geo do
       expect(collecting_event.errors[:base].include?(message)).to be_truthy
     end
 
+    specify 'end date without start date' do
+      message                         = 'End date without start date.'
+      collecting_event.end_date_day   = 1
+      collecting_event.end_date_month = 1
+      collecting_event.end_date_year  = 1789
+
+      expect(collecting_event.valid?).to be_falsey
+      expect(collecting_event.errors[:base].include?(message)).to be_truthy
+    end
+
     specify 'maximum elevation is greater than minimum elevation when both provided' do
       message                            = 'Maximum elevation is lower than minimum elevation.'
       collecting_event.minimum_elevation = 2
@@ -199,6 +209,41 @@ describe CollectingEvent, type: :model, group: :geo do
       # TODO: CollectingEvent.cached takes too much time to complete, turned off by Dmitry 07/17/15
       # pending 'resolution of collecting_event caching delay'
       expect(collecting_event.cached.blank?).to be_falsey, collecting_event.cached
+    end
+
+    context 'contents of cached' do
+      specify 'just dates' do
+        collecting_event.start_date_day   = 1
+        collecting_event.start_date_month = 1
+        collecting_event.start_date_year  = 1511
+
+        collecting_event.end_date_day   = 2
+        collecting_event.end_date_month = 2
+        collecting_event.end_date_year  = 1522
+
+        collecting_event.save!
+        expect(collecting_event.cached.blank?).to be_falsey
+        expect(collecting_event.cached.strip).to eq('01/01/1511-02/02/1522')
+      end
+
+      specify 'just start date' do
+        collecting_event.start_date_day   = 1
+        collecting_event.start_date_month = 1
+        collecting_event.start_date_year  = 1511
+
+        collecting_event.save!
+        expect(collecting_event.cached.blank?).to be_falsey
+        expect(collecting_event.cached.strip).to eq('01/01/1511')
+      end
+
+      specify 'just verbatim_label' do
+        collecting_event.verbatim_label = 'Just this thing.'
+
+        collecting_event.save!
+        expect(collecting_event.cached.blank?).to be_falsey
+        expect(collecting_event.cached.strip).to eq('Just this thing.')
+      end
+
     end
   end
 

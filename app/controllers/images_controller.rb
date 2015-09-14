@@ -107,10 +107,8 @@ class ImagesController < ApplicationController
     tempfile.write( Image.cropped_blob(params) )
     tempfile.rewind
 
-    send_data RTesseract.new(Magick::Image.read(tempfile.path).first), type: 'text', disposition: 'inline'
+    render json: {text:  RTesseract.new(Magick::Image.read(tempfile.path).first).to_s.strip }
   end
-
-
 
   private
   # Use callbacks to share common setup or constraints between actions.

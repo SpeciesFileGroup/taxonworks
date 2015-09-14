@@ -1,5 +1,41 @@
 # A container localizes the proximity of one ore more physical things, at this point in TW this is restricted to a number of collection objects.
 #
+# @!attribute lft
+#   @return [Integer]
+#   @todo
+#
+# @!attribute rgt
+#   @return [Integer]
+#   @todo
+#
+# @!attribute parent_id
+#   @return [Integer]
+#   @todo
+#
+# @!attribute depth
+#   @return [Integer]
+#   @todo
+#
+# @!attribute type
+#   @return [String]
+#   @todo
+#
+# @!attribute project_id
+#   @return [Integer]
+#   the project ID
+#
+# @!attribute otu_id
+#   @return [Integer]
+#   @todo
+#
+# @!attribute name
+#   @return [String]
+#   @todo
+#
+# @!attribute disposition
+#   @return [String]
+#   @todo
+#
 class Container < ActiveRecord::Base
   acts_as_nested_set scope: [:project_id]
 
@@ -48,7 +84,6 @@ class Container < ActiveRecord::Base
       end
     end
   end
-
 
 end
 

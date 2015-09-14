@@ -1,8 +1,61 @@
-# 
-#
-# @!attribute collection_type 
-#   @return String
 #  "wet", "dry", or "slide"
+#
+# @!attribute container_id
+#   @return [Integer]
+#   @todo
+#
+# @!attribute otu_id
+#   @return [Integer]
+#   @todo
+#
+# @!attribute conservation_status
+#   @return [Integer]
+#   @todo
+#
+# @!attribute processing_state
+#   @return [Integer]
+#   @todo
+#
+# @!attribute container_condition
+#   @return [Integer]
+#   @todo
+#
+# @!attribute condition_of_labels
+#   @return [Integer]
+#   @todo
+#
+# @!attribute identification_level
+#   @return [Integer]
+#   @todo
+#
+# @!attribute arrangement_level
+#   @return [Integer]
+#   @todo
+#
+# @!attribute data_quality
+#   @return [Integer]
+#   @todo
+#
+# @!attribute computerization_level
+#   @return [Integer]
+#   @todo
+#
+# @!attribute number_of_collection_objects
+#   @return [Integer]
+#   @todo
+#
+# @!attribute number_of_containers
+#   @return [Integer]
+#   @todo
+#
+# @!attribute project_id
+#   @return [Integer]
+#   the project ID
+#
+# @!attribute collection_type
+#   @return [String]
+#   @todo
+#
 class CollectionProfile < ActiveRecord::Base
   include Housekeeping
   include Shared::IsData 

@@ -229,9 +229,9 @@ describe GeographicArea, type: :model, group: :geo do
                                                data_origin:          'Test')
       @ford_county.level2 = @ford_county
       @ford_county.save
-      @champaign_county = RSPEC_GEO_FACTORY.parse_wkt(CHAMPAIGN_CO)
+      @champaign_county = CHAMPAIGN_CO
       @geographic_area.geographic_items << GeographicItem.new(multi_polygon: @champaign_county)
-      @illinois_state = RSPEC_GEO_FACTORY.parse_wkt(ILLINOIS)
+      @illinois_state = ILLINOIS
       @geographic_area.parent.geographic_items << GeographicItem.new(multi_polygon: @illinois_state)
     }
 

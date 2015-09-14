@@ -27,7 +27,7 @@ class Otu < ActiveRecord::Base
 
   has_many :asserted_distributions
   has_many :collecting_events, -> { uniq }, through: :collection_objects
-  
+
   has_many :collection_objects, through: :taxon_determinations, source: :biological_collection_object, inverse_of: :otus, class_name: 'CollectionObject::BiologicalCollectionObject'
   has_many :taxon_determinations, inverse_of: :otu, dependent: :destroy
 
@@ -36,7 +36,7 @@ class Otu < ActiveRecord::Base
   has_many :geographic_areas_from_asserted_distributions, through: :asserted_distributions, source: :geographic_area
   has_many :geographic_areas_from_collecting_events, through: :collecting_events, source: :geographic_area
   has_many :georeferences, through: :collecting_events
- 
+
   has_many :topics, through: :contents, source: :topic
 
   scope :with_taxon_name_id, -> (taxon_name_id) { where(taxon_name_id: taxon_name_id) }
@@ -55,12 +55,22 @@ class Otu < ActiveRecord::Base
 
   # return [Scope] the otus bound to that taxon name and its descendants
   def self.for_taxon_name(taxon_name)
-    tn = nil
-    if taxon_name.class.name == 'String' || 'Fixnum' || 'Integer'
-      tn = TaxonName.find(taxon_name) 
-    else
-      tn = taxon_name
+    # tn = nil
+    #
+    # alternate multiple string test:
+    #   ['String', 'Fixnum', 'Integer'].include?(taxon_name.class.name)
+    case taxon_name.class.name
+      when 'String', 'Fixnum', 'Integer'
+        tn = TaxonName.find(taxon_name)
+      else
+        tn = taxon_name
     end
+    # suspect equality test
+    # if taxon_name.class.name == 'String' || 'Fixnum' || 'Integer'
+    #   tn = TaxonName.find(taxon_name)
+    # else
+    #   tn = taxon_name
+    # end
 
     Otu.joins(:taxon_name).where("(taxon_names.project_id = ? and (taxon_names.id = ? OR (taxon_names.lft >= ? and taxon_names.lft <= ?)))", tn.project_id, tn.id, tn.lft, tn.rgt)
   end

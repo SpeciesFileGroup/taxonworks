@@ -30,13 +30,14 @@ module SqedToTaxonworks
         @depiction
       else
         begin
-          @depiction ||= Depiction.find(depiction_id)
-         # @depiction.depiction_object.otus.build() 
-         # @depiction.depiction_object.identifiers.build()
+          @depiction = Depiction.find(depiction_id)
+          @depiction.depiction_object.taxon_determinations.build() 
+          @depiction.depiction_object.identifiers.build(type: 'Identifier::Local::CatalogNumber')
         rescue ActiveRecord::RecordNotFound
           return false
         end
       end
+      @depiction
     end
 
     def sqed
@@ -54,12 +55,28 @@ module SqedToTaxonworks
     # instance methods
 
     def image_path_for(layout_section_type)
-      c = sqed.boundaries.for(layout_section_type)
+      c = sqed.boundaries.for(image_sections.index(layout_section_type))
       "/images/#{depiction.image.id}/extract/#{c[0]}/#{c[1]}/#{c[2]}/#{c[3]}"
     end
 
+    def ocr_path_for(layout_section_type)
+      c = sqed.boundaries.for(image_sections.index(layout_section_type))
+      "/images/#{depiction.image.id}/ocr/#{c[0]}/#{c[1]}/#{c[2]}/#{c[3]}"
+    end
+
+    # @return [Array]
     def image_sections
       SqedConfig::EXTRACTION_PATTERNS[pattern][:metadata_map].values
+    end
+
+    # @return [Symbol]
+    def primary_image 
+      (image_sections & [:labels, :annotated_specimen]).first
+    end
+
+    # @return [Array]
+    def secondary_sections
+      image_sections - [primary_image] 
     end
  
   end

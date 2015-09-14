@@ -44,7 +44,7 @@
 #   @todo
 #
 # @!attribute geographic_area_id
-#   @return [integer]
+#   @return [Integer]
 #   @todo
 #
 # @!attribute minimum_elevation
@@ -68,27 +68,27 @@
 #   @todo
 #
 # @!attribute cached
-#   @return [text]
+#   @return [String]
 #   A string, typically sliced from verbatim_label, that represents the provided uncertainty value.
 #
 # @!attribute project_id
-#   @return [integer]
+#   @return [Integer]
 #   the project ID
 #
 # @!attribute start_date_year
-#   @return [integer]
+#   @return [Integer]
 #   @todo
 #
 # @!attribute end_date_year
-#   @return [integer]
+#   @return [Integer]
 #   @todo
 #
 # @!attribute start_date_day
-#   @return [integer]
+#   @return [Integer]
 #   @todo
 #
 # @!attribute end_date_day
-#   @return [integer]
+#   @return [Integer]
 #   @todo
 #
 # @!attribute verbatim_elevation
@@ -96,7 +96,7 @@
 #   A string, typically sliced from verbatim_label, that represents all elevation data (min/max/precision) as recorded there.
 #
 # @!attribute verbatim_habitat
-#   @return [text]
+#   @return [String]
 #   @todo
 #
 # @!attribute verbatim_datum
@@ -104,27 +104,27 @@
 #   @todo
 #
 # @!attribute time_start_hour
-#   @return [integer]
+#   @return [Integer]
 #     0-23
 #
 # @!attribute time_start_minute
-#   @return [integer]
+#   @return [Integer]
 #     0-59
 #
 # @!attribute time_start_second
-#   @return [integer]
+#   @return [Integer]
 #     0-59 
 #
 # @!attribute time_end_hour
-#   @return [integer]
+#   @return [Integer]
 #     0-23
 #
 # @!attribute time_end_minute
-#   @return [integer]
+#   @return [Integer]
 #     0-59
 #
 # @!attribute time_end_second
-#   @return [integer]
+#   @return [Integer]
 #     0-59 
 #
 # @!attribute verbatim_date
@@ -132,11 +132,11 @@
 #   @todo
 #
 # @!attribute start_date_month
-#   @return [integer]
+#   @return [Integer]
 #   @todo
 #
 # @!attribute end_date_month
-#   @return [integer]
+#   @return [Integer]
 #   @todo
 #
 class CollectingEvent < ActiveRecord::Base
@@ -315,12 +315,14 @@ class CollectingEvent < ActiveRecord::Base
 
   # @return [Utilities::Dates]
   def end_date
-    Utilities::Dates.nomenclature_date(end_date_day, end_date_month, end_date_year)
+    date = Utilities::Dates.nomenclature_date(end_date_day, end_date_month, end_date_year)
+    "#{'%02d' % date.day}/#{'%02d' % date.month}/#{'%4d' % date.year}" unless date.nil?
   end
 
   # @return [Utilities::Dates]
   def start_date
-    Utilities::Dates.nomenclature_date(start_date_day, start_date_month, start_date_year)
+    date = Utilities::Dates.nomenclature_date(start_date_day, start_date_month, start_date_year)
+    "#{'%02d' % date.day}/#{'%02d' % date.month}/#{'%4d' % date.year}" unless date.nil?
   end
 
   # @return [String]
@@ -362,7 +364,8 @@ class CollectingEvent < ActiveRecord::Base
       local_longitude = self.verbatim_longitude
       local_latitude  = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(local_latitude)
       local_longitude = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(local_longitude)
-      point           = Gis::FACTORY.point(local_latitude, local_longitude)
+      elev            = Utilities::Geo.elevation_in_meters(verbatim_elevation)
+      point           = Gis::FACTORY.point(local_latitude, local_longitude, elev)
       GeographicItem.new(point: point)
     else
       nil
@@ -719,9 +722,11 @@ class CollectingEvent < ActiveRecord::Base
   # @return [RGeo point]
   def map_center(delta_z = 0.0)
     unless verbatim_latitude.blank? or verbatim_longitude.blank?
-      lat    = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_latitude.to_s).to_f
-      long   = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_longitude.to_s).to_f
-      retval = Gis::FACTORY.point(long, lat, delta_z)
+      lat     = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_latitude.to_s)
+      long    = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_longitude.to_s)
+      elev    = Utilities::Geo.elevation_in_meters(verbatim_elevation.to_s)
+      delta_z = elev unless elev == 0.0
+      retval  = Gis::FACTORY.point(long, lat, delta_z)
       retval
     end
   end
@@ -843,23 +848,28 @@ class CollectingEvent < ActiveRecord::Base
   # @todo This configuration (sort of) defetes the purpose of before_save, but offers a quick solution
   # for large imports
   def set_cached
-    if self.cached.blank?
-      if verbatim_label.blank?
-        unless self.geographic_area.nil?
-          if self.geographic_area.geographic_items.count == 0
-            name = self.geographic_area.name
-          else
-            name = [country_name, state_name, county_name].compact.join(", ")
-          end
+    # if self.cached.blank?
+    if verbatim_label.blank?
+      unless self.geographic_area.nil?
+        if self.geographic_area.geographic_items.count == 0
+          name = self.geographic_area.name
+        else
+          names = geographic_area.ancestors.map(&:name)
+          names.push(geographic_area.name)
+          # name = [country_name, state_name, county_name].compact.join(", ")
+          names.delete('Earth')
+          name = names.compact.join(', ')
         end
-        place_date = [verbatim_locality, start_date, end_date].compact.join(', ')
-        string     = [name, "\n", place_date, "\n", verbatim_collectors].compact.join
-      else
-        string = [verbatim_label, print_label, document_label].compact.first
       end
-      string      = "[#{self.id.to_param}]" if string.strip.length == 0
-      self.cached = string
+      date = [start_date, end_date].compact.join('-')
+      place_date = [verbatim_locality, date].compact.join(', ')
+      string     = [name, "\n", place_date, "\n", verbatim_collectors].compact.join
+    else
+      string = [verbatim_label, print_label, document_label].compact.first
     end
+    string      = "[#{self.id.to_param}]" if string.strip.length == 0
+    self.cached = string
+    # end
   end
 
   def set_times_to_nil_if_form_provided_blank
@@ -874,6 +884,7 @@ class CollectingEvent < ActiveRecord::Base
 
   def check_date_range
     errors.add(:base, 'End date is earlier than start date.') if has_start_date? && has_end_date? && (start_date > end_date)
+    errors.add(:base, 'End date without start date.') if (has_end_date? && !has_start_date?)
   end
 
   def check_elevation_range

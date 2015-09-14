@@ -2,21 +2,29 @@
 #
 # DataAttribute is only instantiated through its subclasses ImportAttribute or InternalAttribute
 #
-# @!attribute value 
+# @!attribute type
 #   @return [String]
-#   The user provided data, e.g. RFD literal or object, i.e. RDF literal, i.e. data in a cell of a spreadsheet.  Always required.
+#   The type of DataAttribute (Rails STI).
 #
-# @!attribute attribute_subject_id 
+# @!attribute attribute_subject_id
 #   @return [Integer]
-#   The id of the subject (Rails polymorphic relationship). 
+#   The id of the subject (Rails polymorphic relationship).
 #
 # @!attribute attribute_subject_type
 #   @return [String]
 #   THe class of the subject (Rails polymorphic relationship).
 #
-# @!attribute type 
+# @!attribute controlled_vocabulary_term_id
+#   @return [Integer]
+#   @todo
+#
+# @!attribute value
 #   @return [String]
-#   The type of DataAttribute (Rails STI). 
+#   The user provided data, e.g., RFD literal or object, i.e. RDF literal, i.e. data in a cell of a spreadsheet.  Always required.
+#
+# @!attribute project_id
+#   @return [Integer]
+#   the project ID
 #
 class DataAttribute < ActiveRecord::Base
   include Housekeeping

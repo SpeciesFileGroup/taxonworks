@@ -1,16 +1,26 @@
-
 # Content is text related blocks, at present it only pertains to Otus.
-# # It requires both a Topic and an Otu.
-# Future extensions may be added to use the model for Projects etc. via STI.
+# It requires both a Topic and an Otu.
+# Future extensions may be added to use the model for Projects, etc. via STI.
 #
 # @!attribute text
-#   @return [Text] The written content. 
+#   @return [String]
+#   The written content.
+#
 # @!attribute otu_id 
-#   @return [Integer] When OtuContent::Text the id of the Otu the content pertains to.  At present required.
+#   @return [Integer]
+#   When OtuContent::Text the id of the Otu the content pertains to.  At present required.
+#
 # @!attribute topic_id 
-#   @return [Integer] When OtuContent::Text the id of the Topic the content pertains to. At present required.
-# @!attribute revision_id 
-#   @return [integer] Stubbed placeholder for Revision (sensus taxonomy) model.  NOT PRESENTLY USED. 
+#   @return [Integer]
+#   When OtuContent::Text the id of the Topic the content pertains to. At present required.
+#
+# @!attribute project_id
+#   @return [Integer]
+#   the project ID
+#
+# @!attribute revision_id
+#   @return [Integer]
+#   Stubbed placeholder for Revision (sensus taxonomy) model.  NOT PRESENTLY USED.
 #
 class Content < ActiveRecord::Base
   include Housekeeping
