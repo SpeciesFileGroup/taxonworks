@@ -3,8 +3,10 @@
   <div class="item item1">
 
     <div id="extracted_images">
-      <div id="bigbox" style="height: 400px;"> 
-        <%= image_tag(@result.image_path_for(@result.primary_image), alt: @result.primary_image, width: 400, class: 'clickable' ) -%>   
+      <div id="bigbox" style="height: 400px;">
+        <div id="paper">
+        <%= image_tag(@result.image_path_for(@result.primary_image), alt: @result.primary_image, width: 400, class: 'clickable' ) -%>
+        </div>
       </div>
 
       <div id="littlebox">  
@@ -131,6 +133,7 @@
         
         $("#littlebox").append(big_detached);
         $("#bigbox").append(little_detached);
+
       });
 
   </script>
@@ -146,7 +149,7 @@ Integration of selction box into depiction issues
   Next step will be to replace the simple large image control structure with the paper contol.  canvas placement TBD.
 */
 </script>
-<div id="paper"></div>
+
   <input type="button" id="setBox" value="Enable Selection" onclick="set_select_box();">
   <input type="button" id="getBox" value="SELECT" onclick="getBox();">
 
@@ -161,7 +164,7 @@ Integration of selction box into depiction issues
           context = canvas.getContext('2d');
           var destWidth;
           var destHeight;
-          imageObject.src = document.getElementById('bigbox').children[0].src;
+          imageObject.src = document.getElementById('bigbox').children[0].children[0].src;
           imageAspectRatio = imageObject.naturalWidth / imageObject.naturalHeight;
           var ratio = imageObject.naturalWidth / paperWidth;
           var sourceX = boxX * ratio;
@@ -201,7 +204,7 @@ Integration of selction box into depiction issues
 
 
       var set_select_box = function () {
-          imageObject.src = document.getElementById('bigbox').children[0].src;
+          imageObject.src = document.getElementById('bigbox').children[0].children[0].src;
           imageAspectRatio = imageObject.naturalWidth / imageObject.naturalHeight;
 
           var dragStart = function () {
@@ -309,7 +312,7 @@ Integration of selction box into depiction issues
           // Create drawing area, clearing previous <svg> content
           if (paper != undefined) { paper.canvas.parentNode.removeChild(paper.canvas);} // clear existing <svg>
           paper = Raphael("paper", paperWidth, paperHeight);
-          paper.image(document.getElementById('bigbox').children[0].src,
+          paper.image(document.getElementById('bigbox').children[0].children[1].src,
                   0, 0, paperWidth, paperHeight / imageAspectRatio);
           // Add a rectangle
           var shapes = paper.add([{
