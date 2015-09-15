@@ -1,4 +1,4 @@
-# An Otu (losely, operational taxonomic unit) can be thought of as a unit of study.  In most cases an otu is a taxon.
+# An Otu (loosely, operational taxonomic unit) can be thought of as a unit of study.  In most cases an otu is a taxon.
 #
 # An Otu is defined by its underlying data and may be labeled with a name (TaxonName). Otus are used to represent rows 
 # in matrices, taxon pages, individuals or populations, or arbitrary clusters of organisms (e.g. 'unsorted specimens in this container').
@@ -6,7 +6,19 @@
 #
 # OTU is labeled with a name, either arbitrarily given or specifically linked to a taxon_name_id.
 #
-# TODO: Add simple semantics (same_as etc.) describing taxon_name_id
+# @todo Add simple semantics (same_as etc.) describing taxon_name_id
+#
+# @!attribute name
+#   @return [String]
+#   @todo
+#
+# @!attribute project_id
+#   @return [Integer]
+#   the project ID
+#
+# @!attribute taxon_name_id
+#   @return [Integer]
+#   @todo
 #
 class Otu < ActiveRecord::Base
   include Housekeeping

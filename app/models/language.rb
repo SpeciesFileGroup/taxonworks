@@ -5,6 +5,27 @@
 # english_name or french_name may be more than one word long
 # (e.g. 'English, Middle (1100-1500)', 'Filipino; Pilipino','Finno-Ugrian languages')
 # and many of the languages have multiple version (e.g. there are 4 variations of German)
+#
+# @!attribute alpha_3_bibiographic
+#   @return [String]
+#   @todo
+#
+# @!attribute alpha_3_terminologic
+#   @return [String]
+#   @todo
+#
+# @!attribute alpha_2
+#   @return [String]
+#   @todo
+#
+# @!attribute english_name
+#   @return [String]
+#   @todo
+#
+# @!attribute french_name
+#   @return [String]
+#   @todo
+#
 class Language < ActiveRecord::Base
   include Housekeeping::Users
   include Shared::IsData 

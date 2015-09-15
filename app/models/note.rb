@@ -1,9 +1,25 @@
 # A note is a text annotation on a data instance (record).
 # 
 # Notes are text only notes on instances that belong to some project (e.g. models that include Shared::IsData).
-# For global instances use DataAttribute
+# For global instances use DataAttribute.
 #
-# Notes may include any text excluding pipes ('|'). Pipes are a reserved object separator for output
+# Notes may include any text excluding pipes ('|'). Pipes are a reserved object separator for output.
+#
+# @!attribute text
+#   @return [String]
+#   @todo
+#
+# @!attribute note_object_type
+#   @return [String]
+#   @todo
+#
+# @!attribute note_object_attribute
+#   @return [String]
+#   @todo
+#
+# @!attribute project_id
+#   @return [Integer]
+#   the project ID
 #
 class Note < ActiveRecord::Base
   include Housekeeping
