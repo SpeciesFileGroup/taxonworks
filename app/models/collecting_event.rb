@@ -845,10 +845,8 @@ class CollectingEvent < ActiveRecord::Base
 
   protected
 
-  # @todo This configuration (sort of) defetes the purpose of before_save, but offers a quick solution
   # for large imports
   def set_cached
-    # if self.cached.blank?
     if verbatim_label.blank?
       unless self.geographic_area.nil?
         if self.geographic_area.geographic_items.count == 0
@@ -861,7 +859,7 @@ class CollectingEvent < ActiveRecord::Base
           name = names.compact.join(', ')
         end
       end
-      date = [start_date, end_date].compact.join('-')
+      date       = [start_date, end_date].compact.join('-')
       place_date = [verbatim_locality, date].compact.join(', ')
       string     = [name, "\n", place_date, "\n", verbatim_collectors].compact.join
     else
@@ -869,7 +867,6 @@ class CollectingEvent < ActiveRecord::Base
     end
     string      = "[#{self.id.to_param}]" if string.strip.length == 0
     self.cached = string
-    # end
   end
 
   def set_times_to_nil_if_form_provided_blank
