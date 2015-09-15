@@ -1,3 +1,14 @@
+# ProjectSource definition...
+#   @todo
+#
+# @!attribute project_id
+#   @return [Integer]
+#   the project ID
+#
+# @!attribute source_id
+#   @return [Integer]
+#   @todo
+#
 class ProjectSource < ActiveRecord::Base
   include Housekeeping
   include Shared::IsData 

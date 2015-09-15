@@ -1,3 +1,18 @@
+# ProjectMember definition...
+#   @todo
+#
+# @!attribute project_id
+#   @return [Integer]
+#   the project ID
+#
+# @!attribute user_id
+#   @return [Integer]
+#   @todo Should this be listed or is it considered part of housekeeping??
+#
+# @!attribute is_project_administrator
+#   @return [Boolean]
+#   @todo
+#
 class ProjectMember < ActiveRecord::Base
   include Housekeeping::Users
   include Shared::IsData 

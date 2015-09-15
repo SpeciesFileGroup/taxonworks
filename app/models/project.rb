@@ -1,3 +1,14 @@
+# Project definition...
+# @todo
+#
+# @!attribute name
+#   @return [String]
+#   @todo
+#
+# @!attribute workbench_settings
+#   @return [Hash]
+#   @todo
+#
 class Project < ActiveRecord::Base
   include Housekeeping::Users
 
@@ -6,8 +17,8 @@ class Project < ActiveRecord::Base
   attr_accessor :without_root_taxon_name
 
   DEFAULT_WORKBENCH_STARTING_PATH = '/hub'
-  DEFAULT_WORKBENCH_SETTINGS      = {
-    'workbench_starting_path' => DEFAULT_WORKBENCH_STARTING_PATH
+  DEFAULT_WORKBENCH_SETTINGS = {
+      'workbench_starting_path' => DEFAULT_WORKBENCH_STARTING_PATH
   }
 
   has_many :project_members, dependent: :restrict_with_error
@@ -28,7 +39,7 @@ class Project < ActiveRecord::Base
   # @return [Boolean]
   #   based on whether the project has successfully been deleted.  Can also raise on detected problems with configuration.
   def nuke
-    known = ActiveRecord::Base.subclasses.select{|a| a.column_names.include?('project_id') }.map(&:name)
+    known = ActiveRecord::Base.subclasses.select { |a| a.column_names.include?('project_id') }.map(&:name)
 
     order = %w{
      AlternateValue
@@ -78,9 +89,9 @@ class Project < ActiveRecord::Base
     }
 
     known.each do |k|
-      next if k.constantize.table_name == 'test_classes'  # TODO: a kludge to ignore stubbed classes in testing
-      if !order.include?(k) 
-        raise "#{k} has not been added to #nuke order." 
+      next if k.constantize.table_name == 'test_classes' # TODO: a kludge to ignore stubbed classes in testing
+      if !order.include?(k)
+        raise "#{k} has not been added to #nuke order."
       end
     end
 
@@ -94,7 +105,7 @@ class Project < ActiveRecord::Base
 
       true
     rescue => e
-      raise e 
+      raise e
     end
   end
 
@@ -102,7 +113,7 @@ class Project < ActiveRecord::Base
 
     Rails.application.eager_load!
 
-    data = { }
+    data = {}
     has_many_relationships.each do |name|
       total = self.send(name).in_project(self).count
       today = self.send(name).updated_today.in_project(self).count
@@ -110,10 +121,10 @@ class Project < ActiveRecord::Base
 
       if total > 0
         data.merge!(r.name.to_s.humanize => {
-          total: total,
-          today: today,
-          this_week: this_week
-        })
+                        total: total,
+                        today: today,
+                        this_week: this_week
+                    })
       end
     end
     data
@@ -128,7 +139,7 @@ class Project < ActiveRecord::Base
       if self.respond_to?(r.name) && self.send(name).respond_to?(:in_project)
         relationships.push name
       end
-    end 
+    end
     relationships.sort
   end
 
@@ -143,7 +154,7 @@ class Project < ActiveRecord::Base
   end
 
   def create_root_taxon_name
-    Protonym.create!(name: 'Root', rank_class: NomenclaturalRank, parent_id: nil, project: self, creator: self.creator, updater: self.updater) 
+    Protonym.create!(name: 'Root', rank_class: NomenclaturalRank, parent_id: nil, project: self, creator: self.creator, updater: self.updater)
   end
 
   def self.find_for_autocomplete(params)

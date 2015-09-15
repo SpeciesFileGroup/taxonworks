@@ -1,5 +1,29 @@
 # A Role relates a Person (a Person is data in TaxonWorks) to other data.
 #
+# @!attribute person_id
+#   @return [Integer]
+#   @todo
+#
+# @!attribute type
+#   @return [String]
+#   @todo
+#
+# @!attribute role_object_id
+#   @return [Integer]
+#   @todo
+#
+# @!attribute role_object_type
+#   @return [String]
+#   @todo
+#
+# @!attribute position
+#   @return [Integer]
+#   @todo
+#
+# @!attribute project_id
+#   @return [Integer]
+#   the project ID
+#
 class Role < ActiveRecord::Base
 
   include Housekeeping::Users

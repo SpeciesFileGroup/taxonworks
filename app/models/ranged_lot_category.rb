@@ -1,7 +1,23 @@
 # A RangedLotCategory is an estimate used to assert that a CollectoinObject contains somewhere between a minimum and maximum
 # number of individuals, as asserted by a curator of that CollectionObject.  When a RangedLotCategory is assigned to
 # a CollectionObject then no CollectionObject#total can be provided. 
-# 
+#
+# @!attribute name
+#   @return [String]
+#   @todo
+#
+# @!attribute minimum_value
+#   @return [Integer]
+#   @todo
+#
+# @!attribute maximum_value
+#   @return [Integer]
+#   @todo
+#
+# @!attribute project_id
+#   @return [Integer]
+#   the project ID
+#
 class RangedLotCategory < ActiveRecord::Base
   include Housekeeping
   include Shared::IsData 

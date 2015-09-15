@@ -1,3 +1,38 @@
+# PinboardItem definition...
+#   @todo
+#
+# @!attribute pinned_object_id
+#   @return [Integer]
+#   @todo
+#
+# @!attribute pinned_object_type
+#   @return [String]
+#   @todo
+#
+# @!attribute user_id
+#   @return [Integer]
+#   @todo Should this be listed or is it considered part of housekeeping??
+#
+# @!attribute project_id
+#   @return [Integer]
+#   the project ID
+#
+# @!attribute position
+#   @return [Integer]
+#   @todo
+#
+# @!attribute is_inserted
+#   @return [Boolean]
+#   @todo
+#
+# @!attribute is_cross_platform
+#   @return [Boolean]
+#   @todo
+#
+# @!attribute inserted_count
+#   @return [Integer]
+#   @todo
+#
 class PinboardItem < ActiveRecord::Base
   include Housekeeping
 

@@ -1,3 +1,14 @@
+# PreparationType definition...
+# @todo
+#
+# @!attribute name
+#   @return [String]
+#   @todo
+#
+# @!attribute definition
+#   @return [String]
+#   @todo
+#
 class PreparationType < ActiveRecord::Base
   include Housekeeping::Users
   include Shared::IsData
