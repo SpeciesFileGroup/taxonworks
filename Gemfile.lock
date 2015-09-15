@@ -133,7 +133,7 @@ GEM
       i18n (~> 0.5)
     fastercsv (1.5.5)
     ffi (1.9.10)
-    ffi-geos (1.0.0)
+    ffi-geos (1.1.0)
       ffi (>= 1.0.0)
     formatador (0.2.5)
     globalid (0.3.6)
@@ -224,7 +224,7 @@ GEM
     parsley-store (0.3.5)
       biodiversity (~> 3.1)
       redis (~> 3.0)
-    passenger (5.0.17)
+    passenger (5.0.18)
       rack
       rake (>= 0.8.1)
     pg (0.18.3)
@@ -472,3 +472,6 @@ DEPENDENCIES
   vcr (~> 2.9.2)
   web-console (~> 2.0)
   webmock (~> 1.21.0)
+
+BUNDLED WITH
+   1.10.6

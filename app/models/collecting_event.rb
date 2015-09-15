@@ -495,7 +495,6 @@ class CollectingEvent < ActiveRecord::Base
     retval  = {} # changed from []
     gi_list = nil
 
-
     if self.georeferences.count == 0
       # use geographic_area only if there are no GIs or EGIs
       unless self.geographic_area.nil?
@@ -559,6 +558,7 @@ class CollectingEvent < ActiveRecord::Base
   # @param [Hash]
   # @return [String]
   def name_from_geopolitical_hash(name_hash)
+    return nil if name_hash.keys.count == 0
     return name_hash.keys.first if name_hash.keys.count == 1
     most_key   = nil
     most_count = 0
@@ -568,6 +568,7 @@ class CollectingEvent < ActiveRecord::Base
         most_key   = k
       end
     end
+#    most_key = name_hash.keys.sort_by{|key| key.size}.last
     most_key
   end
 

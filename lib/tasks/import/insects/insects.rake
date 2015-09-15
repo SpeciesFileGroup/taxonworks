@@ -12,7 +12,7 @@ require 'benchmark'
 # Be aware of shared methods in lib/tasks/import/shared.rake.
 #
 #
-# redis-server /usr/local/etc/redis.conf          ## to start redis
+# redis-server /usr/local/etc/redis.conf          ## to start redis. It should be done before the rake started.
 # a = Redis.new
 # a.set(a, b)
 # a.get(a)
@@ -34,7 +34,7 @@ namespace :tw do
         attr_accessor :people_id, :keywords, :user_index, :collection_objects, :namespaces, :people_index, # :otus,
                       :preparation_types, :taxa_index, :localities_index, # :collecting_event_index,
                       :unmatched_localities, :invalid_speciemsn, :unmatched_taxa, :duplicate_specimen_ids,
-                      :partially_resolved_index, :biocuration_classes
+                      :partially_resolved_index, :biocuration_classes, :biological_properties, :biological_relationships
         def initialize()
           @keywords = {}                  # keyword -> ControlledVocabularyTerm
           @namespaces = {}                # SpecimenIDPrefix -> NameSpace class
@@ -54,10 +54,12 @@ namespace :tw do
           @duplicate_specimen_ids = {}
           @partially_resolved_index = {}
           @biocuration_classes = {}
+          @biological_properties = {}
+          @biological_relationships = {}
 
         end
 
-        def export_to_pg(data_directory)
+        def export_to_pg(data_directory) 
           puts "\nExporting snapshot of datababase to all.dump."
           Support::Database.pg_dump_all('taxonworks_development', data_directory, 'all.dump')
         end
@@ -106,7 +108,7 @@ namespace :tw do
         puts @args
         Utilities::Files.lines_per_file(Dir["#{@args[:data_directory]}/TXT/**/*.txt"])
 
-        @dump_directory = dump_directory(@args[:data_directory])
+        @dump_directory = dump_directory(@args[:data_directory]) 
         @data =  ImportedData.new
 
         restore_from_pg_dump if ENV['restore_from_dump'] && File.exists?(@dump_directory + 'all.dump')
@@ -116,8 +118,8 @@ namespace :tw do
             puts 'Importing without a transaction (data will be left in the database).'
             main_build_loop
           else
-            ActiveRecord::Base.transaction do
-              main_build_loop
+            ActiveRecord::Base.transaction do 
+              main_build_loop 
               raise
             end
           end
@@ -156,36 +158,37 @@ namespace :tw do
 
 
       def main_build_loop
-        @import = Import.find_or_create_by(name: IMPORT_NAME)
-        @import.metadata ||= {}
+        @import = Import.find_or_create_by(name: IMPORT_NAME)  
+        @import.metadata ||= {} 
         handle_projects_and_users(@data, @import)
         raise '$project_id or $user_id not set.'  if $project_id.nil? || $user_id.nil?
         handle_namespaces(@data, @import)
+
         handle_controlled_vocabulary(@data, @import)
         handle_biocuration_classes(@data, @import)
+        handle_biological_relationship_classes(@data, @import)
         handle_preparation_types(@data, @import)
         handle_people(@data, @import)
         handle_taxa(@data, @import)
 
         # !! The following can not be loaded from the database they are always created anew.
 
-        build_localities_index(@data)
+        ###build_localities_index(@data)
 
         puts "Indexing collecting events."
-        #### should be run to clear redis database. if specimen from diffrent tables run one buy one, data could be left in Redis and reused
+        # should be run to clear redis database. if specimen from diffrent tables run one buy one, data could be left in Redis and reused
 
-        $redis.flushall
-        ### $redis.keys.each do |key|
-        ###  $redis.del(key)
-        ### end
+        ### $redis.flushall
 
-        #### index_collecting_events_from_accessions_new(@data, @import)
-        index_collecting_events_from_ledgers(@data, @import)
-        index_specimen_records_from_specimens(@data, @import)
-        index_specimen_records_from_specimens_new(@data, @import)
-        index_specimen_records_from_neon(@data, @import)
+        ###index_collecting_events_from_accessions_new(@data, @import)
+        ###index_collecting_events_from_ledgers(@data, @import)
+        ###index_specimen_records_from_specimens(@data, @import)
+        ###index_specimen_records_from_specimens_new(@data, @import)
+        ###index_specimen_records_from_neon(@data, @import)
 
-        puts "\nTotal collecting events to build: #{@data.collecting_event_index.keys.count}."
+        puts "\nTotal collecting events to build: #{$redis.keys.count}."
+
+        handle_associations(@data, @import)
 
         puts "\n!! Unmatched localities: (#{@data.unmatched_localities.keys.count}): " + @data.unmatched_localities.keys.sort.join(", ")
         puts "\n!! Unmatched taxa: (#{@data.unmatched_taxa.keys.count}): " + @data.unmatched_taxa.keys.sort.join(", ")
@@ -255,6 +258,59 @@ namespace :tw do
             b = b.first
           end
           data.biocuration_classes.merge!(bc => b)
+        end
+      end
+
+      def handle_biological_relationship_classes(data, import)
+        print "Handling biological relationship classes "
+
+        biological_relationships = { 'Attendance' => ['Attendant', 'Attended insect'],
+                                     'Predation' => ['Predator', 'Prey'],
+                                     'Parasitism' => ['Parasite', 'Host'],
+                                     'Host plant' => ['Host', 'Herbivor'],
+                                     'Polination' => ['Polinator', 'Polinated plant'],
+                                     'Mating' => ['Mate', 'Mate'],
+                                     'Dissected genitalia' => ['Genitalia', 'Body'],
+                                     'Dissected body part' => ['Body part', 'Body'],
+                                     'Reared' => ['Exuvia or pupa', 'Body'] }
+
+        export_relationships = { '15430'  => :ignore,
+                                 'attendant' => ['Attendance', :direct],
+                                 'body'  => :ignore,
+                                 'body part (not genitalia)' => ['Dissected body part', :reverse],
+                                 'genitalia' => ['Dissected genitalia', :reverse],
+                                 'host' => ['Host plant', :reverse],
+                                 'host of' => ['Host plant', :reverse],
+                                 'mate' => ['Mating', :direct],
+                                 'parasite' => ['Parasitims', :direct],
+                                 'parasite of' => ['Parasitims', :direct],
+                                 'pollinating' => ['Polination', :direct],
+                                 'pollination' => ['Polination', :direct],
+                                 'predator' => ['Predation', :reverse],
+                                 'prey' => ['Predation', :direct],
+                                 'puparium' => ['Reared', :reverse],
+                                 'reared from' => ['Parasitims', :direct],
+                                 'soil' => :ignore,
+                                 'tending' => ['Attendance', :direct],
+                                 'vicinity' => ['Polination', :direct] }
+
+        biological_relationships.keys.each do |br|
+          b = BiologicalRelationship.where(name: br, project_id: $project_id)
+          if b.empty?
+            b = BiologicalRelationship.create(name: br)
+            BiologicalRelationshipType.create(biological_property: data.keywords[biological_relationships[br][0]], biological_relationship: b, type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
+            BiologicalRelationshipType.create(biological_property: data.keywords[biological_relationships[br][1]], biological_relationship: b, type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
+          end
+        end
+
+        export_relationships.keys.each do |br|
+          if export_relationships[br] == :ignore
+            data.biological_relationships.merge!(br => :ignore)
+          else
+            b = BiologicalRelationship.where(name: export_relationships[br][0], project_id: $project_id).first
+            rt = export_relationships[br][1]
+            data.biological_relationships.merge!(br => {'biological_relationship' => b, 'direction' => rt})
+          end
         end
       end
 
@@ -463,6 +519,9 @@ namespace :tw do
           Keyword.all.each do |cv|
             data.keywords.merge!(cv.name => cv)
           end
+          BiologicalProperty.all.each do |cv|
+            data.keywords.merge!(cv.name => cv)
+          end
         else
           print "as newly parsed.\n"
 
@@ -529,8 +588,27 @@ namespace :tw do
               'SiteCode' => Predicate.create(name: 'SiteCode', definition: 'SiteCode field imported from NEON database.')
           )
 
+          biological_properties = { 'Attendant' => 'An insect attending another insect',
+                                    'Attended insect' => 'An insect attended by another insect',
+                                    'Body' => 'Body of an insect when a part was dissected',
+                                    'Body part' => 'Dissected part of a body (often mounted on a slide)',
+                                    'Genitalia' => 'Dissected genitalia (often mounted on a slide)',
+                                    'Host' => 'An animal or plant on or in which a parasite or commensal organism lives',
+                                    'Herbivor' => 'An animal that feeds on plants',
+                                    'Mate' => 'breeding partner',
+                                    'Parasite' => 'An organism that lives in or on another organism',
+                                    'Pollinator' => 'An insect pollinating a plant',
+                                    'Pollinated plant' => 'A plant visited by insects',
+                                    'Predator' => 'An animal that preys on others',
+                                    'Prey' => 'An animal that is hunted and killed by another for food',
+                                    'Exuvia or pupa' => 'Remains of an exoskeleton that are left after moulting',
+          }
 
-              import.metadata['controlled_vocabulary'] = true
+          biological_properties.each do |bp|
+            data.keywords.merge!('INHS_imported' => BiologicalProperty.create(name: bp[0], definition: bp[1]))
+          end
+
+          import.metadata['controlled_vocabulary'] = true
           checkpoint_save(import) if ENV['no_transaction']
         end
       end
@@ -616,7 +694,8 @@ namespace :tw do
         LOCALITY_COLUMNS.each do |c|
           tmp_ce.merge!(c => ce[c]) unless ce[c].blank?
         end
-
+        tmp_ce_sorted = tmp_ce.sort.to_s
+        c_from_redis = $redis.get(tmp_ce_sorted)
         unless ce['AccessionNumber'].blank?
           if !ce['Collection'].blank?
             c = Identifier.where(identifier: ce['Collection'] + ' ' + ce['AccessionNumber'], namespace_id: @accession_namespace, type: 'Identifier::Local::AccessionCode', project_id: $project_id)
@@ -625,9 +704,11 @@ namespace :tw do
           end
           unless c.empty?
             c = c.first.annotated_object
-            $redis.set(tmp_ce.sort.to_s, c.id)
+            if c_from_redis.nil?
+              $redis.set(tmp_ce_sorted, c.id)
+              return c
+            end
             #data.collecting_event_index.merge!(tmp_ce => c)
-            return c
           end
         end
 
@@ -636,39 +717,37 @@ namespace :tw do
           c = CollectingEvent.where(md5_of_verbatim_label: md5, project_id: $project_id)
           unless c.empty?
             c = c.first
-            $redis.set(tmp_ce.sort.to_s, c.id)
-            # data.collecting_event_index.merge!(tmp_ce => c)
-            if !ce['AccessionNumber'].blank? && !ce['Collection'].blank?
-              c.identifiers.create(identifier: ce['Collection'] + ' ' + ce['AccessionNumber'], namespace: @accession_namespace, type: 'Identifier::Local::AccessionCode')
-            elsif !ce['AccessionNumber'].blank?
-              c.identifiers.create(identifier: ce['AccessionNumber'], namespace: @accession_namespace, type: 'Identifier::Local::AccessionCode')
+            if c_from_redis.nil?
+              $redis.set(tmp_ce_sorted, c.id)
+              if !ce['AccessionNumber'].blank? && !ce['Collection'].blank?
+                c.identifiers.create(identifier: ce['Collection'] + ' ' + ce['AccessionNumber'], namespace: @accession_namespace, type: 'Identifier::Local::AccessionCode')
+              elsif !ce['AccessionNumber'].blank?
+                c.identifiers.create(identifier: ce['AccessionNumber'], namespace: @accession_namespace, type: 'Identifier::Local::AccessionCode')
+              end
+              return c
             end
-            return c
+            # data.collecting_event_index.merge!(tmp_ce => c)
           end
         end
-        collecting_event_id = $redis.get(tmp_ce.sort.to_s)
-        unless collecting_event_id.nil?
-          collecting_event = CollectingEvent.where(id: collecting_event_id).first
-          if collecting_event.data_attributes.where(import_predicate: 'LocalityCode').nil? && !tmp_ce['LocalityCode'].blank?
-            byebug
-            collecting_event.data_attributes.create(import_predicate: 'LocalityCode', value: tmp_ce['LocalityCode'].to_s, type: 'ImportAttribute')
+        c_from_redis = $redis.get(tmp_ce_sorted)
+
+        unless c_from_redis.nil?
+          c = CollectingEvent.where(id: c_from_redis).first
+          if c.data_attributes.where(import_predicate: 'LocalityCode').nil? && !ce['LocalityCode'].blank?
+            c.data_attributes.create(import_predicate: 'LocalityCode', value: ce['LocalityCode'].to_s, type: 'ImportAttribute')
           end
-          if collecting_event.verbatim_locality.nil? && !tmp_ce['LocalityLabel'].nil?
-            byebug
-            collecting_event.verbatim_locality = tmp_ce['LocalityLabel']
-            collecting_event.save!
+          if c.verbatim_locality.nil? && !ce['LocalityLabel'].nil?
+            c.verbatim_locality = ce['LocalityLabel']
+            c.save!
           end
-          if collecting_event.identifiers.empty? && !tmp_ce['AccessionNumber'].nil?
-            byebug
+          unless ce['AccessionNumber'].nil?
             if !ce['AccessionNumber'].blank? && !ce['Collection'].blank?
               c.identifiers.create(identifier: ce['Collection'] + ' ' + ce['AccessionNumber'], namespace: @accession_namespace, type: 'Identifier::Local::AccessionCode')
             elsif !ce['AccessionNumber'].blank?
               c.identifiers.create(identifier: ce['AccessionNumber'], namespace: @accession_namespace, type: 'Identifier::Local::AccessionCode')
             end
          end
-          if collecting_event.identifiers.empty? || collecting_event.identifiers.first.identifier == tmp_ce['AccessionNumber']
-            return collecting_event
-          end
+         return c
         end
 
         latitude, longitude = parse_lat_long(ce)
@@ -706,9 +785,9 @@ namespace :tw do
             updated_by_id: updated_by,
             created_at: time_from_field(ce['CreatedOn']),
             updated_at: time_from_field(ce['ModifiedOn'])
+            # cached: 'UNAVAILABLE' ######## TODO: Cach generated for collecting event takes too much time.
         )
         if c.valid?
-
           #bench = Benchmark.measure {
           c.save!
           #}
@@ -736,7 +815,7 @@ namespace :tw do
             c.data_attributes.create(type: 'ImportAttribute', import_predicate: 'georeference_error', value: 'Geolocation uncertainty is conflicting with geographic area') unless glc.valid?
           end
 
-          $redis.set(tmp_ce.sort.to_s, c.id)
+          $redis.set(tmp_ce_sorted, c.id)
           #data.collecting_event_index.merge!(tmp_ce => c)
           return c
         else
@@ -846,9 +925,6 @@ namespace :tw do
           f = CSV.open(path, col_sep: "\t", :headers => true)
 
           code = :iczn
-          root = Protonym.find_or_create_by(name: 'Root',
-                                            rank_class: 'NomenclaturalRank',
-                                            project_id: $project_id)
           f.each_with_index do |row, i|             #f.first(500).each_with_index
             name = row['Name']
             author = (row['Parens'] ? "(#{row['Author']})" : row['Author']) unless row['Author'].blank?
@@ -866,11 +942,12 @@ namespace :tw do
               created_by_id: find_or_create_collection_user(row['CreatedBy'], data),
               updated_by_id: find_or_create_collection_user(row['ModifiedBy'], data),
               created_at: time_from_field(row['CreatedOn']),
-              updated_at: time_from_field(row['ModifiedOn']),
+              updated_at: time_from_field(row['ModifiedOn'])
             )
             p.parent_id = parent_index[row['Parent'].to_s].id unless row['Parent'].blank? || parent_index[row['Parent'].to_s].nil?
             if rank == 'NomenclaturalRank'
-              p = root
+              p = Protonym.find_or_create_by(name: 'Root', rank_class: 'NomenclaturalRank', project_id: $project_id)
+              # p = Protonym.with_rank_class('NomenclaturalRank').first
               parent_index.merge!(row['ID'] => p)
             elsif !p.parent_id.blank?
               bench = Benchmark.measure {
@@ -881,7 +958,6 @@ namespace :tw do
 
               print "\r#{i}\t#{bench.to_s.strip}  #{name}  (Taxon code: #{row['TaxonCode']})                         " #  \t\t#{rank}
               if p.valid?
-                # byebug
                 p.save!
                 build_otu(row, p, data)
                 parent_index.merge!(row['ID'] => p)
@@ -1276,7 +1352,7 @@ namespace :tw do
 
 
       def add_determinations(objects, row, data)
-        identifier = Identifier.where(namespace_id: @taxon_namespace.id, identifier: '15406', project_id: $project_id)
+        identifier = Identifier.where(namespace_id: @taxon_namespace.id, identifier: row['TaxonCode'], project_id: $project_id)
         if identifier.empty?
           otu = nil
         else
@@ -1381,6 +1457,66 @@ namespace :tw do
         puts "\n Number of collecting events processed from Ledgers: #{$redis.keys.count - starting_number} "
       end
 
+      def handle_associations(data, import)
+        path = @args[:data_directory] + 'TXT/associations.txt'
+        raise 'file not found' if not File.exists?(path)
+        as = CSV.open(path, col_sep: "\t", :headers => true)
+        #fields = %w{ Prefix CatalogNumber AssociatedPrefix AssociatedCatalogNumber AssociatedTaxonCode Type }
+        puts "\n  Handle associations \n"
+
+
+        #data.biological_relationships.merge!(br => {'biological_relationship' => b, 'direction' => rt})
+
+        as.each_with_index do |row, i|
+          print "\r#{i}"
+          br = data.biological_relationships[row['Type'].to_s.downcase]
+          if row['Type'].blank?
+          elsif br.nil?
+            print "\n#{row['Type']} relationship does not exist!\n"
+          elsif br != :ignore
+            direction = br['direction']
+            br = br['biological_relationship']
+            specimen = nil
+            related_specimen = nil
+            otu = nil
+            object = nil
+            subject = nil
+
+            unless row['Prefix'].blank? || row['CatalogNumber'].blank?
+              identifier = Identifier.where(cached: row['Prefix'] + ' ' +row['CatalogNumber'], type: 'Identifier::Local::CatalogNumber', project_id: $project_id)
+              specimen = identifier.empty? ? nil : identifier.first.identifier_object
+            end
+            unless row['AssociatedPrefix'].blank? || row['AssociatedCatalogNumber'].blank?
+              identifier = Identifier.where(cached: row['AssociatedPrefix'] + ' ' +row['AssociatedCatalogNumber'], type: 'Identifier::Local::CatalogNumber', project_id: $project_id)
+              related_specimen = identifier.empty? ? nil : identifier.first.identifier_object
+            end
+            unless row['AssociatedTaxonCode'].blank?
+              identifier = Identifier.where(namespace_id: @taxon_namespace.id, identifier: row['AssociatedTaxonCode'], project_id: $project_id)
+              otu = identifier.empty? ? nil : identifier.first.identifier_object
+            end
+
+            if direction == :direct
+              subject = specimen
+              object = related_specimen.nil? ? otu : related_specimen
+            elsif direction == :reverse
+              subject = related_specimen.nil? ? otu : related_specimen
+              object = specimen
+            end
+
+            if object && subject
+              BiologicalAssociation.create(biological_relationship: br,
+                                           biological_association_subject: subject,
+                                           biological_association_object: object
+              )
+            end
+
+          end
+        end
+
+        puts "\nResolved \n #{BiologicalAssociation.all.count} biological associations\n"
+
+      end
+
       def parse_geographic_area(ce)
         geog_search = []
         [ ce['County'], ce['State'], ce['Country']].each do |v|
@@ -1477,7 +1613,7 @@ namespace :tw do
 
       def parse_elevation(ce)
         ft =  ce['Elev_ft']
-        m = ce['Elev_m']
+        m = ce['Elev_m'] 
 
         if !ft.blank? && !m.blank? && !Utilities::Measurements.feet_equals_meters(ft, m)
           puts "\n !! Feet and meters both providing and not equal: #{ft}, #{m}."
