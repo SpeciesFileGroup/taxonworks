@@ -161,6 +161,8 @@ Integration of selction box into depiction issues
           context = canvas.getContext('2d');
           var destWidth;
           var destHeight;
+          imageObject.src = document.getElementById('bigbox').children[0].src;
+          imageAspectRatio = imageObject.naturalWidth / imageObject.naturalHeight;
           var ratio = imageObject.naturalWidth / paperWidth;
           var sourceX = boxX * ratio;
           var sourceY = boxY * ratio;
@@ -190,15 +192,17 @@ Integration of selction box into depiction issues
       var boxH;
       var imageObject;
       imageObject = new Image();
-      imageObject.src = document.getElementById('bigbox').children[0].src;
-      var imageAspectRatio = imageObject.naturalWidth / imageObject.naturalHeight;
+      var imageAspectRatio;
       var canvas;
       var context;
+      var paper;
       var paperWidth = 400;
       var paperHeight = 400;
 
 
       var set_select_box = function () {
+          imageObject.src = document.getElementById('bigbox').children[0].src;
+          imageAspectRatio = imageObject.naturalWidth / imageObject.naturalHeight;
 
           var dragStart = function () {
 
@@ -231,7 +235,7 @@ Integration of selction box into depiction issues
                       break;
 
                   case 'ne-resize' :
-                      this.attr({
+                      this.attr({                   // not changing x of origin in this case
                           y: this.oy + dy,
                           width: this.ow + dx,
                           height: this.oh - dy
@@ -302,8 +306,9 @@ Integration of selction box into depiction issues
           };
 
 
-          // Create drawing area
-          var paper = Raphael("paper", paperWidth, paperHeight);
+          // Create drawing area, clearing previous <svg> content
+          if (paper != undefined) { paper.canvas.parentNode.removeChild(paper.canvas);} // clear existing <svg>
+          paper = Raphael("paper", paperWidth, paperHeight);
           paper.image(document.getElementById('bigbox').children[0].src,
                   0, 0, paperWidth, paperHeight / imageAspectRatio);
           // Add a rectangle
