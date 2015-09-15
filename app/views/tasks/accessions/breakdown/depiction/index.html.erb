@@ -140,9 +140,10 @@
 Integration of selction box into depiction issues
   Image()<HTMLImageElement> for selection is contained in a <canvas>, whereas large image for depiction is
   an <img class="clickable">.  Extracted src from this image (by brute force) to src substrate (paper) and
-  processed (canvas) image display.
+  processed (canvas) image display.  Processed crop is done in JS via drawImage() rather than posting back
+  crop coordinates.
 
-  Next step will be to replace the simple large image control structure with the paper/canvas overlay.
+  Next step will be to replace the simple large image control structure with the paper contol.  canvas placement TBD.
 */
 </script>
 <div id="paper"></div>
