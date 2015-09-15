@@ -1,8 +1,32 @@
 # Serial - represents a journal or other serial publication. It follows the ISSN model for serials.
 #
-# @!attribute primary_language_id 
+# @!attribute place_published
+#   @return [String]
+#   @todo
+#
+# @!attribute primary_language_id
 #   @return [Integer]
 #   The id of the Language - language of this serial.  According to the ISSN a new ISSN is minted for a journal that changes languages.
+#
+# @!attribute first_year_of_issue
+#   @return [Integer]
+#   @todo
+#
+# @!attribute last_year_of_issue
+#   @return [Integer]
+#   @todo
+#
+# @!attribute translated_from_serial_id
+#   @return [Integer]
+#   @todo
+#
+# @!attribute publisher
+#   @return [String]
+#   @todo
+#
+# @!attribute name
+#   @return [String]
+#   @todo
 #
 class Serial < ActiveRecord::Base
   # Include statements, and acts_as_type

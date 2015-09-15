@@ -1,5 +1,17 @@
 # Stores the chronological relationship between two serials.
 #
+# @!attribute preceding_serial_id
+#   @return [Integer]
+#   @todo
+#
+# @!attribute succeeding_serial_id
+#   @return [Integer]
+#   @todo
+#
+# @!attribute type
+#   @return [String]
+#   @todo
+#
 class SerialChronology < ActiveRecord::Base
   include Housekeeping::Users
   include Shared::IsData
