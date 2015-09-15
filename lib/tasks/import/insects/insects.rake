@@ -188,7 +188,9 @@ namespace :tw do
 
         puts "\nTotal collecting events to build: #{$redis.keys.count}."
 
-        handle_associations(@data, @import)
+        ###handle_associations(@data, @import)
+
+        handle_loans(@data)
 
         puts "\n!! Unmatched localities: (#{@data.unmatched_localities.keys.count}): " + @data.unmatched_localities.keys.sort.join(", ")
         puts "\n!! Unmatched taxa: (#{@data.unmatched_taxa.keys.count}): " + @data.unmatched_taxa.keys.sort.join(", ")
@@ -372,6 +374,14 @@ namespace :tw do
           n = n.first
         end
         data.namespaces.merge!('NEON' => n)
+
+        n = Namespace.where(institution: 'INHS Insect Collection', short_name: 'INHS loan invoice')
+        if n.empty?
+          n = Namespace.create(institution: 'INHS Insect Collection', name: 'INHS loan invoice', short_name: 'Invoice')
+        else
+          n = n.first
+        end
+        data.namespaces.merge!('Invoice' => n)
 
         data.namespaces.merge!(taxon_namespace: @taxon_namespace)
         data.namespaces.merge!(accession_namespace: @accession_namespace)
@@ -854,7 +864,7 @@ namespace :tw do
             data.user_index.merge!(u.value => u.attribute_subject)
           end
 
-          DataAttribute.where(import_predicate: 'PeopleID', attribute_subject_type: 'Person').each do |p|
+          DataAttribute.where(controlled_vocabulary_term_id: data.keywords['PeopleID'].id, attribute_subject_type: 'Person').each do |p|
             data.people_index.merge!(p.value => p.attribute_subject)
           end
           print "done.\n"
@@ -981,7 +991,6 @@ namespace :tw do
 
       def build_otu(row, taxon_name, data)
         if row['TaxonCode'].blank?
-          # puts "  Skipping OTU creation for #{taxon_name.name}, there is no TaxonCode."
           return true
         end
         o =  Otu.create(
@@ -989,7 +998,6 @@ namespace :tw do
           identifiers_attributes: [  {identifier: row['TaxonCode'], namespace: @taxon_namespace, type: 'Identifier::Local::OtuUtility'} ]
         )
         # data.otus.merge!(row['TaxonCode'] => o)
-        o
       end
 
       # Index localities by their collective column=>data pairs
@@ -1029,7 +1037,7 @@ namespace :tw do
 
         print "Indexing partially resolved specimens..."
 
-        localities = {}
+        ## localities = {}
         lo.each do |row|
           tmp_l = {}
           tmp_m = {}
@@ -1062,7 +1070,6 @@ namespace :tw do
         count_fields = %w{ AdultMale AdultFemale Immature Pupa Exuvium AdultUnsexed AgeUnknown OtherSpecimens }
 
         sp.each_with_index do |row, i|
-          ##### if i > 291700 ########################################
 
           locality_code = row['LocalityCode']
           se = { }
@@ -1135,7 +1142,6 @@ namespace :tw do
           end
           add_identifiers(objects, row, data)
           add_determinations(objects, row, data)
-          ###### end #########################################
         end
 
         puts "\n Number of collecting events processed from specimens: #{$redis.keys.count - start} "
@@ -1322,8 +1328,8 @@ namespace :tw do
       def add_identifiers(objects, row, data)
         puts "no catalog number for #{row['ID']}" if row['CatalogNumber'].blank? && row['SampleID'].blank?
 
-        identifier = Identifier::Local::CatalogNumber.new(namespace: @data.namespaces[row['Prefix']], identifier: row['CatalogNumber']) unless row['CatalogNumber'].blank?
-        identifier = Identifier::Local::CatalogNumber.new(namespace: @data.namespaces['NEON'], identifier: row['SampleID']) unless row['SampleID'].blank?
+        identifier = Identifier::Local::CatalogNumber.new(namespace: data.namespaces[row['Prefix']], identifier: row['CatalogNumber']) unless row['CatalogNumber'].blank?
+        identifier = Identifier::Local::CatalogNumber.new(namespace: data.namespaces['NEON'], identifier: row['SampleID']) unless row['SampleID'].blank?
 
         if objects.count > 1 # Identifier on container.
 
@@ -1353,11 +1359,7 @@ namespace :tw do
 
       def add_determinations(objects, row, data)
         identifier = Identifier.where(namespace_id: @taxon_namespace.id, identifier: row['TaxonCode'], project_id: $project_id)
-        if identifier.empty?
-          otu = nil
-        else
-          otu = identifier.first.identifier_object
-        end
+        otu = identifier.empty? ? nil : identifier.first.identifier_object
 
 #        otu = data.otus[row['TaxonCode']]
         objects.each do |o|
@@ -1464,9 +1466,6 @@ namespace :tw do
         #fields = %w{ Prefix CatalogNumber AssociatedPrefix AssociatedCatalogNumber AssociatedTaxonCode Type }
         puts "\n  Handle associations \n"
 
-
-        #data.biological_relationships.merge!(br => {'biological_relationship' => b, 'direction' => rt})
-
         as.each_with_index do |row, i|
           print "\r#{i}"
           br = data.biological_relationships[row['Type'].to_s.downcase]
@@ -1483,14 +1482,14 @@ namespace :tw do
             subject = nil
 
             unless row['Prefix'].blank? || row['CatalogNumber'].blank?
-              identifier = Identifier.where(cached: row['Prefix'] + ' ' +row['CatalogNumber'], type: 'Identifier::Local::CatalogNumber', project_id: $project_id)
+              identifier = Identifier.where(cached: row['Prefix'] + ' ' + row['CatalogNumber'], type: 'Identifier::Local::CatalogNumber', project_id: $project_id)
               specimen = identifier.empty? ? nil : identifier.first.identifier_object
             end
             unless row['AssociatedPrefix'].blank? || row['AssociatedCatalogNumber'].blank?
-              identifier = Identifier.where(cached: row['AssociatedPrefix'] + ' ' +row['AssociatedCatalogNumber'], type: 'Identifier::Local::CatalogNumber', project_id: $project_id)
+              identifier = Identifier.where(cached: row['AssociatedPrefix'] + ' ' + row['AssociatedCatalogNumber'], type: 'Identifier::Local::CatalogNumber', project_id: $project_id)
               related_specimen = identifier.empty? ? nil : identifier.first.identifier_object
             end
-            unless row['AssociatedTaxonCode'].blank?
+            if !row['AssociatedTaxonCode'].blank? && related_specimen.nil?
               identifier = Identifier.where(namespace_id: @taxon_namespace.id, identifier: row['AssociatedTaxonCode'], project_id: $project_id)
               otu = identifier.empty? ? nil : identifier.first.identifier_object
             end
@@ -1514,7 +1513,56 @@ namespace :tw do
         end
 
         puts "\nResolved \n #{BiologicalAssociation.all.count} biological associations\n"
+      end
 
+      def handle_loans(data)
+        path = @args[:data_directory] + 'TXT/loans.txt'
+        raise 'file not found' if not File.exists?(path)
+        lo = CSV.open(path, col_sep: "\t", :headers => true)
+        #fields = %w{ InvoiceID ExpectedDateOfReturn DateReceived DateProcessed DateRequested MethodOfRequest Processor RecipientID Signature StudentSignature Comments TotalRecordsOnLoan TotalRecordsReturned TotalRecordsRemaining TotalSpecimensOnLoan TotalSpeciemsnReturned TotalSpeciemsnRemaining Canceled CreatedBy }
+        puts "\n  Handle loans \n"
+
+        lo.each_with_index do |row, i|
+          print "\r#{i}"
+          date_closed = (row['Canceled'] == 'Canceled') ? Time.current : nil
+          row['Signature'] = nil if row['Signature'].to_s.length == 1
+          row['StudentSignature'] = nil if row['StudentSignature'].to_s.length == 1
+          country = parse_geographic_area({'Country' => data.people_id[row['RecipientID']]['Country']})
+          country = country.nil? ? nil : country.id
+          supervisor = data.people_index[data.people_id[row['RecipientID']]['SupervisorID']]
+          supervisor_email = supervisor.nil? ?  nil : data.people_id[data.people_id[row['RecipientID']]['SupervisorID']]['Email']
+          supervisor_phone = supervisor.nil? ?  nil : data.people_id[data.people_id[row['RecipientID']]['SupervisorID']]['Phone']
+
+          unless supervisor.nil?
+            byebug
+          end
+          l = Loan.create( date_requested: time_from_field(row['DateRequested']),
+                        request_method: row['MethodOfRequest'],
+                        date_sent: time_from_field(row['DateProcessed']),
+                        date_received: time_from_field(row['DateReceived']),
+                        date_return_expected: time_from_field(row['ExpectedDateOfReturn']),
+                        recipient_person: data.people_index[row['RecipientID']],
+                        recipient_address: data.people_id[row['RecipientID']]['Address'],
+                        recipient_email: data.people_id[row['RecipientID']]['Email'],
+                        recipient_phone: data.people_id[row['RecipientID']]['Phone'],
+                        recipient_honorarium: data.people_id[row['RecipientID']]['Honorarium'],
+                        recipient_country: country,
+                        supervisor_person: supervisor,
+                        supervisor_email: supervisor_email,
+                        supervisor_phone: supervisor_phone,
+                        date_closed: date_closed,
+                        created_by_id: find_or_create_collection_user(row['CreatedBy'], data),
+                        created_at: time_from_field(row['CreatedOn'])
+          )
+          l.notes.create(text: row['Comments']) unless row['Comments'].blank?
+          l.data_attributes.create(import_predicate: 'Signature', value: row['Signature'].to_s, type: 'ImportAttribute') unless row['Signature'].blank?
+          l.data_attributes.create(import_predicate: 'StudentSignature', value: row['StudentSignature'].to_s, type: 'ImportAttribute') unless row['StudentSignature'].blank?
+          l.data_attributes.create(import_predicate: 'Processor', value: row['Processor'].to_s, type: 'ImportAttribute') unless row['Processor'].blank?
+          l.data_attributes.create(import_predicate: 'RecipientID', value: row['RecipientID'].to_s, type: 'ImportAttribute') unless row['RecipientID'].blank?
+          l.identifiers.create(namespace: data.namespaces['Invoice'], identifier: row['InvoiceID'], type: 'Identifier::Local::LoanCode') unless row['InvoiceID'].blank?
+
+        end
+        puts "\nResolved \n #{Loan.all.count} loans\n"
       end
 
       def parse_geographic_area(ce)

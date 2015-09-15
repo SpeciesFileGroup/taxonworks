@@ -68,6 +68,11 @@
 class Loan < ActiveRecord::Base
   include Housekeeping
   include Shared::IsData
+  include Shared::DataAttributes
+  include Shared::Identifiable
+  include Shared::Notable
+  include Shared::Taggable
+  include SoftValidation
 
   has_paper_trail
 
