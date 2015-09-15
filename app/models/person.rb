@@ -11,20 +11,25 @@
 # A unvetted person becomes automatically vetted when they have > 1 roles or they 
 # have an annotation associated with them.
 #
-# @!attribute last_name 
-#   @return [String] the last/family name
+# @!attribute type
+#   @return [String]
+#   Person::Vetted or Person::Unvetted
+#
+# @!attribute last_name
+#   @return [String]
+#   the last/family name
 #     
 # @!attribute first name 
-#   @return [String] the first name, includes initials if the are provided 
-#
-# @!attribute prefix 
-#   @return [String] string preceding the *last/family* name
+#   @return [String]
+#   the first name, includes initials if the are provided
 #
 # @!attribute suffix
-#   @return [String]  string following the *last/family* name
+#   @return [String]
+#   string following the *last/family* name
 #
-# @!attribute type
-#   @return [String] Person::Vetted or Person::Unvetted 
+# @!attribute cached
+#   @return [String]
+#   @todo
 #
 class Person < ActiveRecord::Base
   include Housekeeping::Users
