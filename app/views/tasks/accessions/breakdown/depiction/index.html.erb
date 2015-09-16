@@ -1,12 +1,10 @@
 <h2> Task: Transcribe depiction </h2>
 <div class="flexbox">
 
-
-
   <div class="item item1">
-    <div id="littlebox">  
+    <div id="littlebox"> 
       <% @result.secondary_sections.each_with_index do |section, i| -%>
-        <%= image_tag(@result.image_path_for(section), alt: section, width:  100, class: 'clickable' ) -%>
+        <%= image_tag(@result.image_path_for(section), alt: section, width:  100, class: 'clickable', 'data-position' => i ) -%>
       <% end %>
     </div> 
   </div>
@@ -14,9 +12,10 @@
   <div class="item item2">
 
     <div id="extracted_images">
-
-          <input type="button" id="setBox" value="Enable Selection" onclick="set_select_box();">
+    
+      <input type="button" id="setBox" value="Enable Selection" onclick="set_select_box();">
       <input type="button" id="getBox" value="SELECT" onclick="getBox();">
+ <%= link_to('image', image_path(@result.depiction.image)) -%>
 
       <div id="bigbox" style="height: 400px;">
         <div id="paper">
@@ -24,14 +23,12 @@
         </div>
       </div>
 
+      <div id="selected_text"> </div>
 
       <div id="selected_picture">
         <canvas id="selected_picture_canvas" height="400" width="400"></canvas>
       </div>
 
-      <div id="selected_text"> </div>
-
-      <div id="double_check_image"> </div>
 
 
     </div>
