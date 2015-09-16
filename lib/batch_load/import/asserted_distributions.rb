@@ -17,9 +17,9 @@ module BatchLoad
       csv.each do |row|
         i += 1
 
-        row.push('project_id' => project_id)
-
         next if row.empty? || row.all? { |h, v| v.nil? || v.length == "" }
+
+        row.push('project_id' => @project_id)
 
         rp = BatchLoad::RowParse.new
         @processed_rows.merge!(i => rp)
