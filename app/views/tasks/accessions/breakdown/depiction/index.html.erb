@@ -125,16 +125,23 @@
     <% end %> 
 
     $('.clickable').on('click', function() {
-        var little_detached = $(this).detach();
-        little_detached.attr('width', 400); 
+        var little_detached = $(this).detach();         // detach the clicked (presumably small) image
+        little_detached.attr('width', 400);             // set its width to the focal image width
 
-        var big_detached = $('#bigbox img').detach();
-        big_detached.attr('width', 100); 
+        var big_detached = $('#bigbox img').detach();   // detach the large image contained in the #bigbox div
+        big_detached.attr('width', 100);                // set its size to the smaller non-focal size
+        big_detached.attr('hidden', false);
         
-        $("#littlebox").append(big_detached);
-        $("#bigbox").append(little_detached);
+        $("#littlebox").append(big_detached);           // put the previous large image on the non-focal plane
+        $("#bigbox").append(little_detached);           // put the selected/clicked resized image on the focus
 
-      });
+        if ($("#bigbox image").attr('width') != undefined) {
+            imageObject.src = little_detached.attr('src');
+            $("#bigbox image").attr('href', imageObject.src);
+            $("#bigbox image").attr('height', imageObject.naturalHeight * 400 / imageObject.naturalWidth);
+            $("#bigbox img").attr('hidden', 'hidden');
+        }
+    });
 
   </script>
 </div>
@@ -164,7 +171,8 @@ Integration of selction box into depiction issues
           context = canvas.getContext('2d');
           var destWidth;
           var destHeight;
-          imageObject.src = document.getElementById('bigbox').children[0].children[0].src;
+//          imageObject.src = document.getElementById('bigbox').children[0].children[0].src;
+          imageObject.src = $('#bigbox img').attr('src');
           imageAspectRatio = imageObject.naturalWidth / imageObject.naturalHeight;
           var ratio = imageObject.naturalWidth / paperWidth;
           var sourceX = boxX * ratio;
@@ -204,7 +212,8 @@ Integration of selction box into depiction issues
 
 
       var set_select_box = function () {
-          imageObject.src = document.getElementById('bigbox').children[0].children[0].src;
+          $('#bigbox img').attr('hidden', 'hidden');
+          imageObject.src = $('#bigbox img').attr('src');
           imageAspectRatio = imageObject.naturalWidth / imageObject.naturalHeight;
 
           var dragStart = function () {
@@ -312,7 +321,7 @@ Integration of selction box into depiction issues
           // Create drawing area, clearing previous <svg> content
           if (paper != undefined) { paper.canvas.parentNode.removeChild(paper.canvas);} // clear existing <svg>
           paper = Raphael("paper", paperWidth, paperHeight);
-          paper.image(document.getElementById('bigbox').children[0].children[1].src,
+          paper.image($('#bigbox img').attr('src'),
                   0, 0, paperWidth, paperHeight / imageAspectRatio);
           // Add a rectangle
           var shapes = paper.add([{
