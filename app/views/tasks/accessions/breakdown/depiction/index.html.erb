@@ -1,24 +1,43 @@
 <h2> Task: Transcribe depiction </h2>
 <div class="flexbox">
+
+
+
   <div class="item item1">
+    <div id="littlebox">  
+      <% @result.secondary_sections.each_with_index do |section, i| -%>
+        <%= image_tag(@result.image_path_for(section), alt: section, width:  100, class: 'clickable' ) -%>
+      <% end %>
+    </div> 
+  </div>
+
+  <div class="item item2">
 
     <div id="extracted_images">
+
+          <input type="button" id="setBox" value="Enable Selection" onclick="set_select_box();">
+      <input type="button" id="getBox" value="SELECT" onclick="getBox();">
+
       <div id="bigbox" style="height: 400px;">
         <div id="paper">
         <%= image_tag(@result.image_path_for(@result.primary_image), alt: @result.primary_image, width: 400, class: 'clickable' ) -%>
         </div>
       </div>
 
-      <div id="littlebox">  
-        <% @result.secondary_sections.each_with_index do |section, i| -%>
-          <%= image_tag(@result.image_path_for(section), alt: section, width:  100, class: 'clickable' ) -%>
-        <% end %>
-      </div> 
+
+      <div id="selected_picture">
+        <canvas id="selected_picture_canvas" height="400" width="400"></canvas>
+      </div>
+
+      <div id="selected_text"> </div>
+
+      <div id="double_check_image"> </div>
+
 
     </div>
   </div>
 
-  <div class="item item2">
+  <div class="item item3">
 
     <div class="extracted_header">
       <div class="side_by_side_fields">
@@ -111,41 +130,40 @@
 
     </div>
 
-    <div class="extracted_history">
-    </div>
+    <div class="extracted_history"></div>
   </div>
+ 
+</div>
 
-  
-  <script>
-    <% @result.image_sections.each do |section| -%>
-      $.get("<%= @result.ocr_path_for(section) -%>", function(data) {
-            $("#text_for_<%= section -%>").val(data.text);
-          }, 'json'
-          ) ;
-    <% end %> 
 
-    $('.clickable').on('click', function() {
-        var little_detached = $(this).detach();         // detach the clicked (presumably small) image
-        little_detached.attr('width', 400);             // set its width to the focal image width
 
-        var big_detached = $('#bigbox img').detach();   // detach the large image contained in the #bigbox div
-        big_detached.attr('width', 100);                // set its size to the smaller non-focal size
-        big_detached.attr('hidden', false);
-        
-        $("#littlebox").append(big_detached);           // put the previous large image on the non-focal plane
-        $("#bigbox").append(little_detached);           // put the selected/clicked resized image on the focus
+<script>
+<% @result.image_sections.each do |section| -%>
+  $.get("<%= @result.ocr_path_for(section) -%>", function(data) {
+      $("#text_for_<%= section -%>").val(data.text);
+      }, 'json'
+      ) ;
+<% end %> 
 
-        if ($("#bigbox image").attr('width') != undefined) {
-            imageObject.src = little_detached.attr('src');
-            $("#bigbox image").attr('href', imageObject.src);
-            $("#bigbox image").attr('height', imageObject.naturalHeight * 400 / imageObject.naturalWidth);
-            $("#bigbox img").attr('hidden', 'hidden');
-        }
+$('.clickable').on('click', function() {
+    var little_detached = $(this).detach();         // detach the clicked (presumably small) image
+    little_detached.attr('width', 400);             // set its width to the focal image width
+
+    var big_detached = $('#bigbox img').detach();   // detach the large image contained in the #bigbox div
+    big_detached.attr('width', 100);                // set its size to the smaller non-focal size
+    big_detached.attr('hidden', false);
+
+    $("#littlebox").append(big_detached);           // put the previous large image on the non-focal plane
+    $("#bigbox").append(little_detached);           // put the selected/clicked resized image on the focus
+
+    if ($("#bigbox image").attr('width') != undefined) {
+    imageObject.src = little_detached.attr('src');
+    $("#bigbox image").attr('href', imageObject.src);
+    $("#bigbox image").attr('height', imageObject.naturalHeight * 400 / imageObject.naturalWidth);
+    $("#bigbox img").attr('hidden', 'hidden');
+    }
     });
 
-  </script>
-</div>
-<script>
 /*
 Integration of selction box into depiction issues
   Image()<HTMLImageElement> for selection is contained in a <canvas>, whereas large image for depiction is
@@ -156,9 +174,6 @@ Integration of selction box into depiction issues
   Next step will be to replace the simple large image control structure with the paper contol.  canvas placement TBD.
 */
 </script>
-
-  <input type="button" id="setBox" value="Enable Selection" onclick="set_select_box();">
-  <input type="button" id="getBox" value="SELECT" onclick="getBox();">
 
   <!--<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>-->
   <!--<script src="http://github.com/DmitryBaranovskiy/raphael/raw/master/raphael-min.js"></script>-->
@@ -193,6 +208,22 @@ Integration of selction box into depiction issues
           var destY = 0;          // was canvas.height / 2 - destHeight / 2;
           context.clearRect(0, 0, canvas.width, canvas.height);
           context.drawImage(imageObject, sourceX, sourceY, sourceWidth, sourceHeight, destX, destY, destWidth, destHeight);
+
+         var  coords = imageObject.src.split("/");
+
+         var x = Math.round(sourceX + Number(coords[6]));  
+         var y = Math.round(sourceY + Number(coords[7]));
+         var w = Math.round(boxW * ratio);
+          var h = Math.round(boxH * ratio);
+
+          var coord_string = x + "/" + y + "/" + w + "/" + h
+
+         // $("#selected_text").html("images/<%= @result.depiction.image.id -%>/ocr/" +  );
+
+            $.get("/images/<%= @result.depiction.image.id -%>/ocr/" + coord_string , function(data) {
+                $("#selected_text").html(data.text);
+                }, 'json'
+                ) ;
 
       }
       ;
@@ -349,6 +380,7 @@ Integration of selction box into depiction issues
 //      $(document).ready(set_select_box());
 
   </script>
-  <div id="selected_picture">
-    <canvas id="selected_picture_canvas" height="400" width="400"></canvas>
-  </div>
+  
+
+
+
