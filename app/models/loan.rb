@@ -79,6 +79,7 @@ class Loan < ActiveRecord::Base
   belongs_to :recipient_person, foreign_key: :recipient_person_id, class_name: 'Person'
   belongs_to :supervisor_person, foreign_key: :supervisor_person_id, class_name: 'Person'
 
+  has_many :loan_items
   has_many :loan_recipient_roles, class_name: 'LoanRecipient', as: :role_object
 
 

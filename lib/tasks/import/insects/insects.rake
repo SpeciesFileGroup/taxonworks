@@ -191,6 +191,7 @@ namespace :tw do
         puts "\nTotal collecting events to build: #{$redis.keys.count}."
 
         ###handle_associations(@data, @import)
+        handle_loan_specimens(@data)
 
         puts "\n!! Unmatched localities: (#{@data.unmatched_localities.keys.count}): " + @data.unmatched_localities.keys.sort.join(", ")
         puts "\n!! Unmatched taxa: (#{@data.unmatched_taxa.keys.count}): " + @data.unmatched_taxa.keys.sort.join(", ")
@@ -1573,6 +1574,56 @@ namespace :tw do
           checkpoint_save(import) if ENV['no_transaction']
         end
       end
+
+      def handle_loan_specimens(data)
+        path = @args[:data_directory] + 'TXT/loan_specimen.txt'
+        raise 'file not found' if not File.exists?(path)
+        ls = CSV.open(path, col_sep: "\t", :headers => true)
+        #fields = %w{ Prefix CatalogNumber InvoiceID Status DateReturned }
+        print "Handling loan_specimens\n"
+
+        status = { '2/14/2005' => 'Returned',
+                   '3/22/2004' => 'Returned',
+                   'destroyed' => 'Destroyed',
+                   'donated' => 'Donated',
+                   'loaned on' => 'Loaned on',
+                   'Lost' => 'Lost',
+                   'retained' => 'Retained',
+                   'returned' => 'Returned' }
+
+        ls.each_with_index do |row, i|
+          print "\r#{i}"
+          specimen = nil
+          container = nil
+          invoice = data.loans[row['InvoiceID']]
+          unless row['Prefix'].blank? || row['CatalogNumber'].blank? || invoice.nil?
+            identifier = Identifier.where(cached: row['Prefix'] + ' ' + row['CatalogNumber'], type: 'Identifier::Local::CatalogNumber', project_id: $project_id)
+            specimen = identifier.empty? ? nil : identifier.first.identifier_object
+            if specimen.class =~ /Container/
+              container = specimen
+              specimen = nil
+            end
+            l = LoanItem.new( loan: invoice,
+                                 collection_object_id: specimen,
+                                 date_returned: time_from_field(row['DateReturned']),
+                                 collection_object_status: status[row['Status'].to_s.downcase],
+                                 container_id: container
+            )
+            if l.valid?
+              l.save
+            else
+              byebug
+            end
+          end
+        end
+        Loan.each do |l|
+          unless l.date_returnen.nil?
+            date = l.loan_items.collect{|i| i.date_returned}.order
+            l.date_returned = date.last
+            l.save
+          end
+        end
+       end
 
       def parse_geographic_area(ce)
         geog_search = []

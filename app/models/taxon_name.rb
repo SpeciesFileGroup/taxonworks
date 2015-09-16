@@ -510,7 +510,7 @@ class TaxonName < ActiveRecord::Base
   end
 
   def create_new_combination_if_absent
-    return true unless self.type == "Protonym"
+    return true unless self.type == 'Protonym'
     if TaxonName.with_cached_html(self.cached_html).count == 0
       begin
         TaxonName.transaction do
