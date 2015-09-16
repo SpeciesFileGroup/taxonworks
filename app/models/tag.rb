@@ -1,3 +1,30 @@
+# Tag definition...
+# @todo
+#
+# @!attribute keyword_id
+#   @return [Integer]
+#   @todo
+#
+# @!attribute tag_object_id
+#   @return [Integer]
+#   @todo
+#
+# @!attribute tag_object_type
+#   @return [String]
+#   @todo
+#
+# @!attribute tag_object_attribute
+#   @return [String]
+#   @todo
+#
+# @!attribute project_id
+#   @return [Integer]
+#   the project ID
+#
+# @!attribute position
+#   @return [Integer]
+#   @todo
+#
 class Tag < ActiveRecord::Base
   include Housekeeping
   include Shared::IsData

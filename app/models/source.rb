@@ -1,7 +1,183 @@
 # A Source is the metadata that identifies the origin of some information.
-
+#
 # The primary purpose of Source metadata is to allow the user to find the source, that's all. 
 # 
+# @!attribute serial_id
+#   @return [Integer]
+#   @todo
+#
+# @!attribute address
+#   @return [String]
+#   @todo
+#
+# @!attribute annote
+#   @return [String]
+#   @todo
+#
+# @!attribute booktitle
+#   @return [String]
+#   @todo
+#
+# @!attribute chapter
+#   @return [String]
+#   @todo
+#
+# @!attribute crossref
+#   @return [String]
+#   @todo
+#
+# @!attribute edition
+#   @return [String]
+#   @todo
+#
+# @!attribute editor
+#   @return [String]
+#   @todo
+#
+# @!attribute howpublished
+#   @return [String]
+#   @todo
+#
+# @!attribute institution
+#   @return [String]
+#   @todo
+#
+# @!attribute journal
+#   @return [String]
+#   @todo
+#
+# @!attribute key
+#   @return [String]
+#   @todo
+#
+# @!attribute month
+#   @return [String]
+#   @todo
+#
+# @!attribute note
+#   @return [String]
+#   @todo
+#
+# @!attribute number
+#   @return [String]
+#   @todo
+#
+# @!attribute organization
+#   @return [String]
+#   @todo
+#
+# @!attribute pages
+#   @return [String]
+#   @todo
+#
+# @!attribute publisher
+#   @return [String]
+#   @todo
+#
+# @!attribute school
+#   @return [String]
+#   @todo
+#
+# @!attribute series
+#   @return [String]
+#   @todo
+#
+# @!attribute title
+#   @return [String]
+#   @todo
+#
+# @!attribute type
+#   @return [String]
+#   @todo
+#
+# @!attribute volume
+#   @return [String]
+#   @todo
+#
+# @!attribute doi
+#   @return [String]
+#   @todo
+#
+# @!attribute abstract
+#   @return [String]
+#   @todo
+#
+# @!attribute copyright
+#   @return [String]
+#   @todo
+#
+# @!attribute language
+#   @return [String]
+#   @todo
+#
+# @!attribute stated_year
+#   @return [String]
+#   @todo
+#
+# @!attribute verbatim
+#   @return [String]
+#   @todo
+#
+# @!attribute bibtex_type
+#   @return [String]
+#   @todo
+#
+# @!attribute day
+#   @return [Integer]
+#   @todo
+#
+# @!attribute year
+#   @return [Integer]
+#   @todo
+#
+# @!attribute isbn
+#   @return [String]
+#   @todo
+#
+# @!attribute issn
+#   @return [String]
+#   @todo
+#
+# @!attribute verbatim_contents
+#   @return [String]
+#   @todo
+#
+# @!attribute verbatim_keywords
+#   @return [String]
+#   @todo
+#
+# @!attribute language_id
+#   @return [Integer]
+#   @todo
+#
+# @!attribute translator
+#   @return [String]
+#   @todo
+#
+# @!attribute year_suffix
+#   @return [String]
+#   @todo
+#
+# @!attribute url
+#   @return [String]
+#   @todo
+#
+# @!attribute author
+#   @return [String]
+#   @todo
+#
+# @!attribute cached
+#   @return [String]
+#   @todo
+#
+# @!attribute cached_author_string
+#   @return [String]
+#   @todo
+#
+# @!attribute cached_nomenclature_date
+#   @return [DateTime]
+#   @todo
+#
 class Source < ActiveRecord::Base
   include Housekeeping::Users
   include Housekeeping::Timestamps
