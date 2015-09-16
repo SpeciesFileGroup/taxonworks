@@ -33,8 +33,8 @@ namespace :tw do
       class ImportedData
         attr_accessor :people_id, :keywords, :user_index, :collection_objects, :namespaces, :people_index, # :otus,
                       :preparation_types, :taxa_index, :localities_index, # :collecting_event_index,
-                      :unmatched_localities, :invalid_speciemsn, :unmatched_taxa, :duplicate_specimen_ids,
-                      :partially_resolved_index, :biocuration_classes, :biological_properties, :biological_relationships
+                      :unmatched_localities, :invalid_speciemens, :unmatched_taxa, :duplicate_specimen_ids,
+                      :partially_resolved_index, :biocuration_classes, :biological_properties, :biological_relationships, :loans
         def initialize()
           @keywords = {}                  # keyword -> ControlledVocabularyTerm
           @namespaces = {}                # SpecimenIDPrefix -> NameSpace class
@@ -56,6 +56,7 @@ namespace :tw do
           @biocuration_classes = {}
           @biological_properties = {}
           @biological_relationships = {}
+          @loans = {}
 
         end
 
@@ -170,6 +171,7 @@ namespace :tw do
         handle_preparation_types(@data, @import)
         handle_people(@data, @import)
         handle_taxa(@data, @import)
+        handle_loans(@data, @import)
 
         # !! The following can not be loaded from the database they are always created anew.
 
@@ -189,8 +191,6 @@ namespace :tw do
         puts "\nTotal collecting events to build: #{$redis.keys.count}."
 
         ###handle_associations(@data, @import)
-
-        handle_loans(@data)
 
         puts "\n!! Unmatched localities: (#{@data.unmatched_localities.keys.count}): " + @data.unmatched_localities.keys.sort.join(", ")
         puts "\n!! Unmatched taxa: (#{@data.unmatched_taxa.keys.count}): " + @data.unmatched_taxa.keys.sort.join(", ")
@@ -375,7 +375,7 @@ namespace :tw do
         end
         data.namespaces.merge!('NEON' => n)
 
-        n = Namespace.where(institution: 'INHS Insect Collection', short_name: 'INHS loan invoice')
+        n = Namespace.where(institution: 'INHS Insect Collection', name: 'INHS loan invoice')
         if n.empty?
           n = Namespace.create(institution: 'INHS Insect Collection', name: 'INHS loan invoice', short_name: 'Invoice')
         else
@@ -1515,54 +1515,63 @@ namespace :tw do
         puts "\nResolved \n #{BiologicalAssociation.all.count} biological associations\n"
       end
 
-      def handle_loans(data)
+      def handle_loans(data, import)
         path = @args[:data_directory] + 'TXT/loans.txt'
         raise 'file not found' if not File.exists?(path)
         lo = CSV.open(path, col_sep: "\t", :headers => true)
         #fields = %w{ InvoiceID ExpectedDateOfReturn DateReceived DateProcessed DateRequested MethodOfRequest Processor RecipientID Signature StudentSignature Comments TotalRecordsOnLoan TotalRecordsReturned TotalRecordsRemaining TotalSpecimensOnLoan TotalSpeciemsnReturned TotalSpeciemsnRemaining Canceled CreatedBy }
-        puts "\n  Handle loans \n"
-
-        lo.each_with_index do |row, i|
-          print "\r#{i}"
-          date_closed = (row['Canceled'] == 'Canceled') ? Time.current : nil
-          row['Signature'] = nil if row['Signature'].to_s.length == 1
-          row['StudentSignature'] = nil if row['StudentSignature'].to_s.length == 1
-          country = parse_geographic_area({'Country' => data.people_id[row['RecipientID']]['Country']})
-          country = country.nil? ? nil : country.id
-          supervisor = data.people_index[data.people_id[row['RecipientID']]['SupervisorID']]
-          supervisor_email = supervisor.nil? ?  nil : data.people_id[data.people_id[row['RecipientID']]['SupervisorID']]['Email']
-          supervisor_phone = supervisor.nil? ?  nil : data.people_id[data.people_id[row['RecipientID']]['SupervisorID']]['Phone']
-
-          unless supervisor.nil?
-            byebug
+        print "Handling Loans "
+        if import.metadata['loans']
+          print "from database.  Indexing Loans by InvoiceID..."
+          Identifier.where(namespace_id: data.namespaces['Invoice']).each do |l|
+            data.loans.merge!(l.identifier => l.identifier_object)
           end
-          l = Loan.create( date_requested: time_from_field(row['DateRequested']),
-                        request_method: row['MethodOfRequest'],
-                        date_sent: time_from_field(row['DateProcessed']),
-                        date_received: time_from_field(row['DateReceived']),
-                        date_return_expected: time_from_field(row['ExpectedDateOfReturn']),
-                        recipient_person: data.people_index[row['RecipientID']],
-                        recipient_address: data.people_id[row['RecipientID']]['Address'],
-                        recipient_email: data.people_id[row['RecipientID']]['Email'],
-                        recipient_phone: data.people_id[row['RecipientID']]['Phone'],
-                        recipient_honorarium: data.people_id[row['RecipientID']]['Honorarium'],
-                        recipient_country: country,
-                        supervisor_person: supervisor,
-                        supervisor_email: supervisor_email,
-                        supervisor_phone: supervisor_phone,
-                        date_closed: date_closed,
-                        created_by_id: find_or_create_collection_user(row['CreatedBy'], data),
-                        created_at: time_from_field(row['CreatedOn'])
-          )
-          l.notes.create(text: row['Comments']) unless row['Comments'].blank?
-          l.data_attributes.create(import_predicate: 'Signature', value: row['Signature'].to_s, type: 'ImportAttribute') unless row['Signature'].blank?
-          l.data_attributes.create(import_predicate: 'StudentSignature', value: row['StudentSignature'].to_s, type: 'ImportAttribute') unless row['StudentSignature'].blank?
-          l.data_attributes.create(import_predicate: 'Processor', value: row['Processor'].to_s, type: 'ImportAttribute') unless row['Processor'].blank?
-          l.data_attributes.create(import_predicate: 'RecipientID', value: row['RecipientID'].to_s, type: 'ImportAttribute') unless row['RecipientID'].blank?
-          l.identifiers.create(namespace: data.namespaces['Invoice'], identifier: row['InvoiceID'], type: 'Identifier::Local::LoanCode') unless row['InvoiceID'].blank?
+          print "done.\n"
+        else
+          print "as newly parsed.\n"
+          lo.each_with_index do |row, i|
+            print "\r#{i}"
+            date_closed = (row['Canceled'] == 'Canceled') ? Time.current : nil
+            row['Signature'] = nil if row['Signature'].to_s.length == 1
+            row['StudentSignature'] = nil if row['StudentSignature'].to_s.length == 1
+            country = parse_geographic_area({'Country' => data.people_id[row['RecipientID']]['Country']})
+            country = country.nil? ? nil : country.id
+            supervisor = data.people_index[data.people_id[row['RecipientID']]['SupervisorID']]
+            supervisor_email = supervisor.nil? ?  nil : data.people_id[data.people_id[row['RecipientID']]['SupervisorID']]['Email']
+            supervisor_phone = supervisor.nil? ?  nil : data.people_id[data.people_id[row['RecipientID']]['SupervisorID']]['Phone']
 
+            l = Loan.create( date_requested: time_from_field(row['DateRequested']),
+                             request_method: row['MethodOfRequest'],
+                             date_sent: time_from_field(row['DateProcessed']),
+                             date_received: time_from_field(row['DateReceived']),
+                             date_return_expected: time_from_field(row['ExpectedDateOfReturn']),
+                             recipient_person: data.people_index[row['RecipientID']],
+                             recipient_address: data.people_id[row['RecipientID']]['Address'],
+                             recipient_email: data.people_id[row['RecipientID']]['Email'],
+                             recipient_phone: data.people_id[row['RecipientID']]['Phone'],
+                             recipient_honorarium: data.people_id[row['RecipientID']]['Honorarium'],
+                             recipient_country: country,
+                             supervisor_person: supervisor,
+                             supervisor_email: supervisor_email,
+                             supervisor_phone: supervisor_phone,
+                             date_closed: date_closed,
+                             created_by_id: find_or_create_collection_user(row['CreatedBy'], data),
+                             created_at: time_from_field(row['CreatedOn'])
+            )
+            data.loans.merge!(row['InvoiceID'] => l)
+            l.notes.create(text: row['Comments']) unless row['Comments'].blank?
+            l.data_attributes.create(import_predicate: 'Signature', value: row['Signature'].to_s, type: 'ImportAttribute') unless row['Signature'].blank?
+            l.data_attributes.create(import_predicate: 'StudentSignature', value: row['StudentSignature'].to_s, type: 'ImportAttribute') unless row['StudentSignature'].blank?
+            l.data_attributes.create(import_predicate: 'Processor', value: row['Processor'].to_s, type: 'ImportAttribute') unless row['Processor'].blank?
+            l.data_attributes.create(import_predicate: 'RecipientID', value: row['RecipientID'].to_s, type: 'ImportAttribute') unless row['RecipientID'].blank?
+            l.identifiers.create(namespace: data.namespaces['Invoice'], identifier: row['InvoiceID'], type: 'Identifier::Local::LoanCode') unless row['InvoiceID'].blank?
+            Role.create(person: data.people_index[row['RecipientID']], role_object: l, type: 'LoanRecipient') unless row['RecipientID'].blank?
+            Role.create(person: data.people_index[row['SupervisorID']], role_object: l, type: 'LoanRecipient') unless row['SupervisorID'].blank?
+          end
+          puts "\nResolved \n #{Loan.all.count} loans\n"
+          import.metadata['loans'] = true
+          checkpoint_save(import) if ENV['no_transaction']
         end
-        puts "\nResolved \n #{Loan.all.count} loans\n"
       end
 
       def parse_geographic_area(ce)

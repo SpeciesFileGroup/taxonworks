@@ -79,6 +79,9 @@ class Loan < ActiveRecord::Base
   belongs_to :recipient_person, foreign_key: :recipient_person_id, class_name: 'Person'
   belongs_to :supervisor_person, foreign_key: :supervisor_person_id, class_name: 'Person'
 
+  has_many :loan_recipient_roles, class_name: 'LoanRecipient', as: :role_object
+
+
   # TODO: @mjy What *is* the right construct for 'Loan'?
   def self.find_for_autocomplete(params)
     where('recipient_email LIKE ?', "#{params[:term]}%")
