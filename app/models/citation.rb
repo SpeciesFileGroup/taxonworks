@@ -2,18 +2,23 @@
 # (Assertion that the subject was referenced in a source)
 #
 # @!attribute citation_object_type
+#   @return [String]
 #   @todo
 #
 # @!attribute source_id
+#   @return [Integer]
 #   the source ID
 #
 # @!attribute project_id
+#   @return [Integer]
 #   the project ID
 #
 # @!attribute citation_object_id
+#   @return [Integer]
 #   @todo
 #
 # @!attribute pages
+#   @return [String]
 #   @todo
 #
 class Citation < ActiveRecord::Base

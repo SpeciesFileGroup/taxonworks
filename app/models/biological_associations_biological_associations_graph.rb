@@ -2,12 +2,15 @@
 #   @todo
 #
 # @!attribute biological_association_graph_id
+#   @return [Integer]
 #   @todo
 #
 # @!attribute biological_association_id
+#   @return [Integer]
 #   @todo
 #
 # @!attribute project_id
+#   @return [Integer]
 #   the project ID
 #
 class BiologicalAssociationsBiologicalAssociationsGraph < ActiveRecord::Base

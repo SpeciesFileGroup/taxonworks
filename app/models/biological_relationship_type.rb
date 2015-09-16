@@ -2,15 +2,19 @@
 #   @todo
 #
 # @!attribute type
+#   @return [String]
 #   @todo
 #
 # @!attribute biological_property_id
+#   @return [Integer]
 #   @todo
 #
 # @!attribute biological_relationship_id
+#   @return [Integer]
 #   @todo
 #
 # @!attribute project_id
+#   @return [Integer]
 #   the project ID
 #
 class BiologicalRelationshipType < ActiveRecord::Base

@@ -2,15 +2,19 @@
 #   @todo
 #
 # @!attribute topic_id
+#   @return [Integer]
 #   @todo
 #
 # @!citation_id
+#   @return [Integer]
 #   @todo
 #
 # @!attribute pages
+#   @return [String]
 #   @todo
 #
 # @!attribute project_id
+#   @return [Integer]
 #   the project ID
 #
 class CitationTopic < ActiveRecord::Base

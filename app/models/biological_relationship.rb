@@ -2,15 +2,19 @@
 #   @todo
 #
 # @!attribute name
+#   @return [String]
 #   @todo
 #
 # @!attribute is_transitive
+#   @return [Boolean]
 #   @todo
 #
 # @!attribute is_reflexive
+#   @return [Boolean]
 #   @todo
 #
 # @!attribute project_id
+#   @return [Integer]
 #   the project ID
 #
 class BiologicalRelationship < ActiveRecord::Base

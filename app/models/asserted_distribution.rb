@@ -2,18 +2,23 @@
 #   @todo
 #
 # @!attribute otu_id
+#   @return [Integer]
 #   the OTU ID
 #
 # @!attribute geographic_area_id
+#   @return [Integer]
 #   the geographic area ID
 #
 # @!attribute source_id
+#   @return [Integer]
 #   the source ID
 #
 # @!attribute project_id
+#   @return [Integer]
 #   the project ID
 #
 # @!attribute is_absent
+#   @return [Boolean]
 #   @todo
 #
 class AssertedDistribution < ActiveRecord::Base

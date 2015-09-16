@@ -2,12 +2,15 @@
 #   @todo
 #
 # @!attribute project_id
+#   @return [Integer]
 #   the project ID
 #
 # @!attribute name
+#   @return [String]
 #   @todo
 #
 # @!attribute source_id
+#   @return [Integer]
 #   the source ID
 #
 class BiologicalAssociationsGraph < ActiveRecord::Base

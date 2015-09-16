@@ -2,21 +2,27 @@
 #   @todo
 #
 # @!attribute biological_relationship_id
+#   @return [Integer]
 #   the biological relationship ID
 #
 # @!attribute biological_association_subject_id
+#   @return [Integer]
 #   @todo
 #
 # @!attribute biological_association_subject_type
+#   @return [String]
 #   @todo
 #
 # @!attribute biological_association_object_id
+#   @return [Integer]
 #   @todo
 #
 # @!attribute biological_association_object_type
+#   @return [String]
 #   @todo
 #
 # @!attribute project_id
+#   @return [Integer]
 #   the project ID
 #
 class BiologicalAssociation < ActiveRecord::Base

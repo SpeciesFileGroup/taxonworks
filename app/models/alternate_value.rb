@@ -2,24 +2,31 @@
 # to the same thing. (e.g. Hernán vs. Hernan, NOT Bean Books (publisher1) vs. Dell Books (publisher2))
 #
 # @!attribute value
+#   @return [String]
 #   the annotated value
 #
 # @!attribute type
+#   @return [String]
 #   the annotated type
 #
 # @!attribute alternate_value_object_attribute
+#   @return [String]
 #   @todo
 #
 # @!attribute attribute_value_object_id
+#   @return [Integer]
 #   the ID of the thing being annotated
 #
 # @!attribute alternate_value_object_type
+#   @return [String]
 #   the kind of thing being annotated
 #
 # @!attribute language_id
+#   @return [Integer]
 #   the ID of the language used for translation
 #
 # @!attribute project_id
+#   @return [Integer]
 #   the project ID
 #
 class AlternateValue < ActiveRecord::Base

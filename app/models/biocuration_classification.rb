@@ -2,15 +2,19 @@
 #   @todo
 #
 # @!attribute biocuration_class_id
+#   @return [Integer]
 #   the biocuration class ID
 #
 # @!attribute biological_collection_object_id
+#   @return [Integer]
 #   the biological collection object ID
 #
 # @!attribute position
+#   @return [Integer]
 #   @todo
 #
 # @!attribute project_id
+#   @return [Integer]
 #   the project ID
 #
 class BiocurationClassification < ActiveRecord::Base
