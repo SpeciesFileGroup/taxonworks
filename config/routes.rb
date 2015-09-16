@@ -274,6 +274,10 @@ TaxonWorks::Application.routes.draw do
       end
     end
 
+    scope :gis, controller: 'tasks/gis/report' do
+      get 'report', action: 'new', as: 'new_report_task'
+    end
+
     scope :gis, controller: 'tasks/gis/locality' do
       get 'nearby/:id', action: 'nearby', as: 'nearby_locality_task'
       get 'update/:id', action: 'update', as: 'update_locality_task'
@@ -375,9 +379,9 @@ TaxonWorks::Application.routes.draw do
       end
     end
 
-    scope :contents, controller: 'tasks/content/preview'  do
-      get ':otu_id/:otu_page_template_id', action: :otu_content_for_layout, as: 'preview_otu_content_for_layout'  # this needs to be fixed see, otu_content.html.erb
-      get ':otu_id',  action: 'otu_content', as: 'preview_otu_content'
+    scope :contents, controller: 'tasks/content/preview' do
+      get ':otu_id/:otu_page_template_id', action: :otu_content_for_layout, as: 'preview_otu_content_for_layout' # this needs to be fixed see, otu_content.html.erb
+      get ':otu_id', action: 'otu_content', as: 'preview_otu_content'
     end
 
   end

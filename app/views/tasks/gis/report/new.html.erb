@@ -1,0 +1,47 @@
+<%= render(partial: 'layouts/map_header') -%>
+<h1>Task: GIS report</h1>
+<div class="flexbox">
+  <div class="item item1">
+    <table border="1">
+      <tr>
+        <td></td>
+        <td>
+          <%= form_tag(generate_choices_url, id: 'new_report_from_map_form') do %>
+              <span id="geographic_areaError" style="color: #DD0000"></span>
+              <%= render :partial => 'workbench/elements/forms/ajax_select',
+                         :locals  => {:controller => '/geographic_areas',
+                                      :object     => 'report',
+                                      :method     => 'geographic_area_id',
+                                      :tag_id     => 'geographic_area_id_for_report',
+                                      :size       => 20,
+                                      :display    => ''} %>
+          <% end %>
+        </td>
+        <td>
+
+        </td>
+      </tr>
+      <tr></tr>
+      <tr>
+        <td>Include</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="item item2">
+    <div id="feature_collection"
+         data-collection-objects='<%= @collection_objects %>'
+         data-feature-collection='<%= Gis::GeoJSON.feature_collection([]).to_json %>'>
+    </div>
+    <table border="1">
+      <tr>
+        <td>
+          <div id="map_canvas" style="width:512px; height: 256px;">
+            There be monsters here...
+          </div>
+        </td>
+      </tr>
+    </table>
+  </div>
+</div>
+
