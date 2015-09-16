@@ -1,3 +1,22 @@
+# TaggedSectionKeyword definition...
+# @todo
+#
+# @!attribute otu_page_layout_section_id
+#   @return [Integer]
+#   @todo
+#
+# @!attribute position
+#   @return [Integer]
+#   @todo
+#
+# @!attribute project_id
+#   @return [Integer]
+#   the project ID
+#
+# @!attribute keyword_id
+#   @return [Integer]
+#   @todo
+#
 class TaggedSectionKeyword < ActiveRecord::Base
   include Housekeeping
   include Shared::IsData 

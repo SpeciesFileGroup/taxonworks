@@ -1,3 +1,30 @@
+# TypeMaterial definition...
+# @todo
+#
+# @!attribute protonym_id
+#   @return [Integer]
+#   @todo
+#
+# @!attribute biological_object_id
+#   @return [Integer]
+#   @todo
+#
+# @!attribute type_type
+#   @return [String]
+#   @todo
+#
+# @!attribute source_id
+#   @return [Integer]
+#   @todo
+#
+# @!attribute project_id
+#   @return [Integer]
+#   the project ID
+#
+# @!attribute position
+#   @return [Integer]
+#   @todo
+#
 class TypeMaterial < ActiveRecord::Base
   include Housekeeping
   include Shared::Citable

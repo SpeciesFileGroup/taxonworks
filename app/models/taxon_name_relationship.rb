@@ -1,5 +1,31 @@
 # A NOMEN based relationship between two Protonyms.
 #
+# @todo Note that many of the TODOs do not show up in Yard?? They are copied here so you can find them in the code:
+# @todo SourceClassifiedAs is not really Combination in the other sense
+# @todo validate, that all the relationships in the table could be linked to relationships in classes (if those had changed)
+# @todo Check if more than one species associated with the genus in the original paper
+# @todo Check if more than one species associated with the genus in the original paper
+#
+# @!attribute subject_taxon_name_id
+#   @return [Integer]
+#   @todo
+#
+# @!attribute object_taxon_name_id
+#   @return [Integer]
+#   @todo
+#
+# @!attribute type
+#   @return [String]
+#   @todo
+#
+# @!attribute project_id
+#   @return [Integer]
+#   the project ID
+#
+# @!attribute source_id
+#   @return [Integer]
+#   @todo
+#
 class TaxonNameRelationship < ActiveRecord::Base
   include Housekeeping
   include Shared::Citable
@@ -53,7 +79,7 @@ class TaxonNameRelationship < ActiveRecord::Base
   scope :with_type_array, -> (base_array) {where('type IN (?)', base_array ) }
   scope :with_type_contains, -> (base_string) {where('type LIKE ?', "%#{base_string}%" ) }
 
-  # TODO: SourceClassifiedAs is not really Combination in the other sense
+  # @todo SourceClassifiedAs is not really Combination in the other sense
   def is_combination?
     !!/TaxonNameRelationship::(OriginalCombination|Combination)/.match(self.type.to_s)
   end.to_s
@@ -134,7 +160,6 @@ class TaxonNameRelationship < ActiveRecord::Base
   def type_class
     r = read_attribute(:type).to_s
     r = TAXON_NAME_RELATIONSHIP_NAMES.include?(r) ? r.safe_constantize : r
-    r
   end
 
   def self.find_for_autocomplete(params)
@@ -163,7 +188,7 @@ class TaxonNameRelationship < ActiveRecord::Base
     end
   end
 
-  #TODO: validate, that all the relationships in the table could be linked to relationships in classes (if those had changed)
+  # @todo validate, that all the relationships in the table could be linked to relationships in classes (if those had changed)
 
   def validate_subject_and_object_share_code
     if object_taxon_name.type  == 'Protonym' && subject_taxon_name.type == 'Protonym'
@@ -373,7 +398,7 @@ class TaxonNameRelationship < ActiveRecord::Base
       when 'TaxonNameRelationship::Typification::Genus::SubsequentDesignation'
         soft_validations.add(:type, 'Genus described after 1930 is nomen nudum, if type was not designated in the original publication') if o.year_of_publication > 1930
       when 'TaxonNameRelationship::Typification::Genus::Monotypy::Original'
-        #TODO: Check if more than one species associated with the genus in the original paper
+        # @todo Check if more than one species associated with the genus in the original paper
     end
   end
 

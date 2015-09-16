@@ -1,98 +1,124 @@
 # A taxonomic name (nomenclature only). 
 #
-# @!attribute year_of_publication 
-#   @return [Integer]
-#     the 4 digit year when this name was published! @proceps- clarify vs. made available.  ? = Source.year?
-#
-# @!attribute source_id 
-#   @return [Integer]
-#     the ID of the source (a Source::Bibtex or Source::Verbatim instance) in which this name was first published.  Subsequent references are made in citations or combinations. 
-#
-# @!attribute lft 
-#   @return [Integer]
-#     per awesome_nested_set. 
-#
-# @!attribute rgt 
-#   @return [Integer]
-#     per awesome_nested_set. 
+# @!attribute name
+#   @return [String, nil]
+#   the fully latinized string (monomimial) of a code governed taxonomic biological name
+#   not applicable for Combinations, they are derived from their pieces
 #
 # @!attribute parent_id
 #   @return [Integer]
-#     The id of the parent taxon. The parent child relationship is exclusively organizational. All statuses and relationships
-#     of a taxon name must be explicitly defined via taxon name relationships or classifications. The parent of a taxon name 
-#     can be thought of the "place where you'd find this name in a hierarchy if you knew literally *nothing* else about that name." 
-#     In practice read each monomial in the name (protonym or combination) from right to left, the parent is the parent of the last monomial read.
-#     There are 3 simple rules for determening the parent of a Protonym or Combination:
-#       1) the parent must always be at least one rank higher than the target names rank
-#       2) the parent of a synonym (any sense) is the parent of the synonym's valid name
-#       3) the parent of a combination is the parent of the highest ranked monomial in the epithet (almost always the parent of the genus)
-#
-# @!attribute name 
-#   @return [String, nil]
-#     the fully latinized string (monomimial) of a code governed taxonomic biological name
-#     not applicable for Combinations, they are derived from their pieces 
-#
-# @!attribute verbatim_name
-#   @return [String]
-#     a representation of what the combination (fully spelled out) or protonym (monomial)
-#     *looked like* in its originating publication
-# The sole purpose of this string is to represent visual differences from what is recorded in the
-# latinized version of the name (Protonym#name, Combination#cached) from what was originally transcribed
-#
-# @!attribute verbatim_author 
-#   @return [String]
-#     the verbatim author string as provided ? is not post-filled in when Source is referenced !?
-#
-# @!attribute cached
-#   @return [String]
-#    Genus-species combination for genus and lower, monomial for higher. The string has NO html.
+#   The id of the parent taxon. The parent child relationship is exclusively organizational. All statuses and relationships
+#   of a taxon name must be explicitly defined via taxon name relationships or classifications. The parent of a taxon name
+#   can be thought of the "place where you'd find this name in a hierarchy if you knew literally *nothing* else about that name."
+#   In practice read each monomial in the name (protonym or combination) from right to left, the parent is the parent of the last monomial read.
+#   There are 3 simple rules for determening the parent of a Protonym or Combination:
+#     1) the parent must always be at least one rank higher than the target names rank
+#     2) the parent of a synonym (any sense) is the parent of the synonym's valid name
+#     3) the parent of a combination is the parent of the highest ranked monomial in the epithet (almost always the parent of the genus)
 #
 # @!attribute cached_html
 #   @return [String]
-#     Genus-species combination for the taxon. The string is in html format including <em></em> tags.
+#   Genus-species combination for the taxon. The string is in html format including <em></em> tags.
 #
 # @attribute cached_author_year
 #   @return [String]
-#     author and year string with parentheses where necessarily.
+#   author and year string with parentheses where necessary.
 #
 # @!attribute cached_higher_classification
 #   @return [String]
-#     a concatenated list of higher rank taxa.
+#   a concatenated list of higher rank taxa.
+#
+# @!attribute lft
+#   @return [Integer]
+#   per awesome_nested_set.
+#
+# @!attribute rgt
+#   @return [Integer]
+#   per awesome_nested_set.
+#
+# @!attribute source_id
+#   @return [Integer]
+#   the ID of the source (a Source::Bibtex or Source::Verbatim instance) in which this name was first published.  Subsequent references are made in citations or combinations.
+#
+# @!attribute year_of_publication
+#   @return [Integer]
+#   the 4 digit year when this name was published! @proceps- clarify vs. made available.  ? = Source.year?
+#
+# @!attribute verbatim_author
+#   @return [String]
+#   the verbatim author string as provided ? is not post-filled in when Source is referenced !?
+#
+# @!attribute rank_class
+#   @return [String]
+#   @todo
+#
+# @!attribute type
+#   @return [String]
+#   @todo
+#
+# @!attribute project_id
+#   @return [Integer]
+#   the project ID
 #
 # @!attribute cached_original_combination
 #   @return [String]
-#     name as formed in original combination.
-#
-# @!attribute cached_classified_as
-#   @return [String]
-#     if the name was classified in different group (e.g. a genus placed in wrong family). 
-#
-# @attribute cached_primary_homonym
-#   @return [String]
-#     original genus and species name. Used to find and validate primary homonyms.
+#   name as formed in original combination.
 #
 # @!attribute cached_secondary_homonym
 #   @return [String]
-#     current genus and species name. Used to find and validate secondary homonyms.
+#   current genus and species name. Used to find and validate secondary homonyms.
 #
-# @!attribute cached_primary_homonym_alternative_spelling
+# @attribute cached_primary_homonym
 #   @return [String]
-#   Original genus and species name in alternative spelling. Used to find and validate primary homonyms.
+#   original genus and species name. Used to find and validate primary homonyms.
 #
 # @attribute cached_secondary_homonym_alternative_spelling
 #   @return [String]
 #   Current genus and species name in alternative spelling. Used to find and validate secondary homonyms.
 #
-# @attribute masculine_name, feminine_name, neuter_name
+# @!attribute cached_primary_homonym_alternative_spelling
 #   @return [String]
-#     Species name which are adjective or participle change depending on the gender of the genus.
-#     3 fields provide alternative species spelling. The part_of_speech designated as a taxon_name_classification.
-#     The gender of the genus also designated as a taxon_name_classification.
+#   Original genus and species name in alternative spelling. Used to find and validate primary homonyms.
 #
-# @attribute name_with_alternative_spelling
+# @!attribute cached_misspelling
 #   @return [String]
-#   Alternative spelling of the name according to rules of homonymy.
+#   @todo
 #
+# @!attribute masculine_name
+#   @return [String]
+#   Species name which are adjective or participle change depending on the gender of the genus.
+#   3 fields provide alternative species spelling. The part_of_speech designated as a taxon_name_classification.
+#   The gender of the genus also designated as a taxon_name_classification.
+#   @todo masculine_name, feminine_name, and neuter_name used to be strung together after a single @!attribute tag
+#
+# @!attribute feminine_name
+#   @return [String]
+#   Species name which are adjective or participle change depending on the gender of the genus.
+#   3 fields provide alternative species spelling. The part_of_speech designated as a taxon_name_classification.
+#   The gender of the genus also designated as a taxon_name_classification.
+#   @todo masculine_name, feminine_name, and neuter_name used to be strung together after a single @!attribute tag
+#
+# @!attribute neuter_name
+#   @return [String]
+#   Species name which are adjective or participle change depending on the gender of the genus.
+#   3 fields provide alternative species spelling. The part_of_speech designated as a taxon_name_classification.
+#   The gender of the genus also designated as a taxon_name_classification.
+#   @todo masculine_name, feminine_name, and neuter_name used to be strung together after a single @!attribute tag
+#
+# @!attribute cached_classified_as
+#   @return [String]
+#   if the name was classified in different group (e.g. a genus placed in wrong family).
+#
+# @!attribute cached
+#   @return [String]
+#   Genus-species combination for genus and lower, monomial for higher. The string has NO html.
+#
+# @!attribute verbatim_name
+#   @return [String]
+#   a representation of what the combination (fully spelled out) or protonym (monomial)
+#   *looked like* in its originating publication
+#   The sole purpose of this string is to represent visual differences from what is recorded in the
+#   latinized version of the name (Protonym#name, Combination#cached) from what was originally transcribed
 #
 class TaxonName < ActiveRecord::Base
 
@@ -111,6 +137,8 @@ class TaxonName < ActiveRecord::Base
     acts_as_nested_set scope: [:project_id], dependent: :restrict_with_exception, touch: false
   end
 
+  # @return [Boolean]
+  # When true, also creates an OTU that is tied to this taxon name
   attr_accessor :also_create_otu
 
   before_validation :set_type_if_empty

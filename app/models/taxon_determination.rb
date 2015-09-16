@@ -1,26 +1,41 @@
-#  A Taxon determination is an assertion that a collection object belongs to a taxonomic *concept*.
+# A Taxon determination is an assertion that a collection object belongs to a taxonomic *concept*.
 #
-#  If you wish to capture verbatim determinations then they should be added to CollectionObject#buffered_determinations, 
-#  i.e. TaxonDeterminations are fully "normalized".
+# If you wish to capture verbatim determinations then they should be added to CollectionObject#buffered_determinations,
+# i.e. TaxonDeterminations are fully "normalized".
 #
-# @!attribute otu
-#   @return [Otu] 
-#   the OTU (concept) of the determination 
-# @!attribute biological_collection_object 
-#   @return [BiologicalCollectionObject] 
-#   The object being determined.
-# @!attribute determiner
-#   @return [Person]
-#   the Person making the determination
+# Note: Following line not displayed in Yard (copied here so you can find it in context in the code):
+# @todo factor these out (see also TaxonDetermination, Source::Bibtex)
+#
+# @!attribute biological_collection_object_id
+#   @return [Integer]
+#   BiologicalCollectionObject, the object being determined
+#
+# @!attribute otu_id
+#   @return [Integer]
+#   the OTU (concept) of the determination
+#
+# @!attribute position
+#   @return [Integer]
+#   @todo
+#
+# @!attribute project_id
+#   @return [Integer]
+#   the project ID
+#
 # @!attribute year_made
-#   @return [String] 
+#   @return [Integer]
 #   the year the determination was made, abbreviations like '02' are allowed
+#   @todo this column used to be a String; would '02' be a legitimate Integer value?
+#
 # @!attribute month_made
-#   @return [String] 
+#   @return [Integer]
 #   the month the determination was made. Literal values like Roman Numerals, abbreviations ('Jan.') etc. are allowed, but not all forms can be interpreted.
+#   @todo this column used to be a String; I don't think Roman numerals or abbreviations could be entered any longer
+#
 # @!attribute day_made
-#   @return [String] 
-#   the day of the month the determination was made 
+#   @return [Integer]
+#   the day of the month the determination was made
+#
 class TaxonDetermination < ActiveRecord::Base
   acts_as_list scope: [:biological_collection_object_id]
 
@@ -40,7 +55,7 @@ class TaxonDetermination < ActiveRecord::Base
 
   accepts_nested_attributes_for :determiners, :otu, :biological_collection_object, :determiner_roles, allow_destroy: true
 
-  # TODO: factor these out (see also TaxonDetermination, Source::Bibtex)
+  # @todo factor these out (see also TaxonDetermination, Source::Bibtex)
   validates_numericality_of :year_made,
                             only_integer:          true,
                             greater_than:          0,

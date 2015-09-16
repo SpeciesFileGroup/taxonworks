@@ -18,21 +18,84 @@
 # Data models in TaxonWorks reference People, who may have roles as Sources (or others), i.e. Users are not "data" and
 # not linked directly to People records.
 #
-# Users must never be shared by real-life humans. 
+# Users must never be shared by real-life humans.
+#
+# @!attribute email
+#   @return [String]
+#   the users email, and login.
+#
+# @!attribute password_digest
+#   @return [String]
+#   @todo
+#
+# @!attribute remember_token
+#   @return [String]
+#   @todo
+#
+# @!attribute is_administrator
+#   @return [Boolean]
+#   @todo
+#
+# @!attribute favorite_routes
+#   @return [String]
+#   @todo Is return data type correct?
+#
+# @!attribute password_reset_token
+#   @return [String]
+#   @todo
+#
+# @!attribute password_reset_token_date
+#   @return [DateTime]
+#   @todo Is return data type correct?
 #
 # @!attribute name
-#   Not intended to be a nickname, but this is loosely enforced. Attribute is intended to identify a human who owns this account.
 #   @return [String]
-#     a users name
+#   a users name: Not intended to be a nickname, but this is loosely enforced. Attribute is intended to identify a human who owns this account.
 #
-# @!attribute email 
+# @!attribute current_sign_in_at
+#   @return [DateTime]
+#   @todo Is return data type correct?
+#
+# @!attribute last_sign_in_at
+#   @return [DateTime]
+#   @todo Is return data type correct?
+#
+# @!attribute current_sign_in_ip
 #   @return [String]
-#     the users email, and login. 
+#   @todo
 #
-# @!attribute self_created [r] 
-#   Only used for when .new_record? is true. If true assigns creator and updater as self.
+# @!attribute last_sign_in_ip
+#   @return [String]
+#   @todo
+#
+# @!attribute current_sign_in_ip
+#   @return [String]
+#   @todo
+#
+# @!attribute hub_tab_order
+#   @return [String]
+#   @todo
+#
+# @!attribute api_access_token
+#   @return [String]
+#   @todo
+#
+# @!attribute is_flagged_for_password_reset
+#   @return [Boolean]
+#   @todo
+#
+# @!attribute footprints
+#   @return [Hash]
+#   @todo
+#
+# @!attribute sign_in_count
+#   @return [Integer]
+#   @todo
+#
+# @!attribute self_created [r]
 #   @return [true, false]
-#     
+#   Only used for when .new_record? is true. If true assigns creator and updater as self.
+#   @todo this attribute left over; delete?
 #
 class User < ActiveRecord::Base
   
@@ -50,10 +113,9 @@ class User < ActiveRecord::Base
   before_create :set_remember_token
   before_create { self.hub_tab_order = DEFAULT_HUB_TAB_ORDER }
 
-  # TODO: downcase does not work for non-ascii characters which means our
-  #       validation for uniqueness will fail ... why?
-  # SEE: http://stackoverflow.com/questions/2049502/what-characters-are-allowed-in-email-address
-  # SEE: http://unicode-utils.rubyforge.org/
+  # @todo downcase does not work for non-ascii characters which means our validation for uniqueness will fail ... why?
+  # @see http://stackoverflow.com/questions/2049502/what-characters-are-allowed-in-email-address
+  # @see http://unicode-utils.rubyforge.org/
   before_validation { self.email = email.to_s.downcase }
   before_save { self.email = email.to_s.downcase }
   after_save :configure_self_created,  if: "self.self_created"
@@ -89,19 +151,19 @@ class User < ActiveRecord::Base
   end
 
   # @return [true, false]
-  #   true if user is_administrator or is_project_administrator
+  # true if user is_administrator or is_project_administrator
   def is_superuser?(project = nil)
     is_administrator || is_project_administrator?(project)
   end
 
   # @return [true, false]
-  #   true if is_administrator = true
+  # true if is_administrator = true
   def is_administrator?
     is_administrator.blank? ? false : true
   end
 
   # @return [true, false]
-  #   true if user is_project_administrator for the project passed
+  # true if user is_project_administrator for the project passed
   # @param project [Project]
   def is_project_administrator?(project = nil)
     return false if project.nil?
