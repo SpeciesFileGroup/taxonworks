@@ -1,8 +1,10 @@
-module Shared::IsData::Pinnable 
+# Shared code for...
+#
+module Shared::IsData::Pinnable
   extend ActiveSupport::Concern
 
   included do
-   #  include Users
+    # include Users
     has_many :pinboard_items, as: :pinned_object, dependent: :destroy
   end
 

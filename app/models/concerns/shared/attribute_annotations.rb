@@ -1,6 +1,5 @@
 # Shared code for polymorphics that reference specific attributes
 #
-# 
 module Shared::AttributeAnnotations
   extend ActiveSupport::Concern
 

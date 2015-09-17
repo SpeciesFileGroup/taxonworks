@@ -1,10 +1,12 @@
+# Shared code for...
+#
 module Shared::Identifiable
 
   extend ActiveSupport::Concern
   included do
     # Validation happens on the parent side!
     has_many :identifiers, as: :identifier_object, validate: true, dependent: :destroy
-    accepts_nested_attributes_for :identifiers, reject_if: :reject_identifiers 
+    accepts_nested_attributes_for :identifiers, reject_if: :reject_identifiers
   end
 
   module ClassMethods

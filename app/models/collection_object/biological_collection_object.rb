@@ -1,3 +1,5 @@
+# Biological collection object definition...
+#
 class CollectionObject::BiologicalCollectionObject < CollectionObject
   has_many :biocuration_classifications,  inverse_of: :biological_collection_object
   has_many :biocuration_classes, through: :biocuration_classifications, inverse_of: :biological_collection_objects

@@ -1,2 +1,3 @@
+# Misspelling definition...
 class AlternateValue::Misspelling < AlternateValue
 end

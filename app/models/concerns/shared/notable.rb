@@ -1,3 +1,5 @@
+# Shared code for...
+#
 module Shared::Notable
   extend ActiveSupport::Concern
 
@@ -6,10 +8,10 @@ module Shared::Notable
     has_many :notes, as: :note_object, validate: true, dependent: :destroy
 
     accepts_nested_attributes_for :notes
-  end 
-  
+  end
+
   def concatenated_notes_string
-    s = notes.order(updated_at: :desc).collect{|n| n.note_string}.join('||')
+    s = notes.order(updated_at: :desc).collect { |n| n.note_string }.join('||')
     s == "" ? nil : s
   end
 

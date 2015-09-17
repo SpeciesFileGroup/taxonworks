@@ -1,3 +1,5 @@
+# Shared code for...
+#
 module Shared::Depictions
 
   extend ActiveSupport::Concern

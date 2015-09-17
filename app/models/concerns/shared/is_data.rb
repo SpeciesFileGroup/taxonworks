@@ -1,3 +1,5 @@
+# Shared code for...
+#
 module Shared::IsData
 
   extend ActiveSupport::Concern
@@ -55,7 +57,7 @@ module Shared::IsData
   end
 
   # @return [#annotations_hash]
-  #    an accessor for the annotations_hash, overwritten by some inheriting classes
+  # an accessor for the annotations_hash, overwritten by some inheriting classes
   def annotations
     annotations_hash
   end
@@ -75,26 +77,26 @@ module Shared::IsData
   module ClassMethods
 
     # @return [Boolean]
-    #   true if model is an "annotator" (e.g. identifiers, tags, notes, data attributes, alternate values, citations), i.e. data that references another data element through STI 
+    # true if model is an "annotator" (e.g. identifiers, tags, notes, data attributes, alternate values, citations), i.e. data that references another data element through STI
     def annotates?
       self.respond_to?(:annotated_object)
     end
 
-    # return [Scope]
-    #   a where clause that excludes the present object from being selected
+    # @return [Scope]
+    # a where clause that excludes the present object from being selected
     def not_self(object)
       if object.nil? || object.id.blank?
-        where(object.class.table_name => {id: '<> 0' })
+        where(object.class.table_name => {id: '<> 0'})
       else
-        where(object.class.arel_table[:id].not_eq(object.to_param) )
+        where(object.class.arel_table[:id].not_eq(object.to_param))
       end
     end
   end
 
   protected
 
-  # Contains all "annotations" for this instance
   # @return [Hash]
+  # Contains all "annotations" for this instance
   def annotations_hash
     result = {}
     result.merge!('alternate values' => self.alternate_values) if self.has_alternate_values? && self.alternate_values.any?

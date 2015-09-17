@@ -1,3 +1,5 @@
+# Shared code for...
+#
 module Shared::RandomTokenFields
   as_trait do |*fields|
     fields.each do |field|
