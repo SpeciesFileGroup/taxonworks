@@ -1,47 +1,61 @@
 <%= render(partial: 'layouts/map_header') -%>
-<h1>Task: GIS report</h1>
+<h1>Task: GIS Report</h1>
 <div class="flexbox">
-  <div class="item item1">
+  <div class="item item1" align="center">
+    <p>
+      <%= form_tag(location_report_list_url) do %>
+          <span id="geographic_areaError" style="color: #DD0000"></span>
+          <%= render :partial => 'workbench/elements/forms/ajax_select',
+                     :locals  => {:controller => '/geographic_areas',
+                                  :object     => '',
+                                  :method     => 'geographic_area_id',
+                                  :tag_id     => 'geographic_area_id_for_report',
+                                  :size       => 20,
+                                  :display    => ''} %>
+          <%= submit_tag 'Show' %>
+      <% end %>
+    </p>
     <table border="1">
-      <tr>
-        <td></td>
-        <td>
-          <%= form_tag(generate_choices_url, id: 'new_report_from_map_form') do %>
-              <span id="geographic_areaError" style="color: #DD0000"></span>
-              <%= render :partial => 'workbench/elements/forms/ajax_select',
-                         :locals  => {:controller => '/geographic_areas',
-                                      :object     => 'report',
-                                      :method     => 'geographic_area_id',
-                                      :tag_id     => 'geographic_area_id_for_report',
-                                      :size       => 20,
-                                      :display    => ''} %>
-          <% end %>
-        </td>
-        <td>
-
-        </td>
-      </tr>
-      <tr></tr>
+      <tbody>
       <tr>
         <td>Include</td>
+        <td><%= check_box_tag('collecting_event_attributes', nil, false) %>collecting event attributes</td>
       </tr>
+      <tr>
+        <td></td>
+        <td><%= check_box_tag('collection_object_attributes', nil, true) %>collection object attributes</td>
+      </tr>
+      <tr>
+        <td></td>
+        <td><%= check_box_tag('biological_classifications', nil, false) %>biological classifications</td>
+      </tr>
+      </tbody>
     </table>
   </div>
 
   <div class="item item2">
     <div id="feature_collection"
-         data-collection-objects='<%= @collection_objects %>'
-         data-feature-collection='<%= Gis::GeoJSON.feature_collection([]).to_json %>'>
+         data-collection-objects='<%#= @collection_objects %>'
+         data-feature-collection='<%#= Gis::GeoJSON.feature_collection([]).to_json.to_json %>'>
     </div>
     <table border="1">
+      <tbody>
       <tr>
         <td>
-          <div id="map_canvas" style="width:512px; height: 256px;">
-            There be monsters here...
-          </div>
+          <div id="map_canvas" style="width:512px; height: 256px;"></div>
         </td>
       </tr>
+      <tr>
+        <td>
+          There be monsters here...
+        </td>
+      </tr>
+      </tbody>
     </table>
   </div>
 </div>
+
+<p>
+  <%= render(partial: 'report_table') %>
+</p>
 

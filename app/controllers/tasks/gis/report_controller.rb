@@ -4,7 +4,17 @@ class Tasks::Gis::ReportController < ApplicationController
   # before_action :disable_turbolinks, only: [:new, :generate_choices]
 
   def new
-    @collection_objects = CollectionObject.where(false)
+    @collection_objects = CollectionObject.where(id: -1)
+  end
+
+  def location_report_list
+    ga = GeographicArea.find(params[:geographic_area_id])
+    if ga.has_shape?
+      @collection_objects = CollectionObject.in_geographic_item(ga.default_geographic_item)
+    else
+      @collection_objects = CollectionObject.where(id: -1)
+    end
+    render :new
   end
 
 end

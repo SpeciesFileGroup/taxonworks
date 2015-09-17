@@ -1,0 +1,22 @@
+<table border="1" align="center">
+  <tbody>
+  <tr>
+    <th>OTU</th>
+    <th>OTU name</th>
+    <th>Family</th>
+    <th>Genus</th>
+    <th>Species</th>
+    <th>Country</th>
+    <th>State</th>
+    <th>County</th>
+    <th>Locality</th>
+    <th>Latitude</th>
+    <th>Longitude</th>
+    <%= ce_attrib_headers.html_safe %>
+    <%= co_attrib_headers.html_safe %>
+    <%= bc_headers.html_safe %>
+  </tr>
+  <%= @collection_objects.each do |c_o| %>
+  <% end %>
+  </tbody>
+</table>

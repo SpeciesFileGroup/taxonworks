@@ -275,7 +275,8 @@ TaxonWorks::Application.routes.draw do
     end
 
     scope :gis, controller: 'tasks/gis/report' do
-      get 'report', action: 'new', as: 'new_report_task'
+      get 'report', action: 'new'
+      post 'location_report_list'
     end
 
     scope :gis, controller: 'tasks/gis/locality' do

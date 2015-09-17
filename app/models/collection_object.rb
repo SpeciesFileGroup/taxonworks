@@ -199,6 +199,10 @@ class CollectionObject < ActiveRecord::Base
     end
   end
 
+  def self.in_geographic_item(geographic_item_id)
+    GeographicItem.find(geographic_item_id)
+  end
+
   protected
 
   def check_that_both_of_category_and_total_are_not_present

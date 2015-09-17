@@ -269,6 +269,10 @@ class GeographicArea < ActiveRecord::Base
     self.data_origin[-1]
   end
 
+  def has_shape?
+    geographic_items.any?
+  end
+
   # @return [GeographicItem, nil]
   #   a "preferred" geographic item for this geogrpahic area, where preference
   #   is based on an ordering of source gazeteers, the order being
