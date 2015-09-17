@@ -1,5 +1,4 @@
-class Identifier::Global::Doi < Identifier::Global
-  # Digital Object Identifier
+# Digital Object Identifier
 =begin
   per  http://www.doi.org/doi_handbook/2_Numbering.html
 Section 2.2  on 1/31/2014
@@ -31,5 +30,6 @@ Section 2.2.2
     The second element of the DOI prefix shall be the registrant code. The registrant code is a unique string assigned
        to a registrant.
 =end
+class Identifier::Global::Doi < Identifier::Global
   validates :identifier, :format => {:with => /(^10)\.([\d\.]*)\/.*\z/, :message => 'Invalid DOI.'}
 end
