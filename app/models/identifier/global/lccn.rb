@@ -1,26 +1,26 @@
+# @todo This validation will be needing a lot of additional work, if we start relying on it. See http://www.loc.gov/marc/bibliographic/bd010.html
+#
+#   LCCN Structure A (1898-2000)
+#     Name of Element 	Number of characters 	Character position in field
+#     Alphabetic prefix 	        3 	          00-02
+#     Year 	                      2 	          03-04
+#     Serial number 	            6 	          05-10
+#     Supplement number 	        1 	          11
+#     Suffix and/or Revision Date variable 	    12-n
+#
+#   LCCN Structure B (2001- )
+#     Name of Element 	Number of characters 	Character position in field
+#     Alphabetic prefix   2 	                    00-01
+#     Year                4 	                    02-05
+#     Serial number 	    6 	                    06-11
+#
+#   Alphabetic prefix
+#     Prefixes are carried in a MARC record as lowercase alphabetic characters and serve to differentiate
+#       between different series of LC control numbers. Prefixes are left justified and unused positions
+#       contain blanks. If no prefix is present, the prefix portion contains blanks.
+#
 class Identifier::Global::Lccn < Identifier::Global
   validate :using_iccn_class
-
-  # TODO: This validation will be needing a lot of additional work, if we start relying on it. See http://www.loc.gov/marc/bibliographic/bd010.html
-  #   LCCN Structure A (1898-2000)
-  #     Name of Element 	Number of characters 	Character position in field
-  #     Alphabetic prefix 	        3 	          00-02
-  #     Year 	                      2 	          03-04
-  #     Serial number 	            6 	          05-10
-  #     Supplement number 	        1 	          11
-  #     Suffix and/or Revision Date variable 	    12-n
-  #
-  #   LCCN Structure B (2001- )
-  #     Name of Element 	Number of characters 	Character position in field
-  #     Alphabetic prefix   2 	                    00-01
-  #     Year                4 	                    02-05
-  #     Serial number 	    6 	                    06-11
-  #
-  #   Alphabetic prefix
-  #     Prefixes are carried in a MARC record as lowercase alphabetic characters and serve to differentiate
-  #       between different series of LC control numbers. Prefixes are left justified and unused positions
-  #       contain blanks. If no prefix is present, the prefix portion contains blanks.
-
 
   def using_iccn_class
     retval = true

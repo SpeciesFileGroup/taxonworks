@@ -1,13 +1,13 @@
+# urn:lsid:Orthoptera.speciesfile.org:TaxonName:1
+#
+#   • "URN"
+#   • "LSID"
+#   • authority identification
+#   • namespace identification
+#   • object identification
+#   • optionally: revision identification. If revision field is omitted then the trailing colon is also omitted.
+#
 class Identifier::Global::Lsid < Identifier::Global
-  # urn:lsid:Orthoptera.speciesfile.org:TaxonName:1
-=begin
-  • "URN"
-  • "LSID"
-  • authority identification
-  • namespace identification
-  • object identification
-  • optionally: revision identification. If revision field is omitted then the trailing colon is also omitted.
-=end
   validate :using_lsid_class
 
   def using_lsid_class

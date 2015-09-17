@@ -1,12 +1,14 @@
+# Orcid definition...
+#
 class Identifier::Global::Orcid < Identifier::Global
   validate :using_orcid_class
 
+  # 'http://orcid.org/0000-0002-1825-0097'
   def using_orcid_class
     retval = true
     unless identifier.nil?
       orcid = identifier.upcase
 
-      # 'http://orcid.org/0000-0002-1825-0097'
       /^(?<preamble>http:\/\/){0,1}(?<domain>orcid\.org\/){1}(?<part_1>\d{4})-(?<part_2>\d{4})-(?<part_3>\d{4})-(?<part_4>\d{3})(?<last>.)$/i =~ orcid
 
       if domain.nil? or part_1.nil? or part_2.nil? or part_3.nil? or part_4.nil? or last.nil?

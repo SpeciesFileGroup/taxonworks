@@ -1,7 +1,7 @@
  URI_SCHEMES = URI.scheme_list.keys # + ['UDP']
 
+ # Universal Resource Identifier
 class Identifier::Global::Uri < Identifier::Global
-  # Universal Resource Identifier
   validate :using_uri_class
 
   def using_uri_class
