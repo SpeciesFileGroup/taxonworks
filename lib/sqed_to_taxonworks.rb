@@ -16,13 +16,10 @@ module SqedToTaxonworks
 
     attr_accessor :user_id, :project_id
 
-    attr_accessor :pattern 
-
     attr_accessor :sqed_depiction
 
-    def initialize(depiction_id: nil, user_id: nil, project_id: nil, pattern: :cross)
+    def initialize(depiction_id: nil, user_id: nil, project_id: nil)
       @depiction_id = depiction_id
-      @pattern = pattern
       @user_id = user_id
       @project_Id = project_id 
     end
@@ -43,11 +40,11 @@ module SqedToTaxonworks
     end
 
     def sqed_depiction
-      @sqed_depiction ||= @depiction.sqed_depiction
+      @sqed_depiction ||= depiction.sqed_depiction
     end
 
     def sqed
-      @sqed ||= Sqed.new(image: original_image, pattern: pattern, has_border: false)
+      @sqed ||= Sqed.new( sqed_depiction.extraction_metadata.merge(image: original_image) )
     end
 
     def sqed_result
@@ -72,7 +69,8 @@ module SqedToTaxonworks
 
     # @return [Array]
     def image_sections
-      SqedConfig::EXTRACTION_PATTERNS[pattern][:metadata_map].values
+      sqed_depiction.extraction_metadata[:metadata_map].values
+   #   SqedConfig::EXTRACTION_PATTERNS[pattern][:metadata_map].values
     end
 
     # @return [Symbol]
