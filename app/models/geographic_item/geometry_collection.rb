@@ -1,4 +1,6 @@
-class GeographicItem::GeometryCollection < GeographicItem 
+# Geometry collection definition...
+#
+class GeographicItem::GeometryCollection < GeographicItem
   SHAPE_COLUMN = :geometry_collection
   validates_presence_of :geometry_collection
 
@@ -13,7 +15,7 @@ class GeographicItem::GeometryCollection < GeographicItem
     to_hash(self.geometry_collection)
   end
 
-  # TODO: Seems to be deprecated for rgeo_to_geo_json?!
+  # @todo Seems to be deprecated for rgeo_to_geo_json?!
   # @param [GeometryCollection]
   # @return [Hash] a simple representation of the collection in points, lines, and polygons.
   def to_hash(geometry_collection)
@@ -27,7 +29,7 @@ class GeographicItem::GeometryCollection < GeographicItem
       when 'Point'
         # POINT (-88.241421 40.091565 757.0)
         point = point_to_hash(it)[:points]
-        # TODO: would it really be better to use object_to_hash here?  Structure-wise, perhaps, but it really is faster to do it here directly, I think...
+        # @todo would it really be better to use object_to_hash here?  Structure-wise, perhaps, but it really is faster to do it here directly, I think...
         data[:points].push(point_to_a(it))
       when /^Line[S]*/ #when 'Line' or 'LineString'
         # LINESTRING (-32.0 21.0 0.0, -25.0 21.0 0.0, -25.0 16.0 0.0, -21.0 20.0 0.0)
@@ -71,7 +73,7 @@ class GeographicItem::GeometryCollection < GeographicItem
   end
 
   # @return [GeoJSON Feature]
-  #   the shape as a Feature/Feature Collection
+  # the shape as a Feature/Feature Collection
   def to_geo_json_feature
     self.geometry = rgeo_to_geo_json
     super

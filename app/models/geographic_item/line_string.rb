@@ -1,8 +1,10 @@
+# Line string definition...
+#
 class GeographicItem::LineString < GeographicItem
   SHAPE_COLUMN = :line_string
   validates_presence_of :line_string
 
-  # @return [Array] of Arrays of points
+  # @return [Array] arrays of points
   def to_a
     line_string_to_a(self.line_string)
   end

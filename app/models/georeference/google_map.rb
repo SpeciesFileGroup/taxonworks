@@ -1,4 +1,5 @@
 # A Georeference derived from a Google map.
+#
 class Georeference::GoogleMap < Georeference
 
   # coordinates is an Array of Stings of [longitude, latitude]

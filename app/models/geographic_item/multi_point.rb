@@ -1,13 +1,15 @@
-class GeographicItem::MultiPoint < GeographicItem 
+# Multi point definition...
+#
+class GeographicItem::MultiPoint < GeographicItem
   SHAPE_COLUMN = :multi_point
   validates_presence_of :multi_point
 
-  # @return [Array] of Arrays of points
+  # @return [Array] arrays of points
   def to_a
     multi_point_to_a(self.multi_point)
   end
 
-  # @return [RGeo::Point]  of first point
+  # @return [RGeo::Point] first point
   def st_start_point
     geo_object[0]
   end

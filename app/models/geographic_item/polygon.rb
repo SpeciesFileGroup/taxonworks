@@ -1,8 +1,10 @@
-class GeographicItem::Polygon < GeographicItem 
+# Polygon definition...
+#
+class GeographicItem::Polygon < GeographicItem
   SHAPE_COLUMN = :polygon
   validates_presence_of :polygon
 
-  # @return [Array] of arrays of points
+  # @return [Array] arrays of points
   def to_a
     polygon_to_a(self.polygon)
   end

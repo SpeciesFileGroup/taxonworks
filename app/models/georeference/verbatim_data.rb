@@ -1,3 +1,5 @@
+# Verbatim data definition...
+#
 class Georeference::VerbatimData < Georeference
 
   def initialize(params = {}) 

@@ -1,8 +1,10 @@
-class GeographicItem::MultiLineString < GeographicItem 
+# Multi line string definition...
+#
+class GeographicItem::MultiLineString < GeographicItem
   SHAPE_COLUMN = :multi_line_string
   validates_presence_of :multi_line_string
 
-  # @return [Array] of Arrays of Arrays of points
+  # @return [Array] arrays of points
   def to_a
     multi_line_string_to_a(self.multi_line_string)
   end
