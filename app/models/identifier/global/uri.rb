@@ -1,6 +1,6 @@
- URI_SCHEMES = URI.scheme_list.keys # + ['UDP']
+URI_SCHEMES = URI.scheme_list.keys # + ['UDP']
 
- # Universal Resource Identifier
+# Universal Resource Identifier
 class Identifier::Global::Uri < Identifier::Global
   validate :using_uri_class
 
@@ -8,7 +8,7 @@ class Identifier::Global::Uri < Identifier::Global
     retval = false
     unless identifier.nil?
       retval = true
-      uris   = URI.extract(identifier)
+      uris = URI.extract(identifier)
       if uris.count == 0
         errors.add(:identifier, 'No URI detected.')
         retval = false
@@ -18,7 +18,7 @@ class Identifier::Global::Uri < Identifier::Global
           retval = false
         else
           begin
-            uri    = URI(identifier)
+            uri = URI(identifier)
             scheme = uri.scheme.upcase
             unless URI_SCHEMES.include?(scheme)
               errors.add(:identifier, "#{scheme} is not in the URI schemes list.")

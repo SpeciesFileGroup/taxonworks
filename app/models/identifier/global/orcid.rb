@@ -39,7 +39,7 @@ class Identifier::Global::Orcid < Identifier::Global
     # int remainder = total % 11;
     # int result = (12 - remainder) % 11;
     remainder = (total % 11)
-    result    = (12 - remainder) % 11
+    result = (12 - remainder) % 11
     # return result == 10 ? "X" : String.valueOf(result);
     return result == 10 ? "X" : result.to_s
   end

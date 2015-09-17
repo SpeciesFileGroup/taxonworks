@@ -7,8 +7,6 @@
 #
 # Local identifiers require a namespace.  See Namespace.  
 # 
-#
-#
 # Only one namespaced identifier is allowed per type per object, i.e. you can't have, on a single specimen:
 #   Foo 123 (CatalogNumber) 
 #   Foo 345 (CatalogNumber)
@@ -18,7 +16,6 @@
 #   Bar 123 (CatalogNumber)
 #  
 # In addition, identifiers of a certain type (subclass) must be unique across namespaces within a project.
-#
 #
 class Identifier::Local < Identifier
   belongs_to :namespace
