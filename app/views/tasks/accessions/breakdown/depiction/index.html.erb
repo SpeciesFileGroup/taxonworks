@@ -2,33 +2,32 @@
 <div class="flexbox">
 
   <div class="item item1">
-    <div id="littlebox"> 
+    <div id="littlebox">
       <% @result.secondary_sections.each_with_index do |section, i| -%>
-        <%= image_tag(@result.image_path_for(section), alt: section, width:  100, class: 'clickable', 'data-position' => i ) -%>
+          <div id="image_<%= i + 1 %>"></div>
       <% end %>
-    </div> 
+    </div>
   </div>
 
   <div class="item item2">
 
     <div id="extracted_images">
-    
+
       <input type="button" id="setBox" value="Enable Selection" onclick="set_select_box();">
       <input type="button" id="getBox" value="SELECT" onclick="getBox();">
- <%= link_to('image', image_path(@result.depiction.image)) -%>
+      <%= link_to('image', image_path(@result.depiction.image)) -%>
 
       <div id="bigbox" style="height: 400px;">
         <div id="paper">
-        <%= image_tag(@result.image_path_for(@result.primary_image), alt: @result.primary_image, width: 400, class: 'clickable' ) -%>
+          <div id="image_0"></div>
         </div>
       </div>
 
-      <div id="selected_text"> </div>
+      <div id="selected_text"></div>
 
       <div id="selected_picture">
         <canvas id="selected_picture_canvas" height="400" width="400"></canvas>
       </div>
-
 
 
     </div>
@@ -39,10 +38,10 @@
     <div class="extracted_header">
       <div class="side_by_side_fields">
         <% @result.image_sections.each do |section| -%>
-          <div class="field">
-            <%= label_tag section %><br>
-            <%= text_area_tag(section, "calculating...", id: "text_for_#{section}", cols: 25, rows: 10) %>
-          </div>
+            <div class="field">
+              <%= label_tag section %><br>
+              <%= text_area_tag(section, "calculating...", id: "text_for_#{section}", cols: 25, rows: 10) %>
+            </div>
 
         <% end %>
       </div>
@@ -52,76 +51,77 @@
 
       <%= form_for(@result.depiction.depiction_object, as: :collection_object, url: depiction_breakdown_update_task_path(@result.depiction)) do |f| -%>
 
-        <div>
-           <h3> Taxon Determinations </h3>
-          <%= f.fields_for(:taxon_determinations, @result.depiction.depiction_object.taxon_determinations ) do |o| -%>
-            <div class="field">
-              <%= o.label :name %><br>
-              <%= render(
-                partial: '/workbench/elements/forms/ajax_select', 
-                locals: {
-                  controller: '/otus',
-                  object:     "collection_object[taxon_determinations_attributes][#{o.index}]",
-                  method:     'otu_id',
-                  tag_id:     "otu_id_for_identifier_#{o.index}",
-                  display:    otu_tag(o.object.otu),
-                  size: 20 }) 
-                %>
-            </div>
-          <% end %>
-
-          <h3> Identifiers </h3>
-          <%= f.fields_for(:identifiers, @result.depiction.depiction_object.identifiers ) do |i| -%>
-            <%= i.hidden_field :type -%>
-
-            <div class="side_by_side_fields"> 
-            
-              <div class="field">
-                <%= i.label :namespace_id %><br>
-                <%= render(
-                  partial: '/workbench/elements/forms/ajax_select', 
-                  locals: {
-                    controller: '/namespaces',
-                    object:     "collection_object[identifiers_attributes][#{i.index}]",
-                    method:     'namespace_id',
-                    tag_id:     "namespace_id_for_identifier_#{i.index}",
-                    display:    i.object.namespace ? i.object.namespace.short_name : nil,
-                    size:       20,
-                    fields_for_object: i}) 
+          <div>
+            <h3> Taxon Determinations </h3>
+            <%= f.fields_for(:taxon_determinations, @result.depiction.depiction_object.taxon_determinations) do |o| -%>
+                <div class="field">
+                  <%= o.label :name %><br>
+                  <%= render(
+                              partial: '/workbench/elements/forms/ajax_select',
+                              locals: {
+                                      controller: '/otus',
+                                      object: "collection_object[taxon_determinations_attributes][#{o.index}]",
+                                      method: 'otu_id',
+                                      tag_id: "otu_id_for_identifier_#{o.index}",
+                                      display: otu_tag(o.object.otu),
+                                      size: 20})
                   %>
-              </div>
+                </div>
+            <% end %>
 
-              <div class="field">
-                <%= i.label :identifier %><br>
-                <%= i.text_field :identifier %>
-              </div>
+            <h3> Identifiers </h3>
+            <%= f.fields_for(:identifiers, @result.depiction.depiction_object.identifiers) do |i| -%>
+                <%= i.hidden_field :type -%>
 
-            </div><!-- end side by side -->
-          <% end %>
-        </div>
+                <div class="side_by_side_fields">
 
-        <div class="side_by_side_fields">
-          <div class="field">
-            <%= f.label :buffered_collecting_event %>
-            <br>
-            <%= f.text_area :buffered_collecting_event, cols: 40, rows: 6 -%>
+                  <div class="field">
+                    <%= i.label :namespace_id %><br>
+                    <%= render(
+                                partial: '/workbench/elements/forms/ajax_select',
+                                locals: {
+                                        controller: '/namespaces',
+                                        object: "collection_object[identifiers_attributes][#{i.index}]",
+                                        method: 'namespace_id',
+                                        tag_id: "namespace_id_for_identifier_#{i.index}",
+                                        display: i.object.namespace ? i.object.namespace.short_name : nil,
+                                        size: 20,
+                                        fields_for_object: i})
+                    %>
+                  </div>
+
+                  <div class="field">
+                    <%= i.label :identifier %><br>
+                    <%= i.text_field :identifier %>
+                  </div>
+
+                </div>
+                <!-- end side by side -->
+            <% end %>
           </div>
 
-          <div class="field">
-            <%= f.label :buffered_determinations %>
-            <br>
-            <%= f.text_area :buffered_determinations, cols: 40, rows: 5 -%>
-          </div>
+          <div class="side_by_side_fields">
+            <div class="field">
+              <%= f.label :buffered_collecting_event %>
+              <br>
+              <%= f.text_area :buffered_collecting_event, cols: 40, rows: 6 -%>
+            </div>
 
-          <div class="field">
-            <%= f.label :buffered_other_labels %>
-            <br>
-            <%= f.text_area :buffered_other_labels, cols: 40, rows: 6 -%>
-          </div>
+            <div class="field">
+              <%= f.label :buffered_determinations %>
+              <br>
+              <%= f.text_area :buffered_determinations, cols: 40, rows: 5 -%>
+            </div>
 
-        </div>
-        <%= submit_tag -%> 
-        <br class="clear_both">
+            <div class="field">
+              <%= f.label :buffered_other_labels %>
+              <br>
+              <%= f.text_area :buffered_other_labels, cols: 40, rows: 6 -%>
+            </div>
+
+          </div>
+          <%= submit_tag -%>
+          <br class="clear_both">
       <% end %>
 
 
@@ -129,255 +129,263 @@
 
     <div class="extracted_history"></div>
   </div>
- 
+
 </div>
 
 
 
 <script>
-<% @result.image_sections.each do |section| -%>
-  $.get("<%= @result.ocr_path_for(section) -%>", function(data) {
-      $("#text_for_<%= section -%>").val(data.text);
-      }, 'json'
-      ) ;
-<% end %> 
+    <% @result.image_sections.each_with_index do |section, i| -%>
+         $("#image_<%= i -%>").html('<%= image_tag(@result.image_path_for(section), alt: section, width:  100, class: 'clickable', 'data-position' => i ) -%>');
+    <% end %>
+    $('.clickable').on('click', function () {
+        var little_detached = $(this).detach();         // detach the clicked (presumably small) image
+        little_detached.attr('width', 400);             // set its width to the focal image width
 
-$('.clickable').on('click', function() {
-    var little_detached = $(this).detach();         // detach the clicked (presumably small) image
-    little_detached.attr('width', 400);             // set its width to the focal image width
+        var big_detached = $('#bigbox img').detach();   // detach the large image contained in the #bigbox div
+        big_detached.attr('width', 100);                // set its size to the smaller non-focal size
+        big_detached.attr('hidden', false);
 
-    var big_detached = $('#bigbox img').detach();   // detach the large image contained in the #bigbox div
-    big_detached.attr('width', 100);                // set its size to the smaller non-focal size
-    big_detached.attr('hidden', false);
+        $("#littlebox").append(big_detached);           // put the previous large image on the non-focal plane
+        $("#bigbox").append(little_detached);           // put the selected/clicked resized image on the focus
 
-    $("#littlebox").append(big_detached);           // put the previous large image on the non-focal plane
-    $("#bigbox").append(little_detached);           // put the selected/clicked resized image on the focus
-
-    if ($("#bigbox image").attr('width') != undefined) {
-    imageObject.src = little_detached.attr('src');
-    $("#bigbox image").attr('href', imageObject.src);
-    $("#bigbox image").attr('height', imageObject.naturalHeight * 400 / imageObject.naturalWidth);
-    $("#bigbox img").attr('hidden', 'hidden');
-    }
+        if ($("#bigbox image").attr('width') != undefined) {
+            imageObject.src = little_detached.attr('src');
+            $("#bigbox image").attr('href', imageObject.src);
+            $("#bigbox image").attr('height', imageObject.naturalHeight * 400 / imageObject.naturalWidth);
+//            $("#bigbox img").attr('hidden', 'hidden');
+        }
     });
 
-/*
-Integration of selction box into depiction issues
-  Image()<HTMLImageElement> for selection is contained in a <canvas>, whereas large image for depiction is
-  an <img class="clickable">.  Extracted src from this image (by brute force) to src substrate (paper) and
-  processed (canvas) image display.  Processed crop is done in JS via drawImage() rather than posting back
-  crop coordinates.
+    /*
+     Integration of selction box into depiction issues
+     Image()<HTMLImageElement> for selection is contained in a <canvas>, whereas large image for depiction is
+     an <img class="clickable">.  Extracted src from this image (by brute force) to src substrate (paper) and
+     processed (canvas) image display.  Processed crop is done in JS via drawImage() rather than posting back
+     crop coordinates.
 
-  Next step will be to replace the simple large image control structure with the paper contol.  canvas placement TBD.
-*/
+     Next step will be to replace the simple large image control structure with the paper contol.  canvas placement TBD.
+     */
 </script>
 
-  <!--<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>-->
-  <!--<script src="http://github.com/DmitryBaranovskiy/raphael/raw/master/raphael-min.js"></script>-->
-  <!--<script src="file:///Users/jrflood/src/taxonworks/app/assets/javascripts/Raphael.js"></script>-->
+<!--<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>-->
+<!--<script src="http://github.com/DmitryBaranovskiy/raphael/raw/master/raphael-min.js"></script>-->
+<!--<script src="file:///Users/jrflood/src/taxonworks/app/assets/javascripts/Raphael.js"></script>-->
 
-  <script>
-      function getBox() {
-          //  alert(boxX + ' | ' + boxY + ' | ' + boxW + ' | ' + boxH);
-          canvas = document.getElementById("selected_picture_canvas");
-          context = canvas.getContext('2d');
-          var destWidth;
-          var destHeight;
+<script>
+    function getBox() {
+        //  alert(boxX + ' | ' + boxY + ' | ' + boxW + ' | ' + boxH);
+        canvas = document.getElementById("selected_picture_canvas");
+        context = canvas.getContext('2d');
+        var destWidth;
+        var destHeight;
 //          imageObject.src = document.getElementById('bigbox').children[0].children[0].src;
-          imageObject.src = $('#bigbox img').attr('src');
-          imageAspectRatio = imageObject.naturalWidth / imageObject.naturalHeight;
-          var ratio = imageObject.naturalWidth / paperWidth;
-          var sourceX = boxX * ratio;
-          var sourceY = boxY * ratio;
-          var sourceWidth = boxW * ratio;
-          var sourceHeight = boxH * ratio;
-          if (boxW >= boxH) {
-              destWidth = canvas.width;
-              destHeight = canvas.height * (boxH / boxW);
-          }
-          else {
-              destHeight = canvas.height;
-              destWidth = canvas.width * (boxW / boxH);
-          }
+        imageObject.src = $('#bigbox img').attr('src');
+        imageAspectRatio = imageObject.naturalWidth / imageObject.naturalHeight;
+        var ratio = imageObject.naturalWidth / paperWidth;
+        var sourceX = boxX * ratio;
+        var sourceY = boxY * ratio;
+        var sourceWidth = boxW * ratio;
+        var sourceHeight = boxH * ratio;
+        if (boxW >= boxH) {
+            destWidth = canvas.width;
+            destHeight = canvas.height * (boxH / boxW);
+        }
+        else {
+            destHeight = canvas.height;
+            destWidth = canvas.width * (boxW / boxH);
+        }
 //        destWidth = canvas.width;          // was sourceWidth;
 //        destHeight = canvas.height;         // was sourceHeight;
-          var destX = 0;          // was canvas.width / 2 - destWidth / 2;
-          var destY = 0;          // was canvas.height / 2 - destHeight / 2;
-          context.clearRect(0, 0, canvas.width, canvas.height);
-          context.drawImage(imageObject, sourceX, sourceY, sourceWidth, sourceHeight, destX, destY, destWidth, destHeight);
+        var destX = 0;          // was canvas.width / 2 - destWidth / 2;
+        var destY = 0;          // was canvas.height / 2 - destHeight / 2;
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        context.drawImage(imageObject, sourceX, sourceY, sourceWidth, sourceHeight, destX, destY, destWidth, destHeight);
 
-         var  coords = imageObject.src.split("/");
+        var coords = imageObject.src.split("/");
 
-         var x = Math.round(sourceX + Number(coords[6]));  
-         var y = Math.round(sourceY + Number(coords[7]));
-         var w = Math.round(boxW * ratio);
-          var h = Math.round(boxH * ratio);
+        var x = Math.round(sourceX + Number(coords[6]));
+        var y = Math.round(sourceY + Number(coords[7]));
+        var w = Math.round(boxW * ratio);
+        var h = Math.round(boxH * ratio);
 
-          var coord_string = x + "/" + y + "/" + w + "/" + h
+        var coord_string = x + "/" + y + "/" + w + "/" + h;
 
-         // $("#selected_text").html("images/<%= @result.depiction.image.id -%>/ocr/" +  );
+        // $("#selected_text").html("images/<%= @result.depiction.image.id -%>/ocr/" +  );
 
-            $.get("/images/<%= @result.depiction.image.id -%>/ocr/" + coord_string , function(data) {
-                $("#selected_text").html(data.text);
+        $.get("/images/<%= @result.depiction.image.id -%>/ocr/" + coord_string, function (data) {
+                    $("#selected_text").html(data.text);
                 }, 'json'
-                ) ;
+        );
 
-      }
-      ;
+    }
+    ;
 
-      var boxX;
-      var boxY;
-      var boxW;
-      var boxH;
-      var imageObject;
-      imageObject = new Image();
-      var imageAspectRatio;
-      var canvas;
-      var context;
-      var paper;
-      var paperWidth = 400;
-      var paperHeight = 400;
+    var boxX;
+    var boxY;
+    var boxW;
+    var boxH;
+    var imageObject;
+    imageObject = new Image();
+    var imageAspectRatio;
+    var canvas;
+    var context;
+    var paper;
+    var paperWidth = 400;
+    var paperHeight = 400;
 
 
-      var set_select_box = function () {
-          $('#bigbox img').attr('hidden', 'hidden');
-          imageObject.src = $('#bigbox img').attr('src');
-          imageAspectRatio = imageObject.naturalWidth / imageObject.naturalHeight;
+    var set_select_box = function () {
+        if (document.getElementById('paper').getElementsByTagName('image') == undefined) {
+            return
+        }
+        $('#bigbox img').attr('hidden', 'hidden');
+        imageObject.src = $('#bigbox img').attr('src');
+        imageAspectRatio = imageObject.naturalWidth / imageObject.naturalHeight;
 
-          var dragStart = function () {
+        var dragStart = function () {
 
-              // Save some starting values
-              this.ox = this.attr('x');
-              this.oy = this.attr('y');
-              this.ow = this.attr('width');
-              this.oh = this.attr('height');
+            // Save some starting values
+            this.ox = this.attr('x');
+            this.oy = this.attr('y');
+            this.ow = this.attr('width');
+            this.oh = this.attr('height');
 //            boxX = this.ox;
 //            boxY = this.oy;
 //            boxW = this.ow;
 //            boxH = this.oh;
 
-              this.dragging = true;
-          };
+            this.dragging = true;
+        };
 
 
-          var dragMove = function (dx, dy) {
+        var dragMove = function (dx, dy) {
 
-              // Inspect cursor to determine which resize/move process to use
-              switch (this.attr('cursor')) {
+            // Inspect cursor to determine which resize/move process to use
+            switch (this.attr('cursor')) {
 
-                  case 'nw-resize' :
-                      this.attr({
-                          x: this.ox + dx,
-                          y: this.oy + dy,
-                          width: this.ow - dx,
-                          height: this.oh - dy
-                      });
-                      break;
+                case 'nw-resize' :
+                    this.attr({
+                        x: this.ox + dx,
+                        y: this.oy + dy,
+                        width: this.ow - dx,
+                        height: this.oh - dy
+                    });
+                    break;
 
-                  case 'ne-resize' :
-                      this.attr({                   // not changing x of origin in this case
-                          y: this.oy + dy,
-                          width: this.ow + dx,
-                          height: this.oh - dy
-                      });
-                      break;
+                case 'ne-resize' :
+                    this.attr({                   // not changing x of origin in this case
+                        y: this.oy + dy,
+                        width: this.ow + dx,
+                        height: this.oh - dy
+                    });
+                    break;
 
-                  case 'se-resize' :
-                      this.attr({
-                          width: this.ow + dx,
-                          height: this.oh + dy
-                      });
-                      break;
+                case 'se-resize' :
+                    this.attr({
+                        width: this.ow + dx,
+                        height: this.oh + dy
+                    });
+                    break;
 
-                  case 'sw-resize' :
-                      this.attr({
-                          x: this.ox + dx,
-                          width: this.ow - dx,
-                          height: this.oh + dy
-                      });
-                      break;
+                case 'sw-resize' :
+                    this.attr({
+                        x: this.ox + dx,
+                        width: this.ow - dx,
+                        height: this.oh + dy
+                    });
+                    break;
 
-                  default :
-                      this.attr({
-                          x: this.ox + dx,
-                          y: this.oy + dy
-                      });
-                      break;
+                default :
+                    this.attr({
+                        x: this.ox + dx,
+                        y: this.oy + dy
+                    });
+                    break;
 
-              }
-              boxX = this.attr("x");
-              boxY = this.attr("y");
-              boxW = this.attr("width");
-              boxH = this.attr("height");
-          };
+            }
+            boxX = this.attr("x");
+            boxY = this.attr("y");
+            boxW = this.attr("width");
+            boxH = this.attr("height");
+        };
 
-          var dragEnd = function () {
-              this.dragging = false;
-          };
+        var dragEnd = function () {
+            this.dragging = false;
+        };
 
-          var changeCursor = function (e, mouseX, mouseY) {
+        var changeCursor = function (e, mouseX, mouseY) {
 
-              // Don't change cursor during a drag operation
-              if (this.dragging === true) {
-                  return;
-              }
+            // Don't change cursor during a drag operation
+            if (this.dragging === true) {
+                return;
+            }
 
-              // X,Y Coordinates relative to shape's orgin
-              var relativeX = mouseX - $('#paper').offset().left - this.attr('x');
-              var relativeY = mouseY - $('#paper').offset().top - this.attr('y');
+            // X,Y Coordinates relative to shape's orgin
+            var relativeX = mouseX - $('#paper').offset().left - this.attr('x');
+            var relativeY = mouseY - $('#paper').offset().top - this.attr('y');
 
-              var shapeWidth = this.attr('width');
-              var shapeHeight = this.attr('height');
+            var shapeWidth = this.attr('width');
+            var shapeHeight = this.attr('height');
 
-              var resizeBorder = 10;
+            var resizeBorder = 10;
 
-              // Change cursor
-              if (relativeX < resizeBorder && relativeY < resizeBorder) {
-                  this.attr('cursor', 'nw-resize');
-              } else if (relativeX > shapeWidth - resizeBorder && relativeY < resizeBorder) {
-                  this.attr('cursor', 'ne-resize');
-              } else if (relativeX > shapeWidth - resizeBorder && relativeY > shapeHeight - resizeBorder) {
-                  this.attr('cursor', 'se-resize');
-              } else if (relativeX < resizeBorder && relativeY > shapeHeight - resizeBorder) {
-                  this.attr('cursor', 'sw-resize');
-              } else {
-                  this.attr('cursor', 'move');
-              }
-          };
+            // Change cursor
+            if (relativeX < resizeBorder && relativeY < resizeBorder) {
+                this.attr('cursor', 'nw-resize');
+            } else if (relativeX > shapeWidth - resizeBorder && relativeY < resizeBorder) {
+                this.attr('cursor', 'ne-resize');
+            } else if (relativeX > shapeWidth - resizeBorder && relativeY > shapeHeight - resizeBorder) {
+                this.attr('cursor', 'se-resize');
+            } else if (relativeX < resizeBorder && relativeY > shapeHeight - resizeBorder) {
+                this.attr('cursor', 'sw-resize');
+            } else {
+                this.attr('cursor', 'move');
+            }
+        };
 
 
-          // Create drawing area, clearing previous <svg> content
-          if (paper != undefined) { paper.canvas.parentNode.removeChild(paper.canvas);} // clear existing <svg>
-          paper = Raphael("paper", paperWidth, paperHeight);
-          paper.image($('#bigbox img').attr('src'),
-                  0, 0, paperWidth, paperHeight / imageAspectRatio);
-          // Add a rectangle
-          var shapes = paper.add([{
-              'type': 'rect',
-              'x': 50,
-              'y': 50,
-              'width': 50,
-              'height': 50,
-              'fill': '#ffffff',
-              'stroke': '#000000',
-              'stroke-width': 1,
-              'opacity': 0.4
-          }]);
-          boxX = shapes[0].node.attributes.x.value;
-          boxY = shapes[0].node.attributes.y.value;
-          boxW = shapes[0].node.attributes.width.value;
-          boxH = shapes[0].node.attributes.height.value;
+        // Create drawing area, clearing previous <svg> content
+        if (paper != undefined) {
+            paper.canvas.parentNode.removeChild(paper.canvas);
+        } // clear existing <svg>
+        paper = Raphael("paper", paperWidth, paperHeight);
+        paper.image($('#bigbox img').attr('src'),
+                0, 0, paperWidth, paperHeight / imageAspectRatio);
+        // Add a rectangle
+        var shapes = paper.add([{
+            'type': 'rect',
+            'x': 50,
+            'y': 50,
+            'width': 50,
+            'height': 50,
+            'fill': '#ffffff',
+            'stroke': '#000000',
+            'stroke-width': 1,
+            'opacity': 0.4
+        }]);
+        boxX = shapes[0].node.attributes.x.value;
+        boxY = shapes[0].node.attributes.y.value;
+        boxW = shapes[0].node.attributes.width.value;
+        boxH = shapes[0].node.attributes.height.value;
 // Attach "Mouse Over" handler to rectangle
-          shapes[0].mousemove(changeCursor);
+        shapes[0].mousemove(changeCursor);
 
-          // Attach "Drag" handlers to rectangle
-          shapes[0].drag(dragMove, dragStart, dragEnd);
+        // Attach "Drag" handlers to rectangle
+        shapes[0].drag(dragMove, dragStart, dragEnd);
 
-      };
-//      $(document).ready(set_select_box());
+    };
 
-  </script>
-  
+    set_select_box();
+
+    <% @result.image_sections.each do |section| -%>
+    $.get("<%= @result.ocr_path_for(section) -%>", function (data) {
+                $("#text_for_<%= section -%>").val(data.text);
+            }, 'json'
+    );
+    <% end %>
+</script>
+<!--<script>  $(document).ready(set_select_box()); </script>-->
 
 
 
