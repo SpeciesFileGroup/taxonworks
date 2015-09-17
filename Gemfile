@@ -93,7 +93,7 @@ gem 'groupdate'
 
 # SFG gems
 gem 'taxonifi', '0.3.5'
-gem 'sqed', '0.1.6'
+gem 'sqed', '0.1.7'
 
 group :test, :development do
   gem 'faker', '~> 1.4.3'
