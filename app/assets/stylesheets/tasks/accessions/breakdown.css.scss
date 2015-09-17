@@ -1,12 +1,38 @@
 
+#breakdown_sqed_depiction {
 
-#littlebox {
-  img {
-    display:block;
-    padding: 2px 0px;
+  #littlebox {
+    img {
+      display:block;
+      padding: 2px 0px;
+    }
   }
-}
 
-#selected_text {
-  width: 400px;
+  #bigbox {
+    height: 400px;
+  }
+
+  #extracted_header {
+      textarea { 
+        height: 8em;
+        width: 20em;
+      }
+  }
+
+  #collection_object_fields {
+    textarea { 
+      height: 8em;
+      width: 20em;
+    }
+  }
+
+  #selected_text {
+    width: 400px;
+  }
+
+  #selected_picture_canvas {
+    width: 400px;
+    height: 400px;
+  }
+
 }

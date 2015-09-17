@@ -60,6 +60,11 @@ class SqedDepiction < ActiveRecord::Base
     }
  end
 
+  def self.next_depiction(current_depiction)
+    r = Depiction.joins(:sqed_depiction).order(:id).where("depictions.id > ?", current_depiction.id).where(project_id: current_depiction.project_id).first
+    r.nil? ? Depiction.order('depictions.id').joins(:sqed_depiction).first : r
+  end
+
   protected
 
   def sqed_metadata_map

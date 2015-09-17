@@ -1,6 +1,6 @@
 <h2> Task: Transcribe depiction </h2>
-<div class="flexbox">
 
+<div class="flexbox" id="breakdown_sqed_depiction">
   <div class="item item1">
     <div id="littlebox">
       <% @result.secondary_sections.each_with_index do |section, i| -%>
@@ -17,7 +17,7 @@
       <input type="button" id="getBox" value="SELECT" onclick="getBox();">
       <%= link_to('image', image_path(@result.depiction.image)) -%>
 
-      <div id="bigbox" style="height: 400px;">
+      <div id="bigbox">
         <div id="paper">
           <div id="image_0"></div>
         </div>
@@ -35,14 +35,13 @@
 
   <div class="item item3">
 
-    <div class="extracted_header">
+    <div id="extracted_header">
       <div class="side_by_side_fields">
         <% @result.image_sections.each do |section| -%>
             <div class="field">
               <%= label_tag section %><br>
-              <%= text_area_tag(section, "calculating...", id: "text_for_#{section}", cols: 25, rows: 10) %>
+              <%= text_area_tag(section, "calculating...", id: "text_for_#{section}") %>
             </div>
-
         <% end %>
       </div>
     </div>
@@ -50,77 +49,100 @@
     <div class="extracted_form">
 
       <%= form_for(@result.depiction.depiction_object, as: :collection_object, url: depiction_breakdown_update_task_path(@result.depiction)) do |f| -%>
-
-          <div>
-            <h3> Taxon Determinations </h3>
-            <%= f.fields_for(:taxon_determinations, @result.depiction.depiction_object.taxon_determinations) do |o| -%>
-                <div class="field">
-                  <%= o.label :name %><br>
-                  <%= render(
-                              partial: '/workbench/elements/forms/ajax_select',
-                              locals: {
-                                      controller: '/otus',
-                                      object: "collection_object[taxon_determinations_attributes][#{o.index}]",
-                                      method: 'otu_id',
-                                      tag_id: "otu_id_for_identifier_#{o.index}",
-                                      display: otu_tag(o.object.otu),
-                                      size: 20})
-                  %>
-                </div>
-            <% end %>
-
-            <h3> Identifiers </h3>
-            <%= f.fields_for(:identifiers, @result.depiction.depiction_object.identifiers) do |i| -%>
-                <%= i.hidden_field :type -%>
-
-                <div class="side_by_side_fields">
-
-                  <div class="field">
-                    <%= i.label :namespace_id %><br>
-                    <%= render(
-                                partial: '/workbench/elements/forms/ajax_select',
-                                locals: {
-                                        controller: '/namespaces',
-                                        object: "collection_object[identifiers_attributes][#{i.index}]",
-                                        method: 'namespace_id',
-                                        tag_id: "namespace_id_for_identifier_#{i.index}",
-                                        display: i.object.namespace ? i.object.namespace.short_name : nil,
-                                        size: 20,
-                                        fields_for_object: i})
-                    %>
-                  </div>
-
-                  <div class="field">
-                    <%= i.label :identifier %><br>
-                    <%= i.text_field :identifier %>
-                  </div>
-
-                </div>
-                <!-- end side by side -->
-            <% end %>
+          <div class="field">
+            <%= f.label :total %>
+            <br>
+            <%= f.text_field :total, size: 2 -%>
           </div>
 
-          <div class="side_by_side_fields">
+          <div class="flexbox">
+
+            <div class="item item1">
+
+              <h3> Taxon Determinations </h3>
+              <%= f.fields_for(:taxon_determinations, @result.depiction.depiction_object.taxon_determinations) do |o| -%>
+                  <div class="field">
+                    <%= o.label :name %><br>
+                    <%= render(
+                                partial: '/workbench/elements/forms/ajax_select',
+                                locals:  {
+                                        controller: '/otus',
+                                        object:     "collection_object[taxon_determinations_attributes][#{o.index}]",
+                                        method:     'otu_id',
+                                        tag_id:     "otu_id_for_identifier_#{o.index}",
+                                        display:    otu_tag(o.object.otu),
+                                        size:       20})
+                    %>
+                  </div>
+              <% end %>
+            </div>
+
+
+            <div class="item item2">
+              <h3> Identifiers </h3>
+              <%= f.fields_for(:identifiers, @result.depiction.depiction_object.identifiers) do |i| -%>
+                  <%= i.hidden_field :type -%>
+
+                  <div class="side_by_side_fields">
+
+                    <div class="field">
+                      <%= i.label :namespace_id %><br>
+                      <%= render(
+                                  partial: '/workbench/elements/forms/ajax_select',
+                                  locals:  {
+                                          controller:        '/namespaces',
+                                          object:            "collection_object[identifiers_attributes][#{i.index}]",
+                                          method:            'namespace_id',
+                                          tag_id:            "namespace_id_for_identifier_#{i.index}",
+                                          display:           i.object.namespace ? i.object.namespace.short_name : nil,
+                                          size:              20,
+                                          fields_for_object: i})
+                      %>
+
+                      <% if @result.depiction.depiction_object.identifiers.size == 1 %>
+                          <%= check_box_tag(:lock_namespace, "1", @result.namespace_locked?) -%>lock
+                      <% end %>
+
+                    </div>
+
+                    <div class="field">
+                      <%= i.label :identifier %><br>
+                      <%= i.text_field :identifier %>
+                    </div>
+
+                  </div>
+                  </div>
+                  <!-- end side by side -->
+
+
+              <% end %>
+              </div>
+
+          <div class="side_by_side_fields" id="collection_object_fields">
             <div class="field">
               <%= f.label :buffered_collecting_event %>
               <br>
-              <%= f.text_area :buffered_collecting_event, cols: 40, rows: 6 -%>
+              <%= f.text_area :buffered_collecting_event -%>
             </div>
 
             <div class="field">
               <%= f.label :buffered_determinations %>
               <br>
-              <%= f.text_area :buffered_determinations, cols: 40, rows: 5 -%>
+              <%= f.text_area :buffered_determinations -%>
             </div>
 
             <div class="field">
               <%= f.label :buffered_other_labels %>
               <br>
-              <%= f.text_area :buffered_other_labels, cols: 40, rows: 6 -%>
+              <%= f.text_area :buffered_other_labels -%>
             </div>
 
           </div>
+
           <%= submit_tag -%>
+
+          <%= submit_tag('Save and next') -%>
+
           <br class="clear_both">
       <% end %>
 
@@ -135,9 +157,57 @@
 
 
 <script>
+
+  var images = [];
+  var papers = [];
+
+  <% @result.image_sections.each_with_index do |section, i| -%>
+      var i = new Image();
+      i.src = <%= @result.image_path_for(section) -%>;
+      images.push(i);
+
+      var p = Raphel("paper", paperWidth, paperHeight);
+      p.image( <%= @result.image_path_for(section) -%> ), 0,0, 100, 100);
+      papers.push(p);
+  <% end %>
+
+  // make paper objects for each image
+
+  function addToLittle() {
+
+  }
+
+  function addToBig() {
+
+  }
+
+  function addSelect() {
+
+
+  }
+
+
+
+
+    var boxX;
+    var boxY;
+    var boxW;
+    var boxH;
+    var imageObject;
+
+    imageObject = new Image();
+
+    var imageAspectRatio;
+    var canvas;
+    var context;
+    var paper;
+    var paperWidth = 400;
+    var paperHeight = 400;
+
     <% @result.image_sections.each_with_index do |section, i| -%>
-         $("#image_<%= i -%>").html('<%= image_tag(@result.image_path_for(section), alt: section, width:  100, class: 'clickable', 'data-position' => i ) -%>');
+    $("#image_<%= i -%>").html('<%= image_tag(@result.image_path_for(section), alt: section, width:  100, class: 'clickable', 'data-position' => i ) -%>');
     <% end %>
+
     $('.clickable').on('click', function () {
         var little_detached = $(this).detach();         // detach the clicked (presumably small) image
         little_detached.attr('width', 400);             // set its width to the focal image width
@@ -153,7 +223,7 @@
             imageObject.src = little_detached.attr('src');
             $("#bigbox image").attr('href', imageObject.src);
             $("#bigbox image").attr('height', imageObject.naturalHeight * 400 / imageObject.naturalWidth);
-//            $("#bigbox img").attr('hidden', 'hidden');
+            //            $("#bigbox img").attr('hidden', 'hidden');
         }
     });
 
@@ -166,20 +236,20 @@
 
      Next step will be to replace the simple large image control structure with the paper contol.  canvas placement TBD.
      */
-</script>
 
-<!--<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>-->
-<!--<script src="http://github.com/DmitryBaranovskiy/raphael/raw/master/raphael-min.js"></script>-->
-<!--<script src="file:///Users/jrflood/src/taxonworks/app/assets/javascripts/Raphael.js"></script>-->
 
-<script>
+    $.get("/images/<%= @result.depiction.image.id -%>/ocr/" + coord_string, function (data) {
+        $("#selected_text").html(data.text);
+    }, 'json');
+
+
     function getBox() {
         //  alert(boxX + ' | ' + boxY + ' | ' + boxW + ' | ' + boxH);
         canvas = document.getElementById("selected_picture_canvas");
         context = canvas.getContext('2d');
         var destWidth;
         var destHeight;
-//          imageObject.src = document.getElementById('bigbox').children[0].children[0].src;
+        //          imageObject.src = document.getElementById('bigbox').children[0].children[0].src;
         imageObject.src = $('#bigbox img').attr('src');
         imageAspectRatio = imageObject.naturalWidth / imageObject.naturalHeight;
         var ratio = imageObject.naturalWidth / paperWidth;
@@ -195,8 +265,8 @@
             destHeight = canvas.height;
             destWidth = canvas.width * (boxW / boxH);
         }
-//        destWidth = canvas.width;          // was sourceWidth;
-//        destHeight = canvas.height;         // was sourceHeight;
+        //        destWidth = canvas.width;          // was sourceWidth;
+        //        destHeight = canvas.height;         // was sourceHeight;
         var destX = 0;          // was canvas.width / 2 - destWidth / 2;
         var destY = 0;          // was canvas.height / 2 - destHeight / 2;
         context.clearRect(0, 0, canvas.width, canvas.height);
@@ -213,26 +283,8 @@
 
         // $("#selected_text").html("images/<%= @result.depiction.image.id -%>/ocr/" +  );
 
-        $.get("/images/<%= @result.depiction.image.id -%>/ocr/" + coord_string, function (data) {
-                    $("#selected_text").html(data.text);
-                }, 'json'
-        );
-
     }
     ;
-
-    var boxX;
-    var boxY;
-    var boxW;
-    var boxH;
-    var imageObject;
-    imageObject = new Image();
-    var imageAspectRatio;
-    var canvas;
-    var context;
-    var paper;
-    var paperWidth = 400;
-    var paperHeight = 400;
 
 
     var set_select_box = function () {
@@ -250,10 +302,10 @@
             this.oy = this.attr('y');
             this.ow = this.attr('width');
             this.oh = this.attr('height');
-//            boxX = this.ox;
-//            boxY = this.oy;
-//            boxW = this.ow;
-//            boxH = this.oh;
+            //            boxX = this.ox;
+            //            boxY = this.oy;
+            //            boxW = this.ow;
+            //            boxH = this.oh;
 
             this.dragging = true;
         };
@@ -315,7 +367,6 @@
         };
 
         var changeCursor = function (e, mouseX, mouseY) {
-
             // Don't change cursor during a drag operation
             if (this.dragging === true) {
                 return;
@@ -345,18 +396,18 @@
         };
 
 
-        // Create drawing area, clearing previous <svg> content
+// Create drawing area, clearing previous <svg> content
         if (paper != undefined) {
             paper.canvas.parentNode.removeChild(paper.canvas);
         } // clear existing <svg>
         paper = Raphael("paper", paperWidth, paperHeight);
         paper.image($('#bigbox img').attr('src'),
                 0, 0, paperWidth, paperHeight / imageAspectRatio);
-        // Add a rectangle
+// Add a rectangle
         var shapes = paper.add([{
             'type': 'rect',
-            'x': 50,
-            'y': 50,
+            'x': 0,
+            'y': 0,
             'width': 50,
             'height': 50,
             'fill': '#ffffff',
@@ -371,7 +422,7 @@
 // Attach "Mouse Over" handler to rectangle
         shapes[0].mousemove(changeCursor);
 
-        // Attach "Drag" handlers to rectangle
+// Attach "Drag" handlers to rectangle
         shapes[0].drag(dragMove, dragStart, dragEnd);
 
     };

@@ -6,22 +6,25 @@ module SqedToTaxonworks
 
     attr_accessor :depiction_id 
 
+    attr_accessor :namespace_id
+
+    attr_accessor :sqed_depiction
+
     attr_accessor :sqed
    
     attr_accessor :sqed_result
 
+    attr_accessor :original_image
+    
     attr_accessor :width_ratio, :height_ratio
 
-    attr_accessor :original_image
-
-    attr_accessor :user_id, :project_id
-
-    attr_accessor :sqed_depiction
-
-    def initialize(depiction_id: nil, user_id: nil, project_id: nil)
+    def initialize(depiction_id: nil, namespace_id: nil)
       @depiction_id = depiction_id
-      @user_id = user_id
-      @project_Id = project_id 
+      @namespace_id = namespace_id
+    end
+
+    def namespace_locked?
+      !namespace_id.nil?
     end
 
     def depiction
@@ -31,7 +34,10 @@ module SqedToTaxonworks
         begin
           @depiction = Depiction.find(depiction_id)
           @depiction.depiction_object.taxon_determinations.build() 
-          @depiction.depiction_object.identifiers.build(type: 'Identifier::Local::CatalogNumber')
+          @depiction.depiction_object.identifiers.build(
+            type: 'Identifier::Local::CatalogNumber',
+            namespace: (namespace_locked? ? Namespace.find(namespace_id) : nil) 
+          )
         rescue ActiveRecord::RecordNotFound
           return false
         end
@@ -69,8 +75,7 @@ module SqedToTaxonworks
 
     # @return [Array]
     def image_sections
-      sqed_depiction.extraction_metadata[:metadata_map].values
-   #   SqedConfig::EXTRACTION_PATTERNS[pattern][:metadata_map].values
+      sqed_depiction.extraction_metadata[:metadata_map].values - [:image_registration]
     end
 
     # @return [Symbol]

@@ -336,7 +336,7 @@ TaxonWorks::Application.routes.draw do
 
       scope :breakdown do
         scope :depiction, controller: 'tasks/accessions/breakdown/depiction' do
-          get ':depiction_id', action: :index, as: 'depiction_breakdown_task'
+          get ':depiction_id(/:namespace_id)', action: :index, as: 'depiction_breakdown_task'
           patch 'update/:id', action: :update, as: 'depiction_breakdown_update_task'
         end
 
