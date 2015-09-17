@@ -8,11 +8,11 @@
 #
 # @!attribute height
 #   @return [Integer]
-#   @todo
+#     the height of the source image in px
 #
 # @!attribute width
 #   @return [Integer]
-#   @todo
+#     the width of the source image in px
 #
 # @!attribute image_file_fingerprint
 #   @return [String]
@@ -36,7 +36,7 @@
 #
 # @!attribute image_file_meta
 #   @return (String)
-#   Added by paperclip_meta; @todo
+#   Added by paperclip_meta gem, stores the sizes of derived images
 #
 class Image < ActiveRecord::Base
   include Housekeeping

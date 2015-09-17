@@ -18,7 +18,7 @@
     <% @depictions.each do |depiction| %>
       <tr>
         <td><%= object_tag(depiction.depiction_object.metamorphosize) %></td>
-        <td><%= image_tag(d.image.image_file.url(:thumb)) %></td>
+        <td><%= image_tag(depiction.image.image_file.url(:thumb)) %></td>
         <td><%= depiction.updated_at %></td>
         <td><%= object_tag(depiction.updater) %></td>
         <td><%= link_to 'Show', depiction %></td>

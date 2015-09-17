@@ -4,7 +4,8 @@
 <%= content_for :see do -%>
 <% end %>
 
-<%= content_for :tasks do -%>
+<%= content_for :do do -%>
+  <%= link_to('Transcribe', depiction_breakdown_task_path(@depiction)) if @depiction.sqed_depiction -%>
 <% end %>
 
 <%= render(partial: 'shared/data/project/show', locals: {object: @depiction}) -%>

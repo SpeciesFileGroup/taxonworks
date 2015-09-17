@@ -4,21 +4,24 @@
 
 module TaxonWorksAutoload
   # Order matters throughout this block (sigh)
+
   %w{
       /app/models/nomenclatural_rank/**/*.rb
       /app/models/taxon_name_relationship/**/*.rb
       /app/models/taxon_name_classification/**/*.rb
       /app/models/container/**/*.rb
-      /app/models/alternate_value/**/*.rb
   }.each do |path|
     a = Dir[Rails.root.to_s + path].sort
     a.each {|file| require_dependency file } # was .sort
   end
 
-  %w{Predicate Topic Keyword BiocurationClass BiologicalProperty BiocurationGroup}.each do |cv_class|
-    file = Rails.root.to_s + '/app/models/' + cv_class.underscore + '.rb'
-    require_dependency file
-  end
+  # handled inline in models at the end of file
+  #     /app/models/alternate_value/**/*.rb - 
 
-  Dir[Rails.root.to_s + '/app/models/controlled_vocabulary_term/**/*.rb'].sort.each {|file| require_dependency file }
+  # %w{Predicate Topic Keyword BiocurationClass BiologicalProperty BiocurationGroup}.each do |cv_class|
+  #   file = Rails.root.to_s + '/app/models/' + cv_class.underscore + '.rb'
+  #   require_dependency file
+  # end
+
+  #  Dir[Rails.root.to_s + '/app/models/controlled_vocabulary_term/**/*.rb'].sort.each {|file| require_dependency file }
 end

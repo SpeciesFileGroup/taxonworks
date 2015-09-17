@@ -18,6 +18,8 @@ module SqedToTaxonworks
 
     attr_accessor :pattern 
 
+    attr_accessor :sqed_depiction
+
     def initialize(depiction_id: nil, user_id: nil, project_id: nil, pattern: :cross)
       @depiction_id = depiction_id
       @pattern = pattern
@@ -38,6 +40,10 @@ module SqedToTaxonworks
         end
       end
       @depiction
+    end
+
+    def sqed_depiction
+      @sqed_depiction ||= @depiction.sqed_depiction
     end
 
     def sqed
@@ -78,7 +84,7 @@ module SqedToTaxonworks
     def secondary_sections
       image_sections - [primary_image] 
     end
- 
+
   end
 
 end
