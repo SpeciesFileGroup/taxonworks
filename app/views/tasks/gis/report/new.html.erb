@@ -35,8 +35,8 @@
 
   <div class="item item2">
     <div id="feature_collection"
-         data-collection-objects='<%#= @collection_objects %>'
-         data-feature-collection='<%#= Gis::GeoJSON.feature_collection([]).to_json.to_json %>'>
+         data-collection-objects='<%= @collection_objects %>'
+         data-feature-collection='<%= Gis::GeoJSON.feature_collection([]).to_json.to_json %>'>
     </div>
     <table border="1">
       <tbody>

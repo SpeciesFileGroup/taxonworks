@@ -199,8 +199,30 @@ class CollectionObject < ActiveRecord::Base
     end
   end
 
+=begin
+Find all collection objects which have collecting events which have georeferences which have geographic_items which
+are located within the geographic item supplied
+=end
+  # @param [Integer] geographic_item_id
+  # @return [Scope] of CollectionObject
   def self.in_geographic_item(geographic_item_id)
-    GeographicItem.find(geographic_item_id)
+    gi     = GeographicItem.find(geographic_item_id)
+    # find the geographic_items inside gi
+    step_1 = GeographicItem.is_contained_by('any', gi)    # .pluck(:id)
+
+=begin
+    step_1 = GeographicItem.is_contained_by('any', gi).include(georeference: {collecting_events: [ :collection_objects ] })    # .pluck(:id)
+=end
+
+
+    # find the georeferences from the geographic_items
+    step_2 = step_1.map(&:georeferences).flatten
+    # find the collecting events connected to the georeferences
+    step_3 = step_2.map(&:collecting_event)
+    # find the collection objects associated with the collecting events
+    step_4 = step_3.map(&:collection_objects).flatten.map(&:id).uniq
+    retval = CollectionObject.where(id: step_4)
+    retval
   end
 
   protected

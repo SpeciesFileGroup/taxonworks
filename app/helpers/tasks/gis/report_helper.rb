@@ -19,4 +19,19 @@ module Tasks::Gis::ReportHelper
 
   end
 
+  def get_otu(collection_object)
+    collection_object.otus.first
+  end
+
+  def check_nil(object)
+
+  end
+
+  def name_at_rank_string(collection_object, rank)
+    retval = ''
+    object = get_otu(collection_object).taxon_name
+    retval = object.ancestor_at_rank(rank) unless object.nil?
+    retval.nil? ? '' : retval.cached_html.html_safe
+  end
+
 end

@@ -16,7 +16,14 @@
     <%= co_attrib_headers.html_safe %>
     <%= bc_headers.html_safe %>
   </tr>
-  <%= @collection_objects.each do |c_o| %>
+  <% @collection_objects.each do |c_o| %>
+      <tr>
+        <td><%= get_otu(c_o).id %></td>
+        <td><%= get_otu(c_o).name %></td>
+        <td><%= name_at_rank_string(c_o, :family) %></td>
+        <td><%= name_at_rank_string(c_o, :genus) %></td>
+        <td><%= name_at_rank_string(c_o, :species) %></td>
+      </tr>
   <% end %>
   </tbody>
 </table>

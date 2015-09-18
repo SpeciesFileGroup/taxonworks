@@ -273,8 +273,12 @@ class GeographicArea < ActiveRecord::Base
     geographic_items.any?
   end
 
+  def shape
+    default_geographic_item
+  end
+
   # @return [GeographicItem, nil]
-  #   a "preferred" geographic item for this geogrpahic area, where preference
+  #   a "preferred" geographic item for this geographic area, where preference
   #   is based on an ordering of source gazeteers, the order being
   #   1) Natural Earth Countries
   #   2) Natural Earth States
