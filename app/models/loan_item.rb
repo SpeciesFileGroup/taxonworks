@@ -1,17 +1,22 @@
-# Loan description...
-# @todo
+
+# A loan item is a CollectionObject, Container, or historical reference to 
+# something that has been loaned.
 #
 # @!attribute loan_id
 #   @return [Integer]
-#   @todo
+#   Id of the loan 
 #
-# @!attribute collection_object_id
+# @!attribute loan_object_type
+#   @return [String]
+#   Polymorphic- one of Container, CollectionObject, or Otu 
+#
+# @!attribute loan_object_id
 #   @return [Integer]
-#   @todo
+#   Polymorphic, the id of the Container, CollectionObject or Otu
 #
 # @!attribute date_returned
 #   @return [DateTime]
-#   @todo
+#   The date the item was returned. 
 #
 # @!attribute collection_object_status
 #   @return [String]
@@ -19,15 +24,11 @@
 #
 # @!attribute position
 #   @return [Integer]
-#   @todo
+#   Sorts the items in relation to the loan. 
 #
 # @!attribute project_id
 #   @return [Integer]
 #   the project ID
-#
-# @!attribute container_id
-#   @return [Integer]
-#   @todo
 #
 class LoanItem < ActiveRecord::Base
   acts_as_list scope: :loan
@@ -39,20 +40,21 @@ class LoanItem < ActiveRecord::Base
   include Shared::Taggable
 
   belongs_to :loan
-  belongs_to :collection_object
+  belongs_to :loan_item_object, polymorphic: true
+
+  validates_presence_of :loan_item_object_id, :loan_item_object_type
 
   validates :loan_id, presence: true
-  validates_uniqueness_of :collection_object_id, scope: [:loan_id, :container_id]
-  validate :only_one_present
+  validates_uniqueness_of :loan, scope: [:loan_item_object_type, :loan_item_object_id] 
+  
+  validate :total_provided_only_when_otu
+  validates_inclusion_of :loan_item_object_type, in: %w{Otu CollectionObject Container}
 
-  def only_one_present
-    if self.collection_object_id.nil? && self.container_id.nil?
-      errors.add(:collection_object_id, 'Either collection object or container should be selected')
-      errors.add(:container_id, 'Either collection object or container should be selected')
-    elsif !self.collection_object_id.nil? && !self.container_id.nil?
-      errors.add(:collection_object_id, 'Only one collection object or container could be selected')
-      errors.add(:container_id, 'Only one collection object or container could be selected')
-    end
+  protected
+
+  def total_provided_only_when_otu
+    errors.add(:total, 'total only providable when item is an otu') if total && loan_item_object_type != 'Otu'
   end
+
 
 end

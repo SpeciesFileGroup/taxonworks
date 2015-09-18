@@ -3,24 +3,24 @@
 <div class="flexbox" id="breakdown_sqed_depiction">
   <div class="item item1">
     <div id="littlebox">
-      <% @result.secondary_sections.each_with_index do |section, i| -%>
-          <div id="image_<%= i + 1 %>"></div>
-      <% end %>
+      <div id="paper1"> </div>
+      <div id="paper2"> </div>
+      <div id="paper3"> </div>
     </div>
   </div>
 
   <div class="item item2">
-
     <div id="extracted_images">
 
       <input type="button" id="setBox" value="Enable Selection" onclick="set_select_box();">
       <input type="button" id="getBox" value="SELECT" onclick="getBox();">
+
       <%= link_to('image', image_path(@result.depiction.image)) -%>
 
       <div id="bigbox">
-        <div id="paper">
-          <div id="image_0"></div>
-        </div>
+        <div id="paper0"> </div>
+
+        <img src="<%= @result.image_path_for(@result.primary_image) -%>" id="bigimage" width=400> 
       </div>
 
       <div id="selected_text"></div>
@@ -78,7 +78,7 @@
             </div>
 
 
-            <div class="item item2">
+            <div class="item item <%= @result.small_dimensions_for(@result.secondary_sections.second) -%>2">
               <h3> Identifiers </h3>
               <%= f.fields_for(:identifiers, @result.depiction.depiction_object.identifiers) do |i| -%>
                   <%= i.hidden_field :type -%>
@@ -154,39 +154,56 @@
 
 </div>
 
-
-
 <script>
-
-  var images = [];
   var papers = [];
 
-  <% @result.image_sections.each_with_index do |section, i| -%>
-      var i = new Image();
-      i.src = <%= @result.image_path_for(section) -%>;
-      images.push(i);
+  var box_params = {
+      'type': 'rect',
+      'x': 0,
+      'y': 0,
+      'width': 50,
+      'height': 50,
+      'fill': '#ffffff',
+      'stroke': '#000000',
+      'stroke-width': 1,
+      'opacity': 0.4
+  };
 
-      var p = Raphel("paper", paperWidth, paperHeight);
-      p.image( <%= @result.image_path_for(section) -%> ), 0,0, 100, 100);
-      papers.push(p);
+var bigimage = new Image();
+
+bigimage.src = $('#bigimage').attr('src');
+
+var p = Raphael("paper0", <%= @result.large_height_width(@result.primary_image) -%> );
+
+var context = p.canvas.getContext('2d');
+
+context.drawImage(bigimage, <%= @result.large_dimensions_for(@result.primary_image) -%>, <%= @result.large_dimensions_for(@result.primary_image) -%> );
+
+
+// p.image($('#bigimage').attr('src'), <%= @result.large_dimensions_for(@result.primary_image) -%>); 
+
+// p.image("<%= @result.image_path_for(@result.primary_image) -%>", <%= @result.large_dimensions_for(@result.primary_image) -%> );
+papers.push(p);
+
+  <% @result.secondary_sections.each_with_index do |section, i| -%>
+    var g = Raphael("paper<%= i + 1 -%>", <%= @result.small_height_width(section) -%> );
+    g.image("<%= @result.image_path_for(section) -%>", <%= @result.small_dimensions_for(section) -%> );
+    papers.push(g);
   <% end %>
 
   // make paper objects for each image
 
   function addToLittle() {
 
-  }
+  };
 
   function addToBig() {
 
-  }
+  };
 
   function addSelect() {
 
-
-  }
-
-
+  };
 
 
     var boxX;
@@ -204,11 +221,7 @@
     var paperWidth = 400;
     var paperHeight = 400;
 
-    <% @result.image_sections.each_with_index do |section, i| -%>
-    $("#image_<%= i -%>").html('<%= image_tag(@result.image_path_for(section), alt: section, width:  100, class: 'clickable', 'data-position' => i ) -%>');
-    <% end %>
-
-    $('.clickable').on('click', function () {
+      $('.clickable').on('click', function () {
         var little_detached = $(this).detach();         // detach the clicked (presumably small) image
         little_detached.attr('width', 400);             // set its width to the focal image width
 

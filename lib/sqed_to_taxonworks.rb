@@ -2,6 +2,9 @@ module SqedToTaxonworks
 
   class Result
 
+    SMALL_WIDTH = 100
+    LARGE_WIDTH = 400
+
     attr_accessor :depiction
 
     attr_accessor :depiction_id 
@@ -63,19 +66,37 @@ module SqedToTaxonworks
 
     # instance methods
 
+    def coords_for(layout_section_type)
+      sqed.boundaries.for(
+        sqed_depiction.extraction_metadata[:metadata_map].key(layout_section_type)
+      )
+    end
+
     def image_path_for(layout_section_type)
-      c = sqed.boundaries.for(image_sections.index(layout_section_type))
+      c = coords_for(layout_section_type) 
       "/images/#{depiction.image.id}/extract/#{c[0]}/#{c[1]}/#{c[2]}/#{c[3]}"
     end
 
+    def image_path_for_large_image(layout_section_type)
+      height = (c[3].to_f / (c[2].to_f / 400)).to_i
+
+      c = coords_for(layout_section_type) 
+      "/images/#{depiction.image.id}/scale_to_box/#{c[0]}/#{c[1]}/400/#{height}/400/400"
+    end
+
+    def image_path_for_small_image(layout_section_type)
+      c = coords_for(layout_section_type) 
+      "/images/#{depiction.image.id}/scale_to_box/#{c[0]}/#{c[1]}/#{c[2]}/#{c[3]}"
+    end
+
     def ocr_path_for(layout_section_type)
-      c = sqed.boundaries.for(image_sections.index(layout_section_type))
+      c = coords_for(layout_section_type) 
       "/images/#{depiction.image.id}/ocr/#{c[0]}/#{c[1]}/#{c[2]}/#{c[3]}"
     end
 
     # @return [Array]
     def image_sections
-      sqed_depiction.extraction_metadata[:metadata_map].values - [:image_registration]
+      (sqed_depiction.extraction_metadata[:metadata_map].values - [:image_registration])
     end
 
     # @return [Symbol]
@@ -87,6 +108,42 @@ module SqedToTaxonworks
     def secondary_sections
       image_sections - [primary_image] 
     end
+
+    def small_dimensions_for(layout_section_type)
+      c = coords_for(layout_section_type) 
+      "0, 0, #{SMALL_WIDTH}, #{ (c[3].to_f / (c[2].to_f / SMALL_WIDTH)).to_i }"
+    end
+
+    def small_height_width(layout_section_type)
+      c = coords_for(layout_section_type) 
+      "#{SMALL_WIDTH}, #{small_height_for(layout_section_type)}"
+    end
+
+    def large_height_width(layout_section_type)
+      c = coords_for(layout_section_type) 
+      "#{LARGE_WIDTH}, #{large_height_for(layout_section_type)}"
+    end
+
+    def larger_height_width(layout_section_type)
+      c = coords_for(layout_section_type) 
+      "#{LARGE_WIDTH + 100}, #{large_height_for(layout_section_type).to_i + 100}"
+    end
+
+    def small_height_for(layout_section_type)
+      c = coords_for(layout_section_type) 
+     "#{(c[3].to_f / (c[2].to_f / SMALL_WIDTH)).to_i}"
+    end
+
+    def large_height_for(layout_section_type)
+      c = coords_for(layout_section_type) 
+     "#{(c[3].to_f / (c[2].to_f / LARGE_WIDTH)).to_i}"
+    end
+
+    def large_dimensions_for(layout_section_type)
+      c = coords_for(layout_section_type) 
+      "0, 0, 400, #{ (c[3].to_f / (c[2].to_f / 400)).to_i }"
+    end
+
 
   end
 

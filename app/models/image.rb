@@ -204,7 +204,7 @@ class Image < ActiveRecord::Base
  #    tempfile
  #  end
 
-  def self.cropped_blob(params)
+  def self.cropped(params)
     image = Image.find(params[:id])
     img = Magick::Image.read(image.image_file.path(:original)).first
 
@@ -215,7 +215,44 @@ class Image < ActiveRecord::Base
                        params[:height].to_i,
                        true
                       )
-    cropped.to_blob
+    cropped
+  end
+
+  def self.resized(params)
+    c = cropped(params)
+    c.resize(params[:new_width].to_i, params[:new_height].to_i)
+  end
+
+  def self.scaled_to_box(params)
+    c = cropped(params)
+    ratio = c.columns.to_f / c.rows.to_f
+    box_ratio = params[:box_width].to_f / params[:box_height].to_f
+
+    if box_ratio > 1
+      if ratio > 1 # wide into wide
+        c.resize(params[:box_width ].to_i, (params[:box_height].to_f / ratio * box_ratio).to_i)
+      else # tall into wide
+        c.resize((params[:box_width ].to_f * ratio / box_ratio).to_i, params[:box_height].to_i )
+      end
+    else  # < 
+      if ratio > 1 # wide into tall
+        c.resize(params[:box_width ].to_i, (params[:box_height].to_f / ratio * box_ratio).to_i )   
+      else # tall into tall
+        c.resize((params[:box_width ].to_f / ratio * box_ratio).to_i, params[:box_height].to_i)
+      end
+    end
+  end
+
+  def self.scaled_to_box_blob(params)
+    scaled_to_box(params).to_blob
+  end 
+
+  def self.resized_blob(params)
+    resized(params).to_blob
+  end
+
+  def self.cropped_blob(params)
+    cropped(params).to_blob
   end
 
   protected

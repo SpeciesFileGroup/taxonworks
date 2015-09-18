@@ -164,6 +164,8 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
     member do
       get 'extract/:x/:y/:width/:height', action: :extract
+      get 'scale/:x/:y/:width/:height/:new_width/:new_height', action: :scale
+      get 'scale_to_box/:x/:y/:width/:height/:box_width/:box_height', action: :scale_to_box
       get 'ocr/:x/:y/:width/:height', action: :ocr
     end
   end

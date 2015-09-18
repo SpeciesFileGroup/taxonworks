@@ -101,6 +101,19 @@ class ImagesController < ApplicationController
     send_data Image.cropped_blob(params), type: 'image/jpg', disposition: 'inline'
   end
 
+  # GET /images/:id/extract/:x/:y/:height/:width/:new_height/:new_width
+  def scale 
+    send_data Image.resized_blob(params), type: 'image/jpg', disposition: 'inline'
+  end
+
+  def scale_to_box
+    send_data Image.scaled_to_box_blob(params), type: 'image/jpg', disposition: 'inline'
+  end
+
+  def scale_to_height
+
+  end
+
   # GET /images/:id/ocr/:x/:y/:height/:width
   def ocr 
     tempfile = Tempfile.new(['ocr', '.jpg'], "#{Rails.root.to_s}/public/images/tmp", encoding: 'ASCII-8BIT' ) 
