@@ -1,3 +1,5 @@
+# Source role definition...
+#
 class Role::SourceRole < Role
   include Housekeeping::Users
   include Shared::SharedAcrossProjects

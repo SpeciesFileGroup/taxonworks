@@ -1,4 +1,6 @@
-class Person::Unvetted < Person 
+# Unvetted person definition...
+#
+class Person::Unvetted < Person
   def foo
     puts "bar"
   end
