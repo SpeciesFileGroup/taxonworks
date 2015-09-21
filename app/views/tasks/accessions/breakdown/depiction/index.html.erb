@@ -18,7 +18,7 @@
   <div class="item item2">
     <div id="extracted_images">
 
-      <input type="button" id="setBox" value="Enable Selection">
+ 
       <input type="button" id="getBox" value="SELECT">
 
       <%= link_to('image', image_path(@result.depiction.image)) -%>
@@ -161,7 +161,6 @@
 
 <script>
 
-    //
     var imageObject;
 
     imageObject = new Image();
@@ -172,9 +171,7 @@
     var paper;
     var paperWidth = 400;
     var paperHeight = 400;
-    //
-
-
+    
     var select_box;
     var big_svg_image;
 
@@ -198,12 +195,11 @@
 
     var p;
     p = Raphael("paper", <%= @result.large_height_width(@result.primary_image) -%>);
-    p.image("<%= @result.image_path_for_large_image(@result.primary_image) -%>", <%= @result.large_dimensions_for(@result.primary_image) -%>);
+    big_svg_image = p.image("<%= @result.image_path_for_large_image(@result.primary_image) -%>", <%= @result.large_dimensions_for(@result.primary_image) -%>);
+    addSelectBox(p);
 
     $('.clickable').on('click', function (click) {
-        // remove image from p
         p.clear();
-        // add image to p
         big_svg_image = p.image(click.currentTarget.src, 0, 0, click.currentTarget.naturalWidth, click.currentTarget.naturalHeight);
         addSelectBox(p);
     });
@@ -236,6 +232,7 @@
             } else {
                 this.attr('cursor', 'move');
             }
+            getBox();
         };
 
         var dragStart = function () {
@@ -329,16 +326,9 @@
         canvas = document.getElementById("selected_picture_canvas");
         context = canvas.getContext('2d');
 
-        //  var originalHeight = $("#original_image").naturalHeight();
-        //  var originalWidth = $("#original_image").naturalWidth();
-
-        //    var originalWidth = $("#original_image").naturalWidth();
-
         var coords = big_svg_coords();
         var destWidth;
         var destHeight;
-        //  imageObject.src = $('#bigbox img').attr('src');
-        //  imageAspectRatio = imageObject.naturalWidth / imageObject.naturalHeight;
 
         imageAspectRatio = coords[2] / coords[3];
 
@@ -348,50 +338,40 @@
         var sourceY = (boxY * ratio) + coords[1];
         var sourceWidth = boxW * ratio;
         var sourceHeight = boxH * ratio;
-//        sourceWidth = boxW;
-//        sourceHeight = boxH
 
         if (boxW >= boxH) {         // destination width should equal canvas.width
             destWidth = coords[2] / ratio;
-            destHeight = coords[3] * (boxH / boxW) / ratio;     // wrong, forgets imageAspectRatio
-            destHeight = coords[3] / ratio * (boxH / boxW) * imageAspectRatio;
             destHeight = (boxH / boxW) * destWidth;     // dependent width assuming 1:1 ratio
            }
         else {                      // destination height should equal canvas.height
-            destHeight = coords[3] / ratio;
             destHeight = coords[2] / ratio;
-            destWidth = coords[2] * (boxW / boxH) / ratio;
             destWidth = (boxW / boxH) * destHeight;     // dependent height assuming 1:1 ratio
         }
-        //        destWidth = canvas.width;          // was sourceWidth;
-        //        destHeight = canvas.height;         // was sourceHeight;
+        
         var destX = 0;          // was canvas.width / 2 - destWidth / 2;
         var destY = 0;          // was canvas.height / 2 - destHeight / 2;
-        //   z.clear();
-        //        context.clearRect(0, 0, z.width, z.height);
-        // alert([sourceX, sourceY, sourceWidth, sourceHeight]);
-//        z.image($("#original_image").attr('src'), 0, 0,  sourceWidth, sourceHeight ); 
-
-        // z.setViewBox(100, 100, 200, 200, true );
-        // z.canvas.drawImage($("#original_image").attr('src'), 0, 0, 100, 100, 0, 0, 200, 200);
-
-        //       context = z.canvas.parentElement.getContext('2d');
-        //  context = $(z.canvas).parent().getContext('2d');
-//        var imageObject = new Image();
+       
         imageObject.src = $("#original_image").attr('src');
         context.clearRect(0, 0, canvas.width, canvas.height);
         context.drawImage(imageObject, sourceX, sourceY, sourceWidth, sourceHeight, destX, destY, destWidth, destHeight);
 
-//        var coords = imageObject.src.split("/");
 
-        //    var x = Math.round(sourceX + coords[2]);
-        //    var y = Math.round(sourceY + coords[3]);
-        //    var w = Math.round(boxW * ratio);
-        //    var h = Math.round(boxH * ratio);
+        var x = Math.round(sourceX + coords[2]);
+        var y = Math.round(sourceY + coords[3]);
+        var w = Math.round(boxW * ratio);
+        var h = Math.round(boxH * ratio);
 
-        //    var coord_string = x + "/" + y + "/" + w + "/" + h;
+        var coord_string = x + "/" + y + "/" + w + "/" + h;
 
-        // $("#selected_text").html("images/<%= @result.depiction.image.id -%>/ocr/" +  );
+        var ocr_string = "images/<%= @result.depiction.image.id -%>/ocr/" + coord_string;
+        $("#selected_text").html(ocr_string);
+
+      //$.get(ocr_string, function (data) {
+      //    $("#selected_text").val(data.text);
+      //    }, 'json'
+      //    );
+
+
 
     }
     ;
@@ -462,7 +442,6 @@
         getBox();
     })
     ;
-
 
     $('#setBox').on('click', function () {
         addSelectBox();
