@@ -342,25 +342,27 @@
 
         imageAspectRatio = coords[2] / coords[3];
 
-        var ratio = coords[2] / paperWidth;
+        var ratioW = coords[2] / paperWidth;
+        var ratioH = coords[3] / paperHeight;
 
-        var sourceX = (boxX * ratio) + coords[0];
-        var sourceY = (boxY * ratio) + coords[1];
-        var sourceWidth = boxW * ratio;
-        var sourceHeight = boxH * ratio;
+//        var sourceX = (boxX * ratio) + coords[0];
+//        var sourceY = (boxY * ratio) + coords[1];
+        var sourceX = (boxX * ratioW) + coords[0];
+        var sourceY = (boxY * ratioH) + coords[1];
+        var sourceWidth = boxW * ratioW;
+        var sourceHeight = boxH * ratioH;
 //        sourceWidth = boxW;
 //        sourceHeight = boxH
 
         if (boxW >= boxH) {         // destination width should equal canvas.width
-            destWidth = coords[2] / ratio;
-            destHeight = coords[3] * (boxH / boxW) / ratio;     // wrong, forgets imageAspectRatio
-            destHeight = coords[3] / ratio * (boxH / boxW) * imageAspectRatio;
+            destWidth = coords[2] / ratioW;
+            destHeight = coords[3] * (boxH / boxW) / ratioH;     // wrong, forgets imageAspectRatio
+            destHeight = coords[3] / ratioW * (boxH / boxW) * imageAspectRatio;
             destHeight = (boxH / boxW) * destWidth;     // dependent width assuming 1:1 ratio
            }
         else {                      // destination height should equal canvas.height
-            destHeight = coords[3] / ratio;
-            destHeight = coords[2] / ratio;
-            destWidth = coords[2] * (boxW / boxH) / ratio;
+            destHeight = coords[3] / ratioH;
+            destWidth = coords[2] * (boxW / boxH) / ratioW;
             destWidth = (boxW / boxH) * destHeight;     // dependent height assuming 1:1 ratio
         }
         //        destWidth = canvas.width;          // was sourceWidth;
