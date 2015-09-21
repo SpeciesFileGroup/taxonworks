@@ -1,6 +1,12 @@
 
 #breakdown_sqed_depiction {
 
+  .little_image {
+    display: block;
+    padding: 5px;
+    width: 150px;
+  }
+
   #extracted_header {
       textarea { 
         height: 8em;

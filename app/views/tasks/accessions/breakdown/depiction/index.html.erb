@@ -1,26 +1,30 @@
 <h2> Task: Transcribe depiction </h2>
 
+
 <div class="flexbox" id="breakdown_sqed_depiction">
   <div class="item item1">
+
+    <%= image_tag(@result.depiction.image.image_file.url(:original), id: 'original_image', hidden: true) -%>
+
     <div id="littlebox">
-      <div id="paper1"> </div>
-      <div id="paper2"> </div>
-      <div id="paper3"> </div>
+
+      <% @result.image_sections.each_with_index do |section, i | -%>
+        <%= image_tag(@result.image_path_for_large_image(section), id: "little#{i}", class: "little_image clickable")  -%> 
+      <% end %>
+
     </div>
   </div>
 
   <div class="item item2">
     <div id="extracted_images">
 
-      <input type="button" id="setBox" value="Enable Selection" onclick="set_select_box();">
-      <input type="button" id="getBox" value="SELECT" onclick="getBox();">
+      <input type="button" id="setBox" value="Enable Selection" >
+      <input type="button" id="getBox" value="SELECT" >
 
       <%= link_to('image', image_path(@result.depiction.image)) -%>
 
       <div id="bigbox">
-        <div id="paper0"> </div>
-
-        <img src="<%= @result.image_path_for(@result.primary_image) -%>" id="bigimage" width=400> 
+        <div id="paper"> </div>
       </div>
 
       <div id="selected_text"></div>
@@ -28,7 +32,7 @@
       <div id="selected_picture">
         <canvas id="selected_picture_canvas" height="400" width="400"></canvas>
       </div>
-
+ 
 
     </div>
   </div>
@@ -152,181 +156,107 @@
     <div class="extracted_history"></div>
   </div>
 
+ 
 </div>
 
 <script>
-  var papers = [];
 
-  var box_params = {
-      'type': 'rect',
-      'x': 0,
-      'y': 0,
-      'width': 50,
-      'height': 50,
-      'fill': '#ffffff',
-      'stroke': '#000000',
-      'stroke-width': 1,
-      'opacity': 0.4
-  };
+// 
+var imageObject;
 
-var bigimage = new Image();
+imageObject = new Image();
 
-bigimage.src = $('#bigimage').attr('src');
-
-var p = Raphael("paper0", <%= @result.large_height_width(@result.primary_image) -%> );
-
-var context = p.canvas.getContext('2d');
-
-context.drawImage(bigimage, <%= @result.large_dimensions_for(@result.primary_image) -%>, <%= @result.large_dimensions_for(@result.primary_image) -%> );
+var imageAspectRatio;
+var canvas;
+var context;
+var paper;
+var paperWidth = 400;
+var paperHeight = 400;
+//
 
 
-// p.image($('#bigimage').attr('src'), <%= @result.large_dimensions_for(@result.primary_image) -%>); 
+var select_box;
+var big_svg_image;
 
-// p.image("<%= @result.image_path_for(@result.primary_image) -%>", <%= @result.large_dimensions_for(@result.primary_image) -%> );
-papers.push(p);
+ // current position of the select box
+var boxX;
+var boxY;
+var boxW;
+var boxH;
 
-  <% @result.secondary_sections.each_with_index do |section, i| -%>
-    var g = Raphael("paper<%= i + 1 -%>", <%= @result.small_height_width(section) -%> );
-    g.image("<%= @result.image_path_for(section) -%>", <%= @result.small_dimensions_for(section) -%> );
-    papers.push(g);
-  <% end %>
+var svg_box = {
+  'type': 'rect',
+  'x': 0,
+  'y': 0,
+  'width': 50,
+  'height': 50,
+  'fill': '#ffffff',
+  'stroke': '#000000',
+  'stroke-width': 1,
+  'opacity': 0.4
+};
 
-  // make paper objects for each image
+var p;
+p = Raphael("paper", <%= @result.large_height_width(@result.primary_image) -%> );
+p.image("<%= @result.image_path_for_large_image(@result.primary_image) -%>", <%= @result.large_dimensions_for(@result.primary_image) -%> );
 
-  function addToLittle() {
+ $('.clickable').on('click', function (click) {
+     // remove image from p
+     p.clear();
+     // add image to p 
+     big_svg_image = p.image(click.currentTarget.src, 0, 0, click.currentTarget.naturalWidth, click.currentTarget.naturalHeight);
+     addSelectBox(p);
+     });
 
-  };
-
-  function addToBig() {
-
-  };
-
-  function addSelect() {
-
-  };
-
-
-    var boxX;
-    var boxY;
-    var boxW;
-    var boxH;
-    var imageObject;
-
-    imageObject = new Image();
-
-    var imageAspectRatio;
-    var canvas;
-    var context;
-    var paper;
-    var paperWidth = 400;
-    var paperHeight = 400;
-
-      $('.clickable').on('click', function () {
-        var little_detached = $(this).detach();         // detach the clicked (presumably small) image
-        little_detached.attr('width', 400);             // set its width to the focal image width
-
-        var big_detached = $('#bigbox img').detach();   // detach the large image contained in the #bigbox div
-        big_detached.attr('width', 100);                // set its size to the smaller non-focal size
-        big_detached.attr('hidden', false);
-
-        $("#littlebox").append(big_detached);           // put the previous large image on the non-focal plane
-        $("#bigbox").append(little_detached);           // put the selected/clicked resized image on the focus
-
-        if ($("#bigbox image").attr('width') != undefined) {
-            imageObject.src = little_detached.attr('src');
-            $("#bigbox image").attr('href', imageObject.src);
-            $("#bigbox image").attr('height', imageObject.naturalHeight * 400 / imageObject.naturalWidth);
-            //            $("#bigbox img").attr('hidden', 'hidden');
-        }
-    });
-
-    /*
-     Integration of selction box into depiction issues
-     Image()<HTMLImageElement> for selection is contained in a <canvas>, whereas large image for depiction is
-     an <img class="clickable">.  Extracted src from this image (by brute force) to src substrate (paper) and
-     processed (canvas) image display.  Processed crop is done in JS via drawImage() rather than posting back
-     crop coordinates.
-
-     Next step will be to replace the simple large image control structure with the paper contol.  canvas placement TBD.
-     */
-
-
-    $.get("/images/<%= @result.depiction.image.id -%>/ocr/" + coord_string, function (data) {
-        $("#selected_text").html(data.text);
-    }, 'json');
-
-
-    function getBox() {
-        //  alert(boxX + ' | ' + boxY + ' | ' + boxW + ' | ' + boxH);
-        canvas = document.getElementById("selected_picture_canvas");
-        context = canvas.getContext('2d');
-        var destWidth;
-        var destHeight;
-        //          imageObject.src = document.getElementById('bigbox').children[0].children[0].src;
-        imageObject.src = $('#bigbox img').attr('src');
-        imageAspectRatio = imageObject.naturalWidth / imageObject.naturalHeight;
-        var ratio = imageObject.naturalWidth / paperWidth;
-        var sourceX = boxX * ratio;
-        var sourceY = boxY * ratio;
-        var sourceWidth = boxW * ratio;
-        var sourceHeight = boxH * ratio;
-        if (boxW >= boxH) {
-            destWidth = canvas.width;
-            destHeight = canvas.height * (boxH / boxW);
-        }
-        else {
-            destHeight = canvas.height;
-            destWidth = canvas.width * (boxW / boxH);
-        }
-        //        destWidth = canvas.width;          // was sourceWidth;
-        //        destHeight = canvas.height;         // was sourceHeight;
-        var destX = 0;          // was canvas.width / 2 - destWidth / 2;
-        var destY = 0;          // was canvas.height / 2 - destHeight / 2;
-        context.clearRect(0, 0, canvas.width, canvas.height);
-        context.drawImage(imageObject, sourceX, sourceY, sourceWidth, sourceHeight, destX, destY, destWidth, destHeight);
-
-        var coords = imageObject.src.split("/");
-
-        var x = Math.round(sourceX + Number(coords[6]));
-        var y = Math.round(sourceY + Number(coords[7]));
-        var w = Math.round(boxW * ratio);
-        var h = Math.round(boxH * ratio);
-
-        var coord_string = x + "/" + y + "/" + w + "/" + h;
-
-        // $("#selected_text").html("images/<%= @result.depiction.image.id -%>/ocr/" +  );
-
+function addSelectBox(paper) {
+  var changeCursor = function (e, mouseX, mouseY) {
+    // Don't change cursor during a drag operation
+    if (this.dragging === true) {
+      return;
     }
-    ;
+
+    // X,Y Coordinates relative to shape's orgin
+    var relativeX = mouseX - $('#paper').offset().left - this.attr('x');
+    var relativeY = mouseY - $('#paper').offset().top - this.attr('y');
+
+    var shapeWidth = this.attr('width');
+    var shapeHeight = this.attr('height');
+
+    var resizeBorder = 10;
+
+    // Change cursor
+    if (relativeX < resizeBorder && relativeY < resizeBorder) {
+      this.attr('cursor', 'nw-resize');
+    } else if (relativeX > shapeWidth - resizeBorder && relativeY < resizeBorder) {
+      this.attr('cursor', 'ne-resize');
+    } else if (relativeX > shapeWidth - resizeBorder && relativeY > shapeHeight - resizeBorder) {
+      this.attr('cursor', 'se-resize');
+    } else if (relativeX < resizeBorder && relativeY > shapeHeight - resizeBorder) {
+      this.attr('cursor', 'sw-resize');
+    } else {
+      this.attr('cursor', 'move');
+    }
+  };
+
+  var dragStart = function () {
+
+    // Save some starting values
+    this.ox = this.attr('x');
+    this.oy = this.attr('y');
+    this.ow = this.attr('width');
+    this.oh = this.attr('height');
+    //            boxX = this.ox;
+    //            boxY = this.oy;
+    //            boxW = this.ow;
+    //            boxH = this.oh;
+
+    this.dragging = true;
+  };
 
 
-    var set_select_box = function () {
-        if (document.getElementById('paper').getElementsByTagName('image') == undefined) {
-            return
-        }
-        $('#bigbox img').attr('hidden', 'hidden');
-        imageObject.src = $('#bigbox img').attr('src');
-        imageAspectRatio = imageObject.naturalWidth / imageObject.naturalHeight;
+  var dragMove = function (dx, dy) {
 
-        var dragStart = function () {
-
-            // Save some starting values
-            this.ox = this.attr('x');
-            this.oy = this.attr('y');
-            this.ow = this.attr('width');
-            this.oh = this.attr('height');
-            //            boxX = this.ox;
-            //            boxY = this.oy;
-            //            boxW = this.ow;
-            //            boxH = this.oh;
-
-            this.dragging = true;
-        };
-
-
-        var dragMove = function (dx, dy) {
-
-            // Inspect cursor to determine which resize/move process to use
+    // Inspect cursor to determine which resize/move process to use
             switch (this.attr('cursor')) {
 
                 case 'nw-resize' :
@@ -379,75 +309,164 @@ papers.push(p);
             this.dragging = false;
         };
 
-        var changeCursor = function (e, mouseX, mouseY) {
-            // Don't change cursor during a drag operation
-            if (this.dragging === true) {
-                return;
-            }
+        select_box = paper.add([
+            svg_box
+            ]);
+        select_box.mousemove(changeCursor)
+        select_box.drag(dragMove, dragStart, dragEnd);
+}; // end set_select_box
 
-            // X,Y Coordinates relative to shape's orgin
-            var relativeX = mouseX - $('#paper').offset().left - this.attr('x');
-            var relativeY = mouseY - $('#paper').offset().top - this.attr('y');
+function big_svg_coords() {
+  c = big_svg_image.attr('src').split("scale_to_box")[1].split("/");
+  return [Number(c[1]), Number(c[2]), Number(c[3]), Number(c[4])];
+};
 
-            var shapeWidth = this.attr('width');
-            var shapeHeight = this.attr('height');
+function getBox() {
 
-            var resizeBorder = 10;
+        //  alert(boxX + ' | ' + boxY + ' | ' + boxW + ' | ' + boxH);
+        canvas = document.getElementById("selected_picture_canvas");
+        context = canvas.getContext('2d');
 
-            // Change cursor
-            if (relativeX < resizeBorder && relativeY < resizeBorder) {
-                this.attr('cursor', 'nw-resize');
-            } else if (relativeX > shapeWidth - resizeBorder && relativeY < resizeBorder) {
-                this.attr('cursor', 'ne-resize');
-            } else if (relativeX > shapeWidth - resizeBorder && relativeY > shapeHeight - resizeBorder) {
-                this.attr('cursor', 'se-resize');
-            } else if (relativeX < resizeBorder && relativeY > shapeHeight - resizeBorder) {
-                this.attr('cursor', 'sw-resize');
-            } else {
-                this.attr('cursor', 'move');
-            }
-        };
+      //  var originalHeight = $("#original_image").naturalHeight();
+      //  var originalWidth = $("#original_image").naturalWidth();
 
+      //    var originalWidth = $("#original_image").naturalWidth();
+
+        var coords = big_svg_coords();
+        var destWidth;
+        var destHeight;
+        //  imageObject.src = $('#bigbox img').attr('src');
+        //  imageAspectRatio = imageObject.naturalWidth / imageObject.naturalHeight;
+      
+        imageAspectRatio = coords[2] / coords[3];
+        
+        var ratio = coords[2] / paperWidth;
+
+        var sourceX = (boxX * ratio) + coords[0];
+        var sourceY = (boxY * ratio) + coords[1];
+        var sourceWidth = boxW * ratio;
+        var sourceHeight = boxH * ratio;
+
+        if (boxW >= boxH) {
+            destWidth = coords[2];
+            destHeight = coords[3] * (boxH / boxW);
+
+            destWidth = coords[2]; //  z.width;
+            destHeight = coords[3] * (boxH / boxW);
+
+        }
+        else {
+            destHeight = coords[3];
+            destWidth =  coords[2] * (boxW / boxH);
+        }
+        //        destWidth = canvas.width;          // was sourceWidth;
+        //        destHeight = canvas.height;         // was sourceHeight;
+        var destX = 0;          // was canvas.width / 2 - destWidth / 2;
+        var destY = 0;          // was canvas.height / 2 - destHeight / 2;
+     //   z.clear();
+        //        context.clearRect(0, 0, z.width, z.height);
+     // alert([sourceX, sourceY, sourceWidth, sourceHeight]);
+//        z.image($("#original_image").attr('src'), 0, 0,  sourceWidth, sourceHeight ); 
+
+       // z.setViewBox(100, 100, 200, 200, true );
+       // z.canvas.drawImage($("#original_image").attr('src'), 0, 0, 100, 100, 0, 0, 200, 200);
+
+ //       context = z.canvas.parentElement.getContext('2d');
+ //  context = $(z.canvas).parent().getContext('2d');
+        var imageObject = new Image();
+        imageObject.src = $("#original_image").attr('src');
+        context.drawImage(imageObject, sourceX, sourceY, sourceWidth, sourceHeight, destX, destY, destWidth, destHeight);
+
+//        var coords = imageObject.src.split("/");
+
+  //    var x = Math.round(sourceX + coords[2]);
+  //    var y = Math.round(sourceY + coords[3]);
+  //    var w = Math.round(boxW * ratio);
+  //    var h = Math.round(boxH * ratio);
+
+  //    var coord_string = x + "/" + y + "/" + w + "/" + h;
+
+        // $("#selected_text").html("images/<%= @result.depiction.image.id -%>/ocr/" +  );
+
+    }
+    ;
+
+
+
+    /*
+     Integration of selction box into depiction issues
+     Image()<HTMLImageElement> for selection is contained in a <canvas>, whereas large image for depiction is
+     an <img class="clickable">.  Extracted src from this image (by brute force) to src substrate (paper) and
+     processed (canvas) image display.  Processed crop is done in JS via drawImage() rather than posting back
+     crop coordinates.
+
+     Next step will be to replace the simple large image control structure with the paper contol.  canvas placement TBD.
+     */
+ // $.get("/images/<%= @result.depiction.image.id -%>/ocr/" + coord_string, function (data) {
+ //     $("#selected_text").html(data.text);
+ // }, 'json');
+   
+
+//  var set_select_box = function () {
+//      if (document.getElementById('paper').getElementsByTagName('image') == undefined) {
+//          return
+//      }
+//      $('#bigbox img').attr('hidden', 'hidden');
+//      imageObject.src = $('#bigbox img').attr('src');
+//      imageAspectRatio = imageObject.naturalWidth / imageObject.naturalHeight;
 
 // Create drawing area, clearing previous <svg> content
-        if (paper != undefined) {
-            paper.canvas.parentNode.removeChild(paper.canvas);
-        } // clear existing <svg>
-        paper = Raphael("paper", paperWidth, paperHeight);
-        paper.image($('#bigbox img').attr('src'),
-                0, 0, paperWidth, paperHeight / imageAspectRatio);
+//      if (paper != undefined) {
+//          paper.canvas.parentNode.removeChild(paper.canvas);
+//      } // clear existing <svg>
+//      paper = Raphael("paper", paperWidth, paperHeight);
+//      paper.image($('#bigbox img').attr('src'),
+//              0, 0, paperWidth, paperHeight / imageAspectRatio);
 // Add a rectangle
-        var shapes = paper.add([{
-            'type': 'rect',
-            'x': 0,
-            'y': 0,
-            'width': 50,
-            'height': 50,
-            'fill': '#ffffff',
-            'stroke': '#000000',
-            'stroke-width': 1,
-            'opacity': 0.4
-        }]);
-        boxX = shapes[0].node.attributes.x.value;
-        boxY = shapes[0].node.attributes.y.value;
-        boxW = shapes[0].node.attributes.width.value;
-        boxH = shapes[0].node.attributes.height.value;
+//      var shapes = paper.add([{
+//          'type': 'rect',
+//          'x': 0,
+//          'y': 0,
+//          'width': 50,
+//          'height': 50,
+//          'fill': '#ffffff',
+//          'stroke': '#000000',
+//          'stroke-width': 1,
+//          'opacity': 0.4
+//      }]);
+//      boxX = shapes[0].node.attributes.x.value;
+//      boxY = shapes[0].node.attributes.y.value;
+//      boxW = shapes[0].node.attributes.width.value;
+//      boxH = shapes[0].node.attributes.height.value;
 // Attach "Mouse Over" handler to rectangle
-        shapes[0].mousemove(changeCursor);
+//      shapes[0].mousemove(changeCursor);
 
 // Attach "Drag" handlers to rectangle
-        shapes[0].drag(dragMove, dragStart, dragEnd);
+//      shapes[0].drag(dragMove, dragStart, dragEnd);
 
-    };
+//  };
 
-    set_select_box();
+<% @result.image_sections.each do |section| -%>
+  $.get("<%= @result.ocr_path_for(section) -%>", function (data) {
+      $("#text_for_<%= section -%>").val(data.text);
+      }, 'json'
+      );
+<% end %>
 
-    <% @result.image_sections.each do |section| -%>
-    $.get("<%= @result.ocr_path_for(section) -%>", function (data) {
-                $("#text_for_<%= section -%>").val(data.text);
-            }, 'json'
-    );
-    <% end %>
+
+
+$('#getBox').on('click', function(click) {
+  getBox();
+  })
+;
+
+
+$('#setBox').on('click', function() {
+  addSelectBox();
+  })
+;
+
+
 </script>
 <!--<script>  $(document).ready(set_select_box()); </script>-->
 

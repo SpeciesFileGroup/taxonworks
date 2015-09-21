@@ -78,15 +78,15 @@ module SqedToTaxonworks
     end
 
     def image_path_for_large_image(layout_section_type)
-      height = (c[3].to_f / (c[2].to_f / 400)).to_i
-
       c = coords_for(layout_section_type) 
-      "/images/#{depiction.image.id}/scale_to_box/#{c[0]}/#{c[1]}/400/#{height}/400/400"
+#      height = (c[3].to_f / (c[2].to_f / 400)).to_i
+
+      "/images/#{depiction.image.id}/scale_to_box/#{c[0]}/#{c[1]}/#{c[2]}/#{c[3]}/400/400"
     end
 
     def image_path_for_small_image(layout_section_type)
       c = coords_for(layout_section_type) 
-      "/images/#{depiction.image.id}/scale_to_box/#{c[0]}/#{c[1]}/#{c[2]}/#{c[3]}"
+      "/images/#{depiction.image.id}/scale_to_box/#{c[0]}/#{c[1]}/#{c[2]}/#{c[3]}/150/150"
     end
 
     def ocr_path_for(layout_section_type)
