@@ -353,7 +353,7 @@ class Source::Bibtex < Source
                         if: '!month.blank? || !stated_year.blank?',
                         message: 'year is required when month or stated_year is provided'
 
-  # @todo : refactor out date validation methods so that they can be unified (TaxonDetermination, CollectingEvent)
+  # @todo refactor out date validation methods so that they can be unified (TaxonDetermination, CollectingEvent)
   validates_numericality_of :year,
                             only_integer: true, greater_than: 999,
                             less_than_or_equal_to: Time.now.year + 2,
@@ -458,7 +458,7 @@ class Source::Bibtex < Source
   # @param type [String] either author or editor
   # @return [String]
   #   the bibtex version of the name strings created from the TW people
-  # !! TODO: this is an and b/w all people for > 1 person, likely not correct
+  # @todo this is an and b/w all people for > 1 person, likely not correct
   def compute_bibtex_names(type)
     method = type
     methods = type + 's'
@@ -490,11 +490,11 @@ class Source::Bibtex < Source
   # 
   # @param bibtex_entry [BibTex::Entry] the BibTex::Entry to convert 
   # @return [Source::BibTex.new] a new instance
-  # @TODO annote to project specific note?
-  # @TODO if it finds one & only one match for serial assigns the serial ID, and if not it just store in journal title
+  # @todo annote to project specific note?
+  # @todo if it finds one & only one match for serial assigns the serial ID, and if not it just store in journal title
   # serial with alternate_value on name .count = 1 assign .first
   # before validate assign serial if matching & not doesn't have a serial currently assigned.
-  # @TODO if there is an ISSN it should look up to see it the serial already exists.
+  # @todo if there is an ISSN it should look up to see it the serial already exists.
   def self.new_from_bibtex(bibtex_entry = nil)
 
     return false if !bibtex_entry.kind_of?(::BibTeX::Entry)
@@ -572,7 +572,7 @@ class Source::Bibtex < Source
         suffix: bibtex_author.suffix)
   end
 
-  # @TODO create related Serials
+  # @todo create related Serials
 
   #endregion  ruby-bibtex related
 
@@ -664,7 +664,7 @@ class Source::Bibtex < Source
     identifier_string_of_type(:doi)
   end
 
-  # @TODO: Are ISSN only Serials now? Maybe - the raw bibtex source may come in with an ISSN in which case
+  # @todo Are ISSN only Serials now? Maybe - the raw bibtex source may come in with an ISSN in which case
   # we need to set the serial based on ISSN.
   def issn=(value)
     write_attribute(:issn, value)
@@ -694,7 +694,7 @@ class Source::Bibtex < Source
     URI(self.url) unless self.url.blank?
   end
 
-  # aTODO: Turn this into a has_one relationship
+  # @todo Turn this into a has_one relationship
   def identifier_string_of_type(type)
     # This relies on the identifier class to enforce a single version of any identifier
     identifiers = self.identifiers.of_type(type)
@@ -703,7 +703,7 @@ class Source::Bibtex < Source
 
   #endregion identifiers
 
-  # @TODO if language is set => set language_id
+  # @todo if language is set => set language_id
   # def language=(value)
   #
   # end
@@ -755,7 +755,7 @@ class Source::Bibtex < Source
     self.cached_nomenclature_date = Utilities::Dates.nomenclature_date(self.day, self.month, self.year)
   end
 
-  #todo move the test for nomenclature_date to spec/lib/utilities/dates_spec.rb
+  # @todo move the test for nomenclature_date to spec/lib/utilities/dates_spec.rb
 
   #endregion    time/date related
 
