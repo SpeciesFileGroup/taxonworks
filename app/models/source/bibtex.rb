@@ -229,6 +229,8 @@ require 'csl/styles'
 # @!attribute language
 #   @return [String]
 #   @todo
+#   BibTeX field for the name of the language used. This value is translated into the TW language_id.
+
 #
 # @!attribute stated_year
 #   @return [String]
