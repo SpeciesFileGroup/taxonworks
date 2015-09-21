@@ -23,6 +23,11 @@
         <td><%= name_at_rank_string(c_o, :family) %></td>
         <td><%= name_at_rank_string(c_o, :genus) %></td>
         <td><%= name_at_rank_string(c_o, :species) %></td>
+        <% parse_names(c_o) -%>
+        <td><%= @geo_names[0] %></td>
+        <td><%= @geo_names[1] %></td>
+        <td><%= @geo_names[2] %></td>
+        <td><%= c_o.collecting_event.verbatim_locality %></td>
       </tr>
   <% end %>
   </tbody>

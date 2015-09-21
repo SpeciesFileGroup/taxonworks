@@ -732,6 +732,28 @@ class CollectingEvent < ActiveRecord::Base
     end
   end
 
+  def names
+    @geo_names = []
+    unless geographic_area.nil?
+      @geo_names = geographic_area.ancestors.map(&:name)
+      @geo_names.push(geographic_area.name)
+      @geo_names.delete('Earth')
+    end
+    @geo_names
+  end
+
+  def country
+    @geo_names[0]
+  end
+
+  def state
+    @geo_names[1]
+  end
+
+  def county
+    @geo_names[2]
+  end
+
   # @return [String]
   #   coordinates for centering a Google map
   def verbatim_center_coordinates
@@ -853,10 +875,6 @@ class CollectingEvent < ActiveRecord::Base
         if self.geographic_area.geographic_items.count == 0
           name = self.geographic_area.name
         else
-          names = geographic_area.ancestors.map(&:name)
-          names.push(geographic_area.name)
-          # name = [country_name, state_name, county_name].compact.join(", ")
-          names.delete('Earth')
           name = names.compact.join(', ')
         end
       end

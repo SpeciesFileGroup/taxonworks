@@ -208,7 +208,7 @@ are located within the geographic item supplied
   def self.in_geographic_item(geographic_item_id)
     gi     = GeographicItem.find(geographic_item_id)
     # find the geographic_items inside gi
-    step_1 = GeographicItem.is_contained_by('any', gi)    # .pluck(:id)
+    step_1 = GeographicItem.is_contained_by('any', gi) # .pluck(:id)
 
 =begin
     step_1 = GeographicItem.is_contained_by('any', gi).include(georeference: {collecting_events: [ :collection_objects ] })    # .pluck(:id)
@@ -216,9 +216,9 @@ are located within the geographic item supplied
 
 
     # find the georeferences from the geographic_items
-    step_2 = step_1.map(&:georeferences).flatten
+    step_2 = step_1.map(&:georeferences).uniq.flatten
     # find the collecting events connected to the georeferences
-    step_3 = step_2.map(&:collecting_event)
+    step_3 = step_2.map(&:collecting_event).uniq.flatten
     # find the collection objects associated with the collecting events
     step_4 = step_3.map(&:collection_objects).flatten.map(&:id).uniq
     retval = CollectionObject.where(id: step_4)

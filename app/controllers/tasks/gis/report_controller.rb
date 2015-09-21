@@ -8,9 +8,9 @@ class Tasks::Gis::ReportController < ApplicationController
   end
 
   def location_report_list
-    ga = GeographicArea.find(params[:geographic_area_id])
-    if ga.has_shape?
-      @collection_objects = CollectionObject.in_geographic_item(ga.default_geographic_item)
+    @geographic_area = GeographicArea.find(params[:geographic_area_id])
+    if @geographic_area.has_shape?
+      @collection_objects = CollectionObject.in_geographic_item(@geographic_area.default_geographic_item)
     else
       @collection_objects = CollectionObject.where('false')
     end

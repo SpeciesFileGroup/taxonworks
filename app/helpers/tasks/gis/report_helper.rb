@@ -2,21 +2,25 @@ module Tasks::Gis::ReportHelper
 
   # decode which headers to be displayed for collecting events
   def ce_attrib_headers
-    "<th>CE headers</th>"
+    "<th>CE data attributes</th>"
   end
 
   # decode which headers to be displayed for collection objects
   def co_attrib_headers
-    "<th>CO headers</th>"
+    "<th>CO data attributes</th>"
   end
 
   # decode which headers to be displayed for biocurational classifications
   def bc_headers
-    "<th>BC headers</th>"
+    "<th>BC data attributes</th>"
   end
 
   def otu_headers
 
+  end
+
+  def parse_names(collection_object)
+    @geo_names = collection_object.collecting_event.names
   end
 
   def get_otu(collection_object)
