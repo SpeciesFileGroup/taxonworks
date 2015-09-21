@@ -743,15 +743,26 @@ class CollectingEvent < ActiveRecord::Base
   end
 
   def country
+    names if @geo_names.nil?
     @geo_names[0]
   end
 
   def state
+    names if @geo_names.nil?
     @geo_names[1]
   end
 
   def county
+    names if @geo_names.nil?
     @geo_names[2]
+  end
+
+  def georeference_latitude
+
+  end
+
+  def georegerencve_longitude
+
   end
 
   # @return [String]

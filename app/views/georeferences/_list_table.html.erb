@@ -33,7 +33,7 @@
         <td><%= georeference.error_geographic_item_id %></td>
         <td><%= georeference.method_name %></td>
         <td><%= object_tag(georeference.source) %></td>
-        <td><%= georeference.position %></td>
+        <td><%= "CE:#{georeference.collecting_event.id}, pos:#{georeference.position}" %></td>
         <td><%= georeference.is_public %></td>
         <td><%= georeference.api_request %></td>
         <td><%= georeference.updated_at %></td>
@@ -42,7 +42,7 @@
         <td><%= georeference.is_median_z %></td>
         <td><%= link_to 'Show', georeference.metamorphosize %></td>
         <td><%= content_tag(:em, 'Edit', class: :disabled) -%></td>
-        <td><%= link_to 'Destroy', georeference.metamorphosize, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        <td><%= link_to 'Destroy', georeference.metamorphosize, method: :delete, data: {confirm: 'Are you sure?'} %></td>
       </tr>
   <% end %>
   </tbody>

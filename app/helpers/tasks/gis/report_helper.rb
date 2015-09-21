@@ -7,6 +7,7 @@ module Tasks::Gis::ReportHelper
 
   # decode which headers to be displayed for collection objects
   def co_attrib_headers
+    co_headers = @collection_objects
     "<th>CO data attributes</th>"
   end
 

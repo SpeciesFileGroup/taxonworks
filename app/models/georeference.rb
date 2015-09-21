@@ -71,7 +71,7 @@ class Georeference < ActiveRecord::Base
 
   attr_accessor :iframe_response # used to pass the geolocate from Tulane through
 
-  acts_as_list scope: [:collecting_event]
+  acts_as_list scope: [:collecting_event_id]
 
   belongs_to :error_geographic_item, class_name: 'GeographicItem', foreign_key: :error_geographic_item_id
   belongs_to :collecting_event
