@@ -355,7 +355,6 @@
         context.clearRect(0, 0, canvas.width, canvas.height);
         context.drawImage(imageObject, sourceX, sourceY, sourceWidth, sourceHeight, destX, destY, destWidth, destHeight);
 
-
         var x = Math.round(sourceX + coords[2]);
         var y = Math.round(sourceY + coords[3]);
         var w = Math.round(boxW * ratio);
@@ -363,13 +362,13 @@
 
         var coord_string = x + "/" + y + "/" + w + "/" + h;
 
-        var ocr_string = "images/<%= @result.depiction.image.id -%>/ocr/" + coord_string;
+        var ocr_string = "/images/<%= @result.depiction.image.id -%>/ocr/" + coord_string;
         $("#selected_text").html(ocr_string);
 
-      //$.get(ocr_string, function (data) {
-      //    $("#selected_text").val(data.text);
-      //    }, 'json'
-      //    );
+   // $.get(ocr_string, function (data) {
+   //     $("#selected_text").val(data.text);
+   //     }, 'json'
+   //     );
 
 
 
