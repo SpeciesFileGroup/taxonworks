@@ -4,6 +4,7 @@
 # the verbatim source is no longer available.
 #
 # @!attribute verbatim
+#   @return [String]
 #   This is the only valid attribute of Source::Verbatim. It is the verbatim representation of the source.
 #
 class Source::Verbatim < Source
