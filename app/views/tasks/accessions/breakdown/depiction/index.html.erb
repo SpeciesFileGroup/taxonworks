@@ -44,7 +44,7 @@
       <div class="side_by_side_fields">
         <% @result.image_sections.each do |section| -%>
             <div class="field">
-              <%= label_tag section %><br>
+              <%= label_tag section %><%= button_tag 'Append OCR', id: "btn_append_#{section}", class: "append_ocr" -%><br>
               <%= text_area_tag(section, "calculating...", id: "text_for_#{section}") %>
             </div>
         <% end %>
@@ -420,6 +420,15 @@
     })
     ;
 
+    $(".append_ocr").on('click', function(click) {
+        var this_target = this.id.split("btn_append_");
+        this_target[0] = "#text_for_" + this_target[1];
+        $(this_target[0]).val(( $(this_target[0]).val() + $("#selected_text").html()));
+    });
+//    $("#btn_append_annotated_specimen").on('click', function(click) {
+//        var this_target = this.id.split("btn_append_");
+//        $("#text_for_annotated_specimen").append( $("#selected_text").html());
+//    });
 
 </script>
 <!--<script>  $(document).ready(set_select_box()); </script>-->
