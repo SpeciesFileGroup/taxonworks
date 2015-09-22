@@ -26,9 +26,9 @@
         <div id="paper"></div>
       </div>
 
-      <div id="debug_box">debug</div>
+      <div id="debug_box" hidden="hidden" >debug</div>
 
-      <div id="selected_text">foo</div>
+      <div id="selected_text">( decoded text appears here )</div>
 
       <div id="selected_picture">
         <canvas id="selected_picture_canvas" height="400" width="400"></canvas>
@@ -180,10 +180,10 @@
     var boxW;
     var boxH;
 
-//  var sourceX;
-//  var sourceY;
-//  var sourceWidth;
-//  var sourceHeight;
+  var sourceX;
+  var sourceY;
+  var sourceWidth;
+  var sourceHeight;
 
     var svg_box = {
         'type': 'rect',
@@ -332,33 +332,29 @@
         context = canvas.getContext('2d');
 
         var coords = big_svg_coords();
-        var destWidth;
-        var destHeight;
+        var destWidth;                  // NOTE:  destWidth and destHeight are
+        var destHeight;                 // coincidentally the same as paperWidth/Height
 
         imageAspectRatio = coords[2] / coords[3];
 
         var ratioW = coords[2] / paperWidth;
         var ratioH = coords[3] / paperHeight;
 
-//        var sourceX = (boxX * ratio) + coords[0];
-//        var sourceY = (boxY * ratio) + coords[1];
-       var sourceX = Math.round((boxX * ratioW) + coords[0]);
-       var sourceY = Math.round((boxY * ratioH * imageAspectRatio) + coords[1]);
-       var sourceWidth = Math.round(boxW * ratioW);
-       var sourceHeight = Math.round(boxH * ratioH * imageAspectRatio);
-        //        sourceWidth = boxW;
-//        sourceHeight = boxH
+       sourceX = Math.round((boxX * ratioW) + coords[0]);
+       sourceY = Math.round((boxY * ratioH * imageAspectRatio) + coords[1]);
+       sourceWidth = Math.round(boxW * ratioW);
+       sourceHeight = Math.round(boxH * ratioH * imageAspectRatio);
 
         if (boxW >= boxH) {         // destination width should equal canvas.width
             destWidth = coords[2] / ratioW;
             destHeight = coords[3] * (boxH / boxW) / ratioH;
             destHeight = coords[3] / ratioW * (boxH / boxW) * imageAspectRatio;
-            destHeight = (boxH / boxW) * destWidth;     // dependent width assuming 1:1 ratio
+            destHeight = (boxH / boxW) * destWidth;     // dependent width assuming 1:1 pixel ratio
            }
         else {                      // destination height should equal canvas.height
             destHeight = coords[3] / ratioH;
             destWidth = coords[2] * (boxW / boxH) / ratioW;
-            destWidth = (boxW / boxH) * destHeight;     // dependent height assuming 1:1 ratio
+            destWidth = (boxW / boxH) * destHeight;     // dependent height assuming 1:1 pixel ratio
         }
         
         var destX = 0;          // was canvas.width / 2 - destWidth / 2;
@@ -368,17 +364,17 @@
         context.clearRect(0, 0, canvas.width, canvas.height);
         context.drawImage(imageObject, sourceX, sourceY, sourceWidth, sourceHeight, destX, destY, destWidth, destHeight);
 
-        $('#debug_box').html(boxX + "|" + boxY + "|" + boxW + "|" + boxH + "-" + sourceX + "|" + sourceY + "|" + sourceWidth + "|" + sourceHeight );
+//        $('#debug_box').html(boxX + "|" + boxY + "|" + boxW + "|" + boxH + "-" + sourceX + "|" + sourceY + "|" + sourceWidth + "|" + sourceHeight );
 
     }
     ;
 
-//  <% @result.image_sections.each do |section| -%>
-//  $.get("<%= @result.ocr_path_for(section) -%>", function (data) {
-//              $("#text_for_<%= section -%>").val(data.text);
-//          }, 'json'
-//  );
-//  <% end %>
+  <% @result.image_sections.each do |section| -%>
+  $.get("<%= @result.ocr_path_for(section) -%>", function (data) {
+              $("#text_for_<%= section -%>").val(data.text);
+          }, 'json'
+  );
+  <% end %>
 
     function ocr_selection() {
 //    var coords = big_svg_coords();
@@ -393,7 +389,7 @@
       $("#selected_text").html(ocr_string);
 
        $.get(ocr_string, function (data) {
-           $("#selected_text").val(data.text);
+           $("#selected_text").html(data.text);
            }, 'json'
            );
 
