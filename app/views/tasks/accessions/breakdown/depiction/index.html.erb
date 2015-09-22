@@ -19,16 +19,16 @@
     <div id="extracted_images">
 
       <%= button_tag 'OCR selection', id: "ocr_selection" -%>
- 
+
       <%= link_to('image', image_path(@result.depiction.image)) -%>
 
       <div id="bigbox">
         <div id="paper"></div>
       </div>
 
-      <div id="debug_box" hidden="hidden" >debug</div>
+      <div id="debug_box" hidden="hidden">debug</div>
 
-      <div id="selected_text">( decoded text appears here )</div>
+      <div id="selected_text"></div>
 
       <div id="selected_picture">
         <canvas id="selected_picture_canvas" height="400" width="400"></canvas>
@@ -170,20 +170,20 @@
     var paper;
     var paperWidth = 400;
     var paperHeight = 400;
-    
+
     var select_box;
     var big_svg_image;
 
     // current position of the select box
-    var boxX;
-    var boxY;
-    var boxW;
-    var boxH;
+    var boxX = 0;
+    var boxY = 0;
+    var boxW = 50;
+    var boxH = 50;
 
-  var sourceX;
-  var sourceY;
-  var sourceWidth;
-  var sourceHeight;
+    var sourceX;
+    var sourceY;
+    var sourceWidth;
+    var sourceHeight;
 
     var svg_box = {
         'type': 'rect',
@@ -199,14 +199,17 @@
 
     var p;
     p = Raphael("paper", paperWidth, paperHeight);
-    
+
     big_svg_image = p.image("<%= @result.image_path_for_large_image(@result.primary_image) -%>", <%= @result.large_dimensions_for(@result.primary_image) -%>);
     addSelectBox(p);
+    getBox();
 
     $('.clickable').on('click', function (click) {
         p.clear();
         big_svg_image = p.image(click.currentTarget.src, 0, 0, click.currentTarget.naturalWidth, click.currentTarget.naturalHeight);
         addSelectBox(p);
+        getBox();
+        initDecodedText();
     });
 
     function addSelectBox(paper) {
@@ -340,23 +343,23 @@
         var ratioW = coords[2] / paperWidth;
         var ratioH = coords[3] / paperHeight;
 
-       sourceX = Math.round((boxX * ratioW) + coords[0]);
-       sourceY = Math.round((boxY * ratioH * imageAspectRatio) + coords[1]);
-       sourceWidth = Math.round(boxW * ratioW);
-       sourceHeight = Math.round(boxH * ratioH * imageAspectRatio);
+        sourceX = Math.round((boxX * ratioW) + coords[0]);
+        sourceY = Math.round((boxY * ratioH * imageAspectRatio) + coords[1]);
+        sourceWidth = Math.round(boxW * ratioW);
+        sourceHeight = Math.round(boxH * ratioH * imageAspectRatio);
 
         if (boxW >= boxH) {         // destination width should equal canvas.width
             destWidth = coords[2] / ratioW;
             destHeight = coords[3] * (boxH / boxW) / ratioH;
             destHeight = coords[3] / ratioW * (boxH / boxW) * imageAspectRatio;
             destHeight = (boxH / boxW) * destWidth;     // dependent width assuming 1:1 pixel ratio
-           }
+        }
         else {                      // destination height should equal canvas.height
             destHeight = coords[3] / ratioH;
             destWidth = coords[2] * (boxW / boxH) / ratioW;
             destWidth = (boxW / boxH) * destHeight;     // dependent height assuming 1:1 pixel ratio
         }
-        
+
         var destX = 0;          // was canvas.width / 2 - destWidth / 2;
         var destY = 0;          // was canvas.height / 2 - destHeight / 2;
 
@@ -369,12 +372,12 @@
     }
     ;
 
-  <% @result.image_sections.each do |section| -%>
-  $.get("<%= @result.ocr_path_for(section) -%>", function (data) {
-              $("#text_for_<%= section -%>").val(data.text);
-          }, 'json'
-  );
-  <% end %>
+    <% @result.image_sections.each do |section| -%>
+    $.get("<%= @result.ocr_path_for(section) -%>", function (data) {
+                $("#text_for_<%= section -%>").val(data.text);
+            }, 'json'
+    );
+    <% end %>
 
     function ocr_selection() {
 //    var coords = big_svg_coords();
@@ -384,17 +387,24 @@
 //    var w = Math.round(boxW * ratio);
 //    var h = Math.round(boxH * ratio);
 
-      var coord_string = Math.round(sourceX) + "/" + Math.round(sourceY) + "/" + Math.round(sourceWidth) + "/" + Math.round(sourceHeight);
-      var ocr_string = "/images/<%= @result.depiction.image.id -%>/ocr/" + coord_string;
-      $("#selected_text").html(ocr_string);
+        var coord_string = Math.round(sourceX) + "/" + Math.round(sourceY) + "/" + Math.round(sourceWidth) + "/" + Math.round(sourceHeight);
+        var ocr_string = "/images/<%= @result.depiction.image.id -%>/ocr/" + coord_string;
+        $("#selected_text").html(ocr_string);
 
-       $.get(ocr_string, function (data) {
-           $("#selected_text").html(data.text);
-           }, 'json'
-           );
+        $.get(ocr_string, function (data) {
+                    if (data.text.length > 0) {
+                        $("#selected_text").html(data.text);
+                    }
+                    else {
+                        $("#selected_text").append(' FAILED');
+                    }
+                }, 'json'
+        );
 
 
-
+    }
+    function initDecodedText() {
+        $("#selected_text").html('( decoded text appears here )');
     }
 
     $('#ocr_selection').on('click', function (click) {
