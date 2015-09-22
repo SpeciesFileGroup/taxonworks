@@ -26,6 +26,8 @@
         <div id="paper"></div>
       </div>
 
+      <div id="debug_box">debug</div>
+
       <div id="selected_text">foo</div>
 
       <div id="selected_picture">
@@ -178,10 +180,10 @@
     var boxW;
     var boxH;
 
-    var sourceX;
-    var sourceY;
-    var sourceWidth;
-    var sourceHeight;
+//  var sourceX;
+//  var sourceY;
+//  var sourceWidth;
+//  var sourceHeight;
 
     var svg_box = {
         'type': 'rect',
@@ -196,7 +198,8 @@
     };
 
     var p;
-    p = Raphael("paper", <%= @result.large_height_width(@result.primary_image) -%>);
+    p = Raphael("paper", paperWidth, paperHeight);
+    
     big_svg_image = p.image("<%= @result.image_path_for_large_image(@result.primary_image) -%>", <%= @result.large_dimensions_for(@result.primary_image) -%>);
     addSelectBox(p);
 
@@ -339,18 +342,18 @@
 
 //        var sourceX = (boxX * ratio) + coords[0];
 //        var sourceY = (boxY * ratio) + coords[1];
-        sourceX = (boxX * ratioW) + coords[0];
-        sourceY = (boxY * ratioH) + coords[1];
-        sourceWidth = boxW * ratioW;
-        sourceHeight = boxH * ratioH;
+       var sourceX = (boxX * ratioW) + coords[0];
+       var sourceY = (boxY * ratioH) + coords[1];
+       var sourceWidth = boxW * ratioW;
+       var sourceHeight = boxH * ratioH;
         //        sourceWidth = boxW;
 //        sourceHeight = boxH
 
         if (boxW >= boxH) {         // destination width should equal canvas.width
             destWidth = coords[2] / ratioW;
-            destHeight = coords[3] * (boxH / boxW) / ratioH;     // wrong, forgets imageAspectRatio
+         //  destHeight = coords[3] * (boxH / boxW) / ratioH;     // wrong, forgets imageAspectRatio
             destHeight = coords[3] / ratioW * (boxH / boxW) * imageAspectRatio;
-            destHeight = (boxH / boxW) * destWidth;     // dependent width assuming 1:1 ratio
+         //  destHeight = (boxH / boxW) * destWidth;     // dependent width assuming 1:1 ratio
            }
         else {                      // destination height should equal canvas.height
             destHeight = coords[3] / ratioH;
@@ -364,15 +367,18 @@
         imageObject.src = $("#original_image").attr('src');
         context.clearRect(0, 0, canvas.width, canvas.height);
         context.drawImage(imageObject, sourceX, sourceY, sourceWidth, sourceHeight, destX, destY, destWidth, destHeight);
+
+        $('#debug_box').html(boxX + "|" + boxY + "|" + boxW + "|" + boxH + "-" + sourceX + "|" + sourceY + "|" + sourceWidth + "|" + sourceHeight );
+
     }
     ;
 
-    <% @result.image_sections.each do |section| -%>
-    $.get("<%= @result.ocr_path_for(section) -%>", function (data) {
-                $("#text_for_<%= section -%>").val(data.text);
-            }, 'json'
-    );
-    <% end %>
+//  <% @result.image_sections.each do |section| -%>
+//  $.get("<%= @result.ocr_path_for(section) -%>", function (data) {
+//              $("#text_for_<%= section -%>").val(data.text);
+//          }, 'json'
+//  );
+//  <% end %>
 
     function ocr_selection() {
 //    var coords = big_svg_coords();
