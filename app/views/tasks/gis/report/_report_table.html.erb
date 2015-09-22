@@ -27,7 +27,8 @@
         <td><%= c_o.collecting_event.state %></td>
         <td><%= c_o.collecting_event.county %></td>
         <td><%= c_o.collecting_event.verbatim_locality %></td>
-        <td></td>
+        <td><%= c_o.collecting_event.georeference_latitude %></td>
+        <td><%= c_o.collecting_event.georeference_longitude %></td>
       </tr>
   <% end %>
   </tbody>

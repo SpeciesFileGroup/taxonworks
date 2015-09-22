@@ -2,22 +2,39 @@ module Tasks::Gis::ReportHelper
 
   # decode which headers to be displayed for collecting events
   def ce_attrib_headers
-    "<th>CE data attributes</th>"
+    if nil
+      "<th>CE data attributes</th>"
+    else
+      ''
+    end
   end
 
   # decode which headers to be displayed for collection objects
   def co_attrib_headers
-    co_headers = @collection_objects
-    "<th>CO data attributes</th>"
+    co_headers = @collection_objects.map(&:data_attributes).flatten.map(&:predicate).map(&:name).uniq.sort
+    retval     = ''
+    co_headers.each { |header|
+      retval += "<th>#{header}</th>\n"
+    }
+    retval
   end
 
   # decode which headers to be displayed for biocurational classifications
   def bc_headers
-    "<th>BC data attributes</th>"
+    if nil
+      "<th>BC data attributes</th>"
+    else
+      ''
+    end
   end
 
   def otu_headers
 
+  end
+
+  def georeferences
+    retval = @collection_objects.map(&:collecting_event).uniq.map(&:georeferences).flatten
+    retval.push(@geographic_area)
   end
 
   def parse_names(collection_object)

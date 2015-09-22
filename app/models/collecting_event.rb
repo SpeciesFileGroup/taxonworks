@@ -758,11 +758,20 @@ class CollectingEvent < ActiveRecord::Base
   end
 
   def georeference_latitude
-
+    retval = '0.0'
+    if georeferences.count > 0
+      retval = Georeference.where(collecting_event_id: self.id).order(:position).limit(1)[0].latitude
+      # retval = georeferences.first?.latitude
+    end
+    retval
   end
 
-  def georegerencve_longitude
-
+  def georeference_longitude
+    retval = 0.0
+    if georeferences.count > 0
+      retval = Georeference.where(collecting_event_id: self.id).order(:position).limit(1)[0].longitude
+    end
+    retval
   end
 
   # @return [String]

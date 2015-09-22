@@ -160,6 +160,14 @@ class Georeference < ActiveRecord::Base
     )
   end
 
+  def latitude
+    geographic_item.center_coords[1]
+  end
+
+  def longitude
+    geographic_item.center_coords[0]
+  end
+
   # TODO: parametrize to include gazeteer
   #   i.e. geographic_areas_geogrpahic_items.where( gaz = 'some string')
   def to_simple_json_feature

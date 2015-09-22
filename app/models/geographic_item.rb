@@ -41,7 +41,7 @@ class GeographicItem < ActiveRecord::Base
   attr_accessor :geometry
   attr_accessor :shape
 
-  LAT_LON_REGEXP = Regexp.new(/(?<lat>-?\d+\.?\d*),?\s*(?<lon>-?\d+\.?\d*)/)
+  LAT_LON_REGEXP = Regexp.new(/(?<lon>-?\d+\.?\d*),?\s*(?<lat>-?\d+\.?\d*)/)
 
   DATA_TYPES = [:point,
                 :line_string,
@@ -173,14 +173,15 @@ class GeographicItem < ActiveRecord::Base
   # @return [String]
   #   a WKT POINT representing the centroid of the geographic item
   def st_centroid
-    GeographicItem.where(id: self.to_param).pluck("ST_AsEWKT(ST_Centroid(#{self.geo_object_type}::geometry))").first.gsub(/SRID=\d*;/, '')
+    retval = GeographicItem.where(id: self.to_param).pluck("ST_AsEWKT(ST_Centroid(#{self.geo_object_type}::geometry))").first.gsub(/SRID=\d*;/, '')
+    retval
   end
 
   # @return [Array]
   #   the lat, long, as STRINGs for the centroid of this geographic item
   def center_coords
     result = st_centroid.match(LAT_LON_REGEXP)
-    [result['lat'], result['lon']]
+    [result['lon'], result['lat']]
   end
 
   # @return [String]
