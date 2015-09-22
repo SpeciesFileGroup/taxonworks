@@ -240,7 +240,7 @@
             } else {
                 this.attr('cursor', 'move');
             }
-            getBox();
+//            getBox();     // relocated to drag end function
         };
 
         var dragStart = function () {
@@ -312,11 +312,14 @@
 
         var dragEnd = function () {
             this.dragging = false;
+            getBox();               // when box drag or sizing stops, get the box data
         };
 
         select_box = paper.add([
             svg_box
         ]);
+
+//        select_box.mouseup(selectRectangle());
         select_box.mousemove(changeCursor)
         select_box.drag(dragMove, dragStart, dragEnd);
     }
