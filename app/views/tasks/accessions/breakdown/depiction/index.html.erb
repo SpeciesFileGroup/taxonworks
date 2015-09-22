@@ -18,16 +18,15 @@
   <div class="item item2">
     <div id="extracted_images">
 
+      <%= button_tag 'OCR selection', id: "ocr_selection" -%>
  
-      <input type="button" id="getBox" value="SELECT">
-
       <%= link_to('image', image_path(@result.depiction.image)) -%>
 
       <div id="bigbox">
         <div id="paper"></div>
       </div>
 
-      <div id="selected_text"></div>
+      <div id="selected_text">foo</div>
 
       <div id="selected_picture">
         <canvas id="selected_picture_canvas" height="400" width="400"></canvas>
@@ -144,7 +143,6 @@
           </div>
 
           <%= submit_tag -%>
-
           <%= submit_tag('Save and next') -%>
 
           <br class="clear_both">
@@ -160,7 +158,6 @@
 </div>
 
 <script>
-
     var imageObject;
 
     imageObject = new Image();
@@ -171,7 +168,7 @@
     var paper;
     var paperWidth = 400;
     var paperHeight = 400;
-
+    
     var select_box;
     var big_svg_image;
 
@@ -180,6 +177,11 @@
     var boxY;
     var boxW;
     var boxH;
+
+    var sourceX;
+    var sourceY;
+    var sourceWidth;
+    var sourceHeight;
 
     var svg_box = {
         'type': 'rect',
@@ -337,11 +339,11 @@
 
 //        var sourceX = (boxX * ratio) + coords[0];
 //        var sourceY = (boxY * ratio) + coords[1];
-        var sourceX = (boxX * ratioW) + coords[0];
-        var sourceY = (boxY * ratioH) + coords[1];
-        var sourceWidth = boxW * ratioW;
-        var sourceHeight = boxH * ratioH;
-//        sourceWidth = boxW;
+        sourceX = (boxX * ratioW) + coords[0];
+        sourceY = (boxY * ratioH) + coords[1];
+        sourceWidth = boxW * ratioW;
+        sourceHeight = boxH * ratioH;
+        //        sourceWidth = boxW;
 //        sourceHeight = boxH
 
         if (boxW >= boxH) {         // destination width should equal canvas.width
@@ -362,80 +364,8 @@
         imageObject.src = $("#original_image").attr('src');
         context.clearRect(0, 0, canvas.width, canvas.height);
         context.drawImage(imageObject, sourceX, sourceY, sourceWidth, sourceHeight, destX, destY, destWidth, destHeight);
-
-        var x = Math.round(sourceX + coords[2]);
-        var y = Math.round(sourceY + coords[3]);
-        var w = Math.round(boxW * ratio);
-        var h = Math.round(boxH * ratio);
-
-        var coord_string = x + "/" + y + "/" + w + "/" + h;
-
-        var ocr_string = "/images/<%= @result.depiction.image.id -%>/ocr/" + coord_string;
-        $("#selected_text").html(ocr_string);
-
-   // $.get(ocr_string, function (data) {
-   //     $("#selected_text").val(data.text);
-   //     }, 'json'
-   //     );
-
-
-
     }
     ;
-
-
-    /*
-     Integration of selction box into depiction issues
-     Image()<HTMLImageElement> for selection is contained in a <canvas>, whereas large image for depiction is
-     an <img class="clickable">.  Extracted src from this image (by brute force) to src substrate (paper) and
-     processed (canvas) image display.  Processed crop is done in JS via drawImage() rather than posting back
-     crop coordinates.
-
-     Next step will be to replace the simple large image control structure with the paper contol.  canvas placement TBD.
-     */
-    // $.get("/images/<%= @result.depiction.image.id -%>/ocr/" + coord_string, function (data) {
-    //     $("#selected_text").html(data.text);
-    // }, 'json');
-
-
-    //  var set_select_box = function () {
-    //      if (document.getElementById('paper').getElementsByTagName('image') == undefined) {
-    //          return
-    //      }
-    //      $('#bigbox img').attr('hidden', 'hidden');
-    //      imageObject.src = $('#bigbox img').attr('src');
-    //      imageAspectRatio = imageObject.naturalWidth / imageObject.naturalHeight;
-
-    // Create drawing area, clearing previous <svg> content
-    //      if (paper != undefined) {
-    //          paper.canvas.parentNode.removeChild(paper.canvas);
-    //      } // clear existing <svg>
-    //      paper = Raphael("paper", paperWidth, paperHeight);
-    //      paper.image($('#bigbox img').attr('src'),
-    //              0, 0, paperWidth, paperHeight / imageAspectRatio);
-    // Add a rectangle
-    //      var shapes = paper.add([{
-    //          'type': 'rect',
-    //          'x': 0,
-    //          'y': 0,
-    //          'width': 50,
-    //          'height': 50,
-    //          'fill': '#ffffff',
-    //          'stroke': '#000000',
-    //          'stroke-width': 1,
-    //          'opacity': 0.4
-    //      }]);
-    //      boxX = shapes[0].node.attributes.x.value;
-    //      boxY = shapes[0].node.attributes.y.value;
-    //      boxW = shapes[0].node.attributes.width.value;
-    //      boxH = shapes[0].node.attributes.height.value;
-    // Attach "Mouse Over" handler to rectangle
-    //      shapes[0].mousemove(changeCursor);
-
-    // Attach "Drag" handlers to rectangle
-    //      shapes[0].drag(dragMove, dragStart, dragEnd);
-
-    //  };
 
     <% @result.image_sections.each do |section| -%>
     $.get("<%= @result.ocr_path_for(section) -%>", function (data) {
@@ -444,9 +374,29 @@
     );
     <% end %>
 
+    function ocr_selection() {
+//    var coords = big_svg_coords();
 
-    $('#getBox').on('click', function (click) {
-        getBox();
+//    var x = Math.round(sourceX + coords[2]);
+//    var y = Math.round(sourceY + coords[3]);
+//    var w = Math.round(boxW * ratio);
+//    var h = Math.round(boxH * ratio);
+
+      var coord_string = Math.round(sourceX) + "/" + Math.round(sourceY) + "/" + Math.round(sourceWidth) + "/" + Math.round(sourceHeight);
+      var ocr_string = "/images/<%= @result.depiction.image.id -%>/ocr/" + coord_string;
+      $("#selected_text").html(ocr_string);
+
+       $.get(ocr_string, function (data) {
+           $("#selected_text").val(data.text);
+           }, 'json'
+           );
+
+
+
+    }
+
+    $('#ocr_selection').on('click', function (click) {
+        ocr_selection();
     })
     ;
 
