@@ -35,11 +35,11 @@
 #
 # @!attribute rgt
 #   @return [Integer]
-#   @todo
+#     Nested set index, auto created.
 #
 # @!attribute lft
 #   @return [Integer]
-#   @todo
+#     Nested set index, auto created. 
 #
 # @!attribute iso_3166_a3
 #   @return [String]
@@ -170,23 +170,6 @@ class GeographicArea < ActiveRecord::Base
   # @return [Scope] GeographicAreas which are countries.
   def self.countries
     includes([:geographic_area_type]).where(geographic_area_types: {name: 'Country'})
-  end
-
-  # @param params [Hash] of parameters for this search
-  # @return [Scope] of geographic_areas found by (partial) name
-  def self.find_for_autocomplete(params)
-    term  = params[:term]
-    terms = term.split
-    limit = 100
-    case term.length
-      when 0..3
-        limit = 10
-      else
-        limit = 40
-    end
-
-    search_term = terms.collect { |t| "name LIKE '#{t}%'" }.join(" OR ")
-    (self.where(name: term) + self.where(search_term).includes(:parent, :geographic_area_type).order('length(name)', :name).limit(limit)).uniq
   end
 
   # @param [GeographicArea]

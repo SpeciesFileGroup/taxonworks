@@ -1,22 +1,22 @@
 module GeographicAreasHelper
 
-  def self.geographic_area_tag(geographic_area)
+  def geographic_area_tag(geographic_area)
     return nil if geographic_area.nil?
     geographic_area.name
   end
 
-  def geographic_area_tag(geographic_area)
-    GeographicAreasHelper.geographic_area_tag(geographic_area)
-  end
-
-  # TODO: reference content_tag w/in self, more logical string subtraction
-  def self.geographic_area_autocomplete_tag(geographic_area, term = '')
+  def geographic_area_autocomplete_tag(geographic_area, term)
     return nil if geographic_area.nil?
     show_this =  geographic_area.name.gsub(/#{term}/, "<mark>#{term}</mark>") # weee bit simpler
-    show_this += " (#{geographic_area.geographic_area_type.name})" unless geographic_area.geographic_area_type.nil?
-    show_this += " [#{geographic_area.parent.name}]" unless geographic_area.parent.nil?
+    show_this += " (#{geographic_area.parent.name})" unless geographic_area.parent.nil?
+
+    show_this += " [#{geographic_area.geographic_area_type.name}]" unless geographic_area.geographic_area_type.nil?
+
+    show_this += " " + (geographic_area.has_shape? ? content_tag(:span, "has shape", class: "subtle passed") : content_tag(:span, "without shape", class: "subtle warning") )
+    
     show_this.html_safe
   end
+
 
   def geographic_area_link(geographic_area, link_text = nil)
     return nil if geographic_area.nil?
