@@ -99,6 +99,7 @@ class SourcesController < ApplicationController
     end
   end
 
+  # GET /sources/batch_load    This is deprecated
   def batch_load
   end
 
@@ -109,7 +110,7 @@ class SourcesController < ApplicationController
       @sources                    = Source.batch_preview(file: params[:file].tempfile)
       sha256                      = Digest::SHA256.file(params[:file].tempfile)
       cookies[:batch_sources_md5] = sha256.hexdigest
-      render 'sources/batch_load/batch_preview'
+      render 'sources/batch_load/bibtex_batch_preview'
     end
   end
 
@@ -119,15 +120,20 @@ class SourcesController < ApplicationController
     else
       sha256 = Digest::SHA256.file(params[:file].tempfile)
       if cookies[:batch_sources_md5] == sha256.hexdigest
-        if @sources = Source.batch_create(params.symbolize_keys.to_h)
-          flash[:notice] = "Successfully batch created #{@sources.count} sources."
+        if result_hash = Source.batch_create(params.symbolize_keys.to_h)
+          @count = result_hash[:count]
+          @sources = result_hash[:records]
+          flash[:notice] = "Successfully batch created #{@count} sources."
+          render 'sources/batch_load/bibtex_batch_create' # and return
         else
           flash[:notice] = 'Failed to create the sources.'
+          redirect_to batch_load_sources_path
         end
       else
         flash[:notice] = 'Batch upload must be previewed before it can be created.'
+        redirect_to batch_load_sources_path
       end
-      redirect_to sources_path
+#      redirect_to sources_path
     end
   end
 

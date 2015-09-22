@@ -270,7 +270,8 @@ class Source < ActiveRecord::Base
   end
 
   def self.batch_create(file: nil, ** args)
-    sources = []
+    @sources = []
+    @valid = 0
     begin
       error_msg = []
       Source.transaction do
@@ -278,15 +279,20 @@ class Source < ActiveRecord::Base
         bibliography.each do |record|
           a = Source::Bibtex.new_from_bibtex(record)
           if a.valid?
-             a.save!
-             sources.push(a)
+             if a.save
+               @valid += 1
+             end
+             a.soft_validate()
+          else
+            error_msg = a.errors.messages.to_s
           end
+          @sources.push(a)
         end
       end
     rescue
-      raise error_msg.to_s
+      return false
     end
-    sources
+    {records: @sources, count: @valid}
   end
 
   def nearest_by_levenshtein(compared_string: nil, column: 'cached', limit: 10)
