@@ -191,7 +191,7 @@
         p.clear();
         big_svg_image = p.image(click.currentTarget.src, 0, 0, click.currentTarget.naturalWidth, click.currentTarget.naturalHeight);
         addSelectBox(p);
-        getBox();
+        getBox(true);       // just clear the canvas
         initDecodedText();
     });
 
@@ -233,10 +233,6 @@
             this.oy = this.attr('y');
             this.ow = this.attr('width');
             this.oh = this.attr('height');
-            //            boxX = this.ox;
-            //            boxY = this.oy;
-            //            boxW = this.ow;
-            //            boxH = this.oh;
 
             this.dragging = true;
         };
@@ -302,7 +298,7 @@
             svg_box
         ]);
 
-//        select_box.mouseup(selectRectangle());
+//        select_box.mouseup(selectRectangle());        // does not work, preempted by dragEnd
         select_box.mousemove(changeCursor)
         select_box.drag(dragMove, dragStart, dragEnd);
     }
@@ -314,25 +310,30 @@
     }
     ;
 
-    function getBox() {
+    function getBox(reset) {
 
-        //  alert(boxX + ' | ' + boxY + ' | ' + boxW + ' | ' + boxH);
-        canvas = document.getElementById("selected_picture_canvas");
-        context = canvas.getContext('2d');
-
-        var coords = big_svg_coords();
-        var destWidth;                  // NOTE:  destWidth and destHeight are
-        var destHeight;                 // coincidentally the same as paperWidth/Height
+        var coords = big_svg_coords();  // "corners" of the selectable image rectangle
 
         imageAspectRatio = coords[2] / coords[3];
 
-        var ratioW = coords[2] / paperWidth;
-        var ratioH = coords[3] / paperHeight;
+// calculate source framing
+        var SratioW = coords[2] / paperWidth;           // separate the source amd destination distortion
+        var SratioH = coords[3] / paperHeight;          // by computing separate rectangle aspect ratios
 
-        sourceX = Math.round((boxX * ratioW) + coords[0]);
-        sourceY = Math.round((boxY * ratioH * imageAspectRatio) + coords[1]);
-        sourceWidth = Math.round(boxW * ratioW);
-        sourceHeight = Math.round(boxH * ratioH * imageAspectRatio);
+        sourceX = Math.round((boxX * SratioW) + coords[0]);
+        sourceY = Math.round((boxY * SratioH * imageAspectRatio) + coords[1]);
+        sourceWidth = Math.round(boxW * SratioW);
+        sourceHeight = Math.round(boxH * SratioH * imageAspectRatio);
+
+// calculate destination framing
+        var destWidth;                  // NOTE:  destWidth and destHeight are
+        var destHeight;                 // no longer the same as paperWidth/Height
+        canvas = document.getElementById("selected_picture_canvas");
+        context = canvas.getContext('2d');
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        if (reset) {return};
+        var ratioW = coords[2] / canvas.width;      // This may end up set by this file
+        var ratioH = coords[3] / canvas.height;     // vs fetched from static control
 
         if (boxW >= boxH) {         // destination width should equal canvas.width
             destWidth = coords[2] / ratioW;
@@ -346,11 +347,10 @@
             destWidth = (boxW / boxH) * destHeight;     // dependent height assuming 1:1 pixel ratio
         }
 
-        var destX = 0;          // was canvas.width / 2 - destWidth / 2;
-        var destY = 0;          // was canvas.height / 2 - destHeight / 2;
+        var destX =  canvas.width / 2 - destWidth / 2;      // center tall selection horizontally
+        var destY = 0;       // bias wide selection to top  // was canvas.height / 2 - destHeight / 2;
 
-        imageObject.src = $("#original_image").attr('src');
-        context.clearRect(0, 0, canvas.width, canvas.height);
+        imageObject.src = $("#original_image").attr('src');         // make an image() object to "draw onto the canvas
         context.drawImage(imageObject, sourceX, sourceY, sourceWidth, sourceHeight, destX, destY, destWidth, destHeight);
 
 //        $('#debug_box').html(boxX + "|" + boxY + "|" + boxW + "|" + boxH + "-" + sourceX + "|" + sourceY + "|" + sourceWidth + "|" + sourceHeight );
@@ -366,28 +366,20 @@
     <% end %>
 
     function ocr_selection() {
-//    var coords = big_svg_coords();
-
-//    var x = Math.round(sourceX + coords[2]);
-//    var y = Math.round(sourceY + coords[3]);
-//    var w = Math.round(boxW * ratio);
-//    var h = Math.round(boxH * ratio);
 
         var coord_string = Math.round(sourceX) + "/" + Math.round(sourceY) + "/" + Math.round(sourceWidth) + "/" + Math.round(sourceHeight);
         var ocr_string = "/images/<%= @result.depiction.image.id -%>/ocr/" + coord_string;
         $("#selected_text").html(ocr_string);
 
         $.get(ocr_string, function (data) {
-                    if (data.text.length > 0) {
-                        $("#selected_text").html(data.text);
-                    }
-                    else {
-                        $("#selected_text").append(' FAILED');
-                    }
-                }, 'json'
+           if (data.text.length > 0) {
+              $("#selected_text").html(data.text);
+           }
+           else {
+              $("#selected_text").append(' FAILED');
+           }
+         }, 'json'
         );
-
-
     }
     function initDecodedText() {
         $("#selected_text").html('( decoded text appears here )');
@@ -408,10 +400,6 @@
         this_target[0] = "#text_for_" + this_target[1];
         $(this_target[0]).val(( $(this_target[0]).val() + $("#selected_text").html()));
     });
-//    $("#btn_append_annotated_specimen").on('click', function(click) {
-//        var this_target = this.id.split("btn_append_");
-//        $("#text_for_annotated_specimen").append( $("#selected_text").html());
-//    });
 
 </script>
 <!--<script>  $(document).ready(set_select_box()); </script>-->
