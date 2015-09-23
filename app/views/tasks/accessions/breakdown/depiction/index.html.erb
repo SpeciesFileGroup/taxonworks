@@ -1,17 +1,11 @@
 <h2> Task: Transcribe depiction </h2>
 
-
-<div class="flexbox" id="breakdown_sqed_depiction">
+<div  id="breakdown_sqed_depiction" class="flexbox" >
   <div class="item item1">
-
-    <%= image_tag(@result.depiction.image.image_file.url(:original), id: 'original_image', hidden: true) -%>
-
     <div id="littlebox">
-
       <% @result.image_sections.each_with_index do |section, i| -%>
           <%= image_tag(@result.image_path_for_large_image(section), id: "little#{i}", class: "little_image clickable") -%>
       <% end %>
-
     </div>
   </div>
 
@@ -26,14 +20,11 @@
         <div id="paper"></div>
       </div>
 
-      <div id="debug_box" hidden="hidden">debug</div>
-
       <div id="selected_text"></div>
 
       <div id="selected_picture">
         <canvas id="selected_picture_canvas" height="400" width="400"></canvas>
       </div>
-
 
     </div>
   </div>
@@ -52,11 +43,9 @@
     </div>
 
     <div class="extracted_form">
-
       <%= form_for(@result.depiction.depiction_object, as: :collection_object, url: depiction_breakdown_update_task_path(@result.depiction)) do |f| -%>
           <div class="field">
             <%= f.label :total %>
-            <br>
             <%= f.text_field :total, size: 2 -%>
           </div>
 
@@ -86,42 +75,39 @@
             <div class="item item <%= @result.small_dimensions_for(@result.secondary_sections.second) -%>2">
               <h3> Identifiers </h3>
               <%= f.fields_for(:identifiers, @result.depiction.depiction_object.identifiers) do |i| -%>
-                  <%= i.hidden_field :type -%>
+                <%= i.hidden_field :type -%>
 
-                  <div class="side_by_side_fields">
+                <div class="side_by_side_fields">
 
-                    <div class="field">
-                      <%= i.label :namespace_id %><br>
-                      <%= render(
-                                  partial: '/workbench/elements/forms/ajax_select',
-                                  locals: {
-                                          controller: '/namespaces',
-                                          object: "collection_object[identifiers_attributes][#{i.index}]",
-                                          method: 'namespace_id',
-                                          tag_id: "namespace_id_for_identifier_#{i.index}",
-                                          display: i.object.namespace ? i.object.namespace.short_name : nil,
-                                          size: 20,
-                                          fields_for_object: i})
+                  <div class="field">
+                    <%= i.label :namespace_id %><br>
+                    <%= render(
+                      partial: '/workbench/elements/forms/ajax_select',
+                      locals: {
+                        controller: '/namespaces',
+                        object: "collection_object[identifiers_attributes][#{i.index}]",
+                        method: 'namespace_id',
+                        tag_id: "namespace_id_for_identifier_#{i.index}",
+                        display: i.object.namespace ? i.object.namespace.short_name : nil,
+                        size: 20,
+                        fields_for_object: i})
                       %>
 
-                      <% if @result.depiction.depiction_object.identifiers.size == 1 %>
-                          <%= check_box_tag(:lock_namespace, "1", @result.namespace_locked?) -%>lock
-                      <% end %>
-
-                    </div>
-
-                    <div class="field">
-                      <%= i.label :identifier %><br>
-                      <%= i.text_field :identifier %>
-                    </div>
+                    <% if @result.depiction.depiction_object.identifiers.size == 1 %>
+                      <%= check_box_tag(:lock_namespace, "1", @result.namespace_locked?) -%>lock
+                    <% end %>
 
                   </div>
+
+                  <div class="field">
+                    <%= i.label :identifier %><br>
+                    <%= i.text_field :identifier %>
                   </div>
-                  <!-- end side by side -->
 
-
-              <% end %>
+                </div>
               </div>
+            <% end %>
+          </div>
 
           <div class="side_by_side_fields" id="collection_object_fields">
             <div class="field">
@@ -148,15 +134,12 @@
           <%= submit_tag('Save and next') -%>
 
           <br class="clear_both">
-      <% end %>
-
+        <% end %>
 
     </div>
-
-    <div class="extracted_history"></div>
   </div>
 
-
+  <%= image_tag(@result.depiction.image.image_file.url(:original), id: 'original_image', hidden: true) -%>
 </div>
 
 <script>
