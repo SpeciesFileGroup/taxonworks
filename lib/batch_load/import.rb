@@ -78,13 +78,13 @@ module BatchLoad
     end
 
     def csv
-      # begin
-      @csv ||= CSV.parse(@file.tempfile, {headers: true, header_converters: :downcase, col_sep: "\t"})
-      # rescue
-      #   @processed = false
-      #   @file_errors.push("Error reading file.  Is there a header row and at least one data row?  Are the columns tab delimited?")
-      # end
-      #  @csv  
+     #  begin
+      @csv ||= CSV.parse(@file.tempfile.read.force_encoding('utf-8'), {headers: true, header_converters: :downcase, col_sep: "\t",  encoding: "UTF-8"})
+     #  rescue Encoding::UndefinedConversionError => e
+     #    @processed = false
+     #    @file_errors.push("Error converting file. #{e}")
+     #    return nil
+     #  end
     end
 
     def valid?
