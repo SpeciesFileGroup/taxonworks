@@ -18,15 +18,15 @@
   </tr>
   <% @collection_objects.each do |c_o| %>
       <tr>
-        <td><%= get_otu(c_o).id %></td>
-        <td><%= get_otu(c_o).name %></td>
+        <td><%= get_otu_id(get_otu(c_o)) %></td>
+        <td><%= link_to(get_otu_name(get_otu(c_o)), get_otu(c_o)) unless get_otu(c_o).nil? %></td>
         <td><%= name_at_rank_string(c_o, :family) %></td>
         <td><%= name_at_rank_string(c_o, :genus) %></td>
         <td><%= name_at_rank_string(c_o, :species) %></td>
         <td><%= c_o.collecting_event.country %></td>
         <td><%= c_o.collecting_event.state %></td>
         <td><%= c_o.collecting_event.county %></td>
-        <td><%= c_o.collecting_event.verbatim_locality %></td>
+        <td><%= link_to(c_o.collecting_event.verbatim_locality, c_o.collecting_event) %></td>
         <td><%= c_o.collecting_event.georeference_latitude %></td>
         <td><%= c_o.collecting_event.georeference_longitude %></td>
       </tr>

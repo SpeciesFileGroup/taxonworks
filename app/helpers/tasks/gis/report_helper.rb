@@ -2,11 +2,12 @@ module Tasks::Gis::ReportHelper
 
   # decode which headers to be displayed for collecting events
   def ce_attrib_headers
-    if nil
-      "<th>CE data attributes</th>"
-    else
-      ''
-    end
+    ce_headers = @collection_objects.map(&:collecting_event).map(&:data_attributes).flatten.map(&:predicate).map(&:name).uniq.sort
+    retval     = ''
+    ce_headers.each { |header|
+      retval += "<th>#{header}</th>\n"
+    }
+    retval
   end
 
   # decode which headers to be displayed for collection objects
@@ -21,11 +22,12 @@ module Tasks::Gis::ReportHelper
 
   # decode which headers to be displayed for biocurational classifications
   def bc_headers
-    if nil
-      "<th>BC data attributes</th>"
-    else
-      ''
-    end
+    bc_headers = @collection_objects.map(&:biocuration_classifications).flatten.map(&:biocuration_class).map(&:name).uniq.sort
+    retval     = ''
+    bc_headers.each { |header|
+      retval += "<th>#{header}</th>\n"
+    }
+    retval
   end
 
   def otu_headers
@@ -42,7 +44,19 @@ module Tasks::Gis::ReportHelper
   end
 
   def get_otu(collection_object)
-    collection_object.otus.first
+    collection_object.otus.first unless collection_object.otus.empty?
+  end
+
+  def get_otu_id(otu)
+    otu.id unless otu.nil?
+  end
+
+  def get_otu_name(otu)
+    otu.name unless otu.nil?
+  end
+
+  def get_otu_taxon_name(otu)
+    otu.taxon_name unless otu.nil?
   end
 
   def check_nil(object)
@@ -50,8 +64,8 @@ module Tasks::Gis::ReportHelper
   end
 
   def name_at_rank_string(collection_object, rank)
-    retval = ''
-    object = get_otu(collection_object).taxon_name
+    # retval = ''
+    object = get_otu_taxon_name(get_otu(collection_object))
     retval = object.ancestor_at_rank(rank) unless object.nil?
     retval.nil? ? '' : retval.cached_html.html_safe
   end
