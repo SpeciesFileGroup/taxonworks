@@ -184,8 +184,8 @@ class TaxonName < ActiveRecord::Base
   scope :with_parent_taxon_name, -> (parent) { where(parent_id: parent) }
   scope :with_base_of_rank_class, -> (rank_class) { where('rank_class LIKE ?', "#{rank_class}%") }
   scope :with_rank_class_including, -> (include_string) { where('rank_class LIKE ?', "%#{include_string}%") }
-  scope :descendants_of, -> (taxon_name) { where('(taxon_names.lft >= ?) and (taxon_names.lft <= ?) and (taxon_names.id != ?) and (taxon_names.project_id = ?)', taxon_name.lft, taxon_name.rgt, taxon_name.id, taxon_name.project_id) }
-  scope :ancestors_of, -> (taxon_name) { where('(taxon_names.lft <= ?) and (taxon_names.rgt >= ?) and (taxon_names.id != ?) and (taxon_names.project_id = ?)', taxon_name.lft, taxon_name.rgt, taxon_name.id, taxon_name.project_id) }
+  scope :descendants_of, -> (taxon_name) { where('(taxon_names.lft >= ?) and (taxon_names.lft <= ?) and (taxon_names.id != ?) and (taxon_names.project_id = ?)', taxon_name.lft, taxon_name.rgt, taxon_name.id, taxon_name.project_id).order(:lft) }
+  scope :ancestors_of, -> (taxon_name) { where('(taxon_names.lft <= ?) and (taxon_names.rgt >= ?) and (taxon_names.id != ?) and (taxon_names.project_id = ?)', taxon_name.lft, taxon_name.rgt, taxon_name.id, taxon_name.project_id).order(:lft) }
   scope :ancestors_and_descendants_of, -> (taxon_name) {
     where('(((taxon_names.lft >= ?) AND (taxon_names.lft <= ?)) OR
            ((taxon_names.lft <= ?) AND (taxon_names.rgt >= ?))) AND

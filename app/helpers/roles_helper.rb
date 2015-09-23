@@ -9,4 +9,9 @@ module RolesHelper
     person_tag(role.person)
   end
 
+  def role_link(role)
+    return nil if role.nil?
+    link_to(role_tag(role).html_safe, metamorphosize_if(role.role_object))
+  end  
+
 end
