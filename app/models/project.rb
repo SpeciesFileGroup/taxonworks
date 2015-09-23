@@ -144,7 +144,7 @@ class Project < ActiveRecord::Base
   end
 
   def root_taxon_name
-    self.taxon_names.first.root
+    self.taxon_names.root
   end
 
   protected
