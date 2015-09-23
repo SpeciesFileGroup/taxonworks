@@ -2,23 +2,23 @@
 #
 # @!attribute person_id
 #   @return [Integer]
-#   @todo
+#    The ID of the person in the role. 
 #
 # @!attribute type
 #   @return [String]
-#   @todo
+#    The type (subclass) of the role, e.g. TaxonDeterminer. 
 #
 # @!attribute role_object_id
 #   @return [Integer]
-#   @todo
+#     The id of the object the role is bound to. 
 #
 # @!attribute role_object_type
 #   @return [String]
-#   @todo
+#     THe class of the object the role is bound to. 
 #
 # @!attribute position
 #   @return [Integer]
-#   @todo
+#     Sort order. 
 #
 # @!attribute project_id
 #   @return [Integer]
