@@ -9,27 +9,43 @@ module BatchLoad
     # The parent for the top level names 
     attr_accessor :parent_taxon_name
 
+    # The id of the parent taxon name, computed automatically as Root if not provided
+    attr_accessor :parent_taxon_name_id 
+
     # The code (Rank Class) that new names will use
     attr_accessor :nomenclature_code
 
     # Whether to create an OTU as well 
     attr_accessor :also_create_otu
 
+    # Required to handle some defaults
+    attr_accessor :project_id
+
     def initialize( nomenclature_code: nil, parent_taxon_name_id: nil, also_create_otu: false, **args)
-
-      begin
-        @parent_taxon_name = TaxonName.find(parent_taxon_name_id)
-      rescue ActiveRecord::RecordNotFound
-        @errors = [ 'Parent taxon not provided.' ]
-      end
-
       @nomenclature_code = nomenclature_code
-      @nomenclature_code ||= @parent_taxon_name.rank_class.nomenclatural_code
-      @nomenclature_code = @nomenclature_code.to_sym
-
       @also_create_otu = also_create_otu
 
       super(args)     
+    end
+
+    def parent_taxon_name
+      return @parent_taxon_name if @parent_taxon_name
+      if @parent_taxon_name_id
+        begin
+          @parent_taxon_name = TaxonName.find(parent_taxon_name_id)
+        rescue ActiveRecord::RecordNotFound
+          @errors = [ 'Provided parent taxon name id not valid.' ]
+        end
+      else
+        @parent_taxon_name = Project.find(@project_id).root_taxon_name
+      end
+
+      @parent_taxon_name      
+    end
+
+    def nomenclature_code
+      @nomenclature_code ||= @parent_taxon_name.rank_class.nomenclatural_code
+      @nomenclature_code.to_sym
     end
 
     def build
@@ -74,10 +90,11 @@ module BatchLoad
         p = Protonym.new(
           name: n.name,
           year_of_publication: n.year.to_s,
-          rank_class: Ranks.lookup(@nomenclature_code, n.rank),
+          rank_class: Ranks.lookup(nomenclature_code, n.rank),
           by: @user,
           also_create_otu: also_create_otu,
           project: @project,
+          verbatim_author: (n.parens ? n.author_with_parens : nil),
           taxon_name_authors_attributes: taxon_name_authors_hash(n)
         )
 
