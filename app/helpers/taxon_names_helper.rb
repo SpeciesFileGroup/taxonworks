@@ -2,7 +2,11 @@ module TaxonNamesHelper
 
   def taxon_name_tag(taxon_name)
     return nil if taxon_name.nil?
-    taxon_name.cached_html ? taxon_name.cached_html.html_safe : taxon_name.name
+    if taxon_name.cached_html
+      taxon_name.cached_name_and_author_year.html_safe
+    else
+      taxon_name.name
+    end
   end
 
   def taxon_name_link(taxon_name)
