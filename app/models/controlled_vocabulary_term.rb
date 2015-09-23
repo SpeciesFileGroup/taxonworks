@@ -1,17 +1,16 @@
-# A controlled vocabulary term is...
-#   @todo
+# A controlled vocabulary term is a user defineable attribute, a name and definition is required.
 #
 # @!attribute type
 #   @return [String]
-#   @todo
+#    The subclass of the CVT. 
 #
 # @!attribute name
 #   @return [String]
-#   @todo
+#     The term name. 
 #
 # @!attribute definition
 #   @return [String]
-#   @todo
+#    The term definition, required.
 #
 # @!attribute project_id
 #   @return [Integer]
@@ -19,11 +18,11 @@
 #
 # @!attribute uri
 #   @return [String]
-#   @todo
+#    A URI for an external concept that matches this CVT. 
 #
 # @!attribute uri_relation
 #   @return [String]
-#   @todo
+#     A SKOS relationship that defines/describes the relationship between the concept identified by the URI and the concept defined in the definition. 
 #
 class ControlledVocabularyTerm < ActiveRecord::Base
 
