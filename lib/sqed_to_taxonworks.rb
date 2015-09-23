@@ -5,6 +5,18 @@ module SqedToTaxonworks
     SMALL_WIDTH = 100
     LARGE_WIDTH = 400
 
+    TEXT_MAP = {
+      stage: :buffered_collecting_event,
+      annotated_specimen: :buffered_collecting_event,
+      identifier: :buffered_other_labels,
+      specimen: :buffered_collecting_event,
+      determination_labels: :buffered_determination_labels,
+      labels: :buffered_collecting_event,
+      image_registration: nil,
+      curator_metadata: :buffered_other_labels,
+      nothing: nil
+    }
+
     attr_accessor :depiction
 
     attr_accessor :depiction_id 

@@ -31,7 +31,7 @@ namespace :tw do
         @args[:boundary_color] = @args[:boundary_color].to_sym
 
         puts "Using attributes:".yellow.bold
-        ap @args
+        print @args
 
         puts "Processing images: ".yellow.bold
         ActiveRecord::Base.transaction do 
@@ -40,7 +40,7 @@ namespace :tw do
             Dir.glob(@args[:data_directory] + "**/*.*") do |f| 
               print f.blue + ": "
               i += 1 
-              break if i == 5
+              # break if i == 5
 
               image = File.open(f)
 
