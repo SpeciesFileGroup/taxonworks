@@ -323,7 +323,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
 
           specify 'nil author and year - cached value should be empty' do
             t = @subspecies.ancestor_at_rank('kingdom')
-            expect(t.cached_author_year).to eq('')
+            expect(t.cached_author_year).to eq(nil)
           end
 
           specify 'parent with parentheses' do

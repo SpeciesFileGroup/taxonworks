@@ -21,7 +21,7 @@
 #   Genus-species combination for the taxon. The string is in html format including <em></em> tags.
 #
 # @attribute cached_author_year
-#   @return [String]
+#   @return [String, nil]
 #   author and year string with parentheses where necessary.
 #
 # @!attribute cached_higher_classification
@@ -50,11 +50,11 @@
 #
 # @!attribute rank_class
 #   @return [String]
-#   @todo
+#   The TW rank of this name 
 #
 # @!attribute type
 #   @return [String]
-#   @todo
+#   The subclass of this taxon name, e.g. Protonym or Combination 
 #
 # @!attribute project_id
 #   @return [Integer]
@@ -887,6 +887,7 @@ class TaxonName < ActiveRecord::Base
   #   the author and year of the name, adds parenthesis where asserted
   def get_author_and_year
     return ([self.author_string] + [self.year_integer]).compact.join(', ') if self.rank.nil?
+    
     case self.rank_class.nomenclatural_code
     when :iczn
       iczn_author_and_year
@@ -924,7 +925,7 @@ class TaxonName < ActiveRecord::Base
       t  += ['(' + m_obj.year_integer.to_s + ')'] unless m_obj.year_integer.nil? 
     end
     
-    ay
+    ay.length > 0 ? ay : nil
   end
 
   def iczn_author_and_year
@@ -963,7 +964,8 @@ class TaxonName < ActiveRecord::Base
         #((self.original_genus.name != self.ancestor_at_rank('genus').name) && !self.original_genus.name.to_s.empty?)
       end
     end
-    ay
+
+    ay.length > 0 ? ay : nil
   end
 
 
