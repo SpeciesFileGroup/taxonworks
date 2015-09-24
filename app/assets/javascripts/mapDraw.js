@@ -178,13 +178,21 @@ function initializeGoogleMap(map_canvas, fcdata, map_center) {
   }
   var sw = bounds.sw;
   var ne = bounds.ne;
-  var coordList = [ [
-    [sw['lng'](), sw['lat']()],
-    [sw['lng'](), ne['lat']()],
-    [ne['lng'](), ne['lat']()],
-    [ne['lng'](), sw['lat']()],
-    [sw['lng'](), sw['lat']()]
-  ] ];
+  var coordList = [];     // migrated from maps.js 24SEP2015 JRF
+  coordList.push([sw['lng'](), sw['lat']()]);
+  coordList.push([sw['lng'](), ne['lat']()]);
+  if (sw['lng']() > 0 && ne['lng']() < 0) {
+    coordList.push([180.0, ne['lat']()])
+  }
+  coordList.push([ne['lng'](), ne['lat']()]);
+  coordList.push([ne['lng'](), sw['lat']()]);
+  if (sw['lng']() > 0 && ne['lng']() < 0) {
+    coordList.push([-180.0, sw['lat']()])
+  }
+  coordList.push([sw['lng'](), sw['lat']()]);
+  var temparray = [];
+  temparray[0] = coordList;
+  coordList = temparray;        // this is an expedient kludge to get [[[lng,lat],...]]
   var bounds_box = {
     "type": "Feature",
     "geometry": {
