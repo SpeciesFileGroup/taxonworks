@@ -203,25 +203,25 @@ class CollectionObject < ActiveRecord::Base
 Find all collection objects which have collecting events which have georeferences which have geographic_items which
 are located within the geographic item supplied
 =end
-  # @param [Integer] geographic_item_id
+  # @param [GeographicItem] geographic_item_id
   # @return [Scope] of CollectionObject
-  def self.in_geographic_item(geographic_item_id)
-    gi     = GeographicItem.find(geographic_item_id)
-    # find the geographic_items inside gi
-    step_1 = GeographicItem.is_contained_by('any', gi) # .pluck(:id)
+  def self.in_geographic_item(geographic_item, steps = false)
+    geographic_item_id =geographic_item.id
+    if steps
+      gi     = GeographicItem.find(geographic_item_id)
+      # find the geographic_items inside gi
+      step_1 = GeographicItem.is_contained_by('any', gi) # .pluck(:id)
+      # find the georeferences from the geographic_items
+      step_2 = step_1.map(&:georeferences).uniq.flatten
+      # find the collecting events connected to the georeferences
+      step_3 = step_2.map(&:collecting_event).uniq.flatten
+      # find the collection objects associated with the collecting events
+      step_4 = step_3.map(&:collection_objects).flatten.map(&:id).uniq
+      retval = CollectionObject.where(id: step_4)
+    else
+      retval = CollectionObject.joins(:collecting_event => [{:georeferences => :geographic_item}]).where(GeographicItem.sql_for_is_contained_by('any', geographic_item)).includes(:collecting_event => [{:georeferences => :geographic_item}])
+    end
 
-=begin
-    step_1 = GeographicItem.is_contained_by('any', gi).include(georeference: {collecting_events: [ :collection_objects ] })    # .pluck(:id)
-=end
-
-
-    # find the georeferences from the geographic_items
-    step_2 = step_1.map(&:georeferences).uniq.flatten
-    # find the collecting events connected to the georeferences
-    step_3 = step_2.map(&:collecting_event).uniq.flatten
-    # find the collection objects associated with the collecting events
-    step_4 = step_3.map(&:collection_objects).flatten.map(&:id).uniq
-    retval = CollectionObject.where(id: step_4)
     retval
   end
 

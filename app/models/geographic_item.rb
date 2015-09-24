@@ -51,10 +51,10 @@ class GeographicItem < ActiveRecord::Base
                 :multi_polygon,
                 :geometry_collection]
 
-#  column_factory = Gis::FACTORY
-#  DATA_TYPES.each do |t|
-#    set_rgeo_factory_for_column(t, column_factory)
-#  end
+  #  column_factory = Gis::FACTORY
+  #  DATA_TYPES.each do |t|
+  #    set_rgeo_factory_for_column(t, column_factory)
+  #  end
 
   # validates_uniquness_of if !.blank.
 
@@ -436,16 +436,16 @@ SELECT round(CAST(
         # todo: change 'id in (?)' to some other sql construct
         GeographicItem.where(id: part.flatten.map(&:id))
       else
-        q = geographic_item_ids.flatten.collect { |geographic_item_id|
+        q      = geographic_item_ids.flatten.collect { |geographic_item_id|
           # discover the item types, and convert type to database type for 'multi_'
           b = GeographicItem.where(id: geographic_item_id).pluck(:type)[0].split(':')[2].downcase.gsub('lti', 'lti_')
           # a = GeographicItem.find(geographic_item_id).geo_object_type
           GeographicItem.containing_sql(column_name, geographic_item_id, b)
         }.join(' or ')
-        q = 'FALSE' if q.blank? # this will prevent the invocation of *ALL* of the GeographicItems, if there are
+        q      = 'FALSE' if q.blank? # this will prevent the invocation of *ALL* of the GeographicItems, if there are
         # no GeographicItems in the request (see CollectingEvent.name_hash(types)).
         retval = where(q) # .excluding(geographic_items)
-      retval
+        retval
     end
   end
 
@@ -519,6 +519,36 @@ SELECT round(CAST(
         }.join(' or ')
         where(q) # .excluding(geographic_items)
     end
+  end
+
+  def self.sql_for_is_contained_by(column_name, geographic_item)
+    geo_id   = geographic_item.id
+    geo_type = geographic_item.geo_object_type
+    template = '(ST_Contains((select geographic_items.%s::geometry from geographic_items where geographic_items.id = %d), %s::geometry))'
+    retval   = []
+    column_name.downcase!
+    case column_name
+      when 'any'
+        DATA_TYPES.each { |column|
+          unless column == :geometry_collection
+            retval.push(template % [geo_type, geo_id, column])
+          end
+        }
+      when 'any_poly', 'any_line'
+        DATA_TYPES.each { |column|
+          unless column == :geometry_collection
+            if column.to_s.index(column_name.gsub('any_', ''))
+              retval.push(template % [geo_type, geo_id, column])
+            end
+          end
+        }
+      else
+        retval = template % [geo_type, geo_id, column_name]
+    end
+    if retval.instance_of?(Array)
+      retval = retval.join(' OR ')
+    end
+    retval
   end
 
   # @param [String, GeographicItem]
