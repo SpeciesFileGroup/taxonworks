@@ -219,7 +219,7 @@ are located within the geographic item supplied
       step_4 = step_3.map(&:collection_objects).flatten.map(&:id).uniq
       retval = CollectionObject.where(id: step_4)
     else
-      retval = CollectionObject.joins(:collecting_event => [{:georeferences => :geographic_item}]).where(GeographicItem.sql_for_is_contained_by('any', geographic_item)).includes(:collecting_event => [{:georeferences => :geographic_item}])
+      retval = CollectionObject.joins(:collecting_event => [{:georeferences => :geographic_item}]).where(GeographicItem.sql_for_is_contained_by('any', geographic_item)).includes(:data_attributes, :collecting_event => [{:georeferences => :geographic_item}])
     end
 
     retval

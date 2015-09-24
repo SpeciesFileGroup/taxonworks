@@ -29,6 +29,9 @@
         <td><%= link_to(c_o.collecting_event.verbatim_locality, c_o.collecting_event) %></td>
         <td><%= c_o.collecting_event.georeference_latitude %></td>
         <td><%= c_o.collecting_event.georeference_longitude %></td>
+        <%= ce_attributes(c_o).html_safe %>
+        <%= co_attributes(c_o).html_safe %>
+        <%= bc_attributes(c_o).html_safe %>
       </tr>
   <% end %>
   </tbody>
