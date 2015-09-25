@@ -49,7 +49,8 @@ module Tasks::Gis::ReportHelper
   def bc_attributes(collection_object)
     retval = ''
     @bc_headers.each { |header|
-      retval += "<td>#{header}</td>"
+      truth  = collection_object.biocuration_classes.map(&:name).include?(header) ? '1' : '0'
+      retval += "<td>#{truth}</td>"
     }
     retval
   end
