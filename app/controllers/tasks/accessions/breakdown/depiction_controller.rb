@@ -13,7 +13,7 @@ class Tasks::Accessions::Breakdown::DepictionController < ApplicationController
     #  .. right now very dumb, assume all numbers, fixed length
     identifier =  Identifier.where(project_id: sessions_current_project_id).last
     if identifier
-      @identifier_prototype = identifier.last.identifier
+      @identifier_prototype = identifier.identifier
     else
       @identifer_prototype ||= '12345678'
     end
