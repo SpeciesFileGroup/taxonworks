@@ -79,5 +79,9 @@ match_georeference_task:
   description: 'Re-use georeference efforts from past collecting events.'
 otu_distribution_data_task:
   hub: true
-  name: 'Otu distribution data'
+  name: 'OTU distribution data'
   description: 'Display distribution data for an otu.'
+gis_report_task:
+  hub: true
+  name: 'GIS collection object report.'
+  description: 'Generate flora/faunal reports on a per area basis for visualization and download.'
