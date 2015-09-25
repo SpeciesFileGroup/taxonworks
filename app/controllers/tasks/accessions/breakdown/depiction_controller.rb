@@ -5,9 +5,14 @@ class Tasks::Accessions::Breakdown::DepictionController < ApplicationController
   # GET /tasks/accession/breakdown/depiction/:id
   def index
     @result = SqedToTaxonworks::Result.new(
-      depiction_id:  params[:depiction_id],
+      depiction_id: params[:depiction_id],
       namespace_id: params[:namespace_id]
     )
+
+    # Experiment with using the last identifier created as a pattern for matching new identifiers
+    #  .. right now very dumb, assume all numbers, fixed length
+    @identifier_prototype = Identifier.where(project_id: sessions_current_project_id).last.identifier
+    @identifer_prototype ||= '12345678'
   end
 
   def update 

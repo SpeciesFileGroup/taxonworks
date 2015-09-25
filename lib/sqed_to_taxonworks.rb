@@ -156,7 +156,6 @@ module SqedToTaxonworks
       "0, 0, 400, #{ (c[3].to_f / (c[2].to_f / 400)).to_i }"
     end
 
-
   end
 
 end

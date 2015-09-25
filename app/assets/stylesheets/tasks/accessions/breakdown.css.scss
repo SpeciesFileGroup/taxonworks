@@ -1,16 +1,25 @@
 
 #breakdown_sqed_depiction {
+  
+  .item {
+    padding: 2px;
+  }
 
   .little_image {
     display: block;
     padding: 5px;
-    width: 150px;
+    width: 80px;
   }
 
   #extracted_header {
-      textarea { 
+      .ocr_text { 
         height: 8em;
         width: 20em;
+        border: 1px solid silver;
+      }
+
+      #text_for_identifier {
+        width: 8em;
       }
   }
 
@@ -22,7 +31,12 @@
   }
 
   #selected_text {
-    width: 400px;
+    width: 340px;
+    vertical-align: center;
+  }
+
+  #append_ocr_button {
+    float:left; 
   }
 
 

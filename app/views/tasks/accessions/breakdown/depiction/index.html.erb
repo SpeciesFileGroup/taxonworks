@@ -1,31 +1,36 @@
 <h2> Task: Transcribe depiction </h2>
 
-<div  id="breakdown_sqed_depiction" class="flexbox" >
+<div id="breakdown_sqed_depiction" class="flexbox">
+
+  <!-- transcribe for javascript reference -->
+  <span id="image_sections"
+        <%= @result.image_sections.each do |section| %>
+      data-section-<%= section -%>="<%= @result.class::TEXT_MAP[section.to_sym] -%>"
+    <% end %>
+        hidden=true
+    ></span>
+
   <div class="item item1">
+    <%= link_to('image', image_path(@result.depiction.image)) -%>
     <div id="littlebox">
       <% @result.image_sections.each_with_index do |section, i| -%>
-          <%= image_tag(@result.image_path_for_large_image(section), id: "little#{i}", class: "little_image clickable") -%>
+        <%= image_tag(@result.image_path_for_large_image(section), id: "little#{i}", class: "little_image clickable") -%>
       <% end %>
     </div>
   </div>
 
   <div class="item item2">
-    <div id="extracted_images">
+    <div id="bigbox">
+      <div id="paper"></div>
+    </div>
 
-      <%= button_tag 'OCR selection', id: "ocr_selection" -%>
-
-      <%= link_to('image', image_path(@result.depiction.image)) -%>
-
-      <div id="bigbox">
-        <div id="paper"></div>
-      </div>
-
+    <div>
       <div id="selected_text"></div>
+      <%= content_tag(:span, 'Append (ctrl-q), Replace (ctrl-w)', class: :subtle) -%>
+    </div>
 
-      <div id="selected_picture">
-        <canvas id="selected_picture_canvas" height="400" width="400"></canvas>
-      </div>
-
+    <div id="selected_picture">
+      <canvas id="selected_picture_canvas" height="400" width="400"></canvas>
     </div>
   </div>
 
@@ -33,10 +38,11 @@
 
     <div id="extracted_header">
       <div class="side_by_side_fields">
-        <% @result.image_sections.each do |section| -%>
+        <% @result.image_sections.each_with_index do |section, i| -%>
             <div class="field">
-              <%= label_tag section %><%= button_tag 'Append OCR', id: "btn_append_#{section}", class: "append_ocr" -%><br>
-              <%= text_area_tag(section, "calculating...", id: "text_for_#{section}") %>
+              <%= label_tag section %>
+              <%= button_tag "Use (#{i + 1})", id: "use_#{section}", class: "use_ocr" -%><br>
+              <%= content_tag(:div, "Calculating...", id: "text_for_#{section}", class: :ocr_text ) %>
             </div>
         <% end %>
       </div>
@@ -59,13 +65,13 @@
                     <%= o.label :name %><br>
                     <%= render(
                                 partial: '/workbench/elements/forms/ajax_select',
-                                locals: {
+                                locals:  {
                                         controller: '/otus',
-                                        object: "collection_object[taxon_determinations_attributes][#{o.index}]",
-                                        method: 'otu_id',
-                                        tag_id: "otu_id_for_identifier_#{o.index}",
-                                        display: otu_tag(o.object.otu),
-                                        size: 20})
+                                        object:     "collection_object[taxon_determinations_attributes][#{o.index}]",
+                                        method:     'otu_id',
+                                        tag_id:     "otu_id_for_identifier_#{o.index}",
+                                        display:    otu_tag(o.object.otu),
+                                        size:       20})
                     %>
                   </div>
               <% end %>
@@ -75,66 +81,67 @@
             <div class="item item <%= @result.small_dimensions_for(@result.secondary_sections.second) -%>2">
               <h3> Identifiers </h3>
               <%= f.fields_for(:identifiers, @result.depiction.depiction_object.identifiers) do |i| -%>
-                <%= i.hidden_field :type -%>
+                  <%= i.hidden_field :type -%>
 
-                <div class="side_by_side_fields">
+                  <div class="side_by_side_fields">
 
-                  <div class="field">
-                    <%= i.label :namespace_id %><br>
-                    <%= render(
-                      partial: '/workbench/elements/forms/ajax_select',
-                      locals: {
-                        controller: '/namespaces',
-                        object: "collection_object[identifiers_attributes][#{i.index}]",
-                        method: 'namespace_id',
-                        tag_id: "namespace_id_for_identifier_#{i.index}",
-                        display: i.object.namespace ? i.object.namespace.short_name : nil,
-                        size: 20,
-                        fields_for_object: i})
+                    <div class="field">
+                      <%= i.label :namespace_id %><br>
+                      <%= render(
+                                  partial: '/workbench/elements/forms/ajax_select',
+                                  locals:  {
+                                          controller:        '/namespaces',
+                                          object:            "collection_object[identifiers_attributes][#{i.index}]",
+                                          method:            'namespace_id',
+                                          tag_id:            "namespace_id_for_identifier_#{i.index}",
+                                          display:           i.object.namespace ? i.object.namespace.short_name : nil,
+                                          size:              20,
+                                          fields_for_object: i})
                       %>
 
-                    <% if @result.depiction.depiction_object.identifiers.size == 1 %>
-                      <%= check_box_tag(:lock_namespace, "1", @result.namespace_locked?) -%>lock
-                    <% end %>
+                      <% if @result.depiction.depiction_object.identifiers.size == 1 %>
+                          <%= check_box_tag(:lock_namespace, "1", @result.namespace_locked?) -%>lock
+                      <% end %>
+
+                    </div>
+
+                    <div class="field">
+                      <%= i.label :identifier %><br>
+                      <%= i.text_field :identifier %>
+                    </div>
 
                   </div>
-
-                  <div class="field">
-                    <%= i.label :identifier %><br>
-                    <%= i.text_field :identifier %>
                   </div>
-
-                </div>
+              <% end %>
               </div>
-            <% end %>
-          </div>
 
           <div class="side_by_side_fields" id="collection_object_fields">
             <div class="field">
               <%= f.label :buffered_collecting_event %>
               <br>
-              <%= f.text_area :buffered_collecting_event -%>
+              <%= f.text_area :buffered_collecting_event, class: "mousetrap" -%>
             </div>
 
             <div class="field">
               <%= f.label :buffered_determinations %>
               <br>
-              <%= f.text_area :buffered_determinations -%>
+              <%= f.text_area :buffered_determinations, class: "mousetrap"  -%>
             </div>
 
             <div class="field">
               <%= f.label :buffered_other_labels %>
               <br>
-              <%= f.text_area :buffered_other_labels -%>
+              <%= f.text_area :buffered_other_labels, class: "mousetrap"  -%>
             </div>
 
           </div>
 
           <%= submit_tag -%>
           <%= submit_tag('Save and next') -%>
+          <%= link_to('Skip to next', depiction_breakdown_task_path(SqedDepiction.next_depiction(@result.depiction), @result.namespace_id)) -%>
 
           <br class="clear_both">
-        <% end %>
+      <% end %>
 
     </div>
   </div>
@@ -143,8 +150,10 @@
 </div>
 
 <script>
-    var imageObject;
 
+
+
+    var imageObject;
     imageObject = new Image();
 
     var imageAspectRatio;
@@ -223,7 +232,7 @@
             } else {
                 this.attr('cursor', 'move');
             }
-//            getBox();     // relocated to drag end function
+            //            getBox();     // relocated to drag end function
         };
 
         var dragStart = function () {
@@ -292,13 +301,14 @@
         var dragEnd = function () {
             this.dragging = false;
             getBox();               // when box drag or sizing stops, get the box data
+            ocr_selection()
         };
 
         select_box = paper.add([
             svg_box
         ]);
 
-//        select_box.mouseup(selectRectangle());        // does not work, preempted by dragEnd
+        //  select_box.mouseup(selectRectangle());        // does not work, preempted by dragEnd
         select_box.mousemove(changeCursor)
         select_box.drag(dragMove, dragStart, dragEnd);
     }
@@ -311,12 +321,11 @@
     ;
 
     function getBox(reset) {
-
         var coords = big_svg_coords();  // "corners" of the selectable image rectangle
 
         imageAspectRatio = coords[2] / coords[3];
 
-// calculate source framing
+        // calculate source framing
         var SratioW = coords[2] / paperWidth;           // separate the source amd destination distortion
         var SratioH = coords[3] / paperHeight;          // by computing separate rectangle aspect ratios
 
@@ -325,81 +334,131 @@
         sourceWidth = Math.round(boxW * SratioW);
         sourceHeight = Math.round(boxH * SratioH * imageAspectRatio);
 
-// calculate destination framing
-        var destWidth;                  // NOTE:  destWidth and destHeight are
-        var destHeight;                 // no longer the same as paperWidth/Height
         canvas = document.getElementById("selected_picture_canvas");
         context = canvas.getContext('2d');
         context.clearRect(0, 0, canvas.width, canvas.height);
-        if (reset) {return};
+
+        if (reset) {
+            return
+        };
+
+        // calculate destination framing
+        var destWidth;                  // NOTE:  destWidth and destHeight are
+        var destHeight;                 // no longer the same as paperWidth/Height
+
         var ratioW = coords[2] / canvas.width;      // This may end up set by this file
         var ratioH = coords[3] / canvas.height;     // vs fetched from static control
 
         if (boxW >= boxH) {         // destination width should equal canvas.width
             destWidth = coords[2] / ratioW;
-            destHeight = coords[3] * (boxH / boxW) / ratioH;
-            destHeight = coords[3] / ratioW * (boxH / boxW) * imageAspectRatio;
             destHeight = (boxH / boxW) * destWidth;     // dependent width assuming 1:1 pixel ratio
         }
         else {                      // destination height should equal canvas.height
             destHeight = coords[3] / ratioH;
-            destWidth = coords[2] * (boxW / boxH) / ratioW;
             destWidth = (boxW / boxH) * destHeight;     // dependent height assuming 1:1 pixel ratio
         }
 
-        var destX =  canvas.width / 2 - destWidth / 2;      // center tall selection horizontally
+        var destX = canvas.width / 2 - destWidth / 2;      // center tall selection horizontally
         var destY = 0;       // bias wide selection to top  // was canvas.height / 2 - destHeight / 2;
 
         imageObject.src = $("#original_image").attr('src');         // make an image() object to "draw onto the canvas
         context.drawImage(imageObject, sourceX, sourceY, sourceWidth, sourceHeight, destX, destY, destWidth, destHeight);
-
-//        $('#debug_box').html(boxX + "|" + boxY + "|" + boxW + "|" + boxH + "-" + sourceX + "|" + sourceY + "|" + sourceWidth + "|" + sourceHeight );
-
+        //  $('#debug_box').html(boxX + "|" + boxY + "|" + boxW + "|" + boxH + "-" + sourceX + "|" + sourceY + "|" + sourceWidth + "|" + sourceHeight );
     }
     ;
 
+    // Populate the original OCR from sections
     <% @result.image_sections.each do |section| -%>
     $.get("<%= @result.ocr_path_for(section) -%>", function (data) {
-                $("#text_for_<%= section -%>").val(data.text);
+                $("#text_for_<%= section -%>").html(data.text);
             }, 'json'
     );
     <% end %>
 
     function ocr_selection() {
-
+        $("#selected_text").html("Calculating ocr...");
         var coord_string = Math.round(sourceX) + "/" + Math.round(sourceY) + "/" + Math.round(sourceWidth) + "/" + Math.round(sourceHeight);
         var ocr_string = "/images/<%= @result.depiction.image.id -%>/ocr/" + coord_string;
-        $("#selected_text").html(ocr_string);
 
         $.get(ocr_string, function (data) {
-           if (data.text.length > 0) {
-              $("#selected_text").html(data.text);
-           }
-           else {
-              $("#selected_text").append(' FAILED');
-           }
-         }, 'json'
+                    if (data.text.length > 0) {
+                        $("#selected_text").html(data.text);
+                    }
+                    else {
+                        $("#selected_text").append(' FAILED');
+                    }
+                }, 'json'
         );
     }
+    ;
+
     function initDecodedText() {
         $("#selected_text").html('( decoded text appears here )');
     }
+    ;
 
     $('#ocr_selection').on('click', function (click) {
         ocr_selection();
-    })
-    ;
+    });
 
     $('#setBox').on('click', function () {
         addSelectBox();
-    })
-    ;
-
-    $(".append_ocr").on('click', function(click) {
-        var this_target = this.id.split("btn_append_");
-        this_target[0] = "#text_for_" + this_target[1];
-        $(this_target[0]).val(( $(this_target[0]).val() + $("#selected_text").html()));
     });
+
+    Mousetrap.bind('ctrl+q', function() { append_user_selected_ocr(); });
+    Mousetrap.bind('ctrl+w', function() { replace_user_selected_ocr(); });
+
+   function append_user_selected_ocr() {
+     var target = $(document.activeElement);
+     $(target).val($(target).val() + $("#selected_text").html()); 
+    }
+
+   function replace_user_selected_ocr() {
+    var target = $(document.activeElement);
+     $(target).val($("#selected_text").html()); 
+    }
+
+    <% @result.image_sections.each_with_index do |section, i| -%>
+      Mousetrap.bind('ctrl+<%= i + 1 %>', function() { use_ocr('<%= section -%>'); });
+    <% end %>
+
+    $(".use_ocr").on('click', function (click) {
+        var section = this.id.split("use_")[1];
+        use_ocr(section);
+    });
+
+   function use_ocr(section) {
+     var ocr = $("#text_for_" + section).html();
+     var target_id;
+     var value;
+
+     if (section == 'identifier') {
+       target_id = "#collection_object_identifiers_attributes_0_identifier";
+       value = get_identifier(ocr);
+     }
+     else { 
+       target_id = "#collection_object_" + $("#image_sections").data("section-" + section);
+       value = $(target_id).val() + ocr;
+     };
+     
+     $(target_id).val(value);
+   }
+
+  function get_identifier(ocr_txt) {
+    var regex = /(<%= @identifier_prototype.length.times.collect{|a| '[\d]'}.join().html_safe -%>)/; 
+    var v = regex.exec(ocr_txt);
+    if (v == false) {
+      return
+    }
+    else {
+      return v[0];
+    }
+  };
+
+
+
+
+  $("#collection_object_buffered_collecting_event").focus();
 
 </script>
 <!--<script>  $(document).ready(set_select_box()); </script>-->
