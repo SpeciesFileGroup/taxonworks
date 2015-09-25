@@ -11,12 +11,14 @@ class Tasks::Accessions::Breakdown::DepictionController < ApplicationController
 
     # Experiment with using the last identifier created as a pattern for matching new identifiers
     #  .. right now very dumb, assume all numbers, fixed length
-    identifier =  Identifier.where(project_id: sessions_current_project_id).last
-    if identifier
+    identifier = Identifier.where(project_id: sessions_current_project_id).last
+    if !identifier.blank?
       @identifier_prototype = identifier.identifier
     else
-      @identifer_prototype ||= '12345678'
+      @identifer_prototype = '12345678'
     end
+    # ugh, Friday
+    @identifer_prototype = '12345678'
   end
 
   def update 
