@@ -445,7 +445,7 @@
    }
 
   function get_identifier(ocr_txt) {
-    var regex = /(<%= @identifier_prototype.length.times.collect{|a| '[\d]'}.join().html_safe -%>)/; 
+    var regex = /(<%= @identifer_prototype.length.times.collect{|a| '[\d]'}.join().html_safe -%>)/; 
     var v = regex.exec(ocr_txt);
     if (v == false) {
       return
