@@ -25,6 +25,7 @@ class Note < ActiveRecord::Base
   include Housekeeping
   include Shared::IsData 
   include Shared::AttributeAnnotations
+  include Shared::Taggable
 
   belongs_to :note_object, polymorphic: true
   before_validation :no_pipes

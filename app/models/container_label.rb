@@ -29,6 +29,6 @@ class ContainerLabel < ActiveRecord::Base
 
   belongs_to :container
 
-  validates_presence_of :container
+  validates_presence_of :container_id
   validates_presence_of :label
 end

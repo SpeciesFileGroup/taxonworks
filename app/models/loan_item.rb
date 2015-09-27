@@ -47,14 +47,23 @@ class LoanItem < ActiveRecord::Base
   validates :loan_id, presence: true
   validates_uniqueness_of :loan, scope: [:loan_item_object_type, :loan_item_object_id] 
   
-  validate :total_provided_only_when_otu
+  validate :total_provided_only_when_otu,
+           :valid_collection_object_status
   validates_inclusion_of :loan_item_object_type, in: %w{Otu CollectionObject Container}
+
+  COLLECTION_OBJECT_STATUSES = ['Destroyed', 'Donated', 'Loaned on', 'Lost', 'Retained', 'Returned']
 
   protected
 
   def total_provided_only_when_otu
-    errors.add(:total, 'total only providable when item is an otu') if total && loan_item_object_type != 'Otu'
+    errors.add(:total, 'Total only providable when item is an otu') if total && loan_item_object_type != 'Otu'
   end
 
+
+  def valid_collection_object_status
+    unless self.collection_object_status.nil? || COLLECTION_OBJECT_STATUSES.include?(self.collection_object_status)
+      errors.add(:collection_object_status, 'Invalid collection object status')
+    end
+  end
 
 end

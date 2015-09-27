@@ -31,10 +31,10 @@ namespace :tw do
 
       # A utility class to index data.
       class ImportedData
-        attr_accessor :people_id, :keywords, :user_index, :collection_objects, :namespaces, :people_index, # :otus,
+        attr_accessor :people_id, :keywords, :user_index, :collection_objects, :namespaces, :people_index, #:otus,
                       :preparation_types, :taxa_index, :localities_index, # :collecting_event_index,
-                      :unmatched_localities, :invalid_speciemens, :unmatched_taxa, :duplicate_specimen_ids,
-                      :partially_resolved_index, :biocuration_classes, :biological_properties, :biological_relationships, :loans
+                      :unmatched_localities, :invalid_specimens, :unmatched_taxa, :duplicate_specimen_ids, :rooms,
+                      :partially_resolved_index, :biocuration_classes, :biological_properties, :biological_relationships, :loans, :loan_invoice_speciments
         def initialize()
           @keywords = {}                  # keyword -> ControlledVocabularyTerm
           @namespaces = {}                # SpecimenIDPrefix -> NameSpace class
@@ -42,7 +42,7 @@ namespace :tw do
           @people_index = {}              # PeopleID -> Person object
           @people_id = {}                 # PeopleID -> People row
           @user_index = {}                # PeopleID -> User object
-          # @otus = {}                      # TaxonCode -> Otu object
+          #@otus = {}                      # TaxonCode -> OtuID
           @taxa_index = {}                # TaxonCode -> Protonym object
           #@collecting_event_index = {}
           @collection_objects = {}
@@ -56,7 +56,9 @@ namespace :tw do
           @biocuration_classes = {}
           @biological_properties = {}
           @biological_relationships = {}
+          @loan_invoice_speciments = {}
           @loans = {}
+          @rooms = {}
 
         end
 
@@ -191,7 +193,9 @@ namespace :tw do
         puts "\nTotal collecting events to build: #{$redis.keys.count}."
 
         ###handle_associations(@data, @import)
-        handle_loan_specimens(@data)
+        ###handle_loan_specimens(@data)
+        ###handle_letters(@data)
+        handle_collection_profile(@data)
 
         puts "\n!! Unmatched localities: (#{@data.unmatched_localities.keys.count}): " + @data.unmatched_localities.keys.sort.join(", ")
         puts "\n!! Unmatched taxa: (#{@data.unmatched_taxa.keys.count}): " + @data.unmatched_taxa.keys.sort.join(", ")
@@ -207,13 +211,15 @@ namespace :tw do
         email = 'inhs_admin@replace.me'
         project_name = 'INHS Insect Collection'
         user_name = 'INHS Insect Collection Import'
-        $user_id, $project_id = nil, nil
+        $user_id, $project_id, $collection_container = nil, nil, nil
         if import.metadata['project_and_users']
           print "from database.\n"
           project = Project.where(name: project_name).first
           user = User.where(email: email).first
+          collection_container = Container.where(name: project_name).first
           $project_id = project.id
           $user_id = user.id
+          $collection_container = collection_container
         else
           print "as newly parsed.\n"
 
@@ -235,6 +241,14 @@ namespace :tw do
           $project_id = project.id
           pm = ProjectMember.new(user: user, project: project, is_project_administrator: true)
           pm.save! if pm.valid?
+
+          cc = Container.where(name: project_name)
+          if cc.empty?
+            cc = Container::Collection.create(name: project_name )
+          else
+            cc = cc.first
+          end
+          $collection_container = cc.id
 
           import.metadata['project_and_users'] = true
         end
@@ -383,6 +397,30 @@ namespace :tw do
           n = n.first
         end
         data.namespaces.merge!('Invoice' => n)
+
+        n = Namespace.where(institution: 'INHS Insect Collection', name: 'INHS drawer')
+        if n.empty?
+          n = Namespace.create(institution: 'INHS Insect Collection', name: 'INHS drawer', short_name: 'D')
+        else
+          n = n.first
+        end
+        data.namespaces.merge!('dry' => n)
+
+        n = Namespace.where(institution: 'INHS Insect Collection', name: 'INHS vial rack')
+        if n.empty?
+          n = Namespace.create(institution: 'INHS Insect Collection', name: 'INHS vial rack', short_name: 'R')
+        else
+          n = n.first
+        end
+        data.namespaces.merge!('wet' => n)
+
+        n = Namespace.where(institution: 'INHS Insect Collection', name: 'INHS slide box')
+        if n.empty?
+          n = Namespace.create(institution: 'INHS Insect Collection', name: 'INHS slide box', short_name: 'S')
+        else
+          n = n.first
+        end
+        data.namespaces.merge!('slide' => n)
 
         data.namespaces.merge!(taxon_namespace: @taxon_namespace)
         data.namespaces.merge!(accession_namespace: @accession_namespace)
@@ -538,6 +576,7 @@ namespace :tw do
 
           data.keywords.merge!('INHS' => Keyword.create(name: 'INHS', definition: 'Belongs to INHS Insect collection.'))
           data.keywords.merge!('INHS_imported' => Keyword.create(name: 'INHS_imported', definition: 'Imported from INHS Insect collection database.'))
+          data.keywords.merge!('INHS_letters' => Keyword.create(name: 'INHS_letters', definition: 'Loan correspondance imported from INHS Insect collection database.'))
 
           # from collecting_events
           PREDICATES.each do |p|
@@ -708,13 +747,16 @@ namespace :tw do
         tmp_ce_sorted = tmp_ce.sort.to_s
         c_from_redis = $redis.get(tmp_ce_sorted)
         unless ce['AccessionNumber'].blank?
+          c = CollectingEvent.with_project_id($project_id).with_identifier('Accession Code ' + ce['Collection'] + ' ' + ce['AccessionNumber'])
           if !ce['Collection'].blank?
-            c = Identifier.where(identifier: ce['Collection'] + ' ' + ce['AccessionNumber'], namespace_id: @accession_namespace, type: 'Identifier::Local::AccessionCode', project_id: $project_id)
+            c = CollectingEvent.with_project_id($project_id).with_identifier('Accession Code ' + ce['Collection'] + ' ' + ce['AccessionNumber'])
+            #c = Identifier.where(identifier: ce['Collection'] + ' ' + ce['AccessionNumber'], namespace_id: @accession_namespace, type: 'Identifier::Local::AccessionCode', project_id: $project_id)
           else
-            c = Identifier.where(identifier: ce['AccessionNumber'], namespace_id: @accession_namespace, type: 'Identifier::Local::AccessionCode', project_id: $project_id)
+            c = CollectingEvent.with_project_id($project_id).with_identifier('Accession Code ' + ce['AccessionNumber'])
+            #c = Identifier.where(identifier: ce['AccessionNumber'], namespace_id: @accession_namespace, type: 'Identifier::Local::AccessionCode', project_id: $project_id)
           end
           unless c.empty?
-            c = c.first.annotated_object
+            c = c.first
             if c_from_redis.nil?
               $redis.set(tmp_ce_sorted, c.id)
               return c
@@ -1071,78 +1113,79 @@ namespace :tw do
         count_fields = %w{ AdultMale AdultFemale Immature Pupa Exuvium AdultUnsexed AgeUnknown OtherSpecimens }
 
         sp.each_with_index do |row, i|
+          unless row['Prefix'] == 'Loan Invoice'
+            locality_code = row['LocalityCode']
+            se = { }
 
-          locality_code = row['LocalityCode']
-          se = { }
+            if !data.localities_index[locality_code].nil?
+              #Utilities::Hashes.puts_collisions(tmp_ce, LOCALITIES[locality_code])
+              se.merge!(data.localities_index[locality_code])
+            else
+              data.unmatched_localities.merge!(locality_code => nil) unless locality_code.blank?
+            end
+            specimen_fields.each do |c|
+              se.merge!(c => row[c]) unless row[c].blank?
+            end
 
-          if !data.localities_index[locality_code].nil?
-            #Utilities::Hashes.puts_collisions(tmp_ce, LOCALITIES[locality_code])
-            se.merge!(data.localities_index[locality_code])
-          else
-            data.unmatched_localities.merge!(locality_code => nil) unless locality_code.blank?
-          end
-          specimen_fields.each do |c|
-            se.merge!(c => row[c]) unless row[c].blank?
-          end
+            bench = Benchmark.measure {
+              collecting_event = find_or_create_collecting_event(se, data)
+            }
 
-          bench = Benchmark.measure {
-            collecting_event = find_or_create_collecting_event(se, data)
-          }
+            print "\r#{i} \t#{bench.to_s.strip}                            "
 
-          print "\r#{i} \t#{bench.to_s.strip}                            "
+            preparation_type = data.preparation_types[se['preparation_type']]
 
-          preparation_type = data.preparation_types[se['preparation_type']]
+            no_specimens = false
+            if count_fields.collect{ |f| se[f] }.select{ |n| !n.nil? }.empty?
+              se.merge!('OtherSpecimens' => '1')
+              no_specimens = true
+            end
 
-          no_specimens = false
-          if count_fields.collect{ |f| se[f] }.select{ |n| !n.nil? }.empty?
-            se.merge!('OtherSpecimens' => '1')
-            no_specimens = true
-          end
+            objects = []
+            count_fields.each do |count|
+              unless se[count].blank?
+                specimen = CollectionObject::BiologicalCollectionObject.new(
+                total: se[count],
+                preparation_type: preparation_type,
+                repository_id: $repository,
+                buffered_collecting_event: se['LocalityLabel'],
+                buffered_determinations: se['DeterminationLabel'],
+                buffered_other_labels: se['OtherLabel'],
+                collecting_event: collecting_event,
+                deaccessioned_at: time_from_field(se['DeaccessionDate']),
+                deaccession_reason: se['DeaccessionCause'],
+                created_by_id: find_or_create_collection_user(se['CreatedBy'], data),
+                updated_by_id: find_or_create_collection_user(se['ModifiedBy'], data),
+                created_at: time_from_field(se['CreatedOn']),
+                updated_at: time_from_field(se['ModifiedOn'])
+                )
 
-          objects = []
-          count_fields.each do |count|
-            unless se[count].blank?
-              specimen = CollectionObject::BiologicalCollectionObject.new(
-              total: se[count],
-              preparation_type: preparation_type,
-              repository_id: $repository,
-              buffered_collecting_event: se['LocalityLabel'],
-              buffered_determinations: se['DeterminationLabel'],
-              buffered_other_labels: se['OtherLabel'],
-              collecting_event: collecting_event,
-              deaccessioned_at: time_from_field(se['DeaccessionDate']),
-              deaccession_reason: se['DeaccessionCause'],
-              created_by_id: find_or_create_collection_user(se['CreatedBy'], data),
-              updated_by_id: find_or_create_collection_user(se['ModifiedBy'], data),
-              created_at: time_from_field(se['CreatedOn']),
-              updated_at: time_from_field(se['ModifiedOn'])
-              )
+                if specimen.valid?
+                  specimen.save!
+                  objects += [specimen]
+                  specimen.notes.create(text: se['Remarks']) unless se['Remarks'].blank?
 
-              if specimen.valid?
-                specimen.save!
-                objects += [specimen]
-                specimen.notes.create(text: se['Remarks']) unless se['Remarks'].blank?
+                  data.keywords.each do |k|
+                    specimen.data_attributes.create(type: 'InternalAttribute', controlled_vocabulary_term_id: k[1].id, value: se[k[0]]) unless se[k[0]].blank?
+                  end
 
-                data.keywords.each do |k|
-                  specimen.data_attributes.create(type: 'InternalAttribute', controlled_vocabulary_term_id: k[1].id, value: se[k[0]]) unless se[k[0]].blank?
+                  specimen.tags.create(keyword: data.keywords['ZeroTotal']) if no_specimens
+                  add_bioculation_class(specimen, count, data)
+
+                  Role.create(person: data.people_index[se['AccessionSource']], role_object: specimen, type: 'AccessionProvider') unless se['AccessionSource'].blank?
+                  Role.create(person: data.people_index[se['DeaccessionRecipient']], role_object: specimen, type: 'DeaccessionRecipient') unless se['DeaccessionRecipient'].blank?
+                else
+                  data.invalid_specimens.merge!(se['Prefix'] + ' ' + se['CatalogueNumber'] => nil)
                 end
 
-                specimen.tags.create(keyword: data.keywords['ZeroTotal']) if no_specimens
-                add_bioculation_class(specimen, count, data)
-
-                Role.create(person: data.people_index[se['AccessionSource']], role_object: specimen, type: 'AccessionProvider') unless se['AccessionSource'].blank?
-                Role.create(person: data.people_index[se['DeaccessionRecipient']], role_object: specimen, type: 'DeaccessionRecipient') unless se['DeaccessionRecipient'].blank?
-              else
-                data.invalid_specimens.merge!(se['Prefix'] + ' ' + se['CatalogueNumber'] => nil)
-              end
-
-              unless specimen.valid?
-                byebug
+                unless specimen.valid?
+                  byebug
+                end
               end
             end
+            add_identifiers(objects, row, data)
+            add_determinations(objects, row, data)
           end
-          add_identifiers(objects, row, data)
-          add_determinations(objects, row, data)
         end
 
         puts "\n Number of collecting events processed from specimens: #{$redis.keys.count - start} "
@@ -1359,8 +1402,10 @@ namespace :tw do
 
 
       def add_determinations(objects, row, data)
-        identifier = Identifier.where(namespace_id: @taxon_namespace.id, identifier: row['TaxonCode'], project_id: $project_id)
-        otu = identifier.empty? ? nil : identifier.first.identifier_object
+        #identifier = Identifier.where(namespace_id: @taxon_namespace.id, identifier: row['TaxonCode'], project_id: $project_id)
+        #otu = identifier.empty? ? nil : identifier.first.identifier_object
+        otu = Otu.with_project_id($project_id).with_identifier('Taxon Code ' + row['TaxonCode'])
+        otu = otu.empty? ? nil : otu.first
 
 #        otu = data.otus[row['TaxonCode']]
         objects.each do |o|
@@ -1575,7 +1620,36 @@ namespace :tw do
         end
       end
 
+      def handle_loans_without_specimens(data)
+        start = $redis.keys.count
+        collecting_event = nil
+        puts "Loan specimen records from specimens.txt"
+        path = @args[:data_directory] + 'TXT/specimens.txt'
+        raise 'file not found' if not File.exists?(path)
+
+        sp = CSV.open(path, col_sep: "\t", :headers => true)
+
+        specimen_fields = %w{ Prefix CatalogNumber TaxonCode AdultMale AdultFemale Immature Pupa Exuvium AdultUnsexed AgeUnknown OtherSpecimens }
+        count_fields = %w{ AdultMale AdultFemale Immature Pupa Exuvium AdultUnsexed AgeUnknown OtherSpecimens }
+
+        sp.each_with_index do |row, i|
+          if row['Prefix'].downcase == 'loan invoice'
+            count = 0
+            a = {}
+            count_fields.each do |j|
+              count += row[j].to_i unless row[j].nil?
+            end
+            count = nil if count == 0
+            a.merge!('TaxonCode' => row['TaxonCode'], 'Total' => count)
+            data.loan_invoice_speciments.merge!(row['CatalogNumber'] => a)
+          end
+        end
+      end
+
       def handle_loan_specimens(data)
+
+        handle_loans_without_specimens(data)
+
         path = @args[:data_directory] + 'TXT/loan_specimen.txt'
         raise 'file not found' if not File.exists?(path)
         ls = CSV.open(path, col_sep: "\t", :headers => true)
@@ -1594,36 +1668,151 @@ namespace :tw do
         ls.each_with_index do |row, i|
           print "\r#{i}"
           specimen = nil
-          container = nil
           invoice = data.loans[row['InvoiceID']]
           unless row['Prefix'].blank? || row['CatalogNumber'].blank? || invoice.nil?
-            identifier = Identifier.where(cached: row['Prefix'] + ' ' + row['CatalogNumber'], type: 'Identifier::Local::CatalogNumber', project_id: $project_id)
-            specimen = identifier.empty? ? nil : identifier.first.identifier_object
-            if specimen.class =~ /Container/
-              container = specimen
-              specimen = nil
-            end
-            l = LoanItem.new( loan: invoice,
-                                 collection_object_id: specimen,
-                                 date_returned: time_from_field(row['DateReturned']),
-                                 collection_object_status: status[row['Status'].to_s.downcase],
-                                 container_id: container
-            )
-            if l.valid?
-              l.save
+            if row['Prefix'].downcase == 'loan invoice' && !data.loan_invoice_speciments[row['CatalogNumber']].nil?
+              #identifier = Identifier.where(namespace_id: @taxon_namespace.id, identifier: data.loan_invoice_speciments[row['CatalogNumber']]['TaxonCode'], project_id: $project_id)
+              #specimen = identifier.empty? ? nil : identifier.first.identifier_object
+              otu = Otu.with_project_id($project_id).with_identifier('Taxon Code ' + data.loan_invoice_speciments[row['CatalogNumber']]['TaxonCode'])
+              specimen = otu.empty? ? nil : otu.first
+              total = data.loan_invoice_speciments[row['CatalogNumber']]['Total']
             else
-              byebug
+              identifier = Identifier.where(cached: row['Prefix'] + ' ' + row['CatalogNumber'], type: 'Identifier::Local::CatalogNumber', project_id: $project_id)
+              specimen = identifier.empty? ? nil : identifier.first.identifier_object
+              total = nil
             end
+            l = LoanItem.create( loan: invoice,
+                              loan_item_object: specimen,
+                              total: total,
+                              date_returned: time_from_field(row['DateReturned']),
+                              collection_object_status: status[row['Status'].to_s.downcase]
+            )
           end
         end
-        Loan.each do |l|
-          unless l.date_returnen.nil?
-            date = l.loan_items.collect{|i| i.date_returned}.order
-            l.date_returned = date.last
-            l.save
+        Loan.where(project_id: $project_id).select{|o| !o.date_closed.nil?}.select{|i| !i.loan_items.empty?}.each do |l|
+          date = l.loan_items.select{|o| !o.date_returned.nil?}.collect{|i| i.date_returned}
+          l.date_closed = date.sort.last unless date.empty?
+          l.save
+        end
+      end
+
+      def handle_letters(data)
+        path = @args[:data_directory] + 'TXT/letters.txt'
+        raise 'file not found' if not File.exists?(path)
+        ls = CSV.open(path, col_sep: "\t", :headers => true)
+        #fields = %w{ InvoiceID RecipientID Salutation Body Creator CreatedOn }
+        print "Handling letters\n"
+
+        ls.each_with_index do |row, i|
+          print "\r#{i}"
+          invoice = data.loans[row['InvoiceID']]
+
+          unless row['Body'].to_s.squish.blank? || invoice.nil?
+            note = row['Body'].to_s.squish
+            note = row['Salutation'].to_s + "\n" + note unless row['Salutation'].to_s.squish.blank?
+            invoice.notes.create(text: note,
+                                 created_by_id: find_or_create_collection_user(row['Creator'], data),
+                                 created_at: time_from_field(row['CreatedOn']),
+                                 tags_attributes:   [ { keyword: data.keywords['INHS_letters'] } ]
+                                )
           end
         end
-       end
+      end
+
+      def handle_collection_profile(data)
+        path = @args[:data_directory] + 'TXT/collection_profile.txt'
+        raise 'file not found' if not File.exists?(path)
+        ls = CSV.open(path, col_sep: "\t", :headers => true)
+        #fields = %w{ ID Room Label1_1 Label1_2 Label1_3 Label1_4 Label2_1 Label2_2 Label2_3 Label2_4 TaxonCode Remarks CollectionType ConservationStatus ProcessingState ContainerCondition ConditionOfLabels IdentificationLevel ArangementLevel DataQuality ComputerizationLevel NumberOfSpecimens NumberOfVialsSlides Print1 Print2 CreatedBy CreatedOn ModifiedBy ModifiedOn }
+        print "Handling collection profile\n"
+
+        container_type = {'wet' => 'Container::VialRack', 'dry' => 'Container::Drawer', 'slide' => 'Container::SlideBox'}
+
+        ls.each_with_index do |row, i|
+          print "\r#{i}"
+          otu = Otu.with_project_id($project_id).with_identifier('Taxon Code ' + row['TaxonCode'])
+          otu = otu.empty? ? nil : otu.first.id
+          room = find_or_create_room(row, data)
+
+          container = Container.create!(created_by_id: find_or_create_collection_user(row['CreatedBy'], data),
+                                       created_at: time_from_field(row['CreatedOn']),
+                                       updated_by_id: find_or_create_collection_user(row['ModifiedBy'], data),
+                                       updated_at: time_from_field(row['ModifiedOn']),
+                                       parent_id: room,
+                                       type: container_type[row['CollectionType']],
+                                       otu_id: otu,
+                                       name: nil
+          )
+          identifier = Identifier::Local::ContainerCode.create!(namespace: data.namespaces[row['CollectionType']], identifier: row['ID'], identifier_object: container)
+
+          label1 = [row['Label1_1'], row['Label1_2'], row['Label1_3'], row['Label1_4']].compact
+          label2 = [row['Label2_1'], row['Label2_2'], row['Label2_3'], row['Label2_4']].compact
+          case row['CollectionType']
+            when 'dry'
+              label1 = label1.join("\n")
+              label2 = label2.join("\n")
+            when 'wet'
+              label1 = [label1.join("\n"), label2.join("\n")].compact.join("\n")
+              label2 = nil
+            when 'slide'
+              label1 = [label1.join(' '), label2.join(' ')].compact.join("\n")
+              label2 = nil
+          end
+          cl1 = ContainerLabel.create!(label: label1,
+                                      date_printed: time_from_field(row['ModifiedOn']),
+                                      position: 1,
+                                      created_by_id: find_or_create_collection_user(row['CreatedBy'], data),
+                                      created_at: time_from_field(row['CreatedOn']),
+                                      updated_by_id: find_or_create_collection_user(row['ModifiedBy'], data),
+                                      updated_at: time_from_field(row['ModifiedOn']),
+                                      container: container
+                                                           ) unless label1.nil?
+          cl2 = ContainerLabel.create!(label: label2,
+                                      date_printed: time_from_field(row['ModifiedOn']),
+                                      position: 2,
+                                      created_by_id: find_or_create_collection_user(row['CreatedBy'], data),
+                                      created_at: time_from_field(row['CreatedOn']),
+                                      updated_by_id: find_or_create_collection_user(row['ModifiedBy'], data),
+                                      updated_at: time_from_field(row['ModifiedOn']),
+                                      container: container
+          ) unless label2.nil?
+
+          cp = CollectionProfile.create!(container: container,
+                                   otu_id: otu,
+                                   conservation_status: row['ConservationStatus'],
+                                   processing_state: row['ProcessingState'],
+                                   container_condition: row['ContainerCondition'],
+                                   condition_of_labels: row['ConditionOfLabels'],
+                                   identification_level: row['IdentificationLevel'],
+                                   arrangement_level: row['ArangementLevel'],
+                                   data_quality: row['DataQuality'],
+                                   computerization_level: row['ComputerizationLevel'],
+                                   number_of_collection_objects: row['NumberOfSpecimens'],
+                                   number_of_containers: row['NumberOfVialsSlides'],
+                                   created_by_id: find_or_create_collection_user(row['CreatedBy'], data),
+                                   created_at: time_from_field(row['CreatedOn']),
+                                   updated_by_id: find_or_create_collection_user(row['CreatedOn'], data),
+                                   updated_at: time_from_field(row['CreatedOn']),
+                                   collection_type: row['CollectionType']
+                                )
+          cp.notes.create!(text: row['Remarks']) unless row['Remarks'].blank?
+        end
+      end
+
+      def find_or_create_room(row, data)
+        return $collection_container if row['Room'].nil?
+        r = data.rooms[row['Room']]
+        if r.nil?
+          r = Container::Room.with_project_id($project_id).where(name: row['name'])
+          if r.empty?
+            r = Container::Room.create(parent_id: $collection_container, name: row['Room'] ).id
+          else
+            r = r.first.id
+          end
+        end
+        data.rooms.merge!(row['Room'] => r)
+        r
+      end
 
       def parse_geographic_area(ce)
         geog_search = []
