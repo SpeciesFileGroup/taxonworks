@@ -6,13 +6,13 @@
       <h3> Description and requirements </h3>
 
       <p> Creates a hierarchy of valid taxon names. Only unique names (as defined by the hierarchical path) are created,
-        e.g., a family name is created once though it appears in several rows of subordinate genera.
+        e.g., a genus name is created once though it appears on several rows of subordinate species.
       </p>
       <ul>
         <li>A tab-delimited, UTF-8 compatible text file is required.</li>
-        <li>Column headers are limited to rank names and author_year (see <%= link_to('sample template', asset_path('batch_load_templates/taxon_names_simple_batch_load.tab'), target: '_blank') -%>).</li>
+        <li>Column headers are required and limited to rank names and author_year (see <%= link_to('sample template', asset_path('batch_load_templates/taxon_names_simple_batch_load.tab'), target: '_blank') -%>).</li>
         <li>If a parent taxon is not specified, Root is the default.</li>
-        <li>Multiple uploads of the same data will create duplicate parallel hierarchies.</li>
+        <li>Multiple uploads of the same data will create duplicate parallel hierarchies. [true for both Root or named parent?? what if adding name under duplicate named parent??]</li>
         <li>It is assumed all taxon names are valid; family group names without proper endings will not be created.</li>
         <li>There is currently no size limit to the file being loaded but this may change in the future.</li>
       </ul>
