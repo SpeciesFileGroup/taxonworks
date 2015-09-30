@@ -12,9 +12,9 @@
     <th>Locality</th>
     <th>Latitude</th>
     <th>Longitude</th>
-    <%= ce_attrib_headers.html_safe %>
-    <%= co_attrib_headers.html_safe %>
-    <%= bc_headers.html_safe %>
+    <%= CollectionObject.ce_attrib_headers(@collection_objects).html_safe %>
+    <%= CollectionObject.co_attrib_headers(@collection_objects).html_safe %>
+    <%= CollectionObject.bc_headers(@collection_objects).html_safe %>
   </tr>
   <% @collection_objects.each do |c_o| %>
       <tr>

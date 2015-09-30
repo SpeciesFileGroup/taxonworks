@@ -17,4 +17,9 @@ class Tasks::Gis::ReportController < ApplicationController
     render :new
   end
 
+  def download
+    @geographic_area    = GeographicArea.find(params[:geographic_area_id])
+    @collection_objects = CollectionObject.in_geographic_item(@geographic_area.default_geographic_item)
+    send_data CollectionObject.generate_report_download(@collection_objects), type: 'text', filename: "collection_objects_#{DateTime.now.to_s}.csv"
+  end
 end

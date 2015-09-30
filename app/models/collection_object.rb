@@ -199,6 +199,20 @@ class CollectionObject < ActiveRecord::Base
     end
   end
 
+  def self.generate_report_download(scope)
+    CollectionObject.ce_attrib_headers(scope)
+    CollectionObject.co_attrib_headers(scope)
+    CollectionObject.bc_headers(scope)
+    CSV.generate do |csv|
+      csv << column_names + @ce_headers + @co_headers + @bc_headers
+      scope.order(id: :asc).each do |o|
+        csv << o.attributes.values_at(*column_names).collect { |i|
+          i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
+        }
+      end
+    end
+  end
+
 =begin
 Find all collection objects which have collecting events which have georeferences which have geographic_items which
 are located within the geographic item supplied
@@ -222,6 +236,61 @@ are located within the geographic item supplied
       retval = CollectionObject.joins(:collecting_event => [{:georeferences => :geographic_item}]).where(GeographicItem.sql_for_is_contained_by('any', geographic_item)).includes(:data_attributes, :collecting_event => [{:georeferences => :geographic_item}])
     end
 
+    retval
+  end
+
+  # decode which headers to be displayed for collecting events
+  def self.ce_attrib_headers(collection_objects)
+    @ce_headers = collection_objects.map(&:collecting_event).map(&:data_attributes).flatten.map(&:predicate).map(&:name).uniq.sort
+    retval      = ''
+    @ce_headers.each { |header|
+      retval += "<th>#{header}</th>\n"
+    }
+    retval
+  end
+
+  def self.ce_attributes(collection_object)
+    retval = ''
+    @ce_headers.each { |header|
+      retval += "<td>#{collection_object.collecting_event.data_attributes.select { |d| d.predicate.name == header }.map(&:value).join('; ')}</td>"
+    }
+    retval
+  end
+
+  # decode which headers to be displayed for collection objects
+  def self.co_attrib_headers(collection_objects)
+    @co_headers = collection_objects.map(&:data_attributes).flatten.map(&:predicate).map(&:name).uniq.sort
+    retval      = ''
+    @co_headers.each { |header|
+      retval += "<th>#{header}</th>\n"
+    }
+    retval
+  end
+
+  def self.co_attributes(collection_object)
+    retval = ''
+    @co_headers.each { |header|
+      retval += "<td>#{collection_object.data_attributes.select { |d| d.predicate.name == header }.map(&:value).join('; ')}</td>"
+    }
+    retval
+  end
+
+  # decode which headers to be displayed for biocurational classifications
+  def self.bc_headers(collection_objects)
+    @bc_headers = collection_objects.map(&:biocuration_classifications).flatten.map(&:biocuration_class).map(&:name).uniq.sort
+    retval      = ''
+    @bc_headers.each { |header|
+      retval += "<th>#{header}</th>\n"
+    }
+    retval
+  end
+
+  def self.bc_attributes(collection_object)
+    retval = ''
+    @bc_headers.each { |header|
+      truth  = collection_object.biocuration_classes.map(&:name).include?(header) ? '1' : '0'
+      retval += "<td>#{truth}</td>"
+    }
     retval
   end
 
