@@ -1,7 +1,25 @@
 module Tasks::Gis::ReportHelper
 
+  OTU_Headers = ['OTU', 'OTU name',
+                 'Family', 'Genus',
+                 'Species', 'Country',
+                 'State', 'County',
+                 'Locality', 'Latitude', 'Longitude']
+
+  def helper_download_link
+    if params[:geographic_area_id].nil?
+      '(download unavailable)'
+    else
+      link_to('download', gis_report_download_path(params[:geographic_area_id]))
+    end
+  end
+
   def otu_headers
-    @test_var = @test_var + 1
+    retval = ''
+    OTU_Headers.each { |header|
+      retval += "<th>#{header}</th>\n"
+    }
+    retval
   end
 
   def georeferences

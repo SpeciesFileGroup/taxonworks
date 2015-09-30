@@ -204,7 +204,7 @@ class CollectionObject < ActiveRecord::Base
     CollectionObject.co_attrib_headers(scope)
     CollectionObject.bc_headers(scope)
     CSV.generate do |csv|
-      csv << column_names + @ce_headers + @co_headers + @bc_headers
+      csv << Tasks::Gis::ReportHelper.OTU_Headers + @ce_headers + @co_headers + @bc_headers
       scope.order(id: :asc).each do |o|
         csv << o.attributes.values_at(*column_names).collect { |i|
           i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')

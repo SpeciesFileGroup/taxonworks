@@ -46,7 +46,8 @@
       </tr>
       <tr>
         <td align="center">
-          <%= link_to_unless(@collection_objects.empty?, 'download', gis_report_download_path(params[:geographic_area_id])) %>
+          <%= helper_download_link %>
+          <%#= link_to_unless(@collection_objects.empty?, 'download', gis_report_download_path(params[:geographic_area_id])) %>
         </td>
       </tr>
       </tbody>
