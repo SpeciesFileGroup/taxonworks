@@ -94,7 +94,7 @@
                                           object:            "collection_object[identifiers_attributes][#{i.index}]",
                                           method:            'namespace_id',
                                           tag_id:            "namespace_id_for_identifier_#{i.index}",
-                                          display:           i.object.namespace ? i.object.namespace.short_name : nil,
+                                          display:           (i.object.namespace ? i.object.namespace.short_name : nil),
                                           size:              20,
                                           fields_for_object: i})
                       %>
