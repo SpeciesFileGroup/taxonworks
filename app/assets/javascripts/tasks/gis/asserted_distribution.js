@@ -67,7 +67,17 @@ function add_click_services_to_new_asserted_distribution_map(map, event) {     /
             });
 
             var data = local_data['feature_collection'];
-            var bounds = {};
+        // original map canvas parameters are now lost, so we have to find them again
+        var bounds = {};
+          var children = feature_collection.parentElement.children;
+        for (m = 0; m < children.length; m++){
+          if (children[m].id.search("_canvas") >= 0) {
+            bounds.canvas_width = children[m].style.width.toString().split('px')[0];
+            bounds.canvas_height =  children[m].style.height.toString().split('px')[0];
+            bounds.canvas_ratio = bounds.canvas_width / bounds.canvas_height;
+            break;
+          }
+        }
             getData(data, bounds);
             var center_lat_long = get_window_center(bounds);
             map.setCenter(center_lat_long);
@@ -149,6 +159,6 @@ _init_asserted_distributions_map = function init_asserted_distributions_map() {
             add_new_asserted_distribution_map_listeners(map);
         }
     }
-}
+};
 $(document).ready(_init_asserted_distributions_map);
 $(document).on("page:load", _init_asserted_distributions_map);
