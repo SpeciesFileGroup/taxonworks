@@ -24,7 +24,11 @@
 
     <!--data-feature-collection='<%#= @feature_collection.to_json -%>'-->
 
-    <div id="feature_collection" data-otu="<%= @otu %>"></div>
+    <div id="feature_collection" data-otu="<%= @otu %>"
+      data-feature-collection='<%= @feature_collection.to_json -%>'
+      data-map-canvas="map_canvas"
+         >
+    </div>
 
     <div id="map_canvas" style="width:512px; height: 256px;"></div>
     <span id="map_coords"></span>

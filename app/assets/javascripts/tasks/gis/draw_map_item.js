@@ -2,12 +2,12 @@
 
 function initDrawItem(canvas)
 {
-    if ($(canvas).length) {    //preempt omni-listener affecting wrong canvas
+    if (canvas.length) {    //preempt omni-listener affecting wrong canvas
         if ($('#feature_collection').length) {
                 var newDrawWidget = $("#feature_collection");
-                var fcdata = newDrawWidget.data('feature-collection');
+                //var fcdata = newDrawWidget.data('feature-collection');
 
-                var map = initializeDrawItem(canvas, fcdata);
+                var map = initializeGoogleMapWithDrawManager(newDrawWidget);
                 addDrawingListeners(map);
             }
         }
