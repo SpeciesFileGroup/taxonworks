@@ -1,3 +1,9 @@
+CO_OTU_Headers = ['OTU', 'OTU name',
+                  'Family', 'Genus',
+                  'Species', 'Country',
+                  'State', 'County',
+                  'Locality', 'Latitude', 'Longitude']
+
 # A CollectionObject is on or more physical things that have been collected.  Enumerating how many things (@!total) is a task of the curator.
 #
 # A CollectiongObjects immediate disposition is handled through its relation to containers.  Containers can be nested, labeled, and interally subdivided as necessary.
@@ -188,6 +194,36 @@ class CollectionObject < ActiveRecord::Base
     h
   end
 
+  def parse_names(collection_object)
+    @geo_names = collection_object.collecting_event.names
+  end
+
+  def get_otu
+    self.otus.first unless self.otus.empty?
+  end
+
+  def get_otu_id
+    otu = get_otu
+    otu.id unless otu.nil?
+  end
+
+  def get_otu_name
+    otu = get_otu
+    otu.name unless otu.nil?
+  end
+
+  def get_otu_taxon_name
+    otu = get_otu
+    otu.taxon_name unless otu.nil?
+  end
+
+  def name_at_rank_string(rank)
+    retval = nil
+    otu = get_otu_taxon_name
+    retval = otu.ancestor_at_rank(rank) unless otu.nil?
+    retval.cached_html unless retval.nil?
+  end
+
   def self.generate_download(scope)
     CSV.generate do |csv|
       csv << column_names
@@ -240,13 +276,8 @@ are located within the geographic item supplied
   end
 
   # decode which headers to be displayed for collecting events
-  def self.ce_attrib_headers(collection_objects)
+  def self.ce_headers(collection_objects)
     @ce_headers = collection_objects.map(&:collecting_event).map(&:data_attributes).flatten.map(&:predicate).map(&:name).uniq.sort
-    retval      = ''
-    @ce_headers.each { |header|
-      retval += "<th>#{header}</th>\n"
-    }
-    retval
   end
 
   def self.ce_attributes(collection_object)
@@ -258,13 +289,8 @@ are located within the geographic item supplied
   end
 
   # decode which headers to be displayed for collection objects
-  def self.co_attrib_headers(collection_objects)
+  def self.co_headers(collection_objects)
     @co_headers = collection_objects.map(&:data_attributes).flatten.map(&:predicate).map(&:name).uniq.sort
-    retval      = ''
-    @co_headers.each { |header|
-      retval += "<th>#{header}</th>\n"
-    }
-    retval
   end
 
   def self.co_attributes(collection_object)
@@ -278,11 +304,6 @@ are located within the geographic item supplied
   # decode which headers to be displayed for biocurational classifications
   def self.bc_headers(collection_objects)
     @bc_headers = collection_objects.map(&:biocuration_classifications).flatten.map(&:biocuration_class).map(&:name).uniq.sort
-    retval      = ''
-    @bc_headers.each { |header|
-      retval += "<th>#{header}</th>\n"
-    }
-    retval
   end
 
   def self.bc_attributes(collection_object)
