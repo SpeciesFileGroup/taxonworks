@@ -219,7 +219,7 @@ class CollectionObject < ActiveRecord::Base
 
   def name_at_rank_string(rank)
     retval = nil
-    otu = get_otu_taxon_name
+    otu    = get_otu_taxon_name
     retval = otu.ancestor_at_rank(rank) unless otu.nil?
     retval.cached_html unless retval.nil?
   end
@@ -236,14 +236,27 @@ class CollectionObject < ActiveRecord::Base
   end
 
   def self.generate_report_download(scope)
-    CollectionObject.ce_attrib_headers(scope)
-    CollectionObject.co_attrib_headers(scope)
+    CollectionObject.ce_headers(scope)
+    CollectionObject.co_headers(scope)
     CollectionObject.bc_headers(scope)
     CSV.generate do |csv|
-      csv << Tasks::Gis::ReportHelper.OTU_Headers + @ce_headers + @co_headers + @bc_headers
-      scope.order(id: :asc).each do |o|
-        csv << o.attributes.values_at(*column_names).collect { |i|
-          i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
+      csv << CO_OTU_Headers + @ce_headers + @co_headers + @bc_headers
+      scope.order(id: :asc).each do |c_o|
+        row = [c_o.get_otu_id,
+               c_o.get_otu_name,
+               c_o.name_at_rank_string(:family),
+               c_o.name_at_rank_string(:genus),
+               c_o.name_at_rank_string(:species),
+               c_o.collecting_event.country,
+               c_o.collecting_event.state,
+               c_o.collecting_event.county,
+               c_o.collecting_event.verbatim_locality,
+               c_o.collecting_event.georeference_latitude,
+               c_o.collecting_event.georeference_longitude
+        ]
+        row += ce_attributes(c_o) + co_attributes(c_o) + bc_attributes(c_o)
+        csv << row.collect { |item|
+          item.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
         }
       end
     end
@@ -281,9 +294,9 @@ are located within the geographic item supplied
   end
 
   def self.ce_attributes(collection_object)
-    retval = ''
+    retval = []
     @ce_headers.each { |header|
-      retval += "<td>#{collection_object.collecting_event.data_attributes.select { |d| d.predicate.name == header }.map(&:value).join('; ')}</td>"
+      retval.push(collection_object.collecting_event.data_attributes.select { |d| d.predicate.name == header }.map(&:value).join('; '))
     }
     retval
   end
@@ -294,9 +307,9 @@ are located within the geographic item supplied
   end
 
   def self.co_attributes(collection_object)
-    retval = ''
+    retval = []
     @co_headers.each { |header|
-      retval += "<td>#{collection_object.data_attributes.select { |d| d.predicate.name == header }.map(&:value).join('; ')}</td>"
+      retval.push(collection_object.data_attributes.select { |d| d.predicate.name == header }.map(&:value).join('; '))
     }
     retval
   end
@@ -307,10 +320,9 @@ are located within the geographic item supplied
   end
 
   def self.bc_attributes(collection_object)
-    retval = ''
+    retval = []
     @bc_headers.each { |header|
-      truth  = collection_object.biocuration_classes.map(&:name).include?(header) ? '1' : '0'
-      retval += "<td>#{truth}</td>"
+      retval.push(collection_object.biocuration_classes.map(&:name).include?(header) ? '1' : '0')
     }
     retval
   end
