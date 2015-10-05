@@ -81,7 +81,8 @@ initializeMap = function (canvas, feature_collection) {
   map.setZoom(bounds.gzoom);
   //map.fitBounds(bounds.box);  /// no better results on non 2:1 canvas ratios
   if (document.getElementById("map_coords") != undefined) {
-    document.getElementById("map_coords").textContent = 'LAT: ' + center_lat_long['lat']() + ' - LNG: ' + center_lat_long['lng']() + ' - ZOOM: ' + bounds.gzoom;
+    document.getElementById("map_coords").textContent = 'LAT: ' + center_lat_long['lat']() + ' - LNG: '
+      + center_lat_long['lng']() + ' - ZOOM: ' + bounds.gzoom;
   }
   var sw = bounds.sw;       // draw the bounding box for JDT
   var ne = bounds.ne;
@@ -400,7 +401,8 @@ function reset_center_and_bounds(bounds) {
   bounds.ymax = -90.0;
 
   bounds.gzoom = 1;   // default zoom to whole earth
-  bounds.box = new google.maps.LatLngBounds(new google.maps.LatLng(bounds.ymax, bounds.xmaxm), new google.maps.LatLng(bounds.ymin, bounds.xminp));
+  bounds.box = new google.maps.LatLngBounds(new google.maps.LatLng(bounds.ymax, bounds.xmaxm),
+    new google.maps.LatLng(bounds.ymin, bounds.xminp));
   bounds.canvas_ratio = 1;    // overridable prior to get_window_center
 }
 
