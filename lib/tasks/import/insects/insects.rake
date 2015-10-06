@@ -838,7 +838,6 @@ namespace :tw do
             updated_by_id: updated_by,
             created_at: time_from_field(ce['CreatedOn']),
             updated_at: time_from_field(ce['ModifiedOn'])
-            # cached: 'UNAVAILABLE' ######## TODO: Cach generated for collecting event takes too much time.
         )
         if c.valid?
           #bench = Benchmark.measure {
@@ -1743,8 +1742,11 @@ namespace :tw do
                                        otu_id: otu,
                                        name: nil
           )
-          identifier = Identifier::Local::ContainerCode.create!(namespace: data.namespaces[row['CollectionType']], identifier: row['ID'], identifier_object: container)
+          #identifier = Identifier::Local::ContainerCode.create!(namespace: data.namespaces[row['CollectionType']], identifier: row['ID'], identifier_object: container)
 
+          ['Label1_1', 'Label1_2', 'Label1_3', 'Label1_4', 'Label2_1', 'Label2_2', 'Label2_3', 'Label2_4'].each do |l|
+            row[l] = nil if row[l].blank?
+          end
           label1 = [row['Label1_1'], row['Label1_2'], row['Label1_3'], row['Label1_4']].compact
           label2 = [row['Label2_1'], row['Label2_2'], row['Label2_3'], row['Label2_4']].compact
           case row['CollectionType']
@@ -1752,13 +1754,13 @@ namespace :tw do
               label1 = label1.join("\n")
               label2 = label2.join("\n")
             when 'wet'
-              label1 = [label1.join("\n"), label2.join("\n")].compact.join("\n")
+              label1 = (label1 + label2).compact.join("\n")
               label2 = nil
             when 'slide'
               label1 = [label1.join(' '), label2.join(' ')].compact.join("\n")
               label2 = nil
           end
-          unless label1.nil?
+          unless label1.blank?
             cl1 = ContainerLabel.create!(label: label1,
                                         date_printed: time_from_field(row['ModifiedOn']),
                                         position: 1,
@@ -1769,7 +1771,7 @@ namespace :tw do
                                         container: container
               )
           end
-          unless label2.nil?
+          unless label2.blank?
             cl2 = ContainerLabel.create!(label: label2,
                                         date_printed: time_from_field(row['ModifiedOn']),
                                         position: 2,
