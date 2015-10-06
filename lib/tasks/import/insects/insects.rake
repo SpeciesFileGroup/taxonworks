@@ -177,24 +177,24 @@ namespace :tw do
 
         # !! The following can not be loaded from the database they are always created anew.
 
-        ###build_localities_index(@data)
+        build_localities_index(@data)
 
         puts "Indexing collecting events."
         # should be run to clear redis database. if specimen from diffrent tables run one buy one, data could be left in Redis and reused
 
-        ### $redis.flushall
+        $redis.flushall
 
-        ###index_collecting_events_from_accessions_new(@data, @import)
-        ###index_collecting_events_from_ledgers(@data, @import)
-        ###index_specimen_records_from_specimens(@data, @import)
-        ###index_specimen_records_from_specimens_new(@data, @import)
-        ###index_specimen_records_from_neon(@data, @import)
+        index_collecting_events_from_accessions_new(@data, @import)
+        index_collecting_events_from_ledgers(@data, @import)
+        index_specimen_records_from_specimens(@data, @import)
+        index_specimen_records_from_specimens_new(@data, @import)
+        index_specimen_records_from_neon(@data, @import)
 
         puts "\nTotal collecting events to build: #{$redis.keys.count}."
 
-        ###handle_associations(@data, @import)
-        ###handle_loan_specimens(@data)
-        ###handle_letters(@data)
+        handle_associations(@data, @import)
+        handle_loan_specimens(@data)
+        handle_letters(@data)
         handle_collection_profile(@data)
 
         puts "\n!! Unmatched localities: (#{@data.unmatched_localities.keys.count}): " + @data.unmatched_localities.keys.sort.join(", ")
@@ -285,7 +285,7 @@ namespace :tw do
                                      'Predation' => ['Predator', 'Prey'],
                                      'Parasitism' => ['Parasite', 'Host'],
                                      'Host plant' => ['Host', 'Herbivor'],
-                                     'Polination' => ['Polinator', 'Polinated plant'],
+                                     'Pollination' => ['Pollinator', 'Pollinated plant'],
                                      'Mating' => ['Mate', 'Mate'],
                                      'Dissected genitalia' => ['Genitalia', 'Body'],
                                      'Dissected body part' => ['Body part', 'Body'],
@@ -301,22 +301,22 @@ namespace :tw do
                                  'mate' => ['Mating', :direct],
                                  'parasite' => ['Parasitims', :direct],
                                  'parasite of' => ['Parasitims', :direct],
-                                 'pollinating' => ['Polination', :direct],
-                                 'pollination' => ['Polination', :direct],
+                                 'pollinating' => ['Pollination', :direct],
+                                 'pollination' => ['Pollination', :direct],
                                  'predator' => ['Predation', :reverse],
                                  'prey' => ['Predation', :direct],
                                  'puparium' => ['Reared', :reverse],
                                  'reared from' => ['Parasitims', :direct],
                                  'soil' => :ignore,
                                  'tending' => ['Attendance', :direct],
-                                 'vicinity' => ['Polination', :direct] }
+                                 'vicinity' => ['Pollination', :direct] }
 
         biological_relationships.keys.each do |br|
           b = BiologicalRelationship.where(name: br, project_id: $project_id)
           if b.empty?
             b = BiologicalRelationship.create(name: br)
-            BiologicalRelationshipType.create(biological_property: data.keywords[biological_relationships[br][0]], biological_relationship: b, type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
-            BiologicalRelationshipType.create(biological_property: data.keywords[biological_relationships[br][1]], biological_relationship: b, type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
+            a1 = BiologicalRelationshipType.create(biological_property: data.biological_properties[biological_relationships[br][0]], biological_relationship: b, type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
+            a2 = BiologicalRelationshipType.create(biological_property: data.biological_properties[biological_relationships[br][1]], biological_relationship: b, type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
           end
         end
 
@@ -655,7 +655,7 @@ namespace :tw do
           }
 
           biological_properties.each do |bp|
-            data.keywords.merge!('INHS_imported' => BiologicalProperty.create(name: bp[0], definition: bp[1]))
+            data.biological_properties.merge!('INHS_imported' => BiologicalProperty.create(name: bp[0], definition: bp[1]))
           end
 
           import.metadata['controlled_vocabulary'] = true
@@ -747,7 +747,7 @@ namespace :tw do
         tmp_ce_sorted = tmp_ce.sort.to_s
         c_from_redis = $redis.get(tmp_ce_sorted)
         unless ce['AccessionNumber'].blank?
-          c = CollectingEvent.with_project_id($project_id).with_identifier('Accession Code ' + ce['Collection'] + ' ' + ce['AccessionNumber'])
+          #c = CollectingEvent.with_project_id($project_id).with_identifier('Accession Code ' + ce['Collection'].to_s + ' ' + ce['AccessionNumber'])
           if !ce['Collection'].blank?
             c = CollectingEvent.with_project_id($project_id).with_identifier('Accession Code ' + ce['Collection'] + ' ' + ce['AccessionNumber'])
             #c = Identifier.where(identifier: ce['Collection'] + ' ' + ce['AccessionNumber'], namespace_id: @accession_namespace, type: 'Identifier::Local::AccessionCode', project_id: $project_id)
@@ -1404,7 +1404,7 @@ namespace :tw do
       def add_determinations(objects, row, data)
         #identifier = Identifier.where(namespace_id: @taxon_namespace.id, identifier: row['TaxonCode'], project_id: $project_id)
         #otu = identifier.empty? ? nil : identifier.first.identifier_object
-        otu = Otu.with_project_id($project_id).with_identifier('Taxon Code ' + row['TaxonCode'])
+        otu = Otu.with_project_id($project_id).with_identifier('Taxon Code ' + row['TaxonCode'].to_s)
         otu = otu.empty? ? nil : otu.first
 
 #        otu = data.otus[row['TaxonCode']]
@@ -1566,7 +1566,7 @@ namespace :tw do
         raise 'file not found' if not File.exists?(path)
         lo = CSV.open(path, col_sep: "\t", :headers => true)
         #fields = %w{ InvoiceID ExpectedDateOfReturn DateReceived DateProcessed DateRequested MethodOfRequest Processor RecipientID Signature StudentSignature Comments TotalRecordsOnLoan TotalRecordsReturned TotalRecordsRemaining TotalSpecimensOnLoan TotalSpeciemsnReturned TotalSpeciemsnRemaining Canceled CreatedBy }
-        print "Handling Loans "
+        print "\nHandling Loans "
         if import.metadata['loans']
           print "from database.  Indexing Loans by InvoiceID..."
           Identifier.where(namespace_id: data.namespaces['Invoice']).each do |l|
@@ -1673,7 +1673,7 @@ namespace :tw do
             if row['Prefix'].downcase == 'loan invoice' && !data.loan_invoice_speciments[row['CatalogNumber']].nil?
               #identifier = Identifier.where(namespace_id: @taxon_namespace.id, identifier: data.loan_invoice_speciments[row['CatalogNumber']]['TaxonCode'], project_id: $project_id)
               #specimen = identifier.empty? ? nil : identifier.first.identifier_object
-              otu = Otu.with_project_id($project_id).with_identifier('Taxon Code ' + data.loan_invoice_speciments[row['CatalogNumber']]['TaxonCode'])
+              otu = Otu.with_project_id($project_id).with_identifier('Taxon Code ' + data.loan_invoice_speciments[row['CatalogNumber']]['TaxonCode'].to_s)
               specimen = otu.empty? ? nil : otu.first
               total = data.loan_invoice_speciments[row['CatalogNumber']]['Total']
             else
@@ -1701,7 +1701,7 @@ namespace :tw do
         raise 'file not found' if not File.exists?(path)
         ls = CSV.open(path, col_sep: "\t", :headers => true)
         #fields = %w{ InvoiceID RecipientID Salutation Body Creator CreatedOn }
-        print "Handling letters\n"
+        print "\nHandling letters\n"
 
         ls.each_with_index do |row, i|
           print "\r#{i}"
@@ -1724,13 +1724,13 @@ namespace :tw do
         raise 'file not found' if not File.exists?(path)
         ls = CSV.open(path, col_sep: "\t", :headers => true)
         #fields = %w{ ID Room Label1_1 Label1_2 Label1_3 Label1_4 Label2_1 Label2_2 Label2_3 Label2_4 TaxonCode Remarks CollectionType ConservationStatus ProcessingState ContainerCondition ConditionOfLabels IdentificationLevel ArangementLevel DataQuality ComputerizationLevel NumberOfSpecimens NumberOfVialsSlides Print1 Print2 CreatedBy CreatedOn ModifiedBy ModifiedOn }
-        print "Handling collection profile\n"
+        print "\nHandling collection profile\n"
 
         container_type = {'wet' => 'Container::VialRack', 'dry' => 'Container::Drawer', 'slide' => 'Container::SlideBox'}
 
         ls.each_with_index do |row, i|
           print "\r#{i}"
-          otu = Otu.with_project_id($project_id).with_identifier('Taxon Code ' + row['TaxonCode'])
+          otu = Otu.with_project_id($project_id).with_identifier('Taxon Code ' + row['TaxonCode'].to_s)
           otu = otu.empty? ? nil : otu.first.id
           room = find_or_create_room(row, data)
 
@@ -1758,24 +1758,28 @@ namespace :tw do
               label1 = [label1.join(' '), label2.join(' ')].compact.join("\n")
               label2 = nil
           end
-          cl1 = ContainerLabel.create!(label: label1,
-                                      date_printed: time_from_field(row['ModifiedOn']),
-                                      position: 1,
-                                      created_by_id: find_or_create_collection_user(row['CreatedBy'], data),
-                                      created_at: time_from_field(row['CreatedOn']),
-                                      updated_by_id: find_or_create_collection_user(row['ModifiedBy'], data),
-                                      updated_at: time_from_field(row['ModifiedOn']),
-                                      container: container
-                                                           ) unless label1.nil?
-          cl2 = ContainerLabel.create!(label: label2,
-                                      date_printed: time_from_field(row['ModifiedOn']),
-                                      position: 2,
-                                      created_by_id: find_or_create_collection_user(row['CreatedBy'], data),
-                                      created_at: time_from_field(row['CreatedOn']),
-                                      updated_by_id: find_or_create_collection_user(row['ModifiedBy'], data),
-                                      updated_at: time_from_field(row['ModifiedOn']),
-                                      container: container
-          ) unless label2.nil?
+          unless label1.nil?
+            cl1 = ContainerLabel.create!(label: label1,
+                                        date_printed: time_from_field(row['ModifiedOn']),
+                                        position: 1,
+                                        created_by_id: find_or_create_collection_user(row['CreatedBy'], data),
+                                        created_at: time_from_field(row['CreatedOn']),
+                                        updated_by_id: find_or_create_collection_user(row['ModifiedBy'], data),
+                                        updated_at: time_from_field(row['ModifiedOn']),
+                                        container: container
+              )
+          end
+          unless label2.nil?
+            cl2 = ContainerLabel.create!(label: label2,
+                                        date_printed: time_from_field(row['ModifiedOn']),
+                                        position: 2,
+                                        created_by_id: find_or_create_collection_user(row['CreatedBy'], data),
+                                        created_at: time_from_field(row['CreatedOn']),
+                                        updated_by_id: find_or_create_collection_user(row['ModifiedBy'], data),
+                                        updated_at: time_from_field(row['ModifiedOn']),
+                                        container: container
+              )
+          end
 
           cp = CollectionProfile.create!(container: container,
                                    otu_id: otu,
