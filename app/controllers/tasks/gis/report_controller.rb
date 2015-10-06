@@ -25,19 +25,20 @@ class Tasks::Gis::ReportController < ApplicationController
           @collection_objects = CollectionObject.where('false')
         end
         @@collection_objects = @collection_objects
+        @@file               = CollectionObject.generate_report_download(@collection_objects, @with_ce, @with_co, @with_bc)
       when 'download'
         # @geographic_area_id = @@geographic_area_id
-        @collection_objects = @@collection_objects
-        send_data CollectionObject.generate_report_download(@collection_objects, @with_ce, @with_co, @with_bc), type: 'text', filename: "collection_objects_report_#{DateTime.now.to_s}.csv" and return
+        # @collection_objects = @@collection_objects
+        # send_data CollectionObject.generate_report_download(@collection_objects, @with_ce, @with_co, @with_bc), type: 'text', filename: "collection_objects_report_#{DateTime.now.to_s}.csv" and return
+        send_data(@@file, type: 'text', filename: "collection_objects_report_#{DateTime.now.to_s}.csv") and return
       else
-
     end
     render :new
   end
 
-  def download
-    @geographic_area    = GeographicArea.find(params[:geographic_area_id])
-    @collection_objects = CollectionObject.in_geographic_item(@geographic_area.default_geographic_item)
-    send_data CollectionObject.generate_report_download(@collection_objects), type: 'text', filename: "collection_objects_report_#{DateTime.now.to_s}.csv"
-  end
+  # def download
+  #   @geographic_area    = GeographicArea.find(params[:geographic_area_id])
+  #   @collection_objects = CollectionObject.in_geographic_item(@geographic_area.default_geographic_item)
+  #   send_data CollectionObject.generate_report_download(@collection_objects), type: 'text', filename: "collection_objects_report_#{DateTime.now.to_s}.csv"
+  # end
 end
