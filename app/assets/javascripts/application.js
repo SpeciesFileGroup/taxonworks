@@ -18,5 +18,7 @@
 //= require jquery.turbolinks
 //= require jquery_ujs
 //= require jquery-ui
+//= require dropzone
 //= require_tree .
 //= require turbolinks
+
