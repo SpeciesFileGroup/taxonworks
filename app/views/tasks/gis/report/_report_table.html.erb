@@ -1,34 +1,47 @@
-<!--<table border="1" align="center">-->
-<!--<tbody>-->
-<!--<tr>-->
-<!--<%#= all_headers %>-->
-<!--</tr>-->
-<!--</tbody>-->
-<!--</table>-->
+<% data = CSV.parse(Tasks::Gis::ReportController.report_file) -%>
 <table border="1" align="center">
   <tbody>
-  <%# todo: parse @@file for the headers and data: @@file.split("\n") for rows, row.split(',') for item s%>
   <tr>
-    <!-- This is the list of headers common to all collection objects-->
-    <%= otu_headers.html_safe %>
-    <!-- these are the computed headers collected for all selected collection objects-->
-    <%= c_o_headers([ce_headers, co_headers, bc_headers].flatten).html_safe %>
+    <% data[0].each { |header| -%>
+        <th><%= "#{header}" %></th>
+    <% } %>
   </tr>
-  <% @collection_objects.each do |c_o| %>
+  <% data = data.drop(1) %>
+  <% data.each { |row| -%>
       <tr>
-        <td><%= c_o.get_otu_id %></td>
-        <td><%= link_to(c_o.get_otu_name, c_o.get_otu) unless c_o.get_otu.nil? %></td>
-        <td><%= c_o.name_at_rank_string(:family) %></td>
-        <td><%= c_o.name_at_rank_string(:genus) %></td>
-        <td><%= c_o.name_at_rank_string(:species) %></td>
-        <td><%= c_o.collecting_event.country %></td>
-        <td><%= c_o.collecting_event.state %></td>
-        <td><%= c_o.collecting_event.county %></td>
-        <td><%= link_to(c_o.collecting_event.verbatim_locality, c_o.collecting_event) %></td>
-        <td><%= c_o.collecting_event.georeference_latitude %></td>
-        <td><%= c_o.collecting_event.georeference_longitude %></td>
-        <%= c_o_attributes([ce_attributes(c_o), co_attributes(c_o), bc_attributes(c_o)].flatten).html_safe %>
+        <% row.each { |item| %>
+            <td><%= "#{item}" %></td>
+        <% } %>
       </tr>
-  <% end %>
+  <% } %>
+
   </tbody>
 </table>
+
+<!--<table border="1" align="center">-->
+  <!--<tbody>-->
+  <%# todo: parse @@file for the headers and data: @@file.split("\n") for rows, row.split(',') for item s%>
+  <!--<tr>-->
+     <!--This is the list of headers common to all collection objects-->
+    <!--<%#= otu_headers.html_safe %>-->
+    <!-- these are the computed headers collected for all selected collection objects-->
+    <!--<%#= c_o_headers([ce_headers, co_headers, bc_headers].flatten).html_safe %>-->
+  <!--</tr>-->
+  <!--<%# @collection_objects.each do |c_o| %>-->
+      <!--<tr>-->
+        <!--<td><%#= c_o.get_otu_id %></td>-->
+        <!--<td><%#= link_to(c_o.get_otu_name, c_o.get_otu) unless c_o.get_otu.nil? %></td>-->
+        <!--<td><%#= c_o.name_at_rank_string(:family) %></td>-->
+        <!--<td><%#= c_o.name_at_rank_string(:genus) %></td>-->
+        <!--<td><%#= c_o.name_at_rank_string(:species) %></td>-->
+        <!--<td><%#= c_o.collecting_event.country %></td>-->
+        <!--<td><%#= c_o.collecting_event.state %></td>-->
+        <!--<td><%#= c_o.collecting_event.county %></td>-->
+        <!--<td><%#= link_to(c_o.collecting_event.verbatim_locality, c_o.collecting_event) %></td>-->
+        <!--<td><%#= c_o.collecting_event.georeference_latitude %></td>-->
+        <!--<td><%#= c_o.collecting_event.georeference_longitude %></td>-->
+        <!--<%#= c_o_attributes([ce_attributes(c_o), co_attributes(c_o), bc_attributes(c_o)].flatten).html_safe %>-->
+      <!--</tr>-->
+  <!--<%# end %>-->
+  <!--</tbody>-->
+<!--</table>-->

@@ -4,13 +4,12 @@ module Tasks::Gis::ReportHelper
     submit_tag('download', {disabled: params[:geographic_area_id].nil?})
   end
 
-  def all_headers
-    retval = []
-    file   = '' #   = Tasks::Gis::ReportController.report_file
-    unless file.empty?
-      row = file.split("\n")[0]
-      unless row.empty?
-        row.split(',').each { |header|
+  def all_headers(data)
+    retval = ''
+    unless data.empty?
+      headers = data[0]
+      unless headers.empty?
+        headers.each { |header|
           retval += "<th>#{header}</th>\n"
         }
       end
