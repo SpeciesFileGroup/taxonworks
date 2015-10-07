@@ -255,8 +255,8 @@ class CollectionObject < ActiveRecord::Base
                c_o.collecting_event.state,
                c_o.collecting_event.county,
                c_o.collecting_event.verbatim_locality,
-               c_o.collecting_event.georeference_latitude,
-               c_o.collecting_event.georeference_longitude
+               c_o.collecting_event.georeference_latitude.to_s,
+               c_o.collecting_event.georeference_longitude.to_s
         ]
         row += ce_attributes(c_o) if with_ce
         row += co_attributes(c_o) if with_co

@@ -4,6 +4,20 @@ module Tasks::Gis::ReportHelper
     submit_tag('download', {disabled: params[:geographic_area_id].nil?})
   end
 
+  def all_headers
+    retval = []
+    file   = '' #   = Tasks::Gis::ReportController.report_file
+    unless file.empty?
+      row = file.split("\n")[0]
+      unless row.empty?
+        row.split(',').each { |header|
+          retval += "<th>#{header}</th>\n"
+        }
+      end
+    end
+    retval
+  end
+
   def otu_headers
     retval = ''
     CO_OTU_Headers.each { |header|

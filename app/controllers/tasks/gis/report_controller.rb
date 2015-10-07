@@ -1,6 +1,12 @@
 class Tasks::Gis::ReportController < ApplicationController
   include TaskControllerConfiguration
 
+  @@report_file = ''
+
+  def self.report_file
+    @@report_file
+  end
+
   # before_action :disable_turbolinks, only: [:new, :generate_choices]
 
   def new
@@ -25,12 +31,12 @@ class Tasks::Gis::ReportController < ApplicationController
           @collection_objects = CollectionObject.where('false')
         end
         @@collection_objects = @collection_objects
-        @@file               = CollectionObject.generate_report_download(@collection_objects, @with_ce, @with_co, @with_bc)
+        @@report_file        = CollectionObject.generate_report_download(@collection_objects, @with_ce, @with_co, @with_bc)
       when 'download'
         # @geographic_area_id = @@geographic_area_id
         # @collection_objects = @@collection_objects
         # send_data CollectionObject.generate_report_download(@collection_objects, @with_ce, @with_co, @with_bc), type: 'text', filename: "collection_objects_report_#{DateTime.now.to_s}.csv" and return
-        send_data(@@file, type: 'text', filename: "collection_objects_report_#{DateTime.now.to_s}.csv") and return
+        send_data(@@report_file, type: 'text', filename: "collection_objects_report_#{DateTime.now.to_s}.csv") and return
       else
     end
     render :new
