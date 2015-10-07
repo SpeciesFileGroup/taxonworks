@@ -8,21 +8,14 @@ module DataAttributesHelper
   end
 
   # TODO: add a cached?
-  def data_attribute_tag(data_attribute)
-    return nil if data_attribute.nil?
-  
-    if data_attribute.type == 'ImportAttribute'
-      data_attribute.import_predicate + ": " + data_attribute.value 
-    elsif data_attribute.type == 'InternalAttribute'
-      data_attribute.predicate.name + ": " + data_attribute.value 
-    else
-      '!! WARNING: bad data attribute, contact your administrator !!' 
-    end
-  end
+# def data_attribute_tag(data_attribute)
+#   return nil if data_attribute.nil?
+#   data_attribute.predicate_name + ": " + data_attribute.value 
+# end
 
   def data_attribute_link(data_attribute)
     return nil if data_attribute.nil?
-    link_to(data_attribute_tag(data_attribute).html_safe, data_attribute.annotated_object.metamorphosize)
+    link_to(object_tag(data_attribute).html_safe, data_attribute.annotated_object.metamorphosize)
   end
 
   def data_attributes_search_form

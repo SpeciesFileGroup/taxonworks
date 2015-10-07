@@ -69,6 +69,8 @@ module Workbench::NavigationHelper
   end
 
   def object_link(object)
+    # should check for metamorphosis once
+
     return nil if object.nil?
     klass_name = object.class.base_class.name.underscore
     link_method = klass_name + '_link'

@@ -12,11 +12,11 @@
 #
 # @!attribute attribute_subject_type
 #   @return [String]
-#   THe class of the subject (Rails polymorphic relationship).
+#   The class of the subject (Rails polymorphic relationship).
 #
 # @!attribute controlled_vocabulary_term_id
 #   @return [Integer]
-#   @todo
+#     Id of the Predicate for InternalAttributes 
 #
 # @!attribute value
 #   @return [String]
@@ -41,6 +41,7 @@ class DataAttribute < ActiveRecord::Base
   validates_presence_of :type, :value
   validates_uniqueness_of :value, scope: [:attribute_subject_id, :attribute_subject_type, :type, :controlled_vocabulary_term_id]
 
+  # Needs to extend to predicate/value searches
   def self.find_for_autocomplete(params)
     where('value LIKE ?', "%#{params[:term]}%").with_project_id(params[:project_id])
   end
@@ -51,6 +52,8 @@ class DataAttribute < ActiveRecord::Base
     attribute_subject
   end
 
+  # @return [Boolean]
+  #   true if value can be edited, i.e. an InternalAttribute
   def editable?
     self.type == 'InternalAttribute'
   end
@@ -64,6 +67,12 @@ class DataAttribute < ActiveRecord::Base
         }
       end
     end
+  end
+
+  # @return [String]
+  #   then predicate name
+  def predicate_name
+    type == 'InternalAttribute' ? predicate.predicate_name : import_predicate 
   end
 
 end

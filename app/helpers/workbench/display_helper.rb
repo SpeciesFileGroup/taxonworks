@@ -5,15 +5,26 @@ module Workbench::DisplayHelper
   #   object_tag(@otu) 
   def object_tag(object)
     return nil if object.nil?
-    klass_name = object.class.base_class.name
+    method = object_tag_method(object)
 
     # meh, exceptions  
-    return send("taxon_works_content_tag", object).html_safe if klass_name == 'Content' 
-    return image_tag(object.image_file.url(:thumb)) if klass_name == 'Image' 
-    return "Revision #{object.index}" if  klass_name == 'PaperTrail::Version' #  papertrail_link(object)
+    return send("taxon_works_content_tag", object).html_safe if method == 'content_tag' 
+    return image_tag(object.image_file.url(:thumb)) if method == 'image_tag' 
 
-    html = send("#{klass_name.underscore}_tag", object)
+    html = send(method, object)
     html ? html.html_safe : nil
+  end
+
+  def object_tag_method(object)
+    return nil if object.nil?
+    klass_name = object.class.name
+    method = "#{klass_name.underscore.gsub('/', '_')}_tag"
+    if ApplicationController.helpers.respond_to?(method)
+      method
+    else
+      klass_name = object.metamorphosize.class.base_class.name
+      "#{klass_name.underscore}_tag"
+    end
   end
 
   def model_name_title

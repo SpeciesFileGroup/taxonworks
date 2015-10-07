@@ -6,7 +6,7 @@ class CollectionObjectsController < ApplicationController
   # GET /collection_objects
   # GET /collection_objects.json
   def index
-    @recent_objects = CollectionObject.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
+    @recent_objects = CollectionObject.recent_from_project_id($project_id).order(updated_at: :desc).includes(:identifiers, :taxon_determinations).limit(10)
     render '/shared/data/all/index'
   end
 
