@@ -569,7 +569,7 @@ namespace :tw do
             data.keywords.merge!(cv.name => cv)
           end
           BiologicalProperty.all.each do |cv|
-            data.keywords.merge!(cv.name => cv)
+            data.biological_properties.merge!(cv.name => cv)
           end
         else
           print "as newly parsed.\n"
@@ -651,11 +651,11 @@ namespace :tw do
                                     'Pollinated plant' => 'A plant visited by insects',
                                     'Predator' => 'An animal that preys on others',
                                     'Prey' => 'An animal that is hunted and killed by another for food',
-                                    'Exuvia or pupa' => 'Remains of an exoskeleton that are left after moulting',
+                                    'Exuvia or pupa' => 'Remains of an exoskeleton that are left after moulting'
           }
 
           biological_properties.each do |bp|
-            data.biological_properties.merge!('INHS_imported' => BiologicalProperty.create(name: bp[0], definition: bp[1]))
+            data.biological_properties.merge!(bp[0] => BiologicalProperty.create(name: bp[0], definition: bp[1]))
           end
 
           import.metadata['controlled_vocabulary'] = true
