@@ -1,13 +1,9 @@
 class Tasks::Gis::ReportController < ApplicationController
   include TaskControllerConfiguration
 
-  @@report_file = ''
-
-  def self.report_file
-    @@report_file
-  end
-
   # before_action :disable_turbolinks, only: [:new, :generate_choices]
+
+  @report_file = ''
 
   def new
     @collection_objects = CollectionObject.where('false')
@@ -21,25 +17,24 @@ class Tasks::Gis::ReportController < ApplicationController
     @with_ce = params[:collecting_event_attributes] == 'on'
     @with_co = params[:collection_object_attributes] == 'on'
     @with_bc = params[:biological_classifications] == 'on'
+    gather_data
     case params[:commit]
       when 'Show'
-        @@geographic_area_id = params[:geographic_area_id]
-        @geographic_area     = GeographicArea.find(@@geographic_area_id)
-        if @geographic_area.has_shape?
-          @collection_objects = CollectionObject.in_geographic_item(@geographic_area.default_geographic_item)
-        else
-          @collection_objects = CollectionObject.where('false')
-        end
-        @@collection_objects = @collection_objects
-        @@report_file        = CollectionObject.generate_report_download(@collection_objects, @with_ce, @with_co, @with_bc)
       when 'download'
-        # @geographic_area_id = @@geographic_area_id
-        # @collection_objects = @@collection_objects
-        # send_data CollectionObject.generate_report_download(@collection_objects, @with_ce, @with_co, @with_bc), type: 'text', filename: "collection_objects_report_#{DateTime.now.to_s}.csv" and return
-        send_data(@@report_file, type: 'text', filename: "collection_objects_report_#{DateTime.now.to_s}.csv") and return
+        @report_file = CollectionObject.generate_report_download(@collection_objects, @with_ce, @with_co, @with_bc)
+        send_data(@report_file, type: 'text', filename: "collection_objects_report_#{DateTime.now.to_s}.csv") and return
       else
     end
     render :new
+  end
+
+  def gather_data
+    @geographic_area = GeographicArea.find(params[:geographic_area_id])
+    if @geographic_area.has_shape?
+      @collection_objects = CollectionObject.in_geographic_item(@geographic_area.default_geographic_item)
+    else
+      @collection_objects = CollectionObject.where('false')
+    end
   end
 
   # def download
