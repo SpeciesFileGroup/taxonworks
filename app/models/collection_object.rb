@@ -1,8 +1,5 @@
-CO_OTU_Headers = ['OTU', 'OTU name',
-                  'Family', 'Genus',
-                  'Species', 'Country',
-                  'State', 'County',
-                  'Locality', 'Latitude', 'Longitude']
+CO_OTU_Strings = 'OTU,OTU name,Family,Genus,Species,Country,State,County,Locality,Latitude,Longitude'
+CO_OTU_Headers = CO_OTU_Strings.split(',')
 
 # A CollectionObject is on or more physical things that have been collected.  Enumerating how many things (@!total) is a task of the curator.
 #
