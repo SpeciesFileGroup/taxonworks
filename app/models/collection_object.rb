@@ -1,8 +1,5 @@
-CO_OTU_Headers = ['OTU', 'OTU name',
-                  'Family', 'Genus',
-                  'Species', 'Country',
-                  'State', 'County',
-                  'Locality', 'Latitude', 'Longitude']
+CO_OTU_Strings = 'OTU,OTU name,Family,Genus,Species,Country,State,County,Locality,Latitude,Longitude'
+CO_OTU_Headers = CO_OTU_Strings.split(',')
 
 # A CollectionObject is on or more physical things that have been collected.  Enumerating how many things (@!total) is a task of the curator.
 #
@@ -236,12 +233,16 @@ class CollectionObject < ActiveRecord::Base
     end
   end
 
-  def self.generate_report_download(scope)
-    CollectionObject.ce_headers(scope)
-    CollectionObject.co_headers(scope)
-    CollectionObject.bc_headers(scope)
+  def self.generate_report_download(scope, with_ce = false, with_co = false, with_bc = false)
+    CollectionObject.ce_headers(scope) if with_ce
+    CollectionObject.co_headers(scope) if with_co
+    CollectionObject.bc_headers(scope) if with_bc
     CSV.generate do |csv|
-      csv << CO_OTU_Headers + @ce_headers + @co_headers + @bc_headers
+      row = CO_OTU_Headers
+      row += @ce_headers if with_ce
+      row += @co_headers if with_co
+      row += @bc_headers if with_bc
+      csv << row
       scope.order(id: :asc).each do |c_o|
         row = [c_o.get_otu_id,
                c_o.get_otu_name,
@@ -252,10 +253,12 @@ class CollectionObject < ActiveRecord::Base
                c_o.collecting_event.state,
                c_o.collecting_event.county,
                c_o.collecting_event.verbatim_locality,
-               c_o.collecting_event.georeference_latitude,
-               c_o.collecting_event.georeference_longitude
+               c_o.collecting_event.georeference_latitude.to_s,
+               c_o.collecting_event.georeference_longitude.to_s
         ]
-        row += ce_attributes(c_o) + co_attributes(c_o) + bc_attributes(c_o)
+        row += ce_attributes(c_o) if with_ce
+        row += co_attributes(c_o) if with_co
+        row += bc_attributes(c_o) if with_bc
         csv << row.collect { |item|
           item.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
         }

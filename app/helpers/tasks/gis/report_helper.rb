@@ -1,11 +1,20 @@
 module Tasks::Gis::ReportHelper
 
-  def helper_download_link
-    if params[:geographic_area_id].nil?
-      '(download unavailable)'
-    else
-      link_to('download', gis_report_download_path(params[:geographic_area_id]))
+  def helper_download_button
+    submit_tag('download', {disabled: params[:geographic_area_id].nil?})
+  end
+
+  def all_headers(data)
+    retval = ''
+    unless data.empty?
+      headers = data[0]
+      unless headers.empty?
+        headers.each { |header|
+          retval += "<th>#{header}</th>\n"
+        }
+      end
     end
+    retval
   end
 
   def otu_headers
@@ -33,38 +42,50 @@ module Tasks::Gis::ReportHelper
   end
 
   def ce_headers
-    CollectionObject.ce_headers(@collection_objects)
+    retval = []
+    retval = CollectionObject.ce_headers(@collection_objects) if @with_ce
+    retval
   end
 
   def ce_attributes(collection_object)
     retval = []
-    ce_headers.each { |header|
-      retval.push(collection_object.collecting_event.data_attributes.select { |d| d.predicate.name == header }.map(&:value).join('; '))
-    }
+    if @with_ce
+      ce_headers.each { |header|
+        retval.push(collection_object.collecting_event.data_attributes.select { |d| d.predicate.name == header }.map(&:value).join('; '))
+      }
+    end
     retval
   end
 
   def co_headers
-    CollectionObject.co_headers(@collection_objects)
+    retval = []
+    retval = CollectionObject.co_headers(@collection_objects) if @with_co
+    retval
   end
 
   def co_attributes(collection_object)
     retval = []
-    co_headers.each { |header|
-      retval.push(collection_object.data_attributes.select { |d| d.predicate.name == header }.map(&:value).join('; '))
-    }
+    if @with_co
+      co_headers.each { |header|
+        retval.push(collection_object.data_attributes.select { |d| d.predicate.name == header }.map(&:value).join('; '))
+      }
+    end
     retval
   end
 
   def bc_headers
-    CollectionObject.bc_headers(@collection_objects)
+    retval = []
+    retval = CollectionObject.bc_headers(@collection_objects) if @with_bc
+    retval
   end
 
   def bc_attributes(collection_object)
     retval = []
-    bc_headers.each { |header|
-      retval.push(collection_object.biocuration_classes.map(&:name).include?(header) ? '1' : '0')
-    }
+    if @with_bc
+      bc_headers.each { |header|
+        retval.push(collection_object.biocuration_classes.map(&:name).include?(header) ? '1' : '0')
+      }
+    end
     retval
   end
 
