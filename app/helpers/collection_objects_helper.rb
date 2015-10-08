@@ -6,8 +6,7 @@ module CollectionObjectsHelper
     return nil if collection_object.nil?
     [
       identifier_tag(collection_object.identifiers.first),
-      taxon_determination_tag(collection_object.taxon_determinations.first),
-      collection_object.type  
+      taxon_determination_tag(collection_object.taxon_determinations.first)
     ].compact.join(" ").html_safe
   end
 
