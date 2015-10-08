@@ -74,7 +74,7 @@ class DataAttributesController < ApplicationController
   end
 
   def autocomplete
-    @data_attributes = DataAttribute.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
+    @data_attributes = DataAttribute.find_for_autocomplete(params.merge(project_id: sessions_current_project_id)).limit(20)
 
     data = @data_attributes.collect do |t|
       str = render_to_string(partial: 'tag', locals: {data_attribute: t})
