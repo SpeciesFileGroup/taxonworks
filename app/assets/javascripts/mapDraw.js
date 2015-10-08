@@ -182,7 +182,8 @@ function initializeGoogleMap(map_canvas, fcdata, map_center) {
 
   map.data.addGeoJson(mapData);
   if (document.getElementById("map_coords") != undefined) {
-    document.getElementById("map_coords").textContent = 'LAT: ' + center_lat_long['lat']() + ' - LNG: ' + center_lat_long['lng']() + ' - ZOOM: ' + bounds.gzoom;
+    document.getElementById("map_coords").textContent = 'LAT: ' + center_lat_long['lat']()
+      + ' - LNG: ' + center_lat_long['lng']() + ' - ZOOM: ' + bounds.gzoom;
   }
   var sw = bounds.sw;
   var ne = bounds.ne;
