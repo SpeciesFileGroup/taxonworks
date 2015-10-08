@@ -1,9 +1,9 @@
-<%= form_tag(search_alternate_values_path, {method: :get}) do %>
+<%= form_tag(search_identifiers_path, {method: :get}) do %>
     <%= render partial: 'workbench/elements/forms/ajax_select',
-               locals:  {controller: 'alternate_values',
+               locals:  {controller: 'identifiers',
                          object:     nil,
                          method:     'id',
-                         tag_id:     'alternate_value_id_for_quick_search_form',
+                         tag_id:     'identifier_id_for_quick_search_form',
                          size:       '',
                          display:    ''} %>
     <%= submit_tag 'Show' %>
