@@ -159,7 +159,6 @@ namespace :tw do
       #  types.txt
       #  neon.txt
 
-
       def main_build_loop
         @import = Import.find_or_create_by(name: IMPORT_NAME)  
         @import.metadata ||= {} 
