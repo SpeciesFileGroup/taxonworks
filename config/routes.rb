@@ -93,8 +93,13 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
   end
 
-  resources :containers, only: [:create, :update, :destroy]
-  resources :container_items, only: [:create, :update, :destroy]
+  resources :containers do # , only: [:create, :update, :destroy] do
+    concerns [:data_routes]
+  end
+
+  resources :container_items do # , only: [:create, :update, :destroy] do
+    concerns [:data_routes]
+  end
 
   resources :contents do
     concerns [:data_routes]
@@ -160,6 +165,7 @@ TaxonWorks::Application.routes.draw do
   resources :identifiers, except: [:show] do
     concerns [:data_routes]
   end
+
   resources :images do
     concerns [:data_routes]
     member do
