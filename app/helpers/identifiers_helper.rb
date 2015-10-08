@@ -41,7 +41,7 @@ module IdentifiersHelper
   end
 
   def identifiers_search_form
-    render('/data_attributes/quick_search_form')
+    render('/identifiers/quick_search_form')
   end
 
   # @return [True]
