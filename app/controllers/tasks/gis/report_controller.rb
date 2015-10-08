@@ -27,12 +27,13 @@ class Tasks::Gis::ReportController < ApplicationController
         gather_data(geographic_area_id)
         session[:geographic_area_id] = geographic_area_id
       when 'download'
-        gather_data(session[:geographic_area_id])
+        id = params[:download_geo_area_id]
+        gather_data(id)
         report_file = CollectionObject.generate_report_download(@collection_objects, @with_ce, @with_co, @with_bc)
         send_data(report_file, type: 'text', filename: "collection_objects_report_#{DateTime.now.to_s}.csv") and return
       else
     end
-    render :new
+    # render :new
   end
 
   def gather_data(geographic_area_id)

@@ -2,39 +2,49 @@
 <h1>Task: GIS Report</h1>
 <div class="flexbox">
   <div class="item item1" align="center">
-    <p>
-      <%= form_tag(location_report_list_url) do %>
-          <span id="geographic_areaError" style="color: #DD0000"></span>
-          <%= render :partial => 'workbench/elements/forms/ajax_select',
-                     :locals  => {:controller => '/geographic_areas',
-                                  :object     => '',
-                                  :method     => 'geographic_area_id',
-                                  :tag_id     => 'geographic_area_id_for_report',
-                                  :size       => 20,
-                                  :display    => ''} %>
-          <%= submit_tag 'Show' %>
-          <table border="1">
-            <tbody>
-            <tr>
-              <td>Include</td>
-              <td><%= check_box_tag('collecting_event_attributes', nil, @with_ce) %>collecting event attributes</td>
-            </tr>
-            <tr>
-              <td></td>
-              <td><%= check_box_tag('collection_object_attributes', nil, @with_co) %>collection object attributes</td>
-            </tr>
-            <tr>
-              <td></td>
-              <td><%= check_box_tag('biological_classifications', nil, @with_bc) %>biological classifications</td>
-            </tr>
-            </tbody>
-          </table>
-          <!--<%#= submit_tag 'download' %>-->
-          <%= helper_download_button %>
+    <%= form_tag(location_report_list_url) do %>
+        <span id="geographic_areaError" style="color: #DD0000"></span>
+        <%= render :partial => 'workbench/elements/forms/ajax_select',
+                   :locals  => {:controller => '/geographic_areas',
+                                :object     => '',
+                                :method     => 'geographic_area_id',
+                                :tag_id     => 'geographic_area_id_for_report',
+                                :size       => 20,
+                                :display    => ''} %>
+        <%= submit_tag 'Show' %>
+        <p>
+          Select additional headers to add to the table:
+        </p>
+        <table border="1" align="center">
+          <tbody>
+          <tr>
+            <%= tag_headers.html_safe %>
+          </tr>
+          <%= all_sub_headers.html_safe %>
+          </tbody>
+        </table>
+        * indicates import headers
+        <!--<table border="1">-->
+        <!--<tbody>-->
+        <!--<tr>-->
+        <!--<td>Include</td>-->
+        <!--<td><%#= check_box_tag('collecting_event_attributes', nil, @with_ce) %>collecting event attributes</td>-->
+        <!--</tr>-->
+        <!--<tr>-->
+        <!--<td></td>-->
+        <!--<td><%#= check_box_tag('collection_object_attributes', nil, @with_co) %>collection object attributes</td>-->
+        <!--</tr>-->
+        <!--<tr>-->
+        <!--<td></td>-->
+        <!--<td><%#= check_box_tag('biological_classifications', nil, @with_bc) %>biological classifications</td>-->
+        <!--</tr>-->
+        <!--</tbody>-->
+        <!--</table>-->
+        <!--<%#= submit_tag 'download' %>-->
+        <!--<%#= helper_download_button %>-->
 
-      <% end %>
-      </p>
-      </div>
+    <% end %>
+  </div>
 
   <div class="item item2">
     <div id="feature_collection"
@@ -58,7 +68,7 @@
   </div>
 </div>
 
-<p>
-  <%= render(partial: 'report_table') %>
-</p>
+<!--<p>-->
+  <!--<%#= render(partial: 'report_table') %>-->
+<!--</p>-->
 

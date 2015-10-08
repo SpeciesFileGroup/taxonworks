@@ -1,0 +1,32 @@
+<%= render(partial: 'layouts/map_header') -%>
+<h1>Task: GIS Report</h1>
+<div class="flexbox">
+  <div class="item item1" align="center">
+  </div>
+
+  <div class="item item2">
+    <div id="feature_collection"
+         data-feature-collection='<%= Gis::GeoJSON.feature_collection(georeferences).to_json %>'>
+    </div>
+    <table border="1">
+      <tbody>
+      <tr>
+        <td>
+          <div id="georeference_google_map_canvas" style="width:512px; height: 256px;"></div>
+        </td>
+        <!--</tr>-->
+        <!--<tr>-->
+        <!--<td align="center">-->
+        <!--<%#= helper_download_link %>-->
+        <%#= link_to_unless(@collection_objects.empty?, 'download', gis_report_download_path(params[:geographic_area_id])) %>
+        <!--</td>-->
+        <!--</tr>-->
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<p>
+  <%= render(partial: 'report_table') %>
+</p>
+
