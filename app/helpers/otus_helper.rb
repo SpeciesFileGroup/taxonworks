@@ -4,7 +4,7 @@ module OtusHelper
     return nil if otu.nil?
     strs = []
     strs.push(otu.name) if !otu.name.nil?
-    strs.push(otu.taxon_name.name) if otu.taxon_name_id
+    strs.push(taxon_name_tag(otu.taxon_name)) if otu.taxon_name_id
     if strs.size == 2 
       (strs[0] + " [#{strs[1]}]").html_safe
     else
