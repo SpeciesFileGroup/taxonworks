@@ -43,13 +43,10 @@ module Tasks::Gis::ReportHelper
 
   def ce_headers
 
-    # retval = []
-    # retval = CollectionObject.ce_headers(@collection_objects) if @with_ce
-    # retval
     retval               = {}
     retval[:ce_internal] = InternalAttribute.where(project_id: sessions_current_project_id, attribute_subject_type: 'CollectingEvent').map(&:predicate).map(&:name).uniq.sort
     retval[:ce_import]   = ImportAttribute.where(project_id: sessions_current_project_id, attribute_subject_type: 'CollectingEvent').pluck(:import_predicate).uniq.sort
-    retval
+    @ce_headers          = retval
   end
 
   def ce_attributes(collection_object)
@@ -63,13 +60,10 @@ module Tasks::Gis::ReportHelper
   end
 
   def co_headers
-    # retval = []
-    # retval = CollectionObject.co_headers(@collection_objects) if @with_co
-    # retval
     retval               = {}
     retval[:co_internal] = InternalAttribute.where(project_id: sessions_current_project_id, attribute_subject_type: 'CollectionObject').map(&:predicate).map(&:name).uniq.sort
     retval[:co_import]   = ImportAttribute.where(project_id: sessions_current_project_id, attribute_subject_type: 'CollectionObject').pluck(:import_predicate).uniq.sort
-    retval
+    @co_headers          = retval
   end
 
   def co_attributes(collection_object)
@@ -88,7 +82,7 @@ module Tasks::Gis::ReportHelper
     # retval
     retval      = {}
     retval[:bc] = BiocurationClass.all.map(&:name)
-    retval
+    @bc_headers = retval
   end
 
   def bc_attributes(collection_object)
@@ -104,6 +98,7 @@ module Tasks::Gis::ReportHelper
   def combine_sub_headers(headers)
     retval = []
     keys   = headers.keys
+    retval += [keys[0][0, 2]]
     keys.each { |key|
       case key
         when /_imp/
@@ -120,16 +115,24 @@ module Tasks::Gis::ReportHelper
   end
 
   def all_sub_headers
-    sub_headers = []
-    sub_headers.push(combine_sub_headers(ce_headers))
-    sub_headers.push(combine_sub_headers(co_headers))
-    sub_headers.push(combine_sub_headers(bc_headers))
-    index = 0; retstring = ''
+    sub_headers = []; col_types = []
+    item        = combine_sub_headers(ce_headers)
+    col_types.push(item[0])
+    sub_headers.push(item)
+    item = combine_sub_headers(co_headers)
+    col_types.push(item[0])
+    sub_headers.push(item)
+    item = combine_sub_headers(bc_headers)
+    col_types.push(item[0])
+    sub_headers.push(item)
+    index = 1; retstring = ''
     until sub_headers[0][index].nil? && sub_headers[1][index].nil? && sub_headers[2][index].nil?
       retstring += "<tr>"
+      # across the three headers
       ALLHEADERS.each_with_index { |header, inner|
+        col_type  = col_types[inner] + '-'
         item      = sub_headers[inner][index].to_s
-        retstring += "<td>#{check_box(item, false)} #{item}</td>"
+        retstring += item.empty? ? "<td></td>" : "<td>#{check_box(item, col_type + item, {checked: false})} #{item}</td>"
       }
       retstring += "</tr>"
       index     += 1

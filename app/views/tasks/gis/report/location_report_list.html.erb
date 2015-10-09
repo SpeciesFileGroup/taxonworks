@@ -2,6 +2,10 @@
 <h1>Task: GIS Report</h1>
 <div class="flexbox">
   <div class="item item1" align="center">
+    <%= form_tag(location_report_list_url) do %>
+        <span id="geographic_areaError" style="color: #DD0000"></span>
+        <%= helper_download_button %>
+    <% end %>
   </div>
 
   <div class="item item2">

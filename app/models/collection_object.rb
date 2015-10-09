@@ -88,7 +88,7 @@ class CollectionObject < ActiveRecord::Base
   has_many :otus, through: :taxon_determinations, inverse_of: :collection_objects
 
   # This is a problem
-  has_many :taxon_determinations, foreign_key: :biological_collection_object_id,  inverse_of: :biological_collection_object
+  has_many :taxon_determinations, foreign_key: :biological_collection_object_id, inverse_of: :biological_collection_object
 
   belongs_to :collecting_event, inverse_of: :collection_objects
   belongs_to :preparation_type, inverse_of: :collection_objects
@@ -233,15 +233,15 @@ class CollectionObject < ActiveRecord::Base
     end
   end
 
-  def self.generate_report_download(scope, with_ce = false, with_co = false, with_bc = false)
-    CollectionObject.ce_headers(scope) if with_ce
-    CollectionObject.co_headers(scope) if with_co
-    CollectionObject.bc_headers(scope) if with_bc
+  def self.generate_report_download(scope)
+    CollectionObject.ce_headers(scope)
+    CollectionObject.co_headers(scope)
+    CollectionObject.bc_headers(scope)
     CSV.generate do |csv|
       row = CO_OTU_Headers
-      row += @ce_headers if with_ce
-      row += @co_headers if with_co
-      row += @bc_headers if with_bc
+      row += @ce_headers
+      row += @co_headers
+      row += @bc_headers
       csv << row
       scope.order(id: :asc).each do |c_o|
         row = [c_o.get_otu_id,
@@ -256,9 +256,9 @@ class CollectionObject < ActiveRecord::Base
                c_o.collecting_event.georeference_latitude.to_s,
                c_o.collecting_event.georeference_longitude.to_s
         ]
-        row += ce_attributes(c_o) if with_ce
-        row += co_attributes(c_o) if with_co
-        row += bc_attributes(c_o) if with_bc
+        row += ce_attributes(c_o)
+        row += co_attributes(c_o)
+        row += bc_attributes(c_o)
         csv << row.collect { |item|
           item.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
         }
