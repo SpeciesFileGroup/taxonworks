@@ -17,7 +17,7 @@ describe ContainerLabel, :type => :model do
     end
 
     specify 'container is required' do
-      expect(container_label.errors.include?(:container)).to be_truthy 
+      expect(container_label.errors.include?(:container_id)).to be_truthy 
     end
   end
 

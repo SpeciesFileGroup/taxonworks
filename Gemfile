@@ -40,14 +40,14 @@ gem 'turbolinks', '~> 2.5'
 gem 'jquery-turbolinks', '~> 2.1'
 
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
-gem 'jbuilder', '~> 2.0'
+gem 'jbuilder', '~> 2.3' 
 gem 'chronic', '~> 0.10'
 
 gem 'awesome_nested_set', '~> 3.0.2' 
 
 # BibTex handling
 gem 'csl', '~> 1.4.3' # git: 'https://github.com/inkshuk/csl-ruby'
-gem 'bibtex-ruby', '~> 4.0.12'
+gem 'bibtex-ruby', '~> 4.0.15'
 gem 'citeproc-ruby', '~> 1.1.0'
 gem 'csl-styles', '~> 1.0.1.6'
 
@@ -89,22 +89,22 @@ gem 'modularity', '~> 2.0.1'
 gem 'colored', '~> 1.2'
 
 gem 'chartkick'
-gem 'groupdate'
+gem 'groupdate', '~> 2.5'
 
 # SFG gems
-gem 'taxonifi', '0.3.5'
+gem 'taxonifi', '0.3.6'
 gem 'sqed', '0.1.7'
 
 group :test, :development do
-  gem 'faker', '~> 1.4.3'
+  gem 'faker', '~> 1.5.0'
   gem 'rspec-rails', '~> 3.3'
-  gem 'rspec-activemodel-mocks', '~> 1.0.1'
-  gem 'inch'
-  gem 'byebug', '~> 5.0', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
+  gem 'rspec-activemodel-mocks', '~> 1.0.2'
+  gem 'inch', '~> 0.7'
+  gem 'byebug', '~> 6.0', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'awesome_print'
   gem 'factory_girl_rails', '~> 4.0'
-  gem 'did_you_mean', '~> 0.9.4'
-  gem 'selenium-webdriver', '~> 2.46.2'
+  gem 'did_you_mean', '~> 0.10.0'
+  gem 'selenium-webdriver', '~> 2.48.0'
 end
 
 
@@ -113,7 +113,7 @@ group :development do
   gem 'binding_of_caller'
   gem 'spring-commands-rspec', '~> 1.0.2'
   gem 'guard-rspec', '~> 4.5', require: false
-  gem 'parallel_tests', '~> 1.5'
+  gem 'parallel_tests', '~> 1.9'
   gem 'web-console', '~> 2.0'
 end
 
@@ -123,9 +123,9 @@ end
 
 group :test do
   gem 'rspec', '~> 3.0'
-  gem 'coveralls', '~> 0.7', require: false
+  gem 'coveralls', '~> 0.8', require: false
   gem 'capybara', '~> 2.1'
-  gem 'timecop', '~> 0.7.1'
+  gem 'timecop', '~> 0.8.0'
   gem 'webmock', '~> 1.21.0'
   gem 'vcr', '~> 2.9.2'
   gem 'database_cleaner', '~> 1.4'
@@ -135,6 +135,6 @@ end
 
 group :production do
   gem 'execjs'
-  gem 'passenger', '~> 5.0.5'
+  gem 'passenger', '~> 5.0.20'
 end
 
