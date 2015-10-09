@@ -4,10 +4,12 @@ module CollectionObjectsHelper
   #   a descriptor including the identifier and determination
   def collection_object_tag(collection_object)
     return nil if collection_object.nil?
-    [
+    str = [
       identifier_tag(collection_object.identifiers.first),
       taxon_determination_tag(collection_object.taxon_determinations.first)
     ].compact.join(" ").html_safe
+    str = collection_object.type if str == ""
+    str
   end
 
   def collection_object_link(collection_object)
