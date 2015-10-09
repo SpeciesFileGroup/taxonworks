@@ -1,6 +1,7 @@
 require_relative 'config/initialization_constants' 
 
 module ProjectsAndUsers
+
   def self.clean_slate 
     ProjectMember.delete_all
     Project.delete_all 
@@ -18,7 +19,7 @@ module ProjectsAndUsers
     $project_id = 1
     FactoryGirl.create(:project_member, user_id: 1, project_id: 1)
 
-    # TODO: This is here for Rake based testing purposes, it's a little worriesome that it is needed.
+    # TODO: Not sure why this is required, perhaps Spring related?! 
     ActiveRecord::Base.connection.tables.each { |t| ActiveRecord::Base.connection.reset_pk_sequence!(t) }
   end
 end
