@@ -12,6 +12,11 @@ module OtusHelper
     end
   end
 
+  def otu_autocomplete_selected_tag(otu)
+    return 'ERROR' if otu.nil?
+    [otu.name, (otu.taxon_name.nil? ? nil : "[#{otu.taxon_name.cached}]")].compact.join(" ")
+  end
+
   def otu_link(otu)
     return nil if otu.nil?
     link_to(otu_tag(otu).html_safe, otu)
