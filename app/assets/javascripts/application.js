@@ -13,13 +13,16 @@
 //
 
 //= require chartkick
- 
 //= require jquery
 
-//= require jquery.turbolinks
+// "after jquery but before turbolinks", "immediately after jquery"
+//= require jquery.turbolinks 
+
 //= require jquery_ujs
 //= require jquery-ui
 //= require dropzone
 //= require_tree .
+
+// "after jquery", "after your other scripts"
 //= require turbolinks
 
