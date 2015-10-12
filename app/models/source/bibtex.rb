@@ -23,13 +23,13 @@ require 'csl/styles'
 #   but, say, already included is some other field, simply ignore the warning.
 # [OPTIONAL]
 #   The field's information will be used if present, but can be omitted
-#   without causing any formatting problems. You should include the optional
-#   field if it will help the reader.
+#  without causing any formatting problems. You should include the optional
+#       field if it will help the reader.
 # [IGNORED]
 #   The field is ignored. BibTEX ignores any field that is not required or
-#   optional, so you can include any fields you want in a bib file entry. It's a
-#   good idea to put all relevant information about a reference in its bib file
-#   entry - even information that may never appear in the bibliography.
+#optional, so you can include any fields you want in a bib file entry. It's a
+#       good idea to put all relevant information about a reference in its bib file
+#       entry - even information that may never appear in the bibliography.
 #
 # Dates in Source Bibtex:
 #   It is common for there two be two (or more) dates associated with the origin of a source:
@@ -318,14 +318,14 @@ class Source::Bibtex < Source
 
   # TW required fields (must have one of these fields filled in)
   TW_REQUIRED_FIELDS = [
-      :author,
-      :editor,
-      :booktitle,
-      :title,
-      :url,
-      :journal,
-      :year,
-      :stated_year
+    :author,
+    :editor,
+    :booktitle,
+    :title,
+    :url,
+    :journal,
+    :year,
+    :stated_year
   ] # either year or stated_year is acceptable
 
   belongs_to :serial, inverse_of: :sources
@@ -345,38 +345,38 @@ class Source::Bibtex < Source
 
   #region validations
   validates_inclusion_of :bibtex_type,
-                         in: ::VALID_BIBTEX_TYPES,
+                         in:      ::VALID_BIBTEX_TYPES,
                          message: '%{value} is not a valid source type'
 
   validates_presence_of :year,
-                        if: '!month.blank? || !stated_year.blank?',
+                        if:      '!month.blank? || !stated_year.blank?',
                         message: 'year is required when month or stated_year is provided'
 
   # @todo refactor out date validation methods so that they can be unified (TaxonDetermination, CollectingEvent)
   validates_numericality_of :year,
-                            only_integer: true, greater_than: 999,
+                            only_integer:          true, greater_than: 999,
                             less_than_or_equal_to: Time.now.year + 2,
-                            allow_blank: true,
-                            message: 'year must be an integer greater than 999 and no more than 2 years in the future'
+                            allow_blank:           true,
+                            message:               'year must be an integer greater than 999 and no more than 2 years in the future'
 
   validates_presence_of :month,
-                        if: '!day.nil?',
+                        if:      '!day.nil?',
                         message: 'month is required when day is provided'
 
   validates_inclusion_of :month,
-                         in: ::VALID_BIBTEX_MONTHS,
+                         in:          ::VALID_BIBTEX_MONTHS,
                          allow_blank: true,
-                         message: ' month'
+                         message:     ' month'
 
   validates_numericality_of :day,
-                            allow_blank: true,
-                            only_integer: true,
-                            greater_than: 0,
+                            allow_blank:           true,
+                            only_integer:          true,
+                            greater_than:          0,
                             less_than_or_equal_to: Proc.new { |a| Time.utc(a.year, a.month).end_of_month.day },
-                            :unless => 'year.nil? || month.nil?',
-                            message: '%{value} is not a valid day for the month provided'
+                            :unless                => 'year.nil? || month.nil?',
+                            message:               '%{value} is not a valid day for the month provided'
 
-  validates :url, :format => {:with => URI::regexp(%w(http https ftp)),
+  validates :url, :format => {:with    => URI::regexp(%w(http https ftp)),
                               message: "[%{value}] is not a valid URL"}, allow_blank: true
 
   #endregion validations
@@ -404,7 +404,7 @@ class Source::Bibtex < Source
   end
 
   # @return [BibTeX::Entry]
-  # entry equivalent to self
+  #   entry equivalent to self
   def to_bibtex
     b = BibTeX::Entry.new(:bibtex_type => self[:bibtex_type])
     ::BIBTEX_FIELDS.each do |f|
@@ -422,7 +422,13 @@ class Source::Bibtex < Source
     end
 
     b[:note] = concatenated_notes_string if !concatenated_notes_string.blank? # see Notable
-    # @todo need to consider project specific notes as bibtex annote
+    unless self.serial.nil?
+      b[:journal] = self.serial.name
+      issns = self.serial.identifiers.of_type(:issn)
+      unless issns.empty?
+        b[:issn] = issns.first.identifier # assuming the serial has only 1 ISSN
+      end
+    end
 
     unless self.serial.nil?
       b[:journal] = self.serial.name
@@ -450,7 +456,7 @@ class Source::Bibtex < Source
     b.author = self.compute_bibtex_names('author') unless (self.authors.size == 0 && self.author.blank?)
     b.editor = self.compute_bibtex_names('editor') unless (self.editors.size == 0 && self.editor.blank?)
 
-    b.key = self.id unless self.new_record? # id.blank?
+    b.key    = self.id unless self.new_record? # id.blank?
     b
   end
 
@@ -459,7 +465,7 @@ class Source::Bibtex < Source
   #   the bibtex version of the name strings created from the TW people
   # @todo this is an and b/w all people for > 1 person, likely not correct
   def compute_bibtex_names(type)
-    method = type
+    method  = type
     methods = type + 's'
     case self.send(methods).size
       when 0
@@ -488,7 +494,7 @@ class Source::Bibtex < Source
   #    b = Source::Bibtex.new(a)
   # 
   # @param bibtex_entry [BibTex::Entry] the BibTex::Entry to convert 
-  # @return [Source::BibTex.new] a new instance
+  # @return [Source::BibTex.new] a new instance 
   # @todo annote to project specific note?
   # @todo if it finds one & only one match for serial assigns the serial ID, and if not it just store in journal title
   # serial with alternate_value on name .count = 1 assign .first
@@ -497,7 +503,7 @@ class Source::Bibtex < Source
   def self.new_from_bibtex(bibtex_entry = nil)
 
     return false if !bibtex_entry.kind_of?(::BibTeX::Entry)
-    s = Source::Bibtex.new(bibtex_type: bibtex_entry.type.to_s)
+    s                 = Source::Bibtex.new(bibtex_type: bibtex_entry.type.to_s)
     import_attributes = []
     bibtex_entry.fields.each do |key, value|
       if key == :keywords
@@ -531,9 +537,9 @@ class Source::Bibtex < Source
   # are more than we want to tackle right now
   def create_related_people_and_roles
     return false if !self.valid? ||
-        self.new_record? ||
-        (self.author.blank? && self.editor.blank?) ||
-        self.roles.count > 0
+      self.new_record? ||
+      (self.author.blank? && self.editor.blank?) ||
+      self.roles.count > 0
 
     bibtex = to_bibtex
     bibtex.parse_names
@@ -565,10 +571,10 @@ class Source::Bibtex < Source
   def self.bibtex_author_to_person(bibtex_author)
     return false if bibtex_author.class != BibTeX::Name
     Person.new(
-        first_name: bibtex_author.first,
-        prefix: bibtex_author.prefix,
-        last_name: bibtex_author.last,
-        suffix: bibtex_author.suffix)
+      first_name: bibtex_author.first,
+      prefix:     bibtex_author.prefix,
+      last_name:  bibtex_author.last,
+      suffix:     bibtex_author.suffix)
   end
 
   # @todo create related Serials
@@ -670,9 +676,9 @@ class Source::Bibtex < Source
     unless value.blank?
       tw_issn = self.identifiers.where(type: 'Identifier::Global::Issn').first
       unless tw_issn.nil? || tw_issn.identifier != value
-        tw_issn.destroy
-      end
-      self.identifiers.build(type: 'Identifier::Global::Issn', identifier: value)
+          tw_issn.destroy
+        end
+        self.identifiers.build(type: 'Identifier::Global::Issn', identifier: value)
       # if tw_issn.nil?
       #   self.identifiers.build(type: 'Identifier::Global::Issn', identifier: value)
       # else
@@ -681,8 +687,8 @@ class Source::Bibtex < Source
       #     self.identifiers.build(type: 'Identifier::Global::Issn', identifier: value)
       #   end
       # end
+      end
     end
-  end
 
   def issn
     identifier_string_of_type(:issn)
@@ -779,7 +785,7 @@ class Source::Bibtex < Source
       bx_entry.year = '0000'
     end
 
-    key = bx_entry.key
+    key             = bx_entry.key
     bx_bibliography = BibTeX::Bibliography.new
     bx_bibliography.add(bx_entry)
 
@@ -810,8 +816,8 @@ class Source::Bibtex < Source
   # set cached values and copies active record relations into bibtex values
   def set_cached
     if self.errors.empty?
-      tmp = cached_string('text')
-      self.cached = tmp
+      tmp                       = cached_string('text')
+      self.cached               = tmp
       self.cached_author_string = authority_name
 
       if self.authors.size > 0
@@ -857,9 +863,9 @@ class Source::Bibtex < Source
   def sv_has_title
     if self.title.blank?
       unless self.soft_validations.messages.include?('There is no title associated with this source.')
-        soft_validations.add(:title, 'There is no title associated with this source.')
-      end
+      soft_validations.add(:title, 'There is no title associated with this source.')
     end
+  end
   end
 
   def sv_has_some_type_of_year
@@ -912,15 +918,15 @@ class Source::Bibtex < Source
   end
 
   def sv_has_school
-    if self.school.blank?
-      soft_validations.add(:school, 'Valid BibTeX requires a school associated with any thesis.')
-    end
+      if self.school.blank?
+        soft_validations.add(:school, 'Valid BibTeX requires a school associated with any thesis.')
+      end
   end
 
   def sv_has_institution
-    if self.institution.blank?
-      soft_validations.add(:institution, 'Valid BibTeX requires an institution with a tech report.')
-    end
+      if self.institution.blank?
+        soft_validations.add(:institution, 'Valid BibTeX requires an institution with a tech report.')
+      end
   end
 
   def sv_has_note

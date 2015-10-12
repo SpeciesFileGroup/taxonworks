@@ -1,0 +1,9 @@
+<h3> <%= otu_tag(@otu) -%></h3>
+
+<% layout.otu_page_layout_sections.each do |s| -%>
+  <% contents.each do |c|  %> 
+    <% if c.topic == s.topic -%>
+      <%= render(partial: 'contents/block', locals: { content: c} ) -%>
+    <% end %>
+  <% end %>
+<% end %>

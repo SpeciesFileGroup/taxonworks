@@ -1,9 +1,9 @@
-<%= form_tag(search_geographic_areas_path, {method: :get}) do %>
+<%= form_tag(lookup_topic_otu_page_layouts_path, {method: :get}) do %>
     <%= render partial: 'workbench/elements/forms/ajax_select',
-               locals:  {controller: 'geographic_areas',
+               locals:  {controller: 'topics',
                          object:     nil,
                          method:     'id',
-                         tag_id:     'geographic_area_id_for_quick_search_form',
+                         tag_id:     'topic_id_for_quick_search_form',
                          size:       '',
                          display:    ''} %>
     <%= submit_tag 'Show' %>

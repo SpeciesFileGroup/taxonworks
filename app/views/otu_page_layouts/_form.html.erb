@@ -6,7 +6,13 @@
       <br>
       <%= f.text_field :name %>
     </div>
+
+    <%= render partial: '/topics/topic_picker', locals: {object: @otu_page_layout, f: f} %>
+
     <div class="actions">
       <%= f.submit %>
     </div>
+    
+    <%#= search_form_for_model(Topic) %>
+
 <% end %>
