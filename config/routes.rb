@@ -16,7 +16,7 @@ TaxonWorks::Application.routes.draw do
 
     member do
       get 'related'
-    end
+  end
 
   end
 
@@ -67,7 +67,7 @@ TaxonWorks::Application.routes.draw do
     collection do
       post :preview_simple_batch_load # should be get
       post :create_simple_batch_load
-    end
+  end
   end
   resources :biocuration_classifications, only: [:create, :update, :destroy]
   resources :citation_topics, only: [:create, :update, :destroy]
@@ -81,7 +81,7 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
     member do
       get 'depictions'
-    end
+  end
   end
   resources :collection_profiles do
     collection do
@@ -93,8 +93,13 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
   end
 
-  resources :containers, only: [:create, :update, :destroy]
-  resources :container_items, only: [:create, :update, :destroy]
+  resources :containers do # , only: [:create, :update, :destroy] do
+    concerns [:data_routes]
+  end
+
+  resources :container_items do # , only: [:create, :update, :destroy] do
+    concerns [:data_routes]
+  end
 
   resources :contents do
     concerns [:data_routes]
@@ -149,7 +154,7 @@ TaxonWorks::Application.routes.draw do
 
   resources :georeferences, only: [:index, :destroy, :new, :show, :edit] do
     concerns [:data_routes]
-  end
+    end
 
   namespace :georeferences do
     resources :geo_locates, only: [:new, :create]
@@ -160,6 +165,7 @@ TaxonWorks::Application.routes.draw do
   resources :identifiers, except: [:show] do
     concerns [:data_routes]
   end
+
   resources :images do
     concerns [:data_routes]
     member do
@@ -167,7 +173,7 @@ TaxonWorks::Application.routes.draw do
       get 'scale/:x/:y/:width/:height/:new_width/:new_height', action: :scale
       get 'scale_to_box/:x/:y/:width/:height/:box_width/:box_height', action: :scale_to_box
       get 'ocr/:x/:y/:width/:height', action: :ocr
-    end
+  end
   end
   resources :loan_items, only: [:create, :update, :destroy]
   resources :loans do
@@ -179,20 +185,35 @@ TaxonWorks::Application.routes.draw do
   resources :notes, except: [:show] do
     concerns [:data_routes]
   end
-  resources :otu_page_layout_sections, only: [:create, :update, :destroy]
+
+ resources :otu_page_layout_sections, only: [:create, :update, :destroy]
+
+  resources :topics do
+    collection do
+      get :lookup_topic
+      get 'get_definition/:id', action: 'get_definition'
+    end
+  end
+
 
   resources :otu_page_layouts do
     collection do
       get :list
+      get :lookup_topic, controller: 'topics'
+    end
+    
+    member do
+      get 'related'
     end
   end
+
 
   resources :otus do
     concerns [:data_routes]
     collection do
       post :preview_simple_batch_load # should be get
       post :create_simple_batch_load
-    end
+  end
   end
 
   resources :people do
@@ -200,7 +221,7 @@ TaxonWorks::Application.routes.draw do
     member do
       get :roles
       get :details
-    end
+  end
     collection do
       get :lookup_person
     end
@@ -215,13 +236,13 @@ TaxonWorks::Application.routes.draw do
   # resources :ranged_lot_categories
   resources :ranged_lot_categories do
     concerns [:data_routes]
-  end
+    end
 
   resources :repositories do
     concerns [:data_routes]
   end
   resources :serial_chronologies, only: [:create, :update, :destroy]
-
+  
   # TODO: add exceptions 
   resources :serials do
     concerns [:data_routes]
@@ -232,7 +253,7 @@ TaxonWorks::Application.routes.draw do
     collection do
       post :preview_bibtex_batch_load # should be get
       post :create_bibtex_batch_load
-    end
+  end
   end
 
   resources :tagged_section_keywords, only: [:create, :update, :destroy]
@@ -242,7 +263,7 @@ TaxonWorks::Application.routes.draw do
 
   resources :taxon_determinations do
     concerns [:data_routes]
-  end
+    end
 
   resources :taxon_names do
     concerns [:data_routes]
@@ -259,16 +280,16 @@ TaxonWorks::Application.routes.draw do
 
   resources :taxon_name_relationships do
     concerns [:data_routes]
-  end
+    end
 
   resources :type_materials do
     concerns [:data_routes]
   end
-
+  
   match '/favorite_page', to: 'user_preferences#favorite_page', via: :post
   match '/remove_favorite_page', to: 'user_preferences#remove_favorite_page', via: :post
 
-  scope :tasks do
+  scope :tasks  do
     scope :nomenclature do
       scope :original_combination, controller: 'tasks/nomenclature/original_combination' do
         get 'edit/:taxon_name_id', action: :edit, as: 'edit_protonym_original_combination_task'
@@ -328,13 +349,13 @@ TaxonWorks::Application.routes.draw do
       get 'like/:id', action: 'like', as: 'similar_serials_task'
       post 'update/:id', action: 'update', as: 'update_serial_find_task'
       get 'find', as: 'find_similar_serials_task'
-      post 'find', as: 'return_similar_serials_task'
+      post 'find', as: 'return_similar_serials_task' 
     end
 
     scope :usage, controller: 'tasks/usage/user_activity' do
-      get ':id', action: 'report', as: 'user_activity_report_task'
-    end
-
+      get ':id', action: 'report', as: 'user_activity_report_task' 
+    end 
+    
     scope :accessions do
 
       scope :breakdown do
@@ -354,38 +375,33 @@ TaxonWorks::Application.routes.draw do
         end
       end
 
-      scope :quick, controller: 'tasks/accessions/quick/verbatim_material' do
+      scope :quick,  controller: 'tasks/accessions/quick/verbatim_material' do
         get 'new', as: 'quick_verbatim_material_task'
         post 'create', as: 'create_verbatim_material_task'
-      end
-
-      scope :imaged, controller: 'tasks/accessions/imaged/associate' do
-        get 'new', as: 'imaged_material_task'
-        post 'create', as: 'create_imaged_material_task'
       end
 
     end
 
     scope :bibliography do
       scope :verbatim_reference, controller: 'tasks/bibliography/verbatim_reference' do
-        get 'new', as: 'new_verbatim_reference_task'
+        get 'new',  as: 'new_verbatim_reference_task'
         post 'create', as: 'create_verbatim_reference_task'
       end
     end
 
     scope :controlled_vocabularies do
       scope :biocuration, controller: 'tasks/controlled_vocabularies/biocuration' do
-        get 'build_collection', as: 'build_biocuration_groups_task'
-        post 'build_biocuration_group', as: 'build_biocuration_group_task'
+        get 'build_collection', as: 'build_biocuration_groups_task' 
+        post 'build_biocuration_group', as: 'build_biocuration_group_task' 
 
         post 'create_biocuration_group'
         post 'create_biocuration_class'
       end
     end
 
-    scope :contents, controller: 'tasks/content/preview' do
-      get ':otu_id/:otu_page_template_id', action: :otu_content_for_layout, as: 'preview_otu_content_for_layout' # this needs to be fixed see, otu_content.html.erb
-      get ':otu_id', action: 'otu_content', as: 'preview_otu_content'
+    scope :contents, controller: 'tasks/content/preview'  do
+      get 'otu_content_for_layout/:otu_id', action: :otu_content_for_layout, as: 'preview_otu_content_for_layout'
+      get ':otu_id',  action: 'otu_content', as: 'preview_otu_content'
     end
 
   end
@@ -402,7 +418,7 @@ TaxonWorks::Application.routes.draw do
 
   # API STUB
   get '/api/v1/taxon_names/' => 'api/v1/taxon_names#all'
-
+  
   get '/crash_test/' => 'crash_test#index' unless Rails.env.production?
 
   # Example of regular route:

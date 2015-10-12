@@ -1,15 +1,14 @@
 module TaxonDeterminationsHelper
 
-  # @return [String]
-  #  the current taxon determination 
+  # @return [String, nil]
+  #    a descriptor, contains name only (if you want to include the identifier use collection_object_tag) 
   def taxon_determination_tag(taxon_determination) 
     return nil if taxon_determination.nil?
-    object = object_tag(taxon_determination.biological_collection_object.metamorphosize)
-    [ object, 'determined as', determination_tag(taxon_determination) ].join(" ")
+    ['determined as', determination_tag(taxon_determination) ].join(" ")
   end
 
   # @return [String]
-  #   as for taxon_determination_tag but does not reference collection object
+  #   as for taxon_determination_tag but does not re  ference collection object
   def determination_tag(taxon_determination)
     [ taxon_determination_name(taxon_determination),
       taxon_determination_by(taxon_determination),

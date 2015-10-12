@@ -44,6 +44,7 @@ class Project < ActiveRecord::Base
     order = %w{
      AlternateValue
      DataAttribute 
+     SqedDepiction 
      Depiction
      CollectionObjectObservation  
      DerivedCollectionObject        

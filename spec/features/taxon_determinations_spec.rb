@@ -14,10 +14,10 @@ describe 'TaxonDeterminations', :type => :feature do
       otu = factory_girl_create_for_user_and_project(:valid_otu, @user, @project)
       3.times { 
         Specimen.create(  
-                        taxon_determinations_attributes: [ {otu: otu, by: @user, project: @project} ],
-                        by: @user,
-                        project: @project 
-                       )
+                         taxon_determinations_attributes: [ {otu: otu, by: @user, project: @project} ],
+                         by: @user,
+                         project: @project 
+                        )
       }
     }
 
@@ -30,7 +30,6 @@ describe 'TaxonDeterminations', :type => :feature do
 
      describe 'GET /taxon_determinations/list' do
        before { visit list_taxon_determinations_path }
-    
        it_behaves_like 'a_data_model_with_standard_list'
      end
     

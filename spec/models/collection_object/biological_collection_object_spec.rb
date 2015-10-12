@@ -43,6 +43,7 @@ describe CollectionObject::BiologicalCollectionObject, :type => :model do
       specify 'create and also create otus, and determinations (nested_attributes_for :otus)' do
         o = Specimen.new(otus_attributes: [{name: 'one'}, {name: 'two'}])
         expect(o.save).to be_truthy
+        o.reload
         expect(o.otus.count).to eq(2)
         expect(o.taxon_determinations.count).to eq(2)
       end

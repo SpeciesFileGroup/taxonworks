@@ -49,10 +49,14 @@ namespace :tw do
       database = ActiveRecord::Base.connection.current_database
       path     = File.join(@args[:data_directory], ENV["file"])
       puts "Restoring #{database} from #{path}"
+
       puts(Benchmark.measure { `pg_restore --username=#{ENV["db_user"]} --host=localhost --format=custom --disable-triggers --dbname=#{database} #{path}` })
       raise "pg_restore failed with exit code #{$?.to_i}" unless $? == 0
       # reset table indexes for all tables (restores currval(id_seq) to (presumed) previous value
       # (i.e., MAX(id) from table) )
+      #
+      # This should just be done by restarting the server and making a new connection!
+      puts 'Resetting AR indecies.' 
       ActiveRecord::Base.connection.tables.each { |t| ActiveRecord::Base.connection.reset_pk_sequence!(t) }
       puts 'Restore complete'
     end

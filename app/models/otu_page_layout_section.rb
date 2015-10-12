@@ -32,6 +32,12 @@ class OtuPageLayoutSection < ActiveRecord::Base
   include Shared::IsData 
 
   belongs_to :otu_page_layout
-  belongs_to :topic
+  belongs_to :topic, inverse_of: :otu_page_layout_sections
+
   validates_presence_of :type
+  validates_uniqueness_of :topic_id, scope: [:otu_page_layout_id]
+
 end
+
+
+

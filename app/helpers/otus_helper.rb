@@ -1,21 +1,20 @@
 module OtusHelper
 
-  ## ! sigh, we can't use content_tag in self. methods.  that will likely prevent this approach
-
-  def self.otu_tag(otu)
+  def otu_tag(otu)
     return nil if otu.nil?
     strs = []
     strs.push(otu.name) if !otu.name.nil?
-    strs.push(otu.taxon_name.name) if otu.taxon_name_id
+    strs.push(taxon_name_tag(otu.taxon_name)) if otu.taxon_name_id
     if strs.size == 2 
-     (strs[0] + " [#{strs[1]}]").html_safe
+      (strs[0] + " [#{strs[1]}]").html_safe
     else
       strs[0]
     end
   end
 
-  def otu_tag(otu)
-    OtusHelper.otu_tag(otu)
+  def otu_autocomplete_selected_tag(otu)
+    return 'ERROR' if otu.nil?
+    [otu.name, (otu.taxon_name.nil? ? nil : "[#{otu.taxon_name.cached}]")].compact.join(" ")
   end
 
   def otu_link(otu)

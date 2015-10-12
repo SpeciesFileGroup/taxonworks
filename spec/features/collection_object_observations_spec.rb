@@ -10,6 +10,7 @@ RSpec.describe "CollectionObjectObservations", type: :feature do
     before { sign_in_user_and_select_project }
 
     context 'with some records created' do
+      
       before {
         10.times { factory_girl_create_for_user_and_project(:valid_collection_object_observation, @user, @project) }
       }
@@ -19,14 +20,14 @@ RSpec.describe "CollectionObjectObservations", type: :feature do
           visit index_path
         }
 
-        it_behaves_like 'a_data_model_with_standard_index'
-
         specify 'that it has an AJAX autocomplete box', js: true do
           select_text = 'Select a collection object observation'
           expect(page).to have_button('Show')
           expect(page).to have_field(select_text) # TODO: inflect
           fill_in(select_text, :with => 'a')
         end
+
+       it_behaves_like 'a_data_model_with_standard_index'
       end
 
       describe 'GET /collection_object_observations/list' do

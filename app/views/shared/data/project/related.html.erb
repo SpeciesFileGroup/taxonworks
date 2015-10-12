@@ -12,7 +12,7 @@
       <%= content_tag(:h3, r.name.to_s.humanize + ' (' + @object.send(r.name.to_s).count.to_s + ')' ) -%> 
       <ul> 
         <% @object.send(r.name.to_s).all.each do |o| -%>
-          <%= content_tag(:li, object_link(metamorphosize_if(o))) -%>
+          <%= content_tag(:li, object_link(o)) -%>
         <% end %>
       <% end %>
     </ul>
@@ -24,13 +24,13 @@
 <h3> Has one </h3>
 <% @object.class.reflect_on_all_associations(:has_one).sort { |a, b| a.name <=> b.name }.each do |r| -%>
   <%= r.name.to_s.humanize -%>:
-  <%= object_link(metamorphosize_if(@object.send(r.name.to_s))) -%>
+  <%= object_link(@object.send(r.name.to_s)) -%>
   <br>
 <% end %>
 
 <h3> Belongs to </h3>
 <% @object.class.reflect_on_all_associations(:belongs_to).sort { |a, b| a.name <=> b.name }.each do |r| -%>
   <%= r.name.to_s.humanize -%>:
-  <%= object_link(metamorphosize_if(@object.send(r.name.to_s))) -%>
+  <%= object_link(@object.send(r.name.to_s)) -%>
   <br>
 <% end %>

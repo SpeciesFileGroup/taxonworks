@@ -43,7 +43,7 @@ module Queries
 
     def all 
       # For references, this is equivalent: Otu.eager_load(:taxon_name).where(where_sql) 
-      Otu.includes(:taxon_name).where(where_sql).references(:taxon_names)
+      Otu.includes(:taxon_name).where(where_sql).references(:taxon_names).order(name: :asc).order('taxon_names.cached ASC')
     end
 
     def taxon_name_table

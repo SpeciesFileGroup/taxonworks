@@ -288,7 +288,7 @@ describe Source::Bibtex, type: :model, group: :sources do
       #   end
       context 'TW serial conversion' do
         let(:src) { FactoryGirl.build(:soft_valid_bibtex_source_article) }
-        let(:serial1) { FactoryGirl.create(:valid_serial) } # create so serial1 has an ID
+        let(:serial1) { FactoryGirl.create(:valid_serial) }  # create so serial1 has an ID
 
         specify 'serial gets converted properly to bibtex journal' do
           expect(src.valid?).to be_truthy
@@ -308,14 +308,14 @@ describe Source::Bibtex, type: :model, group: :sources do
 
         specify 'issn gets converted properly' do
           issn = FactoryGirl.build(:issn_identifier)
-          serial1.identifiers << issn
+          serial1.identifiers <<  issn
           expect(serial1.save).to be_truthy
           src.serial = serial1
-          expect(src.save).to be_truthy
+          expect(src.save ).to be_truthy
           src.soft_validate()
           expect(src.soft_valid?).to be_truthy
           bib = src.to_bibtex
-          expect(bib[:issn]).to eq(serial1.identifiers.of_type(:issn).first.identifier)
+          expect(bib.issn).to eq(serial1.identifiers.of_type(:issn).first.identifier)
         end
       end
 
@@ -1403,12 +1403,18 @@ describe Source::Bibtex, type: :model, group: :sources do
     #       # cp.import(a.first)
     #       # b = cp.render(:bibliography, id: key).first.strip
     #
-    #       # array = [] 
-    #       # array.push(LaTeX.decode "The $20^{th}$ annual meeting of {BibTeX}--users") 
-    #       # array.push(LaTeX.decode %q{" \`{o} \"{o} \.{o} \H{o} \d{o} {\OE} \aa \O \ss "}) 
+    #       # array = []
+
+    #       # array.push(LaTeX.decode "The $20^{th}$ annual meeting of {BibTeX}--users")
+
+    #       # array.push(LaTeX.decode %q{" \`{o} \"{o} \.{o} \H{o} \d{o} {\OE} \aa \O \ss "})
+
     #       # array.push(LaTeX.decode %q{ '{o} \~{o} \u{o} \H{o} \t{oo} \b{o} \ae \AA \l  ?'})
-    #       #  array.push(LaTeX.decode %q{" \^{o} \={o} \V{o} \c{o} \oe \ae \o \L !' "}) 
-    #       # array.push(LaTeX.decode %q{" \`{e} \"{a} \.{a} \c{c} {\oe}  \\{oe}a"}) 
+    #       # 
+    #       # array.push(LaTeX.decode %q{" \^{o} \={o} \V{o} \c{o} \oe \ae \o \L !' "})
+
+    #       # array.push(LaTeX.decode %q{" \`{e} \"{a} \.{a} \c{c} {\oe}  \\{oe}a"})
+
     #       # array
     #
     #       #  have ref-in-ref problems not correctly creating the either book or article

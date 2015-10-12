@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe CollectionObject, :type => :model do
 
-  let(:collection_object) {FactoryGirl.build(:collection_object) }
+  let(:collection_object) { CollectionObject.new() }
   let(:ranged_lot_category) {FactoryGirl.create(:valid_ranged_lot_category) }
 
   context 'validation' do
@@ -114,10 +114,7 @@ describe CollectionObject, :type => :model do
           expect(s.type).to eq('RangedLot')
         end
 
-
       end
-
-
     end
   end
 
@@ -137,6 +134,18 @@ describe CollectionObject, :type => :model do
 
       specify 'ranged_lot_category' do
         expect(collection_object.ranged_lot_category = FactoryGirl.create(:valid_ranged_lot_category)).to be_truthy
+      end
+    end
+
+    context 'has_many' do
+      
+      # technically not supposed to have these, they are to be biological only 
+      specify 'taxon_determinations' do
+        collection_object.taxon_determinations << FactoryGirl.create(:valid_taxon_determination)
+        collection_object.total = 1 
+        expect(collection_object.save).to be_truthy
+        collection_object.reload
+        expect(collection_object.taxon_determinations.first).to be_truthy  
       end
 
     end

@@ -2,15 +2,15 @@
 #
 # @!attribute label
 #   @return [String]
-#   @todo
+#     the physical label applied or to be applied to the drawers 
 #
 # @!attribute date_printed
 #   @return [DateTime]
-#   @todo
+#     date the label was printed 
 #
 # @!attribute print_style
 #   @return [String]
-#   @todo
+#     reference to a CSS class defining the style of the label
 #
 # @!attribute project_id
 #   @return [Integer]
@@ -18,7 +18,7 @@
 #
 # @!attribute container_id
 #   @return [Integer]
-#   @todo
+#     the container the label will be attached to 
 #
 class ContainerLabel < ActiveRecord::Base
 

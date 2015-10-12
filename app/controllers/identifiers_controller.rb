@@ -59,20 +59,20 @@ class IdentifiersController < ApplicationController
   end
 
   def list
-    @identifiers = Identifier.where(project_id: $project_id).order(:cached).page(params[:page])
+    @identifiers = Identifier.where(project_id: $project_id).includes(:updater, :namespace).page(params[:page])
   end
 
   # GET /identifier/search
   def search
-    if params[:id].blank?
-      redirect_to identifier_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+    if @identifier = Identifier.find(params[:id])
+      redirect_to @identifier.identifier_object.metamorphosize
     else
-      redirect_to identifier_path(params[:id])
+      redirect_to identifier_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
     end
   end
 
   def autocomplete
-    @identifiers = Identifier.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
+    @identifiers = Identifier.find_for_autocomplete(params.merge(project_id: sessions_current_project_id)).limit(20)
 
     data = @identifiers.collect do |t|
       str = render_to_string(
@@ -103,6 +103,6 @@ class IdentifiersController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def identifier_params
-    params.require(:identifier).permit(:identifier_object_id, :identifier_object_type, :identifier, :type, :namespace_id)
+    params.require(:identifier).permit(:id, :identifier_object_id, :identifier_object_type, :identifier, :type, :namespace_id)
   end
 end
