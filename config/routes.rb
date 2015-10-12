@@ -186,7 +186,7 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
   end
 
-   # resources :otu_page_layout_sections, only: [:create, :update, :destroy]
+ resources :otu_page_layout_sections, only: [:create, :update, :destroy]
 
   resources :topics do
     collection do
