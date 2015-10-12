@@ -1,9 +1,10 @@
-# OtuPageLayout definition...
-#   @todo
+# An OtuPageLayout defines the (gross) content and presentation order of an OTU page.  Within an
+# otu page layout you may select any number of Topics, or dynamically generate report types.
+# Each section will be filled with content for a particular OTU when the layout is selected for that OTU. 
 #
 # @!attribute name
 #   @return [String]
-#   @todo
+#     The name of the layout 
 #
 # @!attribute project_id
 #   @return [Integer]
