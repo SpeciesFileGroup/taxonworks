@@ -6,11 +6,10 @@
 #
 # OTU is labeled with a name, either arbitrarily given or specifically linked to a taxon_name_id.
 #
-# @todo Add simple semantics (same_as etc.) describing taxon_name_id
 #
 # @!attribute name
 #   @return [String]
-#   @todo
+#   A label for the OTU.
 #
 # @!attribute project_id
 #   @return [Integer]
@@ -18,12 +17,16 @@
 #
 # @!attribute taxon_name_id
 #   @return [Integer]
-#   @todo
+#   The id of the nomenclatural name for this OTU.  The presence of a nomenclatural name carries no biological meaning, it is 
+#   simply a means to organize concepts within a nomenclatural system.
 #
 class Otu < ActiveRecord::Base
+
+  # TODO Add simple semantics (same_as etc.) describing taxon_name_id
+
   include Housekeeping
   #include Shared::AlternateValues  # 1/26/15 with MJY - not going to allow alternate values in Burlap
-  include Shared::Citable # TODO: have to think hard about this vs. using Nico's framework
+  include Shared::Citable               # TODO: have to think hard about this vs. using Nico's framework
   include Shared::DataAttributes
   include Shared::Identifiable
   include Shared::Notable

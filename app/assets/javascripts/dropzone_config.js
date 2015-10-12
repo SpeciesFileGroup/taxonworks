@@ -1,31 +1,41 @@
 var _init_dropzone_for_images;
 
 _init_dropzone_for_images = function init_dropzone_for_images() {
-  if ( $("#my-awesome-dropzone").length ) {
-    Dropzone.options.myAwesomeDropzone = {
+  if ( $("#basic-images").length ) {
+    Dropzone.options.basicImages = {
       paramName: "image[image_file]", // The name that will be used to transfer the file
       maxFilesize: 100,
       accept: function(file, done) {
-        // if (file.name == "justinbieber.jpg") {
-        //  done("Naha, you don't.");
-       // }
-      //  else {
-          done();
-      //  }
+        done();
       }
     };
   }
 };
 
-// $(document).on('page:change', _init_dropzone_for_images)
+var _init_dropzone_for_depictions;
 
-$(document).on('page:change', function () {
-  _init_dropzone_for_images()
+_init_dropzone_for_depictions = function init_dropzone_for_images() {
+  if ( $("#depiction-images").length ) {
+    Dropzone.options.depictionImages = {
+      paramName: "depiction[image_attributes][image_file]", // The name that will be used to transfer the file
+      maxFilesize: 100,
+      accept: function(file, done) {
+        done();
+      }
+    };
+  }
+};
+
+
+$(document).on('page:change', function(event) {
+  _init_dropzone_for_images();
+  _init_dropzone_for_depictions();
 });
 
+$(document).on('ready page:load', function(event) {
+  _init_dropzone_for_images()
+  _init_dropzone_for_depictions();
+});
 
-// $(document).ready();
-// $(document).on("page:load", _init_dropzone_for_images);
-
-
-
+Dropzone.autoDiscover = false; // disable the built-in autodiscovery
+$(document).on("ready page:load", Dropzone.discover);
