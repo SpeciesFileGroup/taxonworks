@@ -5,6 +5,13 @@ module TaxonNamesHelper
     taxon_name.cached_html ? taxon_name.cached_html.html_safe : taxon_name.name
   end
 
+  def taxon_name_autocomplete_selected_tag(taxon_name)
+    return nil if taxon_name.nil?
+    taxon_name.cached
+  end
+
+
+
   def taxon_name_link(taxon_name)
     return nil if taxon_name.nil?
     link_to(taxon_name_tag(taxon_name).html_safe, taxon_name.metamorphosize)
