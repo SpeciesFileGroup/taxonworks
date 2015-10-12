@@ -27,16 +27,6 @@
       <%= f.date_select :date_return_expected %>
     </div>
     <div class="field">
-      <%= f.label :recipient_person_id %>
-      <br>
-      <%= render :partial => 'workbench/elements/forms/ajax_select',
-                 :locals  => {:controller => 'people',
-                              :object     => 'person',
-                              :method     => 'recipient_person_id',
-                              :tag_id     => 'recipient_person_id_for_loan',
-                              :display    => object_tag(@loan.recipient_person)} %>
-    </div>
-    <div class="field">
       <%= f.label :recipient_address %>
       <br>
       <%= f.text_field :recipient_address %>
@@ -56,17 +46,7 @@
       <br>
       <%= f.number_field :recipient_country %>
     </div>
-    <div class="field">
-      <%= f.label :supervisor_person_id %>
-      <br>
-      <%= render :partial => 'workbench/elements/forms/ajax_select',
-                 :locals  => {:controller => 'people',
-                              :object     => 'person',
-                              :method     => 'supervisor_person_id',
-                              :tag_id     => 'supervisor_person_id_for_loan',
-                              :display    => object_tag(@loan.supervisor_person)} %>
-    </div>
-    <div class="field">
+   <div class="field">
       <%= f.label :supervisor_email %>
       <br>
       <%= f.text_field :supervisor_email %>

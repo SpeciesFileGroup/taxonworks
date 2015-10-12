@@ -21,10 +21,6 @@
 #   @return [DateTime]
 #   @todo
 #
-# @!attribute recipient_person_id
-#   @return [Integer]
-#   @todo
-#
 # @!attribute recipient_address
 #   @return [String]
 #   @todo
@@ -61,10 +57,6 @@
 #   @return [String]
 #   @todo
 #
-# @!attribute supervisor_person_id
-#   @return [Integer]
-#   @todo
-#
 class Loan < ActiveRecord::Base
   include Housekeeping
   include Shared::IsData
@@ -76,11 +68,16 @@ class Loan < ActiveRecord::Base
 
   has_paper_trail
 
-  belongs_to :recipient_person, foreign_key: :recipient_person_id, class_name: 'Person'
-  belongs_to :supervisor_person, foreign_key: :supervisor_person_id, class_name: 'Person'
+  
+
 
   has_many :loan_items
+
   has_many :loan_recipient_roles, class_name: 'LoanRecipient', as: :role_object
+  has_many :loan_supervisor_roles, class_name: 'LoanSupervisor', as: :role_object
+
+  has_many :loan_recipients, through: :loan_recipient_roles, source: :person
+  has_many :loan_supervisors, through: :loan_supervisor_roles, source: :person
 
 
   # TODO: @mjy What *is* the right construct for 'Loan'?
