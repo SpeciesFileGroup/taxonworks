@@ -1,0 +1,34 @@
+<%= form_tag preview_verbatim_reference_task_path do %>
+
+    <h2>Preview a source (reference) from a verbatim citation</h2>
+
+    <div>
+      <p>Submitted citation: </p>
+      <blockquote style="font-weight: bold"><%= @citation %></blockquote>
+    </div>
+    <hr/>
+    <% if @source.class == Source::Verbatim -%>
+        <p><strong>CrossRef did not find a matching ref</strong></p>
+    <% end %>
+
+    <div class="actions">
+      <%= submit_tag "Create verbatim source" %> as: <%= @citation %>
+      <hr/>
+    </div>
+
+    <% if @source.class == Source::Bibtex -%>
+        <strong>OR</strong>
+        <%= submit_tag "Create BibTeX source" %> as: <%= @source.cached_string('text') %>
+        <ul style="list-style-type:none">
+          <li>
+            <div class="field">
+              <%= label_tag :also_create_people_records_from_authors_and_editors_of_BibTeX_source? %>
+              <%= check_box_tag :create_roles, false %>
+            </div>
+
+          </li>
+        </ul>
+        <!-- also create serial-->
+
+    <% end %>
+<% end %>

@@ -1,31 +1,15 @@
 <%= form_tag create_verbatim_reference_task_path do %>
 
   <h2>Create a source (reference) from a verbatim citation</h2>
-  <p> <i> The record will be resolved against CrossRef, if it fails to resolve it will be stored as verbatim. </i> </p>
+  <p> <i> The record will be resolved against CrossRef, and you will be given an option
+    to use the BibTeX record (if found) or store it as a verbatim record. </i> </p>
     <div>
       <div class="field">
         <%= label_tag :paste_full_citation %>
         <%= text_area_tag :citation, nil ,  rows: 4, cols: 50 %>
       </div>
     </div>
-
-    <div>
-      <div class="field">
-        <%= label_tag :also_create_people_records_from_authors_and_editors? %>
-        <%= check_box_tag :create_roles, false  %>
-      </div>
-    </div>
-
     <div class="actions">
-      <%= submit_tag :create %>
+      <%= submit_tag :preview %>
     </div>
-<% end %>
-
-
-<% if @source -%>
-  <div> 
-    <p> A record was created:    
-    <%= source_link(@source) -%>
-    </p>
-  </div>
 <% end %>
