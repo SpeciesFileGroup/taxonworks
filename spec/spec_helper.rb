@@ -112,10 +112,10 @@ RSpec.configure do |config|
     DatabaseCleaner.strategy = :transaction
   end
 
-  # Something wrong with this too, why should it be a different strategy?, we are not wrapping all feature tests in js:true, but we might have been originally)
-  # config.before(:each, js: true) do
-  #   DatabaseCleaner.strategy = :truncation, { except: %w(spatial_ref_sys) }
-  # end
+  # Capybara requires truncation strategy!! 
+  config.before(:each, js: true) do
+    DatabaseCleaner.strategy = :truncation, { except: %w(spatial_ref_sys) }
+  end
 
   config.before(:each) do
     DatabaseCleaner.start

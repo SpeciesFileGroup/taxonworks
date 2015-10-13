@@ -13,10 +13,11 @@ module Features
 
     def sign_in_with(email, password)
       visit signin_path
+     # byebug
       fill_in 'Email',    with: email
       fill_in 'Password', with: password
-      # Something wrong with timing here, if you put a byebug in the test passes ... javascript related issue?
       click_button 'Sign in'
+      find_link('Sign out')  # TODO: check for Capybara bug fix down the road?
     end
 
     def select_a_project(project)
