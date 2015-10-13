@@ -78,17 +78,14 @@ class OtusController < ApplicationController
   end
 
   def autocomplete
-    @otus = Otu.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
-
+    @otus = Otu.find_for_autocomplete(params.merge(project_id: sessions_current_project_id)).include(:taxon_names)
     data = @otus.collect do |t|
-      l = ApplicationController.helpers.otu_tag(t)
-
       {id: t.id,
-       label: l,
+       label: ApplicationController.helpers.otu_tag(t),
        response_values: {
          params[:method] => t.id
        },
-       label_html: l #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
+       label_html: ApplicationController.helpers.otu_autocomplete_selected_tag(t) 
       }
     end
 

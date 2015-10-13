@@ -1,32 +1,32 @@
 <%= form_for(@content.metamorphosize) do |f| %>
-    <%= render 'shared/errors', object: @content %>
+  <%= render 'shared/errors', object: @content %>
 
-    <div class="field">
-      <%= f.label :text %>
-      <br>
-      <%= f.text_area :text %>
-    </div>
+  <div class="field">
+    <%= f.label :otu_id %>
+    <br>
+    <%= render(partial: 'workbench/elements/forms/ajax_select',
+               locals:  {
+      controller: 'otus',
+      object: 'content',
+      method: 'otu_id',
+      tag_id: 'otu_id_for_content',
+      display: (@content.respond_to?(:otu) ? otu_autocomplete_selected_tag(@content.otu) : nil),
+      size: 60, 
+    }) %>
+</div>
 
-    <div class="field">
-      <%= f.label :otu_id %>
-      <br>
-      <%= render :partial => 'workbench/elements/forms/ajax_select',
-                 :locals  => {:controller => 'otus',
-                              :object     => 'content',
-                              :method     => 'otu_id',
-                              :tag_id     => 'otu_id_for_content',
-                              :display    => (@content.respond_to?(:otu) ? otu_tag(@content.otu) : nil)
-      }
-                            %>
-                        </div>
+<div class="field">
+  <%= f.label :topic_id %>
+  <br>
+  <%= f.select :topic_id, options_from_collection_for_select(Topic.with_project_id($project_id).all, :id, :name, empty: true) -%>
+</div>
 
-    <div class="field">
-      <%= f.label :topic_id %>
-      <br>
-      <%= f.select :topic_id, options_from_collection_for_select(Topic.with_project_id($project_id).all, :id, :name, empty: true) -%>
-    </div>
+<div class="field">
+  <%= f.label :text %>
+  <br>
+  <%= f.text_area :text, rows: 8, cols: 60 %>
+</div>
 
-    <div class="actions">
-      <%= f.submit %>
-    </div>
+<%= submit_tag -%>
+
 <% end %>

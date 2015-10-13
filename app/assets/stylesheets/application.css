@@ -11,6 +11,7 @@
  *= require_self
  *= require_tree .
  *= require jquery-ui/autocomplete
+ *= require dropzone/dropzone
  */
 
 body {

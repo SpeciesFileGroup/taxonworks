@@ -77,6 +77,7 @@ gem 'validates_timeliness', '~> 3.0.14'
 # Password encryption
 gem 'bcrypt', '~> 3.1.7'
 
+
 # API view template engine
 gem 'rabl'
 
@@ -90,6 +91,8 @@ gem 'colored', '~> 1.2'
 
 gem 'chartkick'
 gem 'groupdate', '~> 2.5'
+
+gem 'dropzonejs-rails'
 
 # SFG gems
 gem 'taxonifi', '0.3.6'

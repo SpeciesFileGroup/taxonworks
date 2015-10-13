@@ -1,24 +1,12 @@
-<p id="notice"><%= notice %></p>
 
-<p>
-  <strong>Name:</strong>
-  <%= @otu_page_layout.name %>
-</p>
+<%= content_for :related_attributes do -%>
+  <h3> Topics </h3>
+  <ul>
+  <% @otu_page_layout.topics.each do |t| -%> 
+    <%= content_tag(:li, topic_tag(t)) -%>
+  <% end %> 
+</ul>
+<% end %>
 
-<p>
-  <strong>Created by:</strong>
-  <%= @otu_page_layout.created_by_id %>
-</p>
+<%= render(partial: 'shared/data/project/show', locals: {object: @otu_page_layout}) -%>
 
-<p>
-  <strong>Updated by:</strong>
-  <%= @otu_page_layout.updated_by_id %>
-</p>
-
-<p>
-  <strong>Project:</strong>
-  <%= @otu_page_layout.project_id %>
-</p>
-
-<%= link_to 'Edit', edit_otu_page_layout_path(@otu_page_layout) %> |
-<%= link_to 'Back', otu_page_layouts_path %>

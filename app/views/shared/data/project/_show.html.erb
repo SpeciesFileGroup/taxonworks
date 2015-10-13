@@ -36,7 +36,11 @@
       <%= annotate_links(object: object) -%>
       <br>
       <br>
- 
+
+      <div> <%= dropzone_depiction_form(object) -%> </div>
+
+      <br>
+
       <div>
         <%= yield :do -%>
       </div>

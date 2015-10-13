@@ -6,7 +6,9 @@ module Shared::Depictions
 
   included do
     has_many :depictions, as: :depiction_object, dependent: :destroy
-    # should this be :depictions?
+    has_many :images, through: :depictions
+
+    accepts_nested_attributes_for :depictions
   end
 
   def has_depictions?

@@ -15,6 +15,7 @@ module Features
       visit signin_path
       fill_in 'Email',    with: email
       fill_in 'Password', with: password
+      # Something wrong with timing here, if you put a byebug in the test passes ... javascript related issue?
       click_button 'Sign in'
     end
 
@@ -60,13 +61,11 @@ module Features
 
     def spin_up_project_and_users
       @password = 'abcD123!'
-
       @user = User.create!(name: 'Pat User', email: 'user@example.com', password: @password, password_confirmation: @password, self_created: true)
       @project_administrator = User.create!(name: 'Pat Project Administrator', email: 'project_administrator@example.com', password: @password, password_confirmation: @password, self_created: true)
       @administrator = User.create!(name: 'Pat the Administrator', email: 'administrator@example.com', password: @password, password_confirmation: @password, is_administrator: true, self_created: true)
 
       @project = Project.create!(name: 'My Project', creator: @administrator, updater: @administrator, without_root_taxon_name: true)
-
       @project.project_members.create!(creator: @administrator, updater: @administrator, user: @project_administrator, is_project_administrator: true)
       @project.project_members.create!(creator: @administrator, updater: @administrator, user: @user) 
     end

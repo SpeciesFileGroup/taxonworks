@@ -113,6 +113,8 @@ GEM
     docile (1.1.5)
     domain_name (0.5.25)
       unf (>= 0.0.5, < 1.0.0)
+    dropzonejs-rails (0.7.1)
+      rails (> 3.1)
     dwc-archive (0.9.11)
       archive-tar-minitar (~> 0.5)
       nokogiri (~> 1.6)
@@ -315,7 +317,7 @@ GEM
     rtesseract (1.2.6)
     rubyzip (1.1.7)
     safe_yaml (1.0.4)
-    sass (3.4.18)
+    sass (3.4.19)
     sass-rails (5.0.4)
       railties (>= 4.0.0, < 5.0)
       sass (~> 3.1)
@@ -421,6 +423,7 @@ DEPENDENCIES
   csl-styles (~> 1.0.1.6)
   database_cleaner (~> 1.4)
   did_you_mean (~> 0.10.0)
+  dropzonejs-rails
   dwc-archive (~> 0.9.11)
   exception_notification
   execjs

@@ -1,7 +1,6 @@
 class SourcesController < ApplicationController
   include DataControllerConfiguration::SharedDataControllerConfiguration
 
-  before_action :require_sign_in
   before_action :set_source, only: [:show, :edit, :update, :destroy]
 
   # GET /sources
@@ -12,7 +11,7 @@ class SourcesController < ApplicationController
   end
 
   def list
-    @sources = Source.order(:id).page(params[:page])
+    @sources = Source.page(params[:page])
   end
 
   # GET /sources/1

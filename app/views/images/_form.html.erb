@@ -1,16 +1,28 @@
-<%= form_for(@image, multipart: true) do |f| %>
-    <%= render 'shared/errors', object: @image %>
 
-  <div class="field">
-    <%= f.label :image_file %><br>
-    
-    <div> <%= image_tag(@image.image_file.url(:thumb)) -%> </div>
+<div class="flexbox">
+  <div class="item item1"> 
 
-    <%= f.file_field :image_file, class: :required_for_submit %>
+
+    <h3> Drag drop images from your desktop </h3>
+
+    <%= form_for(@image, multipart: true) do |f| %>
+      <%= render 'shared/errors', object: @image %>
+
+      <div class="field">
+        <%= f.label :image_file %><br>
+
+        <div> <%= image_tag(@image.image_file.url(:thumb)) -%> </div>
+
+        <%= f.file_field :image_file, class: :required_for_submit %>
+      </div>
+
+      <div class="actions">
+        <%= f.submit id: 'submit_with_required', disabled: :disabled %>
+      </div>
+    <% end %>
   </div>
-
-  <div class="actions">
-    <%= f.submit id: 'submit_with_required', disabled: :disabled %>
+  <div class="item item2">
+    <h3> Drag drop images from your desktop </h3>
+    <%= dropzone_form -%> 
   </div>
-<% end %>
-
+</div>
