@@ -9,11 +9,11 @@ class Tasks::Bibliography::VerbatimReferenceController <ApplicationController
   # POST
   # gets the citation from user and passes it to preview
   def create
-    @source   = Source.new_from_citation(citation: params[:citation])
-    @citation = params[:citation]
+    @source = Source.new_from_citation(citation: params[:citation])
     render 'tasks/bibliography/verbatim_reference/preview',
-           locals: {citation: @citation,
+           locals: {citation: params[:citation],
                     source:   @source}
+    @source.delete # done with this object
 
 =begin
     # don't save until after preview
@@ -37,17 +37,24 @@ class Tasks::Bibliography::VerbatimReferenceController <ApplicationController
   def preview
     # Matt said to model this task along the lines of the bulk import with a preview & a create.
 
+    # There is a slight possibility that the resolver will return a different object or changed object
+    # the second time the source is sent to the resolver.
+
     # on success go to edit source ==>  edit_source_path(@source)
     # on fail flash[:notice]; render :new
-
-   @source = params[:source]
+    destination = :new
+    continue = TRUE
     if params[:commit] == 'Create verbatim source'
-      if @source.class != Source::Verbatim
-        @source = Source::Verbatim.create(:verbatim => params[:citation])
+      @source = Source::Verbatim.create(:verbatim => params[:in_cite])
+    else # params[:commit] == 'Create BibTeX source'
+      @source = Source.new_from_citation(citation: params[:in_cite])
+      if @source.class == Source::Verbatim
+        @source.errors.add('BibTeX source was NOT created. The provided citation no longer resolves.')
+        continue = FALSE
       end
     end
 
-    if @source.save
+    if continue && @source.save
       flash[:notice] = "This #{@source.class} record was created."
       if params[:create_roles]
         if @source.create_related_people_and_roles
@@ -59,6 +66,7 @@ class Tasks::Bibliography::VerbatimReferenceController <ApplicationController
       redirect_to edit_source_path(@source)
     else
       flash[:notice] = "An error occurred while creating the source record. #{@source.errors.messages}"
+      redirect_to new_verbatim_reference_task_path(request.parameters)
     end
   end
 end

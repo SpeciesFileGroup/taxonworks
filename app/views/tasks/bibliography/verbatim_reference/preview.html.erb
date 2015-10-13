@@ -3,8 +3,9 @@
     <h2>Preview a source (reference) from a verbatim citation</h2>
 
     <div>
+      <%= hidden_field_tag(:in_cite, params[:citation]) %>
       <p>Submitted citation: </p>
-      <blockquote style="font-weight: bold"><%= @citation %></blockquote>
+      <blockquote style="font-weight: bold"><%= params[:citation] %></blockquote>
     </div>
     <hr/>
     <% if @source.class == Source::Verbatim -%>
@@ -12,13 +13,14 @@
     <% end %>
 
     <div class="actions">
-      <%= submit_tag "Create verbatim source" %> as: <%= @citation %>
+      <%= submit_tag "Create verbatim source" %> as: <%= params[:citation] %>
       <hr/>
     </div>
 
     <% if @source.class == Source::Bibtex -%>
         <strong>OR</strong>
-        <%= submit_tag "Create BibTeX source" %> as: <%= @source.cached_string('text') %>
+        <br />
+        <%= submit_tag "Create BibTeX source" %> as: <%= @source.cached_string('html').html_safe %>
         <ul style="list-style-type:none">
           <li>
             <div class="field">
