@@ -17,7 +17,9 @@
     <!-- This is the list of headers common to all collection objects-->
     <%= otu_headers.html_safe %>
     <!-- these are the computed headers collected for all selected collection objects-->
-    <%= c_o_headers([ce_headers, co_headers, bc_headers].flatten).html_safe %>
+    <%= c_o_headers([selected_headers('ce-'),
+                     selected_headers('co-'),
+                     selected_headers('bc-')].flatten).html_safe %>
   </tr>
   <% @collection_objects.each do |c_o| %>
       <tr>
@@ -32,7 +34,9 @@
         <td><%= link_to(c_o.collecting_event.verbatim_locality, c_o.collecting_event) %></td>
         <td><%= c_o.collecting_event.georeference_latitude %></td>
         <td><%= c_o.collecting_event.georeference_longitude %></td>
-        <%= c_o_attributes([ce_attributes(c_o), co_attributes(c_o), bc_attributes(c_o)].flatten).html_safe %>
+        <%= c_o_attributes([ce_attributes(c_o),
+                            co_attributes(c_o),
+                            bc_attributes(c_o)].flatten).html_safe %>
       </tr>
   <% end %>
   </tbody>

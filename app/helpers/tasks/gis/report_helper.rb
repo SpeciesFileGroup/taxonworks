@@ -29,14 +29,26 @@ module Tasks::Gis::ReportHelper
       retval += "<th>#{header}</th>\n"
     }
     retval
-    # Predicate.includes(:internal_attributes).where(data_attributes: {attribute_subject_type: 'CollectionObject'}, project_id: 1).uniq.map(&:name)
-    # BiocurationClass.all.map(&:name)
   end
 
   def c_o_attributes(attribute_list = [])
     retval = ''
     attribute_list.each { |attribute|
       retval += "<td>#{attribute}</td>"
+    }
+    retval
+  end
+
+  def selected_headers(selected)
+    retval = []
+    @prefixes.each_with_index { |prefix, index|
+      case prefix
+        when selected
+          item = @headers[index]
+          item = item[2, item.length] if item.start_with?('* ')
+          retval.push(item)
+        else
+      end
     }
     retval
   end
@@ -51,11 +63,10 @@ module Tasks::Gis::ReportHelper
 
   def ce_attributes(collection_object)
     retval = []
-    if @with_ce
-      ce_headers.each { |header|
-        retval.push(collection_object.collecting_event.data_attributes.select { |d| d.predicate.name == header }.map(&:value).join('; '))
-      }
-    end
+    selected_headers('ce-').each { |header|
+      # collect all of the strings which match the predicate name with the header for this collection object
+      retval.push(collection_object.collecting_event.data_attributes.select { |d| d.predicate_name == header }.map(&:value).join('; '))
+    }
     retval
   end
 
@@ -68,18 +79,13 @@ module Tasks::Gis::ReportHelper
 
   def co_attributes(collection_object)
     retval = []
-    if @with_co
-      co_headers.each { |header|
-        retval.push(collection_object.data_attributes.select { |d| d.predicate.name == header }.map(&:value).join('; '))
-      }
-    end
+    selected_headers('co-').each { |header|
+      retval.push(collection_object.data_attributes.select { |d| d.predicate_name == header }.map(&:value).join('; '))
+    }
     retval
   end
 
   def bc_headers
-    # retval = []
-    # retval = CollectionObject.bc_headers(@collection_objects) if @with_bc
-    # retval
     retval      = {}
     retval[:bc] = BiocurationClass.all.map(&:name)
     @bc_headers = retval
@@ -87,11 +93,9 @@ module Tasks::Gis::ReportHelper
 
   def bc_attributes(collection_object)
     retval = []
-    if @with_bc
-      bc_headers.each { |header|
-        retval.push(collection_object.biocuration_classes.map(&:name).include?(header) ? '1' : '0')
-      }
-    end
+    selected_headers('bc-').each { |header|
+      retval.push(collection_object.biocuration_classes.map(&:name).include?(header) ? '1' : '0')
+    }
     retval
   end
 

@@ -19,10 +19,29 @@ class Tasks::Gis::ReportController < ApplicationController
     case params[:commit]
       when 'Show'
         gather_data(geographic_area_id)
+        # next step is to discover which of the additional headers have been checked
+        @headers = []; @prefixes = []
+        params.each_with_index { |item, index|
+          case item[1].class.to_s
+            when 'ActionController::Parameters'
+              entry = item[1]
+              key   = entry.keys[0]
+              if entry[key] == '1'
+                prefix = key.to_s[0, 3]
+                header = key.to_s[3, key.length]
+                @prefixes.push(prefix)
+                @headers.push(header)
+                index
+              end
+            else
+          end
+        }
+
       when 'download'
         gather_data(params[:download_geo_area_id])
         report_file = CollectionObject.generate_report_download(@collection_objects)
-        send_data(report_file, type: 'text', filename: "collection_objects_report_#{DateTime.now.to_s}.csv") and return
+        send_data(report_file, type: 'text', filename: "collection_objects_report_#{DateTime.now.to_s}.csv")
+      # and return
       else
     end
     # render :new
