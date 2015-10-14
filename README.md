@@ -9,91 +9,22 @@ TaxonWorks
 Overview
 --------
 
-TaxonWorks is Ruby on Rails application that facilitates biodiversity informatics research.  More information is available at [taxonworks.org][13].  The codebase is in active development.  At present models, some import-related code, and a scaffolded interface are available.
-
+TaxonWorks is general purpose web-based framework that facilitates biodiversity informatics research. More information is available at [taxonworks.org][13]. 
+ 
 Installation
 ------------
 
-TaxonWorks is a Rails 4.1.n application using Ruby 2.1.n and rubygems.  It requires PostgreSQL with the postgis extension.  It uses ImageMagick.  The core development team is using [rvm][16] and [brew][9] to configure their environment on OS X.  
-
-Minimally, the following steps are required.  If you have postgres/postgis installed skip to 3. 
-
-1. Install Postgres, postgis, and image magick.
-  
-   ``` 
-   brew install postgres
-   brew install postgis 
-   brew install imagemagick
-   ```
-
-2. To start postgres follow the instructions via 'brew info postgres'. The following sets postgres to start at logon, and then starts postgres for this session.
-
-   ```  
-   mkdir -p ~/Library/LaunchAgents    # This may already exist.   
-   ln -sfv /usr/local/opt/postgresql/*.plist ~/Library/LaunchAgents
-   launchctl load ~/Library/LaunchAgents/homebrew.mxcl.postgresql.plist
-   ```
- 
-3. Clone the source code.
-
-   ```
-   git clone git@github.com:SpeciesFileGroup/taxonworks.git
-   ```
-
-4. Copy the config/database.yml.example file to config/database.yml.  
-
-5. Given no modifications to database.yml, you can proceed by creating a postgres role (user).
-
-   ```
-   psql -d postgres
-   create role taxonworks_development login createdb superuser; 
-   \q
-   ```
-
-6. Install the gems dependencies. Ensure you are using the Ruby version you intend to develop under (check with 'ruby -v'). Install the pg gem with some flags first, then the rest of the gems.
-
-  ```
-  env ARCHFLAGS="-arch x86_64" gem install pg -- --with-pg-config=/usr/local/bin/pg_config
-  bundle update
-  ```
-
-7. Setup the databases.  
- 
-  ``` 
-  rake db:setup
-  ```
-
-8. Test your setup. If the tests run, then the installation has been a success.  
-
-  ```
-  rspec
-  ```
-
-9. Seed some dummy data. This includes a user (email 'person1@example.com', with password in /spec/support/config/initialization_constants.rb), project and a few other bits.
-
-  ```
-  rake db:seed
-  ```
-
-10. Start the local server.
-
-  ```
-  rails s
-  ```
-
-11. Check out the application by navigating in your browser to http://127.0.0.1:3000/.
-
+Instructions for installing TaxonWorks for development and production use, and notes on development tools are available in the [tw_provision repo][17]. 
 
 Other resources
 ---------------
 
-TaxonWorks has a [wiki][11] for conceptual discussion and aggregating long term help. It also includes a basic roadmap. There is a [developers list][14] for technical discussion. Code is documented inline using [Yard tags][12], see [rdoc][10].  Tweets come from [@TaxonWorks][15].  A stub homepage is at [taxonworks.org][13].
+TaxonWorks has a [wiki][11] for conceptual discussion and aggregating long term help. There is a [developers list][14] for technical discussion. Code is documented inline using [Yard tags][12], see [rdoc][10].  Tweets come from [@TaxonWorks][15].  A stub homepage is at [taxonworks.org][13].
 
 License
 -------
 
-TaxonWorks is open source, a decision on the licence to be used is pending, it will likely be MIT or nearly identical. 
-
+TaxonWorks is open source and is presently available under the [University of Illinois/NCSA Open Source License][16] and [see here][18].
  
 [1]: https://secure.travis-ci.org/SpeciesFileGroup/taxonworks.png?branch=master
 [2]: http://travis-ci.org/SpeciesFileGroup/taxonworks?branch=master
@@ -103,11 +34,12 @@ TaxonWorks is open source, a decision on the licence to be used is pending, it w
 [6]: https://codeclimate.com/github/SpeciesFileGroup/taxonworks?branch=master
 [7]: https://gemnasium.com/SpeciesFileGroup/taxonworks.png?branch=master
 [8]: https://gemnasium.com/SpeciesFileGroup/taxonworks?branch=master
-[9]: http://brew.sh/
 [10]: http://rubydoc.info/github/SpeciesFileGroup/taxonworks/frames
 [11]: http://wiki.taxonworks.org/
 [12]: http://rdoc.info/gems/yard/file/docs/Tags.md
 [13]: http://taxonworks.org
 [14]: https://groups.google.com/forum/?hl=en#!forum/taxonworks-developers
 [15]: https://twitter.com/taxonworks
-[16]: http://rvm.io
+[16]: https://opensource.org/licenses/NCSA
+[17]: https://github.com/SpeciesFileGroup/tw_provision
+[18]: https://en.wikipedia.org/wiki/University_of_Illinois/NCSA_Open_Source_License
