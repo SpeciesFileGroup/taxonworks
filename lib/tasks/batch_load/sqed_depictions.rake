@@ -1,18 +1,12 @@
-#require 'io/console'
-# require 'fileutils'
-
 namespace :tw do
   namespace :batch_load do
     namespace :sqed_depiction do
-
-      # rake tw:batch_load:sqed_depiction:import layout="cross" layout="foo" total=1 boundary_finder="bar"  data_directory=/Users/matt/Desktop/images/ project_id=1 user_id=1 
-      # 
 
       # Basic format: 
       #   rake tw:batch_load:sqed_depiction:import total=1 data_directory=/Users/matt/Desktop/images/ project_id=1 user_id=1 
       # Extended format:
       #   rake tw:batch_load:sqed_depiction:import total=1 layout=cross metada_map="{"0": "curator_metadata", "1": "identifier", "2": "image_registration", "3": "annotated_specimen"}" boundary_Finder='Sqed::BoundaryFinder::ColorLineFinder' data_directory=/Users/matt/Desktop/images/ project_id=1 user_id=1 
-      #
+      desc 'import collection object depictions'
       task import: [:environment, :project_id, :user_id, :data_directory] do |t|
 
         # These match sqed and sqed_depiction extraction_metadata patterns
