@@ -72,7 +72,7 @@ class DataAttribute < ActiveRecord::Base
   # @return [String]
   #   then predicate name
   def predicate_name
-    type == 'InternalAttribute' ? predicate.predicate_name : import_predicate 
+    type == 'InternalAttribute' ? predicate.name : import_predicate
   end
 
 end
