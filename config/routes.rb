@@ -16,8 +16,7 @@ TaxonWorks::Application.routes.draw do
 
     member do
       get 'related'
-  end
-
+    end
   end
 
   root 'dashboard#index'
@@ -67,7 +66,7 @@ TaxonWorks::Application.routes.draw do
     collection do
       post :preview_simple_batch_load # should be get
       post :create_simple_batch_load
-  end
+    end
   end
   resources :biocuration_classifications, only: [:create, :update, :destroy]
   resources :citation_topics, only: [:create, :update, :destroy]
@@ -81,12 +80,10 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
     member do
       get 'depictions'
-  end
+    end
   end
   resources :collection_profiles do
-    collection do
-      get 'list'
-    end
+    concerns [:data_routes]
   end
 
   resources :collection_object_observations do
@@ -127,7 +124,6 @@ TaxonWorks::Application.routes.draw do
     end
   end
 
-
   resources :combinations, only: [:create, :edit, :update, :destroy, :new] do
     concerns [:data_routes]
   end
@@ -154,7 +150,7 @@ TaxonWorks::Application.routes.draw do
 
   resources :georeferences, only: [:index, :destroy, :new, :show, :edit] do
     concerns [:data_routes]
-    end
+  end
 
   namespace :georeferences do
     resources :geo_locates, only: [:new, :create]
@@ -173,7 +169,7 @@ TaxonWorks::Application.routes.draw do
       get 'scale/:x/:y/:width/:height/:new_width/:new_height', action: :scale
       get 'scale_to_box/:x/:y/:width/:height/:box_width/:box_height', action: :scale_to_box
       get 'ocr/:x/:y/:width/:height', action: :ocr
-  end
+    end
   end
   resources :loan_items, only: [:create, :update, :destroy]
   resources :loans do
@@ -207,13 +203,12 @@ TaxonWorks::Application.routes.draw do
     end
   end
 
-
   resources :otus do
     concerns [:data_routes]
     collection do
       post :preview_simple_batch_load # should be get
       post :create_simple_batch_load
-  end
+    end
   end
 
   resources :people do
@@ -221,7 +216,7 @@ TaxonWorks::Application.routes.draw do
     member do
       get :roles
       get :details
-  end
+    end
     collection do
       get :lookup_person
     end
@@ -236,13 +231,13 @@ TaxonWorks::Application.routes.draw do
   # resources :ranged_lot_categories
   resources :ranged_lot_categories do
     concerns [:data_routes]
-    end
+  end
 
   resources :repositories do
     concerns [:data_routes]
   end
   resources :serial_chronologies, only: [:create, :update, :destroy]
-  
+
   # TODO: add exceptions 
   resources :serials do
     concerns [:data_routes]
@@ -253,7 +248,7 @@ TaxonWorks::Application.routes.draw do
     collection do
       post :preview_bibtex_batch_load # should be get
       post :create_bibtex_batch_load
-  end
+    end
   end
 
   resources :tagged_section_keywords, only: [:create, :update, :destroy]
@@ -263,7 +258,7 @@ TaxonWorks::Application.routes.draw do
 
   resources :taxon_determinations do
     concerns [:data_routes]
-    end
+  end
 
   resources :taxon_names do
     concerns [:data_routes]
@@ -280,12 +275,12 @@ TaxonWorks::Application.routes.draw do
 
   resources :taxon_name_relationships do
     concerns [:data_routes]
-    end
+  end
 
   resources :type_materials do
     concerns [:data_routes]
   end
-  
+
   match '/favorite_page', to: 'user_preferences#favorite_page', via: :post
   match '/remove_favorite_page', to: 'user_preferences#remove_favorite_page', via: :post
 

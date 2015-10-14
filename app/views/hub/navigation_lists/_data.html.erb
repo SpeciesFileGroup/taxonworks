@@ -12,13 +12,13 @@
   <div class="item item2 one_fifth_width">
     <h2>Supporting</h2>
     <%= content_tag :li, link_to('Asserted distributions', asserted_distributions_path) %>
-    <%= content_tag(:li, 'Collection profile', class: :disabled) %>
+    <%= content_tag :li, link_to('Collection profile', collection_profiles_path) %>
     <%= content_tag :li, link_to('Collection object observations', collection_object_observations_path) %>
     <%= content_tag :li, link_to('Contents', contents_path) %>
     <%= content_tag :li, link_to('Depictions', depictions_path) %>
     <%= content_tag :li, link_to('Georeferences', georeferences_path) %>
     <%= content_tag :li, link_to('Images', images_path) %>
-    <%= content_tag(:li, 'Loans', class: :disabled) %>
+    <%= content_tag :li, link_to('Loans', loans_path) %>
     <%= content_tag :li, link_to('OTU page layouts', otu_page_layouts_path) %>
     <%= content_tag :li, link_to('Ranged lot categories', ranged_lot_categories_path) %>
     <%= content_tag :li, link_to('Taxon determinations', taxon_determinations_path) %>
