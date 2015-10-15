@@ -2,15 +2,16 @@
 
 <div id="breakdown_sqed_depiction" class="flexbox">
 
-  <!-- transcribe for javascript reference -->
-  <span id="image_sections"
-        <%= @result.image_sections.each do |section| %>
-      data-section-<%= section -%>="<%= @result.class::TEXT_MAP[section.to_sym] -%>"
-    <% end %>
-        hidden=true
-    ></span>
-
   <div class="item item1">
+    <!-- transcribe for javascript reference, this is all hidden -->
+    <span id="image_sections"
+      <%= @result.image_sections.each do |section| %>
+        data-section-<%= section -%>="<%= @result.class::TEXT_MAP[section.to_sym] -%>"
+      <% end %>
+      hidden=true
+      > </span>
+
+
     <%= link_to('image', image_path(@result.depiction.image)) -%>
     <div id="littlebox">
       <% @result.image_sections.each_with_index do |section, i| -%>
@@ -50,70 +51,62 @@
 
     <div class="extracted_form">
       <%= form_for(@result.depiction.depiction_object, as: :collection_object, url: depiction_breakdown_update_task_path(@result.depiction)) do |f| -%>
-          <div class="field">
-            <%= f.label :total %>
-            <%= f.text_field :total, size: 2 -%>
-          </div>
-
           <div class="flexbox">
-
             <div class="item item1">
+              <h3> Identifiers </h3>
+              <%= f.fields_for(:identifiers, @result.depiction.depiction_object.identifiers) do |i| -%>
+
+                <div class="side_by_side_fields">
+                  <%= i.hidden_field :type -%>
+
+                  <div class="field">
+                    <%= i.label :namespace_id %><br>
+                    <%= render(
+                      partial: '/workbench/elements/forms/ajax_select',
+                      locals:  {
+                        controller:        '/namespaces',
+                        object:            "collection_object[identifiers_attributes][#{i.index}]",
+                        method:            'namespace_id',
+                        tag_id:            "namespace_id_for_identifier_#{i.index}",
+                        display:           (i.object.namespace ? i.object.namespace.short_name : nil),
+                        size:              20,
+                        fields_for_object: i})
+                      %>
+
+                    <% if @result.depiction.depiction_object.identifiers.size == 1 %>
+                      <%= check_box_tag(:lock_namespace, "1", @result.namespace_locked?) -%>lock
+                    <% end %>
+                  </div>
+
+                  <div class="field">
+                    <%= i.label :identifier %><br>
+                    <%= i.text_field :identifier %>
+                  </div>
+
+                </div>
+               <% end %>
+            </div>
+
+            <div class="item item2">
 
               <h3> Taxon Determinations </h3>
               <%= f.fields_for(:taxon_determinations, @result.depiction.depiction_object.taxon_determinations) do |o| -%>
-                  <div class="field">
-                    <%= o.label :name %><br>
-                    <%= render(
-                                partial: '/workbench/elements/forms/ajax_select',
-                                locals:  {
-                                        controller: '/otus',
-                                        object:     "collection_object[taxon_determinations_attributes][#{o.index}]",
-                                        method:     'otu_id',
-                                        tag_id:     "otu_id_for_identifier_#{o.index}",
-                                        display:    otu_tag(o.object.otu),
-                                        size:       20})
+                <div class="field">
+                  <%= o.label :name %><br>
+                  <%= render(
+                    partial: '/workbench/elements/forms/ajax_select',
+                    locals:  {
+                      controller: '/otus',
+                      object:     "collection_object[taxon_determinations_attributes][#{o.index}]",
+                      method:     'otu_id',
+                      tag_id:     "otu_id_for_identifier_#{o.index}",
+                      display:    otu_tag(o.object.otu),
+                      size:       20})
                     %>
-                  </div>
+                </div>
               <% end %>
             </div>
-
-
-            <div class="item item <%= @result.small_dimensions_for(@result.secondary_sections.second) -%>2">
-              <h3> Identifiers </h3>
-              <%= f.fields_for(:identifiers, @result.depiction.depiction_object.identifiers) do |i| -%>
-                  <%= i.hidden_field :type -%>
-
-                  <div class="side_by_side_fields">
-
-                    <div class="field">
-                      <%= i.label :namespace_id %><br>
-                      <%= render(
-                                  partial: '/workbench/elements/forms/ajax_select',
-                                  locals:  {
-                                          controller:        '/namespaces',
-                                          object:            "collection_object[identifiers_attributes][#{i.index}]",
-                                          method:            'namespace_id',
-                                          tag_id:            "namespace_id_for_identifier_#{i.index}",
-                                          display:           (i.object.namespace ? i.object.namespace.short_name : nil),
-                                          size:              20,
-                                          fields_for_object: i})
-                      %>
-
-                      <% if @result.depiction.depiction_object.identifiers.size == 1 %>
-                          <%= check_box_tag(:lock_namespace, "1", @result.namespace_locked?) -%>lock
-                      <% end %>
-
-                    </div>
-
-                    <div class="field">
-                      <%= i.label :identifier %><br>
-                      <%= i.text_field :identifier %>
-                    </div>
-
-                  </div>
-                  </div>
-              <% end %>
-              </div>
+          </div>
 
           <div class="side_by_side_fields" id="collection_object_fields">
             <div class="field">
@@ -136,8 +129,13 @@
 
           </div>
 
-          <%= submit_tag -%>
+          <div class="field">
+            <%= f.label :total %>
+            <%= f.text_field :total, size: 2 -%>
+          </div>
+
           <%= submit_tag('Save and next') -%>
+          <%= submit_tag -%>
           <%= link_to('Skip to next', depiction_breakdown_task_path(SqedDepiction.next_depiction(@result.depiction), @result.namespace_id)) -%>
 
           <br class="clear_both">
@@ -445,7 +443,7 @@
    }
 
   function get_identifier(ocr_txt) {
-    var regex = /(<%= @identifer_prototype.length.times.collect{|a| '[\d]'}.join().html_safe -%>)/; 
+    var regex = /\d{<%= @identifer_prototype.length -%>}/; 
     var v = regex.exec(ocr_txt);
     if (v == false) {
       return
@@ -454,8 +452,6 @@
       return v[0];
     }
   };
-
-
 
 
   $("#collection_object_buffered_collecting_event").focus();

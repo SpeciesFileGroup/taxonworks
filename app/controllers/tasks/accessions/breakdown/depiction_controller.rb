@@ -11,13 +11,8 @@ class Tasks::Accessions::Breakdown::DepictionController < ApplicationController
 
     # Experiment with using the last identifier created as a pattern for matching new identifiers
     #  .. right now very dumb, assume all numbers, fixed length
-    identifier = Identifier.where(project_id: sessions_current_project_id).last
-    if !identifier.blank?
-      @identifer_prototype = identifier.identifier
-      @identifier ||= '12345657'
-    else
-      @identifer_prototype = '12345678'
-    end
+    identifier = Identifier.where(project_id: sessions_current_project_id, created_by_id: sessions_current_user_id).last
+    @identifer_prototype = (identifier.blank? ? '12345678' : identifier.identifier)
   end
 
   def update 
@@ -30,7 +25,7 @@ class Tasks::Accessions::Breakdown::DepictionController < ApplicationController
     end
 
     next_depiction = (params[:commit] == 'Save and next' ? SqedDepiction.next_depiction(@depiction) : @depiction )
-    namespace_id = (params[:lock_namespace] ? params[:collection_object][:identifiers_attributes][:namespace_id] : nil)
+    namespace_id = (params[:lock_namespace] ? params[:collection_object][:identifiers_attributes]["0"][:namespace_id] : nil)
 
     redirect_to depiction_breakdown_task_path(next_depiction, namespace_id)
   end
