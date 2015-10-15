@@ -7,7 +7,6 @@ class LoanItemsController < ApplicationController
   # POST /loan_items.json
   def create
     @loan_item = LoanItem.new(loan_item_params)
-
     respond_to do |format|
       if @loan_item.save
         format.html { redirect_to :back, notice: 'Loan item was successfully created.' }
@@ -51,8 +50,8 @@ class LoanItemsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def loan_item_params
-      params.require(:loan_item).permit(:loan_id, :collection_object_id, :collection_object_status, :date_returned,
-                                        :position, :container_id
+      params.require(:loan_item).permit(:loan_id, :collection_object_status, :date_returned, :loan_item_object_id, :loan_item_object_type,
+                                        :position
       )
     end
 end

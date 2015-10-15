@@ -27,7 +27,8 @@ describe LoanItemsController, :type => :controller do
   # LoanItem. As you add validations to LoanItem, be sure to
   # adjust the attributes here as well.
   let(:loan) {FactoryGirl.create(:valid_loan) }
-  let(:valid_attributes) { strip_housekeeping_attributes(FactoryGirl.build(:valid_loan_item, loan: loan).attributes) }
+  let(:loan_object) {FactoryGirl.create(:valid_otu) }
+  let(:valid_attributes) { strip_housekeeping_attributes(FactoryGirl.build(:valid_loan_item, loan_item_object: loan_object, loan: loan).attributes) }
 
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in
