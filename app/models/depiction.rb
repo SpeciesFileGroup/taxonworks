@@ -18,6 +18,8 @@
 #     the project ID
 #
 class Depiction < ActiveRecord::Base
+  # TODO: add position scoping
+
   include Housekeeping
   include Shared::Taggable
   include Shared::IsData

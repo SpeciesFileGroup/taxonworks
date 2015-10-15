@@ -111,10 +111,13 @@ class UsersController < ApplicationController
       basic = [:name,
       :email,
       :password,
-      :password_confirmation]
+      :password_confirmation,
+      :set_new_api_access_token]
 
       basic.push [:is_project_administrator] if is_superuser?
       basic.push [:is_administrator, :is_flagged_for_password_reset] if is_administrator?
+
+      
 
       params.require(:user).permit(basic)
     end

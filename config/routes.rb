@@ -413,7 +413,13 @@ TaxonWorks::Application.routes.draw do
   # API STUB
   scope :api do
     get '/', controller: :api, action: :index, as: 'api'
-    get '/(:route)', controller: :api, action: :pseudorouter
+    scope  '/v1' do
+      scope '(/token/:token)' do
+        scope '/project/:project_id' do
+          get '/images/:id', to: 'images#show'
+        end
+      end
+    end
   end
 
   get '/api/v1/taxon_names/' => 'api/v1/taxon_names#all'

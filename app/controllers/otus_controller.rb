@@ -120,13 +120,12 @@ class OtusController < ApplicationController
   end
 
   private
-  # Use callbacks to share common setup or constraints between actions.
+
   def set_otu
     @otu = Otu.with_project_id($project_id).find(params[:id])
     @recent_object = @otu
   end
 
-  # Never trust parameters from the scary internet, only allow the white list through.
   def otu_params
     params.require(:otu).permit(:name, :taxon_name_id)
   end

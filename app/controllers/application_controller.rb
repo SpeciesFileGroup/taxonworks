@@ -20,9 +20,21 @@ class ApplicationController < ActionController::Base
   # Potentially used.
   helper_method :meta_title, :meta_data, :site_name, :page_title
 
+  before_filter :intercept_api
+
   before_filter :set_project_and_user_variables
+
   after_filter :log_user_recent_route
   after_filter :clear_project_and_user_variables
+
+  def intercept_api 
+    if (/^\/api/ =~ request.path)
+      token_authenticate
+      set_project_from_params
+      render(text: 'Not authorized', status: :unauthorized) and return if @sessions_current_user.nil?
+    end
+    true 
+  end
 
   # TODO: Make RecenRoutes modules that handles exceptions, only etc.
   def log_user_recent_route
@@ -87,6 +99,20 @@ class ApplicationController < ActionController::Base
     @no_turbolinks = true
   end
 
+  def token_authenticate
+    t = params[:token] 
+  
+    if !t 
+      authenticate_or_request_with_http_token do |token, options|
+        t = token
+      end
+    end
+  
+    @sessions_current_user = User.find_by_api_access_token(t) 
+  end
 
+  def set_project_from_params
+    self.sessions_current_project_id = params.require(:project_id)
+  end
 
 end

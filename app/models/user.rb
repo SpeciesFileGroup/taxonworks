@@ -106,6 +106,9 @@ class User < ActiveRecord::Base
   include Shared::RandomTokenFields[:password_reset]
   has_secure_password
 
+  attr_accessor :set_new_api_access_token
+  before_save :generate_api_access_token,  if: 'self.set_new_api_access_token'
+
   VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
 
   attr_accessor :self_created
@@ -282,5 +285,6 @@ class User < ActiveRecord::Base
       self.update_columns(created_by_id: self.id, updated_by_id: self.id) # !?
     end
   end
+
 
 end
