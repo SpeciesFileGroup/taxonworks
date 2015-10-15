@@ -58,10 +58,10 @@ class TaxonDetermination < ActiveRecord::Base
   # @todo factor these out (see also TaxonDetermination, Source::Bibtex)
   validates_numericality_of :year_made,
                             only_integer:          true,
-                            greater_than:          0,
+                            greater_than:          1757,
                             less_than_or_equal_to: Time.now.year,
                             allow_nil:             true,
-                            message:               ' must be a 4 digit integer greater than 0'
+                            message:               ' must be a 4 digit integer greater than 1757'
   validates_inclusion_of :month_made,
                          in:        1..12,
                          allow_nil: true,

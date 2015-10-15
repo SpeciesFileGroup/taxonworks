@@ -23,7 +23,7 @@ class TaxonNameClassification < ActiveRecord::Base
   include Shared::IsData
   include SoftValidation
 
-  belongs_to :taxon_name
+  belongs_to :taxon_name, inverse_of: :taxon_name_classifications
 
   before_validation :validate_taxon_name_classification
   before_validation :validate_uniqueness_of_latinized

@@ -286,7 +286,11 @@ class Protonym < TaxonName
   end
 
   def name_is_latinized
-    if name =~ /[^a-zA-Z|\-]/
+    exepted_with_taxon_name_classifications = ['TaxonNameClassification::Iczn::Unavailable::NotLatin',
+                                              'TaxonNameClassification::Iczn::Unavailable::LessThanTwoLetters',
+                                              'TaxonNameClassification::Iczn::Unavailable::NotLatinizedAfter1899',
+                                              'TaxonNameClassification::Iczn::Unavailable::NotLatinizedBefore1900AndNotAccepted']
+    if name =~ /[^a-zA-Z|\-]/ && (self.taxon_name_classifications.collect{|t| t.type} & exepted_with_taxon_name_classifications).empty?
       errors.add(:name, 'must be latinized, no digits or spaces allowed')
     end
   end

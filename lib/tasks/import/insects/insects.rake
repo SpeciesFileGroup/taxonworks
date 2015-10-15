@@ -998,7 +998,6 @@ namespace :tw do
             p.parent_id = parent_index[row['Parent'].to_s].id unless row['Parent'].blank? || parent_index[row['Parent'].to_s].nil?
             if rank == 'NomenclaturalRank'
               p = Protonym.find_or_create_by(name: 'Root', rank_class: 'NomenclaturalRank', project_id: $project_id)
-              # p = Protonym.with_rank_class('NomenclaturalRank').first
               parent_index.merge!(row['ID'] => p)
             elsif !p.parent_id.blank?
               bench = Benchmark.measure {
@@ -1408,12 +1407,12 @@ namespace :tw do
 #        otu = data.otus[row['TaxonCode']]
         objects.each do |o|
           unless otu.nil?
-            td = TaxonDetermination.new(
+            year = row['YearIdentified'].blank? ? year_from_field(row['CreatedOn']) : row['YearIdentified']
+            td = TaxonDetermination.create(
                 biological_collection_object: o,
                 otu: otu,
-                year_made: row['YearIdentified']
+                year_made: year
             )
-            td.save
 
             if !row['Type'].blank?
               type = TYPE_TYPE[row['Type'].downcase]
@@ -1589,13 +1588,13 @@ namespace :tw do
                              date_sent: time_from_field(row['DateProcessed']),
                              date_received: time_from_field(row['DateReceived']),
                              date_return_expected: time_from_field(row['ExpectedDateOfReturn']),
-                             recipient_person: data.people_index[row['RecipientID']],
+                             #recipient_person: data.people_index[row['RecipientID']],
                              recipient_address: data.people_id[row['RecipientID']]['Address'],
                              recipient_email: data.people_id[row['RecipientID']]['Email'],
                              recipient_phone: data.people_id[row['RecipientID']]['Phone'],
                              recipient_honorarium: data.people_id[row['RecipientID']]['Honorarium'],
                              recipient_country: country,
-                             supervisor_person: supervisor,
+                             #supervisor_person: supervisor,
                              supervisor_email: supervisor_email,
                              supervisor_phone: supervisor_phone,
                              date_closed: date_closed,
@@ -1610,7 +1609,7 @@ namespace :tw do
             l.data_attributes.create(import_predicate: 'RecipientID', value: row['RecipientID'].to_s, type: 'ImportAttribute') unless row['RecipientID'].blank?
             l.identifiers.create(namespace: data.namespaces['Invoice'], identifier: row['InvoiceID'], type: 'Identifier::Local::LoanCode') unless row['InvoiceID'].blank?
             Role.create(person: data.people_index[row['RecipientID']], role_object: l, type: 'LoanRecipient') unless row['RecipientID'].blank?
-            Role.create(person: data.people_index[row['SupervisorID']], role_object: l, type: 'LoanRecipient') unless row['SupervisorID'].blank?
+            Role.create(person: data.people_index[row['SupervisorID']], role_object: l, type: 'LoanSupervisor') unless row['SupervisorID'].blank?
           end
           puts "\nResolved \n #{Loan.all.count} loans\n"
           import.metadata['loans'] = true

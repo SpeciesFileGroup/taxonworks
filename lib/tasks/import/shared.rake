@@ -31,6 +31,12 @@ namespace :tw do
       end
     end
 
+    def year_from_field(time)
+      time = time_from_field(time)
+      time = time.nil? ? Time.now.year : time.year
+      time
+    end
+
     def find_or_create_user(id, data)
       if data.users[id]
         data.users[id]
