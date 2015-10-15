@@ -1,27 +1,17 @@
 require 'rails_helper'
 
-describe Tasks::Serials::SimilarController, :type => :controller do
+describe Tasks::Serials::SimilarController, type: :controller do
 
-  describe "GET similar" do
+  before(:each) {
+    sign_in
+  }
+
+  describe "GET like" do
+    let(:s) {FactoryGirl.create(:valid_serial) }
     it "returns http success" do
-      s=FactoryGirl.create(:valid_serial)
-      get :like, {:id => s.to_param}
-      expect(response).to have_http_status(:success)
+      get :like, {id: s.id }
+      expect(response).to render_template("like") 
     end
   end
-
-  # describe "GET update" do
-  #   it "returns http success" do
-  #     get :update
-  #     expect(response).to have_http_status(:success)
-  #   end
-  # end
-  #
-  # describe "GET within" do
-  #   it "returns http success" do
-  #     get :within
-  #     expect(response).to have_http_status(:success)
-  #   end
-  # end
 
 end

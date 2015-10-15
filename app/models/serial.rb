@@ -121,24 +121,22 @@ class Serial < ActiveRecord::Base
   # Serials may also have a language note with Predicate 'Serial Language Note'
 
 
-  # Find similar serials to me
-  # NOTE: Levenshtein in postgres requires all strings be 255 or fewer
-  def nearest_by_levenshtein(compared_string = nil, column = 'name', limit = 20)
-    # copied from collecting_event
-    return Serial.none if compared_string.nil?
+  # @return [Scope]
+  #   Levenshtein calculated related records per supplied column 
+  def nearest_by_levenshtein(compared_string = nil, column = 'name', limit = 10)
+    return Serial.none if compared_string.blank?
 
     order_str = Serial.send(:sanitize_sql_for_conditions,
-                            ["levenshtein(Substring(serials.#{column} from 0 for 250), ?)",
+                            ["levenshtein(Substring(serials.#{column} from 0 for 250), ?)", # Levenshtein in postgres requires all strings be 255 or fewer
                              compared_string[0..250]])
+
       Serial.where('id <> ?', self.to_param).
       order(order_str).
       limit(limit)
   end
-  # a = Serial.where(name: fname).to_a # an array of serials where primary name matches fname
-  # ava = AlternateValue.where(value: fname, alternate_value_object_type: 'Serial', alternate_value_object_attribute: 'name')
-  #   an array of serials where alternate names match fname
 
-  # Boolean is there another serial with the same name?
+  # @return [Boolean]
+  #   is there another serial with the same name?  Also checkes alternate values.
   def duplicate?
     ret_val = false
     if self.new_record?
@@ -155,8 +153,7 @@ class Serial < ActiveRecord::Base
         ret_val = true
       end
     end
-
-    ret_val # return
+    ret_val 
   end
 
 =begin

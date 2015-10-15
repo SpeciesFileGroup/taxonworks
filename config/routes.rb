@@ -342,9 +342,6 @@ TaxonWorks::Application.routes.draw do
 
     scope :serials, controller: 'tasks/serials/similar' do
       get 'like/:id', action: 'like', as: 'similar_serials_task'
-      post 'update/:id', action: 'update', as: 'update_serial_find_task'
-      get 'find', as: 'find_similar_serials_task'
-      post 'find', as: 'return_similar_serials_task' 
     end
 
     scope :usage, controller: 'tasks/usage/user_activity' do
