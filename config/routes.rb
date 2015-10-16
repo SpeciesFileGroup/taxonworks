@@ -422,7 +422,8 @@ TaxonWorks::Application.routes.draw do
     end
   end
 
-  get '/api/v1/taxon_names/' => 'api/v1/taxon_names#all'
+  # TODO: Remove or rewrite endpoint implementation
+  # get '/api/v1/taxon_names/' => 'api/v1/taxon_names#all'
   
   get '/crash_test/' => 'crash_test#index' unless Rails.env.production?
 
