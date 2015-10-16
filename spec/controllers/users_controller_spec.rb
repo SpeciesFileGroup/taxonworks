@@ -25,35 +25,28 @@ describe UsersController, :type => :controller do
   # adjust the attributes here as well.
 
   let(:valid_attributes) { {name: 'uzer', password: '123aBc!!!', password_confirmation: '123aBc!!!', email: 'foo@example.com', created_by_id: 1, updated_by_id: 1} }
-  let(:invalid_attributes) {{  "email" => "invalid value" }  } 
+  let(:invalid_attributes) {{ "email" => "invalid value" }  } 
 
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in
   # UsersController. Be sure to keep this updated too.
-  # TODO: revisit this to explore how passing valid_session in get works.
   let(:valid_session) { {} }
-
-# after(:all) {
-#   User.delete_all
-#   FactoryGirl.create(:valid_user, id: 1)
-# }
 
   describe "GET index" do
     before { 
-      # User.destroy_all   
       sign_in_administrator 
     } 
 
     it "assigns all users as @users" do
       user = User.create!(valid_attributes)
       get :index, {}, valid_session
-      expect(assigns(:users)).to eq(User.all)
+      expect(assigns(:users)).to eq(User.all.order(:name, :email))
     end
   end
 
   describe "GET show" do
     it "assigns the requested user as @user" do
-      user = User.create! valid_attributes
+      user = User.create!(valid_attributes)
       get :show, {:id => user.to_param}, valid_session
       expect(assigns(:user)).to eq(user)
     end
