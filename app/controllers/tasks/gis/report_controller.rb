@@ -18,25 +18,24 @@ class Tasks::Gis::ReportController < ApplicationController
     geographic_area_id = params[:geographic_area_id]
     case params[:commit]
       when 'Show'
+        selected_headers = {prefixes: [], headers: [], types: []}
         gather_data(geographic_area_id)
         # next step is to discover which of the additional headers have been checked
-        @headers = []; @prefixes = []
-        params.each_with_index { |item, index|
-          case item[1].class.to_s
-            when 'ActionController::Parameters'
-              entry = item[1]
-              key   = entry.keys[0]
-              if entry[key] == '1'
-                prefix = key.to_s[0, 3]
-                header = key.to_s[3, key.length]
-                @prefixes.push(prefix)
-                @headers.push(header)
-                index
+        headers = params[:headers]
+        headers.keys.each { |h_key|
+          list = headers[h_key]
+          list.keys.each { |l_key|
+            item = list[l_key]
+            item.keys.each { |t_key|
+              if item[t_key] == '1' # check_box was selected
+                selected_headers[:prefixes].push(h_key)
+                selected_headers[:headers].push(l_key)
+                selected_headers[:types].push(t_key)
               end
-            else
-          end
+            }
+          }
         }
-
+        session[:co_selected_headers] = selected_headers
       when 'download'
         gather_data(params[:download_geo_area_id])
         report_file = CollectionObject.generate_report_download(@collection_objects)
