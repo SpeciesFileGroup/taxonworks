@@ -12,7 +12,7 @@ module ActiverecordUtilities
   module ClassMethods
     # any def inside here is a class method
     def nil_trim_attributes(*attributes) # this assigns the attributes to be trimmed
-      raise if (attributes.map(&:to_s) - self.column_names) != []
+      raise('no attributes to trim') if (attributes.map(&:to_s) - self.column_names) != []
       self.attributes_to_trim = attributes
     end
   end

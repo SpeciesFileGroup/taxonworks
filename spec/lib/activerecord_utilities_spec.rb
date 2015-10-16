@@ -9,7 +9,7 @@ describe 'ActiverecordUtilities' do
       expect(TestStringManipulations.attributes_to_trim).to match_array [:col1, :col3]
     end
     specify 'nil_trim_attributes raises when invalid attribute passed' do
-      expect { TestStringManipulations.nil_trim_attributes(:col1, :foo) }.to raise_error
+      expect { TestStringManipulations.nil_trim_attributes(:col1, :foo) }.to raise_error('no attributes to trim')
     end
   end
 
