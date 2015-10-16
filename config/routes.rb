@@ -171,7 +171,9 @@ TaxonWorks::Application.routes.draw do
       get 'ocr/:x/:y/:width/:height', action: :ocr
     end
   end
-  resources :loan_items, only: [:create, :update, :destroy]
+  resources :loan_items do
+    concerns [:data_routes]
+  end
   resources :loans do
     concerns [:data_routes]
   end
