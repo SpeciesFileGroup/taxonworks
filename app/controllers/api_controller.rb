@@ -1,6 +1,6 @@
 class ApiController < ApplicationController
 
-  attr_accesor :permitted_projects
+  attr_accessor :permitted_projects
 
   before_filter :set_permitted_projects
 
