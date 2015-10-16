@@ -40,11 +40,14 @@ module Tasks::Gis::ReportHelper
   end
 
   def selected_headers(selected)
-    retval = []
-    @prefixes.each_with_index { |prefix, index|
+    retval   = []
+    prefixes = session[:co_selected_headers][:prefixes]
+    headers  = session[:co_selected_headers][:headers]
+    types    = session[:co_selected_headers][:types]
+    prefixes.each_with_index { |prefix, index|
       case prefix
         when selected
-          item = @headers[index]
+          item = headers[index]
           item = item[2, item.length] if item.start_with?('* ')
           retval.push(item)
         else
@@ -53,50 +56,106 @@ module Tasks::Gis::ReportHelper
     retval
   end
 
+  # @return [Hash] with collecting event data attribute names, both internal and import
+  # can't use data_attribute.predicate_name here; it will lose the sense of source (internal or implort)
+  #
   def ce_headers
-
-    retval               = {}
-    retval[:ce_internal] = InternalAttribute.where(project_id: sessions_current_project_id, attribute_subject_type: 'CollectingEvent').map(&:predicate).map(&:name).uniq.sort
-    retval[:ce_import]   = ImportAttribute.where(project_id: sessions_current_project_id, attribute_subject_type: 'CollectingEvent').pluck(:import_predicate).uniq.sort
-    @ce_headers          = retval
+    CollectionObject.ce_headers(sessions_current_project_id)
   end
 
+  # @param [CollectionObject] from which to extract attributes
+  # @return [Array] of attributes
   def ce_attributes(collection_object)
-    retval = []
-    selected_headers('ce-').each { |header|
-      # collect all of the strings which match the predicate name with the header for this collection object
-      retval.push(collection_object.collecting_event.data_attributes.select { |d| d.predicate_name == header }.map(&:value).join('; '))
-    }
+    retval = []; collection = session[:co_selected_headers]
+    unless collection.nil?
+      ce_header_strings = []; ce_header_types = []
+      prefixes          = collection[:prefixes]
+      headers           = collection[:headers]
+      types             = collection[:types]
+      prefixes.each_with_index { |p_type, index|
+        if p_type == 'ce'
+          ce_header_strings.push(headers[index])
+          ce_header_types.push(types[index])
+        end
+      }
+      ce_header_strings.each_with_index { |header, index|
+        # collect all of the strings which match the predicate name with the header for this collection object
+        case ce_header_types[index]
+          when 'int'
+            attribute_type = 'InternalAttribute'
+          when 'imp'
+            attribute_type = 'ImportAttribute'
+          else
+            # do nothing
+        end
+        retval.push(collection_object.collecting_event.data_attributes.where(type: attribute_type).select { |d| d.predicate_name == header }.map(&:value).join('; '))
+      }
+    end
     retval
   end
 
+  # @return [Hash] with collection object data attribute names, both internal and import
+  # can't use data_attribute.predicate_name here; it will lose the sense of source (internal or implort)
+  #
   def co_headers
-    retval               = {}
-    retval[:co_internal] = InternalAttribute.where(project_id: sessions_current_project_id, attribute_subject_type: 'CollectionObject').map(&:predicate).map(&:name).uniq.sort
-    retval[:co_import]   = ImportAttribute.where(project_id: sessions_current_project_id, attribute_subject_type: 'CollectionObject').pluck(:import_predicate).uniq.sort
-    @co_headers          = retval
+    CollectionObject.co_headers(sessions_current_project_id)
   end
 
+  # @param [CollectionObject] from which to extract attributes
+  # @return [Array] of attributes
   def co_attributes(collection_object)
-    retval = []
-    selected_headers('co-').each { |header|
-      retval.push(collection_object.data_attributes.select { |d| d.predicate_name == header }.map(&:value).join('; '))
-    }
+    retval = []; collection = session[:co_selected_headers]
+    unless collection.nil?
+      co_header_strings = []; co_header_types = []
+      prefixes          = collection[:prefixes]
+      headers           = collection[:headers]
+      types             = collection[:types]
+      prefixes.each_with_index { |p_type, p_index|
+        if p_type == 'co'
+          co_header_strings.push(headers[p_index])
+          co_header_types.push(types[p_index])
+        end
+      }
+
+      # collect all of the strings which match the predicate name with the header for this collection object
+      co_header_strings.each_with_index { |header, index|
+        case co_header_types[index]
+          when 'int'
+            attribute_type = 'InternalAttribute'
+          when 'imp'
+            attribute_type = 'ImportAttribute'
+          else
+            # do nothing
+        end
+        retval.push(collection_object.data_attributes.where(type: attribute_type).select { |d| d.predicate_name == header }.map(&:value).join('; '))
+      }
+    end
+
     retval
   end
 
   def bc_headers
-    retval      = {}
-    retval[:bc] = BiocurationClass.all.map(&:name)
-    @bc_headers = retval
+    CollectionObject.bc_headers(sessions_current_project_id)
   end
 
+  # @param [CollectionObject] from which to extract attributes
+  # @return [Array] of attributes
   def bc_attributes(collection_object)
-    retval = []
-    selected_headers('bc-').each { |header|
-      retval.push(collection_object.biocuration_classes.map(&:name).include?(header) ? '1' : '0')
-    }
-    retval
+    retval = []; collection = session[:co_selected_headers]
+    unless collection.nil?
+      bc_header_strings = []
+      prefixes          = collection[:prefixes]
+      headers           = collection[:headers]
+      prefixes.each_with_index { |p_type, index|
+        if p_type == 'bc'
+          bc_header_strings.push(headers[index])
+        end
+      }
+      bc_header_strings.each { |header|
+        retval.push(collection_object.biocuration_classes.map(&:name).include?(header) ? '1' : '0')
+      }
+      retval
+    end
   end
 
   def combine_sub_headers(headers)
@@ -107,7 +166,8 @@ module Tasks::Gis::ReportHelper
       case key
         when /_imp/
           headers[key].each { |item|
-            retval.push('* ' + item)
+            retval.push('--Import')
+            retval.push(item)
           }
         else
           headers[key].each { |item|
@@ -119,7 +179,7 @@ module Tasks::Gis::ReportHelper
   end
 
   def all_sub_headers
-    sub_headers = []; col_types = []
+    sub_headers = []; col_types = []; ce_type = 'int'; co_type = 'int'; this_type = 'ignore'
     item        = combine_sub_headers(ce_headers)
     col_types.push(item[0])
     sub_headers.push(item)
@@ -134,9 +194,31 @@ module Tasks::Gis::ReportHelper
       retstring += "<tr>"
       # across the three headers
       ALLHEADERS.each_with_index { |header, inner|
-        col_type  = col_types[inner] + '-'
-        item      = sub_headers[inner][index].to_s
-        retstring += item.empty? ? "<td></td>" : "<td>#{check_box(item, col_type + item, {checked: false})} #{item}</td>"
+        col_type = col_types[inner] # + '-'
+        item     = sub_headers[inner][index].to_s
+        if item.start_with?('--Imp')
+          item      = item[2, item.length]
+          retstring += "<th>#{item}</th>"
+          case col_type
+            when col_types[0]
+              ce_type = 'imp'
+            when col_types[1]
+              co_type = 'imp'
+            else
+              this_type = 'ignore'
+          end
+        else
+          case col_type
+            when col_types[0]
+              this_type = ce_type
+            when col_types[1]
+              this_type = co_type
+            else
+              this_type = 'ignore'
+          end
+          item_string = "headers[#{col_type}[#{item}]]"
+          retstring   += item.empty? ? "<td></td>" : "<td>#{check_box(item_string, this_type, {checked: false})} #{item}</td>"
+        end
       }
       retstring += "</tr>"
       index     += 1

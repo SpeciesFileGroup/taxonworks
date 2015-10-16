@@ -293,8 +293,12 @@ are located within the geographic item supplied
   end
 
   # decode which headers to be displayed for collecting events
-  def self.ce_headers(collection_objects)
-    @ce_headers = collection_objects.map(&:collecting_event).map(&:data_attributes).flatten.map(&:predicate).map(&:name).uniq.sort
+  def self.ce_headers(sessions_current_project_id)
+    # @ce_headers = collection_objects.map(&:collecting_event).map(&:data_attributes).flatten.map(&:predicate).map(&:name).uniq.sort
+    retval               = {}
+    retval[:ce_internal] = InternalAttribute.where(project_id: sessions_current_project_id, attribute_subject_type: 'CollectingEvent').map(&:predicate).map(&:name).uniq.sort
+    retval[:ce_import]   = ImportAttribute.where(project_id: sessions_current_project_id, attribute_subject_type: 'CollectingEvent').pluck(:import_predicate).uniq.sort
+    @ce_headers          = retval
   end
 
   def self.ce_attributes(collection_object)
@@ -306,8 +310,12 @@ are located within the geographic item supplied
   end
 
   # decode which headers to be displayed for collection objects
-  def self.co_headers(collection_objects)
-    @co_headers = collection_objects.map(&:data_attributes).flatten.map(&:predicate).map(&:name).uniq.sort
+  def self.co_headers(sessions_current_project_id)
+    # @co_headers = collection_objects.map(&:data_attributes).flatten.map(&:predicate).map(&:name).uniq.sort
+    retval               = {}
+    retval[:co_internal] = InternalAttribute.where(project_id: sessions_current_project_id, attribute_subject_type: 'CollectionObject').map(&:predicate).map(&:name).uniq.sort
+    retval[:co_import]   = ImportAttribute.where(project_id: sessions_current_project_id, attribute_subject_type: 'CollectionObject').pluck(:import_predicate).uniq.sort
+    @co_headers          = retval
   end
 
   def self.co_attributes(collection_object)
@@ -319,8 +327,11 @@ are located within the geographic item supplied
   end
 
   # decode which headers to be displayed for biocurational classifications
-  def self.bc_headers(collection_objects)
-    @bc_headers = collection_objects.map(&:biocuration_classifications).flatten.map(&:biocuration_class).map(&:name).uniq.sort
+  def self.bc_headers(sessions_current_project_id)
+    # @bc_headers = collection_objects.map(&:biocuration_classifications).flatten.map(&:biocuration_class).map(&:name).uniq.sort
+    retval      = {}
+    retval[:bc] = BiocurationClass.all.map(&:name)
+    @bc_headers = retval
   end
 
   def self.bc_attributes(collection_object)
