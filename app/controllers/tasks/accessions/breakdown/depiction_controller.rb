@@ -9,10 +9,7 @@ class Tasks::Accessions::Breakdown::DepictionController < ApplicationController
       namespace_id: params[:namespace_id]
     )
 
-    # Experiment with using the last identifier created as a pattern for matching new identifiers
-    #  .. right now very dumb, assume all numbers, fixed length
-    identifier = Identifier.where(project_id: sessions_current_project_id, created_by_id: sessions_current_user_id).last
-    @identifer_prototype = (identifier.blank? ? '12345678' : identifier.identifier)
+    @identifier_prototype = Identifier.prototype_identifier(sessions_current_project_id, sessions_current_user_id)
   end
 
   def update 

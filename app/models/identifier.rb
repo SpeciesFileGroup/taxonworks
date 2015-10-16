@@ -105,6 +105,11 @@ class Identifier < ActiveRecord::Base
     end
   end
 
+  def self.prototype_identifier(project_id, created_by_id)
+    identifier = Identifier.where(project_id: project_id, created_by_id: created_by_id).last
+    identifier.blank? ? '12345678' : identifier.identifier
+  end
+
   protected
 
   def set_cached
