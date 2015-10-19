@@ -66,32 +66,7 @@ module Tasks::Gis::ReportHelper
   # @param [CollectionObject] from which to extract attributes
   # @return [Array] of attributes
   def ce_attributes(collection_object)
-    retval = []; collection = session[:co_selected_headers]
-    unless collection.nil?
-      ce_header_strings = []; ce_header_types = []
-      prefixes          = collection[:prefixes]
-      headers           = collection[:headers]
-      types             = collection[:types]
-      prefixes.each_with_index { |p_type, index|
-        if p_type == 'ce'
-          ce_header_strings.push(headers[index])
-          ce_header_types.push(types[index])
-        end
-      }
-      ce_header_strings.each_with_index { |header, index|
-        # collect all of the strings which match the predicate name with the header for this collection object
-        case ce_header_types[index]
-          when 'int'
-            attribute_type = 'InternalAttribute'
-          when 'imp'
-            attribute_type = 'ImportAttribute'
-          else
-            # do nothing
-        end
-        retval.push(collection_object.collecting_event.data_attributes.where(type: attribute_type).select { |d| d.predicate_name == header }.map(&:value).join('; '))
-      }
-    end
-    retval
+    CollectionObject.ce_attributes(collection_object, session[:co_selected_headers])
   end
 
   # @return [Hash] with collection object data attribute names, both internal and import
@@ -104,34 +79,7 @@ module Tasks::Gis::ReportHelper
   # @param [CollectionObject] from which to extract attributes
   # @return [Array] of attributes
   def co_attributes(collection_object)
-    retval = []; collection = session[:co_selected_headers]
-    unless collection.nil?
-      co_header_strings = []; co_header_types = []
-      prefixes          = collection[:prefixes]
-      headers           = collection[:headers]
-      types             = collection[:types]
-      prefixes.each_with_index { |p_type, p_index|
-        if p_type == 'co'
-          co_header_strings.push(headers[p_index])
-          co_header_types.push(types[p_index])
-        end
-      }
-
-      # collect all of the strings which match the predicate name with the header for this collection object
-      co_header_strings.each_with_index { |header, index|
-        case co_header_types[index]
-          when 'int'
-            attribute_type = 'InternalAttribute'
-          when 'imp'
-            attribute_type = 'ImportAttribute'
-          else
-            # do nothing
-        end
-        retval.push(collection_object.data_attributes.where(type: attribute_type).select { |d| d.predicate_name == header }.map(&:value).join('; '))
-      }
-    end
-
-    retval
+    CollectionObject.co_attributes(collection_object, session[:co_selected_headers])
   end
 
   def bc_headers
@@ -141,21 +89,7 @@ module Tasks::Gis::ReportHelper
   # @param [CollectionObject] from which to extract attributes
   # @return [Array] of attributes
   def bc_attributes(collection_object)
-    retval = []; collection = session[:co_selected_headers]
-    unless collection.nil?
-      bc_header_strings = []
-      prefixes          = collection[:prefixes]
-      headers           = collection[:headers]
-      prefixes.each_with_index { |p_type, index|
-        if p_type == 'bc'
-          bc_header_strings.push(headers[index])
-        end
-      }
-      bc_header_strings.each { |header|
-        retval.push(collection_object.biocuration_classes.map(&:name).include?(header) ? '1' : '0')
-      }
-      retval
-    end
+    CollectionObject.bc_attributes(collection_object, session[:co_selected_headers])
   end
 
   def combine_sub_headers(headers)
