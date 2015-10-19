@@ -222,6 +222,24 @@ class CollectionObject < ActiveRecord::Base
     retval.cached_html unless retval.nil?
   end
 
+  def self.collect_selected_headers(col_defs)
+    @ce_col_defs = cull_headers('ce', col_defs)
+    @co_col_defs = cull_headers('co', col_defs)
+    @bc_col_defs = cull_headers('bc', col_defs)
+  end
+
+  def self.cull_headers(selection, col_defs)
+    retval = {prefixes: [], headers: [], types: []}
+    col_defs[:prefixes].each_with_index { |prefix, index|
+      if prefix == selection
+        retval[:prefixes].push(prefix)
+        retval[:headers].push(col_defs[:headers][index])
+        retval[:types].push(col_defs[:types][index])
+      end
+    }
+    retval
+  end
+
   def self.generate_download(scope)
     CSV.generate do |csv|
       csv << column_names
@@ -233,15 +251,16 @@ class CollectionObject < ActiveRecord::Base
     end
   end
 
-  def self.generate_report_download(scope)
-    CollectionObject.ce_headers(scope)
-    CollectionObject.co_headers(scope)
-    CollectionObject.bc_headers(scope)
+  def self.generate_report_download(scope, project_id, col_defs)
+    # CollectionObject.ce_headers(scope)
+    # CollectionObject.co_headers(scope)
+    # CollectionObject.bc_headers(scope)
+    CollectionObject.collect_selected_headers(col_defs)
     CSV.generate do |csv|
       row = CO_OTU_Headers
-      row += @ce_headers
-      row += @co_headers
-      row += @bc_headers
+      row += @ce_col_defs[:headers]
+      row += @co_col_defs[:headers]
+      row += @bc_col_defs[:headers]
       csv << row
       scope.order(id: :asc).each do |c_o|
         row = [c_o.get_otu_id,
@@ -256,9 +275,9 @@ class CollectionObject < ActiveRecord::Base
                c_o.collecting_event.georeference_latitude.to_s,
                c_o.collecting_event.georeference_longitude.to_s
         ]
-        row += ce_attributes(c_o)
-        row += co_attributes(c_o)
-        row += bc_attributes(c_o)
+        row += ce_attributes(c_o, col_defs)
+        row += co_attributes(c_o, col_defs)
+        row += bc_attributes(c_o, col_defs)
         csv << row.collect { |item|
           item.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
         }
@@ -293,53 +312,114 @@ are located within the geographic item supplied
   end
 
   # decode which headers to be displayed for collecting events
-  def self.ce_headers(sessions_current_project_id)
+  def self.ce_headers(project_id)
     # @ce_headers = collection_objects.map(&:collecting_event).map(&:data_attributes).flatten.map(&:predicate).map(&:name).uniq.sort
     retval               = {}
-    retval[:ce_internal] = InternalAttribute.where(project_id: sessions_current_project_id, attribute_subject_type: 'CollectingEvent').map(&:predicate).map(&:name).uniq.sort
-    retval[:ce_import]   = ImportAttribute.where(project_id: sessions_current_project_id, attribute_subject_type: 'CollectingEvent').pluck(:import_predicate).uniq.sort
+    retval[:ce_internal] = InternalAttribute.where(project_id: project_id, attribute_subject_type: 'CollectingEvent').map(&:predicate).map(&:name).uniq.sort
+    retval[:ce_import]   = ImportAttribute.where(project_id: project_id, attribute_subject_type: 'CollectingEvent').pluck(:import_predicate).uniq.sort
     @ce_headers          = retval
   end
 
-  def self.ce_attributes(collection_object)
-    retval = []
-    @ce_headers.each { |header|
-      retval.push(collection_object.collecting_event.data_attributes.select { |d| d.predicate.name == header }.map(&:value).join('; '))
-    }
+  # @param [CollectionObject] from which to extract attributes
+  # @param [Hash] collection of selected headers, prefixes, and types
+  # @return [Array] of attributes
+  def self.ce_attributes(collection_object, col_defs)
+    retval = []; collection = col_defs
+    unless collection.nil?
+      ce_header_strings = []; ce_header_types = []
+      prefixes          = collection[:prefixes]
+      headers           = collection[:headers]
+      types             = collection[:types]
+      prefixes.each_with_index { |p_type, index|
+        if p_type == 'ce'
+          ce_header_strings.push(headers[index])
+          ce_header_types.push(types[index])
+        end
+      }
+      ce_header_strings.each_with_index { |header, index|
+        # collect all of the strings which match the predicate name with the header for this collection object
+        attribute_type = ''
+        case ce_header_types[index]
+          when 'int'
+            attribute_type = 'InternalAttribute'
+          when 'imp'
+            attribute_type = 'ImportAttribute'
+          else
+            # do nothing
+        end
+        retval.push(collection_object.collecting_event.data_attributes.where(type: attribute_type).select { |d| d.predicate_name == header }.map(&:value).join('; '))
+      }
+    end
     retval
   end
 
   # decode which headers to be displayed for collection objects
-  def self.co_headers(sessions_current_project_id)
+  def self.co_headers(project_id)
     # @co_headers = collection_objects.map(&:data_attributes).flatten.map(&:predicate).map(&:name).uniq.sort
     retval               = {}
-    retval[:co_internal] = InternalAttribute.where(project_id: sessions_current_project_id, attribute_subject_type: 'CollectionObject').map(&:predicate).map(&:name).uniq.sort
-    retval[:co_import]   = ImportAttribute.where(project_id: sessions_current_project_id, attribute_subject_type: 'CollectionObject').pluck(:import_predicate).uniq.sort
+    retval[:co_internal] = InternalAttribute.where(project_id: project_id, attribute_subject_type: 'CollectionObject').map(&:predicate).map(&:name).uniq.sort
+    retval[:co_import]   = ImportAttribute.where(project_id: project_id, attribute_subject_type: 'CollectionObject').pluck(:import_predicate).uniq.sort
     @co_headers          = retval
   end
 
-  def self.co_attributes(collection_object)
-    retval = []
-    @co_headers.each { |header|
-      retval.push(collection_object.data_attributes.select { |d| d.predicate.name == header }.map(&:value).join('; '))
-    }
+  # @param [CollectionObject] from which to extract attributes
+  # @param [Hash] collection of selected headers, prefixes, and types
+  # @return [Array] of attributes
+  def self.co_attributes(collection_object, col_defs)
+    retval = []; collection = col_defs
+    unless collection.nil?
+      co_header_strings = []; co_header_types = []
+      prefixes          = collection[:prefixes]
+      headers           = collection[:headers]
+      types             = collection[:types]
+      prefixes.each_with_index { |p_type, p_index|
+        if p_type == 'co'
+          co_header_strings.push(headers[p_index])
+          co_header_types.push(types[p_index])
+        end
+      }
+
+      # collect all of the strings which match the predicate name with the header for this collection object
+      co_header_strings.each_with_index { |header, index|
+        attribute_type = ''
+        case co_header_types[index]
+          when 'int'
+            attribute_type = 'InternalAttribute'
+          when 'imp'
+            attribute_type = 'ImportAttribute'
+          else
+            # do nothing
+        end
+        retval.push(collection_object.data_attributes.where(type: attribute_type).select { |d| d.predicate_name == header }.map(&:value).join('; '))
+      }
+    end
     retval
   end
 
   # decode which headers to be displayed for biocurational classifications
-  def self.bc_headers(sessions_current_project_id)
+  def self.bc_headers(project_id)
     # @bc_headers = collection_objects.map(&:biocuration_classifications).flatten.map(&:biocuration_class).map(&:name).uniq.sort
     retval      = {}
-    retval[:bc] = BiocurationClass.all.map(&:name)
+    retval[:bc] = BiocurationClass.where(project_id: project_id).map(&:name)
     @bc_headers = retval
   end
 
-  def self.bc_attributes(collection_object)
-    retval = []
-    @bc_headers.each { |header|
-      retval.push(collection_object.biocuration_classes.map(&:name).include?(header) ? '1' : '0')
-    }
-    retval
+  def self.bc_attributes(collection_object, col_defs)
+    retval = []; collection = col_defs
+    unless collection.nil?
+      bc_header_strings = []
+      prefixes          = collection[:prefixes]
+      headers           = collection[:headers]
+      prefixes.each_with_index { |p_type, index|
+        if p_type == 'bc'
+          bc_header_strings.push(headers[index])
+        end
+      }
+      bc_header_strings.each { |header|
+        retval.push(collection_object.biocuration_classes.map(&:name).include?(header) ? '1' : '0')
+      }
+      retval
+    end
   end
 
   protected

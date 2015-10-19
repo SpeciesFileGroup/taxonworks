@@ -38,7 +38,9 @@ class Tasks::Gis::ReportController < ApplicationController
         session[:co_selected_headers] = selected_headers
       when 'download'
         gather_data(params[:download_geo_area_id])
-        report_file = CollectionObject.generate_report_download(@collection_objects)
+        report_file = CollectionObject.generate_report_download(@collection_objects,
+                                                                sessions_current_project_id,
+                                                                session[:co_selected_headers])
         send_data(report_file, type: 'text', filename: "collection_objects_report_#{DateTime.now.to_s}.csv")
       # and return
       else
@@ -58,6 +60,6 @@ class Tasks::Gis::ReportController < ApplicationController
   # def download
   #   @geographic_area    = GeographicArea.find(params[:geographic_area_id])
   #   @collection_objects = CollectionObject.in_geographic_item(@geographic_area.default_geographic_item)
-  #   send_data CollectionObject.generate_report_download(@collection_objects), type: 'text', filename: "collection_objects_report_#{DateTime.now.to_s}.csv"
+  #   send_data CollectionObject.generate_report_download(@collection_objects, session[:co_selected_headers]), type: 'text', filename: "collection_objects_report_#{DateTime.now.to_s}.csv"
   # end
 end
