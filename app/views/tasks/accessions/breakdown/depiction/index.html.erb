@@ -2,20 +2,19 @@
 
 <div id="breakdown_sqed_depiction" class="flexbox">
 
+  <!-- transcribe for javascript reference -->
+  <span id="image_sections"
+        <%= @result.image_sections.each do |section| %>
+      data-section-<%= section -%>="<%= @result.class::TEXT_MAP[section.to_sym] -%>"
+    <% end %>
+        hidden=true
+    ></span>
+
   <div class="item item1">
-    <!-- transcribe for javascript reference, this is all hidden -->
-    <span id="image_sections"
-      <%= @result.image_sections.each do |section| %>
-        data-section-<%= section -%>="<%= @result.class::TEXT_MAP[section.to_sym] -%>"
-      <% end %>
-      hidden=true
-      > </span>
-
-
     <%= link_to('image', image_path(@result.depiction.image)) -%>
     <div id="littlebox">
       <% @result.image_sections.each_with_index do |section, i| -%>
-        <%= image_tag(@result.image_path_for_large_image(section), id: "little#{i}", class: "little_image clickable") -%>
+          <%= image_tag(@result.image_path_for_large_image(section), id: "little#{i}", class: "little_image clickable") -%>
       <% end %>
     </div>
   </div>
@@ -51,62 +50,70 @@
 
     <div class="extracted_form">
       <%= form_for(@result.depiction.depiction_object, as: :collection_object, url: depiction_breakdown_update_task_path(@result.depiction)) do |f| -%>
+          <div class="field">
+            <%= f.label :total %>
+            <%= f.text_field :total, size: 2 -%>
+          </div>
+
           <div class="flexbox">
+
             <div class="item item1">
-              <h3> Identifiers </h3>
-              <%= f.fields_for(:identifiers, @result.depiction.depiction_object.identifiers) do |i| -%>
-
-                <div class="side_by_side_fields">
-                  <%= i.hidden_field :type -%>
-
-                  <div class="field">
-                    <%= i.label :namespace_id %><br>
-                    <%= render(
-                      partial: '/workbench/elements/forms/ajax_select',
-                      locals:  {
-                        controller:        '/namespaces',
-                        object:            "collection_object[identifiers_attributes][#{i.index}]",
-                        method:            'namespace_id',
-                        tag_id:            "namespace_id_for_identifier_#{i.index}",
-                        display:           (i.object.namespace ? i.object.namespace.short_name : nil),
-                        size:              20,
-                        fields_for_object: i})
-                      %>
-
-                    <% if @result.depiction.depiction_object.identifiers.size == 1 %>
-                      <%= check_box_tag(:lock_namespace, "1", @result.namespace_locked?) -%>lock
-                    <% end %>
-                  </div>
-
-                  <div class="field">
-                    <%= i.label :identifier %><br>
-                    <%= i.text_field :identifier %>
-                  </div>
-
-                </div>
-               <% end %>
-            </div>
-
-            <div class="item item2">
 
               <h3> Taxon Determinations </h3>
               <%= f.fields_for(:taxon_determinations, @result.depiction.depiction_object.taxon_determinations) do |o| -%>
-                <div class="field">
-                  <%= o.label :name %><br>
-                  <%= render(
-                    partial: '/workbench/elements/forms/ajax_select',
-                    locals:  {
-                      controller: '/otus',
-                      object:     "collection_object[taxon_determinations_attributes][#{o.index}]",
-                      method:     'otu_id',
-                      tag_id:     "otu_id_for_identifier_#{o.index}",
-                      display:    otu_tag(o.object.otu),
-                      size:       20})
+                  <div class="field">
+                    <%= o.label :name %><br>
+                    <%= render(
+                                partial: '/workbench/elements/forms/ajax_select',
+                                locals:  {
+                                        controller: '/otus',
+                                        object:     "collection_object[taxon_determinations_attributes][#{o.index}]",
+                                        method:     'otu_id',
+                                        tag_id:     "otu_id_for_identifier_#{o.index}",
+                                        display:    otu_tag(o.object.otu),
+                                        size:       20})
                     %>
-                </div>
+                  </div>
               <% end %>
             </div>
-          </div>
+
+
+            <div class="item item <%= @result.small_dimensions_for(@result.secondary_sections.second) -%>2">
+              <h3> Identifiers </h3>
+              <%= f.fields_for(:identifiers, @result.depiction.depiction_object.identifiers) do |i| -%>
+                  <%= i.hidden_field :type -%>
+
+                  <div class="side_by_side_fields">
+
+                    <div class="field">
+                      <%= i.label :namespace_id %><br>
+                      <%= render(
+                                  partial: '/workbench/elements/forms/ajax_select',
+                                  locals:  {
+                                          controller:        '/namespaces',
+                                          object:            "collection_object[identifiers_attributes][#{i.index}]",
+                                          method:            'namespace_id',
+                                          tag_id:            "namespace_id_for_identifier_#{i.index}",
+                                          display:           (i.object.namespace ? i.object.namespace.short_name : nil),
+                                          size:              20,
+                                          fields_for_object: i})
+                      %>
+
+                      <% if @result.depiction.depiction_object.identifiers.size == 1 %>
+                          <%= check_box_tag(:lock_namespace, "1", @result.namespace_locked?) -%>lock
+                      <% end %>
+
+                    </div>
+
+                    <div class="field">
+                      <%= i.label :identifier %><br>
+                      <%= i.text_field :identifier %>
+                    </div>
+
+                  </div>
+                  </div>
+              <% end %>
+              </div>
 
           <div class="side_by_side_fields" id="collection_object_fields">
             <div class="field">
@@ -129,13 +136,8 @@
 
           </div>
 
-          <div class="field">
-            <%= f.label :total %>
-            <%= f.text_field :total, size: 2 -%>
-          </div>
-
-          <%= submit_tag('Save and next') -%>
           <%= submit_tag -%>
+          <%= submit_tag('Save and next') -%>
           <%= link_to('Skip to next', depiction_breakdown_task_path(SqedDepiction.next_depiction(@result.depiction), @result.namespace_id)) -%>
 
           <br class="clear_both">
@@ -219,14 +221,34 @@
             var resizeBorder = 10;
 
             // Change cursor
-            if (relativeX < resizeBorder && relativeY < resizeBorder) {
-                this.attr('cursor', 'nw-resize');
-            } else if (relativeX > shapeWidth - resizeBorder && relativeY < resizeBorder) {
-                this.attr('cursor', 'ne-resize');
-            } else if (relativeX > shapeWidth - resizeBorder && relativeY > shapeHeight - resizeBorder) {
-                this.attr('cursor', 'se-resize');
-            } else if (relativeX < resizeBorder && relativeY > shapeHeight - resizeBorder) {
-                this.attr('cursor', 'sw-resize');
+            if (relativeX < resizeBorder) {     // left (west) border, so see if also a corner
+                this.attr('cursor', 'w-resize');
+                if(relativeY < resizeBorder) {
+                    this.attr('cursor', 'nw-resize');
+                } else if (relativeY > shapeHeight - resizeBorder) {
+                    this.attr('cursor', 'sw-resize');
+                }
+            } else if (relativeX > shapeWidth - resizeBorder) {     // right (east) border, so see if also a corner
+                this.attr('cursor', 'e-resize');
+                if(relativeY > shapeHeight - resizeBorder) {
+                    this.attr('cursor', 'se-resize');
+                } else if (relativeY < resizeBorder) {
+                    this.attr('cursor', 'ne-resize');
+                }
+            } else if (relativeY > shapeHeight - resizeBorder) {     // bottom (south) border, so see if also a corner
+                this.attr('cursor', 's-resize');
+                if (relativeX > shapeWidth - resizeBorder) {
+                    this.attr('cursor', 'se-resize');
+                } else if (relativeX < resizeBorder) {
+                    this.attr("cursor", 'sw-resize');
+                }
+            } else if (relativeY < resizeBorder) {     // top (north) border, so see if also a corner
+                this.attr('cursor', 'n-resize');
+                if(relativeX < resizeBorder) {
+                    this.attr('cursor', 'sw-resize');
+                } else if(relativeX > shapeWidth - resizeBorder){
+                    this.attr('cursor', 'sw-resize');
+                }
             } else {
                 this.attr('cursor', 'move');
             }
@@ -250,6 +272,15 @@
             // Inspect cursor to determine which resize/move process to use
             switch (this.attr('cursor')) {
 
+                case 'w-resize' :
+                    this.attr({
+                        x: this.ox + dx,
+//                        y: this.oy + dy,
+                        width: this.ow - dx,
+//                        height: this.oh - dy
+                    });
+                    break;
+
                 case 'nw-resize' :
                     this.attr({
                         x: this.ox + dx,
@@ -267,23 +298,49 @@
                     });
                     break;
 
+                case 'e-resize' :
+                    this.attr({                   // not changing x of origin in this case
+//                        y: this.oy + dy,
+                        width: this.ow + dx,
+//                        height: this.oh - dy
+                    });
+                    break;
+
                 case 'se-resize' :
-                    this.attr({
+                    this.attr({                  // not changing x or y of origin in this case
                         width: this.ow + dx,
                         height: this.oh + dy
                     });
                     break;
 
                 case 'sw-resize' :
-                    this.attr({
+                    this.attr({                   // ARE changing x of origin in this case
                         x: this.ox + dx,
                         width: this.ow - dx,
                         height: this.oh + dy
                     });
                     break;
 
+                case 'n-resize' :
+                    this.attr({                   // ARE changing y of origin in this case
+                        y: this.oy + dy,
+//                        width: this.ow + dx,
+                        height: this.oh - dy
+                    });
+                    break;
+
+
+                case 's-resize' :
+                    this.attr({                   // not changing x or y of origin in this case
+//                        y: this.oy + dy,
+//                        width: this.ow + dx,
+                        height: this.oh + dy
+                    });
+                    break;
+
+
                 default :
-                    this.attr({
+                    this.attr({                   // default is <move> if not explicitly so (e.g., muffed n/s/e/w)
                         x: this.ox + dx,
                         y: this.oy + dy
                     });
@@ -406,18 +463,18 @@
     Mousetrap.bind('ctrl+q', function() { append_user_selected_ocr(); });
     Mousetrap.bind('ctrl+w', function() { replace_user_selected_ocr(); });
 
-   function append_user_selected_ocr() {
-     var target = $(document.activeElement);
-     $(target).val($(target).val() + $("#selected_text").html()); 
+    function append_user_selected_ocr() {
+        var target = $(document.activeElement);
+        $(target).val($(target).val() + $("#selected_text").html());
     }
 
-   function replace_user_selected_ocr() {
-    var target = $(document.activeElement);
-     $(target).val($("#selected_text").html()); 
+    function replace_user_selected_ocr() {
+        var target = $(document.activeElement);
+        $(target).val($("#selected_text").html());
     }
 
     <% @result.image_sections.each_with_index do |section, i| -%>
-      Mousetrap.bind('ctrl+<%= i + 1 %>', function() { use_ocr('<%= section -%>'); });
+    Mousetrap.bind('ctrl+<%= i + 1 %>', function() { use_ocr('<%= section -%>'); });
     <% end %>
 
     $(".use_ocr").on('click', function (click) {
@@ -425,36 +482,36 @@
         use_ocr(section);
     });
 
-   function use_ocr(section) {
-     var ocr = $("#text_for_" + section).html();
-     var target_id;
-     var value;
+    function use_ocr(section) {
+        var ocr = $("#text_for_" + section).html();
+        var target_id;
+        var value;
 
-     if (section == 'identifier') {
-       target_id = "#collection_object_identifiers_attributes_0_identifier";
-       value = get_identifier(ocr);
-     }
-     else { 
-       target_id = "#collection_object_" + $("#image_sections").data("section-" + section);
-       value = $(target_id).val() + ocr;
-     };
-     
-     $(target_id).val(value);
-   }
+        if (section == 'identifier') {
+            target_id = "#collection_object_identifiers_attributes_0_identifier";
+            value = get_identifier(ocr);
+        }
+        else {
+            target_id = "#collection_object_" + $("#image_sections").data("section-" + section);
+            value = $(target_id).val() + ocr;
+        };
 
-  function get_identifier(ocr_txt) {
-    var regex = /\d{<%= @identifer_prototype.length -%>}/; 
-    var v = regex.exec(ocr_txt);
-    if (v == false) {
-      return
+        $(target_id).val(value);
     }
-    else {
-      return v[0];
-    }
-  };
+
+    function get_identifier(ocr_txt) {
+    var regex = /\d{<%= @identifer_prototype.length -%>}/;
+        var v = regex.exec(ocr_txt);
+        if (v == false) {
+            return
+        }
+        else {
+            return v[0];
+        }
+    };
 
 
-  $("#collection_object_buffered_collecting_event").focus();
+    $("#collection_object_buffered_collecting_event").focus();
 
 </script>
 <!--<script>  $(document).ready(set_select_box()); </script>-->
