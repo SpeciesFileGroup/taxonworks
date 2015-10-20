@@ -222,12 +222,16 @@ class CollectionObject < ActiveRecord::Base
     retval.cached_html unless retval.nil?
   end
 
+  # @param [Hash] of selected column names and types
+  # @return [None] sets global variables for later use
   def self.collect_selected_headers(col_defs)
     @ce_col_defs = cull_headers('ce', col_defs)
     @co_col_defs = cull_headers('co', col_defs)
     @bc_col_defs = cull_headers('bc', col_defs)
   end
 
+  # @param [String] selection 'ce', 'co', 'bc'
+  # @param [Hash] col_defs selected headers and types
   def self.cull_headers(selection, col_defs)
     retval = {prefixes: [], headers: [], types: []}
     col_defs[:prefixes].each_with_index { |prefix, index|
@@ -251,7 +255,9 @@ class CollectionObject < ActiveRecord::Base
     end
   end
 
-  def self.generate_report_download(scope, project_id, col_defs)
+  # @param [Scope] selected of CollectionObject
+  # @param [Hash] col_defs selected headers and types
+  def self.generate_report_download(scope, col_defs)
     # CollectionObject.ce_headers(scope)
     # CollectionObject.co_headers(scope)
     # CollectionObject.bc_headers(scope)
@@ -311,6 +317,8 @@ are located within the geographic item supplied
     retval
   end
 
+  # @param [Integer] project_id
+  # @return [Hash] of column names and types for collecting events
   # decode which headers to be displayed for collecting events
   def self.ce_headers(project_id)
     # @ce_headers = collection_objects.map(&:collecting_event).map(&:data_attributes).flatten.map(&:predicate).map(&:name).uniq.sort
@@ -353,6 +361,8 @@ are located within the geographic item supplied
     retval
   end
 
+  # @param [Integer] project_id
+  # @return [Hash] of column names and types for collection objects
   # decode which headers to be displayed for collection objects
   def self.co_headers(project_id)
     # @co_headers = collection_objects.map(&:data_attributes).flatten.map(&:predicate).map(&:name).uniq.sort
@@ -396,7 +406,9 @@ are located within the geographic item supplied
     retval
   end
 
-  # decode which headers to be displayed for biocurational classifications
+  # @param [Integer] project_id
+  # @return [Hash] of column names and types for biocuration classifications
+  # decode which headers to be displayed for biocuration classifications
   def self.bc_headers(project_id)
     # @bc_headers = collection_objects.map(&:biocuration_classifications).flatten.map(&:biocuration_class).map(&:name).uniq.sort
     retval      = {}
@@ -404,6 +416,9 @@ are located within the geographic item supplied
     @bc_headers = retval
   end
 
+  # @param [CollectionObject] from which to extract attributes
+  # @param [Hash] collection of selected headers, prefixes, and types
+  # @return [Array] of attributes
   def self.bc_attributes(collection_object, col_defs)
     retval = []; collection = col_defs
     unless collection.nil?
