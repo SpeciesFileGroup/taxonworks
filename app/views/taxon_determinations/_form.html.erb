@@ -1,43 +1,43 @@
 <%= form_for(@taxon_determination) do |f| %>
-  <%= render 'shared/errors', object: @taxon_determination %>
+    <%= render 'shared/errors', object: @taxon_determination %>
 
-  <%= render partial: '/people/role_picker', locals: {role: Determiner.new(), object: @taxon_determination, f: f} %>
+    <%= render partial: '/people/role_picker', locals: {role: Determiner.new(), object: @taxon_determination, f: f} %>
 
-  <div class="field">
-    <%= f.label :biological_collection_object_id %><br>
-    <%= render partial: 'workbench/elements/forms/ajax_select',
-               locals:  {controller: 'collection_objects',
-                         object:     'taxon_determination',
-                         method:     'biological_collection_object_id',
-                         tag_id:     'biological_collection_object_id_for_taxon_determination',
-                         size:       '',
-                         display:    collection_object_tag(@taxon_determination.biological_collection_object) } %>
-  </div>
+    <div class="field">
+      <%= f.label :biological_collection_object_id %><br>
+      <%= render partial: 'workbench/elements/forms/ajax_select',
+                 locals: {controller: 'collection_objects',
+                          object: 'taxon_determination',
+                          method: 'biological_collection_object_id',
+                          tag_id: 'biological_collection_object_id_for_taxon_determination',
+                          size: '',
+                          display: collection_object_tag(@taxon_determination.biological_collection_object)} %>
+    </div>
 
-  <div class="field">
-    <%= f.label :otu_id %><br>
-   <%= render partial: 'workbench/elements/forms/ajax_select',
-               locals:  {controller: 'otus',
-                         object:     'taxon_determination',
-                         method:     'otu_id',
-                         tag_id:     'otu_id_for_taxon_determination',
-                         size:       '',
-                         display:    otu_tag(@taxon_determination.otu)} %>
-  </div>
+    <div class="field">
+      <%= f.label :otu_id %><br>
+      <%= render partial: 'workbench/elements/forms/ajax_select',
+                 locals: {controller: 'otus',
+                          object: 'taxon_determination',
+                          method: 'otu_id',
+                          tag_id: 'otu_id_for_taxon_determination',
+                          size: '',
+                          display: otu_tag(@taxon_determination.otu)} %>
+    </div>
 
-  <div class="field">
-    <%= f.label :year_made %><br>
-    <%= f.text_field :year_made, size: 4 %>
-  </div>
-  <div class="field">
-    <%= f.label :month_made %><br>
-    <%= f.text_field :month_made, size: 2 %>
-  </div>
-  <div class="field">
-    <%= f.label :day_made %><br>
-    <%= f.text_field :day_made, size: 2 %>
-  </div>
-  <div class="actions">
-    <%= f.submit %>
-  </div>
+    <div class="field">
+      <%= f.label :year_made %><br>
+      <%= f.text_field :year_made, size: 4 %>
+    </div>
+    <div class="field">
+      <%= f.label :month_made %><br>
+      <%= f.text_field :month_made, size: 2 %>
+    </div>
+    <div class="field">
+      <%= f.label :day_made %><br>
+      <%= f.text_field :day_made, size: 2 %>
+    </div>
+    <div class="actions">
+      <%= f.submit %>
+    </div>
 <% end %>
