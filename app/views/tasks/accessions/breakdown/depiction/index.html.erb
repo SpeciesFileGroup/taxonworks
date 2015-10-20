@@ -500,7 +500,7 @@
     }
 
     function get_identifier(ocr_txt) {
-    var regex = /\d{<%= @identifer_prototype.length -%>}/;
+    var regex = /\d{<%= @identifier_prototype.length -%>}/;
         var v = regex.exec(ocr_txt);
         if (v == false) {
             return
