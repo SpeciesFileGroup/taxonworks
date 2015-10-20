@@ -1,11 +1,11 @@
 require 'rails_helper'
 
-describe 'Authentication', :type => :feature do
-
+describe 'Authentication', type: :feature do
 
   subject { page }
 
   describe '/signin' do
+
     context 'when credentials match existing user' do
 
       let(:valid_user) { FactoryGirl.create(:valid_user, id: 1) }
@@ -23,7 +23,10 @@ describe 'Authentication', :type => :feature do
 
     context 'when credentials do not match existing user' do
       it 'should not sign user in' do
-        sign_in_with('', '')
+        visit signin_path
+        fill_in 'Email',    with: "" 
+        fill_in 'Password', with: "" 
+        click_button 'Sign in'
         expect(subject).to have_title('Sign in | TaxonWorks')
         expect(subject).to have_button('Sign in')
         expect(subject).not_to have_link('Sign out', href: signout_path)
