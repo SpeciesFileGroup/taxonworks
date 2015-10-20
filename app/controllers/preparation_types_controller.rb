@@ -79,7 +79,7 @@ class PreparationTypesController < ApplicationController
 
   # GET /preparation_types/download
   def download
-    send_data PreparationType.generate_download( PreparationType.all ), type: 'text', filename: "preparation_types_#{DateTime.now.to_s}.csv"
+    send_data PreparationType.generate_download(PreparationType.all), type: 'text', filename: "preparation_types_#{DateTime.now.to_s}.csv"
   end
 
   # def autocomplete
@@ -87,11 +87,11 @@ class PreparationTypesController < ApplicationController
   #
   #   data = @preparation_types.collect do |t|
   #     {id: t.id,
-  #      label: PreparationTypesHelper.preparation_type_tag(t),
+  #      label: ApplicationController.helpers.preparation_type_tag(t),
   #      response_values: {
   #          params[:method] => t.id
   #      },
-  #      label_html: PreparationTypesHelper.preparation_type_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
+  #      label_html: ApplicationController.helpers.preparation_type_tag(t)
   #     }
   #   end
   #
@@ -102,7 +102,7 @@ class PreparationTypesController < ApplicationController
   # Use callbacks to share common setup or constraints between actions.
   def set_preparation_type
     @preparation_type = PreparationType.find(params[:id])
-    @recent_object = @preparation_type 
+    @recent_object = @preparation_type
   end
 
   # Never trust parameters from the scary internet, only allow the white list through.

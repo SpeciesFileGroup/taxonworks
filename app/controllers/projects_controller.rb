@@ -59,13 +59,13 @@ class ProjectsController < ApplicationController
   # DELETE /projects/1.json
   def destroy
 
-    redirect_to projects_url, notice: 'Nice try, not this time.' 
- #  @project.destroy
- #  respond_to do |format|
- #    format.html { redirect_to projects_url }
- #    format.json { head :no_content }
- #  end
-  
+    redirect_to projects_url, notice: 'Nice try, not this time.'
+    #  @project.destroy
+    #  respond_to do |format|
+    #    format.html { redirect_to projects_url }
+    #    format.json { head :no_content }
+    #  end
+
   end
 
   def select
@@ -84,7 +84,7 @@ class ProjectsController < ApplicationController
 
   def stats
     Rails.application.eager_load!
-   # @data = @project.data_breakdown
+    # @data = @project.data_breakdown
   end
 
   def list
@@ -103,12 +103,12 @@ class ProjectsController < ApplicationController
     @projects = Project.find_for_autocomplete(params)
 
     data = @projects.collect do |t|
-      {id:              t.id,
-       label:           ProjectsHelper.project_tag(t),
+      {id: t.id,
+       label: ApplicationController.helpers.project_tag(t),
        response_values: {
-         params[:method] => t.id
+           params[:method] => t.id
        },
-       label_html:      ProjectsHelper.project_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
+       label_html: ApplicationController.helpers.project_tag(t)
       }
     end
 
@@ -119,7 +119,7 @@ class ProjectsController < ApplicationController
   # Use callbacks to share common setup or constraints between actions.
   def set_project
     @project = Project.find(params[:id])
-    @recent_object = @project 
+    @recent_object = @project
   end
 
   # Never trust parameters from the scary internet, only allow the white list through.
@@ -127,5 +127,5 @@ class ProjectsController < ApplicationController
     params.require(:project).permit(:name)
   end
 
-  
+
 end

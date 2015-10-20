@@ -81,12 +81,12 @@ class LoansController < ApplicationController
     @loans = Loan.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
 
     data = @loans.collect do |t|
-      {id:              t.id,
-       label:           LoansHelper.loan_tag(t),
+      {id: t.id,
+       label: ApplicationController.helpers.loan_tag(t),
        response_values: {
-         params[:method] => t.id
+           params[:method] => t.id
        },
-       label_html:      LoansHelper.loan_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
+       label_html: ApplicationController.helpers.loan_tag(t)
       }
     end
 
@@ -97,7 +97,7 @@ class LoansController < ApplicationController
   # Use callbacks to share common setup or constraints between actions.
   def set_loan
     @loan = Loan.with_project_id($project_id).find(params[:id])
-    @recent_object = @loan 
+    @recent_object = @loan
   end
 
   # Never trust parameters from the scary internet, only allow the white list through.

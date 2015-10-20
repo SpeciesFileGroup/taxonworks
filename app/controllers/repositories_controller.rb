@@ -82,11 +82,11 @@ class RepositoriesController < ApplicationController
 
     data = @repositories.collect do |t|
       {id:              t.id,
-       label:           RepositoriesHelper.repository_tag(t),
+       label:           ApplicationController.helpers.repository_tag(t),
        response_values: {
          params[:method] => t.id
        },
-       label_html:      RepositoriesHelper.repository_tag(t)
+       label_html:      ApplicationController.helpers.repository_tag(t)
       }
     end
 

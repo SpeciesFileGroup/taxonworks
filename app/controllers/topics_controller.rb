@@ -1,6 +1,7 @@
 class TopicsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
+# @todo This format very different, should it be made same as other autocompletes?
   def autocomplete
     predicates = Topic.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
 

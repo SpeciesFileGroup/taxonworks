@@ -31,8 +31,8 @@ class TypeMaterialsController < ApplicationController
 
     respond_to do |format|
       if @type_material.save
-        msg =     "Type material (#{@type_material.type_type}) " +
-                  "for #{@type_material.protonym.cached} was successfully created."
+        msg = "Type material (#{@type_material.type_type}) " +
+            "for #{@type_material.protonym.cached} was successfully created."
         format.html { redirect_to @type_material,
                                   notice: msg }
         format.json { render :show, status: :created, location: @type_material }
@@ -75,12 +75,12 @@ class TypeMaterialsController < ApplicationController
     @type_materials = TypeMaterial.find_for_autocomplete(params.merge(project_id: sessions_current_project_id)) # in model
 
     data = @type_materials.collect do |t|
-      {id:              t.id,
-       label:           TypeMaterialsHelper.type_material_tag(t), # in helper
+      {id: t.id,
+       label: ApplicationController.helpers.type_material_tag(t),
        response_values: {
            params[:method] => t.id
        },
-       label_html:      TypeMaterialsHelper.type_material_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
+       label_html: ApplicationController.helpers.type_material_tag(t)
       }
     end
 
@@ -89,22 +89,22 @@ class TypeMaterialsController < ApplicationController
 
   # GET /type_materials/download
   def download
-    send_data TypeMaterial.generate_download( TypeMaterial.where(project_id: $project_id) ), type: 'text', filename: "controlled_vocabulary_terms_#{DateTime.now.to_s}.csv"
+    send_data TypeMaterial.generate_download(TypeMaterial.where(project_id: $project_id)), type: 'text', filename: "controlled_vocabulary_terms_#{DateTime.now.to_s}.csv"
   end
 
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_type_material
-      @type_material = TypeMaterial.with_project_id($project_id).find(params[:id])
-      @recent_object = @type_material
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_type_material
+    @type_material = TypeMaterial.with_project_id($project_id).find(params[:id])
+    @recent_object = @type_material
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def type_material_params
-      params.require(:type_material).permit(
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def type_material_params
+    params.require(:type_material).permit(
         :protonym_id, :biological_object_id, :type_type, :source_id,
         roles_attributes: [:id, :_destroy, :type, :person_id, :position, person_attributes: [:last_name, :first_name, :suffix, :prefix]]
-      )
-    end
+    )
+  end
 end

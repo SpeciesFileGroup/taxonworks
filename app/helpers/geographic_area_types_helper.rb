@@ -1,10 +1,5 @@
 module GeographicAreaTypesHelper
 
-  def self.geographic_area_type_tag(geographic_area_type)
-    return nil if geographic_area_type.nil?
-    geographic_area_type.name
-  end
-
   def geographic_area_type_tag(geographic_area_type)
     GeographicAreaTypesHelper.geographic_area_type_tag(geographic_area_type)
   end
