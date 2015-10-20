@@ -48,7 +48,7 @@ class Namespace < ActiveRecord::Base
   validates_presence_of :name, :short_name
   validates_uniqueness_of :name, :short_name
 
-  has_many :identifiers, dependent: :restrict_with_error
+  has_many :identifiers, autosave: true, dependent: :restrict_with_error
 
   def self.find_for_autocomplete(params)
     match = "#{params[:term]}%"
@@ -65,5 +65,7 @@ class Namespace < ActiveRecord::Base
       end
     end
   end
+
+  protected
 
 end
