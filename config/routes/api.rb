@@ -6,6 +6,7 @@ TaxonWorks::Application.routes.draw do
     get '/', controller: :api, action: :index, as: 'api'
     scope  '/v1' do
       get '/images/:id', to: 'images#show'
+      get '/collection_objects/identified_by', to: 'collection_objects#identified_by'
       get '/otus/:id', to: 'otus#show'
     end
   end
