@@ -57,6 +57,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
     specify 'descendants_of' do
       expect(Protonym.descendants_of(Protonym.named('vitis').first).count).to eq(0)
       expect( Protonym.descendants_of(Protonym.named('Erythroneura').with_rank_class_including('GenusGroup::Genus').first).count).to eq(2)
+
     end
 
     specify 'ancestors_of' do

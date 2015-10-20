@@ -39,7 +39,6 @@ class Tasks::Gis::ReportController < ApplicationController
       when 'download'
         gather_data(params[:download_geo_area_id])
         report_file = CollectionObject.generate_report_download(@collection_objects,
-                                                                sessions_current_project_id,
                                                                 session[:co_selected_headers])
         send_data(report_file, type: 'text', filename: "collection_objects_report_#{DateTime.now.to_s}.csv")
       # and return

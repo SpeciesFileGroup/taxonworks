@@ -91,8 +91,6 @@ namespace :tw do
             ActiveRecord::Base.transaction do
               begin
 
-                puts "\nStart time: #{Time.now}\n"
-
               main_build_loop
 
 
@@ -113,9 +111,6 @@ namespace :tw do
             # Rake::Task["tw:project_import:lepindex:handle_viadocs"].execute
             #  Rake::Task["tw:project_import:lepindex:handle_master"].execute
             
-
-
-                puts "\n\n !! Success. End time: #{Time.now} \n\n"
               rescue
                 raise
               end
@@ -125,23 +120,25 @@ namespace :tw do
       end
 
       def main_build_loop
+        print "\nStart time: #{Time.now}\n"
+
         @import = Import.find_or_create_by(name: @import_name)
         @import.metadata ||= {}
         @data =  ImportedData.new
         puts @args
         Utilities::Files.lines_per_file(Dir["#{@args[:data_directory]}/**/*.txt"])
         handle_projects_and_users
+        raise '$project_id or $user_id not set.'  if $project_id.nil? || $user_id.nil?
         handle_references
         handle_list_of_genera
         handle_images
         handle_species
 
-        raise '$project_id or $user_id not set.'  if $project_id.nil? || $user_id.nil?
-
+        print "\n\n !! Success. End time: #{Time.now} \n\n"
       end
 
       def handle_projects_and_users
-        print "Handling projects and users "
+        print "\nHandling projects and users "
         #@project, @user = initiate_project_and_users('Lepindex', 'i.kitching@nhm.ac.uk')
         email = 'i.kitching@nhm.ac.uk'
         project_name = 'Lepindex'
@@ -256,6 +253,7 @@ namespace :tw do
             source.author = tmp['IN_AUTHOR'].blank? ? tmp['AUTHOR'] : tmp['IN_AUTHOR']
 
             source.save!
+            source = source.id
             @data.publications_index.merge!(tmp => source)
           else
             source = @data.publications_index[tmp]
@@ -360,12 +358,18 @@ namespace :tw do
                         'SUBGENUS' => Ranks.lookup(:iczn, 'subgenus'),
                         'SPECIES' => Ranks.lookup(:iczn, 'species'),
                         'SUBSPECIES' => Ranks.lookup(:iczn, 'subspecies')}
+        original_ranks = {'Original_Genus' => 'genus',
+                      'OrigSubgen' => 'genus',
+                      'Original_Species' => 'species',
+                      'Original_Subspecies' => 'species',
+                      'Original_Infrasubspecies' => 'species'}
         butmoth_fields = %w{GENUS_MEMO GENUS_REF TS_REF TS_GENUS TS_SPECIES TS_AUTHOR TS_YEAR TS_PAGE_COMMENT TS_COUNTRY TS_LOCALITY TS_TYPE_STATUS TS_TYPE_DEPOSITORY TS_LECTOTYPE_BY TS_COMMENT TSD_REF TSD_DESIGNATION TSD_COMMENT }
 
 
         ['GENUS', 'SUBGENUS', 'SPECIES', 'SUBSPECIES'].each do |rank|
           print "\n#{rank}\n"
           file.each_with_index do |row, i|
+            #if rank == 'GENUS' || i > 0 && i < 1500
             print "\r#{i}"
             if row['Current_rank_of_name'] == rank
 
@@ -432,7 +436,7 @@ namespace :tw do
                 name = (rank =~ /GENUS/) ? row['SCIENTIFIC_NAME_on_card'].titleize : row['SCIENTIFIC_NAME_on_card']
                 verbatim_name = nil
                 name = name.gsub('x ', '') if name =~/\Ax ./
-                if name =~ /..(-|_ )../
+                if name =~ /..(-|_| )../
                   verbatim_name = name.gsub('-', ' ').gsub('_', ' ')
                   name = verbatim_name.split(' ').last
                 end
@@ -467,6 +471,19 @@ namespace :tw do
                   byebug
                 end
 
+                if row['valid_parent_id'].blank?
+                  case rank
+                    when 'GENUS'
+                      @data.parent_id_index.merge!('genus:' + row['Current_genus'].to_s => protonym.id)
+                    when 'SUBGENUS'
+                      @data.parent_id_index.merge!('subgenus:' + row['Current_subgenus'].to_s => protonym.id)
+                    when 'SPECIES'
+                      @data.parent_id_index.merge!('species:' + row['Current_genus'].to_s + ' ' + row['Current_species'].to_s => protonym.id)
+                    when 'SUBSPECIES'
+                      @data.parent_id_index.merge!('species:' + row['Current_genus'].to_s + ' ' + row['Current_species'].to_s + ' ' + row['Current_subspecies'].to_s => protonym.id)
+                  end
+                end
+
                 unless @data.images_index[row['TaxonNo']].nil?
                   o = Otu.create(taxon_name_id: protonym.id)
                   %w{Card_code Path Front_image Back_image}.each do |k|
@@ -474,7 +491,12 @@ namespace :tw do
                   end
                 end
 
-                @data.taxonno_index.merge!(row['TaxonNo'] => protonym.id)
+                @data.taxonno_index.merge!(row['TaxonNo'].to_i.to_s => protonym.id)
+                if @relationship_classes[row['Availability']].nil?
+                  print "\nInvalid relationship: #{row['Availability']}\n"
+                elsif !row['valid_parent_id'].blank?
+                  @list_of_relationships += [{'taxon' => protonym.id, 'relationship' => row['Availability'], 'valid species' => row['valid_parent_id']}]
+                end
                 unless row['ButmothNo'].blank?
                   brow = @data.genera_index[row['ButmothNo'].to_i]
 
@@ -487,25 +509,27 @@ namespace :tw do
                   end
 
                   ref = brow.nil? ? nil : @data.citation_to_publication_index[brow['GENUS_REF']]
-                  protonym.source_id = ref.id unless ref.nil?
+                  protonym.source_id = ref unless ref.nil?
 
                   citation = brow.nil? ? nil : @data.citations_index[brow['GENUS_REF']]
-                  Citation.create(citation_object: protonym, source_id: ref.id, pages: citation['PAGE']) unless ref.nil? || citation.nil?
+                  Citation.create(citation_object: protonym, source_id: ref, pages: citation['PAGE']) unless ref.nil? || citation.nil?
 
-                  @list_of_relationships += [{'taxon' => protonym.id, 'relationship' => 'type species', 'type species' => brow['TS_SPECIES'], 'type species reference' => brow['TS_REF'], 'type designation' => brow['TSD_DESIGNATION'], 'ButmothNo' => brow['ButmothNo'].to_i}] unless ref.nil?
+                  @list_of_relationships += [{'taxon' => protonym.id, 'relationship' => 'type species', 'type species' => brow['TS_SPECIES'], 'type species reference' => brow['TS_REF'], 'type designation' => brow['TSD_DESIGNATION'], 'ButmothNo' => brow['ButmothNo'].to_i, 'valid genus' => row['valid_parent_id']}] unless brow.nil?
                 end
 
                 unless @classification_classes[row['Availability']].nil?
                   TaxonNameClassification.create!(taxon_name_id: protonym.id, type: @classification_classes[row['Availability']])
                 end
-                if @relationship_classes[row['Availability']].nil?
-                  print "\nInvalid relationship: #{row['Availability']}\n"
-                elsif !row['valid_parent_id'].blank?
-                  @list_of_relationships += [{'taxon' => protonym.id, 'relationship' => row['Availability'], 'valid species' => row['valid_parent_id']}]
-                end
 
                 %w{Original_Genus OrigSubgen Original_Species Original_Subspecies Original_Infrasubspecies}.each do |t|
-                  @list_of_relationships += [{'taxon' => protonym.id, 'relationship' => t, 'original' => row['t']}] unless row['t'].blank?
+                  if t == 'Original_Genus' || t == 'OrigSubgen'
+                    n = row[t]
+                  elsif t == 'Original_Species'
+                    n = row['Original_Genus'].to_s + ' ' + row[t].to_s
+                  elsif t == 'Original_Subspecies'
+                    n = row['Original_Genus'].to_s + ' ' + row['Original_Species'].to_s + ' ' + row[t].to_s
+                  end
+                  @list_of_relationships += [{'taxon' => protonym.id, 'relationship' => t, 'original' => n}] unless row[t].blank?
                 end
 
                 if protonym.valid?
@@ -516,45 +540,72 @@ namespace :tw do
               end
 
             end
+            #end#########################################
           end
         end
 
         print "\nAdding relationships\n"
+
         @list_of_relationships.each_with_index do |r, i|
           print "\r#{i}"
-          if r['relationship'] =~ /TaxonNameRelationship::OriginalCombination/
-            TaxonNameRelationship.create!(subject_taxon_name_id: @data.parent_id_index[r['original']],
-                                          object_taxon_name_id: r['taxon'],
-                                          type: @relationship_classes[r['relationship']])
+          tr = nil
+          if @relationship_classes[r['relationship']] =~ /TaxonNameRelationship::OriginalCombination/
+            origr = original_ranks[r['relationship']]
+            if origr == 'genus'
+              stn = @data.parent_id_index['genus:' + r['original'].to_s]
+              stn = @data.parent_id_index['subgenus:' + r['original'].to_s] if stn.nil?
+            elsif origr == 'species'
+              stn = @data.parent_id_index['species:' + r['original'].to_s]
+              stn = @data.parent_id_index['subspecies:' + r['original'].to_s] if stn.nil?
+            end
+            unless stn.nil?
+              tr = TaxonNameRelationship.new(subject_taxon_name_id: stn,
+                                            object_taxon_name_id: r['taxon'],
+                                            type: @relationship_classes[r['relationship']])
+            end
           elsif !r['valid species'].nil?
-            TaxonNameRelationship.create!(subject_taxon_name_id: r['taxon'],
-                                          object_taxon_name_id: @data.taxonno_index[r['valid species']],
-                                          type: @relationship_classes[r['relationship']])
-          elsif !r['type species'].nil?
+            valid_species = @data.taxonno_index[r['valid species'].to_i.to_s]
+            if valid_species.nil?
+              print "\nInvalid valid_parent_id: #{r['valid species']}\n"
+            else
+              relationship = @relationship_classes[r['relationship']]
+              relationship = 'TaxonNameRelationship::Iczn::Invalidating' if relationship == ''
+              tr = TaxonNameRelationship.new(subject_taxon_name_id: r['taxon'],
+                                            object_taxon_name_id: valid_species,
+                                            type: relationship )
+            end
+          elsif !r['type species'].blank?
             if @relationship_classes[r['type designation']].nil?
               relationship = @relationship_classes['type species']
             else
               relationship = @relationship_classes[r['type designation']]
             end
-            children = t['taxon'].children
+            children = Protonym.descendants_of(Protonym.find(r['taxon']).get_valid_taxon_name)
             unless children.empty?
-              children.select!{|c| c.name == r['TS_SPECIES']}
+              children = children.select{|c| c.name == r['type species']}
+
+              unless children.empty?
+                tr = TaxonNameRelationship.new(subject_taxon_name_id: children.first.id,
+                                              object_taxon_name_id: r['taxon'],
+                                              type: relationship)
+
+                ref = @data.citation_to_publication_index[r['type species reference']]
+                citation = @data.citations_index[r['type species reference']]
+                print "\nTS_REF #{r['type species reference']} is invalid\n" if citation.nil?
+
+                children.first.source_id = ref unless ref.nil?
+                Citation.create(citation_object: children.first, source_id: ref, pages: citation['PAGE']) unless ref.nil? || citation.nil?
+
+                children.first.save
+              end
             end
-
-            unless children.empty?
-              TaxonNameRelationship.create!(subject_taxon_name_id: children.first.id,
-                                            object_taxon_name_id: t['taxon'],
-                                            type: relationship)
-
-              ref = @data.citation_to_publication_index[r['TS_REF']]
-              citation = @data.citation_index[r['TS_REF']]
-              print "\nTS_REF #{r['TS_REF']} is invalid\n" if citation.nil?
-
-              children.first.source_id = ref.id unless ref.nil?
-              Citation.create(citation_object: children.first, source_id: ref.id, pages: citation['PAGE']) unless ref.nil? || citation.nil?
-
-              children.first.save
-            end
+          end
+          if tr.nil?
+            true
+          elsif tr.valid?
+            tr.save!
+          else
+            byebug
           end
         end
 
