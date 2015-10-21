@@ -2,7 +2,8 @@ module ContentsHelper
 
   # Note disambiguation from Rails' content_tag()
   def taxon_works_content_tag(content)
-    ContentsHelper.taxon_works_content_tag(content)
+    return nil if content.nil?
+    content.text
   end
 
   def content_link(content)

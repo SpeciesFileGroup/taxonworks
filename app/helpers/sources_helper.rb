@@ -1,15 +1,10 @@
 module SourcesHelper
 
-# @todo Not deleted because of warning message.  Delete if appropriate.
-  # def self.source_tag(source)
-  #   return nil if source.nil?
-  #   source.cached ? source.cached : "WARNING CACHE NOT BUILT ADMIN TEST"
-  # end
-
   def source_tag(source)
-    SourcesHelper.source_tag(source)
+    return nil if source.nil?
+    source.cached ? source.cached : "WARNING CACHE NOT BUILT ADMIN TEST"
   end
-  
+
   def sources_search_form
     render('/sources/quick_search_form')
   end

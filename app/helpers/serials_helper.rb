@@ -1,7 +1,8 @@
 module SerialsHelper
 
   def serial_tag(serial)
-    SerialsHelper.serial_tag(serial)
+    return nil if serial.nil?
+    serial.name
   end
 
   def self.serial_autocomplete_tag(serial, term = '')

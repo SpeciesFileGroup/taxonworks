@@ -1,7 +1,8 @@
 module TypeMaterialsHelper
 
   def type_material_tag(type_material)
-    TypeMaterialsHelper.type_material_tag(type_material)
+    return nil if type_material.nil?
+    type_material.to_param
   end
 
   def type_material_link(type_material)

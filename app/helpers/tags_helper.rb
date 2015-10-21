@@ -1,7 +1,8 @@
 module TagsHelper
 
   def tag_tag(tag)
-    TagsHelper.tag_tag(tag)
+    return nil if tag.nil?
+    tag.controlled_vocabulary_term.name
   end
 
   def tags_search_form

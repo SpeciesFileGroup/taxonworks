@@ -1,14 +1,9 @@
 module LoansHelper
 
-# @todo Left in this self.[model]_tag because of the extra code; delete if not needed
-  # def self.loan_tag(loan)
-  #   return nil if loan.nil?
-  #   v = loan.recipient_email
-  #   v.blank? ? "[#{loan.to_param}]" : v
-  # end
-
   def loan_tag(loan)
-    LoansHelper.loan_tag(loan)
+    return nil if loan.nil?
+    v = loan.recipient_email
+    v.blank? ? "[#{loan.to_param}]" : v
   end
 
   def loan_link(loan)

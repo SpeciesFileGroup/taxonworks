@@ -8,8 +8,6 @@ module ProjectsHelper
     project.name
   end
 
-
-
   def projects_search_form
     render('/projects/quick_search_form')
   end

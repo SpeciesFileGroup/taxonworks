@@ -1,7 +1,8 @@
 module NamespacesHelper
 
   def namespace_tag(namespace)
-    NamespacesHelper.namespace_tag(namespace)
+    return nil if namespace.nil?
+    namespace.name
   end
 
   def namespace_link(namespace)

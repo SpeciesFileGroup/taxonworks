@@ -1,7 +1,8 @@
 module PreparationTypesHelper
 
   def preparation_type_tag(preparation_type)
-    PreparationTypesHelper.preparation_type_tag(preparation_type)
+    return nil if preparation_type.nil?
+    preparation_type.name
   end
 
   def preparation_type_link(preparation_type)
