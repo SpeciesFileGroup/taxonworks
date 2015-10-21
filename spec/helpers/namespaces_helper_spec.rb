@@ -6,7 +6,7 @@ describe NamespacesHelper, :type => :helper do
     let(:namespace) {FactoryGirl.create(:valid_namespace, name:name)}
 
     specify '::namespace_tag' do
-      expect(NamespacesHelper.namespace_tag(namespace)).to eq(name)
+      expect(helper.namespace_tag(namespace)).to eq(name)
     end
 
     specify '#namespace_tag' do

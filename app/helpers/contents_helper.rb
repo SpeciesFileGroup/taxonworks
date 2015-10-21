@@ -8,7 +8,7 @@ module ContentsHelper
 
   def content_link(content)
     return nil if content.nil?
-    link_to(ContentsHelper.taxon_works_content_tag(content).html_safe, content)
+    link_to(taxon_works_content_tag(content).html_safe, content)
   end
 
   def contents_search_form

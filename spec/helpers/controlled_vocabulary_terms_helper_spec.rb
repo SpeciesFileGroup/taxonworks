@@ -6,7 +6,7 @@ describe ControlledVocabularyTermsHelper, :type => :helper do
     let(:name) {'helper term'}
 
     specify '::controlled_vocabulary_term_tag' do
-      expect(ControlledVocabularyTermsHelper.controlled_vocabulary_term_tag(controlled_vocabulary_term)).to eq(name)
+      expect(helper.controlled_vocabulary_term_tag(controlled_vocabulary_term)).to eq(name)
     end
 
     specify '#controlled_vocabulary_term_tag' do

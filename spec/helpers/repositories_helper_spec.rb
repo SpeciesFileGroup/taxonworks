@@ -17,7 +17,7 @@ describe RepositoriesHelper, :type => :helper do
       expect(helper.repository_link(repository)).to have_link(repository.name)
     end
 
-    specify ".repositoies_search_form" do
+    specify ".repositories_search_form" do
       expect(helper.repositories_search_form).to have_button('Show')
       expect(helper.repositories_search_form).to have_field('repository_id_for_quick_search_form')
     end

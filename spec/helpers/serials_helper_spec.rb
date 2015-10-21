@@ -6,7 +6,7 @@ describe SerialsHelper, :type => :helper do
     let(:serial) {FactoryGirl.create(:valid_serial, name:name)}
 
     specify '::serial_tag' do
-      expect(SerialsHelper.serial_tag(serial)).to eq(name)
+      expect(helper.serial_tag(serial)).to eq(name)
     end
 
     specify '#serial_tag' do

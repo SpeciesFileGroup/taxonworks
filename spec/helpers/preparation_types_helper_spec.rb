@@ -6,7 +6,7 @@ describe PreparationTypesHelper, :type => :helper do
     let(:preparation_type) {FactoryGirl.create(:valid_preparation_type, name:name)}
 
     specify '::preparation_type_tag' do
-      expect(PreparationTypesHelper.preparation_type_tag(preparation_type)).to eq(name)
+      expect(helper.preparation_type_tag(preparation_type)).to eq(name)
     end
 
     specify '#preparation_type_tag' do

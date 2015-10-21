@@ -6,7 +6,7 @@ describe ProjectsHelper do
     let(:project) {FactoryGirl.build_stubbed(:valid_project, id: 1, name:name) }
 
     specify '::project_tag' do
-      expect(ProjectsHelper.project_tag(project)).to eq(name)
+      expect(helper.project_tag(project)).to eq(name)
     end
 
     specify '#project_tag' do

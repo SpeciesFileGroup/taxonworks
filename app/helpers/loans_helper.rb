@@ -8,7 +8,7 @@ module LoansHelper
 
   def loan_link(loan)
     return nil if loan.nil?
-    link_to(LoansHelper.loan_tag(loan).html_safe, loan)
+    link_to(loan_tag(loan).html_safe, loan)
   end
 
   def loans_search_form

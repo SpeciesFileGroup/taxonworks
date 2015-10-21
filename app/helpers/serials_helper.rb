@@ -15,7 +15,7 @@ module SerialsHelper
 
   def serial_link(serial)
     return nil if serial.nil?
-    link_to(SerialsHelper.serial_tag(serial).html_safe, serial)
+    link_to(serial_tag(serial).html_safe, serial)
   end
 
   def serials_search_form

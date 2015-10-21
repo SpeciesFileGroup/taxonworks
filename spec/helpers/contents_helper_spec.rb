@@ -6,7 +6,7 @@ describe ContentsHelper, :type => :helper do
     let(:tag_string) {content.text}
 
     specify '#taxon_works_content_tag' do
-      expect(ContentsHelper.taxon_works_content_tag(content)).to eq(tag_string)
+      expect(helper.taxon_works_content_tag(content)).to eq(tag_string)
     end
 
     specify '.taxon_works_content_tag' do
