@@ -27,11 +27,13 @@ class ApplicationController < ActionController::Base
   after_filter :log_user_recent_route
   after_filter :clear_project_and_user_variables
 
-  def intercept_api 
+  def intercept_api
     if (/^\/api/ =~ request.path)
-      token_authenticate
-      set_project_from_params
-      render(text: 'Not authorized', status: :unauthorized) and return if @sessions_current_user.nil?
+      if token_authenticate
+        set_project_from_params
+      else
+        render(json: ({ success: false }), status: :unauthorized) and return
+      end
     end
     true 
   end
@@ -102,13 +104,13 @@ class ApplicationController < ActionController::Base
   def token_authenticate
     t = params[:token] 
   
-    if !t 
-      authenticate_or_request_with_http_token do |token, options|
+    if !t
+      authenticate_with_http_token do |token, options|
         t = token
       end
     end
   
-    @sessions_current_user = User.find_by_api_access_token(t) 
+    @sessions_current_user = User.find_by_api_access_token(t) if t
   end
 
   def set_project_from_params

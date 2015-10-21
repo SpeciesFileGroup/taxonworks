@@ -1,42 +1,27 @@
 require 'rails_helper'
 
-describe 'API', type: :feature do 
+describe ApiController, :type => :feature do 
 
-  context 'GET /api' do
-    let(:user) { FactoryGirl.create(:valid_user) }
+  context 'GET /api using browser address bar', js: true do
+    let(:user) { FactoryGirl.create(:valid_user, :user_valid_token) }
 
     context 'with a valid token' do
-      before {
-        user.generate_api_access_token
-        user.save
+    let(:user) { FactoryGirl.create(:valid_user, :user_valid_token) }
 
-        Capybara.current_session.driver.header('Authorization' , "Token token=\"#{user.api_access_token}\"") 
-      }
-
-      context 'html' do
-        before {visit api_path}
-
-        specify 'then I see a list of endpoints' do
-          expect(page).to have_content('Endpoints')
-        end
-
-      end
-
-      # curl -v -H 'Accept: application/json' -H "Authorization: Token token=8mU2_YotjbdvS7AgbYBPig" http://127.0.0.1:3000/api/v1/project/1/images/65
-
-      context 'json (via HEADER)' do
-
-        before {
-          Capybara.current_session.driver.header('Accept' , 'application/json') 
-          visit api_path 
-        }
-
-        specify 'then I get a json response with a list of endpoints' do
-          expect(JSON.parse( page.source ) ).to be_truthy
-        end
+      it 'shows a JSON success response' do
+        visit api_path + ".json?project_id=1&token=#{user.api_access_token}" 
+          # NOTE: using "find" because js:true causes the response to be wrapped inside an html document
+          expect(JSON.parse(find('pre').text)).to eq({ "success" => true })
       end
     end
 
-  end
+    context 'with an invalid token' do
 
+      it 'shows a JSON failure response' do
+        visit api_path + ".json?project_id=1&token=FOO" 
+          # NOTE: using "find" because js:true causes the response to be wrapped inside an html document
+          expect(JSON.parse(find('pre').text)).to eq({ "success" => false })
+      end
+    end
+  end
 end

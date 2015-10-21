@@ -15,6 +15,10 @@ FactoryGirl.define do
     password_confirmation { TEST_USER_PASSWORD }  
   end
 
+  trait :user_valid_token do
+    set_new_api_access_token true
+  end
+
   factory :user do
     factory :valid_user, aliases: [:creator, :updater], traits: [:user_password] do
       email

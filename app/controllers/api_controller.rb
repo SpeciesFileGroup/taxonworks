@@ -7,7 +7,6 @@ class ApiController < ApplicationController
 
   def index
     respond_to do |format|
-      format.html {}
 
       format.json { 
         render(json: { success: true }, status: 200)
