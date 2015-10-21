@@ -4,8 +4,11 @@
 module ProjectsHelper
 
   def project_tag(project)
-    ProjectsHelper.project_tag(project)
+    return nil if project.nil?
+    project.name
   end
+
+
 
   def projects_search_form
     render('/projects/quick_search_form')
