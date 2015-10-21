@@ -30,7 +30,7 @@ class ApplicationController < ActionController::Base
   def intercept_api
     if (/^\/api/ =~ request.path)
       if token_authenticate
-        set_project_from_params
+        render(json: ({ success: false }), status: :bad_request) and return unless set_project_from_params
       else
         render(json: ({ success: false }), status: :unauthorized) and return
       end
@@ -114,7 +114,7 @@ class ApplicationController < ActionController::Base
   end
 
   def set_project_from_params
-    self.sessions_current_project_id = params.require(:project_id)
+    self.sessions_current_project_id = params[:project_id]
   end
 
 end
