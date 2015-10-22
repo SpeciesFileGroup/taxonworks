@@ -30,5 +30,13 @@ describe "Images", :type => :feature do
 
       it_behaves_like 'a_data_model_with_standard_show'
     end
+
+    describe 'GET /api/v1/images/{id}' do
+      #TODO: Intentionally failing to remember to implement this test
+      it 'Returns a successful JSON response' do
+        visit '/api/v1/images/1'
+        expect(JSON.parse(page.body)['success']).to be_true
+      end
+    end
   end
 end

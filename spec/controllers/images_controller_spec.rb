@@ -62,10 +62,21 @@ describe ImagesController, :type => :controller do
   end
 
   describe "GET show" do
+    let (:image) { Image.create! valid_attributes }
+
     it "assigns the requested image as @image" do
-      image = Image.create! valid_attributes
       get :show, {:id => image.to_param}, valid_session
       expect(assigns(:image)).to eq(image)
+    end
+
+    context "JSON format request" do
+      render_views
+
+      before { get :show, { :id => image.to_param, :format => :json }, valid_session }
+
+      it "returns a parsable JSON object" do
+        expect(JSON.parse(response.body)).to be_truthy
+      end
     end
   end
 
