@@ -1,14 +1,14 @@
-# Biological collection object definition...
+# A collection object that is categorized as being biological in origin. 
 #
 class CollectionObject::BiologicalCollectionObject < CollectionObject
   has_many :biocuration_classifications,  inverse_of: :biological_collection_object
   has_many :biocuration_classes, through: :biocuration_classifications, inverse_of: :biological_collection_objects
-  
-  has_many :otus, through: :taxon_determinations, inverse_of: :taxon_determinations
-  has_many :taxon_determinations, inverse_of: :biological_collection_object
  
-  accepts_nested_attributes_for :biocuration_classes, :biocuration_classifications, :otus
-  accepts_nested_attributes_for :taxon_determinations, allow_destroy: true, reject_if: :reject_taxon_determinations
+  # See parent class for comments, this belongs here, but interferes with acceptes_nested_attributes 
+  # has_many :taxon_determinations, inverse_of: :biological_collection_object, dependent: :destroy, foreign_key: :biological_collection_object_id
+ 
+  accepts_nested_attributes_for :biocuration_classes, allow_destroy: true
+  accepts_nested_attributes_for :biocuration_classifications, allow_destroy: true
 
   soft_validate(:sv_missing_determination, set: :missing_determination)
   soft_validate(:sv_missing_collecting_event, set: :missing_collecting_event)
@@ -61,14 +61,10 @@ class CollectionObject::BiologicalCollectionObject < CollectionObject
     soft_validations.add(:repository_id, 'Repository is not selected') if self.repository_id.nil?
   end
 
-  def reject_taxon_determinations(attributed)
-    attributed['otu_id'].blank?
-  end
 
 end
 
 require_dependency 'lot'
 require_dependency 'specimen'
 require_dependency 'ranged_lot'
-
 
