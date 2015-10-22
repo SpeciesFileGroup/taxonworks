@@ -67,7 +67,6 @@ describe CollectionObject::BiologicalCollectionObject, :type => :model do
   end
 
   context 'instance methods' do
-
     specify '#current_determination' do
       expect(biological_collection_object).to respond_to(:current_determination)
       o = Specimen.new(otus_attributes: [{name: 'one'}, {name: 'two'}])
@@ -97,6 +96,30 @@ describe CollectionObject::BiologicalCollectionObject, :type => :model do
       o.soft_validate(:missing_repository)
       expect(o.soft_validations.messages_on(:repository_id).count).to eq(1)
     end
+  end
+
+  context 'nested attributes' do
+    let(:o) { Specimen.new }
+    let(:otu) { Otu.create!(name: 'Zeezaw whee') }
+
+    context 'taxon_determinations' do
+      before {
+        o.taxon_determinations_attributes = [ {otu_id: otu.id } ]
+      }
+
+      specify 'can be created' do
+        expect(o.save).to be_truthy
+        expect(o.taxon_determinations.first.valid?).to be_truthy
+      end
+
+      specify 'can be destroyed' do
+        expect(o.save).to be_truthy
+        o.update(taxon_determinations_attributes: [{id: o.taxon_determinations.first.id, _destroy: '1'}])  
+        expect(o.save).to be_truthy
+        expect(TaxonDetermination.all.size).to eq(0)
+      end
+    end
+
   end
 
 end
