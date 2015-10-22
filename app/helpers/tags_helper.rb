@@ -27,7 +27,7 @@ module TagsHelper
       {tag_object_type:      f.object.class.base_class.name,
        tag_object_id:        f.object.id,
        tag_object_attribute: 'name'})
-    fields     = f.fields_for(:tags, new_object, :child_index => 'new_tags') do |builder|
+    fields = f.fields_for(:tags, new_object, :child_index => 'new_tags') do |builder|
       render('tags/tag_fields', :avf => builder)
     end
     link_to(link_text, '', class: 'tag-add', association: 'tags', content: "#{fields}")
@@ -49,5 +49,7 @@ module TagsHelper
   def tags_recent_objects_partial
     true 
   end
+
+
 
 end
