@@ -13,7 +13,7 @@ module OtusHelper
   end
 
   def otu_autocomplete_selected_tag(otu)
-    return 'ERROR' if otu.nil?
+    return nil if otu.nil? || (otu.new_record? && !otu.changed?)
     [otu.name, (otu.taxon_name.nil? ? nil : "[#{otu.taxon_name.cached}]")].compact.join(" ")
   end
 
