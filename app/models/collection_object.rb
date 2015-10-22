@@ -323,7 +323,11 @@ are located within the geographic item supplied
   def self.ce_headers(project_id)
     # @ce_headers = collection_objects.map(&:collecting_event).map(&:data_attributes).flatten.map(&:predicate).map(&:name).uniq.sort
     retval               = {}
-    retval[:ce_internal] = InternalAttribute.where(project_id: project_id, attribute_subject_type: 'CollectingEvent').map(&:predicate).map(&:name).uniq.sort
+    # retval[:ce_internal] = InternalAttribute.where(project_id: project_id, attribute_subject_type: 'CollectingEvent').map(&:predicate).map(&:name).uniq.sort
+    cvt_list             = InternalAttribute.where(project_id: project_id, attribute_subject_type: 'CollectingEvent')
+                             .select(:controlled_vocabulary_term_id).distinct
+                             .pluck(:controlled_vocabulary_term_id)
+    retval[:ce_internal] = ControlledVocabularyTerm.where(id: cvt_list).map(&:name).sort
     retval[:ce_import]   = ImportAttribute.where(project_id: project_id, attribute_subject_type: 'CollectingEvent').pluck(:import_predicate).uniq.sort
     @ce_headers          = retval
   end
@@ -367,7 +371,11 @@ are located within the geographic item supplied
   def self.co_headers(project_id)
     # @co_headers = collection_objects.map(&:data_attributes).flatten.map(&:predicate).map(&:name).uniq.sort
     retval               = {}
-    retval[:co_internal] = InternalAttribute.where(project_id: project_id, attribute_subject_type: 'CollectionObject').map(&:predicate).map(&:name).uniq.sort
+    # retval[:co_internal] = InternalAttribute.where(project_id: project_id, attribute_subject_type: 'CollectionObject').map(&:predicate).map(&:name).uniq.sort
+    cvt_list             = InternalAttribute.where(project_id: project_id, attribute_subject_type: 'CollectionObject')
+                             .select(:controlled_vocabulary_term_id).distinct
+                             .pluck(:controlled_vocabulary_term_id)
+    retval[:co_internal] = ControlledVocabularyTerm.where(id: cvt_list).map(&:name).sort
     retval[:co_import]   = ImportAttribute.where(project_id: project_id, attribute_subject_type: 'CollectionObject').pluck(:import_predicate).uniq.sort
     @co_headers          = retval
   end
