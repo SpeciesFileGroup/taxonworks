@@ -1,6 +1,11 @@
+@import '../../workbench/palette';
 
 #breakdown_sqed_depiction {
-  
+ 
+  .ctrl_link {
+    color: $muted_blue; 
+  }
+
   .item {
     padding: 2px;
   }
@@ -8,37 +13,56 @@
   .little_image {
     display: block;
     padding: 5px;
-    width: 80px;
+    width: 100px;
   }
 
   #extracted_header {
+    padding: 2px;
       .ocr_text { 
         height: 8em;
         width: 20em;
         border: 1px solid silver;
+        padding: 3px;
       }
 
       #text_for_identifier {
         width: 8em;
+      }
+
+      .field {
+        padding: 5px;
       }
   }
 
   #collection_object_fields {
     textarea { 
       height: 8em;
-      width: 20em;
+      width: 16em;
+      padding: 3px;
     }
   }
 
-  #selected_text {
-    width: 340px;
-    // vertical-align: center;
+  #ocr_result {
+    width: 400px;
+
+    #selected_text {
+      border: 1px solid silver;
+      width: 400px;
+      height: 140px; 
+      display: table-cell; 
+      vertical-align:middle;
+      text-align: center;
+    }
+
+    #selected_text_options {
+      text-align: center;
+      padding: 2px;
+    }
   }
 
-  #append_ocr_button {
-    float:left; 
+  .destroyable {
+    color: $muted_red;
+     font-weight: bold; 
   }
-
-
 
 }
