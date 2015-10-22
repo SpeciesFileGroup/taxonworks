@@ -72,11 +72,63 @@ describe ImagesController, :type => :controller do
     context "JSON format request" do
       render_views
 
-      before { get :show, { :id => image.to_param, :format => :json }, valid_session }
+      context "valid image" do
+        before { get :show, { :id => image.to_param, :format => :json }, valid_session }
+        let (:data) { JSON.parse(response.body) }
 
-      it "returns a parsable JSON object" do
-        expect(JSON.parse(response.body)).to be_truthy
+        it "returns a successful JSON response" do
+          expect(data["success"]).to be true
+        end
+
+        describe "JSON data contents" do
+
+          it "has a result object" do
+            expect(data["result"]).to be_truthy
+          end
+
+          describe "result attributes" do
+            let (:result) { data["result"] }
+
+            it "has an id" do
+              expect(result["id"]).to eq(image.id)
+            end
+
+            it "has image width" do
+              expect(result["width"]).to eq(image.width)
+            end
+
+            it "has image height" do
+              expect(result["height"]).to eq(image.height)
+            end
+
+            it "has image content type" do
+              expect(result["content_type"]).to eq(image.image_file_content_type)
+            end
+
+            it "has image size" do
+              expect(result["size"]).to eq(image.image_file_file_size)
+            end
+
+            it "has a download URL" do
+              expect(result["url"]).to eq("#{request.base_url}#{image.image_file.url(:original)}")
+            end
+
+            xit "has a last update time" do
+              expect(result["date"]).to eq(image.updated_at)
+            end
+          end
+        end
+
       end
+
+      context "invalid image" do
+        before { get :show, { :id => -1, :format => :json }, valid_session }
+
+        it "returns an unsuccessful JSON response" do
+          expect(JSON.parse(response.body)).to eq({ "success" => false })
+        end
+      end
+
     end
   end
 

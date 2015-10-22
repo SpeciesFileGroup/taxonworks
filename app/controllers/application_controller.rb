@@ -93,9 +93,12 @@ class ApplicationController < ActionController::Base
 
   private
  
-   def record_not_found
-     render plain: "404 Not Found", status: 404
-   end
+  def record_not_found
+    respond_to do | format |
+      format.html { render plain: "404 Not Found", status: 404 }
+      format.json { render json: { success: false } }
+    end
+  end
 
   def disable_turbolinks
     @no_turbolinks = true
