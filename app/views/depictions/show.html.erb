@@ -5,7 +5,7 @@
 <% end %>
 
 <%= content_for :do do -%>
-  <%= link_to('Transcribe', depiction_breakdown_task_path(@depiction)) if @depiction.sqed_depiction -%>
+  <%= link_to('Transcribe', sqed_depiction_breakdown_task_path(@depiction.sqed_depiction)) if @depiction.sqed_depiction -%>
 <% end %>
 
 <%= render(partial: 'shared/data/project/show', locals: {object: @depiction}) -%>
