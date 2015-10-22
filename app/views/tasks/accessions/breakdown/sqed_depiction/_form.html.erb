@@ -1,0 +1,112 @@
+<%= form_for(@result.depiction.depiction_object, as: :collection_object, url: sqed_depiction_breakdown_update_task_path(@sqed_depiction)) do |f| -%>
+  <div class="flexbox">
+    <div class="item item1">
+
+      <h3> Identifiers </h3>
+      <%= f.fields_for(:identifiers, @result.depiction.depiction_object.identifiers) do |i| -%>
+        <%= i.hidden_field :type -%>
+
+        <div class="side_by_side_fields">
+
+          <div class="field">
+            <%= i.label :namespace_id %><br>
+            <%= render(
+              partial: '/workbench/elements/forms/ajax_select',
+              locals:  {
+                controller:        '/namespaces',
+                object:            "collection_object[identifiers_attributes][#{i.index}]",
+                method:            'namespace_id',
+                tag_id:            "namespace_id_for_identifier_#{i.index}",
+                display:           (i.object.namespace ? i.object.namespace.short_name : nil),
+                size:              20,
+                fields_for_object: i})
+              %>
+
+            <% if @result.depiction.depiction_object.identifiers.size == 1 %>
+              <%= check_box_tag(:lock_namespace, "1", @result.namespace_locked?) -%>lock
+            <% end %>
+          </div>
+
+          <div class="field">
+            <%= i.label :identifier %><br>
+            <%= i.text_field :identifier, class: "mousetrap" %>
+            <%= destroy_related_link(i) -%>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="item item2">
+      <h3> Taxon Determinations </h3>
+      <%= f.fields_for(:taxon_determinations, @result.depiction.depiction_object.taxon_determinations) do |o| -%>
+        <div class="field">
+          <%= o.label :name %><br>
+          <%= render(
+            partial: '/workbench/elements/forms/ajax_select',
+            locals:  {
+              controller: '/otus',
+              object:     "collection_object[taxon_determinations_attributes][#{o.index}]",
+              method:     'otu_id',
+              tag_id:     "otu_id_for_identifier_#{o.index}",
+              display:    otu_autocomplete_selected_tag(o.object.otu),
+              fields_for_object: o,
+              size:       20})
+            %>
+
+          <%= destroy_related_link(o) -%>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="side_by_side_fields" id="collection_object_fields">
+    <div class="field">
+      <%= f.label :buffered_collecting_event %>
+      <br>
+      <%= f.text_area :buffered_collecting_event, class: "mousetrap" -%>
+    </div>
+
+    <div class="field">
+      <%= f.label :buffered_determinations %>
+      <br>
+      <%= f.text_area :buffered_determinations, class: "mousetrap"  -%>
+    </div>
+
+    <div class="field">
+      <%= f.label :buffered_other_labels %>
+      <br>
+      <%= f.text_area :buffered_other_labels, class: "mousetrap"  -%>
+    </div>
+  </div>
+
+  <div class="side_by_side_fields">
+    <div class="field">
+      <%= f.label :total %>
+      <%= f.text_field :total, size: 2 -%>
+    </div>
+
+    <div class="inline_fields">
+    <%= f.fields_for(:notes, @result.depiction.depiction_object.notes) do |n| -%>
+      <div class="field">
+        <%= n.label :note %><br>
+        <%= n.text_field :text %>
+        <%= destroy_related_link(n) -%>
+      </div>
+
+    <% end %>
+
+    <%= f.fields_for(:tags, @result.depiction.depiction_object.tags) do |t| -%>
+      <div class="field" >
+        <%= t.label :keyword, 'Tag with' %><br>
+        <%= t.collection_select(:keyword_id, Keyword.where(project_id: sessions_current_project_id), :id, :name, include_blank: true ) %>
+        <%= destroy_related_link(t) -%>
+      </div>
+    <% end %>
+
+  </div>
+  </div>
+
+  <%= submit_tag -%>
+  <%= submit_tag('Save and next [n]', id: :save_and_next) -%> 
+  <%= link_to('Skip to next', sqed_depiction_breakdown_task_path(@sqed_depiction.next_without_data, @result.namespace_id)) -%>
+<% end %>
