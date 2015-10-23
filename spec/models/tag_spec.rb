@@ -25,7 +25,7 @@ describe Tag, type: :model, group: :annotators do
 
     specify 'a topic can not be used' do
       t = Topic.new(name: 'foo', definition: 'Something about foo')
-      expect{tag.keyword = t}.to raise_error
+      expect{tag.keyword = t}.to raise_error(ActiveRecord::AssociationTypeMismatch)
     end
 
     specify 'a tagged object is only tagged once per keyword' do

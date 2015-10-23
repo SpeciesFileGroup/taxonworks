@@ -126,7 +126,7 @@ describe 'SoftValidation' do
       end
 
       specify 'softy.fix_soft_validations(:some_bad_value)' do
-        expect{@softy.fix_soft_validations(:some_bad_value)}.to raise_error
+        expect{@softy.fix_soft_validations(:some_bad_value)}.to raise_error(RuntimeError, /invalid scope/)
       end
 
       specify 'softy.fix_soft_validations' do

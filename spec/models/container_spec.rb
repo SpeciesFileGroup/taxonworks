@@ -10,7 +10,7 @@ describe Container, :type => :model do
 
     specify 'type can not be an invalid type' do
       container.type = 'aaa'
-      expect {container.save}.to raise_error
+      expect {container.save}.to raise_error(ActiveRecord::SubclassNotFound)
     end
 
     specify 'type can be a valid type' do

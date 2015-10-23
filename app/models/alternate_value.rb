@@ -11,7 +11,7 @@
 #
 # @!attribute alternate_value_object_attribute
 #   @return [String]
-#   @todo
+#    the attribute (column) that this is an alternate value for 
 #
 # @!attribute attribute_value_object_id
 #   @return [Integer]

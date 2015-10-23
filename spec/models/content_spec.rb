@@ -23,7 +23,7 @@ describe Content, :type => :model do
 
     context 'topic' do
       specify 'must only be a topic' do
-        expect {content.topic = not_topic}.to raise_error
+        expect {content.topic = not_topic}.to raise_error(ActiveRecord::AssociationTypeMismatch)
       end 
     end
   end
