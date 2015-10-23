@@ -51,6 +51,6 @@ class ContainersController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def container_params
-      params.require(:container).permit(:parent_id, :depth, :type, :otu_id, :name, :disposition)
+      params.require(:container).permit(:parent_id, :depth, :type, :name, :disposition)
     end
 end

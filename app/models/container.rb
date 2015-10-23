@@ -24,10 +24,6 @@
 #   @return [Integer]
 #   the project ID
 #
-# @!attribute otu_id
-#   @return [Integer]
-#   @todo
-#
 # @!attribute name
 #   @return [String]
 #     abitrary name of this container 
