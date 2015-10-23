@@ -5,10 +5,6 @@ describe RepositoriesHelper, :type => :helper do
     let(:repository) {FactoryGirl.create(:valid_repository)}
     let(:tag) {"#{repository.name} (#{repository.acronym})"}
 
-    specify '::repository_tag' do
-      expect(RepositoriesHelper.repository_tag(repository)).to eq(tag)
-    end
-
     specify '.repository_tag' do
       expect(helper.repository_tag(repository)).to eq(tag)
     end
