@@ -5,7 +5,7 @@ module SerialsHelper
     serial.name
   end
 
-  def self.serial_autocomplete_tag(serial, term = '')
+  def serial_autocomplete_tag(serial, term = '')
     return nil if serial.nil?
     show_this =  serial.name.gsub(/#{term}/, "<mark>#{term}</mark>") # weee bit simpler
     # show_this += " (#{geographic_area.geographic_area_type.name})" unless geographic_area.geographic_area_type.nil?
