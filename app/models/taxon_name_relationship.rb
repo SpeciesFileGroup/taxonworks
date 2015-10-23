@@ -702,13 +702,13 @@ class TaxonNameRelationship < ActiveRecord::Base
     s = self.subject_taxon_name
     list = s.list_of_coordinated_names + [s]
     if s.rank_class.to_s =~ /Species/
-      s_new =  list.detect{|t| t.rank_class.rank_name == 'species'}
+      s_new = list.detect{|t| t.rank_class.rank_name == 'species'}
     elsif s.rank_class.to_s=~ /Genus/
-      s_new =  list.detect{|t| t.rank_class.rank_name == 'genus'}
+      s_new = list.detect{|t| t.rank_class.rank_name == 'genus'}
     else
       s_new = s
     end
-    if s != s_new
+    if s != s_new & !s.nil?
       self.subject_taxon_name = s_new
       begin
         TaxonNameRelationship.transaction do
