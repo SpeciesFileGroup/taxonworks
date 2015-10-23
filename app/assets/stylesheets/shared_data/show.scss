@@ -1,0 +1,50 @@
+@import '../workbench/dimensions';
+@import '../workbench/palette';
+@import '../workbench/whitespace';
+
+#show {
+
+  margin-top: $standard-padding;
+  h2.model { margin: 0;  }
+
+  .tag {
+    font-size: 120%;
+    line-height: 140%;
+    padding: $standard_padding*.2 0;
+    margin-bottom: $standard_padding;
+  }
+
+  .flexbox {
+
+    .item1 { 
+      width: 200px;
+    }
+
+    .item3 {
+      width: 200px;
+    }
+
+    .item { 
+      padding: 0 $standard_padding*.4;
+    }
+
+    padding: $standard_padding 0;
+
+    h2 {
+      padding: $standard_padding*.2 0;
+      margin: $standard_padding*.2 0;
+    }
+
+    .section {
+      padding: $standard_padding*.3;
+      margin: $standard_padding*.2 0;
+      h2 {} 
+    }
+
+    .go {} 
+    .see {}
+    .do {}
+
+  }
+
+}

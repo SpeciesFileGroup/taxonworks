@@ -1,8 +1,13 @@
 @import 'workbench/palette';
+@import 'workbench/whitespace';
 
 .attributes {
+  word-wrap: break-word;
   p {
+    margin: 0 0 $standard_padding*0.6 0; 
+    padding: 0;
     font-weight: bold;
+
     strong {
       font-weight: normal;
       text-align: center;
@@ -10,7 +15,8 @@
   }
 
   .attribute_set_title {
-    border-bottom: 1px solid $color-secondary-2-0;
+    margin: $standard_padding 0; 
+    //  border-bottom: 1px solid $color-secondary-2-0;
     font:caption;
     background-color: $color-secondary-2-1;
     color: $color-secondary-2-0;

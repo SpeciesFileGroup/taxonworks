@@ -11,10 +11,20 @@
 
   #navigation_list {
     li {
-      padding: .3em;
+      padding: $standard_padding * .3;
       list-style-type: none;
-      border-left: 2px solid $color-secondary-2-2;
-      margin-bottom: 4px;
+      border-left: 1px solid $color-secondary-2-2;
+      margin-bottom: 1em;
+
+      a.task_name { 
+        display: block; 
+      }
+      .task_description {
+        display: block;
+        background-color: $note_yellow;
+        margin-left: $standard_padding;
+        padding: $standard_padding * .3;
+      }
     }
   }
 
