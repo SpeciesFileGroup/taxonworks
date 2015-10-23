@@ -73,28 +73,28 @@ class OtuPageLayoutsController < ApplicationController
       {id: t.id,
        label: ApplicationController.helpers.otu_page_layout_tag(t),
        response_values: {
-           params[:method] => t.id
+         params[:method] => t.id
        },
        label_html: ApplicationController.helpers.otu_page_layout_tag(t)
       }
 
       render :json => data
     end
+  end
 
-    private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_otu_page_layout
-      @otu_page_layout = OtuPageLayout.with_project_id($project_id).find(params[:id])
-      @recent_object = @otu_page_layout
-    end
+  private 
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def otu_page_layout_params
-      params.require(:otu_page_layout).permit(
-          :name,
-          standard_sections_attributes: [:topic_id, :_destroy, :type, :id, :position]
-      )
-    end
+  def set_otu_page_layout
+    @otu_page_layout = OtuPageLayout.with_project_id($project_id).find(params[:id])
+    @recent_object = @otu_page_layout
+  end
+
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def otu_page_layout_params
+    params.require(:otu_page_layout).permit(
+      :name,
+      standard_sections_attributes: [:topic_id, :_destroy, :type, :id, :position]
+    )
   end
 end
 
