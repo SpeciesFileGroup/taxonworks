@@ -32,14 +32,6 @@ similar_serials_task:
   name: 
   related:
     - serials
-update_serial_find_task:
-  name: 
-find_similar_serials_task:
-  name: 
-  related:
-    - serials
-return_similar_serials_task:
-  name: 
 user_activity_report_task:
   name: 
 verify_accessions_task:
