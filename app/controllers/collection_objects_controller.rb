@@ -88,11 +88,11 @@ class CollectionObjectsController < ApplicationController
     @collection_objects = CollectionObject.find_for_autocomplete(params.merge(project_id: sessions_current_project_id)) # in model
     data = @collection_objects.collect do |t|
       {id: t.id,
-       label: CollectionObjectsHelper.collection_object_tag(t), # in helper
+       label: ApplicationController.helpers.collection_object_tag(t), # in helper
        response_values: {
            params[:method] => t.id
        },
-       label_html: CollectionObjectsHelper.collection_object_tag(t) # render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
+       label_html: ApplicationController.helpers.collection_object_tag(t) # render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
       }
     end
     render :json => data
