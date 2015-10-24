@@ -110,11 +110,64 @@ describe ImagesController, :type => :controller do
             end
 
             it "has a download URL" do
-              expect(result["url"]).to eq("#{request.base_url}#{image.image_file.url(:original)}")
+              expect(result["url"]).to eq("#{request.base_url}#{image.image_file.url}")
             end
 
-            xit "has a last update time" do
-              expect(result["date"]).to eq(image.updated_at)
+            xit "has a last modified time" do
+              expect(result["last_modified"]).to eq(image.updated_at)
+            end
+
+            it "has alternative versions" do
+              expect(result["alternatives"]).to be_truthy
+            end
+
+            describe "alternative versions" do
+              let(:alternatives) { result["alternatives"] }
+
+              it "contains a medium version" do
+                expect(alternatives["medium"]).to be_truthy
+              end
+
+              describe "medium version" do
+                let(:alternative) { alternatives["medium"] }
+
+                it "has image width" do
+                  expect(alternative["width"]).to eq(image.image_file.width(:medium))
+                end
+
+                it "has image height" do
+                  expect(alternative["height"]).to eq(image.image_file.height(:medium))
+                end
+
+                it "has image size" do
+                  expect(alternative["size"]).to eq(image.image_file.size(:medium))
+                end
+
+                it "has a download URL" do
+                  expect(alternative["url"]).to eq("#{request.base_url}#{image.image_file.url(:medium)}")
+                end
+              end
+
+              describe "thumb version" do
+                let(:alternative) { alternatives["thumb"] }
+
+                it "has image width" do
+                  expect(alternative["width"]).to eq(image.image_file.width(:thumb))
+                end
+
+                it "has image height" do
+                  expect(alternative["height"]).to eq(image.image_file.height(:thumb))
+                end
+
+                it "has image size" do
+                  expect(alternative["size"]).to eq(image.image_file.size(:thumb))
+                end
+
+                it "has a download URL" do
+                  expect(alternative["url"]).to eq("#{request.base_url}#{image.image_file.url(:thumb)}")
+                end
+              end
+
             end
           end
         end
