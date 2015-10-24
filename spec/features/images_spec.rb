@@ -32,11 +32,17 @@ describe "Images", :type => :feature do
     end
 
     describe 'GET /api/v1/images/{id}' do
-      #TODO: Intentionally failing to remember to implement this test
-      it 'Returns a successful JSON response' do
-        visit '/api/v1/images/1'
-        expect(JSON.parse(page.body)['success']).to be_true
+      before do
+        @user.generate_api_access_token
+        @user.save!
       end
-    end
+      let(:image) { factory_girl_create_for_user_and_project(:valid_image, @user, @project) }
+
+      it 'Returns a downloadable link to the image' do
+        visit "/api/v1/images/#{image.to_param}?project_id=#{@project.to_param}&token=#{@user.api_access_token}"
+        visit JSON.parse(page.body)['result']['url']
+        expect(page.status_code).to eq(200)
+      end
+    end    
   end
 end
