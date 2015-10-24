@@ -13,8 +13,8 @@ describe 'TaxonDeterminations', :type => :feature do
       # Create taxon determination via specimen.
       otu = factory_girl_create_for_user_and_project(:valid_otu, @user, @project)
       3.times { 
-        Specimen.create(  
-                         taxon_determinations_attributes: [ {otu: otu, by: @user, project: @project} ],
+        Specimen.create!(  
+                         taxon_determinations_attributes: [ {otu_id: otu.id, by: @user, project: @project} ],
                          by: @user,
                          project: @project 
                         )

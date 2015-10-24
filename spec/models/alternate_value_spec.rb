@@ -69,7 +69,7 @@ describe AlternateValue, group: :annotators do
     # Note that av.type = 'Foo' succeeds to save, but fails to load afterwards.  Type should be set on new.
     specify 'valid type' do
       av = FactoryGirl.build(:valid_alternate_value, type: 'Foo').attributes
-      expect { AlternateValue.new(av) }.to raise_error
+      expect { AlternateValue.new(av) }.to raise_error(ActiveRecord::SubclassNotFound)
     end
 
     specify 'can not provide an alternate value for a empty or nil field' do

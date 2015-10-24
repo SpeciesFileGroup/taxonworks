@@ -106,8 +106,8 @@ class Identifier < ActiveRecord::Base
   end
 
   def self.prototype_identifier(project_id, created_by_id)
-    identifier = Identifier.where(project_id: project_id, created_by_id: created_by_id).last
-    identifier.blank? ? '12345678' : identifier.identifier
+    identifiers = Identifier.where(project_id: project_id, created_by_id: created_by_id).limit(1)
+    identifiers.empty? ? '12345678' : identifiers.last.identifier
   end
 
   protected

@@ -1,12 +1,8 @@
 module ControlledVocabularyTermsHelper
 
-  def self.controlled_vocabulary_term_tag(controlled_vocabulary_term)
+  def controlled_vocabulary_term_tag(controlled_vocabulary_term)
     return nil if controlled_vocabulary_term.nil?
     controlled_vocabulary_term.name
-  end
-
-  def controlled_vocabulary_term_tag(controlled_vocabulary_term)
-    ControlledVocabularyTermsHelper.controlled_vocabulary_term_tag(controlled_vocabulary_term)
   end
 
   def controlled_vocabulary_term_link(controlled_vocabulary_term)

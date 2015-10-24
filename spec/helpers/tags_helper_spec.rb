@@ -5,7 +5,7 @@ describe TagsHelper, :type => :helper do
     let(:tag) {FactoryGirl.create(:valid_tag)}
 
     specify '.tag_tag' do
-      expect(TagsHelper.tag_tag(tag)).to eq(tag.keyword.name)
+      expect(helper.tag_tag(tag)).to eq(tag.keyword.name)
     end
 
     specify '#tag_tag' do

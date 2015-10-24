@@ -3,13 +3,9 @@
 #
 module ProjectsHelper
 
-  def self.project_tag(project)
+  def project_tag(project)
     return nil if project.nil?
     project.name
-  end
-
-  def project_tag(project)
-    ProjectsHelper.project_tag(project)
   end
 
   def projects_search_form

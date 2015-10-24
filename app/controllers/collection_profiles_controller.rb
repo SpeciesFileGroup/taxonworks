@@ -64,6 +64,29 @@ class CollectionProfilesController < ApplicationController
     end
   end
 
+  def search
+    if params[:id].blank?
+      redirect_to collection_profiles_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+    else
+      redirect_to collection_profile_path(params[:id])
+    end
+  end
+
+  def autocomplete
+    @collection_profiles = CollectionProfile.find_for_autocomplete(params.merge(project_id: sessions_current_project_id)).include(:taxon_names)
+    data = @collection_profile.collect do |t|
+      {id: t.id,
+       label: ApplicationController.helpers.collection_profile_tag(t),
+       response_values: {
+           params[:method] => t.id
+       },
+       label_html: ApplicationController.helpers.collection_profile_tag(t)
+      }
+    end
+
+    render :json => data
+  end
+
   def list
     @collection_profiles = CollectionProfile.order(:id).page(params[:page]) #.per(10) #.per(3)
   end
@@ -72,7 +95,7 @@ class CollectionProfilesController < ApplicationController
   # Use callbacks to share common setup or constraints between actions.
   def set_collection_profile
     @collection_profile = CollectionProfile.with_project_id($project_id).find(params[:id])
-    @recent_object = @collection_profile 
+    @recent_object = @collection_profile
   end
 
   # Never trust parameters from the scary internet, only allow the white list through.

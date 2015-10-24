@@ -12,7 +12,7 @@ describe Keyword, :type => :model do
     end
 
     specify "can not be used for other things" do
-      expect {c = CitationTopic.new(topic: @k)}.to raise_error
+      expect {c = CitationTopic.new(topic: @k)}.to raise_error(ActiveRecord::AssociationTypeMismatch)
     end
   end
 

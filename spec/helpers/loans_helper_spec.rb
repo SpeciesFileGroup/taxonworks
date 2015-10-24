@@ -6,7 +6,7 @@ describe LoansHelper, :type => :helper do
     let(:tag_string) { "[#{loan.to_param}]" }
 
     specify '#loan_tag' do
-      expect(LoansHelper.loan_tag(loan)).to eq(tag_string)
+      expect(helper.loan_tag(loan)).to eq(tag_string)
     end
 
     specify '.loan_tag' do

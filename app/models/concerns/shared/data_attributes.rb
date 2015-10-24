@@ -8,6 +8,14 @@ module Shared::DataAttributes
     accepts_nested_attributes_for :data_attributes
   end
 
+  def internal_attributes
+    data_attributes.where(type: 'InternalAttribute')
+  end
+
+  def import_attributes
+    data_attributes.where(type: 'ImportAttribute')
+  end
+
   # to find if a record has attributes associated with it do  object.data_attributes.any?
 
   def keyword_value_hash

@@ -78,13 +78,13 @@ class SourcesController < ApplicationController
 
   def autocomplete
     @sources = Source.find_for_autocomplete(params)
-    data     = @sources.collect do |t|
-      {id:              t.id,
-       label:           SourcesHelper.source_tag(t),
+    data = @sources.collect do |t|
+      {id: t.id,
+       label: ApplicationController.helpers.source_tag(t),
        response_values: {
-         params[:method] => t.id
+           params[:method] => t.id
        },
-       label_html:      SourcesHelper.source_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
+       label_html: ApplicationController.helpers.source_tag(t)
       }
     end
     render :json => data
@@ -106,8 +106,8 @@ class SourcesController < ApplicationController
     if params[:file].nil?
       redirect_to batch_load_sources_path, notice: 'no file has been selected'
     else
-      @sources                    = Source.batch_preview(file: params[:file].tempfile)
-      sha256                      = Digest::SHA256.file(params[:file].tempfile)
+      @sources = Source.batch_preview(file: params[:file].tempfile)
+      sha256 = Digest::SHA256.file(params[:file].tempfile)
       cookies[:batch_sources_md5] = sha256.hexdigest
       render 'sources/batch_load/bibtex_batch_preview'
     end
@@ -145,21 +145,21 @@ class SourcesController < ApplicationController
 
   # Use callbacks to share common setup or constraints between actions.
   def set_source
-    @source        = Source.find(params[:id])
+    @source = Source.find(params[:id])
     @recent_object = @source
   end
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def source_params
     params.require(:source).permit(
-      :serial_id, :address, :annote, :author, :booktitle, :chapter,
-      :crossref, :edition, :editor, :howpublished, :institution,
-      :journal, :key, :month, :note, :number, :organization, :pages,
-      :publisher, :school, :series, :title, :type, :volume, :doi,
-      :abstract, :copyright, :language, :stated_year, :verbatim,
-      :bibtex_type, :day, :year, :isbn, :issn, :verbatim_contents,
-      :verbatim_keywords, :language_id, :translator, :year_suffix, :url, :type,
-      roles_attributes: [:id, :_destroy, :type, :person_id, :position, person_attributes: [:last_name, :first_name, :suffix, :prefix]]
+        :serial_id, :address, :annote, :author, :booktitle, :chapter,
+        :crossref, :edition, :editor, :howpublished, :institution,
+        :journal, :key, :month, :note, :number, :organization, :pages,
+        :publisher, :school, :series, :title, :type, :volume, :doi,
+        :abstract, :copyright, :language, :stated_year, :verbatim,
+        :bibtex_type, :day, :year, :isbn, :issn, :verbatim_contents,
+        :verbatim_keywords, :language_id, :translator, :year_suffix, :url, :type,
+        roles_attributes: [:id, :_destroy, :type, :person_id, :position, person_attributes: [:last_name, :first_name, :suffix, :prefix]]
     )
   end
 end

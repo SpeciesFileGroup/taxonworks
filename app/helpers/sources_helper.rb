@@ -1,14 +1,10 @@
 module SourcesHelper
 
-  def self.source_tag(source)
+  def source_tag(source)
     return nil if source.nil?
     source.cached ? source.cached : "WARNING CACHE NOT BUILT ADMIN TEST"
   end
 
-  def source_tag(source)
-    SourcesHelper.source_tag(source)
-  end
-  
   def sources_search_form
     render('/sources/quick_search_form')
   end

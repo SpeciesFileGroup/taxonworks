@@ -1,32 +1,35 @@
 <h2> Task: Transcribe depiction </h2>
+<p class="subtle">sqed depiction: </span><%= link_to(@sqed_depiction.to_param, depiction_path(@sqed_depiction.depiction)) -%> | <%= link_to('original image', @result.depiction.image.image_file.url(:original), target: '_blank') -%> <p>
 
 <div id="breakdown_sqed_depiction" class="flexbox">
 
   <!-- transcribe for javascript reference -->
   <span id="image_sections"
-        <%= @result.image_sections.each do |section| %>
+    <%= @result.image_sections.each do |section| %>
       data-section-<%= section -%>="<%= @result.class::TEXT_MAP[section.to_sym] -%>"
     <% end %>
-        hidden=true
+    hidden=true
     ></span>
 
   <div class="item item1">
-    <%= link_to('image', image_path(@result.depiction.image)) -%>
     <div id="littlebox">
       <% @result.image_sections.each_with_index do |section, i| -%>
-          <%= image_tag(@result.image_path_for_large_image(section), id: "little#{i}", class: "little_image clickable") -%>
-      <% end %>
+        <span>  
+          <%= content_tag(:span, "[#{i + 1}]", class: :ctrl_link,  style: 'float: left') -%>   
+          <%= image_tag(@result.image_path_for_large_image(section), id: "little#{i}", class: "little_image clickable", style: "vertical-align:middle;") -%> 
+      </span>
+    <% end %>
     </div>
   </div>
 
   <div class="item item2">
     <div id="bigbox">
-      <div id="paper"></div>
+      <div id="paper"> </div>
     </div>
 
-    <div>
-      <div id="selected_text"></div>
-      <%= content_tag(:span, 'Append (ctrl-q), Replace (ctrl-w)', class: :subtle) -%>
+    <div id="ocr_result">
+      <div id="selected_text">  </div>
+      <div id="selected_text_options" class="subtle"> Append [q], Replace [w]  </div>
     </div>
 
     <div id="selected_picture">
@@ -35,123 +38,15 @@
   </div>
 
   <div class="item item3">
-
-    <div id="extracted_header">
-      <div class="side_by_side_fields">
-        <% @result.image_sections.each_with_index do |section, i| -%>
-            <div class="field">
-              <%= label_tag section %>
-              <%= button_tag "Use (#{i + 1})", id: "use_#{section}", class: "use_ocr" -%><br>
-              <%= content_tag(:div, "Calculating...", id: "text_for_#{section}", class: :ocr_text ) %>
-            </div>
-        <% end %>
-      </div>
-    </div>
-
-    <div class="extracted_form">
-      <%= form_for(@result.depiction.depiction_object, as: :collection_object, url: depiction_breakdown_update_task_path(@result.depiction)) do |f| -%>
-          <div class="field">
-            <%= f.label :total %>
-            <%= f.text_field :total, size: 2 -%>
-          </div>
-
-          <div class="flexbox">
-
-            <div class="item item1">
-
-              <h3> Taxon Determinations </h3>
-              <%= f.fields_for(:taxon_determinations, @result.depiction.depiction_object.taxon_determinations) do |o| -%>
-                  <div class="field">
-                    <%= o.label :name %><br>
-                    <%= render(
-                                partial: '/workbench/elements/forms/ajax_select',
-                                locals:  {
-                                        controller: '/otus',
-                                        object:     "collection_object[taxon_determinations_attributes][#{o.index}]",
-                                        method:     'otu_id',
-                                        tag_id:     "otu_id_for_identifier_#{o.index}",
-                                        display:    otu_tag(o.object.otu),
-                                        size:       20})
-                    %>
-                  </div>
-              <% end %>
-            </div>
-
-
-            <div class="item item <%= @result.small_dimensions_for(@result.secondary_sections.second) -%>2">
-              <h3> Identifiers </h3>
-              <%= f.fields_for(:identifiers, @result.depiction.depiction_object.identifiers) do |i| -%>
-                  <%= i.hidden_field :type -%>
-
-                  <div class="side_by_side_fields">
-
-                    <div class="field">
-                      <%= i.label :namespace_id %><br>
-                      <%= render(
-                                  partial: '/workbench/elements/forms/ajax_select',
-                                  locals:  {
-                                          controller:        '/namespaces',
-                                          object:            "collection_object[identifiers_attributes][#{i.index}]",
-                                          method:            'namespace_id',
-                                          tag_id:            "namespace_id_for_identifier_#{i.index}",
-                                          display:           (i.object.namespace ? i.object.namespace.short_name : nil),
-                                          size:              20,
-                                          fields_for_object: i})
-                      %>
-
-                      <% if @result.depiction.depiction_object.identifiers.size == 1 %>
-                          <%= check_box_tag(:lock_namespace, "1", @result.namespace_locked?) -%>lock
-                      <% end %>
-
-                    </div>
-
-                    <div class="field">
-                      <%= i.label :identifier %><br>
-                      <%= i.text_field :identifier %>
-                    </div>
-
-                  </div>
-                  </div>
-              <% end %>
-              </div>
-
-          <div class="side_by_side_fields" id="collection_object_fields">
-            <div class="field">
-              <%= f.label :buffered_collecting_event %>
-              <br>
-              <%= f.text_area :buffered_collecting_event, class: "mousetrap" -%>
-            </div>
-
-            <div class="field">
-              <%= f.label :buffered_determinations %>
-              <br>
-              <%= f.text_area :buffered_determinations, class: "mousetrap"  -%>
-            </div>
-
-            <div class="field">
-              <%= f.label :buffered_other_labels %>
-              <br>
-              <%= f.text_area :buffered_other_labels, class: "mousetrap"  -%>
-            </div>
-
-          </div>
-
-          <%= submit_tag -%>
-          <%= submit_tag('Save and next') -%>
-          <%= link_to('Skip to next', depiction_breakdown_task_path(SqedDepiction.next_depiction(@result.depiction), @result.namespace_id)) -%>
-
-          <br class="clear_both">
-      <% end %>
-
-    </div>
+    <%= render "extracted_header" %>
+    <%= render "form" %>
   </div>
 
-  <%= image_tag(@result.depiction.image.image_file.url(:original), id: 'original_image', hidden: true) -%>
 </div>
 
+<%= image_tag(@result.depiction.image.image_file.url(:original), id: 'original_image', hidden: true) -%> 
+
 <script>
-
-
 
     var imageObject;
     imageObject = new Image();
@@ -195,6 +90,7 @@
     big_svg_image = p.image("<%= @result.image_path_for_large_image(@result.primary_image) -%>", <%= @result.large_dimensions_for(@result.primary_image) -%>);
     addSelectBox(p);
     getBox();
+    initDecodedText();
 
     $('.clickable').on('click', function (click) {
         p.clear();
@@ -203,6 +99,17 @@
         getBox(true);       // just clear the canvas
         initDecodedText();
     });
+
+    $('.destroyable').on('click', function(click) {
+        var name = $(this).data('object-name'); // ('object_name');
+        var field = $(this).parent('div.field');
+
+        field.html('removed, save required');
+        field.addClass('destroyable');
+
+        field.append($('<input hidden name="' +  name + '[_destroy]" value="1" >') );
+      });
+
 
     function addSelectBox(paper) {
         var changeCursor = function (e, mouseX, mouseY) {
@@ -448,7 +355,7 @@
     ;
 
     function initDecodedText() {
-        $("#selected_text").html('( decoded text appears here )');
+        $("#selected_text").html('Drag box to ocr.');
     }
     ;
 
@@ -462,6 +369,9 @@
 
     Mousetrap.bind('ctrl+q', function() { append_user_selected_ocr(); });
     Mousetrap.bind('ctrl+w', function() { replace_user_selected_ocr(); });
+    Mousetrap.bind('ctrl+n', function() { 
+        $("#save_and_next").trigger('click');
+        });
 
     function append_user_selected_ocr() {
         var target = $(document.activeElement);
@@ -473,8 +383,15 @@
         $(target).val($("#selected_text").html());
     }
 
+      <% @result.image_sections.each_with_index do |section, i| -%>
+        Mousetrap.bind('ctrl+<%= %w{a s d f}[i] %>', function() { use_ocr('<%= section -%>'); });
+      <% end %>
+
     <% @result.image_sections.each_with_index do |section, i| -%>
-    Mousetrap.bind('ctrl+<%= i + 1 %>', function() { use_ocr('<%= section -%>'); });
+      Mousetrap.bind('ctrl+<%= i + 1 %>', function() {
+          var index = <%= i  -%>;
+          $("#little" + index).trigger('click');
+          });
     <% end %>
 
     $(".use_ocr").on('click', function (click) {
@@ -500,7 +417,7 @@
     }
 
     function get_identifier(ocr_txt) {
-    var regex = /\d{<%= @identifer_prototype.length -%>}/;
+    var regex = /\d{<%= @identifier_prototype.length -%>}/;
         var v = regex.exec(ocr_txt);
         if (v == false) {
             return

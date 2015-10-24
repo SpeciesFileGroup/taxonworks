@@ -2,39 +2,35 @@
 #
 # @!attribute lft
 #   @return [Integer]
-#   @todo
+#     awesome_nested_set indexing 
 #
 # @!attribute rgt
 #   @return [Integer]
-#   @todo
+#     awesome_nested_set indexing 
 #
 # @!attribute parent_id
 #   @return [Integer]
-#   @todo
+#     identifies the container this container is contained in 
 #
 # @!attribute depth
 #   @return [Integer]
-#   @todo
+#     awesome_nested_set attribute
 #
 # @!attribute type
 #   @return [String]
-#   @todo
+#     STI, the type of container 
 #
 # @!attribute project_id
 #   @return [Integer]
 #   the project ID
 #
-# @!attribute otu_id
-#   @return [Integer]
-#   @todo
-#
 # @!attribute name
 #   @return [String]
-#   @todo
+#     abitrary name of this container 
 #
 # @!attribute disposition
 #   @return [String]
-#   @todo
+#     a free text description of the position of this container 
 #
 class Container < ActiveRecord::Base
   acts_as_nested_set scope: [:project_id]

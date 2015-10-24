@@ -51,7 +51,7 @@ namespace :tw do
               'Unjustified emendation' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnjustifiedEmendation',
               'Objective replacement name: Valid Name' => '',
               'Hybrid' => '',
-              'Junior homonym' => '',
+              'Junior homonym' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym',
               'Manuscript name' => '',
               'Nomen nudum' => '',
               'Nomen nudum: no description' => '',
@@ -59,7 +59,7 @@ namespace :tw do
               'Nomen nudum: Published as synonym and not validated before 1961' => '',
               'Unavailable name: Infrasubspecific name' => '',
               'Unavailable name: pre-Linnean' => '',
-              'Suppressed name: ICZN official index of rejected and invalid works' => '',
+              'Suppressed name: ICZN official index of rejected and invalid works' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym',
               'Valid Name' => '',
               'Original_Genus' => 'TaxonNameRelationship::OriginalCombination::OriginalGenus',
               'OrigSubgen' => 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus',
@@ -372,7 +372,6 @@ namespace :tw do
             #if rank == 'GENUS' || i > 0 && i < 1500
             print "\r#{i}"
             if row['Current_rank_of_name'] == rank
-
               genus, subgenus, species = nil, nil, nil
               superfamily = @data.parent_id_index['superfamily:' + row['Current_superfamily'].to_s]
               family = @data.parent_id_index['family:' + row['Current_family'].to_s]
@@ -474,13 +473,13 @@ namespace :tw do
                 if row['valid_parent_id'].blank?
                   case rank
                     when 'GENUS'
-                      @data.parent_id_index.merge!('genus:' + row['Current_genus'].to_s => protonym.id)
+                      @data.parent_id_index.merge!('genus:' + row['SCIENTIFIC_NAME_on_card'].to_s => protonym.id)
                     when 'SUBGENUS'
-                      @data.parent_id_index.merge!('subgenus:' + row['Current_subgenus'].to_s => protonym.id)
+                      @data.parent_id_index.merge!('subgenus:' + row['SCIENTIFIC_NAME_on_card'].to_s => protonym.id)
                     when 'SPECIES'
-                      @data.parent_id_index.merge!('species:' + row['Current_genus'].to_s + ' ' + row['Current_species'].to_s => protonym.id)
+                      @data.parent_id_index.merge!('species:' + row['Current_genus'].to_s + ' ' + row['SCIENTIFIC_NAME_on_card'].to_s => protonym.id)
                     when 'SUBSPECIES'
-                      @data.parent_id_index.merge!('species:' + row['Current_genus'].to_s + ' ' + row['Current_species'].to_s + ' ' + row['Current_subspecies'].to_s => protonym.id)
+                      @data.parent_id_index.merge!('species:' + row['Current_genus'].to_s + ' ' + row['Current_species'].to_s + ' ' + row['SCIENTIFIC_NAME_on_card'].to_s => protonym.id)
                   end
                 end
 
@@ -545,7 +544,6 @@ namespace :tw do
         end
 
         print "\nAdding relationships\n"
-
         @list_of_relationships.each_with_index do |r, i|
           print "\r#{i}"
           tr = nil
@@ -581,6 +579,7 @@ namespace :tw do
               relationship = @relationship_classes[r['type designation']]
             end
             children = Protonym.descendants_of(Protonym.find(r['taxon']).get_valid_taxon_name)
+            children = children + Protonym.descendants_of(Protonym.find(r['taxon']))
             unless children.empty?
               children = children.select{|c| c.name == r['type species']}
 

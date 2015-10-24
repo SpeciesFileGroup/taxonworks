@@ -646,6 +646,8 @@ class TaxonNameRelationship < ActiveRecord::Base
     if self.type_name =~ /TaxonNameRelationship::(Iczn|Icn)/
       s_new = s.lowest_rank_coordinated_taxon
       o_new = o.lowest_rank_coordinated_taxon
+
+
       if o != o_new && self.subject_taxon_name != 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement'
         soft_validations.add(:object_taxon_name_id, "Relationship should move from #{o.rank_class.rank_name} to #{o_new.rank_class.rank_name}",
                              fix: :sv_fix_coordinated_taxa, success_message: "Relationship moved to  #{o_new.rank_class.rank_name}")
@@ -654,15 +656,22 @@ class TaxonNameRelationship < ActiveRecord::Base
         soft_validations.add(:subject_taxon_name_id, "Relationship should move from #{s.rank_class.rank_name} to #{s_new.rank_class.rank_name}",
                              fix: :sv_fix_coordinated_taxa, success_message: "Relationship moved to  #{s_new.rank_class.rank_name}")
       end
+    
     elsif self.type_name =~ /TaxonNameRelationship::(OriginalCombination|Combination|SourceClassifiedAs)/
+
       list = s.list_of_coordinated_names + [s]
-      if s.rank_class.to_s =~ /Species/
+      if s.rank_class.to_s =~ /Species/ # species group
         s_new =  list.detect{|t| t.rank_class.rank_name == 'species'}
       elsif s.rank_class.to_s=~ /Genus/
         s_new =  list.detect{|t| t.rank_class.rank_name == 'genus'}
       else
         s_new = s
       end
+
+      # TODO: Dima fix
+      return if s_new.nil?
+
+
       if s != s_new
         soft_validations.add(:subject_taxon_name_id, "Relationship should move from #{s.rank_class.rank_name} to #{s_new.rank_class.rank_name}",
                              fix: :sv_fix_combination_relationship, success_message: "Relationship moved to  #{s_new.rank_class.rank_name}")
@@ -693,13 +702,13 @@ class TaxonNameRelationship < ActiveRecord::Base
     s = self.subject_taxon_name
     list = s.list_of_coordinated_names + [s]
     if s.rank_class.to_s =~ /Species/
-      s_new =  list.detect{|t| t.rank_class.rank_name == 'species'}
+      s_new = list.detect{|t| t.rank_class.rank_name == 'species'}
     elsif s.rank_class.to_s=~ /Genus/
-      s_new =  list.detect{|t| t.rank_class.rank_name == 'genus'}
+      s_new = list.detect{|t| t.rank_class.rank_name == 'genus'}
     else
       s_new = s
     end
-    if s != s_new
+    if s != s_new & !s.nil?
       self.subject_taxon_name = s_new
       begin
         TaxonNameRelationship.transaction do

@@ -11,7 +11,7 @@ module Shared::Taggable
     scope :with_tags, -> { joins(:tags) }
     scope :without_tags, -> { includes(:tags).where(tags: {id: nil}) }
 
-    accepts_nested_attributes_for :tags
+    accepts_nested_attributes_for :tags, reject_if: :reject_tags, allow_destroy: true
   end
 
   def has_tags?
@@ -22,6 +22,13 @@ module Shared::Taggable
     def tagged_with_keyword(keyword)
       joins(:tags).where(tags: {keyword: keyword})
     end
+  end
+
+  
+  protected 
+
+  def reject_tags(attributed)
+    attributed['keyword_id'].blank?
   end
 
 end

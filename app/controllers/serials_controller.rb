@@ -78,13 +78,14 @@ class SerialsController < ApplicationController
     end
   end
 
+# @todo Some extra code here, str defined with extra param, used in label_html. Verify correct.
   def autocomplete
     @serials = Serial.find_for_autocomplete(params)
 
     data = @serials.collect do |t|
-      str = SerialsHelper.serial_autocomplete_tag(t, params[:term])
+      str = ApplicationController.helpers.serial_autocomplete_tag(t, params[:term])
       {id:              t.id,
-       label:           SerialsHelper.serial_tag(t),
+       label:           ApplicationController.helpers.serial_tag(t),
        response_values: {
          params[:method] => t.id
        },

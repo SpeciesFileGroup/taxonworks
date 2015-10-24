@@ -1,8 +1,11 @@
 <div>
-  <p> To see tasks organized by function or subject use the <%= link_to('related', hub_path(list: 'related') ) -%> link on the hub navigation bar. </p>
+  <p class="notice"> To see tasks organized by function or subject use the <%= link_to('related', hub_path(list: 'related') ) -%> link on the hub navigation bar. </p>
   <ul>
     <% UserTasks.hub_tasks.each do |task| -%>
-      <li> <%= link_to(task.name, send(task.path)) -%> <span class="notice"> <%= task.description -%> </span>
+      <li> 
+      <%= link_to(task.name, send(task.path), class: 'task_name') -%> 
+      <span class="task_description"> <%= task.description -%> </span> 
+      </li>
     <% end %>
   </ul>
 </div>

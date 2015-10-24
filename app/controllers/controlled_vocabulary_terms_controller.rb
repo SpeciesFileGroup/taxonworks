@@ -35,7 +35,7 @@ class ControlledVocabularyTermsController < ApplicationController
 
         if !params.permit(:return_path)[:return_path].blank?
           # case - coming from otu -> new tag -> new cvt -> back to tag/new
-          redirect_url =   params.permit(:return_path)[:return_path] + "&tag[keyword_id]=#{@controlled_vocabulary_term.to_param}"
+          redirect_url = params.permit(:return_path)[:return_path] + "&tag[keyword_id]=#{@controlled_vocabulary_term.to_param}"
         elsif request.env['HTTP_REFERER'].include?('controlled_vocabulary_terms/new')
           # case - coming from cvt index -> cvt/new
           redirect_url = controlled_vocabulary_term_path(@controlled_vocabulary_term)
@@ -45,13 +45,13 @@ class ControlledVocabularyTermsController < ApplicationController
         end
 
         format.html { redirect_to redirect_url, notice: msg } # !! new behaviour to test
-        format.json { render action: 'show', status: :created, location: @controlled_vocabulary_term.metamorphosize}
+        format.json { render action: 'show', status: :created, location: @controlled_vocabulary_term.metamorphosize }
 
       else
-        format.html { 
-          flash[:notice] = 'Controlled vocabulary term NOT successfully created.' 
-          if redirect_url == :back 
-            redirect_to :back 
+        format.html {
+          flash[:notice] = 'Controlled vocabulary term NOT successfully created.'
+          if redirect_url == :back
+            redirect_to :back
           else
             render action: 'new'
           end
@@ -95,19 +95,19 @@ class ControlledVocabularyTermsController < ApplicationController
   end
 
   def list
-    @controlled_vocabulary_terms =  ControlledVocabularyTerm.with_project_id($project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
+    @controlled_vocabulary_terms = ControlledVocabularyTerm.with_project_id($project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
   end
 
   def autocomplete
     @controlled_vocabulary_terms = ControlledVocabularyTerm.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
 
     data = @controlled_vocabulary_terms.collect do |t|
-      {id:              t.id,
-       label:           ControlledVocabularyTermsHelper.controlled_vocabulary_term_tag(t),
+      {id: t.id,
+       label: ApplicationController.helpers.controlled_vocabulary_term_tag(t),
        response_values: {
-         params[:method] => t.id
+           params[:method] => t.id
        },
-       label_html:      ControlledVocabularyTermsHelper.controlled_vocabulary_term_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
+       label_html: ApplicationController.helpers.controlled_vocabulary_term_tag(t)
       }
     end
 
@@ -116,18 +116,18 @@ class ControlledVocabularyTermsController < ApplicationController
 
   # GET /controlled_vocabulary_terms/download
   def download
-    send_data ControlledVocabularyTerm.generate_download( ControlledVocabularyTerm.where(project_id: $project_id) ), type: 'text', filename: "controlled_vocabulary_terms_#{DateTime.now.to_s}.csv"
+    send_data ControlledVocabularyTerm.generate_download(ControlledVocabularyTerm.where(project_id: $project_id)), type: 'text', filename: "controlled_vocabulary_terms_#{DateTime.now.to_s}.csv"
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_controlled_vocabulary_term
-      @controlled_vocabulary_term = ControlledVocabularyTerm.with_project_id($project_id).find(params[:id])
-      @recent_object = @controlled_vocabulary_term
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_controlled_vocabulary_term
+    @controlled_vocabulary_term = ControlledVocabularyTerm.with_project_id($project_id).find(params[:id])
+    @recent_object = @controlled_vocabulary_term
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def controlled_vocabulary_term_params
-      params.require(:controlled_vocabulary_term).permit(:type, :name, :definition, :uri, :uri_relation)
-    end
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def controlled_vocabulary_term_params
+    params.require(:controlled_vocabulary_term).permit(:type, :name, :definition, :uri, :uri_relation)
+  end
 end

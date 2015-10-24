@@ -10,8 +10,8 @@ CO_OTU_Headers = CO_OTU_Strings.split(',')
 #   The enumerated number of things, as asserted by the person managing the record.  Different totals will default to different subclasses.  How you enumerate your collection objects is up to you.  If you want to call one chunk of coral 50 things, that's fine (total = 50), if you want to call one coral one thing (total = 1) that's fine too.  If not nil then ranged_lot_category_id must be nil.  When =1 the subclass is Specimen, when > 1 the subclass is Lot.
 # 
 # @!attribute type
-#   @return [Integer]
-#   @todo
+#   @return [String]
+#     the subclass of collection object, e.g. Specimen, Lot, or RangedLot 
 #
 # @!attribute preparation_type_id
 #   @return [Integer]
@@ -85,6 +85,9 @@ class CollectionObject < ActiveRecord::Base
 
   has_many :derived_collection_objects, inverse_of: :collection_object
   has_many :collection_object_observations, through: :derived_collection_objects, inverse_of: :collection_objects
+  has_many :sqed_depictions, through: :depictions
+
+  # This must come before taxon determinations !!
   has_many :otus, through: :taxon_determinations, inverse_of: :collection_objects
 
   # This is a problem
@@ -94,6 +97,9 @@ class CollectionObject < ActiveRecord::Base
   belongs_to :preparation_type, inverse_of: :collection_objects
   belongs_to :ranged_lot_category, inverse_of: :ranged_lots
   belongs_to :repository, inverse_of: :collection_objects
+
+  accepts_nested_attributes_for :otus, allow_destroy: true
+  accepts_nested_attributes_for :taxon_determinations, allow_destroy: true, reject_if: :reject_taxon_determinations
 
   validates_presence_of :type
   validate :check_that_either_total_or_ranged_lot_category_id_is_present
@@ -323,7 +329,11 @@ are located within the geographic item supplied
   def self.ce_headers(project_id)
     # @ce_headers = collection_objects.map(&:collecting_event).map(&:data_attributes).flatten.map(&:predicate).map(&:name).uniq.sort
     retval               = {}
-    retval[:ce_internal] = InternalAttribute.where(project_id: project_id, attribute_subject_type: 'CollectingEvent').map(&:predicate).map(&:name).uniq.sort
+    # retval[:ce_internal] = InternalAttribute.where(project_id: project_id, attribute_subject_type: 'CollectingEvent').map(&:predicate).map(&:name).uniq.sort
+    cvt_list             = InternalAttribute.where(project_id: project_id, attribute_subject_type: 'CollectingEvent')
+                             .select(:controlled_vocabulary_term_id).distinct
+                             .pluck(:controlled_vocabulary_term_id)
+    retval[:ce_internal] = ControlledVocabularyTerm.where(id: cvt_list).map(&:name).sort
     retval[:ce_import]   = ImportAttribute.where(project_id: project_id, attribute_subject_type: 'CollectingEvent').pluck(:import_predicate).uniq.sort
     @ce_headers          = retval
   end
@@ -367,7 +377,11 @@ are located within the geographic item supplied
   def self.co_headers(project_id)
     # @co_headers = collection_objects.map(&:data_attributes).flatten.map(&:predicate).map(&:name).uniq.sort
     retval               = {}
-    retval[:co_internal] = InternalAttribute.where(project_id: project_id, attribute_subject_type: 'CollectionObject').map(&:predicate).map(&:name).uniq.sort
+    # retval[:co_internal] = InternalAttribute.where(project_id: project_id, attribute_subject_type: 'CollectionObject').map(&:predicate).map(&:name).uniq.sort
+    cvt_list             = InternalAttribute.where(project_id: project_id, attribute_subject_type: 'CollectionObject')
+                             .select(:controlled_vocabulary_term_id).distinct
+                             .pluck(:controlled_vocabulary_term_id)
+    retval[:co_internal] = ControlledVocabularyTerm.where(id: cvt_list).map(&:name).sort
     retval[:co_import]   = ImportAttribute.where(project_id: project_id, attribute_subject_type: 'CollectionObject').pluck(:import_predicate).uniq.sort
     @co_headers          = retval
   end
@@ -456,6 +470,10 @@ are located within the geographic item supplied
       self.type = 'RangedLot'
     end
     true
+  end
+
+  def reject_taxon_determinations(attributed)
+    attributed['otu_id'].blank? 
   end
 
 

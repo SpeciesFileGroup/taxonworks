@@ -83,11 +83,11 @@ class TagsController < ApplicationController
 
     data = @tags.collect do |t|
       {id: t.id,
-       label: TagsHelper.tag_tag(t),
+       label: ApplicationController.helpers.tag_tag(t),
        response_values: {
            params[:method] => t.id
        },
-       label_html: TagsHelper.tag_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
+       label_html: ApplicationController.helpers.tag_tag(t)
       }
     end
 

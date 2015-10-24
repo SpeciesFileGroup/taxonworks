@@ -8,7 +8,7 @@ describe UserTasks do
     expect(task_data.class).to eq(Hash)
   end
 
-  context 'prefixes in .yml are found as named routes in routes.rb including' do
+  context 'prefixes in user_tasks.yml are found as named routes in routes.rb including' do
     UserTasks::TASK_DATA.keys.each do |n|
       specify "#{n}" do
         expect(prefixes.include?(n.to_sym)).to be_truthy, "prefix [#{n}] is not defined in routes.rb"
@@ -16,7 +16,7 @@ describe UserTasks do
     end
   end
 
-  context 'related prefixes in .yml are found as named routes in routes.rb including' do
+  context 'related prefixes in user_task.yml are found as named routes in routes.rb including' do
     UserTasks::TASK_DATA.each do |key, attributes|
       if attributes['related'] 
         attributes['related'].each do |n|
@@ -36,7 +36,7 @@ describe UserTasks do
     end
   end
 
-  context 'all prefixes in .yml end in "_task"' do
+  context 'all prefixes in user_tasks.yml end in "_task"' do
     UserTasks::TASK_DATA.each do |t|
       specify "#{t[0]}" do
         expect(t[0] =~ /_task\Z/).to be_truthy, "#{t[0]} does not end in '_task'"

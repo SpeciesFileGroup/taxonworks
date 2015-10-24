@@ -1,15 +1,11 @@
 module SerialsHelper
 
-  def self.serial_tag(serial)
+  def serial_tag(serial)
     return nil if serial.nil?
     serial.name
   end
 
-  def serial_tag(serial)
-    SerialsHelper.serial_tag(serial)
-  end
-
-  def self.serial_autocomplete_tag(serial, term = '')
+  def serial_autocomplete_tag(serial, term = '')
     return nil if serial.nil?
     show_this =  serial.name.gsub(/#{term}/, "<mark>#{term}</mark>") # weee bit simpler
     # show_this += " (#{geographic_area.geographic_area_type.name})" unless geographic_area.geographic_area_type.nil?
@@ -19,7 +15,7 @@ module SerialsHelper
 
   def serial_link(serial)
     return nil if serial.nil?
-    link_to(SerialsHelper.serial_tag(serial).html_safe, serial)
+    link_to(serial_tag(serial).html_safe, serial)
   end
 
   def serials_search_form

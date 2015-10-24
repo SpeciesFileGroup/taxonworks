@@ -92,6 +92,10 @@ class CollectionProfile < ActiveRecord::Base
 
   # COLLECTION_PROFILE_INDICES[:Favret][:dry][:conservation_status][1] - see config/initializers/collection_profile.rb for indices
 
+  def self.find_for_autocomplete(params)
+    Queries::CollectionProfileAutocompleteQuery.new(params[:term]).all.where(project_id: params[:project_id])
+  end
+
   # region Profile indices
 
   # @return [Array]

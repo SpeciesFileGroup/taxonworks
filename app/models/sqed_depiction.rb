@@ -39,7 +39,8 @@ class SqedDepiction < ActiveRecord::Base
   include Shared::Notable
 
   belongs_to :depiction
-  has_one :depiction_object, through: :depiction
+#  has_one :depiction_object, through: :depiction
+
   has_one :image, through: :depiction
 
   validates_presence_of :depiction
@@ -60,9 +61,15 @@ class SqedDepiction < ActiveRecord::Base
     }
  end
 
-  def self.next_depiction(current_depiction)
-    r = Depiction.joins(:sqed_depiction).order(:id).where("depictions.id > ?", current_depiction.id).where(project_id: current_depiction.project_id).first
-    r.nil? ? Depiction.order('depictions.id').joins(:sqed_depiction).first : r
+  def depiction_object
+    depiction.depiction_object
+  end
+
+  # @return [SqedDepiction]
+  #   the next record in which the collection object has no buffered data
+  def next_without_data
+    object = CollectionObject.joins(:sqed_depictions).where(project_id: self.project_id, buffered_collecting_event: nil, buffered_determinations: nil, buffered_other_labels: nil).where('collection_objects.id <> ?', self.depiction_object.id).order(:id).first
+    object.nil? ? SqedDepiction.where(project_id: self.project_id).order(:id).first : object.sqed_depictions.first
   end
 
   protected

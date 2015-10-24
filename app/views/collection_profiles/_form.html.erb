@@ -7,9 +7,14 @@
       <%= f.number_field :container_id %>
     </div>
     <div class="field">
-      <%= f.label :otu_id %>
-      <br>
-      <%= f.number_field :otu_id %>
+      <%= f.label :otu_id %><br>
+      <%= render partial: 'workbench/elements/forms/ajax_select',
+                 locals: {controller: 'otus',
+                          object: 'collection_profile',
+                          method: 'otu_id',
+                          tag_id: 'otu_id_for_collection_profile',
+                          size: '',
+                          display: otu_tag(@collection_profile.otu)} %>
     </div>
     <div class="field">
       <%= f.label :conservation_status %>

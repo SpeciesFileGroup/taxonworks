@@ -9,7 +9,7 @@
     </div>
 
     <div id='fields_for_otu'>
-      <%= f.label :otu %><br>
+      <%= f.label :otu_id %><br>
       <%= render partial: 'workbench/elements/forms/ajax_select',
                  locals:  {controller: '/otus',
                            object:     'depiction',
@@ -20,7 +20,7 @@
 
     <div id='fields_for_collecting_event'>
 
-      <%= f.label :collecting_event %><br>
+      <%= f.label :collecting_event_id %><br>
       <%= render partial: 'workbench/elements/forms/ajax_select',
                  locals:  {controller: '/collecting_events',
                            object:     'depiction',

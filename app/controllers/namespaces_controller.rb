@@ -79,12 +79,12 @@ class NamespacesController < ApplicationController
     @namespaces = Namespace.find_for_autocomplete(params)
 
     data = @namespaces.collect do |t|
-      {id:              t.id,
-       label:           NamespacesHelper.namespace_tag(t),
+      {id: t.id,
+       label: ApplicationController.helpers.namespace_tag(t),
        response_values: {
-         params[:method] => t.id
+           params[:method] => t.id
        },
-       label_html:      NamespacesHelper.namespace_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
+       label_html: ApplicationController.helpers.namespace_tag(t)
       }
     end
 
@@ -93,7 +93,7 @@ class NamespacesController < ApplicationController
 
   # GET /namespaces/download
   def download
-    send_data Namespace.generate_download( Namespace.all ), type: 'text', filename: "namespaces_#{DateTime.now.to_s}.csv"
+    send_data Namespace.generate_download(Namespace.all), type: 'text', filename: "namespaces_#{DateTime.now.to_s}.csv"
   end
 
   private

@@ -353,10 +353,16 @@ TaxonWorks::Application.routes.draw do
     scope :accessions do
 
       scope :breakdown do
-        scope :depiction, controller: 'tasks/accessions/breakdown/depiction' do
-          get ':depiction_id(/:namespace_id)', action: :index, as: 'depiction_breakdown_task'
-          patch 'update/:id', action: :update, as: 'depiction_breakdown_update_task'
+
+        scope :sqed_depiction, controller: 'tasks/accessions/breakdown/sqed_depiction' do
+          get ':id(/:namespace_id)', action: :index, as: 'sqed_depiction_breakdown_task'
+          patch 'update/:id', action: :update, as: 'sqed_depiction_breakdown_update_task'
         end
+
+     #  scope :depiction, controller: 'tasks/accessions/breakdown/depiction' do
+     #    get ':depiction_id(/:namespace_id)', action: :index, as: 'depiction_breakdown_task'
+     #    patch 'update/:id', action: :update, as: 'depiction_breakdown_update_task'
+     #  end
 
         # scope :sqed, controller: 'tasks/accessions/breakdown/sqed' do
         #   get 'index/:depiction_id', action: :index, as: 'sqed_breakdown_task'

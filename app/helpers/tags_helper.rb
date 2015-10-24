@@ -1,12 +1,8 @@
 module TagsHelper
 
-  def self.tag_tag(tag)
+  def tag_tag(tag)
     return nil if tag.nil?
     tag.controlled_vocabulary_term.name
-  end
-
-  def tag_tag(tag)
-    TagsHelper.tag_tag(tag)
   end
 
   def tags_search_form
@@ -31,7 +27,7 @@ module TagsHelper
       {tag_object_type:      f.object.class.base_class.name,
        tag_object_id:        f.object.id,
        tag_object_attribute: 'name'})
-    fields     = f.fields_for(:tags, new_object, :child_index => 'new_tags') do |builder|
+    fields = f.fields_for(:tags, new_object, :child_index => 'new_tags') do |builder|
       render('tags/tag_fields', :avf => builder)
     end
     link_to(link_text, '', class: 'tag-add', association: 'tags', content: "#{fields}")
@@ -53,5 +49,7 @@ module TagsHelper
   def tags_recent_objects_partial
     true 
   end
+
+
 
 end

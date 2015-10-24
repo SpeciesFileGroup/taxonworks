@@ -80,12 +80,12 @@ class ContentsController < ApplicationController
   def autocomplete
     @contents = Content.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
     data = @contents.collect do |t|
-      {id:              t.id,
-       label:           ContentsHelper.taxon_works_content_tag(t),
+      {id: t.id,
+       label: ApplicationController.helpers.taxon_works_content_tag(t),
        response_values: {
-         params[:method] => t.id
+           params[:method] => t.id
        },
-       label_html:      ContentsHelper.taxon_works_content_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
+       label_html: ApplicationController.helpers.taxon_works_content_tag(t)
       }
     end
 
@@ -96,7 +96,7 @@ class ContentsController < ApplicationController
   # Use callbacks to share common setup or constraints between actions.
   def set_content
     @content = Content.with_project_id($project_id).find(params[:id])
-    @recent_object = @content 
+    @recent_object = @content
   end
 
   # Never trust parameters from the scary internet, only allow the white list through.

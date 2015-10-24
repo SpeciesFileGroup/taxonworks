@@ -49,6 +49,8 @@ module SqedToTaxonworks
         begin
           @depiction = Depiction.find(depiction_id)
           @depiction.depiction_object.taxon_determinations.build() 
+          @depiction.depiction_object.notes.build() 
+          @depiction.depiction_object.tags.build() 
           @depiction.depiction_object.identifiers.build(
             type: 'Identifier::Local::CatalogNumber',
             namespace: (namespace_locked? ? Namespace.find(namespace_id) : nil) 

@@ -45,7 +45,7 @@ class TaxonDetermination < ActiveRecord::Base
   include Shared::IsData
 
   belongs_to :otu, inverse_of: :taxon_determinations
-  belongs_to :biological_collection_object, class_name: 'CollectionObject' #, inverse_of: :taxon_determinations
+  belongs_to :biological_collection_object, class_name: 'CollectionObject', inverse_of: :taxon_determinations
 
   has_many :determiner_roles, class_name: 'Determiner', as: :role_object
   has_many :determiners, through: :determiner_roles, source: :person
