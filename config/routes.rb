@@ -165,10 +165,10 @@ TaxonWorks::Application.routes.draw do
   resources :images do
     concerns [:data_routes]
     member do
-      get 'extract/:x/:y/:width/:height', action: :extract
-      get 'scale/:x/:y/:width/:height/:new_width/:new_height', action: :scale
-      get 'scale_to_box/:x/:y/:width/:height/:box_width/:box_height', action: :scale_to_box
-      get 'ocr/:x/:y/:width/:height', action: :ocr
+      get 'extract(/:x/:y/:width/:height)', action: :extract
+      get 'scale(/:x/:y/:width/:height/:new_width/:new_height)', action: :scale
+      get 'scale_to_box(/:x/:y/:width/:height/:box_width/:box_height)', action: :scale_to_box
+      get 'ocr(/:x/:y/:width/:height)', action: :ocr
     end
   end
   resources :loan_items do
@@ -351,22 +351,16 @@ TaxonWorks::Application.routes.draw do
     end 
     
     scope :accessions do
-
       scope :breakdown do
-
         scope :sqed_depiction, controller: 'tasks/accessions/breakdown/sqed_depiction' do
           get ':id(/:namespace_id)', action: :index, as: 'sqed_depiction_breakdown_task'
           patch 'update/:id', action: :update, as: 'sqed_depiction_breakdown_update_task'
         end
 
-     #  scope :depiction, controller: 'tasks/accessions/breakdown/depiction' do
-     #    get ':depiction_id(/:namespace_id)', action: :index, as: 'depiction_breakdown_task'
-     #    patch 'update/:id', action: :update, as: 'depiction_breakdown_update_task'
-     #  end
+        scope :buffered_data, controller: 'tasks/accessions/breakdown/buffered_data' do
+          get ':id', action: :index, as: 'collection_object_buffered_data_breakdown_task'
+        end
 
-        # scope :sqed, controller: 'tasks/accessions/breakdown/sqed' do
-        #   get 'index/:depiction_id', action: :index, as: 'sqed_breakdown_task'
-        # end
       end
 
       scope :verify do
@@ -379,7 +373,6 @@ TaxonWorks::Application.routes.draw do
         get 'new', as: 'quick_verbatim_material_task'
         post 'create', as: 'create_verbatim_material_task'
       end
-
     end
 
     scope :bibliography do
