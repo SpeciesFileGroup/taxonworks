@@ -315,7 +315,7 @@ are located within the geographic item supplied
       step_3 = step_2.map(&:collecting_event).uniq.flatten
       # find the collection objects associated with the collecting events
       step_4 = step_3.map(&:collection_objects).flatten.map(&:id).uniq
-      retval = CollectionObject.where(id: step_4)
+      retval = CollectionObject.where(id: step_4.sort)
     else
       retval = CollectionObject.joins(:collecting_event => [{:georeferences => :geographic_item}]).where(GeographicItem.sql_for_is_contained_by('any', geographic_item)).includes(:data_attributes, :collecting_event => [{:georeferences => :geographic_item}])
     end
@@ -354,18 +354,31 @@ are located within the geographic item supplied
           ce_header_types.push(types[index])
         end
       }
+      all_internal_das = []; all_import_das = []
+      # for this collection object, gather all the possible data_attributes
+      all_internal_das = collection_object.collecting_event.internal_attributes
+      all_import_das   = collection_object.collecting_event.import_attributes
       ce_header_strings.each_with_index { |header, index|
-        # collect all of the strings which match the predicate name with the header for this collection object
-        attribute_type = ''
+        # if this header is in the list of all_internal_das predicate.names
+        this_val = nil
         case ce_header_types[index]
           when 'int'
-            attribute_type = 'InternalAttribute'
+            # check in the internals table
+            all_internal_das.each { |da|
+              if da.predicate.name == header
+                this_val = da.value
+              end
+            }
           when 'imp'
-            attribute_type = 'ImportAttribute'
+            all_import_das.each { |da|
+              if da.import_predicate == header
+                this_val = da.value
+              end
+            }
           else
             # do nothing
         end
-        retval.push(collection_object.collecting_event.data_attributes.where(type: attribute_type).select { |d| d.predicate_name == header }.map(&:value).join('; '))
+        retval.push(this_val)
       }
     end
     retval
@@ -402,19 +415,31 @@ are located within the geographic item supplied
           co_header_types.push(types[p_index])
         end
       }
-
-      # collect all of the strings which match the predicate name with the header for this collection object
+      # all_internal_das = []; all_import_das = []
+      # for this collection object, gather all the possible data_attributes
+      all_internal_das = collection_object.internal_attributes
+      all_import_das   = collection_object.import_attributes
       co_header_strings.each_with_index { |header, index|
-        attribute_type = ''
+        this_val = nil
         case co_header_types[index]
           when 'int'
-            attribute_type = 'InternalAttribute'
+            # check in the internals table
+            all_internal_das.each { |da|
+              if da.predicate.name == header
+                this_val = da.value
+              end
+            }
           when 'imp'
-            attribute_type = 'ImportAttribute'
+            all_import_das.each { |da|
+              if da.import_predicate == header
+                this_val = da.value
+              end
+            }
           else
             # do nothing
         end
-        retval.push(collection_object.data_attributes.where(type: attribute_type).select { |d| d.predicate_name == header }.map(&:value).join('; '))
+        retval.push(this_val)
+        # retval.push(collection_object.data_attributes.where(type: attribute_type).select { |d| d.predicate_name == header }.map(&:value).join('; '))
       }
     end
     retval
@@ -473,7 +498,7 @@ are located within the geographic item supplied
   end
 
   def reject_taxon_determinations(attributed)
-    attributed['otu_id'].blank? 
+    attributed['otu_id'].blank?
   end
 
 

@@ -16,14 +16,13 @@ class Tasks::Gis::ReportController < ApplicationController
   def location_report_list
 
     geographic_area_id = params[:geographic_area_id]
+    selected_headers   = {prefixes: [], headers: [], types: []}
     case params[:commit]
       when 'Show'
-        selected_headers = {prefixes: [], headers: [], types: []}
-        gather_data(geographic_area_id)
-        # next step is to discover which of the additional headers have been checked
-        headers = params[:headers]
-        headers.keys.each { |h_key|
-          list = headers[h_key]
+        # #1, gather up all the headers, and pull out the ones which were selected (if any)
+        all_headers = params[:headers]
+        all_headers.keys.each { |h_key|
+          list = all_headers[h_key]
           list.keys.each { |l_key|
             item = list[l_key]
             item.keys.each { |t_key|
@@ -36,21 +35,23 @@ class Tasks::Gis::ReportController < ApplicationController
           }
         }
         session[:co_selected_headers] = selected_headers
+        gather_data(geographic_area_id)
       when 'download'
         gather_data(params[:download_geo_area_id])
-        report_file = CollectionObject.generate_report_download(@collection_objects,
-                                                                session[:co_selected_headers])
+        selected_headers = session[:co_selected_headers]
+
+        report_file = CollectionObject.generate_report_download(@collection_objects, selected_headers)
         send_data(report_file, type: 'text', filename: "collection_objects_report_#{DateTime.now.to_s}.csv")
       # and return
       else
     end
-    # render :new
+    selected_headers
   end
 
   def gather_data(geographic_area_id)
     @geographic_area = GeographicArea.find(geographic_area_id)
     if @geographic_area.has_shape?
-      @collection_objects = CollectionObject.in_geographic_item(@geographic_area.default_geographic_item)
+      @collection_objects = CollectionObject.in_geographic_item(@geographic_area.default_geographic_item).order(:id)
     else
       @collection_objects = CollectionObject.where('false')
     end
