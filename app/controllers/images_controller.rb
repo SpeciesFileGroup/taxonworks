@@ -106,12 +106,9 @@ class ImagesController < ApplicationController
     send_data Image.resized_blob(params), type: 'image/jpg', disposition: 'inline'
   end
 
+  # GET 'images/:id/scale_to_box/:x/:y/:width/:height/:box_width/:box_height'
   def scale_to_box
     send_data Image.scaled_to_box_blob(params), type: 'image/jpg', disposition: 'inline'
-  end
-
-  def scale_to_height
-
   end
 
   # GET /images/:id/ocr/:x/:y/:height/:width
