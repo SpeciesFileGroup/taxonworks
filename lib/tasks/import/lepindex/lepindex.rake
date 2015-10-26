@@ -129,7 +129,7 @@ namespace :tw do
         Utilities::Files.lines_per_file(Dir["#{@args[:data_directory]}/**/*.txt"])
         handle_projects_and_users
         raise '$project_id or $user_id not set.'  if $project_id.nil? || $user_id.nil?
-        handle_references
+        #handle_references
         handle_list_of_genera
         handle_images
         handle_species
@@ -488,6 +488,12 @@ namespace :tw do
                   %w{Card_code Path Front_image Back_image}.each do |k|
                     o.data_attributes.create(import_predicate: k, value: @data.images_index[row['TaxonNo']][k], type: 'ImportAttribute')
                   end
+
+                  file1 = @args[:data_directory] + @data.images_index[row['TaxonNo']]['Path'].gsub("Q:\\", '').gsub("\\", '/') + @data.images_index[row['TaxonNo']]['Front_image']
+                  file2 = @args[:data_directory] + @data.images_index[row['TaxonNo']]['Path'].gsub("Q:\\", '').gsub("\\", '/') + @data.images_index[row['TaxonNo']]['Back_image']
+
+                  d1 = Depiction.create!(image_attributes: { image_file: File.open(file1) }, depiction_object: o) if File.exists?(file1)
+                  d2 = Depiction.create!(image_attributes: { image_file: File.open(file2) }, depiction_object: o) if File.exists?(file2)
                 end
 
                 @data.taxonno_index.merge!(row['TaxonNo'].to_i.to_s => protonym.id)
