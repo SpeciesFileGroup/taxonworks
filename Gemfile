@@ -92,7 +92,7 @@ gem 'colored', '~> 1.2'
 gem 'chartkick'
 gem 'groupdate', '~> 2.5'
 
-gem 'dropzonejs-rails'
+gem 'dropzonejs-rails', '~> 0.7.2'
 
 # SFG gems
 gem 'taxonifi', '0.3.6'
@@ -107,7 +107,7 @@ group :test, :development do
   gem 'awesome_print'
   gem 'factory_girl_rails', '~> 4.0'
   gem 'did_you_mean', '~> 0.10.0'
-  gem 'selenium-webdriver', '~> 2.48.0'
+  gem 'selenium-webdriver', '~> 2.48.1'
 end
 
 
@@ -129,15 +129,15 @@ group :test do
   gem 'coveralls', '~> 0.8', require: false
   gem 'capybara', '~> 2.1'
   gem 'timecop', '~> 0.8.0'
-  gem 'webmock', '~> 1.21.0'
+  gem 'webmock', '~> 1.22.1'
   gem 'vcr', '~> 2.9.2'
-  gem 'database_cleaner', '~> 1.4'
+  gem 'database_cleaner', '~> 1.5.1'
 # gem 'simplecov', :require => false
 # gem 'simplecov-rcov', :require => false
 end
 
 group :production do
   gem 'execjs'
-  gem 'passenger', '~> 5.0.20'
+  gem 'passenger', '~> 5.0.21'
 end
 
