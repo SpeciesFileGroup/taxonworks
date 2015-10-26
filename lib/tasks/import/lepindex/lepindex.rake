@@ -129,7 +129,7 @@ namespace :tw do
         Utilities::Files.lines_per_file(Dir["#{@args[:data_directory]}/**/*.txt"])
         handle_projects_and_users
         raise '$project_id or $user_id not set.'  if $project_id.nil? || $user_id.nil?
-        #handle_references
+        handle_references
         handle_list_of_genera
         handle_images
         handle_species
