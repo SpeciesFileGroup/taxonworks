@@ -50,6 +50,7 @@ class Image < ActiveRecord::Base
   MISSING_IMAGE_PATH = '/public/images/missing.jpg'
 
   has_many :depictions, inverse_of: :image
+  has_many :depiction_objects, through: :depictions, inverse_of: :images
 
   before_save :extract_tw_attributes
 

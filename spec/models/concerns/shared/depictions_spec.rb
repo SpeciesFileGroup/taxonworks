@@ -3,6 +3,10 @@ require 'rails_helper'
 describe 'Depictions', type: :model do
   let(:instance_with_depiction) { TestDepictionable.new }
 
+  let(:image_attributes) { 
+    { image_file: fixture_file_upload(Rails.root + 'spec/files/images/tiny.png', 'image/png') }
+   }
+
   context 'associations' do
     specify 'has many depictions/#has_depictions?' do
       # test that the method notations exists
@@ -36,6 +40,24 @@ describe 'Depictions', type: :model do
       end
     end
   end
+
+  context 'create with nested depiction' do
+    specify 'works by nesting image_attributes' do
+      expect(TestDepictionable.create!(
+        depictions_attributes: [ {image_attributes:  image_attributes  }  ]
+      )).to be_truthy
+      expect(Image.count).to eq(1)
+      expect(Depiction.count).to eq(1)
+    end
+
+    specify 'works with images_attributes' do
+      expect(TestDepictionable.create!(images_attributes: [image_attributes])).to be_truthy
+      expect(Image.count).to eq(1)
+      expect(Depiction.count).to eq(1)
+    end
+  end
+
+
 end
 
 class TestDepictionable < ActiveRecord::Base
