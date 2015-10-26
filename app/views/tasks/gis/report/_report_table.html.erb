@@ -23,7 +23,7 @@
   </tr>
   <% @collection_objects.each_with_index do |c_o, index| %>
       <tr>
-        <td><%= link_to(index, c_o.get_otu) unless c_o.get_otu.nil? %></td>
+        <td><%= link_to(c_o.get_otu_id, c_o.get_otu) unless c_o.get_otu.nil? %></td>
         <td><%= c_o.get_otu_name %></td>
         <td><%= c_o.name_at_rank_string(:family) %></td>
         <td><%= c_o.name_at_rank_string(:genus) %></td>
