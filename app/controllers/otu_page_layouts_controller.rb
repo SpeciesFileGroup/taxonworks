@@ -66,6 +66,12 @@ class OtuPageLayoutsController < ApplicationController
     end
   end
 
+  def list
+    @otu_page_layouts = OtuPageLayout.with_project_id($project_id).order(:name).page(params[:page]) #.per(10) 
+  end
+
+
+
   def autocomplete
     @otu_page_layouts = OtuPageLayout.find_for_autocomplete(params)
 
