@@ -161,8 +161,9 @@ namespace :tw do
           end
           $user_id = user.id # set for project line below
 
-          project = Project.where(name: project_name)
-          if project.empty?
+          project = nil
+          #project = Project.where(name: project_name).first
+          if project.nil?
             project = Project.create(name: project_name)
           else
             project = project.first
@@ -492,8 +493,18 @@ namespace :tw do
                   file1 = @args[:data_directory] + @data.images_index[row['TaxonNo']]['Path'].gsub("Q:\\", '').gsub("\\", '/') + @data.images_index[row['TaxonNo']]['Front_image']
                   file2 = @args[:data_directory] + @data.images_index[row['TaxonNo']]['Path'].gsub("Q:\\", '').gsub("\\", '/') + @data.images_index[row['TaxonNo']]['Back_image']
 
-                  d1 = Depiction.create!(image_attributes: { image_file: File.open(file1) }, depiction_object: o) if File.exists?(file1)
-                  d2 = Depiction.create!(image_attributes: { image_file: File.open(file2) }, depiction_object: o) if File.exists?(file2)
+                  d1 = Depiction.new(image_attributes: { image_file: File.open(file1) }, depiction_object: o) if File.exists?(file1)
+                  d2 = Depiction.new(image_attributes: { image_file: File.open(file2) }, depiction_object: o) if File.exists?(file2)
+                  if d1.valid?
+                    d1.save
+                  else
+                    print "\nImage file: front: card_code #{row['Card_code']} is invalid\n"
+                  end
+                  if d2.valid?
+                    d2.save
+                  else
+                    print "\nImage file: back: card_code #{row['Card_code']} is invalid\n"
+                  end
                 end
 
                 @data.taxonno_index.merge!(row['TaxonNo'].to_i.to_s => protonym.id)
