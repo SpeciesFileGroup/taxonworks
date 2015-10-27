@@ -4,7 +4,7 @@ module ImagesHelper
 
   def image_link(image)
     return nil if image.nil?
-    link_to(image_tag(image).html_safe, image)
+    link_to(image_tag(image.image_file.url(:thumb)), image)
   end
 
   def images_search_form
