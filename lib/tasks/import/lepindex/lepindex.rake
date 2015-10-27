@@ -493,14 +493,20 @@ namespace :tw do
                   file1 = @args[:data_directory] + @data.images_index[row['TaxonNo']]['Path'].gsub("Q:\\", '').gsub("\\", '/') + @data.images_index[row['TaxonNo']]['Front_image']
                   file2 = @args[:data_directory] + @data.images_index[row['TaxonNo']]['Path'].gsub("Q:\\", '').gsub("\\", '/') + @data.images_index[row['TaxonNo']]['Back_image']
 
+                  d1 = nil
+                  d2 = nil
                   d1 = Depiction.new(image_attributes: { image_file: File.open(file1) }, depiction_object: o) if File.exists?(file1)
                   d2 = Depiction.new(image_attributes: { image_file: File.open(file2) }, depiction_object: o) if File.exists?(file2)
-                  if d1.valid?
+                  if d1.nil?
+                    true
+                  elsif d1.valid?
                     d1.save
                   else
                     print "\nImage file: front: card_code #{row['Card_code']} is invalid\n"
                   end
-                  if d2.valid?
+                  if d2.nil?
+                    true
+                  elsif d2.valid?
                     d2.save
                   else
                     print "\nImage file: back: card_code #{row['Card_code']} is invalid\n"
