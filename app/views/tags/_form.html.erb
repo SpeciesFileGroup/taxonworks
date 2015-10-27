@@ -8,7 +8,7 @@
       <%#= f.number_field :keyword_id %>
       <br>
       <%= render :partial => 'workbench/elements/forms/ajax_select',
-                 :locals  => {:controller => 'controlled_vocabulary_terms',
+                 :locals  => {:controller => 'keywords',
                               :object     => 'tag',
                               :method     => 'keyword_id',
                               :tag_id     => 'keyword_id_for_controlled_vocabulary_term',
