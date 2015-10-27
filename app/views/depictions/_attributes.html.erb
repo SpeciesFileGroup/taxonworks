@@ -1,10 +1,10 @@
 <p>
   <strong>Depiction object:</strong>
-  <%= object_tag( @depiction.depiction_object.metamorphosize) %>
+  <%= object_link( @depiction.depiction_object.metamorphosize) %>
 </p>
 
 <p>
   <strong>Image:</strong>
-  <%= image_tag(@depiction.image.image_file.url(:medium)) %>
+  <%= link_to(image_tag(@depiction.image.image_file.url(:medium)), image_path(@depiction.image)) %>
 </p>
 
