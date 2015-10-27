@@ -701,6 +701,7 @@ class TaxonName < ActiveRecord::Base
   #  a monomial if names is above genus, or a full epithet if below, includes html
   def get_full_name_html
     return name unless self.type == 'Combination' || GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_string)
+    return name if self.rank_string == 'NomenclaturalRank::Iczn::GenusGroup::GenusGroup'
     d = full_name_hash
     elements = []
     eo = '<em>'

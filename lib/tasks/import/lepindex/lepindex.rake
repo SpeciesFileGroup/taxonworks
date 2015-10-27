@@ -129,7 +129,7 @@ namespace :tw do
         Utilities::Files.lines_per_file(Dir["#{@args[:data_directory]}/**/*.txt"])
         handle_projects_and_users
         raise '$project_id or $user_id not set.'  if $project_id.nil? || $user_id.nil?
-        handle_references
+        # handle_references
         handle_list_of_genera
         handle_images
         handle_species
@@ -371,6 +371,11 @@ namespace :tw do
           print "\n#{rank}\n"
           file.each_with_index do |row, i|
             #if rank == 'GENUS' || i > 0 && i < 1500
+
+            if row['Current_subfamily'] == 'Agliinae'
+              byebug
+            end
+
             print "\r#{i}"
             if row['Current_rank_of_name'] == rank
               genus, subgenus, species = nil, nil, nil
@@ -388,13 +393,13 @@ namespace :tw do
               if superfamily.nil? && !row['Current_superfamily'].blank?
                 superfamily = Protonym.find_or_create_by(name: row['Current_superfamily'], parent_id: parent_id, rank_class: Ranks.lookup(:iczn, 'superfamily'), project_id: $project_id).id
                 @data.parent_id_index.merge!('superfamily:' + row['Current_superfamily'].to_s => superfamily)
-                parent_id = superfamily
               end
+              parent_id = superfamily unless superfamily.nil?
               if family.nil? && !row['Current_family'].blank?
                 family = Protonym.find_or_create_by(name: row['Current_family'], parent_id: parent_id, rank_class: Ranks.lookup(:iczn, 'family'), project_id: $project_id).id
                 @data.parent_id_index.merge!('family:' + row['Current_family'].to_s => family)
-                parent_id = family
               end
+              parent_id = family unless family.nil?
               if subfamily.nil? && !row['Current_subfamily'].blank? && row['Current_subfamily'] != 'Subfamily unassigned'
                 if row['Current_subfamily'] =~ / group/
                   subfamily = Protonym.find_or_create_by(name: row['Current_subfamily'].gsub(' group', ''), parent_id: parent_id, rank_class: 'NomenclaturalRank::Iczn::GenusGroup::GenusGroup', project_id: $project_id).id
@@ -402,35 +407,34 @@ namespace :tw do
                   subfamily = Protonym.find_or_create_by(name: row['Current_subfamily'], parent_id: parent_id, rank_class: Ranks.lookup(:iczn, 'subfamily'), project_id: $project_id).id
                 end
                 @data.parent_id_index.merge!('subfamily:' + row['Current_subfamily'].to_s => subfamily)
-                parent_id = subfamily
               end
+              parent_id = subfamily unless subfamily.nil?
               if tribe.nil? && !row['Current_tribe'].blank? && row['Current_tribe'] != 'Tribe unassigned'
                 tribe = Protonym.find_or_create_by(name: row['Current_tribe'], parent_id: parent_id, rank_class: Ranks.lookup(:iczn, 'tribe'), project_id: $project_id).id
                 @data.parent_id_index.merge!('tribe:' + row['Current_tribe'].to_s => tribe)
-                parent_id = tribe
               end
+              parent_id = tribe unless tribe.nil?
               if subtribe.nil? && !row['Current_subtribe'].blank?
                 subtribe = Protonym.find_or_create_by(name: row['Current_subtribe'], parent_id: parent_id, rank_class: Ranks.lookup(:iczn, 'subtribe'), project_id: $project_id).id
                 @data.parent_id_index.merge!('subtribe:' + row['Current_subtribe'].to_s => subtribe)
-                parent_id = subtribe
               end
+              parent_id = subtribe unless subtribe.nil?
               if genus.nil? && !row['Current_genus'].blank? && rank != 'GENUS' && row['Current_genus'] != 'GENUS UNKNOWN' && row['Current_genus'] != 'ORIGINAL GENUS UNDETERMINED' && row['Current_genus'] !=~ /_AUCTORUM/
                 genus = Protonym.find_or_create_by(name: row['Current_genus'].titleize, parent_id: parent_id, rank_class: Ranks.lookup(:iczn, 'genus'), project_id: $project_id).id
                 @data.parent_id_index.merge!('genus:' + row['Current_genus'].to_s => genus)
-                parent_id = genus
               end
+              parent_id = genus unless genus.nil?
               if subgenus.nil? && !row['CurrSubgen'].blank? && rank != 'GENUS' && rank != 'SUBGENUS'
                 subgenus = Protonym.find_or_create_by(name: row['CurrSubgen'].titleize, parent_id: parent_id, rank_class: Ranks.lookup(:iczn, 'subgenus'), project_id: $project_id).id
                 @data.parent_id_index.merge!('subgenus:' + row['CurrSubgen'].to_s => subgenus)
-                parent_id = subgenus
               end
+              parent_id = subgenus unless subgenus.nil?
               if species.nil? && !row['Current_species'].blank? && rank != 'GENUS' && rank != 'SUBGENUS'  && rank != 'SPECIES'
                 species = Protonym.find_or_create_by(name: row['Current_species'], parent_id: parent_id, rank_class: Ranks.lookup(:iczn, 'species'), project_id: $project_id).id
                 @data.parent_id_index.merge!('species:' + row['Current_genus'].to_s + ' ' + row['Current_species'].to_s => species)
-                parent_id = species
               end
-
-              parent_id = [@lepidoptera, superfamily, family, subfamily, tribe, subtribe, genus, subgenus, species].compact.last
+              parent_id = species unless species.nil?
+              #parent_id = [@lepidoptera, superfamily, family, subfamily, tribe, subtribe, genus, subgenus, species].compact.last
 
               unless row['SCIENTIFIC_NAME_on_card'] == 'GENUS UNKNOWN' || row['SCIENTIFIC_NAME_on_card'] =~ /_AUCTORUM/
                 name = (rank =~ /GENUS/) ? row['SCIENTIFIC_NAME_on_card'].titleize : row['SCIENTIFIC_NAME_on_card']
