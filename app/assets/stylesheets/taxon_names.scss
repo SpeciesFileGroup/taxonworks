@@ -1,0 +1,22 @@
+@import 'workbench/palette';
+@import 'workbench/whitespace';
+
+#show_taxon_name_hierarchy { 
+
+  p {
+    padding: 0;
+    margin: $standard_padding*0.3 0;
+  }
+
+  a {}
+
+  .ancestors {}
+
+  .descendants {
+  }
+
+  .selected {
+    background-color: $note_yellow;
+    margin: $standard_padding;
+  }
+}

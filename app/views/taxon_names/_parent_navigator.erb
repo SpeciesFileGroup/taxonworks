@@ -1,14 +1,16 @@
-<div>
+<div id="show_taxon_name_hierarchy">
   <h3>Hierarchy</h3>
-  <% taxon_name.ancestor_protonyms.each do |p| -%>
-    <%= taxon_name_link(p.metamorphosize)  -%>
-    <br>
-  <% end %>
+  <div class="ancestors">
+    <% taxon_name.ancestor_protonyms.each do |p| -%>
+      <p> <%= taxon_name_link(p.metamorphosize)  -%> </p>
+    <% end %>
+  </div>
 
-  <div><br><%= taxon_name_tag(taxon_name) -%></div> <br>
+  <p class="selected"> <%= taxon_name_tag(taxon_name) -%> </p>
 
-  <% taxon_name.children.reorder(:name).where(type: 'Protonym').each do |p| -%>
-    <%= taxon_name_link(p.metamorphosize)  -%><br>
-  <% end %>
-
+  <div class="descendants">
+    <% taxon_name.children.reorder(:name).where(type: 'Protonym').each do |p| -%>
+      <p> <%= taxon_name_link(p.metamorphosize) -%> <%= content_tag(:span, "[#{p.descendants.count}]",  class: :subtle) if p.descendants.count > 0  %>  </p>
+    <% end %>
+  </div>
 </div>
