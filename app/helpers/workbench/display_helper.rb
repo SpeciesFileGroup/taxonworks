@@ -22,7 +22,7 @@ module Workbench::DisplayHelper
     if ApplicationController.helpers.respond_to?(method)
       method
     else
-      klass_name = object.metamorphosize.class.base_class.name
+      klass_name = metamorphosize_if(object).class.name
       "#{klass_name.underscore}_tag"
     end
   end
