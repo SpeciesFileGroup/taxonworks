@@ -619,7 +619,8 @@ class TaxonName < ActiveRecord::Base
   end
 
   def get_cached_misspelling
-    misspelling = TaxonName.as_subject_with_taxon_name_relationship_containing('::Usage::Misspelling')
+    misspelling = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('::Usage::Misspelling')
+    #misspelling = TaxonName.as_subject_with_taxon_name_relationship_containing('::Usage::Misspelling')
     misspelling.empty? ? nil : true
   end
 
