@@ -41,7 +41,7 @@ module NotesHelper
 
   def note_link(note)
     return nil if note.nil?
-    link_to(note_tag(note).html_safe, note.note_object.metamorphosize)
+    link_to(note_tag(note).html_safe, metamorphosize_if(note.note_object)  )
   end
 
   def notes_search_form
