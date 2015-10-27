@@ -372,10 +372,6 @@ namespace :tw do
           file.each_with_index do |row, i|
             #if rank == 'GENUS' || i > 0 && i < 1500
 
-            if row['Current_subfamily'] == 'Agliinae'
-              byebug
-            end
-
             print "\r#{i}"
             if row['Current_rank_of_name'] == rank
               genus, subgenus, species = nil, nil, nil
