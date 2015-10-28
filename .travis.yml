@@ -8,6 +8,7 @@ branches:
   only:
       - master
       - Rails-5.0
+      - api
 addons:
   postgresql: "9.4"
   apt:
