@@ -21,7 +21,7 @@
       <tr>
         <td><%= source.cached %></td>
         <td><%= source.verbatim_keywords %></td>
-        <td><%= object_tag(source.language) %></td>
+        <td><%= source.respond_to?(:source_language) && language_tag(source.source_language) %></td>
         <td><%= source.abstract %></td>
         <td><%= source.type %></td>
         <td><%= source.bibtex_type %></td>
