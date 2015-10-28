@@ -72,7 +72,7 @@ describe CollectionObjectsController, :type => :controller do
       end
 
       context "valid collection_object" do
-        before { get :show, { :id => collection_object.to_param, :format => :json }, valid_session }
+        before { get :show, { :id => collection_object.to_param, :include => ["images"], :format => :json }, valid_session }
         let (:data) { JSON.parse(response.body) }
 
         it "returns a successful JSON response" do
@@ -102,27 +102,38 @@ describe CollectionObjectsController, :type => :controller do
               end
 
               it "has images as empty array" do
-                get :show, { :id => collection_object.to_param, :format => :json }, valid_session
+                get :show, { :id => collection_object.to_param, :include => ["images"], :format => :json }, valid_session
                 expect(result["images"]).to eq([])
               end
             end
 
-            context "when it has images" do  
+            context "when it has images" do
 
-              it "has an array of images" do
-                expect(result["images"].length).to eq(collection_object.images.size)
-              end
+              context "when requested" do
 
-              describe "array items attributes" do
-                let(:item) { result["images"].first }
-                let(:image) { collection_object.images.first }
-
-                it "has an id" do
-                  expect(item["id"]).to eq(image.id)
+                it "has an array of images" do
+                  expect(result["images"].length).to eq(collection_object.images.size)
                 end
 
-                it "has an API endpoint URL" do
-                  expect(item["url"]).to eq(api_v1_image_url(image.to_param))
+                describe "array items attributes" do
+                  let(:item) { result["images"].first }
+                  let(:image) { collection_object.images.first }
+
+                  it "has an id" do
+                    expect(item["id"]).to eq(image.id)
+                  end
+
+                  it "has an API endpoint URL" do
+                    expect(item["url"]).to eq(api_v1_image_url(image.to_param))
+                  end
+                end
+              end
+
+              context "when not requested" do
+
+                it "does not have images attribute" do
+                  get :show, { :id => collection_object.to_param, :format => :json }, valid_session
+                  expect(JSON.parse(response.body)["result"]["images"]).to be nil
                 end
               end
             end  

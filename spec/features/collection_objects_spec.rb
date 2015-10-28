@@ -41,6 +41,7 @@ describe 'CollectionObjects', :type => :feature do
       it_behaves_like 'a_data_model_with_standard_show'
     end
 
+    # TODO: Refactor this test.
     describe 'GET /api/v1/collection_objects/{id}' do
       before do
         @user.generate_api_access_token
@@ -57,7 +58,7 @@ describe 'CollectionObjects', :type => :feature do
       end
 
       it 'Returns a response including URLs to images API endpoint' do
-        visit "/api/v1/collection_objects/#{collection_object.to_param}?project_id=#{collection_object.project.to_param}&token=#{@user.api_access_token}"
+        visit "/api/v1/collection_objects/#{collection_object.to_param}?include[]=images&project_id=#{collection_object.project.to_param}&token=#{@user.api_access_token}"
         visit JSON.parse(page.body)['result']['images'].first['url'] + "?project_id=#{collection_object.project.to_param}&token=#{@user.api_access_token}"
         expect(JSON.parse(page.body)['result']['id']).to eq(collection_object.images.first.id)
       end

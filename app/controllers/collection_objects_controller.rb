@@ -13,6 +13,7 @@ class CollectionObjectsController < ApplicationController
   # GET /collection_objects/1
   # GET /collection_objects/1.json
   def show
+    @images = params[:include] == ["images"] ? @collection_object.images : nil
   end
 
   # GET /collection_objects/depictions/1
