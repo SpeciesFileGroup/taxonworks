@@ -62,6 +62,85 @@ describe CollectionObjectsController, :type => :controller do
       get :show, {:id => collection_object.to_param}, valid_session
       expect(assigns(:collection_object)).to eq(collection_object)
     end
+
+    context "JSON format request" do
+      render_views
+      let(:collection_object) do 
+        CollectionObject.create! valid_attributes.merge({ depictions_attributes: [
+          { image_attributes: { image_file: fixture_file_upload((Rails.root + 'spec/files/images/tiny.png'), 'image/png') } }]
+          })
+      end
+
+      context "valid collection_object" do
+        before { get :show, { :id => collection_object.to_param, :format => :json }, valid_session }
+        let (:data) { JSON.parse(response.body) }
+
+        it "returns a successful JSON response" do
+          expect(data["success"]).to be true
+        end
+
+        describe "JSON data contents" do
+
+          it "has a result object" do
+            expect(data["result"]).to be_truthy
+          end
+
+          describe "result attributes" do
+            let (:result) { data["result"] }
+
+            it "has an id" do
+              expect(result["id"]).to eq(collection_object.id)
+            end
+
+            it "has a type" do
+              expect(result["type"]).to eq(collection_object.type)
+            end
+
+            context "when it has no images" do
+              before do
+                collection_object.images.delete_all
+              end
+
+              it "has images as empty array" do
+                get :show, { :id => collection_object.to_param, :format => :json }, valid_session
+                expect(result["images"]).to eq([])
+              end
+            end
+
+            context "when it has images" do  
+
+              it "has an array of images" do
+                expect(result["images"].length).to eq(collection_object.images.size)
+              end
+
+              describe "array items attributes" do
+                let(:item) { result["images"].first }
+                let(:image) { collection_object.images.first }
+
+                it "has an id" do
+                  expect(item["id"]).to eq(image.id)
+                end
+
+                it "has an API endpoint URL" do
+                  expect(item["url"]).to eq(api_v1_image_url(image.to_param))
+                end
+              end
+            end  
+          end
+        end
+
+      end
+
+      context "invalid collection_object" do
+        before { get :show, { :id => -1, :format => :json }, valid_session }
+
+        it "returns an unsuccessful JSON response" do
+          expect(JSON.parse(response.body)).to eq({ "success" => false })
+        end
+      end
+
+    end
+
   end
 
   describe "GET new" do

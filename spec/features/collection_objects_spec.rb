@@ -40,6 +40,29 @@ describe 'CollectionObjects', :type => :feature do
 
       it_behaves_like 'a_data_model_with_standard_show'
     end
+
+    describe 'GET /api/v1/collection_objects/{id}' do
+      before do
+        @user.generate_api_access_token
+        @user.save!
+      end
+      let(:valid_attributes) {
+        FactoryGirl.build(:valid_collection_object).attributes.merge({ creator: @user, updater: @user, project: @project })
+      }
+      let(:collection_object) do 
+        CollectionObject.create! valid_attributes.merge({ depictions_attributes: [
+          { creator: @user, updater: @user, project: @project, image_attributes: { 
+            creator: @user, updater: @user, project: @project, image_file: fixture_file_upload((Rails.root + 'spec/files/images/tiny.png'), 'image/png') } }]
+          })
+      end
+
+      it 'Returns a response including URLs to images API endpoint' do
+        visit "/api/v1/collection_objects/#{collection_object.to_param}?project_id=#{collection_object.project.to_param}&token=#{@user.api_access_token}"
+        visit JSON.parse(page.body)['result']['images'].first['url'] + "?project_id=#{collection_object.project.to_param}&token=#{@user.api_access_token}"
+        expect(JSON.parse(page.body)['result']['id']).to eq(collection_object.images.first.id)
+      end
+    end 
+
   end
 
   context 'creating a new collection object' do
