@@ -25,7 +25,7 @@
   <% end %>
 
   <% if @taxon_name.is_protonym? -%>
-    <%= content_tag(:h3, 'Classifications / Status') + render(partial: '/taxon_name_classifications/unordered_list', locals: {taxon_name_classifications: @taxon_name.taxon_name_classifications}) if @taxon_name.combinations.any? -%>
+    <%= content_tag(:h3, 'Classifications / Status') + render(partial: '/taxon_name_classifications/unordered_list', locals: {taxon_name_classifications: @taxon_name.taxon_name_classifications}) if @taxon_name.taxon_name_classifications.any? -%>
     <%= content_tag(:h3, 'Relationships') + render(partial: '/taxon_name_relationships/list_by_taxon_name', locals: {taxon_name: @taxon_name }) if @taxon_name.taxon_name_relationships.any? || @taxon_name.related_taxon_name_relationships.any? -%>
     <%= content_tag(:h3, 'Combinations') + render(partial: '/combinations/unordered_list', locals: {combinations: @taxon_name.combinations} ) if @taxon_name.combinations.any? -%>
   <% end %>
