@@ -70,23 +70,11 @@ class Otu < ActiveRecord::Base
 
   # return [Scope] the otus bound to that taxon name and its descendants
   def self.for_taxon_name(taxon_name)
-    # tn = nil
-    #
-    # alternate multiple string test:
-    #   ['String', 'Fixnum', 'Integer'].include?(taxon_name.class.name)
-    case taxon_name.class.name
-      when 'String', 'Fixnum', 'Integer'
-        tn = TaxonName.find(taxon_name)
-      else
-        tn = taxon_name
+    if taxon_name.kind_of?(String) || taxon_name.kind_of?(Integer) 
+      tn = TaxonName.find(taxon_name)
+    else
+      tn = taxon_name
     end
-    # suspect equality test
-    # if taxon_name.class.name == 'String' || 'Fixnum' || 'Integer'
-    #   tn = TaxonName.find(taxon_name)
-    # else
-    #   tn = taxon_name
-    # end
-
     Otu.joins(:taxon_name).where("(taxon_names.project_id = ? and (taxon_names.id = ? OR (taxon_names.lft >= ? and taxon_names.lft <= ?)))", tn.project_id, tn.id, tn.lft, tn.rgt)
   end
 
