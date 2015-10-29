@@ -154,6 +154,88 @@ describe CollectionObjectsController, :type => :controller do
 
   end
 
+  describe "GET by_identifier" do
+    render_views
+    let(:namespace) { FactoryGirl.create(:valid_namespace, short_name: 'ABCD')}
+    let!(:collection_object) do 
+      CollectionObject.create! valid_attributes.merge( 
+        { identifiers_attributes: [ { identifier: '123', type: 'Identifier::Local::CatalogNumber', namespace: namespace } ] })
+    end
+
+    context "valid identifier" do
+      before { get :by_identifier, { :identifier => "ABCD 123", :format => :json }, valid_session }
+
+      let (:data) { JSON.parse(response.body) }
+
+      it "returns a successful JSON response" do
+        expect(data["success"]).to be true
+      end
+
+      describe "JSON data contents" do
+        it "has a request object" do
+          expect(data["request"]).to be_truthy
+        end
+
+        it "has a result object" do
+          expect(data["result"]).to be_truthy
+        end
+
+        describe "request attributes" do
+          let(:request) { data["request"] }
+
+          it "has a params attribute" do
+            expect(request["params"]).to be_truthy
+          end
+
+          describe "params attributes" do
+            let(:params) { request["params"] }
+
+            it "has a project_id attribute" do
+              expect(params["project_id"]).to eq(1)
+            end
+
+            it "has an identifier attribute" do
+              expect(params["identifier"]).to eq("ABCD 123")
+            end
+          end
+        end
+
+        describe "result attributes" do
+          let (:result) { data["result"] }
+
+          it "has a collection_objects array attribute" do
+            expect(result["collection_objects"].length).to eq(1)
+          end
+
+          describe "collection_objects items attributes" do
+            let(:item) { result["collection_objects"].first }
+
+            it "has an id attribute" do
+              expect(item["id"]).to eq(collection_object.id)
+            end
+
+            it "has an API endpoint URL" do
+              expect(item["url"]).to eq(api_v1_collection_object_url(collection_object.to_param))
+            end
+          end
+        end
+      end
+    end
+
+    context "invalid identifier" do
+      before { get :by_identifier, { :identifier => "FOO", :format => :json }, valid_session }
+
+      it "returns 404 HTTP status" do
+        expect(response.status).to eq(404)
+      end
+
+      it "returns an unsuccessful JSON response" do
+        expect(JSON.parse(response.body)).to eq({ "success" => false })
+      end
+    end
+
+  end
+
   describe "GET new" do
     it "assigns a new collection_object as @collection_object" do
       get :new, {}, valid_session

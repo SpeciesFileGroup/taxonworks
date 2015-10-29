@@ -62,7 +62,28 @@ describe 'CollectionObjects', :type => :feature do
         visit JSON.parse(page.body)['result']['images'].first['url'] + "?project_id=#{collection_object.project.to_param}&token=#{@user.api_access_token}"
         expect(JSON.parse(page.body)['result']['id']).to eq(collection_object.images.first.id)
       end
-    end 
+    end
+
+    describe 'GET /api/v1/collection_objects/by_identifier/{identifier}' do
+      before do
+        @user.generate_api_access_token
+        @user.save!
+      end
+      let(:valid_attributes) {
+        FactoryGirl.build(:valid_collection_object).attributes.merge({ creator: @user, updater: @user, project: @project })
+      }
+      let(:namespace) { FactoryGirl.create(:valid_namespace, short_name: 'ABCD', by: @user) }
+      let(:collection_object) do 
+        CollectionObject.create! valid_attributes.merge( 
+          { identifiers_attributes: [ { identifier: '123', type: 'Identifier::Local::CatalogNumber', namespace: namespace, by: @user, project: @project } ] })
+      end
+
+      it 'Returns a response including URLs to collection objects API endpoint' do
+        visit "/api/v1/collection_objects/by_identifier/ABCD%20123?project_id=#{collection_object.project.to_param}&token=#{@user.api_access_token}"
+        visit JSON.parse(page.body)['result']['collection_objects'].first['url'] + "?project_id=#{collection_object.project.to_param}&token=#{@user.api_access_token}"
+        expect(JSON.parse(page.body)['result']['id']).to eq(collection_object.id)
+      end
+    end
 
   end
 

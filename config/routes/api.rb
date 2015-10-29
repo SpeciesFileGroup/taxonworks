@@ -7,8 +7,8 @@ TaxonWorks::Application.routes.draw do
     scope  '/v1' do
       get '/', to: 'api#index'
       get '/images/:id', to: 'images#show', as: 'api_v1_image'
-      get '/collection_objects/:id', to: 'collection_objects#show'
-      # get '/collection_objects/identified_by', to: 'collection_objects#identified_by'
+      get '/collection_objects/:id', to: 'collection_objects#show', as: 'api_v1_collection_object'
+      get '/collection_objects/by_identifier/:identifier', to: 'collection_objects#by_identifier'
       # get '/otus/:id', to: 'otus#show'
     end
   end

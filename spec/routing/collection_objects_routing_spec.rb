@@ -35,5 +35,9 @@ describe CollectionObjectsController, :type => :routing do
       expect(delete("/collection_objects/1")).to route_to("collection_objects#destroy", :id => "1")
     end
 
+    it "routes to #by_identifier" do
+      expect(get("/collection_objects/by_identifier/ABCD")).to route_to("collection_objects#by_identifier", :identifier => "ABCD")
+    end
+
   end
 end

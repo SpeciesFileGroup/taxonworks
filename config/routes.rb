@@ -82,6 +82,7 @@ TaxonWorks::Application.routes.draw do
       get 'depictions'
     end
   end
+  match 'collection_objects/by_identifier/:identifier', to: 'collection_objects#by_identifier', via: :get
   resources :collection_profiles do
     concerns [:data_routes]
   end

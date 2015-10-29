@@ -21,6 +21,15 @@ class CollectionObjectsController < ApplicationController
   def depictions
   end
 
+  # GET /collection_objects/by_identifier/ABCD
+  def by_identifier
+    @identifier = params.require(:identifier)
+    @request_project_id = sessions_current_project_id
+    @collection_objects = CollectionObject.with_identifier(@identifier).where(project_id: @request_project_id).all
+
+    raise ActiveRecord::RecordNotFound if @collection_objects.empty?
+  end
+
   # GET /collection_objects/new
   def new
     @collection_object = CollectionObject.new

@@ -23,12 +23,12 @@ describe ApiController, :type => :routing do
       expect(get('/api/v1/collection_objects/1')).to route_to('collection_objects#show', :id => '1', :format => :json)
     end
 
-    xit 'does not route /api/v1/collection_objects/foo to collection_objects#show' do
+    it 'does not route /api/v1/collection_objects/foo to collection_objects#show' do
       expect(get('/api/v1/collection_objects/foo')).not_to route_to('collection_objects#show', :id => 'foo', :format => :json)
     end
  
-    xit 'routes /api/v1/collection_objects/identified_by to collection_objects#identified_by' do
-      expect(get('/api/v1/collection_objects/identified_by')).to route_to('collection_objects#identified_by', :format => :json)
+    it 'routes /api/v1/collection_objects/by_identifier/{:identifier} to collection_objects#by_identifier' do
+      expect(get('/api/v1/collection_objects/by_identifier/ABCD')).to route_to('collection_objects#by_identifier', :identifier => "ABCD", :format => :json)
     end
   end
 end
