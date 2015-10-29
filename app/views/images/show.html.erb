@@ -1,1 +1,5 @@
+<%= content_for :see do -%>
+  <%= link_to('Original image', @image.image_file.url) -%> 
+<% end %>
+
 <%= render(partial: 'shared/data/project/show', locals: {object: @image}) -%>

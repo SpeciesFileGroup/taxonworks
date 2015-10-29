@@ -6,6 +6,7 @@
 
   margin-top: $standard-padding;
   h2.model { margin: 0;  }
+  h3 { margin: $standard_padding*.5 0;}
 
   .tag {
     font-size: 120%;
@@ -21,7 +22,7 @@
     }
 
     .item3 {
-      width: 200px;
+      width: 240px;
     }
 
     .item { 

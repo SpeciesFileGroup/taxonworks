@@ -2,29 +2,46 @@
     <%= render 'shared/errors', object: @loan_item %>
 
     <div class="field">
-      <%= f.label :loan_id %>
-      <br>
-      <%= f.number_field :loan_id %>
+      <%= f.label :loan %><br>
+<!-- @todo @mjy What field is being matched? -->
+      <%= render partial: 'workbench/elements/forms/ajax_select',
+                 locals: {controller: 'loans',
+                          object: 'loan_item',
+                          method: 'loan_id',
+                          tag_id: 'loan_id_for_loan_item',
+                          display: object_tag(@loan_item.loan)
+                 } %>
     </div>
     <div class="field">
-      <%= f.label :collection_object_id %>
-      <br>
-      <%= f.number_field :collection_object_id %>
-    </div>
-    <div class="field">
-      <%= f.label :date_returned %>
-      <br>
+      <%= f.label :date_returned %><br>
       <%= f.date_select :date_returned %>
     </div>
     <div class="field">
-      <%= f.label :collection_object_status %>
-      <br>
+      <%= f.label :collection_object_status %><br>
       <%= f.text_field :collection_object_status %>
     </div>
     <div class="field">
-      <%= f.label :container_id %>
-      <br>
-      <%= f.number_field :container_id %>
+      <%= f.label :position %><br>
+      <%= f.number_field :position %>
+    </div>
+    <div class="field">
+      <%= f.label :loan_item_object %><br>
+      <!-- @todo @mjy Double check locals below -->
+      <%= render partial: 'workbench/elements/forms/ajax_select',
+                 locals: {controller: 'loan_items',
+                          object: 'loan_item',
+                          method: 'loan_item_object_id',
+                          tag_id: 'loan_item_object_id_for_loan_item',
+                          size: '',
+                          display: object_tag(@loan_item.loan_item_object)} %>
+    </div>
+    <div class="field">
+      <%= f.label :loan_item_object_type %><br>
+      <%= f.text_field :loan_item_object_type %>
+    </div>
+    <div class="field">
+      <%= f.label :total %><br>
+      <%= f.number_field :total %>
     </div>
     <div class="actions">
       <%= f.submit %>

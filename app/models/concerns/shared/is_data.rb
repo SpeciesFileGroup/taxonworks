@@ -39,6 +39,10 @@ module Shared::IsData
     self.class < Shared::Taggable ? true : false
   end
 
+  def has_depictions?
+    self.class < Shared::Depictions ? true : false
+  end
+
   # Also need to check has_one relationships
   def is_in_use?
     self.class.reflect_on_all_associations(:has_many).each do |r|
@@ -105,6 +109,7 @@ module Shared::IsData
     result.merge!('identifiers' => self.identifiers) if self.has_identifiers? && self.identifiers.any?
     result.merge!('notes' => self.notes) if self.has_notes? && self.notes.any?
     result.merge!('tags' => self.tags) if self.has_tags? && self.tags.any?
+    result.merge!('depictions' => self.depictions) if self.has_depictions? && self.depictions.any?
     result
   end
 

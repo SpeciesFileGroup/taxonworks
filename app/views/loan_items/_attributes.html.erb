@@ -1,0 +1,37 @@
+<div class="attributes">
+  <p>
+    <strong>Loan:</strong>
+    <%= object_tag(@loan_item.loan) %>
+  </p>
+
+  <p>
+    <strong>Date returned:</strong>
+    <%= @loan_item.date_returned %>
+  </p>
+
+  <p>
+    <strong>Collection object status:</strong>
+    <%= @loan_item.collection_object_status %>
+  </p>
+
+  <p>
+    <strong>Position:</strong>
+    <%= @loan_item.position %>
+  </p>
+
+  <p>
+    <strong>Loan item object:</strong>
+    <%= object_tag(@loan_item.loan_item_object) %>
+  </p>
+
+  <p>
+    <strong>Loan item object type:</strong>
+    <%= @loan_item.loan_item_object_type %>
+  </p>
+
+  <p>
+    <strong>Total:</strong>
+    <%= @loan_item.total %>
+  </p>
+
+</div>

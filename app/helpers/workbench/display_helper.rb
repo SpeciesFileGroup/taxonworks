@@ -11,8 +11,12 @@ module Workbench::DisplayHelper
     return send("taxon_works_content_tag", object).html_safe if method == 'content_tag' 
     return image_tag(object.image_file.url(:thumb)) if method == 'image_tag' 
 
-    html = send(method, object)
-    html ? html.html_safe : nil
+    if self.respond_to?(method)
+      html = send(method, object)
+      html ? html.html_safe : nil
+    else
+      raise object.attributes.to_s + "#{object.class} has no helper method '#{method}'"
+    end
   end
 
   def object_tag_method(object)
@@ -22,7 +26,7 @@ module Workbench::DisplayHelper
     if ApplicationController.helpers.respond_to?(method)
       method
     else
-      klass_name = object.metamorphosize.class.base_class.name
+      klass_name = metamorphosize_if(object).class.name
       "#{klass_name.underscore}_tag"
     end
   end

@@ -18,9 +18,12 @@ geographic_items:
   - geographic_areas
   - georeferences
   - collecting_events
+loan_items:
+  - loans
 loans:
   - collection_profiles
   - repositories
+  - loan_items
 otus:
   - taxon_names
   - taxon_determinations

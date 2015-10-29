@@ -1,0 +1,30 @@
+<h1>Listing otu page layouts</h1>
+
+<%= paginate @otu_page_layouts %> <%= page_entries_info @otu_page_layouts %>
+
+<table>
+  <thead>
+  <tr>
+    <th>Name</th>
+    <th>Last modified</th>
+    <th>Updated by</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+  </thead>
+
+  <tbody>
+  <% @otu_page_layouts.each do |otu_page_layout| %>
+      <tr>
+        <td><%= otu_page_layout.name %></td>
+        <td><%= otu_page_layout.updated_at %></td>
+        <td><%= object_tag(otu_page_layout.updater) %></td>
+        <td><%= link_to 'Show', otu_page_layout %></td>
+        <td><%= link_to 'Edit', edit_otu_page_layout_path(otu_page_layout) %></td>
+        <td><%= link_to 'Destroy', otu_page_layout, method: :delete, data: {confirm: 'Are you sure?'} %></td>
+      </tr>
+  <% end %>
+  </tbody>
+</table>
+

@@ -143,14 +143,7 @@ describe Otu, :type => :model do
 
   end
 
-  context 'concerns' do
-    it_behaves_like 'citable'
-    it_behaves_like 'data_attributes'
-    it_behaves_like 'identifiable'
-    it_behaves_like 'notable'
-    it_behaves_like 'taggable'
-    it_behaves_like 'is_data'
-  end
+
 
   context 'complex interactions' do
     context 'distribution' do
@@ -210,4 +203,34 @@ describe Otu, :type => :model do
       end
     end
   end
+
+  context 'scopes' do
+    let(:t) { FactoryGirl.create(:relationship_species) } 
+    let(:o) { Otu.create(taxon_name: t) }
+
+    specify '.for_taxon_name(taxon_name) handles integers' do
+      expect(Otu.for_taxon_name(t.to_param)).to contain_exactly(o)
+    end
+
+    specify '.for_taxon_name(taxon_name) handles taxon name instance' do
+      expect(Otu.for_taxon_name(t)).to contain_exactly(o)
+    end
+
+   specify '.for_taxon_name(taxon_name) handles nestedness' do
+     expect(Otu.for_taxon_name(t.parent)).to contain_exactly(o)
+    end
+  end
+
+                    
+
+
+  context 'concerns' do
+    it_behaves_like 'citable'
+    it_behaves_like 'data_attributes'
+    it_behaves_like 'identifiable'
+    it_behaves_like 'notable'
+    it_behaves_like 'taggable'
+    it_behaves_like 'is_data'
+  end
+
 end

@@ -71,6 +71,19 @@ class Container < ActiveRecord::Base
     c
   end
 
+  # @return [Array of {Object}s]
+  #   all objects contained in this and nested containers
+  def all_objects
+#   all_containers.collect{|c| c.container_item.collect{|ci| ci.contained_object}}.flatten 
+
+#   container_items = ContainerItem.joins(:containers).where(containers: {left: 
+
+
+  end
+
+
+
+
   protected
 
   def enclosing_container_is_valid

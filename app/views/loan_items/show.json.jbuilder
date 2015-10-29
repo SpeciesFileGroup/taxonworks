@@ -1,0 +1,1 @@
+json.extract! @loan_item, :id, :loan_id, :date_returned, :collection_object_status, :position, :created_by_id, :updated_by_id, :project_id, :loan_item_object_id, :loan_item_object_type, :total, :created_at, :updated_at

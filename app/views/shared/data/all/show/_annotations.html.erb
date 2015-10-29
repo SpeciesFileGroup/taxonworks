@@ -1,5 +1,4 @@
 <h3> Annotations </h3>
-
 <% if object.annotations.empty? -%>
   <em> None. </em>
 <% else %>
@@ -7,8 +6,10 @@
     <%= content_tag(:h4, title.humanize)  -%>
     <ul>
       <% values.each do |v| -%>
-        <%= content_tag :li, object_tag(v) -%>
+        <%= content_tag :li, (title == 'depictions' ? object_link(v) : object_tag(v) ) -%>
       <% end %>
     </ul>
   <% end %>
 <% end %>
+
+

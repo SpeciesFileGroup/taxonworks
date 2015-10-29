@@ -50,7 +50,6 @@ class Image < ActiveRecord::Base
   MISSING_IMAGE_PATH = '/public/images/missing.jpg'
 
   has_many :depictions, inverse_of: :image
-  has_many :depiction_objects, through: :depictions, inverse_of: :images
 
   before_save :extract_tw_attributes
 
@@ -264,8 +263,7 @@ class Image < ActiveRecord::Base
     if tempfile.nil?
       self.width          = 0
       self.height         = 0
-      self.user_file_name = ''
-      #TODO should an error be thrown here?
+      self.user_file_name = nil
     else
       self.user_file_name = tempfile.original_filename
       geometry            = Paperclip::Geometry.from_file(tempfile)

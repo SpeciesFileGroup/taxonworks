@@ -3,6 +3,31 @@ class LoanItemsController < ApplicationController
 
   before_action :set_loan_item, only: [:update, :destroy]
 
+  # GET /loan_items
+  # GET /loan_items.json
+  def index
+    @recent_objects = LoanItem.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
+    render '/shared/data/all/index'
+  end
+
+  # GET /loan_items/1
+  # GET /loan_items/1.json
+  def show
+  end
+
+  # GET /loan_items/new
+  def new
+    @loan_item = LoanItem.new
+  end
+
+  # GET /loan_items/1/edit
+  def edit
+  end
+
+  def list
+    @loan_items = LoanItem.with_project_id($project_id).order(:id).page(params[:page]) #.per(10)
+  end
+
   # POST /loan_items
   # POST /loan_items.json
   def create
@@ -40,6 +65,29 @@ class LoanItemsController < ApplicationController
       format.html { redirect_to :back, notice: 'Loan item was successfully destroyed.' }
       format.json { head :no_content }
     end
+  end
+
+  def search
+    if params[:id].blank?
+      redirect_to loan_items_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+    else
+      redirect_to loan_item_path(params[:id])
+    end
+  end
+
+  def autocomplete
+    @loan_items = LoanItem.find_for_autocomplete(params.merge(project_id: sessions_current_project_id)).includes(:taxon_name)
+    data = @loan_items.collect do |t|
+      {id: t.id,
+       label: ApplicationController.helpers.loan_item_tag(t),
+       response_values: {
+           params[:method] => t.id
+       },
+       label_html: ApplicationController.helpers.loan_item_autocomplete_selected_tag(t)
+      }
+    end
+
+    render :json => data
   end
 
   private

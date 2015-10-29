@@ -80,7 +80,7 @@
                         method:     'language_id',
                         tag_id:     'language_id_for_source',
                         size:       '50',
-                        display:    @source.respond_to?(:language_id) ? language_tag(@source.language_id) : nil} %>
+                        display:    @source.respond_to?(:source_language) ? language_tag(@source.source_language) : nil} %>
                     </div>
 
 

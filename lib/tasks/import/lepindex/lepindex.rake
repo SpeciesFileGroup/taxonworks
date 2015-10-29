@@ -161,8 +161,9 @@ namespace :tw do
           end
           $user_id = user.id # set for project line below
 
-          project = Project.where(name: project_name)
-          if project.empty?
+          project = nil
+          #project = Project.where(name: project_name).first
+          if project.nil?
             project = Project.create(name: project_name)
           else
             project = project.first
@@ -370,6 +371,7 @@ namespace :tw do
           print "\n#{rank}\n"
           file.each_with_index do |row, i|
             #if rank == 'GENUS' || i > 0 && i < 1500
+
             print "\r#{i}"
             if row['Current_rank_of_name'] == rank
               genus, subgenus, species = nil, nil, nil
@@ -387,13 +389,13 @@ namespace :tw do
               if superfamily.nil? && !row['Current_superfamily'].blank?
                 superfamily = Protonym.find_or_create_by(name: row['Current_superfamily'], parent_id: parent_id, rank_class: Ranks.lookup(:iczn, 'superfamily'), project_id: $project_id).id
                 @data.parent_id_index.merge!('superfamily:' + row['Current_superfamily'].to_s => superfamily)
-                parent_id = superfamily
               end
+              parent_id = superfamily unless superfamily.nil?
               if family.nil? && !row['Current_family'].blank?
                 family = Protonym.find_or_create_by(name: row['Current_family'], parent_id: parent_id, rank_class: Ranks.lookup(:iczn, 'family'), project_id: $project_id).id
                 @data.parent_id_index.merge!('family:' + row['Current_family'].to_s => family)
-                parent_id = family
               end
+              parent_id = family unless family.nil?
               if subfamily.nil? && !row['Current_subfamily'].blank? && row['Current_subfamily'] != 'Subfamily unassigned'
                 if row['Current_subfamily'] =~ / group/
                   subfamily = Protonym.find_or_create_by(name: row['Current_subfamily'].gsub(' group', ''), parent_id: parent_id, rank_class: 'NomenclaturalRank::Iczn::GenusGroup::GenusGroup', project_id: $project_id).id
@@ -401,35 +403,34 @@ namespace :tw do
                   subfamily = Protonym.find_or_create_by(name: row['Current_subfamily'], parent_id: parent_id, rank_class: Ranks.lookup(:iczn, 'subfamily'), project_id: $project_id).id
                 end
                 @data.parent_id_index.merge!('subfamily:' + row['Current_subfamily'].to_s => subfamily)
-                parent_id = subfamily
               end
+              parent_id = subfamily unless subfamily.nil?
               if tribe.nil? && !row['Current_tribe'].blank? && row['Current_tribe'] != 'Tribe unassigned'
                 tribe = Protonym.find_or_create_by(name: row['Current_tribe'], parent_id: parent_id, rank_class: Ranks.lookup(:iczn, 'tribe'), project_id: $project_id).id
                 @data.parent_id_index.merge!('tribe:' + row['Current_tribe'].to_s => tribe)
-                parent_id = tribe
               end
+              parent_id = tribe unless tribe.nil?
               if subtribe.nil? && !row['Current_subtribe'].blank?
                 subtribe = Protonym.find_or_create_by(name: row['Current_subtribe'], parent_id: parent_id, rank_class: Ranks.lookup(:iczn, 'subtribe'), project_id: $project_id).id
                 @data.parent_id_index.merge!('subtribe:' + row['Current_subtribe'].to_s => subtribe)
-                parent_id = subtribe
               end
+              parent_id = subtribe unless subtribe.nil?
               if genus.nil? && !row['Current_genus'].blank? && rank != 'GENUS' && row['Current_genus'] != 'GENUS UNKNOWN' && row['Current_genus'] != 'ORIGINAL GENUS UNDETERMINED' && row['Current_genus'] !=~ /_AUCTORUM/
                 genus = Protonym.find_or_create_by(name: row['Current_genus'].titleize, parent_id: parent_id, rank_class: Ranks.lookup(:iczn, 'genus'), project_id: $project_id).id
                 @data.parent_id_index.merge!('genus:' + row['Current_genus'].to_s => genus)
-                parent_id = genus
               end
+              parent_id = genus unless genus.nil?
               if subgenus.nil? && !row['CurrSubgen'].blank? && rank != 'GENUS' && rank != 'SUBGENUS'
                 subgenus = Protonym.find_or_create_by(name: row['CurrSubgen'].titleize, parent_id: parent_id, rank_class: Ranks.lookup(:iczn, 'subgenus'), project_id: $project_id).id
                 @data.parent_id_index.merge!('subgenus:' + row['CurrSubgen'].to_s => subgenus)
-                parent_id = subgenus
               end
+              parent_id = subgenus unless subgenus.nil?
               if species.nil? && !row['Current_species'].blank? && rank != 'GENUS' && rank != 'SUBGENUS'  && rank != 'SPECIES'
                 species = Protonym.find_or_create_by(name: row['Current_species'], parent_id: parent_id, rank_class: Ranks.lookup(:iczn, 'species'), project_id: $project_id).id
                 @data.parent_id_index.merge!('species:' + row['Current_genus'].to_s + ' ' + row['Current_species'].to_s => species)
-                parent_id = species
               end
-
-              parent_id = [@lepidoptera, superfamily, family, subfamily, tribe, subtribe, genus, subgenus, species].compact.last
+              parent_id = species unless species.nil?
+              #parent_id = [@lepidoptera, superfamily, family, subfamily, tribe, subtribe, genus, subgenus, species].compact.last
 
               unless row['SCIENTIFIC_NAME_on_card'] == 'GENUS UNKNOWN' || row['SCIENTIFIC_NAME_on_card'] =~ /_AUCTORUM/
                 name = (rank =~ /GENUS/) ? row['SCIENTIFIC_NAME_on_card'].titleize : row['SCIENTIFIC_NAME_on_card']
@@ -487,6 +488,28 @@ namespace :tw do
                   o = Otu.create(taxon_name_id: protonym.id)
                   %w{Card_code Path Front_image Back_image}.each do |k|
                     o.data_attributes.create(import_predicate: k, value: @data.images_index[row['TaxonNo']][k], type: 'ImportAttribute')
+                  end
+
+                  file1 = @args[:data_directory] + @data.images_index[row['TaxonNo']]['Path'].gsub("Q:\\", '').gsub("\\", '/') + @data.images_index[row['TaxonNo']]['Front_image']
+                  file2 = @args[:data_directory] + @data.images_index[row['TaxonNo']]['Path'].gsub("Q:\\", '').gsub("\\", '/') + @data.images_index[row['TaxonNo']]['Back_image']
+
+                  d1 = nil
+                  d2 = nil
+                  d1 = Depiction.new(image_attributes: { image_file: File.open(file1) }, depiction_object: o) if File.exists?(file1)
+                  d2 = Depiction.new(image_attributes: { image_file: File.open(file2) }, depiction_object: o) if File.exists?(file2)
+                  if d1.nil?
+                    true
+                  elsif d1.valid?
+                    d1.save
+                  else
+                    print "\nImage file: front: card_code #{row['Card_code']} is invalid\n"
+                  end
+                  if d2.nil?
+                    true
+                  elsif d2.valid?
+                    d2.save
+                  else
+                    print "\nImage file: back: card_code #{row['Card_code']} is invalid\n"
                   end
                 end
 

@@ -619,7 +619,8 @@ class TaxonName < ActiveRecord::Base
   end
 
   def get_cached_misspelling
-    misspelling = TaxonName.as_subject_with_taxon_name_relationship_containing('::Usage::Misspelling')
+    misspelling = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('::Usage::Misspelling')
+    #misspelling = TaxonName.as_subject_with_taxon_name_relationship_containing('::Usage::Misspelling')
     misspelling.empty? ? nil : true
   end
 
@@ -700,10 +701,11 @@ class TaxonName < ActiveRecord::Base
   #  a monomial if names is above genus, or a full epithet if below, includes html
   def get_full_name_html
     return name unless self.type == 'Combination' || GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_string)
-    d = full_name_hash
-    elements = []
     eo = '<em>'
     ec = '</em>'
+    return "#{eo}#{name}#{ec}" if self.rank_string == 'NomenclaturalRank::Iczn::GenusGroup::GenusGroup'
+    d = full_name_hash
+    elements = []
     d.merge!('genus' => [nil, '[GENUS NOT PROVIDED]']) if !d['genus']
 
     elements.push("#{eo}#{d['genus'][1]}#{ec}#{d['genus'][3]}")
