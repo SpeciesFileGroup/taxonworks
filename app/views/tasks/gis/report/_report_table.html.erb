@@ -17,9 +17,7 @@
     <!-- This is the list of headers common to all collection objects-->
     <%= otu_headers.html_safe %>
     <!-- these are the computed headers collected for all selected collection objects-->
-    <%= c_o_headers([selected_headers('ce'),
-                     selected_headers('co'),
-                     selected_headers('bc')].flatten).html_safe %>
+    <%= c_o_headers(selected_headers).html_safe %>
   </tr>
   <% @collection_objects.each_with_index do |c_o, index| %>
       <tr>

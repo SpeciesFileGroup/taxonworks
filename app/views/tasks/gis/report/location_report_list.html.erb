@@ -5,6 +5,14 @@
     <%= form_tag(location_report_list_url) do %>
         <span id="geographic_areaError" style="color: #DD0000"></span>
         <%= helper_download_button %>
+        <table border="1" align="center" hidden="1">
+          <tbody>
+          <tr>
+            <%= tag_headers.html_safe %>
+          </tr>
+          <%= all_sub_headers(true).html_safe %>
+          </tbody>
+        </table>
     <% end %>
   </div>
 
