@@ -55,15 +55,20 @@ class LoanItem < ActiveRecord::Base
 
   protected
 
+  # @todo Is this a legimate method for this model?
   def total_provided_only_when_otu
     errors.add(:total, 'Total only providable when item is an otu') if total && loan_item_object_type != 'Otu'
   end
-
 
   def valid_collection_object_status
     unless self.collection_object_status.nil? || COLLECTION_OBJECT_STATUSES.include?(self.collection_object_status)
       errors.add(:collection_object_status, 'Invalid collection object status')
     end
+  end
+
+  # @todo @mjy What *is* the right construct for 'LoanItem'?
+  def self.find_for_autocomplete(params)
+    # where('recipient_email LIKE ?', "#{params[:term]}%")
   end
 
 end

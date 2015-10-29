@@ -1,0 +1,10 @@
+<%= form_tag(search_loan_items_path, {method: :get}) do %>
+    <%= render partial: 'workbench/elements/forms/ajax_select',
+               locals:  {controller: 'loan_items',
+                         object:     nil,
+                         method:     'id',
+                         tag_id:     'loan_item_id_for_quick_search_form',
+                         size:       '',
+                         display:    ''} %>
+    <%= submit_tag 'Show' %>
+<% end %>
