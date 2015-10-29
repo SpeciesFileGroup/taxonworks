@@ -15,14 +15,20 @@
 <% end %>
 
 <%= content_for :related_attributes do %>
-    <% if @taxon_name.taxon_name_authors.any? %>
-        <h3>Taxon name authors</h3>
-        <ul>
-          <% @taxon_name.taxon_name_authors.each do |taxon_name_author| %>
-              <%= content_tag(:li, object_link(taxon_name_author)) %>
-          <% end %>
-        </ul>
-    <% end %>
+  <% if @taxon_name.taxon_name_authors.any? %>
+    <h3>Taxon name authors</h3>
+    <ul>
+      <% @taxon_name.taxon_name_authors.each do |taxon_name_author| %>
+        <%= content_tag(:li, object_link(taxon_name_author)) %>
+      <% end %>
+    </ul>
+  <% end %>
+
+  <% if @taxon_name.is_protonym? -%>
+    <%= content_tag(:h3, 'Classifications / Status') + render(partial: '/taxon_name_classifications/unordered_list', locals: {taxon_name_classifications: @taxon_name.taxon_name_classifications}) if @taxon_name.combinations.any? -%>
+    <%= content_tag(:h3, 'Relationships') + render(partial: '/taxon_name_relationships/list_by_taxon_name', locals: {taxon_name: @taxon_name }) if @taxon_name.taxon_name_relationships.any? || @taxon_name.related_taxon_name_relationships.any? -%>
+    <%= content_tag(:h3, 'Combinations') + render(partial: '/combinations/unordered_list', locals: {combinations: @taxon_name.combinations} ) if @taxon_name.combinations.any? -%>
+  <% end %>
 <% end %>
 
 <% content_for :see do %>
@@ -32,13 +38,6 @@
                                        taxon_name_distribution_data_task_path(@taxon_name.to_param),
                                        'data-no-turbolink' => true)) %>
         </ul>
-    <% end %>
-    <% if @taxon_name.is_protonym? -%>
-        <h3> Classifications / Status </h3>
-        <%= render(partial: '/taxon_name_classifications/unordered_list', locals: {taxon_name_classifications: @taxon_name.taxon_name_classifications}) -%>
-
-        <h3> Combinations </h3>
-        <%= render(partial: '/combinations/unordered_list', locals: {combinations: @taxon_name.combinations}) -%>
     <% end %>
 <% end %>
 

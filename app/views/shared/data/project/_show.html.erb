@@ -17,7 +17,7 @@
     <div class="item item2">
       <div class='tag'> <%= object_tag(object) -%> </div>
 
-      <div class="attributes">
+      <div class="attributes break_words">
         <%= render object_attributes_partial_path(object.metamorphosize) %>
         <%= yield :related_attributes -%>
         <%= render partial: '/shared/data/all/show/housekeeping', locals: {object: object} -%>

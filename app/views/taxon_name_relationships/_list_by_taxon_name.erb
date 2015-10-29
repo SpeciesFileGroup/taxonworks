@@ -1,0 +1,19 @@
+
+<% if @taxon_name.taxon_name_relationships.any? %>
+  <p> As subject of</p>
+  <ul>
+    <% taxon_name.taxon_name_relationships.each do |tnr| -%>
+      <%= content_tag(:li, taxon_name_relationship_for_subject_tag(tnr)) -%>
+    <% end %>
+  </ul>
+<% end %>
+
+
+<% if @taxon_name.related_taxon_name_relationships.any? %>
+  <p> As object of </p> 
+  <ul> 
+    <% taxon_name.related_taxon_name_relationships.each do |tnr| -%>
+      <%= content_tag(:li, taxon_name_relationship_for_object_tag(tnr)) -%>
+    <% end %>
+  </ul>
+<% end %>
