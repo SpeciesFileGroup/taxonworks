@@ -101,6 +101,8 @@ class CollectionObject < ActiveRecord::Base
   accepts_nested_attributes_for :otus, allow_destroy: true
   accepts_nested_attributes_for :taxon_determinations, allow_destroy: true, reject_if: :reject_taxon_determinations
 
+  accepts_nested_attributes_for :collecting_event, allow_destroy: true
+
   validates_presence_of :type
   validate :check_that_either_total_or_ranged_lot_category_id_is_present
   validate :check_that_both_of_category_and_total_are_not_present
