@@ -8,9 +8,7 @@
     <th>Loan</th>
     <th>Date returned</th>
     <th>Collection object status</th>
-    <th>Position</th>
     <th>Loan item object</th>
-    <th>Loan item object type</th>
     <th>Total</th>
     <th>Last modified</th>
     <th>Updated by</th>
@@ -21,16 +19,14 @@
   <tbody>
   <% @loan_items.each do |loan_item| %>
       <tr>
-        <td><%= loan_item.loan %></td>
+        <td><%= loan_tag(loan_item.loan) %></td>
         <td><%= loan_item.date_returned %></td>
         <td><%= loan_item.collection_object_status %></td>
-        <td><%= loan_item.position %></td>
-        <td><%= loan_item.loan_item_object %></td>
-        <td><%= loan_item.loan_item_object_type %></td>
+        <td><%= object_tag(loan_item.loan_item_object) %></td>
         <td><%= loan_item.total %></td>
         <td><%= loan_item.updated_at %></td>
         <td><%= object_tag(loan_item.updater) %></td>
-        <td><%= link_to 'Show', loan_item %></td>
+        <td><%= link_to 'Context', loan_item.loan %></td>
         <td><%= link_to 'Edit', edit_loan_item_path(loan_item) %></td>
         <td><%= link_to 'Destroy', loan_item, method: :delete, data: { confirm: 'Are you sure?' } %></td>
       </tr>

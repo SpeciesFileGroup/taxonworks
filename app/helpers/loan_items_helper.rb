@@ -2,14 +2,12 @@ module LoanItemsHelper
 
   def loan_item_tag(loan_item)
     return nil if loan_item.nil?
-    # @todo mjy Please fix next two lines
-    # v = loan.recipient_email
-    # v.blank? ? "[#{loan.to_param}]" : v
+    [loan_item.position, object_tag(loan_item.loan_item_object)].join(": ")
   end
 
   def loan_item_link(loan_item)
     return nil if loan_item.nil?
-    link_to(loan_item_tag(loan_item).html_safe, loan_item)
+    link_to(loan_item_tag(loan_item).html_safe, metamorphosize_if(loan_item.loan_item_object))
   end
 
   def loan_items_search_form
@@ -17,3 +15,4 @@ module LoanItemsHelper
   end
 
 end
+
