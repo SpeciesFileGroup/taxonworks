@@ -373,6 +373,11 @@ TaxonWorks::Application.routes.draw do
         get 'new', as: 'quick_verbatim_material_task'
         post 'create', as: 'create_verbatim_material_task'
       end
+
+      scope :simple, controller: 'tasks/accessions/quick/simple' do
+        get 'new', as: 'simple_specimen_task'
+        post 'create', as: 'create_simple_specimen_task'
+      end
     end
 
     scope :bibliography do
