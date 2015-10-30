@@ -68,14 +68,12 @@ namespace :tw do
         end
       end
 
-      $preparation_types = {}
+      @preparation_types = {}
       #$project_id = nil
       #$user_id = nil
-      $repository = nil
-      $user_index = {}
-      $collecting_event_index = {}
-      $invalid_collecting_event_index = {}
-      $redis = Redis.new
+      @repository = nil
+      @invalid_collecting_event_index = {}
+      @redis = Redis.new
 
 
 
@@ -112,14 +110,14 @@ namespace :tw do
         Utilities::Files.lines_per_file(Dir["#{@args[:data_directory]}/TXT/**/*.txt"])
 
         @dump_directory = dump_directory(@args[:data_directory]) 
-        @data =  ImportedData.new
+        @data = ImportedData.new
 
         restore_from_pg_dump if ENV['restore_from_dump'] && File.exists?(@dump_directory + 'all.dump')
 
         begin
           if ENV['no_transaction']
             puts 'Importing without a transaction (data will be left in the database).'
-            main_build_loop
+            main_build_loop_insects
           else
             ActiveRecord::Base.transaction do 
               main_build_loop 
@@ -159,10 +157,10 @@ namespace :tw do
       #  types.txt
       #  neon.txt
 
-      def main_build_loop
+      def main_build_loop_insects
         @import = Import.find_or_create_by(name: IMPORT_NAME)  
         @import.metadata ||= {} 
-        handle_projects_and_users(@data, @import)
+        handle_projects_and_users_insects(@data, @import)
         raise '$project_id or $user_id not set.'  if $project_id.nil? || $user_id.nil?
         handle_namespaces(@data, @import)
 
@@ -181,7 +179,7 @@ namespace :tw do
         puts "Indexing collecting events."
         # should be run to clear redis database. if specimen from diffrent tables run one buy one, data could be left in Redis and reused
 
-        $redis.flushall
+        @redis.flushall
 
         index_collecting_events_from_accessions_new(@data, @import)
         index_collecting_events_from_ledgers(@data, @import)
@@ -189,7 +187,7 @@ namespace :tw do
         index_specimen_records_from_specimens_new(@data, @import)
         index_specimen_records_from_neon(@data, @import)
 
-        puts "\nTotal collecting events to build: #{$redis.keys.count}."
+        puts "\nTotal collecting events to build: #{@redis.keys.count}."
 
         handle_associations(@data, @import)
         handle_loan_specimens(@data)
@@ -205,7 +203,7 @@ namespace :tw do
         puts "\n\n !! Success \n\n"
       end
 
-      def handle_projects_and_users(data, import)
+      def handle_projects_and_users_insects(data, import)
         print "Handling projects and users "
         email = 'inhs_admin@replace.me'
         project_name = 'INHS Insect Collection'
@@ -252,8 +250,8 @@ namespace :tw do
           import.metadata['project_and_users'] = true
         end
 
-        $repository = Repository.where(institutional_LSID: 'urn:lsid:biocol.org:col:34797').first
-        print 'Repository not found' if $repository.nil?
+        @repository = Repository.where(institutional_LSID: 'urn:lsid:biocol.org:col:34797').first
+        print 'Repository not found' if @repository.nil?
 
         @data.user_index.merge!('0' => user)
         @data.user_index.merge!('' => user)
@@ -371,6 +369,7 @@ namespace :tw do
           import.metadata['namespaces'] = true
         end
 
+        byebug
         catalogue_namespaces.each do |cn|
           n = Namespace.where(institution: 'INHS Insect Collection', short_name: cn)
           if n.empty?
@@ -744,7 +743,7 @@ namespace :tw do
           tmp_ce.merge!(c => ce[c]) unless ce[c].blank?
         end
         tmp_ce_sorted = tmp_ce.sort.to_s
-        c_from_redis = $redis.get(tmp_ce_sorted)
+        c_from_redis = @redis.get(tmp_ce_sorted)
         unless ce['AccessionNumber'].blank?
           #c = CollectingEvent.with_project_id($project_id).with_identifier('Accession Code ' + ce['Collection'].to_s + ' ' + ce['AccessionNumber'])
           if !ce['Collection'].blank?
@@ -757,7 +756,7 @@ namespace :tw do
           unless c.empty?
             c = c.first
             if c_from_redis.nil?
-              $redis.set(tmp_ce_sorted, c.id)
+              @redis.set(tmp_ce_sorted, c.id)
               return c
             end
             #data.collecting_event_index.merge!(tmp_ce => c)
@@ -770,7 +769,7 @@ namespace :tw do
           unless c.empty?
             c = c.first
             if c_from_redis.nil?
-              $redis.set(tmp_ce_sorted, c.id)
+              @redis.set(tmp_ce_sorted, c.id)
               if !ce['AccessionNumber'].blank? && !ce['Collection'].blank?
                 c.identifiers.create(identifier: ce['Collection'] + ' ' + ce['AccessionNumber'], namespace: @accession_namespace, type: 'Identifier::Local::AccessionCode')
               elsif !ce['AccessionNumber'].blank?
@@ -781,7 +780,7 @@ namespace :tw do
             # data.collecting_event_index.merge!(tmp_ce => c)
           end
         end
-        c_from_redis = $redis.get(tmp_ce_sorted)
+        c_from_redis = @redis.get(tmp_ce_sorted)
 
         unless c_from_redis.nil?
           c = CollectingEvent.where(id: c_from_redis).first
@@ -866,11 +865,11 @@ namespace :tw do
             c.data_attributes.create(type: 'ImportAttribute', import_predicate: 'georeference_error', value: 'Geolocation uncertainty is conflicting with geographic area') unless glc.valid?
           end
 
-          $redis.set(tmp_ce_sorted, c.id)
+          @redis.set(tmp_ce_sorted, c.id)
           #data.collecting_event_index.merge!(tmp_ce => c)
           return c
         else
-          $invalid_collecting_event_index.merge!(tmp_ce => nil)
+          @invalid_collecting_event_index.merge!(tmp_ce => nil)
           return nil
         end
       end
@@ -1098,7 +1097,7 @@ namespace :tw do
       end
 
       def index_specimen_records_from_specimens(data, import)
-        start = $redis.keys.count
+        start = @redis.keys.count
         collecting_event = nil
         puts " specimen records from specimens.txt"
         path = @args[:data_directory] + 'TXT/specimens.txt'
@@ -1144,7 +1143,7 @@ namespace :tw do
                 specimen = CollectionObject::BiologicalCollectionObject.new(
                 total: se[count],
                 preparation_type: preparation_type,
-                repository_id: $repository,
+                repository_id: @repository,
                 buffered_collecting_event: se['LocalityLabel'],
                 buffered_determinations: se['DeterminationLabel'],
                 buffered_other_labels: se['OtherLabel'],
@@ -1185,13 +1184,13 @@ namespace :tw do
           end
         end
 
-        puts "\n Number of collecting events processed from specimens: #{$redis.keys.count - start} "
+        puts "\n Number of collecting events processed from specimens: #{@redis.keys.count - start} "
       end
 
       def index_specimen_records_from_specimens_new(data, import)
         build_partially_resolved_index(data)
 
-        start = $redis.keys.count
+        start = @redis.keys.count
         puts " specimen records from specimens_new.txt"
         path = @args[:data_directory] + 'TXT/specimens_new.txt'
         raise 'file not found' if not File.exists?(path)
@@ -1259,7 +1258,7 @@ namespace :tw do
               specimen = CollectionObject::BiologicalCollectionObject.new(
                   total: se[count],
                   preparation_type: preparation_type,
-                  repository_id: $repository,
+                  repository_id: @repository,
                   buffered_collecting_event: se['LocalityLabel'],
                   buffered_determinations: se['DeterminationLabel'],
                   buffered_other_labels: se['OtherLabel'],
@@ -1293,11 +1292,11 @@ namespace :tw do
           add_determinations(objects, row, data)
         end
 
-        puts "\n Number of collecting events processed from specimens: #{$redis.keys.count - start} "
+        puts "\n Number of collecting events processed from specimens: #{@redis.keys.count - start} "
       end
 
       def index_specimen_records_from_neon(data, import)
-        start = $redis.keys.count
+        start = @redis.keys.count
         puts " specimen records from neon.txt"
         path = @args[:data_directory] + 'TXT/neon.txt'
         raise 'file not found' if not File.exists?(path)
@@ -1336,7 +1335,7 @@ namespace :tw do
               specimen = CollectionObject::BiologicalCollectionObject.new(
                   total: se[count],
                   preparation_type: preparation_type,
-                  repository_id: $repository,
+                  repository_id: @repository,
                   buffered_collecting_event: nil,
                   buffered_determinations: nil,
                   buffered_other_labels: nil,
@@ -1363,7 +1362,7 @@ namespace :tw do
           add_determinations(objects, row, data)
         end
 
-        puts "\n Number of collecting events processed from specimens: #{$redis.keys.count - start} "
+        puts "\n Number of collecting events processed from specimens: #{@redis.keys.count - start} "
       end
 
       def add_identifiers(objects, row, data)
@@ -1455,11 +1454,11 @@ namespace :tw do
 
           find_or_create_collecting_event(tmp_ce, data)
         end
-        puts "\n Number of collecting events processed from Accessions_new: #{$redis.keys.count} "
+        puts "\n Number of collecting events processed from Accessions_new: #{@redis.keys.count} "
       end
 
       def index_collecting_events_from_ledgers(data, import)
-        starting_number = $redis.keys.empty? ? 0 : $redis.keys.count
+        starting_number = @redis.keys.empty? ? 0 : @redis.keys.count
 
         path = @args[:data_directory] + 'TXT/ledgers.txt'
         raise 'file not found' if not File.exists?(path)
@@ -1499,7 +1498,7 @@ namespace :tw do
           }
           print "\r#{i}\t#{bench.to_s.strip}"
         end
-        puts "\n Number of collecting events processed from Ledgers: #{$redis.keys.count - starting_number} "
+        puts "\n Number of collecting events processed from Ledgers: #{@redis.keys.count - starting_number} "
       end
 
       def handle_associations(data, import)
@@ -1618,7 +1617,7 @@ namespace :tw do
       end
 
       def handle_loans_without_specimens(data)
-        start = $redis.keys.count
+        start = @redis.keys.count
         collecting_event = nil
         puts "Loan specimen records from specimens.txt"
         path = @args[:data_directory] + 'TXT/specimens.txt'
@@ -1740,7 +1739,6 @@ namespace :tw do
                                        otu_id: otu,
                                        name: nil
           )
-          #identifier = Identifier::Local::ContainerCode.create!(namespace: data.namespaces[row['CollectionType']], identifier: row['ID'], identifier_object: container)
 
           ['Label1_1', 'Label1_2', 'Label1_3', 'Label1_4', 'Label2_1', 'Label2_2', 'Label2_3', 'Label2_4'].each do |l|
             row[l] = nil if row[l].blank?

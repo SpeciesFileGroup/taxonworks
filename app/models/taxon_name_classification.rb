@@ -128,9 +128,10 @@ class TaxonNameClassification < ActiveRecord::Base
   def set_cached_names_for_taxon_names
     begin
       TaxonName.transaction do
-        if self.type_name =~/Fossil|Hybrid/
+        if self.type_name =~ /Fossil|Hybrid/
           t = self.taxon_name
-          t.update_column(:cached_html, t.get_full_name_html)
+          t.update_columns(:cached => t.get_full_name,
+                           :cached_html => t.get_full_name_html)
         end
       end
     rescue

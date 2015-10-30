@@ -9,7 +9,7 @@ class TaxonNameRelationship::Iczn::Validating::UncertainPlacement < TaxonNameRel
 
   # right_side
   def self.valid_object_ranks
-    FAMILY_RANK_NAMES_ICZN
+    FAMILY_RANK_NAMES_ICZN + ['NomenclaturalRank::Iczn::GenusGroup::GenusGroup']
   end
 
   def self.disjoint_taxon_name_relationships

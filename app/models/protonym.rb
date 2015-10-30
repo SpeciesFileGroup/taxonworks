@@ -314,7 +314,7 @@ class Protonym < TaxonName
       if self.rank_class.to_s == 'NomenclaturalRank' || self.parent.rank_class.to_s == 'NomenclaturalRank' || !!self.iczn_uncertain_placement_relationship
         true
       elsif !self.rank_class.valid_parents.include?(self.parent.rank_class.to_s)
-        soft_validations.add(:rank_class, "The rank #{self.rank_class.rank_name} is not compatible with the rank of parent (#{self.parent.rank_class.rank_name})")
+        soft_validations.add(:rank_class, "The rank #{self.rank_class.rank_name} is not compatible with the rank of parent (#{self.parent.rank_class.rank_name}). The name should be marked as Incertae sedis")
       end
     end
   end
@@ -600,7 +600,7 @@ class Protonym < TaxonName
             name += 'ina'
           end
         else
-          name = [p.name]
+          name = p.name
         end
 
         t = Protonym.new(name: name, rank_class: rank, verbatim_author: p.verbatim_author, year_of_publication: p.year_of_publication, source_id: p.source_id, parent: p)
@@ -651,7 +651,7 @@ class Protonym < TaxonName
         end
         reduce_list_of_synonyms(possible_synonyms)
         possible_synonyms.each do |s|
-          soft_validations.add(:base, "Taxon should be a synonym of #{s.cached_html + ' ' + s.cached_author_year} since they share the same type")
+          soft_validations.add(:base, "Taxon should be a synonym of #{s.cached_html} #{s.cached_author_year} since they share the same type")
         end
       end
     end

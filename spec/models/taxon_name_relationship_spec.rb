@@ -254,8 +254,7 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
      expect(s1.cached_classified_as).to eq(' (as Erythroneuridae)')
    end
   
-   # TODO: this is at the end of the tests, it seems to mix a couple of things, rename the specify to explain what's going on 
-   specify 'doing something else?!' do  
+   specify 'fixing synonym linked to another synonym' do
       r3 = FactoryGirl.build(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling')
       r3.soft_validate(:synonym_linked_to_valid_name)
       expect(r3.soft_validations.messages_on(:subject_taxon_name_id).size).to eq(1)

@@ -396,7 +396,7 @@ class TaxonName < ActiveRecord::Base
   end
 
   def hybrid?
-    !TaxonNameClassification.where_taxon_name(self).with_type_contains('Icn::Hybrid').empty? ? true : false
+    !TaxonNameClassification.where_taxon_name(self).with_type_contains('Hybrid').empty? ? true : false
   end
 
   # @return [TaxonName]
@@ -431,36 +431,37 @@ class TaxonName < ActiveRecord::Base
       n = n[0..-6] + 'arum' if n =~ /^[a-z]*iarum$/ # -iarum > -arum
       n = n[0..-3] + 'a' if n =~ /^[a-z]*um$/ # -um > -a
       n = n[0..-3] + 'a' if n =~ /^[a-z]*us$/ # -us > -a
+      n = n[0..-3] + 'e' if n =~ /^[a-z]*is$/ # -is > -e
       n = n[0..-3] + 'ra' if n =~ /^[a-z]*er$/ # -er > -ra
       n = n[0..-7] + 'ensis' if n =~ /^[a-z]*iensis$/ # -iensis > -ensis
       n = n[0..-5] + 'ana' if n =~ /^[a-z]*iana$/ # -iana > -ana
       n = n.gsub('ae', 'e').
-        gsub('oe', 'e').
-        gsub('ai', 'i').
-        gsub('ei', 'i').
-        gsub('ej', 'i').
-        gsub('ii', 'i').
-        gsub('ij', 'i').
-        gsub('jj', 'i').
-        gsub('j', 'i').
-        gsub('y', 'i').
-        gsub('v', 'u').
-        gsub('rh', 'r').
-        gsub('th', 't').
-        gsub('k', 'c').
-        gsub('ch', 'c').
-        gsub('tt', 't').
-        gsub('bb', 'b').
-        gsub('rr', 'r').
-        gsub('nn', 'n').
-        gsub('mm', 'm').
-        gsub('pp', 'p').
-        gsub('ss', 's').
-        gsub('ff', 'f').
-        gsub('ll', 'l').
-        gsub('ct', 't').
-        gsub('ph', 'f').
-        gsub('-', '')
+            gsub('oe', 'e').
+            gsub('ai', 'i').
+            gsub('ei', 'i').
+            gsub('ej', 'i').
+            gsub('ii', 'i').
+            gsub('ij', 'i').
+            gsub('jj', 'i').
+            gsub('j', 'i').
+            gsub('y', 'i').
+            gsub('v', 'u').
+            gsub('rh', 'r').
+            gsub('th', 't').
+            gsub('k', 'c').
+            gsub('ch', 'c').
+            gsub('tt', 't').
+            gsub('bb', 'b').
+            gsub('rr', 'r').
+            gsub('nn', 'n').
+            gsub('mm', 'm').
+            gsub('pp', 'p').
+            gsub('ss', 's').
+            gsub('ff', 'f').
+            gsub('ll', 'l').
+            gsub('ct', 't').
+            gsub('ph', 'f').
+            gsub('-', '')
       n = n[0, 3] + n[3..-4].gsub('o', 'i') + n[-3, 3] if n.length > 6 # connecting vowel in the middle of the word (nigrocinctus vs. nigricinctus)
     elsif self.rank_string =~ /Family/
       n_base = Protonym.family_group_base(self.name)
@@ -694,7 +695,9 @@ class TaxonName < ActiveRecord::Base
     elements.push ['(', d['subgenus'], d['section'], d['subsection'], d['series'], d['subseries'], ')']
     elements.push ['(', d['superspecies'], ')']
     elements.push(d['species'], d['subspecies'], d['variety'], d['subvariety'], d['form'], d['subform'])
-    elements.flatten.compact.join(' ').gsub(/\(\s*\)/, '').gsub(/\(\s/, '(').gsub(/\s\)/, ')').squish
+    elements = elements.flatten.compact.join(' ').gsub(/\(\s*\)/, '').gsub(/\(\s/, '(').gsub(/\s\)/, ')').squish
+    elements.blank? ? nil : elements
+    elements
   end
 
   # @return [String]
@@ -706,7 +709,8 @@ class TaxonName < ActiveRecord::Base
     return "#{eo}#{name}#{ec}" if self.rank_string == 'NomenclaturalRank::Iczn::GenusGroup::GenusGroup'
     d = full_name_hash
     elements = []
-    d.merge!('genus' => [nil, '[GENUS NOT PROVIDED]']) if !d['genus']
+    d.merge!('genus' => [nil, '[' + self.original_genus.cached_html + ']']) if !d['genus'] && self.original_genus
+    d.merge!('genus' => [nil, '[GENUS UNKNOWN]']) unless d['genus']
 
     elements.push("#{eo}#{d['genus'][1]}#{ec}#{d['genus'][3]}")
     elements.push ['(', %w{subgenus section subsection series subseries}.collect { |r| d[r] ? [d[r][0], "#{eo}#{d[r][1]}#{ec}#{d[r][3]}"] : nil }, ')']
@@ -876,6 +880,7 @@ class TaxonName < ActiveRecord::Base
     elsif self_option == :alternative
       name1 = self.name_with_alternative_spelling
     end
+    return nil if genus.nil? && name1.nil?
     (genus.to_s + ' ' + name1.to_s).squish
   end
 
@@ -888,16 +893,19 @@ class TaxonName < ActiveRecord::Base
   # return [String]
   #   the author and year of the name, adds parenthesis where asserted
   def get_author_and_year
-    return ([self.author_string] + [self.year_integer]).compact.join(', ') if self.rank.nil?
-    
-    case self.rank_class.nomenclatural_code
-    when :iczn
-      iczn_author_and_year
-    when :icn
-      icn_author_and_year
+    if self.rank.nil?
+      ay = ([self.author_string] + [self.year_integer]).compact.join(', ')
     else
-      ([self.author_string] + [self.year_integer]).compact.join(' ')
+      case self.rank_class.nomenclatural_code
+        when :iczn
+          ay = iczn_author_and_year
+        when :icn
+          ay = icn_author_and_year
+        else
+          ay = ([self.author_string] + [self.year_integer]).compact.join(' ')
+      end
     end
+    ay.blank? ? nil : ay
   end
 
   def icn_author_and_year
@@ -913,7 +921,6 @@ class TaxonName < ActiveRecord::Base
 
     t  = [self.author_string]
     t  += ['(' + self.year_integer.to_s + ')'] unless self.year_integer.nil?
-    
     ay = t.compact.join(' ')
 
     unless basionym.empty? || b_sub.author_string.blank?
@@ -922,12 +929,11 @@ class TaxonName < ActiveRecord::Base
 
     unless misapplication.empty? || m_obj.author_string.blank?
       ay += ' nec ' + [m_obj.author_string]
-   
-      # @proceps - This t assigment does nothing at this point!, i.e. it isn't reflected back into ay, add a test
-      t  += ['(' + m_obj.year_integer.to_s + ')'] unless m_obj.year_integer.nil? 
+      t  += ['(' + m_obj.year_integer.to_s + ')'] unless m_obj.year_integer.nil?
+      ay = t.compact.join(' ')
     end
     
-    ay.length > 0 ? ay : nil
+    ay.blank? ? nil : ay
   end
 
   def iczn_author_and_year
@@ -940,7 +946,7 @@ class TaxonName < ActiveRecord::Base
     a = [self.author_string]
 
     if a[0] =~ /^\(.+\)$/ # (Author)
-      a[0] = a[0][1..-2]
+      a[0] = a[0][1..-2] ## remove parentheses in the author string
       p = true
     else
       p = false
@@ -967,7 +973,7 @@ class TaxonName < ActiveRecord::Base
       end
     end
 
-    ay.length > 0 ? ay : nil
+    ay.blank? ? nil : ay
   end
 
 

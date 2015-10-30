@@ -93,24 +93,6 @@ namespace :tw do
 
               main_build_loop
 
-
-            #@namespace = Namespace.new(name: 'LEPINDEX', short_name: 'lepindex')
-            #@namespace.save!
-
-            #@predicates = {
-            #  'PRINTED_DATE' => Predicate.create!(name: 'PRINTED_DATE', definition: 'Verbatim value from PRINTED_DATE in REFS_UNIQUE.'),
-            #  'BHL_PAGE' =>  Predicate.create!(name: 'BHL_PAGE', definition: 'Verbatim value from BHL_PAGE in REFS_UNIQUE.'),
-            #  'PART' =>  Predicate.create!(name: 'PART', definition: 'Verbatim value from PART in REFS_UNIQUE.'),
-            #  'PUBLISHER_ADDRESS' =>  Predicate.create!(name: 'PUBLISHER_ADDRESS', definition: 'Verbatim value from PUBLISHER_ADDRESS in REFS_UNIQUE.'),
-            #  'PUBLICATION_MONTH' =>  Predicate.create!(name: 'PUBLICATION_MONTH', definition: 'Verbatim value from PUBLICATION_MONTH in REFS_UNIQUE.'),
-            #  'PUBLICATION_YEAR' =>  Predicate.create!(name: 'PUBLICATION_YEAR', definition: 'Verbatim value from PUBLICATION_YEAR in REFS_UNIQUE, indicates an error in value provided.')
-            #}
-            
-            # Rake::Task["tw:project_import:lepindex:handle_uniq"].execute
-           
-            # Rake::Task["tw:project_import:lepindex:handle_viadocs"].execute
-            #  Rake::Task["tw:project_import:lepindex:handle_master"].execute
-            
               rescue
                 raise
               end
@@ -133,13 +115,14 @@ namespace :tw do
         handle_list_of_genera
         handle_images
         handle_species
+        soft_validations
 
         print "\n\n !! Success. End time: #{Time.now} \n\n"
       end
 
       def handle_projects_and_users
         print "\nHandling projects and users "
-        #@project, @user = initiate_project_and_users('Lepindex', 'i.kitching@nhm.ac.uk')
+        @project, @user = initiate_project_and_users('Lepindex', 'i.kitching@nhm.ac.uk')
         email = 'i.kitching@nhm.ac.uk'
         project_name = 'Lepindex'
         user_name = 'Lepindex Import'
@@ -162,11 +145,9 @@ namespace :tw do
           $user_id = user.id # set for project line below
 
           project = nil
-          #project = Project.where(name: project_name).first
+          project = Project.where(name: project_name).first #################### Comment fot creating a new one
           if project.nil?
             project = Project.create(name: project_name)
-          else
-            project = project.first
           end
 
           $project_id = project.id
@@ -430,7 +411,6 @@ namespace :tw do
                 @data.parent_id_index.merge!('species:' + row['Current_genus'].to_s + ' ' + row['Current_species'].to_s => species)
               end
               parent_id = species unless species.nil?
-              #parent_id = [@lepidoptera, superfamily, family, subfamily, tribe, subtribe, genus, subgenus, species].compact.last
 
               unless row['SCIENTIFIC_NAME_on_card'] == 'GENUS UNKNOWN' || row['SCIENTIFIC_NAME_on_card'] =~ /_AUCTORUM/
                 name = (rank =~ /GENUS/) ? row['SCIENTIFIC_NAME_on_card'].titleize : row['SCIENTIFIC_NAME_on_card']
@@ -450,18 +430,14 @@ namespace :tw do
                                         verbatim_name: verbatim_name,
                                         project_id: $project_id,
                                         created_by_id: find_or_create_collection_user(row['Last_changed_by']),
-                                        updated_by_id: find_or_create_collection_user(row['Last_changed_by']),
+                                        updated_by_id: $user_id,
                                         created_at: time_from_field(row['Date_changed']),
-                                        updated_at: time_from_field(row['Date_changed'])
+                                        updated_at: $user_id
                 )
                 %w{TaxonNo Original_Genus OrigSubgen Original_Species Original_Subspecies Original_Infrasubspecies Availability valid_parent_id ButmothNo}.each do |k|
                   protonym.data_attributes.new(import_predicate: k, value: row['k'], type: 'ImportAttribute') unless row['k'].blank?
                 end
                 protonym.data_attributes.new(import_predicate: 'Original_Year', value: row['Original_Year'], type: 'ImportAttribute') if !row['Original_Year'].blank? && protonym.year_of_publication.blank?
-
-                if row['Current_genus'] == 'GENUS UNKNOWN' || row['Current_genus'] =~ /_AUCTORUM/
-                  @list_of_relationships += [{'taxon' => protonym.id, 'relationship' => 'Incertae sedis', 'valid species' => parent_id}]
-                end
 
                 protonym.taxon_name_classifications.new(type: @classification_classes['not latin']) if name =~ /\d+-../
 
@@ -469,6 +445,10 @@ namespace :tw do
                   protonym.save!
                 else
                   byebug
+                end
+
+                if row['Current_genus'] =~ /(_AUCTORUM|GENUS UNKNOWN)/ && rank =~ /SPECIES/
+                  @list_of_relationships << {'taxon' => protonym.id, 'relationship' => 'Incertae sedis', 'valid species' => parent_id}
                 end
 
                 if row['valid_parent_id'].blank?
@@ -502,14 +482,14 @@ namespace :tw do
                   elsif d1.valid?
                     d1.save
                   else
-                    print "\nImage file: front: card_code #{row['Card_code']} is invalid\n"
+                    print "\nImage file: #{@data.images_index[row['TaxonNo']]['Front_image']} is invalid\n"
                   end
                   if d2.nil?
                     true
                   elsif d2.valid?
                     d2.save
                   else
-                    print "\nImage file: back: card_code #{row['Card_code']} is invalid\n"
+                    print "\nImage file: #{@data.images_index[row['TaxonNo']]['Back_image']} is invalid\n"
                   end
                 end
 
@@ -517,7 +497,7 @@ namespace :tw do
                 if @relationship_classes[row['Availability']].nil?
                   print "\nInvalid relationship: #{row['Availability']}\n"
                 elsif !row['valid_parent_id'].blank?
-                  @list_of_relationships += [{'taxon' => protonym.id, 'relationship' => row['Availability'], 'valid species' => row['valid_parent_id']}]
+                  @list_of_relationships << {'taxon' => protonym.id, 'relationship' => row['Availability'], 'valid species' => row['valid_parent_id']}
                 end
                 unless row['ButmothNo'].blank?
                   brow = @data.genera_index[row['ButmothNo'].to_i]
@@ -536,7 +516,7 @@ namespace :tw do
                   citation = brow.nil? ? nil : @data.citations_index[brow['GENUS_REF']]
                   Citation.create(citation_object: protonym, source_id: ref, pages: citation['PAGE']) unless ref.nil? || citation.nil?
 
-                  @list_of_relationships += [{'taxon' => protonym.id, 'relationship' => 'type species', 'type species' => brow['TS_SPECIES'], 'type species reference' => brow['TS_REF'], 'type designation' => brow['TSD_DESIGNATION'], 'ButmothNo' => brow['ButmothNo'].to_i, 'valid genus' => row['valid_parent_id']}] unless brow.nil?
+                  @list_of_relationships << {'taxon' => protonym.id, 'relationship' => 'type species', 'type species' => brow['TS_SPECIES'], 'type species reference' => brow['TS_REF'], 'type designation' => brow['TSD_DESIGNATION'], 'ButmothNo' => brow['ButmothNo'].to_i, 'valid genus' => row['valid_parent_id']} unless brow.nil?
                 end
 
                 unless @classification_classes[row['Availability']].nil?
@@ -551,7 +531,7 @@ namespace :tw do
                   elsif t == 'Original_Subspecies'
                     n = row['Original_Genus'].to_s + ' ' + row['Original_Species'].to_s + ' ' + row[t].to_s
                   end
-                  @list_of_relationships += [{'taxon' => protonym.id, 'relationship' => t, 'original' => n}] unless row[t].blank?
+                  @list_of_relationships << {'taxon' => protonym.id, 'relationship' => t, 'original' => n} unless row[t].blank?
                 end
 
                 if protonym.valid?
@@ -584,6 +564,10 @@ namespace :tw do
                                             object_taxon_name_id: r['taxon'],
                                             type: @relationship_classes[r['relationship']])
             end
+          elsif r['relationship'] == 'Incertae sedis'
+            tr = TaxonNameRelationship.new(subject_taxon_name_id: r['taxon'],
+                                           object_taxon_name_id: r['valid species'],
+                                           type: @relationship_classes[r['relationship']])
           elsif !r['valid species'].nil?
             valid_species = @data.taxonno_index[r['valid species'].to_i.to_s]
             if valid_species.nil?
@@ -630,7 +614,37 @@ namespace :tw do
             byebug
           end
         end
+      end
 
+      def soft_validations
+        fixed = 0
+        print "\nApply soft validation fixes to taxa 1st pass \n"
+        TaxonName.where(project_id: $project_id).each_with_index do |t, i|
+          print "\r#{i}    Fixes applied: #{fixed}"
+          t.soft_validate
+          t.fix_soft_validations
+          t.soft_validations.soft_validations.each do |f|
+            fixed += 1  if f.fixed?
+          end
+        end
+        print "\nApply soft validation fixes to relationships \n"
+        TaxonNameRelationship.where(project_id: $project_id).each_with_index do |t, i|
+          print "\r#{i}    Fixes applied: #{fixed}"
+          t.soft_validate
+          t.fix_soft_validations
+          t.soft_validations.soft_validations.each do |f|
+            fixed += 1  if f.fixed?
+          end
+        end
+        print "\nApply soft validation fixes to taxa 2nd pass \n"
+        TaxonName.where(project_id: $project_id).each_with_index do |t, i|
+          print "\r#{i}    Fixes applied: #{fixed}"
+          t.soft_validate
+          t.fix_soft_validations
+          t.soft_validations.soft_validations.each do |f|
+            fixed += 1  if f.fixed?
+          end
+        end
       end
 
       def find_or_create_collection_user(name)
