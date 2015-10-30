@@ -269,12 +269,25 @@ class CollectionObject < ActiveRecord::Base
     # CollectionObject.ce_headers(scope)
     # CollectionObject.co_headers(scope)
     # CollectionObject.bc_headers(scope)
-    CollectionObject.collect_selected_headers(col_defs)
+    # CollectionObject.collect_selected_headers(col_defs)
     CSV.generate do |csv|
       row = CO_OTU_Headers
-      row += @ce_col_defs[:headers]
-      row += @co_col_defs[:headers]
-      row += @bc_col_defs[:headers]
+      unless col_defs.nil?
+        %w(ce co bc).each { |column_type|
+          unless col_defs[column_type.to_sym].nil?
+            items = []
+            unless col_defs[column_type.to_sym][:internal].nil?
+              items.push(col_defs[column_type.to_sym][:internal].keys)
+            end
+            unless col_defs[column_type.to_sym][:import].nil?
+              items.push(col_defs[column_type.to_sym][:import].keys)
+            end
+          end
+        }
+      end
+      # row += @ce_col_defs[:headers]
+      # row += @co_col_defs[:headers]
+      # row += @bc_col_defs[:headers]
       csv << row
       scope.order(id: :asc).each do |c_o|
         row = [c_o.get_otu_id,
@@ -555,12 +568,16 @@ are located within the geographic item supplied
           retval.push(collection_object.biocuration_classes.map(&:name).include?(header) ? '1' : '0')
         }
       end
+      group = collection[:bc]
+      unless group.nil?
+        unless group[:internal].nil?
+          group[:internal].keys.each { |header|
+            this_val = collection_object.biocuration_classes.map(&:name).include?(header) ? '1' : '0'
+            retval.push(this_val) # push one value (nil or not) for each selected header
+          }
+        end
+      end
     end
-    group = collection[:bc]
-    group[:internal].keys.each { |header|
-      this_val = collection_object.biocuration_classes.map(&:name).include?(header) ? '1' : '0'
-      retval.push(this_val) # push one value (nil or not) for each selected header
-    }
     retval
   end
 
