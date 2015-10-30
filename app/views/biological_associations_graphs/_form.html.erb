@@ -1,0 +1,21 @@
+<%= form_for(@biological_associations_graph) do |f| %>
+    <%= render 'shared/errors', object: @biological_associations_graph %>
+
+  <div class="field">
+    <%= f.label :name %><br>
+    <%= f.text_field :name %>
+  </div>
+  <div class="field">
+    <%= f.label :source %><br>
+    <%= render :partial => 'workbench/elements/forms/ajax_select',
+               :locals => {:controller => 'sources',
+                           :object => 'biological_associations_graph',
+                           :method => 'source_id',
+                           :tag_id => 'source_id_for_biological_associations_graph',
+                           :display => source_tag(@biological_associations_graph.source),
+                           :size => 20} %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

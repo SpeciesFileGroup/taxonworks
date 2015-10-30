@@ -69,6 +69,15 @@ TaxonWorks::Application.routes.draw do
     end
   end
   resources :biocuration_classifications, only: [:create, :update, :destroy]
+  resources :biological_associations do
+    concerns [:data_routes]
+  end
+  resources :biological_associations_graph do
+    concerns [:data_routes]
+  end
+  resources :biological_relationships do
+    concerns [:data_routes]
+  end
   resources :citation_topics, only: [:create, :update, :destroy]
   resources :citations, except: [:show] do
     concerns [:data_routes]

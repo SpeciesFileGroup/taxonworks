@@ -1,0 +1,35 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Listing Biological Associations Graphs</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Created by</th>
+      <th>Updated by</th>
+      <th>Project</th>
+      <th>Name</th>
+      <th>Source</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @biological_associations_graphs.each do |biological_associations_graph| %>
+      <tr>
+        <td><%= biological_associations_graph.created_by %></td>
+        <td><%= biological_associations_graph.updated_by %></td>
+        <td><%= biological_associations_graph.project %></td>
+        <td><%= biological_associations_graph.name %></td>
+        <td><%= biological_associations_graph.source %></td>
+        <td><%= link_to 'Show', biological_associations_graph %></td>
+        <td><%= link_to 'Edit', edit_biological_associations_graph_path(biological_associations_graph) %></td>
+        <td><%= link_to 'Destroy', biological_associations_graph, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Biological associations graph', new_biological_associations_graph_path %>

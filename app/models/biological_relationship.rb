@@ -26,4 +26,8 @@ class BiologicalRelationship < ActiveRecord::Base
   has_many :biological_associations, inverse_of: :biological_relationship
   has_many :biological_properties, through: :biological_relationship_types
 
+  def self.find_for_autocomplete(params)
+    Queries::BiologicalRelationshipAutocompleteQuery.new(params[:term]).all.where(project_id: params[:project_id])
+  end
+
 end

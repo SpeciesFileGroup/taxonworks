@@ -1,0 +1,29 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Created by:</strong>
+  <%= @biological_associations_graph.created_by %>
+</p>
+
+<p>
+  <strong>Updated by:</strong>
+  <%= @biological_associations_graph.updated_by %>
+</p>
+
+<p>
+  <strong>Project:</strong>
+  <%= @biological_associations_graph.project %>
+</p>
+
+<p>
+  <strong>Name:</strong>
+  <%= @biological_associations_graph.name %>
+</p>
+
+<p>
+  <strong>Source:</strong>
+  <%= @biological_associations_graph.source %>
+</p>
+
+<%= link_to 'Edit', edit_biological_associations_graph_path(@biological_associations_graph) %> |
+<%= link_to 'Back', biological_associations_graphs_path %>

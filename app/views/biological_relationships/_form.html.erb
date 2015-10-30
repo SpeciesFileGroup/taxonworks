@@ -1,0 +1,19 @@
+<%= form_for(@biological_relationship) do |f| %>
+    <%= render 'shared/errors', object: @biological_relationship %>
+
+    <div class="field">
+    <%= f.label :name %><br>
+    <%= f.text_field :name %>
+  </div>
+  <div class="field">
+    <%= f.label :is_transitive %><br>
+    <%= f.check_box :is_transitive %>
+  </div>
+  <div class="field">
+    <%= f.label :is_reflexive %><br>
+    <%= f.check_box :is_reflexive %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

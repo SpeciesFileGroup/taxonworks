@@ -40,4 +40,9 @@ class BiologicalAssociation < ActiveRecord::Base
   validates :biological_association_object, presence: true
 
   validates_uniqueness_of :biological_association_subject_id, scope: [:biological_association_subject_type, :biological_association_object_id, :biological_association_object_type, :biological_relationship_id]
+
+  def self.find_for_autocomplete(params)
+    Queries::BiologicalAssociationAutocompleteQuery.new(params[:term]).all.where(project_id: params[:project_id])
+  end
+
 end

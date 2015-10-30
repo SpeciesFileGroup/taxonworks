@@ -1,0 +1,34 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Name:</strong>
+  <%= @biological_relationship.name %>
+</p>
+
+<p>
+  <strong>Is transitive:</strong>
+  <%= @biological_relationship.is_transitive %>
+</p>
+
+<p>
+  <strong>Is reflexive:</strong>
+  <%= @biological_relationship.is_reflexive %>
+</p>
+
+<p>
+  <strong>Created by:</strong>
+  <%= @biological_relationship.created_by %>
+</p>
+
+<p>
+  <strong>Updated by:</strong>
+  <%= @biological_relationship.updated_by %>
+</p>
+
+<p>
+  <strong>Project:</strong>
+  <%= @biological_relationship.project %>
+</p>
+
+<%= link_to 'Edit', edit_biological_relationship_path(@biological_relationship) %> |
+<%= link_to 'Back', biological_relationships_path %>
