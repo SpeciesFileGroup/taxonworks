@@ -204,25 +204,31 @@ class CollectionObject < ActiveRecord::Base
     @geo_names = collection_object.collecting_event.names
   end
 
+  # @return [Otu] if the otu exists, return it
   def get_otu
     self.otus.first unless self.otus.empty?
   end
 
+  # @return [Integer] if the otu exists, return the id
   def get_otu_id
     otu = get_otu
     otu.id unless otu.nil?
   end
 
+  # @return [String] if the otu exists, return the name
   def get_otu_name
     otu = get_otu
     otu.name unless otu.nil?
   end
 
+  # @return [String] if the otu exists, return the associated taxon name
   def get_otu_taxon_name
     otu = get_otu
     otu.taxon_name unless otu.nil?
   end
 
+  # @param [String] rank
+  # @return [String] if the otu exists, return the taxon name at the rank supplied
   def name_at_rank_string(rank)
     retval = nil
     otu    = get_otu_taxon_name
@@ -230,28 +236,7 @@ class CollectionObject < ActiveRecord::Base
     retval.cached_html unless retval.nil?
   end
 
-  # @param [Hash] of selected column names and types
-  # @return [None] sets global variables for later use
-  def self.collect_selected_headers(col_defs)
-    @ce_col_defs = cull_headers('ce', col_defs)
-    @co_col_defs = cull_headers('co', col_defs)
-    @bc_col_defs = cull_headers('bc', col_defs)
-  end
-
-  # @param [String] selection 'ce', 'co', 'bc'
-  # @param [Hash] col_defs selected headers and types
-  def self.cull_headers(selection, col_defs)
-    retval = {prefixes: [], headers: [], types: []}
-    col_defs[:prefixes].each_with_index { |prefix, index|
-      if prefix == selection
-        retval[:prefixes].push(prefix)
-        retval[:headers].push(col_defs[:headers][index])
-        retval[:types].push(col_defs[:types][index])
-      end
-    }
-    retval
-  end
-
+  # @param [Scope] selected of CollectionObject
   def self.generate_download(scope)
     CSV.generate do |csv|
       csv << column_names
@@ -266,16 +251,12 @@ class CollectionObject < ActiveRecord::Base
   # @param [Scope] selected of CollectionObject
   # @param [Hash] col_defs selected headers and types
   def self.generate_report_download(scope, col_defs)
-    # CollectionObject.ce_headers(scope)
-    # CollectionObject.co_headers(scope)
-    # CollectionObject.bc_headers(scope)
-    # CollectionObject.collect_selected_headers(col_defs)
     CSV.generate do |csv|
       row = CO_OTU_Headers
       unless col_defs.nil?
         %w(ce co bc).each { |column_type|
+          items = []
           unless col_defs[column_type.to_sym].nil?
-            items = []
             unless col_defs[column_type.to_sym][:internal].nil?
               items.push(col_defs[column_type.to_sym][:internal].keys)
             end
@@ -283,11 +264,9 @@ class CollectionObject < ActiveRecord::Base
               items.push(col_defs[column_type.to_sym][:import].keys)
             end
           end
+          row += items.flatten
         }
       end
-      # row += @ce_col_defs[:headers]
-      # row += @co_col_defs[:headers]
-      # row += @bc_col_defs[:headers]
       csv << row
       scope.order(id: :asc).each do |c_o|
         row = [c_o.get_otu_id,
@@ -351,90 +330,55 @@ are located within the geographic item supplied
   # decode which headers to be displayed for collecting events
   def self.ce_headers(project_id)
     CollectionObject.selected_column_names
-    retval               = {}
-    cvt_list             = InternalAttribute.where(project_id: project_id, attribute_subject_type: 'CollectingEvent')
-                             .select(:controlled_vocabulary_term_id).distinct
-                             .pluck(:controlled_vocabulary_term_id)
-    retval[:ce_internal] = ControlledVocabularyTerm.where(id: cvt_list).map(&:name).sort
-    retval[:ce_import]   = ImportAttribute.where(project_id: project_id, attribute_subject_type: 'CollectingEvent').pluck(:import_predicate).uniq.sort
+    cvt_list = InternalAttribute.where(project_id: project_id, attribute_subject_type: 'CollectingEvent')
+                 .select(:controlled_vocabulary_term_id)
+                 .distinct
+                 .pluck(:controlled_vocabulary_term_id)
     # add selectable column names (unselected) to the column name list list
-    retval[:ce_internal].each { |column_name|
+    ControlledVocabularyTerm.where(id: cvt_list).map(&:name).sort.each { |column_name|
       @selected_column_names[:ce][:internal][column_name] = {checked: '0'}
     }
-    retval[:ce_import].each { |column_name|
+    ImportAttribute.where(project_id: project_id, attribute_subject_type: 'CollectingEvent')
+      .pluck(:import_predicate).uniq.sort.each { |column_name|
       @selected_column_names[:ce][:import][column_name] = {checked: '0'}
     }
-    # @ce_headers = retval
-    # @ce_headers
     @selected_column_names
   end
 
   # @param [CollectionObject] from which to extract attributes
-  # @param [Hash] collection of selected prefixes, types, and headers
+  # @param [Hash] collection of selected headers
   # @return [Array] of attributes
   def self.ce_attributes(collection_object, col_defs)
     retval = []; collection = col_defs
     unless collection.nil?
-      ce_header_strings = []; ce_header_types = []
-      prefixes          = collection[:prefixes]
-      headers           = collection[:headers]
-      types             = collection[:types]
-      unless prefixes.nil?
-        prefixes.each_with_index { |p_type, index|
-          if p_type == 'ce'
-            ce_header_strings.push(headers[index])
-            ce_header_types.push(types[index])
-          end
-        }
-        all_internal_das = []; all_import_das = []
-        # for this collection object, gather all the possible data_attributes
-        all_internal_das = collection_object.collecting_event.internal_attributes
-        all_import_das   = collection_object.collecting_event.import_attributes
-        ce_header_strings.each_with_index { |header, index|
-          # if this header is in the list of all_internal_das predicate.names
-          this_val = nil
-          case ce_header_types[index]
-            when 'int'
-              # check in the internals table
-              all_internal_das.each { |da|
-                if da.predicate.name == header
-                  this_val = da.value
-                end
-              }
-            when 'imp'
-              all_import_das.each { |da|
-                if da.import_predicate == header
-                  this_val = da.value
-                end
-              }
-            else
-              # do nothing
-          end
-          retval.push(this_val)
-        }
-      end
       # for this collection object, gather all the possible data_attributes
       all_internal_das = collection_object.collecting_event.internal_attributes
       all_import_das   = collection_object.collecting_event.import_attributes
       group            = collection[:ce]
-      group[:internal].keys.each { |header|
-        this_val = nil
-        all_internal_das.each { |da|
-          if da.predicate.name == header
-            this_val = da.value
-          end
+      unless group[:internal].nil?
+        group[:internal].keys.each { |header|
+          this_val = nil
+          all_internal_das.each { |da|
+            if da.predicate.name == header
+              this_val = da.value
+              break
+            end
+          }
+          retval.push(this_val) # push one value (nil or not) for each selected header
         }
-        retval.push(this_val) # push one value (nil or not) for each selected header
-      }
-      group[:import].keys.each { |header|
-        this_val = nil
-        all_import_das.each { |da|
-          if da.import_predicate == header
-            this_val = da.value
-          end
+      end
+      unless group[:import].nil?
+        group[:import].keys.each { |header|
+          this_val = nil
+          all_import_das.each { |da|
+            if da.import_predicate == header
+              this_val = da.value
+              break
+            end
+          }
+          retval.push(this_val) # push one value (nil or not) for each selected header
         }
-        retval.push(this_val) # push one value (nil or not) for each selected header
-      }
+      end
     end
     retval
   end
@@ -443,23 +387,19 @@ are located within the geographic item supplied
   # @return [Hash] of column names and types for collection objects
   # decode which headers to be displayed for collection objects
   def self.co_headers(project_id)
-    # @co_headers = collection_objects.map(&:data_attributes).flatten.map(&:predicate).map(&:name).uniq.sort
     CollectionObject.selected_column_names
-    retval               = {}
-    # retval[:co_internal] = InternalAttribute.where(project_id: project_id, attribute_subject_type: 'CollectionObject').map(&:predicate).map(&:name).uniq.sort
-    cvt_list             = InternalAttribute.where(project_id: project_id, attribute_subject_type: 'CollectionObject')
-                             .select(:controlled_vocabulary_term_id).distinct
-                             .pluck(:controlled_vocabulary_term_id)
-    retval[:co_internal] = ControlledVocabularyTerm.where(id: cvt_list).map(&:name).sort
-    retval[:co_import]   = ImportAttribute.where(project_id: project_id, attribute_subject_type: 'CollectionObject').pluck(:import_predicate).uniq.sort
+    cvt_list = InternalAttribute.where(project_id: project_id, attribute_subject_type: 'CollectionObject')
+                 .select(:controlled_vocabulary_term_id)
+                 .distinct
+                 .pluck(:controlled_vocabulary_term_id)
     # add selectable column names (unselected) to the column name list list
-    retval[:co_internal].each { |column_name|
+    ControlledVocabularyTerm.where(id: cvt_list).map(&:name).sort.each { |column_name|
       @selected_column_names[:co][:internal][column_name] = {checked: '0'}
     }
-    retval[:co_import].each { |column_name|
+    ImportAttribute.where(project_id: project_id, attribute_subject_type: 'CollectionObject')
+      .pluck(:import_predicate).uniq.sort.each { |column_name|
       @selected_column_names[:co][:import][column_name] = {checked: '0'}
     }
-    # @co_headers = retval
     @selected_column_names
   end
 
@@ -469,66 +409,32 @@ are located within the geographic item supplied
   def self.co_attributes(collection_object, col_defs)
     retval = []; collection = col_defs
     unless collection.nil?
-      co_header_strings = []; co_header_types = []
-      prefixes          = collection[:prefixes]
-      headers           = collection[:headers]
-      types             = collection[:types]
-      unless prefixes.nil?
-        prefixes.each_with_index { |p_type, p_index|
-          if p_type == 'co'
-            co_header_strings.push(headers[p_index])
-            co_header_types.push(types[p_index])
-          end
-        }
-        # all_internal_das = []; all_import_das = []
-        # for this collection object, gather all the possible data_attributes
-        all_internal_das = collection_object.internal_attributes
-        all_import_das   = collection_object.import_attributes
-        co_header_strings.each_with_index { |header, index|
-          this_val = nil
-          case co_header_types[index]
-            when 'int'
-              # check in the internals table
-              all_internal_das.each { |da|
-                if da.predicate.name == header
-                  this_val = da.value
-                end
-              }
-            when 'imp'
-              all_import_das.each { |da|
-                if da.import_predicate == header
-                  this_val = da.value
-                end
-              }
-            else
-              # do nothing
-          end
-          retval.push(this_val)
-          # retval.push(collection_object.data_attributes.where(type: attribute_type).select { |d| d.predicate_name == header }.map(&:value).join('; '))
-        }
-      end
       # for this collection object, gather all the possible data_attributes
       all_internal_das = collection_object.internal_attributes
       all_import_das   = collection_object.import_attributes
       group            = collection[:co]
-      group[:internal].keys.each { |header|
-        this_val = nil
-        all_internal_das.each { |da|
-          if da.predicate.name == header
-            this_val = da.value
-          end
+      unless group[:internal].nil?
+        group[:internal].keys.each { |header|
+          this_val = nil
+          all_internal_das.each { |da|
+            if da.predicate.name == header
+              this_val = da.value
+            end
+          }
+          retval.push(this_val) # push one value (nil or not) for each selected header
         }
-        retval.push(this_val) # push one value (nil or not) for each selected header
-      }
-      group[:import].keys.each { |header|
-        this_val = nil
-        all_import_das.each { |da|
-          if da.import_predicate == header
-            this_val = da.value
-          end
+      end
+      unless group[:import].nil?
+        group[:import].keys.each { |header|
+          this_val = nil
+          all_import_das.each { |da|
+            if da.import_predicate == header
+              this_val = da.value
+            end
+          }
+          retval.push(this_val) # push one value (nil or not) for each selected header
         }
-        retval.push(this_val) # push one value (nil or not) for each selected header
-      }
+      end
     end
     retval
   end
@@ -537,15 +443,11 @@ are located within the geographic item supplied
   # @return [Hash] of column names and types for biocuration classifications
   # decode which headers to be displayed for biocuration classifications
   def self.bc_headers(project_id)
-    # @bc_headers = collection_objects.map(&:biocuration_classifications).flatten.map(&:biocuration_class).map(&:name).uniq.sort
     CollectionObject.selected_column_names
-    retval      = {}
-    retval[:bc] = BiocurationClass.where(project_id: project_id).map(&:name)
     # add selectable column names (unselected) to the column name list list
-    retval[:bc].each { |column_name|
+    BiocurationClass.where(project_id: project_id).map(&:name).each { |column_name|
       @selected_column_names[:bc][:internal][column_name] = {checked: '0'}
     }
-    # @bc_headers = retval
     @selected_column_names
   end
 
@@ -555,19 +457,6 @@ are located within the geographic item supplied
   def self.bc_attributes(collection_object, col_defs)
     retval = []; collection = col_defs
     unless collection.nil?
-      bc_header_strings = []
-      prefixes          = collection[:prefixes]
-      headers           = collection[:headers]
-      unless prefixes.nil?
-        prefixes.each_with_index { |p_type, index|
-          if p_type == 'bc'
-            bc_header_strings.push(headers[index])
-          end
-        }
-        bc_header_strings.each { |header|
-          retval.push(collection_object.biocuration_classes.map(&:name).include?(header) ? '1' : '0')
-        }
-      end
       group = collection[:bc]
       unless group.nil?
         unless group[:internal].nil?
