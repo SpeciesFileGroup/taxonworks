@@ -1,5 +1,11 @@
  # This is used in the quick bar for navigation, it is meant to map closely related data classes together for quick access.  At most 3-4 classes should be used for each category.
 ---
+biological_associations:
+  - biological_relationships
+biological_associations_graphs:
+  - sources
+biological_relationships:
+  - biological_associations
 collection_objects:
   - collecting_events
   - taxon_determinations

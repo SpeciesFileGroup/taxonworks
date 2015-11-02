@@ -1,0 +1,31 @@
+<h1>Listing biological relationships</h1>
+
+<%= paginate @biological_relationships %> <%= page_entries_info @biological_relationships %>
+
+<table>
+  <thead>
+  <tr>
+    <th>Name</th>
+    <th>Is transitive</th>
+    <th>Is reflexive</th>
+    <th>Last modified</th>
+    <th>Updated by</th>
+    <th colspan="3"></th>
+  </tr>
+  </thead>
+
+  <tbody>
+  <% @biological_relationships.each do |biological_relationship| %>
+      <tr>
+        <td><%= biological_relationship.name %></td>
+        <td><%= biological_relationship.is_transitive %></td>
+        <td><%= biological_relationship.is_reflexive %></td>
+        <td><%= biological_relationship.updated_at %></td>
+        <td><%= object_tag(biological_relationship.updater) %></td>
+        <td><%= link_to 'Show', biological_relationship %></td>
+        <td><%= link_to 'Edit', edit_biological_relationship_path(biological_relationship) %></td>
+        <td><%= link_to 'Destroy', biological_relationship, method: :delete, data: {confirm: 'Are you sure?'} %></td>
+      </tr>
+  <% end %>
+  </tbody>
+</table>

@@ -72,7 +72,7 @@ TaxonWorks::Application.routes.draw do
   resources :biological_associations do
     concerns [:data_routes]
   end
-  resources :biological_associations_graph do
+  resources :biological_associations_graphs do
     concerns [:data_routes]
   end
   resources :biological_relationships do
