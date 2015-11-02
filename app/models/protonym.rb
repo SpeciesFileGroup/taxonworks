@@ -649,7 +649,7 @@ class Protonym < TaxonName
             possible_synonyms = Protonym.with_type_of_taxon_names(type.id).that_is_valid.not_self(self).with_project(self.project_id)
           end
         end
-        reduce_list_of_synonyms(possible_synonyms)
+        possible_synonyms = reduce_list_of_synonyms(possible_synonyms)
         possible_synonyms.each do |s|
           soft_validations.add(:base, "Taxon should be a synonym of #{s.cached_html} #{s.cached_author_year} since they share the same type")
         end
