@@ -1,18 +1,5 @@
-<% two_table = false ; if two_table %>
-    <table border="1" align="center">
-      <tbody>
-      <tr>
-        <% data = Tasks::Gis::ReportController.report_file %>
-        <% data[0].each { |header| %>
-            <th><%= "#{header}" %></th>
-        <% } %>
-      </tr>
-      </tbody>
-    </table>
-<% end %>
 <table border="1" align="center">
   <tbody>
-  <%# todo: parse @@file for the headers and data: @@file.split("\n") for rows, row.split(',') for item s%>
   <tr>
     <!-- This is the list of headers common to all collection objects-->
     <%= otu_headers.html_safe %>

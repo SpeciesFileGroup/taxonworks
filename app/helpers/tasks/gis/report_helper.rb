@@ -2,11 +2,13 @@ module Tasks::Gis::ReportHelper
 
   ALLHEADERS = ['Collecting Event', 'Collection Object', 'Bio classification']
 
+  # @return [String] for download button and hidden field for geographic area id
   def helper_download_button
     submit_tag('download', {disabled: params[:geographic_area_id].nil?}) +
       hidden_field_tag(:download_geo_area_id, params[:geographic_area_id])
   end
 
+  # @return [String] strings for predicate selection table
   def tag_headers
     retval = ''
     ALLHEADERS.each { |header|
@@ -15,6 +17,7 @@ module Tasks::Gis::ReportHelper
     retval
   end
 
+  # @return [String] common headers otu through longitude
   def otu_headers
     retval = ''
     CO_OTU_Headers.each { |header|
@@ -23,6 +26,8 @@ module Tasks::Gis::ReportHelper
     retval
   end
 
+  # @param [Hash] header_list construct
+  # @return [String] collection of all of the headers selected
   def c_o_headers(header_list = [])
     retval = ''
     header_list.each { |header|
@@ -31,6 +36,8 @@ module Tasks::Gis::ReportHelper
     retval
   end
 
+  # @param [Array] attribute_list
+  # @return [String] collection of all of the attributes selected
   def c_o_attributes(attribute_list = [])
     retval = ''
     attribute_list.each { |attribute|
@@ -39,23 +46,7 @@ module Tasks::Gis::ReportHelper
     retval
   end
 
-  # def selected_headers(selected)
-  #   retval   = []
-  #   prefixes = session[:co_selected_headers][:prefixes]
-  #   headers  = session[:co_selected_headers][:headers]
-  #   types    = session[:co_selected_headers][:types]
-  #   prefixes.each_with_index { |prefix, index|
-  #     case prefix
-  #       when selected
-  #         item = headers[index]
-  #         item = item[2, item.length] if item.start_with?('* ')
-  #         retval.push(item)
-  #       else
-  #     end
-  #   }
-  #   retval
-  # end
-
+  # @return [Array] of the selected headers
   def selected_headers
     retval = []
     %w(ce co bc).each { |column|
@@ -68,7 +59,7 @@ module Tasks::Gis::ReportHelper
   end
 
   # @return [Hash] with collecting event data attribute names, both internal and import
-  # can't use data_attribute.predicate_name here; it will lose the sense of source (internal or implort)
+  # can't use data_attribute.predicate_name here; it will lose the sense of source (internal or import)
   #
   def ce_headers
     @selected_column_names = CollectionObject.ce_headers(sessions_current_project_id)
@@ -81,7 +72,7 @@ module Tasks::Gis::ReportHelper
   end
 
   # @return [Hash] with collection object data attribute names, both internal and import
-  # can't use data_attribute.predicate_name here; it will lose the sense of source (internal or implort)
+  # can't use data_attribute.predicate_name here; it will lose the sense of source (internal or import)
   #
   def co_headers
     @selected_column_names = CollectionObject.co_headers(sessions_current_project_id)
@@ -93,6 +84,9 @@ module Tasks::Gis::ReportHelper
     CollectionObject.co_attributes(collection_object, @selected_column_names)
   end
 
+  # @return [Hash] with collection object data attribute names, both internal and import
+  # can't use data_attribute.predicate_name here; it will lose the sense of source (internal or import)
+  #
   def bc_headers
     @selected_column_names = CollectionObject.bc_headers(sessions_current_project_id)
   end
@@ -103,26 +97,9 @@ module Tasks::Gis::ReportHelper
     CollectionObject.bc_attributes(collection_object, @selected_column_names)
   end
 
-  # def combine_sub_headers(headers)
-  #   retval = []
-  #   keys   = headers.keys
-  #   retval += [keys[0][0, 2]]
-  #   keys.each { |key|
-  #     case key
-  #       when /_imp/
-  #         headers[key].each { |item|
-  #           retval.push('--Import')
-  #           retval.push(item)
-  #         }
-  #       else
-  #         headers[key].each { |item|
-  #           retval.push(item)
-  #         }
-  #     end
-  #   }
-  #   retval
-  # end
-
+  # @param [Boolean] filtered to indicate whether the existing hash of @selected_column_names are pre- (false) or
+  # post- (true) selection
+  # @return [String] of headers to be applied to table
   def all_sub_headers(filtered = false)
     unless filtered
       ce_headers
@@ -134,7 +111,9 @@ module Tasks::Gis::ReportHelper
       # stuff the column_type, just to make it easier to visualize the data organization in the debugger
       items = [column_type]
       # stuff the headers for the internal predicates
-      items.push(@selected_column_names[column_type.to_sym][:internal].keys)
+      unless @selected_column_names[column_type.to_sym][:internal].nil?
+        items.push(@selected_column_names[column_type.to_sym][:internal].keys)
+      end
       # check for import predicates (may not be present on ce and co, WILL NOT be present on bc)
       unless @selected_column_names[column_type.to_sym][:import].nil?
         unless @selected_column_names[column_type.to_sym][:import].keys.empty?
@@ -185,7 +164,7 @@ module Tasks::Gis::ReportHelper
     retstring
   end
 
-  def georeferences
+  def shown_georeferences
     retval = @collection_objects.map(&:collecting_event).uniq.map(&:georeferences).flatten
     retval.push(@geographic_area)
   end

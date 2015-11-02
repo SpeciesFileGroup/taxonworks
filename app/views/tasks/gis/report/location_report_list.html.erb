@@ -5,6 +5,9 @@
     <%= form_tag(location_report_list_url) do %>
         <span id="geographic_areaError" style="color: #DD0000"></span>
         <%= helper_download_button %>
+        <p>
+          Collection object count: <%= @collection_objects.count %>
+        </p>
         <table border="1" align="center" hidden="1">
           <tbody>
           <tr>
@@ -18,7 +21,7 @@
 
   <div class="item item2">
     <div id="feature_collection"
-         data-feature-collection='<%= Gis::GeoJSON.feature_collection(georeferences).to_json %>'>
+         data-feature-collection='<%= Gis::GeoJSON.feature_collection(shown_georeferences).to_json %>'>
     </div>
     <table border="1">
       <tbody>
@@ -26,13 +29,6 @@
         <td>
           <div id="georeference_google_map_canvas" style="width:512px; height: 256px;"></div>
         </td>
-        <!--</tr>-->
-        <!--<tr>-->
-        <!--<td align="center">-->
-        <!--<%#= helper_download_link %>-->
-        <%#= link_to_unless(@collection_objects.empty?, 'download', gis_report_download_path(params[:geographic_area_id])) %>
-        <!--</td>-->
-        <!--</tr>-->
       </tbody>
     </table>
   </div>
