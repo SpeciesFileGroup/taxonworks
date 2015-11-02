@@ -145,7 +145,7 @@ namespace :tw do
           $user_id = user.id # set for project line below
 
           project = nil
-          project = Project.where(name: project_name).first #################### Comment fot creating a new one
+          #project = Project.where(name: project_name).first #################### Comment fot creating a new one
           if project.nil?
             project = Project.create(name: project_name)
           end
