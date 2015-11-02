@@ -123,7 +123,7 @@ namespace :tw do
       def handle_projects_and_users
         print "\nHandling projects and users "
         @project, @user = initiate_project_and_users('Lepindex', 'i.kitching@nhm.ac.uk')
-        email = 'i.kitching@nhm.ac.uk'
+        email = 'lepindex@import.net'
         project_name = 'Lepindex'
         user_name = 'Lepindex Import'
         $user_id, $project_id = nil, nil
