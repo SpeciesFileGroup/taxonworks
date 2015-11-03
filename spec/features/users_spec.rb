@@ -29,7 +29,7 @@ describe 'Users' do
         }
 
         it 'should have information and links' do
-          expect(page).to have_css('h1', @user.name)
+          expect(page).to have_css('h2', @user.name)
           expect(page).to have_link('Edit')
         end
 
