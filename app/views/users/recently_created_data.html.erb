@@ -1,0 +1,8 @@
+<%= content_for :head do -%>
+  <%= javascript_include_tag "//www.google.com/jsapi", "chartkick" %>
+<% end %>
+
+<h2>  Recently created by <%= user_tag(@user) -%></h2>
+<%= column_chart recently_created_stats_user_path(sessions_current_user), width: '500px', height: '300px', discrete: true, library: { backgroundColor: "#eee", vAxis: { format: '#'}  }  %>
+
+

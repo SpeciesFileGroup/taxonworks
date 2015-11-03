@@ -1,25 +1,33 @@
 <h1 class="center_text"> 
   <span class="subtle">Dashboard for</span> 
-   <%= user_tag(sessions_current_user) -%> 
+  <%= user_tag(sessions_current_user) -%> 
 </h1> 
 
-<div class='flexbox'>
-  <div class='item item1'>
-    <section> 
-      <h2> Projects </h2>
-      <ul> <%= projects_list(@projects) -%> </ul>
-    </section>
-  </div>
-  <div class='item item2'>
-    <aside> 
-      <h2> Preferences </h2>
-      <ul> 
-        <li> <%= link_to('order hub tabs', order_tabs_hub_path ) -%> </li>
-      </ul>
-    </aside>
+<div>
+  <div>
+    <div class='flexbox'>
+      <div class='item item1'>
+        <h2> Your projects </h2>
+        <ul> <%= projects_list(@projects) -%> </ul>
+      </div>
 
+      <div class='item item2'>
+        <h2> Your data </h2>
+        <ul>
+          <%= content_tag :li, link_to('Recently created', recently_created_data_user_path(sessions_current_user)) -%> 
+        </ul>
+
+        <%= render partial: '/pinboard_items/pinboard' -%>
+      </div>
+
+      <div class='item item3'>
+        <h2> Preferences </h2>
+        <ul> 
+          <li> <%= link_to('order hub tabs', order_tabs_hub_path ) -%> </li>
+        </ul>
+
+      </div>
+    </div>
   </div>
-  <div class='item item3'>
-    <%= render partial: '/pinboard_items/pinboard' -%>
-  </div>
+
 </div>

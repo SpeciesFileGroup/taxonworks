@@ -40,6 +40,7 @@ TaxonWorks::Application.routes.draw do
       get 'select'
       get 'settings_for'
       get 'stats'
+      get 'recently_created_stats'
     end
   end
 
@@ -416,7 +417,13 @@ TaxonWorks::Application.routes.draw do
 
   end
 
-  resources :users, except: :new
+  resources :users, except: :new do
+    member do
+      get 'recently_created_data' 
+      get 'recently_created_stats'
+    end
+  end
+
   match '/signup', to: 'users#new', via: 'get'
   get '/forgot_password', to: 'users#forgot_password', as: 'forgot_password'
   post '/send_password_reset', to: 'users#send_password_reset', as: 'send_password_reset'
