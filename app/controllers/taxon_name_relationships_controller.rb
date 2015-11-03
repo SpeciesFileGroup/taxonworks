@@ -78,14 +78,15 @@ class TaxonNameRelationshipsController < ApplicationController
   end
 
   def autocomplete
-    @taxon_name_relationships = taxon_name_relationship.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
+    @taxon_name_relationships = TaxonNameRelationship.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
     data = @taxon_name_relationships.collect do |t|
+      n = ApplicationController.helpers.taxon_name_relationship_tag(t)
       {id: t.id,
-       label: TaxonNameRelationshipsHelper.taxon_name_relationship_tag(t),
+       label: n,
        response_values: {
            params[:method] => t.id
        },
-       label_html: TaxonNameRelationshipsHelper.taxon_name_relationship_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
+       label_html: n
       }
     end
 

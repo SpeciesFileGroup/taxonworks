@@ -162,6 +162,7 @@ class TaxonNameRelationship < ActiveRecord::Base
     r = TAXON_NAME_RELATIONSHIP_NAMES.include?(r) ? r.safe_constantize : r
   end
 
+  # TODO: match on either name
   def self.find_for_autocomplete(params)
     where(id: params[:term]).with_project_id(params[:project_id])
   end

@@ -20,4 +20,10 @@ module TaxonNameRelationshipsHelper
      taxon_name_link(taxon_name_relationship.subject_taxon_name)  + " " + content_tag(:span, taxon_name_relationship.class.object_relationship_name, class: :string_emphasis) 
   end
 
+  def taxon_name_relationships_search_form
+    render '/taxon_name_relationships/quick_search_form'
+  end
+
+
+
 end

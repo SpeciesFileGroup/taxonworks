@@ -1,11 +1,10 @@
-<%= form_tag(search_tags_path, {method: :get}) do %>
+<%= form_tag(search_taxon_name_relationships_path, {method: :get}) do %>
     <%= render partial: 'workbench/elements/forms/ajax_select',
-               locals:  {controller: 'tags',
+               locals:  {controller: 'taxon_name_relationships',
                          object:     nil,
                          method:     'id',
-                         tag_id:     'tag_id_for_quick_search_form',
+                         tag_id:     'taxon_name_relationship_id_for_quick_search_form',
                          size:       '',
                          display:    ''} %>
-    <%#= button_to 'Edit', edit_otu_path %>
     <%= submit_tag 'Show' %>
 <% end %>
