@@ -1,0 +1,41 @@
+<h1>Listing Containers</h1>
+
+<table>
+  <thead>
+  <tr>
+    <th>Lft</th>
+    <th>Rgt</th>
+    <th>Parent</th>
+    <th>Depth</th>
+    <th>Type</th>
+    <th>Created by</th>
+    <th>Updated by</th>
+    <th>Project</th>
+    <th>Otu</th>
+    <th>Name</th>
+    <th>Disposition</th>
+    <th colspan="3"></th>
+  </tr>
+  </thead>
+
+  <tbody>
+  <% @containers.each do |container| %>
+      <tr>
+        <td><%= container.lft %></td>
+        <td><%= container.rgt %></td>
+        <td><%= container.parent %></td>
+        <td><%= container.depth %></td>
+        <td><%= container.type %></td>
+        <td><%= container.created_by %></td>
+        <td><%= container.updated_by %></td>
+        <td><%= container.project %></td>
+        <td><%= container.otu %></td>
+        <td><%= container.name %></td>
+        <td><%= container.disposition %></td>
+        <td><%= link_to 'Show', container %></td>
+        <td><%= link_to 'Edit', edit_container_path(container) %></td>
+        <td><%= link_to 'Destroy', container, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+  <% end %>
+  </tbody>
+</table>

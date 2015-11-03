@@ -32,5 +32,10 @@ class ContainerItem < ActiveRecord::Base
   acts_as_list scope: [:container_id]
   belongs_to :container
   belongs_to :contained_object, polymorphic: true
-  validates_presence_of :contained_object, :container 
+  validates_presence_of :contained_object, :container
+
+  def self.find_for_autocomplete(params)
+    Queries::ContainerItemAutocompleteQuery.new(params[:term]).all.where(project_id: params[:project_id])
+  end
+
 end

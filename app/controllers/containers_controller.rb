@@ -3,6 +3,31 @@ class ContainersController < ApplicationController
 
   before_action :set_container, only: [:update, :destroy]
 
+  # GET /containers
+  # GET /containers.json
+  def index
+    @recent_objects = Container.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
+    render '/shared/data/all/index'
+  end
+
+  # GET /containers/1
+  # GET /containers/1.json
+  def show
+  end
+
+  # GET /containers/new
+  def new
+    @container = Container.new
+  end
+
+  # GET /containers/1/edit
+  def edit
+  end
+
+  def list
+    @containers = Container.with_project_id($project_id).order(:id).page(params[:page]) #.per(10)
+  end
+
   # POST /containers
   # POST /containers.json
   def create
@@ -41,6 +66,29 @@ class ContainersController < ApplicationController
       format.html { redirect_to :back, notice: 'Container was successfully destroyed.' }
       format.json { head :no_content }
     end
+  end
+
+  def search
+    if params[:id].blank?
+      redirect_to containers_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+    else
+      redirect_to container_path(params[:id])
+    end
+  end
+
+  def autocomplete
+    @containers = Container.find_for_autocomplete(params.merge(project_id: sessions_current_project_id)).includes(:taxon_name)
+    data = @containers.collect do |t|
+      {id: t.id,
+       label: ApplicationController.helpers.container_tag(t),
+       response_values: {
+           params[:method] => t.id
+       },
+       label_html: ApplicationController.helpers.container_autocomplete_selected_tag(t)
+      }
+    end
+
+    render :json => data
   end
 
   private

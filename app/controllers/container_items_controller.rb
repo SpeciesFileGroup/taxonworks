@@ -3,6 +3,22 @@ class ContainerItemsController < ApplicationController
 
   before_action :set_container_item, only: [:update, :destroy]
 
+  # GET /container_items
+  # GET /container_items.json
+  def index
+    @recent_objects = ContainerItem.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
+    render '/shared/data/all/index'
+  end
+
+  # GET /container_items/1
+  # GET /container_items/1.json
+  def show
+  end
+
+  def list
+    @container_items = ContainerItems.with_project_id($project_id).order(:id).page(params[:page]) #.per(10)
+  end
+
   # POST /container_items
   # POST /container_items.json
   def create
@@ -43,14 +59,37 @@ class ContainerItemsController < ApplicationController
     end
   end
 
-  private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_container_item
-      @container_item = ContainerItem.with_project_id($project_id).find(params[:id])
+  def search
+    if params[:id].blank?
+      redirect_to container_items_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+    else
+      redirect_to container_item_path(params[:id])
+    end
+  end
+
+  def autocomplete
+    @container_items = ContainerItem.find_for_autocomplete(params.merge(project_id: sessions_current_project_id)).includes(:taxon_name)
+    data = @container_items.collect do |t|
+      {id: t.id,
+       label: ApplicationController.helpers.container_item_tag(t),
+       response_values: {
+           params[:method] => t.id
+       },
+       label_html: ApplicationController.helpers.container_item_autocomplete_selected_tag(t)
+      }
     end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def container_item_params
-      params.require(:container_item).permit(:container_id, :position, :contained_object_id, :contained_object_type, :localization)
-    end
+    render :json => data
+  end
+
+  private
+  # Use callbacks to share common setup or constraints between actions.
+  def set_container_item
+    @container_item = ContainerItem.with_project_id($project_id).find(params[:id])
+  end
+
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def container_item_params
+    params.require(:container_item).permit(:container_id, :position, :contained_object_id, :contained_object_type, :localization)
+  end
 end

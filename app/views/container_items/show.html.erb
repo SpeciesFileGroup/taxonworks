@@ -1,0 +1,44 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Container:</strong>
+  <%= @container_item.container %>
+</p>
+
+<p>
+  <strong>Position:</strong>
+  <%= @container_item.position %>
+</p>
+
+<p>
+  <strong>Contained object:</strong>
+  <%= @container_item.contained_object %>
+</p>
+
+<p>
+  <strong>Contained object type:</strong>
+  <%= @container_item.contained_object_type %>
+</p>
+
+<p>
+  <strong>Localization:</strong>
+  <%= @container_item.localization %>
+</p>
+
+<p>
+  <strong>Created by:</strong>
+  <%= @container_item.created_by %>
+</p>
+
+<p>
+  <strong>Updated by:</strong>
+  <%= @container_item.updated_by %>
+</p>
+
+<p>
+  <strong>Project:</strong>
+  <%= @container_item.project %>
+</p>
+
+<%= link_to 'Edit', edit_container_item_path(@container_item) %> |
+<%= link_to 'Back', container_items_path %>

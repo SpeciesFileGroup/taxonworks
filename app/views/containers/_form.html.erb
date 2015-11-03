@@ -2,8 +2,14 @@
     <%= render 'shared/errors', object: @container %>
 
   <div class="field">
-    <%= f.label :parent_id %><br>
-    <%= f.number_field :parent_id %>
+    <%= f.label :parent %><br>
+    <%= render partial: 'workbench/elements/forms/ajax_select',
+               locals:  {controller:  'containers',
+                         object: 'container',
+                         method:  'container_id',
+                         tag_id:  'container_id_for_container',
+                         display:  container_autocomplete_selected_tag(@container.name),
+                         size: 20} %>
   </div>
   <div class="field">
     <%= f.label :depth %><br>
@@ -13,6 +19,16 @@
     <%= f.label :type %><br>
     <%= f.text_field :type %>
   </div>
+    <div class="field">
+      <%= f.label :otu %><br>
+      <%= render partial: 'workbench/elements/forms/ajax_select',
+                 locals:  {controller:  'otus',
+                           object: 'container',
+                           method:  'otu_id',
+                           tag_id:  'otu_id_for_container',
+                           display:  container_autocomplete_selected_tag(@container.name),
+                           size: 20} %>
+    </div>
   <div class="field">
     <%= f.label :name %><br>
     <%= f.text_field :name %>
