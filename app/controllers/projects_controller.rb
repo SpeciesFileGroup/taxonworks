@@ -115,6 +115,10 @@ class ProjectsController < ApplicationController
     render :json => data
   end
 
+  def recently_created_stats
+    render json: sessions_current_project.data_breakdown_for_chartkick_recent
+  end
+
   private
   # Use callbacks to share common setup or constraints between actions.
   def set_project
