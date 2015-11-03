@@ -1,3 +1,15 @@
-<h1><%= object_tag(@user) %></h1>
-<%= render 'attributes' %>
-<%= link_to 'Edit', edit_user_path(@user) %>
+<h2><%= object_tag(@user) %> <%=  sessions_current_user == @user ? content_tag(:span, 'You!', class: :subtle) : content_tag(:span, 'NOT YOU!', class: :warning) -%>  </h2>
+
+<div class="flexbox">
+    <div class="item item1">
+      <%= render 'attributes' %>
+      <%= link_to 'Edit', edit_user_path(@user) %>
+    </div>
+
+  <div class="item item2">
+    <%=  (link_to('hub', hub_path) + " for current project #{sessions_current_project.name}")  if sessions_current_project_id -%> <br/>
+      <%= link_to('dashboard', dashboard_path) -%>
+  </div>
+</div>
+
+
