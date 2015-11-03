@@ -2,7 +2,7 @@ class UsersController < ApplicationController
 
   before_action :require_administrator_sign_in, only: [:index, :destroy]
   before_action :require_superuser_sign_in, only: [:new, :create]
-  before_action :set_user, only: [:show, :edit, :update, :destroy]
+  before_action :set_user, only: [:show, :edit, :update, :destroy, :recently_created_stats, :recently_created_data]
   before_action :validate_user_id_belongs_to_user_or_require_a_superuser, only: [:show, :edit, :update] 
 
   # GET /users
@@ -104,6 +104,13 @@ class UsersController < ApplicationController
     end
   end
 
+  def recently_created
+  end
+
+  def recently_created_stats
+    render json: @user.data_breakdown_for_chartkick_recent
+  end
+
   private
 
     def user_params
@@ -116,8 +123,6 @@ class UsersController < ApplicationController
 
       basic.push [:is_project_administrator] if is_superuser?
       basic.push [:is_administrator, :is_flagged_for_password_reset] if is_administrator?
-
-      
 
       params.require(:user).permit(basic)
     end
