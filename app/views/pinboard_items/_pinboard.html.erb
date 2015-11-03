@@ -1,13 +1,13 @@
 <div id='pinboard'>
-  <h2> Pinboard </h2>
-  <% @sessions_current_user.pinboard_hash(sessions_current_project_id).each do |object_type, items| -%>
-
+  <h3> Pinboard </h3>
+  <% sessions_current_user.pinboard_hash(sessions_current_project_id).each do |object_type, items| -%>
     <h3><%= object_type.pluralize -%></h3>
-  <ul>
-    <% items.each do |o| -%>
-      <li>  <%=  object_link(o.pinned_object) -%> <%= link_to('Remove', pinboard_item_path(o), method: :delete) -%>  </li>
+    <ul>
+      <% items.each do |o| -%>
+        <li>  <%=  object_link(o.pinned_object) -%> <%= link_to('Remove', pinboard_item_path(o), method: :delete) -%>  </li>
+      <% end %>
+    </ul>
   <% end %>
-  </ul>
-<% end %>
+  <%= content_tag(:p, 'Nothing on your pinboard!', class: :subtle) if sessions_current_user.pinboard_hash(sessions_current_project_id).keys.empty? -%>
 </div>
 
