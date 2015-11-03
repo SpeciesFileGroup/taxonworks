@@ -2,15 +2,14 @@ module TaxonNamesHelper
 
   def taxon_name_tag(taxon_name)
     return nil if taxon_name.nil?
-    taxon_name.cached_html ? taxon_name.cached_html.html_safe : taxon_name.name
+    # TODO: fix generation of empty string cached author year
+    taxon_name.cached_html ? [taxon_name.cached_html, taxon_name.cached_author_year].join(" ").strip.html_safe : taxon_name.name
   end
 
   def taxon_name_autocomplete_selected_tag(taxon_name)
     return nil if taxon_name.nil?
     taxon_name.cached
   end
-
-
 
   def taxon_name_link(taxon_name)
     return nil if taxon_name.nil?
