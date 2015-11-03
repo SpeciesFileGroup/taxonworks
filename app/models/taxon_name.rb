@@ -18,7 +18,7 @@
 #
 # @!attribute cached_html
 #   @return [String]
-#   Genus-species combination for the taxon. The string is in html format including <em></em> tags.
+#   Genus-species combination for the taxon. The string is in html format including <i></i> tags.
 #
 # @attribute cached_author_year
 #   @return [String, nil]
@@ -137,6 +137,8 @@ class TaxonName < ActiveRecord::Base
     acts_as_nested_set scope: [:project_id], dependent: :restrict_with_exception, touch: false
   end
 
+  belongs_to :valid_taxon_name, class_name: TaxonName, foreign_key: :cached_valid_taxon_name_id
+
   # @return [Boolean]
   # When true, also creates an OTU that is tied to this taxon name
   attr_accessor :also_create_otu
@@ -228,6 +230,7 @@ class TaxonName < ActiveRecord::Base
 
   scope :with_parent_id, -> (parent_id) {where(parent_id: parent_id)}
 
+  scope :with_cached_valid_taxon_name_id, -> (cached_valid_taxon_name_id) {where(cached_valid_taxon_name_id: cached_valid_taxon_name_id)}
   scope :with_cached_original_combination, -> (original_combination) { where(cached_original_combination: original_combination) }
   scope :with_cached_html, -> (html) { where(cached_html: html) }
 
@@ -401,9 +404,28 @@ class TaxonName < ActiveRecord::Base
 
   # @return [TaxonName]
   #   a valid taxon_name for an invalid name or self for valid name.
-  def get_valid_taxon_name 
+  def get_valid_taxon_name
+    v = self.first_possible_valid_taxon_name
+    if v == self
+      self
+    elsif v.cached_valid_taxon_name_id == v.id
+      v
+    elsif !v.cached_valid_taxon_name_id.nil?
+      v.valid_taxon_name
+    else
+      nil
+    end
+  end
+
+  def first_possible_valid_taxon_name
     vn = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID)
-    (vn.count == 1) ? vn.first.object_taxon_name : self
+    if vn.empty?
+      self
+    elsif vn.count == 1
+      vn.first.object_taxon_name
+    else # vn.count > 1
+      vn.sort_by!{|v| v.nomenclature_date}.last
+    end
   end
 
   def gbif_status_array
@@ -507,6 +529,7 @@ class TaxonName < ActiveRecord::Base
       set_cached_author_year
       set_cached_classified_as
       set_cached_original_combination
+      set_cached_valid_taxon_name_id
     end
   end
 
@@ -534,6 +557,16 @@ class TaxonName < ActiveRecord::Base
       end
       false
     end
+  end
+
+  def set_cached_valid_taxon_name_id
+    begin
+      TaxonName.transaction do
+        self.update_column(:valid_taxon_name, self.get_valid_taxon_name)
+      end
+      rescue
+    end
+    false
   end
 
   def set_cached_names_for_dependants_and_self
@@ -704,8 +737,8 @@ class TaxonName < ActiveRecord::Base
   #  a monomial if names is above genus, or a full epithet if below, includes html
   def get_full_name_html
     return name unless self.type == 'Combination' || GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_string)
-    eo = '<em>'
-    ec = '</em>'
+    eo = '<i>'
+    ec = '</i>'
     return "#{eo}#{name}#{ec}" if self.rank_string == 'NomenclaturalRank::Iczn::GenusGroup::GenusGroup'
     d = full_name_hash
     elements = []
@@ -814,48 +847,48 @@ class TaxonName < ActiveRecord::Base
       relationships.each do |i|
         case i.type_class.object_relationship_name
           when 'original genus'
-            genus  = '<em>' + i.subject_taxon_name.name_with_misspelling(nil) + '</em> '
+            genus  = '<i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
             gender = i.subject_taxon_name.gender_name
           when 'original subgenus' 
-            subgenus += '<em>' + i.subject_taxon_name.name_with_misspelling(nil) + '</em> '
+            subgenus += '<i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
           when 'original section' 
-            subgenus += 'sect. <em>' + i.subject_taxon_name.name_with_misspelling(nil) + '</em> '
+            subgenus += 'sect. <i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
           when 'original subsection' 
-            subgenus += 'subsect. <em>' + i.subject_taxon_name.name_with_misspelling(nil) + '</em> '
+            subgenus += 'subsect. <i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
           when 'original series' 
-            subgenus += 'ser. <em>' + i.subject_taxon_name.name_with_misspelling(nil) + '</em> '
+            subgenus += 'ser. <i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
           when 'original subseries' 
-            subgenus += 'subser. <em>' + i.subject_taxon_name.name_with_misspelling(nil) + '</em> '
+            subgenus += 'subser. <i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
           when 'original species' 
-            species += '<em>' + i.subject_taxon_name.name_with_misspelling(gender) + '</em> '
+            species += '<i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
           when 'original subspecies' 
-            species += '<em>' + i.subject_taxon_name.name_with_misspelling(gender) + '</em> '
+            species += '<i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
           when 'original variety' 
-            species += 'var. <em>' + i.subject_taxon_name.name_with_misspelling(gender) + '</em> '
+            species += 'var. <i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
           when 'original subvariety' 
-            species += 'subvar. <em>' + i.subject_taxon_name.name_with_misspelling(gender) + '</em> '
+            species += 'subvar. <i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
           when 'original form' 
-            species += 'f. <em>' + i.subject_taxon_name.name_with_misspelling(gender) + '</em> '
+            species += 'f. <i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
           when 'original subform'
-            species += 'subf. <em>' + i.subject_taxon_name.name_with_misspelling(gender) + '</em> '
+            species += 'subf. <i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
         end
       end
 
       if !relationships.empty? && relationships.collect{|i| i.subject_taxon_name_id}.last != self.id
         if self.rank_string =~ /Genus/
           if genus.blank?
-            genus += '<em>' + self.name_with_misspelling(nil) + '</em> '
+            genus += '<i>' + self.name_with_misspelling(nil) + '</i> '
           else
-            subgenus += '<em>' + self.name_with_misspelling(nil) + '</em> '
+            subgenus += '<i>' + self.name_with_misspelling(nil) + '</i> '
           end
         elsif self.rank_string =~ /Species/
-          species += '<em>' + self.name_with_misspelling(nil) + '</em> '
-          genus   = '<em>' + self.ancestor_at_rank('genus').name_with_misspelling(nil) + '</em> ' if genus.empty? && !self.ancestor_at_rank('genus').nil?
+          species += '<i>' + self.name_with_misspelling(nil) + '</i> '
+          genus   = '<i>' + self.ancestor_at_rank('genus').name_with_misspelling(nil) + '</i> ' if genus.empty? && !self.ancestor_at_rank('genus').nil?
         end
       end
 
       subgenus    = '(' + subgenus.squish + ') ' unless subgenus.empty?
-      str = (genus + subgenus + superspecies + species).gsub(' [sic]', '</em> [sic]<em>').gsub('</em> <em>', ' ').gsub('<em></em>', '').gsub('<em> ', ' <em>').squish
+      str = (genus + subgenus + superspecies + species).gsub(' [sic]', '</i> [sic]<i>').gsub('</i> <i>', ' ').gsub('<i></i>', '').gsub('<i> ', ' <i>').squish
       str.blank? ? nil : str
     end
   end

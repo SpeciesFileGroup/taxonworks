@@ -63,7 +63,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
 
       specify 'genus relationship is created' do
         species.save
-        expect(species.cached_original_combination).to eq('<em>Bus aus</em>')
+        expect(species.cached_original_combination).to eq('<i>Bus aus</i>')
       end
 
       specify 'genus relationship is destroyed' do

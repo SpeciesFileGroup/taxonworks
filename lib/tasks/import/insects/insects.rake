@@ -6,7 +6,7 @@ require 'benchmark'
 #    rake db:drop && rake db:create && rake db:migrate
 #
 #    rake tw:project_import:insects:import_insects data_directory=/Users/proceps/src/sf/import/inhs-insect-collection-data/ no_transaction=true
-# Only data upto the handle_taxa can be loaded from the database or restored from 
+# Only data upto the handle_taxa_insects can be loaded from the database or restored from 
 # a dump file.  All data after that (specimens, collecting events) must be parsed from scratch.
 #
 # Be aware of shared methods in lib/tasks/import/shared.rake.
@@ -30,7 +30,7 @@ namespace :tw do
       IMPORT_NAME = 'insects'
 
       # A utility class to index data.
-      class ImportedData
+      class ImportedData1
         attr_accessor :people_id, :keywords, :user_index, :collection_objects, :namespaces, :people_index, #:otus,
                       :preparation_types, :taxa_index, :localities_index, # :collecting_event_index,
                       :unmatched_localities, :invalid_specimens, :unmatched_taxa, :duplicate_specimen_ids, :rooms,
@@ -110,7 +110,7 @@ namespace :tw do
         Utilities::Files.lines_per_file(Dir["#{@args[:data_directory]}/TXT/**/*.txt"])
 
         @dump_directory = dump_directory(@args[:data_directory]) 
-        @data = ImportedData.new
+        @data1 = ImportedData1.new
 
         restore_from_pg_dump if ENV['restore_from_dump'] && File.exists?(@dump_directory + 'all.dump')
 
@@ -129,10 +129,10 @@ namespace :tw do
         end
       end
 
-      def checkpoint_save(import)
+      def checkpoint_save_insects(import)
         import.metadata_will_change!
         import.save
-        #@data.export_to_pg(@dump_directory)
+        #@data1.export_to_pg(@dump_directory)
       end
 
       # handle the tables in this order
@@ -160,44 +160,44 @@ namespace :tw do
       def main_build_loop_insects
         @import = Import.find_or_create_by(name: IMPORT_NAME)  
         @import.metadata ||= {} 
-        handle_projects_and_users_insects(@data, @import)
+        handle_projects_and_users_insects(@data1, @import)
         raise '$project_id or $user_id not set.'  if $project_id.nil? || $user_id.nil?
-        handle_namespaces(@data, @import)
+        handle_namespaces_insects(@data1, @import)
 
-        handle_controlled_vocabulary(@data, @import)
-        handle_biocuration_classes(@data, @import)
-        handle_biological_relationship_classes(@data, @import)
-        handle_preparation_types(@data, @import)
-        handle_people(@data, @import)
-        handle_taxa(@data, @import)
-        handle_loans(@data, @import)
+        handle_controlled_vocabulary_insects(@data1, @import)
+        handle_biocuration_classes_insects(@data1, @import)
+        handle_biological_relationship_classes_insects(@data1, @import)
+        handle_preparation_types_insects(@data1, @import)
+        handle_people_insects(@data1, @import)
+        handle_taxa_insects(@data1, @import)
+        handle_loans_insects(@data1, @import)
 
         # !! The following can not be loaded from the database they are always created anew.
 
-        build_localities_index(@data)
+        build_localities_index_insects(@data1)
 
         puts "Indexing collecting events."
         # should be run to clear redis database. if specimen from diffrent tables run one buy one, data could be left in Redis and reused
 
         @redis.flushall
 
-        index_collecting_events_from_accessions_new(@data, @import)
-        index_collecting_events_from_ledgers(@data, @import)
-        index_specimen_records_from_specimens(@data, @import)
-        index_specimen_records_from_specimens_new(@data, @import)
-        index_specimen_records_from_neon(@data, @import)
+        index_collecting_events_from_accessions_new(@data1, @import)
+        index_collecting_events_from_ledgers(@data1, @import)
+        index_specimen_records_from_specimens_insects(@data1, @import)
+        index_specimen_records_from_specimens_insects_new(@data1, @import)
+        index_specimen_records_from_neon(@data1, @import)
 
         puts "\nTotal collecting events to build: #{@redis.keys.count}."
 
-        handle_associations(@data, @import)
-        handle_loan_specimens(@data)
-        handle_letters(@data)
-        handle_collection_profile(@data)
+        handle_associations_insects(@data1, @import)
+        handle_loan_specimens_insects(@data1)
+        handle_letters_insects(@data1)
+        handle_collection_profile_insects(@data1)
 
-        puts "\n!! Unmatched localities: (#{@data.unmatched_localities.keys.count}): " + @data.unmatched_localities.keys.sort.join(", ")
-        puts "\n!! Unmatched taxa: (#{@data.unmatched_taxa.keys.count}): " + @data.unmatched_taxa.keys.sort.join(", ")
-        puts "\n!! Invalid_specimens: (#{@data.invalid_specimens.keys.count}): " + @data.invalid_specimens.sort.join(", ")
-        puts "\n!! Duplicate_specimen_IDs: (#{@data.duplicate_specimen_ids.keys.count}): " + @data.duplicate_specimen_ids.sort.join(", ")
+        puts "\n!! Unmatched localities: (#{@data1.unmatched_localities.keys.count}): " + @data1.unmatched_localities.keys.sort.join(", ")
+        puts "\n!! Unmatched taxa: (#{@data1.unmatched_taxa.keys.count}): " + @data1.unmatched_taxa.keys.sort.join(", ")
+        puts "\n!! Invalid_specimens: (#{@data1.invalid_specimens.keys.count}): " + @data1.invalid_specimens.sort.join(", ")
+        puts "\n!! Duplicate_specimen_IDs: (#{@data1.duplicate_specimen_ids.keys.count}): " + @data1.duplicate_specimen_ids.sort.join(", ")
 
         @import.save!
         puts "\n\n !! Success \n\n"
@@ -208,7 +208,7 @@ namespace :tw do
         email = 'inhs_admin@replace.me'
         project_name = 'INHS Insect Collection'
         user_name = 'INHS Insect Collection Import'
-        $user_id, $project_id, $collection_container = nil, nil, nil
+        $user_id, $project_id, @collection_container = nil, nil, nil
         if import.metadata['project_and_users']
           print "from database.\n"
           project = Project.where(name: project_name).first
@@ -216,7 +216,7 @@ namespace :tw do
           collection_container = Container.where(name: project_name).first
           $project_id = project.id
           $user_id = user.id
-          $collection_container = collection_container
+          @collection_container = collection_container
         else
           print "as newly parsed.\n"
 
@@ -245,7 +245,7 @@ namespace :tw do
           else
             cc = cc.first
           end
-          $collection_container = cc.id
+          @collection_container = cc.id
 
           import.metadata['project_and_users'] = true
         end
@@ -253,13 +253,13 @@ namespace :tw do
         @repository = Repository.where(institutional_LSID: 'urn:lsid:biocol.org:col:34797').first
         print 'Repository not found' if @repository.nil?
 
-        @data.user_index.merge!('0' => user)
-        @data.user_index.merge!('' => user)
-        @data.user_index.merge!(nil => user)
+        @data1.user_index.merge!('0' => user)
+        @data1.user_index.merge!('' => user)
+        @data1.user_index.merge!(nil => user)
 
       end
 
-      def handle_biocuration_classes(data, import)
+      def handle_biocuration_classes_insects(data, import)
         print "Handling biocuration classes "
 
         biocuration_classes = %w{ Adult Male Female Immature Pupa Exuvia }
@@ -275,7 +275,7 @@ namespace :tw do
         end
       end
 
-      def handle_biological_relationship_classes(data, import)
+      def handle_biological_relationship_classes_insects(data, import)
         print "Handling biological relationship classes "
 
         biological_relationships = { 'Attendance' => ['Attendant', 'Attended insect'],
@@ -328,7 +328,7 @@ namespace :tw do
         end
       end
 
-      def handle_namespaces(data, import)
+      def handle_namespaces_insects(data, import)
         print "Handling namespaces "
 
         catalogue_namespaces = [
@@ -369,7 +369,6 @@ namespace :tw do
           import.metadata['namespaces'] = true
         end
 
-        byebug
         catalogue_namespaces.each do |cn|
           n = Namespace.where(institution: 'INHS Insect Collection', short_name: cn)
           if n.empty?
@@ -475,7 +474,7 @@ namespace :tw do
           'syntypes' => 'syntype'
       }
 
-      def handle_preparation_types(data, import)
+      def handle_preparation_types_insects(data, import)
         print "Handling namespaces \n"
 
         preparation_types = {
@@ -555,7 +554,7 @@ namespace :tw do
       ]
 
       # Builds all the controlled vocabulary terms (tags/keywords)
-      def handle_controlled_vocabulary(data, import)
+      def handle_controlled_vocabulary_insects(data, import)
         print "Handling CV "
         if import.metadata['controlled_vocabulary']
           print "from database.\n"
@@ -657,11 +656,11 @@ namespace :tw do
           end
 
           import.metadata['controlled_vocabulary'] = true
-          checkpoint_save(import) if ENV['no_transaction']
+          checkpoint_save_insects(import) if ENV['no_transaction']
         end
       end
 
-      def find_or_create_collection_user(id, data)
+      def find_or_create_collection_user_insects(id, data)
 #      DataAttribute.where(attribute_subject_type: "User", import_predicate: "PeopleID", project_id: $project_id).first.attribute_subject
        if id.blank?
           $user_id
@@ -737,7 +736,7 @@ namespace :tw do
            SamplingProtocol
            SiteCode}
 
-      def find_or_create_collecting_event(ce, data)
+      def find_or_create_collecting_event_insects(ce, data)
         tmp_ce = { }
         LOCALITY_COLUMNS.each do |c|
           tmp_ce.merge!(c => ce[c]) unless ce[c].blank?
@@ -801,14 +800,14 @@ namespace :tw do
          return c
         end
 
-        latitude, longitude = parse_lat_long(ce)
-        sdm, sdd, sdy, edm, edd, edy = parse_dates(ce)
-        elevation, verbatim_elevation = parse_elevation(ce)
-        geographic_area = parse_geographic_area(ce)
-        geolocation_uncertainty = parse_geolocation_uncertainty(ce)
+        latitude, longitude = parse_lat_long_insects(ce)
+        sdm, sdd, sdy, edm, edd, edy = parse_dates_insects(ce)
+        elevation, verbatim_elevation = parse_elevation_insects(ce)
+        geographic_area = parse_geographic_area_insects(ce)
+        geolocation_uncertainty = parse_geolocation_uncertainty_insects(ce)
         locality =  ce['Park'].blank? ? ce['Locality'] : ce['Locality'].to_s + ', ' + ce['Park'].to_s
-        created_by = find_or_create_collection_user(ce['CreatedBy'], data)
-        updated_by = find_or_create_collection_user(ce['ModifiedBy'], data)
+        created_by = find_or_create_collection_user_insects(ce['CreatedBy'], data)
+        updated_by = find_or_create_collection_user_insects(ce['ModifiedBy'], data)
 
         c = CollectingEvent.new(
             geographic_area: geographic_area,
@@ -888,7 +887,7 @@ namespace :tw do
 
       # - 9 Comments          Note.new
       #
-      def handle_people(data, import)
+      def handle_people_insects(data, import)
         path = @args[:data_directory] + 'TXT/people.txt'
         raise 'file not found' if not File.exists?(path)
         f = CSV.open(path, col_sep: "\t", :headers => true)
@@ -934,7 +933,7 @@ namespace :tw do
             data.people_index.merge!(row['PeopleID'] => p)
           end
           import.metadata['people'] = true
-          checkpoint_save(import) if ENV['no_transaction']
+          checkpoint_save_insects(import) if ENV['no_transaction']
         end
       end
 
@@ -956,7 +955,7 @@ namespace :tw do
       #
       # -- is on the OTU
       #   TaxonCode      New Namespace Identifier 
-      def handle_taxa(data, import)
+      def handle_taxa_insects(data, import)
         print "Handling taxa "
         if import.metadata['taxa']
           print "from database.  Indexing OTUs by TaxonCode..."
@@ -989,8 +988,8 @@ namespace :tw do
               verbatim_author: author,
               year_of_publication: row['Year'],
               rank_class: rank,
-              created_by_id: find_or_create_collection_user(row['CreatedBy'], data),
-              updated_by_id: find_or_create_collection_user(row['ModifiedBy'], data),
+              created_by_id: find_or_create_collection_user_insects(row['CreatedBy'], data),
+              updated_by_id: find_or_create_collection_user_insects(row['ModifiedBy'], data),
               created_at: time_from_field(row['CreatedOn']),
               updated_at: time_from_field(row['ModifiedOn'])
             )
@@ -1008,7 +1007,7 @@ namespace :tw do
               print "\r#{i}\t#{bench.to_s.strip}  #{name}  (Taxon code: #{row['TaxonCode']})                         " #  \t\t#{rank}
               if p.valid?
                 p.save!
-                build_otu(row, p, data)
+                build_otu_insects(row, p, data)
                 parent_index.merge!(row['ID'] => p)
                 data.taxa_index.merge!(row['TaxonCode'] => p)
               else
@@ -1024,11 +1023,11 @@ namespace :tw do
           end
 
           import.metadata['taxa'] = true
-          checkpoint_save(import) if ENV['no_transaction']
+          checkpoint_save_insects(import) if ENV['no_transaction']
         end
       end
 
-      def build_otu(row, taxon_name, data)
+      def build_otu_insects(row, taxon_name, data)
         if row['TaxonCode'].blank?
           return true
         end
@@ -1040,7 +1039,7 @@ namespace :tw do
       end
 
       # Index localities by their collective column=>data pairs
-      def build_localities_index(data)
+      def build_localities_index_insects(data)
         locality_fields = %w{ LocalityCode Country State County Locality Park BodyOfWater NS Lat_deg Lat_min Lat_sec EW Long_deg Long_min Long_sec Elev_m Elev_ft PrecisionCode Comments DrainageBasinLesser DrainageBasinGreater StreamSize INDrainage WisconsinGlaciated OldLocalityCode CreatedOn ModifiedOn CreatedBy ModifiedBy }
 
         path = @args[:data_directory] + 'TXT/localities.txt'
@@ -1096,7 +1095,7 @@ namespace :tw do
         print "done\n"
       end
 
-      def index_specimen_records_from_specimens(data, import)
+      def index_specimen_records_from_specimens_insects(data, import)
         start = @redis.keys.count
         collecting_event = nil
         puts " specimen records from specimens.txt"
@@ -1124,7 +1123,7 @@ namespace :tw do
             end
 
             bench = Benchmark.measure {
-              collecting_event = find_or_create_collecting_event(se, data)
+              collecting_event = find_or_create_collecting_event_insects(se, data)
             }
 
             print "\r#{i} \t#{bench.to_s.strip}                            "
@@ -1150,8 +1149,8 @@ namespace :tw do
                 collecting_event: collecting_event,
                 deaccessioned_at: time_from_field(se['DeaccessionDate']),
                 deaccession_reason: se['DeaccessionCause'],
-                created_by_id: find_or_create_collection_user(se['CreatedBy'], data),
-                updated_by_id: find_or_create_collection_user(se['ModifiedBy'], data),
+                created_by_id: find_or_create_collection_user_insects(se['CreatedBy'], data),
+                updated_by_id: find_or_create_collection_user_insects(se['ModifiedBy'], data),
                 created_at: time_from_field(se['CreatedOn']),
                 updated_at: time_from_field(se['ModifiedOn'])
                 )
@@ -1166,7 +1165,7 @@ namespace :tw do
                   end
 
                   specimen.tags.create(keyword: data.keywords['ZeroTotal']) if no_specimens
-                  add_bioculation_class(specimen, count, data)
+                  add_bioculation_class_insects(specimen, count, data)
 
                   Role.create(person: data.people_index[se['AccessionSource']], role_object: specimen, type: 'AccessionProvider') unless se['AccessionSource'].blank?
                   Role.create(person: data.people_index[se['DeaccessionRecipient']], role_object: specimen, type: 'DeaccessionRecipient') unless se['DeaccessionRecipient'].blank?
@@ -1179,15 +1178,15 @@ namespace :tw do
                 end
               end
             end
-            add_identifiers(objects, row, data)
-            add_determinations(objects, row, data)
+            add_identifiers_insects(objects, row, data)
+            add_determinations_insects(objects, row, data)
           end
         end
 
         puts "\n Number of collecting events processed from specimens: #{@redis.keys.count - start} "
       end
 
-      def index_specimen_records_from_specimens_new(data, import)
+      def index_specimen_records_from_specimens_insects_new(data, import)
         build_partially_resolved_index(data)
 
         start = @redis.keys.count
@@ -1243,7 +1242,7 @@ namespace :tw do
           se.merge!(extra_fields)
 
           collecting_event = nil
-          collecting_event = find_or_create_collecting_event(se, data) if row['Done'] == '1'
+          collecting_event = find_or_create_collecting_event_insects(se, data) if row['Done'] == '1'
           preparation_type = data.preparation_types[se['preparation_type']]
 
           no_specimens = false
@@ -1263,8 +1262,8 @@ namespace :tw do
                   buffered_determinations: se['DeterminationLabel'],
                   buffered_other_labels: se['OtherLabel'],
                   collecting_event: collecting_event,
-                  created_by_id: find_or_create_collection_user(se['CreatedBy'], data),
-                  updated_by_id: find_or_create_collection_user(se['ModifiedBy'], data),
+                  created_by_id: find_or_create_collection_user_insects(se['CreatedBy'], data),
+                  updated_by_id: find_or_create_collection_user_insects(se['ModifiedBy'], data),
                   created_at: time_from_field(se['CreatedOn']),
                   updated_at: time_from_field(se['ModifiedOn'])
               )
@@ -1278,7 +1277,7 @@ namespace :tw do
                 end
 
                 specimen.tags.create(keyword: data.keywords['ZeroTotal']) if no_specimens
-                add_bioculation_class(specimen, count, data)
+                add_bioculation_class_insects(specimen, count, data)
               else
                 data.invalid_specimens.merge!(se['Prefix'] + ' ' + se['CatalogueNumber'] => nil)
               end
@@ -1288,8 +1287,8 @@ namespace :tw do
               end
             end
           end
-          add_identifiers(objects, row, data)
-          add_determinations(objects, row, data)
+          add_identifiers_insects(objects, row, data)
+          add_determinations_insects(objects, row, data)
         end
 
         puts "\n Number of collecting events processed from specimens: #{@redis.keys.count - start} "
@@ -1321,7 +1320,7 @@ namespace :tw do
             se.merge!(c => row[c]) unless row[c].blank?
           end
 
-          collecting_event = find_or_create_collecting_event(se, data)
+          collecting_event = find_or_create_collecting_event_insects(se, data)
           preparation_type = data.preparation_types['Pin']
 
           no_specimens = false
@@ -1352,20 +1351,20 @@ namespace :tw do
                 end
 
                 specimen.tags.create(keyword: data.keywords['ZeroTotal']) if no_specimens
-                add_bioculation_class(specimen, count, data)
+                add_bioculation_class_insects(specimen, count, data)
               else
                 data.invalid_specimens.merge!(se['Prefix'] + ' ' + se['CatalogueNumber'] => nil)
               end
             end
           end
-          add_identifiers(objects, row, data)
-          add_determinations(objects, row, data)
+          add_identifiers_insects(objects, row, data)
+          add_determinations_insects(objects, row, data)
         end
 
         puts "\n Number of collecting events processed from specimens: #{@redis.keys.count - start} "
       end
 
-      def add_identifiers(objects, row, data)
+      def add_identifiers_insects(objects, row, data)
         puts "no catalog number for #{row['ID']}" if row['CatalogNumber'].blank? && row['SampleID'].blank?
 
         identifier = Identifier::Local::CatalogNumber.new(namespace: data.namespaces[row['Prefix']], identifier: row['CatalogNumber']) unless row['CatalogNumber'].blank?
@@ -1387,7 +1386,7 @@ namespace :tw do
         data.duplicate_specimen_ids.merge!(row['Prefix'].to_s + ' ' + row['CatalogueNumber'].to_s => nil) unless identifier.valid?
       end
 
-      def add_bioculation_class(o, bcc, data)
+      def add_bioculation_class_insects(o, bcc, data)
           BiocurationClassification.create(biocuration_class: data.biocuration_classes['Adult'], biological_collection_object: o) if bcc == 'AdultMale' || bcc =='AdultFemale' || bcc == 'AdultUnsexed'
           BiocurationClassification.create(biocuration_class: data.biocuration_classes['Male'], biological_collection_object: o) if bcc == 'AdultMale'
           BiocurationClassification.create(biocuration_class: data.biocuration_classes['Female'], biological_collection_object: o) if bcc == 'AdultFemale'
@@ -1397,7 +1396,7 @@ namespace :tw do
       end
 
 
-      def add_determinations(objects, row, data)
+      def add_determinations_insects(objects, row, data)
         #identifier = Identifier.where(namespace_id: @taxon_namespace.id, identifier: row['TaxonCode'], project_id: $project_id)
         #otu = identifier.empty? ? nil : identifier.first.identifier_object
         otu = Otu.with_project_id($project_id).with_identifier('Taxon Code ' + row['TaxonCode'].to_s)
@@ -1452,7 +1451,7 @@ namespace :tw do
 
           tmp_ce.merge!('CreatedBy' => '1031', 'CreatedOn' => '01/20/2014 12:00:00')
 
-          find_or_create_collecting_event(tmp_ce, data)
+          find_or_create_collecting_event_insects(tmp_ce, data)
         end
         puts "\n Number of collecting events processed from Accessions_new: #{@redis.keys.count} "
       end
@@ -1494,14 +1493,14 @@ namespace :tw do
           tmp_ce.delete('LedgersLocality') if !tmp_ce['LedgersLocality'].nil? && tmp_ce['LedgersLocality'] == tmp_ce['Locality']
 
           bench = Benchmark.measure {
-            find_or_create_collecting_event(tmp_ce, data)
+            find_or_create_collecting_event_insects(tmp_ce, data)
           }
           print "\r#{i}\t#{bench.to_s.strip}"
         end
         puts "\n Number of collecting events processed from Ledgers: #{@redis.keys.count - starting_number} "
       end
 
-      def handle_associations(data, import)
+      def handle_associations_insects(data, import)
         path = @args[:data_directory] + 'TXT/associations.txt'
         raise 'file not found' if not File.exists?(path)
         as = CSV.open(path, col_sep: "\t", :headers => true)
@@ -1557,7 +1556,7 @@ namespace :tw do
         puts "\nResolved \n #{BiologicalAssociation.all.count} biological associations\n"
       end
 
-      def handle_loans(data, import)
+      def handle_loans_insects(data, import)
         path = @args[:data_directory] + 'TXT/loans.txt'
         raise 'file not found' if not File.exists?(path)
         lo = CSV.open(path, col_sep: "\t", :headers => true)
@@ -1576,7 +1575,7 @@ namespace :tw do
             date_closed = (row['Canceled'] == 'Canceled') ? Time.current : nil
             row['Signature'] = nil if row['Signature'].to_s.length == 1
             row['StudentSignature'] = nil if row['StudentSignature'].to_s.length == 1
-            country = parse_geographic_area({'Country' => data.people_id[row['RecipientID']]['Country']})
+            country = parse_geographic_area_insects({'Country' => data.people_id[row['RecipientID']]['Country']})
             country = country.nil? ? nil : country.id
             supervisor = data.people_index[data.people_id[row['RecipientID']]['SupervisorID']]
             supervisor_email = supervisor.nil? ?  nil : data.people_id[data.people_id[row['RecipientID']]['SupervisorID']]['Email']
@@ -1597,7 +1596,7 @@ namespace :tw do
                              supervisor_email: supervisor_email,
                              supervisor_phone: supervisor_phone,
                              date_closed: date_closed,
-                             created_by_id: find_or_create_collection_user(row['CreatedBy'], data),
+                             created_by_id: find_or_create_collection_user_insects(row['CreatedBy'], data),
                              created_at: time_from_field(row['CreatedOn'])
             )
             data.loans.merge!(row['InvoiceID'] => l)
@@ -1612,11 +1611,11 @@ namespace :tw do
           end
           puts "\nResolved \n #{Loan.all.count} loans\n"
           import.metadata['loans'] = true
-          checkpoint_save(import) if ENV['no_transaction']
+          checkpoint_save_insects(import) if ENV['no_transaction']
         end
       end
 
-      def handle_loans_without_specimens(data)
+      def handle_loans_insects_without_specimens(data)
         start = @redis.keys.count
         collecting_event = nil
         puts "Loan specimen records from specimens.txt"
@@ -1642,9 +1641,9 @@ namespace :tw do
         end
       end
 
-      def handle_loan_specimens(data)
+      def handle_loan_specimens_insects(data)
 
-        handle_loans_without_specimens(data)
+        handle_loans_insects_without_specimens(data)
 
         path = @args[:data_directory] + 'TXT/loan_specimen.txt'
         raise 'file not found' if not File.exists?(path)
@@ -1692,7 +1691,7 @@ namespace :tw do
         end
       end
 
-      def handle_letters(data)
+      def handle_letters_insects(data)
         path = @args[:data_directory] + 'TXT/letters.txt'
         raise 'file not found' if not File.exists?(path)
         ls = CSV.open(path, col_sep: "\t", :headers => true)
@@ -1707,7 +1706,7 @@ namespace :tw do
             note = row['Body'].to_s.squish
             note = row['Salutation'].to_s + "\n" + note unless row['Salutation'].to_s.squish.blank?
             invoice.notes.create(text: note,
-                                 created_by_id: find_or_create_collection_user(row['Creator'], data),
+                                 created_by_id: find_or_create_collection_user_insects(row['Creator'], data),
                                  created_at: time_from_field(row['CreatedOn']),
                                  tags_attributes:   [ { keyword: data.keywords['INHS_letters'] } ]
                                 )
@@ -1715,7 +1714,7 @@ namespace :tw do
         end
       end
 
-      def handle_collection_profile(data)
+      def handle_collection_profile_insects(data)
         path = @args[:data_directory] + 'TXT/collection_profile.txt'
         raise 'file not found' if not File.exists?(path)
         ls = CSV.open(path, col_sep: "\t", :headers => true)
@@ -1728,11 +1727,11 @@ namespace :tw do
           print "\r#{i}"
           otu = Otu.with_project_id($project_id).with_identifier('Taxon Code ' + row['TaxonCode'].to_s)
           otu = otu.empty? ? nil : otu.first.id
-          room = find_or_create_room(row, data)
+          room = find_or_create_room_insects(row, data)
 
-          container = Container.create!(created_by_id: find_or_create_collection_user(row['CreatedBy'], data),
+          container = Container.create!(created_by_id: find_or_create_collection_user_insects(row['CreatedBy'], data),
                                        created_at: time_from_field(row['CreatedOn']),
-                                       updated_by_id: find_or_create_collection_user(row['ModifiedBy'], data),
+                                       updated_by_id: find_or_create_collection_user_insects(row['ModifiedBy'], data),
                                        updated_at: time_from_field(row['ModifiedOn']),
                                        parent_id: room,
                                        type: container_type[row['CollectionType']],
@@ -1760,9 +1759,9 @@ namespace :tw do
             cl1 = ContainerLabel.create!(label: label1,
                                         date_printed: time_from_field(row['ModifiedOn']),
                                         position: 1,
-                                        created_by_id: find_or_create_collection_user(row['CreatedBy'], data),
+                                        created_by_id: find_or_create_collection_user_insects(row['CreatedBy'], data),
                                         created_at: time_from_field(row['CreatedOn']),
-                                        updated_by_id: find_or_create_collection_user(row['ModifiedBy'], data),
+                                        updated_by_id: find_or_create_collection_user_insects(row['ModifiedBy'], data),
                                         updated_at: time_from_field(row['ModifiedOn']),
                                         container: container
               )
@@ -1771,9 +1770,9 @@ namespace :tw do
             cl2 = ContainerLabel.create!(label: label2,
                                         date_printed: time_from_field(row['ModifiedOn']),
                                         position: 2,
-                                        created_by_id: find_or_create_collection_user(row['CreatedBy'], data),
+                                        created_by_id: find_or_create_collection_user_insects(row['CreatedBy'], data),
                                         created_at: time_from_field(row['CreatedOn']),
-                                        updated_by_id: find_or_create_collection_user(row['ModifiedBy'], data),
+                                        updated_by_id: find_or_create_collection_user_insects(row['ModifiedBy'], data),
                                         updated_at: time_from_field(row['ModifiedOn']),
                                         container: container
               )
@@ -1791,9 +1790,9 @@ namespace :tw do
                                    computerization_level: row['ComputerizationLevel'],
                                    number_of_collection_objects: row['NumberOfSpecimens'],
                                    number_of_containers: row['NumberOfVialsSlides'],
-                                   created_by_id: find_or_create_collection_user(row['CreatedBy'], data),
+                                   created_by_id: find_or_create_collection_user_insects(row['CreatedBy'], data),
                                    created_at: time_from_field(row['CreatedOn']),
-                                   updated_by_id: find_or_create_collection_user(row['CreatedOn'], data),
+                                   updated_by_id: find_or_create_collection_user_insects(row['CreatedOn'], data),
                                    updated_at: time_from_field(row['CreatedOn']),
                                    collection_type: row['CollectionType']
                                 )
@@ -1801,13 +1800,13 @@ namespace :tw do
         end
       end
 
-      def find_or_create_room(row, data)
-        return $collection_container if row['Room'].nil?
+      def find_or_create_room_insects(row, data)
+        return @collection_container if row['Room'].nil?
         r = data.rooms[row['Room']]
         if r.nil?
           r = Container::Room.with_project_id($project_id).where(name: row['name'])
           if r.empty?
-            r = Container::Room.create(parent_id: $collection_container, name: row['Room'] ).id
+            r = Container::Room.create(parent_id: @collection_container, name: row['Room'] ).id
           else
             r = r.first.id
           end
@@ -1816,7 +1815,7 @@ namespace :tw do
         r
       end
 
-      def parse_geographic_area(ce)
+      def parse_geographic_area_insects(ce)
         geog_search = []
         [ ce['County'], ce['State'], ce['Country']].each do |v|
           geog_search.push( GEO_NAME_TRANSLATOR[v] ? GEO_NAME_TRANSLATOR[v] : v) if !v.blank?
@@ -1854,7 +1853,7 @@ namespace :tw do
         geographic_area
       end
 
-      def parse_lat_long(ce)
+      def parse_lat_long_insects(ce)
         latitude, longitude = nil, nil
         nlt = ce['NS'].blank? ? nil : ce['NS'].capitalize #  (ce['NS'].downcase == 's' ? '-' : nil) if !ce['NS'].blank?
         ltd = ce['Lat_deg'].blank? ? nil : "#{ce['Lat_deg']}º"
@@ -1873,7 +1872,7 @@ namespace :tw do
         [latitude, longitude]
       end
 
-      def parse_geolocation_uncertainty(ce)
+      def parse_geolocation_uncertainty_insects(ce)
         return ce['CoordinateAccuracy'] unless ce['CoordinateAccuracy'].blank?
 
         geolocation_uncertainty = nil
@@ -1896,7 +1895,7 @@ namespace :tw do
         return geolocation_uncertainty
       end
 
-      def parse_dates(ce)
+      def parse_dates_insects(ce)
         sdm, sdd, sdy, edm, edd, edy = nil, nil, nil, nil, nil, nil
         ( sdm, sdd, sdy = ce['DateCollectedBeginning'].split("/") ) if !ce['DateCollectedBeginning'].blank?
         ( edm, edd, edy = ce['DateCollectedEnding'].split("/")    ) if !ce['DateCollectedEnding'].blank?
@@ -1910,7 +1909,7 @@ namespace :tw do
         [sdm, sdd, sdy, edm, edd, edy]
       end
 
-      def parse_elevation(ce)
+      def parse_elevation_insects(ce)
         ft =  ce['Elev_ft']
         m = ce['Elev_m'] 
 

@@ -62,7 +62,7 @@ describe Otu, :type => :model do
         expect(t.valid?).to be_truthy
 
         otu.taxon_name = t
-        expect(otu.otu_name).to eq('<em>Erythroneura vitis</em> McAtee, 1900')
+        expect(otu.otu_name).to eq('<i>Erythroneura vitis</i> McAtee, 1900')
 
         otu.name = 'Foo'
         expect(otu.otu_name).to eq('Foo')

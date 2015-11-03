@@ -43,14 +43,14 @@ class TaxonNameRelationship < ActiveRecord::Base
   validates_presence_of :subject_taxon_name_id, message: 'Taxon is not selected'
   validates_presence_of :object_taxon_name_id, message: 'Taxon is not selected'
   validates_uniqueness_of :object_taxon_name_id, scope: :type, if: :is_combination?
-  validates_uniqueness_of :object_taxon_name_id, scope: [:type, :subject_taxon_name_id], unless: :is_combination?
+  validates_uniqueness_of :object_taxon_name_id, scope: [:type, :subject_taxon_name_id, :source_id], unless: :is_combination?
 
   validate :validate_type, :validate_subject_and_object_are_not_identical
 
   with_options unless: '!subject_taxon_name || !object_taxon_name' do |v|
     v.validate :validate_subject_and_object_share_code,
       :validate_uniqueness_of_typification_object,
-      :validate_uniqueness_of_synonym_subject,
+      #:validate_uniqueness_of_synonym_subject,
       :validate_object_must_equal_subject_for_uncertain_placement,
       :validate_subject_and_object_ranks,
       :validate_rank_group
@@ -170,6 +170,13 @@ class TaxonNameRelationship < ActiveRecord::Base
     const_defined?(:NOMEN_URI, false) ? self::NOMEN_URI : nil
   end
 
+  # Used to determine nomenclatural priorities
+  # @return [Time]
+  #   effective date of publication.
+  def nomenclature_date
+     self.source ? (self.source.cached_nomenclature_date ? self.source.cached_nomenclature_date.to_time : Time.now) : Time.now
+  end
+
   protected
 
   #region Validation
@@ -239,11 +246,11 @@ class TaxonNameRelationship < ActiveRecord::Base
     end
   end
 
-  def validate_uniqueness_of_synonym_subject
-    if !self.type.nil? && /Synonym/.match(self.type_name) && !TaxonNameRelationship.where(subject_taxon_name_id: self.subject_taxon_name_id).with_type_contains('Synonym').not_self(self).empty?
-      errors.add(:subject_taxon_name_id, 'Only one synonym relationship is allowed')
-    end
-  end
+  #def validate_uniqueness_of_synonym_subject ##### Protonym historically could be listed as a synonym to different taxa
+  #  if !self.type.nil? && /Synonym/.match(self.type_name) && !TaxonNameRelationship.where(subject_taxon_name_id: self.subject_taxon_name_id).with_type_contains('Synonym').not_self(self).empty?
+  #    errors.add(:subject_taxon_name_id, 'Only one synonym relationship is allowed')
+  #  end
+  #end
 
   def validate_uniqueness_of_typification_object
     if /Typification/.match(self.type_name) && !TaxonNameRelationship.where(object_taxon_name_id: self.object_taxon_name_id).with_type_contains('Typification').not_self(self).empty?

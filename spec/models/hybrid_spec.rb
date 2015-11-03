@@ -21,7 +21,7 @@ describe Hybrid, type: :model, group: [:nomenclature]  do
     # valid_hybrid factory includes relationships now
 
     specify 'cached_html' do
-      expect(valid_hybrid.cached_html).to eq('<em>Aus cus</em> &#215; <em>Aus dus</em>')     
+      expect(valid_hybrid.cached_html).to eq('<i>Aus cus</i> &#215; <i>Aus dus</i>')
     end 
 
     specify 'cached' do

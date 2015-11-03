@@ -85,13 +85,13 @@ namespace :tw do
 
           if ENV['no_transaction']
             puts 'Importing without a transaction (data will be left in the database).'
-            main_build_loop
+            main_build_loop_lepindex
           else
 
             ActiveRecord::Base.transaction do
               begin
 
-              main_build_loop
+              main_build_loop_lepindex
 
               rescue
                 raise
@@ -101,7 +101,7 @@ namespace :tw do
         end
       end
 
-      def main_build_loop
+      def main_build_loop_lepindex
         print "\nStart time: #{Time.now}\n"
 
         @import = Import.find_or_create_by(name: @import_name)
@@ -109,18 +109,18 @@ namespace :tw do
         @data =  ImportedData.new
         puts @args
         Utilities::Files.lines_per_file(Dir["#{@args[:data_directory]}/**/*.txt"])
-        handle_projects_and_users
+        handle_projects_and_users_lepindex
         raise '$project_id or $user_id not set.'  if $project_id.nil? || $user_id.nil?
-        handle_references
-        handle_list_of_genera
-        handle_images
-        handle_species
-        soft_validations
+        handle_references_lepindex
+        handle_list_of_genera_lepindex
+        handle_images_lepindex
+        handle_species_lepindex
+        soft_validations_lepindex
 
         print "\n\n !! Success. End time: #{Time.now} \n\n"
       end
 
-      def handle_projects_and_users
+      def handle_projects_and_users_lepindex
         print "\nHandling projects and users "
         @project, @user = initiate_project_and_users('Lepindex', 'i.kitching@nhm.ac.uk')
         email = 'lepindex@import.net'
@@ -169,7 +169,7 @@ namespace :tw do
 
       end
 
-      def handle_references
+      def handle_references_lepindex
         # BUTMOTH_SPECIESFILE_REFS_UNIQUE.txt  (Butterflies & Moths Generic Index)
         #
         # # NEW_REF_ID
@@ -248,7 +248,7 @@ namespace :tw do
 
       end
 
-      def handle_list_of_genera
+      def handle_list_of_genera_lepindex
         # BUTMOTH_SPECIESFILE_MASTER.txt (Butterflies & Moths Generic Index)
         #
         # GENUS_NUMBER
@@ -282,7 +282,7 @@ namespace :tw do
         puts "\nResolved #{@data.genera_index.keys.count} genera\n"
       end
 
-      def handle_images
+      def handle_images_lepindex
         # IMAGES.txt (LepIndex)
         # TaxonNo
         # Card_code
@@ -301,7 +301,7 @@ namespace :tw do
         puts "\nResolved #{@data.images_index.keys.count} images\n"
       end
 
-      def handle_species
+      def handle_species_lepindex
         # VIADOCS.txt
         #
         # TaxonNo
@@ -429,7 +429,7 @@ namespace :tw do
                                         rank_class: rank_classes[row['Current_rank_of_name']],
                                         verbatim_name: verbatim_name,
                                         project_id: $project_id,
-                                        created_by_id: find_or_create_collection_user(row['Last_changed_by']),
+                                        created_by_id: find_or_create_user_lepindex(row['Last_changed_by']),
                                         updated_by_id: $user_id,
                                         created_at: time_from_field(row['Date_changed']),
                                         updated_at: $user_id
@@ -616,14 +616,14 @@ namespace :tw do
         end
       end
 
-      def soft_validations
+      def soft_validations_lepindex
         fixed = 0
         print "\nApply soft validation fixes to taxa 1st pass \n"
         TaxonName.where(project_id: $project_id).each_with_index do |t, i|
           print "\r#{i}    Fixes applied: #{fixed}"
           t.soft_validate
-          t.fix_soft_validations
-          t.soft_validations.soft_validations.each do |f|
+          t.fix_soft_validations_lepindex
+          t.soft_validations_lepindex.soft_validations_lepindex.each do |f|
             fixed += 1  if f.fixed?
           end
         end
@@ -631,8 +631,8 @@ namespace :tw do
         TaxonNameRelationship.where(project_id: $project_id).each_with_index do |t, i|
           print "\r#{i}    Fixes applied: #{fixed}"
           t.soft_validate
-          t.fix_soft_validations
-          t.soft_validations.soft_validations.each do |f|
+          t.fix_soft_validations_lepindex
+          t.soft_validations_lepindex.soft_validations_lepindex.each do |f|
             fixed += 1  if f.fixed?
           end
         end
@@ -640,14 +640,14 @@ namespace :tw do
         TaxonName.where(project_id: $project_id).each_with_index do |t, i|
           print "\r#{i}    Fixes applied: #{fixed}"
           t.soft_validate
-          t.fix_soft_validations
-          t.soft_validations.soft_validations.each do |f|
+          t.fix_soft_validations_lepindex
+          t.soft_validations_lepindex.soft_validations_lepindex.each do |f|
             fixed += 1  if f.fixed?
           end
         end
       end
 
-      def find_or_create_collection_user(name)
+      def find_or_create_user_lepindex(name)
         if name.blank?
           $user_id
         elsif @data.user_index[name]
@@ -669,81 +669,6 @@ namespace :tw do
 
           @data.user_index.merge!(name => user)
           user.id
-        end
-      end
-
-      def checkpoint_save(import)
-        import.metadata_will_change!
-        import.save
-      end
-
-
-
-
-
-
-
-      task :handle_viadocs=> [:data_directory, :environment] do |t| 
-        path = @args[:data_directory] + 'VIADOCS.txt'
-        raise "file #{path} not found" if not File.exists?(path)
-        CSV.foreach(path, col_sep: "\t", encoding: 'iso-8859-1:UTF-8', headers: true) do |row|
-          ap(row)
-        end
-      end
-
-      task :handle_master=> [:data_directory, :environment] do |t| 
-        path = @args[:data_directory] + 'BUTMOTH_SPECIESFILE_MASTER.txt'
-        raise "file #{path} not found" if not File.exists?(path)
-        CSV.foreach(path, col_sep: "\t", encoding: 'iso-8859-1:UTF-8', headers: true) do |row|
-          ap(row)
-        end
-      end
-
-      # references
-      task :handle_uniq=> [:data_directory, :environment] do |t| 
-        path = @args[:data_directory] + 'BUTMOTH_SPECIESFILE_REFS_UNIQUE.txt'
-        raise "file #{path} not found" if not File.exists?(path)
-      
-        base_data_attributes = %w{PRINTED_DATE PART PUBLISHER_ADDRESS PUBLICATION_MONTH BHL_PAGE}
-
-        i = 0
-        CSV.foreach(path, col_sep: "\t", encoding: 'iso-8859-1:UTF-8', headers: true) do |r|
-          i += 1
-
-          next if i < 45517 
-          
-          error_attributes = []
-
-          print "\r      #{i}"
- #          ap r
-
-          author = r['IN_AUTHOR'].blank? ? r['AUTHOR'] : r['IN_AUTHOR']  
-
-          year = r['PUBLICATION_YEAR']
-          unless year =~/\A\d\d\d\d\z/
-            error_attributes.push('PUBLICATION_YEAR')
-            year = nil
-          end
-
-          attributes = {
-            bibtex_type: 'article',
-            author: author,
-            year: year,
-            title: r['FULLTITLE'],
-            publisher: r['PUBLISHER_NAME'],
-            institution: r['PUBLISHER_INSTITUTE'],
-            volume: r['VOLUME'],
-            series: r['SERIES'],
-            pages: r['PAGE'],
-            data_attributes_attributes: []
-          }
-
-          (base_data_attributes + error_attributes).each do |v|
-           attributes[:data_attributes_attributes].push({ predicate: @predicates[v], type: 'InternalAttribute', value: r[v] }) if r[v]
-         end
-
-         Source::Bibtex.create!(attributes)
-
         end
       end
     end

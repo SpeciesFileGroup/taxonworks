@@ -50,7 +50,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         expect(variety.root.id).to eq(@species.root.id)
         expect(variety.cached_higher_classification).to eq('Plantae:Aphyta:Aphytina:Aopsida:Aidae:Aales:Aineae:Aaceae:Aoideae:Aeae:Ainae')
         expect(variety.cached_author_year).to eq('McAtee (1900)')
-        expect(variety.cached_html).to eq('<em>Aus</em> (<em>Aus</em> sect. <em>Aus</em> ser. <em>Aus</em>) <em>aaa bbb</em> var. <em>ccc</em>')
+        expect(variety.cached_html).to eq('<i>Aus</i> (<i>Aus</i> sect. <i>Aus</i> ser. <i>Aus</i>) <i>aaa bbb</i> var. <i>ccc</i>')
 
         basionym = FactoryGirl.create(:icn_variety, name: 'basionym', parent_id: variety.ancestor_at_rank('species').id, source_id: nil, verbatim_author: 'Linnaeus')
         r  = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: basionym, object_taxon_name: variety, type: 'TaxonNameRelationship::Icn::Unaccepting::Usage::Basionym')
@@ -63,6 +63,10 @@ describe TaxonName, type: :model, group: [:nomenclature] do
     context 'associations' do
       specify 'responses to source' do
         expect(taxon_name).to respond_to(:source)
+      end
+      specify 'responses to valid_taxon_name' do
+        s = FactoryGirl.create(:iczn_species, name: 'afafa', parent: @genus, valid_taxon_name: @species)
+        expect(s.valid_taxon_name).to eq(@species)
       end
 
       context 'taxon_name_relationships' do
@@ -274,15 +278,15 @@ describe TaxonName, type: :model, group: [:nomenclature] do
           specify 'ICZN ' do
             expect(@subspecies.cached_higher_classification).to eq('Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini:Erythroneurina')
             expect(@subspecies.cached_author_year).to eq('McAtee, 1900')
-            expect(@subspecies.cached_html).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitis vitata</em>')
+            expect(@subspecies.cached_html).to eq('<i>Erythroneura</i> (<i>Erythroneura</i>) <i>vitis vitata</i>')
           end
 
           specify 'fossil' do
             sp = FactoryGirl.create(:relationship_species, parent: @genus)
             c = FactoryGirl.create(:taxon_name_classification, taxon_name: sp, type: 'TaxonNameClassification::Iczn::Fossil')
             sp.reload
-            expect(sp.get_full_name_html).to eq('&#8224; <em>Erythroneura vitis</em>')
-            expect(sp.cached_html).to eq('&#8224; <em>Erythroneura vitis</em>')
+            expect(sp.get_full_name_html).to eq('&#8224; <i>Erythroneura vitis</i>')
+            expect(sp.cached_html).to eq('&#8224; <i>Erythroneura vitis</i>')
             expect(sp.cached).to eq('Erythroneura vitis')
           end
 
@@ -290,14 +294,14 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             sp = FactoryGirl.create(:relationship_species, parent: @genus)
             c = FactoryGirl.create(:taxon_name_classification, taxon_name: sp, type: 'TaxonNameClassification::Icn::Hybrid')
             sp.reload
-            expect(sp.cached_html).to eq('&#215; <em>Erythroneura vitis</em>')
+            expect(sp.cached_html).to eq('&#215; <i>Erythroneura vitis</i>')
             expect(sp.cached).to eq('Erythroneura vitis')
           end
 
           specify 'ICZN subspecies' do
             expect(@subspecies.cached_higher_classification).to eq('Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini:Erythroneurina')
             expect(@subspecies.cached_author_year).to eq('McAtee, 1900')
-            expect(@subspecies.cached_html).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitis vitata</em>')
+            expect(@subspecies.cached_html).to eq('<i>Erythroneura</i> (<i>Erythroneura</i>) <i>vitis vitata</i>')
           end
 
           specify 'ICZN species misspelling' do
@@ -355,39 +359,39 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             expect(@subspecies.get_original_combination.nil?).to be_truthy
             @subspecies.original_genus = @genus
             @subspecies.reload
-            expect(@subspecies.get_original_combination).to eq('<em>Erythroneura vitata</em>')
+            expect(@subspecies.get_original_combination).to eq('<i>Erythroneura vitata</i>')
             @subspecies.original_subgenus = @genus
             @subspecies.reload
-            expect(@subspecies.get_original_combination).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitata</em>')
+            expect(@subspecies.get_original_combination).to eq('<i>Erythroneura</i> (<i>Erythroneura</i>) <i>vitata</i>')
             @subspecies.original_species = @species
             @subspecies.reload
-            expect(@subspecies.get_original_combination).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitis vitata</em>')
+            expect(@subspecies.get_original_combination).to eq('<i>Erythroneura</i> (<i>Erythroneura</i>) <i>vitis vitata</i>')
             @subspecies.original_variety = @subspecies
             @subspecies.reload
-            expect(@subspecies.get_original_combination).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitis</em> var. <em>vitata</em>')
+            expect(@subspecies.get_original_combination).to eq('<i>Erythroneura</i> (<i>Erythroneura</i>) <i>vitis</i> var. <i>vitata</i>')
 
             expect(@subgenus.get_original_combination.nil?).to be_truthy
             @subgenus.original_genus = @genus
             @subgenus.reload
-            expect(@subgenus.get_original_combination).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>)')
+            expect(@subgenus.get_original_combination).to eq('<i>Erythroneura</i> (<i>Erythroneura</i>)')
           end
 
           specify 'different gender' do
             s = FactoryGirl.create(:iczn_species, parent: @genus)
             expect(s.save).to be_truthy
-            expect(s.get_full_name_html).to eq('<em>Erythroneura vitis</em>')
+            expect(s.get_full_name_html).to eq('<i>Erythroneura vitis</i>')
             s.masculine_name = 'vitus'
             s.feminine_name  = 'vita'
             s.neuter_name    = 'vitum'
             expect(s.save).to be_truthy
             gender = FactoryGirl.create(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::Gender::Masculine')
-            expect(s.get_full_name_html).to eq('<em>Erythroneura vitus</em>')
+            expect(s.get_full_name_html).to eq('<i>Erythroneura vitus</i>')
             gender.type = 'TaxonNameClassification::Latinized::Gender::Feminine'
             expect(gender.save).to be_truthy
-            expect(s.get_full_name_html).to eq('<em>Erythroneura vita</em>')
+            expect(s.get_full_name_html).to eq('<i>Erythroneura vita</i>')
             gender.type = 'TaxonNameClassification::Latinized::Gender::Neuter'
             expect(gender.save).to be_truthy
-            expect(s.get_full_name_html).to eq('<em>Erythroneura vitum</em>')
+            expect(s.get_full_name_html).to eq('<i>Erythroneura vitum</i>')
           end
 
           specify 'misspelled original combination' do
@@ -396,8 +400,8 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             expect(g.save).to be_truthy
             @subspecies.original_genus = g
             @subspecies.reload
-            expect(g.get_full_name_html).to eq('<em>Errorneura</em> [sic]')
-            expect(@subspecies.get_original_combination).to eq('<em>Errorneura</em> [sic] <em>vitata</em>')
+            expect(g.get_full_name_html).to eq('<i>Errorneura</i> [sic]')
+            expect(@subspecies.get_original_combination).to eq('<i>Errorneura</i> [sic] <i>vitata</i>')
             expect(@subspecies.get_author_and_year).to eq ('(McAtee, 1900)')
           end
          
@@ -477,6 +481,25 @@ describe TaxonName, type: :model, group: [:nomenclature] do
               @s.fix_soft_validations
               @s.soft_validate(:cached_names)
               expect(@s.soft_validations.messages_on(:base).empty?).to be_truthy
+            end
+          end
+
+          context 'valid_taxon_name' do
+            specify 'get_valid_taxon_name' do
+              g1 = FactoryGirl.create(:relationship_genus, name: 'Cus', parent: @family)
+              g2 = FactoryGirl.create(:relationship_genus, name: 'Cus', parent: @family)
+              g3 = FactoryGirl.create(:relationship_genus, name: 'Cus', parent: @family)
+              g4 = FactoryGirl.create(:relationship_genus, name: 'Cus', parent: @family)
+              s1 = FactoryGirl.create(:valid_source_bibtex, year: 1900)
+              s2 = FactoryGirl.create(:valid_source_bibtex, year: 2000)
+              expect(g1.get_valid_taxon_name).to eq(g1)
+              r1 = TaxonNameRelationship::Iczn::Invalidating::Synonym.create(subject_taxon_name: g1, object_taxon_name: g2, source: s1)
+              g1.reload
+              expect(g1.get_valid_taxon_name).to eq(g2)
+              r2 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g2, object_taxon_name: g3, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym', source: s1)
+              expect(g1.get_valid_taxon_name).to eq(g3)
+              r3 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g2, object_taxon_name: g4, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym', source: s2)
+              expect(g1.get_valid_taxon_name).to eq(g4)
             end
           end
 
@@ -614,13 +637,13 @@ describe TaxonName, type: :model, group: [:nomenclature] do
   context 'after save' do
     context 'create_new_combination_if_absent' do
       specify 'new combination' do
-        expect(TaxonName.with_cached_html('<em>Erythroneura vitis</em>').count).to eq(0)
+        expect(TaxonName.with_cached_html('<i>Erythroneura vitis</i>').count).to eq(0)
         sp = FactoryGirl.build(:relationship_species)
         sp.save
-        expect(sp.cached_html).to eq('<em>Erythroneura vitis</em>')
-        expect(TaxonName.with_cached_html('<em>Erythroneura vitis</em>').count).to eq(1)
+        expect(sp.cached_html).to eq('<i>Erythroneura vitis</i>')
+        expect(TaxonName.with_cached_html('<i>Erythroneura vitis</i>').count).to eq(1)
         sp.save
-        expect(TaxonName.with_cached_html('<em>Erythroneura vitis</em>').count).to eq(1)
+        expect(TaxonName.with_cached_html('<i>Erythroneura vitis</i>').count).to eq(1)
       end
     end
 
@@ -637,22 +660,22 @@ describe TaxonName, type: :model, group: [:nomenclature] do
 
         t = species.created_at
         expect(species.cached).to eq('Aus aus')
-        expect(species.cached_html).to eq('<em>Aus aus</em>')
-        expect(species.cached_original_combination).to eq('<em>Bus aus</em>')
+        expect(species.cached_html).to eq('<i>Aus aus</i>')
+        expect(species.cached_original_combination).to eq('<i>Bus aus</i>')
         expect(species.cached_author_year).to eq('(Linnaeus, 1758)')
         expect(species.cached_classified_as).to eq(' (as Erythroneuridae)')
         genus1.name = 'Cus'
         genus1.save
         species.reload
         expect(species.cached).to eq('Cus aus')
-        expect(species.cached_html).to eq('<em>Cus aus</em>')
-        expect(species.cached_original_combination).to eq('<em>Bus aus</em>')
+        expect(species.cached_html).to eq('<i>Cus aus</i>')
+        expect(species.cached_original_combination).to eq('<i>Bus aus</i>')
         genus2.name = 'Dus'
         genus2.save
         species.reload
         expect(species.cached).to eq('Cus aus')
-        expect(species.cached_html).to eq('<em>Cus aus</em>')
-        expect(species.cached_original_combination).to eq('<em>Dus aus</em>')
+        expect(species.cached_html).to eq('<i>Cus aus</i>')
+        expect(species.cached_original_combination).to eq('<i>Dus aus</i>')
         family.name = 'Cicadellidae'
         family.save
         species.reload
@@ -670,12 +693,12 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         genus2.reload
         species = FactoryGirl.build(:relationship_species, name: 'aus', parent: genus1, verbatim_author: 'Linnaeus', year_of_publication: 1758, masculine_name: 'aus', feminine_name: 'aa', neuter_name: 'aum')
         species.save
-        expect(species.cached_html).to eq('<em>Aus aus</em>')
+        expect(species.cached_html).to eq('<i>Aus aus</i>')
         expect(species.cached).to eq('Aus aus')
         species.parent = genus2
         species.save
         species.reload
-        expect(species.cached_html).to eq('<em>Ba aa</em>')
+        expect(species.cached_html).to eq('<i>Ba aa</i>')
         expect(species.cached).to eq('Ba aa')
       end
       specify 'gender of genus change change' do
@@ -685,7 +708,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         genus1.reload
         species = FactoryGirl.build(:relationship_species, name: 'aus', parent: genus1, verbatim_author: 'Linnaeus', year_of_publication: 1758, masculine_name: 'aus', feminine_name: 'aa', neuter_name: 'aum')
         species.save
-        expect(species.cached_html).to eq('<em>Aus aus</em>')
+        expect(species.cached_html).to eq('<i>Aus aus</i>')
         expect(species.cached).to eq('Aus aus')
         c1.type = 'TaxonNameClassification::Latinized::Gender::Feminine'
         c1.save
@@ -693,7 +716,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         species.reload
         species.save
         species.reload
-        expect(species.cached_html).to eq('<em>Aus aa</em>')
+        expect(species.cached_html).to eq('<i>Aus aa</i>')
         expect(species.cached).to eq('Aus aa')
       end
       specify 'original_combination' do

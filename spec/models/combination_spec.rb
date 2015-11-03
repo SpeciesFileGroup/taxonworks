@@ -78,7 +78,7 @@ describe Combination, :type => :model do
     specify 'scope with_cached_original_combination' do
       c = Combination.new(genus: genus, species: species)
       c.save
-      expect(Combination.with_cached_html('<em>' + genus.name + ' ' + species.name + '</em>').first).to eq(c)
+      expect(Combination.with_cached_html('<i>' + genus.name + ' ' + species.name + '</i>').first).to eq(c)
     end
 
     specify 'scope with_protonym_at_rank' do
@@ -166,7 +166,7 @@ describe Combination, :type => :model do
     context 'cached_html' do
       specify 'with genus and species' do
         basic_combination.save
-        expect(basic_combination.cached_html).to eq('<em>Erythroneura vitis</em>')
+        expect(basic_combination.cached_html).to eq('<i>Erythroneura vitis</i>')
       end
 
       specify 'with a quadrinomial' do
@@ -175,7 +175,7 @@ describe Combination, :type => :model do
         combination.species = species
         combination.subspecies = species2 
         combination.save
-        expect(combination.cached_html).to eq('<em>Erythroneura</em> (<em>Erythroneura</em>) <em>vitis comes</em>')
+        expect(combination.cached_html).to eq('<i>Erythroneura</i> (<i>Erythroneura</i>) <i>vitis comes</i>')
       end
     end
 

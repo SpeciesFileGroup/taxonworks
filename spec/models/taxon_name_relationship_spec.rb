@@ -218,7 +218,7 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
     end
 
     specify 'for cached_html' do
-      expect(s1.cached_html).to eq('<em>Aus aus</em>')
+      expect(s1.cached_html).to eq('<i>Aus aus</i>')
     end
 
     specify 'for cached_misspelling' do
@@ -230,7 +230,7 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
      # Use non FactoryGirl to get callbacks
      s1.original_genus = g2
      s1.save!
-     expect(s1.cached_original_combination).to eq('<em>Bus aus</em>')
+     expect(s1.cached_original_combination).to eq('<i>Bus aus</i>')
    end
 
    specify 'for cached_primary_homony' do
@@ -262,7 +262,7 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
       r3.save
       expect(s1.cached_misspelling).to be_truthy
       expect(s1.cached).to eq('Bus aus')
-      expect(s1.cached_html).to eq('<em>Bus aus</em>')
+      expect(s1.cached_html).to eq('<i>Bus aus</i>')
     end
 
    end
@@ -279,9 +279,9 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
       r3.save
      #  s1.reload # <- not needed with relationships(true) that forces reload on cached building
       s1.save
-      expect(s1.cached_original_combination).to eq('<em>Aus</em> (<em>Aus</em>) <em>aus</em>')
+      expect(s1.cached_original_combination).to eq('<i>Aus</i> (<i>Aus</i>) <i>aus</i>')
       r2.destroy
-      expect(s1.cached_original_combination).to eq('<em>Aus aus</em>')
+      expect(s1.cached_original_combination).to eq('<i>Aus aus</i>')
     end
   end
 
