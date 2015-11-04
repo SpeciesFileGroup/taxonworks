@@ -22,14 +22,14 @@
     </div>
 
     <div class="field">
-      <%= f.label :language_id %>
+      <%= f.label :language %>
       <br>
        <%= render partial:  'workbench/elements/forms/ajax_select',
                    locals: {controller:  'languages',
                                object:     'alternate_value',
                                method:     'language_id',
                                tag_id:     'language_id_for_alternate_value',
-                               display:     object_tag(@alternate_value.language),
+                               display:     language_tag(@alternate_value.language),
                                size: 40} %>
     </div>
 

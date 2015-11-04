@@ -8,7 +8,7 @@
                          object: 'container',
                          method:  'container_id',
                          tag_id:  'container_id_for_container',
-                         display:  container_autocomplete_selected_tag(@container.name),
+                         display:  container_tag(@container.container),
                          size: 20} %>
   </div>
   <div class="field">
@@ -26,7 +26,7 @@
                            object: 'container',
                            method:  'otu_id',
                            tag_id:  'otu_id_for_container',
-                           display:  container_autocomplete_selected_tag(@container.name),
+                           display:  container_tag(@container.otu),
                            size: 20} %>
     </div>
   <div class="field">
