@@ -70,14 +70,17 @@ class TaxonNameRelationship < ActiveRecord::Base
   soft_validate(:sv_validate_homonym_relationships, set: :validate_homonym_relationships)
   soft_validate(:sv_coordinated_taxa, set: :coordinated_taxa)
 
+  scope :order_by_date, -> {joins('LEFT OUTER JOIN "sources" ON "taxon_name_relationships"."source_id" = "sources"."id"').
+      select('"taxon_name_relationships".*, COALESCE("sources"."cached_nomenclature_date", Now()) as nd').
+      order('nd DESC')}
   scope :where_subject_is_taxon_name, -> (taxon_name) {where(subject_taxon_name_id: taxon_name)}
   scope :where_object_is_taxon_name, -> (taxon_name) {where(object_taxon_name_id: taxon_name)}
-  scope :where_object_in_taxon_names, -> (taxon_name_array) {where('object_taxon_name_id IN (?)', taxon_name_array)}
-  scope :with_type_string, -> (type_string) {where('type LIKE ?', "#{type_string}" ) }
-  scope :with_type_base, -> (base_string) {where('type LIKE ?', "#{base_string}%" ) }
-  scope :with_two_type_bases, -> (base_string1, base_string2) {where("type LIKE '#{base_string1}%' OR type LIKE '#{base_string2}%'" ) }
-  scope :with_type_array, -> (base_array) {where('type IN (?)', base_array ) }
-  scope :with_type_contains, -> (base_string) {where('type LIKE ?', "%#{base_string}%" ) }
+  scope :where_object_in_taxon_names, -> (taxon_name_array) {where('"taxon_name_relationships"."object_taxon_name_id" IN (?)', taxon_name_array)}
+  scope :with_type_string, -> (type_string) {where('"taxon_name_relationships"."type" LIKE ?', "#{type_string}" ) }
+  scope :with_type_base, -> (base_string) {where('"taxon_name_relationships"."type" LIKE ?', "#{base_string}%" ) }
+  scope :with_two_type_bases, -> (base_string1, base_string2) {where("""taxon_name_relationships"".""type"" LIKE '#{base_string1}%' OR ""taxon_name_ralationships"".""type"" LIKE '#{base_string2}%'" ) }
+  scope :with_type_array, -> (base_array) {where('taxon_name_relationships.type IN (?)', base_array ) }
+  scope :with_type_contains, -> (base_string) {where('"taxon_name_relationships"."type" LIKE ?', "%#{base_string}%" ) }
 
   # @todo SourceClassifiedAs is not really Combination in the other sense
   def is_combination?

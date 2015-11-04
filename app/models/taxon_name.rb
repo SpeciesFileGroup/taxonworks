@@ -419,14 +419,8 @@ class TaxonName < ActiveRecord::Base
   end
 
   def first_possible_valid_taxon_name
-    vn = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID)
-    if vn.empty?
-      self
-    elsif vn.count == 1
-      vn.first.object_taxon_name
-    else # vn.count > 1
-      vn.sort_by{|v| v.nomenclature_date}.last.object_taxon_name
-    end
+    vn = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID).order_by_date.first
+    vn.nil? ? self : vn.object_taxon_name
   end
 
   def gbif_status_array
