@@ -147,7 +147,8 @@ class TaxonName < ActiveRecord::Base
 
   before_save :set_cached_names
   after_save :create_new_combination_if_absent,
-             :set_cached_names_for_dependants_and_self
+             :set_cached_names_for_dependants_and_self,
+             :set_cached_valid_taxon_name_id
 
   validate :check_format_of_name,
     :validate_rank_class_class,
@@ -529,7 +530,6 @@ class TaxonName < ActiveRecord::Base
       set_cached_author_year
       set_cached_classified_as
       set_cached_original_combination
-      set_cached_valid_taxon_name_id
     end
   end
 
@@ -560,7 +560,14 @@ class TaxonName < ActiveRecord::Base
   end
 
   def set_cached_valid_taxon_name_id
-    self.valid_taxon_name = get_valid_taxon_name
+    begin
+      TaxonName.transaction do
+        self.update_column(:cached_valid_taxon_name_id, self.get_valid_taxon_name.id)
+        #self.valid_taxon_name = get_valid_taxon_name
+      end
+      rescue
+    end
+    false
   end
 
   def set_cached_names_for_dependants_and_self

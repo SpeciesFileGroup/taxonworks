@@ -486,10 +486,10 @@ describe TaxonName, type: :model, group: [:nomenclature] do
 
           context 'valid_taxon_name' do
             specify 'get_valid_taxon_name' do
-              g1 = FactoryGirl.create(:relationship_genus, name: 'Cus', parent: @family)
-              g2 = FactoryGirl.create(:relationship_genus, name: 'Cus', parent: @family)
-              g3 = FactoryGirl.create(:relationship_genus, name: 'Cus', parent: @family)
-              g4 = FactoryGirl.create(:relationship_genus, name: 'Cus', parent: @family)
+              g1 = FactoryGirl.build(:relationship_genus, name: 'Cus', parent: @family)
+              g2 = FactoryGirl.build(:relationship_genus, name: 'Cus', parent: @family)
+              g3 = FactoryGirl.build(:relationship_genus, name: 'Cus', parent: @family)
+              g4 = FactoryGirl.build(:relationship_genus, name: 'Cus', parent: @family)
               s1 = FactoryGirl.create(:valid_source_bibtex, title: 'article 1', year: 1900)
               s2 = FactoryGirl.create(:valid_source_bibtex, title: 'article 2', year: 2000)
               g1.save
