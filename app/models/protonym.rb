@@ -806,6 +806,18 @@ class Protonym < TaxonName
     self.cached_original_combination = get_original_combination
   end
 
+  def set_cached_valid_taxon_name_id
+    begin
+      TaxonName.transaction do
+        self.update_column(:cached_valid_taxon_name_id, self.get_valid_taxon_name.id)
+        #self.valid_taxon_name = get_valid_taxon_name
+      end
+    rescue
+    end
+    false
+  end
+
+
   #  def sv_fix_add_relationship(method, object_id)
   #    begin
   #      Protonym.transaction do

@@ -560,14 +560,7 @@ class TaxonName < ActiveRecord::Base
   end
 
   def set_cached_valid_taxon_name_id
-    begin
-      TaxonName.transaction do
-        self.update_column(:cached_valid_taxon_name_id, self.get_valid_taxon_name.id)
-        #self.valid_taxon_name = get_valid_taxon_name
-      end
-      rescue
-    end
-    false
+    true # set in protonym
   end
 
   def set_cached_names_for_dependants_and_self
