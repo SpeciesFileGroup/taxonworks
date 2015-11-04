@@ -34,6 +34,7 @@ require 'rgeo'
 #
 class GeographicItem < ActiveRecord::Base
   include Housekeeping::Users
+  include Housekeeping::Timestamps
   include Shared::IsData
   include Shared::SharedAcrossProjects
 

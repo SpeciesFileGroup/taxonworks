@@ -33,6 +33,7 @@
 #
 class Person < ActiveRecord::Base
   include Housekeeping::Users
+  include Housekeeping::Timestamps
   include Shared::AlternateValues
   include Shared::DataAttributes
   include Shared::Identifiable

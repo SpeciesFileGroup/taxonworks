@@ -22,11 +22,11 @@
 #
 # @!attribute email
 #   @return [String]
-#   the users email, and login.
+#     the users email, and login.
 #
 # @!attribute password_digest
 #   @return [String]
-#   @todo
+#     the users password 
 #
 # @!attribute remember_token
 #   @return [String]
@@ -34,7 +34,7 @@
 #
 # @!attribute is_administrator
 #   @return [Boolean]
-#   @todo
+#     true if user is an administrator, administrators can do *everything* in any project taxonworks 
 #
 # @!attribute favorite_routes
 #   @return [String]
@@ -53,53 +53,50 @@
 #   a users name: Not intended to be a nickname, but this is loosely enforced. Attribute is intended to identify a human who owns this account.
 #
 # @!attribute current_sign_in_at
-#   @return [DateTime]
-#   @todo Is return data type correct?
+#   @return [ActiveSupport::TimeWithZone]
+#     time of current sign in 
 #
 # @!attribute last_sign_in_at
-#   @return [DateTime]
-#   @todo Is return data type correct?
-#
-# @!attribute current_sign_in_ip
-#   @return [String]
-#   @todo
+#   @return [ActiveSupport::TimeWithZone]
+#    time of sign in prior to this sign in 
 #
 # @!attribute last_sign_in_ip
 #   @return [String]
-#   @todo
+#    IP address of the machine user used to log in from prior to this current log in
 #
 # @!attribute current_sign_in_ip
 #   @return [String]
-#   @todo
+#    IP address of the machine user is currently logged in from 
 #
 # @!attribute hub_tab_order
-#   @return [String]
-#   @todo
+#   @return [Array]
+#     tabs, referenced as Strings, defining the users preference for their order
 #
 # @!attribute api_access_token
 #   @return [String]
-#   @todo
+#    authentication token used to authenticate against /api endpoints 
 #
 # @!attribute is_flagged_for_password_reset
 #   @return [Boolean]
-#   @todo
+#     when true user must reset their password before doing anything further 
 #
 # @!attribute footprints
 #   @return [Hash]
-#   @todo
+#     tracks the users recent requests
 #
 # @!attribute sign_in_count
 #   @return [Integer]
-#   @todo
+#     a count of the number of times a user has logged in 
 #
 # @!attribute self_created [r]
 #   @return [true, false]
 #   Only used for when .new_record? is true. If true assigns creator and updater as self.
-#   @todo this attribute left over; delete?
+#
 #
 class User < ActiveRecord::Base
-  
   include Housekeeping::Users
+  include Housekeeping::Timestamps
+  include Housekeeping::AssociationHelpers
   include Shared::DataAttributes
   include Shared::Notable
   include Shared::Taggable

@@ -1,5 +1,4 @@
-# ProjectMember definition...
-#   @todo
+# A ProjectMember is the link between projects and users.  
 #
 # @!attribute project_id
 #   @return [Integer]
@@ -7,14 +6,15 @@
 #
 # @!attribute user_id
 #   @return [Integer]
-#   @todo Should this be listed or is it considered part of housekeeping??
+#     the user 
 #
 # @!attribute is_project_administrator
 #   @return [Boolean]
-#   @todo
+#    whether the user is a project administrator 
 #
 class ProjectMember < ActiveRecord::Base
   include Housekeeping::Users
+  include Housekeeping::Timestamps
   include Shared::IsData 
 
   belongs_to :project, inverse_of: :project_members

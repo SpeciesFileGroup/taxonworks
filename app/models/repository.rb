@@ -4,30 +4,31 @@
 #
 # @!attribute name
 #   @return [String]
-#   @todo
+#    the name of the repository
 #
 # @!attribute url
 #   @return [String]
-#   @todo
+#    see  http://grbio.org/
 #
 # @!attribute acronym
 #   @return [String]
-#   @todo
+#     a short form name for the repository  
 #
 # @!attribute status
 #   @return [String]
-#   the project ID
+#     see   http://grbio.org/
 #
 # @!attribute institutional_LSID
 #   @return [String]
-#   @todo
+#    sensu  http://grbio.org/
 #
 # @!attribute is_index_herbariorum
 #   @return [Boolean]
-#   @todo
+#    see  http://grbio.org/
 #
 class Repository < ActiveRecord::Base
   include Housekeeping::Users
+  include Housekeeping::Timestamps
   include Shared::Notable
   include Shared::IsData
   include Shared::IsApplicationData

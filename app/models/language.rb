@@ -28,6 +28,7 @@
 #
 class Language < ActiveRecord::Base
   include Housekeeping::Users
+  include Housekeeping::Timestamps
   include Shared::IsData 
   include Shared::IsApplicationData
 

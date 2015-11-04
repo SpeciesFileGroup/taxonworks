@@ -1,16 +1,17 @@
-# PreparationType definition...
-# @todo
+# A PreparationType describes how a collection object was prepared for preservation in a collection.  At present we're building a shared controlled vocabulary that
+# we may ultimately try and turn into an ontology.
 #
 # @!attribute name
 #   @return [String]
-#   @todo
+#     the name of the preparation 
 #
 # @!attribute definition
 #   @return [String]
-#   @todo
+#     a definition describing the preparation 
 #
 class PreparationType < ActiveRecord::Base
   include Housekeeping::Users
+  include Housekeeping::Timestamps
   include Shared::IsData
   include Shared::Taggable
   include Shared::SharedAcrossProjects

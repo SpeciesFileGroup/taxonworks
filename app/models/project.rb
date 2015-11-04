@@ -1,16 +1,19 @@
-# Project definition...
-# @todo
+# A project is a team's wrapper for a group of data.  Most data is project specific, with a few exceptions.  A project has many users, and one or more project administrators.
+# With the exception of "Workers" who can only see and therefore use certain elements of the workbench all members of a project share the same privileges.  A projects
+# members are therefor well trained and trusted contributors to the project.
 #
 # @!attribute name
 #   @return [String]
-#   @todo
+#     The name of the project 
 #
 # @!attribute workbench_settings
 #   @return [Hash]
-#   @todo
+#     Settings for the project (for all users)   
 #
 class Project < ActiveRecord::Base
   include Housekeeping::Users
+  include Housekeeping::Timestamps
+  include Housekeeping::AssociationHelpers
 
   store_accessor :workbench_settings, :worker_tasks, :workbench_starting_path
 
@@ -110,42 +113,13 @@ class Project < ActiveRecord::Base
     end
   end
 
-  def data_breakdown
-
-    Rails.application.eager_load!
-
-    data = {}
-    has_many_relationships.each do |name|
-      total = self.send(name).in_project(self).count
-      today = self.send(name).updated_today.in_project(self).count
-      this_week = self.send(name).updated_this_week.in_project(self).count
-
-      if total > 0
-        data.merge!(r.name.to_s.humanize => {
-                        total: total,
-                        today: today,
-                        this_week: this_week
-                    })
-      end
-    end
-    data
-  end
-
-  def has_many_relationships
-    Rails.application.eager_load!
-    relationships = []
-
-    Project.reflect_on_all_associations(:has_many).each do |r|
-      name = r.name.to_s
-      if self.respond_to?(r.name) && self.send(name).respond_to?(:in_project)
-        relationships.push name
-      end
-    end
-    relationships.sort
-  end
 
   def root_taxon_name
     self.taxon_names.root
+  end
+
+  def self.find_for_autocomplete(params)
+    where('name LIKE ?', "#{params[:term]}%")
   end
 
   protected
@@ -156,10 +130,6 @@ class Project < ActiveRecord::Base
 
   def create_root_taxon_name
     Protonym.create!(name: 'Root', rank_class: NomenclaturalRank, parent_id: nil, project: self, creator: self.creator, updater: self.updater)
-  end
-
-  def self.find_for_autocomplete(params)
-    where('name LIKE ?', "#{params[:term]}%")
   end
 
 end

@@ -2,18 +2,19 @@
 #
 # @!attribute preceding_serial_id
 #   @return [Integer]
-#   @todo
+#     the reference/historical serial 
 #
 # @!attribute succeeding_serial_id
 #   @return [Integer]
-#   @todo
+#     the "new" serial 
 #
 # @!attribute type
 #   @return [String]
-#   @todo
+#     the type of transition b/w the old and new
 #
 class SerialChronology < ActiveRecord::Base
   include Housekeeping::Users
+  include Housekeeping::Timestamps
   include Shared::IsData
   include Shared::SharedAcrossProjects
 

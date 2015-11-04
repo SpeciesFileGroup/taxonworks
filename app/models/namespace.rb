@@ -40,6 +40,7 @@
 #
 class Namespace < ActiveRecord::Base
   include Housekeeping::Users
+  include Housekeeping::Timestamps
   include Shared::SharedAcrossProjects
   include Shared::IsData
 

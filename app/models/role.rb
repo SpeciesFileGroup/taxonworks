@@ -25,8 +25,8 @@
 #   the project ID
 #
 class Role < ActiveRecord::Base
-
   include Housekeeping::Users
+  include Housekeeping::Timestamps
   include Shared::IsData
 
   acts_as_list scope: [:type, :role_object_type, :role_object_id]
