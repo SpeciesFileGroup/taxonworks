@@ -424,7 +424,7 @@ class TaxonName < ActiveRecord::Base
     elsif vn.count == 1
       vn.first.object_taxon_name
     else # vn.count > 1
-      vn.sort_by!{|v| v.nomenclature_date}.last
+      vn.sort_by{|v| v.nomenclature_date}.last.object_taxon_name
     end
   end
 
@@ -560,13 +560,7 @@ class TaxonName < ActiveRecord::Base
   end
 
   def set_cached_valid_taxon_name_id
-    begin
-      TaxonName.transaction do
-        self.update_column(:valid_taxon_name, self.get_valid_taxon_name)
-      end
-      rescue
-    end
-    false
+    self.valid_taxon_name = get_valid_taxon_name
   end
 
   def set_cached_names_for_dependants_and_self

@@ -767,6 +767,7 @@ class Protonym < TaxonName
         set_secondary_homonym_alternative_spelling
       end
       set_cached_misspelling
+      set_cached_valid_taxon_name_id
     end
   end
 

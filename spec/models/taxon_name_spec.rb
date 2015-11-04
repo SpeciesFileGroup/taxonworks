@@ -490,15 +490,35 @@ describe TaxonName, type: :model, group: [:nomenclature] do
               g2 = FactoryGirl.create(:relationship_genus, name: 'Cus', parent: @family)
               g3 = FactoryGirl.create(:relationship_genus, name: 'Cus', parent: @family)
               g4 = FactoryGirl.create(:relationship_genus, name: 'Cus', parent: @family)
-              s1 = FactoryGirl.create(:valid_source_bibtex, year: 1900)
-              s2 = FactoryGirl.create(:valid_source_bibtex, year: 2000)
+              s1 = FactoryGirl.create(:valid_source_bibtex, title: 'article 1', year: 1900)
+              s2 = FactoryGirl.create(:valid_source_bibtex, title: 'article 2', year: 2000)
+              g1.save
+              g2.save
+              g3.save
+              g4.save
+              g1.reload
+              g2.reload
+              g3.reload
+              g4.reload
               expect(g1.get_valid_taxon_name).to eq(g1)
               r1 = TaxonNameRelationship::Iczn::Invalidating::Synonym.create(subject_taxon_name: g1, object_taxon_name: g2, source: s1)
+              r1.reload
+              g1.save
               g1.reload
               expect(g1.get_valid_taxon_name).to eq(g2)
-              r2 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g2, object_taxon_name: g3, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym', source: s1)
+              r2 = TaxonNameRelationship::Iczn::Invalidating::Synonym.create(subject_taxon_name: g2, object_taxon_name: g3, source: s1)
+              r2.reload
+              g2.save
+              g2.reload
+              g1.save
+              g1.reload
               expect(g1.get_valid_taxon_name).to eq(g3)
-              r3 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g2, object_taxon_name: g4, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym', source: s2)
+              r3 = TaxonNameRelationship::Iczn::Invalidating::Synonym.create(subject_taxon_name: g2, object_taxon_name: g4, source: s2)
+              r3.reload
+              g2.save
+              g2.reload
+              g1.save
+              g1.reload
               expect(g1.get_valid_taxon_name).to eq(g4)
             end
           end
