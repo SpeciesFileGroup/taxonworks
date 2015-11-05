@@ -5,13 +5,10 @@
 <table>
   <thead>
   <tr>
-    <th>Lft</th>
-    <th>Rgt</th>
     <th>Parent</th>
     <th>Depth</th>
     <th>Type</th>
     <th>Container</th>
-    <th>Otu</th>
     <th>Name</th>
     <th>Disposition</th>
     <th>Last modified</th>
@@ -23,20 +20,17 @@
   <tbody>
   <% @containers.each do |container| %>
       <tr>
-        <td><%= container.lft %></td>
-        <td><%= container.rgt %></td>
         <td><%= object_tag(container.parent) %></td>
         <td><%= container.depth %></td>
         <td><%= container.type %></td>
         <td><%= container.container %></td>
-        <td><%= object_tag(container.otu) %></td>
         <td><%= container.name %></td>
         <td><%= container.disposition %></td>
         <td><%= container.updated_at %></td>
         <td><%= object_tag(container.updater) %></td>
-        <td><%= link_to 'Show', container %></td>
+        <td><%= link_to 'Show', container.metamorphosize %></td>
         <td><%= link_to 'Edit', edit_container_path(container) %></td>
-        <td><%= link_to 'Destroy', container, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        <td><%= link_to 'Destroy', container.metamorphosize, method: :delete, data: { confirm: 'Are you sure?' } %></td>
       </tr>
   <% end %>
   </tbody>

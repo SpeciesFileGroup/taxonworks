@@ -27,7 +27,6 @@
         <td><%= container_item.updated_at %></td>
         <td><%= object_tag(container_item.updater) %></td>
         <td><%= link_to 'Show', container_item %></td>
-        <td><%= link_to 'Edit', edit_container_item_path(container_item) %></td>
         <td><%= link_to 'Destroy', container_item, method: :delete, data: { confirm: 'Are you sure?' } %></td>
       </tr>
   <% end %>
