@@ -406,7 +406,8 @@ class TaxonName < ActiveRecord::Base
   # @return [TaxonName]
   #   a valid taxon_name for an invalid name or self for valid name.
   def get_valid_taxon_name
-    v = self.first_possible_valid_taxon_name
+    relationship = first_possible_valid_name
+    v = relationship.nil? ? self : relationship.object_taxon_name
     if v == self
       self
     elsif v.cached_valid_taxon_name_id == v.id
@@ -418,9 +419,13 @@ class TaxonName < ActiveRecord::Base
     end
   end
 
-  def first_possible_valid_taxon_name
-    vn = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID).order_by_date.first
-    vn.nil? ? self : vn.object_taxon_name
+  def first_possible_valid_name
+    TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID).order_by_date.first
+  end
+
+  def list_of_invalid_names
+    list = {}
+
   end
 
   def gbif_status_array

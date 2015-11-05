@@ -43,7 +43,7 @@ class TaxonNameRelationship < ActiveRecord::Base
   validates_presence_of :subject_taxon_name_id, message: 'Taxon is not selected'
   validates_presence_of :object_taxon_name_id, message: 'Taxon is not selected'
   validates_uniqueness_of :object_taxon_name_id, scope: :type, if: :is_combination?
-  validates_uniqueness_of :object_taxon_name_id, scope: [:type, :subject_taxon_name_id, :source_id], unless: :is_combination?
+  validates_uniqueness_of :object_taxon_name_id, scope: [:type, :subject_taxon_name_id], unless: :is_combination?
 
   validate :validate_type, :validate_subject_and_object_are_not_identical
 
