@@ -102,7 +102,7 @@ module Tasks::Gis::ReportHelper
   # @return [String] of headers to be applied to table
   def all_sub_headers(filtered = false)
     unless filtered
-      ce_headers
+      ce_headers # generate the header structure (see CollectionObject.selected_column_names)
       co_headers
       bc_headers
     end
@@ -167,6 +167,62 @@ module Tasks::Gis::ReportHelper
   def shown_georeferences
     retval = @collection_objects.map(&:collecting_event).uniq.map(&:georeferences).flatten
     retval.push(@geographic_area)
+  end
+
+  def table_start
+    @c_o_table_data = {}
+    # @c_o_table_store = Redis.new
+    #
+    # begin
+    #   @c_o_table_store.ping
+    # rescue Exception => e
+    #   @c_o_table_store = nil
+    #   e.inspect
+    #   e.message
+    #   puts "#{e.inspect}"
+    #   e.inspect
+    # end
+    # @c_o_table_store = Redis.new
+
+  end
+
+  def table_complete
+    # unless @c_o_table_store.nil?
+    #   table_string = @sessions_current_user.email + '-c_o_table_data'
+    #   @c_o_table_store.set(table_string, @c_o_table_data.to_json)
+    # end
+    @c_o_table_data.count
+  end
+
+  # @param [CollectionObject] c_o
+  # @return [Array] row of data
+  def build_row(c_o)
+    retval = []
+
+    retval[0]  = c_o.get_otu_id
+    retval[1]  = c_o.get_otu_name
+    retval[2]  = c_o.name_at_rank_string(:family)
+    retval[3]  = c_o.name_at_rank_string(:genus)
+    retval[4]  = c_o.name_at_rank_string(:species)
+    retval[5]  = c_o.collecting_event.country
+    retval[6]  = c_o.collecting_event.state
+    retval[7]  = c_o.collecting_event.county
+    retval[8]  = c_o.collecting_event.verbatim_locality
+    retval[9]  = c_o.collecting_event.georeference_latitude
+    retval[10] = c_o.collecting_event.georeference_longitude
+
+    ce_attributes(c_o).each { |item|
+      retval.push(item)
+    }
+    co_attributes(c_o).each { |item|
+      retval.push(item)
+    }
+    bc_attributes(c_o).each { |item|
+      retval.push(item)
+    }
+    retval.flatten!
+    @c_o_table_data[c_o.id.to_s] = retval
+    retval
   end
 
 end
