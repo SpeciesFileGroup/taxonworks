@@ -131,6 +131,8 @@ class TaxonName < ActiveRecord::Base
   include Shared::IsData
   include SoftValidation
 
+  NO_CACHED_MESSAGE = 'PROJECT REQUIRES TAXON NAME CACHE REBUILD'
+
   if ENV['NO_TAXON_NESTING']
     belongs_to :parent, class_name: TaxonName, foreign_key: :parent_id
   else
@@ -142,13 +144,18 @@ class TaxonName < ActiveRecord::Base
   # @return [Boolean]
   # When true, also creates an OTU that is tied to this taxon name
   attr_accessor :also_create_otu
+  
+  # @return [Boolean]
+  # When true, also cached values are not built
+  attr_accessor :no_cached
 
   before_validation :set_type_if_empty
 
   before_save :set_cached_names
-  after_save :create_new_combination_if_absent,
-             :set_cached_names_for_dependants_and_self,
-             :set_cached_valid_taxon_name_id
+
+  after_save :create_new_combination_if_absent, unless: 'self.no_cached'
+  after_save :set_cached_names_for_dependants_and_self, unless: 'self.no_cached'
+  after_save :set_cached_valid_taxon_name_id
 
   validate :check_format_of_name,
     :validate_rank_class_class,
@@ -405,7 +412,7 @@ class TaxonName < ActiveRecord::Base
 
   # @return [TaxonName]
   #   a valid taxon_name for an invalid name or self for valid name.
-  def get_valid_taxon_name
+  def get_valid_taxon_name 
     v = self.first_possible_valid_taxon_name
     if v == self
       self
@@ -415,7 +422,7 @@ class TaxonName < ActiveRecord::Base
       v.valid_taxon_name
     else
       nil
-    end
+  end
   end
 
   def first_possible_valid_taxon_name
@@ -516,6 +523,15 @@ class TaxonName < ActiveRecord::Base
   end
 
   def set_cached_names
+    if no_cached
+      self.cached = NO_CACHED_MESSAGE 
+      self.cached_author_year = NO_CACHED_MESSAGE
+      self.cached_classified_as = NO_CACHED_MESSAGE
+      self.cached_html = NO_CACHED_MESSAGE
+      self.cached_higher_classification = NO_CACHED_MESSAGE
+      return
+    end
+
     if self.errors.empty?
       set_cached
 

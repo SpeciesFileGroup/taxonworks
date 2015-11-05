@@ -83,13 +83,13 @@ class ContainerItemsController < ApplicationController
   end
 
   private
-  # Use callbacks to share common setup or constraints between actions.
-  def set_container_item
-    @container_item = ContainerItem.with_project_id($project_id).find(params[:id])
-  end
+    # Use callbacks to share common setup or constraints between actions.
+    def set_container_item
+      @container_item = ContainerItem.with_project_id($project_id).find(params[:id])
+    end
 
-  # Never trust parameters from the scary internet, only allow the white list through.
-  def container_item_params
-    params.require(:container_item).permit(:container_id, :position, :contained_object_id, :contained_object_type, :localization)
-  end
+    # Never trust parameters from the scary internet, only allow the white list through.
+    def container_item_params
+      params.require(:container_item).permit(:container_id, :position, :contained_object_id, :contained_object_type, :disposition)
+    end
 end

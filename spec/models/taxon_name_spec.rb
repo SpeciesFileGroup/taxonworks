@@ -512,7 +512,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
               g1.save
               g1.reload
               expect(g1.get_valid_taxon_name).to eq(g4)
-            end
+        end
           end
 
         end
@@ -645,97 +645,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
       end
     end
   end # END before(:all) spinups
-
-  context 'after save' do
-    context 'create_new_combination_if_absent' do
-      specify 'new combination' do
-        expect(TaxonName.with_cached_html('<i>Erythroneura vitis</i>').count).to eq(0)
-        sp = FactoryGirl.build(:relationship_species)
-        sp.save
-        expect(sp.cached_html).to eq('<i>Erythroneura vitis</i>')
-        expect(TaxonName.with_cached_html('<i>Erythroneura vitis</i>').count).to eq(1)
-        sp.save
-        expect(TaxonName.with_cached_html('<i>Erythroneura vitis</i>').count).to eq(1)
-      end
-    end
-
-    context 'set_cached_names_for_dependants' do
-      specify 'dependants' do
-        family = FactoryGirl.create(:relationship_family)
-        genus1 = FactoryGirl.create(:relationship_genus, name: 'Aus', parent: family)
-        genus2 = FactoryGirl.create(:relationship_genus, name: 'Bus', parent: family)
-        species = FactoryGirl.create(:relationship_species, name: 'aus', parent: genus1, verbatim_author: 'Linnaeus', year_of_publication: 1758)
-        species.original_genus = genus2
-        species.source_classified_as = family
-        species.save
-        species.reload
-
-        t = species.created_at
-        expect(species.cached).to eq('Aus aus')
-        expect(species.cached_html).to eq('<i>Aus aus</i>')
-        expect(species.cached_original_combination).to eq('<i>Bus aus</i>')
-        expect(species.cached_author_year).to eq('(Linnaeus, 1758)')
-        expect(species.cached_classified_as).to eq(' (as Erythroneuridae)')
-        genus1.name = 'Cus'
-        genus1.save
-        species.reload
-        expect(species.cached).to eq('Cus aus')
-        expect(species.cached_html).to eq('<i>Cus aus</i>')
-        expect(species.cached_original_combination).to eq('<i>Bus aus</i>')
-        genus2.name = 'Dus'
-        genus2.save
-        species.reload
-        expect(species.cached).to eq('Cus aus')
-        expect(species.cached_html).to eq('<i>Cus aus</i>')
-        expect(species.cached_original_combination).to eq('<i>Dus aus</i>')
-        family.name = 'Cicadellidae'
-        family.save
-        species.reload
-        expect(species.cached_classified_as).to eq(' (as Cicadellidae)')
-        expect(species.created_at).to eq(t)
-      end
-
-      specify 'genus with gender change' do
-        family = FactoryGirl.create(:relationship_family)
-        genus1 = FactoryGirl.create(:relationship_genus, name: 'Aus', parent: family)
-        genus2 = FactoryGirl.create(:relationship_genus, name: 'Ba', parent: family)
-        c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: genus1, type: 'TaxonNameClassification::Latinized::Gender::Masculine')
-        c2 = FactoryGirl.create(:taxon_name_classification, taxon_name: genus2, type: 'TaxonNameClassification::Latinized::Gender::Feminine')
-        genus1.reload
-        genus2.reload
-        species = FactoryGirl.build(:relationship_species, name: 'aus', parent: genus1, verbatim_author: 'Linnaeus', year_of_publication: 1758, masculine_name: 'aus', feminine_name: 'aa', neuter_name: 'aum')
-        species.save
-        expect(species.cached_html).to eq('<i>Aus aus</i>')
-        expect(species.cached).to eq('Aus aus')
-        species.parent = genus2
-        species.save
-        species.reload
-        expect(species.cached_html).to eq('<i>Ba aa</i>')
-        expect(species.cached).to eq('Ba aa')
-      end
-      specify 'gender of genus change change' do
-        family = FactoryGirl.create(:relationship_family)
-        genus1 = FactoryGirl.create(:relationship_genus, name: 'Aus', parent: family)
-        c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: genus1, type: 'TaxonNameClassification::Latinized::Gender::Masculine')
-        genus1.reload
-        species = FactoryGirl.build(:relationship_species, name: 'aus', parent: genus1, verbatim_author: 'Linnaeus', year_of_publication: 1758, masculine_name: 'aus', feminine_name: 'aa', neuter_name: 'aum')
-        species.save
-        expect(species.cached_html).to eq('<i>Aus aus</i>')
-        expect(species.cached).to eq('Aus aus')
-        c1.type = 'TaxonNameClassification::Latinized::Gender::Feminine'
-        c1.save
-        genus1.reload
-        species.reload
-        species.save
-        species.reload
-        expect(species.cached_html).to eq('<i>Aus aa</i>')
-        expect(species.cached).to eq('Aus aa')
-      end
-      specify 'original_combination' do
-      end
-    end
-  end
-
+  
   # DO NOT USE before(:all) OR any factory that creates the full hierarchy here
   context 'clean slates' do
     context 'methods from awesome_nested_set' do

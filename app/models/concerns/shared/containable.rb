@@ -15,7 +15,7 @@ module Shared::Containable
   end
 
   # @return [Array of {Container}s]
-  #   the full russian doll stack
+  #   the full Russian doll stack
   def all_containers
     return [] if container.nil?
     container.self_and_ancestors.to_a
