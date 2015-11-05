@@ -16,7 +16,7 @@ class ContainerItemsController < ApplicationController
   end
 
   def list
-    @container_items = ContainerItems.with_project_id($project_id).order(:id).page(params[:page]) #.per(10)
+    @container_items = ContainerItem.with_project_id($project_id).order(:id).page(params[:page]) #.per(10)
   end
 
   # POST /container_items

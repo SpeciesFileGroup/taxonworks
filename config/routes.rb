@@ -105,7 +105,7 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
   end
 
-  resources :container_items do # , only: [:create, :update, :destroy] do
+  resources :container_items, except: [:new, :edit] do
     concerns [:data_routes]
   end
 
