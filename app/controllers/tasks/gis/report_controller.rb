@@ -30,9 +30,11 @@ class Tasks::Gis::ReportController < ApplicationController
         @selected_column_names = selected_headers
         gather_data(geographic_area_id)
       when 'download'
+        # check Redis mem-store for a valid result
         gather_data(params[:download_geo_area_id])
         report_file = CollectionObject.generate_report_download(@collection_objects, selected_headers)
         send_data(report_file, type: 'text', filename: "collection_objects_report_#{DateTime.now.to_s}.csv")
+      # remove the selected data from Redis mem-store
       else
     end
     selected_headers

@@ -1,5 +1,6 @@
 <table border="1" align="center">
   <tbody>
+  <% table_start %>
   <tr>
     <!-- This is the list of headers common to all collection objects-->
     <%= otu_headers.html_safe %>
@@ -7,22 +8,18 @@
     <%= c_o_headers(selected_headers).html_safe %>
   </tr>
   <% @collection_objects.each_with_index do |c_o, index| %>
+      <% this_row = build_row(c_o) %>
       <tr>
-        <td><%= link_to(c_o.get_otu_id, c_o.get_otu) unless c_o.get_otu.nil? %></td>
-        <td><%= c_o.get_otu_name %></td>
-        <td><%= c_o.name_at_rank_string(:family) %></td>
-        <td><%= c_o.name_at_rank_string(:genus) %></td>
-        <td><%= c_o.name_at_rank_string(:species) %></td>
-        <td><%= c_o.collecting_event.country %></td>
-        <td><%= c_o.collecting_event.state %></td>
-        <td><%= c_o.collecting_event.county %></td>
-        <td><%= link_to(c_o.collecting_event.verbatim_locality, c_o.collecting_event) %></td>
-        <td><%= c_o.collecting_event.georeference_latitude %></td>
-        <td><%= c_o.collecting_event.georeference_longitude %></td>
-        <%= c_o_attributes([ce_attributes(c_o),
-                            co_attributes(c_o),
-                            bc_attributes(c_o)].flatten).html_safe %>
+        <td><%= link_to(this_row[0], c_o.get_otu) unless c_o.get_otu.nil? %></td>
+        <% this_row[1..7].each { |item| %>
+            <td><%= item %></td>
+        <% } %>
+        <td><%= link_to(this_row[8], c_o.collecting_event) %></td>
+        <% this_row.from(9).each { |item| %>
+            <td><%= item %></td>
+        <% } %>
       </tr>
   <% end %>
   </tbody>
 </table>
+<% table_complete %>
