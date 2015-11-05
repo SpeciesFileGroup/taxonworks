@@ -1,4 +1,6 @@
-<h1>Listing Containers</h1>
+<h1>Listing containers</h1>
+
+<%= paginate @containers %> <%= page_entries_info @containers %>
 
 <table>
   <thead>
@@ -8,12 +10,12 @@
     <th>Parent</th>
     <th>Depth</th>
     <th>Type</th>
-    <th>Created by</th>
-    <th>Updated by</th>
-    <th>Project</th>
+    <th>Container</th>
     <th>Otu</th>
     <th>Name</th>
     <th>Disposition</th>
+    <th>Last modified</th>
+    <th>Updated by</th>
     <th colspan="3"></th>
   </tr>
   </thead>
@@ -23,15 +25,15 @@
       <tr>
         <td><%= container.lft %></td>
         <td><%= container.rgt %></td>
-        <td><%= container.parent %></td>
+        <td><%= object_tag(container.parent) %></td>
         <td><%= container.depth %></td>
         <td><%= container.type %></td>
-        <td><%= container.created_by %></td>
-        <td><%= container.updated_by %></td>
-        <td><%= container.project %></td>
-        <td><%= container.otu %></td>
+        <td><%= container.container %></td>
+        <td><%= object_tag(container.otu) %></td>
         <td><%= container.name %></td>
         <td><%= container.disposition %></td>
+        <td><%= container.updated_at %></td>
+        <td><%= object_tag(container.updater) %></td>
         <td><%= link_to 'Show', container %></td>
         <td><%= link_to 'Edit', edit_container_path(container) %></td>
         <td><%= link_to 'Destroy', container, method: :delete, data: { confirm: 'Are you sure?' } %></td>
