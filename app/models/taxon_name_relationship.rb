@@ -43,7 +43,7 @@ class TaxonNameRelationship < ActiveRecord::Base
   validates_presence_of :subject_taxon_name_id, message: 'Taxon is not selected'
   validates_presence_of :object_taxon_name_id, message: 'Taxon is not selected'
   validates_uniqueness_of :object_taxon_name_id, scope: :type, if: :is_combination?
-  validates_uniqueness_of :object_taxon_name_id, scope: [:type, :subject_taxon_name_id, :source_id], unless: :is_combination?
+  validates_uniqueness_of :object_taxon_name_id, scope: [:type, :subject_taxon_name_id], unless: :is_combination?
 
   validate :validate_type, :validate_subject_and_object_are_not_identical
 
@@ -78,7 +78,7 @@ class TaxonNameRelationship < ActiveRecord::Base
   scope :where_object_in_taxon_names, -> (taxon_name_array) {where('"taxon_name_relationships"."object_taxon_name_id" IN (?)', taxon_name_array)}
   scope :with_type_string, -> (type_string) {where('"taxon_name_relationships"."type" LIKE ?', "#{type_string}" ) }
   scope :with_type_base, -> (base_string) {where('"taxon_name_relationships"."type" LIKE ?', "#{base_string}%" ) }
-  scope :with_two_type_bases, -> (base_string1, base_string2) {where("""taxon_name_relationships"".""type"" LIKE '#{base_string1}%' OR ""taxon_name_ralationships"".""type"" LIKE '#{base_string2}%'" ) }
+  scope :with_two_type_bases, -> (base_string1, base_string2) {where("taxon_name_relationships.type LIKE '#{base_string1}%' OR taxon_name_relationships.type LIKE '#{base_string2}%'" ) }
   scope :with_type_array, -> (base_array) {where('taxon_name_relationships.type IN (?)', base_array ) }
   scope :with_type_contains, -> (base_string) {where('"taxon_name_relationships"."type" LIKE ?', "%#{base_string}%" ) }
 

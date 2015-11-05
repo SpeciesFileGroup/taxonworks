@@ -144,7 +144,7 @@ class TaxonName < ActiveRecord::Base
   # @return [Boolean]
   # When true, also creates an OTU that is tied to this taxon name
   attr_accessor :also_create_otu
-  
+
   # @return [Boolean]
   # When true, also cached values are not built
   attr_accessor :no_cached
@@ -412,8 +412,9 @@ class TaxonName < ActiveRecord::Base
 
   # @return [TaxonName]
   #   a valid taxon_name for an invalid name or self for valid name.
-  def get_valid_taxon_name 
-    v = self.first_possible_valid_taxon_name
+  def get_valid_taxon_name
+    relationship = first_possible_valid_name
+    v = relationship.nil? ? self : relationship.object_taxon_name
     if v == self
       self
     elsif v.cached_valid_taxon_name_id == v.id
@@ -422,12 +423,16 @@ class TaxonName < ActiveRecord::Base
       v.valid_taxon_name
     else
       nil
-  end
+    end
   end
 
-  def first_possible_valid_taxon_name
-    vn = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID).order_by_date.first
-    vn.nil? ? self : vn.object_taxon_name
+  def first_possible_valid_name
+    TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID).order_by_date.first
+  end
+
+  def list_of_invalid_names
+    list = {}
+
   end
 
   def gbif_status_array

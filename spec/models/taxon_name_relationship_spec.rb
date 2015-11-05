@@ -758,6 +758,19 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
     end
   end
 
+  context 'scope' do
+    specify 'order_by_date' do
+      g1 = FactoryGirl.create(:relationship_genus, name: 'Cus', parent: @family)
+      g2 = FactoryGirl.create(:relationship_genus, name: 'Cus', parent: @family)
+      g3 = FactoryGirl.create(:relationship_genus, name: 'Cus', parent: @family)
+      s1 = FactoryGirl.create(:valid_source_bibtex, title: 'article 1', year: 2010)
+      s2 = FactoryGirl.create(:valid_source_bibtex, title: 'article 2')
+      r1 = TaxonNameRelationship::Iczn::Invalidating::Synonym.create(subject_taxon_name: g1, object_taxon_name: g2, source: s1)
+      r2 = TaxonNameRelationship::Iczn::Invalidating::Synonym.create(subject_taxon_name: g1, object_taxon_name: g3, source: s2)
+      expect(TaxonNameRelationship.order_by_date.to_a).to eq([r2, r1])
+    end
+  end
+
   context 'usage' do
     specify 'can be created through assignment by reference to named through relationship' do
       g = FactoryGirl.create(:relationship_genus)
