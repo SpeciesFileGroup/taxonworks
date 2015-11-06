@@ -36,8 +36,12 @@ class TaxonNameRelationship < ActiveRecord::Base
   belongs_to :object_taxon_name, class_name: 'TaxonName', foreign_key: :object_taxon_name_id   # right side
   belongs_to :source
 
-  after_save :set_cached_names_for_taxon_names
-  after_destroy :set_cached_names_for_taxon_names
+  # @return [Boolean]
+  # When true, also cached values are not built
+  attr_accessor :no_cached
+
+  after_save :set_cached_names_for_taxon_names, unless: 'self.no_cached'
+  after_destroy :set_cached_names_for_taxon_names, unless: 'self.no_cached'
 
   validates_presence_of :type, message: 'Relationship type should be specified'
   validates_presence_of :subject_taxon_name_id, message: 'Taxon is not selected'
@@ -735,6 +739,7 @@ class TaxonNameRelationship < ActiveRecord::Base
     end
     false
   end
+
 
   #endregion
 

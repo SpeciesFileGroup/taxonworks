@@ -246,6 +246,8 @@ class TaxonName < ActiveRecord::Base
   soft_validate(:sv_missing_fields, set: :missing_fields)
   soft_validate(:sv_parent_is_valid_name, set: :parent_is_valid_name)
   soft_validate(:sv_cached_names, set: :cached_names)
+  soft_validate(:sv_not_synonym_of_self, set: :not_synonym_of_self)
+  soft_validate(:sv_two_unresolved_alternative_synonyms, set: :two_unresolved_alternative_synonyms)
 
   # @return array of relationships
   #   all relationships where this taxon is an object or subject.
@@ -435,9 +437,9 @@ class TaxonName < ActiveRecord::Base
       first_pass = false
       list_of_taxa_to_check = list.empty? ? [self] : list.keys.select{|t| list[t] == false}
       list_of_taxa_to_check.each do |t|
-        potential_invalid_relationships = t.related_taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID).order_by_date
-        potential_invalid_relationships.each do |r|
-          if !TaxonNameClassification.where_taxon_name(t).with_type_array(TAXON_NAME_CLASS_NAMES_VALID).empty?
+        potentialy_invalid_relationships = t.related_taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID).order_by_date
+        potentialy_invalid_relationships.each do |r|
+          if !TaxonNameClassification.where_taxon_name(r.subject_taxon_name).with_type_array(TAXON_NAME_CLASS_NAMES_VALID).empty?
             # do nothing, taxon has a status of valid name
           elsif r == r.subject_taxon_name.first_possible_valid_taxon_name_relationship
             list.merge!(r.subject_taxon_name => false) if list[r.subject_taxon_name].nil?
@@ -1311,6 +1313,22 @@ class TaxonName < ActiveRecord::Base
     rescue
     end
     false
+  end
+
+  def sv_not_synonym_of_self
+    if list_of_invalid_taxon_names.include?(self)
+      soft_validations.add(:base, "Taxon has two conflicting relationships (invalidating and validating). To resolve a conflict, add a status 'valid' to a valid taxon.")
+    end
+  end
+
+  def sv_two_unresolved_alternative_synonyms
+    relationships = self.taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID).order_by_date
+    unless relationships.empty?
+      date_list = relationships.collect{|r| r.nd}
+      unless date_list == date_list.uniq
+        soft_validations.add(:base, "Taxon has two alternative invalidating relationships. To resolve ambiguity, add original sources to the relationships with different priority dates.")
+      end
+    end
   end
 
   def sv_validate_parent_rank
