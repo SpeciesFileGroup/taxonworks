@@ -182,7 +182,7 @@ module Tasks::Gis::ReportHelper
       # puts "#{e.inspect}"
       # e.inspect
     end
-    @c_o_table_store = Redis.new
+    @c_o_table_store
 
   end
 
