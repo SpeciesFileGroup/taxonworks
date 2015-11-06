@@ -179,7 +179,7 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
         expect(r1.errors.include?(:subject_taxon_name_id)).to be_falsey
         r2 = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: @species, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective')
         r2.valid?
-        expect(r2.errors.include?(:subject_taxon_name_id)).to be_truthy
+        expect(r2.errors.include?(:subject_taxon_name_id)).to be_falsey
       end
 
       specify 'has only one type relationship' do
@@ -261,8 +261,8 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
       r3.fix_soft_validations
       r3.save
       expect(s1.cached_misspelling).to be_truthy
-      expect(s1.cached).to eq('Bus aus')
-      expect(s1.cached_html).to eq('<i>Bus aus</i>')
+      expect(s1.cached).to eq('Bus aus [sic]')
+      expect(s1.cached_html).to eq('<i>Bus aus</i> [sic]')
     end
 
    end

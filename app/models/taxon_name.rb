@@ -155,7 +155,7 @@ class TaxonName < ActiveRecord::Base
 
   after_save :create_new_combination_if_absent, unless: 'self.no_cached'
   after_save :set_cached_names_for_dependants_and_self, unless: 'self.no_cached'
-  after_save :set_cached_valid_taxon_name_id
+  after_save :set_cached_valid_taxon_name_id, unless: 'self.no_cached'
 
   validate :check_format_of_name,
     :validate_rank_class_class,
@@ -379,7 +379,7 @@ class TaxonName < ActiveRecord::Base
   def unavailable_or_invalid?
     if !TaxonNameClassification.where_taxon_name(self).with_type_array(TAXON_NAME_CLASS_NAMES_VALID).empty?
       false
-    elsif !first_possible_valid_name_relationship.nil? || !TaxonNameClassification.where_taxon_name(self).with_type_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).empty?
+    elsif !first_possible_valid_taxon_name_relationship.nil? || !TaxonNameClassification.where_taxon_name(self).with_type_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).empty?
       true
     else
       false
@@ -407,7 +407,7 @@ class TaxonName < ActiveRecord::Base
   # @return [TaxonName]
   #   a valid taxon_name for an invalid name or self for valid name.
   def get_valid_taxon_name
-    v = first_possible_valid_name
+    v = first_possible_valid_taxon_name
     if v == self
       self
     elsif v.cached_valid_taxon_name_id == v.id
@@ -419,16 +419,16 @@ class TaxonName < ActiveRecord::Base
     end
   end
 
-  def first_possible_valid_name_relationship
+  def first_possible_valid_taxon_name_relationship
     self.taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID).order_by_date.first
   end
 
-  def first_possible_valid_name
-    relationship = first_possible_valid_name_relationship
+  def first_possible_valid_taxon_name
+    relationship = first_possible_valid_taxon_name_relationship
     relationship.nil? ? self : relationship.object_taxon_name
   end
 
-  def list_of_invalid_names
+  def list_of_invalid_taxon_names
     first_pass = true
     list = {}
     while first_pass || !list.keys.select{|t| list[t] == false}.empty? do
@@ -439,7 +439,7 @@ class TaxonName < ActiveRecord::Base
         potential_invalid_relationships.each do |r|
           if !TaxonNameClassification.where_taxon_name(t).with_type_array(TAXON_NAME_CLASS_NAMES_VALID).empty?
             # do nothing, taxon has a status of valid name
-          elsif r == r.subject_taxon_name.first_possible_valid_name_relationship
+          elsif r == r.subject_taxon_name.first_possible_valid_taxon_name_relationship
             list.merge!(r.subject_taxon_name => false) if list[r.subject_taxon_name].nil?
           end
 
@@ -543,16 +543,13 @@ class TaxonName < ActiveRecord::Base
   end
 
   def set_cached_names
-    if no_cached
-      self.cached = NO_CACHED_MESSAGE 
+    if self.no_cached
+      self.cached = NO_CACHED_MESSAGE
       self.cached_author_year = NO_CACHED_MESSAGE
       self.cached_classified_as = NO_CACHED_MESSAGE
       self.cached_html = NO_CACHED_MESSAGE
       self.cached_higher_classification = NO_CACHED_MESSAGE
-      return
-    end
-
-    if self.errors.empty?
+    elsif self.errors.empty?
       set_cached
 
       # if updated, update also sv_cached_names

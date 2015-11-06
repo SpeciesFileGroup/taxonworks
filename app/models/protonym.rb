@@ -756,7 +756,7 @@ class Protonym < TaxonName
 
   def set_cached_names
     super 
-    if self.errors.empty?
+    if self.errors.empty? && !self.no_cached
 
       set_cached_higher_classification
       set_primary_homonym

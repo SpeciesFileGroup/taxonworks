@@ -285,9 +285,9 @@ class TaxonNameRelationship < ActiveRecord::Base
           t.update_columns(:cached_original_combination => t.get_original_combination,
                            :cached => t.get_full_name,
                            :cached_html => t.get_full_name_html)
-        elsif self.type_name =~/Misspelling/
-          t = self.subject_taxon_name
-          t.update_column(:cached_misspelling, t.get_cached_misspelling)
+#        elsif self.type_name =~/Misspelling/
+#          t = self.subject_taxon_name
+#          t.update_column(:cached_misspelling, t.get_cached_misspelling)
         elsif self.type_name =~/TaxonNameRelationship::Hybrid/
           t = self.object_taxon_name
           t.update_columns(:cached => t.get_full_name,
@@ -302,6 +302,10 @@ class TaxonNameRelationship < ActiveRecord::Base
           end
           t.update_columns(:cached => t.get_full_name,
                            :cached_html => t.get_full_name_html)
+          vn = t.get_valid_taxon_name
+          vn.list_of_invalid_taxon_names.each do |s|
+            s.update_column(:cached_valid_taxon_name_id, vn.id)
+          end
         end
       end
 

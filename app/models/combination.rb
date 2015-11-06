@@ -237,11 +237,11 @@ class Combination < TaxonName
   end
 
   def set_cached
-    write_attribute(:cached, get_full_name)
+    write_attribute(:cached, get_full_name) unless self.no_cached
   end
 
   def set_cached_html
-    write_attribute(:cached_html, get_full_name_html)
+    write_attribute(:cached_html, get_full_name_html) unless self.no_cached
   end
 
   # validations

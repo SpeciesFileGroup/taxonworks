@@ -465,9 +465,9 @@ namespace :tw do
                 end
 
                 unless @data.images_index[row['TaxonNo']].nil?
-                  o = Otu.create(taxon_name_id: protonym.id)
+                  #o = Otu.create(taxon_name_id: protonym.id)
                   %w{Card_code Path Front_image Back_image}.each do |k|
-                    o.data_attributes.create(import_predicate: k, value: @data.images_index[row['TaxonNo']][k], type: 'ImportAttribute')
+                    protonym.data_attributes.create(import_predicate: k, value: @data.images_index[row['TaxonNo']][k], type: 'ImportAttribute')
                   end
 
                   file1 = @args[:data_directory] + @data.images_index[row['TaxonNo']]['Path'].gsub("Q:\\", '').gsub("\\", '/') + @data.images_index[row['TaxonNo']]['Front_image']
@@ -475,8 +475,8 @@ namespace :tw do
 
                   d1 = nil
                   d2 = nil
-                  d1 = Depiction.new(image_attributes: { image_file: File.open(file1) }, depiction_object: o) if File.exists?(file1)
-                  d2 = Depiction.new(image_attributes: { image_file: File.open(file2) }, depiction_object: o) if File.exists?(file2)
+                  d1 = Depiction.new(image_attributes: { image_file: File.open(file1) }, depiction_object: protonym) if File.exists?(file1)
+                  d2 = Depiction.new(image_attributes: { image_file: File.open(file2) }, depiction_object: protonym) if File.exists?(file2)
                   if d1.nil?
                     true
                   elsif d1.valid?

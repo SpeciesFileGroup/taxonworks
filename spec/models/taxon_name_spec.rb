@@ -66,7 +66,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
       end
       specify 'responses to valid_taxon_name' do
         s = FactoryGirl.create(:iczn_species, name: 'afafa', parent: @genus, valid_taxon_name: @species)
-        expect(s.valid_taxon_name).to eq(@species)
+        expect(s.valid_taxon_name).to eq(s)
       end
 
       context 'taxon_name_relationships' do
@@ -512,7 +512,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
               g1.save
               g1.reload
               expect(g1.get_valid_taxon_name).to eq(g4)
-              expect(g4.list_of_invalid_names.sort_by{|n| n.id}.collect{|t| t.id}).to eq([g1.id, g2.id])
+              expect(g4.list_of_invalid_taxon_names.sort_by{|n| n.id}.collect{|t| t.id}).to eq([g1.id, g2.id])
             end
           end
 
