@@ -39,4 +39,11 @@ TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID = [
   TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Illegitimate.descendants
 ].flatten.map(&:to_s)
 
+TAXON_NAME_CLASS_NAMES_VALID = [
+    TaxonNameClassification::Iczn::Available::Valid,
+    TaxonNameClassification::Iczn::Available::Valid.descendants,
+    TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Legitimate::Correct,
+    TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Legitimate::Correct.descendants
+].flatten.map(&:to_s)
+
 

@@ -12,6 +12,10 @@ collection_objects:
   - repositories
 collecting_events:
   - georeferences
+containers:
+  - container_items
+container_items:
+  - containers
 contents:
   - controlled_vocabulary_terms
 controlled_vocabulary_terms:

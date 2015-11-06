@@ -512,6 +512,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
               g1.save
               g1.reload
               expect(g1.get_valid_taxon_name).to eq(g4)
+              expect(g4.list_of_invalid_names.sort_by{|n| n.id}.collect{|t| t.id}).to eq([g1.id, g2.id])
             end
           end
 

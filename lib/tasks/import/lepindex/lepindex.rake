@@ -555,6 +555,10 @@ namespace :tw do
             if origr == 'genus'
               stn = @data.parent_id_index['genus:' + r['original'].to_s]
               stn = @data.parent_id_index['subgenus:' + r['original'].to_s] if stn.nil?
+              if stn.nil?  && r['original'] != 'ORIGINAL GENUS UNDETERMINED'
+                genus = Protonym.find_or_create_by(name: r['original'].titleize, parent_id: @lepidoptera.id, rank_class: Ranks.lookup(:iczn, 'genus'), project_id: $project_id).id
+                @data.parent_id_index.merge!('genus:' + row['Current_genus'].to_s => genus)
+              end
             elsif origr == 'species'
               stn = @data.parent_id_index['species:' + r['original'].to_s]
               stn = @data.parent_id_index['subspecies:' + r['original'].to_s] if stn.nil?
