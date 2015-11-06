@@ -170,27 +170,27 @@ module Tasks::Gis::ReportHelper
   end
 
   def table_start
-    @c_o_table_data = {}
-    # @c_o_table_store = Redis.new
-    #
-    # begin
-    #   @c_o_table_store.ping
-    # rescue Exception => e
-    #   @c_o_table_store = nil
-    #   e.inspect
-    #   e.message
-    #   puts "#{e.inspect}"
-    #   e.inspect
-    # end
-    # @c_o_table_store = Redis.new
+    @c_o_table_data  = {}
+    @c_o_table_store = Redis.new
+
+    begin
+      @c_o_table_store.ping
+    rescue Exception => e
+      @c_o_table_store = nil
+      e.inspect
+      e.message
+      # puts "#{e.inspect}"
+      # e.inspect
+    end
+    @c_o_table_store
 
   end
 
   def table_complete
-    # unless @c_o_table_store.nil?
-    #   table_string = @sessions_current_user.email + '-c_o_table_data'
-    #   @c_o_table_store.set(table_string, @c_o_table_data.to_json)
-    # end
+    unless @c_o_table_store.nil?
+      table_string = @sessions_current_user.email + '-c_o_table_data'
+      @c_o_table_store.set(table_string, @c_o_table_data.to_json)
+    end
     @c_o_table_data.count
   end
 

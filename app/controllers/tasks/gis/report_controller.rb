@@ -30,14 +30,41 @@ class Tasks::Gis::ReportController < ApplicationController
         @selected_column_names = selected_headers
         gather_data(geographic_area_id)
       when 'download'
+        # TODO: This needs to be cleaned up and consolidated
         # check Redis mem-store for a valid result
+        if test_redis
+          table_name = sessions_current_user.email + '-c_o_table_data'
+          table_data = JSON.parse(@c_o_table_store.get(table_name))
+          # remove the selected data from Redis mem-store
+          @c_o_table_store.set(table_name, '')
+        else
+          table_data = nil
+        end
+
         gather_data(params[:download_geo_area_id])
-        report_file = CollectionObject.generate_report_download(@collection_objects, selected_headers)
+        report_file = CollectionObject.generate_report_download(@collection_objects, selected_headers, table_data)
         send_data(report_file, type: 'text', filename: "collection_objects_report_#{DateTime.now.to_s}.csv")
-      # remove the selected data from Redis mem-store
       else
     end
     selected_headers
+  end
+
+  def test_redis
+    retval           = true
+    @c_o_table_store = Redis.new
+
+    begin
+      @c_o_table_store.ping
+    rescue Exception => e
+      @c_o_table_store = nil
+      retval           = false
+      e.inspect
+      e.message
+      # puts "#{e.inspect}"
+      # e.inspect
+    end
+
+    retval
   end
 
   def gather_data(geographic_area_id)

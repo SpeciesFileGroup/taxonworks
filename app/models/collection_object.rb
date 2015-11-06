@@ -250,7 +250,7 @@ class CollectionObject < ActiveRecord::Base
 
   # @param [Scope] selected of CollectionObject
   # @param [Hash] col_defs selected headers and types
-  def self.generate_report_download(scope, col_defs)
+  def self.generate_report_download(scope, col_defs, table_data = nil)
     CSV.generate do |csv|
       row = CO_OTU_Headers
       unless col_defs.nil?
@@ -268,24 +268,33 @@ class CollectionObject < ActiveRecord::Base
         }
       end
       csv << row
-      scope.order(id: :asc).each do |c_o|
-        row = [c_o.get_otu_id,
-               c_o.get_otu_name,
-               c_o.name_at_rank_string(:family),
-               c_o.name_at_rank_string(:genus),
-               c_o.name_at_rank_string(:species),
-               c_o.collecting_event.country,
-               c_o.collecting_event.state,
-               c_o.collecting_event.county,
-               c_o.collecting_event.verbatim_locality,
-               c_o.collecting_event.georeference_latitude.to_s,
-               c_o.collecting_event.georeference_longitude.to_s
-        ]
-        row += ce_attributes(c_o, col_defs)
-        row += co_attributes(c_o, col_defs)
-        row += bc_attributes(c_o, col_defs)
-        csv << row.collect { |item|
-          item.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
+      if table_data.nil?
+        scope.order(id: :asc).each do |c_o|
+          row = [c_o.get_otu_id,
+                 c_o.get_otu_name,
+                 c_o.name_at_rank_string(:family),
+                 c_o.name_at_rank_string(:genus),
+                 c_o.name_at_rank_string(:species),
+                 c_o.collecting_event.country,
+                 c_o.collecting_event.state,
+                 c_o.collecting_event.county,
+                 c_o.collecting_event.verbatim_locality,
+                 c_o.collecting_event.georeference_latitude.to_s,
+                 c_o.collecting_event.georeference_longitude.to_s
+          ]
+          row += ce_attributes(c_o, col_defs)
+          row += co_attributes(c_o, col_defs)
+          row += bc_attributes(c_o, col_defs)
+          csv << row.collect { |item|
+            item.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
+          }
+
+        end
+      else
+        table_data.each { |key, value|
+          csv << value.collect { |item|
+            item.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
+          }
         }
       end
     end
