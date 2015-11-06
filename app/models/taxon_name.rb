@@ -370,19 +370,13 @@ class TaxonName < ActiveRecord::Base
   # TODO: @proceps - based on what?
   # @return [True|False]
   def unavailable_or_invalid?
-    if self.rank_class
-      case self.rank_class.nomenclatural_code
-      when :iczn
-        if !TaxonNameRelationship::Iczn::Invalidating.where_subject_is_taxon_name(self).empty? || !TaxonNameClassification.where_taxon_name(self).with_type_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).empty?
-          return true
-        end
-      when :icz
-        if !TaxonNameRelationship::Icn::Unaccepting.where_subject_is_taxon_name(self).empty? || !TaxonNameClassification.where_taxon_name(self).with_type_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).empty?
-          return true
-        end
-      end
+    if !TaxonNameClassification.where_taxon_name(self).with_type_array(TAXON_NAME_CLASS_NAMES_VALID).empty?
+      false
+    elsif !first_possible_valid_name_relationship.nil? || !TaxonNameClassification.where_taxon_name(self).with_type_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).empty?
+      true
+    else
+      false
     end
-    return false
   end
 
   # @return [True|False]
@@ -406,8 +400,7 @@ class TaxonName < ActiveRecord::Base
   # @return [TaxonName]
   #   a valid taxon_name for an invalid name or self for valid name.
   def get_valid_taxon_name
-    relationship = first_possible_valid_name
-    v = relationship.nil? ? self : relationship.object_taxon_name
+    v = first_possible_valid_name
     if v == self
       self
     elsif v.cached_valid_taxon_name_id == v.id
@@ -419,13 +412,35 @@ class TaxonName < ActiveRecord::Base
     end
   end
 
+  def first_possible_valid_name_relationship
+    self.taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID).order_by_date.first
+  end
+
   def first_possible_valid_name
-    TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID).order_by_date.first
+    relationship = first_possible_valid_name_relationship
+    relationship.nil? ? self : relationship.object_taxon_name
   end
 
   def list_of_invalid_names
+    first_pass = true
     list = {}
+    while first_pass || !list.keys.select{|t| list[t] == false}.empty? do
+      first_pass = false
+      list_of_taxa_to_check = list.empty? ? [self] : list.keys.select{|t| list[t] == false}
+      list_of_taxa_to_check.each do |t|
+        potential_invalid_relationships = t.related_taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID).order_by_date
+        potential_invalid_relationships.each do |r|
+          if !TaxonNameClassification.where_taxon_name(t).with_type_array(TAXON_NAME_CLASS_NAMES_VALID).empty?
+            # do nothing, taxon has a status of valid name
+          elsif r == r.subject_taxon_name.first_possible_valid_name_relationship
+            list.merge!(r.subject_taxon_name => false) if list[r.subject_taxon_name].nil?
+          end
 
+        end
+        list[t] = true if list[t] == false
+      end
+    end
+    list.keys
   end
 
   def gbif_status_array
