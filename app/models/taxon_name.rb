@@ -155,7 +155,6 @@ class TaxonName < ActiveRecord::Base
 
   after_save :create_new_combination_if_absent, unless: 'self.no_cached'
   after_save :set_cached_names_for_dependants_and_self, unless: 'self.no_cached'
-  after_save :set_cached_valid_taxon_name_id, unless: 'self.no_cached'
 
   validate :check_format_of_name,
     :validate_rank_class_class,
@@ -421,15 +420,21 @@ class TaxonName < ActiveRecord::Base
     end
   end
 
+  # @return [TaxonNameRelationship]
+  #  returns youngest taxon name relationship where the name is subject.
   def first_possible_valid_taxon_name_relationship
     self.taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID).order_by_date.first
   end
 
+  # @return [TaxonName]
+  #  returns SubjectTaxonName form youngest taxon name relationship.
   def first_possible_valid_taxon_name
     relationship = first_possible_valid_taxon_name_relationship
     relationship.nil? ? self : relationship.object_taxon_name
   end
 
+  # @return [TaxonName array]
+  #  returns list of invalid names for a given taxon.
   def list_of_invalid_taxon_names
     first_pass = true
     list = {}
@@ -744,7 +749,7 @@ class TaxonName < ActiveRecord::Base
   # @return [String]
   #  a monomial if names is above genus, or a full epithet if below. 
   def get_full_name
-    return name unless self.type == 'Combination' ||  GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_string)
+    return name unless self.type == 'Combination' || GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_string)
     d  = full_name_hash
     elements = []
     elements.push(d['genus'])

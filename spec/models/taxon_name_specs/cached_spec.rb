@@ -123,7 +123,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
           species.save
           expect(species.cached_html).to eq('<i>Aus aus</i>')
           expect(species.cached).to eq('Aus aus')
-          c1.type = 'TaxonNameClassification::Latinized::Gender::Fiinine'
+          c1.type = 'TaxonNameClassification::Latinized::Gender::Feminine'
           c1.save
           genus1.reload
           species.reload
