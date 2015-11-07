@@ -750,6 +750,7 @@ class TaxonName < ActiveRecord::Base
   #  a monomial if names is above genus, or a full epithet if below. 
   def get_full_name
     return name unless self.type == 'Combination' || GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_string)
+    return verbatim_name if !self.verbatim_name.nil? && self.type == 'Combination'
     d  = full_name_hash
     elements = []
     elements.push(d['genus'])
@@ -767,6 +768,7 @@ class TaxonName < ActiveRecord::Base
     return name unless self.type == 'Combination' || GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_string)
     eo = '<i>'
     ec = '</i>'
+    return "#{eo}#{verbatim_name}#{ec}" if !self.verbatim_name.nil? && self.type == 'Combination'
     return "#{eo}#{name}#{ec}" if self.rank_string == 'NomenclaturalRank::Iczn::GenusGroup::GenusGroup'
     d = full_name_hash
     elements = []

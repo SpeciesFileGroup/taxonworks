@@ -186,6 +186,15 @@ describe Combination, :type => :model do
       expect(basic_combination.save).to be_truthy
       expect(basic_combination.cached).to eq('Erythroneura comes')
     end
+
+    specify 'with verbatim_name' do
+      combination.genus = genus
+      combination.species = species
+      combination.verbatim_name = 'Aus bus'
+      combination.save
+      expect(combination.cached).to eq('Aus bus')
+      expect(combination.cached_html).to eq('<i>Aus bus</i>')
+    end
   end
 
   context 'soft validation' do
