@@ -1,1 +1,1 @@
---protected --private app/**/*.rb lib/**/*.rb
+--private --protected
