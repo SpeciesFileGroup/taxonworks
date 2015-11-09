@@ -325,12 +325,12 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             end
 
             specify 'original combination' do
-              sp = FactoryGirl.create(:relationship_species, name: 'aa', verbatim_name: 'aber. aa', parent: @genus)
+              sp = FactoryGirl.create(:relationship_species, name: 'albonigra', verbatim_name: 'albo-nigra', parent: @genus)
               sp.original_genus = @genus
               sp.save
               sp.reload
-              expect(sp.cached_html).to eq('<i>Erythroneura aa</i>')
-              expect(sp.cached_original_combination).to eq('<i>Erythroneura aber. aa</i>')
+              expect(sp.cached_html).to eq('<i>Erythroneura albonigra</i>')
+              expect(sp.cached_original_combination).to eq('<i>Erythroneura albo-nigra</i>')
             end
           end
 
