@@ -837,11 +837,11 @@ class TaxonName < ActiveRecord::Base
   end
 
   def form_name_elements(*args)
-    ['form', args[0].name_with_misspelling(args[1])]
+    ['f.', args[0].name_with_misspelling(args[1])]
   end
 
   def subform_name_elements(*args)
-    ['subform', args[0].name_with_misspelling(args[1])]
+    ['subf.', args[0].name_with_misspelling(args[1])]
   end
 
   def name_with_misspelling(gender)
@@ -858,7 +858,7 @@ class TaxonName < ActiveRecord::Base
   # Returns a String representing the name as originally published
   def get_original_combination
     # strategy is to get the original hash, and swap in values for pertinent relationships
-    str = nil 
+    str = nil
 
     if GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_string) && self.class == Protonym
       relationships = self.original_combination_relationships(true) # force a reload of the relationships
@@ -879,40 +879,41 @@ class TaxonName < ActiveRecord::Base
           when 'original genus'
             genus  = '<i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
             gender = i.subject_taxon_name.gender_name
-          when 'original subgenus' 
+          when 'original subgenus'
             subgenus += '<i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
-          when 'original section' 
+          when 'original section'
             subgenus += 'sect. <i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
-          when 'original subsection' 
+          when 'original subsection'
             subgenus += 'subsect. <i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
-          when 'original series' 
+          when 'original series'
             subgenus += 'ser. <i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
-          when 'original subseries' 
+          when 'original subseries'
             subgenus += 'subser. <i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
-          when 'original species' 
+          when 'original species'
             species += '<i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
-          when 'original subspecies' 
+          when 'original subspecies'
             species += '<i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
-          when 'original variety' 
+          when 'original variety'
             species += 'var. <i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
-          when 'original subvariety' 
+          when 'original subvariety'
             species += 'subvar. <i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
-          when 'original form' 
+          when 'original form'
             species += 'f. <i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
           when 'original subform'
             species += 'subf. <i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
         end
       end
 
+      original_name = self.verbatim_name.nil? ? self.name_with_misspelling(nil) : self.verbatim_name
       if !relationships.empty? && relationships.collect{|i| i.subject_taxon_name_id}.last != self.id
         if self.rank_string =~ /Genus/
           if genus.blank?
-            genus += '<i>' + self.name_with_misspelling(nil) + '</i> '
+            genus += '<i>' + original_name + '</i> '
           else
-            subgenus += '<i>' + self.name_with_misspelling(nil) + '</i> '
+            subgenus += '<i>' + original_name + '</i> '
           end
         elsif self.rank_string =~ /Species/
-          species += '<i>' + self.name_with_misspelling(nil) + '</i> '
+          species += '<i>' + original_name + '</i> '
           genus   = '<i>' + self.ancestor_at_rank('genus').name_with_misspelling(nil) + '</i> ' if genus.empty? && !self.ancestor_at_rank('genus').nil?
         end
       end

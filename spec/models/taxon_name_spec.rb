@@ -323,6 +323,15 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             specify 'cached_html' do
               expect(@family.cached_html).to eq(@family.name)
             end
+
+            specify 'original combination' do
+              sp = FactoryGirl.create(:relationship_species, name: 'aa', verbatim_name: 'aber. aa', parent: @genus)
+              sp.original_genus = @genus
+              sp.save
+              sp.reload
+              expect(sp.cached_html).to eq('<i>Erythroneura aa</i>')
+              expect(sp.cached_original_combination).to eq('<i>Erythroneura aber. aa</i>')
+            end
           end
 
           specify 'nil author and year - cached value should be empty' do
