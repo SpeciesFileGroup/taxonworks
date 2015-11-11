@@ -1,7 +1,7 @@
 class ContainersController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_container, only: [:update, :destroy]
+  before_action :set_container, only: [:update, :destroy, :show, :edit]
 
   # GET /containers
   # GET /containers.json
