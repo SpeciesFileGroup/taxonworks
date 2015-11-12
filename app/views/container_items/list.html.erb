@@ -19,13 +19,13 @@
   <tbody>
   <% @container_items.each do |container_item| %>
       <tr>
-        <td><%= container_item.container %></td>
+        <td><%= container_tag(container_item.container) %></td>
         <td><%= container_item.position %></td>
-        <td><%= container_item.contained_object %></td>
+        <td><%= object_tag(container_item.contained_object) %></td>
         <td><%= container_item.contained_object_type %></td>
         <td><%= container_item.disposition %></td>
         <td><%= container_item.updated_at %></td>
-        <td><%= object_tag(container_item.updater) %></td>
+        <td><%= user_tag(container_item.updater) %></td>
         <td><%= link_to 'Show', container_item %></td>
         <td><%= link_to 'Destroy', container_item, method: :delete, data: { confirm: 'Are you sure?' } %></td>
       </tr>

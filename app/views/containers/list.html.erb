@@ -6,7 +6,6 @@
   <thead>
   <tr>
     <th>Parent</th>
-    <th>Depth</th>
     <th>Type</th>
     <th>Container</th>
     <th>Name</th>
@@ -21,7 +20,6 @@
   <% @containers.each do |container| %>
       <tr>
         <td><%= object_tag(container.parent) %></td>
-        <td><%= container.depth %></td>
         <td><%= container.type %></td>
         <td><%= container.container %></td>
         <td><%= container.name %></td>

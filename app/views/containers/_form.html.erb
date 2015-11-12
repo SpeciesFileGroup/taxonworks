@@ -11,23 +11,25 @@
                          display:  container_tag(@container.parent),
                          size: 20} %>
   </div>
-  <div class="field">
-    <%= f.label :depth %><br>
-    <%= f.number_field :depth %>
-  </div>
+
+
   <div class="field">
     <%= f.label :type %><br>
     <%= f.text_field :type %>
   </div>
+
   <div class="field">
     <%= f.label :name %><br>
     <%= f.text_field :name %>
   </div>
+
   <div class="field">
     <%= f.label :disposition %><br>
     <%= f.text_field :disposition %>
   </div>
+
   <div class="actions">
     <%= f.submit %>
   </div>
+
 <% end %>

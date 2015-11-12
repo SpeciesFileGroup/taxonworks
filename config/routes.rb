@@ -298,6 +298,13 @@ TaxonWorks::Application.routes.draw do
   match '/remove_favorite_page', to: 'user_preferences#remove_favorite_page', via: :post
 
   scope :tasks  do
+
+    scope :biological_associations do
+      scope :dot,  controller: 'tasks/biological_associations/dot' do
+        get 'by_project/:project_id', action: :project_dot_graph, as: :biological_associations_dot_graph_task
+      end
+    end
+
     scope :nomenclature do
       scope :original_combination, controller: 'tasks/nomenclature/original_combination' do
         get 'edit/:taxon_name_id', action: :edit, as: 'edit_protonym_original_combination_task'

@@ -5,9 +5,9 @@
 <table>
   <thead>
   <tr>
-    <th>Biological relationship</th>
     <th>Biological association subject</th>
     <th>Biological association subject type</th>
+    <th>Biological relationship</th>
     <th>Biological association object</th>
     <th>Biological association object type</th>
     <th>Last modified</th>
@@ -19,13 +19,13 @@
   <tbody>
   <% @biological_associations.each do |biological_association| %>
       <tr>
-        <td><%= biological_association.biological_relationship %></td>
-        <td><%= biological_association.biological_association_subject %></td>
+        <td><%= object_tag(biological_association.biological_association_subject) %></td>
         <td><%= biological_association.biological_association_subject_type %></td>
-        <td><%= biological_association.biological_association_object %></td>
+        <td><%= biological_relationship_tag(biological_association.biological_relationship) %></td>
+        <td><%= object_tag(biological_association.biological_association_object) %></td>
         <td><%= biological_association.biological_association_object_type %></td>
         <td><%= biological_association.updated_at %></td>
-        <td><%= object_tag(biological_association.updater) %></td>
+        <td><%= user_tag(biological_association.updater) %></td>
         <td><%= link_to 'Show', biological_association %></td>
         <td><%= link_to 'Edit', edit_biological_association_path(biological_association) %></td>
         <td><%= link_to 'Destroy', biological_association, method: :delete, data: { confirm: 'Are you sure?' } %></td>

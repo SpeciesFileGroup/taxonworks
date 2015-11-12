@@ -7,7 +7,7 @@ module ContainersHelper
 
   def container_link(container)
     return nil if container.nil?
-    link_to(taxon_works_container_tag(container).html_safe, container)
+    link_to(container_tag(container.metamorphosize).html_safe, container.metamorphosize)
   end
 
   def containers_search_form

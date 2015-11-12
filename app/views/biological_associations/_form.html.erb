@@ -1,5 +1,33 @@
-<%= form_for(@biological_association) do |f| %>
+<%= form_for(@biological_association, id: 'biological_association_edit') do |f| %>
     <%= render 'shared/errors', object: @biological_association %>
+
+    <span class
+    <div class="field" id="subject_edit">
+      <%= f.label :biological_association_subject_type %><br>
+      Otu <%= f.radio_button :biological_association_subject_type, 'Otu', id: :otu %> <br>
+      Collection object <%= f.radio_button :biological_association_subject_type, 'CollectionObject', id: :collection_object %> <br>
+    </div>
+
+    <div id='fields_for_subject_otu'>
+      <%= f.label :biological_association_subject_id, 'Otu' %><br>
+      <%= render partial: 'workbench/elements/forms/ajax_select',
+                 locals:  {controller: '/otus',
+                           object:     'biological_association',
+                           method:     'biological_association_subject_id',
+                           tag_id:     'otu_id1_for_biological_association_subject',
+                           display:    (@biological_association.biological_association_subject ? object_tag(@biological_association.biological_association_subject) : nil)} %>
+    </div>
+
+
+    <div id='fields_for_subject_collection_object'>
+      <%= f.label :biological_association_subject_id, 'Collection object' %><br>
+      <%= render partial: 'workbench/elements/forms/ajax_select',
+                 locals:  {controller: '/collection_objects',
+                           object:     'biological_association',
+                           method:     'biological_association_subject_id',
+                           tag_id:     'collection_object_id1_for_biological_association_object_id',
+                           display:    (@biological_association.biological_association_subject ? object_tag(@biological_association.biological_association_subject) : nil)} %>
+    </div>
 
     <div class="field">
       <%= f.label :biological_relationship %><br>
@@ -8,27 +36,44 @@
                            object:     'biological_association',
                            method:     'biological_relationship_id',
                            tag_id:     'biological_relationship_id_for_biological_association',
-                           display:    biological_relationship_tag(@biological_association.biological_relationship)
+                           display:     biological_relationship_tag(@biological_association.biological_relationship)
                  } %>
     </div>
 
-    <!-- @todo @mjy Are following four fields hidden? -->
-    <div class="field">
-      <%= f.label :biological_association_subject_id %><br>
-      <%= f.text_field :biological_association_subject_id %>
-    </div>
-    <div class="field">
-      <%= f.label :biological_association_subject_type %><br>
-      <%= f.text_field :biological_association_subject_type %>
-    </div>
-    <div class="field">
-      <%= f.label :biological_association_object_id %><br>
-      <%= f.text_field :biological_association_object_id %>
-    </div>
-    <div class="field">
+
+    <div class="field" id="object_edit">
       <%= f.label :biological_association_object_type %><br>
-      <%= f.text_field :biological_association_object_type %>
+      Otu <%= f.radio_button :biological_association_object_type, 'Otu', id: :otu %> <br>
+      Collection object <%= f.radio_button :biological_association_object_type, 'CollectionObject', id: :collection_object %> <br>
     </div>
+
+
+    <div id='fields_for_object_otu'>
+      <%= f.label :biological_association_object_id, 'Otu' %><br>
+      <%= render partial: 'workbench/elements/forms/ajax_select',
+                 locals:  {controller: '/otus',
+                           object:     'biological_association',
+                           method:     'biological_association_object_id',
+                           tag_id:     'otu_id1_for_biological_association_object',
+                           display:    (@biological_association.biological_association_object ? object_tag(@biological_association.biological_association_object) : nil)} %>
+    </div>
+
+
+    <div id='fields_for_object_collection_object'>
+      <%= f.label :biological_association_object_id, 'Collection object' %><br>
+      <%= render partial: 'workbench/elements/forms/ajax_select',
+                 locals:  {controller: '/collection_objects',
+                           object:     'biological_association',
+                           method:     'biological_association_object_id',
+                           tag_id:     'collection_object_id1_for_biological_association_object_id',
+                           display:    (@biological_association.biological_association_object ? object_tag(@biological_association.biological_association_object) : nil)} %>
+    </div>
+
+
+
+
+
+
 
     <div class="actions">
       <%= f.submit %>

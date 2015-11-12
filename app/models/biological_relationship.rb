@@ -1,17 +1,16 @@
-# A biological relationship is...
-#   @todo
+# A biological relationship defines a biological relationship type between two biological entities (e.g. specimen and specimen, otu and specimen etc.) 
 #
 # @!attribute name
 #   @return [String]
-#   @todo
+#     the name of the relationship 
 #
 # @!attribute is_transitive
 #   @return [Boolean]
-#   @todo
+#     whether the relationship is transitive, i.e. if A is_a B is_a C then if is_a is transitive A is_a C 
 #
 # @!attribute is_reflexive
 #   @return [Boolean]
-#   @todo
+#     whether the relationship is reflexive, i.e. if A is_a B and is_a is_reflexive then B is_a A 
 #
 # @!attribute project_id
 #   @return [Integer]
@@ -27,7 +26,10 @@ class BiologicalRelationship < ActiveRecord::Base
   has_many :biological_properties, through: :biological_relationship_types
 
   def self.find_for_autocomplete(params)
-    Queries::BiologicalRelationshipAutocompleteQuery.new(params[:term]).all.where(project_id: params[:project_id])
+    t = params[:term]
+    t2 = t + "%"
+    t3 = "%" + t2
+    BiologicalRelationship.where("(name ILIKE ?) OR (name ILIKE ?) OR (name ILIKE ?)", t,t2,t3).where(project_id: params[:project_id])
   end
 
 end

@@ -77,19 +77,21 @@ class BiologicalRelationshipsController < ApplicationController
   end
 
   def autocomplete
-    @biological_relationships = BiologicalRelationship.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
-    data = @biological_relationships.collect do |t|
+    biological_relationships = BiologicalRelationship.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
+    data = biological_relationships.collect do |t|
       {id: t.id,
        label: ApplicationController.helpers.biological_relationship_tag(t),
        response_values: {
            params[:method] => t.id
        },
-       label_html: ApplicationController.helpers.biological_relationship_autocomplete_selected_tag(t)
+       label_html: ApplicationController.helpers.biological_relationship_tag(t)
       }
     end
 
     render :json => data
   end
+
+  
 
   private
     # Use callbacks to share common setup or constraints between actions.

@@ -1,5 +1,4 @@
-# A biological association is...
-#   @todo
+# A biological association biological relationship between two entities one of (CollectionObject, OTU).
 #
 # @!attribute biological_relationship_id
 #   @return [Integer]
@@ -7,19 +6,19 @@
 #
 # @!attribute biological_association_subject_id
 #   @return [Integer]
-#   @todo
+#     id of the subject of the relationship 
 #
 # @!attribute biological_association_subject_type
 #   @return [String]
-#   @todo
+#    type fo the subject (e.g. Otu) 
 #
 # @!attribute biological_association_object_id
 #   @return [Integer]
-#   @todo
+#    id of the object  
 #
 # @!attribute biological_association_object_type
 #   @return [String]
-#   @todo
+#    type of the object (e.g. CollectionObject) 
 #
 # @!attribute project_id
 #   @return [Integer]
