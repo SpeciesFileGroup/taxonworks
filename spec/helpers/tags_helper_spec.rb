@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe TagsHelper, :type => :helper do
+describe TagsHelper, type:  :helper do
   context 'a tag needs some helpers' do
     let(:tag) {FactoryGirl.create(:valid_tag)}
 
@@ -9,16 +9,16 @@ describe TagsHelper, :type => :helper do
     end
 
     specify '#tag_tag' do
-      expect(tag_tag(tag)).to eq(tag.keyword.name)
+      expect(helper.tag_tag(tag)).to eq(tag.keyword.name)
     end
 
     specify '#tag_link' do
-      expect(tag_link(tag)).to have_link(tag.keyword.name)
+      expect(helper.tag_link(tag)).to have_link(tag.keyword.name)
     end
 
     specify "#tag_search_form" do
-      expect(tags_search_form).to have_button('Show')
-      expect(tags_search_form).to have_field('tag_id_for_quick_search_form')
+      expect(helper.tags_search_form).to have_button('Show')
+      expect(helper.tags_search_form).to have_field('tag_id_for_quick_search_form')
     end
 
   end
