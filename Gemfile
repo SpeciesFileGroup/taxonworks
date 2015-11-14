@@ -1,12 +1,12 @@
 source 'https://rubygems.org'
 ruby '2.1.5'
 
-gem 'rails', '~> 4.2.0'
+gem 'rails', '~> 4.2.5'
 gem 'psych', '~> 2.0.3'
 gem 'responders', '~> 2.0'
 
 # PostgreSQL
-gem 'pg', '~> 0.18.1'
+gem 'pg', '~> 0.18.4'
 
 # Postgis
 gem 'activerecord-postgis-adapter', '~> 3.0.0'
@@ -77,7 +77,6 @@ gem 'validates_timeliness', '~> 3.0.14'
 # Password encryption
 gem 'bcrypt', '~> 3.1.7'
 
-
 # API view template engine
 gem 'rabl'
 
@@ -100,10 +99,10 @@ gem 'sqed', '0.1.7'
 
 group :test, :development do
   gem 'faker', '~> 1.5.0'
-  gem 'rspec-rails', '~> 3.3'
+  gem 'rspec-rails', '~> 3.4'
   gem 'rspec-activemodel-mocks', '~> 1.0.2'
   gem 'inch', '~> 0.7'
-  gem 'byebug', '~> 6.0', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
+  gem 'byebug', '~> 8.2', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'awesome_print'
   gem 'factory_girl_rails', '~> 4.0'
   gem 'did_you_mean', '~> 0.10.0'
@@ -125,12 +124,12 @@ group :doc do
 end
 
 group :test do
-  gem 'rspec', '~> 3.0'
-  gem 'coveralls', '~> 0.8', require: false
+  gem 'rspec', '~> 3.4'
+  gem 'coveralls', '~> 0.8.9', require: false
   gem 'capybara', '~> 2.1'
   gem 'timecop', '~> 0.8.0'
   gem 'webmock', '~> 1.22.1'
-  gem 'vcr', '~> 2.9.2'
+  gem 'vcr', '~> 3.0.0'
   gem 'database_cleaner', '~> 1.5.1'
 # gem 'simplecov', :require => false
 # gem 'simplecov-rcov', :require => false
