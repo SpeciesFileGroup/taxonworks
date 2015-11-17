@@ -341,7 +341,7 @@ class CollectingEvent < ActiveRecord::Base
   # @return [self, false]
   #   generates (creates) a Georeference::VerbatimReference from verbatim_latitude and verbatim_longitude values
   def generate_verbatim_data_georeference(reference_self = false)
-    return false if self.new_record?
+    return false unless (verbatim_latitude.nil? || verbatim_longitude.nil?)
     begin
       CollectingEvent.transaction do
         vg_attributes = {collecting_event_id: self.to_param}
