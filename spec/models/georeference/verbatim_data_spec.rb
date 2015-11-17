@@ -44,6 +44,8 @@ describe Georeference::VerbatimData, type: :model, group: :geo do
                                                                                          verbatim_elevation: nil,
                                                                                          verbatim_latitude:  '40.092067',
                                                                                          verbatim_longitude: '-88.249519'))
+      # save this record to propagate the geographic_item so that second georeference can find it.
+      expect(georeference1.save).to be_truthy
       georeference2 = Georeference::VerbatimData.new(collecting_event: FactoryGirl.build(:valid_collecting_event,
                                                                                          minimum_elevation:  759,
                                                                                          maximum_elevation:  859,

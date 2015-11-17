@@ -2,7 +2,7 @@
 #
 class Georeference::VerbatimData < Georeference
 
-  def initialize(params = {}) 
+  def initialize(params = {})
     super
 
     self.is_median_z    = false
@@ -12,8 +12,8 @@ class Georeference::VerbatimData < Georeference
     unless collecting_event.nil? || geographic_item
 
       # value from collecting_event is normalised to meters
-      z1   = collecting_event.minimum_elevation
-      z2   = collecting_event.maximum_elevation
+      z1 = collecting_event.minimum_elevation
+      z2 = collecting_event.maximum_elevation
       if z1.blank?
         # no valid elevation provided
         self.is_undefined_z = true
@@ -33,13 +33,22 @@ class Georeference::VerbatimData < Georeference
         end
       end
 
-
-      attributes =  { point: collecting_event.map_center(delta_z) }
+      point      = collecting_event.map_center(delta_z)
+      attributes = {point: point}
       attributes.merge!(by: self.by) if self.by
 
-      self.geographic_item = GeographicItem.new(attributes)
-     
-    end 
+      if point.nil?
+        test_grs = []
+      else
+        test_grs = GeographicItem.within_radius_of_wkt('point', point, 0.1)
+      end
+
+      if test_grs.empty?
+        test_grs = [GeographicItem.new(attributes)]
+      end
+
+      self.geographic_item = test_grs.first
+    end
 
     geographic_item
   end

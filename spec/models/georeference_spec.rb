@@ -189,8 +189,8 @@ describe Georeference, type: :model, group: :geo do
           GeographicAreasGeographicItem.create!(geographic_area: ga_b1, geographic_item: gi_b1)
         }
 
-        # TODO: What does this mean?
         specify 'errors which result from badly formed collecting_event area values and error_geographic_item' do
+          # error_geographic_item exists,  but is not inside ce_e1
           g = Georeference::VerbatimData.new(collecting_event:      ce_e1,
                                              # e_g_i is test_box_1
                                              error_geographic_item: e_g_i)
