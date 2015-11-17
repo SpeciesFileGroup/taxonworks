@@ -37,7 +37,7 @@ class Georeference::VerbatimData < Georeference
       attributes =  { point: collecting_event.map_center(delta_z) }
       attributes.merge!(by: self.by) if self.by
 
-      self.geographic_item = GeographicItem.find_or_create_by(attributes)
+      self.geographic_item = GeographicItem.new(attributes)
      
     end 
 
