@@ -338,7 +338,7 @@ class CollectingEvent < ActiveRecord::Base
   end
 
   # @param [Boolean] reference_self
-  # @return [self, false]
+  # @return [Georeference::VerbatimData, false]
   #   generates (creates) a Georeference::VerbatimReference from verbatim_latitude and verbatim_longitude values
   def generate_verbatim_data_georeference(reference_self = false)
     return false if (verbatim_latitude.nil? || verbatim_longitude.nil?)
@@ -350,10 +350,12 @@ class CollectingEvent < ActiveRecord::Base
         if a.valid?
           a.save
         end
+        return a
       end
     rescue
       raise
     end
+    false
   end
 
   # @return [GeographicItem, nil]
