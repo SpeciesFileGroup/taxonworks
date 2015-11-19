@@ -22,7 +22,11 @@ module Queries
 
     def build_terms(string)
       string = string.to_s
-      @terms = [string, "%#{string}", "%#{string}%", "%#{string}%"] + string.split(/\s/).collect{|t| [t, "#{t}%"]}.flatten 
+      @terms ||= [string, "%#{string}", "%#{string}%", "%#{string}%"] + string.split(/\s/).collect{|t| [t, "#{t}%"]}.flatten 
+    end
+
+    def terms
+      @terms
     end
 
     def where_sql
@@ -30,7 +34,7 @@ module Queries
     end
 
     def all 
-      CollectingEvent.includes(:geographic_area, :identifiers).where(where_sql).references(:geographic_areas, :identifiers)
+      CollectingEvent.includes(:geographic_area, :identifiers).where(where_sql).references(:geographic_areas, :identifiers).limit(40)
     end
 
     def geographic_area_table 
