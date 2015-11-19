@@ -337,6 +337,8 @@ class CollectingEvent < ActiveRecord::Base
     Utilities::Dates.format_to_hours_minutes_seconds(time_end_hour, time_end_minute, time_end_second)
   end
 
+  # CollectingEvent.select {|d| !(d.verbatim_latitude.nil? || d.verbatim_longitude.nil?)}
+  # .select {|ce| ce.georeferences.empty?}
   # @param [Boolean] reference_self
   # @return [Georeference::VerbatimData, false]
   #   generates (creates) a Georeference::VerbatimReference from verbatim_latitude and verbatim_longitude values

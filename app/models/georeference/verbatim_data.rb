@@ -40,7 +40,10 @@ class Georeference::VerbatimData < Georeference
       if point.nil?
         test_grs = []
       else
-        test_grs = GeographicItem.within_radius_of_wkt('point', point, 0.1)
+        # test_grs = GeographicItem::Point.where("point = ST_Point(?, ?, ?", point.x, point.y, delta_z)
+        # test_grs = GeographicItem::Point.where("point = ST_Point(#{point.x},#{point.y},#{point.z})")
+        # test_grs = GeographicItem.within_radius_of_wkt('point', point, 0.1)
+        test_grs = GeographicItem::Point.where("point = ST_GeographyFromText('POINT(#{point.x} #{point.y})::geography')").where("ST_Z(point::geometry) = #{point.z}")
       end
 
       if test_grs.empty?
