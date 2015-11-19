@@ -8,7 +8,6 @@ class Georeference::VerbatimData < Georeference
     self.is_median_z    = false
     self.is_undefined_z = false # and delta_z is zero, or ignored
 
-
     unless collecting_event.nil? || geographic_item
 
       # value from collecting_event is normalised to meters
@@ -40,9 +39,6 @@ class Georeference::VerbatimData < Georeference
       if point.nil?
         test_grs = []
       else
-        # test_grs = GeographicItem::Point.where("point = ST_Point(?, ?, ?", point.x, point.y, delta_z)
-        # test_grs = GeographicItem::Point.where("point = ST_Point(#{point.x},#{point.y},#{point.z})")
-        # test_grs = GeographicItem.within_radius_of_wkt('point', point, 0.1)
         test_grs = GeographicItem::Point.where("point = ST_GeographyFromText('POINT(#{point.x} #{point.y})::geography')").where("ST_Z(point::geometry) = #{point.z}")
       end
 

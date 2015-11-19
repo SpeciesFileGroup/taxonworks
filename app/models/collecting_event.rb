@@ -347,7 +347,7 @@ class CollectingEvent < ActiveRecord::Base
     begin
       CollectingEvent.transaction do
         vg_attributes = {collecting_event_id: self.to_param}
-        vg_attributes.merge!(by: self.creator, project_id: self.project.to_param) if reference_self
+        vg_attributes.merge!(by: self.creator.id, project_id: self.project_id) if reference_self
         a = Georeference::VerbatimData.new(vg_attributes)
         if a.valid?
           a.save
@@ -790,6 +790,38 @@ class CollectingEvent < ActiveRecord::Base
 
 
   # class methods
+
+  # @return [true]
+  #   A development method only. Attempts to create a verbatim georeference for every 
+  #   collecting event record that doesn't have one.
+  def self.update_verbatim_georeferences
+    if Rails.env == 'production'
+      puts "You can't run this there"
+      exit
+    end
+
+    passed = 0
+    failed = 0
+    attempted = 0
+
+    CollectingEvent.includes(:georeferences).where(georeferences: {id: nil}).each do |c|
+      next if c.verbatim_latitude.blank? || c.verbatim_longitude.blank?
+      attempted += 1 
+      g = c.generate_verbatim_data_georeference(true) 
+      if g.errors.empty?
+        passed += 1
+        puts "created for #{c.id}"
+      else
+        failed += 1
+        puts "failed for #{c.id}, #{g.errors.messages}"
+      end
+    end
+
+    puts "passed: #{passed}"
+    puts "failed: #{failed}"
+    puts "attempted: #{attempted}"
+    true
+  end
 
   # @param [Array] of parameters in the style of 'params'
   # @return [Scope] of selected collecting_events
