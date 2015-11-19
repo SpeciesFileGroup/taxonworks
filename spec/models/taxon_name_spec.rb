@@ -320,6 +320,11 @@ describe TaxonName, type: :model, group: [:nomenclature] do
               expect(@family.cached_author_year).to eq('Say, 1800')
             end
 
+            specify 'cached_author_year with parenteses' do
+              sp = FactoryGirl.create(:relationship_species, parent: @genus, year_of_publication: 2000, verbatim_author: '(Dmitriev)')
+              expect(sp.cached_author_year).to eq('(Dmitriev, 2000)')
+            end
+
             specify 'cached_html' do
               expect(@family.cached_html).to eq(@family.name)
             end
@@ -328,7 +333,6 @@ describe TaxonName, type: :model, group: [:nomenclature] do
               sp = FactoryGirl.create(:relationship_species, name: 'albonigra', verbatim_name: 'albo-nigra', parent: @genus)
               sp.original_genus = @genus
               sp.save
-              sp.reload
               expect(sp.cached_html).to eq('<i>Erythroneura albonigra</i>')
               expect(sp.cached_original_combination).to eq('<i>Erythroneura albo-nigra</i>')
             end
@@ -339,12 +343,12 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             expect(t.cached_author_year).to eq(nil)
           end
 
-          specify 'parent with parentheses' do
+          specify 'author with parentheses' do
             c = FactoryGirl.build(:relationship_species, parent: nil, verbatim_author: '(Dmitriev)', year_of_publication: 2000)
             expect(c.get_author_and_year).to eq('(Dmitriev, 2000)')
           end
 
-          specify 'parent without parentheses' do
+          specify 'author without parentheses' do
             c = FactoryGirl.build(:relationship_species, parent: nil, verbatim_author: 'Dmitriev', year_of_publication: 2000)
             expect(c.get_author_and_year).to eq('Dmitriev, 2000')
           end

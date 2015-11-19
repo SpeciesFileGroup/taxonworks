@@ -168,31 +168,33 @@ namespace :tw do
         handle_biocuration_classes_insects(@data1, @import)
         handle_biological_relationship_classes_insects(@data1, @import)
         handle_preparation_types_insects(@data1, @import)
-        handle_people_insects(@data1, @import)
-        handle_taxa_insects(@data1, @import)
-        handle_loans_insects(@data1, @import)
+        ###handle_people_insects(@data1, @import)
+        ####handle_taxa_insects(@data1, @import)
+        ####handle_loans_insects(@data1, @import)
 
         # !! The following can not be loaded from the database they are always created anew.
 
-        build_localities_index_insects(@data1)
+        #####build_localities_index_insects(@data1)
 
         puts "Indexing collecting events."
         # should be run to clear redis database. if specimen from diffrent tables run one buy one, data could be left in Redis and reused
 
         @redis.flushall
 
-        index_collecting_events_from_accessions_new(@data1, @import)
-        index_collecting_events_from_ledgers(@data1, @import)
-        index_specimen_records_from_specimens_insects(@data1, @import)
-        index_specimen_records_from_specimens_insects_new(@data1, @import)
-        index_specimen_records_from_neon(@data1, @import)
+        ###index_collecting_events_from_accessions_new(@data1, @import)
+        ###index_collecting_events_from_ledgers(@data1, @import)
+        ###index_specimen_records_from_specimens_insects(@data1, @import)
+        ###index_specimen_records_from_specimens_insects_new(@data1, @import)
+        ###index_specimen_records_from_neon(@data1, @import)
 
         puts "\nTotal collecting events to build: #{@redis.keys.count}."
 
-        handle_associations_insects(@data1, @import)
-        handle_loan_specimens_insects(@data1)
-        handle_letters_insects(@data1)
-        handle_collection_profile_insects(@data1)
+        ###handle_associations_insects(@data1, @import)
+        ###handle_loan_specimens_insects(@data1)
+        ###handle_letters_insects(@data1)
+        ###handle_collection_profile_insects(@data1)
+        handle_locality_images(@data1)
+        handle_loan_images(@data1)
 
         puts "\n!! Unmatched localities: (#{@data1.unmatched_localities.keys.count}): " + @data1.unmatched_localities.keys.sort.join(", ")
         puts "\n!! Unmatched taxa: (#{@data1.unmatched_taxa.keys.count}): " + @data1.unmatched_taxa.keys.sort.join(", ")
@@ -250,8 +252,10 @@ namespace :tw do
           import.metadata['project_and_users'] = true
         end
 
-        @repository = Repository.where(institutional_LSID: 'urn:lsid:biocol.org:col:34797').first
-        print 'Repository not found' if @repository.nil?
+        @repository = Repository.where(acronym: 'INHS').first
+        @repository = @repository.id unless @repository.nil?
+
+        print "Repository not found\n" if @repository.nil?
 
         @data1.user_index.merge!('0' => user)
         @data1.user_index.merge!('' => user)
@@ -260,7 +264,7 @@ namespace :tw do
       end
 
       def handle_biocuration_classes_insects(data, import)
-        print "Handling biocuration classes "
+        print "Handling biocuration classes \n"
 
         biocuration_classes = %w{ Adult Male Female Immature Pupa Exuvia }
 
@@ -276,7 +280,7 @@ namespace :tw do
       end
 
       def handle_biological_relationship_classes_insects(data, import)
-        print "Handling biological relationship classes "
+        print "Handling biological relationship classes \n"
 
         biological_relationships = { 'Attendance' => ['Attendant', 'Attended insect'],
                                      'Predation' => ['Predator', 'Prey'],
@@ -329,7 +333,7 @@ namespace :tw do
       end
 
       def handle_namespaces_insects(data, import)
-        print "Handling namespaces "
+        print "Handling namespaces  "
 
         catalogue_namespaces = [
             'Acari',
@@ -806,8 +810,9 @@ namespace :tw do
         geographic_area = parse_geographic_area_insects(ce)
         geolocation_uncertainty = parse_geolocation_uncertainty_insects(ce)
         locality =  ce['Park'].blank? ? ce['Locality'] : ce['Locality'].to_s + ', ' + ce['Park'].to_s
-        created_by = find_or_create_collection_user_insects(ce['CreatedBy'], data)
         updated_by = find_or_create_collection_user_insects(ce['ModifiedBy'], data)
+        created_by = ce['CreatedBy'].blank? ? updated_by : find_or_create_collection_user_insects(ce['CreatedBy'], data)
+        created_on = ce['CreatedOn'].blank? ? ce['ModifiedOn'] : ce['CreatedOn']
 
         c = CollectingEvent.new(
             geographic_area: geographic_area,
@@ -833,7 +838,7 @@ namespace :tw do
             verbatim_date: nil,
             created_by_id: created_by,
             updated_by_id: updated_by,
-            created_at: time_from_field(ce['CreatedOn']),
+            created_at: time_from_field(created_on),
             updated_at: time_from_field(ce['ModifiedOn'])
         )
         if c.valid?
@@ -854,14 +859,25 @@ namespace :tw do
             c.identifiers.create(identifier: ce['AccessionNumber'], namespace: @accession_namespace, type: 'Identifier::Local::AccessionCode')
           end
 
-          c.generate_verbatim_data_georeference
+          gr = geolocation_uncertainty.nil? ? false : c.generate_verbatim_data_georeference(true)
+          unless gr == false
+            ga, c.geographic_area_id = c.geographic_area_id, nil
+            if gr.valid?
+              c.save
+              gr.save
+            else
+              c.geographic_area_id = ga
+              c.save
+            end
 
-          glc = c.georeferences.first
-          unless glc.nil?
-            glc.error_radius = geolocation_uncertainty
-            glc.is_public = true
-            glc.save
-            c.data_attributes.create(type: 'ImportAttribute', import_predicate: 'georeference_error', value: 'Geolocation uncertainty is conflicting with geographic area') unless glc.valid?
+          #end
+
+          #glc = c.georeferences.first
+          #unless gr == false
+            gr.error_radius = geolocation_uncertainty
+            gr.is_public = true
+            gr.save
+            c.data_attributes.create(type: 'ImportAttribute', import_predicate: 'georeference_error', value: 'Geolocation uncertainty is conflicting with geographic area') unless gr.valid?
           end
 
           @redis.set(tmp_ce_sorted, c.id)
@@ -982,15 +998,18 @@ namespace :tw do
             rank = Ranks.lookup(code, row['Rank'])
             rank ||= 'NomenclaturalRank'
             name = 'Root' if rank == 'NomenclaturalRank'
+            updated_by = find_or_create_collection_user_insects(row['ModifiedBy'], data)
+            created_by = row['CreatedBy'].blank? ? updated_by : find_or_create_collection_user_insects(row['CreatedBy'], data)
+            created_on = row['CreatedOn'].blank? ? row['ModifiedOn'] : row['CreatedOn']
 
             p = Protonym.new(
               name: name,
               verbatim_author: author,
               year_of_publication: row['Year'],
               rank_class: rank,
-              created_by_id: find_or_create_collection_user_insects(row['CreatedBy'], data),
-              updated_by_id: find_or_create_collection_user_insects(row['ModifiedBy'], data),
-              created_at: time_from_field(row['CreatedOn']),
+              created_by_id: created_by,
+              updated_by_id: updated_by,
+              created_at: time_from_field(created_on),
               updated_at: time_from_field(row['ModifiedOn'])
             )
             p.parent_id = parent_index[row['Parent'].to_s].id unless row['Parent'].blank? || parent_index[row['Parent'].to_s].nil?
@@ -1128,7 +1147,8 @@ namespace :tw do
 
             print "\r#{i} \t#{bench.to_s.strip}                            "
 
-            preparation_type = data.preparation_types[se['preparation_type']]
+            #byebug # preparation type is not saved to a collection object.
+            preparation_type = data.preparation_types[se['PreparationType']]
 
             no_specimens = false
             if count_fields.collect{ |f| se[f] }.select{ |n| !n.nil? }.empty?
@@ -1139,21 +1159,24 @@ namespace :tw do
             objects = []
             count_fields.each do |count|
               unless se[count].blank?
+                updated_by = find_or_create_collection_user_insects(se['ModifiedBy'], data)
+                created_by = se['CreatedBy'].blank? ? updated_by : find_or_create_collection_user_insects(se['CreatedBy'], data)
+                created_on = se['CreatedOn'].blank? ? se['ModifiedOn'] : se['CreatedOn']
                 specimen = CollectionObject::BiologicalCollectionObject.new(
-                total: se[count],
-                preparation_type: preparation_type,
-                repository_id: @repository,
-                buffered_collecting_event: se['LocalityLabel'],
-                buffered_determinations: se['DeterminationLabel'],
-                buffered_other_labels: se['OtherLabel'],
-                collecting_event: collecting_event,
-                deaccessioned_at: time_from_field(se['DeaccessionDate']),
-                deaccession_reason: se['DeaccessionCause'],
-                created_by_id: find_or_create_collection_user_insects(se['CreatedBy'], data),
-                updated_by_id: find_or_create_collection_user_insects(se['ModifiedBy'], data),
-                created_at: time_from_field(se['CreatedOn']),
-                updated_at: time_from_field(se['ModifiedOn'])
-                )
+                    total: se[count],
+                    preparation_type: preparation_type,
+                    repository_id: @repository,
+                    buffered_collecting_event: se['LocalityLabel'],
+                    buffered_determinations: se['DeterminationLabel'],
+                    buffered_other_labels: se['OtherLabel'],
+                    collecting_event: collecting_event,
+                    deaccessioned_at: time_from_field(se['DeaccessionDate']),
+                    deaccession_reason: se['DeaccessionCause'],
+                    created_by_id: created_by,
+                    updated_by_id: updated_by,
+                    created_at: time_from_field(created_on),
+                    updated_at: time_from_field(se['ModifiedOn'])
+                    )
 
                 if specimen.valid?
                   specimen.save!
@@ -1243,7 +1266,7 @@ namespace :tw do
 
           collecting_event = nil
           collecting_event = find_or_create_collecting_event_insects(se, data) if row['Done'] == '1'
-          preparation_type = data.preparation_types[se['preparation_type']]
+          preparation_type = data.preparation_types[se['PreparationType']]
 
           no_specimens = false
           if count_fields.collect{ |f| se[f] }.select{ |n| !n.nil? }.empty?
@@ -1254,6 +1277,9 @@ namespace :tw do
           objects = []
           count_fields.each do |count|
             unless se[count].blank?
+              updated_by = find_or_create_collection_user_insects(se['ModifiedBy'], data)
+              created_by = se['CreatedBy'].blank? ? updated_by : find_or_create_collection_user_insects(se['CreatedBy'], data)
+              created_on = se['CreatedOn'].blank? ? se['ModifiedOn'] : se['CreatedOn']
               specimen = CollectionObject::BiologicalCollectionObject.new(
                   total: se[count],
                   preparation_type: preparation_type,
@@ -1262,9 +1288,9 @@ namespace :tw do
                   buffered_determinations: se['DeterminationLabel'],
                   buffered_other_labels: se['OtherLabel'],
                   collecting_event: collecting_event,
-                  created_by_id: find_or_create_collection_user_insects(se['CreatedBy'], data),
-                  updated_by_id: find_or_create_collection_user_insects(se['ModifiedBy'], data),
-                  created_at: time_from_field(se['CreatedOn']),
+                  created_by_id: created_by,
+                  updated_by_id: updated_by,
+                  created_at: time_from_field(created_on),
                   updated_at: time_from_field(se['ModifiedOn'])
               )
 
@@ -1735,7 +1761,7 @@ namespace :tw do
                                        updated_at: time_from_field(row['ModifiedOn']),
                                        parent_id: room,
                                        type: container_type[row['CollectionType']],
-                                       otu_id: otu,
+                                       #otu_id: otu,
                                        name: nil
           )
 
@@ -1815,6 +1841,51 @@ namespace :tw do
         r
       end
 
+      def handle_locality_images(data1)
+        path = @args[:data_directory] + 'INHS_Ross_index_cards/**/*'
+        print "\nLocality images\n"
+
+        Dir.glob(path).each_with_index do |file, i|
+          byebug
+          print "\r#{i}"
+          name = file.match(/([^\/.]*).jpg$/)
+          identifier = name.nil? ? nil : name[1]
+          unless identifier.nil?
+            ce = CollectingEvent.with_project_id($project_id).with_identifier('Accession Code ' + identifier)
+            if ce.nil?
+              print "\nCollecting event with identifier #{identifier} does not exist\n"
+            else
+              d1 = Depiction.create(image_attributes: { image_file: File.open(file) }, depiction_object: ce)
+            end
+          end
+        end
+      end
+
+      def handle_loan_images(data1)
+        byebug
+        def handle_locality_images(data1)
+          path = @args[:data_directory] + 'loans/**/*'
+          print "\nLoan images\n"
+
+          Dir.glob(path).each_with_index do |file, i|
+            print "\r#{i}"
+            name = file.match(/([^\/.]*).pdf$/)
+            identifier = name.nil? ? nil : name[1]
+            unless identifier.nil?
+            ce = Loan.with_project_id($project_id).with_identifier('Invoice ' + identifier)
+            if ce.nil?
+              print "\nInvoice with identifier #{identifier} does not exist\n"
+            else
+              d1 = Pdf.create(image_attributes: { image_file: File.open(file) }, depiction_object: ce)
+            end
+          end
+          end
+        end
+
+      end
+
+
+
       def parse_geographic_area_insects(ce)
         geog_search = []
         [ ce['County'], ce['State'], ce['Country']].each do |v|
@@ -1885,11 +1956,14 @@ namespace :tw do
             when 3
               geolocation_uncertainty = 10000
             when 4
-              geolocation_uncertainty = 100000
+              nil
+              #geolocation_uncertainty = 100000
             when 5
-              geolocation_uncertainty = 1000000
+              nil
+              #geolocation_uncertainty = 1000000
             when 6
-              geolocation_uncertainty = 1000000
+              nil
+              #geolocation_uncertainty = 1000000
           end
         end
         return geolocation_uncertainty
