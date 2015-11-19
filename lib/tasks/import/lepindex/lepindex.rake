@@ -122,7 +122,7 @@ namespace :tw do
 
       def handle_projects_and_users_lepindex
         print "\nHandling projects and users "
-        @project, @user = initiate_project_and_users('Lepindex', 'i.kitching@nhm.ac.uk')
+        @project, @user = initiate_project_and_users('Lepindex', 'lepindex@import.net')
         email = 'lepindex@import.net'
         project_name = 'Lepindex'
         user_name = 'Lepindex Import'
@@ -368,46 +368,46 @@ namespace :tw do
               parent_id = @lepidoptera.id
 
               if superfamily.nil? && !row['Current_superfamily'].blank?
-                superfamily = Protonym.find_or_create_by(name: row['Current_superfamily'], parent_id: parent_id, rank_class: Ranks.lookup(:iczn, 'superfamily'), project_id: $project_id, no_cached: true).id
+                superfamily = Protonym.find_or_create_by(name: row['Current_superfamily'], parent_id: parent_id, rank_class: Ranks.lookup(:iczn, 'superfamily'), project_id: $project_id).id
                 @data.parent_id_index.merge!('superfamily:' + row['Current_superfamily'].to_s => superfamily)
               end
               parent_id = superfamily unless superfamily.nil?
               if family.nil? && !row['Current_family'].blank?
-                family = Protonym.find_or_create_by(name: row['Current_family'], parent_id: parent_id, rank_class: Ranks.lookup(:iczn, 'family'), project_id: $project_id, no_cached: true).id
+                family = Protonym.find_or_create_by(name: row['Current_family'], parent_id: parent_id, rank_class: Ranks.lookup(:iczn, 'family'), project_id: $project_id).id
                 @data.parent_id_index.merge!('family:' + row['Current_family'].to_s => family)
               end
               parent_id = family unless family.nil?
               if subfamily.nil? && !row['Current_subfamily'].blank? && row['Current_subfamily'] != 'Subfamily unassigned'
                 if row['Current_subfamily'] =~ / group/
-                  subfamily = Protonym.find_or_create_by(name: row['Current_subfamily'].gsub(' group', ''), parent_id: parent_id, rank_class: 'NomenclaturalRank::Iczn::GenusGroup::GenusGroup', project_id: $project_id, no_cached: true).id
+                  subfamily = Protonym.find_or_create_by(name: row['Current_subfamily'].gsub(' group', ''), parent_id: parent_id, rank_class: 'NomenclaturalRank::Iczn::GenusGroup::GenusGroup', project_id: $project_id).id
                 else
-                  subfamily = Protonym.find_or_create_by(name: row['Current_subfamily'], parent_id: parent_id, rank_class: Ranks.lookup(:iczn, 'subfamily'), project_id: $project_id, no_cached: true).id
+                  subfamily = Protonym.find_or_create_by(name: row['Current_subfamily'], parent_id: parent_id, rank_class: Ranks.lookup(:iczn, 'subfamily'), project_id: $project_id).id
                 end
                 @data.parent_id_index.merge!('subfamily:' + row['Current_subfamily'].to_s => subfamily)
               end
               parent_id = subfamily unless subfamily.nil?
               if tribe.nil? && !row['Current_tribe'].blank? && row['Current_tribe'] != 'Tribe unassigned'
-                tribe = Protonym.find_or_create_by(name: row['Current_tribe'], parent_id: parent_id, rank_class: Ranks.lookup(:iczn, 'tribe'), project_id: $project_id, no_cached: true).id
+                tribe = Protonym.find_or_create_by(name: row['Current_tribe'], parent_id: parent_id, rank_class: Ranks.lookup(:iczn, 'tribe'), project_id: $project_id).id
                 @data.parent_id_index.merge!('tribe:' + row['Current_tribe'].to_s => tribe)
               end
               parent_id = tribe unless tribe.nil?
               if subtribe.nil? && !row['Current_subtribe'].blank?
-                subtribe = Protonym.find_or_create_by(name: row['Current_subtribe'], parent_id: parent_id, rank_class: Ranks.lookup(:iczn, 'subtribe'), project_id: $project_id, no_cached: true).id
+                subtribe = Protonym.find_or_create_by(name: row['Current_subtribe'], parent_id: parent_id, rank_class: Ranks.lookup(:iczn, 'subtribe'), project_id: $project_id).id
                 @data.parent_id_index.merge!('subtribe:' + row['Current_subtribe'].to_s => subtribe)
               end
               parent_id = subtribe unless subtribe.nil?
               if genus.nil? && !row['Current_genus'].blank? && rank != 'GENUS' && row['Current_genus'] != 'GENUS UNKNOWN' && row['Current_genus'] != 'ORIGINAL GENUS UNDETERMINED' && row['Current_genus'] !=~ /_AUCTORUM/
-                genus = Protonym.find_or_create_by(name: row['Current_genus'].titleize, parent_id: parent_id, rank_class: Ranks.lookup(:iczn, 'genus'), project_id: $project_id, no_cached: true).id
+                genus = Protonym.find_or_create_by(name: row['Current_genus'].titleize, parent_id: parent_id, rank_class: Ranks.lookup(:iczn, 'genus'), project_id: $project_id).id
                 @data.parent_id_index.merge!('genus:' + row['Current_genus'].to_s => genus)
               end
               parent_id = genus unless genus.nil?
               if subgenus.nil? && !row['CurrSubgen'].blank? && rank != 'GENUS' && rank != 'SUBGENUS'
-                subgenus = Protonym.find_or_create_by(name: row['CurrSubgen'].titleize, parent_id: parent_id, rank_class: Ranks.lookup(:iczn, 'subgenus'), project_id: $project_id, no_cached: true).id
+                subgenus = Protonym.find_or_create_by(name: row['CurrSubgen'].titleize, parent_id: parent_id, rank_class: Ranks.lookup(:iczn, 'subgenus'), project_id: $project_id).id
                 @data.parent_id_index.merge!('subgenus:' + row['CurrSubgen'].to_s => subgenus)
               end
               parent_id = subgenus unless subgenus.nil?
               if species.nil? && !row['Current_species'].blank? && rank != 'GENUS' && rank != 'SUBGENUS'  && rank != 'SPECIES'
-                species = Protonym.find_or_create_by(name: row['Current_species'], parent_id: parent_id, rank_class: Ranks.lookup(:iczn, 'species'), project_id: $project_id, no_cached: true).id
+                species = Protonym.find_or_create_by(name: row['Current_species'], parent_id: parent_id, rank_class: Ranks.lookup(:iczn, 'species'), project_id: $project_id).id
                 @data.parent_id_index.merge!('species:' + row['Current_genus'].to_s + ' ' + row['Current_species'].to_s => species)
               end
               parent_id = species unless species.nil?
@@ -432,8 +432,7 @@ namespace :tw do
                                         created_by_id: find_or_create_user_lepindex(row['Last_changed_by']),
                                         updated_by_id: $user_id,
                                         created_at: time_from_field(row['Date_changed']),
-                                        updated_at: $user_id,
-                                        no_cached: true
+                                        updated_at: $user_id
                 )
                 %w{TaxonNo Original_Genus OrigSubgen Original_Species Original_Subspecies Original_Infrasubspecies Availability valid_parent_id ButmothNo}.each do |k|
                   protonym.data_attributes.new(import_predicate: k, value: row['k'], type: 'ImportAttribute') unless row['k'].blank?
@@ -557,8 +556,8 @@ namespace :tw do
               stn = @data.parent_id_index['genus:' + r['original'].to_s]
               stn = @data.parent_id_index['subgenus:' + r['original'].to_s] if stn.nil?
               if stn.nil?  && r['original'] != 'ORIGINAL GENUS UNDETERMINED'
-                genus = Protonym.find_or_create_by(name: r['original'].titleize, parent_id: @lepidoptera.id, rank_class: Ranks.lookup(:iczn, 'genus'), project_id: $project_id, no_cached: true).id
-                @data.parent_id_index.merge!('genus:' + row['Current_genus'].to_s => genus)
+                genus = Protonym.find_or_create_by(name: r['original'].titleize, parent_id: @lepidoptera.id, rank_class: Ranks.lookup(:iczn, 'genus'), project_id: $project_id).id
+                @data.parent_id_index.merge!('genus:' + r['Current_genus'].to_s => genus)
               end
             elsif origr == 'species'
               stn = @data.parent_id_index['species:' + r['original'].to_s]
@@ -567,14 +566,14 @@ namespace :tw do
             unless stn.nil?
               tr = TaxonNameRelationship.new(subject_taxon_name_id: stn,
                                             object_taxon_name_id: r['taxon'],
-                                            type: @relationship_classes[r['relationship']],
-                                            no_cached: true)
+                                            type: @relationship_classes[r['relationship']]
+                )
             end
           elsif r['relationship'] == 'Incertae sedis'
             tr = TaxonNameRelationship.new(subject_taxon_name_id: r['taxon'],
                                            object_taxon_name_id: r['valid species'],
-                                           type: @relationship_classes[r['relationship']],
-                                           no_cached: true)
+                                           type: @relationship_classes[r['relationship']]
+                )
           elsif !r['valid species'].nil?
             valid_species = @data.taxonno_index[r['valid species'].to_i.to_s]
             if valid_species.nil?
@@ -584,8 +583,8 @@ namespace :tw do
               relationship = 'TaxonNameRelationship::Iczn::Invalidating' if relationship == ''
               tr = TaxonNameRelationship.new(subject_taxon_name_id: r['taxon'],
                                             object_taxon_name_id: valid_species,
-                                            type: relationship,
-                                            no_cached: true)
+                                            type: relationship
+                  )
             end
           elsif !r['type species'].blank?
             if @relationship_classes[r['type designation']].nil?
@@ -593,7 +592,8 @@ namespace :tw do
             else
               relationship = @relationship_classes[r['type designation']]
             end
-            children = Protonym.descendants_of(Protonym.find(r['taxon']).get_valid_taxon_name)
+            children = []
+            children = Protonym.descendants_of(Protonym.find(r['taxon']).get_valid_taxon_name) if Protonym.find(r['taxon']).get_valid_taxon_name
             children = children + Protonym.descendants_of(Protonym.find(r['taxon']))
             unless children.empty?
               children = children.select{|c| c.name == r['type species']}
@@ -601,8 +601,8 @@ namespace :tw do
               unless children.empty?
                 tr = TaxonNameRelationship.new(subject_taxon_name_id: children.first.id,
                                               object_taxon_name_id: r['taxon'],
-                                              type: relationship,
-                                              no_cached: true)
+                                              type: relationship
+                    )
 
                 ref = @data.citation_to_publication_index[r['type species reference']]
                 citation = @data.citations_index[r['type species reference']]
@@ -630,10 +630,9 @@ namespace :tw do
         print "\nApply soft validation fixes to taxa 1st pass \n"
         TaxonName.where(project_id: $project_id).each_with_index do |t, i|
           print "\r#{i}    Fixes applied: #{fixed}"
-          t.save
           t.soft_validate
-          t.fix_soft_validations_lepindex
-          t.soft_validations_lepindex.soft_validations_lepindex.each do |f|
+          t.fix_soft_validations
+          t.soft_validations.soft_validations.each do |f|
             fixed += 1  if f.fixed?
           end
         end
@@ -641,8 +640,8 @@ namespace :tw do
         TaxonNameRelationship.where(project_id: $project_id).each_with_index do |t, i|
           print "\r#{i}    Fixes applied: #{fixed}"
           t.soft_validate
-          t.fix_soft_validations_lepindex
-          t.soft_validations_lepindex.soft_validations_lepindex.each do |f|
+          t.fix_soft_validations
+          t.soft_validations.soft_validations.each do |f|
             fixed += 1  if f.fixed?
           end
         end
@@ -650,8 +649,8 @@ namespace :tw do
         TaxonName.where(project_id: $project_id).each_with_index do |t, i|
           print "\r#{i}    Fixes applied: #{fixed}"
           t.soft_validate
-          t.fix_soft_validations_lepindex
-          t.soft_validations_lepindex.soft_validations_lepindex.each do |f|
+          t.fix_soft_validations
+          t.soft_validations.soft_validations.each do |f|
             fixed += 1  if f.fixed?
           end
         end

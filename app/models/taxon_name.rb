@@ -130,6 +130,7 @@ class TaxonName < ActiveRecord::Base
   include Shared::Notable
   include Shared::IsData
   include SoftValidation
+  include Shared::Depictions
 
   NO_CACHED_MESSAGE = 'PROJECT REQUIRES TAXON NAME CACHE REBUILD'
 
@@ -416,7 +417,7 @@ class TaxonName < ActiveRecord::Base
     elsif !v.cached_valid_taxon_name_id.nil?
       v.valid_taxon_name
     else
-      nil
+      self
     end
   end
 
