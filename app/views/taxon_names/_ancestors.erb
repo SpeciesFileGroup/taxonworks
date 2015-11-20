@@ -1,0 +1,11 @@
+<div id="show_taxon_name_ancestor_string">
+  <div class="ancestor_string">
+    <p>
+    <% taxon_name.ancestor_protonyms.each do |p| -%>
+      <%= taxon_name_link(p.metamorphosize) -%>  &#62;
+    <% end %>
+    <%= taxon_name_tag(taxon_name) -%>
+    </p>
+  </div>
+
+</div>

@@ -22,7 +22,9 @@ class Identifier::Local < Identifier
 
   validates :namespace, presence: true
   validates_uniqueness_of :identifier, scope: [:namespace_id, :project_id, :type]
-  validates_uniqueness_of :namespace, scope: [:identifier_object_type, :identifier_object_id, :type]
+
+  # multiple identifiers could easily be attached to the same object, e.g. a specimen with two identifier labels, same collecting event with multiple accession codes.
+  # validates_uniqueness_of :namespace, scope: [:identifier_object_type, :identifier_object_id, :type]
 
   # Exact match on identifier + namespace
   # @param [String, String]

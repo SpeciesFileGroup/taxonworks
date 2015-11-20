@@ -1,12 +1,13 @@
 <h1>Browsing taxon name</h1>
 
+<%= render(partial: 'ancestors', locals: {taxon_name: @taxon_name}) -%>
 <div class="flexbox">
   <div class="item item1">
-    <%= edit_taxon_name_link(@taxon_name) -%>
+    <%= edit_taxon_name_link(@taxon_name) -%> |
 
     <%= forward_back_links(@taxon_name) -%> 
 
-    <%= render(partial: 'parent_navigator', locals: {taxon_name: @taxon_name}) -%> 
+    <%= render(partial: 'parent_navigator', locals: {taxon_name: @taxon_name}) -%>
   </div>
 
   <div class="item item2">
@@ -28,7 +29,7 @@
         <div>  <%= render(partial: '/shared/data/all/show/soft_validation', locals: {object: r}) -%>  </div>
     <% end %>
     <%= content_tag(:p, @taxon_name.taxon_name_relationships.empty? ? 'There are no taxon name relationships' : nil) -%>
-    <ul>
+    </ul>
   </div>
 
   <div class="item item3">

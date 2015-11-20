@@ -168,31 +168,31 @@ namespace :tw do
         handle_biocuration_classes_insects(@data1, @import)
         handle_biological_relationship_classes_insects(@data1, @import)
         handle_preparation_types_insects(@data1, @import)
-        ###handle_people_insects(@data1, @import)
-        ####handle_taxa_insects(@data1, @import)
-        ####handle_loans_insects(@data1, @import)
+        handle_people_insects(@data1, @import)
+        handle_taxa_insects(@data1, @import)
+        handle_loans_insects(@data1, @import)
 
         # !! The following can not be loaded from the database they are always created anew.
 
-        #####build_localities_index_insects(@data1)
+        build_localities_index_insects(@data1)
 
         puts "Indexing collecting events."
         # should be run to clear redis database. if specimen from diffrent tables run one buy one, data could be left in Redis and reused
 
         @redis.flushall
 
-        ###index_collecting_events_from_accessions_new(@data1, @import)
-        ###index_collecting_events_from_ledgers(@data1, @import)
-        ###index_specimen_records_from_specimens_insects(@data1, @import)
-        ###index_specimen_records_from_specimens_insects_new(@data1, @import)
-        ###index_specimen_records_from_neon(@data1, @import)
+        index_collecting_events_from_accessions_new(@data1, @import)
+        index_collecting_events_from_ledgers(@data1, @import)
+        index_specimen_records_from_specimens_insects(@data1, @import)
+        index_specimen_records_from_specimens_insects_new(@data1, @import)
+        index_specimen_records_from_neon(@data1, @import)
 
         puts "\nTotal collecting events to build: #{@redis.keys.count}."
 
-        ###handle_associations_insects(@data1, @import)
-        ###handle_loan_specimens_insects(@data1)
-        ###handle_letters_insects(@data1)
-        ###handle_collection_profile_insects(@data1)
+        handle_associations_insects(@data1, @import)
+        handle_loan_specimens_insects(@data1)
+        handle_letters_insects(@data1)
+        handle_collection_profile_insects(@data1)
         handle_locality_images(@data1)
         handle_loan_images(@data1)
 
@@ -796,15 +796,21 @@ namespace :tw do
           end
           unless ce['AccessionNumber'].nil?
             if !ce['AccessionNumber'].blank? && !ce['Collection'].blank?
-              c.identifiers.create(identifier: ce['Collection'] + ' ' + ce['AccessionNumber'], namespace: @accession_namespace, type: 'Identifier::Local::AccessionCode')
+              id1 = c.identifiers.new(identifier: ce['Collection'] + ' ' + ce['AccessionNumber'], namespace: @accession_namespace, type: 'Identifier::Local::AccessionCode')
             elsif !ce['AccessionNumber'].blank?
-              c.identifiers.create(identifier: ce['AccessionNumber'], namespace: @accession_namespace, type: 'Identifier::Local::AccessionCode')
+              id1 = c.identifiers.new(identifier: ce['AccessionNumber'], namespace: @accession_namespace, type: 'Identifier::Local::AccessionCode')
+            end
+            if id1.valid?
+              id1.save
+            else
+              puts "\nDuplicate identifier: #{ce['AccessionNumber']}\n"
             end
          end
          return c
         end
 
-        latitude, longitude = parse_lat_long_insects(ce)
+        latitude, longitude = nil, nil
+        latitude, longitude = parse_lat_long_insects(ce) unless [4, 5, 6].include?(ce['PrecisionCode'].to_i)
         sdm, sdd, sdy, edm, edd, edy = parse_dates_insects(ce)
         elevation, verbatim_elevation = parse_elevation_insects(ce)
         geographic_area = parse_geographic_area_insects(ce)
@@ -1846,16 +1852,16 @@ namespace :tw do
         print "\nLocality images\n"
 
         Dir.glob(path).each_with_index do |file, i|
-          byebug
           print "\r#{i}"
           name = file.match(/([^\/.]*).jpg$/)
           identifier = name.nil? ? nil : name[1]
           unless identifier.nil?
-            ce = CollectingEvent.with_project_id($project_id).with_identifier('Accession Code ' + identifier)
+            ce = CollectingEvent.with_project_id($project_id).with_identifier('Accession Code ' + identifier).first
             if ce.nil?
               print "\nCollecting event with identifier #{identifier} does not exist\n"
             else
-              d1 = Depiction.create(image_attributes: { image_file: File.open(file) }, depiction_object: ce)
+              ce.depictions << Depiction.create(image_attributes: { image_file: File.open(file) })
+              #d1 = Depiction.create(image_attributes: { image_file: File.open(file) }, depiction_object: ce)
             end
           end
         end
@@ -1872,7 +1878,7 @@ namespace :tw do
             name = file.match(/([^\/.]*).pdf$/)
             identifier = name.nil? ? nil : name[1]
             unless identifier.nil?
-            ce = Loan.with_project_id($project_id).with_identifier('Invoice ' + identifier)
+            ce = Loan.with_project_id($project_id).with_identifier('Invoice ' + identifier).first
             if ce.nil?
               print "\nInvoice with identifier #{identifier} does not exist\n"
             else
