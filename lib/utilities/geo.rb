@@ -113,11 +113,15 @@ module Utilities::Geo
     # >40°26′46″< >40°26′46″<
     dms.each_char { |c|
       if SPECIAL_LATLONG_SYMBOLS.include?(c)
-       # /(?<degrees>-*\d+)[do*\u00b0\u00ba\u02DA\u030a\u221e\u222b\uc2ba]\s*(?<minutes>\d+\.*\d*)['\u00a5\u00b4\u02b9\u02bb\u02bc\u02ca\u2032]*\s*((?<seconds>\d+\.*\d*)['\u00a5\u00b4\u02b9\u02ba\u02bb\u02bc\u02ca\u02ee\u2032\u2033\uc2ba"]+)*/ =~ dms
-        /^(?<degrees>-*\d+(\.\d+)*)[do*\u00b0\u00ba\u02DA\u030a\u221e\u222b\uc2ba]*\s*(?<minutes>\d+\.*\d*)*['\u00a5\u00b4\u02b9\u02bb\u02bc\u02ca\u2032\uc2ba]*\s*((?<seconds>\d+\.*\d*)['\u00a5\u00b4\u02b9\u02ba\u02bb\u02bc\u02ca\u02ee\u2032\u2033\uc2ba"]+)*/ =~ dms
+        /^(?<degrees>-*\d{0,3}(\.\d+)*) # + or - three-digit number with optional '.' and additional decimal digits
+            [do*\u00b0\u00ba\u02DA\u030a\u221e\u222b\uc2ba]*\s* # optional special degrees symbol, optional space
+          (?<minutes>\d+\.*\d*)* # optional number, integer or floating-point
+            ['\u00a5\u00b4\u02b9\u02bb\u02bc\u02ca\u2032\uc2ba]*\s* # optional special minutes symbol, optional space
+          ((?<seconds>\d+\.*\d*) # optional number, integer or floating-point
+            ['\u00a5\u00b4\u02b9\u02ba\u02bb\u02bc\u02ca\u02ee\u2032\u2033\uc2ba"]+)* # optional special seconds symbol, optional space
+        /x =~ dms # 'x' modifier permits inline comments for regexp
         match_string = $&
-        # /#{DMS_REGEX}/ =~ dms
-        break
+        break # bail on the first character match
       end
     }
     if match_string.nil? and no_point
@@ -206,12 +210,12 @@ module Utilities::Geo
     delta_y = error_radius / ONE_NORTH
 
     Gis::FACTORY.polygon(Gis::FACTORY.line_string(
-                           [Gis::FACTORY.point(p0.x - delta_x, p0.y + delta_y), # northwest
-                            Gis::FACTORY.point(p0.x + delta_x, p0.y + delta_y), # northeast
-                            Gis::FACTORY.point(p0.x + delta_x, p0.y - delta_y), # southeast
-                            Gis::FACTORY.point(p0.x - delta_x, p0.y - delta_y) # southwest
-                           ]
-                         )
+      [Gis::FACTORY.point(p0.x - delta_x, p0.y + delta_y), # northwest
+       Gis::FACTORY.point(p0.x + delta_x, p0.y + delta_y), # northeast
+       Gis::FACTORY.point(p0.x + delta_x, p0.y - delta_y), # southeast
+       Gis::FACTORY.point(p0.x - delta_x, p0.y - delta_y) # southwest
+      ]
+    )
     )
   end
 
