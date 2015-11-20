@@ -28,6 +28,14 @@ describe TaxonName, type: :model, group: [:nomenclature] do
       n = Protonym.create(name: 'Baidae', parent: root, rank_class: Ranks.lookup(:iczn, 'family')) 
       expect(root.children(true)).to contain_exactly(family_a, n, family_b, family_c, family_d)
     end
+
+    specify 'updating a name reorders' do
+      family_a.name = "Zidae" 
+      family_a.save!
+      expect(root.children(true)).to contain_exactly(family_b, family_c, family_d, family_a)
+    end
+ 
+
   end
 
   context 'no alphabetize' do
