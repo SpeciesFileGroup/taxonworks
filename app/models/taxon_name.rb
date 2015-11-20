@@ -150,12 +150,24 @@ class TaxonName < ActiveRecord::Base
   # When true, also cached values are not built
   attr_accessor :no_cached
 
+  # @return [Boolean]
+  # When true, does not alphabetize siblings (import only) 
+  attr_accessor :no_alphabetize
+
   before_validation :set_type_if_empty
 
   before_save :set_cached_names
 
   after_save :create_new_combination_if_absent, unless: 'self.no_cached'
   after_save :set_cached_names_for_dependants_and_self, unless: 'self.no_cached'
+  after_save :order_alphabetically, unless: 'self.no_alphabetize'
+
+  def order_alphabetically
+    self_and_siblings.order(:cached).in_groups_of(2).each do |a, b|
+      next if b.nil?
+      b.move_to_right_of(a.id)
+    end
+  end
 
   validate :check_format_of_name,
     :validate_rank_class_class,
