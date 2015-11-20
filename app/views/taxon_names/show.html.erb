@@ -11,8 +11,9 @@
 <% end %>
 
 <% content_for :show_navigation do %>
+  <%= link_to('Browse', browse_taxon_name_path(@taxon_name)) -%><br> <br>  
     <%= render('parent_navigator', taxon_name: @taxon_name) -%>
-<% end %>
+  <% end %>
 
 <%= content_for :related_attributes do %>
   <% if @taxon_name.taxon_name_authors.any? %>

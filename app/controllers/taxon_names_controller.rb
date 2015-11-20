@@ -1,7 +1,7 @@
 class TaxonNamesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_taxon_name, only: [:show, :edit, :update, :destroy]
+  before_action :set_taxon_name, only: [:show, :edit, :update, :destroy, :browse]
 
   # GET /taxon_names
   # GET /taxon_names.json
@@ -129,10 +129,13 @@ class TaxonNamesController < ApplicationController
     render :batch_load
   end
 
+  def browse
+  end
+
   private
   # Use callbacks to share common setup or constraints between actions.
-  def set_taxon_name
-    @taxon_name = TaxonName.with_project_id($project_id).includes(:creator, :updater).find(params[:id])
+  def set_taxon_name 
+    @taxon_name = TaxonName.with_project_id($project_id).includes(:creator, :updater).find(params[:id]) 
     @recent_object = @taxon_name
   end
 

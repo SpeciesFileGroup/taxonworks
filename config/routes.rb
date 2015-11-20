@@ -1,5 +1,9 @@
 TaxonWorks::Application.routes.draw do
 
+  resources :documentation
+  resources :documentations
+  resources :documents
+  resources :documents
   # All models that use data controllers should include this concern.
   # See http://api.rubyonrails.org/classes/ActionDispatch/Routing/Mapper/Concerns.html to extend it to take options if need be.
   # TODO: This will have to be broken down to core_data_routes, and supporting_data_routes
@@ -280,6 +284,12 @@ TaxonWorks::Application.routes.draw do
       post :preview_simple_batch_load # should be get
       post :create_simple_batch_load
     end
+    
+    member do
+      get :browse
+    end
+
+
   end
 
   resources :taxon_name_classifications, except: [:show] do
