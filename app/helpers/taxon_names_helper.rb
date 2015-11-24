@@ -3,7 +3,12 @@ module TaxonNamesHelper
   def taxon_name_tag(taxon_name)
     return nil if taxon_name.nil?
     # TODO: fix generation of empty string cached author year
-    taxon_name.cached_html ? [taxon_name.cached_html, taxon_name.cached_author_year].join(" ").strip.html_safe : taxon_name.name
+    #taxon_name.cached_html ? [taxon_name.cached_html, taxon_name.cached_author_year].join(' ').strip.html_safe : taxon_name.name
+    taxon_name.cached_html ? taxon_name.cached_html.strip.html_safe : taxon_name.name
+  end
+
+  def cached_author_year_tag(taxon_name)
+    taxon_name.cached_author_year ? ' ' +  taxon_name.cached_author_year.strip.html_safe : ''
   end
 
   def taxon_name_autocomplete_selected_tag(taxon_name)
@@ -13,7 +18,7 @@ module TaxonNamesHelper
 
   def taxon_name_link(taxon_name)
     return nil if taxon_name.nil?
-    link_to(taxon_name_tag(taxon_name).html_safe, taxon_name.metamorphosize)
+    link_to(taxon_name_tag(taxon_name).html_safe, browse_taxon_name_path(taxon_name))
   end
 
   def taxon_names_search_form
@@ -59,14 +64,14 @@ module TaxonNamesHelper
 
   def rank_tag(taxon_name)
     case taxon_name.type
-    when 'Protonym'
-      if @taxon_name.rank_class
-        @taxon_name.rank.upcase
-      else
-        content_tag(:em, 'ERROR')
-      end
-    when 'Combination'
-        content_tag(:em, 'n/a')
+      when 'Protonym'
+        if @taxon_name.rank_class
+          @taxon_name.rank.downcase
+        else
+          content_tag(:em, 'ERROR')
+        end
+      when 'Combination'
+          content_tag(:em, 'n/a')
     end
   end
 end

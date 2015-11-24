@@ -1,6 +1,6 @@
 <h1>Browsing taxon name</h1>
 
-<%= render(partial: 'ancestors', locals: {taxon_name: @taxon_name}) -%>
+<%= render(partial: 'breadcrumb_navigator', locals: {taxon_name: @taxon_name}) -%>
 <div class="flexbox">
   <div class="item item1">
     <%= edit_taxon_name_link(@taxon_name) -%> |
@@ -11,7 +11,7 @@
   </div>
 
   <div class="item item2">
-    <h2><%= rank_tag(@taxon_name) -%> <%= object_tag(@taxon_name) -%></h2>
+    <h2><%= rank_tag(@taxon_name) -%> <%= object_tag(@taxon_name) -%><%= cached_author_year_tag(@taxon_name) -%></h2>
 
     <%= source_tag(@taxon_name.source) -%>
 
