@@ -55,3 +55,7 @@ public/system
 
 # home for paperclip in test mode
 spec/test_files/
+
+.byebug_history
+
+.otto*
