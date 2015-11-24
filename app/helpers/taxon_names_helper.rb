@@ -4,7 +4,7 @@ module TaxonNamesHelper
     return nil if taxon_name.nil?
     # TODO: fix generation of empty string cached author year
     #taxon_name.cached_html ? [taxon_name.cached_html, taxon_name.cached_author_year].join(' ').strip.html_safe : taxon_name.name
-    taxon_name.cached_html ? taxon_name.cached_html.strip.html_safe : taxon_name.name
+    taxon_name.cached_html.strip.html_safe || taxon_name.name
   end
 
   def cached_author_year_tag(taxon_name)
@@ -73,5 +73,27 @@ module TaxonNamesHelper
       when 'Combination'
           content_tag(:em, 'n/a')
     end
+  end
+
+  # A previous record link.
+  def previous_link_taxon_name_browse(taxon_name)
+    text = 'Previous'
+    if taxon_name.respond_to?(:project_id)
+      link_object = Protonym.order(lft: :desc).with_project_id(taxon_name.project_id).where(['lft < ?', taxon_name.lft]).limit(1).first
+    else
+      link_object = Protonym.order(lft: :desc).where(['lft < ?', taxon_name.lft]).limit(1).first
+    end
+    link_object.nil? ? text : link_to(text, browse_taxon_name_path(link_object.metamorphosize))
+  end
+
+  # A next record link.
+  def next_link_taxon_name_browse(taxon_name)
+    text = 'Next'
+    if taxon_name.respond_to?(:project_id)
+      link_object = Protonym.order(lft: :asc).with_project_id(taxon_name.project_id).where(['lft > ?', taxon_name.lft]).limit(1).first
+    else
+      link_object = Protonym.order(lft: :asc).where(['lft > ?', taxon_name.lft]).limit(1).first
+    end
+    link_object.nil? ? text : link_to(text, browse_taxon_name_path(link_object.metamorphosize))
   end
 end

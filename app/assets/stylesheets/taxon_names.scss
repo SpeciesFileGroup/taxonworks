@@ -12,11 +12,14 @@
 
   .ancestors {}
 
-  .descendants {
-  }
+  .descendants {}
 
   .selected {
-    background-color: $note_yellow;
+    font-weight: bold;
     margin: $standard_padding;
   }
 }
+
+div.navigation { width:100px; padding: 0.5em;}
+div.main { width:60%; padding: 0.5em;}
+div.annotations { width:25%; padding: 0.5em;}
