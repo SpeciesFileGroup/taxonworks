@@ -2,26 +2,26 @@
 
 <%= render(partial: 'breadcrumb_navigator', locals: {taxon_name: @taxon_name}) -%>
 <div class="flexbox">
-  <div class="item item1">
+  <div class="navigation">
     <%= edit_taxon_name_link(@taxon_name) -%> |
-
-    <%= forward_back_links(@taxon_name) -%> 
-
+    <%= previous_link_taxon_name_browse(@taxon_name) -%> |
+    <%= next_link_taxon_name_browse(@taxon_name) -%>
     <%= render(partial: 'parent_navigator', locals: {taxon_name: @taxon_name}) -%>
   </div>
 
-  <div class="item item2">
+  <div class="main">
     <h2><%= rank_tag(@taxon_name) -%> <%= object_tag(@taxon_name) -%><%= cached_author_year_tag(@taxon_name) -%></h2>
 
     <%= source_tag(@taxon_name.source) -%>
 
+    <h3>Nomenclatoral statuses</h3>
     <% @taxon_name.taxon_name_classifications.each do |c| -%>
       <div>
         <%= object_tag(c) -%>
         <div> <%= render(partial: '/shared/data/all/show/soft_validation', locals: {object: c}) -%>  </div>
       </div>
     <% end %>
-    <%= content_tag(:p, @taxon_name.taxon_name_classifications.empty? ? 'There are no classifications' : nil) -%>
+    <%= content_tag(:p, @taxon_name.taxon_name_classifications.empty? ? 'Valid' : nil) -%>
 
     <ul> 
     <% @taxon_name.taxon_name_relationships.each do |r| -%>
@@ -32,7 +32,7 @@
     </ul>
   </div>
 
-  <div class="item item3">
+  <div class="annotations">
     <%= render(partial: '/shared/data/all/show/soft_validation', locals: {object: @taxon_name}) -%> 
     <%= render(partial: '/shared/data/all/show/annotations', locals: {object: @taxon_name}) -%> 
     <%= render(partial: '/shared/data/all/show/housekeeping', locals: {object: @taxon_name}) -%> 

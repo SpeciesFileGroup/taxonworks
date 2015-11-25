@@ -23,7 +23,7 @@
 
   <tbody>
   <% @taxon_names.each do |taxon_name| %>
-      <tr>
+      <tr class="<%= cycle('list_line_odd', 'list_line_even') %>">
         <td><%= taxon_name.name %></td>
         <td><%= object_tag(taxon_name.parent) %></td>
         <td><%= taxon_name.cached_html ? taxon_name.cached_html.html_safe : content_tag(:em, 'ERROR: not rendered',  class: :warning) %></td>
