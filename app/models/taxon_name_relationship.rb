@@ -147,12 +147,16 @@ class TaxonNameRelationship < ActiveRecord::Base
     nil # :direct - for subject is younger than object; :reverse - for object is younger than subject
   end
 
-  def self.subject_relationship_name
-    self.name.demodulize.underscore.humanize.downcase
+  def subject_relationship_name
+    label = self.type_name.demodulize.underscore.humanize.downcase
+    label = label.gsub('e1', 'e 1').gsub('e2', 'e 2')
+    label
   end
 
-  def self.object_relationship_name
-    self.name.demodulize.underscore.humanize.downcase
+  def object_relationship_name
+    label = self.type_name.demodulize.underscore.humanize.downcase
+    label = label.gsub('e1', 'e 1').gsub('e2', 'e 2')
+    label
   end
 
   def type_name
@@ -462,7 +466,7 @@ class TaxonNameRelationship < ActiveRecord::Base
         soft_validations.add(:type, 'Please specify if this is a homotypic or heterotypic synonym',
             fix: :sv_fix_specify_synonymy_type, success_message: 'Synonym updated to being homotypic or heterotypic')
       when 'TaxonNameRelationship::Iczn::Invalidating'
-        soft_validations.add(:type, 'Please specify the reason for the name being Invalid')
+        soft_validations.add(:type, 'Please specify the reason for the name being Invalid') unless self.subject_taxon_name.unavailable?
       when 'TaxonNameRelationship::Iczn::Invalidating::Homonym'
         if NomenclaturalRank::Iczn::SpeciesGroup.descendants.collect{|t| t.to_s}.include?(self.subject_taxon_name.rank_class.to_s)
           soft_validations.add(:type, 'Please specify if this is a primary or secondary homonym',

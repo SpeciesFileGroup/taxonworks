@@ -1,4 +1,4 @@
-<h1>Browsing taxon name</h1>
+<h1>Browsing Taxon names</h1>
 
 <%= render(partial: 'breadcrumb_navigator', locals: {taxon_name: @taxon_name}) -%>
 <div class="flexbox">
@@ -14,22 +14,27 @@
 
     <%= source_tag(@taxon_name.source) -%>
 
-    <h3>Nomenclatoral statuses</h3>
-    <% @taxon_name.taxon_name_classifications.each do |c| -%>
-      <div>
-        <%= object_tag(c) -%>
-        <div> <%= render(partial: '/shared/data/all/show/soft_validation', locals: {object: c}) -%>  </div>
-      </div>
+    <h3>Status</h3>
+    <% list = TaxonNameClassification.where_taxon_name(@taxon_name).with_type_array(ICZN_TAXON_NAME_CLASSIFICATION_NAMES + ICN_TAXON_NAME_CLASSIFICATION_NAMES) %>
+    <% list.each do |c| %>
+        <%= content_tag(:p, c.class_name, class: 'list') -%>
+        <%= render(partial: '/shared/data/all/show/soft_validation_list', locals: {object: c}) -%>
     <% end %>
-    <%= content_tag(:p, @taxon_name.taxon_name_classifications.empty? ? 'Valid' : nil) -%>
+    <%= content_tag(:p, @taxon_name.unavailable_or_invalid? ? nil : 'Valid', class: 'list') -%>
 
-    <ul> 
-    <% @taxon_name.taxon_name_relationships.each do |r| -%>
-      <%= content_tag(:li, taxon_name_relationship_for_subject_tag(r)) -%>
-        <div>  <%= render(partial: '/shared/data/all/show/soft_validation', locals: {object: r}) -%>  </div>
+    <% list = TaxonNameClassification.where_taxon_name(@taxon_name).with_type_array(LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES) %>
+    <%= content_tag(:h3, !list.empty? ? 'Latinization' : nil) %>
+    <% list.each do |c| %>
+        <%= content_tag(:p, c.class_name, class: 'list') -%>
+        <%= render(partial: '/shared/data/all/show/soft_validation_list', locals: {object: c}) -%>
     <% end %>
-    <%= content_tag(:p, @taxon_name.taxon_name_relationships.empty? ? 'There are no taxon name relationships' : nil) -%>
-    </ul>
+
+    <h3>Relationships</h3>
+    <% @taxon_name.taxon_name_relationships.each do |r| -%>
+      <%= content_tag(:p, taxon_name_relationship_for_subject_tag(r)) -%>
+        <%= render(partial: '/shared/data/all/show/soft_validation_list', locals: {object: r}) -%>
+    <% end %>
+    <%= content_tag(:p, @taxon_name.taxon_name_relationships.empty? ? 'There are no taxon name relationships' : nil, class: 'list') -%>
   </div>
 
   <div class="annotations">

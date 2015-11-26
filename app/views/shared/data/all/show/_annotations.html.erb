@@ -1,14 +1,12 @@
 <h3> Annotations </h3>
 <% if object.annotations.empty? -%>
-  <em> None. </em>
+  <p> None. </p>
 <% else %>
   <% object.annotations.each do |title, values| -%>
     <%= content_tag(:h4, title.humanize)  -%>
-    <ul>
       <% values.each do |v| -%>
-        <%= content_tag :li, (title == 'depictions' ? object_link(v) : object_tag(v) ) -%>
+        <%= content_tag(:p, (title == 'depictions' ? object_link(v) : object_tag(v)), class: 'list') -%>
       <% end %>
-    </ul>
   <% end %>
 <% end %>
 

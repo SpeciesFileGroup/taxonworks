@@ -63,8 +63,10 @@ class TaxonNameClassification < ActiveRecord::Base
   # @return [String]
   # a TW uniq preferred "common" name for this class, used in select boxes, forms, catalogs etc.
   # @todo consider appending [iczn] [icn]
-  def self.class_name
-   const_defined?(:LABEL, false) ? self::LABEL : self.name.demodulize.underscore.humanize.downcase
+  def class_name
+    label = type_name.demodulize.underscore.humanize.downcase
+    label = label.gsub('e1', 'e 1').gsub('e2', 'e 2')
+    label
   end
 
   # Attributes can be overridden in descendants
