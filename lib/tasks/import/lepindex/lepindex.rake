@@ -49,7 +49,7 @@ namespace :tw do
               'Suppressed name' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression',
               'Unavailable name: pre-Linnean' => 'TaxonNameRelationship::Iczn::Invalidating',
               'Unjustified emendation' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnjustifiedEmendation',
-              'Objective replacement name: Valid Name' => '',
+              'Objective replacement name: Valid Name' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym',
               'Hybrid' => '',
               'Junior homonym' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym',
               'Manuscript name' => '',

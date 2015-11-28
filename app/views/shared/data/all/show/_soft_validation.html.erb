@@ -1,12 +1,5 @@
 <h3> Validation </h3>
-<div>
-  <% object.soft_validate -%> 
-  <ul>
-    <% object.soft_validations.soft_validations.each do |a| -%>
-      <%= content_tag :li, a.message.html_safe -%>
-  <% end %>
-  </ul>
-</div>
+<%= render(partial: '/shared/data/all/show/soft_validation_list', locals: {object: object}) -%>
 
 
 
