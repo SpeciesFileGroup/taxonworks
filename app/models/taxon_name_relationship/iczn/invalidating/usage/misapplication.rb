@@ -8,11 +8,11 @@ class TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication < TaxonNa
                                       TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling)
   end
 
-  def self.subject_relationship_name
+  def subject_relationship_name
     'correct application'
   end
 
-  def self.object_relationship_name
+  def object_relationship_name
     'misapplication'
   end
 

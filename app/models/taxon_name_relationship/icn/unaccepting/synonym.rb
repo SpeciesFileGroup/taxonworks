@@ -8,11 +8,11 @@ class TaxonNameRelationship::Icn::Unaccepting::Synonym < TaxonNameRelationship::
         self.collect_descendants_to_s(TaxonNameRelationship::Icn::Unaccepting::Usage)
   end
 
-  def self.subject_relationship_name
+  def subject_relationship_name
     'synonym'
   end
 
-  def self.object_relationship_name
+  def object_relationship_name
     'junior synonym'
   end
 

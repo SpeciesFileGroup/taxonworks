@@ -10,11 +10,11 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression < TaxonNam
             TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective)
   end
 
-  def self.subject_relationship_name
+  def subject_relationship_name
     'conserved'
   end
 
-  def self.object_relationship_name
+  def object_relationship_name
     'suppressed'
   end
 

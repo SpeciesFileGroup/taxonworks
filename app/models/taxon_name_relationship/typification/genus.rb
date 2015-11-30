@@ -15,11 +15,11 @@ class TaxonNameRelationship::Typification::Genus < TaxonNameRelationship::Typifi
         [TaxonNameRelationship::Typification::Family.to_s]
   end
 
-  def self.subject_relationship_name
+  def subject_relationship_name
     'type of genus'
   end
 
-  def self.object_relationship_name
+  def object_relationship_name
     'type species'
   end
 

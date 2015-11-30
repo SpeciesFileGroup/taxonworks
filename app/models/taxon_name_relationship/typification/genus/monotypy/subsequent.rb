@@ -6,11 +6,11 @@ class TaxonNameRelationship::Typification::Genus::Monotypy::Subsequent < TaxonNa
             TaxonNameRelationship::Typification::Genus::Monotypy::Original)
   end
 
-  def self.subject_relationship_name
+  def subject_relationship_name
     'type of genus by subsequent monotypy'
   end
 
-  def self.object_relationship_name
+  def object_relationship_name
     'type species by subsequent monotypy'
   end
 

@@ -2,17 +2,25 @@
 
 <%= render(partial: 'breadcrumb_navigator', locals: {taxon_name: @taxon_name}) -%>
 <div class="flexbox">
-  <div class="navigation">
+  <div class="item item1">
     <%= edit_taxon_name_link(@taxon_name) -%> |
     <%= previous_link_taxon_name_browse(@taxon_name) -%> |
     <%= next_link_taxon_name_browse(@taxon_name) -%>
     <%= render(partial: 'parent_navigator', locals: {taxon_name: @taxon_name}) -%>
   </div>
 
-  <div class="main">
+  <div class="item item2">
     <h2><%= rank_tag(@taxon_name) -%> <%= object_tag(@taxon_name) -%><%= cached_author_year_tag(@taxon_name) -%></h2>
 
     <%= source_tag(@taxon_name.source) -%>
+
+    <% type_taxon = @taxon_name.type_taxon_name_relationship %>
+    <% unless type_taxon.nil? %>
+        <p class='list'>&nbsp;</p>
+        <%= content_tag(:p, type_taxon_name_relationship_tag(type_taxon), class: 'list') -%>
+        <%= render(partial: '/shared/data/all/show/soft_validation_list', locals: {object: type_taxon}) -%>
+    <% end %>
+
 
     <h3>Status</h3>
     <% list = TaxonNameClassification.where_taxon_name(@taxon_name).with_type_array(ICZN_TAXON_NAME_CLASSIFICATION_NAMES + ICN_TAXON_NAME_CLASSIFICATION_NAMES) %>
@@ -37,7 +45,7 @@
     <%= content_tag(:p, @taxon_name.taxon_name_relationships.empty? ? 'There are no taxon name relationships' : nil, class: 'list') -%>
   </div>
 
-  <div class="annotations">
+  <div class="item item3">
     <%= render(partial: '/shared/data/all/show/soft_validation', locals: {object: @taxon_name}) -%> 
     <%= render(partial: '/shared/data/all/show/annotations', locals: {object: @taxon_name}) -%> 
     <%= render(partial: '/shared/data/all/show/housekeeping', locals: {object: @taxon_name}) -%> 

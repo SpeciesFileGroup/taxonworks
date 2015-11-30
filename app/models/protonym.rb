@@ -349,7 +349,7 @@ class Protonym < TaxonName
     return nil unless self.rank_class.to_s =~/Genus/
     TaxonNameClassification::Latinized::Gender.descendants.each do |g|
       g.possible_genus_endings.each do |e|
-        return g.class_name if self.name =~ /^[a-zA-Z]*#{e}$/
+        return g.class_name.downcase if self.name =~ /^[a-zA-Z]*#{e}$/
       end
     end
     nil

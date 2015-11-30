@@ -20,7 +20,7 @@ class TaxonNameRelationship::OriginalCombination < TaxonNameRelationship
   end
 
   def self.order_index
-    RANKS.index(::ICN_LOOKUP[self.object_relationship_name.gsub('original ', '')])
+    RANKS.index(::ICN_LOOKUP[self.name.demodulize.underscore.humanize.downcase.gsub('original ', '')])
   end
 
 end

@@ -8,11 +8,11 @@ class TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic < TaxonNameRel
             TaxonNameRelationship::Icn::Unaccepting::Synonym::Heterotypic)
   end
 
-  def self.subject_relationship_name
+  def subject_relationship_name
     'homotypic senior synonym'
   end
 
-  def self.object_relationship_name
+  def object_relationship_name
     'homotypic synonym'
   end
 

@@ -15,11 +15,11 @@ class TaxonNameRelationship::Typification::Family < TaxonNameRelationship::Typif
         self.collect_descendants_and_itself_to_s(TaxonNameRelationship::Typification::Genus)
   end
 
-  def self.subject_relationship_name
-    'type of gamily'
+  def subject_relationship_name
+    'type of family'
   end
 
-  def self.object_relationship_name
+  def object_relationship_name
     'type genus'
   end
 

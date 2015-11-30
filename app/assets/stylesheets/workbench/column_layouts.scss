@@ -26,9 +26,7 @@
 }
 
 @media all and (min-width: 800px) {
-  .item1 { 
-    order: 1;
-  } 
+  .item1 { order: 1; }
   .item2 { order: 2; }
   .item3 { order: 3; }
   .item4 { order: 4; }
@@ -50,22 +48,16 @@
  // min-height:200px;
  .item1 {
   //  text-align: center;
-  line-height: 10;
+  // line-height: 10;
 }
 
- .item2 {
- }
+ .item2 { }
 
- .item3 {
+ .item3 { }
 
- }
+ .item4 { }
 
- .item4 {
- }
-
- .item5 {
-   flex: .1;
- }
+ .item5 { flex: .1; }
 
 
 }

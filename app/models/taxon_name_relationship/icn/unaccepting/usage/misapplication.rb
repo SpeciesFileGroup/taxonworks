@@ -15,11 +15,11 @@ class TaxonNameRelationship::Icn::Unaccepting::Usage::Misapplication < TaxonName
             TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Illegitimate)
   end
 
-  def self.subject_relationship_name
+  def subject_relationship_name
     'correct application'
   end
 
-  def self.object_relationship_name
+  def object_relationship_name
     'misapplication'
   end
 

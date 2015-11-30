@@ -332,7 +332,7 @@ class TaxonNameRelationship < ActiveRecord::Base
     object_relationships = TaxonNameRelationship.where_object_is_taxon_name(self.object_taxon_name).not_self(self).collect{|r| r.type}
     required = self.type_class.required_taxon_name_relationships - object_relationships
     required.each do |r|
-      soft_validations.add(:type, " Presence of #{self.type_class.object_relationship_name} requires selection of #{r.safe_constantize.object_relationship_name}")
+      soft_validations.add(:type, " Presence of #{self.object_relationship_name} requires selection of #{r.demodulize.underscore.humanize.downcase}")
     end
   end
 
@@ -340,7 +340,7 @@ class TaxonNameRelationship < ActiveRecord::Base
     subject_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self.subject_taxon_name).not_self(self)
     subject_relationships.each  do |i|
       if self.type_class.disjoint_taxon_name_relationships.include?(i.type_name)
-        soft_validations.add(:type, "Conflicting with another relationship: '#{i.type_class.object_relationship_name}'")
+        soft_validations.add(:type, "Conflicting with another relationship: '#{i.object_relationship_name}'")
       end
     end
   end
@@ -543,10 +543,10 @@ class TaxonNameRelationship < ActiveRecord::Base
       obj = self.object_taxon_name
       subj = self.subject_taxon_name
       if obj.get_valid_taxon_name != obj
-        soft_validations.add(:object_taxon_name_id, "The #{self.type_class.object_relationship_name} should be associated with a valid name",
+        soft_validations.add(:object_taxon_name_id, "The #{self.object_relationship_name} should be associated with a valid name",
                              fix: :sv_fix_synonym_linked_to_valid_name, success_message: 'The associated taxon was updated')
       elsif obj.parent_id != subj.parent_id
-        soft_validations.add(:subject_taxon_name_id, "The #{self.type_class.object_relationship_name} should have the same parent with the associated taxon",
+        soft_validations.add(:subject_taxon_name_id, "The #{self.object_relationship_name} should have the same parent with the associated taxon",
                              fix: :sv_fix_subject_parent_update, success_message: 'The parent was updated')
       end
     end
@@ -610,19 +610,19 @@ class TaxonNameRelationship < ActiveRecord::Base
           when :direct
             if date2 > date1 && invalid_statuses.empty?
               if self.type_name =~ /TaxonNameRelationship::Iczn::Invalidating::Homonym/
-                soft_validations.add(:type, "#{self.type_class.subject_relationship_name.capitalize} should not be older than related taxon")
+                soft_validations.add(:type, "#{self.subject_relationship_name.capitalize} should not be older than related taxon")
               elsif self.type_name =~ /::Iczn::/ && TaxonNameRelationship.where_subject_is_taxon_name(self.subject_taxon_name).with_two_type_bases('TaxonNameRelationship::Iczn::Invalidating::Homonym', 'TaxonNameRelationship::Iczn::Validating').not_self(self).empty?
-                soft_validations.add(:type, "#{self.type_class.subject_relationship_name.capitalize} should not be older than related taxon, unless it is also a homonym or conserved")
+                soft_validations.add(:type, "#{self.subject_relationship_name.capitalize} should not be older than related taxon, unless it is also a homonym or conserved")
               elsif self.type_name =~ /::Icn::/ && TaxonNameRelationship.where_subject_is_taxon_name(self.subject_taxon_name).with_two_type_bases('TaxonNameRelationship::Icn::Accepting::Conserved', 'TaxonNameRelationship::Icn::Accepting::Sanctioned').not_self(self).empty?
-                soft_validations.add(:type, "#{self.type_class.subject_relationship_name.capitalize} should not be older than related taxon, unless it is also conserved or sanctioned")
+                soft_validations.add(:type, "#{self.subject_relationship_name.capitalize} should not be older than related taxon, unless it is also conserved or sanctioned")
               end
             end
           when :reverse
             if date1 > date2 && invalid_statuses.empty?
               if self.type_name =~ /TaxonNameRelationship::(Typification|Combination|OriginalCombination)/ && self.type_name != 'TaxonNameRelationship::Typification::Genus::RulingByCommission'
-                soft_validations.add(:subject_taxon_name_id, "#{self.type_class.object_relationship_name.capitalize} should not be younger than the taxon")
+                soft_validations.add(:subject_taxon_name_id, "#{self.object_relationship_name.capitalize} should not be younger than the taxon")
               else
-                soft_validations.add(:type, "#{self.type_class.object_relationship_name.capitalize} should not be younger than related taxon")
+                soft_validations.add(:type, "#{self.object_relationship_name.capitalize} should not be younger than related taxon")
               end
             end
         end

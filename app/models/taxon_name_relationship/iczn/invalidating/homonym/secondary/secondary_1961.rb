@@ -7,11 +7,11 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary::Secondary19
         [TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary.to_s]
   end
 
-  def self.subject_relationship_name
+  def subject_relationship_name
     'secondary senior homonym replacement before 1961'
   end
 
-  def self.object_relationship_name
+  def object_relationship_name
     'secondary homonym replaced before 1961'
   end
 

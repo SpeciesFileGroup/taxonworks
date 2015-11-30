@@ -24,11 +24,11 @@ class TaxonNameRelationship::Iczn::Invalidating < TaxonNameRelationship::Iczn
     true
   end
 
-  def self.subject_relationship_name
+  def subject_relationship_name
     'valid'
   end
 
-  def self.object_relationship_name
+  def object_relationship_name
     'invalid'
   end
 

@@ -346,7 +346,7 @@ class TaxonName < ActiveRecord::Base
   #   gender of a genus as string.
   def gender_name
     c = self.gender_class
-    c.nil? ? nil : c.class_name
+    c.nil? ? nil : c.class_name.downcase
   end
 
   # @return [Class]
@@ -360,7 +360,7 @@ class TaxonName < ActiveRecord::Base
   #   part of speech of a species as string.
   def part_of_speech_name
     c = self.part_of_speech_class
-    c.nil? ? nil : c.class_name
+    c.nil? ? nil : c.class_name.downcase
   end
 
   # @return [String]
@@ -888,7 +888,7 @@ class TaxonName < ActiveRecord::Base
       gender        = nil
 
       relationships.each do |i|
-        case i.type_class.object_relationship_name
+        case i.object_relationship_name
           when 'original genus'
             genus  = '<i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
             gender = i.subject_taxon_name.gender_name

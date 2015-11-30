@@ -2,6 +2,8 @@ require 'rails_helper'
 
 describe TaxonName, type: :model, group: [:nomenclature] do
 
+  # rspec -t group:nomenclature
+
 #  before(:all) do
 #    GC.disable
 #  end

@@ -15,11 +15,11 @@ class  TaxonNameRelationship::Icn::Unaccepting::Homonym <  TaxonNameRelationship
             TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Legitimate)
   end
 
-  def self.subject_relationship_name
+  def subject_relationship_name
     'homonym'
   end
 
-  def self.object_relationship_name
+  def object_relationship_name
     'junior homonym'
   end
 

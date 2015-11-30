@@ -8,11 +8,11 @@ class TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpellin
                                       TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling)
   end
 
-  def self.subject_relationship_name
+  def subject_relationship_name
     'justified emendation'
   end
 
-  def self.object_relationship_name
+  def object_relationship_name
     'incorrect original spelling'
   end
 

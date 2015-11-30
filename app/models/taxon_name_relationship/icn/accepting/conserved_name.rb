@@ -6,11 +6,11 @@ class TaxonNameRelationship::Icn::Accepting::ConservedName < TaxonNameRelationsh
     true
   end
 
-  def self.subject_relationship_name
+  def subject_relationship_name
     'rejected'
   end
 
-  def self.object_relationship_name
+  def object_relationship_name
     'conserved'
   end
 
