@@ -475,13 +475,8 @@ class TaxonName < ActiveRecord::Base
         list[t] = true if list[t] == false
       end
     end
-  
-    # @proceps - this should return [] not nill, would make it more consistent downstream, 
-    # if we always expect an Array we can do list_of_valid_taxoN_names.count without checking for nil etc, 
-    return nil if list.empty?
-
+    return [] if list.empty?
     list.keys.sort_by{|t| t.nomenclature_date}
-    
   end
 
   def gbif_status_array
