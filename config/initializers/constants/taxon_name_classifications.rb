@@ -13,11 +13,11 @@ ICZN_TAXON_NAME_CLASSIFICATION_NAMES  = TaxonNameClassification::Iczn.descendant
 ICN_TAXON_NAME_CLASSIFICATION_NAMES = TaxonNameClassification::Icn.descendants.collect{|d| d.to_s}
 
 ICZN_TAXON_NAME_CLASSIFICATION_HASH = (ICZN_TAXON_NAME_CLASSIFICATION_NAMES + LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES).inject({}) {
-  |hsh, klass| hsh.merge(klass.constantize.class_name => klass)
+  |hsh, klass| hsh.merge(klass.constantize.name => klass)
 }
  
 ICN_TAXON_NAME_CLASSIFICATION_HASH = (ICN_TAXON_NAME_CLASSIFICATION_NAMES + LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES).inject({}) {
-  |hsh, klass| hsh.merge(klass.constantize.class_name => klass)
+  |hsh, klass| hsh.merge(klass.constantize.name => klass)
 }
  
 
