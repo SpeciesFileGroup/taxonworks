@@ -7,8 +7,19 @@ module TaxonNamesHelper
     taxon_name.cached_html.strip.html_safe || taxon_name.name
   end
 
+  def original_taxon_name_tag(taxon_name)
+    return nil if taxon_name.nil?
+    taxon_name.cached_original_combination.nil? ? taxon_name.cached_html.strip.html_safe || taxon_name.name : taxon_name.cached_original_combination.strip.html_safe
+  end
+
   def cached_author_year_tag(taxon_name)
     taxon_name.cached_author_year ? ' ' +  taxon_name.cached_author_year.strip.html_safe : ''
+  end
+
+  def original_author_year_tag(taxon_name)
+    taxon_name.verbatim_author
+    taxon_name.year_of_publication
+    taxon_name.verbatim_author ? ' ' + [taxon_name.verbatim_author, taxon_name.year_of_publication].join(', ').html_safe : ''
   end
 
   def taxon_name_autocomplete_selected_tag(taxon_name)
@@ -19,6 +30,11 @@ module TaxonNamesHelper
   def taxon_name_link(taxon_name)
     return nil if taxon_name.nil?
     link_to(taxon_name_tag(taxon_name).html_safe, browse_taxon_name_path(taxon_name))
+  end
+
+  def original_taxon_name_link(taxon_name)
+    return nil if taxon_name.nil?
+    link_to(original_taxon_name_tag(taxon_name).html_safe, browse_taxon_name_path(taxon_name))
   end
 
   def taxon_names_search_form
