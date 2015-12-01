@@ -25,11 +25,11 @@ class TaxonNameRelationship::SourceClassifiedAs < TaxonNameRelationship
   end
 
   # Shoudl be reversed!?
-  def self.object_relationship_name
+  def object_relationship_name
     'as classified for'
   end
 
-  def self.subject_relationship_name
+  def subject_relationship_name
     'classified as'
   end
 

@@ -26,11 +26,11 @@ class TaxonNameRelationship::Iczn::Validating::ConservedWork < TaxonNameRelation
     :reverse
   end
 
-  def self.subject_relationship_name
+  def subject_relationship_name
     'suppressed work'
   end
 
-  def self.object_relationship_name
+  def object_relationship_name
     'conserved work'
   end
 

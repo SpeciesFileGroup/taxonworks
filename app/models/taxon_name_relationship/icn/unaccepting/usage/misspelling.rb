@@ -17,11 +17,11 @@ class TaxonNameRelationship::Icn::Unaccepting::Usage::Misspelling < TaxonNameRel
         TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Illegitimate::Superfluous)
   end
 
-  def self.subject_relationship_name
+  def subject_relationship_name
     'correct spelling'
   end
 
-  def self.object_relationship_name
+  def object_relationship_name
     'misspelling'
   end
 

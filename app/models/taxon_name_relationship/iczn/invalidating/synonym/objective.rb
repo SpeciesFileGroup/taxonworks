@@ -10,11 +10,11 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective < TaxonNameR
             TaxonNameRelationship::Iczn::Invalidating::Synonym::ForgottenName)
   end
 
-  def self.subject_relationship_name
-    'objective senior synonym'
+  def subject_relationship_name
+    'senior objective synonym'
   end
 
-  def self.object_relationship_name
+  def object_relationship_name
     'objective synonym'
   end
 

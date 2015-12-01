@@ -8,7 +8,10 @@ TAXON_NAME_RELATIONSHIPS = TaxonNameRelationship.descendants
 ICZN_TAXON_NAME_RELATIONSHIP_NAMES = TaxonNameRelationship::Iczn.descendants.collect{|d| d.to_s} 
 
 # Array of all ICN TaxonNameRelationship classes, as Strings 
-ICN_TAXON_NAME_RELATIONSHIP_NAMES = TaxonNameRelationship::Icn.descendants.collect{|d| d.to_s} 
+ICN_TAXON_NAME_RELATIONSHIP_NAMES = TaxonNameRelationship::Icn.descendants.collect{|d| d.to_s}
+
+# Array of all ICZN + ICN TaxonNameRelationship classes, as Strings
+STATUS_TAXON_NAME_RELATIONSHIP_NAMES = ICZN_TAXON_NAME_RELATIONSHIP_NAMES + ICN_TAXON_NAME_RELATIONSHIP_NAMES
 
 # Array of all assignable TaxonNameRelationship classes, as Strings
 TAXON_NAME_RELATIONSHIP_NAMES = TAXON_NAME_RELATIONSHIPS.select{|i| i.assignable}.collect{|d| d.to_s}

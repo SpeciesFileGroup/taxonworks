@@ -346,7 +346,7 @@ class TaxonName < ActiveRecord::Base
   #   gender of a genus as string.
   def gender_name
     c = self.gender_class
-    c.nil? ? nil : c.class_name
+    c.nil? ? nil : c.class_name.downcase
   end
 
   # @return [Class]
@@ -360,7 +360,15 @@ class TaxonName < ActiveRecord::Base
   #   part of speech of a species as string.
   def part_of_speech_name
     c = self.part_of_speech_class
-    c.nil? ? nil : c.class_name
+    c.nil? ? nil : c.class_name.downcase
+  end
+
+  def taxon_name_statuses
+    list = TaxonNameClassification.where_taxon_name(self).with_type_array(ICZN_TAXON_NAME_CLASSIFICATION_NAMES + ICN_TAXON_NAME_CLASSIFICATION_NAMES)
+    s = list.empty? ? [] : list.collect{|c| c.class_name}
+    list = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(STATUS_TAXON_NAME_RELATIONSHIP_NAMES)
+    s = list.empty? ? s : s + list.collect{|c| c.object_relationship_name}
+    s.join(', ')
   end
 
   # @return [String]
@@ -467,7 +475,8 @@ class TaxonName < ActiveRecord::Base
         list[t] = true if list[t] == false
       end
     end
-    list.keys
+    return nil if list.empty?
+    list.keys.sort_by{|t| t.nomenclature_date}
   end
 
   def gbif_status_array
@@ -888,7 +897,7 @@ class TaxonName < ActiveRecord::Base
       gender        = nil
 
       relationships.each do |i|
-        case i.type_class.object_relationship_name
+        case i.object_relationship_name
           when 'original genus'
             genus  = '<i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
             gender = i.subject_taxon_name.gender_name

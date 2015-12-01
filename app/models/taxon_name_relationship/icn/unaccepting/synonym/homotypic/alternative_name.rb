@@ -9,11 +9,11 @@ class TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic::AlternativeNa
             TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic::OrthographicVariant)
   end
 
-  def self.subject_relationship_name
+  def subject_relationship_name
     'set as alternative name'
   end
 
-  def self.object_relationship_name
+  def object_relationship_name
     'alternative name'
   end
 

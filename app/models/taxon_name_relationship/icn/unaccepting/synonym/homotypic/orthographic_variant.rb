@@ -9,11 +9,11 @@ class TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic::OrthographicV
             TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic::Isonym)
   end
 
-  def self.subject_relationship_name
+  def subject_relationship_name
     'correct orthographic variant'
   end
 
-  def self.object_relationship_name
+  def object_relationship_name
     'orthographic variant'
   end
 

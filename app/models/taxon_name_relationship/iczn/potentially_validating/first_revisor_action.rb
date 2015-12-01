@@ -6,11 +6,11 @@ class TaxonNameRelationship::Iczn::PotentiallyValidating::FirstRevisorAction < T
     true
   end
 
-  def self.subject_relationship_name
+  def subject_relationship_name
     'first revisor action'
   end
 
-  def self.object_relationship_name
+  def object_relationship_name
     'first revisor action'
   end
 

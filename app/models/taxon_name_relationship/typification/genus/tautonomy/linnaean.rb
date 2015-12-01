@@ -6,11 +6,11 @@ class TaxonNameRelationship::Typification::Genus::Tautonomy::Linnaean < TaxonNam
             TaxonNameRelationship::Typification::Genus::Tautonomy::Absolute)
   end
 
-  def self.subject_relationship_name
+  def subject_relationship_name
     'type of genus by Linnaean tautonomy'
   end
 
-  def self.object_relationship_name
+  def object_relationship_name
     'type species by Linnaean tautonomy'
   end
 

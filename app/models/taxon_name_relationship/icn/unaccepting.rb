@@ -7,11 +7,11 @@ class TaxonNameRelationship::Icn::Unaccepting < TaxonNameRelationship::Icn
         self.collect_descendants_to_s(TaxonNameRelationship::Icn::Accepting)
   end
 
-  def self.subject_relationship_name
+  def subject_relationship_name
     'accepted name'
   end
 
-  def self.object_relationship_name
+  def object_relationship_name
     'unaccepted name'
   end
 

@@ -4,7 +4,7 @@ class TaxonNameRelationship::Combination < TaxonNameRelationship
   validates_uniqueness_of :object_taxon_name_id, scope: :type
 
   def self.order_index
-    RANKS.index(::ICN_LOOKUP[self.object_relationship_name])
+    RANKS.index(::ICN_LOOKUP[self.name.demodulize.underscore.humanize.downcase])
   end
 
   def self.disjoint_classes

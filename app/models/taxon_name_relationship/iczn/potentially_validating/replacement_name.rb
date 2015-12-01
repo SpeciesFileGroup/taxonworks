@@ -6,11 +6,11 @@ class TaxonNameRelationship::Iczn::PotentiallyValidating::ReplacementName < Taxo
     true
   end
 
-  def self.subject_relationship_name
+  def subject_relationship_name
     'homonym'
   end
 
-  def self.object_relationship_name
+  def object_relationship_name
     'nomen novum'
   end
 
