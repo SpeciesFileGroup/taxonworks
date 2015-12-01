@@ -21,7 +21,6 @@
         <%= render(partial: '/shared/data/all/show/soft_validation_list', locals: {object: type_taxon}) -%>
     <% end %>
 
-
     <h3>Status</h3>
     <% list = TaxonNameClassification.where_taxon_name(@taxon_name).with_type_array(ICZN_TAXON_NAME_CLASSIFICATION_NAMES + ICN_TAXON_NAME_CLASSIFICATION_NAMES) %>
     <% list.each do |c| %>
@@ -29,6 +28,13 @@
         <%= render(partial: '/shared/data/all/show/soft_validation_list', locals: {object: c}) -%>
     <% end %>
     <%= content_tag(:p, @taxon_name.unavailable_or_invalid? ? nil : 'Valid', class: 'list') -%>
+
+    <% list = TaxonNameRelationship.where_subject_is_taxon_name(@taxon_name).with_type_array(STATUS_TAXON_NAME_RELATIONSHIP_NAMES) %>
+    <% list.each do |c| %>
+        <%= content_tag(:p, taxon_name_relationship_for_subject_tag(c), class: 'list') -%>
+        <%= render(partial: '/shared/data/all/show/soft_validation_list', locals: {object: c}) -%>
+    <% end %>
+
 
     <% list = TaxonNameClassification.where_taxon_name(@taxon_name).with_type_array(LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES) %>
     <%= content_tag(:h3, !list.empty? ? 'Latinization' : nil) %>
@@ -38,11 +44,11 @@
     <% end %>
 
     <h3>Relationships</h3>
-    <% @taxon_name.taxon_name_relationships.each do |r| -%>
-      <%= content_tag(:p, taxon_name_relationship_for_subject_tag(r)) -%>
-        <%= render(partial: '/shared/data/all/show/soft_validation_list', locals: {object: r}) -%>
+    <% list = @taxon_name.list_of_invalid_taxon_names %>
+    <% list.each do |t| -%>
+        <%= content_tag(:p, ('&#61; ' + taxon_name_link(t) + cached_author_year_tag(t) + ' (' + t.taxon_name_statuses + ')').html_safe ,class: 'list') %>
     <% end %>
-    <%= content_tag(:p, @taxon_name.taxon_name_relationships.empty? ? 'There are no taxon name relationships' : nil, class: 'list') -%>
+    <%= content_tag(:p, list.empty? ? 'There are no taxon name relationships' : nil, class: 'list') -%>
   </div>
 
   <div class="item item3">

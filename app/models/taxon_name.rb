@@ -363,6 +363,14 @@ class TaxonName < ActiveRecord::Base
     c.nil? ? nil : c.class_name.downcase
   end
 
+  def taxon_name_statuses
+    list = TaxonNameClassification.where_taxon_name(self).with_type_array(ICZN_TAXON_NAME_CLASSIFICATION_NAMES + ICN_TAXON_NAME_CLASSIFICATION_NAMES)
+    s = list.empty? ? [] : list.collect{|c| c.class_name}
+    list = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(STATUS_TAXON_NAME_RELATIONSHIP_NAMES)
+    s = list.empty? ? s : s + list.collect{|c| c.object_relationship_name}
+    s.join(', ')
+  end
+
   # @return [String]
   #   combination of cached_html and cached_author_year.
   def cached_name_and_author_year
@@ -467,7 +475,8 @@ class TaxonName < ActiveRecord::Base
         list[t] = true if list[t] == false
       end
     end
-    list.keys
+    return nil if list.empty?
+    list.keys.sort_by{|t| t.nomenclature_date}
   end
 
   def gbif_status_array

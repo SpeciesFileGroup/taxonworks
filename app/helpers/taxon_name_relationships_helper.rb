@@ -10,7 +10,7 @@ module TaxonNameRelationshipsHelper
   def taxon_name_relationship_for_subject_tag(taxon_name_relationship)
     return nil if taxon_name_relationship.nil?
 
-    content_tag(:span, taxon_name_relationship.subject_relationship_name, class: :string_emphasis)  + ' ' + taxon_name_link(taxon_name_relationship.object_taxon_name) + ' ' + cached_author_year_tag(taxon_name_relationship.object_taxon_name)
+    content_tag(:span, taxon_name_relationship.subject_relationship_name)  + '. See ' + taxon_name_link(taxon_name_relationship.object_taxon_name) + ' ' + cached_author_year_tag(taxon_name_relationship.object_taxon_name)
   end
 
   # @return [String]

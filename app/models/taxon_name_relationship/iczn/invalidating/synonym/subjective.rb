@@ -11,7 +11,7 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective < TaxonName
   end
 
   def subject_relationship_name
-    'subjective senior synonym'
+    'senior subjective synonym'
   end
 
   def object_relationship_name
