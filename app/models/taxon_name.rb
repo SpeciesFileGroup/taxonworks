@@ -371,6 +371,18 @@ class TaxonName < ActiveRecord::Base
     s.join(', ')
   end
 
+  def all_taxon_name_combinations
+    list = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_base('TaxonNameRelationship::Combination')
+    return [] if list.empty?
+    list.collect{|r| r.object_taxon_name}.uniq
+  end
+
+  def self_taxon_name_combinations
+    list = all_taxon_name_combinations
+    return [] if list.empty?
+    list.select{|c| c.protonyms_by_rank.last[1] == self}
+  end
+
   # @return [String]
   #   combination of cached_html and cached_author_year.
   def cached_name_and_author_year
