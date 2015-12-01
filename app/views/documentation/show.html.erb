@@ -1,0 +1,34 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Documentation object:</strong>
+  <%= @documentation.documentation_object %>
+</p>
+
+<p>
+  <strong>Document:</strong>
+  <%= @documentation.document %>
+</p>
+
+<p>
+  <strong>Page map:</strong>
+  <%= @documentation.page_map %>
+</p>
+
+<p>
+  <strong>Project:</strong>
+  <%= @documentation.project %>
+</p>
+
+<p>
+  <strong>Created by:</strong>
+  <%= @documentation.created_by_id %>
+</p>
+
+<p>
+  <strong>Updated by:</strong>
+  <%= @documentation.updated_by_id %>
+</p>
+
+<%= link_to 'Edit', edit_documentation_path(@documentation) %> |
+<%= link_to 'Back', documentation_index_path %>
