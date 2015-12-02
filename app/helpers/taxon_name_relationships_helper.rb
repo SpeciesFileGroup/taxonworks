@@ -9,7 +9,7 @@ module TaxonNameRelationshipsHelper
   #   subject + relationship type 
   def taxon_name_relationship_for_subject_tag(taxon_name_relationship)
     return nil if taxon_name_relationship.nil?
-    content_tag(:span, taxon_name_relationship.subject_relationship_name)  + '. (See ' + taxon_name_link(taxon_name_relationship.object_taxon_name) + ' ' + cached_author_year_tag(TaxonName.find(taxon_name_relationship.subject_taxon_name.cached_valid_taxon_name_id).join(', '))
+    content_tag(:span, taxon_name_relationship.subject_relationship_name)  + '. (See ' + taxon_name_link(taxon_name_relationship.object_taxon_name) + ' ' + cached_author_year_tag(TaxonName.find(taxon_name_relationship.subject_taxon_name.cached_valid_taxon_name_id))
   end
 
   # @return [String]
