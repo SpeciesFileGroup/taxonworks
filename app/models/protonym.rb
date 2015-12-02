@@ -347,9 +347,9 @@ class Protonym < TaxonName
   # Why protected
   def genus_suggested_gender
     return nil unless self.rank_class.to_s =~/Genus/
-    TaxonNameClassification::Latinized::Gender.descendants.each do |g|
+    TAXON_NAME_CLASSIFICATION_GENDER_CLASSES.each do |g|
       g.possible_genus_endings.each do |e|
-        return g.class_name.downcase if self.name =~ /^[a-zA-Z]*#{e}$/
+        return g.name.demodulize.underscore.humanize.downcase if self.name =~ /^[a-zA-Z]*#{e}$/
       end
     end
     nil

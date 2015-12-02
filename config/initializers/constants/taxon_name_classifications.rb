@@ -12,6 +12,8 @@ ICZN_TAXON_NAME_CLASSIFICATION_NAMES  = TaxonNameClassification::Iczn.descendant
 # Array of all ICN TaxonNameClassifications classes, as Strings
 ICN_TAXON_NAME_CLASSIFICATION_NAMES = TaxonNameClassification::Icn.descendants.collect{|d| d.to_s}
 
+TAXON_NAME_CLASSIFICATION_GENDER_CLASSES = TaxonNameClassification::Latinized::Gender.descendants
+
 ICZN_TAXON_NAME_CLASSIFICATION_HASH = (ICZN_TAXON_NAME_CLASSIFICATION_NAMES + LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES).inject({}) {
   |hsh, klass| hsh.merge(klass.constantize.name => klass)
 }

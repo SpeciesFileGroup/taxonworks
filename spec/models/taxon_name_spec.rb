@@ -585,6 +585,30 @@ describe TaxonName, type: :model, group: [:nomenclature] do
               expect(a.get_valid_taxon_name).to eq(a)
               expect(b.get_valid_taxon_name).to eq(a)
             end
+            specify 'list of statuses' do
+              a = FactoryGirl.create(:relationship_genus, name: 'Aus', parent: @family)
+              b = FactoryGirl.create(:relationship_genus, name: 'Bus', parent: @family)
+              s = TaxonNameClassification::Iczn::Unavailable.create(taxon_name: a)
+              r1 = TaxonNameRelationship::Iczn::Invalidating::Synonym.create(subject_taxon_name: a, object_taxon_name: b)
+              expect(a.taxon_name_statuses).to eq(['unavailable', 'synonym'])
+            end
+            specify 'combination_list' do
+              a = FactoryGirl.create(:relationship_genus, name: 'Aus', parent: @family)
+              b = FactoryGirl.create(:relationship_genus, name: 'Bus', parent: @family)
+              c1 = FactoryGirl.build(:combination, parent: @family)
+              c2 = FactoryGirl.build(:combination, parent: @family)
+              c1.genus = a
+              c2.genus = a
+              c2.subgenus = b
+              c1.save
+              c2.save
+              a.reload
+              b.reload
+              expect(a.combination_list_all).to eq([c1, c2])
+              expect(a.combination_list_self).to eq([c1])
+              expect(b.combination_list_all).to eq([c2])
+              expect(b.combination_list_self).to eq([c2])
+            end
           end
 
         end

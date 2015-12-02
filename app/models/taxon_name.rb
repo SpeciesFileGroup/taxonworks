@@ -368,19 +368,19 @@ class TaxonName < ActiveRecord::Base
     s = list.empty? ? [] : list.collect{|c| c.class_name}
     list = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(STATUS_TAXON_NAME_RELATIONSHIP_NAMES)
     s = list.empty? ? s : s + list.collect{|c| c.object_relationship_name}
-    s.join(', ')
+    s
   end
 
-  def all_taxon_name_combinations
+  def combination_list_all
     list = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_base('TaxonNameRelationship::Combination')
     return [] if list.empty?
     list.collect{|r| r.object_taxon_name}.uniq
   end
 
-  def self_taxon_name_combinations
-    list = all_taxon_name_combinations
+  def combination_list_self
+    list = combination_list_all
     return [] if list.empty?
-    list.select{|c| c.protonyms_by_rank.last[1] == self}
+    list.select{|c| c.protonyms_by_rank[c.protonyms_by_rank.keys.last] == self}
   end
 
   # @return [String]
