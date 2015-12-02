@@ -16,12 +16,6 @@ module TaxonNamesHelper
     taxon_name.cached_author_year ? ' ' +  taxon_name.cached_author_year.strip.html_safe : ''
   end
 
-  def original_author_year_tag(taxon_name)
-    taxon_name.verbatim_author
-    taxon_name.year_of_publication
-    taxon_name.verbatim_author ? ' ' + [taxon_name.verbatim_author, taxon_name.year_of_publication].join(', ').html_safe : ''
-  end
-
   def taxon_name_autocomplete_selected_tag(taxon_name)
     return nil if taxon_name.nil?
     taxon_name.cached

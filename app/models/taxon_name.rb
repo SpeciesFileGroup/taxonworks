@@ -160,6 +160,7 @@ class TaxonName < ActiveRecord::Base
 
   after_save :create_new_combination_if_absent, unless: 'self.no_cached'
   after_save :set_cached_names_for_dependants_and_self, unless: 'self.no_cached'
+  after_save :set_cached_valid_taxon_name_id
   after_save :order_alphabetically, unless: 'self.no_alphabetize'
 
   def order_alphabetically
@@ -628,7 +629,7 @@ class TaxonName < ActiveRecord::Base
   end
 
   def set_cached_valid_taxon_name_id
-    true # set in protonym
+    true # set in protonym and combination
   end
 
   def set_cached_names_for_dependants_and_self
@@ -640,6 +641,7 @@ class TaxonName < ActiveRecord::Base
         if self.rank_string =~/Species|Genus/
           dependants = TaxonName.descendants_of(self).with_type('Protonym')
           original_combination_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('OriginalCombination')
+          combination_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('::Combination')
         end
 
         dependants.push(self)
@@ -663,6 +665,15 @@ class TaxonName < ActiveRecord::Base
             i.update_cached_original_combinations
           end
         end
+
+        unless combination_relationships.empty?
+          related_taxa = combination_relationships.collect{|i| i.object_taxon_name}.uniq
+          related_taxa.each do |i|
+            i.update_columns(cached: i.get_full_name,
+                             cached_html: i.get_full_name_html)
+          end
+        end
+
 
         unless classified_as_relationships.empty?
           related_taxa = classified_as_relationships.collect{|i| i.subject_taxon_name}.uniq

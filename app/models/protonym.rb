@@ -29,7 +29,6 @@ class Protonym < TaxonName
     :name_is_latinized
 
   after_create :create_otu,  if: 'self.also_create_otu'
-  after_save :set_cached_valid_taxon_name_id
 
   has_one :type_taxon_name_relationship, -> {
     where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Typification::%'")
