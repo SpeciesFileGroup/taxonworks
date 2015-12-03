@@ -16,6 +16,10 @@ module TaxonNamesHelper
     taxon_name.cached_author_year ? ' ' +  taxon_name.cached_author_year.strip.html_safe : ''
   end
 
+  def cached_classified_as_tag(taxon_name)
+    taxon_name.cached_classified_as ? taxon_name.cached_classified_as.strip.html_safe : ''
+  end
+
   def taxon_name_autocomplete_selected_tag(taxon_name)
     return nil if taxon_name.nil?
     taxon_name.cached

@@ -489,7 +489,7 @@ class TaxonName < ActiveRecord::Base
       end
     end
     return [] if list.empty?
-    list.keys.sort_by{|t| t.nomenclature_date}
+    list.sort_by{|t, a| (t.nomenclature_date || Time.now)}
   end
 
   def gbif_status_array
@@ -635,6 +635,7 @@ class TaxonName < ActiveRecord::Base
   def set_cached_names_for_dependants_and_self
     dependants = []
     original_combination_relationships = []
+    combination_relationships = []
     begin
       TaxonName.transaction do
 
@@ -1300,7 +1301,7 @@ class TaxonName < ActiveRecord::Base
         unless Protonym.with_parent_taxon_name(self).without_taxon_name_classification_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).empty?
           compare.each do |i|
             # taxon is unavailable or invalid, but has valid children
-            soft_validations.add(:base, "Taxon has a status ('#{i.safe_constantize.class_name}') conflicting with presence of subordinate taxa")
+            soft_validations.add(:base, "Taxon has a status ('#{i.demodulize.underscore.humanize.downcase}') conflicting with presence of subordinate taxa")
           end
         end
       end

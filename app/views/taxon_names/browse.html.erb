@@ -46,7 +46,7 @@
     <h3>Relationships</h3>
 
     <% list = Protonym.with_cached_valid_taxon_name_id(@taxon_name).not_self(@taxon_name) %>
-    <% list = list.sort_by{|t| t.nomenclature_date} unless list.empty? %>
+    <% list = list.sort_by{|t| (t.nomenclature_date || Time.now) } unless list.empty? %>
     <% list.each do |t| -%>
         <%= content_tag(:p, ('&#61; ' + original_taxon_name_link(t) + cached_author_year_tag(t) + ' (' + t.taxon_name_statuses.join(', ') + ')').html_safe ,class: 'list') %>
     <% end %>
@@ -55,12 +55,12 @@
     <h3>Combinations</h3>
     <% list = Combination.with_cached_valid_taxon_name_id(@taxon_name).not_self(@taxon_name) %>
     <% list.push(@taxon_name) unless @taxon_name.cached_original_combination.nil? %>
-    <% list = list.sort_by{|c| c.nomenclature_date} %>
+    <% list = list.sort_by{|c| (c.nomenclature_date || Time.now) } %>
     <% list.each do |t| -%>
         <% if t.type == 'Protonym' %>
-            <%= content_tag(:p, original_taxon_name_tag(t) + cached_author_year_tag(t) + ' (original)',class: 'list') %>
+            <%= content_tag(:p, original_taxon_name_tag(t) + cached_author_year_tag(t) + ' (original)' + cached_classified_as_tag(t),class: 'list') %>
         <% else %>
-          <%= content_tag(:p, original_taxon_name_tag(t) + cached_author_year_tag(t),class: 'list') %>
+          <%= content_tag(:p, original_taxon_name_tag(t) + cached_author_year_tag(t) + cached_classified_as_tag(t),class: 'list') %>
         <% end %>
     <% end %>
     <%= content_tag(:p, list.empty? ? 'There are no combinations' : nil, class: 'list') -%>

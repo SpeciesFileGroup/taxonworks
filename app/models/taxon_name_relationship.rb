@@ -313,7 +313,7 @@ class TaxonNameRelationship < ActiveRecord::Base
           vn = t.get_valid_taxon_name
           vn.list_of_invalid_taxon_names.each do |s|
             s.update_column(:cached_valid_taxon_name_id, vn.id)
-            d.combination_list_self.each do |c|
+            s.combination_list_self.each do |c|
               c.update_column(:cached_valid_taxon_name_id, vn.id)
             end
           end
@@ -353,7 +353,7 @@ class TaxonNameRelationship < ActiveRecord::Base
     disjoint_object_classes = self.type_class.disjoint_object_classes
     compare = disjoint_object_classes & classifications
     compare.each do |i|
-      c = i.safe_constantize.class_name
+      c = i.demodulize.underscore.humanize.downcase
       soft_validations.add(:type, "Relationship conflicting with the status: '#{c}'")
       soft_validations.add(:object_taxon_name_id, "Taxon has a conflicting status: '#{c}'")
     end
@@ -364,7 +364,7 @@ class TaxonNameRelationship < ActiveRecord::Base
     disjoint_subject_classes = self.type_class.disjoint_subject_classes
     compare = disjoint_subject_classes & classifications
     compare.each do |i|
-      c = i.safe_constantize.class_name
+      c = i.demodulize.underscore.humanize.downcase
       soft_validations.add(:type, "Relationship conflicting with the status: '#{c}'")
       soft_validations.add(:subject_taxon_name_id, "Taxon has a conflicting status: '#{c}'")
     end
