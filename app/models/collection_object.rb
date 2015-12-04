@@ -306,7 +306,7 @@ are located within the geographic item supplied
 =end
   # @param [GeographicItem] geographic_item_id
   # @return [Scope] of CollectionObject
-  def self.in_geographic_item(geographic_item, steps = false)
+  def self.in_geographic_item(geographic_item, limit = 25, steps = false)
     geographic_item_id =geographic_item.id
     if steps
       gi     = GeographicItem.find(geographic_item_id)
@@ -320,7 +320,7 @@ are located within the geographic item supplied
       step_4 = step_3.map(&:collection_objects).flatten.map(&:id).uniq
       retval = CollectionObject.where(id: step_4.sort)
     else
-      retval = CollectionObject.joins(:collecting_event => [{:georeferences => :geographic_item}]).where(GeographicItem.sql_for_is_contained_by('any', geographic_item)).includes(:data_attributes, :collecting_event => [{:georeferences => :geographic_item}])
+      retval = CollectionObject.joins(:collecting_event => [{:georeferences => :geographic_item}]).where(GeographicItem.sql_for_is_contained_by('any', geographic_item)).limit(limit).includes(:data_attributes, :collecting_event => [{:georeferences => :geographic_item}])
     end
 
     retval

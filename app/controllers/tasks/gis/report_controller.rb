@@ -4,7 +4,7 @@ class Tasks::Gis::ReportController < ApplicationController
   # before_action :disable_turbolinks, only: [:new, :generate_choices]
 
   def new
-    @collection_objects = CollectionObject.where('false')
+    @list_collection_objects = CollectionObject.where('false')
   end
 
   def location_report_list
@@ -42,7 +42,7 @@ class Tasks::Gis::ReportController < ApplicationController
         end
 
         gather_data(params[:download_geo_area_id])
-        report_file = CollectionObject.generate_report_download(@collection_objects, selected_headers, table_data)
+        report_file = CollectionObject.generate_report_download(@list_collection_objects, selected_headers, table_data)
         send_data(report_file, type: 'text', filename: "collection_objects_report_#{DateTime.now.to_s}.csv")
       else
     end
@@ -70,9 +70,11 @@ class Tasks::Gis::ReportController < ApplicationController
   def gather_data(geographic_area_id)
     @geographic_area = GeographicArea.find(geographic_area_id)
     if @geographic_area.has_shape?
-      @collection_objects = CollectionObject.in_geographic_item(@geographic_area.default_geographic_item).order(:id)
+      @all_collection_objects_count = CollectionObject.in_geographic_item(@geographic_area.default_geographic_item, CollectionObject.all.count).count
+      @list_collection_objects      = CollectionObject.in_geographic_item(@geographic_area.default_geographic_item).order(:id)
     else
-      @collection_objects = CollectionObject.where('false')
+      @all_collection_objects_count = 0
+      @list_collection_objects      = CollectionObject.where('false')
     end
   end
 end

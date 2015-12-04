@@ -7,7 +7,7 @@
     <!-- these are the computed headers collected for all selected collection objects-->
     <%= c_o_headers(selected_headers).html_safe %>
   </tr>
-  <% @collection_objects.each_with_index do |c_o, index| %>
+  <% @list_collection_objects.each_with_index do |c_o, index| %>
       <% this_row = build_row(c_o) %>
       <tr>
         <td><%= link_to(this_row[0], c_o.get_otu) unless c_o.get_otu.nil? %></td>
