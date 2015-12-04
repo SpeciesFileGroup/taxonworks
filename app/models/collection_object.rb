@@ -306,7 +306,7 @@ are located within the geographic item supplied
 =end
   # @param [GeographicItem] geographic_item_id
   # @return [Scope] of CollectionObject
-  def self.in_geographic_item(geographic_item, limit = 25, steps = false)
+  def self.in_geographic_item(geographic_item, limit, steps = false)
     geographic_item_id =geographic_item.id
     if steps
       gi     = GeographicItem.find(geographic_item_id)

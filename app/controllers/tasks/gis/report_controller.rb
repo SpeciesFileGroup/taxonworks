@@ -28,7 +28,7 @@ class Tasks::Gis::ReportController < ApplicationController
           }
         }
         @selected_column_names = selected_headers
-        gather_data(geographic_area_id)
+        gather_data(geographic_area_id, false) # get first 25 records
       when 'download'
         # TODO: This needs to be cleaned up and consolidated
         # check Redis mem-store for a valid result
@@ -41,7 +41,12 @@ class Tasks::Gis::ReportController < ApplicationController
           table_data = nil
         end
 
-        gather_data(params[:download_geo_area_id])
+        if table_data.count == 25
+          # todo: repair this: it aborts use of Redis, and forces load of all data
+          table_data = nil
+        end
+
+        gather_data(params[:download_geo_area_id], true) # gather all available data
         report_file = CollectionObject.generate_report_download(@list_collection_objects, selected_headers, table_data)
         send_data(report_file, type: 'text', filename: "collection_objects_report_#{DateTime.now.to_s}.csv")
       else
@@ -67,11 +72,13 @@ class Tasks::Gis::ReportController < ApplicationController
     retval
   end
 
-  def gather_data(geographic_area_id)
+  def gather_data(geographic_area_id, download)
     @geographic_area = GeographicArea.find(geographic_area_id)
+    total_records    = CollectionObject.all.count
+    limit            = download ? total_records : 25
     if @geographic_area.has_shape?
-      @all_collection_objects_count = CollectionObject.in_geographic_item(@geographic_area.default_geographic_item, CollectionObject.all.count).count
-      @list_collection_objects      = CollectionObject.in_geographic_item(@geographic_area.default_geographic_item).order(:id)
+      @all_collection_objects_count = CollectionObject.in_geographic_item(@geographic_area.default_geographic_item, total_records).count
+      @list_collection_objects      = CollectionObject.in_geographic_item(@geographic_area.default_geographic_item, limit).order(:id)
     else
       @all_collection_objects_count = 0
       @list_collection_objects      = CollectionObject.where('false')
