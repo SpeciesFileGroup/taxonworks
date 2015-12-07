@@ -78,7 +78,7 @@ gem 'validates_timeliness', '~> 3.0.14'
 gem 'bcrypt', '~> 3.1.7'
 
 # API view template engine
-gem 'rabl'
+gem 'rabl', '~> 0.11.7'
 
 gem 'rmagick', '~> 2.14'
 
