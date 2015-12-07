@@ -60,7 +60,7 @@ gem 'latex-decode', '~> 0.2.2'
 gem 'kaminari'
 
 # File upload manager & image processor
-gem 'paperclip', '~> 4.3'
+gem 'paperclip', '~> 4.3.2'
 gem 'paperclip-meta', '~> 1.2.0'
 
 # Ordering records
