@@ -102,7 +102,7 @@ group :test, :development do
   gem 'rspec-rails', '~> 3.4'
   gem 'rspec-activemodel-mocks', '~> 1.0.2'
   gem 'inch', '~> 0.7'
-  gem 'byebug', '~> 8.2', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
+  gem 'byebug', '~> 8.2.1', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'awesome_print'
   gem 'factory_girl_rails', '~> 4.0'
   gem 'did_you_mean', '~> 0.10.0'
