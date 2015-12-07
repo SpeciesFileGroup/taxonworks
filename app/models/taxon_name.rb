@@ -489,7 +489,7 @@ class TaxonName < ActiveRecord::Base
       end
     end
     return [] if list.empty?
-    list.sort_by{|t, a| (t.nomenclature_date || Time.now)}
+    list.sort_by{|t, a| (t.nomenclature_date || Time.now)}.collect{|t, a| t}
   end
 
   def gbif_status_array
@@ -1166,7 +1166,7 @@ class TaxonName < ActiveRecord::Base
   end
 
   def check_new_parent_class
-    if self.parent_id != self.parent_id_was && !self.parent_id_was.nil? && self.rank_class.nomenclatural_code == :iczn
+    if self.type == 'Protonym' && self.parent_id != self.parent_id_was && !self.parent_id_was.nil? && self.rank_class.nomenclatural_code == :iczn
       if old_parent = TaxonName.find_by(id: self.parent_id_was)
         if (self.rank_class.rank_name == 'subgenus' || self.rank_class.rank_name == 'subspecies') && old_parent.name == self.name
           errors.add(:parent_id, "The nominotypical #{self.rank_class.rank_name} #{self.name} could not be moved out of the nominal #{old_parent.rank_class.rank_name}")
