@@ -2,7 +2,7 @@
 
 <h1>Task: <%= "#{@type_tag}" %>  distribution</h1>
 <h3>Taxon name: <%= object_link(@distribution.otus.first.taxon_name) %></h3>
-
+OTU count :<%= @distribution.otus.count %>
 
 <div id="otu_distribution_widget">
   <div class="flexbox">
