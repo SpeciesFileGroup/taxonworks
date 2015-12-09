@@ -796,18 +796,18 @@ class CollectingEvent < ActiveRecord::Base
   #   collecting event record that doesn't have one.
   def self.update_verbatim_georeferences
     if Rails.env == 'production'
-      puts "You can't run this there"
+      puts "You can't run this in #{Rails.env} mode."
       exit
     end
 
-    passed = 0
-    failed = 0
+    passed    = 0
+    failed    = 0
     attempted = 0
 
     CollectingEvent.includes(:georeferences).where(georeferences: {id: nil}).each do |c|
       next if c.verbatim_latitude.blank? || c.verbatim_longitude.blank?
-      attempted += 1 
-      g = c.generate_verbatim_data_georeference(true) 
+      attempted += 1
+      g         = c.generate_verbatim_data_georeference(true)
       if g.errors.empty?
         passed += 1
         puts "created for #{c.id}"
