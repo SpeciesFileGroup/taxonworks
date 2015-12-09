@@ -15,4 +15,12 @@ class Document < ActiveRecord::Base
   validates_attachment_presence :document_file
   validates_attachment_size :document_file, greater_than: 1.kilobytes
 
+  #region class methods
+
+  def self.find_for_autocomplete(params)
+    Queries::DocumentAutocompleteQuery.new(params[:term]).all.where(project_id: params[:project_id])
+  end
+
+  #endregion
+
 end

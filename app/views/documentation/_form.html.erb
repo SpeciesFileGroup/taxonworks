@@ -1,41 +1,31 @@
 <%= form_for(@documentation) do |f| %>
-  <% if @documentation.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(@documentation.errors.count, "error") %> prohibited this documentation from being saved:</h2>
+    <%= render 'shared/errors', object: @documentation %>
 
-      <ul>
-      <% @documentation.errors.full_messages.each do |message| %>
-        <li><%= message %></li>
-      <% end %>
-      </ul>
+    <div class="field">
+      <%= f.label :documentation_object %><br>
+      <%= render partial: 'workbench/elements/forms/ajax_select',
+                 locals: {controller: 'documentation',
+                          object: 'documentation',
+                          method: 'document_object_id',
+                          tag_id: 'documentation_object_id_for_documentation',
+                          size: '',
+                          display: documentation_tag(@documentation.documentation_object)} %>
     </div>
-  <% end %>
-
-  <div class="field">
-    <%= f.label :documentation_object_id %><br>
-    <%= f.text_field :documentation_object_id %>
-  </div>
-  <div class="field">
-    <%= f.label :document_id %><br>
-    <%= f.text_field :document_id %>
-  </div>
-  <div class="field">
-    <%= f.label :page_map %><br>
-    <%= f.text_field :page_map %>
-  </div>
-  <div class="field">
-    <%= f.label :project_id %><br>
-    <%= f.text_field :project_id %>
-  </div>
-  <div class="field">
-    <%= f.label :created_by_id %><br>
-    <%= f.number_field :created_by_id %>
-  </div>
-  <div class="field">
-    <%= f.label :updated_by_id %><br>
-    <%= f.number_field :updated_by_id %>
-  </div>
-  <div class="actions">
-    <%= f.submit %>
-  </div>
+    <div class="field">
+      <%= f.label :document %><br>
+      <%= render partial: 'workbench/elements/forms/ajax_select',
+                 locals: {controller: 'documents',
+                          object: 'documentation',
+                          method: 'document_id',
+                          tag_id: 'document_id_for_documentation',
+                          display: document_tag(@documentation.document)
+                 } %>
+    </div>
+    <div class="field">
+      <%= f.label :page_map %><br>
+      <%= f.text_field :page_map %>
+    </div>
+    <div class="actions">
+      <%= f.submit %>
+    </div>
 <% end %>

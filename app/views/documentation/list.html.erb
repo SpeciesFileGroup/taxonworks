@@ -1,6 +1,6 @@
-<p id="notice"><%= notice %></p>
+<h1>Listing documentation</h1>
 
-<h1>Listing Documentation</h1>
+<%= paginate @documentation %> <%= page_entries_info @documentation %>
 
 <table>
   <thead>
@@ -8,8 +8,7 @@
       <th>Documentation object</th>
       <th>Document</th>
       <th>Page map</th>
-      <th>Project</th>
-      <th>Created by</th>
+      <th>Last modified</th>
       <th>Updated by</th>
       <th colspan="3"></th>
     </tr>
@@ -21,9 +20,8 @@
         <td><%= documentation.documentation_object %></td>
         <td><%= documentation.document %></td>
         <td><%= documentation.page_map %></td>
-        <td><%= documentation.project %></td>
-        <td><%= documentation.created_by_id %></td>
-        <td><%= documentation.updated_by_id %></td>
+        <td><%= documentation.updated_at %></td>
+        <td><%= object_tag(documentation.updater) %></td>
         <td><%= link_to 'Show', documentation %></td>
         <td><%= link_to 'Edit', edit_documentation_path(documentation) %></td>
         <td><%= link_to 'Destroy', documentation, method: :delete, data: { confirm: 'Are you sure?' } %></td>
@@ -31,7 +29,3 @@
     <% end %>
   </tbody>
 </table>
-
-<br>
-
-<%= link_to 'New Documentation', new_documentation_path %>
