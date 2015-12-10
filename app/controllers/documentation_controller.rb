@@ -6,7 +6,8 @@ class DocumentationController < ApplicationController
   # GET /documentation
   # GET /documentation.json
   def index
-    @documentation = Documentation.all
+    @recent_objects = Documentation.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
+    render '/shared/data/all/index'
   end
 
   # GET /documentation/1
@@ -61,6 +62,34 @@ class DocumentationController < ApplicationController
       format.html { redirect_to documentation_index_url, notice: 'Documentation was successfully destroyed.' }
       format.json { head :no_content }
     end
+  end
+
+  def list
+    @documentation = Documentation.with_project_id($project_id).order(:id).page(params[:page]) #.per(10)
+  end
+
+  def search
+    if params[:id].blank?
+      # @todo @mjy In other controllers, following redirect uses plural path
+      redirect_to documentationion_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+    else
+      redirect_to documentation_path(params[:id])
+    end
+  end
+
+  def autocomplete
+    @documentation = Documentation.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
+    data = @documentation.collect do |t|
+      {id: t.id,
+       label: ApplicationController.helpers.documentation_tag(t),
+       response_values: {
+           params[:method] => t.id
+       },
+       label_html: ApplicationController.helpers.documentation_autocomplete_selected_tag(t)
+      }
+    end
+
+    render :json => data
   end
 
   private
