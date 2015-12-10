@@ -71,7 +71,7 @@ class DocumentationController < ApplicationController
   def search
     if params[:id].blank?
       # @todo @mjy In other controllers, following redirect uses plural path
-      redirect_to documentationion_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+      redirect_to documentation_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
     else
       redirect_to documentation_path(params[:id])
     end
