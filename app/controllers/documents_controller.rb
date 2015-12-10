@@ -1,13 +1,13 @@
 class DocumentsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-
   before_action :set_document, only: [:show, :edit, :update, :destroy]
 
   # GET /documents
   # GET /documents.json
   def index
-    @documents = Document.all
+    @recent_objects = Document.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
+    render '/shared/data/all/index'
   end
 
   # GET /documents/1
@@ -62,6 +62,33 @@ class DocumentsController < ApplicationController
       format.html { redirect_to documents_url, notice: 'Document was successfully destroyed.' }
       format.json { head :no_content }
     end
+  end
+
+  def list
+    @documents = Document.with_project_id($project_id).order(:id).page(params[:page]) #.per(10)
+  end
+
+  def search
+    if params[:id].blank?
+      redirect_to documents_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+    else
+      redirect_to document_path(params[:id])
+    end
+  end
+
+  def autocomplete
+    @documents = Document.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
+    data = @documents.collect do |t|
+      {id: t.id,
+       label: ApplicationController.helpers.document_tag(t),
+       response_values: {
+           params[:method] => t.id
+       },
+       label_html: ApplicationController.helpers.document_autocomplete_selected_tag(t)
+      }
+    end
+
+    render :json => data
   end
 
   private
