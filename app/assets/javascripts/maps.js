@@ -235,7 +235,7 @@ function get_window_center(bounds) {      // for use with home-brew geoJSON scan
         }
 
       }
-      else {            // not an overwide calculation
+      else {            // not an overwide calculation  // bias toward eastern hemisphere removed in xgtlt()
         if (wp == 0) {
           wx = wm;
         }         // override for single sided western hemisphere
@@ -530,8 +530,8 @@ function getTypeData(thisType, bounds) {        // this version does not create 
 
 function xgtlt(bounds, xtest) {         // point-wise x-bound extender
 
-  if (xtest < 0) {            // if western hemisphere,
-    if (xtest > bounds.xmaxm) {    // xmaxm initially -180
+  if (xtest <= 0) {            // if western hemisphere,        ///////// replaced < with <= to mitigate point at
+    if (xtest >= bounds.xmaxm) {    // xmaxm initially -180     ///////// replaced > with >= prime meridian problem
       bounds.xmaxm = xtest;
     }
     if (xtest <= bounds.xminm) {   // xminm initially 0
