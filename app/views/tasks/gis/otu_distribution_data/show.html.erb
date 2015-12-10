@@ -12,11 +12,13 @@ OTU count :<%= @distribution.otus.count %>
           <table border="1">
             <tbody>
             <tr>
-              <th><h3>Otu</h3></th>
-              <th>
-                <h3>
-                  <%= link_to(otu_tag(otu), otu_path(otu.to_param), {id: "link_otu_#{otu.id}"}) %>
-                </h3>
+              <!--<th><h3>Otu</h3></th>-->
+              <!--<th><h4>Otu</h4></th>-->
+              <th>Otu</th>
+              <th style="width:95%">
+                <!--<h4>-->
+                <%= link_to(otu_tag(otu), otu_path(otu.to_param), {id: "link_otu_#{otu.id}"}) %>
+                <!--</h4>-->
               </th>
             </tr>
             <% unless otu.asserted_distributions.empty? %>
@@ -24,10 +26,10 @@ OTU count :<%= @distribution.otus.count %>
                   <td>
                     <%= check_box_tag("check_asserted_distribution_#{otu.id}", nil, true) %>
                   </td>
-                  <td>
+                  <td align="center">
                     <span id='<%= "span_asserted_distribution_otu_id_#{otu.id}" %>'>
-                    <%= "distributions (#{otu.asserted_distributions.count}#{without_shape?(otu.asserted_distributions)}) (asserted distributions)" %>
-                        </span>
+                      <%= "distributions (#{otu.asserted_distributions.count}#{without_shape?(otu.asserted_distributions)}) (asserted distributions)" %>
+                    </span>
                   </td>
                 </tr>
             <% end %>
@@ -36,7 +38,7 @@ OTU count :<%= @distribution.otus.count %>
                   <td>
                     <%= check_box_tag("check_collecting_event_georeference_#{otu.id}", nil, true) %>
                   </td>
-                  <td>
+                  <td align="center">
                     <span id="<%= "span_collecting_event_georeference_otu_id_#{otu.id}" %>">
                         <%= "collection_objects (#{otu.collection_objects.count}) (collecting events georeferences)" %>
                     </span>
@@ -45,7 +47,7 @@ OTU count :<%= @distribution.otus.count %>
             <% end %>
             <% unless otu.collecting_events.empty? %>
                 <tr>
-                  <td>
+                  <td align="center">
                     <%= check_box_tag("check_collecting_event_geographic area_#{otu.id}", nil, true) %>
                   </td>
                   <td>

@@ -25,16 +25,16 @@ class Distribution
   attr_accessor :preferred_georeference_only
 
   def initialize(
-      source_object_types: [
-          :asserted_distribution,
-          :collecting_event_geographic_area,
-          :collecting_event_georeference],
-      otus: [],
-      preferred_georeference_only: false # does nothing at present
+    source_object_types: [
+      :asserted_distribution,
+      :collecting_event_geographic_area,
+      :collecting_event_georeference],
+    otus: [],
+    preferred_georeference_only: false # does nothing at present
   )
     @preferred_georeference_only = preferred_georeference_only
-    @source_object_types = source_object_types
-    @otus = otus
+    @source_object_types         = source_object_types
+    @otus                        = otus
   end
 
   def map_source_objects
@@ -69,7 +69,7 @@ class Distribution
   end
 
   def insert_for_collecting_event_georeference(otu, source, type)
-    georeferences = ( preferred_georeference_only ? [ source.georeferences.first ] : source.georeferences )
+    georeferences = (preferred_georeference_only ? [source.georeferences.first] : source.georeferences)
     georeferences.each do |g|
       insert_source_object(otu, source, g, type)
     end
@@ -103,43 +103,42 @@ class Distribution
 
   def to_json
     result = {
-        'otu_ids' => map_source_objects.keys
+      'otu_ids' => map_source_objects.keys
     }
 
     i = 1
     j = 0
     map_source_objects.keys.each do |otu_id|
       feature_collection = {
-          'type' => 'FeatureCollection',
-          'features' => []
+        'type'     => 'FeatureCollection',
+        'features' => []
       }
-      colors = [
-          ["black", 0x000000], ["blue", 0x000088], ["orange", 0xDD6600],["green", 0x008800], ["red", 0x880000],
-          ["purple", 0x880088], ["yellow", 0xAAAA55], ["brown", 0x664400], ["gray", 0x666666],
-          ["white", 0xFFFFFF], ["shadow" , 0x888888]]
-      opacities = {'asserted_distribution' => 0.66, 'collecting_event_georeference' => 0.44, 'collecting_event_geographic_area' => 0.22 }
+      colors             = [
+        ["black", 0x000000], ["blue", 0x000088], ["orange", 0xDD6600], ["green", 0x008800], ["red", 0x880000],
+        ["purple", 0x880088], ["yellow", 0xAAAA55], ["brown", 0x664400], ["gray", 0x666666],
+        ["white", 0xFFFFFF], ["shadow", 0x888888]]
+      opacities          = {'asserted_distribution' => 0.66, 'collecting_event_georeference' => 0.44, 'collecting_event_geographic_area' => 0.22}
       map_source_objects[otu_id].each do |source, data, type|
         source_class = source.class.name
-        route_base = source.class.table_name
+        route_base   = source.class.table_name
 
-        color_index = (j + 1) % 8     # only 8 colors, excluding black and white (mousover color)
-        color_name = colors[color_index][0]
-        color = sprintf('#%06X', colors[color_index][1])
+        color_index = (j + 1) % 8 # only 8 colors, excluding black and white (mousover color)
+        color_name  = colors[color_index][0]
+        color       = sprintf('#%06X', colors[color_index][1])
 
         json = data.to_simple_json_feature
         json['properties'].merge!(
-            'id' => i,
-            'source' => source_class,
-            'source_type' => type.to_s,
-            'metadata' => {source_class => source.attributes},
-            'api' => {
-                'concise_details' => "/#{route_base}/#{data.id}/concise_details",
-                'expanded_details' => "/#{route_base}/#{data.id}/expanded_details"
-
-            },
-            'colorName' => color_name,
-            'fillColor' => color,
-            'fillOpacity' => opacities[type.to_s]
+          'id'          => i,
+          'source'      => source_class,
+          'source_type' => type.to_s,
+          'metadata'    => {source_class => source.attributes},
+          'api'         => {
+            'concise_details'  => "/#{route_base}/#{data.id}/concise_details",
+            'expanded_details' => "/#{route_base}/#{data.id}/expanded_details"
+          },
+          'colorName'   => color_name,
+          'fillColor'   => color,
+          'fillOpacity' => opacities[type.to_s]
         )
 
         send("#{type}_properties", json, source, data)
