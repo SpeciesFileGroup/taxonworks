@@ -4,7 +4,7 @@ class Tasks::Gis::ReportController < ApplicationController
   # before_action :disable_turbolinks, only: [:new, :generate_choices]
 
   def new
-    @list_collection_objects = CollectionObject.where('false')
+    @list_collection_objects = [] # CollectionObject.where('false')
   end
 
   def location_report_list
