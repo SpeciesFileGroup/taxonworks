@@ -32,9 +32,9 @@ class DocumentationController < ApplicationController
     respond_to do |format|
       if @documentation.save
         format.html { redirect_to @documentation, notice: 'Documentation was successfully created.' }
-        format.json { render :show, status: :created, location: @documentation }
+        format.json { render action: 'show', status: :created, location: @documentation }
       else
-        format.html { render :new }
+        format.html { render action: 'new' }
         format.json { render json: @documentation.errors, status: :unprocessable_entity }
       end
     end
