@@ -2,7 +2,7 @@ module AlternateValuesHelper
 
   def alternate_value_tag(alternate_value)
     return nil if alternate_value.nil?
-    ["#{alternate_value.value},", alternate_value.klass_name, "of \"#{alternate_value.original_value}\"", "(on '#{alternate_value.alternate_value_object_attribute}')"].join(' ')
+    ["#{alternate_value.value},", alternate_value.klass_name, "of \"#{alternate_value.original_value}\"", "(on '#{alternate_value.alternate_value_object_attribute}')('#{alternate_value.project_id.nil? ? "public" : "project only"}')"].join(' ')
   end
 
   def link_to_destroy_alternate_value(link_text, alternate_value)

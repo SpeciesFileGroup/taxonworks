@@ -30,13 +30,16 @@
 #   the project ID
 #
 class AlternateValue < ActiveRecord::Base
-  include Housekeeping
+  include Housekeeping::Users
+  include Housekeeping::Timestamps
   include Shared::IsData
   include Shared::DualAnnotator
   include Shared::AttributeAnnotations
 
   belongs_to :language
   belongs_to :alternate_value_object, polymorphic: true
+
+  before_validation :set_project
 
   validates :language, presence: true, allow_blank: true
   validates_presence_of :type, :value, :alternate_value_object_attribute
@@ -61,7 +64,8 @@ class AlternateValue < ActiveRecord::Base
   end
 
   def self.find_for_autocomplete(params)
-    where('value LIKE ?', "%#{params[:term]}%").with_project_id(params[:project_id])
+    where('value ILIKE ? AND ((project_id IS NULL) OR (project_id = ?))',
+          "%#{params[:term]}%", params[:project_id])
   end
 
   def klass_name
@@ -71,7 +75,7 @@ class AlternateValue < ActiveRecord::Base
   # @return [NoteObject]
   #   alias to simplify reference across classes 
   def annotated_object
-    alternate_value_object 
+    alternate_value_object
   end
 
   # @return [Symbol]
@@ -93,6 +97,16 @@ class AlternateValue < ActiveRecord::Base
         }
       end
     end
+  end
+
+  protected
+  def set_project
+    begin
+      if annotated_object.respond_to?(:project_id)
+        self.project_id = annotated_object.project_id
+      end
+    end
+
   end
 
 end

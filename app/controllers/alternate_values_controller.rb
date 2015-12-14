@@ -23,6 +23,11 @@ class AlternateValuesController < ApplicationController
   def create
     @alternate_value = AlternateValue.new(alternate_value_params)
     respond_to do |format|
+      if params[:project_members_only] == 'checked'
+        @alternate_value.project_id = sessions_current_project_id
+      else
+        @alternate_value.project_id = nil
+      end
       if @alternate_value.save
         format.html { redirect_to @alternate_value.alternate_value_object.metamorphosize, notice: 'Alternate value was successfully created.' }
         format.json { render json: @alternate_value, status: :created, location: @alternate_value }
@@ -37,6 +42,12 @@ class AlternateValuesController < ApplicationController
   # PATCH/PUT /alternate_values/1.json
   def update
     respond_to do |format|
+      if params[:project_members_only] == 'checked'
+        @alternate_value.project_id = sessions_current_project_id
+      else
+        @alternate_value.project_id = nil
+      end
+
       if @alternate_value.update(alternate_value_params)
         format.html { redirect_to @alternate_value.alternate_value_object.metamorphosize, notice: 'Alternate value was successfully updated.' }
         format.json { render json: @alternate_value, status: :created, location: @alternate_value }
@@ -64,9 +75,10 @@ class AlternateValuesController < ApplicationController
   # GET /alternate_values/search
   def search
     if params[:id].blank?
-      redirect_to alternate_value_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+      redirect_to alternate_values_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
     else
-      redirect_to alternate_value_path(params[:id])
+      altval = AlternateValue.find_by_id(params[:id]).metamorphosize
+      redirect_to altval.alternate_value_object.metamorphosize
     end
   end
 
@@ -75,11 +87,11 @@ class AlternateValuesController < ApplicationController
 
     data = @alternate_values.collect do |t|
       str = render_to_string(partial: 'tag', locals: {alternate_value: t})
-      {id: t.id,
-       label: str,
+      {id:              t.id,
+       label:           str,
        response_values: {
-           params[:method] => t.id},
-       label_html: str
+         params[:method] => t.id},
+       label_html:      str
       }
     end
 
@@ -103,7 +115,7 @@ class AlternateValuesController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def alternate_value_params
-    params.require(:alternate_value).permit(:value, :type, :language_id, :alternate_value_object_type, :alternate_value_object_id, :alternate_value_object_attribute)
+    params.require(:alternate_value).permit(:value, :type, :language_id, :alternate_value_object_type, :alternate_value_object_id, :alternate_value_object_attribute, :project_members_only)
   end
 
   def breakout_types(collection)

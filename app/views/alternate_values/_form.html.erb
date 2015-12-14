@@ -11,6 +11,11 @@
     </div>
 
     <div class="field">
+      <%= check_box_tag('project_members_only', :checked, !@alternate_value.project_id.nil? ) %>
+      <%= label_tag "Make this alternate value visible only to project members." %>
+    </div>
+
+    <div class="field">
       <%= f.label :value %>
       <br>
       <%= f.text_area :value %>
