@@ -87,16 +87,18 @@ initializeMap = function (canvas, feature_collection) {
   var sw = bounds.sw;       // draw the bounding box for JDT
   var ne = bounds.ne;
   var coordList = [];
-  coordList.push([sw['lng'](), sw['lat']()]);
-  coordList.push([sw['lng'](), ne['lat']()]);
-  if (sw['lng']() > 0 && ne['lng']() < 0) {
-    coordList.push([180.0, ne['lat']()])
-  }
-  coordList.push([ne['lng'](), ne['lat']()]);
-  coordList.push([ne['lng'](), sw['lat']()]);
-  if (sw['lng']() > 0 && ne['lng']() < 0) {
-    coordList.push([-180.0, sw['lat']()])
-  }
+  coordList.push([sw['lng'](), sw['lat']()]);   // southwest point
+  coordList.push([sw['lng'](), ne['lat']()]);   // northwest point
+  //if (sw['lng']() > 0 && ne['lng']() < 0) {     // are we spanning the prime meridian
+  //  coordList.push([180.0, ne['lat']()]);       // point at prime meridian
+  //}
+  coordList.push([center_lat_long['lng'](), ne['lat']()]);       // point at center ALWAYS vs conditional at 0
+  coordList.push([ne['lng'](), ne['lat']()]);   // northeast point
+  coordList.push([ne['lng'](), sw['lat']()]);   // southeast point
+  //if (sw['lng']() > 0 && ne['lng']() < 0) {     // are we spanning the prime meridian
+  //  coordList.push([-180.0, sw['lat']()]);       // point at prime meridian
+  //}
+  coordList.push([center_lat_long['lng'](), sw['lat']()]);       // point at center ALWAYS vs conditional at 0
   coordList.push([sw['lng'](), sw['lat']()]);
   var temparray = [];
   temparray[0] = coordList;
@@ -162,10 +164,10 @@ function get_window_center(bounds) {      // for use with home-brew geoJSON scan
     var wm = 0.0;        // western hemisphere default area width
     var wp = 0.0;        // eastern hemisphere default area width
     if ((xminp == 180.0) && (xmaxp == 0.0)) {    //if no points, null out the range for this hemisphere
-      xminp = 0.0;
+      xminp = 0.0;                                // possible place to mark singleton point
     }
     if ((xmaxm == -180.0) && (xminm == 0.0)) {    //if no points, null out the range for this hemisphere
-      xmaxm = 0.0;
+      xmaxm = 0.0;                                // possible place to mark singleton point
     }
     if ((xminp == 0.0) && (xmaxp == 0.0) && (xmaxm == 0.0) && (xminm == 0.0)) {   // no data (kinda)
       xminm = -180.0;     // this calculation is to reflect
@@ -175,8 +177,8 @@ function get_window_center(bounds) {      // for use with home-brew geoJSON scan
     }
     else {
       // case of singleton poiint in either hemisphere not well treated below (still true? - JRF 20JUL2015)
-      wm = xmaxm - xminm;    // width of western area, if present
-      wp = xmaxp - xminp;    // width of eastern area, if present
+      wm = xmaxm - xminm;    // width of western area, if present (incorrect if e.g., Aleutean Islands)
+      wp = xmaxp - xminp;    // width of eastern area, if present (incorrect if e.g., Aleutean Islands)
       var xmm = xminm + 0.5 * wm;     // midpoint of west
       var xmp = xminp + 0.5 * wp;     // midpoint of east
       var wxp;                    // width to anti/prime meridian east
@@ -233,7 +235,16 @@ function get_window_center(bounds) {      // for use with home-brew geoJSON scan
             wx = wx - 0;     ////  DUMMY
           }
         }
-
+        if ((wm > 179) && (wp > 179)) {     // check for prime meridian and anti-meridian case
+          wm = 180 - bounds.pminx + 180 + bounds.mmaxx;      // width of putative anti-meridian crossing area
+          wp = bounds.pmaxx0 - bounds.mminx0;                // width of putative meridian crossing area
+          // are these isolated ?
+          if (((bounds.mmaxx < -45) && (bounds.mminx0 > -45)) && ((bounds.pmaxx0 < 45) && (bounds.pminx > 45))) {
+            // open space between arbitrary +/-45 boundary
+            wx = wm - bounds.mmaxx + bounds.pmaxx0;         // width of map (?)
+            center_long = -0.5 * (wm - bounds.mmaxx) + 0.5 * (bounds.pmaxx0);
+          }
+        }
       }
       else {            // not an overwide calculation  // bias toward eastern hemisphere removed in xgtlt()
         if (wp == 0) {
@@ -404,6 +415,18 @@ function reset_center_and_bounds(bounds) {
   bounds.box = new google.maps.LatLngBounds(new google.maps.LatLng(bounds.ymax, bounds.xmaxm),
     new google.maps.LatLng(bounds.ymin, bounds.xminp));
   bounds.canvas_ratio = 1;    // overridable prior to get_window_center
+
+  // inverse bounds around antimeridian
+  bounds.pminx = 180.0;
+  bounds.pmaxx = 45.0;
+  bounds.mminx = -45.0;
+  bounds.mmaxx = -180;
+
+  // inverse bounds around prime meridian
+  bounds.pminx0 = 45.0;
+  bounds.pmaxx0 = 0.0;
+  bounds.mminx0 = 0.0;
+  bounds.mmaxx0 = -45.0;
 }
 
 // this is the scanner version; no google objects are created
@@ -546,6 +569,43 @@ function xgtlt(bounds, xtest) {         // point-wise x-bound extender
       bounds.xminp = xtest;
     }
   }
+
+  if (xtest <= -45.0) {            // if western hemisphere,   // inverse bounds calculation about antimeridian
+    if (xtest >= bounds.mmaxx) {    // mmaxx initially -180
+      bounds.mmaxx = xtest;
+    }
+    if (xtest <= bounds.mminx) {   // mminx initially -45.0
+      bounds.mminx = xtest;
+    }
+  }
+  if (xtest >= 45.0) {                  // eastern hemisphere
+    if (xtest >= bounds.pmaxx) {   // pmaxx initially 45.0
+      bounds.pmaxx = xtest;
+    }
+    if (xtest <= bounds.pminx) {   // pminx initially 180
+      bounds.pminx = xtest;
+    }
+  }
+
+  if ((xtest > -45.0) && (xtest < 45.0)) {
+    if (xtest <= 0) {            // if western hemisphere,   // inverse bounds calculation about prime meridian
+      if (xtest > bounds.mmaxx0) {    // mmaxx0 initially -45
+        bounds.mmaxx0 = xtest;
+      }
+      if (xtest < bounds.mminx0) {   // mminx0 initially 0
+        bounds.mminx0 = xtest;
+      }
+    }
+    if (xtest >= 0) {                  // eastern hemisphere
+      if (xtest >= bounds.pmaxx0) {   // pmaxx0 initially 0
+        bounds.pmaxx0 = xtest;
+      }
+      if (xtest <= bounds.pminx0) {   // pminx0 initially 45
+        bounds.pminx0 = xtest;
+      }
+    }
+  }
+
 }
 
 function ygtlt(bounds, ytest) {         // point-wise y-bound extender
