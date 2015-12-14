@@ -21,6 +21,10 @@ contents:
 controlled_vocabulary_terms:
   - tags
   - data_attributes
+documents:
+  - documentation
+documentation:
+  - documents
 geographic_areas:
   - collecting_events
   - georeferences

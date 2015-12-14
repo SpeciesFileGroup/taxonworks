@@ -363,7 +363,6 @@ are located within the geographic item supplied
   def self.ce_headers(project_id)
     CollectionObject.selected_column_names
     cvt_list = InternalAttribute.where(project_id: project_id, attribute_subject_type: 'CollectingEvent')
-                 .select(:controlled_vocabulary_term_id)
                  .distinct
                  .pluck(:controlled_vocabulary_term_id)
     # add selectable column names (unselected) to the column name list list
@@ -421,7 +420,6 @@ are located within the geographic item supplied
   def self.co_headers(project_id)
     CollectionObject.selected_column_names
     cvt_list = InternalAttribute.where(project_id: project_id, attribute_subject_type: 'CollectionObject')
-                 .select(:controlled_vocabulary_term_id)
                  .distinct
                  .pluck(:controlled_vocabulary_term_id)
     # add selectable column names (unselected) to the column name list list

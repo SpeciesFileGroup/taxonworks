@@ -15,7 +15,7 @@ OTU count :<%= @distribution.otus.count %>
               <!--<th><h3>Otu</h3></th>-->
               <!--<th><h4>Otu</h4></th>-->
               <th>Otu</th>
-              <th style="width:95%">
+              <th style="width:400px">
                 <!--<h4>-->
                 <%= link_to(otu_tag(otu), otu_path(otu.to_param), {id: "link_otu_#{otu.id}"}) %>
                 <!--</h4>-->
@@ -23,7 +23,7 @@ OTU count :<%= @distribution.otus.count %>
             </tr>
             <% unless otu.asserted_distributions.empty? %>
                 <tr>
-                  <td>
+                  <td align="center">
                     <%= check_box_tag("check_asserted_distribution_#{otu.id}", nil, true) %>
                   </td>
                   <td align="center">
@@ -35,7 +35,7 @@ OTU count :<%= @distribution.otus.count %>
             <% end %>
             <% unless otu.collection_objects.empty? %>
                 <tr>
-                  <td>
+                  <td align="center">
                     <%= check_box_tag("check_collecting_event_georeference_#{otu.id}", nil, true) %>
                   </td>
                   <td align="center">
@@ -50,7 +50,7 @@ OTU count :<%= @distribution.otus.count %>
                   <td align="center">
                     <%= check_box_tag("check_collecting_event_geographic area_#{otu.id}", nil, true) %>
                   </td>
-                  <td>
+                  <td align="center">
                     <span id="<%= "span_collecting_event_geographic_area_otu_id_#{otu.id}" %>">
                         <%= "collecting event gazeteer records (#{otu.collecting_events.count}) (collecting events geographic area)" %>
                     </span>
