@@ -41,7 +41,7 @@ module Workbench::NavigationHelper
   end
 
   def list_path_for_model(model)
-    send("list_#{model.name.tableize}_path")
+    url_for(controller: model.name.tableize.pluralize.downcase, action: :list)
   end
 
   def new_for_model_link(model)

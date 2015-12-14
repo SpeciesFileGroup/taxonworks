@@ -22,7 +22,7 @@ controlled_vocabulary_terms:
   - tags
   - data_attributes
 documents:
-  - documentation
+  - documentation: documentation_index_path
 documentation:
   - documents
 geographic_areas:

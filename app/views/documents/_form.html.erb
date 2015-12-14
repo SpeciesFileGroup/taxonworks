@@ -1,14 +1,12 @@
-<%= form_for(@document) do |f| %>
+<%= form_for(@document, multipart: true) do |f| %>
     <%= render 'shared/errors', object: @document %>
 
     <div class="field">
       <%= f.label :document_file %><br>
-      <%= f.text_field :document_file %>
+      <div> <%= document_tag(@document) -%> </div>
+      <%= f.file_field :document_file, class: :required_for_submit %>
     </div>
-    <div class="field">
-      <%= f.label :project_references %><br>
-      <%= f.text_field :project_references %>
-    </div>
+
     <div class="actions">
       <%= f.submit %>
     </div>

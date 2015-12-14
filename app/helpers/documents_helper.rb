@@ -2,8 +2,7 @@ module DocumentsHelper
 
   def document_tag(document)
     return nil if document.nil?
-    string = [ document.cached,  document.verbatim_label, document.print_label, document.document_label, document.field_notes, document.to_param].compact.first
-    string
+    document.document_file_file_name
   end
 
   def document_link(document)

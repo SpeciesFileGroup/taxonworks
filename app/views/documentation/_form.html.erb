@@ -3,14 +3,9 @@
 
     <div class="field">
       <%= f.label :documentation_object %><br>
-      <%= render partial: 'workbench/elements/forms/ajax_select',
-                 locals: {controller: 'documentation',
-                          object: 'documentation',
-                          method: 'document_object_id',
-                          tag_id: 'documentation_object_id_for_documentation',
-                          size: '',
-                          display: documentation_tag(@documentation.documentation_object)} %>
-    </div>
+
+      <p> TODO: write code to toggle through available documentable objects and let the user pick them here. </p>
+
     <div class="field">
       <%= f.label :document %><br>
       <%= render partial: 'workbench/elements/forms/ajax_select',
@@ -20,10 +15,13 @@
                           tag_id: 'document_id_for_documentation',
                           display: document_tag(@documentation.document)
                  } %>
-    </div>
+             </div>
+
     <div class="field">
       <%= f.label :page_map %><br>
-      <%= f.text_field :page_map %>
+
+      <p> TODO: Come up with a JSON format for page map, and create the form that can serialize it here. </p>
+
     </div>
     <div class="actions">
       <%= f.submit %>

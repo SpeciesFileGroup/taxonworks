@@ -1,4 +1,4 @@
-<%= form_tag(search_documentation_path, {method: :get}) do %>
+<%= form_tag(search_documentation_index_path, {method: :get}) do %>
     <%= render partial: 'workbench/elements/forms/ajax_select',
                locals:  {controller: 'documentation',
                          object:     nil,
