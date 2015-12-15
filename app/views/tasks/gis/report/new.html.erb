@@ -3,15 +3,10 @@
 <div class="flexbox">
   <div class="item item1" align="center">
     <%= form_tag(location_report_list_url) do %>
-        <span id="geographic_areaError" style="color: #DD0000"></span>
-        <%= render :partial => 'workbench/elements/forms/ajax_select',
-                   :locals  => {:controller => '/geographic_areas',
-                                :object     => '',
-                                :method     => 'geographic_area_id',
-                                :tag_id     => 'geographic_area_id_for_report',
-                                :size       => 20,
-                                :display    => ''} %>
-        <%= submit_tag 'Show' %>
+        <%= render(partial: 'shared/data/gis/area_selector',
+                   locals:  {passed_in_url:    'location_report_list',
+                             passed_in_tag_id: 'geographic_area_id_for_report'}) %>
+        <%= submit_tag('Show') %>
         <p>
           Select additional headers to add to the table:
         </p>
@@ -25,18 +20,6 @@
         </table>
     <% end %>
   </div>
-
-  <div class="item item2">
-    <div id="feature_collection"
-         data-feature-collection='<%= Gis::GeoJSON.feature_collection(shown_georeferences).to_json %>'>
-    </div>
-    <table border="1">
-      <tbody>
-      <tr>
-        <td>
-          <div id="georeference_google_map_canvas" style="width:512px; height: 256px;"></div>
-        </td>
-      </tbody>
-    </table>
+  <div class="item item2" align="center">
   </div>
 </div>
