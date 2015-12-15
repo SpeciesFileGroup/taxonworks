@@ -122,7 +122,7 @@ namespace :tw do
 
       def handle_projects_and_users_lepindex
         print "\nHandling projects and users "
-        @project, @user = initiate_project_and_users('Lepindex', 'lepindex@import.net')
+        #@project, @user = initiate_project_and_users('Lepindex', 'lepindex@import.net')
         email = 'lepindex@import.net'
         project_name = 'Lepindex'
         user_name = 'Lepindex Import'

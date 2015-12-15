@@ -79,6 +79,7 @@ namespace :tw do
 
       # TODO: Lots could be added here, it could also be yamlified
       GEO_NAME_TRANSLATOR = {
+        'Unknown' => '',
         'U.S.A.' => 'United States',
         'U. S. A.' => 'United States',
         'Quebec' => 'Québec',

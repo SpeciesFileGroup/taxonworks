@@ -24,7 +24,7 @@ module TaxonNameClassificationsHelper
 
   def taxon_name_classification_tag(taxon_name_classification)
     return nil if taxon_name_classification.nil?
-    taxon_name_classification.type_class.class_name
+    taxon_name_classification.class_name
   end
 
   # @return [True]
