@@ -49,6 +49,8 @@ class Project < ActiveRecord::Base
      DataAttribute 
      SqedDepiction 
      Depiction
+     Documentation
+     Document 
      CollectionObjectObservation  
      DerivedCollectionObject        
      Note
