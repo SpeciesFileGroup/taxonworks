@@ -328,6 +328,15 @@ TaxonWorks::Application.routes.draw do
   ### End of resources except user related located below scopes ###
 
   scope :tasks do
+    scope :people, controller: 'tasks/people/author' do
+      # scope :authors do
+      #   # get 'authors/index'
+      get 'author/index'
+      #
+      #
+      # end
+    end
+
     scope :biological_associations do
       scope :dot, controller: 'tasks/biological_associations/dot' do
         get 'by_project/:project_id', action: :project_dot_graph, as: :biological_associations_dot_graph_task
