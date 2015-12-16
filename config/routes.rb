@@ -331,6 +331,7 @@ TaxonWorks::Application.routes.draw do
     scope :people, controller: 'tasks/people/author' do
       # scope :authors do
       #   # get 'authors/index'
+      # get 'author', action: 'index', as: 'author_index_task'
       get 'author/index'
       #
       #
