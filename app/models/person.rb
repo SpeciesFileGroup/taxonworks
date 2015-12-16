@@ -79,7 +79,8 @@ class Person < ActiveRecord::Base
   scope :named_smith, -> { where(last_name: 'Smith') }
   #scope :smith_start, -> {where(last_name: start_with?('Smith'))}  # have tried multiple ways to select records where last_name like 'Smith%' without success
   scope :created_before, -> (time) { where('created_at < ?', time) }
-
+  scope :with_role, -> (role) { includes(:roles).where(roles: {type: role}) }
+  scope :ordered_by_last_name, -> { order(:last_name) }
 
   def name
     [self.first_name, self.prefix, self.last_name, self.suffix].compact.join(' ').strip
