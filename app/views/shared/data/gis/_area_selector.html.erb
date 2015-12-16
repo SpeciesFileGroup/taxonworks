@@ -1,4 +1,4 @@
-<div align="center">
+<div>
   <span id="geographic_areaError" style="color: #DD0000"></span>
   <%= render :partial => 'workbench/elements/forms/ajax_select',
              :locals  => {:controller => '/geographic_areas',
@@ -9,7 +9,7 @@
                           :display    => ''} %>
 </div>
 
-<div align="center">
+<div>
   <%= render(partial: 'layouts/map_header') -%>
   <div id="feature_collection"
        data-feature-collection='<%= Gis::GeoJSON.feature_collection(shown_georeferences).to_json %>'>

@@ -4,8 +4,7 @@
   <div class="item item1" align="center">
     <%= form_tag(location_report_list_url) do %>
         <%= render(partial: 'shared/data/gis/area_selector',
-                   locals:  {passed_in_url:    'location_report_list',
-                             passed_in_tag_id: 'geographic_area_id_for_report'}) %>
+                   locals:  {passed_in_tag_id: 'geographic_area_id_for_report'}) %>
         <%= submit_tag('Show') %>
         <p>
           Select additional headers to add to the table:
