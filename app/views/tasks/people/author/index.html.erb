@@ -2,5 +2,9 @@
 
 
 <%=	 ('A'...'Z').each {|letter| %>
-      <%=	 "#{letter} | " %>
+      <%=	 link_to("\##{letter} | ") %>
 <%	} %>
+
+<%= @author_index_list.each {|author| %>
+    <p><%= "#{author.last_name}" %></p>
+<% } %>

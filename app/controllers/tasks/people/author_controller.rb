@@ -1,4 +1,4 @@
-class AuthorController < ApplicationController
+class Tasks::People::AuthorController < ApplicationController
   include TaskControllerConfiguration
   def index
     @author_index_list = Person.all
