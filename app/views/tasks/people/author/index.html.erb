@@ -1,10 +1,19 @@
 <h1>Task: Authors - Alphabetical</h1>
 
 <%= '| ' -%>
-<% ("A".."Z").each do |letter| %>
-    <%= link_to("#{letter}") + ' |' -%>
+<% a_range.each do |letter| %>
+    <%= link_to("#{letter}", "\##{letter}") + ' |' -%>
 <% end %>
 
-<% @author_index_list.each do |author| %>
-    <p><%= "#{author.last_name}" %></p>
+<% a_range.each do |letter| %>
+    <h3><%= "#{letter}" %></h3>
+    <p>
+      <% select_authors(letter).each do |author| %>
+        <%= author.last_name %><br>
+      <% end %>
+    </p>
 <% end %>
+
+<!--<%# @author_index_list.each do |author| %>-->
+    <!--<p><%#= "#{author.last_name}" %></p>-->
+<!--<%# end %>-->
