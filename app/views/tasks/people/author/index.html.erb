@@ -6,10 +6,11 @@
 <% end %>
 
 <% a_range.each do |letter| %>
+    <a name='<%= "#{letter}" %>'></a>
     <h3><%= "#{letter}" %></h3>
     <p>
       <% select_authors(letter).each do |author| %>
-        <%= author.last_name %><br>
+        <%= link_to(author.last_name, author.metamorphosize) %><br>
       <% end %>
     </p>
 <% end %>
