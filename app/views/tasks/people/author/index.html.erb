@@ -10,11 +10,11 @@
     <h3><%= "#{letter}" %></h3>
     <p>
       <% select_authors(letter).each do |author| %>
-        <%= link_to(author.last_name, author.metamorphosize) %><br>
+          <%= link_to(author.last_name, author.metamorphosize) %><br>
       <% end %>
     </p>
 <% end %>
 
 <!--<%# @author_index_list.each do |author| %>-->
-    <!--<p><%#= "#{author.last_name}" %></p>-->
+<!--<p><%#= "#{author.last_name}" %></p>-->
 <!--<%# end %>-->
