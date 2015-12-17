@@ -329,13 +329,7 @@ TaxonWorks::Application.routes.draw do
 
   scope :tasks do
     scope :people, controller: 'tasks/people/author' do
-      # scope :authors do
-      #   # get 'authors/index'
-      get 'author', action: 'index', as: 'author_index_task'
-      # get 'author/index'
-      #
-      #
-      # end
+      get 'author', action: 'list', as: 'author_list_task'
     end
 
     scope :biological_associations do

@@ -7,7 +7,7 @@
 
 <% a_range.each do |letter| %>
     <a name='<%= "#{letter}" %>'></a>
-    <h3><%= "#{letter}" %></h3>
+    <%= letter_color(letter).html_safe %>
     <p>
       <% select_authors(letter).each do |author| %>
           <%= link_to(author.last_name, author.metamorphosize) %><br>
