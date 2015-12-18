@@ -13,7 +13,7 @@ module Tasks::People::AuthorHelper
   end
 
   def select_author_count(letter)
-    select_authors(letter).pluck(:id).count
+    select_authors(letter).select(:id).count
   end
 
   def select_authors(letter)
