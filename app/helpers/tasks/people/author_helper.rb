@@ -13,10 +13,10 @@ module Tasks::People::AuthorHelper
   end
 
   def select_author_count(letter)
-    select_authors(letter).select(:id).count
+    select_authors(letter).count
   end
 
   def select_authors(letter)
-    Person.with_role('SourceAuthor').where("last_name ilike '#{letter}%'")
+    Person.with_role('SourceAuthor').where("last_name ilike '#{letter}%'").order(:last_name).select(:last_name)
   end
 end
