@@ -1,0 +1,15 @@
+<% ay_range.each do |letter| %>
+    <%= link_to("#{letter}", "\##{letter}") + ' |' -%>
+<% end %>
+<%= link_to('Z', '#Z') %><br>
+
+<%= az_range %>
+<% az_range.each do |letter| %>
+    <a name='<%= "#{letter}" %>'></a>
+    <%= anchor_shade(letter).html_safe %>
+    <p>
+      <% select_locality(letter).each do |ce| %>
+          <%= link_to(ce.verbatim_locality) %><br>
+      <% end %>
+    </p>
+<% end %>

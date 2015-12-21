@@ -1,5 +1,30 @@
 module Tasks::Gis::LocalityHelper
 
+  def ay_range
+    ('A'..'Y')
+  end
+
+  def az_range
+    ay_range.to_a.push('Z')
+  end
+
+  def anchor_shade(letter)
+    style = ''
+    if select_locality_count(letter) == 0
+      style = ' style="color:lightgreg;"'
+    end
+    "<h3#{style}>#{letter}</h3>"
+  end
+
+  def select_locality_count(letter)
+    select_locality(letter).count
+  end
+
+  # localities within @geographic_item which have a verbatim_locality starting with letter
+  def select_locality(letter)
+    []
+  end
+
   def collecting_event_georeference_count(collecting_event)
     count = collecting_event.georeferences.count - 1
     if count > 0
