@@ -11,7 +11,7 @@ module Tasks::Gis::LocalityHelper
   def anchor_shade(letter)
     style = ''
     if select_locality_count(letter) == 0
-      style = ' style="color:lightgreg;"'
+      style = ' style="color:lightgrey"'
     end
     "<h3#{style}>#{letter}</h3>"
   end
@@ -22,6 +22,10 @@ module Tasks::Gis::LocalityHelper
 
   # localities within @geographic_item which have a verbatim_locality starting with letter
   def select_locality(letter)
+    []
+  end
+
+  def locality_georeferences
     []
   end
 

@@ -356,7 +356,7 @@ TaxonWorks::Application.routes.draw do
       get 'update/:id', action: 'update', as: 'update_locality_task'
       get 'within/:id', action: 'within', as: 'within_locality_task'
       get 'new_list', action: 'new_list', as: 'new_list_task'
-      get 'list', action: 'list', as: 'list_locatity_task'
+      post 'list' # , action: 'list', as: 'locatity_list_task'
     end
 
     scope :gis, controller: 'tasks/gis/asserted_distribution' do

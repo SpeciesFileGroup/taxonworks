@@ -1,6 +1,12 @@
 <h1>Task: Collecting Event - Locality names by area </h1>
 <div class="flexbox">
   <div class="item item1">
+    <%= form_tag('list') do %>
+        <%= render(partial: 'shared/data/gis/area_selector',
+                   locals:  {passed_in_tag_id:    'geographic_area_id_for_locality_list',
+                             shown_georeferences: locality_georeferences}) %>
+        <%= submit_tag('Show') %>
+    <% end %>
 
   </div>
   <div class="item item2">

@@ -3,7 +3,7 @@
 <% end %>
 <%= link_to('Z', '#Z') %><br>
 
-<%= az_range %>
+<%#= az_range %>
 <% az_range.each do |letter| %>
     <a name='<%= "#{letter}" %>'></a>
     <%= anchor_shade(letter).html_safe %>
