@@ -22,11 +22,31 @@ class Tasks::Gis::LocalityController < ApplicationController
   end
 
   def new_list
-
   end
 
+  # use the params[:geographic_area_id] to locate the area, use that to find a geographic
   def list
-    @collecting_events = CollectingEvent.find_others_contained_within(@geographic_item).order(:verbatim_locality)
+    @geographic_area = GeographicArea.find(params[:geographic_area_id])
+    case params[:commit]
+      when 'Show'
+        if @geographic_area.has_shape?
+          @collecting_events = CollectingEvent.find_others_contained_within(@geographic_area.default_geographic_item)
+                                 .order(:verbatim_locality)
+                                 .select(:id)
+        else
+          @collecting_event = CollectingEvent.where('false')
+        end
+      # gather_list_data(@geographic_item)
+      else
+    end
+  end
+
+  def gather_list_data(geographic_area)
+    if @geographic_area.has_shape?
+      @geographic_item = @geographic_area.default_geographic_item
+    else
+      @geographic_item = nil
+    end
   end
 
 end

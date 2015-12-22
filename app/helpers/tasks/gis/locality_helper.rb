@@ -22,11 +22,15 @@ module Tasks::Gis::LocalityHelper
 
   # localities within @geographic_item which have a verbatim_locality starting with letter
   def select_locality(letter)
-    []
+    CollectingEvent.where(id: @collecting_events.map(&:id)).where("verbatim_locality like '#{letter}%'")
   end
 
   def locality_georeferences
-    []
+    retval = []
+    unless @collecting_events.nil?
+      retval = @collecting_events.map(&:georeferences).flatten
+    end
+    retval.push(@geographic_area)
   end
 
   def collecting_event_georeference_count(collecting_event)

@@ -164,7 +164,7 @@ module Tasks::Gis::ReportHelper
     retstring
   end
 
-  def shown_georeferences
+  def report_georeferences
     retval = @list_collection_objects.map(&:collecting_event).uniq.map(&:georeferences).flatten
     retval.push(@geographic_area)
   end
