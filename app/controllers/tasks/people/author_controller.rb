@@ -7,6 +7,7 @@ class Tasks::People::AuthorController < ApplicationController
 
   def source_list_for_author
     @person  = Person.find(params[:id])
+    # todo: MB - how do you find the sources for an author?
     @sources = Source.where('false')
   end
 end
