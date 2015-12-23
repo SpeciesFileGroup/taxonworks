@@ -13,7 +13,7 @@ module Tasks::Gis::LocalityHelper
     if select_locality_count(letter) == 0
       style = ' style="color:lightgrey"'
     end
-    "<h3#{style}>#{letter}</h3>"
+    "<h3#{style}>#{letter} <a href=\"#top\">top</a></h3>"
   end
 
   def select_locality_count(letter)
@@ -30,7 +30,9 @@ module Tasks::Gis::LocalityHelper
     unless @collecting_events.nil?
       retval = @collecting_events.map(&:georeferences).flatten
     end
-    retval.push(@geographic_area)
+    if retval.empty?
+      retval.push(@geographic_area)
+    end
   end
 
   def collecting_event_georeference_count(collecting_event)

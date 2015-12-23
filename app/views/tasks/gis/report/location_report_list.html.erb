@@ -6,9 +6,9 @@
         <span id="geographic_areaError" style="color: #DD0000"></span>
         <%= helper_download_button %>
         <p>
-          First 25 of <%= @all_collection_objects_count %> Collection objects:
+          <%= count_info(@all_collection_objects_count) %>
         </p>
-        <table border="1" align="center" hidden="1">
+        <table border="1" align="center" hidden="hidden">
           <tbody>
           <tr>
             <%= tag_headers.html_safe %>
@@ -22,7 +22,7 @@
 
   <div class="item item2">
     <div id="feature_collection"
-         data-feature-collection='<%= Gis::GeoJSON.feature_collection(shown_georeferences).to_json %>'>
+         data-feature-collection='<%= Gis::GeoJSON.feature_collection(report_georeferences).to_json %>'>
     </div>
     <table border="1">
       <tbody>

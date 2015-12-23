@@ -166,7 +166,28 @@ module Tasks::Gis::ReportHelper
 
   def report_georeferences
     retval = @list_collection_objects.map(&:collecting_event).uniq.map(&:georeferences).flatten
-    retval.push(@geographic_area)
+    if retval.empty?
+      retval.push(@geographic_area)
+    end
+    retval
+  end
+
+  def count_info(count)
+    term = 'Collection object'
+    if count < 25
+      if count == 0
+        retval = "No #{term}s"
+      else
+        if count == 1
+          retval = "1 #{term}"
+        else
+          retval = "#{count} #{term}s"
+        end
+      end
+    else
+      retval = "First 25 of #{count} Collection objects"
+    end
+    retval + ':'
   end
 
   def table_start

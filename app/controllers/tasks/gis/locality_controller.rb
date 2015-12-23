@@ -21,7 +21,9 @@ class Tasks::Gis::LocalityController < ApplicationController
     @collecting_events = CollectingEvent.find_others_contained_within(@geographic_item)
   end
 
+  # @return [Scope] Preload an empty set of collecting events
   def new_list
+    @collecting_events = CollectingEvent.where('false')
   end
 
   # use the params[:geographic_area_id] to locate the area, use that to find a geographic
@@ -34,7 +36,7 @@ class Tasks::Gis::LocalityController < ApplicationController
                                  .order(:verbatim_locality)
                                  .select(:id)
         else
-          @collecting_event = CollectingEvent.where('false')
+          @collecting_events = CollectingEvent.where('false')
         end
       # gather_list_data(@geographic_item)
       else
