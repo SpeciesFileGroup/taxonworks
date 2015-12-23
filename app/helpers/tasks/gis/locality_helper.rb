@@ -9,11 +9,11 @@ module Tasks::Gis::LocalityHelper
   end
 
   def anchor_shade(letter)
-    style = ''
+    style = 'display:inline;'
     if select_locality_count(letter) == 0
-      style = ' style="color:lightgrey"'
+      style += 'color:lightgrey;'
     end
-    "<h3#{style}>#{letter} <a href=\"#top\">top</a></h3>"
+    "<p><h3 style=\"#{style}\">#{letter}</h3> <a href=\"#top\">top</a></p>"
   end
 
   def select_locality_count(letter)
@@ -33,6 +33,7 @@ module Tasks::Gis::LocalityHelper
     if retval.empty?
       retval.push(@geographic_area)
     end
+    retval
   end
 
   def collecting_event_georeference_count(collecting_event)
