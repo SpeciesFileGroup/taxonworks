@@ -19,4 +19,16 @@ module Tasks::People::AuthorHelper
   def select_authors(letter)
     Person.with_role('SourceAuthor').where("last_name ilike '#{letter}%'").order(:last_name).select(:last_name)
   end
+
+  def cite_count(source)
+    source.citations.where(project_id: sessions_current_project_id).count
+  end
+
+  def source_color(source)
+    style = ' style="color:lightgrey:" '
+    unless cite_count(source) == 0
+      style = ''
+    end
+    "<span#{style}>#{source.cached}</span>"
+  end
 end

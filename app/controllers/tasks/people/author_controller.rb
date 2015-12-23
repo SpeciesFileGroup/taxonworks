@@ -9,4 +9,5 @@ class Tasks::People::AuthorController < ApplicationController
     @person  = Person.find(params[:id])
     @sources = Source.where(id: @person.roles.where(type: 'SourceAuthor').map(&:role_object_id))
   end
+
 end
