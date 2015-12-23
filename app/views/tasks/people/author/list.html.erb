@@ -10,7 +10,7 @@
     <%= letter_color(letter).html_safe %>
     <p>
       <% select_authors(letter).each do |author| %>
-          <%= link_to(author.last_name, author.metamorphosize) %><br>
+          <%= link_to(author.last_name, author_source_list_task_path) %><br>
       <% end %>
     </p>
 <% end %>

@@ -448,7 +448,7 @@ TaxonWorks::Application.routes.draw do
 
     scope :people, controller: 'tasks/people/author' do
       get 'author', action: 'list', as: 'author_list_task'
-      get 'source_list', action: 'source_list_for_author', as: 'author_source_list_task'
+      get 'source_list/:id', action: 'source_list_for_author', as: 'author_source_list_task'
     end
 
     scope :serials, controller: 'tasks/serials/similar' do
