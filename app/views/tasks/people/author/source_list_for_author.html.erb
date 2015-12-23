@@ -3,7 +3,8 @@
 <h2>Source list for <%= @person.name %></h2>
 
 <% @sources.each do |source| %>
-    <% source.citations.each do |cite| %>
-        <%= link_to(cite) %>
-    <% end %>
+    <%= source.cached %><br>
+    <!--<%# source.citations.each do |cite| %>-->
+        <%#= link_to(cite) %><br>
+    <!--<%# end %>-->
 <% end %>
