@@ -328,8 +328,44 @@ TaxonWorks::Application.routes.draw do
   ### End of resources except user related located below scopes ###
 
   scope :tasks do
-    scope :people, controller: 'tasks/people/author' do
-      get 'author', action: 'list', as: 'author_list_task'
+    # Scopes arranged alphabetically first level below :tasks
+
+    scope :accessions do
+      scope :breakdown do
+        scope :sqed_depiction, controller: 'tasks/accessions/breakdown/sqed_depiction' do
+          get ':id(/:namespace_id)', action: :index, as: 'sqed_depiction_breakdown_task'
+          patch 'update/:id', action: :update, as: 'sqed_depiction_breakdown_update_task'
+        end
+
+        scope :buffered_data, controller: 'tasks/accessions/breakdown/buffered_data' do
+          get ':id', action: :index, as: 'collection_object_buffered_data_breakdown_task'
+        end
+      end
+
+      scope :verify do
+        scope :material, controller: 'tasks/accessions/verify/material' do
+          get 'index/:by', action: :index, as: 'verify_accessions_task'
+        end
+      end
+
+      scope :quick, controller: 'tasks/accessions/quick/verbatim_material' do
+        get 'new', as: 'quick_verbatim_material_task'
+        post 'create', as: 'create_verbatim_material_task'
+      end
+
+      scope :simple, controller: 'tasks/accessions/quick/simple' do
+        get 'new', as: 'simple_specimen_task'
+        post 'create', as: 'create_simple_specimen_task'
+      end
+    end
+
+    scope :bibliography do
+      scope :verbatim_reference, controller: 'tasks/bibliography/verbatim_reference' do
+        get 'new', as: 'new_verbatim_reference_task'
+        post 'create', as: 'create_verbatim_reference_task'
+        post 'preview', as: 'preview_verbatim_reference_task'
+        post 'save', as: 'save_verbatim_reference_task'
+      end
     end
 
     scope :biological_associations do
@@ -338,10 +374,18 @@ TaxonWorks::Application.routes.draw do
       end
     end
 
-    scope :nomenclature do
-      scope :original_combination, controller: 'tasks/nomenclature/original_combination' do
-        get 'edit/:taxon_name_id', action: :edit, as: 'edit_protonym_original_combination_task'
-        patch 'update/:taxon_name_id', action: :update, as: 'update_protonym_original_combination_task'
+    scope :contents, controller: 'tasks/content/preview' do
+      get 'otu_content_for_layout/:otu_id', action: :otu_content_for_layout, as: 'preview_otu_content_for_layout'
+      get ':otu_id', action: 'otu_content', as: 'preview_otu_content'
+    end
+
+    scope :controlled_vocabularies do
+      scope :biocuration, controller: 'tasks/controlled_vocabularies/biocuration' do
+        get 'build_collection', as: 'build_biocuration_groups_task'
+        post 'build_biocuration_group', as: 'build_biocuration_group_task'
+
+        post 'create_biocuration_group'
+        post 'create_biocuration_class'
       end
     end
 
@@ -395,6 +439,18 @@ TaxonWorks::Application.routes.draw do
       get 'taxon_name_distribution_data/:id', action: 'show_for_taxon_name', as: 'taxon_name_distribution_data_task'
     end
 
+    scope :nomenclature do
+      scope :original_combination, controller: 'tasks/nomenclature/original_combination' do
+        get 'edit/:taxon_name_id', action: :edit, as: 'edit_protonym_original_combination_task'
+        patch 'update/:taxon_name_id', action: :update, as: 'update_protonym_original_combination_task'
+      end
+    end
+
+    scope :people, controller: 'tasks/people/author' do
+      get 'author', action: 'list', as: 'author_list_task'
+      get 'source_list', action: 'source_list_for_author', as: 'author_source_list_task'
+    end
+
     scope :serials, controller: 'tasks/serials/similar' do
       get 'like/:id', action: 'like', as: 'similar_serials_task'
     end
@@ -403,58 +459,6 @@ TaxonWorks::Application.routes.draw do
       get ':id', action: 'report', as: 'user_activity_report_task'
     end
 
-    scope :accessions do
-      scope :breakdown do
-        scope :sqed_depiction, controller: 'tasks/accessions/breakdown/sqed_depiction' do
-          get ':id(/:namespace_id)', action: :index, as: 'sqed_depiction_breakdown_task'
-          patch 'update/:id', action: :update, as: 'sqed_depiction_breakdown_update_task'
-        end
-
-        scope :buffered_data, controller: 'tasks/accessions/breakdown/buffered_data' do
-          get ':id', action: :index, as: 'collection_object_buffered_data_breakdown_task'
-        end
-      end
-
-      scope :verify do
-        scope :material, controller: 'tasks/accessions/verify/material' do
-          get 'index/:by', action: :index, as: 'verify_accessions_task'
-        end
-      end
-
-      scope :quick, controller: 'tasks/accessions/quick/verbatim_material' do
-        get 'new', as: 'quick_verbatim_material_task'
-        post 'create', as: 'create_verbatim_material_task'
-      end
-
-      scope :simple, controller: 'tasks/accessions/quick/simple' do
-        get 'new', as: 'simple_specimen_task'
-        post 'create', as: 'create_simple_specimen_task'
-      end
-    end
-
-    scope :bibliography do
-      scope :verbatim_reference, controller: 'tasks/bibliography/verbatim_reference' do
-        get 'new', as: 'new_verbatim_reference_task'
-        post 'create', as: 'create_verbatim_reference_task'
-        post 'preview', as: 'preview_verbatim_reference_task'
-        post 'save', as: 'save_verbatim_reference_task'
-      end
-    end
-
-    scope :controlled_vocabularies do
-      scope :biocuration, controller: 'tasks/controlled_vocabularies/biocuration' do
-        get 'build_collection', as: 'build_biocuration_groups_task'
-        post 'build_biocuration_group', as: 'build_biocuration_group_task'
-
-        post 'create_biocuration_group'
-        post 'create_biocuration_class'
-      end
-    end
-
-    scope :contents, controller: 'tasks/content/preview' do
-      get 'otu_content_for_layout/:otu_id', action: :otu_content_for_layout, as: 'preview_otu_content_for_layout'
-      get ':otu_id', action: 'otu_content', as: 'preview_otu_content'
-    end
   end
 
 
