@@ -1,4 +1,9 @@
 <h1>Task: Source list for author</h1>
 
-<h2>Source list for
-  <%= @person.name %></h2>
+<h2>Source list for <%= @person.name %></h2>
+
+<% @sources.each do |source| %>
+    <% source.citations.each do |cite| %>
+        <%= link_to(cite) %>
+    <% end %>
+<% end %>
