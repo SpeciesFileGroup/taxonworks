@@ -9,11 +9,11 @@ module Tasks::Gis::LocalityHelper
   end
 
   def anchor_shade(letter)
-    style = ''
+    style = 'display:inline;'
     if select_locality_count(letter) == 0
-      style = ' style="color:lightgrey"'
+      style += 'color:lightgrey;'
     end
-    "<h3#{style}>#{letter}</h3>"
+    "<p><h3 style=\"#{style}\">#{letter}</h3> <a href=\"#top\">top</a></p>"
   end
 
   def select_locality_count(letter)
@@ -22,11 +22,18 @@ module Tasks::Gis::LocalityHelper
 
   # localities within @geographic_item which have a verbatim_locality starting with letter
   def select_locality(letter)
-    []
+    CollectingEvent.where(id: @collecting_events.map(&:id)).where("verbatim_locality like '#{letter}%'")
   end
 
   def locality_georeferences
-    []
+    retval = []
+    unless @collecting_events.nil?
+      retval = @collecting_events.map(&:georeferences).flatten
+    end
+    if retval.empty?
+      retval.push(@geographic_area)
+    end
+    retval
   end
 
   def collecting_event_georeference_count(collecting_event)
