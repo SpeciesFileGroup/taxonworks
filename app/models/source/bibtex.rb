@@ -424,7 +424,7 @@ class Source::Bibtex < Source
     b[:note] = concatenated_notes_string if !concatenated_notes_string.blank? # see Notable
     unless self.serial.nil?
       b[:journal] = self.serial.name
-      issns = self.serial.identifiers.of_type(:issn)
+      issns       = self.serial.identifiers.of_type(:issn)
       unless issns.empty?
         b[:issn] = issns.first.identifier # assuming the serial has only 1 ISSN
       end
@@ -432,7 +432,7 @@ class Source::Bibtex < Source
 
     unless self.serial.nil?
       b[:journal] = self.serial.name
-      issns = self.serial.identifiers.of_type(:issn)
+      issns       = self.serial.identifiers.of_type(:issn)
       unless issns.empty?
         b[:issn] = issns.first.identifier # assuming the serial has only 1 ISSN
       end
@@ -463,7 +463,8 @@ class Source::Bibtex < Source
   # @param type [String] either author or editor
   # @return [String]
   #   the bibtex version of the name strings created from the TW people
-  # @todo this is an and b/w all people for > 1 person, likely not correct
+  #   BibTeX format is 'lastname, firstname and lastname,firstname and lastname, firstname'
+  #   For a name list not joined by multiple 'and's, use compute_human_names
   def compute_bibtex_names(type)
     method  = type
     methods = type + 's'
@@ -477,6 +478,22 @@ class Source::Bibtex < Source
     end
   end
 
+  # @param type [String] either author or editor
+  # @return[String]
+  #   A human readable version of the person list
+  #   'firstname lastname, firstname lastname, & firstname lastname'
+  def compute_human_names(type)
+    method  = type
+    methods = type + 's'
+    case self.send(methods).size
+      when 0
+        return self.send(method)
+      when 1
+        return self.send(methods).first.name
+      else
+        return self.send(methods).collect { |a| a.name }.to_sentence(last_word_connector: ' & ')
+    end
+  end
 
   # @return [Boolean]
   #   whether the BibTeX::Entry representation of this source is valid
@@ -676,9 +693,9 @@ class Source::Bibtex < Source
     unless value.blank?
       tw_issn = self.identifiers.where(type: 'Identifier::Global::Issn').first
       unless tw_issn.nil? || tw_issn.identifier != value
-          tw_issn.destroy
-        end
-        self.identifiers.build(type: 'Identifier::Global::Issn', identifier: value)
+        tw_issn.destroy
+      end
+      self.identifiers.build(type: 'Identifier::Global::Issn', identifier: value)
       # if tw_issn.nil?
       #   self.identifiers.build(type: 'Identifier::Global::Issn', identifier: value)
       # else
@@ -687,8 +704,8 @@ class Source::Bibtex < Source
       #     self.identifiers.build(type: 'Identifier::Global::Issn', identifier: value)
       #   end
       # end
-      end
     end
+  end
 
   def issn
     identifier_string_of_type(:issn)
@@ -841,7 +858,15 @@ class Source::Bibtex < Source
         break
       end
     end
-    errors.add(:base, 'There is no core data provided.') if !valid
+    #TODO This test for authors doesn't work with a new record.
+    if (self.authors.count > 0 || self.editors.count > 0 || !self.serial.nil?)
+      valid = true
+    end
+    if !valid
+      errors.add(:base,
+                 'Missing core data. A TaxonWorks source must have one of the following: author, editor, booktitle, title, url, journal, year, or stated year'
+      )
+    end
   end
 
   #endregion  hard validations
@@ -863,9 +888,9 @@ class Source::Bibtex < Source
   def sv_has_title
     if self.title.blank?
       unless self.soft_validations.messages.include?('There is no title associated with this source.')
-      soft_validations.add(:title, 'There is no title associated with this source.')
+        soft_validations.add(:title, 'There is no title associated with this source.')
+      end
     end
-  end
   end
 
   def sv_has_some_type_of_year
@@ -918,15 +943,15 @@ class Source::Bibtex < Source
   end
 
   def sv_has_school
-      if self.school.blank?
-        soft_validations.add(:school, 'Valid BibTeX requires a school associated with any thesis.')
-      end
+    if self.school.blank?
+      soft_validations.add(:school, 'Valid BibTeX requires a school associated with any thesis.')
+    end
   end
 
   def sv_has_institution
-      if self.institution.blank?
-        soft_validations.add(:institution, 'Valid BibTeX requires an institution with a tech report.')
-      end
+    if self.institution.blank?
+      soft_validations.add(:institution, 'Valid BibTeX requires an institution with a tech report.')
+    end
   end
 
   def sv_has_note

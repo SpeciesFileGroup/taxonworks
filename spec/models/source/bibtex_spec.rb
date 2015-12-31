@@ -437,7 +437,7 @@ describe Source::Bibtex, type: :model, group: :sources do
 
     specify 'must have one of the following fields: :author, :booktitle, :editor, :journal,
       :title, :year, :url, :stated_year' do
-      error_message = 'There is no core data provided.'
+      error_message = 'Missing core data. A TaxonWorks source must have one of the following: author, editor, booktitle, title, url, journal, year, or stated year'
       local_src     = Source::Bibtex.new()
       expect(local_src.valid?).to be_falsey
       expect(local_src.errors.messages[:base]).to include error_message
