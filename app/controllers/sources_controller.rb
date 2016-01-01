@@ -46,8 +46,23 @@ class SourcesController < ApplicationController
 
         format.json { render action: 'show', status: :created, location: @source }
       else
-        format.html { render action: 'new' }
-        format.json { render json: @source.errors, status: :unprocessable_entity }
+        if @source.type == 'Source::Bibtex' && params['source']['roles_attributes'].count > 0
+          # has an author or editor so force create...
+          if @source.errors.get(:base).include?('Missing core data. A TaxonWorks source must have one of the following: author, editor, booktitle, title, url, journal, year, or stated year')
+            @source.title = 'forced'
+            if @source.save
+              @source.title = ''
+              @source.save  #TODO may need to add a test to confirm it saves the second time.
+              format.html { redirect_to @source.metamorphosize, notice: "Source by '#{@source.author}' was successfully created." }
+            else
+              format.html { render action: 'new' }
+              format.json { render json: @source.errors, status: :unprocessable_entity }
+            end
+          end
+        else
+          format.html { render action: 'new' }
+          format.json { render json: @source.errors, status: :unprocessable_entity }
+        end
       end
     end
   end
@@ -78,13 +93,13 @@ class SourcesController < ApplicationController
 
   def autocomplete
     @sources = Source.find_for_autocomplete(params)
-    data = @sources.collect do |t|
-      {id: t.id,
-       label: ApplicationController.helpers.source_tag(t),
+    data     = @sources.collect do |t|
+      {id:              t.id,
+       label:           ApplicationController.helpers.source_tag(t),
        response_values: {
-           params[:method] => t.id
+         params[:method] => t.id
        },
-       label_html: ApplicationController.helpers.source_tag(t)
+       label_html:      ApplicationController.helpers.source_tag(t)
       }
     end
     render :json => data
@@ -106,8 +121,8 @@ class SourcesController < ApplicationController
     if params[:file].nil?
       redirect_to batch_load_sources_path, notice: 'no file has been selected'
     else
-      @sources = Source.batch_preview(file: params[:file].tempfile)
-      sha256 = Digest::SHA256.file(params[:file].tempfile)
+      @sources                    = Source.batch_preview(file: params[:file].tempfile)
+      sha256                      = Digest::SHA256.file(params[:file].tempfile)
       cookies[:batch_sources_md5] = sha256.hexdigest
       render 'sources/batch_load/bibtex_batch_preview'
     end
@@ -120,8 +135,8 @@ class SourcesController < ApplicationController
       sha256 = Digest::SHA256.file(params[:file].tempfile)
       if cookies[:batch_sources_md5] == sha256.hexdigest
         if result_hash = Source.batch_create(params.symbolize_keys.to_h)
-          @count = result_hash[:count]
-          @sources = result_hash[:records]
+          @count         = result_hash[:count]
+          @sources       = result_hash[:records]
           flash[:notice] = "Successfully batch created #{@count} sources."
           render 'sources/batch_load/bibtex_batch_create' # and return
         else
@@ -145,21 +160,21 @@ class SourcesController < ApplicationController
 
   # Use callbacks to share common setup or constraints between actions.
   def set_source
-    @source = Source.find(params[:id])
+    @source        = Source.find(params[:id])
     @recent_object = @source
   end
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def source_params
     params.require(:source).permit(
-        :serial_id, :address, :annote, :author, :booktitle, :chapter,
-        :crossref, :edition, :editor, :howpublished, :institution,
-        :journal, :key, :month, :note, :number, :organization, :pages,
-        :publisher, :school, :series, :title, :type, :volume, :doi,
-        :abstract, :copyright, :language, :stated_year, :verbatim,
-        :bibtex_type, :day, :year, :isbn, :issn, :verbatim_contents,
-        :verbatim_keywords, :language_id, :translator, :year_suffix, :url, :type,
-        roles_attributes: [:id, :_destroy, :type, :person_id, :position, person_attributes: [:last_name, :first_name, :suffix, :prefix]]
+      :serial_id, :address, :annote, :author, :booktitle, :chapter,
+      :crossref, :edition, :editor, :howpublished, :institution,
+      :journal, :key, :month, :note, :number, :organization, :pages,
+      :publisher, :school, :series, :title, :type, :volume, :doi,
+      :abstract, :copyright, :language, :stated_year, :verbatim,
+      :bibtex_type, :day, :year, :isbn, :issn, :verbatim_contents,
+      :verbatim_keywords, :language_id, :translator, :year_suffix, :url, :type,
+      roles_attributes: [:id, :_destroy, :type, :person_id, :position, person_attributes: [:last_name, :first_name, :suffix, :prefix]]
     )
   end
 end
