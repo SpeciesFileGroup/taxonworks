@@ -72,7 +72,7 @@ gem 'paper_trail', '~> 4.0.0.rc'
 # DwC-A archive handling 
 gem 'dwc-archive', '~> 0.9.11'
 
-gem 'validates_timeliness', '~> 3.0.14'
+gem 'validates_timeliness', '~> 4.0.0'
 
 # Password encryption
 gem 'bcrypt', '~> 3.1.7'
