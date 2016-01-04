@@ -9,7 +9,7 @@ gem 'responders', '~> 2.0'
 gem 'pg', '~> 0.18.4'
 
 # Postgis
-gem 'activerecord-postgis-adapter', '~> 3.1.0'
+gem 'activerecord-postgis-adapter', '~> 3.1.2'
 
 # rgeo support
 gem 'ffi-geos'
