@@ -61,7 +61,7 @@ gem 'kaminari'
 
 # File upload manager & image processor
 gem 'paperclip', '~> 4.3.2'
-gem 'paperclip-meta', '~> 1.2.0'
+gem 'paperclip-meta', '~> 2.0'
 
 # Ordering records
 gem 'acts_as_list'
