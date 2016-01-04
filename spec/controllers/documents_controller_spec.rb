@@ -19,16 +19,16 @@ require 'rails_helper'
 # that an instance is receiving a specific message.
 
 RSpec.describe DocumentsController, type: :controller do
+  before(:each) {
+    sign_in
+  }
 
-  # This should return the minimal set of attributes required to create a valid
-  # Document. As you add validations to Document, be sure to
-  # adjust the attributes here as well.
   let(:valid_attributes) {
-    skip("Add a hash of attributes valid for your model")
+       {document_file:  fixture_file_upload((Rails.root + 'spec/files/documents/tiny.pdf'), 'application/pdf') }
   }
 
   let(:invalid_attributes) {
-    skip("Add a hash of attributes invalid for your model")
+    {document_file: nil} 
   }
 
   # This should return the minimal set of values that should be in the session
@@ -37,10 +37,10 @@ RSpec.describe DocumentsController, type: :controller do
   let(:valid_session) { {} }
 
   describe "GET #index" do
-    it "assigns all documents as @documents" do
+    it "assigns all documents as @recent_objects" do
       document = Document.create! valid_attributes
       get :index, {}, valid_session
-      expect(assigns(:documents)).to eq([document])
+      expect(assigns(:recent_objects)).to eq([document])
     end
   end
 
@@ -108,9 +108,9 @@ RSpec.describe DocumentsController, type: :controller do
 
       it "updates the requested document" do
         document = Document.create! valid_attributes
-        put :update, {:id => document.to_param, :document => new_attributes}, valid_session
+        put :update, {:id => document.to_param, :document => { document_file: fixture_file_upload((Rails.root + 'spec/files/documents/tiny.txt'), 'text/plain')} }, valid_session
         document.reload
-        skip("Add assertions for updated state")
+        expect(document.document_file_file_name).to eq('tiny.txt')
       end
 
       it "assigns the requested document as @document" do
