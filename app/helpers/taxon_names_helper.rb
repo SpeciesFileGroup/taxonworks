@@ -2,6 +2,7 @@ module TaxonNamesHelper
 
   def taxon_name_tag(taxon_name)
     return nil if taxon_name.nil?
+    return taxon_name.name if taxon_name.new_record?
     # TODO: fix generation of empty string cached author year
     #taxon_name.cached_html ? [taxon_name.cached_html, taxon_name.cached_author_year].join(' ').strip.html_safe : taxon_name.name
     taxon_name.cached_html.strip.html_safe || taxon_name.name
