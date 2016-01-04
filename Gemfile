@@ -105,7 +105,7 @@ group :test, :development do
   gem 'byebug', '~> 8.2.1', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'awesome_print'
   gem 'factory_girl_rails', '~> 4.0'
-  gem 'did_you_mean', '~> 1.0.0'
+  gem 'did_you_mean', '~> 0.10.0'
   gem 'selenium-webdriver', '~> 2.48.1'
 end
 
@@ -116,7 +116,7 @@ group :development do
   gem 'spring-commands-rspec', '~> 1.0.2'
   gem 'guard-rspec', '~> 4.5', require: false
   gem 'parallel_tests', '~> 2.2.2'
-  gem 'web-console', '~> 3.0'
+  gem 'web-console', '~> 2.0'
 end
 
 group :doc do
