@@ -2,16 +2,19 @@
 # made to ensure global uniqueness.  While most identifiers are intended to be unique globally, few
 # consider mechanisms for ensuring this.
 #
-# Local identifiers may of the same type may be stacked on a single record without defining the relation
+# Local identifiers of the same type may be stacked on a single record without defining the relation
 # between each identifier (see conceptual difference in Identfier::Global).
 #
-# Local identifiers require a namespace.  See Namespace.  
+# Local identifiers require a namespace. See Namespace.  
 # 
-# Only one namespaced identifier is allowed per type per object, i.e. you can't have, on a single specimen:
+# Multiple local identfiers of the same namespace can be applied to the same object, while this is rarely useful in real life
+# it does have physical-world analogs, see in particular Accession numbers on Collecting Events linked to Specimens that are in the process of 
+# being accessioned.
+#
 #   Foo 123 (CatalogNumber) 
 #   Foo 345 (CatalogNumber)
 #
-# However you *can* have:
+# You can also do this on the same object: 
 #   Foo 123 (CatalogNumber)
 #   Bar 123 (CatalogNumber)
 #  
@@ -22,9 +25,6 @@ class Identifier::Local < Identifier
 
   validates :namespace, presence: true
   validates_uniqueness_of :identifier, scope: [:namespace_id, :project_id, :type]
-
-  # multiple identifiers could easily be attached to the same object, e.g. a specimen with two identifier labels, same collecting event with multiple accession codes.
-  # validates_uniqueness_of :namespace, scope: [:identifier_object_type, :identifier_object_id, :type]
 
   # Exact match on identifier + namespace
   # @param [String, String]
