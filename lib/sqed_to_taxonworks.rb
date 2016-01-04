@@ -6,15 +6,17 @@ module SqedToTaxonworks
     LARGE_WIDTH = 400
 
     TEXT_MAP = {
-      stage: :buffered_collecting_event,
       annotated_specimen: :buffered_collecting_event,
-      identifier: :buffered_other_labels,
-      specimen: :buffered_collecting_event,
-      determination_labels: :buffered_determination_labels,
-      labels: :buffered_collecting_event,
-      image_registration: nil,
+      collecting_event_labels: :buffered_collecting_event,
       curator_metadata: :buffered_other_labels,
-      nothing: nil
+      determination_labels: :buffered_determination_labels,
+      identifier: :buffered_other_labels,
+      image_registration: nil,
+      other_labels: :buffered_other_labels,
+      labels: :buffered_collecting_event,
+      nothing: nil,
+      specimen: nil,
+      stage: :buffered_collecting_event,
     }
 
     attr_accessor :depiction
@@ -93,8 +95,6 @@ module SqedToTaxonworks
 
     def image_path_for_large_image(layout_section_type)
       c = coords_for(layout_section_type) 
-#      height = (c[3].to_f / (c[2].to_f / 400)).to_i
-
       "/images/#{depiction.image.id}/scale_to_box/#{c[0]}/#{c[1]}/#{c[2]}/#{c[3]}/400/400"
     end
 
@@ -110,12 +110,12 @@ module SqedToTaxonworks
 
     # @return [Array]
     def image_sections
-      (sqed_depiction.extraction_metadata[:metadata_map].values - [:image_registration])
+      (sqed_depiction.extraction_metadata[:metadata_map].values - [:image_registration, :specimen])
     end
 
     # @return [Symbol]
     def primary_image 
-      (image_sections & [:labels, :annotated_specimen]).first
+      (image_sections & [:labels, :collecting_event_labels, :annotated_specimen]).first
     end
 
     # @return [Array]
