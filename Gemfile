@@ -47,7 +47,7 @@ gem 'awesome_nested_set', '~> 3.0.2'
 
 # BibTex handling
 gem 'csl', '~> 1.4.3' # git: 'https://github.com/inkshuk/csl-ruby'
-gem 'bibtex-ruby', '~> 4.0.15'
+gem 'bibtex-ruby', '~> 4.1.0'
 gem 'citeproc-ruby', '~> 1.1.0'
 gem 'csl-styles', '~> 1.0.1.6'
 
