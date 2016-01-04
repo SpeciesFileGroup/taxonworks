@@ -1,7 +1,7 @@
 /* see
-  http://css-tricks.com/snippets/css/a-guide-to-flexbox/
-  http://flexboxin5.com/
-*/
+http://css-tricks.com/snippets/css/a-guide-to-flexbox/
+http://flexboxin5.com/
+ */
 
 .flexbox {
   display: -webkit-box;
@@ -13,7 +13,7 @@
   display: flex;
   flex-direction: row; 
   flex-wrap: nowrap;
- // flex-flow: row wrap; 
+  // flex-flow: row wrap; 
   justify-content: center;
 }
 
@@ -34,30 +34,32 @@
   .item6 { order: 6; }
 }
 
+
+
+// Used for model/index routes only
 #model_index {
- margin: 2em;
- align-items:center; 
+  margin: 2em;
+  align-items: center; 
 
- &.flexbox {
-//   justify-content: space-around;
-  // flex-flow: columns;
-   justify-content: space-around;
-   align-content: space-around;
-   //font-size: 150%;
- }
- // min-height:200px;
- .item1 {
-  //  text-align: center;
-  // line-height: 10;
-}
+  &.flexbox {
+    // justify-content: space-around;
+    // flex-flow: columns;
+    justify-content: space-around;
+    align-content: space-around;
+    //font-size: 150%;
+  }
+   min-height: 300px;
+  .item1 {
+      text-align: center;
+     line-height: 10;
+  }
 
- .item2 { }
+  .item2 { }
 
- .item3 { }
+  .item3 { }
 
- .item4 { }
+  .item4 { }
 
- .item5 { flex: .1; }
-
+  .item5 { flex: .1; }
 
 }
