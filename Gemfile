@@ -14,7 +14,7 @@ gem 'activerecord-postgis-adapter', '~> 3.1.2'
 # rgeo support
 gem 'ffi-geos'
 gem 'rgeo-shapefile'
-gem 'rgeo-geojson'
+gem 'rgeo-geojson', '~> 0.4.1' 
 
 # Redis support
 #   http://redis.io/clients#ruby
