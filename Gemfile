@@ -40,7 +40,7 @@ gem 'turbolinks', '~> 2.5'
 gem 'jquery-turbolinks', '~> 2.1'
 
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
-gem 'jbuilder', '~> 2.3' 
+gem 'jbuilder', '~> 2.4.0' 
 gem 'chronic', '~> 0.10'
 
 gem 'awesome_nested_set', '~> 3.0.2' 
