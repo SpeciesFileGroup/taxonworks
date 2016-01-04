@@ -98,14 +98,14 @@ gem 'taxonifi', '0.3.6'
 gem 'sqed', '0.1.9'
 
 group :test, :development do
-  gem 'faker', '~> 1.5.0'
+  gem 'faker', '~> 1.6.1'
   gem 'rspec-rails', '~> 3.4'
   gem 'rspec-activemodel-mocks', '~> 1.0.2'
   gem 'inch', '~> 0.7'
   gem 'byebug', '~> 8.2.1', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'awesome_print'
   gem 'factory_girl_rails', '~> 4.0'
-  gem 'did_you_mean', '~> 0.10.0'
+  gem 'did_you_mean', '~> 1.0.0'
   gem 'selenium-webdriver', '~> 2.48.1'
 end
 
@@ -115,8 +115,8 @@ group :development do
   gem 'binding_of_caller'
   gem 'spring-commands-rspec', '~> 1.0.2'
   gem 'guard-rspec', '~> 4.5', require: false
-  gem 'parallel_tests', '~> 1.9'
-  gem 'web-console', '~> 2.0'
+  gem 'parallel_tests', '~> 2.2.2'
+  gem 'web-console', '~> 3.0'
 end
 
 group :doc do
