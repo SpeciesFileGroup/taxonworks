@@ -19,17 +19,18 @@ require 'rails_helper'
 # that an instance is receiving a specific message.
 
 RSpec.describe DocumentationController, type: :controller do
+  before(:each) {
+    sign_in
+  }
 
   # This should return the minimal set of attributes required to create a valid
   # Documentation. As you add validations to Documentation, be sure to
   # adjust the attributes here as well.
-  let(:valid_attributes) {
-    skip("Add a hash of attributes valid for your model")
+  let(:valid_attributes) { strip_housekeeping_attributes(FactoryGirl.build(:valid_documentation).attributes)
   }
 
-  let(:invalid_attributes) {
-    skip("Add a hash of attributes invalid for your model")
-  }
+  let(:documentation_target) { FactoryGirl.create(:valid_collecting_event)}
+
 
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in
@@ -37,10 +38,10 @@ RSpec.describe DocumentationController, type: :controller do
   let(:valid_session) { {} }
 
   describe "GET #index" do
-    it "assigns all documentation as @documentation" do
+    it "assigns all recent documentation as @recent_objects" do
       documentation = Documentation.create! valid_attributes
       get :index, {}, valid_session
-      expect(assigns(:documentation)).to eq([documentation])
+      expect(assigns(:recent_objects)).to eq([documentation])
     end
   end
 
@@ -83,18 +84,18 @@ RSpec.describe DocumentationController, type: :controller do
 
       it "redirects to the created documentation" do
         post :create, {:documentation => valid_attributes}, valid_session
-        expect(response).to redirect_to(Documentation.last)
+        expect(response).to redirect_to(Documentation.last.metamorphosize)
       end
     end
 
     context "with invalid params" do
       it "assigns a newly created but unsaved documentation as @documentation" do
-        post :create, {:documentation => invalid_attributes}, valid_session
+        post :create, {:documentation => {documentation_object_id: 1} }, valid_session
         expect(assigns(:documentation)).to be_a_new(Documentation)
       end
 
       it "re-renders the 'new' template" do
-        post :create, {:documentation => invalid_attributes}, valid_session
+        post :create, {:documentation => {documentation_object_id: 1}}, valid_session
         expect(response).to render_template("new")
       end
     end
@@ -122,20 +123,20 @@ RSpec.describe DocumentationController, type: :controller do
       it "redirects to the documentation" do
         documentation = Documentation.create! valid_attributes
         put :update, {:id => documentation.to_param, :documentation => valid_attributes}, valid_session
-        expect(response).to redirect_to(documentation)
+        expect(response).to redirect_to(documentation.metamorphosize)
       end
     end
 
     context "with invalid params" do
       it "assigns the documentation as @documentation" do
         documentation = Documentation.create! valid_attributes
-        put :update, {:id => documentation.to_param, :documentation => invalid_attributes}, valid_session
+        put :update, {:id => documentation.to_param, :documentation =>  {documentation_object_id: 1}}, valid_session
         expect(assigns(:documentation)).to eq(documentation)
       end
 
       it "re-renders the 'edit' template" do
         documentation = Documentation.create! valid_attributes
-        put :update, {:id => documentation.to_param, :documentation => invalid_attributes}, valid_session
+        put :update, {:id => documentation.to_param, :documentation => {documentation_object_id: nil}}, valid_session
         expect(response).to render_template("edit")
       end
     end
