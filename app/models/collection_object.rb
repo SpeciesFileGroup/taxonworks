@@ -1,6 +1,3 @@
-CO_OTU_Strings = 'OTU,OTU name,Family,Genus,Species,Country,State,County,Locality,Latitude,Longitude'
-CO_OTU_Headers = CO_OTU_Strings.split(',')
-
 # A CollectionObject is on or more physical things that have been collected.  Enumerating how many things (@!total) is a task of the curator.
 #
 # A CollectiongObjects immediate disposition is handled through its relation to containers.  Containers can be nested, labeled, and interally subdivided as necessary.
@@ -60,6 +57,9 @@ CO_OTU_Headers = CO_OTU_Strings.split(',')
 #   The date when the object was removed from tracking.  If provide then Repository must be null?! TODO: resolve
 #
 class CollectionObject < ActiveRecord::Base
+ 
+  CO_OTU_HEADERS = %w{OTU OTU\ name Family Genus Species Country State County Locality Latitude Longitude} 
+
   # @todo DDA: may be buffered_accession_number should be added.  MJY: This would promote non-"barcoded" data capture, I'm not sure we want to do this?!
 
   include Housekeeping
@@ -252,7 +252,7 @@ class CollectionObject < ActiveRecord::Base
   # @param [Hash] col_defs selected headers and types
   def self.generate_report_download(scope, col_defs, table_data = nil)
     CSV.generate do |csv|
-      row = CO_OTU_Headers
+      row = CO_OTU_HEADERS
       unless col_defs.nil?
         %w(ce co bc).each { |column_type|
           items = []

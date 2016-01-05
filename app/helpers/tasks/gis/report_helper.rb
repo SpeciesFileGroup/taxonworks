@@ -20,7 +20,7 @@ module Tasks::Gis::ReportHelper
   # @return [String] common headers otu through longitude
   def otu_headers
     retval = ''
-    CO_OTU_Headers.each { |header|
+    CollectionObject::CO_OTU_HEADERS.each { |header|
       retval += "<th>#{header}</th>\n"
     }
     retval
