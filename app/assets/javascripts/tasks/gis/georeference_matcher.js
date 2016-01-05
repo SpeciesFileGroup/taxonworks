@@ -4,10 +4,10 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
   if ($('#match_georeference_widget').length) {
 
 //        send polygon or circle to controller from right-hand draw map
-//        reconfigure drawn map to mimic asseted distributions behavior
+//        reconfigure drawn map to mimic asserted distributions behavior
 //        construct callback to transition from draw map to selecting map
 
-    var ce_map = [];        // map and item containers are cross-pollenating each other
+    var ce_map = [];        // map and item containers are cross-pollinating each other
     var ce_last = null;     // causing drawn areas to be erased, but left as features in form
     var gr_map = [];        // drawn georeference search area
     var gr_last = null;     // last item drawn
@@ -65,16 +65,16 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
               }
             }    // end second/innermost ajax callback.
           ).on("ajax:error", function (e, xhr, status, error) {
-              $("#new_article").append("<p>ERROR</p>");
-            })
+            $("#new_article").append("<p>ERROR</p>");
+          })
         }
         // hide the filter div
         //$("#_filter_ce_form").attr("hidden", true);
         return true;
       }             // end first/outermost ajax callback.
     ).on("ajax:error", function (e, xhr, status, error) {
-        $("#new_article").append("<p>ERROR</p>");
-      });
+      $("#new_article").append("<p>ERROR</p>");
+    });
 
     $(".tag-ce").click(function (event) {
       // unhide this form
@@ -124,16 +124,16 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
               }
             }    // end second/innermost ajax callback.
           ).on("ajax:error", function (e, xhr, status, error) {
-              $("#new_article").append("<p>ERROR</p>");
-            })
+            $("#new_article").append("<p>ERROR</p>");
+          })
         }
         // hide the tag div
         //$("#_tag_ce_form").attr("hidden", true);
         return true;
       }             // end first/outermost ajax callback.
     ).on("ajax:error", function (e, xhr, status, error) {
-        $("#new_article").append("<p>ERROR</p>");
-      });
+      $("#new_article").append("<p>ERROR</p>");
+    });
 
     $(".draw-ce").click(function (event) {
 
@@ -207,8 +207,8 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
         return true;
       }             // end first/outermost ajax callback.
     ).on("ajax:error", function (e, xhr, status, error) {
-        $("#new_article").append("<p>ERROR</p>");
-      });
+      $("#new_article").append("<p>ERROR</p>");
+    });
 
     $(".recent-ce").click(function (event) {
 
@@ -256,16 +256,16 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
               }
             }    // end second/innermost ajax callback.
           ).on("ajax:error", function (e, xhr, status, error) {
-              $("#new_article").append("<p>ERROR</p>");
-            })
+            $("#new_article").append("<p>ERROR</p>");
+          })
         }
         // hide the filter div
         // $("#_recent_ce_form").attr("hidden", true);
         return true;
       }             // end first/outermost ajax callback.
     ).on("ajax:error", function (e, xhr, status, error) {
-        $("#new_article").append("<p>ERROR</p>");
-      });
+      $("#new_article").append("<p>ERROR</p>");
+    });
 
 ///////////////////////////////////////////////////////////
 //   georeference (right) side handlers
@@ -418,8 +418,8 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
         return true;
       }
     ).on("ajax:error", function (e, xhr, status, error) {
-        $("#new_article").append("<p>ERROR</p>");
-      });
+      $("#new_article").append("<p>ERROR</p>");
+    });
 
     $(".recent-gr").click(function (event) {
 
