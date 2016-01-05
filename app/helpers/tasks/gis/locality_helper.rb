@@ -25,15 +25,19 @@ module Tasks::Gis::LocalityHelper
     CollectingEvent.where(id: @collecting_events.map(&:id)).where("verbatim_locality like '#{letter}%'")
   end
 
-  def locality_georeferences
+  def locality_georeferences(collecting_events, geographic_area)
     retval = []
-    unless @collecting_events.nil?
-      retval = @collecting_events.map(&:georeferences).flatten
+    unless collecting_events.nil?
+      retval = collecting_events.map(&:georeferences).flatten
     end
     if retval.empty?
-      retval.push(@geographic_area)
+      retval.push(geographic_area)
     end
     retval
+  end
+
+  def missing_verbatim_locality_count(collecting_events)
+    collecting_events.where(verbatim_locality: nil).count
   end
 
   def collecting_event_georeference_count(collecting_event)

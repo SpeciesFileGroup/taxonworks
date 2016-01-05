@@ -1,13 +1,14 @@
 <% ay_range.each do |letter| %>
     <%= link_to("#{letter}", "\##{letter}") + ' |' -%>
 <% end %>
- <%= link_to('Z', '#Z') %><br>
+<%= link_to('Z', '#Z') %><br>
+<%= "Collecting events without a verbatim locality: #{missing_verbatim_locality_count(@collecting_events)}" %>
 
 <%#= az_range %>
 <% az_range.each do |letter| %>
     <a name='<%= "#{letter}" %>'></a>
     <%= anchor_shade(letter).html_safe %>
-      <% select_locality(letter).each do |ce| %>
-          <%= link_to(ce.verbatim_locality, ce) %><br>
-      <% end %>
+    <% select_locality(letter).each do |ce| %>
+        <%= link_to(ce.verbatim_locality, ce) %><br>
+    <% end %>
 <% end %>
