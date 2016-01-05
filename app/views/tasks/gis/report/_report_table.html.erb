@@ -12,11 +12,11 @@
       <tr>
         <td><%= link_to(this_row[0], c_o.get_otu) unless c_o.get_otu.nil? %></td>
         <% this_row[1..7].each { |item| %>
-            <td><%= item %></td>
+            <td><%= item.to_s.html_safe if item %></td>
         <% } %>
         <td><%= link_to(this_row[8], c_o.collecting_event) %></td>
         <% this_row.from(9).each { |item| %>
-            <td><%= item %></td>
+            <td><%= item.to_s.html_safe if item %></td>
         <% } %>
       </tr>
   <% end %>
