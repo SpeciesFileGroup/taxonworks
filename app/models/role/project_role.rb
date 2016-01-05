@@ -2,6 +2,9 @@
 # @todo Refactor after Housekeeping / FactoryGirl issues resolved (nested set!!)
 #
 class Role::ProjectRole < Role
+
+  self.abstract_class = true
+
   include Housekeeping
 
   before_validation :set_project_if_possible # facilitates << additions
