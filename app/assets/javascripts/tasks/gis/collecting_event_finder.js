@@ -6,5 +6,11 @@ _init_collecting_event_finder_page = function init_collecting_event_page() {
   //  1)  by named geographic_area, using the geographic_area ajax
   //  2)  by circle or polygon (maybe also square/rectangle)
   //  3)  by pointing to a map and selecting an enclosing geographic_area (Rich's suggestion)
-
+  if ($('#_draw_ce_form_outer').length) {
+    $("#_draw_ce_form").removeAttr("hidden");
+    $("#_select_ce_form").removeAttr("hidden");
+  }
 };
+
+$(document).ready(_init_collecting_event_finder_page);
+
