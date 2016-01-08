@@ -7,22 +7,24 @@
 // It's not advisable to add code directly here, but if you do, it'll appear at the bottom of the
 // compiled file.
 //
+//
+//
 // WARNING: THE FIRST BLANK LINE MARKS THE END OF WHAT'S TO BE PROCESSED, ANY BLANK LINE SHOULD
 // GO AFTER THE REQUIRES BELOW.
 //
 //
-
+//
 //= require chartkick
 //= require jquery
-
-// "after jquery but before turbolinks", "immediately after jquery"
+//     "after jquery but before turbolinks", "immediately after jquery"
 //= require jquery.turbolinks 
-
 //= require jquery_ujs
 //= require jquery-ui
+//     we might need this if we trim down jquery-ui/ujs -> require jquery-ui/autocomplete
+//= require autocomplete-rails
+//= require best_in_place
 //= require dropzone
 //= require_tree .
-
 // "after jquery", "after your other scripts"
 //= require turbolinks
 
