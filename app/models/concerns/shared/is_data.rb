@@ -6,6 +6,7 @@ module Shared::IsData
 
   included do
     include Pinnable
+    include Levenshtein
   end
 
   def metamorphosize
