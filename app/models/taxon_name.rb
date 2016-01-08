@@ -1105,7 +1105,7 @@ class TaxonName < ActiveRecord::Base
   # return [Scope]
   #   a scoped query for autocomplete purposes
   def self.find_for_autocomplete(params)
-    Queries::TaxonNameAutocompleteQuery.new(params[:term]).all.where(project_id: params[:project_id])
+    Queries::TaxonNameAutocompleteQuery.new(params[:term], project_id: params[:project_id]).all
   end
 
   # A proxy for a scope
