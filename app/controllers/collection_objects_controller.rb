@@ -62,10 +62,12 @@ class CollectionObjectsController < ApplicationController
       if @collection_object.update(collection_object_params)
         @collection_object = @collection_object.metamorphosize
         format.html { redirect_to @collection_object, notice: 'Collection object was successfully updated.' }
-        format.json { head :no_content }
+        format.json {  respond_with_bip(@collection_object)  }
+        #   format.json { head :no_content }
       else
         format.html { render action: 'edit' }
-        format.json { render json: @collection_object.errors, status: :unprocessable_entity }
+        format.json { respond_with_bip(@collection_object)  }
+#        format.json { render json: @collection_object.errors, status: :unprocessable_entity }
       end
     end
   end
@@ -121,7 +123,13 @@ class CollectionObjectsController < ApplicationController
   end
 
   def collection_object_params
-    params.require(:collection_object).permit(:total, :preparation_type_id, :repository_id, :ranged_lot_category_id, :collecting_event_id, :buffered_collecting_event, :buffered_deteriminations, :buffered_other_labels, :deaccessioned_at, :deaccession_reason)
+    params.require(:collection_object).permit(
+      :total, :preparation_type_id, :repository_id,
+      :ranged_lot_category_id, :collecting_event_id,
+      :buffered_collecting_event, :buffered_deteriminations,
+      :buffered_other_labels, :deaccessioned_at, :deaccession_reason,
+      collecting_event_attributes: [ ] 
+    )
   end
 
 end
