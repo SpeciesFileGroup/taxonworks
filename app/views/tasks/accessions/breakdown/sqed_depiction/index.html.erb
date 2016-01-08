@@ -1,7 +1,7 @@
 <h2> Task: Transcribe depiction </h2>
 <p class="subtle">sqed depiction: </span><%= link_to(@sqed_depiction.to_param, depiction_path(@sqed_depiction.depiction)) -%> | <%= link_to('original image', @result.depiction.image.image_file.url(:original), target: '_blank') -%> <p>
 
-<div id="breakdown_sqed_depiction" class="flexbox">
+<div id="breakdown_sqed_depiction" class="flexbox sqed_breakdown">
 
   <!-- transcribe for javascript reference -->
   <span id="image_sections"
@@ -159,7 +159,6 @@
             } else {
                 this.attr('cursor', 'move');
             }
-            //            getBox();     // relocated to drag end function
         };
 
         var dragStart = function () {
@@ -263,7 +262,7 @@
         var dragEnd = function () {
             this.dragging = false;
             getBox();               // when box drag or sizing stops, get the box data
-            ocr_selection()
+            ocr_selection();
         };
 
         select_box = paper.add([
@@ -431,7 +430,6 @@
     $("#collection_object_buffered_collecting_event").focus();
 
 </script>
-<!--<script>  $(document).ready(set_select_box()); </script>-->
 
 
 

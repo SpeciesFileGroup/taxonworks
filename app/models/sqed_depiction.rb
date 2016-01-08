@@ -43,8 +43,8 @@ class SqedDepiction < ActiveRecord::Base
 
   has_one :image, through: :depiction
 
-  validates_presence_of :depiction
-  validates_presence_of :metadata_map, :boundary_color
+  validates_presence_of  :depiction
+  validates_presence_of  :metadata_map, :boundary_color
   validates_inclusion_of :layout, in: SqedConfig::LAYOUTS.keys.map(&:to_s)
   validates_inclusion_of :boundary_finder, in: %w{Sqed::BoundaryFinder::ColorLineFinder Sqed::BoundaryFinder::Cross}
   validates_inclusion_of :has_border, :in => [true, false]
@@ -70,6 +70,26 @@ class SqedDepiction < ActiveRecord::Base
   def next_without_data
     object = CollectionObject.joins(:sqed_depictions).where(project_id: self.project_id, buffered_collecting_event: nil, buffered_determinations: nil, buffered_other_labels: nil).where('collection_objects.id <> ?', self.depiction_object.id).order(:id).first
     object.nil? ? SqedDepiction.where(project_id: self.project_id).order(:id).first : object.sqed_depictions.first
+  end
+
+  # @return [CollectionObject, nil]
+  #    the next collection object, by :id, created from the addition of a SqedDepiction
+  def next_collection_object
+    object = CollectionObject.joins(:sqed_depictions).where(project_id: self.project_id).where('sqed_depictions.id > ?', self.id).where('collection_objects.id <> ?', self.depiction_object.id).order(:id).first
+    object = CollectionObject.joins(:sqed_depictions).order(:id).first if object.nil?
+    object
+  end
+
+  # @return [Array of symbols]
+  #   the (named) sections in this depiction that may have collecting event label metadata
+  def collecting_event_sections
+    [:collecting_event_labels, :annotated_specimen] & extraction_metadata[:metadata_map].values
+  end
+
+  def nearby_sqed_depictions(before = 5, after = 5)
+    a = SqedDepiction.where(project_id: self.project_id).where("id > ?", self.id).order(:id).limit(after)
+    b = SqedDepiction.where(project_id: self.project_id).where("id < ?", self.id).order('id DESC').limit(before)
+    return { before: b, after: a}
   end
 
   protected
