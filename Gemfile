@@ -34,6 +34,9 @@ gem 'coffee-rails', '~> 4.0'
 gem 'jquery-rails', '~> 4.0.4'
 gem 'jquery-ui-rails', '~> 5.0.5'
 
+gem 'rails-jquery-autocomplete'
+gem 'best_in_place', '~> 3.0.1'
+
 # Turbolinks makes following links in your web application faster.
 # Read more: https://github.com/rails/turbolinks
 gem 'turbolinks', '~> 2.5'
