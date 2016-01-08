@@ -295,6 +295,7 @@ class Source < ActiveRecord::Base
     {records: @sources, count: @valid}
   end
 
+  # TODO: remove and use code in  Shared::IsData::Levenshtein
   def nearest_by_levenshtein(compared_string: nil, column: 'cached', limit: 10)
     return Source.none if compared_string.nil?
     order_str = Source.send(:sanitize_sql_for_conditions, ["levenshtein(sources.#{column}, ?)", compared_string])
