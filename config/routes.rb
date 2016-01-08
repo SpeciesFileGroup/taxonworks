@@ -109,8 +109,9 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
   end
 
-  resources :collecting_events do
+   resources :collecting_events do
     concerns [:data_routes]
+    get :autocomplete_collecting_event_verbatim_locality, :on => :collection 
   end
 
   resources :combinations, only: [:create, :edit, :update, :destroy, :new] do
@@ -339,6 +340,7 @@ TaxonWorks::Application.routes.draw do
 
         scope :buffered_data, controller: 'tasks/accessions/breakdown/buffered_data' do
           get ':id', action: :index, as: 'collection_object_buffered_data_breakdown_task'
+          patch 'update/:id', action: :update, as: 'collection_object_buffered_data_breakdown_update_task' 
         end
       end
 

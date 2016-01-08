@@ -3,8 +3,8 @@ class CollectingEventsController < ApplicationController
 
   before_action :set_collecting_event, only: [:show, :edit, :update, :destroy]
 
-  # GET /collecting_events
-  # GET /collecting_events.json
+   # GET /collecting_events
+  # GET /collecting_events.jso
   def index
     @recent_objects = CollectingEvent.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
     render '/shared/data/all/index'
@@ -97,6 +97,14 @@ class CollectingEventsController < ApplicationController
     render :json => data
   end
 
+ # GET /collecting_events/autocomplete_collecting_event_verbatim_locality?term=asdf
+  # see rails-jquery-autocomplete
+  def autocomplete_collecting_event_verbatim_locality
+    term = params[:term]
+    values = CollectingEvent.where(project_id: $project_id).where("verbatim_locality ILIKE ?", term + '%').select(:verbatim_locality, 'length(verbatim_locality)').distinct.limit(20).order('length(verbatim_locality)').order('verbatim_locality ASC').all
+    render :json => values.map { |v| { :label => v.verbatim_locality, :value => v.verbatim_locality} }
+  end
+
   # GET /collecting_events/download
   def download
     send_data CollectingEvent.generate_download(CollectingEvent.where(project_id: $project_id)), type: 'text', filename: "collecting_events_#{DateTime.now.to_s}.csv"
@@ -123,7 +131,8 @@ class CollectingEventsController < ApplicationController
       :end_date_year, :verbatim_habitat, :field_notes, :verbatim_datum,
       :verbatim_elevation,
       roles_attributes: [:id, :_destroy, :type, :person_id, :position,
-                         person_attributes: [:last_name, :first_name, :suffix, :prefix]]
+                         person_attributes: [:last_name, :first_name, :suffix, :prefix]],
+      identifiers_attributes: [:id, :namespace_id, :identifier, :type, :_destroy]
     )
   end
 end
