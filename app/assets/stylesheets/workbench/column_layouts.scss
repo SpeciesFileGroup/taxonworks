@@ -36,7 +36,7 @@ http://flexboxin5.com/
 
 
 
-// Used for model/index routes only
+// Used for model/index calls only
 #model_index {
   margin: 2em;
   align-items: center; 
@@ -51,7 +51,7 @@ http://flexboxin5.com/
    min-height: 300px;
   .item1 {
       text-align: center;
-     line-height: 10;
+   // line-height: 10;
   }
 
   .item2 { }

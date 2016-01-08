@@ -1,37 +1,90 @@
 @import '../../workbench/palette';
 
-#breakdown_sqed_depiction {
- 
+// TODO - nest this elsewhere, it belongs isolated to breakdown tasks?!
+
+.sqed_breakdown {
   .ctrl_link {
     color: $muted_blue; 
+  }
+
+  .little_image {
+    vertical-align: middle;
+    display: block;
+    padding: 5px;
+    width: 100px;
   }
 
   .item {
     padding: 2px;
   }
 
-  .little_image {
-    display: block;
-    padding: 5px;
-    width: 100px;
+}
+
+#breakdown_buffered_data {
+  .item1 {
+    max-width: 110px;
   }
+
+  .buffered_collecting_event_input {
+  }
+
+  #message {
+    text-align: center;
+    padding: .2em;
+  }
+
+  .form_in_place {
+    input {
+      color: purple;      
+    }
+  }
+
+  #verbatim_locality_text {
+    border: 1px solid silver;
+    margin-bottom: .5em;
+    max-width: 400px;
+    padding: 1em;
+  }
+
+   #current_record {
+      background-color: $muted_blue;
+      text-align: center;
+      width: 100px;
+    }
+
+  #depiction_navigator {
+    margin-left: auto;
+    margin-right: auto; 
+  }
+
+  .item2 {
+    margin-left: 1em;
+    width: 420px;
+  }
+
+  #depiction_navigator {
+    width: 150px;
+  }
+}
+
+#breakdown_sqed_depiction {
 
   #extracted_header {
     padding: 2px;
-      .ocr_text { 
-        height: 8em;
-        width: 20em;
-        border: 1px solid silver;
-        padding: 3px;
-      }
+    .ocr_text { 
+      height: 8em;
+      width: 20em;
+      border: 1px solid silver;
+      padding: 3px;
+    }
 
-      #text_for_identifier {
-        width: 8em;
-      }
+    #text_for_identifier {
+      width: 8em;
+    }
 
-      .field {
-        padding: 5px;
-      }
+    .field {
+      padding: 5px;
+    }
   }
 
   #collection_object_fields {

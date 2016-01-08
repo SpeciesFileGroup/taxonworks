@@ -1,0 +1,14 @@
+<hr>
+
+<h3> Similar buffered collecting event values </h3>
+<% if @collection_object.buffered_collecting_event %>
+    <% @collection_object.nearest_by_levenshtein(@collection_object.buffered_collecting_event, 'buffered_collecting_event').where('buffered_collecting_event is not null').where(project_id: @collection_object.project_id).each do |co| -%>
+        <div>
+          <%= co.buffered_collecting_event -%>  : <%= content_tag(:mark,  (co.collecting_event ? "#{co.collecting_event.verbatim_locality}"  : "no collecting event"  ) ) -%>
+          <%= submit_tag('use') -%>
+        </div>
+    <% end %>
+<% else %>
+    <p class="warn"> Buffered collecting event not parsed. </p>
+<% end %>
+

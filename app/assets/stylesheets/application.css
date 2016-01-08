@@ -14,10 +14,6 @@
  *= require dropzone/dropzone
  */
 
-body {
-  font-size: 100%;
-}
-
 .scrollable_div { height: 80px; overflow: auto;  }
 .hidden {visibility:hidden;}
 .collapsed {visibility: collapse;}     /* valid for tables only */
