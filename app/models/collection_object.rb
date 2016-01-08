@@ -112,37 +112,15 @@ class CollectionObject < ActiveRecord::Base
   soft_validate(:sv_missing_accession_fields, set: :missing_accession_fields)
   soft_validate(:sv_missing_deaccession_fields, set: :missing_deaccession_fields)
 
-  def sv_missing_accession_fields
-    soft_validations.add(:accessioned_at, 'Date is not selected') if self.accessioned_at.nil? && !self.accession_provider.nil?
-    soft_validations.add(:base, 'Provider is not selected') if !self.accessioned_at.nil? && self.accession_provider.nil?
-  end
-
-  def sv_missing_deaccession_fields
-    soft_validations.add(:deaccessioned_at, 'Date is not selected') if self.deaccessioned_at.nil? && !self.deaccession_reason.blank?
-    soft_validations.add(:base, 'Recipient is not selected') if self.deaccession_recipient.nil? && self.deaccession_reason && self.deaccessioned_at
-    soft_validations.add(:deaccession_reason, 'Reason is is not defined') if self.deaccession_reason.blank? && self.deaccession_recipient && self.deaccessioned_at
-  end
-
   def missing_determination
-    # see biological_collection_object
-  end
-
-  def sv_missing_collecting_event
-    # see biological_collection_object
-  end
-
-  def sv_missing_preparation_type
-    # see biological_collection_object
-  end
-
-  def sv_missing_repository
-    # see biological_collection_object
+    # see BiologicalCollectionObject
   end
 
   def self.find_for_autocomplete(params)
     Queries::BiologicalCollectionObjectAutocompleteQuery.new(params[:term]).all.where(project_id: params[:project_id])
   end
 
+  # TODO: move to a helper
   def self.breakdown_status(collection_objects)
     collection_objects = [collection_objects] if !(collection_objects.class == Array)
 
@@ -200,10 +178,6 @@ class CollectionObject < ActiveRecord::Base
     h
   end
 
-  def parse_names(collection_object)
-    @geo_names = collection_object.collecting_event.names
-  end
-
   # @return [Otu] if the otu exists, return it
   def get_otu
     self.otus.first unless self.otus.empty?
@@ -235,6 +209,7 @@ class CollectionObject < ActiveRecord::Base
     retval = otu.ancestor_at_rank(rank) unless otu.nil?
     retval.cached_html unless retval.nil?
   end
+
 
   # @param [Scope] selected of CollectionObject
   def self.generate_download(scope)
@@ -300,10 +275,8 @@ class CollectionObject < ActiveRecord::Base
     end
   end
 
-=begin
-Find all collection objects which have collecting events which have georeferences which have geographic_items which
-are located within the geographic item supplied
-=end
+  # Find all collection objects which have collecting events which have georeferences which have geographic_items which
+  # are located within the geographic item supplied
   # @param [GeographicItem] geographic_item_id
   # @return [Scope] of CollectionObject
   def self.in_geographic_item(geographic_item, limit, steps = false)
@@ -499,6 +472,31 @@ are located within the geographic item supplied
     end
     retval
   end
+
+
+  def sv_missing_accession_fields
+    soft_validations.add(:accessioned_at, 'Date is not selected') if self.accessioned_at.nil? && !self.accession_provider.nil?
+    soft_validations.add(:base, 'Provider is not selected') if !self.accessioned_at.nil? && self.accession_provider.nil?
+  end
+
+  def sv_missing_deaccession_fields
+    soft_validations.add(:deaccessioned_at, 'Date is not selected') if self.deaccessioned_at.nil? && !self.deaccession_reason.blank?
+    soft_validations.add(:base, 'Recipient is not selected') if self.deaccession_recipient.nil? && self.deaccession_reason && self.deaccessioned_at
+    soft_validations.add(:deaccession_reason, 'Reason is is not defined') if self.deaccession_reason.blank? && self.deaccession_recipient && self.deaccessioned_at
+  end
+
+  def sv_missing_collecting_event
+    # see biological_collection_object
+  end
+
+  def sv_missing_preparation_type
+    # see biological_collection_object
+  end
+
+  def sv_missing_repository
+    # see biological_collection_object
+  end
+
 
   protected
 
