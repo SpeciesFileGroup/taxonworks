@@ -18,7 +18,7 @@
       <div class='tag'> <%= object_tag(object) -%> </div>
 
       <div class="attributes break_words">
-        <%= render object_attributes_partial_path(object.metamorphosize) %>
+        <%= render partial:  object_attributes_partial_path(object.metamorphosize), locals: {object: object} %>
         <%= yield :related_attributes -%>
         <%= render partial: '/shared/data/all/show/housekeeping', locals: {object: object} -%>
         <%= render(partial: '/shared/data/all/show/soft_validation', locals: {object: object}) if object.class.respond_to?(:soft_validates?) -%>
