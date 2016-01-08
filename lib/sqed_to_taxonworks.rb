@@ -72,6 +72,7 @@ module SqedToTaxonworks
       @sqed ||= Sqed.new( sqed_depiction.extraction_metadata.merge(image: original_image) )
     end
 
+    # Minimize use of this if possible, depend on the cached values when possible.
     def sqed_result
       @sqed_result ||= sqed.result
     end
@@ -83,9 +84,23 @@ module SqedToTaxonworks
     # instance methods
 
     def coords_for(layout_section_type)
-      sqed.boundaries.for(
-        sqed_depiction.extraction_metadata[:metadata_map].key(layout_section_type)
-      )
+      index = sqed_depiction.extraction_metadata[:metadata_map].key(layout_section_type)
+      if boundaries_cached?
+        sqed_depiction.result_boundary_coordinates[index.to_s].to_a # TODO- hmm, why the to_s needed here
+      else
+        sqed_result 
+        cache_boundaries
+        sqed.boundaries.for(index)
+      end
+    end
+
+    def boundaries_cached?
+      !sqed_depiction.result_boundary_coordinates.nil? 
+    end
+
+    def cache_boundaries
+      sqed_depiction.update_column(:result_boundary_coordinates, ActiveSupport::JSON.encode(sqed.boundaries.coordinates))
+      sqed_depiction.reload # get the json version of the attribute back
     end
 
     def image_path_for(layout_section_type)
