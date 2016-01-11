@@ -395,6 +395,7 @@ TaxonWorks::Application.routes.draw do
       get 'report', action: 'new', as: 'gis_report_task'
       get 'download/:geographic_area_id', action: 'download', as: 'gis_report_download'
       post 'location_report_list'
+      get 'location_report_list', action: 'repaint'
     end
 
     scope :gis, controller: 'tasks/gis/locality' do

@@ -25,10 +25,14 @@ class Tasks::Gis::ReportController < ApplicationController
                 end
               }
             end
-          }
+          } unless group.nil?
         }
         @selected_column_names = selected_headers
         gather_data(geographic_area_id, false) # get first 25 records
+        if params[:page].nil?
+        else
+          fail
+        end
       when 'download'
         # TODO: This needs to be cleaned up and consolidated
         # check Redis mem-store for a valid result
@@ -76,12 +80,31 @@ class Tasks::Gis::ReportController < ApplicationController
     @geographic_area = GeographicArea.find(geographic_area_id)
     total_records    = CollectionObject.all.count
     limit            = download ? total_records : 25
+    # params[:page] = 2
     if @geographic_area.has_shape?
       @all_collection_objects_count = CollectionObject.in_geographic_item(@geographic_area.default_geographic_item, total_records).count
-      @list_collection_objects      = CollectionObject.in_geographic_item(@geographic_area.default_geographic_item, limit).order(:id)
+      @list_collection_objects      = CollectionObject.in_geographic_item(@geographic_area.default_geographic_item, limit).order(:id).page(params[:page])
     else
       @all_collection_objects_count = 0
       @list_collection_objects      = CollectionObject.where('false')
     end
+  end
+
+  def repaint
+    # @geographic_area = GeographicArea.find(params[:geographic_area_id])
+    # total_records    = CollectionObject.all.count
+    # @all_collection_objects_count = CollectionObject.in_geographic_item(@geographic_area.default_geographic_item, total_records).count
+    # @list_collection_objects      = CollectionObject.in_geographic_item(@geographic_area.default_geographic_item, total_records).order(:id).page(params[:page])
+    # fail
+    # redirect_to(action:             'location_report_list',
+    #             geographic_area_id: params[:geographic_area_id],
+    #             headers:            params[:headers],
+    #             page:               params[:page],
+    #             utf8:               params[:utf8],
+    #             authenticity_token: params[:authenticity_token],
+    #             commit:             params[:commit])
+    # redirect_to  :location_report_list, params: params
+    #  location_report_list
+    render 'location_report_list'
   end
 end

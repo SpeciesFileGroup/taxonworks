@@ -6,7 +6,9 @@
         <span id="geographic_areaError" style="color: #DD0000"></span>
         <%= helper_download_button %>
         <p>
-          <%= count_info(@all_collection_objects_count) %>
+          <%#= count_info(@all_collection_objects_count) %>
+          <%= paginate @list_collection_objects %>
+          <%= page_entries_info @list_collection_objects %>
         </p>
         <table border="1" align="center" hidden="hidden">
           <tbody>
