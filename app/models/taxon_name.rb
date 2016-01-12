@@ -386,6 +386,7 @@ class TaxonName < ActiveRecord::Base
 
   # @return [String]
   #   combination of cached_html and cached_author_year.
+  # TODO: change this to reflect HTML elements
   def cached_name_and_author_year
     if self.rank_string =~ /::(Species|Genus)/
       (self.cached_html.to_s + ' ' + self.cached_author_year.to_s).squish!

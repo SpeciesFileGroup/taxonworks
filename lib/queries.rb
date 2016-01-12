@@ -34,8 +34,12 @@ module Queries
       @terms ||= build_terms
     end
 
+    def integers
+      query_string.split(/\s+/).select{|t| Utilities::Strings.is_i?(t)}
+    end
+
     def build_terms
-      @terms = query_string.split(/\s/).collect{|t| [t, "#{t}%", "%#{t}%"]}.flatten # , "#{t}%", "%#{t}%"
+      @terms = query_string.split(/\s+/).compact.collect{|t| [t, "#{t}%", "%#{t}%"]}.flatten # , "#{t}%", "%#{t}%"
     end
 
     def dynamic_limit
@@ -57,12 +61,13 @@ module Queries
 
     # Match at two levels, for example, 'wa te" will match "Washington Co., Texas"
     def parent_child_where
-      a,b = query_string.split(" ", 2)
+      a,b = query_string.split(/\s+/, 2)
+      return table[:id].eq(-1) if a.nil? || b.nil?
       table[:name].matches("#{a}%").and(parent[:name].matches("#{b}%"))
     end
 
     def with_id
-      table[:id].eq_any(terms)
+      table[:id].eq_any(integers)
     end
 
     def named

@@ -55,6 +55,12 @@ module Utilities::Strings
     [string, "%#{string}", "%#{string}%", "%#{string}%"] + string.split(/\s/).collect{|t| [t, "#{t}%"]}.flatten 
   end
 
+  # @return [Boolean]
+  #   whether the string is an integer (positive or negative)
+  # see http://stackoverflow.com/questions/1235863/test-if-a-string-is-basically-an-integer-in-quotes-using-ruby
+  def self.is_i?(string)
+    /\A[-+]?\d+\z/ === string
+  end
 
 end
 

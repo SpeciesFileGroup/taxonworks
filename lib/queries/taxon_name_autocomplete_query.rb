@@ -7,11 +7,10 @@ module Queries
     end
 
     def all 
-      (
-     #   TaxonName.where(name: query_string).all +  
-        TaxonName.joins(parent_child_join).where(parent_child_where.to_sql).limit(5).all # +
-     #   TaxonName.where(where_sql).limit(dynamic_limit) 
-      ).flatten.compact.uniq
+     a = TaxonName.where(with_project_id.to_sql).where(['name = ?', query_string]).order(:name).all +
+     b = TaxonName.joins(parent_child_join).where(with_project_id.to_sql).where(parent_child_where.to_sql).limit(3).order(:name).all       
+     c = TaxonName.where(where_sql).limit(dynamic_limit).order(:cached).all
+     a + b + c 
     end
 
     def table
@@ -27,12 +26,17 @@ module Queries
     end
 
     def with_year_of_publication
-      table[:year_of_publication].eq_any(terms)
+      if integers.any?
+        table[:year_of_publication].eq_any(integers)
+      else
+        table[:id].eq(-1)
+      end
     end
 
     # Note this overwrites the commonly used Geo parent/child! 
     def parent_child_where
-      b,a = query_string.split(" ", 2)
+      b,a = query_string.split(/\s+/, 2)
+      return table[:id].eq('-1') if a.nil? || b.nil?
       table[:name].matches("#{a}%").and(parent[:name].matches("#{b}%"))
     end
    
