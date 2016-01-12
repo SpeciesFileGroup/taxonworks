@@ -6,35 +6,33 @@
   </div>
 </div>
 
-<div class="flexbox" id="model_index" > 
+<div class="flexbox" id="model_index">
   <div class="item item1">
     <h1><%= model_name_title -%></h1>
-  </div>
-
+  </div>  
   <div class="item item2">
-    <%= new_for_model_link(@data_model)  %>
-    <br> <br>
-    <%= batch_load_link -%>
-  </div>
-
-  <div class="item item3">
     <%= search_form_for_model(@data_model) %>
+  </div>  
+  <div class="item item3 icon-new">
+    <%= new_for_model_link(@data_model)  %>  
   </div>
-
-  <div class="item item4">
+  <div class="item item4 icon-batch">
+    <%= batch_load_link -%>  
+  </div>
+  <div class="item item5 icon-list">
     <%= list_for_model_link(@data_model) %>
   </div>
-
-  <div class="item item5">
+  <div class="item item6 icon-download">
     <%= download_for_model_link(@data_model) %>
   </div>
 </div>
 
-<div class="flexbox" > 
-  <div class="item item1">
+<div class="flexbox"> 
+  <div class="item item1 no_bullets recent_updates center_text ">
     <h2>Recent updates</h2>
     <%= recent_objects_list(@data_model, @recent_objects) -%>
   </div>
+
 </div>
 
 

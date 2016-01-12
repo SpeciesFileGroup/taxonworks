@@ -2,6 +2,7 @@
 http://css-tricks.com/snippets/css/a-guide-to-flexbox/
 http://flexboxin5.com/
  */
+ @import 'palette';
 
 .flexbox {
   display: -webkit-box;
@@ -9,20 +10,38 @@ http://flexboxin5.com/
   display: -ms-flexbox;
   display: -webkit-flex;
   -webkit-flex-flow: row wrap;
-
   display: flex;
   flex-direction: row; 
   flex-wrap: nowrap;
   // flex-flow: row wrap; 
   justify-content: center;
+  
 }
 
 .flexbox > * {
   flex: 1 100%;
 }
 
-@media all and (min-width: 600px) {
+
+.item {
+	word-wrap: break-word;
+	flex: 1 auto;
+}
+
+.item img {
+	display: block;
+	width: 100%;
+	height: auto;
+}
+
+
+  
+@media all and (min-width: 400px) {
   .item { flex: 1 auto; }
+  .column-big { flex: 3 auto; }
+  .column-medium { flex: 2 auto; }
+  .column-small { flex: 1 auto; }
+  .column-tiny { flex: 0.5 auto; } 
 }
 
 @media all and (min-width: 800px) {
@@ -36,30 +55,71 @@ http://flexboxin5.com/
 
 
 
-// Used for model/index calls only
+// Used for model/index routes only
 #model_index {
-  margin: 2em;
+  border:1px solid $muted_blue;
+  border-radius:5px;
+  background:$navigation_background;
+  margin-top:150px;
+  margin-bottom:80px;
   align-items: center; 
 
   &.flexbox {
-    // justify-content: space-around;
     // flex-flow: columns;
+    // font-size: 150%;
     justify-content: space-around;
     align-content: space-around;
-    //font-size: 150%;
+	flex-flow: row wrap; 
   }
-   min-height: 300px;
+  
+  a {
+	color:#000000;
+	padding:5px;
+	text-decoration:none;
+	background-size:15px;
+	background-position:5px center;
+	background-repeat: no-repeat;
+	padding-left:25px;
+  }
+  
+  a:hover {
+	
+  } 
+	.icon-download a
+	{
+		background-image: url('/assets/icons/download.svg');
+	}
+	
+	.icon-batch a {
+		background-image: url('/assets/icons/batch_load.svg');
+	}
+	
+	.icon-new a {
+		background-image: url('/assets/icons/new.svg');
+	}
+	
+	.icon-list a {
+		background-image: url('/assets/icons/list.svg');
+	}
+  
+   min-height: 50px;
   .item1 {
-      text-align: center;
-   // line-height: 10;
+	  line-height:20px;
+  }
+  
+  .item {
+	  text-align: center;
   }
 
-  .item2 { }
+  
+  .item1 { }
+  
+  .item1 { } 
 
   .item3 { }
 
   .item4 { }
 
-  .item5 { flex: .1; }
+  .item5 { }
 
 }

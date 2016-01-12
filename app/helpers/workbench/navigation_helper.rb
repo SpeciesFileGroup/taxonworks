@@ -48,17 +48,17 @@ module Workbench::NavigationHelper
     if %w{Note Tag Citation Identifier DataAttribute AlternateValue GeographicArea ContainerItem}.include?(model.name)
       nil
     else
-      link_to('new', new_path_for_model(model))
+      link_to('New', new_path_for_model(model))
     end
   end
 
   def list_for_model_link(model)
-    link_to('list', list_path_for_model(model))
+    link_to('List', list_path_for_model(model))
   end
 
   def download_for_model_link(model)
     if self.controller.respond_to?(:download)
-      link_to('download', download_path_for_model(model))
+      link_to('Download', download_path_for_model(model))
     else
       content_tag(:em, 'Download not yet available.')
     end
@@ -133,7 +133,7 @@ module Workbench::NavigationHelper
 
   def batch_load_link
     if self.controller.respond_to?(:batch_load) 
-      link_to('batch load', action: :batch_load, controller: self.controller_name) 
+      link_to('Batch load', action: :batch_load, controller: self.controller_name) 
     else 
       content_tag(:span, 'batch load', class: 'disabled') 
     end
