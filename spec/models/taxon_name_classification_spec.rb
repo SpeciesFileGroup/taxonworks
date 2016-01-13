@@ -8,7 +8,7 @@ describe TaxonNameClassification, :type => :model do
     TaxonNameClassification.delete_all
   }
 
-  specify 'that .class_name(s) do not overlap' do
+  xspecify 'that .class_name(s) do not overlap' do
     existing_names = []
     TaxonNameClassification.descendants.each do |klass|
       name = klass.class_name

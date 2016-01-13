@@ -7,11 +7,11 @@
 #
 # @!attribute taxon_name_id
 #   @return [Integer]
-#   @todo
+#     the id of the TaxonName being classified 
 #
 # @!attribute type
 #   @return [String]
-#   @todo
+#     the type of classifiction (Rails STI) 
 #
 # @!attribute project_id
 #   @return [Integer]
@@ -61,7 +61,7 @@ class TaxonNameClassification < ActiveRecord::Base
   end
 
   # @return [String]
-  # a TW uniq preferred "common" name for this class, used in select boxes, forms, catalogs etc.
+  #   a TW uniq preferred "common" name for this class, used in select boxes, forms, catalogs etc.
   # @todo consider appending [iczn] [icn]
   def class_name
     label = type_name.demodulize.underscore.humanize.downcase
@@ -187,6 +187,7 @@ class TaxonNameClassification < ActiveRecord::Base
     end
   end
 
+  # TODO: These soft validations should be added to individual classes!
   def sv_not_specific_classes
     case self.type_name
       when 'TaxonNameClassification::Iczn::Available'
@@ -266,4 +267,5 @@ class TaxonNameClassification < ActiveRecord::Base
   def self.collect_descendants_and_itself_to_s(*classes)
     classes.collect{|k| k.to_s} + self.collect_descendants_to_s(*classes)
   end
+  
 end
