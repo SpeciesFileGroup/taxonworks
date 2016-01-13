@@ -46,5 +46,24 @@ describe "AssertedDistributions", :type => :feature do
 
       it_behaves_like 'a_data_model_with_standard_show'
     end
+
+
+    context 'testing new asserted distribution' do
+      before {
+        #   logged in and project selected
+        visit asserted_distributions_path } #   when I visit the asserted_distributions_path
+
+      specify 'can create a new asserted distribution', js: true do
+        o = Otu.create!(user_project_attributes(@user, @project).merge(name: 'motu'))
+        g = GeographicArea.first
+        s = Source.first
+
+        click_link('new') #   when I click the new link
+
+        expect(page.has_field?('otu_id_for_asserted_distribution', :type => 'text')).to be_truthy
+        expect(page.has_field?('geographic_area_id_for_asserted_distribution', :type => 'text')).to be_truthy
+        expect(page.has_field?('source_id_for_asserted_distribution', :type => 'text')).to be_truthy
+      end
+    end
   end
 end
