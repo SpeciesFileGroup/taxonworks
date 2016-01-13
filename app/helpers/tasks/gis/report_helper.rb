@@ -111,14 +111,14 @@ module Tasks::Gis::ReportHelper
       # stuff the column_type, just to make it easier to visualize the data organization in the debugger
       items = [column_type]
       # stuff the headers for the internal predicates
-      unless @selected_column_names[column_type.to_sym][:internal].nil?
-        items.push(@selected_column_names[column_type.to_sym][:internal].keys)
+      unless @selected_column_names[column_type.to_sym][:in].nil?
+        items.push(@selected_column_names[column_type.to_sym][:in].keys)
       end
       # check for import predicates (may not be present on ce and co, WILL NOT be present on bc)
-      unless @selected_column_names[column_type.to_sym][:import].nil?
-        unless @selected_column_names[column_type.to_sym][:import].keys.empty?
+      unless @selected_column_names[column_type.to_sym][:im].nil?
+        unless @selected_column_names[column_type.to_sym][:im].keys.empty?
           items.push('--Import') # stuff the seperator
-          items.push(@selected_column_names[column_type.to_sym][:import].keys) # stuff the headers for the import
+          items.push(@selected_column_names[column_type.to_sym][:im].keys) # stuff the headers for the import
           # predicates
         end
       end
@@ -126,7 +126,7 @@ module Tasks::Gis::ReportHelper
       # as arrays
     }
     outer     = 1 # Skip the first row; these are reflected in the word list used to iterate the columns
-    retstring = ''; ce_type = 'internal'; co_type = 'internal'; sub_type = 'internal'
+    retstring = ''; ce_type = 'in'; co_type = 'in' # ; sub_type = 'in'
     until all_columns[0][outer].nil? && all_columns[1][outer].nil? && all_columns[2][outer].nil?
       retstring += '<tr>' # open the row
       # across the three headers
@@ -137,11 +137,12 @@ module Tasks::Gis::ReportHelper
           retstring += "<th>#{item}</th>"
           case col_type
             when 'ce'
-              ce_type = 'import' # switch the ce list to import
+              ce_type = 'im' # switch the ce list to import
             when 'co'
-              co_type = 'import' # switch the co list to import
+              co_type = 'im' # switch the co list to import
             else
-              # sub_type = 'internal'
+              # this will never happen...
+              # sub_type = 'in'
           end
         else
           case col_type
@@ -150,7 +151,7 @@ module Tasks::Gis::ReportHelper
             when 'co'
               sub_type = co_type
             else
-              sub_type = 'internal'
+              sub_type = 'in'
           end
           if item.empty?
             retstring += '<td></td>'
@@ -158,7 +159,7 @@ module Tasks::Gis::ReportHelper
             stage       = @selected_column_names[col_type.to_sym][sub_type.to_sym][item]
             item_id     = stage[:id]
             item_chk    = stage[:checked]
-            item_string = "headers[#{col_type}[#{sub_type}[#{item}]]]"
+            item_string = "hd[#{col_type}[#{sub_type}[#{item}]]]"
             retstring   += "<td>#{check_box(item_string, :checked, {checked: item_chk})} #{item}</td>"
           end
         end

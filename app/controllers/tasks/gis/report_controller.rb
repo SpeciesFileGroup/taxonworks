@@ -9,7 +9,7 @@ class Tasks::Gis::ReportController < ApplicationController
 
   def location_report_list
     geographic_area_id = params[:geographic_area_id]
-    selected_headers   = params[:headers]
+    selected_headers   = params[:hd]
     case params[:commit]
       when 'Show'
         # remove all the headers which are NOT checked
@@ -27,14 +27,14 @@ class Tasks::Gis::ReportController < ApplicationController
             end
           } unless group.nil?
         }
-        selected_headers       ||= {ce: {internal: {}, import: {}}, # make sure all columns and types are present,
-                                    co: {internal: {}, import: {}}, # even if empty
-                                    bc: {internal: {}, import: {}}}
+        selected_headers       ||= {ce: {in: {}, im: {}}, # make sure all columns and types are present,
+                                    co: {in: {}, im: {}}, # even if empty
+                                    bc: {in: {}, im: {}}}
         @selected_column_names = selected_headers
         gather_data(geographic_area_id, false) # get first 25 records
         if params[:page].nil?
         else
-          fail
+          # fail
         end
       when 'download'
         # TODO: This needs to be cleaned up and consolidated
@@ -107,7 +107,7 @@ class Tasks::Gis::ReportController < ApplicationController
     #             authenticity_token: params[:authenticity_token],
     #             commit:             params[:commit])
     # redirect_to  :location_report_list, params: params
-    #  location_report_list
+    location_report_list
     render 'location_report_list'
   end
 end
