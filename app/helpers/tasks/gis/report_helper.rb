@@ -125,13 +125,13 @@ module Tasks::Gis::ReportHelper
       all_columns.push(items.flatten) # flatten is required because the internal and import headers are pushed
       # as arrays
     }
-    index     = 1 # Skip the first row; these are reflected in the word list used to iterate the columns
+    outer     = 1 # Skip the first row; these are reflected in the word list used to iterate the columns
     retstring = ''; ce_type = 'internal'; co_type = 'internal'; sub_type = 'internal'
-    until all_columns[0][index].nil? && all_columns[1][index].nil? && all_columns[2][index].nil?
-      retstring += "<tr>" # open the row
+    until all_columns[0][outer].nil? && all_columns[1][outer].nil? && all_columns[2][outer].nil?
+      retstring += '<tr>' # open the row
       # across the three headers
       %w(ce co bc).each_with_index { |col_type, inner|
-        item = all_columns[inner][index].to_s
+        item = all_columns[inner][outer].to_s
         if item.start_with?('--Imp')
           item      = item[2, item.length]
           retstring += "<th>#{item}</th>"
@@ -152,13 +152,19 @@ module Tasks::Gis::ReportHelper
             else
               sub_type = 'internal'
           end
-
-          item_string = "headers[#{col_type}[#{sub_type}[#{item}]]]"
-          retstring   += item.empty? ? "<td></td>" : "<td>#{check_box(item_string, :checked, {checked: filtered})} #{item}</td>"
+          if item.empty?
+            retstring += '<td></td>'
+          else
+            stage       = @selected_column_names[col_type.to_sym][sub_type.to_sym][item]
+            item_id     = stage[:id]
+            item_chk    = stage[:checked]
+            item_string = "headers[#{col_type}[#{sub_type}[#{item}]]]"
+            retstring   += "<td>#{check_box(item_string, :checked, {checked: item_chk})} #{item}</td>"
+          end
         end
       }
-      retstring += "</tr>" # close the row
-      index     += 1
+      retstring += '</tr>' # close the row
+      outer     += 1
     end
 
     retstring

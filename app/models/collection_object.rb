@@ -58,7 +58,7 @@
 #
 class CollectionObject < ActiveRecord::Base
  
-  CO_OTU_HEADERS = %w{OTU OTU\ name Family Genus Species Country State County Locality Latitude Longitude} 
+  CO_OTU_HEADERS = %w{OTU OTU\ name Family Genus Species Country State County Locality Latitude Longitude}
 
   # @todo DDA: may be buffered_accession_number should be added.  MJY: This would promote non-"barcoded" data capture, I'm not sure we want to do this?!
 
@@ -295,11 +295,10 @@ class CollectionObject < ActiveRecord::Base
     else
       retval = CollectionObject.joins(:collecting_event => [{:georeferences => :geographic_item}]).where(GeographicItem.sql_for_is_contained_by('any', geographic_item)).limit(limit).includes(:data_attributes, :collecting_event => [{:georeferences => :geographic_item}])
     end
-
     retval
   end
 
-  # @param [String] geographic_shape as EWKT
+  # @param [String] geographic_shape as EWKT (TODO: See right side 'draw' of match-georeference for implimentation)
   # @return [Scope] of CollectionObject
   def self.in_geographic_shape(geographic_shape, steps = false)
     # raise 'in_geographic_shape is unfinished'

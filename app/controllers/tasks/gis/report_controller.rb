@@ -27,6 +27,9 @@ class Tasks::Gis::ReportController < ApplicationController
             end
           } unless group.nil?
         }
+        selected_headers       ||= {ce: {internal: {}, import: {}}, # make sure all columns and types are present,
+                                    co: {internal: {}, import: {}}, # even if empty
+                                    bc: {internal: {}, import: {}}}
         @selected_column_names = selected_headers
         gather_data(geographic_area_id, false) # get first 25 records
         if params[:page].nil?
