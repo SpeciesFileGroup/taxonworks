@@ -67,7 +67,11 @@ module Queries
     end
 
     def with_id
-      table[:id].eq_any(integers)
+      if integers.any?
+        table[:id].eq_any(integers)
+      else
+        table[:id].eq(-1)
+      end
     end
 
     def named
