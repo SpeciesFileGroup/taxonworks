@@ -1,0 +1,80 @@
+
+// Styling particular to the hub controller and views
+
+@import 'workbench/palette';
+@import 'workbench/whitespace';
+
+#task_carrousel {
+
+  #task_filter {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid silver;
+    margin: 1em;
+    width: 500px;
+
+    .category_button {
+      padding: 1em;
+    }
+
+  }
+
+  a:visited {
+    // disable visited styling
+  }
+
+  .task_card {
+    border: 1px solid silver;
+    margin: 1em;
+    width: 500px;
+  }
+
+  // should be a flexbox?! 
+  .task_header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    border-bottom: 1px solid silver;
+    padding: 1em;
+
+    .status {
+      display: none;
+      .unknown {
+      }
+    }
+
+    .categories {
+      width: 20px;
+      flex-basis: 40px;
+      text-align: center;
+      font-size: smaller;
+      
+      .collecting_event {
+      }
+
+      .collection_object {
+        color: purple;
+      }
+
+      .source {
+        color:blue;
+      }
+
+      .taxon_name {
+        color:red;
+      }
+    }
+  }
+
+    .task_name {
+      font-size: larger;
+      padding: 1em; 
+    }
+
+  .task_description {
+    padding: 0em 2em 1em 2em;
+  }
+
+}
