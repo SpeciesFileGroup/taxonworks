@@ -5,6 +5,7 @@ describe Settings do
 
   let(:valid_full_config) do
     { default_data_directory: 'tmp',
+      backup_directory: 'tmp',
       exception_notification: {
         email_prefix: '[TW-Error] ',
         sender_address: %{"notifier" <notifier@example.com>},
@@ -21,6 +22,7 @@ describe Settings do
     current_settings_hash =  Settings.get_config_hash
     config = {
       default_data_directory: current_settings_hash[:default_data_directory],
+      backup_directory: current_settings_hash[:backup_directory],
       mail_domain: current_settings_hash[:mail_domain]
     }
     Settings.load_from_hash({}, config)
@@ -99,6 +101,46 @@ describe Settings do
       end
       
     end
+
+
+    describe "backup_directory" do
+      
+      context "when valid directory" do
+        let(:valid_directory) { { backup_directory: valid_full_config[:backup_directory] } }
+        
+        it "sets ::backup_directory to the absolute path of the supplied directory" do
+          Settings.load_from_hash(rails_config, valid_directory)
+          expect(Settings.backup_directory).to eq(File.absolute_path(valid_directory[:backup_directory]))
+        end
+
+      end
+      
+      context "when invalid directory" do
+        
+        it "throws error when directory does not exist" do
+          invalid_directory = { backup_directory: 'INVALID_DIRECTORY' }
+          expect { Settings.load_from_hash(rails_config, invalid_directory) }.to raise_error(/.*INVALID_DIRECTORY.*/)
+        end
+        
+        it "throws error when path is not a directory" do
+          file = { backup_directory: 'spec/settings/file' }
+          expect { Settings.load_from_hash(rails_config, file) }.to raise_error(/.*spec\/settings\/file.*/)
+        end
+        
+      end
+      
+      context "when not present" do
+        
+        it "sets ::backup_directory to nil" do
+          Settings.load_from_hash(rails_config, { })
+          expect(Settings.backup_directory).to eq(nil)
+        end
+        
+      end
+      
+    end
+
+
 
     describe "action_mailer_smtp_settings" do
       
