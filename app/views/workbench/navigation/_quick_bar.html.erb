@@ -1,6 +1,6 @@
-<nav id="quick_bar">
-  <ul class="horizontal_navbar left_justified">
-    <%= content_tag(:li, link_to('hub', hub_path, class: :hub_link)) -%>
+<nav id="quick_bar" class="hub-navbar">
+  <ul>
+    <%= content_tag(:li, link_to('Hub', hub_path, class: :hub_link)) -%>
     <% if self.respond_to?("#{controller_name}_path") %>
         <%= content_tag(:li, link_to(controller_name.humanize.downcase, url_for(controller: controller_name, action: :index) )) -%>
     <% else %>
@@ -17,5 +17,11 @@
     <% end %>
   </ul>
 </nav>
+
+<script>
+Mousetrap.bind("h", function(e) {
+	window.location = "/hub";
+});
+</script>
 
 

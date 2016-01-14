@@ -33,8 +33,6 @@ http://flexboxin5.com/
 	width: 100%;
 	height: auto;
 }
-
-
   
 @media all and (min-width: 400px) {
   .item { flex: 1 auto; }
@@ -58,22 +56,27 @@ http://flexboxin5.com/
 // Used for model/index routes only
 #model_index {
   border:1px solid $muted_blue;
-  border-radius:5px;
-  background:$navigation_background;
+  border-radius:3px;
+  top:50%;
+  margin:0 auto;
+  max-width:1080px;
+  background:$viewpoert_background;
   margin-top:150px;
-  margin-bottom:80px;
+  margin-bottom:150px;
   align-items: center; 
 
   &.flexbox {
     // flex-flow: columns;
     // font-size: 150%;
     justify-content: space-around;
-    align-content: space-around;
-	flex-flow: row wrap; 
+	flex-flow: row wrap;
+  }
+  
+  h1 {
+	  font-weight:100;
   }
   
   a {
-	color:#000000;
 	padding:5px;
 	text-decoration:none;
 	background-size:15px;
@@ -82,9 +85,10 @@ http://flexboxin5.com/
 	padding-left:25px;
   }
   
-  a:hover {
-	
-  } 
+  input[type="text"] {
+	  width:250px;
+  }
+
 	.icon-download a
 	{
 		background-image: url('/assets/icons/download.svg');
@@ -101,25 +105,26 @@ http://flexboxin5.com/
 	.icon-list a {
 		background-image: url('/assets/icons/list.svg');
 	}
+	
+	.icon-fav-star {
+		width:20px; display:inline; padding-right:5px;	
+	}
   
    min-height: 50px;
-  .item1 {
-	  line-height:20px;
-  }
   
   .item {
 	  text-align: center;
   }
-
   
-  .item1 { }
+  .item1 {
+	  line-height:20px;
+  }
   
-  .item1 { } 
+  .item2 { } 
 
   .item3 { }
 
   .item4 { }
 
   .item5 { }
-
 }

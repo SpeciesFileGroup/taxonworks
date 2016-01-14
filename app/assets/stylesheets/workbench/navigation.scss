@@ -1,5 +1,6 @@
 @import 'palette';
 
+ 
 // see navigation_emphasis in palette
 a {
   color: $color-secondary-2-4;
@@ -12,6 +13,79 @@ a {
   }
 }
 
+
+/* Hub nav */
+
+
+.hub-navbar {
+  background-color:#fafafa;
+  border-bottom:1px solid $navigation_border;
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-flow: row wrap;
+  padding-top:5px;
+  padding-bottom:5px;
+  align-items: center;
+}
+
+.hub-navbar li:first-letter {
+	text-transform:uppercase;
+}
+
+.hub-navbar li:first-child a{
+	font-size:12px;
+	font-weight:bold;
+	padding:3px;
+	border:1px solid $navigation_border;
+	background-image: url('/assets/icons/hub.svg');
+	background-size:12px;
+	background-repeat:no-repeat;
+	background-color:$navigation_background;
+	padding-right:8px;
+	padding-top:9px;
+	padding-bottom:9px;
+	background-position:5px, center;
+	padding-left:20px;
+	
+	
+}
+.hub-navbar ul {
+	padding:0px;
+	margin:0px;
+	display: flex;
+	margin-left:15px;
+	
+}
+.hub-navbar li {
+	list-style-type: none;
+	align-items:center;
+	margin:0;
+	padding:0;
+}
+.hub-navbar li:after {
+	color:$navigation_border;
+	font-size:11px;
+	content: " - ";
+	padding:6px;
+	
+}
+
+.hub-navbar a {
+	font-size:11px;
+	text-decoration:none;
+}
+
+.hub-navbar a:hover {
+	color:#000;
+	text-decoration:none;
+}
+
+.hub-navbar li:last-child:after {
+	content: none;
+}
 
 /* see http://css-tricks.com/snippets/css/a-guide-to-flexbox/, seems nice */
 .horizontal_navbar {
@@ -34,13 +108,13 @@ a {
 }
 
 @media all and (max-width: 800px) {
-  .horizontal_navbar {
+  .horizontal_navbar, .hub-navbar {
     justify-content: space-around;
   }
 }
 
 @media all and (max-width: 600px) {
-  .horizontal_navbar {
+  .horizontal_navbar, .hub-navbar {
     -webkit-flex-flow: column wrap;
     flex-flow: column wrap;
     padding: 0;
@@ -56,6 +130,10 @@ a {
   .horizontal_navbar li:last-of-type a {
     border-bottom: none;
   }
+}
+
+.horizontal_navbar a:first-letter {
+	text-transform:uppercase;
 }
 
 .centered_navbar {

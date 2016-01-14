@@ -1,15 +1,33 @@
 @import 'palette';
 
 #header_bar {
-  align-items: flex-end;
-  border-bottom: 1px solid $color-secondary-1-4;
-
+	margin:0 auto;
+	padding-left:15px;
+	padding-right:15px;
+ 	align-items:center;
+	background-color:$navigation_background;
+	border-bottom: 1px solid $navigation_border; 
+	
+	/* border-bottom: 1px solid $color-secondary-1-4;  */
+	
+	height:50px;
+	
+	a {
+		font-size:12px;
+		
+	}
   #taxonworks {
     font-weight: bold;
     a {
+	  color:#444;
+	  
       font-size: 26px;
       text-decoration: none;
+	  
     }
+	a:hover {
+		background-color:transparent;
+	}
   }
 
   #session_nav {
@@ -31,6 +49,9 @@
 }
 
 #main {
+	margin:0 auto;
+	padding-left:15px;
+	padding-right:15px;
   h1 {
   }
 
