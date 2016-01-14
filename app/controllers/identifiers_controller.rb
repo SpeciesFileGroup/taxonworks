@@ -59,7 +59,7 @@ class IdentifiersController < ApplicationController
   end
 
   def list
-    @identifiers = Identifier.where(project_id: $project_id).includes(:updater, :namespace).page(params[:page])
+    @identifiers = Identifier.where(project_id: $project_id).includes(:updater).page(params[:page])
   end
 
   # GET /identifier/search
