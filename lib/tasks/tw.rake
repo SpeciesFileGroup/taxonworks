@@ -43,7 +43,23 @@ namespace :tw do
     @args
   end
 
-  desc 'a default method to add a data_directory_argument'
+  desc 'a default method to add a backup_directory_argument, include trailing slash'
+  task  :backup_directory => [:environment] do 
+    default = Settings.backup_directory
+    @args ||= {} 
+    if ENV['backup_directory'].blank?
+      if default
+        puts "No backup_directory passed, using default (#{default})"
+      else
+        raise "No backup_directory passed (like backup_directory=/tmp/foo) and backup_directory setting is not present (see application_settings.yml in /config)"
+      end
+    end
+    @args.merge!(backup_directory: (ENV['backup_directory'] || default ))
+    raise "path (#{default}) not found" if !Dir.exists?(@args[:backup_directory]) 
+    @args
+  end
+
+  desc 'set the database_role ENV value if provided, or use "postgres"'
   task  :database_role do |t| 
     @args ||= {}
     @args.merge!(database_role: (ENV['database_role'] || 'postgres'))
