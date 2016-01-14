@@ -3,75 +3,75 @@ require 'benchmark'
 
 namespace :tw do
   namespace :db do
-    desc 'Dump the data to a PostgreSQL custom-format dump file'
-    task :dump => [:environment, :data_directory, :db_user] do
-
-      if Rails.env == 'production'
-        puts 'You may be prompted for the production password...'.yellow
-      end
-
+    
+    desc 'Dump the data to a PostgreSQL custom-format dump file does NOT include structure'
+    task :dump => [:environment, :backup_directory, :db_user] do
       if Support::Database.pg_database_exists?
+        puts "Initializing dump for #{Rails.env} environment".yellow 
+        puts 'You may be prompted for the production password.'.yellow if Rails.env == 'production'
+
         database = ActiveRecord::Base.connection.current_database
-        path     = File.join(@args[:data_directory], Time.now.utc.strftime('%Y-%m-%d_%H%M%S%Z') + '.dump')
+        path     = File.join(@args[:backup_directory], Time.now.utc.strftime('%Y-%m-%d_%H%M%S%Z') + '.dump')
 
-        puts "Dumping #{database} to #{path}"
+        puts "Dumping #{database} to #{path}".bold
         puts(Benchmark.measure { `pg_dump --username=#{ENV["db_user"]} --host=localhost --format=custom #{database} --file=#{path}` })
-        raise "pg_dump failed with exit code #{$?.to_i}" unless $? == 0
-        puts 'Dump complete'
+        raise "pg_dump failed with exit code #{$?.to_i}".bold.red unless $? == 0
+        puts 'Dump complete'.bold.yellow
 
-        raise 'Failed to create dump file' unless File.exists?(path)
+        raise 'Failed to create dump file'.bold.red unless File.exists?(path)
+
+      else
+        puts "Dump for #{Rails.env} environment failed, database does not exist.".red
       end
     end
 
-    # there are at least two failure cases when using restore_last:
+    # There are at least 1) failure cases when using restore_last:
     # 1)  drop fails because database is in use by other processes.
-    # Remedy: Not much can be done about this here, except check to see how many connections to the database exist. Don't
-    # know how to do that at the moment.
-    # 2)  drop fails because database does not exist.
-    # Remedy: If the database does *not* exist, do not drop it.
-    #
-    # During restore, the primary indexs of all the tables are not reset; as a result, the next added record may have
-    # an index with a (large) gap. The remedy will be something like:
-    #   'SELECT setval('tbl_tbl_id_seq', max(tbl_id)) from tbl;'
-    # (See http://stackoverflow.com/questions/244243/how-to-reset-postgres-primary-key-sequence-when-it-falls-out-of-sync)
-    #
-    # if the table has *any* records, this should work:
-    #       'select setval('tbl_id_seq', (select max(id) from tbl));'
+    #       Remedy: Ensure your database is not used by other processes. Check to see how many connections to the database exist.
+    # 
     desc 'Dump the data as a backup, then restore the db from the specified file.'
-    task :restore => [:dump, :environment, :data_directory, :db_user] do
-      raise 'Specify a dump file: rake tw:db:restore file=myfile.dump' if not ENV['file']
-      if Support::Database.pg_database_exists?
-        Rake::Task['db:drop'].invoke
-        raise "'db:drop' failed with exit code #{$?.to_i}" unless $? == 0
-      end
-      Rake::Task['db:create'].invoke
-      raise "'db:create' failed with exit code #{$?.to_i}" unless ($?.nil? or $? == 0)
+   task :restore => [:dump, 'db:drop', 'db:create' ] do 
+
+      # TODO: NEED TO DIE IF *RAILS* (server) IS RUNNING
+
+      puts "Initializing restore for #{Rails.env} environment".yellow 
+      raise 'Specify a dump file: rake tw:db:restore file=myfile.dump'.yellow if not ENV['file']
+  
       database = ActiveRecord::Base.connection.current_database
-      path     = File.join(@args[:data_directory], ENV["file"])
-      puts "Restoring #{database} from #{path}"
+
+      path     = File.join(@args[:backup_directory], ENV["file"])
+      puts "Restoring #{database} from #{path}".yellow.bold
 
       puts(Benchmark.measure { `pg_restore --username=#{ENV["db_user"]} --host=localhost --format=custom --disable-triggers --dbname=#{database} #{path}` })
-      raise "pg_restore failed with exit code #{$?.to_i}" unless $? == 0
-      # reset table indexes for all tables (restores currval(id_seq) to (presumed) previous value
-      # (i.e., MAX(id) from table) )
-      #
-      # This should just be done by restarting the server and making a new connection!
-      puts 'Resetting AR indecies.' 
-      ActiveRecord::Base.connection.tables.each { |t| ActiveRecord::Base.connection.reset_pk_sequence!(t) }
-      puts 'Restore complete'
+      raise "pg_restore failed with exit code #{$?.to_i}".red.bold unless $? == 0
+
+      # TODO: Once RAILS is restarted automagically this this can go
+      reset_indecies
     end
 
     desc 'Restore from youngest dump file. Handy!'
-    task :restore_last => [:find_last, :restore]
+    task :restore_last => [:find_last, :restore] do
+      puts "Restoring from #{ENV['file']}".bold
+      reset_indecies
+    end
 
-    task :find_last => [:environment, :data_directory] do
-      file = Dir[File.join(@args[:data_directory], '*.dump')].sort.last
+    task :find_last => [:environment, :backup_directory] do
+      file = Dir[File.join(@args[:backup_directory], '*.dump')].sort.last
       raise 'No dump has been found' unless file
       ENV['file'] = File.basename(file)
     end
 
     task :db_user => [:environment] do
       ENV['db_user'] = Rails.configuration.database_configuration[Rails.env]['username'] if ENV['db_user'].blank?
+    end
+
+    private 
+
+    # This should just be done by restarting the server and making a new connection!
+    def reset_indecies
+      puts 'Resetting AR indecies.' 
+      ActiveRecord::Base.connection.tables.each { |t| ActiveRecord::Base.connection.reset_pk_sequence!(t) }
+      puts 'Restore complete'
     end
   end
 end
