@@ -13,6 +13,8 @@
 #
 module UserTasks
 
+  CATEGORIES = %w{taxon_name source collection_object collecting_event}
+
   # A convenience wrapper for handling user task related metadata.
   class UserTask
 
@@ -36,6 +38,14 @@ module UserTasks
     #  true if this task should be linked to from the hub
     attr_accessor :hub
 
+    # @return [Array]
+    #   the iconizable categories this task applies to (see yaml)
+    attr_accessor :categories
+
+    # @return [String]
+    #   the development status of the task (see yaml)
+    attr_accessor :status
+
     # attr_reader :defaults
 
     def initialize(data)
@@ -46,11 +56,17 @@ module UserTasks
       @description = attributes['description']
       @related = attributes['related']
       @hub = (attributes['hub'] ? true : false) 
+      @status = attributes['status']
+      @categories = attributes['categories']
 
      #route = Rails.application.routes.named_routes.get('update_serial_find_task')
 
      #@defaults = route.required_defaults 
      #@defaults.merge!(verb: route.verb)
+    end
+
+    def status
+      @status.nil? ? 'unknown' : @status
     end
 
     # @return [String]
@@ -71,6 +87,8 @@ module UserTasks
     def url
       "#{@prefix}_url"
     end
+
+    
 
     # @return [Boolean]
     #   whether the route requires more than :action, :controller

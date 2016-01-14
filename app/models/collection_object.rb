@@ -58,7 +58,7 @@
 #
 class CollectionObject < ActiveRecord::Base
  
-  CO_OTU_HEADERS = %w{OTU OTU\ name Family Genus Species Country State County Locality Latitude Longitude} 
+  CO_OTU_HEADERS = %w{OTU OTU\ name Family Genus Species Country State County Locality Latitude Longitude}
 
   # @todo DDA: may be buffered_accession_number should be added.  MJY: This would promote non-"barcoded" data capture, I'm not sure we want to do this?!
 
@@ -232,11 +232,11 @@ class CollectionObject < ActiveRecord::Base
         %w(ce co bc).each { |column_type|
           items = []
           unless col_defs[column_type.to_sym].nil?
-            unless col_defs[column_type.to_sym][:internal].nil?
-              items.push(col_defs[column_type.to_sym][:internal].keys)
+            unless col_defs[column_type.to_sym][:in].nil?
+              items.push(col_defs[column_type.to_sym][:in].keys)
             end
-            unless col_defs[column_type.to_sym][:import].nil?
-              items.push(col_defs[column_type.to_sym][:import].keys)
+            unless col_defs[column_type.to_sym][:im].nil?
+              items.push(col_defs[column_type.to_sym][:im].keys)
             end
           end
           row += items.flatten
@@ -295,11 +295,10 @@ class CollectionObject < ActiveRecord::Base
     else
       retval = CollectionObject.joins(:collecting_event => [{:georeferences => :geographic_item}]).where(GeographicItem.sql_for_is_contained_by('any', geographic_item)).limit(limit).includes(:data_attributes, :collecting_event => [{:georeferences => :geographic_item}])
     end
-
     retval
   end
 
-  # @param [String] geographic_shape as EWKT
+  # @param [String] geographic_shape as EWKT (TODO: See right side 'draw' of match-georeference for implimentation)
   # @return [Scope] of CollectionObject
   def self.in_geographic_shape(geographic_shape, steps = false)
     # raise 'in_geographic_shape is unfinished'
@@ -323,9 +322,9 @@ class CollectionObject < ActiveRecord::Base
   end
 
   def self.selected_column_names
-    @selected_column_names = {ce: {internal: {}, import: {}},
-                              co: {internal: {}, import: {}},
-                              bc: {internal: {}, import: {}}
+    @selected_column_names = {ce: {in: {}, im: {}},
+                              co: {in: {}, im: {}},
+                              bc: {in: {}, im: {}}
     } if @selected_column_names.nil?
     @selected_column_names
   end
@@ -340,11 +339,11 @@ class CollectionObject < ActiveRecord::Base
                  .pluck(:controlled_vocabulary_term_id)
     # add selectable column names (unselected) to the column name list list
     ControlledVocabularyTerm.where(id: cvt_list).map(&:name).sort.each { |column_name|
-      @selected_column_names[:ce][:internal][column_name] = {checked: '0'}
+      @selected_column_names[:ce][:in][column_name] = {checked: '0'}
     }
     ImportAttribute.where(project_id: project_id, attribute_subject_type: 'CollectingEvent')
       .pluck(:import_predicate).uniq.sort.each { |column_name|
-      @selected_column_names[:ce][:import][column_name] = {checked: '0'}
+      @selected_column_names[:ce][:im][column_name] = {checked: '0'}
     }
     @selected_column_names
   end
@@ -359,8 +358,8 @@ class CollectionObject < ActiveRecord::Base
       all_internal_das = collection_object.collecting_event.internal_attributes
       all_import_das   = collection_object.collecting_event.import_attributes
       group            = collection[:ce]
-      unless group[:internal].nil?
-        group[:internal].keys.each { |header|
+      unless group[:in].nil?
+        group[:in].keys.each { |header|
           this_val = nil
           all_internal_das.each { |da|
             if da.predicate.name == header
@@ -371,8 +370,8 @@ class CollectionObject < ActiveRecord::Base
           retval.push(this_val) # push one value (nil or not) for each selected header
         }
       end
-      unless group[:import].nil?
-        group[:import].keys.each { |header|
+      unless group[:im].nil?
+        group[:im].keys.each { |header|
           this_val = nil
           all_import_das.each { |da|
             if da.import_predicate == header
@@ -397,11 +396,11 @@ class CollectionObject < ActiveRecord::Base
                  .pluck(:controlled_vocabulary_term_id)
     # add selectable column names (unselected) to the column name list list
     ControlledVocabularyTerm.where(id: cvt_list).map(&:name).sort.each { |column_name|
-      @selected_column_names[:co][:internal][column_name] = {checked: '0'}
+      @selected_column_names[:co][:in][column_name] = {checked: '0'}
     }
     ImportAttribute.where(project_id: project_id, attribute_subject_type: 'CollectionObject')
       .pluck(:import_predicate).uniq.sort.each { |column_name|
-      @selected_column_names[:co][:import][column_name] = {checked: '0'}
+      @selected_column_names[:co][:im][column_name] = {checked: '0'}
     }
     @selected_column_names
   end
@@ -416,8 +415,8 @@ class CollectionObject < ActiveRecord::Base
       all_internal_das = collection_object.internal_attributes
       all_import_das   = collection_object.import_attributes
       group            = collection[:co]
-      unless group[:internal].nil?
-        group[:internal].keys.each { |header|
+      unless group[:in].nil?
+        group[:in].keys.each { |header|
           this_val = nil
           all_internal_das.each { |da|
             if da.predicate.name == header
@@ -427,8 +426,8 @@ class CollectionObject < ActiveRecord::Base
           retval.push(this_val) # push one value (nil or not) for each selected header
         }
       end
-      unless group[:import].nil?
-        group[:import].keys.each { |header|
+      unless group[:im].nil?
+        group[:im].keys.each { |header|
           this_val = nil
           all_import_das.each { |da|
             if da.import_predicate == header
@@ -449,7 +448,7 @@ class CollectionObject < ActiveRecord::Base
     CollectionObject.selected_column_names
     # add selectable column names (unselected) to the column name list list
     BiocurationClass.where(project_id: project_id).map(&:name).each { |column_name|
-      @selected_column_names[:bc][:internal][column_name] = {checked: '0'}
+      @selected_column_names[:bc][:in][column_name] = {checked: '0'}
     }
     @selected_column_names
   end
@@ -462,8 +461,8 @@ class CollectionObject < ActiveRecord::Base
     unless collection.nil?
       group = collection[:bc]
       unless group.nil?
-        unless group[:internal].nil?
-          group[:internal].keys.each { |header|
+        unless group[:in].nil?
+          group[:in].keys.each { |header|
             this_val = collection_object.biocuration_classes.map(&:name).include?(header) ? '1' : '0'
             retval.push(this_val) # push one value (nil or not) for each selected header
           }

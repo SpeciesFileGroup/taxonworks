@@ -8,10 +8,17 @@
 #   attribute: value
 #
 # Valid attributes (* required)
+#
 #   name* - a friendly human readable name describing the task
 #   description - a sentence or two further defining what the task will do for the user
 #   related_prefixes - an array members must be route prefixes and may include user tasks or data prefixes
 #   hub - true if this tasks should appear at the hub, these tasks MAY NOT require parameters
+#   categories - an array of [CollectingEvent, CollectionObject, Source, TaxonName
+#   status - one of [complete, stable, prototype,  unknown (default) ]
+#               complete: users can expect the interfaces to remain in their present form 
+#               stable: primary elements are complete, but minor changes (CSS, feedback etc.) may change
+#               prototype: while production ready, anything can change
+#               uknown: task has not been classifed
 #
 ---
 match_georeference_task:
@@ -19,11 +26,15 @@ match_georeference_task:
   related:
     - collecting_events
     - georeferences
+  categories:
+    - collecting_event
 nearby_locality_task:
   name:  
   related:
     - collecting_events
     - geographic_areas
+  categories:
+    - collecting_event
 update_locality_task:
   name: 
 within_locality_task:
@@ -43,12 +54,17 @@ quick_verbatim_material_task:
   related: 
     - namespaces
     - build_biocuration_groups_task
+  categories:
+    - collecting_event
+    - collection_object
 create_verbatim_material_task:
   name: 
 new_verbatim_reference_task:
   hub: true 
   name: 'New source from citation'
   description: 'Create a new source by pasting in the full text of a citation. The citation will automatically be tested against Crossref and parsed into individual fields (BibTex) if possible.'
+  categories: 
+    - source 
 create_verbatim_reference_task:
   name: 
 build_biocuration_groups_task:
@@ -57,6 +73,8 @@ build_biocuration_groups_task:
   description: 'Create bio-curation categories that are used to organize physical collections (e.g. specimens and lots).'
   related: 
     - build_biocuration_group_task 
+  categories:
+    - collection_object
 build_biocuration_group_task:
   name: 
   related: 
@@ -69,15 +87,24 @@ match_georeference_task:
   hub: true
   name: 'Match georeferences'
   description: 'Re-use georeference efforts from past collecting events.'
+  categories:
+    - collecting_event
 otu_distribution_data_task:
   hub: true
   name: 'OTU distribution data'
   description: 'Display distribution data for an otu.'
+  categories:
+    - collecting_event
+    - collection_object
 gis_report_task:
   hub: true
   name: 'GIS collection object report'
   description: 'Generate flora/faunal reports on a per area basis for visualization and download.'
+  categories:
+    - collecting_event
 author_list_task:
   hub: true
   name: 'Alphabetical list of source authors'
   description: 'Display all source authors with links to source list.'
+  categories: 
+    - collecting_event

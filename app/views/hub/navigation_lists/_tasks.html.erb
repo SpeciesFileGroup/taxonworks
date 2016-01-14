@@ -1,11 +1,13 @@
-<div>
-  <p class="notice"> To see tasks organized by function or subject use the <%= link_to('related', hub_path(list: 'related') ) -%> link on the hub navigation bar. </p>
-  <ul>
-    <% UserTasks.hub_tasks.each do |task| -%>
-      <li> 
-      <%= link_to(task.name, send(task.path), class: 'task_name') -%> 
-      <span class="task_description"> <%= task.description -%> </span> 
-      </li>
+<div id="task_carrousel">
+  <div id="task_filter">
+      <p> filter </p>
+    <% UserTasks::CATEGORIES.each do |c| -%>
+      <%= content_tag(:div, link_to(c.humanize, "#", 'data-filter-category' => c), class: 'category_button') -%>
     <% end %>
-  </ul>
+
+  </div>
+
+  <% UserTasks.hub_tasks.each do |task| -%>
+    <%= link_to(task_card(task), send(task.path)) -%>
+  <% end %>
 </div>
