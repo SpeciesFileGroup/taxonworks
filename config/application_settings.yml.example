@@ -1,7 +1,7 @@
 development:
   default_data_directory: "/home/jdoe/my-dumps"
 production:
-  database_dumps_directory: "/mnt/backup-media/tw-dumps"
+  backup_directory: "/mnt/backup-media/tw-dumps"
   exception_notification:
     email_prefix: "[TW-Error] "
     sender_address: "\"notifier\" <notifier@example.com>"
