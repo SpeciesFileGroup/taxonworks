@@ -18,7 +18,8 @@ module Settings
     :capistrano
   ]
 
-
+  # TODO- this is hinting that we might want to use
+  #  a class rather than module
   @@backup_directory = nil
   @@default_data_directory = nil
   @@mail_domain = nil
@@ -31,6 +32,8 @@ module Settings
     @@config_hash = hash.deep_dup
 
     load_exception_notification(config, hash[:exception_notification])
+    # load_directory(:default_data_directory,  hash[:default_data_directory])
+    # load_directory(:backup_directory,  hash[:backup_directory])
     load_default_data_directory(hash[:default_data_directory])
     load_backup_directory(hash[:backup_directory])
     load_action_mailer_smtp_settings(config, hash[:action_mailer_smtp_settings])
@@ -51,7 +54,7 @@ module Settings
   def self.default_data_directory
     @@default_data_directory
   end
- 
+
   def self.backup_directory
     @@backup_directory
   end
@@ -68,16 +71,6 @@ module Settings
     end
   end
  
-  def self.load_directory(directory, path)
-    directory = nil
-    if !path.nil?
-      full_path = File.absolute_path(path)
-      raise Error, "Directory #{full_path} does not exist" unless Dir.exists?(full_path)
-      directory = full_path
-    end
-  end
-
-
   def self.load_default_data_directory(path)
     @@default_data_directory = nil
     if !path.nil?
