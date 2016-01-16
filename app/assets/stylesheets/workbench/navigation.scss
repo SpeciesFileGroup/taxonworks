@@ -141,6 +141,11 @@ a {
   justify-content: center;  
 }
 
+.centered_navbar {
+	margin:0px;
+	padding:0px;
+}
+
 .left_justified_navbar {
   @extend .horizontal_navbar;
   justify-content: flex-start;  

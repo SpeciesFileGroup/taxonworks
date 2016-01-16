@@ -57,7 +57,6 @@ http://flexboxin5.com/
 #model_index {
   border:1px solid $muted_blue;
   border-radius:3px;
-  top:50%;
   margin:0 auto;
   max-width:1080px;
   background:$viewpoert_background;
@@ -127,4 +126,52 @@ http://flexboxin5.com/
   .item4 { }
 
   .item5 { }
+}
+
+/* Login Screen */
+
+#login-container {
+	position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-top: -150px;
+    margin-left: -150px;
+    width: 300px;
+    height: 200px;
+	
+	.box-login {
+		background-color:$navigation_background;
+		padding:15px;
+		border-radius:3px;
+		border:1px solid $navigation_border;
+		box-shadow:0 4px 4px 0 #CECECE;
+	}
+	.item {
+		padding:3px;
+		display:flex;
+		justify-content:space-between;
+		align-items:center;
+		
+	}
+	.item a {
+		padding-top:10px;
+		text-decoration:none;
+	}
+	.item a:first-letter {
+		text-transform:uppercase;
+	}
+	input[type="text"] {
+		width:240px;
+	}
+	
+	input[type="submit"] {
+		margin:0px;
+	}
+	
+	h1 {
+		text-align:center;
+	}
+	input[type="password"] {
+		width:240px;
+	}
 }

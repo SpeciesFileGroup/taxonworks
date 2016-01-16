@@ -5,44 +5,65 @@
 @import 'workbench/whitespace';
 
 #task_carrousel {
-
-  #task_filter {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border: 1px solid silver;
-    margin: 1em;
-    width: 500px;
-
-    .category_button {
-      padding: 1em;
-    }
+  display: flex;
+	flex-direction:column;
+	justify-content:flex-start;
+	align-items: center;
+	  #task_filter {
+      background-color: $hub_background;
+      border-radius: 3px;
+  		display: flex;
+      flex-direction:row;
+  		justify-content: space-around;
+  		align-items: center;
+  		border: 1px solid $navigation_border;
+  		margin: 1em;
+  		width: 500px;
+      order:-1;
+	
+  		.category_button {
+  		  padding: 1em;
+  		}
 
   }
 
+  a:hover {
+    color: #444;
+    background-color: rgba(0,0,0,0.05);
+    border-radius: 5px;
+  }
   a:visited {
     // disable visited styling
   }
 
   .task_card {
-    border: 1px solid silver;
+    display: none;
+    border: 1px solid $navigation_border;
     margin: 1em;
     width: 500px;
+    border-radius: 3px;
+    background-color: #FFF;
+    box-shadow: 0 4px 4px 0 #CECECE;
   }
 
+  
+
   // should be a flexbox?! 
+
   .task_header {
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
 
-    border-bottom: 1px solid silver;
+    border-bottom: 1px solid $navigation_border;
     padding: 1em;
 
     .status {
-      display: none;
       .unknown {
       }
+    }
+    .status:before {
+      padding: 10px;
     }
 
     .categories {
@@ -52,29 +73,93 @@
       font-size: smaller;
       
       .collecting_event {
-      }
 
-      .collection_object {
-        color: purple;
       }
+    }
+  }
 
       .source {
         color:blue;
       }
 
       .taxon_name {
-        color:red;
-      }
-    }
-  }
+        color:green;
+      }  
+      .collection_object {
+        color: purple;
+        text-align: right;
+      } 
+
+      .collecting_event {
+        color: green;
+        justify-content:center;
+        text-align: right;
+      }       
 
     .task_name {
-      font-size: larger;
+      font-size: 18px;
       padding: 1em; 
     }
 
   .task_description {
     padding: 0em 2em 1em 2em;
+  }
+
+  .category-buttom {
+    display: flex;
+    flex-direction:column;
+  }
+
+  .box-status {
+    display: flex;
+    flex-direction:row;
+    justify-content:flex-start;
+  }
+
+  .circle {
+    margin: 3px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 0.5px solid;
+  }
+
+  .alpha {
+    @extend .circle;
+    background-color: red;
+    border-color: #c72b2b;
+  }
+
+  .unknown {
+    @extend .circle;
+    background-color: #DDD;
+    border-color: #999;
+  }
+
+  .beta {
+    @extend .circle;
+    background-color: yellow;
+    border-color: #c7be2b;
+  }
+
+  .release {
+    @extend .circle;
+    background-color: green;
+    border-color: #7fc72b;
+  }
+
+  .navigation-arrow-up {
+    display: flex;
+    order:-1;
+  }
+
+  .navigation-arrow-down {
+    display: flex;
+    order:-1;
+  }
+
+  .task_carrousel a[data-filter-category="source"] {
+    color: red;
   }
 
 }

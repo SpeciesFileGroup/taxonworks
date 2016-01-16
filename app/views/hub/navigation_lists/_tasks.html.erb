@@ -1,13 +1,123 @@
 <div id="task_carrousel">
   <div id="task_filter">
-      <p> filter </p>
+      <div class="box-status">
+	      <div title="Alpha" class="circle alpha"></div>
+	      <div title="Beta" class="circle beta"></div>
+	      <div title="Release" class="circle release"></div><br>
+  	  </div>
     <% UserTasks::CATEGORIES.each do |c| -%>
       <%= content_tag(:div, link_to(c.humanize, "#", 'data-filter-category' => c), class: 'category_button') -%>
     <% end %>
-
   </div>
-
   <% UserTasks.hub_tasks.each do |task| -%>
     <%= link_to(task_card(task), send(task.path)) -%>
   <% end %>
+  <div class="navigation-arrow-up"><a href="#" onclick="loadingUp();">Up</a>/<a href="#" onclick="loadingDown();">Down</a></div>
 </div>
+<script type="text/javascript">
+
+
+  var 
+    scrollCount = 0,
+    copy = $('#task_carrousel').html(),
+    start = 2, //Child start
+    maxRow = 3, // Number of rows displayed, maybe be can make a configuration for the user have the posibility to set this number or perhaps with a resolution control.
+    nro = start,
+    childs = $( "#task_carrousel > a").length, //Get the nro of childs 
+    filter = true;
+
+
+  function filterCategories(classFilter) {
+    for(i = childs+1; i >= start; i--) {
+      if (!$( "#task_carrousel > a:nth-child("+ (i) +")" ).children().children().children(".categories").hasClass(classFilter)) {
+        $("#task_carrousel > a:nth-child("+ (i) +")").remove(); 
+      }
+    }
+    nro = start;
+    childs = $( "#task_carrousel > a").length;
+  }
+        
+  //Save a copy of all task cards
+  function reloadTaskCards() {
+    $('#task_carrousel').html(copy);
+  }
+
+  function loadingDown() {
+    if((nro+maxRow) <= childs+1) {
+      $( "#task_carrousel > a:nth-child("+ nro +")" ).children().hide(100, function() {
+        $( "#task_carrousel > a:nth-child("+ (nro+maxRow-1) +")" ).children().show(150)
+      });   
+      if(nro < childs) {
+        nro++;
+      }            
+    } 
+  }
+
+  function loadingUp() {
+    if((nro) > start) {
+      $( "#task_carrousel > a:nth-child("+ (nro+maxRow-1) +")" ).children().hide(100, function() {
+        $( "#task_carrousel > a:nth-child("+ nro +")" ).children().show(150)
+      });      
+      if(nro > start) {
+        nro--;
+      }        
+    }  
+  }  
+
+  function btn_filter(filterChilds) {
+    reloadTaskCards();
+    resetChilds();  
+    filterCategories(filterChilds);
+    loadChilds(); 
+  }
+
+  function resetChilds() {
+    nro = start;
+    childs = $( "#task_carrousel > a").length;
+  }
+
+  function loadChilds() {
+    nro = start;
+    childs = $( "#task_carrousel > a").length;
+    for(i = start; i < (start+maxRow); i++) {
+      $( "#task_carrousel > a:nth-child("+ i +")" ).children().hide(50);
+      $( "#task_carrousel > a:nth-child("+ i +")" ).children().show(100);
+    }
+  }
+
+  loadChilds();
+
+
+  //Getting clicks on filter options
+  $('#task_carrousel').on('click', '.category_button a', function() {
+    btn_filter($(this).attr("data-filter-category"));
+  });
+
+
+  //Mousetrap Keys
+  Mousetrap.bind('up', function() {
+    loadingUp();
+  });
+
+    Mousetrap.bind('s', function() {
+      btn_filter("source");  
+  });
+
+    Mousetrap.bind('e', function() {
+      btn_filter("collecting_event");     
+  });
+
+    Mousetrap.bind('o', function() {
+      btn_filter("collection_object");    
+    });  
+
+    Mousetrap.bind('t', function() {
+      btn_filter("taxon_name");
+      loadChilds();      
+  });    
+
+  Mousetrap.bind('down', function() {
+    loadingDown();
+    
+  });    
+</script>
