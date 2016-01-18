@@ -13,5 +13,14 @@ module HubHelper
     }
   end
 
+  def data_card(data)
+    content_tag(:div, class: :data_card) do  
+      content_tag(:div, "", 
+                  data.categories.inject({}){|hsh,c| hsh.merge!("data-category-#{c}" => "true") }.merge( class: "status #{data.status}") 
+                 ) + 
+        link_to(data.name, data.klass)
+    end
+  end
+
 end
 

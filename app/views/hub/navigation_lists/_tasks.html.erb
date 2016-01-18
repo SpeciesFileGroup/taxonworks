@@ -1,12 +1,5 @@
 <div id="task_carrousel">
-  <div id="task_filter">
-      <p> filter </p>
-    <% UserTasks::CATEGORIES.each do |c| -%>
-      <%= content_tag(:div, link_to(c.humanize, "#", 'data-filter-category' => c), class: 'category_button') -%>
-    <% end %>
-
-  </div>
-
+  <%= render "/hub/navigation_lists/hub_category_filter" %>
   <% UserTasks.hub_tasks.each do |task| -%>
     <%= link_to(task_card(task), send(task.path)) -%>
   <% end %>

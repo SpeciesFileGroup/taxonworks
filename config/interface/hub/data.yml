@@ -1,0 +1,82 @@
+# This defines sets of related functionality, as displayed in the 'related' tabs.
+# !! DO NOT ADD EMPTY ARRAYS  !!
+#
+# Valid attributes (* required)
+#   status - one of [complete, stable, prototype, unknown (default) ] (see user_tasks.yml)
+#   categories - an array of [CollectingEvent, CollectionObject, Source, TaxonName]
+#   hide - default false
+#   description - 
+#
+---
+Core: # a Section
+  Otu:  
+    status: :prototype # A status
+  TaxonName:
+    status: :prototype
+    categories:
+      - TaxonName
+  CollectingEvent:
+    status: :prototype
+    categories: 
+      - CollectingEvent
+  CollectionObject: 
+     status: :prototype
+     categories:
+       - CollectionObject
+  ControlledVocabularyTerm :
+     status: :prototype
+  BiologicalAssociation:
+     status: :prototype
+Supporting:
+  AssertedDistribution:
+    categories:
+      - Source 
+  BiologicalAssociationsGraph:
+  BiologicalRelationship:
+  CollectionProfile:
+  CollectionObjectObservation:
+  Container:
+    categories:
+      - CollectionObject
+  ContainerItem:
+    categories:
+      - CollectionObject
+  Content:
+  Document:
+  Documentation:
+  Depiction:
+  Georeference:
+  Image:
+    categories:
+      - CollectionObject
+  Loan:
+    categories:
+      - CollectionObject
+  LoanItem:
+    categories:
+      - CollectionObject
+  OtuPageLayout:
+  RangedLotCategory:
+  TaxonDetermination:
+  TaxonNameClassification:
+   categories:
+      - TaxonName 
+  TaxonNameRelationship:
+    categories:
+      - TaxonName 
+  TypeMaterial:
+    categories:
+      - TaxonName 
+      - CollectionObject
+Annotations:
+  AlternateValue:
+  Citation:
+    categories:
+      - Source 
+  DataAttribute:
+  Identifier:
+  Note:
+  Tag:
+
+
+

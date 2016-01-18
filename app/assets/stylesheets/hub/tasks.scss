@@ -6,24 +6,6 @@
 
 #task_carrousel {
 
-  #task_filter {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border: 1px solid silver;
-    margin: 1em;
-    width: 500px;
-
-    .category_button {
-      padding: 1em;
-    }
-
-  }
-
-  a:visited {
-    // disable visited styling
-  }
-
   .task_card {
     border: 1px solid silver;
     margin: 1em;
