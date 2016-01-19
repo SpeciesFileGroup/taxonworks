@@ -15,7 +15,7 @@ class Tasks::Gis::OtuDistributionDataController < ApplicationController
   end
 
   def show_for_taxon_name
-    @distribution = Distribution.new(otus: Otu.for_taxon_name(TaxonName.find(params[:id])))
+    @distribution = Distribution.new(otus: Otu.for_taxon_name(TaxonName.find(params[:id])).page(params[:page]))
     @type_tag     = 'Taxon name'
     render('show')
   end

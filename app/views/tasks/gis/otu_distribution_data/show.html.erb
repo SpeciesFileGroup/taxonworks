@@ -2,12 +2,14 @@
 
 <h1>Task: <%= "#{@type_tag}" %>  distribution</h1>
 <h3>Taxon name: <%= object_link(@distribution.otus.first.taxon_name) %></h3>
-OTU count :<%= @distribution.otus.count %>
+<%= forward_back_taxon_name_distribution(@distribution.otus.first.taxon_name) %>
 
 <div id="otu_distribution_widget">
   <div class="flexbox">
     <div class="item item1">
-      <%= forward_back_taxon_name_distribution(@distribution.otus.first.taxon_name) %>
+      <!-- OTU count :<%#= @distribution.otus.count %>-->
+      <%= paginate @distribution.otus %>
+      <%= page_entries_info @distribution.otus %>
       <% @distribution.otus.each do |otu| %>
           <table border="1">
             <tbody>
