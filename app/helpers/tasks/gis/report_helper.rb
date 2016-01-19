@@ -53,8 +53,11 @@ module Tasks::Gis::ReportHelper
       group = @selected_column_names[column.to_sym]
       group.keys.each { |type|
         retval.push(group[type].keys)
-      }
+      } unless group.nil?
     }
+    retval ||= {ce: {in: {}, im: {}}, # make sure all columns and types are present,
+                co: {in: {}, im: {}}, # even if empty
+                bc: {in: {}, im: {}}}
     retval.flatten
   end
 

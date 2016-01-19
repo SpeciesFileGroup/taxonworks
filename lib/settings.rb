@@ -9,6 +9,7 @@ module Settings
   ]
 
   VALID_SECTIONS = [
+    :backup_directory,
     :default_data_directory,
     :exception_notification,
     :action_mailer_smtp_settings,
@@ -17,6 +18,9 @@ module Settings
     :capistrano
   ]
 
+  # TODO- this is hinting that we might want to use
+  #  a class rather than module
+  @@backup_directory = nil
   @@default_data_directory = nil
   @@mail_domain = nil
   @@config_hash = nil 
@@ -28,7 +32,10 @@ module Settings
     @@config_hash = hash.deep_dup
 
     load_exception_notification(config, hash[:exception_notification])
+    # load_directory(:default_data_directory,  hash[:default_data_directory])
+    # load_directory(:backup_directory,  hash[:backup_directory])
     load_default_data_directory(hash[:default_data_directory])
+    load_backup_directory(hash[:backup_directory])
     load_action_mailer_smtp_settings(config, hash[:action_mailer_smtp_settings])
     load_action_mailer_url_host(config, hash[:action_mailer_url_host])
     load_mail_domain(config, hash[:mail_domain])
@@ -47,7 +54,11 @@ module Settings
   def self.default_data_directory
     @@default_data_directory
   end
-  
+
+  def self.backup_directory
+    @@backup_directory
+  end
+
   def self.mail_domain
     @@mail_domain
   end
@@ -59,13 +70,22 @@ module Settings
       h
     end
   end
-  
+ 
   def self.load_default_data_directory(path)
     @@default_data_directory = nil
     if !path.nil?
       full_path = File.absolute_path(path)
       raise Error, "Directory #{full_path} does not exist" unless Dir.exists?(full_path)
       @@default_data_directory = full_path
+    end
+  end
+
+  def self.load_backup_directory(path)
+    @@backup_directory = nil
+    if !path.nil?
+      full_path = File.absolute_path(path)
+      raise Error, "Directory #{full_path} does not exist" unless Dir.exists?(full_path)
+      @@backup_directory = full_path
     end
   end
   

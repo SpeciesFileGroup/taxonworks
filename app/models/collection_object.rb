@@ -57,7 +57,7 @@
 #   The date when the object was removed from tracking.  If provide then Repository must be null?! TODO: resolve
 #
 class CollectionObject < ActiveRecord::Base
- 
+
   CO_OTU_HEADERS = %w{OTU OTU\ name Family Genus Species Country State County Locality Latitude Longitude}
 
   # @todo DDA: may be buffered_accession_number should be added.  MJY: This would promote non-"barcoded" data capture, I'm not sure we want to do this?!
@@ -358,30 +358,63 @@ class CollectionObject < ActiveRecord::Base
       all_internal_das = collection_object.collecting_event.internal_attributes
       all_import_das   = collection_object.collecting_event.import_attributes
       group            = collection[:ce]
-      unless group[:in].nil?
-        group[:in].keys.each { |header|
-          this_val = nil
-          all_internal_das.each { |da|
-            if da.predicate.name == header
-              this_val = da.value
-              break
+      unless group.nil?
+        group.keys.each { |type_key|
+          group[type_key.to_sym].keys.each { |header|
+            this_val = nil
+            case type_key.to_sym
+              when :in
+                all_internal_das.each { |da|
+                  if da.predicate.name == header
+                    this_val = da.value
+                    break
+                  end
+                }
+                retval.push(this_val) # push one value (nil or not) for each selected header
+              when :im
+                all_import_das.each { |da|
+                  if da.import_predicate == header
+                    this_val = da.value
+                    break
+                  end
+                }
+                retval.push(this_val) # push one value (nil or not) for each selected header
+              else
             end
           }
-          retval.push(this_val) # push one value (nil or not) for each selected header
         }
       end
-      unless group[:im].nil?
-        group[:im].keys.each { |header|
-          this_val = nil
-          all_import_das.each { |da|
-            if da.import_predicate == header
-              this_val = da.value
-              break
-            end
-          }
-          retval.push(this_val) # push one value (nil or not) for each selected header
-        }
-      end
+      # retval = []
+      # unless group.nil?
+      #   unless group.empty?
+      #     unless group[:in].empty?
+      #       group[:in].keys.each { |header|
+      #         this_val = nil
+      #         all_internal_das.each { |da|
+      #           if da.predicate.name == header
+      #             this_val = da.value
+      #             break
+      #           end
+      #         }
+      #         retval.push(this_val) # push one value (nil or not) for each selected header
+      #       }
+      #     end
+      #   end
+      #   unless group.empty?
+      #     unless group[:im].empty?
+      #       group[:im].keys.each { |header|
+      #         this_val = nil
+      #         all_import_das.each { |da|
+      #           if da.import_predicate == header
+      #             this_val = da.value
+      #             break
+      #           end
+      #         }
+      #         retval.push(this_val) # push one value (nil or not) for each selected header
+      #       }
+      #     end
+      #   end
+      # end
     end
     retval
   end
@@ -415,27 +448,33 @@ class CollectionObject < ActiveRecord::Base
       all_internal_das = collection_object.internal_attributes
       all_import_das   = collection_object.import_attributes
       group            = collection[:co]
-      unless group[:in].nil?
-        group[:in].keys.each { |header|
-          this_val = nil
-          all_internal_das.each { |da|
-            if da.predicate.name == header
-              this_val = da.value
-            end
-          }
-          retval.push(this_val) # push one value (nil or not) for each selected header
-        }
-      end
-      unless group[:im].nil?
-        group[:im].keys.each { |header|
-          this_val = nil
-          all_import_das.each { |da|
-            if da.import_predicate == header
-              this_val = da.value
-            end
-          }
-          retval.push(this_val) # push one value (nil or not) for each selected header
-        }
+      unless group.nil?
+        unless group.empty?
+          unless group[:in].empty?
+            group[:in].keys.each { |header|
+              this_val = nil
+              all_internal_das.each { |da|
+                if da.predicate.name == header
+                  this_val = da.value
+                end
+              }
+              retval.push(this_val) # push one value (nil or not) for each selected header
+            }
+          end
+        end
+        unless group.empty?
+          unless group[:im].empty?
+            group[:im].keys.each { |header|
+              this_val = nil
+              all_import_das.each { |da|
+                if da.import_predicate == header
+                  this_val = da.value
+                end
+              }
+              retval.push(this_val) # push one value (nil or not) for each selected header
+            }
+          end
+        end
       end
     end
     retval
@@ -461,11 +500,13 @@ class CollectionObject < ActiveRecord::Base
     unless collection.nil?
       group = collection[:bc]
       unless group.nil?
-        unless group[:in].nil?
-          group[:in].keys.each { |header|
-            this_val = collection_object.biocuration_classes.map(&:name).include?(header) ? '1' : '0'
-            retval.push(this_val) # push one value (nil or not) for each selected header
-          }
+        unless group.empty?
+          unless group[:in].empty?
+            group[:in].keys.each { |header|
+              this_val = collection_object.biocuration_classes.map(&:name).include?(header) ? '1' : '0'
+              retval.push(this_val) # push one value (nil or not) for each selected header
+            }
+          end
         end
       end
     end

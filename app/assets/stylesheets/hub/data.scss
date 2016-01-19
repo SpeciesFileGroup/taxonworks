@@ -1,0 +1,29 @@
+
+// Styling particular to the hub controller and views
+
+@import 'workbench/palette';
+@import 'workbench/whitespace';
+
+#data_cards {
+
+  display: flex;
+  justify-content: center;
+  align-items: top;
+
+  .data_section {
+    width: 250px;
+    border: 1px solid silver;
+    margin: 1em;
+  }
+
+  .data_section_label {
+    font-size: 200%;
+    padding: 1em;
+    text-align: center;
+  }
+
+  .data_card {
+    margin: 1em;
+  }
+
+}

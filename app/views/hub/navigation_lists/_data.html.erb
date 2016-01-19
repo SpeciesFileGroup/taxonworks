@@ -1,49 +1,12 @@
-<div class="flexbox">
-
-  <div class="item item1 one_fifth_width">
-    <h2> Core</h2>
-    <%= content_tag :li, link_to('OTUs', otus_path) %>
-    <%= content_tag :li, link_to('Taxon names', taxon_names_path) %>
-    <%= content_tag :li, link_to('Collecting events', collecting_events_path) %>
-    <%= content_tag :li, link_to('Collection objects', collection_objects_path) %>
-    <%= content_tag :li, link_to('Controlled vocabulary terms', controlled_vocabulary_terms_path) %>
-    <%= content_tag :li, link_to('Biological associations', biological_associations_path) %>
-  </div>
-
-  <div class="item item2 one_fifth_width">
-    <h2>Supporting</h2>
-    <%= content_tag :li, link_to('Asserted distributions', asserted_distributions_path) %>
-    <%= content_tag :li, link_to('Biological associations graph', biological_associations_graphs_path) %>
-    <%= content_tag :li, link_to('Biological relationships', biological_relationships_path) %>
-    <%= content_tag :li, link_to('Collection profiles', collection_profiles_path) %>
-    <%= content_tag :li, link_to('Collection object observations', collection_object_observations_path) %>
-    <%= content_tag :li, link_to('Containers', containers_path) %>
-    <%= content_tag :li, link_to('Container items', container_items_path) %>
-    <%= content_tag :li, link_to('Contents', contents_path) %>
-    <%= content_tag :li, link_to('Documents', documents_path) %>
-    <%= content_tag :li, link_to('Documentation', documentation_index_path) %>
-    <%= content_tag :li, link_to('Depictions', depictions_path) %>
-    <%= content_tag :li, link_to('Georeferences', georeferences_path) %>
-    <%= content_tag :li, link_to('Images', images_path) %>
-    <%= content_tag :li, link_to('Loans', loans_path) %>
-    <%= content_tag :li, link_to('Loan items', loan_items_path) %>
-    <%= content_tag :li, link_to('OTU page layouts', otu_page_layouts_path) %>
-    <%= content_tag :li, link_to('Ranged lot categories', ranged_lot_categories_path) %>
-    <%= content_tag :li, link_to('Taxon determinations', taxon_determinations_path) %>
-    <%= content_tag :li, link_to('Taxon name classifications', taxon_name_classifications_path) %>
-    <%= content_tag :li, link_to('Taxon name relationships', taxon_name_relationships_path) %>
-    <%= content_tag :li, link_to('Type material', type_materials_path) %>
-  </div>
-
-  <div class="item item3 one_fifth_width">
-    <h2>Annotations</h2>
-    <%= content_tag :li, link_to('Alternate values', alternate_values_path) %>
-    <%= content_tag :li, link_to('Citations', citations_path) %>
-    <%= content_tag :li, link_to('Data attributes', data_attributes_path) %>
-    <%= content_tag :li, link_to('Identifiers', identifiers_path) %>
-    <%= content_tag :li, link_to('Notes', notes_path) %>
-    <%= content_tag :li, link_to('Tags', tags_path) %>
-  </div>
+<%= render "/hub/navigation_lists/hub_category_filter" %>
+<div id="data_cards">
+  <% Hub::Data::SECTIONS.each do |s| -%>
+    <div data-section="<%= s -%>" class="data_section">
+      <% Hub::Data.items_for(s).each do |i| %>  
+        <%= data_card(i) -%> 
+      <% end %>
+    <div class="data_section_label subtle"> <%= s -%> </div>
+    </div>
+  <% end %>
 </div>
-
 

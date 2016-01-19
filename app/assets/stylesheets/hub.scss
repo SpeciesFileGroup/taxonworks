@@ -9,6 +9,21 @@
     text-decoration: none;
   }
 
+   // jose - we could move other general hub classes to here
+   .filter {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid silver;
+    margin: 1em;
+    width: 500px;
+
+    .category_button {
+      padding: 1em;
+    }
+
+  }
+
   #navigation_list {
     li {
       padding: $standard_padding * .3;
@@ -29,7 +44,7 @@
   }
 
   #hub_tabs { 
-   justify-content: center; 
+    justify-content: center; 
   }
 
   div.related_links_set {

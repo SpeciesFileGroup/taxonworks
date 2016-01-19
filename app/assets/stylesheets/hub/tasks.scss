@@ -5,36 +5,6 @@
 @import 'workbench/whitespace';
 
 #task_carrousel {
-  display: flex;
-	flex-direction:column;
-	justify-content:flex-start;
-	align-items: center;
-	  #task_filter {
-      background-color: $hub_background;
-      border-radius: 3px;
-  		display: flex;
-      flex-direction:row;
-  		justify-content: space-around;
-  		align-items: center;
-  		border: 1px solid $navigation_border;
-  		margin: 1em;
-  		width: 500px;
-      order:-1;
-	
-  		.category_button {
-  		  padding: 1em;
-  		}
-
-  }
-
-  a:hover {
-    color: #444;
-    background-color: rgba(0,0,0,0.05);
-    border-radius: 5px;
-  }
-  a:visited {
-    // disable visited styling
-  }
 
   .task_card {
     display: none;

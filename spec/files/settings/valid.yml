@@ -1,6 +1,7 @@
 foo:
   default_data_directory: 'foo'
 test:
+  backup_directory: 'tmp'
   default_data_directory: 'tmp'
   exception_notification:
     email_prefix: "[TW-Error] "
