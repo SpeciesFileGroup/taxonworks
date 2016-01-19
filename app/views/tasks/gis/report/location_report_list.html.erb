@@ -7,18 +7,20 @@
         <%= helper_download_button %>
         <p>
           <%#= count_info(@all_collection_objects_count) %>
-          <%= paginate @list_collection_objects, :method => :post %>
+          <% params = [] %>
+          <%= paginate @list_collection_objects %>
+          <%#= paginate @list_collection_objects, {method: :post} %>
           <%= page_entries_info @list_collection_objects %>
         </p>
-        <table border="1" align="center" hidden="hidden">
-          <tbody>
-          <tr>
-            <%= tag_headers.html_safe %>
-          </tr>
-          <%= all_sub_headers(true).html_safe %>
-          </tbody>
-        </table>
-        <%= hidden_field_tag(:download_rows, @c_o_table_data) %>
+        <!--<table border="1" align="center" hidden="hidden">-->
+        <!--<tbody>-->
+        <!--<tr>-->
+        <%#= tag_headers.html_safe %>
+        <!--</tr>-->
+        <%#= all_sub_headers(true).html_safe %>
+        <!--</tbody>-->
+        <!--</table>-->
+        <%#= hidden_field_tag(:download_rows, @c_o_table_data) %>
     <% end %>
   </div>
 
