@@ -7,7 +7,6 @@
         <%= helper_download_button %>
         <p>
           <%#= count_info(@all_collection_objects_count) %>
-          <% params = [] %>
           <%= paginate @list_collection_objects %>
           <%#= paginate @list_collection_objects, {method: :post} %>
           <%= page_entries_info @list_collection_objects %>
