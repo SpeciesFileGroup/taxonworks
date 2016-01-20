@@ -2,11 +2,156 @@
 <div id="data_cards">
   <% Hub::Data::SECTIONS.each do |s| -%>
     <div data-section="<%= s -%>" class="data_section">
-      <% Hub::Data.items_for(s).each do |i| %>  
-        <%= data_card(i) -%> 
-      <% end %>
-    <div class="data_section_label subtle"> <%= s -%> </div>
+	    <div class="cards-section">
+	      <% Hub::Data.items_for(s).each do |i| %>  
+		      <div class="card-container">
+		        <%= data_card(i) -%> 
+		      </div>		      
+	      <% end %>
+	    </div>
+	    <div class="data_section_label subtle">
+	    	<div class="data-controls">
+	    		<a class="cards-up" href="#"><img src="/assets/icons/arrow-up.svg" width="15"/></a>
+	    		<a class="cards-down" href="#"><img src="/assets/icons/arrow-down.svg" width="15"/></a>
+	    	</div>
+	    	<%= s -%> 
+	    </div>
     </div>
   <% end %>
 </div>
 
+<script type="text/javascript">
+  var 
+
+  	childs = {}, //Save the nro of childs 
+    scrollCount = 0,
+    copy = $('#data_cards').html(),
+    start = 1, //Child start
+    maxRow = 5, // Number of rows displayed, maybe be can make a configuration for the user have the posibility to set this number or perhaps with a resolution control.
+    nro = [],  
+    height = (84 * maxRow),
+    filter = true;
+
+  function resetChildsCount(dataTag) {
+  	childs[dataTag] = $('.data_section[data-section="' + dataTag + '"] > .cards-section > .card-container ').length;
+  }
+
+  function filterCategories(columnFilter,dataFilter) {
+  	resetChildsCount(columnFilter);
+  	filterColumn(columnFilter,dataFilter);
+    nro[columnFilter] = start;
+	loadChilds(columnFilter);
+  }
+
+  function filterColumn(dataTag,filterTag) {
+  	//alert($('.data_section[data-section="' + dataTag + '"] > .cards-section > .card-container:nth-child('+ 2 +')').children().children(".status").attr(filterTag));
+    for(i = childs[dataTag]; i >= start; i--) {
+    	//alert();
+      if (!$('.data_section[data-section="' + dataTag + '"] > .cards-section > .card-container:nth-child('+ (i) +')').children().children(".status").attr(filterTag)) {
+        $(".data_section[data-section=" + dataTag + "] > .cards-section > .card-container:nth-child("+ (i) +")").remove(); 
+      }
+    }  	
+  }
+        
+  //Save a copy of all task cards
+  function reloadTaskCards() {
+    $('#data_cards').html(copy);
+  }
+
+  function loadingDown(dataTag) {
+  	//alert($( '.data_section[data-section="' + dataTag + '"] > .cards-section > .card-container:nth-child('+ nro +')' ).attr("class"));
+    if((nro[dataTag]+maxRow) <= childs[dataTag]) {
+      $('.data_section[data-section="' + dataTag + '"] > .cards-section > .card-container:nth-child('+ nro[dataTag] +')' ).hide(100, function() {
+        $('.data_section[data-section="' + dataTag + '"] > .cards-section > .card-container:nth-child('+ (nro[dataTag]+maxRow-1) +')' ).show(150)
+      });   
+      if(nro[dataTag] < childs[dataTag]) {
+        nro[dataTag]++;
+      }            
+    } 
+  }
+
+  function loadingUp(dataTag) {
+    if((nro[dataTag]) > start) {
+      $('.data_section[data-section="' + dataTag + '"] > .cards-section > .card-container:nth-child('+ (nro[dataTag]+maxRow-1) +')').hide(100, function() {
+        $('.data_section[data-section="' + dataTag + '"] > .cards-section > .card-container:nth-child('+ nro[dataTag] +')').show(150)
+      });      
+      if(nro[dataTag] > start) {
+        nro[dataTag]--;
+      }        
+    }  
+  }  
+
+  function btn_filter(filterTag) {
+    reloadTaskCards();
+    filterCategories("Core",filterTag);
+    filterCategories("Supporting",filterTag);
+    filterCategories("Annotations",filterTag);
+  }
+
+  function resetChilds() {
+    nro = start;
+    childs = $( "#task_carrousel > a").length;
+  }
+
+  function loadChilds(dataTag) {
+    nro[dataTag] = start;
+    childs[dataTag] = $('.data_section[data-section="' + dataTag + '"] > .cards-section > .card-container ').length;
+    for(i = childs[dataTag].length; i > 0; i--) {
+    	alert();
+    }
+    //alert($('.data_section[data-section="' + dataTag + '"] > .cards-section > .card-container ').length);
+    for(i = start; i < (start+maxRow); i++) {
+      $( '.data_section[data-section="' + dataTag + '"] > .cards-section > .card-container:nth-child('+ i +')' ).show(100);
+    }
+  }
+  
+  loadChilds("Supporting");
+  loadChilds("Annotations");
+  loadChilds("Core");
+
+  //Getting clicks on arrows
+  $('.data_section').on('click', 'a.cards-down', function() {
+    loadingDown($(this).parent().parent().parent().attr("data-section"));
+  });
+
+  $('.data_section').on('click', 'a.cards-up', function() {
+    loadingUp($(this).parent().parent().parent().attr("data-section"));
+  });  
+
+
+  $('.filter').on('click', 'a[data-filter-category="taxon_name"]', function() {
+    btn_filter("data-category-TaxonName");
+  });
+
+  $('.filter').on('click', 'a[data-filter-category="collecting_event"]', function() {
+    btn_filter("data-category-collectingevent");
+  });
+
+  $('.filter').on('click', 'a[data-filter-category="collection_object"]', function() {
+    btn_filter("data-category-collectionobject");
+  });  
+
+  $('.filter').on('click', 'a[data-filter-category="source"]', function() {
+    btn_filter("data-category-Source");
+  });
+
+   
+
+  //Mousetrap Keys
+    Mousetrap.bind('s', function() {
+      btn_filter("data-category-Source");
+  });
+
+    Mousetrap.bind('e', function() {
+      btn_filter("data-category-collectingevent");   
+  });
+
+    Mousetrap.bind('o', function() {
+      btn_filter("data-category-collectionobject");   
+    });  
+
+    Mousetrap.bind('t', function() {
+      btn_filter("data-category-TaxonName");     
+  });    
+   
+</script>

@@ -1,7 +1,9 @@
 <div class="filter"><!-- we can change this id to something that makes more universal sense -->
-    <p> filter </p>
+    <div>Filter</div>
+    <div style="display:flex; flex-direction:row;">
   <% UserTasks::CATEGORIES.each do |c| -%>
     <%= content_tag(:div, link_to(c.humanize, "#", 'data-filter-category' => c), class: 'category_button') -%>
   <% end %>
+  </div>
 </div>
 

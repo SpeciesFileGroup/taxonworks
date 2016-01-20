@@ -5,6 +5,10 @@
 @import 'workbench/whitespace';
 
 #task_carrousel {
+  display: flex;
+  flex-direction:column;
+  justify-content:flex-start;
+  align-items: center;
 
   .task_card {
     display: none;
@@ -32,13 +36,10 @@
       .unknown {
       }
     }
-    .status:before {
-      padding: 10px;
-    }
 
     .categories {
-      width: 20px;
-      flex-basis: 40px;
+      margin: 5px;
+      flex-basis: 50px;
       text-align: center;
       font-size: smaller;
       
@@ -71,6 +72,20 @@
       padding: 1em; 
     }
 
+
+      .task-header-left {
+        display: flex;
+        flex-direction:row;
+        align-items:center;
+      }
+
+      .task-header-right {
+        display: flex;
+        flex-direction:row;
+        align-items:center;
+        justify-content:flex-end;
+      }
+
   .task_description {
     padding: 0em 2em 1em 2em;
   }
@@ -94,25 +109,25 @@
     border: 0.5px solid;
   }
 
-  .alpha {
+  .red-circle {
     @extend .circle;
     background-color: red;
     border-color: #c72b2b;
   }
 
-  .unknown {
+  .gray-circle {
     @extend .circle;
     background-color: #DDD;
     border-color: #999;
   }
 
-  .beta {
+  .yellow-circle {
     @extend .circle;
     background-color: yellow;
     border-color: #c7be2b;
   }
 
-  .release {
+  .green-circle {
     @extend .circle;
     background-color: green;
     border-color: #7fc72b;

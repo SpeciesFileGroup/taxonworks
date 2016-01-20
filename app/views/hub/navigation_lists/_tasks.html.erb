@@ -7,7 +7,9 @@
 </div>
 <script type="text/javascript">
 
-
+$( '<div class="gray-circle"></div>' ).insertBefore(".unknown");
+$( '<div class="yellow-circle"></div>' ).insertBefore(".beta");
+$( '<div class="red-circle"></div>' ).insertBefore(".alpha");
   var 
     scrollCount = 0,
     copy = $('#task_carrousel').html(),
@@ -20,7 +22,8 @@
 
   function filterCategories(classFilter) {
     for(i = childs+1; i >= start; i--) {
-      if (!$( "#task_carrousel > a:nth-child("+ (i) +")" ).children().children().children(".categories").hasClass(classFilter)) {
+
+      if (!$( "#task_carrousel > a:nth-child("+ (i) +")" ).children().children().children().children(".categories").hasClass(classFilter)) {
         $("#task_carrousel > a:nth-child("+ (i) +")").remove(); 
       }
     }
