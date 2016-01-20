@@ -342,15 +342,17 @@
 
 <script>
 
+function load_thumb_nav() {
 
-  
    $.ajax({
     url: "<%= collection_object_buffered_data_breakdown_thumb_navigator_path(@result.sqed_depiction.id) -%>",
     success: function(html){
       $("#depiction_navigator_target").html(html);
     }
-  });
+   });
+}
 
+load_thumb_nav();
  
 
 </script>
