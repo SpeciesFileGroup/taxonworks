@@ -21,10 +21,16 @@ module Tasks::Gis::OtuDistributionDataHelper
     # next_link(taxon_name)
     # new_taxon_name_id = TaxonName.order(id: :desc).with_project_id(taxon_name.project_id).where('id < ?', taxon_name.id).limit(1).pluck(:id).first
     # link_to('previous', "#{new_taxon_name_id}")
-    text        = 'Previous'
+    text = 'Previous'
     # if taxon_name.respond_to?(:project_id)
     # link_object = taxon_name.class.base_class.order(id: :desc).with_project_id(sessions_current_project_id).where(['id < ?', taxon_name.id]).limit(1).pluck(:id).first
-    link_object = TaxonName.with_project_id(sessions_current_project_id).order(id: :desc).where("id < #{taxon_name.id}").limit(1).pluck(:id).first
+    case @type_tag
+      when 'Otu'
+        link_object = Otu.with_project_id(sessions_current_project_id).order(id: :desc).where("id < #{@distribution.otus.first.id}").limit(1).pluck(:id).first
+      when 'Taxon name'
+        link_object = TaxonName.with_project_id(sessions_current_project_id).order(id: :desc).where("id < #{taxon_name.id}").limit(1).pluck(:id).first
+      else
+    end
     # else
     #   link_object = taxon_name.class.base_class.order(id: :desc).where(['id < ?', taxon_name.id]).limit(1).first
     # end
@@ -36,11 +42,17 @@ module Tasks::Gis::OtuDistributionDataHelper
     # next_link(taxon_name)
     # new_taxon_name = TaxonName.order(id: :asc).with_project_id(taxon_name.project_id).where('id > ?', taxon_name.id).limit(1).first
     # link_to('next', "#{new_taxon_name_id}")
-    text        = 'Next'
+    text = 'Next'
     # if taxon_name.respond_to?(:project_id)
     # link_object = taxon_name.class.base_class.order(id: :asc).with_project_id(sessions_current_project_id).where(['id > ?', taxon_name.id]).limit(1).pluck(:id).first
     # fail
-    link_object = TaxonName.with_project_id(sessions_current_project_id).order(id: :asc).where("id < #{taxon_name.id}").limit(1).pluck(:id).first
+    case @type_tag
+      when 'Otu'
+        link_object = Otu.with_project_id(sessions_current_project_id).order(id: :asc).where("id > #{@distribution.otus.first.id}").limit(1).pluck(:id).first
+      when 'Taxon name'
+        link_object = TaxonName.with_project_id(sessions_current_project_id).order(id: :asc).where("id > #{taxon_name.id}").limit(1).pluck(:id).first
+      else
+    end
     # else
     #   link_object = taxon_name.class.base_class.order(id: :asc).where(['id > ?', taxon_name.id]).limit(1).first
     # end

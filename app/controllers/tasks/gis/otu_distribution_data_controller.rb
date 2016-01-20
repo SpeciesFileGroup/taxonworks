@@ -9,13 +9,15 @@ class Tasks::Gis::OtuDistributionDataController < ApplicationController
     else
       @otu = Otu.find(id)
     end
-    @distribution = Distribution.new(otus: [@otu])
+    @taxon_name   = @otu.taxon_name
+    @distribution = Distribution.new(otus: Otu.where(id: @otu.id).page(params[:page]))
     @type_tag     = 'Otu'
     render('show')
   end
 
   def show_for_taxon_name
-    @distribution = Distribution.new(otus: Otu.for_taxon_name(TaxonName.find(params[:id])).page(params[:page]))
+    @taxon_name   = TaxonName.find(params[:id])
+    @distribution = Distribution.new(otus: Otu.for_taxon_name(@taxon_name).page(params[:page]))
     @type_tag     = 'Taxon name'
     render('show')
   end

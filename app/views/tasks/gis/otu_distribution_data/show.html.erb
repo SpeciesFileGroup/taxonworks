@@ -1,9 +1,9 @@
 <%= render(partial: 'layouts/map_header') -%>
 
 <h1>Task: <%= "#{@type_tag}" %>  distribution</h1>
-<h3>Taxon name: <%= object_link(@distribution.otus.first.taxon_name) %></h3>
+<h3>Taxon name: <%= object_link(@taxon_name) %></h3>
 <p>
-  <%= forward_back_taxon_name_distribution(@distribution.otus.first.taxon_name) %>
+  <%= forward_back_taxon_name_distribution(@taxon_name) %>
 </p>
 
 <div id="otu_distribution_widget">
