@@ -1,11 +1,7 @@
 <%= link_to('Back to transcribe', sqed_depiction_breakdown_task_path(@result.sqed_depiction)) -%>
 
 <div class="flexbox sqed_breakdown" id="breakdown_buffered_data">
-  <div class="item item1">
-    <div id="depiction_navigator">
-      <span class="subtle"> click to navigate </span>
-      <%= sqed_depiction_thumb_navigator(@result.sqed_depiction, 2, 2) -%>
-    </div>
+  <div class="item item1" id="depiction_navigator_target"> <span class="subtle">Calculating...</span>
   </div>
 
   <div class="item item2">
@@ -36,63 +32,11 @@
     <div>
       <h3> Edit collecting event  </h3>
       <div id="message"> </div>
+      <div id="form">
+        <%= render "form" %>
+      </div>
+      <%= link_to 'Skip to next', collection_object_buffered_data_breakdown_task_path(@result.sqed_depiction.next_sqed_depiction.depiction_object)  -%>
 
-      <%= form_for(@collection_object.metamorphosize, as: :collection_object, url: collection_object_buffered_data_breakdown_update_task_path(@collection_object), remote: true) do |f| -%>
-
-          <%= f.fields_for(:collecting_event, @collection_object.collecting_event) do |c| -%>
-
-              <div class="field">
-                <%= c.label :verbatim_locality %>
-                <br>
-                <%= c.autocomplete_field :verbatim_locality, autocomplete_collecting_event_verbatim_locality_collecting_events_path, size: 50 -%>
-              </div>
-
-              <div class="field">
-                <%= c.label :geographic_area %>
-                <br>
-                <%= render :partial => 'workbench/elements/forms/ajax_select',
-                           locals:  {controller: '/geographic_areas',
-                                     object:     'collecting_event',
-                                     method:     'geographic_area_id',
-                                     tag_id:     'geographic_area_id_for_collecting_event',
-                                     display:    geographic_area_tag(c.object.geographic_area),
-                                     size:       40} %>
-              </div>
-
-
-              <%= c.fields_for(:identifiers, @collection_object.collecting_event.identifiers) do |i| -%>
-                  <%= i.hidden_field :type -%>
-
-                  <div class="side_by_side_fields">
-
-                    <div class="field">
-                      <%= i.label :namespace_id %><br>
-                      <%= render(
-                                  partial: '/workbench/elements/forms/ajax_select',
-                                  locals:  {
-                                          controller:        '/namespaces',
-                                          object:            "collection_object[identifiers_attributes][#{i.index}]",
-                                          method:            'namespace_id',
-                                          tag_id:            "namespace_id_for_identifier_#{i.index}",
-                                          display:           (i.object.namespace ? i.object.namespace.short_name : nil),
-                                          size:              20,
-                                          fields_for_object: i})
-                      %>
-                    </div>
-
-                    <div class="field">
-                      <%= i.label :identifier %><br>
-                      <%= i.text_field :identifier, class: "mousetrap" %>
-                      <%= destroy_related_link(i) -%>
-                    </div>
-
-              <% end %>
-              </div>
-          <% end %>
-
-          <%= submit_tag -%>
-          <%= submit_tag 'Save and next' -%>
-      <% end %>
       <%# render "similar_buffered_collecting_event_values" %>
       
       <hr>
@@ -116,7 +60,6 @@
 <%= image_tag(@result.depiction.image.image_file.url(:original), id: 'original_image', hidden: true) -%>
 
 <script>
-
 
     // .selection is from http://madapaja.github.io/jquery.selection/
     $('#verbatim_locality_text').click(function(){
@@ -165,8 +108,6 @@
     big_svg_image = p.image("<%= @result.image_path_for_large_image(@result.sqed_depiction.collecting_event_sections.first) -%>", <%= @result.large_dimensions_for(@result.primary_image) -%>);
     addSelectBox(p);
     getBox();
-
-
 
     function addSelectBox(paper) {
         var changeCursor = function (e, mouseX, mouseY) {
@@ -232,7 +173,6 @@
 
 
         var dragMove = function (dx, dy) {
-
             // Inspect cursor to determine which resize/move process to use
             switch (this.attr('cursor')) {
 
@@ -326,7 +266,6 @@
             svg_box
         ]);
 
-//  select_box.mouseup(selectRectangle());        // does not work, preempted by dragEnd
         select_box.mousemove(changeCursor)
         select_box.drag(dragMove, dragStart, dragEnd);
     }
@@ -381,14 +320,41 @@
 
         imageObject.src = $("#original_image").attr('src');         // make an image() object to "draw onto the canvas
         context.drawImage(imageObject, sourceX, sourceY, sourceWidth, sourceHeight, destX, destY, destWidth, destHeight);
-        //  $('#debug_box').html(boxX + "|" + boxY + "|" + boxW + "|" + boxH + "-" + sourceX + "|" + sourceY + "|" + sourceWidth + "|" + sourceHeight );
     }
     ;
-
 
     $('#setBox').on('click', function () {
         addSelectBox();
     });
+
+    $('.destroyable').on('click', function(click) {
+        var name = $(this).data('object-name'); // ('object_name');
+        var field = $(this).parent('div.field');
+
+        field.html('removed, save required');
+        field.addClass('destroyable');
+
+        field.append($('<input hidden name="' +  name + '[_destroy]" value="1" >') );
+      });
+</script>
+
+<script>
+
+
+var ready;
+ready = function() {
+
+  $.ajax({
+        url: "<%= collection_object_buffered_data_breakdown_thumb_navigator_path(@result.sqed_depiction.id) -%>",
+        cache: false,
+        success: function(html){
+          $("#depiction_navigator_target").html(html);
+        }
+      });
+
+};
+
+$(document).ready(ready);
 
 </script>
 

@@ -340,6 +340,7 @@ TaxonWorks::Application.routes.draw do
 
         scope :buffered_data, controller: 'tasks/accessions/breakdown/buffered_data' do
           get ':id', action: :index, as: 'collection_object_buffered_data_breakdown_task'
+          get 'thumb_navigator/:id', action: :thumb_navigator, as: 'collection_object_buffered_data_breakdown_thumb_navigator'
           patch 'update/:id', action: :update, as: 'collection_object_buffered_data_breakdown_update_task' 
         end
       end

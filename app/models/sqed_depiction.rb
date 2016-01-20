@@ -92,6 +92,12 @@ class SqedDepiction < ActiveRecord::Base
     return { before: b, after: a}
   end
 
+  def next_sqed_depiction
+    sd = SqedDepiction.where(project_id: self.project_id).where("id > ?", self.id).order(:id).limit(1)
+    sd.any? ? sd.first : SqedDepiction.where(project_id: self.project_id).first
+  end
+
+
   protected
 
   def sqed_metadata_map
