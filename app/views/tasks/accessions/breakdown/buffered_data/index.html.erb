@@ -335,26 +335,23 @@
         field.addClass('destroyable');
 
         field.append($('<input hidden name="' +  name + '[_destroy]" value="1" >') );
-      });
+    });
+
+
 </script>
 
 <script>
 
 
-var ready;
-ready = function() {
+  
+   $.ajax({
+    url: "<%= collection_object_buffered_data_breakdown_thumb_navigator_path(@result.sqed_depiction.id) -%>",
+    success: function(html){
+      $("#depiction_navigator_target").html(html);
+    }
+  });
 
-  $.ajax({
-        url: "<%= collection_object_buffered_data_breakdown_thumb_navigator_path(@result.sqed_depiction.id) -%>",
-        cache: false,
-        success: function(html){
-          $("#depiction_navigator_target").html(html);
-        }
-      });
-
-};
-
-$(document).ready(ready);
+ 
 
 </script>
 
