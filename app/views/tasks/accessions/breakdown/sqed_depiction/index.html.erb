@@ -1,9 +1,9 @@
-<h2> Task: Transcribe depiction </h2>
-
+<h1> Task: Transcribe depiction </h1>
 
 <div class="breakdown_nav">
   <div> <%= link_to('TODO map', sqed_depiction_breakdown_todo_map_task_path) -%> </div>
-  <div class="subtle">Sqed depiction:  <%= link_to(@sqed_depiction.to_param, depiction_path(@sqed_depiction.depiction)) -%> </div>
+  <div class="subtle">Sqed
+    depiction:  <%= link_to(@sqed_depiction.to_param, depiction_path(@sqed_depiction.depiction)) -%> </div>
   <div> <%= link_to('Original image', @result.depiction.image.image_file.url(:original), target: '_blank') -%> </div>
   <div> <%= link_to('Buffered breakdown', collection_object_buffered_data_breakdown_task_path(@result.depiction.depiction_object)) -%> </div>
 </div>
@@ -12,31 +12,31 @@
 
   <!-- transcribe for javascript reference -->
   <span id="image_sections"
-    <%= @result.image_sections.each do |section| %>
+        <%= @result.image_sections.each do |section| %>
       data-section-<%= section -%>="<%= @result.class::TEXT_MAP[section.to_sym] -%>"
     <% end %>
-    hidden=true
+        hidden=true
     ></span>
 
   <div class="item item1">
     <div id="littlebox">
       <% @result.image_sections.each_with_index do |section, i| -%>
         <span>  
-          <%= content_tag(:span, "[#{i + 1}]", class: :ctrl_link,  style: 'float: left') -%>   
+          <%= content_tag(:span, "[#{i + 1}]", class: :ctrl_link, style: 'float: left') -%>
           <%= image_tag(@result.image_path_for_large_image(section), id: "little#{i}", class: "little_image clickable", style: "vertical-align:middle;") -%> 
       </span>
-    <% end %>
+      <% end %>
     </div>
   </div>
 
   <div class="item item2">
     <div id="bigbox">
-      <div id="paper"> </div>
+      <div id="paper"></div>
     </div>
 
     <div id="ocr_result">
-      <div id="selected_text">  </div>
-      <div id="selected_text_options" class="subtle"> Append [q], Replace [w]  </div>
+      <div id="selected_text"></div>
+      <div id="selected_text_options" class="subtle"> Append [q], Replace [w]</div>
     </div>
 
     <div id="selected_picture">
@@ -51,9 +51,10 @@
 
 </div>
 
-<%= image_tag(@result.depiction.image.image_file.url(:original), id: 'original_image', hidden: true) -%> 
+<%= image_tag(@result.depiction.image.image_file.url(:original), id: 'original_image', hidden: true) -%>
 
 <script>
+
 
     var imageObject;
     imageObject = new Image();
@@ -107,15 +108,15 @@
         initDecodedText();
     });
 
-    $('.destroyable').on('click', function(click) {
+    $('.destroyable').on('click', function () {
         var name = $(this).data('object-name'); // ('object_name');
         var field = $(this).parent('div.field');
 
         field.html('removed, save required');
         field.addClass('destroyable');
 
-        field.append($('<input hidden name="' +  name + '[_destroy]" value="1" >') );
-      });
+        field.append($('<input hidden name="' + name + '[_destroy]" value="1" >'));
+    });
 
 
     function addSelectBox(paper) {
@@ -137,14 +138,14 @@
             // Change cursor
             if (relativeX < resizeBorder) {     // left (west) border, so see if also a corner
                 this.attr('cursor', 'w-resize');
-                if(relativeY < resizeBorder) {
+                if (relativeY < resizeBorder) {
                     this.attr('cursor', 'nw-resize');
                 } else if (relativeY > shapeHeight - resizeBorder) {
                     this.attr('cursor', 'sw-resize');
                 }
             } else if (relativeX > shapeWidth - resizeBorder) {     // right (east) border, so see if also a corner
                 this.attr('cursor', 'e-resize');
-                if(relativeY > shapeHeight - resizeBorder) {
+                if (relativeY > shapeHeight - resizeBorder) {
                     this.attr('cursor', 'se-resize');
                 } else if (relativeY < resizeBorder) {
                     this.attr('cursor', 'ne-resize');
@@ -158,9 +159,9 @@
                 }
             } else if (relativeY < resizeBorder) {     // top (north) border, so see if also a corner
                 this.attr('cursor', 'n-resize');
-                if(relativeX < resizeBorder) {
+                if (relativeX < resizeBorder) {
                     this.attr('cursor', 'sw-resize');
-                } else if(relativeX > shapeWidth - resizeBorder){
+                } else if (relativeX > shapeWidth - resizeBorder) {
                     this.attr('cursor', 'sw-resize');
                 }
             } else {
@@ -188,9 +189,7 @@
                 case 'w-resize' :
                     this.attr({
                         x: this.ox + dx,
-//                        y: this.oy + dy,
                         width: this.ow - dx,
-//                        height: this.oh - dy
                     });
                     break;
 
@@ -308,7 +307,8 @@
 
         if (reset) {
             return
-        };
+        }
+        ;
 
         // calculate destination framing
         var destWidth;                  // NOTE:  destWidth and destHeight are
@@ -351,14 +351,13 @@
                 }, 'json'
         );
     }
-    ;
+
 
     function initDecodedText() {
         $("#selected_text").html('Drag box to ocr.');
     }
-    ;
 
-    $('#ocr_selection').on('click', function (click) {
+    $('#ocr_selection').on('click', function () {
         ocr_selection();
     });
 
@@ -366,11 +365,15 @@
         addSelectBox();
     });
 
-    Mousetrap.bind('ctrl+q', function() { append_user_selected_ocr(); });
-    Mousetrap.bind('ctrl+w', function() { replace_user_selected_ocr(); });
-    Mousetrap.bind('ctrl+n', function() { 
+    Mousetrap.bind('ctrl+q', function () {
+        append_user_selected_ocr();
+    });
+    Mousetrap.bind('ctrl+w', function () {
+        replace_user_selected_ocr();
+    });
+    Mousetrap.bind('ctrl+n', function () {
         $("#save_and_next").trigger('click');
-        });
+    });
 
     function append_user_selected_ocr() {
         var target = $(document.activeElement);
@@ -383,14 +386,16 @@
     }
 
     <% @result.image_sections.each_with_index do |section, i| -%>
-      Mousetrap.bind('ctrl+<%= %w{a s d f g h i}[i] %>', function() { use_ocr('<%= section -%>'); });
+    Mousetrap.bind('ctrl+<%= %w{a s d f g h i}[i] %>', function () {
+        use_ocr('<%= section -%>');
+    });
     <% end %>
 
     <% @result.image_sections.each_with_index do |section, i| -%>
-      Mousetrap.bind('ctrl+<%= i + 1 %>', function() {
-          var index = <%= i  -%>;
-          $("#little" + index).trigger('click');
-          });
+    Mousetrap.bind('ctrl+<%= i + 1 %>', function () {
+        var index = <%= i  -%>;
+        $("#little" + index).trigger('click');
+    });
     <% end %>
 
     $(".use_ocr").on('click', function (click) {
@@ -410,13 +415,13 @@
         else {
             target_id = "#collection_object_" + $("#image_sections").data("section-" + section);
             value = $(target_id).val() + ocr;
-        };
+        }
 
         $(target_id).val(value);
     }
 
     function get_identifier(ocr_txt) {
-    var regex = /\d{<%= @identifier_prototype.length -%>}/;
+        var regex = /\d{<%= @identifier_prototype.length -%>}/;
         var v = regex.exec(ocr_txt);
         if (v == false) {
             return
@@ -424,26 +429,21 @@
         else {
             return v[0];
         }
-    };
-
+    }
 
     $("#collection_object_buffered_collecting_event").focus();
 
+
     function original_ocr() {
-      <% @result.image_sections.each do |section| -%>
-          $.getJSON("<%= @result.ocr_path_for(section) -%>")
-          .done(function( json ) {
-            $("#text_for_<%= section -%>").html(json.text);
-          }
-          );
-    <% end %>
-    };
+        <% @result.image_sections.each do |section| -%>
+        $.getJSON("<%= @result.ocr_path_for(section) -%>")
+                .done(function (json) {
+                    $("#text_for_<%= section -%>").html(json.text);
+                }
+        );
+        <% end %>
+    }
 
-</script>
-
-
-<script>
-
-$( window ).load(  original_ocr );
+    original_ocr();
 
 </script>
