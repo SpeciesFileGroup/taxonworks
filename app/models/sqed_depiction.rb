@@ -107,10 +107,11 @@ class SqedDepiction < ActiveRecord::Base
     i = 0
     while i < total
       r = SqedDepiction.where(t[:result_ocr].eq(nil).or(t[:result_boundary_coordinates].eq(nil)).to_sql).limit(1).first
-      break if r.nil?
+      return i if r.nil?
       r.preprocess
       i = i + 1
     end
+    i
   end
 
   protected

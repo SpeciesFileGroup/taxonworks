@@ -2,6 +2,29 @@ namespace :tw do
   namespace :batch_load do
     namespace :sqed_depiction do
 
+      # rake tw:batch_load:sqed_depiction:preprocess total=10 
+      desc 'preprocess the first <total> sqed depictions that do not have both OCR and boundaries populated in cache, does not care what project the data are in'
+      task preprocess: [:environment] do |t|
+        if ENV['total'] 
+          total = ENV['total'].to_i
+        else
+          total = 10 
+        end 
+
+        i = 0
+        
+        puts 'Processing empty sqed depictions'.yellow
+         
+        while i < total
+          print "\r #{i}"
+          break if SqedDepiction.preprocess_empty(1) != 1
+          i += 1
+        end
+        puts
+        puts "Processed #{i} records.".yellow
+      end
+
+
       # Basic format: 
       #   rake tw:batch_load:sqed_depiction:import total=1 data_directory=/Users/matt/Desktop/images/ project_id=1 user_id=1 
       # Extended format:
