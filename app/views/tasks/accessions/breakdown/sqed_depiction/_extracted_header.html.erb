@@ -3,7 +3,7 @@
     <% @result.image_sections.each_with_index do |section, i| -%>
         <div class="field">
           <%= label_tag section %>
-          <%= button_tag "Use  [#{%w{a s d f}[i] }]", id: "use_#{section}", class: "use_ocr" -%>
+          <%= button_tag "Use  [#{%w{a s d f g h i}[i] }]", id: "use_#{section}", class: "use_ocr" -%>
           <%= content_tag(:div, "Calculating...", id: "text_for_#{section}", class: :ocr_text ) %>
         </div>
     <% end %>
