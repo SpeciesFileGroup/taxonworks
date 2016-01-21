@@ -3,19 +3,25 @@
 #todo_map {
   display: flex;
   flex-direction: row;
-flex-flow: row wrap;
+  flex-flow: row wrap;
 
   .card {
-    height: 20px;
-    width: 20px;
+    display: flex;
+    height: 40px;
+    width: 50px;
     border: 1px solid silver;
     padding: .2em; 
-    margin: 1em;
-    text-align: center;
+    margin: .5em;
+    
+     align-items: center;
+     p {
+       width: 100%;
+       text-align: center;
+     }
   }
 
   .finished {
-    background-color: green;
+    background-color: $color-complement-0;
   }
 
 

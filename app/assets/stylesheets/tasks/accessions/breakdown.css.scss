@@ -3,15 +3,13 @@
 // TODO - nest this elsewhere, it belongs isolated to breakdown tasks?!
 
   .breakdown_nav {
-    margin-top: 0;
-    padding-top: 0;
     border: 1px solid silver;
-    margin: 2px;
+    margin: 1em;
     display: flex;
     flex-align: row;
 
     div {
-      padding: 1em;
+      padding: .6em .6em;
     }
   }
 

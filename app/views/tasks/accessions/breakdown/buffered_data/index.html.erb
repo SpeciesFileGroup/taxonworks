@@ -1,4 +1,9 @@
-<%= link_to('Back to transcribe', sqed_depiction_breakdown_task_path(@result.sqed_depiction)) -%>
+
+
+<div class="breakdown_nav">
+  <%= render '/tasks/accessions/breakdown/breakdown_nav_items' -%>
+  <div> <%= link_to('Depiction breakdown', sqed_depiction_breakdown_task_path(@result.sqed_depiction), 'data-no-turbolink' => true) -%> </div>
+</div>
 
 <div class="flexbox sqed_breakdown" id="breakdown_buffered_data">
   <div class="item item1" id="depiction_navigator_target"> <span class="subtle">Calculating...</span>
@@ -60,6 +65,7 @@
 <%= image_tag(@result.depiction.image.image_file.url(:original), id: 'original_image', hidden: true) -%>
 
 <script>
+    $("#collection_object_collecting_event_attributes_verbatim_locality").focus();
 
     // .selection is from http://madapaja.github.io/jquery.selection/
     $('#verbatim_locality_text').click(function(){
@@ -338,22 +344,18 @@
     });
 
 
-</script>
+  function load_thumb_nav() {
+    $.ajax({
+      url: "<%= collection_object_buffered_data_breakdown_thumb_navigator_path(@result.sqed_depiction.id) -%>",
+      success: function(html){
+        $("#depiction_navigator_target").html(html);
+      }
+    });
+  }
 
-<script>
-
-function load_thumb_nav() {
-
-   $.ajax({
-    url: "<%= collection_object_buffered_data_breakdown_thumb_navigator_path(@result.sqed_depiction.id) -%>",
-    success: function(html){
-      $("#depiction_navigator_target").html(html);
-    }
-   });
-}
-
-load_thumb_nav();
- 
+    $( document ).ready(function() {
+      load_thumb_nav();
+    });
 
 </script>
 

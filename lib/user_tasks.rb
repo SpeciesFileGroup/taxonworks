@@ -88,14 +88,11 @@ module UserTasks
       "#{@prefix}_url"
     end
 
-    
-
     # @return [Boolean]
     #   whether the route requires more than :action, :controller
     def requires_params?
       Rails.application.routes.named_routes.get(@prefix).required_keys.sort != [:action, :controller]
     end
-
   end
 
   # The raw YAML (Hash)
@@ -112,7 +109,7 @@ module UserTasks
   # @return [Array of UserTasks::UserTask]
   #    the UserTasks instances
   def self.tasks
-    INDEXED_TASKS.values
+    INDEXED_TASKS.values.sort!{|a, b| a.name <=> b.name }
   end
 
   # @return [Array of UserTasks::UserTask]
