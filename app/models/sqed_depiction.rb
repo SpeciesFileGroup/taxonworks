@@ -27,11 +27,11 @@
 #
 # @!attribute result_boundaries 
 #   @return [Hash]
-#    Not presently used, a cache for the result 
+#    A cache for the result 
 #
-# @!attribute result_text
+# @!attribute result_ocr
 #   @return [Hash]
-#    Not presently used, a cache for the ocr result 
+#    A cache for the ocr result 
 #
 class SqedDepiction < ActiveRecord::Base
   include Housekeeping
@@ -97,6 +97,21 @@ class SqedDepiction < ActiveRecord::Base
     sd.any? ? sd.first : SqedDepiction.where(project_id: self.project_id).first
   end
 
+  def preprocess
+    result = SqedToTaxonworks::Result.new(depiction_id: self.depiction.id)
+    result.cache_all
+  end
+
+  def self.preprocess_empty(total = 10)
+    t = SqedDepiction.arel_table
+    i = 0
+    while i < total
+      r = SqedDepiction.where(t[:result_ocr].eq(nil).or(t[:result_boundary_coordinates].eq(nil)).to_sql).limit(1).first
+      break if r.nil?
+      r.preprocess
+      i = i + 1
+    end
+  end
 
   protected
 

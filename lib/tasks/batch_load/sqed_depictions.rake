@@ -5,7 +5,7 @@ namespace :tw do
       # Basic format: 
       #   rake tw:batch_load:sqed_depiction:import total=1 data_directory=/Users/matt/Desktop/images/ project_id=1 user_id=1 
       # Extended format:
-      #   rake tw:batch_load:sqed_depiction:import total=1 layout=cross metada_map="{"0": "curator_metadata", "1": "identifier", "2": "image_registration", "3": "annotated_specimen"}" boundary_Finder='Sqed::BoundaryFinder::ColorLineFinder' data_directory=/Users/matt/Desktop/images/ project_id=1 user_id=1 
+      #   rake tw:batch_load:sqed_depiction:import total=1 layout=cross metada_map="{"0": "curator_metadata", "1": "identifier", "2": "image_registration", "3": "annotated_specimen"}" boundary_Finder='Sqed::BoundaryFinder::ColorLineFinder' data_directory=/Users/matt/Desktop/images/ preprocess_result=false project_id=1 user_id=1 
       desc 'import collection object depictions'
       task import: [:environment, :project_id, :user_id, :data_directory] do |t|
 
@@ -58,10 +58,16 @@ namespace :tw do
               if sqed_depiction.valid?
                 sqed_depiction.save!
                 print " success\n"
+
+                unless ENV['preprocess_result'] == 'false'
+                  sqed_depiction.preprocess
+                end 
+             
               else
                 print(" failed, skipping - " + sqed_depiction.errors.full_messages.join("; ").red + "\n")
               end
-            end
+
+                         end
             puts "Done.".yellow.bold
           rescue ActiveRecord::RecordInvalid
             raise

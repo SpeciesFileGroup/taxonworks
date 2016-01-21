@@ -40,10 +40,6 @@ module SqedToTaxonworks
       @namespace_id = namespace_id
     end
 
-    def namespace_locked?
-      !namespace_id.nil?
-    end
-
     def depiction
       if @depiction
         @depiction
@@ -83,24 +79,53 @@ module SqedToTaxonworks
 
     # instance methods
 
-    def coords_for(layout_section_type)
-      index = sqed_depiction.extraction_metadata[:metadata_map].key(layout_section_type)
-      if boundaries_cached?
-        sqed_depiction.result_boundary_coordinates[index.to_s].to_a # TODO- hmm, why the to_s needed here
-      else
-        sqed_result 
-        cache_boundaries
-        sqed.boundaries.for(index)
-      end
+    def namespace_locked?
+      !namespace_id.nil?
     end
 
     def boundaries_cached?
       !sqed_depiction.result_boundary_coordinates.nil? 
     end
 
+    def ocr_cached?
+      !sqed_depiction.result_ocr.nil? 
+    end
+
     def cache_boundaries
       sqed_depiction.update_column(:result_boundary_coordinates, ActiveSupport::JSON.encode(sqed.boundaries.coordinates))
       sqed_depiction.reload # get the json version of the attribute back
+    end
+
+    def cache_ocr
+      sqed_depiction.update_column(:result_ocr, ActiveSupport::JSON.encode(sqed_result.text))
+      sqed_depiction.reload # get the json version of the attribute back
+    end
+
+    def cache_all
+      cache_ocr
+      cache_boundaries
+    end
+
+    def ocr_for(layout_section_type)
+      index = sqed_depiction.extraction_metadata[:metadata_map].key(layout_section_type)
+      if ocr_cached?
+        sqed_depiction.result_ocr[layout_section_type.to_s] &&sqed_depiction.result_ocr[layout_section_type.to_s]['text']
+      else
+        sqed_result 
+        cache_all 
+        sqed_result.text_for(layout_section_type.to_sym)
+      end
+    end
+
+    def coords_for(layout_section_type)
+      index = sqed_depiction.extraction_metadata[:metadata_map].key(layout_section_type)
+      if boundaries_cached?
+        sqed_depiction.result_boundary_coordinates[index.to_s].to_a # TODO- hmm, why the to_s needed here
+      else # do not do the OCR if only coords asked for
+        sqed_result 
+        cache_boundaries
+        sqed.boundaries.or(index)
+      end
     end
 
     def image_path_for(layout_section_type)

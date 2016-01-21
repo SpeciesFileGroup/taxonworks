@@ -429,19 +429,17 @@
         }
     }
 
-    function original_ocr() {
+    <% if !@result.ocr_cached? -%>
+      function original_ocr() {
         <% @result.image_sections.each do |section| -%>
-        $.getJSON("<%= @result.ocr_path_for(section) -%>")
-                .done(function (json) {
-                    $("#text_for_<%= section -%>").html(json.text);
-                }
-        );
-        <% end %>
-    }
+            $("#text_for_<%= section -%>").html("<%= j @result.ocr_for(section) -%>")
+       <% end %>
+      }
 
-  $( document ).ready(function() {
-    original_ocr();
-  });
+      $( document ).ready(function() {
+        original_ocr();
+      });
+    <% end %>
 
 
 </script>
