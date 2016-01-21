@@ -334,6 +334,7 @@ TaxonWorks::Application.routes.draw do
     scope :accessions do
       scope :breakdown do
         scope :sqed_depiction, controller: 'tasks/accessions/breakdown/sqed_depiction' do
+          get 'todo_map', action: :todo_map, as: 'sqed_depiction_breakdown_todo_map_task'
           get ':id(/:namespace_id)', action: :index, as: 'sqed_depiction_breakdown_task'
           patch 'update/:id', action: :update, as: 'sqed_depiction_breakdown_update_task'
         end

@@ -2,6 +2,19 @@
 
 // TODO - nest this elsewhere, it belongs isolated to breakdown tasks?!
 
+  .breakdown_nav {
+    margin-top: 0;
+    padding-top: 0;
+    border: 1px solid silver;
+    margin: 2px;
+    display: flex;
+    flex-align: row;
+
+    div {
+      padding: 1em;
+    }
+  }
+
 .sqed_breakdown {
   .ctrl_link {
     color: $muted_blue; 

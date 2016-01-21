@@ -1,5 +1,12 @@
 <h2> Task: Transcribe depiction </h2>
-<p class="subtle">sqed depiction: </span><%= link_to(@sqed_depiction.to_param, depiction_path(@sqed_depiction.depiction)) -%> | <%= link_to('original image', @result.depiction.image.image_file.url(:original), target: '_blank') -%> <p>
+
+
+<div class="breakdown_nav">
+  <div> <%= link_to('TODO map', sqed_depiction_breakdown_todo_map_task_path) -%> </div>
+  <div class="subtle">Sqed depiction:  <%= link_to(@sqed_depiction.to_param, depiction_path(@sqed_depiction.depiction)) -%> </div>
+  <div> <%= link_to('Original image', @result.depiction.image.image_file.url(:original), target: '_blank') -%> </div>
+  <div> <%= link_to('Buffered breakdown', collection_object_buffered_data_breakdown_task_path(@result.depiction.depiction_object)) -%> </div>
+</div>
 
 <div id="breakdown_sqed_depiction" class="flexbox sqed_breakdown">
 
@@ -328,13 +335,6 @@
     }
     ;
 
-    // Populate the original OCR from sections
-    <% @result.image_sections.each do |section| -%>
-    $.get("<%= @result.ocr_path_for(section) -%>", function (data) {
-                $("#text_for_<%= section -%>").html(data.text);
-            }, 'json'
-    );
-    <% end %>
 
     function ocr_selection() {
         $("#selected_text").html("Calculating ocr...");
@@ -382,9 +382,9 @@
         $(target).val($("#selected_text").html());
     }
 
-      <% @result.image_sections.each_with_index do |section, i| -%>
-        Mousetrap.bind('ctrl+<%= %w{a s d f}[i] %>', function() { use_ocr('<%= section -%>'); });
-      <% end %>
+    <% @result.image_sections.each_with_index do |section, i| -%>
+      Mousetrap.bind('ctrl+<%= %w{a s d f g h i}[i] %>', function() { use_ocr('<%= section -%>'); });
+    <% end %>
 
     <% @result.image_sections.each_with_index do |section, i| -%>
       Mousetrap.bind('ctrl+<%= i + 1 %>', function() {
@@ -429,7 +429,21 @@
 
     $("#collection_object_buffered_collecting_event").focus();
 
+    function original_ocr() {
+      <% @result.image_sections.each do |section| -%>
+          $.getJSON("<%= @result.ocr_path_for(section) -%>")
+          .done(function( json ) {
+            $("#text_for_<%= section -%>").html(json.text);
+          }
+          );
+    <% end %>
+    };
+
 </script>
 
 
+<script>
 
+$( window ).load(  original_ocr );
+
+</script>

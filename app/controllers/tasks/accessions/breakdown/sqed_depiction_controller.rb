@@ -2,7 +2,7 @@
 class Tasks::Accessions::Breakdown::SqedDepictionController < ApplicationController
   include TaskControllerConfiguration
 
-  before_filter :set_sqed_depiction
+  before_filter :set_sqed_depiction, except: [:todo_map]
 
   # GET /tasks/accession/breakdown/depiction/:id
   def index
@@ -25,6 +25,10 @@ class Tasks::Accessions::Breakdown::SqedDepictionController < ApplicationControl
     namespace_id = (params[:lock_namespace] ? params[:collection_object][:identifiers_attributes]["0"][:namespace_id] : nil)
 
     redirect_to sqed_depiction_breakdown_task_path(next_sqed_depiction, namespace_id)
+  end
+
+  def todo_map
+   @sqed_depictions = SqedDepiction.with_project_id($project_id).order(:id).page(params[:page]).per(50) 
   end
 
   protected
