@@ -1,5 +1,4 @@
 require 'rails_helper'
-include FormHelper
 
 describe 'Sources', :type => :feature, :group => :sources do
   #Capybara.default_wait_time = 15  # slows down Capybara enough to see what's happening on the form
