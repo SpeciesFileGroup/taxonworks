@@ -18,10 +18,6 @@ module TagsHelper
     link_to(link_text, '', class: 'tag-destroy', tag_id: tag.id)
   end
 
-  def link_to_edit_tag(link_text, tag)
-    link_to(link_text, '', class: 'tag-edit', tag_id: tag.id)
-  end
-
   def link_to_add_tag(link_text, f)
     new_object = f.object.class.reflect_on_association(:tags).klass.new(
       {tag_object_type:      f.object.class.base_class.name,
@@ -49,7 +45,5 @@ module TagsHelper
   def tags_recent_objects_partial
     true 
   end
-
-
 
 end
