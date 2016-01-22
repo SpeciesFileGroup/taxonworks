@@ -332,6 +332,10 @@ TaxonWorks::Application.routes.draw do
     # Scopes arranged alphabetically first level below :tasks
 
     scope :accessions do
+      scope :report, controller: 'tasks/accession/breakdown/report' do
+        get :index, as: 'accession_report_task'
+      end
+
       scope :breakdown do
         scope :sqed_depiction, controller: 'tasks/accessions/breakdown/sqed_depiction' do
           get 'todo_map', action: :todo_map, as: 'sqed_depiction_breakdown_todo_map_task'

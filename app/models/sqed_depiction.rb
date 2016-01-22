@@ -102,6 +102,8 @@ class SqedDepiction < ActiveRecord::Base
     result.cache_all
   end
 
+  # @return [Integer]
+  #   caches section coordinates and ocr text for the first images that don't have such caches !! does not take into account, just finds and processes
   def self.preprocess_empty(total = 10)
     t = SqedDepiction.arel_table
     i = 0
