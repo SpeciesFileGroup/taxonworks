@@ -52,9 +52,28 @@ var carrouselData = function (sec, rows, columns) {
 		this.filters[nameFilter] = true;
 	}	
 
+	carrouselData.prototype.checkEmptyFilter = function () {
+		var
+			numFind = 0;
+			numCheck = 0;
+		for (var key in this.filters) {
+			numFind++;
+			if(this.filters[key] != true) {
+	   			numCheck++;	
+			}	
+		}
+		if(numCheck == 0) {
+			return true;
+		}
+	}
+
 	carrouselData.prototype.checkChildFilter = function(childTag) {
 		var find = 0;
+		if(this.checkEmptyFilter()) {
+			return false;
+		}
 		for (var key in this.filters) {
+
 			if ($(childTag).attr(key)) {
 				find++;
 				if(this.filters[key] == true) {
@@ -87,7 +106,7 @@ var carrouselData = function (sec, rows, columns) {
 
 		for (i = 1; i <= this.maxRow; i++) {
 			child = $('.data_section[data-section="' + this.sectionTag + '"] > .cards-section > .card-container:nth-child('+ (i) +')');
-			if(this.checkChildFilter(child.children().children(".status"))) {
+			if(!this.checkChildFilter(child.children().children(".status"))) {
 				child.show(250);
 			}
 			else {
@@ -168,11 +187,11 @@ annotations.filterChilds();
 
 
 function changeBackgroundColorLink(selector) {
-	if ($(selector).parent().hasClass("deactivated")) {
-		$(selector).parent().removeClass("deactivated");
+	if ($(selector).parent().hasClass("activated")) {
+		$(selector).parent().removeClass("activated");
 	}
 	else {
-		$(selector).parent().addClass("deactivated");
+		$(selector).parent().addClass("activated");
   	}
 }
 

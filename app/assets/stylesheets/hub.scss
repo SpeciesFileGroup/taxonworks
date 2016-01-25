@@ -26,13 +26,13 @@
     }
 
     .category_button a {
-      background-color: $color-complement-2;
+      background-color: $navigation_background;
       //color: #444;
     }
 
-    .deactivated a {
+    .activated a {
       //color: ;
-      background-color: $navigation_background;
+      background-color: $color-complement-2;
     }
 
 
