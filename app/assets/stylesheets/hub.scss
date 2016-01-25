@@ -12,47 +12,94 @@
    // jose - we could move other general hub classes to here
    .filter {
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
     align-items: center;
     border-radius: 3px;
     background-color: $navigation_background;
-    border: 1px solid $navigation_border;
+    border: 1px solid $color-complement-3;
     margin: 1em;
     width: 500px;
 
     .category_button {
-      padding: 1em;
+      padding-top: 10px;
+      padding-bottom: 10px;
+    }
+
+    .category_button a {
+      background-color: $color-complement-2;
+      //color: #444;
+    }
+
+    .deactivated a {
+      //color: ;
+      background-color: $navigation_background;
     }
 
 
+    .category_button a {
+  
+      
+    }
+
+
+    .category_button a:hover {
+      fill: #94d31b;
+      color: #FFF;
+      background-color: $navigation_focus_background;
+    }    
+
+    .title {
+      color: #FFF;
+      padding-top: 12px;
+      padding-bottom: 12px;
+      padding-left: 24px;
+      padding-right: 24px;
+      display: flex;
+      justify-content:flex-start;
+      align-items: center;
+      text-align: center;
+      background-color: $color-complement-3;
+      flex-direction:column; 
+    }
+
+    .filter-sections {
+      display:flex; 
+      flex-direction:row;
+      justify-content:space-between;
+    }
+
+    a {
+      padding: 12px;
+    }    
+
     [data-filter-category="taxon_name"] {
       background-image: url('/assets/icons/new.svg');
-      background-position: left, center;
-      padding-left: 20px;
+      background-position: 5px, center;
+      padding-left: 25px;
       background-repeat: no-repeat;
       background-size: 14px 12px;
     }  
 
     [data-filter-category="source"] {
       background-image: url('/assets/icons/book.svg');
-      background-position: left, center;
-      padding-left: 20px;
+      background-position: 5px, center;
+      padding-left: 25px;
       background-repeat: no-repeat;
       background-size: 14px 12px;
     }     
 
     [data-filter-category="collecting_event"] {
       background-image: url('/assets/icons/geo_location.svg');
-      background-position: left, center;
-      padding-left: 20px;
+      background-position: 5px, center;
+      padding-left: 25px;
       background-repeat: no-repeat;
       background-size: 14px 12px;
     }     
 
     [data-filter-category="collection_object"] {
-      background-image: url('/assets/icons/bug.svg');
-      background-position: left, center;
-      padding-left: 20px;
+      background-image: url('/assets/icons/picking.svg');
+      background-position: 5px, center;
+      padding-left: 25px;
       background-repeat: no-repeat;
       background-size: 14px 12px;
     }  

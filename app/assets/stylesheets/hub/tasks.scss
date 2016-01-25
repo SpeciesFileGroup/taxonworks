@@ -20,9 +20,10 @@
     box-shadow: 0 4px 4px 0 #CECECE;
   }
 
-  
-
   // should be a flexbox?! 
+  a {
+    color: #444;
+  }
 
   .task_header {
     display: flex;
@@ -30,11 +31,15 @@
     align-items: center;
 
     border-bottom: 1px solid $navigation_border;
-    padding: 1em;
+    padding: 0.5em;
 
     .status {
       .unknown {
       }
+    }
+
+    .status:first-letter {
+      text-transform: uppercase;
     }
 
     .categories {
@@ -87,6 +92,8 @@
       }
 
   .task_description {
+    font-size: 14px;
+    font-weight: 100;
     padding: 0em 2em 1em 2em;
   }
 
@@ -133,15 +140,18 @@
     border-color: #7fc72b;
   }
 
-  .navigation-arrow-up {
+  .navigation {
     display: flex;
+    flex-direction:row;
+    justify-content:center;
     order:-1;
+    align-items:center;
   }
 
-  .navigation-arrow-down {
+  .navigation-arrow {
     display: flex;
-    order:-1;
-  }
+    padding: 5px;
+  }  
 
   .task_carrousel a[data-filter-category="source"] {
     color: red;

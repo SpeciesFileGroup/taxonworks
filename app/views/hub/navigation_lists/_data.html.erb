@@ -21,137 +21,241 @@
 </div>
 
 <script type="text/javascript">
-  var 
 
-  	childs = {}, //Save the nro of childs 
-    scrollCount = 0,
-    copy = $('#data_cards').html(),
-    start = 1, //Child start
-    maxRow = 5, // Number of rows displayed, maybe be can make a configuration for the user have the posibility to set this number or perhaps with a resolution control.
-    nro = [],  
-    height = (84 * maxRow),
-    filter = true;
+var carrouselData = function (sec, rows, columns) {
 
-  function resetChildsCount(dataTag) {
-  	childs[dataTag] = $('.data_section[data-section="' + dataTag + '"] > .cards-section > .card-container ').length;
-  }
+	// sec = Name of data section, this is for identify div.
+	// rows = This is for the number of rows that will be displayed, if this number is less than the number of items, it will activate the navigation controls
+	// columns = This is for the number of rows to be displayed
+	
+		this.childs = 0,
+		this.start = 1,
+		this.maxRow = 0,
+		this.maxColumn = 1,
+		this.nro = 1,
+		this.sectionTag = "",
+		this.filters = {};
+		this.maxRow = rows;
+		this.sectionTag = sec;
+		this.resetChildsCount();
+		if(this.maxRow >= this.childs) {
+			this.navigation(false);
+		}
 
-  function filterCategories(columnFilter,dataFilter) {
-  	resetChildsCount(columnFilter);
-  	filterColumn(columnFilter,dataFilter);
-    nro[columnFilter] = start;
-	loadChilds(columnFilter);
-  }
+		if(columns >= 1) {
+			$('.data_section[data-section="' + this.sectionTag + '"]').width((250*columns) + 'px');
 
-  function filterColumn(dataTag,filterTag) {
-  	//alert($('.data_section[data-section="' + dataTag + '"] > .cards-section > .card-container:nth-child('+ 2 +')').children().children(".status").attr(filterTag));
-    for(i = childs[dataTag]; i >= start; i--) {
-    	//alert();
-      if (!$('.data_section[data-section="' + dataTag + '"] > .cards-section > .card-container:nth-child('+ (i) +')').children().children(".status").attr(filterTag)) {
-        $(".data_section[data-section=" + dataTag + "] > .cards-section > .card-container:nth-child("+ (i) +")").remove(); 
-      }
-    }  	
-  }
-        
-  //Save a copy of all task cards
-  function reloadTaskCards() {
-    $('#data_cards').html(copy);
-  }
+		}
+	}
 
-  function loadingDown(dataTag) {
-  	//alert($( '.data_section[data-section="' + dataTag + '"] > .cards-section > .card-container:nth-child('+ nro +')' ).attr("class"));
-    if((nro[dataTag]+maxRow) <= childs[dataTag]) {
-      $('.data_section[data-section="' + dataTag + '"] > .cards-section > .card-container:nth-child('+ nro[dataTag] +')' ).hide(100, function() {
-        $('.data_section[data-section="' + dataTag + '"] > .cards-section > .card-container:nth-child('+ (nro[dataTag]+maxRow-1) +')' ).show(150)
-      });   
-      if(nro[dataTag] < childs[dataTag]) {
-        nro[dataTag]++;
-      }            
-    } 
-  }
+	carrouselData.prototype.addFilter = function (nameFilter) {
+		this.filters[nameFilter] = true;
+	}	
 
-  function loadingUp(dataTag) {
-    if((nro[dataTag]) > start) {
-      $('.data_section[data-section="' + dataTag + '"] > .cards-section > .card-container:nth-child('+ (nro[dataTag]+maxRow-1) +')').hide(100, function() {
-        $('.data_section[data-section="' + dataTag + '"] > .cards-section > .card-container:nth-child('+ nro[dataTag] +')').show(150)
-      });      
-      if(nro[dataTag] > start) {
-        nro[dataTag]--;
-      }        
-    }  
-  }  
+	carrouselData.prototype.checkChildFilter = function(childTag) {
+		var find = 0;
+		for (var key in this.filters) {
+			if ($(childTag).attr(key)) {
+				find++;
+				if(this.filters[key] == true) {
+		   			return true;	
+				}
+		    }	
+		}
+		if (find > 0) {
+			return false;
+		}
+		else {
+			return true;
+		}
+	}
 
-  function btn_filter(filterTag) {
-    reloadTaskCards();
-    filterCategories("Core",filterTag);
-    filterCategories("Supporting",filterTag);
-    filterCategories("Annotations",filterTag);
-  }
+	carrouselData.prototype.resetChildsCount = function() {
+	  	this.childs = $('.data_section[data-section="' + this.sectionTag + '"] > .cards-section > .card-container ').length;
+	}
 
-  function resetChilds() {
-    nro = start;
-    childs = $( "#task_carrousel > a").length;
-  }
 
-  function loadChilds(dataTag) {
-    nro[dataTag] = start;
-    childs[dataTag] = $('.data_section[data-section="' + dataTag + '"] > .cards-section > .card-container ').length;
-    for(i = childs[dataTag].length; i > 0; i--) {
-    	alert();
-    }
-    //alert($('.data_section[data-section="' + dataTag + '"] > .cards-section > .card-container ').length);
-    for(i = start; i < (start+maxRow); i++) {
-      $( '.data_section[data-section="' + dataTag + '"] > .cards-section > .card-container:nth-child('+ i +')' ).show(100);
-    }
-  }
-  
-  loadChilds("Supporting");
-  loadChilds("Annotations");
-  loadChilds("Core");
+	carrouselData.prototype.changeFilter = function(filterTag)	{
+		this.filters[filterTag] = !this.filters[filterTag];
+		this.filterChilds();
+	}	
+
+	carrouselData.prototype.filterChilds = function() {
+		if(this.maxRow > this.childs) {
+			this.maxRow = this.childs;
+		}
+
+		for (i = 1; i <= this.maxRow; i++) {
+			child = $('.data_section[data-section="' + this.sectionTag + '"] > .cards-section > .card-container:nth-child('+ (i) +')');
+			if(this.checkChildFilter(child.children().children(".status"))) {
+				child.show(250);
+			}
+			else {
+				child.hide(250);
+			}
+		}
+	}	
+
+	carrouselData.prototype.navigation = function(value) {
+		if(value) {
+			$('.data_section[data-section="'+ this.sectionTag +'"] div.data-controls').css("display","show");
+		}
+		else {
+			$('.data_section[data-section="'+ this.sectionTag +'"] div.data-controls').css("display","none");
+		}
+	}
+
+
+	carrouselData.prototype.loadingUp = function() {
+    	var
+    	  rows = this.maxRow,
+    	  posNro = this.nro,
+    	  tag = this.sectionTag;
+
+	    if(this.nro > this.start) {
+	        $('.data_section[data-section="' + tag + '"] > .cards-section > .card-container:nth-child('+ (posNro+rows-1) +')').hide(100, function() {
+	        	
+	  	        $('.data_section[data-section="' + tag + '"] > .cards-section > .card-container:nth-child('+ (posNro-1) +')').show(150)
+	        });      
+	        if(this.nro > this.start) {
+	        	this.nro--;
+	      	}        
+	    }  
+	} 
+
+    carrouselData.prototype.loadingDown = function() {
+    	var
+    	  rows = this.maxRow,
+    	  posNro = this.nro,
+    	  tag = this.sectionTag;
+
+	    if((this.nro+this.maxRow) <= this.childs) {
+	        $('.data_section[data-section="' + this.sectionTag + '"] > .cards-section > .card-container:nth-child('+ posNro +')' ).hide(100, function() {
+	        	
+	        	$('.data_section[data-section="' + tag + '"] > .cards-section > .card-container:nth-child('+ (posNro+rows) +')' ).show(150)
+
+	        });   
+	        if(this.nro < this.childs) {
+	        	this.nro++;
+	      	}          
+    	} 
+  	}	 
+  	
+
+var 
+	core = new carrouselData("Core",99,1),
+	supporting = new carrouselData("Supporting",99,2),
+	annotations = new carrouselData("Annotations",99,1);
+
+core.addFilter("data-category-collectingevent");
+core.addFilter("data-category-TaxonName");
+core.addFilter("data-category-Source");
+core.addFilter("data-category-collectionobject");
+core.filterChilds();
+
+supporting.addFilter("data-category-collectingevent");
+supporting.addFilter("data-category-TaxonName");
+supporting.addFilter("data-category-Source");
+supporting.addFilter("data-category-collectionobject");
+supporting.filterChilds();
+
+annotations.addFilter("data-category-collectingevent");
+annotations.addFilter("data-category-TaxonName");
+annotations.addFilter("data-category-Source");
+annotations.addFilter("data-category-collectionobject");
+annotations.filterChilds();
+
+
+
+function changeBackgroundColorLink(selector) {
+	if ($(selector).parent().hasClass("deactivated")) {
+		$(selector).parent().removeClass("deactivated");
+	}
+	else {
+		$(selector).parent().addClass("deactivated");
+  	}
+}
 
   //Getting clicks on arrows
-  $('.data_section').on('click', 'a.cards-down', function() {
-    loadingDown($(this).parent().parent().parent().attr("data-section"));
+  $('.data_section[data-section="Core"]').on('click', 'a.cards-down', function() {
+    core.loadingDown();
   });
 
-  $('.data_section').on('click', 'a.cards-up', function() {
-    loadingUp($(this).parent().parent().parent().attr("data-section"));
-  });  
+  $('.data_section[data-section="Core"]').on('click', 'a.cards-up', function() {
+    core.loadingUp();
+  }); 
+
+  $('.data_section[data-section="Supporting"]').on('click', 'a.cards-down', function() {
+    supporting.loadingDown();
+  });
+
+  $('.data_section[data-section="Supporting"]').on('click', 'a.cards-up', function() {
+    supporting.loadingUp();
+  }); 
+
+  $('.data_section[data-section="Annotations"]').on('click', 'a.cards-down', function() {
+    annotations.loadingDown();
+  });
+
+  $('.data_section[data-section="Annotations"]').on('click', 'a.cards-up', function() {
+    annotations.loadingUp();
+  });      
 
 
   $('.filter').on('click', 'a[data-filter-category="taxon_name"]', function() {
-    btn_filter("data-category-TaxonName");
+	  	changeBackgroundColorLink('a[data-filter-category="taxon_name"]');
+      	core.changeFilter("data-category-TaxonName");
+      	supporting.changeFilter("data-category-TaxonName");
+      	annotations.changeFilter("data-category-TaxonName"); 
   });
 
   $('.filter').on('click', 'a[data-filter-category="collecting_event"]', function() {
-    btn_filter("data-category-collectingevent");
+  		changeBackgroundColorLink('a[data-filter-category="collecting_event"]');
+      	core.changeFilter("data-category-collectingevent"); 
+      	supporting.changeFilter("data-category-collectingevent"); 
+      	annotations.changeFilter("data-category-collectingevent"); 
   });
 
   $('.filter').on('click', 'a[data-filter-category="collection_object"]', function() {
-    btn_filter("data-category-collectionobject");
+  		changeBackgroundColorLink('a[data-filter-category="collection_object"]');  	
+	    core.changeFilter("data-category-collectionobject");   
+	    supporting.changeFilter("data-category-collectionobject");   
+	    annotations.changeFilter("data-category-collectionobject"); 
   });  
 
   $('.filter').on('click', 'a[data-filter-category="source"]', function() {
-    btn_filter("data-category-Source");
+  		changeBackgroundColorLink('a[data-filter-category="source"]');  	
+      	core.changeFilter("data-category-Source");
+      	supporting.changeFilter("data-category-Source");
+      	annotations.changeFilter("data-category-Source");
   });
 
    
 
   //Mousetrap Keys
+  
     Mousetrap.bind('s', function() {
-      btn_filter("data-category-Source");
+      core.changeFilter("data-category-Source");
+      supporting.changeFilter("data-category-Source");
+      annotations.changeFilter("data-category-Source");
   });
 
     Mousetrap.bind('e', function() {
-      btn_filter("data-category-collectingevent");   
+      core.changeFilter("data-category-collectingevent"); 
+      supporting.changeFilter("data-category-collectingevent"); 
+      annotations.changeFilter("data-category-collectingevent");   
   });
 
     Mousetrap.bind('o', function() {
-      btn_filter("data-category-collectionobject");   
+      core.changeFilter("data-category-collectionobject");   
+      supporting.changeFilter("data-category-collectionobject");   
+      annotations.changeFilter("data-category-collectionobject");   
     });  
 
     Mousetrap.bind('t', function() {
-      btn_filter("data-category-TaxonName");     
+      core.changeFilter("data-category-TaxonName");
+      supporting.changeFilter("data-category-TaxonName");
+      annotations.changeFilter("data-category-TaxonName");     
   });    
    
 </script>

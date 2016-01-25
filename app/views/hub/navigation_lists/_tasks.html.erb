@@ -1,19 +1,39 @@
+<%= render "/hub/navigation_lists/hub_category_filter" %>
 <div id="task_carrousel">
-  <%= render "/hub/navigation_lists/hub_category_filter" %>
   <% UserTasks.hub_tasks.each do |task| -%>
     <%= link_to(task_card(task), send(task.path)) -%>
   <% end %>
-  <div class="navigation-arrow-up"><a href="#" onclick="loadingUp();">Up</a>/<a href="#" onclick="loadingDown();">Down</a></div>
+  <div class="navigation">
+    <div class="navigation-arrow">
+      <a href="#" onclick="loadingUp();">
+        <img src="/assets/icons/arrow-up.svg" width="15"/>
+      </a>
+    </div>
+    <div class="navigation-arrow">
+      <a href="#" onclick="loadingDown();">
+        <img src="/assets/icons/arrow-down.svg" width="15"/>
+      </a>
+    </div>
+  </div>
 </div>
 <script type="text/javascript">
 
+
+//Replace section - fixing html parts
 $( '<div class="gray-circle"></div>' ).insertBefore(".unknown");
 $( '<div class="yellow-circle"></div>' ).insertBefore(".beta");
 $( '<div class="red-circle"></div>' ).insertBefore(".alpha");
+
+$('div.source').replaceWith('<div class="categories source"><img src="/assets/icons/book.svg" width="15"/></div>')
+$('div.collecting_event').replaceWith('<div class="categories collecting_event"><div><img src="/assets/icons/geo_location.svg" alt="Collection object" width="10"/></div>')
+$('div.collection_object').replaceWith('<div class="categories collection_object"><img src="/assets/icons/picking.svg" width="15"/></div>')
+
   var 
     scrollCount = 0,
+    middleBoxSize = 650;
+    boxSize = 500;
     copy = $('#task_carrousel').html(),
-    start = 2, //Child start
+    start = 1, //Child start
     maxRow = 3, // Number of rows displayed, maybe be can make a configuration for the user have the posibility to set this number or perhaps with a resolution control.
     nro = start,
     childs = $( "#task_carrousel > a").length, //Get the nro of childs 
@@ -37,8 +57,17 @@ $( '<div class="red-circle"></div>' ).insertBefore(".alpha");
   }
 
   function loadingDown() {
-    if((nro+maxRow) <= childs+1) {
+    if((nro+maxRow) <= childs) {
       $( "#task_carrousel > a:nth-child("+ nro +")" ).children().hide(100, function() {
+        $( "#task_carrousel > a:nth-child("+ (nro+maxRow-2) +")" ).children(".task_card").animate({
+          width: middleBoxSize
+        }, 50);
+        $( "#task_carrousel > a:nth-child("+ (nro+maxRow-3) +")" ).children(".task_card").animate({
+          width: boxSize
+        }, 50); 
+        $( "#task_carrousel > a:nth-child("+ (nro+maxRow-1) +")" ).children().animate({
+          width: boxSize
+        }, 50);        
         $( "#task_carrousel > a:nth-child("+ (nro+maxRow-1) +")" ).children().show(150)
       });   
       if(nro < childs) {
@@ -50,13 +79,20 @@ $( '<div class="red-circle"></div>' ).insertBefore(".alpha");
   function loadingUp() {
     if((nro) > start) {
       $( "#task_carrousel > a:nth-child("+ (nro+maxRow-1) +")" ).children().hide(100, function() {
+
+        $( "#task_carrousel > a:nth-child("+ (nro+1) +")" ).children(".task_card").animate({
+          width: middleBoxSize
+        }, 50);
+        $( "#task_carrousel > a:nth-child("+ (nro+2) +")" ).children(".task_card").animate({
+          width: boxSize
+        }, 50);         
         $( "#task_carrousel > a:nth-child("+ nro +")" ).children().show(150)
       });      
       if(nro > start) {
         nro--;
       }        
     }  
-  }  
+  } 
 
   function btn_filter(filterChilds) {
     reloadTaskCards();
@@ -74,6 +110,9 @@ $( '<div class="red-circle"></div>' ).insertBefore(".alpha");
     nro = start;
     childs = $( "#task_carrousel > a").length;
     for(i = start; i < (start+maxRow); i++) {
+      if(i == Math.round(maxRow/2)) {
+      $( "#task_carrousel > a:nth-child("+ i +")" ).children(".task_card").css("width","600px");
+    }
       $( "#task_carrousel > a:nth-child("+ i +")" ).children().hide(50);
       $( "#task_carrousel > a:nth-child("+ i +")" ).children().show(100);
     }
@@ -85,6 +124,36 @@ $( '<div class="red-circle"></div>' ).insertBefore(".alpha");
   //Getting clicks on filter options
   $('#task_carrousel').on('click', '.category_button a', function() {
     btn_filter($(this).attr("data-filter-category"));
+  });
+
+  function changeBackgroundColorLink(selector) {
+    if ($(selector).parent().hasClass("deactivated")) {
+      $(selector).parent().removeClass("deactivated");
+    }
+    else {
+      $(selector).parent().addClass("deactivated");
+      }
+  }
+
+
+  $('.filter').on('click', 'a[data-filter-category="taxon_name"]', function() {
+      changeBackgroundColorLink('a[data-filter-category="taxon_name"]');
+      btn_filter("taxon_name"); 
+  });
+
+  $('.filter').on('click', 'a[data-filter-category="collecting_event"]', function() {
+      changeBackgroundColorLink('a[data-filter-category="collecting_event"]');
+      btn_filter("collecting_event");  
+  });
+
+  $('.filter').on('click', 'a[data-filter-category="collection_object"]', function() {
+      changeBackgroundColorLink('a[data-filter-category="collection_object"]');   
+      btn_filter("collection_object");
+  });  
+
+  $('.filter').on('click', 'a[data-filter-category="source"]', function() {
+      changeBackgroundColorLink('a[data-filter-category="source"]');    
+      btn_filter("source");  
   });
 
 
@@ -113,5 +182,33 @@ $( '<div class="red-circle"></div>' ).insertBefore(".alpha");
   Mousetrap.bind('down', function() {
     loadingDown();
     
-  });    
+  });
+
+
+      var 
+        intOverallDelta = 0,
+        sensibility = 40;
+        
+      $("#main").mousewheel(function(objEvent, intDelta){
+        if (intDelta > 0){
+           if(intOverallDelta < 0) {
+            intOverallDelta = 0;
+           }          
+           intOverallDelta++;
+        }
+        else {
+          if(intOverallDelta > 0) {
+            intOverallDelta = 0;
+          }
+          intOverallDelta--;
+        }
+        if (intOverallDelta > sensibility){
+          intOverallDelta = 0;
+          loadingDown();
+        }
+        else if (intOverallDelta < -sensibility){
+          intOverallDelta = 0;
+          loadingUp();
+        }
+      });      
 </script>

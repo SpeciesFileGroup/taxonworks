@@ -13,14 +13,13 @@
   .data_section {
     background-color: #fafafa;
     display: flex;
-    justify-content:space-between;
-    flex-direction:column;    
-    width: 250px;
+    justify-content:flex-start;
+    flex-direction:column;   
+    width:250px; 
     border-radius: 3px;
     border: 1px solid $navigation_border;
     margin: 1em;
-    height: 350px;
-    
+    //height: 350px;
   }
 
   .data_section_label {
@@ -28,26 +27,32 @@
     padding: 1em;
     display: flex;
     justify-content:space-between;
-    flex-direction:row-reverse;
+    flex-direction:flex-start;
     align-items:center;
     border-bottom: 1px solid $navigation_border;
     text-align: center;
-    //box-shadow:  0px 1px 2px 1px #CECECE;
   }
 
   .cards-section {
     //order: 0; //header bottom
     order:1; //header top
+    display: flex;
+    flex-direction:row;
+    justify-content:space-between;
+    flex-flow: row wrap;
     box-shadow: 0px 1px 2px 0px #CECECE;
+    padding: 0.5em;
   }
 
   .card-container {
     flex-direction:row;
     align-items:center;
+
     display: none;
   }
 
   .data_card {
+    width: 200px;
     background-color: #FFF;
     display: flex;
     flex-direction:row;
@@ -55,10 +60,9 @@
     justify-content:flex-start;
     border-radius: 3px;
     border: 1px solid $navigation_border;
-    margin: 1em;
+    margin: 0.5em;
     padding: 1em;
-    //box-shadow: 0 3px 3px 0 $navigation_border;
-    font-size: 11px;
+    font-size: 12px;
   }
 
   .data_card a {
@@ -67,7 +71,7 @@
   }
 
   .data-controls {
-
+    order:2;
   }
 
   .status {
