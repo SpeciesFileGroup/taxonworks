@@ -15,6 +15,12 @@ http://flexboxin5.com/
   flex-wrap: nowrap;
   // flex-flow: row wrap; 
   justify-content: center;
+
+	  .item img {
+		display: block;
+		//width: 100%;
+		//height: auto;
+	}
   
 }
 
@@ -28,11 +34,7 @@ http://flexboxin5.com/
 	flex: 1 auto;
 }
 
-.item img {
-	display: block;
-	width: 100%;
-	height: auto;
-}
+
   
 @media all and (min-width: 400px) {
   .item { flex: 1 auto; }

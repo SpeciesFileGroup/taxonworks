@@ -1,59 +1,67 @@
 <div id="show">
-  <h2 class="model"> <%= model_name_title -%> </h2>
-
+  <h1 class="model"> <%= model_name_title -%> </h1>
   <div class="flexbox">
-
     <div class="item item1">
-      <div>id: <%= object.id -%></div>
-
       <div class="section go">
-        <h2> Go </h2>
-        <%= forward_back_links(object) -%> <br><br>
-        <%= yield :show_navigation -%>
+        <div class="title">
+        <div>
+          <h2>Go</h2>
+          </div>
+          <div class="navigation">
+            <img src="/assets/icons/arrow-left.svg" width="8"/>
+              <%= forward_back_links(object) -%> 
+            <img src="/assets/icons/arrow-right.svg" width="8"/>
+          </div>          
+        </div>
+        <div class="content">
+          <%= yield :show_navigation -%>
+        </div>
       </div>
-
     </div>
 
     <div class="item item2">
-      <div class='tag'> <%= object_tag(object) -%> </div>
-
+      <div class='tag'> <%= object_tag(object) -%> <p>&nbsp;[ id: <%= object.id -%> ]</p></div>
       <div class="attributes break_words">
         <%= render partial:  object_attributes_partial_path(object.metamorphosize), locals: {object: object} %>
         <%= yield :related_attributes -%>
-        <%= render partial: '/shared/data/all/show/housekeeping', locals: {object: object} -%>
+        <div class="housekeeping">
+          <%= render partial: '/shared/data/all/show/housekeeping', locals: {object: object} -%>
+        </div>
         <%= render(partial: '/shared/data/all/show/soft_validation', locals: {object: object}) if object.class.respond_to?(:soft_validates?) -%>
         <%= render(partial: '/shared/data/all/show/annotations', locals: {object: object}) if ! object.annotations.empty?  %>
       </div>
     </div>
-
     <div class="item item3">
-
       <div class="section do">
-        <h2> Do </h2>
-        <%= edit_object_link(object) -%> | <%= destroy_object_link(object) -%>
-        <br>
-        <%= pin_item_to_pinboard_link(object, sessions_current_user) -%>
-        <h3> Annotate </h3>
-        <%= annotate_links(object: object) -%>
-        <br>
-        <br>
-
-        <div> <%= dropzone_depiction_form(object)  -%> </div>
-
-        <br>
-
-        <%= yield :do -%>
-        <%= yield :tasks -%>
+        <div class="title">
+          <h2>Do</h2>
+            <div class="navigation">
+              <img src="/assets/icons/new.svg" height="12" /><%= edit_object_link(object) -%> 
+              <img src="/assets/icons/trash.svg" height="12" /> <%= destroy_object_link(object) -%>
+            </div>
+        </div>
+        <div class="content">
+          <%= pin_item_to_pinboard_link(object, sessions_current_user) -%>
+          <h3> Annotate </h3>
+          <%= annotate_links(object: object) -%>
+          <div> <%= dropzone_depiction_form(object)  -%> </div><br>
+          <%= yield :do -%>
+          <%= yield :tasks -%>
+        </div>
       </div>
 
       <div class="section see">
-        <h2> See </h2>
+        <div class="title">
+          <h2>See</h2>
+        </div>
+        <div class="content"> 
         <%= papertrail_link(object) -%><br>
         <%= related_data_link(object) -%>
 
         <br>
         <br>
         <%= yield :see -%>
+        </div>
       </div>
     </div>
   </div>
