@@ -1,0 +1,17 @@
+<div>
+  <%#= render(partial: 'latouts/map_header') -%>
+  <div id="feature_collection"
+       data-feture-collection="<%= map_objects.to_json %>"
+       data-map-center='POINT (0.0 0.0 0.0)'
+       data-map-canvas="displayed_distribution_canvas"
+  >
+  </div>
+  <table border="1">
+    <tbody>
+    <tr>
+      <td>
+        <div id="georeference_google_map_canvas" style="width:512px; height: 256px;"></div>
+      </td>
+    </tbody>
+  </table>
+</div>
