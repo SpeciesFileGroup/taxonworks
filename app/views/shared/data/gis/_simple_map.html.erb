@@ -1,7 +1,7 @@
 <div>
   <%#= render(partial: 'latouts/map_header') -%>
-  <div id="feature_collection"
-       data-feture-collection="<%= map_objects.to_json %>"
+  <div id="_displayed_distribution_form"
+       data-feture-collection="<%= map_objects.to_json.to_json -%>"
        data-map-center='POINT (0.0 0.0 0.0)'
        data-map-canvas="displayed_distribution_canvas"
   >
@@ -10,8 +10,15 @@
     <tbody>
     <tr>
       <td>
-        <div id="georeference_google_map_canvas" style="width:512px; height: 256px;"></div>
+        <div id="displayed_distribution_canvas" style="width:512px; height: 256px;"></div>
+        <span id="map_coords"></span>
       </td>
+    </tr>
+    <tr>
+      <td>
+        <div id="displayed_distribution_style"></div>
+      </td>
+    </tr>
     </tbody>
   </table>
 </div>
