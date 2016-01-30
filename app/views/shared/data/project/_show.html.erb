@@ -6,25 +6,32 @@
         <div class="title">
         <div>
           <h2>Go</h2>
-          </div>
+          </div>      
+        </div>
+        <div class="content">
           <div class="navigation">
             <img src="/assets/icons/arrow-left.svg" width="8"/>
               <%= forward_back_links(object) -%> 
             <img src="/assets/icons/arrow-right.svg" width="8"/>
-          </div>          
-        </div>
-        <div class="content">
+          </div>  
+          <hr>          
           <%= yield :show_navigation -%>
         </div>
       </div>
     </div>
 
-    <div class="item item2">
-      <div class='tag'> <%= object_tag(object) -%> <p>&nbsp;[ id: <%= object.id -%> ]</p></div>
-      <div class="attributes break_words">
+    <div class="item item2 section">
+      <div class='tag'>
+        <div>
+          <%= object_tag(object) -%>
+          &nbsp;[ id: <%= object.id -%> ]
+        </div>
+        <div class="title"><a data-icon="show">Development view</a></div>
+      </div>
+      <div class="attributes break_words content">
         <%= render partial:  object_attributes_partial_path(object.metamorphosize), locals: {object: object} %>
         <%= yield :related_attributes -%>
-        <div class="housekeeping">
+        <div class="housekeeping content">
           <%= render partial: '/shared/data/all/show/housekeeping', locals: {object: object} -%>
         </div>
         <%= render(partial: '/shared/data/all/show/soft_validation', locals: {object: object}) if object.class.respond_to?(:soft_validates?) -%>
@@ -42,9 +49,17 @@
         </div>
         <div class="content">
           <%= pin_item_to_pinboard_link(object, sessions_current_user) -%>
-          <h3> Annotate </h3>
-          <%= annotate_links(object: object) -%>
-          <div> <%= dropzone_depiction_form(object)  -%> </div><br>
+        </div>
+        <hr>
+        <div class="content">
+          <div class="section" data-menu="annotate">
+            <div  class="title"><h3> Annotate </h3><img src="/assets/icons/arrow-down.svg" width="10">
+            </div>
+            <div class="content" style="display:none;">
+             <%= annotate_links(object: object) -%>
+            </div>
+          </div>
+          <div> <%= dropzone_depiction_form(object)  -%> </div>
           <%= yield :do -%>
           <%= yield :tasks -%>
         </div>
@@ -66,3 +81,9 @@
     </div>
   </div>
 </div>
+
+<script type="text/javascript">
+  $('.section[data-menu="annotate"]').hover( function() {
+    $(this).children().next().toggle(250);
+  });   
+</script>

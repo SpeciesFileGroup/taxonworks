@@ -254,27 +254,31 @@ function changeBackgroundColorLink(selector) {
   //Mousetrap Keys
   
     Mousetrap.bind('s', function() {
-      core.changeFilter("data-category-Source");
-      supporting.changeFilter("data-category-Source");
-      annotations.changeFilter("data-category-Source");
+      	changeBackgroundColorLink('a[data-filter-category="source"]');
+      	core.changeFilter("data-category-Source");
+      	supporting.changeFilter("data-category-Source");
+      	annotations.changeFilter("data-category-Source");
   });
 
     Mousetrap.bind('e', function() {
-      core.changeFilter("data-category-collectingevent"); 
-      supporting.changeFilter("data-category-collectingevent"); 
-      annotations.changeFilter("data-category-collectingevent");   
+    	changeBackgroundColorLink('a[data-filter-category="collecting_event"]');
+      	core.changeFilter("data-category-collectingevent"); 
+      	supporting.changeFilter("data-category-collectingevent"); 
+      	annotations.changeFilter("data-category-collectingevent");   
   });
 
     Mousetrap.bind('o', function() {
-      core.changeFilter("data-category-collectionobject");   
-      supporting.changeFilter("data-category-collectionobject");   
-      annotations.changeFilter("data-category-collectionobject");   
+    	changeBackgroundColorLink('a[data-filter-category="collection_object"]');
+      	core.changeFilter("data-category-collectionobject");   
+      	supporting.changeFilter("data-category-collectionobject");   
+      	annotations.changeFilter("data-category-collectionobject");   
     });  
 
     Mousetrap.bind('t', function() {
-      core.changeFilter("data-category-TaxonName");
-      supporting.changeFilter("data-category-TaxonName");
-      annotations.changeFilter("data-category-TaxonName");     
+    	changeBackgroundColorLink('a[data-filter-category="taxon_name"]');
+      	core.changeFilter("data-category-TaxonName");
+      	supporting.changeFilter("data-category-TaxonName");
+      	annotations.changeFilter("data-category-TaxonName");     
   });    
    
 </script>
