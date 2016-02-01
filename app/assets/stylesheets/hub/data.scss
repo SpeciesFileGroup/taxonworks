@@ -19,6 +19,7 @@
     border-radius: 3px;
     border: 1px solid $navigation_border;
     margin: 1em;
+    //padding: 5em;
     //height: 350px;
   }
 
@@ -29,7 +30,7 @@
     justify-content:space-between;
     flex-direction:flex-start;
     align-items:center;
-    border-bottom: 1px solid $navigation_border;
+    //border-bottom: 1px solid $navigation_border;
     text-align: center;
   }
 
@@ -40,7 +41,7 @@
     flex-direction:row;
     justify-content:space-between;
     flex-flow: row wrap;
-    box-shadow: 0px 1px 2px 0px #CECECE;
+    //box-shadow: 0px 1px 2px 0px #CECECE;
     padding: 0.5em;
   }
 
@@ -90,5 +91,23 @@
     background-color: #DDD;
     border-color: #999;
   }
+
+  @media screen and (min-width: 1339px) {
+      .data_section {
+          width: 750px !important;
+      }
+  }
+
+  @media screen and (min-width: 1024px) and (max-width: 1338px) {
+      .data_section {
+          width: 500px !important;
+      }
+  }  
+
+  @media screen and (min-width: 1023px) and (max-width: 800px) {
+      .data_section {
+          width: 250px !important;
+      }
+  }    
 
 }

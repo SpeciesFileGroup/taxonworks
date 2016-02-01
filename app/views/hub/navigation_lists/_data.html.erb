@@ -46,7 +46,8 @@ var carrouselData = function (sec, rows, columns) {
 		}
 
 		if(columns >= 1) {
-			$('.data_section[data-section="' + this.sectionTag + '"]').width((250*columns) + 'px');
+			$('.data_section[data-section="' + this.sectionTag + '"]').css("max-width",(250*columns) + 'px');
+	//		$('.data_section[data-section="' + this.sectionTag + '"]').width((250*columns) + 'px');
 
 		}
 	}
@@ -131,7 +132,6 @@ var carrouselData = function (sec, rows, columns) {
 
 	    if(this.nro > this.start) {
 	        $('.data_section[data-section="' + tag + '"] > .cards-section > .card-container:nth-child('+ (posNro+rows-1) +')').hide(100, function() {
-	        	
 	  	        $('.data_section[data-section="' + tag + '"] > .cards-section > .card-container:nth-child('+ (posNro-1) +')').show(150)
 	        });      
 	        if(this.nro > this.start) {
@@ -161,8 +161,10 @@ var carrouselData = function (sec, rows, columns) {
 
 var 
 	core = new carrouselData("Core",99,1),
-	supporting = new carrouselData("Supporting",99,2),
+	supporting = new carrouselData("Supporting",99,3),	
 	annotations = new carrouselData("Annotations",99,1);
+
+	
 
 core.addFilter("data-category-collectingevent");
 core.addFilter("data-category-TaxonName");
