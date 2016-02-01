@@ -53,26 +53,9 @@ var carrouselTask = function (sec, rows, columns) {
     this.filters[nameFilter] = false;
   } 
 
-  carrouselTask.prototype.checkEmptyFilter = function () {
-    var
-      numCheck = 0;
-    for (var key in this.filters) {
-      if(this.filters[key] == true) {
-          numCheck++; 
-          return false;
-      } 
-    }
-    if(numCheck == 0) {
-      return true;
-    }
-  }
-
   carrouselTask.prototype.checkChildFilter = function(childTag) {
     var find = 0;
     var isTrue = 0;
-    if(this.checkEmptyFilter()) {
-      return true;
-    }
     for (var key in this.filters) {
       if(this.filters[key] == true) {
         find++;      
@@ -81,13 +64,8 @@ var carrouselTask = function (sec, rows, columns) {
         } 
       }
     }
-    if (find > 0) {
-      if(isTrue == find) {
-        return true;
-      }
-      else {
-        return false;
-      }
+    if(isTrue == find) {
+      return true;
     }
     else {
       return false;

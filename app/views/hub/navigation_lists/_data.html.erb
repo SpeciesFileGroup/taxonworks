@@ -16,6 +16,9 @@
 	    	</div>
 	    	<%= s -%> 
 	    </div>
+	    <div data-attribute="empty" class="data_section_label subtle">
+	    	None
+	    </div>
     </div>
   <% end %>
 </div>
@@ -52,30 +55,9 @@ var carrouselData = function (sec, rows, columns) {
 		this.filters[nameFilter] = false;
 	}	
 
-	carrouselData.prototype.checkEmptyFilter = function () {
-		var
-			numFind = 0;
-			numCheck = 0;
-		for (var key in this.filters) {
-			numFind++;
-			if(this.filters[key] == true) {
-	   			numCheck++;	
-			}	
-		}
-		if(numCheck == 0) {
-			return true;
-		}
-		else {
-			return false;
-		}
-	}
-
 	carrouselData.prototype.checkChildFilter = function(childTag) {
 		var find = 0;
 		var isTrue = 0;
-		if(this.checkEmptyFilter()) {
-			return true;
-		}
 		for (var key in this.filters) {
 			if(this.filters[key] == true) {
 				find++;
@@ -84,23 +66,27 @@ var carrouselData = function (sec, rows, columns) {
 				}
 		    }	
 		}
-		if (find > 0) {
-			if(isTrue == find) {
-				return true;
-			}
-			else {
-				return false;
-			}
+		if(isTrue == find) {
+			return true;
 		}
 		else {
 			return false;
-		}
+		}		
 	}
 
 	carrouselData.prototype.resetChildsCount = function() {
 	  	this.childs = $('.data_section[data-section="' + this.sectionTag + '"] > .cards-section > .card-container ').length;
 	}
 
+	carrouselData.prototype.showEmptyLabel = function(isTrue) {
+		if(isTrue) {
+			$('.data_section[data-section="' + this.sectionTag + '"] div[data-attribute="empty"]').hide(250);
+		}
+		else {
+			
+			$('.data_section[data-section="' + this.sectionTag + '"] div[data-attribute="empty"]').show(250);
+		}
+	}
 
 	carrouselData.prototype.changeFilter = function(filterTag)	{
 		this.filters[filterTag] = !this.filters[filterTag];
@@ -108,6 +94,8 @@ var carrouselData = function (sec, rows, columns) {
 	}	
 
 	carrouselData.prototype.filterChilds = function() {
+		var
+			find = 0;
 		if(this.maxRow > this.childs) {
 			this.maxRow = this.childs;
 		}
@@ -116,11 +104,13 @@ var carrouselData = function (sec, rows, columns) {
 			child = $('.data_section[data-section="' + this.sectionTag + '"] > .cards-section > .card-container:nth-child('+ (i) +')');
 			if(this.checkChildFilter(child.children().children(".status"))) {
 				child.show(250);
+				find++;
 			}
 			else {
 				child.hide(250);
 			}
 		}
+		this.showEmptyLabel(find > 0);
 	}	
 
 	carrouselData.prototype.navigation = function(value) {
