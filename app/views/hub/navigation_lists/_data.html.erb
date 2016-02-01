@@ -49,7 +49,7 @@ var carrouselData = function (sec, rows, columns) {
 	}
 
 	carrouselData.prototype.addFilter = function (nameFilter) {
-		this.filters[nameFilter] = true;
+		this.filters[nameFilter] = false;
 	}	
 
 	carrouselData.prototype.checkEmptyFilter = function () {
@@ -58,34 +58,42 @@ var carrouselData = function (sec, rows, columns) {
 			numCheck = 0;
 		for (var key in this.filters) {
 			numFind++;
-			if(this.filters[key] != true) {
+			if(this.filters[key] == true) {
 	   			numCheck++;	
 			}	
 		}
 		if(numCheck == 0) {
 			return true;
 		}
+		else {
+			return false;
+		}
 	}
 
 	carrouselData.prototype.checkChildFilter = function(childTag) {
 		var find = 0;
+		var isTrue = 0;
 		if(this.checkEmptyFilter()) {
-			return false;
+			return true;
 		}
 		for (var key in this.filters) {
-
-			if ($(childTag).attr(key)) {
+			if(this.filters[key] == true) {
 				find++;
-				if(this.filters[key] == true) {
-		   			return true;	
+				if ($(childTag).attr(key)) {
+					isTrue++;
 				}
 		    }	
 		}
 		if (find > 0) {
-			return false;
+			if(isTrue == find) {
+				return true;
+			}
+			else {
+				return false;
+			}
 		}
 		else {
-			return true;
+			return false;
 		}
 	}
 
@@ -106,7 +114,7 @@ var carrouselData = function (sec, rows, columns) {
 
 		for (i = 1; i <= this.maxRow; i++) {
 			child = $('.data_section[data-section="' + this.sectionTag + '"] > .cards-section > .card-container:nth-child('+ (i) +')');
-			if(!this.checkChildFilter(child.children().children(".status"))) {
+			if(this.checkChildFilter(child.children().children(".status"))) {
 				child.show(250);
 			}
 			else {

@@ -69,22 +69,28 @@ var carrouselTask = function (sec, rows, columns) {
 
   carrouselTask.prototype.checkChildFilter = function(childTag) {
     var find = 0;
+    var isTrue = 0;
     if(this.checkEmptyFilter()) {
       return true;
     }
     for (var key in this.filters) {
-      if (childTag.find('.'+ key).hasClass(key)) {
-        find++;
-        if(this.filters[key] == true) {
-            return true;  
-        }
-      } 
+      if(this.filters[key] == true) {
+        find++;      
+        if (childTag.find('.'+ key).hasClass(key)) {
+          isTrue++;
+        } 
+      }
     }
     if (find > 0) {
-      return false;
+      if(isTrue == find) {
+        return true;
+      }
+      else {
+        return false;
+      }
     }
     else {
-      return true;
+      return false;
     }
   }
 
