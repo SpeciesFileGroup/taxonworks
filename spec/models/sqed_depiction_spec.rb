@@ -27,7 +27,6 @@ RSpec.describe SqedDepiction, type: :model do
 
   context 'hstore fields' do
 
-
     let(:metadata_map) {  {0 => :curator_metadata, 1 => :identifier, 2 => :image_registration, 3 => :annotated_specimen }  }
 
     specify 'metadata_map serializes a hash' do
