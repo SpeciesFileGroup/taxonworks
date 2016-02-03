@@ -1,24 +1,27 @@
-<div>
+<div id="_simple_map_outer"
+     hidden="hidden"
+>
   <%#= render(partial: 'latouts/map_header') -%>
-  <div id="_displayed_distribution_form"
-       data-feture-collection="<%= map_objects.to_json.to_json -%>"
+  <div id="_simple_map_form"
+
+       data-feature-collection="<%= Gis::GeoJSON.feature_collection(map_objects).to_json -%>"
        data-map-center='POINT (0.0 0.0 0.0)'
-       data-map-canvas="displayed_distribution_canvas"
+       data-map-canvas="simple_map_canvas"
   >
   </div>
-  <table border="1">
+  <table <%= border_string %>>
     <tbody>
     <tr>
       <td>
-        <div id="displayed_distribution_canvas" style="width:512px; height: 256px;"></div>
-        <span id="map_coords"></span>
+        <div id="simple_map_canvas" style="width:512px; height: 256px;"></div>
+        <span id="map_coords">Simple map Coordinates</span>
       </td>
     </tr>
-    <tr>
-      <td>
-        <div id="displayed_distribution_style"></div>
-      </td>
-    </tr>
+    <!--<tr>-->
+    <!--<td>-->
+    <!--<div id="simple_map_style"></div>-->
+    <!--</td>-->
+    <!--</tr>-->
     </tbody>
   </table>
 </div>

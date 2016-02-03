@@ -65,8 +65,8 @@
     </div>
     <div class="item item2">
       <%#=	 break_it_here %>
-      <%#= render(partial: 'layouts/map_header') -%>
-      <%= simple_map(@distribution) %>
+      <%= render(partial: 'layouts/map_header') -%>
+      <%#= simple_map(@distribution) %>
       <div id='_displayed_distribution_form'
            data-feature-collection='<%= @distribution.to_json.to_json -%>'
            data-map-center='POINT (0.0 0.0 0.0)'

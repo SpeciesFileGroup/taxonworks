@@ -77,4 +77,8 @@ module Tasks::Gis::LocalityHelper
     (params[digit] == value) ? true : false
   end
 
+  def within_count
+    @collecting_events_count = CollectingEvent.find_others_contained_within(@geographic_item).count
+  end
+
 end
