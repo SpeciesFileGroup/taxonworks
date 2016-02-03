@@ -5,20 +5,43 @@
 @import 'workbench/whitespace';
 
 #hub {
+    margin-left:-15px;
+    margin-right: -15px;
   a {
     text-decoration: none;
+  }
+
+  h1 {
+    font-weight: 100;
+
+  }
+
+  h2 {
+    font-weight: 100;
+
+  }
+
+  h3 {
+    font-weight: 100;
+  }
+
+  .filter-header {
+    display: flex;
+    flex-direction:row;
+    justify-content:center;
+    width: 100%;
   }
 
    // jose - we could move other general hub classes to here
    .filter {
     display: flex;
+    margin: 1.5em;
     justify-content: space-between;
     align-items: center;
     border-radius: 3px;
     background-color: $navigation_background;
-    border: 1px solid $color-complement-3;
-    margin: 1em;
-    width: 500px;
+    border:1px solid $navigation_border;
+    //width: 505px;
 
     .category_button {
       padding-top: 10px;
@@ -27,27 +50,22 @@
 
     .category_button a {
       background-color: $navigation_background;
-      //color: #444;
     }
 
     .activated a {
-      //color: ;
       background-color: $color-complement-2;
     }
 
 
-    .category_button a {
+     a {
   
       
     }
 
-
-    .category_button a:hover {
-      fill: #94d31b;
-      color: #FFF;
-      background-color: $navigation_focus_background;
-    }    
-
+    .category_button:last-child a {
+      border-right: none;
+    }
+ 
     .title {
       color: #FFF;
       padding-top: 12px;
@@ -58,6 +76,7 @@
       justify-content:flex-start;
       align-items: center;
       text-align: center;
+      border-right: 1px solid $navigation_border;
       background-color: $color-complement-3;
       flex-direction:column; 
     }
@@ -69,6 +88,7 @@
     }
 
     a {
+      border-right: 1px solid $navigation_border;
       padding: 12px;
     }    
 
@@ -133,7 +153,32 @@
   }
 
   #hub_tabs { 
+    background-color: $navigation_background;
+    //box-shadow: inset 0 2px 3px 0 $navigation_border;
+    display: flex;
+    border-bottom: 1px solid $navigation_border;
     justify-content: center; 
+    img {
+      width: 20px;
+      padding-right: 10px;
+    }
+    .navigation-bar {
+      justify-content: space-between; 
+      flex-direction:row;
+      align-items:center;
+      display: flex;
+      //padding: 3px;
+      ul {
+        padding-left: 10px;
+      }
+      li {
+        border-left: 1px solid $navigation_border;
+      }
+
+    }
+    a {
+      font-size: 12px;
+    }
   }
 
   div.related_links_set {

@@ -2,14 +2,11 @@
 
 #header_bar {
 	margin:0 auto;
-	padding-left:15px;
-	padding-right:15px;
+	padding-left:20px;
+	padding-right:20px;
  	align-items:center;
-	background-color:$body_background;
-	border-bottom: 1px solid $navigation_border; 
-	
-	/* border-bottom: 1px solid $color-secondary-1-4;  */
-	
+	background-color:$navigation_background;
+	border-bottom: 1px solid $navigation_border; 	
 	height:50px;
 	
 	a {
@@ -47,8 +44,12 @@
 }
 
 .current_hub_category {
-  background: $color-secondary-2-2;
+  font-weight: bold;
+
  }
+  .current_hub_category a {
+  	color: #000 !important;
+  }
 
 .all_hub_category {
   margin-top: 5px;

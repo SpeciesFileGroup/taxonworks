@@ -8,6 +8,7 @@
 
   display: flex;
   justify-content: center;
+  
   align-items: top;
 
   .data_section {
@@ -18,19 +19,24 @@
     width:250px; 
     border-radius: 3px;
     border: 1px solid $navigation_border;
-    margin: 1em;
-    //padding: 5em;
-    //height: 350px;
+
+    margin-left: 0.5em;
+    margin-right: 0.5em;
   }
 
   .data_section_label {
-    font-size: 18px;
-    padding: 1em;
+    //font-size: 18px;
+    padding-left: 1.5em;
+    padding-right: 1.5em;
     display: flex;
+    color: #FFF;
+    border-top-right-radius: 3px;
+    border-top-left-radius: 3px;
+    background-color: $color-secondary-2-3;
     justify-content:space-between;
     flex-direction:flex-start;
     align-items:center;
-    //border-bottom: 1px solid $navigation_border;
+    border-bottom: 1px solid $navigation_border;
     text-align: center;
   }
 
@@ -41,18 +47,19 @@
     flex-direction:row;
     justify-content:space-between;
     flex-flow: row wrap;
-    //box-shadow: 0px 1px 2px 0px #CECECE;
     padding: 0.5em;
   }
 
   .card-container {
     flex-direction:row;
     align-items:center;
-
+    margin: 0.5em;
     display: none;
   }
 
   .data_card {
+    background-color: #fafafa;
+    box-shadow: 0px 1px 2px 0px $navigation_border;
     width: 200px;
     background-color: #FFF;
     display: flex;
@@ -61,7 +68,6 @@
     justify-content:flex-start;
     border-radius: 3px;
     border: 1px solid $navigation_border;
-    margin: 0.5em;
     padding: 1em;
     font-size: 12px;
   }

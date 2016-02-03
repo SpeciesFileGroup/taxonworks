@@ -15,15 +15,15 @@
   justify-content: center;
 
 	.space-distance {
-		margin-left: 1em;
-		margin-right: 1em;
+		margin-left: 0.5em;
+		margin-right: 0.5em;
 	}
 
 	.box {
-		//background-color: $background_gray;
 		border:1px solid $navigation_border;
 		border-radius: 3px;
-		box-shadow: 0 2px 3px 0 $navigation_border;
+		background-color: $soft_background;
+		box-shadow: 0 1px 2px 0 $navigation_border;
 		.container {
 			padding-left: 20px;
 			padding-right: 20px;
@@ -33,13 +33,11 @@
 			flex-direction:row;
 			border-top-left-radius: 3px;
 			border-top-right-radius: 3px;
-			//background-color: $color-secondary-2-3;
 			display: flex;
 			height: 40px;
 			color: #FFF;
 			align-items:center;
 			border-bottom: 1px solid $navigation_border;
-			//background-color: $navigation_background;
 			img {
 				width: 15px;
 				padding-right: 5px;
@@ -58,7 +56,6 @@
 			}
 		.subtitle {
 			h2 {
-				//border-top: 1px solid $navigation_border;
 				border-bottom: 1px solid $navigation_border;
 			}
 			h3 {

@@ -1,17 +1,8 @@
-
 <div id="hub">
-
-  <h1 class="center_text"> 
-    <span class="subtle">Hub for</span> 
-    <%= object_tag(sessions_current_project) -%> 
-  </h1> 
-
   <div class="center_text">
     <%= render(partial: 'navigation_index_bar') -%>
   </div>
-
   <nav id="navigation_list">
       <%= render(partial: "hub/navigation_lists/#{@links_to_render}") -%>
   </nav>
-
 </div>
