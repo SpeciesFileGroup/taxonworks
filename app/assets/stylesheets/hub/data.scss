@@ -8,11 +8,11 @@
 
   display: flex;
   justify-content: center;
-  
+
   align-items: top;
 
   .data_section {
-    background-color: #fafafa;
+    background-color: $soft_background;
     display: flex;
     justify-content:flex-start;
     flex-direction:column;   
