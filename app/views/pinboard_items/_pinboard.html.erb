@@ -5,7 +5,12 @@
       <h3><%= object_type.pluralize -%></h3>
       <ul>
         <% items.each do |o| -%>
-          <li><div class="horizontal-center-content"><img src="assets/icons/pin.svg"/> <%=  object_link(o.pinned_object) -%></div><%= link_to('Remove', pinboard_item_path(o), method: :delete) -%>  </li>
+          <li>
+            <div class="horizontal-center-content">
+              <img src="assets/icons/pin.svg"/> <%=  object_link(o.pinned_object) -%>
+            </div>
+            <%= link_to('Remove', pinboard_item_path(o), method: :delete) -%>
+          </li>
         <% end %>
       </ul>
     <% end %>

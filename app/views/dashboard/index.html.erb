@@ -1,43 +1,49 @@
-<h1 class="center_text"> 
+<h1 class="center_text" style="font-weight:100;"> 
   <span class="subtle">Dashboard for</span> 
   <%= user_tag(sessions_current_user) -%> 
 </h1> 
     <div class="flexbox">
-      <div class="item item1 column-tiny space-distance box">
-        <div class="title container">
-          <img src="/assets/icons/b_folders.svg">
-          <h3>Your projects</h3>
+      <div class="item item1 column-tiny space-distance">
+        <div class="box">
+          <div class="title container project">
+            <img src="/assets/icons/b_folders.svg">
+            <h3>Your projects</h3>
+          </div>
+          <div class="container tree projects">
+            <ul> 
+              <%= projects_list(@projects) -%> 
+            </ul>
+          </div>
         </div>
-        <div class="container projects">
-          <ul> 
-            <%= projects_list(@projects) -%> 
+      </div>
+
+      <div class="item item1 column-big space-distance">
+        <div class="box">
+          <div class="title container data">
+            <img src="/assets/icons/b_open_folder.svg">
+            <h3> Your data </h3>
+          </div>
+          <div class="container subtitle">
+          <h2>History</h2> 
+          </div> 
+          <ul class="container">
+            <%= content_tag :li, link_to('Recently created', recently_created_data_user_path(sessions_current_user)) -%> 
           </ul>
+          <%= render partial: '/pinboard_items/pinboard' -%>
         </div>
       </div>
-
-      <div class="item item1 column-big space-distance box">
-        <div class="title container">
-          <img src="/assets/icons/b_open_folder.svg">
-          <h3> Your data </h3>
+      <div class="item item3 column-tiny space-distance">
+        <div class="box">
+          <div class="title container configuration">
+            <img src="/assets/icons/b_options.svg">
+            <h3>Preferences</h3>
+          </div>
+          <div class="container tree preferences">
+          <ul>
+            <li><%= link_to('Order hub tabs', order_tabs_hub_path ) -%></li>
+          </ul>
+          </div>
         </div>
-        <div class="container subtitle">
-        <h2>History</h2> 
-        </div> 
-        <ul class="container">
-          <%= content_tag :li, link_to('Recently created', recently_created_data_user_path(sessions_current_user)) -%> 
-        </ul>
-        <%= render partial: '/pinboard_items/pinboard' -%>
-      </div>
-
-      <div class="item item3 column-tiny space-distance box">
-        <div class="title container">
-          <img src="/assets/icons/b_options.svg">
-          <h3>Preferences</h3>
-        </div>
-        <ul class="container"> 
-          <li> <%= link_to('Order hub tabs', order_tabs_hub_path ) -%> </li>
-        </ul>
-
       </div>
     </div>
 <script type="text/javascript">
