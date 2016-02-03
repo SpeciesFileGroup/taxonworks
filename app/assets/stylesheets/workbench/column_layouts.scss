@@ -4,6 +4,12 @@ http://flexboxin5.com/
  */
  @import 'palette';
 
+ .horizontal-center-content {
+ 	display: flex;
+ 	align-items:center;
+ 	flex-direction:row;
+ }
+
 .flexbox {
   display: -webkit-box;
   display: -moz-box;
@@ -21,7 +27,6 @@ http://flexboxin5.com/
 		//width: 100%;
 		//height: auto;
 	}
-  
 }
 
 .flexbox > * {
@@ -33,6 +38,8 @@ http://flexboxin5.com/
 	word-wrap: break-word;
 	flex: 1 auto;
 }
+
+
 
 
   

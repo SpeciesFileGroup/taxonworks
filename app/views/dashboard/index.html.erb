@@ -2,32 +2,45 @@
   <span class="subtle">Dashboard for</span> 
   <%= user_tag(sessions_current_user) -%> 
 </h1> 
-
-<div>
-  <div>
-    <div class='flexbox'>
-      <div class='item item1'>
-        <h2> Your projects </h2>
-        <ul> <%= projects_list(@projects) -%> </ul>
+    <div class="flexbox">
+      <div class="item item1 column-tiny space-distance box">
+        <div class="title container">
+          <img src="/assets/icons/b_folders.svg">
+          <h3>Your projects</h3>
+        </div>
+        <div class="container projects">
+          <ul> 
+            <%= projects_list(@projects) -%> 
+          </ul>
+        </div>
       </div>
 
-      <div class='item item2'>
-        <h2> Your data </h2>
-        <ul>
+      <div class="item item1 column-big space-distance box">
+        <div class="title container">
+          <img src="/assets/icons/b_open_folder.svg">
+          <h3> Your data </h3>
+        </div>
+        <div class="container subtitle">
+        <h2>History</h2> 
+        </div> 
+        <ul class="container">
           <%= content_tag :li, link_to('Recently created', recently_created_data_user_path(sessions_current_user)) -%> 
         </ul>
-
         <%= render partial: '/pinboard_items/pinboard' -%>
       </div>
 
-      <div class='item item3'>
-        <h2> Preferences </h2>
-        <ul> 
-          <li> <%= link_to('order hub tabs', order_tabs_hub_path ) -%> </li>
+      <div class="item item3 column-tiny space-distance box">
+        <div class="title container">
+          <img src="/assets/icons/b_options.svg">
+          <h3>Preferences</h3>
+        </div>
+        <ul class="container"> 
+          <li> <%= link_to('Order hub tabs', order_tabs_hub_path ) -%> </li>
         </ul>
 
       </div>
     </div>
-  </div>
-
-</div>
+<script type="text/javascript">
+  $(".projects > ul > li > a").before('<img src="/assets/icons/folder.svg"/>');
+  $(".projects > ul > li > mark").before('<img src="/assets/icons/open_folder.svg"/>');
+</script>

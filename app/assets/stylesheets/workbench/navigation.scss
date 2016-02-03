@@ -10,9 +10,9 @@ a {
     color: $color-secondary-2-3;
   }
   &:hover {
-    
-    color: $color-secondary-2-0;
-    background-color: $color-secondary-2-2;
+    color: $focus_link_color;
+    //color: $color-secondary-2-0;
+    //background-color: $color-secondary-2-2;
   }
 }
 

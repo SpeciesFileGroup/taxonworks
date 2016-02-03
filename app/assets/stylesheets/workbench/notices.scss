@@ -4,6 +4,7 @@
 
   padding: .5em; 
   border: 1px solid $title_gray;
+  border-radius: 3px;
 
   &.alert-notice {
     background: $color-complement-2;

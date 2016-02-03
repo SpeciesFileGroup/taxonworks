@@ -4,7 +4,8 @@
 @import url(https://fonts.googleapis.com/css?family=Open+Sans);
 
 body {
-  background-color: #fff;
+  background-color: $body_background;
+  color: $default_text;
 /*  font-family: verdana, arial, helvetica, sans-serif; */
   font-family: 'Open Sans', sans-serif;
   font-size: 12px;

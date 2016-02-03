@@ -5,7 +5,7 @@
 	padding-left:15px;
 	padding-right:15px;
  	align-items:center;
-	background-color:$navigation_background;
+	background-color:$body_background;
 	border-bottom: 1px solid $navigation_border; 
 	
 	/* border-bottom: 1px solid $color-secondary-1-4;  */
@@ -15,9 +15,20 @@
 	a {
 		font-size:12px;
 		padding: 16px;
+			    text-decoration: none;
+   
+	    -webkit-transition: 0.3s ease;
+	            transition: 0.3s ease;
 	}
+
+
+	a:hover {
+	    -webkit-transition: 0.3s ease;
+	            transition: 0.3s ease;
+	            color: $focus_link_color;
+	       
+	}	
   #taxonworks {
-    font-weight: 100;
     a {
 	  color:#444;
 	  padding: 0px;
