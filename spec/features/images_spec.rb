@@ -46,6 +46,24 @@ describe "Images", :type => :feature do
         visit JSON.parse(page.body)['result']['url']
         expect(page.status_code).to eq(200)
       end
-    end    
+    end
+
+    context 'testing new image browse' do
+      before {
+        #   logged in and project selected
+        visit images_path }
+
+      # specify 'can browse to upload existing image', js: true do
+      #   click_link('new')
+      #   expect(page).to have_content("Select an image through the browser")
+
+        # click_button('Browse...')
+        # attach_file "Tiny", "/files/images/tiny.png"
+        # click_button('Create Image')
+        # expect(page).to have_content("Image was successfully created.")
+      # end
+    end
+
+
   end
 end
