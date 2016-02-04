@@ -4,8 +4,7 @@ describe "Images", :type => :feature do
   let(:index_path) { images_path }
   let(:page_index_name) { 'images' }
 
-  it_behaves_like 'a_login_required_and_project_selected_controller' do
-  end
+  it_behaves_like 'a_login_required_and_project_selected_controller'
 
   context 'signed in as a user, with some records created' do
     before {
@@ -48,11 +47,13 @@ describe "Images", :type => :feature do
       end
     end
 
+
     context 'testing new image browse' do
       before {
         #   logged in and project selected
         visit images_path }
 
+      # @todo Need to reconcile path to test images
       # specify 'can browse to upload existing image', js: true do
       #   click_link('new')
       #   expect(page).to have_content("Select an image through the browser")
@@ -63,7 +64,6 @@ describe "Images", :type => :feature do
         # expect(page).to have_content("Image was successfully created.")
       # end
     end
-
 
   end
 end
