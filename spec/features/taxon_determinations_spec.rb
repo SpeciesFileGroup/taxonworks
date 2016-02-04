@@ -59,7 +59,7 @@ describe 'TaxonDeterminations', :type => :feature do
         expect(page.has_field?('otu_id_for_taxon_determination', :type => 'text')).to be_truthy
         expect(page.has_field?('taxon_determination_year_made', :type => 'text')).to be_truthy
 
-        # fill_autocomplete('determiner_autocomplete', with: 'Barry Barrymore', select: s.id)
+        # fill_role_picker_autocomplete('determiner_autocomplete', with: 'Barry Barrymore', select: s.id)
         # @todo @mjy Could not get the name selected; error message below:
         # expected to find css "li.ui-menu-item a[data-model-id=\"4\"]" but there were no matches
 
