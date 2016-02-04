@@ -45,11 +45,13 @@
 }
 
 .current_hub_category {
-  font-weight: bold;
+  background-color: $body_background !important;
+  border-bottom: 1px solid $body_background !important;
 
  }
   .current_hub_category a {
   	color: #000 !important;
+  	padding: 1em;
   }
 
 .all_hub_category {

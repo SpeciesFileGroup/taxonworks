@@ -12,7 +12,7 @@
   align-items: top;
 
   .data_section {
-    background-color: $soft_background;
+    background-color: $body_background;
     display: flex;
     justify-content:flex-start;
     flex-direction:column;   
@@ -57,9 +57,14 @@
     display: none;
   }
 
+  .data_card:hover {
+    background-color: $soft_background;
+    box-shadow: 0px 1px 2px 0px $navigation_border;
+  }
+
   .data_card {
     background-color: #fafafa;
-    box-shadow: 0px 1px 2px 0px $navigation_border;
+    //
     width: 200px;
     background-color: #FFF;
     display: flex;
