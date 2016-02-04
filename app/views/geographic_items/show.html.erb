@@ -3,17 +3,19 @@
 <p id="notice"><%= notice %></p>
 
 
-<%= render(partial: 'layouts/map_header', locals: {geographic_items: [@geographic_item]}) -%>
+<%#= render(partial: 'layouts/map_header', locals: {geographic_items: [@geographic_item]}) -%>
+<%#= render(partial: 'layouts/map_header') -%>
 
 <div class="flexbox">
   <div class="item item1">
-    <div id="feature_collection"
-         data-feature-collection='<%= Gis::GeoJSON.feature_collection([@geographic_item]).to_json %>'
-    >
-    </div>
+    <!--<div id="feature_collection"-->
+    <!--data-feature-collection='<%#= Gis::GeoJSON.feature_collection([@geographic_item]).to_json %>'-->
+    <!--&gt;-->
     <%= forward_back_links(@geographic_item) -%> <br><br>
 
-    <div id="geographic_item_map_canvas" style="width:512px; height: 256px;"></div>
+    <%= simple_map([@geographic_item]) -%>
+
+    <!--<div id="geographic_item_map_canvas" style="width:512px; height: 256px;"></div>-->
     <p>
       <strong>Count of collecting events using <br> this geographic item for georeference:</strong>
       <%= collecting_events_count_using_this_georeference(@geographic_item.id) %>
