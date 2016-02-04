@@ -19,13 +19,11 @@
     width:250px; 
     border-radius: 3px;
     border: 1px solid $navigation_border;
-
     margin-left: 0.5em;
     margin-right: 0.5em;
   }
 
   .data_section_label {
-    //font-size: 18px;
     padding-left: 1.5em;
     padding-right: 1.5em;
     display: flex;
@@ -58,19 +56,21 @@
   }
 
   .data_card:hover {
+    transition: background-color 0.5s ease,
+                box-shadow 0.5s ease;
     background-color: $soft_background;
-    box-shadow: 0px 1px 2px 0px $navigation_border;
+    box-shadow:inset 0px 1px 2px 0px $navigation_border;
   }
 
   .data_card {
     background-color: #fafafa;
-    //
     width: 200px;
     background-color: #FFF;
     display: flex;
-    flex-direction:row;
+    flex-direction:row-reverse;
     align-items:center;
-    justify-content:flex-start;
+    //flex-direction:flex-end;
+    justify-content:space-between;
     border-radius: 3px;
     border: 1px solid $navigation_border;
     padding: 1em;
@@ -87,20 +87,25 @@
   }
 
   .status {
-    margin: 3px;
-    width: 10px;
-    height: 10px;
+    display: flex;
+    flex-direction:row;
+    //margin: 3px;
+    //width: 10px;
+    //height: 10px;
     border-radius: 50%;
-    border: 0.5px solid $navigation_border;
+    //border: 0.5px solid $navigation_border;
+    img {
+      margin-left:5px;
+    }
   }  
 
   .prototype {
-    background-color:#444;
+    //background-color:#444;
   }
 
   .unknown {
-    background-color: #DDD;
-    border-color: #999;
+    //background-color: #DDD;
+    //border-color: #999;
   }
 
   @media screen and (min-width: 1339px) {

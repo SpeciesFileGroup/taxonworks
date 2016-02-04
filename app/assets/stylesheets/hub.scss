@@ -41,7 +41,6 @@
     border-radius: 3px;
     background-color: $navigation_background;
     border:1px solid $navigation_border;
-    //width: 505px;
 
     .category_button {
       padding-top: 10px;
@@ -54,12 +53,7 @@
 
     .activated a {
       background-color: $color-complement-2;
-    }
-
-
-     a {
-  
-      
+      box-shadow:inset 0px 1px 2px 0px $color-complement-3;
     }
 
     .category_button:last-child a {
@@ -76,7 +70,7 @@
       justify-content:flex-start;
       align-items: center;
       text-align: center;
-      border-right: 1px solid $navigation_border;
+      border-right: 1px solid $color-complement-3;
       background-color: $color-complement-3;
       flex-direction:column; 
     }
@@ -126,8 +120,6 @@
 
   }
 
-
-
   #navigation_list {
     display: flex;
     justify-content:flex-start;
@@ -154,7 +146,6 @@
 
   #hub_tabs { 
     background-color: $soft_background;
-    //box-shadow: inset 0 2px 3px 0 $navigation_border;
     display: flex;
     border-bottom: 1px solid $navigation_border;
     justify-content: center; 
@@ -167,7 +158,6 @@
       flex-direction:column;
       align-items:center;
       display: flex;
-      //padding: 3px;
       ul {
         position: relative;
         top:1px;

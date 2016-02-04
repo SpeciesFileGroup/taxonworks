@@ -49,8 +49,6 @@ var carrouselData = function (sec, rows, columns) {
 
 		if(columns >= 1) {
 			$('.data_section[data-section="' + this.sectionTag + '"]').css("max-width",(250*columns) + 'px');
-	//		$('.data_section[data-section="' + this.sectionTag + '"]').width((250*columns) + 'px');
-
 		}
 	}
 
@@ -251,7 +249,10 @@ function changeBackgroundColorLink(selector) {
       	annotations.changeFilter("data-category-Source");
   });
 
-   
+$('.data_card div[data-category-collectingevent="true"]').append("<img src='/assets/icons/geo_location.svg'/>");
+$('.data_card div[data-category-TaxonName="true"]').append("<img src='/assets/icons/new.svg'/>");
+$('.data_card div[data-category-collectionobject="true"]').append("<img src='/assets/icons/picking.svg'/>");
+$('.data_card div[data-category-Source="true"]').append("<img src='/assets/icons/book.svg'/>");
 
   //Mousetrap Keys
   
