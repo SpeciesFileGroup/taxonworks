@@ -59,7 +59,7 @@ function initialize_autocomplete(form) {
   return false;
     }
   }).autocomplete("instance")._renderItem = function (ul, item) {
-    return $("<li class='foo'>")
+    return $("<li class='autocomplete'>")
       .append("<a>" + item.label + ' <span class="hoverme" data-person-id="' + item.object_id + '">...</span></a>')
       .appendTo(ul);
   };
