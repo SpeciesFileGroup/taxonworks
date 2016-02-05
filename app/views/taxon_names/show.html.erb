@@ -10,8 +10,19 @@
     <%= render(partial: 'tasks') -%>
 <% end %>
 
+<% content_for :show_browse_navigation do %>
+    <div class="navigation" style="border-right: 1px solid #CECECE;">
+      <img src="/assets/icons/browse.svg"/>
+      <%= link_to('Browse', browse_taxon_name_path(@taxon_name)) -%>
+    </div>   
+<% end %>
+
+<% content_for :show_hierarchy_navigation do %>
+  <%= render('parent_navigator', taxon_name: @taxon_name) -%>
+<% end %>
+
 <% content_for :show_navigation do %>
-  <%= link_to('Browse', browse_taxon_name_path(@taxon_name)) -%><br> <br>  
+  <%= link_to('Browse', browse_taxon_name_path(@taxon_name)) -%> 
   <%= render('parent_navigator', taxon_name: @taxon_name) -%>
 <% end %>
 

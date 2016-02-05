@@ -14,10 +14,86 @@
 
   .descendants {}
 
+
+
+.tree {
+
+  p {
+    font-size: 12px;
+    margin: 3px;
+  }
+  margin-left: -37px;
   .selected {
     font-weight: bold;
-    margin: $standard_padding;
+    font-size: 13px;
   }
+
+  .selected:before {
+    padding-right: 3px;
+    font-weight: 100;
+  }
+      ul {
+        list-style-type: none;
+        margin:0;
+        padding: 0;
+        padding-top: 12px;
+        position: relative;
+        overflow:hidden;  
+        margin-bottom: 15px;  
+        
+      }
+
+      img {
+        width: 8px;
+        min-width: 8px;
+        position: relative;
+        top:7px;
+      }
+
+      li {
+        display: flex;
+        flex-direction:row;
+        align-items: flex-start;
+        
+        padding: 0 12px;  
+        position: relative; 
+      }
+        
+      li::before, li::after{
+        content: '';
+        position: absolute;
+        left: 0;
+      }
+
+      li::before{
+        border-top: 1px solid $navigation_border;
+        top: 10px;
+        width: 10px;
+        height: 0;    
+      }
+
+      li:after{
+        border-left: 1px solid $navigation_border;
+        height: 100%;
+        width: 0px;
+        top: -10px; 
+      }
+
+      li::after{
+        top: 10px;
+      }
+
+      li:last-child::after{
+        display: none;
+      } 
+
+      a {
+        text-decoration: none;
+        font-size: 12px;
+        padding-left: 5px;
+      }     
+    }
+
 }
 
 

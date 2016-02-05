@@ -1,22 +1,22 @@
-<h3> Record housekeeping  </h3>
+<h3>Record housekeeping</h3>
 <hr>
-<p>
+<span>
 	<strong>Created by:</strong>
 	<%= object_tag(object.creator) %>
-</p>
+</span>
 
-<p>
+<span>
 	<strong>Updated by:</strong>
 	<%= object_tag(object.updater) %>
-</p>
+</span>
 
-<p>
+<span>
 	<strong>Updated at:</strong>
 	<%=  object_time_since_update_tag(object) -%> ago
-</p>
+</span>
 
-<p>
+<span>
 	<strong>Created at:</strong>
 	<%= object_time_since_creation_tag(object) -%> ago
-</p>
+</span>
 

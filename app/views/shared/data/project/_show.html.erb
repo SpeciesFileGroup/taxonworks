@@ -4,18 +4,23 @@
     <div class="item item1">
       <div class="section go">
         <div class="title">
-        <div>
-          <h2>Go</h2>
-          </div>      
-        </div>
-        <div class="content">
-          <div class="navigation">
-            <img src="/assets/icons/arrow-left.svg" width="8"/>
-              <%= forward_back_links(object) -%> 
-            <img src="/assets/icons/arrow-right.svg" width="8"/>
-          </div>  
-          <hr>          
-          <%= yield :show_navigation -%>
+          <div>
+            <h2>Go</h2>
+            </div>      
+          </div>
+            <div class="menu-item navigation-controls">
+              <%= yield :show_browse_navigation -%>   
+                <div class="navigation">
+                <img src="/assets/icons/arrow-left.svg"/>
+                <%= previous_link(object) -%> 
+                </div>
+                <div class="navigation">
+                <%= next_link(object) -%>
+                <img src="/assets/icons/arrow-right.svg"/>
+              </div>
+            </div> 
+          <div class="content">
+          <%= yield :show_hierarchy_navigation -%>
         </div>
       </div>
     </div>
@@ -31,11 +36,12 @@
       <div class="attributes break_words content">
         <%= render partial:  object_attributes_partial_path(object.metamorphosize), locals: {object: object} %>
         <%= yield :related_attributes -%>
-        <div class="housekeeping content">
-          <%= render partial: '/shared/data/all/show/housekeeping', locals: {object: object} -%>
-        </div>
+
         <%= render(partial: '/shared/data/all/show/soft_validation', locals: {object: object}) if object.class.respond_to?(:soft_validates?) -%>
         <%= render(partial: '/shared/data/all/show/annotations', locals: {object: object}) if ! object.annotations.empty?  %>
+      </div>
+      <div class="housekeeping content">
+          <%= render partial: '/shared/data/all/show/housekeeping', locals: {object: object} -%>
       </div>
     </div>
     <div class="item item3">
