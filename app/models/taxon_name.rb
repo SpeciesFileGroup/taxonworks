@@ -346,7 +346,7 @@ class TaxonName < ActiveRecord::Base
   # @return [String]
   #   gender of a genus as string.
   def gender_name
-    c = self.gender_class
+    c = gender_class
     c.nil? ? nil : c.class_name.downcase
   end
 
@@ -360,7 +360,7 @@ class TaxonName < ActiveRecord::Base
   # @return [String]
   #   part of speech of a species as string.
   def part_of_speech_name
-    c = self.part_of_speech_class
+    c = part_of_speech_class
     c.nil? ? nil : c.class_name.downcase
   end
 
