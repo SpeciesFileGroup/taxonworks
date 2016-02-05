@@ -29,17 +29,20 @@
     .item1 { 
       display: block;
       width: 400px;
+      min-width: 250px;
     }
 
     .item3 {
       display: block;
       width: 300px;
+      min-width: 200px;
     }
 
     .item2 {
       display: flex;
       width: 100%;
       margin: 10px;
+      min-width: 450px;
     }
 
     .item { 
