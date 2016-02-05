@@ -780,7 +780,14 @@ class TaxonName < ActiveRecord::Base
 
   # @!return [ { rank => [prefix, name] }
   #   Returns a hash of rank => [prefix, name] for genus and below 
-  # @taxon_name.full_name_hash # => {"genus"=>[nil, "Aus"], "subgenus"=>[nil, "Aus"], "section"=>["sect.", "Aus"], "series"=>["ser.", "Aus"], "species"=>[nil, "aaa"], "subspecies"=>[nil, "bbb"], "variety"=>["var.", "ccc"]}
+  # @taxon_name.full_name_hash # => 
+  #      {"genus" => [nil, "Aus"], 
+  #       "subgenus" => [nil, "Aus"], 
+  #       "section" => ["sect.", "Aus"], 
+  #       "series" => ["ser.", "Aus"], 
+  #       "species" => [nil, "aaa"], 
+  #       "subspecies" => [nil, "bbb"], 
+  #       "variety" => ["var.", "ccc"]}
   def full_name_hash
     gender = nil
     data   = {}
@@ -788,7 +795,12 @@ class TaxonName < ActiveRecord::Base
       rank   = i.rank
       gender = i.gender_name if rank == 'genus'
       method = "#{rank.gsub(/\s/, '_')}_name_elements"
-      data.merge!(rank => send(method, i, gender)) if self.respond_to?(method)
+      if self.respond_to?(method)
+        data.merge!(rank => send(method, i, gender)) 
+      else
+        data.merge!(rank => i.name)
+      end
+      # data.merge!(rank => send(method, i, gender)) if self.respond_to?(method)
     end
     data
   end
@@ -991,6 +1003,7 @@ class TaxonName < ActiveRecord::Base
     elsif self_option == :alternative
       name1 = self.name_with_alternative_spelling
     end
+    
     return nil if genus.nil? && name1.nil?
     (genus.to_s + ' ' + name1.to_s).squish
   end
@@ -1086,7 +1099,6 @@ class TaxonName < ActiveRecord::Base
 
     ay.blank? ? nil : ay
   end
-
 
   def get_higher_classification
     # see config/initializers/ranks for FAMILY_AND_ABOVE_RANK_NAMES
