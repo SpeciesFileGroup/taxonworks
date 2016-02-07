@@ -398,50 +398,50 @@ describe CollectingEvent, type: :model, group: :geo do
         clean_slate_geo
       }
 
-      context 'geolocate_ui_params_hash' do
-        specify 'geolocate_ui_params_hash from locality' do
+      context 'geolocate_ui_params' do
+        specify 'geolocate_ui_params from locality' do
           # @ce_n3 was built with locality, with no verbatim_lat/long
-          expect(@ce_n3.geolocate_ui_params_hash).to eq({:country       => 'Old Boxia',
-                                                         :state         => 'N3',
-                                                         :county        => nil,
-                                                         :locality      => 'Greater Boxia Lake',
-                                                         :Latitude      => 25.5,
-                                                         :Longitude     => 34.5,
-                                                         :Placename     => 'Greater Boxia Lake',
-                                                         :Score         => '0',
-                                                         :Uncertainty   => '3',
-                                                         :H20           => 'false',
-                                                         :HwyX          => 'false',
-                                                         :Uncert        => 'true',
-                                                         :Poly          => 'true',
-                                                         :DisplacePoly  => 'false',
-                                                         :RestrictAdmin => 'false',
-                                                         :BG            => 'false',
-                                                         :LanguageIndex => '0',
-                                                         :gc            => 'Tester'
+          expect(@ce_n3.geolocate_ui_params).to eq({'country'       => 'Old Boxia',
+                                                         'state'         => 'N3',
+                                                         'county'        => nil,
+                                                         'locality'      => 'Greater Boxia Lake',
+                                                         'Latitude'      => 25.5,
+                                                         'Longitude'     => 34.5,
+                                                         'Placename'     => 'Greater Boxia Lake',
+                                                         'Score'         => '0',
+                                                         'Uncertainty'   => '3',
+                                                         'H20'           => 'false',
+                                                         'HwyX'          => 'false',
+                                                         'Uncert'        => 'true',
+                                                         'Poly'          => 'true',
+                                                         'DisplacePoly'  => 'false',
+                                                         'RestrictAdmin' => 'false',
+                                                         'BG'            => 'false',
+                                                         'LanguageIndex' => '0',
+                                                         'gc'            => 'Tester'
                                                         })
         end
 
-        specify 'geolocate_ui_params_hash from lat/long' do
+        specify 'geolocate_ui_params from lat/long' do
           # @ce_m1.georeference was built from verbatim data; no locality
-          expect(@ce_m1.geolocate_ui_params_hash).to eq({:country       => 'Big Boxia',
-                                                         :state         => 'QT',
-                                                         :county        => 'M1',
-                                                         :locality      => 'Lesser Boxia Lake',
-                                                         :Latitude      => 27.5,
-                                                         :Longitude     => 33.5,
-                                                         :Placename     => 'Lesser Boxia Lake',
-                                                         :Score         => '0',
-                                                         :Uncertainty   => '3',
-                                                         :H20           => 'false',
-                                                         :HwyX          => 'false',
-                                                         :Uncert        => 'true',
-                                                         :Poly          => 'true',
-                                                         :DisplacePoly  => 'false',
-                                                         :RestrictAdmin => 'false',
-                                                         :BG            => 'false',
-                                                         :LanguageIndex => '0',
-                                                         :gc            => 'Tester'
+          expect(@ce_m1.geolocate_ui_params).to eq({'country'       => 'Big Boxia',
+                                                         'state'        => 'QT',
+                                                         'county'        => 'M1',
+                                                         'locality'      => 'Lesser Boxia Lake',
+                                                         'Latitude'      => 27.5,
+                                                         'Longitude'     => 33.5,
+                                                         'Placename'     => 'Lesser Boxia Lake',
+                                                         'Score'         => '0',
+                                                         'Uncertainty'   => '3',
+                                                         'H20'           => 'false',
+                                                         'HwyX'          => 'false',
+                                                         'Uncert'        => 'true',
+                                                         'Poly'          => 'true',
+                                                         'DisplacePoly'  => 'false',
+                                                         'RestrictAdmin' => 'false',
+                                                         'BG'            => 'false',
+                                                         'LanguageIndex' => '0',
+                                                         'gc'            => 'Tester'
                                                         })
         end
       end

@@ -34,6 +34,16 @@ class GeographicAreasGeographicItem < ActiveRecord::Base
 
   validates :geographic_area, presence: true
 
+  # Postgis specific SQL
+  scope :ordered_by_data_origin, -> { order(
+    "CASE geographic_areas_geographic_items.data_origin
+       WHEN 'ne_country' THEN 1
+       WHEN 'ne_state' THEN 2
+       WHEN 'gadm' THEN 3
+       ELSE 4
+       END"
+  )}
+
   unless ENV['NO_GEO_VALID'] 
     validates :geographic_item, presence: true  
   end

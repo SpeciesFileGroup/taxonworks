@@ -28,11 +28,31 @@ module GeographicItemsHelper
 
   # A little ugly
   def geographic_item_parent_nav_links(geographic_item)
+    data =   geographic_item.parent_geographic_areas.inject({}) { |hsh,a|
+      hsh.merge!(a => a.geographic_items)
+    }
     content_tag(:div,
-                geographic_item.parents_through_geographic_areas.collect { |k, v| [
+                data.collect { |k, v| [
                   content_tag(:ul, v.collect { |b|
-                    content_tag(:li, geographic_item_link(b, k.name)) }.join.html_safe)] }.flatten.join.html_safe)
+                    content_tag(:li, geographic_item_link(b, k.name)) }.join.html_safe)
+    ] }.flatten.join.html_safe)
   end
 
+
+  def children_through_geographic_areas_links(geographic_item)
+    data = {}
+    geographic_item.geographic_areas.each do |a| 
+      a.children.collect{ |c|
+        data.merge!(c =>  c.geographic_items.all)
+      }
+    end 
+
+    links = []
+    data.each do |k,v|
+      next if v.nil?
+      links += v.collect{ |i| geographic_item_link(i, k.name) }
+    end 
+    links.join(', ').html_safe
+  end
 
 end

@@ -55,9 +55,7 @@
       <p> Parent items through geographic areas: <%= geographic_item_parent_nav_links(@geographic_item) -%></p>
 
       <div class="one_third"> Children through geographic areas:
-        <%= @geographic_item.children_through_geographic_areas.collect { |k, v|
-          v.collect { |i| geographic_item_link(i, k.name) }.join.html_safe
-        }.join(', ').html_safe -%>
+        <%= children_through_geographic_areas_links(@geographic_item) -%>
       </div>
     </nav>
   </div>

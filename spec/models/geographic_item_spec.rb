@@ -368,7 +368,7 @@ describe GeographicItem, type: :model, group: :geo do
     end
 
     specify '#center_coords' do
-      expect(@item_d.center_coords).to eq(["-0", "-0"])
+      expect(@item_d.center_coords).to eq(["-0.000000", "-0.000000"])
     end
 
     context '#shape on new' do
@@ -448,7 +448,7 @@ describe GeographicItem, type: :model, group: :geo do
       # GeographicItem.within_radius(x).excluding(some_gi).with_collecting_event.include_collecting_event.collect{|a| a.collecting_event}
       specify '::geo_with_collecting_event' do
         pieces = GeographicItem.geo_with_collecting_event.order('id').to_a
-        expect(pieces.count).to eq(22) # p12 will be listed twice, once for e1, and once for e2
+        expect(pieces.count).to eq(21) # p12 will be listed twice, once for e1, and once for e2
         expect(pieces).to include(@p0.reload, @p1.reload, @p2.reload, @p3.reload,
                                   @p4.reload, @p5.reload, @p6.reload, @p7.reload,
                                   @p8.reload, @p9.reload, @p10.reload, @p11.reload,
@@ -460,18 +460,18 @@ describe GeographicItem, type: :model, group: :geo do
 
       specify '::err_with_collecting_event' do
         pieces = GeographicItem.err_with_collecting_event.order('id').to_a
-        expect(pieces.count).to eq(10) # @e1, @e2 listed twice, @k listed three times
+        expect(pieces.count).to eq(9) # @e1, @e2 listed twice, @k listed three times
         expect(pieces).to include(@b2, @b, @e1, @e2, @k, @item_d) #
         expect(pieces).not_to include(@e4, @b1)
       end
 
       specify '::with_collecting_event_through_georeferences' do
         pieces = GeographicItem.with_collecting_event_through_georeferences.order('id').to_a
-        expect(pieces.count).to eq(27) # @k only listed once
+        expect(pieces.count).to eq(26) # @k only listed once
         expect(pieces).to contain_exactly(@p0, @p1, @p2, @p3,
                                           @p4, @p5, @p6, @p7,
                                           @p8, @p9, @p10, @p11,
-                                          @p12, @p12c, @p13, @p14,
+                                          @p12, @p13, @p14, # @p12c,  
                                           @p15, @p16, @p17, @p18,
                                           @p19, @item_d, @e1, @e2,
                                           @k, @b, @b2) #
@@ -481,44 +481,80 @@ describe GeographicItem, type: :model, group: :geo do
       specify '::include_collecting_event' do
         # skip 'construction of method'
         pieces = GeographicItem.include_collecting_event.order('id').to_a
-        expect(pieces.count).to eq(61)
+        expect(pieces.count).to eq(60)
         expect(pieces).to eq(@all_gi)
       end
 
+
+      context '::containing' do
+        specify 'find the polygon containing the points' do
+          expect(GeographicItem.containing(@p1.id).to_a).to contain_exactly(@k)
+        end
+
+        specify 'find the polygon containing all three points' do
+          expect(GeographicItem.containing(@p1.id, @p2.id, @p3.id).to_a).to contain_exactly(@k)
+        end
+
+        specify 'find that a line string can contain a point' do
+          expect(GeographicItem.containing(@p4.id).to_a).to contain_exactly(@l)
+        end
+
+        specify 'point in two polygons, but not their intersection' do
+          expect(GeographicItem.containing(@p18.id).to_a).to contain_exactly(@b1, @b2)
+        end 
+
+        specify 'point in two polygons, one with a hole in it' do
+          expect(GeographicItem.containing(@p19.id).to_a).to contain_exactly(@b1, @b)
+        end
+     end
+
       context '::are_contained_in - returns objects which contained in another object.' do
-        #  expect(GeographicItem.are_contained_in('not_a_column_name', @p1).to_a).to eq([])
-        #  expect(GeographicItem.are_contained_in('point', 'Some devious SQL string').to_a).to eq([])
 
-        specify 'one thing inside k' do
-          expect(GeographicItem.are_contained_in_item('polygon', @p1).to_a).to eq([@k])
-        end
-
-        specify 'three things inside k' do
-          expect(GeographicItem.are_contained_in_item('polygon', [@p1, @p2, @p3]).to_a).to eq([@k])
-        end
-
-        specify 'one thing outside k' do
-          expect(GeographicItem.are_contained_in_item('polygon', @p4).to_a).to eq([])
-        end
-
-        specify ' one thing inside two things (overlapping)' do
-          expect(GeographicItem.are_contained_in_item('polygon', @p12).to_a.sort).to contain_exactly(@e1, @e2)
-        end
-
+        # OR!
         specify 'three things inside and one thing outside k' do
           expect(GeographicItem.are_contained_in_item('polygon', [@p1, @p2, @p3, @p11]).to_a).to contain_exactly(@e1, @k)
         end
 
+        # OR!
         specify 'one thing inside one thing, and another thing inside another thing' do
           expect(GeographicItem.are_contained_in_item('polygon', [@p1, @p11]).to_a).to contain_exactly(@e1, @k)
         end
 
-        specify 'two things inside one thing, and (1)' do
-          expect(GeographicItem.are_contained_in_item('polygon', @p18).to_a).to contain_exactly(@b1, @b2)
-        end
+        #
+        # All these are deprecated for ::containing
+        #
+        #
+        #  expect(GeographicItem.are_contained_in('not_a_column_name', @p1).to_a).to eq([])
+        #  expect(GeographicItem.are_contained_in('point', 'Some devious SQL string').to_a).to eq([])
 
-        specify 'two things inside one thing, and (2)' do
-          expect(GeographicItem.are_contained_in_item('polygon', @p19).to_a).to contain_exactly(@b1, @b)
+        # specify 'one thing inside k' do
+        #   expect(GeographicItem.are_contained_in_item('polygon', @p1).to_a).to eq([@k])
+        # end
+
+        # specify 'three things inside k' do
+        #   expect(GeographicItem.are_contained_in_item('polygon', [@p1, @p2, @p3]).to_a).to eq([@k])
+        # end
+
+        # specify 'one thing outside k' do
+        #   expect(GeographicItem.are_contained_in_item('polygon', @p4).to_a).to eq([])
+        # end
+
+        # specify ' one thing inside two things (overlapping)' do
+        #   expect(GeographicItem.are_contained_in_item('polygon', @p12).to_a.sort).to contain_exactly(@e1, @e2)
+        # end
+
+        #  specify 'two things inside one thing, and (1)' do
+        #    expect(GeographicItem.are_contained_in_item('polygon', @p18).to_a).to contain_exactly(@b1, @b2)
+        #  end
+
+        #  specify 'two things inside one thing, and (2)' do
+        #    expect(GeographicItem.are_contained_in_item('polygon', @p19).to_a).to contain_exactly(@b1, @b)
+        #  end
+      end
+
+      context '::contained_by' do
+        specify 'find the points in a polygon' do
+          expect(GeographicItem.contained_by(@k.id).to_a).to contain_exactly(@p1, @p2, @p3)
         end
       end
 
@@ -571,7 +607,7 @@ describe GeographicItem, type: :model, group: :geo do
         end
 
         specify 'three things inside and one thing outside k' do
-          expect(GeographicItem.is_contained_by('any', [@e2, @k]).excluding([@k, @e2]).to_a).to contain_exactly(@p0, @p1, @p2, @p3, @p12, @p12c, @p13, @item_a)
+          expect(GeographicItem.is_contained_by('any', [@e2, @k]).excluding([@k, @e2]).to_a).to contain_exactly(@p0, @p1, @p2, @p3, @p12, @p13, @item_a) # , @p12c
         end
 
         # other objects are returned as well, we just don't care about them:
@@ -648,7 +684,7 @@ describe GeographicItem, type: :model, group: :geo do
 
       specify '::within_radius_of_wkt("any", ...)' do
         # Utilities::Geo.ONE_WEST = 111319.490779206
-        expect(GeographicItem.within_radius_of_wkt('any', @p0.geo_object.to_s, ((9 * 1.414) * 111319.444444444))).to contain_exactly(@p0, @p12, @p12c, @p13, @p20, @p21, @p22, @e3, @e4, @item_a, @item_b, @item_c, @item_d)
+        expect(GeographicItem.within_radius_of_wkt('any', @p0.geo_object.to_s, ((9 * 1.414) * 111319.444444444))).to contain_exactly(@p0, @p12,  @p13, @p20, @p21, @p22, @e3, @e4, @item_a, @item_b, @item_c, @item_d) # @p12c,
       end
 
       specify "::intersecting list of objects (uses 'or')" do
