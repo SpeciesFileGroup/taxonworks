@@ -39,6 +39,13 @@
 class TaxonDetermination < ActiveRecord::Base
   acts_as_list scope: [:biological_collection_object_id]
 
+  after_create :sort_to_top
+
+  def sort_to_top 
+    reload
+    self.move_to_top
+  end
+
   include Housekeeping
   include Shared::Citable
   include Shared::HasRoles
