@@ -11,8 +11,8 @@ module Shared::Identifiable
 
   module ClassMethods
 
-    def of_type(id_type)
-      where(type: id_type)
+    def of_type(type_name)
+      where(type: type_name)
     end
 
     # Exact match on identifier + namespace, return an Array, not Arel
