@@ -1,4 +1,8 @@
-=begin To add a new (discovered) symbol:
+# General purpose Geo related methods
+module Utilities::Geo
+
+=begin
+To add a new (discovered) symbol:
   1) To find the Unicode string for any character, use Utilities::Geo.uni_string('c') (remove the first '\').
   2) Add the Unicode string (i.e, "\uNNNN") to SPECIAL_LATLONG_SYMBOLS (below), selecting either degrees
       (starting with 'do*'), or tickmarks (starting at "'").
@@ -8,32 +12,35 @@
 =end
 # degree symbols, in addition to 'd', 'o', and '*'
 # \u00b0  "°"  \u00ba  "º"  \u02da  "˚"  \u030a  "?"  \u221e "∞"  \u222b "∫"
-
+#
 # tick symbols, in addition to "'" ("\u0027""), and '"' ("\u0022")
 # \u00a5  "¥"  \u00b4  "´"
 # \u02B9  "ʹ"  \u02BA  "ʺ"  \u02BB  "ʻ"  \u02BC  "ʼ"  \u02CA "ˊ"
 # \u02EE  "ˮ"  \u2032  "′"  \u2033  "″"
+#
 
-SPECIAL_LATLONG_SYMBOLS = "do*\u00b0\u00ba\u02DA\u030a\u221e\u222b\u0027\u00b4\u02B9\u02BA\u02BB\u02BC\u02CA\u02EE\u2032\u2033\u0022"
+  SPECIAL_LATLONG_SYMBOLS = "do*\u00b0\u00ba\u02DA\u030a\u221e\u222b\u0027\u00b4\u02B9\u02BA\u02BB\u02BC\u02CA\u02EE\u2032\u2033\u0022"
+
+  LAT_LON_REGEXP = Regexp.new(/(?<lon>-?\d+\.?\d*),?\s*(?<lat>-?\d+\.?\d*)/)
+
 # DMS_REGEX = "(?<degrees>-*\d+)[do*\u00b0\u00ba\u02DA\u030a\u221e\u222b]\s*(?<minutes>\d+\.*\d*)[\u0027\u00a5\u00b4\u02b9\u02bb\u02bc\u02ca\u2032]*\s*((?<seconds>\d+\.*\d*)[\u0027\u00a5\u00b4\u02b9\u02ba\u02bb\u02bc\u02ca\u02ee\u2032\u2033\u0022]+)*"
 
-module Utilities::Geo
-  # http://en.wikiversity.org/wiki/Geographic_coordinate_conversion
-  # http://stackoverflow.com/questions/1774985/converting-degree-minutes-seconds-to-decimal-degrees
-  # http://stackoverflow.com/questions/1774781/how-do-i-convert-coordinates-to-google-friendly-coordinates
 
-  # POINT_ONE_DIAGONAL = 15690.343288662 # 15690.343288662  # Not used?
-  # TEN_WEST           = 1113194.90779206  # Not used?
-  # TEN_NORTH          = 1105854.83323573  # Not used?
+# http://en.wikiversity.org/wiki/Geographic_coordinate_conversion
+# http://stackoverflow.com/questions/1774985/converting-degree-minutes-seconds-to-decimal-degrees
+# http://stackoverflow.com/questions/1774781/how-do-i-convert-coordinates-to-google-friendly-coordinates
 
-  # EARTH_RADIUS       = 6371000 # km, 3959 miles (mean Earth radius) # Not used?
-  # RADIANS_PER_DEGREE = ::Math::PI/180.0
-  # DEGREES_PER_RADIAN = 180.0/::Math::PI
+# POINT_ONE_DIAGONAL = 15690.343288662 # 15690.343288662  # Not used?
+# TEN_WEST           = 1113194.90779206  # Not used?
+# TEN_NORTH          = 1105854.83323573  # Not used?
 
+# EARTH_RADIUS       = 6371000 # km, 3959 miles (mean Earth radius) # Not used?
+# RADIANS_PER_DEGREE = ::Math::PI/180.0
+# DEGREES_PER_RADIAN = 180.0/::Math::PI
 
-  ONE_WEST  = 111319.490779206 # meters/degree
-  # ONE_WEST  = 111319.444444444 # meters/degree (calculated mean)
-  ONE_NORTH = 110574.38855796 # meters/degree
+  ONE_WEST       = 111319.490779206 # meters/degree
+# ONE_WEST  = 111319.444444444 # meters/degree (calculated mean)
+  ONE_NORTH      = 110574.38855796 # meters/degree
 
   class ConvertToDecimalDegrees
 
@@ -46,11 +53,11 @@ module Utilities::Geo
 
   end
 
-  # 12345       (presume meters)
-  # 123.45
-  # 123 ft > 123 ft. > 123 feet > 1 foot > 123 f > 123 f.
-  # 123 m > 123 meters > 123 m.
-  # 123 km > 123 km. > 123 kilometers
+# 12345       (presume meters)
+# 123.45
+# 123 ft > 123 ft. > 123 feet > 1 foot > 123 f > 123 f.
+# 123 m > 123 meters > 123 m.
+# 123 km > 123 km. > 123 kilometers
 
   def self.elevation_in_meters(elev_in)
     elev_in = '0.0 meters' if elev_in.blank?
@@ -69,18 +76,18 @@ module Utilities::Geo
     elev
   end
 
-  # 42∞5'18.1"S88∞11'43.3"W
-  # S42∞5'18.1"W88∞11'43.3"
-  # S42∞5.18'W88∞11.43'
-  # 42∞5.18'S88∞11.43'W
-  # S42.18∞W88.34∞
-  # 42.18∞S88.43∞W
-  # -12.263, 49.398
-  #
-  # 42:5:18.1N
-  # 88:11:43.3W
+# 42∞5'18.1"S88∞11'43.3"W
+# S42∞5'18.1"W88∞11'43.3"
+# S42∞5.18'W88∞11.43'
+# 42∞5.18'S88∞11.43'W
+# S42.18∞W88.34∞
+# 42.18∞S88.43∞W
+# -12.263, 49.398
+#
+# 42:5:18.1N
+# 88:11:43.3W
 
-  # no limit test, unless there is a letter included
+# no limit test, unless there is a letter included
   def self.degrees_minutes_seconds_to_decimal_degrees(dms_in)
     match_string = nil
     no_point     = false
@@ -202,7 +209,7 @@ module Utilities::Geo
     nearby_distance  = digit * decade
   end
 
-  # confirm that this says that the error radius is one degree or smaller
+# confirm that this says that the error radius is one degree or smaller
   def self.point_keystone_error_box(geo_object, error_radius)
     p0      = geo_object
     delta_x = (error_radius / ONE_WEST) / ::Math.cos(p0.y)
@@ -218,8 +225,8 @@ module Utilities::Geo
     )
   end
 
-  # make a diamond 2 * radius tall and 2 * radius wide, with the reference point as center
-  # NOT TESTED/USED
+# make a diamond 2 * radius tall and 2 * radius wide, with the reference point as center
+# NOT TESTED/USED
   def diamond_error_box
     p0      = self.geo_object
     delta_x = (error_radius / ONE_WEST) / ::Math.cos(p0.y)
@@ -234,6 +241,5 @@ module Utilities::Geo
     box.add(retval)
     box_geom = box.to_geometry
   end
-
 
 end
