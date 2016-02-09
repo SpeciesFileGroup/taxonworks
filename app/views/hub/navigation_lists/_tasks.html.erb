@@ -276,35 +276,33 @@ var carrouselTask = function (sec, rows, columns) {
       task.resetView();
       task.filterChilds();
       task.showChilds();   
-  });      
+  })
 
+var      
+  isSafari = isSafari = /Safari/.test(navigator.userAgent) && /Apple Computer/.test(navigator.vendor),
+  last_time = new Date(),
+  lastMove = 0,
+  actualMove = 0;
+  $("body").mousewheel(function(objEvent, intDelta) {   
 
-  var 
-    intOverallDelta = 0,
-    sensibility = 40;
-    
-  $("#task_carrousel").mousewheel(function(objEvent, intDelta){
-    if (intDelta > 0) {
-      if(intOverallDelta < 0) {
-        intOverallDelta = 0;
-      }          
-      intOverallDelta++;
+      var now = new Date(),
+      actualMove = objEvent.deltaY;
       
-    }
-    else {
-      if(intOverallDelta > 0) {
-        intOverallDelta = 0;
-      }
-      intOverallDelta--;
-    }
-    if (intOverallDelta > sensibility){
-      intOverallDelta = 0;
-      task.loadingDown();
-    }
-    else if (intOverallDelta < -sensibility){
-      intOverallDelta = 0;
-      task.loadingUp();
-    }
-  });  
- 
+      if((now - last_time) >= 400)
+      { 
+        if (intDelta <= 0) { 
+          if((actualMove < lastMove) || ((actualMove == lastMove) && isSafari)) {
+            task.loadingUp();
+            last_time = new Date();
+            }
+          }
+          else {
+            if((actualMove > lastMove) || ((actualMove == lastMove) && isSafari)) {
+              task.loadingDown();
+              last_time = new Date();
+            }
+          }     
+      }     
+      lastMove = actualMove;
+  });
 </script>
