@@ -124,7 +124,7 @@ module SqedToTaxonworks
       else # do not do the OCR if only coords asked for
         sqed_result 
         cache_boundaries
-        sqed.boundaries.or(index)
+        sqed.boundaries.for(index)
       end
     end
 
