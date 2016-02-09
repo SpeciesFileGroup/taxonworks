@@ -556,6 +556,11 @@ describe GeographicItem, type: :model, group: :geo do
         specify 'find the points in a polygon' do
           expect(GeographicItem.contained_by(@k.id).to_a).to contain_exactly(@p1, @p2, @p3)
         end
+
+        specify 'find the (overlapping) points in a polygon' do
+          overlapping_point = FactoryGirl.create(:geographic_item_point, :point => POINT12.as_binary)
+          expect(GeographicItem.contained_by(@e1.id).to_a).to contain_exactly(@p12, overlapping_point, @p11)
+        end
       end
 
       context '::are_contained_in_item_by_id - returns objects which contained in another object.' do
@@ -608,6 +613,7 @@ describe GeographicItem, type: :model, group: :geo do
 
         specify 'three things inside and one thing outside k' do
           expect(GeographicItem.is_contained_by('any', [@e2, @k]).excluding([@k, @e2]).to_a).to contain_exactly(@p0, @p1, @p2, @p3, @p12, @p13, @item_a) # , @p12c
+
         end
 
         # other objects are returned as well, we just don't care about them:

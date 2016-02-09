@@ -173,7 +173,6 @@ SELECT round(CAST(
   # @todo ? as per http://danshultz.github.io/talks/mastering_activerecord_arel/#/7/1
   class << self
 
-
     # return [Scope]
     #   A scope that limits the result to those GeographicItems that have a collecting event
     #   through either the geographic_item or the error_geographic_item

@@ -25,6 +25,9 @@ Core: # a Section
        - CollectionObject
   ControlledVocabularyTerm :
      status: :prototype
+  Source:
+     status: :prototype
+     shared: true
   BiologicalAssociation:
      status: :prototype
 Supporting:
@@ -46,6 +49,12 @@ Supporting:
   Documentation:
   Depiction:
   Georeference:
+  GeographicArea:
+    shared: true
+    application_defined: true
+  Repository:
+    shared: true
+    application_defined: true
   Image:
     categories:
       - CollectionObject
@@ -56,7 +65,15 @@ Supporting:
     categories:
       - CollectionObject
   OtuPageLayout:
+  Person:
+    shared: true
+  PreparationType:
+    shared: true
+  Namespace:
+    shared: true
   RangedLotCategory:
+  Serial:
+    shared: true 
   TaxonDetermination:
   TaxonNameClassification:
    categories:
@@ -77,6 +94,8 @@ Annotations:
   Identifier:
   Note:
   Tag:
+
+
 
 
 

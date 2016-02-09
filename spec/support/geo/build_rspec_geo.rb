@@ -518,7 +518,7 @@ def generate_geo_test_objects(run_in_console = false, user = nil)
   @p21 = FactoryGirl.build(:geographic_item_point, :point => POINT21.as_binary) # 21
   @p22 = FactoryGirl.build(:geographic_item_point, :point => POINT22.as_binary) # 22
 
-  @p12c = FactoryGirl.build(:geographic_item_point, :point => POINT12.as_binary) # 23
+#  @p12c = FactoryGirl.build(:geographic_item_point, :point => POINT12.as_binary) # 23
 
   @a  = FactoryGirl.build(:geographic_item_line_string, :line_string => SHAPE_A.as_binary) # 24
   @b1 = FactoryGirl.build(:geographic_item_polygon, :polygon => SHAPE_B_OUTER.as_binary) # 25
