@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 ruby '2.1.5'
 
-gem 'rails', '~> 4.2.5'
+gem 'rails', '~> 4.2.5.1'
 gem 'psych', '~> 2.0.16'
 gem 'responders', '~> 2.0'
 
@@ -9,12 +9,12 @@ gem 'responders', '~> 2.0'
 gem 'pg', '~> 0.18.4'
 
 # Postgis
-gem 'activerecord-postgis-adapter', '~> 3.1.2'
+gem 'activerecord-postgis-adapter', '~> 3.1.4'
 
 # rgeo support
 gem 'ffi-geos'
-gem 'rgeo-shapefile'
-gem 'rgeo-geojson', '~> 0.4.1' 
+gem 'rgeo-shapefile', '~> 0.4.1'
+gem 'rgeo-geojson', '~> 0.4.2' 
 
 # Redis support
 #   http://redis.io/clients#ruby
@@ -35,7 +35,7 @@ gem 'jquery-rails', '~> 4.0.4'
 gem 'jquery-ui-rails', '~> 5.0.5'
 
 gem 'rails-jquery-autocomplete'
-gem 'best_in_place', '~> 3.0.1'
+gem 'best_in_place', '~> 3.1.0'
 
 # Turbolinks makes following links in your web application faster.
 # Read more: https://github.com/rails/turbolinks
@@ -43,14 +43,14 @@ gem 'turbolinks', '~> 2.5'
 gem 'jquery-turbolinks', '~> 2.1'
 
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
-gem 'jbuilder', '~> 2.4.0' 
+gem 'jbuilder', '~> 2.4.1' 
 gem 'chronic', '~> 0.10'
 
-gem 'awesome_nested_set', '~> 3.0.2' 
+gem 'awesome_nested_set', '~> 3.0.3' 
 
 # BibTex handling
 gem 'csl', '~> 1.4.3' # git: 'https://github.com/inkshuk/csl-ruby'
-gem 'bibtex-ruby', '~> 4.1.0'
+gem 'bibtex-ruby', '~> 4.2.0'
 gem 'citeproc-ruby', '~> 1.1.0'
 gem 'csl-styles', '~> 1.0.1.6'
 
@@ -92,7 +92,7 @@ gem 'modularity', '~> 2.0.1'
 gem 'colored', '~> 1.2'
 
 gem 'chartkick'
-gem 'groupdate', '~> 2.5'
+gem 'groupdate', '~> 2.5.1'
 
 gem 'dropzonejs-rails', '~> 0.7.2'
 
@@ -105,11 +105,11 @@ group :test, :development do
   gem 'rspec-rails', '~> 3.4'
   gem 'rspec-activemodel-mocks', '~> 1.0.2'
   gem 'inch', '~> 0.7'
-  gem 'byebug', '~> 8.2.1', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
+  gem 'byebug', '~> 8.2.2', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'awesome_print'
   gem 'factory_girl_rails', '~> 4.0'
   gem 'did_you_mean', '~> 0.10.0'
-  gem 'selenium-webdriver', '~> 2.48.1'
+  gem 'selenium-webdriver', '~> 2.51.0'
 end
 
 
@@ -140,6 +140,6 @@ end
 
 group :production do
   gem 'execjs'
-  gem 'passenger', '~> 5.0.22'
+  gem 'passenger', '~> 5.0.24'
 end
 
