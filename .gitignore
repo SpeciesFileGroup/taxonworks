@@ -13,7 +13,7 @@
 *.swp
 *.swo
 
-/db/schema.rb
+# /db/schema.rb
 database.yml
 application_settings.yml
 /tags
