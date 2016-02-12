@@ -1,3 +1,4 @@
+--exclude /db/
 --no-cache 
 --private
 --protected
