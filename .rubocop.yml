@@ -17,8 +17,6 @@ Style/EmptyLineBetweenDefs:
   # need an empty line between them.
   AllowAdjacentOneLineDefs: true 
 
-Style/ClassAndModuleChildren: 
-
 Metrics/MethodLength:
   CountComments: false  # count full line comments?
   Max: 20 
@@ -34,7 +32,6 @@ Metrics/ModuleLength:
 Metrics/ParameterLists:
   Max: 5
   CountKeywordArgs: false 
-
 
 Rails/FindBy:
   Include:
