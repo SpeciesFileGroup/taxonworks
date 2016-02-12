@@ -120,4 +120,12 @@ class ApplicationController < ActionController::Base
     self.sessions_current_project_id = params[:project_id]
   end
 
+  def invalid_object(object)
+    !(!object.try(:project_id) || project_matches(object))
+  end
+
+  def project_matches(object)
+    object.try(:project_id) == sessions_current_project_id
+  end
+
 end
