@@ -12,13 +12,14 @@
   align-items: top;
 
   .data_section {
-    background-color: $body_background;
+    background-color: $color-secondary-2-1;
     display: flex;
     justify-content:flex-start;
     flex-direction:column;   
     width:250px; 
     border-radius: 3px;
-    border: 1px solid $navigation_border;
+    //border: 1px solid $navigation_border;
+    box-shadow: 0 1px 2px 0 $navigation_border;
     margin-left: 0.5em;
     margin-right: 0.5em;
   }
@@ -28,19 +29,19 @@
     padding-right: 1.5em;
     display: flex;
     color: #FFF;
+    height: 40px;
     border-top-right-radius: 3px;
     border-top-left-radius: 3px;
     background-color: $color-secondary-2-3;
     justify-content:space-between;
     flex-direction:flex-start;
     align-items:center;
-    border-bottom: 1px solid $navigation_border;
+    border-bottom: 5px solid $color-secondary-2-4;
     text-align: center;
   }
 
   .cards-section {
-    //order: 0; //header bottom
-    order:1; //header top
+    order:1;
     display: flex;
     flex-direction:row;
     justify-content:space-between;
@@ -58,13 +59,12 @@
   .data_card:hover {
     transition: background-color 0.5s ease,
                 box-shadow 0.5s ease;
-    background-color: $soft_background;
-    box-shadow:inset 0px 1px 2px 0px $navigation_border;
+    background-color: $navigation_background;
+    box-shadow:inset 0px 1px 5px 0px $navigation_border;
   }
 
   .data_card {
-    background-color: #fafafa;
-    width: 200px;
+    width: 195px;
     background-color: #FFF;
     display: flex;
     flex-direction:row-reverse;
@@ -74,8 +74,8 @@
     border-radius: 3px;
     border: 1px solid $navigation_border;
     padding: 1em;
-    font-size: 12px;
   }
+
 
   .data_card a {
     display: flex;
@@ -89,12 +89,8 @@
   .status {
     display: flex;
     flex-direction:row;
-    //margin: 3px;
-    //width: 10px;
-    //height: 10px;
-    border-radius: 50%;
-    //border: 0.5px solid $navigation_border;
     img {
+      width: 14px;
       margin-left:5px;
     }
   }  

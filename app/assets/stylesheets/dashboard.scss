@@ -21,15 +21,16 @@
   justify-content: center;
   width: 100%;
 	.space-distance {
-		margin-left: 2em;
-		margin-right: 2em;
+		margin-left: 0.5em;
+		margin-right: 0.5em;
 	}
 
 	.box {
-		border:1px solid $navigation_border;
+		//border:1px solid $navigation_border;
 		border-radius: 3px;
-		background-color: $body_background;
+		background-color: $color-secondary-2-1;
 		box-shadow: 0 1px 2px 0 $navigation_border;
+		padding-bottom: 1px;
 		.container {
 			padding-left: 20px;
 			padding-right: 20px;
@@ -43,7 +44,6 @@
 			height: 40px;
 			color: #FFF;
 			align-items:center;
-			border-bottom: 1px solid $navigation_border;
 			img {
 				width: 15px;
 				padding-right: 5px;
@@ -51,13 +51,16 @@
 
 		}
 			.configuration {
-				background-color: $color-complement-4;
+				background-color: $color-complement-3;
+				border-bottom: 4px solid $color-complement-4;
 			}
 			.data {
 				background-color: $color-secondary-2-3;
+				border-bottom: 4px solid $color-secondary-2-4;
 			}
 			.project {
 				background-color: $color-secondary-2-3;
+				border-bottom: 4px solid $color-secondary-2-4;
 				
 			}
 		.subtitle {
@@ -93,7 +96,12 @@
 			  flex-direction:row;
 			  margin: 0;
 			  padding: 0 12px;  
+			  padding-top: 3px;
+			  padding-bottom: 3px;
 			  position: relative; 
+			  img {
+			  	opacity: 0.5;
+			  }
 			}
 			  
 			li::before, li::after{
@@ -104,13 +112,13 @@
 
 			li::before{
 			  border-top: 1px solid $navigation_border;
-			  top: 10px;
+			  top: 12px;
 			  width: 10px;
 			  height: 0;    
 			}
 
 			li:after{
-			  border-left: 1px solid $navigation_border;
+			  //border-left: 1px solid $navigation_border;
 			  height: 100%;
 			  width: 0px;
 			  top: -10px; 
@@ -136,7 +144,6 @@
 				display: flex;
 				flex-direction:row;
 				align-items:center;
-				font-size: 12px;
 				padding-left: 5px;
 			}			
 		}
@@ -149,7 +156,6 @@
 		}		
 		a {
 			text-decoration: none;
-			font-size: 12px;
 		}
 
 		ul {			

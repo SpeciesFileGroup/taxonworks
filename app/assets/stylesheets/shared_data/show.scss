@@ -3,56 +3,67 @@
 @import '../workbench/whitespace';
 
 #show {
+  
   margin-top: $standard-padding;
   h2.model { margin: 0;  }
-  h3 { margin: $standard_padding*.5 0;}
+  h2 { 
+    margin: $standard_padding*.5 0;
+    font-weight: 100;
+    margin-bottom: 1em;
+    border-bottom: 1px solid $navigation_border;
+  }
 
+  .space-distance {
+    //padding-left: 0.5em;
+    //padding-right: 0.5em;
+  }
   .tag {
     display: flex;
-    font-size: 180%;
-    padding: $standard_padding*.2 0;
-    padding: 10px;
-    padding-right: 10px;
+    height: 35px;
+    padding-top: 5px;
+    font-size: 16px;
     align-items:center;
     flex-direction:row;
-    border-bottom: 1px solid $navigation_border;
+    padding-left: 15px;
+    border-top-right-radius: 3px;
+    border-top-left-radius: 3px;
+    //background-color: $color-secondary-1-3;
+    border-bottom: 5px solid $color-secondary-1-4;
     justify-content:space-between;
   }
 
   .flexbox {
-
     display: flex;
-    flex-direction:row;
     justify-content:space-between;
     width: 100%;
 
     .item1 { 
       display: block;
-      width: 400px;
-      min-width: 250px;
+      width: 300px;
+      min-width: 270px;
+      padding-right: $standard_padding*.8;
     }
 
     .item3 {
       display: block;
       width: 300px;
-      min-width: 200px;
+      min-width: 250px;
+      margin-left: $standard_padding*.8;
     }
 
     .item2 {
       display: flex;
       width: 100%;
-      margin: 10px;
-      min-width: 450px;
+     // padding: 0 $standard_padding*.8;
+      min-width: 550px;
     }
 
     .item { 
 
-      margin: 5px;
+      //margin: 5px;
       flex-direction:column;
-      padding: 0 $standard_padding*.4;
+      
     }
-
-    padding: $standard_padding 0;
 
     h3 {
       padding: $standard_padding*.2 0;
@@ -60,24 +71,26 @@
     }
 
     .section {
-      border-radius: 3px;
+      border-top-right-radius: 3px;
+      border-top-left-radius: 3px;
       display: flex;
       flex-direction:column;
       justify-content:flex-start;
-      border: 1px solid $navigation_border;
-      margin: $standard_padding*.2 0;
+      //border: 1px solid $navigation_border;
+      box-shadow: 0 1px 2px 0 $navigation_border;
+      background-color: $color-secondary-2-1;
       margin-bottom: 10px;
       .title {
         display: flex;
         align-items:center;
         flex-direction:row;
         justify-content:space-between;
-        padding-left: 10px;
+        padding-left: 15px;
         padding-right: 10px;
         border-top-right-radius: 3px;
         border-top-left-radius: 3px;
         h2 {
-        font-size: 16px;
+        //font-size: 16px;
         margin: 10px; 
           color: #FFF;
           font-weight: 100;
@@ -91,9 +104,9 @@
       }
 
       a[data-icon="show"] {
+       //background-color: rgba(255, 255, 255, 0.6);
         font-size: 12px;
-        padding: 5px;
-        background-color: rgba(255, 255, 255, 0.6);
+        margin-right: 10px;
         padding-left: 20px;
         opacity: 0.5;
         background-image: url("/assets/icons/show.svg");
@@ -110,31 +123,83 @@
         display: flex;
         flex-direction:row;
         justify-content:space-between;
+        border-bottom:1px solid $navigation_border;
       }     
 
       .navigation:last-child {
-        border:none;
+        //border:none;
       } 
 
+      .navigation:first-child {
+        border:none;
+      }       
+
       .navigation {
+        width: 100%;
         display: flex;
         font-size: 12px;
         flex-direction:row;
-        justify-content:flex-start;
+        justify-content:center;
         align-items:center;
-        padding-right: 10px;
-        img {
-          display: block;
-          width: 12px;
-          padding-left: 10px;
-        }
+        position: relative;
+        padding: 5px;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        border-left: 1px solid $navigation_border;
         a {
+          padding-left: 5px;
+          padding-right: 5px;
           text-decoration: none;
+        }
+        img { 
+        opacity: 0.5;
+        }
+        ul {
+          list-style: none;
+        }
+
+        .dropdown {
+          display: none;
+          z-index: 100;
+          top: 100%;
+          left: 0;
+          right: 0;
+          flex-direction: column;
+          position: absolute;
+          padding-botom:10px;
+
+          border:1px solid $navigation_border;
+          background-color: #FFF; 
+          box-shadow: 0 1px 2px 0 $navigation_border; 
+          margin: 0px;
+          a {
+            margin: 0px;
+            display: flex;
+            flex-direction: row;
+            padding: 5px;
+            padding-left: 10px;
+
+          }
+          a:hover {
+            color: #FFF;
+            background-color: $color-complement-3;
+          }
+        }
+      }
+      .navigation:hover {
+        background-color: $color-complement-2;
+        box-shadow:inset 0px 1px 2px 0px $color-complement-3;
+        img {
+          opacity: 1;
+        }
+        .dropdown {
+          display: flex;
+          background-color: $color-secondary-2-1;
         }
       }
     }
     img {
-      padding-right: 5px;
+      //padding-right: 5px;
     }
     .menu-item {
       display: flex;
@@ -146,14 +211,16 @@
         font-size: 12px;
         text-decoration: none;
       }
+      img {
+        padding-right: 5px;
+      }
     }
     .menu-item:hover {
       background-color: $color-complement-2;
     }
 
       .content {
-        padding: 10px;
-        color: #000;
+        padding: 15px;
         a {
           font-size: 12px;
           text-decoration: none;
@@ -164,7 +231,10 @@
     .go {
       background-color: $color-secondary-2-1;
       .title {
-        background-color: $color-secondary-2-3;
+        color: #444;
+        font-weight: 100;
+        //background-color: $color-secondary-2-3;
+        border-bottom: 5px solid $color-secondary-2-4;
       }
 
     } 
@@ -175,7 +245,7 @@
       }      
     }
     .do {
-      border:1px solid $color-complement-3;
+      //border:1px solid $color-complement-3;
       background-color: $color-secondary-2-1;
       .title {
         color: #FFF;
@@ -187,15 +257,31 @@
       display: flex;
       flex-direction:column;
       border-radius: 5px;
-      border: 1px solid $navigation_border;
     }
     .attributes {
-      p {
-        font-size: 12px;
-      }
+
     }
 
   }
 
+  .soft_validation {
+    ul {
+      list-style: none;
+      padding: 0px;
 
+    }
+    li {
+      margin-top: 15px;
+      margin-bottom: 15px;
+      padding-left:20px;
+      align-items: center;
+      background-image: url("/assets/icons/attention.svg");
+      background-repeat: no-repeat;  
+      background-position: left, center;   
+    }
+  }
+
+  [data-view="development"] {
+    display: none;
+  }
 }

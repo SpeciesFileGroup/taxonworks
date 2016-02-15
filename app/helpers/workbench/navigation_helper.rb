@@ -146,7 +146,7 @@ module Workbench::NavigationHelper
      add_identifier_link(object: object),
      add_note_link(object: object),
      add_tag_link(object: object)
-    ].compact.join('<br>').html_safe
+    ].compact.join('').html_safe
   end
 
   def safe_object_from_attributes(hsh)

@@ -6,27 +6,27 @@
   <div class="filter-nav">
     
       <div class="td-filter td-filter-title">
-        <img class="icon" src="/assets/icons/options.svg" width="15"/><div>Display</div>
+        <img class="icon" src="/assets/icons/options.svg"/><div>Display</div>
       </div>
     
-    <a data-filter-names="true" href="#">
+    <a data-filter-metadata="true" href="#">
       <div class="td-filter">
-        <img class="icon" src="/assets/icons/show.svg" width="15"/><div>Names</div>
+        <img class="icon" src="/assets/icons/show.svg"/><div>Type</div>
       </div>
     </a>
     <a data-filter-publication="true" href="#">
       <div class="td-filter">
-        <img class="icon" src="/assets/icons/show.svg" width="15"/><div>Publications</div>
+        <img class="icon" src="/assets/icons/show.svg"/><div>Source</div>
       </div>
     </a>
     <a data-filter-user-info="true" href="#">
       <div class="td-filter">
-        <img class="icon" src="/assets/icons/show.svg" width="15"/><div>User information</div>
+        <img class="icon" src="/assets/icons/show.svg"/><div>Housekeeping</div>
       </div>
     </a>            
     <a data-display="showAll" href="#">
       <div class="td-filter">
-        <img class="icon" src="/assets/icons/show.svg" width="15"/><div>Show all</div>
+        <img class="icon" src="/assets/icons/show.svg"/><div>Show all</div>
       </div>
     </a>
   </div>
@@ -41,15 +41,17 @@
     <th data-filter="yearPublication"><div>Year of publication<a><img src="/assets/icons/close.svg" width="10" /></a></div></th>
     <th data-filter="verbatimAuthor"><div>Verbatim author<a><img src="/assets/icons/close.svg" width="10" /></a></div></th>
     <th data-filter="rank"><div>Rank<a><img src="/assets/icons/close.svg" width="10" /></a></div></th>
-    <th data-filter="type"><div>Type<a><img src="/assets/icons/close.svg" width="10" /></a></div></th>
+    <th data-filter="metadata"><div>Type<a><img src="/assets/icons/close.svg" width="10" /></a></div></th>
     <th data-filter="updateBy"><div>Updated by<a><img src="/assets/icons/close.svg" width="10" /></a></div></th>
     <th data-filter="lastUpdate"><div>Last updated<a><img src="/assets/icons/close.svg" width="10" /></a></div></th>
+    <th></th>
+    <th></th>
     <th></th>
   </tr>
   </thead>
   <tbody>
   <% @taxon_names.each do |taxon_name| %>
-      <tr class="<%= cycle('list_line_odd', 'list_line_even') %>">
+      <tr class="<%= cycle('list_line_odd', 'list_line_even') %> context-menu-one btn btn-neutral"><%= link_to '', taxon_name.metamorphosize %>
         <td data-filter="name"><%= taxon_name.name %></td>
         <td data-filter="parent"><%= object_tag(taxon_name.parent) %></td>
         <td data-filter="cachedName"><%= taxon_name.cached_html ? taxon_name.cached_html.html_safe : content_tag(:em, 'ERROR: not rendered',  class: :warning) %></td>
@@ -57,13 +59,25 @@
         <td data-filter="yearPublication"><%= taxon_name.year_of_publication %></td>
         <td data-filter="verbatimAuthor"><%= taxon_name.verbatim_author %></td>
         <td data-filter="rank"><%= taxon_name.rank %></td>
-        <td data-filter="type"><%= taxon_name.type %></td>
+        <td data-filter="metadata"><%= taxon_name.type %></td>
         <td data-filter="updateBy"><%= object_tag(taxon_name.updater) %></td>
         <td data-filter="lastUpdate"><%= object_time_since_update_tag(taxon_name) %></td>
         
-        <td width="1%"><div class="td-options"><img src="/assets/icons/show.svg" width="15" /><%= link_to 'Show', taxon_name.metamorphosize %><div class="td-options"><img src="/assets/icons/new.svg" width="15"/><%= edit_object_link(taxon_name) %></div><div class="td-options"><img src="/assets/icons/trash.svg" width="15"/><%= link_to 'Destroy', taxon_name.metamorphosize, method: :delete, data: {confirm: 'Are you sure?'} %></div></div></td>
-<!---
-        ---->
+        <td width="1%">
+          <div class="td-options" data-show>
+            <img src="/assets/icons/show.svg" width="15" /><%= link_to 'Show', taxon_name.metamorphosize %>
+            </div>
+        </td>
+        <td width="1%">
+          <div class="td-options" data-edit>
+            <img src="/assets/icons/new.svg" width="15"/><%= edit_object_link(taxon_name) %>
+          </div>
+        </td>
+        <td width="1%">
+          <div class="td-options" data-delete>
+            <img src="/assets/icons/trash.svg" width="15"/><%= link_to 'Destroy', taxon_name.metamorphosize, method: :delete, data: {confirm: 'Are you sure?'} %>
+          </div>
+        </td>
       </tr>
   <% end %>
   </tbody>
@@ -80,18 +94,17 @@
   $('.filter-nav').on('click', 'a[data-display="showAll"]', function() {
     $('[data-filter]').show(animationTime);
     $('a[data-filter-publication]').attr("data-filter-publication","true");
-    $('a[data-filter-names]').attr("data-filter-names","true");
+    $('a[data-filter-metadata]').attr("data-filter-metadata","true");
     $('a[data-filter-user-info]').attr("data-filter-user-info","true");
     $('a[data-filter-publication]').children().children().attr("src","/assets/icons/show.svg");
     $('a[data-filter-user-info]').children().children().attr("src","/assets/icons/show.svg");
-    $('a[data-filter-names]').children().children().attr("src","/assets/icons/show.svg");
+    $('a[data-filter-metadata]').children().children().attr("src","/assets/icons/show.svg");
   });  
 
   $('.filter-nav').on('click', 'a[data-filter-publication]', function() {
     if($(this).attr("data-filter-publication") === "true") {
       $('[data-filter="source"]').hide(animationTime);
       $('[data-filter="yearPublication"]').hide(animationTime);
-      $('[data-filter="verbatimAuthor"]').hide(animationTime);
       $(this).attr("data-filter-publication","false");
       $(this).children().children().attr("src","/assets/icons/hide.svg");
     }
@@ -99,7 +112,6 @@
       $(this).children().children().attr("src","/assets/icons/show.svg");
       $('[data-filter="source"]').show(animationTime);
       $('[data-filter="yearPublication"]').show(animationTime);
-      $('[data-filter="verbatimAuthor"]').show(animationTime);
       $(this).attr("data-filter-publication","true");
     }
   });  
@@ -119,20 +131,59 @@
     }
   }); 
 
-  $('.filter-nav').on('click', 'a[data-filter-names]', function() {
-    if($(this).attr("data-filter-names") === "true") {
-      $('[data-filter="name"]').hide(animationTime);
-      $('[data-filter="parent"]').hide(animationTime);
-      $('[data-filter="cachedName"]').hide(animationTime);
-      $(this).attr("data-filter-names","false");
+  $('.filter-nav').on('click', 'a[data-filter-metadata]', function() {
+    if($(this).attr("data-filter-metadata") === "true") {
+      $('[data-filter="metadata"]').hide(animationTime);
+      $(this).attr("data-filter-metadata","false");
       $(this).children().children().attr("src","/assets/icons/hide.svg");
     }
     else {
       $(this).children().children().attr("src","/assets/icons/show.svg");
-      $('[data-filter="updateBy"]').show(animationTime);
-      $('[data-filter="parent"]').show(animationTime);
-      $('[data-filter="cachedName"]').show(animationTime);
-      $(this).attr("data-filter-names","true");
+      $('[data-filter="metadata"]').show(animationTime);
+      $(this).attr("data-filter-metadata","true");
     }
-  });         
+  });    
+
+
+
+$( "tbody tr" ).dblclick(function() {
+  location.href = $(this).find("[data-show] a").attr("href");
+});
+
+$(document).ready(initContextMenus);
+$(document).on('page:change', initContextMenus);
+
+
+ function initContextMenus() {
+  $.contextMenu('destroy', ".context-menu-one" );
+        $.contextMenu({
+            selector: '.context-menu-one', 
+            autoHide: true,
+            callback: function(key, options) {
+                var m = "clicked: " + key;
+
+                switch(key) {
+                  case "show":
+                    location.href = $(this).find("[data-show] a").attr('href');
+                  break;
+                  case "edit":
+                    location.href = $(this).find("[data-edit] a").attr('href');
+                  break;                  
+                  case "delete":
+                    $(this).find("[data-delete] a").click();
+                  break;
+                }
+                //window.console && console.log(m) || alert(m); 
+
+            },
+            items: {
+                "show": {name: "Show", icon: "show"},
+                "sep1": "---------",
+                "edit": {name: "Edit", icon: "edit"},
+                "delete": {name: "Delete", icon: "delete"}
+            }
+        });
+  }
+
+
 </script>

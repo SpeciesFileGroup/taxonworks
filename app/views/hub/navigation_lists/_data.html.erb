@@ -94,6 +94,11 @@ var carrouselData = function (sec, rows, columns) {
 		this.filterChilds();
 	}	
 
+	carrouselData.prototype.setFilterStatus = function(filterTag, value)	{
+		this.filters[filterTag] = value;
+		this.filterChilds();
+	}	
+
 	carrouselData.prototype.filterChilds = function() {
 		var
 			find = 0;
@@ -184,14 +189,26 @@ annotations.addFilter("data-category-Source");
 annotations.addFilter("data-category-collectionobject");
 annotations.filterChilds();
 
+function changeAllSectionsFilter(dataTag, value) {
+	core.setFilterStatus(dataTag,value);
+  	supporting.setFilterStatus(dataTag,value);
+  	annotations.setFilterStatus(dataTag,value);
+}
 
+function deactivateBackgroundColorLink(selector) {
+	$(selector).parent().removeClass("activated");
+}
+
+function activateBackgroundColorLink(selector) {
+	$(selector).parent().addClass("activated");
+}
 
 function changeBackgroundColorLink(selector) {
 	if ($(selector).parent().hasClass("activated")) {
-		$(selector).parent().removeClass("activated");
+		deactivateBackgroundColorLink(selector);
 	}
 	else {
-		$(selector).parent().addClass("activated");
+		activateBackgroundColorLink(selector);
   	}
 }
 
@@ -248,6 +265,21 @@ function changeBackgroundColorLink(selector) {
       	supporting.changeFilter("data-category-Source");
       	annotations.changeFilter("data-category-Source");
   });
+
+  $('.filter').on('click', 'a[data-filter-category="reset"]', function() {
+		changeAllSectionsFilter("data-category-Source", false);
+		changeAllSectionsFilter("data-category-TaxonName", false);
+		changeAllSectionsFilter("data-category-collectionobject", false);
+		changeAllSectionsFilter("data-category-collectingevent", false);
+	  	activateBackgroundColorLink('a[data-filter-category="reset"]');
+	  	deactivateBackgroundColorLink('a[data-filter-category="source"]');
+	  	deactivateBackgroundColorLink('a[data-filter-category="taxon_name"]');
+	  	deactivateBackgroundColorLink('a[data-filter-category="collecting_event"]');
+	  	deactivateBackgroundColorLink('a[data-filter-category="collection_object"]');
+	  	setTimeout( function() {
+	  	deactivateBackgroundColorLink('a[data-filter-category="reset"]');
+	  }, 100);
+  });  
 
 $('.data_card div[data-category-collectingevent="true"]').append("<img src='/assets/icons/geo_location.svg'/>");
 $('.data_card div[data-category-TaxonName="true"]').append("<img src='/assets/icons/new.svg'/>");

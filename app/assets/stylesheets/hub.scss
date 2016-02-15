@@ -42,6 +42,10 @@
     background-color: $navigation_background;
     border:1px solid $navigation_border;
 
+    .restart {
+      background-color: $navigation_border;
+    }
+
     .category_button {
       padding-top: 10px;
       padding-bottom: 10px;
@@ -117,6 +121,15 @@
       background-repeat: no-repeat;
       background-size: 14px 12px;
     }  
+
+    [data-filter-category="reset"] {
+      background-image: url('/assets/icons/restart.svg');
+      background-color: #333;
+      background-position: center;
+      padding-left: 20px;
+      padding-right: 20px;
+      background-repeat: no-repeat;
+    }        
 
   }
 

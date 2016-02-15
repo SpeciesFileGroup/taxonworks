@@ -149,11 +149,11 @@ http://flexboxin5.com/
     height: 200px;
 	
 	.box-login {
-		background-color:$navigation_background;
+		background-color: $color-secondary-2-1;
 		padding:15px;
 		border-radius:3px;
 		border:1px solid $navigation_border;
-		box-shadow:0 4px 4px 0 #CECECE;
+		box-shadow:0 2px 3px 0 $navigation_border;
 	}
 	.item {
 		padding:3px;

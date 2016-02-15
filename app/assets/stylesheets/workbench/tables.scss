@@ -17,7 +17,6 @@
   }
 }
 
-
 .nav-list {
   display: flex;
   flex-direction:row;
@@ -29,15 +28,17 @@
     flex-direction:row;
     justify-content:center;
     align-items:center;
-  }
 
+    img {
+      width:15px;
+    }
+  }
 
   .td-filter-title {
     background-color: $color-complement-3;
   }
-  .filter-nav {
-    
 
+  .filter-nav {
     border: 1px solid $color-complement-3;
     border-top-left-radius: 5px;
     border-bottom: none;
@@ -62,22 +63,21 @@
   }
 }
 
-
-
-
-
 .filter-list a {
   text-decoration: none;
 }
+
+.filter-nav a {
+  //border-right: 1px solid $navigation_border;
+}
 .filter-nav a:hover {
-  background-color: $navigation_focus_background;
-  color: #FFF;
+  //background-color: $navigation_focus_background;
+  //color: #FFF;
 }
 
 #taxon-list {
   border-radius: 5px;
   width: 100%;
-  //border: 1px solid $navigation_border;
   .td-options {
     display: flex;
     align-items:center;
@@ -89,8 +89,10 @@ tbody th, td {
   padding-left: 10px;
   border: none;
   padding-right: 10px;
-  font-size: 11px;
-  
+}
+
+tbody td:last-child {
+  border-right:1px solid $navigation_border;
 }
 
 a {
@@ -111,10 +113,16 @@ td {
 tr {
   margin: 0px;
   height: 40px;
+    img {
+    width:15px;
+  }
 }
 
 thead a {
   opacity: 0.3;
+  img {
+    width:10px;
+  }
 }
 thead a:hover {
   background-color: transparent;

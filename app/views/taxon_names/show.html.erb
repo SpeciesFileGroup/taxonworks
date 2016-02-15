@@ -1,24 +1,25 @@
 <% content_for :do do %>
     <% if @taxon_name.is_protonym? -%>
-        <%= link_to('Add status/classification', new_taxon_name_classification_path(taxon_name_classification: {taxon_name_id: @taxon_name.to_param})) -%>
-        <br/>
+        <%= link_to('Status/Classification', new_taxon_name_classification_path(taxon_name_classification: {taxon_name_id: @taxon_name.to_param})) -%>
         <%= new_combination_for_protonym_link(@taxon_name) -%>
     <% end %>
 <% end %>
 
 <% content_for :tasks do %>
-    <%= render(partial: 'tasks') -%>
+      <%= render(partial: 'tasks') -%>
 <% end %>
 
 <% content_for :show_browse_navigation do %>
-    <div class="navigation" style="border-right: 1px solid #CECECE;">
+    <div class="navigation">
       <img src="/assets/icons/browse.svg"/>
       <%= link_to('Browse', browse_taxon_name_path(@taxon_name)) -%>
     </div>   
 <% end %>
 
 <% content_for :show_hierarchy_navigation do %>
-  <%= render('parent_navigator', taxon_name: @taxon_name) -%>
+  <div class="content">
+    <%= render('parent_navigator', taxon_name: @taxon_name) -%>
+  </div>
 <% end %>
 
 <% content_for :show_navigation do %>
@@ -45,11 +46,12 @@
 
 <% content_for :see do %>
     <% unless Otu.for_taxon_name(@taxon_name.to_param).empty? %>
-        <ul class="no_bullets">
-          <%= content_tag(:li, link_to('Distribution',
+    <div class="navigation">
+      <img src="/assets/icons/world.svg" />
+          <%= content_tag(:span, link_to('Distribution',
                                        taxon_name_distribution_data_task_path(@taxon_name.to_param),
                                        'data-no-turbolink' => true)) %>
-        </ul>
+    </div>
     <% end %>
 <% end %>
 
