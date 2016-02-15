@@ -105,6 +105,9 @@
 #   The gender of the genus also designated as a taxon_name_classification.
 #   @todo masculine_name, feminine_name, and neuter_name used to be strung together after a single @!attribute tag
 #
+# @!cached_valid_taxon_name_id
+#   !! @proceps -  need to document this ASAP
+#
 # @!attribute cached_classified_as
 #   @return [String]
 #   if the name was classified in different group (e.g. a genus placed in wrong family).
