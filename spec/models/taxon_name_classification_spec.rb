@@ -1,6 +1,12 @@
 require 'rails_helper'
+      
+Dir[Rails.root.to_s + '/app/models/taxon_name_classification/**/*.rb'].each {
+  |file| require_dependency(file) 
+} 
 
-describe TaxonNameClassification, :type => :model do
+describe TaxonNameClassification, type: :model do
+
+  let(:taxon_name_classification) { TaxonNameClassification.new }
 
   after(:all) {
     TaxonNameRelationship.delete_all
@@ -8,37 +14,40 @@ describe TaxonNameClassification, :type => :model do
     TaxonNameClassification.delete_all
   }
 
-  xspecify 'that .class_name(s) do not overlap' do
-    existing_names = []
-    TaxonNameClassification.descendants.each do |klass|
-      name = klass.class_name
-      expect(existing_names.include?(name)).to be(false), "#{name} from #{klass.name} is duplicated!"
-      existing_names.push name
+  context 'meta/configuration' do
+    specify 'that .classification_label does not overlap' do
+      existing_names = []
+      TaxonNameClassification.descendants.each do |klass|
+        name = klass.new.classification_label
+        if name
+          expect(existing_names.include?(name)).to be(false), "#{name} from #{klass.name} is duplicated!"
+          existing_names.push name
+        end
+      end
     end
-  end
 
-  specify 'missing and duplicate NOMEN_URI' do
-    nomen_uris = []
-    TaxonNameClassification.descendants.each do |klass|
-      uri = klass.nomen_uri
-      expect(uri.empty?).to be_falsey, "NOMEN_URI for #{klass.name} is empty!"
-      expect(nomen_uris.include?(uri)).to be(false), "#{uri} from #{klass.name} is duplicated!"
-      expect(uri).to match(/http:\/\/purl.obolibrary.org\/obo\/NOMEN/), "#{uri} from #{klass.name} is invalid!"
-      nomen_uris.push uri
+    specify 'missing and duplicate NOMEN_URI' do
+      nomen_uris = []
+      TaxonNameClassification.descendants.each do |klass|
+        uri = klass.nomen_uri
+        expect(uri.empty?).to be_falsey, "NOMEN_URI for #{klass.name} is empty!"
+        expect(nomen_uris.include?(uri)).to be(false), "#{uri} from #{klass.name} is duplicated!"
+        expect(uri).to match(/http:\/\/purl.obolibrary.org\/obo\/NOMEN/), "#{uri} from #{klass.name} is invalid!"
+        nomen_uris.push uri
+      end
     end
   end
 
   context "validation" do
     context "requires" do
-      before (:all) do
-        @taxon_name_classification = FactoryGirl.build(:taxon_name_classification)
-        @taxon_name_classification.valid?
-      end
+      before { taxon_name_classification.valid? } 
+
       specify "taxon_name" do
-        expect(@taxon_name_classification.errors.include?(:taxon_name)).to be_truthy
+        expect(taxon_name_classification.errors.include?(:taxon_name)).to be_truthy
       end
+
       specify "type" do
-        expect(@taxon_name_classification.errors.include?(:type)).to be_truthy
+        expect(taxon_name_classification.errors.include?(:type)).to be_truthy
       end
 
       specify 'disjoint_taxon_name_relationships' do
@@ -62,13 +71,30 @@ describe TaxonNameClassification, :type => :model do
       end
     end
 
+
+    context 'validate nomenclature code' do
+      before do
+        root = FactoryGirl.create(:root_taxon_name)
+      end
+
+      let(:g) { Protonym.create!(parent: root, name: 'Aus', rank_class: Ranks.lookup(:iczn, :genus)) }
+
+      specify 'missmatched code returns error' do
+        taxon_name_classification.taxon_name = g
+        taxon_name_classification.type_class = 'TaxonNameClassification::Icn::Fossil'
+        expect(taxon_name_classification.valid?).to be_falsey
+        expect(taxon_name_classification.errors.full_messages.include?('Taxon name missmatched with asserted nomenclature code')).to be_truthy
+      end
+    end
+
     context "validate type" do
-      specify "invalid type" do
+      specify "an invalid type" do
         c = FactoryGirl.build(:taxon_name_classification, type: 'aaa')
         c.valid?
         expect(c.errors.include?(:type)).to be_truthy
       end
-      specify "invalid type" do
+
+      specify "another invalid type" do
         c = FactoryGirl.build(:taxon_name_classification, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum')
         c.valid?
         expect(c.errors.include?(:type)).to be_falsey
@@ -76,7 +102,48 @@ describe TaxonNameClassification, :type => :model do
     end
   end
 
-  context "soft_validation" do
+  specify '#type_class can set type' do
+    taxon_name_classification.type_class = TaxonNameClassification::Latinized::Gender::Feminine
+    expect(taxon_name_classification.type).to eq('TaxonNameClassification::Latinized::Gender::Feminine')
+  end
+
+  specify '#type_class returns a klass' do
+    a = TaxonNameClassification::Latinized::Gender::Feminine
+    taxon_name_classification.type_class = a
+    expect(taxon_name_classification.type_class).to eq(a)
+    expect(taxon_name_classification.type_class).to eq('TaxonNameClassification::Latinized::Gender::Feminine'.constantize)
+  end
+
+  context 'with type set' do
+    before { taxon_name_classification.type_class = TaxonNameClassification::Iczn::Unavailable }
+
+    specify '#type_name returns a String' do
+      expect(taxon_name_classification.type_name).to be_a(String)
+    end
+
+    specify '#nomenclature_code' do
+      expect(taxon_name_classification.nomenclature_code).to eq(:iczn)
+    end
+  end
+
+  context '#nomenclature_code' do
+    specify ':iczn' do
+      taxon_name_classification.type_class = TaxonNameClassification::Iczn::Unavailable
+      expect(taxon_name_classification.nomenclature_code).to eq(:iczn)
+    end
+
+    specify ':icn' do
+      taxon_name_classification.type_class = TaxonNameClassification::Icn::Fossil
+      expect(taxon_name_classification.nomenclature_code).to eq(:icn)
+    end
+
+   specify 'none (nil)' do
+      taxon_name_classification.type_class = TaxonNameClassification::Latinized::Gender::Feminine
+      expect(taxon_name_classification.nomenclature_code).to eq(nil)
+    end
+  end
+
+ context "soft_validation" do
     before(:each) do
       TaxonName.delete_all
       TaxonNameClassification.delete_all
