@@ -384,7 +384,7 @@ class CollectingEvent < ActiveRecord::Base
     # @todo figure out how to convert verbatim_geolocation_uncertainty in different units (ft, m, km, mi) into meters
   end
 
- 
+
   # @return [Scope] 
   #   all geographic_items associated with this collecting_event through georeferences only
   def all_geographic_items
@@ -418,6 +418,7 @@ class CollectingEvent < ActiveRecord::Base
 
   # @param [Double] distance
   # @return [Scope]
+  # TODO: Limit this function to 25 entries, to prevent UI stall
   def find_others_within_radius_of(distance)
     # starting with self, find all (other) CEs which have GIs or EGIs (through georeferences) which are within a
     # specific distance (in meters)
@@ -880,6 +881,7 @@ class CollectingEvent < ActiveRecord::Base
 
   # @param geographic_item [GeographicItem]
   # @return [Scope]
+  # TODO: Limit this function to 25 entries, to prevent UI stall
   def self.find_others_contained_within(geographic_item)
     pieces = GeographicItem.joins(:georeferences).is_contained_by('any', geographic_item)
     # pieces = GeographicItem.is_contained_by('any', geographic_item)
