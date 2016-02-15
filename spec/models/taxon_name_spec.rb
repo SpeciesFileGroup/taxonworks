@@ -31,13 +31,6 @@ describe TaxonName, type: :model, group: [:nomenclature] do
       Source.delete_all
     end
 
-    specify '#gender_name' do
-      @root.descendants.each do |n|
-        expect{n.gender_name}.to_not raise_error
-      end
-    end
-
-
     context 'double checking FactoryGirl' do
       specify 'is building all related names for respective models' do
         expect(@subspecies.ancestors.length).to be >= 10
@@ -397,24 +390,6 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             @subgenus.original_genus = @genus
             @subgenus.reload
             expect(@subgenus.get_original_combination).to eq('<i>Erythroneura</i> (<i>Erythroneura</i>)')
-          end
-
-          specify 'different gender' do
-            s = FactoryGirl.create(:iczn_species, parent: @genus)
-            expect(s.save).to be_truthy
-            expect(s.get_full_name_html).to eq('<i>Erythroneura vitis</i>')
-            s.masculine_name = 'vitus'
-            s.feminine_name  = 'vita'
-            s.neuter_name    = 'vitum'
-            expect(s.save).to be_truthy
-            gender = FactoryGirl.create(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::Gender::Masculine')
-            expect(s.get_full_name_html).to eq('<i>Erythroneura vitus</i>')
-            gender.type = 'TaxonNameClassification::Latinized::Gender::Feminine'
-            expect(gender.save).to be_truthy
-            expect(s.get_full_name_html).to eq('<i>Erythroneura vita</i>')
-            gender.type = 'TaxonNameClassification::Latinized::Gender::Neuter'
-            expect(gender.save).to be_truthy
-            expect(s.get_full_name_html).to eq('<i>Erythroneura vitum</i>')
           end
 
           specify 'misspelled original combination' do

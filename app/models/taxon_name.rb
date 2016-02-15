@@ -204,6 +204,8 @@ class TaxonName < ActiveRecord::Base
   accepts_nested_attributes_for :related_taxon_name_relationships, allow_destroy: true, reject_if: proc { |attributes| attributes['type'].blank? || attributes['subject_taxon_name_id'].blank? }
   accepts_nested_attributes_for :taxon_name_authors, :taxon_name_author_roles, allow_destroy: true
 
+  accepts_nested_attributes_for :taxon_name_classifications, allow_destroy: true, reject_if: proc { |attributes| attributes['type'].blank?  }
+
   scope :with_type, -> (type) {where(type: type)}
   scope :ordered_by_rank, -> { order(:lft) } # TODO: test
   scope :with_rank_class, -> (rank_class_name) { where(rank_class: rank_class_name) }
@@ -319,8 +321,7 @@ class TaxonName < ActiveRecord::Base
   #   a 4 digit integer representing year of publication, like 1974
   def year_integer
     return self.year_of_publication if !self.year_of_publication.nil?
-    return self.source.year if !self.source_id.nil?
-    nil
+    try(:source).try(:year)
   end
 
   # Used to determine nomenclatural priorities
@@ -342,29 +343,33 @@ class TaxonName < ActiveRecord::Base
   # @return [Class]
   #   gender of a genus as class
   def gender_class
-    c = TaxonNameClassification.where_taxon_name(self).with_type_base('TaxonNameClassification::Latinized::Gender').first
-    c.nil? ? nil : c.type_class
+    gender_instance.try(:type_class)
+  end
+
+  def gender_instance
+    TaxonNameClassification.where_taxon_name(self).with_type_base('TaxonNameClassification::Latinized::Gender').first
   end
 
   # @return [String]
   #   gender of a genus as string.
   def gender_name
-    c = gender_class
-    c.nil? ? nil : c.classification_label.downcase
+    gender_instance.try(:classification_label).try(:downcase)
   end
 
   # @return [Class]
   #   part of speech of a species as class.
   def part_of_speech_class
-    c = TaxonNameClassification.where_taxon_name(self).with_type_base('TaxonNameClassification::Latinized::PartOfSpeech').first
-    c.nil? ? nil : c.type_class
+    part_of_speech_instance.try(:type_class)
+  end
+
+  def part_of_speech_instance
+    TaxonNameClassification.where_taxon_name(self).with_type_base('TaxonNameClassification::Latinized::PartOfSpeech').first
   end
 
   # @return [String]
   #   part of speech of a species as string.
   def part_of_speech_name
-    c = part_of_speech_class
-    c.nil? ? nil : c.classification_label.downcase
+    part_of_speech_instance.try(:classification_label).try(:downcase) 
   end
 
   def taxon_name_statuses
