@@ -369,7 +369,7 @@ class TaxonName < ActiveRecord::Base
 
   def taxon_name_statuses
     list = TaxonNameClassification.where_taxon_name(self).with_type_array(ICZN_TAXON_NAME_CLASSIFICATION_NAMES + ICN_TAXON_NAME_CLASSIFICATION_NAMES)
-    s = list.empty? ? [] : list.collect{|c| c.class_name}
+    s = list.empty? ? [] : list.collect{|c| c.classification_label}
     list = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(STATUS_TAXON_NAME_RELATIONSHIP_NAMES)
     s = list.empty? ? s : s + list.collect{|c| c.object_relationship_name}
     s
