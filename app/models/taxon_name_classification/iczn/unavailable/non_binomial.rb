@@ -2,7 +2,7 @@ class TaxonNameClassification::Iczn::Unavailable::NonBinomial < TaxonNameClassif
 
   NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000169'
 
-  LABEL = 'non binomial (ICZN)'
+  # LABEL = 'non binomial (ICZN)'
 
   def self.disjoint_taxon_name_classes
     self.parent.disjoint_taxon_name_classes + self.collect_descendants_and_itself_to_s(

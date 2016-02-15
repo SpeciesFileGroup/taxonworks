@@ -66,7 +66,7 @@ class TaxonNameClassification::Iczn::Unavailable < TaxonNameClassification::Iczn
 
     extend InnerClass
 
-    LABEL = 'incorrect original spelling (ICZN)'
+    # LABEL = 'incorrect original spelling (ICZN)'
 
     def self.gbif_status
       'negatum'
@@ -86,7 +86,7 @@ class TaxonNameClassification::Iczn::Unavailable < TaxonNameClassification::Iczn
   NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000201'
 
     extend InnerClass
-    LABEL = 'not Latin (ICZN)'
+    # LABEL = 'not Latin (ICZN)'
   end
 
   class NotLatinizedAfter1899 < TaxonNameClassification::Iczn::Unavailable
