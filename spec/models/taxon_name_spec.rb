@@ -31,6 +31,13 @@ describe TaxonName, type: :model, group: [:nomenclature] do
       Source.delete_all
     end
 
+    specify '#gender_name' do
+      @root.descendants.each do |n|
+        expect{n.gender_name}.to_not raise_error
+      end
+    end
+
+
     context 'double checking FactoryGirl' do
       specify 'is building all related names for respective models' do
         expect(@subspecies.ancestors.length).to be >= 10
