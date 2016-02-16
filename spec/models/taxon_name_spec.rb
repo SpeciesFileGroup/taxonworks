@@ -292,13 +292,13 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             expect(sp.cached).to eq('Erythroneura vitis')
           end
 
-          # @proceps - fix, @genus is not Icn, so this fails
-          xspecify 'hybrid' do
-            sp = FactoryGirl.create(:relationship_species, parent: @genus)
+          specify 'hybrid' do
+            g = FactoryGirl.create(:icn_genus)
+            sp = FactoryGirl.create(:icn_species, parent: g)
             c  = FactoryGirl.create(:taxon_name_classification, taxon_name: sp, type: 'TaxonNameClassification::Icn::Hybrid')
             sp.reload
-            expect(sp.cached_html).to eq('&#215; <i>Erythroneura vitis</i>')
-            expect(sp.cached).to eq('Erythroneura vitis')
+            expect(sp.cached_html).to eq('&#215; <i>Aus aaa</i>')
+            expect(sp.cached).to eq('Aus aaa')
           end
 
           specify 'ICZN subspecies' do
@@ -697,7 +697,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
           expect(s.soft_validations.messages_on(:name).empty?).to be_falsey
         end
 
-        xspecify 'valid icn names' do
+        xspecify 'valid icn names' do # not needed this was converted to the hybrid relationships
           gen = FactoryGirl.create(:icn_genus)
           ['aus', 'a-aus', 'aus-aus', 'aus × bus', '× aus'].each do |name|
             s = FactoryGirl.build_stubbed(:icn_species, parent: gen, name: name)
@@ -710,7 +710,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
           expect(s.soft_validations.messages_on(:name).empty?).to be_falsey
         end
 
-        xspecify 'unavailable' do
+        xspecify 'unavailable' do # not needed could be done using verbatim name, or combination of the name and classification
           s = FactoryGirl.create(:relationship_species, parent: @genus, name: 'aus a')
           s.soft_validate(:validate_name)
           expect(s.soft_validations.messages_on(:name).count).to eq(1)
@@ -720,7 +720,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
           expect(s.soft_validations.messages_on(:name).empty?).to be_truthy
         end
 
-        xspecify 'misspelling' do
+        xspecify 'misspelling' do # not needed could be done using verbatim name, or combination of the name and classification
           s = FactoryGirl.create(:relationship_species, parent: @genus, name: 'a a')
           s.soft_validate(:validate_name)
           expect(s.soft_validations.messages_on(:name).count).to eq(1)

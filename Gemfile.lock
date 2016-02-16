@@ -159,7 +159,7 @@ GEM
       guard (~> 2.1)
       guard-compat (~> 1.1)
       rspec (>= 2.99.0, < 4.0)
-    hashdiff (0.2.3)
+    hashdiff (0.3.0)
     hiredis (0.6.1)
     http-cookie (1.0.2)
       domain_name (~> 0.5)
