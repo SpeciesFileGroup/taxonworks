@@ -3,7 +3,56 @@
 @import '../workbench/whitespace';
 
 #show {
-  
+
+  .ui-autocomplete {
+    border:none;
+    box-shadow: 0 2px 4px 0 $navigation_border;
+    font-weight: 100;
+    background-color: $color-secondary-2-1;
+  }
+  .ui-menu {
+    //font-weight: 100;
+    //padding-top:15px;
+  }
+
+  .ui-menu-item {
+    //border-bottom: 1px solid $navigation_border;
+    font-size: 12px;
+    padding: 5px;
+    font-weight: bold;
+    color: $color-secondary-2-4;
+    .subtle {
+      font-size: 10px;
+      font-weight: 100;
+    }    
+    mark {
+      font-weight: 100;
+      color: $default_text;
+      background: none;
+    }
+  }
+
+  .icn {
+    color: #000;
+    background: none;
+  }
+
+  .iczn {
+    color: #000;
+    background: none;
+  }
+
+  .ui-menu-item:hover {
+    background: none;
+    background-color: $color-complement-2;
+    border:1px solid transparent;
+  }
+  .ui-menu a {
+    //font-weight: 100;
+
+    background-color: none;
+  }
+
   margin-top: $standard-padding;
   h2.model { margin: 0;  }
   h2 { 
@@ -13,10 +62,6 @@
     border-bottom: 1px solid $navigation_border;
   }
 
-  .space-distance {
-    //padding-left: 0.5em;
-    //padding-right: 0.5em;
-  }
   .tag {
     display: flex;
     height: 35px;
@@ -270,6 +315,9 @@
       p {
         font-size: 14px;
         color: #000;
+      }
+      a {
+        font-size: 14px;
       }
     }
 
