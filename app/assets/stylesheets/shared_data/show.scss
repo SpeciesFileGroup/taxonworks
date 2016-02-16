@@ -175,12 +175,12 @@
           flex-direction: column;
           position: absolute;
           padding-botom:10px;
-
           border:1px solid $navigation_border;
           background-color: #FFF; 
           box-shadow: 0 1px 2px 0 $navigation_border; 
           margin: 0px;
           a {
+            background-color: #FFF; 
             margin: 0px;
             display: flex;
             flex-direction: row;
@@ -269,6 +269,7 @@
     .attributes {
       p {
         font-size: 14px;
+        color: #000;
       }
     }
 
