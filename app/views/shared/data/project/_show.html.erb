@@ -16,6 +16,11 @@
                 <img src="/assets/icons/arrow-right.svg"/>
               </div>
             </div> 
+            <div class="navigation-controls">
+              <div class="navigation">
+                <%= search_form_for_model(@data_model) %>
+              </div>
+            </div>
           <%= yield :show_hierarchy_navigation -%>
       </div>
       <!---

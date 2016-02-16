@@ -126,6 +126,12 @@
         flex-direction:row;
         justify-content:space-between;
         border-bottom:1px solid $navigation_border;
+          input[type="text"] {
+            width:170px;
+          }
+          input[type="submit"] {
+  
+          }          
       }     
 
       .navigation:last-child {
@@ -261,7 +267,9 @@
       border-radius: 5px;
     }
     .attributes {
-
+      p {
+        font-size: 14px;
+      }
     }
 
   }

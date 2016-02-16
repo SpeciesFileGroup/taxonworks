@@ -64,11 +64,12 @@ http://flexboxin5.com/
 
 // Used for model/index routes only
 #model_index {
-  border:1px solid $navigation_border;
+  //border:1px solid $navigation_border;
   border-radius:3px;
   margin:0 auto;
   max-width:1080px;
-  background:$viewpoert_background;
+  background-color:#FFF;
+  box-shadow: 0 0px 3px 0 $navigation_border;
   margin-top:150px;
   margin-bottom:150px;
   align-items: center; 
@@ -149,11 +150,11 @@ http://flexboxin5.com/
     height: 200px;
 	
 	.box-login {
-		background-color: $color-secondary-2-1;
+		background-color: #FFF;
 		padding:15px;
 		border-radius:3px;
 		border:1px solid $navigation_border;
-		box-shadow:0 2px 3px 0 $navigation_border;
+		box-shadow:0 0px 3px 0 $navigation_border;
 	}
 	.item {
 		padding:3px;
