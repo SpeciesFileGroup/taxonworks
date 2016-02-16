@@ -25,7 +25,7 @@ $( '<div class="yellow-circle"></div>' ).insertBefore(".beta");
 $( '<div class="red-circle"></div>' ).insertBefore(".alpha");
 
 $('div.source').replaceWith('<div class="categories source"><img src="/assets/icons/book.svg" width="15"/></div>')
-$('div.collecting_event').replaceWith('<div class="categories collecting_event"><div><img src="/assets/icons/geo_location.svg" alt="Collection object" width="10"/></div>')
+$('div.collecting_event').replaceWith('<div class="categories collecting_event"><div><img src="/assets/icons/geo_location.svg" alt="Collection object" width="15"/></div>')
 $('div.collection_object').replaceWith('<div class="categories collection_object"><img src="/assets/icons/picking.svg" width="15"/></div>')
 
 
@@ -75,6 +75,11 @@ var carrouselTask = function (sec, rows, columns) {
   carrouselTask.prototype.resetChildsCount = function() {
       this.childsCount = $(this.sectionTag + ' > a').length;
   }
+
+  carrouselTask.prototype.setFilterStatus = function(filterTag, value)  {
+    this.filters[filterTag] = value;
+    this.filterChilds();
+  } 
 
   carrouselTask.prototype.changeFilter = function(filterTag)  {
     this.filters[filterTag] = !this.filters[filterTag];
@@ -209,21 +214,54 @@ var carrouselTask = function (sec, rows, columns) {
     task.filterChilds();
     task.showChilds();
 
-  function changeBackgroundColorLink(selector) {
-    if ($(selector).parent().hasClass("activated")) {
-      $(selector).parent().removeClass("activated");
+function changeAllSectionsFilter(dataTag, value) {
+    core.setFilterStatus(dataTag,value);
+    supporting.setFilterStatus(dataTag,value);
+    annotations.setFilterStatus(dataTag,value);
+}
+
+function deactivateBackgroundColorLink(selector) {
+  $(selector).parent().removeClass("activated");
+}
+
+function activateBackgroundColorLink(selector) {
+  $(selector).parent().addClass("activated");
+}
+
+function changeBackgroundColorLink(selector) {
+  if ($(selector).parent().hasClass("activated")) {
+    deactivateBackgroundColorLink(selector);
+  }
+  else {
+    activateBackgroundColorLink(selector);
     }
-    else {
-      $(selector).parent().addClass("activated");
-      }
-  } 
+}
 
   $('.filter').on('click', 'a', function() {
+    if($(this).attr("data-filter-category") == "reset") {
+      task.setFilterStatus("taxon_name",false);
+      task.setFilterStatus("collecting_event",false);
+      task.setFilterStatus("collection_object",false);
+      task.setFilterStatus("source",false);
+      deactivateBackgroundColorLink('a[data-filter-category="source"]');
+      deactivateBackgroundColorLink('a[data-filter-category="taxon_name"]');
+      deactivateBackgroundColorLink('a[data-filter-category="collecting_event"]');
+      deactivateBackgroundColorLink('a[data-filter-category="collection_object"]');      
+      activateBackgroundColorLink('a[data-filter-category="reset"]');
+      task.resetView();
+      task.filterChilds();
+      task.showChilds();
+      setTimeout( function() {
+      deactivateBackgroundColorLink('a[data-filter-category="reset"]');
+    }, 100);
+    }
+    else {
       changeBackgroundColorLink('a[data-filter-category="'+ $(this).attr("data-filter-category") +'"]');
       task.changeFilter($(this).attr("data-filter-category"));
       task.resetView();
       task.filterChilds();
       task.showChilds();
+    }
   });
 
   $('.navigation').on('click', 'a', function() {
@@ -276,7 +314,7 @@ var carrouselTask = function (sec, rows, columns) {
       task.resetView();
       task.filterChilds();
       task.showChilds();   
-  })
+  });  
 
 var      
   isSafari = isSafari = /Safari/.test(navigator.userAgent) && /Apple Computer/.test(navigator.vendor),

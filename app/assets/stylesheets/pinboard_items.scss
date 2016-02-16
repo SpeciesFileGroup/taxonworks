@@ -4,8 +4,8 @@
 @import 'workbench/palette';
 #pinboard {
 	img {
-		width: 12px;
 		padding-right: 5px;
+		opacity: 0.5;
 	}
 	h2 {
 		border-bottom: 1px solid $navigation_border;
@@ -25,6 +25,7 @@
 
 	}
 	li:hover {
+		opacity: 1;
 		background-color: $navigation_background;
 	}
 }

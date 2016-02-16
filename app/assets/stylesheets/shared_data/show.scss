@@ -24,11 +24,12 @@
     font-size: 16px;
     align-items:center;
     flex-direction:row;
+    font-weight: 100;
     padding-left: 15px;
     border-top-right-radius: 3px;
     border-top-left-radius: 3px;
     //background-color: $color-secondary-1-3;
-    border-bottom: 5px solid $color-secondary-1-4;
+    border-bottom: 5px solid $color-complement-3;
     justify-content:space-between;
   }
 
@@ -55,7 +56,7 @@
       display: flex;
       width: 100%;
      // padding: 0 $standard_padding*.8;
-      min-width: 550px;
+      min-width: 450px;
     }
 
     .item { 
@@ -77,8 +78,8 @@
       flex-direction:column;
       justify-content:flex-start;
       //border: 1px solid $navigation_border;
-      box-shadow: 0 1px 2px 0 $navigation_border;
-      background-color: $color-secondary-2-1;
+      box-shadow: 0 0px 3px 0 $navigation_border;
+      background-color: #FFF;
       margin-bottom: 10px;
       .title {
         display: flex;
@@ -109,6 +110,7 @@
         margin-right: 10px;
         padding-left: 20px;
         opacity: 0.5;
+        text-decoration: none;
         background-image: url("/assets/icons/show.svg");
         background-size: 15px 15px;
         background-repeat: no-repeat;
@@ -229,7 +231,7 @@
       }
 
     .go {
-      background-color: $color-secondary-2-1;
+      background-color: #FFF;
       .title {
         color: #444;
         font-weight: 100;
@@ -239,7 +241,7 @@
 
     } 
     .see {     
-      background-color: $color-secondary-2-1;
+      background-color: #FFF;
       .title {
         background-color: $color-secondary-1-3;
       }      
