@@ -46,12 +46,9 @@
 
 <% content_for :see do %>
     <% unless Otu.for_taxon_name(@taxon_name.to_param).empty? %>
-    <div class="navigation">
-      <img src="/assets/icons/world.svg" />
           <%= content_tag(:span, link_to('Distribution',
                                        taxon_name_distribution_data_task_path(@taxon_name.to_param),
                                        'data-no-turbolink' => true)) %>
-    </div>
     <% end %>
 <% end %>
 

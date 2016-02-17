@@ -186,7 +186,21 @@
       .navigation:first-child {
         border:none;
       }       
+        .disable {
+          opacity: 0.5 !important;
+          background-color: $navigation_background !important;
+          a {
+            color: $default_text;
+          }
+        }
 
+        .disable:hover {
+          box-shadow: none !important;
+          opacity: 0.5 !important;
+          img {
+            opacity: 0.5 !important;
+          }
+        }
       .navigation {
         width: 100%;
         display: flex;

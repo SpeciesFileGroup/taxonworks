@@ -72,13 +72,17 @@
           </div>
         </div>                
         <div class="navigation"><img src="/assets/icons/trash.svg" height="12" /><%= destroy_object_link(object) -%></div>
-            <%= yield :tasks -%>
-        <div class="navigation"><img src="/assets/icons/plus.svg" height="12" /><a>Add</a>
-          <div class="dropdown">
-            <%= yield :do -%>
+        <div class="navigation"><img src="/assets/icons/task.svg"/><a>Task</a>
+          <div class="dropdown" data-menu="task">
+          <%= yield :see -%>  
+          <%= yield :tasks -%>
           </div>
         </div>
-        <%= yield :see -%>       
+        <div class="navigation"><img src="/assets/icons/plus.svg" height="12" /><a>Add</a>
+          <div class="dropdown" data-menu="add">
+            <%= yield :do -%>
+          </div>
+        </div>     
         <div class="navigation"><img src="/assets/icons/pin.svg" height="12" /><%= pin_item_to_pinboard_link(object, sessions_current_user) -%></div>
       </div>        
       </div>    
@@ -132,7 +136,13 @@ $( "[view-bottom]" ).click(function() {
   $("[data-view='development']").toggle();
 });
 
-$()
+if ($('[data-menu="task"]').children().length < 1 ) {
+  $('[data-menu="task"]').parent().addClass("disable");
+}
+
+if ($('[data-menu="add"]').children().length < 1 ) {
+  $('[data-menu="add"]').parent().addClass("disable");
+}
 
 $(document).ready(initContextMenus);
 $(document).on('page:change', initContextMenus);

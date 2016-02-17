@@ -1,7 +1,3 @@
 <% if GENUS_AND_SPECIES_RANK_NAMES.include?(@taxon_name.rank_string) %>
-  <div class="navigation"><img src="/assets/icons/task.svg" /><a>Task</a>
-    <div class="dropdown">
-    <%= content_tag(:span, edit_original_combination_task_link(@taxon_name)) -%>
-    </div>
-  </div>    
+    <%= content_tag(:span, edit_original_combination_task_link(@taxon_name)) -%>    
 <% end %>
