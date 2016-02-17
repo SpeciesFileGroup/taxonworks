@@ -5,21 +5,20 @@ AllCops:
   Exclude:
     - 'db/**/*'
     - 'script/**/*'
-
-
+    - 'tmp/**/*'
 
 Metrics/LineLength:
-  Max: 200 
+  Max: 200
 # Use empty lines between defs.
 
 Style/EmptyLineBetweenDefs:
   # If true, this parameter means that single line method definitions don't
   # need an empty line between them.
-  AllowAdjacentOneLineDefs: true 
+  AllowAdjacentOneLineDefs: true
 
 Metrics/MethodLength:
   CountComments: false  # count full line comments?
-  Max: 20 
+  Max: 20
 
 Metrics/ClassLength:
   CountComments: false  # count full line comments?
@@ -31,7 +30,7 @@ Metrics/ModuleLength:
 
 Metrics/ParameterLists:
   Max: 5
-  CountKeywordArgs: false 
+  CountKeywordArgs: false
 
 Rails/FindBy:
   Include:
