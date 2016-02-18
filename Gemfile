@@ -14,7 +14,7 @@ gem 'activerecord-postgis-adapter', '~> 3.1.4'
 # rgeo support
 gem 'ffi-geos'
 gem 'rgeo-shapefile', '~> 0.4.1'
-gem 'rgeo-geojson', '~> 0.4.2' 
+gem 'rgeo-geojson', '~> 0.4.2'
 
 # Redis support
 #   http://redis.io/clients#ruby
@@ -43,10 +43,10 @@ gem 'turbolinks', '~> 2.5'
 gem 'jquery-turbolinks', '~> 2.1'
 
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
-gem 'jbuilder', '~> 2.4.1' 
+gem 'jbuilder', '~> 2.4.1'
 gem 'chronic', '~> 0.10'
 
-gem 'awesome_nested_set', '~> 3.0.3' 
+gem 'awesome_nested_set', '~> 3.0.3'
 
 # BibTex handling
 gem 'csl', '~> 1.4.3' # git: 'https://github.com/inkshuk/csl-ruby'
@@ -72,7 +72,7 @@ gem 'acts_as_list'
 # Versioning
 gem 'paper_trail', '~> 4.0.0.rc'
 
-# DwC-A archive handling 
+# DwC-A archive handling
 gem 'dwc-archive', '~> 0.9.11'
 
 gem 'validates_timeliness', '~> 4.0.0'
@@ -120,6 +120,7 @@ group :development do
   gem 'guard-rspec', '~> 4.5', require: false
   gem 'parallel_tests', '~> 2.2.2'
   gem 'web-console', '~> 2.0'
+  gem 'rubocop', '~> 0.37.2'
 end
 
 group :doc do
