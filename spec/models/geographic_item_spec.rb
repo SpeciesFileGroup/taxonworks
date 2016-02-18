@@ -352,14 +352,14 @@ describe GeographicItem, type: :model, group: :geo do
       expect(@outer_limits.st_npoints).to eq(7)
     end
 
-    specify '#is_valid_geometry? returns \'true\' for a valid GeoObject' do
-      expect(@p0.is_valid_geometry?).to be_truthy
-      expect(@a.is_valid_geometry?).to be_truthy
-      expect(@b.is_valid_geometry?).to be_truthy
-      expect(@h.is_valid_geometry?).to be_truthy
-      expect(@f.is_valid_geometry?).to be_truthy
-      expect(@g.is_valid_geometry?).to be_truthy
-      expect(@all_items.is_valid_geometry?).to be_truthy
+    specify '#valid_geometry? returns \'true\' for a valid GeoObject' do
+      expect(@p0.valid_geometry?).to be_truthy
+      expect(@a.valid_geometry?).to be_truthy
+      expect(@b.valid_geometry?).to be_truthy
+      expect(@h.valid_geometry?).to be_truthy
+      expect(@f.valid_geometry?).to be_truthy
+      expect(@g.valid_geometry?).to be_truthy
+      expect(@all_items.valid_geometry?).to be_truthy
     end
 
     specify '#st_centroid returns a lat/lng of the centroid of the GeoObject' do
@@ -471,7 +471,7 @@ describe GeographicItem, type: :model, group: :geo do
         expect(pieces).to contain_exactly(@p0, @p1, @p2, @p3,
                                           @p4, @p5, @p6, @p7,
                                           @p8, @p9, @p10, @p11,
-                                          @p12, @p13, @p14, # @p12c,  
+                                          @p12, @p13, @p14, # @p12c,
                                           @p15, @p16, @p17, @p18,
                                           @p19, @item_d, @e1, @e2,
                                           @k, @b, @b2) #
@@ -501,7 +501,7 @@ describe GeographicItem, type: :model, group: :geo do
 
         specify 'point in two polygons, but not their intersection' do
           expect(GeographicItem.containing(@p18.id).to_a).to contain_exactly(@b1, @b2)
-        end 
+        end
 
         specify 'point in two polygons, one with a hole in it' do
           expect(GeographicItem.containing(@p19.id).to_a).to contain_exactly(@b1, @b)

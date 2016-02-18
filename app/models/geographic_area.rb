@@ -363,5 +363,4 @@ class GeographicArea < ActiveRecord::Base
       end
     end
   end
-
 end
