@@ -1,3 +1,6 @@
+#
+# This is a top-level class documentation comment for the Alternate Value Controller
+# RuboCop likes this
 class AlternateValuesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
@@ -6,7 +9,7 @@ class AlternateValuesController < ApplicationController
   # GET /alternate_values
   # GET /alternate_values.json
   def index
-    @recent_objects = AlternateValue.where(project_id: $project_id).order(updated_at: :desc).limit(10)
+    @recent_objects = AlternateValue.where(project_id: sessions_current_project_id).order(updated_at: :desc).limit(10)
     render '/shared/data/all/index'
   end
 
@@ -69,7 +72,7 @@ class AlternateValuesController < ApplicationController
   end
 
   def list
-    @alternate_values = AlternateValue.where(project_id: $project_id).order(:alternate_value_object_type).page(params[:page])
+    @alternate_values = AlternateValue.where(project_id: sessions_current_project_id).order(:alternate_value_object_type).page(params[:page])
   end
 
   # GET /alternate_values/search
@@ -100,7 +103,7 @@ class AlternateValuesController < ApplicationController
 
   # GET /alternate_values/download
   def download
-    send_data AlternateValue.generate_download(AlternateValue.where(project_id: $project_id)), type: 'text', filename: "alternate_values_#{DateTime.now.to_s}.csv"
+    send_data AlternateValue.generate_download(AlternateValue.where(project_id: sessions_current_project_id)), type: 'text', filename: "alternate_values_#{DateTime.now.to_s}.csv"
   end
 
   private
@@ -108,7 +111,7 @@ class AlternateValuesController < ApplicationController
   def set_alternate_value
     @alternate_value = AlternateValue.find(params[:id])
 
-    if !@alternate_value.project_id.blank? && ($project_id != @alternate_value.project_id)
+    if !@alternate_value.project_id.blank? && (sessions_current_project_id != @alternate_value.project_id)
       render status: 404 and return
     end
   end
