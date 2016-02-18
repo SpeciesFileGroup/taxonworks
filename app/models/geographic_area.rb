@@ -1,11 +1,11 @@
-# A GeographicArea is a gazeteer entry for some political subdivision. GeographicAreas are presently 
+# A GeographicArea is a gazeteer entry for some political subdivision. GeographicAreas are presently
 # limited to second level subdivisions (e.g. counties in the United States) or higher (i.e. state/country)
-# * "Levels" are non-normalized values for convenience. 
+# * "Levels" are non-normalized values for convenience.
 #
-# There are multiple hierarchies stored in GeographicArea (e.g. TDWG, GADM2).  Only when those 
+# There are multiple hierarchies stored in GeographicArea (e.g. TDWG, GADM2).  Only when those
 # name "lineages" completely match are they merged.
 #
-# @!attribute name 
+# @!attribute name
 #   @return [String]
 #   The name of the geographic area
 #
@@ -39,7 +39,7 @@
 #
 # @!attribute lft
 #   @return [Integer]
-#     Nested set index, auto created. 
+#     Nested set index, auto created.
 #
 # @!attribute iso_3166_a3
 #   @return [String]
@@ -72,7 +72,7 @@ class GeographicArea < ActiveRecord::Base
   belongs_to :level2, class_name: 'GeographicArea', foreign_key: :level2_id
 
   has_many :collecting_events, inverse_of: :geographic_area
-  has_many :geographic_areas_geographic_items, -> { ordered_by_data_origin  }, dependent: :destroy, inverse_of: :geographic_area
+  has_many :geographic_areas_geographic_items, -> { ordered_by_data_origin }, dependent: :destroy, inverse_of: :geographic_area
   has_many :geographic_items, through: :geographic_areas_geographic_items
 
   accepts_nested_attributes_for :geographic_areas_geographic_items
@@ -95,7 +95,7 @@ class GeographicArea < ActiveRecord::Base
            (geographic_areas.id != ?)',
           geographic_area.lft, geographic_area.rgt,
           geographic_area.id).order(:lft) }
-  scope :ancestors_and_descendants_of, ->   (geographic_area) {
+  scope :ancestors_and_descendants_of, -> (geographic_area) {
     where('(((geographic_areas.lft >= ?) AND (geographic_areas.lft <= ?)) OR
            ((geographic_areas.lft <= ?) AND (geographic_areas.rgt >= ?))) AND
            (geographic_areas.id != ?)',
@@ -150,7 +150,7 @@ class GeographicArea < ActiveRecord::Base
   # @param array [Array] of strings of names for areas
   # @return [Scope] of GeographicAreas which match name and parent.name.
   # Route out to a scope given the length of the
-  # search array.  Could be abstracted to 
+  # search array.  Could be abstracted to
   # build nesting on the fly if we actually
   # needed more than three nesting levels.
   def self.find_by_self_and_parents(array)
@@ -209,6 +209,11 @@ class GeographicArea < ActiveRecord::Base
       " OR ST_Contains(multi_polygon::geometry, GeomFromEWKT('srid=4326;#{point}'))"
     retval       = GeographicArea.joins(:geographic_items).where(where_clause)
     retval
+  end
+
+  # @return [Scope] of areas which have at least one shape
+  def self.have_shape?
+    joins(:geographic_areas_geographic_items).select('distinct(geographic_areas.id)')
   end
 
   # @return [Scope] all known level 1 children, generally state or province level.
@@ -273,7 +278,7 @@ class GeographicArea < ActiveRecord::Base
     geographic_items.joins(:geographic_areas_geographic_items).merge(GeographicAreasGeographicItem.ordered_by_data_origin).first # .merge on same line as joins()
   end
 
-    # @return [Hash] of the pieces of a GeoJSON 'Feature'
+  # @return [Hash] of the pieces of a GeoJSON 'Feature'
   def to_geo_json_feature
     # object = self.geographic_items.order(:id).first
     #type = object.geo_type
@@ -293,7 +298,7 @@ class GeographicArea < ActiveRecord::Base
     )
   end
 
-  # TODO: parametrize to include gazeteer 
+  # TODO: parametrize to include gazeteer
   #   i.e. geographic_areas_geogrpahic_items.where( gaz = 'some string')
   def to_simple_json_feature
     result = {
@@ -319,28 +324,28 @@ class GeographicArea < ActiveRecord::Base
     item
   end
 
-  # @return [Hash] 
-  #   this instance's attributes applicable to GeoLocate 
+  # @return [Hash]
+  #   this instance's attributes applicable to GeoLocate
   def geolocate_attributes
     parameters = {
-      'county' => level2.try(:name),
-      'state' => level1.try(:name),
+      'county'  => level2.try(:name),
+      'state'   => level1.try(:name),
       'country' => level0.try(:name)
     }
 
     if item = geographic_area_map_focus
       parameters.merge!(
         'Longitude' => item.point.x,
-        'Latitude' => item.point.y
+        'Latitude'  => item.point.y
       )
     end
 
     parameters
   end
 
- def geolocate_ui_params
-   Georeference::GeoLocate::RequestUI.new(geolocate_attributes).request_params_hash
- end
+  def geolocate_ui_params
+    Georeference::GeoLocate::RequestUI.new(geolocate_attributes).request_params_hash
+  end
 
   # "http://www.museum.tulane.edu/geolocate/web/webgeoreflight.aspx?country=United States of America&state=Illinois&locality=Champaign&points=40.091622|-88.241179|Champaign|low|7000&georef=run|false|false|true|true|false|false|false|0&gc=Tester"
   # @return [String]
