@@ -731,16 +731,14 @@ class CollectingEvent < ActiveRecord::Base
   # TODO: parametrize to include gazeteer 
   #   i.e. geographic_areas_geogrpahic_items.where( gaz = 'some string')
   def to_simple_json_feature
-    # !! avoid loading the whole geographic item, just grab the bits we need:
-    geo_item_id, t = self.geographic_items.pluck(:id, :type).first
-    geo_type       = t.demodulize.tableize.singularize # geo_item.geo_object_type.to_s
-    geometry       = JSON.parse(GeographicItem.connection.select_all("select ST_AsGeoJSON(#{geo_type}::geometry) geo_json from geographic_items where id=#{geo_item_id};")[0]['geo_json'])
-
-    {
+    base = {
       'type'       => 'Feature',
-      'geometry'   => geometry,
       'properties' => {}
     }
+
+    geo_item_id = geographic_items.limit(1).pluck(:id)[0]
+    base['geometry'] = JSON.parse( GeographicItem.select("ST_AsGeoJSON(#{GeographicItem.geometry_column_case_sql}::geometry) geo_json").find(geo_item_id).geo_json)
+    base
   end
 
   # @return [CollectingEvent]
