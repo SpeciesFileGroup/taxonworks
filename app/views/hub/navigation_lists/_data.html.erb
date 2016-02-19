@@ -1,4 +1,41 @@
 <%= render "/hub/navigation_lists/hub_category_filter" %>
+<% if @sessions_current_user.favorite_routes.length != 0 %>
+<div id="show">
+<div class="flexbox">
+  <div class="item">
+    <div class="section">
+	<div id="data_cards">
+	    <div data-section="Favorite" class="">
+	    <div class="data_section_label">
+	    	<h3>
+	    		Favorites
+	    	</h3>
+	    </div>
+		    <div class="cards-section favorite-box" >
+				<% @sessions_current_user.favorite_routes.each do |route| -%>
+			      <div class="card-container" style="display: flex;">
+				      <div class="data_card" style="border:1px solid #FCF09A;">
+					    	<div class="status"><%= link_to('Remove', remove_favorite_page_path(favorited_route: route), method: 'post') -%> 
+					    	</div>
+					    	<%= link_to(route.parameterize(' - '), route) -%> 
+					  </div>
+			      </div>		      
+		      <% end %>
+		      <% if @sessions_current_user.favorite_routes.length == 0 %>
+				<div data-attribute="empty" class="subtle center_text">
+			    	<h1>None</h1>
+			    </div>
+			  <% end %>
+		    </div>
+	    </div>
+	</div>
+</div>
+</div>  
+</div>
+</div>
+      
+  <% end %> 
+
 <div id="data_cards">
   <% Hub::Data::SECTIONS.each do |s| -%>
     <div data-section="<%= s -%>" class="data_section">
@@ -19,10 +56,12 @@
 	    	</h3>
 	    </div>
 	    <div data-attribute="empty" class="subtle center_text">
-	    	<h1>None<h1>
+	    	<h1>None</h1>
 	    </div>
     </div>
   <% end %>
+</div>
+</div>
 </div>
 
 <script type="text/javascript">
@@ -49,6 +88,9 @@ var carrouselData = function (sec, rows, columns) {
 
 		if(columns >= 1) {
 			$('.data_section[data-section="' + this.sectionTag + '"]').css("max-width",(250*columns) + 'px');
+		}
+		else {
+			$('.data_section[data-section="' + this.sectionTag + '"]').css("max-width", 'auto');
 		}
 	}
 
@@ -81,11 +123,10 @@ var carrouselData = function (sec, rows, columns) {
 
 	carrouselData.prototype.showEmptyLabel = function(isTrue) {
 		if(isTrue) {
-			$('.data_section[data-section="' + this.sectionTag + '"] div[data-attribute="empty"]').hide(250);
+			$('[data-section="' + this.sectionTag + '"] div[data-attribute="empty"]').hide(250);
 		}
 		else {
-			
-			$('.data_section[data-section="' + this.sectionTag + '"] div[data-attribute="empty"]').show(250);
+			$('[data-section="' + this.sectionTag + '"] div[data-attribute="empty"]').show(250);
 		}
 	}
 
@@ -166,11 +207,12 @@ var carrouselData = function (sec, rows, columns) {
 
 var 
 	core = new carrouselData("Core",99,1),
-	supporting = new carrouselData("Supporting",99,3),	
+	favorite = new carrouselData("Favorite",99,5),	
+	supporting = new carrouselData("Supporting",99,2),	
 	annotations = new carrouselData("Annotations",99,1);
 
 	
-
+favorite.filterChilds();
 core.addFilter("data-category-collectingevent");
 core.addFilter("data-category-TaxonName");
 core.addFilter("data-category-Source");
@@ -188,6 +230,7 @@ annotations.addFilter("data-category-TaxonName");
 annotations.addFilter("data-category-Source");
 annotations.addFilter("data-category-collectionobject");
 annotations.filterChilds();
+
 
 function changeAllSectionsFilter(dataTag, value) {
 	core.setFilterStatus(dataTag,value);
@@ -238,35 +281,35 @@ function changeBackgroundColorLink(selector) {
   });      
 
 
-  $('.filter').on('click', 'a[data-filter-category="taxon_name"]', function() {
+  $('.navigation').on('click', 'a[data-filter-category="taxon_name"]', function() {
 	  	changeBackgroundColorLink('a[data-filter-category="taxon_name"]');
       	core.changeFilter("data-category-TaxonName");
       	supporting.changeFilter("data-category-TaxonName");
       	annotations.changeFilter("data-category-TaxonName"); 
   });
 
-  $('.filter').on('click', 'a[data-filter-category="collecting_event"]', function() {
+  $('.navigation').on('click', 'a[data-filter-category="collecting_event"]', function() {
   		changeBackgroundColorLink('a[data-filter-category="collecting_event"]');
       	core.changeFilter("data-category-collectingevent"); 
       	supporting.changeFilter("data-category-collectingevent"); 
       	annotations.changeFilter("data-category-collectingevent"); 
   });
 
-  $('.filter').on('click', 'a[data-filter-category="collection_object"]', function() {
+  $('.navigation').on('click', 'a[data-filter-category="collection_object"]', function() {
   		changeBackgroundColorLink('a[data-filter-category="collection_object"]');  	
 	    core.changeFilter("data-category-collectionobject");   
 	    supporting.changeFilter("data-category-collectionobject");   
 	    annotations.changeFilter("data-category-collectionobject"); 
   });  
 
-  $('.filter').on('click', 'a[data-filter-category="source"]', function() {
+  $('.navigation').on('click', 'a[data-filter-category="source"]', function() {
   		changeBackgroundColorLink('a[data-filter-category="source"]');  	
       	core.changeFilter("data-category-Source");
       	supporting.changeFilter("data-category-Source");
       	annotations.changeFilter("data-category-Source");
   });
 
-  $('.filter').on('click', 'a[data-filter-category="reset"]', function() {
+  $('.navigation').on('click', 'a[data-filter-category="reset"]', function() {
 		changeAllSectionsFilter("data-category-Source", false);
 		changeAllSectionsFilter("data-category-TaxonName", false);
 		changeAllSectionsFilter("data-category-collectionobject", false);
@@ -315,5 +358,32 @@ $('.data_card div[data-category-Source="true"]').append("<img src='/assets/icons
       	supporting.changeFilter("data-category-TaxonName");
       	annotations.changeFilter("data-category-TaxonName");     
   });    
+
+
+$(document).ready(initContextMenus);
+$(document).on('page:change', initContextMenus);
+
+
+ function initContextMenus() {
+  $.contextMenu('destroy', ".favorite-box .data_card" );
+        $.contextMenu({
+            selector: '.favorite-box .data_card', 
+            autoHide: true,
+            callback: function(key, options) {
+                var m = "clicked: " + key;
+
+                switch(key) {               
+                  case "delete":
+                    $(this).find('a').click();
+                  break;
+                }
+                //window.console && console.log(m) || alert(m); 
+
+            },
+            items: {
+                "delete": {name: "Remove from favorite", icon: "delete"}
+            }
+        });
+  }    
    
 </script>

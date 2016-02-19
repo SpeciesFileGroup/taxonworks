@@ -1,16 +1,51 @@
 @import 'palette';
 
 .alert {
+  display: flex;
+  position: absolute;
+  flex-direction: row;
+  margin: 0px;
+  align-items: center;
+  left: 50%;
+  opacity: 0; 
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.5em; 
+  border-top:none;
+  border-bottom-right-radius: 3px;
+  border-bottom-left-radius: 3px;
+  animation: entering 5s;
+  @keyframes entering {
+    0%  { 
+      opacity: 0;
+      transform: translateY(-50%) translateX(-50%);
 
-  padding: .5em; 
-  border: 1px solid $title_gray;
-  border-radius: 3px;
+    }
+    50% { 
+      
+      opacity: 1; 
+
+    }
+    70% { 
+      
+      opacity: 1; 
+
+    }    
+    100% { 
+      
+      opacity: 0; 
+
+    }        
+  }
+
 
   &.alert-notice {
+  	box-shadow: 0 0 3px 0 $color-complement-3;
     background: $color-complement-2;
   }
 
   &.alert-alert {
+  	box-shadow: 0 0 3px 0 $color-primary-3;
     background: $color-primary-2;
   }
 }

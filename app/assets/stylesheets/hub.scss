@@ -32,6 +32,121 @@
     width: 100%;
   }
 
+
+#filter {
+
+  //margin-top: $standard-padding;
+
+  .tag {
+    display: flex;
+    height: 35px;
+    padding-top: 5px;
+    font-size: 16px;
+    align-items:center;
+    flex-direction:row;
+    font-weight: 100;
+    padding-left: 15px;
+    border-top-right-radius: 3px;
+    border-top-left-radius: 3px;
+    //background-color: $color-secondary-1-3;
+    border-bottom: 5px solid $color-complement-3;
+    justify-content:space-between;
+  }
+
+  .flexbox {
+    display: flex;
+    justify-content:space-between;
+    width: 100%;
+
+    .item2 {
+      display: flex;
+      width: 100%;
+      min-width: 450px;
+    }
+
+    .item { 
+      flex-direction:column;
+    }
+
+    .section {
+      border-top-right-radius: 3px;
+      border-top-left-radius: 3px;
+      display: flex;
+      flex-direction:column;
+      justify-content:flex-start;
+      box-shadow: 0 0px 3px 0 $navigation_border;
+      background-color: #FFF;
+      margin-bottom: 10px;
+      .title {
+        display: flex;
+        align-items:center;
+        flex-direction:row;
+        justify-content:space-between;
+        padding-left: 15px;
+        padding-right: 10px;
+        border-top-right-radius: 3px;
+        border-top-left-radius: 3px;
+        h2 {
+          margin: 10px; 
+          color: #FFF;
+          font-weight: 100;
+        }           
+      } 
+
+      hr {
+        border: 0px;
+        height: 1px;
+        background-color: $navigation_border;
+      }
+
+      .navigation-controls {
+        display: flex;
+        flex-direction:row;
+        justify-content:space-between;
+        border-bottom:1px solid $navigation_border;      
+      }     
+
+      .navigation:last-child {
+        //border:none;
+      } 
+
+      .navigation:first-child {
+        border:none;
+      }       
+ 
+      .navigation {
+        width: 100%;
+        display: flex;
+        font-size: 12px;
+        flex-direction:row;
+        justify-content:center;
+        align-items:center;
+        position: relative;
+        padding: 5px;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        border-left: 1px solid $navigation_border;
+        a {
+          padding-left: 5px;
+          padding-right: 5px;
+          text-decoration: none;
+        }
+        img { 
+        opacity: 0.5;
+        }
+      }
+      .navigation:hover {
+        background-color: $color-complement-2;
+        box-shadow:inset 0px 1px 2px 0px $color-complement-3;
+        img {
+          opacity: 1;
+        }
+      }
+    }
+  }
+}
+
+
    // jose - we could move other general hub classes to here
    .filter {
     display: flex;
@@ -46,17 +161,103 @@
       background-color: $navigation_border;
     }
 
+  .tag {
+    display: flex;
+    height: 35px;
+    padding-top: 5px;
+    font-size: 16px;
+    align-items:center;
+    flex-direction:row;
+    font-weight: 100;
+    padding-left: 15px;
+    border-top-right-radius: 3px;
+    border-top-left-radius: 3px;
+    //background-color: $color-secondary-1-3;
+    border-bottom: 5px solid $color-complement-3;
+    justify-content:space-between;
+  }
+
+    .flexbox {
+    display: flex;
+    justify-content:space-between;
+    width: 100%;
+
+    .item1 { 
+      display: block;
+      width: 300px;
+      min-width: 270px;
+      padding-right: $standard_padding*.8;
+    }
+
+    .item3 {
+      display: block;
+      width: 300px;
+      min-width: 250px;
+      margin-left: $standard_padding*.8;
+    }
+
+    .item2 {
+      display: flex;
+      width: 100%;
+     // padding: 0 $standard_padding*.8;
+      min-width: 450px;
+    }
+
+    .item { 
+
+      //margin: 5px;
+      flex-direction:column;
+      
+    }
+
+    h3 {
+      padding: $standard_padding*.2 0;
+      margin: $standard_padding*.2 0;
+    }
+
+
+    .section {
+      border-top-right-radius: 3px;
+      border-top-left-radius: 3px;
+      display: flex;
+      flex-direction:column;
+      justify-content:flex-start;
+      //border: 1px solid $navigation_border;
+      box-shadow: 0 0px 3px 0 $navigation_border;
+      background-color: #FFF;
+      margin-bottom: 10px;
+      .title {
+        display: flex;
+        align-items:center;
+        flex-direction:row;
+        justify-content:space-between;
+        padding-left: 15px;
+        padding-right: 10px;
+        border-top-right-radius: 3px;
+        border-top-left-radius: 3px;
+        h2 {
+        //font-size: 16px;
+          margin: 10px; 
+          color: #FFF;
+          font-weight: 100;
+        }           
+      } 
+    }
+  }    
+
+
     .category_button {
-      padding-top: 10px;
-      padding-bottom: 10px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
     }
 
     .category_button a {
       background-color: $navigation_background;
     }
 
-    .activated a {
-      background-color: $color-complement-2;
+    .activated {
+      background-color: $color-complement-2 !important;
       box-shadow:inset 0px 1px 2px 0px $color-complement-3;
     }
 
@@ -132,6 +333,15 @@
     }        
 
   }
+
+    .category_button a {
+      background-color: $navigation_background;
+    }
+
+    .activated a {
+      background-color: $color-complement-2;
+      box-shadow:inset 0px 1px 2px 0px $color-complement-3;
+    }
 
   #navigation_list {
     display: flex;

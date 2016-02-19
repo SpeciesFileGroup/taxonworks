@@ -20,31 +20,35 @@
     border-radius: 3px;
     //border: 1px solid $navigation_border;
     box-shadow: 0 0px 3px 0 $navigation_border;
-    margin-left: 0.5em;
-    margin-right: 0.5em;
+    margin: 0.5em;
   }
 
   .data_section_label {
-    padding-left: 1.5em;
-    padding-right: 1.5em;
     display: flex;
     height: 40px;
-    color: #FFF;
     border-top-right-radius: 3px;
     border-top-left-radius: 3px;
-    background-color: $color-secondary-2-3;
     justify-content:space-between;
     flex-direction:flex-start;
     align-items:center;
-    border-bottom: 5px solid $color-secondary-2-4;
+    margin-left: 15px;
+    margin-right: 15px;
+    border-bottom: 1px solid $navigation_border;
     text-align: center;
+  }
+
+  .favorite-box {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    width: 1010px;
   }
 
   .cards-section {
     order:1;
     display: flex;
     flex-direction:row;
-    justify-content:space-between;
+    justify-content:center;
     flex-flow: row wrap;
     padding: 0.5em;
   }
@@ -54,6 +58,11 @@
     align-items:center;
     margin: 0.5em;
     display: none;
+    [data-method="post"] {
+      display: none;
+    transition: background-color 0.5s ease,
+                box-shadow 0.5s ease;      
+    }
   }
 
   .data_card:hover {
@@ -70,11 +79,15 @@
     flex-direction:row-reverse;
     align-items:center;
     justify-content:space-between;
-    background-color: $color-secondary-2-1;
-    box-shadow: 0 0px 1px 0 $navigation_border;
+    font-weight: 100;
     border-radius: 3px;
     border: 1px solid $navigation_border;
     padding: 12px;
+    background-color: $color-secondary-2-1;
+    box-shadow: 0 0px 3px 0 $navigation_border;    
+
+    transition: background-color 0.5s ease,
+                box-shadow 0.5s ease;    
   }
 
 
@@ -107,7 +120,7 @@
 
   @media screen and (min-width: 1339px) {
       .data_section {
-          width: 750px !important;
+          width: 1300px !important;
       }
   }
 

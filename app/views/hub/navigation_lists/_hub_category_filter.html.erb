@@ -1,14 +1,46 @@
+
+<!---
 <div class="filter-header">
-	<div class="filter"><!-- we can change this id to something that makes more universal sense -->
+	<div class="filter"><!-- we can change this id to something that makes more universal sense 
 	    <div class="title">Filter</div>
 	    <div class="filter-sections">
 	  <% UserTasks::CATEGORIES.each do |c| -%>
 	    <%= content_tag(:div, link_to(c.humanize, "#", 'data-filter-category' => c), class: 'category_button') -%>
 	  <% end %>
-	  <div class="category_button">
-	  	<a data-filter-category="reset"></a>
-	  </div>
-	  </div>
+		  <div class="category_button">
+		  	<a data-filter-category="reset"></a>
+		  </div>
+	  	</div>
 	</div>
 </div>
+---->
 
+<div id="filter">
+  <div class="flexbox" style="width: 1025px;">
+    <div class="item item2">
+    <div class="section">
+      <div class='tag'>
+        <div>
+        	Filter 
+        </div>
+      </div> 
+      <div class="navigation-controls">
+      	<% UserTasks::CATEGORIES.each do |c| -%>
+        	<%= content_tag(:div, link_to(c.humanize, "#", 'data-filter-category' => c), class: 'navigation') -%>
+        <% end %> 
+        <div class="navigation">
+        	<img src="/assets/icons/restart.svg"/>
+        	<a data-filter-category="reset" href="#">Reset</a>
+        </div>                                    
+      </div>        
+     </div>  
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+	$('[data-filter-category="taxon_name"]').before('<img src="/assets/icons/new.svg"/>');
+	$('[data-filter-category="source"]').before('<img src="/assets/icons/book.svg"/>');
+	$('[data-filter-category="collection_object"]').before('<img src="/assets/icons/picking.svg"/>');
+	$('[data-filter-category="collecting_event"]').before('<img src="/assets/icons/geo_location.svg"/>');	
+</script>
