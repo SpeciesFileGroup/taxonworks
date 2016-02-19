@@ -736,8 +736,10 @@ class CollectingEvent < ActiveRecord::Base
       'properties' => {}
     }
 
-    geo_item_id = geographic_items.limit(1).pluck(:id)[0]
-    base['geometry'] = JSON.parse( GeographicItem.select("ST_AsGeoJSON(#{GeographicItem.geometry_column_case_sql}::geometry) geo_json").find(geo_item_id).geo_json)
+    if geographic_items.any?
+      geo_item_id = geographic_items.select(:id).first.id
+      base['geometry'] = JSON.parse( GeographicItem.select("ST_AsGeoJSON(#{GeographicItem.geometry_column_case_sql}::geometry) geo_json").find(geo_item_id).geo_json)
+    end
     base
   end
 
