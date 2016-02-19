@@ -135,6 +135,18 @@ class TaxonName < ActiveRecord::Base
   include SoftValidation
   include Shared::Depictions
 
+  # @return [Boolean]
+  #   When true, also creates an OTU that is tied to this taxon name
+  attr_accessor :also_create_otu
+
+  # @return [Boolean]
+  #   When true, also cached values are not built
+  attr_accessor :no_cached
+
+  # @return [Boolean]
+  #   When true, does not alphabetize siblings (import only) 
+  attr_accessor :no_alphabetize
+
   NO_CACHED_MESSAGE = 'PROJECT REQUIRES TAXON NAME CACHE REBUILD'
 
   if ENV['NO_TAXON_NESTING']
@@ -144,18 +156,6 @@ class TaxonName < ActiveRecord::Base
   end
 
   belongs_to :valid_taxon_name, class_name: TaxonName, foreign_key: :cached_valid_taxon_name_id
-
-  # @return [Boolean]
-  # When true, also creates an OTU that is tied to this taxon name
-  attr_accessor :also_create_otu
-
-  # @return [Boolean]
-  # When true, also cached values are not built
-  attr_accessor :no_cached
-
-  # @return [Boolean]
-  # When true, does not alphabetize siblings (import only) 
-  attr_accessor :no_alphabetize
 
   before_validation :set_type_if_empty
 

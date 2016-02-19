@@ -30,7 +30,7 @@ require 'rgeo'
 #
 # @!attribute type
 #   @return [String]
-#     Rails STI, determines the geography column as well
+#     Rails STI, determines the geography column as well 
 #
 class GeographicItem < ActiveRecord::Base
   include Housekeeping::Users
@@ -52,6 +52,7 @@ class GeographicItem < ActiveRecord::Base
 
   has_many :geographic_areas_geographic_items, dependent: :destroy, inverse_of: :geographic_item
   has_many :geographic_areas, through: :geographic_areas_geographic_items
+  has_many :geographic_area_types, through: :geographic_areas
   has_many :parent_geographic_areas, through: :geographic_areas, source: :parent
 
   has_many :gadm_geographic_areas, class_name: 'GeographicArea', foreign_key: :gadm_geo_item_id
@@ -66,16 +67,63 @@ class GeographicItem < ActiveRecord::Base
 
   before_validation :set_type_if_geography_present
 
+  validates_presence_of :type
   validate :some_data_is_provided
-  validates :type, presence: true
 
   scope :include_collecting_event, -> { includes(:collecting_events_through_georeferences) }
   scope :geo_with_collecting_event, -> { joins(:collecting_events_through_georeferences) }
   scope :err_with_collecting_event, -> { joins(:georeferences_through_error_geographic_item) }
 
+  # @return [Hash]
+  #   a quick, geographic area hierarchy based approach to 
+  #   returning country, state, and county categories 
+  #   !! Note this just takes the first referenced GeographicArea, which should be safe most cases
+  def quick_geographic_name_hierarchy 
+    v = {}
+    a = geographic_areas.first.try(:geographic_name_classification)
+    v = a if !a.nil?
+    v
+  end
+
+  # @return [Hash]
+  #   a slower, gis-based inference approach to
+  #     returning country, state, and county categories
+  def inferred_geographic_name_hierarchy
+    v = {}
+    (containing_geographic_areas + geographic_areas.limit(1)).each do |a|
+      v.merge!(a.categorize) 
+    end
+    v
+  end
+
+  # @return [Hash]
+  #   as per #inferred_geographic_name_hierarchy but for Rgeo point
+  def self.point_inferred_geographic_name_hierarchy(point)
+    GeographicItem.containing_point(point).ordered_by_area.limit(1).first.inferred_geographic_name_hierarchy
+  end
+
+  # @return [Scope]
+  # @param [String] 'ASC' or 'DESC'
+  def self.ordered_by_area(direction = 'ASC')
+    order("ST_Area(#{GeographicItem.geometry_column_case_sql}) #{direction}")
+  end
+
+  # @return [Scope]
+  #   Adds an area_in_meters field, with meters
+  def self.with_area
+    select("ST_Area(#{GeographicItem.geometry_column_case_sql})*POWER(0.3048,2) as area_in_meters")
+  end
+
+  # @return [Scope]
+  #   the Geographic Areas that contain (gis) this geographic item  
+  def containing_geographic_areas
+    GeographicArea.joins(:geographic_items).includes(:geographic_area_type).
+      joins("JOIN (#{GeographicItem.containing(id).to_sql}) j on geographic_items.id = j.id")
+  end
+
   # @return [Boolean]
   #   whether stored shape is ST_IsValid
-  def valid_geometry?
+  def is_valid_geometry?
     GeographicItem.with_is_valid_geometry_column(self).first['is_valid']
   end
 
@@ -89,85 +137,44 @@ class GeographicItem < ActiveRecord::Base
   # @return [Array]
   #   the lat, long, as STRINGs for the centroid of this geographic item
   def center_coords
-    r = GeographicItem.find_by_sql("Select split_part(ST_AsLatLonText(ST_Centroid(#{geo_object_type}::geometry), 'D.DDDDDD'), ' ', 1) latitude,
-    split_part(ST_AsLatLonText(ST_Centroid(#{geo_object_type}::geometry), 'D.DDDDDD'), ' ', 2) longitude from geographic_items where id = #{id};")[0]
+    r = GeographicItem.find_by_sql("Select split_part(ST_AsLatLonText(ST_Centroid(#{GeographicItem.geometry_column_case_sql}::geometry), 'D.DDDDDD'), ' ', 1) latitude, 
+    split_part(ST_AsLatLonText(ST_Centroid(#{GeographicItem.geometry_column_case_sql}::geometry), 'D.DDDDDD'), ' ', 2) longitude from geographic_items where id = #{self.id};")[0]
 
     [r.latitude, r.longitude]
   end
 
-=begin
-SELECT round(CAST(
-    ST_Distance_Spheroid(ST_Centroid(the_geom), ST_GeomFromText('POINT(-118 38)',4326), 'SPHEROID["WGS 84",6378137,298.257223563]')
-      As numeric),2) As dist_meters_spheroid
 
- dist_meters_spheroid | dist_meters_sphere | dist_utm11_meters
-----------------------+--------------------+-------------------
-       70454.92 |           70424.47 |          70438.00
-
-=end
+  #   SELECT round(CAST(
+  #       ST_Distance_Spheroid(ST_Centroid(the_geom), ST_GeomFromText('POINT(-118 38)',4326), 'SPHEROID["WGS 84",6378137,298.257223563]')
+  #         As numeric),2) As dist_meters_spheroid
+  #
+  #    dist_meters_spheroid | dist_meters_sphere | dist_utm11_meters
+  #   ----------------------+--------------------+-------------------
 
   # @return [String(?)]
   #   distance in meters from this object to supplied 'geo_object'
   # @todo use a geographic_item_id rather than a geo_object
   def st_distance(geo_object)
-    GeographicItem.where(id: id).pluck("ST_Distance_Spheroid('#{geo_object}','#{geo_object}','#{Gis::SPHEROID}') as distance").first
+    GeographicItem.where(id: self.id).pluck("ST_Distance_Spheroid('#{self.geo_object}','#{geo_object}','#{Gis::SPHEROID}') as distance").first
   end
 
   # @return [String]
   #   a SQL fragment for ST_AsBinary
   def st_as_binary_sql
-    "ST_AsBinary(#{geo_object_type})"
+    "ST_AsBinary(#{self.geo_object_type})"
   end
 
   # @return [String]
   #   a WKT POINT representing the centroid of the geographic item
   def st_centroid
-    retval = GeographicItem.where(id: to_param).pluck("ST_AsEWKT(ST_Centroid(#{geo_object_type}::geometry))").first.gsub(/SRID=\d*;/, '')
-    retval
+    GeographicItem.where(id: self.to_param).pluck("ST_AsEWKT(ST_Centroid(#{self.geo_object_type}::geometry))").first.gsub(/SRID=\d*;/, '')
   end
 
   # @return [Integer]
   #   the number of points in the geometry
   def st_npoints
-    GeographicItem.where(id: id).pluck("ST_NPoints(#{geo_object_type}::geometry)").first
+    GeographicItem.where(id: self.id).pluck("ST_NPoints(#{self.geo_object_type}::geometry)").first
   end
-
-
-=begin
-  scope :intersecting_boxes, -> (column_name, geographic_item) {
-    select("ST_Contains(geographic_items.#{column_name}, #{geographic_item.geo_object})",
-    ) }
-
-  def self.same(geo_object_a, geo_object_b)
-    # http://postgis.refractions.net/documentation/manual-1.4/ST_Geometry_Same.html
-    # boolean ~=( geometry A , geometry B );
-    # @todo not sure how to specify '~=', syntactically substituting 'same'
-    where(st_geometry_same(geo_object_a, geo_object_b))
-    # returns true if the two objects are, vertex-by-vertex, the same
-  end
-
-  def self.area(geo_polygon) # or multi_polygon
-    # http://postgis.refractions.net/documentation/manual-1.4/ST_Area.html
-    # float ST_Area(geometry g1);
-    where(st_area(geo_polygon))
-    # returns the area area of the geometry as a float
-  end
-
-  def self.azimuth(geo_point_a, geo_point_b)
-    # http://postgis.refractions.net/documentation/manual-1.4/ST_Azimuth.html
-    # float ST_Azimuth(geometry pointA, geometry pointB);
-    where(st_azimuth(geo_point_a, geo_point_b))
-  end
-
-  def self.centroid(geo_object)
-    # http://postgis.refractions.net/documentation/manual-1.4/ST_Centroid.html
-    # geometry ST_Centroid(geometry g1);
-    where(st_centroid(geo_object))
-    # returns a point
-  end
-
-=end
-
 
   # @todo ? as per http://danshultz.github.io/talks/mastering_activerecord_arel/#/7/1
   class << self
@@ -200,10 +207,10 @@ SELECT round(CAST(
         join(g2, Arel::Nodes::OuterJoin).on(geographic_items[:id].eq(g2[:error_geographic_item_id]))
 
       GeographicItem.joins(# turn the Arel back into scope
-        c.join_sources # translate the Arel join to a join hash(?)
-      ).where(
-        g1[:id].not_eq(nil).or(g2[:id].not_eq(nil)) # returns a Arel::Nodes::Grouping
-      ).distinct
+                           c.join_sources # translate the Arel join to a join hash(?)
+                          ).where(
+                            g1[:id].not_eq(nil).or(g2[:id].not_eq(nil)) # returns a Arel::Nodes::Grouping
+                          ).distinct
     end
 
 
@@ -220,18 +227,18 @@ SELECT round(CAST(
     end
 
     def with_latitude
-      select(lat_long_sql(:latitude))
+      select( lat_long_sql(:latitude) )
     end
 
     def with_longitude
-      select(lat_long_sql(:longitude))
+      select( lat_long_sql(:longitude) )
     end
 
     def lat_long_sql(choice)
       return nil if ![:latitude, :longitude].include?(choice)
       f = "'D.DDDDDD'" # TODO: probably a constant somewhere
       v = (choice == :latitude ? 1 : 2)
-      "CASE type
+      "CASE type 
         WHEN 'GeographicItem::GeometryCollection' THEN split_part(ST_AsLatLonText(ST_Centroid(geometry_collection::geometry), #{f}), ' ', #{v})
         WHEN 'GeographicItem::LineString' THEN split_part(ST_AsLatLonText(ST_Centroid(line_string::geometry), #{f}), ' ', #{v})
         WHEN 'GeographicItem::MultiPolygon' THEN split_part(ST_AsLatLonText(ST_Centroid(multi_polygon::geometry), #{f}), ' ', #{v})
@@ -294,7 +301,6 @@ SELECT round(CAST(
       end
     end
 
-
     # @param [String] column_name
     # @param [GeographicItem] geographic_item
     # @param [Float] distance is measured in meters
@@ -352,43 +358,43 @@ SELECT round(CAST(
     #
     # If this scope is given an Array of GeographicItems as a second parameter,
     # it will return the 'OR' of each of the objects against the table.
-    # SELECT COUNT(*) FROM "geographic_items"
-    #        WHERE (ST_Contains(polygon::geometry, GeomFromEWKT('srid=4326;POINT (0.0 0.0 0.0)'))
+    # SELECT COUNT(*) FROM "geographic_items"  
+    #        WHERE (ST_Contains(polygon::geometry, GeomFromEWKT('srid=4326;POINT (0.0 0.0 0.0)')) 
     #               OR ST_Contains(polygon::geometry, GeomFromEWKT('srid=4326;POINT (-9.8 5.0 0.0)')))
     #
     def are_contained_in_item_by_id(column_name, *geographic_item_ids) # = containing
       geographic_item_ids.flatten! # in case there is a array of arrays, or multiple objects
       column_name.downcase!
       case column_name
-        when 'any'
-          part = []
-          DATA_TYPES.each { |column|
-            unless column == :geometry_collection
-              part.push(GeographicItem.are_contained_in_item_by_id("#{column}", geographic_item_ids).to_a)
-            end
-          }
-          # todo: change 'id in (?)' to some other sql construct
-          GeographicItem.where(id: part.flatten.map(&:id))
-        when 'any_poly', 'any_line'
-          part = []
-          DATA_TYPES.each { |column|
-            if column.to_s.index(column_name.gsub('any_', ''))
-              part.push(GeographicItem.are_contained_in_item_by_id("#{column}", geographic_item_ids).to_a)
-            end
-          }
-          # todo: change 'id in (?)' to some other sql construct
-          GeographicItem.where(id: part.flatten.map(&:id))
-        else
-          q      = geographic_item_ids.flatten.collect { |geographic_item_id|
-            # discover the item types, and convert type to database type for 'multi_'
-            b = GeographicItem.where(id: geographic_item_id).pluck(:type)[0].split(':')[2].downcase.gsub('lti', 'lti_')
-            # a = GeographicItem.find(geographic_item_id).geo_object_type
-            GeographicItem.containing_sql(column_name, geographic_item_id, b)
-          }.join(' or ')
-          q      = 'FALSE' if q.blank? # this will prevent the invocation of *ALL* of the GeographicItems, if there are
-          # no GeographicItems in the request (see CollectingEvent.name_hash(types)).
-          retval = where(q) # .excluding(geographic_items)
-          retval
+      when 'any'
+        part = []
+        DATA_TYPES.each { |column|
+          unless column == :geometry_collection
+            part.push(GeographicItem.are_contained_in_item_by_id("#{column}", geographic_item_ids).to_a)
+          end
+        }
+        # todo: change 'id in (?)' to some other sql construct
+        GeographicItem.where(id: part.flatten.map(&:id))
+      when 'any_poly', 'any_line'
+        part = []
+        DATA_TYPES.each { |column|
+          if column.to_s.index(column_name.gsub('any_', ''))
+            part.push(GeographicItem.are_contained_in_item_by_id("#{column}", geographic_item_ids).to_a)
+          end
+        }
+        # todo: change 'id in (?)' to some other sql construct
+        GeographicItem.where(id: part.flatten.map(&:id))
+      else
+        q      = geographic_item_ids.flatten.collect { |geographic_item_id|
+          # discover the item types, and convert type to database type for 'multi_'
+          b = GeographicItem.where(id: geographic_item_id).pluck(:type)[0].split(':')[2].downcase.gsub('lti', 'lti_')
+          # a = GeographicItem.find(geographic_item_id).geo_object_type
+          GeographicItem.containing_sql(column_name, geographic_item_id, b)
+        }.join(' or ')
+        q      = 'FALSE' if q.blank? # this will prevent the invocation of *ALL* of the GeographicItems, if there are
+        # no GeographicItems in the request (see CollectingEvent.name_hash(types)).
+        retval = where(q) # .excluding(geographic_items)
+        retval
       end
     end
 
@@ -401,99 +407,99 @@ SELECT round(CAST(
       column_name.downcase!
       # column_name = 'point'
       case column_name
-        when 'any'
-          part = []
-          DATA_TYPES.each { |column|
-            unless column == :geometry_collection
-              part.push(GeographicItem.are_contained_in_wkt("#{column}", geometry).pluck(:id).to_a)
-            end
-          }
-          # todo: change 'id in (?)' to some other sql construct
-          GeographicItem.where(id: part.flatten)
-        when 'any_poly', 'any_line'
-          part = []
-          DATA_TYPES.each { |column|
-            if column.to_s.index(column_name.gsub('any_', ''))
-              part.push(GeographicItem.are_contained_in_wkt("#{column}", geometry).pluck(:id).to_a)
-            end
-          }
-          # todo: change 'id in (?)' to some other sql construct
-          GeographicItem.where(id: part.flatten)
-        else
-          # column = points, geometry = square
-          q = "ST_Contains(ST_GeomFromEWKT('srid=4326;#{geometry}'), #{column_name}::geometry)"
-          where(q) # .excluding(geographic_items)
+      when 'any'
+        part = []
+        DATA_TYPES.each { |column|
+          unless column == :geometry_collection
+            part.push(GeographicItem.are_contained_in_wkt("#{column}", geometry).pluck(:id).to_a)
+          end
+        }
+        # todo: change 'id in (?)' to some other sql construct
+        GeographicItem.where(id: part.flatten)
+      when 'any_poly', 'any_line'
+        part = []
+        DATA_TYPES.each { |column|
+          if column.to_s.index(column_name.gsub('any_', ''))
+            part.push(GeographicItem.are_contained_in_wkt("#{column}", geometry).pluck(:id).to_a)
+          end
+        }
+        # todo: change 'id in (?)' to some other sql construct
+        GeographicItem.where(id: part.flatten)
+      else
+        # column = points, geometry = square
+        q = "ST_Contains(ST_GeomFromEWKT('srid=4326;#{geometry}'), #{column_name}::geometry)"
+        where(q) # .excluding(geographic_items)
       end
 
     end
 
 
-    # @return [Scope]
-    #    containing the items the shape of which is contained in the geographic_item[s] supplied.
-    # @param column_name [String] can be any of DATA_TYPES, or 'any' to check against all types, 'any_poly' to check against 'polygon' or 'multi_polygon', or 'any_line' to check against 'line_string' or 'multi_line_string'.  CANNOT be 'geometry_collection'.
-    # @param geographic_items [GeographicItem] Can be a single GeographicItem, or an array of GeographicItem.
-    def is_contained_by(column_name, *geographic_items)
-      column_name.downcase!
-      case column_name
-        when 'any'
-          part = []
-          DATA_TYPES.each { |column|
-            unless column == :geometry_collection
+  # @return [Scope]
+  #    containing the items the shape of which is contained in the geographic_item[s] supplied.
+  # @param column_name [String] can be any of DATA_TYPES, or 'any' to check against all types, 'any_poly' to check against 'polygon' or 'multi_polygon', or 'any_line' to check against 'line_string' or 'multi_line_string'.  CANNOT be 'geometry_collection'.
+  # @param geographic_items [GeographicItem] Can be a single GeographicItem, or an array of GeographicItem.
+  def is_contained_by(column_name, *geographic_items)
+    column_name.downcase!
+    case column_name
+      when 'any'
+        part = []
+        DATA_TYPES.each { |column|
+          unless column == :geometry_collection
+            part.push(GeographicItem.is_contained_by("#{column}", geographic_items).to_a)
+          end
+        }
+        # @todo change 'id in (?)' to some other sql construct
+        GeographicItem.where(id: part.flatten.map(&:id))
+
+      when 'any_poly', 'any_line'
+        part = []
+        DATA_TYPES.each { |column|
+          unless column == :geometry_collection
+            if column.to_s.index(column_name.gsub('any_', ''))
               part.push(GeographicItem.is_contained_by("#{column}", geographic_items).to_a)
             end
-          }
-          # @todo change 'id in (?)' to some other sql construct
-          GeographicItem.where(id: part.flatten.map(&:id))
+          end
+        }
+        # @todo change 'id in (?)' to some other sql construct
+        GeographicItem.where(id: part.flatten.map(&:id))
 
-        when 'any_poly', 'any_line'
-          part = []
-          DATA_TYPES.each { |column|
-            unless column == :geometry_collection
-              if column.to_s.index(column_name.gsub('any_', ''))
-                part.push(GeographicItem.is_contained_by("#{column}", geographic_items).to_a)
-              end
-            end
-          }
-          # @todo change 'id in (?)' to some other sql construct
-          GeographicItem.where(id: part.flatten.map(&:id))
-
-        else
-          q = geographic_items.flatten.collect { |geographic_item|
-            GeographicItem.containing_sql_reverse(column_name, geographic_item.to_param, geographic_item.geo_object_type)
-          }.join(' or ')
-          where(q) # .excluding(geographic_items)
-      end
+      else
+        q = geographic_items.flatten.collect { |geographic_item|
+          GeographicItem.containing_sql_reverse(column_name, geographic_item.to_param, geographic_item.geo_object_type)
+        }.join(' or ')
+        where(q) # .excluding(geographic_items)
     end
+  end
 
-    def sql_for_is_contained_by(column_name, geographic_item)
-      geo_id   = geographic_item.id
-      geo_type = geographic_item.geo_object_type
-      template = '(ST_Contains((select geographic_items.%s::geometry from geographic_items where geographic_items.id = %d), %s::geometry))'
-      retval   = []
-      column_name.downcase!
-      case column_name
-        when 'any'
-          DATA_TYPES.each { |column|
-            unless column == :geometry_collection
+  def sql_for_is_contained_by(column_name, geographic_item)
+    geo_id   = geographic_item.id
+    geo_type = geographic_item.geo_object_type
+    template = '(ST_Contains((select geographic_items.%s::geometry from geographic_items where geographic_items.id = %d), %s::geometry))'
+    retval   = []
+    column_name.downcase!
+    case column_name
+      when 'any'
+        DATA_TYPES.each { |column|
+          unless column == :geometry_collection
+            retval.push(template % [geo_type, geo_id, column])
+          end
+        }
+      when 'any_poly', 'any_line'
+        DATA_TYPES.each { |column|
+          unless column == :geometry_collection
+            if column.to_s.index(column_name.gsub('any_', ''))
               retval.push(template % [geo_type, geo_id, column])
             end
-          }
-        when 'any_poly', 'any_line'
-          DATA_TYPES.each { |column|
-            unless column == :geometry_collection
-              if column.to_s.index(column_name.gsub('any_', ''))
-                retval.push(template % [geo_type, geo_id, column])
-              end
-            end
-          }
-        else
-          retval = template % [geo_type, geo_id, column_name]
-      end
-      if retval.instance_of?(Array)
-        retval = retval.join(' OR ')
-      end
-      retval
+          end
+        }
+      else
+        retval = template % [geo_type, geo_id, column_name]
     end
+    if retval.instance_of?(Array)
+      retval = retval.join(' OR ')
+    end
+    retval
+  end
 
     # @param [String, GeographicItem]
     # @return [Scope]
@@ -568,20 +574,20 @@ SELECT round(CAST(
     def eval_for_type(type_name)
       retval = "GeographicItem"
       case type_name.upcase
-        when 'POLYGON'
-          retval += '::Polygon'
-        when 'LINESTRING'
-          retval += '::LineString'
-        when 'POINT'
-          retval += '::Point'
-        when 'MULTIPOLYGON'
-          retval += '::MultiPolygon'
-        when 'MULTILINESTRING'
-          retval += '::MultiLineString'
-        when 'MULTIPOINT'
-          retval += '::MultiPoint'
-        else
-          retval = nil
+      when 'POLYGON'
+        retval += '::Polygon'
+      when 'LINESTRING'
+        retval += '::LineString'
+      when 'POINT'
+        retval += '::Point'
+      when 'MULTIPOLYGON'
+        retval += '::MultiPolygon'
+      when 'MULTILINESTRING'
+        retval += '::MultiLineString'
+      when 'MULTIPOINT'
+        retval += '::MultiPoint'
+      else
+        retval = nil
       end
       retval
     end
@@ -592,7 +598,7 @@ SELECT round(CAST(
       where(id: geographic_item.id).select("ST_IsValid(#{geographic_item.st_as_binary_sql}) is_valid")
     end
 
-    # @return [Scope]
+    # @return [Scope] 
     # TODO: deprecate for shared
     def excluding_self
       where.not(id: self.id)
@@ -705,15 +711,15 @@ SELECT round(CAST(
   # !!!!
 
   # @return [String]
-  #   a sql fragment that selects the pertinent column as a geometry,
+  #   a sql fragment that selects the pertinent column as a geometry, 
   #   must be variously wrapped
   def self.geometry_column_case_sql
-    "CASE type
-        WHEN 'GeographicItem::MultiPolygon' THEN multi_polygon::geometry
+    "CASE type 
+        WHEN 'GeographicItem::MultiPolygon' THEN multi_polygon::geometry 
         WHEN 'GeographicItem::Point' THEN point::geometry
-        WHEN 'GeographicItem::LineString' THEN line_string::geometry
-        WHEN 'GeographicItem::Polygon' THEN polygon::geometry
-        WHEN 'GeographicItem::MultiLineString' THEN multi_line_string::geometry
+        WHEN 'GeographicItem::LineString' THEN line_string::geometry 
+        WHEN 'GeographicItem::Polygon' THEN polygon::geometry 
+        WHEN 'GeographicItem::MultiLineString' THEN multi_line_string::geometry 
         WHEN 'GeographicItem::MultiPoint' THEN multi_point::geometry
         END"
   end
@@ -721,13 +727,13 @@ SELECT round(CAST(
   # example, not used
   def self.geometry_for(geographic_item_id)
     GeographicItem.select(GeographicItem.geometry_column_case_sql + " AS geometry").find(geographic_item_id)['geometry']
-  end
+  end 
 
 
   # example, not used
   def self.geometry_sql_for(geographic_item_id)
-    "SELECT " + GeographicItem.geometry_column_case_sql + " AS geometry FROM geographic_items WHERE id = #{geographic_item_id.to_i} LIMIT 1"
-  end
+    "SELECT " + GeographicItem.geometry_column_case_sql + " AS geometry FROM geographic_items WHERE id = #{geographic_item_id} LIMIT 1"
+  end 
 
   # example, not used
   def self.geometry_sql_for_collection(*geographic_item_ids)
@@ -737,11 +743,11 @@ SELECT round(CAST(
   # example, not used
   def self.st_multi(*geographic_item_ids)
     GeographicItem.find_by_sql(
-      "SELECT ST_Multi(ST_Collect(g.the_geom)) AS singlegeom
-       FROM (
-          SELECT (ST_DUMP(#{GeographicItem.geometry_column_case_sql})).geom AS the_geom
-          FROM geographic_items
-          WHERE id IN (#{geographic_item_ids.join(',')}))
+      "SELECT ST_Multi(ST_Collect(g.the_geom)) AS singlegeom 
+       FROM ( 
+          SELECT (ST_DUMP(#{GeographicItem.geometry_column_case_sql})).geom AS the_geom 
+          FROM geographic_items 
+          WHERE id IN (#{geographic_item_ids.join(',')})) 
         AS g;"
     )
   end
@@ -751,11 +757,11 @@ SELECT round(CAST(
   #
   # was ST_Multi(ST_Collect()  )
   def self.st_collect_sql(*geographic_item_ids)
-    "SELECT ST_Collect(f.the_geom) AS single_geometry
-       FROM (
-          SELECT (ST_DUMP(#{GeographicItem.geometry_column_case_sql})).geom as the_geom
-          FROM geographic_items
-          WHERE id in (#{geographic_item_ids.join(',')}))
+    "SELECT ST_Collect(f.the_geom) AS single_geometry 
+       FROM ( 
+          SELECT (ST_DUMP(#{GeographicItem.geometry_column_case_sql})).geom as the_geom 
+          FROM geographic_items 
+          WHERE id in (#{geographic_item_ids.join(',')})) 
         AS f"
   end
 
@@ -766,31 +772,52 @@ SELECT round(CAST(
   # @return [Scope]
   #    the geographic items containing these collective geographic_item ids, not including self
   def self.containing(*geographic_item_ids)
-    GeographicItem.where(
-      "ST_CoveredBy(
-        #{GeographicItem.single_geometry_sql(geographic_item_ids)},
-        #{GeographicItem.geometry_column_case_sql}
+    GeographicItem.where(GeographicItem.containing_where_sql(geographic_item_ids)
+        ).not_ids(*geographic_item_ids)
+  end
+
+  # @return [String]
+  #   returns a single geometery "column" (paren wrapped) as "single" for multiple geographic item ids, or the geometry as 'geometry' for a single id
+  def self.geometry_sql2(*geographic_item_ids)
+    if geographic_item_ids.count == 1
+      "(#{GeographicItem.geometry_sql_for(geographic_item_ids.flatten.first)})"
+    else
+      GeographicItem.single_geometry_sql(geographic_item_ids)
+    end
+  end
+
+  def self.containing_where_sql(*geographic_item_ids)
+    "ST_CoveredBy(
+    #{GeographicItem.geometry_sql2(*geographic_item_ids)},
+    #{GeographicItem.geometry_column_case_sql}
        )"
-    ).not_ids(*geographic_item_ids)
   end
 
   # @return [Scope]
   #    the geographic items contained by any of these geographic_item ids, not including self (works via ST_ContainsProperly)
   def self.contained_by(*geographic_item_ids)
-    GeographicItem.where(
-      "ST_ContainsProperly(
-      #{GeographicItem.single_geometry_sql(geographic_item_ids)},
-      #{GeographicItem.geometry_column_case_sql}
-      )"
-    )
+    GeographicItem.where( GeographicItem.contained_by_where_sql(geographic_item_ids) )
   end
 
-  # @todo refactor to subclasses or remove completely, likely not useful given geojson capabilities
-  # @todo deprecate fully in favour of providing ids
-  # @return [Boolean]
-  def self.check_geo_params(_column_name, _geographic_item)
-    true
-    # (DATA_TYPES.include?(column_name.to_sym) && geographic_item.class.name == 'GeographicItem')
+  def self.contained_by_where_sql(*geographic_item_ids)
+    "ST_ContainsProperly(
+      #{GeographicItem.geometry_sql2(*geographic_item_ids)},
+      #{GeographicItem.geometry_column_case_sql} 
+      )"
+  end
+
+  # TODO: Remove the hard coded 4326 reference
+  def self.containing_where_for_point_sql(rgeo_point)
+    "ST_CoveredBy(
+    ST_GeomFromText('#{rgeo_point}', 4326), 
+    #{GeographicItem.geometry_column_case_sql}
+       )"
+  end
+
+  # @return [Scope]
+  #    the geographic items containing this point
+  def self.containing_point(rgeo_point)
+    GeographicItem.where(GeographicItem.containing_where_for_point_sql(rgeo_point))
   end
 
   protected
@@ -898,8 +925,16 @@ SELECT round(CAST(
   end
 
   # @return [Hash] of hashes points in the polygons (exterior_ring ONLY)
-  def multi_polygon_to_hash(_multi_polygon)
+  def multi_polygon_to_hash(multi_polygon)
     {polygons: self.to_a}
+  end
+
+  # @todo refactor to subclasses or remove completely, likely not useful given geojson capabilities
+  # @todo deprecate fully in favour of providing ids
+  # @return [Boolean]
+  def self.check_geo_params(column_name, geographic_item)
+    return true
+    # (DATA_TYPES.include?(column_name.to_sym) && geographic_item.class.name == 'GeographicItem')
   end
 
   # validation

@@ -31,11 +31,42 @@ module Dwca::CollectionObjectExtensions
   end
 
   def dwca_latitude
-    collecting_event.try(:verbatim_latitude)
+    try(:collecting_event).try(:verbatim_latitude)
   end
 
   def dwca_latitude
-    collecting_event.try(:verbatim_longitude)
+    try(:collecting_event).try(:verbatim_longitude)
+  end
+
+  def dwca_country
+    v = try(:collecting_event).try(:geographic_name_classification)
+    v[:country] if v
+  end
+
+  def dwca_state
+    v = try(:collecting_event).try(:geographic_name_classification)
+    v[:state] if v
+  end
+
+  def dwca_county
+    v = try(:collecting_event).try(:geographic_name_classification)
+    v[:county] if v
+  end
+
+  def dwca_locality
+    try(:collecting_event).try(:verbatim_locality)
+  end
+
+  def dwca_latitude
+
+  end
+
+  def dwca_longitude
+
+  end
+
+  def dwca_precision
+
   end
 
   protected
@@ -43,6 +74,8 @@ module Dwca::CollectionObjectExtensions
   def set_taxonomy
     if self.current_taxon_name
       @taxonomy = self.current_taxon_name.full_name_hash
+    else
+      @taxonomy ||= {}
     end
   end
 

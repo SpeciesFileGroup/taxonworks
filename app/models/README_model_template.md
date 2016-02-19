@@ -10,8 +10,10 @@ development.
   ```
   class Foo << ActiveRecord::Base
 
-    # Include statements, and acts_as_type
+    # Include statements
     include Housekeeping
+
+    # acts_as, has_ etc. includes
     acts_as_nested_set
 
     # Aliases
@@ -32,6 +34,9 @@ development.
     belongs_to :source
     has_one :creator
     has_many :bars
+   
+    # nested_attributes 
+    accepts_nested_attributes_for
 
     # Scopes, clustered by function
     scope :randum, -> {}
@@ -41,7 +46,6 @@ development.
 
     # "Soft" Validations
     soft_validate(:sv_validate_parent_rank, set: :validate_parent_rank)
-
 
     # Getters/Setters
     def wings=(value)

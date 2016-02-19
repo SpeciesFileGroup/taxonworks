@@ -14,6 +14,9 @@
 
 
 <%= content_for :related_attributes do %>
+
+    <%= simple_map([@collecting_event]) -%>
+
     <% if @collecting_event.collectors.any? %>
         <h3>Collectors</h3>
         <ul>

@@ -353,13 +353,13 @@ describe GeographicItem, type: :model, group: :geo do
     end
 
     specify '#valid_geometry? returns \'true\' for a valid GeoObject' do
-      expect(@p0.valid_geometry?).to be_truthy
-      expect(@a.valid_geometry?).to be_truthy
-      expect(@b.valid_geometry?).to be_truthy
-      expect(@h.valid_geometry?).to be_truthy
-      expect(@f.valid_geometry?).to be_truthy
-      expect(@g.valid_geometry?).to be_truthy
-      expect(@all_items.valid_geometry?).to be_truthy
+      expect(@p0.is_valid_geometry?).to be_truthy
+      expect(@a.is_valid_geometry?).to be_truthy
+      expect(@b.is_valid_geometry?).to be_truthy
+      expect(@h.is_valid_geometry?).to be_truthy
+      expect(@f.is_valid_geometry?).to be_truthy
+      expect(@g.is_valid_geometry?).to be_truthy
+      expect(@all_items.is_valid_geometry?).to be_truthy
     end
 
     specify '#st_centroid returns a lat/lng of the centroid of the GeoObject' do

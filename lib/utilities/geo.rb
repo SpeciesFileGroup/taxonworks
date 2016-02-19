@@ -53,12 +53,12 @@ To add a new (discovered) symbol:
 
   end
 
-# 12345       (presume meters)
-# 123.45
-# 123 ft > 123 ft. > 123 feet > 1 foot > 123 f > 123 f.
-# 123 m > 123 meters > 123 m.
-# 123 km > 123 km. > 123 kilometers
-
+  # 12345       (presume meters)
+  # 123.45
+  # 123 ft > 123 ft. > 123 feet > 1 foot > 123 f > 123 f.
+  # 123 m > 123 meters > 123 m.
+  # 123 km > 123 km. > 123 kilometers
+  #
   def self.elevation_in_meters(elev_in)
     elev_in = '0.0 meters' if elev_in.blank?
     elev_in.strip.downcase!
@@ -76,18 +76,18 @@ To add a new (discovered) symbol:
     elev
   end
 
-# 42∞5'18.1"S88∞11'43.3"W
-# S42∞5'18.1"W88∞11'43.3"
-# S42∞5.18'W88∞11.43'
-# 42∞5.18'S88∞11.43'W
-# S42.18∞W88.34∞
-# 42.18∞S88.43∞W
-# -12.263, 49.398
-#
-# 42:5:18.1N
-# 88:11:43.3W
-
-# no limit test, unless there is a letter included
+  # 42∞5'18.1"S88∞11'43.3"W
+  # S42∞5'18.1"W88∞11'43.3"
+  # S42∞5.18'W88∞11.43'
+  # 42∞5.18'S88∞11.43'W
+  # S42.18∞W88.34∞
+  # 42.18∞S88.43∞W
+  # -12.263, 49.398
+  #
+  # 42:5:18.1N
+  # 88:11:43.3W
+  #
+  # no limit test, unless there is a letter included
   def self.degrees_minutes_seconds_to_decimal_degrees(dms_in)
     match_string = nil
     no_point     = false
