@@ -19,8 +19,7 @@ class Protonym < TaxonName
   validates_presence_of :rank_class, message: 'is a required field' 
   validates_presence_of :name, message: 'is a required field' 
   
-  validate :check_format_of_name,
-    :validate_rank_class_class,
+  validate :validate_rank_class_class,
     :validate_parent_rank_is_higher,
     :check_new_rank_class,
     :check_new_parent_class,
@@ -208,8 +207,16 @@ class Protonym < TaxonName
   end
 
   def self.family_group_base(name_string)
-    name_string.match(/(^.*)(ini|ina|inae|idae|oidae|odd|ad|oidea)/)
-    $1
+    name_string.match(/(^.*)(ini|ina|inae|idae|oidae|odd|ad|oidea)$/)
+    $1 || name_string
+  end
+
+  def self.family_group_name_at_rank(name_string, rank_string)
+    if name_string == family_group_base(name_string)
+      return name_string
+    else
+      return family_group_base(name_string) + Ranks.lookup(:iczn, rank_string).constantize.try(:valid_name_ending).to_s
+    end
   end
 
   def get_primary_type
@@ -282,16 +289,6 @@ class Protonym < TaxonName
       if self.parent != r.object_taxon_name
         errors.add(:parent_id, "Taxon has a relationship 'incertae sedis' - delete the relationship before changing the parent")
       end
-    end
-  end
-
-  def name_is_latinized
-    exepted_with_taxon_name_classifications = ['TaxonNameClassification::Iczn::Unavailable::NotLatin',
-                                              'TaxonNameClassification::Iczn::Unavailable::LessThanTwoLetters',
-                                              'TaxonNameClassification::Iczn::Unavailable::NotLatinizedAfter1899',
-                                              'TaxonNameClassification::Iczn::Unavailable::NotLatinizedBefore1900AndNotAccepted']
-    if name =~ /[^a-zA-Z|\-]/ && (self.taxon_name_classifications.collect{|t| t.type} & exepted_with_taxon_name_classifications).empty?
-      errors.add(:name, 'must be latinized, no digits or spaces allowed')
     end
   end
 

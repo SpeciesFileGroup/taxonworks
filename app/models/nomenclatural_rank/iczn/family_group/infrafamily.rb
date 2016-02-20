@@ -14,6 +14,11 @@ class NomenclaturalRank::Iczn::FamilyGroup::Infrafamily < NomenclaturalRank::Icz
     [NomenclaturalRank::Iczn::FamilyGroup::Subfamily.to_s]
   end
 
+  def self.valid_name_ending
+    'odd'
+  end
+
+
   def self.typical_use
     false
   end

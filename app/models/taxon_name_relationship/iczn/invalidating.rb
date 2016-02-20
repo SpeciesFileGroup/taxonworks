@@ -11,8 +11,8 @@ class TaxonNameRelationship::Iczn::Invalidating < TaxonNameRelationship::Iczn
     self.parent.disjoint_subject_classes +
         self.collect_descendants_to_s(TaxonNameClassification::Iczn::Available::Valid) +
         self.collect_to_s(TaxonNameClassification::Iczn::Available,
-            TaxonNameClassification::Iczn::Available::OfficialIndexOfAvailableNames,
-            TaxonNameClassification::Iczn::Available::OfficialListOfAvailableNames,
+            TaxonNameClassification::Iczn::Available::OfficialListOfFamilyGroupNamesInZoology,
+            TaxonNameClassification::Iczn::Available::OfficialListOfGenericNamesInZoology,
             TaxonNameClassification::Iczn::Available::OfficialListOfWorksApprovedAsAvailable)
   end
 

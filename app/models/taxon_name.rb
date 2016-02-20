@@ -173,14 +173,15 @@ class TaxonName < ActiveRecord::Base
     end
   end
 
-  validate :check_format_of_name,
-    :validate_rank_class_class,
+  validate :validate_rank_class_class,
+  # :check_format_of_name,
     :validate_parent_rank_is_higher,
     :validate_parent_is_set,
     :check_new_rank_class,
     :check_new_parent_class,
     :validate_source_type,
-    :validate_one_root_per_project
+    :validate_one_root_per_project,
+    :name_is_latinized
 
   validates_presence_of :type, message: 'is not specified'
   belongs_to :source
@@ -560,7 +561,7 @@ class TaxonName < ActiveRecord::Base
       n = n[0, 3] + n[3..-4].gsub('o', 'i') + n[-3, 3] if n.length > 6 # connecting vowel in the middle of the word (nigrocinctus vs. nigricinctus)
     elsif self.rank_string =~ /Family/
       n_base = Protonym.family_group_base(self.name)
-      if n_base.nil?
+      if n_base.nil? || n_base == self.name
         n = self.name
       else
         n = n_base + 'idae'
@@ -1196,15 +1197,30 @@ class TaxonName < ActiveRecord::Base
     end
   end
 
-  def check_format_of_name
-    if self.type == 'Protonym' && self.rank_class && self.rank_class.respond_to?(:validate_name_format)
-      self.rank_class.validate_name_format(self)
-    end
-  end
+#  def check_format_of_name
+#    if self.type == 'Protonym' && self.rank_class && self.rank_class.respond_to?(:validate_name_format)
+#        self.rank_class.validate_name_format(self)
+#    end
+#  end
 
   # See subclasses
   def validate_rank_class_class
     true
+  end
+
+
+  def name_is_latinized
+    exepted_with_taxon_name_classifications = ['TaxonNameClassification::Iczn::Unavailable::NotLatin',
+                                               'TaxonNameClassification::Iczn::Unavailable::LessThanTwoLetters',
+                                               'TaxonNameClassification::Iczn::Unavailable::NotLatinizedAfter1899',
+                                               'TaxonNameClassification::Iczn::Unavailable::NotLatinizedBefore1900AndNotAccepted']
+    if (taxon_name_classifications.collect{|t| t.type} & exepted_with_taxon_name_classifications).empty? && type == 'Protonym'
+      if name =~ /[^a-zA-Z|\-]/
+        errors.add(:name, 'Name must be latinized, no digits or spaces allowed')
+      elsif rank_class && rank_class.respond_to?(:validate_name_format)
+        rank_class.validate_name_format(self)
+      end
+    end
   end
 
   # @proceps self.rank_class_was is not a class method anywhere, so this comparison is vs. nil

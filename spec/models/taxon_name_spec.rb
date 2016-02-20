@@ -603,15 +603,15 @@ describe TaxonName, type: :model, group: [:nomenclature] do
           end
 
           specify "is invalidly_published when not ending in '-idae'" do
-            taxon_name.name       = 'Aus'
-            taxon_name.rank_class = Ranks.lookup(:iczn, 'family')
-            taxon_name.valid?
-            expect(taxon_name.errors.include?(:name)).to be_truthy
+            t = Protonym.new(name: 'Aus', rank_class: Ranks.lookup(:iczn, 'family'))
+            t.valid?
+            expect(t.errors.include?(:name)).to be_truthy
           end
 
           specify 'is invalidly_published when not capitalized' do
             taxon_name.name       = 'fooidae'
             taxon_name.rank_class = Ranks.lookup(:iczn, 'family')
+            taxon_name.type = 'Protonym'
             taxon_name.valid?
             expect(taxon_name.errors.include?(:name)).to be_truthy
           end
@@ -620,21 +620,22 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             taxon_name.name       = 'Aus'
             taxon_name.rank_class = Ranks.lookup(:iczn, 'species')
             taxon_name.valid?
+            taxon_name.type = 'Protonym'
             expect(taxon_name.errors.include?(:name)).to be_truthy
-            #taxon_name.soft_validate(:validate_name)
-            #expect(taxon_name.soft_validations.messages_on(:name).count).to eq(1)
           end
         end
 
         context 'when rank ICN family' do
           specify "is validly_published when ending in '-aceae'" do
             taxon_name.name       = 'Aaceae'
+            taxon_name.type = 'Protonym'
             taxon_name.rank_class = Ranks.lookup(:icn, 'family')
             taxon_name.valid?
             expect(taxon_name.errors.include?(:name)).to be_falsey
           end
           specify "is invalidly_published when not ending in '-aceae'" do
             taxon_name.name       = 'Aus'
+            taxon_name.type = 'Protonym'
             taxon_name.rank_class = Ranks.lookup(:icn, 'family')
             taxon_name.valid?
             expect(taxon_name.errors.include?(:name)).to be_truthy

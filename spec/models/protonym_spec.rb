@@ -42,7 +42,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
     end
 
     context 'latinization requires' do 
-      let(:error_message) {  'must be latinized, no digits or spaces allowed' } 
+      let(:error_message) {  'Name must be latinized, no digits or spaces allowed' }
       specify 'no digits are present at end' do
         protonym.name = 'aus1'
         protonym.valid?

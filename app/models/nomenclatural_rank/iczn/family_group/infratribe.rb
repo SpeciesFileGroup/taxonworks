@@ -14,6 +14,11 @@ class NomenclaturalRank::Iczn::FamilyGroup::Infratribe < NomenclaturalRank::Iczn
     [NomenclaturalRank::Iczn::FamilyGroup::Subtribe.to_s]
   end
 
+  def self.valid_name_ending
+    'ad'
+  end
+
+
   def self.typical_use
     false
   end

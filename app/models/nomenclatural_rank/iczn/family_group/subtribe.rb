@@ -10,6 +10,10 @@ class NomenclaturalRank::Iczn::FamilyGroup::Subtribe < NomenclaturalRank::Iczn::
     taxon_name.errors.add(:name, 'name must end in -ina') if not(taxon_name.name =~ /.*ina\Z/)
   end
 
+  def self.valid_name_ending
+    'ina'
+  end
+
   def self.valid_parents
     [NomenclaturalRank::Iczn::FamilyGroup::Tribe.to_s]
   end

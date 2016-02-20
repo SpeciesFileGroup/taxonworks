@@ -172,7 +172,7 @@ describe TaxonNameClassification, type: :model do
       s = FactoryGirl.create(:iczn_species, parent: g)
       r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g, object_taxon_name: s, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
       c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Iczn::Unavailable')
-      c2 = FactoryGirl.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Iczn::Available::OfficialListOfAvailableNames')
+      c2 = FactoryGirl.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Iczn::Available::OfficialListOfGenericNamesInZoology')
       c1.soft_validate(:validate_disjoint_classes)
       c2.soft_validate(:validate_disjoint_classes)
       #conflicting with c2

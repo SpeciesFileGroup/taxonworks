@@ -105,6 +105,11 @@ class NomenclaturalRank
     []
   end
 
+  def valid_name_ending
+    ''
+  end
+
+
   private
 
   # TODO: move this to string method
