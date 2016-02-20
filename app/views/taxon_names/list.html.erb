@@ -34,16 +34,16 @@
 <table cellspacing="0" id="taxon-list">
   <thead>
   <tr>
-    <th data-filter="name"><div>Name<a><img src="/assets/icons/close.svg" width="10" /></a></div></th>
-    <th data-filter="parent"><div>Parent<a><img src="/assets/icons/close.svg" width="10" /></a></div></th>
-    <th data-filter="cachedName"><div>Cached name<a><img src="/assets/icons/close.svg" width="10" /></a></div></th>
-    <th data-filter="source"><div>Source<a><img src="/assets/icons/close.svg" width="10" /></a></div></th>
-    <th data-filter="yearPublication"><div>Year of publication<a><img src="/assets/icons/close.svg" width="10" /></a></div></th>
-    <th data-filter="verbatimAuthor"><div>Verbatim author<a><img src="/assets/icons/close.svg" width="10" /></a></div></th>
-    <th data-filter="rank"><div>Rank<a><img src="/assets/icons/close.svg" width="10" /></a></div></th>
-    <th data-filter="metadata"><div>Type<a><img src="/assets/icons/close.svg" width="10" /></a></div></th>
-    <th data-filter="updateBy"><div>Updated by<a><img src="/assets/icons/close.svg" width="10" /></a></div></th>
-    <th data-filter="lastUpdate"><div>Last updated<a><img src="/assets/icons/close.svg" width="10" /></a></div></th>
+    <th class="headerTableOptions" data-filter="name"><a href="#"><div>Name</div></a></th>
+    <th class="headerTableOptions" data-filter="parent"><a href="#"><div>Parent</div></th>
+    <th class="headerTableOptions" data-filter="cachedName"><a href="#"><div>Cached name</div></th>
+    <th class="headerTableOptions" data-filter="source"><a href="#"><div>Source</div></th>
+    <th class="headerTableOptions" data-filter="yearPublication"><a href="#"><div>Year of publication</div></th>
+    <th class="headerTableOptions" data-filter="verbatimAuthor"><a href="#"><div>Verbatim author</div></th>
+    <th class="headerTableOptions" data-filter="rank"><a href="#"><div>Rank</div></th>
+    <th class="headerTableOptions" data-filter="metadata"><a href="#"><div>Type</div></th>
+    <th class="headerTableOptions" data-filter="updateBy"><a href="#"><div>Updated by</div></th>
+    <th class="headerTableOptions" data-filter="lastUpdate"><a href="#"><div>Last updated</div></th>
     <th></th>
     <th></th>
     <th></th>
@@ -51,7 +51,7 @@
   </thead>
   <tbody>
   <% @taxon_names.each do |taxon_name| %>
-      <tr class="<%= cycle('list_line_odd', 'list_line_even') %> context-menu-one btn btn-neutral"><%= link_to '', taxon_name.metamorphosize %>
+      <tr class="context-menu-one btn btn-neutral"><%= link_to '', taxon_name.metamorphosize %>
         <td data-filter="name"><%= taxon_name.name %></td>
         <td data-filter="parent"><%= object_tag(taxon_name.parent) %></td>
         <td data-filter="cachedName"><%= taxon_name.cached_html ? taxon_name.cached_html.html_safe : content_tag(:em, 'ERROR: not rendered',  class: :warning) %></td>
@@ -91,7 +91,8 @@
     $('[data-filter="'+ $(this).parent().parent().attr("data-filter") +'"]').hide(animationTime);
   });
 
-  $('.filter-nav').on('click', 'a[data-display="showAll"]', function() {
+
+function showAll() {
     $('[data-filter]').show(animationTime);
     $('a[data-filter-publication]').attr("data-filter-publication","true");
     $('a[data-filter-metadata]').attr("data-filter-metadata","true");
@@ -99,6 +100,9 @@
     $('a[data-filter-publication]').children().children().attr("src","/assets/icons/show.svg");
     $('a[data-filter-user-info]').children().children().attr("src","/assets/icons/show.svg");
     $('a[data-filter-metadata]').children().children().attr("src","/assets/icons/show.svg");
+}
+  $('.filter-nav').on('click', 'a[data-display="showAll"]', function() {
+    showAll();
   });  
 
   $('.filter-nav').on('click', 'a[data-filter-publication]', function() {
@@ -152,7 +156,15 @@ $( "tbody tr" ).dblclick(function() {
 
 $(document).ready(initContextMenus);
 $(document).on('page:change', initContextMenus);
+$(document).ready(headerTableOptions);
+$(document).on('page:change', headerTableOptions);
 
+
+$(document).ready(function() 
+    { 
+        $("#taxon-list").tablesorter(); 
+    } 
+);
 
  function initContextMenus() {
   $.contextMenu('destroy', ".context-menu-one" );
@@ -173,8 +185,6 @@ $(document).on('page:change', initContextMenus);
                     $(this).find("[data-delete] a").click();
                   break;
                 }
-                //window.console && console.log(m) || alert(m); 
-
             },
             items: {
                 "show": {name: "Show", icon: "show"},
@@ -185,5 +195,28 @@ $(document).on('page:change', initContextMenus);
         });
   }
 
+ function headerTableOptions() {
+  $.contextMenu('destroy', ".headerTableOptions" );
+        $.contextMenu({
+            selector: '.headerTableOptions', 
+            autoHide: true,
+            callback: function(key, options) {
+                var m = "clicked: " + key;
 
+                switch(key) {              
+                  case "delete":
+                    $('[data-filter="'+ $(this).attr("data-filter") +'"]').hide(animationTime);
+                  break;
+                  case "show":
+                    showAll();
+                  break;
+                }
+            },
+            items: {                
+                "delete": {name: "Delete", icon: "delete"},
+                "sep1": "---------",
+                "show":{name: "Show All", icon: "show"}
+            }
+        });
+  }  
 </script>
