@@ -51,7 +51,7 @@
   </thead>
   <tbody>
   <% @taxon_names.each do |taxon_name| %>
-      <tr class="context-menu-one btn btn-neutral"><%= link_to '', taxon_name.metamorphosize %>
+      <tr cellspacing="2" class="context-menu-one btn btn-neutral"><%= link_to '', taxon_name.metamorphosize %>
         <td data-filter="name"><%= taxon_name.name %></td>
         <td data-filter="parent"><%= object_tag(taxon_name.parent) %></td>
         <td data-filter="cachedName"><%= taxon_name.cached_html ? taxon_name.cached_html.html_safe : content_tag(:em, 'ERROR: not rendered',  class: :warning) %></td>

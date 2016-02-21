@@ -17,7 +17,7 @@
 				      <div class="data_card" style="border:1px solid #FCF09A;">
 					    	<div class="status"><%= link_to('Remove', remove_favorite_page_path(favorited_route: route), method: 'post') -%> 
 					    	</div>
-					    	<%= link_to(route.parameterize(' - '), route) -%> 
+					    	<%= link_to(route.parameterize(' - ').humanize, route) -%> 
 					  </div>
 			      </div>		      
 		      <% end %>
@@ -239,15 +239,15 @@ function changeAllSectionsFilter(dataTag, value) {
 }
 
 function deactivateBackgroundColorLink(selector) {
-	$(selector).parent().removeClass("activated");
+	$(selector).removeClass("activated");
 }
 
 function activateBackgroundColorLink(selector) {
-	$(selector).parent().addClass("activated");
+	$(selector).addClass("activated");
 }
 
 function changeBackgroundColorLink(selector) {
-	if ($(selector).parent().hasClass("activated")) {
+	if ($(selector).hasClass("activated")) {
 		deactivateBackgroundColorLink(selector);
 	}
 	else {
@@ -281,46 +281,52 @@ function changeBackgroundColorLink(selector) {
   });      
 
 
-  $('.navigation').on('click', 'a[data-filter-category="taxon_name"]', function() {
-	  	changeBackgroundColorLink('a[data-filter-category="taxon_name"]');
+  $('.data_card').mousedown(function(event) {
+  	if((event.which) == 1) {
+    	location.href = $(this).children("a").attr('href');
+	}
+  });     
+
+  $('.navigation[data-filter-category="taxon_name"]').on('click', function() {
+	  	changeBackgroundColorLink('[data-filter-category="taxon_name"]');
       	core.changeFilter("data-category-TaxonName");
       	supporting.changeFilter("data-category-TaxonName");
       	annotations.changeFilter("data-category-TaxonName"); 
   });
 
-  $('.navigation').on('click', 'a[data-filter-category="collecting_event"]', function() {
-  		changeBackgroundColorLink('a[data-filter-category="collecting_event"]');
+  $('.navigation[data-filter-category="collecting_event"]').on('click', function() {
+  		changeBackgroundColorLink('[data-filter-category="collecting_event"]');
       	core.changeFilter("data-category-collectingevent"); 
       	supporting.changeFilter("data-category-collectingevent"); 
       	annotations.changeFilter("data-category-collectingevent"); 
   });
 
-  $('.navigation').on('click', 'a[data-filter-category="collection_object"]', function() {
-  		changeBackgroundColorLink('a[data-filter-category="collection_object"]');  	
+  $('.navigation[data-filter-category="collection_object"]').on('click', function() {
+  		changeBackgroundColorLink('[data-filter-category="collection_object"]');  	
 	    core.changeFilter("data-category-collectionobject");   
 	    supporting.changeFilter("data-category-collectionobject");   
 	    annotations.changeFilter("data-category-collectionobject"); 
   });  
 
-  $('.navigation').on('click', 'a[data-filter-category="source"]', function() {
-  		changeBackgroundColorLink('a[data-filter-category="source"]');  	
+  $('.navigation[data-filter-category="source"]').on('click', function() {
+  		changeBackgroundColorLink('[data-filter-category="source"]');  	
       	core.changeFilter("data-category-Source");
       	supporting.changeFilter("data-category-Source");
       	annotations.changeFilter("data-category-Source");
   });
 
-  $('.navigation').on('click', 'a[data-filter-category="reset"]', function() {
+  $('.navigation[data-filter-category="reset"]').on('click', function() {
 		changeAllSectionsFilter("data-category-Source", false);
 		changeAllSectionsFilter("data-category-TaxonName", false);
 		changeAllSectionsFilter("data-category-collectionobject", false);
 		changeAllSectionsFilter("data-category-collectingevent", false);
-	  	activateBackgroundColorLink('a[data-filter-category="reset"]');
-	  	deactivateBackgroundColorLink('a[data-filter-category="source"]');
-	  	deactivateBackgroundColorLink('a[data-filter-category="taxon_name"]');
-	  	deactivateBackgroundColorLink('a[data-filter-category="collecting_event"]');
-	  	deactivateBackgroundColorLink('a[data-filter-category="collection_object"]');
+	  	activateBackgroundColorLink('[data-filter-category="reset"]');
+	  	deactivateBackgroundColorLink('[data-filter-category="source"]');
+	  	deactivateBackgroundColorLink('[data-filter-category="taxon_name"]');
+	  	deactivateBackgroundColorLink('[data-filter-category="collecting_event"]');
+	  	deactivateBackgroundColorLink('[data-filter-category="collection_object"]');
 	  	setTimeout( function() {
-	  	deactivateBackgroundColorLink('a[data-filter-category="reset"]');
+	  	deactivateBackgroundColorLink('[data-filter-category="reset"]');
 	  }, 100);
   });  
 
@@ -365,9 +371,9 @@ $(document).on('page:change', initContextMenus);
 
 
  function initContextMenus() {
-  $.contextMenu('destroy', ".favorite-box .data_card" );
+  $.contextMenu('destroy', ".favorite-box .card-container" );
         $.contextMenu({
-            selector: '.favorite-box .data_card', 
+            selector: '.favorite-box .card-container', 
             autoHide: true,
             callback: function(key, options) {
                 var m = "clicked: " + key;
@@ -377,8 +383,6 @@ $(document).on('page:change', initContextMenus);
                     $(this).find('a').click();
                   break;
                 }
-                //window.console && console.log(m) || alert(m); 
-
             },
             items: {
                 "delete": {name: "Remove from favorite", icon: "delete"}

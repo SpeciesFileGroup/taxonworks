@@ -26,11 +26,13 @@
       </div> 
       <div class="navigation-controls">
       	<% UserTasks::CATEGORIES.each do |c| -%>
-        	<%= content_tag(:div, link_to(c.humanize, "#", 'data-filter-category' => c), class: 'navigation') -%>
+        	<%= 
+			content_tag(:div, c.humanize, 'data-filter-category' => c, 'data-favorite' => true, 'class' => 'navigation')
+			-%>
         <% end %> 
-        <div class="navigation">
+        <div class="navigation" data-filter-category="reset">
         	<img src="/assets/icons/restart.svg"/>
-        	<a data-filter-category="reset" href="#">Reset</a>
+        	Reset
         </div>                                    
       </div>        
      </div>  
@@ -39,8 +41,8 @@
 </div>
 
 <script type="text/javascript">
-	$('[data-filter-category="taxon_name"]').before('<img src="/assets/icons/new.svg"/>');
-	$('[data-filter-category="source"]').before('<img src="/assets/icons/book.svg"/>');
-	$('[data-filter-category="collection_object"]').before('<img src="/assets/icons/picking.svg"/>');
-	$('[data-filter-category="collecting_event"]').before('<img src="/assets/icons/geo_location.svg"/>');	
+	$('[data-filter-category="taxon_name"]').prepend('<img src="/assets/icons/new.svg"/>');
+	$('[data-filter-category="source"]').prepend('<img src="/assets/icons/book.svg"/>');
+	$('[data-filter-category="collection_object"]').prepend('<img src="/assets/icons/picking.svg"/>');
+	$('[data-filter-category="collecting_event"]').prepend('<img src="/assets/icons/geo_location.svg"/>');	
 </script>

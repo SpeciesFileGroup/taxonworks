@@ -70,9 +70,16 @@
                 box-shadow 0.5s ease;
     background-color: $navigation_background;
     box-shadow:inset 0px 1px 5px 0px $navigation_border;
+    img {
+      opacity: 1;
+      width: 14px;
+      margin-left:5px;
+    }
   }
 
   .data_card {
+    cursor: pointer; 
+    cursor: hand;
     width: 195px;
     background-color: #FFF;
     display: flex;
@@ -104,6 +111,7 @@
     display: flex;
     flex-direction:row;
     img {
+      opacity: 0.5;
       width: 14px;
       margin-left:5px;
     }

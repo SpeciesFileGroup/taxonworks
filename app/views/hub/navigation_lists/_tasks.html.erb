@@ -221,15 +221,15 @@ function changeAllSectionsFilter(dataTag, value) {
 }
 
 function deactivateBackgroundColorLink(selector) {
-  $(selector).parent().removeClass("activated");
+  $(selector).removeClass("activated");
 }
 
 function activateBackgroundColorLink(selector) {
-  $(selector).parent().addClass("activated");
+  $(selector).addClass("activated");
 }
 
 function changeBackgroundColorLink(selector) {
-  if ($(selector).parent().hasClass("activated")) {
+  if ($(selector).hasClass("activated")) {
     deactivateBackgroundColorLink(selector);
   }
   else {
@@ -237,26 +237,26 @@ function changeBackgroundColorLink(selector) {
     }
 }
 
-  $('#filter').on('click', 'a', function() {
+  $('#filter').on('click', 'div', function() {
     if($(this).attr("data-filter-category") == "reset") {
       task.setFilterStatus("taxon_name",false);
       task.setFilterStatus("collecting_event",false);
       task.setFilterStatus("collection_object",false);
       task.setFilterStatus("source",false);
-      deactivateBackgroundColorLink('a[data-filter-category="source"]');
-      deactivateBackgroundColorLink('a[data-filter-category="taxon_name"]');
-      deactivateBackgroundColorLink('a[data-filter-category="collecting_event"]');
-      deactivateBackgroundColorLink('a[data-filter-category="collection_object"]');      
-      activateBackgroundColorLink('a[data-filter-category="reset"]');
+      deactivateBackgroundColorLink('[data-filter-category="source"]');
+      deactivateBackgroundColorLink('[data-filter-category="taxon_name"]');
+      deactivateBackgroundColorLink('[data-filter-category="collecting_event"]');
+      deactivateBackgroundColorLink('[data-filter-category="collection_object"]');      
+      activateBackgroundColorLink('[data-filter-category="reset"]');
       task.resetView();
       task.filterChilds();
       task.showChilds();
       setTimeout( function() {
-      deactivateBackgroundColorLink('a[data-filter-category="reset"]');
+      deactivateBackgroundColorLink('[data-filter-category="reset"]');
     }, 100);
     }
     else {
-      changeBackgroundColorLink('a[data-filter-category="'+ $(this).attr("data-filter-category") +'"]');
+      changeBackgroundColorLink('[data-filter-category="'+ $(this).attr("data-filter-category") +'"]');
       task.changeFilter($(this).attr("data-filter-category"));
       task.resetView();
       task.filterChilds();
@@ -285,7 +285,7 @@ function changeBackgroundColorLink(selector) {
   });  
 
   Mousetrap.bind('s', function() {
-      changeBackgroundColorLink('a[data-filter-category="source"]');
+      changeBackgroundColorLink('[data-filter-category="source"]');
       task.changeFilter("source");
       task.resetView();
       task.filterChilds();
@@ -293,7 +293,7 @@ function changeBackgroundColorLink(selector) {
   });
 
   Mousetrap.bind('e', function() {
-      changeBackgroundColorLink('a[data-filter-category="collecting_event"]');
+      changeBackgroundColorLink('[data-filter-category="collecting_event"]');
       task.changeFilter("collecting_event");
       task.resetView();
       task.filterChilds();
@@ -301,7 +301,7 @@ function changeBackgroundColorLink(selector) {
   });
 
   Mousetrap.bind('o', function() {
-      changeBackgroundColorLink('a[data-filter-category="collection_object"]');
+      changeBackgroundColorLink('[data-filter-category="collection_object"]');
       task.changeFilter("collection_object");
       task.resetView();
       task.filterChilds();
@@ -309,7 +309,7 @@ function changeBackgroundColorLink(selector) {
   });  
 
   Mousetrap.bind('t', function() {
-      changeBackgroundColorLink('a[data-filter-category="taxon_name"]');
+      changeBackgroundColorLink('[data-filter-category="taxon_name"]');
       task.changeFilter("taxon_name");
       task.resetView();
       task.filterChilds();
