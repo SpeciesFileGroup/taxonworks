@@ -9,17 +9,17 @@
         <img class="icon" src="/assets/icons/options.svg"/><div>Display</div>
       </div>
     
-    <a data-filter-metadata="true" href="#">
+    <a data-filter-active="true" data-group="metadata" href="#">
       <div class="td-filter">
         <img class="icon" src="/assets/icons/show.svg"/><div>Type</div>
       </div>
     </a>
-    <a data-filter-publication="true" href="#">
+    <a data-filter-active="true" data-group="publication" href="#">
       <div class="td-filter">
         <img class="icon" src="/assets/icons/show.svg"/><div>Source</div>
       </div>
     </a>
-    <a data-filter-user-info="true" href="#">
+    <a data-filter-active="true" data-group="housekeeping" href="#">
       <div class="td-filter">
         <img class="icon" src="/assets/icons/show.svg"/><div>Housekeeping</div>
       </div>
@@ -37,16 +37,16 @@
     <th class="headerTableOptions" data-filter="name"><a href="#"><div>Name</div></a></th>
     <th class="headerTableOptions" data-filter="parent"><a href="#"><div>Parent</div></a></th>
     <th class="headerTableOptions" data-filter="cachedName"><a href="#"><div>Cached name</div></a></th>
-    <th class="headerTableOptions" data-filter="source"><a href="#"><div>Source</div></a></th>
-    <th class="headerTableOptions" data-filter="yearPublication"><a href="#"><div>Year of publication</div></a></th>
+    <th class="headerTableOptions" data-group="publication" data-filter="source"><a href="#"><div>Source</div></a></th>
+    <th class="headerTableOptions" data-group="publication" data-filter="yearPublication"><a href="#"><div>Year of publication</div></a></th>
     <th class="headerTableOptions" data-filter="verbatimAuthor"><a href="#"><div>Verbatim author</div></a></th>
     <th class="headerTableOptions" data-filter="rank"><a href="#"><div>Rank</div></a></th>
-    <th class="headerTableOptions" data-filter="metadata"><a href="#"><div>Type</div></a></th>
-    <th class="headerTableOptions" data-filter="updateBy"><a href="#"><div>Updated by</div></a></th>
-    <th class="headerTableOptions" data-filter="lastUpdate"><a href="#"><div>Last updated</div></a></th>
-    <th></th>
-    <th></th>
-    <th></th>
+    <th class="headerTableOptions" data-group="metadata" data-filter="type"><a href="#"><div>Type</div></a></th>
+    <th class="headerTableOptions" data-group="housekeeping" data-filter="updateBy"><a href="#"><div>Updated by</div></a></th>
+    <th class="headerTableOptions" data-group="housekeeping" data-filter="lastUpdate"><a href="#"><div>Last updated</div></a></th>
+    <th style="display: none;"></th>
+    <th style="display: none;"></th>
+    <th style="display: none;"></th>
   </tr>
   </thead>
   <tbody>
@@ -55,25 +55,25 @@
         <td data-filter="name"><%= taxon_name.name %></td>
         <td data-filter="parent"><%= object_tag(taxon_name.parent) %></td>
         <td data-filter="cachedName"><%= taxon_name.cached_html ? taxon_name.cached_html.html_safe : content_tag(:em, 'ERROR: not rendered',  class: :warning) %></td>
-        <td data-filter="source"><%= object_tag(taxon_name.source) %></td>
-        <td data-filter="yearPublication"><%= taxon_name.year_of_publication %></td>
+        <td data-group="publication" data-filter="source"><%= object_tag(taxon_name.source) %></td>
+        <td data-group="publication" data-filter="yearPublication"><%= taxon_name.year_of_publication %></td>
         <td data-filter="verbatimAuthor"><%= taxon_name.verbatim_author %></td>
         <td data-filter="rank"><%= taxon_name.rank %></td>
-        <td data-filter="metadata"><%= taxon_name.type %></td>
-        <td data-filter="updateBy"><%= object_tag(taxon_name.updater) %></td>
-        <td data-filter="lastUpdate"><%= object_time_since_update_tag(taxon_name) %></td>
+        <td data-group="metadata" data-filter="type"><%= taxon_name.type %></td>
+        <td data-group="housekeeping" data-filter="updateBy"><%= object_tag(taxon_name.updater) %></td>
+        <td data-group="housekeeping" data-filter="lastUpdate"><%= object_time_since_update_tag(taxon_name) %></td>
         
-        <td width="1%">
+        <td width="1%" style="display: none;">
           <div class="td-options" data-show>
             <img src="/assets/icons/show.svg" width="15" /><%= link_to 'Show', taxon_name.metamorphosize %>
             </div>
         </td>
-        <td width="1%">
+        <td width="1%" style="display: none;">
           <div class="td-options" data-edit>
             <img src="/assets/icons/new.svg" width="15"/><%= edit_object_link(taxon_name) %>
           </div>
         </td>
-        <td width="1%">
+        <td width="1%" style="display: none;">
           <div class="td-options" data-delete>
             <img src="/assets/icons/trash.svg" width="15"/><%= link_to 'Destroy', taxon_name.metamorphosize, method: :delete, data: {confirm: 'Are you sure?'} %>
           </div>
@@ -105,49 +105,19 @@ function showAll() {
     showAll();
   });  
 
-  $('.filter-nav').on('click', 'a[data-filter-publication]', function() {
-    if($(this).attr("data-filter-publication") === "true") {
-      $('[data-filter="source"]').hide(animationTime);
-      $('[data-filter="yearPublication"]').hide(animationTime);
-      $(this).attr("data-filter-publication","false");
+
+  $('.filter-nav').on('click', 'a', function() {
+    if($(this).attr("data-filter-active") === "true") {
+      $('table [data-group="' + $(this).attr("data-group") + '"]').hide(animationTime);
+      $(this).attr("data-filter-active","false");
       $(this).children().children().attr("src","/assets/icons/hide.svg");
     }
     else {
+      $('table [data-group="' + $(this).attr("data-group") + '"]').show(animationTime);
       $(this).children().children().attr("src","/assets/icons/show.svg");
-      $('[data-filter="source"]').show(animationTime);
-      $('[data-filter="yearPublication"]').show(animationTime);
-      $(this).attr("data-filter-publication","true");
+      $(this).attr("data-filter-active","true");
     }
   });  
-
-  $('.filter-nav').on('click', 'a[data-filter-user-info]', function() {
-    if($(this).attr("data-filter-user-info") === "true") {
-      $('[data-filter="updateBy"]').hide(animationTime);
-      $('[data-filter="lastUpdate"]').hide(animationTime);
-      $(this).attr("data-filter-user-info","false");
-      $(this).children().children().attr("src","/assets/icons/hide.svg");
-    }
-    else {
-      $(this).children().children().attr("src","/assets/icons/show.svg");
-      $('[data-filter="updateBy"]').show(animationTime);
-      $('[data-filter="lastUpdate"]').show(animationTime);
-      $(this).attr("data-filter-user-info","true");
-    }
-  }); 
-
-  $('.filter-nav').on('click', 'a[data-filter-metadata]', function() {
-    if($(this).attr("data-filter-metadata") === "true") {
-      $('[data-filter="metadata"]').hide(animationTime);
-      $(this).attr("data-filter-metadata","false");
-      $(this).children().children().attr("src","/assets/icons/hide.svg");
-    }
-    else {
-      $(this).children().children().attr("src","/assets/icons/show.svg");
-      $('[data-filter="metadata"]').show(animationTime);
-      $(this).attr("data-filter-metadata","true");
-    }
-  });    
-
 
 
 $( "tbody tr" ).dblclick(function() {
