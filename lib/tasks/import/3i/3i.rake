@@ -477,6 +477,9 @@
                 @data.taxon_index.merge!(row['Key'] => taxon.id)
               else
                 byebug
+                print "\n#{row['Key']}         #{row['Name']}"
+                print "\n#{taxon.errors.first}\n"
+                #byebug
               end
 
             end
