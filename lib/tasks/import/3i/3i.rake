@@ -411,7 +411,7 @@
             print "\r#{i}"
             if row['Status'] == '8' || !row['OriginalCombinationOf'].blank? || row['Status'] == '7'
             else
-              name = row['Name']
+              name = row['Name'].split(' ').last
               vname = nil
               parent = row['Parent'].blank? ? @root : Protonym.with_identifier('3i_Taxon_ID ' + row['Parent']).find_by(project_id: $project_id)
               byebug if row['Rank'].blank?
@@ -421,7 +421,7 @@
                 if rank.parent.to_s == 'NomenclaturalRank::Iczn::FamilyGroup'
                   alternative_name = Protonym.family_group_name_at_rank(name, rank.rank_name)
                   if name != alternative_name
-                    name = alternative name
+                    name = alternative_name
                     vname = row['Name']
                   end
                 end
@@ -469,7 +469,8 @@
               taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::Suppressed::OfficialIndexOfRejectedFamilyGroupNamesInZoology') if row['YearRem'].to_s.include?('Official Index of Rejected and Invalid Family-Group Names in Zoology')
               taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::Suppressed::OfficialIndexOfRejectedGenericNamesInZoology') if row['YearRem'].to_s.include?('Official Index of Rejected and Invalid Generic Names in Zoology')
               taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::Suppressed::OfficialIndexOfRejectedSpecificNamesInZoology') if row['YearRem'].to_s.include?('Official Index of Rejected and Invalid Specific Names in Zoology')
-              taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin') if rank_string =~ /Family/ && !row['Status'] == '0' && !taxon.errors.messages[:name].empty?
+              taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin') if taxon.rank_string =~ /Family/ && row['Status'] != '0' && !taxon.valid? && !taxon.errors.messages[:name].empty?
+              taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::LessThanTwoLetters') if name.length == 1
 
               if taxon.valid?
                 taxon.save!

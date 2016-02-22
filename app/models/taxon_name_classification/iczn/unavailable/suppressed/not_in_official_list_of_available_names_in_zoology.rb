@@ -8,7 +8,7 @@ class TaxonNameClassification::Iczn::Unavailable::Suppressed::NotInOfficialListO
         TaxonNameClassification::Iczn::Unavailable::Suppressed::OfficialIndexOfRejectedAndInvalidWorks,
         TaxonNameClassification::Iczn::Unavailable::Suppressed::OfficialIndexOfRejectedFamilyGroupNamesInZoology,
         TaxonNameClassification::Iczn::Unavailable::Suppressed::OfficialIndexOfRejectedGenericNamesInZoology,
-        TaxonNameClassification::Iczn::Unavailable::Suppressed::OfficialIndexOfRejectedSpecificGroupNamesInZoology,
+        TaxonNameClassification::Iczn::Unavailable::Suppressed::OfficialIndexOfRejectedSpecificNamesInZoology,
         TaxonNameClassification::Iczn::Unavailable::Suppressed::Work)
   end
 
