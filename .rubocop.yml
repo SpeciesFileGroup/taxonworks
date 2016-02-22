@@ -16,6 +16,9 @@ Style/EmptyLineBetweenDefs:
   # need an empty line between them.
   AllowAdjacentOneLineDefs: true
 
+Style/CaseIndentation:
+  Enabled: false
+
 Metrics/MethodLength:
   CountComments: false  # count full line comments?
   Max: 20
