@@ -6,8 +6,9 @@
 	padding-right:20px;
  	align-items:center;
 	background-color:$navigation_background;
-	border-bottom: 1px solid $navigation_border; 	
+	border-bottom: 1px solid $navigation_border;
 	height:50px;
+	font-weight: 100;
 	
 	a {
 		font-size:13px;
@@ -27,10 +28,10 @@
 	}	
   #taxonworks {
     a {
-	  color:#444;
+	  //color:#FFF;
 	  padding: 0px;
-	  font-weight: normal;
-      font-size: 26px;
+	  font-weight: 100;
+      font-size: 22px;
       text-decoration: none;
 	  
     }
@@ -46,6 +47,9 @@
 
 .current_hub_category {
   background-color: $body_background !important;
+  border: 1px solid $navigation_border;
+  border-left: 1px solid $navigation_border;
+  border-right: 1px solid $navigation_border;
   border-bottom: 1px solid $body_background !important;
 
  }

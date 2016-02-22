@@ -34,9 +34,9 @@
 
 
 #filter {
-
+  margin-top: 15px;
+  font-weight: 100;
   //margin-top: $standard-padding;
-
   .tag {
     display: flex;
     height: 35px;
@@ -74,7 +74,10 @@
       display: flex;
       flex-direction:column;
       justify-content:flex-start;
+      border: 1px solid $navigation_border;
       box-shadow: 0 0px 3px 0 $navigation_border;
+      border-bottom: none;
+
       background-color: #FFF;
       margin-bottom: 10px;
       .title {
@@ -129,7 +132,8 @@
         padding-bottom: 10px;
         border-left: 1px solid $navigation_border;
         img {
-        padding-right: 5px; 
+        padding-right: 5px;
+        width: 14px; 
         opacity: 0.5;
         }
       }
@@ -368,13 +372,15 @@
   }
 
   #hub_tabs { 
-    background-color: $soft_background;
+    cursor: pointer;
+    background-color: #FFF;
     display: flex;
     border-bottom: 1px solid $navigation_border;
     justify-content: center; 
     img {
-      width: 20px;
-      padding-right: 10px;
+      width: 14px;
+      padding-right: 5px;
+      
     }
     .navigation-bar {
       justify-content: space-between; 
@@ -386,25 +392,27 @@
         top:1px;
       }
       li {
-        background-color: $navigation_background;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
         margin-left: 5px;
         margin-right: 5px;
         padding: 0.5em;
-        border-top-right-radius: 3px;
-        border-top-left-radius: 3px;
-        border: 1px solid $navigation_border;
-        border-left: 1px solid $navigation_border;
-        border-right: 1px solid $navigation_border;
+        padding-left: 1em;
+        padding-right: 1em;
+
       }
-      li:last-child {
-        border-right:1px solid $navigation_border;
+      a {
+        padding:0px;
+        font-size:12px;
+        font-weight: 100;
       }
 
     }
-    a {
-      font-size: 12px;
-    }
   }
+
+
 
   div.related_links_set {
     background-color: $background_gray;

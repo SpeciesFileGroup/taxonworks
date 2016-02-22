@@ -18,7 +18,6 @@
     flex-direction:column;   
     width:250px; 
     border-radius: 3px;
-    //border: 1px solid $navigation_border;
     box-shadow: 0 0px 3px 0 $navigation_border;
     margin: 0.5em;
   }
@@ -81,7 +80,6 @@
     cursor: pointer; 
     cursor: hand;
     width: 195px;
-    background-color: #FFF;
     display: flex;
     flex-direction:row-reverse;
     align-items:center;
@@ -96,7 +94,6 @@
     transition: background-color 0.5s ease,
                 box-shadow 0.5s ease;    
   }
-
 
   .data_card a {
     display: flex;

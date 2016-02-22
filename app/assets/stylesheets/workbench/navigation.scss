@@ -7,10 +7,10 @@ a {
               color 0.4s ease;
   color: $color-secondary-2-4;
   &:visited {
-    color: $color-secondary-2-3;
+    color: $color-secondary-2-4;
   }
   &:hover {
-    color: $focus_link_color;
+    color: $default_text;
     //color: $color-secondary-2-0;
     //background-color: $color-secondary-2-2;
   }
@@ -48,8 +48,8 @@ a {
 	background-repeat:no-repeat;
 	background-color:$navigation_background;
 	padding-right:8px;
-	padding-top:9px;
-	padding-bottom:9px;
+	padding-top:7px;
+	padding-bottom:8px;
 	background-position:5px, center;
 	padding-left:20px;
 	
