@@ -237,7 +237,7 @@ function changeBackgroundColorLink(selector) {
     }
 }
 
-  $('#filter').on('click', 'div', function() {
+  $('#filter').on('click', '[data-filter-category]', function() {
     if($(this).attr("data-filter-category") == "reset") {
       task.setFilterStatus("taxon_name",false);
       task.setFilterStatus("collecting_event",false);

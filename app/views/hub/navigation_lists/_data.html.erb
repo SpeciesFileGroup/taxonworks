@@ -287,35 +287,36 @@ function changeBackgroundColorLink(selector) {
 	}
   });     
 
-  $('.navigation[data-filter-category="taxon_name"]').on('click', function() {
+  $('#filter [data-filter-category="taxon_name"]').on('click', function() {
 	  	changeBackgroundColorLink('[data-filter-category="taxon_name"]');
       	core.changeFilter("data-category-TaxonName");
       	supporting.changeFilter("data-category-TaxonName");
       	annotations.changeFilter("data-category-TaxonName"); 
-  });
+  });  
 
-  $('.navigation[data-filter-category="collecting_event"]').on('click', function() {
+  $('#filter [data-filter-category="collecting_event"]').on('click', function() {
   		changeBackgroundColorLink('[data-filter-category="collecting_event"]');
       	core.changeFilter("data-category-collectingevent"); 
       	supporting.changeFilter("data-category-collectingevent"); 
       	annotations.changeFilter("data-category-collectingevent"); 
   });
 
-  $('.navigation[data-filter-category="collection_object"]').on('click', function() {
+  $('#filter [data-filter-category="collection_object"]').on('click', function() {
   		changeBackgroundColorLink('[data-filter-category="collection_object"]');  	
 	    core.changeFilter("data-category-collectionobject");   
 	    supporting.changeFilter("data-category-collectionobject");   
 	    annotations.changeFilter("data-category-collectionobject"); 
   });  
 
-  $('.navigation[data-filter-category="source"]').on('click', function() {
+  $('#filter [data-filter-category="source"]').on('click', function() {
   		changeBackgroundColorLink('[data-filter-category="source"]');  	
       	core.changeFilter("data-category-Source");
       	supporting.changeFilter("data-category-Source");
       	annotations.changeFilter("data-category-Source");
   });
 
-  $('.navigation[data-filter-category="reset"]').on('click', function() {
+
+  $('#filter [data-filter-category="reset"]').on('click', function() {
 		changeAllSectionsFilter("data-category-Source", false);
 		changeAllSectionsFilter("data-category-TaxonName", false);
 		changeAllSectionsFilter("data-category-collectionobject", false);

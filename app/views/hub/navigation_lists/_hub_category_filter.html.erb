@@ -16,24 +16,24 @@
 ---->
 
 <div id="filter">
-  <div class="flexbox" style="width: 1025px;">
+  <div class="flexbox">
     <div class="item item2">
     <div class="section">
       <div class='tag'>
         <div>
         	Filter 
         </div>
+        <div class="reset" data-filter-category="reset">
+          <img src="/assets/icons/restart.svg"/>
+          Reset
+        </div>  
       </div> 
       <div class="navigation-controls">
       	<% UserTasks::CATEGORIES.each do |c| -%>
         	<%= 
 			content_tag(:div, c.humanize, 'data-filter-category' => c, 'data-favorite' => true, 'class' => 'navigation')
 			-%>
-        <% end %> 
-        <div class="navigation" data-filter-category="reset">
-        	<img src="/assets/icons/restart.svg"/>
-        	Reset
-        </div>                                    
+        <% end %>                                 
       </div>        
      </div>  
     </div>
