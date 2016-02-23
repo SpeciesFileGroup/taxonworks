@@ -2,6 +2,17 @@
 
 // TODO - nest this elsewhere, it belongs isolated to breakdown tasks?!
 
+  .breakdown_nav {
+    border: 1px solid silver;
+    margin: 1em;
+    display: flex;
+    flex-align: row;
+
+    div {
+      padding: .6em .6em;
+    }
+  }
+
 .sqed_breakdown {
   .ctrl_link {
     color: $muted_blue; 
@@ -46,16 +57,6 @@
     padding: 1em;
   }
 
-   #current_record {
-      background-color: $muted_blue;
-      text-align: center;
-      width: 100px;
-    }
-
-  #depiction_navigator {
-    margin-left: auto;
-    margin-right: auto; 
-  }
 
   .item2 {
     margin-left: 1em;
@@ -63,7 +64,18 @@
   }
 
   #depiction_navigator {
-    width: 150px;
+    max-width: 150px;
+    margin-left: auto;
+    margin-right: auto; 
+
+    .sqed_thumb_nav_current {
+      margin: .5em 0;
+      padding: 2px;
+      background-color: $muted_blue;
+      text-align: center;
+    }
+
+
   }
 }
 

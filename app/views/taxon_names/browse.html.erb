@@ -24,7 +24,7 @@
     <h3>Status</h3>
     <% list = TaxonNameClassification.where_taxon_name(@taxon_name).with_type_array(ICZN_TAXON_NAME_CLASSIFICATION_NAMES + ICN_TAXON_NAME_CLASSIFICATION_NAMES) %>
     <% list.each do |c| %>
-        <%= content_tag(:p, c.class_name, class: 'list') -%>
+        <%= content_tag(:p, c.classification_label, class: 'list') -%>
         <%= render(partial: '/shared/data/all/show/soft_validation_list', locals: {object: c}) -%>
     <% end %>
     <%= content_tag(:p, @taxon_name.unavailable_or_invalid? ? nil : 'Valid', class: 'list') -%>
@@ -39,7 +39,7 @@
     <% list = TaxonNameClassification.where_taxon_name(@taxon_name).with_type_array(LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES) %>
     <%= content_tag(:h3, !list.empty? ? 'Latinization' : nil) %>
     <% list.each do |c| %>
-        <%= content_tag(:p, c.class_name, class: 'list') -%>
+        <%= content_tag(:p, c.classification_label, class: 'list') -%>
         <%= render(partial: '/shared/data/all/show/soft_validation_list', locals: {object: c}) -%>
     <% end %>
 

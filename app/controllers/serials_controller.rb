@@ -12,13 +12,13 @@ class SerialsController < ApplicationController
   end
 
   def list
-    @serials = Serial.order(:id).page(params[:page]) 
+    @serials = Serial.order(:id).page(params[:page])
   end
 
   # GET /serials/1
   # GET /serials/1.json
   def show
-    # TODO put computation here for displaying alternate values?
+    # TODO: put computation here for displaying alternate values?
   end
 
   # GET /serials/new
@@ -78,51 +78,54 @@ class SerialsController < ApplicationController
     end
   end
 
-# @todo Some extra code here, str defined with extra param, used in label_html. Verify correct.
+  # @todo Some extra code here, str defined with extra param, used in label_html. Verify correct.
   def autocomplete
     @serials = Serial.find_for_autocomplete(params)
 
     data = @serials.collect do |t|
       str = ApplicationController.helpers.serial_autocomplete_tag(t, params[:term])
-      {id:              t.id,
-       label:           ApplicationController.helpers.serial_tag(t),
-       response_values: {
-         params[:method] => t.id
-       },
-       label_html:      str
+      { id: t.id,
+        label: ApplicationController.helpers.serial_tag(t),
+        response_values: {
+          params[:method] => t.id
+        },
+        label_html: str
       }
     end
 
-    render :json => data
+    render json: data
   end
 
   # GET /serials/download
   def download
-    send_data Serial.generate_download( Serial.all ), type: 'text', filename: "serials_#{DateTime.now.to_s}.csv"
+    send_data Serial.generate_download(Serial.all), type: 'text', filename: "serials_#{DateTime.now}.csv"
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_serial
-      @serial = Serial.find(params[:id])
-      @recent_object = @serial 
-    end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def serial_params
-      params.require(:serial).permit(:name,
-                                     :publisher,
-                                     :place_published,
-                                     :primary_language_id,
-                                     :first_year_of_issue,
-                                     :last_year_of_issue,
-                                      :alternate_values_attributes => [:id,
-                                                                       :value,
-                                                                       :type,
-                                                                       :language_id,
-                                                                       :alternate_value_object_type,
-                                                                       :alternate_value_object_id,
-                                                                       :alternate_value_object_attribute,
-                                                                       :_destroy])
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_serial
+    @serial = Serial.find(params[:id])
+    @recent_object = @serial
+  end
+
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def serial_params
+    params.require(:serial).permit(:name,
+                                   :publisher,
+                                   :place_published,
+                                   :primary_language_id,
+                                   :first_year_of_issue,
+                                   :last_year_of_issue,
+                                   alternate_values_attributes: [
+                                     :id,
+                                     :value,
+                                     :type,
+                                     :language_id,
+                                     :alternate_value_object_type,
+                                     :alternate_value_object_id,
+                                     :alternate_value_object_attribute,
+                                     :_destroy
+                                   ])
+  end
 end

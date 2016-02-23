@@ -1,13 +1,15 @@
-<%= render(partial: 'layouts/map_header') -%>
-
 <h1>Task: <%= "#{@type_tag}" %>  distribution</h1>
-<h3>Taxon name: <%= object_link(@distribution.otus.first.taxon_name) %></h3>
-OTU count :<%= @distribution.otus.count %>
+<h3>Taxon name: <%= object_link(@taxon_name) %></h3>
+<p>
+  <%= forward_back_taxon_name_distribution(@taxon_name) %>
+</p>
 
 <div id="otu_distribution_widget">
   <div class="flexbox">
     <div class="item item1">
-      <%= forward_back_taxon_name_distribution(@distribution.otus.first.taxon_name) %>
+      <!-- OTU count :<%#= @distribution.otus.count %>-->
+      <%= paginate @distribution.otus %>
+      <%= page_entries_info @distribution.otus %>
       <% @distribution.otus.each do |otu| %>
           <table border="1">
             <tbody>
@@ -63,12 +65,15 @@ OTU count :<%= @distribution.otus.count %>
     </div>
     <div class="item item2">
       <%#=	 break_it_here %>
-      <div id="_displayed_distribution_form"
+      <%= render(partial: 'layouts/map_header') -%>
+      <%#= simple_map(@distribution) %>
+      <div id='_displayed_distribution_form'
            data-feature-collection='<%= @distribution.to_json.to_json -%>'
            data-map-center='POINT (0.0 0.0 0.0)'
-           data-map-canvas="displayed_distribution_canvas"
+           data-map-canvas='displayed_distribution_canvas'
       >
         <table border="1">
+          <tbody>
           <tr>
             <td>
               <div id="displayed_distribution_canvas" style="width:512px; height: 256px;"></div>
@@ -80,16 +85,11 @@ OTU count :<%= @distribution.otus.count %>
               <div id="displayed_distribution_style"></div>
             </td>
           </tr>
+          </tbody>
         </table>
-        <!--<input type="hidden" id="selected_georeference_id"/>-->
-        <!--<input type='button' id="btn_clear_selection" name="btn_clear_selection" value="clear selection"/>-->
       </div>
-
     </div>
     <div class="item item3">
-
     </div>
-
   </div>
-
 </div>

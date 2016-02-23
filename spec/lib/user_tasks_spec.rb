@@ -45,7 +45,7 @@ describe UserTasks do
   end
 
   specify '.tasks' do
-    expect(UserTasks.tasks).to eq(UserTasks::INDEXED_TASKS.values)
+    expect(UserTasks.tasks).to contain_exactly(*UserTasks::INDEXED_TASKS.values)
   end
 
   specify '.task(prefix)' do

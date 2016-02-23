@@ -293,11 +293,12 @@ describe TaxonName, type: :model, group: [:nomenclature] do
           end
 
           specify 'hybrid' do
-            sp = FactoryGirl.create(:relationship_species, parent: @genus)
+            g = FactoryGirl.create(:icn_genus)
+            sp = FactoryGirl.create(:icn_species, parent: g)
             c  = FactoryGirl.create(:taxon_name_classification, taxon_name: sp, type: 'TaxonNameClassification::Icn::Hybrid')
             sp.reload
-            expect(sp.cached_html).to eq('&#215; <i>Erythroneura vitis</i>')
-            expect(sp.cached).to eq('Erythroneura vitis')
+            expect(sp.cached_html).to eq('&#215; <i>Aus aaa</i>')
+            expect(sp.cached).to eq('Aus aaa')
           end
 
           specify 'ICZN subspecies' do
@@ -389,24 +390,6 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             @subgenus.original_genus = @genus
             @subgenus.reload
             expect(@subgenus.get_original_combination).to eq('<i>Erythroneura</i> (<i>Erythroneura</i>)')
-          end
-
-          specify 'different gender' do
-            s = FactoryGirl.create(:iczn_species, parent: @genus)
-            expect(s.save).to be_truthy
-            expect(s.get_full_name_html).to eq('<i>Erythroneura vitis</i>')
-            s.masculine_name = 'vitus'
-            s.feminine_name  = 'vita'
-            s.neuter_name    = 'vitum'
-            expect(s.save).to be_truthy
-            gender = FactoryGirl.create(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::Gender::Masculine')
-            expect(s.get_full_name_html).to eq('<i>Erythroneura vitus</i>')
-            gender.type = 'TaxonNameClassification::Latinized::Gender::Feminine'
-            expect(gender.save).to be_truthy
-            expect(s.get_full_name_html).to eq('<i>Erythroneura vita</i>')
-            gender.type = 'TaxonNameClassification::Latinized::Gender::Neuter'
-            expect(gender.save).to be_truthy
-            expect(s.get_full_name_html).to eq('<i>Erythroneura vitum</i>')
           end
 
           specify 'misspelled original combination' do
@@ -590,7 +573,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
               b  = FactoryGirl.create(:relationship_genus, name: 'Bus', parent: @family)
               s  = TaxonNameClassification::Iczn::Unavailable.create(taxon_name: a)
               r1 = TaxonNameRelationship::Iczn::Invalidating::Synonym.create(subject_taxon_name: a, object_taxon_name: b)
-              expect(a.taxon_name_statuses).to eq(['unavailable', 'synonym'])
+              expect(a.taxon_name_statuses).to eq(['unavailable [iczn]', 'synonym'])
             end
             specify 'combination_list' do
               a           = FactoryGirl.create(:relationship_genus, name: 'Aus', parent: @family)
@@ -620,15 +603,15 @@ describe TaxonName, type: :model, group: [:nomenclature] do
           end
 
           specify "is invalidly_published when not ending in '-idae'" do
-            taxon_name.name       = 'Aus'
-            taxon_name.rank_class = Ranks.lookup(:iczn, 'family')
-            taxon_name.valid?
-            expect(taxon_name.errors.include?(:name)).to be_truthy
+            t = Protonym.new(name: 'Aus', rank_class: Ranks.lookup(:iczn, 'family'))
+            t.valid?
+            expect(t.errors.include?(:name)).to be_truthy
           end
 
           specify 'is invalidly_published when not capitalized' do
             taxon_name.name       = 'fooidae'
             taxon_name.rank_class = Ranks.lookup(:iczn, 'family')
+            taxon_name.type = 'Protonym'
             taxon_name.valid?
             expect(taxon_name.errors.include?(:name)).to be_truthy
           end
@@ -637,21 +620,22 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             taxon_name.name       = 'Aus'
             taxon_name.rank_class = Ranks.lookup(:iczn, 'species')
             taxon_name.valid?
+            taxon_name.type = 'Protonym'
             expect(taxon_name.errors.include?(:name)).to be_truthy
-            #taxon_name.soft_validate(:validate_name)
-            #expect(taxon_name.soft_validations.messages_on(:name).count).to eq(1)
           end
         end
 
         context 'when rank ICN family' do
           specify "is validly_published when ending in '-aceae'" do
             taxon_name.name       = 'Aaceae'
+            taxon_name.type = 'Protonym'
             taxon_name.rank_class = Ranks.lookup(:icn, 'family')
             taxon_name.valid?
             expect(taxon_name.errors.include?(:name)).to be_falsey
           end
           specify "is invalidly_published when not ending in '-aceae'" do
             taxon_name.name       = 'Aus'
+            taxon_name.type = 'Protonym'
             taxon_name.rank_class = Ranks.lookup(:icn, 'family')
             taxon_name.valid?
             expect(taxon_name.errors.include?(:name)).to be_truthy
@@ -714,7 +698,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
           expect(s.soft_validations.messages_on(:name).empty?).to be_falsey
         end
 
-        xspecify 'valid icn names' do
+        xspecify 'valid icn names' do # not needed this was converted to the hybrid relationships
           gen = FactoryGirl.create(:icn_genus)
           ['aus', 'a-aus', 'aus-aus', 'aus × bus', '× aus'].each do |name|
             s = FactoryGirl.build_stubbed(:icn_species, parent: gen, name: name)
@@ -727,7 +711,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
           expect(s.soft_validations.messages_on(:name).empty?).to be_falsey
         end
 
-        xspecify 'unavailable' do
+        xspecify 'unavailable' do # not needed could be done using verbatim name, or combination of the name and classification
           s = FactoryGirl.create(:relationship_species, parent: @genus, name: 'aus a')
           s.soft_validate(:validate_name)
           expect(s.soft_validations.messages_on(:name).count).to eq(1)
@@ -737,7 +721,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
           expect(s.soft_validations.messages_on(:name).empty?).to be_truthy
         end
 
-        xspecify 'misspelling' do
+        xspecify 'misspelling' do # not needed could be done using verbatim name, or combination of the name and classification
           s = FactoryGirl.create(:relationship_species, parent: @genus, name: 'a a')
           s.soft_validate(:validate_name)
           expect(s.soft_validations.messages_on(:name).count).to eq(1)

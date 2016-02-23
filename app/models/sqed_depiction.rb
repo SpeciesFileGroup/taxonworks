@@ -27,11 +27,11 @@
 #
 # @!attribute result_boundaries 
 #   @return [Hash]
-#    Not presently used, a cache for the result 
+#    A cache for the result 
 #
-# @!attribute result_text
+# @!attribute result_ocr
 #   @return [Hash]
-#    Not presently used, a cache for the ocr result 
+#    A cache for the ocr result 
 #
 class SqedDepiction < ActiveRecord::Base
   include Housekeeping
@@ -90,6 +90,30 @@ class SqedDepiction < ActiveRecord::Base
     a = SqedDepiction.where(project_id: self.project_id).where("id > ?", self.id).order(:id).limit(after)
     b = SqedDepiction.where(project_id: self.project_id).where("id < ?", self.id).order('id DESC').limit(before)
     return { before: b, after: a}
+  end
+
+  def next_sqed_depiction
+    sd = SqedDepiction.where(project_id: self.project_id).where("id > ?", self.id).order(:id).limit(1)
+    sd.any? ? sd.first : SqedDepiction.where(project_id: self.project_id).first
+  end
+
+  def preprocess
+    result = SqedToTaxonworks::Result.new(depiction_id: self.depiction.id)
+    result.cache_all
+  end
+
+  # @return [Integer]
+  #   caches section coordinates and ocr text for the first images that don't have such caches !! does not take into account, just finds and processes
+  def self.preprocess_empty(total = 10)
+    t = SqedDepiction.arel_table
+    i = 0
+    while i < total
+      r = SqedDepiction.where(t[:result_ocr].eq(nil).or(t[:result_boundary_coordinates].eq(nil)).to_sql).limit(1).first
+      return i if r.nil?
+      r.preprocess
+      i = i + 1
+    end
+    i
   end
 
   protected

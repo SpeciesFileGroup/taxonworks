@@ -15,11 +15,15 @@ module SqedDepictionsHelper
     section = sqed_depiction.collecting_event_sections.first
     return content_tag(:div, 'no collecting event label data imaged', class: :warning) if section.nil?
 
-    result = SqedToTaxonworks::Result.new(
-      depiction_id: sqed_depiction.depiction.id,
-    )
+    begin
+      result = SqedToTaxonworks::Result.new(
+        depiction_id: sqed_depiction.depiction.id,
+      )
 
-    image_tag(result.image_path_for_large_image(section), id: "little1", class: "little_image clickable") 
+     return image_tag(result.image_path_for_large_image(section), id: "little1", class: "little_image clickable") 
+    rescue
+     return content_tag(:div, link_to('Error parsing.', depiction_path(sqed_depiction.depiction)), class: :warning) 
+    end
   end
 
   def sqed_depiction_thumb_navigator(sqed_depiction, before = 3, after = 3)
@@ -29,10 +33,10 @@ module SqedDepictionsHelper
       link_to(sqed_depiction_collecting_event_label_thumb_preview(s), collection_object_buffered_data_breakdown_task_path(s.depiction.depiction_object))  
     }.join().html_safe +
     
-    content_tag(:span, "this record") +
+    content_tag(:div, " this record ", class: 'sqed_thumb_nav_current') +
    
     around[:after].collect{|s| 
-      link_to(sqed_depiction_collecting_event_label_thumb_preview(s), collection_object_buffered_data_breakdown_task_path(s.depiction.depiction_object))  
+      link_to(sqed_depiction_collecting_event_label_thumb_preview(s), collection_object_buffered_data_breakdown_task_path(s.depiction.depiction_object), 'data-no-turbolink' => 'true')  
     }.join().html_safe 
   end
 

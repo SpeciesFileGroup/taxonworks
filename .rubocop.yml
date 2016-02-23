@@ -1,5 +1,71 @@
-Style/Encoding:
+AllCops:
+  Include:
+    - '**/Rakefile'
+    - '**/config.ru'
+  Exclude:
+    - 'db/**/*'
+    - 'script/**/*'
+    - 'tmp/**/*'
+
+Metrics/LineLength:
+  Max: 200
+# Use empty lines between defs.
+
+Style/EmptyLineBetweenDefs:
+  # If true, this parameter means that single line method definitions don't
+  # need an empty line between them.
+  AllowAdjacentOneLineDefs: true
+
+Style/CaseIndentation:
   Enabled: false
 
-Style/LineLength:
-  Max: 200 
+Metrics/MethodLength:
+  CountComments: false  # count full line comments?
+  Max: 20
+
+Metrics/ClassLength:
+  CountComments: false  # count full line comments?
+  Max: 600
+
+Metrics/ModuleLength:
+  CountComments: false  # count full line comments?
+  Max: 1000
+
+Metrics/ParameterLists:
+  Max: 5
+  CountKeywordArgs: false
+
+Rails/FindBy:
+  Include:
+    - app/models/**/*.rb
+    - lib/**/*.rb
+
+Rails/FindEach:
+  Include:
+    - app/models/**/*.rb
+    - lib/**/*.rb
+
+Rails/Output:
+  Include:
+    - app/**/*.rb
+    - config/**/*.rb
+    - db/**/*.rb
+    - lib/**/*.rb
+
+Rails/ReadWriteAttribute:
+  Include:
+    - app/models/**/*.rb
+    - lib/**/*.rb
+
+Rails/ScopeArgs:
+  Include:
+    - app/models/**/*.rb
+    - lib/**/*.rb
+
+Rails/Validation:
+  Include:
+    - app/models/**/*.rb
+    - lib/**/*.rb
+
+
+

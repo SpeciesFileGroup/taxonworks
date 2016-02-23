@@ -79,6 +79,7 @@
   </tr>
   <tr>
     <td colspan="2">
+      Collecting event count: <%= @collecting_events.count %><br>
       <table>
         <thead>Results for distance of <%= @nearby_distance %> meters: <%= link_to('download', download_collecting_events_path(where: {id: @collecting_events.map(&:id)})) %></thead>
         <tr>

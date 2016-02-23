@@ -1,5 +1,5 @@
 require 'rails_helper'
-include FormHelper 
+
 describe 'TaxonNames', type: :feature do
   # Capybara.default_wait_time = 15 # change to 15 to see what's happening on form
 

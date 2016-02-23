@@ -10,6 +10,10 @@ class NomenclaturalRank::Iczn::FamilyGroup::Epifamily < NomenclaturalRank::Iczn:
     taxon_name.errors.add(:name, 'name must end in -oidae') if not(taxon_name.name =~ /.*oidae\Z/)
   end
 
+  def self.valid_name_ending
+    'oidae'
+  end
+
   def self.typical_use
     false
   end

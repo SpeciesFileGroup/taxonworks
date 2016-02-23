@@ -2,7 +2,7 @@
 class Tasks::Accessions::Breakdown::BufferedDataController < ApplicationController
   include TaskControllerConfiguration
 
-  before_filter :set_collection_object
+  before_filter :set_collection_object, only: [:index, :update]
 
   # before_filter 
 
@@ -10,6 +10,10 @@ class Tasks::Accessions::Breakdown::BufferedDataController < ApplicationControll
   def index
     @collection_object.collecting_event = CollectingEvent.new if @collection_object.collecting_event.nil?
     @collection_object.collecting_event.identifiers.build(type: 'Identifier::Local::AccessionCode')
+  end
+
+  def thumb_navigator 
+    render partial: '/tasks/accessions/breakdown/buffered_data/thumb_navigator', locals: { sqed_depiction: SqedDepiction.find(params[:id])  }
   end
 
   def update
@@ -20,25 +24,17 @@ class Tasks::Accessions::Breakdown::BufferedDataController < ApplicationControll
     respond_to do |format| 
       if params[:commit] == 'Save changes'
         format.html { redirect_to collection_object_buffered_data_breakdown_task_path(@collection_object) }
-        format.js { }
       elsif params[:commit] == 'Save and next'
         if @collection_object.valid?
           format.html { redirect_to collection_object_buffered_data_breakdown_task_path(@result.sqed_depiction.next_collection_object)  }
-          format.js { 
-            flash.keep(:notice) # Keep flash notice around for the redirect.
-            render js: "window.location = #{collection_object_buffered_data_breakdown_task_path(@result.sqed_depiction.next_collection_object).to_json}" 
-          }
-        else
+       else
           format.html { redirect_to collection_object_buffered_data_breakdown_task_path(@collection_object) }
-          format.js { }
         end
       end
     end
   end
 
   protected
-
-
 
   def collection_object_params
     params.require(:collection_object).permit(

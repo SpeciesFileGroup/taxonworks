@@ -26,24 +26,30 @@ module Shared::AlternateValues
   end
 
   module ClassMethods
+
+    # @return [Scope]
+    # @param [:symbol] the column name/attribute
+    # @param [String, Integer, etc] the value to look for
     # Use
-    #   Otu.with_alternate_value_on(:name, 'foo')
+    #   Source.with_alternate_value_on(:title, 'f
+    #   oo')
     def with_alternate_value_on(a, b)
       joins(:alternate_values).where(alternate_values: {alternate_value_object_attribute: a, value: b})
     end
 
-
+    # @return [Scope]
+    # @param [:symbol] the column name/attribute
+    # @param [String, Integer, etc] the value to look for
+    # Use
+    #   Source.with_any_value_for(:title, 'foo')
     def with_any_value_for(attribute, value)
-      self_table = Arel::Table.new(self.table_name)
-      alternate_value_table = Arel::Table.new(:alternate_values)
+      self_table = self.arel_table
+      alternate_value_table = AlternateValue.arel_table
 
-#     query = self_table.project(Arel.sql('*'))
-#     query.to_sql
+      a = alternate_value_table[:value].eq(value).and(alternate_value_table[:alternate_value_object_attribute].eq(attribute))
+      b = self_table[attribute].eq(value)
 
-#     with_alternate_value_on(attribute, value).or
-
-#     self_table.join(alternate_value_table, Arel::Nodes::OuterJoin).on(self_table[:id].eq(alternate_value_table[:alternate_value_object_id])).
-#      where( alternate_value_table[:alternate_value_object_type].eq('foo').and(self_table[attribute].eq(value).or(alternate_value_table[:value].eq(value)) )
+      self.includes(:alternate_values).where(a.or(b).to_sql).references(:alternate_values)
     end
 
   end

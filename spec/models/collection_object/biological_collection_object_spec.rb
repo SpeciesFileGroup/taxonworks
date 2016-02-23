@@ -61,17 +61,22 @@ describe CollectionObject::BiologicalCollectionObject, :type => :model do
       expect(o.reorder_determinations_by()).to be_truthy
       o.reload
       y = Time.now.year.to_i
-      expect(o.taxon_determinations.map(&:year_made)).to eq([1920, 1980, y])
-      expect(o.current_determination.year_made).to eq(y)
+      expect(o.taxon_determinations.map(&:year_made)).to eq([y, 1980, 1920])
+      expect(o.current_taxon_determination.year_made).to eq(y)
     end
   end
 
   context 'instance methods' do
-    specify '#current_determination' do
-      expect(biological_collection_object).to respond_to(:current_determination)
-      o = Specimen.new(otus_attributes: [{name: 'one'}, {name: 'two'}])
-      expect(o.save).to be_truthy
-      expect(o.current_determination.otu.name).to eq('two')
+    let(:o) { Specimen.new(otus_attributes: [{name: 'one'}, {name: 'two'}]) }
+    before { o.save }
+    
+    # expected behaviour is that the last determination created is the first on the list
+    specify '#current_taxon_determination' do
+      expect(o.current_taxon_determination(true).position).to eq(1)
+    end
+
+    specify '#current_otu' do
+      expect(o.current_otu(true).name).to eq('two')
     end
   end
 

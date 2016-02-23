@@ -108,3 +108,10 @@ author_list_task:
   description: 'Display all source authors with links to source list.'
   categories: 
     - collecting_event
+sqed_depiction_breakdown_todo_map_task:
+  hub: true
+  name: 'Collection object image breakdown TODO list'
+  description: 'Lists all collection objects currently being processed through depictions.  Indicates those that have transcribed provisional ("buffered") collecting event data.'
+  categories: 
+    - collecting_event
+    - collection_object

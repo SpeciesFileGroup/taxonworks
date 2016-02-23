@@ -4,12 +4,17 @@ class PapertrailController < ApplicationController
   # GET /papertrail
   def papertrail
     @object = params[:object_type].constantize.find(params[:object_id])
+     record_not_found if invalid_object(@object)
   end
 
   def show
     @version = PaperTrail::Version.find(params[:id])
     @object = @version.item
-    render 'papertrail'
+    if invalid_object(@object) 
+      record_not_found
+    else
+      render 'papertrail'
+    end
   end
 
 end

@@ -25,6 +25,16 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
       expect(g.is_fossil?).to be_truthy
     end
 
+    specify 'family_group_base' do
+      expect(Protonym.family_group_base('Cicadellidae')).to eq('Cicadell')
+      expect(Protonym.family_group_base('Cicadellae')).to eq('Cicadellae')
+    end
+
+    specify 'family_group_name_at_rank' do
+      expect(Protonym.family_group_name_at_rank('Cicadellidae', 'tribe')).to eq('Cicadellini')
+      expect(Protonym.family_group_name_at_rank('Cicadellae', 'tribe')).to eq('Cicadellae')
+    end
+
     specify 'all_generic_placements' do
       family = FactoryGirl.create(:relationship_family)
       genus = FactoryGirl.create(:relationship_genus, name: 'Aus', parent: family)

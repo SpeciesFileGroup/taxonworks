@@ -12,10 +12,13 @@
 *.bak
 *.swp
 *.swo
+.DS_store
 
-/db/schema.rb
+# /db/schema.rb
 database.yml
+secrets.yml
 application_settings.yml
+
 /tags
 
 .yardoc/
@@ -38,8 +41,6 @@ index.html
 
 # Ignore rdoc folder
 /doc
-
-.DS_store
 
 coverage/
 

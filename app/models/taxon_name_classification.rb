@@ -1,10 +1,5 @@
 # A {https://github.com/SpeciesFileGroup/nomen NOMEN} derived classfication (roughly, a status) for a {TaxonName}.
 #
-# @todo Note that many of the TODOs do not show up in Yard?? They are copied here so you can find them in the code:
-# @todo validate_corresponding_nomenclatural_code (ICZN should match with rank etc.)
-# @todo Perhaps not inherit these three methods?
-# @todo move these to a shared library (see NomenclaturalRank too) [appears 3 times]
-#
 # @!attribute taxon_name_id
 #   @return [Integer]
 #     the id of the TaxonName being classified 
@@ -31,7 +26,7 @@ class TaxonNameClassification < ActiveRecord::Base
   validates_presence_of :type, presence: true
   validates_uniqueness_of :taxon_name_id, scope: :type
 
-  # @todo validate_corresponding_nomenclatural_code (ICZN should match with rank etc.)
+  validate :nomenclature_code_matches
 
   scope :where_taxon_name, -> (taxon_name) {where(taxon_name_id: taxon_name)}
   scope :with_type_string, -> (base_string) {where('type LIKE ?', "#{base_string}" ) }
@@ -46,9 +41,17 @@ class TaxonNameClassification < ActiveRecord::Base
   after_save :set_cached_names_for_taxon_names
   after_destroy :set_cached_names_for_taxon_names
 
+  def nomenclature_code
+    return :iczn if type.match(/::Iczn/)
+    return :icn if type.match(/::Icn/)
+    return nil
+  end
+
+  # @return [String]
+  #   the class name, "validated" against the known list of names
   def type_name
-    r = self.type.to_s
-    TAXON_NAME_CLASSIFICATION_NAMES.include?(r) ? r : nil
+   r = self.type.to_s
+   TAXON_NAME_CLASSIFICATION_NAMES.include?(r) ? r : nil
   end
 
   def type_class=(value)
@@ -61,12 +64,19 @@ class TaxonNameClassification < ActiveRecord::Base
   end
 
   # @return [String]
-  #   a TW uniq preferred "common" name for this class, used in select boxes, forms, catalogs etc.
-  # @todo consider appending [iczn] [icn]
-  def class_name
-    label = type_name.demodulize.underscore.humanize.downcase
-    label = label.gsub('e1', 'e 1').gsub('e2', 'e 2')
-    label
+  #   a humanized class name, with code appended to differentiate 
+  #   !! explored idea of LABEL in individual subclasses, use this if this doesn't work
+  #   this is helper-esqe, but also useful in validation, so here for now
+  def classification_label
+    return nil if type_name.nil?
+    type_name.demodulize.underscore.humanize.downcase + 
+      (nomenclature_code ? " [#{nomenclature_code}]" : '')
+  end
+
+  # @return [String]
+  #   the NOMEN id for this classification
+  def nomen_id
+    self.class::NOMEN_URI.split('/').last
   end
 
   # Attributes can be overridden in descendants
@@ -94,7 +104,6 @@ class TaxonNameClassification < ActiveRecord::Base
   def self.disjoint_taxon_name_classes
     []
   end
-
 
   # @return [String, nil]
   #  if applicable, a DWC gbif status for this class 
@@ -244,6 +253,13 @@ class TaxonNameClassification < ActiveRecord::Base
   end
 
   private
+
+
+  def nomenclature_code_matches
+    if taxon_name && type && nomenclature_code
+      errors.add(:taxon_name, "missmatched with asserted nomenclature code") if nomenclature_code != taxon_name.rank_class.nomenclatural_code
+    end
+  end
 
   def validate_taxon_name_classification
     errors.add(:type, "Status not found") if !self.type.nil? and !TAXON_NAME_CLASSIFICATION_NAMES.include?(self.type.to_s)

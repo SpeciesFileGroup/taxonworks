@@ -8,15 +8,15 @@
 #
 # @!attribute subject_taxon_name_id
 #   @return [Integer]
-#   @todo
+#    the subject taxon name 
 #
 # @!attribute object_taxon_name_id
 #   @return [Integer]
-#   @todo
+#    the object taxon name 
 #
 # @!attribute type
 #   @return [String]
-#   @todo
+#    the relationship/"predicate" between the subject and object taxon names
 #
 # @!attribute project_id
 #   @return [Integer]
@@ -24,7 +24,7 @@
 #
 # @!attribute source_id
 #   @return [Integer]
-#   @todo
+#     identifies the origin of this assertion  
 #
 class TaxonNameRelationship < ActiveRecord::Base
   include Housekeeping
@@ -32,13 +32,13 @@ class TaxonNameRelationship < ActiveRecord::Base
   include Shared::IsData
   include SoftValidation
 
-  belongs_to :subject_taxon_name, class_name: 'TaxonName', foreign_key: :subject_taxon_name_id # left side
-  belongs_to :object_taxon_name, class_name: 'TaxonName', foreign_key: :object_taxon_name_id   # right side
-  belongs_to :source
-
   # @return [Boolean]
   # When true, also cached values are not built
   attr_accessor :no_cached
+
+  belongs_to :subject_taxon_name, class_name: 'TaxonName', foreign_key: :subject_taxon_name_id # left side
+  belongs_to :object_taxon_name, class_name: 'TaxonName', foreign_key: :object_taxon_name_id   # right side
+  belongs_to :source
 
   after_save :set_cached_names_for_taxon_names, unless: 'self.no_cached'
   after_destroy :set_cached_names_for_taxon_names, unless: 'self.no_cached'

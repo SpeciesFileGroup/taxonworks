@@ -40,7 +40,7 @@ namespace :tw do
           print "\r#{a.id} : #{a.data_origin}            : #{b.to_s.strip}                      "
         end
 
-        # Deletes all GeographicItems (and by relation GeographicAreasGeographicItems) that have ST_InvalidGeometries. 
+        # Deletes all GeographicItems (and by relation GeographicAreasGeographicItems) that have ST_InvalidGeometries.
         # !! This assumes all imported data are to GeographicItem#multi_polygon.  At present this is true.
         def remove_invalid_data
           invalid_records = 0
@@ -66,7 +66,7 @@ namespace :tw do
           expected_diff = '010700000000000000' # ?
           IMPORT_TABLES.keys.each do |t|
             GeographicAreasGeographicItem.where(data_origin: t.to_s).limit(9).each do |i|
-              if i.geographic_item.is_valid_geometry?
+              if i.geographic_item.valid_geometry?
                 a    = "SELECT St_AsBinary(geom)          FROM #{i.data_origin} WHERE gid = #{i.origin_gid}"
                 b    = "SELECT St_AsBinary(multi_polygon) FROM geographic_items WHERE id  = #{i.geographic_item_id}"
                 sql1 = "SELECT St_SymDifference((#{a}), (#{b}));"

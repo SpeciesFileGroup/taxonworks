@@ -74,6 +74,8 @@ class CollectionObject < ActiveRecord::Base
   include Shared::Depictions
   include SoftValidation
 
+  include Dwca::CollectionObjectExtensions
+
   has_paper_trail
 
   BUFFERED_ATTRIBUTES = %i{buffered_collecting_event buffered_determinations buffered_other_labels}
@@ -90,8 +92,10 @@ class CollectionObject < ActiveRecord::Base
   # This must come before taxon determinations !!
   has_many :otus, through: :taxon_determinations, inverse_of: :collection_objects
 
-  # This is a problem
-  has_many :taxon_determinations, foreign_key: :biological_collection_object_id, inverse_of: :biological_collection_object
+  # This is a problem, but here for the forseeable future for nested attributes purporses.
+  has_many :taxon_determinations, -> {order('taxon_determinations.position') }, foreign_key: :biological_collection_object_id, inverse_of: :biological_collection_object
+
+  has_one :preferred_catalog_number, through: :current_otu, source: :taxon_name
 
   belongs_to :collecting_event, inverse_of: :collection_objects
   belongs_to :preparation_type, inverse_of: :collection_objects
@@ -111,6 +115,10 @@ class CollectionObject < ActiveRecord::Base
 
   soft_validate(:sv_missing_accession_fields, set: :missing_accession_fields)
   soft_validate(:sv_missing_deaccession_fields, set: :missing_deaccession_fields)
+
+  def preferred_catalog_number
+    Identifier::Local::CatalogNumber.where(identifier_object: self).first #   self.identifiers.of_type('Local::CatalogNumber').order('identifiers.position ASC').first
+  end
 
   def missing_determination
     # see BiologicalCollectionObject
@@ -536,7 +544,6 @@ class CollectionObject < ActiveRecord::Base
   def sv_missing_repository
     # see biological_collection_object
   end
-
 
   protected
 

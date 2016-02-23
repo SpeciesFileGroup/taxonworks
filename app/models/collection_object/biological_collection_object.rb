@@ -1,30 +1,28 @@
-# A collection object that is categorized as being biological in origin. 
+# A collection object that is classified as being biological in origin. 
 #
 class CollectionObject::BiologicalCollectionObject < CollectionObject
   has_many :biocuration_classifications,  inverse_of: :biological_collection_object
   has_many :biocuration_classes, through: :biocuration_classifications, inverse_of: :biological_collection_objects
  
-  # See parent class for comments, this belongs here, but interferes with acceptes_nested_attributes 
+  # See parent class for comments, this belongs here, but interferes with accepts_nested_attributes 
   # has_many :taxon_determinations, inverse_of: :biological_collection_object, dependent: :destroy, foreign_key: :biological_collection_object_id
  
   accepts_nested_attributes_for :biocuration_classes, allow_destroy: true
   accepts_nested_attributes_for :biocuration_classifications, allow_destroy: true
+
+  has_one :current_taxon_determination, -> {order(:position)}, class_name: 'TaxonDetermination', foreign_key: :biological_collection_object_id, inverse_of: :biological_collection_object
+  has_one :current_otu, through: :current_taxon_determination, source: :otu
+  has_one :current_taxon_name, through: :current_otu, source: :taxon_name
 
   soft_validate(:sv_missing_determination, set: :missing_determination)
   soft_validate(:sv_missing_collecting_event, set: :missing_collecting_event)
   soft_validate(:sv_missing_preparation_type, set: :missing_preparation_type)
   soft_validate(:sv_missing_repository, set: :missing_repository)
 
-  # @return [TaxonDetermination, nil]
-  #    the last added taxon determination
-  def current_determination
-    taxon_determinations.sort_by{|i| i.position}.last
-  end
-
   def reorder_determinations_by(attribute = :date)
     determinations = []
     if attribute == :date
-      determinations = taxon_determinations.sort{|a, b| a.sort_date <=> b.sort_date }
+      determinations = taxon_determinations.sort{|a, b| b.sort_date <=> a.sort_date }
     else
       determinations = taxon_determinations.order(attribute)
     end
@@ -46,7 +44,7 @@ class CollectionObject::BiologicalCollectionObject < CollectionObject
   end
 
   def sv_missing_determination
-    soft_validations.add(:base, 'Determination is missing') if self.current_determination.nil?
+    soft_validations.add(:base, 'Determination is missing') if self.current_taxon_determination(true).nil?
   end
 
   def sv_missing_collecting_event

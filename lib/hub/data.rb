@@ -31,6 +31,10 @@ module Hub::Data
     #   the section classification (core, etc.)
     attr_accessor :klass
 
+    attr_accessor :shared
+
+    attr_accessor :application_defined
+
     def initialize(klass, attributes)
       attributes ||= {}
       raise "Improperly defined user task #{data} in user_tasks.yml." if klass.nil?
@@ -41,6 +45,8 @@ module Hub::Data
       @status = attributes['status']
       @categories = attributes['categories']
       @section = attributes['section']
+      @shared = attributes['shared']
+      @application_defined = attributes['application_defined']
     end
 
     def status
@@ -50,6 +56,15 @@ module Hub::Data
     def categories
       @categories.nil? ? [] : @categories
     end
+
+    def shared_css
+      shared.nil? ? nil : 'shared'
+    end
+
+    def application_css
+      application_defined.nil? ? nil : 'shared'
+    end
+
 
   end
 

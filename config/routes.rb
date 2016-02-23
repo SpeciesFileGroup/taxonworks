@@ -332,14 +332,22 @@ TaxonWorks::Application.routes.draw do
     # Scopes arranged alphabetically first level below :tasks
 
     scope :accessions do
+      scope :report  do
+        scope :dwca, controller: 'tasks/accessions/report/dwca' do
+          get '', action: :index, as: 'report_dwca_task'
+        end
+      end
+
       scope :breakdown do
         scope :sqed_depiction, controller: 'tasks/accessions/breakdown/sqed_depiction' do
+          get 'todo_map', action: :todo_map, as: 'sqed_depiction_breakdown_todo_map_task'
           get ':id(/:namespace_id)', action: :index, as: 'sqed_depiction_breakdown_task'
           patch 'update/:id', action: :update, as: 'sqed_depiction_breakdown_update_task'
         end
 
         scope :buffered_data, controller: 'tasks/accessions/breakdown/buffered_data' do
           get ':id', action: :index, as: 'collection_object_buffered_data_breakdown_task'
+          get 'thumb_navigator/:id', action: :thumb_navigator, as: 'collection_object_buffered_data_breakdown_thumb_navigator'
           patch 'update/:id', action: :update, as: 'collection_object_buffered_data_breakdown_update_task' 
         end
       end

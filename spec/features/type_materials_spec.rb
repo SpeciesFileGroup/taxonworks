@@ -1,5 +1,4 @@
 require 'rails_helper'
-include FormHelper
 
 RSpec.describe "TypeMaterials", :type => :feature do
   # Capybara.default_wait_time = 15

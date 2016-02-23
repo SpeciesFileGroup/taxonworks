@@ -24,7 +24,14 @@ module TaxonNameClassificationsHelper
 
   def taxon_name_classification_tag(taxon_name_classification)
     return nil if taxon_name_classification.nil?
-    taxon_name_classification.class_name
+    taxon_name_classification.classification_label
+  end
+
+  # @return [link]
+  
+  def taxon_name_classification_link(taxon_name_classification)
+    return nil if taxon_name_classification.nil?
+    link_to(taxon_name_classification_tag(taxon_name_classification).html_safe, metamorphosize_if(taxon_name_classification.taxon_name))
   end
 
   # @return [True]
@@ -32,6 +39,7 @@ module TaxonNameClassificationsHelper
   def taxon_name_classifications_recent_objects_partial
     true 
   end
+
 
 
 end

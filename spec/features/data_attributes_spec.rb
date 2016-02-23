@@ -1,5 +1,4 @@
 require 'rails_helper'
-include FormHelper
 
 describe 'DataAttributes', :type => :feature do
   # Capybara.default_wait_time = 15  # slows down Capybara enough to see what's happening on the form

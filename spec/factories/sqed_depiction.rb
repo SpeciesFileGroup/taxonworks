@@ -8,7 +8,7 @@ FactoryGirl.define do
       layout "cross"
       metadata_map "{ 0 => curator_metadata, 1 => identifier, 2 => image_registration, 3 => annotated_specimen }" # notice whitespace critical!  
       result_boundary_coordinates ""
-      result_text ""
+      result_ocr "{}"
     end
   end
 end

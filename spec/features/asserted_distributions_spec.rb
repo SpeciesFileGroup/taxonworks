@@ -1,5 +1,4 @@
 require 'rails_helper'
-include FormHelper
 
 describe "AssertedDistributions", :type => :feature do
   let(:page_index_name) { 'asserted distributions' }

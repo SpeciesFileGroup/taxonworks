@@ -518,7 +518,7 @@ def generate_geo_test_objects(run_in_console = false, user = nil)
   @p21 = FactoryGirl.build(:geographic_item_point, :point => POINT21.as_binary) # 21
   @p22 = FactoryGirl.build(:geographic_item_point, :point => POINT22.as_binary) # 22
 
-  @p12c = FactoryGirl.build(:geographic_item_point, :point => POINT12.as_binary) # 23
+#  @p12c = FactoryGirl.build(:geographic_item_point, :point => POINT12.as_binary) # 23
 
   @a  = FactoryGirl.build(:geographic_item_line_string, :line_string => SHAPE_A.as_binary) # 24
   @b1 = FactoryGirl.build(:geographic_item_polygon, :polygon => SHAPE_B_OUTER.as_binary) # 25
@@ -565,7 +565,7 @@ def generate_geo_test_objects(run_in_console = false, user = nil)
              @p5, @p6, @p7, @p8, @p9,
              @p10, @p11, @p12, @p13, @p14,
              @p15, @p16, @p17, @p18, @p19,
-             @p20, @p21, @p22, @p12c,
+             @p20, @p21, @p22, # @p12c,
              @a,
              @b1, @b2, @b,
              @c1, @c2, @c3, @c,
@@ -616,7 +616,7 @@ def generate_geo_test_objects(run_in_console = false, user = nil)
     p20:          @p20.id,
     p21:          @p21.id,
     p22:          @p22.id,
-    p12c:         @p12c.id,
+#    p12c:         @p12c.id,
 
     a:            @a.id,
     b1:           @b1.id,
@@ -730,11 +730,12 @@ def generate_ce_test_objects(run_in_console = false, user = nil)
                               :collecting_event      => @ce_p2,
                               :error_geographic_item => @e1,
                               :geographic_item       => @p12)
-  @gr122 = FactoryGirl.create(:georeference_verbatim_data,
-                              :api_request           => 'gr122',
-                              :collecting_event      => @ce_p2,
-                              :error_geographic_item => @e2,
-                              :geographic_item       => @p12c)
+
+# @gr122 = FactoryGirl.create(:georeference_verbatim_data,
+#                             :api_request           => 'gr122',
+#                             :collecting_event      => @ce_p2,
+#                             :error_geographic_item => @e2,
+#                             :geographic_item       => @p12c)
 
   @ce_p3 = FactoryGirl.create(:collecting_event, :verbatim_label => '@ce_p3 collect_event test')
   @gr03  = FactoryGirl.create(:georeference_verbatim_data,

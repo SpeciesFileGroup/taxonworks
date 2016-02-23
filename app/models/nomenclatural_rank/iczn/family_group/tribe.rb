@@ -10,6 +10,10 @@ class NomenclaturalRank::Iczn::FamilyGroup::Tribe < NomenclaturalRank::Iczn::Fam
     taxon_name.errors.add(:name, 'name must end in ini') if not(taxon_name.name =~ /.*ini\Z/)
   end
 
+  def self.valid_name_ending
+    'ini'
+  end
+
   def self.valid_parents
     [NomenclaturalRank::Iczn::FamilyGroup::Supertribe.to_s, NomenclaturalRank::Iczn::FamilyGroup::Subfamily.to_s]
   end

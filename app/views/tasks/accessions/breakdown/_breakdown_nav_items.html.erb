@@ -1,0 +1,4 @@
+<div> <%= link_to('TODO map', sqed_depiction_breakdown_todo_map_task_path) -%> </div>
+<div class="subtle">Sqed
+  depiction:  <%= link_to(@result.sqed_depiction.to_param, depiction_path(@result.sqed_depiction.depiction)) -%> </div>
+<div> <%= link_to('Original image', @result.depiction.image.image_file.url(:original), target: '_blank') -%> </div>

@@ -56,7 +56,6 @@
 class GeographicArea < ActiveRecord::Base
   include Housekeeping::Users
   include Housekeeping::Timestamps
-
   include Shared::IsData
   include Shared::IsApplicationData
 
@@ -73,7 +72,7 @@ class GeographicArea < ActiveRecord::Base
   belongs_to :level2, class_name: 'GeographicArea', foreign_key: :level2_id
 
   has_many :collecting_events, inverse_of: :geographic_area
-  has_many :geographic_areas_geographic_items, dependent: :destroy, inverse_of: :geographic_area
+  has_many :geographic_areas_geographic_items, -> { ordered_by_data_origin  }, dependent: :destroy, inverse_of: :geographic_area
   has_many :geographic_items, through: :geographic_areas_geographic_items
 
   accepts_nested_attributes_for :geographic_areas_geographic_items
@@ -83,9 +82,8 @@ class GeographicArea < ActiveRecord::Base
   validates :level0, presence: true, allow_nil: true, unless: 'self.name == "Earth"'
   validates :level1, presence: true, allow_nil: true
   validates :level2, presence: true, allow_nil: true
-
-  validates_presence_of :data_origin
   validates :name, presence: true, length: {minimum: 1}
+  validates_presence_of :data_origin
 
   scope :descendants_of, -> (geographic_area) {
     where('(geographic_areas.lft >= ?) and (geographic_areas.lft <= ?) and
@@ -97,7 +95,7 @@ class GeographicArea < ActiveRecord::Base
            (geographic_areas.id != ?)',
           geographic_area.lft, geographic_area.rgt,
           geographic_area.id).order(:lft) }
-  scope :ancestors_and_descendants_of, -> (geographic_area) {
+  scope :ancestors_and_descendants_of, ->   (geographic_area) {
     where('(((geographic_areas.lft >= ?) AND (geographic_areas.lft <= ?)) OR
            ((geographic_areas.lft <= ?) AND (geographic_areas.rgt >= ?))) AND
            (geographic_areas.id != ?)',
@@ -120,8 +118,8 @@ class GeographicArea < ActiveRecord::Base
 
   # @param  [Array] of names of self and parent
   # @return [Scope]
-  # A scope. Matches GeographicAreas that have name and parent name.
-  # Call via find_by_self_and_parents(%w{Champaign Illinois}).
+  #  Matches GeographicAreas that have name and parent name.
+  #  Call via find_by_self_and_parents(%w{Champaign Illinois}).
   scope :with_name_and_parent_name, -> (names) {
     if names[1].nil?
       where(name: names[0])
@@ -213,6 +211,36 @@ class GeographicArea < ActiveRecord::Base
     retval
   end
 
+
+  # @return [Scope] of areas which have at least one shape
+  def self.have_shape?
+    joins(:geographic_areas_geographic_items).select('distinct(geographic_areas.id)')
+  end
+
+
+  # @return [Hash]
+  #   a key valus pair that classifies this geographic
+  #   area into country, state, county categories.  
+  #   !! This is an estimation, although likely highly accurate.  It uses assumptions about how data are stored in GeographicAreas
+  #   to derive additional data, particularly for State
+  def categorize
+    n = geographic_area_type.name
+    return { country: name} if GeographicAreaType::COUNTRY_LEVEL_TYPES.include?(n) || (id == level0_id)
+    return { state: name} if GeographicAreaType::STATE_LEVEL_TYPES.include?(n) || (data_origin == 'ne_states') || (id == level1_id) || (parent.try(:id) == parent.try(:level0_id))
+    return { county: name} if GeographicAreaType::COUNTY_LEVEL_TYPES.include?(n)
+    {} 
+  end
+
+  # @return [Hash]
+  #   use the parent/child relationships of the this GeographicArea to return a country/state/county categorization
+  def geographic_name_classification
+    v = {}
+    self_and_ancestors.each do |a|
+      v.merge!(a.categorize)
+    end
+    v
+  end
+
   # @return [Scope] all known level 1 children, generally state or province level.
   def children_at_level1
     GeographicArea.descendants_of(self).where('level1_id IS NOT NULL AND level2_id IS NULL')
@@ -239,10 +267,11 @@ class GeographicArea < ActiveRecord::Base
 
   # @return [Hash] keys point to each of the four level components of the ID.  Matches values in original data.
   def tdwg_ids
-    {lvl1: self.tdwgID.slice(0),
-     lvl2: self.tdwgID.slice(0, 2),
-     lvl3: self.tdwgID.slice(2, 3),
-     lvl4: self.tdwgID.slice(2, 6)
+    {
+      lvl1: self.tdwgID.slice(0),
+      lvl2: self.tdwgID.slice(0, 2),
+      lvl3: self.tdwgID.slice(2, 3),
+      lvl4: self.tdwgID.slice(2, 6)
     }
   end
 
@@ -256,9 +285,12 @@ class GeographicArea < ActiveRecord::Base
     geographic_items.any?
   end
 
-  def shape
+  # @return [RGeo object] of the default GeographicItem
+  def geo_object
     default_geographic_item
   end
+
+  alias shape geo_object
 
   # @return [GeographicItem, nil]
   #   a "preferred" geographic item for this geographic area, where preference
@@ -268,30 +300,10 @@ class GeographicArea < ActiveRecord::Base
   #   3) GADM
   #   4) everything else (at present, TDWG)
   def default_geographic_item
-    # Postgis specific.
-    retval = GeographicAreasGeographicItem.where(:geographic_area_id => self.id).order(
-      "CASE data_origin
-      WHEN 'ne_country' THEN 1
-      WHEN 'ne_state' THEN 2
-      WHEN 'gadm' THEN 3
-      ELSE 4
-      END, id"
-    )
-    return nil if retval.empty?
-    retval.first.geographic_item
+    geographic_items.joins(:geographic_areas_geographic_items).merge(GeographicAreasGeographicItem.ordered_by_data_origin).first # .merge on same line as joins()
   end
 
-  # # @return [GeoJSON] of the default GeographicItem
-  # def default_geo_json
-  #   default_geographic_item.to_geo_json2
-  # end
-
-  # @return [RGeo object] of the default GeographicItem
-  def geo_object
-    default_geographic_item
-  end
-
-  # @return [Hash] of the pieces of a GeoJSON 'Feature'
+    # @return [Hash] of the pieces of a GeoJSON 'Feature'
   def to_geo_json_feature
     # object = self.geographic_items.order(:id).first
     #type = object.geo_type
@@ -330,40 +342,40 @@ class GeographicArea < ActiveRecord::Base
     item = nil
     if geographic_items.count == 0
       # this nil signals the top of the stack: Everything terminates at 'Earth'
-      unless parent.nil?
-        item = parent.geographic_area_map_focus
-      end
+      item = parent.geographic_area_map_focus unless parent.nil?
     else
       item = GeographicItem.new(point: geographic_items.first.st_centroid)
     end
     item
   end
 
-  # @return [Hash] the attributes of this instance, as far as possible
-  def geolocate_ui_params_hash
-    # parameters = {county: level2.name, state: level1.name, country: level0.name}
-    parameters           = {}
-    parameters[:county]  = level2.name unless level2.nil?
-    parameters[:state]   = level1.name unless level1.nil?
-    parameters[:country] = level0.name unless level0.nil?
-    item                 = geographic_area_map_focus
-    unless item.nil?
-      parameters[:Longitude] = item.point.x
-      parameters[:Latitude]  = item.point.y
+  # @return [Hash] 
+  #   this instance's attributes applicable to GeoLocate 
+  def geolocate_attributes
+    parameters = {
+      'county' => level2.try(:name),
+      'state' => level1.try(:name),
+      'country' => level0.try(:name)
+    }
+
+    if item = geographic_area_map_focus
+      parameters.merge!(
+        'Longitude' => item.point.x,
+        'Latitude' => item.point.y
+      )
     end
-    @geolocate_request = Georeference::GeoLocate::RequestUI.new(parameters)
-    @geolocate_string  = @geolocate_request.request_params_string
-    @geolocate_hash    = @geolocate_request.request_params_hash
+
+    parameters
   end
+
+ def geolocate_ui_params
+   Georeference::GeoLocate::RequestUI.new(geolocate_attributes).request_params_hash
+ end
 
   # "http://www.museum.tulane.edu/geolocate/web/webgeoreflight.aspx?country=United States of America&state=Illinois&locality=Champaign&points=40.091622|-88.241179|Champaign|low|7000&georef=run|false|false|true|true|false|false|false|0&gc=Tester"
   # @return [String]
   def geolocate_ui_params_string
-    if @geolocate_hash.nil?
-      geolocate_ui_params_hash
-    end
-    # will have come into existence during the invocation of geolocate_ui_params_hash
-    @geolocate_string
+    Georeference::GeoLocate::RequestUI.new(geolocate_attributes).request_params_string
   end
 
   def self.generate_download(scope)
@@ -376,5 +388,4 @@ class GeographicArea < ActiveRecord::Base
       end
     end
   end
-
 end

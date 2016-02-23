@@ -7,6 +7,7 @@
     <tr>
       <th>Taxon name</th>
       <th>Type</th>
+      <th>NOMEN id</th>
       <th>Last modified</th>
       <th>Updated by</th>
       <th></th>
@@ -18,8 +19,9 @@
   <tbody>
     <% @taxon_name_classifications.each do |taxon_name_classification| %>
         <tr>
-          <td><%= object_tag(taxon_name_classification.taxon_name.metamorphosize) %></td>
-          <td><%= taxon_name_classification.type %></td>
+          <td><%= taxon_name_link(taxon_name_classification.taxon_name.metamorphosize) %></td>
+          <td><%= taxon_name_classification.classification_label %></td>
+          <td><%= taxon_name_classification.nomen_id %> </td>
           <td><%= taxon_name_classification.updated_at %></td>
           <td><%= object_tag(taxon_name_classification.updater) %></td>
           <td><%= link_to 'Context', taxon_name_classification.taxon_name.metamorphosize %></td>

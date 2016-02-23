@@ -5,8 +5,20 @@
 <% end %>
 
 <%= content_for :do do -%>
-  <%= link_to('Transcribe', sqed_depiction_breakdown_task_path(@depiction.sqed_depiction)) if @depiction.sqed_depiction -%>
+  <%= link_to('Transcribe', sqed_depiction_breakdown_task_path(@depiction.sqed_depiction), 'data-no-turbolink' => 'true') if @depiction.sqed_depiction -%>
 <% end %>
+
+<%= content_for :related_attributes do -%>
+
+  <% if @depiction.sqed_depiction -%>
+         <h3> Sqed Depiction </h3>
+    <p>
+      <strong>Metadata map:</strong>
+      <%= @depiction.sqed_depiction.metadata_map %>
+    </p>
+  <% end %>
+<% end %>
+
 
 <%= render(partial: 'shared/data/project/show', locals: {object: @depiction}) -%>
 

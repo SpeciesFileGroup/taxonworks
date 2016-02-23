@@ -1,7 +1,7 @@
 <h1>Task: Localities contained within area</h1>
 <p>
   <strong>Locality:</strong>
-  <%= @geographic_item.id %>
+  <%= @geographic_item.id %> Collecting event count: <%= within_count %>
 </p>
 <table border='1' style="left: 0; width: 100%; top: 0; height: 99px">
   <tbody>
@@ -11,8 +11,8 @@
     <td colspan="2">
       <table border='1'>
         <thead> Results for collecting events which are contained within area named 
-          <%= @geographic_item.geographic_areas.first.name if @geographic_item.geographic_areas.any? %>: 
-          <%= link_to('download', download_collecting_events_path(where: {id: @collecting_events.map(&:id)})) %>
+          <%= @geographic_item.geographic_areas.first.name if @geographic_item.geographic_areas.any? %>:
+        <%= link_to('download', download_collecting_events_path(where: {id: @collecting_events.select(:id)})) %>
         </thead>
         <tr>
           <th>Verbatim Locality</th>

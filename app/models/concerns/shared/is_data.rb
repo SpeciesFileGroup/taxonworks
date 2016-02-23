@@ -96,6 +96,14 @@ module Shared::IsData
         where(object.class.arel_table[:id].not_eq(object.to_param))
       end
     end
+
+    # @return [Scope]
+    # @params [List of ids or list of AR instances]
+    #   a where clause that excludes the records with id = ids 
+    # ! Not built for collisions
+    def not_ids(*ids)
+      where.not(id: ids)
+    end
   end
 
   protected

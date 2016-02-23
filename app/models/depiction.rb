@@ -27,7 +27,7 @@ class Depiction < ActiveRecord::Base
   belongs_to :image, inverse_of: :depictions
   belongs_to :depiction_object, polymorphic: true
 
-  has_one :sqed_depiction
+  has_one :sqed_depiction, dependent: :destroy
 
   validates_presence_of :depiction_object
 

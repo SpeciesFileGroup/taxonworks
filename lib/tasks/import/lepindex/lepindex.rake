@@ -79,7 +79,7 @@ namespace :tw do
               'Nomen nudum: Published as synonym and not validated before 1961' => 'TaxonNameClassification::Iczn::Unavailable::NomenNudum::PublishedAsSynonymAndNotValidatedBefore1961',
               'Unavailable name: Infrasubspecific name' => 'TaxonNameClassification::Iczn::Unavailable::Excluded::Infrasubspecific',
               'Unavailable name: pre-Linnean' => 'TaxonNameClassification::Iczn::Unavailable::PreLinnean',
-              'Suppressed name: ICZN official index of rejected and invalid works' => 'TaxonNameClassification::Iczn::Unavailable::Suppressed::OfficialIndexOfRejectedAndInvalidWorks',
+              'Suppressed name: ICZN official index of rejected and invalid works' => 'TaxonNameClassification::Iczn::Unavailable::Suppressed::OfficialIndexOfRejectedAndInvalidWorksInZoology',
               'not latin' => 'TaxonNameClassification::Iczn::Unavailable::NotLatin'
           }
 
@@ -233,7 +233,7 @@ namespace :tw do
               source.data_attributes.new(import_predicate: 'PUBLICATION_MONTH', value: tmp['PUBLICATION_MONTH'], type: 'ImportAttribute')
             end
             source.author = tmp['IN_AUTHOR'].blank? ? tmp['AUTHOR'] : tmp['IN_AUTHOR']
-
+            source.project_sources.new
             source.save!
             source = source.id
             @data.publications_index.merge!(tmp => source)

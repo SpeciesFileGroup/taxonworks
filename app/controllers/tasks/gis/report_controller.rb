@@ -36,7 +36,7 @@ class Tasks::Gis::ReportController < ApplicationController
               }
             end
           } unless group.nil?
-        }
+        } unless current_headers.nil?
         # selected_headers               ||= {ce: {in: {}, im: {}}, # make sure all columns and types are present,
         #                                     co: {in: {}, im: {}}, # even if empty
         #                                     bc: {in: {}, im: {}}}

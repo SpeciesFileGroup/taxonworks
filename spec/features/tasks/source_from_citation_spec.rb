@@ -1,5 +1,4 @@
 require 'rails_helper'
-include FormHelper
 
 describe 'Source from Citation', type: :feature, group: :sources do
 

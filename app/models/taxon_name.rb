@@ -105,6 +105,9 @@
 #   The gender of the genus also designated as a taxon_name_classification.
 #   @todo masculine_name, feminine_name, and neuter_name used to be strung together after a single @!attribute tag
 #
+# @!cached_valid_taxon_name_id
+#   !! @proceps -  need to document this ASAP
+#
 # @!attribute cached_classified_as
 #   @return [String]
 #   if the name was classified in different group (e.g. a genus placed in wrong family).
@@ -132,6 +135,18 @@ class TaxonName < ActiveRecord::Base
   include SoftValidation
   include Shared::Depictions
 
+  # @return [Boolean]
+  #   When true, also creates an OTU that is tied to this taxon name
+  attr_accessor :also_create_otu
+
+  # @return [Boolean]
+  #   When true, also cached values are not built
+  attr_accessor :no_cached
+
+  # @return [Boolean]
+  #   When true, does not alphabetize siblings (import only) 
+  attr_accessor :no_alphabetize
+
   NO_CACHED_MESSAGE = 'PROJECT REQUIRES TAXON NAME CACHE REBUILD'
 
   if ENV['NO_TAXON_NESTING']
@@ -141,18 +156,6 @@ class TaxonName < ActiveRecord::Base
   end
 
   belongs_to :valid_taxon_name, class_name: TaxonName, foreign_key: :cached_valid_taxon_name_id
-
-  # @return [Boolean]
-  # When true, also creates an OTU that is tied to this taxon name
-  attr_accessor :also_create_otu
-
-  # @return [Boolean]
-  # When true, also cached values are not built
-  attr_accessor :no_cached
-
-  # @return [Boolean]
-  # When true, does not alphabetize siblings (import only) 
-  attr_accessor :no_alphabetize
 
   before_validation :set_type_if_empty
 
@@ -170,14 +173,15 @@ class TaxonName < ActiveRecord::Base
     end
   end
 
-  validate :check_format_of_name,
-    :validate_rank_class_class,
+  validate :validate_rank_class_class,
+  # :check_format_of_name,
     :validate_parent_rank_is_higher,
     :validate_parent_is_set,
     :check_new_rank_class,
     :check_new_parent_class,
     :validate_source_type,
-    :validate_one_root_per_project
+    :validate_one_root_per_project,
+    :name_is_latinized
 
   validates_presence_of :type, message: 'is not specified'
   belongs_to :source
@@ -200,6 +204,8 @@ class TaxonName < ActiveRecord::Base
 
   accepts_nested_attributes_for :related_taxon_name_relationships, allow_destroy: true, reject_if: proc { |attributes| attributes['type'].blank? || attributes['subject_taxon_name_id'].blank? }
   accepts_nested_attributes_for :taxon_name_authors, :taxon_name_author_roles, allow_destroy: true
+
+  accepts_nested_attributes_for :taxon_name_classifications, allow_destroy: true, reject_if: proc { |attributes| attributes['type'].blank?  }
 
   scope :with_type, -> (type) {where(type: type)}
   scope :ordered_by_rank, -> { order(:lft) } # TODO: test
@@ -316,8 +322,7 @@ class TaxonName < ActiveRecord::Base
   #   a 4 digit integer representing year of publication, like 1974
   def year_integer
     return self.year_of_publication if !self.year_of_publication.nil?
-    return self.source.year if !self.source_id.nil?
-    nil
+    try(:source).try(:year)
   end
 
   # Used to determine nomenclatural priorities
@@ -339,34 +344,38 @@ class TaxonName < ActiveRecord::Base
   # @return [Class]
   #   gender of a genus as class
   def gender_class
-    c = TaxonNameClassification.where_taxon_name(self).with_type_base('TaxonNameClassification::Latinized::Gender').first
-    c.nil? ? nil : c.type_class
+    gender_instance.try(:type_class)
+  end
+
+  def gender_instance
+    TaxonNameClassification.where_taxon_name(self).with_type_base('TaxonNameClassification::Latinized::Gender').first
   end
 
   # @return [String]
   #   gender of a genus as string.
   def gender_name
-    c = self.gender_class
-    c.nil? ? nil : c.class_name.downcase
+    gender_instance.try(:classification_label).try(:downcase)
   end
 
   # @return [Class]
   #   part of speech of a species as class.
   def part_of_speech_class
-    c = TaxonNameClassification.where_taxon_name(self).with_type_base('TaxonNameClassification::Latinized::PartOfSpeech').first
-    c.nil? ? nil : c.type_class
+    part_of_speech_instance.try(:type_class)
+  end
+
+  def part_of_speech_instance
+    TaxonNameClassification.where_taxon_name(self).with_type_base('TaxonNameClassification::Latinized::PartOfSpeech').first
   end
 
   # @return [String]
   #   part of speech of a species as string.
   def part_of_speech_name
-    c = self.part_of_speech_class
-    c.nil? ? nil : c.class_name.downcase
+    part_of_speech_instance.try(:classification_label).try(:downcase) 
   end
 
   def taxon_name_statuses
     list = TaxonNameClassification.where_taxon_name(self).with_type_array(ICZN_TAXON_NAME_CLASSIFICATION_NAMES + ICN_TAXON_NAME_CLASSIFICATION_NAMES)
-    s = list.empty? ? [] : list.collect{|c| c.class_name}
+    s = list.empty? ? [] : list.collect{|c| c.classification_label}
     list = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(STATUS_TAXON_NAME_RELATIONSHIP_NAMES)
     s = list.empty? ? s : s + list.collect{|c| c.object_relationship_name}
     s
@@ -552,7 +561,7 @@ class TaxonName < ActiveRecord::Base
       n = n[0, 3] + n[3..-4].gsub('o', 'i') + n[-3, 3] if n.length > 6 # connecting vowel in the middle of the word (nigrocinctus vs. nigricinctus)
     elsif self.rank_string =~ /Family/
       n_base = Protonym.family_group_base(self.name)
-      if n_base.nil?
+      if n_base.nil? || n_base == self.name
         n = self.name
       else
         n = n_base + 'idae'
@@ -780,7 +789,14 @@ class TaxonName < ActiveRecord::Base
 
   # @!return [ { rank => [prefix, name] }
   #   Returns a hash of rank => [prefix, name] for genus and below 
-  # @taxon_name.full_name_hash # => {"genus"=>[nil, "Aus"], "subgenus"=>[nil, "Aus"], "section"=>["sect.", "Aus"], "series"=>["ser.", "Aus"], "species"=>[nil, "aaa"], "subspecies"=>[nil, "bbb"], "variety"=>["var.", "ccc"]}
+  # @taxon_name.full_name_hash # => 
+  #      {"genus" => [nil, "Aus"], 
+  #       "subgenus" => [nil, "Aus"], 
+  #       "section" => ["sect.", "Aus"], 
+  #       "series" => ["ser.", "Aus"], 
+  #       "species" => [nil, "aaa"], 
+  #       "subspecies" => [nil, "bbb"], 
+  #       "variety" => ["var.", "ccc"]}
   def full_name_hash
     gender = nil
     data   = {}
@@ -788,7 +804,12 @@ class TaxonName < ActiveRecord::Base
       rank   = i.rank
       gender = i.gender_name if rank == 'genus'
       method = "#{rank.gsub(/\s/, '_')}_name_elements"
-      data.merge!(rank => send(method, i, gender)) if self.respond_to?(method)
+      if self.respond_to?(method)
+        data.merge!(rank => send(method, i, gender)) 
+      else
+        data.merge!(rank => i.name)
+      end
+      # data.merge!(rank => send(method, i, gender)) if self.respond_to?(method)
     end
     data
   end
@@ -991,6 +1012,7 @@ class TaxonName < ActiveRecord::Base
     elsif self_option == :alternative
       name1 = self.name_with_alternative_spelling
     end
+    
     return nil if genus.nil? && name1.nil?
     (genus.to_s + ' ' + name1.to_s).squish
   end
@@ -1087,7 +1109,6 @@ class TaxonName < ActiveRecord::Base
     ay.blank? ? nil : ay
   end
 
-
   def get_higher_classification
     # see config/initializers/ranks for FAMILY_AND_ABOVE_RANK_NAMES
     safe_self_and_ancestors.select { |i| FAMILY_AND_ABOVE_RANK_NAMES.include?(i.rank_string) }.collect { |i| i.name }.join(':')
@@ -1176,15 +1197,30 @@ class TaxonName < ActiveRecord::Base
     end
   end
 
-  def check_format_of_name
-    if self.type == 'Protonym' && self.rank_class && self.rank_class.respond_to?(:validate_name_format)
-      self.rank_class.validate_name_format(self)
-    end
-  end
+#  def check_format_of_name
+#    if self.type == 'Protonym' && self.rank_class && self.rank_class.respond_to?(:validate_name_format)
+#        self.rank_class.validate_name_format(self)
+#    end
+#  end
 
   # See subclasses
   def validate_rank_class_class
     true
+  end
+
+
+  def name_is_latinized
+    exepted_with_taxon_name_classifications = ['TaxonNameClassification::Iczn::Unavailable::NotLatin',
+                                               'TaxonNameClassification::Iczn::Unavailable::LessThanTwoLetters',
+                                               'TaxonNameClassification::Iczn::Unavailable::NotLatinizedAfter1899',
+                                               'TaxonNameClassification::Iczn::Unavailable::NotLatinizedBefore1900AndNotAccepted']
+    if (taxon_name_classifications.collect{|t| t.type} & exepted_with_taxon_name_classifications).empty? && type == 'Protonym'
+      if name =~ /[^a-zA-Z|\-]/
+        errors.add(:name, 'Name must be latinized, no digits or spaces allowed')
+      elsif rank_class && rank_class.respond_to?(:validate_name_format)
+        rank_class.validate_name_format(self)
+      end
+    end
   end
 
   # @proceps self.rank_class_was is not a class method anywhere, so this comparison is vs. nil

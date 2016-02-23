@@ -118,24 +118,24 @@ class Georeference::GeoLocate < Georeference
 
   class RequestUI
     REQUEST_PARAMS = {
-        country: nil, # name of a country 'USA', or Germany
-        state: nil, # 'IL', or 'illinois' (required in the United States)
-        county: nil, # supply as a parameter
-        locality: nil, # name of a place 'CHAMPAIGN' (or building, i.e. 'Eiffel Tower')
-        Latitude: nil, #
-        Longitude: nil, #
-        Placename: nil, #
-        Score: '0',
-        Uncertainty: '3',
-        H20: 'false',
-        HwyX: 'false',
-        Uncert: 'true',
-        Poly: 'true',
-        DisplacePoly: 'false',
-        RestrictAdmin: 'false',
-        BG: 'false',
-        LanguageIndex: '0',
-        gc: 'Tester'
+       'country' =>  nil, # name of a country 'USA', or Germany
+       'state' => nil, # 'IL', or 'illinois' (required in the United States)
+       'county' => nil, # supply as a parameter
+       'locality' => nil, # name of a place 'CHAMPAIGN' (or building, i.e. 'Eiffel Tower')
+       'Latitude' => nil, #
+       'Longitude' => nil, #
+       'Placename' => nil, #
+       'Score' => '0',
+       'Uncertainty' => '3',
+       'H20' => 'false',
+       'HwyX' => 'false',
+       'Uncert' => 'true',
+       'Poly' => 'true',
+       'DisplacePoly' => 'false',
+       'RestrictAdmin' => 'false',
+       'BG' => 'false',
+       'LanguageIndex' => '0',
+       'gc' => 'Tester'
     }
 
     attr_reader :request_params, :request_params_string, :request_params_hash
@@ -150,14 +150,14 @@ class Georeference::GeoLocate < Georeference
     # @return [String] a string to invoke as an api call to hunt for a particular place.
     def build_param_string
       # @request_param_string ||= @request_params.collect { |key, value| "#{key}=#{value}" }.join('&')
-      ga = @request_params_hash
+      ga = request_params_hash
       @request_params_string = 'http://' + URI_HOST +
           URI_EMBED_PATH +
-          "country=#{ga[:country]}&state=#{ga[:state]}&county=#{ga[:county]}&locality=#{ga[:locality]}&points=" +
-          "#{ga[:Latitude]}|#{ga[:Longitude]}|#{ga[:Placename]}|#{ga[:Score]}|#{ga[:Uncertainty]}" +
-          "&georef=run|#{ga[:H20]}|#{ga[:HwyX]}|#{ga[:Uncert]}|#{ga[:Poly]}|#{ga[:DisplacePoly]}|" +
-          "#{ga[:RestrictAdmin]}|#{ga[:BG]}|#{ga[:LanguageIndex]}" +
-          "&gc=#{ga[:gc]}"
+          "country=#{ga['country']}&state=#{ga['state']}&county=#{ga['county']}&locality=#{ga['locality']}&points=" +
+          "#{ga['Latitude']}|#{ga['Longitude']}|#{ga['Placename']}|#{ga['Score']}|#{ga['Uncertainty']}" +
+          "&georef=run|#{ga['H20']}|#{ga['HwyX']}|#{ga['Uncert']}|#{ga['Poly']}|#{ga['DisplacePoly']}|" +
+          "#{ga['RestrictAdmin']}|#{ga['BG']}|#{ga['LanguageIndex']}" +
+          "&gc=#{ga['gc']}"
     end
 
     # def request_string
