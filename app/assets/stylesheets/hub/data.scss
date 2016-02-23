@@ -41,7 +41,7 @@ box-shadow: 0 0px 3px 0 $navigation_border;
     display: flex;
     flex-direction: row;
     justify-content: center;
-    width: 1010px;
+    max-width: 1040px;
   }
 
   .cards-section {
@@ -54,6 +54,7 @@ box-shadow: 0 0px 3px 0 $navigation_border;
   }
 
   .card-container {
+    display: flex;
     flex-direction:row;
     align-items:center;
     margin: 0.5em;

@@ -1,12 +1,69 @@
 <div>
 <ul>
-  <% @sessions_current_user.favorite_routes.each do |route| -%>
-    <li> <%= link_to(route.parameterize(' - '), route) -%> <%= link_to('Remove', remove_favorite_page_path(favorited_route: route), method: 'post') -%> </li>
-  <% end %>
-</ul>
 
 <% if @sessions_current_user.favorite_routes.length == 0 %>
   <div> Welcome, <%= @sessions_current_user.name -%>! Spend a little time navigating through the workbench.  As you become familiar with tasks or pages you find most useful, favorite them, they'll appear here.  To dive in you might start with the <%= link_to('all', hub_path(list: 'all')) -%> tab. </div>
 <% end %>
 
 </div>
+
+<% if @sessions_current_user.favorite_routes.length != 0 %>
+<div id="data_cards">
+<div class="flexbox">
+  <div class="item">
+    <div class="favorite-box">
+	    <div data-section="Favorite" class="">
+	    <div class="data_section_label">
+	    	<h3>
+	    		Favorites
+	    	</h3>
+	    </div>
+	    <div class="cards-section">
+				<% @sessions_current_user.favorite_routes.each do |route| -%>
+			      <div class="card-container" style="display: flex;">
+				      <div class="data_card">
+					    	<div class="status"><%= link_to('Remove', remove_favorite_page_path(favorited_route: route), method: 'post') -%> 
+					    	</div>
+					    	<%= link_to(route.parameterize(' - ').humanize, route) -%> 
+					  </div>
+			      </div>		      
+		      <% end %>
+		      <% if @sessions_current_user.favorite_routes.length == 0 %>
+				<div data-attribute="empty" class="subtle center_text">
+			    	<h1>None</h1>
+			    </div>
+			  <% end %>
+	    </div>
+	    </div>
+</div>
+</div>  
+</div>
+</div>
+      
+  <% end %> 
+
+  <script type="text/javascript">
+	$(document).ready(initContextMenus);
+	$(document).on('page:change', initContextMenus);
+
+
+	 function initContextMenus() {
+	  $.contextMenu('destroy', ".favorite-box .card-container" );
+	        $.contextMenu({
+	            selector: '.favorite-box .card-container', 
+	            autoHide: true,
+	            callback: function(key, options) {
+	                var m = "clicked: " + key;
+
+	                switch(key) {               
+	                  case "delete":
+	                    $(this).find('a').click();
+	                  break;
+	                }
+	            },
+	            items: {
+	                "delete": {name: "Remove from favorite", icon: "delete"}
+	            }
+	        });
+	  }      	 	
+  </script>
