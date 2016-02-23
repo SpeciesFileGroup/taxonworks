@@ -21,7 +21,7 @@ a {
 
 
 .hub-navbar {
-  background-color:#fafafa;
+  background-color:$soft_background;
   border-bottom:1px solid $navigation_border;
   display: -webkit-box;
   display: -moz-box;
@@ -32,6 +32,7 @@ a {
   padding-top:5px;
   padding-bottom:5px;
   align-items: center;
+  font-weight: 100;
 }
 
 .hub-navbar li:first-letter {

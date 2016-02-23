@@ -57,15 +57,19 @@
       align-items: center;
       padding-right: 15px;
       font-size: 12px;
+      opacity: 0.5;
       img { 
       padding-right: 5px; }
+    }
+    .reset:hover {
+      opacity: 1;
     }
   }
 
   .flexbox {
     display: flex;
     justify-content:space-between;
-    width: 1025px;
+    width: 1040px;
 
     .item2 {
       display: flex;

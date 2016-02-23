@@ -40,13 +40,16 @@
 			padding-right: 20px;
 
 		}
+		a {
+			font-weight: 100;
+		}
 		.title {
 			flex-direction:row;
 			border-top-left-radius: 3px;
 			border-top-right-radius: 3px;
 			display: flex;
 			height: 40px;
-			color: #FFF;
+			//color: #FFF;
 			align-items:center;
 			img {
 				width: 15px;
@@ -56,16 +59,16 @@
 
 		}
 			.configuration {
-				background-color: $color-complement-3;
+			//	background-color: $color-complement-3;
 				border-bottom: 5px solid $color-complement-4;
 			}
 			.data {
-				background-color: $color-secondary-2-3;
-				border-bottom: 5px solid $color-secondary-2-4;
+			//	background-color: $color-secondary-2-3;
+				border-bottom: 5px solid $color-secondary-2-3;
 			}
 			.project {
-				background-color: $color-secondary-2-3;
-				border-bottom: 5px solid $color-secondary-2-4;
+			//	background-color: $color-secondary-2-3;
+				border-bottom: 5px solid $color-secondary-2-3;
 				
 			}
 		.subtitle {
@@ -140,6 +143,9 @@
 			mark {
 				font-weight: bold;
 				background-color: transparent;
+				a {
+					font-weight: bold;
+				}
 			}
 			mark:before {
 				font-weight: 100;

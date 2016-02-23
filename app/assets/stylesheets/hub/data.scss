@@ -5,7 +5,8 @@
 @import 'workbench/whitespace';
 
 #data_cards {
-
+box-shadow: 0 0px 3px 0 $navigation_border;
+//border:1px solid $navigation_border;
   display: flex;
   justify-content: center;
 
@@ -18,7 +19,7 @@
     flex-direction:column;   
     width:250px; 
     border-radius: 3px;
-    box-shadow: 0 0px 3px 0 $navigation_border;
+    //box-shadow: 0 0px 3px 0 $navigation_border;
     margin: 0.5em;
   }
 
@@ -69,6 +70,10 @@
                 box-shadow 0.5s ease;
     background-color: $navigation_background;
     box-shadow:inset 0px 1px 5px 0px $navigation_border;
+    border-left: 4px solid #444;
+    transition: background-color 0.5s ease,
+                border 0.5s ease,
+                box-shadow 0.5s ease;     
     img {
       opacity: 1;
       width: 14px;
@@ -87,20 +92,22 @@
     font-weight: 100;
     border-radius: 3px;
     border: 1px solid $navigation_border;
+    border-left: 4px solid $color-secondary-2-4;
     padding: 12px;
     background-color: $color-secondary-2-1;
     box-shadow: 0 0px 3px 0 $navigation_border;    
 
     transition: background-color 0.5s ease,
+                border 0.5s ease,
                 box-shadow 0.5s ease;    
+
+    a{
+      color: #444;
+    }
   }
 
   .shared {
-    border:1px solid $color-secondary-1-3;
-    box-shadow: 0 0 3px 0 $color-secondary-1-3;
-    a {
-      color: $color-secondary-1-4;
-    }
+    border-left:5px solid $color-secondary-1-3;
   }
 
   .application_defined {
