@@ -7,13 +7,6 @@ describe 'Source from Citation', type: :feature, group: :sources do
       sign_in_user_and_select_project # logged in and project selected
     }
 
-    specify 'should have a favorite this page link' do
-      visit new_verbatim_reference_task_path # when I visit the new_verbatim_reference_task_path
-      expect(page).to have_link('Favorite page')
-      click_link('Favorite page')
-      expect(page).to have_content('Added page to favorites.')
-    end
-
     specify 'new bibtex source from citation' do
       visit new_verbatim_reference_task_path # when I visit the new_verbatim_reference_task_path
       expect(page.has_field?('citation', :type => 'textarea')).to be_truthy

@@ -129,12 +129,24 @@ module Workbench::SessionsHelper
     ]
   end
 
-  def favorite_page_link
-    if sessions_current_user.favorite_routes.include?(request.fullpath)
-      content_tag(:em, 'favourited', html: {class: 'subtle'})  
+  # @param [String]
+  # @param [String]
+  def favorite_page_link(kind, name)
+    if favorites?(kind, name)
+      link_to('Unfavorite page', unfavorite_page_path(kind: kind, name: name), method: :post, remote: true)
     else
-      link_to('Favorite page', favorite_page_path(favorited_route: request.fullpath), method: :post)
+      link_to('Favorite page', favorite_page_path(kind: kind, name: name), method: :post, remote: true)
     end
+  end
+
+  def has_hub_favorites?
+    sessions_current_user.hub_favorites[sessions_current_project_id.to_s] ? true : false
+  end
+
+  # @param [String]
+  # @param [String]
+  def favorites?(kind, name)
+    has_hub_favorites? && sessions_current_user.hub_favorites[sessions_current_project_id.to_s][kind].include?(name)
   end
 
   def project_settings_link

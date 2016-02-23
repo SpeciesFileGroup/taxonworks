@@ -2,19 +2,30 @@ class UserPreferencesController < ApplicationController
   before_action :require_sign_in_and_project_selection
 
   def favorite_page
-    @sessions_current_user.add_page_to_favorites(params[:favorited_route])
-    redirect_to :back, notice: 'Added page to favorites.'
+    sessions_current_user.add_page_to_favorites(valid_params)
+    respond_to do |format|
+      format.html {
+        redirect_to :back, notice: 'Added page to favorites.'
+      }
+      format.js {
+         }
+    end
   end
 
-  def remove_favorite_page
-    @sessions_current_user.remove_page_from_favorites(params[:favorited_route])
-    redirect_to :back, notice: 'Removed page from favorites.'
+  def unfavorite_page
+    sessions_current_user.remove_page_from_favorites(valid_params)
+    respond_to do |format|
+      format.html {
+        redirect_to :back, notice: 'Removed page from favorites.'
+      }
+      format.js {}
+    end
   end
 
   protected
 
   def valid_params
-    params.require(:favorited_route).permit(:favorited_route)
+    params.permit(:name, :kind).merge(project_id: sessions_current_project_id)
   end
 
 end

@@ -1,12 +1,22 @@
 <div>
-<ul>
-  <% @sessions_current_user.favorite_routes.each do |route| -%>
-    <li> <%= link_to(route.parameterize(' - '), route) -%> <%= link_to('Remove', remove_favorite_page_path(favorited_route: route), method: 'post') -%> </li>
-  <% end %>
-</ul>
 
-<% if @sessions_current_user.favorite_routes.length == 0 %>
-  <div> Welcome, <%= @sessions_current_user.name -%>! Spend a little time navigating through the workbench.  As you become familiar with tasks or pages you find most useful, favorite them, they'll appear here.  To dive in you might start with the <%= link_to('all', hub_path(list: 'all')) -%> tab. </div>
-<% end %>
+  <!-- José, wrap this/refactor however you want -->
+
+  <% if has_hub_favorites? -%>
+    <% sessions_current_user.hub_favorites[sessions_current_project_id.to_s]['data'].each do |d| -%>
+      <%= data_card(Hub::Data::BY_NAME[d]) -%> 
+    <% end %>
+
+    <% sessions_current_user.hub_favorites[sessions_current_project_id.to_s]['tasks'].each do |t| -%>
+      <%= task_card(UserTasks::INDEXED_TASKS[t]) -%> 
+    <% end %>
+
+
+  <% else %>
+
+    <p>
+    Welcome, <%= sessions_current_user.name -%>! Spend a little time navigating through the workbench.  As you become familiar with tasks or pages you find most useful, favorite them, they'll appear here.  
+    </p>
+  <% end %>
 
 </div>

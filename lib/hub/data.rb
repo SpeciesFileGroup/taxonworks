@@ -65,7 +65,6 @@ module Hub::Data
       application_defined.nil? ? nil : 'shared'
     end
 
-
   end
 
   # The raw YAML (Hash)
@@ -73,18 +72,24 @@ module Hub::Data
   
   SECTIONS = CONFIG_DATA.keys
 
+  
+
   data = {}
+  by_name = {}
 
   SECTIONS.each do |s| 
     data[s] = [] 
     CONFIG_DATA[s].keys.each do |d|
       a = CONFIG_DATA[s][d] || {}
-      data[s].push( Data.new(d, a.merge('section' => s)))
+      n = Data.new(d, a.merge('section' => s))
+      data[s].push(n)
+      by_name[d] = n
     end
   end
 
   # A Hash of prefix => UserTasks::UserTask 
-  INDEX = data 
+  INDEX = data
+  BY_NAME = by_name 
 
   def self.items_for(section)
     INDEX[section]
