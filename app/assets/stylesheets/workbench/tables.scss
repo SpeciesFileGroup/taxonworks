@@ -236,6 +236,12 @@ th.headerSortDown {
     flex-direction:row;
   }
 
+  .even {
+    @extend .list_line_odd;
+  }
+  .odd {
+    @extend .list_line_even;
+  }
 tbody th, td {
   padding-left: 10px;
   border: none;

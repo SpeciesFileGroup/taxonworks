@@ -71,7 +71,7 @@
   </div>
 </div>
 ---->
-<table cellspacing="0" id="taxon-list">
+<table cellspacing="0" id="taxon-list" class="tablesorter">
   <thead>
   <tr>
     <th class="headerTableOptions" data-filter="name"><a href="#" class="headerSortUp"><div>Name</div><img arrow-up src="/assets/icons/arrow-up.svg"/><img arrow-down src="/assets/icons/arrow-down.svg"/></a></th>
@@ -91,7 +91,7 @@
   </thead>
   <tbody>
   <% @taxon_names.each do |taxon_name| %>
-      <tr class="context-menu-one btn btn-neutral"><%= link_to '', taxon_name.metamorphosize %>
+      <tr class="context-menu-one btn btn-neutral <%= cycle('list_line_odd', 'list_line_even') %>"><%= link_to '', taxon_name.metamorphosize %>
         <td data-filter="name"><%= taxon_name.name %></td>
         <td data-filter="parent"><%= object_tag(taxon_name.parent) %></td>
         <td data-filter="cachedName"><%= taxon_name.cached_html ? taxon_name.cached_html.html_safe : content_tag(:em, 'ERROR: not rendered',  class: :warning) %></td>
@@ -171,7 +171,9 @@ $(document).on('page:change', headerTableOptions);
 
 $(document).ready(function() 
     { 
-        $("#taxon-list").tablesorter(); 
+        $("#taxon-list").tablesorter({ 
+        widgets: ['zebra'] 
+        }); 
     } 
 );
 
