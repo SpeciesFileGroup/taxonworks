@@ -328,6 +328,9 @@
       border-radius: 5px;
     }
     .attributes {
+      strong {
+        font-weight: 100;
+      }
       p {
         font-size: 14px;
         color: #000;

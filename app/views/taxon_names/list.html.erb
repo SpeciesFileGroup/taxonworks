@@ -1,4 +1,43 @@
-<h1>Listing taxon names</h1>
+<div id="header-box">
+  <div class="flexbox">
+    <div class="item item1">
+      <div class="section">
+          <div class="tag title">
+          Listing taxon names
+            </div>      
+            <div class="navigation-controls">
+              <div class="pagination-controls"> 
+               <div>
+                  <%= paginate @taxon_names %> <%= page_entries_info @taxon_names %>
+                  </div>
+              </div>       
+            </div> 
+      </div>
+    </div>
+    <div class="item item2">
+      <div class="section">
+          <div class="tag title show">
+          Display
+            </div>      
+            <div class="navigation-controls">
+              <div class="navigation" data-filter-active="true" data-group="metadata"> 
+                <img src="/assets/icons/show.svg"/>Type
+              </div>   
+              <div class="navigation" data-filter-active="true" data-group="publication"> 
+                <img src="/assets/icons/show.svg"/>Source
+              </div> 
+              <div class="navigation" data-filter-active="true" data-group="housekeeping"> 
+                <img src="/assets/icons/show.svg"/>Housekeeping   
+              </div> 
+              <div class="navigation" data-display="showAll"> 
+                <img src="/assets/icons/show.svg"/>Show all
+              </div>                                                 
+            </div> 
+      </div>      
+    </div>
+  </div>
+</div>
+<!---
 <div class="nav-list">
   <div>
   <%= paginate @taxon_names %> <%= page_entries_info @taxon_names %>
@@ -31,19 +70,20 @@
     </a>
   </div>
 </div>
+---->
 <table cellspacing="0" id="taxon-list">
   <thead>
   <tr>
-    <th class="headerTableOptions" data-filter="name"><a href="#"><div>Name</div></a></th>
-    <th class="headerTableOptions" data-filter="parent"><a href="#"><div>Parent</div></a></th>
-    <th class="headerTableOptions" data-filter="cachedName"><a href="#"><div>Cached name</div></a></th>
-    <th class="headerTableOptions" data-group="publication" data-filter="source"><a href="#"><div>Source</div></a></th>
-    <th class="headerTableOptions" data-group="publication" data-filter="yearPublication"><a href="#"><div>Year of publication</div></a></th>
-    <th class="headerTableOptions" data-filter="verbatimAuthor"><a href="#"><div>Verbatim author</div></a></th>
-    <th class="headerTableOptions" data-filter="rank"><a href="#"><div>Rank</div></a></th>
-    <th class="headerTableOptions" data-group="metadata" data-filter="type"><a href="#"><div>Type</div></a></th>
-    <th class="headerTableOptions" data-group="housekeeping" data-filter="updateBy"><a href="#"><div>Updated by</div></a></th>
-    <th class="headerTableOptions" data-group="housekeeping" data-filter="lastUpdate"><a href="#"><div>Last updated</div></a></th>
+    <th class="headerTableOptions" data-filter="name"><a href="#" class="headerSortUp"><div>Name</div><img arrow-up src="/assets/icons/arrow-up.svg"/><img arrow-down src="/assets/icons/arrow-down.svg"/></a></th>
+    <th class="headerTableOptions" data-filter="parent"><a href="#"><div>Parent</div><img arrow-up src="/assets/icons/arrow-up.svg"/><img arrow-down src="/assets/icons/arrow-down.svg"/></a></th>
+    <th class="headerTableOptions" data-filter="cachedName"><a href="#"><div>Cached name</div><img arrow-up src="/assets/icons/arrow-up.svg"/><img arrow-down src="/assets/icons/arrow-down.svg"/></a></th>
+    <th class="headerTableOptions" data-group="publication" data-filter="source"><a href="#"><div>Source</div><img arrow-up src="/assets/icons/arrow-up.svg"/><img arrow-down src="/assets/icons/arrow-down.svg"/></a></th>
+    <th class="headerTableOptions" data-group="publication" data-filter="yearPublication"><a href="#"><div>Year of publication</div><img arrow-up src="/assets/icons/arrow-up.svg"/><img arrow-down src="/assets/icons/arrow-down.svg"/></a></th>
+    <th class="headerTableOptions" data-filter="verbatimAuthor"><a href="#"><div>Verbatim author</div><img arrow-up src="/assets/icons/arrow-up.svg"/><img arrow-down src="/assets/icons/arrow-down.svg"/></a></th>
+    <th class="headerTableOptions" data-filter="rank"><a href="#"><div>Rank</div><img arrow-up src="/assets/icons/arrow-up.svg"/><img arrow-down src="/assets/icons/arrow-down.svg"/></a></th>
+    <th class="headerTableOptions" data-group="metadata" data-filter="type"><a href="#"><div>Type</div><img arrow-up src="/assets/icons/arrow-up.svg"/><img arrow-down src="/assets/icons/arrow-down.svg"/></a></th>
+    <th class="headerTableOptions" data-group="housekeeping" data-filter="updateBy"><a href="#"><div>Updated by</div><img arrow-up src="/assets/icons/arrow-up.svg"/><img arrow-down src="/assets/icons/arrow-down.svg"/></a></th>
+    <th class="headerTableOptions" data-group="housekeeping" data-filter="lastUpdate"><a href="#"><div>Last updated</div><img arrow-up src="/assets/icons/arrow-up.svg"/><img arrow-down src="/assets/icons/arrow-down.svg"/></a></th>
     <th style="display: none;"></th>
     <th style="display: none;"></th>
     <th style="display: none;"></th>
@@ -94,19 +134,18 @@
 
 function showAll() {
     $('[data-filter]').show(animationTime);
-    $('a[data-filter-publication]').attr("data-filter-publication","true");
-    $('a[data-filter-metadata]').attr("data-filter-metadata","true");
-    $('a[data-filter-user-info]').attr("data-filter-user-info","true");
-    $('a[data-filter-publication]').children().children().attr("src","/assets/icons/show.svg");
-    $('a[data-filter-user-info]').children().children().attr("src","/assets/icons/show.svg");
-    $('a[data-filter-metadata]').children().children().attr("src","/assets/icons/show.svg");
+    $('[data-filter-publication]').attr("data-filter-publication","true");
+    $('[data-filter-metadata]').attr("data-filter-metadata","true");
+    $('[data-filter-user-info]').attr("data-filter-user-info","true");
+    $('[data-filter-publication]').children().children().attr("src","/assets/icons/show.svg");
+    $('[data-filter-user-info]').children().children().attr("src","/assets/icons/show.svg");
+    $('[data-filter-metadata]').children().children().attr("src","/assets/icons/show.svg");
 }
-  $('.filter-nav').on('click', 'a[data-display="showAll"]', function() {
+  $('.navigation-controls').on('click', '[data-display="showAll"]', function() {
     showAll();
   });  
 
-
-  $('.filter-nav').on('click', 'a', function() {
+  $('.navigation-controls').on('click', '.navigation', function() {
     if($(this).attr("data-filter-active") === "true") {
       $('table [data-group="' + $(this).attr("data-group") + '"]').hide(animationTime);
       $(this).attr("data-filter-active","false");
