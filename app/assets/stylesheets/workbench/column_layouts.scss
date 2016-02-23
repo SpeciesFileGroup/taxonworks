@@ -69,6 +69,7 @@ http://flexboxin5.com/
   margin:0 auto;
   max-width:1080px;
   background-color:#FFF;
+  border:1px solid $navigation_border;
   box-shadow: 0 0px 3px 0 $navigation_border;
   margin-top:150px;
   margin-bottom:150px;
@@ -86,6 +87,7 @@ http://flexboxin5.com/
   }
   
   a {
+  	font-weight: 100;
 	padding:8px;
 	text-decoration:none;
 	background-size:15px;
