@@ -158,14 +158,14 @@ describe 'Geo', group: :geo do
                    '079d 58′ 56″ W' => '-79.982222',
                    '40.446195N'     => '40.446195',
                    '79.982195W'     => '-79.982195',
-                   '40.446195'                     => '40.446195',
-                   '-79.982195'                    => '-79.982195',
-                   '40° 26.7717'                   => '40.446195',
-                   '-79° 58.93172'                 => '-79.982195',
-                   'N40:26:46.302'                 => '40.446195',
-                   'W079:58:55.903'                => '-79.982195',
-                   'N40°26′46″'                    => '40.446111',
-                   'W079°58′56″'                   => '-79.982222',
+                   '40.446195'      => '40.446195',
+                   '-79.982195'     => '-79.982195',
+                   '40° 26.7717'    => '40.446195',
+                   '-79° 58.93172'  => '-79.982195',
+                   'N40:26:46.302'  => '40.446195',
+                   'W079:58:55.903' => '-79.982195',
+                   'N40°26′46″'     => '40.446111',
+                   'W079°58′56″'    => '-79.982222',
                    'N40d 26′ 46″'                  => '40.446111',
                    'W079d 58′ 56″'                 => '-79.982222',
                    'N40.446195'                    => '40.446195',
@@ -245,6 +245,45 @@ describe 'Geo', group: :geo do
           expect(Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(co_ordinate)).to eq(result)
         end
       }
+    end
+  end
+
+  context 'adjusting digits from params[] to 1-2-5 sequence' do
+    params = {'nearby_distance' => '0', 'digit1' => '0', 'digit2' => '0'}
+
+    specify 'garbage converts to 5000, 5, 1000' do
+      params['nearby_distance'] = 'inconsistant input value'
+      expect(Utilities::Geo.nearby_from_params(params)).to eq(5_000)
+      expect(params['digit1']).to eq('5')
+      expect(params['digit2']).to eq('1000')
+    end
+
+    specify '250 converts to 500, 5, 100' do
+      params['nearby_distance'] = '250'
+      expect(Utilities::Geo.nearby_from_params(params)).to eq(500)
+      expect(params['digit1']).to eq('5')
+      expect(params['digit2']).to eq('100')
+    end
+
+    specify '5000 converts to 5000, 5, 1000' do
+      params['nearby_distance'] = '5000'
+      expect(Utilities::Geo.nearby_from_params(params)).to eq(5_000)
+      expect(params['digit1']).to eq('5')
+      expect(params['digit2']).to eq('1000')
+    end
+
+    specify '12345 converts to 20000, 2, 10000' do
+      params['nearby_distance'] = '12345'
+      expect(Utilities::Geo.nearby_from_params(params)).to eq(10_000)
+      expect(params['digit1']).to eq('1')
+      expect(params['digit2']).to eq('10000')
+    end
+
+    specify '165432 converts to 200000, 2, 100000' do
+      params['nearby_distance'] = '165432'
+      expect(Utilities::Geo.nearby_from_params(params)).to eq(200_000)
+      expect(params['digit1']).to eq('2')
+      expect(params['digit2']).to eq('100000')
     end
   end
 
