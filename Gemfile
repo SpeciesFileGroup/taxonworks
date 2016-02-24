@@ -109,7 +109,7 @@ group :test, :development do
   gem 'awesome_print'
   gem 'factory_girl_rails', '~> 4.0'
   gem 'did_you_mean', '~> 0.10.0'
-  gem 'selenium-webdriver', '~> 2.51.0'
+  gem 'selenium-webdriver', '~> 2.52.0'
 end
 
 
