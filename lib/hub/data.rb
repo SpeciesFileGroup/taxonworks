@@ -62,7 +62,7 @@ module Hub::Data
     end
 
     def application_css
-      application_defined.nil? ? nil : 'shared'
+      application_defined.nil? ? nil : 'application_defined'
     end
 
   end
