@@ -7,10 +7,6 @@ AllCops:
     - 'script/**/*'
     - 'tmp/**/*'
 
-Metrics/LineLength:
-  Max: 200
-# Use empty lines between defs.
-
 Style/EmptyLineBetweenDefs:
   # If true, this parameter means that single line method definitions don't
   # need an empty line between them.
@@ -18,6 +14,28 @@ Style/EmptyLineBetweenDefs:
 
 Style/CaseIndentation:
   Enabled: false
+
+Style/SpaceInsideHashLiteralBraces:
+  Enabled: false
+
+Style/MultilineMethodCallIndentation:
+  Enabled: false
+
+Style/BlockDelimiters:
+  Enabled: false
+
+Style/ExtraSpacing:
+  Enabled: false
+  AllowForAlignment: false
+  ForceEqualSignAlignment: true
+
+Style/SpaceAroundOperators:
+  Enabled: true
+  AllowForAlignment: true
+
+Metrics/LineLength:
+  Max: 200
+# Use empty lines between defs.
 
 Metrics/MethodLength:
   CountComments: false  # count full line comments?

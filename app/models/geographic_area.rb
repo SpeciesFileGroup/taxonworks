@@ -1,11 +1,11 @@
-# A GeographicArea is a gazeteer entry for some political subdivision. GeographicAreas are presently 
+# A GeographicArea is a gazeteer entry for some political subdivision. GeographicAreas are presently
 # limited to second level subdivisions (e.g. counties in the United States) or higher (i.e. state/country)
-# * "Levels" are non-normalized values for convenience. 
+# * "Levels" are non-normalized values for convenience.
 #
-# There are multiple hierarchies stored in GeographicArea (e.g. TDWG, GADM2).  Only when those 
+# There are multiple hierarchies stored in GeographicArea (e.g. TDWG, GADM2).  Only when those
 # name "lineages" completely match are they merged.
 #
-# @!attribute name 
+# @!attribute name
 #   @return [String]
 #   The name of the geographic area
 #
@@ -39,7 +39,7 @@
 #
 # @!attribute lft
 #   @return [Integer]
-#     Nested set index, auto created. 
+#     Nested set index, auto created.
 #
 # @!attribute iso_3166_a3
 #   @return [String]
@@ -72,7 +72,7 @@ class GeographicArea < ActiveRecord::Base
   belongs_to :level2, class_name: 'GeographicArea', foreign_key: :level2_id
 
   has_many :collecting_events, inverse_of: :geographic_area
-  has_many :geographic_areas_geographic_items, -> { ordered_by_data_origin  }, dependent: :destroy, inverse_of: :geographic_area
+  has_many :geographic_areas_geographic_items, -> { ordered_by_data_origin }, dependent: :destroy, inverse_of: :geographic_area
   has_many :geographic_items, through: :geographic_areas_geographic_items
 
   accepts_nested_attributes_for :geographic_areas_geographic_items
@@ -83,50 +83,43 @@ class GeographicArea < ActiveRecord::Base
   validates :level1, presence: true, allow_nil: true
   validates :level2, presence: true, allow_nil: true
   validates :name, presence: true, length: {minimum: 1}
-  validates_presence_of :data_origin
+  validates :data_origin, presence: true
 
-  scope :descendants_of, -> (geographic_area) {
+  scope :descendants_of, lambda { |geographic_area|
     where('(geographic_areas.lft >= ?) and (geographic_areas.lft <= ?) and
            (geographic_areas.id != ?)',
           geographic_area.lft, geographic_area.rgt,
-          geographic_area.id).order(:lft) }
-  scope :ancestors_of, -> (geographic_area) {
+          geographic_area.id).order(:lft)
+  }
+  scope :ancestors_of, lambda { |geographic_area|
     where('(geographic_areas.lft <= ?) and (geographic_areas.rgt >= ?) and
            (geographic_areas.id != ?)',
           geographic_area.lft, geographic_area.rgt,
-          geographic_area.id).order(:lft) }
-  scope :ancestors_and_descendants_of, ->   (geographic_area) {
-    where('(((geographic_areas.lft >= ?) AND (geographic_areas.lft <= ?)) OR
-           ((geographic_areas.lft <= ?) AND (geographic_areas.rgt >= ?))) AND
-           (geographic_areas.id != ?)',
-          geographic_area.lft, geographic_area.rgt,
-          geographic_area.lft, geographic_area.rgt,
-          geographic_area.id).order(:lft) }
-
-  scope :with_name_like, -> (string) { where(["name like ?", "#{string}%"]) }
-
-  # @param  [GeographicArea]
-  # @return [Scope]
-  def self.ancestors_and_descendants_of(geographic_area)
+          geographic_area.id).order(:lft)
+  }
+  scope :ancestors_and_descendants_of, lambda { |geographic_area|
     where('(((geographic_areas.lft >= ?) AND (geographic_areas.lft <= ?)) OR
            ((geographic_areas.lft <= ?) AND (geographic_areas.rgt >= ?))) AND
            (geographic_areas.id != ?)',
           geographic_area.lft, geographic_area.rgt,
           geographic_area.lft, geographic_area.rgt,
           geographic_area.id).order(:lft)
-  end
+  }
+
+  scope :with_name_like, lambda { |string|
+    where(['name like ?', "#{string}%"])
+  }
 
   # @param  [Array] of names of self and parent
   # @return [Scope]
   #  Matches GeographicAreas that have name and parent name.
   #  Call via find_by_self_and_parents(%w{Champaign Illinois}).
-  scope :with_name_and_parent_name, -> (names) {
+  scope :with_name_and_parent_name, lambda { |names|
     if names[1].nil?
       where(name: names[0])
     else
-      joins('join geographic_areas ga on ga.id = geographic_areas.parent_id').
-        where(name: names[0]).
-        where(['ga.name = ?', names[1]])
+      joins('join geographic_areas ga on ga.id = geographic_areas.parent_id')
+        .where(name: names[0]).where(['ga.name = ?', names[1]])
     end
   }
 
@@ -135,22 +128,34 @@ class GeographicArea < ActiveRecord::Base
   # TODO: Test, or extend a general method
   # Matches GeographicAreas that match name, parent name, parent.parent name.
   # Call via find_by_self_and_parents(%w{Champaign Illinois United\ States}).
-  scope :with_name_and_parent_names, -> (names) {
+  scope :with_name_and_parent_names, lambda { |names|
     if names[2].nil?
       with_name_and_parent_name(names.compact)
     else
-      joins('join geographic_areas ga on ga.id = geographic_areas.parent_id').
-        joins('join geographic_areas gb on gb.id = ga.parent_id').
-        where(name: names[0]).
-        where(['ga.name = ?', names[1]]).
-        where(['gb.name = ?', names[2]])
+      joins('join geographic_areas ga on ga.id = geographic_areas.parent_id')
+        .joins('join geographic_areas gb on gb.id = ga.parent_id')
+        .where(name: names[0])
+        .where(['ga.name = ?', names[1]])
+        .where(['gb.name = ?', names[2]])
     end
   }
+
+  # commented out 02/23/16 JDT, preceded by scope, above
+  # @param  [GeographicArea]
+  # @return [Scope]
+  # def self.ancestors_and_descendants_of(geographic_area)
+  #   where('(((geographic_areas.lft >= ?) AND (geographic_areas.lft <= ?)) OR
+  #          ((geographic_areas.lft <= ?) AND (geographic_areas.rgt >= ?))) AND
+  #          (geographic_areas.id != ?)',
+  #         geographic_area.lft, geographic_area.rgt,
+  #         geographic_area.lft, geographic_area.rgt,
+  #         geographic_area.id).order(:lft)
+  # end
 
   # @param array [Array] of strings of names for areas
   # @return [Scope] of GeographicAreas which match name and parent.name.
   # Route out to a scope given the length of the
-  # search array.  Could be abstracted to 
+  # search array.  Could be abstracted to
   # build nesting on the fly if we actually
   # needed more than three nesting levels.
   def self.find_by_self_and_parents(array)
@@ -172,7 +177,7 @@ class GeographicArea < ActiveRecord::Base
 
   # @param [GeographicArea]
   # @return [Scope] of geographic_areas
-  def self.is_contained_by(geographic_area)
+  def self.is_contained_by(geographic_area) # rubocop:disable Style/PredicateName
     pieces = nil
     if geographic_area.geographic_items.any?
       pieces = GeographicItem.is_contained_by('any_poly', geographic_area.geo_object)
@@ -205,30 +210,28 @@ class GeographicArea < ActiveRecord::Base
   # @return [Scope] all areas which contain the point specified.
   def self.find_by_lat_long(latitude = 0.0, longitude = 0.0)
     point        = "POINT(#{longitude} #{latitude})"
-    where_clause = "ST_Contains(polygon::geometry, GeomFromEWKT('srid=4326;#{point}'))" +
+    where_clause = "ST_Contains(polygon::geometry, GeomFromEWKT('srid=4326;#{point}'))" \
       " OR ST_Contains(multi_polygon::geometry, GeomFromEWKT('srid=4326;#{point}'))"
     retval       = GeographicArea.joins(:geographic_items).where(where_clause)
     retval
   end
 
-
   # @return [Scope] of areas which have at least one shape
-  def self.have_shape?
+  def self.have_shape? # rubocop:disable Style/PredicateName
     joins(:geographic_areas_geographic_items).select('distinct(geographic_areas.id)')
   end
 
-
   # @return [Hash]
   #   a key valus pair that classifies this geographic
-  #   area into country, state, county categories.  
+  #   area into country, state, county categories.
   #   !! This is an estimation, although likely highly accurate.  It uses assumptions about how data are stored in GeographicAreas
   #   to derive additional data, particularly for State
   def categorize
     n = geographic_area_type.name
-    return { country: name} if GeographicAreaType::COUNTRY_LEVEL_TYPES.include?(n) || (id == level0_id)
-    return { state: name} if GeographicAreaType::STATE_LEVEL_TYPES.include?(n) || (data_origin == 'ne_states') || (id == level1_id) || (parent.try(:id) == parent.try(:level0_id))
-    return { county: name} if GeographicAreaType::COUNTY_LEVEL_TYPES.include?(n)
-    {} 
+    return {country: name} if GeographicAreaType::COUNTRY_LEVEL_TYPES.include?(n) || (id == level0_id)
+    return {state: name} if GeographicAreaType::STATE_LEVEL_TYPES.include?(n) || (data_origin == 'ne_states') || (id == level1_id) || (parent.try(:id) == parent.try(:level0_id))
+    return {county: name} if GeographicAreaType::COUNTY_LEVEL_TYPES.include?(n)
+    {}
   end
 
   # @return [Hash]
@@ -254,34 +257,34 @@ class GeographicArea < ActiveRecord::Base
   # @param [String] name of geographic_area_type (e.g., 'Country', 'State', 'City')
   # @return [Scope] descendants of this instance which have specific types, such as counties of a state.
   def descendants_of_geographic_area_type(geographic_area_type)
-    GeographicArea.descendants_of(self).includes([:geographic_area_type]).
-      where(geographic_area_types: {name: geographic_area_type})
+    GeographicArea.descendants_of(self).includes([:geographic_area_type])
+      .where(geographic_area_types: {name: geographic_area_type})
   end
 
   # @param [Array] geographic_area_type names
   # @return [Scope] descendants of this instance which have specific types, such as cities and counties of a province.
   def descendants_of_geographic_area_types(geographic_area_type_names)
-    GeographicArea.descendants_of(self).includes([:geographic_area_type]).
-      where(geographic_area_types: {name: geographic_area_type_names})
+    GeographicArea.descendants_of(self).includes([:geographic_area_type])
+      .where(geographic_area_types: {name: geographic_area_type_names})
   end
 
   # @return [Hash] keys point to each of the four level components of the ID.  Matches values in original data.
   def tdwg_ids
     {
-      lvl1: self.tdwgID.slice(0),
-      lvl2: self.tdwgID.slice(0, 2),
-      lvl3: self.tdwgID.slice(2, 3),
-      lvl4: self.tdwgID.slice(2, 6)
+      lvl1: tdwgID.slice(0),
+      lvl2: tdwgID.slice(0, 2),
+      lvl3: tdwgID.slice(2, 3),
+      lvl4: tdwgID.slice(2, 6)
     }
   end
 
   # @return [String, nil] 1, 2, 3, 4 iff is TDWG data source
   def tdwg_level
-    return nil if !self.data_origin =~ /TDWG/
-    self.data_origin[-1]
+    return nil unless data_origin =~ /TDWG/
+    data_origin[-1]
   end
 
-  def has_shape?
+  def has_shape? # rubocop:disable Style/PredicateName
     geographic_items.any?
   end
 
@@ -303,35 +306,37 @@ class GeographicArea < ActiveRecord::Base
     geographic_items.joins(:geographic_areas_geographic_items).merge(GeographicAreasGeographicItem.ordered_by_data_origin).first # .merge on same line as joins()
   end
 
-    # @return [Hash] of the pieces of a GeoJSON 'Feature'
+  # @return [Hash] of the pieces of a GeoJSON 'Feature'
   def to_geo_json_feature
     # object = self.geographic_items.order(:id).first
-    #type = object.geo_type
-    #if type == :geometry_collection
+    # type = object.geo_type
+    # if type == :geometry_collection
     #  geometry = RGeo::GeoJSON.encode(object)
-    #else
+    # else
     # geo_id = self.geographic_items.order(:id).pluck(:id).first
-    # geometry = JSON.parse(GeographicItem.connection.select_all("select ST_AsGeoJSON(multi_polygon::geometry) geo_json from geographic_items where id=#{geo_id};")[0]['geo_json'])
+    # geometry = JSON.parse(GeographicItem.connection.select_all("select ST_AsGeoJSON(multi_polygon::geometry)
+    # geo_json from geographic_items where id=#{geo_id};")[0]['geo_json'])
     # end
     to_simple_json_feature.merge(
       'properties' => {
         'geographic_area' => {
-          'id'  => self.id,
-          'tag' => self.name
+          'id'  => id,
+          'tag' => name
         }
       }
     )
   end
 
-  # TODO: parametrize to include gazeteer 
+  # TODO: parametrize to include gazeteer
   #   i.e. geographic_areas_geogrpahic_items.where( gaz = 'some string')
   def to_simple_json_feature
-    result = {
+    result             = {
       'type'       => 'Feature',
       'properties' => {}
     }
-    area   = self.geographic_items.order(:id)
-    result.merge!('geometry' => area.first.to_geo_json) unless area.empty?
+    area               = geographic_items.order(:id)
+    result['geometry'] = area.first.to_geo_json unless area.empty?
+    # result.merge!('geometry' => area.first.to_geo_json) unless area.empty?
     result
   end
 
@@ -349,30 +354,34 @@ class GeographicArea < ActiveRecord::Base
     item
   end
 
-  # @return [Hash] 
-  #   this instance's attributes applicable to GeoLocate 
+  # @return [Hash]
+  #   this instance's attributes applicable to GeoLocate
   def geolocate_attributes
     parameters = {
-      'county' => level2.try(:name),
-      'state' => level1.try(:name),
+      'county'  => level2.try(:name),
+      'state'   => level1.try(:name),
       'country' => level0.try(:name)
     }
 
-    if item = geographic_area_map_focus
-      parameters.merge!(
-        'Longitude' => item.point.x,
-        'Latitude' => item.point.y
-      )
+    if item = geographic_area_map_focus # rubocop:disable Lint/AssignmentInCondition
+      parameters['Longitude'] = item.point.x
+      parameters['Latitude']  = item.point.y
+      # parameters.merge!(
+      #   'Longitude' => item.point.x,
+      #   'Latitude'  => item.point.y
+      # )
     end
 
     parameters
   end
 
- def geolocate_ui_params
-   Georeference::GeoLocate::RequestUI.new(geolocate_attributes).request_params_hash
- end
+  def geolocate_ui_params
+    Georeference::GeoLocate::RequestUI.new(geolocate_attributes).request_params_hash
+  end
 
-  # "http://www.museum.tulane.edu/geolocate/web/webgeoreflight.aspx?country=United States of America&state=Illinois&locality=Champaign&points=40.091622|-88.241179|Champaign|low|7000&georef=run|false|false|true|true|false|false|false|0&gc=Tester"
+  # "http://www.museum.tulane.edu/geolocate/web/webgeoreflight.aspx?country=United States of
+  # America&state=Illinois&locality=Champaign&
+  # points=40.091622|-88.241179|Champaign|low|7000&georef=run|false|false|true|true|false|false|false|0&gc=Tester"
   # @return [String]
   def geolocate_ui_params_string
     Georeference::GeoLocate::RequestUI.new(geolocate_attributes).request_params_string

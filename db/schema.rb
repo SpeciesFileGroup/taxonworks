@@ -811,22 +811,6 @@ ActiveRecord::Schema.define(version: 20160223050702) do
   add_index "otus", ["taxon_name_id"], name: "index_otus_on_taxon_name_id", using: :btree
   add_index "otus", ["updated_by_id"], name: "index_otus_on_updated_by_id", using: :btree
 
-  create_table "pdfs", force: :cascade do |t|
-    t.string   "pdf_file_file_name"
-    t.string   "pdf_file_content_type"
-    t.integer  "pdf_file_file_size"
-    t.datetime "pdf_file_updated_at"
-    t.integer  "project_id",            null: false
-    t.integer  "created_by_id",         null: false
-    t.integer  "updated_by_id",         null: false
-    t.datetime "created_at",            null: false
-    t.datetime "updated_at",            null: false
-  end
-
-  add_index "pdfs", ["created_by_id"], name: "index_pdfs_on_created_by_id", using: :btree
-  add_index "pdfs", ["project_id"], name: "index_pdfs_on_project_id", using: :btree
-  add_index "pdfs", ["updated_by_id"], name: "index_pdfs_on_updated_by_id", using: :btree
-
   create_table "people", force: :cascade do |t|
     t.string   "type",          null: false
     t.string   "last_name",     null: false
@@ -1474,9 +1458,6 @@ ActiveRecord::Schema.define(version: 20160223050702) do
   add_foreign_key "otus", "taxon_names", name: "otus_taxon_name_id_fkey"
   add_foreign_key "otus", "users", column: "created_by_id", name: "otus_created_by_id_fkey"
   add_foreign_key "otus", "users", column: "updated_by_id", name: "otus_updated_by_id_fkey"
-  add_foreign_key "pdfs", "projects"
-  add_foreign_key "pdfs", "users", column: "created_by_id"
-  add_foreign_key "pdfs", "users", column: "updated_by_id"
   add_foreign_key "people", "users", column: "created_by_id", name: "people_created_by_id_fkey"
   add_foreign_key "people", "users", column: "updated_by_id", name: "people_updated_by_id_fkey"
   add_foreign_key "pinboard_items", "projects", name: "pinboard_items_project_id_fkey"
