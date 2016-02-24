@@ -45,10 +45,15 @@ Supporting:
     categories:
       - CollectionObject
   Content:
+  CommonName:
+    categories:
+      - TaxonName
   Document:
   Documentation:
   Depiction:
   Georeference:
+    categories:
+      - CollectingEvent 
   GeographicArea:
     shared: true
     application_defined: true

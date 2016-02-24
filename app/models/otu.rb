@@ -46,12 +46,12 @@ class Otu < ActiveRecord::Base
   has_many :collection_objects, through: :taxon_determinations, source: :biological_collection_object, inverse_of: :otus, class_name: 'CollectionObject::BiologicalCollectionObject'
   has_many :taxon_determinations, inverse_of: :otu, dependent: :destroy
 
+  has_many :common_names, dependent: :destroy 
   has_many :collection_profiles # @proceps dependent: what?
   has_many :contents, inverse_of: :otu, dependent: :destroy
   has_many :geographic_areas_from_asserted_distributions, through: :asserted_distributions, source: :geographic_area
   has_many :geographic_areas_from_collecting_events, through: :collecting_events, source: :geographic_area
   has_many :georeferences, through: :collecting_events
-
   has_many :topics, through: :contents, source: :topic
 
   scope :with_taxon_name_id, -> (taxon_name_id) { where(taxon_name_id: taxon_name_id) }
@@ -61,6 +61,8 @@ class Otu < ActiveRecord::Base
 
   soft_validate(:sv_taxon_name, set: :taxon_name)
   soft_validate(:sv_duplicate_otu, set: :duplicate_otu)
+
+  accepts_nested_attributes_for :common_names, allow_destroy: true
 
   #region class methods
 

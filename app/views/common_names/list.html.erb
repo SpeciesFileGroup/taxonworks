@@ -1,0 +1,39 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Listing Common Names</h1>
+
+<%= paginate @common_names %> <%= page_entries_info @common_names %>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Geographic area</th>
+      <th>Otu</th>
+      <th>Language</th>
+      <th>Start year</th>
+      <th>End year</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @common_names.each do |common_name| %>
+      <tr>
+        <td><%= common_name.name %></td>
+        <td><%= geographic_area_link(common_name.geographic_area) %></td>
+        <td><%= otu_link(common_name.otu) %></td>
+        <td><%= language_tag(common_name.language) %></td>
+        <td><%= common_name.start_year %></td>
+        <td><%= common_name.end_year %></td>
+        <td><%= link_to 'Show', common_name %></td>
+        <td><%= link_to 'Edit', edit_common_name_path(common_name) %></td>
+        <td><%= link_to 'Destroy', common_name, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Common name', new_common_name_path %>

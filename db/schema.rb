@@ -11,13 +11,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160223050702) do
+ActiveRecord::Schema.define(version: 20160224151209) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
-  enable_extension "fuzzystrmatch"
   enable_extension "hstore"
+  enable_extension "fuzzystrmatch"
 
   create_table "alternate_values", force: :cascade do |t|
     t.text     "value",                            null: false
@@ -313,6 +313,28 @@ ActiveRecord::Schema.define(version: 20160223050702) do
   add_index "collection_profiles", ["otu_id"], name: "index_collection_profiles_on_otu_id", using: :btree
   add_index "collection_profiles", ["project_id"], name: "index_collection_profiles_on_project_id", using: :btree
   add_index "collection_profiles", ["updated_by_id"], name: "index_collection_profiles_on_updated_by_id", using: :btree
+
+  create_table "common_names", force: :cascade do |t|
+    t.string   "name",               null: false
+    t.integer  "geographic_area_id"
+    t.integer  "otu_id"
+    t.integer  "language_id"
+    t.integer  "start_year"
+    t.integer  "end_year"
+    t.integer  "project_id",         null: false
+    t.integer  "created_by_id",      null: false
+    t.integer  "updated_by_id",      null: false
+    t.datetime "created_at",         null: false
+    t.datetime "updated_at",         null: false
+  end
+
+  add_index "common_names", ["created_by_id"], name: "index_common_names_on_created_by_id", using: :btree
+  add_index "common_names", ["geographic_area_id"], name: "index_common_names_on_geographic_area_id", using: :btree
+  add_index "common_names", ["language_id"], name: "index_common_names_on_language_id", using: :btree
+  add_index "common_names", ["name"], name: "index_common_names_on_name", using: :btree
+  add_index "common_names", ["otu_id"], name: "index_common_names_on_otu_id", using: :btree
+  add_index "common_names", ["project_id"], name: "index_common_names_on_project_id", using: :btree
+  add_index "common_names", ["updated_by_id"], name: "index_common_names_on_updated_by_id", using: :btree
 
   create_table "container_items", force: :cascade do |t|
     t.integer  "container_id",          null: false
@@ -1375,6 +1397,12 @@ ActiveRecord::Schema.define(version: 20160223050702) do
   add_foreign_key "collection_profiles", "projects", name: "collection_profiles_project_id_fkey"
   add_foreign_key "collection_profiles", "users", column: "created_by_id", name: "collection_profiles_created_by_id_fkey"
   add_foreign_key "collection_profiles", "users", column: "updated_by_id", name: "collection_profiles_updated_by_id_fkey"
+  add_foreign_key "common_names", "geographic_areas"
+  add_foreign_key "common_names", "languages"
+  add_foreign_key "common_names", "otus"
+  add_foreign_key "common_names", "projects"
+  add_foreign_key "common_names", "users", column: "created_by_id"
+  add_foreign_key "common_names", "users", column: "updated_by_id"
   add_foreign_key "container_items", "containers", name: "container_items_container_id_fkey"
   add_foreign_key "container_items", "projects", name: "container_items_project_id_fkey"
   add_foreign_key "container_items", "users", column: "created_by_id", name: "container_items_created_by_id_fkey"

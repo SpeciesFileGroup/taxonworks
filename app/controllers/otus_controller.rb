@@ -6,7 +6,7 @@ class OtusController < ApplicationController
   # GET /otus
   # GET /otus.json
   def index
-    @recent_objects = Otu.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
+    @recent_objects = Otu.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
     render '/shared/data/all/index' 
   end
 
@@ -25,7 +25,7 @@ class OtusController < ApplicationController
   end
 
   def list
-    @otus = Otu.with_project_id($project_id).order(:id).page(params[:page]) #.per(10) 
+    @otus = Otu.with_project_id(sessions_current_project_id).page(params[:page]) 
   end
 
   # POST /otus
@@ -116,13 +116,13 @@ class OtusController < ApplicationController
   #   send_data Otu.generate_download(project_id: $project_id), type: 'text', filename: "otus_#{DateTime.now.to_s}.csv"
   # end
   def download
-    send_data Otu.generate_download( Otu.where(project_id: $project_id) ), type: 'text', filename: "otus_#{DateTime.now.to_s}.csv"
+    send_data Otu.generate_download( Otu.where(project_id: sessions_current_project_id) ), type: 'text', filename: "otus_#{DateTime.now.to_s}.csv"
   end
 
   private
 
   def set_otu
-    @otu = Otu.with_project_id($project_id).find(params[:id])
+    @otu = Otu.with_project_id(sessions_current_project_id).find(params[:id])
     @recent_object = @otu
   end
 
