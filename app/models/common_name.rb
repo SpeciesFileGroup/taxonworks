@@ -17,6 +17,7 @@ class CommonName < ActiveRecord::Base
   has_one :taxon_name, through: :otu
 
   validates_presence_of :name
+  validates_presence_of :otu_id
 
   validates :start_year,
     numericality: {only_integer: true,

@@ -3,6 +3,7 @@ require 'rails_helper'
 RSpec.describe CommonName, type: :model do
 
   let(:common_name) { CommonName.new }
+  let(:otu) { FactoryGirl.create(:valid_otu) }
 
   context 'associations' do
     context 'belongs_to' do
@@ -25,13 +26,14 @@ RSpec.describe CommonName, type: :model do
       expect(common_name.valid?).to be_falsey
     end
 
-    specify 'common_Name only requires name' do
+    specify 'common_name only requires name and otu' do
       common_name.name = 'the blob'
+      common_name.otu = otu
       expect(common_name.valid?).to be_truthy
     end
 
     context 'year validation' do
-      before {common_name.name = 'slimy'}
+      before {common_name.name = 'slimy'; common_name.otu = otu}
       specify 'non 4 digit start_year is invalid if provided' do
         common_name.start_year = 23
         expect(common_name.valid?).to be_falsey

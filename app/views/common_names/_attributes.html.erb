@@ -4,18 +4,19 @@
 </p>
 
 <p>
-  <strong>Geographic area:</strong>
-  <%= @common_name.geographic_area %>
+<strong>Geographic area:</strong>
+  <%= simple_map([@common_name.geographic_area]) if @common_name.geographic_area %>
+  <%= object_tag(@common_name.geographic_area)  %>
 </p>
 
 <p>
   <strong>Otu:</strong>
-  <%= @common_name.otu %>
+  <%= object_tag(@common_name.otu) %>
 </p>
 
 <p>
   <strong>Language:</strong>
-  <%= @common_name.language %>
+  <%= object_tag(@common_name.language) %>
 </p>
 
 <p>
