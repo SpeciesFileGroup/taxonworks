@@ -36,9 +36,11 @@
 #   @return [Boolean]
 #     true if user is an administrator, administrators can do *everything* in any project taxonworks 
 #
-# @!attribute favorite_routes
-#   @return [String]
-#   @todo Is return data type correct?
+# @!attribute hub_favorites 
+#   @return [Hash]
+#    per project favorites named from items in user_tasks.yml or hub_data.yml
+#    format is 
+#    { project_id: {data: [ 'ModelName' ], tasks: [ :task_index_name ] }, ... }
 #
 # @!attribute password_reset_token
 #   @return [String]
@@ -135,6 +137,7 @@ class User < ActiveRecord::Base
   has_many :projects, through: :project_members
   has_many :pinboard_items, dependent: :destroy
 
+
   def self.not_in_project(project_id)
     ids =   ProjectMember.where(project_id: project_id).pluck(:user_id) 
     return where(false) if ids.empty?
@@ -156,7 +159,7 @@ class User < ActiveRecord::Base
     is_administrator || is_project_administrator?(project)
   end
 
-  # @return [true, false]
+  # @return [Boolean]
   # true if is_administrator = true
   def is_administrator?
     is_administrator.blank? ? false : true
@@ -170,16 +173,41 @@ class User < ActiveRecord::Base
     project.project_members.where(user_id: id).first.is_project_administrator
   end
 
-  def add_page_to_favorites(favorite_route)
-    new_routes = ([favorite_route] + favorite_routes.clone).uniq[0..19].sort
-    update_column(:favorite_routes, new_routes )
+  # @params [Project, Integer]
+  # @return [Boolean]
+  def member_of?(project)
+    ProjectMember.where(project_id: project, user_id: self.id).any?
+  end
+
+  def hub_favorites
+    read_attribute(:hub_favorites) || {}
+  end
+
+  def add_page_to_favorites(options = {} ) # name: nil, kind: nil, project_id: nil 
+    validate_favorite_options(options) 
+    n = options[:name]
+    p = options[:project_id].to_s
+    k = options[:kind]
+    u = hub_favorites.clone
+
+    u[p] = { 'data' => [], 'tasks' => []} if !u[p]
+    u[p][k] = u[p][k].push(n).uniq[0..19].sort
+
+    update_column(:hub_favorites, u)
     true
   end
 
-  def remove_page_from_favorites(favorite_route)
-    new_routes = favorite_routes.clone
-    new_routes.delete(favorite_route)
-    update_column(:favorite_routes, new_routes )
+  def remove_page_from_favorites(options = {} ) # name: nil, kind: nil, project_id: nil
+    validate_favorite_options(options) 
+    new_routes = hub_favorites.clone
+    new_routes[options['project_id'].to_s][options['kind']].delete(options['name'])
+    update_column(:hub_favorites, new_routes )
+  end
+
+  def validate_favorite_options(options)
+    return false if !options.select{|k, v| k.nil? || v.nil?}.empty?
+    return false if !member_of?(options['project_id'])
+    true
   end
 
   def add_recently_visited_to_footprint(recent_route, recent_object = nil)

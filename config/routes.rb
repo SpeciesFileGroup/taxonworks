@@ -50,14 +50,8 @@ TaxonWorks::Application.routes.draw do
     get 'data_overview'
   end
 
-  # namespace :administration do
-  #   get 'index'
-  #   match '/administration', to: 'user_preferences#favorite_page', via: :post
-  # end
-
   resources :project_members, except: [:index, :show]
   resources :pinboard_items, only: [:create, :destroy]
-
 
   ### Below this point, please keep objects in alphabetical order ###
 
@@ -322,9 +316,9 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
   end
 
-  match '/favorite_page', to: 'user_preferences#favorite_page', via: :post
-  match '/remove_favorite_page', to: 'user_preferences#remove_favorite_page', via: :post
 
+  match '/favorite_page/:kind/:name', to: 'user_preferences#favorite_page', as: :favorite_page, via: :post
+  match '/unfavorite_page/:kind/:name', to: 'user_preferences#unfavorite_page', as: :unfavorite_page, via: :post
 
   ### End of resources except user related located below scopes ###
 

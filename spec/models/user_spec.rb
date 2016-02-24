@@ -22,8 +22,8 @@ describe User, :type => :model do
   end
 
   context 'preferences' do
-    specify '#favorite_routes' do
-      expect(user.favorite_routes).to eq([])
+    specify '#hub_favorites' do
+      expect(user.hub_favorites).to eq({})
     end
 
     specify '#footprints' do
