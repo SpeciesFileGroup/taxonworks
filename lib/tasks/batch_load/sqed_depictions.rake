@@ -59,7 +59,7 @@ namespace :tw do
                 print f.blue + ": "
 
                 if SqedDepiction.joins(:image).where(images: {image_file_fingerprint: Digest::MD5.file(f).hexdigest }, project_id: $project_id).any?
-                  print "exists as depiction, skipping\n".purple.bold
+                  print "exists as depiction, skipping\n".bold
                   next
                 end
 
