@@ -50,17 +50,20 @@ namespace :tw do
         puts "Using attributes:".yellow.bold
         print @args
 
-        puts "Processing images: ".yellow.bold
+        puts "\nProcessing images: \n".yellow.bold
         ActiveRecord::Base.transaction do 
           begin
             i = 0
             Dir.glob(@args[:data_directory] + "**/*.*") do |f| 
               print f.blue + ": "
               i += 1 
-              # break if i == 5
 
-              image = File.open(f)
+              if SqedDepiction.joins(:image).where(images: {image_file_fingerprint: Digest::MD5.file(f).hexdigest }, project_id: $project_id).any?
+                print "exists as depiction, skipping\n".purple.bold
+                next
+              end
 
+              image = Image.new(image_file: File.open(f))
               collection_object = CollectionObject.new(total: @args[:total])
 
               sqed_depiction = SqedDepiction.new(
@@ -71,9 +74,7 @@ namespace :tw do
                 boundary_color: @args[:boundary_color],
 
                 depiction_attributes: { 
-                  image_attributes: {
-                    image_file: image 
-                  },
+                  image: image,
                   depiction_object: collection_object
                 }
               )
@@ -93,7 +94,7 @@ namespace :tw do
                          end
             puts "Done.".yellow.bold
           rescue ActiveRecord::RecordInvalid
-            raise
+            raise 'transaction aborted, records not stored.'
           end
 
         end # end transaction
