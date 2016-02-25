@@ -12,9 +12,9 @@ namespace :tw do
         end 
 
         i = 0
-        
+
         puts 'Processing empty sqed depictions'.yellow
-         
+
         while i < total
           print "\r #{i}"
           break if SqedDepiction.preprocess_empty(1) != 1
@@ -51,56 +51,56 @@ namespace :tw do
         print @args
 
         puts "\nProcessing images: \n".yellow.bold
-        ActiveRecord::Base.transaction do 
-          begin
-            i = 0
-            Dir.glob(@args[:data_directory] + "**/*.*") do |f| 
-              print f.blue + ": "
-              i += 1 
 
-              if SqedDepiction.joins(:image).where(images: {image_file_fingerprint: Digest::MD5.file(f).hexdigest }, project_id: $project_id).any?
-                print "exists as depiction, skipping\n".purple.bold
-                next
+        begin
+          Dir.glob(@args[:data_directory] + "**/*.*").in_groups_of(20, false) do |group| 
+            ActiveRecord::Base.transaction do 
+              group.each do |f|
+                print f.blue + ": "
+
+                if SqedDepiction.joins(:image).where(images: {image_file_fingerprint: Digest::MD5.file(f).hexdigest }, project_id: $project_id).any?
+                  print "exists as depiction, skipping\n".purple.bold
+                  next
+                end
+
+                image = Image.new(image_file: File.open(f))
+                collection_object = CollectionObject.new(total: @args[:total])
+
+                sqed_depiction = SqedDepiction.new(
+                  layout: @args[:layout],
+                  metadata_map: @args[:metadata_map],
+                  boundary_finder: @args[:boundary_finder],
+                  has_border: @args[:has_border],
+                  boundary_color: @args[:boundary_color],
+
+                  depiction_attributes: { 
+                    image: image,
+                    depiction_object: collection_object
+                  }
+                )
+
+                if sqed_depiction.valid?
+                  sqed_depiction.save!
+                  print "success\n"
+
+                  unless ENV['preprocess_result'] == 'false'
+                    sqed_depiction.preprocess
+                  end 
+
+                else
+                  print(" failed, skipping - " + sqed_depiction.errors.full_messages.join("; ").red + "\n")
+                end
               end
 
-              image = Image.new(image_file: File.open(f))
-              collection_object = CollectionObject.new(total: @args[:total])
-
-              sqed_depiction = SqedDepiction.new(
-                layout: @args[:layout],
-                metadata_map: @args[:metadata_map],
-                boundary_finder: @args[:boundary_finder],
-                has_border: @args[:has_border],
-                boundary_color: @args[:boundary_color],
-
-                depiction_attributes: { 
-                  image: image,
-                  depiction_object: collection_object
-                }
-              )
-
-              if sqed_depiction.valid?
-                sqed_depiction.save!
-                print " success\n"
-
-                unless ENV['preprocess_result'] == 'false'
-                  sqed_depiction.preprocess
-                end 
-             
-              else
-                print(" failed, skipping - " + sqed_depiction.errors.full_messages.join("; ").red + "\n")
-              end
-
-                         end
-            puts "Done.".yellow.bold
-          rescue ActiveRecord::RecordInvalid
-            raise 'transaction aborted, records not stored.'
+              puts "group handled".yellow.bold
+            end # end transaction
           end
 
-        end # end transaction
-
+        rescue ActiveRecord::RecordInvalid
+          raise 'transaction aborted, this groups records not stored.'
+        end
       end
+
     end
   end
 end
-
