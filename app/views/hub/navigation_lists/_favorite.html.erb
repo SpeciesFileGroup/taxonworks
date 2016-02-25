@@ -3,10 +3,26 @@
   <!-- José, wrap this/refactor however you want -->
 
   <% if has_hub_favorites? -%>
-    <% sessions_current_user.hub_favorites[sessions_current_project_id.to_s]['data'].each do |d| -%>
-      <%= data_card(Hub::Data::BY_NAME[d]) -%> 
-    <% end %>
-
+	<div id="data_cards">
+	  <div data-section="Favorites" class="data_section">
+	  	<div class="cards-section">
+		    <% sessions_current_user.hub_favorites[sessions_current_project_id.to_s]['data'].each do |d| -%>
+		    <dir class="card-container">
+		      	<%= data_card(Hub::Data::BY_NAME[d]) -%> 
+		    </dir>
+		    <% end %>
+	    </div>
+	    <div class="data_section_label">
+	    	<div class="data-controls">
+	    		<a class="cards-up" href="#"><img src="/assets/icons/arrow-up.svg" width="15"/></a>
+	    		<a class="cards-down" href="#"><img src="/assets/icons/arrow-down.svg" width="15"/></a>
+	    	</div>
+	    	<h3>
+	    		Favorites
+	    	</h3>
+	    </div>	    
+	  </div>
+  </div>
     <% sessions_current_user.hub_favorites[sessions_current_project_id.to_s]['tasks'].each do |t| -%>
       <%= task_card(UserTasks::INDEXED_TASKS[t]) -%> 
     <% end %>
@@ -20,3 +36,9 @@
   <% end %>
 
 </div>
+
+<script type="text/javascript">
+	var 
+	favorites = new carrouselData("Favorites",99,2);
+	favorites.filterChilds();
+</script>

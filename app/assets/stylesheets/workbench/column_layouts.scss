@@ -81,6 +81,31 @@ http://flexboxin5.com/
     justify-content: space-around;
 	flex-flow: row wrap;
   }
+
+	#favorite_link {
+	    background-image: url('/assets/icons/empty_star.svg');
+	    background-size: 24px;
+	    margin-right: 15px;
+	    margin-left: 15px;
+	    background-position: left, center;
+	    padding: 24px;
+	    padding-right: 0px;
+	    font-size: 0px;
+	    background-repeat: no-repeat;
+	    text-decoration: none;
+	  }
+	 #unfavorite_link {
+	    font-size: 0px;
+	    margin-right: 15px;
+	    margin-left: 15px;
+	    padding: 24px;
+	    padding-right: 0px;
+	    background-image: url('/assets/icons/star.svg');
+	    background-size: 24px;
+	    background-position: left, center;
+	    background-repeat: no-repeat;    
+	    text-decoration: none;   
+	}
   
   h1 {
 	  font-weight:100;
@@ -125,10 +150,14 @@ http://flexboxin5.com/
   
   .item {
 	  text-align: center;
+	  display: flex;
+	  flex-direction: row;
+	  justify-content: center;
+	  align-items: center;
   }
   
   .item1 {
-	  line-height:20px;
+
   }
   
   .item2 { } 

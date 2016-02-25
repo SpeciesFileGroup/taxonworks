@@ -1,1 +1,6 @@
-alert('gotcha!')
+//$('[fav-star]').attr("src","/assets/icons/star.svg");
+$(document).bind('ajax:complete', function(){
+	$('#favorite_link').replaceWith("<%= escape_javascript(favorite_page_link(params[:kind], params[:name])) %>");
+	//$('#unfavorite_link').html("<img src='/assets/icons/star.svg'/>");
+});
+

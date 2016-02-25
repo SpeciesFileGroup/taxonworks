@@ -18,7 +18,8 @@ class UserPreferencesController < ApplicationController
       format.html {
         redirect_to :back, notice: 'Removed page from favorites.'
       }
-      format.js {}
+      format.js { 
+          }
     end
   end
 

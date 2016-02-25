@@ -37,40 +37,6 @@
     </div>
   </div>
 </div>
-<!---
-<div class="nav-list">
-  <div>
-  <%= paginate @taxon_names %> <%= page_entries_info @taxon_names %>
-  </div>
-  <div class="filter-nav">
-    
-      <div class="td-filter td-filter-title">
-        <img class="icon" src="/assets/icons/options.svg"/><div>Display</div>
-      </div>
-    
-    <a data-filter-active="true" data-group="metadata" href="#">
-      <div class="td-filter">
-        <img class="icon" src="/assets/icons/show.svg"/><div>Type</div>
-      </div>
-    </a>
-    <a data-filter-active="true" data-group="publication" href="#">
-      <div class="td-filter">
-        <img class="icon" src="/assets/icons/show.svg"/><div>Source</div>
-      </div>
-    </a>
-    <a data-filter-active="true" data-group="housekeeping" href="#">
-      <div class="td-filter">
-        <img class="icon" src="/assets/icons/show.svg"/><div>Housekeeping</div>
-      </div>
-    </a>            
-    <a data-display="showAll" href="#">
-      <div class="td-filter">
-        <img class="icon" src="/assets/icons/show.svg"/><div>Show all</div>
-      </div>
-    </a>
-  </div>
-</div>
----->
 <table cellspacing="0" id="taxon-list" class="tablesorter">
   <thead>
   <tr>
@@ -137,9 +103,7 @@ function showAll() {
     $('[data-filter-publication]').attr("data-filter-publication","true");
     $('[data-filter-metadata]').attr("data-filter-metadata","true");
     $('[data-filter-user-info]').attr("data-filter-user-info","true");
-    $('[data-filter-publication]').children().children().attr("src","/assets/icons/show.svg");
-    $('[data-filter-user-info]').children().children().attr("src","/assets/icons/show.svg");
-    $('[data-filter-metadata]').children().children().attr("src","/assets/icons/show.svg");
+    $('[data-group] img').attr("src","/assets/icons/show.svg");
 }
   $('.navigation-controls').on('click', '[data-display="showAll"]', function() {
     showAll();
@@ -149,11 +113,11 @@ function showAll() {
     if($(this).attr("data-filter-active") === "true") {
       $('table [data-group="' + $(this).attr("data-group") + '"]').hide(animationTime);
       $(this).attr("data-filter-active","false");
-      $(this).children().children().attr("src","/assets/icons/hide.svg");
+      $(this).children('img').attr("src","/assets/icons/hide.svg");
     }
     else {
       $('table [data-group="' + $(this).attr("data-group") + '"]').show(animationTime);
-      $(this).children().children().attr("src","/assets/icons/show.svg");
+      $(this).children('img').attr("src","/assets/icons/show.svg");
       $(this).attr("data-filter-active","true");
     }
   });  

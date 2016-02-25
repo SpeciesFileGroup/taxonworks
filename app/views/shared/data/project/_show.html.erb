@@ -23,39 +23,7 @@
             </div>
           <%= yield :show_hierarchy_navigation -%>
       </div>
-      <!---
-      <div class="section do">
-        <div class="title">
-          <h3>&nbsp;</h3>
-        </div>
-        <div class="menu-item">
-          <img src="/assets/icons/new.svg" height="12" /><%= edit_object_link(object) -%> 
-        </div>
-        <div class="menu-item">
-          <img src="/assets/icons/trash.svg" height="12" /><%= destroy_object_link(object) -%>
-        </div>       
-        <div class="menu-item">
-          <img src="/assets/icons/pin.svg" height="12" /><%= pin_item_to_pinboard_link(object, sessions_current_user) -%>
-        </div>
-        <div class="content">
-          <div class="section" data-menu="annotate">
-            <div  class="title">
-              <h3> Annotate </h3>
-              <img src="/assets/icons/arrow-down.svg" width="10">
-            </div>
-            <div class="content" style="display:none;">
-             <%= annotate_links(object: object) -%>
-            </div>
-          </div>
-          <div> <%= dropzone_depiction_form(object)  -%> </div>
-          <%= yield :do -%>
-          <%= yield :tasks -%>
-        </div>
-      </div>
-      ---->
     </div>
-
-
     <div class="item item2">
     <div class="section space-distance">
       <div class='tag'>

@@ -1,5 +1,25 @@
 @import 'palette';
 
+#favorite_link {
+    background-image: url('/assets/icons/empty_star.svg');
+    background-size: 16px;
+    background-position: left, center;
+    padding: 16px;
+    padding-right: 0px;
+    font-size: 0px;
+    background-repeat: no-repeat;
+    text-decoration: none;
+  }
+ #unfavorite_link {
+    font-size: 0px;
+    padding: 16px;
+    padding-right: 0px;
+    background-image: url('/assets/icons/star.svg');
+    background-size: 16px;
+    background-position: left, center;
+    background-repeat: no-repeat;    
+    text-decoration: none;   
+}
  
 // see navigation_emphasis in palette
 a {
