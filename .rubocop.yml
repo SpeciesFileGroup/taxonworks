@@ -7,6 +7,9 @@ AllCops:
     - 'script/**/*'
     - 'tmp/**/*'
 
+Rails:
+  Enabled: true
+
 Style/EmptyLineBetweenDefs:
   # If true, this parameter means that single line method definitions don't
   # need an empty line between them.
@@ -84,6 +87,3 @@ Rails/Validation:
   Include:
     - app/models/**/*.rb
     - lib/**/*.rb
-
-
-
