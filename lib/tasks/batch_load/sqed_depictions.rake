@@ -53,7 +53,7 @@ namespace :tw do
         puts "\nProcessing images: \n".yellow.bold
 
         begin
-          Dir.glob(@args[:data_directory] + "**/*.*").in_groups_of(20, false) do |group| 
+          Dir.glob(@args[:data_directory] + "**/*.*").sort.in_groups_of(20, false) do |group| 
             ActiveRecord::Base.transaction do 
               group.each do |f|
                 print f.blue + ": "
