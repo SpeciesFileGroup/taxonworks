@@ -49,7 +49,7 @@ describe 'DataAttributes', :type => :model do
 
   context 'adding lots of attributes' do
     specify 'add_import_attributes(hash) should add multiple pairs of ImportAttributes' do
-      skip
+      # skip
     end
   end
 

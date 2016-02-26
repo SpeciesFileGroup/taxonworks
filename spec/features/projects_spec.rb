@@ -50,7 +50,7 @@ describe 'Project Handling', :type => :feature do
         sign_in_user
         visit projects_path 
       }
-      it 'should redirect to hub and present a notice'
+      # it 'should redirect to hub and present a notice'
     end
 
     context 'with admin login' do
@@ -58,7 +58,7 @@ describe 'Project Handling', :type => :feature do
         sign_in_administrator
         visit projects_path 
       }
-      it 'should render a list of projects'
+      # it 'should render a list of projects'
     end
   end
 
@@ -68,7 +68,7 @@ describe 'Project Handling', :type => :feature do
         sign_in_user
         visit projects_path 
       }
-      it 'should show the project'
+      # it 'should show the project'
     end
 
     context 'with admin, non-member login' do
@@ -76,7 +76,7 @@ describe 'Project Handling', :type => :feature do
         sign_in_administrator
         visit projects_path 
       }
-      it 'it should show the project'
+      # it 'it should show the project'
     end
   end
   
@@ -86,7 +86,7 @@ describe 'Project Handling', :type => :feature do
         sign_in_user
         visit projects_path 
       }
-      it 'should render the edit form'
+      # it 'should render the edit form'
     end
 
     context 'with admin, non-member login' do
@@ -94,7 +94,7 @@ describe 'Project Handling', :type => :feature do
         sign_in_administrator
         visit projects_path 
       }
-      it 'should render the edit form'
+      # it 'should render the edit form'
     end
 
     context 'with non-superuser project member' do
@@ -102,7 +102,7 @@ describe 'Project Handling', :type => :feature do
         sign_in_administrator
         visit projects_path 
       }
-      it 'should redirect to hub and present a notice'
+      # it 'should redirect to hub and present a notice'
     end
 
     describe '  # POST /projects' do
@@ -111,7 +111,7 @@ describe 'Project Handling', :type => :feature do
           sign_in_user
           visit projects_path 
         }
-        it 'should redirect to hub and present a notice'
+        # it 'should redirect to hub and present a notice'
       end
 
       context 'logged in user is a superuser' do
@@ -119,7 +119,7 @@ describe 'Project Handling', :type => :feature do
           sign_in_administrator
           visit projects_path 
         }
-        it 'should create the project and redirect to projects/index with a notice'
+        # it 'should create the project and redirect to projects/index with a notice'
       end
     end
   end
@@ -142,8 +142,8 @@ describe 'Project Handling', :type => :feature do
 
     describe 'GET /projects/n' do
       before { visit project_path(Project.first) }
-      xspecify 'there is the projects name' do
-      end
+      # xspecify 'there is the projects name' do
+      # end
     end
   end
 end

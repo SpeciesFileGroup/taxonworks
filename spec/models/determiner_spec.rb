@@ -14,7 +14,7 @@ describe Determiner, :type => :model do
       end
 
       specify 'determined_biological_collection_objects' do
-        skip
+        # skip
       end
     end
   end

@@ -5,11 +5,11 @@ describe 'photo based data capture', :type => :feature do
 
   context 'GET /quick_accession_from_image' do
 
-    skip 'render some form elements and maybe instructions'
+    # skip 'render some form elements and maybe instructions'
 
     context 'capturing the image' do
-      skip 'an image is added to a form via a *camera* click'
-      skip 'as a fallback an image can be added by clicking browse on the form'
+      # skip 'an image is added to a form via a *camera* click'
+      # skip 'as a fallback an image can be added by clicking browse on the form'
     end
 
   end

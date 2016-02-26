@@ -92,11 +92,11 @@ describe TypeMaterial, :type => :model do
         a
       }
  
-      xspecify 'type_type restricts the BiologicalObject subclass to an _TYPES.value' do
-      end
+      # xspecify 'type_type restricts the BiologicalObject subclass to an _TYPES.value' do
+      # end
 
-      xspecify 'collection_object is a BiologicalCollectionObject' do
-      end
+      # xspecify 'collection_object is a BiologicalCollectionObject' do
+      # end
     end
   end
 
@@ -119,7 +119,7 @@ describe TypeMaterial, :type => :model do
       expect(t.type_source).not_to eq(t.protonym.source)
     end
 
-    skip 'TypeDesignator role(s) should be possible when a specific person needs to be identified as the person who designated the type'
+    # skip 'TypeDesignator role(s) should be possible when a specific person needs to be identified as the person who designated the type'
   end
 
   context 'soft validation' do

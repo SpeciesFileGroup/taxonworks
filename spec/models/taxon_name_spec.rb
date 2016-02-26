@@ -698,38 +698,38 @@ describe TaxonName, type: :model, group: [:nomenclature] do
           expect(s.soft_validations.messages_on(:name).empty?).to be_falsey
         end
 
-        xspecify 'valid icn names' do # not needed this was converted to the hybrid relationships
-          gen = FactoryGirl.create(:icn_genus)
-          ['aus', 'a-aus', 'aus-aus', 'aus × bus', '× aus'].each do |name|
-            s = FactoryGirl.build_stubbed(:icn_species, parent: gen, name: name)
-            expect(s.valid?).to be_truthy, "failed for #{name}"
-            s.soft_validate(:validate_name)
-            expect(s.soft_validations.messages_on(:name).empty?).to be_truthy, "failed for #{name}"
-          end
-          s = FactoryGirl.build_stubbed(:icn_species, parent: nil, name: 'aus aus')
-          s.soft_validate(:validate_name)
-          expect(s.soft_validations.messages_on(:name).empty?).to be_falsey
-        end
+        # xspecify 'valid icn names' do # not needed this was converted to the hybrid relationships
+        #   gen = FactoryGirl.create(:icn_genus)
+        #   ['aus', 'a-aus', 'aus-aus', 'aus × bus', '× aus'].each do |name|
+        #     s = FactoryGirl.build_stubbed(:icn_species, parent: gen, name: name)
+        #     expect(s.valid?).to be_truthy, "failed for #{name}"
+        #     s.soft_validate(:validate_name)
+        #     expect(s.soft_validations.messages_on(:name).empty?).to be_truthy, "failed for #{name}"
+        #   end
+        #   s = FactoryGirl.build_stubbed(:icn_species, parent: nil, name: 'aus aus')
+        #   s.soft_validate(:validate_name)
+        #   expect(s.soft_validations.messages_on(:name).empty?).to be_falsey
+        # end
 
-        xspecify 'unavailable' do # not needed could be done using verbatim name, or combination of the name and classification
-          s = FactoryGirl.create(:relationship_species, parent: @genus, name: 'aus a')
-          s.soft_validate(:validate_name)
-          expect(s.soft_validations.messages_on(:name).count).to eq(1)
-          c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Iczn::Unavailable::LessThanTwoLetters')
-          s.reload
-          s.soft_validate(:validate_name)
-          expect(s.soft_validations.messages_on(:name).empty?).to be_truthy
-        end
+        # xspecify 'unavailable' do # not needed could be done using verbatim name, or combination of the name and classification
+        #   s = FactoryGirl.create(:relationship_species, parent: @genus, name: 'aus a')
+        #   s.soft_validate(:validate_name)
+        #   expect(s.soft_validations.messages_on(:name).count).to eq(1)
+        #   c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Iczn::Unavailable::LessThanTwoLetters')
+        #   s.reload
+        #   s.soft_validate(:validate_name)
+        #   expect(s.soft_validations.messages_on(:name).empty?).to be_truthy
+        # end
 
-        xspecify 'misspelling' do # not needed could be done using verbatim name, or combination of the name and classification
-          s = FactoryGirl.create(:relationship_species, parent: @genus, name: 'a a')
-          s.soft_validate(:validate_name)
-          expect(s.soft_validations.messages_on(:name).count).to eq(1)
-          r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: @species, type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling')
-          s.reload
-          s.soft_validate(:validate_name)
-          expect(s.soft_validations.messages_on(:name).empty?).to be_truthy
-        end
+        # xspecify 'misspelling' do # not needed could be done using verbatim name, or combination of the name and classification
+        #   s = FactoryGirl.create(:relationship_species, parent: @genus, name: 'a a')
+        #   s.soft_validate(:validate_name)
+        #   expect(s.soft_validations.messages_on(:name).count).to eq(1)
+        #   r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: @species, type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling')
+        #   s.reload
+        #   s.soft_validate(:validate_name)
+        #   expect(s.soft_validations.messages_on(:name).empty?).to be_truthy
+        # end
 
       end
 
@@ -826,17 +826,17 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         end
 
         context 'housekeeping with ancestors and descendants' do
-          xspecify 'updated_on is not touched for ancestors when a child moves' do
-            g1_updated = genus1.updated_at
-            g1_created = genus1.created_at
-            g2_updated = genus2.updated_at
-            g2_created = genus2.created_at
-            species1.move_to_child_of(genus2)
-            expect(genus1.updated_at).to eq(g1_updated)
-            expect(genus1.created_at).to eq(g1_created)
-            expect(genus2.updated_at).to eq(g2_updated)
-            expect(genus2.created_at).to eq(g2_created)
-          end
+          # xspecify 'updated_on is not touched for ancestors when a child moves' do
+          #   g1_updated = genus1.updated_at
+          #   g1_created = genus1.created_at
+          #   g2_updated = genus2.updated_at
+          #   g2_created = genus2.created_at
+          #   species1.move_to_child_of(genus2)
+          #   expect(genus1.updated_at).to eq(g1_updated)
+          #   expect(genus1.created_at).to eq(g1_created)
+          #   expect(genus2.updated_at).to eq(g2_updated)
+          #   expect(genus2.created_at).to eq(g2_created)
+          # end
         end
       end
     end

@@ -16,8 +16,8 @@ ActiveRecord::Schema.define(version: 20160224151209) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
-  enable_extension "fuzzystrmatch"
   enable_extension "hstore"
+  enable_extension "fuzzystrmatch"
 
   create_table "alternate_values", force: :cascade do |t|
     t.text     "value",                            null: false
@@ -585,18 +585,18 @@ ActiveRecord::Schema.define(version: 20160224151209) do
   add_index "geographic_areas_geographic_items", ["geographic_item_id"], name: "index_geographic_areas_geographic_items_on_geographic_item_id", using: :btree
 
   create_table "geographic_items", force: :cascade do |t|
-    t.datetime  "created_at",                                                                                               null: false
-    t.datetime  "updated_at",                                                                                               null: false
+    t.datetime  "created_at",                                                                                             null: false
+    t.datetime  "updated_at",                                                                                             null: false
     t.geography "point",               limit: {:srid=>4326, :type=>"point", :has_z=>true, :geographic=>true}
     t.geography "line_string",         limit: {:srid=>4326, :type=>"line_string", :has_z=>true, :geographic=>true}
     t.geography "polygon",             limit: {:srid=>4326, :type=>"polygon", :has_z=>true, :geographic=>true}
     t.geography "multi_point",         limit: {:srid=>4326, :type=>"multi_point", :has_z=>true, :geographic=>true}
     t.geography "multi_line_string",   limit: {:srid=>4326, :type=>"multi_line_string", :has_z=>true, :geographic=>true}
     t.geography "multi_polygon",       limit: {:srid=>4326, :type=>"multi_polygon", :has_z=>true, :geographic=>true}
-    t.geography "geometry_collection", limit: {:srid=>4326, :type=>"geometry_collection", :has_z=>true, :geographic=>true}
-    t.integer   "created_by_id",                                                                                            null: false
-    t.integer   "updated_by_id",                                                                                            null: false
-    t.string    "type",                                                                                                     null: false
+    t.geography "geometry_collection", limit: {:srid=>4326, :type=>"geometry", :has_z=>true, :geographic=>true}
+    t.integer   "created_by_id",                                                                                          null: false
+    t.integer   "updated_by_id",                                                                                          null: false
+    t.string    "type",                                                                                                   null: false
   end
 
   add_index "geographic_items", ["created_by_id"], name: "index_geographic_items_on_created_by_id", using: :btree
