@@ -19,8 +19,9 @@
     box-shadow: 0 0px 3px 0 $navigation_border;
   }
 
-  // should be a flexbox?! 
-
+  a {
+    color: $default_text;
+  }
 
   .task_header {
     display: flex;
@@ -50,7 +51,7 @@
       }
     }
   }
-
+    
       .source {
         color:blue;
       }

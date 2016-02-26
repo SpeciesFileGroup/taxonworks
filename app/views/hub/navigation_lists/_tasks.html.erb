@@ -1,7 +1,7 @@
 <%= render "/hub/navigation_lists/hub_category_filter" %>
 <div id="task_carrousel">
   <% UserTasks.hub_tasks.each do |task| -%>
-    <%= link_to(task_card(task), send(task.path)) -%>
+    <%= task_card(task) -%>
   <% end %>
   <div class="navigation">
     <div class="navigation-arrow">
@@ -17,6 +17,7 @@
   </div>
 </div>
 <script type="text/javascript">
+
 //Replace section - fixing html parts
  $( '<div class="gray-circle"></div>' ).insertBefore(".unknown");
  $( '<div class="yellow-circle"></div>' ).insertBefore(".beta");

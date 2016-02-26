@@ -13,8 +13,10 @@ module HubHelper
              favorite_page_link('tasks', task.prefix).html_safe # @josé -> here is the favorites link code, you can move it around as needed
         } 
       } +
-      content_tag(:div, task.name, class: 'task_name') +
-      content_tag(:div, task.description, class: 'task_description') 
+      content_tag(:a, '', class: 'task-information', href: send(task.path)) {
+        content_tag(:div, task.name, class: 'task_name') +
+        content_tag(:div, task.description, class: 'task_description') 
+      }
     }
   end
 
