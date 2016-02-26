@@ -4,13 +4,13 @@ module HubHelper
     content_tag(:div, '', class: 'task_card') { 
       content_tag(:div,'' , class: 'task_header') {
         content_tag(:div, '', class: 'task-header-left') {
-          content_tag(:div, task.status, class: "status #{task.status}")
+          content_tag(:div, task.status, class: "status #{task.status}") 
         } +
         content_tag(:div, '', class: 'task-header-right') {
           task.categories.collect{|c| 
-            content_tag(:div, c.humanize, class: "categories #{c}") # @josé icon injected in here, switch div to img tag.
-          }.join().html_safe +
-          favorite_page_link('tasks', task.prefix) 
+            content_tag(:div, c.humanize, class: "categories #{c}") 
+          }.join('').html_safe +
+             favorite_page_link('tasks', task.prefix).html_safe # @josé -> here is the favorites link code, you can move it around as needed
         } 
       } +
       content_tag(:div, task.name, class: 'task_name') +
