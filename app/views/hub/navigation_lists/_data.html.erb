@@ -1,44 +1,4 @@
 <%= render "/hub/navigation_lists/hub_category_filter" %>
-
-<!---
-<% if has_hub_favorites? -%>
-<div id="data_cards">
-    <div data-section="Favorites" class="data_section">
-	    <div class="cards-section">
-	      <% sessions_current_user.hub_favorites[sessions_current_project_id.to_s]['data'].each do |d| -%>
-		      <div class="card-container">
-		        <%= data_card(Hub::Data::BY_NAME[d]) -%> 
-		      </div>		      
-	      <% end %>
-	    </div>
-	    <div class="data_section_label">
-	    	<div class="data-controls">
-	    		<a class="cards-up" href="#"><img src="/assets/icons/arrow-up.svg" width="15"/></a>
-	    		<a class="cards-down" href="#"><img src="/assets/icons/arrow-down.svg" width="15"/></a>
-	    	</div>
-	    	<h3>
-	    		Favorites
-	    	</h3>
-	    </div>
-	    <div data-attribute="empty" class="subtle center_text">
-	    	<h1>None</h1>
-	    </div>
-    </div>
-</div>
-    <% sessions_current_user.hub_favorites[sessions_current_project_id.to_s]['tasks'].each do |t| -%>
-      <%= task_card(UserTasks::INDEXED_TASKS[t]) -%> 
-    <% end %>
-
-
-  <% else %>
-
-    <p>
-    Welcome, <%= sessions_current_user.name -%>! Spend a little time navigating through the workbench.  As you become familiar with tasks or pages you find most useful, favorite them, they'll appear here.  
-    </p>
-  <% end %>
-
-
----->
 <div id="data_cards">
   <% Hub::Data::SECTIONS.each do |s| -%>
     <div data-section="<%= s -%>" class="data_section">
@@ -96,7 +56,6 @@ annotations.addFilter("data-category-TaxonName");
 annotations.addFilter("data-category-Source");
 annotations.addFilter("data-category-collectionobject");
 annotations.filterChilds();
-
 
 function changeAllSectionsFilter(dataTag, value) {
 	core.setFilterStatus(dataTag,value);

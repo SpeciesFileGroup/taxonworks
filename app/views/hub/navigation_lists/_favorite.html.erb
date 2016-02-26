@@ -24,11 +24,6 @@
 	    </div>
     </div>
 </div>
-
-
-
-
-
 <div id="data_cards">
     <div data-section="Favorites-Task" class="data_section">
 	    <div class="cards-section">
@@ -61,21 +56,11 @@
 
 <script type="text/javascript">
 	var 
-	favoritesTask = new carrouselData("Favorites-Task",99,4);
+	favoritesTask = new carrouselTask("Favorites-Task",3,1);
+	favoritesTaskPanel = new carrouselData("Favorites-Task",1,4);
 	favoritesData = new carrouselData("Favorites-Data",99,4);
 	favoritesData.filterChilds();
 
-
-	$('<div class="gray-circle"></div>' ).insertBefore(".unknown");
-	$('<div class="yellow-circle"></div>' ).insertBefore(".beta");
-	$('<div class="red-circle"></div>' ).insertBefore(".alpha");
-	$('div.source').replaceWith('<div class="categories source"><img src="/assets/icons/book.svg" width="15"/></div>');
-	$('div.collecting_event').replaceWith('<div class="categories collecting_event"><div><img src="/assets/icons/geo_location.svg" alt="Collection object" width="15"/></div>');
-	$('div.collection_object').replaceWith('<div class="categories collection_object"><img src="/assets/icons/picking.svg" width="15"/></div>');	
-	$('.data_card div[data-category-collectingevent="true"]').append("<img src='/assets/icons/geo_location.svg'/>");
-	$('.data_card div[data-category-TaxonName="true"]').append("<img src='/assets/icons/new.svg'/>");
-	$('.data_card div[data-category-collectionobject="true"]').append("<img src='/assets/icons/picking.svg'/>");
-	$('.data_card div[data-category-Source="true"]').append("<img src='/assets/icons/book.svg'/>");
  $('.data_card').mousedown(function(event) {
   	if((event.which) == 1) {
     	location.href = $(this).children("a").attr('href');

@@ -19,13 +19,10 @@ http://flexboxin5.com/
   display: flex;
   flex-direction: row; 
   flex-wrap: nowrap;
-  // flex-flow: row wrap; 
   justify-content: center;
 
 	  .item img {
 		display: block;
-		//width: 100%;
-		//height: auto;
 	}
 }
 
@@ -76,8 +73,6 @@ http://flexboxin5.com/
   align-items: center; 
 
   &.flexbox {
-    // flex-flow: columns;
-    // font-size: 150%;
     justify-content: space-around;
 	flex-flow: row wrap;
   }

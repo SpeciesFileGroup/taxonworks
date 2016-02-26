@@ -27,14 +27,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-
     border-bottom: 1px solid $navigation_border;
     padding: 0.5em;
-
-    .status {
-      .unknown {
-      }
-    }
 
     .status:first-letter {
       text-transform: uppercase;
@@ -42,68 +36,37 @@
 
     .categories {
       margin: 5px;
-      flex-basis: 50px;
+
       text-align: center;
       font-size: smaller;
-      
-      .collecting_event {
-
-      }
     }
   }
     
-      .source {
-        color:blue;
-      }
-
-      .taxon_name {
-        color:green;
-      }  
-      .collection_object {
-        color: purple;
-        text-align: right;
-      } 
-
-      .collecting_event {
-        color: green;
-        justify-content:center;
-        text-align: right;
-      }       
-
     .task_name {
       font-size: 18px;
       padding: 1em; 
     }
 
-
-      .task-header-left {
-        display: flex;
-        flex-direction:row;
-        align-items:center;
-      }
+    .task-header-left {
+      display: flex;
+      flex-direction:row;
+      align-items:center;
+    }
 
       .task-header-right {
         display: flex;
         flex-direction:row;
         align-items:center;
         justify-content:flex-end;
+        a {
+          margin-left: 5px;
+        }
       }
 
   .task_description {
     font-size: 14px;
     font-weight: 100;
     padding: 0em 2em 1em 2em;
-  }
-
-  .category-buttom {
-    display: flex;
-    flex-direction:column;
-  }
-
-  .box-status {
-    display: flex;
-    flex-direction:row;
-    justify-content:flex-start;
   }
 
   .circle {
@@ -154,9 +117,4 @@
     display: flex;
     padding: 5px;
   }  
-
-  .task_carrousel a[data-filter-category="source"] {
-    color: red;
-  }
-
 }
