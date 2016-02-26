@@ -82,7 +82,7 @@ http://flexboxin5.com/
 	flex-flow: row wrap;
   }
 
-	#favorite_link {
+	.favourite_link {
 	    background-image: url('/assets/icons/empty_star.svg');
 	    background-size: 24px;
 	    margin-right: 15px;
@@ -94,7 +94,7 @@ http://flexboxin5.com/
 	    background-repeat: no-repeat;
 	    text-decoration: none;
 	  }
-	 #unfavorite_link {
+	 .unfavorite_link {
 	    font-size: 0px;
 	    margin-right: 15px;
 	    margin-left: 15px;

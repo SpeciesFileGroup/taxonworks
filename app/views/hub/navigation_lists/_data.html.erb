@@ -1,6 +1,6 @@
 <%= render "/hub/navigation_lists/hub_category_filter" %>
 
-
+<!---
 <% if has_hub_favorites? -%>
 <div id="data_cards">
     <div data-section="Favorites" class="data_section">
@@ -37,6 +37,8 @@
     </p>
   <% end %>
 
+
+---->
 <div id="data_cards">
   <% Hub::Data::SECTIONS.each do |s| -%>
     <div data-section="<%= s -%>" class="data_section">

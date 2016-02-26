@@ -17,20 +17,14 @@
   </div>
 </div>
 <script type="text/javascript">
-
-
 //Replace section - fixing html parts
-// $( '<div class="gray-circle"></div>' ).insertBefore(".unknown");
-//$( '<div class="yellow-circle"></div>' ).insertBefore(".beta");
-// $( '<div class="red-circle"></div>' ).insertBefore(".alpha");
-
-// $('div.source').replaceWith('<div class="categories source"><img src="/assets/icons/book.svg" width="15"/></div>');
-// $('div.collecting_event').replaceWith('<div class="categories collecting_event"><div><img src="/assets/icons/geo_location.svg" alt="Collection object" width="15"/></div>');
-// $('div.collection_object').replaceWith('<div class="categories collection_object"><img src="/assets/icons/picking.svg" width="15"/></div>');
-
-
+ $( '<div class="gray-circle"></div>' ).insertBefore(".unknown");
+ $( '<div class="yellow-circle"></div>' ).insertBefore(".beta");
+ $( '<div class="red-circle"></div>' ).insertBefore(".alpha");
+ $('div.source').replaceWith('<div class="categories source"><img src="/assets/icons/book.svg" width="15"/></div>');
+ $('div.collecting_event').replaceWith('<div class="categories collecting_event"><div><img src="/assets/icons/geo_location.svg" alt="Collection object" width="15"/></div>');
+ $('div.collection_object').replaceWith('<div class="categories collection_object"><img src="/assets/icons/picking.svg" width="15"/></div>');
 var carrouselTask = function (sec, rows, columns) {
-
   // sec = Name of data section, this is for identify div.
   // rows = This is for the number of rows that will be displayed, if this number is less than the number of items, it will activate the navigation controls
   
@@ -48,11 +42,9 @@ var carrouselTask = function (sec, rows, columns) {
     this.sectionTag = sec;
     this.resetChildsCount();
   }
-
   carrouselTask.prototype.addFilter = function (nameFilter) {
     this.filters[nameFilter] = false;
   } 
-
   carrouselTask.prototype.checkChildFilter = function(childTag) {
     var find = 0;
     var isTrue = 0;
@@ -71,21 +63,17 @@ var carrouselTask = function (sec, rows, columns) {
       return false;
     }
   }
-
   carrouselTask.prototype.resetChildsCount = function() {
       this.childsCount = $(this.sectionTag + ' > a').length;
   }
-
   carrouselTask.prototype.setFilterStatus = function(filterTag, value)  {
     this.filters[filterTag] = value;
     this.filterChilds();
   } 
-
   carrouselTask.prototype.changeFilter = function(filterTag)  {
     this.filters[filterTag] = !this.filters[filterTag];
     this.filterChilds();
   } 
-
   carrouselTask.prototype.showChilds = function() {
     var 
       count = 1;
@@ -109,7 +97,6 @@ var carrouselTask = function (sec, rows, columns) {
       }
     }
   }
-
   carrouselTask.prototype.filterChilds = function() {
     var 
       find = 0,
@@ -117,7 +104,6 @@ var carrouselTask = function (sec, rows, columns) {
       this.arrayPos = 0;
       this.active = [];
       this.childs = [];
-
     for (i = 1; i <= this.childsCount; i++) {
       child = $(this.sectionTag + ' > a:nth-child('+ (i) +')');
       if(this.checkChildFilter(child)) {
@@ -129,11 +115,9 @@ var carrouselTask = function (sec, rows, columns) {
     }
     this.navigation((find > this.maxRow));
   } 
-
   carrouselTask.prototype.resetView = function() {
     $(this.sectionTag + ' a').css("display","none");
   }
-
   carrouselTask.prototype.navigation = function(value) {
     if(value) {
       $(this.sectionTag + " > .navigation a").show(250);
@@ -142,8 +126,6 @@ var carrouselTask = function (sec, rows, columns) {
       $(this.sectionTag + " > .navigation a").hide(250);
     }
   }
-
-
   carrouselTask.prototype.loadingDown = function() {
     var 
       boxSize = this.boxSize,
@@ -172,7 +154,6 @@ var carrouselTask = function (sec, rows, columns) {
         }      
       } 
   }
-
   carrouselTask.prototype.loadingUp = function() {
     var 
       boxSize = this.boxSize,
@@ -201,9 +182,6 @@ var carrouselTask = function (sec, rows, columns) {
         }      
       } 
   }
-
-
-
   var 
     task = new carrouselTask("#task_carrsel",3,1);
     task.addFilter("source");
@@ -213,21 +191,17 @@ var carrouselTask = function (sec, rows, columns) {
     task.resetView();
     task.filterChilds();
     task.showChilds();
-
 function changeAllSectionsFilter(dataTag, value) {
     core.setFilterStatus(dataTag,value);
     supporting.setFilterStatus(dataTag,value);
     annotations.setFilterStatus(dataTag,value);
 }
-
 function deactivateBackgroundColorLink(selector) {
   $(selector).removeClass("activated");
 }
-
 function activateBackgroundColorLink(selector) {
   $(selector).addClass("activated");
 }
-
 function changeBackgroundColorLink(selector) {
   if ($(selector).hasClass("activated")) {
     deactivateBackgroundColorLink(selector);
@@ -236,7 +210,6 @@ function changeBackgroundColorLink(selector) {
     activateBackgroundColorLink(selector);
     }
 }
-
   $('#filter').on('click', '[data-filter-category]', function() {
     if($(this).attr("data-filter-category") == "reset") {
       task.setFilterStatus("taxon_name",false);
@@ -263,7 +236,6 @@ function changeBackgroundColorLink(selector) {
       task.showChilds();
     }
   });
-
   $('.navigation').on('click', 'a', function() {
       if($(this).attr('data-arrow') == "down") {
         task.loadingDown();
@@ -272,18 +244,13 @@ function changeBackgroundColorLink(selector) {
         task.loadingUp();
       }
   }); 
-
-
-
   //Mousetrap Keys
   Mousetrap.bind('up', function() {
     task.loadingUp();
   });
-
   Mousetrap.bind('down', function() {
     task.loadingDown();
   });  
-
   Mousetrap.bind('s', function() {
       changeBackgroundColorLink('[data-filter-category="source"]');
       task.changeFilter("source");
@@ -291,7 +258,6 @@ function changeBackgroundColorLink(selector) {
       task.filterChilds();
       task.showChilds(); 
   });
-
   Mousetrap.bind('e', function() {
       changeBackgroundColorLink('[data-filter-category="collecting_event"]');
       task.changeFilter("collecting_event");
@@ -299,7 +265,6 @@ function changeBackgroundColorLink(selector) {
       task.filterChilds();
       task.showChilds();    
   });
-
   Mousetrap.bind('o', function() {
       changeBackgroundColorLink('[data-filter-category="collection_object"]');
       task.changeFilter("collection_object");
@@ -307,7 +272,6 @@ function changeBackgroundColorLink(selector) {
       task.filterChilds();
       task.showChilds();   
   });  
-
   Mousetrap.bind('t', function() {
       changeBackgroundColorLink('[data-filter-category="taxon_name"]');
       task.changeFilter("taxon_name");
@@ -315,14 +279,12 @@ function changeBackgroundColorLink(selector) {
       task.filterChilds();
       task.showChilds();   
   });  
-
 var      
   isSafari = isSafari = /Safari/.test(navigator.userAgent) && /Apple Computer/.test(navigator.vendor),
   last_time = new Date(),
   lastMove = 0,
   actualMove = 0;
   $("body").mousewheel(function(objEvent, intDelta) {   
-
       var now = new Date(),
       actualMove = objEvent.deltaY;
       
