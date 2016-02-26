@@ -29,6 +29,8 @@
     align-items: center;
     border-bottom: 1px solid $navigation_border;
     padding: 0.5em;
+    padding-left: 1em;
+    padding-right: 1em;
 
     .status:first-letter {
       text-transform: uppercase;
@@ -36,7 +38,6 @@
 
     .categories {
       margin: 5px;
-
       text-align: center;
       font-size: smaller;
     }
