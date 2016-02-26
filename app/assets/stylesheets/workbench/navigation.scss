@@ -1,6 +1,6 @@
 @import 'palette';
 
-#favorite_link {
+.favourite_link {
     background-image: url('/assets/icons/empty_star.svg');
     background-size: 16px;
     background-position: left, center;
@@ -10,7 +10,7 @@
     background-repeat: no-repeat;
     text-decoration: none;
   }
- #unfavorite_link {
+ .unfavorite_link {
     font-size: 0px;
     padding: 16px;
     padding-right: 0px;
