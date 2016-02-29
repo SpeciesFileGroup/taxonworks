@@ -19,9 +19,6 @@ var carrouselTask = function (sec, rows, columns) {
   }
 
   carrouselTask.prototype.makeInjection = function () {
-    $('<div class="gray-circle"></div>').insertBefore(".unknown");
-    $('<div class="yellow-circle"></div>').insertBefore(".beta");
-    $('<div class="red-circle"></div>').insertBefore(".alpha");
     $('div.source').replaceWith('<img class="categories source" src="/assets/icons/book.svg" width="15"/>');
     $('div.collecting_event').replaceWith('<img class="categories collecting_event" src="/assets/icons/geo_location.svg" alt="Collection object" width="15"/>');
     $('div.collection_object').replaceWith('<img class="categories collection_object" src="/assets/icons/picking.svg" width="15"/>');

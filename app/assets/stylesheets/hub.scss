@@ -5,8 +5,6 @@
 @import 'workbench/whitespace';
 
 #hub {
-    margin-left:-15px;
-    margin-right: -15px;
   a {
     text-decoration: none;
   }
@@ -25,18 +23,9 @@
     font-weight: 100;
   }
 
-  .filter-header {
-    display: flex;
-    flex-direction:row;
-    justify-content:center;
-    width: 100%;
-  }
-
-
 #filter {
   margin-top: 15px;
   font-weight: 100;
-  //margin-top: $standard-padding;
   .tag {
     display: flex;
     height: 35px;
@@ -44,7 +33,6 @@
     font-size: 16px;
     align-items:center;
     flex-direction:row;
-    font-weight: 100;
     padding-left: 15px;
     border-top-right-radius: 3px;
     border-top-left-radius: 3px;
@@ -59,7 +47,8 @@
       font-size: 12px;
       opacity: 0.5;
       img { 
-      padding-right: 5px; }
+        padding-right: 5px; 
+      }
     }
     .reset:hover {
       opacity: 1;
@@ -90,30 +79,8 @@
       border: 1px solid $navigation_border;
       box-shadow: 0 0px 3px 0 $navigation_border;
       border-bottom: none;
-
-      background-color: #FFF;
+      background-color: $body_background;
       margin-bottom: 10px;
-      .title {
-        display: flex;
-        align-items:center;
-        flex-direction:row;
-        justify-content:space-between;
-        padding-left: 15px;
-        padding-right: 10px;
-        border-top-right-radius: 3px;
-        border-top-left-radius: 3px;
-        h2 {
-          margin: 10px; 
-          color: #FFF;
-          font-weight: 100;
-        }           
-      } 
-
-      hr {
-        border: 0px;
-        height: 1px;
-        background-color: $navigation_border;
-      }
 
       .navigation-controls {
         display: flex;
@@ -122,32 +89,24 @@
         border-bottom:1px solid $navigation_border;      
       }     
 
-      .navigation:last-child {
-        //border:none;
-      } 
-
       .navigation:first-child {
         border:none;
       }       
  
       .navigation {
         cursor: pointer; 
-        cursor: hand;
         width: 100%;
         display: flex;
         font-size: 12px;
         flex-direction:row;
         justify-content:center;
-        align-items:center;
-        position: relative;
-        padding: 5px;
         padding-top: 10px;
         padding-bottom: 10px;
         border-left: 1px solid $navigation_border;
         img {
-        padding-right: 5px;
-        width: 14px; 
-        opacity: 0.8;
+          padding-right: 5px;
+          width: 14px; 
+          opacity: 0.8;
         }
       }
 
@@ -158,207 +117,14 @@
           opacity: 1;
         }
       }
-      .category_button {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-      }
-
-      .category_button a {
-        background-color: $navigation_background;
-      }
 
       .activated {
         background-color: $color-complement-2 !important;
         box-shadow:inset 0px 1px 2px 0px $color-complement-3 !important;
-      }
-
-      .category_button:last-child a {
-        border-right: none;
-      }      
+      }     
     }
   }
 }
-
-
-   // jose - we could move other general hub classes to here
-   .filter {
-    display: flex;
-    margin: 2em;
-    justify-content: space-between;
-    align-items: center;
-    border-radius: 3px;
-    background-color: $navigation_background;
-    border:1px solid $navigation_border;
-
-    .restart {
-      background-color: $navigation_border;
-    }
-
-  .tag {
-    display: flex;
-    height: 35px;
-    padding-top: 5px;
-    font-size: 16px;
-    align-items:center;
-    flex-direction:row;
-    font-weight: 100;
-    padding-left: 15px;
-    border-top-right-radius: 3px;
-    border-top-left-radius: 3px;
-    //background-color: $color-secondary-1-3;
-    border-bottom: 5px solid $color-complement-3;
-    justify-content:space-between;
-  }
-
-    .flexbox {
-    display: flex;
-    justify-content:space-between;
-    width: 100%;
-
-    .item1 { 
-      display: block;
-      width: 300px;
-      min-width: 270px;
-      padding-right: $standard_padding*.8;
-    }
-
-    .item3 {
-      display: block;
-      width: 300px;
-      min-width: 250px;
-      margin-left: $standard_padding*.8;
-    }
-
-    .item2 {
-      display: flex;
-      width: 100%;
-     // padding: 0 $standard_padding*.8;
-      min-width: 450px;
-    }
-
-    .item { 
-
-      //margin: 5px;
-      flex-direction:column;
-      
-    }
-
-    h3 {
-      padding: $standard_padding*.2 0;
-      margin: $standard_padding*.2 0;
-    }
-
-
-    .section {
-      border-top-right-radius: 3px;
-      border-top-left-radius: 3px;
-      display: flex;
-      flex-direction:column;
-      justify-content:flex-start;
-      //border: 1px solid $navigation_border;
-      box-shadow: 0 0px 3px 0 $navigation_border;
-      background-color: #FFF;
-      margin-bottom: 10px;
-      .title {
-        display: flex;
-        align-items:center;
-        flex-direction:row;
-        justify-content:space-between;
-        padding-left: 15px;
-        padding-right: 10px;
-        border-top-right-radius: 3px;
-        border-top-left-radius: 3px;
-        h2 {
-        //font-size: 16px;
-          margin: 10px; 
-          color: #FFF;
-          font-weight: 100;
-        }           
-      } 
-    }
-  }    
-
-
-
- 
-    .title {
-      color: #FFF;
-      padding-top: 12px;
-      padding-bottom: 12px;
-      padding-left: 23px;
-      padding-right: 24px;
-      display: flex;
-      justify-content:flex-start;
-      align-items: center;
-      text-align: center;
-      border-right: 1px solid $color-complement-3;
-      background-color: $color-complement-3;
-      flex-direction:column; 
-    }
-
-    .filter-sections {
-      display:flex; 
-      flex-direction:row;
-      justify-content:space-between;
-    }
-
-    a {
-      border-right: 1px solid $navigation_border;
-      padding: 12px;
-    }    
-
-    [data-filter-category="taxon_name"] {
-      background-image: url('/assets/icons/new.svg');
-      background-position: 5px, center;
-      padding-left: 25px;
-      background-repeat: no-repeat;
-      background-size: 14px 12px;
-    }  
-
-    [data-filter-category="source"] {
-      background-image: url('/assets/icons/book.svg');
-      background-position: 5px, center;
-      padding-left: 25px;
-      background-repeat: no-repeat;
-      background-size: 14px 12px;
-    }     
-
-    [data-filter-category="collecting_event"] {
-      background-image: url('/assets/icons/geo_location.svg');
-      background-position: 5px, center;
-      padding-left: 25px;
-      background-repeat: no-repeat;
-      background-size: 14px 12px;
-    }     
-
-    [data-filter-category="collection_object"] {
-      background-image: url('/assets/icons/picking.svg');
-      background-position: 5px, center;
-      padding-left: 25px;
-      background-repeat: no-repeat;
-      background-size: 14px 12px;
-    }  
-
-    [data-filter-category="reset"] {
-      background-image: url('/assets/icons/restart.svg');
-      background-color: #333;
-      background-position: center;
-      padding-left: 20px;
-      padding-right: 20px;
-      background-repeat: no-repeat;
-    }        
-
-  }
-
-    .category_button a {
-      background-color: $navigation_background;
-    }
-
-    .activated a {
-      background-color: $color-complement-2;
-      box-shadow:inset 0px 1px 2px 0px $color-complement-3;
-    }
 
   #navigation_list {
     display: flex;
@@ -371,7 +137,6 @@
       list-style-type: none;
       border-left: 1px solid $color-secondary-2-2;
       margin-bottom: 1em;
-
       a.task_name { 
         display: block; 
       }
@@ -386,7 +151,6 @@
 
   #hub_tabs { 
     cursor: pointer;
-    background-color: #FFF;
     display: flex;
     border-bottom: 1px solid $navigation_border;
     justify-content: center; 

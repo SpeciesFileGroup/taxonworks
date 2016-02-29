@@ -31,85 +31,77 @@ a {
   }
   &:hover {
     color: $default_text;
-    //color: $color-secondary-2-0;
-    //background-color: $color-secondary-2-2;
   }
 }
 
+/* quick-bar nav */
 
-/* Hub nav */
-
-
-.hub-navbar {
-  background-color:$soft_background;
-  border-bottom:1px solid $navigation_border;
-  display: -webkit-box;
-  display: -moz-box;
-  display: -ms-flexbox;
-  display: -webkit-flex;
+.quick-bar {
   display: flex;
-  -webkit-flex-flow: row wrap;
-  padding-top:5px;
-  padding-bottom:5px;
+  flex-direction: row;
   align-items: center;
+  justify-content: flex-start;
   font-weight: 100;
+  border-bottom: 1px solid $navigation_border;
+  //background-color: $soft_background;
+
+  ul {
+    background-color: $body_background;
+    margin: 0px;
+    padding:0px;
+    display: flex;
+    margin-left:15px;
+    
+  }
+
+  li a:first-letter {
+    text-transform: uppercase;
+  }
+
+  li:first-child {
+    a {
+      background-image: url('/assets/icons/hub.svg');
+      background-size:14px;
+      background-repeat:no-repeat;
+      padding-right:15px;
+      background-position:15px, center;
+      padding-left:35px;      
+      font-weight:bold;
+      font-size: 12px;
+    }
+  }
+  li:after {
+    display: flex;
+    color: $navigation_border;
+    content: "|";
+    align-items: center;
+  }
+
+  li:last-child:after {
+    content: "";
+  }
+
+  li {
+    display: flex;
+    list-style-type: none;
+    a {
+      color: $default_text;
+    }
+  }
+
+  li a:hover {
+    color: $color-secondary-2-4;
+  }
+
+  a {
+    padding:9px;
+    padding-left:15px;
+    padding-right:15px;
+    font-size:12px;
+    text-decoration:none;
+  }
 }
 
-.hub-navbar li:first-letter {
-	text-transform:uppercase;
-}
-
-.hub-navbar li:first-child a {
-	font-size:12px;
-	font-weight:bold;
-	padding:3px;
-	border:1px solid $navigation_border;
-	background-image: url('/assets/icons/hub.svg');
-	background-size:12px;
-	background-repeat:no-repeat;
-	background-color:$navigation_background;
-	padding-right:8px;
-	padding-top:7px;
-	padding-bottom:8px;
-	background-position:5px, center;
-	padding-left:20px;
-	
-	
-}
-.hub-navbar ul {
-	padding:0px;
-	margin:0px;
-	display: flex;
-	margin-left:15px;
-	
-}
-.hub-navbar li {
-	list-style-type: none;
-	align-items:center;
-	margin:0;
-	padding:0;
-}
-.hub-navbar li:after {
-	color:$navigation_border;
-	font-size:11px;
-	content: " - ";
-	padding:6px;
-	
-}
-
-.hub-navbar a {
-	font-size:11px;
-	text-decoration:none;
-}
-
-.hub-navbar a:hover {
-	color:#000;
-	text-decoration:none;
-}
-
-.hub-navbar li:last-child:after {
-	content: none;
-}
 
 /* see http://css-tricks.com/snippets/css/a-guide-to-flexbox/, seems nice */
 .horizontal_navbar {

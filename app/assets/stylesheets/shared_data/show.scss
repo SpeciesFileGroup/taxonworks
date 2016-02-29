@@ -27,12 +27,7 @@
     }
   }
 
-  .icn {
-    color: $default_text;
-    background: none;
-  }
-
-  .iczn {
+  .icn, .iczn {
     color: $default_text;
     background: none;
   }
@@ -111,7 +106,7 @@
       flex-direction:column;
       justify-content:flex-start;
       box-shadow: 0 0px 3px 0 $navigation_border;
-      background-color: #FFF;
+      background-color: $body_background;
       margin-bottom: 10px;
       .title {
         display: flex;
@@ -124,7 +119,7 @@
         border-top-left-radius: 3px;
         h2 {
           margin: 10px; 
-          color: #FFF;
+          color: $body_background;
           font-weight: 100;
         }           
       } 
@@ -154,15 +149,13 @@
       .navigation-controls {
         font-weight: 100;
         display: flex;
+        font-size: 12px;
         flex-direction:row;
         justify-content:space-between;
         border-bottom:1px solid $navigation_border;
           input[type="text"] {
             width:170px;
-          }
-          input[type="submit"] {
-  
-          }          
+          }       
       }     
 
       .navigation:first-child {
@@ -186,7 +179,6 @@
       .navigation {
         width: 100%;
         display: flex;
-        font-size: 12px;
         flex-direction:row;
         justify-content:center;
         align-items:center;
@@ -218,11 +210,10 @@
           position: absolute;
           padding-botom:10px;
           border:1px solid $navigation_border;
-          background-color: #FFF; 
+          background-color: $body_background; 
           box-shadow: 0 1px 2px 0 $navigation_border; 
           margin: 0px;
           a {
-            background-color: #FFF; 
             margin: 0px;
             display: flex;
             flex-direction: row;
@@ -231,7 +222,7 @@
 
           }
           a:hover {
-            color: #FFF;
+            color: $body_background;
             background-color: $color-complement-3;
           }
         }
@@ -266,46 +257,35 @@
     .menu-item:hover {
       background-color: $color-complement-2;
     }
-
       .content {
         padding: 15px;
         a {
           font-size: 12px;
           text-decoration: none;
-
         }
       }
 
     .go {
       background-color: $body_background;
       .title {
-        color: $default_text;;
+        color: $default_text;
         font-weight: 100;
         border-bottom: 5px solid $color-secondary-2-4;
       }
-
     } 
 
-    .do {
-      background-color: $color-secondary-2-1;
-      .title {
-        color: #FFF;
-        background-color: $color-complement-3;
-      }
-
-    }
     .housekeeping {
       display: flex;
       flex-direction:column;
-      border-radius: 5px;
     }
+
     .attributes {
       strong {
         font-weight: 100;
       }
       p {
         font-size: 14px;
-        color: #000;
+        color: $default_text;
       }
       a {
         font-size: 14px;
@@ -318,8 +298,8 @@
     ul {
       list-style: none;
       padding: 0px;
-
     }
+    
     li {
       margin-top: 15px;
       margin-bottom: 15px;

@@ -6,9 +6,12 @@
           Listing taxon names
             </div>      
             <div class="navigation-controls">
-              <div class="pagination-controls"> 
+              <div class="item1 pagination-controls"> 
                <div>
                   <%= paginate @taxon_names %> <%= page_entries_info @taxon_names %>
+                  </div>
+                  <div class="link">                  
+                    <a href="#"><img src="/assets/icons/download.svg">Download</a>
                   </div>
               </div>       
             </div> 
@@ -37,7 +40,7 @@
     </div>
   </div>
 </div>
-<table cellspacing="0" id="taxon-list" class="tablesorter">
+<table cellspacing="0" id="list" class="tablesorter">
   <thead>
   <tr>
     <th class="headerTableOptions" data-filter="name"><a href="#" class="headerSortUp"><div>Name</div><img arrow-up src="/assets/icons/arrow-up.svg"/><img arrow-down src="/assets/icons/arrow-down.svg"/></a></th>
@@ -93,7 +96,7 @@
   var
     animationTime = 250;
 
-  $('#taxon-list').on('click', 'th a', function() {
+  $('#list').on('click', 'th a', function() {
     $('[data-filter="'+ $(this).parent().parent().attr("data-filter") +'"]').hide(animationTime);
   });
 
@@ -135,7 +138,7 @@ $(document).on('page:change', headerTableOptions);
 
 $(document).ready(function() 
     { 
-        $("#taxon-list").tablesorter({ 
+        $("#list").tablesorter({ 
         widgets: ['zebra'] 
         }); 
     } 

@@ -26,25 +26,7 @@
     task.resetView();
     task.filterChilds();
     task.showChilds();
-function changeAllSectionsFilter(dataTag, value) {
-    core.setFilterStatus(dataTag,value);
-    supporting.setFilterStatus(dataTag,value);
-    annotations.setFilterStatus(dataTag,value);
-}
-function deactivateBackgroundColorLink(selector) {
-  $(selector).removeClass("activated");
-}
-function activateBackgroundColorLink(selector) {
-  $(selector).addClass("activated");
-}
-function changeBackgroundColorLink(selector) {
-  if ($(selector).hasClass("activated")) {
-    deactivateBackgroundColorLink(selector);
-  }
-  else {
-    activateBackgroundColorLink(selector);
-    }
-}
+
   $('#filter').on('click', '[data-filter-category]', function() {
     if($(this).attr("data-filter-category") == "reset") {
       task.setFilterStatus("taxon_name",false);

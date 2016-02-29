@@ -63,22 +63,6 @@ function changeAllSectionsFilter(dataTag, value) {
   	annotations.setFilterStatus(dataTag,value);
 }
 
-function deactivateBackgroundColorLink(selector) {
-	$(selector).removeClass("activated");
-}
-
-function activateBackgroundColorLink(selector) {
-	$(selector).addClass("activated");
-}
-
-function changeBackgroundColorLink(selector) {
-	if ($(selector).hasClass("activated")) {
-		deactivateBackgroundColorLink(selector);
-	}
-	else {
-		activateBackgroundColorLink(selector);
-  	}
-}
 
   //Getting clicks on arrows
   $('.data_section[data-section="Core"]').on('click', 'a.cards-down', function() {
