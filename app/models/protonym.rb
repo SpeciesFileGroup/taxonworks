@@ -59,7 +59,7 @@ class Protonym < TaxonName
 
   TaxonNameRelationship.descendants.each do |d|
     if d.respond_to?(:assignment_method)
-      if d.name.to_s =~ /TaxonNameRelationship::(Iczn|Icn)/
+      if d.name.to_s =~ /TaxonNameRelationship::(Iczn|Icn|SourceClassifiedAs)/
         relationship = "#{d.assignment_method}_relationship".to_sym
         has_one relationship, class_name: d.name.to_s, foreign_key: :subject_taxon_name_id
         has_one d.assignment_method.to_sym, through: relationship, source: :object_taxon_name
@@ -75,7 +75,7 @@ class Protonym < TaxonName
     end
 
     if d.respond_to?(:inverse_assignment_method)
-      if d.name.to_s =~ /TaxonNameRelationship::(Iczn|Icn)/
+      if d.name.to_s =~ /TaxonNameRelationship::(Iczn|Icn|SourceClassifiedAs)/
         relationships = "#{d.inverse_assignment_method}_relationships".to_sym
         has_many relationships, -> {
           where("taxon_name_relationships.type LIKE '#{d.name.to_s}%'")

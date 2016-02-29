@@ -12,7 +12,7 @@ class TaxonNameRelationship::OriginalCombination::OriginalGenus < TaxonNameRelat
   end
 
   def self.assignment_method
-    # bus.set_as_genus_in_original_combination(aus)
+    # Bus.genus_in_original_combination = aus
     :genus_in_original_combination
   end
 

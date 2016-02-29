@@ -134,6 +134,7 @@ class TaxonName < ActiveRecord::Base
   include Shared::IsData
   include SoftValidation
   include Shared::Depictions
+  include Shared::Citable
 
   # @return [Boolean]
   #   When true, also creates an OTU that is tied to this taxon name
@@ -1213,7 +1214,9 @@ class TaxonName < ActiveRecord::Base
     exepted_with_taxon_name_classifications = ['TaxonNameClassification::Iczn::Unavailable::NotLatin',
                                                'TaxonNameClassification::Iczn::Unavailable::LessThanTwoLetters',
                                                'TaxonNameClassification::Iczn::Unavailable::NotLatinizedAfter1899',
-                                               'TaxonNameClassification::Iczn::Unavailable::NotLatinizedBefore1900AndNotAccepted']
+                                               'TaxonNameClassification::Iczn::Unavailable::NotLatinizedBefore1900AndNotAccepted',
+                                               'TaxonNameClassification::Iczn::Unavailable::NonBinomial',
+                                               'TaxonNameClassification::Iczn::Available::Invalid::FamilyGroupNameForm']
     if (taxon_name_classifications.collect{|t| t.type} & exepted_with_taxon_name_classifications).empty? && type == 'Protonym'
       if name =~ /[^a-zA-Z|\-]/
         errors.add(:name, 'Name must be latinized, no digits or spaces allowed')

@@ -1,20 +1,17 @@
-class TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling < TaxonNameRelationship::Iczn::Invalidating::Usage
+class TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm < TaxonNameRelationship::Iczn::Invalidating::Usage
 
-  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000275'
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000061'
 
   def self.disjoint_taxon_name_relationships
     self.parent.disjoint_taxon_name_relationships +
         self.collect_descendants_to_s(TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication,
-                                      TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm,
+                                      TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling,
                                       TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling)
   end
 
-  def subject_relationship_name
-    'correct spelling'
-  end
 
   def object_relationship_name
-    'misspelling'
+    'family-group name form'
   end
 
   def self.gbif_status_of_subject
@@ -23,13 +20,13 @@ class TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling < TaxonNameR
 
   def self.assignment_method
     # bus.set_as_misspelling_of(aus)
-    :iczn_set_as_misspelling_of
+    :iczn_set_as_family_group_name_form_of
   end
 
   # as.
   def self.inverse_assignment_method
     # aus.misspelling = bus
-    :iczn_misspelling
+    :iczn_family_group_name_form
   end
 
   def self.assignable
