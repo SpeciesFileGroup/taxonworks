@@ -53,9 +53,6 @@
       <%= fancy_th_tag(name: 'Type', filter: :name, group: 'metadata') -%>
       <%= fancy_th_tag(name: 'Updated by', filter: :name, group: 'housekeeping') -%>
       <%= fancy_th_tag(name: 'Last updated', filter: :name, group: 'housekeeping') -%>
-      <th class="table-options"></th>
-      <th class="table-options"></th>
-      <th class="table-options"></th>
     </tr>
   </thead>
   <tbody>
@@ -71,21 +68,10 @@
         <%= content_tag(:td, taxon_name.type, data: { filter: 'metadata', group: :metadata }) %>
         <%= content_tag(:td, object_tag(taxon_name.updater), data: { filter: 'housekeeping', group: :housekeeping }) %>
         <%= content_tag(:td, object_time_since_update_tag(taxon_name), data: { filter: 'housekeeping', group: :housekeeping }) %>
-        <td class="table-options">
-          <div data-show>
-            <%= link_to 'Show', taxon_name.metamorphosize %>
-          </div>
-        </td>
-        <td class="table-options">
-          <div data-edit>
-            <%= edit_object_link(taxon_name) %>
-          </div>
-        </td>
-        <td class="table-options">
-          <div data-delete>
-            <%= link_to 'Destroy', taxon_name.metamorphosize, method: :delete, data: {confirm: 'Are you sure?'} %>
-          </div>
-        </td>
+        <!-- Hidden action links ---->
+        <%= content_tag(:td, (link_to 'Show', taxon_name.metamorphosize), class: 'table-options', data_show: '') %>
+        <%= content_tag(:td, edit_object_link(taxon_name), class: 'table-options', data_edit: '') %>
+        <%= content_tag(:td, (link_to 'Destroy', taxon_name.metamorphosize, method: :delete, data: {confirm: 'Are you sure?'}), class: 'table-options', data_delete: '') %>
       </tr>
     <% end %>
   </tbody>

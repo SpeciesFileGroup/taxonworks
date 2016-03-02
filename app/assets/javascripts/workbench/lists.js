@@ -37,7 +37,7 @@ function showAll() {
 
 
 $("tbody tr").dblclick(function() {
-  location.href = $(this).find("[data-show] a").attr("href");
+  location.href = $(this).find("[data_show] a").attr("href");
 });
 
 function removeColumn(elementObject) {
@@ -69,13 +69,13 @@ $(document).ready(function()
 
                 switch(key) {
                   case "show":
-                    location.href = $(this).find("[data-show] a").attr('href');
+                    location.href = $(this).find("[data_show] a").attr('href');
                   break;
                   case "edit":
-                    location.href = $(this).find("[data-edit] a").attr('href');
+                    location.href = $(this).find("[data_edit] a").attr('href');
                   break;                  
                   case "delete":
-                    $(this).find("[data-delete] a").click();
+                    $(this).find("[data_delete] a").click();
                   break;
                 }
             },
