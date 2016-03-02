@@ -2,40 +2,40 @@
   <div class="flexbox">
     <div class="item item1">
       <div class="section">
-          <div class="tag title">
+        <div class="tag title">
           Listing taxon names
-            </div>      
-            <div class="navigation-controls">
-              <div class="item1 pagination-controls"> 
-               <div>
-                  <%= paginate @taxon_names %> <%= page_entries_info @taxon_names %>
-                  </div>
-                  <div class="link">                  
-                    <a href="#"><img src="/assets/icons/download.svg">Download</a>
-                  </div>
-              </div>       
-            </div> 
+        </div>      
+        <div class="navigation-controls">
+          <div class="item1 pagination-controls"> 
+            <div>
+              <%= paginate @taxon_names %> <%= page_entries_info @taxon_names %>
+            </div>
+            <div class="link">                  
+              <a href="#"><img src="/assets/icons/download.svg">Download</a>
+            </div>
+          </div>       
+        </div> 
       </div>
     </div>
     <div class="item item2">
       <div class="section">
-          <div class="tag title show">
+        <div class="tag title show">
           Display
-            </div>      
-            <div class="navigation-controls">
-              <div class="navigation" data-filter-active="true" data-group="metadata"> 
-                <img src="/assets/icons/show.svg"/>Type
-              </div>   
-              <div class="navigation" data-filter-active="true" data-group="publication"> 
-                <img src="/assets/icons/show.svg"/>Source
-              </div> 
-              <div class="navigation" data-filter-active="true" data-group="housekeeping"> 
-                <img src="/assets/icons/show.svg"/>Housekeeping   
-              </div> 
-              <div class="navigation" data-display="showAll"> 
-                <img src="/assets/icons/show.svg"/>Show all
-              </div>                                                 
-            </div> 
+        </div>      
+        <div class="navigation-controls">
+          <div class="navigation" data-filter-active="true" data-group="metadata"> 
+            <img src="/assets/icons/show.svg"/>Type
+          </div>   
+          <div class="navigation" data-filter-active="true" data-group="publication"> 
+            <img src="/assets/icons/show.svg"/>Source
+          </div> 
+          <div class="navigation" data-filter-active="true" data-group="housekeeping"> 
+            <img src="/assets/icons/show.svg"/>Housekeeping   
+          </div> 
+          <div class="navigation" data-display="showAll"> 
+            <img src="/assets/icons/show.svg"/>Show all
+          </div>                                                 
+        </div> 
       </div>      
     </div>
   </div>
@@ -53,13 +53,13 @@
       <%= fancy_th_tag(name: 'Type', filter: :name, group: 'metadata') -%>
       <%= fancy_th_tag(name: 'Updated by', filter: :name, group: 'housekeeping') -%>
       <%= fancy_th_tag(name: 'Last updated', filter: :name, group: 'housekeeping') -%>
-    <th class="table-options"></th>
-    <th class="table-options"></th>
-    <th class="table-options"></th>
-  </tr>
+      <th class="table-options"></th>
+      <th class="table-options"></th>
+      <th class="table-options"></th>
+    </tr>
   </thead>
   <tbody>
-  <% @taxon_names.each do |taxon_name| %>
+    <% @taxon_names.each do |taxon_name| %>
       <tr class="context-menu-one btn btn-neutral">
         <%= content_tag(:td, taxon_name.name, data: { }) %>
         <%= content_tag(:td, object_tag(taxon_name.parent), data: { }) %>
@@ -71,11 +71,10 @@
         <%= content_tag(:td, taxon_name.type, data: { filter: 'metadata', group: :metadata }) %>
         <%= content_tag(:td, object_tag(taxon_name.updater), data: { filter: 'housekeeping', group: :housekeeping }) %>
         <%= content_tag(:td, object_time_since_update_tag(taxon_name), data: { filter: 'housekeeping', group: :housekeeping }) %>
-        
         <td class="table-options">
           <div data-show>
             <%= link_to 'Show', taxon_name.metamorphosize %>
-            </div>
+          </div>
         </td>
         <td class="table-options">
           <div data-edit>
@@ -88,6 +87,6 @@
           </div>
         </td>
       </tr>
-  <% end %>
+    <% end %>
   </tbody>
 </table>
