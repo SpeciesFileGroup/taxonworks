@@ -1,4 +1,4 @@
 inherit_from: ../../.rubocop.yml
 
-Metrics/AbcSize:
-  Enabled: false
+#Metrics/AbcSize:
+#  Enabled: false
