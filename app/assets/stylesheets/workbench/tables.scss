@@ -120,21 +120,17 @@ table {
 }
 
 th.headerSortUp { 
-  [arrow-down] {
-    display: none;
-  }  
-  [arrow-up] {
-    display: block !important;
-  }
+  background-image: url('/assets/icons/arrow-up.svg');
+  background-position: right, center;
+  padding-right: 15px;
+  background-repeat: no-repeat;
 } 
 
 th.headerSortDown { 
-  [arrow-up] {
-    display: none;
-  }
-  [arrow-down] {
-    display: block !important;
-  }    
+  background-image: url('/assets/icons/arrow-down.svg');
+  background-position: right, center;
+  padding-right: 15px;
+  background-repeat: no-repeat;  
 } 
 
 #list {
@@ -142,6 +138,9 @@ th.headerSortDown {
   border-radius: 5px;
   width: 100%;
 
+  .table-options {
+    display: none;
+  }
   .even {
     @extend .list_line_odd;
   }

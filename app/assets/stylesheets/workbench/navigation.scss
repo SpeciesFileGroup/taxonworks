@@ -43,7 +43,6 @@ a {
   justify-content: flex-start;
   font-weight: 100;
   border-bottom: 1px solid $navigation_border;
-  //background-color: $soft_background;
 
   ul {
     background-color: $body_background;
@@ -83,7 +82,6 @@ a {
 
   li {
     display: flex;
-    list-style-type: none;
     a {
       color: $default_text;
     }
