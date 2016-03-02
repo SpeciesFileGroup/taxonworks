@@ -29,6 +29,7 @@ class UsersController < ApplicationController
   def create
     @user = User.new(user_params)
     @user.is_flagged_for_password_reset = is_superuser?
+
     if @user.save
       flash[:success] = "User #{@user.email} successfully created."
       # TODO: Email the user their information.
@@ -121,8 +122,8 @@ class UsersController < ApplicationController
       :password_confirmation,
       :set_new_api_access_token]
 
-      basic.push [:is_project_administrator] if is_superuser?
-      basic.push [:is_administrator, :is_flagged_for_password_reset] if is_administrator?
+      basic.push [:is_project_administrator, :is_flagged_for_password_reset] if is_superuser?
+      basic.push [:is_administrator] if is_administrator?
 
       params.require(:user).permit(basic)
     end
