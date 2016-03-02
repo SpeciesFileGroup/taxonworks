@@ -42,7 +42,8 @@
 </div>
 <table cellspacing="0" id="list" class="tablesorter">
   <thead>
-  <tr>
+    <tr>
+      <%= fancy_th_tag(name: 'Name', filter: :name) -%> 
     <th class="headerTableOptions" data-filter="name"><a href="#" class="headerSortUp"><div>Name</div><img arrow-up src="/assets/icons/arrow-up.svg"/><img arrow-down src="/assets/icons/arrow-down.svg"/></a></th>
     <th class="headerTableOptions" data-filter="parent"><a href="#"><div>Parent</div><img arrow-up src="/assets/icons/arrow-up.svg"/><img arrow-down src="/assets/icons/arrow-down.svg"/></a></th>
     <th class="headerTableOptions" data-filter="cachedName"><a href="#"><div>Cached name</div><img arrow-up src="/assets/icons/arrow-up.svg"/><img arrow-down src="/assets/icons/arrow-down.svg"/></a></th>
