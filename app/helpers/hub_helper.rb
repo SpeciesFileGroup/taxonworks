@@ -13,7 +13,7 @@ module HubHelper
           favorite_page_link('tasks', task.prefix) 
         } 
       } +
-      content_tag(:div, task.name, class: 'task_name') +
+      content_tag(:div, link_to(task.name, send(task.path) ), class: 'task_name') +
       content_tag(:div, task.description, class: 'task_description') 
     }
   end
