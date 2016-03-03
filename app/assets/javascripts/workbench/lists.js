@@ -1,5 +1,5 @@
 $(document).ready(function() {
-  if($("#list").length) {
+  if($("table").length) {
     list();
   }
 });
@@ -11,16 +11,14 @@ var
 function showAll() {
     $('th, td').show(animationTime);
     $('.table-options').hide();
-    $('[data-filter-publication]').attr("data-filter-publication","true");
-    $('[data-filter-metadata]').attr("data-filter-metadata","true");
-    $('[data-filter-user-info]').attr("data-filter-user-info","true");
+    $('[data-filter-active]').attr("data-filter-active","true");
     $('[data-group] img').attr("src","/assets/icons/show.svg");
   }
-  $('.navigation-controls').on('click', '[data-display="showAll"]', function() {
+  $('.navigation-controls').on('click', '[data-group="showAll"]', function() {
     showAll();
   });  
 
-  $('.navigation-controls').on('click', '.navigation', function() {
+  $('.navigation-controls').on('click', '.navigation-item', function() {
     if($(this).attr("data-filter-active") === "true") {
       $('table [data-group="' + $(this).attr("data-group") + '"]').hide(animationTime);
       $(this).attr("data-filter-active","false");
@@ -53,16 +51,16 @@ $(document).on('page:change', headerTableOptions);
 
 $(document).ready(function() 
     { 
-        $("#list").tablesorter({ 
+        $("table").tablesorter({ 
         widgets: ['zebra'] 
         }); 
     } 
 );
 
  function initContextMenus() {
-  $.contextMenu('destroy', ".context-menu-one" );
+  $.contextMenu('destroy', ".contextMenuCells" );
         $.contextMenu({
-            selector: '.context-menu-one', 
+            selector: '.contextMenuCells', 
             autoHide: true,
             callback: function(key, options) {
                 var m = "clicked: " + key;
@@ -89,9 +87,9 @@ $(document).ready(function()
   }
 
  function headerTableOptions() {
-  $.contextMenu('destroy', ".headerTableOptions" );
+  $.contextMenu('destroy', "thead th" );
         $.contextMenu({
-            selector: '.headerTableOptions', 
+            selector: 'thead th', 
             autoHide: true,
             callback: function(key, options) {
                 var m = "clicked: " + key;

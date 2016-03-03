@@ -1,23 +1,23 @@
 <div id="show">
-  <div class="flexbox horizontal">
+  <div class="panels-container horizontal">
     <div class="item item1">
-      <div class="section go">
-          <div class="tag title">
+      <div class="panel separate-right">
+          <div class="title nav-line">
             <%= model_name_title -%>
             </div>      
             <div class="navigation-controls">
               <%= yield :show_browse_navigation -%>   
-                <div class="navigation" data-arrow-back>
+                <div class="navigation-item" data-arrow-back>
                 <img src="/assets/icons/arrow-left.svg"/>
                 <%= previous_link(object) -%> 
                 </div>
-                <div class="navigation" data-arrow-next>
+                <div class="navigation-item" data-arrow-next>
                 <%= next_link(object) -%>
                 <img src="/assets/icons/arrow-right.svg"/>
               </div>
             </div> 
             <div class="navigation-controls">
-              <div class="navigation">
+              <div class="navigation-item">
                 <%= search_form_for_model(@data_model) %>
               </div>
             </div>
@@ -25,37 +25,39 @@
       </div>
     </div>
     <div class="item item2">
-    <div class="section space-distance">
-      <div class='tag'>
+    <div class="panel separate-left">
+      <div class="title action-line">
         <div>
           <%= object_tag(object) -%>
           <span data-view="development" style="font-weight: 100">&nbsp;[ id: <%= object.id -%> ]</span>
         </div>
-        <div class="title"><a href="#" data-icon="show" view-bottom>Development view</a></div>
+        <div >
+          <a href="#" data-icon="show" view-bottom>Development view</a>
+        </div>
       </div> 
       <div class="navigation-controls">
-        <div class="navigation"><img src="/assets/icons/new.svg" height="12" /><%= edit_object_link(object) -%> </div>
-        <div class="navigation"><img src="/assets/icons/annotate.svg"><a href="#">Annotate</a>
+        <div class="navigation-item"><img src="/assets/icons/new.svg" height="12" /><%= edit_object_link(object) -%> </div>
+        <div class="navigation-item"><img src="/assets/icons/annotate.svg"><a href="#">Annotate</a>
           <div class="dropdown"><%= annotate_links(object: object) -%>
           </div>
         </div>                
-        <div class="navigation"><img src="/assets/icons/trash.svg" height="12" /><%= destroy_object_link(object) -%></div>
-        <div class="navigation"><img src="/assets/icons/task.svg"/><a>Task</a>
+        <div class="navigation-item"><img src="/assets/icons/trash.svg" height="12" /><%= destroy_object_link(object) -%></div>
+        <div class="navigation-item"><img src="/assets/icons/task.svg"/><a>Task</a>
           <div class="dropdown" data-menu="task">
           <%= yield :see -%>  
           <%= yield :tasks -%>
           </div>
         </div>
-        <div class="navigation"><img src="/assets/icons/plus.svg" height="12" /><a>Add</a>
+        <div class="navigation-item"><img src="/assets/icons/plus.svg" height="12" /><a>Add</a>
           <div class="dropdown" data-menu="add">
             <%= yield :do -%>
           </div>
         </div>     
-        <div class="navigation"><img src="/assets/icons/pin.svg" height="12" /><%= pin_item_to_pinboard_link(object, sessions_current_user) -%></div>
+        <div class="navigation-item"><img src="/assets/icons/pin.svg" height="12" /><%= pin_item_to_pinboard_link(object, sessions_current_user) -%></div>
       </div>        
       </div>    
-    <div class="flexbox">
-    <div class="item item2 section">
+    <div class="panels-container">
+    <div class="item item2 panel separate-left separate-right">
     <div class="vertical">
 
         
@@ -71,23 +73,17 @@
 
     </div>
     </div>
-    <div class="item item3 section">
-      <div class="see">
+    <div class="item item3 panel separate-left separate-right">
         <div class="content"> 
         <h2>Related</h2>
         <%= papertrail_link(object) -%><br>
         <%= related_data_link(object) -%>
-        <br>
-        <br>
         </div>
-      </div>
     </div>
-    <div class="item item3 section">
-      <div class="go">
+    <div class="item item3 panel separate-left">
         <div class="content">
           <%= render(partial: '/shared/data/all/show/soft_validation', locals: {object: object}) if object.class.respond_to?(:soft_validates?) -%>
         </div>
-      </div>
     </div>
     </div>
     </div>

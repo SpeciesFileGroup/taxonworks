@@ -1,142 +1,56 @@
 @import 'palette';
+@import 'whitespace';
 
-#header-box {
-  margin-top: 1em;
-  font-weight: 100;
 
-  .tag {
-    display: flex;
-    height: 35px;
-    padding-top: 5px;
-    font-size: 16px;
-    align-items:center;
-    flex-direction:row;
-    padding-left: 15px;
-    border-bottom: 5px solid $color-secondary-2-4;
-    justify-content:space-between;
-  }
-
-  .flexbox {
-    .item1 {
-      display: flex;
-      width: 100%;
-      min-width: 450px;
+.pagination-bar {
+  display: flex;
+  flex-direction: column;
+  justify-content:flex-start;
+  align-items:left;
+  padding: 5px;
+    a {
+      text-decoration: none;
     }
-    .item2 {
-      display: flex;
-      width: 100%;
-      margin-left: 10px;
-      max-width: 450px;
-    }    
-    .item { 
-      flex-direction:column;
-    }
-
-    .section {
-      border-top-right-radius: 3px;
-      border-top-left-radius: 3px;
-      box-shadow: 0 0px 3px 0 $navigation_border;
-      border-bottom: none;
-      background-color: $body_background;
-      margin-bottom: 10px;
-      .show {
-        border-bottom: 5px solid $color-complement-3;
-      }
-
-      .navigation-controls {
-        display: flex;
-        flex-direction:row;
-        justify-content:flex-start;
-        border-bottom:1px solid $navigation_border; 
-        height: 40px;     
-      }     
-
-      .pagination-controls {
-        display: flex;
-        font-size: 12px;
-        align-items:center;
-        padding-left: 15px;  
-        justify-content: space-between;
-        padding-right: 15px; 
-        a {
-            text-decoration: none;
-          }
-        .link {
-          a {
-            display: flex;
-            flex-direction: row;
-          }
-          img {
-            margin-right: 5px;
-          }
-        }  
-      }
-
-      .navigation:first-child {
-        border:none;
-      }       
- 
-      .navigation {
-        cursor: pointer; 
-        width: 100%;
-        display: flex;
-        font-size: 12px;
-        flex-direction:row;
-        justify-content:center;
-        align-items:center;
-        border-left: 1px solid $navigation_border;
-        img {
-          padding-right: 5px;
-          width: 14px; 
-          opacity: 0.8;
-        }
-      }
-
-      .navigation:hover {
-        background-color: $color-complement-2;
-        box-shadow:inset 0px 1px 2px 0px $color-complement-3;
-        img {
-          opacity: 1;
-        }
-      }
+    img {
+      margin-right: 5px;
     }
   }
-}
 
 table {
-  font-weight: 100;
-}
-.underlined_elements {
-    border-spacing: 0; 
-  th {
-    border-bottom: 1px solid $color-secondary-1-4;
-  }
-}
-
-.top_align_text {
-  td {
-    vertical-align: top; 
-  }
-}
-
-th.headerSortUp { 
-  background-image: url('/assets/icons/arrow-up.svg');
-  background-position: right, center;
-  padding-right: 15px;
-  background-repeat: no-repeat;
-} 
-
-th.headerSortDown { 
-  background-image: url('/assets/icons/arrow-down.svg');
-  background-position: right, center;
-  padding-right: 15px;
-  background-repeat: no-repeat;  
-} 
-
-#list {
   box-shadow: 0 0 3px 0 $navigation_border;
   border-radius: 5px;
   width: 100%;
+  border-spacing: 0;
+  border-collapse: collapse;  
+  font-weight: 100;
+  margin-top: $standard_padding;
+
+  .underlined_elements {
+      border-spacing: 0; 
+    th {
+      border-bottom: 1px solid $color-secondary-1-4;
+    }
+  }
+
+  .top_align_text {
+    td {
+      vertical-align: top; 
+    }
+  }
+
+  th.headerSortUp { 
+    background-image: url('/assets/icons/arrow-up.svg');
+    background-position: right, center;
+    padding-right: 15px;
+    background-repeat: no-repeat;
+  } 
+
+  th.headerSortDown { 
+    background-image: url('/assets/icons/arrow-down.svg');
+    background-position: right, center;
+    padding-right: 15px;
+    background-repeat: no-repeat;  
+  } 
 
   .table-options {
     display: none;
@@ -148,8 +62,8 @@ th.headerSortDown {
     @extend .list_line_even;
   }
   tbody th, td {
-    padding-left: 10px;
-    padding-right: 10px;
+    padding-left: $standard_padding;
+    padding-right: $standard_padding;
   }
 
   tbody td:last-child {
@@ -199,8 +113,8 @@ th.headerSortDown {
   }
 
   thead th {
-    padding-left: 10px;
-    padding-right: 10px;
+    padding-left: $standard_padding;
+    padding-right: $standard_padding;
     font-weight: 500;
     color: $default_text;
     font-size: 12px;
