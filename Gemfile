@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 ruby '2.1.5'
 
-gem 'rails', '~> 4.2.5.1'
+gem 'rails', '~> 4.2.5.2'
 gem 'psych', '~> 2.0.16'
 gem 'responders', '~> 2.0'
 
@@ -81,7 +81,7 @@ gem 'validates_timeliness', '~> 4.0.0'
 gem 'bcrypt', '~> 3.1.7'
 
 # API view template engine
-gem 'rabl', '~> 0.11.7'
+gem 'rabl', '~> 0.12.0'
 
 gem 'rmagick', '~> 2.14'
 
@@ -91,10 +91,10 @@ gem 'modularity', '~> 2.0.1'
 
 gem 'colored', '~> 1.2'
 
-gem 'chartkick'
+gem 'chartkick', '~> 1.4.2'
 gem 'groupdate', '~> 2.5.1'
 
-gem 'dropzonejs-rails', '~> 0.7.2'
+gem 'dropzonejs-rails', '~> 0.7.3'
 
 # SFG gems
 gem 'taxonifi', '0.3.6'
@@ -118,8 +118,8 @@ group :development do
   gem 'binding_of_caller'
   gem 'spring-commands-rspec', '~> 1.0.2'
   gem 'guard-rspec', '~> 4.5', require: false
-  gem 'parallel_tests', '~> 2.2.2'
-  gem 'web-console', '~> 2.0'
+  gem 'parallel_tests', '~> 2.4.1'
+  gem 'web-console', '~> 2.3'
   gem 'rubocop', '~> 0.37.2'
 end
 
@@ -129,10 +129,10 @@ end
 
 group :test do
   gem 'rspec', '~> 3.4'
-  gem 'coveralls', '~> 0.8.9', require: false
+  gem 'coveralls', '~> 0.8.13', require: false
   gem 'capybara', '~> 2.1'
   gem 'timecop', '~> 0.8.0'
-  gem 'webmock', '~> 1.22.1'
+  gem 'webmock', '~> 1.24.1'
   gem 'vcr', '~> 3.0.0'
   gem 'database_cleaner', '~> 1.5.1'
 # gem 'simplecov', :require => false
@@ -141,6 +141,6 @@ end
 
 group :production do
   gem 'execjs'
-  gem 'passenger', '~> 5.0.24'
+  gem 'passenger', '~> 5.0.26'
 end
 
