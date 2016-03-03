@@ -46,7 +46,9 @@ gem 'jquery-turbolinks', '~> 2.1'
 gem 'jbuilder', '~> 2.4.1'
 gem 'chronic', '~> 0.10'
 
-gem 'awesome_nested_set', '~> 3.0.3'
+# gem 'awesome_nested_set', '~> 3.0.3'
+
+gem 'closure_tree', '~> 6.0.0'
 
 # BibTex handling
 gem 'csl', '~> 1.4.3' # git: 'https://github.com/inkshuk/csl-ruby'

@@ -88,11 +88,6 @@ describe GeographicArea, type: :model, group: :geo do
           @champaign = FactoryGirl.create(:level2_geographic_area)
         }
 
-        specify 'lft, rgt' do
-          expect(@champaign.lft > 0).to be_truthy
-          expect(@champaign.rgt > 0).to be_truthy
-        end
-
         specify 'parent string' do
           expect(@champaign.name).to eq('Champaign')
           expect(@champaign.parent.name).to eq('Illinois')
@@ -101,7 +96,7 @@ describe GeographicArea, type: :model, group: :geo do
         end
 
         specify 'ancestors' do
-          expect(@champaign.ancestors).to eq([@champaign.root, @champaign.parent.parent, @champaign.parent])
+          expect(@champaign.ancestors).to eq([@champaign.parent, @champaign.parent.parent, @champaign.root])
         end
 
         specify 'root' do
@@ -149,11 +144,11 @@ describe GeographicArea, type: :model, group: :geo do
       end
 
       specify 'ancestors_of' do
-        expect(GeographicArea.ancestors_of(@champaign)).to eq([@champaign.root, @champaign.parent.parent, @champaign.parent])
+        expect(GeographicArea.ancestors_of(@champaign)).to eq([@champaign.parent, @champaign.parent.parent, @champaign.root])
       end
 
       specify 'ancestors_and_descendants_of' do
-        expect(GeographicArea.ancestors_and_descendants_of(@illinois)).to eq([@champaign.root, @champaign.parent.parent, @champaign])
+        expect(GeographicArea.ancestors_and_descendants_of(@illinois)).to eq([ @champaign, @champaign.parent.parent, @champaign.root])
       end
 
       specify 'countries' do
@@ -167,7 +162,7 @@ describe GeographicArea, type: :model, group: :geo do
       end
 
       specify 'descendants_of_geographic_area_types' do
-        expect(@champaign.root.descendants_of_geographic_area_types(['County', 'State', 'Province']).to_a).to eq([@champaign.parent, @champaign])
+        expect(@champaign.root.descendants_of_geographic_area_types(['County', 'State', 'Province']).to_a).to eq([@champaign, @champaign.parent ])
       end
 
       specify '::with_name_and_parent_name' do

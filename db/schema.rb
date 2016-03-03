@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160224151209) do
+ActiveRecord::Schema.define(version: 20160303222753) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -236,6 +236,9 @@ ActiveRecord::Schema.define(version: 20160224151209) do
     t.string   "verbatim_date"
     t.integer  "start_date_month"
     t.integer  "end_date_month"
+    t.string   "cached_level0_geographic_name"
+    t.string   "cached_level1_geographic_name"
+    t.string   "cached_level2_geographic_name"
   end
 
   add_index "collecting_events", ["created_by_id"], name: "index_collecting_events_on_created_by_id", using: :btree
@@ -336,6 +339,15 @@ ActiveRecord::Schema.define(version: 20160224151209) do
   add_index "common_names", ["project_id"], name: "index_common_names_on_project_id", using: :btree
   add_index "common_names", ["updated_by_id"], name: "index_common_names_on_updated_by_id", using: :btree
 
+  create_table "container_hierarchies", id: false, force: :cascade do |t|
+    t.integer "ancestor_id",   null: false
+    t.integer "descendant_id", null: false
+    t.integer "generations",   null: false
+  end
+
+  add_index "container_hierarchies", ["ancestor_id", "descendant_id", "generations"], name: "container_anc_desc_idx", unique: true, using: :btree
+  add_index "container_hierarchies", ["descendant_id"], name: "container_desc_idx", using: :btree
+
   create_table "container_items", force: :cascade do |t|
     t.integer  "container_id",          null: false
     t.integer  "position",              null: false
@@ -378,8 +390,6 @@ ActiveRecord::Schema.define(version: 20160224151209) do
   create_table "containers", force: :cascade do |t|
     t.datetime "created_at",    null: false
     t.datetime "updated_at",    null: false
-    t.integer  "lft",           null: false
-    t.integer  "rgt",           null: false
     t.integer  "parent_id"
     t.integer  "depth"
     t.string   "type",          null: false
@@ -392,10 +402,8 @@ ActiveRecord::Schema.define(version: 20160224151209) do
 
   add_index "containers", ["created_by_id"], name: "index_containers_on_created_by_id", using: :btree
   add_index "containers", ["disposition"], name: "index_containers_on_disposition", using: :btree
-  add_index "containers", ["lft"], name: "index_containers_on_lft", using: :btree
   add_index "containers", ["parent_id"], name: "index_containers_on_parent_id", using: :btree
   add_index "containers", ["project_id"], name: "index_containers_on_project_id", using: :btree
-  add_index "containers", ["rgt"], name: "index_containers_on_rgt", using: :btree
   add_index "containers", ["type"], name: "index_containers_on_type", using: :btree
   add_index "containers", ["updated_by_id"], name: "index_containers_on_updated_by_id", using: :btree
 
@@ -528,6 +536,15 @@ ActiveRecord::Schema.define(version: 20160224151209) do
   add_index "documents", ["document_file_file_size"], name: "index_documents_on_document_file_file_size", using: :btree
   add_index "documents", ["document_file_updated_at"], name: "index_documents_on_document_file_updated_at", using: :btree
 
+  create_table "geographic_area_hierarchies", id: false, force: :cascade do |t|
+    t.integer "ancestor_id",   null: false
+    t.integer "descendant_id", null: false
+    t.integer "generations",   null: false
+  end
+
+  add_index "geographic_area_hierarchies", ["ancestor_id", "descendant_id", "generations"], name: "geographic_area_anc_desc_idx", unique: true, using: :btree
+  add_index "geographic_area_hierarchies", ["descendant_id"], name: "geographic_area_desc_idx", using: :btree
+
   create_table "geographic_area_types", force: :cascade do |t|
     t.string   "name",          null: false
     t.datetime "created_at",    null: false
@@ -550,8 +567,6 @@ ActiveRecord::Schema.define(version: 20160224151209) do
     t.datetime "created_at",              null: false
     t.datetime "updated_at",              null: false
     t.string   "iso_3166_a2"
-    t.integer  "rgt",                     null: false
-    t.integer  "lft",                     null: false
     t.string   "iso_3166_a3"
     t.string   "tdwgID"
     t.string   "data_origin",             null: false
@@ -564,10 +579,8 @@ ActiveRecord::Schema.define(version: 20160224151209) do
   add_index "geographic_areas", ["level0_id"], name: "index_geographic_areas_on_level0_id", using: :btree
   add_index "geographic_areas", ["level1_id"], name: "index_geographic_areas_on_level1_id", using: :btree
   add_index "geographic_areas", ["level2_id"], name: "index_geographic_areas_on_level2_id", using: :btree
-  add_index "geographic_areas", ["lft"], name: "index_geographic_areas_on_lft", using: :btree
   add_index "geographic_areas", ["name"], name: "index_geographic_areas_on_name", using: :btree
   add_index "geographic_areas", ["parent_id"], name: "index_geographic_areas_on_parent_id", using: :btree
-  add_index "geographic_areas", ["rgt"], name: "index_geographic_areas_on_rgt", using: :btree
   add_index "geographic_areas", ["updated_by_id"], name: "index_geographic_areas_on_updated_by_id", using: :btree
 
   create_table "geographic_areas_geographic_items", force: :cascade do |t|
@@ -585,18 +598,18 @@ ActiveRecord::Schema.define(version: 20160224151209) do
   add_index "geographic_areas_geographic_items", ["geographic_item_id"], name: "index_geographic_areas_geographic_items_on_geographic_item_id", using: :btree
 
   create_table "geographic_items", force: :cascade do |t|
-    t.datetime  "created_at",                                                                                             null: false
-    t.datetime  "updated_at",                                                                                             null: false
+    t.datetime  "created_at",                                                                                               null: false
+    t.datetime  "updated_at",                                                                                               null: false
     t.geography "point",               limit: {:srid=>4326, :type=>"point", :has_z=>true, :geographic=>true}
     t.geography "line_string",         limit: {:srid=>4326, :type=>"line_string", :has_z=>true, :geographic=>true}
     t.geography "polygon",             limit: {:srid=>4326, :type=>"polygon", :has_z=>true, :geographic=>true}
     t.geography "multi_point",         limit: {:srid=>4326, :type=>"multi_point", :has_z=>true, :geographic=>true}
     t.geography "multi_line_string",   limit: {:srid=>4326, :type=>"multi_line_string", :has_z=>true, :geographic=>true}
     t.geography "multi_polygon",       limit: {:srid=>4326, :type=>"multi_polygon", :has_z=>true, :geographic=>true}
-    t.geography "geometry_collection", limit: {:srid=>4326, :type=>"geometry", :has_z=>true, :geographic=>true}
-    t.integer   "created_by_id",                                                                                          null: false
-    t.integer   "updated_by_id",                                                                                          null: false
-    t.string    "type",                                                                                                   null: false
+    t.geography "geometry_collection", limit: {:srid=>4326, :type=>"geometry_collection", :has_z=>true, :geographic=>true}
+    t.integer   "created_by_id",                                                                                            null: false
+    t.integer   "updated_by_id",                                                                                            null: false
+    t.string    "type",                                                                                                     null: false
   end
 
   add_index "geographic_items", ["created_by_id"], name: "index_geographic_items_on_created_by_id", using: :btree
@@ -1184,6 +1197,15 @@ ActiveRecord::Schema.define(version: 20160224151209) do
   add_index "taxon_name_classifications", ["type"], name: "index_taxon_name_classifications_on_type", using: :btree
   add_index "taxon_name_classifications", ["updated_by_id"], name: "index_taxon_name_classifications_on_updated_by_id", using: :btree
 
+  create_table "taxon_name_hierarchies", id: false, force: :cascade do |t|
+    t.integer "ancestor_id",   null: false
+    t.integer "descendant_id", null: false
+    t.integer "generations",   null: false
+  end
+
+  add_index "taxon_name_hierarchies", ["ancestor_id", "descendant_id", "generations"], name: "taxon_name_anc_desc_idx", unique: true, using: :btree
+  add_index "taxon_name_hierarchies", ["descendant_id"], name: "taxon_name_desc_idx", using: :btree
+
   create_table "taxon_name_relationships", force: :cascade do |t|
     t.integer  "subject_taxon_name_id", null: false
     t.integer  "object_taxon_name_id",  null: false
@@ -1210,8 +1232,6 @@ ActiveRecord::Schema.define(version: 20160224151209) do
     t.string   "cached_html",                                   null: false
     t.string   "cached_author_year"
     t.string   "cached_higher_classification"
-    t.integer  "lft",                                           null: false
-    t.integer  "rgt",                                           null: false
     t.integer  "source_id"
     t.datetime "created_at",                                    null: false
     t.datetime "updated_at",                                    null: false
@@ -1238,11 +1258,9 @@ ActiveRecord::Schema.define(version: 20160224151209) do
   end
 
   add_index "taxon_names", ["created_by_id"], name: "index_taxon_names_on_created_by_id", using: :btree
-  add_index "taxon_names", ["lft"], name: "index_taxon_names_on_lft", using: :btree
   add_index "taxon_names", ["name"], name: "index_taxon_names_on_name", using: :btree
   add_index "taxon_names", ["parent_id"], name: "index_taxon_names_on_parent_id", using: :btree
   add_index "taxon_names", ["project_id"], name: "index_taxon_names_on_project_id", using: :btree
-  add_index "taxon_names", ["rgt"], name: "index_taxon_names_on_rgt", using: :btree
   add_index "taxon_names", ["source_id"], name: "index_taxon_names_on_source_id", using: :btree
   add_index "taxon_names", ["type"], name: "index_taxon_names_on_type", using: :btree
   add_index "taxon_names", ["updated_by_id"], name: "index_taxon_names_on_updated_by_id", using: :btree

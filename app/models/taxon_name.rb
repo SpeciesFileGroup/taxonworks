@@ -144,17 +144,9 @@ class TaxonName < ActiveRecord::Base
   #   When true, also cached values are not built
   attr_accessor :no_cached
 
-  # @return [Boolean]
-  #   When true, does not alphabetize siblings (import only) 
-  attr_accessor :no_alphabetize
-
   NO_CACHED_MESSAGE = 'PROJECT REQUIRES TAXON NAME CACHE REBUILD'
 
-  if ENV['NO_TAXON_NESTING']
-    belongs_to :parent, class_name: TaxonName, foreign_key: :parent_id
-  else
-    acts_as_nested_set scope: [:project_id], dependent: :restrict_with_exception, touch: false
-  end
+  has_closure_tree order: 'name'
 
   belongs_to :valid_taxon_name, class_name: TaxonName, foreign_key: :cached_valid_taxon_name_id
 
@@ -165,14 +157,6 @@ class TaxonName < ActiveRecord::Base
   after_save :create_new_combination_if_absent, unless: 'self.no_cached'
   after_save :set_cached_names_for_dependants_and_self, unless: 'self.no_cached'
   after_save :set_cached_valid_taxon_name_id
-  after_save :order_alphabetically, unless: 'self.no_alphabetize'
-
-  def order_alphabetically
-    self_and_siblings.order(:cached).in_groups_of(2).each do |a, b|
-      next if b.nil?
-      b.move_to_right_of(a.id)
-    end
-  end
 
   validate :validate_rank_class_class,
   # :check_format_of_name,
@@ -208,21 +192,26 @@ class TaxonName < ActiveRecord::Base
 
   accepts_nested_attributes_for :taxon_name_classifications, allow_destroy: true, reject_if: proc { |attributes| attributes['type'].blank?  }
 
-  scope :with_type, -> (type) {where(type: type)}
-  scope :ordered_by_rank, -> { order(:lft) } # TODO: test
+  scope :with_type, -> (type) {where(type: type)} 
+
+  def self.descendants_of(taxon_name)
+    with_ancestor(taxon_name)
+  end
+
+  scope :ancestors_of, -> (taxon_name) { joins(:descendant_hierarchies).where(taxon_name_hierarchies: {descendant_id: taxon_name.id}).where('taxon_name_hierarchies.ancestor_id != ?', taxon_name.id) }
+
+  # this is subtly different, it includes self in present form
+  scope :ancestors_and_descendants_of, -> (taxon_name) { 
+    joins('LEFT OUTER JOIN taxon_name_hierarchies a ON taxon_names.id = a.descendant_id
+                                                                LEFT JOIN taxon_name_hierarchies b ON taxon_names.id = b.ancestor_id').
+                                                                where("(a.ancestor_id = ?) OR (b.descendant_id = ?)", taxon_name.id, taxon_name.id ).
+                                                                uniq }
+
   scope :with_rank_class, -> (rank_class_name) { where(rank_class: rank_class_name) }
   scope :with_parent_taxon_name, -> (parent) { where(parent_id: parent) }
   scope :with_base_of_rank_class, -> (rank_class) { where('rank_class LIKE ?', "#{rank_class}%") }
   scope :with_rank_class_including, -> (include_string) { where('rank_class LIKE ?', "%#{include_string}%") }
-  scope :descendants_of, -> (taxon_name) { where('(taxon_names.lft >= ?) and (taxon_names.lft <= ?) and (taxon_names.id != ?) and (taxon_names.project_id = ?)', taxon_name.lft, taxon_name.rgt, taxon_name.id, taxon_name.project_id).order(:lft) }
-  scope :ancestors_of, -> (taxon_name) { where('(taxon_names.lft <= ?) and (taxon_names.rgt >= ?) and (taxon_names.id != ?) and (taxon_names.project_id = ?)', taxon_name.lft, taxon_name.rgt, taxon_name.id, taxon_name.project_id).order(:lft) }
-  scope :ancestors_and_descendants_of, -> (taxon_name) {
-    where('(((taxon_names.lft >= ?) AND (taxon_names.lft <= ?)) OR
-           ((taxon_names.lft <= ?) AND (taxon_names.rgt >= ?))) AND
-           (taxon_names.id != ?) AND (taxon_names.project_id = ?)',
-           taxon_name.lft, taxon_name.rgt, taxon_name.lft, taxon_name.rgt, taxon_name.id, taxon_name.project_id) }
   scope :project_root, -> (root_id) {where("(taxon_names.rank_class = 'NomenclaturalRank' AND taxon_names.project_id = ?)", root_id)}
-
 
   # A specific relationship
   scope :as_subject_with_taxon_name_relationship, -> (taxon_name_relationship) { includes(:taxon_name_relationships).where(taxon_name_relationships: {type: taxon_name_relationship}) }
@@ -272,13 +261,13 @@ class TaxonName < ActiveRecord::Base
   # @return array of relationships
   #   all relationships where this taxon is an object or subject.
   def all_taxon_name_relationships
-    # !! If self relatinships are every made possible this needs a DISTINCT clause
+    # !! If self relationships are ever made possible this needs a DISTINCT clause
     TaxonNameRelationship.find_by_sql("SELECT taxon_name_relationships.* FROM taxon_name_relationships WHERE taxon_name_relationships.subject_taxon_name_id = #{self.id} UNION
                          SELECT taxon_name_relationships.* FROM taxon_name_relationships WHERE taxon_name_relationships.object_taxon_name_id = #{self.id}")
   end
 
   # @return [Array of TaxonName]
-  #     all taxon_names which have relationships to this taxon as an object or subject.
+  #   all taxon_names which have relationships to this taxon as an object or subject.
   def related_taxon_names
     TaxonName.find_by_sql("SELECT DISTINCT tn.* FROM taxon_names tn
                       LEFT JOIN taxon_name_relationships tnr1 ON tn.id = tnr1.subject_taxon_name_id
@@ -1327,6 +1316,7 @@ class TaxonName < ActiveRecord::Base
   end
 
   def sv_parent_is_valid_name
+
     return if parent.nil?
     if parent.unavailable_or_invalid?
       # parent of a taxon is unavailable or invalid

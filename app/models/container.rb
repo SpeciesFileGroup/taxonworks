@@ -33,7 +33,8 @@
 #     a free text description of the position of this container 
 #
 class Container < ActiveRecord::Base
-  acts_as_nested_set scope: [:project_id]
+
+  has_closure_tree 
 
   include Housekeeping
   include Shared::Containable
@@ -95,4 +96,14 @@ class Container < ActiveRecord::Base
   end
 
 end
+
+%w{
+    /app/models/container/**/*.rb
+}.each do |path|
+  a = Dir[Rails.root.to_s + path].sort
+  a.each {|file| require_dependency file } # was .sort
+end
+
+
+
 

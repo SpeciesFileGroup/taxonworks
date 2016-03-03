@@ -6,6 +6,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
     TaxonNameRelationship.delete_all
     TaxonNameClassification.delete_all
     TaxonName.delete_all
+    TaxonNameHierarchy.delete_all
   end
 
   after(:all) do
@@ -13,6 +14,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
     TaxonNameClassification.delete_all
     TaxonName.delete_all
     Source.delete_all
+    TaxonNameHierarchy.delete_all
   end
 
   let(:protonym) { Protonym.new }

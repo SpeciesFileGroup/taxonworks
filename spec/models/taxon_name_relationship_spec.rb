@@ -15,6 +15,7 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
     TaxonName.delete_all
     TaxonNameRelationship.delete_all
     Source.delete_all
+    TaxonNameHierarchy.delete_all
   } 
 
   context 'required attributes' do

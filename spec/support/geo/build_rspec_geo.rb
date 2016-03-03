@@ -29,7 +29,12 @@ def clean_slate_geo # rubocop:disable Metrics/AbcSize
 
   GeographicAreaType.delete_all
   ActiveRecord::Base.connection.reset_pk_sequence!('geographic_area_types')
+
+  GeographicAreaHierarchy.delete_all
+
   true
+
+
 end
 
 # @return [Multipolygon]

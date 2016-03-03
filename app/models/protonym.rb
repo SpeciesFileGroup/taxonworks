@@ -178,7 +178,7 @@ class Protonym < TaxonName
         end
 
         unless search_name.nil?
-          list = Protonym.ancestors_and_descendants_of(self).
+          list = Protonym.ancestors_and_descendants_of(self).not_self(self).
             with_rank_class_including(search_rank).
             with_name_in_array(search_name).
             as_subject_without_taxon_name_relationship_base('TaxonNameRelationship::Iczn::Invalidating::Synonym') 
@@ -203,7 +203,7 @@ class Protonym < TaxonName
   end
 
   def ancestors_and_descendants
-    Protonym.ancestors_and_descendants_of(self).to_a
+    Protonym.ancestors_and_descendants_of(self).not_self(self).to_a
   end
 
   def self.family_group_base(name_string)

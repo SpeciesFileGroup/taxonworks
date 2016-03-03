@@ -24,6 +24,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
       TaxonName.delete_all 
       # TODO: find out why this exists and resolve - presently leaving sources in the models
       Source.delete_all 
+      TaxonNameHierarchy.delete_all
     end
 
     context 'asserting gender with a TaxonNameClassification' do

@@ -59,12 +59,7 @@ class GeographicArea < ActiveRecord::Base
   include Shared::IsData
   include Shared::IsApplicationData
 
-  # TODO: Investigate how to do this unconditionally. Use rake NO_GEO_NESTING=1 ... to run incompatible tasks.
-  if ENV['NO_GEO_NESTING']
-    belongs_to :parent, class_name: GeographicArea, foreign_key: :parent_id
-  else
-    acts_as_nested_set
-  end
+  has_closure_tree
 
   belongs_to :geographic_area_type, inverse_of: :geographic_areas
   belongs_to :level0, class_name: 'GeographicArea', foreign_key: :level0_id
@@ -85,26 +80,41 @@ class GeographicArea < ActiveRecord::Base
   validates :name, presence: true, length: {minimum: 1}
   validates :data_origin, presence: true
 
-  scope :descendants_of, lambda { |geographic_area|
-    where('(geographic_areas.lft >= ?) and (geographic_areas.lft <= ?) and
-           (geographic_areas.id != ?)',
-          geographic_area.lft, geographic_area.rgt,
-          geographic_area.id).order(:lft)
-  }
-  scope :ancestors_of, lambda { |geographic_area|
-    where('(geographic_areas.lft <= ?) and (geographic_areas.rgt >= ?) and
-           (geographic_areas.id != ?)',
-          geographic_area.lft, geographic_area.rgt,
-          geographic_area.id).order(:lft)
-  }
-  scope :ancestors_and_descendants_of, lambda { |geographic_area|
-    where('(((geographic_areas.lft >= ?) AND (geographic_areas.lft <= ?)) OR
-           ((geographic_areas.lft <= ?) AND (geographic_areas.rgt >= ?))) AND
-           (geographic_areas.id != ?)',
-          geographic_area.lft, geographic_area.rgt,
-          geographic_area.lft, geographic_area.rgt,
-          geographic_area.id).order(:lft)
-  }
+# scope :descendants_of, lambda { |geographic_area|
+#   where('(geographic_areas.lft >= ?) and (geographic_areas.lft <= ?) and
+#          (geographic_areas.id != ?)',
+#         geographic_area.lft, geographic_area.rgt,
+#         geographic_area.id).order(:lft)
+# }
+
+  def self.descendants_of(geographic_area)
+    with_ancestor(geographic_area)
+  end
+
+# scope :ancestors_of, lambda { |geographic_area|
+#   where('(geographic_areas.lft <= ?) and (geographic_areas.rgt >= ?) and
+#          (geographic_areas.id != ?)',
+#         geographic_area.lft, geographic_area.rgt,
+#         geographic_area.id).order(:lft)
+# }
+
+  scope :ancestors_of, -> (geographic_area) { joins(:descendant_hierarchies).where(geographic_area_hierarchies: {descendant_id: geographic_area.id}).where('geographic_area_hierarchies.ancestor_id != ?', geographic_area.id) }
+
+# scope :ancestors_and_descendants_of, lambda { |geographic_area|
+#   where('(((geographic_areas.lft >= ?) AND (geographic_areas.lft <= ?)) OR
+#          ((geographic_areas.lft <= ?) AND (geographic_areas.rgt >= ?))) AND
+#          (geographic_areas.id != ?)',
+#         geographic_area.lft, geographic_area.rgt,
+#         geographic_area.lft, geographic_area.rgt,
+#         geographic_area.id).order(:lft)
+# }
+
+  # this is subtly different, it includes self in present form
+  scope :ancestors_and_descendants_of, -> (geographic_area) { 
+    joins('LEFT OUTER JOIN geographic_area_hierarchies a ON geographic_areas.id = a.descendant_id
+                                                                LEFT JOIN geographic_area_hierarchies b ON geographic_areas.id = b.ancestor_id').
+                                                                where("(a.ancestor_id = ?) OR (b.descendant_id = ?)", geographic_area.id, geographic_area.id ).
+                                                                uniq }
 
   scope :with_name_like, lambda { |string|
     where(['name like ?', "#{string}%"])
