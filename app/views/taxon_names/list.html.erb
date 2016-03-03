@@ -13,7 +13,8 @@
       <div class="navigation-bar-right ">
         <a class="link" href="#">                 
           <img src="/assets/icons/download.svg">
-          Download</a>               
+          Download
+        </a>               
       </div>
     </div>       
   </div>
@@ -67,7 +68,7 @@
           data_delete
 
         This is very important, it must be set to make work the options for the context menu.
-        Use the class ".td-option" to hide those options on the table
+        Use the class ".table-options" to hide those options on the table
         ---->
         <%= content_tag(:td, (link_to 'Show', taxon_name.metamorphosize), class: 'table-options', data_show: '') %>
         <%= content_tag(:td, edit_object_link(taxon_name), class: 'table-options', data_edit: '') %>
