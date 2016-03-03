@@ -22,20 +22,11 @@ function initTaskCarrousel() {
       task.setFilterStatus("collecting_event",false);
       task.setFilterStatus("collection_object",false);
       task.setFilterStatus("source",false);
-      deactivateBackgroundColorLink('[data-filter-category="source"]');
-      deactivateBackgroundColorLink('[data-filter-category="taxon_name"]');
-      deactivateBackgroundColorLink('[data-filter-category="collecting_event"]');
-      deactivateBackgroundColorLink('[data-filter-category="collection_object"]');      
-      activateBackgroundColorLink('[data-filter-category="reset"]');
       task.resetView();
       task.filterChilds();
       task.showChilds();
-      setTimeout( function() {
-      deactivateBackgroundColorLink('[data-filter-category="reset"]');
-    }, 100);
     }
     else {
-      changeBackgroundColorLink('[data-filter-category="'+ $(this).attr("data-filter-category") +'"]');
       task.changeFilter($(this).attr("data-filter-category"));
       task.resetView();
       task.filterChilds();
@@ -57,34 +48,7 @@ function initTaskCarrousel() {
   Mousetrap.bind('down', function() {
     task.loadingDown();
   });  
-  Mousetrap.bind('s', function() {
-      changeBackgroundColorLink('[data-filter-category="source"]');
-      task.changeFilter("source");
-      task.resetView();
-      task.filterChilds();
-      task.showChilds(); 
-  });
-  Mousetrap.bind('e', function() {
-      changeBackgroundColorLink('[data-filter-category="collecting_event"]');
-      task.changeFilter("collecting_event");
-      task.resetView();
-      task.filterChilds();
-      task.showChilds();    
-  });
-  Mousetrap.bind('o', function() {
-      changeBackgroundColorLink('[data-filter-category="collection_object"]');
-      task.changeFilter("collection_object");
-      task.resetView();
-      task.filterChilds();
-      task.showChilds();   
-  });  
-  Mousetrap.bind('t', function() {
-      changeBackgroundColorLink('[data-filter-category="taxon_name"]');
-      task.changeFilter("taxon_name");
-      task.resetView();
-      task.filterChilds();
-      task.showChilds();   
-  });  
+  
 var      
   isSafari = isSafari = /Safari/.test(navigator.userAgent) && /Apple Computer/.test(navigator.vendor),
   last_time = new Date(),

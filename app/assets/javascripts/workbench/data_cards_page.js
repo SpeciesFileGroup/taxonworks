@@ -76,7 +76,6 @@ function changeAllSectionsFilter(dataTag, value) {
   });     
 
   $('#filter [data-filter-category="taxon_name"]').on('click', function() {
-	  	changeBackgroundColorLink('[data-filter-category="taxon_name"]');
       	core.changeFilter("data-category-TaxonName");
       	supporting.changeFilter("data-category-TaxonName");
       	annotations.changeFilter("data-category-TaxonName");
@@ -84,7 +83,6 @@ function changeAllSectionsFilter(dataTag, value) {
   });  
 
   $('#filter [data-filter-category="collecting_event"]').on('click', function() {
-  		changeBackgroundColorLink('[data-filter-category="collecting_event"]');
       	core.changeFilter("data-category-collectingevent"); 
       	supporting.changeFilter("data-category-collectingevent"); 
       	annotations.changeFilter("data-category-collectingevent"); 
@@ -92,15 +90,13 @@ function changeAllSectionsFilter(dataTag, value) {
   });
 
   $('#filter [data-filter-category="collection_object"]').on('click', function() {
-  		changeBackgroundColorLink('[data-filter-category="collection_object"]');  	
 	    core.changeFilter("data-category-collectionobject");   
 	    supporting.changeFilter("data-category-collectionobject");   
 	    annotations.changeFilter("data-category-collectionobject"); 
 	    favorites.changeFilter("data-category-collectionobject");
   });  
 
-  $('#filter [data-filter-category="source"]').on('click', function() {
-  		changeBackgroundColorLink('[data-filter-category="source"]');  	
+  $('#filter [data-filter-category="source"]').on('click', function() {  	
       	core.changeFilter("data-category-Source");
       	supporting.changeFilter("data-category-Source");
       	annotations.changeFilter("data-category-Source");
@@ -113,42 +109,11 @@ function changeAllSectionsFilter(dataTag, value) {
 		changeAllSectionsFilter("data-category-TaxonName", false);
 		changeAllSectionsFilter("data-category-collectionobject", false);
 		changeAllSectionsFilter("data-category-collectingevent", false);
-	  	deactivateBackgroundColorLink('[data-filter-category]');
   });  
 
 $('.data_card div[data-category-collectingevent="true"]').append("<img src='/assets/icons/geo_location.svg'/>");
 $('.data_card div[data-category-TaxonName="true"]').append("<img src='/assets/icons/new.svg'/>");
 $('.data_card div[data-category-collectionobject="true"]').append("<img src='/assets/icons/picking.svg'/>");
-$('.data_card div[data-category-Source="true"]').append("<img src='/assets/icons/book.svg'/>");
-
-  //Mousetrap Keys
-  
-    Mousetrap.bind('s', function() {
-      	changeBackgroundColorLink('a[data-filter-category="source"]');
-      	core.changeFilter("data-category-Source");
-      	supporting.changeFilter("data-category-Source");
-      	annotations.changeFilter("data-category-Source");
-  });
-
-    Mousetrap.bind('e', function() {
-    	changeBackgroundColorLink('a[data-filter-category="collecting_event"]');
-      	core.changeFilter("data-category-collectingevent"); 
-      	supporting.changeFilter("data-category-collectingevent"); 
-      	annotations.changeFilter("data-category-collectingevent");   
-  });
-
-    Mousetrap.bind('o', function() {
-    	changeBackgroundColorLink('a[data-filter-category="collection_object"]');
-      	core.changeFilter("data-category-collectionobject");   
-      	supporting.changeFilter("data-category-collectionobject");   
-      	annotations.changeFilter("data-category-collectionobject");   
-    });  
-
-    Mousetrap.bind('t', function() {
-    	changeBackgroundColorLink('a[data-filter-category="taxon_name"]');
-      	core.changeFilter("data-category-TaxonName");
-      	supporting.changeFilter("data-category-TaxonName");
-      	annotations.changeFilter("data-category-TaxonName");     
-  });    
+$('.data_card div[data-category-Source="true"]').append("<img src='/assets/icons/book.svg'/>");   
    
 }

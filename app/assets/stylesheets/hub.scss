@@ -26,24 +26,17 @@
 #filter {
   margin-top: 15px;
   font-weight: 100;
-  .tag {
-    display: flex;
-    height: 35px;
-    padding-top: 5px;
-    font-size: 16px;
-    align-items:center;
-    flex-direction:row;
-    padding-left: 15px;
-    border-top-right-radius: 3px;
-    border-top-left-radius: 3px;
-    border-bottom: 5px solid $color-complement-3;
-    justify-content:space-between;
+
+      .activated {
+        background-color: $color-complement-2 !important;
+        box-shadow:inset 0px 1px 2px 0px $color-complement-3 !important;
+      } 
+
     .reset {
       cursor: pointer;
       display: flex;
       flex-direction: row;
       align-items: center;
-      padding-right: 15px;
       font-size: 12px;
       opacity: 0.5;
       img { 
@@ -53,7 +46,6 @@
     .reset:hover {
       opacity: 1;
     }
-  }
 
   .flexbox {
     display: flex;
@@ -68,60 +60,6 @@
 
     .item { 
       flex-direction:column;
-    }
-
-    .section {
-      border-top-right-radius: 3px;
-      border-top-left-radius: 3px;
-      display: flex;
-      flex-direction:column;
-      justify-content:flex-start;
-      border: 1px solid $navigation_border;
-      box-shadow: 0 0px 3px 0 $navigation_border;
-      border-bottom: none;
-      background-color: $body_background;
-      margin-bottom: 10px;
-
-      .navigation-controls {
-        display: flex;
-        flex-direction:row;
-        justify-content:space-between;
-        border-bottom:1px solid $navigation_border;      
-      }     
-
-      .navigation:first-child {
-        border:none;
-      }       
- 
-      .navigation {
-        cursor: pointer; 
-        width: 100%;
-        display: flex;
-        font-size: 12px;
-        flex-direction:row;
-        justify-content:center;
-        padding-top: 10px;
-        padding-bottom: 10px;
-        border-left: 1px solid $navigation_border;
-        img {
-          padding-right: 5px;
-          width: 14px; 
-          opacity: 0.8;
-        }
-      }
-
-      .navigation:hover {
-        background-color: $color-complement-2;
-        box-shadow:inset 0px 1px 2px 0px $color-complement-3;
-        img {
-          opacity: 1;
-        }
-      }
-
-      .activated {
-        background-color: $color-complement-2 !important;
-        box-shadow:inset 0px 1px 2px 0px $color-complement-3 !important;
-      }     
     }
   }
 }
