@@ -42,6 +42,7 @@ TaxonWorks::Application.routes.draw do
       get 'settings_for'
       get 'stats'
       get 'recently_created_stats'
+      get 'per_relationship_recent_stats/:relationship', action: :per_relationship_recent_stats, as: :per_relationship_recent_stats
     end
   end
 

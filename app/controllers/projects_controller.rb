@@ -4,7 +4,7 @@ class ProjectsController < ApplicationController
   before_action :require_superuser_sign_in, only: [:show, :edit, :update]
   before_action :can_administer_projects?, only: [:index]
 
-  before_action :set_project, only: [:show, :edit, :update, :destroy, :select, :stats, :recently_created_stats]
+  before_action :set_project, only: [:show, :edit, :update, :destroy, :select, :stats, :recently_created_stats, :per_relationship_recent_stats]
 
   # GET /projects
   # GET /projects.json
@@ -85,6 +85,11 @@ class ProjectsController < ApplicationController
 
   def stats
     Rails.application.eager_load!
+  end
+
+  def per_relationship_recent_stats
+    Rails.application.eager_load!
+    @relationship = params.permit(:relationship)[:relationship]
   end
 
   def list
