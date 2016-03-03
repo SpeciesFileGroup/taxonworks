@@ -676,11 +676,11 @@ describe GeographicItem, type: :model, group: :geo do
       end
 
       specify '::within_radius_of_item returns objects within a specific distance of an object.' do
-        expect(GeographicItem.within_radius_of_item('polygon', @p0, 1000000)).to contain_exactly(@e2, @e3, @e4, @e5, @item_a, @item_b, @item_c, @item_d)
+        expect(GeographicItem.within_radius_of_item(@p0.id, 1000000).where(type: [ 'GeographicItem::Polygon'])).to contain_exactly(@e2, @e3, @e4, @e5, @item_a, @item_b, @item_c, @item_d)
       end
 
       specify '::within_radius_of_item("any", ...)' do
-        expect(GeographicItem.within_radius_of_item('any', @p0, 1000000)).to include(@e2, @e3, @e4, @e5, @item_a, @item_b, @item_c, @item_d)
+        expect(GeographicItem.within_radius_of_item(@p0.id, 1000000)).to include(@e2, @e3, @e4, @e5, @item_a, @item_b, @item_c, @item_d)
       end
 
       specify '::within_radius_of_wkt returns objects within a specific distance of an object.' do

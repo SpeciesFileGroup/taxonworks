@@ -139,6 +139,19 @@
 #   @return [Integer]
 #     the month, from 0-12, that the collecting event ended on 
 #
+# @!attribute cached_level0_geographic_name
+#   @return [String, nil]
+#     the auto-calculated level0 (= country in TaxonWorks) value drawn from GeographicNames, never directly user supplied
+#
+# @!attribute cached_level1_geographic_name
+#   @return [String, nil]
+#     the auto-calculated level1 (typically state/province) value drawn from GeographicNames, never directly user supplied
+#
+# @!attribute cached_level2_geographic_name
+#   @return [String, nil]
+#     the auto-calculated level2 value (e.g. county) drawn from GeographicNames, never directly user supplied
+#
+#
 class CollectingEvent < ActiveRecord::Base
   include Housekeeping
   include Shared::Citable
@@ -294,7 +307,6 @@ class CollectingEvent < ActiveRecord::Base
 
 
   soft_validate(:sv_minimally_check_for_a_label)
-
 
   # @param [String]
   def verbatim_label=(value)
@@ -510,11 +522,24 @@ class CollectingEvent < ActiveRecord::Base
     retval
   end
 
+  def cached_geographic_name_classification
+    h = {}
+    h[:country] = cached_level0_geographic_name if cached_level0_geographic_name
+    h[:state] = cached_level0_geographic_name if cached_level1_geographic_name
+    h[:county] = cached_level0_geographic_name if cached_level2_geographic_name
+    h
+  end
+
+  def has_cached_geographic_names?
+    cached_geographic_name_classification != {}
+  end
+
   # @return [Hash]
   #   classifies this collecting event into  country, state, county categories
   #   TODO: cache this
   def geographic_name_classification 
-    if preferred_georeference
+    return cached_geographic_name_classification if has_cached_geographic_names? 
+    if  preferred_georeference
       # quick
       r = preferred_georeference.geographic_item.quick_geographic_name_hierarchy # almost never the case, UI not setup to do this 
       # slow
@@ -531,7 +556,8 @@ class CollectingEvent < ActiveRecord::Base
       # slowest
       r = GeographicItem.point_inferred_geographic_name_hierarchy(map_center)
     end
-    r
+  
+    cache_geographic_names(r)
   end
 
   # @return [Array of GeographicItems containing this target]
@@ -540,8 +566,12 @@ class CollectingEvent < ActiveRecord::Base
   def containing_geographic_items
     gi_list = []
     if self.georeferences.any?
-      # gather all the GIs which contain this GI or EGI
-      gi_list = GeographicItem.are_contained_in_item('any_poly', self.geographic_items.to_a + self.error_geographic_items.to_a).pluck(:id).uniq
+      # gather all the GIs which contain this GI or EGI 
+      #
+      #  Struck EGI, EGI must contain GI, therefor anything that contains EGI contains GI, threfor containing GI will always be the bigger set
+      #   !! and there was no tests broken
+      # GeographicItem.are_contained_in_item('any_poly', self.geographic_items.to_a).pluck(:id).uniq
+      gi_list = GeographicItem.containing(*geographic_items.pluck(:id)).pluck(:id).uniq 
 
     else
       # use geographic_area only if there are no GIs or EGIs
@@ -921,8 +951,38 @@ class CollectingEvent < ActiveRecord::Base
     end
   end
 
+
+
+  def level0_name
+    return cached_level0_name if cached_level0_name
+    cache_geographic_names[:country]
+  end
+
+  def cached_level1_name
+    return cached_level0_name if cached_level0_name
+    cache_geographic_names[:state]
+  end
+
+  def level1_name
+    return cached_level0_name if cached_level0_name
+    cache_geographic_names[:state]
+  end
+
+  def level2_name
+
+  end
+
+
   protected
 
+  def cache_geographic_names(values = {})
+    values = geographic_name_classification if values.keys.empty?
+    update_attribute(cached_level0_geographic_name: values[:country]) 
+    update_attribute(cached_level1_geographic_name: values[:state]) 
+    update_attribute(cached_level2_geographic_name: values[:county])
+    values
+  end
+  
   # for large imports
   def set_cached
     if verbatim_label.blank?

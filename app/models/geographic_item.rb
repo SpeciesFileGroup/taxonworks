@@ -6,7 +6,6 @@ require 'rgeo'
 #
 # @!attribute point
 #   @return [RGeo::Geographic::ProjectedPointImpl]
-#   @TODO check @return type
 #
 # @!attribute line_string
 #   @return [RGeo::Geographic::ProjectedLineStringImpl]
@@ -14,7 +13,6 @@ require 'rgeo'
 #
 # @!attribute polygon
 #   @return [RGeo::Geographic::ProjectedPolygonImpl]
-#   @TODO check @return type
 #
 # @!attribute multi_point
 #   @return [RGeo::Geographic::ProjectedMultiPointImpl]
@@ -26,7 +24,6 @@ require 'rgeo'
 #
 # @!attribute multi_polygon
 #   @return [RGeo::Geographic::ProjectedMultiPolygonImpl]
-#   @TODO check @return type
 #
 # @!attribute type
 #   @return [String]
@@ -74,109 +71,26 @@ class GeographicItem < ActiveRecord::Base
   scope :geo_with_collecting_event, -> { joins(:collecting_events_through_georeferences) }
   scope :err_with_collecting_event, -> { joins(:georeferences_through_error_geographic_item) }
 
-  # @return [Hash]
-  #   a quick, geographic area hierarchy based approach to
-  #   returning country, state, and county categories
-  #   !! Note this just takes the first referenced GeographicArea, which should be safe most cases
-  def quick_geographic_name_hierarchy
-    v = {}
-    a = geographic_areas.first.try(:geographic_name_classification)
-    v = a unless a.nil?
-    v
-  end
-
-  # @return [Hash]
-  #   a slower, gis-based inference approach to
-  #     returning country, state, and county categories
-  def inferred_geographic_name_hierarchy
-    v = {}
-    (containing_geographic_areas + geographic_areas.limit(1)).each do |a|
-      v.merge!(a.categorize)
-    end
-    v
-  end
-
-  # @return [Hash]
-  #   as per #inferred_geographic_name_hierarchy but for Rgeo point
-  def self.point_inferred_geographic_name_hierarchy(point)
-    GeographicItem.containing_point(point).ordered_by_area.limit(1).first.inferred_geographic_name_hierarchy
-  end
-
-  # @return [Scope]
-  # @param [String] 'ASC' or 'DESC'
-  def self.ordered_by_area(direction = 'ASC')
-    order("ST_Area(#{GeographicItem.geometry_column_case_sql}) #{direction}")
-  end
-
-  # @return [Scope]
-  #   Adds an area_in_meters field, with meters
-  def self.with_area
-    select("ST_Area(#{GeographicItem.geometry_column_case_sql})*POWER(0.3048,2) as area_in_meters")
-  end
-
-  # @return [Scope]
-  #   the Geographic Areas that contain (gis) this geographic item
-  def containing_geographic_areas
-    GeographicArea.joins(:geographic_items).includes(:geographic_area_type)
-      .joins("JOIN (#{GeographicItem.containing(id).to_sql}) j on geographic_items.id = j.id")
-  end
-
-  # @return [Boolean]
-  #   whether stored shape is ST_IsValid
-  def valid_geometry?
-    GeographicItem.with_is_valid_geometry_column(self).first['is_valid']
-  end
-
-  # @return [Array of latitude, longitude]
-  #    the lat, lon of the first point in the GeoItem, see subclass for st_start_point
-  def start_point
-    o = st_start_point
-    [o.y, o.x]
-  end
-
-  # @return [Array]
-  #   the lat, long, as STRINGs for the centroid of this geographic item
-  def center_coords
-    r = GeographicItem.find_by_sql("Select split_part(ST_AsLatLonText(ST_Centroid(#{GeographicItem.geometry_column_case_sql}::geometry), 'D.DDDDDD'), ' ', 1) latitude,
-    split_part(ST_AsLatLonText(ST_Centroid(#{GeographicItem.geometry_column_case_sql}::geometry), 'D.DDDDDD'), ' ', 2) longitude from geographic_items where id = #{id};")[0]
-
-    [r.latitude, r.longitude]
-  end
-
-  #   SELECT round(CAST(
-  #       ST_Distance_Spheroid(ST_Centroid(the_geom), ST_GeomFromText('POINT(-118 38)',4326), 'SPHEROID["WGS 84",6378137,298.257223563]')
-  #         As numeric),2) As dist_meters_spheroid
-  #
-  #    dist_meters_spheroid | dist_meters_sphere | dist_utm11_meters
-  #   ----------------------+--------------------+-------------------
-
-  # @return [String(?)]
-  #   distance in meters from this object to supplied 'geo_object'
-  # @TODO use a geographic_item_id rather than a geo_object
-  def st_distance(geo_object)
-    GeographicItem.where(id: id).pluck("ST_Distance_Spheroid('#{geo_object}','#{geo_object}','#{Gis::SPHEROID}') as distance").first
-  end
-
-  # @return [String]
-  #   a SQL fragment for ST_AsBinary
-  def st_as_binary_sql
-    "ST_AsBinary(#{geo_object_type})"
-  end
-
-  # @return [String]
-  #   a WKT POINT representing the centroid of the geographic item
-  def st_centroid
-    GeographicItem.where(id: to_param).pluck("ST_AsEWKT(ST_Centroid(#{geo_object_type}::geometry))").first.gsub(/SRID=\d*;/, '')
-  end
-
-  # @return [Integer]
-  #   the number of points in the geometry
-  def st_npoints
-    GeographicItem.where(id: id).pluck("ST_NPoints(#{geo_object_type}::geometry)").first
-  end
-
-  # @TODO ? as per http://danshultz.github.io/talks/mastering_activerecord_arel/#/7/1
   class << self
+
+    # @return [Hash]
+    #   as per #inferred_geographic_name_hierarchy but for Rgeo point
+    def point_inferred_geographic_name_hierarchy(point)
+      GeographicItem.containing_point(point).ordered_by_area.limit(1).first.inferred_geographic_name_hierarchy
+    end
+
+    # @return [Scope]
+    # @param [String] 'ASC' or 'DESC'
+    def ordered_by_area(direction = 'ASC')
+      order("ST_Area(#{GeographicItem.geometry_column_case_sql}) #{direction}")
+    end
+
+    # @return [Scope]
+    #   Adds an area_in_meters field, with meters
+    def with_area
+      select("ST_Area(#{GeographicItem.geometry_column_case_sql})*POWER(0.3048,2) as area_in_meters")
+    end
+
 
     # return [Scope]
     #   A scope that limits the result to those GeographicItems that have a collecting event
@@ -268,34 +182,12 @@ class GeographicItem < ActiveRecord::Base
       end
     end
 
-    # @param [String, Geometry]
-    # @return [Scope]
-    # @TODO not used?
-    # def st_intersects(column_name = :multi_polygon, geometry)
-    #   geographic_item = GeographicItem.arel_table
-    #   Arel::Nodes::NamedFunction.new('ST_Intersects', geographic_item[column_name], geometry)
-    # end
-
     # @param [String] column_name
     # @param [GeographicItem] geographic_item
     # @param [Float] distance is measured in meters
     # @return [ActiveRecord::Relation]
-    def within_radius_of_item(column_name, geographic_item, distance) # ultimately it should be geographic_item_id
-      if column_name.downcase == 'any'
-        pieces = []
-
-        DATA_TYPES.each { |column|
-          pieces.push(GeographicItem.within_radius_of_item(column.to_s, geographic_item, distance))
-        }
-
-        GeographicItem.where(id: pieces.flatten.map(&:id))
-      else
-        if check_geo_params(column_name, geographic_item)
-          where("st_distance(#{column_name}, (#{select_geography_sql(geographic_item.to_param, geographic_item.geo_object_type)})) < #{distance}")
-        else
-          where('false')
-        end
-      end
+    def within_radius_of_item(geographic_item_id, distance) # ultimately it should be geographic_item_id
+      where("st_distance(#{geometry_column_case_sql}, (#{select_geography_sql(geographic_item_id)})) < #{distance}")
     end
 
     # @param [String] column_name
@@ -328,8 +220,8 @@ class GeographicItem < ActiveRecord::Base
     # @param [Integer, String]
     # @return [String]
     #   a SQL select statement that returns the geography for the geographic_item with the specified id
-    def select_geography_sql(geographic_item_id, geo_object_type)
-      "SELECT #{geo_object_type} from geographic_items where id = #{geographic_item_id}"
+    def select_geography_sql(geographic_item_id)
+      "SELECT #{GeographicItem.geometry_column_case_sql} from geographic_items where id = #{geographic_item_id}"
     end
 
     # @param [String, GeographicItem]
@@ -597,9 +489,92 @@ class GeographicItem < ActiveRecord::Base
     def excluding_self
       where.not(id: id)
     end
+
+
   end # class << self
 
-  # --- instance methods ---
+  # @return [Hash]
+  #   a quick, geographic area hierarchy based approach to
+  #   returning country, state, and county categories
+  #   !! Note this just takes the first referenced GeographicArea, which should be safe most cases
+  def quick_geographic_name_hierarchy
+    v = {}
+    a = geographic_areas.first.try(:geographic_name_classification)
+    v = a unless a.nil?
+    v
+  end
+
+  # @return [Hash]
+  #   a slower, gis-based inference approach to
+  #     returning country, state, and county categories
+  def inferred_geographic_name_hierarchy
+    v = {}
+    (containing_geographic_areas + geographic_areas.limit(1)).each do |a|
+      v.merge!(a.categorize)
+    end
+    v
+  end
+
+  # @return [Scope]
+  #   the Geographic Areas that contain (gis) this geographic item
+  def containing_geographic_areas
+    GeographicArea.joins(:geographic_items).includes(:geographic_area_type)
+      .joins("JOIN (#{GeographicItem.containing(id).to_sql}) j on geographic_items.id = j.id")
+  end
+
+  # @return [Boolean]
+  #   whether stored shape is ST_IsValid
+  def valid_geometry?
+    GeographicItem.with_is_valid_geometry_column(self).first['is_valid']
+  end
+
+  # @return [Array of latitude, longitude]
+  #    the lat, lon of the first point in the GeoItem, see subclass for #st_start_point
+  def start_point
+    o = st_start_point
+    [o.y, o.x]
+  end
+
+  # @return [Array]
+  #   the lat, long, as STRINGs for the centroid of this geographic item
+  def center_coords
+    r = GeographicItem.find_by_sql("Select split_part(ST_AsLatLonText(ST_Centroid(#{GeographicItem.geometry_column_case_sql}::geometry), 'D.DDDDDD'), ' ', 1) latitude,
+    split_part(ST_AsLatLonText(ST_Centroid(#{GeographicItem.geometry_column_case_sql}::geometry), 'D.DDDDDD'), ' ', 2) longitude from geographic_items where id = #{id};")[0]
+
+    [r.latitude, r.longitude]
+  end
+
+  #   SELECT round(CAST(
+  #       ST_Distance_Spheroid(ST_Centroid(the_geom), ST_GeomFromText('POINT(-118 38)',4326), 'SPHEROID["WGS 84",6378137,298.257223563]')
+  #         As numeric),2) As dist_meters_spheroid
+  #
+  #    dist_meters_spheroid | dist_meters_sphere | dist_utm11_meters
+  #   ----------------------+--------------------+-------------------
+
+  # @return [String(?)]
+  #   distance in meters from this object to supplied 'geo_object'
+  # @TODO use a geographic_item_id rather than a geo_object
+  def st_distance(geo_object)
+    GeographicItem.where(id: id).pluck("ST_Distance_Spheroid('#{geo_object}','#{geo_object}','#{Gis::SPHEROID}') as distance").first
+  end
+
+  # @return [String]
+  #   a SQL fragment for ST_AsBinary
+  def st_as_binary_sql
+    "ST_AsBinary(#{geo_object_type})"
+  end
+
+  # @return [String]
+  #   a WKT POINT representing the centroid of the geographic item
+  def st_centroid
+    GeographicItem.where(id: to_param).pluck("ST_AsEWKT(ST_Centroid(#{geo_object_type}::geometry))").first.gsub(/SRID=\d*;/, '')
+  end
+
+  # @return [Integer]
+  #   the number of points in the geometry
+  def st_npoints
+    GeographicItem.where(id: id).pluck("ST_NPoints(#{geo_object_type}::geometry)").first
+  end
 
   # @return [Symbol]
   #   the geo type (i.e. column like :point, :multipolygon).  References the first-found object, according to the list of DATA_TYPES, or nil

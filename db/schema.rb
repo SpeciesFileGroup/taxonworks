@@ -11,13 +11,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160224151209) do
+ActiveRecord::Schema.define(version: 20160225131911) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
-  enable_extension "fuzzystrmatch"
   enable_extension "hstore"
+  enable_extension "fuzzystrmatch"
 
   create_table "alternate_values", force: :cascade do |t|
     t.text     "value",                            null: false
@@ -236,6 +236,9 @@ ActiveRecord::Schema.define(version: 20160224151209) do
     t.string   "verbatim_date"
     t.integer  "start_date_month"
     t.integer  "end_date_month"
+    t.string   "cached_level0_geographic_name"
+    t.string   "cached_level1_geographic_name"
+    t.string   "cached_level2_geographic_name"
   end
 
   add_index "collecting_events", ["created_by_id"], name: "index_collecting_events_on_created_by_id", using: :btree

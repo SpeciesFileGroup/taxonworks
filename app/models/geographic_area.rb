@@ -224,7 +224,7 @@ class GeographicArea < ActiveRecord::Base
   # @return [Hash]
   #   a key valus pair that classifies this geographic
   #   area into country, state, county categories.
-  #   !! This is an estimation, although likely highly accurate.  It uses assumptions about how data are stored in GeographicAreas
+  #   !! This is an estimation, although likely highly accurate. It uses assumptions about how data are stored in GeographicAreas
   #   to derive additional data, particularly for State
   def categorize
     n = geographic_area_type.name

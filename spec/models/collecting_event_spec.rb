@@ -1,8 +1,8 @@
 require 'rails_helper'
 
 describe CollectingEvent, type: :model, group: :geo do
-  let(:collecting_event) { FactoryGirl.build(:collecting_event) }
-
+  let(:collecting_event) { CollectingEvent.new }
+  
   context 'validation' do
     context 'time start/end' do
       specify 'if time_start_minute provided time_start_hour_required' do
@@ -201,6 +201,13 @@ describe CollectingEvent, type: :model, group: :geo do
       collecting_event.soft_validate
       expect(collecting_event.soft_validations.messages_on(:base).include?(message)).to be_truthy
     end
+  end
+
+  context 'cached/ing geographic names' do
+      let!(:county) { FactoryGirl.create(:valid_geographic_area_stack) }
+
+
+
   end
 
   context '#cached' do
