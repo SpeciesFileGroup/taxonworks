@@ -4,7 +4,7 @@ class ProjectsController < ApplicationController
   before_action :require_superuser_sign_in, only: [:show, :edit, :update]
   before_action :can_administer_projects?, only: [:index]
 
-  before_action :set_project, only: [:show, :edit, :update, :destroy, :select, :stats]
+  before_action :set_project, only: [:show, :edit, :update, :destroy, :select, :stats, :recently_created_stats]
 
   # GET /projects
   # GET /projects.json
@@ -116,6 +116,7 @@ class ProjectsController < ApplicationController
   end
 
   def recently_created_stats
+    redirect_to hub_path, notice: 'Select a project first.' if @project.nil?
     render json: @project.data_breakdown_for_chartkick_recent
   end
 
