@@ -175,7 +175,7 @@ class TaxonName < ActiveRecord::Base
     where(taxon_name_relationships: {type: 'TaxonNameRelationship::SourceClassifiedAs'} ) 
   }, class_name: 'TaxonNameRelationship::SourceClassifiedAs', foreign_key: :subject_taxon_name_id
 
-  has_one :source_classified_as, through: :source_classified_as_relationship, source: :object_taxon_name # source_classified_as_taxon_name
+  has_one :source_classified_as, through: :source_classified_as_relationship, source: :object_taxon_name 
 
   has_many :otus, inverse_of: :taxon_name, dependent: :nullify # :restrict_with_error ?
   has_many :related_taxon_name_relationships, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id, dependent: :destroy
@@ -1106,8 +1106,7 @@ class TaxonName < ActiveRecord::Base
 
   def get_cached_classified_as
     return nil unless self.type == 'Combination' || self.type == 'Protonym'
-
-    c = self.source_classified_as(true)
+    c = self.source_classified_as(false)
     unless c.blank?
       return " (as #{c.name})"
     end
