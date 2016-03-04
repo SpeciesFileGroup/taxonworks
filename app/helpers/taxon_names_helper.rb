@@ -91,24 +91,17 @@ module TaxonNamesHelper
   end
 
   # A previous record link.
+  # TODO: make this smart again!
   def previous_link_taxon_name_browse(taxon_name)
     text = 'Previous'
-    if taxon_name.respond_to?(:project_id)
-      link_object = Protonym.order(lft: :desc).with_project_id(taxon_name.project_id).where(['lft < ?', taxon_name.lft]).limit(1).first
-    else
-      link_object = Protonym.order(lft: :desc).where(['lft < ?', taxon_name.lft]).limit(1).first
-    end
+    link_object = Protonym.where("id < ?", taxon_name.id).with_project_id(sessions_current_project_id).limit(1).first # order(lft: :desc).where(['lft < ?', taxon_name.lft]).limit(1).first
     link_object.nil? ? text : link_to(text, browse_taxon_name_path(link_object.metamorphosize))
   end
 
-  # A next record link.
+  # A next record link. TODO: Make this smart again!
   def next_link_taxon_name_browse(taxon_name)
     text = 'Next'
-    if taxon_name.respond_to?(:project_id)
-      link_object = Protonym.order(lft: :asc).with_project_id(taxon_name.project_id).where(['lft > ?', taxon_name.lft]).limit(1).first
-    else
-      link_object = Protonym.order(lft: :asc).where(['lft > ?', taxon_name.lft]).limit(1).first
-    end
+    link_object = Protonym.where("id > ?", taxon_name.id).with_project_id(sessions_current_project_id).limit(1).first 
     link_object.nil? ? text : link_to(text, browse_taxon_name_path(link_object.metamorphosize))
   end
 end
