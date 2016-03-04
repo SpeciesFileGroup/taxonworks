@@ -1,5 +1,5 @@
 require 'rails_helper'
-describe Combination, :type => :model do
+describe Combination, type: :model, group: :nomenclature do
 
   let(:combination) { Combination.new }
   let(:source_older_than_combination) { FactoryGirl.build(:valid_source_bibtex, year: 1940, author: 'Dmitriev') }
@@ -143,7 +143,7 @@ describe Combination, :type => :model do
       basic_combination.source_classified_as = family
       expect(basic_combination.save).to be_truthy
       expect(basic_combination.all_taxon_name_relationships.count).to be > 0
-      expect(basic_combination.cached_classified_as).to eq(' (as Aidae)')
+      expect(basic_combination.reload.cached_classified_as).to eq(' (as Aidae)')
     end
 
     specify '#earliest_protonym_year' do
