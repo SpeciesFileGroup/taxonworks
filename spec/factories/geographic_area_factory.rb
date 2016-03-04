@@ -50,10 +50,11 @@ FactoryGirl.define do
         parent_state
         county_gat
         # association :geographic_area_type, factory: :county_geographic_area_type
-        after(:build) { |o| 
+        after(:build) { |o|
           o.level2 = o
           o.level1 = o.parent
-          o.level0 = FactoryGirl.build(:level0_geographic_area) 
+          # o.level0 = FactoryGirl.build(:level0_geographic_area)
+          o.level0 = o.parent.parent
         }
       end
 
@@ -63,8 +64,8 @@ FactoryGirl.define do
         parent_country
         state_gat
         # association :geographic_area_type, factory: :state_geographic_area_type
-        after(:build) { |o| 
-          o.level1 = o 
+        after(:build) { |o|
+          o.level1 = o
           o.level0 = o.parent
         }
       end
