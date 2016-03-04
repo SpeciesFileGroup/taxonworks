@@ -112,8 +112,8 @@ class GeographicArea < ActiveRecord::Base
 # this is subtly different, it includes self in present form
   scope :ancestors_and_descendants_of, -> (geographic_area) {
     joins('LEFT OUTER JOIN geographic_area_hierarchies a ON geographic_areas.id = a.descendant_id '  \
-      'LEFT JOIN geographic_area_hierarchies b ON geographic_areas.id = b.ancestor_id').
-      where("(a.ancestor_id = ?) OR (b.descendant_id = ?)", geographic_area.id, geographic_area.id)
+      'LEFT JOIN geographic_area_hierarchies b ON geographic_areas.id = b.ancestor_id')
+      .where("(a.ancestor_id = ?) OR (b.descendant_id = ?)", geographic_area.id, geographic_area.id)
       .uniq
   }
 
