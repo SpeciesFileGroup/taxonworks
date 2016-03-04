@@ -5,6 +5,18 @@ module Workbench::NavigationHelper
     render(partial: '/workbench/navigation/quick_bar') if is_data_controller?
   end
 
+  # Terrible hack to get around a redirect method
+  def sloppy_link(controller_name)
+    l = nil
+    n = controller_name.humanize.downcase
+    begin
+      content_tag(:li, link_to(controller_name.humanize.downcase, url_for(controller: controller_name, action: :index) ))
+    rescue ActionController::UrlGenerationError
+      l = content_tag(:em, n, class: :disabled)
+    end
+    l
+  end
+
   def task_bar
     render(partial: '/workbench/navigation/task_bar') if is_task_controller?
   end
