@@ -16,20 +16,20 @@ ActiveRecord::Schema.define(version: 20160303222753) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
-  enable_extension "hstore"
   enable_extension "fuzzystrmatch"
+  enable_extension "hstore"
 
   create_table "alternate_values", force: :cascade do |t|
-    t.text     "value",                            null: false
-    t.string   "type",                             null: false
+    t.text "value", null: false
+    t.string "type", limit: 255, null: false
     t.integer  "language_id"
-    t.datetime "created_at",                       null: false
-    t.datetime "updated_at",                       null: false
-    t.integer  "created_by_id",                    null: false
-    t.integer  "updated_by_id",                    null: false
-    t.string   "alternate_value_object_attribute"
-    t.integer  "alternate_value_object_id",        null: false
-    t.string   "alternate_value_object_type",      null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.string "alternate_value_object_attribute", limit: 255
+    t.integer "alternate_value_object_id", null: false
+    t.string "alternate_value_object_type", limit: 255, null: false
     t.integer  "project_id"
   end
 
@@ -78,16 +78,16 @@ ActiveRecord::Schema.define(version: 20160303222753) do
   add_index "biocuration_classifications", ["updated_by_id"], name: "index_biocuration_classifications_on_updated_by_id", using: :btree
 
   create_table "biological_associations", force: :cascade do |t|
-    t.integer  "biological_relationship_id",          null: false
-    t.integer  "biological_association_subject_id",   null: false
-    t.string   "biological_association_subject_type", null: false
-    t.integer  "biological_association_object_id",    null: false
-    t.string   "biological_association_object_type",  null: false
-    t.datetime "created_at",                          null: false
-    t.datetime "updated_at",                          null: false
-    t.integer  "created_by_id",                       null: false
-    t.integer  "updated_by_id",                       null: false
-    t.integer  "project_id",                          null: false
+    t.integer "biological_relationship_id", null: false
+    t.integer "biological_association_subject_id", null: false
+    t.string "biological_association_subject_type", limit: 255, null: false
+    t.integer "biological_association_object_id", null: false
+    t.string "biological_association_object_type", limit: 255, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
   end
 
   add_index "biological_associations", ["biological_association_object_id", "biological_association_object_type"], name: "index_biological_associations_on_object_id_and_type", using: :btree
@@ -114,12 +114,12 @@ ActiveRecord::Schema.define(version: 20160303222753) do
   add_index "biological_associations_biological_associations_graphs", ["updated_by_id"], name: "bio_asc_bio_asc_graph_updated_by", using: :btree
 
   create_table "biological_associations_graphs", force: :cascade do |t|
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
-    t.integer  "created_by_id", null: false
-    t.integer  "updated_by_id", null: false
-    t.integer  "project_id",    null: false
-    t.string   "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.string "name", limit: 255
     t.integer  "source_id"
   end
 
@@ -129,14 +129,14 @@ ActiveRecord::Schema.define(version: 20160303222753) do
   add_index "biological_associations_graphs", ["updated_by_id"], name: "index_biological_associations_graphs_on_updated_by_id", using: :btree
 
   create_table "biological_relationship_types", force: :cascade do |t|
-    t.string   "type",                       null: false
-    t.integer  "biological_property_id",     null: false
-    t.integer  "biological_relationship_id", null: false
-    t.datetime "created_at",                 null: false
-    t.datetime "updated_at",                 null: false
-    t.integer  "created_by_id",              null: false
-    t.integer  "updated_by_id",              null: false
-    t.integer  "project_id",                 null: false
+    t.string "type", limit: 255, null: false
+    t.integer "biological_property_id", null: false
+    t.integer "biological_relationship_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
   end
 
   add_index "biological_relationship_types", ["biological_property_id"], name: "index_biological_relationship_types_on_biological_property_id", using: :btree
@@ -147,14 +147,14 @@ ActiveRecord::Schema.define(version: 20160303222753) do
   add_index "biological_relationship_types", ["updated_by_id"], name: "bio_rel_type_updated_by", using: :btree
 
   create_table "biological_relationships", force: :cascade do |t|
-    t.string   "name",          null: false
+    t.string "name", limit: 255, null: false
     t.boolean  "is_transitive"
     t.boolean  "is_reflexive"
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
-    t.integer  "created_by_id", null: false
-    t.integer  "updated_by_id", null: false
-    t.integer  "project_id",    null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
   end
 
   add_index "biological_relationships", ["created_by_id"], name: "bio_rel_created_by", using: :btree
@@ -162,14 +162,14 @@ ActiveRecord::Schema.define(version: 20160303222753) do
   add_index "biological_relationships", ["updated_by_id"], name: "bio_rel_updated_by", using: :btree
 
   create_table "citation_topics", force: :cascade do |t|
-    t.integer  "topic_id",      null: false
-    t.integer  "citation_id",   null: false
-    t.string   "pages"
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
-    t.integer  "created_by_id", null: false
-    t.integer  "updated_by_id", null: false
-    t.integer  "project_id",    null: false
+    t.integer "topic_id", null: false
+    t.integer "citation_id", null: false
+    t.string "pages", limit: 255
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
   end
 
   add_index "citation_topics", ["citation_id"], name: "index_citation_topics_on_citation_id", using: :btree
@@ -179,15 +179,15 @@ ActiveRecord::Schema.define(version: 20160303222753) do
   add_index "citation_topics", ["updated_by_id"], name: "index_citation_topics_on_updated_by_id", using: :btree
 
   create_table "citations", force: :cascade do |t|
-    t.string   "citation_object_type", null: false
-    t.integer  "source_id",            null: false
-    t.datetime "created_at",           null: false
-    t.datetime "updated_at",           null: false
-    t.integer  "created_by_id",        null: false
-    t.integer  "updated_by_id",        null: false
-    t.integer  "project_id",           null: false
-    t.integer  "citation_object_id",   null: false
-    t.string   "pages"
+    t.string "citation_object_type", limit: 255, null: false
+    t.integer "source_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.integer "citation_object_id", null: false
+    t.string "pages", limit: 255
   end
 
   add_index "citations", ["citation_object_id"], name: "index_citations_on_citation_object_id", using: :btree
@@ -201,44 +201,41 @@ ActiveRecord::Schema.define(version: 20160303222753) do
     t.text     "verbatim_label"
     t.text     "print_label"
     t.text     "document_label"
-    t.string   "verbatim_locality"
-    t.string   "verbatim_longitude"
-    t.string   "verbatim_latitude"
-    t.string   "verbatim_geolocation_uncertainty"
-    t.string   "verbatim_trip_identifier"
-    t.string   "verbatim_collectors"
-    t.string   "verbatim_method"
+    t.string "verbatim_locality", limit: 255
+    t.string "verbatim_longitude", limit: 255
+    t.string "verbatim_latitude", limit: 255
+    t.string "verbatim_geolocation_uncertainty", limit: 255
+    t.string "verbatim_trip_identifier", limit: 255
+    t.string "verbatim_collectors", limit: 255
+    t.string "verbatim_method", limit: 255
     t.integer  "geographic_area_id"
     t.decimal  "minimum_elevation"
     t.decimal  "maximum_elevation"
-    t.string   "elevation_precision"
+    t.string "elevation_precision", limit: 255
     t.text     "field_notes"
-    t.string   "md5_of_verbatim_label"
-    t.datetime "created_at",                                 null: false
-    t.datetime "updated_at",                                 null: false
+    t.string "md5_of_verbatim_label", limit: 255
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.text     "cached"
-    t.integer  "created_by_id",                              null: false
-    t.integer  "updated_by_id",                              null: false
-    t.integer  "project_id",                                 null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
     t.integer  "start_date_year"
     t.integer  "end_date_year"
     t.integer  "start_date_day"
     t.integer  "end_date_day"
-    t.string   "verbatim_elevation"
+    t.string "verbatim_elevation", limit: 255
     t.text     "verbatim_habitat"
-    t.string   "verbatim_datum"
+    t.string "verbatim_datum", limit: 255
     t.integer  "time_start_hour",                  limit: 2
     t.integer  "time_start_minute",                limit: 2
     t.integer  "time_start_second",                limit: 2
     t.integer  "time_end_hour",                    limit: 2
     t.integer  "time_end_minute",                  limit: 2
     t.integer  "time_end_second",                  limit: 2
-    t.string   "verbatim_date"
+    t.string "verbatim_date", limit: 255
     t.integer  "start_date_month"
     t.integer  "end_date_month"
-    t.string   "cached_level0_geographic_name"
-    t.string   "cached_level1_geographic_name"
-    t.string   "cached_level2_geographic_name"
   end
 
   add_index "collecting_events", ["created_by_id"], name: "index_collecting_events_on_created_by_id", using: :btree
@@ -255,28 +252,25 @@ ActiveRecord::Schema.define(version: 20160303222753) do
     t.datetime "updated_at",    null: false
   end
 
-  add_index "collection_object_observations", ["created_by_id"], name: "index_collection_object_observations_on_created_by_id", using: :btree
-  add_index "collection_object_observations", ["data"], name: "index_collection_object_observations_on_data", using: :btree
   add_index "collection_object_observations", ["project_id"], name: "index_collection_object_observations_on_project_id", using: :btree
-  add_index "collection_object_observations", ["updated_by_id"], name: "index_collection_object_observations_on_updated_by_id", using: :btree
 
   create_table "collection_objects", force: :cascade do |t|
     t.integer  "total"
-    t.string   "type",                      null: false
-    t.datetime "created_at",                null: false
-    t.datetime "updated_at",                null: false
+    t.string "type", limit: 255, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.integer  "preparation_type_id"
     t.integer  "repository_id"
-    t.integer  "created_by_id",             null: false
-    t.integer  "updated_by_id",             null: false
-    t.integer  "project_id",                null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
     t.text     "buffered_collecting_event"
     t.text     "buffered_determinations"
     t.text     "buffered_other_labels"
     t.integer  "ranged_lot_category_id"
     t.integer  "collecting_event_id"
     t.date     "accessioned_at"
-    t.string   "deaccession_reason"
+    t.string "deaccession_reason", limit: 255
     t.date     "deaccessioned_at"
   end
 
@@ -302,12 +296,12 @@ ActiveRecord::Schema.define(version: 20160303222753) do
     t.integer  "computerization_level"
     t.integer  "number_of_collection_objects"
     t.integer  "number_of_containers"
-    t.integer  "created_by_id",                null: false
-    t.integer  "updated_by_id",                null: false
-    t.integer  "project_id",                   null: false
-    t.datetime "created_at",                   null: false
-    t.datetime "updated_at",                   null: false
-    t.string   "collection_type"
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "collection_type", limit: 255
   end
 
   add_index "collection_profiles", ["collection_type"], name: "index_collection_profiles_on_collection_type", using: :btree
@@ -349,16 +343,16 @@ ActiveRecord::Schema.define(version: 20160303222753) do
   add_index "container_hierarchies", ["descendant_id"], name: "container_desc_idx", using: :btree
 
   create_table "container_items", force: :cascade do |t|
-    t.integer  "container_id",          null: false
-    t.integer  "position",              null: false
-    t.datetime "created_at",            null: false
-    t.datetime "updated_at",            null: false
-    t.integer  "contained_object_id",   null: false
-    t.string   "contained_object_type", null: false
-    t.string   "disposition"
-    t.integer  "created_by_id",         null: false
-    t.integer  "updated_by_id",         null: false
-    t.integer  "project_id",            null: false
+    t.integer "container_id", null: false
+    t.integer "position", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "contained_object_id", null: false
+    t.string "contained_object_type", limit: 255, null: false
+    t.string "disposition", limit: 255
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
   end
 
   add_index "container_items", ["contained_object_id", "contained_object_type"], name: "index_container_items_on_contained_object_id_and_type", using: :btree
@@ -369,16 +363,16 @@ ActiveRecord::Schema.define(version: 20160303222753) do
   add_index "container_items", ["updated_by_id"], name: "index_container_items_on_updated_by_id", using: :btree
 
   create_table "container_labels", force: :cascade do |t|
-    t.text     "label",         null: false
+    t.text "label", null: false
     t.date     "date_printed"
-    t.string   "print_style"
-    t.integer  "position",      null: false
-    t.integer  "created_by_id", null: false
-    t.integer  "updated_by_id", null: false
-    t.integer  "project_id",    null: false
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
-    t.integer  "container_id",  null: false
+    t.string "print_style", limit: 255
+    t.integer "position", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "container_id", null: false
   end
 
   add_index "container_labels", ["container_id"], name: "index_container_labels_on_container_id", using: :btree
@@ -388,16 +382,16 @@ ActiveRecord::Schema.define(version: 20160303222753) do
   add_index "container_labels", ["updated_by_id"], name: "index_container_labels_on_updated_by_id", using: :btree
 
   create_table "containers", force: :cascade do |t|
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.integer  "parent_id"
     t.integer  "depth"
-    t.string   "type",          null: false
-    t.integer  "created_by_id", null: false
-    t.integer  "updated_by_id", null: false
-    t.integer  "project_id",    null: false
-    t.string   "name"
-    t.string   "disposition"
+    t.string "type", limit: 255, null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.string "name", limit: 255
+    t.string "disposition", limit: 255
   end
 
   add_index "containers", ["created_by_id"], name: "index_containers_on_created_by_id", using: :btree
@@ -427,16 +421,16 @@ ActiveRecord::Schema.define(version: 20160303222753) do
   add_index "contents", ["updated_by_id"], name: "index_contents_on_updated_by_id", using: :btree
 
   create_table "controlled_vocabulary_terms", force: :cascade do |t|
-    t.string   "type",          null: false
-    t.string   "name",          null: false
-    t.text     "definition",    null: false
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
-    t.integer  "created_by_id", null: false
-    t.integer  "updated_by_id", null: false
-    t.integer  "project_id",    null: false
-    t.string   "uri"
-    t.string   "uri_relation"
+    t.string "type", limit: 255, null: false
+    t.string "name", limit: 255, null: false
+    t.text "definition", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.string "uri", limit: 255
+    t.string "uri_relation", limit: 255
   end
 
   add_index "controlled_vocabulary_terms", ["created_by_id"], name: "index_controlled_vocabulary_terms_on_created_by_id", using: :btree
@@ -445,17 +439,17 @@ ActiveRecord::Schema.define(version: 20160303222753) do
   add_index "controlled_vocabulary_terms", ["updated_by_id"], name: "index_controlled_vocabulary_terms_on_updated_by_id", using: :btree
 
   create_table "data_attributes", force: :cascade do |t|
-    t.string   "type",                          null: false
-    t.integer  "attribute_subject_id",          null: false
-    t.string   "attribute_subject_type",        null: false
+    t.string "type", limit: 255, null: false
+    t.integer "attribute_subject_id", null: false
+    t.string "attribute_subject_type", limit: 255, null: false
     t.integer  "controlled_vocabulary_term_id"
-    t.string   "import_predicate"
-    t.text     "value",                         null: false
-    t.integer  "created_by_id",                 null: false
-    t.integer  "updated_by_id",                 null: false
+    t.string "import_predicate", limit: 255
+    t.text "value", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
     t.integer  "project_id"
-    t.datetime "created_at",                    null: false
-    t.datetime "updated_at",                    null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   add_index "data_attributes", ["attribute_subject_id", "attribute_subject_type"], name: "index_data_attributes_on_attribute_subject_id_and_type", using: :btree
@@ -467,22 +461,18 @@ ActiveRecord::Schema.define(version: 20160303222753) do
   add_index "data_attributes", ["updated_by_id"], name: "index_data_attributes_on_updated_by_id", using: :btree
 
   create_table "depictions", force: :cascade do |t|
-    t.string   "depiction_object_type", null: false
-    t.integer  "depiction_object_id",   null: false
-    t.integer  "image_id",              null: false
-    t.integer  "created_by_id",         null: false
-    t.integer  "updated_by_id",         null: false
-    t.integer  "project_id",            null: false
-    t.datetime "created_at",            null: false
-    t.datetime "updated_at",            null: false
+    t.string "depiction_object_type", limit: 255, null: false
+    t.integer "depiction_object_id", null: false
+    t.integer "image_id", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
-  add_index "depictions", ["created_by_id"], name: "index_depictions_on_created_by_id", using: :btree
-  add_index "depictions", ["depiction_object_id"], name: "index_depictions_on_depiction_object_id", using: :btree
-  add_index "depictions", ["depiction_object_type"], name: "index_depictions_on_depiction_object_type", using: :btree
   add_index "depictions", ["image_id"], name: "index_depictions_on_image_id", using: :btree
   add_index "depictions", ["project_id"], name: "index_depictions_on_project_id", using: :btree
-  add_index "depictions", ["updated_by_id"], name: "index_depictions_on_updated_by_id", using: :btree
 
   create_table "derived_collection_objects", force: :cascade do |t|
     t.integer  "collection_object_observation_id", null: false
@@ -546,11 +536,11 @@ ActiveRecord::Schema.define(version: 20160303222753) do
   add_index "geographic_area_hierarchies", ["descendant_id"], name: "geographic_area_desc_idx", using: :btree
 
   create_table "geographic_area_types", force: :cascade do |t|
-    t.string   "name",          null: false
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
-    t.integer  "created_by_id", null: false
-    t.integer  "updated_by_id", null: false
+    t.string "name", limit: 255, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
   end
 
   add_index "geographic_area_types", ["created_by_id"], name: "index_geographic_area_types_on_created_by_id", using: :btree
@@ -558,20 +548,20 @@ ActiveRecord::Schema.define(version: 20160303222753) do
   add_index "geographic_area_types", ["updated_by_id"], name: "index_geographic_area_types_on_updated_by_id", using: :btree
 
   create_table "geographic_areas", force: :cascade do |t|
-    t.string   "name",                    null: false
+    t.string "name", limit: 255, null: false
     t.integer  "level0_id"
     t.integer  "level1_id"
     t.integer  "level2_id"
     t.integer  "parent_id"
     t.integer  "geographic_area_type_id"
-    t.datetime "created_at",              null: false
-    t.datetime "updated_at",              null: false
-    t.string   "iso_3166_a2"
-    t.string   "iso_3166_a3"
-    t.string   "tdwgID"
-    t.string   "data_origin",             null: false
-    t.integer  "created_by_id",           null: false
-    t.integer  "updated_by_id",           null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "iso_3166_a2", limit: 255
+    t.string "iso_3166_a3", limit: 255
+    t.string "tdwgID", limit: 255
+    t.string "data_origin", limit: 255, null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
   end
 
   add_index "geographic_areas", ["created_by_id"], name: "index_geographic_areas_on_created_by_id", using: :btree
@@ -584,32 +574,32 @@ ActiveRecord::Schema.define(version: 20160303222753) do
   add_index "geographic_areas", ["updated_by_id"], name: "index_geographic_areas_on_updated_by_id", using: :btree
 
   create_table "geographic_areas_geographic_items", force: :cascade do |t|
-    t.integer  "geographic_area_id", null: false
+    t.integer "geographic_area_id", null: false
     t.integer  "geographic_item_id"
-    t.string   "data_origin"
+    t.string "data_origin", limit: 255
     t.integer  "origin_gid"
-    t.string   "date_valid_from"
-    t.string   "date_valid_to"
-    t.datetime "created_at",         null: false
-    t.datetime "updated_at",         null: false
+    t.string "date_valid_from", limit: 255
+    t.string "date_valid_to", limit: 255
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   add_index "geographic_areas_geographic_items", ["geographic_area_id"], name: "index_geographic_areas_geographic_items_on_geographic_area_id", using: :btree
   add_index "geographic_areas_geographic_items", ["geographic_item_id"], name: "index_geographic_areas_geographic_items_on_geographic_item_id", using: :btree
 
   create_table "geographic_items", force: :cascade do |t|
-    t.datetime  "created_at",                                                                                               null: false
-    t.datetime  "updated_at",                                                                                               null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.geography "point",               limit: {:srid=>4326, :type=>"point", :has_z=>true, :geographic=>true}
     t.geography "line_string",         limit: {:srid=>4326, :type=>"line_string", :has_z=>true, :geographic=>true}
     t.geography "polygon",             limit: {:srid=>4326, :type=>"polygon", :has_z=>true, :geographic=>true}
     t.geography "multi_point",         limit: {:srid=>4326, :type=>"multi_point", :has_z=>true, :geographic=>true}
     t.geography "multi_line_string",   limit: {:srid=>4326, :type=>"multi_line_string", :has_z=>true, :geographic=>true}
     t.geography "multi_polygon",       limit: {:srid=>4326, :type=>"multi_polygon", :has_z=>true, :geographic=>true}
-    t.geography "geometry_collection", limit: {:srid=>4326, :type=>"geometry_collection", :has_z=>true, :geographic=>true}
-    t.integer   "created_by_id",                                                                                            null: false
-    t.integer   "updated_by_id",                                                                                            null: false
-    t.string    "type",                                                                                                     null: false
+    t.geography "geometry_collection", limit: {:srid => 4326, :type => "geometry", :has_z => true, :geographic => true}
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.string "type", limit: 255, null: false
   end
 
   add_index "geographic_items", ["created_by_id"], name: "index_geographic_items_on_created_by_id", using: :btree
@@ -624,21 +614,21 @@ ActiveRecord::Schema.define(version: 20160303222753) do
   add_index "geographic_items", ["updated_by_id"], name: "index_geographic_items_on_updated_by_id", using: :btree
 
   create_table "georeferences", force: :cascade do |t|
-    t.integer  "geographic_item_id",                       null: false
-    t.integer  "collecting_event_id",                      null: false
+    t.integer "geographic_item_id", null: false
+    t.integer "collecting_event_id", null: false
     t.decimal  "error_radius"
     t.decimal  "error_depth"
     t.integer  "error_geographic_item_id"
-    t.string   "type",                                     null: false
+    t.string "type", limit: 255, null: false
     t.integer  "source_id"
-    t.integer  "position",                                 null: false
-    t.datetime "created_at",                               null: false
-    t.datetime "updated_at",                               null: false
-    t.boolean  "is_public",                default: false, null: false
-    t.string   "api_request"
-    t.integer  "created_by_id",                            null: false
-    t.integer  "updated_by_id",                            null: false
-    t.integer  "project_id",                               null: false
+    t.integer "position", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.boolean "is_public", default: false, null: false
+    t.string "api_request", limit: 255
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
     t.boolean  "is_undefined_z"
     t.boolean  "is_median_z"
   end
@@ -654,18 +644,18 @@ ActiveRecord::Schema.define(version: 20160303222753) do
   add_index "georeferences", ["updated_by_id"], name: "index_georeferences_on_updated_by_id", using: :btree
 
   create_table "identifiers", force: :cascade do |t|
-    t.string   "identifier",             null: false
-    t.string   "type",                   null: false
-    t.datetime "created_at",             null: false
-    t.datetime "updated_at",             null: false
+    t.string "identifier", limit: 255, null: false
+    t.string "type", limit: 255, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.integer  "namespace_id"
-    t.integer  "created_by_id",          null: false
-    t.integer  "updated_by_id",          null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
     t.integer  "project_id"
     t.text     "cached"
-    t.integer  "identifier_object_id",   null: false
-    t.string   "identifier_object_type", null: false
-    t.string   "relation"
+    t.integer "identifier_object_id", null: false
+    t.string "identifier_object_type", limit: 255, null: false
+    t.string "relation", limit: 255
     t.integer  "position"
   end
 
@@ -677,19 +667,19 @@ ActiveRecord::Schema.define(version: 20160303222753) do
   add_index "identifiers", ["updated_by_id"], name: "index_identifiers_on_updated_by_id", using: :btree
 
   create_table "images", force: :cascade do |t|
-    t.string   "user_file_name"
+    t.string "user_file_name", limit: 255
     t.integer  "height"
     t.integer  "width"
-    t.string   "image_file_fingerprint"
-    t.integer  "created_by_id",           null: false
-    t.integer  "project_id",              null: false
-    t.datetime "created_at",              null: false
-    t.datetime "updated_at",              null: false
-    t.string   "image_file_file_name"
-    t.string   "image_file_content_type"
+    t.string "image_file_fingerprint", limit: 255
+    t.integer "created_by_id", null: false
+    t.integer "project_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "image_file_file_name", limit: 255
+    t.string "image_file_content_type", limit: 255
     t.integer  "image_file_file_size"
     t.datetime "image_file_updated_at"
-    t.integer  "updated_by_id",           null: false
+    t.integer "updated_by_id", null: false
     t.text     "image_file_meta"
   end
 
@@ -699,37 +689,37 @@ ActiveRecord::Schema.define(version: 20160303222753) do
   add_index "images", ["updated_by_id"], name: "index_images_on_updated_by_id", using: :btree
 
   create_table "imports", force: :cascade do |t|
-    t.string   "name"
+    t.string "name", limit: 255
     t.hstore   "metadata"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
 
   create_table "languages", force: :cascade do |t|
-    t.string   "alpha_3_bibliographic"
-    t.string   "alpha_3_terminologic"
-    t.string   "alpha_2"
-    t.string   "english_name"
-    t.string   "french_name"
-    t.datetime "created_at",            null: false
-    t.datetime "updated_at",            null: false
-    t.integer  "created_by_id",         null: false
-    t.integer  "updated_by_id",         null: false
+    t.string "alpha_3_bibliographic", limit: 255
+    t.string "alpha_3_terminologic", limit: 255
+    t.string "alpha_2", limit: 255
+    t.string "english_name", limit: 255
+    t.string "french_name", limit: 255
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
   end
 
   add_index "languages", ["created_by_id"], name: "index_languages_on_created_by_id", using: :btree
   add_index "languages", ["updated_by_id"], name: "index_languages_on_updated_by_id", using: :btree
 
   create_table "loan_items", force: :cascade do |t|
-    t.integer  "loan_id",                  null: false
+    t.integer "loan_id", null: false
     t.date     "date_returned"
-    t.string   "collection_object_status"
-    t.integer  "position",                 null: false
-    t.integer  "created_by_id",            null: false
-    t.integer  "updated_by_id",            null: false
-    t.integer  "project_id",               null: false
-    t.datetime "created_at",               null: false
-    t.datetime "updated_at",               null: false
+    t.string "collection_object_status", limit: 255
+    t.integer "position", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.integer  "loan_item_object_id"
     t.string   "loan_item_object_type"
     t.integer  "total"
@@ -743,23 +733,23 @@ ActiveRecord::Schema.define(version: 20160303222753) do
 
   create_table "loans", force: :cascade do |t|
     t.date     "date_requested"
-    t.string   "request_method"
+    t.string "request_method", limit: 255
     t.date     "date_sent"
     t.date     "date_received"
     t.date     "date_return_expected"
-    t.string   "recipient_address"
-    t.string   "recipient_email"
-    t.string   "recipient_phone"
+    t.string "recipient_address", limit: 255
+    t.string "recipient_email", limit: 255
+    t.string "recipient_phone", limit: 255
     t.integer  "recipient_country"
-    t.string   "supervisor_email"
-    t.string   "supervisor_phone"
+    t.string "supervisor_email", limit: 255
+    t.string "supervisor_phone", limit: 255
     t.date     "date_closed"
-    t.integer  "created_by_id",        null: false
-    t.integer  "updated_by_id",        null: false
-    t.integer  "project_id",           null: false
-    t.datetime "created_at",           null: false
-    t.datetime "updated_at",           null: false
-    t.string   "recipient_honorarium"
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "recipient_honorarium", limit: 255
   end
 
   add_index "loans", ["created_by_id"], name: "index_loans_on_created_by_id", using: :btree
@@ -767,29 +757,29 @@ ActiveRecord::Schema.define(version: 20160303222753) do
   add_index "loans", ["updated_by_id"], name: "index_loans_on_updated_by_id", using: :btree
 
   create_table "namespaces", force: :cascade do |t|
-    t.string   "institution"
-    t.string   "name",                null: false
-    t.string   "short_name",          null: false
-    t.datetime "created_at",          null: false
-    t.datetime "updated_at",          null: false
-    t.integer  "created_by_id",       null: false
-    t.integer  "updated_by_id",       null: false
-    t.string   "verbatim_short_name"
+    t.string "institution", limit: 255
+    t.string "name", limit: 255, null: false
+    t.string "short_name", limit: 255, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.string "verbatim_short_name", limit: 255
   end
 
   add_index "namespaces", ["created_by_id"], name: "index_namespaces_on_created_by_id", using: :btree
   add_index "namespaces", ["updated_by_id"], name: "index_namespaces_on_updated_by_id", using: :btree
 
   create_table "notes", force: :cascade do |t|
-    t.text     "text",                  null: false
-    t.integer  "note_object_id",        null: false
-    t.string   "note_object_type",      null: false
-    t.string   "note_object_attribute"
-    t.datetime "created_at",            null: false
-    t.datetime "updated_at",            null: false
-    t.integer  "created_by_id",         null: false
-    t.integer  "updated_by_id",         null: false
-    t.integer  "project_id",            null: false
+    t.text "text", null: false
+    t.integer "note_object_id", null: false
+    t.string "note_object_type", limit: 255, null: false
+    t.string "note_object_attribute", limit: 255
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
   end
 
   add_index "notes", ["created_by_id"], name: "index_notes_on_created_by_id", using: :btree
@@ -798,16 +788,16 @@ ActiveRecord::Schema.define(version: 20160303222753) do
   add_index "notes", ["updated_by_id"], name: "index_notes_on_updated_by_id", using: :btree
 
   create_table "otu_page_layout_sections", force: :cascade do |t|
-    t.integer  "otu_page_layout_id",    null: false
-    t.string   "type",                  null: false
-    t.integer  "position",              null: false
+    t.integer "otu_page_layout_id", null: false
+    t.string "type", limit: 255, null: false
+    t.integer "position", null: false
     t.integer  "topic_id"
-    t.string   "dynamic_content_class"
-    t.integer  "created_by_id",         null: false
-    t.integer  "updated_by_id",         null: false
-    t.integer  "project_id",            null: false
-    t.datetime "created_at",            null: false
-    t.datetime "updated_at",            null: false
+    t.string "dynamic_content_class", limit: 255
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   add_index "otu_page_layout_sections", ["created_by_id"], name: "index_otu_page_layout_sections_on_created_by_id", using: :btree
@@ -819,12 +809,12 @@ ActiveRecord::Schema.define(version: 20160303222753) do
   add_index "otu_page_layout_sections", ["updated_by_id"], name: "index_otu_page_layout_sections_on_updated_by_id", using: :btree
 
   create_table "otu_page_layouts", force: :cascade do |t|
-    t.string   "name",          null: false
-    t.integer  "created_by_id", null: false
-    t.integer  "updated_by_id", null: false
-    t.integer  "project_id",    null: false
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
+    t.string "name", limit: 255, null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   add_index "otu_page_layouts", ["created_by_id"], name: "index_otu_page_layouts_on_created_by_id", using: :btree
@@ -832,12 +822,12 @@ ActiveRecord::Schema.define(version: 20160303222753) do
   add_index "otu_page_layouts", ["updated_by_id"], name: "index_otu_page_layouts_on_updated_by_id", using: :btree
 
   create_table "otus", force: :cascade do |t|
-    t.string   "name"
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
-    t.integer  "created_by_id", null: false
-    t.integer  "updated_by_id", null: false
-    t.integer  "project_id",    null: false
+    t.string "name", limit: 255
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
     t.integer  "taxon_name_id"
   end
 
@@ -847,15 +837,15 @@ ActiveRecord::Schema.define(version: 20160303222753) do
   add_index "otus", ["updated_by_id"], name: "index_otus_on_updated_by_id", using: :btree
 
   create_table "people", force: :cascade do |t|
-    t.string   "type",          null: false
-    t.string   "last_name",     null: false
-    t.string   "first_name"
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
-    t.string   "suffix"
-    t.string   "prefix"
-    t.integer  "created_by_id", null: false
-    t.integer  "updated_by_id", null: false
+    t.string "type", limit: 255, null: false
+    t.string "last_name", limit: 255, null: false
+    t.string "first_name", limit: 255
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "suffix", limit: 255
+    t.string "prefix", limit: 255
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
     t.text     "cached"
   end
 
@@ -864,34 +854,34 @@ ActiveRecord::Schema.define(version: 20160303222753) do
   add_index "people", ["updated_by_id"], name: "index_people_on_updated_by_id", using: :btree
 
   create_table "pinboard_items", force: :cascade do |t|
-    t.integer  "pinned_object_id",   null: false
-    t.string   "pinned_object_type", null: false
-    t.integer  "user_id",            null: false
-    t.integer  "project_id",         null: false
-    t.integer  "position",           null: false
+    t.integer "pinned_object_id", null: false
+    t.string "pinned_object_type", limit: 255, null: false
+    t.integer "user_id", null: false
+    t.integer "project_id", null: false
+    t.integer "position", null: false
     t.boolean  "is_inserted"
     t.boolean  "is_cross_project"
     t.integer  "inserted_count"
-    t.integer  "created_by_id",      null: false
-    t.integer  "updated_by_id",      null: false
-    t.datetime "created_at",         null: false
-    t.datetime "updated_at",         null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   add_index "pinboard_items", ["created_by_id"], name: "index_pinboard_items_on_created_by_id", using: :btree
-  add_index "pinboard_items", ["pinned_object_type", "pinned_object_id"], name: "index_pinboard_items_on_pinned_object_type_and_pinned_object_id", using: :btree
+  add_index "pinboard_items", ["pinned_object_id", "pinned_object_type"], name: "index_pinboard_items_on_pinned_object_id_and_pinned_object_type", using: :btree
   add_index "pinboard_items", ["position"], name: "index_pinboard_items_on_position", using: :btree
   add_index "pinboard_items", ["project_id"], name: "index_pinboard_items_on_project_id", using: :btree
   add_index "pinboard_items", ["updated_by_id"], name: "index_pinboard_items_on_updated_by_id", using: :btree
   add_index "pinboard_items", ["user_id"], name: "index_pinboard_items_on_user_id", using: :btree
 
   create_table "preparation_types", force: :cascade do |t|
-    t.string   "name",          null: false
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
-    t.integer  "created_by_id", null: false
-    t.integer  "updated_by_id", null: false
-    t.text     "definition",    null: false
+    t.string "name", limit: 255, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.text "definition", null: false
   end
 
   add_index "preparation_types", ["created_by_id"], name: "index_preparation_types_on_created_by_id", using: :btree
@@ -927,12 +917,12 @@ ActiveRecord::Schema.define(version: 20160303222753) do
   add_index "project_sources", ["updated_by_id"], name: "index_project_sources_on_updated_by_id", using: :btree
 
   create_table "projects", force: :cascade do |t|
-    t.string   "name",               null: false
-    t.datetime "created_at",         null: false
-    t.datetime "updated_at",         null: false
-    t.integer  "created_by_id",      null: false
-    t.integer  "updated_by_id",      null: false
-    t.hstore   "workbench_settings", null: false
+    t.string "name", limit: 255, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.hstore "workbench_settings", null: false
   end
 
   add_index "projects", ["created_by_id"], name: "index_projects_on_created_by_id", using: :btree
@@ -958,14 +948,14 @@ ActiveRecord::Schema.define(version: 20160303222753) do
   add_index "public_contents", ["updated_by_id"], name: "index_public_contents_on_updated_by_id", using: :btree
 
   create_table "ranged_lot_categories", force: :cascade do |t|
-    t.string   "name",          null: false
-    t.integer  "minimum_value", null: false
+    t.string "name", limit: 255, null: false
+    t.integer "minimum_value", null: false
     t.integer  "maximum_value"
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
-    t.integer  "created_by_id", null: false
-    t.integer  "updated_by_id", null: false
-    t.integer  "project_id",    null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
   end
 
   add_index "ranged_lot_categories", ["created_by_id"], name: "index_ranged_lot_categories_on_created_by_id", using: :btree
@@ -973,15 +963,15 @@ ActiveRecord::Schema.define(version: 20160303222753) do
   add_index "ranged_lot_categories", ["updated_by_id"], name: "index_ranged_lot_categories_on_updated_by_id", using: :btree
 
   create_table "repositories", force: :cascade do |t|
-    t.string   "name",                 null: false
-    t.string   "url"
-    t.string   "acronym"
-    t.string   "status"
-    t.string   "institutional_LSID"
-    t.datetime "created_at",           null: false
-    t.datetime "updated_at",           null: false
-    t.integer  "created_by_id",        null: false
-    t.integer  "updated_by_id",        null: false
+    t.string "name", limit: 255, null: false
+    t.string "url", limit: 255
+    t.string "acronym", limit: 255
+    t.string "status", limit: 255
+    t.string "institutional_LSID", limit: 255
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
     t.boolean  "is_index_herbariorum"
   end
 
@@ -989,15 +979,15 @@ ActiveRecord::Schema.define(version: 20160303222753) do
   add_index "repositories", ["updated_by_id"], name: "index_repositories_on_updated_by_id", using: :btree
 
   create_table "roles", force: :cascade do |t|
-    t.integer  "person_id",        null: false
-    t.string   "type",             null: false
-    t.integer  "role_object_id",   null: false
-    t.string   "role_object_type", null: false
-    t.integer  "position",         null: false
-    t.datetime "created_at",       null: false
-    t.datetime "updated_at",       null: false
-    t.integer  "created_by_id",    null: false
-    t.integer  "updated_by_id",    null: false
+    t.integer "person_id", null: false
+    t.string "type", limit: 255, null: false
+    t.integer "role_object_id", null: false
+    t.string "role_object_type", limit: 255, null: false
+    t.integer "position", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
     t.integer  "project_id"
   end
 
@@ -1010,13 +1000,13 @@ ActiveRecord::Schema.define(version: 20160303222753) do
   add_index "roles", ["updated_by_id"], name: "index_roles_on_updated_by_id", using: :btree
 
   create_table "serial_chronologies", force: :cascade do |t|
-    t.integer  "preceding_serial_id",  null: false
-    t.integer  "succeeding_serial_id", null: false
-    t.integer  "created_by_id",        null: false
-    t.datetime "created_at",           null: false
-    t.datetime "updated_at",           null: false
-    t.integer  "updated_by_id",        null: false
-    t.string   "type",                 null: false
+    t.integer "preceding_serial_id", null: false
+    t.integer "succeeding_serial_id", null: false
+    t.integer "created_by_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "updated_by_id", null: false
+    t.string "type", limit: 255, null: false
   end
 
   add_index "serial_chronologies", ["created_by_id"], name: "index_serial_chronologies_on_created_by_id", using: :btree
@@ -1026,17 +1016,17 @@ ActiveRecord::Schema.define(version: 20160303222753) do
   add_index "serial_chronologies", ["updated_by_id"], name: "index_serial_chronologies_on_updated_by_id", using: :btree
 
   create_table "serials", force: :cascade do |t|
-    t.integer  "created_by_id",                       null: false
-    t.integer  "updated_by_id",                       null: false
-    t.datetime "created_at",                          null: false
-    t.datetime "updated_at",                          null: false
-    t.string   "place_published"
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "place_published", limit: 255
     t.integer  "primary_language_id"
     t.integer  "first_year_of_issue",       limit: 2
     t.integer  "last_year_of_issue",        limit: 2
     t.integer  "translated_from_serial_id"
     t.text     "publisher"
-    t.text     "name",                                null: false
+    t.text "name", null: false
   end
 
   add_index "serials", ["created_by_id"], name: "index_serials_on_created_by_id", using: :btree
@@ -1046,49 +1036,49 @@ ActiveRecord::Schema.define(version: 20160303222753) do
 
   create_table "sources", force: :cascade do |t|
     t.integer  "serial_id"
-    t.string   "address"
-    t.string   "annote"
-    t.string   "booktitle"
-    t.string   "chapter"
-    t.string   "crossref"
-    t.string   "edition"
-    t.string   "editor"
-    t.string   "howpublished"
-    t.string   "institution"
-    t.string   "journal"
-    t.string   "key"
-    t.string   "month"
-    t.string   "note"
-    t.string   "number"
-    t.string   "organization"
-    t.string   "pages"
-    t.string   "publisher"
-    t.string   "school"
-    t.string   "series"
+    t.string "address", limit: 255
+    t.string "annote", limit: 255
+    t.string "booktitle", limit: 255
+    t.string "chapter", limit: 255
+    t.string "crossref", limit: 255
+    t.string "edition", limit: 255
+    t.string "editor", limit: 255
+    t.string "howpublished", limit: 255
+    t.string "institution", limit: 255
+    t.string "journal", limit: 255
+    t.string "key", limit: 255
+    t.string "month", limit: 255
+    t.string "note", limit: 255
+    t.string "number", limit: 255
+    t.string "organization", limit: 255
+    t.string "pages", limit: 255
+    t.string "publisher", limit: 255
+    t.string "school", limit: 255
+    t.string "series", limit: 255
     t.text     "title"
-    t.string   "type",                               null: false
-    t.string   "volume"
-    t.string   "doi"
+    t.string "type", limit: 255, null: false
+    t.string "volume", limit: 255
+    t.string "doi", limit: 255
     t.text     "abstract"
     t.text     "copyright"
-    t.string   "language"
-    t.string   "stated_year"
-    t.string   "verbatim"
-    t.datetime "created_at",                         null: false
-    t.datetime "updated_at",                         null: false
-    t.string   "bibtex_type"
-    t.integer  "created_by_id",                      null: false
-    t.integer  "updated_by_id",                      null: false
+    t.string "language", limit: 255
+    t.string "stated_year", limit: 255
+    t.string "verbatim", limit: 255
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "bibtex_type", limit: 255
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
     t.integer  "day",                      limit: 2
     t.integer  "year",                     limit: 2
-    t.string   "isbn"
-    t.string   "issn"
+    t.string "isbn", limit: 255
+    t.string "issn", limit: 255
     t.text     "verbatim_contents"
     t.text     "verbatim_keywords"
     t.integer  "language_id"
-    t.string   "translator"
-    t.string   "year_suffix"
-    t.string   "url"
+    t.string "translator", limit: 255
+    t.string "year_suffix", limit: 255
+    t.string "url", limit: 255
     t.text     "author"
     t.text     "cached"
     t.text     "cached_author_string"
@@ -1141,16 +1131,16 @@ ActiveRecord::Schema.define(version: 20160303222753) do
   add_index "tagged_section_keywords", ["updated_by_id"], name: "index_tagged_section_keywords_on_updated_by_id", using: :btree
 
   create_table "tags", force: :cascade do |t|
-    t.integer  "keyword_id",           null: false
-    t.integer  "tag_object_id",        null: false
-    t.string   "tag_object_type",      null: false
-    t.string   "tag_object_attribute"
-    t.datetime "created_at",           null: false
-    t.datetime "updated_at",           null: false
-    t.integer  "created_by_id",        null: false
-    t.integer  "updated_by_id",        null: false
-    t.integer  "project_id",           null: false
-    t.integer  "position",             null: false
+    t.integer "keyword_id", null: false
+    t.integer "tag_object_id", null: false
+    t.string "tag_object_type", limit: 255, null: false
+    t.string "tag_object_attribute", limit: 255
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.integer "position", null: false
   end
 
   add_index "tags", ["created_by_id"], name: "index_tags_on_created_by_id", using: :btree
@@ -1182,13 +1172,13 @@ ActiveRecord::Schema.define(version: 20160303222753) do
   add_index "taxon_determinations", ["updated_by_id"], name: "index_taxon_determinations_on_updated_by_id", using: :btree
 
   create_table "taxon_name_classifications", force: :cascade do |t|
-    t.integer  "taxon_name_id", null: false
-    t.string   "type",          null: false
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
-    t.integer  "created_by_id", null: false
-    t.integer  "updated_by_id", null: false
-    t.integer  "project_id",    null: false
+    t.integer "taxon_name_id", null: false
+    t.string "type", limit: 255, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
   end
 
   add_index "taxon_name_classifications", ["created_by_id"], name: "index_taxon_name_classifications_on_created_by_id", using: :btree
@@ -1207,14 +1197,14 @@ ActiveRecord::Schema.define(version: 20160303222753) do
   add_index "taxon_name_hierarchies", ["descendant_id"], name: "taxon_name_desc_idx", using: :btree
 
   create_table "taxon_name_relationships", force: :cascade do |t|
-    t.integer  "subject_taxon_name_id", null: false
-    t.integer  "object_taxon_name_id",  null: false
-    t.string   "type",                  null: false
-    t.datetime "created_at",            null: false
-    t.datetime "updated_at",            null: false
-    t.integer  "created_by_id",         null: false
-    t.integer  "updated_by_id",         null: false
-    t.integer  "project_id",            null: false
+    t.integer "subject_taxon_name_id", null: false
+    t.integer "object_taxon_name_id", null: false
+    t.string "type", limit: 255, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
     t.integer  "source_id"
   end
 
@@ -1227,33 +1217,33 @@ ActiveRecord::Schema.define(version: 20160303222753) do
   add_index "taxon_name_relationships", ["updated_by_id"], name: "index_taxon_name_relationships_on_updated_by_id", using: :btree
 
   create_table "taxon_names", force: :cascade do |t|
-    t.string   "name"
+    t.string "name", limit: 255
     t.integer  "parent_id"
-    t.string   "cached_html",                                   null: false
-    t.string   "cached_author_year"
-    t.string   "cached_higher_classification"
+    t.string "cached_html", limit: 255, null: false
+    t.string "cached_author_year", limit: 255
+    t.string "cached_higher_classification", limit: 255
     t.integer  "source_id"
-    t.datetime "created_at",                                    null: false
-    t.datetime "updated_at",                                    null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.integer  "year_of_publication"
-    t.string   "verbatim_author"
-    t.string   "rank_class"
-    t.string   "type",                                          null: false
-    t.integer  "created_by_id",                                 null: false
-    t.integer  "updated_by_id",                                 null: false
-    t.integer  "project_id",                                    null: false
-    t.string   "cached_original_combination"
-    t.string   "cached_secondary_homonym"
-    t.string   "cached_primary_homonym"
-    t.string   "cached_secondary_homonym_alternative_spelling"
-    t.string   "cached_primary_homonym_alternative_spelling"
+    t.string "verbatim_author", limit: 255
+    t.string "rank_class", limit: 255
+    t.string "type", limit: 255, null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.string "cached_original_combination", limit: 255
+    t.string "cached_secondary_homonym", limit: 255
+    t.string "cached_primary_homonym", limit: 255
+    t.string "cached_secondary_homonym_alternative_spelling", limit: 255
+    t.string "cached_primary_homonym_alternative_spelling", limit: 255
     t.boolean  "cached_misspelling"
-    t.string   "masculine_name"
-    t.string   "feminine_name"
-    t.string   "neuter_name"
-    t.string   "cached_classified_as"
-    t.string   "cached"
-    t.string   "verbatim_name"
+    t.string "masculine_name", limit: 255
+    t.string "feminine_name", limit: 255
+    t.string "neuter_name", limit: 255
+    t.string "cached_classified_as", limit: 255
+    t.string "cached", limit: 255
+    t.string "verbatim_name", limit: 255
     t.integer  "cached_valid_taxon_name_id"
   end
 
@@ -1269,15 +1259,15 @@ ActiveRecord::Schema.define(version: 20160303222753) do
     t.integer  "project_id"
     t.integer  "created_by_id"
     t.integer  "updated_by_id"
-    t.string   "string"
+    t.string "string", limit: 255
     t.boolean  "boolean"
     t.text     "text"
     t.integer  "integer"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "type"
+    t.string "type", limit: 255
     t.integer  "sti_id"
-    t.string   "sti_type"
+    t.string "sti_type", limit: 255
   end
 
   add_index "test_classes", ["created_by_id"], name: "index_test_classes_on_created_by_id", using: :btree
@@ -1285,15 +1275,15 @@ ActiveRecord::Schema.define(version: 20160303222753) do
   add_index "test_classes", ["updated_by_id"], name: "index_test_classes_on_updated_by_id", using: :btree
 
   create_table "type_materials", force: :cascade do |t|
-    t.integer  "protonym_id",          null: false
-    t.integer  "biological_object_id", null: false
-    t.string   "type_type",            null: false
+    t.integer "protonym_id", null: false
+    t.integer "biological_object_id", null: false
+    t.string "type_type", limit: 255, null: false
     t.integer  "source_id"
-    t.integer  "created_by_id",        null: false
-    t.integer  "updated_by_id",        null: false
-    t.integer  "project_id",           null: false
-    t.datetime "created_at",           null: false
-    t.datetime "updated_at",           null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   add_index "type_materials", ["biological_object_id"], name: "index_type_materials_on_biological_object_id", using: :btree
@@ -1305,26 +1295,26 @@ ActiveRecord::Schema.define(version: 20160303222753) do
   add_index "type_materials", ["updated_by_id"], name: "index_type_materials_on_updated_by_id", using: :btree
 
   create_table "users", force: :cascade do |t|
-    t.string   "email",                                         null: false
-    t.string   "password_digest",                               null: false
-    t.datetime "created_at",                                    null: false
-    t.datetime "updated_at",                                    null: false
-    t.string   "remember_token"
+    t.string "email", limit: 255, null: false
+    t.string "password_digest", limit: 255, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "remember_token", limit: 255
     t.integer  "created_by_id"
     t.integer  "updated_by_id"
     t.boolean  "is_administrator"
-    t.string   "password_reset_token"
+    t.string "password_reset_token", limit: 255
     t.datetime "password_reset_token_date"
-    t.string   "name",                                          null: false
+    t.string "name", limit: 255, null: false
     t.datetime "current_sign_in_at"
     t.datetime "last_sign_in_at"
-    t.string   "current_sign_in_ip"
-    t.string   "last_sign_in_ip"
-    t.text     "hub_tab_order",                 default: [],                 array: true
-    t.string   "api_access_token"
-    t.boolean  "is_flagged_for_password_reset", default: false
-    t.json     "footprints",                    default: {}
-    t.integer  "sign_in_count",                 default: 0
+    t.string "current_sign_in_ip", limit: 255
+    t.string "last_sign_in_ip", limit: 255
+    t.text "hub_tab_order", default: [], array: true
+    t.string "api_access_token", limit: 255
+    t.boolean "is_flagged_for_password_reset", default: false
+    t.json "footprints", default: {}
+    t.integer "sign_in_count", default: 0
     t.json     "hub_favorites"
   end
 
@@ -1342,252 +1332,32 @@ ActiveRecord::Schema.define(version: 20160303222753) do
   add_index "version_associations", ["version_id"], name: "index_version_associations_on_version_id", using: :btree
 
   create_table "versions", force: :cascade do |t|
-    t.string   "item_type",      null: false
-    t.integer  "item_id",        null: false
-    t.string   "event",          null: false
-    t.string   "whodunnit"
+    t.string "item_type", limit: 255, null: false
+    t.integer "item_id", null: false
+    t.string "event", limit: 255, null: false
+    t.string "whodunnit", limit: 255
     t.text     "object"
-    t.datetime "created_at",     null: false
+    t.datetime "created_at", null: false
     t.integer  "transaction_id"
   end
 
   add_index "versions", ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id", using: :btree
   add_index "versions", ["transaction_id"], name: "index_versions_on_transaction_id", using: :btree
 
-  add_foreign_key "alternate_values", "languages", name: "alternate_values_language_id_fkey"
-  add_foreign_key "alternate_values", "projects", name: "alternate_values_project_id_fkey"
-  add_foreign_key "alternate_values", "users", column: "created_by_id", name: "alternate_values_created_by_id_fkey"
-  add_foreign_key "alternate_values", "users", column: "updated_by_id", name: "alternate_values_updated_by_id_fkey"
-  add_foreign_key "asserted_distributions", "geographic_areas", name: "asserted_distributions_geographic_area_id_fkey"
-  add_foreign_key "asserted_distributions", "otus", name: "asserted_distributions_otu_id_fkey"
-  add_foreign_key "asserted_distributions", "projects", name: "asserted_distributions_project_id_fkey"
-  add_foreign_key "asserted_distributions", "sources", name: "asserted_distributions_source_id_fkey"
-  add_foreign_key "asserted_distributions", "users", column: "created_by_id", name: "asserted_distributions_created_by_id_fkey"
-  add_foreign_key "asserted_distributions", "users", column: "updated_by_id", name: "asserted_distributions_updated_by_id_fkey"
-  add_foreign_key "biocuration_classifications", "collection_objects", column: "biological_collection_object_id", name: "biocuration_classifications_biological_collection_object_i_fkey"
-  add_foreign_key "biocuration_classifications", "controlled_vocabulary_terms", column: "biocuration_class_id", name: "biocuration_classifications_biocuration_class_id_fkey"
-  add_foreign_key "biocuration_classifications", "projects", name: "biocuration_classifications_project_id_fkey"
-  add_foreign_key "biocuration_classifications", "users", column: "created_by_id", name: "biocuration_classifications_created_by_id_fkey"
-  add_foreign_key "biocuration_classifications", "users", column: "updated_by_id", name: "biocuration_classifications_updated_by_id_fkey"
-  add_foreign_key "biological_associations", "biological_relationships", name: "biological_associations_biological_relationship_id_fkey"
-  add_foreign_key "biological_associations", "projects", name: "biological_associations_project_id_fkey"
-  add_foreign_key "biological_associations", "users", column: "created_by_id", name: "biological_associations_created_by_id_fkey"
-  add_foreign_key "biological_associations", "users", column: "updated_by_id", name: "biological_associations_updated_by_id_fkey"
-  add_foreign_key "biological_associations_biological_associations_graphs", "biological_associations", name: "biological_associations_biologic_biological_association_id_fkey"
-  add_foreign_key "biological_associations_biological_associations_graphs", "biological_associations_graphs", name: "biological_associations_biolo_biological_associations_grap_fkey"
-  add_foreign_key "biological_associations_biological_associations_graphs", "projects", name: "biological_associations_biological_associations_project_id_fkey"
-  add_foreign_key "biological_associations_biological_associations_graphs", "users", column: "created_by_id", name: "biological_associations_biological_associati_created_by_id_fkey"
-  add_foreign_key "biological_associations_biological_associations_graphs", "users", column: "updated_by_id", name: "biological_associations_biological_associati_updated_by_id_fkey"
-  add_foreign_key "biological_associations_graphs", "projects", name: "biological_associations_graphs_project_id_fkey"
-  add_foreign_key "biological_associations_graphs", "sources", name: "biological_associations_graphs_source_id_fkey"
-  add_foreign_key "biological_associations_graphs", "users", column: "created_by_id", name: "biological_associations_graphs_created_by_id_fkey"
-  add_foreign_key "biological_associations_graphs", "users", column: "updated_by_id", name: "biological_associations_graphs_updated_by_id_fkey"
-  add_foreign_key "biological_relationship_types", "biological_relationships", name: "biological_relationship_types_biological_relationship_id_fkey"
-  add_foreign_key "biological_relationship_types", "controlled_vocabulary_terms", column: "biological_property_id", name: "biological_relationship_types_biological_property_id_fkey"
-  add_foreign_key "biological_relationship_types", "projects", name: "biological_relationship_types_project_id_fkey"
-  add_foreign_key "biological_relationship_types", "users", column: "created_by_id", name: "biological_relationship_types_created_by_id_fkey"
-  add_foreign_key "biological_relationship_types", "users", column: "updated_by_id", name: "biological_relationship_types_updated_by_id_fkey"
-  add_foreign_key "biological_relationships", "projects", name: "biological_relationships_project_id_fkey"
-  add_foreign_key "biological_relationships", "users", column: "created_by_id", name: "biological_relationships_created_by_id_fkey"
-  add_foreign_key "biological_relationships", "users", column: "updated_by_id", name: "biological_relationships_updated_by_id_fkey"
-  add_foreign_key "citation_topics", "citations", name: "citation_topics_citation_id_fkey"
-  add_foreign_key "citation_topics", "controlled_vocabulary_terms", column: "topic_id", name: "citation_topics_topic_id_fkey"
-  add_foreign_key "citation_topics", "projects", name: "citation_topics_project_id_fkey"
-  add_foreign_key "citation_topics", "users", column: "created_by_id", name: "citation_topics_created_by_id_fkey"
-  add_foreign_key "citation_topics", "users", column: "updated_by_id", name: "citation_topics_updated_by_id_fkey"
-  add_foreign_key "citations", "projects", name: "citations_project_id_fkey"
-  add_foreign_key "citations", "sources", name: "citations_source_id_fkey"
-  add_foreign_key "citations", "users", column: "created_by_id", name: "citations_created_by_id_fkey"
-  add_foreign_key "citations", "users", column: "updated_by_id", name: "citations_updated_by_id_fkey"
-  add_foreign_key "collecting_events", "geographic_areas", name: "collecting_events_geographic_area_id_fkey"
-  add_foreign_key "collecting_events", "projects", name: "collecting_events_project_id_fkey"
-  add_foreign_key "collecting_events", "users", column: "created_by_id", name: "collecting_events_created_by_id_fkey"
-  add_foreign_key "collecting_events", "users", column: "updated_by_id", name: "collecting_events_updated_by_id_fkey"
-  add_foreign_key "collection_objects", "collecting_events", name: "collection_objects_collecting_event_id_fkey"
-  add_foreign_key "collection_objects", "preparation_types", name: "collection_objects_preparation_type_id_fkey"
-  add_foreign_key "collection_objects", "projects", name: "collection_objects_project_id_fkey"
-  add_foreign_key "collection_objects", "ranged_lot_categories", name: "collection_objects_ranged_lot_category_id_fkey"
-  add_foreign_key "collection_objects", "repositories", name: "collection_objects_repository_id_fkey"
-  add_foreign_key "collection_objects", "users", column: "created_by_id", name: "collection_objects_created_by_id_fkey"
-  add_foreign_key "collection_objects", "users", column: "updated_by_id", name: "collection_objects_updated_by_id_fkey"
-  add_foreign_key "collection_profiles", "containers", name: "collection_profiles_container_id_fkey"
-  add_foreign_key "collection_profiles", "otus", name: "collection_profiles_otu_id_fkey"
-  add_foreign_key "collection_profiles", "projects", name: "collection_profiles_project_id_fkey"
-  add_foreign_key "collection_profiles", "users", column: "created_by_id", name: "collection_profiles_created_by_id_fkey"
-  add_foreign_key "collection_profiles", "users", column: "updated_by_id", name: "collection_profiles_updated_by_id_fkey"
   add_foreign_key "common_names", "geographic_areas"
   add_foreign_key "common_names", "languages"
   add_foreign_key "common_names", "otus"
   add_foreign_key "common_names", "projects"
   add_foreign_key "common_names", "users", column: "created_by_id"
   add_foreign_key "common_names", "users", column: "updated_by_id"
-  add_foreign_key "container_items", "containers", name: "container_items_container_id_fkey"
-  add_foreign_key "container_items", "projects", name: "container_items_project_id_fkey"
-  add_foreign_key "container_items", "users", column: "created_by_id", name: "container_items_created_by_id_fkey"
-  add_foreign_key "container_items", "users", column: "updated_by_id", name: "container_items_updated_by_id_fkey"
-  add_foreign_key "container_labels", "containers", name: "container_labels_container_id_fkey"
-  add_foreign_key "container_labels", "projects", name: "container_labels_project_id_fkey"
-  add_foreign_key "container_labels", "users", column: "created_by_id", name: "container_labels_created_by_id_fkey"
-  add_foreign_key "container_labels", "users", column: "updated_by_id", name: "container_labels_updated_by_id_fkey"
-  add_foreign_key "containers", "containers", column: "parent_id", name: "containers_parent_id_fkey"
-  add_foreign_key "containers", "projects", name: "containers_project_id_fkey"
-  add_foreign_key "containers", "users", column: "created_by_id", name: "containers_created_by_id_fkey"
-  add_foreign_key "containers", "users", column: "updated_by_id", name: "containers_updated_by_id_fkey"
-  add_foreign_key "contents", "controlled_vocabulary_terms", column: "topic_id", name: "contents_topic_id_fkey"
-  add_foreign_key "contents", "otus", name: "contents_otu_id_fkey"
-  add_foreign_key "contents", "projects", name: "contents_project_id_fkey"
-  add_foreign_key "contents", "users", column: "created_by_id", name: "contents_created_by_id_fkey"
-  add_foreign_key "contents", "users", column: "updated_by_id", name: "contents_updated_by_id_fkey"
-  add_foreign_key "controlled_vocabulary_terms", "projects", name: "controlled_vocabulary_terms_project_id_fkey"
-  add_foreign_key "controlled_vocabulary_terms", "users", column: "created_by_id", name: "controlled_vocabulary_terms_created_by_id_fkey"
-  add_foreign_key "controlled_vocabulary_terms", "users", column: "updated_by_id", name: "controlled_vocabulary_terms_updated_by_id_fkey"
-  add_foreign_key "data_attributes", "controlled_vocabulary_terms", name: "data_attributes_controlled_vocabulary_term_id_fkey"
-  add_foreign_key "data_attributes", "projects", name: "data_attributes_project_id_fkey"
-  add_foreign_key "data_attributes", "users", column: "created_by_id", name: "data_attributes_created_by_id_fkey"
-  add_foreign_key "data_attributes", "users", column: "updated_by_id", name: "data_attributes_updated_by_id_fkey"
   add_foreign_key "documentation", "documents"
   add_foreign_key "documentation", "projects"
   add_foreign_key "documentation", "users", column: "created_by_id"
   add_foreign_key "documentation", "users", column: "updated_by_id"
   add_foreign_key "documents", "users", column: "created_by_id"
   add_foreign_key "documents", "users", column: "updated_by_id"
-  add_foreign_key "geographic_area_types", "users", column: "created_by_id", name: "geographic_area_types_created_by_id_fkey"
-  add_foreign_key "geographic_area_types", "users", column: "updated_by_id", name: "geographic_area_types_updated_by_id_fkey"
-  add_foreign_key "geographic_areas", "geographic_area_types", name: "geographic_areas_geographic_area_type_id_fkey"
-  add_foreign_key "geographic_areas", "geographic_areas", column: "level0_id", name: "geographic_areas_level0_id_fkey"
-  add_foreign_key "geographic_areas", "geographic_areas", column: "level1_id", name: "geographic_areas_level1_id_fkey"
-  add_foreign_key "geographic_areas", "geographic_areas", column: "level2_id", name: "geographic_areas_level2_id_fkey"
-  add_foreign_key "geographic_areas", "geographic_areas", column: "parent_id", name: "geographic_areas_parent_id_fkey"
-  add_foreign_key "geographic_areas", "users", column: "created_by_id", name: "geographic_areas_created_by_id_fkey"
-  add_foreign_key "geographic_areas", "users", column: "updated_by_id", name: "geographic_areas_updated_by_id_fkey"
-  add_foreign_key "geographic_areas_geographic_items", "geographic_areas", name: "geographic_areas_geographic_items_geographic_area_id_fkey"
-  add_foreign_key "geographic_areas_geographic_items", "geographic_items", name: "geographic_areas_geographic_items_geographic_item_id_fkey"
-  add_foreign_key "geographic_items", "users", column: "created_by_id", name: "geographic_items_created_by_id_fkey"
-  add_foreign_key "geographic_items", "users", column: "updated_by_id", name: "geographic_items_updated_by_id_fkey"
-  add_foreign_key "georeferences", "collecting_events", name: "georeferences_collecting_event_id_fkey"
-  add_foreign_key "georeferences", "geographic_items", column: "error_geographic_item_id", name: "georeferences_error_geographic_item_id_fkey"
-  add_foreign_key "georeferences", "geographic_items", name: "georeferences_geographic_item_id_fkey"
-  add_foreign_key "georeferences", "projects", name: "georeferences_project_id_fkey"
-  add_foreign_key "georeferences", "sources", name: "georeferences_source_id_fkey"
-  add_foreign_key "georeferences", "users", column: "created_by_id", name: "georeferences_created_by_id_fkey"
-  add_foreign_key "georeferences", "users", column: "updated_by_id", name: "georeferences_updated_by_id_fkey"
-  add_foreign_key "identifiers", "namespaces", name: "identifiers_namespace_id_fkey"
-  add_foreign_key "identifiers", "projects", name: "identifiers_project_id_fkey"
-  add_foreign_key "identifiers", "users", column: "created_by_id", name: "identifiers_created_by_id_fkey"
-  add_foreign_key "identifiers", "users", column: "updated_by_id", name: "identifiers_updated_by_id_fkey"
-  add_foreign_key "images", "projects", name: "images_project_id_fkey"
-  add_foreign_key "images", "users", column: "created_by_id", name: "images_created_by_id_fkey"
-  add_foreign_key "images", "users", column: "updated_by_id", name: "images_updated_by_id_fkey"
-  add_foreign_key "languages", "users", column: "created_by_id", name: "languages_created_by_id_fkey"
-  add_foreign_key "languages", "users", column: "updated_by_id", name: "languages_updated_by_id_fkey"
-  add_foreign_key "loan_items", "loans", name: "loan_items_loan_id_fkey"
-  add_foreign_key "loan_items", "projects", name: "loan_items_project_id_fkey"
-  add_foreign_key "loan_items", "users", column: "created_by_id", name: "loan_items_created_by_id_fkey"
-  add_foreign_key "loan_items", "users", column: "updated_by_id", name: "loan_items_updated_by_id_fkey"
-  add_foreign_key "loans", "projects", name: "loans_project_id_fkey"
-  add_foreign_key "loans", "users", column: "created_by_id", name: "loans_created_by_id_fkey"
-  add_foreign_key "loans", "users", column: "updated_by_id", name: "loans_updated_by_id_fkey"
-  add_foreign_key "namespaces", "users", column: "created_by_id", name: "namespaces_created_by_id_fkey"
-  add_foreign_key "namespaces", "users", column: "updated_by_id", name: "namespaces_updated_by_id_fkey"
-  add_foreign_key "notes", "projects", name: "notes_project_id_fkey"
-  add_foreign_key "notes", "users", column: "created_by_id", name: "notes_created_by_id_fkey"
-  add_foreign_key "notes", "users", column: "updated_by_id", name: "notes_updated_by_id_fkey"
-  add_foreign_key "otu_page_layout_sections", "controlled_vocabulary_terms", column: "topic_id", name: "otu_page_layout_sections_topic_id_fkey"
-  add_foreign_key "otu_page_layout_sections", "otu_page_layouts", name: "otu_page_layout_sections_otu_page_layout_id_fkey"
-  add_foreign_key "otu_page_layout_sections", "projects", name: "otu_page_layout_sections_project_id_fkey"
-  add_foreign_key "otu_page_layout_sections", "users", column: "created_by_id", name: "otu_page_layout_sections_created_by_id_fkey"
-  add_foreign_key "otu_page_layout_sections", "users", column: "updated_by_id", name: "otu_page_layout_sections_updated_by_id_fkey"
-  add_foreign_key "otu_page_layouts", "projects", name: "otu_page_layouts_project_id_fkey"
-  add_foreign_key "otu_page_layouts", "users", column: "created_by_id", name: "otu_page_layouts_created_by_id_fkey"
-  add_foreign_key "otu_page_layouts", "users", column: "updated_by_id", name: "otu_page_layouts_updated_by_id_fkey"
-  add_foreign_key "otus", "projects", name: "otus_project_id_fkey"
-  add_foreign_key "otus", "taxon_names", name: "otus_taxon_name_id_fkey"
-  add_foreign_key "otus", "users", column: "created_by_id", name: "otus_created_by_id_fkey"
-  add_foreign_key "otus", "users", column: "updated_by_id", name: "otus_updated_by_id_fkey"
-  add_foreign_key "people", "users", column: "created_by_id", name: "people_created_by_id_fkey"
-  add_foreign_key "people", "users", column: "updated_by_id", name: "people_updated_by_id_fkey"
-  add_foreign_key "pinboard_items", "projects", name: "pinboard_items_project_id_fkey"
-  add_foreign_key "pinboard_items", "users", column: "created_by_id", name: "pinboard_items_created_by_id_fkey"
-  add_foreign_key "pinboard_items", "users", column: "updated_by_id", name: "pinboard_items_updated_by_id_fkey"
-  add_foreign_key "pinboard_items", "users", name: "pinboard_items_user_id_fkey"
-  add_foreign_key "preparation_types", "users", column: "created_by_id", name: "preparation_types_created_by_id_fkey"
-  add_foreign_key "preparation_types", "users", column: "updated_by_id", name: "preparation_types_updated_by_id_fkey"
-  add_foreign_key "project_members", "projects", name: "project_members_project_id_fkey"
-  add_foreign_key "project_members", "users", column: "created_by_id", name: "project_members_created_by_id_fkey"
-  add_foreign_key "project_members", "users", column: "updated_by_id", name: "project_members_updated_by_id_fkey"
-  add_foreign_key "project_members", "users", name: "project_members_user_id_fkey"
-  add_foreign_key "project_sources", "projects", name: "project_sources_project_id_fkey"
-  add_foreign_key "project_sources", "sources", name: "project_sources_source_id_fkey"
-  add_foreign_key "project_sources", "users", column: "created_by_id", name: "project_sources_created_by_id_fkey"
-  add_foreign_key "project_sources", "users", column: "updated_by_id", name: "project_sources_updated_by_id_fkey"
-  add_foreign_key "projects", "users", column: "created_by_id", name: "projects_created_by_id_fkey"
-  add_foreign_key "projects", "users", column: "updated_by_id", name: "projects_updated_by_id_fkey"
-  add_foreign_key "public_contents", "contents", name: "public_contents_content_id_fkey"
-  add_foreign_key "public_contents", "controlled_vocabulary_terms", column: "topic_id", name: "public_contents_topic_id_fkey"
-  add_foreign_key "public_contents", "otus", name: "public_contents_otu_id_fkey"
-  add_foreign_key "public_contents", "projects", name: "public_contents_project_id_fkey"
-  add_foreign_key "public_contents", "users", column: "created_by_id", name: "public_contents_created_by_id_fkey"
-  add_foreign_key "public_contents", "users", column: "updated_by_id", name: "public_contents_updated_by_id_fkey"
-  add_foreign_key "ranged_lot_categories", "projects", name: "ranged_lot_categories_project_id_fkey"
-  add_foreign_key "ranged_lot_categories", "users", column: "created_by_id", name: "ranged_lot_categories_created_by_id_fkey"
-  add_foreign_key "ranged_lot_categories", "users", column: "updated_by_id", name: "ranged_lot_categories_updated_by_id_fkey"
-  add_foreign_key "repositories", "users", column: "created_by_id", name: "repositories_created_by_id_fkey"
-  add_foreign_key "repositories", "users", column: "updated_by_id", name: "repositories_updated_by_id_fkey"
-  add_foreign_key "roles", "people", name: "roles_person_id_fkey"
-  add_foreign_key "roles", "projects", name: "roles_project_id_fkey"
-  add_foreign_key "roles", "users", column: "created_by_id", name: "roles_created_by_id_fkey"
-  add_foreign_key "roles", "users", column: "updated_by_id", name: "roles_updated_by_id_fkey"
-  add_foreign_key "serial_chronologies", "serials", column: "preceding_serial_id", name: "serial_chronologies_preceding_serial_id_fkey"
-  add_foreign_key "serial_chronologies", "serials", column: "succeeding_serial_id", name: "serial_chronologies_succeeding_serial_id_fkey"
-  add_foreign_key "serial_chronologies", "users", column: "created_by_id", name: "serial_chronologies_created_by_id_fkey"
-  add_foreign_key "serial_chronologies", "users", column: "updated_by_id", name: "serial_chronologies_updated_by_id_fkey"
-  add_foreign_key "serials", "languages", column: "primary_language_id", name: "serials_primary_language_id_fkey"
-  add_foreign_key "serials", "serials", column: "translated_from_serial_id", name: "serials_translated_from_serial_id_fkey"
-  add_foreign_key "serials", "users", column: "created_by_id", name: "serials_created_by_id_fkey"
-  add_foreign_key "serials", "users", column: "updated_by_id", name: "serials_updated_by_id_fkey"
-  add_foreign_key "sources", "languages", name: "sources_language_id_fkey"
-  add_foreign_key "sources", "serials", name: "sources_serial_id_fkey"
-  add_foreign_key "sources", "users", column: "created_by_id", name: "sources_created_by_id_fkey"
-  add_foreign_key "sources", "users", column: "updated_by_id", name: "sources_updated_by_id_fkey"
   add_foreign_key "sqed_depictions", "depictions"
   add_foreign_key "sqed_depictions", "projects"
   add_foreign_key "sqed_depictions", "users", column: "created_by_id"
   add_foreign_key "sqed_depictions", "users", column: "updated_by_id"
-  add_foreign_key "tagged_section_keywords", "controlled_vocabulary_terms", column: "keyword_id", name: "tagged_section_keywords_keyword_id_fkey"
-  add_foreign_key "tagged_section_keywords", "otu_page_layout_sections", name: "tagged_section_keywords_otu_page_layout_section_id_fkey"
-  add_foreign_key "tagged_section_keywords", "projects", name: "tagged_section_keywords_project_id_fkey"
-  add_foreign_key "tagged_section_keywords", "users", column: "created_by_id", name: "tagged_section_keywords_created_by_id_fkey"
-  add_foreign_key "tagged_section_keywords", "users", column: "updated_by_id", name: "tagged_section_keywords_updated_by_id_fkey"
-  add_foreign_key "tags", "controlled_vocabulary_terms", column: "keyword_id", name: "tags_keyword_id_fkey"
-  add_foreign_key "tags", "projects", name: "tags_project_id_fkey"
-  add_foreign_key "tags", "users", column: "created_by_id", name: "tags_created_by_id_fkey"
-  add_foreign_key "tags", "users", column: "updated_by_id", name: "tags_updated_by_id_fkey"
-  add_foreign_key "taxon_determinations", "collection_objects", column: "biological_collection_object_id", name: "taxon_determinations_biological_collection_object_id_fkey"
-  add_foreign_key "taxon_determinations", "otus", name: "taxon_determinations_otu_id_fkey"
-  add_foreign_key "taxon_determinations", "projects", name: "taxon_determinations_project_id_fkey"
-  add_foreign_key "taxon_determinations", "users", column: "created_by_id", name: "taxon_determinations_created_by_id_fkey"
-  add_foreign_key "taxon_determinations", "users", column: "updated_by_id", name: "taxon_determinations_updated_by_id_fkey"
-  add_foreign_key "taxon_name_classifications", "projects", name: "taxon_name_classifications_project_id_fkey"
-  add_foreign_key "taxon_name_classifications", "taxon_names", name: "taxon_name_classifications_taxon_name_id_fkey"
-  add_foreign_key "taxon_name_classifications", "users", column: "created_by_id", name: "taxon_name_classifications_created_by_id_fkey"
-  add_foreign_key "taxon_name_classifications", "users", column: "updated_by_id", name: "taxon_name_classifications_updated_by_id_fkey"
-  add_foreign_key "taxon_name_relationships", "projects", name: "taxon_name_relationships_project_id_fkey"
-  add_foreign_key "taxon_name_relationships", "sources", name: "taxon_name_relationships_source_id_fkey"
-  add_foreign_key "taxon_name_relationships", "taxon_names", column: "object_taxon_name_id", name: "taxon_name_relationships_object_taxon_name_id_fkey"
-  add_foreign_key "taxon_name_relationships", "taxon_names", column: "subject_taxon_name_id", name: "taxon_name_relationships_subject_taxon_name_id_fkey"
-  add_foreign_key "taxon_name_relationships", "users", column: "created_by_id", name: "taxon_name_relationships_created_by_id_fkey"
-  add_foreign_key "taxon_name_relationships", "users", column: "updated_by_id", name: "taxon_name_relationships_updated_by_id_fkey"
-  add_foreign_key "taxon_names", "projects", name: "taxon_names_project_id_fkey"
-  add_foreign_key "taxon_names", "sources", name: "taxon_names_source_id_fkey"
-  add_foreign_key "taxon_names", "taxon_names", column: "parent_id", name: "taxon_names_parent_id_fkey"
-  add_foreign_key "taxon_names", "users", column: "created_by_id", name: "taxon_names_created_by_id_fkey"
-  add_foreign_key "taxon_names", "users", column: "updated_by_id", name: "taxon_names_updated_by_id_fkey"
-  add_foreign_key "type_materials", "collection_objects", column: "biological_object_id", name: "type_materials_biological_object_id_fkey"
-  add_foreign_key "type_materials", "projects", name: "type_materials_project_id_fkey"
-  add_foreign_key "type_materials", "sources", name: "type_materials_source_id_fkey"
-  add_foreign_key "type_materials", "taxon_names", column: "protonym_id", name: "type_materials_protonym_id_fkey"
-  add_foreign_key "type_materials", "users", column: "created_by_id", name: "type_materials_created_by_id_fkey"
-  add_foreign_key "type_materials", "users", column: "updated_by_id", name: "type_materials_updated_by_id_fkey"
-  add_foreign_key "users", "users", column: "created_by_id", name: "users_created_by_id_fkey"
-  add_foreign_key "users", "users", column: "updated_by_id", name: "users_updated_by_id_fkey"
 end
