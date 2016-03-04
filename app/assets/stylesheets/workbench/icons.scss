@@ -1,0 +1,101 @@
+    [data-icon] {
+      background-size: 14px 14px;
+      background-repeat: no-repeat;
+      background-position: left, center;
+      padding-left: 20px;
+      min-height: 14px;
+      display: flex;
+      align-items: center;
+    }
+
+    .small-icon {
+      background-size: 12px 12px;
+      background-repeat: no-repeat;
+      background-position: left, center;
+      padding-left: 15px;
+      min-height: 12px;
+    }
+
+    [data-icon="annotate"] {
+      background-image: url("/assets/icons/annotate.svg");
+    } 
+
+    [data-icon="download"] {
+      background-image: url("/assets/icons/download.svg");
+    }     
+
+    [data-icon="add"] {
+      background-image: url("/assets/icons/plus.svg");
+    }      
+
+    [data-icon="pin"] {
+      background-image: url("/assets/icons/pin.svg");
+    } 
+
+    [data-icon="edit"] {
+      background-image: url("/assets/icons/new.svg");
+    }          
+
+    [data-icon="trash"] {
+      background-image: url("/assets/icons/trash.svg");
+    }      
+
+    [data-icon="favorite"] {
+      background-image: url("/assets/icons/star.svg");
+    }      
+
+    [data-icon="arrow-right"] {
+      background-image: url("/assets/icons/arrow-right.svg");
+    }     
+
+    [data-icon="arrow-left"] {
+      background-image: url("/assets/icons/arrow-left.svg");
+    }          
+
+    [data-icon="recent"] {
+      background-image: url("/assets/icons/recent.svg");
+    }        
+
+    [data-icon="reset"] {
+      background-image: url("/assets/icons/restart.svg");
+    }        
+
+    [data-icon="task"] {
+      background-image: url("/assets/icons/task.svg");
+    }            
+
+    [data-icon="data"] {
+      background-image: url("/assets/icons/data.svg");
+    }     
+
+    [data-icon="arrow-up"] {
+      background-image: url("/assets/icons/arrow-up.svg");
+    }     
+
+    [data-icon="arrow-down"] {
+      background-image: url("/assets/icons/arrow-down.svg");
+    }          
+
+    [data-icon="related"] {
+      background-image: url("/assets/icons/related.svg");
+    }                    
+
+    [data-icon="show"] {
+      background-image: url("/assets/icons/show.svg");
+    }
+
+    [data-icon="hide"] {
+      background-image: url("/assets/icons/hide.svg");
+    }  
+
+    [data-icon="openFolder"] {
+      background-image: url("/assets/icons/open_folder.svg");
+    }   
+
+    [data-icon="folders"] {
+      background-image: url("/assets/icons/folders.svg");
+    }  
+
+    [data-icon="options"] {
+      background-image: url("/assets/icons/options.svg");
+    }       

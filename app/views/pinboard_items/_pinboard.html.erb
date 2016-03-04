@@ -6,8 +6,8 @@
       <ul>
         <% items.each do |o| -%>
           <li>
-            <div class="horizontal-center-content">
-              <img src="assets/icons/pin.svg"/> <%=  object_link(o.pinned_object) -%>
+            <div class="horizontal-center-content" data-icon="pin">
+               <%=  object_link(o.pinned_object) -%>
             </div>
             <%= link_to('Remove', pinboard_item_path(o), method: :delete) -%>
           </li>

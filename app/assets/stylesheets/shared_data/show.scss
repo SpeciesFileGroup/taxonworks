@@ -86,8 +86,7 @@
     flex-direction:column;
     justify-content:flex-start;
     box-shadow: 0 0px 3px 0 $navigation_border;
-    background-color: $body_background;
-
+    background-color: $panel_background;
     h3 {
       padding: $standard_padding*.2 0;
       margin: $standard_padding*.2 0;
@@ -118,10 +117,6 @@
       border-bottom: 5px solid $color-secondary-2-4;
     } 
 
-    .activated {
-      background-color: $color-complement-2 !important;
-      box-shadow:inset 0px 1px 2px 0px $color-complement-3 !important;
-    } 
     .action-line {
       border-bottom: 5px solid $color-complement-3;
     }  
@@ -140,7 +135,7 @@
       flex-direction: row; 
       align-items: center;
     }                  
-    .link {
+    .inline {
       display: flex;
       flex-direction:row;
       align-items:center;          
@@ -149,23 +144,7 @@
       img {
         margin-right: 5px;
       }
-    }
-    [data-icon="show"] {
-      padding-left: 20px;
-      text-decoration: none;
-      background-image: url("/assets/icons/show.svg");
-      background-size: 15px 15px;
-      background-repeat: no-repeat;
-      background-position: left, center;
-    }
-    [data-icon="hide"] {
-      padding-left: 20px;
-      text-decoration: none;
-      background-image: url("/assets/icons/hide.svg");
-      background-size: 15px 15px;
-      background-repeat: no-repeat;
-      background-position: left, center;
-    }    
+    }  
 
     .navigation-controls {
       font-weight: 100;
@@ -182,21 +161,17 @@
 
     .navigation-item:first-child {
       border:none;
-    }       
-    .disable {
-      opacity: 0.5 !important;
-      background-color: $navigation_background !important;
-      a {
-        color: $default_text;
-      }
     }
 
+    .disable {
+      opacity: 0.5;
+      background-color: $navigation_background;
+    }       
+
     .disable:hover {
+      background-color: $navigation_background !important;
       box-shadow: none !important;
       opacity: 0.5 !important;
-      img {
-        opacity: 0.5 !important;
-      }
     }
     .navigation-item {
       cursor: pointer;

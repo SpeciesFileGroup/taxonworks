@@ -11,8 +11,7 @@
         </div>
       </div>
       <div class="navigation-bar-right ">
-        <a class="link" href="#">                 
-          <img src="/assets/icons/download.svg">
+        <a class="inline" data-icon="download" href="#">                 
           Download
         </a>               
       </div>
@@ -26,7 +25,7 @@
       <%= content_tag(:div, content_tag(:a, 'Type', 'data-icon' => 'show'), class: 'navigation-item', 'data-filter-active' => 'true',data: { group: :metadata })%>
       <%= content_tag(:div, content_tag(:a, 'Source', 'data-icon' => 'show'), class: 'navigation-item', 'data-filter-active' => 'true', data: { group: :publication })%>
       <%= content_tag(:div, content_tag(:a, 'Housekeeping', 'data-icon' => 'show'), class: 'navigation-item', 'data-filter-active' => 'true', data: { group: :housekeeping })%>
-      <%= content_tag(:div, content_tag(:a, 'Show All', 'data-icon' => 'show'), class: 'navigation-item', 'data-filter-active' => 'true', showAll: '')%>                                               
+      <%= content_tag(:div, content_tag(:a, 'Show All', 'data-icon' => 'show'), class: 'navigation-item', 'data-filter-active' => 'true', showAll: '')%> 
     </div> 
   </div>      
 </div>

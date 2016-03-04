@@ -1,24 +1,21 @@
 <div id="filter">
   <div class="flexbox">
     <div class="item item2">
-    <div class="panel">
-      <div class='title action-line'>
-        <div>
-        	Filter 
-        </div>
-        <div class="reset" data-filter-category="reset">
-          <img src="/assets/icons/restart.svg"/>
-          Reset
-        </div>  
-      </div> 
-      <div class="navigation-controls">
-      	<% UserTasks::CATEGORIES.each do |c| -%>
-        	<%= 
-			content_tag(:div, c.humanize, 'data-filter-category' => c, 'data-favorite' => true, 'class' => 'navigation-item')
-			-%>
-        <% end %>                                 
-      </div>        
-     </div>  
+      <div class="panel">
+        <div class='title action-line'>
+          <div>
+          	Filter 
+          </div>
+          <div class="small-icon reset" data-filter-category="reset" data-icon="reset">
+            Reset
+          </div>  
+        </div> 
+        <div class="navigation-controls">
+        	<% UserTasks::CATEGORIES.each do |c| -%>
+          	<%= content_tag(:div, c.humanize, 'data-filter-category' => c, 'data-favorite' => true, 'class' => 'navigation-item') -%>
+          <% end %>                                 
+        </div>        
+      </div>  
     </div>
   </div>
 </div>

@@ -42,9 +42,7 @@
     flex-flow: row wrap;
     padding: 0.5em;
   }
-  [data-attribute="empty"] {
-    display: none;
-  }
+
   .card-container {
     display: flex;
     flex-direction:row;
@@ -103,10 +101,6 @@
 
   .application_defined {
     border-left:4px solid $color-primary-4;
-  }
-
-  .data-controls {
-    order:2;
   }
 
   .status {

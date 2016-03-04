@@ -92,6 +92,7 @@
     display: flex;
     border-bottom: 1px solid $navigation_border;
     justify-content: center; 
+    background-color: $panel_background;
     img {
       width: 14px;
       padding-right: 5px;
@@ -120,7 +121,7 @@
 
       }
       a {
-        padding:0px;
+        padding-left: 20px;
         font-size:12px;
         font-weight: 100;
       }

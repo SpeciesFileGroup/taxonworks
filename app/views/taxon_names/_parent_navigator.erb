@@ -4,9 +4,21 @@
     <% taxon_name.ancestor_protonyms.each do |p| -%>
       <li><p> <%= taxon_name_link(p.metamorphosize)  -%><%= cached_author_year_tag(p) -%></p></li>
     <% end %>
-  <li><img src="/assets/icons/arrow-right.svg"/><p class="selected"><%= taxon_name_tag(taxon_name) -%><%= cached_author_year_tag(taxon_name) -%></p></li> 
-    <% taxon_name.children.reorder(:name).where(type: 'Protonym').each do |p| -%>
-      <li><p><%= taxon_name_link(p.metamorphosize) -%><%= cached_author_year_tag(p) -%> <%= content_tag(:span, "[#{p.descendants.count}]",  class: :subtle) if p.descendants.count > 0  %> </p></li>
-    <% end %>
+  <li>
+    <img src="/assets/icons/arrow-right.svg"/>
+    <p class="selected">
+      <%= taxon_name_tag(taxon_name) -%>
+      <%= cached_author_year_tag(taxon_name) -%>
+    </p>
+  </li> 
+  <% taxon_name.children.reorder(:name).where(type: 'Protonym').each do |p| -%>
+    <li>
+      <p>
+        <%= taxon_name_link(p.metamorphosize) -%>
+        <%= cached_author_year_tag(p) -%> 
+        <%= content_tag(:span, "[#{p.descendants.count}]",  class: :subtle) if p.descendants.count > 0  %> 
+      </p>
+    </li>
+  <% end %>
   </ul>
 </div>

@@ -31,29 +31,34 @@
           <%= object_tag(object) -%>
           <span data-view="development">&nbsp;[ id: <%= object.id -%> ]</span>
         </div>
-        <div >
-          <a href="#" data-icon="show" view-bottom>Development view</a>
+        <div>
+          <a href="#" data-icon="show" class="inline" view-bottom>Development view</a>
         </div>
       </div> 
       <div class="navigation-controls">
-        <div class="navigation-item"><img src="/assets/icons/new.svg" height="12" /><%= edit_object_link(object) -%> </div>
-        <div class="navigation-item"><img src="/assets/icons/annotate.svg"><a href="#">Annotate</a>
+        <div class="navigation-item"><%= edit_object_link(object) -%></div>
+        <div class="navigation-item">
+          <span class="small-icon" data-icon="annotate">Annotate</span>
           <div class="dropdown"><%= annotate_links(object: object) -%>
           </div>
         </div>                
-        <div class="navigation-item"><img src="/assets/icons/trash.svg" height="12" /><%= destroy_object_link(object) -%></div>
-        <div class="navigation-item"><img src="/assets/icons/task.svg"/><a>Task</a>
+        <div class="navigation-item">
+          <%= destroy_object_link(object) -%>
+        </div>
+        <div class="navigation-item">
+          <span data-icon="task" class="small-icon">Task</span>
           <div class="dropdown" data-menu="task">
-          <%= yield :see -%>  
-          <%= yield :tasks -%>
+            <%= yield :see -%>  
+            <%= yield :tasks -%>
           </div>
         </div>
-        <div class="navigation-item"><img src="/assets/icons/plus.svg" height="12" /><a>Add</a>
+        <div class="navigation-item">
+          <span data-icon="add" class="small-icon">Add</span>
           <div class="dropdown" data-menu="add">
             <%= yield :do -%>
           </div>
         </div>     
-        <div class="navigation-item"><img src="/assets/icons/pin.svg" height="12" /><%= pin_item_to_pinboard_link(object, sessions_current_user) -%></div>
+        <div class="navigation-item"><%= pin_item_to_pinboard_link(object, sessions_current_user) -%></div>
       </div>        
       </div>    
     <div class="panels-container">

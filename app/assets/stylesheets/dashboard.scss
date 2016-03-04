@@ -14,6 +14,7 @@
  		font-size: 20px;
  	}
 	.flexbox {
+		max-width: 1280px;
 	  	display: flex;
 	  	flex-direction: row; 
 	  	flex-wrap: nowrap;
@@ -22,8 +23,7 @@
 		.space-distance {
 			margin-left: 0.5em;
 			margin-right: 0.5em;
-		}
-	
+		}	
 		h3 {
 			font-weight: 100;
 		}		

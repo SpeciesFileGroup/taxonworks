@@ -43,9 +43,9 @@ a {
   justify-content: flex-start;
   font-weight: 100;
   border-bottom: 1px solid $navigation_border;
+  background-color: $panel_background;
 
   ul {
-    background-color: $body_background;
     margin: 0px;
     padding:0px;
     display: flex;

@@ -117,7 +117,7 @@ module Workbench::NavigationHelper
   #   a link, or disabled link
   def edit_object_link(object)
     if is_editable?(object) && user_can_edit?(object)
-      link_to('Edit', edit_object_path(metamorphosize_if(object)))
+      link_to('Edit', edit_object_path(metamorphosize_if(object)), class: 'small-icon', 'data-icon' => 'edit')
     else
       content_tag(:span, 'Edit', class: :disabled)
     end
@@ -127,7 +127,7 @@ module Workbench::NavigationHelper
     if (!@sessions_current_user.is_administrator?) && (@is_shared_data_model)
       content_tag(:span, 'Destroy', class: :disabled)
     else
-      link_to('Destroy', object.metamorphosize, method: :delete, data: {confirm: 'Are you sure?'})
+      link_to('Destroy', object.metamorphosize, class: 'small-icon', 'data-icon' => 'trash', method: :delete, data: {confirm: 'Are you sure?'})
     end
   end
 

@@ -1,10 +1,10 @@
 $(document).ready( function() {
-	$('#favorite').prepend('<img src="/assets/icons/star.svg"/>');
-	$('#tasks').prepend('<img src="/assets/icons/task.svg"/>');
-	$('#data').prepend('<img src="/assets/icons/data.svg"/>');
-	$('#recent').prepend('<img src="/assets/icons/recent.svg"/>');	
-	$('#worker').prepend('<img src="/assets/icons/options.svg"/>');	
-	$('#related').prepend('<img src="/assets/icons/related.svg"/>');
+	$('#favorite').children('a').attr("data-icon", "favorite");
+	$('#tasks').children('a').attr("data-icon", "task");
+	$('#data').children('a').attr("data-icon", "data");
+	$('#recent').children('a').attr("data-icon", "recent");
+	$('#worker').children('a').attr("data-icon", "options");
+	$('#related').children('a').attr("data-icon", "related");
 	$('#hub_tabs').on('click', 'li', function() {
 		location.href = $(this).children("a").attr('href');
 	});	
