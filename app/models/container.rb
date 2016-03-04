@@ -74,14 +74,12 @@ class Container < ActiveRecord::Base
   # @return [Array of {Object}s]
   #   all objects contained in this and nested containers
   def all_objects
-#   all_containers.collect{|c| c.container_item.collect{|ci| ci.contained_object}}.flatten 
+    #  all_containers.collect{|c| c.container_item.collect{|ci| ci.contained_object}}.flatten 
+    #  container_items = ContainerItem.joins(:containers).where(containers: {left: 
+  end
 
-#   container_items = ContainerItem.joins(:containers).where(containers: {left: 
-
-    def self.find_for_autocomplete(params)
-      Queries::ContainerAutocompleteQuery.new(params[:term]).all.where(project_id: params[:project_id])
-    end
-
+  def self.find_for_autocomplete(params)
+    Queries::ContainerAutocompleteQuery.new(params[:term]).all.where(project_id: params[:project_id])
   end
 
   protected

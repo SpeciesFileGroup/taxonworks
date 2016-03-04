@@ -100,12 +100,12 @@ class GeographicArea < ActiveRecord::Base
     end
   }
 
-# @param  [Array] names of self and parents
-# @return [Scope] GeographicAreas which have the names of self and parents
-# TODO: Test, or extend a general method
-# Matches GeographicAreas that match name, parent name, parent.parent name.
-# Call via find_by_self_and_parents(%w{Champaign Illinois United\ States}).
-  scope :with_name_and_parent_names, lambda { |names|
+  # @param  [Array] names of self and parents
+  # @return [Scope] GeographicAreas which have the names of self and parents
+  # TODO: Test, or extend a general method
+  # Matches GeographicAreas that match name, parent name, parent.parent name.
+  # Call via find_by_self_and_parents(%w{Champaign Illinois United\ States}).
+    scope :with_name_and_parent_names, lambda { |names|
     if names[2].nil?
       with_name_and_parent_name(names.compact)
     else
@@ -117,24 +117,12 @@ class GeographicArea < ActiveRecord::Base
     end
   }
 
-# commented out 02/23/16 JDT, preceded by scope, above
-# @param  [GeographicArea]
-# @return [Scope]
-# def self.ancestors_and_descendants_of(geographic_area)
-#   where('(((geographic_areas.lft >= ?) AND (geographic_areas.lft <= ?)) OR
-#          ((geographic_areas.lft <= ?) AND (geographic_areas.rgt >= ?))) AND
-#          (geographic_areas.id != ?)',
-#         geographic_area.lft, geographic_area.rgt,
-#         geographic_area.lft, geographic_area.rgt,
-#         geographic_area.id).order(:lft)
-# end
-
-# @param array [Array] of strings of names for areas
-# @return [Scope] of GeographicAreas which match name and parent.name.
-# Route out to a scope given the length of the
-# search array.  Could be abstracted to
-# build nesting on the fly if we actually
-# needed more than three nesting levels.
+  # @param array [Array] of strings of names for areas
+  # @return [Scope] of GeographicAreas which match name and parent.name.
+  # Route out to a scope given the length of the
+  # search array.  Could be abstracted to
+  # build nesting on the fly if we actually
+  # needed more than three nesting levels.
   def self.find_by_self_and_parents(array)
     if array.length == 1
       where(name: array.first)
