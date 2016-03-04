@@ -10,15 +10,17 @@
 
     .small-icon {
       background-size: 12px 12px;
-      background-repeat: no-repeat;
-      background-position: left, center;
-      padding-left: 15px;
+      padding-left: 18px;
       min-height: 12px;
     }
 
     [data-icon="annotate"] {
       background-image: url("/assets/icons/annotate.svg");
     } 
+
+    [data-icon="browse"] {
+      background-image: url("/assets/icons/browse.svg");
+    }     
 
     [data-icon="download"] {
       background-image: url("/assets/icons/download.svg");

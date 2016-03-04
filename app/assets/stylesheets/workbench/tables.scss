@@ -7,15 +7,12 @@
   flex-direction: column;
   justify-content:flex-start;
   align-items:left;
-  padding: 5px;
+  padding: 6px;
   padding-left: $standard_padding;
-    a {
-      text-decoration: none;
-    }
-    img {
-      margin-right: 5px;
-    }
+  a {
+    text-decoration: none;
   }
+}
 
 table {
   box-shadow: 0 0 3px 0 $navigation_border;
@@ -25,7 +22,6 @@ table {
   border-collapse: collapse;  
   font-weight: 100;
   margin-top: $standard_padding;
-
   .underlined_elements {
       border-spacing: 0; 
     th {
