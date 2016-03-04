@@ -19,7 +19,6 @@ if ($('[data-menu="task"]').children().length < 1 ) {
 }
 
 if ($('[data-menu="add"]').children().length < 1 ) {
-  alert();
   $('[data-menu="add"]').parent().addClass("disable");
 }
 
