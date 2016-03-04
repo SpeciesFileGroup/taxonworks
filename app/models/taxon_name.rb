@@ -28,14 +28,6 @@
 #   @return [String]
 #   a concatenated list of higher rank taxa.
 #
-# @!attribute lft
-#   @return [Integer]
-#   per awesome_nested_set.
-#
-# @!attribute rgt
-#   @return [Integer]
-#   per awesome_nested_set.
-#
 # @!attribute source_id
 #   @return [Integer]
 #   the ID of the source (a Source::Bibtex or Source::Verbatim instance) in which this name was first published.  Subsequent references are made in citations or combinations.
@@ -184,28 +176,23 @@ class TaxonName < ActiveRecord::Base
   has_many :taxon_name_classifications, dependent: :destroy, foreign_key: :taxon_name_id, inverse_of: :taxon_name
   has_many :taxon_name_relationships, foreign_key: :subject_taxon_name_id, dependent: :destroy
 
-  # NOTE: Protonym subclassed methods might not be nicely tracked here, we'll have to see.  Placement is after has_many relationships. (?)
   has_paper_trail
 
+  # NOTE: Protonym subclassed methods might not be nicely tracked here, we'll have to see.  Placement is after has_many relationships. (?)
   accepts_nested_attributes_for :related_taxon_name_relationships, allow_destroy: true, reject_if: proc { |attributes| attributes['type'].blank? || attributes['subject_taxon_name_id'].blank? }
   accepts_nested_attributes_for :taxon_name_authors, :taxon_name_author_roles, allow_destroy: true
-
   accepts_nested_attributes_for :taxon_name_classifications, allow_destroy: true, reject_if: proc { |attributes| attributes['type'].blank?  }
 
   scope :with_type, -> (type) {where(type: type)} 
 
-  def self.descendants_of(taxon_name)
-    with_ancestor(taxon_name)
-  end
-
+  scope :descendants_of, -> (taxon_name) { with_ancestor(taxon_name )}
   scope :ancestors_of, -> (taxon_name) { joins(:descendant_hierarchies).where(taxon_name_hierarchies: {descendant_id: taxon_name.id}).where('taxon_name_hierarchies.ancestor_id != ?', taxon_name.id) }
 
-  # this is subtly different, it includes self in present form
+  # this is subtly different, it includes self in present form, it also doesn't order
   scope :ancestors_and_descendants_of, -> (taxon_name) { 
     joins('LEFT OUTER JOIN taxon_name_hierarchies a ON taxon_names.id = a.descendant_id
-                                                                LEFT JOIN taxon_name_hierarchies b ON taxon_names.id = b.ancestor_id').
-                                                                where("(a.ancestor_id = ?) OR (b.descendant_id = ?)", taxon_name.id, taxon_name.id ).
-                                                                uniq }
+             LEFT JOIN taxon_name_hierarchies b ON taxon_names.id = b.ancestor_id').
+    where("(a.ancestor_id = ?) OR (b.descendant_id = ?)", taxon_name.id, taxon_name.id ).uniq }
 
   scope :with_rank_class, -> (rank_class_name) { where(rank_class: rank_class_name) }
   scope :with_parent_taxon_name, -> (parent) { where(parent_id: parent) }

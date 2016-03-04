@@ -60,7 +60,7 @@ namespace :tw do
       ActiveRecord::Base.subclasses.sort{|a,b| a.name <=> b.name}.each do |d|
         puts "# #{d.name}" 
         d.columns.each do |c|
-          if c.name =~ /.+_id|.*_?type|position|type|lft|rgt|position/
+          if c.name =~ /.+_id|.*_?type|position|type|lft|rgt|position/ # lft/rgt are not here any more
             puts "# add_index :#{d.table_name}, :#{c.name.to_sym}" 
           end
         end

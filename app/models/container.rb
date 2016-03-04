@@ -2,14 +2,6 @@
 
 # A container localizes the proximity of one ore more physical things, at this point in TW this is restricted to a number of collection objects.
 #
-# @!attribute lft
-#   @return [Integer]
-#     awesome_nested_set indexing 
-#
-# @!attribute rgt
-#   @return [Integer]
-#     awesome_nested_set indexing 
-#
 # @!attribute parent_id
 #   @return [Integer]
 #     identifies the container this container is contained in 

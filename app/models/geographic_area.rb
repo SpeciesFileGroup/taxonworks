@@ -33,14 +33,6 @@
 #   @return [String]
 #   Two alpha-character identification of country.
 #
-# @!attribute rgt
-#   @return [Integer]
-#     Nested set index, auto created.
-#
-# @!attribute lft
-#   @return [Integer]
-#     Nested set index, auto created.
-#
 # @!attribute iso_3166_a3
 #   @return [String]
 #   Three alpha-character identification of country.
@@ -79,37 +71,11 @@ class GeographicArea < ActiveRecord::Base
   validates :level2, presence: true, allow_nil: true
   validates :name, presence: true, length: {minimum: 1}
   validates :data_origin, presence: true
-
-# scope :descendants_of, lambda { |geographic_area|
-#   where('(geographic_areas.lft >= ?) and (geographic_areas.lft <= ?) and
-#          (geographic_areas.id != ?)',
-#         geographic_area.lft, geographic_area.rgt,
-#         geographic_area.id).order(:lft)
-# }
-
-  def self.descendants_of(geographic_area)
-    with_ancestor(geographic_area)
-  end
-
-# scope :ancestors_of, lambda { |geographic_area|
-#   where('(geographic_areas.lft <= ?) and (geographic_areas.rgt >= ?) and
-#          (geographic_areas.id != ?)',
-#         geographic_area.lft, geographic_area.rgt,
-#         geographic_area.id).order(:lft)
-# }
-
+  
+  scope :descendants_of, -> (geographic_area) {with_ancestor(geographic_area) } 
   scope :ancestors_of, -> (geographic_area) { joins(:descendant_hierarchies).where(geographic_area_hierarchies: {descendant_id: geographic_area.id}).where('geographic_area_hierarchies.ancestor_id != ?', geographic_area.id) }
 
-# scope :ancestors_and_descendants_of, lambda { |geographic_area|
-#   where('(((geographic_areas.lft >= ?) AND (geographic_areas.lft <= ?)) OR
-#          ((geographic_areas.lft <= ?) AND (geographic_areas.rgt >= ?))) AND
-#          (geographic_areas.id != ?)',
-#         geographic_area.lft, geographic_area.rgt,
-#         geographic_area.lft, geographic_area.rgt,
-#         geographic_area.id).order(:lft)
-# }
-
-# this is subtly different, it includes self in present form
+  # this is subtly different, it includes self in present form
   scope :ancestors_and_descendants_of, -> (geographic_area) {
     joins('LEFT OUTER JOIN geographic_area_hierarchies a ON geographic_areas.id = a.descendant_id
                                                                 LEFT JOIN geographic_area_hierarchies b ON geographic_areas.id = b.ancestor_id').
