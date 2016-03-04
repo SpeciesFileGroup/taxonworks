@@ -12,21 +12,22 @@ function showAll() {
     $('th, td').show(animationTime);
     $('.table-options').hide();
     $('[data-filter-active]').attr("data-filter-active","true");
-    $('[data-group] img').attr("src","/assets/icons/show.svg");
+    $('[data-group]').children('a').attr("data-icon","show");
   }
-  $('.navigation-controls').on('click', '[data-group="showAll"]', function() {
+  $('.navigation-controls').on('click', '[showAll]', function() {
     showAll();
   });  
 
-  $('.navigation-controls').on('click', '.navigation-item', function() {
+  $('.navigation-controls').on('click', '[data-group]', function() {
     if($(this).attr("data-filter-active") === "true") {
       $('table [data-group="' + $(this).attr("data-group") + '"]').hide(animationTime);
       $(this).attr("data-filter-active","false");
-      $(this).children('img').attr("src","/assets/icons/hide.svg");
+      $(this).children('a').attr("data-icon","hide");
     }
     else {
       $('table [data-group="' + $(this).attr("data-group") + '"]').show(animationTime);
-      $(this).children('img').attr("src","/assets/icons/show.svg");
+      $(this).children('a').attr("background-image","/assets/icons/show.svg");
+      $(this).children('a').attr("data-icon","show");
       $(this).attr("data-filter-active","true");
     }
   }); 

@@ -2,6 +2,8 @@
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
 @import 'workbench/palette';
+@import 'workbench/whitespace';
+
 #pinboard {
 	img {
 		padding-right: 5px;
@@ -9,6 +11,10 @@
 	}
 	h2 {
 		border-bottom: 1px solid $navigation_border;
+	}
+	ul {
+		margin: 0px;
+		padding: $standard_padding;
 	}
 	li {
 		display: flex;
@@ -18,11 +24,6 @@
 		border-radius: 3px;
 		padding:2px;
 		padding-left: 5px;
-
-		//background-color: #FFF;
-		
-		
-
 	}
 	li:hover {
 		opacity: 1;

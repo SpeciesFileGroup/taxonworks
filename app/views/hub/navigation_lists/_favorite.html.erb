@@ -1,5 +1,3 @@
-
-  <!-- José, wrap this/refactor however you want -->
 <% if has_hub_favorites? -%>
 <div id="data_cards">
     <div data-section="Favorites-Data" class="data_section">
@@ -53,17 +51,3 @@
     Welcome, <%= sessions_current_user.name -%>! Spend a little time navigating through the workbench.  As you become familiar with tasks or pages you find most useful, favorite them, they'll appear here.  
     </p>
   <% end %>
-
-<script type="text/javascript">
-	var 
-	favoritesTask = new carrouselTask("Favorites-Task",3,1);
-	favoritesTaskPanel = new carrouselData("Favorites-Task",1,4);
-	favoritesData = new carrouselData("Favorites-Data",99,4);
-	favoritesData.filterChilds();
-
- $('.data_card').mousedown(function(event) {
-  	if((event.which) == 1) {
-    	location.href = $(this).children("a").attr('href');
-	}
-  }); 
-</script>

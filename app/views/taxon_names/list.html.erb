@@ -1,5 +1,5 @@
 <div class="panels-container">
-  <div class="panel column-big ">
+  <div class="panel column-big">
     <div class="title nav-line">
       Listing taxon names
     </div>      
@@ -18,15 +18,15 @@
       </div>
     </div>       
   </div>
-  <div class="panel column-small separate-left">
+  <div class="panel column-small">
     <div class="title action-line">
       Display
     </div>      
     <div class="navigation-controls">
-      <%= content_tag(:div, 'Type', class: 'navigation-item', 'data-filter-active' => 'true',data: { group: :metadata })%>
-      <%= content_tag(:div, 'Source', class: 'navigation-item', 'data-filter-active' => 'true', data: { group: :publication })%>
-      <%= content_tag(:div, 'Housekeeping', class: 'navigation-item', 'data-filter-active' => 'true', data: { group: :housekeeping })%>
-      <%= content_tag(:div, 'Show All', class: 'navigation-item', 'data-filter-active' => 'true', data: { group: :showAll })%>                                               
+      <%= content_tag(:div, content_tag(:a, 'Type', 'data-icon' => 'show'), class: 'navigation-item', 'data-filter-active' => 'true',data: { group: :metadata })%>
+      <%= content_tag(:div, content_tag(:a, 'Source', 'data-icon' => 'show'), class: 'navigation-item', 'data-filter-active' => 'true', data: { group: :publication })%>
+      <%= content_tag(:div, content_tag(:a, 'Housekeeping', 'data-icon' => 'show'), class: 'navigation-item', 'data-filter-active' => 'true', data: { group: :housekeeping })%>
+      <%= content_tag(:div, content_tag(:a, 'Show All', 'data-icon' => 'show'), class: 'navigation-item', 'data-filter-active' => 'true', showAll: '')%>                                               
     </div> 
   </div>      
 </div>

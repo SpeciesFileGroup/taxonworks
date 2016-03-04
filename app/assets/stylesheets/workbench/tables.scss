@@ -62,27 +62,16 @@ table {
   .odd {
     @extend .list_line_even;
   }
-  tbody th, td {
-    padding-left: $standard_padding;
-    padding-right: $standard_padding;
-  }
 
-  tbody td:last-child {
+  td:last-child {
     border-right:1px solid $navigation_border;
-  }
-
-  tbody a {
-    padding: 5px;
-    text-decoration: none;
-  }
-
-  td:first-letter {
-    text-transform: uppercase;
   }
 
   td {
     border-bottom: 1px solid $navigation_border;
     border-left: 1px solid $navigation_border;
+    padding-left: $standard_padding;
+    padding-right: $standard_padding;    
   }
 
   th:hover {
@@ -98,22 +87,7 @@ table {
     }
   }
 
-  thead a {
-    text-decoration: none;
-    color: $default_text;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    img {
-      width: 12px;
-    }
-  }
-  thead a:hover {
-    background-color: transparent;
-    opacity: 1;
-  }
-
-  thead th {
+  th {
     padding-left: $standard_padding;
     padding-right: $standard_padding;
     font-weight: 500;
