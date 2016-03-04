@@ -77,7 +77,7 @@ class Otu < ActiveRecord::Base
     else
       tn = taxon_name
     end
-    Otu.joins(:taxon_name).where("(taxon_names.project_id = ? and (taxon_names.id = ? OR (taxon_names.lft >= ? and taxon_names.lft <= ?)))", tn.project_id, tn.id, tn.lft, tn.rgt)
+    Otu.joins(taxon_name: [:ancestor_hierarchies]).where(taxon_name_hierarchies: {ancestor_id: tn.id} )
   end
 
   # Generate a CSV version of the raw Otus table for the given project_id

@@ -1,3 +1,5 @@
+
+
 # A container localizes the proximity of one ore more physical things, at this point in TW this is restricted to a number of collection objects.
 #
 # @!attribute lft
@@ -49,6 +51,11 @@ class Container < ActiveRecord::Base
 
   validates :type, presence: true
   validate :enclosing_container_is_valid
+  validate :type_is_valid
+
+  def type_is_valid
+    raise ActiveRecord::SubclassNotFound, 'Invalid subclass' if type && !Container.descendants.map(&:name).include?(type)
+  end
 
   # @return [String]
   #   the "common name" of this class
@@ -97,13 +104,4 @@ class Container < ActiveRecord::Base
 
 end
 
-%w{
-    /app/models/container/**/*.rb
-}.each do |path|
-  a = Dir[Rails.root.to_s + path].sort
-  a.each {|file| require_dependency file } # was .sort
-end
-
-
-
-
+Dir[Rails.root.to_s + '/app/models/container/**/*.rb'].each{|file| require_dependency file } 
