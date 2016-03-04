@@ -320,9 +320,12 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
       g = FactoryGirl.create(:relationship_genus, parent: @family)
       s = FactoryGirl.create(:relationship_species, parent: g)
       FactoryGirl.create(:taxon_name_classification, taxon_name: g, type: 'TaxonNameClassification::Iczn::Unavailable')
+      
       r1 = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: g, type: 'TaxonNameRelationship::Typification::Genus::OriginalDesignation')
       r1.soft_validate(:validate_disjoint_object)
+
       expect(r1.soft_validations.messages_on(:type).size).to eq(1)
+
       expect(r1.soft_validations.messages_on(:object_taxon_name_id).size).to eq(1)
     end
 

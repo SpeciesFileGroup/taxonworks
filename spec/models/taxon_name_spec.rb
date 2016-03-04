@@ -32,6 +32,19 @@ describe TaxonName, type: :model, group: [:nomenclature] do
       TaxonNameHierarchy.delete_all
     end
 
+    context '::descendants_of' do
+      specify 'works' do
+        expect(TaxonName.descendants_of(@genus).to_a).to contain_exactly( @subgenus, @species, @subspecies)
+      end
+    end
+
+    context '::ancestors_and_descendants_of' do
+      specify 'returns an unordered list' do
+        expect(TaxonName.ancestors_and_descendants_of(@genus).to_a.map(&:name)).to contain_exactly("Animalia", "Arthropoda", "Cicadellidae", "Erythroneura", "Erythroneura", "Erythroneurina", "Erythroneurini", "Hemiptera", "Insecta", "Root", "Typhlocybinae", "vitata", "vitis")
+      end
+
+    end
+
     context 'double checking FactoryGirl' do
       specify 'is building all related names for respective models' do
         expect(@subspecies.ancestors.length).to be >= 10
@@ -396,11 +409,15 @@ describe TaxonName, type: :model, group: [:nomenclature] do
 
           specify 'misspelled original combination' do
             g                            = FactoryGirl.create(:relationship_genus, name: 'Errorneura')
+
             g.iczn_set_as_misspelling_of = @genus
             expect(g.save).to be_truthy
+           
             @subspecies.original_genus = g
             @subspecies.reload
-            expect(g.get_full_name_html).to eq('<i>Errorneura</i> [sic]')
+            
+            expect(g.reload.get_full_name_html).to eq('<i>Errorneura</i> [sic]')
+
             expect(@subspecies.get_original_combination).to eq('<i>Errorneura</i> [sic] <i>vitata</i>')
             expect(@subspecies.get_author_and_year).to eq ('(McAtee, 1900)')
           end
@@ -656,6 +673,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
           g.soft_validate(:parent_is_valid_name)
           expect(s.soft_validations.messages_on(:parent_id).count).to eq(1)
 
+          # !!
           expect(g.soft_validations.messages_on(:base).count).to eq(1)
           
           s.fix_soft_validations

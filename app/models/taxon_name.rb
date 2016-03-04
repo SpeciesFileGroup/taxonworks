@@ -146,8 +146,8 @@ class TaxonName < ActiveRecord::Base
 
   NO_CACHED_MESSAGE = 'PROJECT REQUIRES TAXON NAME CACHE REBUILD'
 
-  has_closure_tree order: 'name'
-
+  has_closure_tree
+  
   belongs_to :valid_taxon_name, class_name: TaxonName, foreign_key: :cached_valid_taxon_name_id
 
   before_validation :set_type_if_empty
@@ -159,7 +159,7 @@ class TaxonName < ActiveRecord::Base
   after_save :set_cached_valid_taxon_name_id
 
   validate :validate_rank_class_class,
-  # :check_format_of_name,
+   # :check_format_of_name,
     :validate_parent_rank_is_higher,
     :validate_parent_is_set,
     :check_new_rank_class,
@@ -636,11 +636,12 @@ class TaxonName < ActiveRecord::Base
     dependants = []
     original_combination_relationships = []
     combination_relationships = []
+    
     begin
       TaxonName.transaction do
 
         if self.rank_string =~/Species|Genus/
-          dependants = TaxonName.descendants_of(self).with_type('Protonym')
+          dependants =  TaxonName.with_type('Protonym').descendants_of(self).to_a # self.descendant_protonyms 
           original_combination_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('OriginalCombination')
           combination_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('::Combination')
         end
@@ -759,7 +760,7 @@ class TaxonName < ActiveRecord::Base
     if self.new_record?
       ancestors_through_parents
     else
-      self.self_and_ancestors
+      self.self_and_ancestors(true).to_a.reverse 
     end
   end
 
@@ -788,9 +789,10 @@ class TaxonName < ActiveRecord::Base
   #       "subspecies" => [nil, "bbb"], 
   #       "variety" => ["var.", "ccc"]}
   def full_name_hash
+
     gender = nil
     data   = {}
-    safe_self_and_ancestors.each do |i| # !! You can not use self.self_and_ancesotrs because (this) record is not saved off.
+    safe_self_and_ancestors.each do |i| # !! You can not use self.self_and_ancestors because (this) record is not saved off.
       rank   = i.rank
       gender = i.gender_name if rank == 'genus'
       method = "#{rank.gsub(/\s/, '_')}_name_elements"
@@ -801,6 +803,7 @@ class TaxonName < ActiveRecord::Base
       end
       # data.merge!(rank => send(method, i, gender)) if self.respond_to?(method)
     end
+    # byebug if self.name == 'Errorneura'  && self.cached_misspelling 
     data
   end
 
@@ -829,6 +832,7 @@ class TaxonName < ActiveRecord::Base
     return "#{eo}#{verbatim_name}#{ec}" if !self.verbatim_name.nil? && self.type == 'Combination'
     return "#{eo}#{name}#{ec}" if self.rank_string == 'NomenclaturalRank::Iczn::GenusGroup::GenusGroup'
     d = full_name_hash
+   
     elements = []
     d.merge!('genus' => [nil, '[' + self.original_genus.cached_html + ']']) if !d['genus'] && self.original_genus
     d.merge!('genus' => [nil, '[GENUS UNKNOWN]']) unless d['genus']
@@ -1106,9 +1110,9 @@ class TaxonName < ActiveRecord::Base
 
   def get_cached_classified_as
     return nil unless self.type == 'Combination' || self.type == 'Protonym'
-    c = self.source_classified_as(false)
-    unless c.blank?
-      return " (as #{c.name})"
+    r = self.source_classified_as(true)
+    unless r.blank?
+      return " (as #{r.name})"
     end
     nil
   end
@@ -1323,11 +1327,14 @@ class TaxonName < ActiveRecord::Base
                            fix:             :sv_fix_parent_is_valid_name,
                            success_message: 'Parent was updated')
     else # TODO: This seems like a different validation, split with above?
-      classifications      = self.taxon_name_classifications
+      classifications      = self.taxon_name_classifications(true)
       classification_names = classifications.map { |i| i.type_name }
       compare              = TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID & classification_names
       unless compare.empty?
+        
+
         unless Protonym.with_parent_taxon_name(self).without_taxon_name_classification_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).empty?
+
           compare.each do |i|
             # taxon is unavailable or invalid, but has valid children
             soft_validations.add(:base, "Taxon has a status ('#{i.demodulize.underscore.humanize.downcase}') conflicting with presence of subordinate taxa")

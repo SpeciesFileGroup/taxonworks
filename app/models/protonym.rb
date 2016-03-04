@@ -159,7 +159,6 @@ class Protonym < TaxonName
     end
   end
 
-
   def list_of_coordinated_names
     list = []
     if self.rank_string
