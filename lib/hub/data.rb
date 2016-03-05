@@ -27,6 +27,10 @@ module Hub::Data
     #   the help description describing this class # TODO- reconcile vs. model descriptions/documentation elsewhere 
     attr_accessor :description
 
+    # @return [Array]
+    #    related (by model name) models
+    attr_accessor :related_models
+
     # @return [Boolean]
     #   the section classification (core, etc.)
     attr_accessor :klass
@@ -47,6 +51,7 @@ module Hub::Data
       @section = attributes['section']
       @shared = attributes['shared']
       @application_defined = attributes['application_defined']
+      @related_models = attributes['related_models']
     end
 
     def status
@@ -55,6 +60,10 @@ module Hub::Data
 
     def categories
       @categories.nil? ? [] : @categories
+    end
+
+    def related_models
+      @related_models.nil? ? [] : @related_models
     end
 
     def shared_css
@@ -71,8 +80,6 @@ module Hub::Data
   CONFIG_DATA = YAML.load_file(Rails.root + 'config/interface/hub/data.yml') 
   
   SECTIONS = CONFIG_DATA.keys
-
-  
 
   data = {}
   by_name = {}

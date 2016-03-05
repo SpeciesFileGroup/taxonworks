@@ -1,17 +1,13 @@
 <nav id="quick_bar">
   <ul class="horizontal_navbar left_justified">
     <%= content_tag(:li, link_to('hub', hub_path, class: :hub_link)) -%>
-    <%= sloppy_link(controller_name) -%>
-   <% if !DATA_RELATIONS_FOR_NAVIGATION[controller_name].nil? %>
-        <% DATA_RELATIONS_FOR_NAVIGATION[controller_name].each do |l| -%>
-            <% if l.class == Hash %>
-                <%= content_tag(:li, link_to(l.keys.first, send(l.values.first))) -%>
-            <% else %>
-                <%= content_tag(:li, link_to(l.humanize.downcase, send("#{l}_path"))) -%>
-            <% end %>
-        <% end %>
-    <% end %>
-  </ul>
+
+    <% if Hub::Data::BY_NAME[@data_model.name] -%> 
+      <%= link_to(Hub::Data::BY_NAME[@data_model.name].name, @data_model) -%> 
+
+      <% Hub::Data::BY_NAME[@data_model.name].related_models.each do |m| -%>
+        <%= quick_bar_link(m) -%> 
+      <% end %>
+  <% end %> 
+    </ul>
 </nav>
-
-

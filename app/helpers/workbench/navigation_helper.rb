@@ -5,16 +5,14 @@ module Workbench::NavigationHelper
     render(partial: '/workbench/navigation/quick_bar') if is_data_controller?
   end
 
-  # Terrible hack to get around a redirect method
-  def sloppy_link(controller_name)
-    l = nil
-    n = controller_name.humanize.downcase
-    begin
-      content_tag(:li, link_to(controller_name.humanize.downcase, url_for(controller: controller_name, action: :index) ))
-    rescue ActionController::UrlGenerationError
-      l = content_tag(:em, n, class: :disabled)
+  def quick_bar_link(related_model)
+    model = Hub::Data::BY_NAME[ related_model.kind_of?(Hash) ? related_model.keys.first : related_model ]
+    return nil if model.nil?
+    if related_model.kind_of?(Hash) 
+      content_tag(:li, link_to(model, send(related_model.values.first)))
+    else
+      content_tag(:li, data_link(model))
     end
-    l
   end
 
   def task_bar

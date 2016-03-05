@@ -18,12 +18,16 @@ module HubHelper
     }
   end
 
+  def data_link(data)
+    link_to(data.name, data.klass)
+  end
+
   def data_card(data)
     content_tag(:div, class:  ['data_card', data.shared_css, data.application_css].flatten.join(' ')) do  
       content_tag(:div, "", 
                   data.categories.inject({}){|hsh,c| hsh.merge!("data-category-#{c}" => "true") }.merge( class: "status #{data.status}") 
                  ) + 
-        link_to(data.name, data.klass)
+        data_link(data) 
     end
   end
 

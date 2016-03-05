@@ -30,7 +30,7 @@ shared_examples 'a_login_required_and_project_selected_controller' do
         visit index_path
       }
       specify {
-        expect(page).to have_content page_index_name
+        expect(page).to have_content(page_index_name.capitalize), "can not find '#{page_index_name.capitalize}'"
       }
     end
   end
