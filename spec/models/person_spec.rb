@@ -54,8 +54,8 @@ describe Person, :type => :model do
   end
 
   context 'class methods' do
-    skip '.parser(name_string)'
-    skip '.parse_to_people(name_srting)'
+    # skip '.parser(name_string)'
+    # skip '.parse_to_people(name_srting)'
   end
 
   context 'associations' do
@@ -209,7 +209,7 @@ describe Person, :type => :model do
   end
 
   context 'cascading updates of sources' do
-    skip "If person is updated then udpate their Bibtex::Author/Editor fields"
+    # skip "If person is updated then udpate their Bibtex::Author/Editor fields"
   end
 
   context 'concerns' do

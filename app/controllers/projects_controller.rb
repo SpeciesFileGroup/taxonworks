@@ -1,14 +1,15 @@
 class ProjectsController < ApplicationController
   before_action :require_sign_in
-  before_action :require_administrator_sign_in, only: [:new, :create, :index, :destroy]
+  before_action :require_administrator_sign_in, only: [:new, :create, :destroy]
   before_action :require_superuser_sign_in, only: [:show, :edit, :update]
-  before_action :set_project, only: [:show, :edit, :update, :destroy, :select, :stats]
+  before_action :can_administer_projects?, only: [:index]
+
+  before_action :set_project, only: [:show, :edit, :update, :destroy, :select, :stats, :recently_created_stats, :per_relationship_recent_stats]
 
   # GET /projects
   # GET /projects.json
   def index
     @projects = Project.all
-    @recent_objects = Project.order(updated_at: :desc).limit(10)
   end
 
   # GET /projects/1
@@ -84,7 +85,11 @@ class ProjectsController < ApplicationController
 
   def stats
     Rails.application.eager_load!
-    # @data = @project.data_breakdown
+  end
+
+  def per_relationship_recent_stats
+    Rails.application.eager_load!
+    @relationship = params.permit(:relationship)[:relationship]
   end
 
   def list
@@ -116,7 +121,8 @@ class ProjectsController < ApplicationController
   end
 
   def recently_created_stats
-    render json: sessions_current_project.data_breakdown_for_chartkick_recent
+    redirect_to hub_path, notice: 'Select a project first.' if @project.nil?
+    render json: @project.data_breakdown_for_chartkick_recent
   end
 
   private

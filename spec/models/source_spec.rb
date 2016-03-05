@@ -95,8 +95,8 @@ describe Source, type: :model, group: :sources do
       a similar reference may be added to the db by user request
       the values of verbatim data are ignored when checking if references are similar.
 =end
-    xspecify 'find an identical record'
-    xspecify 'find a similar record'
+    # xspecify 'find an identical record'
+    # xspecify 'find a similar record'
   end
 
   context 'concerns' do

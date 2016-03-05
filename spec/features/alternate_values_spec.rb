@@ -82,45 +82,45 @@ describe "AlternateValues", type: :feature do
 
           #TODO check visible by different user
         end
-        pending 'project only visible'
+        # pending 'project only visible'
       end
 
-      pending 'create an alternate value for a project object (controlled vocabulary)' do
-        k2 = Keyword.create!(name: 'testkey', definition: 'testing keyword', by: @user, project: @project)
-        #  when I show that record
-        visit controlled_vocabulary_term_path(:id => k2.id)
-
-        # then there is a link "Add alternate value"
-        expect(page).to have_link('Add alternate value')
-        expect(page.has_content?('Annotations')).to be_falsey
-        expect(page.has_content?('Alternate values')).to be_falsey
-
-        # when I click that link
-        click_link('Add alternate value')
-
-        # I should NOT see a checkbox allowing the user to create it within the project
-        expect(find_field('project_members_only').visible?).to be_falsey
-
-        # and I select "name" from Alternate value object attribute
-        select('name', from: 'alternate_value_alternate_value_object_attribute')
-
-        # spec/features/alternate_values_spec.rb
-        fill_in('Value', with: 'KeyTest')
-
-        # and Type has 'alternate spelling' selected
-        select('alternate spelling', from: 'Type')
-
-        # then when I click "Create Alternate value"
-        click_button('Create Alternate value')
-
-        #        I see the message "Alternate value was successfully created."
-        #          I see the alternate value rendered under Annotations/Alternate value in the show
-        expect(page).to have_content('Alternate value was successfully created.')
-        expect(page.has_content?('Annotations')).to be_truthy
-        expect(page.has_content?('Alternate values')).to be_truthy
-        expect(page).to have_content('KeyTest, alternate spelling of "testkey" (on \'name\')')
-
-      end
+      # pending 'create an alternate value for a project object (controlled vocabulary)' do
+      #   k2 = Keyword.create!(name: 'testkey', definition: 'testing keyword', by: @user, project: @project)
+      #   #  when I show that record
+      #   visit controlled_vocabulary_term_path(:id => k2.id)
+      #
+      #   # then there is a link "Add alternate value"
+      #   expect(page).to have_link('Add alternate value')
+      #   expect(page.has_content?('Annotations')).to be_falsey
+      #   expect(page.has_content?('Alternate values')).to be_falsey
+      #
+      #   # when I click that link
+      #   click_link('Add alternate value')
+      #
+      #   # I should NOT see a checkbox allowing the user to create it within the project
+      #   # expect(find_field('project_members_only').visible?).to be_falsey
+      #
+      #   # and I select "name" from Alternate value object attribute
+      #   select('name', from: 'alternate_value_alternate_value_object_attribute')
+      #
+      #   # spec/features/alternate_values_spec.rb
+      #   fill_in('Value', with: 'KeyTest')
+      #
+      #   # and Type has 'alternate spelling' selected
+      #   select('alternate spelling', from: 'Type')
+      #
+      #   # then when I click "Create Alternate value"
+      #   click_button('Create Alternate value')
+      #
+      #   #        I see the message "Alternate value was successfully created."
+      #   #          I see the alternate value rendered under Annotations/Alternate value in the show
+      #   expect(page).to have_content('Alternate value was successfully created.')
+      #   expect(page.has_content?('Annotations')).to be_truthy
+      #   expect(page.has_content?('Alternate values')).to be_truthy
+      #   expect(page).to have_content('KeyTest, alternate spelling of "testkey" (on \'name\')')
+      #
+      # end
     end
 
     context 'resource routes' do

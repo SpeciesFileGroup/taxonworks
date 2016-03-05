@@ -141,8 +141,8 @@ class TaxonNameClassification < ActiveRecord::Base
       TaxonName.transaction do
         t = self.taxon_name
         if self.type_name =~ /Fossil|Hybrid/
-          t.update_columns(:cached => t.get_full_name,
-                           :cached_html => t.get_full_name_html)
+          t.update_columns(cached: t.get_full_name,
+                           cached_html: t.get_full_name_html)
         elsif TAXON_NAME_CLASS_NAMES_VALID.include?(self.type_name)
           vn = t.get_valid_taxon_name
           vn.list_of_invalid_taxon_names.each do |s|

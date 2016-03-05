@@ -4,20 +4,22 @@ module HubHelper
     content_tag(:div, '', class: 'task_card') { 
       content_tag(:div,'' , class: 'task_header') {
         content_tag(:div, '', class: 'task-header-left') {
-          content_tag(:div, task.status, class: "status #{task.status}") 
+          content_tag(:div, task.status, class: "status #{task.status}")
         } +
         content_tag(:div, '', class: 'task-header-right') {
           task.categories.collect{|c| 
-            content_tag(:div, c.humanize, class: "categories #{c}") 
-          }.join('').html_safe +
-             favorite_page_link('tasks', task.prefix).html_safe # @josé -> here is the favorites link code, you can move it around as needed
+            content_tag(:div, c.humanize, class: "categories #{c}") # @josé icon injected in here, switch div to img tag.
+          }.join().html_safe +
+          favorite_page_link('tasks', task.prefix) 
         } 
       } +
-      content_tag(:a, '', class: 'task-information', href: send(task.path)) {
-        content_tag(:div, task.name, class: 'task_name') +
-        content_tag(:div, task.description, class: 'task_description') 
-      }
+      content_tag(:div, link_to(task.name, send(task.path) ), class: 'task_name') +
+      content_tag(:div, task.description, class: 'task_description') 
     }
+  end
+
+  def data_link(data)
+    link_to(data.name, data.klass)
   end
 
   def data_card(data)
@@ -25,7 +27,7 @@ module HubHelper
       content_tag(:div, "", 
                   data.categories.inject({}){|hsh,c| hsh.merge!("data-category-#{c}" => "true") }.merge( class: "status #{data.status}") 
                  ) + 
-        link_to(data.name, data.klass)
+        data_link(data) 
     end
   end
 

@@ -614,7 +614,7 @@ class GeographicItem < ActiveRecord::Base
   # @return [RGeo instance, nil]
   #  the Rgeo shape (See http://rubydoc.info/github/dazuma/rgeo/RGeo/Feature)
   def geo_object
-    if r = geo_object_type # this assignment is on purpose
+    if r = geo_object_type # rubocop:disable Lint/AssignmentInCondition
       send(r)
     else
       false
@@ -851,7 +851,6 @@ class GeographicItem < ActiveRecord::Base
   def point_to_hash(point)
     { points: [point_to_a(point)] }
   end
-
 
   # @return [Array] of points
   def multi_point_to_a(multi_point)

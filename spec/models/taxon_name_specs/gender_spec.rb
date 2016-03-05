@@ -24,6 +24,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
       TaxonName.delete_all 
       # TODO: find out why this exists and resolve - presently leaving sources in the models
       Source.delete_all 
+      TaxonNameHierarchy.delete_all
     end
 
     context 'asserting gender with a TaxonNameClassification' do
@@ -47,7 +48,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
     context 'modifying gender' do
       let(:s) { FactoryGirl.create(:iczn_species, parent: @genus) }
 
-      let(:gender) { FactoryGirl.create(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::Gender::Masculine') }
+      let!(:gender) { FactoryGirl.create(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Latinized::Gender::Masculine') }
 
       specify 'with no attributes' do
         expect(s.get_full_name_html).to eq('<i>Erythroneura vitis</i>')
@@ -67,7 +68,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
 
         context 'ending changes with TaxonNameClassification' do
           specify 'when classified as masculine' do
-            gender # creates gender for the first time 
+            # gender # creates gender for the first time 
             expect(s.get_full_name_html).to eq('<i>Erythroneura vitus</i>')
           end 
 

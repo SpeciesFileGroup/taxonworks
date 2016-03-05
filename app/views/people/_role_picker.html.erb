@@ -18,7 +18,7 @@
                 <%= person_fields.hidden_field :first_name-%> 
                 <%= person_fields.hidden_field :prefix -%> 
                 <%= person_fields.hidden_field :suffix -%> 
-                <%= object_tag(role_fields.object) -%> <%= link_to('remove', "#", class: :remove_role) -%>
+                <%= object_tag(role_fields.object.person) -%> <%= link_to('remove', "#", class: :remove_role) -%>
               <% end %>
             <% end %>
 
@@ -26,7 +26,7 @@
           <% else %>
             <li class="role_item" data-role-id="<%= role_fields.object.id -%>" data-role-index="<%= role_fields.index -%>" >
             <%= role_fields.text_field :id, hidden: true -%>
-            <%= object_tag(role_fields.object) -%> <%= link_to('remove', "#", class: :remove_role) -%>
+            <%= object_tag(role_fields.object.person) -%> <%= link_to('remove', "#", class: :remove_role) -%>
             </li>
           <% end %>
         <% end %>

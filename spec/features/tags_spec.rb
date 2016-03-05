@@ -37,7 +37,7 @@ describe 'Tags', :type => :feature do
     end
 
 
-    pending 'clicking a tag link anywhere renders the tagged object in <some> view'
+    # pending 'clicking a tag link anywhere renders the tagged object in <some> view'
 
   end
 end

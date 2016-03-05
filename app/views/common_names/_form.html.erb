@@ -1,0 +1,68 @@
+<%= form_for(@common_name) do |f| %>
+  <% if @common_name.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@common_name.errors.count, "error") %> prohibited this common_name from being saved:</h2>
+
+      <ul>
+        <% @common_name.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :name %><br>
+    <%= f.text_field :name %>
+  </div>
+
+  <div class="field">
+    <%= f.label :otu_id %><br>
+    <%= render partial: 'workbench/elements/forms/ajax_select',
+      locals: {controller: 'otus',
+               object: 'common_name',
+               method: 'otu_id',
+               tag_id: 'otu_id_for_common_name',
+               size: '',
+               display: otu_tag(@common_name.otu)} %>
+</div>
+
+
+
+<div class="field">
+  <%= f.label :geographic_area %>
+  <br>
+  <%= render :partial => 'workbench/elements/forms/ajax_select',
+    :locals => {:controller => 'geographic_areas',
+                :object => 'common_name',
+                :method => 'geographic_area_id',
+                :tag_id => 'geographic_area_id_for_common_Name',
+                :display => geographic_area_tag(@common_name.geographic_area),
+                :size => 20} %>
+      </div>
+
+
+
+      <div class="field">
+        <%= f.label :language_id %><br>
+        <%= render :partial => 'workbench/elements/forms/ajax_select',
+          locals:  {controller: 'languages',
+                    object:     'common_name',
+                    method:     'language_id',
+                    tag_id:     'language_id_for_common_name',
+                    size:       '50',
+                    display:    object_tag(@common_name.language)} %>
+    </div>
+
+    <div class="field">
+      <%= f.label :start_year %><br>
+      <%= f.number_field :start_year %>
+    </div>
+    <div class="field">
+      <%= f.label :end_year %><br>
+      <%= f.number_field :end_year %>
+    </div>
+    <div class="actions">
+      <%= f.submit %>
+    </div>
+  <% end %>

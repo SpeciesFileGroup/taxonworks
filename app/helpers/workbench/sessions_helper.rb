@@ -83,6 +83,11 @@ module Workbench::SessionsHelper
     sessions_current_project.project_members.exists?(is_project_administrator: true, user_id: sessions_current_user_id) 
   end 
 
+  def administers_projects?
+    sessions_signed_in? && (is_administrator? || sessions_current_user.administers_projects? )
+  end
+
+  # A superuser is an administrator or a person who is a project_administrator IN THE CURRENTLY SELECTED PROJECT
   def is_superuser?
     sessions_signed_in? && ( is_administrator? || is_project_administrator? )
   end 
@@ -118,6 +123,12 @@ module Workbench::SessionsHelper
   def require_superuser_sign_in
     redirect_to root_url, notice: "Please sign in as a project administrator or administrator." unless is_superuser?
   end
+
+  # User is some project_administrator or administrator
+  def can_administer_projects?
+    redirect_to root_url, notice: "Please sign in as a project administrator or administrator." unless administers_projects?
+  end
+ 
 
   # TODO: make this a non-controller method
   def session_header_links

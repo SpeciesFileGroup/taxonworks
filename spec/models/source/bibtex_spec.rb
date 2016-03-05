@@ -182,7 +182,7 @@ describe Source::Bibtex, type: :model, group: :sources do
       end
     end
 
-    skip 'test export from a set of Source::Bibtex to a BibTeX::Bibliography'
+    # skip 'test export from a set of Source::Bibtex to a BibTeX::Bibliography'
   end
 
   context 'Ruby BibTeX related instance methods' do
@@ -485,7 +485,7 @@ describe Source::Bibtex, type: :model, group: :sources do
       end
 
       specify 'if stated_year is set, there must be a year' do
-        skip #TODO
+        # skip #TODO
       end
 
       context 'months' do
@@ -1035,7 +1035,7 @@ describe Source::Bibtex, type: :model, group: :sources do
         specify 'after create/saved populate author/editor roles' do
           # bs1 was saved in the "before", since the authors already exist in the db,
           # the roles should be automatically set? (Yes)
-          skip
+          # skip
         end
 =begin
       # cached values are tested above in "after save"
@@ -1080,10 +1080,10 @@ describe Source::Bibtex, type: :model, group: :sources do
 
         context 'on validation' do
           # Force the user to interact through authors first, then back save to author
-          skip 'invalidate if authors exist and author has changed, and no longer matches'
+          # skip 'invalidate if authors exist and author has changed, and no longer matches'
 
           # ditto for editors
-          skip 'invalidate if editors exist and editor has changed, and no longer matches'
+          # skip 'invalidate if editors exist and editor has changed, and no longer matches'
         end
 
         %w{author editor}.each do |i|
@@ -1112,7 +1112,7 @@ describe Source::Bibtex, type: :model, group: :sources do
           end
         end
 
-        pending 'test TW identifiers'
+        # pending 'test TW identifiers'
       end
 
     end
@@ -1152,12 +1152,12 @@ describe Source::Bibtex, type: :model, group: :sources do
 
     context 'create_with_roles(BibTeX::Entry instance)' do
       specify 'creates author/editor roles with Person::Unvetted by default' do
-        skip
+        # skip
       end
 
       context 'parameters' do
         specify '{use_vetted_people: true} - uses exactly matching Person::Vetted found, otherwise creates new editors/authors' do
-          skip
+          # skip
         end
       end
     end

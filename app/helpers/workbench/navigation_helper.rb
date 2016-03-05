@@ -5,6 +5,16 @@ module Workbench::NavigationHelper
     render(partial: '/workbench/navigation/quick_bar') if is_data_controller?
   end
 
+  def quick_bar_link(related_model)
+    model = Hub::Data::BY_NAME[ related_model.kind_of?(Hash) ? related_model.keys.first : related_model ]
+    return nil if model.nil?
+    if related_model.kind_of?(Hash) 
+      content_tag(:li, link_to(model, send(related_model.values.first)))
+    else
+      content_tag(:li, data_link(model))
+    end
+  end
+
   def task_bar
     render(partial: '/workbench/navigation/task_bar') if is_task_controller?
   end

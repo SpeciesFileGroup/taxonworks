@@ -6,12 +6,12 @@ describe Predicate, :type => :model do
   # foreign key relationships
   context "reflections / foreign keys" do
     context "has many" do
-      specify "attributes"
-      specify "subjects"
+      # specify "attributes"
+      # specify "subjects"
     end
   end
 
   context "validation" do
-    specify "can be used for attributes only"
+    # specify "can be used for attributes only"
   end
 end

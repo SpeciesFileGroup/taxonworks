@@ -86,6 +86,7 @@ class Project < ActiveRecord::Base
      CollectionObject
      RangedLotCategory
      Image  
+     CommonName
      Otu 
      TaxonNameClassification
      TaxonNameRelationship

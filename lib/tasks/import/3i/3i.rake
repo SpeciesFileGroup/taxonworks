@@ -11,7 +11,8 @@
       # A utility class to index data.
       class ImportedData3i
         attr_accessor :people_index, :user_index, :publications_index, :citations_index, :genera_index, :images_index,
-                      :parent_id_index, :statuses, :taxon_index, :citation_to_publication_index, :keywords
+                      :parent_id_index, :statuses, :taxon_index, :citation_to_publication_index, :keywords,
+                      :incertae_sedis, :emendation, :original_combination
         def initialize()
           @keywords = {}                  # keyword -> ControlledVocabularyTerm
           @people_index = {}              # PeopleID -> Person object
@@ -24,6 +25,9 @@
           @parent_id_index = {}           # Rank:TaxonName -> Taxon.id
           @statuses = {}
           @taxon_index = {}             #Key -> Taxon.id
+          @incertae_sedis = {}            #for those taxa which have a parent of incertae sedis
+          @emendation = {}                # taxon name emendation source reference key => row
+          @original_combination = {}      # original combination key => row
         end
       end
 
@@ -39,6 +43,7 @@
             8 => 'NomenclaturalRank::Iczn::GenusGroup::GenusGroup',
             9 => Ranks.lookup(:iczn, :subtribe),
             10 => Ranks.lookup(:iczn, :tribe),
+            11 => Ranks.lookup(:iczn, :supertribe),
             12 => Ranks.lookup(:iczn, :subfamily),
             13 => Ranks.lookup(:iczn, :family),
             15 => Ranks.lookup(:iczn, :superfamily),
@@ -57,10 +62,10 @@
             2 => '', ### Original combination
             3 => 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary',
             4 => 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary', #### or 'Secondary::Secondary1961'
-            5 => 'TaxonNameRelationship::Iczn::Invalidating::Homonym',
+            5 => 'TaxonNameRelationship::Iczn::Invalidating::Homonym', ## Preocupied
             6 => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression',
             7 => '', ###common name
-            8 => '', #### combination => Combination
+            8 => 'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm', #### combination => Combination
             9 => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling',
             10 => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnjustifiedEmendation',
             11 => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication',
@@ -130,6 +135,18 @@
             24 => 'TaxonNameClassification::Iczn::Unavailable',
             28 => 'TaxonNameClassification::Iczn::Available::Invalid',
             29 => 'TaxonNameClassification::Iczn::Unavailable::Excluded::Infrasubspecific', ### infrasubspecific
+        }
+
+        @languages = {
+            'ba' => 'bal',
+            'en' => 'eng',
+            'fr' => 'fre',
+            'ge' => 'ger',
+            'ko' => 'kor',
+            'ma' => 'hun',
+            'sp' => 'spa',
+            'ta' => 'tgl',
+            'vi' => 'hil'
         }
 
         if ENV['no_transaction']
@@ -211,7 +228,7 @@
 
 
       def handle_controlled_vocabulary_3i
-        print "Handling CV "
+        print "\nHandling CV \n"
 
         @data.keywords.merge!(
             #'AuthorDrMetcalf' => Predicate.find_or_create_by(name: 'AuthorDrMetcalf', definition: 'Author name from DrMetcalf bibliography database.', project_id: $project_id),
@@ -222,6 +239,8 @@
             'Ethymology' => Predicate.find_or_create_by(name: 'ethymology', definition: 'Ethymology.', project_id: $project_id),
             'TypeDepository' => Predicate.find_or_create_by(name: 'type_depository', definition: 'Type depository.', project_id: $project_id),
             'YearRem' => Predicate.find_or_create_by(name: 'nomenclatural_string', definition: 'Nomenclatural remarks.', project_id: $project_id),
+            'Typification' => Predicate.find_or_create_by(name: 'type_designated_by', definition: 'Type designated by', project_id: $project_id),
+            'FirstRevisor' => Predicate.find_or_create_by(name: 'first_revisor_action', definition: 'First revisor action', project_id: $project_id),
             'PageAuthor' => Predicate.find_or_create_by(name: 'page_author', definition: 'Page author.', project_id: $project_id),
             'SimilarSpecies' => Predicate.find_or_create_by(name: 'similar_species', definition: 'Similar species.', project_id: $project_id),
             'IDDrMetcalf' => Namespace.find_or_create_by(name: 'DrMetcalf_Source_ID', short_name: 'DrMetcalf_ID'),
@@ -368,7 +387,7 @@
         # Author !
         # Year !
         # YearRem !
-        # Page
+        # Page !
         # Rank !
         # Status
         # Parent !
@@ -399,22 +418,55 @@
 
         gender = {'M' => 'TaxonNameClassification::Latinized::Gender::Masculine',
                   'F' => 'TaxonNameClassification::Latinized::Gender::Feminine',
-                  'N' => 'TaxonNameClassification::Latinized::Gender::Neuter'
-        }
+                  'N' => 'TaxonNameClassification::Latinized::Gender::Neuter',
+                  'm' => 'TaxonNameClassification::Latinized::Gender::Masculine',
+                  'f' => 'TaxonNameClassification::Latinized::Gender::Feminine',
+                  'n' => 'TaxonNameClassification::Latinized::Gender::Neuter' }
+
+        synonym_statuses = %w(1 6 8 10 11 14 17 22 23 24 26 27 28 29)
 
       path = @args[:data_directory] + 'taxon.txt'
           print "\nHandling taxonomy\n"
           raise "file #{path} not found" if not File.exists?(path)
           file = CSV.foreach(path, col_sep: "\t", headers: true)
 
+
           file.each_with_index do |row, i|
+            if i < 200000
             print "\r#{i}"
-            if row['Status'] == '8' || !row['OriginalCombinationOf'].blank? || row['Status'] == '7'
+            if row['Name'] == 'Incertae sedis' || row['Name'] == 'Unplaced'
+              @data.incertae_sedis.merge!(row['Key'] => @data.taxon_index[row['Parent']])
+            elsif row['Status'] == '7' ### common name
+            elsif row['Status'] == '8' && !@data.taxon_index[row['Parent']].rank_class.to_s.include?('Family') ### combination
+            elsif row['Status'] == '2'
+              @data.original_combination.merge!(row['OriginalCombinationOf'] => row)
+            elsif row['Status'] == '16'
+              rank = @ranks[row['Rank'].to_i]
+              otu = Otu.create!(name: 'Genus ' + row['Name']) if rank.to_s.include?('Genus')
+              otu = Otu.create!(name: ('Species ' + @data.taxon_index[row['Parent']].try(:name).to_s + ' ' + row['Name']).squish) if rank.to_s.include?('Species')
+              otu.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['Key'], identifier: row['Key'])
+            elsif row['Status'] == '18'
+              taxon = @data.taxon_index[row['Parent']]
+              taxon.data_attributes.new(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['Typification'].id, value: ('Type designation: ' + row['Author'].to_s + ', ' + row['Year'].to_s + row['YearRem'].to_s).squish)
+              taxon.valid? ? taxon.save! : byebug
+            elsif row['Status'] == '19'
+              taxon = @data.taxon_index[row['Parent']]
+              taxon.data_attributes.new(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['Typification'].id, value: ('Neotype designation: ' + row['Author'].to_s + ', ' + row['Year'].to_s + row['YearRem'].to_s).squish)
+              taxon.valid? ? taxon.save! : byebug
+            elsif row['Status'] == '20'
+              taxon = @data.taxon_index[row['Parent']]
+              taxon.data_attributes.new(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['Typification'].id, value: ('Lectotype designation: ' + row['Author'].to_s + ', ' + row['Year'].to_s + row['YearRem'].to_s).squish)
+              taxon.valid? ? taxon.save! : byebug
+            elsif row['Status'] == '25'  && !@data.taxon_index[row['Parent']].rank_class.to_s.include?('Family') # emendation
+              taxon = @data.taxon_index[row['Parent']]
+              taxon.data_attributes.new(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['FirstRevisor'].id, value: (row['Name'] + ' ' + row['Author'].to_s + ', ' + row['Year'].to_s + row['YearRem'].to_s).squish)
+              taxon.valid? ? taxon.save! : byebug
+              @data.emendation.merge!(row['Parent'] => row)
             else
               name = row['Name'].split(' ').last
-              vname = nil
-              parent = row['Parent'].blank? ? @root : Protonym.with_identifier('3i_Taxon_ID ' + row['Parent']).find_by(project_id: $project_id)
-              byebug if row['Rank'].blank?
+              vname = row['Name'].split(' ').last
+              #parent = row['Parent'].blank? ? @root : Protonym.with_identifier('3i_Taxon_ID ' + row['Parent']).find_by(project_id: $project_id)
+              parent = row['Parent'].blank? ? @root : @data.incertae_sedis[row['Parent']] || @data.taxon_index[row['Parent']]
 
               if row['Rank'] == '0'
                 rank = parent.rank_class
@@ -428,11 +480,22 @@
               else
                 rank = @ranks[row['Rank'].to_i]
               end
+              if !row['OriginalSpecies'].blank? && row['Rank'] == '2'
+                parent = @data.taxon_index[row['OriginalSpecies']]
+                rank = @ranks[1]
+              end
+              byebug if parent.nil?
+              byebug if row['Rank'].blank?
+
               #rank = row['Rank'] == '0' ? parent.rank_class : @ranks[row['Rank'].to_i]
               source = row['Key3'].blank? ? nil : @data.publications_index[row['Key3']] # Source.with_identifier('3i_Source_ID ' + row['Key3']).first
+              if row['Rank'] == '0'
+                byebug if parent.parent.nil?
+                parent = parent.parent
+              end
 
               taxon = Protonym.new( name: name,
-                                    parent: row['Status'] == '0' ? parent : parent.parent,
+                                    parent: parent,
                                     source_id: source,
                                     year_of_publication: row['Year'],
                                     verbatim_author: row['Author'],
@@ -444,6 +507,7 @@
                                     also_create_otu: true
               )
 
+              taxon.citations.new(source_id: source, pages: row['Page']) unless source.blank?
               taxon.identifiers.new(type: 'Identifier::Local::Import', namespace: @data.keywords['Key'], identifier: row['Key'])
               taxon.notes.new(text: row['Remarks']) unless row['Remarks'].blank?
               taxon.data_attributes.new(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['Ethymology'].id, value: row['Ethymology']) unless row['Ethymology'].blank?
@@ -452,10 +516,7 @@
               taxon.data_attributes.new(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['PageAuthor'].id, value: row['PageAuthor']) unless row['PageAuthor'].blank?
 
               if !row['DescriptEn'].blank? && row['DescriptEn'].include?('<h2>Similar species</h2>')
-                taxon.data_attributes.new(type: 'InternalAttribute', controlled_vocabulary_term: @data.keywords['SimilarSpecies'], value: row['DescriptEn'].gsub('<h2>Similar species</h2>').squish)
-              end
-              if !row['DescriptEn'].blank? && (row['DescriptEn'].include?('<h2>Notes</h2>') || row['DescriptEn'].include?('<h2>Remarks</h2>'))
-                taxon.otus.first.contents.new(topic_id: @data.keywords['Notes'], text: row['DescriptEn'].gsub('<h2>Notes</h2>').gsub('<h2>Remarks</h2>').squish)
+                taxon.data_attributes.new(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['SimilarSpecies'].id, value: row['DescriptEn'].gsub('<h2>Similar species</h2>', '').squish)
               end
 
               taxon.taxon_name_classifications.new(type: gender[row['Gender']]) unless row['Gender'].blank?
@@ -466,25 +527,203 @@
               taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Available::OfficialListOfFamilyGroupNamesInZoology') if row['YearRem'].to_s.include?('Official List of Family-Group Names in Zoology')
               taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Available::OfficialListOfGenericNamesInZoology') if row['YearRem'].to_s.include?('Official List of Generic Names in Zoology')
               taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Available::OfficialListOfSpecificNamesInZoology') if row['YearRem'].to_s.include?('Official List of Specific Names in Zoology')
-              taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::Suppressed::OfficialIndexOfRejectedFamilyGroupNamesInZoology') if row['YearRem'].to_s.include?('Official Index of Rejected and Invalid Family-Group Names in Zoology')
-              taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::Suppressed::OfficialIndexOfRejectedGenericNamesInZoology') if row['YearRem'].to_s.include?('Official Index of Rejected and Invalid Generic Names in Zoology')
-              taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::Suppressed::OfficialIndexOfRejectedSpecificNamesInZoology') if row['YearRem'].to_s.include?('Official Index of Rejected and Invalid Specific Names in Zoology')
-              taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin') if taxon.rank_string =~ /Family/ && row['Status'] != '0' && !taxon.valid? && !taxon.errors.messages[:name].empty?
+              t3 = taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::Suppressed::OfficialIndexOfRejectedFamilyGroupNamesInZoology') if row['YearRem'].to_s.include?('Official Index of Rejected and Invalid Family-Group Names in Zoology')
+              t1 = taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::Suppressed::OfficialIndexOfRejectedGenericNamesInZoology') if row['YearRem'].to_s.include?('Official Index of Rejected and Invalid Generic Names in Zoology')
+              t2 = taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::Suppressed::OfficialIndexOfRejectedSpecificNamesInZoology') if row['YearRem'].to_s.include?('Official Index of Rejected and Invalid Specific Names in Zoology')
               taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::LessThanTwoLetters') if name.length == 1
+
+              taxon.iczn_uncertain_placement = @data.incertae_sedis[row['Parent']] if @data.incertae_sedis[row['Parent']]
+              taxon.original_variety = taxon if row['Name'].include?(' var. ')
+              taxon.original_form = taxon if row['Name'].include?(' f. ')
 
               if taxon.valid?
                 taxon.save!
-                @data.taxon_index.merge!(row['Key'] => taxon.id)
+                @data.taxon_index.merge!(row['Key'] => taxon)
               else
-                byebug
-                print "\n#{row['Key']}         #{row['Name']}"
-                print "\n#{taxon.errors.first}\n"
-                #byebug
+                taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin') if taxon.rank_string =~ /Family/ && row['Status'] != '0' && !taxon.errors.messages[:name].blank?
+                taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin') if taxon.rank_string =~ /Species/ && row['Status'] != '0' && taxon.errors.full_messages.include?('Name name must be lower case')
+                taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin') if taxon.rank_string =~ /Species/ && row['Status'] != '0' && taxon.errors.full_messages.include?('Name Name must be latinized, no digits or spaces allowed')
+                if taxon.valid?
+                  taxon.save!
+                  @data.taxon_index.merge!(row['Key'] => taxon)
+                else
+                  print "\n#{row['Key']}         #{row['Name']}"
+                  print "\n#{taxon.errors.full_messages}\n"
+                  #byebug
+                end
+                if !row['DescriptEn'].blank? && (row['DescriptEn'].include?('<h2>Notes</h2>') || row['DescriptEn'].include?('<h2>Remarks</h2>'))
+                  taxon.otus.first.contents.new(topic_id: @data.keywords['Notes'], text: row['DescriptEn'].gsub('<h2>Notes</h2>').gsub('<h2>Remarks</h2>').squish)
+                end
+
               end
 
             end
 
+            end ############################
           end
+
+
+        # OrigGen !
+        # OrigSubGen !
+        # OriginalSpecies !
+        # OriginalSubSpecies !
+        # TypeDesignation !
+        # Type !
+        # Homonym !
+        # MisspellingOf
+        # CombinationOf !
+        # OriginalCombinationOf
+        # NomenNovumFor !
+
+        file.each_with_index do |row, i|
+          print "\r#{i} (Relationships)"
+          taxon = @data.taxon_index[row['Key']]
+          if !taxon.nil? ### original combinations, synonyms, types
+            taxon.original_genus = @data.taxon_index[row['OrigGen']] unless row['OrigGen'].blank?
+            taxon.original_species = @data.taxon_index[row['OrigSpecies']] unless row['OrigSpecies'].blank?
+            taxon.original_subspecies = @data.taxon_index[row['OrigSubSpecies']] unless row['OrigSubSpecies'].blank?
+            if taxon.rank_string =~ /Genus/
+              taxon.original_genus.nil? ? taxon.original_genus = taxon : taxon.original_subgenus = taxon
+            elsif taxon.rank_string =~ /Species/
+              if taxon.original_species.nil?
+                taxon.original_species = taxon
+              elsif taxon.original_subspecies.nil? && taxon.original_variety.nil? && taxon.original_form.nil?
+                taxon.original_subspecies = taxon
+              elsif taxon.original_variety.nil?
+                taxon.original_variety = taxon
+              end
+            end
+
+            if taxon.rank_string =~ /Genus/ && !row['Type'].blank?
+              case row['TypeDesignation']
+                when 'original monotypy'
+                  taxon.type_species_by_original_monotypy = @data.taxon_index[row['Type']]
+                when 'monotypy'
+                  taxon.type_species_by_monotypy = @data.taxon_index[row['Type']]
+                when 'subsequent monotypy'
+                  taxon.type_species_by_subsequent_monotypy = @data.taxon_index[row['Type']]
+                when 'original designation'
+                  taxon.type_species_by_original_designation = @data.taxon_index[row['Type']]
+                when 'subsequent designation'
+                  taxon.type_species_by_subsequent_designation = @data.taxon_index[row['Type']]
+                when 'ruling by commission'
+                  taxon.type_species_by_ruling_by_Commission = @data.taxon_index[row['Type']]
+                else
+                  taxon.type_species = @data.taxon_index[row['Type']]
+              end
+            end
+            taxon.type_genus = @data.taxon_index[row['Type']] if taxon.rank_string =~ /Family/ && !row['Type'].blank?
+            taxon.iczn_set_as_primary_homonym_of = @data.taxon_index[row['Homonym']] if !row['Homonym'].blank? && row['Status'] == '3'
+            taxon.iczn_set_as_secondary_homonym_of = @data.taxon_index[row['Homonym']] if !row['Homonym'].blank? && row['Status'] == '4'
+            taxon.iczn_set_as_homonym_of = @data.taxon_index[row['Homonym']] if !row['Homonym'].blank? && row['Status'] == '5'
+            taxon.iczn_set_as_replacement_name_of = @data.taxon_index[row['NomenNovumFor']] if !row['NomenNovumFor'].blank?
+            taxon.iczn_set_as_misspelling_of = @data.taxon_index[row['MisspellingOf']] if !row['MisspellingOf'].blank?
+            taxon.iczn_set_as_misspelling_of = @data.taxon_index[row['Parent']] if row['MisspellingOf'].blank? && row['Status'] == '9'
+            taxon.iczn_set_as_incorrect_original_spelling_of = @data.taxon_index[row['OriginalCombinationOf']] if !row['OriginalCombinationOf'].blank? && row['Status'] == '9'
+            #taxon.iczn_first_revisor_action = @data.taxon_index[row['Parent']] if !row['OriginalCombinationOf'].blank? && row['Status'] == '9'
+
+            source = nil
+            if !@data.emendation[row['Parent']].blank? && row['OriginalCombinationOf'] == row['Parent']
+              source = @data.emendation[row['Parent']].try(['Key3']).nil? ? nil : @data.publications_index[@data.emendation[row['Parent']]['Key3']] unless @data.emendation[row['Parent']].nil?
+              tnr = TaxonNameRelationship::Iczn::PotentiallyValidating::FirstRevisorAction.create(object_taxon_name: @data.emendation[row['Parent']]['Parent'], subject_taxon_name: taxon, source_id: source) if !@data.emendation[row['Parent']].blank? && row['OriginalCombinationOf'] == row['Parent']
+              byebug unless tnr.valid?
+            end
+
+            if taxon.valid?
+              taxon.save!
+            else
+              byebug
+            end
+
+            if synonym_statuses.include?(row['Status']) # %w(1 6 8 10 11 14 17 22 23 24 26 27 28 29)
+              tnr = TaxonNameRelationship.create(subject_taxon_name: taxon, object_taxon_name: @data.taxon_index[row['Parent']], type: @relationship_classes[row['Status'].to_i])
+              byebug unless tnr.valid?
+            end
+
+          elsif row['Status'] == '8' || row['Status'] == '25' ### taxon name combinations
+            taxon = @data.taxon_index[row['CombinationOf']] || @data.taxon_index[row['Parent']]
+
+            source = row['Key3'].blank? ? nil : @data.publications_index[row['Key3']]
+            c = Combination.new(source_id: source, verbatim_author: row['Author'], year_of_publication: row['Year'])
+
+            c.citations.new(source_id: source, pages: row['Page']) unless source.blank?
+            c.genus = @data.taxon_index[row['OrigGen']] unless row['OrigGen'].blank?
+            c.species = @data.taxon_index[row['OrigSpecies']] unless row['OrigSpecies'].blank?
+            c.subspecies = @data.taxon_index[row['OrigSubSpecies']] unless row['OrigSubSpecies'].blank?
+            c.variety = taxon if row['Name'].include?(' var. ')
+            c.form = taxon if row['Name'].include?(' f. ')
+            c.parent = @data.taxon_index[row['OrigGen']].parent
+            if taxon.rank_string =~ /Genus/
+              c.genus.nil? ? c.genus = taxon : c.subgenus = taxon
+            elsif taxon.rank_string =~ /Species/
+              if c.species.nil?
+                c.species = taxon
+              elsif c.subspecies.nil? && c.variety.nil? && c.form.nil?
+                c.subspecies = taxon
+              elsif c.variety.nil?
+                c.variety = taxon
+              end
+            elsif taxon.rank_string =~ /Family/
+
+            end
+            c.data_attributes.new(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['YearRem'].id, value: row['YearRem']) unless row['YearRem'].blank?
+
+            i3_combination = '<i>' + @data.taxon_index[row['OrigGen']].try(:name).to_s + '</i> '
+            i3_combination += '(<i>' + @data.taxon_index[row['OrigSubGen']].try(:name).to_s + '</i>) ' unless row['OrigSubGen'].blank?
+            i3_combination += '<i>' + row['Name'] + '</i>'
+            i3_combination = i3_combination.gsub(' f. ', '</i> f. <i>').
+                                                 gsub(' var. ', '</i> var. <i>').
+                                                 gsub('<i></i>', '').
+                                                 gsub('</i> <i>', ' ')
+            i3_combination.squish!
+
+
+            if c.valid?
+              c.save!
+              if !i3_combination.blank? && i3_combination != c.cached_html
+                c.data_attributes.create(type: 'ImportAttribute', import_predicate: 'combination_in_3i', value: i3_combination)
+                c.data_attributes.create(type: 'ImportAttribute', import_predicate: 'name_in_3i', value: row['Name'])
+              end
+            else
+              byebug
+            end
+
+          elsif row['Status'] == '7' #  common name
+            lng = Language.find_by_alpha_3_bibliographic(@languages[row['CommonNameLang'].to_s.downcase])
+            CommonName.create!(otu: @data.taxon_index[row['Parent']].otus.first, name: row['Name'], language: lng)
+          elsif row['Status'] == '2' || !row['OriginalCombinationOf'].blank? ### Original combination
+            taxon = @data.taxon_index[row['OriginalCombinationOf']] || @data.taxon_index[row['Parent']]
+            taxon.verbatim_name = row['Name'].split(' ').last
+            taxon.original_species = nil
+            taxon.original_subspecies = nil
+            taxon.original_variety = nil
+            taxon.original_form = nil
+            taxon.original_species = @data.taxon_index[row['OrigSpecies']] unless row['OrigSpecies'].blank?
+            taxon.original_subspecies = @data.taxon_index[row['OrigSubSpecies']] unless row['OrigSubSpecies'].blank?
+            taxon.original_variety = taxon if row['Name'].include?(' var. ')
+            taxon.original_form = taxon if row['Name'].include?(' f. ')
+            if taxon.rank_string =~ /Species/
+              if taxon.original_species.nil?
+                taxon.original_species = taxon
+              elsif taxon.original_subspecies.nil? && taxon.original_variety.nil? && taxon.original_form.nil?
+                taxon.original_subspecies = taxon
+              elsif taxon.original_variety.nil?
+                taxon.original_variety = taxon
+              end
+            end
+            if taxon.valid?
+              taxon.save!
+            else
+              byebug
+            end
+
+
+
+          end
+
+        end
+
+
 
         end
 

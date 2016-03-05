@@ -1,5 +1,6 @@
 TaxonWorks::Application.routes.draw do
 
+
   # All models that use data controllers should include this concern.
   # See http://api.rubyonrails.org/classes/ActionDispatch/Routing/Mapper/Concerns.html to extend it to take options if need be.
   # TODO: This will have to be broken down to core_data_routes, and supporting_data_routes
@@ -41,6 +42,7 @@ TaxonWorks::Application.routes.draw do
       get 'settings_for'
       get 'stats'
       get 'recently_created_stats'
+      get 'per_relationship_recent_stats/:relationship', action: :per_relationship_recent_stats, as: :per_relationship_recent_stats
     end
   end
 
@@ -109,6 +111,10 @@ TaxonWorks::Application.routes.draw do
   end
 
   resources :combinations, only: [:create, :edit, :update, :destroy, :new] do
+    concerns [:data_routes]
+  end
+
+  resources :common_names do
     concerns [:data_routes]
   end
 

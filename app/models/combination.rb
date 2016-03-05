@@ -71,6 +71,40 @@ class Combination < TaxonName
 
   has_many :combination_taxon_names, through: :combination_relationships, source: :subject_taxon_name
 
+  TaxonNameRelationship.descendants.each do |d|
+    if d.respond_to?(:assignment_method)
+      if d.name.to_s =~ /TaxonNameRelationship::SourceClassifiedAs/
+        relationship = "#{d.assignment_method}_relationship".to_sym
+        has_one relationship, class_name: d.name.to_s, foreign_key: :subject_taxon_name_id
+        has_one d.assignment_method.to_sym, through: relationship, source: :object_taxon_name
+      end
+
+      if d.name.to_s =~ /TaxonNameRelationship::Combination/ # |SourceClassifiedAs
+        relationships = "#{d.assignment_method}_relationships".to_sym
+        has_many relationships, -> {
+          where("taxon_name_relationships.type LIKE '#{d.name.to_s}%'")
+        }, class_name: 'TaxonNameRelationship', foreign_key: :subject_taxon_name_id
+        has_many d.assignment_method.to_s.pluralize.to_sym, through: relationships, source: :object_taxon_name
+      end
+    end
+
+    if d.respond_to?(:inverse_assignment_method)
+      if d.name.to_s =~ /TaxonNameRelationship::SourceClassifiedAs/
+        relationships = "#{d.inverse_assignment_method}_relationships".to_sym
+        has_many relationships, -> {
+          where("taxon_name_relationships.type LIKE '#{d.name.to_s}%'")
+        }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
+        has_many d.inverse_assignment_method.to_s.pluralize.to_sym, through: relationships, source: :subject_taxon_name
+      end
+
+      if d.name.to_s =~ /TaxonNameRelationship::Combination/ # |SourceClassifiedAs
+        relationship = "#{d.inverse_assignment_method}_relationship".to_sym
+        has_one relationship, class_name: d.name.to_s, foreign_key: :object_taxon_name_id
+        has_one d.inverse_assignment_method.to_sym, through: relationship, source: :subject_taxon_name
+      end
+    end
+  end
+
 
   APPLICABLE_RANKS.each do |rank|
     has_one "#{rank}_taxon_name_relationship".to_sym, -> {
@@ -122,7 +156,7 @@ class Combination < TaxonName
     if self.new_record?
       protonyms_by_association
     else
-      self.combination_taxon_names.ordered_by_rank
+      self.combination_taxon_names # .ordered_by_rank
     end
   end
 

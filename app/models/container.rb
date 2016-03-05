@@ -1,12 +1,6 @@
+
+
 # A container localizes the proximity of one ore more physical things, at this point in TW this is restricted to a number of collection objects.
-#
-# @!attribute lft
-#   @return [Integer]
-#     awesome_nested_set indexing 
-#
-# @!attribute rgt
-#   @return [Integer]
-#     awesome_nested_set indexing 
 #
 # @!attribute parent_id
 #   @return [Integer]
@@ -33,7 +27,8 @@
 #     a free text description of the position of this container 
 #
 class Container < ActiveRecord::Base
-  acts_as_nested_set scope: [:project_id]
+
+  has_closure_tree 
 
   include Housekeeping
   include Shared::Containable
@@ -48,6 +43,11 @@ class Container < ActiveRecord::Base
 
   validates :type, presence: true
   validate :enclosing_container_is_valid
+  validate :type_is_valid
+
+  def type_is_valid
+    raise ActiveRecord::SubclassNotFound, 'Invalid subclass' if type && !Container.descendants.map(&:name).include?(type)
+  end
 
   # @return [String]
   #   the "common name" of this class
@@ -74,14 +74,12 @@ class Container < ActiveRecord::Base
   # @return [Array of {Object}s]
   #   all objects contained in this and nested containers
   def all_objects
-#   all_containers.collect{|c| c.container_item.collect{|ci| ci.contained_object}}.flatten 
+    #  all_containers.collect{|c| c.container_item.collect{|ci| ci.contained_object}}.flatten 
+    #  container_items = ContainerItem.joins(:containers).where(containers: {left: 
+  end
 
-#   container_items = ContainerItem.joins(:containers).where(containers: {left: 
-
-    def self.find_for_autocomplete(params)
-      Queries::ContainerAutocompleteQuery.new(params[:term]).all.where(project_id: params[:project_id])
-    end
-
+  def self.find_for_autocomplete(params)
+    Queries::ContainerAutocompleteQuery.new(params[:term]).all.where(project_id: params[:project_id])
   end
 
   protected
@@ -96,3 +94,4 @@ class Container < ActiveRecord::Base
 
 end
 
+Dir[Rails.root.to_s + '/app/models/container/**/*.rb'].each{|file| require_dependency file } 

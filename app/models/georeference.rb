@@ -1,3 +1,4 @@
+# rubocop:disable Metrics/AbcSize, MethodLength, CyclomaticComplexity
 # A georeference is an assertion that some shape, as derived from some method, describes the location of some collecting event.
 #
 # A georeference contains three components:
@@ -81,9 +82,8 @@ class Georeference < ActiveRecord::Base
   validates :geographic_item, presence: true
   validates :collecting_event, presence: true
   validates :type, presence: true
-
-  validates_presence_of :geographic_item
-  validates_uniqueness_of :collecting_event_id, scope: [:type, :geographic_item_id, :project_id]
+  validates :collecting_event_id, uniqueness: {scope: [:type, :geographic_item_id, :project_id]}
+  # validates_uniqueness_of :collecting_event_id, scope: [:type, :geographic_item_id, :project_id]
 
   # validate :proper_data_is_provided
   validate :add_error_radius
@@ -117,23 +117,23 @@ class Georeference < ActiveRecord::Base
     retval = nil
 
     if error_radius.nil?
-      if !error_geographic_item.nil?
-        retval = error_geographic_item.dup
-      end
+      retval = error_geographic_item.dup unless error_geographic_item.nil?
     else
-      if !geographic_item.nil? && geographic_item.geo_object_type
-        case geographic_item.geo_object_type
-          when :point
-            # TODO: discuss, I don't think we want to imply shape for these calculateions
-            retval = Utilities::Geo.point_keystone_error_box(geographic_item.geo_object, self.error_radius) #  geographic_item.keystone_error_box # error_radius_buffer_polygon #
-          when :polygon
-            retval = geographic_item.geo_object
-          else
-            retval = nil
+      unless geographic_item.nil?
+        if geographic_item.geo_object_type
+          retval = case geographic_item.geo_object_type
+                     when :point
+                       # TODO: discuss, I don't think we want to imply shape for these calculateions
+                       Utilities::Geo.point_keystone_error_box(geographic_item.geo_object, error_radius) #  geographic_item.keystone_error_box # error_radius_buffer_polygon #
+                     when :polygon, :multi_polygon
+                       geographic_item.geo_object
+                     # else
+                     #   nil
+                   end
         end
       end
-      retval
     end
+    retval
   end
 
   # GeographicItem.connection.select_all("select st_dwithin((select point from geographic_items where id = 34820), (select polygon from geographic_items where id = 34809), 6800)").first['st_dwithin']
@@ -141,9 +141,9 @@ class Georeference < ActiveRecord::Base
   # @return [Rgeo::polygon, nil]
   #   a polygon representing the buffer
   def error_radius_buffer_polygon
-    return nil if self.error_radius.nil? || self.geographic_item.nil?
+    return nil if error_radius.nil? || geographic_item.nil?
     value = GeographicItem.connection.select_all(
-      "SELECT ST_BUFFER('#{self.geographic_item.geo_object}', #{self.error_radius / 111319.444444444});").first['st_buffer']
+      "SELECT ST_BUFFER('#{geographic_item.geo_object}', #{error_radius / 111_319.444444444});").first['st_buffer']
     Gis::FACTORY.parse_wkb(value)
   end
 
@@ -153,8 +153,8 @@ class Georeference < ActiveRecord::Base
     to_simple_json_feature.merge(
       'properties' => {
         'georeference' => {
-          'id'  => self.id,
-          'tag' => "Georeference ID = #{self.id}"
+          'id'  => id,
+          'tag' => "Georeference ID = #{id}"
         }
       }
     )
@@ -171,7 +171,7 @@ class Georeference < ActiveRecord::Base
   # TODO: parametrize to include gazeteer
   #   i.e. geographic_areas_geogrpahic_items.where( gaz = 'some string')
   def to_simple_json_feature
-    geometry = RGeo::GeoJSON.encode(self.geographic_item.geo_object)
+    geometry = RGeo::GeoJSON.encode(geographic_item.geo_object)
     {
       'type'       => 'Feature',
       'geometry'   => geometry,
@@ -194,7 +194,7 @@ class Georeference < ActiveRecord::Base
   # @return [Scope] Georeferences
   #   all Georeferences within some distance of a geographic_item
   def self.within_radius_of_item(geographic_item, distance)
-    #.where{geographic_item_id in GeographicItem.within_radius_of('polygon', geographic_item, distance)}
+    # .where{geographic_item_id in GeographicItem.within_radius_of('polygon', geographic_item, distance)}
     # geographic_item may be a polygon, or a point
 
     # TODO: Add different types of GeographicItems as we learn about why they are stored.
@@ -258,7 +258,7 @@ class Georeference < ActiveRecord::Base
     end
   end
 
-  # todo: not yet sure what the params are going to look like. what is below just represents a guess
+  # TODO: not yet sure what the params are going to look like. what is below just represents a guess
   # @param [Hash] arguments from _collecting_event_selection form
   def self.batch_create_from_georeference_matcher(arguments)
     gr = Georeference.find(arguments[:georeference_id].to_param)
@@ -287,8 +287,6 @@ class Georeference < ActiveRecord::Base
     result
   end
 
-  protected
-
   # @param [String, Boolean] String to find in collecting_event.verbatim_locality, Bool = false for 'Starts with',
   # Bool = true if 'contains'
   # @return [Scope] Georeferences which are attached to a CollectingEvent which has a verbatim_locality which
@@ -303,6 +301,8 @@ class Georeference < ActiveRecord::Base
     Georeference.where('collecting_event_id in (?)', CollectingEvent.where(query).pluck(:id))
   end
 
+  protected
+
   # validation methods
 
   # @return [Boolean]
@@ -313,7 +313,7 @@ class Georeference < ActiveRecord::Base
     unless geographic_item.nil? || !geographic_item.geo_object
       unless error_geographic_item.nil?
         if error_geographic_item.geo_object # is NOT false
-          retval = self.error_geographic_item.contains?(self.geographic_item.geo_object)
+          retval = error_geographic_item.contains?(geographic_item.geo_object)
         end
       end
     end
@@ -326,7 +326,7 @@ class Georeference < ActiveRecord::Base
     # case 2
     retval = true
     if !error_radius.blank? && geographic_item && geographic_item.geo_object
-      retval = self.error_box.contains?(self.geographic_item.geo_object)
+      retval = error_box.contains?(geographic_item.geo_object)
     end
     retval
   end
@@ -338,7 +338,7 @@ class Georeference < ActiveRecord::Base
     unless error_radius.nil?
       unless error_geographic_item.nil?
         if error_geographic_item.geo_object # is NOT false
-          retval = self.error_box.contains?(error_geographic_item.geo_object)
+          retval = error_box.contains?(error_geographic_item.geo_object)
         end
       end
     end
@@ -352,9 +352,9 @@ class Georeference < ActiveRecord::Base
     retval = true
     if collecting_event
       ga_gi = collecting_event.geographic_area_default_geographic_item
-      eb    = self.error_box
-      if !error_radius.blank? && ga_gi && eb
-        retval = ga_gi.contains?(eb)
+      eb    = error_box
+      unless error_radius.blank? # rubocop:disable Style/IfUnlessModifier
+        retval = ga_gi.contains?(eb) if ga_gi && eb
       end
     end
     retval
@@ -434,7 +434,7 @@ class Georeference < ActiveRecord::Base
 
   # @return [Boolean] true iff error_radius contains error_geographic_item.
   def add_err_geo_item_inside_err_radius
-    unless check_err_geo_item_inside_err_radius
+    unless check_err_geo_item_inside_err_radius # rubocop:disable Style/GuardClause
       problem = 'error_radius must contain error_geographic_item.'
       errors.add(:error_radius, problem)
       errors.add(:error_geographic_item, problem)
@@ -443,36 +443,30 @@ class Georeference < ActiveRecord::Base
 
   # @return [Boolean] true iff error_radius contains geographic_item.
   def add_obj_inside_err_radius
-    unless check_obj_inside_err_radius
-      errors.add(:error_radius, 'must contain geographic_item.')
-    end
+    errors.add(:error_radius, 'must contain geographic_item.') unless check_obj_inside_err_radius
   end
 
   # @return [Boolean] true iff error_geographic_item contains geographic_item.
   def add_obj_inside_err_geo_item
-    unless check_obj_inside_err_geo_item
-      errors.add(:error_geographic_item, 'must contain geographic_item.')
-    end
+    errors.add(:error_geographic_item, 'must contain geographic_item.') unless check_obj_inside_err_geo_item
   end
 
   # @return [Boolean] true iff error_depth is less than 8.8 kilometers (5.5 miles).
   def add_error_depth
-    if error_depth && error_depth > 8800
-      errors.add(:error_depth, 'error_depth must be less than 8.8 kilometers (5.5 miles).')
-    end # 8,800 meters
+    errors.add(:error_depth, 'error_depth must be less than 8.8 kilometers (5.5 miles).') if error_depth &&
+      error_depth > 8_800 # 8,800 meters
   end
 
   # @return [Boolean] true iff error_radius is less than 20,000 kilometers (12,400 miles).
   def add_error_radius
-    if error_radius && error_radius > 20000000
-      errors.add(:error_radius, ' must be less than 20,000 kilometers (12,400 miles).')
-    end # 20,000 km
+    errors.add(:error_radius, ' must be less than 20,000 kilometers (12,400 miles).') if error_radius &&
+      error_radius > 20_000_000 # 20,000 km
   end
 
   def geographic_item_present_if_error_radius_provided
-    if !self.error_radius.blank? &&
-      self.geographic_item_id.blank? && # provide existing
-      self.geographic_item.blank? # provide new
+    if !error_radius.blank? &&
+      geographic_item_id.blank? && # provide existing
+      geographic_item.blank? # provide new
       errors.add(:error_radius, 'can only be provided when geographic item is provided')
     end
   end

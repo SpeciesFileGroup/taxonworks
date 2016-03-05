@@ -19,5 +19,5 @@ describe 'PublicContents', :type => :feature do
     end
   end
 
-  skip 'difference b/w user and worker (latter can not generate these data)'
+  # skip 'difference b/w user and worker (latter can not generate these data)'
 end

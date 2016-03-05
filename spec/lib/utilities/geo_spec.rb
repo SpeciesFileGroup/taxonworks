@@ -1,4 +1,5 @@
 require 'rails_helper'
+# rubocop:disable Style/AsciiComments, Style/EmptyLinesAroundBlockBody
 
 # TODO: Extract all this to a gem
 describe 'Geo', group: :geo do
@@ -62,7 +63,6 @@ describe 'Geo', group: :geo do
       specify 'without letter' do
         expect(Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees('-88:11:43.3')).to eq('-88.195361')
       end
-
 
       context 'an Eastern longitude' do
 
@@ -141,39 +141,39 @@ describe 'Geo', group: :geo do
 
     context 'multiple use cases' do
 
-      use_cases = {'N41.87734º'     => '41.87734',
-                   'W89.34677º'     => '-89.34677',
-                   ' N18º '         => '18.0',
-                   'W76.8º '        => '-76.8',
-                   '-88.241121º'    => '-88.241121', #current test case ['-88.241121°']
-                   'W88.241121º'    => '-88.241121', #current test case ['-88.241121°']
-                   'w88∫11′43.4″'   => '-88.195389',
-                   '40º26\'46"N'    => '40.446111', # using MAC-native symbols
-                   '079º58\'56"W'   => '-79.982222', # using MAC-native symbols
-                   '40:26:46.302N'  => '40.446195',
-                   '079:58:55.903W' => '-79.982195',
-                   '40°26′46″N'     => '40.446111',
-                   '079°58′56″W'    => '-79.982222',
-                   '40d 26′ 46″ N'  => '40.446111',
-                   '079d 58′ 56″ W' => '-79.982222',
-                   '40.446195N'     => '40.446195',
-                   '79.982195W'     => '-79.982195',
-                   '40.446195'                     => '40.446195',
-                   '-79.982195'                    => '-79.982195',
-                   '40° 26.7717'                   => '40.446195',
-                   '-79° 58.93172'                 => '-79.982195',
-                   'N40:26:46.302'                 => '40.446195',
-                   'W079:58:55.903'                => '-79.982195',
-                   'N40°26′46″'                    => '40.446111',
-                   'W079°58′56″'                   => '-79.982222',
-                   'N40d 26′ 46″'                  => '40.446111',
-                   'W079d 58′ 56″'                 => '-79.982222',
-                   'N40.446195'                    => '40.446195',
-                   'W79.982195'                    => '-79.982195',
+      use_cases = {'N41.87734º'        => '41.87734',
+                   'W89.34677º'        => '-89.34677',
+                   ' N18º '            => '18.0',
+                   'W76.8º '           => '-76.8',
+                   '-88.241121º'       => '-88.241121', # current test case ['-88.241121°']
+                   'W88.241121º'       => '-88.241121', # current test case ['-88.241121°']
+                   'w88∫11′43.4″'      => '-88.195389',
+                   '40º26\'46"N'       => '40.446111', # using MAC-native symbols
+                   '079º58\'56"W'      => '-79.982222', # using MAC-native symbols
+                   '40:26:46.302N'     => '40.446195',
+                   '079:58:55.903W'    => '-79.982195',
+                   '40°26′46″N'        => '40.446111',
+                   '079°58′56″W'       => '-79.982222',
+                   '40d 26′ 46″ N'     => '40.446111',
+                   '079d 58′ 56″ W'    => '-79.982222',
+                   '40.446195N'        => '40.446195',
+                   '79.982195W'        => '-79.982195',
+                   '40.446195'         => '40.446195',
+                   '-79.982195'        => '-79.982195',
+                   '40° 26.7717'       => '40.446195',
+                   '-79° 58.93172'     => '-79.982195',
+                   'N40:26:46.302'     => '40.446195',
+                   'W079:58:55.903'    => '-79.982195',
+                   'N40°26′46″'        => '40.446111',
+                   'W079°58′56″'       => '-79.982222',
+                   'N40d 26′ 46″'      => '40.446111',
+                   'W079d 58′ 56″'     => '-79.982222',
+                   'N40.446195'        => '40.446195',
+                   'W79.982195'        => '-79.982195',
                    # some special characters for Dmitry
-                   "  40\u02da26¥46¥S"             => '-40.446111',
-                   '42∞5\'18.1"S'                  => '-42.088361',
-                   'w88∞11\'43.3"'                 => '-88.195361',
+                   "  40\u02da26¥46¥S" => '-40.446111',
+                   '42∞5\'18.1"S'      => '-42.088361',
+                   'w88∞11\'43.3"'     => '-88.195361',
                    "  42\u02da5¥18.1¥S"            => '-42.088361',
                    "  42º5'18.1'S"                 => '-42.088361',
                    "  42o5\u02b918.1\u02b9\u02b9S" => '-42.088361',
@@ -248,9 +248,48 @@ describe 'Geo', group: :geo do
     end
   end
 
+  context 'adjusting digits from params[] to 1-2-5 sequence' do
+    params = {'nearby_distance' => '0', 'digit1' => '0', 'digit2' => '0'}
+
+    specify 'garbage converts to 5000, 5, 1000' do
+      params['nearby_distance'] = 'inconsistant input value'
+      expect(Utilities::Geo.nearby_from_params(params)).to eq(5_000)
+      expect(params['digit1']).to eq('5')
+      expect(params['digit2']).to eq('1000')
+    end
+
+    specify '250 converts to 500, 5, 100' do
+      params['nearby_distance'] = '250'
+      expect(Utilities::Geo.nearby_from_params(params)).to eq(500)
+      expect(params['digit1']).to eq('5')
+      expect(params['digit2']).to eq('100')
+    end
+
+    specify '5000 converts to 5000, 5, 1000' do
+      params['nearby_distance'] = '5000'
+      expect(Utilities::Geo.nearby_from_params(params)).to eq(5_000)
+      expect(params['digit1']).to eq('5')
+      expect(params['digit2']).to eq('1000')
+    end
+
+    specify '12345 converts to 20000, 2, 10000' do
+      params['nearby_distance'] = '12345'
+      expect(Utilities::Geo.nearby_from_params(params)).to eq(10_000)
+      expect(params['digit1']).to eq('1')
+      expect(params['digit2']).to eq('10000')
+    end
+
+    specify '165432 converts to 200000, 2, 100000' do
+      params['nearby_distance'] = '165432'
+      expect(Utilities::Geo.nearby_from_params(params)).to eq(200_000)
+      expect(params['digit1']).to eq('2')
+      expect(params['digit2']).to eq('100000')
+    end
+  end
+
   context 'elevation_in_meters' do
     context 'multiple use cases' do
-      use_cases = {' 12345'                => 12345.0,
+      use_cases = {' 12345'                => 12_345.0,
                    ' 123.45'               => 123.45,
                    ' 123 ft'               => 37.4904,
                    ' 123 ft.'              => 37.4904,
@@ -261,10 +300,10 @@ describe 'Geo', group: :geo do
                    ' 123 m'                => 123.0,
                    '  123 meters'          => 123.0,
                    '     123 m.'           => 123.0,
-                   '    123 km'            => 123000.0,
-                   ' 123 km.'              => 123000.0,
-                   '       123 kilometers' => 123000.0,
-                   '123 kilometer'         => 123000.0,
+                   '    123 km'            => 123_000.0,
+                   ' 123 km.'              => 123_000.0,
+                   '       123 kilometers' => 123_000.0,
+                   '123 kilometer'         => 123_000.0,
                    ''                      => 0.0,
                    'sillyness'             => 0.0}
 

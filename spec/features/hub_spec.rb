@@ -21,15 +21,15 @@ describe 'Hub', :type => :feature do
     end
 
     context 'when user is a worker in this project' do
-      specify 'only the worker tab is visible, and shown by default'
+      # specify 'only the worker tab is visible, and shown by default'
     end
 
     context '"tab" categories' do
 
       context 'are orderable by a user (ordering is shared across projects at present(?))' do
-        specify 'an "order tabs" link is present on the pages'
-        specify 'when clicked, it takes you to a page hub#order_tabs'
-        specify 'there the user can re-arrange their tabs'
+        # specify 'an "order tabs" link is present on the pages'
+        # specify 'when clicked, it takes you to a page hub#order_tabs'
+        # specify 'there the user can re-arrange their tabs'
       end
 
       context 'all tab' do
@@ -40,38 +40,38 @@ describe 'Hub', :type => :feature do
 
       context 'favorite tab' do
         context 'before a user has selected any favorite pages' do
-          specify 'a notice describing how to add pages to this list is provided'
+          # specify 'a notice describing how to add pages to this list is provided'
         end
 
         context 'after a user selects some favorite pages within a project' do # SEE ___ for what pages can be favorited (essentially only those that don't reference IDs (those are pinned) 
-          specify 'a list of favorite pages is rendered'
-          specify 'the list of favorite pages is restricted to those for this project'
+          # specify 'a list of favorite pages is rendered'
+          # specify 'the list of favorite pages is restricted to those for this project'
         end
       end
 
       context 'recently visited tab' do
         context 'when a number of pages are visited' do
-          specify 'data and task relates pages should be present'
-          specify 'project and administration pages should not be present'
+          # specify 'data and task relates pages should be present'
+          # specify 'project and administration pages should not be present'
         end
 
         context 'after some time' do
-          specify 'recent visits should disappear'
+          # specify 'recent visits should disappear'
         end
       end
 
       context 'data tab' do
-        specify 'is broken down into core, supporting, and annotation categories'
+        # specify 'is broken down into core, supporting, and annotation categories'
       end
 
       context 'shared tab' do
-        specify 'is broken down into user defineable and applicaiton provided categories'
+        # specify 'is broken down into user defineable and application provided categories'
       end
 
       context 'worker tab' do
-        specify 'is empty by default, with a little message explaining what it represents'
+        # specify 'is empty by default, with a little message explaining what it represents'
         context 'after a project administrator adds some pages' do
-          specify 'links are provided here'
+          # specify 'links are provided here'
         end
       end
     end

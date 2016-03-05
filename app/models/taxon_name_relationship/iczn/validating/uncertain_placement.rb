@@ -35,11 +35,12 @@ class TaxonNameRelationship::Iczn::Validating::UncertainPlacement < TaxonNameRel
   end
 
   def self.assignment_method
+    #species.iczn_uncertain_placement = family
     :iczn_uncertain_placement
   end
 
   def self.inverse_assignment_method
-    # aus.iczn_uncertain_placement = Family
+    # family.iczn_set_as_uncertain_placement_of = species
     :iczn_set_as_uncertain_placement_of
   end
 end

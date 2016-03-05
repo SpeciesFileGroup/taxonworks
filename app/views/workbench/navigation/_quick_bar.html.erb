@@ -1,21 +1,13 @@
-<nav id="quick_bar" class="quick-bar">
-  <ul>
-    <%= content_tag(:li, link_to('Hub', hub_path, class: :hub_link)) -%>
-    <% if self.respond_to?("#{controller_name}_path") %>
-        <%= content_tag(:li, link_to(controller_name.humanize.downcase, url_for(controller: controller_name, action: :index) )) -%>
-    <% else %>
-      <em class="disabled"><%= controller_name -%></em>
-    <% end %>
-    <% if !DATA_RELATIONS_FOR_NAVIGATION[controller_name].nil? %>
-        <% DATA_RELATIONS_FOR_NAVIGATION[controller_name].each do |l| -%>
-            <% if l.class == Hash %>
-                <%= content_tag(:li, link_to(l.keys.first, send(l.values.first))) -%>
-            <% else %>
-                <%= content_tag(:li, link_to(l.humanize.downcase, send("#{l}_path"))) -%>
-            <% end %>
-        <% end %>
-    <% end %>
-  </ul>
+<nav id="quick_bar">
+  <ul class="horizontal_navbar left_justified">
+    <%= content_tag(:li, link_to('hub', hub_path, class: :hub_link)) -%>
+
+    <% if Hub::Data::BY_NAME[@data_model.name] -%> 
+      <%= link_to(Hub::Data::BY_NAME[@data_model.name].name, @data_model) -%> 
+
+      <% Hub::Data::BY_NAME[@data_model.name].related_models.each do |m| -%>
+        <%= quick_bar_link(m) -%> 
+      <% end %>
+  <% end %> 
+    </ul>
 </nav>
-
-

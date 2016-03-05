@@ -9,7 +9,6 @@ module TaxonWorksAutoload
       /app/models/nomenclatural_rank/**/*.rb
       /app/models/taxon_name_relationship/**/*.rb
       /app/models/taxon_name_classification/**/*.rb
-      /app/models/container/**/*.rb
   }.each do |path|
     a = Dir[Rails.root.to_s + path].sort
     a.each {|file| require_dependency file } # was .sort
@@ -17,6 +16,7 @@ module TaxonWorksAutoload
 
   # handled inline in models at the end of file
   #     /app/models/alternate_value/**/*.rb - 
+  #     /app/models/containers/**/*.rb - 
 
   # %w{Predicate Topic Keyword BiocurationClass BiologicalProperty BiocurationGroup}.each do |cv_class|
   #   file = Rails.root.to_s + '/app/models/' + cv_class.underscore + '.rb'
