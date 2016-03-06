@@ -9,29 +9,64 @@ var
   animationTime = 250;
 
 function showAll() {
-    $('th, td').show(animationTime);
-    $('.table-options').hide();
+    $('th, td').not('.table-options').show(animationTime);
     $('[data-filter-active]').attr("data-filter-active","true");
     $('[data-group]').children('a').attr("data-icon","show");
   }
-  $('.navigation-controls').on('click', '[showAll]', function() {
+  $('div').on('click', '.navigation-item[showAll]', function() {
     showAll();
   });  
 
-  $('.navigation-controls').on('click', '[data-group]', function() {
+
+  $('div').on('click','#displayOptions .navigation-item[data-group]', function(event) {
+    event.stopImmediatePropagation();
     if($(this).attr("data-filter-active") === "true") {
       $('table [data-group="' + $(this).attr("data-group") + '"]').hide(animationTime);
       $(this).attr("data-filter-active","false");
       $(this).children('a').attr("data-icon","hide");
     }
     else {
-      $('table [data-group="' + $(this).attr("data-group") + '"]').show(animationTime);
-      $(this).children('a').attr("background-image","/assets/icons/show.svg");
+      $('table [data-group="' + $(this).attr("data-group") + '"]').not('.table-options').show(animationTime);
       $(this).children('a').attr("data-icon","show");
       $(this).attr("data-filter-active","true");
     }
   }); 
 
+
+var 
+  dataList = $('table td').map(function() {
+    return $(this).attr("data-group");
+});
+
+displayList = unique(dataList);
+
+if(displayList.length > 0) {
+  $('.panels-container').append(createDivDisplay());
+}
+
+function createDivDisplay() {
+    var
+      injectionHtml = ('<div id="displayOptions" class="panel column-small"><div class="title action-line">Display</div><div class="navigation-controls">');
+      $.each(displayList, function(i, value) {
+        injectionHtml += createOptionDisplay(value);
+      });
+      injectionHtml += ('<div class="navigation-item" class="small-icon" data-filter-active="true" showAll><a data-icon="reset">Show all</a></div></div></div>');
+      return injectionHtml;
+  }  
+
+
+function createOptionDisplay(value) {
+  return ('<div class="navigation-item" data-group="'+ value + '" data-filter-active="true"><a data-icon="show">'+ value + '</a></div>')
+}
+
+
+function unique(list) {
+    var result = [];
+    $.each(list, function(i, e) {
+        if ($.inArray(e, result) == -1) result.push(e);
+    });
+    return result;
+}
 
 
 

@@ -17,20 +17,6 @@
       </div>
     </div>       
   </div>
-
-  <div class="panel column-small">
-    <div class="title action-line">
-      Display
-    </div>      
-    <div class="navigation-controls">
-      <!---- José- can you generate these divs dynamically (insert with JS) based on iterating through the fancy-tags and finding the data-group tags? ---->
-      <%= content_tag(:div, content_tag(:a, 'Type', data: {icon: :shown}), class: 'navigation-item',  data: { group: :metadata, 'filter-active' => 'true' }) %>
-      <%= content_tag(:div, content_tag(:a, 'Source', data: {icon: :shown}), class: 'navigation-item', data: { group: :publication, 'filter-active' => true }) %>
-      <%= content_tag(:div, content_tag(:a, 'Housekeeping', data: {icon: :shown}), class: 'navigation-item', data: { group: :housekeeping, 'filter-active' => 'true' }) %>
-      <%= content_tag(:div, content_tag(:a, 'Show All', data: {icon: :shown}), class: 'navigation-item', showAll: '', data: {'filter-active' => 'true'}) %> 
-    </div> 
-  </div>      
-
 </div>
 <table class="tablesorter">
   <thead>
