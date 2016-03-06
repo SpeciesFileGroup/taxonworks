@@ -146,12 +146,6 @@ class TaxonName < ActiveRecord::Base
   before_destroy :check_for_children
   before_save :set_cached_names
 
-  def check_for_children
-    unless leaf?
-      errors[:base] << "has attached names, delete these first"
-      return false
-    end
-  end
 
   after_save :create_new_combination_if_absent, unless: 'self.no_cached'
   after_save :set_cached_names_for_dependants_and_self, unless: 'self.no_cached'
@@ -1142,6 +1136,14 @@ class TaxonName < ActiveRecord::Base
   end
 
   protected
+
+  def check_for_children
+    unless leaf?
+      errors[:base] << "has attached names, delete these first"
+      return false
+    end
+  end
+
 
   #region Validation
 
