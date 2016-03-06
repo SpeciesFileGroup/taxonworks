@@ -1,4 +1,4 @@
-<div class="panels-container">
+<div class="panels-container">   <!---- will move all of this to a partial if you can get the divs dynamically inserted (see below)  ---->
   <div class="panel column-big separate-right">
     <div class="title nav-line">
       Listing taxon names
@@ -17,17 +17,20 @@
       </div>
     </div>       
   </div>
+
   <div class="panel column-small">
     <div class="title action-line">
       Display
     </div>      
     <div class="navigation-controls">
-      <%= content_tag(:div, content_tag(:a, 'Type', 'data-icon' => 'show'), class: 'navigation-item', 'data-filter-active' => 'true',data: { group: :metadata })%>
-      <%= content_tag(:div, content_tag(:a, 'Source', 'data-icon' => 'show'), class: 'navigation-item', 'data-filter-active' => 'true', data: { group: :publication })%>
-      <%= content_tag(:div, content_tag(:a, 'Housekeeping', 'data-icon' => 'show'), class: 'navigation-item', 'data-filter-active' => 'true', data: { group: :housekeeping })%>
-      <%= content_tag(:div, content_tag(:a, 'Show All', 'data-icon' => 'show'), class: 'navigation-item', 'data-filter-active' => 'true', showAll: '')%> 
+      <!---- José- can you generate these divs dynamically (insert with JS) based on iterating through the fancy-tags and finding the data-group tags? ---->
+      <%= content_tag(:div, content_tag(:a, 'Type', data: {icon: :shown}), class: 'navigation-item',  data: { group: :metadata, 'filter-active' => 'true' }) %>
+      <%= content_tag(:div, content_tag(:a, 'Source', data: {icon: :shown}), class: 'navigation-item', data: { group: :publication, 'filter-active' => true }) %>
+      <%= content_tag(:div, content_tag(:a, 'Housekeeping', data: {icon: :shown}), class: 'navigation-item', data: { group: :housekeeping, 'filter-active' => 'true' }) %>
+      <%= content_tag(:div, content_tag(:a, 'Show All', data: {icon: :shown}), class: 'navigation-item', showAll: '', data: {'filter-active' => 'true'}) %> 
     </div> 
   </div>      
+
 </div>
 <table class="tablesorter">
   <thead>
@@ -45,11 +48,8 @@
     </tr>
   </thead>
   <tbody>
-  <!--- 
-  class: "contextMenuCells" is used to generate the context menu, use this on the <tr> tag.
-  ---->
     <% @taxon_names.each do |taxon_name| %>
-      <tr class="contextMenuCells btn btn-neutral">
+      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%> 
         <%= content_tag(:td, taxon_name.name, data: { }) %>
         <%= content_tag(:td, object_tag(taxon_name.parent), data: { }) %>
         <%= content_tag(:td, (taxon_name.cached_html.html_safe ? taxon_name.cached_html.html_safe : content_tag(:em, 'ERROR: not rendered',  class: :warning)), data: { }) %>
@@ -60,19 +60,8 @@
         <%= content_tag(:td, taxon_name.type, data: { filter: 'metadata', group: :metadata }) %>
         <%= content_tag(:td, object_tag(taxon_name.updater), data: { filter: 'housekeeping', group: :housekeeping }) %>
         <%= content_tag(:td, object_time_since_update_tag(taxon_name), data: { filter: 'housekeeping', group: :housekeeping }) %>
-        <!-- Hidden action links 
-        data-attributes:
-          data_show
-          data_edit
-          data_delete
-
-        This is very important, it must be set to make work the options for the context menu.
-        Use the class ".table-options" to hide those options on the table
-        ---->
-        <%= content_tag(:td, (link_to 'Show', taxon_name.metamorphosize), class: 'table-options', data_show: '') %>
-        <%= content_tag(:td, edit_object_link(taxon_name), class: 'table-options', data_edit: '') %>
-        <%= content_tag(:td, (link_to 'Destroy', taxon_name.metamorphosize, method: :delete, data: {confirm: 'Are you sure?'}), class: 'table-options', data_delete: '') %>
-      </tr>
+        <%= show_edit_delete_cells_tag(taxon_name) -%>
+      <% end %>
     <% end %>
   </tbody>
 </table>
