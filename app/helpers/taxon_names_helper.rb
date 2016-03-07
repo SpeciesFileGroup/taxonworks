@@ -28,7 +28,12 @@ module TaxonNamesHelper
 
   def taxon_name_link(taxon_name)
     return nil if taxon_name.nil?
-    link_to(taxon_name_tag(taxon_name).html_safe, browse_taxon_name_path(taxon_name))
+    link_to(taxon_name_tag(taxon_name), taxon_name.metamorphosize).html_safe
+  end
+
+  def taxon_name_browse_link(taxon_name)
+    return nil if taxon_name.nil?
+    link_to(taxon_name_tag(taxon_name), browse_taxon_name_path(taxon_name.metamorphosize)).html_safe
   end
 
   def original_taxon_name_link(taxon_name)
