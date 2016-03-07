@@ -26,9 +26,9 @@ function showAll() {
       $(this).children('a').attr("data-icon","hide");
     }
     else {
-      $('table [data-group="' + $(this).attr("data-group") + '"]').not('.table-options').show(animationTime);
-      $(this).children('a').attr("data-icon","show");
+      $('table [data-group="' + $(this).attr("data-group") + '"]').show(animationTime);
       $(this).attr("data-filter-active","true");
+      $(this).children('a').attr("data-icon","show");
     }
   }); 
 
@@ -36,7 +36,7 @@ function showAll() {
 var 
   dataList = $('table td').map(function() {
     return $(this).attr("data-group");
-});
+  });
 
 displayList = unique(dataList);
 
