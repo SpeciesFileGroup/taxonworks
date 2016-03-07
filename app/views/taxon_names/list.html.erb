@@ -3,16 +3,16 @@
 <table class="tablesorter">
   <thead>
     <tr>
-      <%= fancy_th_tag(name: 'Name', filter: :name) -%> 
-      <%= fancy_th_tag(name: 'Parent', filter: :name) -%> 
-      <%= fancy_th_tag(name: 'Cached name', filter: :name) -%> 
-      <%= fancy_th_tag(name: 'Source', filter: :name, group: 'publication') -%> 
-      <%= fancy_th_tag(name: 'Year of publication', filter: :name, group: 'publication') -%> 
-      <%= fancy_th_tag(name: 'Verbatim author', filter: :name) -%>
-      <%= fancy_th_tag(name: 'Rank', filter: :name) -%>
-      <%= fancy_th_tag(name: 'Type', filter: :name, group: 'metadata') -%>
-      <%= fancy_th_tag(name: 'Updated by', filter: :name, group: 'housekeeping') -%>
-      <%= fancy_th_tag(name: 'Last updated', filter: :name, group: 'housekeeping') -%>
+      <%= fancy_th_tag(name: 'Name') -%> 
+      <%= fancy_th_tag(name: 'Parent') -%> 
+      <%= fancy_th_tag(name: 'Cached name') -%> 
+      <%= fancy_th_tag(name: 'Source', group: 'publication') -%> 
+      <%= fancy_th_tag(name: 'Year of publication', group: 'publication') -%> 
+      <%= fancy_th_tag(name: 'Verbatim author') -%>
+      <%= fancy_th_tag(name: 'Rank') -%>
+      <%= fancy_th_tag(name: 'Type', group: 'metadata') -%>
+      <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
+      <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
     </tr>
   </thead>
   <tbody>
@@ -21,13 +21,13 @@
         <%= content_tag(:td, taxon_name.name, data: { }) %>
         <%= content_tag(:td, object_tag(taxon_name.parent), data: { }) %>
         <%= content_tag(:td, (taxon_name.cached_html.html_safe ? taxon_name.cached_html.html_safe : content_tag(:em, 'ERROR: not rendered',  class: :warning)), data: { }) %>
-        <%= content_tag(:td, object_tag(taxon_name.source), data: { filter: 'yearPublication', group: :publication })%>
-        <%= content_tag(:td, taxon_name.year_of_publication, data: { filter: 'yearPublication', group: :publication })%>
+        <%= content_tag(:td, object_tag(taxon_name.source), data: { group: :publication })%>
+        <%= content_tag(:td, taxon_name.year_of_publication, data: { group: :publication })%>
         <%= content_tag(:td, taxon_name.verbatim_author, data: { }) %>
         <%= content_tag(:td, taxon_name.rank, data: { }) %>
-        <%= content_tag(:td, taxon_name.type, data: { filter: 'metadata', group: :metadata }) %>
-        <%= content_tag(:td, object_tag(taxon_name.updater), data: { filter: 'housekeeping', group: :housekeeping }) %>
-        <%= content_tag(:td, object_time_since_update_tag(taxon_name), data: { filter: 'housekeeping', group: :housekeeping }) %>
+        <%= content_tag(:td, taxon_name.type, data: { group: :metadata }) %>
+        <%= content_tag(:td, object_tag(taxon_name.updater), data: { group: :housekeeping }) %>
+        <%= content_tag(:td, object_time_since_update_tag(taxon_name), data: { group: :housekeeping }) %>
         <%= show_edit_delete_cells_tag(taxon_name) -%>
       <% end %>
     <% end %>
