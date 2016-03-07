@@ -80,6 +80,10 @@
     width: 100%;
   }
 
+  .no-borders {
+    border:none !important;
+  }
+
   .panel {
     font-weight: 100;
     border-top-right-radius: 3px;
@@ -116,7 +120,7 @@
     .reset:hover {
       opacity: 1;
     }
-           
+
     .title {
       display: flex;
       height: 35px;
