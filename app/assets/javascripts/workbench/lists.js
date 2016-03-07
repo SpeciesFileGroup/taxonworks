@@ -20,17 +20,14 @@ function showAll() {
 
   $('div').on('click','#displayOptions .navigation-item[data-group]', function(event) {
     event.stopImmediatePropagation();
-    if($(this).attr("data-filter-active") === "true") {
-      $.each($('table th[data-group="' + $(this).attr("data-group") + '"]'), function( key, value ) {
-        removeColumn($(value));
-      });
+    $.each($('table th[data-group="' + $(this).attr("data-group") + '"]'), function( key, value ) {
+      toggleColumn($(value));
+    });
+    if($(this).attr("data-filter-active") === "true") {      
       $(this).attr("data-filter-active","false");
       $(this).children('a').attr("data-icon","hide");
     }
     else {
-      $.each($('table th[data-group="' + $(this).attr("data-group") + '"]'), function( key, value ) {
-        showColumn($(value));
-      });
       $(this).attr("data-filter-active","true");
       $(this).children('a').attr("data-icon","show");
     }
@@ -80,14 +77,9 @@ $("tbody tr").dblclick(function() {
   location.href = $(this).find("[data-show] a").attr("href");
 });
 
-function removeColumn(elementObject) {
-  $(elementObject.parents('table').find('td:nth-child('+ ($(elementObject).index()+1)+ ')')).hide(250);
-  $(elementObject.parents('table').find('th:nth-child('+ ($(elementObject).index()+1)+ ')')).hide(250);
-}
-
-function showColumn(elementObject) {
-  $(elementObject.parents('table').find('td:nth-child('+ ($(elementObject).index()+1)+ ')')).show(250);
-  $(elementObject.parents('table').find('th:nth-child('+ ($(elementObject).index()+1)+ ')')).show(250);
+function toggleColumn(elementObject) {
+  $(elementObject.parents('table').find('td:nth-child('+ ($(elementObject).index()+1)+ ')')).toggle(250);
+  $(elementObject.parents('table').find('th:nth-child('+ ($(elementObject).index()+1)+ ')')).toggle(250);
 }
 
 $(document).ready(initContextMenus);
@@ -143,7 +135,7 @@ $(document).ready(function()
 
                 switch(key) {              
                   case "delete":
-                    removeColumn(options.$trigger);
+                    toggleColumn(options.$trigger);
                   break;
                   case "show":
                     showAll(options.$trigger);
