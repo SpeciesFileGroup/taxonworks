@@ -18,9 +18,13 @@
     <%= download_for_model_link(@data_model) %>
   </div>
 </div>
-<div class="flexbox"> 
-  <div class="item item1 recent_updates center_text ">
-    <h2>Recent updates</h2>
-    <%= recent_objects_list(@data_model, @recent_objects) -%>
+<div class="panel recent_updates"> 
+  <div class="item item1 center_text">
+    <div class="title nav-line">
+      Recent updates
+      </div>
+      <div class=" content">
+      <%= recent_objects_list(@data_model, @recent_objects) -%>
+    </div>
   </div>
 </div>

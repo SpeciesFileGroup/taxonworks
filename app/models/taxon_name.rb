@@ -143,8 +143,9 @@ class TaxonName < ActiveRecord::Base
   belongs_to :valid_taxon_name, class_name: TaxonName, foreign_key: :cached_valid_taxon_name_id
 
   before_validation :set_type_if_empty
-
+  before_destroy :check_for_children
   before_save :set_cached_names
+
 
   after_save :create_new_combination_if_absent, unless: 'self.no_cached'
   after_save :set_cached_names_for_dependants_and_self, unless: 'self.no_cached'
@@ -1135,6 +1136,14 @@ class TaxonName < ActiveRecord::Base
   end
 
   protected
+
+  def check_for_children
+    unless leaf?
+      errors[:base] << "has attached names, delete these first"
+      return false
+    end
+  end
+
 
   #region Validation
 
