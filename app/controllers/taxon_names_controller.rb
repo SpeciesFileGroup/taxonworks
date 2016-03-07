@@ -6,7 +6,6 @@ class TaxonNamesController < ApplicationController
   # GET /taxon_names
   # GET /taxon_names.json
   def index
-    @taxon_names    = TaxonName.all
     @recent_objects = TaxonName.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
     render '/shared/data/all/index'
   end

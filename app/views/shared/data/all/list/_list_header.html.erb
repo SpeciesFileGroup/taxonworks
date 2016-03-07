@@ -1,0 +1,20 @@
+<div class="panels-container">  
+  <div class="panel column-big separate-right">
+    <div class="title nav-line">
+      Listing taxon names
+    </div>      
+    <div class="navigation-controls"> 
+      <div class="pagination-bar">
+        <%= paginate @taxon_names %> 
+        <div class="pagination">
+          <%= page_entries_info @taxon_names %>
+        </div>
+      </div>
+      <div class="navigation-bar-right">
+        <a data-icon="download" href="#">                 
+          Download
+        </a>               
+      </div>
+    </div>       
+  </div>
+</div>

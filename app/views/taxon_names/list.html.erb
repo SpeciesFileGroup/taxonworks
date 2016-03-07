@@ -1,23 +1,5 @@
-<div class="panels-container">   <!---- will move all of this to a partial if you can get the divs dynamically inserted (see below)  ---->
-  <div class="panel column-big separate-right">
-    <div class="title nav-line">
-      Listing taxon names
-    </div>      
-    <div class="navigation-controls"> 
-      <div class="pagination-bar">
-        <%= paginate @taxon_names %> 
-        <div class="pagination">
-          <%= page_entries_info @taxon_names %>
-        </div>
-      </div>
-      <div class="navigation-bar-right">
-        <a data-icon="download" href="#">                 
-          Download
-        </a>               
-      </div>
-    </div>       
-  </div>
-</div>
+<%= render(partial: "/shared/data/all/list/list_header", locals: {objects: @taxon_names}) -%>
+
 <table class="tablesorter">
   <thead>
     <tr>
