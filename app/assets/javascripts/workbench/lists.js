@@ -50,7 +50,7 @@ function createDivDisplay() {
       $.each(displayList, function(i, value) {
         injectionHtml += createOptionDisplay(value);
       });
-      injectionHtml += ('<div class="navigation-item" class="small-icon" data-filter-active="true" showAll><a data-icon="reset">Show all</a></div></div></div>');
+      injectionHtml += ('</div></div>');
       return injectionHtml;
   }  
 
