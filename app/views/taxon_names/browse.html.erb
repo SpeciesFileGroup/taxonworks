@@ -6,7 +6,7 @@
     <%= edit_taxon_name_link(@taxon_name) -%> |
     <%= previous_link_taxon_name_browse(@taxon_name) -%> |
     <%= next_link_taxon_name_browse(@taxon_name) -%>
-    <%= render(partial: 'parent_navigator', locals: {taxon_name: @taxon_name}) -%>
+    <%= render(partial: 'parent_navigator', locals: {taxon_name: @taxon_name, mode: :browse}) -%>
   </div>
 
   <div class="item item2">
