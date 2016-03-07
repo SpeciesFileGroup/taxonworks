@@ -21,12 +21,16 @@ function showAll() {
   $('div').on('click','#displayOptions .navigation-item[data-group]', function(event) {
     event.stopImmediatePropagation();
     if($(this).attr("data-filter-active") === "true") {
-      $('table [data-group="' + $(this).attr("data-group") + '"]').hide(animationTime);
+      $.each($('table th[data-group="' + $(this).attr("data-group") + '"]'), function( key, value ) {
+        removeColumn($(value));
+      });
       $(this).attr("data-filter-active","false");
       $(this).children('a').attr("data-icon","hide");
     }
     else {
-      $('table [data-group="' + $(this).attr("data-group") + '"]').show(animationTime);
+      $.each($('table th[data-group="' + $(this).attr("data-group") + '"]'), function( key, value ) {
+        showColumn($(value));
+      });
       $(this).attr("data-filter-active","true");
       $(this).children('a').attr("data-icon","show");
     }
@@ -34,9 +38,13 @@ function showAll() {
 
 
 var 
-  dataList = $('table td').map(function() {
-    return $(this).attr("data-group");
-  });
+  
+  dataList = $.grep($('table th').map(function() {
+      return $(this).attr("data-group");
+    }), 
+    function(value) {
+      return value != 'null';
+  });  
 
 displayList = unique(dataList);
 
@@ -68,8 +76,6 @@ function unique(list) {
     return result;
 }
 
-
-
 $("tbody tr").dblclick(function() {
   location.href = $(this).find("[data-show] a").attr("href");
 });
@@ -77,6 +83,11 @@ $("tbody tr").dblclick(function() {
 function removeColumn(elementObject) {
   $(elementObject.parents('table').find('td:nth-child('+ ($(elementObject).index()+1)+ ')')).hide(250);
   $(elementObject.parents('table').find('th:nth-child('+ ($(elementObject).index()+1)+ ')')).hide(250);
+}
+
+function showColumn(elementObject) {
+  $(elementObject.parents('table').find('td:nth-child('+ ($(elementObject).index()+1)+ ')')).show(250);
+  $(elementObject.parents('table').find('th:nth-child('+ ($(elementObject).index()+1)+ ')')).show(250);
 }
 
 $(document).ready(initContextMenus);
