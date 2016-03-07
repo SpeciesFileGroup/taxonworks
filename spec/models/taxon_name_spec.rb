@@ -1,8 +1,7 @@
 require 'rails_helper'
 
+# spring rspec -t group:nomenclature
 describe TaxonName, type: :model, group: [:nomenclature] do
-
-  # spring rspec -t group:nomenclature
 
   #  before(:all) do
   #    GC.disable
@@ -30,19 +29,6 @@ describe TaxonName, type: :model, group: [:nomenclature] do
       # TODO: find out why this exists and resolve - presently leaving sources in the models
       Source.delete_all
       TaxonNameHierarchy.delete_all
-    end
-
-    context '::descendants_of' do
-      specify 'works' do
-        expect(TaxonName.descendants_of(@genus).to_a).to contain_exactly( @subgenus, @species, @subspecies)
-      end
-    end
-
-    context '::ancestors_and_descendants_of' do
-      specify 'returns an unordered list' do
-        expect(TaxonName.ancestors_and_descendants_of(@genus).to_a.map(&:name)).to contain_exactly("Animalia", "Arthropoda", "Cicadellidae", "Erythroneura", "Erythroneura", "Erythroneurina", "Erythroneurini", "Hemiptera", "Insecta", "Root", "Typhlocybinae", "vitata", "vitis")
-      end
-
     end
 
     context 'double checking FactoryGirl' do
@@ -75,6 +61,14 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         expect(variety.save).to be_truthy
         expect(variety.cached_author_year).to eq('(Linnaeus) McAtee (1900)')
       end
+    end
+
+    context 'on_destroy' do
+      specify 'children prevent destroy' do
+        expect(@genus.parent.errors[:base]).to be_truthy
+        expect(@genus.parent.destroyed?).to be_falsey
+        expect(@genus.destroyed?).to be_falsey
+      end 
     end
 
     context 'associations' do
@@ -146,6 +140,21 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         expect(t2.gbif_status_array).to eq(['nudum'])
       end
     end
+
+
+    context '::descendants_of' do
+      specify 'works' do
+        expect(TaxonName.descendants_of(@genus).to_a).to contain_exactly( @subgenus, @species, @subspecies)
+      end
+    end
+
+    context '::ancestors_and_descendants_of' do
+      specify 'returns an unordered list' do
+        expect(TaxonName.ancestors_and_descendants_of(@genus).to_a.map(&:name)).to contain_exactly("Animalia", "Arthropoda", "Cicadellidae", "Erythroneura", "Erythroneura", "Erythroneurina", "Erythroneurini", "Hemiptera", "Insecta", "Root", "Typhlocybinae", "vitata", "vitis")
+      end
+    end
+
+
 
     context 'instance methods' do
       context 'verbatim_author' do

@@ -205,6 +205,8 @@ class Source < ActiveRecord::Base
 
   validates_presence_of :type
 
+  accepts_nested_attributes_for :project_sources, reject_if: proc { |attributes| attributes['project_id'].blank? }
+
   def cited_objects
     self.citations.collect { |t| t.citation_object }
   end

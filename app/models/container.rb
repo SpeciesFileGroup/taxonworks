@@ -45,6 +45,8 @@ class Container < ActiveRecord::Base
   validate :enclosing_container_is_valid
   validate :type_is_valid
 
+  before_destroy :check_for_children
+
   def type_is_valid
     raise ActiveRecord::SubclassNotFound, 'Invalid subclass' if type && !Container.descendants.map(&:name).include?(type)
   end
@@ -83,6 +85,13 @@ class Container < ActiveRecord::Base
   end
 
   protected
+
+  def check_for_children
+    unless leaf?
+      errors[:base] << "has attached names, delete these first"
+      return false
+    end
+  end
 
   def enclosing_container_is_valid
     if self.parent

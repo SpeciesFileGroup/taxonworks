@@ -117,6 +117,12 @@ class GeographicArea < ActiveRecord::Base
     end
   }
 
+
+  before_destroy :check_for_children
+
+  
+
+
   # @param array [Array] of strings of names for areas
   # @return [Scope] of GeographicAreas which match name and parent.name.
   # Route out to a scope given the length of the
@@ -362,4 +368,16 @@ class GeographicArea < ActiveRecord::Base
       end
     end
   end
+
+  protected
+
+  before_destroy :check_for_children
+
+  def check_for_children
+    unless leaf?
+      errors[:base] << "has attached names, delete these first"
+      return false
+    end
+  end
+
 end
