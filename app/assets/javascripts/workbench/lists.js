@@ -13,7 +13,7 @@ function showAll() {
     $('[data-filter-active]').attr("data-filter-active","true");
     $('[data-group]').children('a').attr("data-icon","show");
   }
-  $('div').on('click', '.navigation-item[showAll]', function() {
+  $('div').on('click', '.reset[showAll]', function() {
     showAll();
   });  
 
@@ -46,7 +46,7 @@ if(displayList.length > 0) {
 
 function createDivDisplay() {
     var
-      injectionHtml = ('<div id="displayOptions" class="panel column-small"><div class="title action-line">Display</div><div class="navigation-controls">');
+      injectionHtml = ('<div id="displayOptions" class="panel column-small"><div class="title action-line">Display<div class="small-icon reset" data-filter-active="true" showAll data-icon="reset">Reset</div></div><div class="navigation-controls">');
       $.each(displayList, function(i, value) {
         injectionHtml += createOptionDisplay(value);
       });

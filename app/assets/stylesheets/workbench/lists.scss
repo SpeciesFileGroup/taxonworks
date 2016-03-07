@@ -24,22 +24,25 @@
 
     li {
       display: flex;
-      width: 99%;
+      width: 1040px;
       padding: 5px;
       border-bottom:1px solid $navigation_border;
       text-align: right;
       align-items: center;
       font-size: 12px;
       cursor: pointer;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
     }
     li:hover {
       background-color: $navigation_background;
     }
     a {
+      display: flex;
       align-items: center;
       text-align: left;
       text-decoration: none;
-      width: 1020px;
     }
     a:last-child {
       align-items: center;

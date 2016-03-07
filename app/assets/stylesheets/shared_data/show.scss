@@ -103,7 +103,20 @@
       font-weight: 100;
       margin-bottom: $standard_padding;
       border-bottom: 1px solid $navigation_border;
-    }        
+    } 
+
+    .reset {
+      cursor: pointer;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      font-size: 12px;
+      opacity: 0.5;
+    }
+    .reset:hover {
+      opacity: 1;
+    }
+           
     .title {
       display: flex;
       height: 35px;
