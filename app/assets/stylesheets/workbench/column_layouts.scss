@@ -57,15 +57,16 @@ http://flexboxin5.com/
 
 // Used for model/index routes only
 #model_index {
-  //border:1px solid $navigation_border;
   border-radius:3px;
   margin:0 auto;
-  max-width:1080px;
-  background-color:#FFF;
+  width:1080px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translateY(-75%) translateX(-50%);
+  background-color:$panel_background;
   border:1px solid $navigation_border;
   box-shadow: 0 0px 3px 0 $navigation_border;
-  margin-top:150px;
-  margin-bottom:150px;
   align-items: center; 
 
   &.flexbox {
@@ -146,18 +147,6 @@ http://flexboxin5.com/
 	  justify-content: center;
 	  align-items: center;
   }
-  
-  .item1 {
-
-  }
-  
-  .item2 { } 
-
-  .item3 { }
-
-  .item4 { }
-
-  .item5 { }
 }
 
 /* Login Screen */

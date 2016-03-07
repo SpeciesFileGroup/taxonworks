@@ -1,13 +1,49 @@
+@import 'workbench/palette';
+@import 'workbench/whitespace';
+
 .no_bullets {
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
-.recent_updates ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
+.recent_updates  {
+  max-width: 1080px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-top: 30px;
+  transform:  translateX(-50%);
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: left;
+
+    li {
+      display: flex;
+      width: 99%;
+      padding: 5px;
+      border-bottom:1px solid $navigation_border;
+      text-align: right;
+      align-items: center;
+      font-size: 12px;
+    }
+    a {
+      align-items: center;
+      text-align: left;
+      text-decoration: none;
+      width: 1020px;
+    }
+    a:last-child {
+      align-items: center;
+      text-align: left;
+      text-decoration: none;
+      width: 50px;
+    }    
+  }
 }
 
 .dfn_bold {
