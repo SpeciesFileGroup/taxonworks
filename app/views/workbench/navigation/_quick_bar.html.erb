@@ -1,14 +1,22 @@
 <nav id="quick_bar">
+
   <div class=" ">
 	<%= content_tag(:div, link_to('Hub', hub_path),class: :hub_link) -%>
-	<%= content_tag(:span, object_tag(sessions_current_project), 'class' => 'project-title') -%>
+	<%= content_tag(:span, sessions_current_project.name, class: :hub_project_name) if sessions_current_project -%> 
   </div>
-  <ul class="horizontal_navbar left_justified">
-    <% if Hub::Data::BY_NAME[@data_model.name] -%> 
-      <%= content_tag(:li, link_to(Hub::Data::BY_NAME[@data_model.name].name, @data_model, 'class' => 'active-section')) -%>
-      <% Hub::Data::BY_NAME[@data_model.name].related_models.each do |m| -%>
-        <%= quick_bar_link(m) -%> 
-      <% end %>
-  	<% end %> 
-  </ul>
+
+
+
+  <% if @data_model -%>
+  <div class="context menu"><!---- float this right ---->
+    <ul class="horizontal_navbar left_justified">
+      <% if Hub::Data::BY_NAME[@data_model.name] -%> 
+        <%= content_tag(:li, link_to(Hub::Data::BY_NAME[@data_model.name].name, @data_model, 'class' => 'active-section')) -%>
+        <% Hub::Data::BY_NAME[@data_model.name].related_models.each do |m| -%>
+          <%= quick_bar_link(m) -%> 
+        <% end %>
+      <% end %> 
+    </ul>
+  </div>
+  <% end %>
 </nav>

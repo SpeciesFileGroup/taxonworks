@@ -7,6 +7,7 @@
 <h3> Has many </h3>
 
 <% @object.class.reflect_on_all_associations(:has_many).sort { |a, b| a.name <=> b.name }.each do |r| -%>
+  <% next if r.name =~ /_hierarchies/ -%>
   <% if @object.respond_to?(r.name) -%>
     <% if @object.send(r.name.to_s).count > 0-%>
       <%= content_tag(:h3, r.name.to_s.humanize + ' (' + @object.send(r.name.to_s).count.to_s + ')' ) -%> 
@@ -17,7 +18,7 @@
       <% end %>
     </ul>
   <% else %>
-    <mark> requires method rename!</mark>
+    <mark> requires method rename! </mark>
   <% end %>
 <% end %>
 
