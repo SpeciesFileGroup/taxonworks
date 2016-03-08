@@ -65,22 +65,20 @@ a {
       background-image: url('/assets/icons/hub.svg');
       background-size:25px;
       background-repeat:no-repeat;
+      background-position: center; 
       padding-left: 20px;
-      background-position: center;   
-      //font-weight:bold;
-      font-size: 12px;
       font-size: 0px;
       position: absolute;
-      background-color: #fff;
-        display: flex;
-        width: 15px;
-        top: -6px;
-        height: 30px;
-        justify-content: center;
-        align-items: center;
-        border-radius: 100%; 
-        box-shadow: 0 0 3px 0 $navigation_border;
-        border:1px solid $navigation_border;  
+      background-color: $panel_background;
+      display: flex;
+      width: 15px;
+      top: -6px;
+      height: 30px;
+      justify-content: center;
+      align-items: center;
+      border-radius: 100%; 
+      box-shadow: 0 0 3px 0 $navigation_border;
+      border:1px solid $navigation_border;  
 
       transition: background-size 0.3s ease,
                   background-color 0.3s ease,

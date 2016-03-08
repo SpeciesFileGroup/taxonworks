@@ -1,8 +1,7 @@
 $(document).ready(function() {
 	if($("#quick_bar").length) {
-	    	Mousetrap.bind("h", function(e) {
+	    	Mousetrap.bind('ctrl+h ctrl+h', function(e) {
 			window.location = "/hub";
 		});
   	}
 });
-
