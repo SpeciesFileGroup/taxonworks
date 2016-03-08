@@ -78,14 +78,14 @@
 
     </div>
     </div>
-    <div class="item item3 panel separate-left separate-right">
+    <div id="related-panel" class="item item3 panel separate-left separate-right">
         <div class="content"> 
         <h2>Related</h2>
         <%= papertrail_link(object) -%><br>
         <%= related_data_link(object) -%>
         </div>
     </div>
-    <div class="item item3 panel separate-left">
+    <div id="validation-panel" class="item item3 panel separate-left">
         <div class="content">
           <%= render(partial: '/shared/data/all/show/soft_validation', locals: {object: object}) if object.class.respond_to?(:soft_validates?) -%>
         </div>

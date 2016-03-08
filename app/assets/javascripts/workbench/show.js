@@ -22,6 +22,17 @@ if ($('[data-menu="add"]').children().length < 1 ) {
   $('[data-menu="add"]').parent().addClass("disable");
 }
 
+if(!$('#validation-panel li').length) {
+  $('#validation-panel').hide();
+}
+
+if(!$('#related-panel a').length) {
+  $('#related-panel').hide();
+}
+
+
+
+
 
   Mousetrap.bind('left', function() {
       if(typeof $(".navigation-item[data-arrow-back] a").attr('href') != "undefined") {
