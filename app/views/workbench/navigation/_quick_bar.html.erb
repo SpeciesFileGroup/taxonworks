@@ -1,12 +1,9 @@
 <nav id="quick_bar">
 
-  <div class=" ">
+  <div>
 	<%= content_tag(:div, link_to('Hub', hub_path),class: :hub_link) -%>
-	<%= content_tag(:span, sessions_current_project.name, class: :hub_project_name) if sessions_current_project -%> 
+	<%= link_to(content_tag(:span, sessions_current_project.name, class: :hub_project_name),hub_path) if sessions_current_project -%> 
   </div>
-
-
-
   <% if @data_model -%>
   <div class="context menu"><!---- float this right ---->
     <ul class="horizontal_navbar left_justified">

@@ -67,7 +67,9 @@ a {
       background-size:25px;
       background-repeat:no-repeat;
       background-position: center; 
-      padding-left: 20px;
+      padding:9px;
+      padding-left: 25px;
+
       font-size: 0px;
       position: absolute;
       background-color: $panel_background;
@@ -104,13 +106,13 @@ a {
   }
 
   .active-section {
-    font-weight: 500;
-    color: $default_text
+    font-weight: bold;
+
   }
 
-  li:first-child:after {
-    content: "";
-  }
+
+
+
 
   li:after {
     display: flex;
@@ -127,12 +129,13 @@ a {
     display: flex;
   }
 
-
-
-  a {
-    padding:9px;
+li a {
     padding-left:15px;
     padding-right:15px;
+}
+
+  a {
+    
     font-size:12px;
     text-decoration:none;
   }
