@@ -2,7 +2,7 @@
 module Workbench::NavigationHelper
 
   def quick_bar
-    render(partial: '/workbench/navigation/quick_bar') if is_data_controller?
+    render(partial: '/workbench/navigation/quick_bar')  if sessions_current_project 
   end
 
   def quick_bar_link(related_model)
