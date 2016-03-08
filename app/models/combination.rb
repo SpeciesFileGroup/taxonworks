@@ -156,7 +156,7 @@ class Combination < TaxonName
     if self.new_record?
       protonyms_by_association
     else
-      self.combination_taxon_names # .ordered_by_rank
+      self.combination_taxon_names.sort{|a,b| RANKS.index(a.rank_string) <=> RANKS.index(b.rank_string)}  # .ordered_by_rank
     end
   end
 
