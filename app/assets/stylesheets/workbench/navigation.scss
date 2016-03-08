@@ -40,27 +40,28 @@ a {
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: space-between;
   font-weight: 100;
+  position: relative;
   border-bottom: 1px solid $navigation_border;
   background-color: $panel_background;
-  //height: 30px;
+  height: 36px;
+
 
   ul {
     margin: 0px;
     padding:0px;
     display: flex;
     margin-left:15px;
-    position: relative;
   }
 
   li a:first-letter {
     text-transform: uppercase;
   }
 
-  li:first-child {
+  .hub_link {
     margin-left: 1em;
-    width: 50px;
+    width: 60px;
     a {
       background-image: url('/assets/icons/hub.svg');
       background-size:25px;
@@ -96,6 +97,10 @@ a {
       color: $default_text;
       background-position:5px, center; 
     }
+  }
+
+  .hub_project_name {
+    margin-left: 75px;
   }
 
   .active-section {

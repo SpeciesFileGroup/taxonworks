@@ -1,6 +1,11 @@
 <nav id="quick_bar">
-  <div class="project_hub"><%= link_to('Hub', hub_path, class: :hub_link) -%> <!---- make this change color etc. when actually on /hub ---->
-    <%= content_tag(:h1, sessions_current_project.name, class: :hub_project_name) if sessions_current_project -%></div>
+
+  <div class=" ">
+	<%= content_tag(:div, link_to('Hub', hub_path),class: :hub_link) -%>
+	<%= content_tag(:span, sessions_current_project.name, class: :hub_project_name) if sessions_current_project -%> 
+  </div>
+
+
 
   <% if @data_model -%>
   <div class="context menu"><!---- float this right ---->
