@@ -1,33 +1,24 @@
-<h1>Listing citations</h1>
+<%= render("/shared/data/all/list/list_header", objects: @citations) -%>
 
-<%= paginate @citations %> <%= page_entries_info @citations %>
-
-<table>
+<table class="tablesorter">
   <thead>
-    <tr>
-      <th>Citation object type</th>
-      <th>Citation object</th>
-      <th>Source</th>
-      <th>Last modified</th>
-      <th>Updated by</th>
-      <th></th>
-      <th></th>
-      <th></th>
-    </tr>
+  <tr>
+    <%= fancy_th_tag(name: 'Citation object type') -%>
+    <%= fancy_th_tag(name: 'Citation object') -%>
+    <%= fancy_th_tag(name: 'Source') -%>
+    <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
+    <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
+  </tr>
   </thead>
 
   <tbody>
-    <% @citations.each do |citation| %>
-      <tr>
-        <td><%= citation.citation_object_type %></td>
-        <td><%= object_tag(citation.citation_object) %></td>
-        <td><%= source_tag(citation.source) %></td>
-        <td><%= citation.updated_at %></td>
-        <td><%= object_tag(citation.updater) %></td>
-        <td><%= link_to 'Context', citation.citation_object.metamorphosize %></td>
-        <td><%= link_to 'Edit', edit_citation_path(citation) %></td>
-        <td><%= link_to 'Destroy', citation, method: :delete, data: { confirm: 'Are you sure?' } -%></td>
-      </tr>
-    <% end %>
+  <% @citations.each do |citation| %>
+      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+          <td><%= citation.citation_object_type %></td>
+          <td><%= object_tag(citation.citation_object) %></td>
+          <td><%= source_tag(citation.source) %></td>
+          <%= fancy_metadata_cells_tag(citation) -%>
+      <% end %>
+  <% end %>
   </tbody>
 </table>
