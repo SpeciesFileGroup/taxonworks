@@ -26,9 +26,7 @@
         <%= content_tag(:td, taxon_name.verbatim_author) %>
         <%= content_tag(:td, taxon_name.rank) %>
         <%= content_tag(:td, taxon_name.type) %>
-        <%= content_tag(:td, object_tag(taxon_name.updater)) %>
-        <%= content_tag(:td, object_time_since_update_tag(taxon_name)) %>
-        <%= show_edit_delete_cells_tag(taxon_name) -%>
+        <%= fancy_metadata_cells_tag(taxon_name) -%>
       <% end %>
     <% end %>
   </tbody>
