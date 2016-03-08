@@ -1,8 +1,6 @@
-<h1>Listing container items</h1>
+<%= render("/shared/data/all/list/list_header", objects: @container_items) -%>
 
-<%= paginate @container_items %> <%= page_entries_info @container_items %>
-
-<table>
+<table class="tablesorter">
   <thead>
   <tr>
     <th>Container</th>
@@ -10,25 +8,26 @@
     <th>Contained object</th>
     <th>Contained object type</th>
     <th>Disposition</th>
-    <th>Last modified</th>
-    <th>Updated by</th>
-    <th colspan="3"></th>
+    <%= fancy_th_tag(name: 'Container') -%>
+    <%= fancy_th_tag(name: 'Position') -%>
+    <%= fancy_th_tag(name: 'Contained object') -%>
+    <%= fancy_th_tag(name: 'Contained object type') -%>
+    <%= fancy_th_tag(name: 'Disposition') -%>
+    <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
+    <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
   </tr>
   </thead>
 
   <tbody>
   <% @container_items.each do |container_item| %>
-      <tr>
-        <td><%= container_tag(container_item.container) %></td>
-        <td><%= container_item.position %></td>
-        <td><%= object_tag(container_item.contained_object) %></td>
-        <td><%= container_item.contained_object_type %></td>
-        <td><%= container_item.disposition %></td>
-        <td><%= container_item.updated_at %></td>
-        <td><%= user_tag(container_item.updater) %></td>
-        <td><%= link_to 'Show', container_item %></td>
-        <td><%= link_to 'Destroy', container_item, method: :delete, data: { confirm: 'Are you sure?' } %></td>
-      </tr>
+      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+          <td><%= container_tag(container_item.container) %></td>
+          <td><%= container_item.position %></td>
+          <td><%= object_tag(container_item.contained_object) %></td>
+          <td><%= container_item.contained_object_type %></td>
+          <td><%= container_item.disposition %></td>
+          <%= fancy_metadata_cells_tag(container_item) -%>
+      <% end %>
   <% end %>
   </tbody>
 </table>
