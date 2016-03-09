@@ -1,11 +1,9 @@
 <%= render("/shared/data/all/list/list_header", objects: @asserted_distributions) -%>
 
-<!--@todo @mjy Is next line placement ok?-->
-<p class="muted_red">These records are asserted to be absent</p>
-
 <table class="tablesorter">
   <thead>
   <tr>
+    <%= fancy_th_tag(name: 'Absent') -%>
     <%= fancy_th_tag(name: 'Otu') -%>
     <%= fancy_th_tag(name: 'Geographic area') -%>
     <%= fancy_th_tag(name: 'Source') -%>
@@ -16,11 +14,8 @@
 
   <tbody>
   <% @asserted_distributions.each do |asserted_distribution| %>
-
-      <!-- @todo @mjy this was previous class for tr; how to combine with fancy schmancy class?
-      <tr class="<%= toggle_class_css('muted_red', asserted_distribution.is_absent) %>"> -->
-
       <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+          <td><%= asserted_distribution.is_absent ? "yes" : "no" -%></td>
           <td><%= object_tag(asserted_distribution.otu) %></td>
           <td><%= object_tag(asserted_distribution.geographic_area) %></td>
           <td><%= object_tag(asserted_distribution.source) %></td>
