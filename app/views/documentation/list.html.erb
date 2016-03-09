@@ -1,31 +1,24 @@
-<h1>Listing documentation</h1>
+<%= render("/shared/data/all/list/list_header", objects: @documentation) -%>
 
-<%= paginate @documentation %> <%= page_entries_info @documentation %>
-
-<table>
+<table class="tablesorter">
   <thead>
-    <tr>
-      <th>Documentation object</th>
-      <th>Document</th>
-      <th>Page map</th>
-      <th>Last modified</th>
-      <th>Updated by</th>
-      <th colspan="3"></th>
-    </tr>
+  <tr>
+    <%= fancy_th_tag(name: 'Documentation object') -%>
+    <%= fancy_th_tag(name: 'Document') -%>
+    <%= fancy_th_tag(name: 'Page map') -%>
+    <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
+    <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
+  </tr>
   </thead>
 
   <tbody>
-    <% @documentation.each do |documentation| %>
-      <tr>
-        <td><%= documentation.documentation_object %></td>
-        <td><%= documentation.document %></td>
-        <td><%= documentation.page_map %></td>
-        <td><%= documentation.updated_at %></td>
-        <td><%= object_tag(documentation.updater) %></td>
-        <td><%= link_to 'Show', documentation %></td>
-        <td><%= link_to 'Edit', edit_documentation_path(documentation) %></td>
-        <td><%= link_to 'Destroy', documentation, method: :delete, data: { confirm: 'Are you sure?' } %></td>
-      </tr>
-    <% end %>
+  <% @documentation.each do |documentation| %>
+      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+          <td><%= documentation.documentation_object %></td>
+          <td><%= documentation.document %></td>
+          <td><%= documentation.page_map %></td>
+          <%= fancy_metadata_cells_tag(documentation) -%>
+      <% end %>
+  <% end %>
   </tbody>
 </table>

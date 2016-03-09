@@ -1,44 +1,40 @@
-<h1>Listing geographic areas</h1>
+<%= render("/shared/data/all/list/list_header", objects: @geographic_areas) -%>
 
-<%= paginate @geographic_areas %> <%= page_entries_info @geographic_areas %>
-
-<table>
+<table class="tablesorter">
   <thead>
   <tr>
-    <th>Name</th>
-    <th>Parent</th>
-    <th>Geographic area type</th>
-    <th>Iso 3166 a2</th>
-    <th>Iso 3166 a3</th>
-    <th>Data origin</th>
-    <th>TDWG Id</th>
-    <th>GeoItem Count</th>
-    <th>Level0</th>
-    <th>Level1</th>
-    <th>Level2</th>
-    <th>Last modified</th>
-    <th>Updated by</th>
-    <th></th>
+    <%= fancy_th_tag(name: 'Name') -%>
+    <%= fancy_th_tag(name: 'Parent') -%>
+    <%= fancy_th_tag(name: 'Geographic area type') -%>
+    <%= fancy_th_tag(name: 'Iso 3166 a2') -%>
+    <%= fancy_th_tag(name: 'Iso 3166 a3') -%>
+    <%= fancy_th_tag(name: 'Data origin') -%>
+    <%= fancy_th_tag(name: 'TDWG Id') -%>
+    <%= fancy_th_tag(name: 'GeoItem count') -%>
+    <%= fancy_th_tag(name: 'Level0') -%>
+    <%= fancy_th_tag(name: 'Level1') -%>
+    <%= fancy_th_tag(name: 'Level2') -%>
+    <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
+    <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
   </tr>
   </thead>
 
   <tbody>
   <% @geographic_areas.each do |geographic_area| %>
-      <tr>
-        <td><%= geographic_area.name %></td>
-        <td><%= geographic_area_link(geographic_area.parent) %></td>
-        <td><%= geographic_area_type_tag(geographic_area.geographic_area_type) %></td>
-        <td><%= geographic_area.iso_3166_a2 %></td>
-        <td><%= geographic_area.iso_3166_a3 %></td>
-        <td><%= geographic_area.data_origin %></td>
-        <td><%= geographic_area.tdwgID %></td>
-        <td><%= geographic_area.geographic_items.count %></td>
-        <td><%= geographic_area_link(geographic_area.level0) %></td>
-        <td><%= geographic_area_link(geographic_area.level1) %></td>
-        <td><%= geographic_area_link(geographic_area.level2) %></td>
-        <td><%= geographic_area.updated_at %></td>
-        <td><%= object_tag(geographic_area.updater) %></td>
-        <td><%= link_to 'Show', geographic_area %></td>
+      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+          <td><%= geographic_area.name %></td>
+          <td><%= geographic_area_link(geographic_area.parent) %></td>
+          <td><%= geographic_area_type_tag(geographic_area.geographic_area_type) %></td>
+          <td><%= geographic_area.iso_3166_a2 %></td>
+          <td><%= geographic_area.iso_3166_a3 %></td>
+          <td><%= geographic_area.data_origin %></td>
+          <td><%= geographic_area.tdwgID %></td>
+          <td><%= geographic_area.geographic_items.count %></td>
+          <td><%= geographic_area_link(geographic_area.level0) %></td>
+          <td><%= geographic_area_link(geographic_area.level1) %></td>
+          <td><%= geographic_area_link(geographic_area.level2) %></td>
+          <%= fancy_metadata_cells_tag(geographic_area) -%>
+      <% end %>
       </tr>
   <% end %>
   </tbody>
