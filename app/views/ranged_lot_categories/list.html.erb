@@ -1,35 +1,24 @@
-<h1>Listing ranged lot categories</h1>
+<%= render("/shared/data/all/list/list_header", objects: @ranged_lot_categories) -%>
 
-<%= paginate @ranged_lot_categories %> <%= page_entries_info @ranged_lot_categories %>
-
-<table>
+<table class="tablesorter">
   <thead>
   <tr>
-    <th>Name</th>
-    <th>Minimum value</th>
-    <th>Maximum value</th>
-    <th>Created by</th>
-    <th>Updated by</th>
-    <th>Project</th>
-    <th></th>
-    <th></th>
-    <th></th>
+    <%= fancy_th_tag(name: 'Name') -%>
+    <%= fancy_th_tag(name: 'Minimum value') -%>
+    <%= fancy_th_tag(name: 'Maximum value') -%>
+    <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
+    <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
   </tr>
   </thead>
 
   <tbody>
   <% @ranged_lot_categories.each do |ranged_lot_category| %>
-      <tr>
-        <td><%= ranged_lot_category.name %></td>
-        <td><%= ranged_lot_category.minimum_value %></td>
-        <td><%= ranged_lot_category.maximum_value %></td>
-        <td><%= ranged_lot_category.created_by_id %></td>
-        <td><%= ranged_lot_category.updated_by_id %></td>
-        <td><%= ranged_lot_category.project_id %></td>
-        <td><%= link_to 'Show', ranged_lot_category %></td>
-        <td><%= link_to 'Edit', edit_ranged_lot_category_path(ranged_lot_category) %></td>
-        <td><%= link_to 'Destroy', ranged_lot_category, method: :delete, data: { confirm: 'Are you sure?' } %></td>
-      </tr>
+      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+          <td><%= ranged_lot_category.name %></td>
+          <td><%= ranged_lot_category.minimum_value %></td>
+          <td><%= ranged_lot_category.maximum_value %></td>
+          <%= fancy_metadata_cells_tag(ranged_lot_category) -%>
+      <% end %>
   <% end %>
   </tbody>
 </table>

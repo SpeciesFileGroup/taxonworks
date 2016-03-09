@@ -1,37 +1,28 @@
-<h1>Listing people</h1>
+<%= render("/shared/data/all/list/list_header", objects: @people) -%>
 
-<%= paginate @people %> <%= page_entries_info @people %>
-
-<table>
+<table class="tablesorter">
   <thead>
   <tr>
-    <th>Type</th>
-    <th>Last name</th>
-    <th>First name</th>
-    <th>Suffix</th>
-    <th>Prefix</th>
-    <th>Last modified</th>
-    <th>Updated by</th>
-    <th></th>
-    <th></th>
-    <th></th>
+    <%= fancy_th_tag(name: 'Type') -%>
+    <%= fancy_th_tag(name: 'Last name') -%>
+    <%= fancy_th_tag(name: 'First name') -%>
+    <%= fancy_th_tag(name: 'Suffix') -%>
+    <%= fancy_th_tag(name: 'Prefix') -%>
+    <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
+    <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
   </tr>
   </thead>
 
   <tbody>
   <% @people.each do |person| %>
-      <tr>
-        <td><%= person.type %></td>
-        <td><%= person.last_name %></td>
-        <td><%= person.first_name %></td>
-        <td><%= person.suffix %></td>
-        <td><%= person.prefix %></td>
-        <td><%= person.updated_at %></td>  <!-- todo @mjy please validate updated and updater; format different -->
-        <td><%= person.updater.email %></td>
-        <td><%= link_to 'Show', person.metamorphosize %></td>
-        <td><%= link_to 'Edit', edit_person_path(person.metamorphosize) %></td>
-        <td><%= link_to('Destroy', person.metamorphosize, method: :delete, data: { confirm: 'Are you sure?' }) if person.can_destroy?(@sessions_current_user) %></td>
-      </tr>
+      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+          <td><%= person.type %></td>
+          <td><%= person.last_name %></td>
+          <td><%= person.first_name %></td>
+          <td><%= person.suffix %></td>
+          <td><%= person.prefix %></td>
+          <%= fancy_metadata_cells_tag(person) -%>
+      <% end %>
   <% end %>
   </tbody>
 </table>

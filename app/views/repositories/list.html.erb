@@ -1,39 +1,30 @@
-<h1>Listing repositories</h1>
+<%= render("/shared/data/all/list/list_header", objects: @repositories) -%>
 
-<%= paginate @repositories %> <%= page_entries_info @repositories %>
-
-<table>
+<table class="tablesorter">
   <thead>
   <tr>
-    <th>Name</th>
-    <th>Url</th>
-    <th>Acronym</th>
-    <th>Status</th>
-    <th>Institutional lsid</th>
-    <th>Is index herbariorum</th>  <!-- todo @mjy how to handle this boolean? -->
-    <th>Last modified</th>
-    <th>Updated by</th>
-    <th></th>
-    <th></th>
-    <th></th>
+    <%= fancy_th_tag(name: 'Name') -%>
+    <%= fancy_th_tag(name: 'Url') -%>
+    <%= fancy_th_tag(name: 'Acronym') -%>
+    <%= fancy_th_tag(name: 'Status') -%>
+    <%= fancy_th_tag(name: 'Institutional lsid') -%>
+    <%= fancy_th_tag(name: 'Is index herbariorum') -%>
+    <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
+    <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
   </tr>
   </thead>
 
   <tbody>
   <% @repositories.each do |repository| %>
-      <tr>
-        <td><%= repository.name %></td>
-        <td><%= repository.url %></td>
-        <td><%= repository.acronym %></td>
-        <td><%= repository.status %></td>
-        <td><%= repository.institutional_LSID %></td>
-        <td><%= repository.is_index_herbariorum %></td>
-        <td><%= repository.updated_at %></td>
-        <td><%= object_tag(repository.updater) %></td>
-        <td><%= link_to 'Show', repository %></td>
-        <td><%= link_to 'Edit', edit_repository_path(repository) %></td>
-        <td><%= link_to 'Destroy', repository, method: :delete, data: {confirm: 'Are you sure?'} %></td>
-      </tr>
+      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+          <td><%= repository.name %></td>
+          <td><%= repository.url %></td>
+          <td><%= repository.acronym %></td>
+          <td><%= repository.status %></td>
+          <td><%= repository.institutional_LSID %></td>
+          <td><%= repository.is_index_herbariorum %></td>
+          <%= fancy_metadata_cells_tag(repository) -%>
+      <% end %>
   <% end %>
   </tbody>
 </table>
