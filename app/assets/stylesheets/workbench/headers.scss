@@ -45,11 +45,10 @@
 }
 
 .current_hub_category {
-  background-color: $color-secondary-2-4 !important;
-  color: #FFF;
+  border-bottom: 2px solid $color-secondary-2-4 !important;
  }
   .current_hub_category a {
-  	color: #FFF !important;
+  	color: $default_text !important;
   	
   }
 

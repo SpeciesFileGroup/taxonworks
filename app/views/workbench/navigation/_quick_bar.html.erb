@@ -6,7 +6,7 @@
 
   </div>
   <% if model_name_title == 'Hub' %>
-	<div class="hub_tabs panel" data-current-tab="<%= params[:list] || @sessions_current_user.hub_tab_order.first -%>"> 
+	<div class="hub_tabs" data-current-tab="<%= params[:list] || @sessions_current_user.hub_tab_order.first -%>"> 
 	  <div class="navigation-bar">
 	    <ul class='centered_navbar'>
 	      <% @sessions_current_user.hub_tab_order.each do |t| -%>
