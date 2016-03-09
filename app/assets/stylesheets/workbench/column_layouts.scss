@@ -61,6 +61,7 @@ http://flexboxin5.com/
   margin:0 auto;
   width:1080px;
   position: absolute;
+  z-index:5;
   top: 50%;
   left: 50%;
   transform: translateY(-75%) translateX(-50%);
