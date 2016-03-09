@@ -1,5 +1,4 @@
-# Loan description...
-# @todo
+# A Loan is the metadata that wraps/describes an exchange of specimens.
 #
 # @!attribute date_requested
 #   @return [DateTime]
@@ -68,9 +67,6 @@ class Loan < ActiveRecord::Base
   include Shared::Depictions
 
   has_paper_trail
-
-  
-
 
   has_many :loan_items
 

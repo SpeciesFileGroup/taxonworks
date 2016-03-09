@@ -6,7 +6,11 @@
             <%= model_name_title -%>
             </div>      
             <div class="navigation-controls">
-                <%= yield :show_browse_navigation -%>
+
+              <div> 
+                <%= link_to('Browse', browse_taxon_name_path(@taxon_name)) if controller.respond_to?(:browse) -%>
+              </div>
+
                 <div class="navigation-item" data-arrow-back>
                 <img src="/assets/icons/arrow-left.svg"/>
                 <%= previous_link(object) -%> 
@@ -21,7 +25,9 @@
                 <%= search_form_for_model(@data_model) %>
               </div>
             </div>
-          <%= yield :show_hierarchy_navigation -%>
+            <div class="some_additional_navigation_class"> <!---- fixe me class ---->
+              <%= yield :additional_navigation -%>
+            </div>
       </div>
     </div>
     <div class="item item2">

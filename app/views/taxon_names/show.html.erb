@@ -10,8 +10,7 @@
     <%= render(partial: 'tasks') -%>
 <% end %>
 
-<% content_for :show_navigation do %>
-  <%= link_to('Browse', browse_taxon_name_path(@taxon_name)) -%><br> <br>  
+<% content_for :additional_navigation do %>
   <%= render('parent_navigator', taxon_name: @taxon_name, mode: :show) -%>
 <% end %>
 
