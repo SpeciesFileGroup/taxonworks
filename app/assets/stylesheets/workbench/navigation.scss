@@ -63,13 +63,14 @@ a {
 
   .on_hub {
     a {
-    background-color: $color-secondary-2-4 !important;
-    background-image: url('/assets/icons/w_hub.svg') !important;
-  }
+      background-color: $color-secondary-2-4 !important;
+      background-image: url('/assets/icons/w_hub.svg') !important;
+    }
   }
 
   .hub_link {
     margin-left: 1em;
+
     a {
       background-image: url('/assets/icons/hub.svg');
       background-size:25px;
@@ -77,7 +78,7 @@ a {
       background-position: center; 
       padding:9px;
       padding-left: 25px;
-
+      z-index: 21;
       font-size: 0px;
       position: absolute;
       background-color: $panel_background;
@@ -90,7 +91,6 @@ a {
       border-radius: 100%; 
       box-shadow: 0 0 3px 0 $navigation_border;
  
-      //background-color: $color-secondary-2-4;
       transition: background-size 0.3s ease,
                   background-color 0.3s ease,
                   font-size 0.5s ease;           
@@ -119,16 +119,18 @@ a {
 
 
  .hub_tabs { 
-    display: flex;
-    justify-content: center; 
-    align-items: center;
+  height: 350px;
+  width: 100px;
+  z-index: 20;
+  left: 0px;
+  position: absolute;
+  top: 100%;
+
 
     .navigation-bar {
       li {
         cursor: pointer;
-        display: flex;
-        flex-direction: row;
-        justify-content: center;
+
         align-items: center;
         padding-top: 14px;
         padding-bottom: 14px;
