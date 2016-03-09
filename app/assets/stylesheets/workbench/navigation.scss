@@ -66,7 +66,7 @@ a {
     a {
       background-image: url('/assets/icons/hub.svg');
       background-image: url('/assets/icons/w_hub.svg');
-      background-size:35px;
+      background-size:25px;
       background-repeat:no-repeat;
       background-position: center; 
       padding:9px;
@@ -94,14 +94,14 @@ a {
                   background-color 0.3s ease,
                   font-size 0.5s ease,
                   padding-left 0.5s ease;
-      background-size:25px;
+      background-size:35px;
       background-image: url('/assets/icons/w_hub.svg');
       color: $default_text;
     }
   }
 
   .hub_project_name {
-    margin-left: 65px;
+    margin-left: 60px;
     padding: 5px;
     font-size: 16px;
     font-weight: 100;
