@@ -61,11 +61,17 @@ a {
     text-transform: uppercase;
   }
 
+  .on_hub {
+    a {
+    background-color: $color-secondary-2-4 !important;
+    background-image: url('/assets/icons/w_hub.svg') !important;
+  }
+  }
+
   .hub_link {
     margin-left: 1em;
     a {
       background-image: url('/assets/icons/hub.svg');
-      background-image: url('/assets/icons/w_hub.svg');
       background-size:25px;
       background-repeat:no-repeat;
       background-position: center; 
@@ -84,7 +90,7 @@ a {
       border-radius: 100%; 
       box-shadow: 0 0 3px 0 $navigation_border;
  
-      background-color: $color-secondary-2-4;
+      //background-color: $color-secondary-2-4;
       transition: background-size 0.3s ease,
                   background-color 0.3s ease,
                   font-size 0.5s ease;           
@@ -95,7 +101,6 @@ a {
                   font-size 0.5s ease,
                   padding-left 0.5s ease;
       background-size:35px;
-      background-image: url('/assets/icons/w_hub.svg');
       color: $default_text;
     }
   }
