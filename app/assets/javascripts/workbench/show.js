@@ -22,6 +22,17 @@ if ($('[data-menu="add"]').children().length < 1 ) {
   $('[data-menu="add"]').parent().addClass("disable");
 }
 
+
+if ($('[data-arrow-next]').children('a').length < 1 ) {
+  $('[data-arrow-next]').addClass("disable");
+}
+
+if ($('[data-arrow-back]').children('a').length < 1 ) {
+  $('[data-arrow-back]').addClass("disable");
+}
+
+
+
 if(!$('#validation-panel li').length) {
   $('#validation-panel').hide();
 }
