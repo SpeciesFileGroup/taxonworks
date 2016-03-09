@@ -1,28 +1,17 @@
 @import 'workbench/palette';
 @import 'workbench/whitespace';
 
-#show_taxon_name_hierarchy { 
-
-  p {
-    padding: 0;
-    margin: $standard_padding*0.3 0;
-  }
-
-  a {}
-
-  .ancestors {}
-
-  .descendants {}
 
 
+#show_taxon_name_hierarchy {
 
-.tree {
 
   p {
     font-size: 12px;
-    margin: 3px;
+    margin: 2px;
+    padding: 0px;
   }
-  margin-left: -38px;
+
   .selected {
     font-weight: bold;
     font-size: 13px;
@@ -54,8 +43,7 @@
         display: flex;
         flex-direction:row;
         align-items: flex-start;
-        
-        padding: 0 12px;  
+        padding: 0 14px;  
         position: relative; 
       }
         
@@ -94,6 +82,5 @@
       }     
     }
 
-}
 
 
