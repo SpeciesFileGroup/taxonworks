@@ -76,50 +76,6 @@
     }
   }
 
-  #hub_tabs { 
-    cursor: pointer;
-    display: flex;
-    border-bottom: 1px solid $navigation_border;
-    justify-content: center; 
-    background-color: $panel_background;
-    img {
-      width: 14px;
-      padding-right: 5px;
-      opacity: 0.8;
-      
-    }
-    .navigation-bar {
-      justify-content: space-between; 
-      flex-direction:column;
-      align-items:center;
-      display: flex;
-      ul {
-        position: relative;
-        top:1px;
-      }
-      li {
-        display: flex;
-        flex-direction: row;
-        justify-content: center;
-        align-items: center;
-        margin-left: 5px;
-        margin-right: 5px;
-        padding: 0.5em;
-        padding-left: 1em;
-        padding-right: 1em;
-
-      }
-      a {
-        padding-left: 20px;
-        font-size:12px;
-        font-weight: 100;
-      }
-
-    }
-  }
-
-
-
   div.related_links_set {
     background-color: $background_gray;
     padding: $pane_padding;

@@ -3,7 +3,7 @@
       background-repeat: no-repeat;
       background-position: left, center;
       padding-left: 20px;
-      min-height: 14px;
+      min-height: 16px;
       align-items: center;
     }
 
@@ -27,7 +27,11 @@
 
     [data-icon="add"] {
       background-image: url("/assets/icons/plus.svg");
-    }      
+    }
+
+    [data-icon="icons"] {
+      background-image: url("/assets/icons/icons.svg");
+    }          
 
     [data-icon="pin"] {
       background-image: url("/assets/icons/pin.svg");

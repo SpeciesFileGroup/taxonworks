@@ -45,16 +45,11 @@
 }
 
 .current_hub_category {
-  background-color: $body_background !important;
-  border: 1px solid $navigation_border;
-  border-left: 1px solid $navigation_border;
-  border-right: 1px solid $navigation_border;
-  border-bottom: 1px solid $body_background !important;
-
+  border-bottom: 2px solid $color-secondary-2-4 !important;
  }
   .current_hub_category a {
   	color: $default_text !important;
-  	padding: 1em;
+  	
   }
 
 .all_hub_category {

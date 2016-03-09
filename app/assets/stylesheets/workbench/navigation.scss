@@ -45,8 +45,10 @@ a {
   position: relative;
   border-bottom: 1px solid $navigation_border;
   background-color: $panel_background;
-  height: 36px;
-
+  height: 50px;
+  .hub-project {
+    position: relative;
+  }
 
   ul {
     margin: 0px;
@@ -61,10 +63,10 @@ a {
 
   .hub_link {
     margin-left: 1em;
-    width: 60px;
     a {
       background-image: url('/assets/icons/hub.svg');
-      background-size:25px;
+      background-image: url('/assets/icons/w_hub.svg');
+      background-size:35px;
       background-repeat:no-repeat;
       background-position: center; 
       padding:9px;
@@ -74,35 +76,35 @@ a {
       position: absolute;
       background-color: $panel_background;
       display: flex;
-      width: 15px;
-      top: -6px;
-      height: 30px;
+      width: 22px;
+      top: -18px;
+      height: 38px;
       justify-content: center;
       align-items: center;
       border-radius: 100%; 
       box-shadow: 0 0 3px 0 $navigation_border;
-      border:1px solid $navigation_border;  
-
+ 
+      background-color: $color-secondary-2-4;
       transition: background-size 0.3s ease,
                   background-color 0.3s ease,
                   font-size 0.5s ease;           
     }
-    a:hover {
+    a:hover {    
       transition: background-size 0.3s ease,
                   background-color 0.3s ease,
                   font-size 0.5s ease,
                   padding-left 0.5s ease;
-      background-size:14px;
-      font-size: 12px;
-      font-variant: 100;
-      background-color: $color-secondary-2-4;
+      background-size:25px;
+      background-image: url('/assets/icons/w_hub.svg');
       color: $default_text;
-      background-position:5px, center; 
     }
   }
 
   .hub_project_name {
-    margin-left: 75px;
+    margin-left: 65px;
+    padding: 5px;
+    font-size: 16px;
+    font-weight: 100;
   }
 
   .active-section {
@@ -111,33 +113,56 @@ a {
   }
 
 
-
-
-
-  li:after {
+ .hub_tabs { 
     display: flex;
-    color: $navigation_border;
-    content: "|";
+    justify-content: center; 
     align-items: center;
+
+    .navigation-bar {
+      li {
+        cursor: pointer;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        padding-top: 16px;
+        padding-bottom: 16px;
+        margin-right: 15px;
+      }
+      a {
+        padding-left: 20px;
+        font-size:12px;
+        font-weight: 100;
+      }
+    }
   }
 
-  li:last-child:after {
-    content: "";
+.context-menu {  
+    li:after {
+      display: flex;
+      color: $navigation_border;
+      content: "|";
+      align-items: center;
+    }
+
+    li:last-child:after {
+      content: "";
+    }
+
+    li {
+      display: flex;
+    }
+
+  li a {
+      padding-left:15px;
+      padding-right:15px;
   }
 
-  li {
-    display: flex;
-  }
-
-li a {
-    padding-left:15px;
-    padding-right:15px;
-}
-
-  a {
-    
-    font-size:12px;
-    text-decoration:none;
+    a {
+      
+      font-size:12px;
+      text-decoration:none;
+    }
   }
 }
 
