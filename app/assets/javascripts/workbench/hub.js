@@ -13,7 +13,7 @@ $(document).ready( function() {
 	$('#icons').children('a').attr("data-icon", "icons");
 	$('#icons').children('a').addClass("small-icon");
 
-	$('#hub_tabs').on('click', 'li', function() {
+	$('.hub_tabs').on('click', 'li', function() {
 		location.href = $(this).children("a").attr('href');
 	});	
 });
