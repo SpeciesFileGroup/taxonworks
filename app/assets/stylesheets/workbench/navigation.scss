@@ -119,29 +119,44 @@ a {
 
 
  .hub_tabs { 
-  height: 350px;
-  width: 100px;
   z-index: 20;
   left: 0px;
   position: absolute;
   top: 100%;
+  border-radius:0px;
+  border: 1px solid $navigation_border;
+  border-left: none;
+  box-shadow: 0 1px 2px 0 $navigation_border;
 
-
+  ul {
+    margin:0px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    display: block;
+  }
     .navigation-bar {
       li {
+        text-align: left;
         cursor: pointer;
-
-        align-items: center;
-        padding-top: 14px;
-        padding-bottom: 14px;
-        margin-right: 15px;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        padding-left: 20px;
+        padding-right: 20px;
         border-bottom: 2px solid transparent;
         border-top: 2px solid transparent;
       }
       a {
-        padding-left: 20px;
+        text-align: left;
+        padding-left: 25px;
         font-size:12px;
-        font-weight: 500;
+        font-weight: 100;
+      }
+      li:hover {
+
+        background-color: $color-secondary-2-4;
+        a {
+          color: #FFF;
+        }
       }
     }
   }
