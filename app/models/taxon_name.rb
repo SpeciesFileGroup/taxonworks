@@ -817,7 +817,7 @@ class TaxonName < ActiveRecord::Base
     return name unless self.type == 'Combination' || GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_string)
     eo = '<i>'
     ec = '</i>'
-    return "#{eo}#{verbatim_name}#{ec}" if !self.verbatim_name.nil? && self.type == 'Combination'
+    return "#{eo}#{verbatim_name}#{ec}".gsub(' f. ', ec + ' f. ' + eo).gsub(' var. ', ec + ' var. ' + eo) if !self.verbatim_name.nil? && self.type == 'Combination'
     return "#{eo}#{name}#{ec}" if self.rank_string == 'NomenclaturalRank::Iczn::GenusGroup::GenusGroup'
     d = full_name_hash
    
