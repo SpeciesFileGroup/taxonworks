@@ -101,11 +101,6 @@ Supporting:
       - GeographicArea
       - Georeference
       - CollectingEvent
-  Repository:
-    shared: true
-    application_defined: true
-    related_models:
-      - CollectingObject
   Image:
     categories:
       - CollectionObject
@@ -135,6 +130,11 @@ Supporting:
   Namespace:
     shared: true
   RangedLotCategory:
+  Repository:
+    shared: true
+    application_defined: true
+    related_models:
+      - CollectingObject
   Serial:
     shared: true 
     related_models:
