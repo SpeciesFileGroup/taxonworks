@@ -84,29 +84,50 @@ module TaxonNamesHelper
 
   def rank_tag(taxon_name)
     case taxon_name.type
-      when 'Protonym'
-        if @taxon_name.rank_class
-          @taxon_name.rank.downcase
-        else
-          content_tag(:em, 'ERROR')
-        end
-      when 'Combination'
-          content_tag(:em, 'n/a')
+    when 'Protonym'
+      if @taxon_name.rank_class
+        @taxon_name.rank.downcase
+      else
+        content_tag(:em, 'ERROR')
+      end
+    when 'Combination'
+      content_tag(:em, 'n/a')
     end
   end
 
-  # A previous record link.
-  # TODO: make this smart again!
-  def previous_link_taxon_name_browse(taxon_name)
-    text = 'Previous'
-    link_object = Protonym.where("id < ?", taxon_name.id).with_project_id(sessions_current_project_id).limit(1).first 
+  def ancestor_browse_taxon_name_link(taxon_name)
+    text = 'Ancestor'
+    taxon_name.ancestors.any? ? link_to(text, browse_taxon_name_path(taxon_name.ancestors.first.metamorphosize)) : text 
+  end
+
+  def descendant_browse_taxon_name_link(taxon_name)
+    text = 'Descendant'
+    taxon_name.descendants.any? ? link_to(text, browse_taxon_name_path(taxon_name.descendants.first.metamorphosize)) : text 
+  end
+
+  def next_sibling_browse_taxon_name_link(taxon_name)
+    text = 'Next'
+    link_object = nil
+
+    if taxon_name.siblings.any?
+      siblings = taxon_name.self_and_siblings.order(:cached).pluck(:id)
+      s = siblings.index(taxon_name.id)
+      link_object = TaxonName.find(siblings[ s + 1]) if s < siblings.length - 1
+    end
+
     link_object.nil? ? text : link_to(text, browse_taxon_name_path(link_object.metamorphosize))
   end
 
-  # A next record link. TODO: Make this smart again!
-  def next_link_taxon_name_browse(taxon_name)
-    text = 'Next'
-    link_object = Protonym.where("id > ?", taxon_name.id).with_project_id(sessions_current_project_id).limit(1).first 
+  def previous_sibling_browse_taxon_name_link(taxon_name)
+    text = 'Previous'
+    link_object = nil
+    if taxon_name.siblings.any?
+      siblings = taxon_name.self_and_siblings.order(:cached).pluck(:id)
+      s = siblings.index(taxon_name.id)
+      link_object = TaxonName.find(siblings[ s - 1]) if s != 0 
+    end
+
     link_object.nil? ? text : link_to(text, browse_taxon_name_path(link_object.metamorphosize))
   end
+
 end

@@ -3,10 +3,17 @@
 <%= render(partial: 'breadcrumb_navigator', locals: {taxon_name: @taxon_name}) -%>
 <div class="flexbox">
   <div class="item item1">
-    <%= edit_taxon_name_link(@taxon_name) -%> |
-    <%= previous_link_taxon_name_browse(@taxon_name) -%> |
-    <%= next_link_taxon_name_browse(@taxon_name) -%> |
+    <%= edit_taxon_name_link(@taxon_name) -%>
     <%= link_to('Show', @taxon_name.metamorphosize) -%>
+
+    <div> 
+    <%= ancestor_browse_taxon_name_link(@taxon_name) -%> <br>
+    <%= previous_sibling_browse_taxon_name_link(@taxon_name) -%> |
+    <%= next_sibling_browse_taxon_name_link(@taxon_name) -%> 
+    <br>
+    <%= descendant_browse_taxon_name_link(@taxon_name) -%> 
+    </div>
+
     <%= render(partial: 'parent_navigator', locals: {taxon_name: @taxon_name, mode: :browse}) -%>
   </div>
 
