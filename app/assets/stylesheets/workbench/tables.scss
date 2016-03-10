@@ -67,7 +67,7 @@ table {
     border-bottom: 1px solid $navigation_border;
     border-left: 1px solid $navigation_border;
     padding-left: $standard_padding;
-    padding-right: $standard_padding;    
+    padding-right: $standard_padding; 
   }
 
   th:hover {
@@ -78,9 +78,6 @@ table {
     margin: 0px;
     height: 40px;
     cursor: pointer;
-      img {
-      width:15px;
-    }
   }
 
   th {

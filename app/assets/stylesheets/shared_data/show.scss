@@ -127,7 +127,7 @@
 
     .title {
       display: flex;
-      height: 35px;
+      min-height: 35px;
       padding-top: 5px;
       font-size: 16px;
       align-items:center;
@@ -137,7 +137,8 @@
       justify-content:space-between;   
       a {
         font-size: 12px;
-      }       
+      } 
+      img {display: block}      
     }
     .nav-line {
       border-bottom: 5px solid $color-secondary-2-4;
@@ -302,6 +303,11 @@
     }
 
     .attributes {
+      img {
+        display: block;
+        max-width: 100%;
+        box-shadow: 0 0 3px 0 $navigation_border;
+      }
       strong {
         font-weight: 100;
       }
