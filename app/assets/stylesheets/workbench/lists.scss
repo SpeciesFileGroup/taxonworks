@@ -10,17 +10,16 @@
 .recent_updates  {
   max-width: 1080px;
   position: absolute;
-  top: 60%;
+  top: 55%;
   left: 50%;
-  margin-top: 30px;
-  transform:  translateX(-50%);
+
+  transform: translateX(-50%);
   ul {
     list-style: none;
     margin: 0;
     padding: 0;
     display: flex;
     flex-direction: column;
-    align-items: left;
 
     li {
       display: flex;
@@ -35,8 +34,10 @@
       flex-direction: row;
       justify-content: space-between;
     }
+
     li:hover {
       background-color: $navigation_background;
+      opacity: 1 !important;
     }
     a {
       display: flex;

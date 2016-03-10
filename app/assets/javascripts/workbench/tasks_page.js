@@ -1,5 +1,5 @@
 $(document).ready(function() {
-  if($("#task_carrousel").length) {
+  if($("#tasks").hasClass("current_hub_category")) {
     initTaskCarrousel();
   }
 });

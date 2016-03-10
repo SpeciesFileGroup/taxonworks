@@ -1,7 +1,8 @@
 $(document).ready(function() {
   if($('#favorite-page').length) {
 	var 
-	favoritesTask = new carrouselTask("Favorites-Task",3,1);
+	favoritesTask = new carrouselTask("Favorites-Task",8,1);
+	favoritesTask.filterChilds();
 	favoritesTaskPanel = new carrouselData("Favorites-Task",1,2);
 	favoritesData = new carrouselData("Favorites-Data",99,2);
 	favoritesData.filterChilds();
