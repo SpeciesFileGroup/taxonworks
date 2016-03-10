@@ -13,7 +13,18 @@ class CollectionObjectsController < ApplicationController
   # GET /collection_objects/1
   # GET /collection_objects/1.json
   def show
-    @images = params[:include] == ["images"] ? @collection_object.images : nil
+    @images  = nil
+    @geojson = nil
+    tokens   = [params[:include]].flatten
+    tokens.each { |token|
+      case token
+        when 'images'
+          @images = @collection_object.images
+        when 'geojson'
+          ce       = @collection_object.collecting_event
+          @geojson = ce.to_geo_json_feature unless ce.nil?
+      end
+    }
   end
 
   # GET /collection_objects/depictions/1
@@ -119,7 +130,7 @@ class CollectionObjectsController < ApplicationController
 
   def set_collection_object
     @collection_object = CollectionObject.with_project_id($project_id).find(params[:id])
-    @recent_object = @collection_object 
+    @recent_object     = @collection_object
   end
 
   def collection_object_params
@@ -128,7 +139,7 @@ class CollectionObjectsController < ApplicationController
       :ranged_lot_category_id, :collecting_event_id,
       :buffered_collecting_event, :buffered_deteriminations,
       :buffered_other_labels, :deaccessioned_at, :deaccession_reason,
-      collecting_event_attributes: [ ] 
+      collecting_event_attributes: []
     )
   end
 
