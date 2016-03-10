@@ -126,6 +126,7 @@
     }
 
     .title {
+
       display: flex;
       min-height: 35px;
       padding-top: 5px;
@@ -138,7 +139,14 @@
       a {
         font-size: 12px;
       } 
-      img {display: block}      
+      div {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+      }      
+      img {
+        display: block;
+      }      
     }
     .nav-line {
       border-bottom: 5px solid $color-secondary-2-4;
@@ -303,10 +311,11 @@
     }
 
     .attributes {
+
       img {
         display: block;
         max-width: 100%;
-        box-shadow: 0 0 3px 0 $navigation_border;
+        box-shadow: 0 1px 3px 0 $navigation_border;
       }
       strong {
         font-weight: 100;
