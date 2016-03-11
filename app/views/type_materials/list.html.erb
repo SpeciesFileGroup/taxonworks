@@ -19,7 +19,8 @@
           <td><%= type_material.type_type %></td>
           <td><%= object_tag(type_material.protonym) %></td>
           <td><%= object_tag(type_material.source) %></td>
-          <%= fancy_metadata_cells_tag(otu) -%>
+          <%#= fancy_metadata_cells_tag(otu) -%>
+          <%= fancy_metadata_cells_tag(type_material) -%>
       <% end %>
   <% end %>
   </tbody>
