@@ -13,7 +13,11 @@
   <% @projects.each do |project| %>
       <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
           <td><%= project.name %></td>
-          <%= fancy_metadata_cells_tag(otu) -%>
+          <td><%= project.updated_at %></td>
+          <td><%= object_tag(project.updater) %></td>
+          <td class="table-options" data-show="true"><%= link_to 'Show', project %></td>
+          <td class="table-options" data-edit="true"><%= link_to 'Edit', edit_project_path(project) %></td>
+          <td class="table-options" data-delete="true"><%= content_tag(:em, 'Destroy', class: :disabled) -%> </td>
       <% end %>
   <% end %>
   </tbody>
