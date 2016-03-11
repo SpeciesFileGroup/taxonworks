@@ -2,12 +2,13 @@
   <div class="panel column-big separate-right">
     <div class="title nav-line">
       <div class="pagination ">
-        <%= page_entries_info objects, :entry_name => ''  %>
+        <span><%= page_entries_info objects, :entry_name => ''  %></span>
       </div>
     </div>      
     <div class="navigation-controls"> 
       <div class="navigation-bar-left">
         <%= paginate objects %>
+
       </div>
       <div class="navigation-bar-right">
         <a data-icon="download" href="#">                 
