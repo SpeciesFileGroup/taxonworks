@@ -1,4 +1,5 @@
 <div class="attributes">
+  <h3>Taxonomic details</h3>
   <p>
     <strong>Name:</strong>
     <%= @taxon_name.name %>
@@ -16,12 +17,12 @@
 
   <p>
     <strong>Source [Original publication]:</strong>
-    <%= object_link(@taxon_name.source) %>
+    <%= taxon_name_link(@taxon_name.source) %>
   </p>
 
   <p>
     <strong>Parent:</strong>
-    <%= object_link(@taxon_name.parent) %>
+    <%= taxon_name_link(@taxon_name.parent) %>
   </p>
 
   <p>
