@@ -7,7 +7,7 @@ module Workbench::TableHelper
     end
   end
 
-  # Hidden action links 
+  # Hidden action links
   # data-attributes:
   #  data-show
   #  data-edit
@@ -17,7 +17,7 @@ module Workbench::TableHelper
   # Use the class ".table-options" to hide those options on the table
   #
   def fancy_metadata_cells_tag(object)
-    m = object.metamorphosize
+    m = metamorphosize_if(object)
     content_tag(:td, object_tag(object.updater)) +
         content_tag(:td, object_time_since_update_tag(object)) +
         content_tag(:td, (link_to 'Show', m), class: 'table-options', data: {show: true}) +

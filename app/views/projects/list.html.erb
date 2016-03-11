@@ -13,7 +13,7 @@
   <% @projects.each do |project| %>
       <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
           <td><%= project.name %></td>
-          <%= fancy_metadata_cells_tag(otu) -%>
+          <%= fancy_metadata_cells_tag(project) -%>
       <% end %>
   <% end %>
   </tbody>
