@@ -38,63 +38,61 @@
         </div>
       </div> 
       <div class="navigation-controls">
-        <div class="navigation-item"><%= edit_object_link(object) -%></div>
         <div class="navigation-item">
-          <span class="small-icon" data-icon="annotate">Annotate</span>
-          <div class="dropdown"><%= annotate_links(object: object) -%>
-          </div>
-        </div>                
+          <%= edit_object_link(object) -%>
+        </div>
         <div class="navigation-item">
           <%= destroy_object_link(object) -%>
         </div>
         <div class="navigation-item">
-          <span data-icon="task" class="small-icon">Task</span>
+          <%= pin_item_to_pinboard_link(object, sessions_current_user) -%>
+        </div>                
+        <div class="navigation-item menu-drop">
+          <span class="small-icon" data-icon="annotate">Annotate</span>
+          <div class="dropdown"><%= annotate_links(object: object) -%>
+          </div>
+        </div>                
+
+        <div class="navigation-item menu-drop">
+          <span data-icon="task" class="small-icon">Tasks</span>
           <div class="dropdown" data-menu="task">
             <%= yield :see -%>  
             <%= yield :tasks -%>
           </div>
         </div>
-        <div class="navigation-item">
+        <div class="navigation-item menu-drop">
           <span data-icon="add" class="small-icon">Add</span>
           <div class="dropdown" data-menu="add">
             <%= yield :do -%>
           </div>
         </div>     
-        <div class="navigation-item"><%= pin_item_to_pinboard_link(object, sessions_current_user) -%></div>
+        
       </div>        
       </div>    
     <div class="panels-container">
-    <div class="item item2 panel separate-left separate-right">
-    <div class="vertical">
-
-        
+    <div class="item panel separate-left separate-right attributes-panel">
       <div class="attributes break_words content">
-        <div class="some_header"> 
+        <div class="title-section" style="position: relative;"> 
           <h2>Attributes</h2>
-          <span class="some_right_float_class"><%= papertrail_link(object) -%></span>
+          <span class="to-right"><%= papertrail_link(object) -%></span>
         </div>
-
         <%= render partial:  object_attributes_partial_path(object.metamorphosize), locals: {object: object} %>
         <div class="housekeeping attributes">
           <%= render partial: '/shared/data/all/show/housekeeping', locals: {object: object} -%>
         </div>        
       </div>
-
     </div>
-    </div>
-    <div id="related-panel" class="item item3 panel separate-left separate-right">
+    <div id="related-panel" class="item panel separate-left separate-right related-panel">
       <div class="content"> 
-        <div class="some_header">
+        <div class="title-section attributes">
           <h2>Related</h2>
-          <span class="some_right_float_class"><%= related_data_link(object) -%></span>
+          <span class="to-right"><%= related_data_link(object) -%></span>
         </div>
-
         <%= yield :related_attributes -%>
         <%= render(partial: '/shared/data/all/show/annotations', locals: {object: object}) if ! object.annotations.empty?  %>
-
       </div>
     </div>
-    <div id="validation-panel" class="item item3 panel separate-left">
+    <div id="validation-panel" class="item panel separate-left validation-panel">
         <div class="content">
           <%= render(partial: '/shared/data/all/show/soft_validation', locals: {object: object}) if object.class.respond_to?(:soft_validates?) -%>
         </div>
