@@ -16,7 +16,7 @@
 
   <p>
     <strong>Source [Original publication]:</strong>
-    <%= taxon_name_link(@taxon_name) %>
+    <%= source_link(@taxon_name.source) %>
   </p>
 
   <p>
@@ -39,22 +39,22 @@
     <%= @taxon_name.verbatim_name %>
   </p>
 
-  <div class="attribute_set" data-title="Latinized endings" data-view="development">
+  <div class="attribute_set" data-title="Latinized endings">
 
-  <p>
-    <strong>Masculine name:</strong>
-    <%= @taxon_name.masculine_name %>
-  </p>
+    <p>
+      <strong>Masculine name:</strong>
+      <%= @taxon_name.masculine_name %>
+    </p>
 
-  <p>
-    <strong>Feminine name:</strong>
-    <%= @taxon_name.feminine_name %>
-  </p>
+    <p>
+      <strong>Feminine name:</strong>
+      <%= @taxon_name.feminine_name %>
+    </p>
 
-  <p>
-    <strong>Neuter name:</strong>
-    <%= @taxon_name.neuter_name %>
-  </p>
+    <p>
+      <strong>Neuter name:</strong>
+      <%= @taxon_name.neuter_name %>
+    </p>
 
   </div>
 

@@ -69,23 +69,30 @@
 
         
       <div class="attributes break_words content">
-      <h2>Attributes</h2>
+        <div class="some_header"> 
+          <h2>Attributes</h2>
+          <span class="some_right_float_class"><%= papertrail_link(object) -%></span>
+        </div>
+
         <%= render partial:  object_attributes_partial_path(object.metamorphosize), locals: {object: object} %>
-        <%= yield :related_attributes -%>
-        <%= render(partial: '/shared/data/all/show/annotations', locals: {object: object}) if ! object.annotations.empty?  %>
-      <div class="housekeeping attributes">
+        <div class="housekeeping attributes">
           <%= render partial: '/shared/data/all/show/housekeeping', locals: {object: object} -%>
-      </div>        
+        </div>        
       </div>
 
     </div>
     </div>
     <div id="related-panel" class="item item3 panel separate-left separate-right">
-        <div class="content"> 
-        <h2>Related</h2>
-        <%= papertrail_link(object) -%><br>
-        <%= related_data_link(object) -%>
+      <div class="content"> 
+        <div class="some_header">
+          <h2>Related</h2>
+          <span class="some_right_float_class"><%= related_data_link(object) -%></span>
         </div>
+
+        <%= yield :related_attributes -%>
+        <%= render(partial: '/shared/data/all/show/annotations', locals: {object: object}) if ! object.annotations.empty?  %>
+
+      </div>
     </div>
     <div id="validation-panel" class="item item3 panel separate-left">
         <div class="content">
