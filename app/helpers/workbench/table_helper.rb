@@ -19,26 +19,14 @@ module Workbench::TableHelper
   def fancy_metadata_cells_tag(object)
     m = metamorphosize_if(object)
     content_tag(:td, object_tag(object.updater)) +
-        content_tag(:td, object_time_since_update_tag(object)) +
-        ##Someone please, check this solution for TW-381. I think it could be a more cleaner way (José)
-        (if (defined?m.note_object) 
-          content_tag(:td, (link_to 'Show', m.note_object.metamorphosize), class: 'table-options', data: {show: true}) 
-        elsif (defined?m.citation_object) 
-          content_tag(:td, (link_to 'Show', m.citation_object.metamorphosize), class: 'table-options', data: {show: true}) 
-        elsif (defined?m.attribute_subject) 
-          content_tag(:td, (link_to 'Show', m.attribute_subject.metamorphosize), class: 'table-options', data: {show: true}) 
-        elsif (defined?m.identifier_object) 
-          content_tag(:td, (link_to 'Show', m.identifier_object.metamorphosize), class: 'table-options', data: {show: true}) 
-        elsif (defined?m.alternate_value_object) 
-          content_tag(:td, (link_to 'Show', m.alternate_value_object.metamorphosize), class: 'table-options', data: {show: true}) 
-        elsif (defined?m.tag_object) 
-          content_tag(:td, (link_to 'Show', m.tag_object.metamorphosize), class: 'table-options', data: {show: true}) 
-        else                                                        
-          content_tag(:td, (link_to 'Show', m), class: 'table-options', data: {show: true}) 
-        end) + 
-        ##
-        content_tag(:td, edit_object_link(object), class: 'table-options', data: {edit: true}) + 
-        content_tag(:td, (link_to 'Destroy', m, method: :delete, data: {confirm: 'Are you sure?'}), class: 'table-options', data: {delete: true})
+      content_tag(:td, object_time_since_update_tag(object)) +
+      ##Someone please, check this solution for TW-381. I think it could be a more cleaner way (José)
+      ( defined?(m.annotated_object) ? 
+       content_tag(:td, (link_to 'Show', metamorphosize_if(m.annotated_object), class: 'table-options', data: {show: true})) :
+       content_tag(:td, (link_to 'Show', m), class: 'table-options', data: {show: true})
+      ) + 
+      content_tag(:td, edit_object_link(object), class: 'table-options', data: {edit: true}) + 
+      content_tag(:td, (link_to 'Destroy', m, method: :delete, data: {confirm: 'Are you sure?'}), class: 'table-options', data: {delete: true})
   end
 
 end
