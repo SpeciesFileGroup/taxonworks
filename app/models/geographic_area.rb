@@ -73,7 +73,7 @@ class GeographicArea < ActiveRecord::Base
   validates :data_origin, presence: true
   
   scope :descendants_of, -> (geographic_area) {with_ancestor(geographic_area) } 
-  scope :ancestors_of, -> (geographic_area) { joins(:descendant_hierarchies).where(geographic_area_hierarchies: {descendant_id: geographic_area.id}).where('geographic_area_hierarchies.ancestor_id != ?', geographic_area.id) }
+  scope :ancestors_of, -> (geographic_area) { joins(:descendant_hierarchies).order('geographic_area_hierarchies.generations DESC').where(geographic_area_hierarchies: {descendant_id: geographic_area.id}).where('geographic_area_hierarchies.ancestor_id != ?', geographic_area.id) }
 
   # this is subtly different, it includes self in present form
   scope :ancestors_and_descendants_of, -> (geographic_area) {
