@@ -29,13 +29,11 @@
     <div class="item item2">
     <div class="panel separate-left">
       <div class="title action-line">
-        <div>
+          <div class="inline">
           <span><%= object_tag(object) -%></span>
           <span data-view="development">&nbsp;[ id: <%= object.id -%> ]</span>
-        </div>
-        <div>
+          </div>
           <a href="#" data-icon="show" class="inline" view-bottom>Development view</a>
-        </div>
       </div> 
       <div class="navigation-controls">
         <div class="navigation-item">
@@ -71,8 +69,8 @@
       </div>    
     <div class="panels-container">
     <div class="item panel separate-left separate-right attributes-panel">
-      <div class="attributes break_words content">
-        <div class="title-section" style="position: relative;"> 
+      <div class="break_words content">
+        <div class="title-section"> 
           <h2>Attributes</h2>
           <span class="to-right"><%= papertrail_link(object) -%></span>
         </div>
@@ -84,7 +82,7 @@
     </div>
     <div id="related-panel" class="item panel separate-left separate-right related-panel">
       <div class="content"> 
-        <div class="title-section attributes">
+        <div class="title-section">
           <h2>Related</h2>
           <span class="to-right"><%= related_data_link(object) -%></span>
         </div>
