@@ -72,7 +72,7 @@
       <div class="break_words content">
         <div class="title-section"> 
           <h2>Attributes</h2>
-          <span class="to-right"><%= papertrail_link(object) -%></span>
+          <span class="to-right"><%= papertrail_link(object) -%> / <%= related_data_link(object) -%></span>
         </div>
         <%= render partial:  object_attributes_partial_path(object.metamorphosize), locals: {object: object} %>
         <div class="housekeeping attributes">
@@ -84,7 +84,7 @@
       <div class="content"> 
         <div class="title-section">
           <h2>Associated</h2>
-          <span class="to-right"><%= related_data_link(object) -%></span>
+
         </div>
         <%= yield :related_attributes -%>
         <%= render(partial: '/shared/data/all/show/annotations', locals: {object: object}) if ! object.annotations.empty?  %>
