@@ -16,14 +16,11 @@
 
   .attribute_set_title {
     margin: $standard_padding 0; 
-    font:caption;
-    background-color: $color-secondary-2-1;
-    color: $color-secondary-2-0;
-    width: 98%;
+    font-weight: 500;
+    font-size: 16px;
   }
 
   .attribute_set {
-    background-color: $note_yellow;
   }
 
 }
