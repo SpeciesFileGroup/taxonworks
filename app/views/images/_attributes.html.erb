@@ -3,10 +3,12 @@
    I think we not gonna need this now
    ---->
 
-  <p>
-    <%= image_tag(@image.image_file.url(:medium)) %>
-  </p>
-
+  <div class="easyzoom easyzoom--overlay">
+    <a href="<%= @image.image_file.url %>">
+      <%= image_tag(@image.image_file.url, 'class' => 'imageZoom') %>
+    </a>
+  </div>
+  
   <p data-view="development">
     <strong>User file name:</strong>
     <%= @image.user_file_name %>
@@ -48,3 +50,4 @@
   </p>
 
 </div>
+
