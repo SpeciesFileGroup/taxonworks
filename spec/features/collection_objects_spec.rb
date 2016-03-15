@@ -35,7 +35,7 @@ describe 'CollectionObjects', :type => :feature do
 
     describe 'GET /collection_objects/n' do
       before {
-        visit collection_object_path(CollectionObject.second) 
+        visit collection_object_path(CollectionObject.second)
       }
 
       it_behaves_like 'a_data_model_with_standard_show'
@@ -48,13 +48,32 @@ describe 'CollectionObjects', :type => :feature do
         @user.save!
       end
       let(:valid_attributes) {
-        FactoryGirl.build(:valid_collection_object).attributes.merge({ creator: @user, updater: @user, project: @project })
+        FactoryGirl.build(:valid_collection_object).attributes.merge({creator: @user, updater: @user, project: @project})
       }
-      let(:collection_object) do 
-        CollectionObject.create! valid_attributes.merge({ depictions_attributes: [
-          { creator: @user, updater: @user, project: @project, image_attributes: { 
-            creator: @user, updater: @user, project: @project, image_file: fixture_file_upload((Rails.root + 'spec/files/images/tiny.png'), 'image/png') } }]
-          })
+      let(:collection_object) do
+        CollectionObject.create! valid_attributes.merge(
+          {
+            depictions_attributes: [
+                                     {
+                                       creator:          @user,
+                                       updater:          @user,
+                                       project:          @project,
+                                       image_attributes: {
+                                         creator:    @user,
+                                         updater:    @user,
+                                         project:    @project,
+                                         image_file: fixture_file_upload(
+                                                       (Rails.root + 'spec/files/images/tiny.png'), 'image/png')
+                                       }
+                                     }
+                                   ]
+          }
+        )
+        # let(:georeference) do
+        #   FactoryGirl.create(:valid_georeference,
+        #                      collecting_event: FactoryGirl.create(:valid_collecting_event),
+        #                      geographic_item:  FactoryGirl.create(:geographic_item_with_polygon, polygon: SHAPE_K))
+        # end
       end
 
       it 'Returns a response including URLs to images API endpoint' do
@@ -62,6 +81,11 @@ describe 'CollectionObjects', :type => :feature do
         visit JSON.parse(page.body)['result']['images'].first['url'] + "?project_id=#{collection_object.project.to_param}&token=#{@user.api_access_token}"
         expect(JSON.parse(page.body)['result']['id']).to eq(collection_object.images.first.id)
       end
+
+      # it 'Returns a response including geo_json' do
+      #   visit "/api/v1/collection_objects/#{collection_object.to_param}?include=geo_json&project_id=#{collection_object.project.to_param}&token=#{@user.api_access_token}"
+      #   expect(JSON.parse(page.body)['result']['geo_json']).to eq(collection_object.collecting_event.to_geo_json_feature)
+      # end
     end
 
     describe 'GET /api/v1/collection_objects/by_identifier/{identifier}' do
@@ -70,12 +94,12 @@ describe 'CollectionObjects', :type => :feature do
         @user.save!
       end
       let(:valid_attributes) {
-        FactoryGirl.build(:valid_collection_object).attributes.merge({ creator: @user, updater: @user, project: @project })
+        FactoryGirl.build(:valid_collection_object).attributes.merge({creator: @user, updater: @user, project: @project})
       }
       let(:namespace) { FactoryGirl.create(:valid_namespace, short_name: 'ABCD', by: @user) }
-      let(:collection_object) do 
-        CollectionObject.create! valid_attributes.merge( 
-          { identifiers_attributes: [ { identifier: '123', type: 'Identifier::Local::CatalogNumber', namespace: namespace, by: @user, project: @project } ] })
+      let(:collection_object) do
+        CollectionObject.create! valid_attributes.merge(
+          {identifiers_attributes: [{identifier: '123', type: 'Identifier::Local::CatalogNumber', namespace: namespace, by: @user, project: @project}]})
       end
 
       it 'Returns a response including URLs to collection objects API endpoint' do

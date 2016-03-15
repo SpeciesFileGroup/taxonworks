@@ -6,25 +6,22 @@ class CollectionObjectsController < ApplicationController
   # GET /collection_objects
   # GET /collection_objects.json
   def index
-    @recent_objects = CollectionObject.recent_from_project_id($project_id).order(updated_at: :desc).includes(:identifiers, :taxon_determinations).limit(10)
+    @recent_objects = CollectionObject.recent_from_project_id($project_id)
+                        .order(updated_at: :desc)
+                        .includes(:identifiers, :taxon_determinations)
+                        .limit(10)
     render '/shared/data/all/index'
   end
 
   # GET /collection_objects/1
   # GET /collection_objects/1.json
   def show
-    @images  = nil
-    @geojson = nil
-    tokens   = [params[:include]].flatten
-    tokens.each { |token|
-      case token
-        when 'images'
-          @images = @collection_object.images
-        when 'geojson'
-          ce       = @collection_object.collecting_event
-          @geojson = ce.to_geo_json_feature unless ce.nil?
-      end
-    }
+    @images = params[:include] == ['images'] ? @collection_object.images : nil
+    if params[:include] == 'geo_json'
+      # fail
+      ce        = @collection_object.collecting_event
+      @geo_json = ce.nil? ? nil : ce.to_geo_json_feature
+    end
   end
 
   # GET /collection_objects/depictions/1
@@ -34,7 +31,7 @@ class CollectionObjectsController < ApplicationController
 
   # GET /collection_objects/by_identifier/ABCD
   def by_identifier
-    @identifier = params.require(:identifier)
+    @identifier         = params.require(:identifier)
     @request_project_id = sessions_current_project_id
     @collection_objects = CollectionObject.with_identifier(@identifier).where(project_id: @request_project_id).all
 
@@ -73,12 +70,12 @@ class CollectionObjectsController < ApplicationController
       if @collection_object.update(collection_object_params)
         @collection_object = @collection_object.metamorphosize
         format.html { redirect_to @collection_object, notice: 'Collection object was successfully updated.' }
-        format.json {  respond_with_bip(@collection_object)  }
+        format.json { respond_with_bip(@collection_object) }
         #   format.json { head :no_content }
       else
         format.html { render action: 'edit' }
-        format.json { respond_with_bip(@collection_object)  }
-#        format.json { render json: @collection_object.errors, status: :unprocessable_entity }
+        format.json { respond_with_bip(@collection_object) }
+        #        format.json { render json: @collection_object.errors, status: :unprocessable_entity }
       end
     end
   end
@@ -109,13 +106,13 @@ class CollectionObjectsController < ApplicationController
 
   def autocomplete
     @collection_objects = CollectionObject.find_for_autocomplete(params.merge(project_id: sessions_current_project_id)) # in model
-    data = @collection_objects.collect do |t|
-      {id: t.id,
-       label: ApplicationController.helpers.collection_object_tag(t), # in helper
+    data                = @collection_objects.collect do |t|
+      {id:              t.id,
+       label:           ApplicationController.helpers.collection_object_tag(t), # in helper
        response_values: {
-           params[:method] => t.id
+         params[:method] => t.id
        },
-       label_html: ApplicationController.helpers.collection_object_tag(t) # render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
+       label_html:      ApplicationController.helpers.collection_object_tag(t) # render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
       }
     end
     render :json => data
