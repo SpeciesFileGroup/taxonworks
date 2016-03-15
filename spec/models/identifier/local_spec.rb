@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Identifier::Local, :type => :model do
+describe Identifier::Local, type: :model, group: :identifiers do
   let(:local_identifier) {Identifier::Local.new}
   let(:otu) {FactoryGirl.create(:valid_otu)}
   let(:namespace_name) {'foo'}

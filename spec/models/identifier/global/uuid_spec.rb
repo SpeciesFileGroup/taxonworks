@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Identifier::Global::Uuid, :type => :model do
+describe Identifier::Global::Uuid, type: :model, group: :identifiers do
   context 'UUID' do
     let(:id) { FactoryGirl.build(:identifier_global_uuid) }
 

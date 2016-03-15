@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Identifier::Global::Issn, :type => :model do
+describe Identifier::Global::Issn, type:  :model, group: :identifier do
   context 'ISSN' do
     let(:id) { FactoryGirl.build(:identifier_global_issn) }
 

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Identifier::Global::Uri, :type => :model do
+describe Identifier::Global::Uri, type: :model, group: :identifiers do
 
   context 'URI' do
     let(:id) { FactoryGirl.build(:identifier_global_uri) }

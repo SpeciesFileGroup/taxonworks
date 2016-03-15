@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Identifier, type: :model, group: :annotators do
+describe Identifier, type: :model, group: [:annotators, :identifiers] do
   let(:identifier) { FactoryGirl.build(:identifier) }
   let(:namespace) { FactoryGirl.create(:valid_namespace) }
   let(:specimen1) { FactoryGirl.create(:valid_specimen) }

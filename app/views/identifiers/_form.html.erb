@@ -10,12 +10,10 @@
     </div>
 
     <div class="field">
-      <%= f.label :type %>
-      <br>
+      <%= f.label :type %><br>
       <%= f.select :type, options_for_select(identifier_type_select_options, @identifier.type) %>
     </div>
 
-    <!-- todo: @mjy added namespace_id in _form, autocomplete in controller, self.find_for_autocomplete in model; tests run fine, but clicking on add identifier blows up -->
     <div class="field">
       <%= f.label :namespace_id %><br>
       <%= render :partial => 'workbench/elements/forms/ajax_select',
@@ -23,14 +21,14 @@
                              :object => 'identifier',
                              :method => 'namespace_id',
                              :tag_id => 'namespace_id_for_identifier',
-                             :display => nil} %>
+                             :display => object_tag(@identifier.namespace)} %>
     </div>
 
     <%= f.hidden_field :identifier_object_type %>
-
     <%= f.hidden_field :identifier_object_id %>
 
     <div class="actions">
       <%= f.submit %>
     </div>
+    
 <% end %>

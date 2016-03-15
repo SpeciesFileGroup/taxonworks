@@ -21,7 +21,6 @@
 # In addition, identifiers of a certain type (subclass) must be unique across namespaces within a project.
 #
 class Identifier::Local < Identifier
-  belongs_to :namespace
 
   validates :namespace, presence: true
   validates_uniqueness_of :identifier, scope: [:namespace_id, :project_id, :type]
