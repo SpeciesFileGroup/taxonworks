@@ -1,7 +1,7 @@
 # A Source is the metadata that identifies the origin of some information.
 #
-# The primary purpose of Source metadata is to allow the user to find the source, that's all. 
-# 
+# The primary purpose of Source metadata is to allow the user to find the source, that's all.
+#
 # @!attribute serial_id
 #   @return [Integer]
 #   @todo
@@ -215,17 +215,17 @@ class Source < ActiveRecord::Base
     where('cached LIKE ?', "%#{params[:term]}%")
   end
 
-  # Create a new Source instance from a full text citatation.  By default 
+  # Create a new Source instance from a full text citatation.  By default
   # try to resolve the citation against Crossref, use the returned
-  # bibtex to populate the object if it successfully resolves. 
+  # bibtex to populate the object if it successfully resolves.
   #
   # Once created followup with .create_related_people_and_roles to create related people.
   #
   # @param citation [String] the full text of the citation to convert
-  # @param resolve [Boolean] whether to resolve against CrossRef, if false then creates a verbatim instance 
-  # @return [Source::BibTex.new] a new instance 
-  # @return [Source::Verbatim.new] a new instance 
-  # @return [false] 
+  # @param resolve [Boolean] whether to resolve against CrossRef, if false then creates a verbatim instance
+  # @return [Source::BibTex.new] a new instance
+  # @return [Source::Verbatim.new] a new instance
+  # @return [false]
   def self.new_from_citation(citation: nil, resolve: true)
     return false if citation.length < 6
     bibtex_string = Ref2bibtex.get(citation) if resolve
@@ -250,7 +250,7 @@ class Source < ActiveRecord::Base
   end
 
   def self.new_from_doi(doi: nil)
-    return false if !doi
+    return false unless doi
     bibtex_string = Ref2bibtex.get_bibtex(doi)
     if bibtex_string
       b = BibTeX.parse(bibtex_string).first
@@ -273,7 +273,7 @@ class Source < ActiveRecord::Base
 
   def self.batch_create(file: nil, ** args)
     @sources = []
-    @valid = 0
+    @valid   = 0
     begin
       error_msg = []
       Source.transaction do
@@ -281,10 +281,10 @@ class Source < ActiveRecord::Base
         bibliography.each do |record|
           a = Source::Bibtex.new_from_bibtex(record)
           if a.valid?
-             if a.save
-               @valid += 1
-             end
-             a.soft_validate()
+            if a.save
+              @valid += 1
+            end
+            a.soft_validate()
           else
             error_msg = a.errors.messages.to_s
           end
