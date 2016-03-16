@@ -50,7 +50,30 @@ describe 'CollectionObjects', :type => :feature do
       let(:valid_attributes) {
         FactoryGirl.build(:valid_collection_object).attributes.merge({creator: @user, updater: @user, project: @project})
       }
+      let(:collecting_event) do
+        FactoryGirl.create(:valid_collecting_event,
+                           created_by_id: @user.id,
+                           updated_by_id: @user.id,
+                           project:       @project)
+      end
+      let(:geographic_item) do
+        FactoryGirl.create(:geographic_item_with_polygon,
+                           polygon: SHAPE_K,
+                           creator: @user,
+                           updater: @user)
+      end
+      let(:georeference) do
+        FactoryGirl.create(:valid_georeference,
+                           creator:          @user,
+                           updater:          @user,
+                           project:          @project,
+                           collecting_event: collecting_event,
+                           geographic_item:  geographic_item)
+      end
       let(:collection_object) do
+        collecting_event
+        geographic_item
+        georeference
         CollectionObject.create! valid_attributes.merge(
           {
             depictions_attributes: [
@@ -63,10 +86,12 @@ describe 'CollectionObjects', :type => :feature do
                                          updater:    @user,
                                          project:    @project,
                                          image_file: fixture_file_upload(
-                                                       (Rails.root + 'spec/files/images/tiny.png'), 'image/png')
+                                                       (Rails.root + 'spec/files/images/tiny.png'),
+                                                       'image/png')
                                        }
                                      }
-                                   ]
+                                   ],
+            collecting_event:      collecting_event
           }
         )
         # let(:georeference) do
@@ -82,10 +107,10 @@ describe 'CollectionObjects', :type => :feature do
         expect(JSON.parse(page.body)['result']['id']).to eq(collection_object.images.first.id)
       end
 
-      # it 'Returns a response including geo_json' do
-      #   visit "/api/v1/collection_objects/#{collection_object.to_param}?include=geo_json&project_id=#{collection_object.project.to_param}&token=#{@user.api_access_token}"
-      #   expect(JSON.parse(page.body)['result']['geo_json']).to eq(collection_object.collecting_event.to_geo_json_feature)
-      # end
+      it 'Returns a response including geo_json' do
+        visit "/api/v1/collection_objects/#{collection_object.to_param}?include=geo_json&project_id=#{collection_object.project.to_param}&token=#{@user.api_access_token}"
+        expect(JSON.parse(page.body)['result']['geo_json']).to eq(collection_object.collecting_event.to_geo_json_feature)
+      end
     end
 
     describe 'GET /api/v1/collection_objects/by_identifier/{identifier}' do
