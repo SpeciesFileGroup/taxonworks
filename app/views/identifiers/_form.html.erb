@@ -5,11 +5,6 @@
       :</strong> <%= object_tag(@identifier.identifier_object) -%>  </p>
 
     <div class="field">
-      <%= f.label :identifier %><br>
-      <%= f.text_field :identifier %>
-    </div>
-
-    <div class="field">
       <%= f.label :type %><br>
       <%= f.select :type, options_for_select(identifier_type_select_options, @identifier.type) %>
     </div>
@@ -23,6 +18,12 @@
                              :tag_id => 'namespace_id_for_identifier',
                              :display => object_tag(@identifier.namespace)} %>
     </div>
+
+    <div class="field">
+      <%= f.label :identifier %><br>
+      <%= f.text_field :identifier %>
+    </div>
+
 
     <%= f.hidden_field :identifier_object_type %>
     <%= f.hidden_field :identifier_object_id %>
