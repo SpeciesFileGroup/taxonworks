@@ -11,11 +11,11 @@
 
 <p>
 <strong>Updated at:</strong>
-<%=  object_time_since_update_tag(object) -%> ago
+<%= object.updated_at.to_formatted_s(:long)    -%> 
 </p>
 
 <p>
 <strong>Created at:</strong>
-<%= object_time_since_creation_tag(object) -%> ago
+ <%=object.created_at.to_formatted_s(:long)    -%> 
 </p>
 
