@@ -5,55 +5,39 @@ $(document).ready(function() {
 });
 
 function show() {
-  $('.section[data-menu="annotate"]').hover( function() {
-    $(this).children().next().toggle(250);
-  });   
+  $("[view-bottom]").click(function() {
+    $("[data-view='development']").toggle();
+  });
 
+  $('.menu-drop').each( function() {
+    if($(this).find('a').length < 1) {
+      $(this).addClass("disable");
+    }
+  });
 
-$( "[view-bottom]" ).click(function() {
-  $("[data-view='development']").toggle();
-});
+  $('[data-arrow]').each( function() {
+    if($(this).find('a').length < 1) {
+      $(this).addClass("disable");
+    }
+  });
 
-if ($('[data-menu="task"]').children().length < 1 ) {
-  $('[data-menu="task"]').parent().addClass("disable");
-}
+  if(!$('#validation-panel li').length) {
+    $('#validation-panel').hide();
+  }
 
-if ($('[data-menu="add"]').children().length < 1 ) {
-  $('[data-menu="add"]').parent().addClass("disable");
-}
-
-
-if ($('[data-arrow-next]').children('a').length < 1 ) {
-  $('[data-arrow-next]').addClass("disable");
-}
-
-if ($('[data-arrow-back]').children('a').length < 1 ) {
-  $('[data-arrow-back]').addClass("disable");
-}
-
-
-
-if(!$('#validation-panel li').length) {
-  $('#validation-panel').hide();
-}
-
-if(!$('#related-panel a').length) {
-  $('#related-panel').hide();
-}
-
-
-
-
+  if(!$('#related-panel a').length) {
+    $('#related-panel').hide();
+  }  
 
   Mousetrap.bind('left', function() {
-      if(typeof $(".navigation-item[data-arrow-back] a").attr('href') != "undefined") {
-       location.href = $(".navigation-item[data-arrow-back] a").attr('href');
+    if($('[data-arrow="back"]').children('a').length > 0) {
+      location.href = $('[data-arrow="back"] a').attr('href');
     }
   });
 
   Mousetrap.bind('right', function() {
-    if(typeof $(".navigation-item[data-arrow-next] a").attr('href') != "undefined") {
-      location.href = $(".navigation-item[data-arrow-next] a").attr('href');
+    if($('[data-arrow="next"]').children('a').length > 0) {
+      location.href = $('[data-arrow="next"] a').attr('href');
     }
   });    
 }

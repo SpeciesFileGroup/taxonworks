@@ -7,11 +7,11 @@
             </div>      
             <div class="navigation-controls">
               <%= content_tag(:div, link_to('Browse', browse_taxon_name_path(@taxon_name), 'class' => 'small-icon', 'data-icon' => 'browse'), 'class' => 'navigation-item') if controller.respond_to?(:browse) -%>
-                <div class="navigation-item" data-arrow-back>
+                <div class="navigation-item" data-arrow="back">
                 <img src="/assets/icons/arrow-left.svg"/>
                 <%= previous_link(object) -%> 
                 </div>
-                <div class="navigation-item" data-arrow-next>
+                <div class="navigation-item" data-arrow="next">
                 <%= next_link(object) -%>
                 <img src="/assets/icons/arrow-right.svg"/>
               </div>

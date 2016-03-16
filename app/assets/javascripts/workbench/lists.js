@@ -74,7 +74,9 @@ function unique(list) {
 }
 
 $("tbody tr").dblclick(function() {
-  location.href = $(this).find("[data-show] a").attr("href");
+  if($(this).find("[data-show] a").length > 0) {
+    location.href = $(this).find("[data-show] a").attr("href");
+  }
 });
 
 function toggleColumn(elementObject) {
