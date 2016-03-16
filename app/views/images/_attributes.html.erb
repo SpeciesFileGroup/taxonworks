@@ -1,53 +1,50 @@
-<div class="attributes">
-  <!--- <p id="notice"><%= notice %></p>
-   I think we not gonna need this now
-   ---->
 
+<div class="attributes">
   <div class="easyzoom easyzoom--overlay">
     <a href="<%= @image.image_file.url %>">
       <%= image_tag(@image.image_file.url, 'class' => 'imageZoom') %>
     </a>
   </div>
-  
-  <p data-view="development">
-    <strong>User file name:</strong>
-    <%= @image.user_file_name %>
-  </p>
+<div class="attribute_set" data-title="Information" data-view="development">
+    <p data-view="development">
+      <strong>User file name:</strong>
+      <%= @image.user_file_name %>
+    </p>
 
-  <p data-view="development">
-    <strong>Height:</strong>
-    <%= @image.height %>
-  </p>
+    <p>
+      <strong>Height:</strong>
+      <%= @image.height %>
+    </p>
 
-  <p data-view="development">
-    <strong>Width:</strong>
-    <%= @image.width %>
-  </p>
+    <p>
+      <strong>Width:</strong>
+      <%= @image.width %>
+    </p>
 
-  <p data-view="development">
-    <strong>Image file fingerprint:</strong>
-    <%= @image.image_file_fingerprint %>
-  </p>
+    <p>
+      <strong>Image file fingerprint:</strong>
+      <%= @image.image_file_fingerprint %>
+    </p>
 
-  <p data-view="development">
-    <strong>Image file file name:</strong>
-    <%= @image.image_file_file_name %>
-  </p>
+    <p>
+      <strong>Image file file name:</strong>
+      <%= @image.image_file_file_name %>
+    </p>
 
-  <p data-view="development">
-    <strong>Image file content type:</strong>
-    <%= @image.image_file_content_type %>
-  </p>
+    <p>
+      <strong>Image file content type:</strong>
+      <%= @image.image_file_content_type %>
+    </p>
 
-  <p data-view="development">
-    <strong>Image file file size:</strong>
-    <%= @image.image_file_file_size %>
-  </p data-view="development">
+    <p>
+      <strong>Image file file size:</strong>
+      <%= @image.image_file_file_size %>
+    </p>
 
-  <p data-view="development">
-    <strong>Image file updated at:</strong>
-    <%= @image.image_file_updated_at %>
-  </p>
-
+    <p>
+      <strong>Image file updated at:</strong>
+      <%= @image.image_file_updated_at %>
+    </p>
+  </div>
 </div>
 

@@ -2,7 +2,18 @@
 @import 'workbench/whitespace';
 
 .attributes {
+  margin-bottom: $standard_padding * 2;
   word-wrap: break-word;
+  hr {
+    border:none;
+    border-bottom: 1px solid $navigation_border;
+  }
+  .header-title {
+      margin: $standard_padding*.5 0;
+      font-weight: 100;
+      margin-bottom: $standard_padding;
+      border-bottom: 1px solid $navigation_border;    
+  }
   p {
     margin: 0 0 $standard_padding*0.6 0; 
     padding: 0;
@@ -15,14 +26,14 @@
   }
 
   .attribute_set_title {
-    margin: $standard_padding 0; 
-    font-weight: 500;
-    font-size: 16px;
+    margin: $standard_padding * 1.5 0; 
+    font-weight: bold;
+    font-size: 15px;
   }
 
   .attribute_set {
-  }
 
+  }
 }
 
 
