@@ -16,7 +16,8 @@ class CollectionObjectsController < ApplicationController
   # GET /collection_objects/1
   # GET /collection_objects/1.json
   def show
-    includes = [params[:include]].flatten
+    # @images  = params['include'] == ['images'] ? @collection_object.images : nil
+    includes = params[:include]
     includes.each do |include|
       case include
         when 'images'
@@ -26,7 +27,7 @@ class CollectionObjectsController < ApplicationController
           @geo_json = ce.nil? ? nil : ce.to_geo_json_feature
         else
       end
-    end
+    end if includes
   end
 
   # GET /collection_objects/depictions/1

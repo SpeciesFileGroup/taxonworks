@@ -9,8 +9,8 @@ json.result do
     json.array! @images do |image|
       json.id image.id
       json.url api_v1_image_url(image.to_param)
-    end if @images
-  end
+    end
+  end if @images
 end
 
 # curl 'http://localhost:3000/api/v1/collection_objects/3?token=FindYourOwnToken&project_id=1&include=geo_json'
