@@ -16,11 +16,16 @@ class CollectionObjectsController < ApplicationController
   # GET /collection_objects/1
   # GET /collection_objects/1.json
   def show
-    @images = params[:include] == ['images'] ? @collection_object.images : nil
-    if params[:include] == 'geo_json'
-      # fail
-      ce        = @collection_object.collecting_event
-      @geo_json = ce.nil? ? nil : ce.to_geo_json_feature
+    includes = [params[:include]].flatten
+    includes.each do |include|
+      case include
+        when 'images'
+          @images = @collection_object.images
+        when 'geo_json'
+          ce        = @collection_object.collecting_event
+          @geo_json = ce.nil? ? nil : ce.to_geo_json_feature
+        else
+      end
     end
   end
 
