@@ -40,7 +40,7 @@ module Workbench::DisplayHelper
   end
 
   def object_attributes_partial_path(object)
-    "/#{object.class.base_class.name.tableize}/attributes"
+    "/#{metamorphosize_if(object).class.base_class.name.tableize}/attributes"
   end
   
 end

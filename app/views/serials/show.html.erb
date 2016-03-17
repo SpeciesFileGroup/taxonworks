@@ -1,11 +1,10 @@
-<%= content_for :see do -%>
+<%= content_for :report do -%>
     <ul class="no_bullets">
-
       <%= content_tag(:li, link_to('Similar serials', similar_serials_task_path(@serial))) %>
     </ul>
 <% end %>
 
-<%= content_for :show_navigation do %>
+<%= content_for :additional_navigation do %> 
     <% unless @serial.all_previous.empty? %>
         <h3>Preceeding</h3>
         <ul class="no_bullets">
@@ -26,5 +25,5 @@
 
 <% end %>
 
-<%= render(partial: 'shared/data/community/user_defined/show', locals: {object: @serial}) -%>
+<%= render(partial: 'shared/data/project/show', locals: {object: @serial}) -%>
 

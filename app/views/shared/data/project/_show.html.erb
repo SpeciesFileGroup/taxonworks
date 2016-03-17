@@ -42,10 +42,10 @@
 
         <div class="navigation-controls">
           <div class="navigation-item">
-            <%= edit_object_link(object) -%>
+            <%= edit_object_link(object) if controller.respond_to?(:edit) -%><!---- José disable rendering ---->
           </div>
           <div class="navigation-item">
-            <%= destroy_object_link(object) -%>
+            <%= destroy_object_link(object) if controller.respond_to?(:destroy) -%> <!---- and here too ---->
           </div>
           <div class="navigation-item">
             <%= pin_item_to_pinboard_link(object, sessions_current_user) -%>
@@ -81,11 +81,11 @@
           <div class="break_words content">
             <div class="title-section"> 
               <h2>Attributes</h2>
-              <span class="to-right"><%= papertrail_link(object) -%> / <%= related_data_link(object) -%></span>
+              <span class="to-right"><%= papertrail_link(object) -%> | <%= related_data_link(object) -%></span> 
             </div>
-            <%= render partial:  object_attributes_partial_path(object.metamorphosize), locals: {object: object} %>
 
-            <div class="attributes"> <!---- likely can remove this ---->
+            <div class="attributes"> 
+              <%= render partial: object_attributes_partial_path(object.metamorphosize), locals: {object: object} %>
               <%= render partial: '/shared/data/all/show/housekeeping', locals: {object: object} -%>
             </div>        
           </div>

@@ -15,6 +15,7 @@ module SourcesHelper
   end
 
   def source_attributes_for(source)
+    w = content_tag(:em, 'ERROR - contact admin.', class: :warning)  
     content_for :attributes do
       case source.class.name 
       when 'Source::Bibtex' 
@@ -22,9 +23,9 @@ module SourcesHelper
       when 'Source::Verbatim'
         render partial: '/sources/verbatim/attributes'
       when 'Source::Source'
-        "BAR"
+        w 
       else
-        "WARNING, ERROR"
+        w
       end
     end
   end

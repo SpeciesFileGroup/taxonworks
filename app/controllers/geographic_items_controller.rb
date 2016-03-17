@@ -1,6 +1,6 @@
 class GeographicItemsController < ApplicationController
-  before_filter :require_sign_in
-
+  include DataControllerConfiguration::SharedDataControllerConfiguration
+  
   before_action :set_geographic_item, only: [:show, :edit, :update, :destroy]
 
   # GET /geographic_items/1
@@ -8,33 +8,33 @@ class GeographicItemsController < ApplicationController
   def show
   end
 
-  # GET /geographic_items/1/edit
-  def edit
-  end
+# # GET /geographic_items/1/edit
+# def edit
+# end
 
-  # PATCH/PUT /geographic_items/1
-  # PATCH/PUT /geographic_items/1.json
-  def update
-    respond_to do |format|
-      if @geographic_item.update(geographic_item_params)
-        format.html { redirect_to @geographic_item.metamorphosize, notice: 'Geographic item was successfully updated.' }
-        format.json { head :no_content }
-      else
-        format.html { render action: 'edit' }
-        format.json { render json: @geographic_item.errors, status: :unprocessable_entity }
-      end
-    end
-  end
+# # PATCH/PUT /geographic_items/1
+# # PATCH/PUT /geographic_items/1.json
+# def update
+#   respond_to do |format|
+#     if @geographic_item.update(geographic_item_params)
+#       format.html { redirect_to @geographic_item.metamorphosize, notice: 'Geographic item was successfully updated.' }
+#       format.json { head :no_content }
+#     else
+#       format.html { render action: 'edit' }
+#       format.json { render json: @geographic_item.errors, status: :unprocessable_entity }
+#     end
+#   end
+# end
 
-  # DELETE /geographic_items/1
-  # DELETE /geographic_items/1.json
-  def destroy
-    @geographic_item.destroy
-    respond_to do |format|
-      format.html { redirect_to geographic_items_url }
-      format.json { head :no_content }
-    end
-  end
+# # DELETE /geographic_items/1
+# # DELETE /geographic_items/1.json
+# def destroy
+#   @geographic_item.destroy
+#   respond_to do |format|
+#     format.html { redirect_to geographic_items_url }
+#     format.json { head :no_content }
+#   end
+# end
 
   private
     # Use callbacks to share common setup or constraints between actions.

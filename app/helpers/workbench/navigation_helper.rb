@@ -187,7 +187,8 @@ module Workbench::NavigationHelper
   #   a link to the related data page
   def related_data_link(object)
     return nil if object.nil?
-    link_to('Overview', send("related_#{member_base_path(metamorphosize_if(object))}_path", object)) 
+    p = "related_#{member_base_path(metamorphosize_if(object))}_path"
+    link_to('Overview', send(p, object)) if controller.respond_to?(p)
   end
 
 end
