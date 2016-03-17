@@ -32,4 +32,13 @@
 #
 class Identifier::Global::Doi < Identifier::Global
   validates :identifier, :format => {:with => /(^10)\.([\d\.]*)\/.*\z/, :message => 'Invalid DOI.'}
+
+  before_validation :handle_prefixes
+
+  protected
+
+  def handle_prefixes
+     identifier.gsub!(/^(doi:|http:\/\/dx.doi.org\/)/, '') if identifier
+  end
+
 end

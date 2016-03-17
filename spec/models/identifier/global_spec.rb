@@ -1,5 +1,5 @@
 require 'rails_helper'
-describe Identifier::Global, :type => :model do
+describe Identifier::Global, type: :model, group: :identifiers do
 
   let!(:otu) { FactoryGirl.create(:valid_otu) }
   let(:global_identifier) {Identifier::Global.new}

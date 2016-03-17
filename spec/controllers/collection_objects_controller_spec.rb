@@ -65,14 +65,26 @@ describe CollectionObjectsController, :type => :controller do
 
     context "JSON format request" do
       render_views
-      let(:collection_object) do 
-        CollectionObject.create! valid_attributes.merge({ depictions_attributes: [
-          { image_attributes: { image_file: fixture_file_upload((Rails.root + 'spec/files/images/tiny.png'), 'image/png') } }]
-          })
+      let(:collection_object) do
+        CollectionObject.create! valid_attributes.merge(
+          {
+            depictions_attributes: [
+                                     {
+                                       image_attributes: {
+                                         image_file: fixture_file_upload((Rails.root + 'spec/files/images/tiny.png'),
+                                                                         'image/png')
+                                       }
+                                     }
+                                   ]
+          }
+        )
       end
 
-      context "valid collection_object" do
-        before { get :show, { :id => collection_object.to_param, :include => ["images"], :format => :json }, valid_session }
+      context 'valid collection_object' do
+        before { get :show, {id:      collection_object.to_param,
+                             include: ['images'],
+                             format:  :json},
+                     valid_session }
         let (:data) { JSON.parse(response.body) }
 
         it "returns a successful JSON response" do
@@ -102,7 +114,10 @@ describe CollectionObjectsController, :type => :controller do
               end
 
               it "has images as empty array" do
-                get :show, { :id => collection_object.to_param, :include => ["images"], :format => :json }, valid_session
+                get :show, {:id      => collection_object.to_param,
+                            :include => ["images"],
+                            :format  => :json},
+                    valid_session
                 expect(result["images"]).to eq([])
               end
             end
@@ -129,24 +144,25 @@ describe CollectionObjectsController, :type => :controller do
                 end
               end
 
-              context "when not requested" do
+              context 'when not requested' do
 
-                it "does not have images attribute" do
-                  get :show, { :id => collection_object.to_param, :format => :json }, valid_session
-                  expect(JSON.parse(response.body)["result"]["images"]).to be nil
+                it 'does not have images attribute' do
+                  get :show, {id:     collection_object.to_param,
+                              format: :json},
+                      valid_session
+                  expect(JSON.parse(response.body)['result']['images']).to be nil
                 end
               end
-            end  
+            end
           end
         end
-
       end
 
       context "invalid collection_object" do
-        before { get :show, { :id => -1, :format => :json }, valid_session }
+        before { get :show, {:id => -1, :format => :json}, valid_session }
 
         it "returns an unsuccessful JSON response" do
-          expect(JSON.parse(response.body)).to eq({ "success" => false })
+          expect(JSON.parse(response.body)).to eq({"success" => false})
         end
       end
 
@@ -156,14 +172,14 @@ describe CollectionObjectsController, :type => :controller do
 
   describe "GET by_identifier" do
     render_views
-    let(:namespace) { FactoryGirl.create(:valid_namespace, short_name: 'ABCD')}
-    let!(:collection_object) do 
-      CollectionObject.create! valid_attributes.merge( 
-        { identifiers_attributes: [ { identifier: '123', type: 'Identifier::Local::CatalogNumber', namespace: namespace } ] })
+    let(:namespace) { FactoryGirl.create(:valid_namespace, short_name: 'ABCD') }
+    let!(:collection_object) do
+      CollectionObject.create! valid_attributes.merge(
+        {identifiers_attributes: [{identifier: '123', type: 'Identifier::Local::CatalogNumber', namespace: namespace}]})
     end
 
     context "valid identifier" do
-      before { get :by_identifier, { :identifier => "ABCD 123", :format => :json }, valid_session }
+      before { get :by_identifier, {:identifier => "ABCD 123", :format => :json}, valid_session }
 
       let (:data) { JSON.parse(response.body) }
 
@@ -223,14 +239,14 @@ describe CollectionObjectsController, :type => :controller do
     end
 
     context "invalid identifier" do
-      before { get :by_identifier, { :identifier => "FOO", :format => :json }, valid_session }
+      before { get :by_identifier, {:identifier => "FOO", :format => :json}, valid_session }
 
       it "returns 404 HTTP status" do
         expect(response.status).to eq(404)
       end
 
       it "returns an unsuccessful JSON response" do
-        expect(JSON.parse(response.body)).to eq({ "success" => false })
+        expect(JSON.parse(response.body)).to eq({"success" => false})
       end
     end
 

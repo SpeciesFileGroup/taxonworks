@@ -6,25 +6,28 @@ class CollectionObjectsController < ApplicationController
   # GET /collection_objects
   # GET /collection_objects.json
   def index
-    @recent_objects = CollectionObject.recent_from_project_id($project_id).order(updated_at: :desc).includes(:identifiers, :taxon_determinations).limit(10)
+    @recent_objects = CollectionObject.recent_from_project_id($project_id)
+                        .order(updated_at: :desc)
+                        .includes(:identifiers, :taxon_determinations)
+                        .limit(10)
     render '/shared/data/all/index'
   end
 
   # GET /collection_objects/1
   # GET /collection_objects/1.json
   def show
-    @images  = nil
-    @geojson = nil
-    tokens   = [params[:include]].flatten
-    tokens.each { |token|
-      case token
+    # @images  = params['include'] == ['images'] ? @collection_object.images : nil
+    includes = params[:include]
+    includes.each do |include|
+      case include
         when 'images'
           @images = @collection_object.images
-        when 'geojson'
-          ce       = @collection_object.collecting_event
-          @geojson = ce.to_geo_json_feature unless ce.nil?
+        when 'geo_json'
+          ce        = @collection_object.collecting_event
+          @geo_json = ce.nil? ? nil : ce.to_geo_json_feature
+        else
       end
-    }
+    end if includes
   end
 
   # GET /collection_objects/depictions/1

@@ -9,7 +9,7 @@ describe Source, type: :model, group: :sources do
 
   context 'associations' do
     specify 'sources have citations' do
-      expect(source.citations << Citation.new()).to be_truthy 
+      expect(source.citations << Citation.new()).to be_truthy
     end
   end
 
@@ -22,16 +22,16 @@ describe Source, type: :model, group: :sources do
         expect(Source.new_from_citation(citation: 'ABC')).to eq(false)
       }
     end
-    
+
     specify 'when citation is > than 5 characters but unresolvable a Source::Verbatim instance is returned' do
       VCR.use_cassette('source_citation_xyz') {
         expect(Source.new_from_citation(citation: 'ABCDE XYZ').class).to eq(Source::Verbatim)
-      } 
+      }
     end
 
     specify 'when citation is resolvable a Source::Bibtex instance is returned' do
       VCR.use_cassette('source_citation_polaszek') {
-        s =  Source.new_from_citation(citation: citation)
+        s = Source.new_from_citation(citation: citation)
         expect(s.class).to eq(Source::Bibtex)
       }
     end
@@ -44,7 +44,7 @@ describe Source, type: :model, group: :sources do
     specify 'when doi is not provide false' do
       expect(Source.new_from_doi()).to eq(false)
     end
-    
+
     specify 'when non resolvable doi is provided false is returned ' do
       expect(Source.new_from_doi(doi: 'asdfasdf')).to eq(false)
     end
@@ -55,8 +55,8 @@ describe Source, type: :model, group: :sources do
   end
 
   context 'cited objects' do
-    let(:o) {FactoryGirl.create(:valid_otu) }
-    let(:a) {FactoryGirl.create(:valid_source_bibtex)}
+    let(:o) { FactoryGirl.create(:valid_otu) }
+    let(:a) { FactoryGirl.create(:valid_source_bibtex) }
 
     specify 'returns a scope' do
       expect(source.cited_objects).to eq([])
@@ -65,7 +65,7 @@ describe Source, type: :model, group: :sources do
     specify 'returns a mixed array of objects' do
       c = Citation.create!(source: a, citation_object: o)
       a.reload
-      expect(a.cited_objects.include?(o)).to be(true) 
+      expect(a.cited_objects.include?(o)).to be(true)
     end
   end
 
