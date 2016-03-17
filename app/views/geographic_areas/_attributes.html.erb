@@ -1,75 +1,72 @@
-<div class="attributes">
-  <%# if @geographic_area.geographic_items.count > 0 -%>
-  <%#= render(partial: 'layouts/map_header') -%>
-  <%# end %>
+<%# if @geographic_area.geographic_items.count > 0 -%>
+<%#= render(partial: 'layouts/map_header') -%>
+<%# end %>
 
-  <p>
-    <strong>Parent:</strong>
-    <%= geographic_area_link(@geographic_area.parent) %>
-  </p>
+<p>
+  <strong>Parent:</strong>
+  <%= geographic_area_link(@geographic_area.parent) %>
+</p>
 
-  <!--<p>-->
-  <!--<strong>Name:</strong>-->
-  <!--<%#= @geographic_area.name -%>-->
-  <!--</p>-->
+<!--<p>-->
+<!--<strong>Name:</strong>-->
+<!--<%#= @geographic_area.name -%>-->
+<!--</p>-->
 
-  <p>
-    <strong>Geographic area type:</strong>
-    <%= object_tag(@geographic_area.geographic_area_type) %>
-  </p>
+<p>
+  <strong>Geographic area type:</strong>
+  <%= object_tag(@geographic_area.geographic_area_type) %>
+</p>
 
-  <p>
-    <strong>Iso 3166 a2:</strong>
-    <%= @geographic_area.iso_3166_a2 %>
-  </p>
+<p>
+  <strong>Iso 3166 a2:</strong>
+  <%= @geographic_area.iso_3166_a2 %>
+</p>
 
-  <p>
-    <strong>Iso 3166 a3:</strong>
-    <%= @geographic_area.iso_3166_a3 %>
-  </p>
+<p>
+  <strong>Iso 3166 a3:</strong>
+  <%= @geographic_area.iso_3166_a3 %>
+</p>
 
-  <p>
-    <strong>Data origin:</strong>
-    <%= @geographic_area.data_origin %>
-  </p>
+<p>
+  <strong>Data origin:</strong>
+  <%= @geographic_area.data_origin %>
+</p>
 
-  <p>
-    <strong>TdwgID:</strong>
-    <%= @geographic_area.tdwgID %>
-  </p>
+<p>
+  <strong>TdwgID:</strong>
+  <%= @geographic_area.tdwgID %>
+</p>
 
-  <p>
-    <strong>Level0:</strong>
-    <%= geographic_area_link(@geographic_area.level0) %>
-  </p>
+<p>
+  <strong>Level0:</strong>
+  <%= geographic_area_link(@geographic_area.level0) %>
+</p>
 
-  <p>
-    <strong>Level1:</strong>
-    <%= geographic_area_link(@geographic_area.level1) %>
-  </p>
+<p>
+  <strong>Level1:</strong>
+  <%= geographic_area_link(@geographic_area.level1) %>
+</p>
 
-  <p>
-    <strong>Level2:</strong>
-    <%= geographic_area_link(@geographic_area.level2) %>
-  </p>
+<p>
+  <strong>Level2:</strong>
+  <%= geographic_area_link(@geographic_area.level2) %>
+</p>
 
-  <% if @geographic_area.geographic_items.count > 0 -%>
-      <p>
-        <strong>"Default" shape:</strong>
-        <%= link_to('(Collecting events within)', within_locality_task_path(@geographic_area.geographic_items.first.id)) %>
-        <%= simple_map([@geographic_area]) -%>
-  <% end %>
+<% if @geographic_area.geographic_items.count > 0 -%>
+    <p>
+      <strong>"Default" shape:</strong>
+      <%= link_to('(Collecting events within)', within_locality_task_path(@geographic_area.geographic_items.first.id)) %>
+      <%= simple_map([@geographic_area]) -%>
+<% end %>
 
-  <p>
-    <strong> Geographic items (shape IDs): </strong>
-    <%= geographic_item_links(@geographic_area.geographic_items) -%>
-  </p>
+<p>
+  <strong> Geographic items (shape IDs): </strong>
+  <%= geographic_item_links(@geographic_area.geographic_items) -%>
+</p>
 
-  <p><%= similarly_named_records_list(@geographic_area) -%> </p>
+<p><%= similarly_named_records_list(@geographic_area) -%> </p>
 
-  <p><strong> Children: </strong>
-    <%= geographic_area_link_list(@geographic_area.children) -%>
-  </p>
-
-</div>
+<p><strong> Children: </strong>
+  <%= geographic_area_link_list(@geographic_area.children) -%>
+</p>
 
