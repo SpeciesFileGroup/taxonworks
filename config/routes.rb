@@ -491,7 +491,7 @@ TaxonWorks::Application.routes.draw do
   match '/papertrail', to: 'papertrail#papertrail', via: :get
   match '/papertrail/:id', to: 'papertrail#show', as: 'paper_trail_version', via: :get
 
-  require "#{Rails.root}/config/routes/api"
+
 
   # TODO: Remove or rewrite endpoint implementation
   # get '/api/v1/taxon_names/' => 'api/v1/taxon_names#all'
@@ -541,3 +541,5 @@ TaxonWorks::Application.routes.draw do
   #   end
   #
 end
+
+require_relative "routes/api"
