@@ -2,99 +2,116 @@
   <div class="panels-container horizontal">
     <div class="item item1">
       <div class="panel separate-right">
-          <div class="title nav-line">
-            <%= model_name_title -%>
-            </div>      
-            <div class="navigation-controls">
-              <%= content_tag(:div, link_to('Browse', browse_taxon_name_path(@taxon_name), 'class' => 'small-icon', 'data-icon' => 'browse'), 'class' => 'navigation-item') if controller.respond_to?(:browse) -%>
-                <div class="navigation-item" data-arrow="back">
-                <img src="/assets/icons/arrow-left.svg"/>
-                <%= previous_link(object) -%> 
-                </div>
-                <div class="navigation-item" data-arrow="next">
-                <%= next_link(object) -%>
-                <img src="/assets/icons/arrow-right.svg"/>
-              </div>
-            </div> 
-            <div class="navigation-controls">
-              <div class="navigation-item">
-                <%= search_form_for_model(@data_model) %>
-              </div>
-            </div>
-            <div class="content">
-              <%= yield :additional_navigation -%>
-            </div>
+        <div class="title nav-line">
+          <%= model_name_title -%>
+        </div> 
+
+        <div class="navigation-controls">
+          <%= content_tag(:div, link_to('Browse', browse_taxon_name_path(@taxon_name), 'class' => 'small-icon', 'data-icon' => 'browse'), 'class' => 'navigation-item') if controller.respond_to?(:browse) -%>
+          <div class="navigation-item" data-arrow="back">
+            <%= image_tag('icons/arrow-left.svg') -%>
+            <%= previous_link(object) -%> 
+          </div>
+          <div class="navigation-item" data-arrow="next">
+            <%= next_link(object) -%>
+            <%= image_tag('icons/arrow-right.svg') -%>
+          </div>
+        </div> 
+       
+        <div class="navigation-controls">
+          <div class="navigation-item">
+            <%= search_form_for_model(@data_model) %>
+          </div>
+        </div>
+
+        <div class="content">
+          <%= yield :additional_navigation -%>
+        </div>
       </div>
     </div>
+
     <div class="item item2">
-    <div class="panel separate-left">
-      <div class="title action-line">
+      <div class="panel separate-left">
+        <div class="title action-line">
           <div class="inline">
-          <span><%= object_tag(object) -%></span>
-          <span data-view="development">&nbsp;[ id: <%= object.id -%> ]</span>
+            <span><%= object_tag(object) -%></span>
+            <span data-view="development">&nbsp;[ id: <%= object.id -%> ]</span>
           </div>
           <a href="#" data-icon="show" class="inline" view-bottom>Development view</a>
-      </div> 
-      <div class="navigation-controls">
-        <div class="navigation-item">
-          <%= edit_object_link(object) -%>
-        </div>
-        <div class="navigation-item">
-          <%= destroy_object_link(object) -%>
-        </div>
-        <div class="navigation-item">
-          <%= pin_item_to_pinboard_link(object, sessions_current_user) -%>
-        </div>                
-        <div class="navigation-item menu-drop">
-          <span class="small-icon" data-icon="annotate">Annotate</span>
-          <div class="dropdown"><%= annotate_links(object: object) -%>
-          </div>
-        </div>                
+        </div> 
 
-        <div class="navigation-item menu-drop">
-          <span data-icon="task" class="small-icon">Tasks</span>
-          <div class="dropdown" data-menu="task">
-            <%= yield :see -%>  
-            <%= yield :tasks -%>
+        <div class="navigation-controls">
+          <div class="navigation-item">
+            <%= edit_object_link(object) -%>
           </div>
-        </div>
-        <div class="navigation-item menu-drop">
-          <span data-icon="add" class="small-icon">Add</span>
-          <div class="dropdown" data-menu="add">
-            <%= yield :do -%>
+          <div class="navigation-item">
+            <%= destroy_object_link(object) -%>
           </div>
-        </div>     
-        
-      </div>        
-      </div>    
-    <div class="panels-container">
-    <div class="item panel separate-left separate-right attributes-panel">
-      <div class="break_words content">
-        <div class="title-section"> 
-          <h2>Attributes</h2>
-          <span class="to-right"><%= papertrail_link(object) -%> / <%= related_data_link(object) -%></span>
-        </div>
-        <%= render partial:  object_attributes_partial_path(object.metamorphosize), locals: {object: object} %>
-        <div class="attributes">
-          <%= render partial: '/shared/data/all/show/housekeeping', locals: {object: object} -%>
+          <div class="navigation-item">
+            <%= pin_item_to_pinboard_link(object, sessions_current_user) -%>
+          </div>                
+          <div class="navigation-item menu-drop">
+            <span class="small-icon" data-icon="annotate">Annotate</span>
+            <div class="dropdown"><%= annotate_links(object: object) -%>
+          </div>
+          </div>                
+          <div class="navigation-item menu-drop">
+            <span data-icon="task" class="small-icon">Tasks</span>
+            <div class="dropdown" data-menu="task">
+              <%= yield :tasks -%>
+            </div>
+          </div>
+          <div class="navigation-item menu-drop">
+            <span data-icon="add" class="small-icon">Add</span>
+            <div class="dropdown" data-menu="add">
+              <%= yield :add -%>
+              </div>
+          </div>     
+          <div class="navigation-item menu-drop">
+            <span data-icon="add" class="small-icon">Report</span>
+            <div class="dropdown" data-menu="report">
+              <%= yield :report -%>
+              </div>
+          </div>    
         </div>        
-      </div>
-    </div>
-    <div id="related-panel" class="item panel separate-left separate-right related-panel">
-      <div class="content"> 
-        <div class="title-section">
-          <h2>Associated</h2>
+      </div>    
+      
+      <div class="panels-container">
+        <div class="item panel separate-left separate-right attributes-panel">
+          <div class="break_words content">
+            <div class="title-section"> 
+              <h2>Attributes</h2>
+              <span class="to-right"><%= papertrail_link(object) -%> / <%= related_data_link(object) -%></span>
+            </div>
+            <%= render partial:  object_attributes_partial_path(object.metamorphosize), locals: {object: object} %>
+
+            <div class="attributes"> <!---- likely can remove this ---->
+              <%= render partial: '/shared/data/all/show/housekeeping', locals: {object: object} -%>
+            </div>        
+          </div>
         </div>
-        <%= yield :related_attributes -%>
-        <%= render(partial: '/shared/data/all/show/annotations', locals: {object: object}) if ! object.annotations.empty?  %>
-      </div>
-    </div>
-    <div id="validation-panel" class="item panel separate-left validation-panel">
-        <div class="content">
-          <%= render(partial: '/shared/data/all/show/soft_validation', locals: {object: object}) if object.class.respond_to?(:soft_validates?) -%>
+       
+        <div id="related-panel" class="item panel separate-left separate-right related-panel">
+          <div class="content"> 
+            <div class="title-section">
+              <h2>Associated</h2>
+            </div>
+            <%= yield :associated -%>
+          </div>
         </div>
-    </div>
-    </div>
+        
+        <div id="validation-panel" class="item panel separate-left validation-panel">
+          <div class="content">
+            <%= render(partial: '/shared/data/all/show/soft_validation', locals: {object: object}) if object.class.respond_to?(:soft_validates?) -%>
+          </div>
+        </div>
+
+        <div id="annotations-panel" class="item panel seperate-left separate-right annotations-panel">
+          <div class="content">
+            <%= render(partial: '/shared/data/all/show/annotations', locals: {object: object}) if ! object.annotations.empty?  %>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
