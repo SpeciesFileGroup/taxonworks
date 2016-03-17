@@ -181,9 +181,19 @@
         display: block;
       }      
     }
+
     .nav-line {
       border-bottom: 5px solid $color-secondary-2-4;
     } 
+
+    .title.shared {
+      border-bottom:5px solid $color-secondary-1-3;
+    }
+
+    .title.application_defined {
+      border-bottom:5px solid $color-primary-4;
+    }
+
 
     .action-line {
       border-bottom: 5px solid $color-complement-3;
@@ -286,18 +296,29 @@
           border:1px solid $navigation_border;
           background-color: $body_background; 
           box-shadow: 0 1px 2px 0 $navigation_border; 
-          margin: 0px;
-          a {
+          margin: 0px;  
+          padding: 0px;          
+          li {
             margin: 0px;
             display: flex;
             flex-direction: row;
-            padding: 5px;
-            padding-left: 10px;
-
+            
+            border-bottom: 1px solid $navigation_border;
+            a {
+              padding: 5px;
+              padding-left: 10px;
+              font-size: 12px;
+            }
           }
-          a:hover {
+          li:hover {
             color: $body_background;
             background-color: $color-complement-3;
+            a {
+              color: $body_background;
+            }
+          }
+          li:last-child {
+            border-bottom: none;
           }
         }
       }

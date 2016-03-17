@@ -150,12 +150,12 @@ module Workbench::NavigationHelper
   end
 
   def annotate_links(object: object)
-    [add_alternate_value_link(object: object),
-     add_citation_link(object: object),
-     add_data_attribute_link(object: object),
-     add_identifier_link(object: object),
-     add_note_link(object: object),
-     add_tag_link(object: object)
+    [content_tag(:li, add_alternate_value_link(object: object)),
+     content_tag(:li, add_citation_link(object: object)),
+     content_tag(:li, add_data_attribute_link(object: object)),
+     content_tag(:li, add_identifier_link(object: object)),
+     content_tag(:li, add_note_link(object: object)),
+     content_tag(:li, add_tag_link(object: object))
     ].compact.join('').html_safe
   end
 
