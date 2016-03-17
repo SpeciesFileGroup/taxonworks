@@ -107,15 +107,9 @@ describe 'CollectionObjects', :type => :feature do
         expect(JSON.parse(page.body)['result']['id']).to eq(collection_object.images.first.id)
       end
 
-      it 'Returns a response including geo_json (include[]=)' do
-        visit "/api/v1/collection_objects/#{collection_object.to_param}?include[]=geo_json&project_id=#{collection_object.project.to_param}&token=#{@user.api_access_token}"
+      it 'Returns a response including geo_json' do
+        visit "/api/v1/collection_objects/#{collection_object.to_param}/geo_json?project_id=#{collection_object.project.to_param}&token=#{@user.api_access_token}"
         expect(JSON.parse(page.body)['result']['geo_json']).to eq(collection_object.collecting_event.to_geo_json_feature)
-      end
-
-      it 'Returns a response including URLs to images, and geo_json (include[]=)' do
-        visit "/api/v1/collection_objects/#{collection_object.to_param}?include[]=geo_json&include[]=images&project_id=#{collection_object.project.to_param}&token=#{@user.api_access_token}"
-        spoon = JSON.parse(page.body)
-        expect(spoon['result']).to include('images', 'geo_json')
       end
     end
 

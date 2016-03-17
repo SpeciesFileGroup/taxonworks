@@ -1,7 +1,7 @@
 class CollectionObjectsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_collection_object, only: [:show, :edit, :update, :destroy, :depictions]
+  before_action :set_collection_object, only: [:show, :edit, :update, :destroy, :depictions, :images, :geo_json]
 
   # GET /collection_objects
   # GET /collection_objects.json
@@ -17,22 +17,35 @@ class CollectionObjectsController < ApplicationController
   # GET /collection_objects/1.json
   def show
     @images = params['include'] == ['images'] ? @collection_object.images : nil
-      # includes = params[:include]
-      # includes.each do |include|
-      #   case include
-      #     when 'images'
-      #       @images = @collection_object.images
-      #     when 'geo_json'
-      #       ce        = @collection_object.collecting_event
-      #       @geo_json = ce.nil? ? nil : ce.to_geo_json_feature
-      #     else
-      #   end
-      # end if includes
+    # includes = params[:include]
+    # includes.each do |include|
+    #   case include
+    #     when 'images'
+    #       @images = @collection_object.images
+    #     when 'geo_json'
+    #       ce        = @collection_object.collecting_event
+    #       @geo_json = ce.nil? ? nil : ce.to_geo_json_feature
+    #     else
+    #   end
+    # end if includes
   end
 
   # GET /collection_objects/depictions/1
   # GET /collection_objects/depictions/1.json
   def depictions
+  end
+
+  # GET /collection_objects/1/images
+  # GET /collection_objects/1/images.json
+  def images
+    @images = @collection_object.images
+  end
+
+  # GET /collection_objects/1/geo_json
+  # GET /collection_objects/1/geo_json.json
+  def geo_json
+    ce        = @collection_object.collecting_event
+    @geo_json = ce.nil? ? nil : ce.to_geo_json_feature
   end
 
   # GET /collection_objects/by_identifier/ABCD

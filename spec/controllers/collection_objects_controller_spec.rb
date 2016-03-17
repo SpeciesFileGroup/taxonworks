@@ -166,6 +166,16 @@ describe CollectionObjectsController, :type => :controller do
         end
       end
 
+      context 'GET api/v1/collection_objects/n/geo_json' do
+        before {
+          get '/api/v1/collection_objects/'
+        }
+      end
+
+      context 'GET api/v1/collection_objects/n/images' do
+
+      end
+
     end
 
   end
