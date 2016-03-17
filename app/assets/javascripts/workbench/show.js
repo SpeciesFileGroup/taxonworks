@@ -21,6 +21,12 @@ function show() {
     }
   });
 
+  $('.navigation-item').each( function() {
+    if($(this).children().length < 1) {
+      $(this).hide();
+    }
+  });
+
   if(!$('#validation-panel li').length) {
     $('#validation-panel').hide();
   }

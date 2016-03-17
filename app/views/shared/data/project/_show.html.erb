@@ -42,10 +42,10 @@
 
         <div class="navigation-controls">
           <div class="navigation-item">
-            <%= edit_object_link(object) if controller.respond_to?(:edit) -%><!---- José disable rendering ---->
+            <%= edit_object_link(object) if controller.respond_to?(:edit) -%>
           </div>
           <div class="navigation-item">
-            <%= destroy_object_link(object) if controller.respond_to?(:destroy) -%> <!---- and here too ---->
+            <%= destroy_object_link(object) if controller.respond_to?(:destroy) -%>
           </div>
           <div class="navigation-item">
             <%= pin_item_to_pinboard_link(object, sessions_current_user) -%>
