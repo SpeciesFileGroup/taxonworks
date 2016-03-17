@@ -1,155 +1,152 @@
-<div class="attributes">
- <p>
-    <strong>Geographic area:</strong>
-    <%= object_link(object.geographic_area) %>
+<p>
+  <strong>Geographic area:</strong>
+  <%= object_link(object.geographic_area) %>
+</p>
+
+<p>
+  <strong>Field notes:</strong>
+  <%= object.field_notes %>
+</p>
+
+<p>
+  <strong>Md5 of verbatim label:</strong>
+  <%= object.md5_of_verbatim_label %>
+</p>
+
+<p>
+  <strong>Cached:</strong>
+  <%= object.cached %>
+</p>
+
+<div class="attribute_set" data-title="Labels">
+  <p>
+    <strong>Verbatim label:</strong>
+    <%= object.verbatim_label %>
   </p>
 
   <p>
-    <strong>Field notes:</strong>
-    <%= object.field_notes %>
+    <strong>Print label:</strong>
+    <%= object.print_label %>
   </p>
 
   <p>
-    <strong>Md5 of verbatim label:</strong>
-    <%= object.md5_of_verbatim_label %>
+    <strong>Document label:</strong>
+    <%= object.document_label %>
+  </p>
+</div>
+
+<div class="attribute_set" data-title="Verbatim">
+  <p>
+    <strong>Verbatim locality:</strong>
+    <%= object.verbatim_locality %>
   </p>
 
   <p>
-    <strong>Cached:</strong>
-    <%= object.cached %>
+    <strong>Verbatim date:</strong>
+    <%= object.verbatim_date %>
   </p>
 
-  <div class="attribute_set" data-title="Labels">
-    <p>
-      <strong>Verbatim label:</strong>
-      <%= object.verbatim_label %>
-    </p>
+  <p>
+    <strong>Verbatim latitude:</strong>
+    <%= object.verbatim_latitude %>
+  </p>
 
-    <p>
-      <strong>Print label:</strong>
-      <%= object.print_label %>
-    </p>
+  <p>
+    <strong>Verbatim longitude:</strong>
+    <%= object.verbatim_longitude %>
+  </p>
 
-    <p>
-      <strong>Document label:</strong>
-      <%= object.document_label %>
-    </p>
-  </div>
+  <p>
+    <strong>Verbatim elevation:</strong>
+    <%= object.verbatim_elevation %>
+  </p>
 
-  <div class="attribute_set" data-title="Verbatim">
-    <p>
-      <strong>Verbatim locality:</strong>
-      <%= object.verbatim_locality %>
-    </p>
+  <p>
+    <strong>Verbatim datum:</strong>
+    <%= object.verbatim_datum %>
+  </p>
 
-    <p>
-      <strong>Verbatim date:</strong>
-      <%= object.verbatim_date %>
-    </p>
+  <p>
+    <strong>Verbatim geolocation uncertainty:</strong>
+    <%= object.verbatim_geolocation_uncertainty %>
+  </p>
 
-    <p>
-      <strong>Verbatim latitude:</strong>
-      <%= object.verbatim_latitude %>
-    </p>
+  <p>
+    <strong>Verbatim trip identifier:</strong>
+    <%= object.verbatim_trip_identifier %>
+  </p>
 
-    <p>
-      <strong>Verbatim longitude:</strong>
-      <%= object.verbatim_longitude %>
-    </p>
+  <p>
+    <strong>Verbatim collectors:</strong>
+    <%= object.verbatim_collectors %>
+  </p>
 
-    <p>
-      <strong>Verbatim elevation:</strong>
-      <%= object.verbatim_elevation %>
-    </p>
+  <p>
+    <strong>Verbatim method:</strong>
+    <%= object.verbatim_method %>
+  </p>
 
-    <p>
-      <strong>Verbatim datum:</strong>
-      <%= object.verbatim_datum %>
-    </p>
+  <p>
+    <strong>Verbatim habitat:</strong>
+    <%= object.verbatim_habitat %>
+  </p>
+</div>
 
-    <p>
-      <strong>Verbatim geolocation uncertainty:</strong>
-      <%= object.verbatim_geolocation_uncertainty %>
-    </p>
+<div class="attribute_set" data-title="Elevation">
+  <p>
+    <strong>Minimum elevation:</strong>
+    <%= object.minimum_elevation %>
+  </p>
 
-    <p>
-      <strong>Verbatim trip identifier:</strong>
-      <%= object.verbatim_trip_identifier %>
-    </p>
+  <p>
+    <strong>Maximum elevation:</strong>
+    <%= object.maximum_elevation %>
+  </p>
 
-    <p>
-      <strong>Verbatim collectors:</strong>
-      <%= object.verbatim_collectors %>
-    </p>
+  <p>
+    <strong>Elevation precision:</strong>
+    <%= object.elevation_precision %>
+  </p>
+</div>
 
-    <p>
-      <strong>Verbatim method:</strong>
-      <%= object.verbatim_method %>
-    </p>
+<div class="attribute_set" data-title="Time">
+  <p>
+    <strong>Time start:</strong>
+    <%= object.time_start -%>
+  </p>
 
-    <p>
-      <strong>Verbatim habitat:</strong>
-      <%= object.verbatim_habitat %>
-    </p>
-  </div>
+  <p>
+    <strong>Time end:</strong>
+    <%= object.time_end %>
+  </p>
 
-  <div class="attribute_set" data-title="Elevation">
-    <p>
-      <strong>Minimum elevation:</strong>
-      <%= object.minimum_elevation %>
-    </p>
+  <p>
+    <strong>Start date day:</strong>
+    <%= object.start_date_day %>
+  </p>
 
-    <p>
-      <strong>Maximum elevation:</strong>
-      <%= object.maximum_elevation %>
-    </p>
+  <p>
+    <strong>Start date month:</strong>
+    <%= object.start_date_month %>
+  </p>
 
-    <p>
-      <strong>Elevation precision:</strong>
-      <%= object.elevation_precision %>
-    </p>
-  </div>
+  <p>
+    <strong>Start date year:</strong>
+    <%= object.start_date_year %>
+  </p>
 
-  <div class="attribute_set" data-title="Time">
-    <p>
-      <strong>Time start:</strong>
-      <%= object.time_start -%> 
-    </p>
+  <p>
+    <strong>End date day:</strong>
+    <%= object.end_date_day %>
+  </p>
 
-    <p>
-      <strong>Time end:</strong>
-      <%=  object.time_end %>
-    </p>
+  <p>
+    <strong>End date month:</strong>
+    <%= object.end_date_month %>
+  </p>
 
-    <p>
-      <strong>Start date day:</strong>
-      <%= object.start_date_day %>
-    </p>
-
-    <p>
-      <strong>Start date month:</strong>
-      <%= object.start_date_month %>
-    </p>
-
-    <p>
-      <strong>Start date year:</strong>
-      <%= object.start_date_year %>
-    </p>
-
-    <p>
-      <strong>End date day:</strong>
-      <%= object.end_date_day %>
-    </p>
-
-    <p>
-      <strong>End date month:</strong>
-      <%= object.end_date_month %>
-    </p>
-
-    <p>
-      <strong>End date year:</strong>
-      <%= object.end_date_year %>
-    </p>
-  </div>
-
+  <p>
+    <strong>End date year:</strong>
+    <%= object.end_date_year %>
+  </p>
 </div>

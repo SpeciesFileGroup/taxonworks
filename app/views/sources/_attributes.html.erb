@@ -1,15 +1,15 @@
 <%= render(partial: '/sources/bibtex/attributes') -%>
 
 <div class="attribute_set" data-title="Verbatim" >
-  <p>
+<p>
   <strong>Verbatim:</strong>
   <%= @source.verbatim %>
-  </p>
+</p>
 
-  <p>
+<p>
   <strong>Verbatim contents:</strong>
   <%= @source.verbatim_contents %>
-  </p>
+</p>
 
   <p>
   <strong>Verbatim keywords:</strong>
@@ -32,13 +32,13 @@
 
 <div data-view="development" class="attribute_set" data-title="Cached values (calculated)" >
   <p>
-  <strong>Cached:</strong>
-  <%= @source.cached %>
+    <strong>Cached:</strong>
+    <%= @source.cached %>
   </p>
 
   <p>
-  <strong>Cached author string:</strong>
-  <%= @source.cached_author_string %>
+    <strong>Cached author string:</strong>
+    <%= @source.cached_author_string %>
   </p>
 
   <p>
@@ -47,6 +47,3 @@
   </p>
 </div>
 
-
-
-</div>

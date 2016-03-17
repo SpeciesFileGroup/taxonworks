@@ -1,92 +1,91 @@
-<div class="attributes">
-  <p>
-    <strong>Name:</strong>
-    <%= @taxon_name.name %>
-  </p>
-  <p>
-    <strong>Year of publication:</strong>
-    <%= @taxon_name.year_of_publication %>
-  </p>
-  <p>
-    <strong>Verbatim author:</strong>
-    <%= @taxon_name.verbatim_author %>
-  </p>
-  <p>
-    <strong>Source [Original publication]:</strong>
-    <%= source_link(@taxon_name.source) %>
-  </p>
-  <p>
-    <strong>Parent:</strong>
-    <%= taxon_name_link(@taxon_name.parent) %>
-  </p>
-  <p>
-    <strong>Rank:</strong>
-    <%= rank_tag(@taxon_name) -%>
-  </p>
-  <p>
-    <strong>Type:</strong>
-    <%= @taxon_name.type %>
-  </p>
-  <p>
-    <strong>Verbatim name:</strong>
-    <%= @taxon_name.verbatim_name %>
-  </p>
+<p>
+  <strong>Name:</strong>
+  <%= @taxon_name.name %>
+</p>
+<p>
+  <strong>Year of publication:</strong>
+  <%= @taxon_name.year_of_publication %>
+</p>
+<p>
+  <strong>Verbatim author:</strong>
+  <%= @taxon_name.verbatim_author %>
+</p>
+<p>
+  <strong>Source [Original publication]:</strong>
+  <%= source_link(@taxon_name.source) %>
+</p>
+<p>
+  <strong>Parent:</strong>
+  <%= taxon_name_link(@taxon_name.parent) %>
+</p>
+<p>
+  <strong>Rank:</strong>
+  <%= rank_tag(@taxon_name) -%>
+</p>
+<p>
+  <strong>Type:</strong>
+  <%= @taxon_name.type %>
+</p>
+<p>
+  <strong>Verbatim name:</strong>
+  <%= @taxon_name.verbatim_name %>
+</p>
 
-  <div class="attribute_set" data-title="Latinized endings">
-    <p>
-      <strong>Masculine name:</strong>
-      <%= @taxon_name.masculine_name %>
-    </p>
-    <p>
-      <strong>Feminine name:</strong>
-      <%= @taxon_name.feminine_name %>
-    </p>
-    <p>
-      <strong>Neuter name:</strong>
-      <%= @taxon_name.neuter_name %>
-    </p>
-  </div>
+<div class="attribute_set" data-title="Latinized endings">
+  <p>
+    <strong>Masculine name:</strong>
+    <%= @taxon_name.masculine_name %>
+  </p>
+  <p>
+    <strong>Feminine name:</strong>
+    <%= @taxon_name.feminine_name %>
+  </p>
+  <p>
+    <strong>Neuter name:</strong>
+    <%= @taxon_name.neuter_name %>
+  </p>
+</div>
 
-  <div data-view="development" class="attribute_set" data-title="Cached values (calculated)" >
-    <p>
+<div data-view="development" class="attribute_set" data-title="Cached values (calculated)">
+  <p>
     <strong>Cached:</strong>
     <%= @taxon_name.cached %>
-    </p>
-    <p>
+  </p>
+  <p>
     <strong>Cached name:</strong>
     <%= @taxon_name.cached_html ? @taxon_name.cached_html.html_safe : nil %>
-    </p>
-    <p>
+  </p>
+  <p>
     <strong>Cached author year:</strong>
     <%= @taxon_name.cached_author_year %>
-    </p>
-    <p>
+  </p>
+  <p>
     <strong>Cached higher classification:</strong>
     <%= @taxon_name.cached_higher_classification %>
-    </p>
-    <p>
+  </p>
+  <p>
     <strong>Cached classified as:</strong>
     <%= @taxon_name.cached_classified_as %>
-    </p>
-    <p>
+  </p>
+  <p>
     <strong>Cached original combination:</strong>
     <%= @taxon_name.cached_original_combination.html_safe if @taxon_name.cached_original_combination %>
-    </p>
-    <p>
+  </p>
+  <p>
     <strong>Cached secondary homonym:</strong>
     <%= @taxon_name.cached_secondary_homonym %>
-    </p>
-    <p>
+  </p>
+  <p>
     <strong>Cached primary homonym:</strong>
     <%= @taxon_name.cached_primary_homonym %>
-    </p>
-    <p>
+  </p>
+  <p>
     <strong>Cached secondary homonym alt:</strong>
     <%= @taxon_name.cached_secondary_homonym_alternative_spelling %>
-    </p>
-    <p>
+  </p>
+  <p>
     <strong>Cached primary homonym alt:</strong>
     <%= @taxon_name.cached_primary_homonym_alternative_spelling %>
-    </p>
-  </div>
+  </p>
 </div>
+
