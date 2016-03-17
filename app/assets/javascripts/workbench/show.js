@@ -29,7 +29,7 @@ function show() {
 
   if(!$('#validation-panel li').length) {
     $('#validation-panel').hide();
-  }
+  }  
 
   if(!$('#related-panel a').length) {
     $('#related-panel').hide();
