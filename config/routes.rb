@@ -162,7 +162,7 @@ TaxonWorks::Application.routes.draw do
 
   resources :geographic_area_types
 
-  resources :geographic_items, except: [:index, :new, :edit, :create]
+  resources :geographic_items
 
   resources :georeferences, only: [:index, :destroy, :new, :show, :edit] do
     concerns [:data_routes]
