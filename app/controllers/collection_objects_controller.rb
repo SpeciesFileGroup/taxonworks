@@ -16,6 +16,7 @@ class CollectionObjectsController < ApplicationController
   # GET /collection_objects/1
   # GET /collection_objects/1.json
   def show
+    # TODO: With the separation of images and geo_json, this path is no longer required.
     @images = params['include'] == ['images'] ? @collection_object.images : nil
     # includes = params[:include]
     # includes.each do |include|

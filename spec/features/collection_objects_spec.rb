@@ -101,7 +101,8 @@ describe 'CollectionObjects', :type => :feature do
         # end
       end
 
-      it 'Returns a response including URLs to images API endpoint (include[]=)' do
+      # TODO: With the separation of images and geo_json, this path is no longer required.
+      it 'Returns a response including URLs to images API endpoint' do
         visit "/api/v1/collection_objects/#{collection_object.to_param}?include[]=images&project_id=#{collection_object.project.to_param}&token=#{@user.api_access_token}"
         visit JSON.parse(page.body)['result']['images'].first['url'] + "?project_id=#{collection_object.project.to_param}&token=#{@user.api_access_token}"
         expect(JSON.parse(page.body)['result']['id']).to eq(collection_object.images.first.id)
@@ -110,6 +111,12 @@ describe 'CollectionObjects', :type => :feature do
       it 'Returns a response including geo_json' do
         visit "/api/v1/collection_objects/#{collection_object.to_param}/geo_json?project_id=#{collection_object.project.to_param}&token=#{@user.api_access_token}"
         expect(JSON.parse(page.body)['result']['geo_json']).to eq(collection_object.collecting_event.to_geo_json_feature)
+      end
+
+      it 'Returns a response including images' do
+        visit "/api/v1/collection_objects/#{collection_object.to_param}/images?project_id=#{collection_object.project.to_param}&token=#{@user.api_access_token}"
+        visit JSON.parse(page.body)['result']['images'].first['url'] + "?project_id=#{collection_object.project.to_param}&token=#{@user.api_access_token}"
+        expect(JSON.parse(page.body)['result']['id']).to eq(collection_object.images.first.id)
       end
     end
 

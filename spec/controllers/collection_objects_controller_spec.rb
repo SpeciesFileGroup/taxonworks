@@ -167,17 +167,13 @@ describe CollectionObjectsController, :type => :controller do
       end
 
       context 'GET api/v1/collection_objects/n/geo_json' do
-        before {
-          get '/api/v1/collection_objects/'
-        }
+        # This is tested in the API section of spec/features/collection_objects_spec
       end
 
       context 'GET api/v1/collection_objects/n/images' do
-
+        # This is tested in the API section of spec/features/collection_objects_spec
       end
-
     end
-
   end
 
   describe "GET by_identifier" do
