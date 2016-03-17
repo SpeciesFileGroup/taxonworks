@@ -33,7 +33,11 @@ function show() {
 
   if(!$('#related-panel a').length) {
     $('#related-panel').hide();
-  }  
+  }
+
+  if(!$('#annotations-panel a').length) {
+    $('#annotations-panel').hide();
+  }    
 
   Mousetrap.bind('left', function() {
     if($('[data-arrow="back"]').children('a').length > 0) {

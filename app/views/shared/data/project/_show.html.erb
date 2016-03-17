@@ -78,7 +78,7 @@
       </div>    
       
       <div class="panels-container">
-        <div class="item panel separate-left separate-right attributes-panel">
+        <div id="attributes-panel" class="item panel separate-left separate-right attributes-panel">
           <div class="break_words content">
             <div class="title-section"> 
               <h2>Attributes</h2>
@@ -92,7 +92,7 @@
           </div>
         </div>
        
-        <div id="related-panel" class="item panel separate-left separate-right related-panel">
+        <div id="related-panel" class="item panel separate-left separate-right">
           <div class="content"> 
             <div class="title-section">
               <h2>Associated</h2>
@@ -101,13 +101,13 @@
           </div>
         </div>
         
-        <div id="validation-panel" class="item panel separate-left validation-panel">
+        <div id="validation-panel" class="item panel separate-left separate-right ">
           <div class="content">
             <%= render(partial: '/shared/data/all/show/soft_validation', locals: {object: object}) if object.class.respond_to?(:soft_validates?) -%>
           </div>
         </div>
 
-        <div id="annotations-panel" class="item panel seperate-left separate-right annotations-panel">
+        <div id="annotations-panel" class="item panel separate-left">
           <div class="content">
             <%= render(partial: '/shared/data/all/show/annotations', locals: {object: object}) if ! object.annotations.empty?  %>
           </div>

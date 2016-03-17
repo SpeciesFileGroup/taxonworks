@@ -21,17 +21,24 @@
       min-width: 450px;
     }
 
-    .related-panel { 
+    #related-panel { 
       display: flex;
       min-width: 40%;
       flex: 1 100%;
     }
-    .attributes-panel {
+
+    #annotations-panel { 
       display: flex;
       min-width: 40%;
       flex: 1 100%;
     }
-    .validation-panel {
+
+    #attributes-panel {
+      display: flex;
+      min-width: 40%;
+      flex: 1 100%;
+    }
+    #validation-panel {
       display: flex;
       flex:0.5 50%;
     }    
