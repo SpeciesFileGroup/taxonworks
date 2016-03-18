@@ -31,12 +31,8 @@ describe 'TaxonNames', type: :feature do
           it_behaves_like 'a_data_model_with_standard_index'
         end
 
-        specify 'new link is present' do
-          expect(page).to have_link('new') 
-        end
-
         specify 'creating a new TaxonName', js: true do
-          click_link('new') 
+          click_link('New') 
           fill_in('Name', with: 'Fooidae') 
           select('family (ICZN)', from: 'taxon_name_rank_class')
           fill_autocomplete('parent_id_for_name', with: 'root', select: root.id)
@@ -79,23 +75,28 @@ describe 'TaxonNames', type: :feature do
         expect(page).to have_content('Cached name: Aus specius')
       end
 
-      specify 'there is an edit combination link' do
+      specify 'there is an edit combination link', js: true do
+        find('#show_tasks_dropdown').hover
         expect(page).to have_link('Edit original combination')  # There is an 'Edit original combination link'
       end
 
-      context 'when I click the edit combination link'  do
+      context 'when I click the edit combination link', js: true  do
 
         # click_link('Edit original combination') 
         # page.find_link('Edit original combination').click
         # above not working for an unknown reason (see
         # http://stackoverflow.com/questions/6693993/capybara-with-selenium-webdriver-click-link-does-not-work-when-link-text-has-lin )
-        before{ page.find_link('Edit original combination').click }
+        
+        before do
+          find('#show_tasks_dropdown').hover
+          page.find_link('Edit original combination').click 
+        end 
 
         specify 'there is header text' do
           expect(page).to have_content('Editing original combination for Aus specius')
         end
 
-        context 'when I add an original genus', js: true do
+        context 'when I add an original genus' do
           before {  
             fill_autocomplete('subject_taxon_name_id_for_tn_rel_0', with: "Aus", select: @genus_a.id)       
             click_button('Save changes') 
@@ -106,11 +107,13 @@ describe 'TaxonNames', type: :feature do
           end  
 
           specify 'I see the updated cached original combination' do
+            page.find_link('Development view').click 
             expect(page).to have_content('Cached original combination: Aus specius')
           end
 
-          context 'when I change the original genus',js: true do
+          context 'when I change the original genus' do
             before {
+              find('#show_tasks_dropdown').hover
               page.find_link('Edit original combination').click
               fill_autocomplete('subject_taxon_name_id_for_tn_rel_0', with: 'Bus', select: @genus_b.id)
               click_button('Save changes') 
@@ -121,6 +124,7 @@ describe 'TaxonNames', type: :feature do
             end
 
             specify 'I see the updated original combination' do
+              page.find_link('Development view').click 
               expect(page).to have_content('Cached original combination: Bus specius')  # show page original genus is changed
             end
           end
