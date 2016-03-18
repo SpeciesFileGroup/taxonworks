@@ -418,7 +418,7 @@ DEPENDENCIES
   activerecord-postgis-adapter (~> 3.1.4)
   acts_as_list
   awesome_print
-  bcrypt (~> 3.1.7)
+  bcrypt (~> 3.1.11)
   best_in_place (~> 3.1.0)
   better_errors (~> 2.0)
   bibtex-ruby (~> 4.2.0)

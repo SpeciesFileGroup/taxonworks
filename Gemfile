@@ -80,7 +80,7 @@ gem 'dwc-archive', '~> 0.9.11'
 gem 'validates_timeliness', '~> 4.0.0'
 
 # Password encryption
-gem 'bcrypt', '~> 3.1.7'
+gem 'bcrypt', '~> 3.1.11'
 
 # API view template engine
 gem 'rabl', '~> 0.12.0'
