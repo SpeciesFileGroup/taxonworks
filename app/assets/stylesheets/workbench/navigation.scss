@@ -1,7 +1,7 @@
 @import 'palette';
 
 .favourite_link {
-    background-image: url('/assets/icons/empty_star.svg');
+    background-image: image-url('empty_star.svg');
     background-size: 16px;
     background-position: left, center;
     padding: 16px;
@@ -14,7 +14,7 @@
     font-size: 0px;
     padding: 16px;
     padding-right: 0px;
-    background-image: url('/assets/icons/star.svg');
+    background-image: image-url('star.svg');
     background-size: 16px;
     background-position: left, center;
     background-repeat: no-repeat;    
@@ -65,14 +65,14 @@ a {
   .on_hub {
     a {
       background-color: $color-secondary-2-4 !important;
-      background-image: image-url('/assets/icons/w_hub.svg') !important;
+      background-image: image-url('w_hub.svg') !important;
     }
   }
 
   .hub_link {
     margin-left: 1em;
     a {
-      background-image: image-url('/assets/icons/hub.svg');
+      background-image: image-url('hub.svg');
       background-size:25px;
       background-repeat:no-repeat;
       background-position: center; 

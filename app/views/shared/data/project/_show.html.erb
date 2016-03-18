@@ -9,12 +9,12 @@
         <div class="navigation-controls">
           <%= content_tag(:div, link_to('Browse', browse_taxon_name_path(@taxon_name), 'class' => 'small-icon', 'data-icon' => 'browse'), 'class' => 'navigation-item') if controller.respond_to?(:browse) -%>
           <div class="navigation-item" data-arrow="back">
-            <%= image_tag('icons/arrow-left.svg') -%>
+            <%= image_tag('arrow-left.svg') -%>
             <%= previous_link(object) -%> 
           </div>
           <div class="navigation-item" data-arrow="next">
             <%= next_link(object) -%>
-            <%= image_tag('icons/arrow-right.svg') -%>
+            <%= image_tag('arrow-right.svg') -%>
           </div>
         </div> 
        

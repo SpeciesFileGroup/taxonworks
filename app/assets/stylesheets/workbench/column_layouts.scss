@@ -84,7 +84,7 @@ http://flexboxin5.com/
   }
 
 	.favourite_link {
-	    background-image: url('/assets/icons/empty_star.svg');
+	    background-image: image-url('empty_star.svg');
 	    background-size: 24px;
 	    margin-right: 15px;
 	    margin-left: 15px;
@@ -101,7 +101,7 @@ http://flexboxin5.com/
 	    margin-left: 15px;
 	    padding: 24px;
 	    padding-right: 0px;
-	    background-image: url('/assets/icons/star.svg');
+	    background-image: image-url('star.svg');
 	    background-size: 24px;
 	    background-position: left, center;
 	    background-repeat: no-repeat;    
@@ -128,19 +128,19 @@ http://flexboxin5.com/
 
 	.icon-download a
 	{
-		background-image: url('/assets/icons/download.svg');
+		background-image: image-url('download.svg');
 	}
 	
 	.icon-batch a {
-		background-image: url('/assets/icons/batch_load.svg');
+		background-image: image-url('batch_load.svg');
 	}
 	
 	.icon-new a {
-		background-image: url('/assets/icons/new.svg');
+		background-image: image-url('new.svg');
 	}
 	
 	.icon-list a {
-		background-image: url('/assets/icons/list.svg');
+		background-image: image-url('list.svg');
 	}
 	
 	.icon-fav-star {
