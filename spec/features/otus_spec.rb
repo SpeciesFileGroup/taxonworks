@@ -49,15 +49,12 @@ describe 'Otus', type: :feature do
 
     context 'creating a new OTU' do
       specify 'I can exercise the new link feature' do
-        visit otus_path # when I visit the otus_path
-        expect(page).to have_link('new') # it has a new link
-        click_link('new') # when I click the new link
-        fill_in 'Name', with: 'test' # and I fill out the name field with "test"
-        click_button 'Create Otu' # and I click 'create otu'
-        # then I get the message 'Otu 'test' was successfully created
+        visit otus_path 
+        click_link('New') 
+        fill_in 'Name', with: 'test' 
+        click_button 'Create Otu'
         expect(page).to have_content("Otu 'test' was successfully created.")
       end
-
     end
   end
 end
