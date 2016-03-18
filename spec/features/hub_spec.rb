@@ -15,9 +15,8 @@ describe 'Hub', :type => :feature do
       visit hub_path
     }
 
-    it 'should have a hub title' do
-      expect(page).to have_selector('h1', text: 'Hub')
-      expect(subject).to have_selector('h1', text: 'Hub')
+    it 'should have hub highlighting' do
+      expect(page).to have_css('.hub_link.on_hub')
     end
 
     context 'when user is a worker in this project' do

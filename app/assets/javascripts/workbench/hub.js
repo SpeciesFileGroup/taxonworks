@@ -15,6 +15,6 @@ $(document).ready( function() {
 		$('.hub_tabs').on('click', 'li', function() {
 			location.href = $(this).children("a").attr('href');
 		});
-		$('.hub_link').addClass('on_hub');
+/*		$('.hub_link').addClass('on_hub'); */
 	}	
 });

@@ -1,7 +1,7 @@
 <nav id="quick_bar">
 <div class="horizontal_navbar">
   <div class="hub-project">
-	<%= content_tag(:div, link_to('Hub', hub_path),class: :hub_link) -%>
+	<%= content_tag(:div, link_to('Hub', hub_path), class: [:hub_link, (request.path == '/hub' ? :on_hub : nil)].compact) -%>
 	<%= link_to(content_tag(:span, sessions_current_project.name, class: :hub_project_name),hub_path) if sessions_current_project -%> 
   </div>
 
