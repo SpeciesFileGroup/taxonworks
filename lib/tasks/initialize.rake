@@ -2,8 +2,8 @@ require 'io/console'
 
 namespace :tw do
 
-  # Tasks for initializing a new (usually production) version of TaxonWorks 
-  #  We are inentionally not using the seed functionality. 
+  # Tasks for initializing a new (usually production) version of TaxonWorks
+  #  We are inentionally not using the seed functionality.
   namespace :initialize do
     desc "create an administrator, and set ENV['user_id'] to that users id if successfull"
     task :create_administrator => [:environment] do |t|
@@ -14,7 +14,7 @@ namespace :tw do
       name = STDIN.gets.strip
       print "password: "
       password = STDIN.noecho(&:gets).strip
-      puts 
+      puts
       print "confirm password: "
       password_confirmation = STDIN.noecho(&:gets).strip
       puts
@@ -34,14 +34,14 @@ namespace :tw do
       errored = false
       ActiveRecord::Base.descendants.each do |klass|
         if klass.count > 0
-          puts "#{klass.name} has records".red 
+          puts "#{klass.name} has records".red
           errored = true
         end
       end
 
       if errored
         puts "Database has some existing data!".red.on_white
-        raise 
+        raise
       else
         puts "Database *appears* empty.".bold
       end
@@ -58,11 +58,11 @@ namespace :tw do
        geographic_items.dump
        serial_table.dump
        serial_metadata_tables.dump
-      } 
+      }
 
       puts "\nChecking for initialization data."
 
-      errored = false 
+      errored = false
       manifest.each do |f|
         file = @args[:data_directory] + f
         if File.exist?(file)
@@ -74,17 +74,17 @@ namespace :tw do
       end
       if errored
         puts "Initialization missing data!".red.on_white
-        raise 
+        raise
       else
         puts "Found all required files.".bold
       end
     end
-   
+
     task :validate_initialization => [:environment] do
-      errors = false 
+      errors = false
       # TODO: have @tuckerjd sanity check this list, is something missing from Geo?
-      [Serial, SerialChronology, Identifier, DataAttribute, AlternateValue, 
-       GeographicItem, GeographicAreaType, GeographicArea, GeographicAreasGeographicItem, 
+      [Serial, SerialChronology, Identifier, DataAttribute, AlternateValue,
+       GeographicItem, GeographicAreaType, GeographicArea, GeographicAreasGeographicItem,
        Language, Repository].each do |klass|
         if klass.count > 0
           puts "Found #{klass.name.pluralize}.".bold
@@ -94,8 +94,8 @@ namespace :tw do
         end
       end
       if errors
-        puts "!! There were errors on initialization !!".bold.red.on_white
-        raise 
+        puts '!! There were errors on initialization !!'.bold.red.on_white
+        raise
       end
     end
 
@@ -104,55 +104,55 @@ namespace :tw do
     #
     # email:
     #   attribute: value
-    #   ... 
-    #  
+    #   ...
+    #
     # ---
     # test@example.com:
-    #    :password: some_long_password 
+    #    :password: some_long_password
     #    :is_administrator: true
-    #    :name: smith 
+    #    :name: smith
     #
     task :validate_users => [:environment, :data_directory] do
-      file = @args[:data_directory] + 'users.yml'
-      user_data = {} 
+      file      = @args[:data_directory] + 'users.yml'
+      user_data = {}
 
       print "Checking for users.yml ..."
       if File.exist?(file)
         print "found, validating.\n"
-        user_data =  YAML.load_file(file)
+        user_data = YAML.load_file(file)
       else
         print "not found, skipping.\n"
-        exit 
+        exit
       end
 
       user_data.each do |k, v|
         attributes = v.merge(email: k, self_created: true)
-        u =  User.new(attributes)
-        if !u.valid? 
+        u          = User.new(attributes)
+        if !u.valid?
           puts "Invalid user in users.yml: #{attributes}. #{u.errors.full_messages.join(" ")}".bold.red
-          exit 
-        end 
+          exit
+        end
       end
       puts "Users in users.yml are valid.".bold
     end
 
     task :load_users => [:environment, :data_directory, :validate_users] do
-      file = @args[:data_directory] + 'users.yml'
-      user_data = {} 
-      users = []
+      file      = @args[:data_directory] + 'users.yml'
+      user_data = {}
+      users     = []
       if File.exist?(file)
         user_data = YAML.load_file(file)
         begin
           User.transaction do |t|
             user_data.each do |k, v|
               attributes = v.merge(email: k, self_created: true)
-              users.push User.create!(attributes) 
+              users.push User.create!(attributes)
             end
           end
         rescue
           raise
-        end 
-      end 
+        end
+      end
       puts "#{users.length} users loaded.".bold
     end
 
@@ -167,12 +167,11 @@ namespace :tw do
       :load_repositories,
       :load_languages,
       :load_geo,
-      :load_serials, 
+      :load_serials,
       :validate_initialization
-    ] do 
+    ] do
       puts "Success! Welcome to TaxonWorks.".bold.yellow
     end
-
 
 
   end
