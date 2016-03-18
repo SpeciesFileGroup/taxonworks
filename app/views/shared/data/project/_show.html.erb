@@ -57,19 +57,27 @@
 
           <div class="navigation-item menu-drop">
             <span id="show_annotate_dropdown" class="small-icon" data-icon="annotate">Annotate</span>
+            <ul class="dropdown">
               <%= annotate_links(object: object) -%>
+            </ul>
           </div>                
           <div id="show_tasks_dropdown" class="navigation-item menu-drop">
             <span data-icon="task" class="small-icon">Tasks</span>
+            <ul class="dropdown">
               <%= yield :tasks -%>
+            </ul>
           </div>
           <div id="show_add_dropdown" class="navigation-item menu-drop">
             <span data-icon="add" class="small-icon">Add</span>
+            <ul class="dropdown">
               <%= yield :add -%>
+            </ul>
           </div>     
           <div id="show_report_dropdown" class="navigation-item menu-drop">
             <span data-icon="add" class="small-icon">Report</span>
+            <ul class="dropdown">
               <%= yield :report -%>
+            </ul>
           </div>    
      
         </div>        

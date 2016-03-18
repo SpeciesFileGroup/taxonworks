@@ -1,9 +1,7 @@
 <% content_for :add do %>
     <% if @taxon_name.is_protonym? -%>
-      <ul class="dropdown">
         <li><%= link_to('Add status/classification', new_taxon_name_classification_path(taxon_name_classification: {taxon_name_id: @taxon_name.to_param})) -%></li>
         <li><%= new_combination_for_protonym_link(@taxon_name) -%></li>
-      </ul>
     <% end %>
 <% end %>
 
@@ -34,11 +32,9 @@
 
 <% content_for :report do %>
     <% unless Otu.for_taxon_name(@taxon_name.to_param).empty? %>
-        <ul class="dropdown">
           <%= content_tag(:li, link_to('Distribution',
                                        taxon_name_distribution_data_task_path(@taxon_name.to_param),
                                        'data-no-turbolink' => true)) %>
-        </ul>
     <% end %>
 <% end %>
 
