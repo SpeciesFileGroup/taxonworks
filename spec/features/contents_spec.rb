@@ -1,24 +1,15 @@
 require 'rails_helper'
 
-describe 'Contents', :type => :feature do
+describe 'Contents', type: :feature do
+  let(:index_path) { contents_path }
+  let(:page_index_name) { 'contents' }
 
-  it_behaves_like 'a_login_required_and_project_selected_controller' do
-    let(:index_path) { contents_path }
-    let(:page_index_name) { 'Contents' }
-  end
+  it_behaves_like 'a_login_required_and_project_selected_controller'
 
   context 'when signed in an a project is selected' do
     before {
       sign_in_user_and_select_project
     }
-
-    describe 'GET /contents' do
-      before { visit contents_path }
-
-      specify 'an index name is present' do
-        expect(page).to have_content('Contents')
-      end
-    end
 
     context 'with some records created' do
       let!(:o) { factory_girl_create_for_user_and_project(:valid_otu, @user, @project) }
@@ -35,22 +26,22 @@ describe 'Contents', :type => :feature do
         }
       end
 
+      describe 'GET /contents' do
+        before { visit contents_path }
+        it_behaves_like 'a_data_model_with_standard_index'
+      end
+
       describe 'GET /contents/list' do
-        before { visit list_contents_path}
-        specify 'that it renders without error' do
-          expect(page).to have_content 'Listing Contents'
-        end
+        before { visit list_contents_path }
+        it_behaves_like 'a_data_model_with_standard_list'
       end
 
       describe 'GET /contents/n' do
-        before { visit content_path(Content.second) }
-        specify 'there is a \'previous\' link' do
-          expect(page).to have_link('Previous')
-        end
+        before {
+          visit collection_object_path(Content.second)
+        }
 
-        specify 'there is a \'next\' link' do
-          expect(page).to have_link('Next')
-        end
+        it_behaves_like 'a_data_model_with_standard_show'
       end
     end
   end

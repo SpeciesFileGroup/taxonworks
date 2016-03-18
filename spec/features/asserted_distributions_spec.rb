@@ -58,7 +58,7 @@ describe "AssertedDistributions", :type => :feature do
         g = GeographicArea.first
         s = Source.first
 
-        click_link('new') #   when I click the new link
+        click_link('New') #   when I click the new link
 
         expect(page.has_field?('otu_id_for_asserted_distribution', :type => 'text')).to be_truthy
         expect(page.has_field?('geographic_area_id_for_asserted_distribution', :type => 'text')).to be_truthy

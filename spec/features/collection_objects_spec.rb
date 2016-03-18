@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'CollectionObjects', :type => :feature do
+describe 'CollectionObjects', type: :feature do
   let(:index_path) { collection_objects_path }
   let(:page_index_name) { 'collection objects' }
 
@@ -17,20 +17,12 @@ describe 'CollectionObjects', :type => :feature do
         visit collection_objects_path }
 
       it_behaves_like 'a_data_model_with_standard_index'
-
-      # specify 'an index name is present' do
-      #   expect(page).to have_content(page_index_name)
-      # end
     end
 
     describe 'GET /collection_objects/list' do
       before { visit list_collection_objects_path }
 
       it_behaves_like 'a_data_model_with_standard_list'
-
-      # specify 'that it renders without error' do
-      #   expect(page).to have_content 'Listing Collection Objects'
-      # end
     end
 
     describe 'GET /collection_objects/n' do
@@ -148,12 +140,8 @@ describe 'CollectionObjects', :type => :feature do
       visit collection_objects_path # when I visit the collection_objects_path
     }
 
-    specify 'it has a new link' do
-      expect(page).to have_link('new')
-    end
-
     specify 'follow the new link & create a new collection object' do
-      click_link('new') # when I click the new link
+      click_link('New') # when I click the new link
       fill_in 'Total', with: '1' # fill out the total field with 1
       fill_in 'Buffered collecting event', with: 'This is a label.\nAnd another line.' # fill in Buffered collecting event
       click_button 'Create Collection object' # when I click the 'Create Collection object' button
