@@ -31,13 +31,13 @@ function show() {
     $('#validation-panel').hide();
   }  
 
-  if(!$('#related-panel a').length) {
-    $('#related-panel').hide();
-  }
-
-  if(!$('#annotations-panel a').length) {
-    $('#annotations-panel').hide();
-  }    
+  $('.panel').each( function() {
+    if($(this).find('.information-panel').length) {
+      if(!$(this).find('.information-panel').children().contents().length) {
+        $(this).hide();
+      }
+    }
+  }); 
 
   Mousetrap.bind('left', function() {
     if($('[data-arrow="back"]').children('a').length > 0) {
