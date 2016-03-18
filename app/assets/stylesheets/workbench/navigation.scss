@@ -127,22 +127,27 @@ a {
     }
 
     li:last-child:after {
-      content: "";
+      content: none;
     }
+
+    li:last-child {
+      padding-left:5px;
+    }  
+
+    li:first-child {
+      text-align: right;
+    }        
 
     li {
       display: flex;
+      text-align: center;
     }
 
-  li a {
-      padding-left:15px;
-      padding-right:15px;
-  }
-
-    a {
-      
-      font-size:12px;
-      text-decoration:none;
+    li a {
+        padding-left:15px;
+        padding-right:15px;
+        font-size:12px;
+        text-decoration:none;
     }
   }
 
@@ -209,25 +214,6 @@ a {
 .left_justified_navbar {
   @extend .horizontal_navbar;
   justify-content: flex-start;  
-}
-
-.separator_navbar {
-  li:last-child:after {
-    content: '';
-    padding-right:0px;
-  }
-  li:last-child {
-    padding-right:0px;
-  }
-  li:after {
-    content: '|';
-    //padding-left:5px;
-  }
-  li {
-   // padding-right:5px;
-    display: flex;
-    flex-direction: row;
-  }
 }
 
 #taxonworks_link {
