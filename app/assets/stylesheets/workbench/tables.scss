@@ -36,14 +36,14 @@ table {
   }
 
   th.headerSortUp { 
-    background-image: url('/assets/icons/arrow-up.svg');
+    background-image: image-url('arrow-up.svg');
     background-position: right, center;
     padding-right: 15px;
     background-repeat: no-repeat;
   } 
 
   th.headerSortDown { 
-    background-image: url('/assets/icons/arrow-down.svg');
+    background-image: image-url('arrow-down.svg');
     background-position: right, center;
     padding-right: 15px;
     background-repeat: no-repeat;  

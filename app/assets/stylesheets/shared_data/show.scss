@@ -257,13 +257,13 @@
       opacity: 0.5 !important;
     }
     .menu-drop {
-      background-image: url("/assets/icons/arrow-down.svg");
+      background-image: image-url("arrow-down.svg");
       background-position: 95%,center;
       background-repeat: no-repeat;
     }
 
     .menu-drop:hover {
-      background-image: url("/assets/icons/g_arrow-down.svg");
+      background-image: image-url("g_arrow-down.svg");
       background-position: 95%,center;
       background-repeat: no-repeat;
     }    
@@ -418,7 +418,7 @@
       margin-bottom: 15px;
       padding-left:20px;
       align-items: center;
-      background-image: url("/assets/icons/attention.svg");
+      background-image: image-url("attention.svg");
       background-repeat: no-repeat;  
       background-position: left, center;   
     }

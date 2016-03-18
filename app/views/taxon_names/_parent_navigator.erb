@@ -6,7 +6,7 @@
     <% end %>
   
 
-  <li class="selected"><img src="/assets/icons/arrow-right.svg"><p> <%= taxon_name_tag(taxon_name) -%><%= cached_author_year_tag(taxon_name) -%></p></li>
+  <li class="selected"><%= image_tag('arrow-right.svg') %><p> <%= taxon_name_tag(taxon_name) -%><%= cached_author_year_tag(taxon_name) -%></p></li>
 
   
     <% taxon_name.children.order(:name).where(type: 'Protonym').each do |p| -%>

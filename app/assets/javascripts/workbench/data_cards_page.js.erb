@@ -111,9 +111,9 @@ function changeAllSectionsFilter(dataTag, value) {
 		changeAllSectionsFilter("data-category-collectingevent", false);
   });  
 
-$('.data_card div[data-category-collectingevent="true"]').append("<img src='/assets/icons/geo_location.svg'/>");
-$('.data_card div[data-category-TaxonName="true"]').append("<img src='/assets/icons/new.svg'/>");
-$('.data_card div[data-category-collectionobject="true"]').append("<img src='/assets/icons/picking.svg'/>");
-$('.data_card div[data-category-Source="true"]').append("<img src='/assets/icons/book.svg'/>");   
+$('.data_card div[data-category-collectingevent="true"]').append("<img src='<%= asset_path('geo_location.svg') %>'/>");
+$('.data_card div[data-category-TaxonName="true"]').append("<img src='<%= asset_path('new.svg') %>'/>");
+$('.data_card div[data-category-collectionobject="true"]').append("<img src='<%= asset_path('picking.svg') %>'/>");
+$('.data_card div[data-category-Source="true"]').append("<img src='<%= asset_path('book.svg') %>'/>");   
    
 }
