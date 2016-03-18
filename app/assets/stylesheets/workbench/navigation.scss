@@ -46,6 +46,7 @@ a {
   border-bottom: 1px solid $navigation_border;
   background-color:#FFF;
   height: 45px;
+  padding-right: 15px;
   .hub-project {
     position: relative;
   }
@@ -124,6 +125,8 @@ a {
       color: $navigation_border;
       content: "|";
       align-items: center;
+      padding-left:15px;
+      padding-right:15px;
     }
 
     li:last-child:after {
@@ -132,6 +135,7 @@ a {
 
     li:last-child {
       a {
+        text-align: center;
         padding-left:0px;
         padding-right:0px;
       }
@@ -139,12 +143,13 @@ a {
 
     li {
       display: flex;
+      justify-content: center;
       text-align: center;
     }
 
     li a {
-        padding-left:15px;
-        padding-right:15px;
+        padding-left:0px;
+        padding-right:0px;
         font-size:12px;
         text-decoration:none;
     }
