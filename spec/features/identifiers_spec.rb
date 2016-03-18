@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'Identifiers', :type => :feature do
+describe 'Identifiers', type: :feature do
   let(:page_index_name) { 'identifiers' }
   let(:index_path) { identifiers_path }
 
@@ -32,18 +32,17 @@ describe 'Identifiers', :type => :feature do
       it_behaves_like 'a_data_model_with_standard_list'
     end
 
-    context 'testing new identifier' do
-
+    context 'creating a new identifier' do
       before {
-        # logged in and project selected
-        # have namespace, create specimen
         specimen = factory_girl_create_for_user_and_project(:valid_specimen, @user, @project)
-        visit collection_objects_path + "/#{specimen.id}"
+        visit collection_object_path(specimen)
       }
 
-      specify 'can create a new identifier', js: true do
-        expect(page).to have_content("Add identifier")
-        click_link('Add identifier') #   when I click the new link
+      specify 'can create a new local identifier', js: true do
+        find('#show_annotate_dropdown').hover
+        expect(page).to have_link("Add identifier")
+        click_link('Add identifier') 
+       
         expect(page).to have_content("New identifier for:")
 
         expect(page.has_field?('identifier_identifier', :type => 'text')).to be_truthy
@@ -51,22 +50,23 @@ describe 'Identifiers', :type => :feature do
         expect(page.has_field?('namespace_id_for_identifier', :type => 'text')).to be_truthy
 
         fill_in('identifier_identifier', with: '678876')
-        # I select 'Catalog number' from the identifier_type drop down list
-        select('Catalog number', from: 'identifier_type') # Catalog number is subtype = local
+        select('Catalog number', from: 'identifier_type') 
+        
         expect(page.has_field?('identifier_type', :with => 'Identifier::Local::CatalogNumber')).to be_truthy
-        # find_field('identifier_type').value.must_equal 'Identifier::Local::CatalogNumber'
 
         fill_autocomplete('namespace_id_for_identifier', with: namespace.name, select: namespace.id)
 
         click_button('Create Identifier')
         expect(page).to have_content("Identifier was successfully created.")
         expect(page).to have_content("MID 678876 (Catalog number)")
+      end
 
-        # Now create a Global identifier for same specimen record
-        click_link('Add identifier') #   when I click the new link
+      specify 'can create a new global identifier', js: true do
+        find('#show_annotate_dropdown').hover
+        click_link('Add identifier') 
 
         fill_in('identifier_identifier', with: '10.2105/AJPH.2009.160184')
-        select('Doi', from: 'identifier_type') # Doi is subtype = global
+        select('Doi', from: 'identifier_type') 
         expect(page.has_field?('identifier_type', :with => 'Identifier::Global::Doi')).to be_truthy
         fill_in('namespace_id_for_identifier', :with => '')
 

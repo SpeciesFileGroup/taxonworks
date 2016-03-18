@@ -1,31 +1,22 @@
-<h1>Listing otus</h1>
+<%= render("/shared/data/all/list/list_header", objects: @otus) -%>
 
-<%= paginate @otus %> <%= page_entries_info @otus %>
-
-<table>
+<table class="tablesorter">
   <thead>
   <tr>
-    <th>Name</th>
-    <th>Taxon name</th>
-    <th>Last modified</th>
-    <th>Updated by</th>
-    <th></th>
-    <th></th>
-    <th></th>
+    <%= fancy_th_tag(name: 'Name') -%>
+    <%= fancy_th_tag(name: 'Taxon name') -%>
+    <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
+    <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
   </tr>
   </thead>
 
   <tbody>
   <% @otus.each do |otu| %>
-      <tr>
-        <td><%= otu.name %></td>
-        <td><%= taxon_name_link(otu.taxon_name) %></td>
-        <td><%= otu.updated_at %></td>
-        <td><%= object_tag(otu.updater) %></td>
-        <td><%= link_to 'Show', otu %></td>
-        <td><%= link_to 'Edit', edit_otu_path(otu) %></td>
-        <td><%= link_to 'Destroy', otu, method: :delete, data: {confirm: 'Are you sure?'} %></td>
-      </tr>
+      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+          <td><%= otu.name %></td>
+          <td><%= taxon_name_link(otu.taxon_name) %></td>
+          <%= fancy_metadata_cells_tag(otu) -%>
+      <% end %>
   <% end %>
   </tbody>
 </table>

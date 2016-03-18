@@ -170,12 +170,12 @@ class TaxonName < ActiveRecord::Base
 
   has_one :source_classified_as, through: :source_classified_as_relationship, source: :object_taxon_name 
 
-  has_many :otus, inverse_of: :taxon_name, dependent: :nullify # :restrict_with_error ?
-  has_many :related_taxon_name_relationships, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id, dependent: :destroy
+  has_many :otus, inverse_of: :taxon_name, dependent: :restrict_with_error 
+  has_many :related_taxon_name_relationships, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id, dependent: :restrict_with_error
   has_many :taxon_name_author_roles, class_name: 'TaxonNameAuthor', as: :role_object, dependent: :destroy
   has_many :taxon_name_authors, through: :taxon_name_author_roles, source: :person
   has_many :taxon_name_classifications, dependent: :destroy, foreign_key: :taxon_name_id, inverse_of: :taxon_name
-  has_many :taxon_name_relationships, foreign_key: :subject_taxon_name_id, dependent: :destroy
+  has_many :taxon_name_relationships, foreign_key: :subject_taxon_name_id, dependent: :restrict_with_error
 
   has_paper_trail
 

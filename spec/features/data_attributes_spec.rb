@@ -6,7 +6,6 @@ describe 'DataAttributes', :type => :feature do
   let(:index_path) { data_attributes_path }
   let(:page_index_name) { 'data attributes' }
 
-
   it_behaves_like 'a_login_required_and_project_selected_controller'
 
   context 'signed in as a user, with some records created' do
@@ -64,6 +63,8 @@ with a Predicate created
       pred.save!
 
       visit (otu_path(otu))
+      find('#show_annotate_dropdown').hover
+      
       expect(page).to have_link('Add data attribute')
       click_link('Add data attribute')
       fill_autocomplete('controlled_vocabulary_term_id_for_data_attribute',
@@ -71,8 +72,8 @@ with a Predicate created
       fill_in('Value', with: '42')
       click_button('Create Data attribute')
       expect(page).to have_content('Data attribute was successfully created.')
-      expect(page).to have_selector('h3', 'Annotations')
-      expect(page).to have_selector('h4', 'Data attributes')
+      expect(page).to have_selector('h2', 'Annotations')
+      expect(page).to have_selector('h3', 'Data attributes')
       expect(page).to have_content('testPredicate: 42')
     end
   end

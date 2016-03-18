@@ -1,19 +1,105 @@
 @import 'palette';
+@import 'whitespace';
 
-.underlined_elements {
-     border-spacing: 0; 
+
+.pagination-bar {
+  display: flex;
+  flex-direction: column;
+  justify-content:flex-start;
+  align-items:left;
+  padding: 6px;
+  padding-left: $standard_padding;
+  a {
+    text-decoration: none;
+  }
+}
+
+table {
+  box-shadow: 0 0 3px 0 $navigation_border;
+  border-radius: 5px;
+  width: 100%;
+  border-spacing: 0;
+  border-collapse: collapse;  
+  font-weight: 100;
+  margin-top: $standard_padding;
+  .underlined_elements {
+      border-spacing: 0; 
+    th {
+      border-bottom: 1px solid $color-secondary-1-4;
+    }
+  }
+
+  .top_align_text {
+    td {
+      vertical-align: top; 
+    }
+  }
+
+  th.headerSortUp { 
+    background-image: url('/assets/icons/arrow-up.svg');
+    background-position: right, center;
+    padding-right: 15px;
+    background-repeat: no-repeat;
+  } 
+
+  th.headerSortDown { 
+    background-image: url('/assets/icons/arrow-down.svg');
+    background-position: right, center;
+    padding-right: 15px;
+    background-repeat: no-repeat;  
+  } 
+
+  .table-options {
+    display: none;
+  }
+  .even {
+    @extend .list_line_odd;
+  }
+  .odd {
+    @extend .list_line_even;
+  }
+
+  td:last-child {
+    border-right:1px solid $navigation_border;
+  }
+
+  td {
+    border-bottom: 1px solid $navigation_border;
+    border-left: 1px solid $navigation_border;
+    padding-left: $standard_padding;
+    padding-right: $standard_padding; 
+  }
+
+  th:hover {
+    background-color: $color-complement-2;
+  }
+
+  tr {
+    margin: 0px;
+    height: 40px;
+    cursor: pointer;
+  }
+
   th {
-    border-bottom: 1px solid $color-secondary-1-4;
-
+    background-color: $panel_background;
+    padding-left: $standard_padding;
+    padding-right: $standard_padding;
+    font-weight: 500;
+    color: $default_text;
+    font-size: 12px;
+    border-bottom: 4px solid $color-complement-3;
+    text-align: left;
+    a {
+      img {
+        display: none;
+      }
+    }
   }
-  td {
-    border-bottom: 1px solid $color-secondary-1-3;
+  tbody tr:hover {
+    background-color: $color-complement-2;
+    color: $default_text;
+    td {
+      border-left:1px solid transparent;
+    }
   }
 }
-
-.top_align_text {
-  td {
-    vertical-align: top; 
-  }
-}
-

@@ -252,6 +252,10 @@ class TaxonNameClassification < ActiveRecord::Base
     true
   end
 
+  def annotated_object
+    taxon_name
+  end
+
   private
 
 

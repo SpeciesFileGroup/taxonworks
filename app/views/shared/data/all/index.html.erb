@@ -1,40 +1,30 @@
-<div class="flexbox" > 
+<%= content_tag(:div, id: :model_index, class: ['flexbox', @hub_model_metadata.combined_css])  do -%>
   <div class="item item1">
-    <div class="right_float">
-      <span class="subtle"><%= favorite_page_link('data', @data_model.name) -%></span>
+    <%= favorite_page_link('data', @data_model.name) -%><h1><%= model_name_title -%></h1>
+  </div>  
+  <div class="item item2">
+    <%= search_form_for_model(@hub_model_metadata.klass) %>
+  </div>  
+  <div class="item item3 icon-new">
+    <%= new_for_model_link(@hub_model_metadata.klass)  %>  
+  </div>
+  <div class="item item4 icon-batch">
+    <%= batch_load_link -%>  
+  </div>
+  <div class="item item5 icon-list">
+    <%= list_for_model_link(@hub_model_metadata.klass) %>
+  </div>
+  <div class="item item6 icon-download">
+    <%= download_for_model_link(@hub_model_metadata.klass) %>
+  </div>
+<% end %>
+
+
+<div class="panel recent_updates no-shadow "> 
+  <div class="item item1 center_text">
+      <div class="content">
+      <h2 class="no-borders">Recent updates</h2>
+      <%= recent_objects_list(@hub_model_metadata.klass, @recent_objects) -%>
     </div>
   </div>
 </div>
-
-<div class="flexbox" id="model_index" > 
-  <div class="item item1">
-    <h1><%= model_name_title -%></h1>
-  </div>
-
-  <div class="item item2">
-    <%= new_for_model_link(@data_model)  %>
-    <br> <br>
-    <%= batch_load_link -%>
-  </div>
-
-  <div class="item item3">
-    <%= search_form_for_model(@data_model) %>
-  </div>
-
-  <div class="item item4">
-    <%= list_for_model_link(@data_model) %>
-  </div>
-
-  <div class="item item5">
-    <%= download_for_model_link(@data_model) %>
-  </div>
-</div>
-
-<div class="flexbox" > 
-  <div class="item item1">
-    <h2>Recent updates</h2>
-    <%= recent_objects_list(@data_model, @recent_objects) -%>
-  </div>
-</div>
-
-

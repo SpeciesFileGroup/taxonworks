@@ -1,17 +1,159 @@
 @import 'palette';
 
+.favourite_link {
+    background-image: url('/assets/icons/empty_star.svg');
+    background-size: 16px;
+    background-position: left, center;
+    padding: 16px;
+    padding-right: 0px;
+    font-size: 0px;
+    background-repeat: no-repeat;
+    text-decoration: none;
+  }
+ .unfavorite_link {
+    font-size: 0px;
+    padding: 16px;
+    padding-right: 0px;
+    background-image: url('/assets/icons/star.svg');
+    background-size: 16px;
+    background-position: left, center;
+    background-repeat: no-repeat;    
+    text-decoration: none;   
+}
+ 
 // see navigation_emphasis in palette
 a {
+  transition: background-color 0.4s ease,
+              color 0.4s ease;
   color: $color-secondary-2-4;
   &:visited {
-    color: $color-secondary-2-3;
+    color: $color-secondary-2-4;
   }
   &:hover {
-    color: $color-secondary-2-0;
-    background-color: $color-secondary-2-2;
+    color: $default_text;
   }
 }
 
+/* quick-bar nav */
+
+#quick_bar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 100;
+  position: relative;
+  border-bottom: 1px solid $navigation_border;
+  background-color:#FFF;
+  height: 45px;
+  padding-right: 15px;
+  .hub-project {
+    position: relative;
+  }
+
+  ul {
+    margin: 0px;
+    padding:0px;
+    display: flex;
+    margin-left:15px;
+  }
+
+  li a:first-letter {
+    text-transform: uppercase;
+  }
+
+  .on_hub {
+    a {
+      background-color: $color-secondary-2-4 !important;
+      background-image: url('/assets/icons/w_hub.svg') !important;
+    }
+  }
+
+  .hub_link {
+    margin-left: 1em;
+    a {
+      background-image: url('/assets/icons/hub.svg');
+      background-size:25px;
+      background-repeat:no-repeat;
+      background-position: center; 
+      padding:9px;
+      padding-left: 25px;
+      z-index: 20;
+      font-size: 0px;
+      position: absolute;
+      background-color: $panel_background;
+      display: flex;
+      width: 20px;
+      top: -18px;
+      height: 36px;
+      justify-content: center;
+      align-items: center;
+      border-radius: 100%; 
+      box-shadow: 0 0 3px 0 $navigation_border;
+ 
+      transition: background-size 0.3s ease,
+                  background-color 0.3s ease,
+                  font-size 0.5s ease;           
+    }
+    a:hover {    
+      transition: background-size 0.3s ease,
+                  background-color 0.3s ease,
+                  font-size 0.5s ease,
+                  padding-left 0.5s ease;
+      background-size:35px;
+      color: $default_text;
+    }
+  }
+
+  .hub_project_name {
+    margin-left: 60px;
+    padding: 5px;
+    font-size: 16px;
+    font-weight: 100;
+  }
+
+  .active-section {
+    font-weight: bold;
+
+  }
+
+
+}
+.context-menu {  
+    li:after {
+      display: flex;
+      color: $navigation_border;
+      content: "|";
+      align-items: center;
+      padding-left:15px;
+      padding-right:15px;
+    }
+
+    li:last-child:after {
+      content: none;
+    }
+
+    li:last-child {
+      a {
+        text-align: center;
+        padding-left:0px;
+        padding-right:0px;
+      }
+    }  
+
+    li {
+      display: flex;
+      justify-content: center;
+      text-align: center;
+    }
+
+    li a {
+        padding-left:0px;
+        padding-right:0px;
+        font-size:12px;
+        text-decoration:none;
+    }
+  }
 
 /* see http://css-tricks.com/snippets/css/a-guide-to-flexbox/, seems nice */
 .horizontal_navbar {
@@ -24,23 +166,24 @@ a {
   display: -webkit-flex;
   display: flex;
   
+  align-items: center;
   -webkit-flex-flow: row wrap;
 
   a {
     text-decoration: none;
     display: block;
-    padding: 0 1em; // was 1
+    padding:0 1em; // was 1
   }
 }
 
 @media all and (max-width: 800px) {
-  .horizontal_navbar {
+  .horizontal_navbar, .hub-navbar {
     justify-content: space-around;
   }
 }
 
 @media all and (max-width: 600px) {
-  .horizontal_navbar {
+  .horizontal_navbar, .hub-navbar {
     -webkit-flex-flow: column wrap;
     flex-flow: column wrap;
     padding: 0;
@@ -58,9 +201,18 @@ a {
   }
 }
 
+.horizontal_navbar a:first-letter {
+	text-transform:uppercase;
+}
+
 .centered_navbar {
   @extend .horizontal_navbar;
   justify-content: center;  
+}
+
+.centered_navbar {
+	margin:0px;
+	padding:0px;
 }
 
 .left_justified_navbar {

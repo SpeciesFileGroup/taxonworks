@@ -1,1 +1,24 @@
-<%= render(partial: 'shared/data/community/application_defined/show', locals: {object: @geographic_area}) -%>
+<%= content_for :associated do -%>
+
+  <% if @geographic_area.geographic_items.count > 0 -%>
+    <p>
+    <strong>"Default" shape:</strong>
+    <%= link_to('(Collecting events within)', within_locality_task_path(@geographic_area.geographic_items.first.id)) %>
+    <%= simple_map([@geographic_area]) -%>
+  <% end %>
+
+  <p>
+  <strong> Geographic items (shape IDs): </strong>
+  <%= geographic_item_links(@geographic_area.geographic_items) -%>
+  </p>
+
+  <p><%= similarly_named_records_list(@geographic_area) -%> </p>
+
+  <p><strong> Children: </strong>
+  <%= geographic_area_link_list(@geographic_area.children) -%>
+  </p>
+
+<% end %>
+
+
+<%= render(partial: 'shared/data/project/show', locals: {object: @geographic_area}) -%>

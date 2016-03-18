@@ -1,29 +1,23 @@
-<h1>Listing Projects</h1>
+<%= render("/shared/data/all/list/list_header", objects: @projects) -%>
 
-<%= paginate @projects %> <%= page_entries_info @projects %>
-
-<table>
+<table class="tablesorter">
   <thead>
   <tr>
-    <th>Name</th>
-    <th>Last modified</th>
-    <th>Updated by</th>
-    <th></th>
-    <th></th>
-    <th></th>
+    <%= fancy_th_tag(name: 'Name') -%>
+    <%= fancy_th_tag(name: 'Total Users') -%>
+    <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
+    <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
   </tr>
   </thead>
 
   <tbody>
   <% @projects.each do |project| %>
-      <tr>
-        <td><%= project.name %></td>
-        <td><%= project.updated_at %></td>
-        <td><%= object_tag(project.updater) %></td>
-        <td><%= link_to 'Show', project %></td>
-        <td><%= link_to 'Edit', edit_project_path(project) %></td>
-        <td><%= content_tag(:em, 'Destroy', class: :disabled) -%> </td>
-      </tr>
+      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+          <td><%= project.name %></td>
+          <td><%= project.project_members.count %></td>
+          <%= fancy_metadata_cells_tag(project) -%>
+      <% end %>
   <% end %>
   </tbody>
 </table>
+

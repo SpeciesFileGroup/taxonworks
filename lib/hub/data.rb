@@ -32,7 +32,7 @@ module Hub::Data
     attr_accessor :related_models
 
     # @return [Boolean]
-    #   the section classification (core, etc.)
+    #   the klass of the model
     attr_accessor :klass
 
     attr_accessor :shared
@@ -71,7 +71,11 @@ module Hub::Data
     end
 
     def application_css
-      application_defined.nil? ? nil : 'shared'
+      application_defined.nil? ? nil : 'application_defined'
+    end
+
+    def combined_css
+      [shared_css, application_css].compact.join(" ")
     end
 
   end

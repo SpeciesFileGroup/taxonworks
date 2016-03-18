@@ -4,6 +4,7 @@
 <div class="flexbox">
   <div class="item item1">
     <%= edit_taxon_name_link(@taxon_name) -%>
+    <%= link_to('Show', @taxon_name.metamorphosize) -%>
 
     <div> 
     <%= ancestor_browse_taxon_name_link(@taxon_name) -%> <br>

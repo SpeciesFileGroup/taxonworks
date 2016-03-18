@@ -1,35 +1,26 @@
-<h1>Listing notes</h1>
+<%= render("/shared/data/all/list/list_header", objects: @notes) -%>
 
-<%= paginate @notes %> <%= page_entries_info @notes %>
-
-<table>
-  <thead>
+<table class="tablesorter">
+<thead>
   <tr>
-    <th>Note object type</th>
-    <th>Note object</th>
-    <th>Note object attribute</th>
-    <th>Text</th>
-    <th>Last modified</th>
-    <th>Updated by</th>
-    <th></th>
-    <th></th>
-    <th></th>
+    <%= fancy_th_tag(name: 'Text') -%>
+    <%= fancy_th_tag(name: 'Note object type') -%>
+    <%= fancy_th_tag(name: 'Note object') -%>
+    <%= fancy_th_tag(name: 'Note object attribute') -%>
+    <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
+    <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
   </tr>
   </thead>
 
   <tbody>
   <% @notes.each do |note| %>
-      <tr>
+      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+        <td><%= note.text %></td>
         <td><%= note.note_object_type %></td>
         <td><%= object_tag(note.note_object.metamorphosize) %></td>
         <td><%= note.note_object_attribute %></td>
-        <td><%= note.text %></td>
-        <td><%= note.updated_at %></td>
-        <td><%= object_tag(note.updater) %></td>
-        <td><%= link_to 'Context', note.note_object.metamorphosize %></td>
-        <td><%= link_to 'Edit', edit_note_path(note) %></td>
-        <td><%= link_to 'Destroy', note.metamorphosize, method: :delete, data: { confirm: 'Are you sure?' } %></td>
-      </tr>
+        <%= fancy_metadata_cells_tag(note) -%>
+      <% end %>
   <% end %>
   </tbody>
 </table>

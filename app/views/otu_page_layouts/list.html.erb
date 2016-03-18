@@ -1,29 +1,20 @@
-<h1>Listing otu page layouts</h1>
+<%= render("/shared/data/all/list/list_header", objects: @otu_page_layouts) -%>
 
-<%= paginate @otu_page_layouts %> <%= page_entries_info @otu_page_layouts %>
-
-<table>
+<table class="tablesorter">
   <thead>
   <tr>
-    <th>Name</th>
-    <th>Last modified</th>
-    <th>Updated by</th>
-    <th></th>
-    <th></th>
-    <th></th>
+    <%= fancy_th_tag(name: 'Name') -%>
+    <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
+    <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
   </tr>
   </thead>
 
   <tbody>
   <% @otu_page_layouts.each do |otu_page_layout| %>
-      <tr>
-        <td><%= otu_page_layout.name %></td>
-        <td><%= otu_page_layout.updated_at %></td>
-        <td><%= object_tag(otu_page_layout.updater) %></td>
-        <td><%= link_to 'Show', otu_page_layout %></td>
-        <td><%= link_to 'Edit', edit_otu_page_layout_path(otu_page_layout) %></td>
-        <td><%= link_to 'Destroy', otu_page_layout, method: :delete, data: {confirm: 'Are you sure?'} %></td>
-      </tr>
+      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+          <td><%= otu_page_layout.name %></td>
+          <%= fancy_metadata_cells_tag(otu_page_layout) -%>
+      <% end %>
   <% end %>
   </tbody>
 </table>

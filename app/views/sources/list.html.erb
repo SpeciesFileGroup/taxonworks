@@ -1,34 +1,30 @@
-<h1>Listing sources</h1>
-<%= paginate @sources %> <%= page_entries_info @sources %>
+<%= render("/shared/data/all/list/list_header", objects: @sources) -%>
 
-<table>
+<table class="tablesorter">
   <thead>
   <tr>
-    <th>Cached</th>
-    <th>Verbatim keywords</th>
-    <th>Language</th>
-    <th>Abstract</th>
-    <th>Type</th>
-    <th>Bibtex type</th>
-    <th></th>
-    <th></th>
-    <th></th>
+    <%= fancy_th_tag(name: 'Cached') -%>
+    <%= fancy_th_tag(name: 'Verbatim keywords') -%>
+    <%= fancy_th_tag(name: 'Language') -%>
+    <%= fancy_th_tag(name: 'Abstract') -%>
+    <%= fancy_th_tag(name: 'Type') -%>
+    <%= fancy_th_tag(name: 'Bibtex type') -%>
+    <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
+    <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
   </tr>
   </thead>
 
   <tbody>
   <% @sources.each do |source| %>
-      <tr>
-        <td><%= source.cached %></td>
-        <td><%= source.verbatim_keywords %></td>
-        <td><%= source.respond_to?(:source_language) && language_tag(source.source_language) %></td>
-        <td><%= source.abstract %></td>
-        <td><%= source.type %></td>
-        <td><%= source.bibtex_type %></td>
-        <td><%= link_to 'Show', source.metamorphosize %></td>
-        <td><%= link_to 'Edit', edit_source_path(source.metamorphosize) %></td>
-        <td><%= link_to 'Destroy', source.becomes(Source), method: :delete, data: {confirm: 'Are you sure?'} %></td>
-      </tr>
+      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+          <td><%= source.cached %></td>
+          <td><%= source.verbatim_keywords %></td>
+          <td><%= source.respond_to?(:source_language) && language_tag(source.source_language) %></td>
+          <td><%= source.abstract %></td>
+          <td><%= source.type %></td>
+          <td><%= source.bibtex_type %></td>
+          <%= fancy_metadata_cells_tag(source) -%>
+      <% end %>
   <% end %>
   </tbody>
 </table>

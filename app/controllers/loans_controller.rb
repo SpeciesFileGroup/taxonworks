@@ -93,6 +93,13 @@ class LoansController < ApplicationController
     render :json => data
   end
 
+# GET /loans/download
+  def download
+    send_data Loan.generate_download( Loan.where(project_id: sessions_current_project_id) ), type: 'text', filename: "loans_#{DateTime.now.to_s}.csv"
+  end
+
+
+
   private
   # Use callbacks to share common setup or constraints between actions.
   def set_loan

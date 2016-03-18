@@ -1,35 +1,28 @@
-<h1>Listing containers</h1>
+<%= render("/shared/data/all/list/list_header", objects: @containers) -%>
 
-<%= paginate @containers %> <%= page_entries_info @containers %>
-
-<table>
+<table class="tablesorter">
   <thead>
   <tr>
-    <th>Parent</th>
-    <th>Type</th>
-    <th>Container</th>
-    <th>Name</th>
-    <th>Disposition</th>
-    <th>Last modified</th>
-    <th>Updated by</th>
-    <th colspan="3"></th>
+    <%= fancy_th_tag(name: 'Parent') -%>
+    <%= fancy_th_tag(name: 'Type') -%>
+    <%= fancy_th_tag(name: 'Container') -%>
+    <%= fancy_th_tag(name: 'Name') -%>
+    <%= fancy_th_tag(name: 'Disposition') -%>
+    <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
+    <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
   </tr>
   </thead>
 
   <tbody>
   <% @containers.each do |container| %>
-      <tr>
-        <td><%= object_tag(container.parent) %></td>
-        <td><%= container.type %></td>
-        <td><%= container.container %></td>
-        <td><%= container.name %></td>
-        <td><%= container.disposition %></td>
-        <td><%= container.updated_at %></td>
-        <td><%= object_tag(container.updater) %></td>
-        <td><%= link_to 'Show', container.metamorphosize %></td>
-        <td><%= link_to 'Edit', edit_container_path(container) %></td>
-        <td><%= link_to 'Destroy', container.metamorphosize, method: :delete, data: { confirm: 'Are you sure?' } %></td>
-      </tr>
+      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+          <td><%= object_tag(container.parent) %></td>
+          <td><%= container.type %></td>
+          <td><%= container.container %></td>
+          <td><%= container.name %></td>
+          <td><%= container.disposition %></td>
+          <%= fancy_metadata_cells_tag(container) -%>
+      <% end %>
   <% end %>
   </tbody>
 </table>

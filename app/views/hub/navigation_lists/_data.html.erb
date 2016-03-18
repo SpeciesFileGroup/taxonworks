@@ -2,11 +2,25 @@
 <div id="data_cards">
   <% Hub::Data::SECTIONS.each do |s| -%>
     <div data-section="<%= s -%>" class="data_section">
-      <% Hub::Data.items_for(s).each do |i| %>  
-        <%= data_card(i) -%> 
-      <% end %>
-    <div class="data_section_label subtle"> <%= s -%> </div>
+	    <div class="cards-section">
+	      <% Hub::Data.items_for(s).each do |i| %>  
+		      <div class="card-container">
+		        <%= data_card(i) -%> 
+		      </div>		      
+	      <% end %>
+	    </div>
+	    <div class="data_section_label">
+	    	<div class="data-controls">
+	    		<a class="cards-up" href="#" data-icon="arrow-up"></a>
+	    		<a class="cards-down" href="#" data-icon="arrow-down"></a>
+	    	</div>
+	    	<h3>
+	    		<%= s -%>
+	    	</h3>
+	    </div>
+	    <div data-attribute="empty" class="subtle center_text">
+	    	<h1>None</h1>
+	    </div>
     </div>
   <% end %>
 </div>
-

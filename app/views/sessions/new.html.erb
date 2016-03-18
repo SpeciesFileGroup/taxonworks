@@ -1,16 +1,27 @@
-<div>
-
+<div id="login-container">
+<div class="box-login">
   <h1>TaxonWorks</h1>
   <%= form_for :session, url: sessions_path do |f| %>
+  <div class="item item1">
     <%= f.label :email %>
+  </div>
+  <div class="item item 2">
     <%= f.text_field :email %>
+  </div>   
+  <div class="item item 2"> 
     <%= f.label :password %>
+    </div>
+    <div class="item item 2">
     <%= f.password_field :password %>
+    </div>
+    <div class="item item 2">
     <%= f.submit 'Sign in' %>
+    </div>
   <% end %>
-
-  
-  <%= link_to('forgot password?', forgot_password_path) -%>
-  <%= link_to('find out more', 'http://taxonworks.org') -%>
+  <div class="item">
+    <%= link_to('forgot password?', forgot_password_path) -%>
+    <%= link_to('find out more', 'http://taxonworks.org') -%>
+  </div>
+  </div>
 
 </div>

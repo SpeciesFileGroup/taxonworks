@@ -44,14 +44,10 @@ describe 'Serials', :type => :feature do
     }
 
     specify 'can create a new serial' do
-      click_link('new') # when I click the new link
-
+      click_link('New') 
       fill_in('Name', with: 'Journal of Mythical Beasts')
-      # fill the first name field with "Journal of Mythical Beasts"
       click_button('Create Serial')
-      # when I click the 'Create Serial' button
       expect(page).to have_content('Serial \'Journal of Mythical Beasts\' was successfully created.')
-      # then I get the message "Serial 'Journal of Mythical Beasts' was successfully created"
     end
   end
 end

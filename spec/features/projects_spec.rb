@@ -191,9 +191,8 @@ describe 'Project Handling', :type => :feature do
       before {
         visit list_projects_path}
 
-
       specify 'that it renders without error' do
-        expect(page).to have_content 'Listing Projects'
+        expect(page).to have_content(/Displaying.*projects/)
       end
     end
 

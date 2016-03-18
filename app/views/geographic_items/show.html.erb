@@ -1,65 +1,25 @@
-<h2> Geographic Item (shape) <%= @geographic_item.to_param -%> detail. </h2>
 
-<p id="notice"><%= notice %></p>
+<%= content_for :associated do -%>
 
+  <h3> Project related </h3>
+  <p>
+  <strong>Count of collecting events using <br> this geographic item for georeference:</strong>
+  <%= collecting_events_count_using_this_georeference(@geographic_item.id) %>
+  </p>
 
-<%#= render(partial: 'layouts/map_header', locals: {geographic_items: [@geographic_item]}) -%>
-<%#= render(partial: 'layouts/map_header') -%>
+  <h3> Geographic Areas </h3>
+  <p>Names from geographic areas: <%= geographic_area_link_list(@geographic_item.geographic_areas) -%></p>
 
-<div class="flexbox">
-  <div class="item item1">
-    <!--<div id="feature_collection"-->
-    <!--data-feature-collection='<%#= Gis::GeoJSON.feature_collection([@geographic_item]).to_json %>'-->
-    <!--&gt;-->
-    <%= forward_back_links(@geographic_item) -%> <br><br>
+  <p>Parents through geographic
+  areas:  <%= geographic_area_link_list(@geographic_item.parent_geographic_areas) -%></p>
 
-    <%= simple_map([@geographic_item]) -%>
+  <h3> Geographic Items </h3>
+  <p> Parent items through geographic areas: <%= geographic_item_parent_nav_links(@geographic_item) -%></p>
 
-    <!--<div id="geographic_item_map_canvas" style="width:512px; height: 256px;"></div>-->
-    <p>
-      <strong>Count of collecting events using <br> this geographic item for georeference:</strong>
-      <%= collecting_events_count_using_this_georeference(@geographic_item.id) %>
-    </p>
+  <div class="one_third"> Children through geographic areas:
+    <%= children_through_geographic_areas_links(@geographic_item) -%>
   </div>
 
-  <div class="item item2">
-    <div>
-      <strong>Object:</strong>
-      <%= scrollable_div_tag(@geographic_item.geo_object.to_s[0, 50]) %> <!-- this breaks 3 column layout -->
-    </div>
+<% end %> 
 
-    <p>
-      <strong>Created by:</strong>
-      <%= user_tag(@geographic_item.creator) %>
-    </p>
-
-    <p>
-      <strong>Updated by:</strong>
-      <%= user_tag(@geographic_item.updater) %>
-    </p>
-
-    <p> Edit Link [TODO] </p>
-  </div>
-
-  <div class="item item3">
-    <h3> Geographic Areas </h3>
-    <nav>
-      <p>Names from geographic areas: <%= geographic_area_link_list(@geographic_item.geographic_areas) -%></p>
-
-      <p>Parents through geographic
-        areas:  <%= geographic_area_link_list(@geographic_item.parent_geographic_areas) -%></p>
-    </nav>
-
-    <h3> Geographic Items </h3>
-    <nav>
-      <p> Parent items through geographic areas: <%= geographic_item_parent_nav_links(@geographic_item) -%></p>
-
-      <div class="one_third"> Children through geographic areas:
-        <%= children_through_geographic_areas_links(@geographic_item) -%>
-      </div>
-    </nav>
-  </div>
-
-</div>
-
-
+<%= render(partial: 'shared/data/project/show', locals: {object: @geographic_item}) -%>

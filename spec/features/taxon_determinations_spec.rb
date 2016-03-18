@@ -41,17 +41,17 @@ describe 'TaxonDeterminations', :type => :feature do
 
     context 'testing new taxon determination' do
       before {
-        # logged in and project selected
         visit taxon_determinations_path
       }
+      
+      let(:p) {Person.create(last_name: 'Barrymore', first_name: 'Barry')}
+      let(:o) {Otu.create!(user_project_attributes(@user, @project).merge(name: 'motu')) }
+      let(:s) {factory_girl_create_for_user_and_project(:valid_specimen, @user, @project) }
 
       specify 'can create a new taxon determination', js: true do
         # need person (role determiner), OTU, and specimen (CollectionObject::BiologicalCollectionObject)
-        p = Person.create(last_name: 'Barrymore', first_name: 'Barry')
-        o = Otu.create!(user_project_attributes(@user, @project).merge(name: 'motu'))
-        s = factory_girl_create_for_user_and_project(:valid_specimen, @user, @project)
 
-        click_link('new')
+        click_link('New')
         expect(page).to have_content("New taxon determination")
 
         expect(page.has_field?('determiner_autocomplete', :type => 'text')).to be_truthy
@@ -72,7 +72,7 @@ describe 'TaxonDeterminations', :type => :feature do
         click_button('Create Taxon determination')
 
         expect(page).to have_content("Taxon determination was successfully created.")
-        # expect(page).to have_content("determined as motu by Barrymore on 2016-1-20)")  # uncomment when line 62 is fixed
+        #  expect(page).to have_content("determined as motu by Barrymore on 2016-1-20)")  # uncomment when line 62 is fixed
       end
     end
   end

@@ -1,43 +1,33 @@
-<h1>Listing taxon names</h1>
+<%= render(partial: "/shared/data/all/list/list_header", locals: {objects: @taxon_names}) -%>
 
-<%= paginate @taxon_names %> <%= page_entries_info @taxon_names %>
-
-<table>
+<table class="tablesorter">
   <thead>
-  <tr>
-    <th>Name</th>
-    <th>Parent</th>
-    <th>Cached name</th>
-    <th data-source>Source</th>
-    <th data-source>Year of publication</th>
-    <th>Verbatim author</th>
-    <th>Rank</th>
-    <th data-metadata>Type</th>
-    <th data-housekeeping>Updated by</th>
-    <th data-housekeeping>Last updated</th>
-    <th data-action></th>
-    <th data-action></th>
-    <th data-action></th>
-  </tr>
+    <tr>
+      <%= fancy_th_tag(name: 'Name') -%> 
+      <%= fancy_th_tag(name: 'Parent') -%> 
+      <%= fancy_th_tag(name: 'Cached name') -%> 
+      <%= fancy_th_tag(name: 'Source', group: 'publication') -%> 
+      <%= fancy_th_tag(name: 'Year of publication', group: 'publication') -%> 
+      <%= fancy_th_tag(name: 'Verbatim author') -%>
+      <%= fancy_th_tag(name: 'Rank') -%>
+      <%= fancy_th_tag(name: 'Type', group: 'metadata') -%>
+      <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
+      <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
+    </tr>
   </thead>
-
   <tbody>
-  <% @taxon_names.each do |taxon_name| %>
-      <tr class="<%= cycle('list_line_odd', 'list_line_even') %>">
-        <td><%= taxon_name.name %></td>
-        <td><%= object_tag(taxon_name.parent) %></td>
-        <td><%= taxon_name.cached_html ? taxon_name.cached_html.html_safe : content_tag(:em, 'ERROR: not rendered',  class: :warning) %></td>
-        <td><%= object_tag(taxon_name.source) %></td>
-        <td><%= taxon_name.year_of_publication %></td>
-        <td><%= taxon_name.verbatim_author %></td>
-        <td><%= taxon_name.rank %></td>
-        <td><%= taxon_name.type %></td>
-        <td><%= object_tag(taxon_name.updater) %></td>
-        <td><%= object_time_since_update_tag(taxon_name) %></td>
-        <td><%= link_to 'Show', taxon_name.metamorphosize %></td>
-        <td><%= edit_object_link(taxon_name) %></td>
-        <td><%= link_to 'Destroy', taxon_name.metamorphosize, method: :delete, data: {confirm: 'Are you sure?'} %></td>
-      </tr>
-  <% end %>
+    <% @taxon_names.each do |taxon_name| %>
+      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%> 
+        <%= content_tag(:td, taxon_name.name,) %>
+        <%= content_tag(:td, object_tag(taxon_name.parent)) %>
+        <%= content_tag(:td, (taxon_name.cached_html.html_safe ? taxon_name.cached_html.html_safe : content_tag(:em, 'ERROR: not rendered',  class: :warning))) %>
+        <%= content_tag(:td, object_tag(taxon_name.source))%>
+        <%= content_tag(:td, taxon_name.year_of_publication)%>
+        <%= content_tag(:td, taxon_name.verbatim_author) %>
+        <%= content_tag(:td, taxon_name.rank) %>
+        <%= content_tag(:td, taxon_name.type) %>
+        <%= fancy_metadata_cells_tag(taxon_name) -%>
+      <% end %>
+    <% end %>
   </tbody>
 </table>

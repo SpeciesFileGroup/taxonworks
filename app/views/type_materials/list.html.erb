@@ -1,32 +1,27 @@
-<h1>Listing type materials</h1>
-<%= paginate @type_materials %> <%= page_entries_info @type_materials %>
+<%= render("/shared/data/all/list/list_header", objects: @type_materials) -%>
 
-<table>
+<table class="tablesorter">
   <thead>
   <tr>
-    <th>Material</th>
-    <th>Type type</th>
-    <th>Protonym</th>
-    <th>Source</th>
-    <th>Last modified</th>
-    <th>Updated by</th>
-    <th colspan="3"></th>
+    <%= fancy_th_tag(name: 'Material') -%>
+    <%= fancy_th_tag(name: 'Type type') -%>
+    <%= fancy_th_tag(name: 'Protonym') -%>
+    <%= fancy_th_tag(name: 'Source') -%>
+    <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
+    <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
   </tr>
   </thead>
 
   <tbody>
   <% @type_materials.each do |type_material| %>
-      <tr>
-        <td><%= object_tag(type_material.material) %></td>
-        <td><%= type_material.type_type %></td>
-        <td><%= object_tag(type_material.protonym) %></td>
-        <td><%= object_tag(type_material.source) %></td>
-        <td><%= type_material.updated_at %></td>
-        <td><%= object_tag(type_material.updater) %></td>
-        <td><%= link_to 'Show', type_material %></td>
-        <td><%= link_to 'Edit', edit_type_material_path(type_material) %></td>
-        <td><%= link_to 'Destroy', type_material, method: :delete, data: { confirm: 'Are you sure?' } %></td>
-      </tr>
+      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+          <td><%= object_tag(type_material.material) %></td>
+          <td><%= type_material.type_type %></td>
+          <td><%= object_tag(type_material.protonym) %></td>
+          <td><%= object_tag(type_material.source) %></td>
+          <%#= fancy_metadata_cells_tag(otu) -%>
+          <%= fancy_metadata_cells_tag(type_material) -%>
+      <% end %>
   <% end %>
   </tbody>
 </table>

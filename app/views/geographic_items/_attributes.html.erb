@@ -1,0 +1,8 @@
+<%= simple_map([@geographic_item]) -%>
+
+<br>
+
+<div>
+  <strong>Object:</strong>
+  <%= scrollable_div_tag(@geographic_item.geo_object.to_s[0, 50]) %> <!-- this breaks 3 column layout -->
+</div>

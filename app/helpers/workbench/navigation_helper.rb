@@ -2,7 +2,7 @@
 module Workbench::NavigationHelper
 
   def quick_bar
-    render(partial: '/workbench/navigation/quick_bar') if is_data_controller?
+    render(partial: '/workbench/navigation/quick_bar')  if sessions_current_project 
   end
 
   def quick_bar_link(related_model)
@@ -58,17 +58,17 @@ module Workbench::NavigationHelper
     if %w{Note Tag Citation Identifier DataAttribute AlternateValue GeographicArea ContainerItem}.include?(model.name)
       nil
     else
-      link_to('new', new_path_for_model(model))
+      link_to('New', new_path_for_model(model))
     end
   end
 
   def list_for_model_link(model)
-    link_to('list', list_path_for_model(model))
+    link_to('List', list_path_for_model(model))
   end
 
   def download_for_model_link(model)
     if self.controller.respond_to?(:download)
-      link_to('download', download_path_for_model(model))
+      link_to('Download', download_path_for_model(model))
     else
       content_tag(:em, 'Download not yet available.')
     end
@@ -127,7 +127,7 @@ module Workbench::NavigationHelper
   #   a link, or disabled link
   def edit_object_link(object)
     if is_editable?(object) && user_can_edit?(object)
-      link_to('Edit', edit_object_path(metamorphosize_if(object)))
+      link_to('Edit', edit_object_path(metamorphosize_if(object)), class: 'small-icon', 'data-icon' => 'edit')
     else
       content_tag(:span, 'Edit', class: :disabled)
     end
@@ -137,26 +137,26 @@ module Workbench::NavigationHelper
     if (!@sessions_current_user.is_administrator?) && (@is_shared_data_model)
       content_tag(:span, 'Destroy', class: :disabled)
     else
-      link_to('Destroy', object.metamorphosize, method: :delete, data: {confirm: 'Are you sure?'})
+      link_to('Destroy', object.metamorphosize, class: 'small-icon', 'data-icon' => 'trash', method: :delete, data: {confirm: 'Are you sure?'})
     end
   end
 
   def batch_load_link
     if self.controller.respond_to?(:batch_load) 
-      link_to('batch load', action: :batch_load, controller: self.controller_name) 
+      link_to('Batch load', action: :batch_load, controller: self.controller_name) 
     else 
       content_tag(:span, 'batch load', class: 'disabled') 
     end
   end
 
   def annotate_links(object: object)
-    [add_alternate_value_link(object: object),
-     add_citation_link(object: object),
-     add_data_attribute_link(object: object),
-     add_identifier_link(object: object),
-     add_note_link(object: object),
-     add_tag_link(object: object)
-    ].compact.join('<br>').html_safe
+    [content_tag(:li, add_alternate_value_link(object: object)),
+     content_tag(:li, add_citation_link(object: object)),
+     content_tag(:li, add_data_attribute_link(object: object)),
+     content_tag(:li, add_identifier_link(object: object)),
+     content_tag(:li, add_note_link(object: object)),
+     content_tag(:li, add_tag_link(object: object))
+    ].compact.join('').html_safe
   end
 
   def safe_object_from_attributes(hsh)
@@ -187,7 +187,8 @@ module Workbench::NavigationHelper
   #   a link to the related data page
   def related_data_link(object)
     return nil if object.nil?
-    link_to('Related', send("related_#{member_base_path(metamorphosize_if(object))}_path", object)) 
+    p = "related_#{member_base_path(metamorphosize_if(object))}_path"
+    link_to('Overview', send(p, object)) if controller.respond_to?(p)
   end
 
 end

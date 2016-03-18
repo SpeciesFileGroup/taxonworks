@@ -1,27 +1,20 @@
+<%= render("/shared/data/all/list/list_header", objects: @collection_object_observations) -%>
 
-<h1>Listing collection object observations</h1>
-<%= paginate @collection_object_observations %> <%= page_entries_info @collection_object_observations %>
-
-<table>
-  <thead>
+<table class="tablesorter">
+<thead>
     <tr>
-      <th>Data</th>
-      <th>Last modified</th>
-      <th>Updated by</th>
-      <th colspan="3"></th>
+      <%= fancy_th_tag(name: 'Data') -%>
+      <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
+      <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
     </tr>
   </thead>
 
   <tbody>
     <% @collection_object_observations.each do |collection_object_observation| %>
-      <tr>
+      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
         <td><%= collection_object_observation.data %></td>
-        <td><%= collection_object_observation.updated_at %></td>
-        <td><%= object_tag(collection_object_observation.updater) %></td>
-        <td><%= link_to 'Show', collection_object_observation %></td>
-        <td><%= link_to 'Edit', edit_collection_object_observation_path(collection_object_observation) %></td>
-        <td><%= link_to 'Destroy', collection_object_observation, method: :delete, data: { confirm: 'Are you sure?' } %></td>
-      </tr>
+          <%= fancy_metadata_cells_tag(collection_object_observation) -%>
+      <% end %>
     <% end %>
   </tbody>
 </table>

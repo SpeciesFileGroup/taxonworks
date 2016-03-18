@@ -2,6 +2,13 @@
 http://css-tricks.com/snippets/css/a-guide-to-flexbox/
 http://flexboxin5.com/
  */
+ @import 'palette';
+
+ .horizontal-center-content {
+ 	display: flex;
+ 	align-items:center;
+ 	flex-direction:row;
+ }
 
 .flexbox {
   display: -webkit-box;
@@ -9,20 +16,32 @@ http://flexboxin5.com/
   display: -ms-flexbox;
   display: -webkit-flex;
   -webkit-flex-flow: row wrap;
-
   display: flex;
   flex-direction: row; 
   flex-wrap: nowrap;
-  // flex-flow: row wrap; 
   justify-content: center;
+
+	  .item img {
+		display: block;
+	}
 }
 
 .flexbox > * {
   flex: 1 100%;
 }
 
-@media all and (min-width: 600px) {
+
+.item {
+	word-wrap: break-word;
+	flex: 1 auto;
+}
+  
+@media all and (min-width: 400px) {
   .item { flex: 1 auto; }
+  .column-big { flex: 3 auto; }
+  .column-medium { flex: 2 auto; }
+  .column-small { flex: 1 auto; }
+  .column-tiny { flex: 0.5 auto; } 
 }
 
 @media all and (min-width: 800px) {
@@ -34,32 +53,155 @@ http://flexboxin5.com/
   .item6 { order: 6; }
 }
 
+#model_index.shared {
+  border-left:4px solid $color-secondary-1-3;
+}
 
+#model_index.application_defined {
+  border-left:4px solid $color-primary-4;
+}	  
 
-// Used for model/index calls only
+// Used for model/index routes only
 #model_index {
-  margin: 2em;
+  border-radius:3px;
+  margin:0 auto;
+  width:1080px;
+  position: absolute;
+  z-index:5;
+  top: 50%;
+  left: 50%;
+  transform: translateY(-75%) translateX(-50%);
+  background-color:$panel_background;
+  border:1px solid $navigation_border;
+  box-shadow: 0 0px 3px 0 $navigation_border;
   align-items: center; 
+  border-left: 4px solid $color-secondary-2-4;
+
 
   &.flexbox {
-    // justify-content: space-around;
-    // flex-flow: columns;
     justify-content: space-around;
-    align-content: space-around;
-    //font-size: 150%;
-  }
-   min-height: 300px;
-  .item1 {
-      text-align: center;
-   // line-height: 10;
+	flex-flow: row wrap;
   }
 
-  .item2 { }
+	.favourite_link {
+	    background-image: url('/assets/icons/empty_star.svg');
+	    background-size: 24px;
+	    margin-right: 15px;
+	    margin-left: 15px;
+	    background-position: left, center;
+	    padding: 24px;
+	    padding-right: 0px;
+	    font-size: 0px;
+	    background-repeat: no-repeat;
+	    text-decoration: none;
+	  }
+	 .unfavorite_link {
+	    font-size: 0px;
+	    margin-right: 15px;
+	    margin-left: 15px;
+	    padding: 24px;
+	    padding-right: 0px;
+	    background-image: url('/assets/icons/star.svg');
+	    background-size: 24px;
+	    background-position: left, center;
+	    background-repeat: no-repeat;    
+	    text-decoration: none;   
+	}
+  
+  h1 {
+	  font-weight:100;
+  }
+  
+  a {
+  	font-weight: 100;
+	padding:8px;
+	text-decoration:none;
+	background-size:15px;
+	background-position:5px center;
+	background-repeat: no-repeat;
+	padding-left:25px;
+  }
+  
+  input[type="text"] {
+	  width:250px;
+  }
 
-  .item3 { }
+	.icon-download a
+	{
+		background-image: url('/assets/icons/download.svg');
+	}
+	
+	.icon-batch a {
+		background-image: url('/assets/icons/batch_load.svg');
+	}
+	
+	.icon-new a {
+		background-image: url('/assets/icons/new.svg');
+	}
+	
+	.icon-list a {
+		background-image: url('/assets/icons/list.svg');
+	}
+	
+	.icon-fav-star {
+		width:20px; display:inline; padding-right:5px;	
+	}
+  
+   min-height: 50px;
+  
+  .item {
+	  text-align: center;
+	  display: flex;
+	  flex-direction: row;
+	  justify-content: center;
+	  align-items: center;
+  }
+}
 
-  .item4 { }
+/* Login Screen */
 
-  .item5 { flex: .1; }
-
+#login-container {
+	position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-top: -150px;
+    margin-left: -150px;
+    width: 300px;
+    height: 200px;
+	
+	.box-login {
+		background-color: #FFF;
+		padding:15px;
+		border-radius:3px;
+		border:1px solid $navigation_border;
+		box-shadow:0 0px 3px 0 $navigation_border;
+	}
+	.item {
+		padding:3px;
+		display:flex;
+		justify-content:space-between;
+		align-items:center;
+		
+	}
+	.item a {
+		padding-top:10px;
+		text-decoration:none;
+	}
+	.item a:first-letter {
+		text-transform:uppercase;
+	}
+	input[type="text"] {
+		width:240px;
+	}
+	
+	input[type="submit"] {
+		margin:0px;
+	}
+	
+	h1 {
+		text-align:center;
+	}
+	input[type="password"] {
+		width:240px;
+	}
 }

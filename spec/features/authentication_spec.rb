@@ -17,7 +17,7 @@ describe 'Authentication', type: :feature do
         expect(subject).not_to have_link('Sign out', href: signin_path)
 
         expect(subject).to have_content "Dashboard" 
-        expect(subject).to have_content "Your projects" 
+        expect(subject).to have_content "Projects" 
       end
     end
 

@@ -1,21 +1,18 @@
-<div class="attributes">
-  <p id="notice"><%= notice %></p>
+<p id="notice"><%= notice %></p>
 
-  <% if @content.respond_to?(:otu) -%>
+<% if @content.respond_to?(:otu) -%>
     <p>
-    <strong>Otu:</strong>
-    <%= otu_link(@content.otu) %>
+      <strong>Otu:</strong>
+      <%= otu_link(@content.otu) %>
     </p>
-  <% end %>
+<% end %>
 
-  <p>
+<p>
   <strong>Topic:</strong>
   <%= controlled_vocabulary_term_link(@content.topic) %>
-  </p>
+</p>
 
-  <p>
+<p>
   <strong>Text:</strong>
   <%= @content.text %>
-  </p>
-
-</div>
+</p>

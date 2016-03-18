@@ -1,36 +1,28 @@
-<h1>Listing identifiers</h1>
+<%= render("/shared/data/all/list/list_header", objects: @identifiers) -%>
 
-<%= paginate @identifiers %> <%= page_entries_info @identifiers %>
-
-<table>
+<table class="tablesorter">
   <thead>
   <tr>
-    <th>Identified object type</th>
-    <th>Identified object</th>
-    <th>Cached identifier</th>
-    <th>Type</th>
-    <th>Namespace</th>
-    <th>Last modified</th>
-    <th>Updated by</th>
-    <th></th>
-    <th></th>
+    <%= fancy_th_tag(name: 'Identified object type') -%>
+    <%= fancy_th_tag(name: 'Identified object') -%>
+    <%= fancy_th_tag(name: 'Cached identifier') -%>
+    <%= fancy_th_tag(name: 'Type') -%>
+    <%= fancy_th_tag(name: 'Namespace') -%>
+    <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
+    <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
   </tr>
   </thead>
 
   <tbody>
   <% @identifiers.each do |identifier| %>
-      <tr>
-        <td><%= identifier.identifier_object_type %></td>
-        <td><%= object_tag(identifier.identifier_object.metamorphosize) %></td>
-        <td><%= identifier.cached %></td>
-        <td><%= identifier.klass_name %></td>
-        <td><%= namespace_from_identifier_tag(identifier) %></td>
-        <td><%= identifier.updated_at %></td>
-        <td><%= object_tag(identifier.updater) %></td>
-        <td><%= link_to 'Context', identifier.identifier_object.metamorphosize %></td>
-        <td><%= link_to 'Edit', edit_identifier_path(identifier) %></td>
-        <td><%= link_to 'Destroy', identifier.metamorphosize, method: :delete, data: { confirm: 'Are you sure?' } %></td>
-      </tr>
+      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+          <td><%= identifier.identifier_object_type %></td>
+          <td><%= object_tag(identifier.identifier_object.metamorphosize) %></td>
+          <td><%= identifier.cached %></td>
+          <td><%= identifier.klass_name %></td>
+          <td><%= namespace_from_identifier_tag(identifier) %></td>
+          <%= fancy_metadata_cells_tag(identifier) -%>
+      <% end %>
   <% end %>
   </tbody>
 </table>
