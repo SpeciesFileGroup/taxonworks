@@ -28,7 +28,7 @@ TaxonWorks::Application.routes.draw do
   match '/signout', to: 'sessions#destroy', via: :delete
   resources :sessions, only: :create
 
-  # Note singular 'resource' 
+  # Note singular 'resource'
   resource :hub, controller: 'hub', only: [:index] do
     get '/', action: :index
     get 'order_tabs'
@@ -107,7 +107,7 @@ TaxonWorks::Application.routes.draw do
 
    resources :collecting_events do
     concerns [:data_routes]
-    get :autocomplete_collecting_event_verbatim_locality, :on => :collection 
+    get :autocomplete_collecting_event_verbatim_locality, :on => :collection
   end
 
   resources :combinations, only: [:create, :edit, :update, :destroy, :new] do
@@ -348,7 +348,7 @@ TaxonWorks::Application.routes.draw do
         scope :buffered_data, controller: 'tasks/accessions/breakdown/buffered_data' do
           get ':id', action: :index, as: 'collection_object_buffered_data_breakdown_task'
           get 'thumb_navigator/:id', action: :thumb_navigator, as: 'collection_object_buffered_data_breakdown_thumb_navigator'
-          patch 'update/:id', action: :update, as: 'collection_object_buffered_data_breakdown_update_task' 
+          patch 'update/:id', action: :update, as: 'collection_object_buffered_data_breakdown_update_task'
         end
       end
 
@@ -491,7 +491,7 @@ TaxonWorks::Application.routes.draw do
   match '/papertrail', to: 'papertrail#papertrail', via: :get
   match '/papertrail/:id', to: 'papertrail#show', as: 'paper_trail_version', via: :get
 
-  require "#{Rails.root}/config/routes/api"
+
 
   # TODO: Remove or rewrite endpoint implementation
   # get '/api/v1/taxon_names/' => 'api/v1/taxon_names#all'
@@ -541,3 +541,5 @@ TaxonWorks::Application.routes.draw do
   #   end
   #
 end
+
+require_relative 'routes/api'

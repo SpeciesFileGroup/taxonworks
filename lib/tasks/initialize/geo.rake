@@ -4,11 +4,11 @@ namespace :tw do
     desc "load all geo related data, requires a data_directory"
     task :load_geo => [:environment, :data_directory] do |t|
 
-      puts "Loading geo data..." 
+      puts "Loading geo data..."
       [GeographicArea, GeographicAreaType, GeographicItem, GeographicAreasGeographicItem].each do |klass|
-        if klass.count > 0 
-          puts 'There are existing #{klass.name.humanize}, doing nothing.'.red.on_white 
-          raise 
+        if klass.count > 0
+          puts "There are existing #{klass.name.humanize}, doing nothing.".red.on_white
+          raise
         end
       end
 

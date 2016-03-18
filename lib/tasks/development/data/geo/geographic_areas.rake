@@ -31,10 +31,10 @@
 
 namespace :tw do
 
- 
+
   namespace :development do
     namespace :data do
-      # Methods are deprecated, round tripping by pg dumps will be standard in "canvas" 
+      # Methods are deprecated, round tripping by pg dumps will be standard in "canvas"
       namespace :geo do
 
         desc "Restore geographic area information from compressed form. Pass the path to gaz's /dump directory to data_directory.\n
@@ -45,8 +45,8 @@ namespace :tw do
 
           Rake::Task["tw:initialize:load_geo"].execute
 
-          collecting_events_file                 = "#{data_store}collecting_events.dump"
-          georeferences_file                     = "#{data_store}georeferences.dump"
+          collecting_events_file = "#{data_store}collecting_events.dump"
+          georeferences_file     = "#{data_store}georeferences.dump"
 
           raise "Missing #{collecting_events_file}, doing nothing." unless File.exists?(collecting_events_file)
           raise "Missing #{georeferences_file}, doing nothing." unless File.exists?(georeferences_file)
