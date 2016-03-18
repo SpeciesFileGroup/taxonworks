@@ -112,9 +112,6 @@ class OtusController < ApplicationController
   end
 
   # GET /otus/download
-  # def download
-  #   send_data Otu.generate_download(project_id: $project_id), type: 'text', filename: "otus_#{DateTime.now.to_s}.csv"
-  # end
   def download
     send_data Otu.generate_download( Otu.where(project_id: sessions_current_project_id) ), type: 'text', filename: "otus_#{DateTime.now.to_s}.csv"
   end

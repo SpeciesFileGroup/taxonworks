@@ -92,7 +92,13 @@ class ContentsController < ApplicationController
     render :json => data
   end
 
+  # GET /contents/download
+  def download
+    send_data Content.generate_download( Content.where(project_id: sessions_current_project_id) ), type: 'text', filename: "contents_#{DateTime.now.to_s}.csv"
+  end
+
   private
+  
   # Use callbacks to share common setup or constraints between actions.
   def set_content
     @content = Content.with_project_id($project_id).find(params[:id])

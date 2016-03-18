@@ -38,7 +38,7 @@ describe 'Contents', type: :feature do
 
       describe 'GET /contents/n' do
         before {
-          visit collection_object_path(Content.second)
+          visit content_path(Content.second)
         }
 
         it_behaves_like 'a_data_model_with_standard_show'
