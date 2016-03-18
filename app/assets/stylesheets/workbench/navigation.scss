@@ -65,14 +65,14 @@ a {
   .on_hub {
     a {
       background-color: $color-secondary-2-4 !important;
-      background-image: url('/assets/icons/w_hub.svg') !important;
+      background-image: url(asset-path('/assets/icons/w_hub.svg')) !important;
     }
   }
 
   .hub_link {
     margin-left: 1em;
     a {
-      background-image: url('/assets/icons/hub.svg');
+      background-image: url(asset-path('/assets/icons/hub.svg'));
       background-size:25px;
       background-repeat:no-repeat;
       background-position: center; 
