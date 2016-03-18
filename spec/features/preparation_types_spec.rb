@@ -45,11 +45,10 @@ describe 'PreparationTypes', :type => :feature do
     }
 
     specify 'I should be able to create a new preparation type' do
-      click_link('new') # when I click the new link
-      fill_in('Name', with: 'Flash frozen') # fill out the name field with "Flash frozen"
-      fill_in('Definition', with: 'Dipped in dry ice.') #fill out the definition field with "Dipped in dry ice."
-      click_button('Create Preparation type') # when I click the 'Create Preparation type' button
-      # then I get the message "Preparation type 'Flash frozen' " was successfully created"
+      click_link('New')
+      fill_in('Name', with: 'Flash frozen') 
+      fill_in('Definition', with: 'Dipped in dry ice.') 
+      click_button('Create Preparation type') 
       expect(page).to have_content("Preparation type 'Flash frozen' was successfully created.")
     end
   end
