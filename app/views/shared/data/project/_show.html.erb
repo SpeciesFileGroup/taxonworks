@@ -37,10 +37,10 @@
             <span><%= object_tag(object) -%></span>
             <span data-view="development">&nbsp;[ id: <%= object.id -%> ]</span>
           </div>
-          <ul class="context-menu inline">
+          <ul class="centered_navbar separator_navbar">
             <li><%= papertrail_link(object) -%></li>
             <li><%= related_data_link(object) -%></li>
-            <li ><a  href="#" view-bottom>Development view</a></li>
+            <li ><a href="#" data-icon="show" class="icon-list" view-bottom>Development view</a></li>
           </ul>
         </div> 
 
@@ -86,7 +86,6 @@
           <div class="break_words content">
             <div class="title-section"> 
               <h2>Attributes</h2>
-              <span class="to-right"><%= papertrail_link(object) -%> | <%= related_data_link(object) -%></span> 
             </div>
 
             <div class="attributes"> 
