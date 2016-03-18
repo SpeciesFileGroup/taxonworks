@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'Sources', :type => :feature, :group => :sources do
+describe 'Sources', type: :feature, group: :sources do
   #Capybara.default_wait_time = 15  # slows down Capybara enough to see what's happening on the form
   let(:page_index_name) { 'sources' }
   let(:index_path) { sources_path }
@@ -37,37 +37,49 @@ describe 'Sources', :type => :feature, :group => :sources do
     end
   end
 
-  context "as an administrator, with a different user's records" do
-    specify 'can edit or destroy any source' do
-      create_source_by_user
-      expect(@src1.valid?).to be_truthy
-      sign_in_with(@administrator.email, @password) # sign in as administrator
-      visit sources_path
-      expect(@src1.cached).to eq('Author1 (2014) Article Title. Test journal.')
-      expect(page).to have_link('Author1 (2014) Article Title. Test journal.')
-      expect(page).to have_link('Edit') # there is a recent update list & 'Edit' link is active
-      click_link('Author1 (2014) Article Title. Test journal.') # go to show the source not created by admin
-      expect(page).to have_link('Edit') # edit & delete are active links
-      click_link('Edit') # go to edit page
-      expect(find_field('Title').value).to eq('Article Title')
-      click_link('Show') # return to show page
-      expect(page).to have_link('Destroy')
-    end
+  context "as a user create a record" do
+    before {
+      sign_in_user_and_select_project 
+      Source::Bibtex.create!(by: @user,
+                             bibtex_type:  'article',
+                             title:        'Article Title',
+                             author:       'Author1',
+                             year:         '2014',
+                             journal:      'Test journal'
+                            )
 
+    }
+
+    context 'later, sign in as administrator' do
+      before{ sign_in_with(@administrator.email, @password) }
+      let(:src1) {Source.last}
+
+      specify 'who can edit or destroy any source' do
+        visit sources_path
+        expect(src1.cached).to eq('Author1 (2014) Article Title. Test journal.')
+        expect(page).to have_link('Author1 (2014) Article Title. Test journal.')
+        expect(page).to have_link('Edit') # there is a recent update list & 'Edit' link is active
+        click_link('Author1 (2014) Article Title. Test journal.') # go to show the source not created by admin
+        expect(page).to have_link('Edit') # edit & delete are active links
+        click_link('Edit') # go to edit page
+        expect(find_field('Title').value).to eq('Article Title')
+        click_link('Show') # return to show page
+        expect(page).to have_link('Destroy')
+      end
+    end
   end
+
+
   context 'testing new source' do
     before {
-      sign_in_user_and_select_project #   logged in and project selected
-      visit sources_path } #   when I visit the sources_path
+      sign_in_user_and_select_project
+      visit sources_path } 
 
-    # Already tested above
-    # specify 'new link is present on sources page' do
-    #   expect(page).to have_link('new') # it has a new link
-    # end
     specify 'can create a new BibTeX source', js: true do
       s = Serial.create!(name: 'My Serial', creator: @user, updater: @user)
 
-      click_link('new') #   when I click the new link
+      click_link('New')
+
       # The BibTeX radio button is selected (default).
       expect(page.has_checked_field?('source_type_sourcebibtex')).to be_truthy
 
@@ -76,21 +88,19 @@ describe 'Sources', :type => :feature, :group => :sources do
       expect(page.has_field?('source_verbatim_contents', :type => 'textarea')).to be_truthy
       expect(page.has_no_field?('source_verbatim', :type => 'textarea')).to be_truthy
 
-      # I select 'article' from the Bibtex type drop down list
       select('article', from: 'source_bibtex_type')
 
-      fill_in('Title', with: 'Unicorns and Honey Badgers') # fill out Title with 'Unicorns and Honey Badgers'
-      fill_in('Author', with: 'Wombat, H.P.') # fill out Author with 'Wombat, H.P.'
-      fill_in('Year', with: '1920') # fill out Year with '1920'
+      fill_in('Title', with: 'Unicorns and Honey Badgers') 
+      fill_in('Author', with: 'Wombat, H.P.') 
+      fill_in('Year', with: '1920') 
       fill_autocomplete('serial_id_for_source', with: 'My Serial', select: s.id) # fill out Serial autocomplete with 'My Serial'
-      # select the row with 'My Serial'
       click_button('Create Source') # when I click the 'Create Source' button
-      # I get the message "Source by 'Wombat, H.P.' was successfully created." (just use the author field only to keep it simple for now).
       expect(page).to have_content("Source by 'Wombat, H.P.' was successfully created.")
     end
+
     specify 'can create a new Verbatim source' do
       #Capybara.ignore_hidden_elements = true
-      click_link('new') #   when I click the new link
+      click_link('New') 
       choose('source_type_sourceverbatim') # select the Verbatim radio button
       expect(page.has_checked_field?('source_type_sourceverbatim')).to be_truthy
       expect(page.has_field?('source_verbatim', :type => 'textarea')).to be_truthy
@@ -181,16 +191,7 @@ describe 'Sources', :type => :feature, :group => :sources do
 
   end
 
-  def create_source_by_user
-    sign_in_user_and_select_project # create record as a non-admin user
-    @src1             = Source::Bibtex.new(by: @user)
-    @src1.bibtex_type = 'article'
-    @src1.title       = 'Article Title'
-    @src1.author      = 'Author1'
-    @src1.year        = '2014'
-    @src1.journal     = 'Test journal'
-    @src1.save!
-  end
+
 end
 
 
