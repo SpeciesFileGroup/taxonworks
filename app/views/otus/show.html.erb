@@ -1,14 +1,14 @@
 <%= content_for :add do -%>
-  <%= content_tag(:span, link_to('Add new asserted distribution by map',
+  <%= content_tag(:li, link_to('Add new asserted distribution by map',
                                  new_asserted_distribution_task_path(asserted_distribution: {otu_id: @otu.to_param}),
                                  'data-no-turbolink' => true)) %>
 <% end %>
 
 <%= content_for :report do -%>
-  <%= content_tag(:span, link_to('Distribution',
+  <%= content_tag(:li, link_to('Distribution',
                                  otu_distribution_data_task_path(@otu.to_param),
                                  'data-no-turbolink' => true) ) %>
-  <%= content_tag(:span, link_to('Contents', preview_otu_content_path(@otu.id), 'data-no-turbolink' => true)) %>
+  <%= content_tag(:li, link_to('Contents', preview_otu_content_path(@otu.id), 'data-no-turbolink' => true)) %>
 <% end %>
 
 
