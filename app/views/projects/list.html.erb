@@ -4,6 +4,7 @@
   <thead>
   <tr>
     <%= fancy_th_tag(name: 'Name') -%>
+    <%= fancy_th_tag(name: 'Total Users') -%>
     <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
     <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
   </tr>
@@ -13,8 +14,10 @@
   <% @projects.each do |project| %>
       <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
           <td><%= project.name %></td>
+          <td><%= project.project_members.count %></td>
           <%= fancy_metadata_cells_tag(project) -%>
       <% end %>
   <% end %>
   </tbody>
 </table>
+
