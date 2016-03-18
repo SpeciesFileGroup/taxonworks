@@ -53,23 +53,25 @@
           </div>
           <div class="navigation-item">
             <%= pin_item_to_pinboard_link(object, sessions_current_user) -%>
-          </div>                
+          </div>           
+
           <div class="navigation-item menu-drop">
-            <span class="small-icon" data-icon="annotate">Annotate</span>
+            <span id="show_annotate_dropdown" class="small-icon" data-icon="annotate">Annotate</span>
               <%= annotate_links(object: object) -%>
           </div>                
-          <div class="navigation-item menu-drop">
+          <div id="show_tasks_dropdown" class="navigation-item menu-drop">
             <span data-icon="task" class="small-icon">Tasks</span>
               <%= yield :tasks -%>
           </div>
-          <div class="navigation-item menu-drop">
+          <div id="show_add_dropdown" class="navigation-item menu-drop">
             <span data-icon="add" class="small-icon">Add</span>
               <%= yield :add -%>
           </div>     
-          <div class="navigation-item menu-drop">
+          <div id="show_report_dropdown" class="navigation-item menu-drop">
             <span data-icon="add" class="small-icon">Report</span>
               <%= yield :report -%>
           </div>    
+     
         </div>        
       </div>    
       
