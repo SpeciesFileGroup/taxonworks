@@ -3,7 +3,7 @@ require 'io/console'
 namespace :tw do
 
   # Tasks for initializing a new (usually production) version of TaxonWorks
-  #  We are inentionally not using the seed functionality.
+  #  We are intentionally not using the seed functionality.
   namespace :initialize do
     desc "create an administrator, and set ENV['user_id'] to that users id if successfull"
     task :create_administrator => [:environment] do |t|
@@ -128,7 +128,7 @@ namespace :tw do
       user_data.each do |k, v|
         attributes = v.merge(email: k, self_created: true)
         u          = User.new(attributes)
-        if !u.valid?
+        unless u.valid?
           puts "Invalid user in users.yml: #{attributes}. #{u.errors.full_messages.join(" ")}".bold.red
           exit
         end
