@@ -39,10 +39,8 @@ describe 'TaxonNameClassifications', :type => :feature do
       before {
         visit list_taxon_name_classifications_path
       }
-      specify 'Clicking a recent link resolves to the corresponding taxon page' do
-        # need to specify which of 3 Context links to click, select matchers
-        first('a', text: 'Context').click
-
+      specify 'Clicking a recent link resolves to the corresponding taxon page', js: true do
+        first('td', text: 'Aus').double_click
         expect(page).to have_content('Taxon names')
         expect(page).to have_content('Aus')
       end

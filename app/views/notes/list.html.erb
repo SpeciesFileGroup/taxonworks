@@ -3,10 +3,10 @@
 <table class="tablesorter">
 <thead>
   <tr>
+    <%= fancy_th_tag(name: 'Text') -%>
     <%= fancy_th_tag(name: 'Note object type') -%>
     <%= fancy_th_tag(name: 'Note object') -%>
     <%= fancy_th_tag(name: 'Note object attribute') -%>
-    <%= fancy_th_tag(name: 'Text') -%>
     <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
     <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
   </tr>
@@ -15,11 +15,11 @@
   <tbody>
   <% @notes.each do |note| %>
       <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+        <td><%= note.text %></td>
         <td><%= note.note_object_type %></td>
         <td><%= object_tag(note.note_object.metamorphosize) %></td>
         <td><%= note.note_object_attribute %></td>
-        <td><%= note.text %></td>
-          <%= fancy_metadata_cells_tag(note) -%>
+        <%= fancy_metadata_cells_tag(note) -%>
       <% end %>
   <% end %>
   </tbody>
