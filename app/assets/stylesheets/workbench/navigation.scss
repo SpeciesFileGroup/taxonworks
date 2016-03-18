@@ -116,6 +116,8 @@ a {
 
   }
 
+
+}
 .context-menu {  
     li:after {
       display: flex;
@@ -143,8 +145,6 @@ a {
       text-decoration:none;
     }
   }
-}
-
 
 /* see http://css-tricks.com/snippets/css/a-guide-to-flexbox/, seems nice */
 .horizontal_navbar {
@@ -209,6 +209,25 @@ a {
 .left_justified_navbar {
   @extend .horizontal_navbar;
   justify-content: flex-start;  
+}
+
+.separator_navbar {
+  li:last-child:after {
+    content: '';
+    padding-right:0px;
+  }
+  li:last-child {
+    padding-right:0px;
+  }
+  li:after {
+    content: '|';
+    padding-left:5px;
+  }
+  li {
+    padding-right:5px;
+    display: flex;
+    flex-direction: row;
+  }
 }
 
 #taxonworks_link {

@@ -37,7 +37,11 @@
             <span><%= object_tag(object) -%></span>
             <span data-view="development">&nbsp;[ id: <%= object.id -%> ]</span>
           </div>
-          <a href="#" data-icon="show" class="inline" view-bottom>Development view</a>
+          <ul class="context-menu inline">
+            <li><%= papertrail_link(object) -%></li>
+            <li><%= related_data_link(object) -%></li>
+            <li ><a  href="#" view-bottom>Development view</a></li>
+          </ul>
         </div> 
 
         <div class="navigation-controls">
