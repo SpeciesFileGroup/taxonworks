@@ -38,9 +38,7 @@
             <span data-view="development">&nbsp;[ id: <%= object.id -%> ]</span>
           </div>
           <ul class="horizontal_navbar context-menu" >
-            <li><%= papertrail_link(object) -%></li>
-            <li><%= related_data_link(object) -%></li>
-            <li ><a href="#" data-icon="show" class="icon-list" view-bottom>Development view</a></li>
+           <li ><a href="#" data-icon="show" class="icon-list" view-bottom>Development view</a></li>
           </ul>
         </div> 
 
@@ -76,6 +74,8 @@
           <div id="show_report_dropdown" class="navigation-item menu-drop">
             <span data-icon="add" class="small-icon">Report</span>
             <ul class="dropdown">
+              <%= related_data_link_tag(object) -%>
+              <%= papertrail_link_tag(object) -%>
               <%= yield :report -%>
             </ul>
           </div>    
