@@ -114,13 +114,8 @@
           </div>
         </div>
 
-        <div id="annotations-panel" class="item panel separate-left">
-          <div class="content">
-            <div class="information-panel">
-              <%= render(partial: '/shared/data/all/show/annotations', locals: {object: object}) if ! object.annotations.empty?  %>
-            </div>
-          </div>
-        </div>
+        <%= render("/shared/data/project/annotations", object: object) if !object.annotations.empty?  %>
+
       </div>
     </div>
   </div>
