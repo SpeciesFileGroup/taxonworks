@@ -13,6 +13,61 @@
     text-decoration: none;
   }
 }
+.page-navigator {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  span:last-child:before {
+    color:$navigation_border;
+    content: ("|");
+    padding-left: 10px;
+    padding-right: 5px;
+  }
+}
+
+.pagination {
+  padding-left: 10px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    .first {
+        order: 4;
+        padding : 3px;
+        float: none;
+        border: none;
+    }
+    .prev {
+        display: none;
+        order: 1;
+        padding : 3px;
+        float: none;
+        border: none;
+    }
+    .page {
+        order: 3;
+        padding : 3px;
+        float: none;
+        border: none;
+    }
+    .current {
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .next {
+        display: none;
+        order: 2;
+        padding : 3px;
+        float: none;
+        border: none;
+    }
+    .last {
+        order: 5;
+        padding : 3px;
+        float: none;
+        border: none;
+    }
+}
 
 table {
   box-shadow: 0 0 3px 0 $navigation_border;

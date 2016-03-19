@@ -7,7 +7,19 @@
     </div>      
     <div class="navigation-controls"> 
       <div class="navigation-bar-left">
-        <%= paginate objects %>
+      <div class="page-navigator">
+        <span>
+          <%= link_to_previous_page objects, '‹ Back' do %>
+            ‹ Back
+          <% end %>  
+        </span>
+        <span>
+          <%= link_to_next_page objects, 'Next ›' do %>
+            Next ›
+          <% end %>  
+        </span>    
+      </div>
+      <%= paginate objects %>
       </div>
       <div class="navigation-bar-right">
         <a data-icon="download" href="#">                 
