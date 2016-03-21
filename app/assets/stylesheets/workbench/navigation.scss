@@ -226,21 +226,39 @@ a {
 
 
 #hub_order {
-  [data-icon="drag"] {
+  [data-icon="scroll-h"] {
     display: none;
   }
-  td:first-child {
-    max-width: 80px !important;
+
+  table {
+    display: flex;
+    justify-content: center;
+    box-shadow: none;
   }
+
+  tr {
+    margin: 10px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    float: left;
+  }
+  tr:hover {
+    background-color: $body_background;
+  }
+
   td:active {
-    [data-icon="scroll-v"] {
+    [data-icon="drag"] {
       display:none;
     }
-    [data-icon="drag"] {
+    [data-icon="scroll-h"] {
       display:inline;
     }    
   }
-  td:first-letter {
+  td {
+    border:none;
+    border-bottom: 2px solid $color-secondary-2-4;
     text-transform: uppercase;
   }
 }
