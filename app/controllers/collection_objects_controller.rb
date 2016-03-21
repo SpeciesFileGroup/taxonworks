@@ -1,7 +1,8 @@
 class CollectionObjectsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_collection_object, only: [:show, :edit, :update, :destroy, :depictions, :images, :geo_json]
+  before_action :set_collection_object, only: [:show, :edit, :update, :destroy,
+                                               :depictions, :images, :geo_json]
 
   # GET /collection_objects
   # GET /collection_objects.json

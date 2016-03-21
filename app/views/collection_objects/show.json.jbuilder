@@ -4,7 +4,6 @@ json.success true
 json.result do
   json.id @collection_object.id
   json.type @collection_object.type
-  json.geo_json @collection_object.try(:collecting_event).to_geo_json_feature if @geo_json
   json.images do
     json.array! @images do |image|
       json.id image.id

@@ -1,13 +1,13 @@
 class OtusController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_otu, only: [:show, :edit, :update, :destroy]
+  before_action :set_otu, only: [:show, :edit, :update, :destroy, :collection_objects]
 
   # GET /otus
   # GET /otus.json
   def index
     @recent_objects = Otu.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index' 
+    render '/shared/data/all/index'
   end
 
   # GET /otus/1
@@ -25,7 +25,7 @@ class OtusController < ApplicationController
   end
 
   def list
-    @otus = Otu.with_project_id(sessions_current_project_id).page(params[:page]) 
+    @otus = Otu.with_project_id(sessions_current_project_id).page(params[:page])
   end
 
   # POST /otus
@@ -69,6 +69,11 @@ class OtusController < ApplicationController
     end
   end
 
+  # GET /api/v1/otus/1/collection_objects
+  def collection_objects
+    @collection_objects = Otu.find(params[:id]).collection_objects.pluck(:id)
+  end
+
   def search
     if params[:id].blank?
       redirect_to otus_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
@@ -80,12 +85,12 @@ class OtusController < ApplicationController
   def autocomplete
     @otus = Otu.find_for_autocomplete(params.merge(project_id: sessions_current_project_id)).includes(:taxon_name)
     data = @otus.collect do |t|
-      {id: t.id,
-       label: ApplicationController.helpers.otu_tag(t),
+      {id:              t.id,
+       label:           ApplicationController.helpers.otu_tag(t),
        response_values: {
          params[:method] => t.id
        },
-       label_html: ApplicationController.helpers.otu_autocomplete_selected_tag(t) 
+       label_html:      ApplicationController.helpers.otu_autocomplete_selected_tag(t)
       }
     end
 
