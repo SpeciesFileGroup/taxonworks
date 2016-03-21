@@ -224,23 +224,3 @@ a {
  text-decoration: none;
 }
 
-
-#hub_order {
-  [data-icon="drag"] {
-    display: none;
-  }
-  td:first-child {
-    max-width: 80px !important;
-  }
-  td:active {
-    [data-icon="scroll-v"] {
-      display:none;
-    }
-    [data-icon="drag"] {
-      display:inline;
-    }    
-  }
-  td:first-letter {
-    text-transform: uppercase;
-  }
-}
