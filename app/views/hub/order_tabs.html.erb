@@ -15,8 +15,6 @@
     <% @sessions_current_user.hub_tab_order.each_with_index do |t, i| -%>
       <%= content_tag :tr, i, {id: "order_#{t}"} do -%>
       <td class="handle">
-        <span data-icon="scroll-h"></span>
-        <span data-icon="drag"></span>
         <span><%= t -%></span>
       </td>
   <% end %>
