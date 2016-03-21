@@ -3,11 +3,16 @@ http://css-tricks.com/snippets/css/a-guide-to-flexbox/
 http://flexboxin5.com/
  */
  @import 'palette';
+ @import '../workbench/whitespace';
 
  .horizontal-center-content {
  	display: flex;
  	align-items:center;
  	flex-direction:row;
+ }
+
+ .separate-top {
+ 	margin-top: $standard_padding*0.5;
  }
 
 .flexbox {

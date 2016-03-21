@@ -21,6 +21,14 @@
       background-image: image-url("annotate.svg");
     } 
 
+    [data-icon="drag"] {
+      background-image: image-url("drag.svg");
+    }     
+
+    [data-icon="scroll-v"] {
+      background-image: image-url("scroll-v.svg");
+    }     
+
     [data-icon="browse"] {
       background-image: image-url("browse.svg");
     }     
