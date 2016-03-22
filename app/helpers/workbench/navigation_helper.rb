@@ -63,7 +63,11 @@ module Workbench::NavigationHelper
   end
 
   def list_for_model_link(model)
+    if model.any?
     link_to('List', list_path_for_model(model))
+    else
+     content_tag(:span, 'List', class: :disabled)
+    end
   end
 
   def download_for_model_link(model)
@@ -145,7 +149,7 @@ module Workbench::NavigationHelper
     if self.controller.respond_to?(:batch_load) 
       link_to('Batch load', action: :batch_load, controller: self.controller_name) 
     else 
-      content_tag(:span, 'batch load', class: 'disabled') 
+      content_tag(:span, 'Batch load', class: 'disabled') 
     end
   end
 
