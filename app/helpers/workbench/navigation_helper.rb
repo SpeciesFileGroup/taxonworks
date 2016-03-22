@@ -133,7 +133,7 @@ module Workbench::NavigationHelper
     if is_editable?(object) && user_can_edit?(object)
       link_to(content_tag(:span, 'Edit', 'data-icon' => 'edit', class: 'small-icon'), edit_object_path(metamorphosize_if(object)), class: 'navigation-item')
     else
-      content_tag(:div, content_tag(:span, 'Edit', 'data-icon' => 'edit'), class: 'navigation-item disable')
+      content_tag(:div, content_tag(:span, 'Edit', 'data-icon' => 'edit', class: 'small-icon'), class: 'navigation-item disable')
     end
   end
 
