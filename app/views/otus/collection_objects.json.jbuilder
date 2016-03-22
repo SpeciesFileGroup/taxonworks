@@ -3,5 +3,5 @@
 json.success true
 json.result do
   json.id @otu.id
-  json.collection_objects @collection_objects
+  json.collection_object_ids @collection_objects
 end
