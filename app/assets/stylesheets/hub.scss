@@ -111,23 +111,30 @@
     }
   }
 
-  div.related_links_set {
-    background-color: $background_gray;
-    padding: $pane_padding;
-    border: $pane_border;
-    margin: $pane_margin;
-    width: 260px;
-    float: left;
-    min-height: 200px;
-    h3 {
+  .related_links_set {
+    li:first-letter {
+      text-transform:uppercase;
+    }
+    margin: $standard_padding * 0.5;
+    width: 260px !important;
+    min-height: 200px !important;
+
+    .related-title {
+      font-weight: 100;
+      font-size: 14px;
       margin: 0;
-      border-bottom: 1px solid;
-      color: $color-secondary-2-4;
+      padding-bottom: $standard_padding * 0.5;
+      border-bottom: 1px solid $navigation_border;
+    }
+    .related-title:first-letter {
+        text-transform: uppercase;
     }
     h4 { 
-      margin: 0;
-      font-weight: bold;
-      color: $color-secondary-2-3;
+      margin-top: $standard_padding ;
+      font-weight: 500;
+    }
+    h4:first-letter {
+      text-transform: uppercase;
     }
     ul {
       li {

@@ -32,7 +32,7 @@ module Workbench::NavigationHelper
       link_object = instance.class.base_class.order(id: :desc).where(['id < ?', instance.id]).limit(1).first
     end
 
-    link_object.nil? ? text : link_to(text, link_object.metamorphosize)
+    link_object.nil? ? content_tag(:div,content_tag(:span,text, 'class' => 'small-icon', 'data-icon' => 'arrow-left'), 'class' => 'navigation-item disable') : link_to(content_tag(:span,text, 'data-icon' => 'arrow-left', 'class' => 'small-icon'), link_object.metamorphosize, 'class' => 'navigation-item')
   end
 
   # A next record link.
@@ -43,7 +43,7 @@ module Workbench::NavigationHelper
     else
       link_object = instance.class.base_class.order(id: :asc).where(['id > ?', instance.id]).limit(1).first
     end
-    link_object.nil? ? text : link_to(text, link_object.metamorphosize)
+    link_object.nil? ? content_tag(:div,content_tag(:span,text, 'class' => 'small-icon icon-right', 'data-icon' => 'arrow-right'), 'class' => 'navigation-item disable') : link_to(content_tag(:span,text, 'data-icon' => 'arrow-right', 'class' => 'small-icon icon-right'), link_object.metamorphosize, 'class' => 'navigation-item')
   end
 
   def new_path_for_model(model)
@@ -58,15 +58,15 @@ module Workbench::NavigationHelper
     if %w{Note Tag Citation Identifier DataAttribute AlternateValue GeographicArea ContainerItem}.include?(model.name)
       nil
     else
-      link_to('New', new_path_for_model(model))
+      link_to('New', new_path_for_model(model), 'data-icon' => 'new')
     end
   end
 
   def list_for_model_link(model)
     if model.any?
-    link_to('List', list_path_for_model(model))
+    link_to('List', list_path_for_model(model), 'data-icon' => 'list')
     else
-     content_tag(:span, 'List', class: :disabled)
+     content_tag(:span, 'List', class: :disabled, 'data-icon' => 'list')
     end
   end
 
@@ -131,25 +131,25 @@ module Workbench::NavigationHelper
   #   a link, or disabled link
   def edit_object_link(object)
     if is_editable?(object) && user_can_edit?(object)
-      link_to('Edit', edit_object_path(metamorphosize_if(object)), class: 'small-icon', 'data-icon' => 'edit')
+      link_to(content_tag(:span, 'Edit', 'data-icon' => 'edit', class: 'small-icon'), edit_object_path(metamorphosize_if(object)), class: 'navigation-item')
     else
-      content_tag(:span, 'Edit', class: :disabled)
+      content_tag(:div, content_tag(:span, 'Edit', 'data-icon' => 'edit'), class: 'navigation-item disable')
     end
   end
 
   def destroy_object_link(object)
     if (!@sessions_current_user.is_administrator?) && (@is_shared_data_model)
-      content_tag(:span, 'Destroy', class: :disabled)
+      content_tag(:div, content_tag(:span, 'Destroy', 'data-icon' => 'trash', class: 'small-icon'), class: 'navigation-item disable')
     else
-      link_to('Destroy', object.metamorphosize, class: 'small-icon', 'data-icon' => 'trash', method: :delete, data: {confirm: 'Are you sure?'})
+      link_to(content_tag(:span, 'Destroy', 'data-icon' => 'trash', class: 'small-icon'), object.metamorphosize, method: :delete, data: {confirm: 'Are you sure?'}, class: 'navigation-item')
     end
   end
 
   def batch_load_link
     if self.controller.respond_to?(:batch_load) 
-      link_to('Batch load', action: :batch_load, controller: self.controller_name) 
+      link_to('Batch load', { action: :batch_load, controller: self.controller_name } ,'data-icon' => 'batch') 
     else 
-      content_tag(:span, 'Batch load', class: 'disabled') 
+      content_tag(:span, 'Batch load', class: 'disabled', 'data-icon' => 'batch') 
     end
   end
 

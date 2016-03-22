@@ -17,13 +17,26 @@
       min-height: 12px;
     }
 
+    .icon-right { 
+      background-position: right, center;
+      padding-right: 20px;
+    }
+
     [data-icon="annotate"] {
       background-image: image-url("annotate.svg");
     } 
 
+    [data-icon="batch"] {
+      background-image: image-url("batch_load.svg");
+    }     
+
     [data-icon="drag"] {
       background-image: image-url("drag.svg");
-    }     
+    }
+
+    [data-icon="list"] {
+      background-image: image-url("list.svg");
+    }         
 
     [data-icon="scroll-v"] {
       background-image: image-url("scroll-v.svg");
@@ -55,7 +68,11 @@
 
     [data-icon="edit"] {
       background-image: image-url("new.svg");
-    }          
+    }      
+
+    [data-icon="new"] {
+      background-image: image-url("new.svg");
+    }              
 
     [data-icon="trash"] {
       background-image: image-url("trash.svg");

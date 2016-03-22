@@ -16,14 +16,14 @@ function show() {
   });
 
   $('[data-arrow]').each( function() {
-    if($(this).find('a').length < 1) {
+    if($(this).is('span')) {
       $(this).addClass("disable");
     }
   });
 
-  $('.navigation-item').each( function() {
+  $('div.navigation-item').each( function() {
     if($(this).children().length < 1) {
-      $(this).hide();
+   //   $(this).hide();
     }
   });
 

@@ -1,18 +1,17 @@
-<div class="flexbox">
-
-  <div class="item item1">
+<div class="flexbox panels-container">
     <% RELATED_FOR_NAVIGATION.each do |title, link_sets| -%>
-      <div class="related_links_set">
-        <h3> <%= title.to_s.humanize.downcase -%>
+      <div class="panel separate-right separate-left related_links_set">
+      <div class="content">
+      <div class="related-title"><%= title.to_s.humanize.downcase -%></div>
         <% link_sets.each do |link_set_title, links| -%>
-          <h4><%= link_set_title -%> </h4>
+          <h4><%= link_set_title -%></h4>
           <ul>
-            <%= links.collect{|l| content_tag(:li,
-                                              link_to(l.humanize, send(l + "_path")))
-            }.join.html_safe -%>
-        </ul>
-      <% end %>
-    </h3></div>
-  <% end %>
-</div>
+              <%= links.collect{|l| content_tag(:li,
+                                                link_to(l.humanize, send(l + "_path")))
+              }.join.html_safe -%>
+          </ul>
+        <% end %>
+        </div>
+      </div>
+    <% end %>
 </div>

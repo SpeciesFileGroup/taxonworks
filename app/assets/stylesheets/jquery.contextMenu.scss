@@ -15,21 +15,11 @@
  *
  * Date: 2016-01-08T20:22:20.182Z
  */
-@font-face {
-  font-family: "context-menu-icons";
-  font-style: normal; 
-  font-weight: normal;
-
-  src: url("font/context-menu-icons.eot?4cx9p");
-  src: url("font/context-menu-icons.eot?4cx9p#iefix") format("embedded-opentype"), url("font/context-menu-icons.woff2?4cx9p") format("woff2"), url("font/context-menu-icons.woff?4cx9p") format("woff"), url("font/context-menu-icons.ttf?4cx9p") format("truetype");
-}
 
 .context-menu-icon:before {
   position: absolute;
   top: 50%;
   left: 0;
-  width: 28px; 
-  font-family: "context-menu-icons";
   font-size: 16px;
   font-style: normal;
   font-weight: normal;
@@ -45,32 +35,23 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-.context-menu-icon-add:before {
-  content: "";
+.context-menu-icon {
+  background-position: 8px,center;
+  background-repeat: no-repeat;
+  background-size: 14px 14px;  
 }
 
-.context-menu-icon-copy:before {
-  content: "";
+
+.context-menu-icon-delete {
+  background-image: image-url("trash.svg");
 }
 
-.context-menu-icon-cut:before {
-  content: "";
+.context-menu-icon-edit {
+  background-image: image-url("new.svg");
 }
 
-.context-menu-icon-delete:before {
-  content: "";
-}
-
-.context-menu-icon-edit:before {
-  content: "";
-}
-
-.context-menu-icon-paste:before {
-  content: "";
-}
-
-.context-menu-icon-quit:before {
-  content: "";
+.context-menu-icon-show {
+  background-image: image-url("show.svg");
 }
 
 .context-menu-icon.context-menu-hover:before {
