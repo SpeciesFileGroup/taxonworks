@@ -3,9 +3,5 @@
 json.success true
 json.result do
   json.id @otu.id
-  json.collection_objects do
-    json.array! @collection_objects do |id|
-      json.id id
-    end
-  end if @collection_objects
+  json.collection_objects @collection_objects
 end
