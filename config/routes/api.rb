@@ -26,7 +26,7 @@ TaxonWorks::Application.routes.draw do
 
       get '/otus/:id/collection_objects',
           to: 'otus#collection_objects',
-          as: 'api_v1_otus_collection_objects'
+          as: 'api_v1_otu_collection_objects'
       # get '/otus/:id', to: 'otus#show'
     end
   end
