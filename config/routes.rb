@@ -85,7 +85,7 @@ TaxonWorks::Application.routes.draw do
 
   resources :citation_topics, only: [:create, :update, :destroy]
 
-  resources :citations, except: [:show] do
+  resources :citations  do # except: [:show]
     concerns [:data_routes]
   end
 

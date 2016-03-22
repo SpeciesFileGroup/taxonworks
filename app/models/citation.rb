@@ -1,9 +1,8 @@
-# Citation is like Roles in that it is also a linking table between a data object & a source.
-# (Assertion that the subject was referenced in a source)
+# A Citation is an assertion that the subject (i.e. citation object/record/data instance), or some attribute of it, was referenced or originate in a Source. 
 #
 # @!attribute citation_object_type
 #   @return [String]
-#   @todo
+#     Rails STI, the class of the object being cited 
 #
 # @!attribute source_id
 #   @return [Integer]
@@ -15,11 +14,11 @@
 #
 # @!attribute citation_object_id
 #   @return [Integer]
-#   @todo
+#    Rails STI, the id of the object being cited 
 #
 # @!attribute pages
 #   @return [String]
-#   @todo
+#     a specific location/localization for the data in the Source  
 #
 class Citation < ActiveRecord::Base
   include Housekeeping

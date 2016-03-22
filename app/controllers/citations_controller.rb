@@ -2,7 +2,7 @@ class CitationsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :require_sign_in_and_project_selection
-  before_action :set_citation, only: [:update, :destroy]
+  before_action :set_citation, only: [:update, :destroy, :show]
 
   def new
     @citation = Citation.new(citation_params)
@@ -10,6 +10,11 @@ class CitationsController < ApplicationController
 
   def edit
     @citation = Citation.find_by_id(params[:id]).metamorphosize
+  end
+
+  # Presently only used in autocomplete
+  def show
+    redirect_to @citation.annotated_object.metamorphosize
   end
 
   # GET /citations
@@ -75,7 +80,7 @@ class CitationsController < ApplicationController
   def autocomplete
     @citations = Citation.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
     data = @citations.collect do |t|
-      lbl = render_to_string(partial: 'tag', citation: t)
+      lbl = render_to_string(partial: 'tag', locals: {citation: t})
       {id: t.id,
        label: lbl,
        response_values: {
