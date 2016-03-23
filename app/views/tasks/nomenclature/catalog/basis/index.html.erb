@@ -1,0 +1,12 @@
+
+
+ID: <%= @taxon_name.id -%> <br>
+<div style="text-align: center;"> <h1> Catalog of <%= object_tag(@taxon_name) -%> <h1> </div>
+
+<ul> 
+  <li><%= original_taxon_name_tag(@taxon_name) -%> <%= cached_author_year_tag(@taxon_name) -%> : STUB_PAGES </li>
+  <% TaxonNameRelationship.where_object_is_taxon_name(@taxon_name).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID).each do |n| %>
+  <%= content_tag(:li, taxon_name_relationship_for_object_tag(n), class: 'list') -%>
+<% end %>
+
+</ul>
