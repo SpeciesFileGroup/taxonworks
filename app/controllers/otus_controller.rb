@@ -74,6 +74,15 @@ class OtusController < ApplicationController
     @collection_objects = Otu.find(params[:id]).collection_objects.pluck(:id)
   end
 
+  # GET /api/v1/otus/by_name/"name"
+  def by_name
+    @otu_name = params[:name]
+    @otu_ids  = Otu.find_for_autocomplete(params.merge(term: @otu_name))
+                  .includes(:taxon_name).pluck(:id)
+
+    return(@otu_ids)
+  end
+
   def search
     if params[:id].blank?
       redirect_to otus_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
