@@ -36,7 +36,7 @@ class OtusController < ApplicationController
     respond_to do |format|
       if @otu.save
         format.html { redirect_to @otu,
-                     notice: "Otu '#{@otu.name}' was successfully created." }
+                                  notice: "Otu '#{@otu.name}' was successfully created." }
         format.json { render action: 'show', status: :created, location: @otu }
       else
         format.html { render action: 'new' }
@@ -74,15 +74,6 @@ class OtusController < ApplicationController
     @collection_objects = Otu.find(params[:id]).collection_objects.pluck(:id)
   end
 
-  # GET /api/v1/otus/by_name/"name"
-  def by_name
-    @otu_name = params[:name]
-    @otu_ids  = Otu.find_for_autocomplete(params.merge(term: @otu_name))
-                  .includes(:taxon_name).pluck(:id)
-
-    return(@otu_ids)
-  end
-
   def search
     if params[:id].blank?
       redirect_to otus_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
@@ -93,7 +84,7 @@ class OtusController < ApplicationController
 
   def autocomplete
     @otus = Otu.find_for_autocomplete(params.merge(project_id: sessions_current_project_id)).includes(:taxon_name)
-    data = @otus.collect do |t|
+    data  = @otus.collect do |t|
       {id:              t.id,
        label:           ApplicationController.helpers.otu_tag(t),
        response_values: {
@@ -127,13 +118,48 @@ class OtusController < ApplicationController
 
   # GET /otus/download
   def download
-    send_data Otu.generate_download( Otu.where(project_id: sessions_current_project_id) ), type: 'text', filename: "otus_#{DateTime.now.to_s}.csv"
+    send_data Otu.generate_download(Otu.where(project_id: sessions_current_project_id)), type: 'text', filename: "otus_#{DateTime.now.to_s}.csv"
+  end
+
+  # GET /api/v1/otus/by_name/"name"
+  def by_name
+    @otu_name   = params[:name]
+    # @otu_ids  = Otu.find_for_autocomplete(params.merge(term: @otu_name))
+    #               .includes(:taxon_name).pluck(:id)
+    where_query = where_sql
+    @otu_ids    = Otu.includes(:taxon_name)
+                    .where(where_query)
+                    .references(:taxon_names)
+                    .order(name: :asc)
+                    .order('taxon_names.cached ASC')
+                    .pluck(:id)
+    return(@otu_ids)
   end
 
   private
 
+  def where_sql
+    named.or(taxon_name_named).to_sql
+  end
+
+  def named
+    table[:name].matches(@otu_name)
+  end
+
+  def table
+    Otu.arel_table
+  end
+
+  def taxon_name_named
+    taxon_name_table[:cached].matches(@otu_name)
+  end
+
+  def taxon_name_table
+    TaxonName.arel_table
+  end
+
   def set_otu
-    @otu = Otu.with_project_id(sessions_current_project_id).find(params[:id])
+    @otu           = Otu.with_project_id(sessions_current_project_id).find(params[:id])
     @recent_object = @otu
   end
 
