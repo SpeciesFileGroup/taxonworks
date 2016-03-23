@@ -141,7 +141,7 @@ class OtusController < ApplicationController
   private
 
   def where_sql
-    named.or(taxon_name_cached).or(taxon_name_cached_author_yesr).to_sql
+    named.or(taxon_name_cached).or(taxon_name_cached_author_year).to_sql
   end
 
   def named
@@ -156,7 +156,7 @@ class OtusController < ApplicationController
     taxon_name_table[:cached].matches(@otu_name)
   end
 
-  def taxon_name_cached_author_yesr
+  def taxon_name_cached_author_year
     taxon_name_table[:cached_author_year].matches(@otu_name)
   end
 
