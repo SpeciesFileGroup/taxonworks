@@ -162,7 +162,6 @@ class TaxonName < ActiveRecord::Base
     :name_is_latinized
 
   validates_presence_of :type, message: 'is not specified'
-  belongs_to :source
 
   has_one :source_classified_as_relationship, -> {
     where(taxon_name_relationships: {type: 'TaxonNameRelationship::SourceClassifiedAs'} ) 

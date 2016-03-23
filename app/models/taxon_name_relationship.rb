@@ -38,7 +38,6 @@ class TaxonNameRelationship < ActiveRecord::Base
 
   belongs_to :subject_taxon_name, class_name: 'TaxonName', foreign_key: :subject_taxon_name_id # left side
   belongs_to :object_taxon_name, class_name: 'TaxonName', foreign_key: :object_taxon_name_id   # right side
-  belongs_to :source
 
   after_save :set_cached_names_for_taxon_names, unless: 'self.no_cached'
   after_destroy :set_cached_names_for_taxon_names, unless: 'self.no_cached'

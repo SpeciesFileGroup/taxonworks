@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160323174625) do
+ActiveRecord::Schema.define(version: 20160323184046) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -120,12 +120,10 @@ ActiveRecord::Schema.define(version: 20160323174625) do
     t.integer  "updated_by_id", null: false
     t.integer  "project_id",    null: false
     t.string   "name"
-    t.integer  "source_id"
   end
 
   add_index "biological_associations_graphs", ["created_by_id"], name: "index_biological_associations_graphs_on_created_by_id", using: :btree
   add_index "biological_associations_graphs", ["project_id"], name: "index_biological_associations_graphs_on_project_id", using: :btree
-  add_index "biological_associations_graphs", ["source_id"], name: "index_biological_associations_graphs_on_source_id", using: :btree
   add_index "biological_associations_graphs", ["updated_by_id"], name: "index_biological_associations_graphs_on_updated_by_id", using: :btree
 
   create_table "biological_relationship_types", force: :cascade do |t|
@@ -631,7 +629,6 @@ ActiveRecord::Schema.define(version: 20160323174625) do
     t.decimal  "error_depth"
     t.integer  "error_geographic_item_id"
     t.string   "type",                                     null: false
-    t.integer  "source_id"
     t.integer  "position",                                 null: false
     t.datetime "created_at",                               null: false
     t.datetime "updated_at",                               null: false
@@ -650,7 +647,6 @@ ActiveRecord::Schema.define(version: 20160323174625) do
   add_index "georeferences", ["geographic_item_id"], name: "index_georeferences_on_geographic_item_id", using: :btree
   add_index "georeferences", ["position"], name: "index_georeferences_on_position", using: :btree
   add_index "georeferences", ["project_id"], name: "index_georeferences_on_project_id", using: :btree
-  add_index "georeferences", ["source_id"], name: "index_georeferences_on_source_id", using: :btree
   add_index "georeferences", ["type"], name: "index_georeferences_on_type", using: :btree
   add_index "georeferences", ["updated_by_id"], name: "index_georeferences_on_updated_by_id", using: :btree
 
@@ -1216,13 +1212,11 @@ ActiveRecord::Schema.define(version: 20160323174625) do
     t.integer  "created_by_id",         null: false
     t.integer  "updated_by_id",         null: false
     t.integer  "project_id",            null: false
-    t.integer  "source_id"
   end
 
   add_index "taxon_name_relationships", ["created_by_id"], name: "index_taxon_name_relationships_on_created_by_id", using: :btree
   add_index "taxon_name_relationships", ["object_taxon_name_id"], name: "index_taxon_name_relationships_on_object_taxon_name_id", using: :btree
   add_index "taxon_name_relationships", ["project_id"], name: "index_taxon_name_relationships_on_project_id", using: :btree
-  add_index "taxon_name_relationships", ["source_id"], name: "index_taxon_name_relationships_on_source_id", using: :btree
   add_index "taxon_name_relationships", ["subject_taxon_name_id"], name: "index_taxon_name_relationships_on_subject_taxon_name_id", using: :btree
   add_index "taxon_name_relationships", ["type"], name: "index_taxon_name_relationships_on_type", using: :btree
   add_index "taxon_name_relationships", ["updated_by_id"], name: "index_taxon_name_relationships_on_updated_by_id", using: :btree
@@ -1233,7 +1227,6 @@ ActiveRecord::Schema.define(version: 20160323174625) do
     t.string   "cached_html",                                   null: false
     t.string   "cached_author_year"
     t.string   "cached_higher_classification"
-    t.integer  "source_id"
     t.datetime "created_at",                                    null: false
     t.datetime "updated_at",                                    null: false
     t.integer  "year_of_publication"
@@ -1262,7 +1255,6 @@ ActiveRecord::Schema.define(version: 20160323174625) do
   add_index "taxon_names", ["name"], name: "index_taxon_names_on_name", using: :btree
   add_index "taxon_names", ["parent_id"], name: "index_taxon_names_on_parent_id", using: :btree
   add_index "taxon_names", ["project_id"], name: "index_taxon_names_on_project_id", using: :btree
-  add_index "taxon_names", ["source_id"], name: "index_taxon_names_on_source_id", using: :btree
   add_index "taxon_names", ["type"], name: "index_taxon_names_on_type", using: :btree
   add_index "taxon_names", ["updated_by_id"], name: "index_taxon_names_on_updated_by_id", using: :btree
 
@@ -1289,7 +1281,6 @@ ActiveRecord::Schema.define(version: 20160323174625) do
     t.integer  "protonym_id",          null: false
     t.integer  "biological_object_id", null: false
     t.string   "type_type",            null: false
-    t.integer  "source_id"
     t.integer  "created_by_id",        null: false
     t.integer  "updated_by_id",        null: false
     t.integer  "project_id",           null: false
@@ -1301,7 +1292,6 @@ ActiveRecord::Schema.define(version: 20160323174625) do
   add_index "type_materials", ["created_by_id"], name: "index_type_materials_on_created_by_id", using: :btree
   add_index "type_materials", ["project_id"], name: "index_type_materials_on_project_id", using: :btree
   add_index "type_materials", ["protonym_id"], name: "index_type_materials_on_protonym_id", using: :btree
-  add_index "type_materials", ["source_id"], name: "index_type_materials_on_source_id", using: :btree
   add_index "type_materials", ["type_type"], name: "index_type_materials_on_type_type", using: :btree
   add_index "type_materials", ["updated_by_id"], name: "index_type_materials_on_updated_by_id", using: :btree
 
@@ -1380,7 +1370,6 @@ ActiveRecord::Schema.define(version: 20160323174625) do
   add_foreign_key "biological_associations_biological_associations_graphs", "users", column: "created_by_id", name: "biological_associations_biological_associati_created_by_id_fkey"
   add_foreign_key "biological_associations_biological_associations_graphs", "users", column: "updated_by_id", name: "biological_associations_biological_associati_updated_by_id_fkey"
   add_foreign_key "biological_associations_graphs", "projects", name: "biological_associations_graphs_project_id_fkey"
-  add_foreign_key "biological_associations_graphs", "sources", name: "biological_associations_graphs_source_id_fkey"
   add_foreign_key "biological_associations_graphs", "users", column: "created_by_id", name: "biological_associations_graphs_created_by_id_fkey"
   add_foreign_key "biological_associations_graphs", "users", column: "updated_by_id", name: "biological_associations_graphs_updated_by_id_fkey"
   add_foreign_key "biological_relationship_types", "biological_relationships", name: "biological_relationship_types_biological_relationship_id_fkey"
@@ -1469,7 +1458,6 @@ ActiveRecord::Schema.define(version: 20160323174625) do
   add_foreign_key "georeferences", "geographic_items", column: "error_geographic_item_id", name: "georeferences_error_geographic_item_id_fkey"
   add_foreign_key "georeferences", "geographic_items", name: "georeferences_geographic_item_id_fkey"
   add_foreign_key "georeferences", "projects", name: "georeferences_project_id_fkey"
-  add_foreign_key "georeferences", "sources", name: "georeferences_source_id_fkey"
   add_foreign_key "georeferences", "users", column: "created_by_id", name: "georeferences_created_by_id_fkey"
   add_foreign_key "georeferences", "users", column: "updated_by_id", name: "georeferences_updated_by_id_fkey"
   add_foreign_key "identifiers", "namespaces", name: "identifiers_namespace_id_fkey"
@@ -1573,19 +1561,16 @@ ActiveRecord::Schema.define(version: 20160323174625) do
   add_foreign_key "taxon_name_classifications", "users", column: "created_by_id", name: "taxon_name_classifications_created_by_id_fkey"
   add_foreign_key "taxon_name_classifications", "users", column: "updated_by_id", name: "taxon_name_classifications_updated_by_id_fkey"
   add_foreign_key "taxon_name_relationships", "projects", name: "taxon_name_relationships_project_id_fkey"
-  add_foreign_key "taxon_name_relationships", "sources", name: "taxon_name_relationships_source_id_fkey"
   add_foreign_key "taxon_name_relationships", "taxon_names", column: "object_taxon_name_id", name: "taxon_name_relationships_object_taxon_name_id_fkey"
   add_foreign_key "taxon_name_relationships", "taxon_names", column: "subject_taxon_name_id", name: "taxon_name_relationships_subject_taxon_name_id_fkey"
   add_foreign_key "taxon_name_relationships", "users", column: "created_by_id", name: "taxon_name_relationships_created_by_id_fkey"
   add_foreign_key "taxon_name_relationships", "users", column: "updated_by_id", name: "taxon_name_relationships_updated_by_id_fkey"
   add_foreign_key "taxon_names", "projects", name: "taxon_names_project_id_fkey"
-  add_foreign_key "taxon_names", "sources", name: "taxon_names_source_id_fkey"
   add_foreign_key "taxon_names", "taxon_names", column: "parent_id", name: "taxon_names_parent_id_fkey"
   add_foreign_key "taxon_names", "users", column: "created_by_id", name: "taxon_names_created_by_id_fkey"
   add_foreign_key "taxon_names", "users", column: "updated_by_id", name: "taxon_names_updated_by_id_fkey"
   add_foreign_key "type_materials", "collection_objects", column: "biological_object_id", name: "type_materials_biological_object_id_fkey"
   add_foreign_key "type_materials", "projects", name: "type_materials_project_id_fkey"
-  add_foreign_key "type_materials", "sources", name: "type_materials_source_id_fkey"
   add_foreign_key "type_materials", "taxon_names", column: "protonym_id", name: "type_materials_protonym_id_fkey"
   add_foreign_key "type_materials", "users", column: "created_by_id", name: "type_materials_created_by_id_fkey"
   add_foreign_key "type_materials", "users", column: "updated_by_id", name: "type_materials_updated_by_id_fkey"
