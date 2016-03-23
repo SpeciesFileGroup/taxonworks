@@ -35,6 +35,13 @@ http://flexboxin5.com/
   flex: 1 100%;
 }
 
+.flex-wrap-row {
+	display: flex;
+	justify-content: center;
+	flex-wrap: wrap !important;
+	flex-direction: row !important;
+}
+
 
 .item {
 	word-wrap: break-word;

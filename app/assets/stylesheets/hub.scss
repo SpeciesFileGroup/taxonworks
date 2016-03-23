@@ -112,16 +112,16 @@
   }
 
   .related_links_set {
+    margin: $standard_padding * 0.5;
+    min-height: 200px !important;  
+    width: 260px;
     li:first-letter {
       text-transform:uppercase;
     }
-    margin: $standard_padding * 0.5;
-    width: 260px !important;
-    min-height: 200px !important;
 
     .related-title {
       font-weight: 100;
-      font-size: 14px;
+      font-size: 15px;
       margin: 0;
       padding-bottom: $standard_padding * 0.5;
       border-bottom: 1px solid $navigation_border;
@@ -138,6 +138,7 @@
     }
     ul {
       li {
+
         margin-left: .4em;
         padding: 0;
       }
