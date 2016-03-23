@@ -5,6 +5,8 @@ module Shared::Citable
 
   included do
     has_many :citations, as: :citation_object, validate: false, dependent: :destroy
+
+    scope :without_citations, -> {includes(:citations).where(citations: {id: nil})}
   end 
 
   def cited?

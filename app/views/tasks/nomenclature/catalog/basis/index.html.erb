@@ -1,12 +1,35 @@
 
-
 ID: <%= @taxon_name.id -%> <br>
+
+<%= link_to('Back', @taxon_name.metamorphosize) -%> 
+
 <div style="text-align: center;"> <h1> Catalog of <%= object_tag(@taxon_name) -%> <h1> </div>
 
-<ul> 
-  <li><%= original_taxon_name_tag(@taxon_name) -%> <%= cached_author_year_tag(@taxon_name) -%> : STUB_PAGES </li>
-  <% TaxonNameRelationship.where_object_is_taxon_name(@taxon_name).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID).each do |n| %>
-  <%= content_tag(:li, taxon_name_relationship_for_object_tag(n), class: 'list') -%>
-<% end %>
+<ul>
+  <% full_citations(@taxon_name).each do |c| -%> <!---- all citation references ---->
+    <% if metamorphosize_if(c.annotated_object).class.name == 'TaxonName' %>
+      <li> <%= full_original_taxon_name_tag(c.annotated_object) -%>   </li>
 
+    <% elsif metamorphosize_if(c.annotated_object).class.name == 'TaxonNameClassification' %>
+      <li> <%= full_original_taxon_name_tag(c.annotated_object.taxon_name) -%> Some classification stuff   </li>
+
+    <% elsif metamorphosize_if(c.annotated_object).class.name == 'TaxonNameRelationship' %>
+      <li> <%= taxon_name_relationship_for_object_tag(c.annotated_object) -%> Some relationship stuff   </li>
+    <% else %>
+      HUH?!
+    <% end %>
+  <% end %>
+
+  <div class="warning"> 
+
+    <!---- relationships without citations ---->
+    <% TaxonNameRelationship.where_object_is_taxon_name(@taxon_name).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID).without_citations.each do |n| %>
+      <%= content_tag(:li, taxon_name_relationship_for_object_tag(n), class: 'list') -%>
+    <% end %>
+
+    <!---- classifications without citations ---->
+    <% @taxon_name.taxon_name_classifications.without_citations.each do |t| -%>
+      <li> <%= full_original_taxon_name_tag(c.annotated_object) -%> : <%= object_tag(t) -%>  </li>
+    <% end %>
+  </div>
 </ul>

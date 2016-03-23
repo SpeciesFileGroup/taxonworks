@@ -87,5 +87,10 @@
     <strong>Cached primary homonym alt:</strong>
     <%= @taxon_name.cached_primary_homonym_alternative_spelling %>
   </p>
+
+    <p>
+    <strong>Cached valid taxon name id:</strong>
+    <%= link_to(@taxon_name.cached_valid_taxon_name_id, @taxon_name.valid_taxon_name.metamorphosize) %>
+  </p>
 </div>
 

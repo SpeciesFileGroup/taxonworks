@@ -146,7 +146,6 @@ class TaxonName < ActiveRecord::Base
   before_destroy :check_for_children
   before_save :set_cached_names
 
-
   after_save :create_new_combination_if_absent, unless: 'self.no_cached'
   after_save :set_cached_names_for_dependants_and_self, unless: 'self.no_cached'
   after_save :set_cached_valid_taxon_name_id
@@ -238,6 +237,11 @@ class TaxonName < ActiveRecord::Base
   scope :with_cached_valid_taxon_name_id, -> (cached_valid_taxon_name_id) {where(cached_valid_taxon_name_id: cached_valid_taxon_name_id)}
   scope :with_cached_original_combination, -> (original_combination) { where(cached_original_combination: original_combination) }
   scope :with_cached_html, -> (html) { where(cached_html: html) }
+
+  # @return [Protonym(s)] the **broad sense** synonyms of this name 
+  def synonyms 
+    TaxonName.with_cached_valid_taxon_name_id(self.id)
+  end
 
   soft_validate(:sv_validate_name, set: :validate_name)
   soft_validate(:sv_missing_fields, set: :missing_fields)
