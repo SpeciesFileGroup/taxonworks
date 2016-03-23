@@ -129,17 +129,19 @@ class OtusController < ApplicationController
     where_query = where_sql
     @otu_ids    = Otu.includes(:taxon_name)
                     .where(where_query)
+                    .where(project_id: params[:project_id])
                     .references(:taxon_names)
                     .order(name: :asc)
-                    .order('taxon_names.cached ASC')
                     .pluck(:id)
+    # .order('taxon_names.cached ASC')
+    # .order('taxon_names.cached_author_year')
     return(@otu_ids)
   end
 
   private
 
   def where_sql
-    named.or(taxon_name_named).to_sql
+    named.or(taxon_name_cached).or(taxon_name_cached_author_yesr).to_sql
   end
 
   def named
@@ -150,8 +152,12 @@ class OtusController < ApplicationController
     Otu.arel_table
   end
 
-  def taxon_name_named
+  def taxon_name_cached
     taxon_name_table[:cached].matches(@otu_name)
+  end
+
+  def taxon_name_cached_author_yesr
+    taxon_name_table[:cached_author_year].matches(@otu_name)
   end
 
   def taxon_name_table
