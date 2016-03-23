@@ -28,7 +28,7 @@
           <div class="content subtitle">
             <h2>History</h2> 
               <ul class=" no_bullets content">
-                <%= content_tag :li, link_to('Recently created', recently_created_data_user_path(sessions_current_user)) -%> 
+                <%= content_tag :li, link_to('Recently created', recently_created_data_user_path(sessions_current_user),  data: { no_turbolink: true } ) -%> 
               </ul>
             <%= render partial: '/pinboard_items/pinboard' -%>
           </div> 
