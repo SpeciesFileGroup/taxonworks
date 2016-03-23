@@ -3,7 +3,7 @@
   <% Hub::Data::SECTIONS.each do |s| -%>
     <div data-section="<%= s -%>" class="data_section">
 	    <div class="cards-section">
-	      <% Hub::Data.items_for(s).each do |i| %>  
+	      <% Hub::Data.visual_items_for(s).each do |i| %>  
 		      <div class="card-container">
 		        <%= data_card(i) -%> 
 		      </div>		      

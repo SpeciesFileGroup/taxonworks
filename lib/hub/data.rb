@@ -45,7 +45,7 @@ module Hub::Data
       @klass = klass.constantize
       @name = klass.tableize.humanize 
       @description = attributes['description']
-      @hub = (attributes['hide'] ? true : false) 
+      @hide = (attributes['hide'] ? true : false) 
       @status = attributes['status']
       @categories = attributes['categories']
       @section = attributes['section']
@@ -104,6 +104,10 @@ module Hub::Data
 
   def self.items_for(section)
     INDEX[section]
+  end
+
+  def self.visual_items_for(section)
+    INDEX[section].select{|a| !a.hide}
   end
 
   # @return [String]
