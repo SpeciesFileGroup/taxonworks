@@ -122,20 +122,18 @@ class OtusController < ApplicationController
   end
 
   # GET /api/v1/otus/by_name/"name"
+  # TODO: @MJY The searches of taxon_names in otu autocomplete (on which this query is modeled) do not
+  # TODO: include project_id. Is this intentional?
   def by_name
     @otu_name   = params[:name]
     # @otu_ids  = Otu.find_for_autocomplete(params.merge(term: @otu_name))
     #               .includes(:taxon_name).pluck(:id)
     where_query = where_sql
     @otu_ids    = Otu.includes(:taxon_name)
-                    .where(where_query)
-                    .where(project_id: params[:project_id])
+                    .where(where_query) # project_id is accounted for in each of the sub-queries
                     .references(:taxon_names)
-                    .order(name: :asc)
+                    .order(name: :asc) # since, as a rule (observed), otu name is empty, this does not really mean much.
                     .pluck(:id)
-    # .order('taxon_names.cached ASC')
-    # .order('taxon_names.cached_author_year')
-    return(@otu_ids)
   end
 
   private
@@ -144,8 +142,15 @@ class OtusController < ApplicationController
     named.or(taxon_name_cached).or(taxon_name_cached_author_year).to_sql
   end
 
+  # SELECT "otus"."id" FROM "otus"
+  # LEFT OUTER JOIN "taxon_names" ON "taxon_names"."id" = "otus"."taxon_name_id"
+  # WHERE ((("otus"."name" ILIKE '(Bigot, 1884)' AND "otus"."project_id" = 1
+  # OR "taxon_names"."cached" ILIKE '(Bigot, 1884)' AND "taxon_names"."project_id" = 1)
+  # OR "taxon_names"."cached_author_year" ILIKE '(Bigot, 1884)' AND "taxon_names"."project_id" = 1))
+  # ORDER BY "otus"."name" ASC
+
   def named
-    table[:name].matches(@otu_name)
+    table[:name].matches(@otu_name).and(table[:project_id].eq(params[:project_id]))
   end
 
   def table
@@ -153,11 +158,11 @@ class OtusController < ApplicationController
   end
 
   def taxon_name_cached
-    taxon_name_table[:cached].matches(@otu_name)
+    taxon_name_table[:cached].matches(@otu_name).and(taxon_name_table[:project_id].eq(params[:project_id]))
   end
 
   def taxon_name_cached_author_year
-    taxon_name_table[:cached_author_year].matches(@otu_name)
+    taxon_name_table[:cached_author_year].matches(@otu_name).and(taxon_name_table[:project_id].eq(params[:project_id]))
   end
 
   def taxon_name_table
