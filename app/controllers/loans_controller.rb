@@ -109,10 +109,10 @@ class LoansController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def loan_params
-    params.require(:loan).permit(:data_requested, :request_method, :date_sent, :data_received,
+    params.require(:loan).permit(:date_requested, :request_method, :date_sent, :date_received,
                                  :date_return_expected, :recipient_person_id, :recipient_address,
                                  :recipient_email, :recipient_phone, :recipient_country, :supervisor_person_id,
-                                 :supervisor_email, :supervisor_phone, :data_closed, :recipient_honorarium
+                                 :supervisor_email, :supervisor_phone, :date_closed, :recipient_honorarium
     )
   end
 end
