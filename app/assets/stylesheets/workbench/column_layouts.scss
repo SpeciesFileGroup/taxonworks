@@ -15,6 +15,10 @@ http://flexboxin5.com/
  	margin-top: $standard_padding*0.5;
  }
 
+  .separate-bottom {
+ 	margin-bottom: $standard_padding;
+ }
+
 .flexbox {
   display: -webkit-box;
   display: -moz-box;
