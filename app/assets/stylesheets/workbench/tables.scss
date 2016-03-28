@@ -68,19 +68,22 @@
         border: none;
     }
 }
-
+.tablesorter {
+  width: 100%;
+}
 table {
   box-shadow: 0 0 3px 0 $navigation_border;
   border-radius: 5px;
-  width: 100%;
+  width: auto;
   border-spacing: 0;
   border-collapse: collapse;  
   font-weight: 300;
   margin-top: $standard_padding;
+  margin-bottom: $standard_padding;
   .underlined_elements {
       border-spacing: 0; 
     th {
-      border-bottom: 1px solid $color-secondary-1-4;
+      //border-bottom: 1px solid $color-secondary-1-4;
     }
   }
 
@@ -114,13 +117,7 @@ table {
     @extend .list_line_even;
   }
 
-  td:last-child {
-    border-right:1px solid $navigation_border;
-  }
-
   td {
-    border-bottom: 1px solid $navigation_border;
-    border-left: 1px solid $navigation_border;
     padding-left: $standard_padding;
     padding-right: $standard_padding; 
   }
@@ -150,7 +147,14 @@ table {
       }
     }
   }
-  tbody tr:hover {
+
+  .contextMenuCells { 
+    td {
+      border-bottom: 1px solid $navigation_border;
+      border-left: 1px solid $navigation_border;
+    }
+  }
+  .contextMenuCells:hover {
     background-color: $color-complement-2;
     color: $default_text;
     td {
@@ -159,6 +163,61 @@ table {
   }
 }
 
+
+.ui-dialog {
+  border:none !important;
+  border-radius: 0px !important;
+}
+.ui-corner-all {background: $body_background !important}
+.ui-datepicker {
+  display: none;
+  box-shadow: 0 0px 3px 0 $navigation_border;
+  border:none !important;
+  border-radius: 0px;
+  .ui-corner-all {
+    border:none;
+    border-radius: 0px;
+  }
+}
+.ui-datepicker-title {
+  font-weight: 100;
+}
+.ui-datepicker-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  padding: 10px;
+}
+
+.ui-datepicker-calendar {
+  a {
+    text-decoration: none;
+    background-color: transparent !important;
+  }
+  a.ui-state-default {
+    background-color: transparent !important;
+    border: none;
+  }
+  .ui-datepicker-current-day {
+    color: $body_background;
+    background-color: $color-complement-3;
+  }
+  td {
+    border-bottom: 1px solid $navigation_border;
+    border-left: 1px solid $navigation_border;    
+    text-align: center;
+  }
+  tr:hover {
+    background-color: transparent;
+    td {
+      border-left:1px solid $navigation_border;
+    }
+    td:hover {
+      background-color:  $color-complement-2;
+    }
+  }
+
+}
 
 #hub_order {
   table {

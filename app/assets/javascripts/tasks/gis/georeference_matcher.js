@@ -467,6 +467,32 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
       }
     );
   }
+
+
+   // Datepicker fix
+
+  $(document).ready(function () {
+    if($("#st_datepicker").length) {
+      var d = new Date();
+      var n = d.getFullYear();
+      var dateInput = $("#st_datepicker");
+      var format = 'dd-MM-yy';
+
+      $("#st_datepicker").datepicker({changeMonth: true, changeYear: true, yearRange: "1700:" + n });
+      dateInput.datepicker({dateFormat: format});
+      dateInput.datepicker('setDate', $.datepicker.parseDate(format, dateInput.val()));
+    }
+    if($("#en_datepicker").length) {
+      var d = new Date();
+      var n = d.getFullYear();   
+      var dateInput = $("#en_datepicker");
+      var format = 'yy-mm-dd';    
+           
+      $("#en_datepicker").datepicker({changeMonth: true, changeYear: true, yearRange: "1700:" + n });
+      dateInput.datepicker({dateFormat: format});
+      dateInput.datepicker('setDate', $.datepicker.parseDate(format, dateInput.val()));
+    }    
+  });  
   /* ----
 
    Jim - something in this block of code (that is run on every page- is that intended?)

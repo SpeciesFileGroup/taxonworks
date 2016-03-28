@@ -37,7 +37,7 @@ http://flexboxin5.com/
 
 .flex-wrap-row {
 	display: flex;
-	justify-content: center;
+	justify-content: flex-start;
 	flex-wrap: wrap !important;
 	flex-direction: row !important;
 }
