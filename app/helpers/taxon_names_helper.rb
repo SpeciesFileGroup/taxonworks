@@ -14,7 +14,28 @@ module TaxonNamesHelper
   end
 
   def cached_author_year_tag(taxon_name)
-    taxon_name.cached_author_year ? ' ' +  taxon_name.cached_author_year.strip.html_safe : ''
+    taxon_name.cached_author_year ? ' ' +  taxon_name.cached_author_year.strip.html_safe : nil
+  end
+
+  def full_original_taxon_name_tag(taxon_name)
+    return nil if taxon_name.nil?
+    [original_taxon_name_tag(taxon_name), cached_author_year_tag(taxon_name)].compact.join(" ").html_safe
+  end
+
+  # @return a complete list of citations pertinent to the taxonomic history
+  def full_citations(taxon_name)
+    citations = []
+
+    taxon_name.taxon_name_classifications.each do |c|
+      citations += c.citations.to_a
+    end
+
+    taxon_name.synonyms.each do |s|
+      citations += s.citations.to_a
+    end
+
+    citations += TaxonNameRelationship.where_object_is_taxon_name(@taxon_name).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID).collect{|a| a.citations.to_a}.flatten
+    citations.sort{|a,b| a.source.cached_nomenclature_date <=> b.source.cached_nomenclature_date}
   end
 
   def cached_classified_as_tag(taxon_name)

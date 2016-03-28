@@ -59,7 +59,7 @@ module Shared::Citable
         where("citations.citation_object_type = '#{related_class}' OR citations.citation_object_type is null").
         group(r).
         order(func2)
-    end
+  end 
 
     accepts_nested_attributes_for :citations, reject_if: :reject_citations, allow_destroy: true
     accepts_nested_attributes_for :origin_citation, reject_if: :reject_citations, allow_destroy: true
@@ -84,6 +84,6 @@ module Shared::Citable
 
   def reject_citations(attributed)
     attributed['source_id'].blank? # || attributed['type'].blank?
-  end
+end
 
 end

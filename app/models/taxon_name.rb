@@ -136,7 +136,7 @@ class TaxonName < ActiveRecord::Base
 
   has_closure_tree
   has_paper_trail
-
+  
   belongs_to :valid_taxon_name, class_name: TaxonName, foreign_key: :cached_valid_taxon_name_id
 
   before_validation :set_type_if_empty
@@ -230,6 +230,11 @@ class TaxonName < ActiveRecord::Base
   scope :with_cached_valid_taxon_name_id, -> (cached_valid_taxon_name_id) {where(cached_valid_taxon_name_id: cached_valid_taxon_name_id)}
   scope :with_cached_original_combination, -> (original_combination) { where(cached_original_combination: original_combination) }
   scope :with_cached_html, -> (html) { where(cached_html: html) }
+
+  # @return [Protonym(s)] the **broad sense** synonyms of this name 
+  def synonyms 
+    TaxonName.with_cached_valid_taxon_name_id(self.id)
+  end
 
   soft_validate(:sv_validate_name, set: :validate_name)
   soft_validate(:sv_missing_fields, set: :missing_fields)
