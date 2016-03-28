@@ -150,7 +150,7 @@ class OtusController < ApplicationController
   # ORDER BY "otus"."name" ASC
 
   def named
-    table[:name].matches(@otu_name).and(table[:project_id].eq(params[:project_id]))
+    table[:name].eq(@otu_name).and(table[:project_id].eq(params[:project_id]))
   end
 
   def table
@@ -158,11 +158,14 @@ class OtusController < ApplicationController
   end
 
   def taxon_name_cached
-    taxon_name_table[:cached].matches(@otu_name).and(taxon_name_table[:project_id].eq(params[:project_id]))
+    taxon_name_table[:cached].eq(@otu_name).and(taxon_name_table[:project_id].eq(params[:project_id]))
   end
 
+  # concat("taxon_names".cached, ' ', taxon_names.cached_author_year) = params[:name]
   def taxon_name_cached_author_year
-    taxon_name_table[:cached_author_year].matches(@otu_name).and(taxon_name_table[:project_id].eq(params[:project_id]))
+    sql = "concat(\"taxon_names\".\"cached\", \' \', \"taxon_names\".\"cached_author_year\") = \'#{@otu_name}\' " +
+      "and \"taxon_names\".\"project_id\" = #{params[:project_id]}"
+    Arel::Nodes::SqlLiteral.new(sql)
   end
 
   def taxon_name_table
