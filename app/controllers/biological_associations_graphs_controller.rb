@@ -99,6 +99,6 @@ class BiologicalAssociationsGraphsController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def biological_associations_graph_params
-    params.require(:biological_associations_graph).permit(:created_by_id, :updated_by_id, :project_id, :name, :source_id)
+    params.require(:biological_associations_graph).permit(:created_by_id, :updated_by_id, :project_id, :name) # need nested attributes
   end
 end

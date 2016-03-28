@@ -89,14 +89,17 @@ describe 'Citable', type: :model, group: [:nomenclature] do
   end
 
   context 'ordering by source date' do
-
     let!(:a) { TestCitable.create }
     let!(:b) { TestCitable.create } 
     let!(:c) { TestCitable.create } 
 
-    let!(:young_source) { FactoryGirl.create(:valid_source_bibtex, year: 2010) }
-    let!(:old_source) { FactoryGirl.create(:valid_source_bibtex, year: 1998) }
-    let!(:oldest_source) { FactoryGirl.create(:valid_source_bibtex, year: 1758) }
+    let(:youngest_source) { FactoryGirl.create(:valid_source_bibtex, year: Time.now.year) }
+    let(:young_source) { FactoryGirl.create(:valid_source_bibtex, year: 2010) }
+    let(:old_source) { FactoryGirl.create(:valid_source_bibtex, year: 1998) }
+    let(:oldest_source) { FactoryGirl.create(:valid_source_bibtex, year: 1758) }
+    let(:first_source_ever) { FactoryGirl.create(:valid_source_bibtex, year: 1700) }
+
+    let(:nil_source) { FactoryGirl.create(:valid_source_bibtex, year: nil) }
 
     before do
       Citation.create(citation_object: a, source: oldest_source) 
@@ -108,25 +111,104 @@ describe 'Citable', type: :model, group: [:nomenclature] do
       expect(Citation.count).to eq(3)
     end
 
-    specify "#order_by_source_date" do
-      expect(TestCitable.order_by_source_date.to_a).to eq([a, c, b])
+    specify ".order_by_oldest_source_first" do
+      expect(TestCitable.order_by_oldest_source_first.to_a).to eq([a, c, b])
     end
 
     specify ".oldest_by_citation" do
       expect(TestCitable.oldest_by_citation).to eq(a)
     end
 
-    specify "#order_by_source_date.first" do
-      expect(TestCitable.order_by_source_date.to_a.first).to eq(a)
+    specify ".order_by_oldest_source_first.first" do
+      expect(TestCitable.order_by_oldest_source_first.to_a.first).to eq(a)
+    end
+
+    specify '.order_by_yougest_source_first' do
+      expect(TestCitable.order_by_youngest_source_first.to_a).to eq([b, c, a])
+    end 
+
+    specify ".youngest_by_citation" do
+      expect(TestCitable.youngest_by_citation).to eq(b)
+    end
+
+    context 'reordering does not raise' do
+     
+      # presently raises, just don't do it, see comments
+      # specify ".order_by_yougest_source_first.last" do
+      #   expect{TestCitable.order_by_youngest_source_first.last}.to_not raise_error # not_raise # (TestCitable.oldest_by_citation).to eq(b)
+      # end
+
+      specify ".order_by_oldest_source_first.last" do
+        expect{TestCitable.order_by_oldest_source_first.last}.to_not raise_error # not_raise # (TestCitable.oldest_by_citation).to eq(b)
+      end
+    end
+
+    context 'with multiple citations' do
+      context 'one of which is nil' do
+        before do
+          Citation.create(citation_object: c, source: nil_source)   
+        end
+
+        specify ".order_by_oldest_source_first.to_a" do
+          expect(TestCitable.order_by_oldest_source_first.to_a).to eq([a, c, b])
+        end
+
+        specify ".oldest_by_citation" do
+          expect(TestCitable.oldest_by_citation).to eq(a)
+        end
+
+        specify ".order_by_oldest_source_first.to_a.first" do
+          expect(TestCitable.order_by_oldest_source_first.to_a.first).to eq(a)
+        end
+
+        specify '.order_by_yougest_source_first.to_a' do
+          expect(TestCitable.order_by_youngest_source_first.to_a).to eq([b, c, a])
+        end 
+
+        specify ".youngest_by_citation" do
+          expect(TestCitable.youngest_by_citation).to eq(b)
+        end
+      end
+
+      context 'one of which is older' do
+        before do
+          Citation.create(citation_object: c, source: first_source_ever)   
+        end
+
+        specify ".order_by_oldest_source_first.to_a" do
+          expect(TestCitable.order_by_oldest_source_first.to_a).to eq([c, a, b])
+        end
+
+        specify ".oldest_by_citation" do
+          expect(TestCitable.oldest_by_citation).to eq(c)
+        end
+
+        specify ".order_by_oldest_source_first.to_a.first" do
+          expect(TestCitable.order_by_oldest_source_first.to_a.first).to eq(c)
+        end
+      end
+
+      context 'one of which is younger' do
+        before do
+          Citation.create(citation_object: c, source: youngest_source)   
+        end
+
+        specify '.order_by_yougest_source_first.to_a' do
+          expect(TestCitable.order_by_youngest_source_first.to_a).to eq([c, b, a])
+        end 
+
+        specify ".youngest_by_citation" do
+          expect(TestCitable.youngest_by_citation).to eq(c)
+        end
+      end
     end
 
     context 'with nils' do
       let!(:d) { TestCitable.create } 
-      let!(:nil_source) { FactoryGirl.create(:valid_source_bibtex, year: nil) }
-
+    
       specify "with nils" do
         Citation.create(citation_object: d, source: nil_source)  
-        expect(TestCitable.order_by_source_date.to_a).to eq([a,c,b,d])
+        expect(TestCitable.order_by_oldest_source_first.to_a).to eq([a,c,b,d])
       end
     end
 
@@ -138,5 +220,3 @@ class TestCitable < ActiveRecord::Base
   include FakeTable
   include Shared::Citable
 end
-
-

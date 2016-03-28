@@ -106,6 +106,6 @@ class TaxonNameRelationshipsController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def taxon_name_relationship_params
-    params.require(:taxon_name_relationship).permit(:subject_taxon_name_id, :object_taxon_name_id, :type, :source_id)
+    params.require(:taxon_name_relationship).permit(:subject_taxon_name_id, :object_taxon_name_id, :type) # TODO: add nested attributes 
   end
 end

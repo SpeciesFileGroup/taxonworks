@@ -28,10 +28,6 @@
 #   @return [String]
 #   a concatenated list of higher rank taxa.
 #
-# @!attribute source_id
-#   @return [Integer]
-#   the ID of the source (a Source::Bibtex or Source::Verbatim instance) in which this name was first published.  Subsequent references are made in citations or combinations.
-#
 # @!attribute year_of_publication
 #   @return [Integer]
 #   the 4 digit year when this name was published! @proceps- clarify vs. made available.  ? = Source.year?
@@ -139,17 +135,16 @@ class TaxonName < ActiveRecord::Base
   NO_CACHED_MESSAGE = 'PROJECT REQUIRES TAXON NAME CACHE REBUILD'
 
   has_closure_tree
-  
+  has_paper_trail
+
   belongs_to :valid_taxon_name, class_name: TaxonName, foreign_key: :cached_valid_taxon_name_id
 
   before_validation :set_type_if_empty
-  before_destroy :check_for_children
   before_save :set_cached_names
-
-
   after_save :create_new_combination_if_absent, unless: 'self.no_cached'
   after_save :set_cached_names_for_dependants_and_self, unless: 'self.no_cached'
   after_save :set_cached_valid_taxon_name_id
+  before_destroy :check_for_children
 
   validate :validate_rank_class_class,
    # :check_format_of_name,
@@ -175,8 +170,6 @@ class TaxonName < ActiveRecord::Base
   has_many :taxon_name_authors, through: :taxon_name_author_roles, source: :person
   has_many :taxon_name_classifications, dependent: :destroy, foreign_key: :taxon_name_id, inverse_of: :taxon_name
   has_many :taxon_name_relationships, foreign_key: :subject_taxon_name_id, dependent: :restrict_with_error
-
-  has_paper_trail
 
   # NOTE: Protonym subclassed methods might not be nicely tracked here, we'll have to see.  Placement is after has_many relationships. (?)
   accepts_nested_attributes_for :related_taxon_name_relationships, allow_destroy: true, reject_if: proc { |attributes| attributes['type'].blank? || attributes['subject_taxon_name_id'].blank? }
@@ -291,7 +284,7 @@ class TaxonName < ActiveRecord::Base
   def author_string
     return self.verbatim_author if !self.verbatim_author.nil?
     return self.taxon_name_authors.collect{|p| p.last_name}.to_sentence if self.taxon_name_authors.length > 0
-    return self.source.authority_name if !self.source_id.nil?
+    return self.source.authority_name if !self.source.nil?
     nil
   end
 
@@ -396,8 +389,8 @@ class TaxonName < ActiveRecord::Base
     TaxonName.descendants_of(self).where(type: 'Protonym')
   end
 
-  # TODO: @proceps - based on what?
-  # @return [True|False]
+  #  @return [Boolean] 
+  #     return true if name is unavailable OR invalid, else false, checks both classifications and relationships
   def unavailable_or_invalid?
     if !TaxonNameClassification.where_taxon_name(self).with_type_array(TAXON_NAME_CLASS_NAMES_VALID).empty?
       false
@@ -444,7 +437,7 @@ class TaxonName < ActiveRecord::Base
   # @return [TaxonNameRelationship]
   #  returns youngest taxon name relationship where the name is subject.
   def first_possible_valid_taxon_name_relationship
-    self.taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID).order_by_date.first
+    self.taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID).youngest_by_citation # order_by_youngest_source_first.first 
   end
 
   # @return [TaxonName]
@@ -463,7 +456,7 @@ class TaxonName < ActiveRecord::Base
       first_pass = false
       list_of_taxa_to_check = list.empty? ? [self] : list.keys.select{|t| list[t] == false}
       list_of_taxa_to_check.each do |t|
-        potentialy_invalid_relationships = t.related_taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID).order_by_date
+        potentialy_invalid_relationships = t.related_taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID).order_by_oldest_source_first
         potentialy_invalid_relationships.each do |r|
           if !TaxonNameClassification.where_taxon_name(r.subject_taxon_name).with_type_array(TAXON_NAME_CLASS_NAMES_VALID).empty?
             # do nothing, taxon has a status of valid name
@@ -1225,7 +1218,7 @@ class TaxonName < ActiveRecord::Base
   end
 
   def validate_source_type
-    errors.add(:source_id, 'must be a Bibtex') if self.source && self.source.type != 'Source::Bibtex'
+    errors.add(:base, 'Source must be a Bibtex') if self.source && self.source.type != 'Source::Bibtex'
   end
 
 
@@ -1270,7 +1263,7 @@ class TaxonName < ActiveRecord::Base
   end
 
   def sv_missing_fields
-    soft_validations.add(:source_id, 'Source is missing') if self.source_id.nil?
+    soft_validations.add(:base, 'Source is missing') if self.source.nil?
     soft_validations.add(:verbatim_author, 'Author is missing',
                          fix: :sv_fix_missing_author,
                          success_message: 'Author was updated') if self.author_string.nil?
@@ -1280,7 +1273,7 @@ class TaxonName < ActiveRecord::Base
   end
 
   def sv_fix_missing_author
-    if self.source_id
+    if self.source
       unless self.source.author.blank?
         self.verbatim_author = self.source.authority_name
         begin
@@ -1297,7 +1290,7 @@ class TaxonName < ActiveRecord::Base
   end
 
   def sv_fix_missing_year
-    if self.source_id
+    if self.source
       if self.source.year
         self.year_of_publication = self.source.year
         begin
@@ -1407,13 +1400,19 @@ class TaxonName < ActiveRecord::Base
   end
 
   def sv_two_unresolved_alternative_synonyms
-    relationships = self.taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID).order_by_date
-    unless relationships.empty?
-      date_list = relationships.collect{|r| r.nd}
-      unless date_list == date_list.uniq
-        soft_validations.add(:base, "Taxon has two alternative invalidating relationships. To resolve ambiguity, add original sources to the relationships with different priority dates.")
+    r = taxon_name_relationships.includes(:source).order_by_oldest_source_first.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID)
+    if r.to_a.count > 1
+      if r.first.nomenclature_date.to_date == r.second.nomenclature_date.to_date
+        soft_validations.add(:base, "Taxon has two alternative invalidating relationships with identical dates. To resolve ambiguity, add original sources to the relationships with different priority dates.")
       end
     end
+
+    #   unless relationships.empty?
+#     date_list = relationships.collect{|r| r.nd}
+#     unless date_list == date_list.uniq
+#    
+#     end
+#   end
   end
 
   def sv_validate_parent_rank

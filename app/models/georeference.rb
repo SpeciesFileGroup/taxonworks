@@ -37,10 +37,6 @@
 #   @return [String]
 #   The type name of the this georeference definition.
 #
-# @!attribute source_id
-#   @return [Integer]
-#   When provided, asserts that this data originated in the specified source.
-#
 # @!attribute position
 #   @return [Integer]
 #   An arbitrary ordering mechanism, the first georeference is routinely defaulted to in the application.
@@ -69,6 +65,7 @@ class Georeference < ActiveRecord::Base
   include Housekeeping
   include Shared::Taggable
   include Shared::IsData
+  include Shared::Citable
 
   attr_accessor :iframe_response # used to pass the geolocate from Tulane through
 
@@ -275,7 +272,6 @@ class Georeference < ActiveRecord::Base
                                   error_depth:              gr.error_depth,
                                   error_geographic_item_id: gr.error_geographic_item_id,
                                   type:                     gr.type,
-                                  source_id:                gr.source_id,
                                   is_public:                gr.is_public,
                                   api_request:              gr.api_request,
                                   is_undefined_z:           gr.is_undefined_z,

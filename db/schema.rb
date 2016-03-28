@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160323184046) do
+ActiveRecord::Schema.define(version: 20160324151604) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -235,9 +235,6 @@ ActiveRecord::Schema.define(version: 20160323184046) do
     t.string   "verbatim_date"
     t.integer  "start_date_month"
     t.integer  "end_date_month"
-    t.string   "cached_level0_geographic_name"
-    t.string   "cached_level1_geographic_name"
-    t.string   "cached_level2_geographic_name"
   end
 
   add_index "collecting_events", ["created_by_id"], name: "index_collecting_events_on_created_by_id", using: :btree

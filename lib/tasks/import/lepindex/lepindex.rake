@@ -233,7 +233,10 @@ namespace :tw do
               source.data_attributes.new(import_predicate: 'PUBLICATION_MONTH', value: tmp['PUBLICATION_MONTH'], type: 'ImportAttribute')
             end
             source.author = tmp['IN_AUTHOR'].blank? ? tmp['AUTHOR'] : tmp['IN_AUTHOR']
-            source.project_sources.new
+          
+           # TODO fix
+           # source.project_sources.new
+            
             source.save!
             source = source.id
             @data.publications_index.merge!(tmp => source)
@@ -423,7 +426,7 @@ namespace :tw do
                 year = row['Original_Year'] =~ /\A\d\d\d\d\z/ ? row['Original_Year'] : nil
                 protonym = Protonym.new(name: name,
                                         parent_id: parent_id,
-                                        source_id: nil,
+                                       #  source_id: nil,
                                         year_of_publication: year,
                                         verbatim_author: row['Original_Author'],
                                         rank_class: rank_classes[row['Current_rank_of_name']],
@@ -511,10 +514,12 @@ namespace :tw do
                   end
 
                   ref = brow.nil? ? nil : @data.citation_to_publication_index[brow['GENUS_REF']]
-                  protonym.source_id = ref unless ref.nil?
+
+                  # !! TODO: FIX
+                 #  protonym.source_id = ref unless ref.nil?
 
                   citation = brow.nil? ? nil : @data.citations_index[brow['GENUS_REF']]
-                  Citation.create(citation_object: protonym, source_id: ref, pages: citation['PAGE']) unless ref.nil? || citation.nil?
+                  Citation.create(citation_object: protonym, is_original: true, source_id: ref, pages: citation['PAGE']) unless ref.nil? || citation.nil?
 
                   @list_of_relationships << {'taxon' => protonym.id, 'relationship' => 'type species', 'type species' => brow['TS_SPECIES'], 'type species reference' => brow['TS_REF'], 'type designation' => brow['TSD_DESIGNATION'], 'ButmothNo' => brow['ButmothNo'].to_i, 'valid genus' => row['valid_parent_id']} unless brow.nil?
                 end
@@ -608,8 +613,9 @@ namespace :tw do
                 citation = @data.citations_index[r['type species reference']]
                 print "\nTS_REF #{r['type species reference']} is invalid\n" if citation.nil?
 
-                children.first.source_id = ref unless ref.nil?
-                Citation.create(citation_object: children.first, source_id: ref, pages: citation['PAGE']) unless ref.nil? || citation.nil?
+                # TODO: !! FIX
+        #        children.first.source_id = ref unless ref.nil?
+                Citation.create(citation_object: children.first, is_original: true, source_id: ref, pages: citation['PAGE']) unless ref.nil? || citation.nil?
 
                 children.first.save
               end

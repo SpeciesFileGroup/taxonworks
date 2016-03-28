@@ -197,7 +197,7 @@ class Source < ActiveRecord::Base
                           :publisher, :school, :title, :doi, :abstract, :language, :translator, :author, :url]
 
   has_many :asserted_distributions, inverse_of: :source
-  has_many :citations, inverse_of: :source, dependent: :destroy
+  has_many :citations, inverse_of: :source, dependent: :restrict_with_error 
   has_many :projects, through: :project_sources
   has_many :project_sources, dependent: :destroy
 

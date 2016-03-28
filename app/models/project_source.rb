@@ -1,13 +1,12 @@
-# ProjectSource definition...
-#   @todo
+# A ProjectSource links sources to projects. 
 #
 # @!attribute project_id
 #   @return [Integer]
-#   the project ID
+#   the project
 #
 # @!attribute source_id
 #   @return [Integer]
-#   @todo
+#     the source  
 #
 class ProjectSource < ActiveRecord::Base
   include Housekeeping

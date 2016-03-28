@@ -1,5 +1,4 @@
-# A biological associations graph is...
-#   @todo
+# A biological associations graph is a collection of BiologicalAssociations.  For example, a citable foodweb.
 #
 # @!attribute project_id
 #   @return [Integer]
@@ -7,11 +6,7 @@
 #
 # @!attribute name
 #   @return [String]
-#   @todo
-#
-# @!attribute source_id
-#   @return [Integer]
-#   the source ID
+#     the name of the graph 
 #
 class BiologicalAssociationsGraph < ActiveRecord::Base
   include Housekeeping

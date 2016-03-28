@@ -22,10 +22,6 @@
 #   @return [Integer]
 #   the project ID
 #
-# @!attribute source_id
-#   @return [Integer]
-#     identifies the origin of this assertion  
-#
 class TaxonNameRelationship < ActiveRecord::Base
   include Housekeeping
   include Shared::Citable
@@ -73,9 +69,6 @@ class TaxonNameRelationship < ActiveRecord::Base
   soft_validate(:sv_validate_homonym_relationships, set: :validate_homonym_relationships)
   soft_validate(:sv_coordinated_taxa, set: :coordinated_taxa)
 
-  scope :order_by_date, -> {joins('LEFT OUTER JOIN "sources" ON "taxon_name_relationships"."source_id" = "sources"."id"').
-      select('"taxon_name_relationships".*, COALESCE("sources"."cached_nomenclature_date", Now()) as nd').
-      order('nd DESC')}
   scope :where_subject_is_taxon_name, -> (taxon_name) {where(subject_taxon_name_id: taxon_name)}
   scope :where_object_is_taxon_name, -> (taxon_name) {where(object_taxon_name_id: taxon_name)}
   scope :where_object_in_taxon_names, -> (taxon_name_array) {where('"taxon_name_relationships"."object_taxon_name_id" IN (?)', taxon_name_array)}
@@ -185,7 +178,7 @@ class TaxonNameRelationship < ActiveRecord::Base
   # @return [Time]
   #   effective date of publication.
   def nomenclature_date
-     self.source ? (self.source.cached_nomenclature_date ? self.source.cached_nomenclature_date.to_time : Time.now) : Time.now
+    self.source ? (self.source.cached_nomenclature_date ? self.source.cached_nomenclature_date.to_time : Time.now) : Time.now
   end
 
   protected
@@ -369,10 +362,11 @@ class TaxonNameRelationship < ActiveRecord::Base
     end
   end
 
+  # waaaaay to long - individual validations should be called in subclasses?
   def sv_specific_relationship
-    s = self.subject_taxon_name
-    o = self.object_taxon_name
-    case self.type_name
+    s = subject_taxon_name
+    o = object_taxon_name
+    case type # self.type_name
       when 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective' || 'TaxonNameRelationship::Icn::Unaccepting::Synonym::Heterotypic'
         if (s.type_taxon_name == o.type_taxon_name && !s.type_taxon_name.nil? ) || (!s.get_primary_type.empty? && s.has_same_primary_type(o) )
           soft_validations.add(:type, 'Subjective synonyms should not have the same type')
@@ -403,22 +397,17 @@ class TaxonNameRelationship < ActiveRecord::Base
        
         soft_validations.add(:type, 'Taxon was not described before 1961') if s.year_of_publication > 1960
         soft_validations.add(:type, "Both species described in the same genus, they are 'primary homonyms'") if s.original_genus == o.original_genus && !s.original_genus.nil?
-        soft_validations.add(:source_id, 'Source is not selected') if self.source_id.nil?
+        soft_validations.add(:base, 'Source is not selected') unless source 
        
-        if !!self.source_id
-          soft_validations.add(:source_id, 'Taxon should be treated a homonym before 1961') if self.source.year > 1960
-        end
-       
+        soft_validations.add(:base, 'Taxon should be treated a homonym before 1961') if self.source && self.source.year > 1960
+
         if (s.all_generic_placements & o.all_generic_placements).empty?
           soft_validations.add(:base, 'No combination available showing both species placed in the same genus') 
         end
 
       when 'TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961'
         soft_validations.add(:type, 'Taxon was not described before 1961') if s.year_of_publication > 1960
-        if !!self.source_id
-          soft_validations.add(:source_id, 'Taxon should be accepted as a replacement name before 1961') if self.source.year > 1960
-        end
-
+        soft_validations.add(:base, 'Taxon should be accepted as a replacement name before 1961') if self.source && self.source.year > 1960
 
       when 'TaxonNameRelationship::Typification::Genus::SubsequentDesignation'
         soft_validations.add(:type, 'Genus described after 1930 is nomen nudum, if type was not designated in the original publication') if o.year_of_publication > 1930
@@ -442,14 +431,14 @@ class TaxonNameRelationship < ActiveRecord::Base
         TaxonNameRelationship.collect_to_s(TaxonNameRelationship::Typification::Genus::SubsequentDesignation,
             TaxonNameRelationship::Typification::Genus::RulingByCommission)
     if relationships.include?(self.type_name)
-      if !!self.source_id
+      if self.source
         date1 = self.source.cached_nomenclature_date.to_time
         date2 = self.subject_taxon_name.nomenclature_date
         if !!date1 && !!date2
-          soft_validations.add(:source_id, 'Taxon was not described at the time of citation') if date2 > date1
+          soft_validations.add(:base, 'Taxon was not described at the time of citation') if date2 > date1
         end
       else
-        soft_validations.add(:source_id, 'Source is not selected')
+        soft_validations.add(:base, 'Source is not selected')
       end
     end
   end

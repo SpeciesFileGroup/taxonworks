@@ -498,7 +498,8 @@
 
               taxon = Protonym.new( name: name,
                                     parent: parent,
-                                    source_id: source,
+ #                                   source_id: source,
+                                    source: Source.find(source), # TODO: FIX!?
                                     year_of_publication: row['Year'],
                                     verbatim_author: row['Author'],
                                     rank_class: rank,
@@ -511,7 +512,7 @@
                                     #no_alphabetize: true
               )
 
-              taxon.citations.new(source_id: source, pages: row['Page']) unless source.blank?
+              taxon.citations.new(source: Source.find(source), pages: row['Page']) unless source.blank? # TODO: FIX!?
               taxon.identifiers.new(type: 'Identifier::Local::Import', namespace: @data.keywords['Key'], identifier: row['Key'])
               taxon.notes.new(text: row['Remarks']) unless row['Remarks'].blank?
               taxon.data_attributes.new(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['Ethymology'].id, value: row['Ethymology']) unless row['Ethymology'].blank?
@@ -647,7 +648,9 @@
             taxon = find_taxon(row['CombinationOf']) || find_taxon(row['Parent'])
 
             source = row['Key3'].blank? ? nil : @data.publications_index[row['Key3']]
-            c = Combination.new(source_id: source, verbatim_author: row['Author'], year_of_publication: row['Year'])
+            # c = Combination.new(source_id: source, verbatim_author: row['Author'], year_of_publication: row['Year'])
+
+            c = Combination.new(source: Source.find(source), verbatim_author: row['Author'], year_of_publication: row['Year']) # TODO: FIX?!
             c.identifiers.new(type: 'Identifier::Local::Import', namespace: @data.keywords['Key'], identifier: row['Key'])
 
             origgen = row['OrigGen'].blank? ? nil : find_taxon(row['OrigGen'])
@@ -655,7 +658,9 @@
             origspecies = row['OriginalSpecies'].blank? ? nil : find_taxon(row['OriginalSpecies'])
             origsubspecies = row['OriginalSubSpecies'].blank? ? nil : find_taxon(row['OriginalSubSpecies'])
 
-            c.citations.new(source_id: source, pages: row['Page']) unless source.blank?
+            #c.citations.new(source_id: source, pages: row['Page']) unless source.blank?
+            c.citations.new(source: Source.find(source), pages: row['Page']) unless source.blank? # TODO: fix
+
             c.genus = origgen unless origgen.blank?
             gender = c.genus.gender_name unless c.genus.blank?
             c.subgenus = origsubgen unless origsubgen.blank?
