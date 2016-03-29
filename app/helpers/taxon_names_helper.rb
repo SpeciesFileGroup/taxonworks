@@ -17,25 +17,102 @@ module TaxonNamesHelper
     taxon_name.cached_author_year ? ' ' +  taxon_name.cached_author_year.strip.html_safe : nil
   end
 
+  def full_taxon_name_tag(taxon_name)
+    return nil if taxon_name.nil?
+    [taxon_name_tag(taxon_name), cached_author_year_tag(taxon_name)].compact.join(" ").html_safe
+  end
+
   def full_original_taxon_name_tag(taxon_name)
     return nil if taxon_name.nil?
     [original_taxon_name_tag(taxon_name), cached_author_year_tag(taxon_name)].compact.join(" ").html_safe
   end
 
+  def nomenclature_line_tag(nomenclature_catalog_item)
+    i = nomenclature_catalog_item
+    c = i.citation
+    content_tag(:li) do  
+      if i.cited?
+        case i.cited_class
+        when 'TaxonName'
+          taxon_name_nomenclature_line_tag(c) 
+        when 'TaxonNameRelationship'
+          [taxon_name_relationship_for_object_tag(c.annotated_object),  c.citation_topics.collect{|t| t.topic.name}.join(", "), "REL" ].compact.join(" ").html_safe    
+        else 
+          "strange, a citation class that is not handled"
+        end
+      else
+        case i.cited_class
+        when 'TaxonName'
+          [ full_original_taxon_name_tag(i.object), type_taxon_name_relationship_tag(i.object.type_taxon_name_relationship) ].compact.join(". ").html_safe
+        when 'TaxonNameRelationship'
+          [ full_original_taxon_name_tag(i.object.subject_taxon_name), taxon_name_statuses_tag(i.object.subject_taxon_name)].join(" ").html_safe 
+        else 
+          i.cited_class
+        end
+      end
+    end
+  end
+
+  def taxon_name_statuses_tag(taxon_name)
+    return nil if taxon_name.taxon_name_statuses.empty?
+    ('(' + taxon_name.taxon_name_statuses.join(', ') + ')').html_safe 
+  end
+
+
+  def taxon_name_nomenclature_line_tag(citation)
+    taxon_name = citation.annotated_object
+
+    [ original_taxon_name_tag(taxon_name),
+      (citation.is_original? ? nil : "."), 
+      (citation.is_original? ? cached_author_year_tag(taxon_name) : "AUTHOR OF CITATION FROM BIBTEX" ), 
+      (citation.try(:pages) ? ": #{citation.pages}" : nil),
+      ".",
+      citation.citation_topics.collect{|t| t.topic.name}.join(", "),
+
+    ].compact.join("").html_safe
+
+  end
+
+
   # @return a complete list of citations pertinent to the taxonomic history
   def full_citations(taxon_name)
-    citations = []
+    data = NomenclatureCatalogEntry.new
 
-    taxon_name.taxon_name_classifications.each do |c|
-      citations += c.citations.to_a
+    data.items <<  NomenclatureCatalogEntry::NomenclatureCatalogItem.new(taxon_name, taxon_name.nomenclature_date)
+
+    TaxonNameRelationship.where_object_is_taxon_name(taxon_name).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID).each do |r|
+      r.citations.each do |i|
+        data.items << NomenclatureCatalogEntry::NomenclatureCatalogItem.new(i, i.subject_taxon_name.nomenclature_date)
+      end
     end
 
-    taxon_name.synonyms.each do |s|
-      citations += s.citations.to_a
+    TaxonNameRelationship.where_object_is_taxon_name(taxon_name).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID).without_citations.each do |r|
+      data.items << NomenclatureCatalogEntry::NomenclatureCatalogItem.new(r, r.subject_taxon_name.nomenclature_date)
     end
 
-    citations += TaxonNameRelationship.where_object_is_taxon_name(@taxon_name).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID).collect{|a| a.citations.to_a}.flatten
-    citations.sort{|a,b| a.source.cached_nomenclature_date <=> b.source.cached_nomenclature_date}
+    # must be inverted
+    TaxonNameRelationship.where_subject_is_taxon_name(taxon_name).with_type_array(STATUS_TAXON_NAME_RELATIONSHIP_NAMES).each do |r|
+      data.items << NomenclatureCatalogEntry::NomenclatureCatalogItem.new(r, r.subject_taxon_name.nomenclature_date)
+    end
+
+    # !?
+    # list.push(@taxon_name) unless @taxon_name.cached_original_combination.nil? 
+
+    Combination.with_cached_valid_taxon_name_id(@taxon_name).not_self(@taxon_name).each do |c|
+      data.items << NomenclatureCatalogEntry::NomenclatureCatalogItem.new(c, c.nomenclature_date)
+    end
+
+    data
+  end
+
+  def latinization_tag(taxon_name)
+    list = TaxonNameClassification.where_taxon_name(@taxon_name).with_type_array(LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES)
+    if list.any?
+      content_tag(:h3, 'Latinization') +
+        list.collect{|c|
+        content_tag(:span, c.classification_label) 
+      }.html_safe 
+    end
   end
 
   def cached_classified_as_tag(taxon_name)
@@ -106,8 +183,8 @@ module TaxonNamesHelper
   def rank_tag(taxon_name)
     case taxon_name.type
     when 'Protonym'
-      if @taxon_name.rank_class
-        @taxon_name.rank.downcase
+      if taxon_name.rank_class
+        taxon_name.rank.downcase
       else
         content_tag(:em, 'ERROR')
       end

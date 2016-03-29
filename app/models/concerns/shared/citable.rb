@@ -16,6 +16,8 @@ module Shared::Citable
     has_one :origin_citation, -> {where(is_original: true)}, as: :citation_object, class_name: 'Citation'
     has_one :source, through: :origin_citation
 
+    scope :without_citations, -> { includes(:citations).where(citations: {id: nil}) }
+
     scope :order_by_youngest_source_first, -> { 
       joins("LEFT OUTER JOIN citations on #{related_table_name}.id = citations.citation_object_id LEFT OUTER JOIN sources ON citations.source_id = sources.id").
       group("#{related_table_name}.id").order("MAX(COALESCE(sources.cached_nomenclature_date, Date('1-1-1'))) DESC").

@@ -6,18 +6,8 @@ ID: <%= @taxon_name.id -%> <br>
 <div style="text-align: center;"> <h1> Catalog of <%= object_tag(@taxon_name) -%> <h1> </div>
 
 <ul>
-  <% full_citations(@taxon_name).each do |c| -%> <!---- all citation references ---->
-    <% if metamorphosize_if(c.annotated_object).class.name == 'TaxonName' %>
-      <li> <%= full_original_taxon_name_tag(c.annotated_object) -%> :: <%= c.citation_topics.collect{|t| t.topic.name}.join(", ") %>   </li>
-
-    <% elsif metamorphosize_if(c.annotated_object).class.name == 'TaxonNameClassification' %>
-      <li> <%= full_original_taxon_name_tag(c.annotated_object.taxon_name) -%> <%= c.citation_topics.collect{|t| t.topic.name}.join(", ") %>  [Classifications] </li>
-
-    <% elsif metamorphosize_if(c.annotated_object).class.name == 'TaxonNameRelationship' %>
-      <li> <%= taxon_name_relationship_for_object_tag(c.annotated_object) -%>  <%= c.citation_topics.collect{|t| t.topic.name}.join(", ") %> [Relationship]    </li>
-    <% else %>
-      HUH?!
-    <% end %>
+  <% full_citations(@taxon_name).each do |c| -%>
+    <%= nomenclature_line_tag(c) -%> 
   <% end %>
 
   <div class="warning"> 

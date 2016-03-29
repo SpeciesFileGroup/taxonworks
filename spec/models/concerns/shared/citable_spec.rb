@@ -107,6 +107,16 @@ describe 'Citable', type: :model, group: [:nomenclature] do
       Citation.create(citation_object: c, source: old_source)   
     end
 
+    context '.without_citations' do
+      before do
+        class_with_citations.save!
+      end
+
+      specify 'returns' do
+        expect(TestCitable.without_citations).to eq([class_with_citations])
+      end
+    end
+
     specify "sanity test, 3 citations exist" do
       expect(Citation.count).to eq(3)
     end
