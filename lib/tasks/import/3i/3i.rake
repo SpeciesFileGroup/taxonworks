@@ -345,7 +345,7 @@
           source.identifiers.new(type: 'Identifier::Local::Import', namespace: @data.keywords['FLOW-ID'], identifier: row['FLOW-ID']) if !row['FLOW-ID'].blank? && !row['FLOW-ID'] == '0'
           source.identifiers.new(type: 'Identifier::Local::Import', namespace: @data.keywords['DelphacidaeID'], identifier: row['DelphacidaeID']) if !row['DelphacidaeID'].blank? && !row['DelphacidaeID'] == '0'
 
-          source.project_sources.new
+          # source.project_sources.new
 
           if source.valid?
             source.save!
@@ -498,8 +498,7 @@
 
               taxon = Protonym.new( name: name,
                                     parent: parent,
- #                                   source_id: source,
-                                    source: Source.find(source), # TODO: FIX!?
+                                    original_citation_attributes: {source_id: source},
                                     year_of_publication: row['Year'],
                                     verbatim_author: row['Author'],
                                     rank_class: rank,
@@ -509,10 +508,9 @@
                                     verbatim_name: vname,
                                     also_create_otu: true
                                     #no_cached: true,
-                                    #no_alphabetize: true
               )
 
-              taxon.citations.new(source: Source.find(source), pages: row['Page']) unless source.blank? # TODO: FIX!?
+#              taxon.citations.new(source_id: source, pages: row['Page'], is_original: true) unless source.blank?
               taxon.identifiers.new(type: 'Identifier::Local::Import', namespace: @data.keywords['Key'], identifier: row['Key'])
               taxon.notes.new(text: row['Remarks']) unless row['Remarks'].blank?
               taxon.data_attributes.new(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['Ethymology'].id, value: row['Ethymology']) unless row['Ethymology'].blank?
@@ -629,7 +627,7 @@
             source = nil
             if !@data.emendation[row['Parent']].blank? && row['OriginalCombinationOf'] == row['Parent']
               source = find_taxon(@data.emendation[row['Parent']]).try(['Key3']).nil? ? nil : @data.publications_index[@data.emendation[row['Parent']]['Key3']] unless @data.emendation[row['Parent']].nil?
-              tnr = TaxonNameRelationship::Iczn::PotentiallyValidating::FirstRevisorAction.create(object_taxon_name: find_taxon(@data.emendation[row['Parent']]['Parent']), subject_taxon_name: taxon, source_id: source) if !@data.emendation[row['Parent']].blank? && row['OriginalCombinationOf'] == row['Parent']
+              tnr = TaxonNameRelationship::Iczn::PotentiallyValidating::FirstRevisorAction.create(object_taxon_name: find_taxon(@data.emendation[row['Parent']]['Parent']), subject_taxon_name: taxon, original_citation_attributes: {source_id: source}) if !@data.emendation[row['Parent']].blank? && row['OriginalCombinationOf'] == row['Parent']
               byebug unless tnr.valid?
             end
 
@@ -648,9 +646,7 @@
             taxon = find_taxon(row['CombinationOf']) || find_taxon(row['Parent'])
 
             source = row['Key3'].blank? ? nil : @data.publications_index[row['Key3']]
-            # c = Combination.new(source_id: source, verbatim_author: row['Author'], year_of_publication: row['Year'])
-
-            c = Combination.new(source: Source.find(source), verbatim_author: row['Author'], year_of_publication: row['Year']) # TODO: FIX?!
+            c = Combination.new(original_citation_attributes: {source_id: source}, verbatim_author: row['Author'], year_of_publication: row['Year'])
             c.identifiers.new(type: 'Identifier::Local::Import', namespace: @data.keywords['Key'], identifier: row['Key'])
 
             origgen = row['OrigGen'].blank? ? nil : find_taxon(row['OrigGen'])
@@ -658,9 +654,7 @@
             origspecies = row['OriginalSpecies'].blank? ? nil : find_taxon(row['OriginalSpecies'])
             origsubspecies = row['OriginalSubSpecies'].blank? ? nil : find_taxon(row['OriginalSubSpecies'])
 
-            #c.citations.new(source_id: source, pages: row['Page']) unless source.blank?
-            c.citations.new(source: Source.find(source), pages: row['Page']) unless source.blank? # TODO: fix
-
+          #  c.citations.new(source_id: source, pages: row['Page']) unless source.blank?
             c.genus = origgen unless origgen.blank?
             gender = c.genus.gender_name unless c.genus.blank?
             c.subgenus = origsubgen unless origsubgen.blank?
