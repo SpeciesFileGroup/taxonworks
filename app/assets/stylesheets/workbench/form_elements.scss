@@ -10,8 +10,18 @@ form input {
 	padding-left:10px;
 	padding-right:10px;
 	border-radius:3px;
-	border:1px solid $muted_blue;
+	border:1px solid $navigation_border;
 	background-color:#FFF;
+}
+
+select {
+  padding:5px;
+  padding-left:10px;
+  padding-right:10px;
+  border-radius:3px;
+  border:1px solid $navigation_border;
+  background-color:#FFF;
+  height: 25px;
 }
 
 .ui-autocomplete {

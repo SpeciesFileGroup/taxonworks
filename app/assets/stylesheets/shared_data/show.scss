@@ -30,17 +30,18 @@
     #annotations-panel { 
       display: flex;
       min-width: 40%;
-      flex: 1 100%;
+      flex: 1 auto;
     }
 
     #attributes-panel {
       display: flex;
-      min-width: 40%;
-      flex: 1 100%;
+      min-width: 50%;
+      flex: 1 auto;
     }
     #validation-panel {
       display: flex;
-      flex:0.5 50%;
+      min-width: 50%;
+      flex: 1 auto;
     }    
 
     .item { 

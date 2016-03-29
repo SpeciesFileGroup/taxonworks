@@ -32,7 +32,7 @@ namespace :tw do
       # A utility class to index data.
       class ImportedData1
         attr_accessor :people_id, :keywords, :user_index, :collection_objects, :namespaces, :people_index, #:otus,
-                      :preparation_types, :taxa_index, :localities_index, # :collecting_event_index,
+                      :preparation_types, :taxa_index, :localities_index, :host_plant_index, # :collecting_event_index,
                       :unmatched_localities, :invalid_specimens, :unmatched_taxa, :duplicate_specimen_ids, :rooms,
                       :partially_resolved_index, :biocuration_classes, :biological_properties, :biological_relationships, :loans, :loan_invoice_speciments
         def initialize()
@@ -47,6 +47,7 @@ namespace :tw do
           #@collecting_event_index = {}
           @collection_objects = {}
           @localities_index = {}          #LocalityCode -> Locality row
+          @host_plant_index = {}
 
           @unmatched_localities = {}
           @invalid_specimens = {}
@@ -1216,8 +1217,21 @@ namespace :tw do
         puts "\n Number of collecting events processed from specimens: #{@redis.keys.count - start} "
       end
 
+      def index_host_plants_insects(data)
+        # Host
+        # TaxonCode
+        puts " host plants from hostplants.txt"
+        path = @args[:data_directory] + 'TXT/hostplants.txt'
+        raise 'file not found' if not File.exists?(path)
+        sp.each_with_index do |row, i|
+          print "\r#{i}      "
+          data.host_plant_index.merge!(row['Host'] => row['TaxonCode']) unless row['TaxonCode'].blank?
+        end
+      end
+
       def index_specimen_records_from_specimens_insects_new(data, import)
         build_partially_resolved_index(data)
+        index_host_plants_insects(data)
 
         start = @redis.keys.count
         puts " specimen records from specimens_new.txt"
@@ -1233,6 +1247,7 @@ namespace :tw do
         locality_fields_with_locality_code = %w{ Collector CollectionMethod Habitat IdentifiedBy YearIdentified Type TypeName DateCollectedBeginning DateCollectedEnding Host Remarks ModifiedBy ModifiedOn }
         locality_fields_without_locality_code = %w{ Collector CollectionMethod Habitat IdentifiedBy YearIdentified Type TypeName DateCollectedBeginning DateCollectedEnding Host NS Lat_deg Lat_min Lat_sec EW Long_deg Long_min Long_sec Elev_m Elev_ft Country State County Locality Park Remarks Precision DeterminationCompare ModifiedBy ModifiedOn }
         match_fields = %w{ AccessionNumber DeterminationLabel OtherLabel LocalityLabel }
+        br = data.biological_relationships['host']['biological_relationship']
 
         sp.each_with_index do |row, i|
           print "\r#{i}      "
@@ -1305,6 +1320,19 @@ namespace :tw do
                 specimen.save!
                 objects += [specimen]
                 specimen.notes.create(text: se['Remarks']) unless se['Remarks'].blank?
+
+                host = data.host_plant_index[row['Host']]
+                unless host.blank?
+                  identifier = Identifier.where(namespace_id: @taxon_namespace.id, identifier: host, project_id: $project_id)
+                  host = identifier.empty? ? nil : identifier.first.identifier_object
+                end
+                unless host.blank?
+                  BiologicalAssociation.create(biological_relationship: br,
+                                               biological_association_subject: host,
+                                               biological_association_object: specimen
+                  )
+                end
+
                 data.keywords.each do |k|
                   specimen.data_attributes.create(type: 'InternalAttribute', controlled_vocabulary_term_id: k[1].id, value: se[k[0]]) unless se[k[0]].blank?
                 end

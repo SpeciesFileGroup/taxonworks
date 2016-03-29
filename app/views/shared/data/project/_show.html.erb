@@ -70,22 +70,22 @@
      
         </div>        
       </div>    
-      
-      <div class="panels-container">
-        <div id="attributes-panel" class="item panel separate-left separate-right attributes-panel">
-          <div class="break_words content">
-            <div class="title-section"> 
-              <h2>Attributes</h2>
-            </div>
+      <div class="flex-wrap-row"> 
+        <div class="panels-container">
+          <div id="attributes-panel" class="panel separate-left separate-right attributes-panel ">
+            <div class="break_words content">
+              <div class="title-section"> 
+                <h2>Attributes</h2>
+              </div>
 
-            <div class="attributes"> 
-              <%= render partial: object_attributes_partial_path(object.metamorphosize), locals: {object: object} %>
-              <%= render partial: '/shared/data/all/show/housekeeping', locals: {object: object} -%>
-            </div>        
+              <div class="attributes"> 
+                <%= render partial: object_attributes_partial_path(object.metamorphosize), locals: {object: object} %>
+                <%= render partial: '/shared/data/all/show/housekeeping', locals: {object: object} -%>
+              </div>        
+            </div>
           </div>
-        </div>
-       
-        <div id="related-panel" class="item panel separate-left separate-right">
+       <div class="flex-wrap-row"> 
+        <div id="related-panel" class="panel separate-left separate-right separate-bottom">
           <div class="content"> 
             <div class="title-section">
               <h2>Associated</h2>
@@ -96,7 +96,7 @@
           </div>
         </div>
         
-        <div id="validation-panel" class="item panel separate-left separate-right ">
+        <div id="validation-panel" class="panel separate-left separate-right separate-bottom separate-bottom">
           <div class="content">
             <%= render(partial: '/shared/data/all/show/soft_validation', locals: {object: object}) if object.class.respond_to?(:soft_validates?) -%>
           </div>
@@ -104,6 +104,8 @@
 
         <%= render("/shared/data/project/annotations", object: object) if !object.annotations.empty?  %>
 
+      </div>
+      </div>
       </div>
     </div>
   </div>
