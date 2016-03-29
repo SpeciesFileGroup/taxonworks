@@ -1,23 +1,23 @@
 <%= render(partial: 'layouts/map_header') -%>
 
 <div id="match_georeference_widget">
-<div class="panel panels-container no-shadow">
-  <div class="title">
+<div class="panel panels-container separate-bottom">
+  <div class="title nav-line">
     Task: Georeference matcher
   </div>
 </div>
 <div class="flex-wrap-row">
-  <div class="panel geoCollectionEventBox separate-right separate-bottom">
-    <div class="title nav-line">
-      Collecting Events
-        <ul class="horizontal_navbar context-menu">
+  <div class="panel geoCollectionEventBox separate-right separate-bottom"><div class="content">
+    <div class="title-section">
+      <h2>Collecting Events</h2>
+        <ul class="horizontal_navbar context-menu to-right">
           <li><%= link_to_georeference_match_type('filter', 'ce') %></li>
           <li><%= link_to_georeference_match_type('tag', 'ce') %></li>
           <li><%= link_to_georeference_match_type('draw', 'ce') %></li>
           <li><%= link_to_georeference_match_type('recent', 'ce') %></li>
         </ul>
     </div>  
-  <div class="content">
+  
       <%= render(partial: 'tasks/gis/match_collecting_event/filter_collecting_events_form') %>
       <%= render(partial: 'tasks/gis/match_collecting_event/tag_collecting_events_form') %>
       <%= render(partial: 'tasks/gis/match_collecting_event/draw_collecting_events_form') %>
@@ -30,6 +30,28 @@
       </div>
     </div>
   </div>    
+
+    <div class="panel geoCollectionEventBox separate-right separate-bottom">
+      <div class="content"> 
+        <div class="title-section">
+          <h2>Georeferences</h2>
+          <ul class="horizontal_navbar context-menu to-right">
+            <li><%= link_to_georeference_match_type('filter', 'gr') %></li>
+            <li><%= link_to_georeference_match_type('tag', 'gr') %></li>
+            <li><%= link_to_georeference_match_type('draw', 'gr') %></li>
+            <li><%= link_to_georeference_match_type('recent', 'gr') %></li>
+          </ul>
+        </div>
+        <%= render(partial: 'filter_georeferences_form') %>
+        <%= render(partial: 'tag_georeferences_form') %>
+        <%= render(partial: 'draw_georeferences_form') %>
+        <%= render(partial: 'recent_georeferences_form') %>
+        <div id="_selecting_gr_form" hidden>
+          <%#= render(partial: 'georeferences_selections_form') %>
+        </div>
+      </div>
+    </div>
+
     <div class="panel content separate-left separate-right separate-bottom">
       <h2 >Current Georeference</h2>
       <div id="_find_gr_form" name="_find_gr_form">
@@ -49,29 +71,6 @@
         <input type="hidden" id="selected_georeference_id"/>
         <input type='button' id="btn_clear_selection" name="btn_clear_selection" value="clear selection"/>
       </div>
-
-    </div>
-    <div class="panel geoCollectionEventBox separate-right separate-bottom">
-
-      <div class="title nav-line">Georeferences
-      <div class="inline">
-        <ul class="horizontal_navbar context-menu">
-          <li><%= link_to_georeference_match_type('filter', 'gr') %></li>
-          <li><%= link_to_georeference_match_type('tag', 'gr') %></li>
-          <li><%= link_to_georeference_match_type('draw', 'gr') %></li>
-          <li><%= link_to_georeference_match_type('recent', 'gr') %></li>
-        </ul>
-      </div>
-      </div>
-      <div class="content">      
-      <%= render(partial: 'filter_georeferences_form') %>
-      <%= render(partial: 'tag_georeferences_form') %>
-      <%= render(partial: 'draw_georeferences_form') %>
-      <%= render(partial: 'recent_georeferences_form') %>
-      <div id="_selecting_gr_form" hidden>
-        <%#= render(partial: 'georeferences_selections_form') %>
-      </div>
-    </div>
     </div>
   </div>
 </div>

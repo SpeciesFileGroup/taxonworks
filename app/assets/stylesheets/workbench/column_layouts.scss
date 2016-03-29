@@ -40,10 +40,19 @@ http://flexboxin5.com/
 }
 
 .flex-wrap-row {
+	width: auto;
 	display: flex;
 	justify-content: flex-start;
 	flex-wrap: wrap !important;
 	flex-direction: row !important;
+}
+
+.flex-wrap-column {
+	display: flex;
+	justify-content: flex-start;
+	width: auto;
+	flex-wrap: wrap !important;
+	flex-direction: column !important;
 }
 
 
