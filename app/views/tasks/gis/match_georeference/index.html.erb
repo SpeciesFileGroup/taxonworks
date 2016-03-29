@@ -2,22 +2,22 @@
 
 <div id="match_georeference_widget">
 <div class="panel panels-container no-shadow">
-  <div class="title nav-line">
+  <div class="title">
     Task: Georeference matcher
   </div>
 </div>
 <div class="flex-wrap-row">
-  <div class="panel no-shadow">
-  <div class="content">
-      <h2 class="no-borders">Collecting Events</h2>
-      <div class="inline">Find by:
+  <div class="panel geoCollectionEventBox separate-right separate-bottom">
+    <div class="title nav-line">
+      Collecting Events
         <ul class="horizontal_navbar context-menu">
           <li><%= link_to_georeference_match_type('filter', 'ce') %></li>
           <li><%= link_to_georeference_match_type('tag', 'ce') %></li>
           <li><%= link_to_georeference_match_type('draw', 'ce') %></li>
           <li><%= link_to_georeference_match_type('recent', 'ce') %></li>
         </ul>
-      </div>
+    </div>  
+  <div class="content">
       <%= render(partial: 'tasks/gis/match_collecting_event/filter_collecting_events_form') %>
       <%= render(partial: 'tasks/gis/match_collecting_event/tag_collecting_events_form') %>
       <%= render(partial: 'tasks/gis/match_collecting_event/draw_collecting_events_form') %>
@@ -30,8 +30,8 @@
       </div>
     </div>
   </div>    
-    <div class="panel content no-shadow">
-      <h2 class="no-borders">Current Georeference</h2>
+    <div class="panel content separate-left separate-right separate-bottom">
+      <h2 >Current Georeference</h2>
       <div id="_find_gr_form" name="_find_gr_form">
         Find a georeference and select it.
       </div>
@@ -51,10 +51,10 @@
       </div>
 
     </div>
-    <div class="panel no-shadow">
-      <div class="content">
-      <h2 class="no-borders">Georeferences</h2>
-      <div class="inline">Find by:
+    <div class="panel geoCollectionEventBox separate-right separate-bottom">
+
+      <div class="title nav-line">Georeferences
+      <div class="inline">
         <ul class="horizontal_navbar context-menu">
           <li><%= link_to_georeference_match_type('filter', 'gr') %></li>
           <li><%= link_to_georeference_match_type('tag', 'gr') %></li>
@@ -62,6 +62,8 @@
           <li><%= link_to_georeference_match_type('recent', 'gr') %></li>
         </ul>
       </div>
+      </div>
+      <div class="content">      
       <%= render(partial: 'filter_georeferences_form') %>
       <%= render(partial: 'tag_georeferences_form') %>
       <%= render(partial: 'draw_georeferences_form') %>
