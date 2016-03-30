@@ -190,27 +190,29 @@
       }      
     }
 
-    .list {
-      margin: 0px;
-      padding: 0px;
+    .list-arrow {
       li {
-        font-size: 14px;
         background-image: none;
         background-repeat: no-repeat;
-        background-position: -14px, center;
-        padding: 5px;
-        padding-left: 15px;
+        background-position: -14px, center;        
         background-image: image-url("arrow-right.svg");
-        margin:0px;
-        //position: relative;
         transition: background-position 0.5s ease;
         background-size: 10px;
       }
       li:hover {
         list-style: none;
         transition: background-position 0.5s ease;
-        background-position: 0px, center;
-        
+        background-position: 0px, center;        
+      }
+    }
+
+    .list {
+      margin: 0px;
+      padding: 0px;
+      li {
+        padding: 5px;
+        padding-left: 15px;
+        margin:0px;
       }
     }
 

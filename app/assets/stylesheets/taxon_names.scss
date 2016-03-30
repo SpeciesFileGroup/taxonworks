@@ -21,6 +21,9 @@
     li:first-child:after {
       display: flex;
     }
+    li:last-child:after {
+      display: flex;
+    }    
   }
 
   .selected {

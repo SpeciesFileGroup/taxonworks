@@ -8,7 +8,7 @@
     </div>
     <nav class="content">
     <em> To add a project member view that project. </em>
-      <ul class="no_bullets list">
+      <ul class="no_bullets list list-arrow">
         <%= content_tag(:li, link_to("New", new_project_path)) -%>
         <%= content_tag(:li, link_to("Projects overview", projects_path)) -%>
       </ul>
@@ -20,7 +20,7 @@
       <span data-icon="users">Users</span>
     </div>
     <nav class="content">
-      <ul class="no_bullets list">
+      <ul class="no_bullets list list-arrow">
         <%= content_tag(:li, link_to("All", users_path)) -%>
         <%= content_tag(:li, link_to("Update a user's authorization", users_path)) -%>
         <%= content_tag(:li, link_to("Activity", user_activity_path, data: { no_turbolink: true })) -%>
@@ -28,12 +28,13 @@
       </ul>
     </nav>
   </div>
+  
   <div class="item panel separate-left separate-right">
     <div class="title nav-line"> 
       <span data-icon="openFolder">Data</span>
     </div>
     <div class="content">
-      <ul class="no_bullets list">
+      <ul class="no_bullets list list-arrow">
         <%= content_tag(:li, link_to("Overview", data_overview_path, data: { no_turbolink: true })) -%>
       </ul>
     </div>
