@@ -307,7 +307,7 @@ require 'csl/styles'
 #
 # @!attribute cached_nomenclature_date
 #   @return [DateTime]
-#   @todo
+#      the date of the publication for nomenclatural purposes
 #
 class Source::Bibtex < Source
   include SoftValidation
