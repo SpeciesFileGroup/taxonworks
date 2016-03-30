@@ -130,6 +130,10 @@
       background-image: image-url("open_folder.svg");
     }   
 
+    [data-icon="users"] {
+      background-image: image-url("users.svg");
+    }       
+
     [data-icon="folders"] {
       background-image: image-url("folders.svg");
     }  

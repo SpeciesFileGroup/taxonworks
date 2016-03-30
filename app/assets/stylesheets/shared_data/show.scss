@@ -190,6 +190,30 @@
       }      
     }
 
+    .list {
+      margin: 0px;
+      padding: 0px;
+      li {
+        font-size: 14px;
+        background-image: none;
+        background-repeat: no-repeat;
+        background-position: -14px, center;
+        padding: 5px;
+        padding-left: 15px;
+        background-image: image-url("arrow-right.svg");
+        margin:0px;
+        //position: relative;
+        transition: background-position 0.5s ease;
+        background-size: 10px;
+      }
+      li:hover {
+        list-style: none;
+        transition: background-position 0.5s ease;
+        background-position: 0px, center;
+        
+      }
+    }
+
     .nav-line {
       border-bottom: 5px solid $color-secondary-2-4;
     } 
