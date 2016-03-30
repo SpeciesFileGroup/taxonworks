@@ -33,18 +33,12 @@
     <% end %>
     </ul>
 
-    <br>
--------------------------------- 
-    <br>
-
-    <%= source_tag(@taxon_name.source) -%>
-
     <%= latinization_tag(@taxon_name) -%>
 
     <h3> Citations </h3>
     <ul>
-      <% full_citations(@taxon_name).ordered_by_nomenclature_date.each do |c| -%>
-        <%= content_tag(:li, source_tag(c.citation.try(:source))) -%><%= ap(c).html_safe -%>
+      <% full_citations(@taxon_name).source_list.each do |s| -%>
+        <%= content_tag(:li, (source_tag(s) + ':' + topic_list_tag(full_citations(@taxon_name).topics_for_source(s))).html_safe   )  -%>
       <% end %> 
     </ul>
 

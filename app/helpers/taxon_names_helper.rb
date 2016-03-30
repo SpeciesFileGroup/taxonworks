@@ -42,7 +42,7 @@ module TaxonNamesHelper
         end
       else
         case i.cited_class
-        when 'TaxonName'
+        when 'TaxonName' # have to fork vs. Combination
           [ full_original_taxon_name_tag(i.object), type_taxon_name_relationship_tag(i.object.type_taxon_name_relationship) ].compact.join(". ").html_safe
         when 'TaxonNameRelationship'
           [ full_original_taxon_name_tag(i.object.subject_taxon_name), taxon_name_statuses_tag(i.object.subject_taxon_name)].join(" ").html_safe 
@@ -95,9 +95,6 @@ module TaxonNamesHelper
       data.items << NomenclatureCatalogEntry::NomenclatureCatalogItem.new(r, r.subject_taxon_name.nomenclature_date)
     end
 
-    # !?
-    # list.push(@taxon_name) unless @taxon_name.cached_original_combination.nil? 
-
     Combination.with_cached_valid_taxon_name_id(@taxon_name).not_self(@taxon_name).each do |c|
       data.items << NomenclatureCatalogEntry::NomenclatureCatalogItem.new(c, c.nomenclature_date)
     end
@@ -111,7 +108,7 @@ module TaxonNamesHelper
       content_tag(:h3, 'Latinization') +
         list.collect{|c|
         content_tag(:span, c.classification_label) 
-      }.html_safe 
+      }.join('; ').html_safe 
     end
   end
 
