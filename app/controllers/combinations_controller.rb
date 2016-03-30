@@ -66,6 +66,6 @@ class CombinationsController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def combination_params
-    params.require(:combination).permit(:verbatim_name, :source_id, *Combination::APPLICABLE_RANKS.collect{|r| "#{r}_id".to_sym})
+    params.require(:combination).permit(:verbatim_name, :source_id, *Combination::APPLICABLE_RANKS.collect{|r| "#{r}_id".to_sym}) # TODO: need to make it nested attributes
   end
 end

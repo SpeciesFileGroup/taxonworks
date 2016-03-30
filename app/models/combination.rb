@@ -256,7 +256,7 @@ class Combination < TaxonName
     source_year = self.source.nomenclature_year if self.source
     target_year = earliest_protonym_year
     if source_year && target_year
-      soft_validations.add(:source_id, 'the published date for the source is older than a name in the combination') if source_year < target_year
+      soft_validations.add(:base, 'the published date for the source is older than a name in the combination') if source_year < target_year
     end
   end
 

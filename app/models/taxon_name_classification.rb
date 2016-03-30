@@ -14,7 +14,6 @@
 #
 class TaxonNameClassification < ActiveRecord::Base
   include Housekeeping
-  include Shared::Citable
   include Shared::IsData
   include SoftValidation
 

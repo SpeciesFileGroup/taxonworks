@@ -29,12 +29,24 @@ describe Citation, type: :model, group: :annotators do
       expect(c2.errors.messages[:source_id][0]).to eq('has already been taken')
     end
 
-    specify 'for all required fields (:citation_object_id, :citation_object_type, :source_id).' do
+    context 'database constraints' do
+      before { c3.source = s }
+
+      specify 'citation_object_id is required by database' do
+        c3.citation_object_type = 'Otu'
+        expect{c3.save}.to raise_error(ActiveRecord::StatementInvalid) 
+      end
+
+      specify 'citation_object_type is required by database' do
+        c3.citation_object_id = o.id 
+        expect{c3.save}.to raise_error(ActiveRecord::StatementInvalid) 
+      end
+    end
+
+    specify 'source_id is required' do
+      c3.citation_object = o
       expect(c3.valid?).to be_falsey
-      messages = c3.errors.messages
-      expect(messages[:citation_object_id][0]).to eq('can\'t be blank')
-      expect(messages[:citation_object_type][0]).to eq('can\'t be blank')
-      expect(messages[:source_id][0]).to eq('can\'t be blank')
+      expect(c3.errors.messages[:source_id][0]).to eq("can't be blank")
     end
   end
 

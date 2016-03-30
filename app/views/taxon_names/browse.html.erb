@@ -1,78 +1,46 @@
 <h1>Browsing Taxon names</h1>
 
 <%= render(partial: 'breadcrumb_navigator', locals: {taxon_name: @taxon_name}) -%>
+
 <div class="flexbox">
   <div class="item item1">
+
     <%= edit_taxon_name_link(@taxon_name) -%>
     <%= link_to('Show', @taxon_name.metamorphosize) -%>
 
-    <div> 
+    <div><!---- navigation ----> 
     <%= ancestor_browse_taxon_name_link(@taxon_name) -%> <br>
     <%= previous_sibling_browse_taxon_name_link(@taxon_name) -%> |
     <%= next_sibling_browse_taxon_name_link(@taxon_name) -%> 
     <br>
     <%= descendant_browse_taxon_name_link(@taxon_name) -%> 
     </div>
-
     <%= render(partial: 'parent_navigator', locals: {taxon_name: @taxon_name, mode: :browse}) -%>
+
   </div>
 
   <div class="item item2">
-    <h2><%= rank_tag(@taxon_name) -%> <%= object_tag(@taxon_name) -%><%= cached_author_year_tag(@taxon_name) -%></h2>
+    
+    <div class="taxon_header"> 
+      <%= content_tag(:span, full_taxon_name_tag(@taxon_name), class: 'name') -%>  <%= taxon_name_classification_status_tag(@taxon_name) -%>
+    </div>
 
-    <%= source_tag(@taxon_name.source) -%>
+    <br>
 
-    <% type_taxon = @taxon_name.type_taxon_name_relationship %>
-    <% unless type_taxon.nil? %>
-        <p class='list'>&nbsp;</p>
-        <%= content_tag(:p, type_taxon_name_relationship_tag(type_taxon), class: 'list') -%>
-        <%= render(partial: '/shared/data/all/show/soft_validation_list', locals: {object: type_taxon}) -%>
+    <ul>
+    <% full_citations(@taxon_name).ordered_by_nomenclature_date.each do |c| -%>
+      <%= nomenclature_line_tag(c) -%> 
     <% end %>
+    </ul>
 
-    <h3>Status</h3>
-    <% list = TaxonNameClassification.where_taxon_name(@taxon_name).with_type_array(ICZN_TAXON_NAME_CLASSIFICATION_NAMES + ICN_TAXON_NAME_CLASSIFICATION_NAMES) %>
-    <% list.each do |c| %>
-        <%= content_tag(:p, c.classification_label, class: 'list') -%>
-        <%= render(partial: '/shared/data/all/show/soft_validation_list', locals: {object: c}) -%>
-    <% end %>
-    <%= content_tag(:p, @taxon_name.unavailable_or_invalid? ? nil : 'Valid', class: 'list') -%>
+    <%= latinization_tag(@taxon_name) -%>
 
-    <% list = TaxonNameRelationship.where_subject_is_taxon_name(@taxon_name).with_type_array(STATUS_TAXON_NAME_RELATIONSHIP_NAMES) %>
-    <% list.each do |c| %>
-        <%= content_tag(:p, taxon_name_relationship_for_subject_tag(c), class: 'list') -%>
-        <%= render(partial: '/shared/data/all/show/soft_validation_list', locals: {object: c}) -%>
-    <% end %>
-
-
-    <% list = TaxonNameClassification.where_taxon_name(@taxon_name).with_type_array(LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES) %>
-    <%= content_tag(:h3, !list.empty? ? 'Latinization' : nil) %>
-    <% list.each do |c| %>
-        <%= content_tag(:p, c.classification_label, class: 'list') -%>
-        <%= render(partial: '/shared/data/all/show/soft_validation_list', locals: {object: c}) -%>
-    <% end %>
-
-    <h3>Relationships</h3>
-
-    <% list = Protonym.with_cached_valid_taxon_name_id(@taxon_name).not_self(@taxon_name) %>
-    <% list = list.sort_by{|t| (t.nomenclature_date || Time.now) } unless list.empty? %>
-    <% list.each do |t| -%>
-        <%= content_tag(:p, ('&#61; ' + original_taxon_name_link(t) + cached_author_year_tag(t) + ' (' + t.taxon_name_statuses.join(', ') + ')').html_safe ,class: 'list') %>
-    <% end %>
-    <%= content_tag(:p, list.empty? ? 'There are no taxon name relationships' : nil, class: 'list') -%>
-
-    <h3>Combinations</h3>
-    <% list = Combination.with_cached_valid_taxon_name_id(@taxon_name).not_self(@taxon_name) %>
-    <% list.push(@taxon_name) unless @taxon_name.cached_original_combination.nil? %>
-    <% list = list.sort_by{|c| (c.nomenclature_date || Time.now) } %>
-    <% list.each do |t| -%>
-        <% if t.type == 'Protonym' %>
-            <%= content_tag(:p, original_taxon_name_tag(t) + cached_author_year_tag(t) + ' (original)' + cached_classified_as_tag(t),class: 'list') %>
-        <% else %>
-          <%= content_tag(:p, original_taxon_name_tag(t) + cached_author_year_tag(t) + cached_classified_as_tag(t),class: 'list') %>
-        <% end %>
-    <% end %>
-    <%= content_tag(:p, list.empty? ? 'There are no combinations' : nil, class: 'list') -%>
-
+    <h3> Citations </h3>
+    <ul>
+      <% full_citations(@taxon_name).source_list.each do |s| -%>
+        <%= content_tag(:li, (source_tag(s) + ':' + topic_list_tag(full_citations(@taxon_name).topics_for_source(s))).html_safe   )  -%>
+      <% end %> 
+    </ul>
 
   </div>
 
@@ -80,10 +48,7 @@
     <%= render(partial: '/shared/data/all/show/soft_validation', locals: {object: @taxon_name}) -%> 
     <%= render(partial: '/shared/data/all/show/annotations', locals: {object: @taxon_name}) -%> 
     <%= render(partial: '/shared/data/all/show/housekeeping', locals: {object: @taxon_name}) -%> 
-
   </div>
-
-
 
 </div>
 

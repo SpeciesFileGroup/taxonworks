@@ -1,0 +1,24 @@
+
+ID: <%= @taxon_name.id -%> <br>
+
+<%= link_to('Back', @taxon_name.metamorphosize) -%> 
+
+<div style="text-align: center;"> <h1> Catalog of <%= object_tag(@taxon_name) -%> <h1> </div>
+
+<ul>
+  <% full_citations(@taxon_name).each do |c| -%>
+    <%= nomenclature_line_tag(c) -%> 
+  <% end %>
+
+  <div class="warning"> 
+    <!---- relationships without citations ---->
+    <% TaxonNameRelationship.where_object_is_taxon_name(@taxon_name).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID).without_citations.each do |n| %>
+      <%= content_tag(:li, taxon_name_relationship_for_object_tag(n), class: 'list') -%>
+    <% end %>
+
+    <!---- classifications without citations ---->
+    <% @taxon_name.taxon_name_classifications.without_citations.each do |t| -%>
+      <li> <%= full_original_taxon_name_tag(c.annotated_object) -%> : <%= object_tag(t) -%>  </li>
+    <% end %>
+  </div>
+</ul>

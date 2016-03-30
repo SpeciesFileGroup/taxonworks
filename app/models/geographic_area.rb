@@ -120,8 +120,6 @@ class GeographicArea < ActiveRecord::Base
 
   before_destroy :check_for_children
 
-  
-
 
   # @param array [Array] of strings of names for areas
   # @return [Scope] of GeographicAreas which match name and parent.name.

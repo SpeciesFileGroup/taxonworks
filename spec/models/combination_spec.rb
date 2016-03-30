@@ -199,12 +199,15 @@ describe Combination, type: :model, group: :nomenclature do
 
   context 'soft validation' do
     specify 'runs all validations without error' do
-      expect(combination.soft_validate()).to be_truthy
+      expect(combination.soft_validate).to be_truthy
     end
 
     specify 'missing source and year' do
       combination.soft_validate(:missing_fields)
-      expect(combination.soft_validations.messages_on(:source_id).empty?).to be_falsey
+
+      # expect(combination.soft_validations.messages_on(:source_id).empty?).to be_falsey
+      expect(combination.soft_validations.messages_on(:base).empty?).to be_falsey
+      
       expect(combination.soft_validations.messages_on(:year_of_publication).empty?).to be_falsey
     end
 
@@ -219,7 +222,9 @@ describe Combination, type: :model, group: :nomenclature do
       combination.source = source_older_than_combination  # 1940
       combination.genus = genus    # 1950
       combination.soft_validate(:dates)
-      expect(combination.soft_validations.messages_on(:source_id).count).to eq(1)
+      
+      # expect(combination.soft_validations.messages_on(:source_id).count).to eq(1)
+       expect(combination.soft_validations.messages_on(:base).count).to eq(1)
     end
 
     specify 'year_of_publication can not be older than protonym nomenclature_dates' do

@@ -1,4 +1,4 @@
-# Shared code for...
+# Shared code Roles support.
 #
 module Shared::HasRoles
 
