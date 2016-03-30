@@ -4,9 +4,21 @@ class MigrateOriginalSources < ActiveRecord::Migration
     [TaxonName, TaxonNameRelationship,Georeference, BiologicalAssociationsGraph, TypeMaterial].each do |k|
       k.all.each do |r|
         next if r.source_id.nil?
-        Citation.create!(is_original: true, citation_object: r, source_id: r.source_id, project_id: r.project_id, created_by_id: r.created_by_id, updated_by_id: r.updated_by_id)
+
+        if r = Citation.where(citation_object: r, source_id: r.source_id, project_id: r.project_id)
+          if !r.is_original?
+            r.is_original = true
+            r.save
+          end
+        else
+          c = Citation.new(is_original: true, citation_object: r, source_id: r.source_id, project_id: r.project_id, created_by_id: r.created_by_id, updated_by_id: r.updated_by_id)
+          if c.valid?
+            c.save!
+          else
+            puts "not saved, probably duplicate?! -- #{c.errors.full_messages}"
+          end
+        end
       end
     end
   end
-
 end
