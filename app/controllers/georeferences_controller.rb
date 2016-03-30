@@ -145,6 +145,8 @@ class GeoreferencesController < ApplicationController
                                          :api_request,
                                          :is_undefined_z,
                                          :is_median_z,
-                                         :geographic_item_attributes => [:shape]) # TODO: add nested source params
+                                         :geographic_item_attributes => [:shape],
+                                         origin_citation_attributes: [:id, :_destroy, :source_id] 
+                                        ) 
   end
 end

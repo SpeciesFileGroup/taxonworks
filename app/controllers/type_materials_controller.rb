@@ -22,6 +22,7 @@ class TypeMaterialsController < ApplicationController
 
   # GET /type_materials/1/edit
   def edit
+    @type_material.source = Source.new if !@type_material.source
   end
 
   # POST /type_materials
@@ -104,7 +105,8 @@ class TypeMaterialsController < ApplicationController
   def type_material_params
     params.require(:type_material).permit(
         :protonym_id, :biological_object_id, :type_type,
-        roles_attributes: [:id, :_destroy, :type, :person_id, :position, person_attributes: [:last_name, :first_name, :suffix, :prefix]]
-    ) # TODO - nested params
+        roles_attributes: [:id, :_destroy, :type, :person_id, :position, person_attributes: [:last_name, :first_name, :suffix, :prefix]],
+        origin_citation_attributes: [:id, :_destroy, :source_id] 
+    ) 
   end
 end

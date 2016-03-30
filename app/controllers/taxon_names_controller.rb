@@ -145,7 +145,7 @@ class TaxonNamesController < ApplicationController
                                        :verbatim_author, :rank_class, :type, :masculine_name,
                                        :feminine_name, :neuter_name, :also_create_otu,
                                        roles_attributes: [:id, :_destroy, :type, :person_id, :position, person_attributes: [:last_name, :first_name, :suffix, :prefix]],
-                                       source_attributes: [:id, :_destroy, :source_id] 
+                                       origin_citation_attributes: [:id, :_destroy, :source_id] 
                                       ) 
   end
 

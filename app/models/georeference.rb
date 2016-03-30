@@ -74,7 +74,6 @@ class Georeference < ActiveRecord::Base
   belongs_to :error_geographic_item, class_name: 'GeographicItem', foreign_key: :error_geographic_item_id
   belongs_to :collecting_event
   belongs_to :geographic_item
-  belongs_to :source
 
   validates :geographic_item, presence: true
   validates :collecting_event, presence: true

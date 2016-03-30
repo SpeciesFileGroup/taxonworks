@@ -13,6 +13,8 @@ module Shared::Citable
     has_many :citations, as: :citation_object, validate: false, dependent: :destroy
     has_many :sources, -> { uniq }, through: :citations
 
+    has_many :topics, through: :citations, source: :citation_topics
+
     has_one :origin_citation, -> {where(is_original: true)}, as: :citation_object, class_name: 'Citation'
     has_one :source, through: :origin_citation
 

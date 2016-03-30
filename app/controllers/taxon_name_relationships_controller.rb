@@ -22,6 +22,7 @@ class TaxonNameRelationshipsController < ApplicationController
 
   # GET /taxon_name_relationships/1/edit
   def edit
+    @taxon_name_relationship.source = Source.new if !@taxon_name_relationship.source
   end
 
   # POST /taxon_name_relationships
@@ -106,6 +107,9 @@ class TaxonNameRelationshipsController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def taxon_name_relationship_params
-    params.require(:taxon_name_relationship).permit(:subject_taxon_name_id, :object_taxon_name_id, :type) # TODO: add nested attributes 
+    params.require(:taxon_name_relationship).permit(
+      :subject_taxon_name_id, :object_taxon_name_id, :type,
+      origin_citation_attributes: [:id, :_destroy, :source_id] 
+    ) 
   end
 end

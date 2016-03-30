@@ -41,16 +41,16 @@
       <%= taxon_name_rank_select_tag(taxon_name: @taxon_name) %>
     </div>
 
-    <%= f.fields_for :source, @taxon_name.source do |s| -%>
+    <%= f.fields_for :origin_citation, @taxon_name.origin_citation do |s| -%>
       <div class="field">
         <%= s.label :source %>
         <br>
         <%= render( partial: 'workbench/elements/forms/ajax_select', locals:
                    {controller: 'sources',
                     related_object: @taxon_name.source,
-                    object: 'taxon_names["source"]',
+                    object: 'taxon_name[origin_citation_attributes]',
                     method: 'source_id',
-                    tag_id: 'source_id_for_taxon_name',
+                    tag_id: 'source_id_for_original_citation_taxon_name',
                     size: '50%',
                     display: source_tag(@taxon_name.source)}) 
                   %>
