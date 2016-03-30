@@ -5,7 +5,7 @@ class MigrateOriginalSources < ActiveRecord::Migration
       k.all.each do |r|
         next if r.source_id.nil?
 
-        if r = Citation.where(citation_object: r, source_id: r.source_id, project_id: r.project_id)
+        if r = Citation.where(citation_object: r, source_id: r.source_id, project_id: r.project_id).first
           if !r.is_original?
             r.is_original = true
             r.save
