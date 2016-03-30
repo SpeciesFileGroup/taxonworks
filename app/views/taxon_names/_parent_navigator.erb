@@ -2,15 +2,38 @@
   <h3>Hierarchy</h3>
   <ul>
     <% taxon_name.ancestor_protonyms.each do |p| -%>
-      <li><p> <%= mode == :browse ? taxon_name_browse_link(p) : taxon_name_link(p)  -%><%= cached_author_year_tag(p) -%> </p></li>
+      <li>
+        <p> 
+          <%= mode == :browse ? taxon_name_browse_link(p) : taxon_name_link(p)  -%> 
+          <span class="subtle">
+            <%= cached_author_year_tag(p) -%>
+          </span>
+        </p>
+      </li>
     <% end %>
   
 
-  <li class="selected"><%= image_tag('arrow-right.svg') %><p> <%= taxon_name_tag(taxon_name) -%><%= cached_author_year_tag(taxon_name) -%></p></li>
-
-  
+    <li class="selected">
+      <%= image_tag('arrow-right.svg') %>
+      <p> 
+        <%= taxon_name_tag(taxon_name) -%> 
+        <span class="subtle">
+          <%= cached_author_year_tag(taxon_name) -%>
+        </span>
+      </p>
+    </li>
+  </ul>
+  <ul class="descendent">
     <% taxon_name.children.order(:name).where(type: 'Protonym').each do |p| -%>
-      <li ><p><%= mode == :browse ? taxon_name_browse_link(p) : taxon_name_link(p) -%><%= cached_author_year_tag(p) -%> <%= content_tag(:span, "[#{p.descendants.count}]",  class: :subtle) if p.descendants.count > 0  %> </p> </li>
+      <li>
+        <p>
+          <%= mode == :browse ? taxon_name_browse_link(p) : taxon_name_link(p) -%>
+          <span class="subtle">
+            <%= cached_author_year_tag(p) -%>
+          </span>
+          <%= content_tag(:span, "[#{p.descendants.count}]",  class: :subtle) if p.descendants.count > 0  %> 
+        </p> 
+      </li>
     <% end %>
   </ul>
 </div>
