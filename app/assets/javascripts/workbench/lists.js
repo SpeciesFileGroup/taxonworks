@@ -101,15 +101,14 @@ $(document).ready(initContextMenus);
 $(document).on('page:change', initContextMenus);
 $(document).ready(headerTableOptions);
 $(document).on('page:change', headerTableOptions);
+$(document).ready(orderLists);
+$(document).on('page:change', orderLists);
 
-
-$(document).ready(function() 
-    { 
+function orderLists() { 
         $("table").tablesorter({ 
         widgets: ['zebra'] 
         }); 
     } 
-);
 
  function initContextMenus() {
   $.contextMenu('destroy', ".contextMenuCells" );
