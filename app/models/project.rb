@@ -81,9 +81,9 @@ class Project < ActiveRecord::Base
      OtuPageLayout
      ProjectSource
      TaxonDetermination
+     TypeMaterial       
+     CollectionObject   
      CollectingEvent
-     TypeMaterial     
-     CollectionObject
      RangedLotCategory
      Image  
      CommonName
