@@ -130,6 +130,7 @@ class TaxonNamesController < ApplicationController
   end
 
   def browse
+    @data = NomenclatureCatalog.data_for(@taxon_name)
   end
 
   private

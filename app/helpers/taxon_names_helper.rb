@@ -32,22 +32,24 @@ module TaxonNamesHelper
     c = i.citation
     content_tag(:li) do  
       if i.cited?
-        case i.cited_class
-        when 'TaxonName'
+        case i.object_class
+        when 'Protonym'
           taxon_name_nomenclature_line_tag(c) 
-        when 'TaxonNameRelationship'
+        when  /TaxonNameRelationship/
           [taxon_name_relationship_for_object_tag(c.annotated_object),  c.citation_topics.collect{|t| t.topic.name}.join(", "), "REL" ].compact.join(" ").html_safe    
         else 
-          "strange, a citation class that is not handled"
+          i.object_class
         end
       else
-        case i.cited_class
-        when 'TaxonName' # have to fork vs. Combination
+        case i.object_class
+        when 'Protonym' # have to fork vs. Combination
           [ full_original_taxon_name_tag(i.object), type_taxon_name_relationship_tag(i.object.type_taxon_name_relationship) ].compact.join(". ").html_safe
-        when 'TaxonNameRelationship'
+        when 'Combination'
+          [ full_original_taxon_name_tag(i.object) ].compact.join(". ").html_safe
+        when  /TaxonNameRelationship/
           [ full_original_taxon_name_tag(i.object.subject_taxon_name), taxon_name_statuses_tag(i.object.subject_taxon_name)].join(" ").html_safe 
         else 
-          i.cited_class
+          i.object_class
         end
       end
     end
@@ -74,33 +76,6 @@ module TaxonNamesHelper
   end
 
 
-  # @return a complete list of citations pertinent to the taxonomic history
-  def full_citations(taxon_name)
-    data = NomenclatureCatalogEntry.new
-
-    data.items <<  NomenclatureCatalogEntry::NomenclatureCatalogItem.new(taxon_name, taxon_name.nomenclature_date)
-
-    TaxonNameRelationship.where_object_is_taxon_name(taxon_name).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID).each do |r|
-      r.citations.each do |i|
-        data.items << NomenclatureCatalogEntry::NomenclatureCatalogItem.new(i, i.subject_taxon_name.nomenclature_date)
-      end
-    end
-
-    TaxonNameRelationship.where_object_is_taxon_name(taxon_name).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID).without_citations.each do |r|
-      data.items << NomenclatureCatalogEntry::NomenclatureCatalogItem.new(r, r.subject_taxon_name.nomenclature_date)
-    end
-
-    # must be inverted
-    TaxonNameRelationship.where_subject_is_taxon_name(taxon_name).with_type_array(STATUS_TAXON_NAME_RELATIONSHIP_NAMES).each do |r|
-      data.items << NomenclatureCatalogEntry::NomenclatureCatalogItem.new(r, r.subject_taxon_name.nomenclature_date)
-    end
-
-    Combination.with_cached_valid_taxon_name_id(@taxon_name).not_self(@taxon_name).each do |c|
-      data.items << NomenclatureCatalogEntry::NomenclatureCatalogItem.new(c, c.nomenclature_date)
-    end
-
-    data
-  end
 
   def latinization_tag(taxon_name)
     list = TaxonNameClassification.where_taxon_name(@taxon_name).with_type_array(LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES)

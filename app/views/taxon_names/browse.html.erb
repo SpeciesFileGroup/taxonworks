@@ -28,7 +28,7 @@
     <br>
 
     <ul>
-    <% full_citations(@taxon_name).ordered_by_nomenclature_date.each do |c| -%>
+    <% @data.ordered_by_nomenclature_date.each do |c| -%>
       <%= nomenclature_line_tag(c) -%> 
     <% end %>
     </ul>
@@ -37,8 +37,8 @@
 
     <h3> Citations </h3>
     <ul>
-      <% full_citations(@taxon_name).source_list.each do |s| -%>
-        <%= content_tag(:li, (source_tag(s) + ':' + topic_list_tag(full_citations(@taxon_name).topics_for_source(s))).html_safe   )  -%>
+      <% @data.source_list.each do |s| -%>
+        <%= content_tag(:li, (source_tag(s) + ':' + topic_list_tag(@data.topics_for_source(s))).html_safe   )  -%>
       <% end %> 
     </ul>
 
