@@ -82,8 +82,8 @@ class Project < ActiveRecord::Base
      ProjectSource
      TaxonDetermination
      TypeMaterial       
-     CollectingEvent
      CollectionObject   
+     CollectingEvent
      RangedLotCategory
      Image  
      CommonName
