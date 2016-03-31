@@ -33,8 +33,7 @@
 #   @todo
 #
 # @!attribute recipient_country
-#   @return [Integer]
-#   @todo This column should probably be renamed to recipient_country_id since it is an integer...
+#   @return [String]
 #
 # @!attribute supervisor_email
 #   @return [String]
