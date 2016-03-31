@@ -14,7 +14,77 @@ module TaxonNamesHelper
   end
 
   def cached_author_year_tag(taxon_name)
-    taxon_name.cached_author_year ? ' ' +  taxon_name.cached_author_year.strip.html_safe : ''
+    taxon_name.cached_author_year ? ' ' +  taxon_name.cached_author_year.strip.html_safe : nil
+  end
+
+  def full_taxon_name_tag(taxon_name)
+    return nil if taxon_name.nil?
+    [taxon_name_tag(taxon_name), cached_author_year_tag(taxon_name)].compact.join(" ").html_safe
+  end
+
+  def full_original_taxon_name_tag(taxon_name)
+    return nil if taxon_name.nil?
+    [original_taxon_name_tag(taxon_name), cached_author_year_tag(taxon_name)].compact.join(" ").html_safe
+  end
+
+  def nomenclature_line_tag(nomenclature_catalog_item)
+    i = nomenclature_catalog_item
+    c = i.citation
+    content_tag(:li) do  
+      if i.cited?
+        case i.object_class
+        when 'Protonym'
+          taxon_name_nomenclature_line_tag(c) 
+        when  /TaxonNameRelationship/
+          [taxon_name_relationship_for_object_tag(c.annotated_object),  c.citation_topics.collect{|t| t.topic.name}.join(", "), "REL" ].compact.join(" ").html_safe    
+        else 
+          i.object_class
+        end
+      else
+        case i.object_class
+        when 'Protonym' # have to fork vs. Combination
+          [ full_original_taxon_name_tag(i.object), type_taxon_name_relationship_tag(i.object.type_taxon_name_relationship) ].compact.join(". ").html_safe
+        when 'Combination'
+          [ full_original_taxon_name_tag(i.object) ].compact.join(". ").html_safe
+        when  /TaxonNameRelationship/
+          [ full_original_taxon_name_tag(i.object.subject_taxon_name), taxon_name_statuses_tag(i.object.subject_taxon_name)].join(" ").html_safe 
+        else 
+          i.object_class
+        end
+      end
+    end
+  end
+
+  def taxon_name_statuses_tag(taxon_name)
+    return nil if taxon_name.taxon_name_statuses.empty?
+    ('(' + taxon_name.taxon_name_statuses.join(', ') + ')').html_safe 
+  end
+
+
+  def taxon_name_nomenclature_line_tag(citation)
+    taxon_name = citation.annotated_object
+
+    [ original_taxon_name_tag(taxon_name),
+      (citation.is_original? ? nil : "."), 
+      (citation.is_original? ? cached_author_year_tag(taxon_name) : "AUTHOR OF CITATION FROM BIBTEX" ), 
+      (citation.try(:pages) ? ": #{citation.pages}" : nil),
+      ".",
+      citation.citation_topics.collect{|t| t.topic.name}.join(", "),
+
+    ].compact.join("").html_safe
+
+  end
+
+
+
+  def latinization_tag(taxon_name)
+    list = TaxonNameClassification.where_taxon_name(@taxon_name).with_type_array(LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES)
+    if list.any?
+      content_tag(:h3, 'Latinization') +
+        list.collect{|c|
+        content_tag(:span, c.classification_label) 
+      }.join('; ').html_safe 
+    end
   end
 
   def cached_classified_as_tag(taxon_name)
@@ -85,8 +155,8 @@ module TaxonNamesHelper
   def rank_tag(taxon_name)
     case taxon_name.type
     when 'Protonym'
-      if @taxon_name.rank_class
-        @taxon_name.rank.downcase
+      if taxon_name.rank_class
+        taxon_name.rank.downcase
       else
         content_tag(:em, 'ERROR')
       end

@@ -17,10 +17,14 @@ describe TypeMaterial, :type => :model do
       specify 'material' do
         expect(type_material.material = Specimen.new).to be_truthy
       end
+    end
+
+    context 'has_one' do 
       specify 'source' do
         expect(type_material.source = Source::Bibtex.new).to be_truthy
       end
     end
+   
   end
 
   context 'validations' do
@@ -143,7 +147,7 @@ describe TypeMaterial, :type => :model do
 
     specify 'source is nil' do
       iczn_type.soft_validate(:type_source)
-      expect(iczn_type.soft_validations.messages_on(:source_id).count).to eq(1)
+      expect(iczn_type.soft_validations.messages_on(:base).count).to eq(1)
     end
   end
 

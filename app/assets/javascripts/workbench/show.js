@@ -21,12 +21,6 @@ function show() {
     }
   });
 
-  $('div.navigation-item').each( function() {
-    if($(this).children().length < 1) {
-   //   $(this).hide();
-    }
-  });
-
   if(!$('#validation-panel li').length) {
     $('#validation-panel').hide();
   }  
@@ -40,14 +34,14 @@ function show() {
   }); 
 
   Mousetrap.bind('left', function() {
-    if($('[data-arrow="back"]').children('a').length > 0) {
-      location.href = $('[data-arrow="back"] a').attr('href');
+    if($('[data-arrow="back"]').is('a')) {
+      location.href = $('[data-arrow="back"]').attr('href');
     }
   });
 
   Mousetrap.bind('right', function() {
-    if($('[data-arrow="next"]').children('a').length > 0) {
-      location.href = $('[data-arrow="next"] a').attr('href');
+    if($('[data-arrow="next"]').is('a')) {
+      location.href = $('[data-arrow="next"]').attr('href');
     }
   });    
 }

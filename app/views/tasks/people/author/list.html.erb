@@ -1,20 +1,30 @@
-<h1>Task: Authors - Alphabetical</h1>
-
-<%= '| ' -%>
-<% a_range.each do |letter| %>
-    <%= link_to("#{letter}", "\##{letter}") + ' |' -%>
-<% end %>
-
-<% a_range.each do |letter| %>
-    <a name='<%= "#{letter}" %>'></a>
-    <%= letter_color(letter).html_safe %>
-    <p>
-      <% select_authors(letter).each do |author| %>
-          <%= link_to(author.last_name, author_source_list_task_path(author)) %><br>
-      <% end %>
-    </p>
-<% end %>
-
+<div class="panel panels-container">
+	<div class="title nav-line">
+		Task: Authors - Alphabetical
+	</div>
+	<div class="navigation-bar-left">
+		<ul class="left_justified_navbar context-menu">
+		<% a_range.each do |letter| %>
+		    <li><%= link_to("#{letter}", "\##{letter}") -%></li>
+		<% end %>
+		</ul>
+	</div>
+</div>
+<div class="panel">
+	<div class="content">
+		<% a_range.each do |letter| %>
+	    	<a name='<%= "#{letter}" %>'></a>
+	    <%= letter_color(letter).html_safe %>
+	    <p>
+	    <ul class="no_bullets">
+	      <% select_authors(letter).each do |author| %>
+	          <li><%= link_to(author.last_name, author_source_list_task_path(author)) %></li>
+	      <% end %>
+	    </ul>
+	    </p>
+		<% end %>
+	</div>
+</div>
 <!--<%# @author_index_list.each do |author| %>-->
 <!--<p><%#= "#{author.last_name}" %></p>-->
 <!--<%# end %>-->

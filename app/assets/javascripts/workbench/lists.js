@@ -51,7 +51,7 @@ if(displayList.length > 0) {
 
 function createDivDisplay() {
     var
-      injectionHtml = ('<div id="displayOptions" class="panel column-small"><div class="title action-line">Display<div class="small-icon reset" data-filter-active="true" showAll data-icon="reset">Reset</div></div><div class="navigation-controls">');
+      injectionHtml = ('<div id="displayOptions" class="panel column-small separate-left"><div class="title action-line">Display<div class="small-icon reset" data-filter-active="true" showAll data-icon="reset">Reset</div></div><div class="navigation-controls">');
       $.each(displayList, function(i, value) {
         injectionHtml += createOptionDisplay(value);
       });
@@ -101,15 +101,14 @@ $(document).ready(initContextMenus);
 $(document).on('page:change', initContextMenus);
 $(document).ready(headerTableOptions);
 $(document).on('page:change', headerTableOptions);
+$(document).ready(orderLists);
+$(document).on('page:change', orderLists);
 
-
-$(document).ready(function() 
-    { 
+function orderLists() { 
         $("table").tablesorter({ 
         widgets: ['zebra'] 
         }); 
     } 
-);
 
  function initContextMenus() {
   $.contextMenu('destroy', ".contextMenuCells" );

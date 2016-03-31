@@ -30,17 +30,18 @@
     #annotations-panel { 
       display: flex;
       min-width: 40%;
-      flex: 1 100%;
+      flex: 1 auto;
     }
 
     #attributes-panel {
       display: flex;
-      min-width: 40%;
-      flex: 1 100%;
+      min-width: 50%;
+      flex: 1 auto;
     }
     #validation-panel {
       display: flex;
-      flex:0.5 50%;
+      min-width: 50%;
+      flex: 1 auto;
     }    
 
     .item { 
@@ -187,6 +188,32 @@
         height: 25px;
         display: block;
       }      
+    }
+
+    .list-arrow {
+      li {
+        background-image: none;
+        background-repeat: no-repeat;
+        background-position: -14px, center;        
+        background-image: image-url("arrow-right.svg");
+        transition: background-position 0.5s ease;
+        background-size: 10px;
+      }
+      li:hover {
+        list-style: none;
+        transition: background-position 0.5s ease;
+        background-position: 0px, center;        
+      }
+    }
+
+    .list {
+      margin: 0px;
+      padding: 0px;
+      li {
+        padding: 5px;
+        padding-left: 15px;
+        margin:0px;
+      }
     }
 
     .nav-line {

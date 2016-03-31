@@ -455,6 +455,12 @@ TaxonWorks::Application.routes.draw do
         get 'edit/:taxon_name_id', action: :edit, as: 'edit_protonym_original_combination_task'
         patch 'update/:taxon_name_id', action: :update, as: 'update_protonym_original_combination_task'
       end
+
+      scope :catalog do
+        scope :basis,  controller: 'tasks/nomenclature/catalog/basis' do
+          get ':taxon_name_id', action: :index, as: 'basis_catalog_task'
+        end
+      end
     end
 
     scope :people, controller: 'tasks/people/author' do

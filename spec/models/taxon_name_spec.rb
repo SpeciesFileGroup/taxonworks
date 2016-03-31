@@ -27,6 +27,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
       TaxonNameRelationship.delete_all
       TaxonName.delete_all
       # TODO: find out why this exists and resolve - presently leaving sources in the models
+      Citation.delete_all
       Source.delete_all
       TaxonNameHierarchy.delete_all
     end
@@ -55,7 +56,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         expect(variety.cached_author_year).to eq('McAtee (1900)')
         expect(variety.cached_html).to eq('<i>Aus</i> (<i>Aus</i> sect. <i>Aus</i> ser. <i>Aus</i>) <i>aaa bbb</i> var. <i>ccc</i>')
 
-        basionym = FactoryGirl.create(:icn_variety, name: 'basionym', parent_id: variety.ancestor_at_rank('species').id, source_id: nil, verbatim_author: 'Linnaeus')
+        basionym = FactoryGirl.create(:icn_variety, name: 'basionym', parent_id: variety.ancestor_at_rank('species').id,  verbatim_author: 'Linnaeus') # source_id: nil,
         r        = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: basionym, object_taxon_name: variety, type: 'TaxonNameRelationship::Icn::Unaccepting::Usage::Basionym')
         variety.reload
         expect(variety.save).to be_truthy
@@ -111,11 +112,16 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             expect(@taxon_name.related_taxon_names.sort).to eq([@type_of_genus, @original_genus].sort)
           end
 
-          specify 'respond to unavailable_or_invalid' do
-            relationship = FactoryGirl.build(:taxon_name_relationship, subject_taxon_name: @original_genus, object_taxon_name: @type_of_genus, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
-            expect(relationship.save).to be_truthy
-            expect(@type_of_genus.unavailable_or_invalid?).to be_falsey
-            expect(@original_genus.unavailable_or_invalid?).to be_truthy
+          context '#unavilable_or_invalid' do
+            let!(:relationship) { FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @original_genus, object_taxon_name: @type_of_genus, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym') }
+  
+            specify 'subject is invalid' do 
+              expect(@original_genus.unavailable_or_invalid?).to be_truthy 
+            end
+
+            specify 'object is valid' do
+              expect(@type_of_genus.unavailable_or_invalid?).to be_falsey
+            end
           end
         end
       end
@@ -153,8 +159,6 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         expect(TaxonName.ancestors_and_descendants_of(@genus).to_a.map(&:name)).to contain_exactly("Animalia", "Arthropoda", "Cicadellidae", "Erythroneura", "Erythroneura", "Erythroneurina", "Erythroneurini", "Hemiptera", "Insecta", "Root", "Typhlocybinae", "vitata", "vitis")
       end
     end
-
-
 
     context 'instance methods' do
       context 'verbatim_author' do
@@ -291,11 +295,12 @@ describe TaxonName, type: :model, group: [:nomenclature] do
           h                 = FactoryGirl.build(:source_human)
           taxon_name.source = h
           taxon_name.valid?
-          expect(taxon_name.errors.include?(:source_id)).to be_truthy
+          expect(taxon_name.errors.include?(:base)).to be_truthy
           b                 = FactoryGirl.build(:source_bibtex)
           taxon_name.source = b
           taxon_name.valid?
-          expect(taxon_name.errors.include?(:source_id)).to be_falsey
+
+          expect(taxon_name.errors.include?(:base)).to be_falsey # was source_id
         end
       end
 
@@ -585,17 +590,25 @@ describe TaxonName, type: :model, group: [:nomenclature] do
               expect(h.get_valid_taxon_name).to eq(c)
               expect(i.get_valid_taxon_name).to eq(c)
             end
-            specify 'list of invalid taxon names with reverse relationship' do
-              a  = FactoryGirl.create(:relationship_genus, name: 'Aus', parent: @family)
-              b  = FactoryGirl.create(:relationship_genus, name: 'Bus', parent: @family)
-              s  = TaxonNameClassification::Iczn::Available::Valid.create(taxon_name: a)
-              r1 = TaxonNameRelationship::Iczn::Invalidating::Synonym.create(subject_taxon_name: a, object_taxon_name: b)
-              r2 = TaxonNameRelationship::Iczn::Invalidating::Synonym.create(subject_taxon_name: b, object_taxon_name: a)
-              expect(a.list_of_invalid_taxon_names.sort_by { |n| n.id }).to eq([b])
-              expect(b.list_of_invalid_taxon_names.sort_by { |n| n.id }).to eq([])
-              expect(a.get_valid_taxon_name).to eq(a)
-              expect(b.get_valid_taxon_name).to eq(a)
+
+            context 'invalid taxon_names with reverse relationship' do
+              let!(:a)  { FactoryGirl.create(:relationship_genus, name: 'Aus', parent: @family) }
+              let!(:b)  { FactoryGirl.create(:relationship_genus, name: 'Bus', parent: @family) }
+              let!(:s)  { TaxonNameClassification::Iczn::Available::Valid.create(taxon_name: a) }
+              let!(:r1) { TaxonNameRelationship::Iczn::Invalidating::Synonym.create(subject_taxon_name: a, object_taxon_name: b) }
+              let!(:r2) { TaxonNameRelationship::Iczn::Invalidating::Synonym.create(subject_taxon_name: b, object_taxon_name: a) }
+
+              specify 'for subject' do
+                expect(a.list_of_invalid_taxon_names.sort_by { |n| n.id }).to eq([b])
+                expect(a.get_valid_taxon_name).to eq(a)
+              end
+
+              specify 'for object' do
+                expect(b.list_of_invalid_taxon_names.sort_by { |n| n.id }).to eq([])
+                expect(b.get_valid_taxon_name).to eq(a)
+              end
             end
+
             specify 'list of statuses' do
               a  = FactoryGirl.create(:relationship_genus, name: 'Aus', parent: @family)
               b  = FactoryGirl.create(:relationship_genus, name: 'Bus', parent: @family)
@@ -701,17 +714,21 @@ describe TaxonName, type: :model, group: [:nomenclature] do
           a.soft_validate(:not_synonym_of_self)
           expect(a.soft_validations.messages_on(:base).count).to eq(0)
         end
+
         specify 'conflicting synonyms: same nomenclatural priority' do
           a  = FactoryGirl.create(:relationship_genus, name: 'Aus', parent: @family)
           b  = FactoryGirl.create(:relationship_genus, name: 'Bus', parent: @family)
           c  = FactoryGirl.create(:relationship_genus, name: 'Cus', parent: @family)
           s1 = FactoryGirl.create(:valid_source_bibtex, title: 'article 1', year: 1900)
+          
           r1 = TaxonNameRelationship::Iczn::Invalidating::Synonym.create(subject_taxon_name: a, object_taxon_name: b)
           r2 = TaxonNameRelationship::Iczn::Invalidating::Synonym.create(subject_taxon_name: a, object_taxon_name: c)
+
           a.soft_validate(:two_unresolved_alternative_synonyms)
           expect(a.soft_validations.messages_on(:base).count).to eq(1)
           r1.source = s1
           r1.save
+
           a.reload
           a.soft_validate(:two_unresolved_alternative_synonyms)
           expect(a.soft_validations.messages_on(:base).count).to eq(0)

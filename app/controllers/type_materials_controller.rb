@@ -22,6 +22,7 @@ class TypeMaterialsController < ApplicationController
 
   # GET /type_materials/1/edit
   def edit
+    @type_material.source = Source.new if !@type_material.source
   end
 
   # POST /type_materials
@@ -103,8 +104,9 @@ class TypeMaterialsController < ApplicationController
   # Never trust parameters from the scary internet, only allow the white list through.
   def type_material_params
     params.require(:type_material).permit(
-        :protonym_id, :biological_object_id, :type_type, :source_id,
-        roles_attributes: [:id, :_destroy, :type, :person_id, :position, person_attributes: [:last_name, :first_name, :suffix, :prefix]]
-    )
+        :protonym_id, :biological_object_id, :type_type,
+        roles_attributes: [:id, :_destroy, :type, :person_id, :position, person_attributes: [:last_name, :first_name, :suffix, :prefix]],
+        origin_citation_attributes: [:id, :_destroy, :source_id] 
+    ) 
   end
 end

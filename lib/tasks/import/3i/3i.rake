@@ -12,7 +12,7 @@
       class ImportedData3i
         attr_accessor :people_index, :user_index, :publications_index, :citations_index, :genera_index, :images_index,
                       :parent_id_index, :statuses, :taxon_index, :citation_to_publication_index, :keywords,
-                      :incertae_sedis, :emendation, :original_combination
+                      :incertae_sedis, :emendation, :original_combination, :unique_host_plant_index, :host_plant_index
         def initialize()
           @keywords = {}                  # keyword -> ControlledVocabularyTerm
           @people_index = {}              # PeopleID -> Person object
@@ -28,6 +28,8 @@
           @incertae_sedis = {}            #for those taxa which have a parent of incertae sedis
           @emendation = {}                # taxon name emendation source reference key => row
           @original_combination = {}      # original combination key => row
+          @unique_host_plant_index = {}
+          @host_plant_index = {}
         end
       end
 
@@ -146,7 +148,8 @@
             'ma' => 'hun',
             'sp' => 'spa',
             'ta' => 'tgl',
-            'vi' => 'hil'
+            'vi' => 'hil',
+            'pt' => 'por'
         }
 
         if ENV['no_transaction']
@@ -180,8 +183,10 @@
         handle_controlled_vocabulary_3i
         handle_references_3i
         handle_taxonomy_3i
-        #$project_id = 1
+        # $project_id = 1
         handle_taxon_name_relationships_3i
+        handle_host_plant_name_dictionary_3i
+        handle_host_plants_3i
 
         print "\n\n !! Success. End time: #{Time.now} \n\n"
       end
@@ -223,6 +228,7 @@
 
           @import.metadata['project_and_users'] = true
         end
+        
         @root = Protonym.find_or_create_by(name: 'Root', rank_class: 'NomenclaturalRank', project_id: $project_id)
 
         @data.keywords.merge!('3i_imported' => Keyword.find_or_create_by(name: '3i_imported', definition: 'Imported from 3i database.'))
@@ -233,29 +239,47 @@
         print "\nHandling CV \n"
 
         @data.keywords.merge!(
-            #'AuthorDrMetcalf' => Predicate.find_or_create_by(name: 'AuthorDrMetcalf', definition: 'Author name from DrMetcalf bibliography database.', project_id: $project_id),
-            '3i_imported' => Keyword.find_or_create_by(name: '3i_imported', definition: 'Imported from 3i database.', project_id: $project_id),
-            'CallNumberDrMetcalf' => Predicate.find_or_create_by(name: 'call_number_dr_metcalf', definition: 'Call Number from DrMetcalf bibliography database.', project_id: $project_id),
-            #'AuthorReference' => Predicate.find_or_create_by(name: 'author_reference', definition: 'Author string as it appears in the nomenclatural reference.', project_id: $project_id),
-            #'YearReference' => Predicate.find_or_create_by(name: 'year_reference', definition: 'Year string as it appears in the nomenclatural reference.', project_id: $project_id),
-            'Ethymology' => Predicate.find_or_create_by(name: 'ethymology', definition: 'Ethymology.', project_id: $project_id),
-            'TypeDepository' => Predicate.find_or_create_by(name: 'type_depository', definition: 'Type depository.', project_id: $project_id),
-            'YearRem' => Predicate.find_or_create_by(name: 'nomenclatural_string', definition: 'Nomenclatural remarks.', project_id: $project_id),
-            'Typification' => Predicate.find_or_create_by(name: 'type_designated_by', definition: 'Type designated by', project_id: $project_id),
-            'FirstRevisor' => Predicate.find_or_create_by(name: 'first_revisor_action', definition: 'First revisor action', project_id: $project_id),
-            'PageAuthor' => Predicate.find_or_create_by(name: 'page_author', definition: 'Page author.', project_id: $project_id),
-            'SimilarSpecies' => Predicate.find_or_create_by(name: 'similar_species', definition: 'Similar species.', project_id: $project_id),
-            'IDDrMetcalf' => Namespace.find_or_create_by(name: 'DrMetcalf_Source_ID', short_name: 'DrMetcalf_ID'),
-            'Key3' => Namespace.find_or_create_by(name: '3i_Source_ID', short_name: '3i_Source_ID'),
-            'Key' => Namespace.find_or_create_by(name: '3i_Taxon_ID', short_name: '3i_Taxon_ID'),
-            'FLOW-ID' => Namespace.find_or_create_by(name: 'FLOW_Source_ID', short_name: 'FLOW_Source_ID'),
-            'DelphacidaeID' => Namespace.find_or_create_by(name: 'Delphacidae_Source_ID', short_name: 'Delphacidae_ID'),
-            'Taxonomy' => Keyword.find_or_create_by(name: 'Taxonomy updated', definition: 'Taxonomical information entered to the DB.', project_id: $project_id),
-            'Typhlocybinae' => Keyword.find_or_create_by(name: 'Typhlocybinae updated', definition: 'Information related to Typhlocybinae entered to the DB.', project_id: $project_id),
-            'Illustrations' => Keyword.find_or_create_by(name: 'Illustrations exported', definition: 'Illustrations of Typhlocybinae species entered to the DB.', project_id: $project_id),
-            'Distribution' => Keyword.find_or_create_by(name: 'Distribution exported', definition: 'Illustrations on species distribution entered to the DB.', project_id: $project_id),
-            'Notes' => Topic.find_or_create_by(name: 'Notes', definition: 'Notes topic on the OTU.', project_id: $project_id),
+          #'AuthorDrMetcalf' => Predicate.find_or_create_by(name: 'AuthorDrMetcalf', definition: 'Author name from DrMetcalf bibliography database.', project_id: $project_id),
+          '3i_imported' => Keyword.find_or_create_by(name: '3i_imported', definition: 'Imported from 3i database.', project_id: $project_id),
+          'CallNumberDrMetcalf' => Predicate.find_or_create_by(name: 'call_number_dr_metcalf', definition: 'Call Number from DrMetcalf bibliography database.', project_id: $project_id),
+          #'AuthorReference' => Predicate.find_or_create_by(name: 'author_reference', definition: 'Author string as it appears in the nomenclatural reference.', project_id: $project_id),
+          #'YearReference' => Predicate.find_or_create_by(name: 'year_reference', definition: 'Year string as it appears in the nomenclatural reference.', project_id: $project_id),
+          'Ethymology' => Predicate.find_or_create_by(name: 'ethymology', definition: 'Ethymology.', project_id: $project_id),
+          'TypeDepository' => Predicate.find_or_create_by(name: 'type_depository', definition: 'Type depository.', project_id: $project_id),
+          'YearRem' => Predicate.find_or_create_by(name: 'nomenclatural_string', definition: 'Nomenclatural remarks.', project_id: $project_id),
+          'Typification' => Predicate.find_or_create_by(name: 'type_designated_by', definition: 'Type designated by', project_id: $project_id),
+          'FirstRevisor' => Predicate.find_or_create_by(name: 'first_revisor_action', definition: 'First revisor action', project_id: $project_id),
+          'PageAuthor' => Predicate.find_or_create_by(name: 'page_author', definition: 'Page author.', project_id: $project_id),
+          'SimilarSpecies' => Predicate.find_or_create_by(name: 'similar_species', definition: 'Similar species.', project_id: $project_id),
+          'IDDrMetcalf' => Namespace.find_or_create_by(name: 'DrMetcalf_Source_ID', short_name: 'DrMetcalf_ID'),
+          'Key3' => Namespace.find_or_create_by(name: '3i_Source_ID', short_name: '3i_Source_ID'),
+          'Key' => Namespace.find_or_create_by(name: '3i_Taxon_ID', short_name: '3i_Taxon_ID'),
+          'FLOW-ID' => Namespace.find_or_create_by(name: 'FLOW_Source_ID', short_name: 'FLOW_Source_ID'),
+          'DelphacidaeID' => Namespace.find_or_create_by(name: 'Delphacidae_Source_ID', short_name: 'Delphacidae_ID'),
+          'Taxonomy' => Keyword.find_or_create_by(name: 'Taxonomy updated', definition: 'Taxonomical information entered to the DB.', project_id: $project_id),
+          'Typhlocybinae' => Keyword.find_or_create_by(name: 'Typhlocybinae updated', definition: 'Information related to Typhlocybinae entered to the DB.', project_id: $project_id),
+          'Illustrations' => Keyword.find_or_create_by(name: 'Illustrations exported', definition: 'Illustrations of Typhlocybinae species entered to the DB.', project_id: $project_id),
+          'Distribution' => Keyword.find_or_create_by(name: 'Distribution exported', definition: 'Illustrations on species distribution entered to the DB.', project_id: $project_id),
+          'Notes' => Topic.find_or_create_by(name: 'Notes', definition: 'Notes topic on the OTU.', project_id: $project_id),
+          'Host' => BiologicalProperty.find_or_create_by(name: 'Host', definition: 'An animal or plant on or in which a parasite or commensal organism lives.', project_id: $project_id),
+          'Herbivor' => BiologicalProperty.find_or_create_by(name: 'Herbivor', definition: 'An animal that feeds on plants.', project_id: $project_id),
+          'Parasitoid' => BiologicalProperty.find_or_create_by(name: 'Parasitoid', definition: 'An organism that lives in or on another organism.', project_id: $project_id),
         )
+
+        @host_plant_relationship = BiologicalRelationship.where(name: 'Host plant', project_id: $project_id)
+        if @host_plant_relationship.empty?
+          @host_plant_relationship = BiologicalRelationship.create(name: 'Host plant')
+          a1 = BiologicalRelationshipType.create(biological_property: @data.keywords['Host'], biological_relationship: @host_plant_relationship, type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
+          a2 = BiologicalRelationshipType.create(biological_property: @data.keywords['Herbivor'], biological_relationship: @host_plant_relationship, type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
+        end
+        @parasitoid_relationship = BiologicalRelationship.where(name: 'Parasitism', project_id: $project_id)
+        if @parasitoid_relationship.empty?
+          @parasitoid_relationship = BiologicalRelationship.create(name: 'Parasitism')
+          a1 = BiologicalRelationshipType.create(biological_property: @data.keywords['Parasitoid'], biological_relationship: @parasitoid_relationship, type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
+          a2 = BiologicalRelationshipType.create(biological_property: @data.keywords['Host'], biological_relationship: @parasitoid_relationship, type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
+        end
+
+
       end
 
 
@@ -345,7 +369,7 @@
           source.identifiers.new(type: 'Identifier::Local::Import', namespace: @data.keywords['FLOW-ID'], identifier: row['FLOW-ID']) if !row['FLOW-ID'].blank? && !row['FLOW-ID'] == '0'
           source.identifiers.new(type: 'Identifier::Local::Import', namespace: @data.keywords['DelphacidaeID'], identifier: row['DelphacidaeID']) if !row['DelphacidaeID'].blank? && !row['DelphacidaeID'] == '0'
 
-          source.project_sources.new
+          # source.project_sources.new
 
           if source.valid?
             source.save!
@@ -498,7 +522,7 @@
 
               taxon = Protonym.new( name: name,
                                     parent: parent,
-                                    source_id: source,
+                                    origin_citation_attributes: {source_id: source},
                                     year_of_publication: row['Year'],
                                     verbatim_author: row['Author'],
                                     rank_class: rank,
@@ -508,10 +532,9 @@
                                     verbatim_name: vname,
                                     also_create_otu: true
                                     #no_cached: true,
-                                    #no_alphabetize: true
               )
 
-              taxon.citations.new(source_id: source, pages: row['Page']) unless source.blank?
+#              taxon.citations.new(source_id: source, pages: row['Page'], is_original: true) unless source.blank?
               taxon.identifiers.new(type: 'Identifier::Local::Import', namespace: @data.keywords['Key'], identifier: row['Key'])
               taxon.notes.new(text: row['Remarks']) unless row['Remarks'].blank?
               taxon.data_attributes.new(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['Ethymology'].id, value: row['Ethymology']) unless row['Ethymology'].blank?
@@ -578,7 +601,7 @@
         synonym_statuses = %w(1 6 8 10 11 14 17 22 23 24 26 27 28 29)
 
         file.each_with_index do |row, i|
-          if i > 2816 #######################################
+          if i < 2000000 #######################################
           print "\r#{i} (Relationships)"
           taxon = find_taxon(row['Key'])
           if !taxon.nil? ### original combinations, synonyms, types
@@ -628,7 +651,7 @@
             source = nil
             if !@data.emendation[row['Parent']].blank? && row['OriginalCombinationOf'] == row['Parent']
               source = find_taxon(@data.emendation[row['Parent']]).try(['Key3']).nil? ? nil : @data.publications_index[@data.emendation[row['Parent']]['Key3']] unless @data.emendation[row['Parent']].nil?
-              tnr = TaxonNameRelationship::Iczn::PotentiallyValidating::FirstRevisorAction.create(object_taxon_name: find_taxon(@data.emendation[row['Parent']]['Parent']), subject_taxon_name: taxon, source_id: source) if !@data.emendation[row['Parent']].blank? && row['OriginalCombinationOf'] == row['Parent']
+              tnr = TaxonNameRelationship::Iczn::PotentiallyValidating::FirstRevisorAction.create(object_taxon_name: find_taxon(@data.emendation[row['Parent']]['Parent']), subject_taxon_name: taxon, origin_citation_attributes: {source_id: source}) if !@data.emendation[row['Parent']].blank? && row['OriginalCombinationOf'] == row['Parent']
               byebug unless tnr.valid?
             end
 
@@ -647,7 +670,7 @@
             taxon = find_taxon(row['CombinationOf']) || find_taxon(row['Parent'])
 
             source = row['Key3'].blank? ? nil : @data.publications_index[row['Key3']]
-            c = Combination.new(source_id: source, verbatim_author: row['Author'], year_of_publication: row['Year'])
+            c = Combination.new(origin_citation_attributes: {source_id: source}, verbatim_author: row['Author'], year_of_publication: row['Year'])
             c.identifiers.new(type: 'Identifier::Local::Import', namespace: @data.keywords['Key'], identifier: row['Key'])
 
             origgen = row['OrigGen'].blank? ? nil : find_taxon(row['OrigGen'])
@@ -655,7 +678,7 @@
             origspecies = row['OriginalSpecies'].blank? ? nil : find_taxon(row['OriginalSpecies'])
             origsubspecies = row['OriginalSubSpecies'].blank? ? nil : find_taxon(row['OriginalSubSpecies'])
 
-            c.citations.new(source_id: source, pages: row['Page']) unless source.blank?
+          #  c.citations.new(source_id: source, pages: row['Page']) unless source.blank?
             c.genus = origgen unless origgen.blank?
             gender = c.genus.gender_name unless c.genus.blank?
             c.subgenus = origsubgen unless origsubgen.blank?
@@ -742,12 +765,173 @@
         end
       end
 
+      def handle_host_plant_name_dictionary_3i
+        #CommonName
+        # HostPlant
+        # Phylum
+        # Class
+        # Order
+        # Family
+        # Genus
+        # Subgenus
+        # Species
+        # Variety
+        # Author
+        # Lng
+        # New
+
+        plantae = Protonym.find_or_create_by!(name: 'Plantae', rank_class: Ranks.lookup(:icn, 'kingdom'), parent: @root, project_id: $project_id)
+
+
+        path = @args[:data_directory] + 'hostplants.txt'
+        print "\nHandling host plant name dictionary\n"
+        raise "file #{path} not found" if not File.exists?(path)
+        file = CSV.foreach(path, col_sep: "\t", headers: true)
+
+        file.each_with_index do |row, i|
+          print "\r#{i}"
+          tmp = {}
+          %w(Phylum Class Order Family Genus Subgenus Species Variety).each do |c|
+            tmp.merge!(c => row[c]) unless row[c].blank?
+          end
+
+          otu = @data.unique_host_plant_index[tmp]
+
+          parent = plantae
+
+          if otu.nil?
+            author = row['Author']
+            unless row['Phylum'].blank?
+              plant = Protonym.find_or_create_by!(name: row['Phylum'], rank_class: Ranks.lookup(:icn, 'phylum'), parent: parent, project_id: $project_id)
+              parent = plant
+            end
+            unless row['Class'].blank?
+              plant = Protonym.find_or_create_by!(name: row['Class'], rank_class: Ranks.lookup(:icn, 'class'), parent: parent, project_id: $project_id)
+              parent = plant
+            end
+            unless row['Order'].blank?
+              plant = Protonym.find_or_create_by!(name: row['Order'], rank_class: Ranks.lookup(:icn, 'order'), parent: parent, project_id: $project_id)
+              parent = plant
+            end
+            unless row['Family'].blank?
+              plant = Protonym.find_or_create_by!(name: row['Family'], rank_class: Ranks.lookup(:icn, 'family'), parent: parent, project_id: $project_id)
+              parent = plant
+              otu = Otu.find_or_create_by!(taxon_name_id: plant.id, project_id: $project_id).id
+              @data.host_plant_index.merge!(row['Family'] => otu)
+            end
+            unless row['Genus'].blank?
+              plant = Protonym.find_or_create_by!(name: row['Genus'], rank_class: Ranks.lookup(:icn, 'genus'), parent: parent, project_id: $project_id)
+              parent = plant
+            end
+            unless row['Subgenus'].blank?
+              plant = Protonym.find_or_create_by!(name: row['Subgenus'], rank_class: Ranks.lookup(:icn, 'subgenus'), parent: parent, project_id: $project_id)
+              parent = plant
+            end
+            unless row['Species'].blank?
+              name = row['Species'].gsub('x ', '')
+              if row['Variety'].blank? && !author.blank?
+                plant = Protonym.find_or_create_by!(name: name, rank_class: Ranks.lookup(:icn, 'species'), verbatim_author: author, parent: parent, project_id: $project_id)
+              else
+                plant = Protonym.find_or_create_by!(name: name, rank_class: Ranks.lookup(:icn, 'species'), parent: parent, project_id: $project_id)
+              end
+              plant.taxon_name_classifications.create(type: 'TaxonNameClassification::Icn::Hybrid') if name != row['Species']
+              parent = plant
+            end
+            unless row['Variety'].blank?
+              plant = Protonym.find_or_create_by!(name: row['Variety'], rank_class: Ranks.lookup(:icn, 'variety'), verbatim_author: author, parent: parent, project_id: $project_id)
+            end
+            otu = Otu.find_or_create_by!(taxon_name_id: plant.id, project_id: $project_id).id
+            @data.unique_host_plant_index.merge!(tmp => otu)
+          end
+
+          unless row['CommonName'].blank?
+            lng = Language.find_by_alpha_3_bibliographic(@languages[row['lng'].to_s.downcase])
+            c = CommonName.new(otu_id: otu, name: row['CommonName'], language: lng)
+            if c.valid?
+              c.save
+            else
+              byebug
+            end
+          end
+
+          @data.host_plant_index.merge!(row['HostPlant'] => otu)
+          @data.host_plant_index.merge!(row['CommonName'] => otu) unless row['CommonName'].blank?
+
+        end
+      end
+
+      def handle_host_plants_3i
+        # Key
+        # Family
+        # Name
+        # CommonName
+        # Key3
+        path = @args[:data_directory] + 'hosts.txt'
+        print "\nHandling host plants\n"
+        raise "file #{path} not found" if not File.exists?(path)
+        file = CSV.foreach(path, col_sep: "\t", headers: true)
+
+        file.each_with_index do |row, i|
+          print "\r#{i}"
+
+          object = find_otu(row['Key'])
+          subject = nil
+          subject = @data.host_plant_index[row['Name']] unless row['Name'].nil?
+          subject = @data.host_plant_index[row['CommonName']] if subject.nil? && !row['CommonName'].blank?
+          subject = @data.host_plant_index[row['Family']] if subject.nil? && !row['Family'].blank?
+
+          if !subject.nil?
+            subject = Otu.find(subject)
+          elsif !row['Name'].blank?
+            subject = Otu.find_or_create_by!(name: row['Name'], project_id: $project_id)
+          elsif !row['CommonName'].blank?
+            subject = Otu.find_or_create_by!(name: row['CommonName'], project_id: $project_id)
+          elsif !row['Family'].blank?
+            print "\n#{row['Family']} does not exists\n"
+          end
+
+          s = find_publication_id(row['Key3'])
+
+          if subject && object
+            ba = BiologicalAssociation.find_or_create_by!(biological_relationship: @host_plant_relationship,
+                                          biological_association_subject: subject,
+                                          biological_association_object: object,
+                                          project_id: $project_id, 
+                                          origin_citation_attributes: {source_id: s}
+            )
+#            Citation.find_or_create_by!(citation_object: ba, source_id: s) unless s.blank? !!
+          else
+            print "\nRow #{row} is problematic\n"
+          end
+        end
+
+      end
+
         def find_taxon_id(key)
-          @data.taxon_index(key.to_s) || Protonym.with_identifier('3i_Taxon_ID ' + key.to_s).find_by(project_id: $project_id).try(:id)
+          @data.taxon_index[key.to_s] || Protonym.with_identifier('3i_Taxon_ID ' + key.to_s).find_by(project_id: $project_id).try(:id)
         end
 
         def find_taxon(key)
           Protonym.with_identifier('3i_Taxon_ID ' + key.to_s).find_by(project_id: $project_id)
+        end
+
+        def find_otu(key)
+          otu = nil
+          id = '3i_Taxon_ID ' + key.to_s
+        
+          # otu = Otu.joins(taxon_name: [:identifier]).where(project_id: $project_id).where(taxon_names: {cached: id}).first
+          # above could(?!) replace next two lines
+          p = Protonym.with_identifier(id).find_by(project_id: $project_id)
+          otu = p.otus.first if !p.nil? && !p.otus.empty?
+
+          if otu.nil?
+            otu = Otu.with_identifier(id).find_by(project_id: $project_id)
+          end
+          otu
+        end
+
+        def find_publication_id(key3)
+          @data.publications_index[key3.to_s] || Source.with_identifier('3i_Source_ID ' + key3.to_s).first.try(:id)
         end
 
       end

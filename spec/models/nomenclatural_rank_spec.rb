@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe NomenclaturalRank, :type => :model do
+describe NomenclaturalRank, type: :model do
 
   Rails.application.eager_load!
 

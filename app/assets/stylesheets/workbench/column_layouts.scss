@@ -15,6 +15,10 @@ http://flexboxin5.com/
  	margin-top: $standard_padding*0.5;
  }
 
+  .separate-bottom {
+ 	margin-bottom: $standard_padding;
+ }
+
 .flexbox {
   display: -webkit-box;
   display: -moz-box;
@@ -36,10 +40,19 @@ http://flexboxin5.com/
 }
 
 .flex-wrap-row {
+	width: auto;
 	display: flex;
-	justify-content: center;
+	justify-content: flex-start;
 	flex-wrap: wrap !important;
 	flex-direction: row !important;
+}
+
+.flex-wrap-column {
+	display: flex;
+	justify-content: flex-start;
+	width: auto;
+	flex-wrap: wrap !important;
+	flex-direction: column !important;
 }
 
 
@@ -80,7 +93,7 @@ http://flexboxin5.com/
   width:1080px;
   position: absolute;
   z-index:5;
-  top: 50%;
+  top: 40%;
   left: 50%;
   transform: translateY(-75%) translateX(-50%);
   background-color:$panel_background;

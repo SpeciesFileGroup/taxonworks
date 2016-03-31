@@ -4,12 +4,26 @@
 
 
 #show_taxon_name_hierarchy {
-
-
   p {
     font-size: 12px;
     margin: 2px;
     padding: 0px;
+  }
+
+  .descendent {
+    margin-left: 10px;
+    li:after{
+      border-left: 1px dashed $navigation_border;
+      height: 100%;
+      width: 0px;
+      top: -11px; 
+    }   
+    li:first-child:after {
+      display: flex;
+    }
+    li:last-child:after {
+      display: flex;
+    }    
   }
 
   .selected {
@@ -21,15 +35,13 @@
     padding-right: 3px;
     font-weight: 100;
   }
+
       ul {
         list-style-type: none;
         margin:0;
         padding: 0;
-        padding-top: 12px;
         position: relative;
         overflow:hidden;  
-        margin-bottom: 15px;  
-        
       }
 
       img {

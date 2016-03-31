@@ -1,21 +1,16 @@
-# TypeMaterial definition...
-# @todo
+# TypeMaterial is a definition of goverened type  
 #
 # @!attribute protonym_id
 #   @return [Integer]
-#   @todo
+#     the protonym in question 
 #
 # @!attribute biological_object_id
 #   @return [Integer]
-#   @todo
+#     the specimen record 
 #
 # @!attribute type_type
 #   @return [String]
-#   @todo
-#
-# @!attribute source_id
-#   @return [Integer]
-#   @todo
+#     the type of Type relationship (e.g. holotyp) 
 #
 # @!attribute project_id
 #   @return [Integer]
@@ -23,19 +18,19 @@
 #
 # @!attribute position
 #   @return [Integer]
-#   @todo
+#    sort column 
 #
 class TypeMaterial < ActiveRecord::Base
   include Housekeeping
   include Shared::Citable
-  include Shared::IsData
   include Shared::DataAttributes
   include Shared::HasRoles
-  include Shared::Taggable
   include Shared::Identifiable
+  include Shared::IsData
   include Shared::Notable
+  include Shared::Taggable
   include SoftValidation
-
+  
   # Keys are valid values for type_type, values are
   # required Class for material
   ICZN_TYPES = {
@@ -66,7 +61,6 @@ class TypeMaterial < ActiveRecord::Base
 
   belongs_to :material, foreign_key: :biological_object_id, class_name: 'CollectionObject'
   belongs_to :protonym
-  belongs_to :source
   has_many :type_designator_roles, class_name: 'TypeDesignator', as: :role_object
   has_many :type_designators, through: :type_designator_roles, source: :person
 
@@ -78,7 +72,9 @@ class TypeMaterial < ActiveRecord::Base
 
   scope :primary, -> {where(type_type: %w{neotype lectotype holotype}).order('biological_object_id')}
   scope :syntypes, -> {where(type_type: %w{syntype syntypes}).order('biological_object_id')}
-  scope :primary_with_protonym_array, -> (base_array) {select('type_type, source_id, biological_object_id').group('type_type, source_id, biological_object_id').where("type_materials.type_type IN ('neotype', 'lectotype', 'holotype', 'syntype', 'syntypes') AND type_materials.protonym_id IN (?)", base_array ) }
+
+  #  scope :primary_with_protonym_array, -> (base_array) {select('type_type, source_id, biological_object_id').group('type_type, source_id, biological_object_id').where("type_materials.type_type IN ('neotype', 'lectotype', 'holotype', 'syntype', 'syntypes') AND type_materials.protonym_id IN (?)", base_array ) }
+  scope :primary_with_protonym_array, -> (base_array) {select('type_type, biological_object_id').group('type_type, biological_object_id').where("type_materials.type_type IN ('neotype', 'lectotype', 'holotype', 'syntype', 'syntypes') AND type_materials.protonym_id IN (?)", base_array ) }
 
   soft_validate(:sv_single_primary_type, set: :single_primary_type)
   soft_validate(:sv_type_source, set: :type_source)
@@ -90,10 +86,10 @@ class TypeMaterial < ActiveRecord::Base
   validate :check_type_type
 
   def type_source
-    if !!self.source_id
+    if !!self.source
       self.source
     elsif !!self.protonym
-      if !!self.protonym.source_id
+      if !!self.protonym.source
         self.protonym.source
       else
         nil
@@ -106,7 +102,7 @@ class TypeMaterial < ActiveRecord::Base
   def self.find_for_autocomplete(params)
     term = params[:term]
     include(:protonym, :material, :source).
-        where(protonyms: {id: term}, collection_objects: {id: term}, sources: {id: term}).with_project_id(params[:project_id])
+      where(protonyms: {id: term}, collection_objects: {id: term}, sources: {id: term}).with_project_id(params[:project_id])
   end
 
   def self.generate_download(scope)
@@ -152,7 +148,7 @@ class TypeMaterial < ActiveRecord::Base
   end
 
   def sv_type_source
-    soft_validations.add(:source_id, 'Source is not selected neither for type nor for taxon') unless !!self.type_source
+    soft_validations.add(:base, 'Source is not selected neither for type nor for taxon') unless type_source # !!self.
   end
 
   #endregion

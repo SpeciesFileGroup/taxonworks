@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 ruby '2.1.5'
 
-gem 'rails', '~> 4.2.5.2'
+gem 'rails', '~> 4.2.6'
 gem 'psych', '~> 2.0.16'
 gem 'responders', '~> 2.0'
 

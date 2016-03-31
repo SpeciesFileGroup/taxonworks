@@ -17,11 +17,12 @@ class BiologicalAssociationsGraphsController < ApplicationController
 
   # GET /biological_associations_graphs/new
   def new
-    @biological_associations_graph = BiologicalAssociationsGraph.new
+    @biological_associations_graph = BiologicalAssociationsGraph.new(origin_citation: Citation.new)
   end
 
   # GET /biological_associations_graphs/1/edit
   def edit
+#    @biological_associations_graph.souce = Source.new if !@taxon_name.source
   end
 
   def list
@@ -92,13 +93,15 @@ class BiologicalAssociationsGraphsController < ApplicationController
   end
 
   private
-  # Use callbacks to share common setup or constraints between actions.
+  
   def set_biological_associations_graph
     @biological_associations_graph = BiologicalAssociationsGraph.find(params[:id])
   end
 
-  # Never trust parameters from the scary internet, only allow the white list through.
   def biological_associations_graph_params
-    params.require(:biological_associations_graph).permit(:created_by_id, :updated_by_id, :project_id, :name, :source_id)
+    params.require(:biological_associations_graph).permit(
+      :name,
+      origin_citation_attributes: [:id, :_destroy, :source_id] 
+    )
   end
 end

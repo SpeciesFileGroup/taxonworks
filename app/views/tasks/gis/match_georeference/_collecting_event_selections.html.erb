@@ -1,6 +1,6 @@
 <div id="_select_ce_form" name="_select_ce_form">
   <%= form_tag(batch_create_match_georeferences_url, name: 'create_georeferences', id: 'create_georeferences', method: :post, remote: true) do %>
-      <table border="1">
+      <table>
         <tbody>
         <tr>
           <th>Collecting Event</th>
@@ -34,6 +34,3 @@
       <%= submit_tag('Submit', id: 'create') %>
   <% end %>
 </div>
-
-<!--<%#= hidden_field_tag('georeference_id') %>-->
-<!--<div><%#= submit_tag('Create Georeference(s)') %></div>-->

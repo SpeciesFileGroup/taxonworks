@@ -120,9 +120,11 @@ class Protonym < TaxonName
   # TODO, move to IsData or IsProjectData
   scope :with_project, -> (project_id) {where(project_id: project_id)}
 
+#  scope :that_is_valid, -> {where('taxon_names.id != taxon_names.cached_valid_taxon_name_id') }
+
   scope :that_is_valid, -> {
     joins('LEFT OUTER JOIN taxon_name_relationships tnr ON taxon_names.id = tnr.subject_taxon_name_id').
-    where("taxon_names.id NOT IN (SELECT subject_taxon_name_id FROM taxon_name_relationships WHERE type LIKE 'TaxonNameRelationship::Iczn::Invalidating%' OR type LIKE 'TaxonNameRelationship::Icn::Unaccepting%')")
+    where("taxon_names.id NOT IN (SELECT subject_taxon_name_id FROM taxon_name_relationships WHERE type ILIKE 'TaxonNameRelationship::Iczn::Invalidating%' OR type ILIKE 'TaxonNameRelationship::Icn::Unaccepting%')")
   }
 
   soft_validate(:sv_validate_parent_rank, set: :validate_parent_rank)
@@ -301,7 +303,7 @@ class Protonym < TaxonName
 
   def sv_source_not_older_then_description
     if self.source && self.year_of_publication
-      soft_validations.add(:source_id, 'The year of publication and the year of reference do not match') if self.source.year != self.year_of_publication
+      soft_validations.add(:base, 'The year of publication and the year of reference do not match') if self.try(:source).try(:year) != self.year_of_publication
     end
   end
 
@@ -413,10 +415,11 @@ class Protonym < TaxonName
     nil
   end
 
+  # !! TODO: @proceps - make these individual validations !!  way to complex here
   def sv_validate_coordinated_names
     list_of_coordinated_names.each do |t|
-      soft_validations.add(:source_id, "The source does not match with the source of the coordinated #{t.rank_class.rank_name}",
-                           fix: :sv_fix_coordinated_names, success_message: 'Source was updated') unless self.source_id == t.source_id
+      soft_validations.add(:base, "The source does not match with the source of the coordinated #{t.rank_class.rank_name}",
+                           fix: :sv_fix_coordinated_names, success_message: 'Source was updated') unless (self.source && t.source) && (self.source.id == t.source.id)
       soft_validations.add(:verbatim_author, "The author does not match with the author of the coordinated #{t.rank_class.rank_name}",
                            fix: :sv_fix_coordinated_names, success_message: 'Author was updated') unless self.verbatim_author == t.verbatim_author
       soft_validations.add(:year_of_publication, "The year does not match with the year of the coordinated #{t.rank_class.rank_name}",
@@ -447,63 +450,78 @@ class Protonym < TaxonName
 
   end
 
+  # way too long, 
   def sv_fix_coordinated_names
     fixed = false
     gender = self.gender_class
     speech = self.part_of_speech_class
+
     list_of_coordinated_names.each do |t|
-      if self.source_id.nil? && self.source_id != t.source_id
-        self.source_id = t.source_id
+      if t.source && (source != t.source) 
+        self.source = t.source
         fixed = true
       end
+
       if self.verbatim_author.nil? && self.verbatim_author != t.verbatim_author
         self.verbatim_author = t.verbatim_author
         fixed = true
       end
+      
       if self.year_of_publication.nil? && !t.year_of_publication.nil?
         self.year_of_publication = t.year_of_publication
         fixed = true
       end
+     
       t_gender = t.gender_class
+    
       if gender.nil? && gender != t_gender
         self.TaxonNameClassification.build(type: t_gender.to_s)
         fixed = true
       end
+   
       t_speech = t.part_of_speech_class
+  
       if speech.nil? && speech != t_speech
         self.TaxonNameClassification.build(type: t_speech.to_s)
         fixed = true
       end
+ 
       if self.gender_class.nil? && !t.gender_class.nil?
         self.taxon_name_classification.build(type: t.gender_name)
         fixed = true
       end
+
       if self.original_genus.nil? && !t.original_genus.nil?
         self.original_combination_genus = t.original_combination_genus
         fixed = true
       end
+
       if self.original_subgenus.nil? && !t.original_subgenus.nil?
         self.original_combination_subgenus = t.original_combination_subgenus
         fixed = true
       end
+
       if self.original_species.nil? && !t.original_species.nil?
         self.original_combination_species = t.original_combination_species
         fixed = true
       end
+
       if self.type_species.nil? && !t.type_species.nil?
         self.type_species = t.type_species
         fixed = true
       end
+
       if self.type_genus.nil? && !t.type_genus.nil?
         self.type_genus = t.type_genus
         fixed = true
       end
+
       types1 = self.get_primary_type
       types2 = t.get_primary_type
       if types1.empty? && !types2.empty?
         new_type_material = []
         types2.each do |t|
-          new_type_material.push({type_type: t.type_type, protonym_id: t.protonym_id, biological_object_id: t.biological_object_id, source_id: t.source_id})
+          new_type_material.push({type_type: t.type_type, protonym_id: t.protonym_id, biological_object_id: t.biological_object_id, source: t.source})
         end
         self.type_materials.build(new_type_material)
         fixed = true
@@ -599,7 +617,7 @@ class Protonym < TaxonName
           name = p.name
         end
 
-        t = Protonym.new(name: name, rank_class: rank, verbatim_author: p.verbatim_author, year_of_publication: p.year_of_publication, source_id: p.source_id, parent: p)
+        t = Protonym.new(name: name, rank_class: rank, verbatim_author: p.verbatim_author, year_of_publication: p.year_of_publication, source: p.source, parent: p)
         t.save
         t.soft_validate
         t.fix_soft_validations
@@ -645,7 +663,9 @@ class Protonym < TaxonName
             possible_synonyms = Protonym.with_type_of_taxon_names(type.id).that_is_valid.not_self(self).with_project(self.project_id)
           end
         end
+
         possible_synonyms = reduce_list_of_synonyms(possible_synonyms)
+
         possible_synonyms.each do |s|
           soft_validations.add(:base, "Taxon should be a synonym of #{s.cached_html} #{s.cached_author_year} since they share the same type")
         end

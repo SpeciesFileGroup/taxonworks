@@ -32,7 +32,7 @@ module Workbench::NavigationHelper
       link_object = instance.class.base_class.order(id: :desc).where(['id < ?', instance.id]).limit(1).first
     end
 
-    link_object.nil? ? content_tag(:div,content_tag(:span,text, 'class' => 'small-icon', 'data-icon' => 'arrow-left'), 'class' => 'navigation-item disable') : link_to(content_tag(:span,text, 'data-icon' => 'arrow-left', 'class' => 'small-icon'), link_object.metamorphosize, 'class' => 'navigation-item')
+    link_object.nil? ? content_tag(:div,content_tag(:span,text, 'class' => 'small-icon', 'data-icon' => 'arrow-left'), 'class' => 'navigation-item disable') : link_to(content_tag(:span,text, 'data-icon' => 'arrow-left', 'class' => 'small-icon'), link_object.metamorphosize, 'data-arrow' => 'back', 'class' => 'navigation-item')
   end
 
   # A next record link.
@@ -43,7 +43,7 @@ module Workbench::NavigationHelper
     else
       link_object = instance.class.base_class.order(id: :asc).where(['id > ?', instance.id]).limit(1).first
     end
-    link_object.nil? ? content_tag(:div,content_tag(:span,text, 'class' => 'small-icon icon-right', 'data-icon' => 'arrow-right'), 'class' => 'navigation-item disable') : link_to(content_tag(:span,text, 'data-icon' => 'arrow-right', 'class' => 'small-icon icon-right'), link_object.metamorphosize, 'class' => 'navigation-item')
+    link_object.nil? ? content_tag(:div,content_tag(:span,text, 'class' => 'small-icon icon-right', 'data-icon' => 'arrow-right'), 'class' => 'navigation-item disable') : link_to(content_tag(:span,text, 'data-icon' => 'arrow-right', 'class' => 'small-icon icon-right'), link_object.metamorphosize, 'data-arrow' => 'next', 'class' => 'navigation-item')
   end
 
   def new_path_for_model(model)
