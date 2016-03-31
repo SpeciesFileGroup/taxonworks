@@ -102,7 +102,7 @@ $(document).on('page:change', initContextMenus);
 $(document).ready(headerTableOptions);
 $(document).on('page:change', headerTableOptions);
 $(document).ready(orderLists);
-$(document).on('page:change', orderLists);
+$(document).on('page:load', orderLists);
 
 function orderLists() { 
         $("table").tablesorter({ 
