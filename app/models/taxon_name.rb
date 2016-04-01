@@ -22,7 +22,7 @@
 #
 # @attribute cached_author_year
 #   @return [String, nil]
-#   author and year string with parentheses where necessary.
+#      author and year string with parentheses where necessary, i.e. with context of present placement for iczn
 #
 # @!attribute cached_higher_classification
 #   @return [String]
@@ -77,21 +77,18 @@
 #   Species name which are adjective or participle change depending on the gender of the genus.
 #   3 fields provide alternative species spelling. The part_of_speech designated as a taxon_name_classification.
 #   The gender of the genus also designated as a taxon_name_classification.
-#   @todo masculine_name, feminine_name, and neuter_name used to be strung together after a single @!attribute tag
 #
 # @!attribute feminine_name
 #   @return [String]
 #   Species name which are adjective or participle change depending on the gender of the genus.
 #   3 fields provide alternative species spelling. The part_of_speech designated as a taxon_name_classification.
 #   The gender of the genus also designated as a taxon_name_classification.
-#   @todo masculine_name, feminine_name, and neuter_name used to be strung together after a single @!attribute tag
 #
 # @!attribute neuter_name
 #   @return [String]
 #   Species name which are adjective or participle change depending on the gender of the genus.
 #   3 fields provide alternative species spelling. The part_of_speech designated as a taxon_name_classification.
 #   The gender of the genus also designated as a taxon_name_classification.
-#   @todo masculine_name, feminine_name, and neuter_name used to be strung together after a single @!attribute tag
 #
 # @!cached_valid_taxon_name_id
 #   !! @proceps -  need to document this ASAP
@@ -129,7 +126,7 @@ class TaxonName < ActiveRecord::Base
   attr_accessor :also_create_otu
 
   # @return [Boolean]
-  #   When true, also cached values are not built
+  #  When true, also cached values are not built
   attr_accessor :no_cached
 
   NO_CACHED_MESSAGE = 'PROJECT REQUIRES TAXON NAME CACHE REBUILD'

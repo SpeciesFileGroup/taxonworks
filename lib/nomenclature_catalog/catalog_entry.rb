@@ -1,6 +1,7 @@
 module NomenclatureCatalog
   class CatalogEntry
     attr_accessor :items
+    attr_accessor :topics
 
     def initialize
       @items = []
@@ -21,6 +22,18 @@ module NomenclatureCatalog
       end
       topics.uniq
     end
+
+    def topics
+      @topics ||= set_topics
+      @topics
+    end
+
+    def set_topics
+      topics = []
+      items.each do |i|
+      end
+    end
+
 
   end
 end

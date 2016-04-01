@@ -54,4 +54,13 @@ module NotesHelper
     true 
   end
 
+  def note_list_tag(object)
+    if object.notes.any?
+      content_tag(:h3, 'Notes') +
+      content_tag(:ul, class: 'note_list') do
+        object.notes.collect{|a| content_tag(:li, note_tag(a)) }.join.html_safe 
+      end
+    end
+  end
+
 end

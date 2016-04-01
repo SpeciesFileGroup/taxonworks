@@ -6,7 +6,7 @@
         <p> 
           <%= mode == :browse ? taxon_name_browse_link(p) : taxon_name_link(p)  -%> 
           <span class="subtle">
-            <%= cached_author_year_tag(p) -%>
+            <%= p.cached_author_year -%>
           </span>
         </p>
       </li>
@@ -18,7 +18,7 @@
       <p> 
         <%= taxon_name_tag(taxon_name) -%> 
         <span class="subtle">
-          <%= cached_author_year_tag(taxon_name) -%>
+          <%= taxon_name.cached_author_year -%>
         </span>
       </p>
     </li>
@@ -29,7 +29,7 @@
         <p>
           <%= mode == :browse ? taxon_name_browse_link(p) : taxon_name_link(p) -%>
           <span class="subtle">
-            <%= cached_author_year_tag(p) -%>
+            <%= p.cached_author_year -%>
           </span>
           <%= content_tag(:span, "[#{p.descendants.count}]",  class: :subtle) if p.descendants.count > 0  %> 
         </p> 

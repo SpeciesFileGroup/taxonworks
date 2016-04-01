@@ -56,4 +56,13 @@ module IdentifiersHelper
     true 
   end
 
+  def identifier_list_tag(object)
+    if object.identifiers.any?
+      content_tag(:h3, 'Identifiers') +
+      content_tag(:ul, class: 'identifier_list') do
+        object.identifiers.collect{|a| content_tag(:li, identifier_tag(a)) }.join.html_safe 
+      end
+    end
+  end
+
 end
