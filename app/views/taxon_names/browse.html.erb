@@ -1,5 +1,10 @@
-  <div id="show" class="panels-container horizontal">
+  <div class="flexbox panel item content">
+    <%= render('breadcrumb_navigator', taxon_name: @taxon_name) -%>
+  </div>
+  <div id="show" class="panels-container ">
+
     <div class="item item1">
+
       <div class="panel separate-right">
         <div class="title nav-line">
           <%= model_name_title -%>: Browse
@@ -26,7 +31,7 @@
           </ul>
         </div>
         <div class="content">
-          <%= render('breadcrumb_navigator', taxon_name: @taxon_name) -%>
+
         </div> 
         </div>    
     <div class="flex-wrap-row"> 
@@ -34,10 +39,9 @@
         <div id="attributes-panel" class="panel separate-left separate-right attributes-panel ">
           <div class="break_words content">
             <div class="title-section"> 
-              <h2>Data</h2>
+              <h2>Taxonomic history</h2>
             </div>
             <div class="attributes"> 
-            <h3>Taxonomic history</h3>
             <ul class="taxonomic_history">
               <% @data.ordered_by_nomenclature_date.each do |c| -%>
                 <%= nomenclature_line_tag(c) -%> 
