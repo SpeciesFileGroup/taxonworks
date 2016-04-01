@@ -228,7 +228,8 @@ class Combination < TaxonName
   def set_cached_valid_taxon_name_id
     begin
       TaxonName.transaction do
-        self.update_column(:cached_valid_taxon_name_id, self.protonyms_by_rank[c.protonyms_by_rank.keys.last].cached_valid_taxon_name_id)
+        c = self.protonyms_by_rank
+        self.update_column(:cached_valid_taxon_name_id, c[c.keys.last].cached_valid_taxon_name_id)
       end
     rescue
     end

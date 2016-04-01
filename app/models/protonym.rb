@@ -830,7 +830,6 @@ class Protonym < TaxonName
       end
     rescue
     end
-    false
   end
 
 
