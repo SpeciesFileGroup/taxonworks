@@ -233,7 +233,6 @@ class Combination < TaxonName
       end
     rescue
     end
-    false
   end
 
 

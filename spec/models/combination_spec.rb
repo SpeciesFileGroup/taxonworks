@@ -197,12 +197,11 @@ describe Combination, type: :model, group: :nomenclature do
     end
 
     specify 'chached_valid_taxon_name_id for Combination' do
-      sp = FactoryGirl.create(:iczn_species, name: 'bus', parent: genus)
       combination.genus = genus
-      combination.species = sp
+      combination.species = species
       combination.save
-      expect(sp.cached_valid_taxon_name_id).to eq(sp.id)
-      expect(combination.cached_valid_taxon_name_id).to eq(sp.id)
+      expect(species.cached_valid_taxon_name_id).to eq(species.id)
+      expect(combination.cached_valid_taxon_name_id).to eq(species.id)
     end
 
 
