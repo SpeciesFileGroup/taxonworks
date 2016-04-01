@@ -181,7 +181,7 @@
         handle_projects_and_users_3i
         raise '$project_id or $user_id not set.'  if $project_id.nil? || $user_id.nil?
 
-        project_id = 1
+        #project_id = 1
         handle_controlled_vocabulary_3i
         handle_references_3i
         handle_taxonomy_3i
