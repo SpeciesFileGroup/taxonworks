@@ -677,7 +677,6 @@ class TaxonName < ActiveRecord::Base
       end
       rescue
     end
-    false
   end
 
   def update_cached_original_combinations
