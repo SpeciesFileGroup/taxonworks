@@ -12,7 +12,7 @@
       class ImportedData3i
         attr_accessor :people_index, :user_index, :publications_index, :citations_index, :genera_index, :images_index,
                       :parent_id_index, :statuses, :taxon_index, :citation_to_publication_index, :keywords,
-                      :incertae_sedis, :emendation, :original_combination, :unique_host_plant_index, :host_plant_index
+                      :incertae_sedis, :emendation, :original_combination, :unique_host_plant_index, :host_plant_index, :topics
         def initialize()
           @keywords = {}                  # keyword -> ControlledVocabularyTerm
           @people_index = {}              # PeopleID -> Person object
@@ -30,6 +30,7 @@
           @original_combination = {}      # original combination key => row
           @unique_host_plant_index = {}
           @host_plant_index = {}
+          @topics = {}
         end
       end
 
@@ -180,13 +181,14 @@
         handle_projects_and_users_3i
         raise '$project_id or $user_id not set.'  if $project_id.nil? || $user_id.nil?
 
+        project_id = 1
         handle_controlled_vocabulary_3i
         handle_references_3i
         handle_taxonomy_3i
-        # $project_id = 1
         handle_taxon_name_relationships_3i
-        handle_host_plant_name_dictionary_3i
-        handle_host_plants_3i
+        handle_citation_topics_3i
+        #handle_host_plant_name_dictionary_3i
+        #handle_host_plants_3i
 
         print "\n\n !! Success. End time: #{Time.now} \n\n"
       end
@@ -228,7 +230,6 @@
 
           @import.metadata['project_and_users'] = true
         end
-        
         @root = Protonym.find_or_create_by(name: 'Root', rank_class: 'NomenclaturalRank', project_id: $project_id)
 
         @data.keywords.merge!('3i_imported' => Keyword.find_or_create_by(name: '3i_imported', definition: 'Imported from 3i database.'))
@@ -239,31 +240,41 @@
         print "\nHandling CV \n"
 
         @data.keywords.merge!(
-          #'AuthorDrMetcalf' => Predicate.find_or_create_by(name: 'AuthorDrMetcalf', definition: 'Author name from DrMetcalf bibliography database.', project_id: $project_id),
-          '3i_imported' => Keyword.find_or_create_by(name: '3i_imported', definition: 'Imported from 3i database.', project_id: $project_id),
-          'CallNumberDrMetcalf' => Predicate.find_or_create_by(name: 'call_number_dr_metcalf', definition: 'Call Number from DrMetcalf bibliography database.', project_id: $project_id),
-          #'AuthorReference' => Predicate.find_or_create_by(name: 'author_reference', definition: 'Author string as it appears in the nomenclatural reference.', project_id: $project_id),
-          #'YearReference' => Predicate.find_or_create_by(name: 'year_reference', definition: 'Year string as it appears in the nomenclatural reference.', project_id: $project_id),
-          'Ethymology' => Predicate.find_or_create_by(name: 'ethymology', definition: 'Ethymology.', project_id: $project_id),
-          'TypeDepository' => Predicate.find_or_create_by(name: 'type_depository', definition: 'Type depository.', project_id: $project_id),
-          'YearRem' => Predicate.find_or_create_by(name: 'nomenclatural_string', definition: 'Nomenclatural remarks.', project_id: $project_id),
-          'Typification' => Predicate.find_or_create_by(name: 'type_designated_by', definition: 'Type designated by', project_id: $project_id),
-          'FirstRevisor' => Predicate.find_or_create_by(name: 'first_revisor_action', definition: 'First revisor action', project_id: $project_id),
-          'PageAuthor' => Predicate.find_or_create_by(name: 'page_author', definition: 'Page author.', project_id: $project_id),
-          'SimilarSpecies' => Predicate.find_or_create_by(name: 'similar_species', definition: 'Similar species.', project_id: $project_id),
-          'IDDrMetcalf' => Namespace.find_or_create_by(name: 'DrMetcalf_Source_ID', short_name: 'DrMetcalf_ID'),
-          'Key3' => Namespace.find_or_create_by(name: '3i_Source_ID', short_name: '3i_Source_ID'),
-          'Key' => Namespace.find_or_create_by(name: '3i_Taxon_ID', short_name: '3i_Taxon_ID'),
-          'FLOW-ID' => Namespace.find_or_create_by(name: 'FLOW_Source_ID', short_name: 'FLOW_Source_ID'),
-          'DelphacidaeID' => Namespace.find_or_create_by(name: 'Delphacidae_Source_ID', short_name: 'Delphacidae_ID'),
-          'Taxonomy' => Keyword.find_or_create_by(name: 'Taxonomy updated', definition: 'Taxonomical information entered to the DB.', project_id: $project_id),
-          'Typhlocybinae' => Keyword.find_or_create_by(name: 'Typhlocybinae updated', definition: 'Information related to Typhlocybinae entered to the DB.', project_id: $project_id),
-          'Illustrations' => Keyword.find_or_create_by(name: 'Illustrations exported', definition: 'Illustrations of Typhlocybinae species entered to the DB.', project_id: $project_id),
-          'Distribution' => Keyword.find_or_create_by(name: 'Distribution exported', definition: 'Illustrations on species distribution entered to the DB.', project_id: $project_id),
-          'Notes' => Topic.find_or_create_by(name: 'Notes', definition: 'Notes topic on the OTU.', project_id: $project_id),
-          'Host' => BiologicalProperty.find_or_create_by(name: 'Host', definition: 'An animal or plant on or in which a parasite or commensal organism lives.', project_id: $project_id),
-          'Herbivor' => BiologicalProperty.find_or_create_by(name: 'Herbivor', definition: 'An animal that feeds on plants.', project_id: $project_id),
-          'Parasitoid' => BiologicalProperty.find_or_create_by(name: 'Parasitoid', definition: 'An organism that lives in or on another organism.', project_id: $project_id),
+            #'AuthorDrMetcalf' => Predicate.find_or_create_by(name: 'AuthorDrMetcalf', definition: 'Author name from DrMetcalf bibliography database.', project_id: $project_id),
+            '3i_imported' => Keyword.find_or_create_by(name: '3i_imported', definition: 'Imported from 3i database.', project_id: $project_id),
+            'CallNumberDrMetcalf' => Predicate.find_or_create_by(name: 'call_number_dr_metcalf', definition: 'Call Number from DrMetcalf bibliography database.', project_id: $project_id),
+            #'AuthorReference' => Predicate.find_or_create_by(name: 'author_reference', definition: 'Author string as it appears in the nomenclatural reference.', project_id: $project_id),
+            #'YearReference' => Predicate.find_or_create_by(name: 'year_reference', definition: 'Year string as it appears in the nomenclatural reference.', project_id: $project_id),
+            'Ethymology' => Predicate.find_or_create_by(name: 'ethymology', definition: 'Ethymology.', project_id: $project_id),
+            'TypeDepository' => Predicate.find_or_create_by(name: 'type_depository', definition: 'Type depository.', project_id: $project_id),
+            'YearRem' => Predicate.find_or_create_by(name: 'nomenclatural_string', definition: 'Nomenclatural remarks.', project_id: $project_id),
+            'Typification' => Predicate.find_or_create_by(name: 'type_designated_by', definition: 'Type designated by', project_id: $project_id),
+            'FirstRevisor' => Predicate.find_or_create_by(name: 'first_revisor_action', definition: 'First revisor action', project_id: $project_id),
+            'PageAuthor' => Predicate.find_or_create_by(name: 'page_author', definition: 'Page author.', project_id: $project_id),
+            'SimilarSpecies' => Predicate.find_or_create_by(name: 'similar_species', definition: 'Similar species.', project_id: $project_id),
+            'IDDrMetcalf' => Namespace.find_or_create_by(name: 'DrMetcalf_Source_ID', short_name: 'DrMetcalf_ID'),
+            'Key3' => Namespace.find_or_create_by(name: '3i_Source_ID', short_name: '3i_Source_ID'),
+            'Key' => Namespace.find_or_create_by(name: '3i_Taxon_ID', short_name: '3i_Taxon_ID'),
+            'FLOW-ID' => Namespace.find_or_create_by(name: 'FLOW_Source_ID', short_name: 'FLOW_Source_ID'),
+            'DelphacidaeID' => Namespace.find_or_create_by(name: 'Delphacidae_Source_ID', short_name: 'Delphacidae_ID'),
+            'Taxonomy' => Keyword.find_or_create_by(name: 'Taxonomy updated', definition: 'Taxonomical information entered to the DB.', project_id: $project_id),
+            'Typhlocybinae' => Keyword.find_or_create_by(name: 'Typhlocybinae updated', definition: 'Information related to Typhlocybinae entered to the DB.', project_id: $project_id),
+            'Illustrations' => Keyword.find_or_create_by(name: 'Illustrations exported', definition: 'Illustrations of Typhlocybinae species entered to the DB.', project_id: $project_id),
+            'Distribution' => Keyword.find_or_create_by(name: 'Distribution exported', definition: 'Illustrations on species distribution entered to the DB.', project_id: $project_id),
+            'Notes' => Topic.find_or_create_by(name: 'Notes', definition: 'Notes topic on the OTU.', project_id: $project_id),
+            'Host' => BiologicalProperty.find_or_create_by(name: 'Host', definition: 'An animal or plant on or in which a parasite or commensal organism lives.', project_id: $project_id),
+            'Herbivor' => BiologicalProperty.find_or_create_by(name: 'Herbivor', definition: 'An animal that feeds on plants.', project_id: $project_id),
+            'Parasitoid' => BiologicalProperty.find_or_create_by(name: 'Parasitoid', definition: 'An organism that lives in or on another organism.', project_id: $project_id),
+        )
+        @data.topics.merge!(
+                        'Descriptions' => Topic.find_or_create_by(name: 'Description', definition: 'Source has morphological description.', project_id: $project_id),
+                        'Records' => Topic.find_or_create_by(name: 'Distribution', definition: 'Source has data on species distrebution or studied material.', project_id: $project_id),
+                        'Pictures' => Topic.find_or_create_by(name: 'Illustrations', definition: 'Source has illustrations.', project_id: $project_id),
+                        'Types' => Topic.find_or_create_by(name: 'Original description', definition: 'Source has original description.', project_id: $project_id),
+                        'Keys' => Topic.find_or_create_by(name: 'Identification key', definition: 'Source has identification key.', project_id: $project_id),
+                        'Synonymy' => Topic.find_or_create_by(name: 'Synonymy', definition: 'Source has synonymy records.', project_id: $project_id),
+                        'Host' => Topic.find_or_create_by(name: 'Host plants', definition: 'Source has host plant records.', project_id: $project_id),
+                        'Parasitoids' => Topic.find_or_create_by(name: 'Parasitoids', definition: 'Source has parasitoid records.', project_id: $project_id),
         )
 
         @host_plant_relationship = BiologicalRelationship.where(name: 'Host plant', project_id: $project_id)
@@ -369,7 +380,7 @@
           source.identifiers.new(type: 'Identifier::Local::Import', namespace: @data.keywords['FLOW-ID'], identifier: row['FLOW-ID']) if !row['FLOW-ID'].blank? && !row['FLOW-ID'] == '0'
           source.identifiers.new(type: 'Identifier::Local::Import', namespace: @data.keywords['DelphacidaeID'], identifier: row['DelphacidaeID']) if !row['DelphacidaeID'].blank? && !row['DelphacidaeID'] == '0'
 
-          # source.project_sources.new
+          source.project_sources.new #this works
 
           if source.valid?
             source.save!
@@ -896,15 +907,68 @@
             ba = BiologicalAssociation.find_or_create_by!(biological_relationship: @host_plant_relationship,
                                           biological_association_subject: subject,
                                           biological_association_object: object,
-                                          project_id: $project_id, 
-                                          origin_citation_attributes: {source_id: s}
+                                          origin_citation_attributes: {source_id: s},
+                                          project_id: $project_id
             )
-#            Citation.find_or_create_by!(citation_object: ba, source_id: s) unless s.blank? !!
+            #Citation.find_or_create_by!(citation_object: ba, source_id: s) unless s.blank?
           else
             print "\nRow #{row} is problematic\n"
           end
+
         end
 
+      end
+
+      def handle_citation_topics_3i
+        # Key3
+        # Key
+        # Descriptions
+        # Records
+        # Pictures
+        # Types
+        # Keys
+        # Synonymy
+        # Host
+        # HostPlant
+        # Notes
+        # size
+        
+        path = @args[:data_directory] + 'littable.txt'
+        print "\nHandling citation topics\n"
+        raise "file #{path} not found" if not File.exists?(path)
+        file = CSV.foreach(path, col_sep: "\t", headers: true)
+
+        file.each_with_index do |row, i|
+          print "\r#{i}"
+
+          p = find_taxon(row['Key'])
+          source = find_publication_id(row['Key3'])
+          c = p.citations.find_or_create_by!(source_id: source, project_id: $project_id)
+
+          c.citation_topics.find_or_create_by(topic: @data.topics['Descriptions'], project_id: $project_id) if row['Descriptions'] == '1' && row['Types'] == '0'
+          c.citation_topics.find_or_create_by(topic: @data.topics['Types'], project_id: $project_id) if row['Descriptions'] == '1' && row['Types'] == '1'
+          c.citation_topics.find_or_create_by(topic: @data.topics['Records'], project_id: $project_id) if row['Records'] == '1'
+          c.citation_topics.find_or_create_by(topic: @data.topics['Pictures'], project_id: $project_id) if row['Pictures'] == '1'
+          c.citation_topics.find_or_create_by(topic: @data.topics['Keys'], project_id: $project_id) if row['Keys'] == '1'
+          c.citation_topics.find_or_create_by(topic: @data.topics['Synonymy'], project_id: $project_id) if row['Synonymy'] == '1'
+          c.citation_topics.find_or_create_by(topic: @data.topics['Host'], project_id: $project_id) if row['Host'] == '1'
+
+          if c.valid?
+            c.save!
+          else
+            byebug
+          end
+          if row['Synonymy'] == '1'
+            tr = p.taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID).first
+            unless tr.nil?
+              cit = tr.citations.find_or_create_by!(source_id: source, project_id: $project_id)
+              if row['Descriptions'] == '1'
+                cit.is_original = true
+                cit.save!
+              end
+            end
+          end
+        end
       end
 
         def find_taxon_id(key)
@@ -917,16 +981,15 @@
 
         def find_otu(key)
           otu = nil
-          id = '3i_Taxon_ID ' + key.to_s
-        
-          # otu = Otu.joins(taxon_name: [:identifier]).where(project_id: $project_id).where(taxon_names: {cached: id}).first
-          # above could(?!) replace next two lines
-          p = Protonym.with_identifier(id).find_by(project_id: $project_id)
-          otu = p.otus.first if !p.nil? && !p.otus.empty?
+          otu = Otu.joins(:identifiers, taxon_name: :identifiers).where(identifiers: {cached: '3i_Taxon_ID ' + key.to_s}, project_id: $project_id).first
 
-          if otu.nil?
-            otu = Otu.with_identifier(id).find_by(project_id: $project_id)
-          end
+          byebug if otu.nil?
+
+#          p = Protonym.with_identifier('3i_Taxon_ID ' + key.to_s).find_by(project_id: $project_id)
+#          otu = p.otus.first if !p.nil? && !p.otus.empty?
+#          if otu.nil?
+#            otu = Otu.with_identifier('3i_Taxon_ID ' + key.to_s).find_by(project_id: $project_id)
+#          end
           otu
         end
 
