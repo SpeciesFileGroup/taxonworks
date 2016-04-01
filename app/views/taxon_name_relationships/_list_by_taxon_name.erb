@@ -13,7 +13,7 @@
   <p> As object of </p> 
   <ul> 
     <% taxon_name.related_taxon_name_relationships.each do |tnr| -%>
-      <%= content_tag(:li, taxon_name_relationship_for_object_tag(tnr)) -%>
+      <%= content_tag(:li, taxon_name_relationship_for_object_tag(tnr).html_safe) -%>
     <% end %>
   </ul>
 <% end %>

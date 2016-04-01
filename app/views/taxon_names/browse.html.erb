@@ -1,52 +1,52 @@
 <h1>Browsing Taxon names</h1>
 
-<%= render(partial: 'breadcrumb_navigator', locals: {taxon_name: @taxon_name}) -%>
+<%= render('breadcrumb_navigator', taxon_name: @taxon_name) -%>
 
 <div class="flexbox">
   <div class="item item1">
 
+    
+    <!---- should follow pattern for show? ---->
+    <%= model_name_title -%> : Browse
+
     <%= edit_taxon_name_link(@taxon_name) -%>
     <%= link_to('Show', @taxon_name.metamorphosize) -%>
 
-    <div><!---- navigation ----> 
-    <%= ancestor_browse_taxon_name_link(@taxon_name) -%> <br>
-    <%= previous_sibling_browse_taxon_name_link(@taxon_name) -%> |
-    <%= next_sibling_browse_taxon_name_link(@taxon_name) -%> 
-    <br>
-    <%= descendant_browse_taxon_name_link(@taxon_name) -%> 
-    </div>
-    <%= render(partial: 'parent_navigator', locals: {taxon_name: @taxon_name, mode: :browse}) -%>
-
+    <%= render('classification_navigator', taxon_name: @taxon_name) -%>
+    <%= render('parent_navigator', taxon_name: @taxon_name, mode: :browse) -%>
   </div>
 
   <div class="item item2">
-    
-    <div class="taxon_header"> 
-      <%= content_tag(:span, full_taxon_name_tag(@taxon_name), class: 'name') -%>  <%= taxon_name_classification_status_tag(@taxon_name) -%>
-    </div>
 
-    <br>
+    <!---- the title name ('title' class?) ---->
+    <%= content_tag(:span, full_taxon_name_tag(@taxon_name), class: 'name') -%> <%= taxon_name_classification_status_tag(@taxon_name) -%>
+    <%= latinization_tag(@taxon_name) -%>
+    <! ---- these together ---->
 
-    <ul>
-    <% @data.ordered_by_nomenclature_date.each do |c| -%>
-      <%= nomenclature_line_tag(c) -%> 
-    <% end %>
+    <ul class="taxonomic_history">
+      <% @data.ordered_by_nomenclature_date.each do |c| -%>
+        <%= nomenclature_line_tag(c) -%> 
+      <% end %>
     </ul>
 
-    <%= latinization_tag(@taxon_name) -%>
-
     <h3> Citations </h3>
-    <ul>
+    <ul class="citations">
       <% @data.source_list.each do |s| -%>
-        <%= content_tag(:li, (source_tag(s) + ':' + topic_list_tag(@data.topics_for_source(s))).html_safe   )  -%>
+        <%= content_tag(:li, (source_tag(s) + ':' + topic_list_tag(@data.topics_for_source(s))).html_safe)  -%>
       <% end %> 
     </ul>
 
   </div>
 
   <div class="item item3">
+
     <%= render(partial: '/shared/data/all/show/soft_validation', locals: {object: @taxon_name}) -%> 
-    <%= render(partial: '/shared/data/all/show/annotations', locals: {object: @taxon_name}) -%> 
+    
+    <%= identifier_list_tag(@taxon_name) -%> 
+    <%= data_attribute_list_tag(@taxon_name) -%> 
+    <%= note_list_tag(@taxon_name) -%> 
+    <%= tag_list_tag(@taxon_name) -%> 
+
     <%= render(partial: '/shared/data/all/show/housekeeping', locals: {object: @taxon_name}) -%> 
   </div>
 

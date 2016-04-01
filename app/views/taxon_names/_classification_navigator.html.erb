@@ -1,0 +1,7 @@
+<div class="classification_navigator">
+  <%= content_tag(:span, ancestor_browse_taxon_name_link(taxon_name), class: :up) -%>
+  <%= content_tag(:span, descendant_browse_taxon_name_link(taxon_name), class: :down) -%>
+  <%= content_tag(:span, previous_sibling_browse_taxon_name_link(taxon_name), class: :previous_sibling) -%>
+  <%= content_tag(:span, next_sibling_browse_taxon_name_link(taxon_name), class: :next_sibling) -%>
+</div>
+

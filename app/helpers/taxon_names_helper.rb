@@ -1,81 +1,147 @@
 module TaxonNamesHelper
 
+  # @return [String] 
+  #   the taxon name without author year, with HTML
   def taxon_name_tag(taxon_name)
     return nil if taxon_name.nil?
     return taxon_name.name if taxon_name.new_record?
     # TODO: fix generation of empty string cached author year
-    #taxon_name.cached_html ? [taxon_name.cached_html, taxon_name.cached_author_year].join(' ').strip.html_safe : taxon_name.name
-    taxon_name.cached_html.strip.html_safe || taxon_name.name
+    taxon_name.cached_html.html_safe || taxon_name.name
   end
 
+  # @return [String]
+  #   the taxon name in original combiantion, without author year, with HTML
   def original_taxon_name_tag(taxon_name)
     return nil if taxon_name.nil?
-    taxon_name.cached_original_combination.nil? ? taxon_name.cached_html.strip.html_safe || taxon_name.name : taxon_name.cached_original_combination.strip.html_safe
+    taxon_name.cached_original_combination.nil? ? taxon_name.cached_html.html_safe || taxon_name.name : taxon_name.cached_original_combination.html_safe
   end
 
-  def cached_author_year_tag(taxon_name)
-    taxon_name.cached_author_year ? ' ' +  taxon_name.cached_author_year.strip.html_safe : nil
-  end
-
+  # @return [String]
+  #  the current name/combination with author year, and HTML
   def full_taxon_name_tag(taxon_name)
     return nil if taxon_name.nil?
-    [taxon_name_tag(taxon_name), cached_author_year_tag(taxon_name)].compact.join(" ").html_safe
+    [taxon_name_tag(taxon_name), taxon_name.cached_author_year].compact.join(" ").html_safe
   end
 
+  # @return [String
+  #  the name in original combiantion, with author year, and HTML
   def full_original_taxon_name_tag(taxon_name)
     return nil if taxon_name.nil?
-    [original_taxon_name_tag(taxon_name), cached_author_year_tag(taxon_name)].compact.join(" ").html_safe
+    [original_taxon_name_tag(taxon_name), original_author_year(taxon_name)].compact.join(" ").html_safe
+  end
+
+  # TODO: !! ug, hackish
+  def original_author_year(taxon_name)
+    return nil if taxon_name.nil?
+    taxon_name.cached_author_year.gsub(/^\(|\)$/, '')
+  end
+
+  def taxon_name_history_tag(taxon_name, citation)
+
+    # taxon name in original combination
+    # taxon name author year
+    # { citation author/year }
+    # { citation pages }
+    # { type information }
+    # { status }
+    # { citation notes }
+    # { citation topics }
+
+    # Each item must be spanned, or generate a span, and classed for styling
+    [
+      content_tag(:span, original_taxon_name_tag(taxon_name), class: [:original_taxon_name, original_citation_css(taxon_name, citation) ] ), 
+      history_author_year(taxon_name, citation),
+      history_pages(citation),
+      history_statuses(taxon_name, citation), 
+      history_notes(citation),
+      history_topics(citation),
+      history_type_material(taxon_name),
+    ].compact.join.html_safe
+  end
+  
+  def original_citation_css(taxon_name, citation)
+    return nil if citation.nil?
+    'original_description' if citation.is_original? && taxon_name == citation.citation_object
+  end
+
+  def history_type_material(taxon_name)
+    return nil if taxon_name.type == 'Combination'
+    content_tag(:span, type_taxon_name_relationship_tag(taxon_name.type_taxon_name_relationship), class: 'type_information')
+  end
+
+  def history_topics(citation)
+    return nil if citation.nil?
+    content_tag(:span, citation.citation_topics.collect{|t| t.topic.name}.join(", "), class: 'citation_topics')
+  end
+
+  def history_notes(citation)
+    return nil if citation.nil? || !citation.notes.any?
+    content_tag(:span, citation.notes.collect{|n| n.text}.join, class: 'citation_notes') if citation.notes?
+  end
+
+  # @return [String, nil]
+  #   A brief summary of the validity of the name (e.g. 'Valid')
+  #     ... think this has to be refined, it doesn't quite make sense to show multiple status per relationship
+  def history_statuses(taxon_name, citation)
+    return nil if taxon_name.taxon_name_statuses.empty?
+    content_tag(:span, (' (' + taxon_name.taxon_name_statuses.join(', ') + ')').html_safe, class: 'status')
+  end
+
+  def history_pages(citation)
+    return nil if citation.nil?
+    content_tag(:span, ": #{citation.pages}.", class: 'pages') if citation.pages
+  end
+
+  # @return [String]
+  #   the name, or citation author year, prioritized by original/new with punctuation
+  def history_author_year(taxon_name, citation) 
+    if citation.try(:is_original) || citation.nil?
+      v = original_author_year(taxon_name)
+      content_tag(:span, " #{v}", class: 'taxon_name_author_year') if v.length > 0
+    elsif !citation.nil?
+      content_tag(:span, '. ' + citation.source.author_year, class: 'citation_author_year') 
+    end
   end
 
   def nomenclature_line_tag(nomenclature_catalog_item)
     i = nomenclature_catalog_item
     c = i.citation
-    content_tag(:li) do  
-      if i.cited?
-        case i.object_class
-        when 'Protonym'
-          taxon_name_nomenclature_line_tag(c) 
-        when  /TaxonNameRelationship/
-          [taxon_name_relationship_for_object_tag(c.annotated_object),  c.citation_topics.collect{|t| t.topic.name}.join(", "), "REL" ].compact.join(" ").html_safe    
-        else 
-          i.object_class
-        end
+
+    content_tag(:li, class: :history_record) do
+      case i.object_class
+      when 'Protonym', 'Combination' 
+        taxon_name_history_tag(i.object, i.object.origin_citation)
+      when  /TaxonNameRelationship/
+        taxon_name_history_tag(i.object.subject_taxon_name, i.object.origin_citation)
       else
-        case i.object_class
-        when 'Protonym' # have to fork vs. Combination
-          [ full_original_taxon_name_tag(i.object), type_taxon_name_relationship_tag(i.object.type_taxon_name_relationship) ].compact.join(". ").html_safe
-        when 'Combination'
-          [ full_original_taxon_name_tag(i.object) ].compact.join(". ").html_safe
-        when  /TaxonNameRelationship/
-          [ full_original_taxon_name_tag(i.object.subject_taxon_name), taxon_name_statuses_tag(i.object.subject_taxon_name)].join(" ").html_safe 
-        else 
-          i.object_class
-        end
+        i.object_class
       end
     end
+
+#   content_tag(:li) do  
+#     if i.cited?
+#       case i.object_class
+#       when 'Protonym'
+#         taxon_name_nomenclature_line_tag(c) 
+#       when  /TaxonNameRelationship/
+#         [taxon_name_relationship_for_object_tag(c.annotated_object),  c.citation_topics.collect{|t| t.topic.name}.join(", "), "REL" ].compact.join(" ").html_safe    
+#       else 
+#         i.object_class
+#       end
+#     else
+#       case i.object_class
+#       when 'Protonym' # have to fork vs. Combination
+#         [ full_original_taxon_name_tag(i.object), type_taxon_name_relationship_tag(i.object.type_taxon_name_relationship) ].compact.join(". ").html_safe
+#       when 'Combination'
+#         [ full_original_taxon_name_tag(i.object) ].compact.join(". ").html_safe # , type_taxon_name_relationship_tag(i.object.type_taxon_name_relationship)
+#       when  /TaxonNameRelationship/
+#         [ full_original_taxon_name_tag(i.object.subject_taxon_name), taxon_name_statuses_tag(i.object.subject_taxon_name)].join(" ").html_safe 
+#       else 
+#         i.object_class
+#       end
+#     end
+#   end
   end
-
-  def taxon_name_statuses_tag(taxon_name)
-    return nil if taxon_name.taxon_name_statuses.empty?
-    ('(' + taxon_name.taxon_name_statuses.join(', ') + ')').html_safe 
-  end
-
-
-  def taxon_name_nomenclature_line_tag(citation)
-    taxon_name = citation.annotated_object
-
-    [ original_taxon_name_tag(taxon_name),
-      (citation.is_original? ? nil : "."), 
-      (citation.is_original? ? cached_author_year_tag(taxon_name) : "AUTHOR OF CITATION FROM BIBTEX" ), 
-      (citation.try(:pages) ? ": #{citation.pages}" : nil),
-      ".",
-      citation.citation_topics.collect{|t| t.topic.name}.join(", "),
-
-    ].compact.join("").html_safe
-
-  end
-
-
 
   def latinization_tag(taxon_name)
     list = TaxonNameClassification.where_taxon_name(@taxon_name).with_type_array(LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES)

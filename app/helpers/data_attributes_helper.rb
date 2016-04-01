@@ -1,5 +1,10 @@
 module DataAttributesHelper
 
+  def data_attribute_tag(data_attribute)
+    return nil if data_attribute.nil?
+    data_attribute_predicate_tag(data_attribute) + ' ' + data_attribute.value
+  end
+
   def add_data_attribute_link(object: object, attribute: nil)
     link_to('Add data attribute', new_data_attribute_path(
                                     data_attribute: {
@@ -40,5 +45,16 @@ module DataAttributesHelper
       nil
     end
   end
+
+  def data_attribute_list_tag(object)
+    if object.data_attributes.any?
+      content_tag(:h3, 'Data attributes') +
+      content_tag(:ul, class: 'data_attribute_list') do
+        object.data_attributes.collect{|a| content_tag(:li, data_attribute_tag(a)) }.join.html_safe 
+      end
+    end
+  end
+
+
 
 end

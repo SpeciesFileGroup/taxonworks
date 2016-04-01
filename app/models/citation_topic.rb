@@ -26,6 +26,7 @@ class CitationTopic < ActiveRecord::Base
   belongs_to :citation, inverse_of: :citation_topics
 
   validates_presence_of :topic_id, :citation_id
+
   validates_uniqueness_of :topic_id, :citation_id
 
   # deprecated, all values are nilified
