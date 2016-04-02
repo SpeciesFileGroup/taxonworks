@@ -1,10 +1,8 @@
-  <div class="flexbox panel item content">
+  <div id="browse-view" class="flexbox panel item content">
     <%= render('breadcrumb_navigator', taxon_name: @taxon_name) -%>
   </div>
   <div id="show" class="panels-container ">
-
     <div class="item item1">
-
       <div class="panel separate-right">
         <div class="title nav-line">
           <%= model_name_title -%>: Browse
@@ -27,13 +25,18 @@
             <%= content_tag(:span,latinization_tag(@taxon_name)) -%>
           </div>
           <ul class="horizontal_navbar context-menu">
-            <li><a href="#" data-icon="show" class="icon-list" view-bottom>Development view</a></li>
+            <!-- <li><a href="#" data-icon="show" class="icon-list" view-bottom>Development view</a></li>-->
           </ul>
         </div>
-        <div class="content">
-
-        </div> 
-        </div>    
+        <div id="filterBrowse" class="navigation-controls">
+          <div class="navigation-item" data-filter="reset" style="width: 100px;">
+            <span data-icon="reset" class="small-icon">Reset</span>
+          </div>
+          <div class="navigation-item" data-filter=".taxon_name_author_year">
+            Author/Year
+          </div>          
+        </div>
+      </div>    
     <div class="flex-wrap-row"> 
       <div class="panels-container">
         <div id="attributes-panel" class="panel separate-left separate-right attributes-panel ">
