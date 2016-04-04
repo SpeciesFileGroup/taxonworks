@@ -195,6 +195,16 @@ describe Combination, type: :model, group: :nomenclature do
       expect(combination.cached).to eq('Aus bus')
       expect(combination.cached_html).to eq('<i>Aus bus</i>')
     end
+
+    specify 'chached_valid_taxon_name_id for Combination' do
+      combination.genus = genus
+      combination.species = species
+      combination.save
+      expect(species.cached_valid_taxon_name_id).to eq(species.id)
+      expect(combination.cached_valid_taxon_name_id).to eq(species.id)
+    end
+
+
   end
 
   context 'soft validation' do

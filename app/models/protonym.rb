@@ -625,7 +625,6 @@ class Protonym < TaxonName
       end
     rescue
     end
-    false
   end
 
   def sv_parent_priority
@@ -830,7 +829,6 @@ class Protonym < TaxonName
       end
     rescue
     end
-    false
   end
 
 

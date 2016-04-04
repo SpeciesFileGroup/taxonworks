@@ -42,7 +42,12 @@
       display: flex;
       min-width: 50%;
       flex: 1 auto;
-    }    
+    } 
+
+    .fullSize {
+      width: 100%;
+      flex: 1 auto;
+    }   
 
     .item { 
       word-wrap: break-word;
