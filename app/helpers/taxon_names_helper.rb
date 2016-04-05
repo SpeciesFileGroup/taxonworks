@@ -32,7 +32,7 @@ module TaxonNamesHelper
 
   # TODO: !! ug, hackish
   def original_author_year(taxon_name)
-    return nil if taxon_name.nil?
+    return nil if taxon_name.nil? || taxon_name.cached_author_year.nil?
     taxon_name.cached_author_year.gsub(/^\(|\)$/, '')
   end
 
