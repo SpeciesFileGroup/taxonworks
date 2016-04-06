@@ -3,6 +3,24 @@
 
 
 
+
+.history_record {
+
+  .original_taxon_name {
+    font-weight: normal;
+  }
+
+  .taxon_name_author_year {
+    color: gray;
+    font-weight: normal;
+  }
+  
+}
+
+.citations {
+
+}
+
 #show_taxon_name_hierarchy {
   p {
     font-size: 12px;

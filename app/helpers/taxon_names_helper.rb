@@ -233,12 +233,12 @@ module TaxonNamesHelper
 
   def ancestor_browse_taxon_name_link(taxon_name)
     text = 'Ancestor'
-    taxon_name.ancestors.any? ? link_to(content_tag(:span, text, 'data-icon' => 'arrow-up', 'class' => 'small-icon'), browse_taxon_name_path(taxon_name.ancestors.first.metamorphosize), 'class' => 'navigation-item') : content_tag(:div, content_tag(:span, text, 'class' => 'small-icon', 'data-icon' => 'arrow-up'), 'class' => 'navigation-item disable')
+    taxon_name.ancestors.any? ? link_to(content_tag(:span, text, 'data-icon' => 'arrow-up', 'class' => 'small-icon'), browse_taxon_name_path(taxon_name.ancestors.first.metamorphosize), 'class' => 'navigation-item', 'data-arrow' => 'ancestor') : content_tag(:div, content_tag(:span, text, 'class' => 'small-icon', 'data-icon' => 'arrow-up'), 'class' => 'navigation-item disable')
   end
 
   def descendant_browse_taxon_name_link(taxon_name)
     text = 'Descendant'
-    taxon_name.descendants.any? ? link_to(content_tag(:span, text, 'data-icon' => 'arrow-down', 'class' => 'small-icon'), browse_taxon_name_path(taxon_name.descendants.first.metamorphosize), 'class' => 'navigation-item') : content_tag(:div, content_tag(:span, text, 'class' => 'small-icon', 'data-icon' => 'arrow-down'), 'class' => 'navigation-item disable') 
+    taxon_name.descendants.any? ? link_to(content_tag(:span, text, 'data-icon' => 'arrow-down', 'class' => 'small-icon'), browse_taxon_name_path(taxon_name.descendants.first.metamorphosize), 'class' => 'navigation-item', 'data-arrow' => 'descendant') : content_tag(:div, content_tag(:span, text, 'class' => 'small-icon', 'data-icon' => 'arrow-down'), 'class' => 'navigation-item disable') 
   end
 
   def next_sibling_browse_taxon_name_link(taxon_name)
@@ -251,7 +251,7 @@ module TaxonNamesHelper
       link_object = TaxonName.find(siblings[ s + 1]) if s < siblings.length - 1
     end
 
-    link_object.nil? ? content_tag(:div, content_tag(:span, text, 'class' => 'small-icon icon-right', 'data-icon' => 'arrow-right'), 'class' => 'navigation-item disable') : link_to(content_tag(:span, text, 'data-icon' => 'arrow-right', 'class' => 'small-icon icon-right'), browse_taxon_name_path(link_object.metamorphosize), 'class' => 'navigation-item')
+    link_object.nil? ? content_tag(:div, content_tag(:span, text, 'class' => 'small-icon icon-right', 'data-icon' => 'arrow-right'), 'class' => 'navigation-item disable') : link_to(content_tag(:span, text, 'data-icon' => 'arrow-right', 'class' => 'small-icon icon-right'), browse_taxon_name_path(link_object.metamorphosize), 'class' => 'navigation-item', 'data-arrow' => 'next')
   end
 
   def previous_sibling_browse_taxon_name_link(taxon_name)
@@ -263,7 +263,7 @@ module TaxonNamesHelper
       link_object = TaxonName.find(siblings[ s - 1]) if s != 0 
     end
 
-    link_object.nil? ? content_tag(:div, content_tag(:span, text, 'class' => 'small-icon', 'data-icon' => 'arrow-left'), 'class' => 'navigation-item disable') : link_to(content_tag(:span, text, 'data-icon' => 'arrow-left', 'class' => 'small-icon'), browse_taxon_name_path(link_object.metamorphosize), 'class' => 'navigation-item')
+    link_object.nil? ? content_tag(:div, content_tag(:span, text, 'class' => 'small-icon', 'data-icon' => 'arrow-left'), 'class' => 'navigation-item disable') : link_to(content_tag(:span, text, 'data-icon' => 'arrow-left', 'class' => 'small-icon'), browse_taxon_name_path(link_object.metamorphosize), 'class' => 'navigation-item', 'data-arrow' => 'back')
   end
 
 end

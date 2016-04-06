@@ -7,13 +7,23 @@ function browseView() {
 	var timeEffect = 150;
 
 	$('#filterBrowse').on('click', '.navigation-item', function(selector) {
-		if($(this).attr('data-filter') === 'reset') {
+		if($(this).attr('data-filter-reset') === 'reset') {
 			$('[data-filter]').each( function() {
 				$($(this).attr('data-filter')).show(timeEffect);
+				$($(this).children()).attr('data-icon', 'show');
 			});
 		}
 		else {
-			$($(this).attr('data-filter')).hide(timeEffect);
+			if($(this).children().attr('data-icon') == "show") {
+				$($(this).children()).attr('data-icon', 'hide');
+				$($(this).attr('data-filter')).hide(timeEffect);
+			}
+			else {
+				$($(this).children()).attr('data-icon', 'show');
+				$($(this).attr('data-filter')).show(timeEffect);			
+			}
 		}
 	});
+
+
 }

@@ -44,4 +44,16 @@ function show() {
       location.href = $('[data-arrow="next"]').attr('href');
     }
   });    
+
+  Mousetrap.bind('up', function() {
+    if($('[data-arrow="back"]').is('a')) {
+      location.href = $('[data-arrow="ancestor"]').attr('href');
+    }
+  });
+
+  Mousetrap.bind('down', function() {
+    if($('[data-arrow="descendant"]').is('a')) {
+      location.href = $('[data-arrow="descendant"]').attr('href');
+    }
+  });      
 }
