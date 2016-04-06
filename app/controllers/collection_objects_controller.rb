@@ -144,6 +144,36 @@ class CollectionObjectsController < ApplicationController
     send_data CollectionObject.generate_download(CollectionObject.where(project_id: $project_id)), type: 'text', filename: "collection_objects_#{DateTime.now.to_s}.csv"
   end
 
+  # GET collection_objects/batch_load
+  def batch_load
+  end
+
+  def preview_simple_batch_load
+    if params[:file]
+      @result = BatchLoad::Import::CollectionObject.new(batch_params)
+      digest_cookie(params[:file].tempfile, :batch_collection_objects_md5)
+      render 'collection_objects/batch_load/simple/preview'
+    else
+      flash[:notice] = "No file provided!"
+      redirect_to action: :batch_load
+    end
+  end
+
+  def create_simple_batch_load
+    if params[:file] && digested_cookie_exists?(params[:file].tempfile, :batch_collection_objects_md5)
+      @result = BatchLoad::Import::CollectionObject.new(batch_params)
+      if @result.create
+        flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} collection objects were created."
+        render 'collection_objects/batch_load/simple/create' and return
+      else
+        flash[:alert] = 'Batch import failed.'
+      end
+    else
+      flash[:alert] = 'File to batch upload must be supplied.'
+    end
+    render :batch_load
+  end
+
   private
 
   def set_collection_object
