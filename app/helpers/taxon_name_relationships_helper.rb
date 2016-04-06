@@ -21,7 +21,7 @@ module TaxonNameRelationshipsHelper
       ' (See ' + taxon_name_link(taxon_name_relationship.object_taxon_name) + 
       (taxon_name_relationship.subject_taxon_name.cached_valid_taxon_name_id ?  # test for nil, it's not always being set?!
        ' ' +
-       TaxonName.find(taxon_name_relationship.subject_taxon_name.cached_valid_taxon_name_id).try(:cached_author_year) + 
+       TaxonName.find(taxon_name_relationship.subject_taxon_name.cached_valid_taxon_name_id).try(:cached_author_year).to_s + 
        ')' : nil
       )
   end
