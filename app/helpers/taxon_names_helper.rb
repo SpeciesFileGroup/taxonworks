@@ -97,7 +97,7 @@ module TaxonNamesHelper
   def history_author_year(taxon_name, citation) 
     if citation.try(:is_original) || citation.nil?
       v = original_author_year(taxon_name)
-      content_tag(:span, " #{v}", class: 'taxon_name_author_year') if v.length > 0
+      content_tag(:span, " #{v}", class: 'taxon_name_author_year') if defined? v.length && v.length > 0
     elsif !citation.nil?
       content_tag(:span, '. ' + citation.source.author_year, class: 'citation_author_year') 
     end

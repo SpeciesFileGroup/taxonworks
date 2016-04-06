@@ -16,11 +16,11 @@ function browseView() {
 		else {
 			if($(this).children().attr('data-icon') == "show") {
 				$($(this).children()).attr('data-icon', 'hide');
-				$($(this).attr('data-filter')).hide(timeEffect);
+				$($(this).attr('data-filter')).css('font-size','0px');
 			}
 			else {
 				$($(this).children()).attr('data-icon', 'show');
-				$($(this).attr('data-filter')).show(timeEffect);			
+				$($(this).attr('data-filter')).css('font-size','100%');;			
 			}
 		}
 	});
