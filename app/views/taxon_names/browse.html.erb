@@ -58,7 +58,7 @@
             </ul>
             </div>
             <div class="attributes"> 
-            <h3> Citations </h3>
+            <%= content_tag(:h3, 'Citations') if @data.source_list.any? -%>
             <ul class="citations">
               <% @data.source_list.each do |s| -%>
                 <%= content_tag(:li, (source_tag(s) + ':' + topic_list_tag(@data.topics_for_source(s))).html_safe)  -%>
