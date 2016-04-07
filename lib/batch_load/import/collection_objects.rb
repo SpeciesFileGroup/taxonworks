@@ -9,35 +9,20 @@ module BatchLoad
       super(args)
     end
 
+    # process each row for information:
     def build_collection_objects
-      i = 1
+      i   = 1 # accounting for headers
+      # identifier namespace
+      n_s = Namespace.find_or_create(name: row[1][0])
       csv.each do |row|
         i += 1
 
-        row.push('project_id' => project_id)
+        ident = Identifier.find_or_create(identifier: row[0],
+        )
+        otu   = Otu.find_or_create(name: row[2])
+        c_e   = CollectingEvent.find(row[4])
+        gr    = GeoLocate.new()
 
-        next if row.empty? || row.all? { |h, v| v.nil? || v.length == "" }
-
-        row.push('project_id' => @project_id)
-
-        rp = BatchLoad::RowParse.new
-        @processed_rows.merge!(i => rp)
-
-        o = BatchLoad::ColumnResolver.otu(row)
-        s = BatchLoad::ColumnResolver.source(row)
-        g = BatchLoad::ColumnResolver.geographic_area(row, @data_origin)
-
-        if o.resolvable? && s.resolvable? && g.resolvable?
-          rp.objects[:collection_objects] = [CollectionObjects.new(otu:             o.item,
-                                                                   source:          s.item,
-                                                                   geographic_area: g.item,
-                                                                   project_id:      @project_id,
-                                                                   by:              @user)]
-        else
-          rp.parse_errors += o.error_messages unless o.resolvable?
-          rp.parse_errors += g.error_messages unless g.resolvable?
-          rp.parse_errors += s.error_messages unless s.resolvable?
-        end
       end
       @total_lines = i - 1
     end
