@@ -11,17 +11,20 @@ module BatchLoad
 
     # process each row for information:
     def build_collection_objects
-      i   = 1 # accounting for headers
+      i          = 1 # accounting for headers
       # identifier namespace
-      n_s = Namespace.find_or_create(name: row[1][0])
+      local_name = csv.headers[0]
+      n_s        = Namespace.find_or_create_by(name: local_name, short_name: local_name)
       csv.each do |row|
         i += 1
 
-        ident = Identifier.find_or_create(identifier: row[0],
-        )
-        otu   = Otu.find_or_create(name: row[2])
-        c_e   = CollectingEvent.find(row[4])
-        gr    = GeoLocate.new()
+        # otu   = Otu.find_or_create_by(name: row[2])
+        # c_e   = CollectingEvent.find(row[4])
+        # gr    = GeoLocate.new()
+        # ident = Identifier.find_or_create_by(identifier:   row[0],
+        #                                      namespace_id: n_s.id,
+        #                                      type:         'Identifier::Local::Import',
+        # )
 
       end
       @total_lines = i - 1
