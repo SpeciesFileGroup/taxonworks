@@ -19,7 +19,9 @@ module BatchLoad
 
         row.push('project_id' => @project_id)
 
-        next if row.empty? || row.all? { |h, v| v.nil? || v.length == "" }
+        # TODO: FIX! THIS!
+        # WAS: next if row.empty? || row.all? { |h, v| v.nil? || v.length == "" }
+        next if row.empty?
 
         row.push('project_id' => @project_id)
 
