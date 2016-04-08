@@ -17,11 +17,11 @@ module BatchLoad
       csv.each do |row|
         i += 1
 
-        row.push('project_id' => sessions_current_project_id)
+        row.push('project_id' => @project_id)
 
         next if row.empty? || row.all? { |h, v| v.nil? || v.length == "" }
 
-        row.push('project_id' => sessions_current_project_id)
+        row.push('project_id' => @project_id)
 
         rp = BatchLoad::RowParse.new
         @processed_rows.merge!(i => rp)
@@ -31,7 +31,7 @@ module BatchLoad
         g = BatchLoad::ColumnResolver.geographic_area(row, @data_origin)
 
         if o.resolvable? && s.resolvable? && g.resolvable?
-          rp.objects[:asserted_distributions] = [AssertedDistribution.new(otu: o.item, source: s.item, geographic_area: g.item, project_id: sessions_current_project_id, by: @user)]
+          rp.objects[:asserted_distributions] = [AssertedDistribution.new(otu: o.item, source: s.item, geographic_area: g.item, project_id: @project_id, by: @user)]
         else
           rp.parse_errors += o.error_messages unless o.resolvable?
           rp.parse_errors += g.error_messages unless g.resolvable?
