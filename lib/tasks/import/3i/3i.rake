@@ -181,14 +181,14 @@
         handle_projects_and_users_3i
         raise '$project_id or $user_id not set.'  if $project_id.nil? || $user_id.nil?
 
-        #project_id = 1
+        $project_id = 1
         handle_controlled_vocabulary_3i
-        handle_references_3i
-        handle_taxonomy_3i
-        handle_taxon_name_relationships_3i
-        handle_citation_topics_3i
-        #handle_host_plant_name_dictionary_3i
-        #handle_host_plants_3i
+        #handle_references_3i
+        #handle_taxonomy_3i
+        #handle_taxon_name_relationships_3i
+        #handle_citation_topics_3i
+        handle_host_plant_name_dictionary_3i
+        handle_host_plants_3i
 
         print "\n\n !! Success. End time: #{Time.now} \n\n"
       end
@@ -277,8 +277,8 @@
                         'Parasitoids' => Topic.find_or_create_by(name: 'Parasitoids', definition: 'Source has parasitoid records.', project_id: $project_id),
         )
 
-        @host_plant_relationship = BiologicalRelationship.where(name: 'Host plant', project_id: $project_id)
-        if @host_plant_relationship.empty?
+        @host_plant_relationship = BiologicalRelationship.where(name: 'Host plant', project_id: $project_id).first
+        if @host_plant_relationship.nil?
           @host_plant_relationship = BiologicalRelationship.create(name: 'Host plant')
           a1 = BiologicalRelationshipType.create(biological_property: @data.keywords['Host'], biological_relationship: @host_plant_relationship, type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
           a2 = BiologicalRelationshipType.create(biological_property: @data.keywords['Herbivor'], biological_relationship: @host_plant_relationship, type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
@@ -348,19 +348,19 @@
           source.data_attributes.new(type: 'ImportAttribute', import_predicate: 'BibliographyReference', value: row['Bibliography']) unless row['Bibliography'].blank?
 
           if !note.blank? && note.include?('Taxonomy only and distribution')
-            a1 = source.tags.new(keyword: @data.keywords['Distribution'])
+            source.tags.new(keyword: @data.keywords['Distribution'])
             note.gsub!(' and distribution', '')
           end
           if !note.blank? && note.include?('Taxonomy only')
-            a2 = source.tags.new(keyword: @data.keywords['Taxonomy'])
+            source.tags.new(keyword: @data.keywords['Taxonomy'])
             note.gsub!('Taxonomy only', '')
           end
           if !note.blank? && note.index('T ') == 0
-            a3 = source.tags.new(keyword: @data.keywords['Typhlocybinae'])
+            source.tags.new(keyword: @data.keywords['Typhlocybinae'])
             note = note[2..-1]
           end
           if !note.blank? && note.include?('Illustrations done')
-            a4 = source.tags.new(keyword: @data.keywords['Illustrations'])
+            source.tags.new(keyword: @data.keywords['Illustrations'])
             note.gsub!('Illustrations done', '')
           end
           note.squish! unless note.nil?
@@ -380,10 +380,10 @@
           source.identifiers.new(type: 'Identifier::Local::Import', namespace: @data.keywords['FLOW-ID'], identifier: row['FLOW-ID']) if !row['FLOW-ID'].blank? && !row['FLOW-ID'] == '0'
           source.identifiers.new(type: 'Identifier::Local::Import', namespace: @data.keywords['DelphacidaeID'], identifier: row['DelphacidaeID']) if !row['DelphacidaeID'].blank? && !row['DelphacidaeID'] == '0'
 
-          source.project_sources.new #this works
 
           if source.valid?
             source.save!
+            source.project_sources.create!
             @data.publications_index.merge!(row['Key3'] => source.id)
           else
             byebug
@@ -533,7 +533,7 @@
 
               taxon = Protonym.new( name: name,
                                     parent: parent,
-                                    origin_citation_attributes: {source_id: source},
+                                    origin_citation_attributes: {source_id: source, pages: row['Page']},
                                     year_of_publication: row['Year'],
                                     verbatim_author: row['Author'],
                                     rank_class: rank,
@@ -681,7 +681,7 @@
             taxon = find_taxon(row['CombinationOf']) || find_taxon(row['Parent'])
 
             source = row['Key3'].blank? ? nil : @data.publications_index[row['Key3']]
-            c = Combination.new(origin_citation_attributes: {source_id: source}, verbatim_author: row['Author'], year_of_publication: row['Year'])
+            c = Combination.new(origin_citation_attributes: {source_id: source, pages: row['Page']}, verbatim_author: row['Author'], year_of_publication: row['Year'])
             c.identifiers.new(type: 'Identifier::Local::Import', namespace: @data.keywords['Key'], identifier: row['Key'])
 
             origgen = row['OrigGen'].blank? ? nil : find_taxon(row['OrigGen'])
@@ -907,10 +907,10 @@
             ba = BiologicalAssociation.find_or_create_by!(biological_relationship: @host_plant_relationship,
                                           biological_association_subject: subject,
                                           biological_association_object: object,
-                                          origin_citation_attributes: {source_id: s},
+                                          #origin_citation_attributes: {source_id: s},
                                           project_id: $project_id
             )
-            #Citation.find_or_create_by!(citation_object: ba, source_id: s) unless s.blank?
+            Citation.find_or_create_by!(citation_object: ba, source_id: s) unless s.blank?
           else
             print "\nRow #{row} is problematic\n"
           end
@@ -942,29 +942,35 @@
           print "\r#{i}"
 
           p = find_taxon(row['Key'])
-          source = find_publication_id(row['Key3'])
-          c = p.citations.find_or_create_by!(source_id: source, project_id: $project_id)
-
-          c.citation_topics.find_or_create_by(topic: @data.topics['Descriptions'], project_id: $project_id) if row['Descriptions'] == '1' && row['Types'] == '0'
-          c.citation_topics.find_or_create_by(topic: @data.topics['Types'], project_id: $project_id) if row['Descriptions'] == '1' && row['Types'] == '1'
-          c.citation_topics.find_or_create_by(topic: @data.topics['Records'], project_id: $project_id) if row['Records'] == '1'
-          c.citation_topics.find_or_create_by(topic: @data.topics['Pictures'], project_id: $project_id) if row['Pictures'] == '1'
-          c.citation_topics.find_or_create_by(topic: @data.topics['Keys'], project_id: $project_id) if row['Keys'] == '1'
-          c.citation_topics.find_or_create_by(topic: @data.topics['Synonymy'], project_id: $project_id) if row['Synonymy'] == '1'
-          c.citation_topics.find_or_create_by(topic: @data.topics['Host'], project_id: $project_id) if row['Host'] == '1'
-
-          if c.valid?
-            c.save!
+          if p.nil?
+            print "\nProblematic Key: #{row['Key']}\n"
           else
-            byebug
-          end
-          if row['Synonymy'] == '1'
-            tr = p.taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID).first
-            unless tr.nil?
-              cit = tr.citations.find_or_create_by!(source_id: source, project_id: $project_id)
-              if row['Descriptions'] == '1'
-                cit.is_original = true
-                cit.save!
+            source = find_publication_id(row['Key3'])
+
+            byebug if p.nil?
+            c = p.citations.find_or_create_by!(source_id: source, project_id: $project_id)
+
+            c.citation_topics.find_or_create_by(topic: @data.topics['Descriptions'], project_id: $project_id) if row['Descriptions'] == '1' && row['Types'] == '0'
+            c.citation_topics.find_or_create_by(topic: @data.topics['Types'], project_id: $project_id) if row['Descriptions'] == '1' && row['Types'] == '1'
+            c.citation_topics.find_or_create_by(topic: @data.topics['Records'], project_id: $project_id) if row['Records'] == '1'
+            c.citation_topics.find_or_create_by(topic: @data.topics['Pictures'], project_id: $project_id) if row['Pictures'] == '1'
+            c.citation_topics.find_or_create_by(topic: @data.topics['Keys'], project_id: $project_id) if row['Keys'] == '1'
+            c.citation_topics.find_or_create_by(topic: @data.topics['Synonymy'], project_id: $project_id) if row['Synonymy'] == '1'
+            c.citation_topics.find_or_create_by(topic: @data.topics['Host'], project_id: $project_id) if row['Host'] == '1'
+
+            if c.valid?
+              c.save!
+            else
+              byebug
+            end
+            if row['Synonymy'] == '1'
+              tr = p.taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID).first
+              unless tr.nil?
+                cit = tr.citations.find_or_create_by!(source_id: source, project_id: $project_id)
+                if row['Descriptions'] == '1'
+                  cit.is_original = true
+                  cit.save!
+                end
               end
             end
           end
@@ -981,7 +987,10 @@
 
         def find_otu(key)
           otu = nil
-          otu = Otu.joins(:identifiers, taxon_name: :identifiers).where(identifiers: {cached: '3i_Taxon_ID ' + key.to_s}, project_id: $project_id).first
+
+          #otu = Otu.joins(:identifiers, taxon_name: :identifiers).where(identifiers: {cached: '3i_Taxon_ID ' + key.to_s}, project_id: $project_id).first
+          otu = Otu.joins(taxon_name: :identifiers).where(identifiers: {cached: '3i_Taxon_ID ' + key.to_s}, project_id: $project_id).first
+          otu = Otu.joins(:identifiers).where(identifiers: {cached: '3i_Taxon_ID ' + key.to_s}, project_id: $project_id).first if otu.nil?
 
           byebug if otu.nil?
 

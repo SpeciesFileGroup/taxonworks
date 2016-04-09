@@ -234,10 +234,9 @@ namespace :tw do
             end
             source.author = tmp['IN_AUTHOR'].blank? ? tmp['AUTHOR'] : tmp['IN_AUTHOR']
           
-           # TODO fix
-           # source.project_sources.new
-            
+
             source.save!
+            source.project_sources.create!
             source = source.id
             @data.publications_index.merge!(tmp => source)
           else
