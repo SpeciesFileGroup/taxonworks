@@ -1,47 +1,49 @@
-<%= render(partial: '/sources/bibtexes/attributes') -%>
+<%= render(partial: '/sources/bibtex/attributes') -%>
 
-<div class="attributes"> 
+<div class="attribute_set" data-title="Verbatim" >
+<p>
+  <strong>Verbatim:</strong>
+  <%= @source.verbatim %>
+</p>
+
+<p>
+  <strong>Verbatim contents:</strong>
+  <%= @source.verbatim_contents %>
+</p>
+
+  <p>
+  <strong>Verbatim keywords:</strong>
+  <%= @source.verbatim_keywords %>
+  </p>
+
+</div>
+
+<div class="attribute_set" data-title="TaxonWorks" >
   <p>
   <strong>Serial:</strong>
-    <%= serial_tag(@source.serial) if @source.respond_to?(:serial) %>
+  <%= serial_tag(@source.serial) if @source.respond_to?(:serial) %>
   </p>
 
   <p>
   <strong>Language (TW):</strong>
   <%= object_tag(@source.language) %>
   </p>
+</div>
 
-  <div class='attribute_set' data-title="Other attributes" >
-
-    <p>
-    <strong>Cached nomenclature date:</strong>
-    <%= @source.cached_nomenclature_date %>
-    </p>
-
-    <p>
-    <strong>Verbatim:</strong>
-    <%= @source.verbatim %>
-    </p>
-
-    <p>
-    <strong>Verbatim contents:</strong>
-    <%= @source.verbatim_contents %>
-    </p>
-
-    <p>
-    <strong>Verbatim keywords:</strong>
-    <%= @source.verbatim_keywords %>
-    </p>
-
-    <p>
+<div data-view="development" class="attribute_set" data-title="Cached values (calculated)" >
+  <p>
     <strong>Cached:</strong>
     <%= @source.cached %>
-    </p>
+  </p>
 
-    <p>
+  <p>
     <strong>Cached author string:</strong>
     <%= @source.cached_author_string %>
-    </p>
+  </p>
 
-  </div>
+  <p>
+  <strong>Cached nomenclature date:</strong>
+  <%= @source.cached_nomenclature_date %>
+  </p>
 </div>
+

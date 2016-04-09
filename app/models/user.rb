@@ -105,22 +105,23 @@ class User < ActiveRecord::Base
   include Shared::RandomTokenFields[:password_reset]
   has_secure_password
 
-  attr_accessor :set_new_api_access_token
-  before_save :generate_api_access_token,  if: 'self.set_new_api_access_token'
-
   VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
 
+  attr_accessor :set_new_api_access_token
   attr_accessor :self_created
 
-  before_create :set_remember_token
-  before_create { self.hub_tab_order = DEFAULT_HUB_TAB_ORDER }
-
+  before_validation { self.email = email.to_s.downcase }
+ 
+  before_save :generate_api_access_token,  if: 'self.set_new_api_access_token'
   # @todo downcase does not work for non-ascii characters which means our validation for uniqueness will fail ... why?
   # @see http://stackoverflow.com/questions/2049502/what-characters-are-allowed-in-email-address
   # @see http://unicode-utils.rubyforge.org/
-  before_validation { self.email = email.to_s.downcase }
   before_save { self.email = email.to_s.downcase }
+
   after_save :configure_self_created,  if: "self.self_created"
+  
+  before_create :set_remember_token
+  before_create { self.hub_tab_order = DEFAULT_HUB_TAB_ORDER }
 
   validates :email, presence: true,
             format: {with: VALID_EMAIL_REGEX},
@@ -137,6 +138,13 @@ class User < ActiveRecord::Base
   has_many :projects, through: :project_members
   has_many :pinboard_items, dependent: :destroy
 
+  def administered_projects
+    projects.where(id: project_members.where(is_project_administrator: true).pluck(:project_id) ) 
+  end
+
+  def administers_projects?
+    administered_projects.any?
+  end
 
   def self.not_in_project(project_id)
     ids =   ProjectMember.where(project_id: project_id).pluck(:user_id) 

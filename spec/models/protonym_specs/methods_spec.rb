@@ -5,12 +5,16 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
   before(:all) do
     TaxonName.delete_all
     TaxonNameRelationship.delete_all
+    TaxonNameHierarchy.delete_all
   end
 
   after(:all) do
     TaxonNameRelationship.delete_all
     TaxonName.delete_all
+    Citation.delete_all
     Source.delete_all
+    TaxonNameHierarchy.delete_all
+    
   end
 
   let(:protonym) { Protonym.new }

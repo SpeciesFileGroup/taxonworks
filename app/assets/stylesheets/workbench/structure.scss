@@ -2,11 +2,11 @@
 
 @import 'palette';
 
-
 body {
-  background-color: #fff;
-  font-family: verdana, arial, helvetica, sans-serif;
+  background-color: $body_background;
+  color: $default_text;
+  font-family: helvetica, verdana, arial, sans-serif; 
   font-size: 13px;
-  padding: 0.5em;
-
+  margin-top:0;
+  margin:0;
 }

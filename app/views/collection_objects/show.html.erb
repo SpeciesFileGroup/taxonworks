@@ -1,16 +1,9 @@
-<%= content_for :go do -%>
-
-<% end %>
-
-<%= content_for :see do -%>
-
-  <%= link_to 'Depictions', depictions_collection_object_path(@collection_object) %> 
+<%= content_for :report do -%>
+  <%=  content_tag(:li, link_to('Depictions', depictions_collection_object_path(@collection_object))) %> 
 <% end %>
 
 <%= content_for :tasks do -%>
-  <h3> Tasks </h3>
-  <%= verify_accessions_task_link(@collection_object)   %>
+  <%= content_tag(:li, verify_accessions_task_link(@collection_object))   %>
 <% end %>
 
 <%= render(partial: 'shared/data/project/show', locals: {object: @collection_object}) -%>
-

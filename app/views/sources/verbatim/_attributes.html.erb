@@ -1,47 +1,46 @@
-<h2 class="warning"> FIX ME VERBATIM ATTIBUTES /sources/verbatim/_attributes </h2>
+<h2 class="warning"> FIX ME VERBATIM ATTRIBUTES /sources/verbatim/_attributes </h2>
 
-<div class="attributes"> 
-  <p>
+<p>
   <strong>Serial:</strong>
-    <%= serial_tag(@source.serial) if @source.respond_to?(:serial) %>
-  </p>
+  <%= serial_tag(@source.serial) if @source.respond_to?(:serial) %>
+</p>
 
-  <p>
+<p>
   <strong>Language (TW):</strong>
   <%= object_tag(@source.language) %>
-  </p>
+</p>
 
-  <div class='attribute_set' data-title="Other attributes" >
+<div class='attribute_set' data-title="Other attributes">
 
-    <p>
+  <p>
     <strong>Cached nomenclature date:</strong>
     <%= @source.cached_nomenclature_date %>
-    </p>
+  </p>
 
-    <p>
+  <p>
     <strong>Verbatim:</strong>
     <%= @source.verbatim %>
-    </p>
+  </p>
 
-    <p>
+  <p>
     <strong>Verbatim contents:</strong>
     <%= @source.verbatim_contents %>
-    </p>
+  </p>
 
-    <p>
+  <p>
     <strong>Verbatim keywords:</strong>
     <%= @source.verbatim_keywords %>
-    </p>
+  </p>
 
-    <p>
+  <p>
     <strong>Cached:</strong>
     <%= @source.cached %>
-    </p>
+  </p>
 
-    <p>
+  <p>
     <strong>Cached author string:</strong>
     <%= @source.cached_author_string %>
-    </p>
+  </p>
 
-  </div>
 </div>
+

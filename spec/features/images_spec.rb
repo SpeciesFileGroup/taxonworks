@@ -33,19 +33,19 @@ describe "Images", :type => :feature do
     # TODO: Think about testing actual image download. Probably will be fixed by a status
     #       check service or sanity check script (with default image on database).
     # page.should have_xpath("//img[contains(@src, 'mona_lisa.jpg')]")
-    xdescribe 'GET /api/v1/images/{id}' do
-      before do
-        @user.generate_api_access_token
-        @user.save!
-      end
-      let(:image) { factory_girl_create_for_user_and_project(:valid_image, @user, @project) }
-
-      it 'Returns a downloadable link to the image' do
-        visit "/api/v1/images/#{image.to_param}?project_id=#{@project.to_param}&token=#{@user.api_access_token}"
-        visit JSON.parse(page.body)['result']['url']
-        expect(page.status_code).to eq(200)
-      end
-    end
+    # xdescribe 'GET /api/v1/images/{id}' do
+    #   before do
+    #     @user.generate_api_access_token
+    #     @user.save!
+    #   end
+    #   let(:image) { factory_girl_create_for_user_and_project(:valid_image, @user, @project) }
+    #
+    #   it 'Returns a downloadable link to the image' do
+    #     visit "/api/v1/images/#{image.to_param}?project_id=#{@project.to_param}&token=#{@user.api_access_token}"
+    #     visit JSON.parse(page.body)['result']['url']
+    #     expect(page.status_code).to eq(200)
+    #   end
+    # end
 
 
     context 'testing new image browse' do

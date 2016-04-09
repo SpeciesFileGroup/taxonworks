@@ -1,5 +1,4 @@
-# Loan description...
-# @todo
+# A Loan is the metadata that wraps/describes an exchange of specimens.
 #
 # @!attribute date_requested
 #   @return [DateTime]
@@ -34,8 +33,7 @@
 #   @todo
 #
 # @!attribute recipient_country
-#   @return [Integer]
-#   @todo This column should probably be renamed to recipient_country_id since it is an integer...
+#   @return [String]
 #
 # @!attribute supervisor_email
 #   @return [String]
@@ -69,9 +67,6 @@ class Loan < ActiveRecord::Base
 
   has_paper_trail
 
-  
-
-
   has_many :loan_items
 
   has_many :loan_recipient_roles, class_name: 'LoanRecipient', as: :role_object
@@ -84,6 +79,20 @@ class Loan < ActiveRecord::Base
   # TODO: @mjy What *is* the right construct for 'Loan'?
   def self.find_for_autocomplete(params)
     where('recipient_email LIKE ?', "#{params[:term]}%")
+  end
+
+  # @return [CSV]
+  # Generate a CSV version of the raw Loans table for the given scope
+  # Ripped from http://railscasts.com/episodes/362-exporting-csv-and-excel
+  def self.generate_download(scope)
+    CSV.generate do |csv|
+      csv << column_names
+      scope.order(id: :asc).each do |o|
+        csv << o.attributes.values_at(*column_names).collect { |i|
+          i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
+        }
+      end
+    end
   end
 
 end

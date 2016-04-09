@@ -5,12 +5,15 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
   before(:all) do
     TaxonName.delete_all
     TaxonNameRelationship.delete_all
+    TaxonNameHierarchy.delete_all
   end
 
   after(:all) do
     TaxonNameRelationship.delete_all
     TaxonName.delete_all
+    Citation.delete_all
     Source.delete_all
+    TaxonNameHierarchy.delete_all
   end
 
   let(:root) { Protonym.where(name: 'Root').first  }
@@ -29,6 +32,25 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
       TaxonNameRelationship.delete_all
       TaxonName.delete_all
     }
+
+    context 'validity of Protonyms' do
+      let(:s1) {FactoryGirl.create(:relationship_species, name: 'bus', parent: @g) }
+      let(:s2) {FactoryGirl.create(:relationship_species, name: 'cus', parent: @g) }
+
+      context 'before invalidating relationship' do
+        specify 'two names are valid' do
+          expect(Protonym.that_is_valid).to include(s1, s2)
+        end
+      end
+
+      context 'after invalidating relationship' do
+        let!(:r) { TaxonNameRelationship::Iczn::Invalidating::Synonym.create(subject_taxon_name: s1, object_taxon_name: s2) }  
+
+        specify 'one name is invalid' do
+          expect(Protonym.that_is_valid).to_not include(s1)
+        end
+      end
+    end
 
     specify 'named' do
       expect(Protonym.named('vitis').count).to eq(1)
@@ -217,5 +239,4 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
       end
     end
   end
-
 end

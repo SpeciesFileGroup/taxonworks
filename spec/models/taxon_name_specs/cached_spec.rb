@@ -18,7 +18,9 @@ describe TaxonName, type: :model, group: [:nomenclature] do
     after(:all) do
       TaxonNameRelationship.delete_all
       TaxonName.delete_all 
+      TaxonNameHierarchy.delete_all
       # TODO: find out why this exists and resolve - presently leaving sources in the models
+      Citation.delete_all
       Source.delete_all 
     end
 

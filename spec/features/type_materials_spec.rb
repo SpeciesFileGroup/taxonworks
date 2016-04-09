@@ -29,12 +29,12 @@ RSpec.describe "TypeMaterials", :type => :feature do
                              project: @project,
                              creator: @user,
                              updater: @user
-          )
+                            )
         }
 
         describe 'GET /type_materials' do
           before { visit type_materials_path }
-          
+
           it_behaves_like 'a_data_model_with_standard_index'
         end
 
@@ -55,10 +55,6 @@ RSpec.describe "TypeMaterials", :type => :feature do
     end
 
     context 'creating a new type_materials' do
-      specify 'the type_materials_path has a new link' do
-        visit type_materials_path # when I visit the type_material_path
-        expect(page).to have_link('new') # it has a new link
-      end
       context 'testing the new type_materials form' do
         #  - a namespace short name 'INHSIC' is created
         let(:namesp) { FactoryGirl.create(:namespace, {creator: @user, updater: @user,
@@ -71,39 +67,40 @@ RSpec.describe "TypeMaterials", :type => :feature do
         specify 'filling out the form', js: true do
 
           f = Protonym.create!(name: 'Aaidae', rank_class: Ranks.lookup(:iczn, 'family'),
-                           parent: root,
-                           by: @user, project: @project)
-        
+                               parent: root,
+                               by: @user, project: @project)
+
           g = Protonym.create!(name: 'Cus', rank_class: Ranks.lookup(:iczn, 'Genus'),
-                           parent: f,
-                           by: @user, project: @project)
-          
+                               parent: f,
+                               by: @user, project: @project)
+
           #  - a species 'bus' with parent 'Cus' is created
           sp = Protonym.create!(name: 'bus', rank_class: Ranks.lookup(:iczn, 'Species'),
-                            parent: g,
-                            by: @user, project: @project)
+                                parent: g,
+                                by: @user, project: @project)
 
           ident = Identifier::Local::CatalogNumber.create!(identifier_object: specimen,
-                                                       identifier: '1234',
-                                                       namespace_id: namesp.id,
-                                                       by: @user, project: @project)
+                                                           identifier: '1234',
+                                                           namespace_id: namesp.id,
+                                                           by: @user, project: @project)
 
           #  - an identifier with Namespace 'INHSIC' and identifier '1234' attached to specimen is created
           expect(ident.cached).to eq('INHSIC 1234')
 
           visit type_materials_path
 
-          click_link('new') # when I click the new link
+          click_link('New') 
 
-          fill_autocomplete('protonym_id_for_type_material', with: 'Cus bus', select: 'Cus bus', select: sp.id)
           # I fill out the name field with "bus"
           # I click 'Bus bus (species)' from drop down list
           # NOTES: need the full name (genus & species) and I'm not getting the species name set correctly.
-          fill_autocomplete('biological_object_id_for_type_material', with: 'INHSIC 1234', select: specimen.id )
-          
+          fill_autocomplete('protonym_id_for_type_material', with: 'Cus bus', select: 'Cus bus', select: sp.id)
+
           # NOTES: still not finding the correct record.
           # I fill out the Material field with 'INHSIC 1234'
           #      and I click on the only record returned*
+          fill_autocomplete('biological_object_id_for_type_material', with: 'INHSIC 1234', select: specimen.id )
+
           select('paratype', from: 'type_material_type_type') # select 'paratype' from the dropdown
           click_button 'Create Type material' # click the 'Create type material' button
           # then I get the message "Type material (paratype) for Aus bus was successfully created"

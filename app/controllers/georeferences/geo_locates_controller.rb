@@ -54,10 +54,9 @@ class Georeferences::GeoLocatesController < ApplicationController
                                          :submit,
                                          :collecting_event_id,
                                          :type,
-                                         :source_id,
                                          :is_public,
                                          :api_request,
-                                        )
+                                        ) # !! TODO: need to add nested source params
   end
 
   # Over-ride the default model setting for this subclass

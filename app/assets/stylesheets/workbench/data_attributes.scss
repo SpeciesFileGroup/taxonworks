@@ -2,31 +2,66 @@
 @import 'workbench/whitespace';
 
 .attributes {
+  margin-bottom: $standard_padding * 2;
   word-wrap: break-word;
+  hr {
+    border:none;
+    border-bottom: 1px solid $navigation_border;
+  }
+  .header-title {
+      margin: $standard_padding*.5 0;
+      font-weight: 100;
+      margin-bottom: $standard_padding;
+      border-bottom: 1px solid $navigation_border;    
+  }
   p {
     margin: 0 0 $standard_padding*0.6 0; 
     padding: 0;
     font-weight: bold;
 
     strong {
-      font-weight: normal;
+      font-weight: 100;
       text-align: center;
     }
   }
 
+
+  ul {
+    list-style-type: none;
+    margin:0;
+    padding: 0;
+    position: relative;
+    overflow:hidden;  
+  }
+
+  li {
+    margin-top: 10px;
+    padding: 0 14px;  
+    position: relative; 
+  }  
+
+  li::before, li::after {
+    content: '';
+    position: absolute;
+    left: 0;
+
+        border-top: 1px solid $navigation_border;
+        top: 10px;
+        width: 10px;
+        height: 0;    
+      
+    }
+
   .attribute_set_title {
-    margin: $standard_padding 0; 
-    //  border-bottom: 1px solid $color-secondary-2-0;
-    font:caption;
-    background-color: $color-secondary-2-1;
-    color: $color-secondary-2-0;
-    width: 98%;
+    margin: $standard_padding * 1 0; 
+    color: gray;
+    font-weight: normal;
+    font-size: 15px;
   }
 
   .attribute_set {
-    background-color: $note_yellow;
-  }
 
+  }
 }
 
 

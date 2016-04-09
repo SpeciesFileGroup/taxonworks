@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe NomenclaturalRank, :type => :model do
+describe NomenclaturalRank, type: :model do
 
   Rails.application.eager_load!
 
@@ -34,7 +34,7 @@ describe NomenclaturalRank, :type => :model do
       end
     end
 
-    skip "#bottom_rank"
+    # skip "#bottom_rank"
 
     specify "#nomenclatural_code" do
       expect(Ranks.lookup(:iczn, 'Family').constantize.nomenclatural_code).to eq(:iczn)

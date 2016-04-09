@@ -154,7 +154,7 @@ describe 'Users' do
         }
 
         describe 'basic attributes contents' do
-          it 'shows *', skip: 'Add specs for missing attributes' # TODO: Finish the spec
+          # it 'shows *', skip: 'Add specs for missing attributes' # TODO: Finish the spec
       
           describe 'API access token' do
             let(:token_label) { 'API access token' }
@@ -185,10 +185,10 @@ describe 'Users' do
           it 'provides a link to edit the account' do
             expect(page).to have_link('Edit', href: edit_user_path(@user))
           end
-          it 'provides a link to the user statistics page', skip: 'statistics page not implemented' do
-            expect(page).to have_link('View my statistics', href: user_statistics_path)
+          # it 'provides a link to the user statistics page', skip: 'statistics page not implemented' do
+          #   expect(page).to have_link('View my statistics', href: user_statistics_path)
             # what projects I belong, currently logged into projects,
-          end
+          # end
         end 
       end
 
@@ -216,17 +216,17 @@ describe 'Users' do
             sign_in_administrator
             visit edit_user_path(@user)
           }
-          it 'should render'
+          # it 'should render'
         end
 
         context 'and not logged in as administrator' do  # where is this prompt?
-          it 'should redirect to dashboard and provide a notice'
+          # it 'should redirect to dashboard and provide a notice'
         end
 
         context 'and logged in as a project_administrator' do        # where is this prompt?
           before {
           }
-          it 'should redirect to dashboard and provide a notice'
+          # it 'should redirect to dashboard and provide a notice'
         end
       end
     end

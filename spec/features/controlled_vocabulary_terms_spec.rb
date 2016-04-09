@@ -47,13 +47,9 @@ describe 'ControlledVocabularyTerms', :type => :feature do
       visit controlled_vocabulary_terms_path
     }
 
-    specify 'it has a new link' do
-      expect(page).to have_link('new')
-    end
-
     specify 'adding a new controlled vocabulary term' do
       visit controlled_vocabulary_terms_path
-      click_link('new') # when I click the new link
+      click_link('New') # when I click the new link
 
       select('Topic', from: 'controlled_vocabulary_term_type') # I select 'Topic' from the Type dropdown
       fill_in('Name', with: 'tests') # I fill in the name field with "tests"

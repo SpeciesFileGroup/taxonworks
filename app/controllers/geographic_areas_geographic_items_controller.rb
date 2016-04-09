@@ -1,3 +1,4 @@
+# This class helps edit the relationships between GeographicAreas and GeographicItems
 class GeographicAreasGeographicItemsController < ApplicationController
   include DataControllerConfiguration::SharedDataControllerConfiguration
 
@@ -52,19 +53,19 @@ class GeographicAreasGeographicItemsController < ApplicationController
     end
   end
 
-# Not used 
-# def list
-#   @geographic_areas_geographic_item = GeographicAreasGeographicItem.order(:id).page(params[:page])
-# end
+  # Not used
+  # def list
+  #   @geographic_areas_geographic_item = GeographicAreasGeographicItem.order(:id).page(params[:page])
+  # end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_geographic_areas_geographic_item
-      @geographic_areas_geographic_item = GeographicAreasGeographicItem.find(params[:id])
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_geographic_areas_geographic_item
+    @geographic_areas_geographic_item = GeographicAreasGeographicItem.find(params[:id])
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def geographic_areas_geographic_item_params
-      params.require(:geographic_areas_geographic_item).permit(:geographic_area_id, :geographic_item_id, :data_origin, :origin_gid, :date_valid_from, :date_valid_to)
-    end
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def geographic_areas_geographic_item_params
+    params.require(:geographic_areas_geographic_item).permit(:geographic_area_id, :geographic_item_id, :data_origin, :origin_gid, :date_valid_from, :date_valid_to)
+  end
 end

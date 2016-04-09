@@ -37,8 +37,9 @@ class ContainerItem < ActiveRecord::Base
     Queries::ContainerItemAutocompleteQuery.new(params[:term]).all.where(project_id: params[:project_id])
   end
 
+  # TODO
   def self.in_container(container)
-    joins(:container).where('(containers.lft >= ?) and (containers.lft <= ?) and (containers.project_id = ?)', container.lft, container.rgt, container.project_id).order('containers.lft') 
+    false
   end
 
 

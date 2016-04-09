@@ -1,9 +1,8 @@
-# Citation is like Roles in that it is also a linking table between a data object & a source.
-# (Assertion that the subject was referenced in a source)
+# A Citation is an assertion that the subject (i.e. citation object/record/data instance), or some attribute of it, was referenced or originate in a Source. 
 #
 # @!attribute citation_object_type
 #   @return [String]
-#   @todo
+#     Rails STI, the class of the object being cited 
 #
 # @!attribute source_id
 #   @return [Integer]
@@ -15,22 +14,23 @@
 #
 # @!attribute citation_object_id
 #   @return [Integer]
-#   @todo
+#    Rails STI, the id of the object being cited 
 #
 # @!attribute pages
 #   @return [String]
-#   @todo
+#     a specific location/localization for the data in the Source  
 #
 class Citation < ActiveRecord::Base
   include Housekeeping
   include Shared::IsData
+  include Shared::Notable
 
   belongs_to :citation_object, polymorphic: :true
   belongs_to :source, inverse_of: :citations
 
   has_many :citation_topics, inverse_of: :citation
 
-  validates_presence_of :citation_object_id, :citation_object_type, :source_id
+  validates_presence_of  :source_id
   validates_uniqueness_of :source_id, scope: [:citation_object_type, :citation_object_id]
 
   # @return [Scope of matching sources]
@@ -45,6 +45,12 @@ class Citation < ActiveRecord::Base
   #   alias to simplify reference across classes 
   def annotated_object
     citation_object
+  end
+
+  # @return [Boolean]
+  #   true if is_original is checked, false if nil/false 
+  def is_original?
+    is_original ? true : false
   end
 
   def self.generate_download(scope)

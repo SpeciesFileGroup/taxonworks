@@ -1,14 +1,14 @@
 # A CollectionObject is on or more physical things that have been collected.  Enumerating how many things (@!total) is a task of the curator.
 #
 # A CollectiongObjects immediate disposition is handled through its relation to containers.  Containers can be nested, labeled, and interally subdivided as necessary.
-# 
+#
 # @!attribute total
 #   @return [Integer]
 #   The enumerated number of things, as asserted by the person managing the record.  Different totals will default to different subclasses.  How you enumerate your collection objects is up to you.  If you want to call one chunk of coral 50 things, that's fine (total = 50), if you want to call one coral one thing (total = 1) that's fine too.  If not nil then ranged_lot_category_id must be nil.  When =1 the subclass is Specimen, when > 1 the subclass is Lot.
-# 
+#
 # @!attribute type
 #   @return [String]
-#     the subclass of collection object, e.g. Specimen, Lot, or RangedLot 
+#     the subclass of collection object, e.g. Specimen, Lot, or RangedLot
 #
 # @!attribute preparation_type_id
 #   @return [Integer]
@@ -42,7 +42,7 @@
 #
 # @!attribute collecting_event_id
 #   @return [Integer]
-#   The id of the collecting event from whence this object came.  See CollectingEvent. 
+#   The id of the collecting event from whence this object came.  See CollectingEvent.
 #
 # @!attribute accessioned_at
 #   @return [Date]
@@ -231,8 +231,11 @@ class CollectionObject < ActiveRecord::Base
     end
   end
 
-  # @param [Scope] selected of CollectionObject
+  # @param [Scope] scope of selected CollectionObjects
   # @param [Hash] col_defs selected headers and types
+  # @param [Hash] table_data (optional)
+  # @return [CSV] tab-separated data
+  # Generate the CSV (tab-separated) data for the file to be sent, substitute for new-lines and tabs
   def self.generate_report_download(scope, col_defs, table_data = nil)
     CSV.generate do |csv|
       row = CO_OTU_HEADERS
@@ -274,7 +277,7 @@ class CollectionObject < ActiveRecord::Base
 
         end
       else
-        table_data.each { |key, value|
+        table_data.each { |_key, value|
           csv << value.collect { |item|
             item.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
           }
@@ -356,9 +359,10 @@ class CollectionObject < ActiveRecord::Base
     @selected_column_names
   end
 
-  # @param [CollectionObject] from which to extract attributes
-  # @param [Hash] collection of selected headers
+  # @param [CollectionObject] collection_object from which to extract attributes
+  # @param [Hash] col_defs - collection of selected headers, prefixes, and types
   # @return [Array] of attributes
+  # Retrieve all the attributes associated with the column names (col_defs) for a specific collection_object
   def self.ce_attributes(collection_object, col_defs)
     retval = []; collection = col_defs
     unless collection.nil?
@@ -446,9 +450,10 @@ class CollectionObject < ActiveRecord::Base
     @selected_column_names
   end
 
-  # @param [CollectionObject] from which to extract attributes
-  # @param [Hash] collection of selected headers, prefixes, and types
+  # @param [CollectionObject] collection_object from which to extract attributes
+  # @param [Hash] col_defs - collection of selected headers, prefixes, and types
   # @return [Array] of attributes
+  # Retrieve all the attributes associated with the column names (col_defs) for a specific collection_object
   def self.co_attributes(collection_object, col_defs)
     retval = []; collection = col_defs
     unless collection.nil?
@@ -500,9 +505,10 @@ class CollectionObject < ActiveRecord::Base
     @selected_column_names
   end
 
-  # @param [CollectionObject] from which to extract attributes
-  # @param [Hash] collection of selected headers, prefixes, and types
+  # @param [CollectionObject] collection_object from which to extract attributes
+  # @param [Hash] col_defs - collection of selected headers, prefixes, and types
   # @return [Array] of attributes
+  # Retrieve all the attributes associated with the column names (col_defs) for a specific collection_object
   def self.bc_attributes(collection_object, col_defs)
     retval = []; collection = col_defs
     unless collection.nil?

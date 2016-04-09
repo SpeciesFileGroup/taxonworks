@@ -1,35 +1,30 @@
-<p id="notice"><%= notice %></p>
+<%= render("/shared/data/all/list/list_header", objects: @common_names) -%>
 
-<h1>Listing Common Names</h1>
-
-<%= paginate @common_names %> <%= page_entries_info @common_names %>
-
-<table>
-  <thead>
+<table class="tablesorter">
+<thead>
     <tr>
-      <th>Name</th>
-      <th>Geographic area</th>
-      <th>Otu</th>
-      <th>Language</th>
-      <th>Start year</th>
-      <th>End year</th>
-      <th colspan="3"></th>
+      <%= fancy_th_tag(name: 'Name') -%>
+      <%= fancy_th_tag(name: 'Geographic area') -%>
+      <%= fancy_th_tag(name: 'Otu') -%>
+      <%= fancy_th_tag(name: 'Language') -%>
+      <%= fancy_th_tag(name: 'Start year') -%>
+      <%= fancy_th_tag(name: 'End year') -%>
+      <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
+      <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
     </tr>
   </thead>
 
   <tbody>
     <% @common_names.each do |common_name| %>
-      <tr>
+      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
         <td><%= common_name.name %></td>
         <td><%= geographic_area_link(common_name.geographic_area) %></td>
         <td><%= otu_link(common_name.otu) %></td>
         <td><%= language_tag(common_name.language) %></td>
         <td><%= common_name.start_year %></td>
         <td><%= common_name.end_year %></td>
-        <td><%= link_to 'Show', common_name %></td>
-        <td><%= link_to 'Edit', edit_common_name_path(common_name) %></td>
-        <td><%= link_to 'Destroy', common_name, method: :delete, data: { confirm: 'Are you sure?' } %></td>
-      </tr>
+          <%= fancy_metadata_cells_tag(common_name) -%>
+      <% end %>
     <% end %>
   </tbody>
 </table>

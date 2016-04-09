@@ -13,6 +13,10 @@ describe Container, :type => :model do
       expect {container.save}.to raise_error(ActiveRecord::SubclassNotFound)
     end
 
+    specify 'invalid type can not be assigned on #new' do
+      expect {Container.new(type: 'aaa')}.to raise_error(ActiveRecord::SubclassNotFound)
+    end
+
     specify 'type can be a valid type' do
       container.type = 'Container::Drawer'
       expect(container.valid?).to be_truthy

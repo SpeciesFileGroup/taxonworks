@@ -39,12 +39,12 @@ describe 'Containables', :type => :model do
   context 'with multiple containers' do
     specify '#all_containers' do
       containable_class.container = envelope
-      expect(containable_class.all_containers).to eq([building, box, drawer, envelope])
+      expect(containable_class.all_containers).to eq([envelope, drawer, box, building])
     end
 
     specify '#location with named containers' do
       containable_class.container = envelope
-      expect(containable_class.location).to eq('building; box; 42; envelope')
+      expect(containable_class.location).to eq('envelope; 42; box; building')
     end
 
     specify '#location with unamed containers' do 

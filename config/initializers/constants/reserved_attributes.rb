@@ -6,8 +6,6 @@ RESERVED_ATTRIBUTES = [
   :id,
   :type,
   :parent_id,
-  :lft,
-  :rgt,
   :depth,
   :position,
   :created_at,

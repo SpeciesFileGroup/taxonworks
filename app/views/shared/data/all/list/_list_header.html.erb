@@ -1,0 +1,29 @@
+<div class="panels-container">  
+  <div class="panel column-big separate-right">
+    <div class="title nav-line <%= @hub_model_metadata.combined_css if @hub_model_metadata %>">
+      <span><%= page_entries_info objects %></span>
+    </div>      
+    <div class="navigation-controls"> 
+      <div class="navigation-bar-left">
+      <div class="page-navigator">
+        <span>
+          <%= link_to_previous_page objects, '‹ Back' do %>
+            ‹ Back
+          <% end %>  
+        </span>
+        <span>
+          <%= link_to_next_page objects, 'Next ›' do %>
+            Next ›
+          <% end %>  
+        </span>    
+      </div>
+      <%= paginate objects %>
+      </div>
+      <div class="navigation-bar-right">
+        <a data-icon="download" href="#">                 
+          Download
+        </a>               
+      </div>
+    </div>       
+  </div>
+</div>

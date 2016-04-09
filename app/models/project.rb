@@ -47,6 +47,8 @@ class Project < ActiveRecord::Base
     order = %w{
      AlternateValue
      DataAttribute 
+     CitationTopic
+     Citation
      SqedDepiction 
      Depiction
      Documentation
@@ -65,8 +67,6 @@ class Project < ActiveRecord::Base
      BiologicalAssociation
      BiologicalRelationship
      BiologicalAssociationsGraph   
-     CitationTopic
-     Citation
      CollectionProfile   
      ContainerLabel
      ContainerItem  
@@ -81,9 +81,9 @@ class Project < ActiveRecord::Base
      OtuPageLayout
      ProjectSource
      TaxonDetermination
+     TypeMaterial       
+     CollectionObject   
      CollectingEvent
-     TypeMaterial     
-     CollectionObject
      RangedLotCategory
      Image  
      CommonName

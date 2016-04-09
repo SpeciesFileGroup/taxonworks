@@ -1,3 +1,5 @@
+# Documentation: http://www.rubydoc.info/gems/rubocop
+
 AllCops:
   Include:
     - '**/Rakefile'
@@ -6,6 +8,9 @@ AllCops:
     - 'db/**/*'
     - 'script/**/*'
     - 'tmp/**/*'
+
+Rails:
+  Enabled: true
 
 Style/EmptyLineBetweenDefs:
   # If true, this parameter means that single line method definitions don't
@@ -84,6 +89,3 @@ Rails/Validation:
   Include:
     - app/models/**/*.rb
     - lib/**/*.rb
-
-
-

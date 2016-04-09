@@ -6,6 +6,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
     TaxonNameRelationship.delete_all
     TaxonNameClassification.delete_all
     TaxonName.delete_all
+    TaxonNameHierarchy.delete_all
     @order = FactoryGirl.create(:iczn_order)
   end
 
@@ -13,7 +14,9 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
     TaxonNameRelationship.delete_all
     TaxonNameClassification.delete_all
     TaxonName.delete_all
+    Citation.delete_all
     Source.delete_all
+    TaxonNameHierarchy.delete_all
   end
 
   let(:protonym) { Protonym.new }

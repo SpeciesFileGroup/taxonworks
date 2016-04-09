@@ -1,23 +1,25 @@
-<h1> Administration </h1>
+<h2> Administration </h2>
 
-
-<div class="flexbox">
-  <div class="item item1">
-
-    <h2> Projects </h2>
+<div class="flexbox panels-container ">
+  <div class="item panel separate-left separate-right">
+    <div class="title nav-line"> 
+      <span data-icon="folders">Projects</span>
+    </div>
+    <nav class="content">
     <em> To add a project member view that project. </em>
-    <nav>
-      <ul>
+      <ul class="no_bullets list list-arrow">
         <%= content_tag(:li, link_to("New", new_project_path)) -%>
         <%= content_tag(:li, link_to("Projects overview", projects_path)) -%>
       </ul>
     </nav>
   </div>
 
-  <div class="item item2">
-    <h2> Users </h2>
-    <nav>
-      <ul>
+  <div class="item panel separate-left separate-right">
+    <div class="title nav-line"> 
+      <span data-icon="users">Users</span>
+    </div>
+    <nav class="content">
+      <ul class="no_bullets list list-arrow">
         <%= content_tag(:li, link_to("All", users_path)) -%>
         <%= content_tag(:li, link_to("Update a user's authorization", users_path)) -%>
         <%= content_tag(:li, link_to("Activity", user_activity_path, data: { no_turbolink: true })) -%>
@@ -26,9 +28,14 @@
     </nav>
   </div>
 
-  <div class="item item3">
-    <h2> Data </h2>
-    <%= content_tag(:li, link_to("Overview", data_overview_path, data: { no_turbolink: true })) -%>
+  <div class="item panel separate-left separate-right">
+    <div class="title nav-line"> 
+      <span data-icon="openFolder">Data</span>
+    </div>
+    <div class="content">
+      <ul class="no_bullets list list-arrow">
+        <%= content_tag(:li, link_to("Overview", data_overview_path, data: { no_turbolink: true })) -%>
+      </ul>
+    </div>
   </div>
-
 </div>

@@ -1,8 +1,10 @@
-<nav id="hub_tabs" data-current-tab="<%= params[:list] || @sessions_current_user.hub_tab_order.first -%>">
-  
-  <ul class='centered_navbar'>
-    <% @sessions_current_user.hub_tab_order.each do |t| -%>
-      <%= content_tag(:li, link_to(t, hub_path(list: t)) , id: t) -%> 
-    <% end -%>
-  </ul>
+
+<nav id="hub_tabs" data-current-tab="<%= params[:list] || @sessions_current_user.hub_tab_order.first -%>"> 
+  <div class="navigation-bar">
+    <ul class='centered_navbar'>
+      <% @sessions_current_user.hub_tab_order.each do |t| -%>
+        <%= content_tag(:li, link_to(t, hub_path(list: t)) , id: t) -%> 
+      <% end -%>
+    </ul>
+  </div>
 </nav>

@@ -1,35 +1,26 @@
-<h1>Listing taxon name relationships</h1>
+<%= render("/shared/data/all/list/list_header", objects: @taxon_name_relationships) -%>
 
-<%= paginate @taxon_name_relationships %> <%= page_entries_info @taxon_name_relationships %>
-
-<table>
+<table class="tablesorter">
   <thead>
   <tr>
-    <th>Subject taxon name</th>
-    <th>Type</th>
-    <th>Object taxon name</th>
-    <th>Source</th>
-    <th>Last modified</th>
-    <th>Updated by</th>
-    <th></th>
-    <th></th>
-    <th></th>
+    <%= fancy_th_tag(name: 'Subject taxon name') -%>
+    <%= fancy_th_tag(name: 'Type') -%>
+    <%= fancy_th_tag(name: 'Object taxon name') -%>
+    <%= fancy_th_tag(name: 'Source') -%>
+    <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
+    <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
   </tr>
   </thead>
 
   <tbody>
   <% @taxon_name_relationships.each do |taxon_name_relationship| %>
-      <tr>
-        <td><%= object_tag(taxon_name_relationship.subject_taxon_name) %></td>
-        <td><%= taxon_name_relationship.type %></td>
-        <td><%= object_tag(taxon_name_relationship.object_taxon_name) %></td>
-        <td><%= object_tag(taxon_name_relationship.source) %></td>
-        <td><%= taxon_name_relationship.updated_at %></td>
-        <td><%= object_tag(taxon_name_relationship.updater) %></td>
-        <td><%= link_to 'Show', taxon_name_relationship.metamorphosize %></td>
-        <td><%= link_to 'Edit', edit_taxon_name_relationship_path(taxon_name_relationship.metamorphosize) %></td>
-        <td><%= link_to 'Destroy', taxon_name_relationship.metamorphosize,  method: :delete, data: { confirm: 'Are you sure?' } %></td>
-      </tr>
+      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+          <td><%= object_tag(taxon_name_relationship.subject_taxon_name) %></td>
+          <td><%= taxon_name_relationship.type %></td>
+          <td><%= object_tag(taxon_name_relationship.object_taxon_name) %></td>
+          <td><%= object_tag(taxon_name_relationship.source) %></td>
+          <%= fancy_metadata_cells_tag(taxon_name_relationship) -%>
+      <% end %>
   <% end %>
   </tbody>
 </table>

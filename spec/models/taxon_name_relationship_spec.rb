@@ -15,6 +15,7 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
     TaxonName.delete_all
     TaxonNameRelationship.delete_all
     Source.delete_all
+    TaxonNameHierarchy.delete_all
   } 
 
   context 'required attributes' do
@@ -319,9 +320,12 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
       g = FactoryGirl.create(:relationship_genus, parent: @family)
       s = FactoryGirl.create(:relationship_species, parent: g)
       FactoryGirl.create(:taxon_name_classification, taxon_name: g, type: 'TaxonNameClassification::Iczn::Unavailable')
+      
       r1 = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: g, type: 'TaxonNameRelationship::Typification::Genus::OriginalDesignation')
       r1.soft_validate(:validate_disjoint_object)
+
       expect(r1.soft_validations.messages_on(:type).size).to eq(1)
+
       expect(r1.soft_validations.messages_on(:object_taxon_name_id).size).to eq(1)
     end
 
@@ -455,13 +459,18 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
         @s2.year_of_publication = 1970
         expect(@s2.save).to be_truthy
         @s2.reload
-        r = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @s2, object_taxon_name: @s1, type: 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary::Secondary1961')
+        r = FactoryGirl.build_stubbed(:taxon_name_relationship, 
+                                      subject_taxon_name: @s2, 
+                                      object_taxon_name: @s1, 
+                                      type: 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary::Secondary1961'
+                                     )
+
         r.soft_validate(:specific_relationship)
         expect(r.soft_validations.messages_on(:type).size).to eq(1)
-        expect(r.soft_validations.messages_on(:source_id).size).to eq(1)
+        expect(r.soft_validations.messages_on(:base).size).to eq(1)
         r.source = @source
         r.soft_validate(:specific_relationship)
-        expect(r.soft_validations.messages_on(:source_id).size).to eq(1)
+        expect(r.soft_validations.messages_on(:base).size).to eq(1)
       end
 
       specify 'type species by subsequent designation' do
@@ -469,26 +478,26 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
         expect(@r1.save).to be_truthy
         @r1.reload
         @r1.soft_validate(:synonym_relationship)
-        expect(@r1.soft_validations.messages_on(:source_id).size).to eq(1)
+        expect(@r1.soft_validations.messages_on(:base).size).to eq(1)
       end
 
       specify 'errors on family synonym before 1961' do
         r = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @f1, object_taxon_name: @f2, source: @source, type: 'TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961')
         r.soft_validate('specific_relationship')
         expect(r.soft_validations.messages_on(:type).size).to eq(1)
-        expect(r.soft_validations.messages_on(:source_id).size).to eq(1)
+        expect(r.soft_validations.messages_on(:base).size).to eq(1)
       end
 
       specify 'synonym should have a source' do
         r = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @f2, object_taxon_name: @f1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
         r.soft_validate('synonym_relationship')
-        expect(r.soft_validations.messages_on(:source_id).size).to eq(1)
+        expect(r.soft_validations.messages_on(:base).size).to eq(1)
       end
 
       specify 'source should not be older than synonym' do
         r = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @f2, object_taxon_name: @f1, source: @source, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
         r.soft_validate('synonym_relationship')
-        expect(r.soft_validations.messages_on(:source_id).size).to eq(1)
+        expect(r.soft_validations.messages_on(:base).size).to eq(1)
       end
 
       specify 'homonym and totally suppressed' do
@@ -520,27 +529,32 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
         expect(@r1.soft_validations.messages_on(:type).size).to eq(1)
       end
 
-      specify 'secondary homonyms missing combination' do
-        f = FactoryGirl.create(:relationship_family)
-        g1 = FactoryGirl.create(:relationship_genus, name: 'Aus', parent: f)
-        g2 = FactoryGirl.create(:relationship_genus, name: 'Bus', parent: f)
-        s1 = FactoryGirl.create(:relationship_species, parent: g1)
-        s2 = FactoryGirl.create(:relationship_species, parent: g2)
+      context 'secondary homonyms missing combination' do
+        let(:message) { 'No combination available showing both species placed in the same genus' }
+        let(:f) { FactoryGirl.create(:relationship_family) }
+        let(:g1){ FactoryGirl.create(:relationship_genus, name: 'Aus', parent: f) }
+        let(:g2){ FactoryGirl.create(:relationship_genus, name: 'Bus', parent: f) }
+        let(:s1){ FactoryGirl.create(:relationship_species, parent: g1) }
+        let(:s2){ FactoryGirl.create(:relationship_species, parent: g2) }
+        let(:r1){ FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary::Secondary1961') }
 
-        expect(s1.all_generic_placements).to eq([s1.ancestor_at_rank('genus').name])
+        specify 'generic placements are correct' do
+          expect(s1.all_generic_placements).to eq([s1.ancestor_at_rank('genus').name])
+        end
 
-        r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2, type: 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary::Secondary1961')
-        r1.soft_validate('specific_relationship')
-        expect(r1.soft_validations.messages_on(:base).size).to eq(1)
+        specify 'specify_relationship validation adds message' do
+          r1.soft_validate('specific_relationship')
+          expect(r1.soft_validations.messages_on(:base)).to include(message)
+        end
 
-        c = Combination.new(genus: g2, species: s1)
-
-        expect(c.valid?).to be_truthy
-        expect(c.save).to be_truthy
-        s1.reload
-        @species.save
-        r1.soft_validate('specific_relationship')
-        expect(r1.soft_validations.messages_on(:base).empty?).to be_truthy
+        specify 'with validating combination validates' do
+          c = Combination.new(genus: g2, species: s1)
+          expect(c.save!).to be_truthy
+          s1.reload
+          @species.save
+          r1.soft_validate('specific_relationship')
+          expect(r1.soft_validations.messages_on(:base)).to_not include(message)
+        end
       end
     end
 
@@ -759,15 +773,16 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
   end
 
   context 'scope' do
-    specify 'order_by_date' do
+    specify 'order_by_oldest_source_first' do
       g1 = FactoryGirl.create(:relationship_genus, name: 'Cus', parent: @family)
       g2 = FactoryGirl.create(:relationship_genus, name: 'Cus', parent: @family)
       g3 = FactoryGirl.create(:relationship_genus, name: 'Cus', parent: @family)
       s1 = FactoryGirl.create(:valid_source_bibtex, title: 'article 1', year: 2010)
       s2 = FactoryGirl.create(:valid_source_bibtex, title: 'article 2')
-      r1 = TaxonNameRelationship::Iczn::Invalidating::Synonym.create(subject_taxon_name: g1, object_taxon_name: g2, source: s1)
-      r2 = TaxonNameRelationship::Iczn::Invalidating::Synonym.create(subject_taxon_name: g1, object_taxon_name: g3, source: s2)
-      expect(TaxonNameRelationship.order_by_date.to_a).to eq([r2, r1])
+      r1 = TaxonNameRelationship::Iczn::Invalidating::Synonym.create(subject_taxon_name: g1, object_taxon_name: g2, source: s2)
+      r2 = TaxonNameRelationship::Iczn::Invalidating::Synonym.create(subject_taxon_name: g1, object_taxon_name: g3, source: s1)
+    
+      expect(TaxonNameRelationship.order_by_oldest_source_first.to_a).to eq([r2, r1])
     end
   end
 

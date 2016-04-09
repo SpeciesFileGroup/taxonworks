@@ -1,37 +1,28 @@
-<h1>Listing taxon determinations</h1>
+<%= render("/shared/data/all/list/list_header", objects: @taxon_determinations) -%>
 
-<%= paginate @taxon_determinations%> <%= page_entries_info @taxon_determinations %>
-
-<table>
+<table class="tablesorter">
   <thead>
   <tr>
-    <th>Biological collection object</th>
-    <th>Otu</th>
-    <th>Year made</th>
-    <th>Month made</th>
-    <th>Day made</th>
-    <th>Last modified</th>
-    <th>Updated by</th>
-    <th></th>
-    <th></th>
-    <th></th>
+    <%= fancy_th_tag(name: 'Biological collection object') -%>
+    <%= fancy_th_tag(name: 'Otu') -%>
+    <%= fancy_th_tag(name: 'Year made') -%>
+    <%= fancy_th_tag(name: 'Month made') -%>
+    <%= fancy_th_tag(name: 'Day made') -%>
+    <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
+    <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
   </tr>
   </thead>
 
   <tbody>
   <% @taxon_determinations.each do |taxon_determination| %>
-      <tr>
-        <td><%= object_tag(taxon_determination.biological_collection_object.metamorphosize) %></td>
-        <td><%= object_tag(taxon_determination.otu) %></td>
-        <td><%= taxon_determination.year_made %></td>
-        <td><%= taxon_determination.month_made %></td>
-        <td><%= taxon_determination.day_made %></td>
-        <td><%= taxon_determination.updated_at %></td>
-        <td><%= object_tag(taxon_determination.updater) %></td>
-        <td><%= link_to 'Show', taxon_determination %></td>
-        <td><%= link_to 'Edit', edit_taxon_determination_path(taxon_determination) %></td>
-        <td><%= link_to 'Destroy', taxon_determination, method: :delete, data: { confirm: 'Are you sure?' } %></td>
-      </tr>
+      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+          <td><%= object_tag(taxon_determination.biological_collection_object.metamorphosize) %></td>
+          <td><%= object_tag(taxon_determination.otu) %></td>
+          <td><%= taxon_determination.year_made %></td>
+          <td><%= taxon_determination.month_made %></td>
+          <td><%= taxon_determination.day_made %></td>
+          <%= fancy_metadata_cells_tag(taxon_determination) -%>
+      <% end %>
   <% end %>
   </tbody>
 </table>

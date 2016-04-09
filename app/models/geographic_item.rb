@@ -191,9 +191,10 @@ class GeographicItem < ActiveRecord::Base
     end
 
     # @param [String] column_name
-    # @param [GeographicItem] geographic_item
+    # @param [GeographicItem] geometry as geographic_item
     # @param [Float] distance is measured in meters
-    # @return [ActiveRecord::Relation]
+    # @return [Scope] scope of GeographicItems
+    # Find all the GeographicItems within a specific distance in meters
     def within_radius_of_wkt(column_name, geometry, distance)
       if column_name.downcase == 'any'
         pieces = []
@@ -212,7 +213,8 @@ class GeographicItem < ActiveRecord::Base
         # has to be converted to degrees (Spatial Reference System units for geometries)
         # by dividing the Spatial Reference System unit (degrees) by meters/degree
         # This won't work that well near the poles (Stay out of PoLand)
-        q = "ST_Contains(ST_Buffer(ST_GeomFromEWKT('srid=4326;#{geometry}'), #{distance / 111_319.444444444}), #{column_name}::geometry)"
+        q = "ST_Contains(ST_Buffer(ST_GeomFromEWKT('srid=4326;#{geometry}'), " +
+          "#{distance / 111_319.444444444}), #{column_name}::geometry)"
         where(q)
       end
     end
@@ -241,9 +243,9 @@ class GeographicItem < ActiveRecord::Base
       are_contained_in_item_by_id(column_name, geographic_items.flatten.map(&:id))
     end
 
-    # @param [String] name of column to search
-    # @param [GeographicItem] geographic_item id or array of geographic_item ids to be tested.
-    # @return [Scope]
+    # @param [String] column_name to search
+    # @param [GeographicItem] geographic_item_id or array of geographic_item_ids to be tested.
+    # @return [Scope] of GeographicItems
     #
     # If this scope is given an Array of GeographicItems as a second parameter,
     # it will return the 'OR' of each of the objects against the table.
@@ -647,7 +649,7 @@ class GeographicItem < ActiveRecord::Base
       'geometry'   => geometry,
       'properties' => {
         'geographic_item' => {
-          'id' => id }
+          'id' => id}
       }
     }
   end
@@ -824,7 +826,7 @@ class GeographicItem < ActiveRecord::Base
 
   # @return [Hash] of a point
   def point_to_hash(point)
-    { points: [point_to_a(point)] }
+    {points: [point_to_a(point)]}
   end
 
   # @return [Array] of points
@@ -840,7 +842,7 @@ class GeographicItem < ActiveRecord::Base
   def multi_point_to_hash(_multi_point)
     # when we encounter a multi_point type, we only stick the points into the array, NOT the
     # it's identity as a group
-    { points: multi_point_to_a(multi_point) }
+    {points: multi_point_to_a(multi_point)}
   end
 
   # @return [Array] of points in the line
@@ -854,7 +856,7 @@ class GeographicItem < ActiveRecord::Base
 
   # @return [Hash] of points in the line
   def line_string_to_hash(line_string)
-    { lines: [line_string_to_a(line_string)] }
+    {lines: [line_string_to_a(line_string)]}
   end
 
   # @return [Array] of points in the polygon (exterior_ring ONLY)
@@ -869,7 +871,7 @@ class GeographicItem < ActiveRecord::Base
 
   # @return [Hash] of points in the polygon (exterior_ring ONLY)
   def polygon_to_hash(polygon)
-    { polygons: [polygon_to_a(polygon)] }
+    {polygons: [polygon_to_a(polygon)]}
   end
 
   # @return [Array] of line_strings as arrays points
@@ -887,7 +889,7 @@ class GeographicItem < ActiveRecord::Base
 
   # @return [Hash] of line_strings as hashes points
   def multi_line_string_to_hash(_multi_line_string)
-    { lines: to_a }
+    {lines: to_a}
   end
 
   # @return [Array] of arrays points in the polygons (exterior_ring ONLY)
@@ -905,7 +907,7 @@ class GeographicItem < ActiveRecord::Base
 
   # @return [Hash] of hashes points in the polygons (exterior_ring ONLY)
   def multi_polygon_to_hash(_multi_polygon)
-    { polygons: to_a }
+    {polygons: to_a}
   end
 
   # validation

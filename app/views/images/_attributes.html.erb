@@ -1,13 +1,10 @@
-<div class="attributes">
-  <p id="notice"><%= notice %></p>
-
-  <p>
-  <strong>Image:</strong>
-   
-    <%= image_tag(@image.image_file.url(:medium)) %>
-  </p>
-
-  <p>
+<div class="easyzoom easyzoom--overlay">
+  <a href="<%= @image.image_file.url %>">
+    <%= image_tag(@image.image_file.url, 'class' => 'imageZoom') %>
+  </a>
+</div>
+<div class="attribute_set" data-title="Information" data-view="development">
+  <p data-view="development">
     <strong>User file name:</strong>
     <%= @image.user_file_name %>
   </p>
@@ -46,5 +43,6 @@
     <strong>Image file updated at:</strong>
     <%= @image.image_file_updated_at %>
   </p>
-
 </div>
+
+

@@ -66,7 +66,7 @@ describe 'Housekeeping::Project' do
               expect(Otu.with_project_id(project2.id).to_a).to eq([@otu2])
             end
 
-            xspecify 'instance must belong to the project before save' do
+            # xspecify 'instance must belong to the project before save' do
               # $project_id = @project1.id
               # expect(i.valid?).to be_truthy
               # expect(i.project_id).to eq(@project1.id)
@@ -74,7 +74,7 @@ describe 'Housekeeping::Project' do
 
               # i.project_id = @project2.id 
               # expect{i.save}.to raise_error
-            end
+            # end
           end
         end
       end

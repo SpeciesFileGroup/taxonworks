@@ -1,31 +1,22 @@
-<h1>Listing preparation types</h1>
+<%= render("/shared/data/all/list/list_header", objects: @preparation_types) -%>
 
-<%= paginate @preparation_types %> <%= page_entries_info @preparation_types %>
-
-<table>
+<table class="tablesorter">
   <thead>
   <tr>
-    <th>Name</th>
-    <th>Definition</th>
-    <th>Last modified</th>
-    <th>Updated by</th>
-    <th></th>
-    <th></th>
-    <th></th>
+    <%= fancy_th_tag(name: 'Name') -%>
+    <%= fancy_th_tag(name: 'Definition') -%>
+    <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
+    <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
   </tr>
   </thead>
 
   <tbody>
   <% @preparation_types.each do |preparation_type| %>
-      <tr>
-        <td><%= preparation_type.name %></td>
-        <td><%= preparation_type.definition %></td>
-        <td><%= preparation_type.updated_at %></td>
-        <td><%= object_tag(preparation_type.updater) %></td>
-        <td><%= link_to 'Show', preparation_type %></td>
-        <td><%= link_to 'Edit', edit_preparation_type_path(preparation_type) %></td>
-        <td><%= link_to 'Destroy', preparation_type, method: :delete, data: {confirm: 'Are you sure?'} %></td>
-      </tr>
+      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+          <td><%= preparation_type.name %></td>
+          <td><%= preparation_type.definition %></td>
+          <%= fancy_metadata_cells_tag(preparation_type) -%>
+      <% end %>
   <% end %>
   </tbody>
 </table>

@@ -5,6 +5,8 @@ TaxonWorks
 [![Coverage Status][3]][4]
 [![CodePolice][5]][6]
 [![Dependency Status][7]][8]
+[![Gitter](https://badges.gitter.im/SpeciesFileGroup/taxonworks.svg)](https://gitter.im/SpeciesFileGroup/taxonworks?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+[![Inline docs](http://inch-ci.org/github/SpeciesFileGroup/taxonworks.svg?branch=master&style=shields)](http://inch-ci.org/github/SpeciesFileGroup/taxonworks)
 
 Overview
 --------
@@ -43,3 +45,5 @@ TaxonWorks is open source and is presently available under the [University of Il
 [16]: https://opensource.org/licenses/NCSA
 [17]: https://github.com/SpeciesFileGroup/tw_provision
 [18]: https://en.wikipedia.org/wiki/University_of_Illinois/NCSA_Open_Source_License
+
+

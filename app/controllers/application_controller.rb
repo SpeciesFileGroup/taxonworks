@@ -1,3 +1,4 @@
+# this is the main controller
 class ApplicationController < ActionController::Base
   include Workbench::SessionsHelper
   include ProjectsHelper
@@ -8,34 +9,34 @@ class ApplicationController < ActionController::Base
   rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
 
   # In use
-  attr_writer :is_data_controller, :is_task_controller 
+  attr_writer :is_data_controller, :is_task_controller
 
   # Potentially used
-  attr_writer   :meta_title, :meta_data, :site_name
+  attr_writer :meta_title, :meta_data, :site_name
   attr_accessor :meta_description, :meta_keywords, :page_title
 
-  # In use 
+  # In use
   helper_method :is_data_controller?, :is_task_controller?
 
   # Potentially used.
   helper_method :meta_title, :meta_data, :site_name, :page_title
 
-  before_filter :intercept_api
+  before_action :intercept_api
 
-  before_filter :set_project_and_user_variables
+  before_action :set_project_and_user_variables
 
-  after_filter :log_user_recent_route
-  after_filter :clear_project_and_user_variables
+  after_action :log_user_recent_route
+  after_action :clear_project_and_user_variables
 
   def intercept_api
-    if (/^\/api/ =~ request.path)
+    if /^\/api/ =~ request.path # rubocop:disable Style/RegexpLiteral
       if token_authenticate
-        render(json: ({ success: false }), status: :bad_request) and return unless set_project_from_params
+        render(json: {success: false}, status: :bad_request) && return unless set_project_from_params
       else
-        render(json: ({ success: false }), status: :unauthorized) and return
+        render(json: {success: false}, status: :unauthorized) && return
       end
     end
-    true 
+    true
   end
 
   # TODO: Make RecenRoutes modules that handles exceptions, only etc.
@@ -44,13 +45,13 @@ class ApplicationController < ActionController::Base
   end
 
   def set_project_and_user_variables
-    $project_id = sessions_current_project_id  # This also sets @sessions_current_project_id
-    $user_id = sessions_current_user_id 
+    $project_id = sessions_current_project_id # This also sets @sessions_current_project_id
+    $user_id    = sessions_current_user_id
   end
 
   def clear_project_and_user_variables
-    $project_id = nil 
-    $user_id = nil 
+    $project_id = nil
+    $user_id    = nil
   end
 
   # Returns true if the controller is that of data class. See controllers/concerns/data_controller_configuration/ concern.
@@ -67,14 +68,14 @@ class ApplicationController < ActionController::Base
 
   def meta_title
     @meta_title ||= [@meta_title.presence || @page_title.presence, site_name].
-                    compact.join(' | ')
+      compact.join(' | ')
   end
 
   def meta_data
     @meta_data ||= {
       description: @meta_description,
-      keywords: @meta_keywords
-    }.delete_if{ |k, v| v.nil? }
+      keywords:    @meta_keywords
+    }.delete_if { |_k, v| v.nil? }
   end
 
   def site_name
@@ -82,7 +83,7 @@ class ApplicationController < ActionController::Base
   end
 
   def digest_cookie(file, key)
-    sha256 = Digest::SHA256.file(file)
+    sha256       = Digest::SHA256.file(file)
     cookies[key] = sha256.hexdigest
   end
 
@@ -92,11 +93,11 @@ class ApplicationController < ActionController::Base
   end
 
   private
- 
+
   def record_not_found
-    respond_to do | format |
-      format.html { render plain: "404 Not Found", status: 404 }
-      format.json { render json: { success: false }, status: 404 }
+    respond_to do |format|
+      format.html { render plain: '404 Not Found', status: 404 }
+      format.json { render json: {success: false}, status: 404 }
     end
   end
 
@@ -105,14 +106,14 @@ class ApplicationController < ActionController::Base
   end
 
   def token_authenticate
-    t = params[:token] 
-  
-    if !t
-      authenticate_with_http_token do |token, options|
+    t = params[:token]
+
+    unless t
+      authenticate_with_http_token do |token, _options|
         t = token
       end
     end
-  
+
     @sessions_current_user = User.find_by_api_access_token(t) if t
   end
 
@@ -127,5 +128,4 @@ class ApplicationController < ActionController::Base
   def project_matches(object)
     object.try(:project_id) == sessions_current_project_id
   end
-
 end

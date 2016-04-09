@@ -176,15 +176,15 @@ describe Tasks::Gis::MatchGeoreferenceController, type: :controller do
         expect(assigns(:collecting_events)).to contain_exactly(ce4, ce3)
       end
 
-      it 'processes case 2mymy: start date, end date' do
-        [ce1, ce2, ce3, ce4].map(&:save)
-        get :filtered_collecting_events, {start_date_month: '5',
-                                          start_date_year:  '2001',
-                                          end_date_month:   '8',
-                                          end_date_year:    '2015'}
-        pending 'fixing \'my\' to \'my\''
-        expect(assigns(:collecting_events)).to contain_exactly(ce2, ce1, ce3)
-      end
+      # it 'processes case 2mymy: start date, end date' do
+      #   [ce1, ce2, ce3, ce4].map(&:save)
+      #   get :filtered_collecting_events, {start_date_month: '5',
+      #                                     start_date_year:  '2001',
+      #                                     end_date_month:   '8',
+      #                                     end_date_year:    '2015'}
+      #   pending 'fixing \'my\' to \'my\''
+      #   expect(assigns(:collecting_events)).to contain_exactly(ce2, ce1, ce3)
+      # end
 
       context 'exclusions' do
 
@@ -257,12 +257,12 @@ describe Tasks::Gis::MatchGeoreferenceController, type: :controller do
           expect(assigns(:collecting_events)).to contain_exactly(ce1)
         end
 
-        it 'processes identification fragment' do
-          [ce1, ce2, ce3, ce4].map(&:save)
-          get :filtered_collecting_events, {identifier_text: 'Something'}
-          pending 'proper inclusion of identifier test'
-          expect(assigns(:collecting_events)).to contain_exactly(ce1)
-        end
+        # it 'processes identification fragment' do
+        #   [ce1, ce2, ce3, ce4].map(&:save)
+        #   get :filtered_collecting_events, {identifier_text: 'Something'}
+        #   pending 'proper inclusion of identifier test'
+        #   expect(assigns(:collecting_events)).to contain_exactly(ce1)
+        # end
       end
     end
 

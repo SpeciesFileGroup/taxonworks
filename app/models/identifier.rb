@@ -51,6 +51,7 @@ class Identifier < ActiveRecord::Base
 
   # must come before SHORT_NAMES for weird inheritance issue
   belongs_to :identifier_object, polymorphic: :true
+  belongs_to :namespace # only applies to Identifier::Local, here for create purposes
 
   # @todo this likely has to be refactored/considered
   # !! If there are inheritance issues with validation the position

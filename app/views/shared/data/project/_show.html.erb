@@ -1,59 +1,111 @@
 <div id="show">
-  <h2 class="model"> <%= model_name_title -%> </h2>
-
-  <div class="flexbox">
-
+  <div class="panels-container horizontal">
     <div class="item item1">
-      <div>id: <%= object.id -%></div>
+      <div class="panel separate-right">
+        <div class="title nav-line <%= @hub_model_metadata.combined_css -%>">
+          <%= model_name_title -%>
+        </div> 
 
-      <div class="section go">
-        <h2> Go </h2>
-        <%= forward_back_links(object) -%> <br><br>
-        <%= yield :show_navigation -%>
+        <div class="navigation-controls">
+          <%= link_to(content_tag(:span, 'Browse','class' => 'small-icon', 'data-icon' => 'browse'), browse_taxon_name_path(@taxon_name), 'class' => 'navigation-item') if controller.respond_to?(:browse) -%>
+          <%= previous_link(object) -%> 
+          <%= next_link(object) -%>
+
+        </div> 
+       
+        <div class="navigation-controls">
+          <div class="navigation-item">
+            <%= search_form_for_model(@data_model) %>
+          </div>
+        </div>
+
+        <div class="content">
+          <%= yield :additional_navigation -%>
+        </div>
       </div>
-
     </div>
 
     <div class="item item2">
-      <div class='tag'> <%= object_tag(object) -%> </div>
+      <div class="panel separate-left">
+        <div class="title action-line">
+          <div class="inline">
+            <span><%= object_tag(object) -%></span>
+            <span data-view="development">&nbsp;[ id: <%= object.id -%> ]</span>
+          </div>
+          <ul class="horizontal_navbar context-menu" >
+            <li><a href="#" data-icon="show" class="icon-list" view-bottom>Development view</a></li>
+          </ul>
+        </div> 
 
-      <div class="attributes break_words">
-        <%= render partial:  object_attributes_partial_path(object.metamorphosize), locals: {object: object} %>
-        <%= yield :related_attributes -%>
-        <%= render partial: '/shared/data/all/show/housekeeping', locals: {object: object} -%>
-        <%= render(partial: '/shared/data/all/show/soft_validation', locals: {object: object}) if object.class.respond_to?(:soft_validates?) -%>
-        <%= render(partial: '/shared/data/all/show/annotations', locals: {object: object}) if ! object.annotations.empty?  %>
+        <div class="navigation-controls">
+          <%= edit_object_link(object) if controller.respond_to?(:edit) -%>
+          <%= destroy_object_link(object) if controller.respond_to?(:destroy) -%>
+          <%= pin_item_to_pinboard_link(object, sessions_current_user) -%>       
+          <div class="navigation-item menu-drop">
+            <span id="show_annotate_dropdown" class="small-icon" data-icon="annotate">Annotate</span>
+            <ul class="dropdown">
+              <%= annotate_links(object: object) -%>
+            </ul>
+          </div>                
+          <div id="show_tasks_dropdown" class="navigation-item menu-drop">
+            <span data-icon="task" class="small-icon">Tasks</span>
+            <ul class="dropdown">
+              <%= yield :tasks -%>
+            </ul>
+          </div>
+          <div id="show_add_dropdown" class="navigation-item menu-drop">
+            <span data-icon="add" class="small-icon">Add</span>
+            <ul class="dropdown">
+              <%= yield :add -%>
+            </ul>
+          </div>     
+          <div id="show_report_dropdown" class="navigation-item menu-drop">
+            <span data-icon="add" class="small-icon">Report</span>
+            <ul class="dropdown">
+              <%= related_data_link_tag(object) -%>
+              <%= papertrail_link_tag(object) -%>
+              <%= yield :report -%>
+            </ul>
+          </div>    
+     
+        </div>        
+      </div>    
+      <div class="flex-wrap-row"> 
+        <div class="panels-container">
+          <div id="attributes-panel" class="panel separate-left separate-right attributes-panel separate-bottom">
+            <div class="break_words content">
+              <div class="title-section"> 
+                <h2>Attributes</h2>
+              </div>
+
+              <div class="attributes"> 
+                <%= render partial: object_attributes_partial_path(object.metamorphosize), locals: {object: object} %>
+                <%= render partial: '/shared/data/all/show/housekeeping', locals: {object: object} -%>
+              </div>        
+            </div>
+          </div>
+       <div class="flex-wrap-row"> 
+        <div id="related-panel" class="panel separate-left separate-right separate-bottom">
+          <div class="content"> 
+            <div class="title-section">
+              <h2>Associated</h2>
+            </div>
+            <div class="information-panel">
+            <%= yield :associated -%>
+            </div>
+          </div>
+        </div>
+        
+        <div id="validation-panel" class="panel separate-left separate-right separate-bottom">
+          <div class="content">
+            <%= render(partial: '/shared/data/all/show/soft_validation', locals: {object: object}) if object.class.respond_to?(:soft_validates?) -%>
+          </div>
+        </div>
+
+        <%= render("/shared/data/project/annotations", object: object) if !object.annotations.empty?  %>
+
       </div>
-    </div>
-
-    <div class="item item3">
-
-      <div class="section do">
-        <h2> Do </h2>
-        <%= edit_object_link(object) -%> | <%= destroy_object_link(object) -%>
-        <br>
-        <%= pin_item_to_pinboard_link(object, sessions_current_user) -%>
-        <h3> Annotate </h3>
-        <%= annotate_links(object: object) -%>
-        <br>
-        <br>
-
-        <div> <%= dropzone_depiction_form(object)  -%> </div>
-
-        <br>
-
-        <%= yield :do -%>
-        <%= yield :tasks -%>
       </div>
-
-      <div class="section see">
-        <h2> See </h2>
-        <%= papertrail_link(object) -%><br>
-        <%= related_data_link(object) -%>
-
-        <br>
-        <br>
-        <%= yield :see -%>
       </div>
     </div>
   </div>

@@ -107,12 +107,12 @@ RSpec.describe DocumentationController, type: :controller do
         skip("Add a hash of attributes valid for your model")
       }
 
-      it "updates the requested documentation" do
-        documentation = Documentation.create! valid_attributes
-        put :update, {:id => documentation.to_param, :documentation => new_attributes}, valid_session
-        documentation.reload
-        skip("Add assertions for updated state")
-      end
+      # it "updates the requested documentation" do
+      #   documentation = Documentation.create! valid_attributes
+      #   put :update, {:id => documentation.to_param, :documentation => new_attributes}, valid_session
+      #   documentation.reload
+      #   skip("Add assertions for updated state")
+      # end
 
       it "assigns the requested documentation as @documentation" do
         documentation = Documentation.create! valid_attributes

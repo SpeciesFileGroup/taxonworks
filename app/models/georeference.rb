@@ -1,3 +1,4 @@
+# rubocop:disable Metrics/AbcSize, MethodLength, CyclomaticComplexity
 # A georeference is an assertion that some shape, as derived from some method, describes the location of some collecting event.
 #
 # A georeference contains three components:
@@ -36,10 +37,6 @@
 #   @return [String]
 #   The type name of the this georeference definition.
 #
-# @!attribute source_id
-#   @return [Integer]
-#   When provided, asserts that this data originated in the specified source.
-#
 # @!attribute position
 #   @return [Integer]
 #   An arbitrary ordering mechanism, the first georeference is routinely defaulted to in the application.
@@ -68,6 +65,7 @@ class Georeference < ActiveRecord::Base
   include Housekeeping
   include Shared::Taggable
   include Shared::IsData
+  include Shared::Citable
 
   attr_accessor :iframe_response # used to pass the geolocate from Tulane through
 
@@ -76,13 +74,12 @@ class Georeference < ActiveRecord::Base
   belongs_to :error_geographic_item, class_name: 'GeographicItem', foreign_key: :error_geographic_item_id
   belongs_to :collecting_event
   belongs_to :geographic_item
-  belongs_to :source
 
   validates :geographic_item, presence: true
   validates :collecting_event, presence: true
   validates :type, presence: true
-
-  validates_uniqueness_of :collecting_event_id, scope: [:type, :geographic_item_id, :project_id]
+  validates :collecting_event_id, uniqueness: {scope: [:type, :geographic_item_id, :project_id]}
+  # validates_uniqueness_of :collecting_event_id, scope: [:type, :geographic_item_id, :project_id]
 
   # validate :proper_data_is_provided
   validate :add_error_radius
@@ -274,7 +271,6 @@ class Georeference < ActiveRecord::Base
                                   error_depth:              gr.error_depth,
                                   error_geographic_item_id: gr.error_geographic_item_id,
                                   type:                     gr.type,
-                                  source_id:                gr.source_id,
                                   is_public:                gr.is_public,
                                   api_request:              gr.api_request,
                                   is_undefined_z:           gr.is_undefined_z,
@@ -285,8 +281,6 @@ class Georeference < ActiveRecord::Base
     end
     result
   end
-
-  protected
 
   # @param [String, Boolean] String to find in collecting_event.verbatim_locality, Bool = false for 'Starts with',
   # Bool = true if 'contains'
@@ -301,6 +295,8 @@ class Georeference < ActiveRecord::Base
 
     Georeference.where('collecting_event_id in (?)', CollectingEvent.where(query).pluck(:id))
   end
+
+  protected
 
   # validation methods
 
@@ -352,8 +348,8 @@ class Georeference < ActiveRecord::Base
     if collecting_event
       ga_gi = collecting_event.geographic_area_default_geographic_item
       eb    = error_box
-      if !error_radius.blank? && ga_gi && eb
-        retval = ga_gi.contains?(eb)
+      unless error_radius.blank? # rubocop:disable Style/IfUnlessModifier
+        retval = ga_gi.contains?(eb) if ga_gi && eb
       end
     end
     retval
@@ -433,7 +429,7 @@ class Georeference < ActiveRecord::Base
 
   # @return [Boolean] true iff error_radius contains error_geographic_item.
   def add_err_geo_item_inside_err_radius
-    unless check_err_geo_item_inside_err_radius
+    unless check_err_geo_item_inside_err_radius # rubocop:disable Style/GuardClause
       problem = 'error_radius must contain error_geographic_item.'
       errors.add(:error_radius, problem)
       errors.add(:error_geographic_item, problem)

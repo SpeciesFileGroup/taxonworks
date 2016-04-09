@@ -166,8 +166,8 @@ describe CollectionObject, :type => :model do
   end
 
   context 'attributes' do
-    xspecify "destroyed? (gone, for real, never ever EVER coming back)"
-    xspecify "condition (damaged/level)"
+    # xspecify "destroyed? (gone, for real, never ever EVER coming back)"
+    # xspecify "condition (damaged/level)"
 
     specify '#accession_provider' do
       expect(collection_object.accession_provider = FactoryGirl.build(:valid_person)).to be_truthy

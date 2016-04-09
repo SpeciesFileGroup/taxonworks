@@ -1,68 +1,67 @@
-<div class="attributes">
-  <p>
+<p>
   <strong>Total:</strong>
   <%= @collection_object.total %>
-  </p>
+</p>
 
-  <p>
+<p>
   <strong>Ranged lot category:</strong>
   <%= object_tag(@collection_object.ranged_lot_category) %>
-  </p>
+</p>
 
-  <p>
+<p>
   <strong>Type:</strong>
   <%= @collection_object.type %>
-  </p>
+</p>
 
-  <p>
+<p>
   <strong>Preparation type:</strong>
   <%= object_link(@collection_object.preparation_type) %>
+</p>
+
+<p>
+  <strong>Collecting event:</strong>
+  <%= collecting_event_link(@collection_object.collecting_event) %>
+</p>
+
+<div class="attribute_set" data-title="Buffered values (data in preparation)">
+
+  <p>
+    <strong>Buffered collecting event:</strong>
+    <%= @collection_object.buffered_collecting_event %>
   </p>
 
   <p>
-  <strong>Collecting event:</strong>
-  <%= collecting_event_link(@collection_object.collecting_event) %>
-  </p>
-
-  <div class="attribute_set" data-title="Buffered values (data in preparation)">
-
-    <p>
-    <strong>Buffered collecting event:</strong>
-    <%= @collection_object.buffered_collecting_event %>
-    </p>
-
-    <p>
     <strong>Buffered determination:</strong>
     <%= @collection_object.buffered_determinations %>
-    </p>
+  </p>
 
-    <p>
+  <p>
     <strong>Buffered other labels:</strong>
     <%= @collection_object.buffered_other_labels %>
-    </p>
+  </p>
 
-  </div>
+</div>
 
-  <div class="attribute_set" data-title="Accession related">
-    <p>
+<div class="attribute_set" data-title="Accession related">
+  <p>
     <strong>Accessioned at:</strong>
     <%= @collection_object.accessioned_at %>
-    </p>
+  </p>
 
-    <p>
+  <p>
     <strong>Deaccessioned reason:</strong>
     <%= @collection_object.deaccession_reason %>
-    </p>
+  </p>
 
-    <p>
+  <p>
     <strong>Deaccessioned at:</strong>
     <%= @collection_object.deaccessioned_at %>
-    </p>
+  </p>
 
-    <p>
+  <p>
     <strong>Repository:</strong>
     <%= object_link(@collection_object.repository) %>
-    </p>
+  </p>
 
-  </div>
 </div>
+

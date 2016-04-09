@@ -3,53 +3,88 @@
 #
 # Valid attributes (* required)
 #   status - one of [complete, stable, prototype, unknown (default) ] (see user_tasks.yml)
-#   categories - an array of [CollectingEvent, CollectionObject, Source, TaxonName]
+#   categories - an array of one or more of [CollectingEvent, CollectionObject, Source, TaxonName]
 #   hide - default false
 #   description - 
+#   related_models - an array of similar models
 #
 ---
 Core: # a Section
   Otu:  
-    status: :prototype # A status
+    status: :prototype 
+    related_models:
+      - TaxonName
+      - TaxonDetermination
   TaxonName:
     status: :prototype
     categories:
       - TaxonName
+    related_models:
+      - Otu
+      - TaxonNameRelationship
   CollectingEvent:
     status: :prototype
     categories: 
       - CollectingEvent
+    related_models:
+      - Georeference
   CollectionObject: 
      status: :prototype
      categories:
        - CollectionObject
+     related_models:
+       - CollectingEvent
+       - TaxonDetermination
+       - Repository
   ControlledVocabularyTerm :
      status: :prototype
+     related_models:
+       - Tag
+       - DataAttribute
   Source:
      status: :prototype
      shared: true
+     related_models:
+       - Serial
+       - People
   BiologicalAssociation:
      status: :prototype
+     related_models:
+       - BiologicalRelationship
 Supporting:
   AssertedDistribution:
     categories:
       - Source 
   BiologicalAssociationsGraph:
+    related_models:
+      - Source
   BiologicalRelationship:
+    related_models:
+      - BiologicalAssociations
   CollectionProfile:
   CollectionObjectObservation:
   Container:
     categories:
       - CollectionObject
+    related_models:
+      - ContainerItem
   ContainerItem:
     categories:
       - CollectionObject
+    related_models:
+      - Container
   Content:
+    related_models:
+      - ControlledVocabularyTerm
   CommonName:
     categories:
       - TaxonName
   Document:
+    related_models:
+      - Documentation: documentation_index_path
   Documentation:
+    related_models:
+      - Document 
   Depiction:
   Georeference:
     categories:
@@ -57,28 +92,54 @@ Supporting:
   GeographicArea:
     shared: true
     application_defined: true
-  Repository:
-    shared: true
-    application_defined: true
+    related_models:
+      - CollectingEvent
+      - Georeference
+  GeographicItem:
+    hide: true
+    related_models:
+      - GeographicArea
+      - Georeference
+      - CollectingEvent
   Image:
     categories:
       - CollectionObject
   Loan:
     categories:
       - CollectionObject
+    related_models:
+      - CollectionProfile
+      - Repository
+      - LoanItem
   LoanItem:
     categories:
       - CollectionObject
+    related_models:
+      - Loan
   OtuPageLayout:
+    related_models:
+      - ControlledVocabularyTerm
   Person:
     shared: true
+    related_models:
+      - Source
+      - CollectingEvent
+      - TaxonDetermination
   PreparationType:
     shared: true
   Namespace:
     shared: true
   RangedLotCategory:
+  Repository:
+    shared: true
+    application_defined: true
+    related_models:
+      - CollectingObject
   Serial:
     shared: true 
+    related_models:
+      - Source
+      - Person
   TaxonDetermination:
   TaxonNameClassification:
    categories:
@@ -86,6 +147,8 @@ Supporting:
   TaxonNameRelationship:
     categories:
       - TaxonName 
+    related_model:
+      - TaxonName
   TypeMaterial:
     categories:
       - TaxonName 
@@ -99,8 +162,5 @@ Annotations:
   Identifier:
   Note:
   Tag:
-
-
-
-
-
+    related_models:
+      - ControlledVocabularyTerm

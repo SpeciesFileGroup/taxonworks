@@ -5,10 +5,12 @@ describe Otu, :type => :model do
   let(:otu) { Otu.new }
   before(:all) do
     TaxonName.delete_all
+    TaxonNameHierarchy.delete_all
   end
 
   after(:all) do
     TaxonNameRelationship.delete_all
+    TaxonNameHierarchy.delete_all
   end
 
   # foreign key relationships
@@ -205,8 +207,8 @@ describe Otu, :type => :model do
   end
 
   context 'scopes' do
-    let(:t) { FactoryGirl.create(:relationship_species) } 
-    let(:o) { Otu.create(taxon_name: t) }
+    let!(:t) { FactoryGirl.create(:relationship_species) } 
+    let!(:o) { Otu.create(taxon_name: t) }
 
     specify '.for_taxon_name(taxon_name) handles integers' do
       expect(Otu.for_taxon_name(t.to_param)).to contain_exactly(o)

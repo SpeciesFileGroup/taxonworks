@@ -108,7 +108,6 @@ class AlternateValue < ActiveRecord::Base
     end
 
   end
-
 end
 
 require_dependency 'alternate_value/misspelling'

@@ -2,7 +2,7 @@ module DataControllerConfiguration
   extend ActiveSupport::Concern
 
   included do
-    before_filter :set_is_data_controller, :set_data_model
+    before_filter :set_is_data_controller, :set_data_model, :set_hub_model_metadata
   end
 
   def related
@@ -17,8 +17,13 @@ module DataControllerConfiguration
   end 
 
   # !! This needs to be redefined in STI model controllers (e.g. see Georeferences::GeoLocates controller)
+  # !! TODO- merge this into hub_model_metadata
   def set_data_model
     @data_model = controller_name.classify.constantize
   end 
+
+  def set_hub_model_metadata
+    @hub_model_metadata =  Hub::Data::BY_NAME[@data_model.name]
+  end
 
 end

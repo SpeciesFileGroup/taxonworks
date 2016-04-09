@@ -2,8 +2,13 @@ module CitationsHelper
 
   def citation_tag(citation)
     return nil if citation.nil?
-    citation_string = (citation.source.author_year.nil? ? content_tag(:span, 'author, year not yet provided for source', class: :subtle) : citation.source.author_year)
-    str = [citation.citation_object.class.name, ": ", object_tag(citation.citation_object.metamorphosize), " in ", citation_string].join
+    citation_string = (
+      (citation.source.type == 'Source::Bibtex' && citation.source.try(:author_year)) ? 
+      citation.source.author_year : 
+      content_tag(:span, 'author, year not yet provided for source', class: :subtle) 
+    )
+   
+    str = [citation.citation_object.class.name, ": ", object_tag(citation.citation_object.metamorphosize).html_safe, " in ", citation_string].join
     str = str + " (pages #{citation.pages})" if !citation.pages.blank?
     str.html_safe
   end

@@ -1,9 +1,9 @@
 require 'rails_helper'
 
-describe ApiController, :type => :controller do
-# before(:each) {
-#   sign_in
-# }
+describe ApiController, type: :controller do
+  # before(:each) {
+  #   sign_in
+  # }
 
   shared_examples_for 'successful response' do
     it 'returns HTTP Status 200 OK' do
@@ -11,7 +11,7 @@ describe ApiController, :type => :controller do
     end
 
     it 'returns JSON object indicating success' do
-      expect(JSON.parse(response.body)).to eq({ "success" => true })
+      expect(JSON.parse(response.body)).to eq('success' => true)
     end
   end
 
@@ -21,13 +21,13 @@ describe ApiController, :type => :controller do
     end
 
     it 'returns JSON object indicating failure' do
-      expect(JSON.parse(response.body)).to eq({ "success" => false })
+      expect(JSON.parse(response.body)).to eq('success' => false)
     end
   end
 
   context 'when token is valid' do
     let(:user) { FactoryGirl.create(:valid_user, :user_valid_token) }
-    let(:params) { { project_id: 1, format: :json } }
+    let(:params) { {project_id: 1, format: :json} }
 
     context 'when provided in header' do
       before do
@@ -39,28 +39,27 @@ describe ApiController, :type => :controller do
     end
 
     context 'when provided in query params' do
-      before { get :index, { token: user.api_access_token }.merge(params) }
+      before { get :index, {token: user.api_access_token}.merge(params) }
 
       it_behaves_like 'successful response'
     end
 
     context 'when project_id is missing' do
-      before { get :index, { token: user.api_access_token } }
+      before { get :index, token: user.api_access_token }
 
       it 'returns HTTP Status 400 Bad Request' do
         expect(response).to be_bad_request
       end
 
       it 'returns JSON object indicating failure' do
-        expect(JSON.parse(response.body)).to eq({ "success" => false })
+        expect(JSON.parse(response.body)).to eq('success' => false)
       end
     end
-
   end
 
   context 'when token is invalid' do
     let(:user) { FactoryGirl.create(:valid_user, :user_valid_token) }
-    let(:params) { { format: :json } }
+    let(:params) { {format: :json} }
 
     context 'when provided in header' do
       before do
@@ -72,7 +71,7 @@ describe ApiController, :type => :controller do
     end
 
     context 'when provided in query params' do
-      before { get :index, { token: 'foo' }.merge(params) }
+      before { get :index, {token: 'foo'}.merge(params) }
 
       it_behaves_like 'unauthorized response'
     end
@@ -82,7 +81,5 @@ describe ApiController, :type => :controller do
 
       it_behaves_like 'unauthorized response'
     end
-
   end
-
 end

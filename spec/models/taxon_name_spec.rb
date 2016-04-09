@@ -1,8 +1,7 @@
 require 'rails_helper'
 
+# spring rspec -t group:nomenclature
 describe TaxonName, type: :model, group: [:nomenclature] do
-
-  # spring rspec -t group:nomenclature
 
   #  before(:all) do
   #    GC.disable
@@ -28,7 +27,9 @@ describe TaxonName, type: :model, group: [:nomenclature] do
       TaxonNameRelationship.delete_all
       TaxonName.delete_all
       # TODO: find out why this exists and resolve - presently leaving sources in the models
+      Citation.delete_all
       Source.delete_all
+      TaxonNameHierarchy.delete_all
     end
 
     context 'double checking FactoryGirl' do
@@ -49,17 +50,26 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             expect(i.valid?).to be_truthy, "#{i.name} is not valid [#{i.errors.messages}], and is expected to be so- was your test db reset properly?"
           end
         end
+
         expect(variety.root.id).to eq(@species.root.id)
         expect(variety.cached_higher_classification).to eq('Plantae:Aphyta:Aphytina:Aopsida:Aidae:Aales:Aineae:Aaceae:Aoideae:Aeae:Ainae')
         expect(variety.cached_author_year).to eq('McAtee (1900)')
         expect(variety.cached_html).to eq('<i>Aus</i> (<i>Aus</i> sect. <i>Aus</i> ser. <i>Aus</i>) <i>aaa bbb</i> var. <i>ccc</i>')
 
-        basionym = FactoryGirl.create(:icn_variety, name: 'basionym', parent_id: variety.ancestor_at_rank('species').id, source_id: nil, verbatim_author: 'Linnaeus')
+        basionym = FactoryGirl.create(:icn_variety, name: 'basionym', parent_id: variety.ancestor_at_rank('species').id,  verbatim_author: 'Linnaeus') # source_id: nil,
         r        = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: basionym, object_taxon_name: variety, type: 'TaxonNameRelationship::Icn::Unaccepting::Usage::Basionym')
         variety.reload
         expect(variety.save).to be_truthy
         expect(variety.cached_author_year).to eq('(Linnaeus) McAtee (1900)')
       end
+    end
+
+    context 'on_destroy' do
+      specify 'children prevent destroy' do
+        expect(@genus.parent.errors[:base]).to be_truthy
+        expect(@genus.parent.destroyed?).to be_falsey
+        expect(@genus.destroyed?).to be_falsey
+      end 
     end
 
     context 'associations' do
@@ -102,11 +112,16 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             expect(@taxon_name.related_taxon_names.sort).to eq([@type_of_genus, @original_genus].sort)
           end
 
-          specify 'respond to unavailable_or_invalid' do
-            relationship = FactoryGirl.build(:taxon_name_relationship, subject_taxon_name: @original_genus, object_taxon_name: @type_of_genus, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
-            expect(relationship.save).to be_truthy
-            expect(@type_of_genus.unavailable_or_invalid?).to be_falsey
-            expect(@original_genus.unavailable_or_invalid?).to be_truthy
+          context '#unavilable_or_invalid' do
+            let!(:relationship) { FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @original_genus, object_taxon_name: @type_of_genus, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym') }
+  
+            specify 'subject is invalid' do 
+              expect(@original_genus.unavailable_or_invalid?).to be_truthy 
+            end
+
+            specify 'object is valid' do
+              expect(@type_of_genus.unavailable_or_invalid?).to be_falsey
+            end
           end
         end
       end
@@ -129,6 +144,19 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         c = FactoryGirl.create(:taxon_name_classification, taxon_name: t2, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum::ConditionallyProposedAfter1960')
         t2.reload
         expect(t2.gbif_status_array).to eq(['nudum'])
+      end
+    end
+
+
+    context '::descendants_of' do
+      specify 'works' do
+        expect(TaxonName.descendants_of(@genus).to_a).to contain_exactly( @subgenus, @species, @subspecies)
+      end
+    end
+
+    context '::ancestors_and_descendants_of' do
+      specify 'returns an unordered list' do
+        expect(TaxonName.ancestors_and_descendants_of(@genus).to_a.map(&:name)).to contain_exactly("Animalia", "Arthropoda", "Cicadellidae", "Erythroneura", "Erythroneura", "Erythroneurina", "Erythroneurini", "Hemiptera", "Insecta", "Root", "Typhlocybinae", "vitata", "vitis")
       end
     end
 
@@ -267,11 +295,12 @@ describe TaxonName, type: :model, group: [:nomenclature] do
           h                 = FactoryGirl.build(:source_human)
           taxon_name.source = h
           taxon_name.valid?
-          expect(taxon_name.errors.include?(:source_id)).to be_truthy
+          expect(taxon_name.errors.include?(:base)).to be_truthy
           b                 = FactoryGirl.build(:source_bibtex)
           taxon_name.source = b
           taxon_name.valid?
-          expect(taxon_name.errors.include?(:source_id)).to be_falsey
+
+          expect(taxon_name.errors.include?(:base)).to be_falsey # was source_id
         end
       end
 
@@ -394,11 +423,15 @@ describe TaxonName, type: :model, group: [:nomenclature] do
 
           specify 'misspelled original combination' do
             g                            = FactoryGirl.create(:relationship_genus, name: 'Errorneura')
+
             g.iczn_set_as_misspelling_of = @genus
             expect(g.save).to be_truthy
+           
             @subspecies.original_genus = g
             @subspecies.reload
-            expect(g.get_full_name_html).to eq('<i>Errorneura</i> [sic]')
+            
+            expect(g.reload.get_full_name_html).to eq('<i>Errorneura</i> [sic]')
+
             expect(@subspecies.get_original_combination).to eq('<i>Errorneura</i> [sic] <i>vitata</i>')
             expect(@subspecies.get_author_and_year).to eq ('(McAtee, 1900)')
           end
@@ -557,17 +590,25 @@ describe TaxonName, type: :model, group: [:nomenclature] do
               expect(h.get_valid_taxon_name).to eq(c)
               expect(i.get_valid_taxon_name).to eq(c)
             end
-            specify 'list of invalid taxon names with reverse relationship' do
-              a  = FactoryGirl.create(:relationship_genus, name: 'Aus', parent: @family)
-              b  = FactoryGirl.create(:relationship_genus, name: 'Bus', parent: @family)
-              s  = TaxonNameClassification::Iczn::Available::Valid.create(taxon_name: a)
-              r1 = TaxonNameRelationship::Iczn::Invalidating::Synonym.create(subject_taxon_name: a, object_taxon_name: b)
-              r2 = TaxonNameRelationship::Iczn::Invalidating::Synonym.create(subject_taxon_name: b, object_taxon_name: a)
-              expect(a.list_of_invalid_taxon_names.sort_by { |n| n.id }).to eq([b])
-              expect(b.list_of_invalid_taxon_names.sort_by { |n| n.id }).to eq([])
-              expect(a.get_valid_taxon_name).to eq(a)
-              expect(b.get_valid_taxon_name).to eq(a)
+
+            context 'invalid taxon_names with reverse relationship' do
+              let!(:a)  { FactoryGirl.create(:relationship_genus, name: 'Aus', parent: @family) }
+              let!(:b)  { FactoryGirl.create(:relationship_genus, name: 'Bus', parent: @family) }
+              let!(:s)  { TaxonNameClassification::Iczn::Available::Valid.create(taxon_name: a) }
+              let!(:r1) { TaxonNameRelationship::Iczn::Invalidating::Synonym.create(subject_taxon_name: a, object_taxon_name: b) }
+              let!(:r2) { TaxonNameRelationship::Iczn::Invalidating::Synonym.create(subject_taxon_name: b, object_taxon_name: a) }
+
+              specify 'for subject' do
+                expect(a.list_of_invalid_taxon_names.sort_by { |n| n.id }).to eq([b])
+                expect(a.get_valid_taxon_name).to eq(a)
+              end
+
+              specify 'for object' do
+                expect(b.list_of_invalid_taxon_names.sort_by { |n| n.id }).to eq([])
+                expect(b.get_valid_taxon_name).to eq(a)
+              end
             end
+
             specify 'list of statuses' do
               a  = FactoryGirl.create(:relationship_genus, name: 'Aus', parent: @family)
               b  = FactoryGirl.create(:relationship_genus, name: 'Bus', parent: @family)
@@ -647,16 +688,21 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         specify 'invalid parent' do
           g  = FactoryGirl.create(:iczn_genus, parent: @family)
           s  = FactoryGirl.create(:iczn_species, parent: g)
+
           r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: g, object_taxon_name: @genus, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
           c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: g, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum')
           s.soft_validate(:parent_is_valid_name)
           g.soft_validate(:parent_is_valid_name)
           expect(s.soft_validations.messages_on(:parent_id).count).to eq(1)
+
+          # !!
           expect(g.soft_validations.messages_on(:base).count).to eq(1)
+          
           s.fix_soft_validations
           s.soft_validate(:parent_is_valid_name)
           expect(s.soft_validations.messages_on(:parent_id).empty?).to be_truthy
         end
+        
         specify 'conflicting synonyms: reverse relationships' do
           a  = FactoryGirl.create(:relationship_genus, name: 'Aus', parent: @family)
           b  = FactoryGirl.create(:relationship_genus, name: 'Bus', parent: @family)
@@ -668,17 +714,21 @@ describe TaxonName, type: :model, group: [:nomenclature] do
           a.soft_validate(:not_synonym_of_self)
           expect(a.soft_validations.messages_on(:base).count).to eq(0)
         end
+
         specify 'conflicting synonyms: same nomenclatural priority' do
           a  = FactoryGirl.create(:relationship_genus, name: 'Aus', parent: @family)
           b  = FactoryGirl.create(:relationship_genus, name: 'Bus', parent: @family)
           c  = FactoryGirl.create(:relationship_genus, name: 'Cus', parent: @family)
           s1 = FactoryGirl.create(:valid_source_bibtex, title: 'article 1', year: 1900)
+          
           r1 = TaxonNameRelationship::Iczn::Invalidating::Synonym.create(subject_taxon_name: a, object_taxon_name: b)
           r2 = TaxonNameRelationship::Iczn::Invalidating::Synonym.create(subject_taxon_name: a, object_taxon_name: c)
+
           a.soft_validate(:two_unresolved_alternative_synonyms)
           expect(a.soft_validations.messages_on(:base).count).to eq(1)
           r1.source = s1
           r1.save
+
           a.reload
           a.soft_validate(:two_unresolved_alternative_synonyms)
           expect(a.soft_validations.messages_on(:base).count).to eq(0)
@@ -698,38 +748,38 @@ describe TaxonName, type: :model, group: [:nomenclature] do
           expect(s.soft_validations.messages_on(:name).empty?).to be_falsey
         end
 
-        xspecify 'valid icn names' do # not needed this was converted to the hybrid relationships
-          gen = FactoryGirl.create(:icn_genus)
-          ['aus', 'a-aus', 'aus-aus', 'aus × bus', '× aus'].each do |name|
-            s = FactoryGirl.build_stubbed(:icn_species, parent: gen, name: name)
-            expect(s.valid?).to be_truthy, "failed for #{name}"
-            s.soft_validate(:validate_name)
-            expect(s.soft_validations.messages_on(:name).empty?).to be_truthy, "failed for #{name}"
-          end
-          s = FactoryGirl.build_stubbed(:icn_species, parent: nil, name: 'aus aus')
-          s.soft_validate(:validate_name)
-          expect(s.soft_validations.messages_on(:name).empty?).to be_falsey
-        end
+        # xspecify 'valid icn names' do # not needed this was converted to the hybrid relationships
+        #   gen = FactoryGirl.create(:icn_genus)
+        #   ['aus', 'a-aus', 'aus-aus', 'aus × bus', '× aus'].each do |name|
+        #     s = FactoryGirl.build_stubbed(:icn_species, parent: gen, name: name)
+        #     expect(s.valid?).to be_truthy, "failed for #{name}"
+        #     s.soft_validate(:validate_name)
+        #     expect(s.soft_validations.messages_on(:name).empty?).to be_truthy, "failed for #{name}"
+        #   end
+        #   s = FactoryGirl.build_stubbed(:icn_species, parent: nil, name: 'aus aus')
+        #   s.soft_validate(:validate_name)
+        #   expect(s.soft_validations.messages_on(:name).empty?).to be_falsey
+        # end
 
-        xspecify 'unavailable' do # not needed could be done using verbatim name, or combination of the name and classification
-          s = FactoryGirl.create(:relationship_species, parent: @genus, name: 'aus a')
-          s.soft_validate(:validate_name)
-          expect(s.soft_validations.messages_on(:name).count).to eq(1)
-          c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Iczn::Unavailable::LessThanTwoLetters')
-          s.reload
-          s.soft_validate(:validate_name)
-          expect(s.soft_validations.messages_on(:name).empty?).to be_truthy
-        end
+        # xspecify 'unavailable' do # not needed could be done using verbatim name, or combination of the name and classification
+        #   s = FactoryGirl.create(:relationship_species, parent: @genus, name: 'aus a')
+        #   s.soft_validate(:validate_name)
+        #   expect(s.soft_validations.messages_on(:name).count).to eq(1)
+        #   c1 = FactoryGirl.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Iczn::Unavailable::LessThanTwoLetters')
+        #   s.reload
+        #   s.soft_validate(:validate_name)
+        #   expect(s.soft_validations.messages_on(:name).empty?).to be_truthy
+        # end
 
-        xspecify 'misspelling' do # not needed could be done using verbatim name, or combination of the name and classification
-          s = FactoryGirl.create(:relationship_species, parent: @genus, name: 'a a')
-          s.soft_validate(:validate_name)
-          expect(s.soft_validations.messages_on(:name).count).to eq(1)
-          r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: @species, type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling')
-          s.reload
-          s.soft_validate(:validate_name)
-          expect(s.soft_validations.messages_on(:name).empty?).to be_truthy
-        end
+        # xspecify 'misspelling' do # not needed could be done using verbatim name, or combination of the name and classification
+        #   s = FactoryGirl.create(:relationship_species, parent: @genus, name: 'a a')
+        #   s.soft_validate(:validate_name)
+        #   expect(s.soft_validations.messages_on(:name).count).to eq(1)
+        #   r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: @species, type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling')
+        #   s.reload
+        #   s.soft_validate(:validate_name)
+        #   expect(s.soft_validations.messages_on(:name).empty?).to be_truthy
+        # end
 
       end
 
@@ -814,29 +864,30 @@ describe TaxonName, type: :model, group: [:nomenclature] do
 
         specify 'leaves' do
           new_root.reload
-          expect(new_root.leaves.to_a).to eq([species1, species2])
+          expect(new_root.leaves.to_a).to contain_exactly(species1, species2) # doesn't test order
         end
 
-        specify 'move_to_child_of' do
-          species2.move_to_child_of(genus1)
-          genus2.reload
-          expect(genus2.children).to eq([])
-          genus1.reload
-          expect(genus1.children.to_a).to eq([species1, species2])
-        end
+        # replicate
+#       specify 'move_to_child_of' do
+#         species2.move_to_child_of(genus1)
+#         genus2.reload
+#         expect(genus2.children).to eq([])
+#         genus1.reload
+#         expect(genus1.children.to_a).to eq([species1, species2])
+#       end
 
         context 'housekeeping with ancestors and descendants' do
-          xspecify 'updated_on is not touched for ancestors when a child moves' do
-            g1_updated = genus1.updated_at
-            g1_created = genus1.created_at
-            g2_updated = genus2.updated_at
-            g2_created = genus2.created_at
-            species1.move_to_child_of(genus2)
-            expect(genus1.updated_at).to eq(g1_updated)
-            expect(genus1.created_at).to eq(g1_created)
-            expect(genus2.updated_at).to eq(g2_updated)
-            expect(genus2.created_at).to eq(g2_created)
-          end
+          # xspecify 'updated_on is not touched for ancestors when a child moves' do
+          #   g1_updated = genus1.updated_at
+          #   g1_created = genus1.created_at
+          #   g2_updated = genus2.updated_at
+          #   g2_created = genus2.created_at
+          #   species1.move_to_child_of(genus2)
+          #   expect(genus1.updated_at).to eq(g1_updated)
+          #   expect(genus1.created_at).to eq(g1_created)
+          #   expect(genus2.updated_at).to eq(g2_updated)
+          #   expect(genus2.created_at).to eq(g2_created)
+          # end
         end
       end
     end

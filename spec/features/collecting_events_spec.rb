@@ -8,14 +8,13 @@ describe 'CollectingEvents', :type => :feature do
   end
 
   context 'signed in as a user, with some records created' do
-    before {
+    before do 
       sign_in_user_and_select_project
       10.times { factory_girl_create_for_user_and_project(:valid_collecting_event, @user, @project) }
-    }
+    end 
 
     describe 'GET /collecting_events' do
-      before {
-        visit collecting_events_path }
+      before { visit collecting_events_path }
 
       it_behaves_like 'a_data_model_with_standard_index'
     end
@@ -42,17 +41,13 @@ describe 'CollectingEvents', :type => :feature do
   end
 
   context 'creating a new collecting event' do
-    before {
+    before do 
       sign_in_user_and_select_project # logged in and project selected
       visit collecting_events_path # when I visit the collecting_events_path
-    }
-
-    specify 'it has a new link' do
-      expect(page).to have_link('new')
-    end
+    end 
 
     specify 'following the new link & create a new collecting event' do
-      click_link('new') # when I click the new link
+      click_link('New') # when I click the new link
       # I fill out the verbatim_label field with "This is a label.\nAnd a second line."
       fill_in 'Verbatim label', with: 'This is a label.\nAnd a second line.'
 

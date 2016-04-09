@@ -1,29 +1,22 @@
-<h1>Listing biological associations graphs</h1>
+<%= render("/shared/data/all/list/list_header", objects: @biological_associations_graphs) -%>
 
-<%= paginate @biological_associations_graphs %> <%= page_entries_info @biological_associations_graphs %>
-
-<table>
+<table class="tablesorter">
   <thead>
   <tr>
-    <th>Name</th>
-    <th>Source</th>
-    <th>Last modified</th>
-    <th>Updated by</th>
-    <th colspan="3"></th>
+    <%= fancy_th_tag(name: 'Name') -%>
+    <%= fancy_th_tag(name: 'Source') -%>
+    <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
+    <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
   </tr>
   </thead>
 
   <tbody>
   <% @biological_associations_graphs.each do |biological_associations_graph| %>
-      <tr>
-        <td><%= biological_associations_graph.name %></td>
-        <td><%= biological_associations_graph.source %></td>
-        <td><%= biological_associations_graph.updated_at %></td>
-        <td><%= object_tag(biological_associations_graph.updater) %></td>
-        <td><%= link_to 'Show', biological_associations_graph %></td>
-        <td><%= link_to 'Edit', edit_biological_associations_graph_path(biological_associations_graph) %></td>
-        <td><%= link_to 'Destroy', biological_associations_graph, method: :delete, data: { confirm: 'Are you sure?' } %></td>
-      </tr>
+      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+          <td><%= biological_associations_graph.name %></td>
+          <td><%= biological_associations_graph.source %></td>
+          <%= fancy_metadata_cells_tag(biological_associations_graph) -%>
+      <% end %>
   <% end %>
   </tbody>
 </table>

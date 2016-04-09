@@ -6,7 +6,6 @@ class TaxonNamesController < ApplicationController
   # GET /taxon_names
   # GET /taxon_names.json
   def index
-    @taxon_names    = TaxonName.all
     @recent_objects = TaxonName.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
     render '/shared/data/all/index'
   end
@@ -18,11 +17,12 @@ class TaxonNamesController < ApplicationController
 
   # GET /taxon_names/new
   def new
-    @taxon_name = Protonym.new
+    @taxon_name = Protonym.new(source: Source.new)
   end
 
   # GET /taxon_names/1/edit
   def edit
+    @taxon_name.source = Source.new if !@taxon_name.source
   end
 
   # POST /taxon_names
@@ -130,6 +130,7 @@ class TaxonNamesController < ApplicationController
   end
 
   def browse
+    @data = NomenclatureCatalog.data_for(@taxon_name)
   end
 
   private
@@ -141,11 +142,12 @@ class TaxonNamesController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def taxon_name_params
-    params.require(:taxon_name).permit(:name, :parent_id, :source_id, :year_of_publication,
+    params.require(:taxon_name).permit(:name, :parent_id,  :year_of_publication,
                                        :verbatim_author, :rank_class, :type, :masculine_name,
                                        :feminine_name, :neuter_name, :also_create_otu,
-                                       roles_attributes: [:id, :_destroy, :type, :person_id, :position, person_attributes: [:last_name, :first_name, :suffix, :prefix]]
-                                      )
+                                       roles_attributes: [:id, :_destroy, :type, :person_id, :position, person_attributes: [:last_name, :first_name, :suffix, :prefix]],
+                                       origin_citation_attributes: [:id, :_destroy, :source_id] 
+                                      ) 
   end
 
   def batch_params

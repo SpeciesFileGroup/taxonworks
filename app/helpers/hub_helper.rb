@@ -13,9 +13,13 @@ module HubHelper
           favorite_page_link('tasks', task.prefix) 
         } 
       } +
-      content_tag(:div, task.name, class: 'task_name') +
+      content_tag(:div, link_to(task.name, send(task.path) ), class: 'task_name') +
       content_tag(:div, task.description, class: 'task_description') 
     }
+  end
+
+  def data_link(data)
+    link_to(data.name, data.klass)
   end
 
   def data_card(data)
@@ -23,7 +27,7 @@ module HubHelper
       content_tag(:div, "", 
                   data.categories.inject({}){|hsh,c| hsh.merge!("data-category-#{c}" => "true") }.merge( class: "status #{data.status}") 
                  ) + 
-        link_to(data.name, data.klass)
+        data_link(data) 
     end
   end
 

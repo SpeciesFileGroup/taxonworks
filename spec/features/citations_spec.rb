@@ -33,7 +33,7 @@ describe 'Citations', :type => :feature do
     end
 
     context 'citations list' do
-      pending 'when a user clicks a citation record, they are taken to the cited data instance'
+      # pending 'when a user clicks a citation record, they are taken to the cited data instance'
     end
   end
 end

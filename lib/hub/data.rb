@@ -27,8 +27,12 @@ module Hub::Data
     #   the help description describing this class # TODO- reconcile vs. model descriptions/documentation elsewhere 
     attr_accessor :description
 
+    # @return [Array]
+    #    related (by model name) models
+    attr_accessor :related_models
+
     # @return [Boolean]
-    #   the section classification (core, etc.)
+    #   the klass of the model
     attr_accessor :klass
 
     attr_accessor :shared
@@ -41,12 +45,13 @@ module Hub::Data
       @klass = klass.constantize
       @name = klass.tableize.humanize 
       @description = attributes['description']
-      @hub = (attributes['hide'] ? true : false) 
+      @hide = (attributes['hide'] ? true : false) 
       @status = attributes['status']
       @categories = attributes['categories']
       @section = attributes['section']
       @shared = attributes['shared']
       @application_defined = attributes['application_defined']
+      @related_models = attributes['related_models']
     end
 
     def status
@@ -57,12 +62,20 @@ module Hub::Data
       @categories.nil? ? [] : @categories
     end
 
+    def related_models
+      @related_models.nil? ? [] : @related_models
+    end
+
     def shared_css
       shared.nil? ? nil : 'shared'
     end
 
     def application_css
-      application_defined.nil? ? nil : 'shared'
+      application_defined.nil? ? nil : 'application_defined'
+    end
+
+    def combined_css
+      [shared_css, application_css].compact.join(" ")
     end
 
   end
@@ -71,8 +84,6 @@ module Hub::Data
   CONFIG_DATA = YAML.load_file(Rails.root + 'config/interface/hub/data.yml') 
   
   SECTIONS = CONFIG_DATA.keys
-
-  
 
   data = {}
   by_name = {}
@@ -93,6 +104,10 @@ module Hub::Data
 
   def self.items_for(section)
     INDEX[section]
+  end
+
+  def self.visual_items_for(section)
+    INDEX[section].select{|a| !a.hide}
   end
 
   # @return [String]

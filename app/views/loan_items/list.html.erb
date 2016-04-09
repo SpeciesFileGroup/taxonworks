@@ -1,35 +1,28 @@
-<h1>Listing loan items</h1>
+<%= render("/shared/data/all/list/list_header", objects: @loan_items) -%>
 
-<%= paginate @loan_items %> <%= page_entries_info @loan_items %>
-
-<table>
+<table class="tablesorter">
   <thead>
   <tr>
-    <th>Loan</th>
-    <th>Date returned</th>
-    <th>Collection object status</th>
-    <th>Loan item object</th>
-    <th>Total</th>
-    <th>Last modified</th>
-    <th>Updated by</th>
-    <th colspan="3"></th>
+    <%= fancy_th_tag(name: 'Loan') -%>
+    <%= fancy_th_tag(name: 'Date returned') -%>
+    <%= fancy_th_tag(name: 'Collection object status') -%>
+    <%= fancy_th_tag(name: 'Loan item object') -%>
+    <%= fancy_th_tag(name: 'Total') -%>
+    <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
+    <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
   </tr>
   </thead>
 
   <tbody>
   <% @loan_items.each do |loan_item| %>
-      <tr>
-        <td><%= loan_tag(loan_item.loan) %></td>
-        <td><%= loan_item.date_returned %></td>
-        <td><%= loan_item.collection_object_status %></td>
-        <td><%= object_tag(loan_item.loan_item_object) %></td>
-        <td><%= loan_item.total %></td>
-        <td><%= loan_item.updated_at %></td>
-        <td><%= object_tag(loan_item.updater) %></td>
-        <td><%= link_to 'Context', loan_item.loan %></td>
-        <td><%= link_to 'Edit', edit_loan_item_path(loan_item) %></td>
-        <td><%= link_to 'Destroy', loan_item, method: :delete, data: { confirm: 'Are you sure?' } %></td>
-      </tr>
+      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+          <td><%= loan_tag(loan_item.loan) %></td>
+          <td><%= loan_item.date_returned %></td>
+          <td><%= loan_item.collection_object_status %></td>
+          <td><%= object_tag(loan_item.loan_item_object) %></td>
+          <td><%= loan_item.total %></td>
+          <%= fancy_metadata_cells_tag(loan_item) -%>
+      <% end %>
   <% end %>
   </tbody>
 </table>

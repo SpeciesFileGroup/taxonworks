@@ -1,43 +1,42 @@
-<div class="attributes">
-  <p>
+<p>
   <strong>Name:</strong>
   <%= @user.name %>
-  </p>
+</p>
 
-  <p>
+<p>
   <strong>Email:</strong>
   <%= @user.email %>
-  </p>
+</p>
 
-  <p>
+<p>
   <strong>Sign in count:</strong>
   <%= @user.sign_in_count %>
-  </p>
+</p>
 
-  <p>
+<p>
   <strong>Current sign in at:</strong>
   <%= @user.current_sign_in_at %>
-  </p>
+</p>
 
-  <p>
+<p>
   <strong>Last sign in at:</strong>
   <%= @user.last_sign_in_at %>
-  </p>
+</p>
 
-  <p>
+<p>
   <strong>Current sign in ip:</strong>
   <%= @user.current_sign_in_ip %>
-  </p>
+</p>
 
-  <p>
+<p>
   <strong>Last sign in ip:</strong>
   <%= @user.last_sign_in_ip %>
-  </p>
+</p>
 
-  <% if @user.api_access_token %>
+<% if @user.api_access_token %>
     <p>
-    <strong>API access token:</strong>
-    <%= @user.api_access_token %> 
+      <strong>API access token:</strong>
+      <%= @user.api_access_token %>
     </p>
-  <% end %>
-</div>
+<% end %>
+

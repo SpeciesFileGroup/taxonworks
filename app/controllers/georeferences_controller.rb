@@ -140,12 +140,13 @@ class GeoreferencesController < ApplicationController
                                          :error_depth,
                                          :error_geographic_item_id,
                                          :type,
-                                         :source_id,
                                          :position,
                                          :is_public,
                                          :api_request,
                                          :is_undefined_z,
                                          :is_median_z,
-                                         :geographic_item_attributes => [:shape])
+                                         :geographic_item_attributes => [:shape],
+                                         origin_citation_attributes: [:id, :_destroy, :source_id] 
+                                        ) 
   end
 end

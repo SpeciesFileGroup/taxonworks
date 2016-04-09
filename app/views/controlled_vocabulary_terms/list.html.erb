@@ -1,33 +1,25 @@
-<h1>Listing controlled vocabulary terms</h1>
-<%= paginate @controlled_vocabulary_terms %> <%= page_entries_info @controlled_vocabulary_terms %>
+<%= render("/shared/data/all/list/list_header", objects: @controlled_vocabulary_terms) -%>
 
-<table>
+<table class="tablesorter">
   <thead>
-    <tr>
-      <th>Name</th>
-      <th>Type</th>
-      <th>Definition</th>
-      <th>Last modified</th>
-      <th>Updated by</th>
-      <th></th>
-      <th></th>
-      <th></th>
-    </tr>
+  <tr>
+    <%= fancy_th_tag(name: 'Name') -%>
+    <%= fancy_th_tag(name: 'Type') -%>
+    <%= fancy_th_tag(name: 'Definition') -%>
+    <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
+    <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
+  </tr>
   </thead>
 
   <tbody>
-    <% @controlled_vocabulary_terms.each do |controlled_vocabulary_term| %>
-      <tr>
-        <td><%= controlled_vocabulary_term.name %></td>
-        <td><%= controlled_vocabulary_term.type %></td>
-        <td><%= controlled_vocabulary_term.definition %></td>
-        <td><%= controlled_vocabulary_term.updated_at %></td>
-        <td><%= object_tag(controlled_vocabulary_term.updater) %></td>
-        <td><%= link_to 'Show', controlled_vocabulary_term.metamorphosize %></td>
-        <td><%= link_to 'Edit', edit_controlled_vocabulary_term_path(controlled_vocabulary_term.metamorphosize) %></td>
-        <td><%= link_to 'Destroy', controlled_vocabulary_term.metamorphosize, method: :delete, data: { confirm: 'Are you sure?' } %></td>
-      </tr>
-    <% end %>
+  <% @controlled_vocabulary_terms.each do |controlled_vocabulary_term| %>
+      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+          <td><%= controlled_vocabulary_term.name %></td>
+          <td><%= controlled_vocabulary_term.type %></td>
+          <td><%= controlled_vocabulary_term.definition %></td>
+          <%= fancy_metadata_cells_tag(controlled_vocabulary_term) -%>
+      <% end %>
+  <% end %>
   </tbody>
 </table>
 

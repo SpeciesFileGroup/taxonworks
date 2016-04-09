@@ -1,5 +1,5 @@
 require 'rails_helper'
-describe Combination, :type => :model do
+describe Combination, type: :model, group: :nomenclature do
 
   let(:combination) { Combination.new }
   let(:source_older_than_combination) { FactoryGirl.build(:valid_source_bibtex, year: 1940, author: 'Dmitriev') }
@@ -143,7 +143,7 @@ describe Combination, :type => :model do
       basic_combination.source_classified_as = family
       expect(basic_combination.save).to be_truthy
       expect(basic_combination.all_taxon_name_relationships.count).to be > 0
-      expect(basic_combination.cached_classified_as).to eq(' (as Aidae)')
+      expect(basic_combination.reload.cached_classified_as).to eq(' (as Aidae)')
     end
 
     specify '#earliest_protonym_year' do
@@ -195,16 +195,29 @@ describe Combination, :type => :model do
       expect(combination.cached).to eq('Aus bus')
       expect(combination.cached_html).to eq('<i>Aus bus</i>')
     end
+
+    specify 'chached_valid_taxon_name_id for Combination' do
+      combination.genus = genus
+      combination.species = species
+      combination.save
+      expect(species.cached_valid_taxon_name_id).to eq(species.id)
+      expect(combination.cached_valid_taxon_name_id).to eq(species.id)
+    end
+
+
   end
 
   context 'soft validation' do
     specify 'runs all validations without error' do
-      expect(combination.soft_validate()).to be_truthy
+      expect(combination.soft_validate).to be_truthy
     end
 
     specify 'missing source and year' do
       combination.soft_validate(:missing_fields)
-      expect(combination.soft_validations.messages_on(:source_id).empty?).to be_falsey
+
+      # expect(combination.soft_validations.messages_on(:source_id).empty?).to be_falsey
+      expect(combination.soft_validations.messages_on(:base).empty?).to be_falsey
+      
       expect(combination.soft_validations.messages_on(:year_of_publication).empty?).to be_falsey
     end
 
@@ -219,7 +232,9 @@ describe Combination, :type => :model do
       combination.source = source_older_than_combination  # 1940
       combination.genus = genus    # 1950
       combination.soft_validate(:dates)
-      expect(combination.soft_validations.messages_on(:source_id).count).to eq(1)
+      
+      # expect(combination.soft_validations.messages_on(:source_id).count).to eq(1)
+       expect(combination.soft_validations.messages_on(:base).count).to eq(1)
     end
 
     specify 'year_of_publication can not be older than protonym nomenclature_dates' do

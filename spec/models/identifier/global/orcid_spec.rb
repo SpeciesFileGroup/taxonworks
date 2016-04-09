@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Identifier::Global::Orcid, :type => :model do
+describe Identifier::Global::Orcid, type: :model, group: :identifiers do
   context 'Orcid' do
     let(:id) { FactoryGirl.build(:identifier_global_orcid) }
 

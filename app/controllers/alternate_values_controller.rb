@@ -26,11 +26,8 @@ class AlternateValuesController < ApplicationController
   def create
     @alternate_value = AlternateValue.new(alternate_value_params)
     respond_to do |format|
-      if params[:project_members_only] == 'checked'
-        @alternate_value.project_id = sessions_current_project_id
-      else
-        @alternate_value.project_id = nil
-      end
+      @alternate_value.project_id = sessions_current_project_id if params[:project_members_only] == 'checked'
+
       if @alternate_value.save
         format.html { redirect_to @alternate_value.alternate_value_object.metamorphosize, notice: 'Alternate value was successfully created.' }
         format.json { render json: @alternate_value, status: :created, location: @alternate_value }
@@ -45,11 +42,7 @@ class AlternateValuesController < ApplicationController
   # PATCH/PUT /alternate_values/1.json
   def update
     respond_to do |format|
-      if params[:project_members_only] == 'checked'
-        @alternate_value.project_id = sessions_current_project_id
-      else
-        @alternate_value.project_id = nil
-      end
+      @alternate_value.project_id = sessions_current_project_id if params[:project_members_only] == 'checked'
 
       if @alternate_value.update(alternate_value_params)
         format.html { redirect_to @alternate_value.alternate_value_object.metamorphosize, notice: 'Alternate value was successfully updated.' }
@@ -102,7 +95,7 @@ class AlternateValuesController < ApplicationController
 
   # GET /alternate_values/download
   def download
-    send_data AlternateValue.generate_download(AlternateValue.where(project_id: sessions_current_project_id)), type: 'text', filename: "alternate_values_#{DateTime.now}.csv"
+    send_data AlternateValue.generate_download(AlternateValue.where(project_id: sessions_current_project_id)), type: 'text', filename: "alternate_values_#{DateTime.current}.csv"
   end
 
   private
@@ -111,9 +104,7 @@ class AlternateValuesController < ApplicationController
   def set_alternate_value
     @alternate_value = AlternateValue.find(params[:id])
 
-    if !@alternate_value.project_id.blank? && (sessions_current_project_id != @alternate_value.project_id)
-      render status: 404 # and return
-    end
+    render status: 404 if !@alternate_value.project_id.blank? && (sessions_current_project_id != @alternate_value.project_id)
   end
 
   # Never trust parameters from the scary internet, only allow the white list through.

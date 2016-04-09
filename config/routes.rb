@@ -28,7 +28,7 @@ TaxonWorks::Application.routes.draw do
   match '/signout', to: 'sessions#destroy', via: :delete
   resources :sessions, only: :create
 
-  # Note singular 'resource' 
+  # Note singular 'resource'
   resource :hub, controller: 'hub', only: [:index] do
     get '/', action: :index
     get 'order_tabs'
@@ -42,6 +42,7 @@ TaxonWorks::Application.routes.draw do
       get 'settings_for'
       get 'stats'
       get 'recently_created_stats'
+      get 'per_relationship_recent_stats/:relationship', action: :per_relationship_recent_stats, as: :per_relationship_recent_stats
     end
   end
 
@@ -84,7 +85,7 @@ TaxonWorks::Application.routes.draw do
 
   resources :citation_topics, only: [:create, :update, :destroy]
 
-  resources :citations, except: [:show] do
+  resources :citations  do # except: [:show]
     concerns [:data_routes]
   end
 
@@ -106,7 +107,7 @@ TaxonWorks::Application.routes.draw do
 
    resources :collecting_events do
     concerns [:data_routes]
-    get :autocomplete_collecting_event_verbatim_locality, :on => :collection 
+    get :autocomplete_collecting_event_verbatim_locality, :on => :collection
   end
 
   resources :combinations, only: [:create, :edit, :update, :destroy, :new] do
@@ -347,7 +348,7 @@ TaxonWorks::Application.routes.draw do
         scope :buffered_data, controller: 'tasks/accessions/breakdown/buffered_data' do
           get ':id', action: :index, as: 'collection_object_buffered_data_breakdown_task'
           get 'thumb_navigator/:id', action: :thumb_navigator, as: 'collection_object_buffered_data_breakdown_thumb_navigator'
-          patch 'update/:id', action: :update, as: 'collection_object_buffered_data_breakdown_update_task' 
+          patch 'update/:id', action: :update, as: 'collection_object_buffered_data_breakdown_update_task'
         end
       end
 
@@ -454,6 +455,12 @@ TaxonWorks::Application.routes.draw do
         get 'edit/:taxon_name_id', action: :edit, as: 'edit_protonym_original_combination_task'
         patch 'update/:taxon_name_id', action: :update, as: 'update_protonym_original_combination_task'
       end
+
+      scope :catalog do
+        scope :basis,  controller: 'tasks/nomenclature/catalog/basis' do
+          get ':taxon_name_id', action: :index, as: 'basis_catalog_task'
+        end
+      end
     end
 
     scope :people, controller: 'tasks/people/author' do
@@ -490,7 +497,7 @@ TaxonWorks::Application.routes.draw do
   match '/papertrail', to: 'papertrail#papertrail', via: :get
   match '/papertrail/:id', to: 'papertrail#show', as: 'paper_trail_version', via: :get
 
-  require "#{Rails.root}/config/routes/api"
+
 
   # TODO: Remove or rewrite endpoint implementation
   # get '/api/v1/taxon_names/' => 'api/v1/taxon_names#all'
@@ -540,3 +547,5 @@ TaxonWorks::Application.routes.draw do
   #   end
   #
 end
+
+require_relative 'routes/api'

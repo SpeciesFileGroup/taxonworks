@@ -1,6 +1,14 @@
+<%= render "/hub/navigation_lists/hub_category_filter" %>
 <div id="task_carrousel">
-  <%= render "/hub/navigation_lists/hub_category_filter" %>
   <% UserTasks.hub_tasks.each do |task| -%>
-    <%= link_to(task_card(task), send(task.path)) -%>
+    <%= task_card(task) -%>
   <% end %>
+  <div class="navigation">
+    <div class="navigation-arrow">
+      <a data-arrow="up" href="#" data-icon="arrow-up"></a>
+    </div>
+    <div class="navigation-arrow">
+      <a data-arrow="down" href="#" data-icon="arrow-down"></a>
+    </div>
+  </div>
 </div>

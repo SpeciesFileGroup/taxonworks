@@ -8,7 +8,7 @@ module BatchLoad
 
     def initialize(data_origin: nil, **args)
       @asserted_distributions = {}
-      @data_origin = data_origin 
+      @data_origin            = data_origin
       super(args)
     end
 
@@ -17,9 +17,11 @@ module BatchLoad
       csv.each do |row|
         i += 1
 
-        row.push('project_id' => project_id)
+        row.push('project_id' => @project_id)
 
-        next if row.empty? || row.all? { |h, v| v.nil? || v.length == "" }
+        # TODO: FIX! THIS!
+        # WAS: next if row.empty? || row.all? { |h, v| v.nil? || v.length == "" }
+        next if row.empty?
 
         row.push('project_id' => @project_id)
 

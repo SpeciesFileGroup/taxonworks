@@ -46,4 +46,14 @@ module TagsHelper
     true 
   end
 
+
+  def tag_list_tag(object)
+    if object.tags.any?
+      content_tag(:h3, 'Tags') +
+      content_tag(:ul, class: 'tag_list') do
+        object.tag.collect{|a| content_tag(:li, tag_tag(a)) }.join.html_safe 
+      end
+    end
+  end
+
 end

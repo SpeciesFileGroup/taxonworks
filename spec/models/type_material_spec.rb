@@ -17,10 +17,14 @@ describe TypeMaterial, :type => :model do
       specify 'material' do
         expect(type_material.material = Specimen.new).to be_truthy
       end
+    end
+
+    context 'has_one' do 
       specify 'source' do
         expect(type_material.source = Source::Bibtex.new).to be_truthy
       end
     end
+   
   end
 
   context 'validations' do
@@ -92,11 +96,11 @@ describe TypeMaterial, :type => :model do
         a
       }
  
-      xspecify 'type_type restricts the BiologicalObject subclass to an _TYPES.value' do
-      end
+      # xspecify 'type_type restricts the BiologicalObject subclass to an _TYPES.value' do
+      # end
 
-      xspecify 'collection_object is a BiologicalCollectionObject' do
-      end
+      # xspecify 'collection_object is a BiologicalCollectionObject' do
+      # end
     end
   end
 
@@ -119,7 +123,7 @@ describe TypeMaterial, :type => :model do
       expect(t.type_source).not_to eq(t.protonym.source)
     end
 
-    skip 'TypeDesignator role(s) should be possible when a specific person needs to be identified as the person who designated the type'
+    # skip 'TypeDesignator role(s) should be possible when a specific person needs to be identified as the person who designated the type'
   end
 
   context 'soft validation' do
@@ -143,7 +147,7 @@ describe TypeMaterial, :type => :model do
 
     specify 'source is nil' do
       iczn_type.soft_validate(:type_source)
-      expect(iczn_type.soft_validations.messages_on(:source_id).count).to eq(1)
+      expect(iczn_type.soft_validations.messages_on(:base).count).to eq(1)
     end
   end
 

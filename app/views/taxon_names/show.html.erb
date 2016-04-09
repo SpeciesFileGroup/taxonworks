@@ -1,21 +1,19 @@
-<% content_for :do do %>
+<% content_for :add do %>
     <% if @taxon_name.is_protonym? -%>
-        <%= link_to('Add status/classification', new_taxon_name_classification_path(taxon_name_classification: {taxon_name_id: @taxon_name.to_param})) -%>
-        <br/>
-        <%= new_combination_for_protonym_link(@taxon_name) -%>
+        <li><%= link_to('Add status/classification', new_taxon_name_classification_path(taxon_name_classification: {taxon_name_id: @taxon_name.to_param})) -%></li>
+        <li><%= new_combination_for_protonym_link(@taxon_name) -%></li>
     <% end %>
 <% end %>
 
 <% content_for :tasks do %>
-    <%= render(partial: 'tasks') -%>
+    <%= render('tasks') -%>
 <% end %>
 
-<% content_for :show_navigation do %>
-  <%= link_to('Browse', browse_taxon_name_path(@taxon_name)) -%><br> <br>  
-  <%= render('parent_navigator', taxon_name: @taxon_name) -%>
+<% content_for :additional_navigation do %>
+  <%= render('parent_navigator', taxon_name: @taxon_name, mode: :show) -%>
 <% end %>
 
-<%= content_for :related_attributes do %>
+<%= content_for :associated do %>
   <% if @taxon_name.taxon_name_authors.any? %>
     <h3>Taxon name authors</h3>
     <ul>
@@ -32,14 +30,14 @@
   <% end %>
 <% end %>
 
-<% content_for :see do %>
+<% content_for :report do %>
     <% unless Otu.for_taxon_name(@taxon_name.to_param).empty? %>
-        <ul class="no_bullets">
           <%= content_tag(:li, link_to('Distribution',
                                        taxon_name_distribution_data_task_path(@taxon_name.to_param),
                                        'data-no-turbolink' => true)) %>
-        </ul>
-    <% end %>
+                                   <% end %>
+
+          <%= content_tag(:li, link_to("Basis Catalog", basis_catalog_task_path(@taxon_name))) -%>
 <% end %>
 
 <%= render(partial: 'shared/data/project/show', locals: {object: @taxon_name}) -%>

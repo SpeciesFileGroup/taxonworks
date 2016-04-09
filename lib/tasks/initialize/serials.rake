@@ -1,7 +1,7 @@
 namespace :tw do
   namespace :initialize do
 
-    desc 'call like "rake tw:intialize:load_serials", required data_directory'
+    desc 'call like "rake tw:initialize:load_serials", required data_directory'
     task :load_serials => [:data_directory, :environment] do |t|
       print "Loading serials and related metadata..."
 

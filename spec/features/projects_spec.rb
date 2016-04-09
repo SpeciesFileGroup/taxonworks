@@ -4,7 +4,7 @@ describe 'Project Handling', :type => :feature do
 
   subject { page }
 
-  describe '/' do
+  describe 'GET /' do
     before { 
       sign_in_user
     }
@@ -45,48 +45,105 @@ describe 'Project Handling', :type => :feature do
   end
 
   describe 'GET /projects' do
-    context 'without admin login' do 
-      before { 
-        sign_in_user
-        visit projects_path 
-      }
-      it 'should redirect to hub and present a notice'
-    end
-
-    context 'with admin login' do
+    context 'with administrator login' do
       before {
         sign_in_administrator
         visit projects_path 
       }
-      it 'should render a list of projects'
+   
+      specify  'there is a List link' do
+        expect(page).to have_link('List')
+      end
+
+      specify  'there is a New link' do
+        expect(page).to have_link('New')
+      end
+    end
+
+    context 'with project_administrator login' do
+      before {
+        sign_in_project_administrator
+        visit projects_path 
+      }
+
+      specify  'there is a List link' do
+        expect(page).to have_content('Projects')
+        expect(page).to have_link('List')
+      end
+
+      specify  'there is NOT a New link' do
+        expect(page).to_not have_link('New')
+      end
+    end
+
+    context 'as user' do
+      before {
+        sign_in_user
+        visit projects_path 
+      }
+
+      specify 'it prompts user to sign in as administrator on Dashboard' do
+        expect(page).to have_content('Please sign in as a project administrator or administrator.')
+        expect(page).to have_content('Dashboard')
+      end
     end
   end
 
   describe 'GET /projects/1' do
-    context 'logged in member is a member and project admin' do 
+    context 'logged in as a project administrator' do 
       before { 
-        sign_in_user
-        visit projects_path 
+        sign_in_project_administrator_and_select_project
+        visit project_path(@project.id) 
       }
-      it 'should show the project'
+
+      specify 'it should show the project page' do
+        expect(page).to have_content('My Project')
+        expect(page).to have_content('Project attributes')
+      end
+
+      specify 'it should have an Edit link' do
+        expect(page).to have_link('Edit')
+      end
+
+      specify 'it should have an Add project member link' do
+        expect(page).to have_link('Add project member')
+      end
+
+      specify 'it should have an Add a new user link' do
+        expect(page).to have_link('Add new user')
+      end
     end
 
-    context 'with admin, non-member login' do
+    context 'logged in as user' do
       before {
-        sign_in_administrator
-        visit projects_path 
+        sign_in_user_and_select_project
+        visit project_path(@project.id) 
       }
-      it 'it should show the project'
+      specify 'not allowed- redirected to dashboard' do
+        expect(page).to have_content('Dashboard')
+      end
     end
   end
   
   describe 'GET /projects/1/edit' do
-    context 'logged in member is a member and project admin' do 
+    context 'logged in as project administrator' do 
       before { 
-        sign_in_user
-        visit projects_path 
+        sign_in_project_administrator_and_select_project
+        visit edit_project_path(@project) 
       }
-      it 'should render the edit form'
+
+      specify 'should render the edit form' do
+        expect(page).to have_content('Editing project')
+      end
+     
+      specify 'project can be udpated' do
+        fill_in 'Name', with: 'Better project name' 
+        click_button 'Update Project'
+        expect(page).to have_content('Better project name')
+        expect(page).to have_content('Project was successfully updated.')
+      end
+
+
     end
 
     context 'with admin, non-member login' do
@@ -94,7 +151,7 @@ describe 'Project Handling', :type => :feature do
         sign_in_administrator
         visit projects_path 
       }
-      it 'should render the edit form'
+      # it 'should render the edit form'
     end
 
     context 'with non-superuser project member' do
@@ -102,7 +159,7 @@ describe 'Project Handling', :type => :feature do
         sign_in_administrator
         visit projects_path 
       }
-      it 'should redirect to hub and present a notice'
+      # it 'should redirect to hub and present a notice'
     end
 
     describe '  # POST /projects' do
@@ -111,7 +168,7 @@ describe 'Project Handling', :type => :feature do
           sign_in_user
           visit projects_path 
         }
-        it 'should redirect to hub and present a notice'
+        # it 'should redirect to hub and present a notice'
       end
 
       context 'logged in user is a superuser' do
@@ -119,7 +176,7 @@ describe 'Project Handling', :type => :feature do
           sign_in_administrator
           visit projects_path 
         }
-        it 'should create the project and redirect to projects/index with a notice'
+        # it 'should create the project and redirect to projects/index with a notice'
       end
     end
   end
@@ -134,16 +191,15 @@ describe 'Project Handling', :type => :feature do
       before {
         visit list_projects_path}
 
-
       specify 'that it renders without error' do
-        expect(page).to have_content 'Listing Projects'
+        expect(page).to have_content(/Displaying.*projects/)
       end
     end
 
     describe 'GET /projects/n' do
       before { visit project_path(Project.first) }
-      xspecify 'there is the projects name' do
-      end
+      # xspecify 'there is the projects name' do
+      # end
     end
   end
 end

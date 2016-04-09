@@ -1,4 +1,4 @@
-<%= content_for :related_attributes do %>
+<%= content_for :associated do %>
     <% if @source.type == 'Source::Bibtex' %>
         <% if @source.authors.any? %>
             <h3>Authors</h3>
@@ -21,4 +21,4 @@
 
 <%= source_attributes_for(@source) -%>
 
-<%= render(partial: 'shared/data/community/user_defined/show', locals: {object: @source}) -%>
+<%= render(partial: 'shared/data/project/show', locals: {object: @source}) -%>

@@ -1,33 +1,52 @@
-<h1 class="center_text"> 
-  <span class="subtle">Dashboard for</span> 
-  <%= user_tag(sessions_current_user) -%> 
-</h1> 
-
-<div>
-  <div>
-    <div class='flexbox'>
-      <div class='item item1'>
-        <h2> Your projects </h2>
-        <ul> <%= projects_list(@projects) -%> </ul>
+<div id="dashboard">
+  <h1 class="center_text" style="font-weight:100;"> 
+    <span class="subtle">Dashboard for</span> 
+    <%= user_tag(sessions_current_user) -%> 
+  </h1> 
+    <div class="flexbox">
+      <div class="item item1 column-tiny separate-right">
+        <div class="panel">
+          <div class="title nav-line">
+          <span data-icon="folders" class="inline">
+              Projects
+          </span>
+          </div>
+          <div class="content space-distance">
+            <ul class="no_bullets"> 
+              <%= projects_list(@projects) -%> 
+            </ul>
+          </div>
+        </div>
       </div>
-
-      <div class='item item2'>
-        <h2> Your data </h2>
-        <ul>
-          <%= content_tag :li, link_to('Recently created', recently_created_data_user_path(sessions_current_user)) -%> 
-        </ul>
-
-        <%= render partial: '/pinboard_items/pinboard' -%>
+      <div class="item item1 column-big space-distance">
+        <div class="panel">
+          <div class="title nav-line">
+            <span data-icon="openFolder" class="inline">
+              Data              
+            </span>
+          </div>
+          <div class="content subtitle">
+            <h2>History</h2> 
+              <ul class=" no_bullets content">
+                <%= content_tag :li, link_to('Recently created', recently_created_data_user_path(sessions_current_user),  data: { no_turbolink: true } ) -%> 
+              </ul>
+            <%= render partial: '/pinboard_items/pinboard' -%>
+          </div> 
+        </div>
       </div>
-
-      <div class='item item3'>
-        <h2> Preferences </h2>
-        <ul> 
-          <li> <%= link_to('order hub tabs', order_tabs_hub_path ) -%> </li>
-        </ul>
-
+      <div class="item item3 column-tiny separate-left">
+        <div class="panel">
+          <div class="title action-line">
+            <span data-icon="options" class="inline">
+              Preferences
+            </span>
+          </div>
+          <div class="content space-distance">
+            <ul class="no_bullets">
+              <li><%= link_to('Order hub tabs', order_tabs_hub_path ) -%></li>
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-
-</div>

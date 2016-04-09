@@ -5,16 +5,25 @@
     <%= f.label :name %><br>
     <%= f.text_field :name %>
   </div>
-  <div class="field">
-    <%= f.label :source %><br>
-    <%= render :partial => 'workbench/elements/forms/ajax_select',
-               :locals => {:controller => 'sources',
-                           :object => 'biological_associations_graph',
-                           :method => 'source_id',
-                           :tag_id => 'source_id_for_biological_associations_graph',
-                           :display => source_tag(@biological_associations_graph.source),
-                           :size => 20} %>
-  </div>
+
+    <%= f.fields_for :origin_citation, @biological_associations_graph.origin_citation do |s| -%>
+      <div class="field">
+        <%= s.label :source %>
+        <br>
+        <%= render( partial: 'workbench/elements/forms/ajax_select', locals:
+                   {controller: 'sources',
+                    related_object: @biological_associations_graph.source,
+                    object: 'biological_associations_graph[origin_citation_attributes]',
+                    method: 'source_id',
+                    tag_id: 'source_id_for_original_citation_taxon_name',
+                    size: '50%',
+                    display: source_tag(@biological_associations_graph.source)}) 
+                  %>
+    </div>
+  <% end %>
+
+
+
   <div class="actions">
     <%= f.submit %>
   </div>

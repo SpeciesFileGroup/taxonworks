@@ -1,12 +1,11 @@
 <div id="_recent_gr_form" name="_recent_gr_form" hidden>
   <%= form_tag(recent_georeferences_url, {method: 'get', id: 'recent_gr_count', remote: true}) do %>
-      <table border="1">
+      <table>
         <tr>
-          <td>
-            <div class="field">
+          <td class="field"><span>
               <label for="how_many">Return</label>
-              <input id="how_many" size="5" name="how_many"/>most recent
-            </div>
+              <input id="how_many" size="5" name="how_many"/> most recent
+              </span>
           </td>
         </tr>
       </table>

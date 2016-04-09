@@ -4,15 +4,16 @@ namespace :tw do
     desc "load all geo related data, requires a data_directory"
     task :load_geo => [:environment, :data_directory] do |t|
 
-      puts "Loading geo data..." 
+      puts "Loading geo data..."
       [GeographicArea, GeographicAreaType, GeographicItem, GeographicAreasGeographicItem].each do |klass|
-        if klass.count > 0 
-          puts 'There are existing #{klass.name.humanize}, doing nothing.'.red.on_white 
-          raise 
+        if klass.count > 0
+          puts "There are existing #{klass.name.humanize}, doing nothing.".red.on_white
+          raise
         end
       end
 
       data_store = @args[:data_directory]
+      data_store += '/' unless data_store.end_with?('/')
 
       geographic_areas_file                  = "#{data_store}geographic_areas.dump"
       geographic_area_types_file             = "#{data_store}geographic_area_types.dump"
@@ -24,7 +25,7 @@ namespace :tw do
       raise "Missing #{geographic_area_types_file}, doing nothing.".red unless File.exists?(geographic_area_types_file)
       raise "Missing #{geographic_areas_geographic_items_file}, doing nothing.red" unless File.exists?(geographic_areas_geographic_items_file)
 
-      database   = ActiveRecord::Base.connection.current_database
+      database = ActiveRecord::Base.connection.current_database
 
       puts "#{Time.now.strftime "%H:%M:%S"}: From #{geographic_area_types_file}"
 
@@ -42,6 +43,10 @@ namespace :tw do
 
       d = Support::Database.pg_restore(database, 'geographic_areas_geographic_items', data_store)
       ActiveRecord::Base.connection.reset_pk_sequence!('geographic_areas_geographic_items')
+      puts "#{Time.now.strftime "%H:%M:%S"}."
+
+      puts 'Rebuilding GeographicArea...'
+      e = GeographicArea.rebuild! # closure_tree
       puts "#{Time.now.strftime "%H:%M:%S"}."
 
       puts "...done."

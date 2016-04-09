@@ -1,0 +1,143 @@
+    [data-icon] {
+      background-size: 14px 14px;
+      background-repeat: no-repeat;
+      background-position: left, center;
+      padding-left: 20px;
+      min-height: 16px;
+      align-items: center;
+    }
+
+    .icon-list {
+      padding-left: 20px !important;
+    }
+
+    .small-icon {
+      background-size: 12px 12px;
+      padding-left: 18px;
+      min-height: 12px;
+    }
+
+    .icon-right { 
+      background-position: right, center;
+      padding-right: 20px;
+    }
+
+    [data-icon="annotate"] {
+      background-image: image-url("annotate.svg");
+    } 
+
+    [data-icon="batch"] {
+      background-image: image-url("batch_load.svg");
+    }     
+
+    [data-icon="drag"] {
+      background-image: image-url("drag.svg");
+    }
+
+    [data-icon="list"] {
+      background-image: image-url("list.svg");
+    }         
+
+    [data-icon="scroll-v"] {
+      background-image: image-url("scroll-v.svg");
+    }   
+
+    [data-icon="scroll-h"] {
+      background-image: image-url("scroll-h.svg");
+    }         
+
+    [data-icon="browse"] {
+      background-image: image-url("browse.svg");
+    }     
+
+    [data-icon="download"] {
+      background-image: image-url("download.svg");
+    }     
+
+    [data-icon="add"] {
+      background-image: image-url("plus.svg");
+    }
+
+    [data-icon="icons"] {
+      background-image: image-url("icons.svg");
+    }          
+
+    [data-icon="pin"] {
+      background-image: image-url("pin.svg");
+    } 
+
+    [data-icon="edit"] {
+      background-image: image-url("new.svg");
+    }      
+
+    [data-icon="new"] {
+      background-image: image-url("new.svg");
+    }              
+
+    [data-icon="trash"] {
+      background-image: image-url("trash.svg");
+    }      
+
+    [data-icon="favorite"] {
+      background-image: image-url("star.svg");
+    }      
+
+    [data-icon="arrow-right"] {
+      background-image: image-url("arrow-right.svg");
+    }     
+
+    [data-icon="arrow-left"] {
+      background-image: image-url("arrow-left.svg");
+    }          
+
+    [data-icon="recent"] {
+      background-image: image-url("recent.svg");
+    }        
+
+    [data-icon="reset"] {
+      background-image: image-url("restart.svg");
+    }        
+
+    [data-icon="task"] {
+      background-image: image-url("task.svg");
+    }            
+
+    [data-icon="data"] {
+      background-image: image-url("data.svg");
+    }     
+
+    [data-icon="arrow-up"] {
+      background-image: image-url("arrow-up.svg");
+    }     
+
+    [data-icon="arrow-down"] {
+      background-image: image-url("arrow-down.svg");
+    }          
+
+    [data-icon="related"] {
+      background-image: image-url("related.svg");
+    }                    
+
+    [data-icon="show"] {
+      background-image: image-url("show.svg");
+    }
+
+    [data-icon="hide"] {
+      background-image: image-url("hide.svg");
+    }  
+
+    [data-icon="openFolder"] {
+      background-image: image-url("open_folder.svg");
+    }   
+
+    [data-icon="users"] {
+      background-image: image-url("users.svg");
+    }       
+
+    [data-icon="folders"] {
+      background-image: image-url("folders.svg");
+    }  
+
+    [data-icon="options"] {
+      background-image: image-url("options.svg");
+    }       

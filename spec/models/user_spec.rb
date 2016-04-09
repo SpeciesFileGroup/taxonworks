@@ -65,13 +65,23 @@ describe User, :type => :model do
       end
     end
 
-    context 'when ia project administrator' do
+    context 'when a project administrator' do
       before {
         ProjectMember.create(project_id: $project_id, user: user, is_project_administrator: true)
       }
+
       specify '#is_superuser(project)?' do
         expect(user.is_superuser?(Project.find($project_id))).to be true
       end
+
+      specify '#administered_projects' do
+        expect(user.administered_projects).to contain_exactly(Project.find($project_id) )
+      end
+
+      specify '#administers_projects?' do
+        expect(user.administers_projects?).to be true 
+      end
+
     end
   end
 

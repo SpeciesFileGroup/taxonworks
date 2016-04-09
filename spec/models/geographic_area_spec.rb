@@ -88,11 +88,6 @@ describe GeographicArea, type: :model, group: :geo do
           @champaign = FactoryGirl.create(:level2_geographic_area)
         }
 
-        specify 'lft, rgt' do
-          expect(@champaign.lft > 0).to be_truthy
-          expect(@champaign.rgt > 0).to be_truthy
-        end
-
         specify 'parent string' do
           expect(@champaign.name).to eq('Champaign')
           expect(@champaign.parent.name).to eq('Illinois')
@@ -101,7 +96,7 @@ describe GeographicArea, type: :model, group: :geo do
         end
 
         specify 'ancestors' do
-          expect(@champaign.ancestors).to eq([@champaign.root, @champaign.parent.parent, @champaign.parent])
+          expect(@champaign.ancestors).to eq([@champaign.parent, @champaign.parent.parent, @champaign.root])
         end
 
         specify 'root' do
@@ -119,6 +114,8 @@ describe GeographicArea, type: :model, group: :geo do
     before(:each) {
       @champaign = FactoryGirl.create(:level2_geographic_area)
       @illinois  = @champaign.parent
+      @ford      = FactoryGirl.create(:level2_geographic_area, name: 'Ford')
+      @illinois  = @ford.parent
       @usa       = @illinois.parent
       @earth     = @usa.parent
     }
@@ -140,20 +137,42 @@ describe GeographicArea, type: :model, group: :geo do
 
       specify 'children_at_level2' do
         expect(@champaign.children_at_level2.count).to eq(0)
-        expect(@champaign.root.children_at_level2.count).to eq(1)
-        expect(@champaign.parent.children_at_level2.count).to eq(1)
+        expect(@champaign.root.children_at_level2.count).to eq(2)
+        expect(@champaign.parent.children_at_level2.count).to eq(2)
       end
 
-      specify 'descendants_of' do
-        expect(GeographicArea.descendants_of(@champaign.root)).to eq([@champaign.parent.parent, @champaign.parent, @champaign])
+      specify 'descendants and descendants_of' do
+        expect(GeographicArea.descendants_of(@earth)).to eq([@usa,
+                                                             @illinois,
+                                                             @champaign,
+                                                             @ford])
+        expect(@illinois.descendants.to_a).to contain_exactly(@champaign, @ford)
       end
 
-      specify 'ancestors_of' do
-        expect(GeographicArea.ancestors_of(@champaign)).to eq([@champaign.root, @champaign.parent.parent, @champaign.parent])
+      specify 'ancestors and ancestors_of' do
+        # This test is for when order is important
+        expect(@champaign.ancestors.to_a).to eq([@champaign.parent,
+                                                 @champaign.parent.parent,
+                                                 @champaign.parent.parent.parent])
+        # This test is for when order is *NOT* important
+        expect(GeographicArea.ancestors_of(@champaign)).to contain_exactly(@champaign.parent.parent.parent,
+                                                                           @champaign.parent,
+                                                                           @champaign.parent.parent)
       end
 
       specify 'ancestors_and_descendants_of' do
-        expect(GeographicArea.ancestors_and_descendants_of(@illinois)).to eq([@champaign.root, @champaign.parent.parent, @champaign])
+        # This test is for when order is *NOT* important
+        expect(GeographicArea.ancestors_and_descendants_of(@illinois)).to contain_exactly(@champaign,
+                                                                                          @ford,
+                                                                                          @illinois,
+                                                                                          @usa,
+                                                                                          @earth)
+        # This test is for when order is important
+        # expect(GeographicArea.ancestors_and_descendants_of(@illinois).to_a).to eq([@illinois,
+        #                                                                            @earth,
+        #                                                                            @ford,
+        #                                                                            @usa,
+        #                                                                            @champaign])
       end
 
       specify 'countries' do
@@ -161,13 +180,14 @@ describe GeographicArea, type: :model, group: :geo do
       end
 
       specify 'descendants_of_geographic_area_type' do
-        expect(@champaign.root.descendants_of_geographic_area_type('County').to_a).to eq([@champaign])
+        expect(@champaign.root.descendants_of_geographic_area_type('County').to_a).to eq([@champaign, @ford])
         expect(@champaign.root.descendants_of_geographic_area_type('State').to_a).to eq([@champaign.parent])
         expect(@champaign.root.descendants_of_geographic_area_type('Province').to_a).to eq([])
       end
 
       specify 'descendants_of_geographic_area_types' do
-        expect(@champaign.root.descendants_of_geographic_area_types(['County', 'State', 'Province']).to_a).to eq([@champaign.parent, @champaign])
+        expect(@champaign.root.descendants_of_geographic_area_types(['County', 'State', 'Province']).to_a).to   \
+          contain_exactly(@ford, @champaign, @illinois)
       end
 
       specify '::with_name_and_parent_name' do

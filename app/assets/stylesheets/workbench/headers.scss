@@ -1,15 +1,42 @@
 @import 'palette';
 
 #header_bar {
-  align-items: flex-end;
-  border-bottom: 1px solid $color-secondary-1-4;
+	margin:0 auto;
+	padding-left:20px;
+	padding-right:20px;
+ 	align-items:center;
+	background-color:$navigation_background;
+	border-bottom: 1px solid $navigation_border;
+	height:50px;
+	font-weight: 100;
+	
+	a {
+		font-size:13px;
+		padding: 16px;
+			    text-decoration: none;
+   
+	    -webkit-transition: 0.3s ease;
+	            transition: 0.3s ease;
+	}
 
+	a:hover {
+	    -webkit-transition: 0.3s ease;
+	            transition: 0.3s ease;
+	            color: $focus_link_color;
+	       
+	}	
   #taxonworks {
-    font-weight: bold;
     a {
-      font-size: 26px;
+	  color: $default_text;
+	  padding: 0px;
+	  font-weight: 100;
+      font-size: 22px;
       text-decoration: none;
+	  
     }
+	a:hover {
+		background-color:transparent;
+	}
   }
 
   #session_nav {
@@ -18,8 +45,12 @@
 }
 
 .current_hub_category {
-  background: $color-secondary-2-2;
+  border-bottom: 2px solid $color-secondary-2-4 !important;
  }
+  .current_hub_category a {
+  	color: $default_text !important;
+  	
+  }
 
 .all_hub_category {
   margin-top: 5px;
@@ -31,15 +62,8 @@
 }
 
 #main {
-  h1 {
-  }
-
-  h2 {
-
-  }
-
-  h3 {
-
-  }
+	margin:0 auto;
+	padding-left:15px;
+	padding-right:15px;
 }
 

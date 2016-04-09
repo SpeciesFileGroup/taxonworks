@@ -22,23 +22,11 @@
 #
 # @attribute cached_author_year
 #   @return [String, nil]
-#   author and year string with parentheses where necessary.
+#      author and year string with parentheses where necessary, i.e. with context of present placement for iczn
 #
 # @!attribute cached_higher_classification
 #   @return [String]
 #   a concatenated list of higher rank taxa.
-#
-# @!attribute lft
-#   @return [Integer]
-#   per awesome_nested_set.
-#
-# @!attribute rgt
-#   @return [Integer]
-#   per awesome_nested_set.
-#
-# @!attribute source_id
-#   @return [Integer]
-#   the ID of the source (a Source::Bibtex or Source::Verbatim instance) in which this name was first published.  Subsequent references are made in citations or combinations.
 #
 # @!attribute year_of_publication
 #   @return [Integer]
@@ -89,21 +77,18 @@
 #   Species name which are adjective or participle change depending on the gender of the genus.
 #   3 fields provide alternative species spelling. The part_of_speech designated as a taxon_name_classification.
 #   The gender of the genus also designated as a taxon_name_classification.
-#   @todo masculine_name, feminine_name, and neuter_name used to be strung together after a single @!attribute tag
 #
 # @!attribute feminine_name
 #   @return [String]
 #   Species name which are adjective or participle change depending on the gender of the genus.
 #   3 fields provide alternative species spelling. The part_of_speech designated as a taxon_name_classification.
 #   The gender of the genus also designated as a taxon_name_classification.
-#   @todo masculine_name, feminine_name, and neuter_name used to be strung together after a single @!attribute tag
 #
 # @!attribute neuter_name
 #   @return [String]
 #   Species name which are adjective or participle change depending on the gender of the genus.
 #   3 fields provide alternative species spelling. The part_of_speech designated as a taxon_name_classification.
 #   The gender of the genus also designated as a taxon_name_classification.
-#   @todo masculine_name, feminine_name, and neuter_name used to be strung together after a single @!attribute tag
 #
 # @!cached_valid_taxon_name_id
 #   !! @proceps -  need to document this ASAP
@@ -134,47 +119,32 @@ class TaxonName < ActiveRecord::Base
   include Shared::IsData
   include SoftValidation
   include Shared::Depictions
+  include Shared::Citable
 
   # @return [Boolean]
   #   When true, also creates an OTU that is tied to this taxon name
   attr_accessor :also_create_otu
 
   # @return [Boolean]
-  #   When true, also cached values are not built
+  #  When true, also cached values are not built
   attr_accessor :no_cached
-
-  # @return [Boolean]
-  #   When true, does not alphabetize siblings (import only) 
-  attr_accessor :no_alphabetize
 
   NO_CACHED_MESSAGE = 'PROJECT REQUIRES TAXON NAME CACHE REBUILD'
 
-  if ENV['NO_TAXON_NESTING']
-    belongs_to :parent, class_name: TaxonName, foreign_key: :parent_id
-  else
-    acts_as_nested_set scope: [:project_id], dependent: :restrict_with_exception, touch: false
-  end
-
+  has_closure_tree
+  has_paper_trail
+  
   belongs_to :valid_taxon_name, class_name: TaxonName, foreign_key: :cached_valid_taxon_name_id
 
   before_validation :set_type_if_empty
-
   before_save :set_cached_names
-
   after_save :create_new_combination_if_absent, unless: 'self.no_cached'
   after_save :set_cached_names_for_dependants_and_self, unless: 'self.no_cached'
   after_save :set_cached_valid_taxon_name_id
-  after_save :order_alphabetically, unless: 'self.no_alphabetize'
-
-  def order_alphabetically
-    self_and_siblings.order(:cached).in_groups_of(2).each do |a, b|
-      next if b.nil?
-      b.move_to_right_of(a.id)
-    end
-  end
+  before_destroy :check_for_children
 
   validate :validate_rank_class_class,
-  # :check_format_of_name,
+   # :check_format_of_name,
     :validate_parent_rank_is_higher,
     :validate_parent_is_set,
     :check_new_rank_class,
@@ -184,44 +154,41 @@ class TaxonName < ActiveRecord::Base
     :name_is_latinized
 
   validates_presence_of :type, message: 'is not specified'
-  belongs_to :source
 
   has_one :source_classified_as_relationship, -> {
     where(taxon_name_relationships: {type: 'TaxonNameRelationship::SourceClassifiedAs'} ) 
   }, class_name: 'TaxonNameRelationship::SourceClassifiedAs', foreign_key: :subject_taxon_name_id
 
-  has_one :source_classified_as, through: :source_classified_as_relationship, source: :object_taxon_name # source_classified_as_taxon_name
+  has_one :source_classified_as, through: :source_classified_as_relationship, source: :object_taxon_name 
 
-  has_many :otus, inverse_of: :taxon_name, dependent: :nullify # :restrict_with_error ?
-  has_many :related_taxon_name_relationships, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id, dependent: :destroy
+  has_many :otus, inverse_of: :taxon_name, dependent: :restrict_with_error 
+  has_many :related_taxon_name_relationships, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id, dependent: :restrict_with_error
   has_many :taxon_name_author_roles, class_name: 'TaxonNameAuthor', as: :role_object, dependent: :destroy
   has_many :taxon_name_authors, through: :taxon_name_author_roles, source: :person
   has_many :taxon_name_classifications, dependent: :destroy, foreign_key: :taxon_name_id, inverse_of: :taxon_name
-  has_many :taxon_name_relationships, foreign_key: :subject_taxon_name_id, dependent: :destroy
+  has_many :taxon_name_relationships, foreign_key: :subject_taxon_name_id, dependent: :restrict_with_error
 
   # NOTE: Protonym subclassed methods might not be nicely tracked here, we'll have to see.  Placement is after has_many relationships. (?)
-  has_paper_trail
-
   accepts_nested_attributes_for :related_taxon_name_relationships, allow_destroy: true, reject_if: proc { |attributes| attributes['type'].blank? || attributes['subject_taxon_name_id'].blank? }
   accepts_nested_attributes_for :taxon_name_authors, :taxon_name_author_roles, allow_destroy: true
-
   accepts_nested_attributes_for :taxon_name_classifications, allow_destroy: true, reject_if: proc { |attributes| attributes['type'].blank?  }
 
-  scope :with_type, -> (type) {where(type: type)}
-  scope :ordered_by_rank, -> { order(:lft) } # TODO: test
+  scope :with_type, -> (type) {where(type: type)} 
+
+  scope :descendants_of, -> (taxon_name) { with_ancestor(taxon_name )}
+  scope :ancestors_of, -> (taxon_name) { joins(:descendant_hierarchies).order('taxon_name_hierarchies.generations DESC').where(taxon_name_hierarchies: {descendant_id: taxon_name.id}).where('taxon_name_hierarchies.ancestor_id != ?', taxon_name.id) }
+
+  # this is subtly different, it includes self in present form, it also doesn't order
+  scope :ancestors_and_descendants_of, -> (taxon_name) { 
+    joins('LEFT OUTER JOIN taxon_name_hierarchies a ON taxon_names.id = a.descendant_id
+             LEFT JOIN taxon_name_hierarchies b ON taxon_names.id = b.ancestor_id').
+    where("(a.ancestor_id = ?) OR (b.descendant_id = ?)", taxon_name.id, taxon_name.id ).uniq }
+
   scope :with_rank_class, -> (rank_class_name) { where(rank_class: rank_class_name) }
   scope :with_parent_taxon_name, -> (parent) { where(parent_id: parent) }
   scope :with_base_of_rank_class, -> (rank_class) { where('rank_class LIKE ?', "#{rank_class}%") }
   scope :with_rank_class_including, -> (include_string) { where('rank_class LIKE ?', "%#{include_string}%") }
-  scope :descendants_of, -> (taxon_name) { where('(taxon_names.lft >= ?) and (taxon_names.lft <= ?) and (taxon_names.id != ?) and (taxon_names.project_id = ?)', taxon_name.lft, taxon_name.rgt, taxon_name.id, taxon_name.project_id).order(:lft) }
-  scope :ancestors_of, -> (taxon_name) { where('(taxon_names.lft <= ?) and (taxon_names.rgt >= ?) and (taxon_names.id != ?) and (taxon_names.project_id = ?)', taxon_name.lft, taxon_name.rgt, taxon_name.id, taxon_name.project_id).order(:lft) }
-  scope :ancestors_and_descendants_of, -> (taxon_name) {
-    where('(((taxon_names.lft >= ?) AND (taxon_names.lft <= ?)) OR
-           ((taxon_names.lft <= ?) AND (taxon_names.rgt >= ?))) AND
-           (taxon_names.id != ?) AND (taxon_names.project_id = ?)',
-           taxon_name.lft, taxon_name.rgt, taxon_name.lft, taxon_name.rgt, taxon_name.id, taxon_name.project_id) }
   scope :project_root, -> (root_id) {where("(taxon_names.rank_class = 'NomenclaturalRank' AND taxon_names.project_id = ?)", root_id)}
-
 
   # A specific relationship
   scope :as_subject_with_taxon_name_relationship, -> (taxon_name_relationship) { includes(:taxon_name_relationships).where(taxon_name_relationships: {type: taxon_name_relationship}) }
@@ -261,6 +228,11 @@ class TaxonName < ActiveRecord::Base
   scope :with_cached_original_combination, -> (original_combination) { where(cached_original_combination: original_combination) }
   scope :with_cached_html, -> (html) { where(cached_html: html) }
 
+  # @return [Protonym(s)] the **broad sense** synonyms of this name 
+  def synonyms 
+    TaxonName.with_cached_valid_taxon_name_id(self.id)
+  end
+
   soft_validate(:sv_validate_name, set: :validate_name)
   soft_validate(:sv_missing_fields, set: :missing_fields)
   soft_validate(:sv_parent_is_valid_name, set: :parent_is_valid_name)
@@ -271,13 +243,13 @@ class TaxonName < ActiveRecord::Base
   # @return array of relationships
   #   all relationships where this taxon is an object or subject.
   def all_taxon_name_relationships
-    # !! If self relatinships are every made possible this needs a DISTINCT clause
+    # !! If self relationships are ever made possible this needs a DISTINCT clause
     TaxonNameRelationship.find_by_sql("SELECT taxon_name_relationships.* FROM taxon_name_relationships WHERE taxon_name_relationships.subject_taxon_name_id = #{self.id} UNION
                          SELECT taxon_name_relationships.* FROM taxon_name_relationships WHERE taxon_name_relationships.object_taxon_name_id = #{self.id}")
   end
 
   # @return [Array of TaxonName]
-  #     all taxon_names which have relationships to this taxon as an object or subject.
+  #   all taxon_names which have relationships to this taxon as an object or subject.
   def related_taxon_names
     TaxonName.find_by_sql("SELECT DISTINCT tn.* FROM taxon_names tn
                       LEFT JOIN taxon_name_relationships tnr1 ON tn.id = tnr1.subject_taxon_name_id
@@ -314,7 +286,7 @@ class TaxonName < ActiveRecord::Base
   def author_string
     return self.verbatim_author if !self.verbatim_author.nil?
     return self.taxon_name_authors.collect{|p| p.last_name}.to_sentence if self.taxon_name_authors.length > 0
-    return self.source.authority_name if !self.source_id.nil?
+    return self.source.authority_name if !self.source.nil?
     nil
   end
 
@@ -411,7 +383,7 @@ class TaxonName < ActiveRecord::Base
 
   # @return [Array of TaxonName] ancestors of type 'Protonym'
   def ancestor_protonyms
-    TaxonName.ancestors_of(self).where(type: 'Protonym')
+    TaxonName.where(type: 'Protonym').ancestors_of(self)
   end
 
 # @return [Array of TaxonName] descendants of type 'Protonym'
@@ -419,8 +391,8 @@ class TaxonName < ActiveRecord::Base
     TaxonName.descendants_of(self).where(type: 'Protonym')
   end
 
-  # TODO: @proceps - based on what?
-  # @return [True|False]
+  #  @return [Boolean] 
+  #     return true if name is unavailable OR invalid, else false, checks both classifications and relationships
   def unavailable_or_invalid?
     if !TaxonNameClassification.where_taxon_name(self).with_type_array(TAXON_NAME_CLASS_NAMES_VALID).empty?
       false
@@ -467,7 +439,7 @@ class TaxonName < ActiveRecord::Base
   # @return [TaxonNameRelationship]
   #  returns youngest taxon name relationship where the name is subject.
   def first_possible_valid_taxon_name_relationship
-    self.taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID).order_by_date.first
+    self.taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID).youngest_by_citation # order_by_youngest_source_first.first 
   end
 
   # @return [TaxonName]
@@ -486,7 +458,7 @@ class TaxonName < ActiveRecord::Base
       first_pass = false
       list_of_taxa_to_check = list.empty? ? [self] : list.keys.select{|t| list[t] == false}
       list_of_taxa_to_check.each do |t|
-        potentialy_invalid_relationships = t.related_taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID).order_by_date
+        potentialy_invalid_relationships = t.related_taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID).order_by_oldest_source_first
         potentialy_invalid_relationships.each do |r|
           if !TaxonNameClassification.where_taxon_name(r.subject_taxon_name).with_type_array(TAXON_NAME_CLASS_NAMES_VALID).empty?
             # do nothing, taxon has a status of valid name
@@ -646,11 +618,12 @@ class TaxonName < ActiveRecord::Base
     dependants = []
     original_combination_relationships = []
     combination_relationships = []
+    
     begin
       TaxonName.transaction do
 
         if self.rank_string =~/Species|Genus/
-          dependants = TaxonName.descendants_of(self).with_type('Protonym')
+          dependants =  TaxonName.with_type('Protonym').descendants_of(self).to_a # self.descendant_protonyms 
           original_combination_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('OriginalCombination')
           combination_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('::Combination')
         end
@@ -704,7 +677,6 @@ class TaxonName < ActiveRecord::Base
       end
       rescue
     end
-    false
   end
 
   def update_cached_original_combinations
@@ -769,7 +741,7 @@ class TaxonName < ActiveRecord::Base
     if self.new_record?
       ancestors_through_parents
     else
-      self.self_and_ancestors
+      self.self_and_ancestors(true).to_a.reverse 
     end
   end
 
@@ -798,9 +770,10 @@ class TaxonName < ActiveRecord::Base
   #       "subspecies" => [nil, "bbb"], 
   #       "variety" => ["var.", "ccc"]}
   def full_name_hash
+
     gender = nil
     data   = {}
-    safe_self_and_ancestors.each do |i| # !! You can not use self.self_and_ancesotrs because (this) record is not saved off.
+    safe_self_and_ancestors.each do |i| # !! You can not use self.self_and_ancestors because (this) record is not saved off.
       rank   = i.rank
       gender = i.gender_name if rank == 'genus'
       method = "#{rank.gsub(/\s/, '_')}_name_elements"
@@ -811,6 +784,7 @@ class TaxonName < ActiveRecord::Base
       end
       # data.merge!(rank => send(method, i, gender)) if self.respond_to?(method)
     end
+    # byebug if self.name == 'Errorneura'  && self.cached_misspelling 
     data
   end
 
@@ -836,9 +810,10 @@ class TaxonName < ActiveRecord::Base
     return name unless self.type == 'Combination' || GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_string)
     eo = '<i>'
     ec = '</i>'
-    return "#{eo}#{verbatim_name}#{ec}" if !self.verbatim_name.nil? && self.type == 'Combination'
+    return "#{eo}#{verbatim_name}#{ec}".gsub(' f. ', ec + ' f. ' + eo).gsub(' var. ', ec + ' var. ' + eo) if !self.verbatim_name.nil? && self.type == 'Combination'
     return "#{eo}#{name}#{ec}" if self.rank_string == 'NomenclaturalRank::Iczn::GenusGroup::GenusGroup'
     d = full_name_hash
+   
     elements = []
     d.merge!('genus' => [nil, '[' + self.original_genus.cached_html + ']']) if !d['genus'] && self.original_genus
     d.merge!('genus' => [nil, '[GENUS UNKNOWN]']) unless d['genus']
@@ -1116,10 +1091,9 @@ class TaxonName < ActiveRecord::Base
 
   def get_cached_classified_as
     return nil unless self.type == 'Combination' || self.type == 'Protonym'
-
-    c = self.source_classified_as(true)
-    unless c.blank?
-      return " (as #{c.name})"
+    r = self.source_classified_as(true)
+    unless r.blank?
+      return " (as #{r.name})"
     end
     nil
   end
@@ -1155,6 +1129,14 @@ class TaxonName < ActiveRecord::Base
   end
 
   protected
+
+  def check_for_children
+    unless leaf?
+      errors[:base] << "has attached names, delete these first"
+      return false
+    end
+  end
+
 
   #region Validation
 
@@ -1213,7 +1195,9 @@ class TaxonName < ActiveRecord::Base
     exepted_with_taxon_name_classifications = ['TaxonNameClassification::Iczn::Unavailable::NotLatin',
                                                'TaxonNameClassification::Iczn::Unavailable::LessThanTwoLetters',
                                                'TaxonNameClassification::Iczn::Unavailable::NotLatinizedAfter1899',
-                                               'TaxonNameClassification::Iczn::Unavailable::NotLatinizedBefore1900AndNotAccepted']
+                                               'TaxonNameClassification::Iczn::Unavailable::NotLatinizedBefore1900AndNotAccepted',
+                                               'TaxonNameClassification::Iczn::Unavailable::NonBinomial',
+                                               'TaxonNameClassification::Iczn::Available::Invalid::FamilyGroupNameForm']
     if (taxon_name_classifications.collect{|t| t.type} & exepted_with_taxon_name_classifications).empty? && type == 'Protonym'
       if name =~ /[^a-zA-Z|\-]/
         errors.add(:name, 'Name must be latinized, no digits or spaces allowed')
@@ -1235,7 +1219,7 @@ class TaxonName < ActiveRecord::Base
   end
 
   def validate_source_type
-    errors.add(:source_id, 'must be a Bibtex') if self.source && self.source.type != 'Source::Bibtex'
+    errors.add(:base, 'Source must be a Bibtex') if self.source && self.source.type != 'Source::Bibtex'
   end
 
 
@@ -1280,7 +1264,7 @@ class TaxonName < ActiveRecord::Base
   end
 
   def sv_missing_fields
-    soft_validations.add(:source_id, 'Source is missing') if self.source_id.nil?
+    soft_validations.add(:base, 'Source is missing') if self.source.nil?
     soft_validations.add(:verbatim_author, 'Author is missing',
                          fix: :sv_fix_missing_author,
                          success_message: 'Author was updated') if self.author_string.nil?
@@ -1290,7 +1274,7 @@ class TaxonName < ActiveRecord::Base
   end
 
   def sv_fix_missing_author
-    if self.source_id
+    if self.source
       unless self.source.author.blank?
         self.verbatim_author = self.source.authority_name
         begin
@@ -1307,7 +1291,7 @@ class TaxonName < ActiveRecord::Base
   end
 
   def sv_fix_missing_year
-    if self.source_id
+    if self.source
       if self.source.year
         self.year_of_publication = self.source.year
         begin
@@ -1324,6 +1308,7 @@ class TaxonName < ActiveRecord::Base
   end
 
   def sv_parent_is_valid_name
+
     return if parent.nil?
     if parent.unavailable_or_invalid?
       # parent of a taxon is unavailable or invalid
@@ -1331,11 +1316,14 @@ class TaxonName < ActiveRecord::Base
                            fix:             :sv_fix_parent_is_valid_name,
                            success_message: 'Parent was updated')
     else # TODO: This seems like a different validation, split with above?
-      classifications      = self.taxon_name_classifications
+      classifications      = self.taxon_name_classifications(true)
       classification_names = classifications.map { |i| i.type_name }
       compare              = TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID & classification_names
       unless compare.empty?
+        
+
         unless Protonym.with_parent_taxon_name(self).without_taxon_name_classification_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).empty?
+
           compare.each do |i|
             # taxon is unavailable or invalid, but has valid children
             soft_validations.add(:base, "Taxon has a status ('#{i.demodulize.underscore.humanize.downcase}') conflicting with presence of subordinate taxa")
@@ -1413,13 +1401,19 @@ class TaxonName < ActiveRecord::Base
   end
 
   def sv_two_unresolved_alternative_synonyms
-    relationships = self.taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID).order_by_date
-    unless relationships.empty?
-      date_list = relationships.collect{|r| r.nd}
-      unless date_list == date_list.uniq
-        soft_validations.add(:base, "Taxon has two alternative invalidating relationships. To resolve ambiguity, add original sources to the relationships with different priority dates.")
+    r = taxon_name_relationships.includes(:source).order_by_oldest_source_first.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID)
+    if r.to_a.count > 1
+      if r.first.nomenclature_date.to_date == r.second.nomenclature_date.to_date
+        soft_validations.add(:base, "Taxon has two alternative invalidating relationships with identical dates. To resolve ambiguity, add original sources to the relationships with different priority dates.")
       end
     end
+
+    #   unless relationships.empty?
+#     date_list = relationships.collect{|r| r.nd}
+#     unless date_list == date_list.uniq
+#    
+#     end
+#   end
   end
 
   def sv_validate_parent_rank

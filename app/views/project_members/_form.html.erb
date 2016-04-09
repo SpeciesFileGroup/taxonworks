@@ -1,5 +1,6 @@
 <%= form_for(@project_member) do |f| %>
   <%= render 'shared/errors', object: @project_member %>
+
   <div class="field">
     <%= f.label :project_id %><br>
     <strong> <%= @project_member.project.name -%></strong>
@@ -8,7 +9,7 @@
 
   <div class="field">
     <%= f.label :user_id %><br>
-    <%= f.select :user_id, options_from_collection_for_select(User.all.not_in_project(@project_member.project_id), :id, :email, selected: @project_member.user) %>
+    <%= f.select :user_id, options_from_collection_for_select(User.all.not_in_project(@project_member.project_id).order(:email, :name), :id, :email, selected: @project_member.user) %>
   </div>
 
   <div class="field">

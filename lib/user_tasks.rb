@@ -73,19 +73,19 @@ module UserTasks
     #   the name, or if not otherwise named, the prefix humanized
     def name
       return @name if @name
-      @prefix.humanize
+      prefix.humanize
     end
 
     # @return [String]
     #   the prefix with _path appended
     def path
-      "#{@prefix}_path"
+      "#{prefix}_path"
     end
 
     # @return [String]
     #   the prefix with _url appended
     def url
-      "#{@prefix}_url"
+      "#{prefix}_url"
     end
 
     # @return [Boolean]

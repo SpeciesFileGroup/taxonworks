@@ -113,9 +113,9 @@ describe ImagesController, :type => :controller do
               expect(result["url"]).to eq("#{request.base_url}#{image.image_file.url}")
             end
 
-            xit "has a last modified time" do
-              expect(result["last_modified"]).to eq(image.updated_at)
-            end
+            # xit "has a last modified time" do
+            #   expect(result["last_modified"]).to eq(image.updated_at)
+            # end
 
             it "has alternative versions" do
               expect(result["alternatives"]).to be_truthy

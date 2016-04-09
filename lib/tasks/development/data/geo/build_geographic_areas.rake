@@ -3,7 +3,7 @@ namespace :tw do
     namespace :data do
       namespace :geo do
 
-        desc 'Rebuilds the awesome_nested_set lft,rgt indexing on GeographicAreas.'
+        desc 'Rebuilds the closure_tree indexing on GeographicAreas.'
         task :rebuild_geographic_areas_nesting => [:environment, :geo_dev_init] do
           puts "\n\n#{Time.now.strftime "%H:%M:%S"}."
           if $user_id.nil?

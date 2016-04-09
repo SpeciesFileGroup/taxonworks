@@ -1,31 +1,23 @@
-<h1>Listing depictions</h1>
+<%= render("/shared/data/all/list/list_header", objects: @depictions) -%>
 
-<%= paginate @depictions %> <%= page_entries_info @depictions %>
-
-<table>
+<table class="tablesorter">
   <thead>
-    <tr>
-      <th>Depiction object</th>
-      <th>Image</th>
-      <th>Created by</th>
-      <th>Updated by</th>
-      <th>Project</th>
-      <th colspan="3"></th>
-    </tr>
+  <tr>
+    <%= fancy_th_tag(name: 'Depiction object') -%>
+    <%= fancy_th_tag(name: 'Image') -%>
+    <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
+    <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
+  </tr>
   </thead>
 
   <tbody>
-    <% @depictions.each do |depiction| %>
-      <tr>
-        <td><%= object_tag(depiction.depiction_object.metamorphosize) %></td>
-        <td><%= image_tag(depiction.image.image_file.url(:thumb)) %></td>
-        <td><%= depiction.updated_at %></td>
-        <td><%= object_tag(depiction.updater) %></td>
-        <td><%= link_to 'Show', depiction %></td>
-        <td><%= link_to 'Edit', edit_depiction_path(depiction) %></td>
-        <td><%= link_to 'Destroy', depiction, method: :delete, data: { confirm: 'Are you sure?' } %></td>
-      </tr>
-    <% end %>
+  <% @depictions.each do |depiction| %>
+      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+          <td><%= object_tag(depiction.depiction_object.metamorphosize) %></td>
+          <td><%= image_tag(depiction.image.image_file.url(:thumb)) %></td>
+          <%= fancy_metadata_cells_tag(depiction) -%>
+      <% end %>
+  <% end %>
   </tbody>
 </table>
 

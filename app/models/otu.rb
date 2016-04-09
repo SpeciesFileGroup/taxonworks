@@ -77,20 +77,12 @@ class Otu < ActiveRecord::Base
     else
       tn = taxon_name
     end
-    Otu.joins(:taxon_name).where("(taxon_names.project_id = ? and (taxon_names.id = ? OR (taxon_names.lft >= ? and taxon_names.lft <= ?)))", tn.project_id, tn.id, tn.lft, tn.rgt)
+    Otu.joins(taxon_name: [:ancestor_hierarchies]).where(taxon_name_hierarchies: {ancestor_id: tn.id} )
   end
 
-  # Generate a CSV version of the raw Otus table for the given project_id
+  # @return [CSV]
+  # Generate a CSV version of the raw Otus table for the given scope
   # Ripped from http://railscasts.com/episodes/362-exporting-csv-and-excel
-  # Older version commented out
-  # def self.generate_download(project_id: nil)
-  #   CSV.generate do |csv|
-  #     csv << column_names
-  #     all.with_project_id(project_id).order(id: :asc).each do |otu|
-  #       csv << otu.attributes.values_at(*column_names)
-  #     end
-  #   end
-  # end
   def self.generate_download(scope)
     CSV.generate do |csv|
       csv << column_names
