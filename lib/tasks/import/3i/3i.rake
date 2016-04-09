@@ -909,8 +909,7 @@
                                           biological_association_object: object,
                                           project_id: $project_id
             )
-            Citation.find_or_create_by!(citation_object: ba, source_id: s) unless s.blank?
-
+            Citation.find_or_create_by!(citation_object: ba, source_id: s, project_id: $project_id) unless s.blank?
           else
             print "\nRow #{row} is problematic\n"
           end
