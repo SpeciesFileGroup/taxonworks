@@ -907,10 +907,10 @@
             ba = BiologicalAssociation.find_or_create_by!(biological_relationship: @host_plant_relationship,
                                           biological_association_subject: subject,
                                           biological_association_object: object,
-                                          #origin_citation_attributes: {source_id: s},
                                           project_id: $project_id
             )
             Citation.find_or_create_by!(citation_object: ba, source_id: s) unless s.blank?
+
           else
             print "\nRow #{row} is problematic\n"
           end
