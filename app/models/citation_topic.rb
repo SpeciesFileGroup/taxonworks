@@ -1,17 +1,23 @@
-# A citation topic is...
-#   @todo
+# A citation topic links a Topic to a Citation.  It is the assertion that a Citation contains
+# information on a specific topic for the Citations subject. For example:
+#
+# Otu     Citation (Source)           CitationTopic  Topic (= ControlledVocabularyTerm of type "Topic") 
+# Aus has Citation Smith (1920), with CitationTopics "Biology" on pages 21,22.
+#
+# This set of data asserts that the concept of Aus, an OTU, is circumscribed/described in full or part in Smith (1920), and that
+# one of the subjects of that circumscription is its "Biology", specifically found on pages 21,22.
 #
 # @!attribute topic_id
 #   @return [Integer]
-#   @todo
+#     the Topic in the specific citation 
 #
 # @!citation_id
 #   @return [Integer]
-#   @todo
+#     The citation (links subject to source) 
 #
 # @!attribute pages
 #   @return [String]
-#   @todo
+#     the pages that the specific Topic is listed on 
 #
 # @!attribute project_id
 #   @return [Integer]
@@ -32,5 +38,4 @@ class CitationTopic < ActiveRecord::Base
   nil_trim_attributes(:pages)
 
   protected
-
 end
