@@ -375,7 +375,7 @@ describe CollectingEvent, type: :model, group: :geo do
 
       context 'and that GR has both GI and EGI' do
         specify 'find other CEs that have GR whose GIs or EGIs are within some radius of the EGI' do
-          pieces = @ce_p2.find_others_within_radius_of(1000000)
+          pieces = @ce_p2.find_others_within_radius_of(1000000) # was originally 1000000
           expect(pieces.count).to eq(4)
           expect(pieces).to include(@ce_p1, @ce_p3,
                                     @ce_p4, @ce_p7)

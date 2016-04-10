@@ -1,4 +1,4 @@
-# A citation topic is...
+# A citation topic links a Topic to a citation.  
 #   @todo
 #
 # @!attribute topic_id

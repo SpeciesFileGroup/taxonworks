@@ -418,21 +418,46 @@ class CollectingEvent < ActiveRecord::Base
   # @param [Double] distance
   # @return [Scope]
   # TODO: Limit this function to 25 entries, to prevent UI stall
+ #def find_others_within_radius_of(distance)
+ #  # starting with self, find all (other) CEs which have GIs or EGIs (through georeferences) which are within a
+ #  # specific distance (in meters)
+ #  gi     = geographic_items.first
+ #  pieces = GeographicItem.joins(:georeferences).within_radius_of_item('any', gi, distance)
+
+ #  ce = []
+ #  pieces.each { |o|
+ #    ce.push(o.collecting_events_through_georeferences.to_a)
+ #    ce.push(o.collecting_events_through_georeference_error_geographic_item.to_a)
+ #  }
+ #  pieces = CollectingEvent.where('id in (?)', ce.flatten.map(&:id).uniq)
+
+ #  pieces.excluding(self)
+ #end
+
+  # @param [Double] distance
+  # @return [Scope]
+  # TODO: Limit this function to 25 entries, to prevent UI stall
   def find_others_within_radius_of(distance)
+    return where(id: -1) if !geographic_items.any?
+    geographic_item_id = geographic_items.first.id
+    CollectingEvent.joins(:geographic_items).where("st_distance(#{GeographicItem.geometry_column_case_sql}, (#{GeographicItem.select_geography_sql(geographic_item_id)})) < #{distance}")
     # starting with self, find all (other) CEs which have GIs or EGIs (through georeferences) which are within a
     # specific distance (in meters)
-    gi     = geographic_items.first
-    pieces = GeographicItem.joins(:georeferences).within_radius_of_item('any', gi, distance)
+   #gi     = geographic_items.first
+   #pieces = GeographicItem.joins(:georeferences).within_radius_of_item('any', gi, distance)
 
-    ce = []
-    pieces.each { |o|
-      ce.push(o.collecting_events_through_georeferences.to_a)
-      ce.push(o.collecting_events_through_georeference_error_geographic_item.to_a)
-    }
-    pieces = CollectingEvent.where('id in (?)', ce.flatten.map(&:id).uniq)
+   #ce = []
+   #pieces.each { |o|
+   #  ce.push(o.collecting_events_through_georeferences.to_a)
+   #  ce.push(o.collecting_events_through_georeference_error_geographic_item.to_a)
+   #}
+   #pieces = CollectingEvent.where('id in (?)', ce.flatten.map(&:id).uniq)
 
-    pieces.excluding(self)
+   #pieces.excluding(self)
   end
+
+
+
 
   # @return [Scope]
   # Find all (other) CEs which have GIs or EGIs (through georeferences) which intersect self

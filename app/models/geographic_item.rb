@@ -9,18 +9,15 @@ require 'rgeo'
 #
 # @!attribute line_string
 #   @return [RGeo::Geographic::ProjectedLineStringImpl]
-#   @TODO check @return type
 #
 # @!attribute polygon
 #   @return [RGeo::Geographic::ProjectedPolygonImpl]
 #
 # @!attribute multi_point
 #   @return [RGeo::Geographic::ProjectedMultiPointImpl]
-#   @TODO check @return type
 #
 # @!attribute multi_line_string
 #   @return [RGeo::Geographic::ProjectedMultiLineStringImpl]
-#   @TODO check @return type
 #
 # @!attribute multi_polygon
 #   @return [RGeo::Geographic::ProjectedMultiPolygonImpl]
@@ -686,7 +683,7 @@ class GeographicItem < ActiveRecord::Base
   #   a sql fragment that selects the pertinent column as a geometry,
   #   must be variously wrapped
   def self.geometry_column_case_sql
-    "CASE type
+    "CASE geographic_items.type
         WHEN 'GeographicItem::MultiPolygon' THEN multi_polygon::geometry
         WHEN 'GeographicItem::Point' THEN point::geometry
         WHEN 'GeographicItem::LineString' THEN line_string::geometry
