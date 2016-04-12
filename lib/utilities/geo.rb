@@ -63,19 +63,30 @@ To add a new (discovered) symbol:
     # 123 km > 123 km. > 123 kilometers
     #
     def self.elevation_in_meters(elev_in)
-      elev_in = '0.0 meters' if elev_in.blank?
-      elev_in.strip.downcase!
-      pieces = elev_in.split(' ')
-      scale  = 1.0 # default is meters
+      elev_in   = '0.0 meters' if elev_in.blank?
+      elevation = elev_in.strip.downcase
+      pieces    = elevation.split(' ')
+      value     = elevation.to_f
+      if pieces.count > 1 # two pieces, second is distance unit
+        piece = 1
+      else # one piece, may contain distance unit.
+        if elevation.include?('.')
+          value = elevation.to_f
+        else
+          value = elevation.to_i
+        end
+        piece = 0
+      end
+      scale = 1.0 # default is meters
 
-      /(?<ft>f[oe]*[t]*\.*)|(?<m>[^k]m(eters)*[\.]*)|(?<km>kilometer(s)*|k[m]*[\.]*)/ =~ pieces[1]
+      /(?<ft>f[oe]*[t]*\.*)|(?<m>[^k]m(eters)*[\.]*)|(?<km>kilometer(s)*|k[m]*[\.]*)/ =~ pieces[piece]
       # scale = $&
 
       scale = 1.0 unless m.blank?
       scale = 0.3048 unless ft.blank?
       scale = 1000.0 unless km.blank?
 
-      elev = pieces[0].to_f * scale
+      elev = value * scale
 
       elev
     end
