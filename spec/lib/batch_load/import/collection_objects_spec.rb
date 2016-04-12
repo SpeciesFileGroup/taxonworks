@@ -39,6 +39,8 @@ describe BatchLoad::Import::CollectionObjects, type: :model do
     it 'begins to take form' do
       bingo = import
       expect(bingo).to be_truthy
+      expect(Namespace.count).to eq(1)
+      expect(Otu.count).to eq(1)
     end
   end
 end

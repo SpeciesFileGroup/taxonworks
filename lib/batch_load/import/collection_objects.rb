@@ -4,6 +4,8 @@ module BatchLoad
 
     attr_accessor :collection_objects
 
+    attr_accessor :namespace
+
     def initialize(**args)
       @collection_objects = {}
       super(args)
@@ -14,18 +16,39 @@ module BatchLoad
       i          = 1 # accounting for headers
       # identifier namespace
       local_name = csv.headers[0]
-      n_s        = Namespace.find_or_create_by(name: local_name, short_name: local_name)
+      ns1        = Namespace.where(short_name: local_name).first
+      ns2 - Namespace.first_or_create(name: 'Arbitrary Name', short_name: 'ns2')
+      id1 - row[local_name]
       csv.each do |row|
-        i += 1
+        # find a namespace (ns1) with a short_name of headers[0] (local_name)
+        # find a collection_object which has an identifier which has a namespace (ns1), and a cached of
+        # (ns1.short_name + ' ' + identifier.identifier)
+        co  = CollectionObject.joins(:identifiers).where(identifiers: {cached: "#{ns1.short_name} #{id1}"}).first
+        otu = Otu.find_or_create_by(name: row[2])
+        td  = TaxonDetermination.create(otu:               otu,
+                                        collection_object: co)
+        ce  = CollectingEvent.create(verbatim_locality:                row['verbatim_location'],
+                                     verbatim_geolocation_uncertainty: row['error'],
+                                     verbatim_date:                    row['date'],
+                                     start_date_day:                   row['day'],
+                                     start_date_month:                 row['month'],
+                                     start_date_year:                  row['year'],
+                                     verbatim_longitude:               row['longitude'],
+                                     verbatim_latitude:                row['latitude'],
+                                     verbatim_method:                  row['method'])
+        gr  = Georeference.create(collecting_event: ce,
+                                  type:             'Georeference::GeoLocate')
 
-        # otu   = Otu.find_or_create_by(name: row[2])
-        # c_e   = CollectingEvent.find(row[4])
-        # gr    = GeoLocate.new()
+        co.collecting_ecent = ce
+
+        Identifier::Local::TripCode.new(namespace: ns2, identifier: row['collecting event #'])
+        # error_radius:     Utilities::Geo.elevation_in_meters(row['error']))
         # ident = Identifier.find_or_create_by(identifier:   row[0],
         #                                      namespace_id: n_s.id,
         #                                      type:         'Identifier::Local::Import',
         # )
 
+        i += 1
       end
       @total_lines = i - 1
     end
