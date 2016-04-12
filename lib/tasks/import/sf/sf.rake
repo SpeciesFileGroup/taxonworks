@@ -117,10 +117,13 @@ namespace :tw do
 
             puts "\n  is a unique user, creating:  #{i}: #{row['Name']}"
 
+
+            person_email = Faker::Internet.email
+
             u = User.new(
                 name: row['Name'],
                 password: '12345678',
-                email: "me@myproject.com"
+                email: "#{person_email}"             # "me@myproject.com"
 
             )
 
