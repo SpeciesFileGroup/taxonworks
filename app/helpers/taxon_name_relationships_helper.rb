@@ -32,7 +32,7 @@ module TaxonNameRelationshipsHelper
     return nil if taxon_name_relationship.nil?
     [ taxon_name_link(taxon_name_relationship.subject_taxon_name),
       taxon_name_relationship.subject_taxon_name.cached_author_year
-    ].join(' ') + content_tag(:span, taxon_name_relationship.object_relationship_name, class: :string_emphasis)
+    ].join(' ') + content_tag(:span, ' ' + taxon_name_relationship.object_relationship_name, class: :string_emphasis)
   end
 
   def type_taxon_name_relationship_tag(taxon_name_relationship)

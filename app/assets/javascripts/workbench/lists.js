@@ -8,6 +8,24 @@ function list() {
 var
   animationTime = 250;
 
+
+$('.tooltip').tooltipster({
+   animation: 'fade',
+   delay: 200,
+   position: 'bottom',
+   theme: 'tooltipster-default',
+   touchDevices: false,
+   trigger: 'hover'
+});
+
+$('.tooltip-help').tooltipster({
+  animation: 'fade',
+  delay: 200,
+  position: 'bottom',
+  content: $('<div class="tooltip-help-box separate-left separate-right"><h2 data-icon="help">List information</h2><hr><h3><span class="small-icon" data-icon="arrow-right">Column header</span></h3><span><b>Click</b> on the column header <b>to sort records</b> from highest to lowest, making <b>right click</b> on them it will <b>open a context menu</b> to hide them.</span><h3 class="small-icon" data-icon="arrow-right"><span>List records</span></h3><span>Make <b>double click</b> on a record to <b>show it</b>.<br> Doing <b>right click</b> on it, will <b>open a context menu</b> with a few options.<h3 class="small-icon" data-icon="arrow-right">Shortcuts</h3> Use the left and right keyboard arrows to navigate on the pages</span><h3 class="small-icon" data-icon="arrow-right">Display</h3> Click on the buttoms to hide or show columns groups</span></div>')
+});
+
+
 function showAll() {
     $('th, td').not('.table-options').show(animationTime);
     $('[data-filter-active]').attr("data-filter-active","true");
@@ -48,6 +66,9 @@ displayList = unique(dataList);
 if(displayList.length > 0) {
   $('.panels-container').append(createDivDisplay());
 }
+
+
+
 
 function createDivDisplay() {
     var

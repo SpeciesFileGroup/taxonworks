@@ -25,7 +25,8 @@
             <%= content_tag(:span,latinization_tag(@taxon_name)) -%>
           </div>
           <ul class="horizontal_navbar context-menu">
-            <!-- <li><a href="#" data-icon="show" class="icon-list" view-bottom>Development view</a></li>-->
+          <li>| + |</li>
+          <li>| - |</li>
           </ul>
         </div>
         <div id="filterBrowse" class="navigation-controls">
@@ -67,7 +68,7 @@
             </div>
           </div>
         </div>
-
+        
       <div class="flex-wrap-row"> 
     <div id="validation-panel" class="panel fullSize content separate-left separate-bottom">
       <%= render(partial: '/shared/data/all/show/soft_validation', locals: {object: @taxon_name}) -%> 
