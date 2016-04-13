@@ -43,16 +43,15 @@ namespace :tw do
       # end
 
 
-
       desc 'import users'
       task :import_users => [:data_directory, :environment, :user_id] do
         @user_index = {}
         @project = Project.find_by_name('Orthoptera Species File')
+        $project_id = @project.id
+        project_url = 'orthopteraspeciesfile.org'
 
         predicates = {
-            'FileUserID' => Predicate.create(name: 'tblFileUsers.FileUserID', definition: 'FileUserID in table tblFileUsers.') ,
-            'FullName' => Predicate.create(name: 'tblFileUsers.FullName', definition: 'FullName in table tblFileUsers.') ,
-            'TaxaShowspecs' => Predicate.create(name: 'tblFileUsers.TaxaShowspecs', definition: 'TaxaShowspecs in table tblFileUsers.')
+            'AuthUserID' => Predicate.find_or_create_by(name: 'AuthUserID', definition: 'Unique user name id', project_id: $project_id)
         }
 
         # ProjectMembers: id, project_id, user_id, created_at, updated_at, created_by_id, updated_by_id, is_project_administrator
@@ -62,7 +61,6 @@ namespace :tw do
         #   hub_tab_order, api_access_token, is_flagged_for_password_reset, footprints, sign_in_count,
         #     * Annotations: FullName, TaxaShowSpecs, CiteShowSpecs, SpmnShowSpecs
         #     * Since no annotations for project_member, could add notes to Users for (Access, LastLogin, NumLogins, LastEdit, NumEdits) by SF
-
 
         # tblFileUsers: FileUserID, AuthUserID, FileID, Access, LastLogin, NumLogins, LastEdit, NumEdits, CreatedOn, CreatedBy
         # tblAuthUsers: AuthUserID, Name, HashedPassword, FullName, TaxaShowSpecs, CiteShowSpecs, SpmnShowSpecs, LastUpdate, ModifiedBy,
@@ -74,10 +72,9 @@ namespace :tw do
         #
 
         # find unique editors/admin, i.e. people getting users accounts in TW
-
-        unique_sf_users = {}
-
-        sf_file_id_to_auth_user_id = {}
+        unique_auth_users = {}
+        file_user_id_to_auth_user_id = {}
+        file_user_id_to_tw_user_id = {}
 
         path = @args[:data_directory] + 'tblFileUsers.txt'
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: "UTF-16:UTF-8")
@@ -85,22 +82,20 @@ namespace :tw do
         file.each_with_index do |row, i|
           au_id = row['AuthUserID']
           fu_id = row['FileUserID']
-          next if row['Access'].to_i == 0  # probably not 8 either
+          next if [0, 8].freeze.include?(row['Access'].to_i)    # next if row['Access'].to_i == 0 # probably not 8 either
 
-          puts "WARNING - NON UNIQUE FileUserID" if sf_file_id_to_auth_user_id[fu_id]
-          sf_file_id_to_auth_user_id[fu_id] = au_id
+          puts "WARNING - NON UNIQUE FileUserID" if file_user_id_to_auth_user_id[fu_id]
+          file_user_id_to_auth_user_id[fu_id] = au_id
 
-          if unique_sf_users[au_id]
-            unique_sf_users[au_id].push fu_id
+          if unique_auth_users[au_id]
+            unique_auth_users[au_id].push fu_id
           else
-            unique_sf_users[au_id] = [ fu_id ]
+            unique_auth_users[au_id] = [fu_id]
           end
         end
 
-        puts unique_sf_users
-        puts sf_file_id_to_auth_user_id
-
-        file_user_id_to_tw_user_id = {}
+        puts unique_auth_users
+        puts file_user_id_to_auth_user_id
 
         path = @args[:data_directory] + 'tblAuthUsers.txt'
         print "\nImporting users\n"
@@ -112,64 +107,65 @@ namespace :tw do
 
           print "working with #{au_id}"
 
-
-          if unique_sf_users[ au_id ]
-
+          if unique_auth_users[au_id]
+            # au_string = 'auth_user_' + au_id.to_s
             puts "\n  is a unique user, creating:  #{i}: #{row['Name']}"
-
-
-            person_email = Faker::Internet.email
 
             u = User.new(
                 name: row['Name'],
                 password: '12345678',
-                email: "#{person_email}"             # "me@myproject.com"
-
+                email: 'auth_user_' + au_id.to_s + '_' + rand(1000).to_s + '@' + project_url
             )
 
-
             if u.valid?
-
               u.save!
 
-              unique_sf_users[au_id].each do |fu_id|
+              unique_auth_users[au_id].each do |fu_id|
                 file_user_id_to_tw_user_id[fu_id] = u.id
               end
 
-              @user_index[row['FileUserId']] = u.id
+              @user_index[row['FileUserId']] = u.id # maps multiple FileUserIDs onto single TW user.id
+
+              # create AuthUserID as data attribute for table users
+              u.data_attributes << InternalAttribute.new(predicate: predicates['AuthUserID'], value: au_id)
+
+              ProjectMember.create(user: u, project: @project)
             else
-              puts "     ERROR: " +  u.errors.full_messages.join(';')
+              puts "     ERROR: " + u.errors.full_messages.join(';')
             end
+
           else
-            print " skipping, no access code\n"
+            print " skipping, public access only\n"
           end
+
         end
 
-
-        #  CollectionObjec.create(asfasdf, created_by: file_user_id_to_tw_user_id[row['CreatedBy'], updated_by: file_user_id_to_tw_user_id[row['ModifiedBy']]])
-
-
-
-        ap file_user_id_to_tw_user_id
-
-         # ProjectMember.create(user: u, project: @project)
-
-         # %w{FileUserId FullName TaxaShowspecs}.each do |c|
-         #   InternalAttribute.create(predicate: predicates[c], value: row[c], by: u, project: @project) if not row[c].blank?
-         # end
-
-          # u.projects << @project             # both of these lines equivalent to above
-          # @project.project_members << u
-
-          # att = DataAttribute.new(predicate: p, value: '6', type: 'InternalAttribute', attribute_subject: s, is_community_annotation: true)
-          # u.data_attributes.new(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['Typification'].id, value: ('Lectotype designation: ' + row['Author'].to_s + ', ' + row['Year'].to_s + row['YearRem'].to_s).squish)
+        # display user mappings
+        ap unique_auth_users              # list of unique authorized users (who have edit+ access via FileUserIDs)
+        ap file_user_id_to_auth_user_id   # map multiple FileUserIDs onto single AuthUserID
+        ap file_user_id_to_tw_user_id     # map multiple FileUserIDs on single TW user.id
 
 
+
+
+        # ProjectMember.create(user: u, project: @project)
+
+        # %w{FileUserId FullName TaxaShowspecs}.each do |c|
+        #   InternalAttribute.create(predicate: predicates[c], value: row[c], by: u, project: @project) if not row[c].blank?
+        # end
+
+        # u.projects << @project             # both of these lines equivalent to above
+        # @project.project_members << u
+
+        # att = DataAttribute.new(predicate: p, value: '6', type: 'InternalAttribute', attribute_subject: s, is_community_annotation: true)
+        # u.data_attributes.new(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['Typification'].id, value: ('Lectotype designation: ' + row['Author'].to_s + ', ' + row['Year'].to_s + row['YearRem'].to_s).squish)
+
+        #  CollectionObject.create(asfasdf, created_by: file_user_id_to_tw_user_id[row['CreatedBy'], updated_by: file_user_id_to_tw_user_id[row['ModifiedBy']]])
 
       end
 
 
-# A utility class to index data.
+      # A utility class to index data.
       class ImportedDataSf
         # attr_accessor :people_index, :user_index, :publications_index, :citations_index, :genera_index, :images_index,
         #               :parent_id_index, :statuses, :taxon_index, :citation_to_publication_index, :keywords,
