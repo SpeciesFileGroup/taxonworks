@@ -1,25 +1,10 @@
 require 'fileutils'
 
-### rake tw:project_import:sf:import_all data_directory=/Users/mbeckman/src/onedb2tw/working/ no_transaction=true
+### rake tw:project_import:orth_sf:import_users user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/ no_transaction=true
 
 namespace :tw do
   namespace :project_import do
     namespace :orth_sf do
-
-
-      # desc 'this gets exported with rake --task'
-      # task :import_all => [:environment, :project_id, :user_id, :create_otu] do
-      #   puts "hello world"
-      #   puts "my project id is #{$project_id}"
-      #   puts "my user id is #{$user_id}"
-      #
-      #
-      # end
-      #
-      # task :create_otu do
-      #   otu = Otu.create!(name: 'my rake otu')
-      #   puts "I created an OTU called #{otu.name}"
-      # end
 
       task :create_project => [:environment, :user_id] do
         # @import_name = 'sf'
@@ -28,23 +13,9 @@ namespace :tw do
         @sf_file_id = 1 # OrthopteraSF FileID = 1
       end
 
-      # example aggregate tasks
-      # task :create_refs => [:environment, :create_users, :create_projects]   do
-      #
-      # end
-      #
-      # task :create_collection_objects => [:environment, :create_users, :create_projects] do
-      #
-      #
-      # end
-      #
-      # task :master_loop => [:create_refs, :create_collection_objects] do
-      #
-      # end
 
-
-      desc 'import users'
-      task :import_users => [:data_directory, :environment, :user_id] do
+      desc 'create users'
+      task :create_users => [:data_directory, :environment, :user_id] do
         @user_index = {}
         @project = Project.find_by_name('Orthoptera Species File')
         $project_id = @project.id
@@ -67,9 +38,7 @@ namespace :tw do
         #   CreatedOn, CreatedBy
 
         # Fields for potential data attributes
-        #
-        #
-        #
+        #   AuthUserID
 
         # find unique editors/admin, i.e. people getting users accounts in TW
         unique_auth_users = {}
@@ -82,7 +51,7 @@ namespace :tw do
         file.each_with_index do |row, i|
           au_id = row['AuthUserID']
           fu_id = row['FileUserID']
-          next if [0, 8].freeze.include?(row['Access'].to_i)    # next if row['Access'].to_i == 0 # probably not 8 either
+          next if [0, 8].freeze.include?(row['Access'].to_i) # next if row['Access'].to_i == 0 # probably not 8 either
 
           puts "WARNING - NON UNIQUE FileUserID" if file_user_id_to_auth_user_id[fu_id]
           file_user_id_to_auth_user_id[fu_id] = au_id
@@ -98,7 +67,7 @@ namespace :tw do
         puts file_user_id_to_auth_user_id
 
         path = @args[:data_directory] + 'tblAuthUsers.txt'
-        print "\nImporting users\n"
+        print "\nCreating users\n"
         raise "file #{path} not found" if not File.exists?(path)
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: "UTF-16:UTF-8")
 
@@ -108,7 +77,6 @@ namespace :tw do
           print "working with #{au_id}"
 
           if unique_auth_users[au_id]
-            # au_string = 'auth_user_' + au_id.to_s
             puts "\n  is a unique user, creating:  #{i}: #{row['Name']}"
 
             u = User.new(
@@ -141,58 +109,56 @@ namespace :tw do
         end
 
         # display user mappings
-        ap unique_auth_users              # list of unique authorized users (who have edit+ access via FileUserIDs)
-        ap file_user_id_to_auth_user_id   # map multiple FileUserIDs onto single AuthUserID
-        ap file_user_id_to_tw_user_id     # map multiple FileUserIDs on single TW user.id
-
-
-
-
-        # ProjectMember.create(user: u, project: @project)
-
-        # %w{FileUserId FullName TaxaShowspecs}.each do |c|
-        #   InternalAttribute.create(predicate: predicates[c], value: row[c], by: u, project: @project) if not row[c].blank?
-        # end
-
-        # u.projects << @project             # both of these lines equivalent to above
-        # @project.project_members << u
-
-        # att = DataAttribute.new(predicate: p, value: '6', type: 'InternalAttribute', attribute_subject: s, is_community_annotation: true)
-        # u.data_attributes.new(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['Typification'].id, value: ('Lectotype designation: ' + row['Author'].to_s + ', ' + row['Year'].to_s + row['YearRem'].to_s).squish)
-
-        #  CollectionObject.create(asfasdf, created_by: file_user_id_to_tw_user_id[row['CreatedBy'], updated_by: file_user_id_to_tw_user_id[row['ModifiedBy']]])
+        puts 'unique authorized users with edit+ access'
+        ap unique_auth_users # list of unique authorized users (who have edit+ access via FileUserIDs)
+        puts 'multiple FileUserIDs mapped to single AuthUserID'
+        ap file_user_id_to_auth_user_id # map multiple FileUserIDs onto single AuthUserID
+        puts 'multiple FileUserIDs mapped to single TW user.id'
+        ap file_user_id_to_tw_user_id # map multiple FileUserIDs on single TW user.id
 
       end
 
+      desc 'create people'
+      task :create_people => [:data_directory, :environment, :user_id] do
+        @project = Project.find_by_name('Orthoptera Species File')
+        $project_id = @project.id
+        # project_url = 'orthopteraspeciesfile.org'
 
-      # A utility class to index data.
-      class ImportedDataSf
-        # attr_accessor :people_index, :user_index, :publications_index, :citations_index, :genera_index, :images_index,
-        #               :parent_id_index, :statuses, :taxon_index, :citation_to_publication_index, :keywords,
-        #               :incertae_sedis, :emendation, :original_combination, :unique_host_plant_index, :host_plant_index
+        path = @args[:data_directory] + 'tblPeople.txt'
+        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: "UTF-16:UTF-8")
+
+        # Two loops:
+        # Loop # 1
+        # loop through entire table (22004 entries)
+        # process only those rows where row['PrefID'] == 0
+        # create person, how to assign original housekeeping (save hashes from create_users)?
+        # save person, validate, etc.
+        # save PersonID as identifier or data_attribute or ??
+        # save Role (bitmap) as data_attribute (?) for later role assignment; Role & 256 = 256 should indicate name is deletable, but it is often incorrectly set!
+        # make SF.PersonID and TW.person.id hash (for processing in second loop)
         #
-        # def initialize()
-        #   @keywords = {} # keyword -> ControlledVocabularyTerm
-        #   @people_index = {} # PeopleID -> Person object
-        #   @user_index = {} # PeopleID -> User object
-        #   @publications_index = {} # Key3 -> Surce object
-        #   @citations_index = {} # NEW_REF_ID -> row
-        #   @citation_to_publication_index = {} # NEW_REF_ID -> source.id
-        #   @genera_index = {} # GENUS_NUMBER -> row
-        #   @images_index = {} # TaxonNo -> row
-        #   @parent_id_index = {} # Rank:TaxonName -> Taxon.id
-        #   @statuses = {}
-        #   @taxon_index = {} #Key -> Taxon.id
-        #   @in
-        certae_sedis = {} #for those taxa which have a parent of incertae sedis
-        #   @emendation = {} # taxon name emendation source reference key => row
-        #   @original_combination = {} # original combination key => row
-        #   @unique_host_plant_index = {}
-        #   @host_plant_index = {}
-        # end
+        # Loop # 2
+        # loop through entire table
+        # process only those rows where row['PrefID'] > 0
+        # identify tw.person.id via row['PrefID'] in hash
+        # create alternate_value for tw.person.id using last_name only
+        #
+
+
+
       end
 
 
+
+
+
+
+
+
+
+
+
+      ##################################################################################################################
       def main_build_loop_sf
         print "\nStart time: #{Time.now}\n"
 
@@ -259,7 +225,6 @@ namespace :tw do
 
         @data.keywords.merge!('sf_imported' => Keyword.find_or_create_by(name: 'sf_imported', definition: 'Imported from SF database.'))
       end
-
 
     end
   end
