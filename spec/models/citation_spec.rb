@@ -51,12 +51,14 @@ describe Citation, type: :model, group: :annotators do
   end
 
   context 'with a Topic created' do
-    let(:t) { FactoryGirl.create(:valid_citation_topic) }
+    let(:ct) { FactoryGirl.create(:valid_citation_topic) }
     let(:o) { FactoryGirl.create(:valid_otu) }
     let(:s) { FactoryGirl.create(:valid_source_bibtex) }
     let(:c1) { FactoryGirl.create(:valid_citation, {citation_object: o,
                                                     source:          s,
-                                                    citation_topics: [t]}) }
+                                                    citation_topics: [ct]}) }
+    let(:t) { FactoryGirl.create(:valid_topic) }
+
 
     context 'nested attribute passed during create' do
       specify 'on save' do
@@ -64,7 +66,17 @@ describe Citation, type: :model, group: :annotators do
         expect(c1.citation_topics.size).to eq(1)
       end
     end
-   end
+
+    specify 'create a new citation with a citation_topic through nested attributes' do
+      o.citations << Citation.new(source: s, citation_topics_attributes: [ {topic: t} ])
+      expect(o.topics.all).to include(t) 
+    end
+
+    specify 'creating a new citation rejects citation_topic when topic not provided' do
+      expect(o.citations << Citation.new(source: s, citation_topics_attributes: [ {pages: '123'} ])).to be_truthy
+      expect(o.topics.count).to eq(0)
+    end
+  end
 
   context 'concerns' do
     it_behaves_like 'is_data'

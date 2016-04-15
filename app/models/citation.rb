@@ -29,9 +29,13 @@ class Citation < ActiveRecord::Base
   belongs_to :source, inverse_of: :citations
 
   has_many :citation_topics, inverse_of: :citation
+  has_many :topics, through: :citation_topics
 
   validates_presence_of  :source_id
   validates_uniqueness_of :source_id, scope: [:citation_object_type, :citation_object_id]
+
+  accepts_nested_attributes_for :citation_topics, allow_destroy: true, reject_if: :reject_citation_topics
+  accepts_nested_attributes_for :topics, allow_destroy: true, reject_if: :reject_topic
 
   # @return [Scope of matching sources]
   def self.find_for_autocomplete(params)
@@ -62,6 +66,14 @@ class Citation < ActiveRecord::Base
         }
       end
     end
+  end
+
+  def reject_citation_topics(attributed)
+    attributes['id'].blank? && attributed['topic_id'].blank? && attributed['topic'].blank? && attributed['topic_attributes'].blank?
+  end
+
+  def reject_topic(attributed)
+    attributed['name'].blank? || attributed['definition'].blank?
   end
 
 end

@@ -1,22 +1,19 @@
-<%= form_for(@citation_topic) do |f| %>
-    <%= render 'shared/errors', object: @citation_topic %>
+<div class="field">
+  <%= ct.label :topic_id %>
+  <br>
+  <%= render partial: 'workbench/elements/forms/ajax_select',
+    locals: {controller:  '/topics',
+             object:       "citation[citation_topics_attributes][#{ct.index}]",
+             method:       'topic_id',
+             tag_id:       "topic_id_for_citation_topics_attributes_#{ct.index}",
+             display:      topic_tag(ct.object.topic)} 
+           %>
+</div>
 
-    <div class="field">
-      <%= f.label :topic_id %>
-      <br>
-      <%= f.number_field :topic_id %>
-    </div>
-    <div class="field">
-      <%= f.label :citation_id %>
-      <br>
-      <%= f.number_field :citation_id %>
-    </div>
-    <div class="field">
-      <%= f.label :pages %>
-      <br>
-      <%= f.text_field :pages %>
-    </div>
-    <div class="actions">
-      <%= f.submit %>
-    </div>
-<% end %>
+<div class="field">
+  <%= ct.label :pages %>
+  <br>
+  <%= ct.text_field :pages %>
+</div>
+
+
