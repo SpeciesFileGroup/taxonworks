@@ -48,7 +48,7 @@ PSUC	35484	Hetaerina americana	Hetaerina americana		Collecting Event No.	59287	L
 PSUC	35384	Hetaerina americana	Hetaerina americana		Collecting Event No.	59296	Local::TripCode	7.28.1959	7	28	1959	21.8 mi NW: Presa el Marques; pool near Rio Tequisistlan	16.498541	-95.450792			
 PSUC	42317	Hetaerina americana	Hetaerina americana		Collecting Event No.	59299	Local::TripCode	7.29.1959	7	29	1959	14.7 mi E: Ojo de Agua, 1 mi N of highway 190	16.586575	-94.873742			
 PSUC	35509	Hetaerina americana	Hetaerina americana		Collecting Event No.	59300	Local::TripCode	7.30.1959	7	30	1959	Rio Blanco at Chiapa	16.746909	-92.967035			
-PSUC	35554	Hetaerina americana	Hetaerina americana		Collecting Event No.	59302	Local::TripCode	7.31.1959	7	31	1959	"Arroyo de Rancho San Joaquin" 14.8 mi. S. of Tuxtla Gutierrez, CHIS., on road to Suchiapa; 1500'. 31.vii.1959	16.541551	-93.079533	2.11	km	GEOLocate
+PSUC	35554	Hetaerina americana	Hetaerina americana		Collecting Event No.	59302	Local::TripCode	7.31.1959	7	31	1959	"""Arroyo de Rancho San Joaquin"" 14.8 mi. S. of Tuxtla Gutierrez, CHIS., on road to Suchiapa; 1500'. 31.vii.1959"	16.541551	-93.079533	2.11	km	GEOLocate
 PSUC	35388	Hetaerina americana	Hetaerina americana		Collecting Event No.	59305	Local::TripCode	8.1.1959	8	1	1959	small stream crossing road at La Gloria, 0.2 mi. N. of H'way #190 at a point 4.3 mi. W. of Tuxtla Gutierrez, CHIS.; 1200'. 1.viii.1959	16.775081	-93.201033	5488	m	GEOLocate
 PSUC	37871	Hetaerina americana	Hetaerina americana		Collecting Event No.	59305	Local::TripCode	8.1.1959	8	1	1959	small stream crossing road at La Gloria, 0.2 mi. N. of H'way #190 at a point 4.3 mi. W. of Tuxtla Gutierrez, CHIS.; 1200'. 1.viii.1959	16.775081	-93.201033	5488	m	GEOLocate
 PSUC	35369	Hetaerina americana	Hetaerina americana		Collecting Event No.	59308	Local::TripCode	8.2.1959	8	2	1959	Tehuantepec: 6.4 mi NE irrigation canal	16.376327	-95.158886	4133	m	GEOLocate
@@ -123,7 +123,7 @@ PSUC	40901	Hetaerina americana	Hetaerina americana		Collecting Event No.	59306B	
 PSUC	35612	Hetaerina americana	Hetaerina americana		Collecting Event No.	59310A	Local::TripCode	8.2.1959	8	2	1959	14.7 mi E: Ojo de Agua, 1 mi N of highway 190	16.586575	-94.873742			
 PSUC	36751	Hetaerina americana	Hetaerina americana		Collecting Event No.	59310A	Local::TripCode	8.2.1959	8	2	1959	14.7 mi E: Ojo de Agua, 1 mi N of highway 190	16.586575	-94.873742			
 PSUC	35482	Hetaerina americana	Hetaerina americana		Collecting Event No.	59310B	Local::TripCode	8.3.1959	8	3	1959	14.7 mi E: Ojo de Agua, 1 mi N of highway 190	16.586575	-94.873742			
-PSUC	98958	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	7.31.1956	7	31	1956	"Las Estacas", near Jojutla, Morelos, Mexico					
+PSUC	98958	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	7.31.1956	7	31	1956	"""Las Estacas"", near Jojutla, Morelos, Mexico"					
 PSUC	98173	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	5.3.1958	5	3	1958	5 mi S Plan de Barrancas, Jalisco, Mex	20.970588	-104.209703	9021	m	GEOLocate
 PSUC	95290	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	5.3.1953	5	3	1953	5 mi S Plan de Barrancas, Jalisco, Mex	20.970588	-104.209703	9021	m	GEOLocate
 PSUC	92347	Hetaerina americana	Hetaerina americana		Collecting Event No.		Local::TripCode	5.3.1953	5	3	1953	5 mi S Plan de Barrancas, Jalisco, Mex	20.970588	-104.209703	9021	m	GEOLocate
