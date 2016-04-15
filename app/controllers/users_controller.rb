@@ -1,7 +1,10 @@
 class UsersController < ApplicationController
 
+  before_action :require_sign_in, only: [:recently_created_stats, :recently_created]
+
   before_action :require_administrator_sign_in, only: [:index, :destroy]
   before_action :require_superuser_sign_in, only: [:new, :create]
+  
   before_action :set_user, only: [:show, :edit, :update, :destroy, :recently_created_stats, :recently_created_data]
   before_action :validate_user_id_belongs_to_user_or_require_a_superuser, only: [:show, :edit, :update] 
 
@@ -59,7 +62,6 @@ class UsersController < ApplicationController
   
   # GET /forgot_password
   def forgot_password
-
   end
 
   # POST /send_password_reset
