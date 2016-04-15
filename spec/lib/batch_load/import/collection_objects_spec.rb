@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe BatchLoad::Import::CollectionObjects, type: :model do
 
-  let(:file_name) { 'spec/files/batch/collection_object/CollectionObjectTest.txt' }
+  let(:file_name) { 'spec/files/batch/collection_object/CollectionObjectTest.tsv' }
   let(:psuc) { [0, 35614, 39024, 37926, 38919, 38866, 35628, 39770, 35423, 40857, 35397, 35467, 35463,
                 35553, 35401, 35543, 40893, 35441, 37991, 35382, 35406, 39509, 35399, 35352, 41614, 42247, 84016,
                 35404, 39866, 35530, 37881, 35600, 35599, 35465, 41861, 39887, 35531, 42578, 40112, 39785, 35550,
