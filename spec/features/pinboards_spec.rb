@@ -5,40 +5,36 @@ RSpec.describe "Pinboards", type: :feature do
   context 'signed in witha project selected' do
     before {sign_in_user_and_select_project}
     context 'pinning items' do
+      let!(:o) { Otu.create(name: 'Pinny', by: @user, project: @project) }
 
-=begin
-  with an otu created (named "Pinny")
-  when I show that otu
-  there is an 'Add to pinboard' link
-  when I click that link
-  there is a message 'Pinboard item was successfully created.'
-  and the link is gone
-  and a message exists: 'this record is pinned!'
-  when I then show dashboard
-  then I see a header 'Otus' under Pinboard
-  and I ses a link to 'Pinny'
-=end
+      context 'when on a show page' do
+        before do
+          visit otu_path(o)
+        end
 
-      before {
-        Otu.create(name: 'Pinny', by: @user, project: @project)
-      }
-      
-      specify 'create a pin' do # fails with js: true, likely because of js styling of items in recent list
-        visit otus_path
+        specify 'a Pin link is visible' do # fails with js: true, likely because of js styling of items in recent list
+          expect(page.has_link?('Pin')).to be_truthy
+        end
 
-        expect(page).to have_link('Pinny')
+        context 'when Pin is clicked' do
+          before {     click_link('Pin') }
 
-        click_link('Pinny')
-        expect(page.has_link?('Add to pinboard')).to be_truthy
+          specify 'page refreshes and shows as Pinned' do
+            expect(page).to have_content('Pinned')
+          end
 
-        click_link('Add to pinboard')
-        expect(page).to have_content('Pinboard item was successfully created.')
-        expect(page).to have_content('this record is pinned!')
-        expect(page.has_link?('Add to pinboard')).to be_falsey
+          specify 'and link is gone (should be changed to "Unpin"!)' do 
+            expect(page.has_link?('Pin')).to be_falsey
+          end
 
-        visit root_path
-        expect(page).to have_selector('h3', 'Otus')
-        expect(page).to have_link('Pinny')
+          context 'when root path is visited' do
+            before {        visit root_path }
+            specify 'item is listed on pinboard' do
+              expect(page).to have_selector('h3', 'Otus')
+              expect(page).to have_link('Pinny')
+            end
+          end
+        end
       end
     end
   end 

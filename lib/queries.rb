@@ -38,8 +38,20 @@ module Queries
       query_string.split(/\s+/).select{|t| Utilities::Strings.is_i?(t)}
     end
 
+    def strings
+      query_string.split(/\s+/).select{|t| !(t =~ /\d+/)} 
+    end
+
+    def years
+      integers.select{|a| a =~ /\d\d\d\d/}.map(&:to_s)
+    end
+
     def build_terms
       @terms = query_string.split(/\s+/).compact.collect{|t| [t, "#{t}%", "%#{t}%"]}.flatten # , "#{t}%", "%#{t}%"
+    end
+    
+    def no_digits 
+      query_string.gsub(/\d/, '').strip
     end
 
     def dynamic_limit

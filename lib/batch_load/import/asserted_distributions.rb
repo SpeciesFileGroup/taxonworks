@@ -12,6 +12,12 @@ module BatchLoad
       super(args)
     end
 
+    # when this routine is invoked, the following class variables must be instantiated:
+    #   @project_id
+    #   @user
+    #   @data_origin: one of:
+    #                       ["gadm", "SFG", "ne_states", "country_names_and_code_elements",
+    #                         "ne_countries", "tdwg_l3", "tdwg_l2", "tdwg_l1", "tdwg_l4"]
     def build_asserted_distributions
       i = 1
       csv.each do |row|

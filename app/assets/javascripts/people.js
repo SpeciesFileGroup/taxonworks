@@ -54,9 +54,9 @@ function initialize_autocomplete(form) {
       bind_hover(form);
     },
     select: function (event, ui) {    // execute on select event in search text box
-      insert_existing_person(form, ui.item.object_id, ui.item.label) 
-    clear_role_picker(form);
-  return false;
+      insert_existing_person(form, ui.item.object_id, ui.item.label);
+      clear_role_picker(form);
+      return false;
     }
   }).autocomplete("instance")._renderItem = function (ul, item) {
     return $("<li class='autocomplete'>")

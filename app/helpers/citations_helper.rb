@@ -9,7 +9,11 @@ module CitationsHelper
     )
    
     str = [citation.citation_object.class.name, ": ", object_tag(citation.citation_object.metamorphosize).html_safe, " in ", citation_string].join
-    str = str + " (pages #{citation.pages})" if !citation.pages.blank?
+    str = str + ": #{citation.pages}." if !citation.pages.blank?
+    if citation.citation_topics.any? 
+      str = str + ' [' + citation.citation_topics.collect{|ct| ct.topic.name + (ct.pages? ? ": #{ct.pages}" : "")}.join(', ') + ']' 
+    end
+    str += '.'
     str.html_safe
   end
 

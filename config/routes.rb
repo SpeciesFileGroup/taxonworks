@@ -315,6 +315,7 @@ TaxonWorks::Application.routes.draw do
     collection do
       get :lookup_topic
       get 'get_definition/:id', action: 'get_definition'
+      get :autocomplete 
     end
   end
 

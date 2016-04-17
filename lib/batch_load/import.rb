@@ -8,7 +8,7 @@ module BatchLoad
   # A generic object for managing CSV based imports
   class Import
 
-    # An index of all rows for which some data was present, 
+    # An index of all rows for which some data was present,
     # index is line number, points to a RowParse instance
     attr_accessor :processed_rows
 
@@ -20,7 +20,7 @@ module BatchLoad
     # File is processable, at the basic level, and is  ready for preview/created
     attr_accessor :processed
 
-    # An attempt was made to create new records 
+    # An attempt was made to create new records
     attr_accessor :create_attempted
 
     attr_accessor :project, :user
@@ -78,13 +78,13 @@ module BatchLoad
     end
 
     def csv
-     #  begin
-      @csv ||= CSV.parse(@file.tempfile.read.force_encoding('utf-8'), {headers: true, header_converters: :downcase, col_sep: "\t",  encoding: "UTF-8"})
-     #  rescue Encoding::UndefinedConversionError => e
-     #    @processed = false
-     #    @file_errors.push("Error converting file. #{e}")
-     #    return nil
-     #  end
+      #  begin
+      @csv ||= CSV.parse(@file.tempfile.read.force_encoding('utf-8'), {headers: true, header_converters: :downcase, col_sep: "\t", encoding: "UTF-8"})
+      #  rescue Encoding::UndefinedConversionError => e
+      #    @processed = false
+      #    @file_errors.push("Error converting file. #{e}")
+      #    return nil
+      #  end
     end
 
     def valid?
@@ -92,7 +92,7 @@ module BatchLoad
       true
     end
 
-    # return [Boolean] whether the instance is configured 
+    # return [Boolean] whether the instance is configured
     def ready_to_create?
       valid? && processed? && import_level_ok?
     end
@@ -126,7 +126,7 @@ module BatchLoad
     end
 
     # Iterates in line order and attempts to save each record
-    # return [true] 
+    # return [true]
     def create
       @create_attempted = true
       if ready_to_create?
@@ -150,7 +150,7 @@ module BatchLoad
       raise 'This method must be provided in each respective subclass.'
     end
 
-    # return [Boolean] whether an attempt at creating records has occured 
+    # return [Boolean] whether an attempt at creating records has occured
     def create_attempted?
       create_attempted
     end
@@ -176,7 +176,7 @@ module BatchLoad
     end
 
     # return [Hash] proccesed rows, sorted by line number
-    #  ?! key order might not persist ?! 
+    #  ?! key order might not persist ?!
     def sorted_processed_rows
       @processed_rows.sort.to_h
     end

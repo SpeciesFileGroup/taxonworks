@@ -6,6 +6,7 @@ class CitationsController < ApplicationController
 
   def new
     @citation = Citation.new(citation_params)
+    # @citation.citation_topics.build
   end
 
   def edit
@@ -76,7 +77,6 @@ class CitationsController < ApplicationController
     end
   end
 
-
   def autocomplete
     @citations = Citation.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
     data = @citations.collect do |t|
@@ -106,6 +106,10 @@ class CitationsController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def citation_params
-    params.require(:citation).permit(:citation_object_type, :citation_object_id, :source_id, :pages)
+    params.require(:citation).permit(
+      :citation_object_type, :citation_object_id, :source_id, :pages, :is_original,
+      citation_topics_attributes: [:id, :_destroy, :pages, :topic_id,
+                                   topic_attributes: [:id, :_destroy, :name, :definition]]
+    )
   end
 end
