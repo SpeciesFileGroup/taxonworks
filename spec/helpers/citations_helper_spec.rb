@@ -6,7 +6,7 @@ describe CitationsHelper, :type => :helper do
     let(:otu) {FactoryGirl.create(:valid_otu, name: 'Tigerbearcat') } 
     let(:source) {FactoryGirl.create(:valid_source_bibtex, author: 'Smith, J.', year: '1929') } 
     let(:citation) { FactoryGirl.create(:valid_citation, citation_object: otu, source: source) }
-    let(:link_text) { 'Otu: Tigerbearcat in Smith, 1929'  }
+    let(:link_text) { 'Otu: Tigerbearcat in Smith, 1929.'  }
 
     specify '.citation_tag format' do
       expect( helper.citation_tag(citation)).to eq( link_text)
