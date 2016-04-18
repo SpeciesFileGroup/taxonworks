@@ -21,10 +21,6 @@ namespace :tw do
         $project_id = @project.id
         project_url = 'orthopteraspeciesfile.org'
 
-        predicates = {
-            'AuthUserID' => Predicate.find_or_create_by(name: 'AuthUserID', definition: 'Unique user name id', project_id: $project_id)
-        }
-
         # ProjectMembers: id, project_id, user_id, created_at, updated_at, created_by_id, updated_by_id, is_project_administrator
         #   * Cannot annotate a project_member
         # Users: id, email, password_digest, created_at, updated_at, remember_token, created_by_id, updated_by_id, is_administrator,
@@ -39,6 +35,11 @@ namespace :tw do
 
         # Fields for potential data attributes
         #   AuthUserID
+
+        # create a ControlledVocabularyTerm of type Predicate (to be used in DataAttribute in User instance below)
+        predicates = {
+            'AuthUserID' => Predicate.find_or_create_by(name: 'AuthUserID', definition: 'Unique user name id', project_id: $project_id)
+        }
 
         # find unique editors/admin, i.e. people getting users accounts in TW
         unique_auth_users = {}
@@ -79,27 +80,27 @@ namespace :tw do
           if unique_auth_users[au_id]
             puts "\n  is a unique user, creating:  #{i}: #{row['Name']}"
 
-            u = User.new(
+            user = User.new(
                 name: row['Name'],
                 password: '12345678',
                 email: 'auth_user_' + au_id.to_s + '_' + rand(1000).to_s + '@' + project_url
             )
 
-            if u.valid?
-              u.save!
+            if user.valid?
+              user.save!
 
               unique_auth_users[au_id].each do |fu_id|
-                file_user_id_to_tw_user_id[fu_id] = u.id
+                file_user_id_to_tw_user_id[fu_id] = user.id
               end
 
-              @user_index[row['FileUserId']] = u.id # maps multiple FileUserIDs onto single TW user.id
+              @user_index[row['FileUserId']] = user.id # maps multiple FileUserIDs onto single TW user.id
 
-              # create AuthUserID as data attribute for table users
-              u.data_attributes << InternalAttribute.new(predicate: predicates['AuthUserID'], value: au_id)
+              # create AuthUserID as DataAttribute as InternalAttribute for table users
+              user.data_attributes << InternalAttribute.new(predicate: predicates['AuthUserID'], value: au_id)
 
               ProjectMember.create(user: u, project: @project)
             else
-              puts "     ERROR: " + u.errors.full_messages.join(';')
+              puts "     ERROR: " + user.errors.full_messages.join(';')
             end
 
           else
@@ -124,6 +125,12 @@ namespace :tw do
         $project_id = @project.id
         # project_url = 'orthopteraspeciesfile.org'
 
+        # create Namespace for Identifier (used in loop below): Species File, tblPeople, SF PersonID
+        # 'Key3' => Namespace.find_or_create_by(name: '3i_Source_ID', short_name: '3i_Source_ID')     # 'Key3' was key in hash @data.keywords.merge! ??
+        Namespace.find_or_create_by(institution: 'Species File', name: 'tblPeople', short_name: 'SF PersonID')
+        Namespace.find_or_create_by(institution: 'Species File', name: 'tblPeople', short_name: 'SF FileID')
+        Namespace.find_or_create_by(institution: 'Species File', name: 'tblPeople', short_name: 'SF Role')
+
         path = @args[:data_directory] + 'tblPeople.txt'
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: "UTF-16:UTF-8")
 
@@ -133,7 +140,7 @@ namespace :tw do
         # process only those rows where row['PrefID'] == 0
         # create person, how to assign original housekeeping (save hashes from create_users)?
         # save person, validate, etc.
-        # save PersonID as identifier or data_attribute or ??
+        # save PersonID as identifier or data_attribute or ?? << probably identifier/local import identifier
         # save Role (bitmap) as data_attribute (?) for later role assignment; Role & 256 = 256 should indicate name is deletable, but it is often incorrectly set!
         # make SF.PersonID and TW.person.id hash (for processing in second loop)
         #
@@ -144,89 +151,134 @@ namespace :tw do
         # create alternate_value for tw.person.id using last_name only
         #
 
+        # tblPeople: *PersonID*, *FileID*, PrefID, [PersonRegID], FamilyName, GivenName, GivenInitials, Suffix, *Role*, [Status], LastUpdate, ModifiedBy, CreatedOn, CreatedBy
+        #   *Field*: Create as identifier?, [Field]: do not import, GivenName/GivenInitials: If GN is blank, use GI
+        #
+        # People: id, type, last_name, first_name, created_at, updated_at, suffix, prefix, created_by_id, updated_by_id, cached
 
+        # @todo Need to reload TW.Users = SF.tblFileUsers
 
-      end
+        file.each_with_index do |row, i|
+          person_id = row['PersonID']
+          pref_id = row['PrefID']
 
+          next if pref_id > 0
 
+          print "working with #{person_id}"
 
+          # if unique_auth_users[au_id]
+          #   puts "\n  is a unique user, creating:  #{i}: #{row['Name']}"
 
+          person = Person.find_or_create_by(
+              type: 'Person_Vetted',
+              last_name: row['FamilyName'],
+              first_name: row['GivenName'].blank? ? row['GivenInitials'] : row['GivenName'],
+              created_at: row['CreatedOn'],
+              updated_at: row['LastUpdate'],
+              suffix: row['Suffix'],
+              # prefix: '',
+              # created_by_id: row['CreatedBy'],
+              # updated_by_id: row['ModifiedBy'],
+              # cached: '?'
+          )
 
+          if person.valid?
+            person.save!
 
+            # unique_auth_users[au_id].each do |fu_id|
+            #   file_user_id_to_tw_user_id[fu_id] = user.id
+            # end
 
+            # @user_index[row['FileUserId']] = user.id # maps multiple FileUserIDs onto single TW user.id
 
-
-
-
-      ##################################################################################################################
-      def main_build_loop_sf
-        print "\nStart time: #{Time.now}\n"
-
-        @import = Import.find_or_create_by(name: @import_name)
-        @import.metadata ||= {}
-        @data = ImportedDataSf.new
-        puts @args
-        Utilities::Files.lines_per_file(Dir["#{@args[:data_directory]}/**/*.txt"])
-        handle_projects_and_users_sf
-        raise '$project_id or $user_id not set.' if $project_id.nil? || $user_id.nil?
-
-        # handle_controlled_vocabulary_3i
-        # handle_references_3i
-        # handle_taxonomy_3i
-        # # $project_id = 1
-        # handle_taxon_name_relationships_3i
-        # handle_host_plant_name_dictionary_3i
-        # handle_host_plants_3i
-
-        print "\n\n !! Success. End time: #{Time.now} \n\n"
-      end
-
-      def handle_projects_and_users_sf
-        print "\nHandling projects and users "
-        email = 'mbeckman@illinois.edu'
-        project_name = 'OrthopteraSF'
-        user_name = 'SF Import'
-
-        $user_id, $project_id = nil, nil
-
-        if @import.metadata['project_and_users']
-          print "from database.\n"
-          project = Project.where(name: project_name).first
-          user = User.where(email: email).first
-          $project_id = project.id
-          $user_id = user.id
-        else
-          print "as newly parsed.\n"
-
-          user = User.where(email: email)
-          if user.empty?
-            user = User.create(email: email, password: '0rth1234', password_confirmation: '0rth1234', name: user_name, self_created: true)
+            # create AuthUserID as DataAttribute as InternalAttribute for table users
+            # user.data_attributes << InternalAttribute.new(predicate: predicates['AuthUserID'], value: au_id)
+            #
+            # ProjectMember.create(user: u, project: @project)
           else
-            user = user.first
-          end
-          $user_id = user.id # set for project line below
-
-          project = nil
-          #project = Project.where(name: project_name).first #################### Comment fot creating a new one
-          #project = Project.find(35)
-
-          if project.nil?
-            project = Project.create(name: project_name)
+            puts "     ERROR: " + user.errors.full_messages.join(';')
           end
 
-          $project_id = project.id
-          pm = ProjectMember.new(user: user, project: project, is_project_administrator: true)
-          pm.save! if pm.valid?
+          # else
+          # print " skipping, public access only\n"
 
-          @import.metadata['project_and_users'] = true
+          break if i == 10
         end
 
-        @root = Protonym.find_or_create_by(name: 'Root', rank_class: 'NomenclaturalRank', project_id: $project_id)
-
-        @data.keywords.merge!('sf_imported' => Keyword.find_or_create_by(name: 'sf_imported', definition: 'Imported from SF database.'))
       end
 
+
     end
+
+
+    ##################################################################################################################
+    def main_build_loop_sf
+      print "\nStart time: #{Time.now}\n"
+
+      @import = Import.find_or_create_by(name: @import_name)
+      @import.metadata ||= {}
+      @data = ImportedDataSf.new
+      puts @args
+      Utilities::Files.lines_per_file(Dir["#{@args[:data_directory]}/**/*.txt"])
+      handle_projects_and_users_sf
+      raise '$project_id or $user_id not set.' if $project_id.nil? || $user_id.nil?
+
+      # handle_controlled_vocabulary_3i
+      # handle_references_3i
+      # handle_taxonomy_3i
+      # # $project_id = 1
+      # handle_taxon_name_relationships_3i
+      # handle_host_plant_name_dictionary_3i
+      # handle_host_plants_3i
+
+      print "\n\n !! Success. End time: #{Time.now} \n\n"
+    end
+
+    def handle_projects_and_users_sf
+      print "\nHandling projects and users "
+      email = 'mbeckman@illinois.edu'
+      project_name = 'OrthopteraSF'
+      user_name = 'SF Import'
+
+      $user_id, $project_id = nil, nil
+
+      if @import.metadata['project_and_users']
+        print "from database.\n"
+        project = Project.where(name: project_name).first
+        user = User.where(email: email).first
+        $project_id = project.id
+        $user_id = user.id
+      else
+        print "as newly parsed.\n"
+
+        user = User.where(email: email)
+        if user.empty?
+          user = User.create(email: email, password: '0rth1234', password_confirmation: '0rth1234', name: user_name, self_created: true)
+        else
+          user = user.first
+        end
+        $user_id = user.id # set for project line below
+
+        project = nil
+        #project = Project.where(name: project_name).first #################### Comment fot creating a new one
+        #project = Project.find(35)
+
+        if project.nil?
+          project = Project.create(name: project_name)
+        end
+
+        $project_id = project.id
+        pm = ProjectMember.new(user: user, project: project, is_project_administrator: true)
+        pm.save! if pm.valid?
+
+        @import.metadata['project_and_users'] = true
+      end
+
+      @root = Protonym.find_or_create_by(name: 'Root', rank_class: 'NomenclaturalRank', project_id: $project_id)
+
+      @data.keywords.merge!('sf_imported' => Keyword.find_or_create_by(name: 'sf_imported', definition: 'Imported from SF database.'))
+    end
+
   end
 end
 
