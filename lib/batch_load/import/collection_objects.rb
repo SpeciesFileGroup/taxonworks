@@ -33,20 +33,21 @@ module BatchLoad
         method       = row['method']
         error        = (row['error'].to_s + ' ' + row['georeference_error_units'].to_s).strip
         ce_namespace = row[header5]
+        pale         = row['date']
         co           = CollectionObject.joins(:identifiers).where(identifiers: {cached: "#{co_namespace} #{co_id}"}).first
         otu          = Otu.find_or_create_by(name: row['otu'])
-        td           = TaxonDetermination.create(otu:                          otu,
-                                                 biological_collection_object: co)
-        ce           = CollectingEvent.create(verbatim_locality:                row['verbatim location'],
-                                              verbatim_geolocation_uncertainty: error,
-                                              verbatim_date:                    row['date'],
-                                              start_date_day:                   row['day'],
-                                              start_date_month:                 row['month'],
-                                              start_date_year:                  row['year'],
-                                              verbatim_longitude:               long,
-                                              verbatim_latitude:                lat,
-                                              verbatim_method:                  method)
-
+        td           = TaxonDetermination.find_or_create_by(otu:                          otu,
+                                                            biological_collection_object: co)
+        ce           = CollectingEvent.find_or_create_by(verbatim_locality:                row['verbatim_location'],
+                                                         verbatim_geolocation_uncertainty: error,
+                                                         verbatim_date:                    row['date'],
+                                                         start_date_day:                   row['day'],
+                                                         start_date_month:                 row['month'],
+                                                         start_date_year:                  row['year'],
+                                                         verbatim_longitude:               long,
+                                                         verbatim_latitude:                lat,
+                                                         verbatim_method:                  method)
+        ce.save!
         case method.downcase
           when 'geolocate'
             # faking a Georeference::GeoLocate:
