@@ -52,9 +52,11 @@ function initTaskCarrousel() {
   //Mousetrap Keys
   Mousetrap.bind('up', function() {
     task.loadingUp();
+    task.changeSelectedNavList(task.arrayPos);
   });
   Mousetrap.bind('down', function() {
     task.loadingDown();
+    task.changeSelectedNavList(task.arrayPos);
   });  
   
 var      
