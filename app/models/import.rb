@@ -1,8 +1,39 @@
-#
 # A class used for transient data, primarily in the development of import scripts.  
-# !! Not to be use in production
-#   Use import.metadata['attribute'] = foo to set an attribute.
+#
+# @!attribute metadata 
+#   @return [Hstore]
+#     an Hstore column
+#
+# @!attribute metadata_json 
+#   @return [Json]
+#     an JSON column
+#
+# Possible usage 
+#   
+#   i = Import.find_or_create_by_name('My Import')
+#
+#   # set some values
+#
+#   my_values = ['a', 'b', 'c']
+# 
+#   i.set('my_values_name', my_values)
+#
+#   i.get('my_values_name') # =>  ['a', 'b', 'c']
+#
 #
 class Import < ActiveRecord::Base
   store_accessor :metadata
+
+  validates_presence_of :name
+  validates_uniqueness_of :name
+
+  def set(key, value)
+    metadata_json[key] = value
+    save!
+  end
+
+  def get(key)
+    metadata_json[key]
+  end
+
 end
