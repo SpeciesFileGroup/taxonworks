@@ -28,8 +28,10 @@ class Import < ActiveRecord::Base
   validates_uniqueness_of :name
 
   def set(key, value)
-    metadata_json[key] = value
-    save!
+    h = metadata_json
+    h ||= {} 
+    h[key] = value
+    update_attribute(:metadata_json, h) 
   end
 
   def get(key)
