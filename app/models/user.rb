@@ -102,6 +102,7 @@ class User < ActiveRecord::Base
   include Shared::DataAttributes
   include Shared::Notable
   include Shared::Taggable
+  include Shared::Identifiable
   include Shared::RandomTokenFields[:password_reset]
   has_secure_password
 

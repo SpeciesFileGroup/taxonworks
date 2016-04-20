@@ -28,11 +28,14 @@ class Import < ActiveRecord::Base
   validates_uniqueness_of :name
 
   def set(key, value)
+    metadata_json = {} if metadata_json.blank?
     metadata_json[key] = value
+    update_attribute(:metadata_json, metadata_json)
     save!
   end
 
   def get(key)
+    return nil if metadata_json.nil?
     metadata_json[key]
   end
 
