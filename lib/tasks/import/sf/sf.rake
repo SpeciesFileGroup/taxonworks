@@ -19,7 +19,7 @@ namespace :tw do
         @user_index = {}
         @project = Project.find_by_name('Orthoptera Species File')
         $project_id = @project.id
-        project_url = 'orthopteraspeciesfile.org'
+        project_url = 'speciesfile.org'
 
         # ProjectMembers: id, project_id, user_id, created_at, updated_at, created_by_id, updated_by_id, is_project_administrator
         #   * Cannot annotate a project_member
@@ -37,9 +37,13 @@ namespace :tw do
         #   AuthUserID
 
         # create a ControlledVocabularyTerm of type Predicate (to be used in DataAttribute in User instance below)
-        predicates = {
-            'AuthUserID' => Predicate.find_or_create_by(name: 'AuthUserID', definition: 'Unique user name id', project_id: $project_id)
-        }
+        # predicates = {
+        #     'AuthUserID' => Predicate.find_or_create_by(name: 'AuthUserID', definition: 'Unique user name id', project_id: $project_id)
+        # }
+        # Now that User is identifiable, we can use an identifier for the unique AuthUserID (vs. FileUserID)
+        # Create Namespace for Identifier: Species File, tblAuthUsers, SF AuthUserID
+        # 'Key3' => Namespace.find_or_create_by(name: '3i_Source_ID', short_name: '3i_Source_ID')     # 'Key3' was key in hash @data.keywords.merge! in 3i.rake ??
+        auth_user_namespace = Namespace.find_or_create_by(institution: 'Species File', name: 'tblAuthUsers', short_name: 'SF AuthUserID')
 
         # find unique editors/admin, i.e. people getting users accounts in TW
         unique_auth_users = {}
@@ -83,7 +87,7 @@ namespace :tw do
             user = User.new(
                 name: row['Name'],
                 password: '12345678',
-                email: 'auth_user_' + au_id.to_s + '_' + rand(1000).to_s + '@' + project_url
+                email: 'auth_user_id' + au_id.to_s + '_random' + rand(1000).to_s + '@' + project_url
             )
 
             if user.valid?
@@ -96,9 +100,11 @@ namespace :tw do
               @user_index[row['FileUserId']] = user.id # maps multiple FileUserIDs onto single TW user.id
 
               # create AuthUserID as DataAttribute as InternalAttribute for table users
-              user.data_attributes << InternalAttribute.new(predicate: predicates['AuthUserID'], value: au_id)
+              # user.data_attributes << InternalAttribute.new(predicate: predicates['AuthUserID'], value: au_id)
+              # Now using an identifier for this:
+              user.identifiers.new(type: 'Identifier::Local::Import', namespace: auth_user_namespace, identifier: au_id)
 
-              ProjectMember.create(user: u, project: @project)
+              ProjectMember.create(user: user, project: @project)
             else
               puts "     ERROR: " + user.errors.full_messages.join(';')
             end
@@ -106,7 +112,6 @@ namespace :tw do
           else
             print " skipping, public access only\n"
           end
-
         end
 
         # display user mappings
@@ -117,19 +122,27 @@ namespace :tw do
         puts 'multiple FileUserIDs mapped to single TW user.id'
         ap file_user_id_to_tw_user_id # map multiple FileUserIDs on single TW user.id
 
+        # Save the file user mapping to the import table
+        i = Import.find_or_create_by(name: 'SpeciesFileData')
+
+        i.set('FileUserIDToTWUserID', file_user_id_to_tw_user_id)
+
+        # newvar = i.get('FileUserIDToTWUserID')
+        # mytwuserid = newvar[560]
       end
 
       desc 'create people'
       task :create_people => [:data_directory, :environment, :user_id] do
-        @project = Project.find_by_name('Orthoptera Species File')
+        @project = Project.find_by_name('Orthexxoptera Species File')
         $project_id = @project.id
         # project_url = 'orthopteraspeciesfile.org'
 
         # create Namespace for Identifier (used in loop below): Species File, tblPeople, SF PersonID
         # 'Key3' => Namespace.find_or_create_by(name: '3i_Source_ID', short_name: '3i_Source_ID')     # 'Key3' was key in hash @data.keywords.merge! ??
         Namespace.find_or_create_by(institution: 'Species File', name: 'tblPeople', short_name: 'SF PersonID')
-        Namespace.find_or_create_by(institution: 'Species File', name: 'tblPeople', short_name: 'SF FileID')
-        Namespace.find_or_create_by(institution: 'Species File', name: 'tblPeople', short_name: 'SF Role')
+
+        file_id = Predicate.find_or_create_by(name: 'FileID', definition: 'SpeciesFile.FileID', project_id: $project_id)
+        person_roles = Predicate.find_or_create_by(name: 'Roles', definition: 'Bitmap of person roles', project_id: $project_id)
 
         path = @args[:data_directory] + 'tblPeople.txt'
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: "UTF-16:UTF-8")
@@ -176,10 +189,10 @@ namespace :tw do
               created_at: row['CreatedOn'],
               updated_at: row['LastUpdate'],
               suffix: row['Suffix'],
-              # prefix: '',
-              # created_by_id: row['CreatedBy'],
-              # updated_by_id: row['ModifiedBy'],
-              # cached: '?'
+          # prefix: '',
+          # created_by_id: row['CreatedBy'],
+          # updated_by_id: row['ModifiedBy'],
+          # cached: '?'
           )
 
           if person.valid?
@@ -195,6 +208,10 @@ namespace :tw do
             # user.data_attributes << InternalAttribute.new(predicate: predicates['AuthUserID'], value: au_id)
             #
             # ProjectMember.create(user: u, project: @project)
+
+            person.identifiers.new(type: 'Identifier::Local::Import', namespace: 'tblPeople', identifier: row['PersonID'])
+
+
           else
             puts "     ERROR: " + user.errors.full_messages.join(';')
           end
