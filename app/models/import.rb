@@ -35,6 +35,7 @@ class Import < ActiveRecord::Base
   end
 
   def get(key)
+    return nil if metadata_json.nil?
     metadata_json[key]
   end
 
