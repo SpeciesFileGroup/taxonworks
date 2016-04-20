@@ -3,7 +3,7 @@ var carrouselTask = function (sec, rows, columns) {
   // rows = This is for the number of rows that will be displayed, if this number is less than the number of items, it will activate the navigation controls
   
     this.childs = [],
-    this.start = 1,
+    this.start = 0,
     this.middleBoxSize = 650,
     this.boxSize = 500,
     this.active = [];
@@ -43,11 +43,13 @@ var carrouselTask = function (sec, rows, columns) {
   carrouselTask.prototype.changeSelectedNavList = function(childIndex) {
     $(this.sectionTag + " .task-nav-list").empty();
     for(i = 0; i < this.childsCount; i++) {
-      if((i - childIndex >= 0) && (i - childIndex < this.maxRow)) {
-        $(this.sectionTag + " .task-nav-list").append('<div class="task-nav-item active"></div>');
-      }
-      else {
-        $(this.sectionTag + " .task-nav-list").append('<div class="task-nav-item"></div>');
+      if(this.active[i]) {
+        if((i - childIndex >= 0) && (i - childIndex < this.maxRow)) {
+          $(this.sectionTag + " .task-nav-list").append('<div class="task-nav-item active"></div>');
+        }
+        else {
+          $(this.sectionTag + " .task-nav-list").append('<div class="task-nav-item"></div>');
+        }
       }
     }
   }   
@@ -87,17 +89,21 @@ var carrouselTask = function (sec, rows, columns) {
 
   carrouselTask.prototype.showChilds = function(childIndex) {
     var 
-      count = 0;
+      count = 1;
 
     if (typeof childIndex !== "undefined") {
       this.start = childIndex;
       this.arrayPos = childIndex;
-    }      
-
+      this.changeSelectedNavList(childIndex-1);
+    } 
+    else {     
+      this.start = 0;
+      this.changeSelectedNavList(this.start);
+    }
     for (i = this.start; i <= this.childs.length; i++) {
       child = $(this.sectionTag + ' > .task_card:nth-child('+ (i) +')');
       if(this.childs[i]) {
-        if(count < this.maxRow) {
+        if(count <= this.maxRow) {
           child.show(250);
         }
         count++;
@@ -176,7 +182,7 @@ var carrouselTask = function (sec, rows, columns) {
         if((arrayPos) > 0) {
           $(sectionTag + " > .task_card:nth-child("+ active[arrayPos+maxRow-1] +")" ).hide(100, function() {
             $(sectionTag + " .task_card:nth-child("+ active[arrayPos] +")" ).children(".task_card").animate({
-              width: middleBoxSize
+              width: boxSize
             }, 50);
             $(sectionTag + " .task_card:nth-child("+ active[arrayPos+maxRow-1] +")" ).children(".task_card").animate({
               width: boxSize
