@@ -2,7 +2,7 @@ module CollectingEventsHelper
 
   def collecting_event_tag(collecting_event)
     return nil if collecting_event.nil?
-    string = [ collecting_event.cached,  collecting_event.verbatim_label, collecting_event.print_label, collecting_event.document_label, collecting_event.field_notes, collecting_event.to_param].compact.first 
+    string = [collecting_event.cached, collecting_event.verbatim_label, collecting_event.print_label, collecting_event.document_label, collecting_event.field_notes, collecting_event.to_param].compact.first
     string
   end
 
@@ -17,10 +17,14 @@ module CollectingEventsHelper
 
   def next_without_georeference_for_google_maps_link(collecting_event)
     if n = collecting_event.next_without_georeference
-       link_to( 'Skip to next CE without georeference', new_georeferences_google_map_path(georeference: {collecting_event_id: n.to_param}), id: :next_without_georeference) 
+      link_to('Skip to next CE without georeference', new_georeferences_google_map_path(georeference: {collecting_event_id: n.to_param}), id: :next_without_georeference)
     else
       nil
-    end 
+    end
+  end
+
+  def collecting_event_namespace_select_tag
+    select_tag(:ce_namespace, options_for_select(GeographicArea.pluck(:data_origin).uniq), include_blank: true)
   end
 
 end
