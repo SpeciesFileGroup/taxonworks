@@ -40,7 +40,15 @@ function initTaskCarrousel() {
       else {
         task.loadingUp();
       }
-  }); 
+      task.changeSelectedNavList(task.arrayPos);
+  });
+
+  $('.task-nav-list').on('click', '.task-nav-item', function() {
+      itemID = $(this).index();
+      task.changeSelectedNavList(itemID);
+      task.resetView();
+      task.showChilds(itemID+1);
+  });
   //Mousetrap Keys
   Mousetrap.bind('up', function() {
     task.loadingUp();
