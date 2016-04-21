@@ -31,6 +31,17 @@ module BatchLoad::ColumnResolver
 
     def collection_object_by_identifier(columns)
       r = BatchLoad::ColumnResolver::Result.new
+
+      ident_text = "#{columns['collection_object_identifier_namespace_short_name']} " +
+        " #{columns['collection_object_identifier_identifier']}".strip
+
+      if ident_text.blank?
+        r.error_messages << 'No column combination suitable for collection object resolution was provided.'
+      else
+        r.assign CollectionObject.joins(:identifiers).where(identifiers: {cached: ident_text}).to_a
+        r.error_messages << "No collection object with cached identifier '#{ident_text}' exists." if r.no_matches?
+      end
+      r
     end
 
     def source(columns)

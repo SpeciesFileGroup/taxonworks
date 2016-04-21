@@ -21,31 +21,33 @@ module BatchLoad
       header6 = csv.headers[6] # should be 'collecting_event_identifier_identifier'
       header7 = csv.headers[7] # should be 'collecting_event_identifier_type'
       csv.each do |row|
-        co_namespace = row[header0]
-        co_id        = row[header1]
-        next if (co_namespace.nil? or co_id.nil?) # no namespace to search!
+        co_list = BatchLoad::ColumnResolver.collection_object_by_identifier(row)
+        # co_namespace = row[header0]
+        # co_id        = row[header1]
+        # co = CollectionObject.joins(:identifiers).where(identifiers: {cached: "#{co_namespace} #{co_id}"}).first
+        next if co_list.no_matches? # no namespace to search!
         # find a namespace (ns1) with a short_name of row[headers[0]] (id1)
         # find a collection_object which has an identifier which has a namespace (ns1), and a cached of
         # (ns1.short_name + ' ' + identifier.identifier)
         # ns1    = Namespace.where(short_name: id1).first
+        co           = co_list.item
         long         = row['longitude'] # longitude
         lat          = row['latitude'] # latitude
         method       = row['method']
         error        = (row['error'].to_s + ' ' + row['georeference_error_units'].to_s).strip
         ce_namespace = row[header5]
-        co           = CollectionObject.joins(:identifiers).where(identifiers: {cached: "#{co_namespace} #{co_id}"}).first
         otu          = Otu.find_or_create_by(name: row['otu'])
         td           = TaxonDetermination.find_or_create_by(otu:                          otu,
                                                             biological_collection_object: co)
         ce           = CollectingEvent.find_or_create_by(verbatim_locality:                row['verbatim_location'],
                                                          verbatim_geolocation_uncertainty: error,
                                                          verbatim_date:                    row['verbatim_date'],
-                                                         start_date_day:                   row['start_day'],
-                                                         start_date_month:                 row['start_month'],
-                                                         start_date_year:                  row['start_year'],
-                                                         end_date_day:                     row['end_day'],
-                                                         end_date_month:                   row['end_month'],
-                                                         end_date_year:                    row['end_year'],
+                                                         start_date_day:                   row['start_date_day'],
+                                                         start_date_month:                 row['start_date_month'],
+                                                         start_date_year:                  row['start_date_year'],
+                                                         end_date_day:                     row['end_date_day'],
+                                                         end_date_month:                   row['end_date_month'],
+                                                         end_date_year:                    row['end_date_year'],
                                                          verbatim_longitude:               long,
                                                          verbatim_latitude:                lat,
                                                          verbatim_method:                  method)
