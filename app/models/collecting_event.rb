@@ -170,14 +170,20 @@ class CollectingEvent < ActiveRecord::Base
 
   attr_accessor :with_verbatim_data_georeference
 
+  # @return [Boolean]
+  #  When true, cached values are not built
+  attr_accessor :no_cached
+
   after_create {
     if with_verbatim_data_georeference
       generate_verbatim_data_georeference(true)
     end
-  }
+  } 
 
-  before_save :set_cached ###### it takes too much time to process.
   before_save :set_times_to_nil_if_form_provided_blank
+
+  after_save :cache_geographic_names, if: '!self.no_cached && geographic_area_id_changed?' 
+  after_save :set_cached, if: '!self.no_cached' 
 
   belongs_to :geographic_area, inverse_of: :collecting_events
 
@@ -314,6 +320,142 @@ class CollectingEvent < ActiveRecord::Base
     write_attribute(:md5_of_verbatim_label, Utilities::Strings.generate_md5(value))
   end
 
+  class << self
+
+    #
+    # Scopes
+    #
+
+    # @param geographic_item [GeographicItem]
+    # @return [Scope]
+    # TODO: use joins(:geographic_items).where(containing scope), simplied to  
+    def contained_within(geographic_item)
+      CollectingEvent.joins(:geographic_items).where(GeographicItem.contained_by_where_sql(geographic_item.id))
+
+    # pieces = GeographicItem.joins(:georeferences).is_contained_by('any', geographic_item)
+    # # pieces = GeographicItem.is_contained_by('any', geographic_item)
+    # pieces
+
+    # ce = []
+    # pieces.each { |o|
+    #   ce.push(o.collecting_events_through_georeferences.to_a)
+    #   ce.push(o.collecting_events_through_georeference_error_geographic_item.to_a)
+    # }
+    # pieces = CollectingEvent.where('id in (?)', ce.flatten.map(&:id).uniq)
+
+    # pieces.excluding(self)
+    end
+
+    # @param collecting_events [CollectingEvent Scope]
+    # @return [Scope] without self (if included)
+    # TODO: DRY, use general form of this
+    def excluding(collecting_events)
+      where.not(id: collecting_events)
+    end
+
+    # @param params [Hash] of parameters for this search
+    # @return [Scope] of collecting_events found by (partial) verbatim_locality
+    def find_for_autocomplete(params)
+      Queries::CollectingEventAutocompleteQuery.new(params[:term]).all.where(project_id: params[:project_id])
+    end
+
+    #
+    # Other
+    #
+
+    # @param [Hash] of parameters in the style of 'params'
+    # @return [Scope] of selected collecting_events
+    # TODO: ARELIZE, likely in lib/queries
+    def filter(params)
+      unless params.blank? # not strictly necessary, but handy for debugging
+        sql_string          = Utilities::Dates.date_sql_from_params(params)
+
+        # processing text data
+        v_locality_fragment = params['verbatim_locality_text']
+        any_label_fragment  = params['any_label_text']
+        id_fragment         = params['identifier_text']
+
+        unless v_locality_fragment.blank?
+          unless sql_string.blank?
+            prefix = ' and '
+          end
+          sql_string += "#{ prefix }verbatim_locality ilike '%#{v_locality_fragment}%'"
+        end
+        unless any_label_fragment.blank?
+          unless sql_string.blank?
+            prefix = 'and '
+          end
+          sql_string += "#{ prefix }(verbatim_label ilike '%#{any_label_fragment}%'"
+          sql_string += " or print_label ilike '%#{any_label_fragment}%'"
+          sql_string += " or document_label ilike '%#{any_label_fragment}%'"
+          sql_string += ')'
+        end
+
+        unless id_fragment.blank?
+          # @todo this still needs to be dealt with
+        end
+
+      end
+      # find the records
+      if sql_string.blank?
+        collecting_events = CollectingEvent.where('false')
+      else
+        collecting_events = CollectingEvent.where(sql_string).uniq
+      end
+
+      collecting_events
+    end
+
+    # @param [Scope]
+    # @return [CSV]
+    def generate_download(scope)
+      CSV.generate do |csv|
+        csv << column_names
+        scope.order(id: :asc).each do |o|
+          csv << o.attributes.values_at(*column_names).collect { |i|
+            i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
+          }
+        end
+      end
+    end
+
+    # @return [true]
+    #   A development method only. Attempts to create a verbatim georeference for every 
+    #   collecting event record that doesn't have one.
+    #   TODO: this needs to be in a rake task or somewhere else
+    def update_verbatim_georeferences
+      if Rails.env == 'production'
+        puts "You can't run this in #{Rails.env} mode."
+        exit
+      end
+
+      passed    = 0
+      failed    = 0
+      attempted = 0
+
+      CollectingEvent.includes(:georeferences).where(georeferences: {id: nil}).each do |c|
+        next if c.verbatim_latitude.blank? || c.verbatim_longitude.blank?
+        attempted += 1
+        g         = c.generate_verbatim_data_georeference(true)
+        if g.errors.empty?
+          passed += 1
+          puts "created for #{c.id}"
+        else
+          failed += 1
+          puts "failed for #{c.id}, #{g.errors.messages}"
+        end
+      end
+
+      puts "passed: #{passed}"
+      puts "failed: #{failed}"
+      puts "attempted: #{attempted}"
+      true
+    end
+
+  end # << end class methods
+
+
+
   # @return [Boolean]
   def has_start_date?
     !start_date_day.blank? && !start_date_month.blank? && !start_date_year.blank?
@@ -411,57 +553,21 @@ class CollectingEvent < ActiveRecord::Base
   # @param [GeographicItem]
   # @return [String]
   #   see how far away we are from another gi 
-  def distance_to(geographic_item)
-    geographic_items.first.st_distance(geographic_item.geo_object)
+  def distance_to(geographic_item_id)
+    GeographicItem.distance_between(preferred_georeference.geographic_item_id, geographic_item_id)
   end
 
-  # @param [Double] distance
+  # @param [Double] distance in meters
   # @return [Scope]
-  # TODO: Limit this function to 25 entries, to prevent UI stall
- #def find_others_within_radius_of(distance)
- #  # starting with self, find all (other) CEs which have GIs or EGIs (through georeferences) which are within a
- #  # specific distance (in meters)
- #  gi     = geographic_items.first
- #  pieces = GeographicItem.joins(:georeferences).within_radius_of_item('any', gi, distance)
-
- #  ce = []
- #  pieces.each { |o|
- #    ce.push(o.collecting_events_through_georeferences.to_a)
- #    ce.push(o.collecting_events_through_georeference_error_geographic_item.to_a)
- #  }
- #  pieces = CollectingEvent.where('id in (?)', ce.flatten.map(&:id).uniq)
-
- #  pieces.excluding(self)
- #end
-
-  # @param [Double] distance
-  # @return [Scope]
-  # TODO: Limit this function to 25 entries, to prevent UI stall
-  def find_others_within_radius_of(distance)
-    return where(id: -1) if !geographic_items.any?
-    geographic_item_id = geographic_items.first.id
-    CollectingEvent.joins(:geographic_items).where("st_distance(#{GeographicItem.geometry_column_case_sql}, (#{GeographicItem.select_geography_sql(geographic_item_id)})) < #{distance}")
-    # starting with self, find all (other) CEs which have GIs or EGIs (through georeferences) which are within a
-    # specific distance (in meters)
-   #gi     = geographic_items.first
-   #pieces = GeographicItem.joins(:georeferences).within_radius_of_item('any', gi, distance)
-
-   #ce = []
-   #pieces.each { |o|
-   #  ce.push(o.collecting_events_through_georeferences.to_a)
-   #  ce.push(o.collecting_events_through_georeference_error_geographic_item.to_a)
-   #}
-   #pieces = CollectingEvent.where('id in (?)', ce.flatten.map(&:id).uniq)
-
-   #pieces.excluding(self)
+  def collecting_events_within_radius_of(distance)
+    return where(id: -1) if !preferred_georeference
+    geographic_item_id = preferred_georeference.geographic_item_id
+    CollectingEvent.not_self(self).joins(:geographic_items).where(GeographicItem.within_radius_of_item_sql(geographic_item_id, distance) )
   end
-
-
-
 
   # @return [Scope]
   # Find all (other) CEs which have GIs or EGIs (through georeferences) which intersect self
-  def find_others_intersecting_with
+  def collecting_events_intersecting_with
     pieces = GeographicItem.with_collecting_event_through_georeferences.intersecting('any', self.geographic_items.first).uniq
     gr     = [] # all collecting events for a geographic_item
 
@@ -477,8 +583,10 @@ class CollectingEvent < ActiveRecord::Base
 
   # @return [Scope]
   # Find other CEs that have GRs whose GIs or EGIs are contained in the EGI
-  def find_others_contained_in_error
+
+  def collecting_events_contained_in_error
     # find all the GIs and EGIs associated with CEs
+     # TODO: this will be impossibly slow in present form
     pieces = GeographicItem.with_collecting_event_through_georeferences.to_a
 
     me = self.error_geographic_items.first.geo_object
@@ -547,42 +655,69 @@ class CollectingEvent < ActiveRecord::Base
     retval
   end
 
-  def cached_geographic_name_classification
-    h = {}
-    h[:country] = cached_level0_geographic_name if cached_level0_geographic_name
-    h[:state] = cached_level0_geographic_name if cached_level1_geographic_name
-    h[:county] = cached_level0_geographic_name if cached_level2_geographic_name
-    h
+
+  # @return [Hash]
+  #   classifies this collecting event into  country, state, county categories
+  def geographic_name_classification 
+    # if names are stored in the database, and the the geographic_area_id has not changed 
+    if has_cached_geographic_names? && !geographic_area_id_changed?
+      return cached_geographic_name_classification
+    else
+      r = get_geographic_name_classification
+      cache_geographic_names(r, true) 
+    end
+    
+  end
+
+  def get_geographic_name_classification
+    case geographic_name_classification_method
+    when  :preferred_georeference
+      # quick
+      r = preferred_georeference.geographic_item.quick_geographic_name_hierarchy # almost never the case, UI not setup to do this 
+      # slow
+      r = preferred_georeference.geographic_item.inferred_geographic_name_hierarchy if r == {} # therefor defaults to slow
+    when :geographic_area_with_shape # geographic_area.try(:has_shape?) 
+      # quick
+      r = geographic_area.geographic_name_classification # do not round trip to the geographic_item, it just points back to the geographic area
+      # slow
+      r = geographic_area.default_geographic_item.inferred_geographic_name_hierarchy if r == {}
+    when :geographic_area # elsif geographic_area 
+      # quick
+      r = geographic_area.geographic_name_classification
+    when :map_center # elsif map_center
+      # slowest
+      r = GeographicItem.point_inferred_geographic_name_hierarchy(map_center)
+    end
+    r ||= {}
   end
 
   def has_cached_geographic_names?
     cached_geographic_name_classification != {}
   end
 
-  # @return [Hash]
-  #   classifies this collecting event into  country, state, county categories
-  #   TODO: cache this
-  def geographic_name_classification 
-    return cached_geographic_name_classification if has_cached_geographic_names? 
-    if  preferred_georeference
-      # quick
-      r = preferred_georeference.geographic_item.quick_geographic_name_hierarchy # almost never the case, UI not setup to do this 
-      # slow
-      r = preferred_georeference.geographic_item.inferred_geographic_name_hierarchy if r == {} # therefor defaults to slow
-    elsif geographic_area.try(:has_shape?) 
-      # quick
-      r = geographic_area.geographic_name_classification # do not round trip to the geographic_item, it just points back to the geographic area
-      # slow
-      r = geographic_area.default_geographic_item.inferred_geographic_name_hierarchy if r == {}
-    elsif geographic_area 
-      # quick
-      r = geographic_area.geographic_name_classification
-    elsif map_center
-      # slowest
-      r = GeographicItem.point_inferred_geographic_name_hierarchy(map_center)
-    end
-  
-    cache_geographic_names(r)
+  def cached_geographic_name_classification
+    h = {}
+    h[:country] = cached_level0_geographic_name if cached_level0_geographic_name
+    h[:state] = cached_level1_geographic_name if cached_level1_geographic_name
+    h[:county] = cached_level2_geographic_name if cached_level2_geographic_name
+    h
+  end
+
+  def cache_geographic_names(values = {}, tried = false)
+    values = get_geographic_name_classification if values.empty? && !tried # prevent a second call to get if we've already tried through 
+    return {} if values.empty? 
+    update_column(:cached_level0_geographic_name, values[:country]) 
+    update_column(:cached_level1_geographic_name, values[:state]) 
+    update_column(:cached_level2_geographic_name, values[:county])
+    values
+  end
+
+  def geographic_name_classification_method
+    return :preferred_georeference if preferred_georeference
+    return :geographic_area_with_shape if geographic_area.try(:has_shape?)
+    return :geographic_area if geographic_area
+    return :map_center if map_center
+    nil
   end
 
   # @return [Array of GeographicItems containing this target]
@@ -747,7 +882,6 @@ class CollectingEvent < ActiveRecord::Base
                      ) unless focus.nil?
     parameters
   end
-
   
   def latitude 
     map_center.try(:x)
@@ -793,7 +927,7 @@ class CollectingEvent < ActiveRecord::Base
 
     if geographic_items.any?
       geo_item_id = geographic_items.select(:id).first.id
-      base['geometry'] = JSON.parse( GeographicItem.select("ST_AsGeoJSON(#{GeographicItem.geometry_column_case_sql}::geometry) geo_json").find(geo_item_id).geo_json)
+      base['geometry'] = JSON.parse( GeographicItem.select("ST_AsGeoJSON(#{GeographicItem::GEOMETRY_SQL}::geometry) geo_json").find(geo_item_id).geo_json)
     end
     base
   end
@@ -856,175 +990,44 @@ class CollectingEvent < ActiveRecord::Base
     end
   end
 
-  # class methods
-
-  # @return [true]
-  #   A development method only. Attempts to create a verbatim georeference for every 
-  #   collecting event record that doesn't have one.
-  def self.update_verbatim_georeferences
-    if Rails.env == 'production'
-      puts "You can't run this in #{Rails.env} mode."
-      exit
-    end
-
-    passed    = 0
-    failed    = 0
-    attempted = 0
-
-    CollectingEvent.includes(:georeferences).where(georeferences: {id: nil}).each do |c|
-      next if c.verbatim_latitude.blank? || c.verbatim_longitude.blank?
-      attempted += 1
-      g         = c.generate_verbatim_data_georeference(true)
-      if g.errors.empty?
-        passed += 1
-        puts "created for #{c.id}"
-      else
-        failed += 1
-        puts "failed for #{c.id}, #{g.errors.messages}"
-      end
-    end
-
-    puts "passed: #{passed}"
-    puts "failed: #{failed}"
-    puts "attempted: #{attempted}"
-    true
-  end
-
-  # @param [Hash] of parameters in the style of 'params'
-  # @return [Scope] of selected collecting_events
-  def self.filter(params)
-    unless params.blank? # not strictly necessary, but handy for debugging
-      sql_string          = Utilities::Dates.date_sql_from_params(params)
-
-      # processing text data
-      v_locality_fragment = params['verbatim_locality_text']
-      any_label_fragment  = params['any_label_text']
-      id_fragment         = params['identifier_text']
-
-      unless v_locality_fragment.blank?
-        unless sql_string.blank?
-          prefix = ' and '
-        end
-        sql_string += "#{ prefix }verbatim_locality ilike '%#{v_locality_fragment}%'"
-      end
-      unless any_label_fragment.blank?
-        unless sql_string.blank?
-          prefix = 'and '
-        end
-        sql_string += "#{ prefix }(verbatim_label ilike '%#{any_label_fragment}%'"
-        sql_string += " or print_label ilike '%#{any_label_fragment}%'"
-        sql_string += " or document_label ilike '%#{any_label_fragment}%'"
-        sql_string += ')'
-      end
-
-      unless id_fragment.blank?
-        # @todo this still needs to be dealt with
-      end
-
-    end
-    # find the records
-    if sql_string.blank?
-      collecting_events = CollectingEvent.where('false')
-    else
-      collecting_events = CollectingEvent.where(sql_string).uniq
-    end
-
-    collecting_events
-  end
-
-  # @param geographic_item [GeographicItem]
-  # @return [Scope]
-  # TODO: Limit this function to 25 entries, to prevent UI stall
-  def self.find_others_contained_within(geographic_item)
-    pieces = GeographicItem.joins(:georeferences).is_contained_by('any', geographic_item)
-    # pieces = GeographicItem.is_contained_by('any', geographic_item)
-    pieces
-
-    ce = []
-    pieces.each { |o|
-      ce.push(o.collecting_events_through_georeferences.to_a)
-      ce.push(o.collecting_events_through_georeference_error_geographic_item.to_a)
-    }
-    pieces = CollectingEvent.where('id in (?)', ce.flatten.map(&:id).uniq)
-
-    pieces.excluding(self)
-
-  end
-
-  # @param collecting_events [CollectingEvent Scope]
-  # @return [Scope] without self (if included)
-  def self.excluding(collecting_events)
-    where.not(id: collecting_events)
-  end
-
-  # @param params [Hash] of parameters for this search
-  # @return [Scope] of collecting_events found by (partial) verbatim_locality
-  def self.find_for_autocomplete(params)
-    Queries::CollectingEventAutocompleteQuery.new(params[:term]).all.where(project_id: params[:project_id])
-  end
-
-  # @param [Scope]
-  # @return [CSV]
-  def self.generate_download(scope)
-    CSV.generate do |csv|
-      csv << column_names
-      scope.order(id: :asc).each do |o|
-        csv << o.attributes.values_at(*column_names).collect { |i|
-          i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
-        }
-      end
-    end
-  end
-
-
-
   def level0_name
     return cached_level0_name if cached_level0_name
     cache_geographic_names[:country]
   end
 
-  def cached_level1_name
-    return cached_level0_name if cached_level0_name
-    cache_geographic_names[:state]
-  end
-
   def level1_name
-    return cached_level0_name if cached_level0_name
+    return cached_level1_name if cached_level1_name
     cache_geographic_names[:state]
   end
 
   def level2_name
-
+    return cached_level0_name if cached_level0_name
+    cache_geographic_names[:state]
   end
 
+  def cached_level0_name
+    return cached_level0_name if cached_level0_name
+    cache_geographic_names[:state]
+  end
 
   protected
 
-  def cache_geographic_names(values = {})
-    values = geographic_name_classification if values.keys.empty?
-    update_attribute(cached_level0_geographic_name: values[:country]) 
-    update_attribute(cached_level1_geographic_name: values[:state]) 
-    update_attribute(cached_level2_geographic_name: values[:county])
-    values
-  end
-  
-  # for large imports
   def set_cached
-    if verbatim_label.blank?
-      unless self.geographic_area.nil?
-        if self.geographic_area.geographic_items.count == 0
-          name = self.geographic_area.name
-        else
-          name = names.compact.join(', ')
-        end
-      end
+    if !verbatim_label.blank?
+      string = verbatim_label
+    elsif !print_label.blank?
+      string = print_label
+    elsif !document_label.blank?
+      string = document_label
+    else
+      name = cached_geographic_name_classification.values.join(': ')
       date       = [start_date, end_date].compact.join('-')
       place_date = [verbatim_locality, date].compact.join(', ')
-      string     = [name, "\n", place_date, "\n", verbatim_collectors].compact.join
-    else
-      string = [verbatim_label, print_label, document_label].compact.first
+      string     = [name, place_date, verbatim_collectors, verbatim_method].select{|a| !a.blank?}.join("\n")
     end
-    string      = "[#{self.id.to_param}]" if string.strip.length == 0
+
+    string = "[#{self.to_param}]" if string.blank?
+   
     self.cached = string
   end
 

@@ -50,7 +50,7 @@ module Tasks::Gis::LocalityHelper
   end
 
   def distance_between(collecting_event_1, collecting_event_2)
-    distance = collecting_event_1.distance_to(collecting_event_2.geographic_items.first).round # to the nearest meter
+    distance = collecting_event_1.distance_to(collecting_event_2.preferred_georeference.geographic_item_id).round # to the nearest meter
     case
       when distance >= 1000.0
         metric   = "%1.3fkm"
@@ -78,7 +78,7 @@ module Tasks::Gis::LocalityHelper
   end
 
   def within_count
-    @collecting_events_count = CollectingEvent.find_others_contained_within(@geographic_item).count
+    @collecting_events_count = CollectingEvent.contained_within(@geographic_item).count
   end
 
 end

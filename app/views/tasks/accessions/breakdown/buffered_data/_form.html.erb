@@ -1,4 +1,4 @@
-<%= form_for(@collection_object.metamorphosize, as: :collection_object, url: collection_object_buffered_data_breakdown_update_task_path(@collection_object)) do |f| -%>
+<%= form_for(@collection_object.metamorphosize, as: :collection_object, url: collection_object_buffered_data_breakdown_update_task_path(@collection_object), remote: true) do |f| -%>
     <%= f.fields_for(:collecting_event, @collection_object.collecting_event) do |c| -%>
         <div class="field">
           <%= c.label :verbatim_locality %>

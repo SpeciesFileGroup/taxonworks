@@ -4,56 +4,35 @@ FactoryGirl.define do
 
   trait :planet_gat do
     geographic_area_type {
-      if g = GeographicAreaType.find_by_name('Planet')
-        g
-      else
-        FactoryGirl.build(:planet_geographic_area_type)
-      end
-    }
+      GeographicAreaType.find_or_create_by(name: 'Planet')
+   }
   end
 
   trait :country_gat do
     geographic_area_type {
-      if g = GeographicAreaType.find_by_name('Country')
-        g
-      else
-        FactoryGirl.build(:country_geographic_area_type)
-      end
+      GeographicAreaType.find_or_create_by(name: 'Country')
     }
   end
 
   trait :state_gat do
     geographic_area_type {
-      if g = GeographicAreaType.find_by_name('State')
-        g
-      else
-        FactoryGirl.build(:state_geographic_area_type)
-      end
+      GeographicAreaType.find_or_create_by(name: 'State')
     }
   end
 
   trait :county_gat do
     geographic_area_type {
-      if g = GeographicAreaType.find_by_name('County')
-        g
-      else
-        FactoryGirl.build(:county_geographic_area_type)
-      end
+      GeographicAreaType.find_or_create_by(name: 'County')
     }
   end
 
   trait :valid_gat do
     geographic_area_type {
-      if g = GeographicAreaType.find_by_name('AnyTpye')
-        g
-      else
-        FactoryGirl.build(:valid_geographic_area_type)
-      end
+      GeographicAreaType.find_or_create_by(name: 'AnyType')
     }
   end
 
   factory :geographic_area_type, traits: [:creator_and_updater] do
-
     factory :valid_geographic_area_type do
       name {Faker::Lorem.word + Time.now.to_s}
     end

@@ -9,7 +9,8 @@ describe 'GeographicAreas', type: :feature do
   context 'signed in as a user, with some records created' do
     before {
       sign_in_user_and_select_project
-      5.times { factory_girl_create_for_user(:valid_geographic_area, @user) }
+      a = factory_girl_create_for_user(:valid_geographic_area_type, @user)
+      5.times { FactoryGirl.create(:valid_geographic_area, geographic_area_type: a, by: @user) }
     }
 
     describe 'GET /geographic_areas' do

@@ -2,7 +2,10 @@ require 'rails_helper'
 
 describe CollectingEvent, type: :model, group: :geo do
   let(:collecting_event) { CollectingEvent.new }
-  
+  let(:county) { FactoryGirl.create(:valid_geographic_area_stack) }
+  let(:state) { county.parent }
+  let(:country) { state.parent }
+
   context 'validation' do
     context 'time start/end' do
       specify 'if time_start_minute provided time_start_hour_required' do
@@ -203,56 +206,200 @@ describe CollectingEvent, type: :model, group: :geo do
     end
   end
 
-  context 'cached/ing geographic names' do
-      let!(:county) { FactoryGirl.create(:valid_geographic_area_stack) }
+  context 'geographic names' do
+    before{collecting_event.save!}
 
+    context '#geographic_name_classification' do
+      specify 'with no data #geographic_name_classification returns nil' do
+        expect(collecting_event.geographic_name_classification_method).to eq(nil)
+      end
 
+      context 'with a georeference set ' do
+        before{collecting_event.georeferences << FactoryGirl.create(:valid_georeference)}
 
+        specify '#geographic_name_classification returns :preferred_georeference' do
+          expect(collecting_event.geographic_name_classification_method).to eq(:preferred_georeference)
+        end
+      end
+
+      context 'with a geographic area that has a shape set ' do
+        before do
+          country.geographic_items << FactoryGirl.create(:geographic_item_with_polygon)
+          collecting_event.update_column(:geographic_area_id, country.id)
+        end
+
+        specify '#geographic_name_classification returns :geographic_area_with_shape' do
+          expect(collecting_event.geographic_name_classification_method).to eq(:geographic_area_with_shape)
+        end
+      end
+
+      context 'with #geographic_area (no shape) set ' do
+        before{collecting_event.update_column(:geographic_area_id, state.id)}
+
+        specify '#geographic_name_classification returns :geographic_area' do
+          expect(collecting_event.geographic_name_classification_method).to eq(:geographic_area)
+        end
+      end
+    end
+
+    context 'caching' do
+      context 'with no data' do
+        specify '#cached_geographic_name_classification returns {}' do
+          expect(collecting_event.cached_geographic_name_classification).to eq({})
+        end
+      end
+
+      context 'with a verbatim georeference' do
+
+        before do 
+          generate_political_areas_with_collecting_events
+          collecting_event.update_attributes(
+            verbatim_latitude: '27.5',
+            verbatim_longitude: '33.5'
+          )
+          Georeference::VerbatimData.create!(collecting_event: collecting_event)
+        end
+
+        specify 'country, state, county are cached on creation of georefernce' do
+          expect(collecting_event.cached_geographic_name_classification).to eq( {:country=>"West Boxia", :state=>"QT", :county=>"M1"} )
+        end
+
+      end
+
+      context 'after #geographic_name_classification has been called, cached values are set' do
+        context 'with a geographic_area (no shape) set to country (level0)' do
+          before do
+            collecting_event.update_column(:geographic_area_id, country.id) 
+            collecting_event.geographic_name_classification
+          end
+
+          specify '#cached_geographic_name_classification returns { country: country_name }' do
+            expect(collecting_event.cached_geographic_name_classification).to eq( {country: country.name} )
+          end
+        end
+
+        context 'with a geographic_area (no shape) set to state (level1)' do
+          before do
+            collecting_event.update_column(:geographic_area_id, state.id) 
+            collecting_event.geographic_name_classification
+          end
+
+          specify '#cached_geographic_name_classification returns { country: country_name, state: state_name }' do
+            expect(collecting_event.cached_geographic_name_classification).to eq({country: country.name, state: state.name })
+          end
+        end
+
+        context 'with a geographic_area (no shape) set to county (level2)' do
+          before do
+            collecting_event.update_column(:geographic_area_id, county.id) 
+            collecting_event.geographic_name_classification
+          end
+
+          specify '#cached_geographic_name_classification returns { country: country_name, state: state_name, county: county_name }' do
+            expect(collecting_event.cached_geographic_name_classification).to eq({country: country.name, state: state.name, county: county.name})
+          end
+        end
+
+        context 'cached values are updated after geographic_area_id is updated' do
+          before do
+            collecting_event.update_column(:geographic_area_id, county.id) 
+            collecting_event.geographic_name_classification
+            collecting_event.update_attribute(:geographic_area_id, state.id) 
+          end
+
+          specify '#cached_geographic_name_classification returns { country: country_name, state: state_name }' do
+            expect(collecting_event.cached_geographic_name_classification).to eq({country: country.name, state: state.name })
+          end
+        end
+
+        context 'cached values are NOT updated when no_cache: true' do
+          before do
+            collecting_event.no_cached = true
+            collecting_event.update_attribute(:geographic_area_id, county.id) 
+          end
+
+          specify '#cached_geographic_name_classification returns {  }' do
+            expect(collecting_event.cached_geographic_name_classification).to eq({ })
+          end
+        end
+      end
+    end
   end
 
   context '#cached' do
-    specify 'after save there is always some value' do
-      collecting_event.save!
-      # TODO: CollectingEvent.cached takes too much time to complete, turned off by Dmitry 07/17/15
-      # pending 'resolution of collecting_event caching delay'
-      expect(collecting_event.cached.blank?).to be_falsey, collecting_event.cached
+    context 'when #no_cached = true' do
+      before {
+        collecting_event.no_cached = true
+        collecting_event.save!
+      }
+      specify 'nothing is cached' do
+        expect(collecting_event.cached.blank?).to be_truthy
+      end
     end
 
-    context 'contents of cached' do
-      specify 'just dates' do
-        collecting_event.start_date_day   = 1
-        collecting_event.start_date_month = 1
-        collecting_event.start_date_year  = 1511
-
-        collecting_event.end_date_day   = 2
-        collecting_event.end_date_month = 2
-        collecting_event.end_date_year  = 1522
-
+    context 'when #no_cached = false, nil' do
+      specify 'after save with no data cached is *not* blank?' do
         collecting_event.save!
-        expect(collecting_event.cached.blank?).to be_falsey
-        expect(collecting_event.cached.strip).to eq('01/01/1511-02/02/1522')
+        expect(collecting_event.cached.blank?).to be_falsey, collecting_event.cached
       end
 
-      specify 'just start date' do
-        collecting_event.start_date_day   = 1
-        collecting_event.start_date_month = 1
-        collecting_event.start_date_year  = 1511
+      context 'contents of cached' do
+        context 'with geographic_area set' do
+          before{
+            collecting_event.save! 
+            collecting_event.update_attribute(:geographic_area_id, county.id)
+          }
 
-        collecting_event.save!
-        expect(collecting_event.cached.blank?).to be_falsey
-        expect(collecting_event.cached.strip).to eq('01/01/1511')
+          specify 'summarized in first line' do
+            expect(collecting_event.cached).to eq('United States of America: Illinois: Champaign')
+          end
+        end
+
+        specify 'just dates' do
+          collecting_event.start_date_day   = 1
+          collecting_event.start_date_month = 1
+          collecting_event.start_date_year  = 1511
+
+          collecting_event.end_date_day   = 2
+          collecting_event.end_date_month = 2
+          collecting_event.end_date_year  = 1522
+
+          collecting_event.save!
+          expect(collecting_event.cached.blank?).to be_falsey
+          expect(collecting_event.cached.strip).to eq('01/01/1511-02/02/1522')
+        end
+
+        specify 'just start date' do
+          collecting_event.start_date_day   = 1
+          collecting_event.start_date_month = 1
+          collecting_event.start_date_year  = 1511
+
+          collecting_event.save!
+          expect(collecting_event.cached.blank?).to be_falsey
+          expect(collecting_event.cached.strip).to eq('01/01/1511')
+        end
+
+        specify 'just verbatim_label' do
+          collecting_event.verbatim_label = 'Just this thing.'
+
+          collecting_event.save!
+          expect(collecting_event.cached.blank?).to be_falsey
+          expect(collecting_event.cached.strip).to eq('Just this thing.')
+        end
+
       end
-
-      specify 'just verbatim_label' do
-        collecting_event.verbatim_label = 'Just this thing.'
-
-        collecting_event.save!
-        expect(collecting_event.cached.blank?).to be_falsey
-        expect(collecting_event.cached.strip).to eq('Just this thing.')
-      end
-
     end
   end
+
+  context 'creating a collecting event with no resolvable geographic_name_classification' do
+    let(:earth) { FactoryGirl.create(:earth_geographic_area) }
+
+    specify 'suceeds without entering a nasty loop' do
+      expect(CollectingEvent.create(geographic_area: earth) ).to be_truthy
+      expect(CollectingEvent.last.geographic_name_classification).to eq({})
+    end
+  end
+
 
   context 'actions' do
     specify 'if a verbatim_label is present then a md5_of_verbatim_label is generated' do
@@ -356,7 +503,7 @@ describe CollectingEvent, type: :model, group: :geo do
 
       context 'and that GR has a GI but no EGI' do
         specify 'find other CEs that have GRs whose GI or EGI is within some radius of the source GI' do
-          pieces = @ce_p7.find_others_within_radius_of(2000000)
+          pieces = @ce_p7.collecting_events_within_radius_of(2000000)
           expect(pieces.count).to eq(6)
           expect(pieces).to include(@ce_p0, # @ce_p2, @ce_p3,
                                     @ce_p5, @ce_p6, @ce_p8, @ce_p9)
@@ -364,7 +511,7 @@ describe CollectingEvent, type: :model, group: :geo do
         end
 
         specify 'find other CEs that have GRs whose GI or EGI intersects the source GI' do
-          pieces = @ce_p2.find_others_intersecting_with
+          pieces = @ce_p2.collecting_events_intersecting_with
           # @ce_p2.first will find @k and @p2
           # @k will find @p1, @p2, @p3, filter out @p2, and return @p1 and @p3
           expect(pieces.count).to eq(2)
@@ -374,8 +521,9 @@ describe CollectingEvent, type: :model, group: :geo do
       end
 
       context 'and that GR has both GI and EGI' do
-        specify 'find other CEs that have GR whose GIs or EGIs are within some radius of the EGI' do
-          pieces = @ce_p2.find_others_within_radius_of(1000000) # was originally 1000000
+        # was: 'find other CEs that have GR whose GIs or EGIs are within some radius of the EGI'
+        specify 'find other CEs that have GR whose GIs are within some radius' do 
+          pieces = @ce_p2.collecting_events_within_radius_of(1000000) 
           expect(pieces.count).to eq(4)
           expect(pieces).to include(@ce_p1, @ce_p3,
                                     @ce_p4, @ce_p7)
@@ -388,7 +536,7 @@ describe CollectingEvent, type: :model, group: :geo do
 
         specify 'find other CEs that have GRs whose GIs or EGIs are contained in the EGI' do
           # skip 'contained in error_gi'
-          pieces = @ce_p1.find_others_contained_in_error
+          pieces = @ce_p1.collecting_events_contained_in_error
           expect(pieces.count).to eq(1)
           expect(pieces.first).to eq(@ce_p2)
           expect(pieces).not_to include(@ce_p1)
@@ -409,47 +557,47 @@ describe CollectingEvent, type: :model, group: :geo do
         specify 'geolocate_ui_params from locality' do
           # @ce_n3 was built with locality, with no verbatim_lat/long
           expect(@ce_n3.geolocate_ui_params).to eq({'country'       => 'Old Boxia',
-                                                         'state'         => 'N3',
-                                                         'county'        => nil,
-                                                         'locality'      => 'Greater Boxia Lake',
-                                                         'Latitude'      => 25.5,
-                                                         'Longitude'     => 34.5,
-                                                         'Placename'     => 'Greater Boxia Lake',
-                                                         'Score'         => '0',
-                                                         'Uncertainty'   => '3',
-                                                         'H20'           => 'false',
-                                                         'HwyX'          => 'false',
-                                                         'Uncert'        => 'true',
-                                                         'Poly'          => 'true',
-                                                         'DisplacePoly'  => 'false',
-                                                         'RestrictAdmin' => 'false',
-                                                         'BG'            => 'false',
-                                                         'LanguageIndex' => '0',
-                                                         'gc'            => 'Tester'
-                                                        })
+                                                    'state'         => 'N3',
+                                                    'county'        => nil,
+                                                    'locality'      => 'Greater Boxia Lake',
+                                                    'Latitude'      => 25.5,
+                                                    'Longitude'     => 34.5,
+                                                    'Placename'     => 'Greater Boxia Lake',
+                                                    'Score'         => '0',
+                                                    'Uncertainty'   => '3',
+                                                    'H20'           => 'false',
+                                                    'HwyX'          => 'false',
+                                                    'Uncert'        => 'true',
+                                                    'Poly'          => 'true',
+                                                    'DisplacePoly'  => 'false',
+                                                    'RestrictAdmin' => 'false',
+                                                    'BG'            => 'false',
+                                                    'LanguageIndex' => '0',
+                                                    'gc'            => 'Tester'
+          })
         end
 
         specify 'geolocate_ui_params from lat/long' do
           # @ce_m1.georeference was built from verbatim data; no locality
           expect(@ce_m1.geolocate_ui_params).to eq({'country'       => 'Big Boxia',
-                                                         'state'        => 'QT',
-                                                         'county'        => 'M1',
-                                                         'locality'      => 'Lesser Boxia Lake',
-                                                         'Latitude'      => 27.5,
-                                                         'Longitude'     => 33.5,
-                                                         'Placename'     => 'Lesser Boxia Lake',
-                                                         'Score'         => '0',
-                                                         'Uncertainty'   => '3',
-                                                         'H20'           => 'false',
-                                                         'HwyX'          => 'false',
-                                                         'Uncert'        => 'true',
-                                                         'Poly'          => 'true',
-                                                         'DisplacePoly'  => 'false',
-                                                         'RestrictAdmin' => 'false',
-                                                         'BG'            => 'false',
-                                                         'LanguageIndex' => '0',
-                                                         'gc'            => 'Tester'
-                                                        })
+                                                    'state'        => 'QT',
+                                                    'county'        => 'M1',
+                                                    'locality'      => 'Lesser Boxia Lake',
+                                                    'Latitude'      => 27.5,
+                                                    'Longitude'     => 33.5,
+                                                    'Placename'     => 'Lesser Boxia Lake',
+                                                    'Score'         => '0',
+                                                    'Uncertainty'   => '3',
+                                                    'H20'           => 'false',
+                                                    'HwyX'          => 'false',
+                                                    'Uncert'        => 'true',
+                                                    'Poly'          => 'true',
+                                                    'DisplacePoly'  => 'false',
+                                                    'RestrictAdmin' => 'false',
+                                                    'BG'            => 'false',
+                                                    'LanguageIndex' => '0',
+                                                    'gc'            => 'Tester'
+          })
         end
       end
 
@@ -744,52 +892,50 @@ describe CollectingEvent, type: :model, group: :geo do
         end
       end
     end
-  end
 
-  specify '#time_start pads' do
-    collecting_event.time_start_hour   = 4
-    collecting_event.time_start_minute = 2
-    collecting_event.time_start_second = 1
-    expect(collecting_event.time_start).to eq('04:02:01')
-  end
-
-  specify '#time_end pads' do
-    collecting_event.time_end_hour   = 4
-    collecting_event.time_end_minute = 2
-    collecting_event.time_end_second = 1
-    expect(collecting_event.time_end).to eq('04:02:01')
-  end
-
-  context 'concerns' do
-    it_behaves_like 'citable'
-    it_behaves_like 'data_attributes'
-    it_behaves_like 'identifiable'
-    it_behaves_like 'notable'
-    it_behaves_like 'taggable'
-    it_behaves_like 'is_data'
-  end
-
-  context 'Collecting events storage and comparison timing tests' do
-    let(:gi_co) { FactoryGirl.build(:geographic_item_with_multi_polygon, multi_polygon: CHAMPAIGN_CO) }
-    let(:gi_il) { FactoryGirl.build(:geographic_item_with_multi_polygon, multi_polygon: ILLINOIS) }
-    let(:ga) { FactoryGirl.create(:level2_geographic_area) }
-    let(:ce) { FactoryGirl.create(:valid_collecting_event, {geographic_area: ga}) }
-
-
-    specify 'collecting event can be saved in some period of time' do
-      ga.geographic_items << gi_co
-      ga.parent.geographic_items << gi_il
-      if ce.valid?
-        time = Benchmark.measure {
-          ce.save
-        }
-        # puts time.real
-        # pending 'this should work right'
-        expect(ce.valid?).to be_truthy
-        expect(time.real < 0.1).to be_truthy
-      end
+    specify '#time_start pads' do
+      collecting_event.time_start_hour   = 4
+      collecting_event.time_start_minute = 2
+      collecting_event.time_start_second = 1
+      expect(collecting_event.time_start).to eq('04:02:01')
     end
 
-  end
+    specify '#time_end pads' do
+      collecting_event.time_end_hour   = 4
+      collecting_event.time_end_minute = 2
+      collecting_event.time_end_second = 1
+      expect(collecting_event.time_end).to eq('04:02:01')
+    end
 
+    context 'concerns' do
+      it_behaves_like 'citable'
+      it_behaves_like 'data_attributes'
+      it_behaves_like 'identifiable'
+      it_behaves_like 'notable'
+      it_behaves_like 'taggable'
+      it_behaves_like 'is_data'
+    end
+
+    context 'Collecting events storage and comparison timing tests' do
+      let(:gi_co) { FactoryGirl.build(:geographic_item_with_multi_polygon, multi_polygon: CHAMPAIGN_CO) }
+      let(:gi_il) { FactoryGirl.build(:geographic_item_with_multi_polygon, multi_polygon: ILLINOIS) }
+      let(:ga) { FactoryGirl.create(:level2_geographic_area) }
+      let(:ce) { FactoryGirl.create(:valid_collecting_event, {geographic_area: ga}) }
+
+
+      specify 'collecting event can be saved in some period of time' do
+        ga.geographic_items << gi_co
+        ga.parent.geographic_items << gi_il
+        if ce.valid?
+          time = Benchmark.measure {
+            ce.save
+          }
+          # puts time.real
+          # pending 'this should work right'
+          expect(ce.valid?).to be_truthy
+          expect(time.real < 0.1).to be_truthy
+        end
+      end
+    end
+  end
 end

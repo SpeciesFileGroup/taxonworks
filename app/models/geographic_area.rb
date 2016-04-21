@@ -65,6 +65,8 @@ class GeographicArea < ActiveRecord::Base
   accepts_nested_attributes_for :geographic_areas_geographic_items
 
   validates :geographic_area_type, presence: true
+  validates_presence_of :geographic_area_type_id
+
   validates :parent, presence: true, unless: 'self.name == "Earth"' || ENV['NO_GEO_VALID']
   validates :level0, presence: true, allow_nil: true, unless: 'self.name == "Earth"'
   validates :level1, presence: true, allow_nil: true
@@ -198,7 +200,7 @@ class GeographicArea < ActiveRecord::Base
   def categorize
     n = geographic_area_type.name
     return {country: name} if GeographicAreaType::COUNTRY_LEVEL_TYPES.include?(n) || (id == level0_id)
-    return {state: name} if GeographicAreaType::STATE_LEVEL_TYPES.include?(n) || (data_origin == 'ne_states') || (id == level1_id) || (parent.try(:id) == parent.try(:level0_id))
+    return {state: name} if GeographicAreaType::STATE_LEVEL_TYPES.include?(n) || (data_origin == 'ne_states') || (id == level1_id) || (!parent.nil? && (parent.try(:id) == parent.try(:level0_id)))
     return {county: name} if GeographicAreaType::COUNTY_LEVEL_TYPES.include?(n)
     {}
   end

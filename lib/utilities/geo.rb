@@ -103,7 +103,8 @@ To add a new (discovered) symbol:
     # 88:11:43.3W
     #
     # no limit test, unless there is a letter included
-    def self.degrees_minutes_seconds_to_decimal_degrees(dms_in) # rubocop:disable Metrics/PerceivedComplexity
+    # 
+    def self.degrees_minutes_seconds_to_decimal_degrees(dms_in) # rubocop:disable Metrics/PerceivedComplexity !! But this is too complex :)
       match_string = nil
       # no_point     = false
       degrees      = 0.0

@@ -75,10 +75,10 @@ class Georeference < ActiveRecord::Base
   belongs_to :collecting_event
   belongs_to :geographic_item
 
-  validates :geographic_item, presence: true
-  validates :collecting_event, presence: true
-  validates :type, presence: true
-  validates :collecting_event_id, uniqueness: {scope: [:type, :geographic_item_id, :project_id]}
+ validates :geographic_item, presence: true
+ validates :collecting_event, presence: true
+ validates :type, presence: true
+ validates :collecting_event_id, uniqueness: {scope: [:type, :geographic_item_id, :project_id]}
   # validates_uniqueness_of :collecting_event_id, scope: [:type, :geographic_item_id, :project_id]
 
   # validate :proper_data_is_provided
@@ -90,10 +90,16 @@ class Georeference < ActiveRecord::Base
   validate :add_error_radius_inside_area
   validate :add_error_geo_item_inside_area
   validate :add_obj_inside_area
-
+ 
   validate :geographic_item_present_if_error_radius_provided
 
   accepts_nested_attributes_for :geographic_item, :error_geographic_item
+
+  # @return [Boolean]
+  #  When true, cascading cached values (e.g. in CollectingEvent) are not built
+  attr_accessor :no_cached
+
+  after_save :set_cached, if: '!self.no_cached' 
 
   # instance methods
 
@@ -186,30 +192,12 @@ class Georeference < ActiveRecord::Base
     georeferences
   end
 
-  # @param [GeographicItem, Double]
-  # @return [Scope] Georeferences
-  #   all Georeferences within some distance of a geographic_item
-  def self.within_radius_of_item(geographic_item, distance)
-    # .where{geographic_item_id in GeographicItem.within_radius_of('polygon', geographic_item, distance)}
-    # geographic_item may be a polygon, or a point
-
-    # TODO: Add different types of GeographicItems as we learn about why they are stored.
-    # types of GeographicItems about which we currently know:
-    # multipolygon  => stored through the NE/TDWG/GADM object load process
-    # polygon       => stored through the GeoLocate process
-    # point         => stored through the GeoLocate process
-    #
-    # TODO: or this with AREL
-    temp = GeographicItem.within_radius_of_item('multi_polygon', geographic_item, distance) +
-      GeographicItem.within_radius_of_item('polygon', geographic_item, distance) +
-      GeographicItem.within_radius_of_item('point', geographic_item, distance)
-
-    partials = GeographicItem.where('id in (?)', temp.map(&:id))
-
-    # the use of 'pluck(:id)' here, instead of 'map(&:id)' is because pluck instantiates just the ids,
-    # and not the entire record, the way map does. pluck is only available on ActiveRecord::Relation
-    # and related objects.
-    Georeference.where('geographic_item_id in (?)', partials.pluck(:id))
+  # @param [geographic_item.id, double]
+  # @return [scope] georeferences
+  #   all georeferences within some distance of a geographic_item, by id
+  def self.within_radius_of_item(geographic_item_id, distance)
+    return where(id: -1) if geographic_item_id.nil? || distance.nil?
+    Georeference.joins(:geographic_item).where("st_distance(#{GeographicItem::GEOGRAPHY_SQL}, (#{GeographicItem.select_geography_sql(geographic_item_id)})) < #{distance}")
   end
 
   # @param [String] locality string
@@ -293,10 +281,14 @@ class Georeference < ActiveRecord::Base
     likeness = like ? '%' : ''
     query    = "verbatim_locality #{like ? 'ilike' : '='} '#{likeness}#{string}#{likeness}'"
 
-    Georeference.where('collecting_event_id in (?)', CollectingEvent.where(query).pluck(:id))
+    Georeference.where(collecting_event: CollectingEvent.where(query))
   end
 
   protected
+
+  def set_cached
+    collecting_event.cache_geographic_names
+  end
 
   # validation methods
 

@@ -404,10 +404,6 @@ describe GeographicItem, type: :model, group: :geo do
       expect(GeographicItem.geometry_sql(2, :polygon)).to eq(test)
     end
 
-    specify '::contains? to see if one object contains another.' do
-      expect(GeographicItem).to respond_to(:contains?)
-    end
-
     specify '::ordered_by_shortest_distance_from to specify ordering of found objects.' do
       expect(GeographicItem).to respond_to(:ordered_by_shortest_distance_from)
     end
@@ -422,10 +418,6 @@ describe GeographicItem, type: :model, group: :geo do
 
     specify '::within_radius_of_item to find all objects which are within a specific distance of a geographic item.' do
       expect(GeographicItem).to respond_to(:within_radius_of_item)
-    end
-
-    specify '::within_radius_of_wkt to find all objects which are within a specific distance of a wkt object.' do
-      expect(GeographicItem).to respond_to(:within_radius_of_wkt)
     end
 
     specify '::intersecting method to intersecting an \'or\' list of objects.' do
@@ -681,16 +673,6 @@ describe GeographicItem, type: :model, group: :geo do
 
       specify '::within_radius_of_item("any", ...)' do
         expect(GeographicItem.within_radius_of_item(@p0.id, 1000000)).to include(@e2, @e3, @e4, @e5, @item_a, @item_b, @item_c, @item_d)
-      end
-
-      specify '::within_radius_of_wkt returns objects within a specific distance of an object.' do
-        # Utilities::Geo.ONE_WEST = 111319.490779206
-        expect(GeographicItem.within_radius_of_wkt('polygon', @p0.geo_object.to_s, ((9 * 1.414) * 111319.444444444))).to contain_exactly(@e3, @e4, @item_a, @item_b, @item_c, @item_d)
-      end
-
-      specify '::within_radius_of_wkt("any", ...)' do
-        # Utilities::Geo.ONE_WEST = 111319.490779206
-        expect(GeographicItem.within_radius_of_wkt('any', @p0.geo_object.to_s, ((9 * 1.414) * 111319.444444444))).to contain_exactly(@p0, @p12,  @p13, @p20, @p21, @p22, @e3, @e4, @item_a, @item_b, @item_c, @item_d) # @p12c,
       end
 
       specify "::intersecting list of objects (uses 'or')" do

@@ -21,13 +21,6 @@
 #               uknown: task has not been classifed
 #
 ---
-match_georeference_task:
-  name:
-  related:
-    - collecting_events
-    - georeferences
-  categories:
-    - collecting_event
 nearby_locality_task:
   name:  
   related:
@@ -43,6 +36,8 @@ similar_serials_task:
   name: 
   related:
     - serials
+  categories:
+    - source
 user_activity_report_task:
   name: 
 verify_accessions_task:
@@ -89,6 +84,7 @@ match_georeference_task:
   description: 'Re-use georeference efforts from past collecting events.'
   categories:
     - collecting_event
+    - collection_object
 otu_distribution_data_task:
   hub: true
   name: 'OTU distribution data'

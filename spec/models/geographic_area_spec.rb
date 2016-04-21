@@ -50,6 +50,42 @@ describe GeographicArea, type: :model, group: :geo do
       geographic_area.data_origin = 'TDWG2 Level 1'
       expect(geographic_area.tdwg_level).to eq('1')
     end
+
+    context 'classifying' do
+      let!(:county) { FactoryGirl.create(:valid_geographic_area_stack) }
+      let!(:state) { county.parent }
+      let!(:country) { state.parent }
+
+      context '#categorize' do
+        specify 'a county' do
+          expect(county.categorize).to eq(county: county.name)
+        end
+
+        specify 'a state' do
+          expect(state.categorize).to eq(state: state.name)
+        end
+
+        specify 'a country' do
+          expect(country.categorize).to eq(country: country.name)
+        end
+      end
+
+      context '#geographic_name_classification' do
+        specify 'for a country' do
+          expect(country.geographic_name_classification).to eq( country: country.name)
+        end
+
+        specify 'for a state' do
+          expect(state.geographic_name_classification).to eq( country: country.name, state: state.name)
+        end
+
+        specify 'for a county' do
+          expect(county.geographic_name_classification).to eq( country: country.name, state: state.name, county: county.name)
+        end
+      end
+    end
+
+
   end
 
   context 'associations' do
@@ -180,7 +216,7 @@ describe GeographicArea, type: :model, group: :geo do
       end
 
       specify 'descendants_of_geographic_area_type' do
-        expect(@champaign.root.descendants_of_geographic_area_type('County').to_a).to eq([@champaign, @ford])
+        expect(@champaign.root.descendants_of_geographic_area_type('County').to_a).to contain_exactly(@champaign, @ford)
         expect(@champaign.root.descendants_of_geographic_area_type('State').to_a).to eq([@champaign.parent])
         expect(@champaign.root.descendants_of_geographic_area_type('Province').to_a).to eq([])
       end

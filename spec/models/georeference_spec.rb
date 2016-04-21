@@ -1,23 +1,23 @@
 require 'rails_helper'
 
 describe Georeference, type: :model, group: :geo do
-  let(:georeference) { FactoryGirl.build(:georeference) }
+  let(:georeference) { Georeference.new }
 
-  let(:earth) { FactoryGirl.build(:earth_geographic_area) }
-  let(:g_a_t) { FactoryGirl.build(:testbox_geographic_area_type) }
+  let(:earth) { FactoryGirl.create(:earth_geographic_area) }
+  let(:g_a_t) { FactoryGirl.create(:testbox_geographic_area_type) }
 
-  let(:e_g_i) { GeographicItem.new(polygon: BOX_1) }
-  let(:item_d) { GeographicItem.new(polygon: BOX_4) }
+  let(:e_g_i) { GeographicItem.create(polygon: BOX_1) }
+  let(:item_d) { GeographicItem.create(polygon: BOX_4) }
 
-  let(:g_a) {
-    GeographicArea.new(name:                 'Box_4',
+  let!(:g_a) {
+    GeographicArea.create(name:                 'Box_4',
                        data_origin:          'Test Data',
-                       geographic_area_type: FactoryGirl.create(:testbox_geographic_area_type),
+                       geographic_area_type: g_a_t,
                        parent:               earth)
   }
 
   # this collecting event should produce a georeference.geographic_item.geo_object of 'Point(0.1 0.1 0.1)'
-  let(:collecting_event_with_geographic_area) { CollectingEvent.new(geographic_area:    g_a,
+  let(:collecting_event_with_geographic_area) { CollectingEvent.create(geographic_area:    g_a,
                                                                     verbatim_locality:  'Test Event',
                                                                     minimum_elevation:  0.1,
                                                                     verbatim_latitude:  '0.1',
@@ -25,7 +25,7 @@ describe Georeference, type: :model, group: :geo do
   }
 
   let(:collecting_event_without_geographic_area) {
-    CollectingEvent.new(verbatim_locality: 'without geographic area')
+    CollectingEvent.create(verbatim_locality: 'without geographic area')
   }
 
   let!(:gagi) { GeographicAreasGeographicItem.create(geographic_item: item_d, geographic_area: g_a) }
@@ -332,9 +332,9 @@ describe Georeference, type: :model, group: :geo do
       # @gr1.save!
     }
 
-    specify '.within_radius_of(geographic_item, distance)' do
+    specify '.within_radius_of(geographic_item_id, distance)' do
       expect(Georeference).to respond_to :within_radius_of_item
-      expect(Georeference.within_radius_of_item(@gr_point.geographic_item, 112000).to_a).to contain_exactly(@gr_poly, @gr_point)
+      expect(Georeference.within_radius_of_item(@gr_point.geographic_item.to_param, 112000).to_a).to contain_exactly(@gr_poly, @gr_point)
       # but specifically *not* @gr1
     end
 

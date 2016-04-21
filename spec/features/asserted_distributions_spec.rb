@@ -3,7 +3,8 @@ require 'rails_helper'
 describe "AssertedDistributions", :type => :feature do
   let(:page_index_name) { 'asserted distributions' }
   let(:index_path) { asserted_distributions_path }
-  let(:g) { factory_girl_create_for_user(:valid_geographic_area, @user) }
+  let(:a) { FactoryGirl.create(:valid_geographic_area_type, by: @user) }
+  let(:g) { FactoryGirl.create(:valid_geographic_area, geographic_area_type: a, by: @user) }
   let(:s) { factory_girl_create_for_user(:valid_source_bibtex, @user) }
 
   it_behaves_like 'a_login_required_and_project_selected_controller'

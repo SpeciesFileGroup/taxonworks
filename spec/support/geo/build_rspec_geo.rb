@@ -474,7 +474,7 @@ ALL_WKT_NAMES = [[CONVEX_HULL.exterior_ring, 'Outer Limits'],
                  [BOX_2, 'Box_2'],
                  [BOX_3, 'Box_3'],
                  [BOX_4, 'Box_4']
-].freeze
+]
 
 E1_AND_E2 = RSPEC_GEO_FACTORY.parse_wkt('POLYGON ((-9.0 6.0 0.0, -9.0 2.0 0.0, -14.0 2.0 0.0, -14.0 6.0 0.0, -9.0 6.0 0.0))')
 E1_OR_E2  = RSPEC_GEO_FACTORY.parse_wkt('POLYGON ((-19.0 9.0 0.0, -9.0 9.0 0.0, -9.0 6.0 0.0, 5.0 6.0 0.0, 5.0 -1.0 0.0, -14.0 -1.0 0.0, -14.0 2.0 0.0, -19.0 2.0 0.0, -19.0 9.0 0.0))')
@@ -840,6 +840,8 @@ def generate_political_areas_with_collecting_events(run_in_console = false, _use
 
 * Great Northern Land Mass overlays Q, R, and S.
 
+!!!! 0,0 = 33, 28 !!!!
+
 |------|------|------|------| |------|------|------|------|
 |      |      |      |      | |                           |
 |  M1  |  N1  |  O1  |  P1  | |                           |
@@ -1002,10 +1004,10 @@ Two different shapes with the same name, 'East Boxia', and
   @item_o3 = FactoryGirl.create(:geographic_item, multi_polygon: shape_o3)
   @item_p3 = FactoryGirl.create(:geographic_item, multi_polygon: shape_p3)
 
-  @item_m4        = FactoryGirl.create(:geographic_item, multi_polygon: shape_m4)
-  @item_n4        = FactoryGirl.create(:geographic_item, multi_polygon: shape_n4)
-  @item_o4        = FactoryGirl.create(:geographic_item, multi_polygon: shape_o4)
-  @item_p4        = FactoryGirl.create(:geographic_item, multi_polygon: shape_p4)
+  @item_m4 = FactoryGirl.create(:geographic_item, multi_polygon: shape_m4)
+  @item_n4 = FactoryGirl.create(:geographic_item, multi_polygon: shape_n4)
+  @item_o4 = FactoryGirl.create(:geographic_item, multi_polygon: shape_o4)
+  @item_p4 = FactoryGirl.create(:geographic_item, multi_polygon: shape_p4)
 
   # next, the big shape, and two sub-shapes
   @item_q         = FactoryGirl.create(:geographic_item, multi_polygon: shape_q)

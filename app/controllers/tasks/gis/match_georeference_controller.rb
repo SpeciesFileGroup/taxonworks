@@ -1,9 +1,7 @@
 class Tasks::Gis::MatchGeoreferenceController < ApplicationController
   include TaskControllerConfiguration
-  
 
   def index
-    # some things on to which to hang one's hat.
     @collecting_event  = CollectingEvent.new
     @georeference      = Georeference.new
     @collecting_events = []
@@ -12,7 +10,7 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
 
   def filtered_collecting_events
     message            = ''
-    @collecting_events = CollectingEvent.filter(params) #
+    @collecting_events = CollectingEvent.filter(params) 
 
     if @collecting_events.length == 0
       message = 'no collecting events selected'
@@ -24,9 +22,11 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
     message            = ''
     how_many           = params['how_many']
     @collecting_events = CollectingEvent.where(project_id: $project_id).order(updated_at: :desc).limit(how_many.to_i)
+
     if @collecting_events.length == 0
       message = 'no recent objects selected'
     end
+
     render_ce_select_json(message)
   end
 
@@ -39,13 +39,15 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
       keyword            = Keyword.find(params[:keyword_id])
       @collecting_events = CollectingEvent.where(project_id: $project_id).order(updated_at: :desc).tagged_with_keyword(keyword)
     end
+
     if @collecting_events.length == 0
-      message = 'no tagged objects selected' #and return
+      message = 'no tagged objects selected' 
     end
     render_ce_select_json(message)
   end
 
   def drawn_collecting_events
+    
     message = ''
     value   = params['ce_geographic_item_attributes_shape']
     if value.blank?
@@ -59,12 +61,13 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
       radius    = feature['radius']
       case this_type
         when 'point'
-          @collecting_events = GeographicItem.with_collecting_event_through_georeferences.within_radius_of_wkt('any', geometry, radius).map(&:georeferences).uniq.flatten.map(&:collecting_event)
+          @collecting_events = CollectingEvent.joins(:geographic_items).where( GeographicItem.within_radius_of_wkt_sql(geometry, radius) )
         when 'polygon'
-          @collecting_events = GeographicItem.with_collecting_event_through_georeferences.are_contained_in_wkt('any', geometry).map(&:georeferences).uniq.flatten.map(&:collecting_event)
+          @collecting_events = CollectingEvent.joins(:geographic_items).where( GeographicItem.contained_by_wkt_sql(geometry)) 
         else
       end
     end
+
     if @collecting_events.length == 0
       message = 'no georeferences found'
     end
@@ -121,9 +124,9 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
       radius    = feature['radius']
       case this_type
         when 'point'
-          @georeferences = GeographicItem.with_collecting_event_through_georeferences.within_radius_of_wkt('any', geometry, radius).map(&:georeferences).uniq.flatten
+          @georeferences = Georeference.joins(:geographic_item).where( GeographicItem.within_radius_of_wkt_sql(geometry, radius) )
         when 'polygon'
-          @georeferences = GeographicItem.with_collecting_event_through_georeferences.are_contained_in_wkt('any', geometry).map(&:georeferences).uniq.flatten
+          @georeferences = Georeference.joins(:geographic_item).where( GeographicItem.contained_by_wkt_sql(geometry) )  
         else
       end
     end
@@ -147,6 +150,7 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
             checked_ids.push(params[key].to_i)
           end
         }
+
         arguments.merge!(georeference_id: params['georeference_id'])
         arguments.merge!(checked_ids: checked_ids)
 
@@ -158,11 +162,11 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
 
         html = render_to_string(partial: 'georeference_success', formats: 'html',
                                 locals:  {georeferences_results: results}
-        )
+                               )
 
         render json: {message: message,
                       html:    html
-               }
+        }
       }
     end
   end
