@@ -165,4 +165,8 @@ class CollectingEventsController < ApplicationController
       identifiers_attributes: [:id, :namespace_id, :identifier, :type, :_destroy]
     )
   end
+
+  def batch_params
+    params.permit(:ce_namespace, :file, :import_level).merge(user_id: sessions_current_user_id, project_id: $project_id).symbolize_keys
+  end
 end

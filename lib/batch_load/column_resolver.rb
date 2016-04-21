@@ -1,7 +1,7 @@
-# Methods to resolve a group columns and their values to 
+# Methods to resolve a group columns and their values to
 # an instance in TW, columns should be a Hash of legal
 # values at this point
-# 
+#
 module BatchLoad::ColumnResolver
 
   class << self
@@ -27,6 +27,10 @@ module BatchLoad::ColumnResolver
       end
 
       r
+    end
+
+    def collection_object_by_identifier(columns)
+      r = BatchLoad::ColumnResolver::Result.new
     end
 
     def source(columns)

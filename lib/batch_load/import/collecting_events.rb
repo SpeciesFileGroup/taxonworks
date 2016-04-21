@@ -4,25 +4,32 @@ module BatchLoad
 
     attr_accessor :collecting_events
 
-    attr_accessor :namespace
+    attr_accessor :ce_namespace
 
-    def initialize(**args)
+    def initialize(ce_namespace: nil, **args)
       @collecting_events = {}
+      @ce_namespace      = ce_namespace
       super(args)
+    end
+
+    def preview_collecting_events
+      @preview_table = {}
+
+      @preview_table
     end
 
     # process each row for information:
     def build_collecting_events
       i       = 1 # accounting for headers
       # identifier namespace
-      header1 = csv.headers[0] # should be 'collection_object_identifier_namespace_short_name'
-      header2 = csv.headers[1] # should be 'collection_object_identifier_identifier'
+      header0 = csv.headers[0] # should be 'collection_object_identifier_namespace_short_name'
+      header1 = csv.headers[1] # should be 'collection_object_identifier_identifier'
       header5 = csv.headers[5] # should be 'collecting_event_identifier_namespace_short_name'
       header6 = csv.headers[6] # should be 'collecting_event_identifier_identifier'
       header7 = csv.headers[7] # should be 'collecting_event_identifier_type'
       csv.each do |row|
-        co_namespace = row[header1]
-        co_id        = row[header2]
+        co_namespace = row[header0]
+        co_id        = row[header1]
         next if (co_namespace.nil? or co_id.nil?) # no namespace to search!
         # find a namespace (ns1) with a short_name of row[headers[0]] (id1)
         # find a collection_object which has an identifier which has a namespace (ns1), and a cached of
@@ -70,12 +77,6 @@ module BatchLoad
                                identifier: row[header6])
         ce.identifiers << ce_id
         co.collecting_event = ce
-        # error_radius:     Utilities::Geo.elevation_in_meters(row['error']))
-        # ident = Identifier.find_or_create_by(identifier:   row[0],
-        #                                      namespace_id: n_s.id,
-        #                                      type:         'Identifier::Local::Import',
-        # )
-
         i                   += 1
       end
       @total_lines = i - 1

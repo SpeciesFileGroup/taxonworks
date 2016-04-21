@@ -24,7 +24,7 @@ module CollectingEventsHelper
   end
 
   def collecting_event_namespace_select_tag
-    select_tag(:ce_namespace, options_for_select(GeographicArea.pluck(:data_origin).uniq), include_blank: true)
+    select_tag(:ce_namespace, options_for_select(Namespace.pluck(:short_name).uniq), prompt: 'Select a namespace')
   end
 
 end
