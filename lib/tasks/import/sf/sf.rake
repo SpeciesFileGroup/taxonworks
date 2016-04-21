@@ -124,28 +124,13 @@ namespace :tw do
 
         # Save the file user mapping to the import table
         i = Import.find_or_create_by(name: 'SpeciesFileData')
-
         i.set('FileUserIDToTWUserID', file_user_id_to_tw_user_id)
-
         # newvar = i.get('FileUserIDToTWUserID')
         # mytwuserid = newvar[560]
       end
 
       desc 'create people'
       task :create_people => [:data_directory, :environment, :user_id] do
-        @project = Project.find_by_name('Orthexxoptera Species File')
-        $project_id = @project.id
-        # project_url = 'orthopteraspeciesfile.org'
-
-        # create Namespace for Identifier (used in loop below): Species File, tblPeople, SF PersonID
-        # 'Key3' => Namespace.find_or_create_by(name: '3i_Source_ID', short_name: '3i_Source_ID')     # 'Key3' was key in hash @data.keywords.merge! ??
-        Namespace.find_or_create_by(institution: 'Species File', name: 'tblPeople', short_name: 'SF PersonID')
-
-        file_id = Predicate.find_or_create_by(name: 'FileID', definition: 'SpeciesFile.FileID', project_id: $project_id)
-        person_roles = Predicate.find_or_create_by(name: 'Roles', definition: 'Bitmap of person roles', project_id: $project_id)
-
-        path = @args[:data_directory] + 'tblPeople.txt'
-        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: "UTF-16:UTF-8")
 
         # Two loops:
         # Loop # 1
@@ -162,68 +147,126 @@ namespace :tw do
         # process only those rows where row['PrefID'] > 0
         # identify tw.person.id via row['PrefID'] in hash
         # create alternate_value for tw.person.id using last_name only
-        #
 
         # tblPeople: *PersonID*, *FileID*, PrefID, [PersonRegID], FamilyName, GivenName, GivenInitials, Suffix, *Role*, [Status], LastUpdate, ModifiedBy, CreatedOn, CreatedBy
         #   *Field*: Create as identifier?, [Field]: do not import, GivenName/GivenInitials: If GN is blank, use GI
         #
         # People: id, type, last_name, first_name, created_at, updated_at, suffix, prefix, created_by_id, updated_by_id, cached
 
-        # @todo Need to reload TW.Users = SF.tblFileUsers
+        @project = Project.find_by_name('Orthoptera Species File')
+        $project_id = @project.id
+
+        # create Namespace for Identifier (used in loop below): Species File, tblPeople, SF PersonID
+        # 'Key3' => Namespace.find_or_create_by(name: '3i_Source_ID', short_name: '3i_Source_ID')     # 'Key3' was key in hash @data.keywords.merge! ??
+        # auth_user_namespace = Namespace.find_or_create_by(institution: 'Species File', name: 'tblAuthUsers', short_name: 'SF AuthUserID')
+        person_namespace = Namespace.find_or_create_by(institution: 'Species File', name: 'tblPeople', short_name: 'SF PersonID')
+
+        file_id = Predicate.find_or_create_by(name: 'FileID', definition: 'SpeciesFile.FileID', project_id: $project_id)
+        person_roles = Predicate.find_or_create_by(name: 'Roles', definition: 'Bitmap of person roles', project_id: $project_id)
+
+        species_file_data = Import.find_by(name: 'SpeciesFileData')
+        get_user_id = species_file_data.get('FileUserIDToTWUserID')
+
+        sf_person_id_to_tw_person_id = {}
+
+        path = @args[:data_directory] + 'tblPeople.txt'
+        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: "UTF-16:UTF-8")
 
         file.each_with_index do |row, i|
           person_id = row['PersonID']
           pref_id = row['PrefID']
 
-          next if pref_id > 0
+          next if pref_id.to_i > 0
+
+          print "working with #{person_id}"
+
+
+          # source.alternate_values.new(value: row['Author'], type: 'AlternateValue::Abbreviation', alternate_value_object_attribute: 'author') if !row['AuthorDrMetcalf'].blank? && row['AuthorDrMetcalf'] != row['Author']
+
+
+
+          # # if unique_auth_users[au_id]
+          # #   puts "\n  is a unique user, creating:  #{i}: #{row['Name']}"
+          #
+          # person = Person::Vetted.find_or_create_by(
+          #     # type: 'Person_Vetted',
+          #     last_name: row['FamilyName'],
+          #     first_name: row['GivenName'].blank? ? row['GivenInitials'] : row['GivenName'],
+          #     created_at: row['CreatedOn'],
+          #     updated_at: row['LastUpdate'],
+          #     suffix: row['Suffix'],
+          #     # prefix: '',
+          #     created_by_id: get_user_id[row['CreatedBy']],
+          #     updated_by_id: get_user_id[row['ModifiedBy']]
+          #     # cached: '?'
+          # )
+          #
+          # if person.valid?
+          #   person.save!
+          #
+          #   person.data_attributes << InternalAttribute.new(predicate: file_id, value: row['FileID'])
+          #   person.data_attributes << InternalAttribute.new(predicate: person_roles, value: row['Role'])
+          #
+          #   person.identifiers.new(type: 'Identifier::Local::Import', namespace: person_namespace, identifier: person_id)
+          #   sf_person_id_to_tw_person_id[person_id] = person.id
+          #
+          # else
+          #   puts "     ERROR: " + user.errors.full_messages.join(';')
+          # end
+
+          break if i == 5
+        end
+
+        i = Import.find_or_create_by(name: 'SpeciesFileData')
+        i.set('SFPersonIDToTWPersonID', sf_person_id_to_tw_person_id)
+
+        puts 'SF PersonID mapped to TW person_id'
+        ap sf_person_id_to_tw_person_id
+
+        # loop 2
+
+        file.each_with_index do |row, i|
+          person_id = row['PersonID']
+          pref_id = row['PrefID']
+
+          next if pref_id.to_i = 0
 
           print "working with #{person_id}"
 
           # if unique_auth_users[au_id]
           #   puts "\n  is a unique user, creating:  #{i}: #{row['Name']}"
 
-          person = Person.find_or_create_by(
-              type: 'Person_Vetted',
+          person = Person::Vetted.find_or_create_by(
+              # type: 'Person_Vetted',
               last_name: row['FamilyName'],
               first_name: row['GivenName'].blank? ? row['GivenInitials'] : row['GivenName'],
               created_at: row['CreatedOn'],
               updated_at: row['LastUpdate'],
               suffix: row['Suffix'],
-          # prefix: '',
-          # created_by_id: row['CreatedBy'],
-          # updated_by_id: row['ModifiedBy'],
-          # cached: '?'
+              # prefix: '',
+              created_by_id: get_user_id[row['CreatedBy']],
+              updated_by_id: get_user_id[row['ModifiedBy']]
+              # cached: '?'
           )
 
           if person.valid?
             person.save!
 
-            # unique_auth_users[au_id].each do |fu_id|
-            #   file_user_id_to_tw_user_id[fu_id] = user.id
-            # end
+            person.data_attributes << InternalAttribute.new(predicate: file_id, value: row['FileID'])
+            person.data_attributes << InternalAttribute.new(predicate: person_roles, value: row['Role'])
 
-            # @user_index[row['FileUserId']] = user.id # maps multiple FileUserIDs onto single TW user.id
-
-            # create AuthUserID as DataAttribute as InternalAttribute for table users
-            # user.data_attributes << InternalAttribute.new(predicate: predicates['AuthUserID'], value: au_id)
-            #
-            # ProjectMember.create(user: u, project: @project)
-
-            person.identifiers.new(type: 'Identifier::Local::Import', namespace: 'tblPeople', identifier: row['PersonID'])
-
+            person.identifiers.new(type: 'Identifier::Local::Import', namespace: person_namespace, identifier: person_id)
+            sf_person_id_to_tw_person_id[person_id] = person.id
 
           else
             puts "     ERROR: " + user.errors.full_messages.join(';')
           end
 
-          # else
-          # print " skipping, public access only\n"
-
-          break if i == 10
+          break if i == 5
         end
 
-      end
 
+      end
 
     end
 
