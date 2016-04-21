@@ -296,7 +296,6 @@ class CollectionObject < ActiveRecord::Base
   def self.in_geographic_item(geographic_item, limit, steps = false)
     geographic_item_id = geographic_item.id
     if steps
-      byebug
       gi     = GeographicItem.find(geographic_item_id)
       # find the geographic_items inside gi
       step_1 = GeographicItem.is_contained_by('any', gi) # .pluck(:id)

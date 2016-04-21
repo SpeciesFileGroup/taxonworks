@@ -784,7 +784,6 @@ class TaxonName < ActiveRecord::Base
       end
       # data.merge!(rank => send(method, i, gender)) if self.respond_to?(method)
     end
-    # byebug if self.name == 'Errorneura'  && self.cached_misspelling 
     data
   end
 
