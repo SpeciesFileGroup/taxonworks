@@ -110,6 +110,36 @@ class CollectingEventsController < ApplicationController
     send_data CollectingEvent.generate_download(CollectingEvent.where(project_id: $project_id)), type: 'text', filename: "collecting_events_#{DateTime.now.to_s}.csv"
   end
 
+   # GET collecting_events/batch_load
+  def batch_load
+  end
+
+  def preview_simple_batch_load
+    if params[:file]
+      @result = BatchLoad::Import::CollectingEvents.new(batch_params)
+      digest_cookie(params[:file].tempfile, :batch_collecting_events_md5)
+      render 'collecting_events/batch_load/simple/preview'
+    else
+      flash[:notice] = "No file provided!"
+      redirect_to action: :batch_load
+    end
+  end
+
+  def create_simple_batch_load
+    if params[:file] && digested_cookie_exists?(params[:file].tempfile, :batch_collecting_events_md5)
+      @result = BatchLoad::Import::CollectingEvent.new(batch_params)
+      if @result.create
+        flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} collection objects were created."
+        render 'collecting_events/batch_load/simple/create' and return
+      else
+        flash[:alert] = 'Batch import failed.'
+      end
+    else
+      flash[:alert] = 'File to batch upload must be supplied.'
+    end
+    render :batch_load
+  end
+
   private
 
   # Use callbacks to share common setup or constraints between actions.
@@ -134,5 +164,9 @@ class CollectingEventsController < ApplicationController
                          person_attributes: [:last_name, :first_name, :suffix, :prefix]],
       identifiers_attributes: [:id, :namespace_id, :identifier, :type, :_destroy]
     )
+  end
+
+  def batch_params
+    params.permit(:ce_namespace, :file, :import_level).merge(user_id: sessions_current_user_id, project_id: $project_id).symbolize_keys
   end
 end

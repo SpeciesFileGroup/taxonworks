@@ -94,6 +94,10 @@ TaxonWorks::Application.routes.draw do
     member do
       get 'depictions'
     end
+    collection do
+      post :preview_simple_batch_load # should be get
+      post :create_simple_batch_load
+    end
   end
   match 'collection_objects/by_identifier/:identifier', to: 'collection_objects#by_identifier', via: :get
 
@@ -108,7 +112,11 @@ TaxonWorks::Application.routes.draw do
    resources :collecting_events do
     concerns [:data_routes]
     get :autocomplete_collecting_event_verbatim_locality, :on => :collection
-  end
+     # collection do
+     #   post :preview_simple_batch_load # should be get
+     #   post :create_simple_batch_load
+     # end
+   end
 
   resources :combinations, only: [:create, :edit, :update, :destroy, :new] do
     concerns [:data_routes]
@@ -315,7 +323,7 @@ TaxonWorks::Application.routes.draw do
     collection do
       get :lookup_topic
       get 'get_definition/:id', action: 'get_definition'
-      get :autocomplete 
+      get :autocomplete
     end
   end
 

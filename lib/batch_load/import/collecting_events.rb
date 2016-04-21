@@ -1,18 +1,25 @@
 module BatchLoad
   # TODO: Originally transliterated from Import::AssertedDistributions: Remove this to-do after successful operation.
-  class Import::CollectionObjects < BatchLoad::Import
+  class Import::CollectingEvents < BatchLoad::Import
 
-    attr_accessor :collection_objects
+    attr_accessor :collecting_events
 
-    attr_accessor :namespace
+    attr_accessor :ce_namespace
 
-    def initialize(**args)
-      @collection_objects = {}
+    def initialize(ce_namespace: nil, **args)
+      @collecting_events = {}
+      @ce_namespace      = ce_namespace
       super(args)
     end
 
+    def preview_collecting_events
+      @preview_table = {}
+
+      @preview_table
+    end
+
     # process each row for information:
-    def build_collection_objects
+    def build_collecting_events
       i       = 1 # accounting for headers
       # identifier namespace
       header0 = csv.headers[0] # should be 'collection_object_identifier_namespace_short_name'
@@ -21,21 +28,19 @@ module BatchLoad
       header6 = csv.headers[6] # should be 'collecting_event_identifier_identifier'
       header7 = csv.headers[7] # should be 'collecting_event_identifier_type'
       csv.each do |row|
-        co_list = BatchLoad::ColumnResolver.collection_object_by_identifier(row)
-        # co_namespace = row[header0]
-        # co_id        = row[header1]
-        # co = CollectionObject.joins(:identifiers).where(identifiers: {cached: "#{co_namespace} #{co_id}"}).first
-        next if co_list.no_matches? # no namespace to search!
+        co_namespace = row[header0]
+        co_id        = row[header1]
+        next if (co_namespace.nil? or co_id.nil?) # no namespace to search!
         # find a namespace (ns1) with a short_name of row[headers[0]] (id1)
         # find a collection_object which has an identifier which has a namespace (ns1), and a cached of
         # (ns1.short_name + ' ' + identifier.identifier)
         # ns1    = Namespace.where(short_name: id1).first
-        co           = co_list.item
         long         = row['longitude'] # longitude
         lat          = row['latitude'] # latitude
         method       = row['method']
         error        = (row['error'].to_s + ' ' + row['georeference_error_units'].to_s).strip
         ce_namespace = row[header5]
+        co           = CollectionObject.joins(:identifiers).where(identifiers: {cached: "#{co_namespace} #{co_id}"}).first
         otu          = Otu.find_or_create_by(name: row['otu'])
         td           = TaxonDetermination.find_or_create_by(otu:                          otu,
                                                             biological_collection_object: co)
@@ -79,7 +84,7 @@ module BatchLoad
 
     def build
       if valid?
-        build_collection_objects
+        build_collecting_events
         @processed = true
       end
     end

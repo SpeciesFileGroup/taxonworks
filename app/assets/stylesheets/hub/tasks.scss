@@ -109,14 +109,47 @@
     justify-content:center;
     order:-1;
     align-items:center;
+    min-height: 50px;
+    min-width: 450px;
+    justify-content: space-between; 
   }
 
   .navigation a {
     display: flex;
+    cursor: pointer;
   }
-
+  .navigation-arrows {
+    display: flex;
+    flex-direction: row;
+  }
   .navigation-arrow {
     display: flex;
     padding: 5px;
   }  
+
+  .task-nav-list {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+         
+      .task-nav-item {
+        transition: width 0.5s ease, height 0.5s ease;
+        background-color: $navigation_border;
+        border-radius: 3px;
+        width: 15px;
+        height: 15px;
+        margin: 5px;
+        cursor: pointer;
+      }
+      .active {
+        background-color: $default_text;
+              width: 17px;
+      height: 17px;
+      }
+    .task-nav-item:hover {
+      transition: width 0.5s ease, height 0.5s ease;
+      width: 20px;
+      height: 20px;
+    }
+  }
 }
