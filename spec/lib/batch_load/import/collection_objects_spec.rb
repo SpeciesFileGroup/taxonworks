@@ -20,7 +20,7 @@ describe BatchLoad::Import::CollectionObjects, type: :model do
 
   let(:upload_file) { fixture_file_upload(file_name) }
   let(:import) {
-    BatchLoad::Import::CollectionObjects.new(project_id: project.id, user_id: user.id, file: upload_file)
+    BatchLoad::Import::CollectionObjects.new(project_id: project.id, user_id: user.id, file: upload_file, user_header_map: {'otu' => 'otu_name'} )
   }
 
   context 'initialzation' do
