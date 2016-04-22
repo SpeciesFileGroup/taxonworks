@@ -45,6 +45,8 @@ class AlternateValue < ActiveRecord::Base
   validates_presence_of :type, :value, :alternate_value_object_attribute
   validates :alternate_value_object, presence: true
 
+  validates_uniqueness_of :value, scope: [:alternate_value_object, :type, :alternate_value_object_attribute, :project_id] # !! think about project/community on same object
+
   def type_name
     r = self.type.to_s
     ALTERNATE_VALUE_CLASS_NAMES.include?(r) ? r : nil
