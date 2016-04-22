@@ -32,8 +32,11 @@ module BatchLoad::ColumnResolver
     def collection_object_by_identifier(columns)
       r = BatchLoad::ColumnResolver::Result.new
 
-      ident_text = "#{columns['collection_object_identifier_namespace_short_name']} " +
-        " #{columns['collection_object_identifier_identifier']}".strip
+      ident_text = columns['catalog_number']
+      ident_text = columns['collection_object_identifier'] if ident_text.blank?
+
+      ident_text = "#{columns['collection_object_identifier_namespace_short_name']}" + ' ' +
+        " #{columns['collection_object_identifier_identifier']}".strip if ident_text.blank?
 
       if ident_text.blank?
         r.error_messages << 'No column combination suitable for collection object resolution was provided.'

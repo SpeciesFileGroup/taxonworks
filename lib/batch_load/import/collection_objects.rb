@@ -15,13 +15,16 @@ module BatchLoad
     def build_collection_objects
       i       = 1 # accounting for headers
       # identifier namespace
-      header0 = csv.headers[0] # should be 'collection_object_identifier_namespace_short_name'
-      header1 = csv.headers[1] # should be 'collection_object_identifier_identifier'
+      # header0 = csv.headers[0] # should be 'collection_object_identifier_namespace_short_name'
+      # header1 = csv.headers[1] # should be 'collection_object_identifier_identifier'
       header5 = csv.headers[5] # should be 'collecting_event_identifier_namespace_short_name'
       header6 = csv.headers[6] # should be 'collecting_event_identifier_identifier'
       header7 = csv.headers[7] # should be 'collecting_event_identifier_type'
       csv.each do |row|
-        co_list = BatchLoad::ColumnResolver.collection_object_by_identifier(row)
+        # hot-wire the project into the row
+        row['project_id'] = @project_id.to_s if row['project_id'].blank?
+        co_list           = BatchLoad::ColumnResolver.collection_object_by_identifier(row)
+        otu_list          = BatchLoad::ColumnResolver.otu(row)
         # co_namespace = row[header0]
         # co_id        = row[header1]
         # co = CollectionObject.joins(:identifiers).where(identifiers: {cached: "#{co_namespace} #{co_id}"}).first
@@ -31,12 +34,13 @@ module BatchLoad
         # (ns1.short_name + ' ' + identifier.identifier)
         # ns1    = Namespace.where(short_name: id1).first
         co           = co_list.item
+        otu          = otu_list.item if otu_list.resolvable?
+        otu          = Otu.create(name: row['otu_name']) if otu.blank?
         long         = row['longitude'] # longitude
         lat          = row['latitude'] # latitude
         method       = row['method']
         error        = (row['error'].to_s + ' ' + row['georeference_error_units'].to_s).strip
         ce_namespace = row[header5]
-        otu          = Otu.find_or_create_by(name: row['otu'])
         td           = TaxonDetermination.find_or_create_by(otu:                          otu,
                                                             biological_collection_object: co)
         ce           = CollectingEvent.find_or_create_by(verbatim_locality:                row['verbatim_location'],

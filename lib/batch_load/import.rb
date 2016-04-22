@@ -1,7 +1,7 @@
 module BatchLoad
 
   CSV::Converters[:user_map] = lambda do |field|
-    
+
     field && field.empty? ? nil : field
   end
 
@@ -38,7 +38,7 @@ module BatchLoad
     # The number of lines that have at least some data in some column
     attr_accessor :total_data_lines
 
-    # How forgiving the import rocess is
+    # How forgiving the import process is
     #  :warn -> all possible names will be added, with those not validating ignored
     #  :line_strict -> there is one record assumed / line, and each line must have a single valid record
     #  :strict -> all processed records must be valid
@@ -91,7 +91,11 @@ module BatchLoad
 
     def csv
       #  begin
-      @csv ||= CSV.parse(@file.tempfile.read.force_encoding('utf-8'), {headers: true, header_converters: [:downcase, lambda {|h| user_map(h) } ], col_sep: "\t", encoding: "UTF-8"})
+      @csv ||= CSV.parse(@file.tempfile.read.force_encoding('utf-8'),
+                         {headers:           true,
+                          header_converters: [:downcase, lambda { |h| user_map(h) }],
+                          col_sep:           "\t",
+                          encoding:          "UTF-8"})
       #  rescue Encoding::UndefinedConversionError => e
       #    @processed = false
       #    @file_errors.push("Error converting file. #{e}")
