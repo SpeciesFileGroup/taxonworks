@@ -15,6 +15,7 @@ var carrouselTask = function (sec, rows, columns) {
     this.maxRow = rows,
     this.sectionTag = sec;
     this.resetChildsCount();
+    this.filterChilds();
     this.makeInjection();
     this.injectNavList();
   }
@@ -112,6 +113,7 @@ var carrouselTask = function (sec, rows, columns) {
         child.hide(250);
       }
     }
+    this.showMoreNav(((this.start + this.maxRow) < this.active.length+1));
   }
   carrouselTask.prototype.filterChilds = function() {
     var 
@@ -130,6 +132,7 @@ var carrouselTask = function (sec, rows, columns) {
       }
     }
     this.navigation((find > this.maxRow));
+    this.showMoreNav((find > this.maxRow));
   } 
   carrouselTask.prototype.resetView = function() {
     $(this.sectionTag + ' .task_card').css("display","none");
@@ -154,7 +157,7 @@ var carrouselTask = function (sec, rows, columns) {
         if((arrayPos+maxRow) <= this.childsCount) {
           $(sectionTag + " > .task_card:nth-child("+ active[arrayPos] +")" ).hide(100, function() {
             $(sectionTag + " .task_card:nth-child("+ active[arrayPos+2] +")" ).children(".task_card").animate({
-              width: middleBoxSize
+              width: boxSize
             }, 50);
             $(sectionTag + " .task_card:nth-child("+ active[arrayPos+1] +")" ).children(".task_card").animate({
               width: boxSize
@@ -167,9 +170,20 @@ var carrouselTask = function (sec, rows, columns) {
           if(this.arrayPos <= this.active.length) {
             this.arrayPos++;
           }      
-        }      
+        }            
       } 
+        this.showMoreNav(!(this.active.length == (this.arrayPos + this.maxRow)));    
   }
+
+  carrouselTask.prototype.showMoreNav = function(value) {
+    if(value) {
+        $('.more_tasks_nav').fadeIn(250);
+      } 
+    else {
+      $('.more_tasks_nav').fadeOut(250);
+    }
+  }
+
   carrouselTask.prototype.loadingUp = function() {
     var 
       boxSize = this.boxSize,
@@ -196,5 +210,6 @@ var carrouselTask = function (sec, rows, columns) {
             this.arrayPos--;
           }      
         }      
-      } 
+      }
+      this.showMoreNav(!(this.active.length == (this.arrayPos + this.maxRow))); 
   }

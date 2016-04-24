@@ -19,9 +19,6 @@
     box-shadow: 0 0px 3px 0 $navigation_border;
   }
 
-  a {
-    color: $default_text;
-  }
 
   .task_header {
     display: flex;
@@ -79,6 +76,10 @@
     .task_name {
       font-size: 18px;
       padding: 1em; 
+      a {
+        color: $color-secondary-2-4;
+      }
+
     }
 
     .task-header-left {
@@ -127,6 +128,18 @@
     padding: 5px;
   }  
 
+  .more_tasks_nav {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 450px;
+    min-height: 50px;
+    bottom: 0px;
+    margin: 0.5em;
+    margin-bottom: 0px;
+    cursor: pointer;
+  }
+
   .task-nav-list {
       display: flex;
       flex-direction: row;
@@ -152,4 +165,9 @@
       height: 20px;
     }
   }
+  @media screen and (min-height:1000px) {
+      .more_tasks_nav {
+          position: fixed !important;
+      }
+  }  
 }

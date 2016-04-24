@@ -43,6 +43,11 @@ function initTaskCarrousel() {
       task.changeSelectedNavList(task.arrayPos);
   });
 
+  $('.more_tasks_nav').on('click',  function() {
+    task.loadingDown();
+    task.changeSelectedNavList(task.arrayPos);
+  });  
+
   $('.task-nav-list').on('click', '.task-nav-item', function() {
       itemID = $(this).index();
       task.changeSelectedNavList(itemID);
