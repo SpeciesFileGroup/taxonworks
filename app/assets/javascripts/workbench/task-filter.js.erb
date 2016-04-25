@@ -155,8 +155,8 @@ var carrouselTask = function (sec, rows, columns) {
       maxRow = this.maxRow;
       if(this.active.length > (this.arrayPos + maxRow)) {
         if((arrayPos+maxRow) <= this.childsCount) {
-          $(sectionTag + " .task_card:nth-child("+ active[arrayPos] +")" ).hide(100, function() {     
-            $(sectionTag + " .task_card:nth-child("+ active[(arrayPos+maxRow)] +")" ).show(150)
+          $(sectionTag + " .task_card:nth-child("+ active[arrayPos] +")" ).hide(250, function() {     
+            $(sectionTag + " .task_card:nth-child("+ active[(arrayPos+maxRow)] +")" ).show(250)
           });   
           if(this.arrayPos <= this.active.length) {
             this.arrayPos++;
@@ -185,9 +185,8 @@ var carrouselTask = function (sec, rows, columns) {
       maxRow = this.maxRow;
       if(0 < (this.arrayPos + maxRow)) {
         if((arrayPos) > 0) {
-          $(sectionTag + " .task_card:nth-child("+ active[arrayPos+maxRow-1] +")" ).hide(100, function() {
-  
-            $(sectionTag + " .task_card:nth-child("+ active[arrayPos-1] +")" ).show(150)
+          $(sectionTag + " .task_card:nth-child("+ active[arrayPos+maxRow-1] +")" ).hide(250, function() {
+            $(sectionTag + " .task_card:nth-child("+ active[arrayPos-1] +")" ).show(250)
           });   
           if(this.arrayPos > 0) {
             this.arrayPos--;
