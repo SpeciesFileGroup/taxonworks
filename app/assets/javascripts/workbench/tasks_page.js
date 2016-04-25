@@ -55,11 +55,11 @@ function initTaskCarrousel() {
       task.showChilds(itemID+1);
   });
   //Mousetrap Keys
-  Mousetrap.bind('up', function() {
+  Mousetrap.bind('left', function() {
     task.loadingUp();
     task.changeSelectedNavList(task.arrayPos);
   });
-  Mousetrap.bind('down', function() {
+  Mousetrap.bind('right', function() {
     task.loadingDown();
     task.changeSelectedNavList(task.arrayPos);
   });  

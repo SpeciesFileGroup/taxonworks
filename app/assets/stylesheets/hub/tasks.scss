@@ -14,8 +14,8 @@
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    justify-content: center;
-    max-width: 1000px;
+    justify-content: flex-start;
+    max-width: 930px;
   }
 
   .task_card {
