@@ -101,6 +101,7 @@
   .task_description {
     font-size: 14px;
     font-weight: 100;
+    line-height: 125%;
     padding: 0em 2em 1em 2em;
   }
 
@@ -146,7 +147,6 @@
       align-items: center;
          
       .task-nav-item {
-        transition: width 0.5s ease, height 0.5s ease;
         background-color: $navigation_border;
         border-radius: 3px;
         width: 15px;
@@ -156,14 +156,9 @@
       }
       .active {
         background-color: $default_text;
-              width: 17px;
-      height: 17px;
+        width: 17px;
+        height: 17px;
       }
-    .task-nav-item:hover {
-      transition: width 0.5s ease, height 0.5s ease;
-      width: 20px;
-      height: 20px;
-    }
   }
   @media screen and (min-height:1000px) {
       .more_tasks_nav {
