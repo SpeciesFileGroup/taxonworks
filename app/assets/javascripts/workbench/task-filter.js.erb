@@ -8,7 +8,7 @@ var carrouselTask = function (sec, rows, columns) {
     this.boxSize = 500,
     this.active = [];
     this.arrayPos = 0;
-    this.maxRow = 3,
+    this.maxRow = 4,
     this.childsCount = 0,
     this.sectionTag = "",
     this.filters = {},
@@ -75,7 +75,7 @@ var carrouselTask = function (sec, rows, columns) {
   }
 
   carrouselTask.prototype.resetChildsCount = function() {
-      this.childsCount = $(this.sectionTag + ' > .task_card').length;
+      this.childsCount = $(this.sectionTag + ' .task_card').length;
   }
 
   carrouselTask.prototype.setFilterStatus = function(filterTag, value)  {
@@ -102,7 +102,7 @@ var carrouselTask = function (sec, rows, columns) {
       this.changeSelectedNavList(this.start);
     }
     for (i = this.start; i <= this.childs.length; i++) {
-      child = $(this.sectionTag + ' > .task_card:nth-child('+ (i) +')');
+      child = $(this.sectionTag + ' .task_card:nth-child('+ (i) +')');
       if(this.childs[i]) {
         if(count <= this.maxRow) {
           child.show(250);
@@ -123,7 +123,7 @@ var carrouselTask = function (sec, rows, columns) {
       this.active = [];
       this.childs = [];
     for (i = 1; i <= this.childsCount; i++) {
-      child = $(this.sectionTag + ' > .task_card:nth-child('+ (i) +')');
+      child = $(this.sectionTag + ' .task_card:nth-child('+ (i) +')');
       if(this.checkChildFilter(child)) {
         this.active[activeCount] = i;
         activeCount++;
@@ -139,10 +139,10 @@ var carrouselTask = function (sec, rows, columns) {
   }
   carrouselTask.prototype.navigation = function(value) {
     if(value) {
-      $(this.sectionTag + " > .navigation a").show(250);
+      $(this.sectionTag + " .navigation a").show(250);
     }
     else {
-      $(this.sectionTag + " > .navigation a").hide(250);
+      $(this.sectionTag + " .navigation a").hide(250);
     }
   }
   carrouselTask.prototype.loadingDown = function() {
@@ -155,17 +155,8 @@ var carrouselTask = function (sec, rows, columns) {
       maxRow = this.maxRow;
       if(this.active.length > (this.arrayPos + maxRow)) {
         if((arrayPos+maxRow) <= this.childsCount) {
-          $(sectionTag + " > .task_card:nth-child("+ active[arrayPos] +")" ).hide(100, function() {
-            $(sectionTag + " .task_card:nth-child("+ active[arrayPos+2] +")" ).children(".task_card").animate({
-              width: boxSize
-            }, 50);
-            $(sectionTag + " .task_card:nth-child("+ active[arrayPos+1] +")" ).children(".task_card").animate({
-              width: boxSize
-            }, 50); 
-            $(sectionTag + " .task_card:nth-child("+ active[arrayPos] +")" ).children(".task_card").animate({
-              width: boxSize
-            }, 50);       
-            $(sectionTag + " > .task_card:nth-child("+ active[arrayPos+3] +")" ).show(150)
+          $(sectionTag + " .task_card:nth-child("+ active[arrayPos] +")" ).hide(100, function() {     
+            $(sectionTag + " .task_card:nth-child("+ active[(arrayPos+maxRow)] +")" ).show(150)
           });   
           if(this.arrayPos <= this.active.length) {
             this.arrayPos++;
@@ -194,17 +185,9 @@ var carrouselTask = function (sec, rows, columns) {
       maxRow = this.maxRow;
       if(0 < (this.arrayPos + maxRow)) {
         if((arrayPos) > 0) {
-          $(sectionTag + " > .task_card:nth-child("+ active[arrayPos+maxRow-1] +")" ).hide(100, function() {
-            $(sectionTag + " .task_card:nth-child("+ active[arrayPos] +")" ).children(".task_card").animate({
-              width: boxSize
-            }, 50);
-            $(sectionTag + " .task_card:nth-child("+ active[arrayPos+maxRow-1] +")" ).children(".task_card").animate({
-              width: boxSize
-            }, 50); 
-            $(sectionTag + " .task_card:nth-child("+ active[arrayPos+1] +")" ).children(".task_card").animate({
-              width: boxSize
-            }, 50);       
-            $(sectionTag + " > .task_card:nth-child("+ active[arrayPos-1] +")" ).show(150)
+          $(sectionTag + " .task_card:nth-child("+ active[arrayPos+maxRow-1] +")" ).hide(100, function() {
+  
+            $(sectionTag + " .task_card:nth-child("+ active[arrayPos-1] +")" ).show(150)
           });   
           if(this.arrayPos > 0) {
             this.arrayPos--;

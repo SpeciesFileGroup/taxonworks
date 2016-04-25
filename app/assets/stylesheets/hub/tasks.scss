@@ -10,10 +10,19 @@
   justify-content:flex-start;
   align-items: center;
 
+  .task-section {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 1000px;
+  }
+
   .task_card {
     border: 1px solid $navigation_border;
     margin: 0.5em;
     width: 450px;
+    min-height: 200px;
     border-radius: 3px;
     background-color: $color-secondary-2-1;
     box-shadow: 0 0px 3px 0 $navigation_border;
@@ -113,7 +122,6 @@
     align-items:center;
     min-height: 50px;
     min-width: 450px;
-    justify-content: space-between; 
   }
 
   .navigation a {

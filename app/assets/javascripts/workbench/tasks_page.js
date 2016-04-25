@@ -7,7 +7,7 @@ $(document).ready(function() {
 function initTaskCarrousel() {
 
   var 
-    task = new carrouselTask("#task_carrousel",3,1);
+    task = new carrouselTask("#task_carrousel",4,1);
     task.addFilter("source");
     task.addFilter("collecting_event");
     task.addFilter("collection_object");

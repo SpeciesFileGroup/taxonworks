@@ -19,16 +19,14 @@
       <span data-icon="users">Users</span>
     </div>
     <nav class="content flexbox">
-      <div class="item item1 icon-new">
-        <%= link_to("New", signup_path) -%>
+      <div class="item item1 horizontal-center-content">
+        <%= link_to("New", signup_path, "data-icon" => "new") -%>
       </div>
-
-      <div class="item item2 icon-list">
-        <%= link_to("List", users_path) %>
+      <div class="item item2" style="display:flex; justify-content: center;">
+        <%= link_to("List", users_path, "data-icon" => "list") %>
       </div>
-
-      <div class="item item3 icon-list">
-        <%= link_to("Activity", user_activity_path, data: { no_turbolink: true }) %>
+      <div class="item item3" style="display:flex; justify-content: center;">
+        <%= link_to("Activity", user_activity_path, data: { no_turbolink: true }, "data-icon" => "list") %>
       </div>
     </nav>
   </div>

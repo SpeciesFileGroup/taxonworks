@@ -1,15 +1,14 @@
 <%= render "/hub/navigation_lists/hub_category_filter" %>
 <div id="task_carrousel">
+  <div class="task-section">
   <% UserTasks.hub_tasks.each do |task| -%>
     <%= task_card(task) -%>
   <% end %>
-  <a class="panel more_tasks_nav">
-    Show more tasks
-  </a>
+  </div>
   <div class="navigation">
   <div class="task-nav-list">
-    
   </div>
+  <!--
   <div class="navigation-arrows">
     <div class="navigation-arrow">
       <a data-arrow="up" data-icon="arrow-up"></a>
@@ -18,5 +17,6 @@
       <a data-arrow="down" data-icon="arrow-down"></a>
     </div>
   </div>
+  -->
   </div>
 </div>
