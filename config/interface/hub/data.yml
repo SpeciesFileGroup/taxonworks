@@ -44,6 +44,8 @@ Core: # a Section
   Source:
      status: :prototype
      shared: true
+     categories:
+       - Source 
      related_models:
        - Serial
        - People
@@ -86,6 +88,11 @@ Supporting:
     related_models:
       - Document 
   Depiction:
+    related_models:
+      - Image
+    categories:
+      - CollectionObject
+      - CollectingEvent
   Georeference:
     categories:
       - CollectingEvent 
@@ -95,6 +102,8 @@ Supporting:
     related_models:
       - CollectingEvent
       - Georeference
+    categories:
+      - CollectingEvent
   GeographicItem:
     hide: true
     related_models:
@@ -116,6 +125,8 @@ Supporting:
       - CollectionObject
     related_models:
       - Loan
+      - CollectionObject
+      - Otu
   OtuPageLayout:
     related_models:
       - ControlledVocabularyTerm
@@ -127,9 +138,13 @@ Supporting:
       - TaxonDetermination
   PreparationType:
     shared: true
+    categories:
+      - CollectionObject
   Namespace:
     shared: true
   RangedLotCategory:
+    categories:
+      - CollectionObject
   Repository:
     shared: true
     application_defined: true
@@ -137,18 +152,29 @@ Supporting:
       - CollectingObject
   Serial:
     shared: true 
+    categories:
+      - Source 
     related_models:
       - Source
       - Person
   TaxonDetermination:
+     categories:
+       - CollectionObject
+     related_models:
+       - Otu 
+       - CollectionObject
   TaxonNameClassification:
-   categories:
+    categories:
       - TaxonName 
+    related_models:
+      - TaxonName
+      - TaxonNameRelationship
   TaxonNameRelationship:
     categories:
       - TaxonName 
     related_model:
       - TaxonName
+      - TaxonNameClassification
   TypeMaterial:
     categories:
       - TaxonName 
