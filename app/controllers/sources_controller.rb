@@ -46,7 +46,7 @@ class SourcesController < ApplicationController
 
         format.json { render action: 'show', status: :created, location: @source }
       else
-        if @source.type == 'Source::Bibtex' && params['source']['roles_attributes'].count > 0
+        if @source.type == 'Source::Bibtex' && source_params['roles_attributes'].try(:count).to_i > 0
           # has an author or editor so force create...
           if @source.errors.get(:base).include?('Missing core data. A TaxonWorks source must have one of the following: author, editor, booktitle, title, url, journal, year, or stated year')
             @source.title = 'forced'

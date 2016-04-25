@@ -7,7 +7,7 @@ namespace :tw do
 
       [Serial, SerialChronology, Identifier, DataAttribute, AlternateValue].each do |klass|
         if klass.count > 0 
-          puts 'There are existing #{klass.name.humanize}, doing nothing.'.red.on_white 
+          puts "There are existing #{klass.name.humanize}, doing nothing.".red.on_white 
           raise 
         end
       end
