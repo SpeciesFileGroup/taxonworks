@@ -34,6 +34,5 @@ module NomenclatureCatalog
       end
     end
 
-
   end
 end

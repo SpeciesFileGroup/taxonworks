@@ -13,8 +13,11 @@ module Shared::Citable
     has_many :citations, as: :citation_object, validate: false, dependent: :destroy
     has_many :citation_topics, through: :citations
     has_many :topics, through: :citation_topics
-    
+   
+    has_many :subsequent_citations, -> {where(is_original: false)}, as: :citation_object, class_name: 'Citation'
+
     has_many :sources, -> { uniq }, through: :citations
+    has_many :subsequent_sources, -> {uniq}, through: :subsequent_citations
 
     has_one :origin_citation, -> {where(is_original: true)}, as: :citation_object, class_name: 'Citation'
     has_one :source, through: :origin_citation

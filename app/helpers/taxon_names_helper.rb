@@ -36,7 +36,7 @@ module TaxonNamesHelper
     taxon_name.cached_author_year.gsub(/^\(|\)$/, '')
   end
 
-  def taxon_name_history_tag(taxon_name, citation)
+  def taxon_name_history_tag(taxon_name, citation, date)
 
     # taxon name in original combination
     # taxon name author year
@@ -55,7 +55,7 @@ module TaxonNamesHelper
       history_statuses(taxon_name, citation), 
       history_notes(citation),
       history_topics(citation),
-      history_type_material(taxon_name),
+      history_type_material(taxon_name) 
     ].compact.join.html_safe
   end
   
@@ -108,15 +108,9 @@ module TaxonNamesHelper
     c = i.citation
 
     content_tag(:li, class: :history_record) do
-      case i.object_class
-      when 'Protonym', 'Combination' 
-        taxon_name_history_tag(i.object, i.object.origin_citation)
-      when  /TaxonNameRelationship/
-        taxon_name_history_tag(i.object.subject_taxon_name, i.object.origin_citation)
-      else
-        i.object_class
-      end
+      taxon_name_history_tag(i.taxon_name, i.citation, i.nomenclature_date)
     end
+  end
 
 #   content_tag(:li) do  
 #     if i.cited?
@@ -141,7 +135,7 @@ module TaxonNamesHelper
 #       end
 #     end
 #   end
-  end
+  # end
 
   def latinization_tag(taxon_name)
     list = TaxonNameClassification.where_taxon_name(@taxon_name).with_type_array(LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES)
