@@ -12,7 +12,8 @@
       class ImportedData3i
         attr_accessor :people_index, :user_index, :publications_index, :citations_index, :genera_index, :images_index,
                       :parent_id_index, :statuses, :taxon_index, :citation_to_publication_index, :keywords,
-                      :incertae_sedis, :emendation, :original_combination, :unique_host_plant_index, :host_plant_index, :topics
+                      :incertae_sedis, :emendation, :original_combination, :unique_host_plant_index,
+                      :host_plant_index, :topics, :nouns, :countries
         def initialize()
           @keywords = {}                  # keyword -> ControlledVocabularyTerm
           @people_index = {}              # PeopleID -> Person object
@@ -31,6 +32,8 @@
           @unique_host_plant_index = {}
           @host_plant_index = {}
           @topics = {}
+          @nouns = {}
+          @countries = {}
         end
       end
 
@@ -187,8 +190,9 @@
         #handle_taxonomy_3i
         #handle_taxon_name_relationships_3i
         #handle_citation_topics_3i
-        handle_host_plant_name_dictionary_3i
-        handle_host_plants_3i
+        #handle_host_plant_name_dictionary_3i
+        #handle_host_plants_3i
+        handle_distribution_3i
 
         print "\n\n !! Success. End time: #{Time.now} \n\n"
       end
@@ -416,7 +420,24 @@
         return matchdata[1], matchdata[2]
       end
 
+      def handle_nouns_3i
+        path = @args[:data_directory] + 'unchangednames.txt'
+        print "\nUnchanging names\n"
+        raise "file #{path} not found" if not File.exists?(path)
+        file = CSV.foreach(path, col_sep: "\t", headers: true)
+
+        #speciesname
+
+        file.each_with_index do |row, i|
+          @data.nouns.merge!(row['speciesname'] => true)
+        end
+
+      end
+
       def handle_taxonomy_3i
+
+        handle_nouns_3i
+
 
         # Key !
         # Key3 !
@@ -462,7 +483,7 @@
 
         synonym_statuses = %w(1 6 8 10 11 14 17 22 23 24 26 27 28 29)
 
-      path = @args[:data_directory] + 'taxon.txt'
+          path = @args[:data_directory] + 'taxon.txt'
           print "\nHandling taxonomy\n"
           raise "file #{path} not found" if not File.exists?(path)
           file = CSV.foreach(path, col_sep: "\t", headers: true)
@@ -474,7 +495,7 @@
             if row['Name'] == 'Incertae sedis' || row['Name'] == 'Unplaced'
               @data.incertae_sedis.merge!(row['Key'] => @data.taxon_index[row['Parent']])
             elsif row['Status'] == '7' ### common name
-            elsif row['Status'] == '8' && !find_taxon(row['Parent']).rank_class.to_s.include?('Family') ### combination
+            elsif row['Status'] == '8' && !find_taxon(row['Parent']).try(:rank_class).to_s.include?('Family') ### combination
             elsif row['Status'] == '2'
               @data.original_combination.merge!(row['OriginalCombinationOf'] => row)
             elsif row['Status'] == '16'
@@ -521,7 +542,6 @@
                 parent = find_taxon(row['OriginalSpecies'])
                 rank = @ranks[1]
               end
-              byebug if parent.nil?
               byebug if row['Rank'].blank?
 
               #rank = row['Rank'] == '0' ? parent.rank_class : @ranks[row['Rank'].to_i]
@@ -558,6 +578,17 @@
               end
 
               taxon.taxon_name_classifications.new(type: gender[row['Gender']]) unless row['Gender'].blank?
+
+              if taxon.rank_string =~ /Species/
+                if @data.nouns[row['Name']]
+                  taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Latinized::PartOfSpeech::NounInApposition')
+                elsif row['Name'].ends_with?('i') || row['Name'].ends_with?('ae') || row['Name'].ends_with?('arum') || row['Name'].ends_with?('orum')
+                  taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Latinized::PartOfSpeech::NounInGenitiveCase')
+                elsif !row['nameM'].blank?
+                  taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective')
+                end
+              end
+
               taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Fossil') if row['is_fossil'] == '1'
               byebug if row['Status'].blank?
               taxon.taxon_name_classifications.new(type: @classification_classes[row['Status'].to_i]) unless @classification_classes[row['Status'].to_i].blank?
@@ -740,7 +771,11 @@
             CommonName.create!(otu: find_taxon(row['Parent']).otus.first, name: row['Name'], language: lng)
           elsif row['Status'] == '2' || !row['OriginalCombinationOf'].blank? ### Original combination
             taxon = find_taxon(row['OriginalCombinationOf']) || find_taxon(row['Parent'])
-            taxonid = taxon.id
+            if taxon.blank?
+              byebug
+            else
+              taxonid = taxon.id
+            end
             taxon.verbatim_name = row['Name'].split(' ').last
             taxon.original_species_relationship.destroy unless taxon.original_species_relationship.blank?
             taxon.original_subspecies_relationship.destroy unless taxon.original_subspecies_relationship.blank?
@@ -976,7 +1011,65 @@
         end
       end
 
-        def find_taxon_id(key)
+      def handle_distribution_3i
+        handle_countries_3i
+
+        # Key
+        # Key6
+        # Key3
+
+        path = @args[:data_directory] + 'countrytable.txt'
+        print "\nHandling distribution\n"
+        raise "file #{path} not found" if not File.exists?(path)
+        file = CSV.foreach(path, col_sep: "\t", headers: true)
+
+        file.each_with_index do |row, i|
+          print "\r#{i}"
+          otu = find_otu(row['Key'])
+          source = find_publication_id(row['Key3'])
+          country = @data.countries[row['Key6']]
+          ga = country['TW_id'].nil? ? nil : GeographicArea.find(country['TW_id']) unless country.nil?
+          print "\nGeographic area not found for Key6 = #{row['Key6']}\n" if !country.nil? && !country['TW_id'].nil? && ga.nil?
+          print "\nGeographic area does not match Country = #{country['TW_name']}; GeographicArea = #{ga.name}\n" if !ga.nil? && ga.name != country['TW_name']
+
+          if !otu.nil? && !source.nil? && !ga.nil?
+            AssertedDistribution.find_or_create_by!(
+                                    otu: otu,
+                                    geographic_area: ga,
+                                    source_id: source,
+                                    project_id: $project_id )
+          end
+
+
+        end
+      end
+
+      def handle_countries_3i
+        #Key6
+        # Count
+        # Country
+        # LongCentr
+        # LatCentr
+        # CountryCode
+        # Realm
+        # TW_name
+        # TW_id
+        # used
+        path = @args[:data_directory] + 'countries.txt'
+        print "\nHandling list of countries\n"
+        raise "file #{path} not found" if not File.exists?(path)
+        file = CSV.foreach(path, col_sep: "\t", headers: true)
+
+        file.each_with_index do |row, i|
+          print "\r#{i}"
+          @data.countries.merge!(row['Key6'] => row)
+
+        end
+
+      end
+
+
+      def find_taxon_id(key)
           @data.taxon_index[key.to_s] || Protonym.with_identifier('3i_Taxon_ID ' + key.to_s).find_by(project_id: $project_id).try(:id)
         end
 

@@ -246,6 +246,15 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
      expect(s1.cached_classified_as).to eq(' (as Erythroneuridae)')
    end
 
+    specify 'for cached_author' do
+      s1.original_genus = g1
+      s1.save!
+      expect(s1.cached_author_year).to eq('McAtee, 1900')
+      s1.original_genus = g2
+      s1.save!
+      expect(s1.cached_author_year).to eq('(McAtee, 1900)')
+    end
+
    # TODO: notice that alone they pass, we need a seperate method for setting cached_classified_as, i.e. decouple it from original combination cache setting 
    specify 'for cached_classified_as with original genus present' do
      s1.original_genus = g2
