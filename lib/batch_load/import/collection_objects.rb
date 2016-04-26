@@ -33,7 +33,8 @@ module BatchLoad
         # find a collection_object which has an identifier which has a namespace (ns1), and a cached of
         # (ns1.short_name + ' ' + identifier.identifier)
         # ns1    = Namespace.where(short_name: id1).first
-        co           = co_list.item
+        co = co_list.item
+        next unless co.collecting_event.nil?
         otu          = otu_list.item if otu_list.resolvable?
         otu          = Otu.create(name: row['otu_name']) if otu.blank?
         long         = row['longitude'] # longitude
