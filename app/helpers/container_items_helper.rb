@@ -2,7 +2,7 @@ module ContainerItemsHelper
 
   def container_item_tag(container_item)
     return nil if container_item.nil?
-    object_tag(container_item.contained_object) 
+   ( container_item.contained_object_type + ': ' + object_tag(container_item.contained_object)).html_safe 
   end
 
   def container_item_link(container_item)

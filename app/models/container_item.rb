@@ -33,6 +33,10 @@ class ContainerItem < ActiveRecord::Base
   belongs_to :contained_object, polymorphic: true
   validates_presence_of :contained_object, :container 
 
+  def siblings
+    ContainerItem.where(container_id: container_id).where.not(id: id)
+  end
+
   def self.find_for_autocomplete(params)
     Queries::ContainerItemAutocompleteQuery.new(params[:term]).all.where(project_id: params[:project_id])
   end

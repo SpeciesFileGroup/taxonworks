@@ -1,18 +1,12 @@
 <div class="attributes">
-
   <p>
     <strong>Container:</strong>
-    <%= @container_item.container %>
-  </p>
-
-  <p>
-    <strong>Position:</strong>
-    <%= @container_item.position %>
+    <%= container_tag(@container_item.container) %>
   </p>
 
   <p>
     <strong>Contained object:</strong>
-    <%= @container_item.contained_object %>
+    <%= object_tag(@container_item.contained_object) %>
   </p>
 
   <p>
@@ -22,7 +16,7 @@
 
   <p>
     <strong>Localization:</strong>
-    <%= @container_item.localization %>
+    <%= @container_item.disposition %>
   </p>
 
 </div>
