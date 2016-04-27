@@ -39,6 +39,10 @@ module NomenclatureCatalog
       object.class.name
     end
 
+    def is_subsequent?
+      object == taxon_name && !citation.try(:is_original?)
+    end
+
     protected
 
     def cited_class  

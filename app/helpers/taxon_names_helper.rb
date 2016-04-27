@@ -36,7 +36,7 @@ module TaxonNamesHelper
     taxon_name.cached_author_year.gsub(/^\(|\)$/, '')
   end
 
-  def taxon_name_history_tag(taxon_name, citation, date)
+  def taxon_name_history_tag(taxon_name, citation, date, is_subsequent = false)
 
     # taxon name in original combination
     # taxon name author year
@@ -52,10 +52,10 @@ module TaxonNamesHelper
       content_tag(:span, original_taxon_name_tag(taxon_name), class: [:original_taxon_name, original_citation_css(taxon_name, citation) ] ), 
       history_author_year(taxon_name, citation),
       history_pages(citation),
-      history_statuses(taxon_name, citation), 
+      history_statuses(taxon_name, citation, is_subsequent), 
       history_notes(citation),
       history_topics(citation),
-      history_type_material(taxon_name) 
+      history_type_material(taxon_name, is_subsequent) 
     ].compact.join.html_safe
   end
   
@@ -64,8 +64,8 @@ module TaxonNamesHelper
     'original_description' if citation.is_original? && taxon_name == citation.citation_object
   end
 
-  def history_type_material(taxon_name)
-    return nil if taxon_name.type == 'Combination'
+  def history_type_material(taxon_name, is_subsequent)
+    return nil if taxon_name.type == 'Combination' || is_subsequent
     content_tag(:span, type_taxon_name_relationship_tag(taxon_name.type_taxon_name_relationship), class: 'type_information')
   end
 
@@ -82,8 +82,8 @@ module TaxonNamesHelper
   # @return [String, nil]
   #   A brief summary of the validity of the name (e.g. 'Valid')
   #     ... think this has to be refined, it doesn't quite make sense to show multiple status per relationship
-  def history_statuses(taxon_name, citation)
-    return nil if taxon_name.taxon_name_statuses.empty?
+  def history_statuses(taxon_name, citation, is_subsequent = false)
+    return nil if taxon_name.taxon_name_statuses.empty? || is_subsequent 
     content_tag(:span, (' (' + taxon_name.taxon_name_statuses.join(', ') + ')').html_safe, class: 'status')
   end
 
@@ -95,6 +95,8 @@ module TaxonNamesHelper
   # @return [String]
   #   the name, or citation author year, prioritized by original/new with punctuation
   def history_author_year(taxon_name, citation) 
+    return content_tag(:em, ' verbatim reference, details not yet handled', class: :warning) if citation.try(:source).try(:type) == 'Source::Verbatim'
+    
     if citation.try(:is_original) || citation.nil?
       v = original_author_year(taxon_name)
       content_tag(:span, " #{v}", class: 'taxon_name_author_year') if defined? v.length && v.length > 0
@@ -108,7 +110,7 @@ module TaxonNamesHelper
     c = i.citation
 
     content_tag(:li, class: :history_record) do
-      taxon_name_history_tag(i.taxon_name, i.citation, i.nomenclature_date)
+      taxon_name_history_tag(i.taxon_name, i.citation, i.nomenclature_date, i.is_subsequent?)
     end
   end
 

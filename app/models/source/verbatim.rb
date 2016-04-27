@@ -16,6 +16,10 @@ class Source::Verbatim < Source
     nil
   end
 
+  def date
+    nil
+  end
+
   def generate_bibtex
     return false if self.verbatim.blank?
     result = Source.new_from_citation(citation: self.verbatim)
