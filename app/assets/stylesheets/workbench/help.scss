@@ -14,7 +14,13 @@
 	background-position: top;
 	background-color: $color-help-button;
 	background-size: 20px;
-	transition: bottom 0.5s ease, left 0.5s ease, background-position 0.5s ease, background-size 0.5s ease, width 0.5s ease, height 0.5s ease;
+	transition: bottom 0.5s ease, left 0.5s ease, 
+				background-position 0.5s ease, 
+				background-size 0.5s ease, 
+				width 0.5s ease, 
+				height 0.5s ease, 
+				opacity 0.5s ease;
+
 	box-shadow: 0 0px 3px 0 $navigation-border;
 }
 .help-button:hover {
@@ -30,6 +36,7 @@
 	background-size: 35px;
 	background-position: center;
 	box-shadow: 0 0px 3px 0 #444;
+	transition: opacity 0.5s ease;	
 }
 
 .help-background-active {
