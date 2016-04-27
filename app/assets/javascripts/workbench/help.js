@@ -41,11 +41,15 @@ function helpSystem() {
 			$('.help-background-active').fadeIn(100);
 			$('.help-bubble-tip').show(100);
 			$('.help-button').addClass('help-button-active');
+			$('.help-legend').empty();
+			$('.help-legend').append('<span>Pass mouse over the numbers for help</span>');
+			$('.help-legend').show(250);
 		}
 		else {
 			$('.help-background-active').fadeOut(100);
 			$('.help-bubble-tip').fadeOut(100);	
-			$('.help-button').removeClass('help-button-active');							
+			$('.help-button').removeClass('help-button-active');
+			$('.help-legend').hide(250);							
 		}
 	}
 
@@ -61,15 +65,16 @@ function helpSystem() {
 	$(document).on({
 	    mouseenter: function () {
 	    	if(helpActive()) {
+	    		$('.help-legend').empty();
 		    	$('.help-legend').show(250);
-		    	$('.help-legend').append('<span>' + $(this).attr("data-help") + '</span>');
+		    	$('.help-legend').append('<span>' + $(this).parent().attr("data-help") + '</span>');
 		    }
 	    },
 	    mouseleave: function () {
 	    	$('.help-legend').empty();
 			$('.help-legend').hide(250);
 	    }
-	}, ".help-tip");
+	}, ".help-bubble-tip");
 
 
 	$(document).on('click','.help-button', function() {
