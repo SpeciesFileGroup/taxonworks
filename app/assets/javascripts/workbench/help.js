@@ -9,16 +9,13 @@ Example:
 
 */
 
-
+var	helpSystem;
+var helpLoaded = false;
 $(document).ready(function() {
-  if($("[data-help]").length) {
-    helpSystem();
-  }
-});
 
-function helpSystem() {
-	var 
-		firstClick = true;
+  helpSystem = function () {
+	 
+	firstClick = true;
 
 	$('body').append('<div class="panel content help-legend"></div>');
 	$('body').append('<div class="help-background-active"></div>');
@@ -76,13 +73,21 @@ function helpSystem() {
 	    }
 	}, ".help-bubble-tip");
 
-
+	if(!helpLoaded)
 	$(document).on('click','.help-button', function() {
 		activeDisableHelp();
 	});	
-
+	if(!helpLoaded)
 	$(document).on('click','.help-background-active', function() {
 		activeDisableHelp();
 	});		
 }
+
+  if($("[data-help]").length) {
+    helpSystem();
+    helpLoaded = true;
+  }
+}
+
+);
 
