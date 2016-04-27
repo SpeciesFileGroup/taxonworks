@@ -7,14 +7,14 @@ $(document).ready(function() {
 function helpSystem() {
 	var 
 		firstClick = true;
-		$('body').append('<div class="panel content help-legend"></div>');
+
+	$('body').append('<div class="panel content help-legend"></div>');
 	$('body').append('<div class="help-background-active"></div>');
 
 	
 	function addBubbleTips(className) {
 		$(className).each(function(i) {
 			$(this).append('<div class="help-bubble-tip">'+ (i+1) +'</div>');
-			$('.help-legend').append('<span>' + $(this).attr("data-help") + '</span>');
 		});
 	}
 

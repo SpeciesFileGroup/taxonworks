@@ -47,50 +47,55 @@
           </div>                              
         </div>
       </div>    
-    <div class="flex-wrap-row"> 
-      <div class="panels-container">
-        <div id="brownse-main-panel" class="panel separate-left separate-right attributes-panel">
-          <div class="break_words content">
-            <div class="title-section"> 
-              <h2>Taxonomic history</h2>
-            </div>
-            <div class="attributes"> 
-            <ul class="taxonomic_history">
-              <% @data.ordered_by_nomenclature_date.each do |c| -%>
-                <%= nomenclature_line_tag(c) -%> 
-              <% end %>
-            </ul>
-            </div>
-            <div class="attributes"> 
-            <%= content_tag(:h3, 'Citations') if @data.source_list.any? -%>
-            <ul class="citations">
-              <% @data.source_list.each do |s| -%>
-                <%= content_tag(:li, (source_tag(s) + ':' + topic_list_tag(@data.topics_for_source(s))).html_safe)  -%>
-              <% end %> 
-            </ul>                          
+    <div class="flexbox"> 
+      <div>
+        <div class="panels-container">
+          <div id="brownse-main-panel" class="panel separate-left separate-right attributes-panel">
+            <div class="break_words content">
+              <div class="title-section"> 
+                <h2>Taxonomic history</h2>
+              </div>
+              <div class="attributes"> 
+                <ul class="taxonomic_history">
+                  <% @data.ordered_by_nomenclature_date.each do |c| -%>
+                    <%= nomenclature_line_tag(c) -%> 
+                  <% end %>
+                </ul>
+              </div>
+              <div class="attributes"> 
+                <%= content_tag(:h3, 'Citations') if @data.source_list.any? -%>
+                <ul class="citations">
+                  <% @data.source_list.each do |s| -%>
+                    <%= content_tag(:li, (source_tag(s) + ':' + topic_list_tag(@data.topics_for_source(s))).html_safe)  -%>
+                  <% end %> 
+                </ul>                          
+              </div>
             </div>
           </div>
         </div>
-        
-      <div class="flex-wrap-row"> 
-    <div id="validation-panel" class="panel fullSize content separate-left separate-bottom">
-      <%= render(partial: '/shared/data/all/show/soft_validation', locals: {object: @taxon_name}) -%> 
-    </div>
-    <div class="panel fullSize content separate-left separate-bottom">
-      <div class="attributes information-panel">
-        <%= identifier_list_tag(@taxon_name) -%> 
-        <%= data_attribute_list_tag(@taxon_name) -%> 
-        <%= note_list_tag(@taxon_name) -%> 
-        <%= tag_list_tag(@taxon_name) -%> 
       </div>
-    </div>
-    <div class="panel content fullSize separate-left">
-      <div class="attributes">
-        <%= render(partial: '/shared/data/all/show/housekeeping', locals: {object: @taxon_name}) -%> 
-      </div>
-    </div>
-  </div>
-  </div>
-</div>
 
+      <div class="panels-container"> 
+        <div class="flex-wrap-row"> 
+          <div id="validation-panel" class="panel fullSize content separate-left separate-bottom">
+            <%= render(partial: '/shared/data/all/show/soft_validation', locals: {object: @taxon_name}) -%> 
+          </div>
+          <div class="panel fullSize content separate-left separate-bottom">
+            <div class="attributes information-panel">
+              <%= identifier_list_tag(@taxon_name) -%> 
+              <%= data_attribute_list_tag(@taxon_name) -%> 
+              <%= note_list_tag(@taxon_name) -%> 
+              <%= tag_list_tag(@taxon_name) -%> 
+            </div>
+          </div>
+          <div class="panel content fullSize separate-left">
+            <div class="attributes">
+              <%= render(partial: '/shared/data/all/show/housekeeping', locals: {object: @taxon_name}) -%> 
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
 </div>
