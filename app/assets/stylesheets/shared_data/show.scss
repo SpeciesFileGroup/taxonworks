@@ -168,14 +168,13 @@
       opacity: 1;
       fill:#444;
     }
-
+    .to-right {
+      position: absolute; 
+      top: 0; 
+      right: 0;
+    }
     .title-section {
       position: relative;
-      .to-right {
-        position: absolute; 
-        top: 0; 
-        right: 0;
-      }
     }
 
     .title {
@@ -187,7 +186,8 @@
       padding-left: $standard_padding;
       padding-right: $standard_padding;
       border-bottom: 5px solid transparent;
-      justify-content:space-between;   
+      justify-content:space-between;  
+      position: relative; 
       a {
         font-size: 12px;
       }       

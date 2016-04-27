@@ -72,7 +72,7 @@ if(displayList.length > 0) {
 
 function createDivDisplay() {
     var
-      injectionHtml = ('<div id="displayOptions" class="panel column-small separate-left"><div class="title action-line">Display<div class="small-icon reset" data-filter-active="true" showAll data-icon="reset">Reset</div></div><div class="navigation-controls">');
+      injectionHtml = ('<div id="displayOptions" class="panel column-small separate-left help-tip" data-help="Click on the buttoms to show or hide columns groups."><div class="title action-line">Display<div class="small-icon reset" data-filter-active="true" showAll data-icon="reset">Reset</div></div><div class="navigation-controls">');
       $.each(displayList, function(i, value) {
         injectionHtml += createOptionDisplay(value);
       });

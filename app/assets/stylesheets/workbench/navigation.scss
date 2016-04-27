@@ -49,6 +49,7 @@ a {
   padding-right: 15px;
   .hub-project {
     position: relative;
+    margin-left: 1em;
   }
 
   ul {
@@ -63,46 +64,36 @@ a {
   }
 
   .on_hub {
-    a {
       background-color: $color-secondary-2-4 !important;
       background-image: image-url('w_hub.svg') !important;
-    }
   }
 
   .hub_link {
+    position: absolute;
     margin-left: 1em;
-    a {
-      background-image: image-url('hub.svg');
-      background-size:25px;
-      background-repeat:no-repeat;
-      background-position: center; 
-      padding:9px;
-      padding-left: 25px;
-      z-index: 20;
-      font-size: 0px;
-      position: absolute;
-      background-color: $panel_background;
-      display: flex;
-      width: 20px;
-      top: -18px;
-      height: 36px;
-      justify-content: center;
-      align-items: center;
-      border-radius: 100%; 
-      box-shadow: 0 0 3px 0 $navigation_border;
+    background-image: image-url('hub.svg');
+    background-size:25px;
+    background-repeat:no-repeat;
+    background-position: center; 
+    padding:9px;
+    padding-left: 25px;
+    z-index: 20;
+    font-size: 0px;
+    position: absolute;
+    background-color: $panel_background;
+    display: flex;
+    width: 20px;
+    top: -13px;
+    height: 36px;
+    justify-content: center;
+    align-items: center;
+    border-radius: 100%; 
+    box-shadow: 0 0 3px 0 $navigation_border;
  
       transition: background-size 0.3s ease,
                   background-color 0.3s ease,
                   font-size 0.5s ease;           
-    }
-    a:hover {    
-      transition: background-size 0.3s ease,
-                  background-color 0.3s ease,
-                  font-size 0.5s ease,
-                  padding-left 0.5s ease;
-      background-size:35px;
-      color: $default_text;
-    }
+    
   }
 
   .hub_project_name {
@@ -110,6 +101,18 @@ a {
     padding: 5px;
     font-size: 16px;
     font-weight: 100;
+  }  
+
+  .hub-project:hover {
+     .hub_link {
+      //background-color: #444;
+      transition: background-size 0.3s ease,
+                  background-color 0.3s ease,
+                  font-size 0.5s ease,
+                  padding-left 0.5s ease;
+      background-size:35px;
+      color: $default_text;
+    }
   }
 
   .active-section {

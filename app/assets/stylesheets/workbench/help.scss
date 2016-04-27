@@ -1,0 +1,68 @@
+.help-button {
+	position: fixed;
+	z-index: 999;
+	bottom:-15px; 
+	left:-15px;
+	width: 30px;
+	height: 30px;
+	border-radius: 50%;
+	background-image: image-url("help.svg");
+	background-repeat: no-repeat;
+	background-size: 100%;
+	transition: bottom 0.5s ease, left 0.5s ease;
+	box-shadow: 0 0px 3px 0 #444;
+}
+.help-button:hover {
+	transition: bottom 0.5s ease, left 0.5s ease;
+	bottom: 0px;
+	left: 0px;
+}
+
+.help-background-active {
+	display: none;
+	background:#444; 
+	opacity:0.7; 
+	width:100%; 
+	height:100%; 
+	position:fixed; 
+	top:0px; 
+	left:0px; 
+	z-index:800;
+}
+
+.help-tip {
+	z-index:1000;
+	position: relative;
+}
+
+.help-tip:hover {
+	box-shadow: 0 0px 5px 0 #2980b9;
+}
+
+.help-legend {
+	border:1px solid #F5F5F5;
+	position: fixed;
+	bottom: 0px;
+	left:15px;
+	bottom: 15px;
+	background-color: #FFF;
+	z-index:899;
+	display: none;
+}
+
+.help-bubble-tip {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	width: 30px;
+	height: 30px;
+	position: absolute;
+	left: -15px;
+	bottom: -15px;
+	border-radius: 50%;
+	background-color: #2980b9;
+	color: #FFF;
+	font-weight: bold;
+	box-shadow: 0 0px 3px 0 #444;
+}

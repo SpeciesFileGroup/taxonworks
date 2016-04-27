@@ -20,15 +20,18 @@
     <div class="item item2">
       <div class="panel separate-left">
         <div class="title action-line">
-          <div>
-            <%= content_tag(:span, full_taxon_name_tag(@taxon_name), class: 'name') -%> <%= taxon_name_classification_status_tag(@taxon_name) -%>
+          <div class="title-section flexbox column-big">
+            <%= content_tag(:span, full_taxon_name_tag(@taxon_name), class: 'name') -%> <span class="to-right"><%= taxon_name_classification_status_tag(@taxon_name) -%></span>
             <%= content_tag(:span,latinization_tag(@taxon_name)) -%>
           </div>
+          <!-- Not implemented yet
           <ul class="horizontal_navbar context-menu">
-          <li>| + |</li>
-          <li>| - |</li>
+            <li>| + |</li>
+            <li>| - |</li>
           </ul>
+          -->
         </div>
+
         <div id="filterBrowse" class="navigation-controls">
           <div class="navigation-item" data-filter-reset="reset">
             <span data-icon="reset" class="small-icon">Reset</span>
