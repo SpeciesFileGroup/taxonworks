@@ -1,5 +1,17 @@
+/*
+
+To active and use:
+
+Add data-help attribute on the elements to make enable the text legend and bubbles on each element.
+Example:
+
+<div data-help="This is a test"></div>
+
+*/
+
+
 $(document).ready(function() {
-  if($(".help-button").length) {
+  if($("[data-help]").length) {
     helpSystem();
   }
 });
@@ -10,30 +22,30 @@ function helpSystem() {
 
 	$('body').append('<div class="panel content help-legend"></div>');
 	$('body').append('<div class="help-background-active"></div>');
+	$('body').append('<div class="help-button"></div>');
 
 	
 	function addBubbleTips(className) {
 		$(className).each(function(i) {
+			$(this).addClass('help-tip');
 			$(this).append('<div class="help-bubble-tip">'+ (i+1) +'</div>');
 		});
 	}
 
 	function activeDisableHelp() {
 		if(firstClick) {
-			addBubbleTips('.help-tip');
+			addBubbleTips('[data-help]');
 			firstClick = false;
 		}
 		if(!helpActive()) {
 			$('.help-background-active').fadeIn(100);
 			$('.help-bubble-tip').show(100);
-			$('.help-button').css("bottom", "0px");
-			$('.help-button').css("left", "0px");			
+			$('.help-button').addClass('help-button-active');
 		}
 		else {
 			$('.help-background-active').fadeOut(100);
 			$('.help-bubble-tip').fadeOut(100);	
-			$('.help-button').css("bottom", "-15px");
-			$('.help-button').css("left", "-15px");					
+			$('.help-button').removeClass('help-button-active');							
 		}
 	}
 
@@ -61,7 +73,6 @@ function helpSystem() {
 
 
 	$(document).on('click','.help-button', function() {
-		//alert();
 		activeDisableHelp();
 	});	
 

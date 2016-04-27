@@ -1,21 +1,31 @@
+@import 'workbench/palette';
+
 .help-button {
 	position: fixed;
 	z-index: 999;
-	bottom:-15px; 
-	left:-15px;
-	width: 30px;
-	height: 30px;
+	bottom:-20px; 
+	left:15px;
+	width: 40px;
+	height: 40px;
 	border-radius: 50%;
 	background-image: image-url("help.svg");
 	background-repeat: no-repeat;
-	background-size: 100%;
-	transition: bottom 0.5s ease, left 0.5s ease;
-	box-shadow: 0 0px 3px 0 #444;
+	background-position: top;
+	background-color: $color-help-button;
+	background-size: 20px;
+	transition: bottom 0.5s ease, left 0.5s ease, background-position 0.5s ease, background-size 0.5s ease;
+	box-shadow: 0 0px 3px 0 $navigation-border;
 }
 .help-button:hover {
-	transition: bottom 0.5s ease, left 0.5s ease;
+	transition: bottom 0.5s ease, left 0.5s ease, background-position 0.5s ease, background-size 0.5s ease;
+}
+
+.help-button-active {
 	bottom: 0px;
-	left: 0px;
+	left: 15px;
+	background-size: 35px;
+	background-position: center;
+	box-shadow: 0 0px 3px 0 #444;
 }
 
 .help-background-active {
@@ -39,7 +49,7 @@
 	border:1px solid #F5F5F5;
 	position: fixed;
 	bottom: 0px;
-	left:15px;
+	left:35px;
 	bottom: 15px;
 	background-color: #FFF;
 	z-index:899;
@@ -50,14 +60,13 @@
 	display: flex;
 	justify-content: center;
 	align-items: center;
-
 	width: 30px;
 	height: 30px;
 	position: absolute;
 	left: -15px;
 	bottom: -15px;
 	border-radius: 50%;
-	background-color: #2980b9;
+	background-color: $color-help-bubbles;
 	color: #FFF;
 	font-weight: bold;
 	box-shadow: 0 0px 3px 0 #444;
