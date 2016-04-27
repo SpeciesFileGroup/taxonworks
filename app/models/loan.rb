@@ -75,8 +75,8 @@ class Loan < ActiveRecord::Base
   has_many :loan_recipients, through: :loan_recipient_roles, source: :person
   has_many :loan_supervisors, through: :loan_supervisor_roles, source: :person
 
-  validates :supervisor_email, format: {with: User::VALID_EMAIL_REGEX}
-  validates :recipient_email, format: {with: User::VALID_EMAIL_REGEX}
+  validates :supervisor_email, format: {with: User::VALID_EMAIL_REGEX}, if: '!supervisor_email.blank?'
+  validates :recipient_email, format: {with: User::VALID_EMAIL_REGEX}, if: '!recipient_email.blank?'
 
   # TODO: @mjy What *is* the right construct for 'Loan'?
   def self.find_for_autocomplete(params)
