@@ -40,7 +40,6 @@ function initTaskCarrousel() {
       else {
         task.loadingUp();
       }
-      task.changeSelectedNavList(task.arrayPos);
   });
 
   $('.more_tasks_nav').on('click',  function() {
@@ -50,18 +49,15 @@ function initTaskCarrousel() {
 
   $('.task-nav-list').on('click', '.task-nav-item', function() {
       itemID = $(this).index();
-      task.changeSelectedNavList(itemID);
       task.resetView();
-      task.showChilds(itemID+1);
+      task.showChilds(itemID);
   });
   //Mousetrap Keys
   Mousetrap.bind('left', function() {
     task.loadingUp();
-    task.changeSelectedNavList(task.arrayPos);
   });
   Mousetrap.bind('right', function() {
     task.loadingDown();
-    task.changeSelectedNavList(task.arrayPos);
   });  
   
 var      
