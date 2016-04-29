@@ -1,4 +1,4 @@
-# The result of a  parsing a row.
+# The result of parsing a row.
 class BatchLoad::RowParse
 
   # Whether the row was parsed not

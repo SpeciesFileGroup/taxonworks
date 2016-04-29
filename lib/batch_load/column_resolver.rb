@@ -32,6 +32,11 @@ module BatchLoad::ColumnResolver
     def collection_object_by_identifier(columns)
       r = BatchLoad::ColumnResolver::Result.new
 
+      # find a namespace (ns1) with a short_name of row[headers[0]] (id1)
+      # find a collection_object which has an identifier which has a namespace (ns1), and a cached of
+      # (ns1.short_name + ' ' + identifier.identifier)
+      # ns1    = Namespace.where(short_name: id1).first
+
       ident_text = columns['catalog_number']
       ident_text = columns['collection_object_identifier'] if ident_text.blank?
 

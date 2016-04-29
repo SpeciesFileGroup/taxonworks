@@ -195,7 +195,7 @@ module BatchLoad
       successful_rows.inject(t = 0) { |t, i| t += processed_rows[i].persisted_objects.size }
     end
 
-    # return [Hash] proccesed rows, sorted by line number
+    # return [Hash] processed rows, sorted by line number
     #  ?! key order might not persist ?!
     def sorted_processed_rows
       @processed_rows.sort.to_h

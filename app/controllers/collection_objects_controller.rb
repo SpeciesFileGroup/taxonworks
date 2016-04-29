@@ -150,7 +150,7 @@ class CollectionObjectsController < ApplicationController
 
   def preview_simple_batch_load
     if params[:file]
-      @result = BatchLoad::Import::CollectionObjects.new(batch_params)
+      @result = BatchLoad::Import::CollectionObjects.new(batch_params.merge)
       digest_cookie(params[:file].tempfile, :batch_collection_objects_md5)
       render 'collection_objects/batch_load/simple/preview'
     else
@@ -163,7 +163,7 @@ class CollectionObjectsController < ApplicationController
     if params[:file] && digested_cookie_exists?(params[:file].tempfile, :batch_collection_objects_md5)
       @result = BatchLoad::Import::CollectionObjects.new(batch_params)
       if @result.create
-        flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} collection objects were created."
+        flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} collection object-related object-sets were created."
         render 'collection_objects/batch_load/simple/create' and return
       else
         flash[:alert] = 'Batch import failed.'
