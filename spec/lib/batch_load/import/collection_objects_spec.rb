@@ -51,6 +51,7 @@ describe BatchLoad::Import::CollectionObjects, type: :model do
 
     let(:file_name) { 'spec/files/batch/collection_object/CollectionObjectTest.tsv' }
     let(:setup) {
+      ns_2
       csv1 = CSV.read(file_name, {headers: true, header_converters: :downcase, col_sep: "\t", encoding: "UTF-8"})
       csv1.each do |row|
         ident = row[1]
@@ -58,6 +59,7 @@ describe BatchLoad::Import::CollectionObjects, type: :model do
           when '35397' # create a collecting event to find later
             # "\xF8D\x9C\x83\xC8sI\xA3L\x12n\x8F\x15\x1Fv\ei\xCD1>^\x19\x19:\xE7af\x93\xE90Z\xDF"
             error = (row['error'].to_s + ' ' + row['georeference_error_units'].to_s).strip
+            ns_ce = Namespace.where(short_name: row['collecting_event_identifier_namespace_short_name']).first
             ce    = FactoryGirl.create(:valid_collecting_event,
                                        {verbatim_locality:                row['verbatim_location'],
                                         verbatim_geolocation_uncertainty: error.empty? ? nil : error,
@@ -72,7 +74,12 @@ describe BatchLoad::Import::CollectionObjects, type: :model do
                                         verbatim_method:                  row['method'],
                                         verbatim_date:                    row['verbatim_date'],
                                         verbatim_elevation:               nil,
-                                        project_id:                       project.id
+                                        project_id:                       project.id,
+                                        identifiers_attributes:           [{namespace:  ns_ce,
+                                                                            project_id: project.id,
+                                                                            type:       'Identifier::' + row['collecting_event_identifier_type'],
+                                                                            identifier: row['collecting_event_identifier_identifier']}],
+                                        # georeferences_attributes:         [{iframe_response: "#{row['latitude']}|#{row['longitude']}|#{Utilities::Geo.elevation_in_meters(error)}|Unavailable"}]
                                        }
             )
             ce
@@ -108,7 +115,6 @@ describe BatchLoad::Import::CollectionObjects, type: :model do
     context 'file provided' do
       it 'loads reviewed data' do
         setup
-        ns_2
         bingo = import
         expect(bingo).to be_truthy
         bingo.create

@@ -13,8 +13,109 @@ module BatchLoad
       super(args)
     end
 
-    # process each row for information:
     def build_collection_objects
+      build_objects = {}
+      i             = 1 # accounting for headers
+      # identifier namespace
+      # header0 = csv.headers[0] # should be 'collection_object_identifier_namespace_short_name'
+      # header1 = csv.headers[1] # should be 'collection_object_identifier_identifier'
+      header5       = csv.headers[5] # should be 'collecting_event_identifier_namespace_short_name'
+      header6       = csv.headers[6] # should be 'collecting_event_identifier_identifier'
+      header7       = csv.headers[7] # should be 'collecting_event_identifier_type'
+      #
+      # first pass for CollectingEvent with Georeference and Identifier
+      csv.each do |row|
+        parse_result = BatchLoad::RowParse.new
+        # creation of the possible-objects list
+        parse_result.objects.merge!(otu: [], co: [], td: [], ce: [])
+        # attach the results to the row
+        @processed_rows.merge!(i => parse_result)
+
+        # hot-wire the project into the row
+        row['project_id'] = @project_id.to_s if row['project_id'].blank?
+
+        long   = row['longitude'] # longitude
+        lat    = row['latitude'] # latitude
+        method = row['method']
+        error  = (row['error'].to_s + ' ' + row['georeference_error_units'].to_s).strip
+
+        ce_namespace = row[header5]
+        ns_ce        = Namespace.where(short_name: ce_namespace).first
+        parse_result.parse_errors.push["No available namespace '#{ce_namespace}'."] if ns_ce.nil?
+
+        begin # processing the CollectingEvent
+          ce_attributes = {verbatim_locality:                row['verbatim_location'],
+                           verbatim_geolocation_uncertainty: error.empty? ? nil : error,
+                           start_date_day:                   row['start_date_day'],
+                           start_date_month:                 row['start_date_month'],
+                           start_date_year:                  row['start_date_year'],
+                           end_date_day:                     row['end_date_day'],
+                           end_date_month:                   row['end_date_month'],
+                           end_date_year:                    row['end_date_year'],
+                           verbatim_longitude:               long,
+                           verbatim_latitude:                lat,
+                           verbatim_method:                  method,
+                           geographic_area_id:               nil,
+                           minimum_elevation:                nil,
+                           maximum_elevation:                nil,
+                           elevation_precision:              nil,
+                           field_notes:                      nil,
+                           verbatim_elevation:               nil,
+                           verbatim_habitat:                 nil,
+                           verbatim_datum:                   nil,
+                           time_start_hour:                  nil,
+                           time_start_minute:                nil,
+                           time_start_second:                nil,
+                           time_end_hour:                    nil,
+                           time_end_minute:                  nil,
+                           time_end_second:                  nil,
+                           verbatim_date:                    row['verbatim_date'],
+                           verbatim_trip_identifier:         nil,
+                           verbatim_collectors:              nil,
+                           verbatim_label:                   nil,
+                           document_label:                   nil,
+                           print_label:                      nil,
+                           project_id:                       @project_id
+          }
+
+          ce_key = ce_attributes.merge(identifiers_attributes: [{namespace:  ns_ce,
+                                                                 project_id: @project_id,
+                                                                 type:       'Identifier::' + row[header7],
+                                                                 identifier: row[header6]}]
+          )
+          case method.downcase
+            when 'geolocate'
+              ce_key.merge!(georeferences_attributes: [{iframe_response: "#{lat}|#{long}|#{Utilities::Geo.elevation_in_meters(error)}|Unavailable"}])
+            else
+              # nothing to do?
+          end unless method.nil?
+
+          if row[1] == '35397'
+            ce_a1 = ce_attributes
+            ce_m1 = Digest::SHA256.digest(ce_key.to_s)
+          end
+
+          ce_match = Digest::SHA256.digest(ce_key.to_s)
+          ce       = build_objects[ce_match]
+          if ce.nil?
+            ce = CollectingEvent.find_by(ce_attributes)
+          end
+          if ce.nil?
+            ce = CollectingEvent.new(ce_key)
+          end
+          parse_result.objects[:ce].push(ce)
+          build_objects.merge!(ce_match => ce)
+
+        end
+
+        i += 1
+      end
+      @total_lines = i - 1
+
+    end
+
+    # process each row for information:
+    def build_collection_objects_ori
       ce_a1         = ''
       ce_m1         = ''
       ce1           = CollectingEvent.find(1)
@@ -88,72 +189,6 @@ module BatchLoad
           ce_id            = Identifier.new(ce_id_attributes) if ce_id.nil?
           parse_result.objects[:ce_id].push(ce_id)
           build_objects.merge!(ce_id_match => ce_id) # whichever way we came by it, save the item in our stash
-        end
-        begin # processing the CollectingEvent
-          ce_attributes = {verbatim_locality:                row['verbatim_location'],
-                           verbatim_geolocation_uncertainty: error.empty? ? nil : error,
-                           start_date_day:                   row['start_date_day'],
-                           start_date_month:                 row['start_date_month'],
-                           start_date_year:                  row['start_date_year'],
-                           end_date_day:                     row['end_date_day'],
-                           end_date_month:                   row['end_date_month'],
-                           end_date_year:                    row['end_date_year'],
-                           verbatim_longitude:               long,
-                           verbatim_latitude:                lat,
-                           verbatim_method:                  method,
-                           geographic_area_id:               nil,
-                           minimum_elevation:                nil,
-                           maximum_elevation:                nil,
-                           elevation_precision:              nil,
-                           field_notes:                      nil,
-                           verbatim_elevation:               nil,
-                           verbatim_habitat:                 nil,
-                           verbatim_datum:                   nil,
-                           time_start_hour:                  nil,
-                           time_start_minute:                nil,
-                           time_start_second:                nil,
-                           time_end_hour:                    nil,
-                           time_end_minute:                  nil,
-                           time_end_second:                  nil,
-                           verbatim_date:                    row['verbatim_date'],
-                           verbatim_trip_identifier:         nil,
-                           verbatim_collectors:              nil,
-                           verbatim_label:                   nil,
-                           document_label:                   nil,
-                           print_label:                      nil,
-                           project_id:                       @project_id}
-
-          if row[1] == '35397'
-            ce_a1 = ce_attributes
-            ce_m1 = Digest::SHA256.digest(ce_attributes.to_s)
-            ce1
-          end
-          ce_match = Digest::SHA256.digest(ce_attributes.to_s)
-          ce       = build_objects[ce_match]
-          if ce.nil?
-            ce = CollectingEvent.find_by(ce_attributes)
-          end
-          if ce.nil?
-            ce = CollectingEvent.new(ce_attributes)
-          end
-          parse_result.objects[:ce].push(ce)
-          build_objects.merge!(ce_match => ce)
-
-          ce.identifiers << ce_id
-
-          case method.downcase
-            when 'geolocate'
-              # faking a Georeference::GeoLocate:
-              #   1) create the Georeference, using the newly created collecting_event
-              gr                 = Georeference::GeoLocate.new(collecting_event: ce)
-              #   2) build a fake iframe response in the form '52.65|-106.333333|3036|Unavailable'
-              text               = "#{lat}|#{long}|#{Utilities::Geo.elevation_in_meters(error)}|Unavailable"
-              #   3) use that fake to stimulate the parser to create the object
-              gr.iframe_response = text
-              parse_result.objects[:gr].push(gr)
-            else
-              # nothing to do?
-          end unless method.nil?
         end
 
         co.collecting_event = ce
