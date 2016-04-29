@@ -11,16 +11,19 @@ namespace :tw do
       desc 'create sources'
       task :create_sources => [:data_directory, :environment, :user_id] do
 
-        # Strategy: Attempt bibtex first
-        #   if fail, fill in data
-        #
-        #
+        # tblRefs columns to import: Title, PubID, Series, Volume, Issue, RefPages, ActualYear, StatedYear, LinkID, LastUpdate, ModifiedBy, CreatedOn, CreatedBy
+        # tblRefs other columns: RefID => Source.identifier, FileID => used when creating ProjectSources, ContainingRefID => sfVerbatimRefs contains full
+        #   RefStrings attached as data_attributes in ProjectSources (no need for ContainingRefID), AccessCode => n/a, Flags => identifies editor
+        #   (use when creating roles and generating author string from tblRefAuthors), CiteDataStatus => can be derived, Verbatim => not used
+
+        # Important note: Need crossref table between SF.PubID and SF.PubType to generate bibtex_type; PubType 1 = journal, 2 = not used, 3 = book or cd, 4 = unpublished source
 
         species_file_data = Import.find_or_create_by(name: 'SpeciesFileData')
         # get_person_id = species_file_data.get('SFPersonIDToTWPersonID') # not needed until roles
         get_user_id = species_file_data.get('FileUserIDToTWUserID') # for housekeeping
+        get_serial_id = species_file_data.get('SFPubIDToTWSerialID') # for FK
 
-        get_source_id = species_file_data.get('SFRefIDToTWSourceID')  # cross ref hash
+        get_source_id = species_file_data.get('SFRefIDToTWSourceID') # cross ref hash
         get_source_id ||= {} # make empty hash if doesn't exist (otherwise it would be nil)
         sf_ref_id_to_tw_source_id = get_source_id
 
@@ -30,21 +33,57 @@ namespace :tw do
         path = @args[:data_directory] + 'tblRefs.txt'
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: "UTF-16:UTF-8")
 
+        file.each_with_index do |row|
 
+          source = Source::Bibtex.new(
+              # bibtex_type: based_on_pub_type,
+              title: row['Title'],
+              serial_id: get_serial_id[row['PubID']],
+              series: row['Series'],
+              volume: row['Volume'],
+              issue: row['Issue'],
+              pages: row['RefPages'],
+              year: row['ActualYear'],
+              stated_year: row['StatedYear'],
+              url: row['LinkID'],
+              created_at: row['CreatedOn'],
+              updated_at: row['LastUpdate'],
+              created_by_id: get_user_id[row['CreatedBy']],
+              updated_by_id: get_user_id[row['ModifiedBy']]
+          )
 
-        # s = Source::Bibtex.new( volume: nil,
-        #                    author: row['AuthorDrMetcalf'].blank? ? row['Author'] : row['AuthorDrMetcalf'],
-        #                    year: year,
-        #                    year_suffix: year_suffix,
-        #                    title: row['Title'],
-        #                    journal: journal,
-        #                    serial_id: serial_id,
-        #                    pages: pages,
-        #                    volume: volume,
-        #                    bibtex_type: 'article',
-        #                    authors_attributes: [{person_id: a}],
-        #                         editors_attributes: [ {person_id: b }, {person_id: c}]
-        # )
+        end
+
+      end
+
+      desc 'map SF.PubID by SF.PubType'
+      task :map_pub_type => [:data_directory, :environment, :user_id] do
+        sf_pub_id_to_pub_type = {}
+
+        path = @args[:data_directory] + 'tblPubs.txt'
+        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: "UTF-16:UTF-8")
+
+        file.each_with_index do |row|
+
+          pub_type = row['PubType']
+          if pub_type == '1'
+            pub_type_string = 'article'
+          elsif pub_type == '3'
+            pub_type_string = 'book'
+          elsif pub_type == '4'
+            pub_type_string = 'unpublished'
+          else
+            pub_type_string = '**ERROR**'
+          end
+
+          sf_pub_id_to_pub_type[row['PubID']] = pub_type_string
+        end
+
+        i = Import.find_or_create_by(name: 'SpeciesFileData')
+        i.set('SFPubIDToPubType', sf_pub_id_to_pub_type)
+
+        puts 'SF.PubID to PubType'
+        ap sf_pub_id_to_pub_type
 
       end
 
@@ -170,7 +209,7 @@ namespace :tw do
         # loop 2
 
         file.each_with_index do |row, i|
-           pref_id = row['PrefID']
+          pref_id = row['PrefID']
           next if pref_id.to_i == 0 # handle only alternate spellings
 
           non_pref_family_name = row['FamilyName'] # the non-preferred person's family name
