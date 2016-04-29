@@ -69,8 +69,8 @@
 #   Original genus and species name in alternative spelling. Used to find and validate primary homonyms.
 #
 # @!attribute cached_misspelling
-#   @return [String]
-#   @todo
+#   @return [Boolean]
+#   if the name is a misspelling, stores True.
 #
 # @!attribute masculine_name
 #   @return [String]
@@ -91,7 +91,8 @@
 #   The gender of the genus also designated as a taxon_name_classification.
 #
 # @!cached_valid_taxon_name_id
-#   !! @proceps -  need to document this ASAP
+#   @return [Integer]
+#   Stores a taxon_name_id of a valid taxon_name based on taxon_name_ralationships and taxon_name_classifications.
 #
 # @!attribute cached_classified_as
 #   @return [String]

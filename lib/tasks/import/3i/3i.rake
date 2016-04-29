@@ -246,6 +246,7 @@
         @data.keywords.merge!(
             #'AuthorDrMetcalf' => Predicate.find_or_create_by(name: 'AuthorDrMetcalf', definition: 'Author name from DrMetcalf bibliography database.', project_id: $project_id),
             '3i_imported' => Keyword.find_or_create_by(name: '3i_imported', definition: 'Imported from 3i database.', project_id: $project_id),
+            'introduced' => Keyword.find_or_create_by(name: 'Introduced', definition: 'Introduced species.', project_id: $project_id),
             'CallNumberDrMetcalf' => Predicate.find_or_create_by(name: 'call_number_dr_metcalf', definition: 'Call Number from DrMetcalf bibliography database.', project_id: $project_id),
             #'AuthorReference' => Predicate.find_or_create_by(name: 'author_reference', definition: 'Author string as it appears in the nomenclatural reference.', project_id: $project_id),
             #'YearReference' => Predicate.find_or_create_by(name: 'year_reference', definition: 'Year string as it appears in the nomenclatural reference.', project_id: $project_id),
@@ -269,7 +270,10 @@
             'Host' => BiologicalProperty.find_or_create_by(name: 'Host', definition: 'An animal or plant on or in which a parasite or commensal organism lives.', project_id: $project_id),
             'Herbivor' => BiologicalProperty.find_or_create_by(name: 'Herbivor', definition: 'An animal that feeds on plants.', project_id: $project_id),
             'Parasitoid' => BiologicalProperty.find_or_create_by(name: 'Parasitoid', definition: 'An organism that lives in or on another organism.', project_id: $project_id),
+            'Attendant' => BiologicalProperty.find_or_create_by(name: 'Herbivor', definition: 'An insect attending another insect.', project_id: $project_id),
+            'Symbiont' => BiologicalProperty.find_or_create_by(name: 'Parasitoid', definition: 'An insect leaving togeather with another insect.', project_id: $project_id),
         )
+
         @data.topics.merge!(
                         'Descriptions' => Topic.find_or_create_by(name: 'Description', definition: 'Source has morphological description.', project_id: $project_id),
                         'Records' => Topic.find_or_create_by(name: 'Distribution', definition: 'Source has data on species distrebution or studied material.', project_id: $project_id),
@@ -293,8 +297,18 @@
           a1 = BiologicalRelationshipType.create(biological_property: @data.keywords['Parasitoid'], biological_relationship: @parasitoid_relationship, type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
           a2 = BiologicalRelationshipType.create(biological_property: @data.keywords['Host'], biological_relationship: @parasitoid_relationship, type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
         end
-
-
+        @attendance_relationship = BiologicalRelationship.where(name: 'Attendance', project_id: $project_id)
+        if @attendance_relationship.empty?
+          @attendance_relationship = BiologicalRelationship.create(name: 'Attendance')
+          a1 = BiologicalRelationshipType.create(biological_property: @data.keywords['Attendant'], biological_relationship: @attendance_relationship, type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
+          a2 = BiologicalRelationshipType.create(biological_property: @data.keywords['Host'], biological_relationship: @attendance_relationship, type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
+        end
+        @mutualism_relationship = BiologicalRelationship.where(name: 'Mutualism', project_id: $project_id)
+        if @mutualism_relationship.empty?
+          @mutualism_relationship = BiologicalRelationship.create(name: 'Mutualism')
+          a1 = BiologicalRelationshipType.create(biological_property: @data.keywords['Symbiont'], biological_relationship: @mutualism_relationship, type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
+          a2 = BiologicalRelationshipType.create(biological_property: @data.keywords['Host'], biological_relationship: @mutualism_relationship, type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
+        end
       end
 
 
@@ -479,7 +493,7 @@
                   'N' => 'TaxonNameClassification::Latinized::Gender::Neuter',
                   'm' => 'TaxonNameClassification::Latinized::Gender::Masculine',
                   'f' => 'TaxonNameClassification::Latinized::Gender::Feminine',
-                  'n' => 'TaxonNameClassification::Latinized::Gender::Neuter' }
+                  'n' => 'TaxonNameClassification::Latinized::Gender::Neuter' }.freeze
 
         synonym_statuses = %w(1 6 8 10 11 14 17 22 23 24 26 27 28 29)
 
@@ -640,7 +654,7 @@
         raise "file #{path} not found" if not File.exists?(path)
         file = CSV.foreach(path, col_sep: "\t", headers: true)
 
-        synonym_statuses = %w(1 6 8 10 11 14 17 22 23 24 26 27 28 29)
+        synonym_statuses = %w(1 6 8 10 11 14 17 22 23 24 26 27 28 29).freeze
 
         file.each_with_index do |row, i|
           if i < 2000000 #######################################
@@ -650,6 +664,8 @@
             taxon.original_genus = find_taxon(row['OrigGen']) unless row['OrigGen'].blank?
             taxon.original_species = find_taxon(row['OriginalSpecies']) unless row['OriginalSpecies'].blank?
             taxon.original_subspecies = find_taxon(row['OriginalSubSpecies']) unless row['OriginalSubSpecies'].blank?
+            taxon.original_variety = taxon if row['Name'].include?(' var. ')
+            taxon.original_form = taxon if row['Name'].include?(' f. ')
             if taxon.rank_string =~ /Genus/
               taxon.original_genus.nil? ? taxon.original_genus = taxon : taxon.original_subgenus = taxon
             elsif taxon.rank_string =~ /Species/
@@ -740,7 +756,8 @@
                 c.variety = taxon
               end
             elsif taxon.rank_string =~ /Family/
-
+              tnr = TaxonNameRelationship.create(subject_taxon_name: taxon, object_taxon_name: find_taxon(row['Parent']), type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm')
+              byebug unless tnr.valid?
             end
             c.data_attributes.new(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['YearRem'].id, value: row['YearRem']) unless row['YearRem'].blank?
 
@@ -1028,16 +1045,23 @@
           otu = find_otu(row['Key'])
           source = find_publication_id(row['Key3'])
           country = @data.countries[row['Key6']]
-          ga = country['TW_id'].nil? ? nil : GeographicArea.find(country['TW_id']) unless country.nil?
+          erroneously, introduced = nil, false
+          unless country.nil?
+            ga = country['TW_id'].nil? ? nil : GeographicArea.find(country['TW_id'])
+            erroneously = country['Country'].include?('erroneously') ? true : nil
+            introduced = country['Country'].include?('introduced')
+          end
           print "\nGeographic area not found for Key6 = #{row['Key6']}\n" if !country.nil? && !country['TW_id'].nil? && ga.nil?
           print "\nGeographic area does not match Country = #{country['TW_name']}; GeographicArea = #{ga.name}\n" if !ga.nil? && ga.name != country['TW_name']
 
           if !otu.nil? && !source.nil? && !ga.nil?
-            AssertedDistribution.find_or_create_by!(
+            ad = AssertedDistribution.find_or_create_by!(
                                     otu: otu,
                                     geographic_area: ga,
                                     source_id: source,
+                                    is_absent: erroneously,
                                     project_id: $project_id )
+            ad.tags.find_or_create_by!(keyword: @data.keywords['introduced']) if introduced
           end
 
 

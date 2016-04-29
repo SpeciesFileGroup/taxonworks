@@ -18,8 +18,7 @@ TAXON_NAME_RELATIONSHIP_NAMES = TAXON_NAME_RELATIONSHIPS.select{|i| i.assignable
 
 # Array of all invalid TaxonNameRelationship classes, as Strings
 TAXON_NAME_RELATIONSHIP_NAMES_INVALID = TaxonNameRelationship.
-  collect_descendants_and_itself_to_s(TaxonNameRelationship::Iczn::Invalidating::Synonym,
-                                      TaxonNameRelationship::Iczn::Invalidating::Usage,
+  collect_descendants_and_itself_to_s(TaxonNameRelationship::Iczn::Invalidating,
                                       TaxonNameRelationship::Icn::Unaccepting)
 
 
