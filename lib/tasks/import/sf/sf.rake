@@ -8,20 +8,27 @@ namespace :tw do
   namespace :project_import do
     namespace :species_file do
 
+      # Next step: Generate individual SF projects (based on FileID) and populate ProjectSources with FileID=>project_id, source_id
+      #   Create all projects at once?
+      #   Will need a SF.FileID to TW.project_id hash
+      #   Add data_attribute to ProjectSources from sfVerbatimRefs (this is instead of dealing with tblRefs.ContainingRefID)
+      #   Add tblRefs.Note as?
+      #   Currently ProjectSources do not allow data_attributes or notes
+
       desc 'create sources'
       task :create_sources => [:data_directory, :environment, :user_id] do
 
         # tblRefs columns to import: Title, PubID, Series, Volume, Issue, RefPages, ActualYear, StatedYear, LinkID, LastUpdate, ModifiedBy, CreatedOn, CreatedBy
         # tblRefs other columns: RefID => Source.identifier, FileID => used when creating ProjectSources, ContainingRefID => sfVerbatimRefs contains full
         #   RefStrings attached as data_attributes in ProjectSources (no need for ContainingRefID), AccessCode => n/a, Flags => identifies editor
-        #   (use when creating roles and generating author string from tblRefAuthors), CiteDataStatus => can be derived, Verbatim => not used
-
-        # Important note: Need crossref table between SF.PubID and SF.PubType to generate bibtex_type; PubType 1 = journal, 2 = not used, 3 = book or cd, 4 = unpublished source
+        #   (use when creating roles and generating author string from tblRefAuthors), Note => attach to ProjectSources, CiteDataStatus => can be derived,
+        #   Verbatim => not used
 
         species_file_data = Import.find_or_create_by(name: 'SpeciesFileData')
         # get_person_id = species_file_data.get('SFPersonIDToTWPersonID') # not needed until roles
         get_user_id = species_file_data.get('FileUserIDToTWUserID') # for housekeeping
         get_serial_id = species_file_data.get('SFPubIDToTWSerialID') # for FK
+        get_pub_type = species_file_data.get('SFPubIDToPubType') # = bibtex_type (1=journal=>article, 2=unused,3=book or cd=>book, 4=unpublished source=>unpublished)
 
         get_source_id = species_file_data.get('SFRefIDToTWSourceID') # cross ref hash
         get_source_id ||= {} # make empty hash if doesn't exist (otherwise it would be nil)
@@ -33,26 +40,44 @@ namespace :tw do
         path = @args[:data_directory] + 'tblRefs.txt'
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: "UTF-16:UTF-8")
 
-        file.each_with_index do |row|
+        file.each_with_index do |row, i|
+          # break if i == 20
+
+          ref_id = row['RefID']
+          next if ref_id == '0'
 
           source = Source::Bibtex.new(
-              # bibtex_type: based_on_pub_type,
+              bibtex_type: get_pub_type[row['PubID']],
               title: row['Title'],
               serial_id: get_serial_id[row['PubID']],
               series: row['Series'],
               volume: row['Volume'],
-              issue: row['Issue'],
+              number: row['Issue'],
               pages: row['RefPages'],
               year: row['ActualYear'],
               stated_year: row['StatedYear'],
-              url: row['LinkID'],
+              # url: row['LinkID'],                   @todo mjy How to encode URL from double-quoted string?
               created_at: row['CreatedOn'],
               updated_at: row['LastUpdate'],
               created_by_id: get_user_id[row['CreatedBy']],
               updated_by_id: get_user_id[row['ModifiedBy']]
           )
 
+          if source.valid?
+            source.save!
+
+            sf_ref_id_to_tw_source_id[ref_id] = source.id
+
+          else
+            puts "     ERROR: " + source.errors.full_messages.join(';')
+            puts "  RefID: #{ref_id}, sf row created by: #{row['CreatedBy']}, sf row updated by: #{row['ModifiedBy']}    "
+          end
         end
+
+        # Write sf_ref_id_to_tw_source_id to Imports
+        species_file_data.set('SFRefIDToTWSourceID', sf_ref_id_to_tw_source_id)
+        puts 'SF.RefID to TW.source_id'
+        ap sf_ref_id_to_tw_source_id
 
       end
 
@@ -138,7 +163,6 @@ namespace :tw do
         get_person_id = species_file_data.get('SFPersonIDToTWPersonID') # use in loop 2
         get_person_id ||= {} # make empty hash if doesn't exist (otherwise it would be nil)
         sf_person_id_to_tw_person_id = get_person_id
-        # sf_person_id_to_tw_person_id ||= {}
 
         get_user_id = species_file_data.get('FileUserIDToTWUserID') # for housekeeping
 
@@ -202,7 +226,6 @@ namespace :tw do
         end
 
         species_file_data.set('SFPersonIDToTWPersonID', sf_person_id_to_tw_person_id) # write to db
-
         puts 'SF PersonID mapped to TW person_id'
         ap sf_person_id_to_tw_person_id
 
