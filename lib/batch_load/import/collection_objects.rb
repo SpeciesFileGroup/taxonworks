@@ -17,8 +17,6 @@ module BatchLoad
       build_objects = {}
       i             = 1 # accounting for headers
       # identifier namespace
-      # header0 = csv.headers[0] # should be 'collection_object_identifier_namespace_short_name'
-      # header1 = csv.headers[1] # should be 'collection_object_identifier_identifier'
       header5       = csv.headers[5] # should be 'collecting_event_identifier_namespace_short_name'
       header6       = csv.headers[6] # should be 'collecting_event_identifier_identifier'
       header7       = csv.headers[7] # should be 'collecting_event_identifier_type'
@@ -27,23 +25,55 @@ module BatchLoad
       csv.each do |row|
         parse_result = BatchLoad::RowParse.new
         # creation of the possible-objects list
-        parse_result.objects.merge!(otu: [], co: [], td: [], ce: [])
+        parse_result.objects.merge!(otu: [], co: [], td: [], ce: [], gr: [])
         # attach the results to the row
         @processed_rows.merge!(i => parse_result)
 
         # hot-wire the project into the row
         row['project_id'] = @project_id.to_s if row['project_id'].blank?
 
-        long   = row['longitude'] # longitude
-        lat    = row['latitude'] # latitude
-        method = row['method']
-        error  = (row['error'].to_s + ' ' + row['georeference_error_units'].to_s).strip
+        begin # processing the Otu
+          otu_list = BatchLoad::ColumnResolver.otu(row)
+          otu      = otu_list.item if otu_list.resolvable?
+          otu      = Otu.new(name: row['otu_name']) if otu.blank?
+          parse_result.objects[:otu].push(otu)
+        end
 
-        ce_namespace = row[header5]
-        ns_ce        = Namespace.where(short_name: ce_namespace).first
-        parse_result.parse_errors.push["No available namespace '#{ce_namespace}'."] if ns_ce.nil?
+        begin # processing the CollectionObject
+          co_list = BatchLoad::ColumnResolver.collection_object_by_identifier(row)
+          if co_list.no_matches? # no namespace to search!
+            parse_result.parse_errors.push('No CollectionObject found with the specified identifier.')
+            next
+          end
+          co = co_list.item # there can be only one
+          unless co.collecting_event.nil? # if it exists
+            parse_result.parse_errors.push('The specified CollectionObject already has a CollectingEvent.')
+            next
+          end
+          parse_result.objects[:co].push(co)
+        end
+
+        begin # processing the TaxonDetermination
+          td_attributes = {otu:                          otu,
+                           biological_collection_object: co}
+          # td_match      = Digest::SHA256.digest(td_attributes.to_s)
+          # td            = build_objects[td_match]
+          # td            = TaxonDetermination.find_by(td_attributes) if td.nil?
+          td            = TaxonDetermination.new(td_attributes)
+          parse_result.objects[:td].push(td)
+          # build_objects.merge!(td_match => td)
+        end
 
         begin # processing the CollectingEvent
+          long   = row['longitude'] # longitude
+          lat    = row['latitude'] # latitude
+          method = row['method']
+          error  = (row['error'].to_s + ' ' + row['georeference_error_units'].to_s).strip
+
+          ce_namespace = row[header5]
+          ns_ce        = Namespace.where(short_name: ce_namespace).first
+          parse_result.parse_errors.push["No available namespace '#{ce_namespace}'."] if ns_ce.nil?
+
           ce_attributes = {verbatim_locality:                row['verbatim_location'],
                            verbatim_geolocation_uncertainty: error.empty? ? nil : error,
                            start_date_day:                   row['start_date_day'],
@@ -78,16 +108,16 @@ module BatchLoad
                            project_id:                       @project_id
           }
 
-          ce_key = ce_attributes.merge(identifiers_attributes: [{namespace:  ns_ce,
-                                                                 project_id: @project_id,
-                                                                 type:       'Identifier::' + row[header7],
-                                                                 identifier: row[header6]}]
+          ce_key        = ce_attributes.merge(identifiers_attributes: [{namespace:  ns_ce,
+                                                                        project_id: @project_id,
+                                                                        type:       'Identifier::' + row[header7],
+                                                                        identifier: row[header6]}]
           )
+          gr_attributes = {}
           case method.downcase
             when 'geolocate'
-              ce_key.merge!(georeferences_attributes: [{iframe_response: "#{lat}|#{long}|#{Utilities::Geo.elevation_in_meters(error)}|Unavailable"}])
+              gr_attributes = {geo_locate_georeferences_attributes: [{iframe_response: "#{lat}|#{long}|#{Utilities::Geo.elevation_in_meters(error)}|Unavailable"}]}
             else
-              # nothing to do?
           end unless method.nil?
 
           if row[1] == '35397'
@@ -97,12 +127,19 @@ module BatchLoad
 
           ce_match = Digest::SHA256.digest(ce_key.to_s)
           ce       = build_objects[ce_match]
-          if ce.nil?
-            ce = CollectingEvent.find_by(ce_attributes)
+          ce       = CollectingEvent.find_by(ce_attributes) if ce.nil?
+          ce       = CollectingEvent.new(ce_key.merge(gr_attributes)) if ce.nil?
+
+          if ce.new_record?
+
           end
-          if ce.nil?
-            ce = CollectingEvent.new(ce_key)
+
+          if gr_attributes.empty?
+            gr = nil
+          else
+            gr = ce.georeferences.last
           end
+          parse_result.objects[:gr].push(gr) unless gr.nil?
           parse_result.objects[:ce].push(ce)
           build_objects.merge!(ce_match => ce)
 

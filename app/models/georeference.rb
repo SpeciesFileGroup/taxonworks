@@ -75,10 +75,10 @@ class Georeference < ActiveRecord::Base
   belongs_to :collecting_event
   belongs_to :geographic_item
 
- validates :geographic_item, presence: true
- validates :collecting_event, presence: true
- validates :type, presence: true
- validates :collecting_event_id, uniqueness: {scope: [:type, :geographic_item_id, :project_id]}
+  validates :geographic_item, presence: true
+  validates :type, presence: true
+  # validates :collecting_event, presence: true
+  # validates :collecting_event_id, uniqueness: {scope: [:type, :geographic_item_id, :project_id]}
   # validates_uniqueness_of :collecting_event_id, scope: [:type, :geographic_item_id, :project_id]
 
   # validate :proper_data_is_provided
@@ -90,7 +90,7 @@ class Georeference < ActiveRecord::Base
   validate :add_error_radius_inside_area
   validate :add_error_geo_item_inside_area
   validate :add_obj_inside_area
- 
+
   validate :geographic_item_present_if_error_radius_provided
 
   accepts_nested_attributes_for :geographic_item, :error_geographic_item
@@ -99,7 +99,7 @@ class Georeference < ActiveRecord::Base
   #  When true, cascading cached values (e.g. in CollectingEvent) are not built
   attr_accessor :no_cached
 
-  after_save :set_cached, if: '!self.no_cached' 
+  after_save :set_cached, if: '!self.no_cached'
 
   # instance methods
 
