@@ -78,7 +78,7 @@ class Georeference < ActiveRecord::Base
   validates :geographic_item, presence: true
   validates :type, presence: true
   # validates :collecting_event, presence: true
-  # validates :collecting_event_id, uniqueness: {scope: [:type, :geographic_item_id, :project_id]}
+  validates :collecting_event_id, uniqueness: {scope: [:type, :geographic_item_id, :project_id]}
   # validates_uniqueness_of :collecting_event_id, scope: [:type, :geographic_item_id, :project_id]
 
   # validate :proper_data_is_provided
@@ -263,8 +263,10 @@ class Georeference < ActiveRecord::Base
                                   api_request:              gr.api_request,
                                   is_undefined_z:           gr.is_undefined_z,
                                   is_median_z:              gr.is_median_z)
-        new_gr.save
-        result.push new_gr
+        if new_gr.valid? # generally, this catches the case of multiple identical georeferences per collecting_event.
+          new_gr.save
+          result.push new_gr
+        end
       end
     end
     result

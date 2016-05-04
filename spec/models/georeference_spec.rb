@@ -11,17 +11,17 @@ describe Georeference, type: :model, group: :geo do
 
   let!(:g_a) {
     GeographicArea.create(name:                 'Box_4',
-                       data_origin:          'Test Data',
-                       geographic_area_type: g_a_t,
-                       parent:               earth)
+                          data_origin:          'Test Data',
+                          geographic_area_type: g_a_t,
+                          parent:               earth)
   }
 
   # this collecting event should produce a georeference.geographic_item.geo_object of 'Point(0.1 0.1 0.1)'
   let(:collecting_event_with_geographic_area) { CollectingEvent.create(geographic_area:    g_a,
-                                                                    verbatim_locality:  'Test Event',
-                                                                    minimum_elevation:  0.1,
-                                                                    verbatim_latitude:  '0.1',
-                                                                    verbatim_longitude: '0.1')
+                                                                       verbatim_locality:  'Test Event',
+                                                                       minimum_elevation:  0.1,
+                                                                       verbatim_latitude:  '0.1',
+                                                                       verbatim_longitude: '0.1')
   }
 
   let(:collecting_event_without_geographic_area) {
@@ -56,7 +56,8 @@ describe Georeference, type: :model, group: :geo do
     end
 
     specify '#collecting_event is required' do
-      expect(georeference.errors.include?(:collecting_event)).to be_truthy
+      # no longer true at this level: 'not null' is now enforced at the table level.
+      # expect(georeference.errors.include?(:collecting_event)).to be_truthy
     end
 
     specify '#type is required' do
@@ -328,7 +329,7 @@ describe Georeference, type: :model, group: :geo do
       @gr_poly  = FactoryGirl.create(:valid_georeference_geo_locate)
       @gr_point = FactoryGirl.create(:valid_georeference_verbatim_data)
 
-      # using linting to check validity of valid_ models! for things like 
+      # using linting to check validity of valid_ models! for things like
       # @gr1.save!
     }
 
@@ -340,7 +341,7 @@ describe Georeference, type: :model, group: :geo do
 
     context '.with_locality_like(string)' do
       # return all Georeferences that are attached to a CollectingEvent that has a verbatim_locality that includes String somewhere
-      # Joins collecting_event.rb and matches %String% against verbatim_locality 
+      # Joins collecting_event.rb and matches %String% against verbatim_locality
 
       # .where(id in CollectingEvent.where{verbatim_locality like "%var%"})
       specify 'respondes to .with_locality_like' do
