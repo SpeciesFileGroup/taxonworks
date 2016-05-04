@@ -15,6 +15,8 @@ namespace :tw do
       #   Add tblRefs.Note as?
       #   Currently ProjectSources do not allow data_attributes or notes
 
+      # Another task: Export query results for ref URL.
+
       desc 'create sources'
       task :create_sources => [:data_directory, :environment, :user_id] do
 
@@ -29,6 +31,7 @@ namespace :tw do
         get_user_id = species_file_data.get('FileUserIDToTWUserID') # for housekeeping
         get_serial_id = species_file_data.get('SFPubIDToTWSerialID') # for FK
         get_pub_type = species_file_data.get('SFPubIDToPubType') # = bibtex_type (1=journal=>article, 2=unused,3=book or cd=>book, 4=unpublished source=>unpublished)
+        no_ref_list = species_file_data.get('SFNoRefList')  # contains array of RefInRef ids w/only author info
 
         get_source_id = species_file_data.get('SFRefIDToTWSourceID') # cross ref hash
         get_source_id ||= {} # make empty hash if doesn't exist (otherwise it would be nil)
@@ -44,7 +47,7 @@ namespace :tw do
           # break if i == 20
 
           ref_id = row['RefID']
-          next if ref_id == '0'
+          next if no_ref_list.include?(ref_id)
 
           source = Source::Bibtex.new(
               bibtex_type: get_pub_type[row['PubID']],
@@ -56,7 +59,7 @@ namespace :tw do
               pages: row['RefPages'],
               year: row['ActualYear'],
               stated_year: row['StatedYear'],
-              # url: row['LinkID'],                   @todo mjy How to encode URL from double-quoted string?
+              # url: row['LinkID'],
               created_at: row['CreatedOn'],
               updated_at: row['LastUpdate'],
               created_by_id: get_user_id[row['CreatedBy']],
@@ -78,6 +81,25 @@ namespace :tw do
         species_file_data.set('SFRefIDToTWSourceID', sf_ref_id_to_tw_source_id)
         puts 'SF.RefID to TW.source_id'
         ap sf_ref_id_to_tw_source_id
+
+      end
+
+      desc 'make array from no_ref_list'
+      task :create_no_ref_list_array => [:data_directory, :environment, :user_id] do
+        sf_no_ref_list = []
+
+        path = @args[:data_directory] + 'no_ref_list.txt'
+        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: "UTF-8")
+
+        file.each do |row|
+          sf_no_ref_list.push(row[0])
+        end
+
+        i = Import.find_or_create_by(name: 'SpeciesFileData')
+        i.set('SFNoRefList', sf_no_ref_list)
+
+        puts 'SF no_ref_list'
+        ap sf_no_ref_list
 
       end
 
