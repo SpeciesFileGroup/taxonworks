@@ -228,12 +228,24 @@ class Combination < TaxonName
   def set_cached_valid_taxon_name_id
     begin
       TaxonName.transaction do
-        c = self.protonyms_by_rank
-        self.update_column(:cached_valid_taxon_name_id, c[c.keys.last].cached_valid_taxon_name_id)
+        self.update_column(:cached_valid_taxon_name_id, self.get_valid_taxon_name.id)
       end
     rescue
     end
   end
+
+  def get_valid_taxon_name
+    c = self.protonyms_by_rank
+    return self if c.blank?
+    c[c.keys.last].valid_taxon_name
+  end
+
+
+  def get_author_and_year
+    ay = iczn_author_and_year
+    ay.blank? ? nil : ay
+  end
+
 
 
   protected

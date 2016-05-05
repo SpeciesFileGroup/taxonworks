@@ -193,6 +193,32 @@ class Protonym < TaxonName
     return list
   end
 
+  def get_valid_taxon_name
+    v = first_possible_valid_taxon_name
+    if v == self
+      self
+    elsif v.cached_valid_taxon_name_id == v.id
+      v
+    elsif !v.cached_valid_taxon_name_id.nil?
+      v.valid_taxon_name
+    else
+      self
+    end
+  end
+
+  def get_author_and_year
+    case self.rank_class.nomenclatural_code
+      when :iczn
+        ay = iczn_author_and_year
+      when :icn
+        ay = icn_author_and_year
+      else
+        ay = ([self.author_string] + [self.year_integer]).compact.join(' ')
+    end
+    ay.blank? ? nil : ay
+  end
+
+
   def lowest_rank_coordinated_taxon
     list = [self] + list_of_coordinated_names
     if list.count == 1

@@ -343,6 +343,31 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             expect(sp.cached_author_year).to eq('Smith, 2000 nec McAtee, 1830')
           end
 
+          specify 'ICZN combination' do
+            g1 = FactoryGirl.create(:relationship_genus, parent: @family, name: 'Aus')
+            s = FactoryGirl.create(:relationship_species, parent: g1, name: 'aus', year_of_publication: 1900, verbatim_author: 'McAtee')
+            s.save!
+            c1 = Combination.new
+            c1.genus = g1
+            c1.species = s
+            c1.save
+            expect(c1.cached_author_year).to eq('McAtee, 1900')
+          end
+
+          specify 'ICZN combination different genus' do
+            g1 = FactoryGirl.create(:relationship_genus, parent: @family, name: 'Aus')
+            g2 = FactoryGirl.create(:relationship_genus, parent: @family, name: 'Bus')
+            s = FactoryGirl.create(:relationship_species, parent: g1, name: 'aus', year_of_publication: 1900, verbatim_author: 'McAtee')
+            s.original_genus = g2
+            s.save!
+            s.reload
+            c1 = Combination.new
+            c1.genus = g1
+            c1.species = s
+            c1.save
+            expect(c1.cached_author_year).to eq('(McAtee, 1900)')
+          end
+
           context 'ICZN family (behaviour for names above genus group)' do
             specify 'cached_higher_classification' do
               expect(@family.cached_higher_classification).to eq('Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae')

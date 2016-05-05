@@ -285,7 +285,8 @@ class TaxonNameRelationship < ActiveRecord::Base
           t.update_columns(:cached_original_combination => t.get_original_combination,
                            :cached => t.get_full_name,
                            :cached_html => t.get_full_name_html,
-                           :cached_author_year => t.get_author_and_year)
+                           :cached_author_year => t.get_author_and_year,
+                           :cached_valid_taxon_name_id => t.get_valid_taxon_name.id)
 #        elsif self.type_name =~/Misspelling/
 #          t = self.subject_taxon_name
 #          t.update_column(:cached_misspelling, t.get_cached_misspelling)

@@ -425,16 +425,8 @@ class TaxonName < ActiveRecord::Base
   # @return [TaxonName]
   #   a valid taxon_name for an invalid name or self for valid name.
   def get_valid_taxon_name
-    v = first_possible_valid_taxon_name
-    if v == self
-      self
-    elsif v.cached_valid_taxon_name_id == v.id
-      v
-    elsif !v.cached_valid_taxon_name_id.nil?
-      v.valid_taxon_name
-    else
-      self
-    end
+    # see in protonym and combination
+    nil
   end
 
   # @return [TaxonNameRelationship]
@@ -1001,19 +993,8 @@ class TaxonName < ActiveRecord::Base
   # return [String]
   #   the author and year of the name, adds parenthesis where asserted
   def get_author_and_year
-    if self.rank.nil?
-      ay = ([self.author_string] + [self.year_integer]).compact.join(', ')
-    else
-      case self.rank_class.nomenclatural_code
-        when :iczn
-          ay = iczn_author_and_year
-        when :icn
-          ay = icn_author_and_year
-        else
-          ay = ([self.author_string] + [self.year_integer]).compact.join(' ')
-      end
-    end
-    ay.blank? ? nil : ay
+    # see protonym and combination
+    true
   end
 
   def icn_author_and_year
@@ -1048,10 +1029,17 @@ class TaxonName < ActiveRecord::Base
     ay = nil
     p = nil
 
-    misapplication = TaxonNameRelationship.where_subject_is_taxon_name(self).
-      with_type_string('TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication')
+    misapplication = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_string('TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication')
 
-    a = [self.author_string]
+    if self.type == 'Combination'
+      c = self.protonyms_by_rank
+      taxon = c[c.keys.last]
+    else
+      taxon = self
+    end
+
+    a = [taxon.try(:author_string)]
+    y = [taxon.try(:year_integer)]
 
     if a[0] =~ /^\(.+\)$/ # (Author)
       a[0] = a[0][1..-2] ## remove parentheses in the author string
@@ -1060,7 +1048,7 @@ class TaxonName < ActiveRecord::Base
       p = false
     end
 
-    ay = (a + [self.year_integer]).compact.join(', ')
+    ay = (a + y).compact.join(', ')
 
     obj = misapplication.empty? ? nil : misapplication.first.object_taxon_name
 
@@ -1068,12 +1056,16 @@ class TaxonName < ActiveRecord::Base
       ay += ' nec ' + ([obj.author_string] + [obj.year_integer]).compact.join(', ')
     end
 
-    if SPECIES_RANK_NAMES_ICZN.include?(self.rank_class.to_s)
+    if SPECIES_RANK_NAMES_ICZN.include?(taxon.rank_class.to_s)
       if p
         ay = '(' + ay + ')' unless ay.empty?
       else
-        og = self.original_genus
-        cg = self.ancestor_at_rank('genus')
+        og = taxon.original_genus
+        if self.type == 'Combination'
+          cg = self.genus
+        else
+          cg = self.ancestor_at_rank('genus')
+        end
         unless og.nil? || cg.nil?
           ay = '(' + ay + ')' unless ay.empty? if og.name != cg.name
         end
