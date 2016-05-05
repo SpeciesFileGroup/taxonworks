@@ -314,7 +314,7 @@ describe 'Geo', group: :geo do
       use_cases.each { |elevation, result|
         @entry += 1
         specify "case #{@entry}: #{elevation} should yield #{result}" do
-          expect(Utilities::Geo.elevation_in_meters(elevation)).to eq(result)
+          expect(Utilities::Geo.distance_in_meters(elevation)).to eq(result)
         end
       }
     end

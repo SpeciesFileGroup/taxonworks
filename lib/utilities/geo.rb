@@ -62,7 +62,7 @@ To add a new (discovered) symbol:
     # 123 m > 123 meters > 123 m.
     # 123 km > 123 km. > 123 kilometers
     #
-    def self.elevation_in_meters(elev_in)
+    def self.distance_in_meters(elev_in)
       elev_in   = '0.0 meters' if elev_in.blank?
       elevation = elev_in.strip.downcase
       pieces    = elevation.split(' ')
@@ -103,7 +103,7 @@ To add a new (discovered) symbol:
     # 88:11:43.3W
     #
     # no limit test, unless there is a letter included
-    # 
+    #
     def self.degrees_minutes_seconds_to_decimal_degrees(dms_in) # rubocop:disable Metrics/PerceivedComplexity !! But this is too complex :)
       match_string = nil
       # no_point     = false

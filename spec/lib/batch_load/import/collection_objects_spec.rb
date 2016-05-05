@@ -6,11 +6,43 @@ describe BatchLoad::Import::CollectionObjects, type: :model do
 
     let(:file_name) { 'spec/files/batch/collection_object/CollectionObjectTestErr.tsv' }
     let(:setup) {
-      @psuc = []
+      ns_2
       csv1  = CSV.read(file_name, {headers: true, header_converters: :downcase, col_sep: "\t", encoding: "UTF-8"})
-      csv1.each do |row1|
-        @psuc.push(row1[1])
-        FactoryGirl.create(:valid_identifier, namespace: ns_1, identifier: row1[1])
+      csv1.each do |row|
+        ident = row[1]
+        case ident
+          when '35397' # create a collecting event to find later
+            error = (row['error'].to_s + ' ' + row['georeference_error_units'].to_s).strip
+            ns_ce = Namespace.where(short_name: row['collecting_event_identifier_namespace_short_name']).first
+            ce    = FactoryGirl.create(:valid_collecting_event,
+                                       {verbatim_locality:                   row['verbatim_location'],
+                                        verbatim_geolocation_uncertainty:    error.empty? ? nil : error,
+                                        start_date_day:                      row['start_day'],
+                                        start_date_month:                    row['start_month'],
+                                        start_date_year:                     row['start_year'],
+                                        end_date_day:                        row['end_day'],
+                                        end_date_month:                      row['end_month'],
+                                        end_date_year:                       row['end_year'],
+                                        verbatim_longitude:                  row['longitude'],
+                                        verbatim_latitude:                   row['latitude'],
+                                        verbatim_method:                     row['method'],
+                                        verbatim_date:                       row['verbatim_date'],
+                                        verbatim_elevation:                  nil,
+                                        project_id:                          project.id,
+                                        identifiers_attributes:              [{namespace:  ns_ce,
+                                                                               project_id: project.id,
+                                                                               type:       'Identifier::' + row['collecting_event_identifier_type'],
+                                                                               identifier: row['collecting_event_identifier_identifier']}],
+                                        geo_locate_georeferences_attributes: [{iframe_response: "#{row['latitude']}|#{row['longitude']}|#{Utilities::Geo.distance_in_meters(error)}|Unavailable"}]
+                                       }
+            )
+            gr1   = Georeference::VerbatimData.create(collecting_event: ce)
+          # gr2   = Georeference::GeoLocate.new(collecting_event: ce,
+          #                                     iframe_response:  "#{row['latitude']}|#{row['longitude']}|#{Utilities::Geo.elevation_in_meters(error)}|Unavailable")
+          else
+        end
+        # the following invocation also creates a valid specimen as a collection_object
+        FactoryGirl.create(:valid_identifier, namespace: ns_1, identifier: ident)
       end
     }
     let(:csv_args) { {headers: true, col_sep: "\t", encoding: 'UTF-8'} }
@@ -33,16 +65,20 @@ describe BatchLoad::Import::CollectionObjects, type: :model do
                                                             'end_day'     => 'end_date_day',
                                                             'end_month'   => 'end_date_month',
                                                             'end_year'    => 'end_date_year'},
-                                               process:    false
+      # process:    false
       )
     }
 
     context 'file provided' do
       it 'scans provided data data' do
         setup
-        ns_2
         bingo = evaluate
         expect(bingo).to be_truthy
+        expect(bingo.total_lines).to eq(208)
+        expect(bingo.processed_rows[1].parse_errors).to include('No collection object with cached identifier \'MuleDeer 35614\' exists.')
+        expect(bingo.processed_rows[11].parse_errors).to include('Collecting event problems: identifiers.identifier: has already been taken: ')
+        expect(bingo.processed_rows[16].parse_errors).to include('No available namespace \'MuleDear\'.', 'Collecting event problems: identifiers.namespace: can\'t be blank: ')
+        expect(bingo.processed_rows[61].objects[:ce].first.verbatim_locality).to eq('Collecting Event No. 59353')
       end
     end
   end
@@ -78,7 +114,7 @@ describe BatchLoad::Import::CollectionObjects, type: :model do
                                                                             project_id: project.id,
                                                                             type:       'Identifier::' + row['collecting_event_identifier_type'],
                                                                             identifier: row['collecting_event_identifier_identifier']}],
-                                        geo_locate_georeferences_attributes: [{iframe_response: "#{row['latitude']}|#{row['longitude']}|#{Utilities::Geo.elevation_in_meters(error)}|Unavailable"}]
+                                        geo_locate_georeferences_attributes: [{iframe_response: "#{row['latitude']}|#{row['longitude']}|#{Utilities::Geo.distance_in_meters(error)}|Unavailable"}]
                                        }
             )
             gr1 = Georeference::VerbatimData.create(collecting_event: ce)
@@ -86,7 +122,7 @@ describe BatchLoad::Import::CollectionObjects, type: :model do
           #                                     iframe_response:  "#{row['latitude']}|#{row['longitude']}|#{Utilities::Geo.elevation_in_meters(error)}|Unavailable")
           else
         end
-        # the following invocation also creates a valid speciman as a collection_object
+        # the following invocation also creates a valid specimen as a collection_object
         FactoryGirl.create(:valid_identifier, namespace: ns_1, identifier: ident)
       end
     }
@@ -120,9 +156,10 @@ describe BatchLoad::Import::CollectionObjects, type: :model do
         expect(bingo).to be_truthy
         bingo.create
         expect(Otu.count).to eq(1)
-        expect(Identifier.count).to eq(305) # one built above, one for each co in import
-        expect(CollectingEvent.count).to eq(171)
-        expect(Georeference.count).to eq(116)
+        expect(Identifier.count).to eq(304) # one built above, one for each co in import
+        expect(CollectingEvent.count).to eq(140)
+        expect(Georeference.count).to eq(65)
+        expect(bingo.processed_rows[61].objects[:ce].first.verbatim_locality).to eq('Collecting Event No. 59353')
       end
     end
   end

@@ -25,32 +25,39 @@ module BatchLoad
       csv.each do |row|
         parse_result = BatchLoad::RowParse.new
         # creation of the possible-objects list
-        parse_result.objects.merge!(otu: [], co: [], td: [], ce: [], gr: [])
+        parse_result.objects.merge!(otu: [], td: [], ce: [])
         # attach the results to the row
         @processed_rows.merge!(i => parse_result)
 
         # hot-wire the project into the row
         row['project_id'] = @project_id.to_s if row['project_id'].blank?
 
-        begin # processing the Otu
-          otu_list = BatchLoad::ColumnResolver.otu(row)
-          otu      = otu_list.item if otu_list.resolvable?
-          otu      = Otu.new(name: row['otu_name']) if otu.blank?
-          parse_result.objects[:otu].push(otu)
-        end
-
         begin # processing the CollectionObject
           co_list = BatchLoad::ColumnResolver.collection_object_by_identifier(row)
           if co_list.no_matches? # no namespace to search!
-            parse_result.parse_errors.push('No CollectionObject found with the specified identifier.')
+            parse_result.parse_errors.push(co_list.error_messages.first)
+            i += 1 # can't skip the increment!
             next
           end
           co = co_list.item # there can be only one
           unless co.collecting_event.nil? # if it exists
             parse_result.parse_errors.push('The specified CollectionObject already has a CollectingEvent.')
+            i += 1 # can't skip the increment!
             next
           end
-          parse_result.objects[:co].push(co)
+          # parse_result.objects[:co].push(co)
+        end
+
+        begin # processing the Otu
+          otu            = nil
+          otu_attributes = {name: row['otu_name']}
+          otu_list       = BatchLoad::ColumnResolver.otu(row)
+          otu            = otu_list.item if otu_list.resolvable?
+          otu_match      = Digest::SHA256.digest(otu_attributes.to_s)
+          otu            = build_objects[otu_match] if otu.blank?
+          otu            = Otu.new(otu_attributes) if otu.blank?
+          build_objects.merge!(otu_match => otu)
+          parse_result.objects[:otu].push(otu)
         end
 
         begin # processing the TaxonDetermination
@@ -65,16 +72,22 @@ module BatchLoad
         end
 
         begin # processing the CollectingEvent
-          long   = row['longitude'] # longitude
-          lat    = row['latitude'] # latitude
-          method = row['method']
-          error  = (row['error'].to_s + ' ' + row['georeference_error_units'].to_s).strip
+          id_ce    = row[header6]
+          vert_loc = row['verbatim_location']
+          long     = row['longitude'] # longitude
+          lat      = row['latitude'] # latitude
+          method   = row['method']
+          error    = (row['error'].to_s + ' ' + row['georeference_error_units'].to_s).strip
 
           ce_namespace = row[header5]
           ns_ce        = Namespace.where(short_name: ce_namespace).first
-          parse_result.parse_errors.push["No available namespace '#{ce_namespace}'."] if ns_ce.nil?
+          parse_result.parse_errors.push("No available namespace '#{ce_namespace}'.") if ns_ce.nil?
 
-          ce_attributes = {verbatim_locality:                row['verbatim_location'],
+          # force a verbatim_locality, if none is provided.
+          if vert_loc.blank?
+            vert_loc = "#{ns_ce.short_name} #{id_ce}"
+          end
+          ce_attributes = {verbatim_locality:                vert_loc,
                            verbatim_geolocation_uncertainty: error.empty? ? nil : error,
                            start_date_day:                   row['start_date_day'],
                            start_date_month:                 row['start_date_month'],
@@ -108,15 +121,18 @@ module BatchLoad
                            project_id:                       @project_id
           }
 
-          ce_key        = ce_attributes.merge(identifiers_attributes: [{namespace:  ns_ce,
-                                                                        project_id: @project_id,
-                                                                        type:       'Identifier::' + row[header7],
-                                                                        identifier: row[header6]}]
-          )
-          gr_attributes = {}
+          ce_id_attributes = {identifiers_attributes: [{namespace:  ns_ce,
+                                                        project_id: @project_id,
+                                                        type:       'Identifier::' + row[header7],
+                                                        identifier: id_ce}]}
+          # id_attributes    = ce_id_attributes[:identifiers_attributes][0]
+          ce_key           = ce_attributes.merge(ce_id_attributes)
+          # id_match         = Digest::SHA256.digest(ce_id_attributes.to_s)
+
+          gr_attributes    = {}
           case method.downcase
             when 'geolocate'
-              gr_attributes = {geo_locate_georeferences_attributes: [{iframe_response: "#{lat}|#{long}|#{Utilities::Geo.elevation_in_meters(error)}|Unavailable"}]}
+              gr_attributes = {geo_locate_georeferences_attributes: [{iframe_response: "#{lat}|#{long}|#{Utilities::Geo.distance_in_meters(error)}|Unavailable"}]}
             else
           end unless method.nil?
 
@@ -130,19 +146,20 @@ module BatchLoad
           ce       = CollectingEvent.find_by(ce_attributes) if ce.nil?
           ce       = CollectingEvent.new(ce_key.merge(gr_attributes)) if ce.nil?
 
-          if ce.new_record?
-
-          end
-
-          if gr_attributes.empty?
-            gr = nil
+          if ce.valid? # various different possible errors.
+            parse_result.objects[:ce].push(ce)
+            build_objects.merge!(ce_match => ce)
           else
-            gr = ce.georeferences.last
+            err_list = 'Collecting event problems: '
+            ce.errors.messages.each { |msg|
+              msg.each { |key, value|
+                err_list += "#{key}: #{value}"
+              }
+            }
+            parse_result.parse_errors.push(err_list)
+            # parse_result.parse_errors.push("Identifier '#{id_test.namespace} #{id_test.identifier}'
+            # has been used for a different collecting event.")
           end
-          parse_result.objects[:gr].push(gr) unless gr.nil?
-          parse_result.objects[:ce].push(ce)
-          build_objects.merge!(ce_match => ce)
-
         end
 
         i += 1

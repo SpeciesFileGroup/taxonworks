@@ -521,7 +521,7 @@ class CollectingEvent < ActiveRecord::Base
     if self.verbatim_latitude && self.verbatim_longitude && !self.new_record?
       local_latitude  = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_latitude)
       local_longitude = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_longitude)
-      elev            = Utilities::Geo.elevation_in_meters(verbatim_elevation)
+      elev            = Utilities::Geo.distance_in_meters(verbatim_elevation)
       point           = Gis::FACTORY.point(local_latitude, local_longitude, elev)
       GeographicItem.new(point: point)
     else
@@ -955,7 +955,7 @@ class CollectingEvent < ActiveRecord::Base
     unless verbatim_latitude.blank? or verbatim_longitude.blank?
       lat     = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_latitude.to_s)
       long    = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_longitude.to_s)
-      elev    = Utilities::Geo.elevation_in_meters(verbatim_elevation.to_s)
+      elev    = Utilities::Geo.distance_in_meters(verbatim_elevation.to_s)
       delta_z = elev unless elev == 0.0
       Gis::FACTORY.point(long, lat, delta_z)
     end

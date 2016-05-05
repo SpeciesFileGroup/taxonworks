@@ -8,13 +8,13 @@ class Georeference::GeoLocate < Georeference
   URI_EMBED_PATH = '/geolocate/web/webgeoreflight.aspx?'
 
   def api_response=(response)
-    make_geographic_item(response.coordinates)
+    make_geographic_point(response.coordinates[0], response.coordinates[1])
     make_error_geographic_item(response.uncertainty_polygon, response.uncertainty_radius)
   end
 
   def iframe_response=(response_string)
     lat, long, error_radius, uncertainty_points = Georeference::GeoLocate.parse_iframe_result(response_string)
-    make_geographic_item([long, lat])
+    make_geographic_point(long, lat, '0.0')
     if uncertainty_points.nil?
       # make a circle from the geographic_item
       unless error_radius.blank?
@@ -34,9 +34,19 @@ class Georeference::GeoLocate < Georeference
     Hash[*self.api_request.split('&').collect { |a| a.split('=', 2) }.flatten]
   end
 
-  # @param [Array] coordinates is an Array of Stings of [longitude, latitude]
-  def make_geographic_item(coordinates)
-    self.geographic_item = GeographicItem.new(point: Gis::FACTORY.point(coordinates[0], coordinates[1]))
+  # @param [String] x = longitude
+  # @param [String] y = latitude
+  # @param [String] z = elevation
+  def make_geographic_point(x, y, z = '0.0')
+    if x.blank? or y.blank?
+      test_grs = []
+    else
+      test_grs = GeographicItem::Point.where("point = ST_GeographyFromText('POINT(#{x} #{y})::geography')").where("ST_Z(point::geometry) = #{z}")
+    end
+    if test_grs.empty? # put a new one in the array
+      test_grs = [GeographicItem.new(point: Gis::FACTORY.point(x, y, z))]
+    end
+    self.geographic_item = test_grs.first
   end
 
   # def make_error_geographic_item(result)
