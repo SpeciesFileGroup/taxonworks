@@ -90,17 +90,25 @@ module BatchLoad
     end
 
     def csv
-      #  begin
+      begin
       @csv ||= CSV.parse(@file.tempfile.read.force_encoding('utf-8'),
                          {headers:           true,
                           header_converters: [:downcase, lambda { |h| user_map(h) }],
                           col_sep:           "\t",
                           encoding:          "UTF-8"})
+   
+
       #  rescue Encoding::UndefinedConversionError => e
-      #    @processed = false
-      #    @file_errors.push("Error converting file. #{e}")
-      #    return nil
-      #  end
+
+      rescue ArgumentError => e
+        @processed = false
+        @file_errors.push("Error converting file. #{e}")
+        return nil
+      rescue CSV::MalformedCSVError => e
+        @processed = false
+        @file_errors.push("Error converting file. #{e}")
+        return nil
+      end
     end
 
     def user_map(h)
