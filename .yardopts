@@ -1,4 +1,5 @@
---exclude db/
+--exclude /db/
+--exclude /db/migrate/
 --no-cache 
 --private
 --protected
