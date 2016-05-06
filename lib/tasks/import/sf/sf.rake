@@ -1,6 +1,6 @@
 require 'fileutils'
 
-### rake tw:project_import:orth_sf:create_users user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/ no_transaction=true
+### rake tw:project_import:species_file:create_users user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/ no_transaction=true
 
 ## check out default user_id if SF.FileUserID < 1
 
@@ -20,6 +20,8 @@ namespace :tw do
       desc 'create sources'
       task :create_sources => [:data_directory, :environment, :user_id] do
 
+        # @todo import verbatim ref links, re-import no ref list, fix sources program to look for '-' in actual year field
+
         # tblRefs columns to import: Title, PubID, Series, Volume, Issue, RefPages, ActualYear, StatedYear, LinkID, LastUpdate, ModifiedBy, CreatedOn, CreatedBy
         # tblRefs other columns: RefID => Source.identifier, FileID => used when creating ProjectSources, ContainingRefID => sfVerbatimRefs contains full
         #   RefStrings attached as data_attributes in ProjectSources (no need for ContainingRefID), AccessCode => n/a, Flags => identifies editor
@@ -31,7 +33,7 @@ namespace :tw do
         get_user_id = species_file_data.get('FileUserIDToTWUserID') # for housekeeping
         get_serial_id = species_file_data.get('SFPubIDToTWSerialID') # for FK
         get_pub_type = species_file_data.get('SFPubIDToPubType') # = bibtex_type (1=journal=>article, 2=unused,3=book or cd=>book, 4=unpublished source=>unpublished)
-        no_ref_list = species_file_data.get('SFNoRefList')  # contains array of RefInRef ids w/only author info
+        no_ref_list = species_file_data.get('SFNoRefList') # contains array of RefInRef ids w/only author info
 
         get_source_id = species_file_data.get('SFRefIDToTWSourceID') # cross ref hash
         get_source_id ||= {} # make empty hash if doesn't exist (otherwise it would be nil)
@@ -39,6 +41,8 @@ namespace :tw do
 
         # Namespace for Identifier
         source_namespace = Namespace.find_or_create_by(institution: 'Species File', name: 'tblRefs', short_name: 'SF RefID')
+
+        error_counter = 0
 
         path = @args[:data_directory] + 'tblRefs.txt'
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: "UTF-16:UTF-8")
@@ -49,22 +53,29 @@ namespace :tw do
           ref_id = row['RefID']
           next if no_ref_list.include?(ref_id)
 
-          source = Source::Bibtex.new(
-              bibtex_type: get_pub_type[row['PubID']],
-              title: row['Title'],
-              serial_id: get_serial_id[row['PubID']],
-              series: row['Series'],
-              volume: row['Volume'],
-              number: row['Issue'],
-              pages: row['RefPages'],
-              year: row['ActualYear'],
-              stated_year: row['StatedYear'],
-              # url: row['LinkID'],
-              created_at: row['CreatedOn'],
-              updated_at: row['LastUpdate'],
-              created_by_id: get_user_id[row['CreatedBy']],
-              updated_by_id: get_user_id[row['ModifiedBy']]
-          )
+          actual_year = row['ActualYear']
+          actual_year == '0' ? actual_year = nil : actual_year
+
+          if actual_year.include?('-')
+            # create a verbatim source
+          else
+            source = Source::Bibtex.new(
+                bibtex_type: get_pub_type[row['PubID']],
+                title: row['Title'],
+                serial_id: get_serial_id[row['PubID']],
+                series: row['Series'],
+                volume: row['Volume'],
+                number: row['Issue'],
+                pages: row['RefPages'],
+                year: actual_year,
+                stated_year: row['StatedYear'],
+                # url: row['LinkID'],
+                created_at: row['CreatedOn'],
+                updated_at: row['LastUpdate'],
+                created_by_id: get_user_id[row['CreatedBy']],
+                updated_by_id: get_user_id[row['ModifiedBy']]
+            )
+          end
 
           if source.valid?
             source.save!
@@ -72,7 +83,8 @@ namespace :tw do
             sf_ref_id_to_tw_source_id[ref_id] = source.id
 
           else
-            puts "     ERROR: " + source.errors.full_messages.join(';')
+            error_counter += 1
+            puts "     ERROR (#{error_counter}): " + source.errors.full_messages.join(';')
             puts "  RefID: #{ref_id}, sf row created by: #{row['CreatedBy']}, sf row updated by: #{row['ModifiedBy']}    "
           end
         end
@@ -81,6 +93,30 @@ namespace :tw do
         species_file_data.set('SFRefIDToTWSourceID', sf_ref_id_to_tw_source_id)
         puts 'SF.RefID to TW.source_id'
         ap sf_ref_id_to_tw_source_id
+
+      end
+
+      desc 'map SF.RefID to Link URL'
+      task :map_ref_link => [:data_directory, :environment, :user_id] do
+        # puts 'hello'
+        ### rake tw:project_import:species_file:map_ref_link user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/direct_from_sf/
+        ref_id_to_ref_link = {}
+
+        path = @args[:data_directory] + 'ref_id_to_ref_link.txt'
+        file = CSV.read(path, col_sep: "\t", headers: true, encoding: "UTF-8")
+
+        file.each do |row|
+          # byebug
+          ref_id = row['RefID']
+          print "working with #{ref_id} \n"
+          ref_id_to_ref_link[ref_id] = row['RefLink']
+        end
+
+        i = Import.find_or_create_by(name: 'SpeciesFileData')
+        i.set('RefIDToRefLink', ref_id_to_ref_link)
+
+        puts 'RefID to Link URL'
+        ap ref_id_to_ref_link
 
       end
 
