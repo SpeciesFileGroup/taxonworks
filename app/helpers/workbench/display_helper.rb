@@ -15,7 +15,7 @@ module Workbench::DisplayHelper
       html = send(method, object)
       html ? html.html_safe : nil
     else
-      raise object.attributes.to_s + "#{object.class} has no helper method '#{method}'"
+      nil #  content_tag(:span,"#{object.class} has no helper method '#{method}'", class: :warning)
     end
   end
 

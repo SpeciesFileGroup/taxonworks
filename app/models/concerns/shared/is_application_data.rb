@@ -6,4 +6,10 @@ module Shared::IsApplicationData
   included do
   end
 
+  class_methods do
+    def is_community?
+      true
+    end
+  end
+
 end

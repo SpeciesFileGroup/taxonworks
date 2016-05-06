@@ -86,8 +86,10 @@ module Workbench::NavigationHelper
     # if a customized link to method is available use that, otherwise use a generic
     if self.respond_to?(link_method)
       send(link_method, object)
-    else
-      link_to(object_tag(object).html_safe, metamorphosize_if(object))
+    else 
+      t = object_tag(object)
+      return "Unable to link to data #{object.class.name} id:#{object.id}." if t.blank?
+      link_to(t.html_safe, metamorphosize_if(object))
     end
   end
 
