@@ -1,10 +1,7 @@
 <%= content_for :associated do %>
   <h3> Loan Items </h3>
-  <ul>
-    <% @loan.loan_items.each do |li| -%>
-      <%= content_tag(:li, loan_item_link(li)) %>
-    <% end %>
-  </ul>
+  <%= render('/loan_items/loan_table', loan_items: @loan.loan_items) -%>
+  <%= @loan.loan_items.any? ? nil : content_tag(:span, 'None.', class: :warning) -%>
 <% end %>
 
 <%= render(partial: 'shared/data/project/show', locals: {object: @loan}) -%>

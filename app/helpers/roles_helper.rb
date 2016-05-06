@@ -6,7 +6,7 @@ module RolesHelper
 
   def role_tag(role)
     return nil if role.nil?
-    person_tag(role.person)
+    [person_tag(role.person), "[#{role.class.human_name}]"].join(' ').html_safe
   end
 
   def role_link(role)

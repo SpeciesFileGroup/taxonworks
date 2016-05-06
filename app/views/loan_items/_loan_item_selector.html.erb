@@ -1,0 +1,54 @@
+
+<h3> Loan items </h3> 
+<div id="loan_item_selector"  >
+  <div id="loan_item_selector_message" class="form_submit_required_message"></div>
+
+  <div class="loan_item_selection flexbox">
+    <div class="item item1"> Select loan item type: </div>
+    <div class="autocomplete_type_selector item item2">
+      Collection object <%= radio_button_tag(:autocomplete_type, 'collection_objects', true) -%> <br>
+      OTU <%= radio_button_tag(:autocomplete_type, 'otus') -%> <br>
+      Container <%= radio_button_tag(:autocomplete_type, 'containers') -%> <br>
+    </div>
+
+    <div class="item item3"> 
+      <%= text_field_tag 'loan_item_autocomplete', nil, id: 'loan_item_autocomplete', placeholder: 'Select a loan item' %> 
+      <span id="loan_item_not_found" class="warning"></span>         
+    </div>
+  </div>
+
+  <span id="hidden_attributes"></span>
+
+  <table class="tablesorter">
+    <thead>
+      <tr>
+        <%= fancy_th_tag(name: 'Loaned item') -%>
+        <%= fancy_th_tag(name: 'Date returned') -%>
+        <%= fancy_th_tag(name: 'Collection object status') -%>
+        <%= fancy_th_tag(name: 'Total') -%>
+        <%= fancy_th_tag(name: 'Type') -%>
+        <th></th> 
+      </tr>
+    </thead>
+
+    <tbody class="loan_items_list">
+      <%= f.fields_for :loan_items, loan.loan_items.order(:position) do |loan_item_fields| %>
+        <%= loan_item_fields.hidden_field :global_entity -%> 
+
+        <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral', :loan_item], 
+                        data: {'loan-item-gid' => loan_item_fields.object.to_global_id.to_s,
+                               'loan-item-index' => loan_item_fields.index}) do -%>
+
+                               <%= content_tag(:td, object_tag(loan_item_fields.object.loan_item_object)) -%> 
+                               <%= content_tag(:td, loan_item_fields.text_field(:date_returned_jquery, class: :datepicker_recurring_start, size: 9)) -%> 
+                               <%= content_tag(:td, loan_item_fields.select(:disposition, options_for_select(LoanItem::STATUS, selected: loan_item_fields.object.disposition), include_blank: true)) -%> 
+                               <%= content_tag(:td, (loan_item_fields.object.loan_item_object_type == 'Otu' ? (loan_item_fields.text_field :total, size: 4) : nil))  -%> 
+                               <%= content_tag(:td, loan_item_fields.object.loan_item_object_type) %>
+                               <%= content_tag(:td, link_to('remove', '#', class: :remove_loan_item)) -%>
+                             <% end %>
+                           <% end %>
+    </tbody>
+
+  </table> 
+</div>
+

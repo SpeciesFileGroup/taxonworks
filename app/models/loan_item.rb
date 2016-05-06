@@ -1,6 +1,9 @@
 
 # A loan item is a CollectionObject, Container, or historical reference to 
-# something that has been loaned.
+# something that has been loaned via (Otu)
+#
+# THanks to https://neanderslob.com/2015/11/03/polymorphic-associations-the-smart-way-using-global-ids/ for global_entity.
+#
 #
 # @!attribute loan_id
 #   @return [Integer]
@@ -18,18 +21,22 @@
 #   @return [DateTime]
 #   The date the item was returned. 
 #
-# @!attribute collection_object_status
+# @!attribute disposition 
 #   @return [String]
-#   @todo
+#     an evolving controlled vocabulary used to differentiate loan object status when it differs from that of the overal loan, see LoanItem::STATUS
 #
 # @!attribute position
 #   @return [Integer]
-#   Sorts the items in relation to the loan. 
+#    Sorts the items in relation to the loan. 
 #
 # @!attribute project_id
 #   @return [Integer]
 #   the project ID
 #
+# @!attribute total 
+#   @return [Integer]
+#     when type is OTU an arbitrary total can be provided 
+
 class LoanItem < ActiveRecord::Base
   acts_as_list scope: :loan
 
@@ -39,6 +46,10 @@ class LoanItem < ActiveRecord::Base
   include Shared::Notable
   include Shared::Taggable
 
+  attr_accessor :date_returned_jquery
+
+  STATUS = ['Destroyed', 'Donated', 'Loaned on', 'Lost', 'Retained', 'Returned']
+
   belongs_to :loan
   belongs_to :loan_item_object, polymorphic: true
 
@@ -46,24 +57,52 @@ class LoanItem < ActiveRecord::Base
 
   validates :loan_id, presence: true
   validates_uniqueness_of :loan, scope: [:loan_item_object_type, :loan_item_object_id] 
-  
-  validate :total_provided_only_when_otu,
-           :valid_collection_object_status
-  validates_inclusion_of :loan_item_object_type, in: %w{Otu CollectionObject Container}
 
-  COLLECTION_OBJECT_STATUSES = ['Destroyed', 'Donated', 'Loaned on', 'Lost', 'Retained', 'Returned']
+  validate :total_provided_only_when_otu
+
+  validates_inclusion_of :loan_item_object_type, in: %w{Otu CollectionObject Container}
+  validates_inclusion_of :disposition, in: STATUS, if: '!disposition.blank?' 
+
+  def global_entity
+    self.loan_item_object.to_global_id if self.loan_item_object.present?
+  end
+
+  def global_entity=(entity)
+    self.loan_item_object = GlobalID::Locator.locate entity
+  end
+
+  def date_returned_jquery=(date)
+    self.date_returned = date.gsub(/(\d+)\/(\d+)\/(\d+)/, '\2/\1/\3')
+  end
+
+  def date_returned_jquery
+    self.date_returned 
+  end
+
+  def returned?
+    !date_returned.blank?
+  end
+
+  # @return [Integer, nil]
+  #   the total items this loan line item represent
+  # TODO: this does not factor in nested items in a container
+  def total_items
+    case loan_item_object_type
+    when 'Otu'
+      total ? total : nil
+    when 'Container'
+      loan_item_object.container_items.try(:count)
+    when 'CollectionObject'
+      loan_item_object.total.to_i
+    else
+      nil      
+    end
+  end
 
   protected
 
-  # @todo Is this a legimate method for this model?
   def total_provided_only_when_otu
     errors.add(:total, 'Total only providable when item is an otu') if total && loan_item_object_type != 'Otu'
-  end
-
-  def valid_collection_object_status
-    unless self.collection_object_status.nil? || COLLECTION_OBJECT_STATUSES.include?(self.collection_object_status)
-      errors.add(:collection_object_status, 'Invalid collection object status')
-    end
   end
 
   # @todo @mjy What *is* the right construct for 'LoanItem'?
