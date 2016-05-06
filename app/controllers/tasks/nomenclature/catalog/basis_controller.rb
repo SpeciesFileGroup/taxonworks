@@ -3,6 +3,7 @@ class Tasks::Nomenclature::Catalog::BasisController < ApplicationController
 
   def index
     @taxon_name = TaxonName.find(params[:taxon_name_id]) 
+    @data = NomenclatureCatalog.data_for(@taxon_name)
   end
 
 # def edit
