@@ -69,6 +69,7 @@ a {
   }
 
   .hub_link {
+    opacity: 0.6;
     position: absolute;
     margin-left: 1em;
     background-image: image-url('hub.svg');
@@ -88,10 +89,11 @@ a {
     justify-content: center;
     align-items: center;
     border-radius: 100%; 
-    box-shadow: 0 0 3px 0 $navigation_border;
+    box-shadow: 0 1px 3px 0 $navigation_border;
  
       transition: background-size 0.3s ease,
                   background-color 0.3s ease,
+                  opacity 0.5s ease,
                   font-size 0.5s ease;           
     
   }
@@ -105,10 +107,11 @@ a {
 
   .hub-project:hover {
      .hub_link {
-      //background-color: #444;
+      opacity: 1;
       transition: background-size 0.3s ease,
                   background-color 0.3s ease,
                   font-size 0.5s ease,
+                  opacity 0.5s ease,
                   padding-left 0.5s ease;
       background-size:35px;
       color: $default_text;
