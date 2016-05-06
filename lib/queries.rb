@@ -24,10 +24,33 @@ module Queries
       build_terms
     end
 
+
+    # @return [Array]
+    #   the results of the query as an *array*
+    def result
+      []
+    end
+
+    def scope
+      where('1 = 2') 
+    end
+
     def terms=(string)
       @query_string = string
       build_terms
       terms 
+    end
+
+    def start_wildcard
+      @query_string + '%'
+    end
+
+    def end_wildcard
+      @query_string + '%'
+    end
+
+    def start_and_end_wildcard
+      '%' + @query_string + '%'
     end
 
     def terms
@@ -95,7 +118,19 @@ module Queries
     end
 
     def with_project_id
-      table[:project_id].eq(project_id)
+      if project_id 
+        table[:project_id].eq(project_id)
+      else
+        table[:project_id].matches('%') # could be optimized for sure
+      end
+    end
+
+    def identifier_table
+      Identifier.arel_table
+    end
+
+    def with_identifier_like
+      identifier_table[:cached].matches(start_and_end_wildcard)
     end
 
   end

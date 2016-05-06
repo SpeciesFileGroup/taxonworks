@@ -81,6 +81,10 @@ module Shared::IsData
 
   module ClassMethods
 
+    def is_community?
+      self < Shared::SharedAcrossProjects ? true : false
+    end
+
     # @return [Boolean]
     # true if model is an "annotator" (e.g. identifiers, tags, notes, data attributes, alternate values, citations), i.e. data that references another data element through STI
     def annotates?

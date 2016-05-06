@@ -58,7 +58,10 @@
 #
 class CollectionObject < ActiveRecord::Base
 
-  CO_OTU_HEADERS = %w{OTU OTU\ name Family Genus Species Country State County Locality Latitude Longitude}
+  include GlobalID::Identification
+
+  CO_OTU_HEADERS = %w{OTU OTU\ name Family Genus Species Country State County Locality Latitude Longitude}.freeze
+  BUFFERED_ATTRIBUTES = %i{buffered_collecting_event buffered_determinations buffered_other_labels}.freeze
 
   # @todo DDA: may be buffered_accession_number should be added.  MJY: This would promote non-"barcoded" data capture, I'm not sure we want to do this?!
 
@@ -77,8 +80,6 @@ class CollectionObject < ActiveRecord::Base
   include Dwca::CollectionObjectExtensions
 
   has_paper_trail
-
-  BUFFERED_ATTRIBUTES = %i{buffered_collecting_event buffered_determinations buffered_other_labels}
 
   has_one :accession_provider_role, class_name: 'AccessionProvider', as: :role_object
   has_one :accession_provider, through: :accession_provider_role, source: :person
@@ -107,7 +108,6 @@ class CollectionObject < ActiveRecord::Base
 
   accepts_nested_attributes_for :otus, allow_destroy: true
   accepts_nested_attributes_for :taxon_determinations, allow_destroy: true, reject_if: :reject_taxon_determinations
-
   accepts_nested_attributes_for :collecting_event, allow_destroy: true
 
   validates_presence_of :type
@@ -128,7 +128,7 @@ class CollectionObject < ActiveRecord::Base
   end
 
   def self.find_for_autocomplete(params)
-    Queries::BiologicalCollectionObjectAutocompleteQuery.new(params[:term]).all.where(project_id: params[:project_id])
+    Queries::BiologicalCollectionObjectAutocompleteQuery.new(params[:term]).all.where(project_id: params[:project_id]).includes(taxon_determinations: [:determiners]).limit(50)
   end
 
   # TODO: move to a helper
@@ -349,8 +349,8 @@ class CollectionObject < ActiveRecord::Base
   def self.ce_headers(project_id)
     CollectionObject.selected_column_names
     cvt_list = InternalAttribute.where(project_id: project_id, attribute_subject_type: 'CollectingEvent')
-                 .distinct
-                 .pluck(:controlled_vocabulary_term_id)
+      .distinct
+      .pluck(:controlled_vocabulary_term_id)
     # add selectable column names (unselected) to the column name list list
     ControlledVocabularyTerm.where(id: cvt_list).map(&:name).sort.each { |column_name|
       @selected_column_names[:ce][:in][column_name] = {checked: '0'}
@@ -359,7 +359,7 @@ class CollectionObject < ActiveRecord::Base
       .pluck(:import_predicate).uniq.sort.each { |column_name|
       @selected_column_names[:ce][:im][column_name] = {checked: '0'}
     }
-    @selected_column_names
+      @selected_column_names
   end
 
   # @param [CollectionObject] collection_object from which to extract attributes
@@ -378,58 +378,27 @@ class CollectionObject < ActiveRecord::Base
           group[type_key.to_sym].keys.each { |header|
             this_val = nil
             case type_key.to_sym
-              when :in
-                all_internal_das.each { |da|
-                  if da.predicate.name == header
-                    this_val = da.value
-                    break
-                  end
-                }
-                retval.push(this_val) # push one value (nil or not) for each selected header
-              when :im
-                all_import_das.each { |da|
-                  if da.import_predicate == header
-                    this_val = da.value
-                    break
-                  end
-                }
-                retval.push(this_val) # push one value (nil or not) for each selected header
-              else
+            when :in
+              all_internal_das.each { |da|
+                if da.predicate.name == header
+                  this_val = da.value
+                  break
+                end
+              }
+              retval.push(this_val) # push one value (nil or not) for each selected header
+            when :im
+              all_import_das.each { |da|
+                if da.import_predicate == header
+                  this_val = da.value
+                  break
+                end
+              }
+              retval.push(this_val) # push one value (nil or not) for each selected header
+            else
             end
           }
         }
       end
-      # retval = []
-      # unless group.nil?
-      #   unless group.empty?
-      #     unless group[:in].empty?
-      #       group[:in].keys.each { |header|
-      #         this_val = nil
-      #         all_internal_das.each { |da|
-      #           if da.predicate.name == header
-      #             this_val = da.value
-      #             break
-      #           end
-      #         }
-      #         retval.push(this_val) # push one value (nil or not) for each selected header
-      #       }
-      #     end
-      #   end
-      #   unless group.empty?
-      #     unless group[:im].empty?
-      #       group[:im].keys.each { |header|
-      #         this_val = nil
-      #         all_import_das.each { |da|
-      #           if da.import_predicate == header
-      #             this_val = da.value
-      #             break
-      #           end
-      #         }
-      #         retval.push(this_val) # push one value (nil or not) for each selected header
-      #       }
-      #     end
-      #   end
-      # end
     end
     retval
   end
@@ -440,8 +409,8 @@ class CollectionObject < ActiveRecord::Base
   def self.co_headers(project_id)
     CollectionObject.selected_column_names
     cvt_list = InternalAttribute.where(project_id: project_id, attribute_subject_type: 'CollectionObject')
-                 .distinct
-                 .pluck(:controlled_vocabulary_term_id)
+      .distinct
+      .pluck(:controlled_vocabulary_term_id)
     # add selectable column names (unselected) to the column name list list
     ControlledVocabularyTerm.where(id: cvt_list).map(&:name).sort.each { |column_name|
       @selected_column_names[:co][:in][column_name] = {checked: '0'}
@@ -450,7 +419,7 @@ class CollectionObject < ActiveRecord::Base
       .pluck(:import_predicate).uniq.sort.each { |column_name|
       @selected_column_names[:co][:im][column_name] = {checked: '0'}
     }
-    @selected_column_names
+      @selected_column_names
   end
 
   # @param [CollectionObject] collection_object from which to extract attributes
@@ -579,10 +548,8 @@ class CollectionObject < ActiveRecord::Base
     attributed['otu_id'].blank?
   end
 
-
   # @todo Write this. Changing from one type to another is ONLY allowed via this method, not by updating attributes
   # def transmogrify_to(new_type)
   # end
-
 
 end

@@ -1,0 +1,24 @@
+
+<table class="tablesorter">
+  <thead>
+  <tr>
+    <%= fancy_th_tag(name: 'Loaned item') -%>
+    <%= fancy_th_tag(name: 'Date returned') -%>
+    <%= fancy_th_tag(name: 'Collection object status') -%>
+    <%= fancy_th_tag(name: 'Total') -%>
+    <%= fancy_th_tag(name: 'Type') -%>
+  </tr>
+  </thead>
+
+  <tbody>
+  <% loan_items.each do |loan_item| %>
+      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+        <td><%= object_tag(loan_item.loan_item_object) %></td>
+        <td><%= loan_item.date_returned %></td>
+        <td><%= loan_item.disposition %></td>
+        <td><%= loan_item_total_string(loan_item) %></td>
+        <td><%= loan_item.loan_item_object_type %></td>
+      <% end %>
+  <% end %>
+  </tbody>
+</table>

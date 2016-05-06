@@ -78,6 +78,10 @@ class Loan < ActiveRecord::Base
   validates :supervisor_email, format: {with: User::VALID_EMAIL_REGEX}, if: '!supervisor_email.blank?'
   validates :recipient_email, format: {with: User::VALID_EMAIL_REGEX}, if: '!recipient_email.blank?'
 
+  validates :lender_address, presence: true
+
+  accepts_nested_attributes_for :loan_items, allow_destroy: true, reject_if: :reject_loan_items
+
   # TODO: @mjy What *is* the right construct for 'Loan'?
   def self.find_for_autocomplete(params)
     where('recipient_email LIKE ?', "#{params[:term]}%")
@@ -95,6 +99,16 @@ class Loan < ActiveRecord::Base
         }
       end
     end
+  end
+
+  protected
+
+  def reject_taxon_determinations(attributed)
+    attributed['loan_item_object_type'].blank?
+  end
+
+  def reject_loan_items(attributed)
+    attributed['global_entity'].blank? && ( attributed['loan_item_object_type'].blank? && attributed['loan_item_object_id'].blank?)
   end
 
 end

@@ -77,17 +77,18 @@ class ContainersController < ApplicationController
   end
 
   def autocomplete
-    @containers = Container.find_for_autocomplete(params.merge(project_id: sessions_current_project_id)).includes(:taxon_name)
+    @containers = Container.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
+
     data = @containers.collect do |t|
       {id: t.id,
-       label: ApplicationController.helpers.container_tag(t),
+       label: t.id, #  ApplicationController.helpers.container_tag(t),
+       gid: t.to_global_id.to_s,
        response_values: {
            params[:method] => t.id
        },
-       label_html: ApplicationController.helpers.container_autocomplete_selected_tag(t)
+       label_html: t.id #  ApplicationController.helpers.container_tag(t)  
       }
     end
-
     render :json => data
   end
 

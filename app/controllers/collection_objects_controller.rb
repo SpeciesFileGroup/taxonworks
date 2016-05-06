@@ -19,17 +19,6 @@ class CollectionObjectsController < ApplicationController
   def show
     # TODO: With the separation of images and geo_json, this path is no longer required.
     @images = params['include'] == ['images'] ? @collection_object.images : nil
-    # includes = params[:include]
-    # includes.each do |include|
-    #   case include
-    #     when 'images'
-    #       @images = @collection_object.images
-    #     when 'geo_json'
-    #       ce        = @collection_object.collecting_event
-    #       @geo_json = ce.nil? ? nil : ce.to_geo_json_feature
-    #     else
-    #   end
-    # end if includes
   end
 
   # GET /collection_objects/depictions/1
@@ -92,11 +81,9 @@ class CollectionObjectsController < ApplicationController
         @collection_object = @collection_object.metamorphosize
         format.html { redirect_to @collection_object, notice: 'Collection object was successfully updated.' }
         format.json { respond_with_bip(@collection_object) }
-        #   format.json { head :no_content }
       else
         format.html { render action: 'edit' }
         format.json { respond_with_bip(@collection_object) }
-        #        format.json { render json: @collection_object.errors, status: :unprocessable_entity }
       end
     end
   end
@@ -129,7 +116,8 @@ class CollectionObjectsController < ApplicationController
     @collection_objects = CollectionObject.find_for_autocomplete(params.merge(project_id: sessions_current_project_id)) # in model
     data                = @collection_objects.collect do |t|
       {id:              t.id,
-       label:           ApplicationController.helpers.collection_object_tag(t), # in helper
+       label:           ApplicationController.helpers.collection_object_tag(t),
+       gid: t.to_global_id.to_s,
        response_values: {
          params[:method] => t.id
        },

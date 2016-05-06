@@ -31,12 +31,12 @@ class Container < ActiveRecord::Base
   has_closure_tree 
 
   include Housekeeping
-  include Shared::Containable
-  include Shared::Identifiable
-  include Shared::Taggable
   include Shared::IsData
+  include Shared::Identifiable
+  include Shared::Containable
+  include Shared::Taggable
   include SoftValidation
-
+  
   has_many :container_items, inverse_of: :container
   has_many :collection_objects, through: :container_items, source: :contained_object, source_type: 'CollectionObject', validate: false
   has_many :collection_profiles
@@ -81,7 +81,7 @@ class Container < ActiveRecord::Base
   end
 
   def self.find_for_autocomplete(params)
-    Queries::ContainerAutocompleteQuery.new(params[:term]).all.where(project_id: params[:project_id])
+    Queries::ContainerAutocompleteQuery.new(params[:term], project_id: params[:project_id]).result
   end
 
   protected

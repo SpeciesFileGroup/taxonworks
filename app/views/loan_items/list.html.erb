@@ -1,5 +1,7 @@
 <%= render("/shared/data/all/list/list_header", objects: @loan_items) -%>
 
+
+
 <table class="tablesorter">
   <thead>
   <tr>
@@ -18,7 +20,7 @@
       <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
           <td><%= loan_tag(loan_item.loan) %></td>
           <td><%= loan_item.date_returned %></td>
-          <td><%= loan_item.collection_object_status %></td>
+          <td><%= loan_item.disposition %></td>
           <td><%= object_tag(loan_item.loan_item_object) %></td>
           <td><%= loan_item.total %></td>
           <%= fancy_metadata_cells_tag(loan_item) -%>

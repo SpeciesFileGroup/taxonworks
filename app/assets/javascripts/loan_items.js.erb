@@ -1,0 +1,159 @@
+/*
+ Code behind adding/remove loan items on /loan/:id/edit 
+*/
+LOAN_ITEM_FORM_WIDGET = {
+
+  base_name: 'loan[loan_items_attributes]',
+
+  initialize_autocomplete: function(form) {
+    var autocomplete_input = form.find("#loan_item_autocomplete");
+    var autocomplete_source = LOAN_ITEM_FORM_WIDGET.get_autocomplete_path(form);
+
+    autocomplete_input.autocomplete({
+      source: autocomplete_source, 
+      select: function (event, ui) {   
+        LOAN_ITEM_FORM_WIDGET.add_loan_item(form, ui.item.gid, ui.item.label); 
+        autocomplete_input.val(""); 
+        return false;
+      },
+      response: function(event, ui) {
+        // ui.content is the array that's about to be sent to the response callback.
+        if (ui.content.length === 0) {
+          $("#loan_item_not_found").text("No results found.");
+        } else {
+          $("#loan_item_not_found").empty();
+        }
+      }
+
+    }).autocomplete("instance")._renderItem = function (ul, item) {
+      return $("<li class='autocomplete'>")
+        .append("<a>" + item.label + "</a>")
+        .appendTo(ul);
+    };
+  },
+
+  get_autocomplete_path: function(form) {
+    return('/' +  form.find('input[type=radio][name=autocomplete_type]:checked').val() + '/autocomplete');
+  },
+
+  bind_autocomplete_source_to_radio_buttons: function(form) {
+    $('input[type=radio][name=autocomplete_type]').on('change', function() { 
+      form.find("#loan_item_autocomplete").autocomplete({
+        source: LOAN_ITEM_FORM_WIDGET.get_autocomplete_path(form)
+      });
+      $("#loan_item_not_found").empty();
+      $("#loan_item_autocomplete").val('');
+    }
+    );
+  },
+
+  add_loan_item: function(form, gid, label) {
+    var random_index = new Date().getTime(); 
+    var indexed_base_name = LOAN_ITEM_FORM_WIDGET.base_name + '[' +  random_index + ']';
+    var loan_item_list = form.find('.loan_items_list');
+
+    var type_regex = /gid:\/\/taxon-works\/(.*)\/\d+/;
+    var match = type_regex.exec(gid);
+    var item_type = match[1];
+
+    var total_field;
+    if (gid.match(/Otu/)) {
+      total_field = '<td><input type="text" size="4" name="' + indexed_base_name + '[total]" /></td>';
+    } else {
+      total_field = '<td></td>';
+    }
+
+    form.append( $('<input hidden name="' + indexed_base_name + '[global_entity]" value="' + gid + '" >'));
+
+    loan_item_list.append( $('<tr class="contextMenuCells btn btn-neutral loan_item new_loan_item" data-loan-item-index="' + random_index + '">')
+        .append('<td>' + label + '</td>')
+        .append('<td><input class="datepicker_recurring_start" type="text" size="9" name="' + indexed_base_name + '[date_returned_jquery]" /></td>')
+        .append('<td><select name="' + indexed_base_name + '[disposition]"><option value=""></option><%= LoanItem::STATUS.collect{|a| "<option>#{a}</option>"}.join %></select></td>') 
+        .append(total_field)
+        .append('<td>' + item_type + '</td>')
+        .append( LOAN_ITEM_FORM_WIDGET.remove_link() )
+        );
+  },
+
+  remove_link: function() {
+    var link = $('<td><a href="#" class="remove_loan_item">remove</a></td>');
+    LOAN_ITEM_FORM_WIDGET.bind_remove_links(link);
+    return link;
+  },
+
+  bind_remove_links: function(links) {
+    links.click(function () {
+      var list_item = $(this).closest('tr');
+      var form = list_item.closest('form');
+      var loan_item_id = list_item.data('loan-item-gid');
+      var loan_item_index = list_item.data('loan-item-index');
+
+      if (loan_item_id != undefined) {
+        var loan_item_list = list_item.closest('.loan_items_list');
+
+        // if there is an ID from an existing item add the necessary (hidden) _destroy input
+        form.append($('<input hidden name="' + LOAN_ITEM_FORM_WIDGET.base_name + '[' +  loan_item_index + '][global_entity]" value="' + loan_item_id + '" >') );
+        form.append($('<input hidden name="' + LOAN_ITEM_FORM_WIDGET.base_name + '[' +  loan_item_index + '][_destroy]" value="1" >') );
+
+        LOAN_ITEM_FORM_WIDGET.warn_for_save(loan_item_list.siblings('.loan_item_selector_message'));
+      }
+      list_item.remove();
+    });
+  },
+
+  warn_for_save: function(msg_div) {
+    msg_div.addClass('warning');
+    msg_div.html('Update required to confirm removal/reorder of loan item.');
+  },
+
+  make_list_sortable: function(form) {
+    var list_items = form.find('.loan_items_list');
+    list_items.sortable({
+      change: function() {
+        if ($('form[id^="new_"]').length == 0) {
+          LOAN_ITEM_FORM_WIDGET.warn_for_save(form.find('#loan_item_selector_message')); 
+        }
+      }  
+    });
+  },
+
+
+  bind_position_handling_to_submit_button: function(form) {
+    form.closest('form').find('input[name="commit"]').click(function () {
+      var i = 1;
+      var loan_item_index;
+      form.find('.loan_item').each( function() {
+        console.log($(this));
+        loan_item_index = $(this).data('loan-item-index');
+        $(this).append(
+            $('<input hidden name="' +  LOAN_ITEM_FORM_WIDGET.base_name + '[' +  loan_item_index + '][position]" value="' + i + '" >')
+            );
+        i = i + 1; 
+      });
+    });
+  },
+
+  initialize_selector: function(form) {
+    // Bind injected datepicker elements
+    $('body').on('focus',".datepicker_recurring_start", function() {
+      $(this).datepicker();
+    });
+
+    LOAN_ITEM_FORM_WIDGET.initialize_autocomplete(form);
+    LOAN_ITEM_FORM_WIDGET.bind_autocomplete_source_to_radio_buttons(form);
+    LOAN_ITEM_FORM_WIDGET.bind_remove_links(form.find('.remove_loan_item')); 
+    LOAN_ITEM_FORM_WIDGET.make_list_sortable(form);
+    LOAN_ITEM_FORM_WIDGET.bind_position_handling_to_submit_button(form);
+  } 
+};
+
+
+var _initialize_loan_item_selector_widget;
+
+_initialize_loan_item_selector_widget = function
+  init_loan_item_selector() {
+      LOAN_ITEM_FORM_WIDGET.initialize_selector($('#loan_item_selector')); 
+  };
+
+$(document).ready(_initialize_loan_item_selector_widget);
+

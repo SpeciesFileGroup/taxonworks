@@ -6,7 +6,13 @@ module DataControllerConfiguration
   end
 
   def related
-    @object = @data_model.where(project_id: $project_id).find(params[:id])
+    
+    if @data_model.is_community?
+      @object = @data_model.find(params[:id])
+    else
+      @object = @data_model.where(project_id: $project_id).find(params[:id])
+    end
+
     render '/shared/data/project/related'
   end
 

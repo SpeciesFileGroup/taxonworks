@@ -5,4 +5,5 @@ class LoanRecipient < Role::ProjectRole
   def self.human_name
     'Loan recipient'
   end
+
 end
