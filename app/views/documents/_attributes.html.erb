@@ -1,9 +1,29 @@
 <p>
-  <strong>Document file:</strong>
-  <%= @document.document_file %>
+<strong>Document file:</strong>
+  <%= link_to "Download", @document.document_file.url(:original, false) %>
 </p>
 
-<p>
-  <strong>Project references:</strong>
-  <%= @document.project_references %>
-</p>
+<div data-view="development" class="attribute_set" data-title="File metadata">
+
+  <p>
+    <strong>Document file file name</strong>
+    <%= @document.document_file_file_name %>
+  </p>
+
+  <p>
+    <strong>Document file content type</strong>
+    <%= @document.document_file_content_type %>
+  </p>
+
+  <p>
+    <strong>Document file file size</strong>
+    <%= @document.document_file_file_size %>
+  </p>
+
+  <p>
+    <strong>Document file updated at</strong>
+    <%= @document.document_file_updated_at %>
+  </p>
+
+</div>
+
