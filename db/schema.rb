@@ -11,13 +11,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160420180927) do
+ActiveRecord::Schema.define(version: 20160504190531) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
-  enable_extension "hstore"
   enable_extension "fuzzystrmatch"
+  enable_extension "hstore"
 
   create_table "alternate_values", force: :cascade do |t|
     t.text     "value",                            null: false
@@ -719,18 +719,18 @@ ActiveRecord::Schema.define(version: 20160420180927) do
   add_index "languages", ["updated_by_id"], name: "index_languages_on_updated_by_id", using: :btree
 
   create_table "loan_items", force: :cascade do |t|
-    t.integer  "loan_id",                  null: false
+    t.integer  "loan_id",               null: false
     t.date     "date_returned"
-    t.string   "collection_object_status"
-    t.integer  "position",                 null: false
-    t.integer  "created_by_id",            null: false
-    t.integer  "updated_by_id",            null: false
-    t.integer  "project_id",               null: false
-    t.datetime "created_at",               null: false
-    t.datetime "updated_at",               null: false
+    t.integer  "position",              null: false
+    t.integer  "created_by_id",         null: false
+    t.integer  "updated_by_id",         null: false
+    t.integer  "project_id",            null: false
+    t.datetime "created_at",            null: false
+    t.datetime "updated_at",            null: false
     t.integer  "loan_item_object_id"
     t.string   "loan_item_object_type"
     t.integer  "total"
+    t.string   "disposition"
   end
 
   add_index "loan_items", ["created_by_id"], name: "index_loan_items_on_created_by_id", using: :btree
@@ -751,13 +751,14 @@ ActiveRecord::Schema.define(version: 20160420180927) do
     t.string   "supervisor_email"
     t.string   "supervisor_phone"
     t.date     "date_closed"
-    t.integer  "created_by_id",        null: false
-    t.integer  "updated_by_id",        null: false
-    t.integer  "project_id",           null: false
-    t.datetime "created_at",           null: false
-    t.datetime "updated_at",           null: false
+    t.integer  "created_by_id",                                                   null: false
+    t.integer  "updated_by_id",                                                   null: false
+    t.integer  "project_id",                                                      null: false
+    t.datetime "created_at",                                                      null: false
+    t.datetime "updated_at",                                                      null: false
     t.string   "recipient_honorarium"
     t.string   "recipient_country"
+    t.text     "lender_address",       default: "Lender's address not provided.", null: false
   end
 
   add_index "loans", ["created_by_id"], name: "index_loans_on_created_by_id", using: :btree
@@ -1252,10 +1253,14 @@ ActiveRecord::Schema.define(version: 20160420180927) do
     t.integer  "cached_valid_taxon_name_id"
   end
 
+  add_index "taxon_names", ["cached", "cached_author_year"], name: "index_taxon_names_on_cached_and_cached_author_year", using: :btree
+  add_index "taxon_names", ["cached"], name: "index_taxon_names_on_cached", using: :btree
+  add_index "taxon_names", ["cached_author_year"], name: "index_taxon_names_on_cached_author_year", using: :btree
   add_index "taxon_names", ["created_by_id"], name: "index_taxon_names_on_created_by_id", using: :btree
   add_index "taxon_names", ["name"], name: "index_taxon_names_on_name", using: :btree
   add_index "taxon_names", ["parent_id"], name: "index_taxon_names_on_parent_id", using: :btree
   add_index "taxon_names", ["project_id"], name: "index_taxon_names_on_project_id", using: :btree
+  add_index "taxon_names", ["rank_class"], name: "index_taxon_names_on_rank_class", using: :btree
   add_index "taxon_names", ["type"], name: "index_taxon_names_on_type", using: :btree
   add_index "taxon_names", ["updated_by_id"], name: "index_taxon_names_on_updated_by_id", using: :btree
 
