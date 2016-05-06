@@ -7,7 +7,7 @@
 	left:15px;
 	width: 40px;
 	height: 40px;
-	opacity: 0.8;
+	opacity: 0.9;
 	border-radius: 50%;
 	background-image: image-url("help.svg");
 	background-repeat: no-repeat;
@@ -28,7 +28,7 @@
 }
 
 .help-button-active {
-	opacity: 1;
+	opacity: 0.5;
 	bottom: 15px;
 	left: 15px;
 	width: 50px;
@@ -57,13 +57,12 @@
 }
 
 .help-legend {
-	padding-left: 40px;
-	border:1px solid #F5F5F5;
-	position: fixed;
-	bottom: 17px;
-	left:35px;
+	border-radius: 2px;
+	padding: 1em;
+	box-shadow: 0 0px 2px 0px #444;
+	position: absolute;
 	background-color: #FFF;
-	z-index:899;
+	z-index:1099;
 	display: none;
 }
 
@@ -81,5 +80,14 @@
 	background-color: $color-help-bubbles;
 	color: #FFF;
 	font-weight: bold;
-	box-shadow: 0 0px 3px 0 #444;
+	box-shadow: 0px 1px 1px 0px #444;
+	opacity: 0.8;
+	transition: width 0.1s ease, height 0.1s ease;
+}
+
+.help-bubble-tip:hover {
+	width: 35px;
+	height: 35px;
+	opacity: 1;
+	transition: width 0.1s ease, height 0.1s ease;
 }

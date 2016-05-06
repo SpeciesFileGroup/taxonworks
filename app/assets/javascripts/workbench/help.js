@@ -17,7 +17,7 @@ $(document).ready(function() {
 	 
 	firstClick = true;
 
-	$('body').append('<div class="panel content help-legend"></div>');
+	$('body').append('<div class="help-legend"></div>');
 	$('body').append('<div class="help-background-active"></div>');
 	$('body').append('<div class="help-button"></div>');
 
@@ -25,7 +25,7 @@ $(document).ready(function() {
 	function addBubbleTips(className) {
 		$(className).each(function(i) {
 			$(this).addClass('help-tip');
-			$(this).append('<div class="help-bubble-tip">'+ (i+1) +'</div>');
+			$(this).append('<div class="help-bubble-tip" data-bubble-id="'+ (i) +'">'+ (i+1) +'</div>');
 		});
 	}
 
@@ -39,8 +39,6 @@ $(document).ready(function() {
 			$('.help-bubble-tip').show(100);
 			$('.help-button').addClass('help-button-active');
 			$('.help-legend').empty();
-			$('.help-legend').append('<span>Pass mouse over the numbers for help</span>');
-			$('.help-legend').show(250);
 		}
 		else {
 			$('.help-background-active').fadeOut(100);
@@ -59,17 +57,33 @@ $(document).ready(function() {
 		}
 	}
 
+	function hideAllExcept(value) {
+		$('.help-bubble-tip').each(function(i) {
+			if($(this).attr('data-bubble-id') != value) {
+				$(this).fadeOut(250);
+			}
+		})
+	}
+
+	function showAll(className) {
+		$(className).fadeIn(250);
+	}
+
 	$(document).on({
-	    mouseenter: function () {
+	    mouseenter: function (evt) {
 	    	if(helpActive()) {
 	    		$('.help-legend').empty();
-		    	$('.help-legend').show(250);
+	    		$('.help-legend').css("left", (evt.clientX+10) + "px");
+	    		$('.help-legend').css("top", (evt.clientY+10) + "px");
+		    	$('.help-legend').show(100);
 		    	$('.help-legend').append('<span>' + $(this).parent().attr("data-help") + '</span>');
+		    	hideAllExcept($(this).attr("data-bubble-id"));
 		    }
 	    },
 	    mouseleave: function () {
 	    	$('.help-legend').empty();
-			$('.help-legend').hide(250);
+			$('.help-legend').hide(100);
+			showAll('.help-bubble-tip');
 	    }
 	}, ".help-bubble-tip");
 
