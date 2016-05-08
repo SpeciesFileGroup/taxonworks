@@ -2,7 +2,7 @@ class LoansController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :require_sign_in_and_project_selection
-  before_action :set_loan, only: [:show, :edit, :update, :destroy]
+  before_action :set_loan, only: [:show, :edit, :update, :destroy, :recipient_form]
 
   # GET /loans
   # GET /loans.json
@@ -41,8 +41,12 @@ class LoansController < ApplicationController
     end
   end
 
+  def recipient_form
+    render layout: 'us_letter'
+  end
+
   # PATCH/PUT /loans/1
-  # PATCH/PUT /loans/1.json
+  # PATCH/PUT /loanss/1.json
   def update
     respond_to do |format|
       if @loan.update(loan_params)

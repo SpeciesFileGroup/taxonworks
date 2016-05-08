@@ -15,4 +15,8 @@ module LoansHelper
     render('/loans/quick_search_form')
   end
 
+  def loan_recipient_tag(loan)
+    return nil if loan.nil?
+  end
+
 end

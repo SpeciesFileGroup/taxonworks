@@ -210,6 +210,9 @@ TaxonWorks::Application.routes.draw do
 
   resources :loans do
     concerns [:data_routes]
+    member do
+      get :recipient_form
+    end
   end
 
   resources :loan_items do

@@ -1,4 +1,4 @@
-# A collecting event is the unique combination of who, where, when, and how.
+# A collecting event describes how something (e.g. a CollectionObject) was aquired.  It is the unique combination of who, where, when, and how.
 #
 # @!attribute verbatim_label
 #   @return [String]

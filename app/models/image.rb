@@ -1,4 +1,4 @@
-# Image - class the represents an image stored in the filesystem.
+# An Image is just that, as it is stored in the filesystem.  No additional metadata beyond file descriptors is included here.
 #
 # This class relies on the paperclip gem and the ImageMagik app to link, store and manipulate images.
 #

@@ -2,50 +2,50 @@
 #
 # @!attribute date_requested
 #   @return [DateTime]
-#   @todo
+#     date request was recieved by lender
 #
 # @!attribute request_method
 #   @return [String]
-#   @todo
+#     brief not as to how the request was made, not a controlled vocabulary 
 #
 # @!attribute date_sent
 #   @return [DateTime]
-#   @todo
+#     date loan was delivered to post 
 #
 # @!attribute date_received
 #   @return [DateTime]
-#   @todo
+#     date loan was recievied by recipient 
 #
 # @!attribute date_return_expected
 #   @return [DateTime]
-#   @todo
+#      date expected 
 #
 # @!attribute recipient_address
 #   @return [String]
-#   @todo
+#     address loan sent to 
 #
 # @!attribute recipient_email
 #   @return [String]
-#   @todo
+#     email address of recipient
 #
 # @!attribute recipient_phone
 #   @return [String]
-#   @todo
+#     phone number of recipient 
 #
 # @!attribute recipient_country
 #   @return [String]
 #
 # @!attribute supervisor_email
-#   @return [String]
-#   @todo
+#   @return [String]oe
+#     email of utlimately responsible party if recient can not be 
 #
 # @!attribute supervisor_phone
 #   @return [String]
-#   @todo
+#     phone # of utlimately responsible party if recient can not be 
 #
 # @!attribute date_closed
 #   @return [DateTime]
-#   @todo
+#     date at which loan has been fully resolved and requires no additional attention 
 #
 # @!attribute project_id
 #   @return [Integer]
@@ -53,7 +53,7 @@
 #
 # @!attribute recipient_honorarium
 #   @return [String]
-#   @todo
+#     as in Prof. Mrs. Dr. M. Mr. etc.
 #
 class Loan < ActiveRecord::Base
   include Housekeeping
@@ -81,6 +81,8 @@ class Loan < ActiveRecord::Base
   validates :lender_address, presence: true
 
   accepts_nested_attributes_for :loan_items, allow_destroy: true, reject_if: :reject_loan_items
+  accepts_nested_attributes_for :loan_supervisors, :loan_supervisor_roles, allow_destroy: true
+  accepts_nested_attributes_for :loan_recipients, :loan_recipient_roles, allow_destroy: true
 
   # TODO: @mjy What *is* the right construct for 'Loan'?
   def self.find_for_autocomplete(params)

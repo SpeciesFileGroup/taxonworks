@@ -1,3 +1,8 @@
+
+<%= content_for :report do %>
+  <%= content_tag(:li, link_to('Recipient loan form', recipient_form_loan_path(@loan))) -%>
+<% end %>
+
 <%= content_for :associated do %>
   <h3> Loan Items </h3>
   <%= render('/loan_items/loan_table', loan_items: @loan.loan_items) -%>
