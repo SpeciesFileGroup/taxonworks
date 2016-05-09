@@ -52,7 +52,7 @@ gem 'closure_tree', '~> 6.0.0'
 
 # BibTex handling
 gem 'csl', '~> 1.4.3' # git: 'https://github.com/inkshuk/csl-ruby'
-gem 'bibtex-ruby', '~> 4.2.0'
+gem 'bibtex-ruby', '~> 4.3.0'
 gem 'citeproc-ruby', '~> 1.1.0'
 gem 'csl-styles', '~> 1.0.1.6'
 
@@ -69,7 +69,7 @@ gem 'paperclip', '~> 4.3.6'
 gem 'paperclip-meta', '~> 2.0'
 
 # Ordering records
-gem 'acts_as_list'
+gem 'acts_as_list', '~> 0.7.4'
 
 # Versioning
 gem 'paper_trail', '~> 4.0.0.rc'
@@ -107,7 +107,7 @@ group :test, :development do
   gem 'rspec-rails', '~> 3.4'
   gem 'rspec-activemodel-mocks', '~> 1.0.2'
   gem 'inch', '~> 0.7'
-  gem 'byebug', '~> 8.2.2', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
+  gem 'byebug', '~> 8.2.5', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'awesome_print'
   gem 'factory_girl_rails', '~> 4.0'
   gem 'selenium-webdriver', '~> 2.52.0'

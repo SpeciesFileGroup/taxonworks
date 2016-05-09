@@ -54,7 +54,7 @@ GEM
       coderay (>= 1.0.0)
       erubis (>= 2.6.6)
       rack (>= 0.9.0)
-    bibtex-ruby (4.2.0)
+    bibtex-ruby (4.3.0)
       latex-decode (~> 0.0)
     binding_of_caller (0.7.2)
       debug_inspector (>= 0.0.1)
@@ -413,14 +413,14 @@ PLATFORMS
 
 DEPENDENCIES
   activerecord-postgis-adapter (~> 3.1.4)
-  acts_as_list
+  acts_as_list (~> 0.7.4)
   awesome_print
   bcrypt (~> 3.1.11)
   best_in_place (~> 3.1.0)
   better_errors (~> 2.0)
-  bibtex-ruby (~> 4.2.0)
+  bibtex-ruby (~> 4.3.0)
   binding_of_caller
-  byebug (~> 8.2.2)
+  byebug (~> 8.2.5)
   capybara (~> 2.1)
   chartkick (~> 1.4.2)
   chronic (~> 0.10)
