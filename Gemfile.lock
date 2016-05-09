@@ -220,7 +220,7 @@ GEM
     paperclip-meta (2.0.1)
       paperclip (>= 3.0.2, < 5.0)
     parallel (1.8.0)
-    parallel_tests (2.4.1)
+    parallel_tests (2.5.0)
       parallel
     parser (2.3.1.0)
       ast (~> 2.2)
@@ -450,7 +450,7 @@ DEPENDENCIES
   paper_trail (~> 4.0.0.rc)
   paperclip (~> 4.3.6)
   paperclip-meta (~> 2.0)
-  parallel_tests (~> 2.4.1)
+  parallel_tests (~> 2.5.0)
   passenger (~> 5.0.28)
   pg (~> 0.18.4)
   psych (~> 2.0.16)
