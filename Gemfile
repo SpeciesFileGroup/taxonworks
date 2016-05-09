@@ -14,7 +14,7 @@ gem 'activerecord-postgis-adapter', '~> 3.1.4'
 # rgeo support
 gem 'ffi-geos'
 gem 'rgeo-shapefile', '~> 0.4.1'
-gem 'rgeo-geojson', '~> 0.4.2'
+gem 'rgeo-geojson', '~> 0.4.3'
 
 # Redis support
 #   http://redis.io/clients#ruby
@@ -31,7 +31,7 @@ gem 'uglifier', '~> 2.4'
 gem 'coffee-rails', '~> 4.0'
 
 # Use jquery as the JavaScript library
-gem 'jquery-rails', '~> 4.0.4'
+gem 'jquery-rails', '~> 4.1.1'
 gem 'jquery-ui-rails', '~> 5.0.5'
 
 gem 'rails-jquery-autocomplete'
@@ -94,7 +94,7 @@ gem 'modularity', '~> 2.0.1'
 gem 'colored', '~> 1.2'
 
 gem 'chartkick', '~> 1.4.2'
-gem 'groupdate', '~> 2.5.1'
+gem 'groupdate', '~> 2.5.3'
 
 gem 'dropzonejs-rails', '~> 0.7.3'
 
@@ -141,6 +141,6 @@ end
 
 group :production do
   gem 'execjs'
-  gem 'passenger', '~> 5.0.26'
+  gem 'passenger', '~> 5.0.28'
 end
 
