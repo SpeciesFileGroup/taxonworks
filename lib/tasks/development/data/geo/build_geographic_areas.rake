@@ -326,7 +326,6 @@ namespace :tw do
               geographic_area_type_name: gadm_geographic_area_type_from_row(r),
               date_valid_from:           gadm_valid_from(r),
               date_valid_to:             gadm_valid_to(r),
-              geographic_area_type_name: gadm_geographic_area_type_from_row(r),
             )
           end
         end
