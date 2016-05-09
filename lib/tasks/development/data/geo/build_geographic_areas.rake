@@ -323,7 +323,6 @@ namespace :tw do
               lvl2:                      r['name_2'],
               source_table:              source_table,
               source_table_gid:          r['gid'],
-              geographic_area_type_name: gadm_geographic_area_type_from_row(r),
               date_valid_from:           gadm_valid_from(r),
               date_valid_to:             gadm_valid_to(r),
             )

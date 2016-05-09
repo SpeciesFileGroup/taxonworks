@@ -122,9 +122,7 @@
             'Nomen nudum' => '',
             'Nomen nudum: no description' => '',
             'Nomen nudum: No type fixation after 1930' => '',
-            'Nomen nudum: Published as synonym and not validated before 1961' => '',
             'Unavailable name: Infrasubspecific name' => '',
-            'Unavailable name: pre-Linnean' => '',
             'Suppressed name: ICZN official index of rejected and invalid works' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym',
             'Valid Name' => '',
             'Original_Genus' => 'TaxonNameRelationship::OriginalCombination::OriginalGenus',
@@ -374,8 +372,7 @@
           year, year_suffix = parse_year_3i(row['Year'])
           taxonomy, distribution, illustration, typhlocybinae = nil, nil, nil, nil
           note = row['Notes']
-            source = Source::Bibtex.new( volume: nil,
-                                         author: row['AuthorDrMetcalf'].blank? ? row['Author'] : row['AuthorDrMetcalf'],
+            source = Source::Bibtex.new( author: row['AuthorDrMetcalf'].blank? ? row['Author'] : row['AuthorDrMetcalf'],
                                          year: year,
                                          year_suffix: year_suffix,
                                          title: row['Title'],
