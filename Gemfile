@@ -1,5 +1,5 @@
 source 'https://rubygems.org'
-ruby '2.1.5'
+ruby '2.3.1'
 
 gem 'rails', '~> 4.2.6'
 gem 'psych', '~> 2.0.16'
@@ -99,8 +99,8 @@ gem 'groupdate', '~> 2.5.1'
 gem 'dropzonejs-rails', '~> 0.7.3'
 
 # SFG gems
-gem 'taxonifi', '0.3.6'
-gem 'sqed', '0.1.9'
+gem 'taxonifi', '0.4.0'
+gem 'sqed', '0.2.0'
 
 group :test, :development do
   gem 'faker', '~> 1.6.1'
@@ -110,10 +110,8 @@ group :test, :development do
   gem 'byebug', '~> 8.2.2', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'awesome_print'
   gem 'factory_girl_rails', '~> 4.0'
-  gem 'did_you_mean', '~> 0.10.0'
   gem 'selenium-webdriver', '~> 2.52.0'
 end
-
 
 group :development do
   gem 'better_errors', '~> 2.0'
