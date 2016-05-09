@@ -19,13 +19,13 @@ gem 'rgeo-geojson', '~> 0.4.3'
 # Redis support
 #   http://redis.io/clients#ruby
 gem 'hiredis', '~> 0.6.1'
-gem 'redis', '~> 3.2.2'
+gem 'redis', '~> 3.3.0'
 
 # Use SCSS for stylesheets
 gem 'sass-rails', '~> 5.0.2'
 
 # Use Uglifier as compressor for JavaScript assets
-gem 'uglifier', '~> 2.4'
+gem 'uglifier', '~> 3.0'
 
 # Use CoffeeScript for .js.coffee assets and views
 gem 'coffee-rails', '~> 4.0'
@@ -45,8 +45,6 @@ gem 'jquery-turbolinks', '~> 2.1'
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
 gem 'jbuilder', '~> 2.4.1'
 gem 'chronic', '~> 0.10'
-
-# gem 'awesome_nested_set', '~> 3.0.3'
 
 gem 'closure_tree', '~> 6.0.0'
 
@@ -93,7 +91,7 @@ gem 'modularity', '~> 2.0.1'
 
 gem 'colored', '~> 1.2'
 
-gem 'chartkick', '~> 1.4.2'
+gem 'chartkick', '~> 1.5.2'
 gem 'groupdate', '~> 2.5.3'
 
 gem 'dropzonejs-rails', '~> 0.7.3'
@@ -118,7 +116,7 @@ group :development do
   gem 'binding_of_caller'
   gem 'spring-commands-rspec', '~> 1.0.2'
   gem 'guard-rspec', '~> 4.6', require: false
-  gem 'parallel_tests', '~> 2.4.1'
+  gem 'parallel_tests', '~> 2.5.0'
   gem 'web-console', '~> 3.1.1'
   gem 'rubocop', '~> 0.40.0'
 end
