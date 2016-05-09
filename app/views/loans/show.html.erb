@@ -4,6 +4,34 @@
 <% end %>
 
 <%= content_for :associated do %>
+
+  <h3>Recipient(s)</h3>
+  <ul>
+    <% @loan.loan_recipients.each do |person| %>
+      <%= content_tag(:li, object_link(person)) %>
+    <% end %>
+    <%= content_tag(:li, 'None.') if !@loan.loan_recipients.any? -%>
+  </ul>
+
+  <h3>Supervisor(s)</h3>
+  <ul>
+    <% @loan.loan_supervisors.each do |person| %>
+      <%= content_tag(:li, object_link(person)) %>
+    <% end %>
+    <%= content_tag(:li, 'None.') if !@loan.loan_supervisors.any? -%>
+  </ul>
+
+
+
+
+
+
+
+
+
+
+
+
   <h3> Loan Items </h3>
   <%= render('/loan_items/loan_table', loan_items: @loan.loan_items) -%>
   <%= @loan.loan_items.any? ? nil : content_tag(:span, 'None.', class: :warning) -%>

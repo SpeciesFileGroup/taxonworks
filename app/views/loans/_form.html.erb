@@ -47,6 +47,15 @@
     </div>
 
     <div class="item item2">
+
+      <%= render partial: '/people/role_picker', locals: {role: LoanRecipient.new(), object: @loan, f: f} %>
+
+      <div class="field">
+        <%= f.label :recipient_honorarium %>
+        <br>
+        <%= f.text_field :recipient_honorarium %>
+      </div>
+
       <div class="field">
         <%= f.label :recipient_address %>
         <br>
@@ -71,6 +80,8 @@
         <%= f.text_field :recipient_country %>
       </div>
 
+      <%= render partial: '/people/role_picker', locals: {role: LoanSupervisor.new(), object: @loan, f: f} %>
+
       <div class="field">
         <%= f.label :supervisor_email %>
         <br>
@@ -83,12 +94,7 @@
         <%= f.text_field :supervisor_phone %>
       </div>
 
-      <div class="field">
-        <%= f.label :recipient_honorarium %>
-        <br>
-        <%= f.text_field :recipient_honorarium %>
-      </div>
-    </div>
+   </div>
 
     <div class="item item3">
       <%= render "/loan_items/loan_item_selector", f: f, loan: @loan %>

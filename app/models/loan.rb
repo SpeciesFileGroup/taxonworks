@@ -64,6 +64,7 @@ class Loan < ActiveRecord::Base
   include Shared::Taggable
   include SoftValidation
   include Shared::Depictions
+  include Shared::HasRoles
 
   has_paper_trail
 

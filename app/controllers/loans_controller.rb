@@ -124,7 +124,10 @@ class LoansController < ApplicationController
                                                         :total, 
                                                         :disposition, 
                                                         :date_returned,
-                                                        :date_returned_jquery ]
+                                                        :date_returned_jquery ],
+                                 roles_attributes: [:id, :_destroy, :type, :person_id, :position,
+                                                    person_attributes: [:last_name, :first_name, :suffix, :prefix]],
+
     )
   end
 end
