@@ -109,18 +109,18 @@ group :test, :development do
   gem 'inch', '~> 0.7'
   gem 'byebug', '~> 8.2.5', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'awesome_print'
-  gem 'factory_girl_rails', '~> 4.0'
-  gem 'selenium-webdriver', '~> 2.52.0'
+  gem 'factory_girl_rails', '~> 4.7'
+  gem 'selenium-webdriver', '~> 2.53.0'
 end
 
 group :development do
   gem 'better_errors', '~> 2.0'
   gem 'binding_of_caller'
   gem 'spring-commands-rspec', '~> 1.0.2'
-  gem 'guard-rspec', '~> 4.5', require: false
+  gem 'guard-rspec', '~> 4.6', require: false
   gem 'parallel_tests', '~> 2.4.1'
-  gem 'web-console', '~> 2.3'
-  gem 'rubocop', '~> 0.37.2'
+  gem 'web-console', '~> 3.1.1'
+  gem 'rubocop', '~> 0.40.0'
 end
 
 group :doc do
@@ -130,11 +130,11 @@ end
 group :test do
   gem 'rspec', '~> 3.4'
   gem 'coveralls', '~> 0.8.13', require: false
-  gem 'capybara', '~> 2.1'
-  gem 'timecop', '~> 0.8.0'
-  gem 'webmock', '~> 1.24.1'
+  gem 'capybara', '~> 2.7.1'
+  gem 'timecop', '~> 0.8.1'
+  gem 'webmock', '~> 2.0.1' # 1.24.1'
   gem 'vcr', '~> 3.0.0'
-  gem 'database_cleaner', '~> 1.5.1'
+  gem 'database_cleaner', '~> 1.5.3'
 # gem 'simplecov', :require => false
 # gem 'simplecov-rcov', :require => false
 end
