@@ -29,7 +29,7 @@ describe 'Users' do
         }
 
         it 'should have information and links' do
-          expect(page).to have_css('h2', @user.name)
+          expect(page).to have_css('h2', text: @user.name)
           expect(page).to have_link('Edit')
         end
 
@@ -44,8 +44,8 @@ describe 'Users' do
             # URI.parse(current_url).should == "users/#{@user}/edit"
             # expect(current_url).to eq "/users/#{@user}/edit"
 
-            expect(page).to have_css('h1', 'Editing user')
-            expect(page).to have_selector('label', 'Password confirmation')
+            expect(page).to have_css('h1', text: 'Editing user')
+            expect(page).to have_selector('label', text:  'Password confirmation')
             expect(page).to have_button('Update User') # where is submit button "Update User"?
           end
 
@@ -56,7 +56,7 @@ describe 'Users' do
             fill_in 'Password confirmation', with: '1234ZZZ!'
             click_button 'Update User'
 
-            expect(page).to have_css('p.alert.alert-success', 'Changes to your account information have been saved.')
+            expect(page).to have_css('p.alert.alert-success', text: 'Changes to your account information have been saved.')
           end
 
           before { visit edit_user_path(@user) } # click_link 'Edit account'
@@ -67,7 +67,7 @@ describe 'Users' do
             # fill_in 'Password confirmation', with: '1234ZZZ!'
             click_button 'Update User'
 
-            expect(page).to have_css('p.alert.alert-success', 'Changes to your account information have been saved.')
+            expect(page).to have_css('p.alert.alert-success', text: 'Changes to your account information have been saved.')
           end
 
           before { visit edit_user_path(@user) } # click_link 'Edit account'
@@ -78,7 +78,7 @@ describe 'Users' do
             fill_in 'Password confirmation', with: nil
             click_button 'Update User'
 
-            expect(page).to_not have_css('p.alert.alert-success', 'Changes to your account information have been saved.')
+            expect(page).to_not have_css('p.alert.alert-success', text: 'Changes to your account information have been saved.')
           end
         end
       end
@@ -92,30 +92,44 @@ describe 'Users' do
 
       it 'should have information and actions' do
         expect(page).to have_link('Administration')
-        expect(page).to have_css('h1', 'Dashboard')
-        # expect(page).to have_css('h2', 'Projects')
-        # expect(page).to have_link('My Project')
       end
 
-      before { click_link 'Administration' }
+      context 'should have information and actions' do
+        before { click_link 'Administration' }
 
-      it 'should have information and actions' do
-        expect(page).to have_css('h1', 'Projects')
-        expect(page).to have_css('a', 'New')   # todo @mjy why doesn't 'have_link' work here but right above expect(page).to have_link 'Administration' works?
-        expect(page).to have_css('a', 'Projects overview')
-        expect(page).to have_css('h1', 'Project Membership')
-        expect(page).to have_css('a', 'Add a user to a project')
-        expect(page).to have_css('h1', 'Users')
-        expect(page).to have_css('a', 'New')    # todo @mjy Is there a way to say the page has two links called "New?"
-        expect(page).to have_css('a', "Update a user's authorization")
+        context 'for projects' do
+          specify 'header' do 
+            expect(page).to have_css('span', text: 'Projects')
+          end
+
+          specify 'new' do
+            expect(page).to have_link('New', href: new_project_path )   
+          end
+
+          specify 'overview' do
+            expect(page).to have_link('Projects overview', href: projects_path)
+          end
+        end
+
+        context 'for users' do
+          specify 'header' do
+            expect(page).to have_css('span', text: 'Users')
+          end
+
+          specify 'create' do
+            expect(page).to have_link('New', href: signup_path)    
+          end
+        end
       end
 
-      before {
-        visit users_path # users index
-      }
+      context 'exploring users' do
+        before {
+          visit users_path
+        }
 
-      it 'should list users' do
-        expect(page).to have_selector('h1', text: 'Users')
+        it 'should list users' do
+          expect(page).to have_selector('h1', text: 'Users')
+        end
       end
     end
 
@@ -200,13 +214,13 @@ describe 'Users' do
    
         it 'should let user edit their account information' do
           txt = "Editing user"
-          expect(page).to have_selector('h1', txt)
+          expect(page).to have_selector('h1', text: txt)
           fill_in 'Email', with: 'edit_user_modified@example.com'
           fill_in 'Password', with: '1234ZZZ!'
           fill_in 'Password confirmation', with: '1234ZZZ!'
           click_button 'Update User'
    
-          expect(page).to have_css('p.alert.alert-success', 'Changes to your account information have been saved.')
+          expect(page).to have_css('p.alert.alert-success', text: 'Changes to your account information have been saved.')
         end
       end
 
