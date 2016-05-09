@@ -111,7 +111,6 @@ module Dwca::Import
     taxon_name: {
       'http://rs.tdwg.org/dwc/terms/originalNameUsage' => {in: :name=, out: nil},
       'http://rs.tdwg.org/dwc/terms/taxonID'                  => {in: :dwc_parse_taxon_id, out: :id},
-      'http://rs.tdwg.org/dwc/terms/originalNameUsage'        => {in: nil,                 out: nil},
       'http://rs.tdwg.org/dwc/terms/kingdom'                  => {in: nil,                 out: nil},
       'http://rs.tdwg.org/dwc/terms/phylum'                   => {in: nil,                 out: nil},
       'http://rs.tdwg.org/dwc/terms/class'                    => {in: nil,                 out: nil},

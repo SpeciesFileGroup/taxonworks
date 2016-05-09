@@ -5,7 +5,7 @@ module DataAttributesHelper
     data_attribute_predicate_tag(data_attribute) + ' ' + data_attribute.value
   end
 
-  def add_data_attribute_link(object: object, attribute: nil)
+  def add_data_attribute_link(object: nil, attribute: nil)
     link_to('Add data attribute', new_data_attribute_path(
                                     data_attribute: {
                                         attribute_subject_type: object.class.base_class.name,

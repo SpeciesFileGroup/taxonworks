@@ -132,7 +132,7 @@ group :test do
   gem 'coveralls', '~> 0.8.13', require: false
   gem 'capybara', '~> 2.7.1'
   gem 'timecop', '~> 0.8.1'
-  gem 'webmock', '~> 2.0.1' # 1.24.1'
+  gem 'webmock', '~> 2.0.1' 
   gem 'vcr', '~> 3.0.0'
   gem 'database_cleaner', '~> 1.5.3'
 # gem 'simplecov', :require => false
