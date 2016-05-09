@@ -1253,14 +1253,10 @@ ActiveRecord::Schema.define(version: 20160504190531) do
     t.integer  "cached_valid_taxon_name_id"
   end
 
-  add_index "taxon_names", ["cached", "cached_author_year"], name: "index_taxon_names_on_cached_and_cached_author_year", using: :btree
-  add_index "taxon_names", ["cached"], name: "index_taxon_names_on_cached", using: :btree
-  add_index "taxon_names", ["cached_author_year"], name: "index_taxon_names_on_cached_author_year", using: :btree
   add_index "taxon_names", ["created_by_id"], name: "index_taxon_names_on_created_by_id", using: :btree
   add_index "taxon_names", ["name"], name: "index_taxon_names_on_name", using: :btree
   add_index "taxon_names", ["parent_id"], name: "index_taxon_names_on_parent_id", using: :btree
   add_index "taxon_names", ["project_id"], name: "index_taxon_names_on_project_id", using: :btree
-  add_index "taxon_names", ["rank_class"], name: "index_taxon_names_on_rank_class", using: :btree
   add_index "taxon_names", ["type"], name: "index_taxon_names_on_type", using: :btree
   add_index "taxon_names", ["updated_by_id"], name: "index_taxon_names_on_updated_by_id", using: :btree
 

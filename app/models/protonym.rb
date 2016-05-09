@@ -207,7 +207,7 @@ class Protonym < TaxonName
   end
 
   def get_author_and_year
-    case self.rank_class.nomenclatural_code
+    case self.rank_class.try(:nomenclatural_code)
       when :iczn
         ay = iczn_author_and_year
       when :icn

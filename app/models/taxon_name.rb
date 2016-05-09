@@ -1033,6 +1033,7 @@ class TaxonName < ActiveRecord::Base
 
     if self.type == 'Combination'
       c = self.protonyms_by_rank
+      return nil if c.empty?
       taxon = c[c.keys.last]
     else
       taxon = self
