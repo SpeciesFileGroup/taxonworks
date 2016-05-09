@@ -453,7 +453,7 @@ namespace :tw do
           'slides' => 'Container::Slide',
           'Vial' => 'Container::Vial',
           'vial' => 'Container::Vial'
-      }
+      }.freeze
 
       TYPE_TYPE = {
           'allolectotype' => 'lectotype',
@@ -478,7 +478,7 @@ namespace :tw do
           'paratypes' => 'paratype',
           'syntype' => 'syntype',
           'syntypes' => 'syntype'
-      }
+      }.freeze
 
       def handle_preparation_types_insects(data, import)
         print "Handling namespaces \n"
@@ -491,7 +491,8 @@ namespace :tw do
             'Pin' => 'Specimen(s) on pin',
             'Slide' => 'Specimen(s) on slide',
             'Vial' => 'Specimen(s) in vial'
-        }
+        }.freeze
+
         preparation_types.each do |pt|
           t = PreparationType.where(name: pt[0])
           if t.empty?
@@ -557,7 +558,7 @@ namespace :tw do
           'WisconsinGlaciated',
 
           'PrecisionCode',    # tag on Georeference
-      ]
+      ].freeze
 
       # Builds all the controlled vocabulary terms (tags/keywords)
       def handle_controlled_vocabulary_insects(data, import)
@@ -740,7 +741,7 @@ namespace :tw do
            GPSSource
            CollectionDateAccuracy
            SamplingProtocol
-           SiteCode}
+           SiteCode}.freeze
 
       def find_or_create_collecting_event_insects(ce, data)
         tmp_ce = { }
@@ -748,7 +749,7 @@ namespace :tw do
           tmp_ce.merge!(c => ce[c]) unless ce[c].blank?
         end
         tmp_ce_sorted = tmp_ce.sort.to_s
-        c_from_redis = @redis.get(tmp_ce_sorted)
+        c_from_redis = @redis.get(Digest::MD5.hexdigest(tmp_ce_sorted))
         unless ce['AccessionNumber'].blank?
           #c = CollectingEvent.with_project_id($project_id).with_identifier('Accession Code ' + ce['Collection'].to_s + ' ' + ce['AccessionNumber'])
           if !ce['Collection'].blank?
@@ -761,7 +762,7 @@ namespace :tw do
           unless c.empty?
             c = c.first
             if c_from_redis.nil?
-              @redis.set(tmp_ce_sorted, c.id)
+              @redis.set(Digest::MD5.hexdigest(tmp_ce_sorted), c.id)
               return c
             end
             #data.collecting_event_index.merge!(tmp_ce => c)
@@ -774,7 +775,7 @@ namespace :tw do
           unless c.empty?
             c = c.first
             if c_from_redis.nil?
-              @redis.set(tmp_ce_sorted, c.id)
+              @redis.set(Digest::MD5.hexdigest(tmp_ce_sorted), c.id)
               if !ce['AccessionNumber'].blank? && !ce['Collection'].blank?
                 c.identifiers.create(identifier: ce['Collection'] + ' ' + ce['AccessionNumber'], namespace: @accession_namespace, type: 'Identifier::Local::AccessionCode')
               elsif !ce['AccessionNumber'].blank?
@@ -785,7 +786,7 @@ namespace :tw do
             # data.collecting_event_index.merge!(tmp_ce => c)
           end
         end
-        c_from_redis = @redis.get(tmp_ce_sorted)
+        c_from_redis = @redis.get(Digest::MD5.hexdigest(tmp_ce_sorted))
 
         unless c_from_redis.nil?
           c = CollectingEvent.where(id: c_from_redis).first
@@ -888,7 +889,7 @@ namespace :tw do
             c.data_attributes.create(type: 'ImportAttribute', import_predicate: 'georeference_error', value: 'Geolocation uncertainty is conflicting with geographic area') unless gr.valid?
           end
 
-          @redis.set(tmp_ce_sorted, c.id)
+          @redis.set(Digest::MD5.hexdigest(tmp_ce_sorted), c.id)
           #data.collecting_event_index.merge!(tmp_ce => c)
           return c
         else
@@ -1131,8 +1132,8 @@ namespace :tw do
 
         sp = CSV.open(path, col_sep: "\t", :headers => true)
 
-        specimen_fields = %w{ Prefix CatalogNumber PreparationType TaxonCode LocalityCode AccessionSource DeaccessionRecipient DeaccessionCause DeaccessionDate DateCollectedBeginning DateCollectedEnding Collector LocalityLabel AccessionNumberLabel DeterminationLabel OtherLabel SpecialCollection IdentifiedBy YearIdentified CollectionMethod Habitat Type TypeName Remarks AdultMale AdultFemale Immature Pupa Exuvium AdultUnsexed AgeUnknown OtherSpecimens Checked OldLocalityCode OldCollector OldIdentifiedBy CreatedBy CreatedOn ModifiedOn ModifiedBy }
-        count_fields = %w{ AdultMale AdultFemale Immature Pupa Exuvium AdultUnsexed AgeUnknown OtherSpecimens }
+        specimen_fields = %w{ Prefix CatalogNumber PreparationType TaxonCode LocalityCode AccessionSource DeaccessionRecipient DeaccessionCause DeaccessionDate DateCollectedBeginning DateCollectedEnding Collector LocalityLabel AccessionNumberLabel DeterminationLabel OtherLabel SpecialCollection IdentifiedBy YearIdentified CollectionMethod Habitat Type TypeName Remarks AdultMale AdultFemale Immature Pupa Exuvium AdultUnsexed AgeUnknown OtherSpecimens Checked OldLocalityCode OldCollector OldIdentifiedBy CreatedBy CreatedOn ModifiedOn ModifiedBy }.freeze
+        count_fields = %w{ AdultMale AdultFemale Immature Pupa Exuvium AdultUnsexed AgeUnknown OtherSpecimens }.freeze
 
         sp.each_with_index do |row, i|
           unless row['Prefix'] == 'Loan Invoice'
@@ -1240,13 +1241,13 @@ namespace :tw do
 
         sp = CSV.open(path, col_sep: "\t", :headers => true)
 
-        specimen_fields = %w{ Prefix CatalogNumber PreparationType TaxonCode LocalityCode DateCollectedBeginning DateCollectedEnding Collector LocalityLabel AccessionNumberLabel DeterminationLabel OtherLabel SpecialCollection IdentifiedBy YearIdentified CollectionMethod Habitat Type TypeName Remarks AdultMale AdultFemale Immature Pupa Exuvium AdultUnsexed AgeUnknown OtherSpecimens Checked OldLocalityCode OldCollector OldIdentifiedBy CreatedBy CreatedOn ModifiedOn ModifiedBy }
-        count_fields = %w{ AdultMale AdultFemale Immature Pupa Exuvium AdultUnsexed AgeUnknown OtherSpecimens }
+        specimen_fields = %w{ Prefix CatalogNumber PreparationType TaxonCode LocalityCode DateCollectedBeginning DateCollectedEnding Collector LocalityLabel AccessionNumberLabel DeterminationLabel OtherLabel SpecialCollection IdentifiedBy YearIdentified CollectionMethod Habitat Type TypeName Remarks AdultMale AdultFemale Immature Pupa Exuvium AdultUnsexed AgeUnknown OtherSpecimens Checked OldLocalityCode OldCollector OldIdentifiedBy CreatedBy CreatedOn ModifiedOn ModifiedBy }.freeze
+        count_fields = %w{ AdultMale AdultFemale Immature Pupa Exuvium AdultUnsexed AgeUnknown OtherSpecimens }.freeze
 
 
-        locality_fields_with_locality_code = %w{ Collector CollectionMethod Habitat IdentifiedBy YearIdentified Type TypeName DateCollectedBeginning DateCollectedEnding Host Remarks ModifiedBy ModifiedOn }
-        locality_fields_without_locality_code = %w{ Collector CollectionMethod Habitat IdentifiedBy YearIdentified Type TypeName DateCollectedBeginning DateCollectedEnding Host NS Lat_deg Lat_min Lat_sec EW Long_deg Long_min Long_sec Elev_m Elev_ft Country State County Locality Park Remarks Precision DeterminationCompare ModifiedBy ModifiedOn }
-        match_fields = %w{ AccessionNumber DeterminationLabel OtherLabel LocalityLabel }
+        locality_fields_with_locality_code = %w{ Collector CollectionMethod Habitat IdentifiedBy YearIdentified Type TypeName DateCollectedBeginning DateCollectedEnding Host Remarks ModifiedBy ModifiedOn }.freeze
+        locality_fields_without_locality_code = %w{ Collector CollectionMethod Habitat IdentifiedBy YearIdentified Type TypeName DateCollectedBeginning DateCollectedEnding Host NS Lat_deg Lat_min Lat_sec EW Long_deg Long_min Long_sec Elev_m Elev_ft Country State County Locality Park Remarks Precision DeterminationCompare ModifiedBy ModifiedOn }.freeze
+        match_fields = %w{ AccessionNumber DeterminationLabel OtherLabel LocalityLabel }.freeze
         br = data.biological_relationships['host']['biological_relationship']
 
         sp.each_with_index do |row, i|

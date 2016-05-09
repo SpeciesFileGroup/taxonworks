@@ -4,9 +4,8 @@ class TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication < TaxonNa
 
   def self.disjoint_taxon_name_relationships
     self.parent.disjoint_taxon_name_relationships +
-        self.collect_descendants_to_s(TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling,
-                                      TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm,
-                                      TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling)
+        self.collect_descendants_to_s(TaxonNameRelationship::Iczn::Invalidating::Synonym,
+                                      TaxonNameRelationship::Iczn::Invalidating::Homonym)
   end
 
   def subject_relationship_name

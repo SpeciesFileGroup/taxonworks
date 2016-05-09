@@ -13,7 +13,7 @@
         attr_accessor :people_index, :user_index, :publications_index, :citations_index, :genera_index, :images_index,
                       :parent_id_index, :statuses, :taxon_index, :citation_to_publication_index, :keywords,
                       :incertae_sedis, :emendation, :original_combination, :unique_host_plant_index,
-                      :host_plant_index, :topics, :nouns, :countries
+                      :host_plant_index, :topics, :nouns, :countries, :geographic_areas, :museums
         def initialize()
           @keywords = {}                  # keyword -> ControlledVocabularyTerm
           @people_index = {}              # PeopleID -> Person object
@@ -34,6 +34,8 @@
           @topics = {}
           @nouns = {}
           @countries = {}
+          @geographic_areas = {}
+          @museums = {}
         end
       end
 
@@ -60,7 +62,7 @@
             21 => Ranks.lookup(:iczn, :subphylum),
             22 => Ranks.lookup(:iczn, :phylum),
             23 => Ranks.lookup(:iczn, :kingdom)
-        }
+        }.freeze
 
         @relationship_classes = {
             0 => '', ### valid
@@ -74,7 +76,7 @@
             8 => 'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm', #### combination => Combination
             9 => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling',
             10 => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnjustifiedEmendation',
-            11 => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication',
+            11 => 'TaxonNameRelationship::Iczn::Invalidating', #### misaplication
             12 => '', #### nomen dubium
             13 => '', #### nomen nudum
             14 => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::ForgottenName',
@@ -131,7 +133,7 @@
             'Original_Subspecies' => 'TaxonNameRelationship::OriginalCombination::OriginalSubspecies',
             'Original_Infrasubspecies' => 'TaxonNameRelationship::OriginalCombination::OriginalVariety',
             'Incertae sedis' => 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement'
-        }
+        }.freeze
 
         @classification_classes = {
             0 => '', ### valid
@@ -141,7 +143,7 @@
             24 => 'TaxonNameClassification::Iczn::Unavailable',
             28 => 'TaxonNameClassification::Iczn::Available::Invalid',
             29 => 'TaxonNameClassification::Iczn::Unavailable::Excluded::Infrasubspecific', ### infrasubspecific
-        }
+        }.freeze
 
         @languages = {
             'ba' => 'bal',
@@ -154,7 +156,32 @@
             'ta' => 'tgl',
             'vi' => 'hil',
             'pt' => 'por'
-        }
+        }.freeze
+
+        @locality_columns_3i = %w{
+          Country
+          State
+          County
+          GLocality
+          SLocality
+          Date
+          DateTo
+          Collectors
+          Method
+          LatNS
+          LatDeg
+          LatMin
+          LatSec
+          LongEW
+          LongDeg
+          LongMin
+          LongSec
+          ElevationM
+          ElevationF
+          Ecology
+          Precision
+          TW_id }.freeze
+
 
         if ENV['no_transaction']
           puts 'Importing without a transaction (data will be left in the database).'
@@ -184,15 +211,16 @@
         handle_projects_and_users_3i
         raise '$project_id or $user_id not set.'  if $project_id.nil? || $user_id.nil?
 
-        $project_id = 1
+        #$project_id = 1
         handle_controlled_vocabulary_3i
         #handle_references_3i
-        #handle_taxonomy_3i
-        #handle_taxon_name_relationships_3i
-        #handle_citation_topics_3i
-        #handle_host_plant_name_dictionary_3i
-        #handle_host_plants_3i
+        handle_taxonomy_3i
+        handle_taxon_name_relationships_3i
+        handle_citation_topics_3i
+        handle_host_plant_name_dictionary_3i
+        handle_host_plants_3i
         handle_distribution_3i
+        handle_localities_3i
 
         print "\n\n !! Success. End time: #{Time.now} \n\n"
       end
@@ -270,8 +298,9 @@
             'Host' => BiologicalProperty.find_or_create_by(name: 'Host', definition: 'An animal or plant on or in which a parasite or commensal organism lives.', project_id: $project_id),
             'Herbivor' => BiologicalProperty.find_or_create_by(name: 'Herbivor', definition: 'An animal that feeds on plants.', project_id: $project_id),
             'Parasitoid' => BiologicalProperty.find_or_create_by(name: 'Parasitoid', definition: 'An organism that lives in or on another organism.', project_id: $project_id),
-            'Attendant' => BiologicalProperty.find_or_create_by(name: 'Herbivor', definition: 'An insect attending another insect.', project_id: $project_id),
-            'Symbiont' => BiologicalProperty.find_or_create_by(name: 'Parasitoid', definition: 'An insect leaving togeather with another insect.', project_id: $project_id),
+            'Attendant' => BiologicalProperty.find_or_create_by(name: 'Attendant', definition: 'An insect attending another insect.', project_id: $project_id),
+            'Symbiont' => BiologicalProperty.find_or_create_by(name: 'Symbiont', definition: 'An insect leaving togeather with another insect.', project_id: $project_id),
+            'Pin' => PreparationType.find_or_create_by(name: 'Pin', definition: 'Specimen(s) on pin', project_id: $project_id)
         )
 
         @data.topics.merge!(
@@ -486,6 +515,7 @@
         # OriginalCombinationOf
         # NomenNovumFor
         # CommonNameLang
+        # MisapplicationFor
 
 
         gender = {'M' => 'TaxonNameClassification::Latinized::Gender::Masculine',
@@ -704,6 +734,7 @@
             taxon.iczn_set_as_misspelling_of = find_taxon(row['MisspellingOf']) if !row['MisspellingOf'].blank?
             taxon.iczn_set_as_misspelling_of = find_taxon(row['Parent']) if row['MisspellingOf'].blank? && row['Status'] == '9'
             taxon.iczn_set_as_incorrect_original_spelling_of = find_taxon(row['OriginalCombinationOf']) if !row['OriginalCombinationOf'].blank? && row['Status'] == '9'
+            taxon.iczn_set_as_misapplication_of = find_taxon(row['MisapplicationFor']) if !row['MisapplicationFor'].blank? && row['Status'] == '11'
             #taxon.iczn_first_revisor_action = @data.taxon_index[row['Parent']] if !row['OriginalCombinationOf'].blank? && row['Status'] == '9'
 
             source = nil
@@ -1087,9 +1118,302 @@
         file.each_with_index do |row, i|
           print "\r#{i}"
           @data.countries.merge!(row['Key6'] => row)
+        end
+      end
+
+      def handle_museums_3i
+        #Abbreviation
+        # Museum
+        # Country
+        # Location
+        # Http
+        # TW_acronim
+
+        path = @args[:data_directory] + 'museums.txt'
+        print "\nHandling list of museums\n"
+        raise "file #{path} not found" if not File.exists?(path)
+        file = CSV.foreach(path, col_sep: "\t", headers: true)
+
+        file.each_with_index do |row, i|
+          print "\r#{i}"
+          @data.museums.merge!(row['abbreviation'] => row['TW_acronim']) unless row['TW_acronim'].blank?
+        end
+      end
+
+
+      def handle_localities_3i
+        handle_museums_3i
+
+        # Key4
+        # Key
+        # Country !
+        # State !
+        # County !
+        # GLocality !
+        # SLocality !
+        # Date !
+        # DateTo !
+        # Collectors !
+        # HostFamily
+        # HostPlant
+        # HostCommonName
+        # Method !
+        # LatNS !
+        # LatDeg !
+        # LatMin !
+        # LatSec !
+        # LongEW !
+        # LongDeg !
+        # LongMin !
+        # LongSec !
+        # ElevationM !
+        # ElevationF !
+        # Ecology !
+        # Specimens
+        # Males
+        # Females
+        # Nymphs
+        # Type
+        # Notes
+        # Museum
+        # ID
+        # Precision !
+        # Key3
+        # Dissected
+        # TW_id !
+
+        path = @args[:data_directory] + 'localities.txt'
+        print "\nHandling localities\n"
+        raise "file #{path} not found" if not File.exists?(path)
+        file = CSV.foreach(path, col_sep: "\t", headers: true)
+        preparation_type = @data.keywords['Pin']
+        count_fields = %w{ Specimens Males Females Nymphs }.freeze
+
+        file.each_with_index do |row, i|
+          print "\r#{i}"
+
+          collecting_event = find_or_create_collecting_event_3i(row)
+          repository = Repository.find_by_acronym(@data.museums[row['Museum']]) unless @data.museums[row['Museum']].blank?
+
+          no_specimens = false
+          if count_fields.collect{ |f| row[f] }.select{ |n| !n.nil? }.empty?
+            row['Specimens'] = '1'
+            no_specimens = true
+          end
+
+          objects = []
+          count_fields.each do |count|
+            unless row[count].blank?
+              specimen = CollectionObject::BiologicalCollectionObject.new(
+                  total: row[count],
+                  preparation_type: preparation_type,
+                  repository: repository,
+                  buffered_collecting_event: nil,
+                  buffered_determinations: nil,
+                  buffered_other_labels: nil,
+                  collecting_event: collecting_event
+              )
+
+              if specimen.valid?
+                specimen.save!
+                objects += [specimen]
+                specimen.notes.create(text: se['Remarks']) unless se['Remarks'].blank?
+
+                host = data.host_plant_index[row['Host']]
+                unless host.blank?
+                  identifier = Identifier.where(namespace_id: @taxon_namespace.id, identifier: host, project_id: $project_id)
+                  host = identifier.empty? ? nil : identifier.first.identifier_object
+                end
+                unless host.blank?
+                  BiologicalAssociation.create(biological_relationship: br,
+                                               biological_association_subject: host,
+                                               biological_association_object: specimen
+                  )
+                end
+
+                data.keywords.each do |k|
+                  specimen.data_attributes.create(type: 'InternalAttribute', controlled_vocabulary_term_id: k[1].id, value: se[k[0]]) unless se[k[0]].blank?
+                end
+
+                specimen.tags.create(keyword: data.keywords['ZeroTotal']) if no_specimens
+                add_bioculation_class_insects(specimen, count, data)
+              else
+                data.invalid_specimens.merge!(se['Prefix'] + ' ' + se['CatalogueNumber'] => nil)
+              end
+
+              unless specimen.valid?
+                byebug
+              end
+            end
+          end
+          add_identifiers_insects(objects, row, data)
+          add_determinations_insects(objects, row, data)
+
+
+
+
+
+
+
 
         end
 
+      end
+
+
+
+
+
+      def find_or_create_collecting_event_insects(ce)
+        tmp_ce = { }
+        @locality_columns_3i.each do |c|
+          tmp_ce.merge!(c => ce[c]) unless ce[c].blank?
+        end
+        tmp_ce_sorted = tmp_ce.sort.to_s
+        c_stored = @data.geographic_areas[Digest::MD5.hexdigest(tmp_ce_sorted)]
+
+        unless c_stored.nil?
+          c = CollectingEvent.find(c_stored)
+          return c
+        end
+
+        latitude, longitude = nil, nil
+        latitude, longitude = parse_lat_long_3i(ce) unless [4, 5, 6].include?(ce['Precision'].to_i)
+        sdm, sdd, sdy, edm, edd, edy = parse_dates_3i(ce)
+        elevation, verbatim_elevation = parse_elevation_3i(ce)
+        geographic_area = GeographicArea.find(ce['TW_id'])
+        geolocation_uncertainty = parse_geolocation_uncertainty_3i(ce)
+        locality =  ce['SLocality'].blank? ? ce['GLocality'] : ce['GLocality'].to_s + ', ' + ce['SLocality'].to_s
+
+        c = CollectingEvent.new(
+            geographic_area: geographic_area,
+            verbatim_label: nil,
+            verbatim_locality: locality,
+            verbatim_collectors: ce['Collectors'],
+            verbatim_method: ce['Method'],
+            start_date_day: sdd,
+            start_date_month: sdm,
+            start_date_year: sdy,
+            end_date_day: edd,
+            end_date_month: edm,
+            end_date_year: edy,
+            verbatim_habitat: ce['Ecology'],
+            minimum_elevation: elevation,
+            maximum_elevation: nil,
+            verbatim_elevation: verbatim_elevation,
+            verbatim_latitude: latitude,
+            verbatim_longitude: longitude,
+            verbatim_geolocation_uncertainty: geolocation_uncertainty,
+            verbatim_datum: nil,
+            field_notes: nil,
+            verbatim_date: nil
+        )
+        if c.valid?
+          c.save!
+
+          c.data_attributes.create(import_predicate: 'Country', value: ce['Country'].to_s, type: 'ImportAttribute') unless ce['Country'].blank?
+          c.data_attributes.create(import_predicate: 'State', value: ce['State'].to_s, type: 'ImportAttribute') unless ce['State'].blank?
+          c.data_attributes.create(import_predicate: 'County', value: ce['County'].to_s, type: 'ImportAttribute') unless ce['County'].blank?
+
+          gr = geolocation_uncertainty.nil? ? false : c.generate_verbatim_data_georeference(true)
+          unless gr == false
+            ga, c.geographic_area_id = c.geographic_area_id, nil
+            if gr.valid?
+              c.save
+              gr.save
+            else
+              c.geographic_area_id = ga
+              c.save
+            end
+
+            gr.error_radius = geolocation_uncertainty
+            gr.is_public = true
+            gr.save
+            c.data_attributes.create(type: 'ImportAttribute', import_predicate: 'georeference_error', value: 'Geolocation uncertainty is conflicting with geographic area') unless gr.valid?
+          end
+
+          @data.geographic_areas.merge!(Digest::MD5.hexdigest(tmp_ce_sorted) => c.id)
+          return c
+        else
+          byebug
+        end
+      end
+
+      def parse_lat_long_3i(ce)
+        latitude, longitude = nil, nil
+        nlt = ce['LatNS'].blank? ? nil : ce['LatNS'].capitalize
+        ltd = ce['LatDeg'].blank? ? nil : "#{ce['LatDeg']}º"
+        ltm = ce['LatMin'].blank? ? nil : "#{ce['LatMin']}'"
+        lts = ce['LatSec'].blank? ? nil : "#{ce['LatSec']}\""
+        latitude = [nlt,ltd,ltm,lts].compact.join
+        latitude = nil if latitude == '-'
+
+        nll = ce['LongEW'].blank? ? nil : ce['LongEW'].capitalize
+        lld = ce['LongDeg'].blank? ? nil : "#{ce['LongDeg']}º"
+        llm = ce['LongMin'].blank? ? nil : "#{ce['LongMin']}'"
+        lls = ce['LongSec'].blank? ? nil : "#{ce['LongSec']}\""
+        longitude = [nll,lld,llm,lls].compact.join
+        longitude = nil if longitude == '-'
+
+        [latitude, longitude]
+      end
+
+      def parse_dates_3i(ce)
+        # Date
+        # DateTo
+
+      sdm, sdd, sdy, edm, edd, edy = nil, nil, nil, nil, nil, nil
+        ( sdm, sdd, sdy = ce['Date'].split("/") ) if !ce['Date'].blank?
+        ( edm, edd, edy = ce['DateTo'].split("/") ) if !ce['DateTo'].blank?
+        sdy = sdy.to_i unless sdy.blank?
+        edy = edy.to_i unless edy.blank?
+        sdd = sdd.to_i unless sdd.blank?
+        edd = edd.to_i unless edd.blank?
+        sdm = sdm.to_i unless sdm.blank?
+        edm = edm.to_i unless edm.blank?
+        [sdm, sdd, sdy, edm, edd, edy]
+      end
+
+      def parse_elevation_3i(ce)
+        # ElevationM
+        # ElevationF
+        ft =  ce['ElevationF']
+        m = ce['ElevationM']
+
+        if !ft.blank? && !m.blank? && !Utilities::Measurements.feet_equals_meters(ft, m)
+          puts "\n !! Feet and meters both providing and not equal: #{ft}, #{m}."
+        end
+
+        elevation, verbatim_elevation = nil, nil
+
+        if !ft.blank?
+          elevation = (ft.to_i * 0.305).round
+          verbatim_elevation = ft + ' ft.'
+        elsif !m.blank?
+          elevation = m.to_i
+        end
+        [elevation, verbatim_elevation]
+      end
+
+      def parse_geolocation_uncertainty_3i(ce)
+        geolocation_uncertainty = nil
+        unless ce['Precision'].blank?
+          case ce['Precision'].to_i
+            when 1
+              geolocation_uncertainty = 10
+            when 2
+              geolocation_uncertainty = 1000
+            when 3
+              geolocation_uncertainty = 10000
+            when 4
+              nil #geolocation_uncertainty = 100000
+            when 5
+              nil #geolocation_uncertainty = 1000000
+            when 6
+              nil #geolocation_uncertainty = 1000000
+          end
+        end
+        return geolocation_uncertainty
       end
 
 
