@@ -1,41 +1,60 @@
 <div  id="loan_recipient_form" >
+	<div id="loan_header" class="flexbox panels-container">
+		<div id="recipient_details" class="item item1"> 
+			<ul class="no_bullets">
+				<%= content_tag(:li, "To: #{loan_recipient_tag(@loan)}") -%>
+				<%= content_tag(:li, @loan.recipient_email) if @loan.recipient_email -%>
+				<%= content_tag(:li, @loan.recipient_phone) if @loan.recipient_phone -%>
+				<% @loan.loan_supervisors.each do |person| -%>
+				<%= content_tag(:li, person_tag(person))  -%>
+				<% end %> 
 
-  <div id="loan_header" class="flexbox">
-    <div id="lender_details" class="item item1"> 
-      <ul>
-        <%= content_tag(:li, @loan.lender_address) -%>
-      </ul>
-    </div>
+				<% @loan.loan_recipients.each do |person| -%>
+				<%= content_tag(:li, person_tag(person))  -%>
+				<% end %> 
 
-    <div id="recipient_details" class="item item1"> 
-      <ul>
-        <%= content_tag(:li, "To: #{loan_recipient_tag(@loan)}") -%>
-        <%= content_tag(:li, @loan.recipient_email) if @loan.recipient_email -%>
-        <%= content_tag(:li, @loan.recipient_phone) if @loan.recipient_phone -%>
-        <% @loan.loan_supervisors.each do |person| -%>
-          <%= content_tag(:li, person_tag(person))  -%>
-        <% end %> 
-  
-        <% @loan.loan_recipients.each do |person| -%>
-          <%= content_tag(:li, person_tag(person))  -%>
-        <% end %> 
- 
-        <%= content_tag(:li, @loan.recipient_address) -%>
-      </ul>
+				<%= content_tag(:li, @loan.recipient_address) -%>
+			</ul>
+		</div>
+		<div id="lender_details" class="item item2">
+			<ul>
+				<%= content_tag(:li, @loan.lender_address) -%>
+			</ul>			
+		</div>
+	</div>
 
-    </div>
-  </div>
+	<div id="return_date"> Date sent: <%= @loan.date_sent -%> </div>
+	<div id="return_date"> Date return due: <%= @loan.date_return_expected -%></div>
 
-  <div id="return_date"> Date sent: <%= @loan.date_sent -%> </div>
-  <div id="return_date"> Date return due: <%= @loan.date_return_expected -%> </div>
+	<div id="loan_items">
+		<%= render('/loan_items/loan_table', loan_items: @loan.loan_items) -%>
+	</div>
 
-  <div class="#loan_items">
-    <%= render('/loan_items/loan_table', loan_items: @loan.loan_items) -%>
-  </div>
 
-  <div class="signatures">
-    <p> I agree to the terms of this loan. </p>
-    <div class="signature_line"></div> on <div class="date_line"></div>
-  </div>
-
+	<div class="flexbox">
+		<div class="signatures item2">
+			<table class="comments">
+				<thead>
+					<th>
+						Comments
+					</th>
+				</thead>
+				<tr>
+					<td></td>
+				</tr>
+				<tr>
+					<td></td>
+				</tr>
+				<tr>
+					<td></td>
+				</tr>
+			</tr>
+		</table>
+		<p>I agree to the terms of this loan.</p>
+		<div class="panels-container">
+			<p class="signature_line">Signature</p>		
+			<p class="signature_line">Date</p>					
+		</div>
+	</div>
+</div>
 </div>
