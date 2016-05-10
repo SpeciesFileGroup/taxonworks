@@ -138,7 +138,7 @@ class CollectionObjectsController < ApplicationController
 
   def preview_simple_batch_load
     if params[:file]
-      @result = BatchLoad::Import::CollectionObjects.new(batch_params.merge)
+      @result = BatchLoad::Import::CollectionObjects.new(batch_params.merge(user_map))
       digest_cookie(params[:file].tempfile, :batch_collection_objects_md5)
       render 'collection_objects/batch_load/simple/preview'
     else
@@ -149,7 +149,7 @@ class CollectionObjectsController < ApplicationController
 
   def create_simple_batch_load
     if params[:file] && digested_cookie_exists?(params[:file].tempfile, :batch_collection_objects_md5)
-      @result = BatchLoad::Import::CollectionObjects.new(batch_params)
+      @result = BatchLoad::Import::CollectionObjects.new(batch_params.merge(user_map))
       if @result.create
         flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} collection object-related object-sets were created."
         render 'collection_objects/batch_load/simple/create' and return
@@ -181,6 +181,16 @@ class CollectionObjectsController < ApplicationController
 
   def batch_params
     params.permit(:namespace, :file, :import_level).merge(user_id: sessions_current_user_id, project_id: $project_id).symbolize_keys
+  end
+
+  def user_map
+    {user_header_map: {'otu'         => 'otu_name',
+                       'start_day'   => 'start_date_day',
+                       'start_month' => 'start_date_month',
+                       'start_year'  => 'start_date_year',
+                       'end_day'     => 'end_date_day',
+                       'end_month'   => 'end_date_month',
+                       'end_year'    => 'end_date_year'}}
   end
 
 end

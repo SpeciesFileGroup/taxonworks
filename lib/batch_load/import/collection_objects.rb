@@ -14,6 +14,7 @@ module BatchLoad
     end
 
     def build_collection_objects
+      # test_build
       build_objects = {}
       i             = 1 # accounting for headers
       # identifier namespace
@@ -25,7 +26,7 @@ module BatchLoad
       csv.each do |row|
         parse_result = BatchLoad::RowParse.new
         # creation of the possible-objects list
-        parse_result.objects.merge!(otu: [], td: [], ce: [])
+        parse_result.objects.merge!(co: [], otu: [], td: [], ce: [])
         # attach the results to the row
         @processed_rows.merge!(i => parse_result)
 
@@ -45,7 +46,7 @@ module BatchLoad
             i += 1 # can't skip the increment!
             next
           end
-          # parse_result.objects[:co].push(co)
+          parse_result.objects[:co].push(co)
         end
 
         begin # processing the Otu
@@ -125,7 +126,7 @@ module BatchLoad
                                                         project_id: @project_id,
                                                         type:       'Identifier::' + row[header7],
                                                         identifier: id_ce}]}
-          # id_attributes    = ce_id_attributes[:identifiers_attributes][0]
+          id_attributes    = ce_id_attributes[:identifiers_attributes][0]
           ce_key           = ce_attributes.merge(ce_id_attributes)
           # id_match         = Digest::SHA256.digest(ce_id_attributes.to_s)
 
@@ -143,10 +144,12 @@ module BatchLoad
 
           ce_match = Digest::SHA256.digest(ce_key.to_s)
           ce       = build_objects[ce_match]
-          ce       = CollectingEvent.find_by(ce_attributes) if ce.nil?
+          ce       = CollectingEvent.includes(:identifiers).find_by(ce_attributes, id_attributes) if ce.nil?
+          # ce       = CollectingEvent.find_by(ce_attributes) if ce.nil?
           ce       = CollectingEvent.new(ce_key.merge(gr_attributes)) if ce.nil?
 
           if ce.valid? # various different possible errors.
+            co.collecting_event = ce
             parse_result.objects[:ce].push(ce)
             build_objects.merge!(ce_match => ce)
           else
@@ -165,6 +168,27 @@ module BatchLoad
         i += 1
       end
       @total_lines = i - 1
+
+    end
+
+    def test_build
+      file_name = 'spec/files/batch/collection_object/CollectionObjectTest.tsvP'
+      ns_1      = Namespace.find_by(short_name: 'PSUC')
+      csv1      = CSV.read(file_name, {headers: true, header_converters: :downcase, col_sep: "\t", encoding: "UTF-8"})
+
+      csv1.each do |row|
+        # the following invocation also creates a valid specimen as a collection_object
+        # FactoryGirl.create(:valid_identifier, namespace: ns_1, identifier: ident)
+        co = CollectionObject.new(type: 'Specimen', total: 1, preparation_type_id: 5)
+        id = Identifier.new(namespace:  ns_1,
+                            type:       'Identifier::Local::CatalogNumber',
+                            identifier: row[1])
+        co.identifiers << id
+
+        if co.valid?
+          co.save
+        end
+      end
 
     end
 
