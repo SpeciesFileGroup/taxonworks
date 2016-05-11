@@ -10,6 +10,9 @@ describe BatchLoad::Import::CollectionObjects, type: :model do
       csv1 = CSV.read(file_name, {headers: true, header_converters: :downcase, col_sep: "\t", encoding: "UTF-8"})
       csv1.each do |row|
         ident = row[1]
+        # the following invocation also creates a valid specimen as a collection_object
+        id_er = FactoryGirl.create(:valid_identifier, namespace: ns_1, identifier: ident)
+        co    = id_er.identifier_object
         case ident
           when '35397' # create a collecting event to find later
             error = (row['error'].to_s + ' ' + row['georeference_error_units'].to_s).strip
@@ -36,13 +39,40 @@ describe BatchLoad::Import::CollectionObjects, type: :model do
                                         geo_locate_georeferences_attributes: [{iframe_response: "#{row['latitude']}|#{row['longitude']}|#{Utilities::Geo.distance_in_meters(error)}|Unavailable"}]
                                        }
             )
+
+            co.collecting_event = ce
             gr1   = Georeference::VerbatimData.create(collecting_event: ce)
-          # gr2   = Georeference::GeoLocate.new(collecting_event: ce,
-          #                                     iframe_response:  "#{row['latitude']}|#{row['longitude']}|#{Utilities::Geo.elevation_in_meters(error)}|Unavailable")
+          # gr2   = Georeference::GeoLocate.new(collecting_event: ce, iframe_response:
+          # "#{row['latitude']}|#{row['longitude']}|#{Utilities::Geo.elevation_in_meters(error)}|Unavailable")
+          when '38866' # create a collecting event to find later
+            error               = (row['error'].to_s + ' ' + row['georeference_error_units'].to_s).strip
+            ns_ce               = Namespace.where(short_name: row['collecting_event_identifier_namespace_short_name']).first
+            ce                  = FactoryGirl.create(:valid_collecting_event,
+                                                     {verbatim_locality:                   row['verbatim_location'],
+                                                      verbatim_geolocation_uncertainty:    error.empty? ? nil : error,
+                                                      start_date_day:                      row['start_day'],
+                                                      start_date_month:                    row['start_month'],
+                                                      start_date_year:                     row['start_year'],
+                                                      end_date_day:                        row['end_day'],
+                                                      end_date_month:                      row['end_month'],
+                                                      end_date_year:                       row['end_year'],
+                                                      verbatim_longitude:                  row['longitude'],
+                                                      verbatim_latitude:                   row['latitude'],
+                                                      verbatim_method:                     row['method'],
+                                                      verbatim_date:                       row['verbatim_date'],
+                                                      verbatim_elevation:                  nil,
+                                                      project_id:                          project.id,
+                                                      identifiers_attributes:              [{namespace:  ns_ce,
+                                                                                             project_id: project.id,
+                                                                                             type:       'Identifier::' + row['collecting_event_identifier_type'],
+                                                                                             identifier: row['collecting_event_identifier_identifier']}],
+                                                      geo_locate_georeferences_attributes: [{iframe_response: "#{row['latitude']}|#{row['longitude']}|#{Utilities::Geo.distance_in_meters(error)}|Unavailable"}]
+                                                     }
+            )
+            co.collecting_event = ce
+            gr1                 = Georeference::VerbatimData.create(collecting_event: ce)
           else
         end
-        # the following invocation also creates a valid specimen as a collection_object
-        FactoryGirl.create(:valid_identifier, namespace: ns_1, identifier: ident)
       end
     }
     let(:csv_args) { {headers: true, col_sep: "\t", encoding: 'UTF-8'} }

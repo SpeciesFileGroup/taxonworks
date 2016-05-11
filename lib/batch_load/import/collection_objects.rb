@@ -137,9 +137,11 @@ module BatchLoad
             else
           end unless method.nil?
 
-          if row[1] == '35397'
-            ce_a1 = ce_attributes
-            ce_m1 = Digest::SHA256.digest(ce_key.to_s)
+          case row[1]
+            when '35397', '38866'
+              ce_a1 = ce_attributes
+              ce_m1 = Digest::SHA256.digest(ce_key.to_s)
+            else
           end
 
           ce_match = Digest::SHA256.digest(ce_key.to_s)
