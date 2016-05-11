@@ -47,6 +47,7 @@ class TaxonDeterminationsController < ApplicationController
   # PATCH/PUT /taxon_determinations/1
   # PATCH/PUT /taxon_determinations/1.json
   def update
+    byebug
     respond_to do |format|
       if @taxon_determination.update(taxon_determination_params)
         format.html { redirect_to @taxon_determination, notice: 'Taxon determination was successfully updated.' }
@@ -109,7 +110,8 @@ class TaxonDeterminationsController < ApplicationController
     def taxon_determination_params
       params.require(:taxon_determination).permit(
         :biological_collection_object_id, :otu_id, :year_made, :month_made, :day_made,
-        roles_attributes: [:id, :_destroy, :type, :person_id, :position, person_attributes: [:last_name, :first_name, :suffix, :prefix]]
+        roles_attributes: [:id, :_destroy, :type, :person_id, :position, person_attributes: [:last_name, :first_name, :suffix, :prefix]],
+        otu_attributes: [:id, :_destroy, :name, :taxon_name_id]
       )
     end
 end

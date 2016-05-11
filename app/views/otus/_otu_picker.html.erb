@@ -1,0 +1,32 @@
+<div class="otu_picker" id="XXX_otu_picker" >
+
+  <div ><%= f.text_field :otu_id, value: otu_autocomplete_selected_tag(f.object.otu), id: 'XXX_otu_picker_autocomplete', class: 'otu_picker_autocomplete', placeholder: "Select or create an OTU" %>
+  <%= link_to "Add new", '#', id: :otu_picker_add_new, hidden: true %>
+  </div>
+
+  <div id="new_otu"  hidden >
+    <div> New </div>
+    <%= f.fields_for :otu_attributes, Otu.new do |o| %>
+      <div class="field">
+        <%= o.label :name %>
+        <br>
+        <%= o.text_field :name, id: 'XXX_otu_name_field' %>
+      </div>
+
+      <div class="field">
+        <%= o.label :taxon_name %>
+        <br>
+        <%= render partial: 'workbench/elements/forms/ajax_select',
+          locals:  {controller:  'taxon_names',
+                    object: 'otu',
+                    method:  'taxon_name_id',
+                    tag_id:  'taxon_name_id_for_otu',
+                    size: 20} %>
+
+                  <%= link_to "Add", '#', id: :otu_picker_add_ok  %>
+
+      </div>
+    <% end %>
+
+  </div>
+</div>

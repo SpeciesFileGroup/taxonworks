@@ -14,16 +14,8 @@
                           display: collection_object_tag(@taxon_determination.biological_collection_object)} %>
     </div>
 
-    <div class="field">
-      <%= f.label :otu_id %><br>
-      <%= render partial: 'workbench/elements/forms/ajax_select',
-                 locals: {controller: 'otus',
-                          object: 'taxon_determination',
-                          method: 'otu_id',
-                          tag_id: 'otu_id_for_taxon_determination',
-                          size: '',
-                          display: otu_tag(@taxon_determination.otu)} %>
-    </div>
+
+    <%= render '/otus/otu_picker', otu: @taxon_determination.otu, f: f -%>
 
     <div class="field">
       <%= f.label :year_made %><br>
