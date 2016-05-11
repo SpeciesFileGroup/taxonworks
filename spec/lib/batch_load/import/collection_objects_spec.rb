@@ -41,6 +41,7 @@ describe BatchLoad::Import::CollectionObjects, type: :model do
             )
 
             co.collecting_event = ce
+            co.save
             gr1   = Georeference::VerbatimData.create(collecting_event: ce)
           # gr2   = Georeference::GeoLocate.new(collecting_event: ce, iframe_response:
           # "#{row['latitude']}|#{row['longitude']}|#{Utilities::Geo.elevation_in_meters(error)}|Unavailable")
@@ -70,6 +71,7 @@ describe BatchLoad::Import::CollectionObjects, type: :model do
                                                      }
             )
             co.collecting_event = ce
+            co.save
             gr1                 = Georeference::VerbatimData.create(collecting_event: ce)
           else
         end

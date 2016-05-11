@@ -5,11 +5,17 @@ module BatchLoad
   class Import::CollectionObjects < BatchLoad::Import
 
     attr_accessor :collection_objects
+    attr_accessor :collecting_events
+    attr_accessor :taxon_determinations
+    attr_accessor :otus
 
     attr_accessor :namespace
 
     def initialize(**args)
-      @collection_objects = {}
+      @collection_objects   = {}
+      @collecting_events    = {}
+      @taxon_determinations = {}
+      @otus                 = {}
       super(args)
     end
 
