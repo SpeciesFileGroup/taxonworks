@@ -98,12 +98,13 @@ gis_report_task:
   description: 'Generate flora/faunal reports on a per area basis for visualization and download.'
   categories:
     - collecting_event
+    - collection_object
 author_list_task:
   hub: true
   name: 'Alphabetical list of source authors'
   description: 'Display all source authors with links to source list.'
   categories: 
-    - collecting_event
+    - source 
 sqed_depiction_breakdown_todo_map_task:
   hub: true
   name: 'Collection object image breakdown TODO list'
