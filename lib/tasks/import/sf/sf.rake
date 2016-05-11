@@ -33,6 +33,7 @@ namespace :tw do
         get_user_id = species_file_data.get('FileUserIDToTWUserID') # for housekeeping
         get_serial_id = species_file_data.get('SFPubIDToTWSerialID') # for FK
         get_pub_type = species_file_data.get('SFPubIDToPubType') # = bibtex_type (1=journal=>article, 2=unused,3=book or cd=>book, 4=unpublished source=>unpublished)
+        get_ref_link = species_file_data.get('SFRefIDToRefLink') # key is SF.RefID, value is URL string
         no_ref_list = species_file_data.get('SFNoRefList') # contains array of RefInRef ids w/only author info
 
         get_source_id = species_file_data.get('SFRefIDToTWSourceID') # cross ref hash
@@ -58,6 +59,14 @@ namespace :tw do
 
           if actual_year.include?('-')
             # create a verbatim source
+            source = Source::Verbatim.new(
+                # verbatim: get
+                url: row['LinkID'].to_i > 0? get_ref_link[ref_id] : nil,
+                created_at: row['CreatedOn'],
+                updated_at: row['LastUpdate'],
+                created_by_id: get_user_id[row['CreatedBy']],
+                updated_by_id: get_user_id[row['ModifiedBy']]
+            )
           else
             source = Source::Bibtex.new(
                 bibtex_type: get_pub_type[row['PubID']],
@@ -69,7 +78,7 @@ namespace :tw do
                 pages: row['RefPages'],
                 year: actual_year,
                 stated_year: row['StatedYear'],
-                # url: row['LinkID'],
+                url: row['LinkID'].to_i > 0? get_ref_link[ref_id] : nil,
                 created_at: row['CreatedOn'],
                 updated_at: row['LastUpdate'],
                 created_by_id: get_user_id[row['CreatedBy']],
@@ -96,14 +105,37 @@ namespace :tw do
 
       end
 
+      desc 'list SF.RefID to VerbatimRefString'
+      task :list_verbatim_refs => [:data_directory, :environment, :user_id] do
+        ### rake tw:project_import:species_file:list_verbatim_refs user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/direct_from_sf/
+        ref_id_to_verbatim_ref = {}
+
+        path = @args[:data_directory] + 'sf_verbatim_refs.txt'
+        file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
+
+        file.each do |row|
+          # byebug
+          # puts row.inspect
+          ref_id = row['RefID']
+          print "working with #{ref_id} \n"
+          ref_id_to_verbatim_ref[ref_id] = row['RefString']
+        end
+
+        i = Import.find_or_create_by(name: 'SpeciesFileData')
+        i.set('RefIDToVerbatimRef', ref_id_to_verbatim_ref)
+
+        puts 'RefID to VerbatimRef'
+        ap ref_id_to_verbatim_ref
+
+      end
+
       desc 'map SF.RefID to Link URL'
       task :map_ref_link => [:data_directory, :environment, :user_id] do
-        # puts 'hello'
         ### rake tw:project_import:species_file:map_ref_link user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/direct_from_sf/
         ref_id_to_ref_link = {}
 
         path = @args[:data_directory] + 'ref_id_to_ref_link.txt'
-        file = CSV.read(path, col_sep: "\t", headers: true, encoding: "UTF-8")
+        file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
         file.each do |row|
           # byebug
@@ -126,7 +158,7 @@ namespace :tw do
         sf_no_ref_list = []
 
         path = @args[:data_directory] + 'no_ref_list.txt'
-        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: "UTF-8")
+        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-8')
 
         file.each do |row|
           sf_no_ref_list.push(row[0])
