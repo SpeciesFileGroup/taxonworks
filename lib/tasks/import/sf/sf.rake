@@ -54,7 +54,7 @@ namespace :tw do
           next if no_ref_list.include?(ref_id)
 
           actual_year = row['ActualYear']
-          actual_year == '0' ? actual_year = nil : actual_year
+          actual_year = nil if actual_year == '0'
 
           if actual_year.include?('-')
             # create a verbatim source
@@ -107,6 +107,7 @@ namespace :tw do
 
         file.each do |row|
           # byebug
+          # puts row.inspect
           ref_id = row['RefID']
           print "working with #{ref_id} \n"
           ref_id_to_ref_link[ref_id] = row['RefLink']
