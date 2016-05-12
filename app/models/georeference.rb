@@ -78,7 +78,7 @@ class Georeference < ActiveRecord::Base
   validates :geographic_item, presence: true
   validates :type, presence: true
   # validates :collecting_event, presence: true
- # validates :collecting_event_id, uniqueness: {scope: [:type, :geographic_item_id, :project_id]}
+  validates :collecting_event_id, uniqueness: {scope: [:type, :geographic_item_id, :project_id]}
   # validates_uniqueness_of :collecting_event_id, scope: [:type, :geographic_item_id, :project_id]
 
   # validate :proper_data_is_provided
