@@ -47,7 +47,6 @@ class TaxonDeterminationsController < ApplicationController
   # PATCH/PUT /taxon_determinations/1
   # PATCH/PUT /taxon_determinations/1.json
   def update
-    # byebug
     respond_to do |format|
       if @taxon_determination.update(taxon_determination_params)
         format.html { redirect_to @taxon_determination, notice: 'Taxon determination was successfully updated.' }
@@ -98,15 +97,12 @@ class TaxonDeterminationsController < ApplicationController
     send_data TaxonDetermination.generate_download( TaxonDetermination.where(project_id: $project_id) ), type: 'text', filename: "taxon_determinations_#{DateTime.now.to_s}.csv"
   end
 
-
   private
-    # Use callbacks to share common setup or constraints between actions.
     def set_taxon_determination
       @taxon_determination = TaxonDetermination.with_project_id($project_id).find(params[:id])
-      @recent_object       = @taxon_determination
+      @recent_object = @taxon_determination 
     end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
     def taxon_determination_params
       params.require(:taxon_determination).permit(
         :biological_collection_object_id, :otu_id, :year_made, :month_made, :day_made,

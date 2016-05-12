@@ -58,20 +58,21 @@ module Utilities::Dates
   #    if :year is empty, return nil
   #    if :month is empty, returns 12/31/:year
   #    if :day is empty, returns the last day of the month
+  #
   def self.nomenclature_date(day = nil, month = nil, year = nil)
     if year.nil?
       nil
     elsif month.nil?
-      Time.utc(year, 12, 31)
+      Time.utc(year.to_i, 12, 31)
     elsif day.nil?
-      tmp = Time.utc(year, month)
+      tmp = Time.utc(year.to_i, month.to_i)
       if tmp.month == 12 # want the last day of december
-        Time.utc(year, 12, 31)
+        Time.utc(year.to_i, 12, 31)
       else # time + 1 month - 1 day (60 sec * 60 min *24 hours)
-        Time.utc(year, tmp.month + 1) - 86400
+        Time.utc(year.to_i, tmp.month + 1) - 86400
       end
     else
-      Time.utc(year, month, day)
+      Time.utc(year.to_i, month.to_i, day.to_i)
     end
   end
 

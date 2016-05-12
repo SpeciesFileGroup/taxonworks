@@ -84,7 +84,7 @@ class TaxonNamesController < ApplicationController
        response_values: {
          params[:method] => t.id
        },
-       label_html:      str
+       label_html:       str
       }
     end
 
