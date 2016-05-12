@@ -23,19 +23,19 @@ RSpec.describe "Pinboards", type: :feature do
             expect(page).to have_content('Pinned')
           end
 
-          specify 'and link is gone (should be changed to "Unpin"!)' do 
+          specify 'and link is gone (should be changed to "Unpin"!)' do
             expect(page.has_link?('Pin')).to be_falsey
           end
 
           context 'when root path is visited' do
             before {        visit root_path }
             specify 'item is listed on pinboard' do
-              expect(page).to have_selector('h3', 'Otus')
+              expect(page).to have_selector('h3', text: 'Otus')
               expect(page).to have_link('Pinny')
             end
           end
         end
       end
     end
-  end 
+  end
 end

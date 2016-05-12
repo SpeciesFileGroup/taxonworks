@@ -11,7 +11,7 @@ describe 'Dashboard' do
     before { visit root_path }
 
     it 'should provide access to sign in' do
-      expect(page).to have_selector('h1', 'Taxon Works')
+      expect(page).to have_selector('h1', text: 'Taxon Works')
       expect(page).to have_selector('form') { |form|
         expect(form).to have_selector('input[name=email]')
         expect(form).to have_selector('input[name=password]')
@@ -30,8 +30,8 @@ describe 'Dashboard' do
     end
 
     it 'should show user' 's dashboard' do
-      expect(page).to have_selector('h1', 'Dashboard')
-      expect(page).to have_selector('h2', 'Projects')
+      expect(page).to have_selector('h1', text: 'Dashboard')
+      expect(page).to have_selector('h2', text: 'Projects')
 
       # it 'should have user-specific information in horizontal_navbar'
       within(:css, 'ul.horizontal_navbar') {
@@ -50,7 +50,7 @@ describe 'Dashboard' do
       end
     end
 
-    # Redundate with sessions features ultimately 
+    # Redundate with sessions features ultimately
     context 'when click Account' do
       before {
         visit dashboard_path
