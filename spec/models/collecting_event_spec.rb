@@ -171,6 +171,20 @@ describe CollectingEvent, type: :model, group: :geo do
       expect(collecting_event.errors[:base].include?(message)).to be_truthy
     end
 
+    specify 'end date is > start date when both are provided' do
+      message                           = 'End date is earlier than start date.'
+      collecting_event.start_date_day   = "26"
+      collecting_event.start_date_month = "6"
+      collecting_event.start_date_year  = "1970"
+
+      collecting_event.end_date_day   = "24" 
+      collecting_event.end_date_month = "7"
+      collecting_event.end_date_year  = "1970"
+
+      expect(collecting_event.valid?).to be_truthy 
+      expect(collecting_event.errors[:base].include?(message)).to be_falsey
+    end
+
     specify 'end date without start date' do
       message                         = 'End date without start date.'
       collecting_event.end_date_day   = 1

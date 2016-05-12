@@ -468,17 +468,30 @@ class CollectingEvent < ActiveRecord::Base
     !end_date_day.blank? && !end_date_month.blank? && !end_date_year.blank?
   end
 
-  # @return [Utilities::Dates]
-  def end_date
-    date = Utilities::Dates.nomenclature_date(end_date_day, end_date_month, end_date_year)
+  # @return [String]
+  def end_date_string
+    date = end_date 
     "#{'%02d' % date.day}/#{'%02d' % date.month}/#{'%4d' % date.year}" unless date.nil?
   end
 
-  # @return [Utilities::Dates]
-  def start_date
-    date = Utilities::Dates.nomenclature_date(start_date_day, start_date_month, start_date_year)
+  # @return [String]
+  def start_date_string
+    date = start_date 
     "#{'%02d' % date.day}/#{'%02d' % date.month}/#{'%4d' % date.year}" unless date.nil?
   end
+
+  # @return [Time]
+  def end_date
+    Utilities::Dates.nomenclature_date(end_date_day, end_date_month, end_date_year)
+  end
+
+  # @return [Time]
+  def start_date
+    Utilities::Dates.nomenclature_date(start_date_day, start_date_month, start_date_year)
+  end
+
+
+
 
   # @return [String]
   #   like 00, 00:00, or 00:00:00
@@ -1023,7 +1036,7 @@ class CollectingEvent < ActiveRecord::Base
       string = document_label
     else
       name = cached_geographic_name_classification.values.join(': ')
-      date       = [start_date, end_date].compact.join('-')
+      date       = [start_date_string, end_date_string].compact.join('-')
       place_date = [verbatim_locality, date].compact.join(', ')
       string     = [name, place_date, verbatim_collectors, verbatim_method].select{|a| !a.blank?}.join("\n")
     end
