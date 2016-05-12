@@ -19,8 +19,9 @@ namespace :tw do
 
       desc 'create sources'
       task :create_sources => [:data_directory, :environment, :user_id] do
+        ### rake tw:project_import:species_file:create_sources user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
 
-        # @todo import verbatim ref links, re-import no ref list, fix sources program to look for '-' in actual year field
+        # @todo fix sources program to look for '-' in stated year field, add default person 'replace_me'
 
         # tblRefs columns to import: Title, PubID, Series, Volume, Issue, RefPages, ActualYear, StatedYear, LinkID, LastUpdate, ModifiedBy, CreatedOn, CreatedBy
         # tblRefs other columns: RefID => Source.identifier, FileID => used when creating ProjectSources, ContainingRefID => sfVerbatimRefs contains full
@@ -33,12 +34,15 @@ namespace :tw do
         get_user_id = species_file_data.get('FileUserIDToTWUserID') # for housekeeping
         get_serial_id = species_file_data.get('SFPubIDToTWSerialID') # for FK
         get_pub_type = species_file_data.get('SFPubIDToPubType') # = bibtex_type (1=journal=>article, 2=unused,3=book or cd=>book, 4=unpublished source=>unpublished)
-        get_ref_link = species_file_data.get('SFRefIDToRefLink') # key is SF.RefID, value is URL string
+        get_ref_link = species_file_data.get('RefIDToRefLink') # key is SF.RefID, value is URL string
+        get_verbatim_ref = species_file_data.get('RefIDToVerbatimRef') # key is SF.RefID, value is verbatim string
         no_ref_list = species_file_data.get('SFNoRefList') # contains array of RefInRef ids w/only author info
 
         get_source_id = species_file_data.get('SFRefIDToTWSourceID') # cross ref hash
         get_source_id ||= {} # make empty hash if doesn't exist (otherwise it would be nil)
         sf_ref_id_to_tw_source_id = get_source_id
+
+        # byebug
 
         # Namespace for Identifier
         source_namespace = Namespace.find_or_create_by(institution: 'Species File', name: 'tblRefs', short_name: 'SF RefID')
@@ -49,7 +53,7 @@ namespace :tw do
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: "UTF-16:UTF-8")
 
         file.each_with_index do |row, i|
-          # break if i == 20
+          break if i == 20    # not sure this is breaking?? How did it get around no auth and stated year range??
 
           ref_id = row['RefID']
           next if no_ref_list.include?(ref_id)
@@ -60,8 +64,8 @@ namespace :tw do
           if actual_year.include?('-')
             # create a verbatim source
             source = Source::Verbatim.new(
-                # verbatim: get
-                url: row['LinkID'].to_i > 0? get_ref_link[ref_id] : nil,
+                verbatim: get_verbatim_ref[ref_id],
+                # url: row['LinkID'].to_i > 0 ? get_ref_link[ref_id] : nil,   # Not compatible with verbatim
                 created_at: row['CreatedOn'],
                 updated_at: row['LastUpdate'],
                 created_by_id: get_user_id[row['CreatedBy']],
@@ -78,7 +82,7 @@ namespace :tw do
                 pages: row['RefPages'],
                 year: actual_year,
                 stated_year: row['StatedYear'],
-                url: row['LinkID'].to_i > 0? get_ref_link[ref_id] : nil,
+                url: row['LinkID'].to_i > 0 ? get_ref_link[ref_id] : nil,
                 created_at: row['CreatedOn'],
                 updated_at: row['LastUpdate'],
                 created_by_id: get_user_id[row['CreatedBy']],
@@ -155,6 +159,7 @@ namespace :tw do
 
       desc 'make array from no_ref_list'
       task :create_no_ref_list_array => [:data_directory, :environment, :user_id] do
+        ### rake tw:project_import:species_file:create_no_ref_list_array user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/direct_from_sf/
         sf_no_ref_list = []
 
         path = @args[:data_directory] + 'no_ref_list.txt'

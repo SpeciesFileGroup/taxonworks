@@ -64,7 +64,7 @@ with a Predicate created
 
       visit (otu_path(otu))
       find('#show_annotate_dropdown').hover
-      
+
       expect(page).to have_link('Add data attribute')
       click_link('Add data attribute')
       fill_autocomplete('controlled_vocabulary_term_id_for_data_attribute',
@@ -72,8 +72,8 @@ with a Predicate created
       fill_in('Value', with: '42')
       click_button('Create Data attribute')
       expect(page).to have_content('Data attribute was successfully created.')
-      expect(page).to have_selector('h2', 'Annotations')
-      expect(page).to have_selector('h3', 'Data attributes')
+      expect(page).to have_selector('h2', text: 'Annotations')
+      expect(page).to have_selector('h3', text: 'Data attributes')
       expect(page).to have_content('testPredicate: 42')
     end
   end

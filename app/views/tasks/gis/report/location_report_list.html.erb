@@ -1,4 +1,3 @@
-<%= render(partial: 'layouts/map_header') -%>
 <h1>Task: GIS Report</h1>
 <div class="flexbox">
   <div class="item item1" align="center">
@@ -6,40 +5,17 @@
         <span id="geographic_areaError" style="color: #DD0000"></span>
         <%= helper_download_button %>
         <p>
-          <%#= count_info(@all_collection_objects_count) %>
           <%= paginate @list_collection_objects %>
-          <%#= paginate @list_collection_objects, {method: :post} %>
           <%= page_entries_info @list_collection_objects %>
         </p>
-        <!--<table border="1" align="center" hidden="hidden">-->
-        <!--<tbody>-->
-        <!--<tr>-->
-        <%#= tag_headers.html_safe %>
-        <!--</tr>-->
-        <%#= all_sub_headers(true).html_safe %>
-        <!--</tbody>-->
-        <!--</table>-->
-        <%#= hidden_field_tag(:download_rows, @c_o_table_data) %>
     <% end %>
   </div>
 
   <div class="item item2">
-    <div id="feature_collection"
-         data-feature-collection='<%= Gis::GeoJSON.feature_collection(report_georeferences(@list_collection_objects,
-                                                                                           @geographic_area)).to_json %>'>
-    </div>
-    <table border="1">
-      <tbody>
-      <tr>
-        <td>
-          <div id="georeference_google_map_canvas" style="width:512px; height: 256px;"></div>
-        </td>
-      </tbody>
-    </table>
+    <%= simple_map(report_georeferences(@list_collection_objects, @geographic_area), 'border="1"') -%>
   </div>
 </div>
 
 <p>
   <%= render(partial: 'report_table') %>
 </p>
-
