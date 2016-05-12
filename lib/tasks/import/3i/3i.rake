@@ -13,7 +13,7 @@
         attr_accessor :people_index, :user_index, :publications_index, :citations_index, :genera_index, :images_index,
                       :parent_id_index, :statuses, :taxon_index, :citation_to_publication_index, :keywords,
                       :incertae_sedis, :emendation, :original_combination, :unique_host_plant_index,
-                      :host_plant_index, :topics, :nouns, :countries, :geographic_areas, :museums
+                      :host_plant_index, :topics, :nouns, :countries, :geographic_areas, :museums, :namespaces, :biocuration_classes
         def initialize()
           @keywords = {}                  # keyword -> ControlledVocabularyTerm
           @people_index = {}              # PeopleID -> Person object
@@ -36,6 +36,8 @@
           @countries = {}
           @geographic_areas = {}
           @museums = {}
+          @namespaces = {}
+          @biocuration_classes = {}
         end
       end
 
@@ -180,6 +182,19 @@
           Precision
           TW_id }.freeze
 
+        @type_type_3i = {
+            'allotype' => 'paratype',
+            'holotype' => 'holotype',
+            'lectotype' => 'lectotype',
+            'neotype' => 'neotype',
+            'paralectotype' => 'paralectotype',
+            'paratype' => 'paratype',
+            'paratypes' => 'paratype',
+            'syntype' => 'syntype',
+            'syntypes' => 'syntype'
+        }.freeze
+
+
 
         if ENV['no_transaction']
           puts 'Importing without a transaction (data will be left in the database).'
@@ -209,15 +224,15 @@
         handle_projects_and_users_3i
         raise '$project_id or $user_id not set.'  if $project_id.nil? || $user_id.nil?
 
-        #$project_id = 1
+        $project_id = 1
         handle_controlled_vocabulary_3i
         #handle_references_3i
-        handle_taxonomy_3i
-        handle_taxon_name_relationships_3i
-        handle_citation_topics_3i
-        handle_host_plant_name_dictionary_3i
-        handle_host_plants_3i
-        handle_distribution_3i
+        #handle_taxonomy_3i
+        #handle_taxon_name_relationships_3i
+        #handle_citation_topics_3i
+        #handle_host_plant_name_dictionary_3i
+        #handle_host_plants_3i
+        #handle_distribution_3i
         handle_localities_3i
 
         print "\n\n !! Success. End time: #{Time.now} \n\n"
@@ -273,6 +288,7 @@
             #'AuthorDrMetcalf' => Predicate.find_or_create_by(name: 'AuthorDrMetcalf', definition: 'Author name from DrMetcalf bibliography database.', project_id: $project_id),
             '3i_imported' => Keyword.find_or_create_by(name: '3i_imported', definition: 'Imported from 3i database.', project_id: $project_id),
             'introduced' => Keyword.find_or_create_by(name: 'Introduced', definition: 'Introduced species.', project_id: $project_id),
+            'ZeroTotal' => Keyword.find_or_create_by(name: 'ZeroTotal', definition: 'On import there were 0 total specimens recorded in INHS FileMaker database.', project_id: $project_id),
             'CallNumberDrMetcalf' => Predicate.find_or_create_by(name: 'call_number_dr_metcalf', definition: 'Call Number from DrMetcalf bibliography database.', project_id: $project_id),
             #'AuthorReference' => Predicate.find_or_create_by(name: 'author_reference', definition: 'Author string as it appears in the nomenclatural reference.', project_id: $project_id),
             #'YearReference' => Predicate.find_or_create_by(name: 'year_reference', definition: 'Year string as it appears in the nomenclatural reference.', project_id: $project_id),
@@ -298,7 +314,31 @@
             'Parasitoid' => BiologicalProperty.find_or_create_by(name: 'Parasitoid', definition: 'An organism that lives in or on another organism.', project_id: $project_id),
             'Attendant' => BiologicalProperty.find_or_create_by(name: 'Attendant', definition: 'An insect attending another insect.', project_id: $project_id),
             'Symbiont' => BiologicalProperty.find_or_create_by(name: 'Symbiont', definition: 'An insect leaving togeather with another insect.', project_id: $project_id),
-            'Pin' => PreparationType.find_or_create_by(name: 'Pin', definition: 'Specimen(s) on pin', project_id: $project_id)
+            'Pin' => PreparationType.find_or_create_by(name: 'Pin', definition: 'Specimen(s) on pin')
+        )
+
+        @data.namespaces.merge!(
+            'INHS' => Namespace.find_or_create_by(institution: 'INHS Insect Collection', name: 'INHS Insect Collection', short_name: 'Insect Collection'),
+            'CAS' => Namespace.find_or_create_by(institution: 'California Academy of Sciences (Erythroneura project label)', name: 'Erythroneura CAS', short_name: 'CAS'),
+            'CNC' => Namespace.find_or_create_by(institution: 'Canadian National Collection of Insects, Arachnids and Nematodes (project label)', name: 'Erythroneura CNC', short_name: 'CNC'),
+            'CSU' => Namespace.find_or_create_by(institution: 'Colorado State University (Erythroneura project label)', name: 'Erythroneura CSU', short_name: 'CSU'),
+            'MSU' => Namespace.find_or_create_by(institution: 'Mississippi State University, Mississippi Entomological Museum (Erythroneura project label)', name: 'Erythroneura MEM', short_name: 'MEM'),
+            'NCSU' => Namespace.find_or_create_by(institution: 'North Carolina State University Insect Collection (Erythroneura project label)', name: 'Erythroneura NCSU', short_name: 'NCSU'),
+            'OSU' => Namespace.find_or_create_by(institution: 'Ohio State University (Erythroneura project label)', name: 'Erythroneura OSU', short_name: 'OSU'),
+            'OSUC' => Namespace.find_or_create_by(institution: 'Ohio State University', name: 'OSUC', short_name: 'OSUC'),
+            'SEMC' => Namespace.find_or_create_by(institution: 'University of Kansas Natural History Museum', name: 'SEMC', short_name: 'SEMC'),
+            'SM' => Namespace.find_or_create_by(institution: 'University of Kansas Natural History Museum', name: 'SM', short_name: 'SM'),
+            'TACatanach' => Namespace.find_or_create_by(institution: 'T.A. Catanach (project label)', name: 'T.A. Catanach', short_name: 'TACatanach'),
+            'Type' => Namespace.find_or_create_by(institution: 'INHS Insect Collection', name: 'INHS Type', short_name: 'Type'),
+            'USNM' => Namespace.find_or_create_by(institution: 'Smithsonian National Museum of Natural History (Erythroneura project label)', name: 'Erythroneura USNM', short_name: 'USNM')
+        )
+
+        @data.biocuration_classes.merge!(
+            "Specimens" => BiocurationClass.find_or_create_by(name: "Adult", definition: 'Adult specimen', project_id: $project_id),
+            "Males" => BiocurationClass.find_or_create_by(name: "Male", definition: 'Male specimen', project_id: $project_id),
+            "Females" => BiocurationClass.find_or_create_by(name: "Female", definition: 'Female specimen', project_id: $project_id),
+            "Nymphs" => BiocurationClass.find_or_create_by(name: "Immature", definition: 'Immature specimen', project_id: $project_id),
+            "Exuvia" => BiocurationClass.find_or_create_by(name: "Exuvia", definition: 'Exuvia specimen', project_id: $project_id)
         )
 
         @data.topics.merge!(
@@ -1089,6 +1129,7 @@
                                     source_id: source,
                                     is_absent: erroneously,
                                     project_id: $project_id )
+
             ad.tags.find_or_create_by!(keyword: @data.keywords['introduced']) if introduced
           end
 
@@ -1191,6 +1232,7 @@
 
           collecting_event = find_or_create_collecting_event_3i(row)
           repository = Repository.find_by_acronym(@data.museums[row['Museum']]) unless @data.museums[row['Museum']].blank?
+          source = find_publication_id(row['Key3'])
 
           no_specimens = false
           if count_fields.collect{ |f| row[f] }.select{ |n| !n.nil? }.empty?
@@ -1210,13 +1252,13 @@
                   buffered_other_labels: nil,
                   collecting_event: collecting_event
               )
-
               if specimen.valid?
                 specimen.save!
+                Citation.find_or_create_by!(citation_object: specimen, source_id: source, project_id: $project_id) unless source.blank?
                 objects += [specimen]
-                specimen.notes.create(text: se['Remarks']) unless se['Remarks'].blank?
+                specimen.notes.create(text: row['Notes']) unless row['Notes'].blank?
 
-                host = data.host_plant_index[row['Host']]
+                host = @data.host_plant_index[row['Host']]
                 unless host.blank?
                   identifier = Identifier.where(namespace_id: @taxon_namespace.id, identifier: host, project_id: $project_id)
                   host = identifier.empty? ? nil : identifier.first.identifier_object
@@ -1228,14 +1270,12 @@
                   )
                 end
 
-                data.keywords.each do |k|
-                  specimen.data_attributes.create(type: 'InternalAttribute', controlled_vocabulary_term_id: k[1].id, value: se[k[0]]) unless se[k[0]].blank?
-                end
+#                @data.keywords.each do |k|
+#                  specimen.data_attributes.create(type: 'InternalAttribute', controlled_vocabulary_term_id: k[1].id, value: row[k[0]]) unless row[k[0]].blank?
+#                end
 
-                specimen.tags.create(keyword: data.keywords['ZeroTotal']) if no_specimens
-                add_bioculation_class_insects(specimen, count, data)
-              else
-                data.invalid_specimens.merge!(se['Prefix'] + ' ' + se['CatalogueNumber'] => nil)
+                specimen.tags.create(keyword: @data.keywords['ZeroTotal']) if no_specimens
+                add_bioculation_class_3i(specimen, count)
               end
 
               unless specimen.valid?
@@ -1243,25 +1283,12 @@
               end
             end
           end
-          add_identifiers_insects(objects, row, data)
-          add_determinations_insects(objects, row, data)
-
-
-
-
-
-
-
-
+          add_identifiers_3i(objects, row)
+          add_determinations_3i(objects, row)
         end
-
       end
 
-
-
-
-
-      def find_or_create_collecting_event_insects(ce)
+      def find_or_create_collecting_event_3i(ce)
         tmp_ce = { }
         @locality_columns_3i.each do |c|
           tmp_ce.merge!(c => ce[c]) unless ce[c].blank?
@@ -1303,23 +1330,28 @@
             verbatim_geolocation_uncertainty: geolocation_uncertainty,
             verbatim_datum: nil,
             field_notes: nil,
-            verbatim_date: nil
+            verbatim_date: nil,
+            no_cached: true,
+       #     with_verbatim_data_georeference: true
         )
+
         if c.valid?
           c.save!
-
           c.data_attributes.create(import_predicate: 'Country', value: ce['Country'].to_s, type: 'ImportAttribute') unless ce['Country'].blank?
           c.data_attributes.create(import_predicate: 'State', value: ce['State'].to_s, type: 'ImportAttribute') unless ce['State'].blank?
           c.data_attributes.create(import_predicate: 'County', value: ce['County'].to_s, type: 'ImportAttribute') unless ce['County'].blank?
+          gr = geolocation_uncertainty.nil? ? false : c.generate_verbatim_data_georeference(true, no_cached: true)
 
-          gr = geolocation_uncertainty.nil? ? false : c.generate_verbatim_data_georeference(true)
+
           unless gr == false
             ga, c.geographic_area_id = c.geographic_area_id, nil
             if gr.valid?
+              c.no_cached = true
               c.save
               gr.save
             else
               c.geographic_area_id = ga
+              c.no_cached = true
               c.save
             end
 
@@ -1335,6 +1367,68 @@
           byebug
         end
       end
+
+      def add_bioculation_class_3i(o, bcc)
+        BiocurationClassification.create(biocuration_class: @data.biocuration_classes['Specimens'], biological_collection_object: o) if 'Specimens'
+        BiocurationClassification.create(biocuration_class: @data.biocuration_classes['Males'], biological_collection_object: o) if bcc == 'Males'
+        BiocurationClassification.create(biocuration_class: @data.biocuration_classes['Females'], biological_collection_object: o) if bcc == 'Females'
+        BiocurationClassification.create(biocuration_class: @data.biocuration_classes['Nymphs'], biological_collection_object: o) if bcc == 'Nymphs'
+      end
+
+
+      def add_identifiers_3i(objects, row)
+        return nil if row['ID'].blank?
+        ns = 'INHS'
+        i = row['ID']
+        @data.namespaces.keys.each do |p|
+          if i.include?(p)
+            ns = p
+            i = i.gsub(p, '')
+          end
+        end
+        identifier = Identifier::Local::CatalogNumber.new(namespace: @data.namespaces[ns], identifier: i)
+
+        if objects.count > 1 # Identifier on container.
+
+          c = Container.containerize(objects, 'Container::Pin'.constantize )
+          c.save
+          c.identifiers << identifier if identifier
+          c.save
+
+        elsif objects.count == 1 # Identifer on object
+          objects.first.identifiers << identifier if identifier
+          objects.first.save
+        else
+          raise 'No objects in container.'
+        end
+      end
+
+      def add_determinations_3i(objects, row)
+        otu = find_otu(row['Key'])
+
+        objects.each do |o|
+          unless otu.nil?
+            td = TaxonDetermination.create(
+                biological_collection_object: o,
+                otu: otu,
+                year_made: year_from_field(row['DateID'])
+            )
+
+            if !row['Type'].blank?
+              type = @type_type_3i[row['Type'].downcase]
+              unless type.nil?
+                type = type + 's' if o.type == "Lot"
+                tm = TypeMaterial.create(protonym_id: otu.taxon_name_id, material: o, type_type: type )
+                unless tm.valid?
+                  o.data_attributes.create(type: 'ImportAttribute', import_predicate: 'type_material_error', value: 'Type material was not created. There are some inconsistensies.')
+                end
+              end
+            end
+          end
+        end
+
+      end
+
 
       def parse_lat_long_3i(ce)
         latitude, longitude = nil, nil
@@ -1394,6 +1488,7 @@
 
       def parse_geolocation_uncertainty_3i(ce)
         geolocation_uncertainty = nil
+        return nil if ce['LatDeg'].blank? or ce['LongDeg'].blank?
         unless ce['Precision'].blank?
           case ce['Precision'].to_i
             when 1
