@@ -19,7 +19,7 @@ module TaxonDeterminationsHelper
   # @return [String]
   #   as for taxon_determination_tag but does not reference collection object
   def taxon_determination_name(taxon_determination)
-    otu_tag(taxon_determination.otu)
+    otu_autocomplete_selected_tag(taxon_determination.otu)
   end
 
   # @return [String]
