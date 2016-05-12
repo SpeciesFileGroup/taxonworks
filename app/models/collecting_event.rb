@@ -497,11 +497,11 @@ class CollectingEvent < ActiveRecord::Base
   # @param [Boolean] reference_self
   # @return [Georeference::VerbatimData, false]
   #   generates (creates) a Georeference::VerbatimReference from verbatim_latitude and verbatim_longitude values
-  def generate_verbatim_data_georeference(reference_self = false)
+  def generate_verbatim_data_georeference(reference_self = false, no_cached: false)
     return false if (verbatim_latitude.nil? || verbatim_longitude.nil?)
     begin
       CollectingEvent.transaction do
-        vg_attributes = {collecting_event_id: self.to_param}
+        vg_attributes = {collecting_event_id: self.to_param, no_cached: no_cached}
         vg_attributes.merge!(by: self.creator.id, project_id: self.project_id) if reference_self
         a = Georeference::VerbatimData.new(vg_attributes)
         if a.valid?
