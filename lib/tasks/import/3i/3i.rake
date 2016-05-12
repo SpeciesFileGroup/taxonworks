@@ -1228,6 +1228,7 @@
         count_fields = %w{ Specimens Males Females Nymphs }.freeze
 
         file.each_with_index do |row, i|
+          if i > 30000 #######################
           print "\r#{i}"
 
           collecting_event = find_or_create_collecting_event_3i(row)
@@ -1285,6 +1286,7 @@
           end
           add_identifiers_3i(objects, row)
           add_determinations_3i(objects, row)
+          end ########################
         end
       end
 
@@ -1519,18 +1521,8 @@
 
         def find_otu(key)
           otu = nil
-
-          #otu = Otu.joins(:identifiers, taxon_name: :identifiers).where(identifiers: {cached: '3i_Taxon_ID ' + key.to_s}, project_id: $project_id).first
           otu = Otu.joins(taxon_name: :identifiers).where(identifiers: {cached: '3i_Taxon_ID ' + key.to_s}, project_id: $project_id).first
           otu = Otu.joins(:identifiers).where(identifiers: {cached: '3i_Taxon_ID ' + key.to_s}, project_id: $project_id).first if otu.nil?
-
-          byebug if otu.nil?
-
-#          p = Protonym.with_identifier('3i_Taxon_ID ' + key.to_s).find_by(project_id: $project_id)
-#          otu = p.otus.first if !p.nil? && !p.otus.empty?
-#          if otu.nil?
-#            otu = Otu.with_identifier('3i_Taxon_ID ' + key.to_s).find_by(project_id: $project_id)
-#          end
           otu
         end
 
