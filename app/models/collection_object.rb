@@ -264,9 +264,9 @@ class CollectionObject < ActiveRecord::Base
                  c_o.name_at_rank_string(:family),
                  c_o.name_at_rank_string(:genus),
                  c_o.name_at_rank_string(:species),
-                 c_o.collecting_event.country,
-                 c_o.collecting_event.state,
-                 c_o.collecting_event.county,
+                 c_o.collecting_event.country_name,
+                 c_o.collecting_event.state_name,
+                 c_o.collecting_event.county_name,
                  c_o.collecting_event.verbatim_locality,
                  c_o.collecting_event.georeference_latitude.to_s,
                  c_o.collecting_event.georeference_longitude.to_s
