@@ -2,18 +2,8 @@
     <%= render 'shared/errors', object: @asserted_distribution %>
 
     <div class="required">
-      <div class="field">
-        <%= f.label :otu_id %>
-        <br>
-        <%= render :partial => 'workbench/elements/forms/ajax_select',
-                   :locals => {:controller => 'otus',
-                               :object => 'asserted_distribution',
-                               :method => 'otu_id',
-                               :tag_id => 'otu_id_for_asserted_distribution',
-                               :display => otu_tag(@asserted_distribution.otu),
-                               :size => 20} %>
+      <%= render '/otus/otu_picker', otu: @asserted_distribution.otu, f: f -%>
 
-      </div>
       <div class="field">
         <%= f.label :geographic_area %>
         <br>

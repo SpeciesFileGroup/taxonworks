@@ -28,12 +28,14 @@ class AssertedDistribution < ActiveRecord::Base
   include Shared::IsData
   include Shared::Taggable
 
-
   belongs_to :otu
   belongs_to :geographic_area
   belongs_to :source, inverse_of: :asserted_distributions
 
-  validates_presence_of :otu_id, message: 'Taxon is not specified'
+  accepts_nested_attributes_for :otu, allow_destroy: false, reject_if: proc { |attributes| attributes['name'].blank? && attributes['taxon_name_id'].blank?  }
+
+  validates_presence_of :otu_id, message: 'Taxon is not specified', if: proc { |attributes| attributes['otu_attributes'] && (!attributes['otu_attributes']['name'] || !attributes['otu_attributes']['taxon_name_id'])}
+
   validates_presence_of :geographic_area_id, message: 'Geographic area is not selected'
   validates_presence_of :source_id, message: 'Source is not selected'
   validates :geographic_area, presence: true

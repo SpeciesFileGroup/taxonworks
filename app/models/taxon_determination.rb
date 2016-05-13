@@ -57,11 +57,11 @@ class TaxonDetermination < ActiveRecord::Base
   has_many :determiner_roles, class_name: 'Determiner', as: :role_object
   has_many :determiners, through: :determiner_roles, source: :person
 
-  validates :biological_collection_object, presence: true
-  validates :otu, presence: true
-
   accepts_nested_attributes_for :determiners, :biological_collection_object, :determiner_roles, allow_destroy: true
   accepts_nested_attributes_for :otu, allow_destroy: false, reject_if: proc { |attributes| attributes['name'].blank? && attributes['taxon_name_id'].blank?  }
+
+  validates :biological_collection_object, presence: true
+  validates :otu, presence: true # TODO - probably bad
 
   # @todo factor these out (see also TaxonDetermination, Source::Bibtex)
   validates_numericality_of :year_made,
