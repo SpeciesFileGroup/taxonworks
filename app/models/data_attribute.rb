@@ -39,7 +39,7 @@ class DataAttribute < ActiveRecord::Base
   #   validates_presence_of :attribute_subject_type, :attribute_subject_id
   #   validates :attribute_subject, presence: true
   validates_presence_of :type, :value
-  validates_uniqueness_of :value, scope: [:attribute_subject_id, :attribute_subject_type, :type, :controlled_vocabulary_term_id, :import_predicate]
+  validates_uniqueness_of :value, scope: [:attribute_subject_id, :attribute_subject_type, :type, :controlled_vocabulary_term_id, :controlled_vocabulary_term_id]
 
   # Needs to extend to predicate/value searches
   def self.find_for_autocomplete(params)
