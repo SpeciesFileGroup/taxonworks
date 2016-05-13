@@ -1,8 +1,8 @@
 @import 'workbench/palette';
 
 .otu_picker_autocomplete {
-	border:1px solid green;
 	position: relative;
+	border-bottom: 2px solid green;
 }
 
 .ui-autocomplete-loading { 
@@ -13,8 +13,6 @@
 
 .ui-menu {
 	width: auto;
-	//max-width: 500px;
-
 }
 
 .new_plus {
@@ -22,7 +20,7 @@
 	width: 30px;
 	height: 30px;
 	position: absolute;
-	background-color: #558B2F;
+	background-color: $color-complement-4;
 	font-size: 0px;
 	background-position: center;
 	background-repeat: no-repeat;

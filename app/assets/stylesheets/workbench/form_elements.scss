@@ -23,7 +23,7 @@ input[type="submit"] {
   border:1px solid;
   border:transparent;
   box-shadow: 0px 2px 4px 0px $navigation_border;
-  background-color: #689F38;
+  background-color: $color-complement-4;
 }
 
 select {
