@@ -5,6 +5,10 @@
   border: 1px $color-secondary-1-3 solid;
 }
 
+textarea:focus, input:focus{
+    outline: none;
+}
+
 form input {
 	padding:5px;
 	padding-left:10px;

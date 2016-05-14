@@ -28,7 +28,7 @@ OTU_PICKER_WIDGET = {
       },
       response: function (event, ui) {
         if (ui.content.length === 0) {
-          $("#otu_picker_add_new").removeAttr('hidden');
+          $("#otu_picker_add_new").fadeIn(250);
           $("#XXX_otu_name_field").val($('#XXX_otu_picker_autocomplete').val());
         }
       }
@@ -49,8 +49,8 @@ OTU_PICKER_WIDGET = {
   // user wants to create new OTU
   bind_new_otu_link: function (form) {
     form.find("#otu_picker_add_new").click(function () {
-      $('#new_otu').removeAttr('hidden');
-      $("#otu_picker_add_new").attr('hidden', true);
+      $('#new_otu').fadeIn(250);
+      $("#otu_picker_add_new").hide();
       $("#XXX_otu_picker_autocomplete").attr('hidden', true);
     })
   },
@@ -78,7 +78,7 @@ OTU_PICKER_WIDGET = {
   },
 
   show_original_search: function (form) {
-    form.find('#new_otu').attr('hidden', true);
+    form.find('#new_otu').hide(250);
     form.find("#XXX_otu_picker_autocomplete").removeAttr('hidden');
   },
 
