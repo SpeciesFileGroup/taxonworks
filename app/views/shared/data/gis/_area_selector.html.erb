@@ -10,16 +10,5 @@
 </div>
 
 <div>
-  <%= render(partial: 'layouts/map_header') -%>
-  <div id="feature_collection"
-       data-feature-collection='<%= Gis::GeoJSON.feature_collection(shown_georeferences).to_json %>'>
-  </div>
-  <table border="1">
-    <tbody>
-    <tr>
-      <td>
-        <div id="georeference_google_map_canvas" style="width:512px; height: 256px;"></div>
-      </td>
-    </tbody>
-  </table>
+  <%= drawable_map([], 'border=1') -%>
 </div>
