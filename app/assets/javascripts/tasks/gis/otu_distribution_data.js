@@ -54,7 +54,7 @@ function add_otu_distribution_data_listeners(map) {
   map.data.addListener('click', function (event) {
     map.data.revertStyle();
     map.data.overrideStyle(event.feature, {fillOpacity: 0.5});
-    map.data.overrideStyle(event.feature, {icon: '/assets/images/map_icons/mm_20_black.png'});       // highlight markers
+    map.data.overrideStyle(event.feature, {icon: '/assets/map_icons/mm_20_black.png'});       // highlight markers
     document.getElementById("displayed_distribution_style").textContent = event.feature.getProperty('source');
     var xx = 0;
   });
@@ -62,7 +62,7 @@ function add_otu_distribution_data_listeners(map) {
   map.data.addListener('mouseover', function (event) {     // interim color shift on mousover paradigm changed to opacity
     map.data.revertStyle();
     map.data.overrideStyle(event.feature, {fillOpacity: 1.0});  // bolder
-    map.data.overrideStyle(event.feature, {icon: '/assets/images/map_icons/mm_20_white.png'});       // highlight markers
+    map.data.overrideStyle(event.feature, {icon: '/assets/map_icons/mm_20_white.png'});       // highlight markers
     //if (event.feature.getProperty('label') != undefined) {
     document.getElementById("displayed_distribution_style").textContent = event.feature.getProperty('label');
     //$("#displayed_distribution_style").html(event.feature.getProperty('label'));
@@ -84,12 +84,12 @@ function addMouseoverListenerForOtuSpans(otu_id, type, map) {
       var this_otu_id = (this_feature.getProperty('otu_id'));
       if ((this_otu_id == otu_id) && ((this_object == type) || (type == null))) {   // if type is specified, qualify by type as well
         map.data.overrideStyle(this_feature, {fillOpacity: 1.0});       // saturate
-        //map.data.overrideStyle(this_feature, {icon: '/assets/images/map_icons/mm_20_white.png'});       // highlight markers
+        //map.data.overrideStyle(this_feature, {icon: '/assets/map_icons/mm_20_white.png'});       // highlight markers
       }
       else /*if(this_otu_id != otu_id)*/ {
         map.data.overrideStyle(this_feature, {strokeWeight: 0.0});       // erase borders
         map.data.overrideStyle(this_feature, {fillOpacity: 0.0});       // transparent
-        map.data.overrideStyle(this_feature, {icon: '/assets/images/map_icons/mm_20_empty.png'});
+        map.data.overrideStyle(this_feature, {icon: '/assets/map_icons/mm_20_empty.png'});
       }
     }
   );

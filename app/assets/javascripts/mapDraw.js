@@ -172,7 +172,7 @@ function initializeGoogleMap(map_canvas, fcdata, map_center) {
   var map = new google.maps.Map(document.getElementById(map_canvas), mapOptions);
 
   map.data.setStyle({
-    icon: '/assets/mapicons/mm_20_gray.png',
+    icon: '/assets/map_icons/mm_20_gray.png',
     fillColor: '#222222',
     strokeOpacity: 0.5,
     strokeColor: "black",
@@ -230,7 +230,7 @@ function initializeDrawingManager(map) {
       ]
     },
     markerOptions: {
-      icon: '/assets/mapicons/mm_20_red.png',
+      icon: '/assets/map_icons/mm_20_red.png',
       editable: true
     },
     circleOptions: {
