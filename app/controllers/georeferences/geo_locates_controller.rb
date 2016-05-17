@@ -7,18 +7,18 @@ class Georeferences::GeoLocatesController < ApplicationController
     @georeference = Georeference::GeoLocate.new(georeference_params)
     respond_to do |format|
       if @georeference.save
-        format.html {   
+        format.html {
           if false
 
-          else    
+          else
             redirect_to collecting_event_path(@georeference.collecting_event), notice: 'Georeference was successfully created.'
           end
         }
 
         format.json { render action: 'show', status: :created }
       else
-        format.html { 
-          #         if @georeference.method_name 
+        format.html {
+          #         if @georeference.method_name
           #           render "/georeferences/#{@georeference.method_name}/new"
           #         else
           render :new,  notice: 'Georeference not created, check verbatim values of collecting event'
@@ -26,7 +26,7 @@ class Georeferences::GeoLocatesController < ApplicationController
           #             redirect_to collecting_event_path(@georeference.collecting_event),
           #           else
           #             redirect_to georeferences_path, notice: 'Georeference not created.  Contact administrator with details if you recieved this message.'
-          #           end 
+          #           end
           #         end
         }
 
@@ -61,7 +61,7 @@ class Georeferences::GeoLocatesController < ApplicationController
 
   # Over-ride the default model setting for this subclass
   def set_data_model
-    @data_model = 'Georeference::Geolocate'
+    @data_model = Georeference::Geolocate
   end
 
 

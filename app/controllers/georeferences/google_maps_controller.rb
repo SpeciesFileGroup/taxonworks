@@ -47,6 +47,6 @@ class Georeferences::GoogleMapsController < ApplicationController
 
   # Over-ride the default model setting for this subclass
   def set_data_model
-    @data_model = 'Georeference::GoogleMap'
+    @data_model = Georeference::GoogleMap
   end
 end
