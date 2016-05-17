@@ -13,15 +13,65 @@ namespace :tw do
       #   Will need a SF.FileID to TW.project_id hash
       #   Add data_attribute to ProjectSources from sfVerbatimRefs (this is instead of dealing with tblRefs.ContainingRefID)
       #   Add tblRefs.Note as?
-      #   Currently ProjectSources do not allow data_attributes or notes
+      #   Currently ProjectSources do not allow data_attributes or notes         \
 
-      # Another task: Export query results for ref URL.
+      desc 'create  projects'
+      task :create_projects => [:data_directory, :environment, :user_id] do
+        ### rake tw:project_import:species_file:create_projects user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
+
+        # @todo .humanize did not make string lower case, having problem creating identifier (data_attribute) containing FileID for each project_id
+
+        species_file_data = Import.find_or_create_by(name: 'SpeciesFileData')
+        # Is it really really necessary to track original creator, etc? Don't think so.
+        # get_user_id = species_file_data.get('FileUserIDToTWUserID') # for housekeeping
+        get_project_id = species_file_data.get('SFFileIDToTWProjectID') # cross ref hash
+        get_project_id ||= {} # make empty hash if doesn't exist (otherwise it would be nil)
+        sf_file_id_to_tw_project_id = get_project_id
+
+        # file_namespace = Namespace.find_or_create_by(institution: 'Species File', name: 'tblFiles', short_name: 'SF FileID')
+        # $user_id = user_id
+
+        path = @args[:data_directory] + 'tblFiles.txt'
+        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: "UTF-16:UTF-8")
+
+        file.each_with_index do |row, i|
+          file_id = row['FileID']
+          next if file_id == 0
+
+          website_name = row['WebsiteName'].humanize  # want to be lower case
+          project = Project.new(
+              name: "#{website_name}_species_file",
+              created_at: Time.now, # row['CreatedOn'],
+              updated_at: Time.now, # row['LastUpdate'],
+              created_by_id: $user_id, # get_user_id[row['CreatedBy']],
+              updated_by_id: $user_id # get_user_id[row['ModifiedBy']]
+          )
+
+          if project.valid?
+            project.save!
+
+            # project.identifiers << Identifier::Local::Import.new(namespace: file_namespace, identifier: file_id)
+            sf_file_id_to_tw_project_id[file_id] = project.id
+
+          else
+            error_counter += 1
+            puts "     ERROR (#{error_counter}): " + source.errors.full_messages.join(';')
+            puts "  FileID: #{file_id}, sf row created by: #{row['CreatedBy']}, sf row updated by: #{row['ModifiedBy']}    "
+          end
+        end
+
+        # Write sf_file_id_to_tw_project_id to Imports
+        species_file_data.set('SFFileIDToTWProjectID', sf_file_id_to_tw_project_id)
+        puts 'SF.FileID to TW.project_id'
+        ap sf_file_id_to_tw_project_id
+
+      end
 
       desc 'create sources'
       task :create_sources => [:data_directory, :environment, :user_id] do
         ### rake tw:project_import:species_file:create_sources user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
 
-        # @todo fix sources program to look for '-' in stated year field, add default person 'replace_me'
+        # @todo Decided not to add identifiers or data_attributes for RefID and FileID for now. Can always be done at a later time.
 
         # tblRefs columns to import: Title, PubID, Series, Volume, Issue, RefPages, ActualYear, StatedYear, LinkID, LastUpdate, ModifiedBy, CreatedOn, CreatedBy
         # tblRefs other columns: RefID => Source.identifier, FileID => used when creating ProjectSources, ContainingRefID => sfVerbatimRefs contains full
@@ -45,7 +95,7 @@ namespace :tw do
         # byebug
 
         # Namespace for Identifier
-        source_namespace = Namespace.find_or_create_by(institution: 'Species File', name: 'tblRefs', short_name: 'SF RefID')
+        # source_namespace = Namespace.find_or_create_by(institution: 'Species File', name: 'tblRefs', short_name: 'SF RefID')
 
         error_counter = 0
 
@@ -53,15 +103,17 @@ namespace :tw do
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: "UTF-16:UTF-8")
 
         file.each_with_index do |row, i|
-          break if i == 20    # not sure this is breaking?? How did it get around no auth and stated year range??
+          # break if i == 20    # not sure this is breaking?? How did it get around no auth and stated year range??
 
           ref_id = row['RefID']
           next if no_ref_list.include?(ref_id)
 
           actual_year = row['ActualYear']
           actual_year = nil if actual_year == '0'
+          stated_year = row['StatedYear']
+          stated_year = nil if stated_year == '0'
 
-          if actual_year.include?('-')
+          if actual_year.include?('-') or stated_year.include?('-')
             # create a verbatim source
             source = Source::Verbatim.new(
                 verbatim: get_verbatim_ref[ref_id],
@@ -93,6 +145,7 @@ namespace :tw do
           if source.valid?
             source.save!
 
+            # source.identifiers << Identifier::Local::Import.new(namespace: source_namespace, identifier: ref_id)
             sf_ref_id_to_tw_source_id[ref_id] = source.id
 
           else
@@ -486,4 +539,5 @@ namespace :tw do
     end
   end
 end
+
 
