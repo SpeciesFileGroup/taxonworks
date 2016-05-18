@@ -149,6 +149,10 @@
     cursor: pointer;
   }
 
+  .no-tasks {
+    display: none;
+  }
+
   .task-nav-list {
       display: flex;
       flex-direction: row;

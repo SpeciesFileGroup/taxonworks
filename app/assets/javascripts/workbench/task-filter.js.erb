@@ -114,6 +114,16 @@ var carrouselTask = function (sec, rows, columns) {
         count++;
     }
     this.showMoreNav(((this.start + this.maxRow) <= this.active.length));
+    this.noTaskFound(count);
+  }
+
+  carrouselTask.prototype.noTaskFound = function(count) {
+    if(count == 0) {
+      $(this.sectionTag + ' .no-tasks').fadeIn(250);
+    }
+    else {
+      $(this.sectionTag + ' .no-tasks').fadeOut(250);
+    }
   }
   carrouselTask.prototype.filterChilds = function() {
     var 
