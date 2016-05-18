@@ -13,59 +13,9 @@ namespace :tw do
       #   Will need a SF.FileID to TW.project_id hash
       #   Add data_attribute to ProjectSources from sfVerbatimRefs (this is instead of dealing with tblRefs.ContainingRefID)
       #   Add tblRefs.Note as?
-      #   Currently ProjectSources do not allow data_attributes or notes         \
+      #   Currently ProjectSources do not allow data_attributes or notes
+      #
 
-      desc 'create  projects'
-      task :create_projects => [:data_directory, :environment, :user_id] do
-        ### rake tw:project_import:species_file:create_projects user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
-
-        # @todo .humanize did not make string lower case, having problem creating identifier (data_attribute) containing FileID for each project_id
-
-        species_file_data = Import.find_or_create_by(name: 'SpeciesFileData')
-        # Is it really really necessary to track original creator, etc? Don't think so.
-        # get_user_id = species_file_data.get('FileUserIDToTWUserID') # for housekeeping
-        get_project_id = species_file_data.get('SFFileIDToTWProjectID') # cross ref hash
-        get_project_id ||= {} # make empty hash if doesn't exist (otherwise it would be nil)
-        sf_file_id_to_tw_project_id = get_project_id
-
-        # file_namespace = Namespace.find_or_create_by(institution: 'Species File', name: 'tblFiles', short_name: 'SF FileID')
-        # $user_id = user_id
-
-        path = @args[:data_directory] + 'tblFiles.txt'
-        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: "UTF-16:UTF-8")
-
-        file.each_with_index do |row, i|
-          file_id = row['FileID']
-          next if file_id == 0
-
-          website_name = row['WebsiteName'].humanize  # want to be lower case
-          project = Project.new(
-              name: "#{website_name}_species_file",
-              created_at: Time.now, # row['CreatedOn'],
-              updated_at: Time.now, # row['LastUpdate'],
-              created_by_id: $user_id, # get_user_id[row['CreatedBy']],
-              updated_by_id: $user_id # get_user_id[row['ModifiedBy']]
-          )
-
-          if project.valid?
-            project.save!
-
-            # project.identifiers << Identifier::Local::Import.new(namespace: file_namespace, identifier: file_id)
-            sf_file_id_to_tw_project_id[file_id] = project.id
-
-          else
-            error_counter += 1
-            puts "     ERROR (#{error_counter}): " + source.errors.full_messages.join(';')
-            puts "  FileID: #{file_id}, sf row created by: #{row['CreatedBy']}, sf row updated by: #{row['ModifiedBy']}    "
-          end
-        end
-
-        # Write sf_file_id_to_tw_project_id to Imports
-        species_file_data.set('SFFileIDToTWProjectID', sf_file_id_to_tw_project_id)
-        puts 'SF.FileID to TW.project_id'
-        ap sf_file_id_to_tw_project_id
-
-      end
 
       desc 'create sources'
       task :create_sources => [:data_directory, :environment, :user_id] do
@@ -103,7 +53,7 @@ namespace :tw do
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: "UTF-16:UTF-8")
 
         file.each_with_index do |row, i|
-          # break if i == 20    # not sure this is breaking?? How did it get around no auth and stated year range??
+          # break if i == 20
 
           ref_id = row['RefID']
           next if no_ref_list.include?(ref_id)
@@ -142,8 +92,7 @@ namespace :tw do
             )
           end
 
-          if source.valid?
-            source.save!
+          if source.save
 
             # source.identifiers << Identifier::Local::Import.new(namespace: source_namespace, identifier: ref_id)
             sf_ref_id_to_tw_source_id[ref_id] = source.id
@@ -159,6 +108,58 @@ namespace :tw do
         species_file_data.set('SFRefIDToTWSourceID', sf_ref_id_to_tw_source_id)
         puts 'SF.RefID to TW.source_id'
         ap sf_ref_id_to_tw_source_id
+
+      end
+
+      desc 'create  projects'
+      task :create_projects => [:data_directory, :environment, :user_id] do
+        ### rake tw:project_import:species_file:create_projects user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
+
+        # @todo having problem creating identifier (data_attribute) containing FileID for each project_id
+
+        species_file_data = Import.find_or_create_by(name: 'SpeciesFileData')
+        # Is it really really necessary to track original creator, etc? Don't think so.
+        # get_user_id = species_file_data.get('FileUserIDToTWUserID') # for housekeeping
+        get_project_id = species_file_data.get('SFFileIDToTWProjectID') # cross ref hash
+        get_project_id ||= {} # make empty hash if doesn't exist (otherwise it would be nil)
+        sf_file_id_to_tw_project_id = get_project_id
+
+        # file_namespace = Namespace.find_or_create_by(institution: 'Species File', name: 'tblFiles', short_name: 'SF FileID')
+        # $user_id = user_id
+
+        path = @args[:data_directory] + 'tblFiles.txt'
+        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: "UTF-16:UTF-8")
+
+        file.each_with_index do |row, i|
+          file_id = row['FileID']
+          next if file_id == 0
+
+          website_name = row['WebsiteName'].downcase # want to be lower case
+
+          project = Project.new(
+              name: "#{website_name}_species_file",
+              created_at: Time.now, # row['CreatedOn'],
+              updated_at: Time.now, # row['LastUpdate'],
+              created_by_id: $user_id, # get_user_id[row['CreatedBy']],
+              updated_by_id: $user_id # get_user_id[row['ModifiedBy']]
+          )
+
+          if project.save
+
+            # project.identifiers << Identifier::Local::Import.new(namespace: file_namespace, identifier: file_id)
+            sf_file_id_to_tw_project_id[file_id] = project.id
+
+          else
+            error_counter += 1
+            puts "     ERROR (#{error_counter}): " + source.errors.full_messages.join(';')
+            puts "  FileID: #{file_id}, sf row created by: #{row['CreatedBy']}, sf row updated by: #{row['ModifiedBy']}    "
+          end
+        end
+
+        # Write sf_file_id_to_tw_project_id to Imports
+        species_file_data.set('SFFileIDToTWProjectID', sf_file_id_to_tw_project_id)
+        puts 'SF.FileID to TW.project_id'
+        ap sf_file_id_to_tw_project_id
 
       end
 
@@ -323,6 +324,10 @@ namespace :tw do
         # No longer using InternalAttribute for following import values; using ImportAttribute instead since it doesn't require a project_id
         # file_id = Predicate.find_or_create_by(name: 'FileID', definition: 'SpeciesFile.FileID', project_id: $project_id)
         # person_roles = Predicate.find_or_create_by(name: 'Roles', definition: 'Bitmap of person roles', project_id: $project_id)
+        # example of internal attr:
+        # person.data_attributes << InternalAttribute.new(predicate: person_roles, value: row['Role'])
+        # person.identifiers.new(type: 'Identifier::Local::Import', namespace: person_namespace, identifier: person_id)
+        # # probably only writes to memory, to save in db, use <<
 
         path = @args[:data_directory] + 'tblPeople.txt'
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: "UTF-16:UTF-8")
@@ -338,10 +343,10 @@ namespace :tw do
 
           print "working with #{person_id} \n"
 
-          person = Person::Vetted.create(
+          person = Person::Vetted.new(
               # type: 'Person_Vetted',
               last_name: row['FamilyName'],
-              first_name: row['GivenName'].blank? ? row['GivenInitials'] : row['GivenName'],
+              first_name: row['GivenNames'].blank? ? row['GivenInitials'] : row['GivenNames'],
               created_at: row['CreatedOn'],
               updated_at: row['LastUpdate'],
               suffix: row['Suffix'],
@@ -351,18 +356,11 @@ namespace :tw do
               # cached: '?'
           )
 
-          # person.created_by_id ||= $user_id
-          # person.updated_by_id ||= $user_id
+          if person.save
 
-          if person.valid?
-            person.save!
-
-            # person.data_attributes << InternalAttribute.new(predicate: file_id, value: row['FileID'])
             person.data_attributes << ImportAttribute.new(import_predicate: 'FileID', value: row['FileID'])
-            # person.data_attributes << InternalAttribute.new(predicate: person_roles, value: row['Role'])
             person.data_attributes << ImportAttribute.new(import_predicate: 'Role', value: row['Role'])
 
-            # person.identifiers.new(type: 'Identifier::Local::Import', namespace: person_namespace, identifier: person_id)
             person.identifiers << Identifier::Local::Import.new(namespace: person_namespace, identifier: person_id)
 
             sf_person_id_to_tw_person_id[person_id] = person.id
@@ -483,8 +481,7 @@ namespace :tw do
                 email: 'auth_user_id' + au_id.to_s + '_random' + rand(1000).to_s + '@' + project_url
             )
 
-            if user.valid?
-              user.save!
+            if user.save
 
               unique_auth_users[au_id].each do |fu_id|
                 file_user_id_to_tw_user_id[fu_id] = user.id
