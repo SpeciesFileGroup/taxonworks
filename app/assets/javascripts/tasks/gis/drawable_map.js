@@ -7,7 +7,7 @@ _init_drawable_map = function init_drawable_map() {
   if (drawable_map_shell.length) {
     drawable_map_shell.removeAttr('hidden');
     drawable_map = initializeGoogleMapWithDrawManager(_drawable_map_form);
-  }
+
   $("send_report_params").click(function (event) {      // register the click handler for the made-from-scratch-button
       var feature = buildFeatureCollectionFromShape(gr_last[0], gr_last[1]);
       $("#drawn_area_shape").val(JSON.stringify(feature[0]));
@@ -25,6 +25,7 @@ _init_drawable_map = function init_drawable_map() {
       $("#drawn_area_shape").val(JSON.stringify(feature[0]));
     }
   );
+  }
 };
 
 $(document).ready(_init_drawable_map);
