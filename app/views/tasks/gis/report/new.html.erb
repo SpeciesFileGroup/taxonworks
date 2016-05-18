@@ -5,6 +5,7 @@
     <%= form_tag(location_report_list_url) do %>
         <%= render(partial: 'shared/data/gis/area_selector',
                    locals:  {passed_in_tag_id:    'geographic_area_id_for_report',
+                             selection_object:    'collection_object',
                              shown_georeferences: report_georeferences(@list_collection_objects,
                                                                        @geographic_area)}) %>
         <%= submit_tag('Show') %>
