@@ -453,6 +453,10 @@ TaxonWorks::Application.routes.draw do
       post 'batch_create_match_georeferences'
     end
 
+    scope :gis, controller: 'tasks/gis/drawable_map' do
+      get 'drawn_area_select'
+    end
+
     scope :gis, controller: 'tasks/gis/otu_distribution_data' do
       get 'otu_distribution_data/(:id)', action: 'show', as: 'otu_distribution_data_task'
       # get 'otu_distribution_data/((:id)/show2)', action: 'show2', as: 'otu_distribution_data_task2'
