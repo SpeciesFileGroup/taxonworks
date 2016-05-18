@@ -8,7 +8,7 @@
                              selection_object:    'collection_object',
                              shown_georeferences: report_georeferences(@list_collection_objects,
                                                                        @geographic_area)}) %>
-        <%= submit_tag('Show') %>
+        <%= submit_tag('Show', id: 'send_report_params') %>
         <p>
           Select additional headers to add to the table:
         </p>
