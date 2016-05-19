@@ -17,11 +17,17 @@ namespace :tw do
       #
 
 
+      desc 'run all rake tasks through sources'
+      task :run_tasks_through_sources => [:create_users, :create_people, :map_serials, :map_pub_type, :create_no_ref_list_array,
+                                          :map_ref_link, :list_verbatim_refs, :create_projects, :create_sources] do
+        puts 'All done'
+      end
+
       desc 'create sources'
       task :create_sources => [:data_directory, :environment, :user_id] do
-        ### rake tw:project_import:species_file:create_sources user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
+        ### rake tw:project_import:species_file:create_sources user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
 
-        # @todo Decided not to add identifiers or data_attributes for RefID and FileID for now. Can always be done at a later time.
+        # @todo
 
         # tblRefs columns to import: Title, PubID, Series, Volume, Issue, RefPages, ActualYear, StatedYear, LinkID, LastUpdate, ModifiedBy, CreatedOn, CreatedBy
         # tblRefs other columns: RefID => Source.identifier, FileID => used when creating ProjectSources, ContainingRefID => sfVerbatimRefs contains full
@@ -36,10 +42,12 @@ namespace :tw do
         get_pub_type = species_file_data.get('SFPubIDToPubType') # = bibtex_type (1=journal=>article, 2=unused,3=book or cd=>book, 4=unpublished source=>unpublished)
         get_ref_link = species_file_data.get('RefIDToRefLink') # key is SF.RefID, value is URL string
         get_verbatim_ref = species_file_data.get('RefIDToVerbatimRef') # key is SF.RefID, value is verbatim string
-        no_ref_list = species_file_data.get('SFNoRefList') # contains array of RefInRef ids w/only author info
+        # no_ref_list = species_file_data.get('SFNoRefList') # contains array of RefInRef ids w/only author info
+        get_project_id = species_file_data.get('SFFileIDToTWProjectID')
 
-        get_source_id = species_file_data.get('SFRefIDToTWSourceID') # cross ref hash
-        get_source_id ||= {} # make empty hash if doesn't exist (otherwise it would be nil)
+        # get_source_id = species_file_data.get('SFRefIDToTWSourceID') # cross ref hash
+        # get_source_id ||= {} # make empty hash if doesn't exist (otherwise it would be nil)
+        get_source_id = {} # make empty hash
         sf_ref_id_to_tw_source_id = get_source_id
 
         # byebug
@@ -49,22 +57,25 @@ namespace :tw do
 
         error_counter = 0
 
-        path = @args[:data_directory] + 'tblRefs.txt'
+        path = @args[:data_directory] + 'working/tblRefs.txt'
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: "UTF-16:UTF-8")
 
         file.each_with_index do |row, i|
           # break if i == 20
-
+          # next if row["RefID"].to_i < 38387
           ref_id = row['RefID']
-          next if no_ref_list.include?(ref_id)
+          # next if no_ref_list.include?(ref_id)
+          next if (row['Title'].empty? and row['PubID'] == '0' and row['Series'].empty? and row['Volume'].empty? and row['Issue'].empty? and row['ActualYear'].empty? and row['StatedYear'].empty?) or row['AccessCode'] == '4'
+
+          print "working with #{ref_id} \n"
 
           actual_year = row['ActualYear']
-          actual_year = nil if actual_year == '0'
+          # actual_year = nil if actual_year == '0'
           stated_year = row['StatedYear']
-          stated_year = nil if stated_year == '0'
+          # stated_year = nil if stated_year == '0'
 
-          if actual_year.include?('-') or stated_year.include?('-')
-            # create a verbatim source
+          if actual_year == '0' or stated_year == '0' or actual_year.include?('-') or stated_year.include?('-')
+              # create a verbatim source
             source = Source::Verbatim.new(
                 verbatim: get_verbatim_ref[ref_id],
                 # url: row['LinkID'].to_i > 0 ? get_ref_link[ref_id] : nil,   # Not compatible with verbatim
@@ -83,7 +94,7 @@ namespace :tw do
                 number: row['Issue'],
                 pages: row['RefPages'],
                 year: actual_year,
-                stated_year: row['StatedYear'],
+                stated_year: stated_year,
                 url: row['LinkID'].to_i > 0 ? get_ref_link[ref_id] : nil,
                 created_at: row['CreatedOn'],
                 updated_at: row['LastUpdate'],
@@ -97,6 +108,16 @@ namespace :tw do
             # source.identifiers << Identifier::Local::Import.new(namespace: source_namespace, identifier: ref_id)
             sf_ref_id_to_tw_source_id[ref_id] = source.id
 
+            # populate project_sources:  Can I just do create here?
+            ProjectSource.create!(
+                project_id: get_project_id[row['FileID']],
+                source_id: source.id,
+                created_at: row['CreatedOn'],
+                updated_at: row['LastUpdate'],
+                created_by_id: get_user_id[row['CreatedBy']],
+                updated_by_id: get_user_id[row['ModifiedBy']]
+            )
+
           else
             error_counter += 1
             puts "     ERROR (#{error_counter}): " + source.errors.full_messages.join(';')
@@ -104,7 +125,7 @@ namespace :tw do
           end
         end
 
-        # Write sf_ref_id_to_tw_source_id to Imports
+        # Write to Imports
         species_file_data.set('SFRefIDToTWSourceID', sf_ref_id_to_tw_source_id)
         puts 'SF.RefID to TW.source_id'
         ap sf_ref_id_to_tw_source_id
@@ -113,9 +134,7 @@ namespace :tw do
 
       desc 'create  projects'
       task :create_projects => [:data_directory, :environment, :user_id] do
-        ### rake tw:project_import:species_file:create_projects user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
-
-        # @todo having problem creating identifier (data_attribute) containing FileID for each project_id
+        ### rake tw:project_import:species_file:create_projects user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
 
         species_file_data = Import.find_or_create_by(name: 'SpeciesFileData')
         # Is it really really necessary to track original creator, etc? Don't think so.
@@ -124,10 +143,7 @@ namespace :tw do
         get_project_id ||= {} # make empty hash if doesn't exist (otherwise it would be nil)
         sf_file_id_to_tw_project_id = get_project_id
 
-        # file_namespace = Namespace.find_or_create_by(institution: 'Species File', name: 'tblFiles', short_name: 'SF FileID')
-        # $user_id = user_id
-
-        path = @args[:data_directory] + 'tblFiles.txt'
+        path = @args[:data_directory] + 'working/tblFiles.txt'
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: "UTF-16:UTF-8")
 
         file.each_with_index do |row, i|
@@ -146,7 +162,6 @@ namespace :tw do
 
           if project.save
 
-            # project.identifiers << Identifier::Local::Import.new(namespace: file_namespace, identifier: file_id)
             sf_file_id_to_tw_project_id[file_id] = project.id
 
           else
@@ -156,7 +171,7 @@ namespace :tw do
           end
         end
 
-        # Write sf_file_id_to_tw_project_id to Imports
+        # Write to Imports
         species_file_data.set('SFFileIDToTWProjectID', sf_file_id_to_tw_project_id)
         puts 'SF.FileID to TW.project_id'
         ap sf_file_id_to_tw_project_id
@@ -165,10 +180,10 @@ namespace :tw do
 
       desc 'list SF.RefID to VerbatimRefString'
       task :list_verbatim_refs => [:data_directory, :environment, :user_id] do
-        ### rake tw:project_import:species_file:list_verbatim_refs user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/direct_from_sf/
+        ### rake tw:project_import:species_file:list_verbatim_refs user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
         ref_id_to_verbatim_ref = {}
 
-        path = @args[:data_directory] + 'sf_verbatim_refs.txt'
+        path = @args[:data_directory] + 'direct_from_sf/sf_verbatim_refs.txt'
         file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
         file.each do |row|
@@ -189,10 +204,10 @@ namespace :tw do
 
       desc 'map SF.RefID to Link URL'
       task :map_ref_link => [:data_directory, :environment, :user_id] do
-        ### rake tw:project_import:species_file:map_ref_link user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/direct_from_sf/
+        ### rake tw:project_import:species_file:map_ref_link user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
         ref_id_to_ref_link = {}
 
-        path = @args[:data_directory] + 'ref_id_to_ref_link.txt'
+        path = @args[:data_directory] + 'direct_from_sf/ref_id_to_ref_link.txt'
         file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
         file.each do |row|
@@ -211,31 +226,32 @@ namespace :tw do
 
       end
 
-      desc 'make array from no_ref_list'
-      task :create_no_ref_list_array => [:data_directory, :environment, :user_id] do
-        ### rake tw:project_import:species_file:create_no_ref_list_array user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/direct_from_sf/
-        sf_no_ref_list = []
-
-        path = @args[:data_directory] + 'no_ref_list.txt'
-        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-8')
-
-        file.each do |row|
-          sf_no_ref_list.push(row[0])
-        end
-
-        i = Import.find_or_create_by(name: 'SpeciesFileData')
-        i.set('SFNoRefList', sf_no_ref_list)
-
-        puts 'SF no_ref_list'
-        ap sf_no_ref_list
-
-      end
+      # desc 'make array from no_ref_list'
+      # task :create_no_ref_list_array => [:data_directory, :environment, :user_id] do
+      #   ### rake tw:project_import:species_file:create_no_ref_list_array user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
+      #   sf_no_ref_list = []
+      #
+      #   path = @args[:data_directory] + 'direct_from_sf/no_ref_list.txt'
+      #   file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-8')
+      #
+      #   file.each do |row|
+      #     sf_no_ref_list.push(row[0])
+      #   end
+      #
+      #   i = Import.find_or_create_by(name: 'SpeciesFileData')
+      #   i.set('SFNoRefList', sf_no_ref_list)
+      #
+      #   puts 'SF no_ref_list'
+      #   ap sf_no_ref_list
+      #
+      # end
 
       desc 'map SF.PubID by SF.PubType'
       task :map_pub_type => [:data_directory, :environment, :user_id] do
+        ### rake tw:project_import:species_file:create_sources user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
         sf_pub_id_to_pub_type = {}
 
-        path = @args[:data_directory] + 'tblPubs.txt'
+        path = @args[:data_directory] + 'working/tblPubs.txt'
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: "UTF-16:UTF-8")
 
         file.each_with_index do |row|
@@ -263,7 +279,8 @@ namespace :tw do
       end
 
       desc 'map SF.PubID to TW.serial_id'
-      task :map_serials => [:data_directory, :environment, :user_id] do
+      task :map_serials => [:environment, :user_id] do
+        ### rake tw:project_import:species_file:create_sources user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
         # Build hash similar to file_user_id_to_tw_user_id for SF.PubID (many) to one TW.serial_id
         # DataAttributes associated with a serial record contain multiple SF.PubIDs
 
@@ -284,6 +301,7 @@ namespace :tw do
 
       desc 'create people'
       task :create_people => [:data_directory, :environment, :user_id] do
+        ### rake tw:project_import:species_file:create_sources user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
 
         # Two loops:
         # Loop # 1
@@ -329,7 +347,7 @@ namespace :tw do
         # person.identifiers.new(type: 'Identifier::Local::Import', namespace: person_namespace, identifier: person_id)
         # # probably only writes to memory, to save in db, use <<
 
-        path = @args[:data_directory] + 'tblPeople.txt'
+        path = @args[:data_directory] + 'working/tblPeople.txt'
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: "UTF-16:UTF-8")
 
         # loop 1
@@ -399,14 +417,13 @@ namespace :tw do
             else
               puts "invalid attribute"
             end
-
           end
         end
-
       end
 
       desc 'create users'
       task :create_users => [:data_directory, :environment, :user_id] do
+        ### rake tw:project_import:species_file:create_sources user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
         @user_index = {}
         # @project = Project.find_by_name('Orthoptera Species File')
         # $project_id = @project.id
@@ -442,7 +459,7 @@ namespace :tw do
         file_user_id_to_tw_user_id = {}
         file_user_id_to_file_id = {} # not creating projects and project members right now; store info for future use
 
-        path = @args[:data_directory] + 'tblFileUsers.txt'
+        path = @args[:data_directory] + 'working/tblFileUsers.txt'
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: "UTF-16:UTF-8")
 
         file.each_with_index do |row, i|
@@ -462,7 +479,7 @@ namespace :tw do
           file_user_id_to_file_id[fu_id] = row['FileID']
         end
 
-        path = @args[:data_directory] + 'tblAuthUsers.txt'
+        path = @args[:data_directory] + 'working/tblAuthUsers.txt'
         print "\nCreating users\n"
         raise "file #{path} not found" if not File.exists?(path)
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: "UTF-16:UTF-8") # should it be read, not foreach?
