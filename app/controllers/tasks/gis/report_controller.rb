@@ -45,7 +45,7 @@ class Tasks::Gis::ReportController < ApplicationController
         @selected_column_names         = current_headers
         session['co_selected_headers'] = current_headers
         gather_data(geographic_area_id, true) # get first 25 records
-        gather_area_data(shape, true)
+        gather_area_data(shape)
         if params[:page].nil?
         else
           # fail
