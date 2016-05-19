@@ -23,22 +23,22 @@ _init_drawable_map = function init_drawable_map() {
     });
 
     $("send_report_params").click(function (event) {      // register the click handler for the made-from-scratch-button
-      var feature = buildFeatureCollectionFromShape(gr_last[0], gr_last[1]);
-      $("#drawn_area_shape").val(JSON.stringify(feature[0]));
-    }
-  );
-  google.maps.event.addListener(drawable_map[1], 'overlaycomplete', function (event) {
+        var feature = buildFeatureCollectionFromShape(gr_last[0], gr_last[1]);
+        $("#drawn_area_shape").val(JSON.stringify(feature[0]));
+      }
+    );
+    google.maps.event.addListener(drawable_map[1], 'overlaycomplete', function (event) {
       // Remove the last created shape if it exists.
       if (gr_last != null) {
         if (gr_last[0] != null) {
           removeItemFromMap(gr_last[0]);
         }
-      }
+        }
       gr_last = [event.overlay, event.type];
       var feature = buildFeatureCollectionFromShape(gr_last[0], gr_last[1]);
       $("#drawn_area_shape").val(JSON.stringify(feature[0]));
-    }
-  );
+      }
+    );
   }
 };
 
