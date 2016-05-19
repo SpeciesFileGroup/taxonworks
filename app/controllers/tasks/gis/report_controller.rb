@@ -53,7 +53,8 @@ class Tasks::Gis::ReportController < ApplicationController
       when 'download'
         # fixme: repair this: it aborts use of Redis, and forces load of all data
         test_redis_not = false
-        if test_redis_not == false
+        table_data     = nil
+        unless test_redis_not
           # TODO: This needs to be cleaned up and consolidated
           # check Redis mem-store for a valid result
           if test_redis
@@ -69,7 +70,7 @@ class Tasks::Gis::ReportController < ApplicationController
         end
 
         gather_data(params[:download_geo_area_id], false) # gather all available data
-        gather_area_data(shape)
+        gather_area_data(shape_in, false)
         report_file = CollectionObject.generate_report_download(@list_collection_objects, current_headers, table_data)
         send_data(report_file, type: 'text', filename: "collection_objects_report_#{DateTime.now.to_s}.csv")
       else
@@ -107,7 +108,8 @@ class Tasks::Gis::ReportController < ApplicationController
       if include_page
         @list_collection_objects = CollectionObject.where(project_id: $project_id)
                                      .in_geographic_item(@geographic_area.default_geographic_item, limit)
-                                     .order(:id).page(params[:page])
+                                     .order(:id)
+                                     .page(params[:page])
       else
         @list_collection_objects = CollectionObject.where(project_id: $project_id)
                                      .in_geographic_item(@geographic_area.default_geographic_item, limit)
