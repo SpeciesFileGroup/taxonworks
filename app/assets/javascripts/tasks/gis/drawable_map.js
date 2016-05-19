@@ -11,14 +11,14 @@ _init_drawable_map = function init_drawable_map() {
     $(".map_toggle").click(function (event) {
       $("#area_selector").attr('hidden', true);
       $("#map_selector").removeAttr('hidden');
-      $(".on_selector").removeAttr('hidden');
+      $(".on_selector").removeAttr('hidden');  // expose the other link
       $(".map_toggle").attr('hidden', true);
     });
 
     $(".on_selector").click(function (event) {
       $("#map_selector").attr('hidden', true);
       $("#area_selector").removeAttr('hidden');
-      $(".map_toggle").removeAttr('hidden');
+      $(".map_toggle").removeAttr('hidden');  // expose the other link
       $(".on_selector").attr('hidden', true);
     });
 
@@ -27,6 +27,7 @@ _init_drawable_map = function init_drawable_map() {
         $("#drawn_area_shape").val(JSON.stringify(feature[0]));
       }
     );
+
     google.maps.event.addListener(drawable_map[1], 'overlaycomplete', function (event) {
       // Remove the last created shape if it exists.
       if (gr_last != null) {
