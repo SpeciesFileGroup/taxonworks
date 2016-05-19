@@ -10,8 +10,8 @@ select area selector or map select
                           :size       => 20,
                           :display    => ''} %>
 </div>
-<%#=	 link_to('map', '#', class: [:map_toggle, :on_selector]) %>
-<div id="map_selector">hidden="hidden"
+<%= link_to('map', '#', class: [:map_toggle, :on_selector]) %>
+<div id="map_selector" hidden="hidden">
   <%= drawable_map([], 'border=1') -%>
   <%= hidden_field_tag('drawn_area_shape') %>
 </div>
