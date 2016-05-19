@@ -10,9 +10,9 @@ class Tasks::Gis::ReportController < ApplicationController
 
   def location_report_list
     geographic_area_id = params[:geographic_area_id]
-    current_headers = params[:hd]
-    value = params['drawn_map_shape']
-    finding = params['selection_object']
+    current_headers    = params[:hd]
+    shape              = params['drawn_area_shape']
+    finding            = params['selection_object']
 
     case params[:commit]
       when 'Show'
@@ -21,7 +21,7 @@ class Tasks::Gis::ReportController < ApplicationController
           group = current_headers[column.to_sym]
           group.keys.each { |type|
             headers = group[type.to_sym]
-            entry = current_headers[column.to_sym][type.to_sym]
+            entry   = current_headers[column.to_sym][type.to_sym]
             unless headers.empty?
               headers.keys.each { |header|
                 if headers[header].empty?
@@ -42,10 +42,10 @@ class Tasks::Gis::ReportController < ApplicationController
         # selected_headers               ||= {ce: {in: {}, im: {}}, # make sure all columns and types are present,
         #                                     co: {in: {}, im: {}}, # even if empty
         #                                     bc: {in: {}, im: {}}}
-        @selected_column_names = current_headers
+        @selected_column_names         = current_headers
         session['co_selected_headers'] = current_headers
         gather_data(geographic_area_id, true) # get first 25 records
-        # gather_area_data(value)
+        gather_area_data(shape, true)
         if params[:page].nil?
         else
           # fail
@@ -69,7 +69,7 @@ class Tasks::Gis::ReportController < ApplicationController
         end
 
         gather_data(params[:download_geo_area_id], false) # gather all available data
-        # gather_area_data(value)
+        gather_area_data(shape)
         report_file = CollectionObject.generate_report_download(@list_collection_objects, current_headers, table_data)
         send_data(report_file, type: 'text', filename: "collection_objects_report_#{DateTime.now.to_s}.csv")
       else
@@ -78,14 +78,14 @@ class Tasks::Gis::ReportController < ApplicationController
   end
 
   def test_redis
-    retval = true
+    retval           = true
     @c_o_table_store = Redis.new
 
     begin
       @c_o_table_store.ping
     rescue Exception => e
       @c_o_table_store = nil
-      retval = false
+      retval           = false
       e.inspect
       e.message
       # puts "#{e.inspect}"
@@ -96,45 +96,57 @@ class Tasks::Gis::ReportController < ApplicationController
   end
 
   def gather_data(geographic_area_id, include_page)
-    @geographic_area = GeographicArea.find(geographic_area_id)
-    total_records = CollectionObject.all.count
-    limit = include_page ? 25 : total_records
+    return if geographic_area_id.blank?
+    @geographic_area = GeographicArea.joins(:geographic_items).find(geographic_area_id)
+    total_records    = CollectionObject.count
+    limit            = include_page ? 25 : total_records
     # params[:page] = 2
     if @geographic_area.has_shape?
-      @all_collection_objects_count = CollectionObject.where(project_id: $project_id).in_geographic_item(@geographic_area.default_geographic_item, total_records).count
+      @all_collection_objects_count = CollectionObject.where(project_id: $project_id)
+                                        .in_geographic_item(@geographic_area.default_geographic_item, total_records).count
       if include_page
-        @list_collection_objects = CollectionObject.where(project_id: $project_id).in_geographic_item(@geographic_area.default_geographic_item, limit).order(:id).page(params[:page])
+        @list_collection_objects = CollectionObject.where(project_id: $project_id)
+                                     .in_geographic_item(@geographic_area.default_geographic_item, limit)
+                                     .order(:id).page(params[:page])
       else
-        @list_collection_objects = CollectionObject.where(project_id: $project_id).in_geographic_item(@geographic_area.default_geographic_item, limit).order(:id)
+        @list_collection_objects = CollectionObject.where(project_id: $project_id)
+                                     .in_geographic_item(@geographic_area.default_geographic_item, limit)
+                                     .order(:id)
       end
     else
       @all_collection_objects_count = 0
-      @list_collection_objects = CollectionObject.where('false')
+      @list_collection_objects      = CollectionObject.where('false')
     end
     @list_collection_objects
   end
 
-  def gather_area_data(value) # this will be a feature or feature collection
-    if value.blank?
+  def gather_area_data(shape) # this will be a feature or feature collection
+    if shape.blank?
       #   case finding
       #     when 'collection_object'
       @list_collection_objects = CollectionObject.where('false')
       #     else
       #   end
     else
-      feature = RGeo::GeoJSON.decode(value, :json_parser => :json)
+      feature   = RGeo::GeoJSON.decode(shape, :json_parser => :json)
       # isolate the WKT
-      geometry = feature.geometry
+      geometry  = feature.geometry
       this_type = geometry.geometry_type.to_s.downcase
-      geometry = geometry.as_text
-      radius = feature['radius']
+      geometry  = geometry.as_text
+      radius    = feature['radius']
       # case finding
       #   when 'collection_object'
       case this_type
         when 'point'
-          @list_collection_objects = Georeference.joins(:geographic_item).where(GeographicItem.within_radius_of_wkt_sql(geometry, radius))
+          @list_collection_objects = CollectionObject
+                                       .joins(:geographic_items)
+                                       .where(project_id: $project_id)
+                                       .where(GeographicItem.within_radius_of_wkt_sql(geometry, radius))
         when 'polygon'
-          @list_collection_objects = Georeference.joins(:geographic_item).where(GeographicItem.contained_by_wkt_sql(geometry))
+          @list_collection_objects = CollectionObject
+                                       .joins(:geographic_items)
+                                       .where(project_id: $project_id)
+                                       .where(GeographicItem.contained_by_wkt_sql(geometry))
         else
       end
       # else
