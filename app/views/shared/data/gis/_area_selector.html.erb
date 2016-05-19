@@ -1,6 +1,7 @@
-select area selector or map select
+Select the area_by_name selector, or the area_by_map selector.<br>
+<%= link_to('Area', '#', class: [:map_toggle, :on_selector]) %>
 
-<div id="area_selector">
+<div id="area_selector" hidden="hidden">
   <span id="geographic_areaError" style="color: #DD0000"></span>
   <%= render :partial => 'workbench/elements/forms/ajax_select',
              :locals  => {:controller => '/geographic_areas',
@@ -10,8 +11,7 @@ select area selector or map select
                           :size       => 20,
                           :display    => ''} %>
 </div>
-<%= link_to('map', '#', class: [:map_toggle, :on_selector]) %>
-<div id="map_selector" hidden="hidden">
+<div id="map_selector">
   <%= drawable_map([], 'border=1') -%>
   <%= hidden_field_tag('drawn_area_shape') %>
 </div>

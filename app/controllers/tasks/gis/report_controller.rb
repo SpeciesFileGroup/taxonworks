@@ -11,7 +11,7 @@ class Tasks::Gis::ReportController < ApplicationController
   def location_report_list
     geographic_area_id = params[:geographic_area_id]
     current_headers    = params[:hd]
-    shape              = params['drawn_area_shape']
+    shape_in           = params['drawn_area_shape']
     finding            = params['selection_object']
 
     case params[:commit]
@@ -45,7 +45,7 @@ class Tasks::Gis::ReportController < ApplicationController
         @selected_column_names         = current_headers
         session['co_selected_headers'] = current_headers
         gather_data(geographic_area_id, true) # get first 25 records
-        gather_area_data(shape)
+        gather_area_data(shape_in, true)
         if params[:page].nil?
         else
           # fail
@@ -120,15 +120,15 @@ class Tasks::Gis::ReportController < ApplicationController
     @list_collection_objects
   end
 
-  def gather_area_data(shape) # this will be a feature or feature collection
-    if shape.blank?
+  def gather_area_data(shape_in, include_) # this will be a feature or feature collection
+    if shape_in.blank?
       #   case finding
       #     when 'collection_object'
       @list_collection_objects = CollectionObject.where('false')
       #     else
       #   end
     else
-      feature   = RGeo::GeoJSON.decode(shape, :json_parser => :json)
+      feature   = RGeo::GeoJSON.decode(shape_in, :json_parser => :json)
       # isolate the WKT
       geometry  = feature.geometry
       this_type = geometry.geometry_type.to_s.downcase
@@ -142,11 +142,13 @@ class Tasks::Gis::ReportController < ApplicationController
                                        .joins(:geographic_items)
                                        .where(project_id: $project_id)
                                        .where(GeographicItem.within_radius_of_wkt_sql(geometry, radius))
+                                       .page(params[:page])
         when 'polygon'
           @list_collection_objects = CollectionObject
                                        .joins(:geographic_items)
                                        .where(project_id: $project_id)
                                        .where(GeographicItem.contained_by_wkt_sql(geometry))
+                                       .page(params[:page])
         else
       end
       # else
