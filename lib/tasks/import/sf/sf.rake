@@ -16,6 +16,113 @@ namespace :tw do
       #   Currently ProjectSources do not allow data_attributes or notes
       #
 
+      desc 'create source roles'
+      task :create_source_roles => [:data_directory, :environment, :user_id] do
+        ### rake tw:project_import:species_file:create_source_roles user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
+
+        species_file_data = Import.find_or_create_by(name: 'SpeciesFileData')
+        # is_editor, tblRefs.flags & 2 = 2 if set
+        # loop through Refs and store only those w/editors
+
+        # SF.RefID / TW.source_id
+        # TW.source_id / TW.project_id
+        # SF.PersonID / TW.person_id
+
+        get_person_id = species_file_data.get('SFPersonIDToTWPersonID')
+        get_source_id = species_file_data.get('SFRefIDToTWSourceID')
+        get_user_id = species_file_data.get('FileUserIDToTWUserID') # for housekeeping
+        get_source_editor = species_file_data.get('TWSourceEditorList') # if source.id is in array
+
+        path = @args[:data_directory] + 'working/tblRefAuthors.txt'
+        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: "UTF-16:UTF-8")
+
+        error_counter = 0
+
+        file.each_with_index do |row, i|
+
+          # Check if TW.source record is verbatim, reloop
+          # source_id = get_source_id[row['RefID']].to_i
+          source_id = get_source_id[row['RefID']]
+          next if source_id.nil?
+          source_id = source_id.to_i
+          # next if Source.find(source_id).class == Source::Verbatim # Source.find(source_id).type == 'Source::Verbatim'
+          next if Source.find(source_id).try(:class) == Source::Verbatim # Source.find(source_id).type == 'Source::Verbatim'
+
+          print "working with RefID #{row['RefID']} = SourceID #{source_id}, position #{row['SeqNum']} \n".purple.bold
+
+          # project_id = ProjectSource.find_by_source_id(source_id).project_id
+
+          # set flag if person is also editor; after role.save, make new record if is_editor
+          is_editor = (not get_source_editor[source_id].nil?)
+
+          role = Role.new(
+              person_id: get_person_id[row['PersonID']],
+              type: 'SourceAuthor',
+              role_object_id: source_id,
+              role_object_type: 'Source',
+              position: row['SeqNum'],
+              # project_id: project_id,   # don't use for SourceAuthor or SourceEditor
+              created_at: row['CreatedOn'],
+              updated_at: row['LastUpdate'],
+              created_by_id: get_user_id[row['CreatedBy']],
+              updated_by_id: get_user_id[row['ModifiedBy']]
+          )
+
+          if role.save
+
+            if is_editor
+              role = Role.new(
+                  person_id: get_person_id[row['PersonID']],
+                  type: 'SourceEditor',
+                  role_object_id: source_id,
+                  role_object_type: 'Source',
+                  position: row['SeqNum'],
+                  # project_id: project_id,
+                  created_at: row['CreatedOn'],
+                  updated_at: row['LastUpdate'],
+                  created_by_id: get_user_id[row['CreatedBy']],
+                  updated_by_id: get_user_id[row['ModifiedBy']]
+              )
+
+              unless role.save
+                error_counter += 1
+                puts "     ERROR (#{error_counter}, editor): " + role.errors.full_messages.join(';')
+                puts "  RefID: #{row['RefID']}, position: #{row['SeqNum']}, sf row created by: #{row['CreatedBy']}, sf row updated by: #{row['ModifiedBy']}    "
+              end
+            end
+
+          else
+            error_counter += 1
+            puts "     ERROR (#{error_counter}, author): " + role.errors.full_messages.join(';')
+            puts "  RefID: #{row['RefID']}, position: #{row['SeqNum']}, sf row created by: #{row['CreatedBy']}, sf row updated by: #{row['ModifiedBy']}    "
+         end
+        end
+
+      end
+
+      desc 'create source editor array (via tblRefs)'
+      task :get_source_editor_array => [:data_directory, :environment, :user_id] do
+        ### rake tw:project_import:species_file:get_source_editor_array user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
+
+        species_file_data = Import.find_or_create_by(name: 'SpeciesFileData')
+        get_source_id = species_file_data.get('SFRefIDToTWSourceID')
+        tw_source_id_editor_list = []
+
+        path = @args[:data_directory] + 'working/tblRefs.txt'
+        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: "UTF-16:UTF-8")
+
+        file.each do |row|
+          print "working with #{row['RefID']} \n"
+
+          tw_source_id_editor_list.push(get_source_id[row['RefID']]) if row['Flags'].to_i & 2 == 2
+        end
+
+        i = Import.find_or_create_by(name: 'SpeciesFileData')
+        i.set('TWSourceEditorList', tw_source_id_editor_list)
+
+        puts 'TWSourceEditorList'
+        ap tw_source_id_editor_list
+      end
 
       desc 'run all rake tasks through sources'
       task :run_tasks_through_sources => [:create_users, :create_people, :map_serials, :map_pub_type, :create_no_ref_list_array,
@@ -75,7 +182,7 @@ namespace :tw do
           # stated_year = nil if stated_year == '0'
 
           if actual_year == '0' or stated_year == '0' or actual_year.include?('-') or stated_year.include?('-')
-              # create a verbatim source
+            # create a verbatim source
             source = Source::Verbatim.new(
                 verbatim: get_verbatim_ref[ref_id],
                 # url: row['LinkID'].to_i > 0 ? get_ref_link[ref_id] : nil,   # Not compatible with verbatim
