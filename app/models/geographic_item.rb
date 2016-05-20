@@ -88,6 +88,59 @@ class GeographicItem < ActiveRecord::Base
 
   class << self
 
+    # @param [geo_object]
+    # @param [String] search_object_class
+    # @param [Boolean] paging
+    # @param [Integer] page (default 1)
+    # @return [Scope] of the requested search_object_type
+    def gather_area_data(shape, search_object_class, paging, page = 1)
+      finding  = search_object_class.constantize
+      geometry = shape.to_s
+
+      query = finding.joins(:geographic_items).where(project_id: $project_id)
+                .where(GeographicItem.contained_by_wkt_sql(geometry))
+
+      if paging
+        retval = query.page(page)
+      else
+        retval = query
+      end
+      retval
+    end
+
+    # @param [String] feature in json
+    # @param [String] search_object_class
+    # @param [Boolean] paging
+    # @param [Integer] page (default 1)
+    # @return [Scope] of the requested search_object_type
+    def gather_map_data(feature, search_object_class, paging, page = 1)
+      finding    = search_object_class.constantize
+      feature    = RGeo::GeoJSON.decode(feature, :json_parser => :json)
+      # isolate the WKT
+      geometry   = feature.geometry
+      shape_type = geometry.geometry_type.to_s.downcase
+      geometry   = geometry.as_text
+      radius     = feature['radius']
+
+      query = finding.joins(:geographic_items).where(project_id: $project_id)
+
+      case shape_type
+        when 'point'
+          query = query.where(GeographicItem.within_radius_of_wkt_sql(geometry, radius))
+        when 'polygon'
+          query = query.where(GeographicItem.contained_by_wkt_sql(geometry))
+        else
+          # query is unchanged
+      end
+
+      if paging
+        retval = query.page(page)
+      else
+        retval = query
+      end
+      retval
+    end
+
     #
     # SQL fragments
     #
@@ -105,8 +158,8 @@ class GeographicItem < ActiveRecord::Base
     def select_geography_sql(geographic_item_id)
       "SELECT #{GeographicItem::GEOMETRY_SQL} from geographic_items where geographic_items.id = #{geographic_item_id}"
     end
-    
-    # @return [String] 
+
+    # @return [String]
     #   a fragment returning either latitude or longitude columns
     def lat_long_sql(choice)
       return nil unless [:latitude, :longitude].include?(choice)
@@ -128,7 +181,7 @@ class GeographicItem < ActiveRecord::Base
       "ST_DWithin((#{GeographicItem::GEOGRAPHY_SQL}), (#{select_geography_sql(geographic_item_id)}), #{distance})"
     end
 
-    # @return [String] 
+    # @return [String]
     def within_radius_of_wkt_sql(wkt, distance)
       "ST_DWithin((#{GeographicItem::GEOGRAPHY_SQL}), ST_Transform( ST_GeomFromText('#{wkt}', 4326), 4326), #{distance})"
     end
@@ -166,22 +219,22 @@ class GeographicItem < ActiveRecord::Base
       retval   = []
       column_name.downcase!
       case column_name
-      when 'any'
-        DATA_TYPES.each { |column|
-          unless column == :geometry_collection
-            retval.push(template % [geo_type, geo_id, column])
-          end
-        }
-      when 'any_poly', 'any_line'
-        DATA_TYPES.each { |column|
-          unless column == :geometry_collection
-            if column.to_s.index(column_name.gsub('any_', ''))
+        when 'any'
+          DATA_TYPES.each { |column|
+            unless column == :geometry_collection
               retval.push(template % [geo_type, geo_id, column])
             end
-          end
-        }
-      else
-        retval = template % [geo_type, geo_id, column_name]
+          }
+        when 'any_poly', 'any_line'
+          DATA_TYPES.each { |column|
+            unless column == :geometry_collection
+              if column.to_s.index(column_name.gsub('any_', ''))
+                retval.push(template % [geo_type, geo_id, column])
+              end
+            end
+          }
+        else
+          retval = template % [geo_type, geo_id, column_name]
       end
       retval = retval.join(' OR ') if retval.instance_of?(Array)
       retval
@@ -222,7 +275,7 @@ class GeographicItem < ActiveRecord::Base
          WHEN 'GeographicItem::Polygon' THEN polygon::geometry
          WHEN 'GeographicItem::MultiLineString' THEN multi_line_string::geometry
          WHEN 'GeographicItem::MultiPoint' THEN multi_point::geometry
-      END)"     
+      END)"
     end
 
     # TODO: Remove the hard coded 4326 reference
@@ -236,7 +289,7 @@ class GeographicItem < ActiveRecord::Base
            WHEN 'GeographicItem::MultiLineString' THEN multi_line_string::geometry
            WHEN 'GeographicItem::MultiPoint' THEN multi_point::geometry
         END
-        ) 
+        )
       )"
     end
 
@@ -275,7 +328,7 @@ class GeographicItem < ActiveRecord::Base
       'SELECT ' + GeographicItem::GEOMETRY_SQL + " AS geometry FROM geographic_items wHERE id IN ( #{geographic_item_ids.join(',')} )"
     end
 
-    # 
+    #
     # Scopes
     #
 
@@ -380,8 +433,8 @@ class GeographicItem < ActiveRecord::Base
     # @param [Float] distance in meters
     # @return [ActiveRecord::Relation]
     # !! should be distance, not radius?!
-    def within_radius_of_item(geographic_item_id, distance) 
-      where( within_radius_of_item_sql(geographic_item_id, distance) )
+    def within_radius_of_item(geographic_item_id, distance)
+      where(within_radius_of_item_sql(geographic_item_id, distance))
     end
 
     # @param [String, GeographicItem]
@@ -684,7 +737,7 @@ class GeographicItem < ActiveRecord::Base
   alias_method :distance_to, :st_distance
 
   # @return [Double] distance in meters (faster, less accurate)
-  def st_distance_spheroid(geographic_item_id) 
+  def st_distance_spheroid(geographic_item_id)
     GeographicItem.where(id: id).pluck("ST_Distance_Spheroid((#{GeographicItem.select_geometry_sql(self.id)}),(#{GeographicItem.select_geometry_sql(geographic_item_id)}),'#{Gis::SPHEROID}') as distance").first
   end
 
@@ -710,7 +763,7 @@ class GeographicItem < ActiveRecord::Base
     end
   end
 
-  # !!TODO: migrate these to use native column calls this to "native" 
+  # !!TODO: migrate these to use native column calls this to "native"
 
   # @return [RGeo instance, nil]
   #  the Rgeo shape (See http://rubydoc.info/github/dazuma/rgeo/RGeo/Feature)

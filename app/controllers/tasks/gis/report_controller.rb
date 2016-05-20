@@ -13,6 +13,7 @@ class Tasks::Gis::ReportController < ApplicationController
     current_headers    = params[:hd]
     shape_in           = params['drawn_area_shape']
     finding            = params['selection_object']
+    @geographic_area   = GeographicArea.joins(:geographic_items).find(geographic_area_id)
 
     case params[:commit]
       when 'Show'
@@ -44,11 +45,18 @@ class Tasks::Gis::ReportController < ApplicationController
         #                                     bc: {in: {}, im: {}}}
         @selected_column_names         = current_headers
         session['co_selected_headers'] = current_headers
-        gather_data(geographic_area_id, true) # get first 25 records
-        gather_area_data(shape_in, true)
-        if params[:page].nil?
+        # get first 25 records
+        fail
+        if shape_in.blank?
+          @list_collection_objects = GeographicItem.gather_area_data(@geographic_area
+                                                                       .default_geographic_item.geo_object, finding,
+                                                                     true,
+                                                                     params[:page])
         else
-          # fail
+          @list_collection_objects = GeographicItem.gather_map_data(@geographic_area
+                                                                      .default_geographic_item.geo_object, finding,
+                                                                    true,
+                                                                    params[:page])
         end
       when 'download'
         # fixme: repair this: it aborts use of Redis, and forces load of all data
@@ -69,8 +77,11 @@ class Tasks::Gis::ReportController < ApplicationController
           table_data = nil
         end
 
-        gather_data(params[:download_geo_area_id], false) # gather all available data
-        gather_area_data(shape_in, false)
+        if shape_in.blank?
+          @list_collection_objects = GeographicItem.gather_map_data(shape_in, 'CollectionObject', false)
+        else
+          @list_collection_objects = GeographicItem.gather_area_data(geographic_area_id, 'CollectionObject', false)
+        end
         report_file = CollectionObject.generate_report_download(@list_collection_objects, current_headers, table_data)
         send_data(report_file, type: 'text', filename: "collection_objects_report_#{DateTime.now.to_s}.csv")
       else
@@ -96,7 +107,7 @@ class Tasks::Gis::ReportController < ApplicationController
     retval
   end
 
-  def gather_data(geographic_area_id, include_page)
+  def gather_data_x(geographic_area_id, include_page)
     return if geographic_area_id.blank?
     @geographic_area = GeographicArea.joins(:geographic_items).find(geographic_area_id)
     total_records    = CollectionObject.count
@@ -122,7 +133,7 @@ class Tasks::Gis::ReportController < ApplicationController
     @list_collection_objects
   end
 
-  def gather_area_data(shape_in, include_) # this will be a feature or feature collection
+  def gather_area_data_x(shape_in, include_) # this will be a feature or feature collection
     if shape_in.blank?
       #   case finding
       #     when 'collection_object'
