@@ -13,7 +13,7 @@ _init_drawable_map = function init_drawable_map() {
       $("#map_selector").removeAttr('hidden');          // reveal the map
       $(".on_selector").removeAttr('hidden');           // expose the other link
       $(".map_toggle").attr('hidden', true);
-      $("#geographic_area_id").val('');
+      $("[name='[geographic_area_id]']").attr('value', '');
       drawable_map = initializeGoogleMapWithDrawManager(_drawable_map_form);
       google.maps.event.addListener(drawable_map[1], 'overlaycomplete', function (event) {
           // Remove the last created shape if it exists.
@@ -34,7 +34,7 @@ _init_drawable_map = function init_drawable_map() {
       $("#area_selector").removeAttr('hidden');         // reveal the area selector
       $(".map_toggle").removeAttr('hidden');            // expose the other link
       $(".on_selector").attr('hidden', true);
-      $("#drawn_area_shape").val('');
+      $("#drawn_area_shape").attr('value', '');
     });
 
     $("send_report_params").click(function (event) {      // register the click handler for the made-from-scratch-button
