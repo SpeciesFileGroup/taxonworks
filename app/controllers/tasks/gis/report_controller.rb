@@ -13,7 +13,6 @@ class Tasks::Gis::ReportController < ApplicationController
     current_headers    = params[:hd]
     shape_in           = params['drawn_area_shape']
     finding            = params['selection_object']
-    @geographic_area   = GeographicArea.joins(:geographic_items).find(geographic_area_id)
 
     case params[:commit]
       when 'Show'
@@ -46,15 +45,14 @@ class Tasks::Gis::ReportController < ApplicationController
         @selected_column_names         = current_headers
         session['co_selected_headers'] = current_headers
         # get first 25 records
-        fail
         if shape_in.blank?
+          @geographic_area         = GeographicArea.joins(:geographic_items).find(geographic_area_id)
           @list_collection_objects = GeographicItem.gather_area_data(@geographic_area
                                                                        .default_geographic_item.geo_object, finding,
                                                                      true,
                                                                      params[:page])
         else
-          @list_collection_objects = GeographicItem.gather_map_data(@geographic_area
-                                                                      .default_geographic_item.geo_object, finding,
+          @list_collection_objects = GeographicItem.gather_map_data(shape_in, finding,
                                                                     true,
                                                                     params[:page])
         end
