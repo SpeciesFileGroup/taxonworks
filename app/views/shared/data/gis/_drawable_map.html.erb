@@ -1,5 +1,4 @@
 <div id="_drawable_map_outer">
-  <%#= render(partial: 'latouts/map_header') -%>
   <div id="_drawable_map_form"
 
        data-feature-collection="<%= Gis::GeoJSON.feature_collection(map_objects).to_json -%>"
@@ -15,11 +14,6 @@
         <span id="map_coords">drawable map Coordinates</span>
       </td>
     </tr>
-    <!--<tr>-->
-    <!--<td>-->
-    <!--<div id="drawable_map_style"></div>-->
-    <!--</td>-->
-    <!--</tr>-->
     </tbody>
   </table>
 </div>
