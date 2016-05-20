@@ -4,13 +4,13 @@ Select the area_by_name selector, or the area_by_map selector.<br>
 
 <div id="area_selector">
   <span id="geographic_areaError" style="color: #DD0000"></span>
-  <%= render :partial => 'workbench/elements/forms/ajax_select',
+  <%= render(:partial => 'workbench/elements/forms/ajax_select',
              :locals  => {:controller => '/geographic_areas',
                           :object     => '',
                           :method     => 'geographic_area_id',
                           :tag_id     => passed_in_tag_id,
                           :size       => 20,
-                          :display    => ''} %>
+                          :display    => ''}) %>
 </div>
 <div id="map_selector" hidden="hidden">
   <%= drawable_map([], 'border=1') -%>
