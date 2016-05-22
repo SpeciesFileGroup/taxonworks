@@ -37,7 +37,7 @@
           <td><%= collection_profile.number_of_collection_objects %></td>
           <td><%= collection_profile.number_of_containers %></td>
           <td><%= object_tag(collection_profile.container) %></td>
-          <%= fancy_metadata_cells_tag(otu) -%>
+          <%= fancy_metadata_cells_tag(collection_profile) -%>
       <% end %>
   <% end %>
   </tbody>
