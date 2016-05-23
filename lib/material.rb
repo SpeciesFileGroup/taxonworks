@@ -80,8 +80,8 @@ module Material
     end
 
     def build_models
-      @quick_verbatim_object = QuickVerbatimObject.new(@form_params['collection_object'])
-      @quick_verbatim_locks = QuickVerbatimLocks.new(@form_params['locks'])
+      @quick_verbatim_object = QuickVerbatimObject.new(form_params['collection_object'])
+      @quick_verbatim_locks = QuickVerbatimLocks.new(form_params['locks'])
       @note       = Note.new(form_params['note'])
       @repository = Repository.find(form_params['repository']['id']) if (form_params['repository'] && !form_params['repository']['id'].blank?)
       @identifier = Identifier::Local::CatalogNumber.new(form_params['identifier'])
@@ -129,7 +129,7 @@ module Material
     end
 
     def save
-      if @collection_objects.size == 0
+      if collection_objects.size == 0
         errors = ActiveModel::Errors.new('base')  
         errors.add(:total, 'No totals provided!')
         return false, errors
@@ -137,7 +137,7 @@ module Material
 
       begin
         ActiveRecord::Base.transaction do
-          @collection_objects.map(&:save!)
+          collection_objects.map(&:save!)
         end
         return true
       rescue ActiveRecord::RecordInvalid => invalid

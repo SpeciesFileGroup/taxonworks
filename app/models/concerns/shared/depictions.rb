@@ -5,6 +5,8 @@ module Shared::Depictions
   extend ActiveSupport::Concern
 
   included do
+   # attr_accessor :image_array
+
     has_many :depictions, validate: true, as: :depiction_object, dependent: :destroy, inverse_of: :depiction_object
     has_many :images, validate: true, through: :depictions
 
@@ -14,6 +16,10 @@ module Shared::Depictions
 
   def has_depictions?
     self.depictions.size > 0
+  end
+
+  def image_array=(images)
+    self.depictions_attributes = images.collect{|i, file| { image_attributes: {image_file: file}}}
   end
 
   protected

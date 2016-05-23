@@ -78,16 +78,17 @@
         <h3> Parsed data </h3>
 
         <div class="field">
-          <%= f.label :geographic_area %>
+          <%= f.label :geographic_area_id, 'Geographic area' %>
           <br>
-          <%= render :partial => 'workbench/elements/forms/ajax_select',
-                     locals:  {controller: 'geographic_areas',
-                               object:     'collecting_event',
-                               method:     'geographic_area_id',
-                               tag_id:     'geographic_area_id_for_collecting_event',
-                               display:    geographic_area_tag(@collecting_event.geographic_area),
-                               size:       40} %>
-        </div>
+          <%= render 'workbench/elements/forms/ajax_select',
+            controller: 'geographic_areas',
+            object:     'collecting_event',
+            method:     'geographic_area_id',
+            tag_id:     'geographic_area_id_for_collecting_event',
+            display:    geographic_area_tag(@collecting_event.geographic_area),
+            size:       40
+          %>
+      </div>
 
         <div>
           <div class="left_float">

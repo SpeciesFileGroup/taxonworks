@@ -1,9 +1,9 @@
 class CollectingEventsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_collecting_event, only: [:show, :edit, :update, :destroy]
+  before_action :set_collecting_event, only: [:show, :edit, :update, :destroy, :card]
 
-   # GET /collecting_events
+  # GET /collecting_events
   # GET /collecting_events.jso
   def index
     @recent_objects = CollectingEvent.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
@@ -61,6 +61,10 @@ class CollectingEventsController < ApplicationController
       format.html { redirect_to collecting_events_url }
       format.json { head :no_content }
     end
+  end
+
+  def card
+   @target = params[:target] 
   end
 
   def test

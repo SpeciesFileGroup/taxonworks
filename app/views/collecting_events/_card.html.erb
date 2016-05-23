@@ -1,0 +1,25 @@
+
+<div class="card">
+  <div class="label">Collecting Event <%= object.id -%></div>
+  <div class="content">
+    <%= attribute_block({
+      'Verbatim locality:': object.verbatim_locality,
+      'Elevation:': elevation_tag(object),
+      'Verbatim lat/long:': verbatim_gis_tag(object),
+      'Date:': date_range_tag(object),
+      'Verbatim collectors:': object.verbatim_collectors,
+      'Verbatim method:': object.verbatim_method,
+      'Geographic area:': object_link(object.geographic_area),
+      'Verbatim trip identifier:': object.verbatim_trip_identifier,
+      'Field notes:': object.field_notes,
+      'Verbatim date:': object.verbatim_date,
+      'Verbatim habitat:': object.verbatim_habitat,
+      'Verbatim label:': object.verbatim_label,
+      'Verbatim elevation:': object.verbatim_elevation,
+      'Time start:': object.time_start, 
+      'Time end:': object.time_end,
+      'Print label:': object.print_label,
+      'Document label:': object.document_label
+    }) -%>
+  </div>
+</div>
