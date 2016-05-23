@@ -2,4 +2,17 @@
   <%= content_tag(:li, link_to('Original image', @image.image_file.url)) -%> 
 <% end %>
 
+<%= content_for :associated do -%>
+
+  <% if @image.depictions.any? -%>
+    <%= content_tag(:h3, 'Depictions') -%>
+    <ul>
+    <% @image.depictions.each do |d| -%>
+      <%= content_tag(:li, image_context_depiction_tag(d)) -%>
+    <% end %> 
+    </ul>
+  <% end %>
+
+<% end %>
+
 <%= render(partial: 'shared/data/project/show', locals: {object: @image}) -%>

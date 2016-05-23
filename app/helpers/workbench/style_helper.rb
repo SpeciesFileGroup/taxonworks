@@ -36,4 +36,21 @@ module Workbench::StyleHelper
     end
   end
 
+  # Wrap content in a span, and give it a :data class
+  # @return [String]
+  def data_tag(content)
+    content_tag(:span, content, class: :data)
+  end
+
+  def attribute_tag(label, content)
+    content_tag(:p) do
+      content_tag(:strong, label) + ' ' +
+        data_tag(content)
+    end
+  end
+
+  def attribute_block(hash)
+    hash.collect{|label, content| attribute_tag(label, content)}.join.html_safe
+  end
+
 end

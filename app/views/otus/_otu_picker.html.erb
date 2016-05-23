@@ -15,7 +15,7 @@
       <%= content_tag(:div, 'New OTU', class: 'injected_new_header') -%>
 
       <%= f.fields_for :otu_attributes, Otu.new do |o| %>
-      <div class="flex-wrap-row">
+      <div class="flexbox">
         <div class="fields"> 
           <div class="field">
             <%= o.label :name %>
@@ -26,7 +26,7 @@
             <%= o.label :taxon_name %>
             <%= render'/workbench/elements/forms/ajax_select',
             fields_for_object: o,
-            controller:  'taxon_names',
+            controller:  '/taxon_names',
             object: "#{f.object_name}[otu_attributes]",
             method:  'taxon_name_id',
             tag_id:  'taxon_name_id_for_inline_otu_picker',

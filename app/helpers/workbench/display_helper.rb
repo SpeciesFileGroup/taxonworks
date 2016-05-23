@@ -42,5 +42,12 @@ module Workbench::DisplayHelper
   def object_attributes_partial_path(object)
     "/#{metamorphosize_if(object).class.base_class.name.tableize}/attributes"
   end
-  
+ 
+  # @return [String]
+  #   return nil if content.nil?, else wrap and return string if provided
+  def nil_wrap(pre = nil, content = nil, post = nil)
+    return nil if content.blank?
+    [pre, content, post].compact.join.html_safe
+  end
+
 end

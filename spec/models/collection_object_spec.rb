@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe CollectionObject, :type => :model do
+describe CollectionObject, type: :model do
 
   let(:collection_object) { CollectionObject.new() }
   let(:ranged_lot_category) {FactoryGirl.create(:valid_ranged_lot_category) }
@@ -138,7 +138,6 @@ describe CollectionObject, :type => :model do
     end
 
     context 'has_many' do
-      
       # technically not supposed to have these, they are to be biological only 
       specify 'taxon_determinations' do
         collection_object.taxon_determinations << FactoryGirl.create(:valid_taxon_determination)
@@ -147,7 +146,6 @@ describe CollectionObject, :type => :model do
         collection_object.reload
         expect(collection_object.taxon_determinations.first).to be_truthy  
       end
-
     end
   end
 
@@ -178,8 +176,25 @@ describe CollectionObject, :type => :model do
     end
   end
 
-  context 'soft validation' do
+  context 'nested attributes' do
 
+    specify 'a new otu and determination can be created' do
+      s = CollectionObject.new(total: 1,
+                               taxon_determinations_attributes: [
+                                 { otu_attributes: {name: 'King Kong'} }
+                               ]
+                              )
+
+      expect(s.save).to be_truthy
+    #  s.reload
+      expect(s.taxon_determinations.count).to eq(1)
+      expect(s.taxon_determinations.first.otu.name).to eq('King Kong')
+      expect(s.taxon_determinations.first.otu.id).to be_truthy
+    end
+
+  end
+
+  context 'soft validation' do
     let(:o) {Specimen.new}
     let(:p) {Person.new}
  
@@ -218,7 +233,6 @@ describe CollectionObject, :type => :model do
         o.soft_validate(:missing_deaccession_fields)
         expect(o.soft_validations.messages_on(:base).count).to eq(1)
       end
-    
     end
   end
 

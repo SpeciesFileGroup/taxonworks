@@ -22,22 +22,25 @@
 #
 ---
 nearby_locality_task:
-  name:  
+  hub: true
+  name: 'Nearby collecting events' 
   related:
     - collecting_events
     - geographic_areas
   categories:
     - collecting_event
-update_locality_task:
-  name: 
+  status: prototype 
+  description: 'Find collecting events within a selected radius'
 within_locality_task:
   name:
 similar_serials_task:
+  hub: true
   name: 
   related:
     - serials
   categories:
     - source
+  status: prototype 
 user_activity_report_task:
   name: 
 verify_accessions_task:
@@ -52,6 +55,7 @@ quick_verbatim_material_task:
   categories:
     - collecting_event
     - collection_object
+  status: prototype 
 create_verbatim_material_task:
   name: 
 new_verbatim_reference_task:
@@ -60,6 +64,7 @@ new_verbatim_reference_task:
   description: 'Create a new source by pasting in the full text of a citation. The citation will automatically be tested against Crossref and parsed into individual fields (BibTex) if possible.'
   categories: 
     - source 
+  status: prototype 
 create_verbatim_reference_task:
   name: 
 build_biocuration_groups_task:
@@ -70,10 +75,8 @@ build_biocuration_groups_task:
     - build_biocuration_group_task 
   categories:
     - collection_object
-build_biocuration_group_task:
-  name: 
-  related: 
     - build_biocuration_groups_task
+  status: stable 
 build_biocuration_group_task:
   name: 
   related: 
@@ -85,6 +88,7 @@ match_georeference_task:
   categories:
     - collecting_event
     - collection_object
+  status: prototype 
 otu_distribution_data_task:
   hub: true
   name: 'OTU distribution data'
@@ -92,6 +96,7 @@ otu_distribution_data_task:
   categories:
     - collecting_event
     - collection_object
+  status: prototype 
 gis_report_task:
   hub: true
   name: 'GIS collection object report'
@@ -99,12 +104,14 @@ gis_report_task:
   categories:
     - collecting_event
     - collection_object
+  status: prototype 
 author_list_task:
   hub: true
   name: 'Alphabetical list of source authors'
   description: 'Display all source authors with links to source list.'
   categories: 
     - source 
+  status: prototype 
 sqed_depiction_breakdown_todo_map_task:
   hub: true
   name: 'Collection object image breakdown TODO list'
@@ -112,3 +119,12 @@ sqed_depiction_breakdown_todo_map_task:
   categories: 
     - collecting_event
     - collection_object
+  status: stable 
+simple_specimen_task:
+  hub: true
+  name: 'Simple new specimen'
+  description: 'A bare bones specimen creation interface. Creates related collectinge events, images, and identifiers.'
+  categories: 
+    - collection_object
+    - collecting_event
+  status: prototype
