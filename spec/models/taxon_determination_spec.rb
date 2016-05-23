@@ -1,8 +1,9 @@
 require 'rails_helper'
 
-describe TaxonDetermination, :type => :model do
+describe TaxonDetermination, type: :model do
 
   let(:taxon_determination) {TaxonDetermination.new}
+  let(:otu) { FactoryGirl.create(:valid_otu) }
 
   context 'associations' do
     context 'belongs_to' do
@@ -28,6 +29,31 @@ describe TaxonDetermination, :type => :model do
     expect(a.year_made).to eq(Time.now.year)
     expect(a.month_made).to eq(Time.now.month)
     expect(a.day_made).to eq(Time.now.day)
+  end
+
+
+  context "combination of nested attributes and otu_id passes" do
+    let(:attributes) { 
+      {
+        "taxon_determinations_attributes" => [ {
+          "otu_id" => otu.to_param, 
+          "otu_attributes" => {
+            "name" => "",
+            "taxon_name_id" => ""
+          }
+        }
+        ]
+      }
+    }
+
+    let(:specimen) { Specimen.new(attributes)  }
+
+    before { specimen.save }
+
+    specify "both otu_id and empty_otu_attributes works" do
+      expect(specimen.taxon_determinations(true).count).to eq(1)
+      expect(specimen.otus.to_a).to contain_exactly(otu)
+    end
   end
 
   context 'concerns' do
