@@ -25,10 +25,15 @@ function show() {
     $('#validation-panel').hide();
   }  
 
+  function isEmpty( el ){
+      return !$.trim(el.html())
+  }
+
+
   $('.panel').each( function() {
     if($(this).find('.information-panel').length) {
-      if(!$(this).find('.information-panel').children().contents().length) {
-        $(this).hide();
+      if(isEmpty($(this).find('.information-panel'))) {
+        $(this).find('.information-panel').parent().parent().hide();
       }
     }
   }); 
