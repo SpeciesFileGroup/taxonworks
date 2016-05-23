@@ -58,10 +58,10 @@
 #
 class CollectionObject < ActiveRecord::Base
 
-  include GlobalID::Identification
 
-  CO_OTU_HEADERS = %w{OTU OTU\ name Family Genus Species Country State County Locality Latitude Longitude}.freeze
-  BUFFERED_ATTRIBUTES = %i{buffered_collecting_event buffered_determinations buffered_other_labels}.freeze
+
+
+  include GlobalID::Identification
 
   # @todo DDA: may be buffered_accession_number should be added.  MJY: This would promote non-"barcoded" data capture, I'm not sure we want to do this?!
 
@@ -80,6 +80,9 @@ class CollectionObject < ActiveRecord::Base
   include Dwca::CollectionObjectExtensions
 
   has_paper_trail
+
+  CO_OTU_HEADERS = %w{OTU OTU\ name Family Genus Species Country State County Locality Latitude Longitude}.freeze
+  BUFFERED_ATTRIBUTES = %i{buffered_collecting_event buffered_determinations buffered_other_labels}.freeze
 
   has_one :accession_provider_role, class_name: 'AccessionProvider', as: :role_object
   has_one :accession_provider, through: :accession_provider_role, source: :person
@@ -108,7 +111,19 @@ class CollectionObject < ActiveRecord::Base
 
   accepts_nested_attributes_for :otus, allow_destroy: true
   accepts_nested_attributes_for :taxon_determinations, allow_destroy: true, reject_if: :reject_taxon_determinations
-  accepts_nested_attributes_for :collecting_event, allow_destroy: true
+  accepts_nested_attributes_for :collecting_event, allow_destroy: true, reject_if: :reject_collecting_event
+
+  def reject_collecting_event(attributed)
+    reject = true
+    CollectingEvent.data_attributes.each do |a|
+      if !attributed[a].blank? 
+        reject = false
+        break
+      end
+    end
+    # !! does not account for georeferences_attributes!
+    reject
+  end
 
   validates_presence_of :type
   validate :check_that_either_total_or_ranged_lot_category_id_is_present
@@ -545,7 +560,13 @@ class CollectionObject < ActiveRecord::Base
   end
 
   def reject_taxon_determinations(attributed)
-    attributed['otu_id'].blank?
+    if attributed['otu_id'].blank?
+      return true if attributed['otu_attributes'].blank?
+      if h = attributed['otu_attributes']
+        return true if h['name'].blank? && h['taxon_name_id'].blank?
+      end
+    end
+    false
   end
 
   # @todo Write this. Changing from one type to another is ONLY allowed via this method, not by updating attributes
