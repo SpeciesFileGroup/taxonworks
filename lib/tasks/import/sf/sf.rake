@@ -8,13 +8,79 @@ namespace :tw do
   namespace :project_import do
     namespace :species_file do
 
-      # Next step: Generate individual SF projects (based on FileID) and populate ProjectSources with FileID=>project_id, source_id
-      #   Create all projects at once?
-      #   Will need a SF.FileID to TW.project_id hash
+      # Outstanding issues for ProjectSources
       #   Add data_attribute to ProjectSources from sfVerbatimRefs (this is instead of dealing with tblRefs.ContainingRefID)
       #   Add tblRefs.Note as?
       #   Currently ProjectSources do not allow data_attributes or notes
-      #
+
+      desc 'create valid taxa for Embioptera (FileID = 60)'
+      task :create_valid_taxa_for_embioptera => [:data_directory, :environment, :user_id] do
+        ### rake tw:project_import:species_file:create_valid_taxa_for_embioptera user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
+
+        species_file_data = Import.find_or_create_by(name: 'SpeciesFileData')
+        get_user_id = species_file_data.get('FileUserIDToTWUserID') # for housekeeping
+        get_rank_string = species_file_data.get('SFRankIDToTWRankString')
+
+        path = @args[:data_directory] + 'working/tblTaxa.txt'
+        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: "UTF-16:UTF-8")
+
+        error_counter = 0
+        count_found = 0
+        project_id = Project.find_by_name('embioptera_species_file').id
+
+        file.each_with_index do |row, i|
+          taxon_name_id = row['TaxonNameID']
+          next unless row['TaxonNameStr'].start_with?('1171736')
+          next unless row['NameStatus'] == 0
+          # Valid names only, 18, including 0, instances of StatusFlags > 0 when NameStatus = 0
+
+          count_found += 1
+          print "working with TaxonNameID #{taxon_name_id} (count #{count_found}) \n"
+
+          if count_found = 1
+            parent_id = TaxonName.where(project_id: project_id, name: 'Root')
+          else
+            parent_id = previous_parent_id
+          end
+
+          taxon_name = TaxonName.new(
+              name: row['Name'],
+              parent_id: parent_id,
+              rank_class: get_rank_string[row['RankID']],
+
+              type: 'Protonym',
+              project_id: project_id,
+              created_at: row['CreatedOn'],
+              updated_at: row['LastUpdate'],
+              created_by_id: get_user_id[row['CreatedBy']],
+              updated_by_id: get_user_id[row['ModifiedBy']]
+          )
+
+        end
+
+      end
+
+      desc 'create rank hash'
+      task :create_rank_hash => [:data_directory, :environment, :user_id] do
+        ### rake tw:project_import:species_file:create_rank_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
+
+        sf_rank_id_to_tw_rank_string = {}
+
+        path = @args[:data_directory] + 'working/tblRanks.txt'
+        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: "UTF-16:UTF-8")
+
+        file.each_with_index do |row, i|
+          rank_id = row['RankID']
+          next if ['90', '100'].include?(rank_id) # RankID = 0, "not specified", will = nil
+
+          sf_rank_id_to_tw_rank_string[rank_id] = Ranks.lookup(:iczn, row['RankName'])
+        end
+
+        i = Import.find_or_create_by(name: 'SpeciesFileData')
+        i.set('SFRankIDToTWRankString', sf_rank_id_to_tw_rank_string)
+
+        ap sf_rank_id_to_tw_rank_string
+      end
 
       desc 'create source roles'
       task :create_source_roles => [:data_directory, :environment, :user_id] do
@@ -88,7 +154,7 @@ namespace :tw do
             error_counter += 1
             puts "     ERROR (#{error_counter}, author): " + role.errors.full_messages.join(';')
             puts "  RefID: #{row['RefID']}, position: #{row['SeqNum']}, sf row created by: #{row['CreatedBy']}, sf row updated by: #{row['ModifiedBy']}    "
-         end
+          end
         end
 
       end
