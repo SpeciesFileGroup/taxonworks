@@ -21,13 +21,6 @@ namespace :tw do
         ### rake tw:project_import:species_file:create_source_roles user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
 
         species_file_data = Import.find_or_create_by(name: 'SpeciesFileData')
-        # is_editor, tblRefs.flags & 2 = 2 if set
-        # loop through Refs and store only those w/editors
-
-        # SF.RefID / TW.source_id
-        # TW.source_id / TW.project_id
-        # SF.PersonID / TW.person_id
-
         get_person_id = species_file_data.get('SFPersonIDToTWPersonID')
         get_source_id = species_file_data.get('SFRefIDToTWSourceID')
         get_user_id = species_file_data.get('FileUserIDToTWUserID') # for housekeeping
@@ -103,6 +96,9 @@ namespace :tw do
       desc 'create source editor array (via tblRefs)'
       task :get_source_editor_array => [:data_directory, :environment, :user_id] do
         ### rake tw:project_import:species_file:get_source_editor_array user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
+
+        # is_editor, tblRefs.flags & 2 = 2 if set
+        # loop through Refs and store only those w/editors
 
         species_file_data = Import.find_or_create_by(name: 'SpeciesFileData')
         get_source_id = species_file_data.get('SFRefIDToTWSourceID')
