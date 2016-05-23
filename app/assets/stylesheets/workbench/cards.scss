@@ -1,0 +1,14 @@
+.card {
+  border: 1px solid silver;
+  width: 300px; 
+
+  .header {
+    color: purple;
+  }
+
+  .content {
+    overflow: auto;
+    height: 300px; 
+    width: 300px; 
+  }
+}
