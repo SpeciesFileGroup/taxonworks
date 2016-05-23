@@ -26,7 +26,7 @@
           <br>
           <%= render'/workbench/elements/forms/ajax_select',
             fields_for_object: o,
-            controller:  'taxon_names',
+            controller:  '/taxon_names',
             object: "#{f.object_name}[otu_attributes]",
             method:  'taxon_name_id',
             tag_id:  'taxon_name_id_for_inline_otu_picker',
