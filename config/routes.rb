@@ -112,7 +112,10 @@ TaxonWorks::Application.routes.draw do
    resources :collecting_events do
     concerns [:data_routes]
     get :autocomplete_collecting_event_verbatim_locality, :on => :collection
-     # collection do
+    member do
+      get :card
+    end
+    # collection do
      #   post :preview_simple_batch_load # should be get
      #   post :create_simple_batch_load
      # end
@@ -378,6 +381,7 @@ TaxonWorks::Application.routes.draw do
       scope :simple, controller: 'tasks/accessions/quick/simple' do
         get 'new', as: 'simple_specimen_task'
         post 'create', as: 'create_simple_specimen_task'
+        get 'collecting_events', format: :js 
       end
     end
 
@@ -419,9 +423,8 @@ TaxonWorks::Application.routes.draw do
     end
 
     scope :gis, controller: 'tasks/gis/locality' do
-      get 'nearby/:id', action: 'nearby', as: 'nearby_locality_task'
-      get 'update/:id', action: 'update', as: 'update_locality_task'
-      get 'within/:id', action: 'within', as: 'within_locality_task'
+      get 'nearby(/:id)', action: 'nearby', as: 'nearby_locality_task'
+      get 'within(/:id)', action: 'within', as: 'within_locality_task'
       get 'new_list', action: 'new_list', as: 'new_list_task'
       post 'list' # , action: 'list', as: 'locatity_list_task'
     end
@@ -481,7 +484,7 @@ TaxonWorks::Application.routes.draw do
     end
 
     scope :serials, controller: 'tasks/serials/similar' do
-      get 'like/:id', action: 'like', as: 'similar_serials_task'
+      get 'like(/:id)', action: 'like', as: 'similar_serials_task'
     end
 
     scope :usage, controller: 'tasks/usage/user_activity' do
