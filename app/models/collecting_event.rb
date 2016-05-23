@@ -454,9 +454,19 @@ class CollectingEvent < ActiveRecord::Base
       true
     end
 
+    def data_attributes
+      column_names.reject{|c| %w{id project_id created_by_id updated_by_id created_at updated_at project_id}.include?(c) || c =~ /^cached/ } 
+    end
+
   end # << end class methods
 
-
+  def has_data?
+    CollectingEvent.data_attributes.each do |a|
+      return true if !self.send(a).blank? 
+    end
+    return true if georeferences.any?
+    false 
+  end
 
   # @return [Boolean]
   def has_start_date?
