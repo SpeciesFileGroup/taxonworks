@@ -3,8 +3,11 @@ require 'rails_helper'
 describe 'Depictions', type: :model do
   let(:instance_with_depiction) { TestDepictionable.new }
 
+  let(:image1) { fixture_file_upload(Rails.root + 'spec/files/images/tiny.png', 'image/png') }
+  let(:image2) { fixture_file_upload(Rails.root + 'spec/files/images/W3$rd fi(le%=name!.png', 'image/png') }
+
   let(:image_attributes) { 
-    { image_file: fixture_file_upload(Rails.root + 'spec/files/images/tiny.png', 'image/png') }
+    { image_file: image1  }
    }
 
   context 'associations' do
@@ -55,6 +58,24 @@ describe 'Depictions', type: :model do
       expect(Image.count).to eq(1)
       expect(Depiction.count).to eq(1)
     end
+  end
+
+  context 'create with #image_array' do
+    let(:data) {
+      { "0" => image1, "1" => image2 }
+    }
+
+    specify '#image_array' do
+      expect(instance_with_depiction).to respond_to('image_array=') 
+    end
+
+    specify 'succeeds' do
+      instance_with_depiction.image_array = data
+      expect(instance_with_depiction.save).to be_truthy
+      expect(instance_with_depiction.images.count).to eq(2)
+      expect(instance_with_depiction.images.first.id).to be_truthy 
+    end
+
   end
 
 
