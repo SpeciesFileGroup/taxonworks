@@ -59,6 +59,9 @@ OTU_PICKER_WIDGET = {
     form.find("#otu_picker_add_ok").click(function () {
       OTU_PICKER_WIDGET.show_original_search(form);
       $("#XXX_otu_picker_autocomplete").val(OTU_PICKER_WIDGET.get_autocomplete_name(form));
+
+      // remove reference to previously selected otu 
+      $("#selected_otu_id").val('');
     })
   },
 
@@ -69,6 +72,8 @@ OTU_PICKER_WIDGET = {
       $("#taxon_name_id_for_inline_otu_picker").val('');
 
       $("input[name='" + OTU_PICKER_WIDGET.object_name + "[otu_attributes][taxon_name_id]']").remove();
+
+
 
       OTU_PICKER_WIDGET.show_original_search(form);
 
