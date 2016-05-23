@@ -23,6 +23,12 @@
 	width: auto;
 }
 
+.otu_picker {
+	.new_plus {
+		display: none;
+	}
+}
+
 .new_added {
 	display: none;
 	border-radius: 50%;
@@ -61,8 +67,6 @@
 }
 
 .inline_otu_picker {
-	//position: relative;
-	//min-height: 50px;
 	display: flex;
 	align-items: center;
 	flex-direction: row;
@@ -76,6 +80,7 @@
 
 .new_plus {
 	border-radius: 50%;
+	display: block;
 	width: 30px;
 	height: 30px;
 	background-color: #AED581;
@@ -85,6 +90,20 @@
 	background-image: image-url("bplus.svg");
 	box-shadow: 0px 1px 2px 0px #444;
 }
+
+.delete-circle {
+	border-radius: 50%;
+	display: block;
+	width: 30px;
+	height: 30px;
+	background-color: #F44336;
+	font-size: 0px;
+	background-position: center;
+	background-repeat: no-repeat;
+	background-image: image-url("trash.svg");
+	box-shadow: 0px 1px 2px 0px #444;
+}
+
 .autocomplete.ui-menu-item {
 	word-wrap: break-word;
 	padding: .2em;
@@ -103,13 +122,8 @@
 	}    
 }
 
-#new_taxon_determination {
-
-
-}
-
 #new_otu {
-	width: 260px;
+	width: 220px;
 	border-radius: 2px;
 	box-shadow: 0px 2px 3px 0px $navigation_border;
 	background-color: #FAFAFA;
@@ -131,13 +145,19 @@
 	}
 	.link {
 		padding: 5px;
-
 		align-items: center;
 		display: flex;
-		flex-direction: row;
+		flex-direction: column;
 		justify-content: space-between;
 		a {
 			margin: 5px;
 		}
 	}
+}
+
+
+/* ------------------ */
+
+.remove_row {
+	@extend .delete-circle;
 }
