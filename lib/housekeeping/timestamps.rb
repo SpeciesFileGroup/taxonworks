@@ -31,7 +31,15 @@ module Housekeeping::Timestamps
     def updated_in_last(time)
       where(updated_at: time.ago..Time.now)
     end
-  
+
+    def created_last(number = 10)
+      limit(number).order(created_at: :DESC)
+    end
+
+    def updated_last(number = 10)
+      limit(number).order(updated_at: :DESC)
+    end
+
   end
 
   def data_breakdown_for_chartkick_recent
