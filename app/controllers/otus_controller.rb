@@ -84,15 +84,15 @@ class OtusController < ApplicationController
 
   def autocomplete
     @otus = Otu.find_for_autocomplete(params.merge(project_id: sessions_current_project_id)).includes(:taxon_name)
-    
-    data  = @otus.collect do |t|
-      {id: t.id,
-       label: ApplicationController.helpers.otu_autocomplete_selected_tag(t),
-       gid: t.to_global_id.to_s,
+
+    data = @otus.collect do |t|
+      {id:              t.id,
+       label:           ApplicationController.helpers.otu_autocomplete_selected_tag(t),
+       gid:             t.to_global_id.to_s,
        response_values: {
          params[:method] => t.id
        },
-       label_html: ApplicationController.helpers.otu_tag(t)
+       label_html:      ApplicationController.helpers.otu_tag(t)
       }
     end
 
@@ -103,19 +103,38 @@ class OtusController < ApplicationController
   end
 
   def preview_simple_batch_load
-    @otus = Otu.batch_preview(file: params[:file].tempfile)
-    @file = params[:file].read
-    render 'otus/batch_load/batch_preview'
+    if params[:file]
+      @result = BatchLoad::Import::Otus.new(batch_params.merge(user_map))
+      digest_cookie(params[:file].tempfile, :batch_otus_md5)
+      render('otus/batch_load/simple/preview')
+    else
+      flash[:notice] = 'No file provided!'
+      redirect_to action: :batch_load
+    end
+
+    # @otus = Otu.batch_preview(file: params[:file].tempfile)
+    # @file = params[:file].read
+    # render 'otus/batch_load/batch_preview'
   end
 
   def create_simple_batch_load
-    if @otus = Otu.batch_create(params.symbolize_keys.to_h)
-      flash[:notice] = "Successfully batch created #{@otus.count} OTUs."
-    else
-      # TODO: more response
-      flash[:notice] = 'Failed to create the Otus.'
+    if params[:file] && digested_cookie_exists?(params[:file].tempfile, :batch_otus_md5)
+      @result = BatchLoad::Import::Otus.new(batch_params.merge(user_map))
+      if @result.create
+        flash[:notice] = "Successfully processed file, #{@result.total_records_created} otus were created."
+        render('otus/batch_load/simple/create') and return
+      else
+        flash[:alert] = 'Batch import failed.'
+      end
+      render(:batch_load)
     end
-    redirect_to otus_path
+    # if @otus = Otu.batch_create(params.symbolize_keys.to_h)
+    #   flash[:notice] = "Successfully batch created #{@otus.count} OTUs."
+    # else
+    #   # TODOne: more response
+    #   flash[:notice] = 'Failed to create the Otus.'
+    # end
+    # redirect_to otus_path
   end
 
   # GET /otus/download
@@ -181,5 +200,13 @@ class OtusController < ApplicationController
 
   def otu_params
     params.require(:otu).permit(:name, :taxon_name_id)
+  end
+
+  def batch_params
+    params.permit(:name, :file, :import_level).merge(user_id: sessions_current_user_id, project_id: $project_id).symbolize_keys
+  end
+
+  def user_map
+    {user_header_map: {'otu' => 'otu_name'}}
   end
 end

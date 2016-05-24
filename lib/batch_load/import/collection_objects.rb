@@ -1,7 +1,6 @@
 require 'digest/bubblebabble'
 
 module BatchLoad
-  # TODO: Originally transliterated from Import::AssertedDistributions: Remove this to-do after successful operation.
   class Import::CollectionObjects < BatchLoad::Import
 
     attr_accessor :collection_objects
