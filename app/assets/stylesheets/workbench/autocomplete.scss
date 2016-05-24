@@ -5,6 +5,7 @@
 }
 
 .expandable {
+	width: 200px;
 	border: 1px solid #AED581;
 }
 
@@ -16,7 +17,9 @@
 
 .injected_new_header {
 	font-weight: bold;
-	margin-bottom: 1em;
+	margin-bottom: 15px;
+	padding-bottom: 5px;
+	border-bottom: 1px solid  $navigation_background;
 }
 
 .ui-menu {
@@ -50,7 +53,7 @@
 	background-position: center;
 	background-repeat: no-repeat;
 	background-image: image-url("ok.svg");
-	box-shadow: 0px 1px 2px 0px #444;
+	box-shadow: 0px 1px 2px 0px #888;
 }
 
 #otu_picker_new_undo {
@@ -63,7 +66,7 @@
 	background-position: center;
 	background-repeat: no-repeat;
 	background-image: image-url("undo.svg");
-	box-shadow: 0px 1px 2px 0px #444;	
+	box-shadow: 0px 1px 2px 0px #888;	
 }
 
 .inline_otu_picker {
@@ -88,7 +91,7 @@
 	background-position: center;
 	background-repeat: no-repeat;
 	background-image: image-url("bplus.svg");
-	box-shadow: 0px 1px 2px 0px #444;
+	box-shadow: 0px 1px 2px 0px #888;
 }
 
 .delete-circle {
@@ -101,7 +104,7 @@
 	background-position: center;
 	background-repeat: no-repeat;
 	background-image: image-url("trash.svg");
-	box-shadow: 0px 1px 2px 0px #444;
+	box-shadow: 0px 1px 2px 0px #888;
 }
 
 .autocomplete.ui-menu-item {
@@ -126,11 +129,14 @@
 	width: 220px;
 	border-radius: 2px;
 	box-shadow: 0px 2px 3px 0px $navigation_border;
-	background-color: #FAFAFA;
+	border: 1px solid $navigation_border;
+	//background-color: #FAFAFA;
 	padding: 15px;
 	margin-bottom: 15px;
+	position: relative;
 	flex-direction: row;
 	.fields {
+		padding-left: 15px;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
@@ -144,15 +150,32 @@
 		transition: block 0.3s ease;
 	}
 	.link {
-		padding: 5px;
 		align-items: center;
 		display: flex;
 		flex-direction: column;
 		justify-content: space-between;
-		a {
-			margin: 5px;
-		}
 	}
+
+	#otu_picker_new_undo {
+		position: absolute;
+		top:5px;
+		right: -15px;
+	}
+
+	#otu_picker_new_undo:hover {
+		-webkit-animation-name: rotate; 
+		-webkit-animation-duration: 0.5s; 
+		-webkit-animation-iteration-count: 1;
+		-webkit-animation-timing-function: linear;
+		-moz-animation-name: rotate; 
+		-moz-animation-duration: 0.5s; 
+		-moz-animation-iteration-count: 1;
+		-moz-animation-timing-function: linear;
+	}
+	@-webkit-keyframes rotate {
+		from {-webkit-transform: rotate(360deg);}
+		to {-webkit-transform: rotate(0deg);}
+	}	
 }
 
 

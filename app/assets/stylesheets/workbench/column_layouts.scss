@@ -12,6 +12,11 @@ http://flexboxin5.com/
  	justify-content: center;
  }
 
+ .flex-separate {
+ 	display: flex;
+ 	justify-content: space-between;
+ }
+
  .separate-top {
  	margin-top: $standard_padding*0.5;
  }
