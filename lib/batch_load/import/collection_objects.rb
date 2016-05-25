@@ -36,10 +36,11 @@ module BatchLoad
         @processed_rows.merge!(i => parse_result)
 
         # hot-wire the project into the row
-        row['project_id'] = @project_id.to_s if row['project_id'].blank?
+        temp_row               = row
+        temp_row['project_id'] = @project_id.to_s if row['project_id'].blank?
 
         begin # processing the CollectionObject
-          co_list = BatchLoad::ColumnResolver.collection_object_by_identifier(row)
+          co_list = BatchLoad::ColumnResolver.collection_object_by_identifier(temp_row)
           if co_list.no_matches? # no namespace to search!
             parse_result.parse_errors.push(co_list.error_messages.first)
             i += 1 # can't skip the increment!
@@ -57,7 +58,7 @@ module BatchLoad
         begin # processing the Otu
           otu            = nil
           otu_attributes = {name: row['otu_name']}
-          otu_list       = BatchLoad::ColumnResolver.otu(row)
+          otu_list       = BatchLoad::ColumnResolver.otu(temp_row)
           otu            = otu_list.item if otu_list.resolvable?
           otu_match      = Digest::SHA256.digest(otu_attributes.to_s)
           otu            = build_objects[otu_match] if otu.blank?
