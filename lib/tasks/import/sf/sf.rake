@@ -15,40 +15,66 @@ namespace :tw do
 
       desc 'create valid taxa for Embioptera (FileID = 60)'
       task :create_valid_taxa_for_embioptera => [:data_directory, :environment, :user_id] do
-        ### rake tw:project_import:species_file:create_valid_taxa_for_embioptera user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
+        ### time rake tw:project_import:species_file:create_valid_taxa_for_embioptera user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
 
         species_file_data = Import.find_or_create_by(name: 'SpeciesFileData')
         get_user_id = species_file_data.get('FileUserIDToTWUserID') # for housekeeping
         get_rank_string = species_file_data.get('SFRankIDToTWRankString')
+        get_apex_taxon_id = species_file_data.get('TWProjectIDToSFApexTaxonID')
+        get_source_id = species_file_data.get('SFRefIDToTWSourceID')
+
+        sf_taxon_name_id_to_tw_taxon_name_id = {} # hash of SF.AboveIDs = parent_id, key = SF.TaxonNameID, value = TW.taxon_name.id
+        get_parent_id = sf_taxon_name_id_to_tw_taxon_name_id
+
+
+        # name_status_lookup = {
+        #     1 => 'TaxonNameClassification::Iczn::'
+        # }
+
+        # if temporary, don't make taxon name, make an OTU, that OTU has the TaxonNameID of the AboveID as the taxon name reference (or find the most recent valid above ID)
+
+
+        project_id = Project.find_by_name('embioptera_species_file').id
+        apex_taxon_name_id = get_apex_taxon_id[project_id.to_s]
 
         path = @args[:data_directory] + 'working/tblTaxa.txt'
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: "UTF-16:UTF-8")
 
+        # first loop to get ApexTaxonNameID.AboveID
+        # puts "before the first loop, apex_taxon_name_id = #{apex_taxon_name_id.class}"
+        file.each do |row|
+          next unless row['TaxonNameID'] == apex_taxon_name_id
+          get_parent_id[row['AboveID']] = TaxonName.find_by(project_id: project_id, name: 'Root').id # substitute for row['AboveID']
+          break
+        end
+        # puts 'done with first loop'
+        # ap get_parent_id
+
         error_counter = 0
         count_found = 0
-        project_id = Project.find_by_name('embioptera_species_file').id
 
         file.each_with_index do |row, i|
           taxon_name_id = row['TaxonNameID']
-          next unless row['TaxonNameStr'].start_with?('1171736')
-          next unless row['NameStatus'] == 0
+          next unless row['TaxonNameStr'].start_with?(apex_taxon_name_id)
+          next unless row['NameStatus'] == '0'
           # Valid names only, 18, including 0, instances of StatusFlags > 0 when NameStatus = 0
+          # NameStatus should be attached to taxon_name as data_attribute?
 
           count_found += 1
           print "working with TaxonNameID #{taxon_name_id} (count #{count_found}) \n"
 
-          if count_found = 1
-            parent_id = TaxonName.where(project_id: project_id, name: 'Root')
-          else
-            parent_id = previous_parent_id
-          end
-
-          taxon_name = TaxonName.new(
+          taxon_name = Protonym.new(
+              # taxon_name = TaxonName.new(
               name: row['Name'],
-              parent_id: parent_id,
+              parent_id: get_parent_id[row['AboveID']],
               rank_class: get_rank_string[row['RankID']],
+              # type: 'Protonym',
 
-              type: 'Protonym',
+              origin_citation_attributes: {source_id: get_source_id[row['RefID']], project_id: project_id,
+                                           created_by_id: get_user_id[row['CreatedBy']], updated_by_id: get_user_id[row['ModifiedBy']]},
+
+              # original_genus_id: cannot set until all taxa (for a given project) are imported; and the out of scope taxa as well,
+
               project_id: project_id,
               created_at: row['CreatedOn'],
               updated_at: row['LastUpdate'],
@@ -56,8 +82,45 @@ namespace :tw do
               updated_by_id: get_user_id[row['ModifiedBy']]
           )
 
+          if taxon_name.save
+
+            sf_taxon_name_id_to_tw_taxon_name_id[row['TaxonNameID']] = taxon_name.id
+
+          else
+            error_counter += 1
+            puts "     ERROR (#{error_counter}): " + taxon_name.errors.full_messages.join(';')
+            puts "  project_id: #{project_id}, SF.TaxonNameID: #{row['TaxonNameID']}, TW.taxon_name.id #{taxon_name.id} sf row created by: #{row['CreatedBy']}, sf row updated by: #{row['ModifiedBy']}    "
+          end
+
         end
 
+
+      end
+
+      desc 'create project_id: apex_taxon_id hash'
+      task :create_apex_taxon_id_hash => [:data_directory, :environment, :user_id] do
+        ### rake tw:project_import:species_file:create_apex_taxon_id_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
+
+        species_file_data = Import.find_or_create_by(name: 'SpeciesFileData')
+        get_project_id = species_file_data.get('SFFileIDToTWProjectID') # cross ref hash
+
+        # make hash of AboveIDs = parent_id, key = TW.project.id, value = TW.ApexTaxonNameID.value
+        tw_project_id_to_sf_apex_taxon_id = {}
+
+        path = @args[:data_directory] + 'working/tblConstants.txt'
+        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: "UTF-16:UTF-8")
+
+        file.each_with_index do |row, i|
+          next unless row['Name'] == 'ApexTaxonNameID'
+
+          tw_project_id_to_sf_apex_taxon_id[get_project_id[row['FileID']]] = row['Value']
+
+        end
+
+        i = Import.find_or_create_by(name: 'SpeciesFileData')
+        i.set('TWProjectIDToSFApexTaxonID', tw_project_id_to_sf_apex_taxon_id)
+
+        ap tw_project_id_to_sf_apex_taxon_id
       end
 
       desc 'create rank hash'
@@ -395,6 +458,7 @@ namespace :tw do
 
       end
 
+      # :create_no_ref_list_array is now created on the fly in :create_sources (data conflicts)
       # desc 'make array from no_ref_list'
       # task :create_no_ref_list_array => [:data_directory, :environment, :user_id] do
       #   ### rake tw:project_import:species_file:create_no_ref_list_array user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
