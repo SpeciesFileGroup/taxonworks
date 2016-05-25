@@ -455,17 +455,17 @@ class CollectingEvent < ActiveRecord::Base
     end
 
     def data_attributes
-      column_names.reject{|c| %w{id project_id created_by_id updated_by_id created_at updated_at project_id}.include?(c) || c =~ /^cached/ } 
+      column_names.reject { |c| %w{id project_id created_by_id updated_by_id created_at updated_at project_id}.include?(c) || c =~ /^cached/ }
     end
 
   end # << end class methods
 
   def has_data?
     CollectingEvent.data_attributes.each do |a|
-      return true if !self.send(a).blank? 
+      return true if !self.send(a).blank?
     end
     return true if georeferences.any?
-    false 
+    false
   end
 
   # @return [Boolean]
@@ -480,13 +480,13 @@ class CollectingEvent < ActiveRecord::Base
 
   # @return [String]
   def end_date_string
-    date = end_date 
+    date = end_date
     "#{'%02d' % date.day}/#{'%02d' % date.month}/#{'%4d' % date.year}" unless date.nil?
   end
 
   # @return [String]
   def start_date_string
-    date = start_date 
+    date = start_date
     "#{'%02d' % date.day}/#{'%02d' % date.month}/#{'%4d' % date.year}" unless date.nil?
   end
 
@@ -585,9 +585,11 @@ class CollectingEvent < ActiveRecord::Base
   # @param [Double] distance in meters
   # @return [Scope]
   def collecting_events_within_radius_of(distance)
-    return where(id: -1) if !preferred_georeference
+    return CollectingEvent.where(id: -1) if !preferred_georeference
     geographic_item_id = preferred_georeference.geographic_item_id
-    CollectingEvent.not_self(self).joins(:geographic_items).where(GeographicItem.within_radius_of_item_sql(geographic_item_id, distance) )
+    CollectingEvent.not_self(self)
+      .joins(:geographic_items)
+      .where(GeographicItem.within_radius_of_item_sql(geographic_item_id, distance))
   end
 
   # @return [Scope]
