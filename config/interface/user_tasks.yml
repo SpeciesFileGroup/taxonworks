@@ -1,9 +1,9 @@
 # !! YOU MUST RESTART THE SERVER FOR CHANGES HERE TO TAKE AFFECT !!
-# 
+#
 # All routes scoped to /tasks _may_ be further annotated here.
 # YAML is organized by:
 #
-# prefix: 
+# prefix:
 #   attribute: value
 #   attribute: value
 #
@@ -15,7 +15,7 @@
 #   hub - true if this tasks should appear at the hub, these tasks MAY NOT require parameters
 #   categories - an array of one ore more of [CollectingEvent, CollectionObject, Source, TaxonName]
 #   status - one of [complete, stable, prototype,  unknown (default) ]
-#               complete: users can expect the interfaces to remain in their present form 
+#               complete: users can expect the interfaces to remain in their present form
 #               stable: primary elements are complete, but minor changes (CSS, feedback etc.) may change
 #               prototype: while production ready, anything can change
 #               uknown: task has not been classifed
@@ -23,63 +23,73 @@
 ---
 nearby_locality_task:
   hub: true
-  name: 'Nearby collecting events' 
+  name: 'Nearby collecting events'
   related:
     - collecting_events
     - geographic_areas
   categories:
     - collecting_event
-  status: prototype 
-  description: 'Find collecting events within a selected radius'
+  status: prototype
+  description: 'Find collecting events within a selected radius.'
+new_list_task:
+  hub: true
+  name: 'Alphabetical list of localities'
+  related:
+    - collecting_events
+    - geographic_areas
+  categories:
+    - collecting_event
+  status: prototype
+  description: 'Find collecting events within a selected area.'
 within_locality_task:
   name:
 similar_serials_task:
   hub: true
-  name: 
+  name:
   related:
     - serials
   categories:
     - source
-  status: prototype 
+  status: prototype
 user_activity_report_task:
-  name: 
+  name:
 verify_accessions_task:
-  name: 
+  name:
 quick_verbatim_material_task:
   hub: true
   name: 'Quick verbatim material'
-  description: 'Create new specimen or lot records with verbatim data only.' 
-  related: 
+  description: 'Create new specimen or lot records with verbatim data only.'
+  related:
     - namespaces
     - build_biocuration_groups_task
   categories:
     - collecting_event
     - collection_object
-  status: prototype 
+  status: prototype
 create_verbatim_material_task:
-  name: 
+  name:
 new_verbatim_reference_task:
-  hub: true 
+  hub: true
   name: 'New source from citation'
   description: 'Create a new source by pasting in the full text of a citation. The citation will automatically be tested against Crossref and parsed into individual fields (BibTex) if possible.'
-  categories: 
-    - source 
-  status: prototype 
+  categories:
+    - source
+  status: prototype
 create_verbatim_reference_task:
-  name: 
+  name:
 build_biocuration_groups_task:
   hub: true
   name: 'Manage biocuration types and groups'
   description: 'Create bio-curation categories that are used to organize physical collections (e.g. specimens and lots).'
-  related: 
-    - build_biocuration_group_task 
+  related:
+    - build_biocuration_group_task
   categories:
     - collection_object
     - build_biocuration_groups_task
-  status: stable 
+  status: stable
 build_biocuration_group_task:
-  name: 
-  related: 
+  name:
+  related:
     - build_biocuration_groups_task
 match_georeference_task:
   hub: true
@@ -88,7 +98,7 @@ match_georeference_task:
   categories:
     - collecting_event
     - collection_object
-  status: prototype 
+  status: prototype
 otu_distribution_data_task:
   hub: true
   name: 'OTU distribution data'
@@ -96,7 +106,7 @@ otu_distribution_data_task:
   categories:
     - collecting_event
     - collection_object
-  status: prototype 
+  status: prototype
 gis_report_task:
   hub: true
   name: 'GIS collection object report'
@@ -104,27 +114,27 @@ gis_report_task:
   categories:
     - collecting_event
     - collection_object
-  status: prototype 
+  status: prototype
 author_list_task:
   hub: true
   name: 'Alphabetical list of source authors'
   description: 'Display all source authors with links to source list.'
-  categories: 
-    - source 
-  status: prototype 
+  categories:
+    - source
+  status: prototype
 sqed_depiction_breakdown_todo_map_task:
   hub: true
   name: 'Collection object image breakdown TODO list'
   description: 'Lists all collection objects currently being processed through depictions.  Indicates those that have transcribed provisional ("buffered") collecting event data.'
-  categories: 
+  categories:
     - collecting_event
     - collection_object
-  status: stable 
+  status: stable
 simple_specimen_task:
   hub: true
   name: 'Simple new specimen'
   description: 'A bare bones specimen creation interface. Creates related collectinge events, images, and identifiers.'
-  categories: 
+  categories:
     - collection_object
     - collecting_event
   status: prototype
