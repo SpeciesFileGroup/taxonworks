@@ -88,6 +88,24 @@ class GeographicItem < ActiveRecord::Base
 
   class << self
 
+    # @param [Integer] geographic_area_id
+    # @param [String] shape_in in json
+    # @param [String] search_object_class
+    # @param [Boolean] paging (default false)
+    # @param [Integer] page (default 1)
+    # @return [Scope] of the requested search_object_type
+    def gather_selected_data(geographic_area_id, shape_in, search_object_class, paging = false, page = 1)
+      if shape_in.blank?
+        shape_in = GeographicArea.joins(:geographic_items)
+                     .find(geographic_area_id)
+                     .default_geographic_item.geo_object
+        found    = gather_area_data(shape_in, search_object_class, paging, page)
+      else
+        found = gather_map_data(shape_in, search_object_class, paging, page)
+      end
+      found
+    end
+
     # @param [geo_object]
     # @param [String] search_object_class
     # @param [Boolean] paging

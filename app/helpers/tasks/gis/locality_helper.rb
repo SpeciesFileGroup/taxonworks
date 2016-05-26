@@ -17,14 +17,14 @@ module Tasks::Gis::LocalityHelper
 
     content_tag(:p) do
       content_tag(:h3, letter, style: style ) do
-        link_to('top', '#top') 
+        link_to('top', '#top')
       end
     end
 
-   #"<p>
-   #  <h3 style=\>#{letter}</h3> 
-   #  <a href=\"#top\">top</a>
-   #</p>"
+    #"<p>
+    #  <h3 style=\>#{letter}</h3>
+    #  <a href=\"#top\">top</a>
+    #</p>"
   end
 
   def select_locality_count(letter)
@@ -33,7 +33,9 @@ module Tasks::Gis::LocalityHelper
 
   # localities within @geographic_item which have a verbatim_locality starting with letter
   def select_locality(letter)
-    CollectingEvent.where(id: @collecting_events.map(&:id)).where("verbatim_locality like '#{letter}%'")
+    CollectingEvent.where(id: @collecting_events.map(&:id))
+      .where("verbatim_locality like '#{letter}%'")
+      .order(:verbatim_locality)
   end
 
   def locality_georeferences(collecting_events, geographic_area)

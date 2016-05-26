@@ -45,17 +45,7 @@ class Tasks::Gis::ReportController < ApplicationController
         @selected_column_names         = current_headers
         session['co_selected_headers'] = current_headers
         # get first 25 records
-        if shape_in.blank?
-          @geographic_area         = GeographicArea.joins(:geographic_items).find(geographic_area_id)
-          @list_collection_objects = GeographicItem.gather_area_data(@geographic_area
-                                                                       .default_geographic_item.geo_object, finding,
-                                                                     true,
-                                                                     params[:page])
-        else
-          @list_collection_objects = GeographicItem.gather_map_data(shape_in, finding,
-                                                                    true,
-                                                                    params[:page])
-        end
+        @list_collection_objects       = GeographicItem.gather_selected_data(geographic_area_id, shape_in, finding, true, params[:page])
       when 'download'
         # fixme: repair this: it aborts use of Redis, and forces load of all data
         test_redis_not = false
@@ -75,12 +65,8 @@ class Tasks::Gis::ReportController < ApplicationController
           table_data = nil
         end
 
-        if shape_in.blank?
-          @list_collection_objects = GeographicItem.gather_map_data(shape_in, 'CollectionObject', false)
-        else
-          @list_collection_objects = GeographicItem.gather_area_data(geographic_area_id, 'CollectionObject', false)
-        end
-        report_file = CollectionObject.generate_report_download(@list_collection_objects, current_headers, table_data)
+        @list_collection_objects = GeographicItem.gather_selected_data(geographic_area_id, shape_in, finding, false)
+        report_file              = CollectionObject.generate_report_download(@list_collection_objects, current_headers, table_data)
         send_data(report_file, type: 'text', filename: "collection_objects_report_#{DateTime.now.to_s}.csv")
       else
     end
