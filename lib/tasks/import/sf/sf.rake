@@ -14,12 +14,6 @@ namespace :tw do
       #   Currently ProjectSources do not allow data_attributes or notes
 
 
-      desc 'run rake between sources and source roles'
-      task :run_tasks_between_sources_and_source_roles => [:create_source_editor_array, :create_source_roles] do
-        ### time rake tw:project_import:species_file:run_tasks_between_sources_and_source_roles user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
-        puts 'Done with :get_source_editor_array, :create_source_editor_array, :create_source_roles'
-      end
-
       # import taxa
       # original_genus_id: cannot set until all taxa (for a given project) are imported; and the out of scope taxa as well
       # pass 1
@@ -199,6 +193,51 @@ namespace :tw do
       #
       # end
 
+      desc 'create book hash consisting of book_title:, publisher:, and place_published: (address)'
+      task :create_sf_book_hash => [:data_directory, :environment, :user_id] do
+        ### time rake tw:project_import:species_file:create_sf_book_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
+
+        species_file_data = Import.find_or_create_by(name: 'SpeciesFileData')
+        sf_pub_id_to_booktitle_publisher_address = {}
+
+        path = @args[:data_directory] + 'working/tblPubs.txt'
+        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: "UTF-16:UTF-8")
+
+        file.each_with_index do |row, i|
+          next unless row['PubType'] == '3'
+
+          print "working with PubID #{row['PubID']}".purple.bold
+
+          sf_pub_id_to_booktitle_publisher_address[row['PubID']] = {booktitle: row['ShortName'], publisher: row['Publisher'], address: row['PlacePublished']}
+
+        end
+
+        species_file_data.set('SFPubIDTitlePublisherAddress', sf_pub_id_to_booktitle_publisher_address)
+
+        ap sf_pub_id_to_booktitle_publisher_address
+
+
+        desc 'create RefIDToPubID hash'
+        task :create_ref_id_to_pub_id_hash => [:data_directory, :environment, :user_id] do
+          ### time rake tw:project_import:species_file:create_ref_id_to_pub_id_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
+
+          species_file_data = Import.find_or_create_by(name: 'SpeciesFileData')
+          sf_ref_id_to_sf_pub_id_hash = {}
+
+          path = @args[:data_directory] + 'working/tblRefs.txt'
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: "UTF-16:UTF-8")
+
+          file.each do |row|
+            sf_ref_id_to_sf_pub_id_hash[row['RefID']] = row['PubID']
+          end
+
+          species_file_data.set('SFRefIDToPubID', sf_ref_id_to_sf_pub_id_hash)
+          puts 'SF.RefID to SF.PubID'
+          ap sf_ref_id_to_sf_pub_id_hash
+
+        end
+      end
+
       desc 'create project_id: apex_taxon_id hash (all SFs)'
       task :create_apex_taxon_id_hash => [:data_directory, :environment, :user_id] do
         ### rake tw:project_import:species_file:create_apex_taxon_id_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
@@ -245,6 +284,12 @@ namespace :tw do
         i.set('SFRankIDToTWRankString', sf_rank_id_to_tw_rank_string)
 
         ap sf_rank_id_to_tw_rank_string
+      end
+
+      desc 'run rake between sources and source roles'
+      task :run_tasks_between_sources_and_source_roles => [:create_source_editor_array, :create_source_roles] do
+        ### time rake tw:project_import:species_file:run_tasks_between_sources_and_source_roles user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
+        puts 'Done with :get_source_editor_array, :create_source_editor_array, :create_source_roles'
       end
 
       desc 'create source roles'
