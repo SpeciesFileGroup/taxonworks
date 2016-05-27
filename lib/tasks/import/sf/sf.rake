@@ -14,11 +14,10 @@ namespace :tw do
       #   Currently ProjectSources do not allow data_attributes or notes
 
 
-      desc 'run all rake tasks through TBD'
-      task :run_tasks_through_ => [:run_tasks_through_sources, :get_source_editor_array, :get_source_editor_array,
-                                   :create_source_roles, :create_rank_hash, :create_apex_taxon_id_hash] do
-        puts 'Done with :run_tasks_through_sources, :get_source_editor_array, :get_source_editor_array,
-                                   :create_source_roles, :create_rank_hash, :create_apex_taxon_id_hash'
+      desc 'run rake between sources and source roles'
+      task :run_tasks_between_sources_and_source_roles => [:create_source_editor_array, :create_source_roles] do
+        ### time rake tw:project_import:species_file:run_tasks_between_sources_and_source_roles user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
+        puts 'Done with :get_source_editor_array, :create_source_editor_array, :create_source_roles'
       end
 
       # import taxa
@@ -46,7 +45,7 @@ namespace :tw do
         sf_taxon_name_id_to_tw_taxon_name_id = {} # hash of SF.AboveIDs = parent_id, key = SF.TaxonNameID, value = TW.taxon_name.id
         get_parent_id = sf_taxon_name_id_to_tw_taxon_name_id
 
-        tw_taxon_name_id_to_sf_status_flags = {}  # hash of TW.taxon_name_id = SF.StatusFlags
+        tw_taxon_name_id_to_sf_status_flags = {} # hash of TW.taxon_name_id = SF.StatusFlags
 
         # get reverse of TWProjectIDToSFApexTaxonID: no longer needed because we can use get_project_id
         # get_apex_taxon_project_id = {}
@@ -256,7 +255,7 @@ namespace :tw do
         get_person_id = species_file_data.get('SFPersonIDToTWPersonID')
         get_source_id = species_file_data.get('SFRefIDToTWSourceID')
         get_user_id = species_file_data.get('FileUserIDToTWUserID') # for housekeeping
-        get_source_editor = species_file_data.get('TWSourceEditorList') # if source.id is in array
+        source_editor_array = species_file_data.get('TWSourceEditorList') # if source.id is in array
 
         path = @args[:data_directory] + 'working/tblRefAuthors.txt'
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: "UTF-16:UTF-8")
@@ -278,7 +277,7 @@ namespace :tw do
           # project_id = ProjectSource.find_by_source_id(source_id).project_id
 
           # set flag if person is also editor; after role.save, make new record if is_editor
-          is_editor = (not get_source_editor[source_id].nil?)
+          is_editor = source_editor_array.include?(source_id)
 
           role = Role.new(
               person_id: get_person_id[row['PersonID']],
@@ -326,8 +325,8 @@ namespace :tw do
       end
 
       desc 'create source editor array (via tblRefs)'
-      task :get_source_editor_array => [:data_directory, :environment, :user_id] do
-        ### time rake tw:project_import:species_file:get_source_editor_array user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
+      task :create_source_editor_array => [:data_directory, :environment, :user_id] do
+        ### time rake tw:project_import:species_file:create_source_editor_array user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
 
         # is_editor, tblRefs.flags & 2 = 2 if set
         # loop through Refs and store only those w/editors
