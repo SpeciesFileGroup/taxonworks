@@ -94,7 +94,7 @@ function initializeGoogleMapWithDrawManager(widget_name) {
   var map_center = widget.data('map-center');
   var map_canvas = widget.data('map-canvas');
   var map = initializeGoogleMap(map_canvas, fcdata, map_center);
-  var drawingManager = initializeDrawingManager(map);
+  var drawingManager = initializeDrawingManager(map, widget.data('mapDrawingModes'));
 
   return [map, drawingManager];
 }
@@ -215,19 +215,152 @@ function initializeGoogleMap(map_canvas, fcdata, map_center) {
 }
 
 
-function initializeDrawingManager(map) {
+//var map_options = {
+//
+//  basic: {
+//    drawingMode: google.maps.drawing.OverlayType.CIRCLE,
+//    drawingControl: true,
+//    drawingControlOptions: {
+//      position: google.maps.ControlPosition.TOP_CENTER,
+//      drawingModes: [
+//        google.maps.drawing.OverlayType.MARKER,
+//        google.maps.drawing.OverlayType.CIRCLE,
+//        google.maps.drawing.OverlayType.POLYGON,
+//        google.maps.drawing.OverlayType.POLYLINE//,
+//        //   google.maps.drawing.OverlayType.RECTANGLE
+//      ]
+//    },
+//    markerOptions: {
+//      icon: '/assets/map_icons/mm_20_red.png',
+//      editable: true
+//    },
+//    circleOptions: {
+//      fillColor: '#66cc00',
+//      fillOpacity: 0.3,
+//      strokeWeight: 1,
+//      clickable: false,
+//      editable: true,
+//      zIndex: 1
+//    },
+//    polygonOptions: {
+//      fillColor: '#880000',
+//      fillOpacity: 0.3,
+//      editable: true,
+//      strokeWeight: 1,
+//      strokeColor: 'black'
+//    },
+//    polylineOptions: {
+//      fillColor: '#880000',
+//      fillOpacity: 0.3,
+//      editable: true,
+//      strokeWeight: 1,
+//      strokeColor: 'black'
+//    }
+//
+//  };
+//
+// map_options['picker'] = map_options['basic'].merge(
+//    drawingModes: [
+//      google.maps.drawing.OverlayType.CIRCLE,
+//      google.maps.drawing.OverlayType.POLYGON, /,
+//      //   google.maps.drawing.OverlayType.RECTANGLE
+//    ]
+//};
+//
+//
+//
+//myOptions = map_options['basic'].merge(map_options['picker_widget'] )
+//
+//myDrawingManger = new google.maps.drawing.DrawingManager((myOptions )
+//
+//
+//var drawing_managers = {
+//  all: new(google.maps.drawing.DrawingManager({
+//
+//
+//
+//  })),
+//
+//
+//
+//  picker: new(google... )
+//
+//}
+//
+//drawing_managers('picker).setMap(map)
+
+function makeOverlayType(mode) {
+  var drawingMode = undefined;
+  switch (mode) {                                       // set default drawingMode if valid
+    case 'MARKER':
+      drawingMode = google.maps.drawing.OverlayType.MARKER;
+      break;
+    case 'CIRCLE':
+      drawingMode = google.maps.drawing.OverlayType.CIRCLE;
+      break;
+    case 'POLYGON':
+      drawingMode = google.maps.drawing.OverlayType.POLYGON;
+      break;
+    case 'POLYLINE':
+      drawingMode = google.maps.drawing.OverlayType.POLYLINE;
+      break;
+    case 'RECTANGLE':
+      drawingMode = google.maps.drawing.OverlayType.RECTANGLE;
+      break;
+  }                                                               // default mode set or not, find counterpart item
+  return drawingMode;
+}
+
+
+function initializeDrawingManager(map, mapDrawingModes) {
+  var drawingMode = undefined;
+  var drawingModes = [];
+  if (mapDrawingModes != undefined) {                                            // attempt at defined modes exists
+    var modes = mapDrawingModes.split(',');                                     // separate into parts
+    modes.forEach(function (item, index) {
+      modes[index] = item.toUpperCase().trim()
+    });   // and isolate from any spaces
+    if (modes[0].indexOf('DEFAULT:') >= 0) {                           // if default mode specified
+      var defaultMode = modes[0].split(':');                          // separate key/value
+      defaultMode[1] = defaultMode[1].toUpperCase().trim();
+      drawingMode = makeOverlayType(defaultMode[1]);                 // set default drawingMode if valid
+      for (var i = 1; i < modes.length; i++) {
+        if (defaultMode[1] == modes[i]) {           // look for presence of default in latter list
+          drawingModes.push(makeOverlayType(modes[i]));                     // if it is, push it aS a semaphore
+        }
+      }
+      var j = 1;
+      var thisMode;
+      if (drawingModes.length) {
+        j = 0;
+        drawingModes = [];
+      }
+      for (i = j; i < modes.length; i++) {
+        thisMode = makeOverlayType(modes[i]);
+        if (thisMode) {
+          drawingModes.push(thisMode)
+        }
+        ;
+      }
+    }
+  }
+  else {                // use default setup
+    drawingModes = [
+      google.maps.drawing.OverlayType.MARKER,
+      google.maps.drawing.OverlayType.CIRCLE,
+      google.maps.drawing.OverlayType.POLYGON,
+      google.maps.drawing.OverlayType.POLYLINE//,
+      //google.maps.drawing.OverlayType.RECTANGLE
+    ];
+    drawingMode = google.maps.drawing.OverlayType.CIRCLE;
+  }
+
   var drawingManager = new google.maps.drawing.DrawingManager({
-    drawingMode: google.maps.drawing.OverlayType.CIRCLE,
+    drawingMode: drawingMode,
     drawingControl: true,
     drawingControlOptions: {
       position: google.maps.ControlPosition.TOP_CENTER,
-      drawingModes: [
-        google.maps.drawing.OverlayType.MARKER,
-        google.maps.drawing.OverlayType.CIRCLE,
-        google.maps.drawing.OverlayType.POLYGON,
-        google.maps.drawing.OverlayType.POLYLINE//,
-        //   google.maps.drawing.OverlayType.RECTANGLE
-      ]
+      drawingModes: drawingModes
     },
     markerOptions: {
       icon: '/assets/map_icons/mm_20_red.png',
