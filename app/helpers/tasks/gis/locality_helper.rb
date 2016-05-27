@@ -14,6 +14,11 @@ module Tasks::Gis::LocalityHelper
       style += 'color:lightgrey;'
     end
 
+    #"<p>
+    #  <h3 style=\>#{letter}</h3>
+    #  <a href=\"#top\">top</a>
+    #</p>"
+
     "<p><h3 style=\"#{style}\">#{letter}</h3> <a href=\"#top\">top</a></p>"
 
       # TODO: change to class
@@ -22,11 +27,6 @@ module Tasks::Gis::LocalityHelper
       #     link_to('top', '#top')
       #   end
       # end
-
-    #"<p>
-    #  <h3 style=\>#{letter}</h3>
-    #  <a href=\"#top\">top</a>
-    #</p>"
   end
 
   def select_locality_count(letter)
