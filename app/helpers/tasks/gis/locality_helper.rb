@@ -8,18 +8,20 @@ module Tasks::Gis::LocalityHelper
     ay_range.to_a.push('Z')
   end
 
-  # TODO: change to class
   def anchor_shade(letter)
     style = 'display:inline;'
     if select_locality_count(letter) == 0
       style += 'color:lightgrey;'
     end
 
-    content_tag(:p) do
-      content_tag(:h3, letter, style: style ) do
-        link_to('top', '#top')
-      end
-    end
+    "<p><h3 style=\"#{style}\">#{letter}</h3> <a href=\"#top\">top</a></p>"
+
+      # TODO: change to class
+      # content_tag(:p) do
+      #   content_tag(:h3, letter, style: style ) do
+      #     link_to('top', '#top')
+      #   end
+      # end
 
     #"<p>
     #  <h3 style=\>#{letter}</h3>
