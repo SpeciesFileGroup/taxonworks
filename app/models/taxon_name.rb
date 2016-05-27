@@ -579,7 +579,7 @@ class TaxonName < ActiveRecord::Base
 
   def create_new_combination_if_absent
     return true unless self.type == 'Protonym'
-    if TaxonName.with_cached_html(self.cached_html).count == 0
+    if !TaxonName.with_cached_html(self.cached_html).count == 0
       begin
         TaxonName.transaction do
           c = Combination.new
@@ -734,7 +734,7 @@ class TaxonName < ActiveRecord::Base
     if self.new_record?
       ancestors_through_parents
     else
-      self.self_and_ancestors(true).to_a.reverse 
+      self.self_and_ancestors(true).to_a.reverse ## .self_and_ancestors returns empty array!!!!!!!
     end
   end
 
