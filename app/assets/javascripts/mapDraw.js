@@ -315,24 +315,28 @@ function makeOverlayType(mode) {
 function initializeDrawingManager(map, mapDrawingModes) {
   var drawingMode = undefined;
   var drawingModes = [];
+  var i;
+  var j = 0;
   if (mapDrawingModes != undefined) {                                            // attempt at defined modes exists
     var modes = mapDrawingModes.split(',');                                     // separate into parts
     modes.forEach(function (item, index) {
       modes[index] = item.toUpperCase().trim()
     });   // and isolate from any spaces
-    if (modes[0].indexOf('DEFAULT:') >= 0) {                           // if default mode specified
+    if (modes[0].indexOf('ACTIVE:') >= 0) {                           // if default mode specified
       var defaultMode = modes[0].split(':');                          // separate key/value
       defaultMode[1] = defaultMode[1].toUpperCase().trim();
       drawingMode = makeOverlayType(defaultMode[1]);                 // set default drawingMode if valid
-      for (var i = 1; i < modes.length; i++) {
-        if (defaultMode[1] == modes[i]) {           // look for presence of default in latter list
-          drawingModes.push(makeOverlayType(modes[i]));                     // if it is, push it aS a semaphore
+      modes[0] = drawingMode.toUpperCase();                         // backfill the original vector
+      for (i = 1; i < modes.length; i++) {
+        if (defaultMode[1] == modes[i]) {                           // look for presence of default in latter list
+          drawingModes.push(makeOverlayType(modes[i]));             // if it is, push it as a semaphore
+          j = 1;
         }
       }
-      var j = 1;
+    }             // end SELECT:
       var thisMode;
-      if (drawingModes.length) {
-        j = 0;
+    if (drawingMode && drawingModes.length) {            // if >< 0 , there is a counterpart to the SELECT:
+      //j = 0;
         drawingModes = [];
       }
       for (i = j; i < modes.length; i++) {
@@ -340,10 +344,9 @@ function initializeDrawingManager(map, mapDrawingModes) {
         if (thisMode) {
           drawingModes.push(thisMode)
         }
-        ;
       }
-    }
-  }
+
+  }               // end != undefined
   else {                // use default setup
     drawingModes = [
       google.maps.drawing.OverlayType.MARKER,
