@@ -24,7 +24,6 @@ module Queries
       build_terms
     end
 
-
     # @return [Array]
     #   the results of the query as an *array*
     def result
@@ -62,15 +61,17 @@ module Queries
     end
 
     def strings
-      query_string.split(/\s+/).select{|t| !(t =~ /\d+/)} 
+      a = query_string.split(/\s+/).select{|t| !(t =~ /\d+/)} 
+      a.empty? ? [ query_string] : a
     end
 
     def years
-      integers.select{|a| a =~ /\d\d\d\d/}.map(&:to_s)
+      integers.select{|a| a =~ /\b\d{4}\b/}.map(&:to_s).compact
     end
 
+    # Replace with a full text indexing approach
     def build_terms
-      @terms = query_string.split(/\s+/).compact.collect{|t| [t, "#{t}%", "%#{t}%"]}.flatten # , "#{t}%", "%#{t}%"
+      @terms = query_string.split(/\s+/).compact.collect{|t| [t, "#{t}%", "%#{t}%"]}.flatten
     end
     
     def no_digits 

@@ -1,135 +1,138 @@
-# A Source is the metadata that identifies the origin of some information.
+# A Source is the metadata that identifies the origin of some information/data.
 #
 # The primary purpose of Source metadata is to allow the user to find the source, that's all.
 #
+# See https://en.wikipedia.org/wiki/BibTeX for a definition of attributes, in nearly all cases they are 1:1 with the TW model.  We use this https://github.com/inukshuk/bibtex-ruby awesomeness.  See https://github.com/inukshuk/bibtex-ruby/tree/master/lib/bibtex/entry, in particular rdf_converter.rb for the types of field managed. 
+#
+#
 # @!attribute serial_id
 #   @return [Integer]
-#   @todo
+#     The TaxonWorks Serial
 #
 # @!attribute address
 #   @return [String]
-#   @todo
+#    see https://en.wikipedia.org/wiki/BibTeX#Field_types
 #
 # @!attribute annote
 #   @return [String]
-#   @todo
+#    see https://en.wikipedia.org/wiki/BibTeX#Field_types
+#
+# @!attribute author
+#   @return [String]
+#    see https://en.wikipedia.org/wiki/BibTeX#Field_types
 #
 # @!attribute booktitle
 #   @return [String]
-#   @todo
+#    see https://en.wikipedia.org/wiki/BibTeX#Field_types
 #
 # @!attribute chapter
 #   @return [String]
-#   @todo
+#    see https://en.wikipedia.org/wiki/BibTeX#Field_types
 #
 # @!attribute crossref
 #   @return [String]
-#   @todo
+#    see https://en.wikipedia.org/wiki/BibTeX#Field_types
 #
 # @!attribute edition
 #   @return [String]
-#   @todo
+#    see https://en.wikipedia.org/wiki/BibTeX#Field_types
 #
 # @!attribute editor
 #   @return [String]
-#   @todo
+#    see https://en.wikipedia.org/wiki/BibTeX#Field_types
 #
 # @!attribute howpublished
 #   @return [String]
-#   @todo
+#    see https://en.wikipedia.org/wiki/BibTeX#Field_types
 #
 # @!attribute institution
 #   @return [String]
-#   @todo
+#    see https://en.wikipedia.org/wiki/BibTeX#Field_types
 #
 # @!attribute journal
 #   @return [String]
-#   @todo
+#    see https://en.wikipedia.org/wiki/BibTeX#Field_types
 #
 # @!attribute key
 #   @return [String]
-#   @todo
+#    see https://en.wikipedia.org/wiki/BibTeX#Field_types
 #
 # @!attribute month
 #   @return [String]
-#   @todo
+#    see https://en.wikipedia.org/wiki/BibTeX#Field_types
 #
 # @!attribute note
 #   @return [String]
-#   @todo
+#    see https://en.wikipedia.org/wiki/BibTeX#Field_types
 #
 # @!attribute number
 #   @return [String]
-#   @todo
+#    see https://en.wikipedia.org/wiki/BibTeX#Field_types
 #
 # @!attribute organization
 #   @return [String]
-#   @todo
+#    see https://en.wikipedia.org/wiki/BibTeX#Field_types
 #
 # @!attribute pages
 #   @return [String]
-#   @todo
+#    see https://en.wikipedia.org/wiki/BibTeX#Field_types
 #
 # @!attribute publisher
 #   @return [String]
-#   @todo
+#    see https://en.wikipedia.org/wiki/BibTeX#Field_types
 #
 # @!attribute school
 #   @return [String]
-#   @todo
+#    see https://en.wikipedia.org/wiki/BibTeX#Field_types
 #
 # @!attribute series
 #   @return [String]
-#   @todo
+#    see https://en.wikipedia.org/wiki/BibTeX#Field_types
 #
 # @!attribute title
 #   @return [String]
-#   @todo
+#    see https://en.wikipedia.org/wiki/BibTeX#Field_types
+#
+## @!attribute year
+#   @return [Integer]
+#    see https://en.wikipedia.org/wiki/BibTeX#Field_types
 #
 # @!attribute type
 #   @return [String]
-#   @todo
+#     An exception to the 1:1 modelling.  We retain for Rails STI usage. Either Source::Verbatim or Source::Bibtex.  The former can only consist of a single field (the full citation as a string).  The latter is a Bibtex model.  See "bibtex_type" for the bibtex attribute "type".
+#
+# @!attribute bibtex_type
+#   @return [String]
+#     alias for "type" in the bibtex framework  see https://en.wikipedia.org/wiki/BibTeX#Field_types
 #
 # @!attribute volume
 #   @return [String]
-#   @todo
+#    see https://en.wikipedia.org/wiki/BibTeX#Field_types
 #
 # @!attribute doi
 #   @return [String]
-#   @todo
+#    When provided also cloned to an Identifier::Global. See https://en.wikipedia.org/wiki/BibTeX#Field_types  
 #
 # @!attribute abstract
 #   @return [String]
-#   @todo
+#    see https://en.wikipedia.org/wiki/BibTeX#Field_types
 #
 # @!attribute copyright
 #   @return [String]
-#   @todo
+#    see https://en.wikipedia.org/wiki/BibTeX#Field_types
 #
 # @!attribute language
 #   @return [String]
-#   @todo
+#    see https://en.wikipedia.org/wiki/BibTeX#Field_types
 #
 # @!attribute stated_year
-#   @return [String]
-#   @todo
-#
-# @!attribute verbatim
-#   @return [String]
-#   @todo
-#
-# @!attribute bibtex_type
 #   @return [String]
 #   @todo
 #
 # @!attribute day
 #   @return [Integer]
 #   @todo
-#
-# @!attribute year
-#   @return [Integer]
-#   @todo
-#
+##
 # @!attribute isbn
 #   @return [String]
 #   @todo
@@ -137,6 +140,10 @@
 # @!attribute issn
 #   @return [String]
 #   @todo
+#
+# @!attribute verbatim
+#   @return [String]
+#     the full citation, used only for type = SourceVerbatim 
 #
 # @!attribute verbatim_contents
 #   @return [String]
@@ -148,7 +155,7 @@
 #
 # @!attribute language_id
 #   @return [Integer]
-#   @todo
+#     The TaxonWorks normalization of language to Language. 
 #
 # @!attribute translator
 #   @return [String]
@@ -156,27 +163,23 @@
 #
 # @!attribute year_suffix
 #   @return [String]
-#   @todo
+#     Arbitrary user-provided suffix to the year.  Use is highly discouraged. 
 #
 # @!attribute url
 #   @return [String]
 #   @todo
-#
-# @!attribute author
-#   @return [String]
-#   @todo
-#
+##
 # @!attribute cached
 #   @return [String]
-#   @todo
+#    calculated full citation, searched again in "full text"
 #
 # @!attribute cached_author_string
 #   @return [String]
-#   @todo
+#     calculated author string
 #
 # @!attribute cached_nomenclature_date
 #   @return [DateTime]
-#   @todo
+#     Date sensu nomenclature algorithm in TaxonWorks (see Utilities::Dates) 
 #
 class Source < ActiveRecord::Base
   include Housekeeping::Users

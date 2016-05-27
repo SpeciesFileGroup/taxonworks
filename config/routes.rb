@@ -271,6 +271,16 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
   end
 
+  resources :project_sources, only: [:index] do
+
+    collection do
+      get 'download'
+      get 'list'
+      get 'autocomplete'
+      get 'search'
+    end
+  end
+
   resources :public_contents, only: [:create, :update, :destroy]
 
   resources :ranged_lot_categories do

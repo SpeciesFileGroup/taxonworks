@@ -36,12 +36,12 @@ class SourcesController < ApplicationController
     respond_to do |format|
       if @source.save
         case @source.type
-          when 'Source::Bibtex'
-            format.html { redirect_to @source.metamorphosize, notice: "Source by '#{@source.author}' was successfully created." }
-          when 'Source::Verbatim'
-            format.html { redirect_to @source.metamorphosize, notice: "Source '#{@source.cached}' was successfully created." }
-          else # type human
-            format.html { redirect_to @source.metamorphosize, notice: "Source '#{@source.cached_author_string}' was successfully created." }
+        when 'Source::Bibtex'
+          format.html { redirect_to @source.metamorphosize, notice: "Source by '#{@source.author}' was successfully created." }
+        when 'Source::Verbatim'
+          format.html { redirect_to @source.metamorphosize, notice: "Source '#{@source.cached}' was successfully created." }
+        else # type human
+          format.html { redirect_to @source.metamorphosize, notice: "Source '#{@source.cached_author_string}' was successfully created." }
         end
 
         format.json { render action: 'show', status: :created, location: @source }
@@ -158,14 +158,13 @@ class SourcesController < ApplicationController
 
   private
 
-  # Use callbacks to share common setup or constraints between actions.
   def set_source
-    @source        = Source.find(params[:id])
+    @source = Source.find(params[:id])
     @recent_object = @source
   end
 
-  # Never trust parameters from the scary internet, only allow the white list through.
   def source_params
+    params['source'].merge!(project_sources_attributes: [{project_id: sessions_current_project_id.to_s}])
     params.require(:source).permit(
       :serial_id, :address, :annote, :author, :booktitle, :chapter,
       :crossref, :edition, :editor, :howpublished, :institution,
@@ -174,7 +173,8 @@ class SourcesController < ApplicationController
       :abstract, :copyright, :language, :stated_year, :verbatim,
       :bibtex_type, :day, :year, :isbn, :issn, :verbatim_contents,
       :verbatim_keywords, :language_id, :translator, :year_suffix, :url, :type,
-      roles_attributes: [:id, :_destroy, :type, :person_id, :position, person_attributes: [:last_name, :first_name, :suffix, :prefix]]
+      roles_attributes: [:id, :_destroy, :type, :person_id, :position, person_attributes: [:last_name, :first_name, :suffix, :prefix]],
+      project_sources_attributes: [:project_id]
     )
   end
 end

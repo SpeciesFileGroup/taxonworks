@@ -49,6 +49,12 @@ Core: # a Section
      related_models:
        - Serial
        - People
+  ProjectSource:
+    related_models:
+      - Source
+      - Person 
+    categories:
+      - Source
   BiologicalAssociation:
      status: :prototype
      related_models:
