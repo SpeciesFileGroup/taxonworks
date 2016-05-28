@@ -290,54 +290,43 @@ function initializeGoogleMap(map_canvas, fcdata, map_center) {
 //drawing_managers('picker).setMap(map)
 
 function makeOverlayType(mode) {
-  var drawingMode = undefined;
-  switch (mode) {                                       // set default drawingMode if valid
-    case 'MARKER':
-      drawingMode = google.maps.drawing.OverlayType.MARKER;
-      break;
-    case 'CIRCLE':
-      drawingMode = google.maps.drawing.OverlayType.CIRCLE;
-      break;
-    case 'POLYGON':
-      drawingMode = google.maps.drawing.OverlayType.POLYGON;
-      break;
-    case 'POLYLINE':
-      drawingMode = google.maps.drawing.OverlayType.POLYLINE;
-      break;
-    case 'RECTANGLE':
-      drawingMode = google.maps.drawing.OverlayType.RECTANGLE;
-      break;
-  }                                                               // default mode set or not, find counterpart item
-  return drawingMode;
+  // default mode set or not, find counterpart item
+  var drawingModes = {
+    "MARKER": google.maps.drawing.OverlayType.MARKER,
+    "CIRCLE": google.maps.drawing.OverlayType.CIRCLE,
+    "POLYGON": google.maps.drawing.OverlayType.POLYGON,
+    "POLYLINE": google.maps.drawing.OverlayType.POLYLINE,
+    "RECTANGLE": google.maps.drawing.OverlayType.RECTANGLE
+  }
+  return drawingModes[mode];
 }
 
 
 function initializeDrawingManager(map, mapDrawingModes) {
-  var drawingMode = undefined;
-  var drawingModes = [];
-  var i;
-  var j = 0;
-  if (mapDrawingModes != undefined) {                                            // attempt at defined modes exists
-    var modes = mapDrawingModes.split(',');                                     // separate into parts
-    modes.forEach(function (item, index) {
-      modes[index] = item.toUpperCase().trim()
-    });   // and isolate from any spaces
-    if (modes[0].indexOf('ACTIVE:') >= 0) {                           // if default mode specified
-      var defaultMode = modes[0].split(':');                          // separate key/value
-      defaultMode[1] = defaultMode[1].toUpperCase().trim();
-      drawingMode = makeOverlayType(defaultMode[1]);                 // set default drawingMode if valid
-      modes[0] = drawingMode.toUpperCase();                         // backfill the original vector
+  var drawingMode = undefined;      // "active: circle, polygon, circle" results in hand, polygon, circle(selected)
+  var drawingModes = [];            // "polygon, circle" results in hand(active), polygon, circle in draw mode menu
+  var i;                  // loop counter
+  var j = 0;              // offset for start of i-loop when ACTIVE:mode has explicit position
+  if (mapDrawingModes != undefined) {                               // attempt at defined modes exists
+    var modes = mapDrawingModes.split(',');                         // separate into parts
+    modes = modes.map(function (item) {                             // for every mode make CAPS
+      return item.toUpperCase().trim();                             // and isolate from any spaces
+    });
+    if (modes[0].indexOf('ACTIVE:') >= 0) {                         // if default mode specified
+      var defaultMode = modes[0].split(':');                        // separate key/value
+      defaultMode[1] = defaultMode[1].toUpperCase().trim();         // conform casing to other values for re-use
+      drawingMode = makeOverlayType(defaultMode[1]);                // set default drawingMode if valid (or undefined)
+      modes[0] = defaultMode[1].toUpperCase().trim();               // backfill the original vector, removing "active:"
       for (i = 1; i < modes.length; i++) {
         if (defaultMode[1] == modes[i]) {                           // look for presence of default in latter list
           drawingModes.push(makeOverlayType(modes[i]));             // if it is, push it as a semaphore
           j = 1;
         }
       }
-    }             // end SELECT:
+    }             // end ACTIVE:
       var thisMode;
-    if (drawingMode && drawingModes.length) {            // if >< 0 , there is a counterpart to the SELECT:
-      //j = 0;
-        drawingModes = [];
+    if (drawingMode && drawingModes.length) {            // if >< 0 , there is a counterpart to the ACTIVE:mode
+      drawingModes = [];                               // so start over with empty array
       }
       for (i = j; i < modes.length; i++) {
         thisMode = makeOverlayType(modes[i]);
