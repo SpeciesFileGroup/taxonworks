@@ -6,8 +6,15 @@ $(document).ready(function() {
 
 function initTaskCarrousel() {
 
+  if($(window).width() > 1500) {
+    task_column = 3;
+  }
+  else {
+    task_column = 2;
+  }
+
   var 
-    task = new carrouselTask("#task_carrousel",4,2);
+    task = new carrouselTask("#task_carrousel", task_column, task_column);
     task.addFilter("source");
     task.addFilter("collecting_event");
     task.addFilter("collection_object");
