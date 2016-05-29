@@ -19,6 +19,8 @@ var carrouselTask = function (sec, rows, columns) {
     this.filterChilds();
     this.makeInjection();
     this.injectNavList();
+
+    $(".task-section").css("width",((columns*475) + "px"));
   }
 
   carrouselTask.prototype.makeInjection = function() {

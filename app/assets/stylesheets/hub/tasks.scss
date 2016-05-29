@@ -8,15 +8,16 @@
   display: flex;
   flex-direction:column;
   justify-content:flex-start;
-  align-items: center;
+  //align-items: center;
 
   .task-section {
     display: flex;
     flex-direction: column;
     flex-wrap: wrap;
     justify-content: flex-start;
-    max-width: 930px;
+    //max-width: 930px;
     height: 500px;
+    align-items: center;
   }
 
   .task_card {
