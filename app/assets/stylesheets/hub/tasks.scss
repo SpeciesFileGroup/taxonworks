@@ -12,10 +12,11 @@
 
   .task-section {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     flex-wrap: wrap;
     justify-content: flex-start;
     max-width: 930px;
+    height: 500px;
   }
 
   .task_card {

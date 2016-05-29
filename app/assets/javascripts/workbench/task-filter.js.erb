@@ -2,18 +2,19 @@ var carrouselTask = function (sec, rows, columns) {
   // sec = Name of data section, this is for identify div.
   // rows = This is for the number of rows that will be displayed, if this number is less than the number of items, it will activate the navigation controls
   
-    this.childs = [],
-    this.start = 0,
-    this.middleBoxSize = 650,
-    this.boxSize = 500,
-    this.active = [];
-    this.arrayPos = 0;
-    this.maxRow = 4,
-    this.childsCount = 0,
-    this.sectionTag = "",
-    this.filters = {},
-    this.maxRow = rows,
-    this.sectionTag = sec;
+  this.childs = [],
+  this.start = 0,
+  this.middleBoxSize = 650,
+  this.boxSize = 500,
+  this.active = [];
+  this.arrayPos = 0;
+  this.maxRow = 4,
+  this.childsCount = 0,
+  this.sectionTag = "",
+  this.filters = {},
+  this.maxRow = rows,
+  this.sectionTag = sec;
+    this.changeTasks = 2; //Number of new task displayed when the user moves
     this.resetChildsCount();
     this.filterChilds();
     this.makeInjection();
@@ -43,7 +44,7 @@ var carrouselTask = function (sec, rows, columns) {
 
   carrouselTask.prototype.changeSelectedNavList = function(childIndex) {
     var
-      count = this.maxRow;
+    count = this.maxRow;
 
     $(this.sectionTag + " .task-nav-list").empty();      
 
@@ -78,7 +79,7 @@ var carrouselTask = function (sec, rows, columns) {
   }
 
   carrouselTask.prototype.resetChildsCount = function() {
-      this.childsCount = $(this.sectionTag + ' .task_card').length;
+    this.childsCount = $(this.sectionTag + ' .task_card').length;
   }
 
   carrouselTask.prototype.setFilterStatus = function(filterTag, value)  {
@@ -93,9 +94,12 @@ var carrouselTask = function (sec, rows, columns) {
 
   carrouselTask.prototype.showChilds = function(childIndex) {
     var 
-      count = 0;
+    count = 0;
 
     if (typeof childIndex !== "undefined") {
+      if(childIndex > this.active.length-this.maxRow) {
+        childIndex = this.active.length-this.maxRow;
+      }
       this.start = childIndex;
       this.changeSelectedNavList(childIndex);
       this.arrayPos = childIndex;
@@ -108,10 +112,10 @@ var carrouselTask = function (sec, rows, columns) {
     for (i = this.start; i < this.active.length; i++) {
 
       child = $(this.sectionTag + ' .task_card:nth-child('+ this.active[i] +')');
-        if(count < this.maxRow) {
-          child.show(250);
-        }
-        count++;
+      if(count < this.maxRow) {
+        child.show(250);
+      }
+      count++;
     }
     this.showMoreNav(((this.start + this.maxRow) <= this.active.length));
     this.noTaskFound(count);
@@ -127,12 +131,12 @@ var carrouselTask = function (sec, rows, columns) {
   }
   carrouselTask.prototype.filterChilds = function() {
     var 
-      find = 0,
-      activeCount = 0;
-      this.arrayPos = 0;
-      this.active = [];
-      this.childs = [];
-      
+    find = 0,
+    activeCount = 0;
+    this.arrayPos = 0;
+    this.active = [];
+    this.childs = [];
+
     for (i = 1; i <= this.childsCount; i++) {
       child = $(this.sectionTag + ' .task_card:nth-child('+ (i) +')');
       if(this.checkChildFilter(child)) {
@@ -161,32 +165,26 @@ var carrouselTask = function (sec, rows, columns) {
 
   carrouselTask.prototype.loadingDown = function() {
     var 
-      boxSize = this.boxSize,
-      middleBoxSize = this.middleBoxSize,
-      sectionTag = this.sectionTag,
-      arrayPos = this.arrayPos,
-      active = this.active;
-      maxRow = this.maxRow;
-      if(this.active.length > (this.arrayPos + maxRow)) {
-        if((arrayPos+maxRow) <= this.childsCount) {
-          $(sectionTag + " .task_card:nth-child("+ active[arrayPos] +")" ).hide(250, function() {     
-            $(sectionTag + " .task_card:nth-child("+ active[(arrayPos+maxRow)] +")" ).show(250)
-          });        
-        }
-        else {
-          $(sectionTag + " .task_card:nth-child("+ active[(arrayPos+maxRow)] +")" ).show(250)
-        }
-          if(this.arrayPos <= this.active.length) {
-            this.arrayPos++;
-          }         
-        this.changeSelectedNavList(this.arrayPos);            
-      }   
+    sectionTag = this.sectionTag,
+    active = this.active,
+    maxRow = this.maxRow,
+    changeTasks = this.changeTasks;
+
+    for(var i = 0; i < changeTasks; i++) {
+      if(this.active.length > (this.arrayPos + this.maxRow )) {
+        $(sectionTag + " .task_card:nth-child("+ active[(this.arrayPos)] +")" ).hide(0);
+        $(sectionTag + " .task_card:nth-child("+ active[(this.arrayPos+this.maxRow)] +")" ).fadeIn(250);
+        this.arrayPos++;
+      }
+    }      
+    this.changeSelectedNavList(this.arrayPos);            
   }
+
 
   carrouselTask.prototype.showMoreNav = function(value) {
     if(value) {
-        $('.more_tasks_nav').fadeIn(250);
-      } 
+      $('.more_tasks_nav').fadeIn(250);
+    } 
     else {
       $('.more_tasks_nav').fadeOut(250);
     }
@@ -194,24 +192,16 @@ var carrouselTask = function (sec, rows, columns) {
 
   carrouselTask.prototype.loadingUp = function() {
     var 
-      boxSize = this.boxSize,
-      middleBoxSize = this.middleBoxSize,
-      sectionTag = this.sectionTag,
-      arrayPos = this.arrayPos,
-      active = this.active;
-      maxRow = this.maxRow;
-      if(0 < (this.arrayPos + maxRow)) {
-        if((arrayPos) > 0) {
-          if((arrayPos + this.maxRow) <= this.active.length) { 
-            $(sectionTag + " .task_card:nth-child("+ active[arrayPos+maxRow-1] +")" ).hide(250, function() {
-              $(sectionTag + " .task_card:nth-child("+ active[arrayPos-1] +")" ).show(250)
-            });   
-          } 
-          else {
-              $(sectionTag + " .task_card:nth-child("+ active[arrayPos-1] +")" ).show(250)
-          }
-          this.arrayPos--;   
-        } 
-        this.changeSelectedNavList(this.arrayPos);     
-      } 
+    sectionTag = this.sectionTag,
+    active = this.active;
+    maxRow = this.maxRow;
+    changeTasks = this.changeTasks;
+    for(var i = 0; i < changeTasks; i++) {
+      if(this.arrayPos > 0) {
+        this.arrayPos--; 
+        $(sectionTag + " .task_card:nth-child("+ active[(this.arrayPos+maxRow)] +")" ).hide(0);
+        $(sectionTag + " .task_card:nth-child("+ active[(this.arrayPos)] +")" ).fadeIn(250);
+      }
+    }  
+    this.changeSelectedNavList(this.arrayPos);  
   }
