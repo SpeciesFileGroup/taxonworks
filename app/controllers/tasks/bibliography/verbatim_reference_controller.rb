@@ -5,53 +5,50 @@ class Tasks::Bibliography::VerbatimReferenceController <ApplicationController
   def new
   end
 
-
   # POST
   # gets the citation from user and passes it to preview
-  def create
+  def preview 
     @source = Source.new_from_citation(citation: params[:citation])
-    render 'tasks/bibliography/verbatim_reference/preview',
-           locals: {citation: params[:citation],
-                    source:   @source}
-    @source.delete # done with this object
   end
 
-  # lets the user select which type of source to create (and if BibTeX to create people or serials as well)
-  def preview
-    # Matt said to model this task along the lines of the bulk import with a preview & a create.
-
-    # There is a slight possibility that the resolver will return a different object or changed object
-    # the second time the source is sent to the resolver.
-
-    # on success go to edit source ==>  edit_source_path(@source)
-    # on fail flash[:notice]; render :new
-    continue = true
-    if params[:commit] == 'Create verbatim source'
-      @source = Source::Verbatim.create(:verbatim => params[:in_cite])
-    else # params[:commit] == 'Create BibTeX source'
-      @source = Source.new_from_citation(citation: params[:in_cite])
-      if @source.class == Source::Verbatim
-         continue = false
-      end
+  def create_verbatim
+    @source = Source.new(source_params)
+    if @source.save
+      flash[:notice] = 'Created source as verbatim.'
+    else
+      flash[:notice] = 'Failed to create verbatim source.'
     end
+    render :new
+  end
 
-    if continue && @source.save
-      flash[:notice] = "This #{@source.class} record was created."
+  def create_bibtex
+    @source = Source.new_from_citation(citation: params[:in_cite])
+    @source.project_sources_attributes = [{project_id: sessions_current_project_id}]
+
+    if @source.save
+      flash[:notice] = 'Created BibTeX record.'
       if params[:create_roles]
         if @source.create_related_people_and_roles
-          flash[:notice] = "Successfully created Bibtex Source, and #{@source.roles.count} people as authors/editors."
+          flash[:notice] << "Successfully created added #{@source.roles.count} people as authors/editors."
         else
-          flash[:notice] = 'Successfully created Bibtex Source, associated People records were not created.'
+          flash[:notice] << 'Associated People records were not created.'
         end
       end
       redirect_to edit_source_path(@source)
     else
-      if continue          # save must have failed
-        flash[:notice] = "An error occurred while creating the source record. #{@source.errors.messages}"
-      else # continue == false so was unable to create the bibtex record
-        flash[:notice] = 'BibTeX source was NOT created. The provided citation no longer resolves.'
-      end
-       redirect_to new_verbatim_reference_task_path(request.parameters)
+      flash[:notice] = "An error occurred while creating the source record. #{@source.errors.messages}"
+      redirect_to new_verbatim_reference_task_path(request.parameters)
     end
   end
+
+  protected
+
+  def source_params
+    params['source'].merge!(project_sources_attributes: [{project_id: sessions_current_project_id.to_s}])
+    params.require(:source).permit(:verbatim,
+                                   project_sources_attributes: [:project_id]
+                                  )
+  end
+
+  
 end

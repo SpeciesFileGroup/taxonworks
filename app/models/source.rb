@@ -245,7 +245,7 @@ class Source < ActiveRecord::Base
       end
 
       bibliography = BibTeX.parse(bibtex_string).convert(:latex)
-      b            = bibliography.first
+      b = bibliography.first
       return Source::Bibtex.new_from_bibtex(b)
     else
       return Source::Verbatim.new(verbatim: citation)

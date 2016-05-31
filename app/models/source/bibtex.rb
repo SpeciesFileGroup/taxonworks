@@ -774,7 +774,11 @@ class Source::Bibtex < Source
   end
 
   def set_cached_nomenclature_date
-    self.cached_nomenclature_date = Utilities::Dates.nomenclature_date(self.day, self.month, self.year)
+    self.cached_nomenclature_date = Utilities::Dates.nomenclature_date(
+      self.day,
+      Utilities::Dates.month_index(self.month), # this allows values from bibtex like 'may' to be handled 
+      self.year
+    )
   end
 
   # @todo move the test for nomenclature_date to spec/lib/utilities/dates_spec.rb

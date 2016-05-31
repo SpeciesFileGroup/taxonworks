@@ -398,9 +398,9 @@ TaxonWorks::Application.routes.draw do
     scope :bibliography do
       scope :verbatim_reference, controller: 'tasks/bibliography/verbatim_reference' do
         get 'new', as: 'new_verbatim_reference_task'
-        post 'create', as: 'create_verbatim_reference_task'
         post 'preview', as: 'preview_verbatim_reference_task'
-        post 'save', as: 'save_verbatim_reference_task'
+        post 'create_verbatim', as: 'create_verbatim_from_reference_task'
+        post 'create_bibtex', as: 'create_bibtex_from_reference_task'
       end
     end
 
