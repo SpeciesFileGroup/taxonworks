@@ -2,7 +2,10 @@
     <%= link_to("#{letter}", "\##{letter}") + ' |' -%>
 <% end %>
 <%= link_to('Z', '#Z') %><br>
-<%= "Collecting events without a verbatim locality: #{missing_verbatim_locality_count(@collecting_events)}" %>
+<p>
+  <%= "Total selected collecting events: #{@collecting_events.count}" %><br>
+  <%= "Collecting events without a verbatim locality: #{missing_verbatim_locality_count(@collecting_events)}" %>
+</p>
 
 <%#= az_range %>
 <% az_range.each do |letter| %>
