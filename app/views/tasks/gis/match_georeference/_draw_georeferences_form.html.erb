@@ -2,6 +2,7 @@
      data-feature-collection='<%= Gis::GeoJSON.feature_collection([]).to_json %>'
      data-map-center='POINT (0.0 0.0 0.0)'
      data-map-canvas="draw_gr_canvas"
+     data-map-drawing-modes="circle, polygon"
 >
   <%= form_tag(drawn_georeferences_path, method: 'get', remote: true) do %>
       <table>
