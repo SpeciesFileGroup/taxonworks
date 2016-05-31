@@ -13,7 +13,7 @@ Select the area_by_name selector, or the area_by_map selector.<br>
                           :display    => ''}) %>
 </div>
 <div id="map_selector" hidden="hidden">
-  <%= drawable_map([], 'border=1') -%>
+  <%= drawable_map([], 'border=1', drawing_modes) -%>
   <%= hidden_field_tag('drawn_area_shape') %>
 </div>
 <%= hidden_field_tag(:selection_object, selection_object) %>
