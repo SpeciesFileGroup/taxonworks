@@ -52,12 +52,28 @@ module Utilities::Dates
       end
     end
 
+  # @param [String]
+  # @param [Integer]
+  # @param [Symbol]
+  # @return [Integer]
+  #    return the month index
+  def self.month_index(month_value)
+    return nil if month_value.nil?
+    SHORT_MONTHS.index(SHORT_MONTH_FILTER[month_value].to_s) + 1
+  end
+
   # @return[Time] a UTC time (Uses Time instead of Date so that it can be saved as a UTC object -
   #   See http://www.ruby-doc.org/core-2.0.0/Time.html)
   #   Returns nomenclature_date based on computation of the values of :year, :month, :day.
   #    if :year is empty, return nil
   #    if :month is empty, returns 12/31/:year
   #    if :day is empty, returns the last day of the month
+  #
+  # Use self.month_index to convert months prior to handling them here
+  #
+  # @params [year: integer]
+  # @params [month: integer, nil]
+  # @params [day: integer, nil]
   #
   def self.nomenclature_date(day = nil, month = nil, year = nil)
     if year.nil?
