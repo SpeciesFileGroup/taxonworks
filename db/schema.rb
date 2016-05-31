@@ -11,13 +11,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160504190531) do
+ActiveRecord::Schema.define(version: 20160527191600) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
-  enable_extension "hstore"
   enable_extension "fuzzystrmatch"
+  enable_extension "hstore"
 
   create_table "alternate_values", force: :cascade do |t|
     t.text     "value",                            null: false
@@ -912,7 +912,7 @@ ActiveRecord::Schema.define(version: 20160504190531) do
   add_index "project_members", ["user_id"], name: "index_project_members_on_user_id", using: :btree
 
   create_table "project_sources", force: :cascade do |t|
-    t.integer  "project_id"
+    t.integer "project_id", null: false
     t.integer  "source_id",     null: false
     t.integer  "created_by_id", null: false
     t.integer  "updated_by_id", null: false
