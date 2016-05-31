@@ -112,7 +112,7 @@ describe SourcesController, :type => :controller do
         # specifies that the Source created on the previous line
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
-        expect_any_instance_of(Source).to receive(:update).with({ "serial_id" => "1" })
+        expect_any_instance_of(Source).to receive(:update).with( {"serial_id"=>"1", "project_sources_attributes"=>[{"project_id"=>"1"}]}   )
         put :update, {:id => source.to_param, :source => { "serial_id" => "1" }}, valid_session
       end
 
