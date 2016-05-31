@@ -33,7 +33,7 @@ nearby_locality_task:
   description: 'Find collecting events within a selected radius.'
 new_list_task:
   hub: true
-  name: 'Alphabetical list of localities'
+  name: 'Alphabetical list of localities by area.'
   related:
     - collecting_events
     - geographic_areas
