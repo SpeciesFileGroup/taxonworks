@@ -4,7 +4,7 @@
        data-feature-collection="<%= Gis::GeoJSON.feature_collection(map_objects).to_json -%>"
        data-map-center='POINT (0.0 0.0 0.0)'
        data-map-canvas="drawable_map_canvas"
-       data-map-drawing-modes=<%= drawing_modes %>
+       data-map-drawing-modes="<%= drawing_modes %>"
   >
   </div>
   <table <%= border_string %>>
