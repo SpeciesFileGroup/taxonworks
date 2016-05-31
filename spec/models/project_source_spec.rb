@@ -8,13 +8,16 @@ describe ProjectSource do
     before(:each) {
       project_source.valid?
     }
+
     context 'requires' do
       specify 'project' do
         expect(project_source.errors.include?(:project)).to be_falsey # get's it from Housekeeping
       end
+
       specify 'source' do
-        expect(project_source.errors.include?(:source)).to be_truthy
+        expect{project_source.save!}.to raise_error ActiveRecord::StatementInvalid # ::PG::NotNullViolation  
       end
+ 
     end
   end
 
