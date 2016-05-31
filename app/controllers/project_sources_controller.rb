@@ -12,6 +12,24 @@ class ProjectSourcesController < ApplicationController
     render '/sources/list'
   end
 
+  def create
+    @project_source = ProjectSource.new(project_source_params) 
+    if @project_source.save
+      @source = @project_source.source
+      flash[:notice] = 'Added source to project.'
+    else 
+      flash[:notice] = "Failed to add source to project. #{@project_source.error_messages}."
+      render source_path(@project_source.source)
+    end
+  end
+
+  def destroy
+    @project_source = ProjectSource.find(params[:id])
+    @source = @project_source.source
+    @project_source.destroy 
+    render :create # same code
+  end
+
   def autocomplete
    @sources =  Queries::SourceAutocompleteQuery.new(params[:term], project_id: sessions_current_project_id).by_project_all
     data     = @sources.collect do |t|
@@ -26,5 +44,10 @@ class ProjectSourcesController < ApplicationController
     render :json => data
   end
 
+  protected
+
+  def project_source_params
+    params.require(:project_source).permit(:source_id, :project_id)
+  end
 
 end

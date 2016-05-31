@@ -18,14 +18,16 @@
     <% end %>
   <% end %>
 
-  <% if @source.project_sources.where.not(project_id: sessions_current_project_id).references(:projects_sources).any? -%>
+  <% if source_in_other_project?(@source) -%>
     <%= content_tag(:div, 'This source is used in another project.', class: :warning) -%>
   <% end %>
 
-  <% if @source.project_sources.where(project_id: sessions_current_project_id).references(:projects_sources).any? -%>
-    <%= content_tag(:div, 'This source is in your project.', class: :passed) -%>
-  <% end %>
+<% end %>
 
+<%= content_for(:additional_navigation) do -%>
+  <div id="add_remove_source">
+    <%= add_source_to_project_form(@source)  -%>
+  </div>
 <% end %>
 
 <%= source_attributes_for(@source) -%>

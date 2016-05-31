@@ -44,7 +44,29 @@ module SourcesHelper
     end
   end
 
+  def add_source_to_project_form(source)
+    if !source_in_project?(source)
+      form_for(ProjectSource.new(source_id: source.to_param, project_id: sessions_current_project_id) , remote: true) do |f|
+        f.hidden_field(:source_id) +
+          f.hidden_field(:project_id) +
+          f.submit('Add to project') 
+      end
+    else
+      button_to('Remove from project', project_source_path(project_source_for_source(source)), method: :delete, remote: true) 
+    end
+  end
 
+  def project_source_for_source(source)
+    ProjectSource.find_by(source_id: source.to_param, project_id: sessions_current_project_id)
+  end
+
+  def source_in_project?(source)
+    ProjectSource.exists?(project_id: sessions_current_project_id, source_id: source.to_param)
+  end
+
+  def source_in_other_project?(source)
+    source.project_sources.where.not(project_id: sessions_current_project_id).references(:projects_sources).any?
+  end
 
 
   # TODO: write helper methods

@@ -271,7 +271,7 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
   end
 
-  resources :project_sources, only: [:index] do
+  resources :project_sources, only: [:index, :create, :destroy] do
 
     collection do
       get 'download'
