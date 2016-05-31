@@ -43,9 +43,10 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         expect(n.cached_html).to eq(TaxonName::NO_CACHED_MESSAGE)
       end
 
-      specify 'when true cached_higher_classification is set to NO_CACHE_MESSAGE' do
-        expect(n.cached_higher_classification).to eq(TaxonName::NO_CACHED_MESSAGE)
-      end
+      # Deprecated
+      # specify 'when true cached_higher_classification is set to NO_CACHE_MESSAGE' do
+      #   expect(n.cached_higher_classification).to eq(TaxonName::NO_CACHED_MESSAGE)
+      # end
     end
 
     context 'after save' do

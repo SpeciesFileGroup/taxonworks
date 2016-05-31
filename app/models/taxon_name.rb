@@ -26,7 +26,7 @@
 #
 # @!attribute cached_higher_classification
 #   @return [String]
-#   a concatenated list of higher rank taxa.
+#   a concatenated list of higher rank taxa. !! Currently deprecated.
 #
 # @!attribute year_of_publication
 #   @return [Integer]
@@ -565,7 +565,7 @@ class TaxonName < ActiveRecord::Base
       self.cached_author_year = NO_CACHED_MESSAGE
       self.cached_classified_as = NO_CACHED_MESSAGE
       self.cached_html = NO_CACHED_MESSAGE
-      self.cached_higher_classification = NO_CACHED_MESSAGE
+     #  self.cached_higher_classification = NO_CACHED_MESSAGE
     elsif self.errors.empty?
       set_cached
 
@@ -734,6 +734,7 @@ class TaxonName < ActiveRecord::Base
     if self.new_record?
       ancestors_through_parents
     else
+    
       self.self_and_ancestors(true).to_a.reverse ## .self_and_ancestors returns empty array!!!!!!!
     end
   end
@@ -1077,10 +1078,15 @@ class TaxonName < ActiveRecord::Base
     ay.blank? ? nil : ay
   end
 
-  def get_higher_classification
-    # see config/initializers/ranks for FAMILY_AND_ABOVE_RANK_NAMES
-    safe_self_and_ancestors.select { |i| FAMILY_AND_ABOVE_RANK_NAMES.include?(i.rank_string) }.collect { |i| i.name }.join(':')
-  end
+  # Currently deprecated, but might come back for indexing/sorting purposes
+  # def get_higher_classification
+  #   return nil if name == 'Root'
+  #   [self.parent.try(:cached_higher_classification), self.name].compact.join(':') #  + ':' + self.parent.name
+  #   
+  #   # This was the original approach 
+  #   # see config/initializers/ranks for FAMILY_AND_ABOVE_RANK_NAMES
+  #   #  safe_self_and_ancestors.select{ |i| FAMILY_AND_ABOVE_RANK_NAMES.include?(i.rank_string) }.collect { |i| i.name }.join(':')
+  # end
 
   def get_cached_classified_as
     return nil unless self.type == 'Combination' || self.type == 'Protonym'
@@ -1355,7 +1361,7 @@ class TaxonName < ActiveRecord::Base
       if self.cached_html != get_full_name_html ||
           self.cached_misspelling != get_cached_misspelling ||
           self.cached_original_combination != get_original_combination ||
-          self.cached_higher_classification != get_higher_classification ||
+#          self.cached_higher_classification != get_higher_classification ||
           self.cached_primary_homonym != get_genus_species(:original, :self) ||
           self.cached_primary_homonym_alternative_spelling != get_genus_species(:original, :alternative) ||
           self.rank_string =~ /Species/ && (self.cached_secondary_homonym != get_genus_species(:current, :self) || self.cached_secondary_homonym_alternative_spelling != get_genus_species(:current, :alternative))

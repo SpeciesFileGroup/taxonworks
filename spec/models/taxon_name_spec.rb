@@ -51,8 +51,10 @@ describe TaxonName, type: :model, group: [:nomenclature] do
           end
         end
 
+        # Deprecated 
+        #  expect(variety.cached_higher_classification).to eq('Plantae:Aphyta:Aphytina:Aopsida:Aidae:Aales:Aineae:Aaceae:Aoideae:Aeae:Ainae')
+        #
         expect(variety.root.id).to eq(@species.root.id)
-        expect(variety.cached_higher_classification).to eq('Plantae:Aphyta:Aphytina:Aopsida:Aidae:Aales:Aineae:Aaceae:Aoideae:Aeae:Ainae')
         expect(variety.cached_author_year).to eq('McAtee (1900)')
         expect(variety.cached_html).to eq('<i>Aus</i> (<i>Aus</i> sect. <i>Aus</i> ser. <i>Aus</i>) <i>aaa bbb</i> var. <i>ccc</i>')
 
@@ -307,7 +309,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
       context 'name' do
         context 'validate cached values' do
           specify 'ICZN ' do
-            expect(@subspecies.cached_higher_classification).to eq('Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini:Erythroneurina')
+            # expect(@subspecies.cached_higher_classification).to eq('Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini:Erythroneurina')
             expect(@subspecies.cached_author_year).to eq('McAtee, 1900')
             expect(@subspecies.cached_html).to eq('<i>Erythroneura</i> (<i>Erythroneura</i>) <i>vitis vitata</i>')
           end
@@ -331,7 +333,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
           end
 
           specify 'ICZN subspecies' do
-            expect(@subspecies.cached_higher_classification).to eq('Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini:Erythroneurina')
+            # expect(@subspecies.cached_higher_classification).to eq('Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae:Typhlocybinae:Erythroneurini:Erythroneurina')
             expect(@subspecies.cached_author_year).to eq('McAtee, 1900')
             expect(@subspecies.cached_html).to eq('<i>Erythroneura</i> (<i>Erythroneura</i>) <i>vitis vitata</i>')
           end
@@ -369,9 +371,10 @@ describe TaxonName, type: :model, group: [:nomenclature] do
           end
 
           context 'ICZN family (behaviour for names above genus group)' do
-            specify 'cached_higher_classification' do
-              expect(@family.cached_higher_classification).to eq('Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae')
-            end
+            # Deprecated 
+            # specify 'cached_higher_classification' do
+            #   expect(@family.cached_higher_classification).to eq('Animalia:Arthropoda:Insecta:Hemiptera:Cicadellidae')
+            # end
 
             specify 'cached_author_year' do
               expect(@family.cached_author_year).to eq('Say, 1800')

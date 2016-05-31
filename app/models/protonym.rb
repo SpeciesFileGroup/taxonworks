@@ -799,7 +799,7 @@ class Protonym < TaxonName
     super 
     if self.errors.empty? && !self.no_cached
 
-      set_cached_higher_classification
+      # set_cached_higher_classification
       set_primary_homonym
       set_primary_homonym_alternative_spelling
 
@@ -823,9 +823,10 @@ class Protonym < TaxonName
     self.cached_misspelling = get_cached_misspelling
   end
 
-  def set_cached_higher_classification
-    self.cached_higher_classification = get_higher_classification
-  end
+  # Deprecated
+  # def set_cached_higher_classification
+  #   self.cached_higher_classification = get_higher_classification
+  # end
 
   def set_primary_homonym
     self.cached_primary_homonym = get_genus_species(:original, :self)
