@@ -96,7 +96,7 @@ module UserTasks
   end
 
   # The raw YAML (Hash)
-  TASK_DATA = YAML.load_file(Rails.root + 'config/interface/user_tasks.yml') 
+  TASK_DATA = YAML.load_file(Rails.root + 'config/interface/hub/user_tasks.yml') 
 
   tasks = {}
   TASK_DATA.each do |td|
