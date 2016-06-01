@@ -34,7 +34,7 @@ OTU_PICKER_WIDGET = {
       }
 
     }).autocomplete("instance")._renderItem = function (ul, item) {
-      return $("<li class='autocomplete'>")
+      return $("<li class='autocomplete' id='ui-otu-id-"+ item.id + "' >")
           .append("<a>" + item.label + '</a>')
           .appendTo(ul);
     };

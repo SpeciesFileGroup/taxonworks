@@ -15,8 +15,8 @@ module Features
 
       fill_in field, with: options[:with]
 
-      page.execute_script %Q{ $('##{field}').trigger('focus') }
-      page.execute_script %Q{ $('##{field}').trigger('keydown') }
+    # page.execute_script %Q{ $('##{field}').trigger('focus') }
+    # page.execute_script %Q{ $('##{field}').trigger('keydown') }
 
       css_selector = %Q{li.ui-menu-item a[data-model-id="#{options[:select]}"]}
       expect(page).to have_css(css_selector)
@@ -32,12 +32,12 @@ module Features
     end
 
     def fill_role_picker_autocomplete(field, options = {})
-      raise "fill_autocomplete requires with: 'search term' and an ID to select (e.g. select: 2)" if options[:with].nil? || options[:select].nil?
+      raise "fill_role_picker_autocomplete requires with: 'search term' and an ID to select (e.g. select: 2)" if options[:with].nil? || options[:select].nil?
 
       fill_in field, with: options[:with]
 
-      page.execute_script %Q{ $('##{field}').trigger('focus') }
-      page.execute_script %Q{ $('##{field}').trigger('keydown') }
+    # page.execute_script %Q{ $('##{field}').trigger('focus') }
+    # page.execute_script %Q{ $('##{field}').trigger('keydown') }
 
       css_selector = %Q{li.ui-menu-item a span[data-person-id="#{options[:select]}"]}
       expect(page).to have_css(css_selector)
@@ -47,16 +47,11 @@ module Features
 
 
     def fill_otu_widget_autocomplete(field, options = {})
-      raise "fill_autocomplete requires with: 'search term' and an ID to select (e.g. select: 2)" if options[:with].nil? || options[:select].nil?
-
+      raise "fill_otu_widget_autocomplete requires with: 'search term' and an ID to select (e.g. select: 2)" if options[:with].nil? || options[:select].nil?
+      css_selector = %Q{li.ui-menu-item[id=ui-otu-id-#{options[:select]}]}
       fill_in field, with: options[:with]
-
-      page.execute_script %Q{ $('##{field}').trigger('focus') }
-      page.execute_script %Q{ $('##{field}').trigger('keydown') }
-
-      css_selector = %Q{li.ui-menu-item[id="ui-id-#{options[:select]}"] }
+      wait_for_ajax
       expect(page).to have_css(css_selector)
-
       page.execute_script(%Q{ $('#{css_selector}').trigger('mouseenter').click(); })
     end
 
