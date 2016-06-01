@@ -11,7 +11,7 @@ describe 'Dashboard' do
     before { visit root_path }
 
     it 'should provide access to sign in' do
-      expect(page).to have_selector('h1', text: 'Taxon Works')
+      expect(page).to have_selector('h1', text: 'TaxonWorks')
       expect(page).to have_selector('form') { |form|
         expect(form).to have_selector('input[name=email]')
         expect(form).to have_selector('input[name=password]')
@@ -31,7 +31,7 @@ describe 'Dashboard' do
 
     it 'should show user' 's dashboard' do
       expect(page).to have_selector('h1', text: 'Dashboard')
-      expect(page).to have_selector('h2', text: 'Projects')
+      expect(page).to have_selector('.panel .title', text: 'Projects')
 
       # it 'should have user-specific information in horizontal_navbar'
       within(:css, 'ul.horizontal_navbar') {
