@@ -45,7 +45,6 @@ module Features
       page.execute_script(%Q{ $('#{css_selector}').trigger('mouseenter').click(); })
     end
 
-
     def fill_otu_widget_autocomplete(field, options = {})
       raise "fill_otu_widget_autocomplete requires with: 'search term' and an ID to select (e.g. select: 2)" if options[:with].nil? || options[:select].nil?
       css_selector = %Q{li.ui-menu-item[id=ui-otu-id-#{options[:select]}]}
@@ -54,8 +53,6 @@ module Features
       expect(page).to have_css(css_selector)
       page.execute_script(%Q{ $('#{css_selector}').trigger('mouseenter').click(); })
     end
-
-
 
   end
 end

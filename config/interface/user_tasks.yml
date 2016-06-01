@@ -75,8 +75,6 @@ new_verbatim_reference_task:
   categories:
     - source
   status: prototype
-create_verbatim_reference_task:
-  name:
 build_biocuration_groups_task:
   hub: true
   name: 'Manage biocuration types and groups'
