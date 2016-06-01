@@ -15,7 +15,7 @@ describe 'Source from Citation', type: :feature, group: :sources do
       expect(page).to have_button('Create verbatim source')
       expect(page).to have_button('Create BibTeX source')
       click_button 'Create BibTeX source'
-      expect(page).to have_content('This Source::Bibtex record was created.')
+      expect(page).to have_content('Created BibTex record.')
       expect(page).to have_content('Editing source')
       expect(find_field("source_type_sourcebibtex")).to be_checked
     end
@@ -41,7 +41,7 @@ describe 'Source from Citation', type: :feature, group: :sources do
       expect(page).to have_button('Create verbatim source')
       expect(page.has_button?('Create BibTeX source')).to be_falsey
       #expect(page).to have_button('Create BibTeX source', visible: false)
-      expect(page).to have_content('CrossRef did not find a matching ref')
+      expect(page).to have_content('CrossRef did not find a match.')
       click_button 'Create verbatim source'
       expect(page).to have_content('This Source::Verbatim record was created.')
       expect(page).to have_content('Editing source')
