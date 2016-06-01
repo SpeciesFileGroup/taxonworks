@@ -61,12 +61,15 @@ describe "AssertedDistributions", :type => :feature do
 
         click_link('New') #   when I click the new link
 
-        expect(page.has_field?('otu_id_for_asserted_distribution', :type => 'text')).to be_truthy
+        expect(page.has_field?('asserted_distribution[otu_id]', :type => 'text')).to be_truthy
+        
         expect(page.has_field?('geographic_area_id_for_asserted_distribution', :type => 'text')).to be_truthy
         expect(page.has_field?('source_id_for_asserted_distribution', :type => 'text')).to be_truthy
 
         # fill_autocomplete('serial_id_for_source', with: 'My Serial', select: s.id) # fill out Serial autocomplete with 'My Serial'
-        fill_autocomplete('otu_id_for_asserted_distribution', with: 'motu', select: o.id)   # equivalent to o.name
+        fill_otu_widget_autocomplete('asserted_distribution[otu_id]', with: 'motu', select: o.id)   # equivalent to o.name
+
+
         fill_autocomplete('geographic_area_id_for_asserted_distribution', with: g.name, select: g.id)
         fill_autocomplete('source_id_for_asserted_distribution', with: s.cached, select: s.id)
 
