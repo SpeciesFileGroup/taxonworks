@@ -27,6 +27,11 @@ License
 -------
 
 TaxonWorks is open source and is presently available under the [University of Illinois/NCSA Open Source License][16] and [see here][18].
+
+Funding
+-------
+
+This project was funded in part by NSF-ABI-1356381.  Any opinions, findings and conclusions or recommendations expressed in this material are those of the author(s) and do not necessarily reflect the views of the National Science Foundation. 
  
 [1]: https://secure.travis-ci.org/SpeciesFileGroup/taxonworks.png?branch=master
 [2]: http://travis-ci.org/SpeciesFileGroup/taxonworks?branch=master
