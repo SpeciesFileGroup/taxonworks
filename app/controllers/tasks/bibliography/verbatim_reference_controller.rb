@@ -15,10 +15,12 @@ class Tasks::Bibliography::VerbatimReferenceController <ApplicationController
     @source = Source.new(source_params)
     if @source.save
       flash[:notice] = 'Created source as verbatim.'
+      redirect_to @source.metamorphosize
     else
-      flash[:notice] = 'Failed to create verbatim source.'
+      flash[:notice] = "Failed to create verbatim source. #{@source.errors.full_messages}."
+      render :new 
     end
-    render :new
+
   end
 
   def create_bibtex
@@ -34,7 +36,7 @@ class Tasks::Bibliography::VerbatimReferenceController <ApplicationController
           flash[:notice] << 'Associated People records were not created.'
         end
       end
-      redirect_to edit_source_path(@source)
+      redirect_to @source.metamorphosize
     else
       flash[:notice] = "An error occurred while creating the source record. #{@source.errors.messages}"
       redirect_to new_verbatim_reference_task_path(request.parameters)
@@ -46,6 +48,7 @@ class Tasks::Bibliography::VerbatimReferenceController <ApplicationController
   def source_params
     params['source'].merge!(project_sources_attributes: [{project_id: sessions_current_project_id.to_s}])
     params.require(:source).permit(:verbatim,
+                                   :type,
                                    project_sources_attributes: [:project_id]
                                   )
   end
