@@ -1,14 +1,15 @@
-<!--<%#= render(partial: 'layouts/map_header') -%>-->
 <h1>Task: GIS Report</h1>
 <div class="flexbox">
   <div class="item item1" align="center">
     <%= form_tag(location_report_list_url) do %>
+        <!--begin model area selector insertion/invocation segment-->
         <%= render(partial: 'shared/data/gis/area_selector',
                    locals:  {passed_in_tag_id:    'geographic_area_id_for_report',
                              drawing_modes: 'active: polygon, circle',
                              selection_object:    'CollectionObject',
                              shown_georeferences: report_georeferences(@list_collection_objects,
                                                                        @geographic_area)}) %>
+        <!--end model insertion/invocation segment-->
         <%= submit_tag('Show', id: 'send_report_params') %>
         <p>
           Select additional headers to add to the table:
