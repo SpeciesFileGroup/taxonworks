@@ -1,20 +1,19 @@
 <div class="otu_picker" id="XXX_otu_picker" data-object-name="<%= f.object_name -%>">
   <%= f.label :otu_id, 'OTU' %><br>
   <div class="field inline_otu_picker">  
-
     <%= f.text_field :otu_id, value: otu_autocomplete_selected_tag(f.object.otu), 
-    id: 'XXX_otu_picker_autocomplete', 
-    class: 'otu_picker_autocomplete expandable', 
+      id: 'XXX_otu_picker_autocomplete', 
+      class: 'otu_picker_autocomplete expandable', 
       placeholder: 'Select or create an OTU' 
-      %>
-      <%= link_to 'Add new', '#', id: :otu_picker_add_new, class: 'new_plus', hidden: true %> 
-      <div class="new_added"></div>
-    </div>
+    %>
+    <%= link_to 'Add new', '#', id: :otu_picker_add_new, class: 'new_plus', hidden: true %> 
+    <div class="new_added"></div>
+  </div>
 
-    <div id="new_otu" class="add_new inline_fields" hidden >
-      <%= content_tag(:div, 'New OTU', class: 'injected_new_header') -%>
+  <div id="new_otu" class="add_new inline_fields" hidden >
+    <%= content_tag(:div, 'New OTU', class: 'injected_new_header') -%>
 
-      <%= f.fields_for :otu_attributes, Otu.new do |o| %>
+    <%= f.fields_for :otu_attributes, Otu.new do |o| %>
       <div class="flex-separate">
         <div class="fields"> 
           <div class="field">
@@ -25,13 +24,14 @@
           <div class="field">
             <%= o.label :taxon_name %>
             <%= render'/workbench/elements/forms/ajax_select',
-            fields_for_object: o,
-            controller:  '/taxon_names',
-            object: "#{f.object_name}[otu_attributes]",
-            method:  'taxon_name_id',
-            tag_id:  'taxon_name_id_for_inline_otu_picker',
-            size: 20 %>
-          </div>
+              fields_for_object: o,
+              controller:  '/taxon_names',
+              object: "#{f.object_name}[otu_attributes]",
+              method:  'taxon_name_id',
+              tag_id:  'taxon_name_id_for_inline_otu_picker',
+              display: nil,
+              size: 20 %>
+        </div>
         </div>
         <div class="fields">
           <%= o.hidden_field :id, value: f.object.try(:otu).to_param, id: :selected_otu_id, name: "#{f.object_name}[otu_id]" -%>
@@ -42,6 +42,6 @@
           </div>
         </div>
       </div>
-      <% end %>
-    </div>
+    <% end %>
   </div>
+</div>
