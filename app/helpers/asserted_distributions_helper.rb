@@ -2,11 +2,13 @@ module AssertedDistributionsHelper
 
   def asserted_distribution_tag(asserted_distribution)
     return nil if asserted_distribution.nil?
-    [   object_tag(asserted_distribution.otu), 
-        (asserted_distribution.is_absent ? content_tag(:span, "not in", class: :warning) : "in"), object_tag(asserted_distribution.geographic_area), 
-        "by", 
+    [   
+      
+      otu_tag(asserted_distribution.otu), 
+        (asserted_distribution.is_absent ? content_tag(:span, ' not in ', class: :warning) : ' in '), geographic_area_tag(asserted_distribution.geographic_area), 
+        ' by ', 
         (asserted_distribution.source.cached_author_string ? asserted_distribution.source.cached_author_string : content_tag(:span, '[source authors must be updated]', class: :warning)) 
-    ].join(" ")
+    ].join('&nbsp;')
   end
 
   def asserted_distribution_link(asserted_distribution)
