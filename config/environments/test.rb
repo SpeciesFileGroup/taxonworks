@@ -35,20 +35,9 @@ TaxonWorks::Application.configure do
   config.active_support.deprecation                 = :stderr
 
   config.action_mailer.default_url_options = { :host => "www.example.com" }
-  
-  Settings.load_from_hash(config, { 
-    exception_notification: {
-      email_prefix: "[TW-Error] ",
-      sender_address: %{"notifier" <notifier@example.com>},
-      exception_recipients: %w{exceptions@example.com},
-    },
-    mail_domain: "example.com"
-  })  
 
   Paperclip::Attachment.default_options[:path] = "#{Rails.root}/spec/test_files/:class/:id_partition/:style.:extension"
 
-  # Post scaffolding changes 
   require 'taxonworks'
   require 'taxonworks_autoload'
-
 end

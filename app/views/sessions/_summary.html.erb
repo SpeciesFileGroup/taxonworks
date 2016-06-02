@@ -1,6 +1,7 @@
-<div id="header_bar" class="flexbox"> 
+<div id="header_bar" class="flexbox <%= sandbox_css -%>"> 
   <div class="item item1" id="taxonworks">
     <%= link_to('TaxonWorks', root_path) -%>
+    <%= sandbox_details_tag -%>
   </div>
 
   <div class="item item2" id="session_nav">

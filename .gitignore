@@ -62,3 +62,5 @@ spec/test_files/
 .otto*
 
 *.orig
+
+REVISION

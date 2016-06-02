@@ -4,12 +4,15 @@
 	margin:0 auto;
 	padding-left:20px;
 	padding-right:20px;
- 	align-items:center;
-	background-color:$navigation_background;
+  align-items:center;
+
+  background-color: $navigation_background;
+  
+  // background-color:$navigation_background;
 	border-bottom: 1px solid $navigation_border;
 	height:50px;
-	font-weight: 100;
-	
+  font-weight: 100;
+ 	
 	a {
 		font-size:13px;
 		padding: 16px;
@@ -43,6 +46,10 @@
     flex-grow: 0;
   }
 }
+
+#header_bar.sandbox {
+  background-color: $color-primary-0;
+} 
 
 .current_hub_category {
   border-bottom: 2px solid $color-secondary-2-4 !important;

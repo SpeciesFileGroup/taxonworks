@@ -16,4 +16,11 @@ module Utilities::Hashes
     hsh.delete_if{|k,v| array.include?(k)}
   end
 
+  def self.symbolize_keys(hash)
+    hash.inject({}) do |h, (k, v)|
+      h[k.is_a?(String) ? k.to_sym : k] = (v.is_a?(Hash) ? symbolize_keys(v) : v)
+      h
+    end
+  end
+
 end
