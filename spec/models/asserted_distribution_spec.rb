@@ -29,12 +29,14 @@ describe AssertedDistribution, type: :model, group: :geo do
       expect(ad2.valid?).to be_falsey
       expect(ad2.errors.include?(:geographic_area_id)).to be_truthy
     end
+    
     specify 'missing fields' do
       ad1 = FactoryGirl.build_stubbed(:valid_asserted_distribution, otu_id: nil, source_id: nil, geographic_area_id: nil)
       expect(ad1.valid?).to be_falsey
       expect(ad1.errors.include?(:geographic_area_id)).to be_truthy
       expect(ad1.errors.include?(:source_id)).to be_truthy
-      expect(ad1.errors.include?(:otu_id)).to be_truthy
+     
+       expect(ad1.errors.include?(:otu)).to be_truthy
     end
   end
 
