@@ -43,14 +43,14 @@ gem 'turbolinks', '~> 2.5'
 gem 'jquery-turbolinks', '~> 2.1'
 
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
-gem 'jbuilder', '~> 2.4.1'
+gem 'jbuilder', '~> 2.5.0'
 gem 'chronic', '~> 0.10'
 
 gem 'closure_tree', '~> 6.0.0'
 
 # BibTex handling
 gem 'csl', '~> 1.4.3' # git: 'https://github.com/inkshuk/csl-ruby'
-gem 'bibtex-ruby', '~> 4.3.0'
+gem 'bibtex-ruby', '~> 4.4.0'
 gem 'citeproc-ruby', '~> 1.1.0'
 gem 'csl-styles', '~> 1.0.1.6'
 
@@ -60,7 +60,7 @@ gem 'latex-decode', '~> 0.2.2'
 # gem 'anystyle-parser' # use when we stabilize
 
 # Pagination
-gem 'kaminari'
+gem 'kaminari', '~> 0.17.0'
 
 # File upload manager & image processor
 gem 'paperclip', '~> 4.3.6'
@@ -91,8 +91,8 @@ gem 'modularity', '~> 2.0.1'
 
 gem 'colored', '~> 1.2'
 
-gem 'chartkick', '~> 1.5.2'
-gem 'groupdate', '~> 2.5.3'
+gem 'chartkick', '~> 2.0.0'
+gem 'groupdate', '~> 3.0.0'
 
 gem 'dropzonejs-rails', '~> 0.7.3'
 
@@ -105,7 +105,7 @@ group :test, :development do
   gem 'rspec-rails', '~> 3.4'
   gem 'rspec-activemodel-mocks', '~> 1.0.2'
   gem 'inch', '~> 0.7'
-  gem 'byebug', '~> 8.2.5', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
+  gem 'byebug', '~> 9.0.5', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'awesome_print'
   gem 'factory_girl_rails', '~> 4.7'
   gem 'selenium-webdriver', '~> 2.53.0'
