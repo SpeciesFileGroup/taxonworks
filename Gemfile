@@ -115,7 +115,7 @@ group :development do
   gem 'better_errors', '~> 2.0'
   gem 'binding_of_caller'
   gem 'spring-commands-rspec', '~> 1.0.2'
-  gem 'guard-rspec', '~> 4.6', require: false
+  gem 'guard-rspec', '~> 4.7', require: false
   gem 'parallel_tests', '~> 2.5.0'
   gem 'web-console', '~> 3.1.1'
   gem 'rubocop', '~> 0.40.0'

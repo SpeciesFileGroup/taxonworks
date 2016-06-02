@@ -437,7 +437,7 @@ DEPENDENCIES
   faker (~> 1.6.1)
   ffi-geos
   groupdate (~> 3.0.0)
-  guard-rspec (~> 4.6)
+  guard-rspec (~> 4.7)
   hiredis (~> 0.6.1)
   inch (~> 0.7)
   jbuilder (~> 2.5.0)
