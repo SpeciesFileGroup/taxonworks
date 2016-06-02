@@ -16,17 +16,17 @@ namespace :tw do
         file = File.read(@args[:file]) 
 
         puts "Email preview (bcc recipients are hidden):\n\n"
-        puts  UserMailer.maintenance_email(file, subject).to_s.purple
+        puts  UserMailer.maintenance_email(file, subject).to_s.magenta
         puts "\n\n"
 
         print "Send this email? Type 'SEND' (all caps) to confirm: " 
         confirm_send = STDIN.gets.strip 
         if confirm_send != 'SEND'
-          puts 'Message NOT sent.'.red.bold
+          puts 'Message NOT sent.'.bold.red
           exit 
         else
           UserMailer.maintenance_email(file, subject).deliver
-          puts 'Email sent.'.yellow.bold
+          puts 'Email sent.'.bold.yellow
         end
       end
     end

@@ -267,7 +267,7 @@ namespace :tw do
       #   file.each_with_index do |row, i|
       #     next unless row['PubType'] == '4' # unpublished source
       #
-      #     print "working with PubID #{row['PubID']} \n".purple.bold
+      #     print "working with PubID #{row['PubID']} \n".magenta.bold
       #
       #     sf_pub_id_to_unpublished_title[row['PubID']] = {title: row['ShortName']}
       #   end
@@ -328,7 +328,7 @@ namespace :tw do
         file.each_with_index do |row, i|
           next unless row['PubType'] == '3' # book
 
-          print "working with PubID #{row['PubID']}".purple.bold
+          print "working with PubID #{row['PubID']}".magenta.bold
 
           sf_pub_id_to_booktitle_publisher_address[row['PubID']] = {booktitle: row['ShortName'], publisher: row['Publisher'], address: row['PlacePublished']}
         end
@@ -436,7 +436,7 @@ namespace :tw do
           # next if Source.find(source_id).class == Source::Verbatim # Source.find(source_id).type == 'Source::Verbatim'
           next if Source.find(source_id).try(:class) == Source::Verbatim # Source.find(source_id).type == 'Source::Verbatim'
 
-          print "working with RefID #{row['RefID']} = SourceID #{source_id}, position #{row['SeqNum']} \n".purple.bold
+          print "working with RefID #{row['RefID']} = SourceID #{source_id}, position #{row['SeqNum']} \n".magenta.bold
 
           # project_id = ProjectSource.find_by_source_id(source_id).project_id
 

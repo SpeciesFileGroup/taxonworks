@@ -89,7 +89,7 @@ gem 'exception_notification', '~> 4.1.2'
 
 gem 'modularity', '~> 2.0.1'
 
-gem 'colored', '~> 1.2'
+gem 'colorize', '~> 0.7.7'
 
 gem 'chartkick', '~> 2.0.0'
 gem 'groupdate', '~> 3.0.0'
