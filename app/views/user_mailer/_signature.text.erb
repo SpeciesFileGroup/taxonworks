@@ -1,0 +1,10 @@
+
+
+Thank you,
+
+Your TaxonWorks administrators
+
+---
+
+If you have questions about this email please contact an administrator of this TaxonWorks installation (<%= root_url -%>): 
+<%= User.is_administrator.pluck(:name, :email).collect{|n,e| "#{n} <#{e}>"}.to_sentence(last_word_connector: ' or ') -%>.

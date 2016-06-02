@@ -139,6 +139,8 @@ class User < ActiveRecord::Base
   has_many :projects, through: :project_members
   has_many :pinboard_items, dependent: :destroy
 
+  scope :is_administrator, -> {where(is_administrator: true)}
+
   def administered_projects
     projects.where(id: project_members.where(is_project_administrator: true).pluck(:project_id) ) 
   end

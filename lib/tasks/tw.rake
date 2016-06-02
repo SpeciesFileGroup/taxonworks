@@ -1,5 +1,4 @@
 namespace :tw do
-
   require_relative 'support/database'
 
   desc 'Sets $user_id via "user_id=1" option. checks to see it exists.'
@@ -43,7 +42,7 @@ namespace :tw do
     @args
   end
 
-  desc 'a default method to add a backup_directory_argument, include trailing slash'
+  desc 'a default task to add a backup_directory_argument, include trailing slash'
   task  :backup_directory => [:environment] do 
     default = Settings.backup_directory
     @args ||= {} 
@@ -57,6 +56,18 @@ namespace :tw do
     @args.merge!(backup_directory: (ENV['backup_directory'] || default ))
     raise "path (#{default}) not found" if !Dir.exists?(@args[:backup_directory]) 
     @args
+  end
+
+  desc 'a general purpose task to supply a file path to @args, file=/path/to/file.txt' 
+  task :file do
+    file = ENV['file']
+    raise 'Provide a full path to a file.' if file.nil?
+    if File.exists?(file)
+      @args ||= {}
+      @args.merge!(file: file)
+    else
+      raise "Provided file (#{file}) does not exist."
+    end
   end
 
   desc 'set the database_role ENV value if provided, or use "postgres"'

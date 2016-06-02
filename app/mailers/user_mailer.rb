@@ -11,4 +11,12 @@ class UserMailer < ActionMailer::Base
     @token = token
     mail(to: user.email, subject: 'Password reset request for TaxonWorks')
   end
+
+  # Send a message that the server will be up/down or intermitant in the near future
+  def maintenance_email(body, subject = 'TaxonWorks - Upcoming maintenance')
+    @body = body
+    mail(bcc: User.pluck(:email), subject: subject) 
+  end
+
+
 end
