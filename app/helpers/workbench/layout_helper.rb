@@ -8,7 +8,13 @@ module Workbench::LayoutHelper
 
   def sandbox_details_tag
     if Settings.sandbox_mode? 
-      content_tag(:span, "SANDBOX - build #{ Settings.sandbox_commit_sha } on #{ Settings.sandbox_commit_date}" )
+      content_tag(:span) do
+        [ 'SANDBOX - build',
+          link_to(Settings.sandbox_commit_sha[0..7], 'https://github.com/SpeciesFileGroup/taxonworks/tree/' + Settings.sandbox_commit_sha, class: [:regular_type]), 
+          'on',  
+          Settings.sandbox_commit_date 
+        ].join(' ').html_safe
+      end
     end 
   end
 

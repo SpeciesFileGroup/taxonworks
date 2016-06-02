@@ -27,7 +27,8 @@
 	            transition: 0.3s ease;
 	            color: $focus_link_color;
 	       
-	}	
+	}
+
   #taxonworks {
     a {
 	  color: $default_text;
@@ -68,6 +69,7 @@
   border-bottom: 1px solid $color-secondary-1-4;
 }
 
+// Not a header ?!
 #main {
 	margin:0 auto;
 	padding-left:15px;
