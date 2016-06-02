@@ -33,14 +33,14 @@ Funding
 
 This project was funded in part by NSF-ABI-1356381.  Any opinions, findings and conclusions or recommendations expressed in this material are those of the author(s) and do not necessarily reflect the views of the National Science Foundation. 
  
-[1]: https://secure.travis-ci.org/SpeciesFileGroup/taxonworks.png?branch=master
-[2]: http://travis-ci.org/SpeciesFileGroup/taxonworks?branch=master
-[3]: https://coveralls.io/repos/SpeciesFileGroup/taxonworks/badge.png?branch=master
-[4]: https://coveralls.io/r/SpeciesFileGroup/taxonworks?branch=master
-[5]: https://codeclimate.com/github/SpeciesFileGroup/taxonworks.png?branch=master
-[6]: https://codeclimate.com/github/SpeciesFileGroup/taxonworks?branch=master
-[7]: https://gemnasium.com/SpeciesFileGroup/taxonworks.png?branch=master
-[8]: https://gemnasium.com/SpeciesFileGroup/taxonworks?branch=master
+[1]: https://secure.travis-ci.org/SpeciesFileGroup/taxonworks.png?branch=development
+[2]: http://travis-ci.org/SpeciesFileGroup/taxonworks?branch=development
+[3]: https://coveralls.io/repos/SpeciesFileGroup/taxonworks/badge.png?branch=development
+[4]: https://coveralls.io/r/SpeciesFileGroup/taxonworks?branch=development
+[5]: https://codeclimate.com/github/SpeciesFileGroup/taxonworks.png?branch=development
+[6]: https://codeclimate.com/github/SpeciesFileGroup/taxonworks?branch=development
+[7]: https://gemnasium.com/SpeciesFileGroup/taxonworks.png?branch=development
+[8]: https://gemnasium.com/SpeciesFileGroup/taxonworks?branch=development
 [10]: http://rubydoc.info/github/SpeciesFileGroup/taxonworks/frames
 [11]: http://wiki.taxonworks.org/
 [12]: http://rdoc.info/gems/yard/file/docs/Tags.md
