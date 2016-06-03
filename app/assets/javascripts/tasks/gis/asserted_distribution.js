@@ -155,7 +155,7 @@ _init_asserted_distributions_map = function init_asserted_distributions_map() {
             var newadwidget = $("#feature_collection");
             var fcdata = newadwidget.data('feature-collection');
 //    alert(fcdata);
-            var map = initializeMap("new_asserted_distribution_map_canvas", fcdata); // fcdata
+          var map = TW.vendor.google.maps.initializeMap("new_asserted_distribution_map_canvas", fcdata); // fcdata
             add_new_asserted_distribution_map_listeners(map);
         }
     }

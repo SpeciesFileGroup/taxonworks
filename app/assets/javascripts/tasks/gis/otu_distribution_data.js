@@ -6,11 +6,11 @@ _init_otu_distribution_data_widget = function init_otu_distribution_data() {
       var fcdata = newfcdata.data('feature-collection');
       var map_canvas = newfcdata.data('map-canvas');
 
-      var otu_map = initializeMap(map_canvas, fcdata);
+      var otu_map = TW.vendor.google.maps.initializeMap(map_canvas, fcdata);
       add_otu_distribution_data_listeners(otu_map);
 
       $('input[type="checkbox"]').change(function () {    // on checkbox change, reset to original feature data
-        otu_map = initializeMap(map_canvas, newfcdata.data('feature-collection'));
+        otu_map = TW.vendor.google.maps.initializeMap(map_canvas, newfcdata.data('feature-collection'));
         add_otu_distribution_data_listeners(otu_map);
       });
     }

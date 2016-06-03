@@ -1,9 +1,12 @@
 /* Basic library to parse through TW returned geoJSON and draw a FeatureCollection on a Google Map.
  */
+var TW = TW || {};                      // TW "namespacing" object
+TW.vendor = TW.vendor || {};            // mimic directory structure in app/assets/javascripts
+TW.vendor.google = TW.vendor.google || {};
+TW.vendor.google.maps = {               // internally referred to as 'this'; externally as TW.vendor.google.maps
 
-var initializeMap;
 
-initializeMap = function (canvas, feature_collection) {
+  initializeMap: function (canvas, feature_collection) {
   var myOptions = {
     zoom: 1,
     center: {lat: 0, lng: 0}, //center_lat_long, set to 0,0
@@ -13,7 +16,7 @@ initializeMap = function (canvas, feature_collection) {
     mapTypeId: google.maps.MapTypeId.TERRAIN
   };
 
-  var map = initialize_map(canvas, myOptions);
+    var map = this.initialize_map(canvas, myOptions);
   var data = feature_collection;
 
   map.data.setStyle(function (feature) {
@@ -40,14 +43,14 @@ initializeMap = function (canvas, feature_collection) {
   if (data != undefined) {
     var chained = JSON.parse('{"type":"FeatureCollection","features":[]}'); // container for the distribution
     if (data["type"] == "FeatureCollection") {  // once again, only looking for feature collections, but with properties
-      doFeatureCollection(data, null, chained);
+      this.doFeatureCollection(data, null, chained);
     }   // end: if data.type == 'FeatureCollection'
     else {              // this is not a feature collection, so what is it?
       if (data["otu_ids"] != undefined) {
         for (var j = 0; j < data["otu_ids"].length; j++) {
           this_otu_id = data["otu_ids"][j];
           this_feature_collection = data[this_otu_id];
-          doFeatureCollection(this_feature_collection, this_otu_id, chained);
+          this.doFeatureCollection(this_feature_collection, this_otu_id, chained);
         }
       }
       else {
@@ -72,11 +75,11 @@ initializeMap = function (canvas, feature_collection) {
     }
   }
   var bounds = {};    //xminp: xmaxp: xminm: xmaxm: ymin: ymax: -90.0, center_long: center_lat: gzoom:
-  getData(chained, bounds);               // scan var data as feature collection with homebrew traverser, collecting bounds
+    this.getData(chained, bounds);               // scan var data as feature collection with homebrew traverser, collecting bounds
   bounds.canvas_ratio = canvas_ratio;
   bounds.canvas_width = width;
   bounds.canvas_height = height;
-  var center_lat_long = get_window_center(bounds);      // compute center_lat_long from bounds and compute zoom level as gzoom
+    var center_lat_long = this.get_window_center(bounds);      // compute center_lat_long from bounds and compute zoom level as gzoom
   map.setCenter(center_lat_long);
   map.setZoom(bounds.gzoom);
   //map.fitBounds(bounds.box);  /// no better results on non 2:1 canvas ratios
@@ -113,14 +116,14 @@ initializeMap = function (canvas, feature_collection) {
   };
   map.data.addGeoJson(bounds_box);
   return map;             // now no global map object, use this object to add listeners to THIS map
-};
+  },
 
-function initialize_map(canvas, options) {
+  initialize_map: function (canvas, options) {
   var map = new google.maps.Map(document.getElementById(canvas), options);
   return map;
-}
+  },
 
-function doFeatureCollection(featureCollection, otu_id, chained) {
+  doFeatureCollection: function (featureCollection, otu_id, chained) {
   if (featureCollection.features.length > 0) {
     for (var i = 0; i < featureCollection.features.length; i++) { // this loop looks for (currently) checkboxes that
       var this_feature = featureCollection.features[i];           // indicate inclusion into the google maps features
@@ -140,13 +143,13 @@ function doFeatureCollection(featureCollection, otu_id, chained) {
       }
     }
   }
-}
+  },
 
-function log_2(x) {
+  log_2: function (x) {
   return Math.log(x) / Math.LN2;  // log_2(x) = ln(x)/ln(2)
-}
+  },
 
-function get_window_center(bounds) {      // for use with home-brew geoJSON scanner/enumerator
+  get_window_center: function (bounds) {      // for use with home-brew geoJSON scanner/enumerator
   var xminp = bounds.xminp;           //
   var xmaxp = bounds.xmaxp;           //
   var xminm = bounds.xminm;           //
@@ -353,7 +356,7 @@ function get_window_center(bounds) {      // for use with home-brew geoJSON scan
   var aspect_ratio = x_pixels / y_pixels;   //changed from wx/wy//
   if (x_pixels / bounds.canvas_width > y_pixels / bounds.canvas_height) {     // wider
     // pick x-axis
-    xzoom = 1.0 - log_2(x_pixels / bounds.canvas_width);      // empirical inversion of log result
+    xzoom = 1.0 - this, log_2(x_pixels / bounds.canvas_width);      // empirical inversion of log result
     if (xzoom > 15 || xzoom == Infinity) {
       xzoom = 15;
     }
@@ -364,7 +367,7 @@ function get_window_center(bounds) {      // for use with home-brew geoJSON scan
   }
   else {                                        // wider
     // pick y-axis
-    yzoom = 1.2 - log_2((y_pixels / bounds.canvas_height) /*/ bounds.canvas_ratio*/);      // terms expanded for debugging purposes
+    yzoom = 1.2 - this.log_2((y_pixels / bounds.canvas_height) /*/ bounds.canvas_ratio*/);      // terms expanded for debugging purposes
     if (yzoom > 15 || yzoom == Infinity) {
       yzoom = 15;
     }
@@ -374,10 +377,10 @@ function get_window_center(bounds) {      // for use with home-brew geoJSON scan
     }
   }
 /////// patch in new zoom calculation
-//  xzoom = Math.floor(log_2((bounds.canvas_width / 256) * (360 / wx) ) );
-//  yzoom = Math.floor(log_2((bounds.canvas_height / 256) * (360 / wy) ) );
-//  xzoom = -Math.floor(log_2(1 / ( (bounds.canvas_width / 256) * (360 / wx) ) ) );
-//  yzoom = -Math.floor(log_2( 1 / ((bounds.canvas_height / 256) * (360 / wy) ) ) );
+//  xzoom = Math.floor(this.log_2((bounds.canvas_width / 256) * (360 / wx) ) );
+//  yzoom = Math.floor(this.log_2((bounds.canvas_height / 256) * (360 / wy) ) );
+//  xzoom = -Math.floor(this.log_2(1 / ( (bounds.canvas_width / 256) * (360 / wx) ) ) );
+//  yzoom = -Math.floor(this.log_2( 1 / ((bounds.canvas_height / 256) * (360 / wy) ) ) );
 //  gzoom = Math.min(xzoom, yzoom, 15);
 ///////
   if (wx > 90.0 || wy * bounds.canvas_ratio > 45.0) {   // Band-aids to cover USA, etc.
@@ -392,14 +395,14 @@ function get_window_center(bounds) {      // for use with home-brew geoJSON scan
   bounds.gzoom = gzoom;
   bounds.box = box;
   return new google.maps.LatLng(center_lat, center_long);
-}
+  },
 
 // bounds for calculating center point
 // divide longitude checks by hemisphere
 // variables below used by stripped-down getData to compute bounds
 // used to clear previous history
 // so that center is recalculated
-function reset_center_and_bounds(bounds) {
+  reset_center_and_bounds: function (bounds) {
   bounds.center_long = undefined;     // current data-elements always (wrongly) contain -map-center='POINT (0.0 0.0 0.0)'
   bounds.center_lat = undefined;      // this section should set these bounds from data element when properly present
 
@@ -427,11 +430,11 @@ function reset_center_and_bounds(bounds) {
   bounds.pmaxx0 = 0.0;
   bounds.mminx0 = 0.0;
   bounds.mmaxx0 = -45.0;
-}
+  },
 
 // this is the scanner version; no google objects are created
-function getData(feature_collection_data, bounds) {
-  reset_center_and_bounds(bounds);
+  getData: function (feature_collection_data, bounds) {
+    this.reset_center_and_bounds(bounds);
 
   // TODO: is this doing two things? What is the code after the above doing, altering the content of feature_collection_data
 
@@ -453,32 +456,32 @@ function getData(feature_collection_data, bounds) {
         if (data[i].type == "FeatureCollection") {
           for (var j = 0; j < data[i].features.length; j++) {
             //getFeature(data[i].features[j]);
-            getFeature(data[i].features[j], bounds);  //getTypeData(data[i].features[j].geometry);
+            this.getFeature(data[i].features[j], bounds);  //getTypeData(data[i].features[j].geometry);
           }
         }
         if (data[i].type == "GeometryCollection") {
           for (var j = 0; j < data[i].geometries.length; j++) {
-            getTypeData(data[i].geometries[j], bounds);
+            this.getTypeData(data[i].geometries[j], bounds);
           }
         }
         else {
-          getTypeData(data[i], bounds);
+          this.getTypeData(data[i], bounds);
         }  //data[i].type
       }     //data[i] != undefined
     }        // for i
   }           //data != undefined
-}             //getData
+  },             //getData
 
-function getFeature(thisFeature, bounds) {
+  getFeature: function (thisFeature, bounds) {
   if (thisFeature.type == "FeatureCollection") {
-    getTypeData(thisFeature, bounds);   // if it requires recursion on FC
+    this.getTypeData(thisFeature, bounds);   // if it requires recursion on FC
   }
   else {
-    getTypeData(thisFeature.geometry, bounds);
+    this.getTypeData(thisFeature.geometry, bounds);
   }
-}
+  },
 
-function getTypeData(thisType, bounds) {        // this version does not create google objects
+  getTypeData: function (thisType, bounds) {        // this version does not create google objects
 
   if (thisType == undefined) {      // this test if to avoid js errors from  features without geometry
     return                          // google maps forgives features wthout geometries
@@ -486,7 +489,7 @@ function getTypeData(thisType, bounds) {        // this version does not create 
   if (thisType.type == "FeatureCollection") {
     for (var i = 0; i < thisType.features.length; i++) {
       if (typeof (thisType.features[i].type) != "undefined") {
-        getFeature(thisType.features[i], bounds);		//  recurse if FeatureCollection
+        this.getFeature(thisType.features[i], bounds);		//  recurse if FeatureCollection
       }     //thisType != undefined
     }        //for i
     return
@@ -495,35 +498,35 @@ function getTypeData(thisType, bounds) {        // this version does not create 
   if (thisType.type == "GeometryCollection") {
     for (var i = 0; i < thisType.geometries.length; i++) {
       if (typeof (thisType.geometries[i].type) != "undefined") {
-        getTypeData(thisType.geometries[i], bounds);		//  recurse if GeometryCollection
+        this.getTypeData(thisType.geometries[i], bounds);		//  recurse if GeometryCollection
       }     //thisType != undefined
     }       //for i
   }
 
   if (thisType.type == "Point") {
-    xgtlt(bounds, thisType.coordinates[0]);
-    ygtlt(bounds, thisType.coordinates[1]); //box check
+    this.xgtlt(bounds, thisType.coordinates[0]);
+    this.ygtlt(bounds, thisType.coordinates[1]); //box check
   }
 
   if (thisType.type == "MultiPoint") {
     for (var l = 0; l < thisType.coordinates.length; l++) {
-      xgtlt(bounds, thisType.coordinates[l][0]);
-      ygtlt(bounds, thisType.coordinates[l][1]); //box check
+      this.xgtlt(bounds, thisType.coordinates[l][0]);
+      this.ygtlt(bounds, thisType.coordinates[l][1]); //box check
     }
   }
 
   if (thisType.type == "LineString") {
     for (var l = 0; l < thisType.coordinates.length; l++) {
-      xgtlt(bounds, thisType.coordinates[l][0]);
-      ygtlt(bounds, thisType.coordinates[l][1]); //box check
+      this.xgtlt(bounds, thisType.coordinates[l][0]);
+      this.ygtlt(bounds, thisType.coordinates[l][1]); //box check
     }
   }
 
   if (thisType.type == "MultiLineString") {
     for (var k = 0; k < thisType.coordinates.length; k++) {   //k enumerates linestrings, l enums points
       for (var l = 0; l < thisType.coordinates[k].length; l++) {
-        xgtlt(bounds, thisType.coordinates[k][l][0]);
-        ygtlt(bounds, thisType.coordinates[k][l][1]); //box check
+        this.xgtlt(bounds, thisType.coordinates[k][l][0]);
+        this.ygtlt(bounds, thisType.coordinates[k][l][1]); //box check
       }
     }
   }
@@ -532,8 +535,8 @@ function getTypeData(thisType, bounds) {        // this version does not create 
     for (var k = 0; k < thisType.coordinates.length; k++) {
       // k enumerates polygons, l enumerates points
       for (var l = 0; l < thisType.coordinates[k].length; l++) {
-        xgtlt(bounds, thisType.coordinates[k][l][0]);
-        ygtlt(bounds, thisType.coordinates[k][l][1]); //box check
+        this.xgtlt(bounds, thisType.coordinates[k][l][0]);
+        this.ygtlt(bounds, thisType.coordinates[k][l][1]); //box check
       }
     }
   }
@@ -542,16 +545,16 @@ function getTypeData(thisType, bounds) {        // this version does not create 
     for (var j = 0; j < thisType.coordinates.length; j++) {		// j iterates over multipolygons   *-
       for (var k = 0; k < thisType.coordinates[j].length; k++) {  //k iterates over polygons
         for (var l = 0; l < thisType.coordinates[j][k].length; l++) {
-          xgtlt(bounds, thisType.coordinates[j][k][l][0]);
-          ygtlt(bounds, thisType.coordinates[j][k][l][1]); //box check
+          this.xgtlt(bounds, thisType.coordinates[j][k][l][0]);
+          this.ygtlt(bounds, thisType.coordinates[j][k][l][1]); //box check
         }
       }
     }
   }
-}        //getFeatureData
+  },        //getFeatureData
 
 
-function xgtlt(bounds, xtest) {         // point-wise x-bound extender
+  xgtlt: function (bounds, xtest) {         // point-wise x-bound extender
 
   if (xtest <= 0) {            // if western hemisphere,        ///////// replaced < with <= to mitigate point at
     if (xtest >= bounds.xmaxm) {    // xmaxm initially -180     ///////// replaced > with >= prime meridian problem
@@ -606,9 +609,9 @@ function xgtlt(bounds, xtest) {         // point-wise x-bound extender
     }
   }
 
-}
+  },
 
-function ygtlt(bounds, ytest) {         // point-wise y-bound extender
+  ygtlt: function (bounds, ytest) {         // point-wise y-bound extender
   if (ytest > bounds.ymax) {
     bounds.ymax = ytest;
   }
@@ -616,5 +619,5 @@ function ygtlt(bounds, ytest) {         // point-wise y-bound extender
     bounds.ymin = ytest;
   }
 }
-
+};
 
