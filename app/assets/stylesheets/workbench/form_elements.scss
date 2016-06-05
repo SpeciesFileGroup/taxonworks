@@ -1,12 +1,45 @@
 @import 'palette';
 @import 'whitespace';
 
+
+input[type=checkbox].unlocked { display: none; }
+input[type=checkbox].locked { display: none; }
+
+.label_unlocked {
+  display: inline-block;
+  padding-left:20px;
+  height:15px;
+  background-image:image-url('unlocked.svg');
+  background-repeat: no-repeat;
+}
+
+.label_locked {
+  display: inline-block;
+  padding-left:20px;
+  height:15px;
+  background-image:image-url('locked.svg');
+  background-repeat: no-repeat;
+}
+
+input[type=checkbox]:checked + label.label_unlocked {
+ background-image:image-url('locked.svg');
+}
+input[type=checkbox]:checked + label.label_locked {
+ background-image:image-url('unlocked.svg');
+}
+
 .mx-autocomplete {
   border: 1px $color-secondary-1-3 solid;
 }
 
 textarea:focus, input:focus{
-    outline: none;
+  outline: none;
+}
+
+fieldset {
+  border-radius:3px;
+  border:1px solid $navigation_border;
+  background-color:#FFF;  
 }
 
 form input {
