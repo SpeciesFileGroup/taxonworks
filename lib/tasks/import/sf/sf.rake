@@ -193,66 +193,67 @@ namespace :tw do
       #
       # end
 
-      desc 'convert TW.sources of bibtex type = book to be bibtex type = unpublished'
-      task :update_sources_with_unpublished_info => [:data_directory, :environment, :user_id] do
-        ### time rake tw:project_import:species_file:update_sources_with_unpublished_info user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
-        # @todo: Not found: Bayard. Date unknown. Dolling's Manuscript Parts. << AccessCode = 1 << RefID = 29143, PubID = 15058; not sure why this failed
-
-        species_file_data = Import.find_or_create_by(name: 'SpeciesFileData')
-        get_pub_id_unpublished_info = species_file_data.get('SFPubIDUnpublishedSourceTitle')
-        get_source_id = species_file_data.get('SFRefIDToTWSourceID')
-
-        # Read each RefID:PubID; if PubID is included in Book hash, update source record.
-
-        path = @args[:data_directory] + 'working/tblRefs.txt'
-        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: "UTF-16:UTF-8")
-
-        error_count = 0
-        successful_update_counter = 0
-
-        file.each_with_index do |row, i|
-          next if get_pub_id_unpublished_info[row['PubID']].nil?
-          next if (row['Title'].empty? and row['PubID'] == '0' and row['Series'].empty? and row['Volume'].empty? and row['Issue'].empty? and row['ActualYear'].empty? and row['StatedYear'].empty?) or row['AccessCode'] == '4'
-
-          puts "working with RefID #{row['RefID']} = SourceID #{get_source_id[row['RefID']]}, PubID = #{row['PubID']}"
-
-          source = Source.find_by(id: get_source_id[row['RefID']].to_i)
-          # if can't find
-          if source.nil?
-            puts "Error: Source not found (RefID = #{row['RefID']}), Error #{error_count += 1}"
-          elsif source.class == Source::Verbatim
-            puts "Verbatim source, skipping"
-          elsif not source.update(get_pub_id_unpublished_info[row['PubID']].merge({bibtex_type: 'unpublished'})) # merges hash of titles with changed bibtex_type info
-            puts "Failed to update,  Error #{error_count += 1}, msg: #{source.errors.messages}"
-          else
-            successful_update_counter += 1
-          end
-
-        end
-        puts "Books processed = #{successful_update_counter}, Errors = #{error_count}"
-      end
-
-      desc 'create unpublished sources array'
-      task :create_sf_unpublished_sources_array => [:data_directory, :environment, :user_id] do
-        ### time rake tw:project_import:species_file:create_sf_unpublished_sources_array user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
-
-        species_file_data = Import.find_or_create_by(name: 'SpeciesFileData')
-        sf_pub_id_unpublished_sources_array = []
-
-        path = @args[:data_directory] + 'working/tblPubs.txt'
-        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: "UTF-16:UTF-8")
-
-        file.each_with_index do |row, i|
-          next unless row['PubType'] == '4' # unpublished source
-
-          print "working with PubID #{row['PubID']} \n"
-
-          sf_pub_id_unpublished_sources_array.push(row['PubID'])
-        end
-
-        species_file_data.set('SFPubIDUnpublishedSourcesArray', sf_pub_id_unpublished_sources_array)
-        ap sf_pub_id_unpublished_sources_array
-      end
+      # Following tasks no longer used because SF.unpublished_sources added as TW.verbatim_sources in create_sources 6 June 2016
+      # desc 'convert TW.sources of bibtex type = book to be bibtex type = unpublished'
+      # task :update_sources_with_unpublished_info => [:data_directory, :environment, :user_id] do
+      #   ### time rake tw:project_import:species_file:update_sources_with_unpublished_info user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
+      #   # @todo: Not found: Bayard. Date unknown. Dolling's Manuscript Parts. << AccessCode = 1 << RefID = 29143, PubID = 15058; not sure why this failed
+      #
+      #   species_file_data = Import.find_or_create_by(name: 'SpeciesFileData')
+      #   get_pub_id_unpublished_info = species_file_data.get('SFPubIDUnpublishedSourceTitle')
+      #   get_source_id = species_file_data.get('SFRefIDToTWSourceID')
+      #
+      #   # Read each RefID:PubID; if PubID is included in Book hash, update source record.
+      #
+      #   path = @args[:data_directory] + 'working/tblRefs.txt'
+      #   file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: "UTF-16:UTF-8")
+      #
+      #   error_count = 0
+      #   successful_update_counter = 0
+      #
+      #   file.each_with_index do |row, i|
+      #     next if get_pub_id_unpublished_info[row['PubID']].nil?
+      #     next if (row['Title'].empty? and row['PubID'] == '0' and row['Series'].empty? and row['Volume'].empty? and row['Issue'].empty? and row['ActualYear'].empty? and row['StatedYear'].empty?) or row['AccessCode'] == '4'
+      #
+      #     puts "working with RefID #{row['RefID']} = SourceID #{get_source_id[row['RefID']]}, PubID = #{row['PubID']}"
+      #
+      #     source = Source.find_by(id: get_source_id[row['RefID']].to_i)
+      #     # if can't find
+      #     if source.nil?
+      #       puts "Error: Source not found (RefID = #{row['RefID']}), Error #{error_count += 1}"
+      #     elsif source.class == Source::Verbatim
+      #       puts "Verbatim source, skipping"
+      #     elsif not source.update(get_pub_id_unpublished_info[row['PubID']].merge({bibtex_type: 'unpublished'})) # merges hash of titles with changed bibtex_type info
+      #       puts "Failed to update,  Error #{error_count += 1}, msg: #{source.errors.messages}"
+      #     else
+      #       successful_update_counter += 1
+      #     end
+      #
+      #   end
+      #   puts "Unpublished sources processed = #{successful_update_counter}, Errors = #{error_count}"
+      # end
+      #
+      # desc 'create unpublished sources array'
+      # task :create_sf_unpublished_sources_array => [:data_directory, :environment, :user_id] do
+      #   ### time rake tw:project_import:species_file:create_sf_unpublished_sources_array user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
+      #
+      #   species_file_data = Import.find_or_create_by(name: 'SpeciesFileData')
+      #   sf_pub_id_unpublished_sources_array = []
+      #
+      #   path = @args[:data_directory] + 'working/tblPubs.txt'
+      #   file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: "UTF-16:UTF-8")
+      #
+      #   file.each_with_index do |row, i|
+      #     next unless row['PubType'] == '4' # unpublished source
+      #
+      #     print "working with PubID #{row['PubID']} \n"
+      #
+      #     sf_pub_id_unpublished_sources_array.push(row['PubID'])
+      #   end
+      #
+      #   species_file_data.set('SFPubIDUnpublishedSourcesArray', sf_pub_id_unpublished_sources_array)
+      #   ap sf_pub_id_unpublished_sources_array
+      # end
 
       # desc 'create unpublished sources hash consisting of title only'
       # task :create_sf_unpublished_source_hash => [:data_directory, :environment, :user_id] do
@@ -337,7 +338,7 @@ namespace :tw do
         ap sf_pub_id_to_booktitle_publisher_address
       end
 
-      desc 'create RefIDToPubID hash'
+      desc 'create RefIDToPubID hash      UNUSED!!'
       task :create_ref_id_to_pub_id_hash => [:data_directory, :environment, :user_id] do
         ### time rake tw:project_import:species_file:create_ref_id_to_pub_id_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
 
@@ -515,15 +516,20 @@ namespace :tw do
         ap tw_source_id_editor_list
       end
 
-      desc 'run all rake tasks through sources'
-      task :run_tasks_through_sources => [:create_users, :create_people, :map_serials, :map_pub_type, :create_no_ref_list_array,
+      desc 'run all rake tasks through sources without no_ref_list'
+      ### rake tw:project_import:species_file:run_tasks_through_sources user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
+      task :run_tasks_through_sources => [:create_users, :create_people, :map_serials, :map_pub_type,
                                           :map_ref_link, :list_verbatim_refs, :create_projects, :create_sources] do
-        puts 'All done'
+        # task :run_tasks_through_sources => [:create_users, :create_people, :map_serials, :map_pub_type, :create_no_ref_list_array,
+        #                                     :map_ref_link, :list_verbatim_refs, :create_projects, :create_sources] do
+        puts 'Ran create_users, create_people, map_serials, map_pub_type, map_ref_link, list_verbatim_refs, create_project, create_sources'
       end
 
       desc 'create sources'
       task :create_sources => [:data_directory, :environment, :user_id] do
         ### rake tw:project_import:species_file:create_sources user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
+
+        puts 'Running create_sources...'
 
         # @todo
 
@@ -537,7 +543,7 @@ namespace :tw do
         # get_person_id = species_file_data.get('SFPersonIDToTWPersonID') # not needed until roles
         get_user_id = species_file_data.get('FileUserIDToTWUserID') # for housekeeping
         get_serial_id = species_file_data.get('SFPubIDToTWSerialID') # for FK
-        get_pub_type = species_file_data.get('SFPubIDToPubType') # = bibtex_type (1=journal=>article, 2=unused,3=book or cd=>book, 4=unpublished source=>unpublished)
+        get_pub_type = species_file_data.get('SFPubIDToPubType') # = bibtex_type (1=journal=>article, 2=unused, 3=book or cd=>book, 4=unpublished source=>unpublished)
         get_ref_link = species_file_data.get('RefIDToRefLink') # key is SF.RefID, value is URL string
         get_verbatim_ref = species_file_data.get('RefIDToVerbatimRef') # key is SF.RefID, value is verbatim string
         # no_ref_list = species_file_data.get('SFNoRefList') # contains array of RefInRef ids w/only author info
@@ -567,12 +573,14 @@ namespace :tw do
 
           print "working with #{ref_id} \n"
 
+          pub_type = get_pub_type[row['PubID']]
+
           actual_year = row['ActualYear']
           # actual_year = nil if actual_year == '0'
           stated_year = row['StatedYear']
           # stated_year = nil if stated_year == '0'
 
-          if actual_year == '0' or stated_year == '0' or actual_year.include?('-') or stated_year.include?('-')
+          if actual_year == '0' or stated_year == '0' or actual_year.include?('-') or stated_year.include?('-') or pub_type == 'unpublished'
             # create a verbatim source
             source = Source::Verbatim.new(
                 verbatim: get_verbatim_ref[ref_id],
@@ -584,7 +592,7 @@ namespace :tw do
             )
           else
             source = Source::Bibtex.new(
-                bibtex_type: get_pub_type[row['PubID']],
+                bibtex_type: pub_type,
                 title: row['Title'],
                 serial_id: get_serial_id[row['PubID']],
                 series: row['Series'],
@@ -630,9 +638,11 @@ namespace :tw do
 
       end
 
-      desc 'create  projects'
+      desc 'create projects'
       task :create_projects => [:data_directory, :environment, :user_id] do
         ### rake tw:project_import:species_file:create_projects user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
+
+        puts 'Running create_projects...'
 
         species_file_data = Import.find_or_create_by(name: 'SpeciesFileData')
         # Is it really really necessary to track original creator, etc? Don't think so.
@@ -679,6 +689,9 @@ namespace :tw do
       desc 'list SF.RefID to VerbatimRefString'
       task :list_verbatim_refs => [:data_directory, :environment, :user_id] do
         ### rake tw:project_import:species_file:list_verbatim_refs user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
+
+        puts 'Running list_verbatim_refs...'
+
         ref_id_to_verbatim_ref = {}
 
         path = @args[:data_directory] + 'direct_from_sf/sf_verbatim_refs.txt'
@@ -703,6 +716,9 @@ namespace :tw do
       desc 'map SF.RefID to Link URL'
       task :map_ref_link => [:data_directory, :environment, :user_id] do
         ### rake tw:project_import:species_file:map_ref_link user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
+
+        puts 'Running map_ref_link...'
+
         ref_id_to_ref_link = {}
 
         path = @args[:data_directory] + 'direct_from_sf/ref_id_to_ref_link.txt'
@@ -748,6 +764,9 @@ namespace :tw do
       desc 'map SF.PubID by SF.PubType'
       task :map_pub_type => [:data_directory, :environment, :user_id] do
         ### rake tw:project_import:species_file:create_sources user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
+
+        puts 'Running map_put_type...'
+
         sf_pub_id_to_pub_type = {}
 
         path = @args[:data_directory] + 'working/tblPubs.txt'
@@ -779,6 +798,9 @@ namespace :tw do
 
       desc 'map SF.PubID to TW.serial_id'
       task :map_serials => [:environment, :user_id] do
+
+        puts 'Running map_serials...'
+
         ### rake tw:project_import:species_file:create_sources user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
         # Build hash similar to file_user_id_to_tw_user_id for SF.PubID (many) to one TW.serial_id
         # DataAttributes associated with a serial record contain multiple SF.PubIDs
@@ -801,6 +823,8 @@ namespace :tw do
       desc 'create people'
       task :create_people => [:data_directory, :environment, :user_id] do
         ### rake tw:project_import:species_file:create_sources user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
+
+        puts 'Running create_people...'
 
         # Two loops:
         # Loop # 1
@@ -923,6 +947,9 @@ namespace :tw do
       desc 'create users'
       task :create_users => [:data_directory, :environment, :user_id] do
         ### rake tw:project_import:species_file:create_sources user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
+
+        puts 'Running create_users...'
+
         @user_index = {}
         # @project = Project.find_by_name('Orthoptera Species File')
         # $project_id = @project.id
