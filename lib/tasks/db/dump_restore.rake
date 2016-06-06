@@ -13,12 +13,12 @@ namespace :tw do
         database = ActiveRecord::Base.connection.current_database
         path     = File.join(@args[:backup_directory], Time.now.utc.strftime('%Y-%m-%d_%H%M%S%Z') + '.dump')
 
-        puts "Dumping #{database} to #{path}".bold.yellow
+        puts "Dumping #{database} to #{path}".yellow
         puts(Benchmark.measure { `pg_dump --username=#{ENV["db_user"]} --host=localhost --format=custom #{database} --file=#{path}` })
-        raise "pg_dump failed with exit code #{$?.to_i}".bold.red unless $? == 0
-        puts 'Dump complete'.bold.yellow
+        raise "pg_dump failed with exit code #{$?.to_i}".red unless $? == 0
+        puts 'Dump complete'.yellow
 
-        raise 'Failed to create dump file'.bold.red unless File.exists?(path)
+        raise 'Failed to create dump file'.red unless File.exists?(path)
 
       else
         puts "Dump for #{Rails.env} environment failed, database does not exist.".red
@@ -40,10 +40,10 @@ namespace :tw do
       database = ActiveRecord::Base.connection.current_database
 
       path     = File.join(@args[:backup_directory], ENV["file"])
-      puts "Restoring #{database} from #{path}".yellow.bold
+      puts "Restoring #{database} from #{path}".yellow
 
       puts(Benchmark.measure { `pg_restore --username=#{ENV["db_user"]} --host=localhost --format=custom --disable-triggers --dbname=#{database} #{path}` })
-      raise "pg_restore failed with exit code #{$?.to_i}".red.bold unless $? == 0
+      raise "pg_restore failed with exit code #{$?.to_i}".red unless $? == 0
 
       # TODO: Once RAILS is restarted automagically this this can go
       reset_indecies
@@ -51,7 +51,7 @@ namespace :tw do
 
     desc 'Restore from youngest dump file. Handy!'
     task :restore_last => [:find_last, :restore] do
-      puts "Restoring from #{ENV['file']}".bold.yellow
+      puts "Restoring from #{ENV['file']}".yellow
       reset_indecies
     end
 
