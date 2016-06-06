@@ -13,7 +13,7 @@ namespace :tw do
         database = ActiveRecord::Base.connection.current_database
         path     = File.join(@args[:backup_directory], Time.now.utc.strftime('%Y-%m-%d_%H%M%S%Z') + '.dump')
 
-        puts "Dumping #{database} to #{path}".bold
+        puts "Dumping #{database} to #{path}".bold.yellow
         puts(Benchmark.measure { `pg_dump --username=#{ENV["db_user"]} --host=localhost --format=custom #{database} --file=#{path}` })
         raise "pg_dump failed with exit code #{$?.to_i}".bold.red unless $? == 0
         puts 'Dump complete'.bold.yellow
@@ -51,7 +51,7 @@ namespace :tw do
 
     desc 'Restore from youngest dump file. Handy!'
     task :restore_last => [:find_last, :restore] do
-      puts "Restoring from #{ENV['file']}".bold
+      puts "Restoring from #{ENV['file']}".bold.yellow
       reset_indecies
     end
 
