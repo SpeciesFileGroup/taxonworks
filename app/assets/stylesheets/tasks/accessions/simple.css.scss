@@ -1,11 +1,134 @@
 @import '../../workbench/palette';
+@import '../../shared_data/show';
 
 #simple-specimen-task {
+	padding: 0px;
+	.item1 {
+		padding: 15px;
+		width: 300px;
+	}
 
-  .dz-message {
-    text-align: left;
-  }
+	.side_by_side_fields {
+
+	}
+
+	label {
+		display: block;
+		width: 150px;
+		text-align: right;
+		padding-right: 5px;
+		display: inline-block;
+	}
+	.label_unlocked, .label_locked {
+		width: auto;
+
+	}
+	.otu_picker {
+		label {
+			text-align: left;
+		}
+	}
+	.expandable {
+		width: 340px !important;
+	}
+
+	.field {
+		align-items: center;
+		display: flex;
+		flex-direction: row;
+
+		input[type=text] {
+			max-width: 100%;
+			display: inline-block;
+		}
+
+		textarea {
+			width: 340px;
+			display: inline-block;
+		}
+
+	}
+
+	border:none;
+	.panels-container {
+		justify-content: space-between;
+	}
+
+	.dz-message {
+		margin: 0px;
+		text-align: left;
+		width: 400px;
+		display: flex;
+		justify-content: flex-start;
+		flex-direction: row;
+		border:1px solid $navigation-border;
+	}
+
+	.card {
+		padding: 10px;
+		@extend .panel;
+		@extend .content;
+		border:1px solid $navigation-border;
+		background-color: $color-secondary-2-1;
+		label {
+			font-weight: bold;
+		}
+	}
+
+	#collecting_event_fields {
+		padding-top: 15px;
+	}
+
+	#selected_collecting_event {
+		display: flex;
+		flex-direction: row;
+		justify-content: flex-end;
+	}
 
 
+	#dropzone_previews {
+		background-color: #FFF;
+		display: block;
+		border-radius: 3px;
+	}
+
+	hr {
+		width: 100%;
+		border: 0;
+		height: 0;
+		border-top: 1px solid rgba(0, 0, 0, 0.1);
+		border-bottom: 1px solid rgba(255, 255, 255, 0.3);		
+	}
+
+	#collecting_event_filter {
+		background-color: $color-secondary-2-1;
+		ul {
+			padding: 0px;
+			margin: 0px;
+			padding: 15px;
+			width: 400px;
+			max-height: 500px;
+			border:1px solid $navigation-border;
+			overflow: scroll;	
+		}
+
+		li {
+			border-bottom: 1px solid $navigation-border;
+			display: flex;
+			list-style: none;
+			align-items: center;
+			padding: 5px;
+			justify-content: space-between;
+
+			a {
+				display: block;
+				padding-left: 10px;
+			}
+		}
+
+		li:last-child {
+			border-bottom: none;
+		}
+	}
 }
 

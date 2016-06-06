@@ -5,7 +5,7 @@
 }
 
 .expandable {
-	width: 200px;
+	min-width: 200px;
 	border: 1px solid #AED581;
 }
 
@@ -144,6 +144,9 @@
 	.field {
 		display: flex;
 		flex-direction: column;
+		label {
+			text-align: left;
+		}
 	}
 	#new_otu:active {
 		transition: block 0.3s ease;
