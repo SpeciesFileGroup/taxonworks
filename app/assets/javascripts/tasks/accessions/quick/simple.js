@@ -16,7 +16,7 @@ TW.tasks.accessions.quick.simple = {
 
   initialize: function (div) {
     // Bind injected datepicker elements
-    $('body').on('focus',".collecting_event_picklist", function() {
+    $('body').on('click',".collecting_event_picklist", function() {
       TW.tasks.accessions.quick.simple.bind_select_collecting_event(this);
     });
 
@@ -35,7 +35,7 @@ TW.tasks.accessions.quick.simple = {
 
     $('<input>')
       .attr('name', 'specimen[taxon_determinations_attributes][0][otu_id]')
-      .att5r('id', 'selected_otu_id')
+      .attr('id', 'selected_otu_id')
       .attr('value', response.otu_id)
       .appendTo('#simple-specimen-task');
 
@@ -53,9 +53,9 @@ TW.tasks.accessions.quick.simple = {
   },
 
   bind_select_collecting_event: function (link) {
-    $(link).on('click', function (){
+   // $(link).on('click', function (){
       TW.tasks.accessions.quick.simple.set_collecting_event( $(link).data('collecting-event-id') ); 
-    });
+   // });
   },
 
   set_collecting_event: function (id) {
