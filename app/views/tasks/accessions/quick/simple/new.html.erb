@@ -32,7 +32,7 @@
 
       <%= f.fields_for(:taxon_determinations, @specimen.taxon_determinations) do |o| -%>
       <div class="field">
-      <label>Identifier</label>
+      <label>OTU</label>
         <%= render '/otus/otu_picker', otu: o.object.otu, f: o -%>
         <%= lock_tag(@locks, :taxon_determination, :otu_id) -%>
       </div>

@@ -23,10 +23,8 @@
 		width: auto;
 
 	}
-	.otu_picker {
-		label {
-			text-align: left;
-		}
+	.otu_picker > label {
+		display: none;
 	}
 	.expandable {
 		width: 340px !important;
@@ -121,6 +119,7 @@
 			justify-content: space-between;
 
 			a {
+				cursor: pointer;
 				display: block;
 				padding-left: 10px;
 			}
