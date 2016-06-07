@@ -59,7 +59,7 @@ TW.tasks.accessions.quick.simple = {
   },
 
   set_collecting_event: function (id) {
-    $("#collecting_event_fields").toggle(); 
+    $("#collecting_event_fields").hide(); 
 
     var form = $('#simple-specimen-task');
     var target = "#selected_collecting_event" ;
@@ -79,7 +79,7 @@ TW.tasks.accessions.quick.simple = {
       .attr('hidden', true)
       .appendTo(form); // form
 
-    $('#collecting_event_form_toggle').toggle(); 
+    $('#collecting_event_form_toggle').show(); 
   },
 
   bind_locality_search: function () {
