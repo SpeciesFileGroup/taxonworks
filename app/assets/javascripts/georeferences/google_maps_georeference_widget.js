@@ -5,7 +5,7 @@ var _initialize_google_maps_georeference_widget;
 
 _initialize_google_maps_georeference_widget = function init_new_georeference_google_map() {
     if ($('#google_maps_georeference_widget').length) {  // preempt omni-listener affecting wrong canvas
-      var setup = TW.vendor.google.mapDraw.initializeGoogleMapWithDrawManager("#google_maps_georeference_widget");
+      var setup = TW.vendor.google.maps.initializeGoogleMapWithDrawManager("#google_maps_georeference_widget");
         var map = setup[0];
         var drawingManager = setup[1];
 
@@ -38,7 +38,7 @@ _initialize_google_maps_georeference_widget = function init_new_georeference_goo
                 // so that edited features are fully referenced and we don't have to put listeners
                 // on each path.
                 $("#create_georeference_button").add("#create_and_next_georeference_button").bind("click", function () {
-                  var feature = TW.vendor.google.mapDraw.buildFeatureCollectionFromShape(last[0], last[1]);
+                  var feature = TW.vendor.google.maps.buildFeatureCollectionFromShape(last[0], last[1]);
                     $("#georeference_geographic_item_attributes_shape").val(JSON.stringify(feature[0]));
                 });
             }
