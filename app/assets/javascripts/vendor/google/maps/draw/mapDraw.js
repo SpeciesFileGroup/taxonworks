@@ -5,7 +5,7 @@ var TW = TW || {};                      // TW "namespacing" object
 TW.vendor = TW.vendor || {};            // mimic directory structure in app/assets/javascripts
 TW.vendor.google = TW.vendor.google || {};
 TW.vendor.google.maps = TW.vendor.google.maps || {};
-Object.assign(TW.vendor.google.maps, {            // internally referred to as 'this'; externally as TW.vendor.google.maps
+TW.vendor.google.maps.draw = {            // internally referred to as 'this'; externally as TW.vendor.google.maps
 
     buildFeatureCollectionFromShape: function (shape, shape_type) {
 
@@ -135,13 +135,13 @@ Object.assign(TW.vendor.google.maps, {            // internally referred to as '
       // TODO: what does this actually do, should it be calculateCenter()?  If it is
       // setting a value for bounds then it should be assinging bounds to a function
       // that returns bounds
-      this.getData(mapData, bounds);  // scan var data as feature collection with homebrew traverser, collecting bounds
+      TW.vendor.google.maps.getData(mapData, bounds);  // scan var data as feature collection with homebrew traverser, collecting bounds
 /////////// previously omitted update to maps.js //////////////
       bounds.canvas_ratio = canvas_ratio;
       bounds.canvas_width = width;
       bounds.canvas_height = height;
 ///////////////////////////////////////////////////////////////
-      var center_lat_long = this.get_window_center(bounds);      // compute center_lat_long from bounds and compute zoom level as gzoom
+      var center_lat_long = TW.vendor.google.maps.get_window_center(bounds);      // compute center_lat_long from bounds and compute zoom level as gzoom
 
       //// override computed center with verbatim center
       //if (bounds.center_lat == 0 && bounds.center_long == 0) {
@@ -380,5 +380,4 @@ Object.assign(TW.vendor.google.maps, {            // internally referred to as '
     addDrawingListeners: function (map, event) {
       return true;
     }
-  }
-);
+};

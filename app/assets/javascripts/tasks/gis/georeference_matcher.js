@@ -145,9 +145,9 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
       $('#_selecting_ce_form').attr('hidden', true);
       $("#result_from_post").attr("hidden", true);
 
-      ce_map = TW.vendor.google.maps.initializeGoogleMapWithDrawManager("#_draw_ce_form");  //set up a blank draw canvas
+      ce_map = TW.vendor.google.maps.draw.initializeGoogleMapWithDrawManager("#_draw_ce_form");  //set up a blank draw canvas
       $("#ce_commit").click(function (event) {      // register the click handler for the made-from-scratch-button
-        var feature = TW.vendor.google.maps.buildFeatureCollectionFromShape(ce_last[0], ce_last[1]);
+        var feature = TW.vendor.google.maps.draw.buildFeatureCollectionFromShape(ce_last[0], ce_last[1]);
           $("#ce_geographic_item_attributes_shape").val(JSON.stringify(feature[0]));
         }
       );
@@ -155,11 +155,11 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
           // Remove the last created shape if it exists.
           if (ce_last != null) {
             if (ce_last[0] != null) {
-              removeItemFromMap(ce_last[0]);
+              TW.vendor.google.maps.draw.removeItemFromMap(ce_last[0]);
             }
           }
           ce_last = [event.overlay, event.type];
-        var feature = TW.vendor.google.maps.buildFeatureCollectionFromShape(ce_last[0], ce_last[1]);
+        var feature = TW.vendor.google.maps.draw.buildFeatureCollectionFromShape(ce_last[0], ce_last[1]);
           $("#ce_geographic_item_attributes_shape").val(JSON.stringify(feature[0]));
         }
       );
@@ -366,9 +366,9 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
       $("#_recent_gr_form").attr("hidden", true);
       $('#_selecting_gr_form').attr("hidden", true);
 
-      gr_map = TW.vendor.google.maps.initializeGoogleMapWithDrawManager("#_draw_gr_form");  //set up a blank draw canvas
+      gr_map = TW.vendor.google.maps.draw.initializeGoogleMapWithDrawManager("#_draw_gr_form");  //set up a blank draw canvas
       $("#gr_commit").click(function (event) {      // register the click handler for the made-from-scratch-button
-        var feature = TW.vendor.google.maps.buildFeatureCollectionFromShape(gr_last[0], gr_last[1]);
+        var feature = TW.vendor.google.maps.draw.buildFeatureCollectionFromShape(gr_last[0], gr_last[1]);
           $("#gr_geographic_item_attributes_shape").val(JSON.stringify(feature[0]));
         }
       );
@@ -376,11 +376,11 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
           // Remove the last created shape if it exists.
           if (gr_last != null) {
             if (gr_last[0] != null) {
-              removeItemFromMap(gr_last[0]);
+              TW.vendor.google.maps.draw.removeItemFromMap(gr_last[0]);
             }
           }
           gr_last = [event.overlay, event.type];
-        var feature = TW.vendor.google.maps.buildFeatureCollectionFromShape(gr_last[0], gr_last[1]);
+        var feature = TW.vendor.google.maps.draw.buildFeatureCollectionFromShape(gr_last[0], gr_last[1]);
           $("#gr_geographic_item_attributes_shape").val(JSON.stringify(feature[0]));
         }
       );

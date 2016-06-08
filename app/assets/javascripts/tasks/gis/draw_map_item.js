@@ -7,8 +7,8 @@ function initDrawItem(canvas)
                 var newDrawWidget = $("#feature_collection");
                 //var fcdata = newDrawWidget.data('feature-collection');
 
-          var map = TW.vendor.google.maps.initializeGoogleMapWithDrawManager(newDrawWidget);
-                addDrawingListeners(map);
+          var map = TW.vendor.google.maps.draw.initializeGoogleMapWithDrawManager(newDrawWidget);
+          TW.vendor.google.maps.draw.addDrawingListeners(map);
             }
         }
     }
