@@ -41,7 +41,6 @@ TW.tasks.accessions.quick.simple = {
 
     // Collecting Event
    
-   alert(response.collecting_event_id); 
     $("#selected_collecting_event_id").remove();
     $('<input>')
       .attr('name', 'specimen[collecting_event_id]')
