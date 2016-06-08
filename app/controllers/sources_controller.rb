@@ -122,19 +122,19 @@ class SourcesController < ApplicationController
     if file.blank?
       redirect_to batch_load_sources_path, notice: 'No file has been selected.'
     else
-      begin # file type testing: Permit UTF-8, ASCII
-        failed   = false
-        mimetype = `file -b "#{file}"`.gsub(/\n/, '')
-        case mimetype
-          when /utf-8/i, /ascii/i
-            failed = false # redundant, but good for debugging
-          else
-            failed = true
-        end
-        if failed
-          redirect_to batch_load_sources_path, notice: "File '#{file}' is of type '#{mimetype}', and not processable as BibTex."
-        end
-      end
+      # begin # file type testing: Permit UTF-8, ASCII
+      #   failed   = false
+      #   mimetype = `file -b "#{file}"`.gsub(/\n/, '')
+      #   case mimetype
+      #     when /utf-8/i, /ascii/i
+      #       failed = false # redundant, but good for debugging
+      #     else
+      #       failed = true
+      #   end
+      #   if failed
+      #     redirect_to batch_load_sources_path, notice: "File '#{file}' is of type '#{mimetype}', and not processable as BibTex."
+      #   end
+      # end
       @sources                    = Source.batch_preview(file: file.tempfile)
       sha256                      = Digest::SHA256.file(file.tempfile)
       cookies[:batch_sources_md5] = sha256.hexdigest
