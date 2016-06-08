@@ -3,7 +3,10 @@ $(document).ready(function() {
 		Mousetrap.bind('ctrl+h ctrl+h', function(e) {
 			window.location = "/hub";
 		});
-
+		if((window.location.href).indexOf('/tasks/') > 0) {
+			$('#quick_bar').hide();
+			$('#header_bar').hide();
+		}		
 		$('body').append("<div class='button-collapse-header button-collapse-arrow-up'></div>");
 		$('.button-collapse-header').on('click', function() {
 			if($(this).hasClass('button-collapse-arrow-down')) {
