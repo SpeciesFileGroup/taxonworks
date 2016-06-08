@@ -36,12 +36,12 @@ class SourcesController < ApplicationController
     respond_to do |format|
       if @source.save
         case @source.type
-        when 'Source::Bibtex'
-          format.html { redirect_to @source.metamorphosize, notice: "Source by '#{@source.author}' was successfully created." }
-        when 'Source::Verbatim'
-          format.html { redirect_to @source.metamorphosize, notice: "Source '#{@source.cached}' was successfully created." }
-        else # type human
-          format.html { redirect_to @source.metamorphosize, notice: "Source '#{@source.cached_author_string}' was successfully created." }
+          when 'Source::Bibtex'
+            format.html { redirect_to @source.metamorphosize, notice: "Source by '#{@source.author}' was successfully created." }
+          when 'Source::Verbatim'
+            format.html { redirect_to @source.metamorphosize, notice: "Source '#{@source.cached}' was successfully created." }
+          else # type human
+            format.html { redirect_to @source.metamorphosize, notice: "Source '#{@source.cached_author_string}' was successfully created." }
         end
 
         format.json { render action: 'show', status: :created, location: @source }
@@ -52,7 +52,7 @@ class SourcesController < ApplicationController
             @source.title = 'forced'
             if @source.save
               @source.title = ''
-              @source.save  #TODO may need to add a test to confirm it saves the second time.
+              @source.save #TODO may need to add a test to confirm it saves the second time.
               format.html { redirect_to @source.metamorphosize, notice: "Source by '#{@source.author}' was successfully created." }
             else
               format.html { render action: 'new' }
@@ -118,11 +118,25 @@ class SourcesController < ApplicationController
   end
 
   def preview_bibtex_batch_load
-    if params[:file].nil?
-      redirect_to batch_load_sources_path, notice: 'no file has been selected'
+    file = params[:file]
+    if file.blank?
+      redirect_to batch_load_sources_path, notice: 'No file has been selected.'
     else
-      @sources                    = Source.batch_preview(file: params[:file].tempfile)
-      sha256                      = Digest::SHA256.file(params[:file].tempfile)
+      begin # file type testing: Permit UTF-8, ASCII
+        failed   = false
+        mimetype = `file -b "#{file}"`.gsub(/\n/, '')
+        case mimetype
+          when /utf-8/i, /ascii/i
+            failed = false # redundant, but good for debugging
+          else
+            failed = true
+        end
+        if failed
+          redirect_to batch_load_sources_path, notice: "File '#{file}' is of type '#{mimetype}', and not processable as BibTex."
+        end
+      end
+      @sources                    = Source.batch_preview(file: file.tempfile)
+      sha256                      = Digest::SHA256.file(file.tempfile)
       cookies[:batch_sources_md5] = sha256.hexdigest
       render 'sources/batch_load/bibtex_batch_preview'
     end
@@ -159,7 +173,7 @@ class SourcesController < ApplicationController
   private
 
   def set_source
-    @source = Source.find(params[:id])
+    @source        = Source.find(params[:id])
     @recent_object = @source
   end
 
@@ -173,7 +187,7 @@ class SourcesController < ApplicationController
       :abstract, :copyright, :language, :stated_year, :verbatim,
       :bibtex_type, :day, :year, :isbn, :issn, :verbatim_contents,
       :verbatim_keywords, :language_id, :translator, :year_suffix, :url, :type,
-      roles_attributes: [:id, :_destroy, :type, :person_id, :position, person_attributes: [:last_name, :first_name, :suffix, :prefix]],
+      roles_attributes:           [:id, :_destroy, :type, :person_id, :position, person_attributes: [:last_name, :first_name, :suffix, :prefix]],
       project_sources_attributes: [:project_id]
     )
   end
