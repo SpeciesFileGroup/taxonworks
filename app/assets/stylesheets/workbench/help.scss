@@ -3,17 +3,17 @@
 .help-button {
 	position: fixed;
 	z-index: 999;
-	bottom:-20px; 
+	bottom:-35px; 
 	left:15px;
-	width: 40px;
-	height: 40px;
-	opacity: 0.9;
+	width: 50px;
+	height: 50px;
+	opacity: 0.5;
 	border-radius: 50%;
 	background-image: image-url("help.svg");
 	background-repeat: no-repeat;
 	background-position: top;
 	background-color: $color-help-button;
-	background-size: 20px;
+	background-size: 15px;
 	transition: bottom 0.5s ease, left 0.5s ease, 
 				background-position 0.5s ease, 
 				background-size 0.5s ease, 
@@ -21,10 +21,13 @@
 				height 0.5s ease, 
 				opacity 0.5s ease;
 
-	box-shadow: 0 0px 3px 0 $navigation-border;
+	box-shadow: 0 -1px 2px 0 #444;
 }
 .help-button:hover {
 	transition: bottom 0.5s ease, left 0.5s ease, background-position 0.5s ease, background-size 0.5s ease;
+	bottom:-25px;
+	background-size: 25px;
+	opacity: 1;
 }
 
 .help-button-active {
@@ -35,8 +38,16 @@
 	height: 50px;
 	background-size: 35px;
 	background-position: center;
-	box-shadow: 0 0px 3px 0 #444;
 	transition: opacity 0.5s ease;	
+}
+
+.help-button-active:hover {
+	opacity: 0.5;
+	bottom: 15px;
+	left: 15px;
+	background-size: 35px;
+	background-position: center;
+	transition: opacity 0.5s ease,bottom 0.5s ease, left 0.5s ease, background-position 0.5s ease, background-size 0.5s ease;	
 }
 
 .help-background-active {
