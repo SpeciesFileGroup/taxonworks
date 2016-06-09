@@ -21,7 +21,7 @@ class Georeferences::GeoLocatesController < ApplicationController
           #         if @georeference.method_name
           #           render "/georeferences/#{@georeference.method_name}/new"
           #         else
-          render :new,  notice: 'Georeference not created, check verbatim values of collecting event'
+          render :new, notice: 'Georeference not created, check verbatim values of collecting event'
           #           if @georeference.collecting_event
           #             redirect_to collecting_event_path(@georeference.collecting_event),
           #           else
@@ -38,10 +38,10 @@ class Georeferences::GeoLocatesController < ApplicationController
 
   # GET /georeferences/geo_locate/new
   def new
- #   @collecting_event = CollectingEvent.find(params.permit(:collecting_event_id)[:collecting_event_id]) if params.permit(:collecting_event_id)[:collecting_event_id]
-    attributes = {}
-    attributes = georeference_params  if params[:georeference]
-    @georeference  = Georeference::GeoLocate.new(attributes)
+    #   @collecting_event = CollectingEvent.find(params.permit(:collecting_event_id)[:collecting_event_id]) if params.permit(:collecting_event_id)[:collecting_event_id]
+    attributes           = {}
+    attributes           = georeference_params if params[:georeference]
+    @georeference        = Georeference::GeoLocate.new(attributes)
     @georeference.source ||= Source.new()
 
   end
@@ -55,8 +55,8 @@ class Georeferences::GeoLocatesController < ApplicationController
                                          :type,
                                          :is_public,
                                          :api_request,
-                                         origin_citation_attributes: [:id, :_destroy, :source_id] 
-                                        ) 
+                                         origin_citation_attributes: [:id, :_destroy, :source_id]
+    )
   end
 
   # Over-ride the default model setting for this subclass
