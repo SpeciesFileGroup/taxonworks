@@ -6,192 +6,13 @@ require 'fileutils'
 
 namespace :tw do
   namespace :project_import do
-    namespace :species_file do
+    namespace :sf_start do
 
       # Outstanding issues for ProjectSources
       #   Add data_attribute to ProjectSources from sfVerbatimRefs (this is instead of dealing with tblRefs.ContainingRefID)
       #   Add tblRefs.Note as?
       #   Currently ProjectSources do not allow data_attributes or notes
 
-
-      # import taxa
-      # original_genus_id: cannot set until all taxa (for a given project) are imported; and the out of scope taxa as well
-      # pass 1
-      # pass 2
-
-      # name_status_lookup = {
-      #     1 => 'TaxonNameClassification::Iczn::'
-      # }
-
-      # if temporary, don't make taxon name, make an OTU, that OTU has the TaxonNameID of the AboveID as the taxon name reference (or find the most recent valid above ID)
-
-      desc 'create all SF taxa (pass 1)'
-      task :create_all_sf_taxa_pass1 => [:data_directory, :environment, :user_id] do
-        ### time rake tw:project_import:species_file:create_all_sf_taxa_pass1 user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
-
-        species_file_data = Import.find_or_create_by(name: 'SpeciesFileData')
-        get_user_id = species_file_data.get('FileUserIDToTWUserID') # for housekeeping
-        get_rank_string = species_file_data.get('SFRankIDToTWRankString')
-        get_apex_taxon_id = species_file_data.get('TWProjectIDToSFApexTaxonID')
-        get_source_id = species_file_data.get('SFRefIDToTWSourceID')
-        get_project_id = species_file_data.get('SFFileIDToTWProjectID')
-
-        sf_taxon_name_id_to_tw_taxon_name_id = {} # hash of SF.AboveIDs = parent_id, key = SF.TaxonNameID, value = TW.taxon_name.id
-        get_parent_id = sf_taxon_name_id_to_tw_taxon_name_id
-
-        tw_taxon_name_id_to_sf_status_flags = {} # hash of TW.taxon_name_id = SF.StatusFlags
-
-        # get reverse of TWProjectIDToSFApexTaxonID: no longer needed because we can use get_project_id
-        # get_apex_taxon_project_id = {}
-        # get_apex_taxon_id.each { |key, value| get_apex_taxon_project_id[value] = key } # shortcut for do...end
-
-        path = @args[:data_directory] + 'working/tblTaxa.txt'
-        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: "UTF-16:UTF-8")
-
-        # first loop to get ApexTaxonNameID.AboveID
-        # puts "before the first loop, apex_taxon_name_id = #{apex_taxon_name_id.class}"
-        file.each do |row|
-          next unless get_apex_taxon_id.has_value?(row['TaxonNameID'])
-          get_parent_id[row['AboveID']] = TaxonName.find_by!(project_id: get_project_id[row['FileID']], name: 'Root').id # substitute for row['AboveID']
-          # get_parent_id[row['AboveID']] = TaxonName.find_by(project_id: get_apex_taxon_project_id[row['TaxonNameID']], name: 'Root').id # substitute for row['AboveID'] # this is the reverse hash
-        end
-        # puts 'done with first loop'
-        # ap get_parent_id
-
-        puts "get parent id of apex taxon id"
-        ap get_parent_id
-
-        # break
-
-        error_counter = 0
-        count_found = 0
-
-        file.each_with_index do |row, i|
-          taxon_name_id = row['TaxonNameID']
-          next if row['TaxonNameStr'].start_with?('0-')
-          # next unless row['TaxonNameStr'].start_with?(apex_taxon_name_id)
-          # NameStatus and/or StatusFlags should be attached to taxon_name as data_attribute?
-
-          project_id = get_project_id[row['FileID']]
-
-          count_found += 1
-          print "working with TW.project_id: #{project_id} = SF.FileID #{row['FileID']}, SF.TaxonNameID #{taxon_name_id} (count #{count_found}) \n"
-
-          taxon_name = Protonym.new(
-              name: row['Name'],
-              parent_id: get_parent_id[row['AboveID']],
-              rank_class: get_rank_string[row['RankID']],
-
-              origin_citation_attributes: {source_id: get_source_id[row['RefID']], project_id: project_id,
-                                           created_by_id: get_user_id[row['CreatedBy']], updated_by_id: get_user_id[row['ModifiedBy']]},
-
-
-              project_id: project_id,
-              created_at: row['CreatedOn'],
-              updated_at: row['LastUpdate'],
-              created_by_id: get_user_id[row['CreatedBy']],
-              updated_by_id: get_user_id[row['ModifiedBy']]
-          )
-
-          if taxon_name.save
-
-            sf_taxon_name_id_to_tw_taxon_name_id[row['TaxonNameID']] = taxon_name.id
-            tw_taxon_name_id_to_sf_status_flags[taxon_name.id] = row['StatusFlags']
-
-          else
-            error_counter += 1
-            puts "     ERROR (#{error_counter}): " + taxon_name.errors.full_messages.join(';')
-            puts "  project_id: #{project_id}, SF.TaxonNameID: #{row['TaxonNameID']}, TW.taxon_name.id #{taxon_name.id} sf row created by: #{row['CreatedBy']}, sf row updated by: #{row['ModifiedBy']}    "
-          end
-
-        end
-
-
-      end
-
-      # desc 'create valid taxa for Embioptera (FileID = 60)'
-      # task :create_valid_taxa_for_embioptera => [:data_directory, :environment, :user_id] do
-      #   ### time rake tw:project_import:species_file:create_valid_taxa_for_embioptera user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
-      #
-      #   species_file_data = Import.find_or_create_by(name: 'SpeciesFileData')
-      #   get_user_id = species_file_data.get('FileUserIDToTWUserID') # for housekeeping
-      #   get_rank_string = species_file_data.get('SFRankIDToTWRankString')
-      #   get_apex_taxon_id = species_file_data.get('TWProjectIDToSFApexTaxonID')
-      #   get_source_id = species_file_data.get('SFRefIDToTWSourceID')
-      #
-      #   sf_taxon_name_id_to_tw_taxon_name_id = {} # hash of SF.AboveIDs = parent_id, key = SF.TaxonNameID, value = TW.taxon_name.id
-      #   get_parent_id = sf_taxon_name_id_to_tw_taxon_name_id
-      #
-      #
-      #   # name_status_lookup = {
-      #   #     1 => 'TaxonNameClassification::Iczn::'
-      #   # }
-      #
-      #   # if temporary, don't make taxon name, make an OTU, that OTU has the TaxonNameID of the AboveID as the taxon name reference (or find the most recent valid above ID)
-      #
-      #
-      #   project_id = Project.find_by_name('embioptera_species_file').id
-      #   apex_taxon_name_id = get_apex_taxon_id[project_id.to_s]
-      #
-      #   path = @args[:data_directory] + 'working/tblTaxa.txt'
-      #   file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: "UTF-16:UTF-8")
-      #
-      #   # first loop to get ApexTaxonNameID.AboveID
-      #   # puts "before the first loop, apex_taxon_name_id = #{apex_taxon_name_id.class}"
-      #   file.each do |row|
-      #     next unless row['TaxonNameID'] == apex_taxon_name_id
-      #     get_parent_id[row['AboveID']] = TaxonName.find_by(project_id: project_id, name: 'Root').id # substitute for row['AboveID']
-      #     break
-      #   end
-      #   # puts 'done with first loop'
-      #   # ap get_parent_id
-      #
-      #   error_counter = 0
-      #   count_found = 0
-      #
-      #   file.each_with_index do |row, i|
-      #     taxon_name_id = row['TaxonNameID']
-      #     next unless row['TaxonNameStr'].start_with?(apex_taxon_name_id)
-      #     next unless row['NameStatus'] == '0'
-      #     # Valid names only, 18, including 0, instances of StatusFlags > 0 when NameStatus = 0
-      #     # NameStatus should be attached to taxon_name as data_attribute?
-      #
-      #     count_found += 1
-      #     print "working with TaxonNameID #{taxon_name_id} (count #{count_found}) \n"
-      #
-      #     taxon_name = Protonym.new(
-      #         # taxon_name = TaxonName.new(
-      #         name: row['Name'],
-      #         parent_id: get_parent_id[row['AboveID']],
-      #         rank_class: get_rank_string[row['RankID']],
-      #         # type: 'Protonym',
-      #
-      #         origin_citation_attributes: {source_id: get_source_id[row['RefID']], project_id: project_id,
-      #                                      created_by_id: get_user_id[row['CreatedBy']], updated_by_id: get_user_id[row['ModifiedBy']]},
-      #
-      #         # original_genus_id: cannot set until all taxa (for a given project) are imported; and the out of scope taxa as well,
-      #
-      #         project_id: project_id,
-      #         created_at: row['CreatedOn'],
-      #         updated_at: row['LastUpdate'],
-      #         created_by_id: get_user_id[row['CreatedBy']],
-      #         updated_by_id: get_user_id[row['ModifiedBy']]
-      #     )
-      #
-      #     if taxon_name.save
-      #
-      #       sf_taxon_name_id_to_tw_taxon_name_id[row['TaxonNameID']] = taxon_name.id
-      #
-      #     else
-      #       error_counter += 1
-      #       puts "     ERROR (#{error_counter}): " + taxon_name.errors.full_messages.join(';')
-      #       puts "  project_id: #{project_id}, SF.TaxonNameID: #{row['TaxonNameID']}, TW.taxon_name.id #{taxon_name.id} sf row created by: #{row['CreatedBy']}, sf row updated by: #{row['ModifiedBy']}    "
-      #     end
-      #
-      #   end
-      #
-      #
-      # end
 
       # Following tasks no longer used because SF.unpublished_sources added as TW.verbatim_sources in create_sources 6 June 2016
       # desc 'convert TW.sources of bibtex type = book to be bibtex type = unpublished'
@@ -268,7 +89,7 @@ namespace :tw do
       #   file.each_with_index do |row, i|
       #     next unless row['PubType'] == '4' # unpublished source
       #
-      #     print "working with PubID #{row['PubID']} \n".magenta.bold
+      #     print "working with PubID #{row['PubID']} \n"
       #
       #     sf_pub_id_to_unpublished_title[row['PubID']] = {title: row['ShortName']}
       #   end
@@ -329,7 +150,7 @@ namespace :tw do
         file.each_with_index do |row, i|
           next unless row['PubType'] == '3' # book
 
-          print "working with PubID #{row['PubID']}".magenta.bold
+          print "working with PubID #{row['PubID']}"
 
           sf_pub_id_to_booktitle_publisher_address[row['PubID']] = {booktitle: row['ShortName'], publisher: row['Publisher'], address: row['PlacePublished']}
         end
@@ -358,58 +179,11 @@ namespace :tw do
 
       end
 
-      desc 'create project_id: apex_taxon_id hash (all SFs)'
-      task :create_apex_taxon_id_hash => [:data_directory, :environment, :user_id] do
-        ### rake tw:project_import:species_file:create_apex_taxon_id_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
-
-        species_file_data = Import.find_or_create_by(name: 'SpeciesFileData')
-        get_project_id = species_file_data.get('SFFileIDToTWProjectID') # cross ref hash
-
-        # make hash of AboveIDs = parent_id, key = TW.project.id, value = TW.ApexTaxonNameID.value
-        tw_project_id_to_sf_apex_taxon_id = {}
-
-        path = @args[:data_directory] + 'working/tblConstants.txt'
-        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: "UTF-16:UTF-8")
-
-        file.each_with_index do |row, i|
-          next unless row['Name'] == 'ApexTaxonNameID'
-
-          tw_project_id_to_sf_apex_taxon_id[get_project_id[row['FileID']]] = row['Value']
-
-        end
-
-        i = Import.find_or_create_by(name: 'SpeciesFileData')
-        i.set('TWProjectIDToSFApexTaxonID', tw_project_id_to_sf_apex_taxon_id)
-
-        ap tw_project_id_to_sf_apex_taxon_id
-      end
-
-      desc 'create rank hash'
-      task :create_rank_hash => [:data_directory, :environment, :user_id] do
-        ### rake tw:project_import:species_file:create_rank_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
-
-        sf_rank_id_to_tw_rank_string = {}
-
-        path = @args[:data_directory] + 'working/tblRanks.txt'
-        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: "UTF-16:UTF-8")
-
-        file.each_with_index do |row, i|
-          rank_id = row['RankID']
-          next if ['90', '100'].include?(rank_id) # RankID = 0, "not specified", will = nil
-
-          sf_rank_id_to_tw_rank_string[rank_id] = Ranks.lookup(:iczn, row['RankName'])
-        end
-
-        i = Import.find_or_create_by(name: 'SpeciesFileData')
-        i.set('SFRankIDToTWRankString', sf_rank_id_to_tw_rank_string)
-
-        ap sf_rank_id_to_tw_rank_string
-      end
-
       desc 'run rake between sources and source roles'
       task :run_tasks_between_sources_and_source_roles => [:create_source_editor_array, :create_source_roles] do
         ### time rake tw:project_import:species_file:run_tasks_between_sources_and_source_roles user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
-        puts 'Done with :get_source_editor_array, :create_source_editor_array, :create_source_roles'
+        # Takes >64 minutes to run
+        puts 'Done with :create_source_editor_array, :create_source_roles'
       end
 
       desc 'create source roles'
@@ -437,7 +211,7 @@ namespace :tw do
           # next if Source.find(source_id).class == Source::Verbatim # Source.find(source_id).type == 'Source::Verbatim'
           next if Source.find(source_id).try(:class) == Source::Verbatim # Source.find(source_id).type == 'Source::Verbatim'
 
-          print "working with RefID #{row['RefID']} = SourceID #{source_id}, position #{row['SeqNum']} \n".magenta.bold
+          print "working with RefID #{row['RefID']} = SourceID #{source_id}, position #{row['SeqNum']} \n"
 
           # project_id = ProjectSource.find_by_source_id(source_id).project_id
 
@@ -517,7 +291,7 @@ namespace :tw do
       end
 
       desc 'run all rake tasks through sources without no_ref_list'
-      ### rake tw:project_import:species_file:run_tasks_through_sources user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
+      ### rake time tw:project_import:species_file:run_tasks_through_sources user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
       task :run_tasks_through_sources => [:create_users, :create_people, :map_serials, :map_pub_type,
                                           :map_ref_link, :list_verbatim_refs, :create_projects, :create_sources] do
         # task :run_tasks_through_sources => [:create_users, :create_people, :map_serials, :map_pub_type, :create_no_ref_list_array,
@@ -549,7 +323,7 @@ namespace :tw do
         # no_ref_list = species_file_data.get('SFNoRefList') # contains array of RefInRef ids w/only author info
         get_project_id = species_file_data.get('SFFileIDToTWProjectID')
 
-        # get_source_id = species_file_data.get('SFRefIDToTWSourceID') # cross ref hash
+        # get_source_id = sf_start_data.get('SFRefIDToTWSourceID') # cross ref hash
         # get_source_id ||= {} # make empty hash if doesn't exist (otherwise it would be nil)
         get_source_id = {} # make empty hash
         sf_ref_id_to_tw_source_id = get_source_id
@@ -640,7 +414,7 @@ namespace :tw do
 
       desc 'create projects'
       task :create_projects => [:data_directory, :environment, :user_id] do
-        ### rake tw:project_import:species_file:create_projects user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
+        ### rake tw:project_import:sf_start:create_projects user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
 
         puts 'Running create_projects...'
 
@@ -688,7 +462,7 @@ namespace :tw do
 
       desc 'list SF.RefID to VerbatimRefString'
       task :list_verbatim_refs => [:data_directory, :environment, :user_id] do
-        ### rake tw:project_import:species_file:list_verbatim_refs user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
+        ### rake tw:project_import:sf_start:list_verbatim_refs user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
 
         puts 'Running list_verbatim_refs...'
 
@@ -715,7 +489,7 @@ namespace :tw do
 
       desc 'map SF.RefID to Link URL'
       task :map_ref_link => [:data_directory, :environment, :user_id] do
-        ### rake tw:project_import:species_file:map_ref_link user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
+        ### rake tw:project_import:sf_start:map_ref_link user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
 
         puts 'Running map_ref_link...'
 
@@ -743,7 +517,7 @@ namespace :tw do
       # :create_no_ref_list_array is now created on the fly in :create_sources (data conflicts)
       # desc 'make array from no_ref_list'
       # task :create_no_ref_list_array => [:data_directory, :environment, :user_id] do
-      #   ### rake tw:project_import:species_file:create_no_ref_list_array user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
+      #   ### rake tw:project_import:sf_start:create_no_ref_list_array user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
       #   sf_no_ref_list = []
       #
       #   path = @args[:data_directory] + 'direct_from_sf/no_ref_list.txt'
@@ -763,7 +537,7 @@ namespace :tw do
 
       desc 'map SF.PubID by SF.PubType'
       task :map_pub_type => [:data_directory, :environment, :user_id] do
-        ### rake tw:project_import:species_file:create_sources user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
+        ### rake tw:project_import:sf_start:create_sources user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
 
         puts 'Running map_put_type...'
 
@@ -801,7 +575,7 @@ namespace :tw do
 
         puts 'Running map_serials...'
 
-        ### rake tw:project_import:species_file:create_sources user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
+        ### rake tw:project_import:sf_start:create_sources user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
         # Build hash similar to file_user_id_to_tw_user_id for SF.PubID (many) to one TW.serial_id
         # DataAttributes associated with a serial record contain multiple SF.PubIDs
 
@@ -822,7 +596,7 @@ namespace :tw do
 
       desc 'create people'
       task :create_people => [:data_directory, :environment, :user_id] do
-        ### rake tw:project_import:species_file:create_sources user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
+        ### rake tw:project_import:sf_start:create_sources user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
 
         puts 'Running create_people...'
 
@@ -946,7 +720,7 @@ namespace :tw do
 
       desc 'create users'
       task :create_users => [:data_directory, :environment, :user_id] do
-        ### rake tw:project_import:species_file:create_sources user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
+        ### rake tw:project_import:sf_start:create_sources user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
 
         puts 'Running create_users...'
 
