@@ -21,6 +21,7 @@ class Tasks::Gis::LocalityController < ApplicationController
   # @return [Scope] Preload an  empty set of collecting events
   def new_list
     @collecting_events = CollectingEvent.where('false')
+    @drawing_modes     = 'active: polygon, circle'
   end
 
   # use the params[:geographic_area_id] to locate the area, use that to find a geographic
