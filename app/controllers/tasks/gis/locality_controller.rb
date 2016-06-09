@@ -35,6 +35,7 @@ class Tasks::Gis::LocalityController < ApplicationController
 
         @collecting_events = GeographicItem.gather_selected_data(geographic_area_id, shape_in, finding, false)
                                .order(:verbatim_locality).select(:id)
+        @drawing_modes     = 'active: polygon, circle'
       else
         # some other case, TBDL
     end
