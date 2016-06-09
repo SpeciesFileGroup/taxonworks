@@ -42,13 +42,12 @@ class Georeferences::GeoLocatesController < ApplicationController
     attributes = {}
     attributes = georeference_params  if params[:georeference]
     @georeference  = Georeference::GeoLocate.new(attributes)
+    @georeference.source ||= Source.new()
 
-    # @georeference     = Georeference.new(georeference_params)
   end
 
   protected
 
-  # Never trust parameters from the scary internet, only allow the white list through.
   def georeference_params
     params.require(:georeference).permit(:iframe_response,
                                          :submit,
@@ -56,12 +55,13 @@ class Georeferences::GeoLocatesController < ApplicationController
                                          :type,
                                          :is_public,
                                          :api_request,
-                                        ) # !! TODO: need to add nested source params
+                                         origin_citation_attributes: [:id, :_destroy, :source_id] 
+                                        ) 
   end
 
   # Over-ride the default model setting for this subclass
   def set_data_model
-    @data_model = Georeference::Geolocate
+    @data_model = Georeference::GeoLocate
   end
 
 
