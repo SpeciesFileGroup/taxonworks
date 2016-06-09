@@ -5,6 +5,7 @@
         <%= render(partial: 'shared/data/gis/area_selector',
                    locals:  {passed_in_tag_id:    'geographic_area_id_for_locality_list',
                              selection_object:    'CollectingEvent',
+                             drawing_modes:       'active: none',
                              missing_count:       missing_verbatim_locality_count(@collecting_events),
                              shown_georeferences: locality_georeferences(@collecting_events,
                                                                          @geographic_area)}) %>
