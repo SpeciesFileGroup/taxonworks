@@ -3,6 +3,8 @@
 var TW = TW || {};                      // TW "namespacing" object
 TW.vendor = TW.vendor || {};            // mimic directory structure in app/assets/javascripts
 TW.vendor.google = TW.vendor.google || {};
+TW.vendor.google.maps = TW.vendor.google.maps || {};
+
 Object.assign(TW.vendor.google.maps, {               // internally referred to as 'this'; externally as TW.vendor.google.maps
 
 
