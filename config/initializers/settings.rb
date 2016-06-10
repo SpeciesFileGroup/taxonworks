@@ -17,7 +17,8 @@ module Settings
     :action_mailer_url_host,
     :mail_domain,
     :capistrano,
-    :interface 
+    :interface,
+    :selenium 
   ]
 
   @@backup_directory = nil
@@ -29,6 +30,8 @@ module Settings
   @@sandbox_commit_sha = nil
   @@sandbox_commit_date = nil
 
+  @@selenium_settings = {} 
+   
   def self.load_from_hash(config, hash)
     invalid_sections = hash.keys - VALID_SECTIONS
     raise Error, "#{invalid_sections} are not valid sections" unless invalid_sections.empty?
@@ -43,14 +46,14 @@ module Settings
     load_action_mailer_smtp_settings(config, hash[:action_mailer_smtp_settings])
     load_action_mailer_url_host(config, hash[:action_mailer_url_host])
     load_mail_domain(config, hash[:mail_domain])
-
     load_interface(hash[:interface])
+    load_selenium_config(hash[:selenium]) if hash[:selenium]
   end
-  
+
   def self.get_config_hash
     @@config_hash
   end
-  
+
   def self.load_from_file(config, path, set_name)
     hash = YAML.load_file(path)
     raise Error, "#{set_name} settings set not found" unless hash.keys.include?(set_name.to_s)
@@ -80,7 +83,11 @@ module Settings
   def self.sandbox_commit_date
     @@sandbox_commit_date
   end
-  
+
+  def self.selenium_settings
+    @@selenium_settings 
+  end
+
   private
 
   def self.load_default_data_directory(path)
@@ -127,6 +134,18 @@ module Settings
     end
   end
 
+  def self.load_selenium_config(settings)
+    invalid = settings.keys - [:browser, :marionette, :firefox_binary_path, :chromedriver_path]
+
+    raise Error, "#{invalid} are not valid settings for test:selenium." unless invalid.empty?
+    raise Error, "Can not find Firefox browser binary #{settings[:firefox_binary_path]}." if settings[:browser] == :firefox && !settings[:firefox_binary_path].blank? && !File.exists?(settings[:firefox_binary_path])  
+    raise Error, "Can not find chromedriver #{ settings[:chromedriver_path] }." if settings[:browser] == :chrome && !settings[:chromedriver_path].blank? && !File.exists?(settings[:chromedriver_path])  
+
+    settings.each do |k,v|
+      @@selenium_settings[k] = v if !v.blank?
+    end
+  end
+
   def self.load_action_mailer_smtp_settings(config, settings)
     if settings
       config.action_mailer.delivery_method = :smtp
@@ -144,20 +163,26 @@ module Settings
     @@mail_domain = mail_domain
   end
 
-end
-
-TaxonWorks::Application.configure do
-  case Rails.env.to_sym
-  when :test
-    Settings.load_from_hash(config, { 
+  def self.load_test_defaults(config)
+    load_from_hash(config, { 
       exception_notification: {
         email_prefix: "[TW-Error] ",
         sender_address: %{"notifier" <notifier@example.com>},
         exception_recipients: %w{exceptions@example.com},
       },
-      mail_domain: "example.com"
+      mail_domain: "example.com",
+      selenium: {
+        browser: :firefox,
+        marionette: false,
+        firefox_binary_path: nil,
+        chromedriver_path: nil
+      }
     })
-  else
-    Settings.load_from_file(config, 'config/application_settings.yml', Rails.env.to_sym) if File.exist?('config/application_settings.yml')
   end
+
+end
+
+TaxonWorks::Application.configure do
+  Settings.load_test_defaults(config) if Rails.env == 'test'
+  Settings.load_from_file(config, 'config/application_settings.yml', Rails.env.to_sym) if File.exist?('config/application_settings.yml')
 end
