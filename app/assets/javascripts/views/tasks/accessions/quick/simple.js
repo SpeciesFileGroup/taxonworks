@@ -52,9 +52,7 @@ TW.tasks.accessions.quick.simple = {
   },
 
   bind_select_collecting_event: function (link) {
-   // $(link).on('click', function (){
-      TW.tasks.accessions.quick.simple.set_collecting_event( $(link).data('collecting-event-id') ); 
-   // });
+    TW.tasks.accessions.quick.simple.set_collecting_event( $(link).data('collecting-event-id') ); 
   },
 
   set_collecting_event: function (id) {

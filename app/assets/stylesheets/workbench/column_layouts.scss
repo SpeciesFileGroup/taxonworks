@@ -12,6 +12,13 @@ http://flexboxin5.com/
  	justify-content: center;
  }
 
+  .horizontal-left-content {
+ 	display: flex;
+ 	align-items:center;
+ 	flex-direction:row;
+ 	justify-content: flex-start;
+ }
+
  .flex-separate {
  	display: flex;
  	justify-content: space-between;
