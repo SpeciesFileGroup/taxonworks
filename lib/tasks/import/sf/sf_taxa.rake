@@ -100,13 +100,13 @@ namespace :tw do
 
       desc 'create apex taxon parent id hash, i.e. id of "root" in each project'
       task :create_apex_taxon_parent_id_hash => [:data_directory, :environment, :user_id] do
-        ### time rake tw:project_import:sf_taxa:_apex_taxon_parent_id_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
+        ### time rake tw:project_import:sf_taxa:create_apex_taxon_parent_id_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
 
         species_file_data = Import.find_or_create_by(name: 'SpeciesFileData')
         get_apex_taxon_id = species_file_data.get('TWProjectIDToSFApexTaxonID')
         get_project_id = species_file_data.get('SFFileIDToTWProjectID')
 
-        get_apex_taxon_parent_id = {} # hash of SF.AboveIDs = parent_id, key = SF.TaxonNameID, value = TW.taxon_name.id
+        get_apex_taxon_parent_id = {} # hash of SF.AboveIDs = parent_id, key = SF.TaxonNameID, value = TW.taxon_name.id of each project's Root
 
         # get reverse of TWProjectIDToSFApexTaxonID: no longer needed because we can use get_project_id
         # get_apex_taxon_project_id = {}
@@ -116,14 +116,13 @@ namespace :tw do
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: "UTF-16:UTF-8")
 
         # get ApexTaxonNameID.AboveID
-        # puts "before the first loop, apex_taxon_name_id = #{apex_taxon_name_id.class}"
         file.each do |row|
-          next unless get_apex_taxon_id.has_value?(row['TaxonNameID'])
-          get_apex_taxon_parent_id[row['AboveID']] = TaxonName.find_by!(project_id: get_project_id[row['FileID']], name: 'Root').id # substitute for row['AboveID']
+          t = row['TaxonNameID']
+           next unless get_apex_taxon_id.has_value?(t)
+          puts "TaxonNameID: #{t}, AboveID: #{row['AboveID']}"
+          get_apex_taxon_parent_id[t] = TaxonName.find_by!(project_id: get_project_id[row['FileID']], name: 'Root').id # substitute for row['AboveID']
           # get_parent_id[row['AboveID']] = TaxonName.find_by(project_id: get_apex_taxon_project_id[row['TaxonNameID']], name: 'Root').id # substitute for row['AboveID'] # this is the reverse hash
         end
-        # puts 'done with first loop'
-        # ap get_apex_parent_id
 
         species_file_data.set('SFApexTaxonIDToTWParentID', get_apex_taxon_parent_id)
 
