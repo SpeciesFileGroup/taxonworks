@@ -338,7 +338,7 @@ GEM
     sdoc (0.4.1)
       json (~> 1.7, >= 1.7.7)
       rdoc (~> 4.0)
-    selenium-webdriver (2.53.0)
+    selenium-webdriver (2.53.1)
       childprocess (~> 0.5)
       rubyzip (~> 1.0)
       websocket (~> 1.0)
@@ -469,7 +469,7 @@ DEPENDENCIES
   rubocop (~> 0.40.0)
   sass-rails (~> 5.0.2)
   sdoc
-  selenium-webdriver (~> 2.53.0)
+  selenium-webdriver (~> 2.53.1)
   spring-commands-rspec (~> 1.0.2)
   sqed (= 0.2.0)
   taxonifi (= 0.4.0)

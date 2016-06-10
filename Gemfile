@@ -108,7 +108,7 @@ group :test, :development do
   gem 'byebug', '~> 9.0.5', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'awesome_print'
   gem 'factory_girl_rails', '~> 4.7'
-  gem 'selenium-webdriver', '~> 2.53.0'
+  gem 'selenium-webdriver', '~> 2.53.1'
 end
 
 group :development do
