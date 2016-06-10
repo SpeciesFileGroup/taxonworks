@@ -15,9 +15,8 @@ production:
   mail_domain: "example.com"
   action_mailer_url_host: "www.example.com"
 test: 
-  selenium:  # see /spec/rails_helper.rb for implementation
-    browser: 'firefox'                  
-    marionette: false                                 # not successfully tested 
-    firefox_binary_path: ''             
-    chromedriver_path: '/usr/local/bin/chromedriver'  # not used when 'firefox'
-
+  selenium:  
+    browser: 'firefox'
+    marionette: false
+    firefox_binary_path: ''
+    chromedriver_path: '/usr/local/bin/chromedriver'
