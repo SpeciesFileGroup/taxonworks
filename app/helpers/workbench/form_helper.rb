@@ -8,9 +8,9 @@ module Workbench::FormHelper
 
   	if (defined? locks.locked) then
       locked = locks.locked?(object_name, method)
-	else
-		locked = false
-	end
+  	else
+  		locked = false
+  	end
 
     name = "locks[#{object_name}][#{method}]"
     check_box_tag(name, "1", locked, class: (locked ? :locked : :unlocked)) + 

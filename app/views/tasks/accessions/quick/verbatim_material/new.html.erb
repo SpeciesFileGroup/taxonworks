@@ -1,15 +1,15 @@
+<h2>Task: Quick verbatim material</h2>
 <%= form_tag create_verbatim_material_task_path do %>
    
-    <h2>Identifier</h2>
+    <h3>Identifier</h3>
     <div>
-    <div class="field">
-      <%= label_tag 'Namespace/Institution/Coden' %>
+    <div class="field field-align-center">
+      <%= label_tag 'Namespace / Institution / Coden' %>
       <%= select :identifier, :namespace_id, options_from_collection_for_select(@namespaces, :id, :name, @namespace.id) %>
-      <%= check_box :locks, :namespace %>
-      <%= label_tag 'lock' %>
+      <%= lock_tag(@locks, :locks, :namespace ) %>
     </div>
 
-    <div class="field" >
+    <div class="field field-align-center" >
       <%= label_tag :identifier %>
       <%= text_field :identifier, :identifier %>
       <%= check_box :locks, :increment %>
@@ -17,7 +17,7 @@
       </div>
     </div>
 
-    <h2>Repository</h2>
+    <h3>Repository</h3>
 
     <div class="field">
       <%= render partial: 'workbench/elements/forms/ajax_select',
@@ -28,35 +28,29 @@
                   size: 60,
                   display:    object_tag(@repository)
       } %>
-
-      <%= check_box :locks, :repository %>
-      <%= label_tag 'lock' %>
+      <%= lock_tag(@locks, :locks, :repository ) %>
     </div>
 
-    <h2>Verbatim data</h2>
+    <h3>Verbatim data</h3>
     <div class="field">
       <%= label_tag :collecting_event %>
       <%= text_area :collection_object, :buffered_collecting_event %>
-      <%= check_box :locks, :collecting_event %>
-      <%= label_tag 'lock' %>
+      <%= lock_tag(@locks, :locks, :collecting_event ) %>
     </div>
     <div class="field">
       <%= label_tag :determinations %>
       <%= text_area :collection_object, :buffered_determinations  %>
-      <%= check_box :locks, :determinations %>
-      <%= label_tag 'lock' %>
+      <%= lock_tag(@locks, :locks, :determinations ) %>
     </div>
     <div class="field">
       <%= label_tag :other_labels %>
       <%= text_area :collection_object, :buffered_other_labels  %>
-      <%= check_box :locks, :other_labels %>
-      <%= label_tag 'lock' %>
+      <%= lock_tag(@locks, :locks, :other_labels ) %>
     </div>
     <div class="field">
-      <%= label_tag :notes %> (attached to all material)
+      <%= label_tag 'Notes (attached to all material)' %> 
       <%= text_area :notes, :text %>
-      <%= check_box :locks, :note %>
-      <%= label_tag 'lock' %>
+      <%= lock_tag(@locks, :locks, :note ) %>      
     </div>
 
     <%= render 'attribute_form' %>

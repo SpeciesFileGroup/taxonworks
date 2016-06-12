@@ -18,14 +18,26 @@
 	label {
 		vertical-align: top;
 		width: 120px;
+		text-align: right;
 		display: inline-block;
 	}
 	textarea {
 		width: 300px;
-		min-height: 80px;
+		min-height: 50px;
 	}
 	input[type=checkbox] {
 		vertical-align: top;
+	}
+}
+#repository_id_for_bulk_verbatim {
+	width: 405px;
+}
+
+.field-align-center {
+	label {
+		display: inline-block;
+		vertical-align: middle;
+		align-items: center;
 	}
 }
 
@@ -34,6 +46,17 @@
 }
 
 .one_third_width {
+	//display: flex;
+	//align-items: center;
+}
+
+.one_tenth_width {
+	width:100px !important;
+	label {
+		text-align: right;
+		width: 120px;
+	}
+	display: flex;
 	align-items: center;
 }
 
