@@ -1,6 +1,6 @@
 <h2>Task: Quick verbatim material</h2>
 <%= form_tag create_verbatim_material_task_path do %>
-   
+   <div class="panel no-shadow">
     <h3>Identifier</h3>
     <div>
     <div class="field field-align-center">
@@ -52,10 +52,11 @@
       <%= text_area :notes, :text %>
       <%= lock_tag(@locks, :locks, :note ) %>      
     </div>
-
+    <h3>Material count</h3>
     <%= render 'attribute_form' %>
 
     <div class="actions">
       <%= submit_tag 'Create' %>
+    </div>
     </div>
 <% end %>
