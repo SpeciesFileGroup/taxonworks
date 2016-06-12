@@ -1,6 +1,6 @@
 $(document).ready(function() {
 	if($("#quick_bar").length) {
-		Mousetrap.bind('ctrl+h ctrl+h', function(e) {
+		Mousetrap.bind('alt+ctrl+h alt+ctrl+h', function(e) {
 			window.location = "/hub";
 		});
 		if((window.location.href).indexOf('/tasks/') > 0) {
