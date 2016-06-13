@@ -7,7 +7,7 @@ _init_geographic_area_map = function init_geographic_area_map()         // initi
             var newfcdata = $("#feature_collection");
             var fcdata = newfcdata.data('feature-collection');
 
-          TW.vendor.google.maps.initializeMap("geographic_item_map_canvas", fcdata);
+          TW.vendor.lib.google.maps.initializeMap("geographic_item_map_canvas", fcdata);
             //add_map_listeners();
         }
     }

@@ -10,7 +10,7 @@ _init_simple_map = function init_simple_map() {
     var fcdata = newfcdata.data('feature-collection');
     var map_canvas = newfcdata.data('map-canvas');
 
-    var simple_map = TW.vendor.google.maps.initializeMap(map_canvas, fcdata);
+    var simple_map = TW.vendor.lib.google.maps.initializeMap(map_canvas, fcdata);
   }
 };
 

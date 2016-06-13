@@ -4,8 +4,8 @@ function initDrawItem(canvas) {
     if (newDrawWidget.length) {
       //var fcdata = newDrawWidget.data('feature-collection');
 
-      var map = TW.vendor.google.maps.draw.initializeGoogleMapWithDrawManager(newDrawWidget);
-      TW.vendor.google.maps.draw.addDrawingListeners(map);
+      var map = TW.vendor.lib.google.maps.draw.initializeGoogleMapWithDrawManager(newDrawWidget);
+      TW.vendor.lib.google.maps.draw.addDrawingListeners(map);
     }
   }
 }

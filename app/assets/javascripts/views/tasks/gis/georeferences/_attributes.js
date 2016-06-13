@@ -7,7 +7,7 @@ _init_georeference_google_map = function init_georeference_google_map()        /
       var newfcdata = $("#feature_collection");
       var fcdata = newfcdata.data('feature-collection');
 
-      TW.vendor.google.maps.initializeMap("georeference_google_map_canvas", fcdata);
+      TW.vendor.lib.google.maps.initializeMap("georeference_google_map_canvas", fcdata);
     }
   }
 };

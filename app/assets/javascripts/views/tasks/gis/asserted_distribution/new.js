@@ -78,8 +78,8 @@ function add_click_services_to_new_asserted_distribution_map(map, event) {     /
             break;
           }
         }
-            getData(data, bounds);
-            var center_lat_long = get_window_center(bounds);
+        TW.vendor.lib.google.maps.getData(data, bounds);
+        var center_lat_long = TW.vendor.lib.google.maps.get_window_center(bounds);
             map.setCenter(center_lat_long);
             map.setZoom(bounds.gzoom);
             //map.fitBounds(bounds.box);
@@ -155,7 +155,7 @@ _init_asserted_distributions_map = function init_asserted_distributions_map() {
             var newadwidget = $("#feature_collection");
             var fcdata = newadwidget.data('feature-collection');
 //    alert(fcdata);
-          var map = TW.vendor.google.maps.initializeMap("new_asserted_distribution_map_canvas", fcdata); // fcdata
+          var map = TW.vendor.lib.google.maps.initializeMap("new_asserted_distribution_map_canvas", fcdata); // fcdata
             add_new_asserted_distribution_map_listeners(map);
         }
     }

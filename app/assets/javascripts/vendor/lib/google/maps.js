@@ -2,10 +2,11 @@
  */
 var TW = TW || {};                      // TW "namespacing" object
 TW.vendor = TW.vendor || {};            // mimic directory structure in app/assets/javascripts
-TW.vendor.google = TW.vendor.google || {};
-TW.vendor.google.maps = TW.vendor.google.maps || {};
+TW.vendor.lib = TW.vendor.lib || {};
+TW.vendor.lib.google = TW.vendor.lib.google || {};
+TW.vendor.lib.google.maps = TW.vendor.lib.google.maps || {};
 
-Object.assign(TW.vendor.google.maps, {               // internally referred to as 'this'; externally as TW.vendor.google.maps
+Object.assign(TW.vendor.lib.google.maps, {               // internally referred to as 'this'; externally as TW.vendor.lib.google.maps
 
 
     initializeMap: function (canvas, feature_collection) {
