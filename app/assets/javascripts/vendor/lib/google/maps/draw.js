@@ -8,7 +8,7 @@ TW.vendor.lib.google = TW.vendor.lib.google || {};
 TW.vendor.lib.google.maps = TW.vendor.lib.google.maps || {};
 TW.vendor.lib.google.maps.draw = TW.vendor.lib.google.maps.draw || {};
 
-TW.vendor.lib.google.maps.draw = {            // internally referred to as 'this'; externally as TW.vendor.lib.google.maps
+Object.assign(TW.vendor.lib.google.maps.draw, {            // internally referred to as 'this'; externally as TW.vendor.lib.google.maps
 
     buildFeatureCollectionFromShape: function (shape, shape_type) {
 
@@ -383,4 +383,5 @@ TW.vendor.lib.google.maps.draw = {            // internally referred to as 'this
     addDrawingListeners: function (map, event) {
       return true;
     }
-};
+  }
+);
