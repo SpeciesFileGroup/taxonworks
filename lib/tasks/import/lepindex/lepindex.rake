@@ -467,7 +467,7 @@ namespace :tw do
                 unless @data.images_index[row['TaxonNo']].nil?
                   #o = Otu.create(taxon_name_id: protonym.id)
                   %w{Card_code Path Front_image Back_image}.each do |k|
-                    protonym.data_attributes.create(import_predicate: k, value: @data.images_index[row['TaxonNo']][k], type: 'ImportAttribute')
+                    protonym.data_attributes.create!(import_predicate: k, value: @data.images_index[row['TaxonNo']][k], type: 'ImportAttribute')
                   end
 
                   file1 = @args[:data_directory] + @data.images_index[row['TaxonNo']]['Path'].gsub("Q:\\", '').gsub("\\", '/') + @data.images_index[row['TaxonNo']]['Front_image']
@@ -506,7 +506,7 @@ namespace :tw do
                     print "\nButmothNo #{row['ButmothNo']} is invalid\n"
                   else
                     butmoth_fields.each do |f|
-                      protonym.data_attributes.new(import_predicate: f, value: brow[f], type: 'ImportAttribute') unless brow[f].blank?
+                      protonym.data_attributes.find_or_create_by(import_predicate: f, value: brow[f], type: 'ImportAttribute', project_id: $project_id) unless brow[f].blank?
                     end
                   end
 
@@ -516,7 +516,7 @@ namespace :tw do
                  #  protonym.source_id = ref unless ref.nil?
 
                   citation = brow.nil? ? nil : @data.citations_index[brow['GENUS_REF']]
-                  Citation.create(citation_object: protonym, is_original: true, source_id: ref, pages: citation['PAGE']) unless ref.nil? || citation.nil?
+                  c = Citation.create!(citation_object: protonym, is_original: true, source_id: ref, pages: citation['PAGE']) unless ref.nil? || citation.nil?
 
                   @list_of_relationships << {'taxon' => protonym.id, 'relationship' => 'type species', 'type species' => brow['TS_SPECIES'], 'type species reference' => brow['TS_REF'], 'type designation' => brow['TSD_DESIGNATION'], 'ButmothNo' => brow['ButmothNo'].to_i, 'valid genus' => row['valid_parent_id']} unless brow.nil?
                 end
