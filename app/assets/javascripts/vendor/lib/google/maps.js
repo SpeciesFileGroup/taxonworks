@@ -359,7 +359,7 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
       var aspect_ratio = x_pixels / y_pixels;   //changed from wx/wy//
       if (x_pixels / bounds.canvas_width > y_pixels / bounds.canvas_height) {     // wider
         // pick x-axis
-        xzoom = 1.0 - this, log_2(x_pixels / bounds.canvas_width);      // empirical inversion of log result
+        xzoom = 1.0 - this.log_2(x_pixels / bounds.canvas_width);      // empirical inversion of log result
         if (xzoom > 15 || xzoom == Infinity) {
           xzoom = 15;
         }
