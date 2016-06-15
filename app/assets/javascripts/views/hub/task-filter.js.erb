@@ -1,4 +1,4 @@
-var carrouselTask = function (sec, rows, columns) {
+var CarrouselTask = function (sec, rows, columns) {
   // sec = Name of data section, this is for identify div.
   // rows = This is for the number of rows that will be displayed, if this number is less than the number of items, it will activate the navigation controls
   
@@ -23,22 +23,23 @@ var carrouselTask = function (sec, rows, columns) {
     this.changeSize();
   }
 
-  carrouselTask.prototype.changeSize = function() {
+  CarrouselTask.prototype.changeSize = function() {
     $(this.sectionTag).children(".task-section").css("width",((this.maxColumns*475) + "px"));
     $(this.sectionTag).children(".task-section").css("height",((this.maxRow*250) + "px"));
   }
 
-  carrouselTask.prototype.makeInjection = function() {
-    $('div.source').replaceWith('<img class="categories source" src="<%= asset_path("book.svg") %>" width="15"/>');
-    $('div.collecting_event').replaceWith('<img class="categories collecting_event" src="<%= asset_path("geo_location.svg") %>" alt="Collection object" width="15"/>');
-    $('div.collection_object').replaceWith('<img class="categories collection_object" src="<%= asset_path("picking.svg") %>" width="15"/>');
+  CarrouselTask.prototype.makeInjection = function() {
+    $('div.source').replaceWith('<img title="Source" class="categories source" src="<%= asset_path("book.svg") %>" width="15"/>');
+    $('div.collecting_event').replaceWith('<img title="Collectiong event" class="categories collecting_event" src="<%= asset_path("geo_location.svg") %>" alt="Collection object" width="15"/>');
+    $('div.collection_object').replaceWith('<img title="Collection object" class="categories collection_object" src="<%= asset_path("picking.svg") %>" width="15"/>');
+    $('div.build_biocuration_groups_task').replaceWith('<img title="Build biocuration gruops task" class="categories build_biocuration_groups_task" src="<%= asset_path("biology.svg") %>" width="15"/>');
   } 
 
-  carrouselTask.prototype.addFilter = function(nameFilter) {
+  CarrouselTask.prototype.addFilter = function(nameFilter) {
     this.filters[nameFilter] = false;
   } 
 
-  carrouselTask.prototype.injectNavList = function() {
+  CarrouselTask.prototype.injectNavList = function() {
     for(i = 0; i < this.childsCount; i++) {
       if((i - this.maxCards >= 0) && (this.maxCards - i <= 0)) {
         $(this.sectionTag + " .task-nav-list").append('<div class="task-nav-item"></div>');
@@ -49,7 +50,7 @@ var carrouselTask = function (sec, rows, columns) {
     }
   } 
 
-  carrouselTask.prototype.changeSelectedNavList = function(childIndex) {
+  CarrouselTask.prototype.changeSelectedNavList = function(childIndex) {
     var
     count = this.maxCards;
 
@@ -66,7 +67,7 @@ var carrouselTask = function (sec, rows, columns) {
     }
   }   
 
-  carrouselTask.prototype.checkChildFilter = function(childTag) {
+  CarrouselTask.prototype.checkChildFilter = function(childTag) {
     var find = 0;
     var isTrue = 0;
     for (var key in this.filters) {
@@ -85,21 +86,21 @@ var carrouselTask = function (sec, rows, columns) {
     }
   }
 
-  carrouselTask.prototype.resetChildsCount = function() {
+  CarrouselTask.prototype.resetChildsCount = function() {
     this.childsCount = $(this.sectionTag + ' .task_card').length;
   }
 
-  carrouselTask.prototype.setFilterStatus = function(filterTag, value)  {
+  CarrouselTask.prototype.setFilterStatus = function(filterTag, value)  {
     this.filters[filterTag] = value;
     this.filterChilds();
   } 
 
-  carrouselTask.prototype.changeFilter = function(filterTag)  {
+  CarrouselTask.prototype.changeFilter = function(filterTag)  {
     this.filters[filterTag] = !this.filters[filterTag];
     this.filterChilds();
   } 
 
-  carrouselTask.prototype.showChilds = function(childIndex) {
+  CarrouselTask.prototype.showChilds = function(childIndex) {
     var 
     count = 0;
 
@@ -128,7 +129,7 @@ var carrouselTask = function (sec, rows, columns) {
     this.noTaskFound(count);
   }
 
-  carrouselTask.prototype.noTaskFound = function(count) {
+  CarrouselTask.prototype.noTaskFound = function(count) {
     if(count == 0) {
       $(this.sectionTag + ' .no-tasks').fadeIn(250);
     }
@@ -136,7 +137,7 @@ var carrouselTask = function (sec, rows, columns) {
       $(this.sectionTag + ' .no-tasks').fadeOut(250);
     }
   }
-  carrouselTask.prototype.filterChilds = function() {
+  CarrouselTask.prototype.filterChilds = function() {
     var 
     find = 0,
     activeCount = 0;
@@ -157,11 +158,11 @@ var carrouselTask = function (sec, rows, columns) {
     this.showMoreNav((find > this.maxCards));
   } 
 
-  carrouselTask.prototype.resetView = function() {
+  CarrouselTask.prototype.resetView = function() {
     $(this.sectionTag + ' .task_card').css("display","none");
   }
 
-  carrouselTask.prototype.navigation = function(value) {
+  CarrouselTask.prototype.navigation = function(value) {
     if(value) {
       $(this.sectionTag + " .navigation a").show(250);
     }
@@ -170,7 +171,7 @@ var carrouselTask = function (sec, rows, columns) {
     }
   }
 
-  carrouselTask.prototype.loadingDown = function() {
+  CarrouselTask.prototype.loadingDown = function() {
     var 
     sectionTag = this.sectionTag,
     active = this.active,
@@ -188,7 +189,7 @@ var carrouselTask = function (sec, rows, columns) {
   }
 
 
-  carrouselTask.prototype.showMoreNav = function(value) {
+  CarrouselTask.prototype.showMoreNav = function(value) {
     if(value) {
       $('.more_tasks_nav').fadeIn(250);
     } 
@@ -197,7 +198,7 @@ var carrouselTask = function (sec, rows, columns) {
     }
   }
 
-  carrouselTask.prototype.loadingUp = function() {
+  CarrouselTask.prototype.loadingUp = function() {
     var 
     sectionTag = this.sectionTag,
     active = this.active;

@@ -22,6 +22,10 @@
       padding-right: 20px;
     }
 
+    [data-icon="biology"] {
+      background-image: image-url("biology.svg");
+    }         
+
     [data-icon="annotate"] {
       background-image: image-url("annotate.svg");
     } 

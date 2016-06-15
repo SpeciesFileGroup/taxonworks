@@ -1,4 +1,4 @@
-var carrouselData = function (sec, rows, columns) {
+var CarrouselData = function (sec, rows, columns) {
 
 	// sec = Name of data section, this is for identify div.
 	// rows = This is for the number of rows that will be displayed, if this number is less than the number of items, it will activate the navigation controls
@@ -26,11 +26,11 @@ var carrouselData = function (sec, rows, columns) {
 		}
 	}
 
-	carrouselData.prototype.addFilter = function (nameFilter) {
+	CarrouselData.prototype.addFilter = function (nameFilter) {
 		this.filters[nameFilter] = false;
 	}	
 
-	carrouselData.prototype.checkChildFilter = function(childTag) {
+	CarrouselData.prototype.checkChildFilter = function(childTag) {
 		var find = 0;
 		var isTrue = 0;
 		for (var key in this.filters) {
@@ -49,11 +49,11 @@ var carrouselData = function (sec, rows, columns) {
 		}		
 	}
 
-	carrouselData.prototype.resetChildsCount = function() {
+	CarrouselData.prototype.resetChildsCount = function() {
 	  	this.childs = $('.data_section[data-section="' + this.sectionTag + '"] > .cards-section > .card-container ').length;
 	}
 
-	carrouselData.prototype.showEmptyLabel = function(isTrue) {
+	CarrouselData.prototype.showEmptyLabel = function(isTrue) {
 		if(isTrue) {
 			$('[data-section="' + this.sectionTag + '"] div[data-attribute="empty"]').hide(250);
 		}
@@ -62,17 +62,17 @@ var carrouselData = function (sec, rows, columns) {
 		}
 	}
 
-	carrouselData.prototype.changeFilter = function(filterTag)	{
+	CarrouselData.prototype.changeFilter = function(filterTag)	{
 		this.filters[filterTag] = !this.filters[filterTag];
 		this.filterChilds();
 	}	
 
-	carrouselData.prototype.setFilterStatus = function(filterTag, value)	{
+	CarrouselData.prototype.setFilterStatus = function(filterTag, value)	{
 		this.filters[filterTag] = value;
 		this.filterChilds();
 	}	
 
-	carrouselData.prototype.filterChilds = function() {
+	CarrouselData.prototype.filterChilds = function() {
 		var
 			find = 0;
 		if(this.maxRow > this.childs) {
@@ -92,7 +92,7 @@ var carrouselData = function (sec, rows, columns) {
 		this.showEmptyLabel(find > 0);
 	}	
 
-	carrouselData.prototype.navigation = function(value) {
+	CarrouselData.prototype.navigation = function(value) {
 		if(value) {
 			$('.data_section[data-section="'+ this.sectionTag +'"] div.data-controls').css("display","show");
 		}
@@ -102,7 +102,7 @@ var carrouselData = function (sec, rows, columns) {
 	}
 
 
-	carrouselData.prototype.loadingUp = function() {
+	CarrouselData.prototype.loadingUp = function() {
     	var
     	  rows = this.maxRow,
     	  posNro = this.nro,
@@ -118,7 +118,7 @@ var carrouselData = function (sec, rows, columns) {
 	    }  
 	} 
 
-    carrouselData.prototype.loadingDown = function() {
+    CarrouselData.prototype.loadingDown = function() {
     	var
     	  rows = this.maxRow,
     	  posNro = this.nro,
