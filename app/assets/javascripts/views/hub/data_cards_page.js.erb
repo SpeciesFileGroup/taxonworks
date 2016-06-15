@@ -13,10 +13,10 @@ function initDataCardsPage() {
   annotations = new CarrouselData("Annotations",99,1);
 
   [favorites, core, supporting, annotations].forEach(function(element) {
-    element.addFilter("data-category-collectingevent");
-    element.addFilter("data-category-TaxonName");
-    element.addFilter("data-category-Source");
-    element.addFilter("data-category-collectionobject");
+    element.addFilter("data-category-collecting_event");
+    element.addFilter("data-category-Taxon_name");
+    element.addFilter("data-category-source");
+    element.addFilter("data-category-collection_object");
     element.filterChilds();
   });
 
@@ -38,44 +38,44 @@ function initDataCardsPage() {
 
 
   $('#filter [data-filter-category="taxon_name"]').on('click', function() {
-   core.changeFilter("data-category-TaxonName");
-   supporting.changeFilter("data-category-TaxonName");
-   annotations.changeFilter("data-category-TaxonName");
-   favorites.changeFilter("data-category-TaxonName"); 
+   core.changeFilter("data-category-taxon_name");
+   supporting.changeFilter("data-category-taxon_name");
+   annotations.changeFilter("data-category-taxon_name");
+   favorites.changeFilter("data-category-taxon_name"); 
  });  
 
   $('#filter [data-filter-category="collecting_event"]').on('click', function() {
-   core.changeFilter("data-category-collectingevent"); 
-   supporting.changeFilter("data-category-collectingevent"); 
-   annotations.changeFilter("data-category-collectingevent"); 
-   favorites.changeFilter("data-category-collectingevent");
+   core.changeFilter("data-category-collecting_event"); 
+   supporting.changeFilter("data-category-collecting_event"); 
+   annotations.changeFilter("data-category-collecting_event"); 
+   favorites.changeFilter("data-category-collecting_event");
  });
 
   $('#filter [data-filter-category="collection_object"]').on('click', function() {
-   core.changeFilter("data-category-collectionobject");   
-   supporting.changeFilter("data-category-collectionobject");   
-   annotations.changeFilter("data-category-collectionobject"); 
-   favorites.changeFilter("data-category-collectionobject");
+   core.changeFilter("data-category-collection_object");   
+   supporting.changeFilter("data-category-collection_object");   
+   annotations.changeFilter("data-category-collection_object"); 
+   favorites.changeFilter("data-category-collection_object");
  });  
 
   $('#filter [data-filter-category="source"]').on('click', function() {  	
-   core.changeFilter("data-category-Source");
-   supporting.changeFilter("data-category-Source");
-   annotations.changeFilter("data-category-Source");
-   favorites.changeFilter("data-category-Source");
+   core.changeFilter("data-category-source");
+   supporting.changeFilter("data-category-source");
+   annotations.changeFilter("data-category-source");
+   favorites.changeFilter("data-category-source");
  });
 
 
   $('#filter [data-filter-category="reset"]').on('click', function() {
-    changeAllSectionsFilter("data-category-Source", false);
-    changeAllSectionsFilter("data-category-TaxonName", false);
-    changeAllSectionsFilter("data-category-collectionobject", false);
-    changeAllSectionsFilter("data-category-collectingevent", false);
+    changeAllSectionsFilter("data-category-source", false);
+    changeAllSectionsFilter("data-category-taxon_name", false);
+    changeAllSectionsFilter("data-category-collection_object", false);
+    changeAllSectionsFilter("data-category-collecting_event", false);
   });  
 
-  $('.data_card div[data-category-collectingevent="true"]').append("<img src='<%= asset_path('geo_location.svg') %>'/>");
-  $('.data_card div[data-category-TaxonName="true"]').append("<img src='<%= asset_path('new.svg') %>'/>");
-  $('.data_card div[data-category-collectionobject="true"]').append("<img src='<%= asset_path('picking.svg') %>'/>");
-  $('.data_card div[data-category-Source="true"]').append("<img src='<%= asset_path('book.svg') %>'/>");   
+  $('.data_card div[data-category-collecting_event="true"]').append("<img src='<%= asset_path('geo_location.svg') %>'/>");
+  $('.data_card div[data-category-taxon_name="true"]').append("<img src='<%= asset_path('new.svg') %>'/>");
+  $('.data_card div[data-category-collection_object="true"]').append("<img src='<%= asset_path('picking.svg') %>'/>");
+  $('.data_card div[data-category-source="true"]').append("<img src='<%= asset_path('book.svg') %>'/>");   
 
 }

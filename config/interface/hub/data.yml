@@ -121,7 +121,7 @@ Supporting:
       - collection_object
   Loan:
     categories:
-      - CollectionObject
+      - collection_object
     related_models:
       - CollectionProfile
       - Repository
