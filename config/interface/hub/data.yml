@@ -18,20 +18,20 @@ Core: # a Section
   TaxonName:
     status: :prototype
     categories:
-      - TaxonName
+      - taxon_name
     related_models:
       - Otu
       - TaxonNameRelationship
   CollectingEvent:
     status: :prototype
     categories: 
-      - CollectingEvent
+      - collecting_event
     related_models:
       - Georeference
   CollectionObject: 
      status: :prototype
      categories:
-       - CollectionObject
+       - collection_object
      related_models:
        - CollectingEvent
        - TaxonDetermination
@@ -45,7 +45,7 @@ Core: # a Section
      status: :prototype
      shared: true
      categories:
-       - Source 
+       - source 
      related_models:
        - Serial
        - People
@@ -54,7 +54,7 @@ Core: # a Section
       - Source
       - Person 
     categories:
-      - Source
+      - source
   BiologicalAssociation:
      status: :prototype
      related_models:
@@ -62,7 +62,7 @@ Core: # a Section
 Supporting:
   AssertedDistribution:
     categories:
-      - Source 
+      - source 
   BiologicalAssociationsGraph:
     related_models:
       - Source
@@ -73,12 +73,12 @@ Supporting:
   CollectionObjectObservation:
   Container:
     categories:
-      - CollectionObject
+      - collection_object
     related_models:
       - ContainerItem
   ContainerItem:
     categories:
-      - CollectionObject
+      - collection_object
     related_models:
       - Container
   Content:
@@ -86,7 +86,7 @@ Supporting:
       - ControlledVocabularyTerm
   CommonName:
     categories:
-      - TaxonName
+      - taxon_name
   Document:
     related_models:
       - Documentation: documentation_index_path
@@ -97,11 +97,11 @@ Supporting:
     related_models:
       - Image
     categories:
-      - CollectionObject
-      - CollectingEvent
+      - collection_object
+      - collecting_event
   Georeference:
     categories:
-      - CollectingEvent 
+      - collecting_event 
   GeographicArea:
     shared: true
     application_defined: true
@@ -109,7 +109,7 @@ Supporting:
       - CollectingEvent
       - Georeference
     categories:
-      - CollectingEvent
+      - collecting_event
   GeographicItem:
     hide: true
     related_models:
@@ -118,7 +118,7 @@ Supporting:
       - CollectingEvent
   Image:
     categories:
-      - CollectionObject
+      - collection_object
   Loan:
     categories:
       - CollectionObject
@@ -128,7 +128,7 @@ Supporting:
       - LoanItem
   LoanItem:
     categories:
-      - CollectionObject
+      - collection_object
     related_models:
       - Loan
       - CollectionObject
@@ -145,12 +145,12 @@ Supporting:
   PreparationType:
     shared: true
     categories:
-      - CollectionObject
+      - collection_object
   Namespace:
     shared: true
   RangedLotCategory:
     categories:
-      - CollectionObject
+      - collection_object
   Repository:
     shared: true
     application_defined: true
@@ -159,37 +159,37 @@ Supporting:
   Serial:
     shared: true 
     categories:
-      - Source 
+      - source 
     related_models:
       - Source
       - Person
   TaxonDetermination:
      categories:
-       - CollectionObject
+       - collection_object
      related_models:
        - Otu 
        - CollectionObject
   TaxonNameClassification:
     categories:
-      - TaxonName 
+      - taxon_name 
     related_models:
       - TaxonName
       - TaxonNameRelationship
   TaxonNameRelationship:
     categories:
-      - TaxonName 
+      - taxon_name 
     related_model:
       - TaxonName
       - TaxonNameClassification
   TypeMaterial:
     categories:
-      - TaxonName 
-      - CollectionObject
+      - taxon_name 
+      - collection_object
 Annotations:
   AlternateValue:
   Citation:
     categories:
-      - Source 
+      - source 
   DataAttribute:
   Identifier:
   Note:
