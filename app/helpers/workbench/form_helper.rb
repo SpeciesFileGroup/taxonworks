@@ -6,15 +6,21 @@ module Workbench::FormHelper
 
   def lock_tag(locks, object_name, method)
 
-  	if (defined? locks.locked) then
+    if (defined? locks.locked) then
       locked = locks.locked?(object_name, method)
-  	else
-  		locked = false
-  	end
+    else
+      locked = false
+    end
 
     name = "locks[#{object_name}][#{method}]"
     check_box_tag(name, "1", locked, class: (locked ? :locked : :unlocked)) + 
     label_tag(name,'', class: (locked ? :label_unlocked : :label_unlocked))
   end
+
+  def increment_tag(object_name, method)
+    name = "locks[#{object_name}][#{method}]"
+    check_box_tag(name, "1", false, class: :increment) + 
+    label_tag(name,'', class: :label_increment)
+  end  
 
 end

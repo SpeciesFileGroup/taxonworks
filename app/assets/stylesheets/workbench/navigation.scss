@@ -1,4 +1,5 @@
 @import 'palette';
+@import 'shared_data/show';
 
 .favourite_link {
     background-image: image-url('empty_star.svg');
@@ -232,3 +233,22 @@ a {
  text-decoration: none;
 }
 
+.task_bar {
+  display: flex;
+  flex-direction: row;
+  flex-flow: wrap;
+  list-style: none;
+  padding-left:0px;
+  margin-top: 0px;
+  font-weight: 100;
+  
+  li {
+    display: flex;
+    padding:5px;
+    margin-right: 5px;
+    background-repeat: no-repeat;
+    background-size: 8px;
+    background-position: left, center;
+    align-items: center;
+  }
+}

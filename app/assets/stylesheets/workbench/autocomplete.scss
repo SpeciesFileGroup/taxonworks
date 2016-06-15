@@ -37,10 +37,12 @@
 	border-radius: 50%;
 	width: 30px;
 	height: 30px;
-	background-color: #AED581;
+	background-color: $navigation_background;
 	background-image: image-url("ok.svg");
 	background-position: center;
 	background-repeat: no-repeat;
+	transition: background-color, 0.5s ease;
+	background-color: #AED581;
 }
 
 #otu_picker_add_ok {
