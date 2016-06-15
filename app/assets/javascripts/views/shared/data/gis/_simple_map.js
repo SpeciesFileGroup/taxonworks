@@ -9,6 +9,7 @@ _init_simple_map = function init_simple_map() {
     var newfcdata = $("#_simple_map_form");
     var fcdata = newfcdata.data('feature-collection');
     var map_canvas = newfcdata.data('map-canvas');
+    var map_center = newfcdata.data('map-center');
 
     var simple_map = TW.vendor.lib.google.maps.initializeMap(map_canvas, fcdata);
   }

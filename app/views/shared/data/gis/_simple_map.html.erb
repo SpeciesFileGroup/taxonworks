@@ -5,7 +5,7 @@
   <div id="_simple_map_form"
 
        data-feature-collection="<%= Gis::GeoJSON.feature_collection(map_objects).to_json -%>"
-       data-map-center='POINT (0.0 0.0 0.0)'
+       data-map-center="<%= map_center.nil? ? 'POINT (0.0 0.0)' : map_center -%>"
        data-map-canvas="simple_map_canvas"
   >
   </div>
