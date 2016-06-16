@@ -83,7 +83,7 @@ build_biocuration_groups_task:
     - build_biocuration_group_task
   categories:
     - collection_object
-    - build_biocuration_groups_task
+    - biology 
   status: stable
 build_biocuration_group_task:
   name:
