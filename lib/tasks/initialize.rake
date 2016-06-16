@@ -40,10 +40,10 @@ namespace :tw do
       end
 
       if errored
-        puts "Database has some existing data!".red.on_white
+        puts "Database has some existing data!".red
         raise
       else
-        puts "Database *appears* empty.".bold
+        puts "Database *appears* empty.".yellow
       end
 
     end
@@ -73,10 +73,10 @@ namespace :tw do
         end
       end
       if errored
-        puts "Initialization missing data!".red.on_white
+        puts "Initialization missing data!".red
         raise
       else
-        puts "Found all required files.".bold
+        puts "Found all required files.".yellow
       end
     end
 
@@ -87,14 +87,14 @@ namespace :tw do
        GeographicItem, GeographicAreaType, GeographicArea, GeographicAreasGeographicItem,
        Language, Repository].each do |klass|
         if klass.count > 0
-          puts "Found #{klass.name.pluralize}.".bold
+          puts "Found #{klass.name.pluralize}.".yellow
         else
           errors = true
-          puts "Could not find #{klass.name.pluralize}.".bold.red
+          puts "Could not find #{klass.name.pluralize}.".red
         end
       end
       if errors
-        puts '!! There were errors on initialization !!'.bold.red.on_white
+        puts '!! There were errors on initialization !!'.red
         raise
       end
     end
@@ -129,11 +129,11 @@ namespace :tw do
         attributes = v.merge(email: k, self_created: true)
         u          = User.new(attributes)
         unless u.valid?
-          puts "Invalid user in users.yml: #{attributes}. #{u.errors.full_messages.join(" ")}".bold.red
+          puts "Invalid user in users.yml: #{attributes}. #{u.errors.full_messages.join(" ")}".red
           exit
         end
       end
-      puts "Users in users.yml are valid.".bold
+      puts "Users in users.yml are valid.".yellow
     end
 
     task :load_users => [:environment, :data_directory, :validate_users] do
@@ -153,7 +153,7 @@ namespace :tw do
           raise
         end
       end
-      puts "#{users.length} users loaded.".bold
+      puts "#{users.length} users loaded.".yellow
     end
 
     desc "Fully initialize a production server"
@@ -170,7 +170,7 @@ namespace :tw do
       :load_serials,
       :validate_initialization
     ] do
-      puts "Success! Welcome to TaxonWorks.".bold.yellow
+      puts "Success! Welcome to TaxonWorks.".yellow
     end
 
 
