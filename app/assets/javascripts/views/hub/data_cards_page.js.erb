@@ -17,18 +17,15 @@ function initDataCardsPage() {
     element.addFilter("data-category-Taxon_name");
     element.addFilter("data-category-source");
     element.addFilter("data-category-collection_object");
+    element.addFilter("data-category-biology");
     element.filterChilds();
   });
 
-  function changeAllSectionsFilter(dataTag, value) {
-   core.setFilterStatus(dataTag,value);
-   supporting.setFilterStatus(dataTag,value);
-   annotations.setFilterStatus(dataTag,value);
+  function changeAllSectionsFilter() {
+  [favorites, core, supporting, annotations].forEach(function(element) {
+    element.resetFilters();
+  });
  }
-
-
-  //Getting clicks on arrows 
-
 
   $('.data_card').mousedown(function(event) {
   	if((event.which) == 1) {
@@ -36,41 +33,21 @@ function initDataCardsPage() {
    }
  });    
 
-
-  $('#filter [data-filter-category="taxon_name"]').on('click', function() {
-   core.changeFilter("data-category-taxon_name");
-   supporting.changeFilter("data-category-taxon_name");
-   annotations.changeFilter("data-category-taxon_name");
-   favorites.changeFilter("data-category-taxon_name"); 
- });  
-
-  $('#filter [data-filter-category="collecting_event"]').on('click', function() {
-   core.changeFilter("data-category-collecting_event"); 
-   supporting.changeFilter("data-category-collecting_event"); 
-   annotations.changeFilter("data-category-collecting_event"); 
-   favorites.changeFilter("data-category-collecting_event");
- });
-
-  $('#filter [data-filter-category="collection_object"]').on('click', function() {
-   core.changeFilter("data-category-collection_object");   
-   supporting.changeFilter("data-category-collection_object");   
-   annotations.changeFilter("data-category-collection_object"); 
-   favorites.changeFilter("data-category-collection_object");
- });  
-
-  $('#filter [data-filter-category="source"]').on('click', function() {  	
-   core.changeFilter("data-category-source");
-   supporting.changeFilter("data-category-source");
-   annotations.changeFilter("data-category-source");
-   favorites.changeFilter("data-category-source");
- });
-
-
-  $('#filter [data-filter-category="reset"]').on('click', function() {
-    changeAllSectionsFilter("data-category-source", false);
-    changeAllSectionsFilter("data-category-taxon_name", false);
-    changeAllSectionsFilter("data-category-collection_object", false);
-    changeAllSectionsFilter("data-category-collecting_event", false);
+  $('#filter [data-filter-category]').on('click', function() {
+    var
+    elementFilter = $(this).attr('data-filter-category');
+    if(elementFilter === "reset") {
+      changeAllSectionsFilter("data-category-source", false);
+      changeAllSectionsFilter("data-category-taxon_name", false);
+      changeAllSectionsFilter("data-category-collection_object", false);
+      changeAllSectionsFilter("data-category-collecting_event", false);
+      changeAllSectionsFilter("data-category-biology", false);
+    }
+    else {
+      [favorites, core, supporting, annotations].forEach(function(element) {
+        element.changeFilter("data-category-"+ elementFilter);
+      });
+    }
   });  
 
   $('.data_card div[data-category-collecting_event="true"]').append("<img src='<%= asset_path('geo_location.svg') %>'/>");
