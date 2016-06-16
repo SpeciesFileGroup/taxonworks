@@ -49,7 +49,7 @@ describe UserTasks do
   end
 
   specify '.task(prefix)' do
-    expect(UserTasks.task('build_biocuration_groups_task').class).to eq(UserTasks::UserTask)
+    expect(UserTasks.task('biology').class).to eq(UserTasks::UserTask)
   end
 
 

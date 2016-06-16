@@ -9,7 +9,7 @@ function initFilterBar() {
 	$('[data-filter-category="source"]').prepend('<img src="<%= asset_path("book.svg") %>"/>');
 	$('[data-filter-category="collection_object"]').prepend('<img src="<%= asset_path("picking.svg") %>"/>');
   $('[data-filter-category="collecting_event"]').prepend('<img src="<%= asset_path("geo_location.svg") %>"/>'); 
-  $('[data-filter-category="build_biocuration_groups_task"]').prepend('<img src="<%= asset_path("biology.svg") %>"/>'); 
+  $('[data-filter-category="biology"]').prepend('<img src="<%= asset_path("biology.svg") %>"/>'); 
 
   function deactivateBackgroundColorLink(selector) {
   $(selector).removeClass("activated");

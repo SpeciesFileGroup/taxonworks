@@ -22,7 +22,7 @@ function initTaskCarrousel() {
     element.addFilter("collecting_event");
     element.addFilter("collection_object");
     element.addFilter("taxon_name");
-    element.addFilter("build_biocuration_groups_task");
+    element.addFilter("biology");
     element.resetView();
     element.filterChilds();
     element.showChilds();      

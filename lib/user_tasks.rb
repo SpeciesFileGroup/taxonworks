@@ -13,7 +13,7 @@
 #
 module UserTasks
 
-  CATEGORIES = %w{taxon_name source collection_object collecting_event build_biocuration_groups_task}
+  CATEGORIES = %w{taxon_name source collection_object collecting_event biology}
 
   # A convenience wrapper for handling user task related metadata.
   class UserTask
