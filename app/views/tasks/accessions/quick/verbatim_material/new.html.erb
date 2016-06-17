@@ -1,64 +1,81 @@
 <h2 class="title-task">Task: Quick verbatim material</h2>
+
 <%= form_tag create_verbatim_material_task_path, class: [:panel, "no-shadow"], id: :quick_task do %>
 
-<div>
-  <h3>Identifier</h3>
-  <div id="identifier" class="fields-container">
-    <div class="field field-align-center">
-      <%= label_tag 'Namespace / Institution / Coden' %>
-      <%= select :identifier, :namespace_id, options_from_collection_for_select(@namespaces, :id, :name, @namespace.id) %>
-      <%= lock_tag(@locks, :locks, :namespace ) %>
-    </div>
+  <div class="flexbox"> 
+    <div class="item item1">
+      <div id="identifier" class="fields-container side_by_side_fields">
+        <div class="field field-align-center">
+          <%= label_tag 'Catalog number' %>
 
-    <div class="field field-align-center" >
-      <%= label_tag :identifier %>
-      <%= text_field :identifier, :identifier %>
-      <%= increment_tag(:locks, :increment) %>
-    </div>
-  </div>
+          <%= render '/workbench/elements/forms/ajax_select',
+            controller:        '/namespaces',
+            object:            'identifier',
+            method:            'namespace_id',
+            tag_id:            'identifier_namespace',
+            display:           namespace_tag(@namespace),
+            size:              20
+          %>
 
-  <h3>Repository</h3>
-  <div class="fields-container">
-    <div class=" field">
-      <%= render partial: 'workbench/elements/forms/ajax_select',
-      locals:  {controller: '/repositories',
-        object:     'repository',
-        method:     'id',
-        tag_id:     'repository_id_for_bulk_verbatim',
-        size: 60,
-        display:    object_tag(@repository)
-      } %>
-      <%= lock_tag(@locks, :locks, :repository ) %>
-    </div>
-  </div>
-  <h3>Verbatim data</h3>
-  <div class="fields-container">
-    <div class="field">
-      <%= label_tag :collecting_event %>
-      <%= text_area :collection_object, :buffered_collecting_event, rows: 6, cols: 50 %>
-      <%= lock_tag(@locks, :locks, :collecting_event ) %>
-    </div>
-    <div class="field">
-      <%= label_tag :determinations %>
-      <%= text_area :collection_object, :buffered_determinations  %>
-      <%= lock_tag(@locks, :locks, :determinations ) %>
-    </div>
-    <div class="field">
-      <%= label_tag :other_labels %>
-      <%= text_area :collection_object, :buffered_other_labels  %>
-      <%= lock_tag(@locks, :locks, :other_labels ) %>
-    </div>
-    <div class="field">
-      <%= label_tag 'Notes (attached to all material)' %> 
-      <%= text_area :notes, :text %>
-      <%= lock_tag(@locks, :locks, :note ) %>      
-    </div>
-  </div>
-  <h3 class="title-section">Material count</h3>
-  <%= render 'attribute_form' %>
+        <%= lock_tag(@locks, :locks, :namespace ) %>
 
-  <div class="actions">
-    <%= submit_tag 'Create' %>
+        <%= text_field :identifier, :identifier %>
+        <%= lock_tag(@locks, :locks, :increment, 'increment') %>
+        </div>
+
+        <div class="field field-align-center" >
+          <%= label_tag :identifier, '' %>
+        </div>
+      </div>
+
+      <div class="fields-container">
+        <div class=" field">
+          <%= label_tag 'Repository' %>
+
+          <%= render '/workbench/elements/forms/ajax_select',
+            controller: '/repositories',
+            object:     'repository',
+            method:     'id',
+            tag_id:     'repository_id_for_bulk_verbatim',
+            size: 20,
+            display: repository_tag(@repository)
+          %>
+
+        <%= lock_tag(@locks, :locks, :repository ) %>
+        </div>
+      </div>
+
+      <h3>Verbatim data</h3>
+      <div class="fields-container">
+        <div class="field">
+          <%= label_tag :collecting_event %>
+          <%= text_area :collection_object, :buffered_collecting_event, rows: 6, cols: 50 %>
+          <%= lock_tag(@locks, :locks, :collecting_event ) %>
+        </div>
+        <div class="field">
+          <%= label_tag :determinations %>
+          <%= text_area :collection_object, :buffered_determinations  %>
+          <%= lock_tag(@locks, :locks, :determinations ) %>
+        </div>
+        <div class="field">
+          <%= label_tag :other_labels %>
+          <%= text_area :collection_object, :buffered_other_labels  %>
+          <%= lock_tag(@locks, :locks, :other_labels ) %>
+        </div>
+        <div class="field">
+          <%= label_tag 'Notes (attached to all material)' %> 
+          <%= text_area :notes, :text %>
+          <%= lock_tag(@locks, :locks, :note ) %>      
+        </div>
+      </div>
+    </div>
+    <div class="item item2">
+      <h3 class="title-section">Material count</h3>
+      <%= render 'attribute_form' %>
+
+      <div class="actions">
+        <%= submit_tag 'Create' %>
+      </div>
+    </div>
   </div>
-</div>
 <% end %>

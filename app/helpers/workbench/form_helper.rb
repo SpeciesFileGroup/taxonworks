@@ -8,17 +8,13 @@ module Workbench::FormHelper
   # @param object_name [String, Symbol] the object 
   # @param method [String, Symbo] the method  
   # @return [html] a check box and label, styled as SVG icons
-  def lock_tag(locks, object_name, method)
+  def lock_tag( locks, object_name, method, klass = 'lock' )
     locked = locks.locked?(object_name, method)
     name = "locks[#{object_name}][#{method}]"
-    check_box_tag(name, "1", locked, class: (locked ? :locked : :unlocked)) + 
-    label_tag(name,'', class: (locked ? :label_unlocked : :label_unlocked))
-  end
 
-  def increment_tag(object_name, method)
-    name = "locks[#{object_name}][#{method}]"
-    check_box_tag(name, "1", false, class: :increment) + 
-    label_tag(name,'', class: :label_increment)
-  end  
+    css = klass + (locked ? '_on' : '_off')
+    check_box_tag(name, "1", locked, class: (locked ? 'locked' : 'unlocked')) + 
+    label_tag(name, '', class: css) #  (locked ? :label_unlocked : :label_unlocked)
+  end
 
 end

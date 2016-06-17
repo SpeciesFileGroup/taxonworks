@@ -6,29 +6,32 @@
   <div class="panels-container">
     <div class="panel no-shadow">
       <%= f.fields_for(:identifiers, @specimen.identifiers) do |i| -%>
+
       <%= i.hidden_field :type -%>
+      
       <div class="side_by_side_fields">
         <div class="field">
           <%= i.label :namespace_id, 'Catalog number' %>
           <%= render '/workbench/elements/forms/ajax_select',
-          controller:        '/namespaces',
-          object:            "specimen[identifiers_attributes][#{i.index}]",
-          method:            'namespace_id',
-          tag_id:            "namespace_id_for_identifier_#{i.index}",
-          display:           (i.object.namespace ? i.object.namespace.short_name : nil),
-          size:              20,
-          fields_for_object: i
+            controller:        '/namespaces',
+            object:            "specimen[identifiers_attributes][#{i.index}]",
+            method:            'namespace_id',
+            tag_id:            "namespace_id_for_identifier_#{i.index}",
+            display:           (i.object.namespace ? i.object.namespace.short_name : nil),
+            size:              20,
+            fields_for_object: i
           %>
 
           <% if @specimen.identifiers.size == 1 %>
-          <%= lock_tag(@locks, :identifier, :namespace_id) -%>
+            <%= lock_tag(@locks, :identifier, :namespace_id) -%>
           <% end %>
 
           <%= i.text_field :identifier %>
           <%= destroy_related_link(i) -%>
         </div>
       </div>
-      <% end %>
+
+    <% end %>
 
       <%= f.fields_for(:taxon_determinations, @specimen.taxon_determinations) do |o| -%>
       <div class="field">

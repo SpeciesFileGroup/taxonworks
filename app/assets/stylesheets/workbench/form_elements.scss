@@ -23,33 +23,33 @@ input[type=checkbox].increment { display: none; }
 
 }
 
-.label_increment {
+.increment_on {
   @extend .icon-checkbox;
   background-image:image-url('inc.svg');
 }
 
-.label_unlocked {
+.lock_off {
   @extend .icon-checkbox;
   background-image:image-url('unlocked.svg');
 }
 
-.label_locked {
+.lock_on {
   @extend .icon-checkbox;
   background-image:image-url('locked.svg');
 }
 
-input[type=checkbox]:checked + label.label_unlocked {
+input[type=checkbox]:checked + label.lock_on {
  background-image:image-url('locked.svg');
  background-color: #AED581;
  transition: background-color 0.5s ease;
 }
-input[type=checkbox]:checked + label.label_locked {
+input[type=checkbox]:checked + label.lock_off {
  background-image:image-url('unlocked.svg');
  background-color: #AED581;
  transition: background-color 0.5s ease;
 }
 
-input[type=checkbox]:checked + label.label_increment {
+input[type=checkbox]:checked + label.increment_on {
  background-image:image-url('inc.svg');
  background-color: #AED581;
  transition: background-color 0.5s ease;

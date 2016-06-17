@@ -15,15 +15,7 @@
 		margin: 5px;
 	}
 
-	#identifier {
-		input {
-			width: 280px;
-		}
-		select{
-			width: 300px;
-		}
-
-	}
+	#identifier {}
 
 	.field {
 		label {
@@ -42,9 +34,6 @@
 			vertical-align: top;
 		}
 	}
-	#repository_id_for_bulk_verbatim {
-		width: 405px;
-	}
 
 	.field-align-center {
 		label {
@@ -57,13 +46,13 @@
 	.biocuration_totals_row {
 		align-items: center;
 	}
+
 	.one_tenth_width {
 		width: 120px;
 	}
 	.one_second_width {
 		width: 310px;
 	}	
-
 
 	.remove_row {
 		@extend .delete-circle;
