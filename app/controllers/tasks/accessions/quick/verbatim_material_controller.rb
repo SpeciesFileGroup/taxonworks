@@ -35,7 +35,8 @@ class Tasks::Accessions::Quick::VerbatimMaterialController < ApplicationControll
   end
 
   def set_variable_variables(material)
-    @locks = material.locks_object
+    @locks = material.locks
+
     @collection_object = material.collection_object
     @identifier = material.identifier
     @namespace = material.namespace

@@ -1,7 +1,7 @@
 class Tasks::Accessions::Quick::SimpleController < ApplicationController
   include TaskControllerConfiguration
 
-  before_filter :build_locks, :get_recent
+  before_filter :build_locks, :get_recent, only: [:new, :create]
 
   # POST /tasks/accessions/simple/new.html
   def new
@@ -89,10 +89,9 @@ class Tasks::Accessions::Quick::SimpleController < ApplicationController
     return {collecting_event_id: id} if !id.blank?
     params.require(:specimen).permit(collecting_event_attributes: [:id, :_destroy, :verbatim_locality, :verbatim_label, :geographic_area_id]).reject{|k,v| v.blank?}
   end
-
  
   def lock_params
-    params.permit(locks: { identifier: [:namespace_id], taxon_determination: [:otu_id], collecting_event: [:collecting_event_id] })
+    params.permit(locks: { identifier: [:namespace_id], taxon_determination: [:otu_id], collecting_event: [:collecting_event_id] })[:locks]
   end
 
   def namespace_id_param

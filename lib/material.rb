@@ -63,7 +63,7 @@ module Material
     LOCKS = %w{namespace repository increment collecting_event determinations other_labels note}
 
     attr_accessor :quick_verbatim_object
-    attr_accessor :quick_verbatim_locks
+    attr_accessor :locks
 
     attr_accessor :form_params
 
@@ -81,15 +81,19 @@ module Material
 
     def build_models
       @quick_verbatim_object = QuickVerbatimObject.new(form_params['collection_object'])
-      @quick_verbatim_locks = QuickVerbatimLocks.new(form_params['locks'])
+
+      @locks = Forms::FieldLocks.new(form_params['locks']) 
+
       @note       = Note.new(form_params['note'])
       @repository = Repository.find(form_params['repository']['id']) if (form_params['repository'] && !form_params['repository']['id'].blank?)
       @identifier = Identifier::Local::CatalogNumber.new(form_params['identifier'])
       @namespace  = @identifier.namespace 
     end
 
-    def quick_verbatim_locks=(value)
-      @quick_verbatim_locks = value
+    def locks=(value)
+      @locks = value
+      @locks ||= Forms::FieldLocks.new
+      @locks
     end
 
     def quick_verbatim_object=(value)
@@ -146,12 +150,11 @@ module Material
     end
 
     def locked?(name)
-      # these are coming off a form
-      @quick_verbatim_locks.send(name) == '1' ? true : false
+      locks.locked?('locks', name)
     end
 
     def duplicate_with_locks
-      n = QuickVerbatimResponse.new(@form_params)
+      n = QuickVerbatimResponse.new(form_params)
       # nullify if not locked
       n.repository = nil if !locked?('repository')
       n.namespace  = nil if !locked?('namespace')
@@ -173,9 +176,6 @@ module Material
       @quick_verbatim_object ||= QuickVerbatimObject.new
     end
 
-    def locks_object
-      @quick_verbatim_locks ||= QuickVerbatimLocks.new
-    end
   end
 
   class QuickVerbatimObject
@@ -185,18 +185,4 @@ module Material
     attr_accessor :buffered_other_labels, :buffered_collecting_event, :buffered_determinations
   end
 
-  # Attributes are '1' (true) or '0' false (directly from form form_params)
-  class QuickVerbatimLocks
-    include ActiveModel::Model
-    QuickVerbatimResponse::LOCKS.each do |l|
-      attr_accessor l.to_sym
-    end
-
-    def initialize(attributes)
-      super
-      QuickVerbatimResponse::LOCKS.each do |l|
-        send("#{l}=", '0') if send(l).blank?
-      end
-    end
-  end
 end
