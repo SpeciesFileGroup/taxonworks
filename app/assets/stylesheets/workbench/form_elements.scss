@@ -23,7 +23,7 @@ input[type=checkbox].increment { display: none; }
 
 }
 
-.increment_on {
+.increment_off {
   @extend .icon-checkbox;
   background-image:image-url('inc.svg');
 }
@@ -49,7 +49,7 @@ input[type=checkbox]:checked + label.lock_off {
  transition: background-color 0.5s ease;
 }
 
-input[type=checkbox]:checked + label.increment_on {
+input[type=checkbox]:checked + label.increment_off {
  background-image:image-url('inc.svg');
  background-color: #AED581;
  transition: background-color 0.5s ease;
