@@ -10,89 +10,6 @@ TW.vendor.lib.google.maps.draw = TW.vendor.lib.google.maps.draw || {};
 
 Object.assign(TW.vendor.lib.google.maps.draw, {            // internally referred to as 'this'; externally as TW.vendor.lib.google.maps
 
-    buildFeatureCollectionFromShape: function (shape, shape_type) {
-
-      //  var featureCollection = [];
-      var feature = [];
-      var coordinates = [];
-      var coordList = [];
-      var geometry = [];
-      var overlayType = shape_type[0].toUpperCase() + shape_type.slice(1);
-      var radius = undefined;
-
-      switch (overlayType) {
-        case 'Polyline':
-          overlayType = 'LineString';
-          break;
-        case 'Marker':
-          overlayType = 'Point';
-          coordinates.push(shape.position);
-          break;
-        case 'Circle':
-          overlayType = 'Point';
-
-          coordinates.push(shape.center);
-          radius = shape.radius;
-          break;
-      }
-
-      if (coordinates.length == 0) {      // 0 if not a point or circle, coordinates is empty
-        coordinates = shape.getPath().getArray();     // so get the array from the path
-
-        for (var i = 0; i < coordinates.length; i++) {      // for LineString or Polygon
-          geometry.push([coordinates[i].lng(), coordinates[i].lat()]);
-        }
-
-        if (overlayType == 'Polygon') {
-          geometry.push([coordinates[0].lng(), coordinates[0].lat()]);
-          coordList.push(geometry);
-        }
-        else {
-          coordList = geometry;
-        }
-
-      }
-      else {          // it is a circle or point
-        geometry = [coordinates[0].lng(), coordinates[0].lat()];
-        coordList = geometry;
-      }
-
-      feature.push({
-        "type": "Feature",
-        "geometry": {
-          "type": overlayType,
-          "coordinates": coordList
-        },
-        "properties": {}
-      });
-
-      // if it is a circle, the radius will be defined, so set the property
-      if (radius != undefined) {
-        feature[0]['properties'] = {"radius": radius};
-      }
-
-      return feature
-    },
-
-    removeItemFromMap: function (item) {
-      item.setMap(null);
-    },
-
-// widget name is a css selector for an id'ed div, like "#my_widget"
-    initializeGoogleMapWithDrawManager: function (widget_name) {
-      var widget = $(widget_name);
-
-      // a legal feature collection and map-center value in the widget is required, or the code fails
-      var fcdata = widget.data('feature-collection');
-
-      var map_center = widget.data('map-center');
-      var map_canvas = widget.data('map-canvas');
-      var map = this.initializeGoogleMap(map_canvas, fcdata, map_center);
-      var drawingManager = this.initializeDrawingManager(map, widget.data('mapDrawingModes'));
-
-      return [map, drawingManager];
-    },
-
 
 // This references nothing in the DOM!
 // TODO: make more forgiving by allowing null fcdata or map_center_parts (stub blank legal values)
@@ -181,17 +98,19 @@ Object.assign(TW.vendor.lib.google.maps.draw, {            // internally referre
       }
       var sw = bounds.sw;
       var ne = bounds.ne;
-      var coordList = [];     // migrated from maps.js 24SEP2015 JRF
-      coordList.push([sw['lng'](), sw['lat']()]);
-      coordList.push([sw['lng'](), ne['lat']()]);
-      if (sw['lng']() > 0 && ne['lng']() < 0) {
-        coordList.push([180.0, ne['lat']()])
-      }
-      coordList.push([ne['lng'](), ne['lat']()]);
-      coordList.push([ne['lng'](), sw['lat']()]);
-      if (sw['lng']() > 0 && ne['lng']() < 0) {
-        coordList.push([-180.0, sw['lat']()])
-      }
+      var coordList = [];         // copied from maps.js 15JUN2016 JRF
+      coordList.push([sw['lng'](), sw['lat']()]);   // southwest point
+      coordList.push([sw['lng'](), ne['lat']()]);   // northwest point
+      //if (sw['lng']() > 0 && ne['lng']() < 0) {     // are we spanning the prime meridian
+      //  coordList.push([180.0, ne['lat']()]);       // point at prime meridian
+      //}
+      coordList.push([center_lat_long['lng'](), ne['lat']()]);       // point at center ALWAYS vs conditional at 0
+      coordList.push([ne['lng'](), ne['lat']()]);   // northeast point
+      coordList.push([ne['lng'](), sw['lat']()]);   // southeast point
+      //if (sw['lng']() > 0 && ne['lng']() < 0) {     // are we spanning the prime meridian
+      //  coordList.push([-180.0, sw['lat']()]);       // point at prime meridian
+      //}
+      coordList.push([center_lat_long['lng'](), sw['lat']()]);       // point at center ALWAYS vs conditional at 0
       coordList.push([sw['lng'](), sw['lat']()]);
       var temparray = [];
       temparray[0] = coordList;
@@ -205,8 +124,92 @@ Object.assign(TW.vendor.lib.google.maps.draw, {            // internally referre
         "properties": {}
       };
       map.data.addGeoJson(bounds_box);
-      return map;
+      return map;             // now no global map object, use this object to add listeners to THIS map
     },
+
+    buildFeatureCollectionFromShape: function (shape, shape_type) {
+
+      //  var featureCollection = [];
+      var feature = [];
+      var coordinates = [];
+      var coordList = [];
+      var geometry = [];
+      var overlayType = shape_type[0].toUpperCase() + shape_type.slice(1);
+      var radius = undefined;
+
+      switch (overlayType) {
+        case 'Polyline':
+          overlayType = 'LineString';
+          break;
+        case 'Marker':
+          overlayType = 'Point';
+          coordinates.push(shape.position);
+          break;
+        case 'Circle':
+          overlayType = 'Point';
+
+          coordinates.push(shape.center);
+          radius = shape.radius;
+          break;
+      }
+
+      if (coordinates.length == 0) {      // 0 if not a point or circle, coordinates is empty
+        coordinates = shape.getPath().getArray();     // so get the array from the path
+
+        for (var i = 0; i < coordinates.length; i++) {      // for LineString or Polygon
+          geometry.push([coordinates[i].lng(), coordinates[i].lat()]);
+        }
+
+        if (overlayType == 'Polygon') {
+          geometry.push([coordinates[0].lng(), coordinates[0].lat()]);
+          coordList.push(geometry);
+        }
+        else {
+          coordList = geometry;
+        }
+
+      }
+      else {          // it is a circle or point
+        geometry = [coordinates[0].lng(), coordinates[0].lat()];
+        coordList = geometry;
+      }
+
+      feature.push({
+        "type": "Feature",
+        "geometry": {
+          "type": overlayType,
+          "coordinates": coordList
+        },
+        "properties": {}
+      });
+
+      // if it is a circle, the radius will be defined, so set the property
+      if (radius != undefined) {
+        feature[0]['properties'] = {"radius": radius};
+      }
+
+      return feature
+    },
+
+    removeItemFromMap: function (item) {
+      item.setMap(null);
+    },
+
+// widget name is a css selector for an id'ed div, like "#my_widget"
+    initializeGoogleMapWithDrawManager: function (widget_name) {
+      var widget = $(widget_name);
+
+      // a legal feature collection and map-center value in the widget is required, or the code fails
+      var fcdata = widget.data('feature-collection');
+
+      var map_center = widget.data('map-center');
+      var map_canvas = widget.data('map-canvas');
+      var map = this.initializeGoogleMap(map_canvas, fcdata, map_center);
+      var drawingManager = this.initializeDrawingManager(map, widget.data('mapDrawingModes'));
+
+      return [map, drawingManager];
+    },
+
 
 
 //var map_options = {

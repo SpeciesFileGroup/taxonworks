@@ -19,7 +19,8 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
         mapTypeId: google.maps.MapTypeId.TERRAIN
       };
 
-      var map = this.initialize_map(canvas, myOptions);
+      //var map = this.initialize_map(canvas, myOptions);
+      var map = new google.maps.Map(document.getElementById(canvas), myOptions);
       var data = feature_collection;
 
       map.data.setStyle(function (feature) {
@@ -121,11 +122,6 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
       return map;             // now no global map object, use this object to add listeners to THIS map
     },
 
-    initialize_map: function (canvas, options) {
-      var map = new google.maps.Map(document.getElementById(canvas), options);
-      return map;
-    },
-
     doFeatureCollection: function (featureCollection, otu_id, chained) {
       if (featureCollection.features.length > 0) {
         for (var i = 0; i < featureCollection.features.length; i++) { // this loop looks for (currently) checkboxes that
@@ -157,6 +153,19 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
       var xmaxp = bounds.xmaxp;           //
       var xminm = bounds.xminm;           //
       var xmaxm = bounds.xmaxm;           // these elements already set
+      //if (bounds.prime /*&& bounds.anti*/) {
+      //  xminp = 0;
+      //  xmaxm = 0;
+      //}
+      //if (bounds.anti) {
+      //  //xmaxp = 180;
+      //  if(xminm <= -180) {
+      //    if ((xminm + 360) < xmaxp) {
+      //      xminm = xminm + 360;
+      //    }
+      //
+      //  }
+      //}
                                           //
       var ymin = bounds.ymin;             //
       var ymax = bounds.ymax;             //
@@ -241,7 +250,8 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
                 wx = wx - 0;     ////  DUMMY
               }
             }
-            if ((wm > 179) && (wp > 179)) {     // check for prime meridian and anti-meridian case
+            if (bounds.anti || bounds.prime) {
+              //if ((wm > 179) && (wp > 179)) {     // check for prime meridian and anti-meridian case
               wm = 180 - bounds.pminx + 180 + bounds.mmaxx;      // width of putative anti-meridian crossing area
               wp = bounds.pmaxx0 - bounds.mminx0;                // width of putative meridian crossing area
               // are these isolated ?
@@ -321,10 +331,17 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
           }
         }
       }
-
-      var sw = new google.maps.LatLng(ymin, center_long - 0.5 * wx);     // correct x JRF 29JUL2015
+      var swX = center_long - 0.5 * wx;               // pretest for overflow of antimeridian
+      if (swX < -180) {
+        swX = swX + 360
+      }               // and if so, offset appropriately
+      var sw = new google.maps.LatLng(ymin, swX);     // correct x JRF 29JUL2015
       bounds.sw = sw;
-      var ne = new google.maps.LatLng(ymax, center_long + 0.5 * wx);     // correct x
+      var neX = center_long + 0.5 * wx;               // pretest for overflow of prime meridian
+      if (neX > 180) {
+        neX = neX - 360
+      }               // and if so, offset appropriately
+      var ne = new google.maps.LatLng(ymax, neX);     // correct x
       bounds.ne = ne;
       var box = new google.maps.LatLngBounds(sw, ne);
 
@@ -433,6 +450,9 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
       bounds.pmaxx0 = 0.0;
       bounds.mminx0 = 0.0;
       bounds.mmaxx0 = -45.0;
+
+      bounds.prime = false;
+      bounds.anti = false;
     },
 
 // this is the scanner version; no google objects are created
@@ -485,7 +505,6 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
     },
 
     getTypeData: function (thisType, bounds) {        // this version does not create google objects
-
       if (thisType == undefined) {      // this test if to avoid js errors from  features without geometry
         return                          // google maps forgives features wthout geometries
       }
@@ -518,6 +537,12 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
         }
       }
 
+      // for geometry types which contain line segments, we must introduce
+      // detection of prime meridian and antimeridian crossing by each segment
+      var lastX;        // used to compare prior point
+      var thisX;        // to current point
+      var ltNeg180      // flag for detection of permuted line segment
+
       if (thisType.type == "LineString") {
         for (var l = 0; l < thisType.coordinates.length; l++) {
           this.xgtlt(bounds, thisType.coordinates[l][0]);
@@ -534,12 +559,49 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
         }
       }
 
-      if (thisType.type == "Polygon") {
+      if (thisType.type == "Polygon") {           // special segments to compensate for permutation in controller
+        lastX = undefined;                        // polygon starting in western hemisphere crossing anti-meridian
+        ltNeg180 = false;                         // has all negative x-coordinates
+
+        for (var k = 0; k < thisType.coordinates.length; k++) {   // first scan polygon to detect permuted case
+          // k enumerates polygons, l enumerates points
+          for (var l = 0; l < thisType.coordinates[k].length; l++) {
+            thisX = thisType.coordinates[k][l][0];
+            if (lastX) {
+              if (this.meridianCheck(bounds, lastX, thisX)) {   // true if crossed anti-meridian
+                if (thisX < -180) {
+                  ltNeg180 = true
+                }             // permuted case detector
+              }
+            }
+            lastX = thisX;
+          }
+        }
+        if (ltNeg180) {                                         // if permuted case detected
+          for (var k = 0; k < thisType.coordinates.length; k++) {
+            // k enumerates polygons, l enumerates points
+            for (var l = 0; l < thisType.coordinates[k].length; l++) {
+              thisX = thisType.coordinates[k][l][0];
+              thisType.coordinates[k][l][0] = 360 + thisX;      // revert/convert permuted polygon to positive polygon
+            }
+          }
+        }
+
+        lastX = undefined;                                      // now scan for bounds on adjusted polygon
         for (var k = 0; k < thisType.coordinates.length; k++) {
           // k enumerates polygons, l enumerates points
           for (var l = 0; l < thisType.coordinates[k].length; l++) {
-            this.xgtlt(bounds, thisType.coordinates[k][l][0]);
+            thisX = thisType.coordinates[k][l][0];
+            this.xgtlt(bounds, thisX);    // thisType.coordinates[k][l][0]);
             this.ygtlt(bounds, thisType.coordinates[k][l][1]); //box check
+            if (lastX) {
+              if (this.meridianCheck(bounds, lastX, thisX)) {   // true if crossed anti-meridian
+                if (thisX < -180) {
+                  ltNeg180 = true
+                }
+              }
+            }
+            lastX = thisX;
           }
         }
       }
@@ -621,6 +683,55 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
       if (ytest < bounds.ymin) {
         bounds.ymin = ytest;
       }
+    },
+
+    meridianCheck: function (bounds, lastX, thisX) {
+      var xm = 0.5 * (lastX + thisX);
+      if (lastX > 180) {
+        lastX -= 360
+      }
+      if (lastX < -180) {
+        lastX += 360
+      }
+      if (thisX > 180) {
+        thisX -= 360
+      }
+      if (thisX < -180) {
+        thisX += 360
+      }
+      if (lastX <= 0) {
+        if (thisX >= 0 || thisX < -180) {
+          if (Math.abs(xm) > 90) {
+            // anti-meridian case
+            // set xminm = -180, xmaxp = 180 -- later
+            bounds.anti = true;
+            return true;
+          }
+          else {
+            // prime meridian case
+            // set xmaxm = 0, xminp = 0   -- later
+            bounds.prime = true;
+            return false;
+          }
+        }
+      }
+      if (lastX >= 0) {
+        if ((thisX <= 0) || thisX > 180) {    // since google may give points past +180
+          if (Math.abs(xm) > 90) {
+            // anti-meridian case
+            // set xminm = -180, xmaxp = 180 -- later
+            bounds.anti = true;
+            return true;
+          }
+          else {
+            // prime meridian case
+            // set xmaxm = 0, xminp = 0   -- later
+            bounds.prime = true;
+            return false;
+          }
+        }
+      }
+      var debug = 10;
     }
   }
 );
