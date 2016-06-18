@@ -1,5 +1,7 @@
 $(document).ready(function() {
   if($("#quick_task").length) {
-    $('.add_total_row').detach().appendTo('.biocuration_totals_row .one_third_width');
+  	$('.biocuration_group_totals').each(function(element) {
+		$(this).find('.add_total_row').detach().appendTo($(this).find('.one_third_width'));
+  	});
   }
 });
