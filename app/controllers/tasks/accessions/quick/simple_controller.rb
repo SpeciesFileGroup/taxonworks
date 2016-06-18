@@ -44,12 +44,25 @@ class Tasks::Accessions::Quick::SimpleController < ApplicationController
 
   def stub(defaults: {})
     s = Specimen.new(collecting_event_id: defaults[:collecting_event_id] )
-    s.identifiers << Identifier::Local::CatalogNumber.new( namespace_id: defaults[:namespace_id] )
+
+
+    s.identifiers << Identifier::Local::CatalogNumber.new( 
+                                                          namespace_id: defaults[:namespace_id],
+                                                          identifier: next_identifier
+                                                         )
+    
     s.taxon_determinations.build(otu_id: defaults[:otu_id])
     s.collecting_event = CollectingEvent.new if s.collecting_event_id.blank?
     s.depictions << Depiction.new
     s
   end
+
+
+  def next_identifier
+    return nil if !@locks.locked?('identifier', 'increment') 
+    Utilities::Strings.increment_contained_integer(identifier_param)
+  end
+
 
   def locked_params(locks: nil)
     {
@@ -91,12 +104,17 @@ class Tasks::Accessions::Quick::SimpleController < ApplicationController
   end
  
   def lock_params
-    params.permit(locks: { identifier: [:namespace_id], taxon_determination: [:otu_id], collecting_event: [:collecting_event_id] })[:locks]
+    params.permit(locks: { identifier: [:namespace_id, :increment], taxon_determination: [:otu_id], collecting_event: [:collecting_event_id] })[:locks]
   end
 
   def namespace_id_param
     params[:specimen].try(:[], :identifiers_attributes).try(:[], "0").try(:[], :namespace_id)
   end
+
+  def identifier_param
+    params[:specimen].try(:[], :identifiers_attributes).try(:[], "0").try(:[], :identifier)
+  end
+
 
   #
   # Both otu and collecting event can be found or created from scratch, we 
