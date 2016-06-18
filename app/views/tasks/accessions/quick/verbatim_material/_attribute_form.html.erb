@@ -1,6 +1,6 @@
 <div class="totals">
   <% @biocuration_groups.each_with_index do |bg, i| %>
-    <div id="biocuration_group_<%= i -%>" class="biocuration_group_totals" >
+    <div id="biocuration_group_<%= i -%>" class="biocuration_group_totals horizontal-left-content" >
       <div class="total_rows">
         <%= render(partial: 'attribute_row', locals: {object_id: SecureRandom.uuid, bg: bg, remove_link: false} ) %>
       </div>

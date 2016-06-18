@@ -1,19 +1,6 @@
 @import 'workbench/palette';
 
 #quick_task {
-	.delete-circle {
-		border-radius: 50%;
-		display: block;
-		width: 30px;
-		height: 30px;
-		background-color: #F44336;
-		font-size: 0px;
-		background-position: center;
-		background-repeat: no-repeat;
-		background-image: image-url("trash.svg");
-		box-shadow: 0px 1px 2px 0px #888;
-		margin: 5px;
-	}
 
 	#identifier {}
 
@@ -54,7 +41,9 @@
 		width: 310px;
 	}	
 
-	.remove_row {
-		@extend .delete-circle;
+
+	.biocuration_group_totals {
+		position: relative;
 	}
+
 }
