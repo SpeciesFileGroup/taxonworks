@@ -2,7 +2,6 @@
 @import 'whitespace';
 
 
-input[type=checkbox].unlocked { display: none; }
 input[type=checkbox].locked { display: none; }
 input[type=checkbox].increment { display: none; }
 
@@ -23,37 +22,26 @@ input[type=checkbox].increment { display: none; }
 
 }
 
-.increment_off {
+.increment {
   @extend .icon-checkbox;
   background-image:image-url('inc.svg');
 }
 
-.lock_off {
+.lock {
   @extend .icon-checkbox;
   background-image:image-url('unlocked.svg');
 }
 
-.lock_on {
-  @extend .icon-checkbox;
-  background-image:image-url('locked.svg');
-}
-
-input[type=checkbox]:checked + label.lock_on {
+input[type=checkbox]:checked + label.lock {
  background-image:image-url('locked.svg');
  background-color: #AED581;
  transition: background-color 0.5s ease;
 }
-input[type=checkbox]:checked + label.lock_off {
- background-image:image-url('unlocked.svg');
- background-color: #AED581;
- transition: background-color 0.5s ease;
-}
 
-input[type=checkbox]:checked + label.increment_off {
+input[type=checkbox]:checked + label.increment {
  background-image:image-url('inc.svg');
  background-color: #AED581;
  transition: background-color 0.5s ease;
- opacity: 1;
 }
 
 .mx-autocomplete {

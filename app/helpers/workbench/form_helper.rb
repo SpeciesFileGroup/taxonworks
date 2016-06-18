@@ -12,9 +12,9 @@ module Workbench::FormHelper
     locked = locks.locked?(object_name, method)
     name = "locks[#{object_name}][#{method}]"
 
-    css = klass + (locked ? '_on' : '_off')
-    check_box_tag(name, "1", locked, class: (locked ? 'locked' : 'unlocked')) + 
-    label_tag(name, '', class: css) #  (locked ? :label_unlocked : :label_unlocked)
+    css = klass
+    check_box_tag(name, "1", locked, class: :locked) + 
+    label_tag(name, '', class: css)
   end
 
 end
