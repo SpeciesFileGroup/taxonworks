@@ -6,6 +6,7 @@ $(document).ready(function() {
 		if((window.location.href).indexOf('/tasks/') > 0) {
 			$('#quick_bar').hide();
 			$('#header_bar').hide();
+			$('.task_bar').hide();
 		}		
 		$('body').append("<div class='button-collapse-header button-collapse-arrow-up'></div>");
 		$('.button-collapse-header').on('click', function() {
@@ -19,6 +20,7 @@ $(document).ready(function() {
 			}
 			$('#quick_bar').slideToggle(250);
 			$('#header_bar').slideToggle(250);
+			$('.task_bar').slideToggle(250);
 		});
 	}
 });
