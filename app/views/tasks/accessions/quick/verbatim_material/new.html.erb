@@ -9,12 +9,12 @@
           <%= label_tag 'Catalog number' %>
 
           <%= render '/workbench/elements/forms/ajax_select',
-            controller:        '/namespaces',
-            object:            'identifier',
-            method:            'namespace_id',
-            tag_id:            'identifier_namespace',
-            display:           namespace_tag(@namespace),
-            size:              20
+            controller: '/namespaces',
+            object:     'identifier',
+            method:     'namespace_id',
+            tag_id:     'identifier_namespace',
+            display:    namespace_tag(@namespace),
+            size:       20
           %>
 
         <%= lock_tag(@locks, :locks, :namespace ) %>
@@ -45,7 +45,7 @@
         </div>
       </div>
 
-      <h3>Verbatim data</h3>
+      <h3 data-help="These data are part of the collection object." class="title-section">Verbatim data</h3>
       <div class="fields-container">
         <div class="field">
           <%= label_tag :collecting_event %>
@@ -63,19 +63,24 @@
           <%= lock_tag(@locks, :locks, :other_labels ) %>
         </div>
         <div class="field">
-          <%= label_tag 'Notes (attached to all material)' %> 
+          <%= label_tag :notes, "Notes", data: {help: 'This note is copied to each collection object.'} %>
           <%= text_area :notes, :text %>
           <%= lock_tag(@locks, :locks, :note ) %>      
         </div>
       </div>
     </div>
     <div class="item item2">
-      <h3 class="title-section">Material count</h3>
+      <h3 class="title-section" data-help="Each total provided creates a new collection object record, each with all of the data provided on the left. If more than one total is provided the objects are linked in a 'virtual' container, and if an identifier is provided it will attach to that container, rather than to the collection object.  Each collection object can have individual bio curation attributes." >Totals</h3>
       <%= render 'attribute_form' %>
-
       <div class="actions">
         <%= submit_tag 'Create' %>
       </div>
     </div>
   </div>
 <% end %>
+
+<br><br>
+<h3> Recently created <h3>
+<div>
+  <%= render('/tasks/accessions/report/dwca/table', collection_objects: @recent) -%>
+</div>

@@ -1,6 +1,6 @@
 class Tasks::Accessions::Quick::VerbatimMaterialController < ApplicationController
   include TaskControllerConfiguration
-  before_filter :set_fixed_variables
+  before_filter :set_fixed_variables, :get_recent
 
   # GET quick_verbatim_material_task
   def new
@@ -27,6 +27,12 @@ class Tasks::Accessions::Quick::VerbatimMaterialController < ApplicationControll
   end
 
   protected
+
+  def get_recent
+    @recent = CollectionObject.created_last(5).where(created_by_id: sessions_current_user_id, project_id: sessions_current_project_id)
+  end
+
+
 
   def set_fixed_variables
     @repositories = Repository.order(:name).all

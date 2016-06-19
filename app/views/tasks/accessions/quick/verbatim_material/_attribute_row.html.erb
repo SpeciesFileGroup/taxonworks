@@ -7,7 +7,9 @@
     <fieldset >
       <%= content_tag(:legend, bg.name) -%>
       <% bg.biocuration_classes.each do |bc| %>
-        <%= content_tag(:label, bc.name) -%> <%= check_box_tag("collection_objects[object_#{object_id}][biocuration_classes][#{bc.id}]", nil, false,  class: 'biocuration_class_check_box'  ) -%>
+        <span class="biocuration_option">
+          <%= check_box_tag("collection_objects[object_#{object_id}][biocuration_classes][#{bc.id}]", nil, false,  class: 'biocuration_class_check_box'  ) -%>  <%= content_tag(:label, bc.name) -%>
+        </span>
       <% end %>
     </fieldset>
   </div>
