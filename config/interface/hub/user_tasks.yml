@@ -58,7 +58,7 @@ verify_accessions_task:
 quick_verbatim_material_task:
   hub: true
   name: 'Quick verbatim material'
-  description: 'Create new specimen or lot records with verbatim data attaced directly to the collection object record.'
+  description: 'Create new specimen or lot records with verbatim data attached directly to the collection object record.'
   related:
     - namespaces
     - build_biocuration_groups_task
@@ -83,7 +83,7 @@ build_biocuration_groups_task:
     - build_biocuration_group_task
   categories:
     - collection_object
-    - biology 
+    - biology
   status: stable
 build_biocuration_group_task:
   name:
