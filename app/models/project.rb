@@ -116,8 +116,14 @@ class Project < ActiveRecord::Base
     end
   end
 
-
   def root_taxon_name
+    # Calling TaxonName is a hack to load the required has_many into Project, 
+    # "has_many :taxon_names" is invoked through TaxonName within Housekeeping::Project 
+    # Within TaxonName closure_tree (appears to?) require a database connection.  Note 
+    # closure_tree is apparently not robustly tested for Ruby 2.3.
+    # Since we shouldn't (can't?) initiate a connection prior to a require_dependency
+    # we simply load TaxonName for the first time here.
+    TaxonName.tap{}  
     self.taxon_names.root
   end
 

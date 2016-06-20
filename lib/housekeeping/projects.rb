@@ -13,16 +13,10 @@ module Housekeeping::Projects
     before_validation :set_project_id,  if: '!self.annotates_community_object?' # 'self.annotates? && self.annotates_community?'
     validates :project, presence: true, if: '!self.annotates_community_object?' # 'self.annotates? && self.annotates_community?'
 
- #   before_create :override_project_id, if: 'self.annotates? && self.annotates_community?'
+    #  before_save :prevent_alteration_in_other_projects
+    #  before_destroy :prevent_alteration_in_other_projects
 
- #  def override_project_id
- #    self.project_id = nil if !self.project_id.blank?
- #  end
-
- #  before_save :prevent_alteration_in_other_projects
- #  before_destroy :prevent_alteration_in_other_projects
-
-    # Also extend the project 
+    # extend Project 
     Project.class_eval do
       raise 'Class name collision for Project#has_many' if self.methods and self.methods.include?(:related_instances)
       has_many related_instances, class_name: related_class, dependent: :restrict_with_error, inverse_of: :project
@@ -48,11 +42,11 @@ module Housekeeping::Projects
 
   # This will have to be extended via role exceptions, maybe.  It is a loose
   # check here, ripped right from mx.
- #def prevent_alteration_in_other_projects
- #  # unless (self.project_id == $project_id)
- #  #   raise 'Not owned by current project: ' + self.name + '#' + self.id.to_s
- #  # end
- #end
+  #def prevent_alteration_in_other_projects
+  #  # unless (self.project_id == $project_id)
+  #  #   raise 'Not owned by current project: ' + self.name + '#' + self.id.to_s
+  #  # end
+  #end
 
   def annotates_community_object?
     self.respond_to?(:is_community_annotation?) && self.is_community_annotation?

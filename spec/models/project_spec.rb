@@ -130,6 +130,13 @@ describe Project, type: :model do
       p = Project.create!(name: "testing root taxon name", without_root_taxon_name: true)
       expect(p.taxon_names.count).to eq(0)
     end
+
+    context '#root_taxon_name ' do
+      let!(:p) { Project.create!(name: "testing root taxon name", without_root_taxon_name: true) }
+      specify 'returns the Root taxon name' do
+        expect(p.root_taxon_name).to eq(TaxonName.first)
+      end
+    end
   end
 
   context '#destroy sanity test' do
