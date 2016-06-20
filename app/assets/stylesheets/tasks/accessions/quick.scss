@@ -31,21 +31,23 @@
 	}
 
 	.biocuration_totals_row {
-		align-items: center;
+		display: flex;
+		justify-content: flex-end;
+		align-items: top;
 	}
 
 	.one_tenth_width {
 		width: 120px;
 	}
 	.one_second_width {
-		width: 310px;
+		width: 410px;
 	}	
 
 	.biocuration_option {
-		position: relative;
-		background-color: #FFFDE7;
+		display: inline-block;
+		background-color: #FFF9C4;
 		border-radius: 3px;
-		margin: 5px;
+		margin: 2px;
 		padding: 5px;
 	}
 
