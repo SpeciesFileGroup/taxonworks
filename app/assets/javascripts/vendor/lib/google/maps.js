@@ -166,7 +166,7 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
       //
       //  }
       //}
-                                          //
+      //
       var ymin = bounds.ymin;             //
       var ymax = bounds.ymax;             //
 
@@ -508,6 +508,18 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
       if (thisType == undefined) {      // this test if to avoid js errors from  features without geometry
         return                          // google maps forgives features wthout geometries
       }
+      var i;                                    // loop
+      var j;
+      var k;                                    // indices
+      var l;
+      // for geometry types which contain line segments, we must introduce
+      // detection of prime meridian and antimeridian crossing by each segment
+      var lastX;        // used to compare prior point
+      var thisX;        // to current point
+      var ltNeg180;     // flag for detection of permuted line segment
+      lastX = undefined;                        // polygon starting in western hemisphere crossing anti-meridian
+      ltNeg180 = false;                         // has all negative x-coordinates
+
       if (thisType.type == "FeatureCollection") {
         for (var i = 0; i < thisType.features.length; i++) {
           if (typeof (thisType.features[i].type) != "undefined") {
@@ -518,7 +530,7 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
       }
 
       if (thisType.type == "GeometryCollection") {
-        for (var i = 0; i < thisType.geometries.length; i++) {
+        for (i = 0; i < thisType.geometries.length; i++) {
           if (typeof (thisType.geometries[i].type) != "undefined") {
             this.getTypeData(thisType.geometries[i], bounds);		//  recurse if GeometryCollection
           }     //thisType != undefined
@@ -531,41 +543,59 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
       }
 
       if (thisType.type == "MultiPoint") {
-        for (var l = 0; l < thisType.coordinates.length; l++) {
+        for (l = 0; l < thisType.coordinates.length; l++) {
           this.xgtlt(bounds, thisType.coordinates[l][0]);
           this.ygtlt(bounds, thisType.coordinates[l][1]); //box check
         }
       }
 
-      // for geometry types which contain line segments, we must introduce
-      // detection of prime meridian and antimeridian crossing by each segment
-      var lastX;        // used to compare prior point
-      var thisX;        // to current point
-      var ltNeg180      // flag for detection of permuted line segment
+      if (thisType.type == "LineString") {          // special segments to compensate for permutation in controller
+        for (l = 0; l < thisType.coordinates.length; l++) {   // first scan polyline/linestring to detect permuted case
+          thisX = thisType.coordinates[l][0];
+          if (lastX) {
+            if (this.meridianCheck(bounds, lastX, thisX)) {   // true if crossed anti-meridian
+              if (thisX < -180) {
+                ltNeg180 = true
+              }             // permuted case detector
+            }
+          }
+          lastX = thisX;
+        }
 
-      if (thisType.type == "LineString") {
-        for (var l = 0; l < thisType.coordinates.length; l++) {
-          this.xgtlt(bounds, thisType.coordinates[l][0]);
+        if (ltNeg180) {                                         // if permuted case detected
+          for (l = 0; l < thisType.coordinates.length; l++) {
+            thisX = thisType.coordinates[l][0];
+            thisType.coordinates[l][0] = 360 + thisX;           // revert/convert permuted polygon to positive polygon
+          }
+        }
+
+        lastX = undefined;                                      // now scan for bounds on adjusted linestring/polyline
+        for (l = 0; l < thisType.coordinates.length; l++) {
+          thisX = thisType.coordinates[l][0];
+          this.xgtlt(bounds, thisX);
           this.ygtlt(bounds, thisType.coordinates[l][1]); //box check
         }
       }
 
       if (thisType.type == "MultiLineString") {
-        for (var k = 0; k < thisType.coordinates.length; k++) {   //k enumerates linestrings, l enums points
-          for (var l = 0; l < thisType.coordinates[k].length; l++) {
+        for (k = 0; k < thisType.coordinates.length; k++) {   //k enumerates linestrings, l enums points
+          for (l = 0; l < thisType.coordinates[k].length; l++) {
             this.xgtlt(bounds, thisType.coordinates[k][l][0]);
             this.ygtlt(bounds, thisType.coordinates[k][l][1]); //box check
+            if (lastX) {
+              if (this.meridianCheck(bounds, lastX, thisX)) {   // true if crossed anti-meridian
+              }
+            }
+            lastX = thisX;
           }
         }
       }
 
       if (thisType.type == "Polygon") {           // special segments to compensate for permutation in controller
-        lastX = undefined;                        // polygon starting in western hemisphere crossing anti-meridian
-        ltNeg180 = false;                         // has all negative x-coordinates
 
-        for (var k = 0; k < thisType.coordinates.length; k++) {   // first scan polygon to detect permuted case
+        for (k = 0; k < thisType.coordinates.length; k++) {   // first scan polygon to detect permuted case
           // k enumerates polygons, l enumerates points
-          for (var l = 0; l < thisType.coordinates[k].length; l++) {
+          for (l = 0; l < thisType.coordinates[k].length; l++) {
             thisX = thisType.coordinates[k][l][0];
             if (lastX) {
               if (this.meridianCheck(bounds, lastX, thisX)) {   // true if crossed anti-meridian
@@ -577,10 +607,11 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
             lastX = thisX;
           }
         }
+
         if (ltNeg180) {                                         // if permuted case detected
-          for (var k = 0; k < thisType.coordinates.length; k++) {
+          for (k = 0; k < thisType.coordinates.length; k++) {
             // k enumerates polygons, l enumerates points
-            for (var l = 0; l < thisType.coordinates[k].length; l++) {
+            for (l = 0; l < thisType.coordinates[k].length; l++) {
               thisX = thisType.coordinates[k][l][0];
               thisType.coordinates[k][l][0] = 360 + thisX;      // revert/convert permuted polygon to positive polygon
             }
@@ -588,9 +619,9 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
         }
 
         lastX = undefined;                                      // now scan for bounds on adjusted polygon
-        for (var k = 0; k < thisType.coordinates.length; k++) {
+        for (k = 0; k < thisType.coordinates.length; k++) {
           // k enumerates polygons, l enumerates points
-          for (var l = 0; l < thisType.coordinates[k].length; l++) {
+          for (l = 0; l < thisType.coordinates[k].length; l++) {
             thisX = thisType.coordinates[k][l][0];
             this.xgtlt(bounds, thisX);    // thisType.coordinates[k][l][0]);
             this.ygtlt(bounds, thisType.coordinates[k][l][1]); //box check
@@ -607,9 +638,9 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
       }
 
       if (thisType.type == "MultiPolygon") {
-        for (var j = 0; j < thisType.coordinates.length; j++) {		// j iterates over multipolygons   *-
-          for (var k = 0; k < thisType.coordinates[j].length; k++) {  //k iterates over polygons
-            for (var l = 0; l < thisType.coordinates[j][k].length; l++) {
+        for (j = 0; j < thisType.coordinates.length; j++) {		// j iterates over multipolygons   *-
+          for (k = 0; k < thisType.coordinates[j].length; k++) {  //k iterates over polygons
+            for (l = 0; l < thisType.coordinates[j][k].length; l++) {
               this.xgtlt(bounds, thisType.coordinates[j][k][l][0]);
               this.ygtlt(bounds, thisType.coordinates[j][k][l][1]); //box check
             }
@@ -686,52 +717,48 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
     },
 
     meridianCheck: function (bounds, lastX, thisX) {
-      var xm = 0.5 * (lastX + thisX);
-      if (lastX > 180) {
-        lastX -= 360
-      }
-      if (lastX < -180) {
-        lastX += 360
-      }
-      if (thisX > 180) {
-        thisX -= 360
-      }
-      if (thisX < -180) {
-        thisX += 360
-      }
-      if (lastX <= 0) {
-        if (thisX >= 0 || thisX < -180) {
-          if (Math.abs(xm) > 90) {
-            // anti-meridian case
-            // set xminm = -180, xmaxp = 180 -- later
-            bounds.anti = true;
-            return true;
+      if (lastX) {                            // do nothing if this is the first point (i.e., lastX undefined)
+        var xm = 0.5 * (lastX + thisX);       // midpoint of current segment
+        if (lastX > 180) {                    // conform extended coordinates to correct sign for hemisphere
+          lastX -= 360
+        }
+        if (lastX < -180) {
+          lastX += 360
+        }
+        if (thisX > 180) {
+          thisX -= 360
+        }
+        if (thisX < -180) {
+          thisX += 360
+        }                                     // these checks may obviate additional tests for > 180, < -180 below
+
+        if (lastX <= 0) {                     // if prior point is western and this point is eastern
+          if (thisX >= 0 || thisX < -180) {   // since postGIS may give points past +180
+            if (Math.abs(xm) > 90) {          // gross test for closer to anti-meridian
+              bounds.anti = true;
+              return true;
+            }
+            else {                            // crossing closer to prime meridian
+              bounds.prime = true;
+              return false;
+            }
           }
-          else {
-            // prime meridian case
-            // set xmaxm = 0, xminp = 0   -- later
-            bounds.prime = true;
-            return false;
+        }
+        if (lastX >= 0) {                     // if prior point is eastern and this point is western
+          if ((thisX <= 0) || thisX > 180) {  // since postGIS may give points past +180
+            if (Math.abs(xm) > 90) {          // gross test for closer to anti-meridian
+              bounds.anti = true;
+              return true;
+            }
+            else {                            // crossing closer to prime meridian
+              bounds.prime = true;
+              return false;
+            }
           }
         }
       }
-      if (lastX >= 0) {
-        if ((thisX <= 0) || thisX > 180) {    // since google may give points past +180
-          if (Math.abs(xm) > 90) {
-            // anti-meridian case
-            // set xminm = -180, xmaxp = 180 -- later
-            bounds.anti = true;
-            return true;
-          }
-          else {
-            // prime meridian case
-            // set xmaxm = 0, xminp = 0   -- later
-            bounds.prime = true;
-            return false;
-          }
-        }
-      }
-      var debug = 10;
+      return undefined;
     }
+
   }
 );
