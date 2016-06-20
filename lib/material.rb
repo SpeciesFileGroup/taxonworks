@@ -150,12 +150,13 @@ module Material
     end
 
     def locked?(name)
-      locks.locked?('locks', name)
+      locks.locked?('locks', name.to_s)
     end
 
     def duplicate_with_locks
       n = QuickVerbatimResponse.new(form_params)
       # nullify if not locked
+      #
       n.repository = nil if !locked?('repository')
       n.namespace  = nil if !locked?('namespace')
       n.note       = nil if !locked?('note')

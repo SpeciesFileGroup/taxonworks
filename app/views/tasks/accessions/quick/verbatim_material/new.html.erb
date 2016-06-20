@@ -61,8 +61,8 @@
           <%= lock_tag(@locks, :locks, :other_labels ) %>
         </div>
         <div class="field">
-          <%= label_tag :notes, "Notes", data: {help: 'This note is copied to each collection object.'} %>
-          <%= text_area :notes, :text %>
+          <%= label_tag :note, "Notes", data: {help: 'This note is copied to each collection object.'} %>
+          <%= text_area :note, :text %>
           <%= lock_tag(@locks, :locks, :note ) %>      
         </div>
       </div>

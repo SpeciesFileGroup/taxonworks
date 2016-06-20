@@ -161,7 +161,7 @@ describe Material::QuickVerbatimResponse do
   end
 
   specify  '#locks_object' do
-    expect(@response.locks_object.class).to eq(Material::QuickVerbatimLocks)
+    expect(@response.locks.class).to eq(Forms::FieldLocks)
   end
 
   context 'data entry locks' do
@@ -170,7 +170,7 @@ describe Material::QuickVerbatimResponse do
     end
 
     specify '#locked?' do
-      expect(@response.locked?('note')).to be(false)
+      expect(@response.locked?('note')).to be_falsey
     end
   end
 
@@ -192,13 +192,15 @@ describe Material::QuickVerbatimResponse do
         'identifier' => {'namespace_id' => @namespace.id, 'identifier' => '123'},
         'repository' => {'id' => @repository.id}, 
         'locks' => {
-          'namespace' => '0',
-          'increment' => '1',
-          'repository' => '0',
-          'collecting_event' => '0',
-          'determinations' => '0',
-          'other_labels' => '0',
-          'note' => '1'          
+          'locks' => { # proxy for object
+            'namespace' => '0',
+            'increment' => '1',
+            'repository' => '0',
+            'collecting_event' => '0',
+            'determinations' => '0',
+            'other_labels' => '0',
+            'note' => '1'          
+          }
         }
       }
 
@@ -239,7 +241,7 @@ describe Material::QuickVerbatimResponse do
   context 'identifier increments' do
     context 'when #lock_increment true' do
       before {
-        @response.quick_verbatim_locks.increment = '1' # coming off form_params()
+        @response.locks.lock('locks', 'increment') #  = '1' # coming off form_params()
       }
       specify '#next_identifier is +1 when #lock_increment' do
         @response.identifier = FactoryGirl.build(:valid_identifier, identifier: '1')

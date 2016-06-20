@@ -13,7 +13,7 @@ module Forms
     end
 
     def locked?(object_name, method)
-      locks[object_name.to_s] && locks[object_name.to_s][method.to_s]
+      (locks[object_name.to_s] && locks[object_name.to_s][method.to_s].to_s == '1') ? true : false
     end
 
     def has_locks?
@@ -32,6 +32,17 @@ module Forms
         nil
       end
     end
+
+    def lock(object_name, method)
+      locks[object_name] ||= {}
+      locks[object_name].merge!(method => 1)
+    end
+
+    def unlock(object_name, method)
+      locks[object_name].delete(method)
+    end
+
+
 
   end
 end
