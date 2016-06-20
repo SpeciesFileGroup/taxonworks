@@ -14,7 +14,7 @@ production:
     domain: "example.com"
   mail_domain: "example.com"
   action_mailer_url_host: "www.example.com"
-# test: 
+test:  # this line required
 # selenium:  
 #   browser: 'firefox'
 #   marionette: false
