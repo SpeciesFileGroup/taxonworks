@@ -98,7 +98,55 @@ namespace :tw do
         end
       end
 
-      desc 'create apex taxon parent id hash, i.e. id of "root" in each project'
+      desc 'create Animalia taxon name subordinate to each project Root (and make hash of project.id, animalia.id'
+      # creating project_id_animalia_id_hash
+      task :create_animalia_below_root => [:data_directory, :environment, :user_id] do
+        ### time rake tw:project_import:sf_taxa:create_animalia_below_root user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
+
+        species_file_data = Import.find_or_create_by(name: 'SpeciesFileData')
+        get_project_id = species_file_data.get('SFFileIDToTWProjectID')
+
+        project_id_animalia_id_hash = {} # hash of TW.project_id (key), TW.taxon_name_id = 'Animalia' (value)
+
+        TaxonName.first # a royal kludge to ensure taxon_name plumbing is in place v-a-v project
+
+        get_project_id.values.each_with_index do |project_id, index|
+          next if index == 0 # hash accidently included FileID = 0
+          # puts "before root = (index = #{index}, project_id = #{project_id})"
+          # puts "after this_project assignment #{this_project.id}"
+          # puts "this_project.name: #{this_project.root_taxon_name.name}; this_project.name.id: #{this_project.root_taxon_name.id}!"
+          next if TaxonName.find_by(project_id: project_id, name: 'Animalia') # test if Animalia already exists
+
+          this_project = Project.find(project_id)
+          puts "working with project.id: #{project_id}, root_name: #{this_project.root_taxon_name.name}, root_name_id: #{this_project.root_taxon_name.id}"
+
+          animalia_taxon_name = Protonym.new(
+              name: 'Animalia',
+              parent_id: this_project.root_taxon_name.id,
+              rank_class: NomenclaturalRank::Iczn::HigherClassificationGroup::Kingdom,
+              project_id: project_id,
+              created_at: Time.now,
+              updated_at: Time.now,
+              created_by_id: $user_id,
+              updated_by_id: $user_id
+          )
+
+          if animalia_taxon_name.save
+            project_id_animalia_id_hash[project_id] = animalia_taxon_name.id
+          end
+        end
+
+        i = Import.find_or_create_by(name: 'SpeciesFileData')
+        i.set('ProjectIDToAnimaliaID', project_id_animalia_id_hash)
+
+        puts "ProjectIDToAnimaliaID"
+        ap project_id_animalia_id_hash
+
+      end
+
+
+      desc 'XXX create apex taxon parent id hash, i.e. id of "root" in each project'
+      # use Animalia instead; project_id_animalia_id_hash
       task :create_apex_taxon_parent_id_hash => [:data_directory, :environment, :user_id] do
         ### time rake tw:project_import:sf_taxa:create_apex_taxon_parent_id_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
 
@@ -118,7 +166,7 @@ namespace :tw do
         # get ApexTaxonNameID.AboveID
         file.each do |row|
           t = row['TaxonNameID']
-           next unless get_apex_taxon_id.has_value?(t)
+          next unless get_apex_taxon_id.has_value?(t)
           puts "TaxonNameID: #{t}, AboveID: #{row['AboveID']}"
           get_apex_taxon_parent_id[t] = TaxonName.find_by!(project_id: get_project_id[row['FileID']], name: 'Root').id # substitute for row['AboveID']
           # get_parent_id[row['AboveID']] = TaxonName.find_by(project_id: get_apex_taxon_project_id[row['TaxonNameID']], name: 'Root').id # substitute for row['AboveID'] # this is the reverse hash
@@ -129,7 +177,6 @@ namespace :tw do
         puts "get parent id of apex taxon id"
         ap get_apex_taxon_parent_id
       end
-
 
 # desc 'create valid taxa for Embioptera (FileID = 60)'
 # task :create_valid_taxa_for_embioptera => [:data_directory, :environment, :user_id] do
@@ -215,7 +262,8 @@ namespace :tw do
 #
 # end
 
-      desc 'create project_id: apex_taxon_id hash (all SFs)'
+      desc 'XXX create project_id: apex_taxon_id hash (all SFs)'
+      # use Animalia instead; project_id_animalia_id_hash
       task :create_apex_taxon_id_hash => [:data_directory, :environment, :user_id] do
         ### rake tw:project_import:sf_taxa:create_apex_taxon_id_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
 
@@ -265,5 +313,7 @@ namespace :tw do
     end
   end
 end
+
+
 
 
