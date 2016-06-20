@@ -1,6 +1,9 @@
 @import 'workbench/palette';
 
 #quick_task {
+	.item {
+		flex-grow:0;
+	}
 
 	#identifier {}
 
@@ -30,14 +33,12 @@
 		}
 	}
 
-	.biocuration_totals_row {
-		display: flex;
-		justify-content: flex-end;
-		align-items: top;
+	#identifier_identifier {
+		width: 95px;
 	}
 
 	.one_tenth_width {
-		width: 120px;
+		width: 90px;
 	}
 	.one_second_width {
 		width: 410px;
