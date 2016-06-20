@@ -14,9 +14,9 @@ production:
     domain: "example.com"
   mail_domain: "example.com"
   action_mailer_url_host: "www.example.com"
-test: 
-  selenium:  
-    browser: 'firefox'
-    marionette: false
-    firefox_binary_path: ''
-    chromedriver_path: '/usr/local/bin/chromedriver'
+# test: 
+# selenium:  
+#   browser: 'firefox'
+#   marionette: false
+#   firefox_binary_path: ''
+#   chromedriver_path: '/usr/local/bin/chromedriver'
