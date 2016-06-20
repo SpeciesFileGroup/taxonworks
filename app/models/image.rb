@@ -49,7 +49,7 @@ class Image < ActiveRecord::Base
   #constants
   MISSING_IMAGE_PATH = '/public/images/missing.jpg'
 
-  has_many :depictions, inverse_of: :image
+  has_many :depictions, inverse_of: :image, dependent: :restrict_with_error
 
   before_save :extract_tw_attributes
 
