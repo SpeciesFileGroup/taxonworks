@@ -7,7 +7,7 @@ namespace :tw do
 
       [Serial, SerialChronology, Identifier, DataAttribute, AlternateValue].each do |klass|
         if klass.count > 0 
-          puts "There are existing #{klass.name.humanize}, doing nothing.".red.on_white 
+          puts "There are existing #{klass.name.humanize}, doing nothing.".red
           raise 
         end
       end
@@ -24,7 +24,7 @@ namespace :tw do
       `pg_restore -Fc -c -d #{database} #{path}` 
       raise "pg_restore failed with exit code #{$?.to_i}" unless $? == 0
       
-      puts "Completed serial data load from .dumps".bold  
+      puts "Completed serial data load from .dumps".yellow
     end
   end
 end

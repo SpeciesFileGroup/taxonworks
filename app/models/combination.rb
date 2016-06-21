@@ -246,6 +246,26 @@ class Combination < TaxonName
     ay.blank? ? nil : ay
   end
 
+  def get_full_name_html
+    eo = '<i>'
+    ec = '</i>'
+    return "#{eo}#{verbatim_name}#{ec}".gsub(' f. ', ec + ' f. ' + eo).gsub(' var. ', ec + ' var. ' + eo) if !self.verbatim_name.nil?
+    d = full_name_hash
+
+    elements = []
+    #d.merge!('genus' => [nil, '[GENUS UNKNOWN]']) unless d['genus']
+
+    elements.push("#{eo}#{d['genus'][1]}#{ec}#{d['genus'][3]}")
+    elements.push ['(', %w{subgenus section subsection series subseries}.collect { |r| d[r] ? [d[r][0], "#{eo}#{d[r][1]}#{ec}#{d[r][3]}"] : nil }, ')']
+    elements.push ['(', eo, d['superspecies'][1], ec, d['superspecies'][3], ')'] if d['superspecies']
+
+    %w{species subspecies variety subvariety form subform}.each do |r|
+      elements.push(d[r][0], "#{eo}#{d[r][1]}#{ec}#{d[r][3]}") if d[r]
+    end
+
+    html = elements.flatten.compact.join(' ').gsub(/\(\s*\)/, '').gsub(/\(\s/, '(').gsub(/\s\)/, ')').squish.gsub(' [sic]', ec + ' [sic]' + eo).gsub(ec + ' ' + eo, ' ').gsub(eo + ec, '').gsub(eo + ' ', ' ' + eo)
+    html
+  end
 
 
   protected
