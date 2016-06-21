@@ -1,11 +1,11 @@
 development:
-  default_data_directory: "/home/jdoe/my-dumps"
+#  default_data_directory: "/home/jdoe/my-dumps"
 production:
-  backup_directory: "/mnt/backup-media/tw-dumps"
+#  backup_directory: "/mnt/backup-media/tw-dumps"
   exception_notification:
     email_prefix: "[TW-Error] "
     sender_address: "\"notifier\" <notifier@example.com>"
-    exception_recipients: 
+    exception_recipients:
       - exceptions@example.com
       - root@example.com
   action_mailer_smtp_settings:
@@ -14,8 +14,8 @@ production:
     domain: "example.com"
   mail_domain: "example.com"
   action_mailer_url_host: "www.example.com"
-# test: 
-# selenium:  
+# test:
+# selenium:
 #   browser: 'firefox'            # a string, one of 'firefox' or 'chrome'
 #   marionette: false             # optionally provided when browser: 'firefox' (not tested)
 #   firefox_binary_path: ''       # optionally provided when browser: 'firefox'
