@@ -1,35 +1,162 @@
 require 'fileutils'
 
+### rake tw:project_import:ucd:import_ucd data_directory=/Users/proceps/src/sf/import/ucd/working/ no_transaction=true
+
+
+
+# COLL.txt
+# COUNTRY.txt
+# DIST.txt
+# FAMTRIB.txt
+# FGNAMES.txt       Done
+# GENUS.txt
+# H-FAM.txt
+# HKNEW.txt
+# HOSTFAM.txt
+# HOSTS.txt
+# JOURNALS.txt
+# KEYWORDS.txt
+# LANGUAGE.txt
+# MASTER.txt
+# P-TYPE.txt
+# REFEXT.txt
+# RELATION.txt
+# RELIABLE.txt
+# SPECIES.txt
+# STATUS.txt
+# TRAN.txt
+# TSTAT.txt
+# WWWIMAOK.txt
+
 namespace :tw do
   namespace :project_import do
-    namespace :ucd do 
-      desc 'a default method to argmuments'
-      task  :data_directory, [:data_directory] => :environment do |t, args| 
-        @args = args.with_defaults(:data_directory => '/Users/matt/src/sf/import/ucd/csv/')
+    namespace :ucd do
+
+
+      class ImportedDataUcd
+        attr_accessor :publications_index, :genera_index, :keywords, :family_groups, :superfamilies, :families
+        def initialize()
+          @publications_index = {}
+          @keywords = {}
+          @genera_index = {}
+          @family_groups = {}
+          @superfamilies = {}
+          @families = {}
+        end
+
+
       end
 
-      desc 'the full loop' 
-      task :import_ucd => [:data_directory, :environment] do |t, args| 
+      task :import_ucd => [:data_directory, :environment] do |t|
+
+
+        if ENV['no_transaction']
+          puts 'Importing without a transaction (data will be left in the database).'
+          main_build_loop_ucd
+        else
+
+          ActiveRecord::Base.transaction do
+            begin
+              main_build_loop_ucd
+            rescue
+              raise
+            end
+          end
+
+        end
+
+      end
+
+      def main_build_loop_ucd
+        print "\nStart time: #{Time.now}\n"
+
+        @import = Import.find_or_create_by(name: @import_name)
+        @import.metadata ||= {}
+        @data =  ImportedDataUcd.new
         puts @args
+        Utilities::Files.lines_per_file(Dir["#{@args[:data_directory]}/**/*.txt"])
 
-        ActiveRecord::Base.transaction do 
-          begin
-            @project, @user = initiate_project_and_users('eucharitid', 'John Heraty') # sets user_id/project_id
-            @namespace = Namespace.new(name: 'UCD', short_name: 'UCD')
-            @namespace.save!
+        handle_projects_and_users_ucd
+        raise '$project_id or $user_id not set.'  if $project_id.nil? || $user_id.nil?
 
- #          Rake::Task["tw:project_import:ucd:handle_keywords"].execute
- #          Rake::Task["tw:project_import:ucd:handle_refs"].execute
+        #$project_id = 1
+        handle_fgnames_ucd
 
-            Rake::Task["tw:project_import:ucd:handle_names"].execute
+        print "\n\n !! Success. End time: #{Time.now} \n\n"
 
-            puts "\n\n !! Success \n\n"
-            raise
-          rescue
-            raise
+      end
+
+      def handle_projects_and_users_ucd
+        print "\nHandling projects and users "
+        email = 'eucharitid@mail.net'
+        project_name = 'UCD'
+        user_name = 'eucharitid'
+        $user_id, $project_id = nil, nil
+        if @import.metadata['project_and_users']
+          print "from database.\n"
+          project = Project.where(name: project_name).first
+          user = User.where(email: email).first
+          $project_id = project.id
+          $user_id = user.id
+        else
+          print "as newly parsed.\n"
+
+          user = User.where(email: email)
+          if user.empty?
+            user = User.create(email: email, password: '3242341aas', password_confirmation: '3242341aas', name: user_name, self_created: true)
+          else
+            user = user.first
+          end
+          $user_id = user.id # set for project line below
+
+          project = nil
+
+          if project.nil?
+            project = Project.create(name: project_name)
+          end
+
+          $project_id = project.id
+          pm = ProjectMember.new(user: user, project: project, is_project_administrator: true)
+          pm.save! if pm.valid?
+
+          @import.metadata['project_and_users'] = true
+        end
+        root = Protonym.find_or_create_by(name: 'Root', rank_class: 'NomenclaturalRank', project_id: $project_id)
+        order = Protonym.find_or_create_by(name: 'Hymenoptera', parent: root, rank_class: 'NomenclaturalRank::Iczn::HigherClassificationGroup::Order', project_id: $project_id)
+        @data.superfamilies.merge!('1' => Protonym.find_or_create_by(name: 'Serphitoidea', parent: order, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Superfamily', project_id: $project_id).id)
+        @data.superfamilies.merge!('2' => Protonym.find_or_create_by(name: 'Chalcidoidea', parent: order, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Superfamily', project_id: $project_id).id)
+        @data.superfamilies.merge!('3' => Protonym.find_or_create_by(name: 'Mymarommatoidea', parent: order, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Superfamily', project_id: $project_id).id)
+
+        @data.keywords.merge!('ucd_imported' => Keyword.find_or_create_by(name: 'ucd_imported', definition: 'Imported from UCD database.'))
+      end
+
+      def handle_fgnames_ucd
+        path = @args[:data_directory] + 'FGNAMES.txt'
+        print "\nHandling references\n"
+        raise "file #{path} not found" if not File.exists?(path)
+        file = CSV.foreach(path, col_sep: "\t", headers: true)
+        file.each_with_index do |row, i|
+          print "\r#{i}"
+          family = row['Family'].blank? ? nil : Protonym.find_or_create_by(name: row['Family'], parent_id: @data.superfamilies[row['SuperfamFK']], rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Family', project_id: $project_id)
+          subfamily = row['Subfamily'].blank? ? nil : Protonym.find_or_create_by(name: row['Subfamily'], parent: family, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Subfamily', project_id: $project_id)
+          tribe = row['Tribe'].blank? ? nil : Protonym.find_or_create_by(name: row['Tribe'], parent: subfamily, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Tribe', project_id: $project_id)
+
+          if !tribe.nil?
+            @data.families.merge!(row['FamCode'] => tribe.id)
+          elsif !subfamily.nil?
+            @data.families.merge!(row['FamCode'] => subfamily.id)
+          else
+            @data.families.merge!(row['FamCode'] => family.id)
           end
         end
       end
+
+
+
+
+
+
+
 
 
       desc 'reconcile colls'
@@ -64,15 +191,6 @@ namespace :tw do
         end
         f.close
       end
-
-    # def fix_line(line)
-    #   line.gsub(/\t\\N\t/, "\t\"NULL\"\t").gsub(/\\"/, '""') # .gsub(/\t/, '|')
-    # end
-
-     # See shared.rake
-     # def column_values(fixed_line)
-     #    CSV.parse(fixed_line, col_sep: "\t").first
-     # end
 
       desc 'reconcile Refs::Chalcfam (look for unique values'
       task :reconcile_refs_chalcfam => [:data_directory, :environment] do |t, args| 
