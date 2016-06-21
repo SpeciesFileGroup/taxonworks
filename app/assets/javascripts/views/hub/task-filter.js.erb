@@ -18,7 +18,6 @@ var CarrouselTask = function (sec, rows, columns) {
     this.changeTasks = rows; //Number of new task displayed when the user moves
     this.resetChildsCount();
     this.filterChilds();
-    this.makeInjection();
     this.injectNavList();
     this.changeSize();
   }
@@ -26,16 +25,6 @@ var CarrouselTask = function (sec, rows, columns) {
   CarrouselTask.prototype.changeSize = function() {
     $(this.sectionTag).children(".task-section").css("width",((this.maxColumns*475) + "px"));
     $(this.sectionTag).children(".task-section").css("height",((this.maxRow*250) + "px"));
-  }
-
-  CarrouselTask.prototype.makeInjection = function() {
-    /*
-    $('div.source').replaceWith('<img title="Source" class="categories source" data-category-source="true" src="<%= asset_path("book.svg") %>" width="15"/>');
-    $('div.collecting_event').replaceWith('<img title="Collectiong event" class="categories collecting_event" data-category-collecting_event="true" src="<%= asset_path("geo_location.svg") %>" alt="Collection object" width="15"/>');
-    $('div.collection_object').replaceWith('<img title="Collection object" class="categories collection_object" src="<%= asset_path("picking.svg") %>" width="15"/>');
-    $('div.biology').replaceWith('<img title="Biology" class="categories biology" src="<%= asset_path("biology.svg") %>" width="15"/>');
-    $('div.taxon_name').replaceWith('<img title="Taxon name" class="categories taxon_name" src="<%= asset_path("new.svg") %>" width="15"/>');    
-    */
   }
 
   CarrouselTask.prototype.addFilter = function(nameFilter) {
