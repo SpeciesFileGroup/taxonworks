@@ -39,7 +39,7 @@ class SqedDepiction < ActiveRecord::Base
   include Shared::Notable
 
   belongs_to :depiction
-#  has_one :depiction_object, through: :depiction
+  #  has_one :depiction_object, through: :depiction
 
   has_one :image, through: :depiction
 
