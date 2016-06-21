@@ -498,7 +498,7 @@ describe GeographicItem, type: :model, group: :geo do
         specify 'point in two polygons, one with a hole in it' do
           expect(GeographicItem.containing(@p19.id).to_a).to contain_exactly(@b1, @b)
         end
-     end
+      end
 
       context '::are_contained_in - returns objects which contained in another object.' do
 
@@ -668,7 +668,7 @@ describe GeographicItem, type: :model, group: :geo do
       end
 
       specify '::within_radius_of_item returns objects within a specific distance of an object.' do
-        expect(GeographicItem.within_radius_of_item(@p0.id, 1000000).where(type: [ 'GeographicItem::Polygon'])).to contain_exactly(@e2, @e3, @e4, @e5, @item_a, @item_b, @item_c, @item_d)
+        expect(GeographicItem.within_radius_of_item(@p0.id, 1000000).where(type: ['GeographicItem::Polygon'])).to contain_exactly(@e2, @e3, @e4, @e5, @item_a, @item_b, @item_c, @item_d)
       end
 
       specify '::within_radius_of_item("any", ...)' do
@@ -700,6 +700,27 @@ describe GeographicItem, type: :model, group: :geo do
         expect(GeographicItem.with_is_valid_geometry_column(@f)).to be_truthy
         expect(GeographicItem.with_is_valid_geometry_column(@g)).to be_truthy
         expect(GeographicItem.with_is_valid_geometry_column(@all_items)).to be_truthy
+      end
+    end
+
+    context 'certain known errors ' do
+      let(:far_island) {# this shape is designed to cross the anti-meridian, with a centroid in the Western Hemisphere, around -179.3
+        a               = RSPEC_GEO_FACTORY.point(179, 27)
+        b               = RSPEC_GEO_FACTORY.point(-178, 27)
+        c               = RSPEC_GEO_FACTORY.point(-178, 25)
+        d               = RSPEC_GEO_FACTORY.point(179, 25)
+        line_string_f_i = RSPEC_GEO_FACTORY.line_string([a, b, c, d])
+        pre_shape_f_i   = RSPEC_GEO_FACTORY.polygon(line_string_f_i)
+        shape_f_i       = RSPEC_GEO_FACTORY.multi_polygon([pre_shape_f_i])
+
+        @item_f_i = FactoryGirl.create(:geographic_item, multi_polygon: shape_f_i)
+
+        far_island_point = RSPEC_GEO_FACTORY.point(-178.5, 26)
+        @point_f_i       = FactoryGirl.create(:geographic_item, point: far_island_point)
+      }
+      specify 'linestring started in the eastern hemisphere' do
+        far_island
+        expect(true).to eq(true)
       end
     end
   end
