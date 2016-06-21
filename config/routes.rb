@@ -85,7 +85,7 @@ TaxonWorks::Application.routes.draw do
 
   resources :citation_topics, only: [:create, :update, :destroy]
 
-  resources :citations  do # except: [:show]
+  resources :citations do # except: [:show]
     concerns [:data_routes]
   end
 
@@ -109,17 +109,17 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
   end
 
-   resources :collecting_events do
+  resources :collecting_events do
     concerns [:data_routes]
     get :autocomplete_collecting_event_verbatim_locality, :on => :collection
     member do
       get :card
     end
     # collection do
-     #   post :preview_simple_batch_load # should be get
-     #   post :create_simple_batch_load
-     # end
-   end
+    #   post :preview_simple_batch_load # should be get
+    #   post :create_simple_batch_load
+    # end
+  end
 
   resources :combinations, only: [:create, :edit, :update, :destroy, :new] do
     concerns [:data_routes]
@@ -357,7 +357,7 @@ TaxonWorks::Application.routes.draw do
     # Scopes arranged alphabetically first level below :tasks
 
     scope :accessions do
-      scope :report  do
+      scope :report do
         scope :dwca, controller: 'tasks/accessions/report/dwca' do
           get '', action: :index, as: 'report_dwca_task'
         end
@@ -391,7 +391,7 @@ TaxonWorks::Application.routes.draw do
       scope :simple, controller: 'tasks/accessions/quick/simple' do
         get 'new', as: 'simple_specimen_task'
         post 'create', as: 'create_simple_specimen_task'
-        get 'collecting_events', format: :js 
+        get 'collecting_events', format: :js
       end
     end
 
@@ -479,6 +479,13 @@ TaxonWorks::Application.routes.draw do
       get 'taxon_name_distribution_data/:id', action: 'show_for_taxon_name', as: 'taxon_name_distribution_data_task'
     end
 
+    scope :loans, controller: 'tasks/loans' do
+      get 'complete', as: 'loan_complete_task'
+      get 'add_determination', as: 'loan_add_determination'
+      get 'return_items', as: 'loan_return_items'
+      get 'loan_items_list', as: 'loan_items_list'
+    end
+
     scope :nomenclature do
       scope :original_combination, controller: 'tasks/nomenclature/original_combination' do
         get 'edit/:taxon_name_id', action: :edit, as: 'edit_protonym_original_combination_task'
@@ -486,7 +493,7 @@ TaxonWorks::Application.routes.draw do
       end
 
       scope :catalog do
-        scope :basis,  controller: 'tasks/nomenclature/catalog/basis' do
+        scope :basis, controller: 'tasks/nomenclature/catalog/basis' do
           get ':taxon_name_id', action: :index, as: 'basis_catalog_task'
         end
       end
@@ -525,7 +532,6 @@ TaxonWorks::Application.routes.draw do
 
   match '/papertrail', to: 'papertrail#papertrail', via: :get
   match '/papertrail/:id', to: 'papertrail#show', as: 'paper_trail_version', via: :get
-
 
 
   # TODO: Remove or rewrite endpoint implementation

@@ -1,0 +1,2 @@
+module Tasks::LoansHelper
+end
