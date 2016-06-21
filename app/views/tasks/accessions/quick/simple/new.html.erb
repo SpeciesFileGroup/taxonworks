@@ -3,7 +3,6 @@
 <%= form_for(@specimen, as: :specimen, url: create_simple_specimen_task_path, html: {class: :dropzone, id: 'simple-specimen-task'}) do |f| -%>
   <div class="flex-wrap-row get_fields">
     <div class=".flex-wrap-column">
-      <div class="panels-container">
         <div class="panel no-shadow">
           <%= f.fields_for(:identifiers, @specimen.identifiers) do |i| -%>
               <%= i.hidden_field :type -%>
@@ -97,11 +96,10 @@
 
             <div class="flex-wrap-column">
               <%= lock_tag(@locks, :collecting_event, :collecting_event_id) -%>
-              <%= link_to("return", "#", id: 'collecting_event_form_toggle', hidden: (@specimen.collecting_event_id ? false : true)) -%>
+              <%= link_to("return", "#", id: 'collecting_event_form_toggle', class: ['button-undo'], hidden: (@specimen.collecting_event_id ? false : true)) -%>
             </div>
           </div>
         </div>
-      </div>
 
     </div> <!---- end column 1 ---->
 
@@ -117,7 +115,6 @@
     </div>
 
   </div>
-
 
 <% end %>
 

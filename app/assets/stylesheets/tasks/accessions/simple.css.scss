@@ -40,6 +40,7 @@
 		}
 
 		label {
+			padding-right: 5px;
 			vertical-align: top;
 			width: 120px;
 			text-align: right;
@@ -61,17 +62,6 @@
 		justify-content: flex-start;
 		flex-direction: row;
 		border:1px solid $navigation-border;
-	}
-
-	.card {
-		padding: 10px;
-		@extend .panel;
-		@extend .content;
-		border:1px solid $navigation-border;
-		background-color: $color-secondary-2-1;
-		label {
-			font-weight: bold;
-		}
 	}
 
 	#collecting_event_fields {

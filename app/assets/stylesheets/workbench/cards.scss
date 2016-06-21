@@ -1,12 +1,18 @@
+@import '../workbench/palette';
 .card {
-  border: 1px solid silver;
   width: 300px; 
+  border:1px solid $navigation-border;
+  background-color: $color-secondary-2-1;
+  box-shadow: 0 2px 3px 0px $navigation-border;  
 
   .header {
-    color: purple;
+    padding: 10px;
+    border-bottom: 3px solid $color-secondary-2-4;
+    box-shadow: 0 2px 4px 0px $navigation-border;  
   }
 
   .content {
+    padding: 10px;
     overflow: auto;
     height: 300px; 
     width: 300px; 
