@@ -8,7 +8,7 @@ module HubHelper
         } +
         content_tag(:div, '', class: 'task-header-right') {
           task.categories.collect{|c| 
-            content_tag(:div, c.humanize, class: "categories #{c}") # @josé icon injected in here, switch div to img tag.
+            content_tag(:div, c.humanize, class: "categories #{c}", "data-category-#{c}" => "true" ) # @josé icon injected in here, switch div to img tag.
           }.join().html_safe +
           favorite_page_link('tasks', task.prefix) 
         } 

@@ -18,11 +18,11 @@ function initTaskCarrousel() {
   restartCarrouselTask(task);
 
   function restartCarrouselTask(element) {
-    element.addFilter("source");
-    element.addFilter("collecting_event");
-    element.addFilter("collection_object");
-    element.addFilter("taxon_name");
-    element.addFilter("biology");
+    element.addFilter("data-category-collecting_event");
+    element.addFilter("data-category-Taxon_name");
+    element.addFilter("data-category-source");
+    element.addFilter("data-category-collection_object");
+    element.addFilter("data-category-biology");
     element.resetView();
     element.filterChilds();
     element.showChilds();      
@@ -33,10 +33,7 @@ function initTaskCarrousel() {
       restartCarrouselTask(task);
     }
     else {
-      task.changeFilter($(this).attr("data-filter-category"));
-      task.resetView();
-      task.filterChilds();
-      task.showChilds();
+      task.changeFilter("data-category-"+ $(this).attr("data-filter-category"));
     }
   });
   $('.navigation').on('click', 'a', function() {

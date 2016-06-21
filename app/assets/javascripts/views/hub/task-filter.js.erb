@@ -29,10 +29,13 @@ var CarrouselTask = function (sec, rows, columns) {
   }
 
   CarrouselTask.prototype.makeInjection = function() {
-    $('div.source').replaceWith('<img title="Source" class="categories source" src="<%= asset_path("book.svg") %>" width="15"/>');
-    $('div.collecting_event').replaceWith('<img title="Collectiong event" class="categories collecting_event" src="<%= asset_path("geo_location.svg") %>" alt="Collection object" width="15"/>');
+    /*
+    $('div.source').replaceWith('<img title="Source" class="categories source" data-category-source="true" src="<%= asset_path("book.svg") %>" width="15"/>');
+    $('div.collecting_event').replaceWith('<img title="Collectiong event" class="categories collecting_event" data-category-collecting_event="true" src="<%= asset_path("geo_location.svg") %>" alt="Collection object" width="15"/>');
     $('div.collection_object').replaceWith('<img title="Collection object" class="categories collection_object" src="<%= asset_path("picking.svg") %>" width="15"/>');
-    $('div.biology').replaceWith('<img title="Build biocuration groups task" class="categories biology" src="<%= asset_path("biology.svg") %>" width="15"/>');
+    $('div.biology').replaceWith('<img title="Biology" class="categories biology" src="<%= asset_path("biology.svg") %>" width="15"/>');
+    $('div.taxon_name').replaceWith('<img title="Taxon name" class="categories taxon_name" src="<%= asset_path("new.svg") %>" width="15"/>');    
+    */
   }
 
   CarrouselTask.prototype.addFilter = function(nameFilter) {
@@ -71,19 +74,20 @@ var CarrouselTask = function (sec, rows, columns) {
     var find = 0;
     var isTrue = 0;
     for (var key in this.filters) {
+      
       if(this.filters[key] == true) {
         find++;
-        if (childTag.find('.'+ key).hasClass(key)) {
+        if ($(childTag).has("["+ key +"]").length) {
           isTrue++;
         }
-      }
+      } 
     }
     if(isTrue == find) {
       return true;
     }
     else {
       return false;
-    }
+    }   
   }
 
   CarrouselTask.prototype.resetChildsCount = function() {
@@ -97,7 +101,9 @@ var CarrouselTask = function (sec, rows, columns) {
 
   CarrouselTask.prototype.changeFilter = function(filterTag)  {
     this.filters[filterTag] = !this.filters[filterTag];
+    this.resetView();
     this.filterChilds();
+    this.showChilds();
   }
 
   CarrouselTask.prototype.showChilds = function(childIndex) {

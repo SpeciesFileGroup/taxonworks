@@ -78,35 +78,59 @@
 
     .categories {
       margin: 5px;
-      text-align: center;
-      font-size: smaller;
+      font-size: 0px !important;
+      width: 14px;
+      height: 14px;
+      background-repeat: no-repeat;
+      background-size: 14px;
+    }
+
+    .source {
+      background-image: image-url("book.svg");
+    }
+
+    .collecting_event {
+      background-image: image-url("geo_location.svg");
+    }
+
+    .biology {
+      background-image: image-url("biology.svg");
+    }
+
+    .taxon_name {
+      background-image: image-url("new.svg");
+    }
+
+    .collection_object {
+      background-image: image-url("picking.svg");
+    }
+
+  }
+
+  .task_name {
+    font-size: 18px;
+    padding: 1em; 
+    a {
+      color: $color-secondary-2-4;
+    }
+
+  }
+
+  .task-header-left {
+    display: flex;
+    flex-direction:row;
+    align-items:center;
+  }
+
+  .task-header-right {
+    display: flex;
+    flex-direction:row;
+    align-items:center;
+    justify-content:flex-end;
+    a {
+      margin-left: 5px;
     }
   }
-    
-    .task_name {
-      font-size: 18px;
-      padding: 1em; 
-      a {
-        color: $color-secondary-2-4;
-      }
-
-    }
-
-    .task-header-left {
-      display: flex;
-      flex-direction:row;
-      align-items:center;
-    }
-
-      .task-header-right {
-        display: flex;
-        flex-direction:row;
-        align-items:center;
-        justify-content:flex-end;
-        a {
-          margin-left: 5px;
-        }
-      }
 
   .task_description {
     font-size: 14px;
@@ -155,27 +179,27 @@
   }
 
   .task-nav-list {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-         
-      .task-nav-item {
-        background-color: $navigation_border;
-        border-radius: 3px;
-        width: 15px;
-        height: 15px;
-        margin: 5px;
-        cursor: pointer;
-      }
-      .active {
-        background-color: $default_text;
-        width: 17px;
-        height: 17px;
-      }
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    .task-nav-item {
+      background-color: $navigation_border;
+      border-radius: 3px;
+      width: 15px;
+      height: 15px;
+      margin: 5px;
+      cursor: pointer;
+    }
+    .active {
+      background-color: $default_text;
+      width: 17px;
+      height: 17px;
+    }
   }
   @media screen and (min-height:1000px) {
-      .more_tasks_nav {
-          position: fixed !important;
-      }
+    .more_tasks_nav {
+      position: fixed !important;
+    }
   }  
 }
