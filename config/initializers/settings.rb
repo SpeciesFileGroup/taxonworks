@@ -56,8 +56,12 @@ module Settings
 
   def self.load_from_file(config, path, set_name)
     hash = YAML.load_file(path)
-    raise Error, "#{set_name} settings set not found" unless hash.keys.include?(set_name.to_s)
-    self.load_from_hash(config, Utilities::Hashes.symbolize_keys(hash[set_name.to_s] || { }))
+    if hash.keys.include?(set_name.to_s) 
+      self.load_from_hash(config, Utilities::Hashes.symbolize_keys(hash[set_name.to_s] || { }))
+    else
+      # require settings for production, but technically not test/development
+      raise Error, "#{set_name} settings set not found" if Rails.env.to_s == 'production'   
+    end
   end
   
   def self.default_data_directory
@@ -172,7 +176,7 @@ module Settings
       },
       mail_domain: "example.com",
       selenium: {
-        browser: :firefox,
+        browser: 'firefox',
         marionette: false,
         firefox_binary_path: nil,
         chromedriver_path: nil

@@ -46,18 +46,18 @@ end
 Capybara.register_driver :selenium do |app|
   require 'selenium/webdriver'
 
-  case Settings.selenium_settings[:browser] 
+  case Settings.selenium_settings[:browser]
 
   when 'chrome'
-    puts '[Selenium is using chrome.]'.yellow 
+    # puts '[Selenium is using chrome.]'.yellow 
     Capybara::Selenium::Driver.new(app, browser: :chrome)
 
   when 'firefox'
-    puts '[Selenium is using firefox.]'.yellow 
+    # puts '[Selenium is using firefox.]'.yellow 
     # e.g. '/Applications/FirefoxDeveloperEdition.app/Contents/MacOS/firefox'
-    p =  Settings.selenium_settings[:firefox_binary_path]
+    p = Settings.selenium_settings[:firefox_binary_path]
     if p 
-      puts "[Selenium is using firefox at #{p}]".yellow 
+      # puts "[Selenium is using firefox at #{p}]".yellow 
       Selenium::WebDriver::Firefox::Binary.path = p
     end 
 
@@ -67,12 +67,12 @@ Capybara.register_driver :selenium do |app|
     # $ cp ~/Downloads/geckodriver-0.8.0-OSX /usr/local/bin/wire
     # $ chmod 700 /usr/local/bin/wire
     if Settings.selenium_settings[:marionette]
-      puts "[Selenium is using firefox with marionette]".yellow 
+      # puts "[Selenium is using firefox with marionette]".yellow 
       Capybara::Selenium::Driver.new(app, browser: :firefox, marionette: true)
     else
       Capybara::Selenium::Driver.new(app, browser: :firefox)
     end
-  else 
+  else
     raise 'Error in selenium settings.'
   end
 end
