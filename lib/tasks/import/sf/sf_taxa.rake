@@ -98,6 +98,33 @@ namespace :tw do
         end
       end
 
+      desc 'create SF synonym.id to parent.id hash'
+      task :create_sf_synonym_id_to_parent_id_hash => [:data_directory, :environment, :user_id] do
+        ### time rake tw:project_import:sf_taxa:create_sf_synonym_id_to_parent_id_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
+
+        puts 'Running SF synonym parent hash...'
+
+        sf_synonym_id_to_parent_id_hash = {}
+
+        path = @args[:data_directory] + 'direct_from_sf/sf_synonym_parents.txt'
+        file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
+
+        file.each do |row|
+          # byebug
+          # puts row.inspect
+          taxon_name_id = row['TaxonNameID']
+          print "working with #{taxon_name_id} \n"
+          sf_synonym_id_to_parent_id_hash[taxon_name_id] = row['NewAboveID']
+        end
+
+        i = Import.find_or_create_by(name: 'SpeciesFileData')
+        i.set('SFSynonymIDToParentID', sf_synonym_id_to_parent_id_hash)
+
+        puts 'SFSynonymIDToParentID'
+        ap sf_synonym_id_to_parent_id_hash
+
+      end
+
       desc 'create Animalia taxon name subordinate to each project Root (and make hash of project.id, animalia.id'
       # creating project_id_animalia_id_hash
       task :create_animalia_below_root => [:data_directory, :environment, :user_id] do
@@ -143,7 +170,6 @@ namespace :tw do
         ap project_id_animalia_id_hash
 
       end
-
 
       desc 'XXX create apex taxon parent id hash, i.e. id of "root" in each project'
       # use Animalia instead; project_id_animalia_id_hash
