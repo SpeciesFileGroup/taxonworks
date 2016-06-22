@@ -30,6 +30,14 @@ var CarrouselData = function (sec, rows, columns) {
 		this.filters[nameFilter] = false;
 	}	
 
+	CarrouselData.prototype.resetFilters = function() {
+		for (var key in this.filters) {
+			this.filters[key] = false
+		}		
+		this.filterChilds();
+	}
+
+
 	CarrouselData.prototype.checkChildFilter = function(childTag) {
 		var find = 0;
 		var isTrue = 0;

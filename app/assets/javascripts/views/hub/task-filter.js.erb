@@ -31,6 +31,15 @@ var CarrouselTask = function (sec, rows, columns) {
     this.filters[nameFilter] = false;
   }
 
+  CarrouselTask.prototype.resetFilters = function() {
+    for (var key in this.filters) {
+      this.filters[key] = false
+    }   
+    this.resetView();
+    this.filterChilds();
+    this.showChilds();    
+  }  
+
   CarrouselTask.prototype.injectNavList = function() {
     for(i = 0; i < this.childsCount; i++) {
       if((i - this.maxCards >= 0) && (this.maxCards - i <= 0)) {

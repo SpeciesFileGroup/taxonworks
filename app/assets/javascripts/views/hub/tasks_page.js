@@ -22,15 +22,13 @@ function initTaskCarrousel() {
     element.addFilter("data-category-Taxon_name");
     element.addFilter("data-category-source");
     element.addFilter("data-category-collection_object");
-    element.addFilter("data-category-biology");
-    element.resetView();
-    element.filterChilds();
-    element.showChilds();      
+    element.addFilter("data-category-biology");  
+    task.resetFilters();
   }
 
   $('#filter').on('click', '[data-filter-category]', function() {
     if($(this).attr("data-filter-category") == "reset") {
-      restartCarrouselTask(task);
+      task.resetFilters();
     }
     else {
       task.changeFilter("data-category-"+ $(this).attr("data-filter-category"));

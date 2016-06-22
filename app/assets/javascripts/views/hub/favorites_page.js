@@ -27,7 +27,7 @@ $(document).ready(function() {
 
 		});
 
-		function changeAllSectionsFilter() {
+		function resetFilters() {
 			[favoritesTask, favoritesData].forEach(function(element) {
 				element.resetFilters();
 			});
@@ -43,11 +43,7 @@ $(document).ready(function() {
 			var
 			elementFilter = $(this).attr('data-filter-category');
 			if(elementFilter === "reset") {
-				changeAllSectionsFilter("data-category-source", false);
-				changeAllSectionsFilter("data-category-taxon_name", false);
-				changeAllSectionsFilter("data-category-collection_object", false);
-				changeAllSectionsFilter("data-category-collecting_event", false);
-				changeAllSectionsFilter("data-category-biology", false);
+				resetFilters();
 			}
 			else {
 				[favoritesTask, favoritesData].forEach(function(element) {

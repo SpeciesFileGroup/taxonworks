@@ -24,6 +24,7 @@ function initDataCardsPage() {
   function changeAllSectionsFilter() {
   [favorites, core, supporting, annotations].forEach(function(element) {
     element.resetFilters();
+    element.filterChilds();
   });
  }
 
@@ -37,11 +38,7 @@ function initDataCardsPage() {
     var
     elementFilter = $(this).attr('data-filter-category');
     if(elementFilter === "reset") {
-      changeAllSectionsFilter("data-category-source", false);
-      changeAllSectionsFilter("data-category-taxon_name", false);
-      changeAllSectionsFilter("data-category-collection_object", false);
-      changeAllSectionsFilter("data-category-collecting_event", false);
-      changeAllSectionsFilter("data-category-biology", false);
+      changeAllSectionsFilter();
     }
     else {
       [favorites, core, supporting, annotations].forEach(function(element) {
