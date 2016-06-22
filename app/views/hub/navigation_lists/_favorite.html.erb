@@ -1,5 +1,6 @@
 <%= render "/hub/navigation_lists/hub_category_filter" %>
-<div id="favorite-page" class="flexbox"><% if has_hub_favorites? -%>
+<div id="favorite-page" class="flex-wrap-column horizontal-center-content"><% if has_hub_favorites? -%>
+<div class="flexbox">
 	<div id="data_cards" class="no-shadow">
 		<div data-section="Favorites-Data" class="data_section">
 			<div class="cards-section">
@@ -44,8 +45,15 @@
 			</div>
 		</div>
 	</div>
-	<% else %>
 </div>
+	<div class="reset-all">
+		<div class="restart-background"></div>
+		<h1>Reset</h1>
+	</div>
+</div>
+	<% else %>
+
+
 <p>
 	Welcome, <%= sessions_current_user.name -%>! Spend a little time navigating through the workbench.  As you become familiar with tasks or pages you find most useful, favorite them, they'll appear here.  
 </p>

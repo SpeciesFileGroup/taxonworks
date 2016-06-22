@@ -10,7 +10,8 @@ var CarrouselData = function (sec, rows, columns) {
 		this.maxColumn = 1,
 		this.nro = 1,
 		this.sectionTag = "",
-		this.filters = {};
+		this.filters = {},
+		this.isEmpty,
 		this.maxRow = rows;
 		this.sectionTag = sec;
 		this.resetChildsCount();
@@ -61,12 +62,16 @@ var CarrouselData = function (sec, rows, columns) {
 	  	this.childs = $('.data_section[data-section="' + this.sectionTag + '"] > .cards-section > .card-container ').length;
 	}
 
-	CarrouselData.prototype.showEmptyLabel = function(isTrue) {
-		if(isTrue) {
-			$('[data-section="' + this.sectionTag + '"] div[data-attribute="empty"]').hide(250);
+	CarrouselData.prototype.empty = function() {
+		return this.isEmpty;
+	}
+
+	CarrouselData.prototype.showEmptyLabel = function() {
+		if(this.isEmpty) {
+			$('[data-section="' + this.sectionTag + '"] div[data-attribute="empty"]').show(250);
 		}
 		else {
-			$('[data-section="' + this.sectionTag + '"] div[data-attribute="empty"]').show(250);
+			$('[data-section="' + this.sectionTag + '"] div[data-attribute="empty"]').hide(250);
 		}
 	}
 
@@ -82,7 +87,7 @@ var CarrouselData = function (sec, rows, columns) {
 
 	CarrouselData.prototype.filterChilds = function() {
 		var
-			find = 0;
+		find = 0;
 		if(this.maxRow > this.childs) {
 			this.maxRow = this.childs;
 		}
@@ -97,7 +102,8 @@ var CarrouselData = function (sec, rows, columns) {
 				child.hide(250);
 			}
 		}
-		this.showEmptyLabel(find > 0);
+		this.isEmpty = (find <= 0);
+		this.showEmptyLabel();
 	}	
 
 	CarrouselData.prototype.navigation = function(value) {

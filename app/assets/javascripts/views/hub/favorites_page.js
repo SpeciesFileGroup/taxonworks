@@ -1,7 +1,7 @@
 $(document).ready(function() {
 	if($('#favorite-page').length) {
 		var 
-		favoritesTask = new CarrouselTask("#task_carrousel",10,1);
+		favoritesTask = new CarrouselTask("#task_carrousel",99,1);
 		favoritesTask.filterChilds();
 		favoritesTask.resetView();
     	favoritesTask.filterChilds();
@@ -44,15 +44,23 @@ $(document).ready(function() {
 			elementFilter = $(this).attr('data-filter-category');
 			if(elementFilter === "reset") {
 				resetFilters();
+				$('.reset-all').fadeOut();
 			}
 			else {
 				[favoritesTask, favoritesData].forEach(function(element) {
 					element.changeFilter("data-category-"+ elementFilter);				
 				});
+
+				if(favoritesTask.empty() && favoritesData.empty()) {
+					$('.reset-all').fadeIn();
+				}
 			}
 		});  
 
-
+		$('.reset-all').on('click', function() {
+			resetFilters();
+			$('.reset-all').fadeOut();			
+		});
 
 	}
 });

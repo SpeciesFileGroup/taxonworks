@@ -15,7 +15,7 @@
     flex-wrap: wrap;
     justify-content: flex-start;
     width: auto;
-    height: 500px;
+    height: auto;
     align-items: center;
   }
 
@@ -203,3 +203,42 @@
     }
   }  
 }
+
+
+.reset-all {
+  display: none;
+  opacity: 0.5;
+  cursor: pointer;
+  transition: opacity 0.5s ease;
+  .restart-background {
+    background-repeat: no-repeat;
+    align-items: bottom;
+    vertical-align: bottom;
+    background-size: 60px;
+    width: 60px;
+    height: 60px;
+    background-image: image-url("restart.svg");
+  }
+  h1 {
+    font-weight: bold;
+    text-align: center;
+  }
+}
+.reset-all:hover {
+  opacity: 1;
+  transition: opacity 0.5s ease;
+}
+  .restart-background:hover {
+    -webkit-animation-name: rotate; 
+    -webkit-animation-duration: 0.5s; 
+    -webkit-animation-iteration-count: 1;
+    -webkit-animation-timing-function: linear;
+    -moz-animation-name: rotate; 
+    -moz-animation-duration: 0.5s; 
+    -moz-animation-iteration-count: 1;
+    -moz-animation-timing-function: linear;
+  }
+  @-webkit-keyframes rotate {
+    from {-webkit-transform: rotate(360deg);}
+    to {-webkit-transform: rotate(0deg);}
+  } 
