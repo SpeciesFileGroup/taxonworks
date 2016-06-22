@@ -713,14 +713,48 @@ describe GeographicItem, type: :model, group: :geo do
         pre_shape_f_i   = RSPEC_GEO_FACTORY.polygon(line_string_f_i)
         shape_f_i       = RSPEC_GEO_FACTORY.multi_polygon([pre_shape_f_i])
 
-        @item_f_i = FactoryGirl.create(:geographic_item, multi_polygon: shape_f_i)
+        @line_string_f_i = FactoryGirl.create(:geographic_item, line_string: line_string_f_i)
+        @item_f_i        = FactoryGirl.create(:geographic_item, multi_polygon: shape_f_i)
 
         far_island_point = RSPEC_GEO_FACTORY.point(-178.5, 26)
         @point_f_i       = FactoryGirl.create(:geographic_item, point: far_island_point)
+        @cent            = FactoryGirl.create(:geographic_item, point: @item_f_i.st_centroid)
       }
-      specify 'linestring started in the eastern hemisphere' do
-        far_island
-        expect(true).to eq(true)
+      context 'linestring started in the eastern hemisphere' do
+        specify 'line_string effect' do
+          far_island
+          expect(@line_string_f_i.geo_object.to_s).to eq('LINESTRING (179.0 27.0 0.0, -178.0 27.0 0.0, -178.0 25.0 0.0, 179.0 25.0 0.0)')
+        end
+        specify 'point effect' do
+          far_island
+          expect(@point_f_i.geo_object.to_s).to eq('POINT (-178.5 26.0 0.0)')
+        end
+        specify 'polygon/multi_polygon effect' do
+          far_island
+          expect(@item_f_i.geo_object.to_s).to eq('MULTIPOLYGON (((179.0 27.0 0.0, -178.0 27.0 0.0, -178.0 25.0 0.0, 179.0 25.0 0.0, 179.0 27.0 0.0)))')
+        end
+        specify 'centroid effect' do
+          far_island
+          expect(@cent.geo_object.to_s).to eq('POINT (-179.5 26.0 0.0)')
+        end
+
+        context 'finding things' do
+          context '@item_f_i should contain @point_f_i' do
+            specify 'containing, are_contained_in_wkt, are_contained_in_item' do
+              far_island
+              test1 = GeographicItem.containing(@point_f_i.id)
+              test2 = GeographicItem.where(GeographicItem.contained_by_wkt_sql(@item_f_i.geo_object.to_s))
+              expect(GeographicItem.are_contained_in_item('multi_polygon', @point_f_i).to_a).to contain_exactly(@item_f_i)
+            end
+          end
+          context '@point_f_i should be contained in @item_f_i' do
+            specify 'contained_by_wkt_sql' do
+              far_island
+              test1 = GeographicItem.where(GeographicItem.contained_by_wkt_sql(@item_f_i.geo_object.to_s))
+              expect(test1).to contain_exactly(@point_f_i)
+            end
+          end
+        end
       end
     end
   end

@@ -259,7 +259,7 @@ class GeographicItem < ActiveRecord::Base
     end
 
     # @return [String]
-    #   a select query that returns a single geometery (column name 'single_geometry' for the collection of ids provided via ST_Collect)
+    #   a select query that returns a single geometry (column name 'single_geometry' for the collection of ids provided via ST_Collect)
     def st_collect_sql(*geographic_item_ids)
       "SELECT ST_Collect(f.the_geom) AS single_geometry
        FROM (
@@ -274,7 +274,7 @@ class GeographicItem < ActiveRecord::Base
     end
 
     # @return [String]
-    #   returns a single geometery "column" (paren wrapped) as "single" for multiple geographic item ids, or the geometry as 'geometry' for a single id
+    #   returns a single geometry "column" (paren wrapped) as "single" for multiple geographic item ids, or the geometry as 'geometry' for a single id
     def geometry_sql2(*geographic_item_ids)
       if geographic_item_ids.count == 1
         "(#{GeographicItem.geometry_for_sql(geographic_item_ids.flatten.first)})"
@@ -301,7 +301,7 @@ class GeographicItem < ActiveRecord::Base
       "ST_ContainsProperly(ST_GeomFromText('#{wkt}', 4326), (
         CASE geographic_items.type
            WHEN 'GeographicItem::MultiPolygon' THEN multi_polygon::geometry
-           WHEN 'GeographicItem::Point' THEN point::geometry
+           WHEN 'GeographicIctem::Point' THEN point::geometry
            WHEN 'GeographicItem::LineString' THEN line_string::geometry
            WHEN 'GeographicItem::Polygon' THEN polygon::geometry
            WHEN 'GeographicItem::MultiLineString' THEN multi_line_string::geometry
