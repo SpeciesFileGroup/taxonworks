@@ -706,59 +706,75 @@ describe GeographicItem, type: :model, group: :geo do
     end
   end # end using ce_test_objects
 
+  # For context: 
+  #   http://gis.stackexchange.com/questions/192218/best-practices-for-databases-and-apis-with-geographic-data-spanning-the-antimeri
+  #
+  #  THIS: !? ST_Shift_Longitude(geom)
+  #
+  # Also: 
+  #   http://gis.stackexchange.com/questions/29975/postgis-incorrect-interpretation-of-a-polygon-that-intersects-the-180th-meridia
+  #   http://postgis.net/docs/using_postgis_dbmanagement.html#PostGIS_Geography 
   context 'certain known errors ' do
-    let(:far_island) {# this shape is designed to cross the anti-meridian, with a centroid in the Western Hemisphere, around -179.3
-      a               = RSPEC_GEO_FACTORY.point(179, 27)
-      b               = RSPEC_GEO_FACTORY.point(-178, 27)
-      c               = RSPEC_GEO_FACTORY.point(-178, 25)
-      d               = RSPEC_GEO_FACTORY.point(179, 25)
-      line_string_f_i = RSPEC_GEO_FACTORY.line_string([a, b, c, d])
-      pre_shape_f_i   = RSPEC_GEO_FACTORY.polygon(line_string_f_i)
-      shape_f_i       = RSPEC_GEO_FACTORY.multi_polygon([pre_shape_f_i])
 
-      @line_string_f_i = FactoryGirl.create(:geographic_item, line_string: line_string_f_i)
-      @item_f_i        = FactoryGirl.create(:geographic_item, multi_polygon: shape_f_i)
+    # this shape is designed to cross the anti-meridian, with a centroid in the Western Hemisphere, around -179.3
+    let(:a) { RSPEC_GEO_FACTORY.point(179, 27) }
+    let(:b) { RSPEC_GEO_FACTORY.point(-178, 27) }
+    let(:c) { RSPEC_GEO_FACTORY.point(-178, 25) }
+    let(:d) { RSPEC_GEO_FACTORY.point(179, 27) }
 
-      far_island_point = RSPEC_GEO_FACTORY.point(-178.5, 26)
-      @point_f_i       = FactoryGirl.create(:geographic_item, point: far_island_point)
-      @cent            = FactoryGirl.create(:geographic_item, point: @item_f_i.st_centroid)
-    }
+    let(:pre_line_string_f_i) { RSPEC_GEO_FACTORY.line_string([a, b, c, d])  }
+    let(:pre_shape_f_i) { RSPEC_GEO_FACTORY.polygon(pre_line_string_f_i) }
+
+    let(:shape_f_i) { RSPEC_GEO_FACTORY.multi_polygon([pre_shape_f_i]) }
+    let(:line_string_f_i) {FactoryGirl.create(:geographic_item, line_string: pre_line_string_f_i) }
+    let(:item_f_i) { FactoryGirl.create(:geographic_item, multi_polygon: shape_f_i) }
+    let(:far_island_point) { RSPEC_GEO_FACTORY.point(-178.5, 26) }
+    let(:point_f_i) { FactoryGirl.create(:geographic_item, point: far_island_point) }
+    let(:cent) { FactoryGirl.create(:geographic_item, point: item_f_i.st_centroid)}
+
     context 'linestring started in the eastern hemisphere' do
+     
+     specify 'rgeo#contains' do
+       expect(pre_shape_f_i.contains?(far_island_point)).to be_truthy
+     end
+      
       specify 'line_string effect' do
-        far_island
-        expect(@line_string_f_i.geo_object.to_s).to eq('LINESTRING (179.0 27.0 0.0, -178.0 27.0 0.0, -178.0 25.0 0.0, 179.0 25.0 0.0)')
+        expect(line_string_f_i.geo_object.to_s).to eq('LINESTRING (179.0 27.0 0.0, -178.0 27.0 0.0, -178.0 25.0 0.0, 179.0 25.0 0.0)')
       end
 
       specify 'point effect' do
-        far_island
-        expect(@point_f_i.geo_object.to_s).to eq('POINT (-178.5 26.0 0.0)')
+        expect(point_f_i.geo_object.to_s).to eq('POINT (-178.5 26.0 0.0)')
       end
 
       specify 'polygon/multi_polygon effect' do
-        far_island
-        expect(@item_f_i.geo_object.to_s).to eq('MULTIPOLYGON (((179.0 27.0 0.0, -178.0 27.0 0.0, -178.0 25.0 0.0, 179.0 25.0 0.0, 179.0 27.0 0.0)))')
+        expect(item_f_i.geo_object.to_s).to eq('MULTIPOLYGON (((179.0 27.0 0.0, -178.0 27.0 0.0, -178.0 25.0 0.0, 179.0 25.0 0.0, 179.0 27.0 0.0)))')
       end
 
       specify 'centroid effect' do
-        far_island
-        expect(@cent.geo_object.to_s).to eq('POINT (-179.5 26.0 0.0)')
+        expect(cent.geo_object.to_s).to eq('POINT (-179.5 26.0 0.0)')
       end
 
       context 'finding things' do
-        context '@item_f_i should contain @point_f_i' do
+        context 'item_f_i should contain point_f_i' do
           specify 'containing, are_contained_in_wkt, are_contained_in_item' do
-            far_island
-            test1 = GeographicItem.containing(@point_f_i.id)
-            test2 = GeographicItem.where(GeographicItem.contained_by_wkt_sql(@item_f_i.geo_object.to_s))
-            expect(GeographicItem.are_contained_in_item('multi_polygon', @point_f_i).to_a).to contain_exactly(@item_f_i)
+            expect(GeographicItem.are_contained_in_item('multi_polygon', point_f_i).to_a).to contain_exactly(item_f_i)
+          end
+
+          specify '#containing' do
+            test1 = GeographicItem.containing(point_f_i.id)
+            expect(test.to_a).to contain_exactly(item_f_i)
+          end
+
+          specify '#contained_by_wkt_sql' do
+            test2 = GeographicItem.where(GeographicItem.contained_by_wkt_sql(item_f_i.geo_object.to_s))
+            expect(test2.to_a).to contain_exactly(item_f_i)
           end
         end
 
-        context '@point_f_i should be contained in @item_f_i' do
+        context 'point_f_i should be contained in item_f_i' do
           specify 'contained_by_wkt_sql' do
-            far_island
-            test1 = GeographicItem.where(GeographicItem.contained_by_wkt_sql(@item_f_i.geo_object.to_s))
-            expect(test1).to contain_exactly(@point_f_i)
+            test1 = GeographicItem.where(GeographicItem.contained_by_wkt_sql(item_f_i.geo_object.to_s))
+            expect(test1).to contain_exactly(point_f_i)
           end
         end
 
