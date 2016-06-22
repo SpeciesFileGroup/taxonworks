@@ -5,7 +5,7 @@ TaxonWorks
 [![Coverage Status][3]][4]
 [![CodePolice][5]][6]
 [![Dependency Status][7]][8]
-[![Gitter][20][19]
+[![Gitter][20]][19]
 [![Inline docs](http://inch-ci.org/github/SpeciesFileGroup/taxonworks.svg?branch=master&style=shields)](http://inch-ci.org/github/SpeciesFileGroup/taxonworks)
 
 Overview
@@ -21,7 +21,7 @@ Instructions for installing TaxonWorks for development and production use, and n
 Developer resources
 -------------------
 
-Developers communicate on [Gitter][19]. TaxonWorks code [documentation][10] is done inline with [Yard tags][12]. TaxonWorks has a [wiki][11] for conceptual discussion and aggregating help documentation over the long term.  Issues, bugs, feature requests can be added by users/collaborators [one the issue tracker][21], they are linked and tracked internally via Jira.
+Developers communicate on [![Gitter][20]][19]. TaxonWorks code [documentation][10] is done inline with [Yard tags][12]. TaxonWorks has a [wiki][11] for conceptual discussion and aggregating help documentation over the long term.  Issues, bugs, feature requests can be added by users/collaborators [one the issue tracker][21], they are linked and tracked internally via Jira.
 
 Social
 ------
