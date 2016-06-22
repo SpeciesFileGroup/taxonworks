@@ -982,17 +982,29 @@ Two different shapes with the same name, 'East Boxia', and
   shape_r = make_box(shape_m3[0].exterior_ring.points[0], 0, 0, 2, 2)
   shape_s = make_box(shape_o3[0].exterior_ring.points[0], 0, 0, 2, 2)
 
-  shape_ob   = make_box(POINT_M1_P0, 0, 0, 2, 4)
-  shape_eb_1 = make_box(POINT_M1_P0, 3, 0, 1, 4)
-  shape_eb_2 = make_box(POINT_M1_P0, 2, 0, 2, 2)
-  shape_wb   = make_box(POINT_M1_P0, 0, 0, 1, 4)
-  shape_w    = make_box(POINT_M1_P0, 0, 0, 4, 4)
+  shape_ob        = make_box(POINT_M1_P0, 0, 0, 2, 4)
+  shape_eb_1      = make_box(POINT_M1_P0, 3, 0, 1, 4)
+  shape_eb_2      = make_box(POINT_M1_P0, 2, 0, 2, 2)
+  shape_wb        = make_box(POINT_M1_P0, 0, 0, 1, 4)
+  shape_w         = make_box(POINT_M1_P0, 0, 0, 4, 4)
+
+  # this shape is designed to cross the anti-meridian, with a centroid in the Western Hemisphere, around -179.3
+  line_string_f_i = RSPEC_GEO_FACTORY.line_string(
+    [
+      RSPEC_GEO_FACTORY.point(179, 27),
+      RSPEC_GEO_FACTORY.point(-178, 27),
+      RSPEC_GEO_FACTORY.point(-178, 25),
+      RSPEC_GEO_FACTORY.point(179, 25)
+    ]
+  )
+  pre_shape_f_i   = RSPEC_GEO_FACTORY.polygon(line_string_f_i)
+  shape_f_i       = RSPEC_GEO_FACTORY.multi_polygon([pre_shape_f_i])
 
   # first, the basic 16 shapes
-  @item_m1   = FactoryGirl.create(:geographic_item, multi_polygon: shape_m1)
-  @item_n1   = FactoryGirl.create(:geographic_item, multi_polygon: shape_n1)
-  @item_o1   = FactoryGirl.create(:geographic_item, multi_polygon: shape_o1)
-  @item_p1   = FactoryGirl.create(:geographic_item, multi_polygon: shape_p1)
+  @item_m1        = FactoryGirl.create(:geographic_item, multi_polygon: shape_m1)
+  @item_n1        = FactoryGirl.create(:geographic_item, multi_polygon: shape_n1)
+  @item_o1        = FactoryGirl.create(:geographic_item, multi_polygon: shape_o1)
+  @item_p1        = FactoryGirl.create(:geographic_item, multi_polygon: shape_p1)
 
   @item_m2 = FactoryGirl.create(:geographic_item, multi_polygon: shape_m2)
   @item_n2 = FactoryGirl.create(:geographic_item, multi_polygon: shape_n2)
@@ -1004,10 +1016,10 @@ Two different shapes with the same name, 'East Boxia', and
   @item_o3 = FactoryGirl.create(:geographic_item, multi_polygon: shape_o3)
   @item_p3 = FactoryGirl.create(:geographic_item, multi_polygon: shape_p3)
 
-  @item_m4 = FactoryGirl.create(:geographic_item, multi_polygon: shape_m4)
-  @item_n4 = FactoryGirl.create(:geographic_item, multi_polygon: shape_n4)
-  @item_o4 = FactoryGirl.create(:geographic_item, multi_polygon: shape_o4)
-  @item_p4 = FactoryGirl.create(:geographic_item, multi_polygon: shape_p4)
+  @item_m4        = FactoryGirl.create(:geographic_item, multi_polygon: shape_m4)
+  @item_n4        = FactoryGirl.create(:geographic_item, multi_polygon: shape_n4)
+  @item_o4        = FactoryGirl.create(:geographic_item, multi_polygon: shape_o4)
+  @item_p4        = FactoryGirl.create(:geographic_item, multi_polygon: shape_p4)
 
   # next, the big shape, and two sub-shapes
   @item_q         = FactoryGirl.create(:geographic_item, multi_polygon: shape_q)
@@ -1031,6 +1043,9 @@ Two different shapes with the same name, 'East Boxia', and
 
   # the entire land mass
   @item_w         = FactoryGirl.create(:geographic_item, multi_polygon: shape_w)
+
+  # Far island land mass
+  @item_f_i       = FactoryGirl.create(:geographic_item, multi_polygon: shape_f_i)
 
   # now, for the areas, top-down
   @object         = FactoryGirl.create(:valid_geographic_area_stack)
@@ -1398,6 +1413,16 @@ Two different shapes with the same name, 'East Boxia', and
   @area_p2.geographic_items << @item_p2
   @area_p2.save
 
+  # build a far-away island
+  @area_far_island = FactoryGirl.create(:level0_geographic_area,
+                                        name:                 'Far Island',
+                                        geographic_area_type: gat_land_mass,
+                                        iso_3166_a3:          nil,
+                                        iso_3166_a2:          nil,
+                                        parent:               @earth)
+  # @area_far_island.geographic_items << @item_f_i
+  @area_far_island.save
+
   generate_collecting_events
   true
 end
@@ -1409,7 +1434,7 @@ def generate_collecting_events(user = nil)
   user ||= User.find($user_id)
   raise 'no user provided or determinable for generate_collecting_events' if user.nil?
 
-  @ce_m1 = FactoryGirl.create(:collecting_event,
+  @ce_m1          = FactoryGirl.create(:collecting_event,
                               verbatim_locality: 'Lesser Boxia Lake',
                               verbatim_label:    '@ce_m1',
                               geographic_area:   @area_m1)
@@ -1568,6 +1593,14 @@ def generate_collecting_events(user = nil)
                                        collecting_event:      @ce_old_boxia_2,
                                        error_geographic_item: @item_ob,
                                        geographic_item:       GeographicItem.new(point: @item_n3.st_centroid))
+  @ce_far_island  = FactoryGirl.create(:collecting_event,
+                                       verbatim_label:  '@ce_far_island',
+                                       geographic_area: @area_far_island)
+  @gr_far_island  = FactoryGirl.create(:georeference_verbatim_data,
+                                       api_request:      'gr_far_island',
+                                       collecting_event: @ce_far_island,
+                                       # error_geographic_item: @item_f_i,
+                                       geographic_item:  GeographicItem.new(point: @item_f_i.st_centroid))
 
   my_debug = false
 
@@ -1586,7 +1619,8 @@ def generate_collecting_events(user = nil)
       ce_o4:          @ce_o4,
       ce_p4:          @ce_p4,
       ce_old_boxia_1: @ce_old_boxia_1,
-      ce_old_boxia_2: @ce_old_boxia_2
+      ce_old_boxia_2: @ce_old_boxia_2,
+      ce_far_island:  @ce_far_iland
     }
     item_collection = []
 
