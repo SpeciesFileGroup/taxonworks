@@ -60,7 +60,7 @@ module Settings
       self.load_from_hash(config, Utilities::Hashes.symbolize_keys(hash[set_name.to_s] || { }))
     else
       # require settings for production, but technically not test/development
-      raise Error, "#{set_name} settings set not found" if Rails.env.to_s == 'production'   
+      raise Error, "#{set_name} settings set not found" unless %w{production test development}.include?(set_name.to_s) 
     end
   end
   
@@ -187,6 +187,6 @@ module Settings
 end
 
 TaxonWorks::Application.configure do
-  Settings.load_test_defaults(config) if Rails.env == 'test'
+  Settings.load_test_defaults(config) if Rails.env.to_s == 'test'
   Settings.load_from_file(config, 'config/application_settings.yml', Rails.env.to_sym) if File.exist?('config/application_settings.yml')
 end
