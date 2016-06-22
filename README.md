@@ -1,27 +1,32 @@
 TaxonWorks
 ==========
 
-[![Continuous Integration Status][1]][2]
+[![Build Status][1]][2]
 [![Coverage Status][3]][4]
 [![CodePolice][5]][6]
 [![Dependency Status][7]][8]
-[![Gitter](https://badges.gitter.im/SpeciesFileGroup/taxonworks.svg)](https://gitter.im/SpeciesFileGroup/taxonworks?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+[![Gitter][20][19]
 [![Inline docs](http://inch-ci.org/github/SpeciesFileGroup/taxonworks.svg?branch=master&style=shields)](http://inch-ci.org/github/SpeciesFileGroup/taxonworks)
 
 Overview
 --------
 
-TaxonWorks is general purpose web-based framework that facilitates biodiversity informatics research. More information is available at [taxonworks.org][13]. 
- 
+[TaxonWorks][13] is general purpose web-based framework that facilitates biodiversity informatics research. More information is available at [taxonworks.org][13]. 
+
 Installation
 ------------
 
 Instructions for installing TaxonWorks for development and production use, and notes on development tools are available in the [tw_provision repo][17]. 
 
-Other resources
----------------
+Developer resources
+-------------------
 
-TaxonWorks has a [wiki][11] for conceptual discussion and aggregating long term help. There is a [developers list][14] for technical discussion. Code is documented inline using [Yard tags][12], see [rdoc][10].  Tweets come from [@TaxonWorks][15].  A stub homepage is at [taxonworks.org][13].
+Developers communicate on [Gitter][19]. TaxonWorks code [documentation][10] is done inline with [Yard tags][12]. TaxonWorks has a [wiki][11] for conceptual discussion and aggregating help documentation over the long term.  Issues, bugs, feature requests can be added by users/collaborators [one the issue tracker][21], they are linked and tracked internally via Jira.
+
+Social
+------
+
+Tweets come from [@TaxonWorks][15].
 
 License
 -------
@@ -32,23 +37,23 @@ Funding
 -------
 
 This project was funded in part by NSF-ABI-1356381.  Any opinions, findings and conclusions or recommendations expressed in this material are those of the author(s) and do not necessarily reflect the views of the National Science Foundation. 
- 
-[1]: https://secure.travis-ci.org/SpeciesFileGroup/taxonworks.png?branch=development
-[2]: http://travis-ci.org/SpeciesFileGroup/taxonworks?branch=development
+
+[1]: https://travis-ci.org/SpeciesFileGroup/taxonworks.svg?branch=development
+[2]: https://travis-ci.org/SpeciesFileGroup/taxonworks
 [3]: https://coveralls.io/repos/SpeciesFileGroup/taxonworks/badge.png?branch=development
 [4]: https://coveralls.io/r/SpeciesFileGroup/taxonworks?branch=development
 [5]: https://codeclimate.com/github/SpeciesFileGroup/taxonworks.png?branch=development
 [6]: https://codeclimate.com/github/SpeciesFileGroup/taxonworks?branch=development
 [7]: https://gemnasium.com/SpeciesFileGroup/taxonworks.png?branch=development
 [8]: https://gemnasium.com/SpeciesFileGroup/taxonworks?branch=development
-[10]: http://rubydoc.info/github/SpeciesFileGroup/taxonworks/frames
+[10]: http://rdoc.taxonworks.org/frames
 [11]: http://wiki.taxonworks.org/
 [12]: http://rdoc.info/gems/yard/file/docs/Tags.md
 [13]: http://taxonworks.org
-[14]: https://groups.google.com/forum/?hl=en#!forum/taxonworks-developers
 [15]: https://twitter.com/taxonworks
 [16]: https://opensource.org/licenses/NCSA
 [17]: https://github.com/SpeciesFileGroup/tw_provision
 [18]: https://en.wikipedia.org/wiki/University_of_Illinois/NCSA_Open_Source_License
-
-
+[19]: https://gitter.im/SpeciesFileGroup/taxonworks?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge
+[20]: https://badges.gitter.im/SpeciesFileGroup/taxonworks.svg
+[21]: https://github.com/SpeciesFileGroup/taxonworks/issues
