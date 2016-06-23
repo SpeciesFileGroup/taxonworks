@@ -29,6 +29,7 @@
       var default_response_values = {}; default_response_values[$this.data('mx-method')] = '';
 
       $this.autocomplete({
+        close: function( event, ui ) { $(this).removeClass('ui-autocomplete-loading'); },
         source: url,
         minLength: 1,
         appendTo: $this.parent()
