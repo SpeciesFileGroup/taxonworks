@@ -240,7 +240,6 @@ class Combination < TaxonName
     c[c.keys.last].valid_taxon_name
   end
 
-
   def get_author_and_year
     ay = iczn_author_and_year
     ay.blank? ? nil : ay
@@ -255,12 +254,13 @@ class Combination < TaxonName
     elements = []
     #d.merge!('genus' => [nil, '[GENUS UNKNOWN]']) unless d['genus']
 
-    elements.push("#{eo}#{d['genus'][1]}#{ec}#{d['genus'][3]}")
-    elements.push ['(', %w{subgenus section subsection series subseries}.collect { |r| d[r] ? [d[r][0], "#{eo}#{d[r][1]}#{ec}#{d[r][3]}"] : nil }, ')']
-    elements.push ['(', eo, d['superspecies'][1], ec, d['superspecies'][3], ')'] if d['superspecies']
+    #byebug
+    elements.push("#{eo}#{d['genus'][1]}#{ec}")
+    elements.push ['(', %w{subgenus section subsection series subseries}.collect { |r| d[r] ? [d[r][0], "#{eo}#{d[r][1]}#{ec}"] : nil }, ')']
+    elements.push ['(', eo, d['superspecies'][1], ec, ')'] if d['superspecies']
 
     %w{species subspecies variety subvariety form subform}.each do |r|
-      elements.push(d[r][0], "#{eo}#{d[r][1]}#{ec}#{d[r][3]}") if d[r]
+      elements.push(d[r][0], "#{eo}#{d[r][1]}#{ec}") if d[r]
     end
 
     html = elements.flatten.compact.join(' ').gsub(/\(\s*\)/, '').gsub(/\(\s/, '(').gsub(/\s\)/, ')').squish.gsub(' [sic]', ec + ' [sic]' + eo).gsub(ec + ' ' + eo, ' ').gsub(eo + ec, '').gsub(eo + ' ', ' ' + eo)
