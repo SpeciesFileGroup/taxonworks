@@ -770,7 +770,7 @@ describe GeographicItem, type: :model, group: :geo do
 
       context 'first point positive' do
         let(:shape) { RSPEC_GEO_FACTORY.line_string([a, b, c, d])  }
-        let(:gi) { FactoryGirl.create(:geographic_item, polygon: shape) } 
+        let(:gi) { FactoryGirl.create(:geographic_item, line_string: shape) }
 
         specify 'line_string effect' do
           expect(gi.reload.geo_object.to_s).to eq('LINESTRING (179.0 27.0 0.0, -178.0 27.0 0.0, -178.0 25.0 0.0, 179.0 25.0 0.0)')
