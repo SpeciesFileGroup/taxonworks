@@ -33,5 +33,10 @@ function initFilterBar() {
 
   $('#filter [data-filter-category="reset"]').on('click', function() {
       deactivateBackgroundColorLink('[data-filter-category]');
-  });     
+  }); 
+
+  $('.reset-all-filters').on('click', function() {
+      deactivateBackgroundColorLink('[data-filter-category]');
+  }); 
+
 }

@@ -23,6 +23,44 @@
     font-weight: 100;
   }
 
+  .reset-all-filters {
+    display: none;
+    opacity: 0.5;
+    cursor: pointer;
+    .restart-background {
+      transition: opacity 0.5s ease;
+      background-repeat: no-repeat;
+      align-items: bottom;
+      vertical-align: bottom;
+      background-size: 60px;
+      width: 60px;
+      height: 60px;
+      background-image: image-url("restart.svg");
+    }
+    h1 {
+      font-weight: bold;
+      text-align: center;
+    }
+  }
+  .reset-all-filters:hover {
+    opacity: 1;
+    transition: opacity 0.5s ease;
+  }
+  .restart-background:hover {
+    -webkit-animation-name: rotate-restart; 
+    -webkit-animation-duration: 0.5s; 
+    -webkit-animation-iteration-count: 1;
+    -webkit-animation-timing-function: linear;
+    -moz-animation-name: rotate-restart; 
+    -moz-animation-duration: 0.5s; 
+    -moz-animation-iteration-count: 1;
+    -moz-animation-timing-function: linear;
+  }
+  @-webkit-keyframes rotate-restart {
+    from {-webkit-transform: rotate(0deg);}
+    to {-webkit-transform: rotate(360deg);}
+  } 
+  
  #hub_tabs { 
     display: flex;
     justify-content: center; 

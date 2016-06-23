@@ -15,8 +15,6 @@ $(document).ready(function() {
 			}
 		}); 
 
-
-
 		[favoritesTask, favoritesData].forEach(function(element) {
 			element.addFilter("data-category-collecting_event");
 			element.addFilter("data-category-Taxon_name");
@@ -30,6 +28,7 @@ $(document).ready(function() {
 		function resetFilters() {
 			[favoritesTask, favoritesData].forEach(function(element) {
 				element.resetFilters();
+				$('.reset-all-filters').fadeOut(0);
 			});
 		}
 
@@ -44,7 +43,6 @@ $(document).ready(function() {
 			elementFilter = $(this).attr('data-filter-category');
 			if(elementFilter === "reset") {
 				resetFilters();
-				$('.reset-all').fadeOut();
 			}
 			else {
 				[favoritesTask, favoritesData].forEach(function(element) {
@@ -52,14 +50,16 @@ $(document).ready(function() {
 				});
 
 				if(favoritesTask.empty() && favoritesData.empty()) {
-					$('.reset-all').fadeIn();
+					$('.reset-all-filters').fadeIn();
+				}
+				else {
+					$('.reset-all-filters').fadeOut(0);
 				}
 			}
 		});  
 
-		$('.reset-all').on('click', function() {
-			resetFilters();
-			$('.reset-all').fadeOut();			
+		$('.reset-all-filters').on('click', function() {
+			resetFilters();	
 		});
 
 	}
