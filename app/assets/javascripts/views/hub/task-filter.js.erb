@@ -25,7 +25,7 @@ var CarrouselTask = function (sec, rows, columns) {
 
   CarrouselTask.prototype.changeSize = function() {
     $(this.sectionTag).children(".task-section").css("width",((this.maxColumns*475) + "px"));
-    if(this.rows < 99){
+    if(this.maxRow < 99){
       $(this.sectionTag).children(".task-section").css("height",((this.maxRow*250) + "px"));
     }
   }
