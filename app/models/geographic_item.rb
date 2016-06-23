@@ -301,7 +301,7 @@ class GeographicItem < ActiveRecord::Base
       "ST_ContainsProperly(ST_GeomFromText('#{wkt}', 4326), (
         CASE geographic_items.type
            WHEN 'GeographicItem::MultiPolygon' THEN multi_polygon::geometry
-           WHEN 'GeographicIctem::Point' THEN point::geometry
+           WHEN 'GeographicItem::Point' THEN point::geometry
            WHEN 'GeographicItem::LineString' THEN line_string::geometry
            WHEN 'GeographicItem::Polygon' THEN polygon::geometry
            WHEN 'GeographicItem::MultiLineString' THEN multi_line_string::geometry
