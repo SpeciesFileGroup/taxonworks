@@ -226,7 +226,7 @@
 
         #$project_id = 1
         handle_controlled_vocabulary_3i
-        #handle_references_3i
+        handle_references_3i
         handle_taxonomy_3i
         handle_taxon_name_relationships_3i
         handle_citation_topics_3i
@@ -454,7 +454,7 @@
 
           language.each do |l|
             if (row['Notes'].to_s + ' ' + row['Bibliography'].to_s).include?('In ' + l)
-              source.language_id = Language.where(english_name: l).first.id
+              source.language_id = Language.where(english_name: l).limit(1).pluck(:id).first
             end
           end
 
@@ -484,9 +484,9 @@
         matchdata = bibl.match(/(^.+)\s+(\d+\(.+\)|\d+): *(\d+-\d+|\d+–\d+|\d+)\.*\s*(.*$)/)
         return bibl, nil, nil, nil if matchdata.nil?
 
-        serial = Serial.where(name: matchdata[1]).first
-        serial ||= Serial.with_any_value_for(:name, matchdata[1]).first
-        serial_id = serial.nil? ? nil : serial.id
+        serial_id = Serial.where(name: matchdata[1]).limit(1).pluck(:id).first
+        serial_id ||= Serial.with_any_value_for(:name, matchdata[1]).limit(1).pluck(:id).first
+        #serial_id = serial.nil? ? nil : serial.id
         journal = matchdata[4].blank? ? matchdata[1] : bibl
         volume = matchdata[2]
         pages = matchdata[3]
@@ -571,7 +571,7 @@
 
 
           file.each_with_index do |row, i|
-            if i < 500
+            if i < 200000
             print "\r#{i}"
             if row['Name'] == 'Incertae sedis' || row['Name'] == 'Unplaced'
               @data.incertae_sedis.merge!(row['Key'] => @data.taxon_index[row['Parent']])
@@ -727,6 +727,8 @@
 
         file.each_with_index do |row, i|
           if i == 299
+            byebug
+            i = 299
             print "######################################################################"
 
 
@@ -1522,7 +1524,7 @@
 
       def find_taxon_id(key)
           #@data.taxon_index[key.to_s] || Protonym.with_identifier('3i_Taxon_ID ' + key.to_s).find_by(project_id: $project_id).try(:id)
-          @data.taxon_index[key.to_s] || Identifier.where(cached: '3i_Taxon_ID ' + key.to_s, project_id: $project_id).pluck(:identifier_object_id)
+          @data.taxon_index[key.to_s] || Identifier.where(cached: '3i_Taxon_ID ' + key.to_s, project_id: $project_id).limit(1).pluck(:identifier_object_id).first
         end
 
         def find_taxon(key)
@@ -1549,7 +1551,7 @@
 
         def find_publication_id(key3)
           #@data.publications_index[key3.to_s] || Source.with_identifier('3i_Source_ID ' + key3.to_s).first.try(:id)
-          @data.publications_index[key3.to_s] || Identifier.where(cached: '3i_Source_ID ' + key3.to_s).pluck(:identifier_object_id)
+          @data.publications_index[key3.to_s] || Identifier.where(cached: '3i_Source_ID ' + key3.to_s).limit(1).pluck(:identifier_object_id).first
         end
 
       end

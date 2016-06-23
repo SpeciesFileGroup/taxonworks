@@ -34,7 +34,8 @@ namespace :tw do
 
 
       class ImportedDataUcd
-        attr_accessor :publications_index, :genera_index, :keywords, :family_groups, :superfamilies, :families
+        attr_accessor :publications_index, :genera_index, :keywords, :family_groups, :superfamilies, :families,
+                      :taxon_codes
         def initialize()
           @publications_index = {}
           @keywords = {}
@@ -42,6 +43,7 @@ namespace :tw do
           @family_groups = {}
           @superfamilies = {}
           @families = {}
+          @taxon_codes = {}
         end
 
 
@@ -81,6 +83,7 @@ namespace :tw do
 
         #$project_id = 1
         handle_fgnames_ucd
+        handle_master_ucd_families
 
         print "\n\n !! Success. End time: #{Time.now} \n\n"
 
@@ -122,24 +125,31 @@ namespace :tw do
           @import.metadata['project_and_users'] = true
         end
         root = Protonym.find_or_create_by(name: 'Root', rank_class: 'NomenclaturalRank', project_id: $project_id)
-        order = Protonym.find_or_create_by(name: 'Hymenoptera', parent: root, rank_class: 'NomenclaturalRank::Iczn::HigherClassificationGroup::Order', project_id: $project_id)
-        @data.superfamilies.merge!('1' => Protonym.find_or_create_by(name: 'Serphitoidea', parent: order, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Superfamily', project_id: $project_id).id)
-        @data.superfamilies.merge!('2' => Protonym.find_or_create_by(name: 'Chalcidoidea', parent: order, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Superfamily', project_id: $project_id).id)
-        @data.superfamilies.merge!('3' => Protonym.find_or_create_by(name: 'Mymarommatoidea', parent: order, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Superfamily', project_id: $project_id).id)
+        @order = Protonym.find_or_create_by(name: 'Hymenoptera', parent: root, rank_class: 'NomenclaturalRank::Iczn::HigherClassificationGroup::Order', project_id: $project_id)
+        @data.superfamilies.merge!('1' => Protonym.find_or_create_by(name: 'Serphitoidea', parent: @order, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Superfamily', project_id: $project_id).id)
+        @data.superfamilies.merge!('2' => Protonym.find_or_create_by(name: 'Chalcidoidea', parent: @order, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Superfamily', project_id: $project_id).id)
+        @data.superfamilies.merge!('3' => Protonym.find_or_create_by(name: 'Mymarommatoidea', parent: @order, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Superfamily', project_id: $project_id).id)
 
         @data.keywords.merge!('ucd_imported' => Keyword.find_or_create_by(name: 'ucd_imported', definition: 'Imported from UCD database.'))
       end
 
       def handle_fgnames_ucd
+        #FamCode
+        # FamGroup
+        # Family
+        # Subfam
+        # Tribe
+        # SuperfamFK
+        # SortOrder
         path = @args[:data_directory] + 'FGNAMES.txt'
-        print "\nHandling references\n"
+        print "\nHandling FGNAMES\n"
         raise "file #{path} not found" if not File.exists?(path)
-        file = CSV.foreach(path, col_sep: "\t", headers: true)
+        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
         file.each_with_index do |row, i|
           print "\r#{i}"
-          family = row['Family'].blank? ? nil : Protonym.find_or_create_by(name: row['Family'], parent_id: @data.superfamilies[row['SuperfamFK']], rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Family', project_id: $project_id)
-          subfamily = row['Subfamily'].blank? ? nil : Protonym.find_or_create_by(name: row['Subfamily'], parent: family, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Subfamily', project_id: $project_id)
-          tribe = row['Tribe'].blank? ? nil : Protonym.find_or_create_by(name: row['Tribe'], parent: subfamily, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Tribe', project_id: $project_id)
+          family = row['Family'].blank? ? nil : Protonym.find_or_create_by!(name: row['Family'], parent_id: @data.superfamilies[row['SuperfamFK']], rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Family', project_id: $project_id)
+          subfamily = row['Subfam'].blank? ? nil : Protonym.find_or_create_by!(name: row['Subfam'], parent: family, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Subfamily', project_id: $project_id)
+          tribe = row['Tribe'].blank? ? nil : Protonym.find_or_create_by!(name: row['Tribe'], parent: subfamily, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Tribe', project_id: $project_id)
 
           if !tribe.nil?
             @data.families.merge!(row['FamCode'] => tribe.id)
@@ -147,6 +157,76 @@ namespace :tw do
             @data.families.merge!(row['FamCode'] => subfamily.id)
           else
             @data.families.merge!(row['FamCode'] => family.id)
+          end
+        end
+      end
+
+      def handle_master_ucd_families
+        #TaxonCode
+        # ValGenus
+        # ValSpecies
+        # HomCode
+        # ValAuthor
+        # CitGenus
+        # CitSubgen
+        # CitSpecies
+        # CitSubsp
+        # CitAuthor
+        # Family
+        # ValDate
+        # CitDate
+        path = @args[:data_directory] + 'MASTER.txt'
+        print "\nHandling MASTER -- Families\n"
+        raise "file #{path} not found" if not File.exists?(path)
+        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
+        file.each_with_index do |row, i|
+          print "\r#{i}"
+          if row['ValGenus'].blank?
+            name = row['ValAuthor'].split(' ').first
+            author = row['ValAuthor'].gsub(name + ' ', '')
+            taxon = Protonym.find_or_create_by(name: name, project_id: $project_id)
+            taxon.parent = @order if taxon.parent_id.nil?
+            taxon.year_of_publication = row['ValDate'] if taxon.year_of_publication.nil?
+            taxon.verbatim_author = author if taxon.verbatim_author.nil?
+            taxon.rank_class = 'NomenclaturalRank::Iczn::FamilyGroup::Superfamily' if taxon.rank_class.nil? && name.include?('oidea')
+            taxon.rank_class = 'NomenclaturalRank::Iczn::FamilyGroup::Family' if taxon.rank_class.nil? && name.include?('idae')
+            taxon.rank_class = 'NomenclaturalRank::Iczn::FamilyGroup::Subfamily' if taxon.rank_class.nil? && name.include?('inae')
+            byebug unless taxon.valid?
+            taxon.save!
+
+            if row['ValAuthor'] == row['CitAuthor']
+              @data.taxon_codes.merge!(row['TaxonCode'] => taxon.id)
+            else
+              name = row['CitAuthor'].split(' ').first
+              author = row['CitAuthor'].gsub(name + ' ', '')
+              rank = taxon.rank_class
+              vname = nil
+              if rank.parent.to_s == 'NomenclaturalRank::Iczn::FamilyGroup'
+                alternative_name = Protonym.family_group_name_at_rank(name, rank.rank_name)
+                if name != alternative_name
+                  name = alternative_name
+                  vname = row['Name']
+                end
+              end
+
+              taxon1 = Protonym.new(
+                       name: name,
+                       verbatim_name: vname,
+                       parent: taxon.parent,
+                       rank_class: taxon.rank_class,
+                       verbatim_author: author,
+                       year_of_publication: row['CitDate']
+              )
+              if taxon1.valid?
+                taxon1.save!
+                @data.taxon_codes.merge!(row['TaxonCode'] => taxon1.id)
+                taxon1.data_attributes.create!(type: 'ImportAttribute', import_predicate: 'HomCode', value: row['HomCode']) unless row['HomCode'].blank?
+                TaxonNameRelationship.create!(subject_taxon_name: taxon1, object_taxon_name: taxon, type: 'TaxonNameRelationship::Iczn::Invalidating')
+              else
+                print "\n'#{name}' is invalid\n"
+                #byebug
+              end
+            end
           end
         end
       end
@@ -159,8 +239,15 @@ namespace :tw do
 
 
 
+
+
+
+
+
+
+=begin
       desc 'reconcile colls'
-      task :reconcile_colls => [:data_directory, :environment] do |t, args| 
+      task :reconcile_colls => [:data_directory, :environment] do |t, args|
         path = @args[:data_directory] + 'coll.csv'
         raise 'file not found' if not File.exists?(path)
 
@@ -520,6 +607,7 @@ namespace :tw do
           # Ruby CSV wants "" (two quotes) as an escaped quote by default) - so we need to convert with rows
         end
       end
+=end
 
     end
   end

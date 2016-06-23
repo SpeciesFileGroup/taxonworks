@@ -771,8 +771,10 @@ class TaxonName < ActiveRecord::Base
       rank   = i.rank
       gender = i.gender_name if rank == 'genus'
       method = "#{rank.gsub(/\s/, '_')}_name_elements"
+      misspelling = i.cached_misspelling ? ' [sic]' : nil
+
       if self.respond_to?(method)
-        data.merge!(rank => send(method, i, gender)) 
+        data.merge!(rank => send(method, i, gender))
       else
         data.merge!(rank => i.name)
       end
@@ -811,12 +813,12 @@ class TaxonName < ActiveRecord::Base
     d.merge!('genus' => [nil, '[' + self.original_genus.cached_html + ']']) if !d['genus'] && self.original_genus
     d.merge!('genus' => [nil, '[GENUS UNKNOWN]']) unless d['genus']
 
-    elements.push("#{eo}#{d['genus'][1]}#{ec}#{d['genus'][3]}")
-    elements.push ['(', %w{subgenus section subsection series subseries}.collect { |r| d[r] ? [d[r][0], "#{eo}#{d[r][1]}#{ec}#{d[r][3]}"] : nil }, ')']
-    elements.push ['(', eo, d['superspecies'][1], ec, d['superspecies'][3], ')'] if d['superspecies']
+    elements.push("#{eo}#{d['genus'][1]}#{ec}")
+    elements.push ['(', %w{subgenus section subsection series subseries}.collect { |r| d[r] ? [d[r][0], "#{eo}#{d[r][1]}#{ec}"] : nil }, ')']
+    elements.push ['(', eo, d['superspecies'][1], ec, ')'] if d['superspecies']
 
     %w{species subspecies variety subvariety form subform}.each do |r|
-      elements.push(d[r][0], "#{eo}#{d[r][1]}#{ec}#{d[r][3]}") if d[r]
+      elements.push(d[r][0], "#{eo}#{d[r][1]}#{ec}") if d[r]
     end
 
     html = elements.flatten.compact.join(' ').gsub(/\(\s*\)/, '').gsub(/\(\s/, '(').gsub(/\s\)/, ')').squish.gsub(' [sic]', ec + ' [sic]' + eo).gsub(ec + ' ' + eo, ' ').gsub(eo + ec, '').gsub(eo + ' ', ' ' + eo)
