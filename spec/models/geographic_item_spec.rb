@@ -704,16 +704,18 @@ describe GeographicItem, type: :model, group: :geo do
         end
       end
     end
+
   end # end using ce_test_objects
 
-  # For context: 
+  # For context:
   #   http://gis.stackexchange.com/questions/192218/best-practices-for-databases-and-apis-with-geographic-data-spanning-the-antimeri
   #
   #  THIS: !? ST_Shift_Longitude(geom)
   #
-  # Also: 
+  # Also:
   #   http://gis.stackexchange.com/questions/29975/postgis-incorrect-interpretation-of-a-polygon-that-intersects-the-180th-meridia
-  #   http://postgis.net/docs/using_postgis_dbmanagement.html#PostGIS_Geography 
+  #   http://postgis.net/docs/using_postgis_dbmanagement.html#PostGIS_Geography
+
   context 'certain known errors ' do
 
     # this shape is designed to cross the anti-meridian, with a centroid in the Western Hemisphere, around -179.3
@@ -721,23 +723,51 @@ describe GeographicItem, type: :model, group: :geo do
     let(:b) { RSPEC_GEO_FACTORY.point(-178, 27) }
     let(:c) { RSPEC_GEO_FACTORY.point(-178, 25) }
     let(:d) { RSPEC_GEO_FACTORY.point(179, 27) }
+    let(:far_island_point) { RSPEC_GEO_FACTORY.point(-178.5, 26) }
+    let(:pre_pos_point) { RSPEC_GEO_FACTORY.point(179.1, 26) }
+    let(:pre_neg_point) { RSPEC_GEO_FACTORY.point(-178.1, 26) }
 
-    let(:pre_line_string_f_i) { RSPEC_GEO_FACTORY.line_string([a, b, c, d])  }
+    let(:pre_line_string_f_i) { RSPEC_GEO_FACTORY.line_string([a, b, c, d]) }
+    let(:pre_pos_box_lines) { pre_line_string_f_i }
+    let(:pre_neg_box_lines) { RSPEC_GEO_FACTORY.line_string([b, a, d, c]) }
+
     let(:pre_shape_f_i) { RSPEC_GEO_FACTORY.polygon(pre_line_string_f_i) }
 
     let(:shape_f_i) { RSPEC_GEO_FACTORY.multi_polygon([pre_shape_f_i]) }
-    let(:line_string_f_i) {FactoryGirl.create(:geographic_item, line_string: pre_line_string_f_i) }
+
+    let(:pos_point) { FactoryGirl.create(:geographic_item, point: pre_pos_point) }
+    let(:shape_pos_box) { RSPEC_GEO_FACTORY.polygon(pre_pos_box_lines) }
+    let(:pos_box) { FactoryGirl.create(:geographic_item, polygon: shape_pos_box) }
+
+    let(:neg_point) { FactoryGirl.create(:geographic_item, point: pre_neg_point) }
+    let(:shape_neg_box) { RSPEC_GEO_FACTORY.polygon(pre_neg_box_lines) }
+    let(:neg_box) { FactoryGirl.create(:geographic_item, polygon: shape_neg_box) }
+
+
+    let(:line_string_f_i) { FactoryGirl.create(:geographic_item, line_string: pre_line_string_f_i) }
     let(:item_f_i) { FactoryGirl.create(:geographic_item, multi_polygon: shape_f_i) }
-    let(:far_island_point) { RSPEC_GEO_FACTORY.point(-178.5, 26) }
     let(:point_f_i) { FactoryGirl.create(:geographic_item, point: far_island_point) }
-    let(:cent) { FactoryGirl.create(:geographic_item, point: item_f_i.st_centroid)}
+
+    let(:cent) { FactoryGirl.create(:geographic_item, point: item_f_i.st_centroid) }
 
     context 'linestring started in the eastern hemisphere' do
-     
-     specify 'rgeo#contains' do
-       expect(pre_shape_f_i.contains?(far_island_point)).to be_truthy
-     end
-      
+
+      specify 'neg_point found in neg_box' do
+        expect(neg_box.contains?(neg_point.geo_object)).to be_truthy
+        expect(neg_point.within?(neg_box.geo_object)).to be_truthy
+        expect(true).to be_truthy
+      end
+
+      specify 'pos_point found in pos_box' do
+        expect(pos_box.contains?(pos_point.geo_object)).to be_truthy
+        expect(pos_point.within?(pos_box.geo_object)).to be_truthy
+        expect(true).to be_truthy
+      end
+
+      specify 'rgeo#contains' do
+        expect(pre_shape_f_i.contains?(far_island_point)).to be_truthy
+      end
+
       specify 'line_string effect' do
         expect(line_string_f_i.geo_object.to_s).to eq('LINESTRING (179.0 27.0 0.0, -178.0 27.0 0.0, -178.0 25.0 0.0, 179.0 25.0 0.0)')
       end
@@ -762,7 +792,7 @@ describe GeographicItem, type: :model, group: :geo do
 
           specify '#containing' do
             test1 = GeographicItem.containing(point_f_i.id)
-            expect(test.to_a).to contain_exactly(item_f_i)
+            expect(test1.to_a).to contain_exactly(item_f_i)
           end
 
           specify '#contained_by_wkt_sql' do
@@ -778,6 +808,11 @@ describe GeographicItem, type: :model, group: :geo do
           end
         end
 
+        context 'geographies instead of geometries' do
+          specify 'point inside item' do
+            expect(GeographicItem.containing_where_sql_geog(@point_f_i)).to eq(@item_f_i)
+          end
+        end
       end
     end
   end

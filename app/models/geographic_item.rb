@@ -296,6 +296,19 @@ class GeographicItem < ActiveRecord::Base
       END)"
     end
 
+    def containing_where_sql_geog(*geographic_item_ids)
+      "ST_CoveredBy(
+      #{GeographicItem.geometry_sql2(*geographic_item_ids)},
+       CASE geographic_items.type
+         WHEN 'GeographicItem::MultiPolygon' THEN multi_polygon::geography
+         WHEN 'GeographicItem::Point' THEN point::geography
+         WHEN 'GeographicItem::LineString' THEN line_string::geography
+         WHEN 'GeographicItem::Polygon' THEN polygon::geography
+         WHEN 'GeographicItem::MultiLineString' THEN multi_line_string::geography
+         WHEN 'GeographicItem::MultiPoint' THEN multi_point::geography
+      END)"
+    end
+
     # TODO: Remove the hard coded 4326 reference
     def contained_by_wkt_sql(wkt)
       "ST_ContainsProperly(ST_GeomFromText('#{wkt}', 4326), (
