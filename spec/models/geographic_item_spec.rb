@@ -727,23 +727,74 @@ describe GeographicItem, type: :model, group: :geo do
 
     let(:shape_f_i) { RSPEC_GEO_FACTORY.multi_polygon([pre_shape_f_i]) }
     let(:line_string_f_i) {FactoryGirl.create(:geographic_item, line_string: pre_line_string_f_i) }
-    let(:item_f_i) { FactoryGirl.create(:geographic_item, multi_polygon: shape_f_i) }
-    let(:far_island_point) { RSPEC_GEO_FACTORY.point(-178.5, 26) }
+    let(:item_f_i) { FactoryGirl.create(:geographic_item, polygon: pre_shape_f_i) }
+
+    # let(:far_island_point) { RSPEC_GEO_FACTORY.point(-178.5, 26) }
+
+    let(:far_island_point) { RSPEC_GEO_FACTORY.point(181.5, 26) }
+
     let(:point_f_i) { FactoryGirl.create(:geographic_item, point: far_island_point) }
+
     let(:cent) { FactoryGirl.create(:geographic_item, point: item_f_i.st_centroid)}
 
+    let(:x1) { RSPEC_GEO_FACTORY.point(181.5, 26)  }
+    let(:x2) { RSPEC_GEO_FACTORY.point(-181.5, 26)  }
+
+    let(:x1_geographic_item) { FactoryGirl.create(:geographic_item, point: x1) }
+    let(:x2_geographic_item) { FactoryGirl.create(:geographic_item, point: x2) }
+
+    # note the reload!
+    context 'normalizing points' do
+      specify '> 180' do
+        expect(x1_geographic_item.reload.geo_object.to_s).to eq('POINT (-178.5 26.0 0.0)')
+      end
+    
+      specify '< -180' do
+        expect(x2_geographic_item.reload.geo_object.to_s).to eq('POINT (178.5 26.0 0.0)')
+      end
+    end 
+
     context 'linestring started in the eastern hemisphere' do
-     
-     specify 'rgeo#contains' do
-       expect(pre_shape_f_i.contains?(far_island_point)).to be_truthy
-     end
-      
-      specify 'line_string effect' do
-        expect(line_string_f_i.geo_object.to_s).to eq('LINESTRING (179.0 27.0 0.0, -178.0 27.0 0.0, -178.0 25.0 0.0, 179.0 25.0 0.0)')
+
+      specify 'rgeo#contains?' do
+        expect(pre_shape_f_i.contains?(far_island_point)).to be_truthy
       end
 
+      specify 'rgeo#contains? (> 180)' do
+        expect(pre_shape_f_i.contains?(x1)).to be_truthy
+      end
+
+      specify '!rgeo#contains? (< -180)' do
+        expect(pre_shape_f_i.contains?(x2)).to be_falsey
+      end
+
+      context 'first point positive' do
+        let(:shape) { RSPEC_GEO_FACTORY.line_string([a, b, c, d])  }
+        let(:gi) { FactoryGirl.create(:geographic_item, polygon: shape) } 
+
+        specify 'line_string effect' do
+          expect(gi.reload.geo_object.to_s).to eq('LINESTRING (179.0 27.0 0.0, -178.0 27.0 0.0, -178.0 25.0 0.0, 179.0 25.0 0.0)')
+        end
+
+      end
+
+
+     
+
       specify 'point effect' do
-        expect(point_f_i.geo_object.to_s).to eq('POINT (-178.5 26.0 0.0)')
+        expect(far_island_point.to_s).to eq('POINT (-178.5 26.0 0.0)')
+      end
+
+      specify 'point effect_n' do
+        expect(anti_point.to_s).to eq('POINT (178.5 26.0 0.0)')
+      end
+
+      specify 'point effect3' do
+        expect(GeographicItem.find(point_f_i.id).geo_object.to_s).to eq('POINT (-178.5 26.0 0.0)')
+      end
+
+      specify 'point effect2' do
+        expect(far_island_point.to_s).to eq('POINT (-178.5 26.0 0.0)')
       end
 
       specify 'polygon/multi_polygon effect' do
@@ -761,6 +812,8 @@ describe GeographicItem, type: :model, group: :geo do
           end
 
           specify '#containing' do
+            point_fi_i
+            item_f_i
             test1 = GeographicItem.containing(point_f_i.id)
             expect(test.to_a).to contain_exactly(item_f_i)
           end
