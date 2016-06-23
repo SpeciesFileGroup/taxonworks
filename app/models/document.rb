@@ -15,6 +15,8 @@ class Document < ActiveRecord::Base
   validates_attachment_presence :document_file
   validates_attachment_size :document_file, greater_than: 1.bytes
 
+  accepts_nested_attributes_for :documentation
+
   #region class methods
 
   def self.find_for_autocomplete(params)
