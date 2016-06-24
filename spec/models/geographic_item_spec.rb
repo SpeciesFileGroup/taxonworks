@@ -722,24 +722,9 @@ describe GeographicItem, type: :model, group: :geo do
     let(:c) { RSPEC_GEO_FACTORY.point(-178, 25) }
     let(:d) { RSPEC_GEO_FACTORY.point(179, 27) }
 
-    let(:pre_pos_point) { RSPEC_GEO_FACTORY.point(179.1, 26) }
-    let(:pre_neg_point) { RSPEC_GEO_FACTORY.point(-178.1, 26) }
-
-    let(:pre_pos_box_lines) { pre_line_string_f_i }
-    let(:pre_neg_box_lines) { RSPEC_GEO_FACTORY.line_string([b, a, d, c]) }
-
     let(:pre_shape_f_i) { RSPEC_GEO_FACTORY.polygon(pre_line_string_f_i) }
 
     let(:shape_f_i) { RSPEC_GEO_FACTORY.multi_polygon([pre_shape_f_i]) }
-
-    let(:pos_point) { FactoryGirl.create(:geographic_item, point: pre_pos_point) }
-    let(:shape_pos_box) { RSPEC_GEO_FACTORY.polygon(pre_pos_box_lines) }
-    let(:pos_box) { FactoryGirl.create(:geographic_item, polygon: shape_pos_box) }
-
-    let(:neg_point) { FactoryGirl.create(:geographic_item, point: pre_neg_point) }
-    let(:shape_neg_box) { RSPEC_GEO_FACTORY.polygon(pre_neg_box_lines) }
-    let(:neg_box) { FactoryGirl.create(:geographic_item, polygon: shape_neg_box) }
-
 
     let(:pre_line_string_f_i) { RSPEC_GEO_FACTORY.line_string([a, b, c, d]) }
     let(:pre_shape_f_i) { RSPEC_GEO_FACTORY.polygon(pre_line_string_f_i) }
@@ -763,11 +748,20 @@ describe GeographicItem, type: :model, group: :geo do
     let(:x2_geographic_item) { FactoryGirl.create(:geographic_item, point: x2) }
 
     context 'points in a box' do
-      specify 'neg_point found in neg_box' do
-        expect(neg_box.contains?(neg_point.geo_object)).to be_truthy
-        expect(neg_point.within?(neg_box.geo_object)).to be_truthy
-        expect(true).to be_truthy
-      end
+      # two points, one on either side of the anti-meridian
+      let(:pre_pos_point) { RSPEC_GEO_FACTORY.point(179.1, 26) }
+      let(:pre_neg_point) { RSPEC_GEO_FACTORY.point(-178.1, 26) }
+
+      let(:pre_pos_box_lines) { pre_line_string_f_i }
+      let(:pre_neg_box_lines) { RSPEC_GEO_FACTORY.line_string([b, a, d, c]) }
+
+      let(:pos_point) { FactoryGirl.create(:geographic_item, point: pre_pos_point) }
+      let(:shape_pos_box) { RSPEC_GEO_FACTORY.polygon(pre_pos_box_lines) }
+      let(:pos_box) { FactoryGirl.create(:geographic_item, polygon: shape_pos_box) }
+
+      let(:neg_point) { FactoryGirl.create(:geographic_item, point: pre_neg_point) }
+      let(:shape_neg_box) { RSPEC_GEO_FACTORY.polygon(pre_neg_box_lines) }
+      let(:neg_box) { FactoryGirl.create(:geographic_item, polygon: shape_neg_box) }
 
       specify 'pos_point found in pos_box' do
         expect(pos_box.contains?(pos_point.geo_object)).to be_truthy
@@ -784,6 +778,12 @@ describe GeographicItem, type: :model, group: :geo do
       specify 'pos_point found in neg_box' do
         expect(neg_box.contains?(pos_point.geo_object)).to be_truthy
         expect(pos_point.within?(neg_box.geo_object)).to be_truthy
+        expect(true).to be_truthy
+      end
+
+      specify 'neg_point found in neg_box' do
+        expect(neg_box.contains?(neg_point.geo_object)).to be_truthy
+        expect(neg_point.within?(neg_box.geo_object)).to be_truthy
         expect(true).to be_truthy
       end
     end
