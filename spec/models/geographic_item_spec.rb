@@ -706,14 +706,14 @@ describe GeographicItem, type: :model, group: :geo do
     end
   end # end using ce_test_objects
 
-  # For context: 
+  # For context:
   #   http://gis.stackexchange.com/questions/192218/best-practices-for-databases-and-apis-with-geographic-data-spanning-the-antimeri
   #
   #  THIS: !? ST_Shift_Longitude(geom)
   #
-  # Also: 
+  # Also:
   #   http://gis.stackexchange.com/questions/29975/postgis-incorrect-interpretation-of-a-polygon-that-intersects-the-180th-meridia
-  #   http://postgis.net/docs/using_postgis_dbmanagement.html#PostGIS_Geography 
+  #   http://postgis.net/docs/using_postgis_dbmanagement.html#PostGIS_Geography
   context 'certain known errors ' do
 
     # this shape is designed to cross the anti-meridian, with a centroid in the Western Hemisphere, around -179.3
@@ -721,6 +721,25 @@ describe GeographicItem, type: :model, group: :geo do
     let(:b) { RSPEC_GEO_FACTORY.point(-178, 27) }
     let(:c) { RSPEC_GEO_FACTORY.point(-178, 25) }
     let(:d) { RSPEC_GEO_FACTORY.point(179, 27) }
+
+    let(:pre_pos_point) { RSPEC_GEO_FACTORY.point(179.1, 26) }
+    let(:pre_neg_point) { RSPEC_GEO_FACTORY.point(-178.1, 26) }
+
+    let(:pre_pos_box_lines) { pre_line_string_f_i }
+    let(:pre_neg_box_lines) { RSPEC_GEO_FACTORY.line_string([b, a, d, c]) }
+
+    let(:pre_shape_f_i) { RSPEC_GEO_FACTORY.polygon(pre_line_string_f_i) }
+
+    let(:shape_f_i) { RSPEC_GEO_FACTORY.multi_polygon([pre_shape_f_i]) }
+
+    let(:pos_point) { FactoryGirl.create(:geographic_item, point: pre_pos_point) }
+    let(:shape_pos_box) { RSPEC_GEO_FACTORY.polygon(pre_pos_box_lines) }
+    let(:pos_box) { FactoryGirl.create(:geographic_item, polygon: shape_pos_box) }
+
+    let(:neg_point) { FactoryGirl.create(:geographic_item, point: pre_neg_point) }
+    let(:shape_neg_box) { RSPEC_GEO_FACTORY.polygon(pre_neg_box_lines) }
+    let(:neg_box) { FactoryGirl.create(:geographic_item, polygon: shape_neg_box) }
+
 
     let(:pre_line_string_f_i) { RSPEC_GEO_FACTORY.line_string([a, b, c, d])  }
     let(:pre_shape_f_i) { RSPEC_GEO_FACTORY.polygon(pre_line_string_f_i) }
@@ -743,16 +762,28 @@ describe GeographicItem, type: :model, group: :geo do
     let(:x1_geographic_item) { FactoryGirl.create(:geographic_item, point: x1) }
     let(:x2_geographic_item) { FactoryGirl.create(:geographic_item, point: x2) }
 
+    specify 'neg_point found in neg_box' do
+      expect(neg_box.contains?(neg_point.geo_object)).to be_truthy
+      expect(neg_point.within?(neg_box.geo_object)).to be_truthy
+      expect(true).to be_truthy
+    end
+
+    specify 'pos_point found in pos_box' do
+      expect(pos_box.contains?(pos_point.geo_object)).to be_truthy
+      expect(pos_point.within?(pos_box.geo_object)).to be_truthy
+      expect(true).to be_truthy
+    end
+
     # note the reload!
     context 'normalizing points' do
       specify '> 180' do
         expect(x1_geographic_item.reload.geo_object.to_s).to eq('POINT (-178.5 26.0 0.0)')
       end
-    
+
       specify '< -180' do
         expect(x2_geographic_item.reload.geo_object.to_s).to eq('POINT (178.5 26.0 0.0)')
       end
-    end 
+    end
 
     context 'linestring started in the eastern hemisphere' do
 
@@ -778,8 +809,6 @@ describe GeographicItem, type: :model, group: :geo do
 
       end
 
-
-     
 
       specify 'point effect' do
         expect(far_island_point.to_s).to eq('POINT (-178.5 26.0 0.0)')
