@@ -126,30 +126,42 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
         when 'point'
           @georeferences = Georeference.joins(:geographic_item).where(GeographicItem.within_radius_of_wkt_sql(geometry, radius))
         when 'polygon'
-          ob = JSON.parse(value)
-          coords = ob['geometry']['coordinates'][0]
-          if (coords[0][0] > 0.0) # only scan this polygon if it starts in the eastern hemisphere
-            last_x = nil; this_x = nil; anti_chrossed = false
-            coords.each_with_index { |point, index|
-              this_x = coords[index][0] # get x value
-              if (anti_meridian_check(last_x, this_x))
-                anti_chrossed = true # set flag if detector triggers
-              end
-              last_x = this_x
-            }
-            if (anti_chrossed) # if anti-meridian crossing detected
-              coords.each { |point|
-                if point[0] > 0
-                  point[0] -= 360.0 # force polygon to all negative coordinates
-                end
-              }
-              job = ob.as_json.to_s.gsub('=>', ':') # change back to a feature string
-              my_feature = RGeo::GeoJSON.decode(job, :json_parser => :json) # replicate "normal" steps above
-              geometry = my_feature.geometry.as_text # extract the WKT
-            end
+          ob = JSON.parse(value) # check for anti-meridian crossing polygon
+          coords = ob['geometry']['coordinates'][0] # get the coordinates
 
+          last_x = nil; this_x = nil; anti_chrossed = false # initialize for anti-meridian detection
+          coords.each_with_index { |point, index|
+            this_x = coords[index][0] # get x value
+            if (anti_meridian_check(last_x, this_x))
+              anti_chrossed = true # set flag if detector triggers
+              break # once anti-meridian crossing detected, the cases are known
+            end
+            last_x = this_x # move to next line segment until crossing or polygon start
+          }
+          if (anti_chrossed) # if anti-meridian crossing detected
+            coords.each { |point| # construct western hemisphere object
+              if point[0] > 0 # if eastern hemisphere point
+                point[0] -= 360.0 # force polygon to all negative coordinates
+              end
+            }
+            job = ob.as_json.to_s.gsub('=>', ':') # change back to a feature string
+            my_feature = RGeo::GeoJSON.decode(job, :json_parser => :json) # replicate "normal" steps above
+            geometry1 = my_feature.geometry.as_text # extract the WKT
+
+            coords.each { |point| # construct eastern hemisphere object
+              if point[0] < 0 # if western hemisphere point (actually always true at this point)
+                point[0] += 360.0 # force polygon to all positive coordinates
+              end
+            }
+            job = ob.as_json.to_s.gsub('=>', ':') # change back to a feature string
+            my_feature = RGeo::GeoJSON.decode(job, :json_parser => :json) # replicate "normal" steps above
+            geometry2 = my_feature.geometry.as_text # extract the WKT
+            @georeferences = Georeference.joins(:geographic_item).where(GeographicItem.contained_by_wkt_sql(geometry1)) +
+                Georeference.joins(:geographic_item).where(GeographicItem.contained_by_wkt_sql(geometry2))
+            # above combines the results of opposite-signed (otherwise identical) polygons spanning anti-meridian
+          else # non-anti-meridian crossing case
+            @georeferences = Georeference.joins(:geographic_item).where(GeographicItem.contained_by_wkt_sql(geometry))
           end
-          @georeferences = Georeference.joins(:geographic_item).where(GeographicItem.contained_by_wkt_sql(geometry))
         else
       end
     end
