@@ -2,21 +2,10 @@
 @import '../../shared_data/show';
 
 #simple-specimen-task {
-	//padding: 0px;
-	.item1 {
-		padding: 15px;
-		width: 300px;
-	}
+	
+	padding:0px;
+	border:none;
 
-	.dropzone {
-		padding: 0px !important;
-		margin: 0px !important;
-	}
-
-	label {
-		display: block;
-		text-align: right;
-	}
 	.otu_picker > label {
 		display: none !important;
 	}
@@ -25,6 +14,7 @@
 	}
 
 	.field {
+
 		align-items: center;
 		display: flex;
 		flex-direction: row;
@@ -49,12 +39,11 @@
 
 	}
 
-	border:none;
 	.panels-container {
 		justify-content: space-between;
 	}
 
-	.dz-message {
+	#dropzone_previews {
 		margin: 0px;
 		text-align: left;
 		width: 340px;
@@ -62,11 +51,12 @@
 		justify-content: flex-start;
 		flex-direction: row;
 		border:1px solid $navigation-border;
+		background-color: #FFF;
+		display: block;
+		border-radius: 3px;
 	}
 
-	#collecting_event_fields {
-		padding-top: 15px;
-	}
+
 
 	#selected_collecting_event {
 		display: flex;
@@ -76,9 +66,7 @@
 
 
 	#dropzone_previews {
-		background-color: #FFF;
-		display: block;
-		border-radius: 3px;
+
 	}
 
 	hr {

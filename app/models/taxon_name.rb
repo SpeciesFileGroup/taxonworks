@@ -813,7 +813,7 @@ class TaxonName < ActiveRecord::Base
     d.merge!('genus' => [nil, '[' + self.original_genus.cached_html + ']']) if !d['genus'] && self.original_genus
     d.merge!('genus' => [nil, '[GENUS UNKNOWN]']) unless d['genus']
 
-    elements.push("#{eo}#{d['genus'][1]}#{ec}")
+    elements.push("#{eo}#{d['genus'][1]}#{ec}") if d['genus']
     elements.push ['(', %w{subgenus section subsection series subseries}.collect { |r| d[r] ? [d[r][0], "#{eo}#{d[r][1]}#{ec}"] : nil }, ')']
     elements.push ['(', eo, d['superspecies'][1], ec, ')'] if d['superspecies']
 

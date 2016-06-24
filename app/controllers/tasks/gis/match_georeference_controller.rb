@@ -2,15 +2,15 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
   include TaskControllerConfiguration
 
   def index
-    @collecting_event  = CollectingEvent.new
-    @georeference      = Georeference.new
+    @collecting_event = CollectingEvent.new
+    @georeference = Georeference.new
     @collecting_events = []
-    @georeferences     = []
+    @georeferences = []
   end
 
   def filtered_collecting_events
-    message            = ''
-    @collecting_events = CollectingEvent.filter(params) 
+    message = ''
+    @collecting_events = CollectingEvent.filter(params)
 
     if @collecting_events.length == 0
       message = 'no collecting events selected'
@@ -19,8 +19,8 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
   end
 
   def recent_collecting_events
-    message            = ''
-    how_many           = params['how_many']
+    message = ''
+    how_many = params['how_many']
     @collecting_events = CollectingEvent.where(project_id: $project_id).order(updated_at: :desc).limit(how_many.to_i)
 
     if @collecting_events.length == 0
@@ -36,34 +36,34 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
       # Bad search request; return not a list but back to the form
       @collecting_events = CollectingEvent.where('false')
     else
-      keyword            = Keyword.find(params[:keyword_id])
+      keyword = Keyword.find(params[:keyword_id])
       @collecting_events = CollectingEvent.where(project_id: $project_id).order(updated_at: :desc).tagged_with_keyword(keyword)
     end
 
     if @collecting_events.length == 0
-      message = 'no tagged objects selected' 
+      message = 'no tagged objects selected'
     end
     render_ce_select_json(message)
   end
 
   def drawn_collecting_events
-    
+
     message = ''
-    value   = params['ce_geographic_item_attributes_shape']
+    value = params['ce_geographic_item_attributes_shape']
     if value.blank?
       @collecting_events = CollectingEvent.where('false')
     else
-      feature   = RGeo::GeoJSON.decode(value, :json_parser => :json)
+      feature = RGeo::GeoJSON.decode(value, :json_parser => :json)
       # isolate the WKT
-      geometry  = feature.geometry
+      geometry = feature.geometry
       this_type = geometry.geometry_type.to_s.downcase
-      geometry  = geometry.as_text
-      radius    = feature['radius']
+      geometry = geometry.as_text
+      radius = feature['radius']
       case this_type
         when 'point'
-          @collecting_events = CollectingEvent.joins(:geographic_items).where( GeographicItem.within_radius_of_wkt_sql(geometry, radius) )
+          @collecting_events = CollectingEvent.joins(:geographic_items).where(GeographicItem.within_radius_of_wkt_sql(geometry, radius))
         when 'polygon'
-          @collecting_events = CollectingEvent.joins(:geographic_items).where( GeographicItem.contained_by_wkt_sql(geometry)) 
+          @collecting_events = CollectingEvent.joins(:geographic_items).where(GeographicItem.contained_by_wkt_sql(geometry))
         else
       end
     end
@@ -75,7 +75,7 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
   end
 
   def filtered_georeferences
-    message        = ''
+    message = ''
     @georeferences = Georeference.filter(params)
     if @georeferences.length == 0
       message = 'no georeferences found'
@@ -84,8 +84,8 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
   end
 
   def recent_georeferences
-    message        = ''
-    how_many       = params['how_many']
+    message = ''
+    how_many = params['how_many']
     @georeferences = Georeference.where(project_id: $project_id).order(updated_at: :desc).limit(how_many.to_i)
     if @georeferences.length == 0
       message = 'no recent georeferences selected'
@@ -101,7 +101,7 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
       # render json: {html: 'Empty set'} #and return
       @georeferences = Georeference.where('false')
     else
-      keyword        = Keyword.find(params[:keyword_id])
+      keyword = Keyword.find(params[:keyword_id])
       @georeferences = Georeference.where(project_id: $project_id).order(updated_at: :desc).tagged_with_keyword(keyword)
     end
     if @georeferences.length == 0
@@ -112,21 +112,44 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
 
   def drawn_georeferences
     message = ''
-    value   = params['gr_geographic_item_attributes_shape']
+    value = params['gr_geographic_item_attributes_shape']
     if value.blank?
       @georeferences = Georeference.where('false')
     else
-      feature   = RGeo::GeoJSON.decode(value, :json_parser => :json)
+      feature = RGeo::GeoJSON.decode(value, :json_parser => :json)
       # isolate the WKT
-      geometry  = feature.geometry
+      geometry = feature.geometry
       this_type = geometry.geometry_type.to_s.downcase
-      geometry  = geometry.as_text
-      radius    = feature['radius']
+      geometry = geometry.as_text
+      radius = feature['radius']
       case this_type
         when 'point'
-          @georeferences = Georeference.joins(:geographic_item).where( GeographicItem.within_radius_of_wkt_sql(geometry, radius) )
+          @georeferences = Georeference.joins(:geographic_item).where(GeographicItem.within_radius_of_wkt_sql(geometry, radius))
         when 'polygon'
-          @georeferences = Georeference.joins(:geographic_item).where( GeographicItem.contained_by_wkt_sql(geometry) )  
+          ob = JSON.parse(value)
+          coords = ob['geometry']['coordinates'][0]
+          if (coords[0][0] > 0.0) # only scan this polygon if it starts in the eastern hemisphere
+            last_x = nil; this_x = nil; anti_chrossed = false
+            coords.each_with_index { |point, index|
+              this_x = coords[index][0] # get x value
+              if (anti_meridian_check(last_x, this_x))
+                anti_chrossed = true # set flag if detector triggers
+              end
+              last_x = this_x
+            }
+            if (anti_chrossed) # if anti-meridian crossing detected
+              coords.each { |point|
+                if point[0] > 0
+                  point[0] -= 360.0 # force polygon to all negative coordinates
+                end
+              }
+              job = ob.as_json.to_s.gsub('=>', ':') # change back to a feature string
+              my_feature = RGeo::GeoJSON.decode(job, :json_parser => :json) # replicate "normal" steps above
+              geometry = my_feature.geometry.as_text # extract the WKT
+            end
+
+          end
+          @georeferences = Georeference.joins(:geographic_item).where(GeographicItem.contained_by_wkt_sql(geometry))
         else
       end
     end
@@ -136,15 +159,37 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
     render_gr_select_json(message)
   end
 
+  def anti_meridian_check(last_x, this_x) # returns true if anti-meridian crossed
+    if last_x
+      if last_x <= 0
+        if (((this_x >= 0 || this_x < -180))) # sign change from west to east
+          xm = (0.5 * (this_x - last_x)).abs # find intersection
+          if (xm > 90)
+            return true
+          end
+        end
+      end
+      if last_x >= 0
+        if (((this_x <= 0) || this_x > 180))
+          xm = (0.5 * (last_x - this_x)).abs
+          if (xm > 90)
+            return true
+          end
+        end
+      end
+    end
+    false
+  end
+
   def batch_create_match_georeferences
     message = ''
     respond_to do |format|
       format.json {
         # we want to repackage the checkmarks we get from the client side into an array of ids with which
         # to feed Georeference.
-        keys        = params.keys
+        keys = params.keys
         checked_ids = []
-        arguments   = {}
+        arguments = {}
         keys.each { |key|
           if /check\d+/ =~ key
             checked_ids.push(params[key].to_i)
@@ -161,11 +206,11 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
         end
 
         html = render_to_string(partial: 'georeference_success', formats: 'html',
-                                locals:  {georeferences_results: results}
-                               )
+                                locals: {georeferences_results: results}
+        )
 
         render json: {message: message,
-                      html:    html
+                      html: html
         }
       }
     end
@@ -187,12 +232,12 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
   # @return [String] of html for partial
   def ce_render_to_html
     render_to_string(partial: 'tasks/gis/match_georeference/collecting_event_selections',
-                     locals:  {collecting_events: @collecting_events})
+                     locals: {collecting_events: @collecting_events})
   end
 
   # @return [String] of html for partial
   def gr_render_to_html
     render_to_string(partial: 'tasks/gis/match_georeference/georeferences_selections_form',
-                     locals:  {georeferences: @georeferences})
+                     locals: {georeferences: @georeferences})
   end
 end

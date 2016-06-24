@@ -84,6 +84,8 @@ namespace :tw do
         #$project_id = 1
         handle_fgnames_ucd
         handle_master_ucd_families
+        handle_master_ucd_valid_genera
+        handle_master_ucd_invalid_genera
 
         print "\n\n !! Success. End time: #{Time.now} \n\n"
 
@@ -129,7 +131,7 @@ namespace :tw do
         @data.superfamilies.merge!('1' => Protonym.find_or_create_by(name: 'Serphitoidea', parent: @order, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Superfamily', project_id: $project_id).id)
         @data.superfamilies.merge!('2' => Protonym.find_or_create_by(name: 'Chalcidoidea', parent: @order, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Superfamily', project_id: $project_id).id)
         @data.superfamilies.merge!('3' => Protonym.find_or_create_by(name: 'Mymarommatoidea', parent: @order, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Superfamily', project_id: $project_id).id)
-
+        @data.families.merge!('' => @order.id)
         @data.keywords.merge!('ucd_imported' => Keyword.find_or_create_by(name: 'ucd_imported', definition: 'Imported from UCD database.'))
       end
 
@@ -219,18 +221,86 @@ namespace :tw do
               )
               if taxon1.valid?
                 taxon1.save!
-                @data.taxon_codes.merge!(row['TaxonCode'] => taxon1.id)
-                taxon1.data_attributes.create!(type: 'ImportAttribute', import_predicate: 'HomCode', value: row['HomCode']) unless row['HomCode'].blank?
-                TaxonNameRelationship.create!(subject_taxon_name: taxon1, object_taxon_name: taxon, type: 'TaxonNameRelationship::Iczn::Invalidating')
+              elsif !taxon1.errors.messages[:name].blank?
+                taxon1.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin')
+                taxon1.save!
               else
-                print "\n'#{name}' is invalid\n"
-                #byebug
+                byebug
               end
+              @data.taxon_codes.merge!(row['TaxonCode'] => taxon1.id)
+              taxon1.data_attributes.create!(type: 'ImportAttribute', import_predicate: 'HomCode', value: row['HomCode']) unless row['HomCode'].blank?
+              TaxonNameRelationship.create!(subject_taxon_name: taxon1, object_taxon_name: taxon, type: 'TaxonNameRelationship::Iczn::Invalidating')
             end
           end
         end
       end
 
+      def handle_master_ucd_valid_genera
+        path = @args[:data_directory] + 'MASTER.txt'
+        print "\nHandling MASTER -- Valid genera\n"
+        raise "file #{path} not found" if not File.exists?(path)
+        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
+        file.each_with_index do |row, i|
+          print "\r#{i}"
+          if !row['ValGenus'].blank? && @data.genera_index[row['ValGenus']].nil?
+            name = row['ValGenus']
+            taxon = Protonym.find_or_create_by(name: name, project_id: $project_id)
+            taxon.parent_id = @data.families[row['Family']] if taxon.parent_id.nil?
+            taxon.year_of_publication = row['ValDate'] if taxon.year_of_publication.nil?
+            taxon.verbatim_author = row['ValAuthor'] if taxon.verbatim_author.nil?
+            taxon.rank_class = 'NomenclaturalRank::Iczn::GenusGroup::Genus'
+            byebug unless taxon.valid?
+            taxon.save!
+
+            if row['ValGenus'].to_s == row['CitGenus'] && row['CitSubgen'].blank? && row['ValSpecies'].blank?  && row['CitSpecies'].blank?
+              @data.taxon_codes.merge!(row['TaxonCode'] => taxon.id)
+              @data.genera_index.merge!(name => taxon.id)
+            end
+          end
+        end
+      end
+
+      def handle_master_ucd_invalid_genera
+        path = @args[:data_directory] + 'MASTER.txt'
+        print "\nHandling MASTER -- Invalid genera\n"
+        raise "file #{path} not found" if not File.exists?(path)
+        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
+        file.each_with_index do |row, i|
+          print "\r#{i}"
+          if !row['CitSpecies'].blank? && !@data.genera_index[row['CitGenus']].blank?
+          elsif !row['CitGenus'].blank?
+            unless @data.taxon_codes[row['TaxonCode']]
+              taxon = Protonym.find_or_create_by(name: row['CitGenus'], project_id: $project_id)
+              taxon1 = Protonym.find_or_create_by(name: row['ValGenus'], project_id: $project_id)
+              taxon.parent_id = @data.families[row['Family']] if taxon.parent_id.nil?
+              taxon.year_of_publication = row['CitDate'] if taxon.year_of_publication.nil?
+              taxon.verbatim_author = row['CitAuthor'] if taxon.verbatim_author.nil?
+              taxon.rank_class = 'NomenclaturalRank::Iczn::GenusGroup::Genus'
+              byebug unless taxon.valid?
+              taxon.save!
+              if row['CitSubgen'].blank? && row['ValSpecies'].blank?  && row['CitSpecies'].blank?
+                @data.taxon_codes.merge!(row['TaxonCode'] => taxon.id)
+                @data.genera_index.merge!(taxon.name => taxon.id)
+                TaxonNameRelationship.create!(subject_taxon_name: taxon, object_taxon_name: taxon1, type: 'TaxonNameRelationship::Iczn::Invalidating')
+              elsif !row['CitSubgen'].blank? && row['ValSpecies'].blank?  && row['CitSpecies'].blank?
+                taxon2 = Protonym.where(name: row['ValGenus'], project_id: $project_id).first
+                if !taxon2.nil
+                  c = Combination.create!(parent_id: taxon1.parent_id, genus: taxon, subgenus: taxon2)
+                  @data.taxon_codes.merge!(row['TaxonCode'] => c.id)
+                else
+                  taxon3 = Protonym.create!(name: row['CitSubgen'], parent_id: @data.families[row['Family']], verbatim_author: row['CitAuthor'], year_of_publication: row['CitDate'])
+                  taxon3.original_genus = taxon
+                  taxon3.original_subgenus = taxon3
+                  taxon3.save!
+                  @data.taxon_codes.merge!(row['TaxonCode'] => taxon3.id)
+                  @data.genera_index.merge!(taxon3.name => taxon.id)
+                  TaxonNameRelationship.create!(subject_taxon_name: taxon3, object_taxon_name: taxon1, type: 'TaxonNameRelationship::Iczn::Invalidating')
+                end
+              end
+            end
+          end
+        end
+      end
 
 
 

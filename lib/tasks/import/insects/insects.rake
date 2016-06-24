@@ -18,11 +18,6 @@ require 'benchmark'
 # a.get(a)
 # hash.sort
 
-
-
-
-
-
 namespace :tw do
   namespace :project_import do
     namespace :insects do
@@ -75,8 +70,6 @@ namespace :tw do
       @repository = nil
       @invalid_collecting_event_index = {}
       @redis = Redis.new
-
-
 
       # TODO: Lots could be added here, it could also be yamlified
       GEO_NAME_TRANSLATOR = {
@@ -162,6 +155,7 @@ namespace :tw do
       def main_build_loop_insects
         @import = Import.find_or_create_by(name: IMPORT_NAME)  
         @import.metadata ||= {} 
+        
         handle_projects_and_users_insects(@data1, @import)
         raise '$project_id or $user_id not set.'  if $project_id.nil? || $user_id.nil?
         handle_namespaces_insects(@data1, @import)
@@ -259,16 +253,18 @@ namespace :tw do
 
         print "Repository not found\n" if @repository.nil?
 
-        @data1.user_index.merge!('0' => user)
-        @data1.user_index.merge!('' => user)
-        @data1.user_index.merge!(nil => user)
+        @data1.user_index.merge!(
+          '0' => user,
+          '' => user,
+          nil => user
+        )
 
       end
 
       def handle_biocuration_classes_insects(data, import)
         print "Handling biocuration classes \n"
 
-        biocuration_classes = %w{ Adult Male Female Immature Pupa Exuvia }
+        biocuration_classes = %w{Adult Male Female Immature Pupa Exuvia}
 
         biocuration_classes.each do |bc|
           b = BiocurationClass.where(name: bc, project_id: $project_id)
@@ -752,40 +748,48 @@ namespace :tw do
         c_from_redis = @redis.get(Digest::MD5.hexdigest(tmp_ce_sorted))
         unless ce['AccessionNumber'].blank?
           #c = CollectingEvent.with_project_id($project_id).with_identifier('Accession Code ' + ce['Collection'].to_s + ' ' + ce['AccessionNumber'])
+          cached_identifier = nil
           if !ce['Collection'].blank?
-            c = CollectingEvent.with_project_id($project_id).with_identifier('Accession Code ' + ce['Collection'] + ' ' + ce['AccessionNumber'])
+           cached_identifier =  'Accession Code ' + ce['Collection'] + ' ' + ce['AccessionNumber']
+            
+           # ORIGINAL # c = CollectingEvent.with_project_id($project_id).with_identifier('Accession Code ' + ce['Collection'] + ' ' + ce['AccessionNumber'])
+           
             #c = Identifier.where(identifier: ce['Collection'] + ' ' + ce['AccessionNumber'], namespace_id: @accession_namespace, type: 'Identifier::Local::AccessionCode', project_id: $project_id)
           else
-            c = CollectingEvent.with_project_id($project_id).with_identifier('Accession Code ' + ce['AccessionNumber'])
+            cached_identifier = 'Accession Code ' + ce['AccessionNumber']
+
+#            c = CollectingEvent.with_project_id($project_id).with_identifier('Accession Code ' + ce['AccessionNumber'])
+
+
             #c = Identifier.where(identifier: ce['AccessionNumber'], namespace_id: @accession_namespace, type: 'Identifier::Local::AccessionCode', project_id: $project_id)
           end
-          unless c.empty?
-            c = c.first
-            if c_from_redis.nil?
-              @redis.set(Digest::MD5.hexdigest(tmp_ce_sorted), c.id)
-              return c
-            end
-            #data.collecting_event_index.merge!(tmp_ce => c)
+
+          c = Identifier.where(project_id: $project_id, identifier_object_type: 'CollectingEvent', cached: cached_identifier).first.try(:identifier_object)
+
+          if !c.nil? && c_from_redis.nil?
+            @redis.set(Digest::MD5.hexdigest(tmp_ce_sorted), c.id)
+            return c
           end
         end
 
         if !ce['LocalityLabel'].blank? && ce['LocalityLabel'].to_s.length > 5
           md5 = Utilities::Strings.generate_md5(ce['LocalityLabel'])
-          c = CollectingEvent.where(md5_of_verbatim_label: md5, project_id: $project_id)
-          unless c.empty?
-            c = c.first
-            if c_from_redis.nil?
-              @redis.set(Digest::MD5.hexdigest(tmp_ce_sorted), c.id)
-              if !ce['AccessionNumber'].blank? && !ce['Collection'].blank?
-                c.identifiers.create(identifier: ce['Collection'] + ' ' + ce['AccessionNumber'], namespace: @accession_namespace, type: 'Identifier::Local::AccessionCode')
-              elsif !ce['AccessionNumber'].blank?
-                c.identifiers.create(identifier: ce['AccessionNumber'], namespace: @accession_namespace, type: 'Identifier::Local::AccessionCode')
-              end
-              return c
+         
+          c = CollectingEvent.where(md5_of_verbatim_label: md5, project_id: $project_id).first
+          
+          if !c.nil? && c_from_redis.nil?
+            @redis.set(Digest::MD5.hexdigest(tmp_ce_sorted), c.id)
+
+            if !ce['AccessionNumber'].blank? && !ce['Collection'].blank?
+              c.identifiers.create(identifier: ce['Collection'] + ' ' + ce['AccessionNumber'], namespace: @accession_namespace, type: 'Identifier::Local::AccessionCode')
+            elsif !ce['AccessionNumber'].blank?
+              c.identifiers.create(identifier: ce['AccessionNumber'], namespace: @accession_namespace, type: 'Identifier::Local::AccessionCode')
             end
-            # data.collecting_event_index.merge!(tmp_ce => c)
+            return c
           end
+          # data.collecting_event_index.merge!(tmp_ce => c)
         end
+
         c_from_redis = @redis.get(Digest::MD5.hexdigest(tmp_ce_sorted))
 
         unless c_from_redis.nil?
@@ -848,7 +852,8 @@ namespace :tw do
             created_by_id: created_by,
             updated_by_id: updated_by,
             created_at: time_from_field(created_on),
-            updated_at: time_from_field(ce['ModifiedOn'])
+            updated_at: time_from_field(ce['ModifiedOn']),
+            no_cached: true
         )
         if c.valid?
           #bench = Benchmark.measure {
@@ -868,25 +873,26 @@ namespace :tw do
             c.identifiers.create(identifier: ce['AccessionNumber'], namespace: @accession_namespace, type: 'Identifier::Local::AccessionCode')
           end
 
-          gr = geolocation_uncertainty.nil? ? false : c.generate_verbatim_data_georeference(true)
+          gr = geolocation_uncertainty.nil? ? false : c.generate_verbatim_data_georeference(true, no_cached: true)
+          
           unless gr == false
-            ga, c.geographic_area_id = c.geographic_area_id, nil
+            gr.is_public = true        
+
             if gr.valid?
-              c.save
+              c.update_column(:geographic_area_id, nil) 
               gr.save
-            else
-              c.geographic_area_id = ga
-              c.save
             end
 
-          #end
-
-          #glc = c.georeferences.first
-          #unless gr == false
+            # Do a second pass to see if the uncertainty 
             gr.error_radius = geolocation_uncertainty
-            gr.is_public = true
-            gr.save
-            c.data_attributes.create(type: 'ImportAttribute', import_predicate: 'georeference_error', value: 'Geolocation uncertainty is conflicting with geographic area') unless gr.valid?
+
+            if gr.valid?
+              gr.save
+            else
+              c.data_attributes.create(type: 'ImportAttribute', 
+                                       import_predicate: 'georeference_error', 
+                                       value: 'Geolocation uncertainty is conflicting with geographic area') 
+            end
           end
 
           @redis.set(Digest::MD5.hexdigest(tmp_ce_sorted), c.id)
@@ -1068,7 +1074,7 @@ namespace :tw do
 
       # Index localities by their collective column=>data pairs
       def build_localities_index_insects(data)
-        locality_fields = %w{ LocalityCode Country State County Locality Park BodyOfWater NS Lat_deg Lat_min Lat_sec EW Long_deg Long_min Long_sec Elev_m Elev_ft PrecisionCode Comments DrainageBasinLesser DrainageBasinGreater StreamSize INDrainage WisconsinGlaciated OldLocalityCode CreatedOn ModifiedOn CreatedBy ModifiedBy }
+        locality_fields = %w{LocalityCode Country State County Locality Park BodyOfWater NS Lat_deg Lat_min Lat_sec EW Long_deg Long_min Long_sec Elev_m Elev_ft PrecisionCode Comments DrainageBasinLesser DrainageBasinGreater StreamSize INDrainage WisconsinGlaciated OldLocalityCode CreatedOn ModifiedOn CreatedBy ModifiedBy}
 
         path = @args[:data_directory] + 'TXT/localities.txt'
         raise 'file not found' if not File.exists?(path)
@@ -1094,8 +1100,8 @@ namespace :tw do
 
       def build_partially_resolved_index(data)
 
-        locality_fields = %w{ LocalityCode Collector CollectionMethod Habitat IdentifiedBy YearIdentified Type TypeName DateCollectedBeginning DateCollectedEnding Host NS Lat_deg Lat_min Lat_sec EW Long_deg Long_min Long_sec Elev_m Elev_ft Country State County Locality Park Remarks Precision Done Georeferenced DeterminationCompare ModifiedBy ModifiedOn }
-        match_fields = %w{ AccessionNumber DeterminationLabel OtherLabel LocalityLabel }
+        locality_fields = %w{LocalityCode Collector CollectionMethod Habitat IdentifiedBy YearIdentified Type TypeName DateCollectedBeginning DateCollectedEnding Host NS Lat_deg Lat_min Lat_sec EW Long_deg Long_min Long_sec Elev_m Elev_ft Country State County Locality Park Remarks Precision Done Georeferenced DeterminationCompare ModifiedBy ModifiedOn}
+        match_fields = %w{AccessionNumber DeterminationLabel OtherLabel LocalityLabel}
 
         path = @args[:data_directory] + 'TXT/specimens_new_partially_resolved.txt'
         raise 'file not found' if not File.exists?(path)
@@ -1136,6 +1142,9 @@ namespace :tw do
         count_fields = %w{ AdultMale AdultFemale Immature Pupa Exuvium AdultUnsexed AgeUnknown OtherSpecimens }.freeze
 
         sp.each_with_index do |row, i|
+
+          break if i > 50000
+
           unless row['Prefix'] == 'Loan Invoice'
             locality_code = row['LocalityCode']
             se = { }
@@ -1364,7 +1373,7 @@ namespace :tw do
 
         sp = CSV.open(path, col_sep: "\t", :headers => true)
 
-        specimen_fields = %w{ SampleID MuseumID TaxonCode IdentifiedBy IdentifierEmail IdentifierInstitution IdentificationMethod TaxonomyNotes ExtraInfo Remarks VoucherStatus TissueDescriptor AssociatedTaxa AssociatedSpecimens ExternalURLs Collector DateCollectedBeginning LocalityCode GPSSource CoordinateAccuracy EventTime CollectionDateAccuracy SamplingProtocol CollectionNotes SiteCode AdultMale AdultFemale AdultUnsexed }
+        specimen_fields = %w{ SampleID MuseumID TaxonCode IdentifiedBy IdentifierEmail IdentifierInstitution IdentificationMethod TaxonomyNotes ExtraInfo Remarks VoucherStatus TissueDescriptor AssociatedTaxa AssociatedSpecimens ExternalURLs Collector DateCollectedBeginning DateCollectedEnding CollectionMethod LocalityCode GPSSource CoordinateAccuracy EventTime CollectionDateAccuracy SamplingProtocol CollectionNotes SiteCode AdultMale AdultFemale AdultUnsexed }
         count_fields = %w{ AdultMale AdultFemale Immature Pupa Exuvium AdultUnsexed AgeUnknown OtherSpecimens }
 
         sp.each_with_index do |row, i|
@@ -1437,7 +1446,9 @@ namespace :tw do
           c = Container.containerize(objects, CONTAINER_TYPE[row['PreparationType'].to_s].constantize )
           c.save
           c.identifiers << identifier if identifier
-          c.save
+         
+         # TODO: should already be saved off 
+         c.save
 
         elsif objects.count == 1 # Identifer on object
           objects.first.identifiers << identifier if identifier
@@ -1461,8 +1472,9 @@ namespace :tw do
       def add_determinations_insects(objects, row, data)
         #identifier = Identifier.where(namespace_id: @taxon_namespace.id, identifier: row['TaxonCode'], project_id: $project_id)
         #otu = identifier.empty? ? nil : identifier.first.identifier_object
-        otu = Otu.with_project_id($project_id).with_identifier('Taxon Code ' + row['TaxonCode'].to_s)
-        otu = otu.empty? ? nil : otu.first
+
+        otu = Identifier.where(project_id: $project_id, cached: 'Taxon Code ' + row['TaxonCode'].to_s, identifier_object_type: 'Otu').first.try(:identifier_object)
+ #       otu = otu.empty? ? nil : otu.first
 
 #        otu = data.otus[row['TaxonCode']]
         objects.each do |o|
@@ -1492,13 +1504,13 @@ namespace :tw do
         end
       end
 
-      def  index_collecting_events_from_accessions_new(data, import)
+      def index_collecting_events_from_accessions_new(data, import)
         path = @args[:data_directory] + 'TXT/accessions_new.txt' # self contained
         raise 'file not found' if not File.exists?(path)
 
         ac = CSV.open(path, col_sep: "\t", :headers => true)
 
-        fields = %w{ LocalityLabel Habitat Host AccessionNumber Country State County Locality Park DateCollectedBeginning DateCollectedEnding Collector CollectionMethod Elev_m Elev_ft NS Lat_deg Lat_min Lat_sec EW Long_deg Long_min Long_sec Comments PrecisionCode Datum ModifiedBy ModifiedOn }
+        fields = %w{LocalityLabel Habitat Host AccessionNumber Country State County Locality Park DateCollectedBeginning DateCollectedEnding Collector CollectionMethod Elev_m Elev_ft NS Lat_deg Lat_min Lat_sec EW Long_deg Long_min Long_sec Comments PrecisionCode Datum ModifiedBy ModifiedOn}
 
         puts "\naccession new records\n"
         ac.each_with_index do |row, i|
@@ -1525,15 +1537,17 @@ namespace :tw do
         raise 'file not found' if not File.exists?(path)
         le = CSV.open(path, col_sep: "\t", :headers => true)
 
-        fields = %w{ Collection AccessionNumber LedgerBook LedgersCountry LedgersState LedgersCounty LedgersLocality DateCollectedBeginning DateCollectedEnding Collector Order Family Genus Species HostGenus HostSpecies Sex LedgersComments Description Remarks LocalityCode OldLocalityCode CreatedBy CreatedOn }
+        fields = %w{Collection AccessionNumber LedgerBook LedgersCountry LedgersState LedgersCounty LedgersLocality DateCollectedBeginning DateCollectedEnding Collector Order Family Genus Species HostGenus HostSpecies Sex LedgersComments Description Remarks LocalityCode OldLocalityCode CreatedBy CreatedOn}
 
         puts "\n  from ledgers\n"
 
         le.each_with_index do |row, i|
           tmp_ce = { }
+        
           fields.each do |c|
             tmp_ce.merge!(c => row[c]) unless row[c].blank?
           end
+         
           unless tmp_ce['LocalityCode'].nil?
             if data.localities_index[tmp_ce['LocalityCode']].nil?
               print "\nLocality Code #{tmp_ce['LocalityCode']} does not exist!\n"
@@ -1730,16 +1744,30 @@ namespace :tw do
             if row['Prefix'].downcase == 'loan invoice' && !data.loan_invoice_speciments[row['CatalogNumber']].nil?
               #identifier = Identifier.where(namespace_id: @taxon_namespace.id, identifier: data.loan_invoice_speciments[row['CatalogNumber']]['TaxonCode'], project_id: $project_id)
               #specimen = identifier.empty? ? nil : identifier.first.identifier_object
-              otu = Otu.with_project_id($project_id).with_identifier('Taxon Code ' + data.loan_invoice_speciments[row['CatalogNumber']]['TaxonCode'].to_s)
-              specimen = otu.empty? ? nil : otu.first
+
+         #     otu = Otu.with_project_id($project_id).with_identifier('Taxon Code ' + data.loan_invoice_speciments[row['CatalogNumber']]['TaxonCode'].to_s)
+          
+              otu = Identifier.where(
+                project_id: $project_id, 
+                cached: 'Taxon Code ' + data.loan_invoice_speciments[row['CatalogNumber']]['TaxonCode'].to_s,
+                identifier_object_type: 'Otu' 
+              ).first.try(:identifier_object)
+
+              loan_item_object = otu # .empty? ? nil : otu.first
               total = data.loan_invoice_speciments[row['CatalogNumber']]['Total']
             else
-              identifier = Identifier.where(cached: row['Prefix'] + ' ' + row['CatalogNumber'], type: 'Identifier::Local::CatalogNumber', project_id: $project_id)
-              specimen = identifier.empty? ? nil : identifier.first.identifier_object
+              loan_item_object = Identifier.where(
+                cached: row['Prefix'] + ' ' + row['CatalogNumber'],
+                type: 'Identifier::Local::CatalogNumber',
+                project_id: $project_id,
+                identifier_object_type: 'CollectionObject'
+              ).first.try(:identifier_object)
+
+             # loan_item_object = identifier.empty? ? nil : identifier.first.identifier_object
               total = nil
             end
             l = LoanItem.create( loan: invoice,
-                              loan_item_object: specimen,
+                              loan_item_object: loan_item_object,
                               total: total,
                               date_returned: time_from_field(row['DateReturned']),
                               collection_object_status: status[row['Status'].to_s.downcase]
@@ -1787,8 +1815,8 @@ namespace :tw do
 
         ls.each_with_index do |row, i|
           print "\r#{i}"
-          otu = Otu.with_project_id($project_id).with_identifier('Taxon Code ' + row['TaxonCode'].to_s)
-          otu = otu.empty? ? nil : otu.first.id
+          otu = Identifier.where(project_id: $project_id, cached: 'Taxon Code ' + row['TaxonCode'].to_s, identifier_object_type: 'Otu').first.try(:identifier_object)
+          
           room = find_or_create_room_insects(row, data)
 
           container = Container.create!(created_by_id: find_or_create_collection_user_insects(row['CreatedBy'], data),
@@ -1797,7 +1825,6 @@ namespace :tw do
                                        updated_at: time_from_field(row['ModifiedOn']),
                                        parent_id: room,
                                        type: container_type[row['CollectionType']],
-                                       #otu_id: otu,
                                        name: nil
           )
 
@@ -1886,11 +1913,11 @@ namespace :tw do
           name = file.match(/([^\/.]*).jpg$/)
           identifier = name.nil? ? nil : name[1]
           unless identifier.nil?
-            ce = CollectingEvent.with_project_id($project_id).with_identifier('Accession Code ' + identifier).first
-            if ce.nil?
-              print "\nCollecting event with identifier #{identifier} does not exist\n"
-            else
+            if ce = Identifier.where(project_id: $project_id, cached: 'Accession Code ' + identifier, identifier_object_type: 'CollectingEvent').first.try(:identifier_object)
               ce.depictions << Depiction.create(image_attributes: { image_file: File.open(file) })
+
+            else
+              print "\nCollecting event with identifier #{identifier} does not exist\n"             
               #d1 = Depiction.create(image_attributes: { image_file: File.open(file) }, depiction_object: ce)
             end
           end
@@ -1898,29 +1925,24 @@ namespace :tw do
       end
 
       def handle_loan_images(data1)
-        byebug
-        def handle_locality_images(data1)
-          path = @args[:data_directory] + 'loans/**/*'
-          print "\nLoan images\n"
+        path = @args[:data_directory] + 'loans/**/*'
+        print "\nLoan images\n"
 
-          Dir.glob(path).each_with_index do |file, i|
-            print "\r#{i}"
-            name = file.match(/([^\/.]*).pdf$/)
-            identifier = name.nil? ? nil : name[1]
-            unless identifier.nil?
-            ce = Loan.with_project_id($project_id).with_identifier('Invoice ' + identifier).first
-            if ce.nil?
+        Dir.glob(path).each_with_index do |file, i|
+          print "\r#{i}"
+          name = file.match(/([^\/.]*).pdf$/)
+          identifier = name.nil? ? nil : name[1]
+          unless identifier.nil?
+            loan = Identifier.where(project_id: $project_id, cached: 'Invoice ' + identifier, identifier_object_type: 'Loan').first.try(:identifier_object)
+            if loan.nil?
               print "\nInvoice with identifier #{identifier} does not exist\n"
             else
-              d1 = Pdf.create(image_attributes: { image_file: File.open(file) }, depiction_object: ce)
+              # !! fix this, not testest
+              d1 = Document.create(document_file: File.open(file) , documentation_attributes: [{documentation_object: loan } ])
             end
           end
-          end
         end
-
       end
-
-
 
       def parse_geographic_area_insects(ce)
         geog_search = []
