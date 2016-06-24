@@ -10,14 +10,16 @@ namespace :tw do
 #         ok create SFTaxonNameIDToTWTaxonNameID hash;
 #         ok save NameStatus, StatusFlags, in hashes as data_attributes or hashes?;
 #         ok set rank according to sf_rank_id_to_tw_rank_string hash;
-#         set classification if
+#         ok set classification if
 #           nomen nudum = TaxonNameClassification::Iczn::Unavailable::NomenNudum (StatusFlags & 8 = 8 if NameStatus = 4 or 7),
 #           nomen dubium = TaxonNameClassification::Iczn::Available::Valid::NomenDubium (StatusFlags & 16 = 16 if NameStatus = 5 or 7), and
-#           fossil = TaxonNameClassification::Iczn::Fossil (rest would have relationships);
+#           fossil = TaxonNameClassification::Iczn::Fossil (extinct = 1)
+#           (other classifications will probably have relationships);
 #         ok add nomenclatural comment as TW.Note (in row['Comment']);
-#         if temporary, make an OTU which has the TaxonNameID of the AboveID as the taxon name reference (or find the most recent valid above ID);
+#         ok if temporary, make an OTU which has the TaxonNameID of the AboveID as the taxon name reference (or find the most recent valid above ID);
 #         ok natural order is TaxonNameStr (must be in order to ensure synonym parent already imported);
-#         for synonyms, use sf_synonym_id_to_parent_id_hash; create error message if not found (hash was created from dynamic tblTaxa later than .txt);
+#         ok for synonyms, use sf_synonym_id_to_parent_id_hash; create error message if not found (hash was created from dynamic tblTaxa later than .txt);
+      # ADD HOUSEKEEPING to _attributes
 # pass 2
 
       desc 'create all SF taxa (pass 1)'
@@ -31,12 +33,13 @@ namespace :tw do
         get_rank_string = species_file_data.get('SFRankIDToTWRankString')
         get_source_id = species_file_data.get('SFRefIDToTWSourceID')
         get_project_id = species_file_data.get('SFFileIDToTWProjectID')
-        get_animalia_id = species_file_data.get('ProjectIDToAnimaliaID')  # key = TW.Project.id, value TW.TaxonName.id where Name = 'Animalia', used when AboveID = 0
+        get_animalia_id = species_file_data.get('ProjectIDToAnimaliaID') # key = TW.Project.id, value TW.TaxonName.id where Name = 'Animalia', used when AboveID = 0
         get_synonym_parent_id = species_file_data.get('SFSynonymIDToParentID')
 
         get_tw_taxon_name_id = {} # SF.TaxonNameID to TW.TaxonNameID hash, key = SF.TaxonNameID, value = TW.taxon_name.id
         get_sf_name_status = {} # key = SF.TaxonNameID, value = SF.NameStatus
         get_sf_status_flags = {} # key = SF.TaxonNameID, value = SF.StatusFlags
+        get_tw_otu_id = {}  # key = SF.TaxonNameID, value = TW.otu.id; used for temporary SF taxa
 
         path = @args[:data_directory] + 'working/tblTaxa.txt'
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: "UTF-16:UTF-8")
@@ -51,68 +54,85 @@ namespace :tw do
           project_id = get_project_id[row['FileID']]
 
           count_found += 1
-          print "working with TW.project_id: #{project_id} = SF.FileID #{row['FileID']}, SF.TaxonNameID #{taxon_name_id} (count #{count_found}) \n"
+          print "Working with TW.project_id: #{project_id} = SF.FileID #{row['FileID']}, SF.TaxonNameID #{taxon_name_id} (count #{count_found}) \n"
 
-          if row['AboveID'] == '0'  # must check AboveID = 0 before synonym
+          if row['AboveID'] == '0' # must check AboveID = 0 before synonym
             parent_id = get_animalia_id[project_id]
-          elsif row['NameStatus'] == '7'  # = synonym
-            parent_id = get_tw_taxon_name_id[get_synonym_parent_id[taxon_name_id]]  # assumes tw_taxon_name_id exists
+          elsif row['NameStatus'] == '7' # = synonym
+            parent_id = get_tw_taxon_name_id[get_synonym_parent_id[taxon_name_id]] # assumes tw_taxon_name_id exists
           else
             parent_id = get_tw_taxon_name_id[row['AboveID']]
           end
 
           if parent_id == nil
-            # create error message, then reloop?
+            puts '      ERROR: Could not find parent_id!'
+            next
           end
 
-          # if NameStatus = 2, temporary, create OTU, not TaxonName
+          name_status = row['NameStatus']
+          status_flags = row['StatusFlags']
 
-
-
-          # where to set classification?   initialize each loop instance
-
-
-          taxon_name = Protonym.new(
+          if name_status == '2' # temporary, create OTU, not TaxonName
+           otu = Otu.new(
               name: row['Name'],
-              parent_id: get_parent_id[row['AboveID']],
-              rank_class: get_rank_string[row['RankID']],
-
-              origin_citation_attributes: {source_id: get_source_id[row['RefID']], project_id: project_id,
-                                           created_by_id: get_user_id[row['CreatedBy']], updated_by_id: get_user_id[row['ModifiedBy']]},
-
-              notes_attributes: [{text: (row['Comment'].blank? ? nil : row['Comment'])}],
-
-              taxon_name_classifications_attributes: [{type: nomen_dubium}, {type: nomen_nudum}, {type: fossil}],
-
-              # create OTU, too?
-              also_create_otu: true,
-
+              taxon_name_id: parent_id,
               project_id: project_id,
               created_at: row['CreatedOn'],
               updated_at: row['LastUpdate'],
               created_by_id: get_user_id[row['CreatedBy']],
               updated_by_id: get_user_id[row['ModifiedBy']]
-          )
+           )
 
+            if otu.save
+              puts "  Note!! Created OTU for temporary taxon, otu.id: #{otu.id}"
+              get_tw_otu_id[row['TaxonNameID']] = taxon_name.id
+              get_sf_name_status[row['TaxonNameID']] = name_status
+              get_sf_status_flags[row['TaxonNameID']] = status_flags
 
-
-
-
-          if taxon_name.save
-
-            get_tw_taxon_name_id[row['TaxonNameID']] = taxon_name.id
-            get_sf_name_status[row['TaxonNameID']] = row['NameStatus']
-            get_sf_status_flags[row['TaxonNameID']] = row['StatusFlags']
-
-
-
+            else
+              error_counter += 1
+              puts "     OTU ERROR (#{error_counter}): " + otu.errors.full_messages.join(';')
+              puts "  project_id: #{project_id}, SF.TaxonNameID: #{row['TaxonNameID']}, sf row created by: #{row['CreatedBy']}, sf row updated by: #{row['ModifiedBy']}    "
+             end
 
           else
-            error_counter += 1
-            puts "     ERROR (#{error_counter}): " + taxon_name.errors.full_messages.join(';')
-            puts "  project_id: #{project_id}, SF.TaxonNameID: #{row['TaxonNameID']}, TW.taxon_name.id #{taxon_name.id} sf row created by: #{row['CreatedBy']}, sf row updated by: #{row['ModifiedBy']}    "
-          end
+            fossil, nomen_nudum, nomen_dubium = nil
+            fossil = 'TaxonNameClassification::Iczn::Fossil' if row['Extinct'] == '1'
+            nomen_nudum = 'TaxonNameClassification::Iczn::Unavailable::NomenNudum' if status_flags.to_i & 8 == 8
+            nomen_dubium = 'TaxonNameClassification::Iczn::Available::Valid::NomenDubium' if status_flags.to_i & 16 == 16
 
+            taxon_name = Protonym.new(
+                name: row['Name'],
+                parent_id: get_parent_id[row['AboveID']],
+                rank_class: get_rank_string[row['RankID']],
+
+                origin_citation_attributes: {source_id: get_source_id[row['RefID']], project_id: project_id,
+                                             created_by_id: get_user_id[row['CreatedBy']], updated_by_id: get_user_id[row['ModifiedBy']]},
+
+                notes_attributes: [{text: (row['Comment'].blank? ? nil : row['Comment'])}],
+
+                taxon_name_classifications_attributes: [{type: fossil}, {type: nomen_nudum}, {type: nomen_dubium}],
+
+                also_create_otu: true,  # pretty nifty way to make automatically make an OTU!
+
+                project_id: project_id,
+                created_at: row['CreatedOn'],
+                updated_at: row['LastUpdate'],
+                created_by_id: get_user_id[row['CreatedBy']],
+                updated_by_id: get_user_id[row['ModifiedBy']]
+            )
+
+            if taxon_name.save
+              get_tw_taxon_name_id[row['TaxonNameID']] = taxon_name.id
+              get_sf_name_status[row['TaxonNameID']] = name_status
+              get_sf_status_flags[row['TaxonNameID']] = status_flags
+
+            else
+              error_counter += 1
+              puts "     TaxonName ERROR (#{error_counter}): " + taxon_name.errors.full_messages.join(';')
+              puts "  project_id: #{project_id}, SF.TaxonNameID: #{row['TaxonNameID']}, sf row created by: #{row['CreatedBy']}, sf row updated by: #{row['ModifiedBy']}    "
+            end
+          end
         end
       end
 
@@ -222,89 +242,89 @@ namespace :tw do
         ap get_apex_taxon_parent_id
       end
 
-# desc 'create valid taxa for Embioptera (FileID = 60)'
-# task :create_valid_taxa_for_embioptera => [:data_directory, :environment, :user_id] do
-#   ### time rake tw:project_import:sf_taxa:create_valid_taxa_for_embioptera user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
-#
-#   species_file_data = Import.find_or_create_by(name: 'SpeciesFileData')
-#   get_user_id = species_file_data.get('FileUserIDToTWUserID') # for housekeeping
-#   get_rank_string = species_file_data.get('SFRankIDToTWRankString')
-#   get_apex_taxon_id = species_file_data.get('TWProjectIDToSFApexTaxonID')
-#   get_source_id = species_file_data.get('SFRefIDToTWSourceID')
-#
-#   sf_taxon_name_id_to_tw_taxon_name_id = {} # hash of SF.AboveIDs = parent_id, key = SF.TaxonNameID, value = TW.taxon_name.id
-#   get_parent_id = sf_taxon_name_id_to_tw_taxon_name_id
-#
-#
-#   # name_status_lookup = {
-#   #     1 => 'TaxonNameClassification::Iczn::'
-#   # }
-#
-#   # if temporary, don't make taxon name, make an OTU, that OTU has the TaxonNameID of the AboveID as the taxon name reference (or find the most recent valid above ID)
-#
-#
-#   project_id = Project.find_by_name('embioptera_species_file').id
-#   apex_taxon_name_id = get_apex_taxon_id[project_id.to_s]
-#
-#   path = @args[:data_directory] + 'working/tblTaxa.txt'
-#   file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: "UTF-16:UTF-8")
-#
-#   # first loop to get ApexTaxonNameID.AboveID
-#   # puts "before the first loop, apex_taxon_name_id = #{apex_taxon_name_id.class}"
-#   file.each do |row|
-#     next unless row['TaxonNameID'] == apex_taxon_name_id
-#     get_parent_id[row['AboveID']] = TaxonName.find_by(project_id: project_id, name: 'Root').id # substitute for row['AboveID']
-#     break
-#   end
-#   # puts 'done with first loop'
-#   # ap get_parent_id
-#
-#   error_counter = 0
-#   count_found = 0
-#
-#   file.each_with_index do |row, i|
-#     taxon_name_id = row['TaxonNameID']
-#     next unless row['TaxonNameStr'].start_with?(apex_taxon_name_id)
-#     next unless row['NameStatus'] == '0'
-#     # Valid names only, 18, including 0, instances of StatusFlags > 0 when NameStatus = 0
-#     # NameStatus should be attached to taxon_name as data_attribute?
-#
-#     count_found += 1
-#     print "working with TaxonNameID #{taxon_name_id} (count #{count_found}) \n"
-#
-#     taxon_name = Protonym.new(
-#         # taxon_name = TaxonName.new(
-#         name: row['Name'],
-#         parent_id: get_parent_id[row['AboveID']],
-#         rank_class: get_rank_string[row['RankID']],
-#         # type: 'Protonym',
-#
-#         origin_citation_attributes: {source_id: get_source_id[row['RefID']], project_id: project_id,
-#                                      created_by_id: get_user_id[row['CreatedBy']], updated_by_id: get_user_id[row['ModifiedBy']]},
-#
-#         # original_genus_id: cannot set until all taxa (for a given project) are imported; and the out of scope taxa as well,
-#
-#         project_id: project_id,
-#         created_at: row['CreatedOn'],
-#         updated_at: row['LastUpdate'],
-#         created_by_id: get_user_id[row['CreatedBy']],
-#         updated_by_id: get_user_id[row['ModifiedBy']]
-#     )
-#
-#     if taxon_name.save
-#
-#       sf_taxon_name_id_to_tw_taxon_name_id[row['TaxonNameID']] = taxon_name.id
-#
-#     else
-#       error_counter += 1
-#       puts "     ERROR (#{error_counter}): " + taxon_name.errors.full_messages.join(';')
-#       puts "  project_id: #{project_id}, SF.TaxonNameID: #{row['TaxonNameID']}, TW.taxon_name.id #{taxon_name.id} sf row created by: #{row['CreatedBy']}, sf row updated by: #{row['ModifiedBy']}    "
-#     end
-#
-#   end
-#
-#
-# end
+      # desc 'create valid taxa for Embioptera (FileID = 60)'
+      # task :create_valid_taxa_for_embioptera => [:data_directory, :environment, :user_id] do
+      #   ### time rake tw:project_import:sf_taxa:create_valid_taxa_for_embioptera user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
+      #
+      #   species_file_data = Import.find_or_create_by(name: 'SpeciesFileData')
+      #   get_user_id = species_file_data.get('FileUserIDToTWUserID') # for housekeeping
+      #   get_rank_string = species_file_data.get('SFRankIDToTWRankString')
+      #   get_apex_taxon_id = species_file_data.get('TWProjectIDToSFApexTaxonID')
+      #   get_source_id = species_file_data.get('SFRefIDToTWSourceID')
+      #
+      #   sf_taxon_name_id_to_tw_taxon_name_id = {} # hash of SF.AboveIDs = parent_id, key = SF.TaxonNameID, value = TW.taxon_name.id
+      #   get_parent_id = sf_taxon_name_id_to_tw_taxon_name_id
+      #
+      #
+      #   # name_status_lookup = {
+      #   #     1 => 'TaxonNameClassification::Iczn::'
+      #   # }
+      #
+      #   # if temporary, don't make taxon name, make an OTU, that OTU has the TaxonNameID of the AboveID as the taxon name reference (or find the most recent valid above ID)
+      #
+      #
+      #   project_id = Project.find_by_name('embioptera_species_file').id
+      #   apex_taxon_name_id = get_apex_taxon_id[project_id.to_s]
+      #
+      #   path = @args[:data_directory] + 'working/tblTaxa.txt'
+      #   file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: "UTF-16:UTF-8")
+      #
+      #   # first loop to get ApexTaxonNameID.AboveID
+      #   # puts "before the first loop, apex_taxon_name_id = #{apex_taxon_name_id.class}"
+      #   file.each do |row|
+      #     next unless row['TaxonNameID'] == apex_taxon_name_id
+      #     get_parent_id[row['AboveID']] = TaxonName.find_by(project_id: project_id, name: 'Root').id # substitute for row['AboveID']
+      #     break
+      #   end
+      #   # puts 'done with first loop'
+      #   # ap get_parent_id
+      #
+      #   error_counter = 0
+      #   count_found = 0
+      #
+      #   file.each_with_index do |row, i|
+      #     taxon_name_id = row['TaxonNameID']
+      #     next unless row['TaxonNameStr'].start_with?(apex_taxon_name_id)
+      #     next unless row['NameStatus'] == '0'
+      #     # Valid names only, 18, including 0, instances of StatusFlags > 0 when NameStatus = 0
+      #     # NameStatus should be attached to taxon_name as data_attribute?
+      #
+      #     count_found += 1
+      #     print "working with TaxonNameID #{taxon_name_id} (count #{count_found}) \n"
+      #
+      #     taxon_name = Protonym.new(
+      #         # taxon_name = TaxonName.new(
+      #         name: row['Name'],
+      #         parent_id: get_parent_id[row['AboveID']],
+      #         rank_class: get_rank_string[row['RankID']],
+      #         # type: 'Protonym',
+      #
+      #         origin_citation_attributes: {source_id: get_source_id[row['RefID']], project_id: project_id,
+      #                                      created_by_id: get_user_id[row['CreatedBy']], updated_by_id: get_user_id[row['ModifiedBy']]},
+      #
+      #         # original_genus_id: cannot set until all taxa (for a given project) are imported; and the out of scope taxa as well,
+      #
+      #         project_id: project_id,
+      #         created_at: row['CreatedOn'],
+      #         updated_at: row['LastUpdate'],
+      #         created_by_id: get_user_id[row['CreatedBy']],
+      #         updated_by_id: get_user_id[row['ModifiedBy']]
+      #     )
+      #
+      #     if taxon_name.save
+      #
+      #       sf_taxon_name_id_to_tw_taxon_name_id[row['TaxonNameID']] = taxon_name.id
+      #
+      #     else
+      #       error_counter += 1
+      #       puts "     ERROR (#{error_counter}): " + taxon_name.errors.full_messages.join(';')
+      #       puts "  project_id: #{project_id}, SF.TaxonNameID: #{row['TaxonNameID']}, TW.taxon_name.id #{taxon_name.id} sf row created by: #{row['CreatedBy']}, sf row updated by: #{row['ModifiedBy']}    "
+      #     end
+      #
+      #   end
+      #
+      #
+      # end
 
       desc 'XXX create project_id: apex_taxon_id hash (all SFs)'
       # use Animalia instead; project_id_animalia_id_hash
