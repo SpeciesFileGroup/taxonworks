@@ -716,7 +716,7 @@ describe GeographicItem, type: :model, group: :geo do
   #   http://postgis.net/docs/using_postgis_dbmanagement.html#PostGIS_Geography
   context 'certain known errors ' do
 
-    # this shape is designed to cross the anti-meridian, with a centroid in the Western Hemisphere, around -179.3
+    # this shape is designed to cross the anti-meridian, with a centroid in the Western Hemisphere, around -179.5
     let(:a) { RSPEC_GEO_FACTORY.point(179, 27) }
     let(:b) { RSPEC_GEO_FACTORY.point(-178, 27) }
     let(:c) { RSPEC_GEO_FACTORY.point(-178, 25) }
@@ -741,11 +741,11 @@ describe GeographicItem, type: :model, group: :geo do
     let(:neg_box) { FactoryGirl.create(:geographic_item, polygon: shape_neg_box) }
 
 
-    let(:pre_line_string_f_i) { RSPEC_GEO_FACTORY.line_string([a, b, c, d])  }
+    let(:pre_line_string_f_i) { RSPEC_GEO_FACTORY.line_string([a, b, c, d]) }
     let(:pre_shape_f_i) { RSPEC_GEO_FACTORY.polygon(pre_line_string_f_i) }
 
     let(:shape_f_i) { RSPEC_GEO_FACTORY.multi_polygon([pre_shape_f_i]) }
-    let(:line_string_f_i) {FactoryGirl.create(:geographic_item, line_string: pre_line_string_f_i) }
+    let(:line_string_f_i) { FactoryGirl.create(:geographic_item, line_string: pre_line_string_f_i) }
     let(:item_f_i) { FactoryGirl.create(:geographic_item, polygon: pre_shape_f_i) }
 
     # let(:far_island_point) { RSPEC_GEO_FACTORY.point(-178.5, 26) }
@@ -754,24 +754,38 @@ describe GeographicItem, type: :model, group: :geo do
 
     let(:point_f_i) { FactoryGirl.create(:geographic_item, point: far_island_point) }
 
-    let(:cent) { FactoryGirl.create(:geographic_item, point: item_f_i.st_centroid)}
+    let(:cent) { FactoryGirl.create(:geographic_item, point: item_f_i.st_centroid) }
 
-    let(:x1) { RSPEC_GEO_FACTORY.point(181.5, 26)  }
-    let(:x2) { RSPEC_GEO_FACTORY.point(-181.5, 26)  }
+    let(:x1) { RSPEC_GEO_FACTORY.point(181.5, 26) }
+    let(:x2) { RSPEC_GEO_FACTORY.point(-181.5, 26) }
 
     let(:x1_geographic_item) { FactoryGirl.create(:geographic_item, point: x1) }
     let(:x2_geographic_item) { FactoryGirl.create(:geographic_item, point: x2) }
 
-    specify 'neg_point found in neg_box' do
-      expect(neg_box.contains?(neg_point.geo_object)).to be_truthy
-      expect(neg_point.within?(neg_box.geo_object)).to be_truthy
-      expect(true).to be_truthy
-    end
+    context 'points in a box' do
+      specify 'neg_point found in neg_box' do
+        expect(neg_box.contains?(neg_point.geo_object)).to be_truthy
+        expect(neg_point.within?(neg_box.geo_object)).to be_truthy
+        expect(true).to be_truthy
+      end
 
-    specify 'pos_point found in pos_box' do
-      expect(pos_box.contains?(pos_point.geo_object)).to be_truthy
-      expect(pos_point.within?(pos_box.geo_object)).to be_truthy
-      expect(true).to be_truthy
+      specify 'pos_point found in pos_box' do
+        expect(pos_box.contains?(pos_point.geo_object)).to be_truthy
+        expect(pos_point.within?(pos_box.geo_object)).to be_truthy
+        expect(true).to be_truthy
+      end
+
+      specify 'neg_point found in pos_box' do
+        expect(pos_box.contains?(neg_point.geo_object)).to be_truthy
+        expect(neg_point.within?(pos_box.geo_object)).to be_truthy
+        expect(true).to be_truthy
+      end
+
+      specify 'pos_point found in neg_box' do
+        expect(neg_box.contains?(pos_point.geo_object)).to be_truthy
+        expect(pos_point.within?(neg_box.geo_object)).to be_truthy
+        expect(true).to be_truthy
+      end
     end
 
     # note the reload!
@@ -800,15 +814,13 @@ describe GeographicItem, type: :model, group: :geo do
       end
 
       context 'first point positive' do
-        let(:shape) { RSPEC_GEO_FACTORY.line_string([a, b, c, d])  }
+        let(:shape) { RSPEC_GEO_FACTORY.line_string([a, b, c, d]) }
         let(:gi) { FactoryGirl.create(:geographic_item, line_string: shape) }
 
         specify 'line_string effect' do
           expect(gi.reload.geo_object.to_s).to eq('LINESTRING (179.0 27.0 0.0, -178.0 27.0 0.0, -178.0 25.0 0.0, 179.0 25.0 0.0)')
         end
-
       end
-
 
       specify 'point effect' do
         expect(far_island_point.to_s).to eq('POINT (-178.5 26.0 0.0)')
