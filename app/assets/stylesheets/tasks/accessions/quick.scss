@@ -1,11 +1,14 @@
 @import 'workbench/palette';
 
 #quick_task {
+
 	.item {
 		flex-grow:0;
 	}
 
-	#identifier {}
+	.flexbox {
+		justify-content: flex-start;
+	}
 
 	.field {
 		label {

@@ -8,15 +8,14 @@ input[type=checkbox].increment { display: none; }
 .icon-checkbox {
   display: inline-block;
   cursor: pointer;
-  width: 20px;
-  height:20px;
-  max-width: 20px;
-  max-height:20px;
+  width: 25px;
+  height:25px;
+  max-width: 25px;
+  max-height:25px;
   background-size: 12px;
   background-position: center;
   background-repeat: no-repeat;
   border-radius: 50%;
-  padding: 3px;
   transition: background-color 0.5s ease;
   background-color: #F5F5F5;
 

@@ -3,7 +3,7 @@
 <%= form_for(@specimen, as: :specimen, url: create_simple_specimen_task_path, html: {class: :dropzone, id: 'simple-specimen-task'}) do |f| -%>
   <div class="flex-wrap-row get_fields">
     <div class=".flex-wrap-column">
-        <div class="panel no-shadow">
+        <div class="panel no-shadow small_space">
           <%= f.fields_for(:identifiers, @specimen.identifiers) do |i| -%>
               <%= i.hidden_field :type -%>
 
@@ -104,11 +104,11 @@
     </div> <!---- end column 1 ---->
 
 
-    <div class=".flex-wrap-column">
+    <div class="flex-wrap-column small_space">
       <%= submit_tag 'Create', id: :simple_create %>
     </div>
 
-    <div class=".flex-wrap-column">
+    <div class="flex-wrap-column small_space">
       <div class="actions">
         <div id="collecting_event_filter" class="panel"></div>
       </div>
