@@ -65,7 +65,7 @@ module SqedToTaxonworks
     end
 
     def sqed
-      @sqed ||= Sqed.new( sqed_depiction.extraction_metadata.merge(image: original_image) )
+      @sqed ||= Sqed.new( sqed_depiction.extraction_metadata.merge(target_image: original_image) )
     end
 
     # Minimize use of this if possible, depend on the cached values when possible.

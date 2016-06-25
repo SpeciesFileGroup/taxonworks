@@ -56,7 +56,7 @@ class SqedDepiction < ActiveRecord::Base
       boundary_color: self.boundary_color.to_sym,
       boundary_finder: boundary_finder,
       has_border: self.has_border,
-      layout: self.layout.to_sym,          
+      target_layout: self.layout.to_sym,
       metadata_map: sqed_metadata_map
     }
  end
