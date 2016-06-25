@@ -43,7 +43,7 @@ RSpec.describe SqedDepiction, type: :model do
     end
 
     specify ':layout' do
-      expect(valid_sqed_depiction.extraction_metadata[:layout]).to eq(:cross)
+      expect(valid_sqed_depiction.extraction_metadata[:target_layout]).to eq(:cross)
     end
 
     specify ':metadata_map' do
