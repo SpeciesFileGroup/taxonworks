@@ -9,29 +9,29 @@
 	.otu_picker > label {
 		display: none !important;
 	}
+
 	.expandable {
 		width: 340px !important;
 	}
 
-	.field {
+	.side_by_side_fields {
+		input {
+			width: 152px;
+		}
+	}
 
+	.field {
 		align-items: center;
 		display: flex;
 		flex-direction: row;
 
-		input[type=text] {
-			max-width: 100%;
-			display: inline-block;
-		}
-
 		textarea {
-			width: 340px;
+			width: 330px;
 			display: inline-block;
 		}
 
 		label {
-			padding-right: 5px;
-			vertical-align: top;
+			margin: 5px;
 			width: 120px;
 			text-align: right;
 			display: inline-block;
@@ -56,7 +56,10 @@
 		border-radius: 3px;
 	}
 
-
+	#collecting_event_fields {
+		padding-right: 10px;
+		border-right: 1px solid $navigation-border;
+	}
 
 	#selected_collecting_event {
 		display: flex;
