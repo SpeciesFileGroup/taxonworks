@@ -1,0 +1,18 @@
+<h1> Objects with keyword "<%= @controlled_vocabulary_term.name %>"</h1>
+
+<% @controlled_vocabulary_term.class.reflect_on_all_associations(:has_many).each do |r| %>
+  <% next if r.name =~ /_hierarchies/ %>
+  <% if r.name.to_s.eql? "tags" %>
+    <% if @controlled_vocabulary_term.respond_to?(r.name) %>
+      <ul>
+      <% @controlled_vocabulary_term.send(r.name.to_s).all.each do |o| %>
+        <li>
+          <%= object_link(Object.const_get(o.tag_object_type).find(o.tag_object_id)) %>
+        </li>
+      <% end %>
+      </ul>
+    <% end %>
+  <% end %>
+<% end %>
+
+<%= link_to 'back', metamorphosize_if(@controlled_vocabulary_term) %>

@@ -13,6 +13,7 @@ class ControlledVocabularyTermsController < ApplicationController
   # GET /controlled_vocabulary_terms/1
   # GET /controlled_vocabulary_terms/1.json
   def show
+    set_controlled_vocabulary_term
   end
 
   # GET /controlled_vocabulary_terms/new
@@ -118,6 +119,11 @@ class ControlledVocabularyTermsController < ApplicationController
   def download
     send_data ControlledVocabularyTerm.generate_download(ControlledVocabularyTerm.where(project_id: $project_id)), type: 'text', filename: "controlled_vocabulary_terms_#{DateTime.now.to_s}.csv"
   end
+
+  # GET /controlled_vocabulary_terms/1/tagged_objects
+  def tagged_objects
+    set_controlled_vocabulary_term
+  end 
 
   private
   # Use callbacks to share common setup or constraints between actions.

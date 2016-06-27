@@ -143,6 +143,10 @@ TaxonWorks::Application.routes.draw do
 
   resources :controlled_vocabulary_terms do
     concerns [:data_routes]
+
+    member do
+      get 'tagged_objects'
+    end
   end
 
   resources :data_attributes, except: [:show] do

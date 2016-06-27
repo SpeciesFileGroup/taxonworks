@@ -1,1 +1,9 @@
+<% content_for :report do %>
+  <% if @controlled_vocabulary_term.type.eql? 'Keyword' %>
+    <%= content_tag(:li, link_to('Tagged Objects', 
+                                  controller: 'controlled_vocabulary_terms', 
+                                  action: 'tagged_objects')) %>
+  <% end %>
+<% end %>
+
 <%= render(partial: 'shared/data/project/show', locals: {object: @controlled_vocabulary_term}) -%>
