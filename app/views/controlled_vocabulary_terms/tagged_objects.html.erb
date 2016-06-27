@@ -5,10 +5,13 @@
   <% if r.name.to_s.eql? "tags" %>
     <% if @controlled_vocabulary_term.respond_to?(r.name) %>
       <ul>
-      <% @controlled_vocabulary_term.send(r.name.to_s).all.each do |o| %>
-        <li>
-          <%= object_link(Object.const_get(o.tag_object_type).find(o.tag_object_id)) %>
-        </li>
+      <% @controlled_vocabulary_term.send(r.name.to_s).all.group_by{ |o| o.tag_object_type }.each do |key, array| %>
+        <h3><%= key + ' (' + array.length.to_s + ')' %></h3>
+        <% array.each do |o| %>
+          <li>
+            <%= object_link(Object.const_get(o.tag_object_type).find(o.tag_object_id)) %>
+          </li>
+        <% end %>
       <% end %>
       </ul>
     <% end %>
