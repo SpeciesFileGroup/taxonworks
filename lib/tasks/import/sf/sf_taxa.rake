@@ -41,7 +41,7 @@ namespace :tw do
         get_sf_status_flags = {} # key = SF.TaxonNameID, value = SF.StatusFlags
         get_tw_otu_id = {}  # key = SF.TaxonNameID, value = TW.otu.id; used for temporary SF taxa
 
-        path = @args[:data_directory] + 'working/tblTaxa.txt'
+        path = @args[:data_directory] + 'working_old/tblTaxa.txt'
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: "UTF-16:UTF-8")
 
         error_counter = 0
@@ -57,7 +57,7 @@ namespace :tw do
           print "Working with TW.project_id: #{project_id} = SF.FileID #{row['FileID']}, SF.TaxonNameID #{taxon_name_id} (count #{count_found}) \n"
 
           if row['AboveID'] == '0' # must check AboveID = 0 before synonym
-            parent_id = get_animalia_id[project_id]
+            parent_id = get_animalia_id[project_id.to_s]
           elsif row['NameStatus'] == '7' # = synonym
             parent_id = get_tw_taxon_name_id[get_synonym_parent_id[taxon_name_id]] # assumes tw_taxon_name_id exists
           else
@@ -106,8 +106,10 @@ namespace :tw do
                 parent_id: get_parent_id[row['AboveID']],
                 rank_class: get_rank_string[row['RankID']],
 
-                origin_citation_attributes: {source_id: get_source_id[row['RefID']], project_id: project_id,
-                                             created_by_id: get_user_id[row['CreatedBy']], updated_by_id: get_user_id[row['ModifiedBy']]},
+                origin_citation_attributes: {source_id: get_source_id[row['RefID']],
+                                             project_id: project_id,
+                                             created_by_id: get_user_id[row['CreatedBy']],
+                                             updated_by_id: get_user_id[row['ModifiedBy']]},
 
                 notes_attributes: [{text: (row['Comment'].blank? ? nil : row['Comment'])}],
 

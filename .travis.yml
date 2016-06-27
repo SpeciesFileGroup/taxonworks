@@ -9,6 +9,7 @@ branches:
       - master
       - Rails-5.0
       - development
+      - travis-trusty-beta
 addons:
   postgresql: "9.4"
   apt:
