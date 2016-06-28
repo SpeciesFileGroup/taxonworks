@@ -20,6 +20,17 @@ namespace :tw do
 #         ok natural order is TaxonNameStr (must be in order to ensure synonym parent already imported);
 #         ok for synonyms, use sf_synonym_id_to_parent_id_hash; create error message if not found (hash was created from dynamic tblTaxa later than .txt);
       # ADD HOUSEKEEPING to _attributes
+
+      # 20160628
+      # Tasks before dumping and restoring db
+      #   Keep copy of current db with some taxa imported
+      #   Force Import hashes to be integers if applicable and change usage instances accordingly
+      #   Manually transfer two adjunct tables, sfVerbatimRefs and sfSynonymParents
+      #   Make sure path references correct subdirectory (working vs. old)
+      #   Where does ref_id_to_ref_link.txt come from (in direct_from_sf subdirectory)? Probably needs to be included in ScriptsFor1db2tw.sql...
+      #   Figure out how to assign myself as project member in each SF
+      #   Make sure none_species_file does not get created (FileID must be > 0)
+
 # pass 2
 
       desc 'create all SF taxa (pass 1)'
@@ -85,7 +96,7 @@ namespace :tw do
 
             if otu.save
               puts "  Note!! Created OTU for temporary taxon, otu.id: #{otu.id}"
-              get_tw_otu_id[row['TaxonNameID']] = taxon_name.id
+              get_tw_otu_id[row['TaxonNameID']] = otu.id
               get_sf_name_status[row['TaxonNameID']] = name_status
               get_sf_status_flags[row['TaxonNameID']] = status_flags
 
@@ -103,19 +114,24 @@ namespace :tw do
 
             taxon_name = Protonym.new(
                 name: row['Name'],
-                parent_id: get_parent_id[row['AboveID']],
+                parent_id: parent_id,
                 rank_class: get_rank_string[row['RankID']],
 
                 origin_citation_attributes: {source_id: get_source_id[row['RefID']],
                                              project_id: project_id,
+                                             created_at: row['CreatedOn'],
+                                             updated_at: row['LastUpdate'],
                                              created_by_id: get_user_id[row['CreatedBy']],
-                                             updated_by_id: get_user_id[row['ModifiedBy']]},
+                                             updated_by_id: get_user_id[row['ModifiedBy']]
+                },
 
-                notes_attributes: [{text: (row['Comment'].blank? ? nil : row['Comment'])}],
+                notes_attributes: [{text: (row['Comment'].blank? ? nil : row['Comment']), project_id: project_id}],
 
-                taxon_name_classifications_attributes: [{type: fossil}, {type: nomen_nudum}, {type: nomen_dubium}],
+                taxon_name_classifications_attributes: [{type: fossil, project_id: project_id},
+                                                        {type: nomen_nudum, project_id: project_id},
+                                                        {type: nomen_dubium, project_id: project_id}],
 
-                also_create_otu: true,  # pretty nifty way to make automatically make an OTU!
+                also_create_otu: true,  # pretty nifty way to automatically make an OTU!
 
                 project_id: project_id,
                 created_at: row['CreatedOn'],
