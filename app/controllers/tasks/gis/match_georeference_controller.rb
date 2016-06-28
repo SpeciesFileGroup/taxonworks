@@ -139,10 +139,9 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
             this_y = coords[index][1] #                   # get y value
             if (anti_meridian_check(last_x, this_x))
               anti_chrossed = true #                      # set flag if detector triggers
+              bias_x = -360 #                             # IF we are crossing from east to west
               if (last_x < 0) #                           # we are crossing from west to east
                 bias_x = 360 #                            # reverse bias
-              else #                                      # we are crossing from east to west
-                bias_x = -360
               end
               delta_x = (this_x - last_x) - bias_x #      # assume west to east crossing for now
               delta_y = this_y - last_y #                 # don't care if we cross the equator
@@ -156,16 +155,13 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
                 point_1_y = last_y + d_x * delta_y / delta_x
               else
                 point_2 = index
-                point_2_x = -180
-                if last_x > 0
-                  point_2_x = -point_2_x
-                end
+                point_2_x = -point_1_x #                 # this is only true for the degenerate case of only 2 crossings
                 d_x = point_2_x - last_x
                 point_2_y = last_y + d_x * delta_y / delta_x
               end
             end
-            last_x = this_x #                           # move to next line segment until polygon start
-            last_y = this_y #                           # move to next line segment until polygon start
+            last_x = this_x #                           # move to next line segment
+            last_y = this_y #                           # until polygon start point
           }
           if (anti_chrossed)
             index_1 = 0; index_2 = 0; limit = coords.length - 1
