@@ -564,21 +564,23 @@ function add_match_georeferences_map_listeners(map) {      // 4 listeners, one f
       event.feature.setProperty('fillColor', "#CC0000");  //brighter red
       // selectable area has been clicked, get the feature
       //  var selected_feature_georeference_id = event.feature["A"].georeference.id;      // unfortunate Google maps reference
-      var selected_feature_georeference_id = event.feature.getProperty('georeference').id;      // unfortunate Google maps reference
-      $("#selected_georeference_id").val(selected_feature_georeference_id);           // plant the clicked ID in a safe place
+      if (event.feature.getProperty('georeference')) {
+        var selected_feature_georeference_id = event.feature.getProperty('georeference').id;      // unfortunate Google maps reference
+        $("#selected_georeference_id").val(selected_feature_georeference_id);           // plant the clicked ID in a safe place
 //    literal-based hide the "instructions" div
-      $("#_filter_gr_form").attr("hidden", true);   //CLEAR EVERYTHING (all gr-selectors) if we click a found feature
-      $("#_tag_gr_form").attr("hidden", true);
-      $("#_draw_gr_form").attr("hidden", true);
-      $("#_recent_gr_form").attr("hidden", true);
-      $("#_selected_gr_form").removeAttr("hidden");   // literal-based reveal the map
-      var feature_collection = $("#_select_gr_form").data('feature-collection');      // literal-based form data reference
-      for (var i = 0; i < feature_collection.features.length; i++) {                  // scan the feature_collection
-        if (selected_feature_georeference_id == feature_collection.features[i].properties['georeference'].id) {  // for the match
-          var fc = {"type": "FeatureCollection", "features": []};         // construct the new feature collection for the target
-          fc.features.push(feature_collection.features[i]);           // inject the matching feature found by georeference id
-          selected_map = TW.vendor.lib.google.maps.initializeMap("selected_gr_canvas", fc);              // plot it on the center map, knowing literally where it is
-        }                                                   // selected_map can be used to bind other listeners
+        $("#_filter_gr_form").attr("hidden", true);   //CLEAR EVERYTHING (all gr-selectors) if we click a found feature
+        $("#_tag_gr_form").attr("hidden", true);
+        $("#_draw_gr_form").attr("hidden", true);
+        $("#_recent_gr_form").attr("hidden", true);
+        $("#_selected_gr_form").removeAttr("hidden");   // literal-based reveal the map
+        var feature_collection = $("#_select_gr_form").data('feature-collection');      // literal-based form data reference
+        for (var i = 0; i < feature_collection.features.length; i++) {                  // scan the feature_collection
+          if (selected_feature_georeference_id == feature_collection.features[i].properties['georeference'].id) {  // for the match
+            var fc = {"type": "FeatureCollection", "features": []};         // construct the new feature collection for the target
+            fc.features.push(feature_collection.features[i]);           // inject the matching feature found by georeference id
+            selected_map = TW.vendor.lib.google.maps.initializeMap("selected_gr_canvas", fc);              // plot it on the center map, knowing literally where it is
+          }                                                   // selected_map can be used to bind other listeners
+        }
       }
     }
     // DON'T: none to add at this point; add_click_services_to_match_georeferences_map(map, event);
