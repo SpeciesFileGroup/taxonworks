@@ -59,6 +59,28 @@ describe 'ControlledVocabularyTerms', :type => :feature do
 
       # then I get the message "Topic 'tests' was successfully created"
       expect(page).to have_content("Topic 'tests' was successfully created")
+
+      # 'Tagged Objects' link under 'Report' header should not be available
+      expect(page).not_to have_content('Tagged Objects')
+    end
+
+    specify 'adding a new keyword controlled vocabulary term' do
+      visit controlled_vocabulary_terms_path
+      click_link('New') # when I click the new link
+
+      select('Keyword', from: 'controlled_vocabulary_term_type') # I select 'Keyword' from the Type dropdown
+      fill_in('Name', with: 'TestKeyword')  # I fill in the name field with 'TestKeyword'
+      fill_in('Definition', with: 'TestKeyword definition') # I fill in the definition field with 'TestKeyword definition'
+
+      click_button('Create Controlled vocabulary term') # I click the 'Create Controlled vocabulary term' button
+
+      # 'Tagged Objects' link under 'Report' header should be available
+      expect(page).to have_content('Tagged Objects')
+
+      click_link('Tagged Objects') # I click the 'Tagged Objects' link under the 'Report' header 
+
+      # then I get a page showing 'Objects with keyword "TestKeyword"'
+      expect(page).to have_content('Objects with keyword "TestKeyword"')
     end
   end
 end
