@@ -126,10 +126,12 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
       if (featureCollection.features.length > 0) {
         for (var i = 0; i < featureCollection.features.length; i++) { // this loop looks for (currently) checkboxes that
           var this_feature = featureCollection.features[i];           // indicate inclusion into the google maps features
-          var this_property_key = this_feature.properties.source_type;
-          var this_control = 'check_' + this_property_key;    // + '_' + OTU_ID
-          if (otu_id != null) {
-            this_control += '_' + otu_id
+          if (this_feature.properties) {
+            var this_property_key = this_feature.properties.source_type;
+            var this_control = 'check_' + this_property_key;    // + '_' + OTU_ID
+            if (otu_id != null) {
+              this_control += '_' + otu_id
+            }
           }
           if (document.getElementById(this_control) != undefined) {   // if checkbox control exists
             if (document.getElementById(this_control).checked) {      // if checked, and only

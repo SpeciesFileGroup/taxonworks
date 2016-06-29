@@ -403,15 +403,20 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
           //var child_form = $("#" + $("#_selecting_gr_form").children(0).attr("id"));
           var child_form = selecting.children(0);   // we know this container only has one child
           // map object below renders the response feature collection from child form data-object to right hand result canvas
+          var selected_area = JSON.parse($(gr_geographic_item_attributes_shape).attr('value'));
+          selected_area.properties = {fillOpacity: 0.05, strokeColor: "black", strokeOpacity: 0.2, strokeWeight: 0.1};
+          child_form.data('feature-collection').features.push(selected_area);
           selectable_gr_map = TW.vendor.lib.google.maps.initializeMap(child_form.data('map-canvas'), child_form.data('feature-collection'));
           //////selectable_gr_map = initializeComplexMap($("#_select_gr_form").data('map-canvas'), $("#_select_gr_form").data('feature-collection'));
           add_match_georeferences_map_listeners(selectable_gr_map);   // listen on features in right hand result map
           if (child_form.data('feature-collection').features.length == 1) {
             //  render the center map (literally _selected_gr_form) with the same feature collection
+            //$("#_selected_gr_form").data('feature-collection').features.push($(gr_geographic_item_attributes_shape).attr('value'));
             selected_gr_map = TW.vendor.lib.google.maps.initializeMap($("#_selected_gr_form").data('map-canvas'), child_form.data('feature-collection'));
           }
           else {
             // render an empty center map by using its default STATIC degenerate feature colletion
+            //$("#_selected_gr_form").data('feature-collection').features.push($(gr_geographic_item_attributes_shape).attr('value'));
             selected_gr_map = TW.vendor.lib.google.maps.initializeMap($("#_selected_gr_form").data('map-canvas'), $("#_selected_gr_form").data('feature-collection'));
           }
         }

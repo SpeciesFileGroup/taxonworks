@@ -164,68 +164,46 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
             last_y = this_y #                           # until polygon start point
           }
           if (anti_chrossed)
-            index_1 = 0; index_2 = 0; limit = coords.length - 1
-            for index in 0..limit
+            index_1 = 0; index_2 = 0 #                  # indices into the constructed semi-polygons
+            coords.each_with_index { |point, index|
               if index < point_1 #                      # first phase, initial points before transit
-                coords_1[index] = coords[index] #       # just transcribe the points
+                coords_1[index] = point #               # just transcribe the points to polygon 1
               end
               if index == point_1 #                     # first transit
-                # coords_1[point_1][0] = point_1_x      # truncate first polygon at anti-meridian
-                # coords_1[point_1][1] = point_1_y      # with x, y at first intersection
-                coords_1.push([point_1_x, point_1_y])
-                # coords_1[point_1 + 1][0] = point_1_x ## continue truncation with
-                # coords_1[point_1 + 1][1] = point_2_y  # second intersection point
-                coords_1.push([point_1_x, point_2_y])
+                coords_1[point_1] = [point_1_x, point_1_y] # truncate first polygon at anti-meridian
+                coords_1[point_1 + 1] = [point_1_x, point_2_y] # continue truncation with second intersection point
                 index_1 = index + 2 #                   # set up next insertion point for first polygon
 
-                # coords_2[0][0] = point_2_x #          # begin the second polygon with the mirror line
-                # coords_2[0][1] = point_2_y #          # in the opposite direction, second intersection first
-                coords_2[0] = [point_2_x, point_2_y]
-                # coords_2[1][0] = point_2_x #          # then first intersection
-                # coords_2[1][1] = point_1_y #          # where x-coordinate is fixed at anti-meridian
-                coords_2[1] = [point_2_x, point_1_y]
-                coords_2[2] = coords[index] #           # continue second polygon with first point past transition
+                coords_2[0] = [point_2_x, point_2_y] # begin polygon 2 with the mirror line in the opposite direction
+                coords_2[1] = [point_2_x, point_1_y] # then first intersection where x is fixed at anti-meridian
+                coords_2[2] = point #                    # continue second polygon with first point past transition
                 index_2 = 3 #                           # set up next insertion point
               end
               if index > point_1 && index < point_2 #   # continue second polygon from its stub
-                coords_2[index_2] = coords[index]
+                coords_2[index_2] = point #             # transcribe the next point(s)
                 index_2 = index_2 + 1
               end
-              if index == point_2 # second transit
-                # coords_2[index_2][0] = point_2_x #    # end the second polygon with
-                # coords_2[index_2][1] = point_2_y #    # the mirror line origin point
-                coords_2.push([point_2_x, point_2_y])
-                coords_1[index_1] = coords[index] #     # copy the current original point to the first polygon
-                index_1 = index_1 + 1 #                 # update its pointer
+              if index == point_2 #                     # second transit
+                coords_2[index_2] = [point_2_x, point_2_y] # # end the second polygon with the mirror line origin point
+                coords_1[index_1] = point #             # copy the current original point to the first polygon
+                index_1 = index_1 + 1 #                 # update its pointer, finished with polygon 2
               end
               if index > point_2 #                      # final phase, finish up polygon 1
-                coords_1[index_1] = coords[index] # transcribe points
-                index_1 = index_1 + 1 # update its pointer
+                coords_1[index_1] = point #             # transcribe any remaining points
+                index_1 = index_1 + 1 #                 # update its pointer until we reach the initial point
               end
-            end
-            # coords_1[index_1] = coords[0]             # replicate first point to finish polygon 1
+            }
 
-            # end
-            # if (anti_chrossed) # if anti-meridian crossing detected
-            # coords.each { |point| # construct western hemisphere object
-            #   if point[0] > 0 # if eastern hemisphere point
-            #     point[0] -= 360.0 # force polygon to all negative coordinates
-            #   end
-            # }
             ob["geometry"]["coordinates"][0] = coords_1 #                     # replace the original coordinates
             job = ob.as_json.to_s.gsub('=>', ':') #                           # change back to a feature string
             my_feature = RGeo::GeoJSON.decode(job, :json_parser => :json) #   # replicate "normal" steps above
             geometry1 = my_feature.geometry.as_text #                         # extract the WKT
 
-            # coords.each { |point| # construct eastern hemisphere object
-            #   if point[0] < 0 # if western hemisphere point (actually always true at this point)
-            #     point[0] += 360.0 # force polygon to all positive coordinates
-            #   end
-            # }
             ob["geometry"]["coordinates"][0] = coords_2 #                     # replace first coordinates with second
             job = ob.as_json.to_s.gsub('=>', ':') #                           # change back to a feature string
             my_feature = RGeo::GeoJSON.decode(job, :json_parser => :json) #   # replicate "normal" steps above
             geometry2 = my_feature.geometry.as_text #                         # extract the WKT
+
             @georeferences = Georeference.joins(:geographic_item).where(GeographicItem.contained_by_wkt_sql(geometry1)) +
                 Georeference.joins(:geographic_item).where(GeographicItem.contained_by_wkt_sql(geometry2))
             # above combines the results of opposite-signed (otherwise identical) polygons spanning anti-meridian
