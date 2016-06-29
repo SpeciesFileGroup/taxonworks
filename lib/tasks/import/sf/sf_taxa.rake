@@ -18,18 +18,22 @@ namespace :tw do
 #         ok add nomenclatural comment as TW.Note (in row['Comment']);
 #         ok if temporary, make an OTU which has the TaxonNameID of the AboveID as the taxon name reference (or find the most recent valid above ID);
 #         ok natural order is TaxonNameStr (must be in order to ensure synonym parent already imported);
-#         ok for synonyms, use sf_synonym_id_to_parent_id_hash; create error message if not found (hash was created from dynamic tblTaxa later than .txt);
+#         ok for synonyms, use sf_synonym_id_to_parent_id_hash; create error message cif not found (hash was created from dynamic tblTaxa later than .txt);
       # ADD HOUSEKEEPING to _attributes
 
       # 20160628
       # Tasks before dumping and restoring db
       #   Keep copy of current db with some taxa imported
-      #   Force Import hashes to be integers if applicable and change usage instances accordingly
+      #   Force Import hashes to be strings and change usage instances accordingly
       #   Manually transfer two adjunct tables, sfVerbatimRefs and sfSynonymParents
       #   Make sure path references correct subdirectory (working vs. old)
       #   Where does ref_id_to_ref_link.txt come from (in direct_from_sf subdirectory)? Probably needs to be included in ScriptsFor1db2tw.sql...
       #   Figure out how to assign myself as project member in each SF
       #   Make sure none_species_file does not get created (FileID must be > 0)
+      #   Write get_tw_taxon_name_id to db!
+      #   Use TaxonNameClassification::Iczn::Unavailable for non-latinized family group name synonyms
+      #   Use TaxonNameClassification::Iczn::Unavailable::NotLatin for Name Name must be latinized, no digits or spaces allowed
+      #   FixSFSynonymIDToParentID to iterate until Parent RankID > synonym RankID
 
 # pass 2
 
@@ -61,6 +65,8 @@ namespace :tw do
         file.each_with_index do |row, i|
           taxon_name_id = row['TaxonNameID']
           next unless taxon_name_id.to_i > 0
+          next if row['TaxonNameStr'].start_with?('1100048-1143863')  # name = MiscImages (body parts)
+          next if row['RankID'] == '90' # TaxonNameID = 1221948, Name = Deletable, RankID = 90 == Life, FileID = 1
 
           project_id = get_project_id[row['FileID']]
 
