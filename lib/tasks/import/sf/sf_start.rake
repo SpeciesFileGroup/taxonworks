@@ -413,6 +413,7 @@ namespace :tw do
       end
 
       desc 'create projects'
+      # create mb as project member, admin, for each project??
       task :create_projects => [:data_directory, :environment, :user_id] do
         ### rake tw:project_import:sf_start:create_projects user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
 
@@ -445,6 +446,11 @@ namespace :tw do
           if project.save
 
             sf_file_id_to_tw_project_id[file_id] = project.id
+
+            # create mb as project member for each project
+            # pm = ProjectMember.new(user: user, project: project, is_project_administrator: true)
+            # pm.save! if pm.valid?
+
 
           else
             error_counter += 1

@@ -19,21 +19,21 @@ namespace :tw do
 #         ok if temporary, make an OTU which has the TaxonNameID of the AboveID as the taxon name reference (or find the most recent valid above ID);
 #         ok natural order is TaxonNameStr (must be in order to ensure synonym parent already imported);
 #         ok for synonyms, use sf_synonym_id_to_parent_id_hash; create error message cif not found (hash was created from dynamic tblTaxa later than .txt);
-      # ADD HOUSEKEEPING to _attributes
+# ADD HOUSEKEEPING to _attributes
 
-      # 20160628
-      # Tasks before dumping and restoring db
-      #   Keep copy of current db with some taxa imported
-      #   Force Import hashes to be strings and change usage instances accordingly
-      #   Manually transfer two adjunct tables, sfVerbatimRefs and sfSynonymParents
-      #   Make sure path references correct subdirectory (working vs. old)
-      #   Where does ref_id_to_ref_link.txt come from (in direct_from_sf subdirectory)? Probably needs to be included in ScriptsFor1db2tw.sql...
-      #   Figure out how to assign myself as project member in each SF
-      #   Make sure none_species_file does not get created (FileID must be > 0)
-      #   Write get_tw_taxon_name_id to db!
-      #   Use TaxonNameClassification::Iczn::Unavailable for non-latinized family group name synonyms
-      #   Use TaxonNameClassification::Iczn::Unavailable::NotLatin for Name Name must be latinized, no digits or spaces allowed
-      #   FixSFSynonymIDToParentID to iterate until Parent RankID > synonym RankID
+# 20160628
+# Tasks before dumping and restoring db
+#   Keep copy of current db with some taxa imported
+#   Force Import hashes to be strings and change usage instances accordingly
+#   Manually transfer three adjunct tables: RefIDToRefLink (probably table sfRefLinks), sfVerbatimRefs and sfSynonymParents
+#   Make sure path references correct subdirectory (working vs. old)
+#   Where does ref_id_to_ref_link.txt come from (in direct_from_sf subdirectory)? Probably needs to be included in ScriptsFor1db2tw.sql...
+#   ? Figure out how to assign myself as project member in each SF, what about universal user like 3i does??
+#   ok Make sure none_species_file does not get created (FileID must be > 0)
+#   ok Write get_tw_taxon_name_id to db! And three others...
+#   Use TaxonNameClassification::Iczn::Unavailable for non-latinized family group name synonyms
+#   Use TaxonNameClassification::Iczn::Unavailable::NotLatin for Name Name must be latinized, no digits or spaces allowed
+#   ok FixSFSynonymIDToParentID to iterate until Parent RankID > synonym RankID
 
 # pass 2
 
@@ -54,7 +54,7 @@ namespace :tw do
         get_tw_taxon_name_id = {} # SF.TaxonNameID to TW.TaxonNameID hash, key = SF.TaxonNameID, value = TW.taxon_name.id
         get_sf_name_status = {} # key = SF.TaxonNameID, value = SF.NameStatus
         get_sf_status_flags = {} # key = SF.TaxonNameID, value = SF.StatusFlags
-        get_tw_otu_id = {}  # key = SF.TaxonNameID, value = TW.otu.id; used for temporary SF taxa
+        get_tw_otu_id = {} # key = SF.TaxonNameID, value = TW.otu.id; used for temporary SF taxa
 
         path = @args[:data_directory] + 'working_old/tblTaxa.txt'
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: "UTF-16:UTF-8")
@@ -65,7 +65,7 @@ namespace :tw do
         file.each_with_index do |row, i|
           taxon_name_id = row['TaxonNameID']
           next unless taxon_name_id.to_i > 0
-          next if row['TaxonNameStr'].start_with?('1100048-1143863')  # name = MiscImages (body parts)
+          next if row['TaxonNameStr'].start_with?('1100048-1143863') # name = MiscImages (body parts)
           next if row['RankID'] == '90' # TaxonNameID = 1221948, Name = Deletable, RankID = 90 == Life, FileID = 1
 
           project_id = get_project_id[row['FileID']]
@@ -90,15 +90,15 @@ namespace :tw do
           status_flags = row['StatusFlags']
 
           if name_status == '2' # temporary, create OTU, not TaxonName
-           otu = Otu.new(
-              name: row['Name'],
-              taxon_name_id: parent_id,
-              project_id: project_id,
-              created_at: row['CreatedOn'],
-              updated_at: row['LastUpdate'],
-              created_by_id: get_user_id[row['CreatedBy']],
-              updated_by_id: get_user_id[row['ModifiedBy']]
-           )
+            otu = Otu.new(
+                name: row['Name'],
+                taxon_name_id: parent_id,
+                project_id: project_id,
+                created_at: row['CreatedOn'],
+                updated_at: row['LastUpdate'],
+                created_by_id: get_user_id[row['CreatedBy']],
+                updated_by_id: get_user_id[row['ModifiedBy']]
+            )
 
             if otu.save
               puts "  Note!! Created OTU for temporary taxon, otu.id: #{otu.id}"
@@ -110,7 +110,7 @@ namespace :tw do
               error_counter += 1
               puts "     OTU ERROR (#{error_counter}): " + otu.errors.full_messages.join(';')
               puts "  project_id: #{project_id}, SF.TaxonNameID: #{row['TaxonNameID']}, sf row created by: #{row['CreatedBy']}, sf row updated by: #{row['ModifiedBy']}    "
-             end
+            end
 
           else
             fossil, nomen_nudum, nomen_dubium = nil
@@ -137,7 +137,7 @@ namespace :tw do
                                                         {type: nomen_nudum, project_id: project_id},
                                                         {type: nomen_dubium, project_id: project_id}],
 
-                also_create_otu: true,  # pretty nifty way to automatically make an OTU!
+                also_create_otu: true, # pretty nifty way to automatically make an OTU!
 
                 project_id: project_id,
                 created_at: row['CreatedOn'],
@@ -146,18 +146,84 @@ namespace :tw do
                 updated_by_id: get_user_id[row['ModifiedBy']]
             )
 
-            if taxon_name.save
+            # if taxon_name.save
+            if taxon_name.valid?
+              taxon_name.save!
               get_tw_taxon_name_id[row['TaxonNameID']] = taxon_name.id
               get_sf_name_status[row['TaxonNameID']] = name_status
               get_sf_status_flags[row['TaxonNameID']] = status_flags
 
+
+              # test if valid before save; if one of anticipated import errors, add classification, then try to save again...
+
+              # Dmitry's code:
+              # if taxon.valid?
+              #   taxon.save!
+              #   @data.taxon_index.merge!(row['Key'] => taxon.id)
+              # else
+              #   taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin') if taxon.rank_string =~ /Family/ && row['Status'] != '0' && !taxon.errors.messages[:name].blank?
+              #   taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin') if taxon.rank_string =~ /Species/ && row['Status'] != '0' && taxon.errors.full_messages.include?('Name name must be lower case')
+              #   taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin') if taxon.rank_string =~ /Species/ && row['Status'] != '0' && taxon.errors.full_messages.include?('Name Name must be latinized, no digits or spaces allowed')
+              #   taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin') if taxon.rank_string =~ /Genus/ && row['Status'] != '0' && taxon.errors.full_messages.include?('Name Name must be latinized, no digits or spaces allowed')
+              #
+              #   if taxon.valid?
+              #     taxon.save!
+              #     @data.taxon_index.merge!(row['Key'] => taxon.id)
+              #   else
+              #     print "\n#{row['Key']}         #{row['Name']}"
+              #     print "\n#{taxon.errors.full_messages}\n"
+              #     #byebug
+              #   end
+              # end of Dmitry's code
+
+              #
+              # case taxon_name.errors.full_messages.include?
+              # when 'Name name must end in -oidea', 'Name name must end in -idae', 'Name name must end in ini', 'Name name must end in -inae'
+              # and row['NameStatus'] == '7'
+              # taxon_name.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable')
+
+              #
+              # when 'Name Name must be latinized, no digits or spaces allowed'
+              # and row['NameStatus'] == '7'
+              # taxon_name.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::NotLatin')
+
             else
+              if row['NameStatus'] == '7'
+                case taxon_name.errors.full_messages.include?
+                  when 'Name name must end in -oidea', 'Name name must end in -idae', 'Name name must end in ini', 'Name name must end in -inae'
+                    taxon_name.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable')
+                  when 'Name Name must be latinized, no digits or spaces allowed'
+                    taxon_name.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::NotLatin')
+                end
+                if taxon.valid?
+                  taxon.save!
+                  get_tw_taxon_name_id[row['TaxonNameID']] = taxon_name.id
+                  get_sf_name_status[row['TaxonNameID']] = name_status
+                  get_sf_status_flags[row['TaxonNameID']] = status_flags
+
+                end
+              else
               error_counter += 1
               puts "     TaxonName ERROR (#{error_counter}): " + taxon_name.errors.full_messages.join(';')
               puts "  project_id: #{project_id}, SF.TaxonNameID: #{row['TaxonNameID']}, sf row created by: #{row['CreatedBy']}, sf row updated by: #{row['ModifiedBy']}    "
             end
           end
         end
+
+        species_file_data.set('SFTaxonNameIDToTWTaxonNameID', get_tw_taxon_name_id)
+        species_file_data.set('SFTaxonNameIDToSFNameStatus', get_sf_name_status)
+        species_file_data.set('SFTaxonNameIDToSFStatusFlags', get_sf_status_flags)
+        species_file_data.set('SFTaxonNameIDToTWOtuID', get_tw_otu_id)
+
+        puts 'SFTaxonNameIDToTWTaxonNameID'
+        ap get_tw_taxon_name_id
+        puts 'SFTaxonNameIDToSFNameStatus'
+        ap get_sf_name_status
+        puts 'SFTaxonNameIDToSFStatusFlags'
+        ap get_sf_status_flags
+        puts 'SFTaxonNameIDToTWOtuID'
+        ap get_tw_otu_id
+
       end
 
       desc 'create SF synonym.id to parent.id hash'
