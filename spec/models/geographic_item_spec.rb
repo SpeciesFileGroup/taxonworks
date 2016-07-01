@@ -849,10 +849,8 @@ describe GeographicItem, type: :model, group: :geo do
           end
 
           specify '#containing' do
-            point_fi_i
-            item_f_i
             test1 = GeographicItem.containing(point_f_i.id)
-            expect(test.to_a).to contain_exactly(item_f_i)
+            expect(test1.to_a).to contain_exactly(item_f_i)
           end
 
           specify '#contained_by_wkt_sql' do
