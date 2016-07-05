@@ -14,11 +14,11 @@ namespace :tw do
 #           nomen nudum = TaxonNameClassification::Iczn::Unavailable::NomenNudum (StatusFlags & 8 = 8 if NameStatus = 4 or 7),
 #           nomen dubium = TaxonNameClassification::Iczn::Available::Valid::NomenDubium (StatusFlags & 16 = 16 if NameStatus = 5 or 7), and
 #           fossil = TaxonNameClassification::Iczn::Fossil (extinct = 1)
-#           (other classifications will probably have relationships);
+#           (other classifications will probably have relationships)
 #         ok add nomenclatural comment as TW.Note (in row['Comment']);
 #         ok if temporary, make an OTU which has the TaxonNameID of the AboveID as the taxon name reference (or find the most recent valid above ID);
 #         ok natural order is TaxonNameStr (must be in order to ensure synonym parent already imported);
-#         ok for synonyms, use sf_synonym_id_to_parent_id_hash; create error message cif not found (hash was created from dynamic tblTaxa later than .txt);
+#         ok for synonyms, use sf_synonym_id_to_parent_id_hash; create error message if not found (hash was created from dynamic tblTaxa later than .txt);
 # ADD HOUSEKEEPING to _attributes
 
 # 20160628
@@ -122,6 +122,7 @@ namespace :tw do
                 parent_id: parent_id,
                 rank_class: get_rank_string[row['RankID']],
 
+                # check housekeeping values; should citations, notes, classifications be attributed to SF last_editor?
                 origin_citation_attributes: {source_id: get_source_id[row['RefID']],
                                              project_id: project_id,
                                              created_at: row['CreatedOn'],
