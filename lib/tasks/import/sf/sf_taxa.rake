@@ -137,6 +137,7 @@ namespace :tw do
                                     created_by_id: get_user_id[row['CreatedBy']],
                                     updated_by_id: get_user_id[row['ModifiedBy']]}],
 
+                # perhaps test for nil for each...  (Dmitry) classification.new? Dmitry prefers doing one at a time and validating?? And after the taxon is saved.
                 taxon_name_classifications_attributes: [
                     {type: fossil, project_id: project_id,
                      created_at: row['CreatedOn'],
@@ -206,7 +207,7 @@ namespace :tw do
             # and row['NameStatus'] == '7'
             # taxon_name.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::NotLatin')
 
-          elsif row['NameStatus'] == '7'
+          elsif row['NameStatus'] == '7'     # make all NotLatin... Dmitry Add project_id
             case taxon_name.errors.full_messages.include? # ArgumentError: wrong number of arguments (given 0, expected 1)
               when 'Name name must end in -oidea', 'Name name must end in -idae', 'Name name must end in ini', 'Name name must end in -inae'
                 taxon_name.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable')
@@ -216,7 +217,7 @@ namespace :tw do
           end
 
           if taxon_name.valid?
-            taxon_name.save!
+            taxon_name.save!    # taxon won't be saved if something wrong with classifications_attributes, read about !
             get_tw_taxon_name_id[row['TaxonNameID']] = taxon_name.id
             get_sf_name_status[row['TaxonNameID']] = name_status
             get_sf_status_flags[row['TaxonNameID']] = status_flags
