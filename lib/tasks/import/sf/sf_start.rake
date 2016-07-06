@@ -413,6 +413,7 @@ namespace :tw do
       end
 
       desc 'create projects'
+      # create mb as project member, admin, for each project??
       task :create_projects => [:data_directory, :environment, :user_id] do
         ### rake tw:project_import:sf_start:create_projects user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
 
@@ -430,7 +431,7 @@ namespace :tw do
 
         file.each_with_index do |row, i|
           file_id = row['FileID']
-          next if file_id == "0"    # was integer 0 which failed!
+          next if file_id == "0" # was integer 0 which failed!
 
           website_name = row['WebsiteName'].downcase # want to be lower case
 
@@ -445,6 +446,11 @@ namespace :tw do
           if project.save
 
             sf_file_id_to_tw_project_id[file_id] = project.id
+
+            # create mb as project member for each project
+            # pm = ProjectMember.new(user: user, project: project, is_project_administrator: true)
+            # pm.save! if pm.valid?
+
 
           else
             error_counter += 1
@@ -536,6 +542,7 @@ namespace :tw do
       # end
 
       desc 'map SF.PubID by SF.PubType'
+      ### time rake tw:project_import:sf_start:create_sources user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
       task :map_pub_type => [:data_directory, :environment, :user_id] do
         ### rake tw:project_import:sf_start:create_sources user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
 
@@ -575,7 +582,6 @@ namespace :tw do
 
         puts 'Running map_serials...'
 
-        ### rake tw:project_import:sf_start:create_sources user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
         # Build hash similar to file_user_id_to_tw_user_id for SF.PubID (many) to one TW.serial_id
         # DataAttributes associated with a serial record contain multiple SF.PubIDs
 
@@ -595,8 +601,8 @@ namespace :tw do
       end
 
       desc 'create people'
+      ### time rake tw:project_import:sf_start:create_people user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
       task :create_people => [:data_directory, :environment, :user_id] do
-        ### rake tw:project_import:sf_start:create_sources user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
 
         puts 'Running create_people...'
 
@@ -624,12 +630,10 @@ namespace :tw do
         # @project = Project.find_by_name('Orthoptera Species File')
         # $project_id = @project.id
 
-        species_file_data = Import.find_or_create_by(name: 'SpeciesFileData')
-        get_person_id = species_file_data.get('SFPersonIDToTWPersonID') # use in loop 2
-        get_person_id ||= {} # make empty hash if doesn't exist (otherwise it would be nil)
-        sf_person_id_to_tw_person_id = get_person_id
+        import = Import.find_or_create_by(name: 'SpeciesFileData')
+        get_tw_user_id = import.get('FileUserIDToTWUserID') # for housekeeping
 
-        get_user_id = species_file_data.get('FileUserIDToTWUserID') # for housekeeping
+        get_tw_person_id ||= {} # make empty hash if doesn't exist (otherwise it would be nil), used in loop 2
 
         # create Namespace for Identifier (used in loop below): Species File, tblPeople, SF PersonID
         # 'Key3' => Namespace.find_or_create_by(name: '3i_Source_ID', short_name: '3i_Source_ID')     # 'Key3' was key in hash @data.keywords.merge! ??
@@ -645,13 +649,15 @@ namespace :tw do
         # # probably only writes to memory, to save in db, use <<
 
         path = @args[:data_directory] + 'working/tblPeople.txt'
-        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: "UTF-16:UTF-8")
+        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
-        # loop 1
+        # loop 1: Get preferred records only
+
+        error_counter = 0
 
         file.each_with_index do |row, i|
           person_id = row['PersonID']
-          next if get_person_id[person_id] # do not create if already exists
+          next if get_tw_person_id[person_id] # do not create if already exists
 
           pref_id = row['PrefID']
           next if pref_id.to_i > 0 # alternate spellings will be handled in second loop
@@ -666,8 +672,8 @@ namespace :tw do
               updated_at: row['LastUpdate'],
               suffix: row['Suffix'],
               # prefix: '',
-              created_by_id: get_user_id[row['CreatedBy']],
-              updated_by_id: get_user_id[row['ModifiedBy']]
+              created_by_id: get_tw_user_id[row['CreatedBy']],
+              updated_by_id: get_tw_user_id[row['ModifiedBy']]
               # cached: '?'
           )
 
@@ -678,33 +684,33 @@ namespace :tw do
 
             person.identifiers << Identifier::Local::Import.new(namespace: person_namespace, identifier: person_id)
 
-            sf_person_id_to_tw_person_id[person_id] = person.id
+            get_tw_person_id[person_id] = person.id
 
           else
-            puts "     ERROR: " + person.errors.full_messages.join(';')
-            puts " sf row created by: #{row['CreatedBy']}, sf row updated by: #{row['ModifiedBy']}    "
+            error_counter += 1
+            puts "     Person ERROR (#{error_counter}): " + person.errors.full_messages.join(';')
           end
 
         end
 
-        species_file_data.set('SFPersonIDToTWPersonID', sf_person_id_to_tw_person_id) # write to db
-        puts 'SF PersonID mapped to TW person_id'
-        ap sf_person_id_to_tw_person_id
+        import.set('SFPersonIDToTWPersonID', get_tw_person_id) # write to db
+        puts 'SFPersonIDToTWPersonID'
+        ap get_tw_person_id
 
-        # loop 2
+        # loop 2: Get non-preferred records and save as alternate values
 
-        file.each_with_index do |row, i|
+        file.each_with_index do |row, i| # uses path & file from loop 1
           pref_id = row['PrefID']
-          next if pref_id.to_i == 0 # handle only alternate spellings
+          next if pref_id.to_i == 0 # handle only non-preferred records
 
-          non_pref_family_name = row['FamilyName'] # the non-preferred person's family name
+          non_pref_family_name = row['FamilyName'] # use the non-preferred person's family name as default alternate name
 
-          if get_person_id[pref_id]
-            puts "working with #{get_person_id[pref_id]}"
+          if get_tw_person_id[pref_id]
+            puts "working with #{get_tw_person_id[pref_id]}"
             # pref_person.alternate_values.new(value: non_pref_family_name, type: 'AlternateValue::AlternateSpelling', alternate_value_object_attribute: 'last_name')
             a = AlternateValue::AlternateSpelling.new(
                 alternate_value_object_type: 'Person',
-                alternate_value_object_id: get_person_id[pref_id],
+                alternate_value_object_id: get_tw_person_id[pref_id],
                 value: non_pref_family_name,
                 alternate_value_object_attribute: 'last_name'
             )
@@ -719,15 +725,10 @@ namespace :tw do
       end
 
       desc 'create users'
+      ### time rake tw:project_import:sf_start:create_users user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
       task :create_users => [:data_directory, :environment, :user_id] do
-        ### rake tw:project_import:sf_start:create_sources user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
 
         puts 'Running create_users...'
-
-        @user_index = {}
-        # @project = Project.find_by_name('Orthoptera Species File')
-        # $project_id = @project.id
-        project_url = 'speciesfile.org'
 
         # ProjectMembers: id, project_id, user_id, created_at, updated_at, created_by_id, updated_by_id, is_project_administrator
         #   * Cannot annotate a project_member
@@ -754,21 +755,25 @@ namespace :tw do
         auth_user_namespace = Namespace.find_or_create_by(institution: 'Species File', name: 'tblAuthUsers', short_name: 'SF AuthUserID')
 
         # find unique editors/admin, i.e. people getting users accounts in TW
-        unique_auth_users = {}
-        file_user_id_to_auth_user_id = {}
-        file_user_id_to_tw_user_id = {}
-        file_user_id_to_file_id = {} # not creating projects and project members right now; store info for future use
+        unique_auth_users = {} # unique sf.authorized users with edit+ access, not stored in Import, used only in this task
+        sf_file_user_id_to_sf_auth_user_id = {} # not stored in Import; multiple file users map onto same auth user
+        get_tw_user_id = {} # key = sf.file_user_id, value = tw.user_id
+        get_sf_file_id = {} # key = sf.file_user_id, value sf.file_id; for future use when creating projects and project members
+
+        @user_index = {}
+        project_url = 'speciesfile.org'
 
         path = @args[:data_directory] + 'working/tblFileUsers.txt'
-        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: "UTF-16:UTF-8")
+        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
         file.each_with_index do |row, i|
           au_id = row['AuthUserID']
           fu_id = row['FileUserID']
-          next if [0, 8].freeze.include?(row['Access'].to_i) # next if row['Access'].to_i == 0 # probably not 8 either
+          next if [0, 8].freeze.include?(row['Access'].to_i)
 
-          puts "WARNING - NON UNIQUE FileUserID" if file_user_id_to_auth_user_id[fu_id]
-          file_user_id_to_auth_user_id[fu_id] = au_id
+          puts "WARNING - NON UNIQUE FileUserID: #{fu_id}" if sf_file_user_id_to_sf_auth_user_id[fu_id]
+
+          sf_file_user_id_to_sf_auth_user_id[fu_id] = au_id
 
           if unique_auth_users[au_id]
             unique_auth_users[au_id].push fu_id
@@ -776,21 +781,23 @@ namespace :tw do
             unique_auth_users[au_id] = [fu_id]
           end
 
-          file_user_id_to_file_id[fu_id] = row['FileID']
+          get_sf_file_id[fu_id] = row['FileID']
         end
 
         path = @args[:data_directory] + 'working/tblAuthUsers.txt'
-        print "\nCreating users\n"
+        print "Creating users\n"
         raise "file #{path} not found" if not File.exists?(path)
-        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: "UTF-16:UTF-8") # should it be read, not foreach?
+        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+
+        error_counter = 0
 
         file.each_with_index do |row, i|
           au_id = row['AuthUserID']
 
-          print "working with #{au_id}"
+          print "working with AuthUser: #{au_id}"
 
           if unique_auth_users[au_id]
-            puts "\n  is a unique user, creating:  #{i}: #{row['Name']}"
+            puts "is a unique user, creating:  #{i}: #{row['Name']}"
 
             user = User.new(
                 name: row['Name'],
@@ -801,10 +808,10 @@ namespace :tw do
             if user.save
 
               unique_auth_users[au_id].each do |fu_id|
-                file_user_id_to_tw_user_id[fu_id] = user.id
+                get_tw_user_id[fu_id] = user.id.to_s # @ Making user.id into string for consistency of all hash values being strings
               end
 
-              @user_index[row['FileUserId']] = user.id # maps multiple FileUserIDs onto single TW user.id
+              @user_index[row['FileUserID']] = user.id # maps multiple FileUserIDs onto single TW user.id
 
               # create AuthUserID as DataAttribute as InternalAttribute for table users
               # user.data_attributes << InternalAttribute.new(predicate: predicates['AuthUserID'], value: au_id)
@@ -814,9 +821,9 @@ namespace :tw do
               # Do not create project_members right now; store hash of file_user_id => file_id in Import table
               # ProjectMember.create(user: user, project: @project)
 
-
             else
-              puts "     ERROR: " + user.errors.full_messages.join(';')
+              error_counter += 1
+              puts "     User ERROR (#{error_counter}): " + user.errors.full_messages.join(';')
             end
 
           else
@@ -824,30 +831,21 @@ namespace :tw do
           end
         end
 
+        # Save the file user mappings to the import table
+        import = Import.find_or_create_by(name: 'SpeciesFileData')
+        import.set('SFFileUserIDToTWUserID', get_tw_user_id)
+        import.set('SFFileUserIDToSFFileID', get_sf_file_id) # will be used when tables containing FileID are imported
+
         # display user mappings
         puts 'unique authorized users with edit+ access'
         ap unique_auth_users # list of unique authorized users (who have edit+ access via FileUserIDs)
         puts 'multiple FileUserIDs mapped to single AuthUserID'
-        ap file_user_id_to_auth_user_id # map multiple FileUserIDs onto single AuthUserID
-        puts 'multiple FileUserIDs mapped to single TW user.id'
-        ap file_user_id_to_tw_user_id # map multiple FileUserIDs on single TW user.id
-        puts 'FileUserIDs mapped to FileID'
-        ap file_user_id_to_file_id
+        ap sf_file_user_id_to_sf_auth_user_id # map multiple FileUserIDs onto single AuthUserID
+        puts 'SFFileUserIDToTWUserID'
+        ap get_tw_user_id # map multiple FileUserIDs on single TW user.id
+        puts 'SFFileUserIDToSFFileID'
+        ap get_sf_file_id
 
-        # Save the file user mappings to the import table
-        i = Import.find_or_create_by(name: 'SpeciesFileData')
-        i.set('FileUserIDToTWUserID', file_user_id_to_tw_user_id)
-        i.set('FileUserIDToFileID', file_user_id_to_file_id) # will be used when tables containing FileID are imported
-        # newvar = i.get('FileUserIDToTWUserID')
-        # mytwuserid = newvar[560]
-      end
-
-      desc 'No need to create project for users, people, and refs'
-      task :create_project => [:environment, :user_id] do
-        # @import_name = 'sf'
-        # @project = Project.create(name: 'Orthoptera Species File') # @project.id
-        # $project_id = @project.id
-        # @sf_file_id = 1 # OrthopteraSF FileID = 1
       end
 
     end

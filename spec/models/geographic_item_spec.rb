@@ -766,25 +766,21 @@ describe GeographicItem, type: :model, group: :geo do
       specify 'pos_point found in pos_box' do
         expect(pos_box.contains?(pos_point.geo_object)).to be_truthy
         expect(pos_point.within?(pos_box.geo_object)).to be_truthy
-        expect(true).to be_truthy
       end
 
       specify 'neg_point found in pos_box' do
         expect(pos_box.contains?(neg_point.geo_object)).to be_truthy
         expect(neg_point.within?(pos_box.geo_object)).to be_truthy
-        expect(true).to be_truthy
       end
 
       specify 'pos_point found in neg_box' do
         expect(neg_box.contains?(pos_point.geo_object)).to be_truthy
         expect(pos_point.within?(neg_box.geo_object)).to be_truthy
-        expect(true).to be_truthy
       end
 
       specify 'neg_point found in neg_box' do
         expect(neg_box.contains?(neg_point.geo_object)).to be_truthy
         expect(neg_point.within?(neg_box.geo_object)).to be_truthy
-        expect(true).to be_truthy
       end
     end
 
@@ -853,10 +849,8 @@ describe GeographicItem, type: :model, group: :geo do
           end
 
           specify '#containing' do
-            point_fi_i
-            item_f_i
             test1 = GeographicItem.containing(point_f_i.id)
-            expect(test.to_a).to contain_exactly(item_f_i)
+            expect(test1.to_a).to contain_exactly(item_f_i)
           end
 
           specify '#contained_by_wkt_sql' do
