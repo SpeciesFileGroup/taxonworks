@@ -59,28 +59,69 @@ describe 'ControlledVocabularyTerms', :type => :feature do
 
       # then I get the message "Topic 'tests' was successfully created"
       expect(page).to have_content("Topic 'tests' was successfully created")
-
-      # 'Tagged Objects' link under 'Report' header should not be available
-      expect(page).not_to have_content('Tagged Objects')
     end
 
-    specify 'adding a new keyword controlled vocabulary term' do
-      visit controlled_vocabulary_terms_path
-      click_link('New') # when I click the new link
+    # Enable js to start using the selenium driver since the autocomplete box in Adding a tag requires it to test properly
+    context 'no controlled vocabulary terms made yet', js: true do
+      context 'create controlled vocabulary term of type keyword' do
+        before {
+          visit controlled_vocabulary_terms_path
+          click_link('New') # when I click the new link
 
-      select('Keyword', from: 'controlled_vocabulary_term_type') # I select 'Keyword' from the Type dropdown
-      fill_in('Name', with: 'TestKeyword')  # I fill in the name field with 'TestKeyword'
-      fill_in('Definition', with: 'TestKeyword definition') # I fill in the definition field with 'TestKeyword definition'
+          select('Keyword', from: 'controlled_vocabulary_term_type') # I select 'Keyword' from the Type dropdown
+          fill_in('Name', with: 'TestKeyword')  # I fill in the name field with 'TestKeyword'
+          fill_in('Definition', with: 'TestKeyword definition') # I fill in the definition field with 'TestKeyword definition'
 
-      click_button('Create Controlled vocabulary term') # I click the 'Create Controlled vocabulary term' button
+          click_button('Create Controlled vocabulary term') # I click the 'Create Controlled vocabulary term' button
+        }
 
-      # 'Tagged Objects' link under 'Report' header should be available
-      expect(page).to have_content('Tagged Objects')
+        specify 'should be able to see "Tagged Objects"' do
+          # Click on the 'Report' header
+          find('span', text: 'Report').click
 
-      click_link('Tagged Objects') # I click the 'Tagged Objects' link under the 'Report' header 
+          # I click the 'Tagged Objects' link under the 'Report' header
+          click_link('Tagged Objects')
 
-      # then I get a page showing 'Objects with keyword "TestKeyword"'
-      expect(page).to have_content('Objects with keyword "TestKeyword"')
+          # Then I get a page showing 'Objects with keyword "TestKeyword"'
+          expect(page).to have_content('Objects with keyword "TestKeyword"')
+        end
+
+        context 'use newly created keyword as a tag' do
+          # Create an otu
+          before {
+            visit otus_path
+            click_link('New')
+            fill_in 'Name', with: 'OtusTestName'
+            click_button 'Create Otu'
+          }
+
+          specify 'tag the otu with newly created keyword' do
+            # Click on 'Annotate' header to show 'Add Tag' link
+            find('span', text: 'Annotate').click
+            click_link('Add tag')
+
+            # Fill in the tag info
+            fill_in 'keyword_id_for_controlled_vocabulary_term', with: 'TestKeyword'
+            find('a', text: "TestKeyword: TestKeyword definition").click
+            click_button 'Create Tag'
+
+            # Should have 'TestKeyword' under 'Tag' in the 'Annotations' box
+            expect(page).to have_content('TestKeyword')
+
+            # Go back to the 'TestKeyword' cvt
+            visit controlled_vocabulary_terms_path
+            click_link('TestKeyword')
+
+            # Go to the 'Tagged Objects' link
+            find('span', text: 'Report').click
+            click_link('Tagged Objects')
+
+            # Page should now list 'OtusTestName' under the 'Otu' category
+            expect(page).to have_content('Otu (1)')
+            expect(page).to have_content('OtusTestName')
+          end
+        end
+      end
     end
   end
 end
