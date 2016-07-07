@@ -62,6 +62,7 @@ describe 'ControlledVocabularyTerms', :type => :feature do
     end
 
     # Enable js to start using the selenium driver since the autocomplete box in Adding a tag requires it to test properly
+    # NOTE: In order for Selenium 2.53.4 to work you need Firefox version 46.0.1 and lower installed
     context 'no controlled vocabulary terms made yet', js: true do
       context 'create controlled vocabulary term of type keyword' do
         before {
