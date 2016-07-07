@@ -300,12 +300,10 @@ namespace :tw do
       end
 
       desc 'create sources'
+      ### time rake tw:project_import:species_file:create_sources user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
       task :create_sources => [:data_directory, :environment, :user_id] do
-        ### rake tw:project_import:species_file:create_sources user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
 
         puts 'Running create_sources...'
-
-        # @todo
 
         # tblRefs columns to import: Title, PubID, Series, Volume, Issue, RefPages, ActualYear, StatedYear, LinkID, LastUpdate, ModifiedBy, CreatedOn, CreatedBy
         # tblRefs other columns: RefID => Source.identifier, FileID => used when creating ProjectSources, ContainingRefID => sfVerbatimRefs contains full
@@ -313,20 +311,15 @@ namespace :tw do
         #   (use when creating roles and generating author string from tblRefAuthors), Note => attach to ProjectSources, CiteDataStatus => can be derived,
         #   Verbatim => not used
 
-        species_file_data = Import.find_or_create_by(name: 'SpeciesFileData')
-        # get_person_id = species_file_data.get('SFPersonIDToTWPersonID') # not needed until roles
-        get_user_id = species_file_data.get('SFFileUserIDToTWUserID') # for housekeeping
-        get_serial_id = species_file_data.get('SFPubIDToTWSerialID') # for FK
-        get_pub_type = species_file_data.get('SFPubIDToPubType') # = bibtex_type (1=journal=>article, 2=unused, 3=book or cd=>book, 4=unpublished source=>unpublished)
-        get_ref_link = species_file_data.get('RefIDToRefLink') # key is SF.RefID, value is URL string
-        get_verbatim_ref = species_file_data.get('RefIDToVerbatimRef') # key is SF.RefID, value is verbatim string
-        # no_ref_list = species_file_data.get('SFNoRefList') # contains array of RefInRef ids w/only author info
-        get_project_id = species_file_data.get('SFFileIDToTWProjectID')
+        import = Import.find_or_create_by(name: 'SpeciesFileData')
+        get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
+        get_tw_serial_id = import.get('SFPubIDToTWSerialID') # for FK
+        get_sf_pub_type = import.get('SFPubIDToPubType') # = bibtex_type (1=journal=>article, 2=unused, 3=book or cd=>book, 4=unpublished source=>unpublished)
+        get_sf_ref_link = import.get('RefIDToRefLink') # key is SF.RefID, value is URL string
+        get_sf_verbatim_ref = import.get('RefIDToVerbatimRef') # key is SF.RefID, value is verbatim string
+        get_tw_project_id = import.get('SFFileIDToTWProjectID')
 
-        # get_source_id = sf_start_data.get('SFRefIDToTWSourceID') # cross ref hash
-        # get_source_id ||= {} # make empty hash if doesn't exist (otherwise it would be nil)
-        get_source_id = {} # make empty hash
-        sf_ref_id_to_tw_source_id = get_source_id
+        get_tw_source_id = {} # key = SF.RefID, value = TW.source_id
 
         # byebug
 
@@ -341,24 +334,20 @@ namespace :tw do
         file.each_with_index do |row, i|
           # break if i == 20
           # next if row["RefID"].to_i < 38387
-          ref_id = row['RefID']
-          # next if no_ref_list.include?(ref_id)
           next if (row['Title'].empty? and row['PubID'] == '0' and row['Series'].empty? and row['Volume'].empty? and row['Issue'].empty? and row['ActualYear'].empty? and row['StatedYear'].empty?) or row['AccessCode'] == '4'
+          ref_id = row['RefID']
 
-          print "working with #{ref_id} \n"
+          print "working with SF.RefID = #{ref_id}, SF.FileID = #{row['FileID']} \n"
 
-          pub_type = get_pub_type[row['PubID']]
+          pub_type = get_sf_pub_type[row['PubID']]
 
           actual_year = row['ActualYear']
-          # actual_year = nil if actual_year == '0'
           stated_year = row['StatedYear']
-          # stated_year = nil if stated_year == '0'
 
           if actual_year == '0' or stated_year == '0' or actual_year.include?('-') or stated_year.include?('-') or pub_type == 'unpublished'
             # create a verbatim source
             source = Source::Verbatim.new(
-                verbatim: get_verbatim_ref[ref_id],
-                # url: row['LinkID'].to_i > 0 ? get_ref_link[ref_id] : nil,   # Not compatible with verbatim
+                verbatim: get_sf_verbatim_ref[ref_id],
                 created_at: row['CreatedOn'],
                 updated_at: row['LastUpdate'],
                 created_by_id: get_user_id[row['CreatedBy']],
@@ -368,70 +357,64 @@ namespace :tw do
             source = Source::Bibtex.new(
                 bibtex_type: pub_type,
                 title: row['Title'],
-                serial_id: get_serial_id[row['PubID']],
-                series: row['Series'],
-                volume: row['Volume'],
-                number: row['Issue'],
-                pages: row['RefPages'],
-                year: actual_year,
-                stated_year: stated_year,
-                url: row['LinkID'].to_i > 0 ? get_ref_link[ref_id] : nil,
-                created_at: row['CreatedOn'],
-                updated_at: row['LastUpdate'],
-                created_by_id: get_user_id[row['CreatedBy']],
-                updated_by_id: get_user_id[row['ModifiedBy']]
+                serial_id: get_tw_serial_id[row['PubID']],
+                                   series: row['Series'],
+                                   volume: row['Volume'],
+                                   number: row['Issue'],
+                                   pages: row['RefPages'],
+                                   year: actual_year,
+                                   stated_year: stated_year,
+                                   url: row['LinkID'].to_i > 0 ? get_sf_ref_link[ref_id] : nil,
+                                   created_at: row['CreatedOn'],
+                                   updated_at: row['LastUpdate'],
+                                   created_by_id: get_tw_user_id[row['CreatedBy']],
+                                   updated_by_id: get_tw_user_id[row['ModifiedBy']]
             )
           end
 
           if source.save
 
-            # source.identifiers << Identifier::Local::Import.new(namespace: source_namespace, identifier: ref_id)
-            sf_ref_id_to_tw_source_id[ref_id] = source.id
+            get_tw_source_id[ref_id] = source.id.to_s
 
-            # populate project_sources:  Can I just do create here?
             ProjectSource.create!(
-                project_id: get_project_id[row['FileID']],
+                project_id: get_tw_project_id[row['FileID']],
                 source_id: source.id,
                 created_at: row['CreatedOn'],
                 updated_at: row['LastUpdate'],
-                created_by_id: get_user_id[row['CreatedBy']],
-                updated_by_id: get_user_id[row['ModifiedBy']]
+                created_by_id: get_tw_user_id[row['CreatedBy']],
+                updated_by_id: get_tw_user_id[row['ModifiedBy']]
             )
 
           else
             error_counter += 1
-            puts "     ERROR (#{error_counter}): " + source.errors.full_messages.join(';')
-            puts "  RefID: #{ref_id}, sf row created by: #{row['CreatedBy']}, sf row updated by: #{row['ModifiedBy']}    "
+            puts "     Source ERROR (#{error_counter}): " + source.errors.full_messages.join(';')
           end
         end
 
-        # Write to Imports
-        species_file_data.set('SFRefIDToTWSourceID', sf_ref_id_to_tw_source_id)
-        puts 'SF.RefID to TW.source_id'
-        ap sf_ref_id_to_tw_source_id
+        import.set('SFRefIDToTWSourceID', get_tw_source_id)
+
+        puts 'SFRefIDToTWSourceID'
+        ap get_tw_source_id
 
       end
 
       desc 'create projects'
-      # create mb as project member, admin, for each project??
+      ### time rake tw:project_import:sf_start:create_projects user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
       task :create_projects => [:data_directory, :environment, :user_id] do
-        ### rake tw:project_import:sf_start:create_projects user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
 
         puts 'Running create_projects...'
 
-        species_file_data = Import.find_or_create_by(name: 'SpeciesFileData')
-        # Is it really really necessary to track original creator, etc? Don't think so.
-        # get_tw_user_id = species_file_data.get('SFFileUserIDToTWUserID') # for housekeeping
-        get_project_id = species_file_data.get('SFFileIDToTWProjectID') # cross ref hash
-        get_project_id ||= {} # make empty hash if doesn't exist (otherwise it would be nil)
-        sf_file_id_to_tw_project_id = get_project_id
+        get_tw_project_id = {} # key = SF.FileID, value = TW.project_id
+
+        # create mb as project member for each project
+        user = User.find_by_email('mbeckman@illinois.edu')
 
         path = @args[:data_directory] + 'tblFiles.txt'
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
         file.each_with_index do |row, i|
           file_id = row['FileID']
-          next if file_id == "0" # was integer 0 which failed!
+          next if file_id == "0"
 
           website_name = row['WebsiteName'].downcase # want to be lower case
 
@@ -445,12 +428,9 @@ namespace :tw do
 
           if project.save
 
-            sf_file_id_to_tw_project_id[file_id] = project.id
+            get_tw_project_id[file_id] = project.id
 
-            # create mb as project member for each project
-            # pm = ProjectMember.new(user: user, project: project, is_project_administrator: true)
-            # pm.save! if pm.valid?
-
+            ProjectMember.create!(user_id: user.id, project: project, is_project_administrator: true)
 
           else
             error_counter += 1
@@ -459,20 +439,21 @@ namespace :tw do
           end
         end
 
-        # Write to Imports
-        species_file_data.set('SFFileIDToTWProjectID', sf_file_id_to_tw_project_id)
-        puts 'SF.FileID to TW.project_id'
-        ap sf_file_id_to_tw_project_id
+        import = Import.find_or_create_by(name: 'SpeciesFileData')
+        import.set('SFFileIDToTWProjectID', get_tw_project_id)
+        puts 'SFFileIDToTWProjectID'
+        ap get_tw_project_id
 
       end
 
       desc 'list SF.RefID to VerbatimRefString'
+      ### time rake tw:project_import:sf_start:list_verbatim_refs user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
       task :list_verbatim_refs => [:data_directory, :environment, :user_id] do
-        ### rake tw:project_import:sf_start:list_verbatim_refs user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
+        # Can be run independently at any time
 
         puts 'Running list_verbatim_refs...'
 
-        ref_id_to_verbatim_ref = {}
+        get_sf_verbatim_ref = {} # key = SF.RefID, value = SF verbatim ref (table generated from a script)
 
         path = @args[:data_directory] + 'sfVerbatimRefs.txt'
         file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
@@ -482,25 +463,30 @@ namespace :tw do
           # puts row.inspect
           ref_id = row['RefID']
           print "working with #{ref_id} \n"
-          ref_id_to_verbatim_ref[ref_id] = row['RefString']
+          get_sf_verbatim_ref[ref_id] = row['RefString']
         end
 
         i = Import.find_or_create_by(name: 'SpeciesFileData')
-        i.set('RefIDToVerbatimRef', ref_id_to_verbatim_ref)
+        i.set('RefIDToVerbatimRef', get_sf_verbatim_ref)
 
-        puts 'RefID to VerbatimRef'
-        ap ref_id_to_verbatim_ref
+        puts 'RefIDToVerbatimRef'
+        ap get_sf_verbatim_ref
+
+
+        #####
+        user = User.find_by_email('mbeckman@illinois.edu')
+        puts "user_id = #{user.id}"
 
       end
 
       desc 'map SF.RefID to Link URL'
-      ### time rake tw:project_import:sf_start:map_ref_link user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
-      task :map_ref_link => [:data_directory, :environment, :user_id] do
+      ### time rake tw:project_import:sf_start:map_ref_links user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
+      task :map_ref_links => [:data_directory, :environment, :user_id] do
         # Can be run independently at any time
 
-        puts 'Running map_ref_link...'
+        puts 'Running map_ref_links...'
 
-        get_sf_ref_link = {}
+        get_sf_ref_link = {} # key = SF.RefID, value = SF ref link (table generated from a script)
 
         path = @args[:data_directory] + 'sfRefLinks.txt'
         file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
@@ -510,14 +496,14 @@ namespace :tw do
           # puts row.inspect
           ref_id = row['RefID']
           print "working with #{ref_id} \n"
-          ref_id_to_ref_link[ref_id] = row['RefLink']
+          get_sf_ref_link[ref_id] = row['RefLink']
         end
 
-        i = Import.find_or_create_by(name: 'SpeciesFileData')
-        i.set('RefIDToRefLink', ref_id_to_ref_link)
+        import = Import.find_or_create_by(name: 'SpeciesFileData')
+        import.set('RefIDToRefLink', get_sf_ref_link)
 
-        puts 'RefID to Link URL'
-        ap ref_id_to_ref_link
+        puts 'RefIDToRefLink'
+        ap get_sf_ref_link
 
       end
 
@@ -549,7 +535,7 @@ namespace :tw do
 
         puts 'Running map_pub_type...'
 
-        get_sf_pub_type = {}
+        get_sf_pub_type = {} # key = SF.PubID, value = SF.PubType
 
         path = @args[:data_directory] + 'tblPubs.txt'
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
@@ -628,7 +614,7 @@ namespace :tw do
         import = Import.find_or_create_by(name: 'SpeciesFileData')
         get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
 
-        get_tw_person_id ||= {} # make empty hash if doesn't exist (otherwise it would be nil), used in loop 2
+        get_tw_person_id ||= {} # key = SF.PersonID, value = TW.person_id; make empty hash if doesn't exist (otherwise it would be nil), used in loop 2
 
         # create Namespace for Identifier (used in loop below): Species File, tblPeople, SF PersonID
         # 'Key3' => Namespace.find_or_create_by(name: '3i_Source_ID', short_name: '3i_Source_ID')     # 'Key3' was key in hash @data.keywords.merge! ??
