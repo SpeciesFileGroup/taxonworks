@@ -291,7 +291,7 @@ namespace :tw do
       end
 
       desc 'run all rake tasks through sources without no_ref_list'
-      ### rake time tw:project_import:species_file:run_tasks_through_sources user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
+      ### time rake tw:project_import:sf_start:run_tasks_through_sources user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
       task :run_tasks_through_sources => [:create_users, :create_people, :map_serials, :map_pub_type,
                                           :map_ref_link, :list_verbatim_refs, :create_projects, :create_sources] do
         # task :run_tasks_through_sources => [:create_users, :create_people, :map_serials, :map_pub_type, :create_no_ref_list_array,
@@ -300,7 +300,7 @@ namespace :tw do
       end
 
       desc 'create sources'
-      ### time rake tw:project_import:species_file:create_sources user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
+      ### time rake tw:project_import:sf_start:create_sources user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
       task :create_sources => [:data_directory, :environment, :user_id] do
 
         puts 'Running create_sources...'
@@ -350,8 +350,8 @@ namespace :tw do
                 verbatim: get_sf_verbatim_ref[ref_id],
                 created_at: row['CreatedOn'],
                 updated_at: row['LastUpdate'],
-                created_by_id: get_user_id[row['CreatedBy']],
-                updated_by_id: get_user_id[row['ModifiedBy']]
+                created_by_id: get_tw_user_id[row['CreatedBy']],
+                updated_by_id: get_tw_user_id[row['ModifiedBy']]
             )
           else
             source = Source::Bibtex.new(
