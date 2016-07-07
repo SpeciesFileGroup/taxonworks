@@ -13,7 +13,6 @@ class ControlledVocabularyTermsController < ApplicationController
   # GET /controlled_vocabulary_terms/1
   # GET /controlled_vocabulary_terms/1.json
   def show
-    set_controlled_vocabulary_term
   end
 
   # GET /controlled_vocabulary_terms/new
