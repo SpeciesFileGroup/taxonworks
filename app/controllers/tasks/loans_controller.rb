@@ -16,4 +16,9 @@ class Tasks::LoansController < ApplicationController
     @loan_items = @loan.loan_items
   end
 
+  def find_loan_items(loan_id)
+    # Loan.joins(:loan_items).where(loan_items: {loan_item_object_type: 'CollectionObject'})
+
+    pile1 = Loan.joins(:loan_items).where(loan_items: {loan_id: loan_id})
+  end
 end

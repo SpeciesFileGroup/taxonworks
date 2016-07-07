@@ -38,7 +38,7 @@ namespace :tw do
 
       desc 'create all SF taxa (pass 1)'
       task :create_all_sf_taxa_pass1 => [:data_directory, :environment, :user_id] do
-        ### time rake tw:project_import:sf_taxa:create_all_sf_taxa_pass1 user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
+        ### time rake tw:project_import:sf_taxa:create_all_sf_taxa_pass1 user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
 
         puts 'Creating all SF taxa...'
 
@@ -55,8 +55,8 @@ namespace :tw do
         get_sf_status_flags = {} # key = SF.TaxonNameID, value = SF.StatusFlags
         get_tw_otu_id = {} # key = SF.TaxonNameID, value = TW.otu.id; used for temporary SF taxa
 
-        path = @args[:data_directory] + 'working_old/tblTaxa.txt'
-        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: "UTF-16:UTF-8")
+        path = @args[:data_directory] + 'tblTaxa.txt'
+        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
         error_counter = 0
         count_found = 0
@@ -137,6 +137,7 @@ namespace :tw do
                                     created_by_id: get_user_id[row['CreatedBy']],
                                     updated_by_id: get_user_id[row['ModifiedBy']]}],
 
+                # perhaps test for nil for each...  (Dmitry) classification.new? Dmitry prefers doing one at a time and validating?? And after the taxon is saved.
                 taxon_name_classifications_attributes: [
                     {type: fossil, project_id: project_id,
                      created_at: row['CreatedOn'],
@@ -206,7 +207,7 @@ namespace :tw do
             # and row['NameStatus'] == '7'
             # taxon_name.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::NotLatin')
 
-          elsif row['NameStatus'] == '7'
+          elsif row['NameStatus'] == '7'     # make all NotLatin... Dmitry Add project_id
             case taxon_name.errors.full_messages.include? # ArgumentError: wrong number of arguments (given 0, expected 1)
               when 'Name name must end in -oidea', 'Name name must end in -idae', 'Name name must end in ini', 'Name name must end in -inae'
                 taxon_name.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable')
@@ -216,7 +217,7 @@ namespace :tw do
           end
 
           if taxon_name.valid?
-            taxon_name.save!
+            taxon_name.save!    # taxon won't be saved if something wrong with classifications_attributes, read about !
             get_tw_taxon_name_id[row['TaxonNameID']] = taxon_name.id
             get_sf_name_status[row['TaxonNameID']] = name_status
             get_sf_status_flags[row['TaxonNameID']] = status_flags
@@ -246,13 +247,13 @@ namespace :tw do
 
       desc 'create SF synonym.id to parent.id hash'
       task :create_sf_synonym_id_to_parent_id_hash => [:data_directory, :environment, :user_id] do
-        ### time rake tw:project_import:sf_taxa:create_sf_synonym_id_to_parent_id_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
+        ### time rake tw:project_import:sf_taxa:create_sf_synonym_id_to_parent_id_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
 
         puts 'Running SF synonym parent hash...'
 
         sf_synonym_id_to_parent_id_hash = {}
 
-        path = @args[:data_directory] + 'direct_from_sf/sf_synonym_parents.txt'
+        path = @args[:data_directory] + 'sfSynonymParents.txt'
         file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
         file.each do |row|
@@ -274,7 +275,7 @@ namespace :tw do
       desc 'create Animalia taxon name subordinate to each project Root (and make hash of project.id, animalia.id'
       # creating project_id_animalia_id_hash
       task :create_animalia_below_root => [:data_directory, :environment, :user_id] do
-        ### time rake tw:project_import:sf_taxa:create_animalia_below_root user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
+        ### time rake tw:project_import:sf_taxa:create_animalia_below_root user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
 
         species_file_data = Import.find_or_create_by(name: 'SpeciesFileData')
         get_project_id = species_file_data.get('SFFileIDToTWProjectID')
@@ -320,7 +321,7 @@ namespace :tw do
       desc 'XXX create apex taxon parent id hash, i.e. id of "root" in each project'
       # use Animalia instead; project_id_animalia_id_hash
       task :create_apex_taxon_parent_id_hash => [:data_directory, :environment, :user_id] do
-        ### time rake tw:project_import:sf_taxa:create_apex_taxon_parent_id_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
+        ### time rake tw:project_import:sf_taxa:create_apex_taxon_parent_id_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
 
         species_file_data = Import.find_or_create_by(name: 'SpeciesFileData')
         get_apex_taxon_id = species_file_data.get('TWProjectIDToSFApexTaxonID')
@@ -332,8 +333,8 @@ namespace :tw do
         # get_apex_taxon_project_id = {}
         # get_apex_taxon_id.each { |key, value| get_apex_taxon_project_id[value] = key } # shortcut for do...end
 
-        path = @args[:data_directory] + 'working/tblTaxa.txt'
-        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: "UTF-16:UTF-8")
+        path = @args[:data_directory] + 'tblTaxa.txt'
+        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
         # get ApexTaxonNameID.AboveID
         file.each do |row|
@@ -352,7 +353,7 @@ namespace :tw do
 
       # desc 'create valid taxa for Embioptera (FileID = 60)'
       # task :create_valid_taxa_for_embioptera => [:data_directory, :environment, :user_id] do
-      #   ### time rake tw:project_import:sf_taxa:create_valid_taxa_for_embioptera user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
+      #   ### time rake tw:project_import:sf_taxa:create_valid_taxa_for_embioptera user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
       #
       #   species_file_data = Import.find_or_create_by(name: 'SpeciesFileData')
       #   get_user_id = species_file_data.get('FileUserIDToTWUserID') # for housekeeping
@@ -374,8 +375,8 @@ namespace :tw do
       #   project_id = Project.find_by_name('embioptera_species_file').id
       #   apex_taxon_name_id = get_apex_taxon_id[project_id.to_s]
       #
-      #   path = @args[:data_directory] + 'working/tblTaxa.txt'
-      #   file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: "UTF-16:UTF-8")
+      #   path = @args[:data_directory] + 'tblTaxa.txt'
+      #   file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
       #
       #   # first loop to get ApexTaxonNameID.AboveID
       #   # puts "before the first loop, apex_taxon_name_id = #{apex_taxon_name_id.class}"
@@ -437,7 +438,7 @@ namespace :tw do
       desc 'XXX create project_id: apex_taxon_id hash (all SFs)'
       # use Animalia instead; project_id_animalia_id_hash
       task :create_apex_taxon_id_hash => [:data_directory, :environment, :user_id] do
-        ### rake tw:project_import:sf_taxa:create_apex_taxon_id_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
+        ### rake tw:project_import:sf_taxa:create_apex_taxon_id_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
 
         species_file_data = Import.find_or_create_by(name: 'SpeciesFileData')
         get_project_id = species_file_data.get('SFFileIDToTWProjectID') # cross ref hash
@@ -445,8 +446,8 @@ namespace :tw do
         # make hash of AboveIDs = parent_id, key = TW.project.id, value = TW.ApexTaxonNameID.value
         tw_project_id_to_sf_apex_taxon_id = {}
 
-        path = @args[:data_directory] + 'working/tblConstants.txt'
-        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: "UTF-16:UTF-8")
+        path = @args[:data_directory] + 'tblConstants.txt'
+        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
         file.each_with_index do |row, i|
           next unless row['Name'] == 'ApexTaxonNameID'
@@ -463,12 +464,12 @@ namespace :tw do
 
       desc 'create rank hash'
       task :create_rank_hash => [:data_directory, :environment, :user_id] do
-        ### rake tw:project_import:sf_taxa:create_rank_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/
+        ### rake tw:project_import:sf_taxa:create_rank_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
 
         sf_rank_id_to_tw_rank_string = {}
 
-        path = @args[:data_directory] + 'working/tblRanks.txt'
-        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: "UTF-16:UTF-8")
+        path = @args[:data_directory] + 'tblRanks.txt'
+        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
         file.each_with_index do |row, i|
           rank_id = row['RankID']
