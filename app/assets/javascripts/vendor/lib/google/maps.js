@@ -201,7 +201,8 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
           var wxp;                    // width to anti/prime meridian east
           var wxm;                    // width to anti/prime meridian west
           var wx;                               // total width of all areas
-          wx = xmaxp - xminm;             // assume data in both hemispheres default across prime meridian
+          //wx = xmaxp - xminm;             // assume data in both hemispheres default across prime meridian
+          wx = wm + wp;             // assume data in both hemispheres default across prime meridian
           if (wx > 180) {               // areas are > 180 degrees wide or cross prime meridian
             if (wm == 0 && wp == 0) {   // this is the case of single longitude in each (both!) hemisphere
               wx = 360 - wx;                              // so revert to < 180 degree width (smaller distance)
@@ -238,31 +239,50 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
                 }
               }
               else {        // area in both hemispheres, but spans over 180 degrees or crosses antimeridian
-                wxp = 180 - xminp;    // xmaxp = xminp for single point
-                wxm = 180 + xmaxm;    // western half
-                wx = wxp + wxm;
-                if (wxm > wxp) {
-                  center_long = (xminp + xmaxm) / 2 - 180;
-                  wx = wx - 0;     ////  DUMMY
+                if (bounds.anti && bounds.prime) {   // this case is deferred
                 }
                 else {
-                  center_long = xminp + wx / 2;
-                  wx = wx - 0;     ////  DUMMY
+                  if (bounds.prime) {
+                    wxp = xmaxp;
+                    wxm = -xminm;
+                    wx = wxp + wxm;
+                    if (wxp > wxm) {
+                      center_long = xmaxp - wx / 2;
+                    }
+                    else {
+                      center_long = xminm + wx / 2;
+                    }
+                  }
+                  if (bounds.anti) {
+                    wxp = 180 - xminp;    // xmaxp = xminp for single point
+                    wxm = 180 + xmaxm;    // western half
+                    wx = wxp + wxm;
+                    if (wxm > wxp) {
+                      center_long = wx / 2 - 180;
+                      wx = wx - 0;     ////  DUMMY
+                    }
+                    else {
+                      center_long = xminp + wx / 2;
+                      wx = wx - 0;     ////  DUMMY
+                    }
+                    wx = wx - 0;     ////  DUMMY}
+                  }
+                  wx = wx - 0;     ////  DUMMY}
                 }
-                wx = wx - 0;     ////  DUMMY
+                wx = wx - 0;     ////  DUMMY}
               }
             }
-            if (bounds.anti || bounds.prime) {
-              //if ((wm > 179) && (wp > 179)) {     // check for prime meridian and anti-meridian case
-              wm = 180 - bounds.pminx + 180 + bounds.mmaxx;      // width of putative anti-meridian crossing area
-              wp = bounds.pmaxx0 - bounds.mminx0;                // width of putative meridian crossing area
-              // are these isolated ?
-              if (((bounds.mmaxx < -45) && (bounds.mminx0 > -45)) && ((bounds.pmaxx0 < 45) && (bounds.pminx > 45))) {
-                // open space between arbitrary +/-45 boundary
-                wx = wm - bounds.mmaxx + bounds.pmaxx0;         // width of map (?)
-                center_long = -0.5 * (wm - bounds.mmaxx) + 0.5 * (bounds.pmaxx0);
-              }
-            }
+            //if (bounds.anti || bounds.prime) {
+            //  //if ((wm > 179) && (wp > 179)) {     // check for prime meridian and anti-meridian case
+            //  wm = 180 - bounds.pminx + 180 + bounds.mmaxx;      // width of putative anti-meridian crossing area
+            //  wp = bounds.pmaxx0 - bounds.mminx0;                // width of putative meridian crossing area
+            //  // are these isolated ?
+            //  if (((bounds.mmaxx < -45) && (bounds.mminx0 > -45)) && ((bounds.pmaxx0 < 45) && (bounds.pminx > 45))) {
+            //    // open space between arbitrary +/-45 boundary
+            //    wx = wm - bounds.mmaxx + bounds.pmaxx0;         // width of map (?)
+            //    center_long = -0.5 * (wm - bounds.mmaxx) + 0.5 * (bounds.pmaxx0);
+            //  }
+            //}
           }
           else {            // not an overwide calculation  // bias toward eastern hemisphere removed in xgtlt()
             if (wp == 0) {
@@ -517,7 +537,9 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
       // for geometry types which contain line segments, we must introduce
       // detection of prime meridian and antimeridian crossing by each segment
       var lastX;        // used to compare prior point
+      var lastY;
       var thisX;        // to current point
+      var thisY;
       var ltNeg180;     // flag for detection of permuted line segment
       lastX = undefined;                        // polygon starting in western hemisphere crossing anti-meridian
       ltNeg180 = false;                         // has all negative x-coordinates
@@ -554,14 +576,16 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
       if (thisType.type == "LineString") {          // special segments to compensate for permutation in controller
         for (l = 0; l < thisType.coordinates.length; l++) {   // first scan polyline/linestring to detect permuted case
           thisX = thisType.coordinates[l][0];
+          thisY = thisType.coordinates[l][1];
           if (lastX) {
-            if (this.meridianCheck(bounds, lastX, thisX)) {   // true if crossed anti-meridian
+            if (this.meridianCheck(bounds, lastX, thisX, lastY, thisY)) {   // true if crossed anti-meridian
               if (thisX < -180) {
                 ltNeg180 = true
               }             // permuted case detector
             }
           }
           lastX = thisX;
+          lastY = thisY;
         }
 
         if (ltNeg180) {                                         // if permuted case detected
@@ -585,10 +609,11 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
             this.xgtlt(bounds, thisType.coordinates[k][l][0]);
             this.ygtlt(bounds, thisType.coordinates[k][l][1]); //box check
             if (lastX) {
-              if (this.meridianCheck(bounds, lastX, thisX)) {   // true if crossed anti-meridian
+              if (this.meridianCheck(bounds, lastX, thisX, lastY, thisY)) {   // true if crossed anti-meridian
               }
             }
             lastX = thisX;
+            lastY = thisY;
           }
         }
       }
@@ -600,13 +625,14 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
           for (l = 0; l < thisType.coordinates[k].length; l++) {
             thisX = thisType.coordinates[k][l][0];
             if (lastX) {
-              if (this.meridianCheck(bounds, lastX, thisX)) {   // true if crossed anti-meridian
+              if (this.meridianCheck(bounds, lastX, thisX, lastY, thisY)) {   // true if crossed anti-meridian
                 if (thisX < -180) {
                   ltNeg180 = true
                 }             // permuted case detector
               }
             }
             lastX = thisX;
+            lastY = thisY;
           }
         }
 
@@ -628,7 +654,7 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
             this.xgtlt(bounds, thisX);    // thisType.coordinates[k][l][0]);
             this.ygtlt(bounds, thisType.coordinates[k][l][1]); //box check
             if (lastX) {
-              if (this.meridianCheck(bounds, lastX, thisX)) {   // true if crossed anti-meridian
+              if (this.meridianCheck(bounds, lastX, thisX, lastY, thisY)) {   // true if crossed anti-meridian
                 if (thisX < -180) {
                   ltNeg180 = true
                 }
@@ -720,40 +746,77 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
 
     meridianCheck: function (bounds, lastX, thisX) {
       if (lastX) {                            // do nothing if this is the first point (i.e., lastX undefined)
-        var xm = 0.5 * (lastX + thisX);       // midpoint of current segment
-        if (lastX > 180) {                    // conform extended coordinates to correct sign for hemisphere
-          lastX -= 360
-        }
-        if (lastX < -180) {
-          lastX += 360
-        }
-        if (thisX > 180) {
-          thisX -= 360
-        }
-        if (thisX < -180) {
-          thisX += 360
-        }                                     // these checks may obviate additional tests for > 180, < -180 below
+        //  var xm = 0.5 * (lastX + thisX);       // midpoint of current segment
+        //  if (lastX > 180) {                    // conform extended coordinates to correct sign for hemisphere
+        //    lastX -= 360
+        //  }
+        //  if (lastX < -180) {
+        //    lastX += 360
+        //  }
+        //  if (thisX > 180) {
+        //    thisX -= 360
+        //  }
+        //  if (thisX < -180) {
+        //    thisX += 360
+        //  }                                     // these checks may obviate additional tests for > 180, < -180 below
+        //
+        //  if (lastX <= 0) {                     // if prior point is western and this point is eastern
+        //    if (thisX >= 0 || thisX < -180) {   // since postGIS may give points past +180
+        //      if (Math.abs(xm) > 90) {          // gross test for closer to anti-meridian
+        //        bounds.anti = true;
+        //        return true;
+        //      }
+        //      else {                            // crossing closer to prime meridian
+        //        bounds.prime = true;
+        //        return false;
+        //      }
+        //    }
+        //  }
+        //  if (lastX >= 0) {                     // if prior point is eastern and this point is western
+        //    if ((thisX <= 0) || thisX > 180) {  // since postGIS may give points past +180
+        //      if (Math.abs(xm) > 90) {          // gross test for closer to anti-meridian
+        //        bounds.anti = true;
+        //        return true;
+        //      }
+        //      else {                            // crossing closer to prime meridian
+        //        bounds.prime = true;
+        //        return false;
+        //      }
+        //    }
+        //  }
+        //}
+        var xm; // = 0.5 * (lastX + thisX);       // midpoint of current segment
 
         if (lastX <= 0) {                     // if prior point is western and this point is eastern
           if (thisX >= 0 || thisX < -180) {   // since postGIS may give points past +180
+            xm = 0.5 * (thisX - lastX);
             if (Math.abs(xm) > 90) {          // gross test for closer to anti-meridian
               bounds.anti = true;
+              bounds.xmaxp = 180.0;
+              bounds.xminm = -180.0;
               return true;
             }
             else {                            // crossing closer to prime meridian
               bounds.prime = true;
+              bounds.xmaxm = 0;
+              bounds.xminp = 0;
               return false;
             }
           }
         }
         if (lastX >= 0) {                     // if prior point is eastern and this point is western
           if ((thisX <= 0) || thisX > 180) {  // since postGIS may give points past +180
+            xm = 0.5 * (lastX - thisX);
             if (Math.abs(xm) > 90) {          // gross test for closer to anti-meridian
               bounds.anti = true;
+              bounds.xmaxp = 180.0;
+              bounds.xminm = -180.0;
               return true;
             }
             else {                            // crossing closer to prime meridian
               bounds.prime = true;
+              bounds.xmaxm = 0;
+              bounds.xminp = 0;
               return false;
             }
           }

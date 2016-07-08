@@ -575,11 +575,13 @@ function add_match_georeferences_map_listeners(map) {      // 4 listeners, one f
         $("#_selected_gr_form").removeAttr("hidden");   // literal-based reveal the map
         var feature_collection = $("#_select_gr_form").data('feature-collection');      // literal-based form data reference
         for (var i = 0; i < feature_collection.features.length; i++) {                  // scan the feature_collection
-          if (selected_feature_georeference_id == feature_collection.features[i].properties['georeference'].id) {  // for the match
+          if (feature_collection.features[i].properties['georeference']) {
+            if (selected_feature_georeference_id == feature_collection.features[i].properties['georeference'].id) {  // for the match
             var fc = {"type": "FeatureCollection", "features": []};         // construct the new feature collection for the target
             fc.features.push(feature_collection.features[i]);           // inject the matching feature found by georeference id
             selected_map = TW.vendor.lib.google.maps.initializeMap("selected_gr_canvas", fc);              // plot it on the center map, knowing literally where it is
-          }                                                   // selected_map can be used to bind other listeners
+            }
+          }                                                  // selected_map can be used to bind other listeners
         }
       }
     }

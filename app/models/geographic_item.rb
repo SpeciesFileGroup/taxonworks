@@ -708,22 +708,12 @@ class GeographicItem < ActiveRecord::Base
     end
 
     def check_fix_wkt(wkt_string)
-      clean_string = wkt_string.downcase.gsub('(', '').gsub(')', '')
-      if clean_string.include? 'polygon'
-        clean_string = clean_string.gsub('polygon ', '') #          # synthesize a polygon feature - the hard way!
-        points = clean_string.split(',')
-        coordinates = '['
-        points.each_with_index { |point, index|
-          pointxy = point.split(' ')
-          coordinates += '[' + pointxy[0] + ', ' + pointxy[1] + ']'
-          if index < points.count - 1
-            coordinates += ', '
-          end
-        }
-        coordinates += ']'
+      clean_string = wkt_string.downcase.gsub('(', '').gsub(')', '') #    # make the string convenient
+      if clean_string.include? 'polygon' #                                # to look for the case we are treating
+        coord_string = clean_string.gsub('polygon ', '') #                # synthesize a polygon feature - the hard way!
+        coordinates = parse_wkt_coords(coord_string)
         # check for anti-meridian crossing polygon
-        ob = '{"type": "Feature", "geometry": {"type": "Polygon", "coordinates": [' + coordinates + ']}, "properties": {}}'
-        value = ob.to_s.gsub('"[[', '[[').gsub(']]"', ']]')
+        value = '{"type": "Feature", "geometry": {"type": "Polygon", "coordinates": [' + coordinates + ']}, "properties": {}}'
         # e.g., value: "{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[141.6796875,68.46379955520322],[154.3359375,41.64007838467894],[-143.0859375,49.49667452747045],[141.6796875,68.46379955520322]]]},"properties":{}}"
         feature = RGeo::GeoJSON.decode(value, :json_parser => :json)
         # e.g., feature: #<RGeo::GeoJSON::Feature:0x3fd189717f4c id=nil geom="POLYGON ((141.6796875 68.46379955520322, 154.3359375 41.64007838467894, -143.0859375 49.49667452747045, 141.6796875 68.46379955520322))">
@@ -808,11 +798,11 @@ class GeographicItem < ActiveRecord::Base
           geometry = my_feature.geometry.as_text #                         # extract the WKT
           geometry
         else
-          geometry = wkt_string
+          wkt_string
         end
+      else
+        wkt_string
       end
-    else
-      geometry
     end
 
     def anti_meridian_check(last_x, this_x) # returns true if anti-meridian crossed
@@ -835,6 +825,20 @@ class GeographicItem < ActiveRecord::Base
         end
       end
       false
+    end
+
+    def parse_wkt_coords(wkt_coords)
+      points = wkt_coords.split(',')
+      coordinates = '['
+      points.each_with_index { |point, index|
+        pointxy = point.split(' ')
+        coordinates += '[' + pointxy[0] + ', ' + pointxy[1] + ']'
+        if index < points.count - 1
+          coordinates += ', '
+        end
+      }
+      coordinates += ']'
+      coordinates
     end
 
   end # class << self
