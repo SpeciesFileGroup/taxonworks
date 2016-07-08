@@ -42,7 +42,15 @@ module Workbench::DisplayHelper
   def object_attributes_partial_path(object)
     "/#{metamorphosize_if(object).class.base_class.name.tableize}/attributes"
   end
- 
+
+  def object_card_partial_path(object)
+    '/' + object_class_name(object) + '/card'
+  end
+
+  def object_class_name(object)
+    object.class.base_class.name.tableize.to_s
+  end
+
   # @return [String]
   #   return nil if content.nil?, else wrap and return string if provided
   def nil_wrap(pre = nil, content = nil, post = nil)
