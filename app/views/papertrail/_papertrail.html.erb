@@ -1,13 +1,13 @@
-<div>
+<div class="papertrail_box">
   id: <%= papertrail.id -%>
   <p>
-  <strong>Event</strong>
+  <strong>Event:</strong>
   <%= papertrail.event %>
   </p>
 
   <p>
-  <strong>Whodunnit</strong>
-  <%= papertrail.whodunnit %>
+  <strong>User Whodunnit:</strong>
+  <%= User.find(papertrail.whodunnit).name %>
   </p>
 
   <p>

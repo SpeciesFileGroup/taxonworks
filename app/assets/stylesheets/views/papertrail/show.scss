@@ -1,0 +1,10 @@
+.papertrail_box {
+  border: 1px solid grey;
+  padding: 10px;
+  margin: 10px 0px 10px 0px;
+  transition: background-color 0.5s ease;
+}
+
+.papertrail_box:hover{
+  background-color: lightgray;
+}
