@@ -23,15 +23,15 @@ namespace :tw do
 
 # 20160628
 # Tasks before dumping and restoring db
-#   Keep copy of current db with some taxa imported
+#   ok Keep copy of current db with some taxa imported
 #   Force Import hashes to be strings and change usage instances accordingly
-#   Manually transfer three adjunct tables: RefIDToRefLink (probably table sfRefLinks which generates ref_id_to_ref_link.txt), sfVerbatimRefs and sfSynonymParents created by ScriptsFor1db2tw.sql
+#   ok Manually transfer three adjunct tables: RefIDToRefLink (probably table sfRefLinks which generates ref_id_to_ref_link.txt), sfVerbatimRefs and sfSynonymParents created by ScriptsFor1db2tw.sql
 #   Make sure path references correct subdirectory (working vs. old)
-#   ? Figure out how to assign myself as project member in each SF, what about universal user like 3i does??
+#   ok Figure out how to assign myself as project member in each SF, what about universal user like 3i does??
 #   ok Make sure none_species_file does not get created (FileID must be > 0)
 #   ok Write get_tw_taxon_name_id to db! And three others...
-#   ok? Use TaxonNameClassification::Iczn::Unavailable for non-latinized family group name synonyms
-#   ok? Use TaxonNameClassification::Iczn::Unavailable::NotLatin for Name Name must be latinized, no digits or spaces allowed
+#   ok Use TaxonNameClassification::Iczn::Unavailable::NotLatin for Name Name must be latinized, no digits or spaces allowed
+#   no, use NotLatin: Use TaxonNameClassification::Iczn::Unavailable for non-latinized family group name synonyms
 #   ok FixSFSynonymIDToParentID to iterate until Parent RankID > synonym RankID
 
 # pass 2
@@ -207,7 +207,7 @@ namespace :tw do
             # and row['NameStatus'] == '7'
             # taxon_name.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::NotLatin')
 
-          elsif row['NameStatus'] == '7'     # make all NotLatin... Dmitry Add project_id
+          elsif row['NameStatus'] == '7' # make all NotLatin... Dmitry Add project_id
             case taxon_name.errors.full_messages.include? # ArgumentError: wrong number of arguments (given 0, expected 1)
               when 'Name name must end in -oidea', 'Name name must end in -idae', 'Name name must end in ini', 'Name name must end in -inae'
                 taxon_name.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable')
@@ -217,7 +217,7 @@ namespace :tw do
           end
 
           if taxon_name.valid?
-            taxon_name.save!    # taxon won't be saved if something wrong with classifications_attributes, read about !
+            taxon_name.save! # taxon won't be saved if something wrong with classifications_attributes, read about !
             get_tw_taxon_name_id[row['TaxonNameID']] = taxon_name.id
             get_sf_name_status[row['TaxonNameID']] = name_status
             get_sf_status_flags[row['TaxonNameID']] = status_flags
@@ -318,155 +318,14 @@ namespace :tw do
 
       end
 
-      desc 'XXX create apex taxon parent id hash, i.e. id of "root" in each project'
-      # use Animalia instead; project_id_animalia_id_hash
-      task :create_apex_taxon_parent_id_hash => [:data_directory, :environment, :user_id] do
-        ### time rake tw:project_import:sf_taxa:create_apex_taxon_parent_id_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
-
-        species_file_data = Import.find_or_create_by(name: 'SpeciesFileData')
-        get_apex_taxon_id = species_file_data.get('TWProjectIDToSFApexTaxonID')
-        get_project_id = species_file_data.get('SFFileIDToTWProjectID')
-
-        get_apex_taxon_parent_id = {} # hash of SF.AboveIDs = parent_id, key = SF.TaxonNameID, value = TW.taxon_name.id of each project's Root
-
-        # get reverse of TWProjectIDToSFApexTaxonID: no longer needed because we can use get_project_id
-        # get_apex_taxon_project_id = {}
-        # get_apex_taxon_id.each { |key, value| get_apex_taxon_project_id[value] = key } # shortcut for do...end
-
-        path = @args[:data_directory] + 'tblTaxa.txt'
-        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
-
-        # get ApexTaxonNameID.AboveID
-        file.each do |row|
-          t = row['TaxonNameID']
-          next unless get_apex_taxon_id.has_value?(t)
-          puts "TaxonNameID: #{t}, AboveID: #{row['AboveID']}"
-          get_apex_taxon_parent_id[t] = TaxonName.find_by!(project_id: get_project_id[row['FileID']], name: 'Root').id # substitute for row['AboveID']
-          # get_parent_id[row['AboveID']] = TaxonName.find_by(project_id: get_apex_taxon_project_id[row['TaxonNameID']], name: 'Root').id # substitute for row['AboveID'] # this is the reverse hash
-        end
-
-        species_file_data.set('SFApexTaxonIDToTWParentID', get_apex_taxon_parent_id)
-
-        puts "get parent id of apex taxon id"
-        ap get_apex_taxon_parent_id
-      end
-
-      # desc 'create valid taxa for Embioptera (FileID = 60)'
-      # task :create_valid_taxa_for_embioptera => [:data_directory, :environment, :user_id] do
-      #   ### time rake tw:project_import:sf_taxa:create_valid_taxa_for_embioptera user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
-      #
-      #   species_file_data = Import.find_or_create_by(name: 'SpeciesFileData')
-      #   get_user_id = species_file_data.get('FileUserIDToTWUserID') # for housekeeping
-      #   get_rank_string = species_file_data.get('SFRankIDToTWRankString')
-      #   get_apex_taxon_id = species_file_data.get('TWProjectIDToSFApexTaxonID')
-      #   get_source_id = species_file_data.get('SFRefIDToTWSourceID')
-      #
-      #   sf_taxon_name_id_to_tw_taxon_name_id = {} # hash of SF.AboveIDs = parent_id, key = SF.TaxonNameID, value = TW.taxon_name.id
-      #   get_parent_id = sf_taxon_name_id_to_tw_taxon_name_id
-      #
-      #
-      #   # name_status_lookup = {
-      #   #     1 => 'TaxonNameClassification::Iczn::'
-      #   # }
-      #
-      #   # if temporary, don't make taxon name, make an OTU, that OTU has the TaxonNameID of the AboveID as the taxon name reference (or find the most recent valid above ID)
-      #
-      #
-      #   project_id = Project.find_by_name('embioptera_species_file').id
-      #   apex_taxon_name_id = get_apex_taxon_id[project_id.to_s]
-      #
-      #   path = @args[:data_directory] + 'tblTaxa.txt'
-      #   file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
-      #
-      #   # first loop to get ApexTaxonNameID.AboveID
-      #   # puts "before the first loop, apex_taxon_name_id = #{apex_taxon_name_id.class}"
-      #   file.each do |row|
-      #     next unless row['TaxonNameID'] == apex_taxon_name_id
-      #     get_parent_id[row['AboveID']] = TaxonName.find_by(project_id: project_id, name: 'Root').id # substitute for row['AboveID']
-      #     break
-      #   end
-      #   # puts 'done with first loop'
-      #   # ap get_parent_id
-      #
-      #   error_counter = 0
-      #   count_found = 0
-      #
-      #   file.each_with_index do |row, i|
-      #     taxon_name_id = row['TaxonNameID']
-      #     next unless row['TaxonNameStr'].start_with?(apex_taxon_name_id)
-      #     next unless row['NameStatus'] == '0'
-      #     # Valid names only, 18, including 0, instances of StatusFlags > 0 when NameStatus = 0
-      #     # NameStatus should be attached to taxon_name as data_attribute?
-      #
-      #     count_found += 1
-      #     print "working with TaxonNameID #{taxon_name_id} (count #{count_found}) \n"
-      #
-      #     taxon_name = Protonym.new(
-      #         # taxon_name = TaxonName.new(
-      #         name: row['Name'],
-      #         parent_id: get_parent_id[row['AboveID']],
-      #         rank_class: get_rank_string[row['RankID']],
-      #         # type: 'Protonym',
-      #
-      #         origin_citation_attributes: {source_id: get_source_id[row['RefID']], project_id: project_id,
-      #                                      created_by_id: get_user_id[row['CreatedBy']], updated_by_id: get_user_id[row['ModifiedBy']]},
-      #
-      #         # original_genus_id: cannot set until all taxa (for a given project) are imported; and the out of scope taxa as well,
-      #
-      #         project_id: project_id,
-      #         created_at: row['CreatedOn'],
-      #         updated_at: row['LastUpdate'],
-      #         created_by_id: get_user_id[row['CreatedBy']],
-      #         updated_by_id: get_user_id[row['ModifiedBy']]
-      #     )
-      #
-      #     if taxon_name.save
-      #
-      #       sf_taxon_name_id_to_tw_taxon_name_id[row['TaxonNameID']] = taxon_name.id
-      #
-      #     else
-      #       error_counter += 1
-      #       puts "     ERROR (#{error_counter}): " + taxon_name.errors.full_messages.join(';')
-      #       puts "  project_id: #{project_id}, SF.TaxonNameID: #{row['TaxonNameID']}, TW.taxon_name.id #{taxon_name.id} sf row created by: #{row['CreatedBy']}, sf row updated by: #{row['ModifiedBy']}    "
-      #     end
-      #
-      #   end
-      #
-      #
-      # end
-
-      desc 'XXX create project_id: apex_taxon_id hash (all SFs)'
-      # use Animalia instead; project_id_animalia_id_hash
-      task :create_apex_taxon_id_hash => [:data_directory, :environment, :user_id] do
-        ### rake tw:project_import:sf_taxa:create_apex_taxon_id_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
-
-        species_file_data = Import.find_or_create_by(name: 'SpeciesFileData')
-        get_project_id = species_file_data.get('SFFileIDToTWProjectID') # cross ref hash
-
-        # make hash of AboveIDs = parent_id, key = TW.project.id, value = TW.ApexTaxonNameID.value
-        tw_project_id_to_sf_apex_taxon_id = {}
-
-        path = @args[:data_directory] + 'tblConstants.txt'
-        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
-
-        file.each_with_index do |row, i|
-          next unless row['Name'] == 'ApexTaxonNameID'
-
-          tw_project_id_to_sf_apex_taxon_id[get_project_id[row['FileID']]] = row['Value']
-
-        end
-
-        i = Import.find_or_create_by(name: 'SpeciesFileData')
-        i.set('TWProjectIDToSFApexTaxonID', tw_project_id_to_sf_apex_taxon_id)
-
-        ap tw_project_id_to_sf_apex_taxon_id
-      end
-
       desc 'create rank hash'
+      ### time rake tw:project_import:sf_taxa:create_rank_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
       task :create_rank_hash => [:data_directory, :environment, :user_id] do
-        ### rake tw:project_import:sf_taxa:create_rank_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
+        # Can be run independently at any time
 
-        sf_rank_id_to_tw_rank_string = {}
+        puts 'Running create_rank_hash...'
+
+        get_tw_rank_string = {} # key = SF.RankID, value = TW.rank_string (Ranks.lookup(SF.Rank.Name))
 
         path = @args[:data_directory] + 'tblRanks.txt'
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
@@ -475,13 +334,14 @@ namespace :tw do
           rank_id = row['RankID']
           next if ['90', '100'].include?(rank_id) # RankID = 0, "not specified", will = nil
 
-          sf_rank_id_to_tw_rank_string[rank_id] = Ranks.lookup(:iczn, row['RankName'])
+          get_tw_rank_string[rank_id] = Ranks.lookup(:iczn, row['RankName'])
         end
 
-        i = Import.find_or_create_by(name: 'SpeciesFileData')
-        i.set('SFRankIDToTWRankString', sf_rank_id_to_tw_rank_string)
+        import = Import.find_or_create_by(name: 'SpeciesFileData')
+        import.set('SFRankIDToTWRankString', get_tw_rank_string)
 
-        ap sf_rank_id_to_tw_rank_string
+        puts = 'SFRankIDToTWRankString'
+        ap get_tw_rank_string
       end
     end
   end
