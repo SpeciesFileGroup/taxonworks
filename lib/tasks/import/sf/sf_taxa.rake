@@ -264,8 +264,8 @@ namespace :tw do
           sf_synonym_id_to_parent_id_hash[taxon_name_id] = row['NewAboveID']
         end
 
-        i = Import.find_or_create_by(name: 'SpeciesFileData')
-        i.set('SFSynonymIDToParentID', sf_synonym_id_to_parent_id_hash)
+        import = Import.find_or_create_by(name: 'SpeciesFileData')
+        import.set('SFSynonymIDToParentID', sf_synonym_id_to_parent_id_hash)
 
         puts 'SFSynonymIDToParentID'
         ap sf_synonym_id_to_parent_id_hash
@@ -273,22 +273,21 @@ namespace :tw do
       end
 
       desc 'create Animalia taxon name subordinate to each project Root (and make hash of project.id, animalia.id'
-      # creating project_id_animalia_id_hash
+      ### time rake tw:project_import:sf_taxa:create_animalia_below_root user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
       task :create_animalia_below_root => [:data_directory, :environment, :user_id] do
-        ### time rake tw:project_import:sf_taxa:create_animalia_below_root user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
+        # Can be run independently at any time after projects created
 
-        species_file_data = Import.find_or_create_by(name: 'SpeciesFileData')
-        get_project_id = species_file_data.get('SFFileIDToTWProjectID')
+        puts 'Running create_animalia_below_root...'
 
-        project_id_animalia_id_hash = {} # hash of TW.project_id (key), TW.taxon_name_id = 'Animalia' (value)
+        import = Import.find_or_create_by(name: 'SpeciesFileData')
+        get_tw_project_id = import.get('SFFileIDToTWProjectID')
 
-        TaxonName.first # a royal kludge to ensure taxon_name plumbing is in place v-a-v project
+        get_animalia_id = {} # key = TW.project_id, value = TW.taxon_name_id = 'Animalia'
 
-        get_project_id.values.each_with_index do |project_id, index|
-          next if index == 0 # hash accidently included FileID = 0
-          # puts "before root = (index = #{index}, project_id = #{project_id})"
-          # puts "after this_project assignment #{this_project.id}"
-          # puts "this_project.name: #{this_project.root_taxon_name.name}; this_project.name.id: #{this_project.root_taxon_name.id}!"
+        TaxonName.first # kludge to ensure taxon_name plumbing is in place v-a-v project?
+
+        get_tw_project_id.values.each_with_index do |project_id, index|
+          next if index == 0 # exclude FileID = 0
           next if TaxonName.find_by(project_id: project_id, name: 'Animalia') # test if Animalia already exists
 
           this_project = Project.find(project_id)
@@ -306,15 +305,14 @@ namespace :tw do
           )
 
           if animalia_taxon_name.save
-            project_id_animalia_id_hash[project_id] = animalia_taxon_name.id
+            get_animalia_id[project_id] = animalia_taxon_name.id.to_s
           end
         end
 
-        i = Import.find_or_create_by(name: 'SpeciesFileData')
-        i.set('ProjectIDToAnimaliaID', project_id_animalia_id_hash)
+        import.set('ProjectIDToAnimaliaID', get_animalia_id)
 
         puts "ProjectIDToAnimaliaID"
-        ap project_id_animalia_id_hash
+        ap get_animalia_id
 
       end
 
