@@ -1,10 +1,8 @@
-
-
 # A container localizes the proximity of one ore more physical things, at this point in TW this is restricted to a number of collection objects.
 #
 # @!attribute parent_id
 #   @return [Integer]
-#     identifies the container this container is contained in 
+#     identifies the container this container is contained in
 #
 # @!attribute depth
 #   @return [Integer]
@@ -12,7 +10,7 @@
 #
 # @!attribute type
 #   @return [String]
-#     STI, the type of container 
+#     STI, the type of container
 #
 # @!attribute project_id
 #   @return [Integer]
@@ -20,15 +18,15 @@
 #
 # @!attribute name
 #   @return [String]
-#     abitrary name of this container 
+#     abitrary name of this container
 #
 # @!attribute disposition
 #   @return [String]
-#     a free text description of the position of this container 
+#     a free text description of the position of this container
 #
 class Container < ActiveRecord::Base
 
-  has_closure_tree 
+  has_closure_tree
 
   include Housekeeping
   include Shared::IsData
@@ -36,7 +34,7 @@ class Container < ActiveRecord::Base
   include Shared::Containable
   include Shared::Taggable
   include SoftValidation
-  
+
   has_many :container_items, inverse_of: :container
   has_many :collection_objects, through: :container_items, source: :contained_object, source_type: 'CollectionObject', validate: false
   has_many :collection_profiles
@@ -76,8 +74,8 @@ class Container < ActiveRecord::Base
   # @return [Array of {Object}s]
   #   all objects contained in this and nested containers
   def all_objects
-    #  all_containers.collect{|c| c.container_item.collect{|ci| ci.contained_object}}.flatten 
-    #  container_items = ContainerItem.joins(:containers).where(containers: {left: 
+    #  all_containers.collect{|c| c.container_item.collect{|ci| ci.contained_object}}.flatten
+    #  container_items = ContainerItem.joins(:containers).where(containers: {left:
   end
 
   def self.find_for_autocomplete(params)
@@ -101,6 +99,16 @@ class Container < ActiveRecord::Base
     end
   end
 
+  def process
+    loan      = Loan.find(3111)
+    site      = loan.loan_items[0].loan_item_object
+    building  = site.container_items[0].contained_object
+    room      = building.container_items[0].contained_object
+    vial_rack = room.container_items[0].contained_object
+    vial      = vial_rack.container_items[0].contained_object
+    specimens = vial.container_items
+  end
+
 end
 
-Dir[Rails.root.to_s + '/app/models/container/**/*.rb'].each{|file| require_dependency file } 
+Dir[Rails.root.to_s + '/app/models/container/**/*.rb'].each { |file| require_dependency file }

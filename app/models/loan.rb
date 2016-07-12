@@ -6,23 +6,23 @@
 #
 # @!attribute request_method
 #   @return [String]
-#     brief not as to how the request was made, not a controlled vocabulary 
+#     brief not as to how the request was made, not a controlled vocabulary
 #
 # @!attribute date_sent
 #   @return [DateTime]
-#     date loan was delivered to post 
+#     date loan was delivered to post
 #
 # @!attribute date_received
 #   @return [DateTime]
-#     date loan was recievied by recipient 
+#     date loan was recievied by recipient
 #
 # @!attribute date_return_expected
 #   @return [DateTime]
-#      date expected 
+#      date expected
 #
 # @!attribute recipient_address
 #   @return [String]
-#     address loan sent to 
+#     address loan sent to
 #
 # @!attribute recipient_email
 #   @return [String]
@@ -30,22 +30,22 @@
 #
 # @!attribute recipient_phone
 #   @return [String]
-#     phone number of recipient 
+#     phone number of recipient
 #
 # @!attribute recipient_country
 #   @return [String]
 #
 # @!attribute supervisor_email
 #   @return [String]oe
-#     email of utlimately responsible party if recient can not be 
+#     email of utlimately responsible party if recient can not be
 #
 # @!attribute supervisor_phone
 #   @return [String]
-#     phone # of utlimately responsible party if recient can not be 
+#     phone # of utlimately responsible party if recient can not be
 #
 # @!attribute date_closed
 #   @return [DateTime]
-#     date at which loan has been fully resolved and requires no additional attention 
+#     date at which loan has been fully resolved and requires no additional attention
 #
 # @!attribute project_id
 #   @return [Integer]
@@ -104,14 +104,49 @@ class Loan < ActiveRecord::Base
     end
   end
 
+  def collection_objects
+    CollectionObject.find(collection_objects_ids)
+  end
+
   protected
+
+  # @return [Array] collection_object ids
+  def collection_objects_ids
+    # pile1 = Loan.joins(:loan_items).where(loan_items: {loan_id: self.id})
+    pile1 = self.loan_items.pluck(:id)
+    pile2 = []
+    pile1.each { |item_id|
+      item = LoanItem.find(item_id)
+      case item.loan_item_object_type
+        when /contain/i
+          pile2.push(dump_container_ids(item.loan_item_object))
+        when /object/
+          pile2.push(item_id)
+        else
+          # do nothing
+      end
+    }
+    pile2.flatten
+  end
+
+  # @param [Container] container
+  # @return [Array] of collection objects
+  def dump_container_ids(container)
+    retval = []
+    if container.depth > 0
+      retval.push(dump_container(container))
+    else
+      retval.push(container)
+    end
+    retval.flatten
+  end
 
   def reject_taxon_determinations(attributed)
     attributed['loan_item_object_type'].blank?
   end
 
   def reject_loan_items(attributed)
-    attributed['global_entity'].blank? && ( attributed['loan_item_object_type'].blank? && attributed['loan_item_object_id'].blank?)
+    attributed['global_entity'].blank? && (attributed['loan_item_object_type'].blank? && attributed['loan_item_object_id'].blank?)
   end
 
 end
