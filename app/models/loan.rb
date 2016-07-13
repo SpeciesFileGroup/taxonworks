@@ -104,11 +104,13 @@ class Loan < ActiveRecord::Base
     end
   end
 
+  # @return [Scope] of CollectionObject
   def collection_objects
-    if collection_objects_ids.empty?
+    list = collection_objects_ids
+    if list.empty?
       CollectionObject.where('false')
     else
-      CollectionObject.find(collection_objects_ids)
+      CollectionObject.find(list)
     end
   end
 
@@ -136,19 +138,19 @@ class Loan < ActiveRecord::Base
 
   # @param [Container] container
   # @return [Array] of collection objects
-  def dump_collection_object_ids(container)
-    container.dump_container_contents.map(&:id)
-    # retval = []
-    # container.container_items.each { |item|
-    #   case item.contained_object_type
-    #     when /contain/i # if this item is a container, try to dump the contents
-    #       retval.push(dump_collection_object_ids(item.contained_object))
-    #     else  # otherwise, just include what ever it is
-    #       retval.push(item.id)
-    #   end
-    # }
-    # retval.flatten
-  end
+  # def dump_collection_object_ids(container)
+  #   container.dump_container_contents.map(&:id)
+  #   # retval = []
+  #   # container.container_items.each { |item|
+  #   #   case item.contained_object_type
+  #   #     when /contain/i # if this item is a container, try to dump the contents
+  #   #       retval.push(dump_collection_object_ids(item.contained_object))
+  #   #     else  # otherwise, just include what ever it is
+  #   #       retval.push(item.id)
+  #   #   end
+  #   # }
+  #   # retval.flatten
+  # end
 
   def reject_taxon_determinations(attributed)
     attributed['loan_item_object_type'].blank?
