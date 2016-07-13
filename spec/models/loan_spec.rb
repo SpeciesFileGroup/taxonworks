@@ -16,7 +16,7 @@ describe Loan, :type => :model do
     let(:site) { Container.containerize([building], Container::Site) }
 
     # build loan
-    let!(:new_loan) { FactoryGirl.create(:valid_loan) }
+    let(:new_loan) { FactoryGirl.create(:valid_loan) }
     let(:loan) {
       new_loan.loan_items << loan_item_0
       new_loan.loan_items << loan_item_1
@@ -37,11 +37,20 @@ describe Loan, :type => :model do
     let(:loan_item_2) { FactoryGirl.create(:valid_loan_item, {loan:             new_loan,
                                                               loan_item_object: otu}) }
 
-    specify 'create a valid loan' do
-      expect(loan.valid?).to be_truthy
+    specify 'finding collection object from a complex loan' do
+      expect(loan.collection_objects).to contain_exactly(specimen,
+                                                         specimens[1],
+                                                         specimens[0])
     end
 
-    specify 'finding collection object from a complex loan' do
+    specify 'build a valid complex loan' do
+      expect(loan.valid?).to be_truthy
+      expect(loan.save).to be_truthy
+      expect(loan.loan_items[0].loan_item_object
+               .container_items[0].contained_object
+               .container_items[0].contained_object
+               .container_items[0].contained_object
+               .container_items[0].contained_object).to eq(vial)
 
     end
   end

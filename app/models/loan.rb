@@ -119,9 +119,10 @@ class Loan < ActiveRecord::Base
       item = LoanItem.find(item_id)
       case item.loan_item_object_type
         when /contain/i
-          pile2.push(dump_container_ids(item.loan_item_object))
-        when /object/
-          pile2.push(item_id)
+          link = dump_container_ids(item.loan_item_object)
+          pile2.push(link)
+        when /object/i
+          pile2.push(item.loan_item_object_id)
         else
           # do nothing
       end
@@ -133,11 +134,15 @@ class Loan < ActiveRecord::Base
   # @return [Array] of collection objects
   def dump_container_ids(container)
     retval = []
-    if container.depth > 0
-      retval.push(dump_container(container))
-    else
-      retval.push(container)
-    end
+
+    container.container_items.each { |item|
+      case item.contained_object_type
+        when /contain/i
+          retval.push(dump_container_ids(item.contained_object))
+        else
+          retval.push(item.id)
+      end
+    }
     retval.flatten
   end
 
