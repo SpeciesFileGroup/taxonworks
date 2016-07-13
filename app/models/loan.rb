@@ -105,7 +105,11 @@ class Loan < ActiveRecord::Base
   end
 
   def collection_objects
-    CollectionObject.find(collection_objects_ids)
+    if collection_objects_ids.empty?
+      CollectionObject.where('false')
+    else
+      CollectionObject.find(collection_objects_ids)
+    end
   end
 
   protected
@@ -113,37 +117,37 @@ class Loan < ActiveRecord::Base
   # @return [Array] collection_object ids
   def collection_objects_ids
     # pile1 = Loan.joins(:loan_items).where(loan_items: {loan_id: self.id})
-    pile1 = self.loan_items.pluck(:id)
-    pile2 = []
-    pile1.each { |item_id|
+    retval = []
+    loan_items.pluck(:id).each { |item_id|
       item = LoanItem.find(item_id)
       case item.loan_item_object_type
-        when /contain/i
-          link = dump_container_ids(item.loan_item_object)
-          pile2.push(link)
-        when /object/i
-          pile2.push(item.loan_item_object_id)
+        when /contain/i # if this item is a container
+          # link = dump_collection_object_ids(item.loan_item_object)
+          # retval.push(link)
+          retval.push(item.loan_item_object.dump_container_contents.map(&:id))
+        when /object/i # if this item is a collection object
+          retval.push(item.loan_item_object_id)
         else
-          # do nothing
+          # right now (07/13/16), since there are no other models which are 'containable', do nothing
       end
     }
-    pile2.flatten
+    retval.flatten
   end
 
   # @param [Container] container
   # @return [Array] of collection objects
-  def dump_container_ids(container)
-    retval = []
-
-    container.container_items.each { |item|
-      case item.contained_object_type
-        when /contain/i
-          retval.push(dump_container_ids(item.contained_object))
-        else
-          retval.push(item.id)
-      end
-    }
-    retval.flatten
+  def dump_collection_object_ids(container)
+    container.dump_container_contents.map(&:id)
+    # retval = []
+    # container.container_items.each { |item|
+    #   case item.contained_object_type
+    #     when /contain/i # if this item is a container, try to dump the contents
+    #       retval.push(dump_collection_object_ids(item.contained_object))
+    #     else  # otherwise, just include what ever it is
+    #       retval.push(item.id)
+    #   end
+    # }
+    # retval.flatten
   end
 
   def reject_taxon_determinations(attributed)

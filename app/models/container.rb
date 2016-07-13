@@ -71,9 +71,24 @@ class Container < ActiveRecord::Base
     c
   end
 
+  # @return [Array] of ids of the container contents
+  def dump_container_contents
+    retval = []
+    container_items.each { |item|
+      case item.contained_object_type
+        when /contain/i # if this item is a container, try to dump the contents
+          retval.push(item.contained_object.dump_container_contents)
+        else # otherwise, just include whatever it is
+          retval.push(item.contained_object)
+      end
+    }
+    retval.flatten
+  end
+
   # @return [Array of {Object}s]
   #   all objects contained in this and nested containers
   def all_objects
+    dump_container_contents
     #  all_containers.collect{|c| c.container_item.collect{|ci| ci.contained_object}}.flatten
     #  container_items = ContainerItem.joins(:containers).where(containers: {left:
   end
