@@ -37,20 +37,20 @@ namespace :tw do
 # pass 2
 
       desc 'create all SF taxa (pass 1)'
+      ### time rake tw:project_import:sf_taxa:create_all_sf_taxa_pass1 user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
       task :create_all_sf_taxa_pass1 => [:data_directory, :environment, :user_id] do
-        ### time rake tw:project_import:sf_taxa:create_all_sf_taxa_pass1 user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
 
-        puts 'Creating all SF taxa...'
+        puts 'Creating all SF taxa (pass 1)...'
 
-        species_file_data = Import.find_or_create_by(name: 'SpeciesFileData')
-        get_user_id = species_file_data.get('FileUserIDToTWUserID') # for housekeeping
-        get_rank_string = species_file_data.get('SFRankIDToTWRankString')
-        get_source_id = species_file_data.get('SFRefIDToTWSourceID')
-        get_project_id = species_file_data.get('SFFileIDToTWProjectID')
-        get_animalia_id = species_file_data.get('ProjectIDToAnimaliaID') # key = TW.Project.id, value TW.TaxonName.id where Name = 'Animalia', used when AboveID = 0
-        get_synonym_parent_id = species_file_data.get('SFSynonymIDToParentID')
+        import = Import.find_or_create_by(name: 'SpeciesFileData')
+        get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
+        get_tw_rank_string = import.get('SFRankIDToTWRankString')
+        get_tw_source_id = import.get('SFRefIDToTWSourceID')
+        get_tw_project_id = import.get('SFFileIDToTWProjectID')
+        get_animalia_id = import.get('ProjectIDToAnimaliaID') # key = TW.Project.id, value TW.TaxonName.id where Name = 'Animalia', used when AboveID = 0
+        get_sf_parent_id = import.get('SFSynonymIDToSFParentID')
 
-        get_tw_taxon_name_id = {} # SF.TaxonNameID to TW.TaxonNameID hash, key = SF.TaxonNameID, value = TW.taxon_name.id
+        get_tw_taxon_name_id = {} # key = SF.TaxonNameID, value = TW.taxon_name.id
         get_sf_name_status = {} # key = SF.TaxonNameID, value = SF.NameStatus
         get_sf_status_flags = {} # key = SF.TaxonNameID, value = SF.StatusFlags
         get_tw_otu_id = {} # key = SF.TaxonNameID, value = TW.otu.id; used for temporary SF taxa
@@ -67,20 +67,20 @@ namespace :tw do
           next if row['TaxonNameStr'].start_with?('1100048-1143863') # name = MiscImages (body parts)
           next if row['RankID'] == '90' # TaxonNameID = 1221948, Name = Deletable, RankID = 90 == Life, FileID = 1
 
-          project_id = get_project_id[row['FileID']]
+          project_id = get_tw_project_id[row['FileID']]
 
           count_found += 1
           print "Working with TW.project_id: #{project_id} = SF.FileID #{row['FileID']}, SF.TaxonNameID #{taxon_name_id} (count #{count_found}) \n"
 
           if row['AboveID'] == '0' # must check AboveID = 0 before synonym
-            parent_id = get_animalia_id[project_id.to_s].to_i
+            parent_id = get_animalia_id[project_id]
           elsif row['NameStatus'] == '7' # = synonym
-            parent_id = get_tw_taxon_name_id[get_synonym_parent_id[taxon_name_id]].to_i # assumes tw_taxon_name_id exists
+            parent_id = get_tw_taxon_name_id[get_sf_parent_id[taxon_name_id]] # assumes tw_taxon_name_id exists
           else
-            parent_id = get_tw_taxon_name_id[row['AboveID']].to_i
+            parent_id = get_tw_taxon_name_id[row['AboveID']]
           end
 
-          if parent_id == nil
+          if parent_id.to_i == nil
             puts '      ERROR: Could not find parent_id!'
             next
           end
@@ -95,8 +95,8 @@ namespace :tw do
                 project_id: project_id,
                 created_at: row['CreatedOn'],
                 updated_at: row['LastUpdate'],
-                created_by_id: get_user_id[row['CreatedBy']],
-                updated_by_id: get_user_id[row['ModifiedBy']]
+                created_by_id: get_tw_user_id[row['CreatedBy']],
+                updated_by_id: get_tw_user_id[row['ModifiedBy']]
             )
 
             if otu.save
@@ -120,40 +120,40 @@ namespace :tw do
             taxon_name = Protonym.new(
                 name: row['Name'],
                 parent_id: parent_id,
-                rank_class: get_rank_string[row['RankID']],
+                rank_class: get_tw_rank_string[row['RankID']],
 
                 # check housekeeping values; should citations, notes, classifications be attributed to SF last_editor?
-                origin_citation_attributes: {source_id: get_source_id[row['RefID']],
+                origin_citation_attributes: {source_id: get_tw_source_id[row['RefID']],
                                              project_id: project_id,
                                              created_at: row['CreatedOn'],
                                              updated_at: row['LastUpdate'],
-                                             created_by_id: get_user_id[row['CreatedBy']],
-                                             updated_by_id: get_user_id[row['ModifiedBy']]},
+                                             created_by_id: get_tw_user_id[row['CreatedBy']],
+                                             updated_by_id: get_tw_user_id[row['ModifiedBy']]},
 
                 notes_attributes: [{text: (row['Comment'].blank? ? nil : row['Comment']),
                                     project_id: project_id,
                                     created_at: row['CreatedOn'],
                                     updated_at: row['LastUpdate'],
-                                    created_by_id: get_user_id[row['CreatedBy']],
-                                    updated_by_id: get_user_id[row['ModifiedBy']]}],
+                                    created_by_id: get_tw_user_id[row['CreatedBy']],
+                                    updated_by_id: get_tw_user_id[row['ModifiedBy']]}],
 
                 # perhaps test for nil for each...  (Dmitry) classification.new? Dmitry prefers doing one at a time and validating?? And after the taxon is saved.
                 taxon_name_classifications_attributes: [
                     {type: fossil, project_id: project_id,
                      created_at: row['CreatedOn'],
                      updated_at: row['LastUpdate'],
-                     created_by_id: get_user_id[row['CreatedBy']],
-                     updated_by_id: get_user_id[row['ModifiedBy']]},
+                     created_by_id: get_tw_user_id[row['CreatedBy']],
+                     updated_by_id: get_tw_user_id[row['ModifiedBy']]},
                     {type: nomen_nudum, project_id: project_id,
                      created_at: row['CreatedOn'],
                      updated_at: row['LastUpdate'],
-                     created_by_id: get_user_id[row['CreatedBy']],
-                     updated_by_id: get_user_id[row['ModifiedBy']]},
+                     created_by_id: get_tw_user_id[row['CreatedBy']],
+                     updated_by_id: get_tw_user_id[row['ModifiedBy']]},
                     {type: nomen_dubium, project_id: project_id,
                      created_at: row['CreatedOn'],
                      updated_at: row['LastUpdate'],
-                     created_by_id: get_user_id[row['CreatedBy']],
-                     updated_by_id: get_user_id[row['ModifiedBy']]}
+                     created_by_id: get_tw_user_id[row['CreatedBy']],
+                     updated_by_id: get_tw_user_id[row['ModifiedBy']]}
                 ],
 
                 also_create_otu: true, # pretty nifty way to automatically make an OTU!
@@ -161,8 +161,8 @@ namespace :tw do
                 project_id: project_id,
                 created_at: row['CreatedOn'],
                 updated_at: row['LastUpdate'],
-                created_by_id: get_user_id[row['CreatedBy']],
-                updated_by_id: get_user_id[row['ModifiedBy']]
+                created_by_id: get_tw_user_id[row['CreatedBy']],
+                updated_by_id: get_tw_user_id[row['ModifiedBy']]
             )
           end
 
@@ -229,10 +229,10 @@ namespace :tw do
           end
         end
 
-        species_file_data.set('SFTaxonNameIDToTWTaxonNameID', get_tw_taxon_name_id)
-        species_file_data.set('SFTaxonNameIDToSFNameStatus', get_sf_name_status)
-        species_file_data.set('SFTaxonNameIDToSFStatusFlags', get_sf_status_flags)
-        species_file_data.set('SFTaxonNameIDToTWOtuID', get_tw_otu_id)
+        import.set('SFTaxonNameIDToTWTaxonNameID', get_tw_taxon_name_id)
+        import.set('SFTaxonNameIDToSFNameStatus', get_sf_name_status)
+        import.set('SFTaxonNameIDToSFStatusFlags', get_sf_status_flags)
+        import.set('SFTaxonNameIDToTWOtuID', get_tw_otu_id)
 
         puts 'SFTaxonNameIDToTWTaxonNameID'
         ap get_tw_taxon_name_id
@@ -245,13 +245,14 @@ namespace :tw do
 
       end
 
-      desc 'create SF synonym.id to parent.id hash'
-      task :create_sf_synonym_id_to_parent_id_hash => [:data_directory, :environment, :user_id] do
-        ### time rake tw:project_import:sf_taxa:create_sf_synonym_id_to_parent_id_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
+      desc 'create SF synonym.id to new parent.id hash'
+      ### time rake tw:project_import:sf_taxa:create_sf_synonym_id_to_new_parent_id_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
+      task :create_sf_synonym_id_to_new_parent_id_hash => [:data_directory, :environment, :user_id] do
+        # Can be run independently at any time
 
-        puts 'Running SF synonym parent hash...'
+        puts 'Running SF new synonym parent hash...'
 
-        sf_synonym_id_to_parent_id_hash = {}
+        get_sf_parent_id = {}  # key = SF.TaxonNameID of synonym, value = SF.TaxonNameID of new parent
 
         path = @args[:data_directory] + 'sfSynonymParents.txt'
         file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
@@ -261,14 +262,14 @@ namespace :tw do
           # puts row.inspect
           taxon_name_id = row['TaxonNameID']
           print "working with #{taxon_name_id} \n"
-          sf_synonym_id_to_parent_id_hash[taxon_name_id] = row['NewAboveID']
+          get_sf_parent_id[taxon_name_id] = row['NewAboveID']
         end
 
         import = Import.find_or_create_by(name: 'SpeciesFileData')
-        import.set('SFSynonymIDToParentID', sf_synonym_id_to_parent_id_hash)
+        import.set('SFSynonymIDToSFParentID', get_sf_parent_id)
 
-        puts 'SFSynonymIDToParentID'
-        ap sf_synonym_id_to_parent_id_hash
+        puts 'SFSynonymIDToSFParentID'
+        ap get_sf_parent_id
 
       end
 

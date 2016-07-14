@@ -350,7 +350,7 @@ namespace :tw do
 
           if project.save
 
-            get_tw_project_id[file_id] = project.id
+            get_tw_project_id[file_id] = project.id.to_s
 
             ProjectMember.create!(user_id: user.id, project: project, is_project_administrator: true)
 
