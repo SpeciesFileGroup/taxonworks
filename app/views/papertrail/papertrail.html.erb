@@ -2,6 +2,6 @@
 
 Return <%= object_link(@object) -%>
 
-<%= render(partial: 'papertrail', collection: @object.versions) -%>
+<%= render(partial: 'papertrail', collection: @object.versions.drop(1), locals: {object_id: @object.id, object_type: @object.class}) -%>
 
 

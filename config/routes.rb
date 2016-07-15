@@ -544,7 +544,7 @@ TaxonWorks::Application.routes.draw do
 
   match '/papertrail', to: 'papertrail#papertrail', via: :get
   match '/papertrail/:id', to: 'papertrail#show', as: 'paper_trail_version', via: :get
-
+  match '/papertrail/', to: 'papertrail#update', as: 'papertrail_update', via: :put
 
   # TODO: Remove or rewrite endpoint implementation
   # get '/api/v1/taxon_names/' => 'api/v1/taxon_names#all'
