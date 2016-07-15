@@ -224,12 +224,12 @@
         handle_projects_and_users_3i
         raise '$project_id or $user_id not set.'  if $project_id.nil? || $user_id.nil?
 
-        #$project_id = 1
+        $project_id = 1
         handle_controlled_vocabulary_3i
-        handle_references_3i
-        handle_taxonomy_3i
-        handle_taxon_name_relationships_3i
-        handle_citation_topics_3i
+        #handle_references_3i
+        #handle_taxonomy_3i
+        #handle_taxon_name_relationships_3i
+        #handle_citation_topics_3i
         handle_host_plant_name_dictionary_3i
         handle_host_plants_3i
         handle_distribution_3i
@@ -576,7 +576,7 @@
             if row['Name'] == 'Incertae sedis' || row['Name'] == 'Unplaced'
               @data.incertae_sedis.merge!(row['Key'] => @data.taxon_index[row['Parent']])
             elsif row['Status'] == '7' ### common name
-            elsif row['Status'] == '8' && !find_taxon(row['Parent']).try(:rank_class).to_s.include?('Family') ### combination
+            elsif row['Status'] == '8' && !find_taxon_3i(row['Parent']).try(:rank_class).to_s.include?('Family') ### combination
             elsif row['Status'] == '2'
               @data.original_combination.merge!(row['OriginalCombinationOf'] => row)
             elsif row['Status'] == '16'
@@ -585,19 +585,19 @@
               otu = Otu.create!(name: ('Species ' + @data.taxon_index[row['Parent']].try(:name).to_s + ' ' + row['Name']).squish) if rank.to_s.include?('Species')
               otu.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['Key'], identifier: row['Key'])
             elsif row['Status'] == '18'
-              taxon = find_taxon(row['Parent'])
+              taxon = find_taxon_3i(row['Parent'])
               taxon.data_attributes.new(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['Typification'].id, value: ('Type designation: ' + row['Author'].to_s + ', ' + row['Year'].to_s + row['YearRem'].to_s).squish)
               taxon.valid? ? taxon.save! : byebug
             elsif row['Status'] == '19'
-              taxon = find_taxon(row['Parent'])
+              taxon = find_taxon_3i(row['Parent'])
               taxon.data_attributes.new(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['Typification'].id, value: ('Neotype designation: ' + row['Author'].to_s + ', ' + row['Year'].to_s + row['YearRem'].to_s).squish)
               taxon.valid? ? taxon.save! : byebug
             elsif row['Status'] == '20'
-              taxon = find_taxon(row['Parent'])
+              taxon = find_taxon_3i(row['Parent'])
               taxon.data_attributes.new(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['Typification'].id, value: ('Lectotype designation: ' + row['Author'].to_s + ', ' + row['Year'].to_s + row['YearRem'].to_s).squish)
               taxon.valid? ? taxon.save! : byebug
-            elsif row['Status'] == '25'  && !find_taxon(row['Parent']).rank_class.to_s.include?('Family') # emendation
-              taxon = find_taxon(row['Parent'])
+            elsif row['Status'] == '25'  && !find_taxon_3i(row['Parent']).rank_class.to_s.include?('Family') # emendation
+              taxon = find_taxon_3i(row['Parent'])
               taxon.data_attributes.new(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['FirstRevisor'].id, value: (row['Name'] + ' ' + row['Author'].to_s + ', ' + row['Year'].to_s + row['YearRem'].to_s).squish)
               taxon.valid? ? taxon.save! : byebug
               @data.emendation.merge!(row['Parent'] => row)
@@ -605,7 +605,7 @@
               name = row['Name'].split(' ').last
               vname = row['Name'].split(' ').last
               #parent = row['Parent'].blank? ? @root : Protonym.with_identifier('3i_Taxon_ID ' + row['Parent']).find_by(project_id: $project_id)
-              parent = row['Parent'].blank? ? @root : @data.incertae_sedis[row['Parent']] ? TaxonName.find(@data.incertae_sedis[row['Parent']]) : find_taxon(row['Parent'])
+              parent = row['Parent'].blank? ? @root : @data.incertae_sedis[row['Parent']] ? TaxonName.find(@data.incertae_sedis[row['Parent']]) : find_taxon_3i(row['Parent'])
 
               if row['Rank'] == '0'
                 rank = parent.rank_class
@@ -620,7 +620,7 @@
                 rank = @ranks[row['Rank'].to_i]
               end
               if !row['OriginalSpecies'].blank? && row['Rank'] == '2'
-                parent = find_taxon(row['OriginalSpecies'])
+                parent = find_taxon_3i(row['OriginalSpecies'])
                 rank = @ranks[1]
               end
               byebug if row['Rank'].blank?
@@ -726,23 +726,15 @@
         Combination.tap{}
 
         file.each_with_index do |row, i|
-         # if i == 299
-         #   byebug
-         #   i = 299
-         #   print "######################################################################"
 
-
-         # end
-
-          if i < 2000000 #######################################
+          if i < 200000 #######################################
             print "\r#{i} (Relationships)"
             taxon = nil
-            taxon = find_taxon(row['Key'])
-
+            taxon = find_taxon_3i(row['Key'])
             if !taxon.nil? ### original combinations, synonyms, types
-              taxon.original_genus = find_taxon(row['OrigGen']) unless row['OrigGen'].blank?
-              taxon.original_species = find_taxon(row['OriginalSpecies']) unless row['OriginalSpecies'].blank?
-              taxon.original_subspecies = find_taxon(row['OriginalSubSpecies']) unless row['OriginalSubSpecies'].blank?
+              taxon.original_genus = find_taxon_3i(row['OrigGen']) unless row['OrigGen'].blank?
+              taxon.original_species = find_taxon_3i(row['OriginalSpecies']) unless row['OriginalSpecies'].blank?
+              taxon.original_subspecies = find_taxon_3i(row['OriginalSubSpecies']) unless row['OriginalSubSpecies'].blank?
               taxon.original_variety = taxon if row['Name'].include?(' var. ')
               taxon.original_form = taxon if row['Name'].include?(' f. ')
               if taxon.rank_string =~ /Genus/
@@ -760,36 +752,36 @@
               if taxon.rank_string =~ /Genus/ && !row['Type'].blank?
                 case row['TypeDesignation']
                   when 'original monotypy'
-                    taxon.type_species_by_original_monotypy = find_taxon(row['Type'])
+                    taxon.type_species_by_original_monotypy = find_taxon_3i(row['Type'])
                   when 'monotypy'
-                    taxon.type_species_by_monotypy = find_taxon(row['Type'])
+                    taxon.type_species_by_monotypy = find_taxon_3i(row['Type'])
                   when 'subsequent monotypy'
-                    taxon.type_species_by_subsequent_monotypy = find_taxon(row['Type'])
+                    taxon.type_species_by_subsequent_monotypy = find_taxon_3i(row['Type'])
                   when 'original designation'
-                    taxon.type_species_by_original_designation = find_taxon(row['Type'])
+                    taxon.type_species_by_original_designation = find_taxon_3i(row['Type'])
                   when 'subsequent designation'
-                    taxon.type_species_by_subsequent_designation = find_taxon(row['Type'])
+                    taxon.type_species_by_subsequent_designation = find_taxon_3i(row['Type'])
                   when 'ruling by commission'
-                    taxon.type_species_by_ruling_by_Commission = find_taxon(row['Type'])
+                    taxon.type_species_by_ruling_by_Commission = find_taxon_3i(row['Type'])
                   else
-                    taxon.type_species = find_taxon(row['Type'])
+                    taxon.type_species = find_taxon_3i(row['Type'])
                 end
               end
-              taxon.type_genus = find_taxon(row['Type']) if taxon.rank_string =~ /Family/ && !row['Type'].blank?
-              taxon.iczn_set_as_primary_homonym_of = find_taxon(row['Homonym']) if !row['Homonym'].blank? && row['Status'] == '3'
-              taxon.iczn_set_as_secondary_homonym_of = find_taxon(row['Homonym']) if !row['Homonym'].blank? && row['Status'] == '4'
-              taxon.iczn_set_as_homonym_of = find_taxon(row['Homonym']) if !row['Homonym'].blank? && row['Status'] == '5'
-              taxon.iczn_set_as_replacement_name_of = find_taxon(row['NomenNovumFor']) if !row['NomenNovumFor'].blank?
-              taxon.iczn_set_as_misspelling_of = find_taxon(row['MisspellingOf']) if !row['MisspellingOf'].blank?
-              taxon.iczn_set_as_misspelling_of = find_taxon(row['Parent']) if row['MisspellingOf'].blank? && row['Status'] == '9'
-              taxon.iczn_set_as_incorrect_original_spelling_of = find_taxon(row['OriginalCombinationOf']) if !row['OriginalCombinationOf'].blank? && row['Status'] == '9'
-              taxon.iczn_set_as_misapplication_of = find_taxon(row['MisapplicationFor']) if !row['MisapplicationFor'].blank? && row['Status'] == '11'
+              taxon.type_genus = find_taxon_3i(row['Type']) if taxon.rank_string =~ /Family/ && !row['Type'].blank?
+              taxon.iczn_set_as_primary_homonym_of = find_taxon_3i(row['Homonym']) if !row['Homonym'].blank? && row['Status'] == '3'
+              taxon.iczn_set_as_secondary_homonym_of = find_taxon_3i(row['Homonym']) if !row['Homonym'].blank? && row['Status'] == '4'
+              taxon.iczn_set_as_homonym_of = find_taxon_3i(row['Homonym']) if !row['Homonym'].blank? && row['Status'] == '5'
+              taxon.iczn_set_as_replacement_name_of = find_taxon_3i(row['NomenNovumFor']) if !row['NomenNovumFor'].blank?
+              taxon.iczn_set_as_misspelling_of = find_taxon_3i(row['MisspellingOf']) if !row['MisspellingOf'].blank?
+              taxon.iczn_set_as_misspelling_of = find_taxon_3i(row['Parent']) if row['MisspellingOf'].blank? && row['Status'] == '9'
+              taxon.iczn_set_as_incorrect_original_spelling_of = find_taxon_3i(row['OriginalCombinationOf']) if !row['OriginalCombinationOf'].blank? && row['Status'] == '9'
+              taxon.iczn_set_as_misapplication_of = find_taxon_3i(row['MisapplicationFor']) if !row['MisapplicationFor'].blank? && row['Status'] == '11'
               #taxon.iczn_first_revisor_action = @data.taxon_index[row['Parent']] if !row['OriginalCombinationOf'].blank? && row['Status'] == '9'
 
               source = nil
               if !@data.emendation[row['Parent']].blank? && row['OriginalCombinationOf'] == row['Parent']
-                source = find_taxon(@data.emendation[row['Parent']]).try(['Key3']).nil? ? nil : @data.publications_index[@data.emendation[row['Parent']]['Key3']] unless @data.emendation[row['Parent']].nil?
-                tnr = TaxonNameRelationship::Iczn::PotentiallyValidating::FirstRevisorAction.create(object_taxon_name: find_taxon(@data.emendation[row['Parent']]['Parent']), subject_taxon_name: taxon, origin_citation_attributes: {source_id: source}) if !@data.emendation[row['Parent']].blank? && row['OriginalCombinationOf'] == row['Parent']
+                source = find_taxon_3i(@data.emendation[row['Parent']]).try(['Key3']).nil? ? nil : @data.publications_index[@data.emendation[row['Parent']]['Key3']] unless @data.emendation[row['Parent']].nil?
+                tnr = TaxonNameRelationship::Iczn::PotentiallyValidating::FirstRevisorAction.create(object_taxon_name: find_taxon_3i(@data.emendation[row['Parent']]['Parent']), subject_taxon_name: taxon, origin_citation_attributes: {source_id: source}) if !@data.emendation[row['Parent']].blank? && row['OriginalCombinationOf'] == row['Parent']
                 byebug unless tnr.valid?
               end
 
@@ -800,21 +792,21 @@
               end
 
               if synonym_statuses.include?(row['Status']) # %w(1 6 8 10 11 14 17 22 23 24 26 27 28 29)
-                tnr = TaxonNameRelationship.create(subject_taxon_name: taxon, object_taxon_name: find_taxon(row['Parent']), type: @relationship_classes[row['Status'].to_i])
+                tnr = TaxonNameRelationship.create(subject_taxon_name: taxon, object_taxon_name: find_taxon_3i(row['Parent']), type: @relationship_classes[row['Status'].to_i])
                 byebug unless tnr.valid?
               end
 
             elsif row['Status'] == '8' || row['Status'] == '25' ### taxon name combinations
-              taxon = find_taxon(row['CombinationOf']) || find_taxon(row['Parent'])
+              taxon = find_taxon_3i(row['CombinationOf']) || find_taxon_3i(row['Parent'])
 
               source = row['Key3'].blank? ? nil : @data.publications_index[row['Key3']]
               c = Combination.new(origin_citation_attributes: {source_id: source, pages: row['Page']}, verbatim_author: row['Author'], year_of_publication: row['Year'])
               c.identifiers.new(type: 'Identifier::Local::Import', namespace: @data.keywords['Key'], identifier: row['Key'])
 
-              origgen = row['OrigGen'].blank? ? nil : find_taxon(row['OrigGen'])
-              origsubgen = row['OrigSubGen'].blank? ? nil : find_taxon(row['OrigSubGen'])
-              origspecies = row['OriginalSpecies'].blank? ? nil : find_taxon(row['OriginalSpecies'])
-              origsubspecies = row['OriginalSubSpecies'].blank? ? nil : find_taxon(row['OriginalSubSpecies'])
+              origgen = row['OrigGen'].blank? ? nil : find_taxon_3i(row['OrigGen'])
+              origsubgen = row['OrigSubGen'].blank? ? nil : find_taxon_3i(row['OrigSubGen'])
+              origspecies = row['OriginalSpecies'].blank? ? nil : find_taxon_3i(row['OriginalSpecies'])
+              origsubspecies = row['OriginalSubSpecies'].blank? ? nil : find_taxon_3i(row['OriginalSubSpecies'])
 
               #  c.citations.new(source_id: source, pages: row['Page']) unless source.blank?
               c.genus = origgen unless origgen.blank?
@@ -824,7 +816,7 @@
               c.subspecies = origsubspecies unless origsubspecies.blank?
               c.variety = taxon if row['Name'].include?(' var. ')
               c.form = taxon if row['Name'].include?(' f. ')
-              c.parent = origgen.blank? ? find_taxon(row['Parent']).parent : origgen.parent
+              c.parent = origgen.blank? ? find_taxon_3i(row['Parent']).parent : origgen.parent
               if taxon.rank_string =~ /Genus/
                 c.genus.nil? ? c.genus = taxon : c.subgenus = taxon
               elsif taxon.rank_string =~ /Species/
@@ -836,7 +828,7 @@
                   c.variety = taxon
                 end
               elsif taxon.rank_string =~ /Family/
-                tnr = TaxonNameRelationship.create(subject_taxon_name: taxon, object_taxon_name: find_taxon(row['Parent']), type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm')
+                tnr = TaxonNameRelationship.create(subject_taxon_name: taxon, object_taxon_name: find_taxon_3i(row['Parent']), type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm')
                 byebug unless tnr.valid?
               end
               c.data_attributes.new(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['YearRem'].id, value: row['YearRem']) unless row['YearRem'].blank?
@@ -865,9 +857,9 @@
 
             elsif row['Status'] == '7' #  common name
               lng = Language.find_by_alpha_3_bibliographic(@languages[row['CommonNameLang'].to_s.downcase])
-              CommonName.create!(otu: find_taxon(row['Parent']).otus.first, name: row['Name'], language: lng)
+              CommonName.create!(otu: find_taxon_3i(row['Parent']).otus.first, name: row['Name'], language: lng)
             elsif row['Status'] == '2' || !row['OriginalCombinationOf'].blank? ### Original combination
-              taxon = find_taxon(row['OriginalCombinationOf']) || find_taxon(row['Parent'])
+              taxon = find_taxon_3i(row['OriginalCombinationOf']) || find_taxon_3i(row['Parent'])
               if taxon.blank?
                 byebug
               else
@@ -880,8 +872,8 @@
               taxon.original_form_relationship.destroy unless taxon.original_form_relationship.blank?
 
               taxon = TaxonName.find(taxonid)
-              taxon.original_species = find_taxon(row['OriginalSpecies']) unless row['OriginalSpecies'].blank?
-              taxon.original_subspecies = find_taxon(row['OrigOriginalSubSpecies']) unless row['OriginalSubSpecies'].blank?
+              taxon.original_species = find_taxon_3i(row['OriginalSpecies']) unless row['OriginalSpecies'].blank?
+              taxon.original_subspecies = find_taxon_3i(row['OrigOriginalSubSpecies']) unless row['OriginalSubSpecies'].blank?
               taxon.original_variety = taxon if row['Name'].include?(' var. ')
               taxon.original_form = taxon if row['Name'].include?(' f. ')
               if taxon.rank_string =~ /Species/
@@ -1071,7 +1063,7 @@
         file.each_with_index do |row, i|
           print "\r#{i}"
 
-          p = find_taxon(row['Key'])
+          p = find_taxon_3i(row['Key'])
           if p.nil?
             print "\nProblematic Key: #{row['Key']}\n"
           else
@@ -1239,7 +1231,7 @@
         count_fields = %w{ Specimens Males Females Nymphs }.freeze
 
         file.each_with_index do |row, i|
-          if i > 30000 #######################
+          if i < 1000000 #######################
           print "\r#{i}"
 
           collecting_event = find_or_create_collecting_event_3i(row)
@@ -1522,13 +1514,13 @@
       end
 
 
-      def find_taxon_id(key)
+        def find_taxon_id_3i(key)
           #@data.taxon_index[key.to_s] || Protonym.with_identifier('3i_Taxon_ID ' + key.to_s).find_by(project_id: $project_id).try(:id)
-          @data.taxon_index[key.to_s] || Identifier.where(cached: '3i_Taxon_ID ' + key.to_s, project_id: $project_id).limit(1).pluck(:identifier_object_id).first
+          @data.taxon_index[key.to_s] || Identifier.where(cached: '3i_Taxon_ID ' + key.to_s, identifier_object_type: 'TaxonName', project_id: $project_id).limit(1).pluck(:identifier_object_id).first
         end
 
-        def find_taxon(key)
-          Identifier.find_by(cached: '3i_Taxon_ID ' + key.to_s, project_id: $project_id).try(:identifier_object)
+        def find_taxon_3i(key)
+          Identifier.find_by(cached: '3i_Taxon_ID ' + key.to_s, identifier_object_type: 'TaxonName', project_id: $project_id).try(:identifier_object)
           #Protonym.with_identifier('3i_Taxon_ID ' + key.to_s).find_by(project_id: $project_id)
         end
 
@@ -1539,7 +1531,7 @@
 
           r = Identifier.find_by(cached: '3i_Taxon_ID ' + key.to_s, project_id: $project_id)
           if r.identifier_object_type == 'TaxonName'
-            r.taxon_name.otus.first
+            r.identifier_object.otus.first
           elsif r.identifier_object_type == 'Otu'
             r.identifier_object
           else

@@ -133,6 +133,8 @@ namespace :tw do
         @data.superfamilies.merge!('3' => Protonym.find_or_create_by(name: 'Mymarommatoidea', parent: @order, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Superfamily', project_id: $project_id).id)
         @data.families.merge!('' => @order.id)
         @data.keywords.merge!('ucd_imported' => Keyword.find_or_create_by(name: 'ucd_imported', definition: 'Imported from UCD database.'))
+        @data.keywords.merge!('taxon_id' => Namespace.find_or_create_by(name: 'UCD_Taxon_ID', short_name: 'UCD_Taxon_ID'))
+        @data.keywords.merge!('family_id' => Namespace.find_or_create_by(name: 'UCD_Family_ID', short_name: 'UCD_Family_ID'))
       end
 
       def handle_fgnames_ucd
@@ -155,10 +157,13 @@ namespace :tw do
 
           if !tribe.nil?
             @data.families.merge!(row['FamCode'] => tribe.id)
+            tribe.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['family_id'], identifier: row['FamCode'].to_s)
           elsif !subfamily.nil?
             @data.families.merge!(row['FamCode'] => subfamily.id)
+            subfamily.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['family_id'], identifier: row['FamCode'].to_s)
           else
             @data.families.merge!(row['FamCode'] => family.id)
+            family.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['family_id'], identifier: row['FamCode'].to_s)
           end
         end
       end
@@ -228,6 +233,7 @@ namespace :tw do
                 byebug
               end
               @data.taxon_codes.merge!(row['TaxonCode'] => taxon1.id)
+              taxon1.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['taxon_id'], identifier: row['TaxonCode'].to_s)
               taxon1.data_attributes.create!(type: 'ImportAttribute', import_predicate: 'HomCode', value: row['HomCode']) unless row['HomCode'].blank?
               TaxonNameRelationship.create!(subject_taxon_name: taxon1, object_taxon_name: taxon, type: 'TaxonNameRelationship::Iczn::Invalidating')
             end
@@ -245,7 +251,7 @@ namespace :tw do
           if !row['ValGenus'].blank? && @data.genera_index[row['ValGenus']].nil?
             name = row['ValGenus']
             taxon = Protonym.find_or_create_by(name: name, project_id: $project_id)
-            taxon.parent_id = @data.families[row['Family']] if taxon.parent_id.nil?
+            taxon.parent_id = find_family_id_usd(row['Family']) if taxon.parent_id.nil?
             taxon.year_of_publication = row['ValDate'] if taxon.year_of_publication.nil?
             taxon.verbatim_author = row['ValAuthor'] if taxon.verbatim_author.nil?
             taxon.rank_class = 'NomenclaturalRank::Iczn::GenusGroup::Genus'
@@ -254,6 +260,7 @@ namespace :tw do
 
             if row['ValGenus'].to_s == row['CitGenus'] && row['CitSubgen'].blank? && row['ValSpecies'].blank?  && row['CitSpecies'].blank?
               @data.taxon_codes.merge!(row['TaxonCode'] => taxon.id)
+              taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
               @data.genera_index.merge!(name => taxon.id)
             end
           end
@@ -267,12 +274,12 @@ namespace :tw do
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
         file.each_with_index do |row, i|
           print "\r#{i}"
-          if !row['CitSpecies'].blank? && !@data.genera_index[row['CitGenus']].blank?
-          elsif !row['CitGenus'].blank?
-            unless @data.taxon_codes[row['TaxonCode']]
-              taxon = Protonym.find_or_create_by(name: row['CitGenus'], project_id: $project_id)
-              taxon1 = Protonym.find_or_create_by(name: row['ValGenus'], project_id: $project_id)
-              taxon.parent_id = @data.families[row['Family']] if taxon.parent_id.nil?
+          if !row['CitSpecies'].blank? || !@data.genera_index[row['CitGenus']].blank?
+          elsif !row['CitGenus'].blank? && row['CitSpecies'].blank?
+            if  @data.taxon_codes[row['TaxonCode']]
+              taxon = Protonym.new(name: row['CitGenus'], project_id: $project_id)
+              taxon1 = Protonym.find_by(name: row['ValGenus'], project_id: $project_id)
+              taxon.parent_id = find_family_id_usd(row['Family']) if taxon.parent_id.nil?
               taxon.year_of_publication = row['CitDate'] if taxon.year_of_publication.nil?
               taxon.verbatim_author = row['CitAuthor'] if taxon.verbatim_author.nil?
               taxon.rank_class = 'NomenclaturalRank::Iczn::GenusGroup::Genus'
@@ -280,19 +287,22 @@ namespace :tw do
               taxon.save!
               if row['CitSubgen'].blank? && row['ValSpecies'].blank?  && row['CitSpecies'].blank?
                 @data.taxon_codes.merge!(row['TaxonCode'] => taxon.id)
+                taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
                 @data.genera_index.merge!(taxon.name => taxon.id)
                 TaxonNameRelationship.create!(subject_taxon_name: taxon, object_taxon_name: taxon1, type: 'TaxonNameRelationship::Iczn::Invalidating')
               elsif !row['CitSubgen'].blank? && row['ValSpecies'].blank?  && row['CitSpecies'].blank?
                 taxon2 = Protonym.where(name: row['ValGenus'], project_id: $project_id).first
-                if !taxon2.nil
+                if !taxon2.nil?
                   c = Combination.create!(parent_id: taxon1.parent_id, genus: taxon, subgenus: taxon2)
                   @data.taxon_codes.merge!(row['TaxonCode'] => c.id)
+                  taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
                 else
                   taxon3 = Protonym.create!(name: row['CitSubgen'], parent_id: @data.families[row['Family']], verbatim_author: row['CitAuthor'], year_of_publication: row['CitDate'])
                   taxon3.original_genus = taxon
                   taxon3.original_subgenus = taxon3
                   taxon3.save!
                   @data.taxon_codes.merge!(row['TaxonCode'] => taxon3.id)
+                  taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
                   @data.genera_index.merge!(taxon3.name => taxon.id)
                   TaxonNameRelationship.create!(subject_taxon_name: taxon3, object_taxon_name: taxon1, type: 'TaxonNameRelationship::Iczn::Invalidating')
                 end
@@ -303,6 +313,20 @@ namespace :tw do
       end
 
 
+
+      def find_taxon_id_usd(key)
+        @data.taxon_index[key.to_s] || Identifier.where(cached: 'UCD_Taxon_ID ' + key.to_s, identifier_object_type: 'TaxonName', project_id: $project_id).limit(1).pluck(:identifier_object_id).first
+      end
+
+      def find_family_id_usd(key)
+        @data.families[key.to_s] || Identifier.where(cached: 'UCD_Family_ID ' + key.to_s, identifier_object_type: 'TaxonName', project_id: $project_id).limit(1).pluck(:identifier_object_id).first
+      end
+
+      def find_taxon_ucd(key)
+        Identifier.find_by(cached: 'UCD_Taxon_ID ' + key.to_s, identifier_object_type: 'TaxonName', project_id: $project_id).try(:identifier_object)
+      end
+
+      @data.families[row['Family']]
 
 
 

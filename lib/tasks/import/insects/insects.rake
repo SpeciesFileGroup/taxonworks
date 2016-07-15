@@ -1823,10 +1823,12 @@ namespace :tw do
                                        created_at: time_from_field(row['CreatedOn']),
                                        updated_by_id: find_or_create_collection_user_insects(row['ModifiedBy'], data),
                                        updated_at: time_from_field(row['ModifiedOn']),
-                                       parent_id: room,
+                                       #parent_id: room,
                                        type: container_type[row['CollectionType']],
                                        name: nil
           )
+          ContainerItem.create!(container: room, contained_object: container)
+
 
           ['Label1_1', 'Label1_2', 'Label1_3', 'Label1_4', 'Label2_1', 'Label2_2', 'Label2_3', 'Label2_4'].each do |l|
             row[l] = nil if row[l].blank?
@@ -1895,7 +1897,8 @@ namespace :tw do
         if r.nil?
           r = Container::Room.with_project_id($project_id).where(name: row['name'])
           if r.empty?
-            r = Container::Room.create(parent_id: @collection_container, name: row['Room'] ).id
+            r = Container::Room.create!(name: row['Room'] ).id
+            ContainerItem.create!(container: @collection_container, contained_object: r)
           else
             r = r.first.id
           end
