@@ -69,8 +69,7 @@ namespace :tw do
 
           project_id = get_tw_project_id[row['FileID']]
 
-          count_found += 1
-          print "Working with TW.project_id: #{project_id} = SF.FileID #{row['FileID']}, SF.TaxonNameID #{taxon_name_id} (count #{count_found}) \n"
+          print "Working with TW.project_id: #{project_id} = SF.FileID #{row['FileID']}, SF.TaxonNameID #{taxon_name_id} (count #{count_found += 1}) \n"
 
           if row['AboveID'] == '0' # must check AboveID = 0 before synonym
             parent_id = get_animalia_id[project_id]
@@ -101,20 +100,18 @@ namespace :tw do
 
             if otu.save
               puts "  Note!! Created OTU for temporary taxon, otu.id: #{otu.id}"
-              get_tw_otu_id[row['TaxonNameID']] = otu.id
+              get_tw_otu_id[row['TaxonNameID']] = otu.id.to_s
               get_sf_name_status[row['TaxonNameID']] = name_status
               get_sf_status_flags[row['TaxonNameID']] = status_flags
 
             else
-              error_counter += 1
-              puts "     OTU ERROR (#{error_counter}): " + otu.errors.full_messages.join(';')
-              puts "  project_id: #{project_id}, SF.TaxonNameID: #{row['TaxonNameID']}, sf row created by: #{row['CreatedBy']}, sf row updated by: #{row['ModifiedBy']}    "
+              puts "     OTU ERROR (#{error_counter += 1}): " + otu.errors.full_messages.join(';')
             end
 
           else
-            fossil, nomen_nudum, nomen_dubium = nil
+            fossil, nomen_nudum, nomen_dubium = nil, nil, nil
             fossil = 'TaxonNameClassification::Iczn::Fossil' if row['Extinct'] == '1'
-            nomen_nudum = 'TaxonNameClassification::Iczn::Unavailable::NomenNudum' if status_flags.to_i & 8 == 8
+            nomen_nudum = 'TaxonNameClassification::Iczn::Unavailable::NomenNudum' if (status_flags.to_i & 8) == 8
             nomen_dubium = 'TaxonNameClassification::Iczn::Available::Valid::NomenDubium' if status_flags.to_i & 16 == 16
 
             taxon_name = Protonym.new(
@@ -138,18 +135,22 @@ namespace :tw do
                                     updated_by_id: get_tw_user_id[row['ModifiedBy']]}],
 
                 # perhaps test for nil for each...  (Dmitry) classification.new? Dmitry prefers doing one at a time and validating?? And after the taxon is saved.
+
                 taxon_name_classifications_attributes: [
-                    {type: fossil, project_id: project_id,
+                    {type: fossil,
+                     project_id: project_id,
                      created_at: row['CreatedOn'],
                      updated_at: row['LastUpdate'],
                      created_by_id: get_tw_user_id[row['CreatedBy']],
                      updated_by_id: get_tw_user_id[row['ModifiedBy']]},
-                    {type: nomen_nudum, project_id: project_id,
+                    {type: nomen_nudum,
+                     project_id: project_id,
                      created_at: row['CreatedOn'],
                      updated_at: row['LastUpdate'],
                      created_by_id: get_tw_user_id[row['CreatedBy']],
                      updated_by_id: get_tw_user_id[row['ModifiedBy']]},
-                    {type: nomen_dubium, project_id: project_id,
+                    {type: nomen_dubium,
+                     project_id: project_id,
                      created_at: row['CreatedOn'],
                      updated_at: row['LastUpdate'],
                      created_by_id: get_tw_user_id[row['CreatedBy']],
@@ -172,6 +173,9 @@ namespace :tw do
             get_tw_taxon_name_id[row['TaxonNameID']] = taxon_name.id
             get_sf_name_status[row['TaxonNameID']] = name_status
             get_sf_status_flags[row['TaxonNameID']] = status_flags
+
+            # add taxon_name_classifications here
+
 
 
             # test if valid before save; if one of anticipated import errors, add classification, then try to save again...
@@ -223,8 +227,7 @@ namespace :tw do
             get_sf_status_flags[row['TaxonNameID']] = status_flags
 
           else
-            error_counter += 1
-            puts "     TaxonName ERROR (#{error_counter}): " + taxon_name.errors.full_messages.join(';')
+            puts "     TaxonName ERROR (#{error_counter += 1}): " + taxon_name.errors.full_messages.join(';')
             puts "  project_id: #{project_id}, SF.TaxonNameID: #{row['TaxonNameID']}, sf row created by: #{row['CreatedBy']}, sf row updated by: #{row['ModifiedBy']}    "
           end
         end

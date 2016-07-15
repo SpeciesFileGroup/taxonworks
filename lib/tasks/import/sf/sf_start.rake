@@ -167,14 +167,12 @@ namespace :tw do
               )
 
               unless role.save
-                editor_error_counter += 1
-                puts "     Editor role ERROR (#{editor_error_counter}): " + role.errors.full_messages.join(';')
+                puts "     Editor role ERROR (#{editor_error_counter += 1}): " + role.errors.full_messages.join(';')
               end
             end
 
           else
-            author_error_counter += 1
-            puts "     Author role ERROR (#{author_error_counter}): " + role.errors.full_messages.join(';')
+            puts "     Author role ERROR (#{author_error_counter += 1}): " + role.errors.full_messages.join(';')
           end
         end
         puts "author_error_counter = #{author_error_counter}, editor_error_counter = #{editor_error_counter}"
@@ -307,8 +305,7 @@ namespace :tw do
             )
 
           else
-            error_counter += 1
-            puts "     Source ERROR (#{error_counter}): " + source.errors.full_messages.join(';')
+            puts "     Source ERROR (#{error_counter += 1}): " + source.errors.full_messages.join(';')
           end
         end
 
@@ -355,8 +352,7 @@ namespace :tw do
             ProjectMember.create!(user_id: user.id, project: project, is_project_administrator: true)
 
           else
-            error_counter += 1
-            puts "     ERROR (#{error_counter}): " + source.errors.full_messages.join(';')
+            puts "     ERROR (#{error_counter += 1}): " + source.errors.full_messages.join(';')
             puts "  FileID: #{file_id}, sf row created by: #{row['CreatedBy']}, sf row updated by: #{row['ModifiedBy']}    "
           end
         end
@@ -590,8 +586,7 @@ namespace :tw do
             get_tw_person_id[sf_person_id] = person.id.to_s
 
           else
-            person_error_counter += 1
-            puts "     Person ERROR (#{person_error_counter}): " + person.errors.full_messages.join(';')
+            puts "     Person ERROR (#{person_error_counter += 1}): " + person.errors.full_messages.join(';')
           end
 
         end
@@ -622,11 +617,9 @@ namespace :tw do
             )
             if a.valid?
               a.save!
-              added_counter += 1
-              puts "Attribute added (#{added_counter})"
+              puts "Attribute added (#{added_counter += 1})"
             else
-              error_counter += 1
-              puts "     Attribute ERROR (#{error_counter}): invalid attribute -- " + a.errors.full_messages.join(';')
+              puts "     Attribute ERROR (#{error_counter += 1}): invalid attribute -- " + a.errors.full_messages.join(';')
             end
           end
         end
@@ -731,8 +724,7 @@ namespace :tw do
               # ProjectMember.create(user: user, project: @project)
 
             else
-              error_counter += 1
-              puts "     User ERROR (#{error_counter}): " + user.errors.full_messages.join(';')
+              puts "     User ERROR (#{error_counter += 1}): " + user.errors.full_messages.join(';')
             end
 
           else
