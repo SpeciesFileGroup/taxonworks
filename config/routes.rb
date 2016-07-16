@@ -543,8 +543,10 @@ TaxonWorks::Application.routes.draw do
   patch '/set_password/:token', to: 'users#set_password', as: 'set_password'
 
   match '/papertrail', to: 'papertrail#papertrail', via: :get
+  match '/papertrail/compare/', to: 'papertrail#compare', as: 'papertrail_compare', via: :get
   match '/papertrail/:id', to: 'papertrail#show', as: 'paper_trail_version', via: :get
-  match '/papertrail/', to: 'papertrail#update', as: 'papertrail_update', via: :put
+  match '/papertrail/update/', to: 'papertrail#update', as: 'papertrail_update', via: :put
+  
 
   # TODO: Remove or rewrite endpoint implementation
   # get '/api/v1/taxon_names/' => 'api/v1/taxon_names#all'

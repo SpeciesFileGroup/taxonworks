@@ -35,4 +35,16 @@ class PapertrailController < ApplicationController
     end
   end
 
+  def compare
+    @object = params[:object_type].constantize.find(params[:object_id])
+
+    if invalid_object(@object)
+      record_not_found
+    else
+      @version_a = @object.versions[params[:version_a].to_i].reify
+      @version_b = @object.versions[params[:version_b].to_i].reify
+      render 'compare'
+    end
+  end
+
 end
