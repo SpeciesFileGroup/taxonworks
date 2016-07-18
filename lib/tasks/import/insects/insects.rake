@@ -879,7 +879,8 @@ namespace :tw do
             gr.is_public = true        
 
             if gr.valid?
-              c.update_column(:geographic_area_id, nil) 
+              c.update_column(:geographic_area_id, nil)
+              gr.no_cached = true
               gr.save
             end
 
@@ -887,6 +888,7 @@ namespace :tw do
             gr.error_radius = geolocation_uncertainty
 
             if gr.valid?
+              gr.no_cached = true
               gr.save
             else
               c.data_attributes.create(type: 'ImportAttribute', 
@@ -1143,8 +1145,6 @@ namespace :tw do
 
         sp.each_with_index do |row, i|
 
-          break if i > 50000
-
           unless row['Prefix'] == 'Loan Invoice'
             locality_code = row['LocalityCode']
             se = { }
@@ -1233,6 +1233,9 @@ namespace :tw do
         puts " host plants from hostplants.txt"
         path = @args[:data_directory] + 'TXT/hostplants.txt'
         raise 'file not found' if not File.exists?(path)
+
+        sp = CSV.open(path, col_sep: "\t", :headers => true)
+
         sp.each_with_index do |row, i|
           print "\r#{i}      "
           data.host_plant_index.merge!(row['Host'] => row['TaxonCode']) unless row['TaxonCode'].blank?
@@ -1362,7 +1365,7 @@ namespace :tw do
           add_determinations_insects(objects, row, data)
         end
 
-        puts "\n Number of collecting events processed from specimens: #{@redis.keys.count - start} "
+        puts "\n Number of collecting events processed from specimens_new: #{@redis.keys.count - start} "
       end
 
       def index_specimen_records_from_neon(data, import)
@@ -1432,7 +1435,7 @@ namespace :tw do
           add_determinations_insects(objects, row, data)
         end
 
-        puts "\n Number of collecting events processed from specimens: #{@redis.keys.count - start} "
+        puts "\n Number of collecting events processed from NEON: #{@redis.keys.count - start} "
       end
 
       def add_identifiers_insects(objects, row, data)
@@ -1456,7 +1459,7 @@ namespace :tw do
         else
           raise 'No objects in container.'
         end
-        data.duplicate_specimen_ids.merge!(row['Prefix'].to_s + ' ' + row['CatalogueNumber'].to_s => nil) unless identifier.valid?
+        data.duplicate_specimen_ids.merge!(row['Prefix'].to_s + ' ' + row['CatalogNumber'].to_s => nil) unless identifier.valid?
       end
 
       def add_bioculation_class_insects(o, bcc, data)
@@ -1648,6 +1651,7 @@ namespace :tw do
           print "as newly parsed.\n"
           lo.each_with_index do |row, i|
             print "\r#{i}"
+            next if row['RecipientID'].blank?
             date_closed = (row['Canceled'] == 'Canceled') ? Time.current : nil
             row['Signature'] = nil if row['Signature'].to_s.length == 1
             row['StudentSignature'] = nil if row['StudentSignature'].to_s.length == 1
@@ -1656,6 +1660,8 @@ namespace :tw do
             supervisor = data.people_index[data.people_id[row['RecipientID']]['SupervisorID']]
             supervisor_email = supervisor.nil? ?  nil : data.people_id[data.people_id[row['RecipientID']]['SupervisorID']]['Email']
             supervisor_phone = supervisor.nil? ?  nil : data.people_id[data.people_id[row['RecipientID']]['SupervisorID']]['Phone']
+            recipient_email = data.people_id[row['RecipientID']]['Email']
+            recipient_email = nil if recipient_email.to_s.include?(' ') || recipient_email.to_s.include?("\r") || recipient_email.to_s.include?(",") || recipient_email.to_s.include?("’")
 
             l = Loan.create( date_requested: time_from_field(row['DateRequested']),
                              request_method: row['MethodOfRequest'],
@@ -1663,8 +1669,8 @@ namespace :tw do
                              date_received: time_from_field(row['DateReceived']),
                              date_return_expected: time_from_field(row['ExpectedDateOfReturn']),
                              #recipient_person: data.people_index[row['RecipientID']],
-                             recipient_address: data.people_id[row['RecipientID']]['Address'],
-                             recipient_email: data.people_id[row['RecipientID']]['Email'],
+                             recipient_address: data.people_id[row['RecipientID']]['Address'] || 'U.S.A.',
+                             recipient_email: recipient_email,
                              recipient_phone: data.people_id[row['RecipientID']]['Phone'],
                              recipient_honorarium: data.people_id[row['RecipientID']]['Honorarium'],
                              recipient_country: country,
@@ -1675,6 +1681,7 @@ namespace :tw do
                              created_by_id: find_or_create_collection_user_insects(row['CreatedBy'], data),
                              created_at: time_from_field(row['CreatedOn'])
             )
+            byebug unless l.valid?
             data.loans.merge!(row['InvoiceID'] => l)
             l.notes.create(text: row['Comments']) unless row['Comments'].blank?
             l.data_attributes.create(import_predicate: 'Signature', value: row['Signature'].to_s, type: 'ImportAttribute') unless row['Signature'].blank?
@@ -1933,7 +1940,7 @@ namespace :tw do
 
         Dir.glob(path).each_with_index do |file, i|
           print "\r#{i}"
-          name = file.match(/([^\/.]*).pdf$/)
+          name = file.match(/([^\/.]*)_([^\/.]*).pdf$/)
           identifier = name.nil? ? nil : name[1]
           unless identifier.nil?
             loan = Identifier.where(project_id: $project_id, cached: 'Invoice ' + identifier, identifier_object_type: 'Loan').first.try(:identifier_object)
