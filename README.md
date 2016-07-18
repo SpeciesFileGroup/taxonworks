@@ -21,16 +21,17 @@ Instructions for installing TaxonWorks for development and production use, and n
 Developer resources
 -------------------
 
-[![Gitter][20]][19] with developers. TaxonWorks code [documentation][10] is done inline with [Yard tags][12]. 
+See [CONTRIBUTING.md](CONTRIBUTING.md). 
 
 Contributing
 ------------
-New contributors are greatly welcomed! See [CONTRIBUTING.md](CONTRIBUTING.md)
+
+New contributors are greatly welcomed! See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 User resources
 --------------
 
-Issues, bugs, feature requests can be added by users/collaborators [one the issue tracker][21], they are linked and tracked internally via Jira.  Developers can be contacted on Gitter. TaxonWorks has a [wiki][11] for conceptual discussion and aggregating help documentation over the long term. The Species File Group hosts a production and sandbox instance of TaxonWorks, contact <diapriid@gmail.com> with questions about their use.
+Issues, bugs, feature requests can be added by users/collaborators [one the issue tracker][21], they are linked and tracked internally via Jira.  Developers can be contacted on [![Gitter][20]][19]. TaxonWorks has a [wiki][11] for conceptual discussion and aggregating help documentation over the long term. The Species File Group hosts a production and sandbox instance of TaxonWorks, contact <diapriid@gmail.com> with questions about their use.
 
 Social
 ------
@@ -40,7 +41,7 @@ Tweets come from [@TaxonWorks][15].
 License
 -------
 
-TaxonWorks is open source and is presently available under the [University of Illinois/NCSA Open Source License][16] and [see here][18].
+TaxonWorks is open source and is presently available under the [University of Illinois/NCSA Open Source License][16], read [more here][18].
 
 Funding
 -------
