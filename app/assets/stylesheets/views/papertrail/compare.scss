@@ -1,0 +1,40 @@
+.compare-content{
+    width: 800px;
+    margin: 0 auto;
+
+    .compare-box {
+        width: 100%;
+        //background-color: green;
+
+        .compare-row-box {
+            width: 100%;
+            //background-color: purple;
+            overflow: hidden;
+            border: 1px solid gray;
+            margin-bottom: 5px;
+
+            .compare-item-left-box {
+                width: 50%;
+                //background-color: red;
+                //border-right: 1px solid gray;
+                float: left;
+            }
+
+            .compare-item-right-box {
+                width: 50%;
+                left: -10px;
+                //background-color: blue;
+                //border-left: 1px solid gray;
+                float: right;
+            }
+        }
+    }
+}
+
+.highlighted {
+    background-color: gray;
+}
+
+p {
+    padding: 0px 10px;
+}

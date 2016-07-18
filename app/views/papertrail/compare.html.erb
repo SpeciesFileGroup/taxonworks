@@ -1,4 +1,17 @@
-<h1>Compare</h1>
-<% @version_a.attributes.each do |var| %>
-<h4><%= var %></h4>
-<% end %>
+<div class="compare-content">
+    <h1>Compare</h1>
+    <div class="compare-box">
+        <% @version_a.attributes.keys.each do |key| %>
+        <% row_class = "" %>
+        <% row_class = "highlighted" unless @version_a.attributes[key] == @version_b.attributes[key] %>
+        <div class="compare-row-box">
+            <div class="compare-item-left-box <%= row_class %>">
+                <p><%= key.to_s + ": " + @version_a.attributes[key].to_s %></p>
+            </div>
+            <div class="compare-item-right-box <%= row_class %>">
+                <p><%= key.to_s + ": " + @version_b.attributes[key].to_s %></p>
+            </div>
+        </div>
+        <% end %>
+    </div>
+</div>
