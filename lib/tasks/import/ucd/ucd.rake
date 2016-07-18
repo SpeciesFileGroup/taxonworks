@@ -34,12 +34,13 @@ namespace :tw do
 
 
       class ImportedDataUcd
-        attr_accessor :publications_index, :genera_index, :keywords, :family_groups, :superfamilies, :families,
+        attr_accessor :publications_index, :genera_index, :species_index, :keywords, :family_groups, :superfamilies, :families,
                       :taxon_codes
         def initialize()
           @publications_index = {}
           @keywords = {}
           @genera_index = {}
+          @species_index = {}
           @family_groups = {}
           @superfamilies = {}
           @families = {}
@@ -86,6 +87,9 @@ namespace :tw do
         handle_master_ucd_families
         handle_master_ucd_valid_genera
         handle_master_ucd_invalid_genera
+        handle_master_ucd_invalid_subgenera
+        handle_master_ucd_valid_species
+        handle_master_ucd_invalid_species
 
         print "\n\n !! Success. End time: #{Time.now} \n\n"
 
@@ -311,6 +315,59 @@ namespace :tw do
           end
         end
       end
+
+      def handle_master_ucd_invalid_subgenera
+        path = @args[:data_directory] + 'MASTER.txt'
+        print "\nHandling MASTER -- Invalid subgenera\n"
+        raise "file #{path} not found" if not File.exists?(path)
+        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
+        file.each_with_index do |row, i|
+          print "\r#{i}"
+          if !row['CitSubgen'].blank? && (@data.genera_index[row['CitSubgen']].nil? || row['CitSpecies'].blank?)
+            name = row['CitSubgen']
+            taxon = Protonym.find_or_create_by(name: name, project_id: $project_id)
+            taxon.parent_id = find_family_id_usd(row['Family']) if taxon.parent_id.nil?
+            taxon.year_of_publication = row['CitDate'] if taxon.year_of_publication.nil?
+            taxon.verbatim_author = row['CitAuthor'] if taxon.verbatim_author.nil?
+            taxon.rank_class = 'NomenclaturalRank::Iczn::GenusGroup::Genus'
+            byebug unless taxon.valid?
+            taxon.save!
+
+            if row['ValSpecies'].blank?  && row['CitSpecies'].blank?
+              @data.taxon_codes.merge!(row['TaxonCode'] => taxon.id)
+              taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
+              @data.genera_index.merge!(name => taxon.id)
+            end
+          end
+        end
+      end
+
+      def handle_master_ucd_valid_species
+        path = @args[:data_directory] + 'MASTER.txt'
+        print "\nHandling MASTER -- Valid species\n"
+        raise "file #{path} not found" if not File.exists?(path)
+        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
+        file.each_with_index do |row, i|
+          print "\r#{i}"
+          if !row['ValSpecies'].blank? && @data.species_index[row['ValGenus'].to_s + ' ' + row['ValSpecies'].to_s].nil?
+            parent = @data.genera_index[row['ValGenus']]
+            name = row['ValSpecies'].to_s
+            taxon = Protonym.find_or_create_by(name: name, parent_id: parent, project_id: $project_id)
+            taxon.year_of_publication = row['ValDate'] if taxon.year_of_publication.nil?
+            taxon.verbatim_author = row['ValAuthor'] if taxon.verbatim_author.nil?
+            taxon.rank_class = 'NomenclaturalRank::Iczn::SpeciesGroup::Species'
+            byebug unless taxon.valid?
+            taxon.save!
+
+            if row['ValGenus'].to_s == row['CitGenus'] && row['ValSpecies'].to_s == row['CitSpecies']
+              @data.taxon_codes.merge!(row['TaxonCode'] => taxon.id)
+              taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
+              @data.species_index.merge!(row['ValGenus'].to_s + ' ' + name => taxon.id)
+            end
+          end
+        end
+      end
+
 
 
 
