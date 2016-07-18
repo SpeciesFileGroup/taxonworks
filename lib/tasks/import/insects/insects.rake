@@ -747,23 +747,12 @@ namespace :tw do
         tmp_ce_sorted = tmp_ce.sort.to_s
         c_from_redis = @redis.get(Digest::MD5.hexdigest(tmp_ce_sorted))
         unless ce['AccessionNumber'].blank?
-          #c = CollectingEvent.with_project_id($project_id).with_identifier('Accession Code ' + ce['Collection'].to_s + ' ' + ce['AccessionNumber'])
           cached_identifier = nil
           if !ce['Collection'].blank?
            cached_identifier =  'Accession Code ' + ce['Collection'] + ' ' + ce['AccessionNumber']
-            
-           # ORIGINAL # c = CollectingEvent.with_project_id($project_id).with_identifier('Accession Code ' + ce['Collection'] + ' ' + ce['AccessionNumber'])
-           
-            #c = Identifier.where(identifier: ce['Collection'] + ' ' + ce['AccessionNumber'], namespace_id: @accession_namespace, type: 'Identifier::Local::AccessionCode', project_id: $project_id)
           else
             cached_identifier = 'Accession Code ' + ce['AccessionNumber']
-
-#            c = CollectingEvent.with_project_id($project_id).with_identifier('Accession Code ' + ce['AccessionNumber'])
-
-
-            #c = Identifier.where(identifier: ce['AccessionNumber'], namespace_id: @accession_namespace, type: 'Identifier::Local::AccessionCode', project_id: $project_id)
           end
-
           c = Identifier.where(project_id: $project_id, identifier_object_type: 'CollectingEvent', cached: cached_identifier).first.try(:identifier_object)
 
           if !c.nil? && c_from_redis.nil?
@@ -787,7 +776,6 @@ namespace :tw do
             end
             return c
           end
-          # data.collecting_event_index.merge!(tmp_ce => c)
         end
 
         c_from_redis = @redis.get(Digest::MD5.hexdigest(tmp_ce_sorted))
@@ -808,7 +796,7 @@ namespace :tw do
               id1 = c.identifiers.new(identifier: ce['AccessionNumber'], namespace: @accession_namespace, type: 'Identifier::Local::AccessionCode')
             end
             if id1.valid?
-              id1.save
+              id1.save!
             else
               puts "\nDuplicate identifier: #{ce['AccessionNumber']}\n"
             end
@@ -856,11 +844,7 @@ namespace :tw do
             no_cached: true
         )
         if c.valid?
-          #bench = Benchmark.measure {
           c.save!
-          #}
-          #print "\r#\t#{bench.to_s.strip}"
-          #byebug
           c.notes.create(text: ce['Comments']) unless ce['Comments'].blank?
 
           data.keywords.each do |k|
@@ -898,7 +882,6 @@ namespace :tw do
           end
 
           @redis.set(Digest::MD5.hexdigest(tmp_ce_sorted), c.id)
-          #data.collecting_event_index.merge!(tmp_ce => c)
           return c
         else
           @invalid_collecting_event_index.merge!(tmp_ce => nil)
@@ -1247,7 +1230,7 @@ namespace :tw do
         index_host_plants_insects(data)
 
         start = @redis.keys.count
-        puts " specimen records from specimens_new.txt"
+        puts "\r specimen records from specimens_new.txt"
         path = @args[:data_directory] + 'TXT/specimens_new.txt'
         raise 'file not found' if not File.exists?(path)
 
