@@ -132,7 +132,8 @@ namespace :tw do
           source_id = get_tw_source_id[row['RefID']]
           next if source_id.nil?
           # Reloop if TW.source record is verbatim
-          next if Source.find(source_id).try(:class) == Source::Verbatim # << Hernán's, Source.find(source_id).type == 'Source::Verbatim'
+          # next if Source.find(source_id).try(:class) == Source::Verbatim # << Hernán's, Source.find(source_id).type == 'Source::Verbatim'
+          next if Source.where(id: source_id).pluck(:type)[0] == 'Source::Verbatim'  # faster per Matt
 
           print "working with SF.RefID = #{row['RefID']}, TW.source_id = #{source_id}, position = #{row['SeqNum']} \n"
 

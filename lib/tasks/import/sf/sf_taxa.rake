@@ -60,6 +60,7 @@ namespace :tw do
 
         error_counter = 0
         count_found = 0
+        no_parent_counter = 0
 
         file.each_with_index do |row, i|
           taxon_name_id = row['TaxonNameID']
@@ -71,17 +72,19 @@ namespace :tw do
 
           print "Working with TW.project_id: #{project_id} = SF.FileID #{row['FileID']}, SF.TaxonNameID #{taxon_name_id} (count #{count_found += 1}) \n"
 
+          animalia_id = get_animalia_id[project_id.to_s]
+
           if row['AboveID'] == '0' # must check AboveID = 0 before synonym
-            parent_id = get_animalia_id[project_id]
+            parent_id = animalia_id
           elsif row['NameStatus'] == '7' # = synonym
             parent_id = get_tw_taxon_name_id[get_sf_parent_id[taxon_name_id]] # assumes tw_taxon_name_id exists
           else
             parent_id = get_tw_taxon_name_id[row['AboveID']]
           end
 
-          if parent_id.to_i == nil
-            puts '      ERROR: Could not find parent_id!'
-            next
+          if parent_id == nil
+            puts "ALERT: Could not find parent_id (error #{no_parent_counter += 1}! Set to animalia_id = #{animalia_id}"
+            parent_id = animalia_id   # this is problematic; need real solution
           end
 
           name_status = row['NameStatus']
@@ -119,7 +122,7 @@ namespace :tw do
                 parent_id: parent_id,
                 rank_class: get_tw_rank_string[row['RankID']],
 
-                # check housekeeping values; should citations, notes, classifications be attributed to SF last_editor?
+                # housekeeping attributed to SF last_editor, etc.
                 origin_citation_attributes: {source_id: get_tw_source_id[row['RefID']],
                                              project_id: project_id,
                                              created_at: row['CreatedOn'],
@@ -165,70 +168,74 @@ namespace :tw do
                 created_by_id: get_tw_user_id[row['CreatedBy']],
                 updated_by_id: get_tw_user_id[row['ModifiedBy']]
             )
-          end
 
-          # if taxon_name.save
-          if taxon_name.valid?
-            taxon_name.save!
-            get_tw_taxon_name_id[row['TaxonNameID']] = taxon_name.id
-            get_sf_name_status[row['TaxonNameID']] = name_status
-            get_sf_status_flags[row['TaxonNameID']] = status_flags
+            # if taxon_name.save
+            if taxon_name.valid?
+              taxon_name.save!
+              get_tw_taxon_name_id[row['TaxonNameID']] = taxon_name.id
+              get_sf_name_status[row['TaxonNameID']] = name_status
+              get_sf_status_flags[row['TaxonNameID']] = status_flags
 
-            # add taxon_name_classifications here
-
+              # add taxon_name_classifications here
 
 
-            # test if valid before save; if one of anticipated import errors, add classification, then try to save again...
+              # test if valid before save; if one of anticipated import errors, add classification, then try to save again...
 
-            # Dmitry's code:
-            # if taxon.valid?
-            #   taxon.save!
-            #   @data.taxon_index.merge!(row['Key'] => taxon.id)
-            # else
-            #   taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin') if taxon.rank_string =~ /Family/ && row['Status'] != '0' && !taxon.errors.messages[:name].blank?
-            #   taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin') if taxon.rank_string =~ /Species/ && row['Status'] != '0' && taxon.errors.full_messages.include?('Name name must be lower case')
-            #   taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin') if taxon.rank_string =~ /Species/ && row['Status'] != '0' && taxon.errors.full_messages.include?('Name Name must be latinized, no digits or spaces allowed')
-            #   taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin') if taxon.rank_string =~ /Genus/ && row['Status'] != '0' && taxon.errors.full_messages.include?('Name Name must be latinized, no digits or spaces allowed')
-            #
-            #   if taxon.valid?
-            #     taxon.save!
-            #     @data.taxon_index.merge!(row['Key'] => taxon.id)
-            #   else
-            #     print "\n#{row['Key']}         #{row['Name']}"
-            #     print "\n#{taxon.errors.full_messages}\n"
-            #     #byebug
-            #   end
-            # end of Dmitry's code
+              # Dmitry's code:
+              # if taxon.valid?
+              #   taxon.save!
+              #   @data.taxon_index.merge!(row['Key'] => taxon.id)
+              # else
+              #   taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin') if taxon.rank_string =~ /Family/ && row['Status'] != '0' && !taxon.errors.messages[:name].blank?
+              #   taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin') if taxon.rank_string =~ /Species/ && row['Status'] != '0' && taxon.errors.full_messages.include?('Name name must be lower case')
+              #   taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin') if taxon.rank_string =~ /Species/ && row['Status'] != '0' && taxon.errors.full_messages.include?('Name Name must be latinized, no digits or spaces allowed')
+              #   taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin') if taxon.rank_string =~ /Genus/ && row['Status'] != '0' && taxon.errors.full_messages.include?('Name Name must be latinized, no digits or spaces allowed')
+              #
+              #   if taxon.valid?
+              #     taxon.save!
+              #     @data.taxon_index.merge!(row['Key'] => taxon.id)
+              #   else
+              #     print "\n#{row['Key']}         #{row['Name']}"
+              #     print "\n#{taxon.errors.full_messages}\n"
+              #     #byebug
+              #   end
+              # end of Dmitry's code
 
-            #
-            # case taxon_name.errors.full_messages.include?
-            # when 'Name name must end in -oidea', 'Name name must end in -idae', 'Name name must end in ini', 'Name name must end in -inae'
-            # and row['NameStatus'] == '7'
-            # taxon_name.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable')
+              #
+              # case taxon_name.errors.full_messages.include?
+              # when 'Name name must end in -oidea', 'Name name must end in -idae', 'Name name must end in ini', 'Name name must end in -inae'
+              # and row['NameStatus'] == '7'
+              # taxon_name.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable')
 
-            #
-            # when 'Name Name must be latinized, no digits or spaces allowed'
-            # and row['NameStatus'] == '7'
-            # taxon_name.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::NotLatin')
+              #
+              # when 'Name Name must be latinized, no digits or spaces allowed'
+              # and row['NameStatus'] == '7'
+              # taxon_name.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::NotLatin')
 
-          elsif row['NameStatus'] == '7' # make all NotLatin... Dmitry Add project_id
-            case taxon_name.errors.full_messages.include? # ArgumentError: wrong number of arguments (given 0, expected 1)
-              when 'Name name must end in -oidea', 'Name name must end in -idae', 'Name name must end in ini', 'Name name must end in -inae'
-                taxon_name.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable')
-              when 'Name Name must be latinized, no digits or spaces allowed'
-                taxon_name.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::NotLatin')
+            elsif row['NameStatus'] == '7' # make all NotLatin... Dmitry Add project_id
+              # case taxon_name.errors.full_messages.include? # ArgumentError: wrong number of arguments (given 0, expected 1)
+              #   when 'Name name must end in -oidea', 'Name name must end in -idae', 'Name name must end in ini', 'Name name must end in -inae'
+              #     taxon_name.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable')
+              #   when 'Name Name must be latinized, no digits or spaces allowed'
+              taxon_name.taxon_name_classifications.new(
+                  type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin',
+                  project_id: project_id,
+                  created_at: row['CreatedOn'],
+                  updated_at: row['LastUpdate'],
+                  created_by_id: get_tw_user_id[row['CreatedBy']],
+                  updated_by_id: get_tw_user_id[row['ModifiedBy']])
             end
-          end
 
-          if taxon_name.valid?
-            taxon_name.save! # taxon won't be saved if something wrong with classifications_attributes, read about !
-            get_tw_taxon_name_id[row['TaxonNameID']] = taxon_name.id
-            get_sf_name_status[row['TaxonNameID']] = name_status
-            get_sf_status_flags[row['TaxonNameID']] = status_flags
+            if taxon_name.valid?
+              taxon_name.save! # taxon won't be saved if something wrong with classifications_attributes, read about !
+              get_tw_taxon_name_id[row['TaxonNameID']] = taxon_name.id
+              get_sf_name_status[row['TaxonNameID']] = name_status
+              get_sf_status_flags[row['TaxonNameID']] = status_flags
 
-          else
-            puts "     TaxonName ERROR (#{error_counter += 1}): " + taxon_name.errors.full_messages.join(';')
-            puts "  project_id: #{project_id}, SF.TaxonNameID: #{row['TaxonNameID']}, sf row created by: #{row['CreatedBy']}, sf row updated by: #{row['ModifiedBy']}    "
+            else
+              puts "     TaxonName ERROR (#{error_counter += 1}) AFTER synonym test: " + taxon_name.errors.full_messages.join(';')
+              puts "parent_id = #{parent_id}"
+            end
           end
         end
 
@@ -255,7 +262,7 @@ namespace :tw do
 
         puts 'Running SF new synonym parent hash...'
 
-        get_sf_parent_id = {}  # key = SF.TaxonNameID of synonym, value = SF.TaxonNameID of new parent
+        get_sf_parent_id = {} # key = SF.TaxonNameID of synonym, value = SF.TaxonNameID of new parent
 
         path = @args[:data_directory] + 'sfSynonymParents.txt'
         file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
@@ -279,7 +286,7 @@ namespace :tw do
       desc 'create Animalia taxon name subordinate to each project Root (and make hash of project.id, animalia.id'
       ### time rake tw:project_import:sf_taxa:create_animalia_below_root user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
       task :create_animalia_below_root => [:data_directory, :environment, :user_id] do
-        # Can be run independently at any time after projects created
+        # Can be run independently at any time after projects created BUT not after animalia species created (must restore to before)
 
         puts 'Running create_animalia_below_root...'
 
@@ -288,11 +295,7 @@ namespace :tw do
 
         get_animalia_id = {} # key = TW.project_id, value = TW.taxon_name_id = 'Animalia'
 
-        TaxonName.first # kludge to ensure taxon_name plumbing is in place v-a-v project?
-
-        get_tw_project_id.values.each_with_index do |project_id, index|
-          next if index == 0 # exclude FileID = 0
-          next if TaxonName.find_by(project_id: project_id, name: 'Animalia') # test if Animalia already exists
+        get_tw_project_id.values.each do |project_id|
 
           this_project = Project.find(project_id)
           puts "working with project.id: #{project_id}, root_name: #{this_project.root_taxon_name.name}, root_name_id: #{this_project.root_taxon_name.id}"
@@ -309,7 +312,7 @@ namespace :tw do
           )
 
           if animalia_taxon_name.save
-            get_animalia_id[project_id] = animalia_taxon_name.id.to_s
+            get_animalia_id[project_id] = animalia_taxon_name.id.to_s # key (project_id) is integer, would prefer string
           end
         end
 
