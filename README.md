@@ -23,15 +23,14 @@ Developer resources
 
 [![Gitter][20]][19] with developers. TaxonWorks code [documentation][10] is done inline with [Yard tags][12]. 
 
+Contributing
+------------
+New contributors are greatly welcomed! See [CONTRIBUTING.md](CONTRIBUTING.md)
+
 User resources
 --------------
 
 Issues, bugs, feature requests can be added by users/collaborators [one the issue tracker][21], they are linked and tracked internally via Jira.  Developers can be contacted on Gitter. TaxonWorks has a [wiki][11] for conceptual discussion and aggregating help documentation over the long term. The Species File Group hosts a production and sandbox instance of TaxonWorks, contact <diapriid@gmail.com> with questions about their use.
-
-Contributing
--------
-#### Git ####
-New contributors are greatly welcomed! To get started, first [fork][23] this project on GitHub and follow the Installation steps listed above. Then make a new branch off of "development" and name it in the format of "feature-name" and start programming! The workflow for this project is that subsequent pulls from the "development" branch should be rebased into the new feature branch so that the latest commits on the feature branch are related to the feature that is being implemented, a more indepth explanation of this practice can be found [here][22]. Once the feature has been completed and tested thoroughly, submit a pull request to this repo and wait for it to be looked at and hopefully approved!
 
 Social
 ------
