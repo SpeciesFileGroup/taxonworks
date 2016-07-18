@@ -1444,7 +1444,7 @@ namespace :tw do
         identifier = Identifier::Local::CatalogNumber.new(namespace: data.namespaces[row['Prefix']], identifier: row['CatalogNumber']) unless row['CatalogNumber'].blank?
         identifier = Identifier::Local::CatalogNumber.new(namespace: data.namespaces['NEON'], identifier: row['SampleID']) unless row['SampleID'].blank?
 
-        if objects.count > 1 # Identifier on container.
+      if objects.count > 1 # Identifier on container.f
 
           c = Container.containerize(objects, CONTAINER_TYPE[row['PreparationType'].to_s].constantize )
           c.save
@@ -1830,7 +1830,7 @@ namespace :tw do
                                        created_at: time_from_field(row['CreatedOn']),
                                        updated_by_id: find_or_create_collection_user_insects(row['ModifiedBy'], data),
                                        updated_at: time_from_field(row['ModifiedOn']),
-                                       #parent_id: room,
+                                       parent_id: room,
                                        type: container_type[row['CollectionType']],
                                        name: nil
           )
