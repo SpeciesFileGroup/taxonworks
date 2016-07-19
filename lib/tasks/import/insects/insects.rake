@@ -1931,7 +1931,7 @@ namespace :tw do
               print "\nInvoice with identifier #{identifier} does not exist\n"
             else
               # !! fix this, not testest
-              d1 = Document.create(document_file: File.open(file) , documentation_attributes: [{documentation_object: loan } ])
+              d1 = Document.create(document_file: File.open(file), documentation_attributes: [{documentation_object: loan, type: 'Documentation::LoanDocumentation'} ])
             end
           end
         end

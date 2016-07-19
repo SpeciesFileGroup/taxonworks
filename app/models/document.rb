@@ -15,7 +15,12 @@ class Document < ActiveRecord::Base
   validates_attachment_presence :document_file
   validates_attachment_size :document_file, greater_than: 1.bytes
 
-  accepts_nested_attributes_for :documentation
+  accepts_nested_attributes_for :documentation, allow_destroy: true, reject_if: :reject_documentation
+
+  def reject_documentation(attributed)
+    attributed['type'].blank? || attributed['documentation_object'].blank? && (attributed['documentation_object_id'].blank? && attributed['documentation_object_type'].blank?)
+  end
+
 
   #region class methods
 
