@@ -91,6 +91,8 @@ namespace :tw do
         handle_master_ucd_valid_species
         handle_master_ucd_invalid_species
 
+        handle_genus_ucd
+
         print "\n\n !! Success. End time: #{Time.now} \n\n"
 
       end
@@ -239,7 +241,7 @@ namespace :tw do
               @data.taxon_codes.merge!(row['TaxonCode'] => taxon1.id)
               taxon1.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['taxon_id'], identifier: row['TaxonCode'].to_s)
               taxon1.data_attributes.create!(type: 'ImportAttribute', import_predicate: 'HomCode', value: row['HomCode']) unless row['HomCode'].blank?
-              TaxonNameRelationship.create!(subject_taxon_name: taxon1, object_taxon_name: taxon, type: 'TaxonNameRelationship::Iczn::Invalidating')
+              TaxonNameRelationship.create!(subject_taxon_name: taxon1, object_taxon_name: taxon, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
             end
           end
         end
@@ -255,7 +257,7 @@ namespace :tw do
           if !row['ValGenus'].blank? && @data.genera_index[row['ValGenus']].nil?
             name = row['ValGenus']
             taxon = Protonym.find_or_create_by(name: name, project_id: $project_id)
-            taxon.parent_id = find_family_id_usd(row['Family']) if taxon.parent_id.nil?
+            taxon.parent_id = find_family_id_ucd(row['Family']) if taxon.parent_id.nil?
             taxon.year_of_publication = row['ValDate'] if taxon.year_of_publication.nil?
             taxon.verbatim_author = row['ValAuthor'] if taxon.verbatim_author.nil?
             taxon.rank_class = 'NomenclaturalRank::Iczn::GenusGroup::Genus'
@@ -279,39 +281,21 @@ namespace :tw do
         file.each_with_index do |row, i|
           print "\r#{i}"
           if !row['CitSpecies'].blank? || !@data.genera_index[row['CitGenus']].blank?
-          elsif !row['CitGenus'].blank? && row['CitSpecies'].blank?
-            if  @data.taxon_codes[row['TaxonCode']]
+          elsif !row['CitGenus'].blank? && row['CitSpecies'].blank?  && row['CitSubgen'].blank? && @data.taxon_codes[row['TaxonCode']].nil?
               taxon = Protonym.new(name: row['CitGenus'], project_id: $project_id)
               taxon1 = Protonym.find_by(name: row['ValGenus'], project_id: $project_id)
-              taxon.parent_id = find_family_id_usd(row['Family']) if taxon.parent_id.nil?
+              taxon.parent_id = find_family_id_ucd(row['Family']) if taxon.parent_id.nil?
               taxon.year_of_publication = row['CitDate'] if taxon.year_of_publication.nil?
               taxon.verbatim_author = row['CitAuthor'] if taxon.verbatim_author.nil?
               taxon.rank_class = 'NomenclaturalRank::Iczn::GenusGroup::Genus'
               byebug unless taxon.valid?
               taxon.save!
-              if row['CitSubgen'].blank? && row['ValSpecies'].blank?  && row['CitSpecies'].blank?
+              if row['ValSpecies'].blank?  && row['CitSpecies'].blank?
                 @data.taxon_codes.merge!(row['TaxonCode'] => taxon.id)
                 taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
                 @data.genera_index.merge!(taxon.name => taxon.id)
-                TaxonNameRelationship.create!(subject_taxon_name: taxon, object_taxon_name: taxon1, type: 'TaxonNameRelationship::Iczn::Invalidating')
-              elsif !row['CitSubgen'].blank? && row['ValSpecies'].blank?  && row['CitSpecies'].blank?
-                taxon2 = Protonym.where(name: row['ValGenus'], project_id: $project_id).first
-                if !taxon2.nil?
-                  c = Combination.create!(parent_id: taxon1.parent_id, genus: taxon, subgenus: taxon2)
-                  @data.taxon_codes.merge!(row['TaxonCode'] => c.id)
-                  taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
-                else
-                  taxon3 = Protonym.create!(name: row['CitSubgen'], parent_id: @data.families[row['Family']], verbatim_author: row['CitAuthor'], year_of_publication: row['CitDate'])
-                  taxon3.original_genus = taxon
-                  taxon3.original_subgenus = taxon3
-                  taxon3.save!
-                  @data.taxon_codes.merge!(row['TaxonCode'] => taxon3.id)
-                  taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
-                  @data.genera_index.merge!(taxon3.name => taxon.id)
-                  TaxonNameRelationship.create!(subject_taxon_name: taxon3, object_taxon_name: taxon1, type: 'TaxonNameRelationship::Iczn::Invalidating')
-                end
+                TaxonNameRelationship.create!(subject_taxon_name: taxon, object_taxon_name: taxon1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
               end
-            end
           end
         end
       end
@@ -323,13 +307,14 @@ namespace :tw do
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
         file.each_with_index do |row, i|
           print "\r#{i}"
-          if !row['CitSubgen'].blank? && (@data.genera_index[row['CitSubgen']].nil? || row['CitSpecies'].blank?)
-            name = row['CitSubgen']
+          if !row['CitSubgen'].blank? && (@data.genera_index[row['CitSubgen']].nil? || row['CitSpecies'].blank?) && @data.taxon_codes[row['TaxonCode']].nil?
+            name = row['CitSubgen'].gsub(')', '').gsub('?', '').capitalize
+            parent = @data.genera_index[row['ValGenus']]
             taxon = Protonym.find_or_create_by(name: name, project_id: $project_id)
-            taxon.parent_id = find_family_id_usd(row['Family']) if taxon.parent_id.nil?
+            taxon.parent_id = parent if taxon.parent_id.nil?
             taxon.year_of_publication = row['CitDate'] if taxon.year_of_publication.nil?
             taxon.verbatim_author = row['CitAuthor'] if taxon.verbatim_author.nil?
-            taxon.rank_class = 'NomenclaturalRank::Iczn::GenusGroup::Genus'
+            taxon.rank_class = 'NomenclaturalRank::Iczn::GenusGroup::Subgenus'
             byebug unless taxon.valid?
             taxon.save!
 
@@ -349,7 +334,7 @@ namespace :tw do
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
         file.each_with_index do |row, i|
           print "\r#{i}"
-          if !row['ValSpecies'].blank? && @data.species_index[row['ValGenus'].to_s + ' ' + row['ValSpecies'].to_s].nil?
+          if !row['ValSpecies'].blank? && @data.species_index[row['ValGenus'].to_s + ' ' + row['ValSpecies'].to_s].nil? && @data.taxon_codes[row['TaxonCode']].nil?
             parent = @data.genera_index[row['ValGenus']]
             name = row['ValSpecies'].to_s
             taxon = Protonym.find_or_create_by(name: name, parent_id: parent, project_id: $project_id)
@@ -363,19 +348,85 @@ namespace :tw do
               @data.taxon_codes.merge!(row['TaxonCode'] => taxon.id)
               taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
               @data.species_index.merge!(row['ValGenus'].to_s + ' ' + name => taxon.id)
+              origsubgen = @data.genera_index[row['CitSubgen']]
+              TaxonNameRelationship.create!(subject_taxon_name_id: parent, object_taxon_name: taxon, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus') if taxon.original_genus.nil?
+              TaxonNameRelationship.create!(subject_taxon_name_id: origsubgen, object_taxon_name: taxon, type: 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus') if taxon.original_subgenus.nil? && !origsubgen.nil?
             end
           end
         end
       end
 
+      def handle_master_ucd_invalid_species
+        path = @args[:data_directory] + 'MASTER.txt'
+        print "\nHandling MASTER -- Invalid species\n"
+        raise "file #{path} not found" if not File.exists?(path)
+        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
+        file.each_with_index do |row, i|
+          print "\r#{i}"
+          if !row['CitSpecies'].blank? && @data.species_index[row['ValGenus'].to_s + ' ' + row['CitSpecies'].to_s].nil? && @data.taxon_codes[row['TaxonCode']].nil?
+            parent = @data.genera_index[row['ValGenus']]
+            origgen = @data.genera_index[row['CitGenus']]
+            origsubgen = @data.genera_index[row['CitSubgen']]
+            name = row['CitSpecies'].to_s
+            taxon = Protonym.find_or_create_by(name: name, parent_id: parent, project_id: $project_id)
+            taxon.year_of_publication = row['CitDate'] if taxon.year_of_publication.nil?
+            taxon.verbatim_author = row['CitAuthor'] if taxon.verbatim_author.nil?
+            taxon.rank_class = 'NomenclaturalRank::Iczn::SpeciesGroup::Species'
+            byebug unless taxon.valid?
+            taxon.save!
+
+            @data.taxon_codes.merge!(row['TaxonCode'] => taxon.id)
+            taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
+            @data.species_index.merge!(row['ValGenus'].to_s + ' ' + name => taxon.id)
+            taxon1 = @data.species_index[row['ValGenus'].to_s + ' ' + row['ValSpecies'].to_s]
+            TaxonNameRelationship.create!(subject_taxon_name: taxon, object_taxon_name: taxon1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+            TaxonNameRelationship.create!(subject_taxon_name_id: origgen, object_taxon_name: taxon, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus') if taxon.original_genus.nil?
+            TaxonNameRelationship.create!(subject_taxon_name_id: origsubgen, object_taxon_name: taxon, type: 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus') if taxon.original_subgenus.nil? && !origsubgen.nil?
+            taxon.original_genus = origgen if taxon.original_genus.nil?
+            taxon.original_subgenus = origsubgen if taxon.original_subgenus.nil? && !origsubgen.nil?
+          end
+        end
+      end
+
+      def handle_genus_ucd
+        path = @args[:data_directory] + 'Genus.txt'
+        print "\nHandling GENUS\n"
+        raise "file #{path} not found" if not File.exists?(path)
+        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
+
+        type_type = {
+            'MT' => 'TaxonNameRelationship::Typification::Genus::Monotypy::Original',
+            'OD' => 'TaxonNameRelationship::Typification::Genus::OriginalDesignation',
+            'OM' => 'TaxonNameRelationship::Typification::Genus::OriginalDesignation',
+            'SD' => 'TaxonNameRelationship::Typification::Genus::SubsequentDesignation',
+            'SM' => 'TaxonNameRelationship::Typification::Genus::Monotypy::Subsequent'
+        }.freeze
+
+        status_type = {
+            'NG' => 'new genus', # nothing
+            'RN' => 'replacement name', # relationship
+            'SG' => 'subgenus', # rank and parent
+            'UE' => 'Unjustified emend', #'relationship'
+            'UR' => 'Unnecessary replacement name', #relationship
+            'US' => 'Unjustified emendation, new status' #relationship
+        }
+
+        file.each_with_index do |row, i|
+          print "\r#{i}"
+          taxon = find_taxon_ucd(row['TaxonCode'])
+          species = find_taxon_id_ucd(row['Code'])
+          print "\n TaxonCode: #{row['TaxonCode']} not found" if !row['TaxonCode'].blank? and taxon.nil?
+          print "\n Species Code: #{row['Code']} not found" if !row['Code'].blank? and species.nil?
+        end
+      end
 
 
 
-      def find_taxon_id_usd(key)
+      def find_taxon_id_ucd(key)
         @data.taxon_index[key.to_s] || Identifier.where(cached: 'UCD_Taxon_ID ' + key.to_s, identifier_object_type: 'TaxonName', project_id: $project_id).limit(1).pluck(:identifier_object_id).first
       end
 
-      def find_family_id_usd(key)
+      def find_family_id_ucd(key)
         @data.families[key.to_s] || Identifier.where(cached: 'UCD_Family_ID ' + key.to_s, identifier_object_type: 'TaxonName', project_id: $project_id).limit(1).pluck(:identifier_object_id).first
       end
 

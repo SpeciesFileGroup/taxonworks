@@ -994,7 +994,7 @@ namespace :tw do
             name = row['Name']
             author = (row['Parens'] ? "(#{row['Author']})" : row['Author']) unless row['Author'].blank?
             author ||= nil
-            code = :icn if code == :iczn && row['Name'] == 'Plantae'
+            code = :icn if code == :iczn && row['Name'] == 'Fungi'
             rank = Ranks.lookup(code, row['Rank'])
             rank ||= 'NomenclaturalRank'
             name = 'Root' if rank == 'NomenclaturalRank'
