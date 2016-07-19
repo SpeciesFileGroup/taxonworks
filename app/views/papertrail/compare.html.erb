@@ -1,17 +1,18 @@
 <div class="compare-content">
     <h1>Compare</h1>
-    <div class="compare-box">
-        <% @version_a.attributes.keys.each do |key| %>
+    <table class="compare-table">
+        <% @version_new.attributes.keys.each do |key| %>
         <% row_class = "" %>
-        <% row_class = "highlighted" unless @version_a.attributes[key] == @version_b.attributes[key] %>
-        <div class="compare-row-box">
-            <div class="compare-item-left-box <%= row_class %>">
-                <p><%= key.to_s + ": " + @version_a.attributes[key].to_s %></p>
-            </div>
-            <div class="compare-item-right-box <%= row_class %>">
-                <p><%= key.to_s + ": " + @version_b.attributes[key].to_s %></p>
-            </div>
-        </div>
+        <% row_class = "highlighted" unless @version_new.attributes[key] == @version_old.attributes[key] %>
+        <tr class="compare-table-row">
+            <td class="compare-table-column-old <%= row_class %>">
+                <p><%= key.to_s + ": " + @version_old.attributes[key].to_s %></p>
+            </td>
+            <td class="compare-table-column-new <%= row_class %>">
+                <p><%= key.to_s + ": " + @version_new.attributes[key].to_s %></p>
+                <%= get_diffs(@version_new.attributes[key].to_s, @version_old.attributes[key].to_s) %>
+            </td>
+        </tr>
         <% end %>
-    </div>
+    </table>
 </div>

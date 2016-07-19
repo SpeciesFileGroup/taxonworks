@@ -2,30 +2,18 @@
     width: 800px;
     margin: 0 auto;
 
-    .compare-box {
+    .compare-table {
         width: 100%;
-        //background-color: green;
 
-        .compare-row-box {
+        .compare-table-row {
             width: 100%;
-            //background-color: purple;
-            overflow: hidden;
-            border: 1px solid gray;
-            margin-bottom: 5px;
 
-            .compare-item-left-box {
-                width: 50%;
-                //background-color: red;
-                //border-right: 1px solid gray;
-                float: left;
+            .compare-table-column-old {
+                background-color: #FFECEC;
             }
 
-            .compare-item-right-box {
-                width: 50%;
-                left: -10px;
-                //background-color: blue;
-                //border-left: 1px solid gray;
-                float: right;
+            .compare-table-column-new {
+                background-color: #EAFFEA;
             }
         }
     }
@@ -38,3 +26,16 @@
 p {
     padding: 0px 10px;
 }
+
+table, th, td {
+    border: 1px solid black;
+}
+
+td {
+    width: 50%;
+}
+
+// #FFECEC red
+// #EAFFEA green
+// #F8CBCB darker red
+// #A6F3A6 darker green

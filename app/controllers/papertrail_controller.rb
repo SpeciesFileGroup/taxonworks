@@ -41,8 +41,17 @@ class PapertrailController < ApplicationController
     if invalid_object(@object)
       record_not_found
     else
-      @version_a = @object.versions[params[:version_a].to_i].reify
-      @version_b = @object.versions[params[:version_b].to_i].reify
+      version_index_a = params[:version_a].to_i;
+      version_index_b = params[:version_b].to_i;
+
+      if version_index_a > version_index_b
+        @version_new = @object.versions[params[:version_a].to_i].reify
+        @version_old = @object.versions[params[:version_b].to_i].reify
+      else
+        @version_new = @object.versions[params[:version_b].to_i].reify
+        @version_old = @object.versions[params[:version_a].to_i].reify
+      end
+
       render 'compare'
     end
   end
