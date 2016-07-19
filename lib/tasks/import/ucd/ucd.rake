@@ -289,7 +289,13 @@ namespace :tw do
               taxon.verbatim_author = row['CitAuthor'] if taxon.verbatim_author.nil?
               taxon.rank_class = 'NomenclaturalRank::Iczn::GenusGroup::Genus'
               byebug unless taxon.valid?
-              taxon.save!
+              if taxon.valid?
+                taxon.save!
+              else
+                taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin') if !taxon.errors.messages[:name].blank?
+                taxon.save!
+              end
+
               if row['ValSpecies'].blank?  && row['CitSpecies'].blank?
                 @data.taxon_codes.merge!(row['TaxonCode'] => taxon.id)
                 taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
