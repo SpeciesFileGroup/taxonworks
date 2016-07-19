@@ -2,7 +2,8 @@ class Tasks::LoansController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   def complete
-    @collection_objects = CollectionObject.where('false')
+    @loan               = Loan.find(params['id'])
+    @collection_objects = @loan.collection_objects
   end
 
   def add_determination
@@ -12,8 +13,9 @@ class Tasks::LoansController < ApplicationController
   end
 
   def loan_items_list
-    @loan       = Loan.find(params['loan_id'])
-    @loan_items = @loan.loan_items
+    @loan               = Loan.find(params['id'])
+    @loan_items         = @loan.loan_items
+    @collection_objects = Loan.find(params['id']).collection_objects
   end
 
   def find_loan_items(loan_id)

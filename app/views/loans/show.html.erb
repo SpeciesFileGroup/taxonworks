@@ -3,6 +3,10 @@
   <%= content_tag(:li, link_to('Recipient loan form', recipient_form_loan_path(@loan))) -%>
 <% end %>
 
+<%= content_for :tasks do %>
+    <%= content_tag(:li, link_to('Loan completion', loan_complete_task_path(@loan))) -%>
+<% end %>
+
 <%= content_for :associated do %>
 
   <h3>Recipient(s)</h3>
@@ -20,17 +24,6 @@
     <% end %>
     <%= content_tag(:li, 'None.') if !@loan.loan_supervisors.any? -%>
   </ul>
-
-
-
-
-
-
-
-
-
-
-
 
   <h3> Loan Items </h3>
   <%= render('/loan_items/loan_table', loan_items: @loan.loan_items) -%>

@@ -1,38 +1,39 @@
 <%= render(partial: 'layouts/map_header') -%>
 
 <div id="match_georeference_widget">
-<div class="panel panels-container separate-bottom">
-  <div class="title nav-line">
-    Task: Georeference matcher
+  <div class="panel panels-container separate-bottom">
+    <div class="title nav-line">
+      Task: Georeference matcher
+    </div>
   </div>
-</div>
-<div class="flex-wrap-row">
-  <div class="panel geoCollectionEventBox separate-right separate-bottom"><div class="content">
-    <div class="title-section">
-      <h2>Collecting Events</h2>
-        <ul class="horizontal_navbar context-menu to-right">
-          <li><%= link_to_georeference_match_type('filter', 'ce') %></li>
-          <li><%= link_to_georeference_match_type('tag', 'ce') %></li>
-          <li><%= link_to_georeference_match_type('draw', 'ce') %></li>
-          <li><%= link_to_georeference_match_type('recent', 'ce') %></li>
-        </ul>
-    </div>  
-  
-      <%= render(partial: 'tasks/gis/match_collecting_event/filter_collecting_events_form') %>
-      <%= render(partial: 'tasks/gis/match_collecting_event/tag_collecting_events_form') %>
-      <%= render(partial: 'tasks/gis/match_collecting_event/draw_collecting_events_form') %>
-      <%= render(partial: 'tasks/gis/match_collecting_event/recent_collecting_events_form') %>
-      <div id="_selecting_ce_form" hidden>
-        <%#= render(partial: 'tasks/gis/match_georeference/collecting_event_selections') %>
-      </div>
-      <div id="result_from_post" hidden>
-        <%#= render(partial: 'tasks/gis/match_georeference/georeference_success') %>
+  <div class="flex-wrap-row">
+    <div class="panel geoCollectionEventBox separate-right separate-bottom">
+      <div class="content">
+        <div class="title-section">
+          <h2>Collecting Events</h2>
+          <ul class="horizontal_navbar context-menu to-right">
+            <li><%= link_to_georeference_match_type('filter', 'ce') %></li>
+            <li><%= link_to_georeference_match_type('tag', 'ce') %></li>
+            <li><%= link_to_georeference_match_type('draw', 'ce') %></li>
+            <li><%= link_to_georeference_match_type('recent', 'ce') %></li>
+          </ul>
+        </div>
+
+        <%= render(partial: 'tasks/gis/match_collecting_event/filter_collecting_events_form') %>
+        <%= render(partial: 'tasks/gis/match_collecting_event/tag_collecting_events_form') %>
+        <%= render(partial: 'tasks/gis/match_collecting_event/draw_collecting_events_form') %>
+        <%= render(partial: 'tasks/gis/match_collecting_event/recent_collecting_events_form') %>
+        <div id="_selecting_ce_form" hidden>
+          <%#= render(partial: 'tasks/gis/match_georeference/collecting_event_selections') %>
+        </div>
+        <div id="result_from_post" hidden>
+          <%#= render(partial: 'tasks/gis/match_georeference/georeference_success') %>
+        </div>
       </div>
     </div>
-  </div>    
 
     <div class="panel geoCollectionEventBox separate-right separate-bottom">
-      <div class="content"> 
+      <div class="content">
         <div class="title-section">
           <h2>Georeferences</h2>
           <ul class="horizontal_navbar context-menu to-right">
@@ -53,7 +54,7 @@
     </div>
 
     <div class="panel content separate-bottom">
-      <h2 >Current Georeference</h2>
+      <h2>Current Georeference</h2>
       <div id="_find_gr_form" name="_find_gr_form">
         Find a georeference and select it.
       </div>

@@ -484,7 +484,7 @@ TaxonWorks::Application.routes.draw do
     end
 
     scope :loans, controller: 'tasks/loans' do
-      get 'complete', as: 'loan_complete_task'
+      get 'complete/:id', action: :complete, as: 'loan_complete_task'
       get 'add_determination', as: 'loan_add_determination'
       get 'return_items', as: 'loan_return_items'
       get 'loan_items_list', as: 'loan_items_list'

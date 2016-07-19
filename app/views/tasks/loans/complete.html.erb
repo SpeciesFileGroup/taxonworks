@@ -1,13 +1,48 @@
 <h1>Tasks::Loans#complete</h1>
-<p>Find me in app/views/tasks/loans/complete.html.erb</p>
 
-<%= form_tag(loan_items_list_path, {method: :get}) do %>
-    <%= render partial: 'workbench/elements/forms/ajax_select',
+<h3>Loan to : <%= object_tag(@loan) %>, ID: <%= @loan.id %></h3>
+<!-- Listing the collection objects -->
+<div id="loan_completion_widget" hidden="hidden">
+  <table border="1">
+    <thead>
+    <tr>
+      <%= fancy_th_tag(name: 'Collection object') -%>
+      <%= fancy_th_tag(name: 'Collection object ID') -%>
+      <%= fancy_th_tag(name: 'Check this box') -%>
+    </tr>
+    </thead>
+    <tbody>
+    <% @collection_objects.each do |c_o| %>
+        <tr>
+          <td align="center"><%= object_tag(c_o) %></td>
+          <td align="center"><%= c_o.id %></td>
+          <td align="center"><%= check_box_tag("loan_collection_object_#{c_o.id}") %></td>
+        </tr>
+    <% end %>
+    </tbody>
+  </table>
+
+  <!--<%#= form_tag(loan_items_list_path, {method: :get}) do %>-->
+<%#= render partial: 'workbench/elements/forms/ajax_select',
                locals:  {controller: '/loans',
                          object:     nil,
                          method:     'loan_id',
                          tag_id:     'loan_id_for_loan_complete_form',
                          size:       '',
                          display:    ''} %>
-    <%= submit_tag 'Show' %>
-<% end %>
+<%#= submit_tag 'Show' %>
+  <!--<%# end %>-->
+
+  <%= form_tag(loan_return_items_url, {method: 'get', remote: true}) do %>
+      Completion date form goes here:
+      <div><%= submit_tag('Complete') %></div>
+  <% end %>
+
+  <%= form_tag(loan_add_determination_url, {method: 'get', remote: true}) do %>
+      taxon_determinization form(s?) go(es?) here:
+      <%= render(partial: 'taxon_determinations/form',
+                 locals:  {object: new_taxon_determination,
+                           offset: 'tasks/'}) %>
+      <div><%= submit_tag('Submit') %></div>
+  <% end %>
+</div>
