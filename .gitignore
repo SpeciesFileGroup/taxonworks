@@ -35,7 +35,7 @@ application_settings.yml
 /bundle_bin
 
 # Ignore all logfiles and tempfiles.
-/log/*.log
+/log
 /tmp
 index.html
 
