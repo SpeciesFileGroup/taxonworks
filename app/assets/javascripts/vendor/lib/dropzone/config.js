@@ -5,6 +5,9 @@ _init_dropzone_for_images = function init_dropzone_for_images() {
     Dropzone.options.basicImages = {
       paramName: "image[image_file]", // The name that will be used to transfer the file
       maxFilesize: 100,
+      thumbnail: function(file, dataUrl) {
+      $('.image_field').replaceWith('<img src="'+dataUrl+ '"/>');
+      },      
       accept: function(file, done) {
         done();
       }

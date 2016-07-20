@@ -9,9 +9,9 @@
       <%= render 'shared/errors', object: @image %>
 
       <div class="field">
-        <%= f.label :image_file %><br>
+        <%= f.label :image_file %>
 
-        <div> <%= image_tag(@image.image_file.url(:thumb)) -%> </div>
+        <div class="image_field"> <%= image_tag(@image.image_file.url(:thumb)) if !@image.id.blank? -%> </div>
 
         <%= f.file_field :image_file, class: :required_for_submit %>
       </div>
