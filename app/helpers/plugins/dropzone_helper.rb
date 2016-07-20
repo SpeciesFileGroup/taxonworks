@@ -1,7 +1,11 @@
 module Plugins::DropzoneHelper
 
-  def dropzone_form 
-    form_tag(images_path, method: :post, authenticity_token: form_authenticity_token,  class: :dropzone, id: 'basic-images') 
+  def dropzone_form(image = nil) 
+    if image.blank?
+      form_tag( images_path, method: :post, authenticity_token: form_authenticity_token, class: :dropzone, id: 'basic-images') 
+    else
+      form_tag( image_path(image), method: :patch, authenticity_token: form_authenticity_token, class: :dropzone, id: 'basic-images') 
+    end
   end
 
   def dropzone_depiction_form(object)
