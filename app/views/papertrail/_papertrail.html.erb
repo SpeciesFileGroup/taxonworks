@@ -19,8 +19,7 @@
   <strong>Created at</strong>
   <pre><%= papertrail.created_at %></pre>
   </p>
-  <%= form_for(@object, url: papertrail_update_path(object_id: object_id, object_type: object_type, restore_version_id: papertrail.index), method: :put, action: 'update') do |f| %>
-  <%= f.submit "Restore" %>
-  <% end %>
-
+  <%#= form_for(@object, url: papertrail_update_path(object_id: object_id, object_type: object_type, restore_version_id: papertrail.index), method: :put, action: 'update') do |f| %>
+  <%#= f.submit "Restore" %>
+  <%# end %>
 </div>

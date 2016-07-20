@@ -545,7 +545,7 @@ TaxonWorks::Application.routes.draw do
   match '/papertrail', to: 'papertrail#papertrail', via: :get
   match '/papertrail/compare/', to: 'papertrail#compare', as: 'papertrail_compare', via: :get
   match '/papertrail/:id', to: 'papertrail#show', as: 'paper_trail_version', via: :get
-  match '/papertrail/update/', to: 'papertrail#update', as: 'papertrail_update', via: :put
+  # match '/papertrail/update/', to: 'papertrail#update', as: 'papertrail_update', via: :put
   
 
   # TODO: Remove or rewrite endpoint implementation

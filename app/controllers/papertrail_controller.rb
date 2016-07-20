@@ -17,23 +17,23 @@ class PapertrailController < ApplicationController
     end
   end
 
-  def update
-    @object = params[:object_type].constantize.find(params[:object_id])
+  # def update
+  #   @object = params[:object_type].constantize.find(params[:object_id])
 
-    if invalid_object(@object)
-      record_not_found
-    else
-      @object = @object.versions[params[:restore_version_id].to_i].reify
+  #   if invalid_object(@object)
+  #     record_not_found
+  #   else
+  #     @object = @object.versions[params[:restore_version_id].to_i].reify
 
-      if @object.save
-        flash[:notice] = "Successfully restored!"
-      else
-        flash[:alert] = "Unsuccessfully restored!"
-      end
+  #     if @object.save
+  #       flash[:notice] = "Successfully restored!"
+  #     else
+  #       flash[:alert] = "Unsuccessfully restored!"
+  #     end
 
-      render 'papertrail'
-    end
-  end
+  #     render 'papertrail'
+  #   end
+  # end
 
   def compare
     @object = params[:object_type].constantize.find(params[:object_id])
