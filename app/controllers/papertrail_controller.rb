@@ -43,13 +43,19 @@ class PapertrailController < ApplicationController
     else
       version_index_a = params[:version_a].to_i;
       version_index_b = params[:version_b].to_i;
+      version_a = @object.versions[version_index_a]
+      version_b = @object.versions[version_index_b]
 
       if version_index_a > version_index_b
-        @version_new = @object.versions[params[:version_a].to_i].reify
-        @version_old = @object.versions[params[:version_b].to_i].reify
+        @user_new = User.find(version_a.whodunnit).name
+        @user_old = User.find(version_b.whodunnit).name
+        @attributes_new = version_a.reify.attributes
+        @attributes_old = version_b.reify.attributes
       else
-        @version_new = @object.versions[params[:version_b].to_i].reify
-        @version_old = @object.versions[params[:version_a].to_i].reify
+        @user_new = User.find(version_b.whodunnit).name
+        @user_old = User.find(version_a.whodunnit).name
+        @attributes_new = version_b.reify.attributes
+        @attributes_old = version_a.reify.attributes
       end
 
       render 'compare'

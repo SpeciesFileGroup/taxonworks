@@ -1,3 +1,8 @@
+// #FFECEC red
+// #EAFFEA green
+// #F8CBCB darker red
+// #A6F3A6 darker green
+
 .compare-content{
     width: 800px;
     margin: 0 auto;
@@ -7,24 +12,24 @@
 
         .compare-table-row {
             width: 100%;
-
-            .compare-table-column-old {
-                background-color: #FFECEC;
-            }
-
-            .compare-table-column-new {
-                background-color: #EAFFEA;
-            }
         }
     }
 }
 
-.highlighted {
-    background-color: gray;
+.highlight-deleted {
+    background-color:#F8CBCB;
 }
 
-p {
-    padding: 0px 10px;
+.highlight-added {
+    background-color: #A6F3A6;
+}
+
+.row-modified-deleted {
+    background-color: #FFECEC;
+}
+
+.row-modified-added {
+    background-color: #EAFFEA;
 }
 
 table, th, td {
@@ -34,8 +39,3 @@ table, th, td {
 td {
     width: 50%;
 }
-
-// #FFECEC red
-// #EAFFEA green
-// #F8CBCB darker red
-// #A6F3A6 darker green

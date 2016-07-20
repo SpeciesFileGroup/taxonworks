@@ -1,18 +1,56 @@
 <div class="compare-content">
     <h1>Compare</h1>
     <table class="compare-table">
-        <% @version_new.attributes.keys.each do |key| %>
-        <% row_class = "" %>
-        <% row_class = "highlighted" unless @version_new.attributes[key] == @version_old.attributes[key] %>
         <tr class="compare-table-row">
-            <td class="compare-table-column-old <%= row_class %>">
-                <p><%= key.to_s + ": " + @version_old.attributes[key].to_s %></p>
+            <td>
+                <h3>Older</h3>
             </td>
-            <td class="compare-table-column-new <%= row_class %>">
-                <p><%= key.to_s + ": " + @version_new.attributes[key].to_s %></p>
-                <%= get_diffs(@version_new.attributes[key].to_s, @version_old.attributes[key].to_s) %>
+            
+            <td>
+                <h3>Newer</h3>
             </td>
         </tr>
+
+        <tr class="compare-table-row">
+            <td>
+                <span>Modifier: <%= @user_old %></span>
+            </td>
+            
+            <td>
+                <span>Modifier: <%= @user_new %></span>
+            </td>
+        </tr>
+
+        <% @attributes_new.keys.each do |key| %>
+            <% diffs = {} %>
+            
+            <% if key == "updated_at" %>
+                <% diffs = get_diffs_date(@attributes_new[key].to_s, @attributes_old[key].to_s) %>
+            <% else %>
+                <% diffs = get_diffs(@attributes_new[key].to_s, @attributes_old[key].to_s) %>
+            <% end %>
+            
+            <% row_modified_deleted = "" %>
+            <% row_modified_added = "" %>
+
+            <% if diffs["deleted_strings"].length > 0 || diffs["added_strings"].length > 0 %>
+                <% row_modified_deleted = "row-modified-deleted" %>
+                <% row_modified_added = "row-modified-added" %>
+            <% end %>
+
+            <% key_string = key.to_s.split('_').map(&:capitalize).join(' ') %>
+            
+            <tr class="compare-table-row">
+                <td class="<%= row_modified_deleted %>">
+                    <span><%= key_string %>:</span>
+                    <%= get_highlighted_words(@attributes_old[key].to_s, diffs["deleted_strings"], diffs["deleted_strings_indices"], "highlight-deleted") %>
+                </td>
+                
+                <td class="<%= row_modified_added %>">
+                    <span><%= key_string %>:</span>
+                    <%= get_highlighted_words(@attributes_new[key].to_s, diffs["added_strings"], diffs["added_strings_indices"], "highlight-added") %>
+                </td>
+            </tr>
         <% end %>
     </table>
 </div>
