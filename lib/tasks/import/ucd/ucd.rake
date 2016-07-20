@@ -461,11 +461,15 @@ namespace :tw do
         file1 = CSV.foreach(path1, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
         file2 = CSV.foreach(path2, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
 
-
-
-
-
           fext_data = {}
+
+        file.each_with_index do |row, i|
+          print "\r#{i}"
+        end
+
+
+
+
 
           File.foreach(path2) do |csv_line|
             r = column_values(fix_line(csv_line))
@@ -567,7 +571,6 @@ namespace :tw do
             i+=1
             break if i > 200
           end
-        end
 
 
 
