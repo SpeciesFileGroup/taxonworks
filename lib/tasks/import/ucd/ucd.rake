@@ -35,7 +35,7 @@ namespace :tw do
 
       class ImportedDataUcd
         attr_accessor :publications_index, :genera_index, :species_index, :keywords, :family_groups, :superfamilies, :families,
-                      :taxon_codes
+                      :taxon_codes, :languages
         def initialize()
           @publications_index = {}
           @keywords = {}
@@ -45,6 +45,7 @@ namespace :tw do
           @superfamilies = {}
           @families = {}
           @taxon_codes = {}
+          @languages = {}
         end
 
 
@@ -90,6 +91,9 @@ namespace :tw do
         handle_master_ucd_invalid_subgenera
         handle_master_ucd_valid_species
         handle_master_ucd_invalid_species
+
+        handle_language_ucd
+        handle_references_ucd
 
         handle_genus_ucd
 
@@ -263,11 +267,11 @@ namespace :tw do
             taxon.rank_class = 'NomenclaturalRank::Iczn::GenusGroup::Genus'
             byebug unless taxon.valid?
             taxon.save!
+            @data.genera_index.merge!(name => taxon.id)
 
             if row['ValGenus'].to_s == row['CitGenus'] && row['CitSubgen'].blank? && row['ValSpecies'].blank?  && row['CitSpecies'].blank?
               @data.taxon_codes.merge!(row['TaxonCode'] => taxon.id)
               taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
-              @data.genera_index.merge!(name => taxon.id)
             end
           end
         end
@@ -280,26 +284,26 @@ namespace :tw do
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
         file.each_with_index do |row, i|
           print "\r#{i}"
-          if !row['CitSpecies'].blank? || !@data.genera_index[row['CitGenus']].blank?
-          elsif !row['CitGenus'].blank? && row['CitSpecies'].blank?  && row['CitSubgen'].blank? && @data.taxon_codes[row['TaxonCode']].nil?
+          if !@data.genera_index[row['CitGenus']].nil?
+          elsif !row['CitGenus'].blank? && @data.taxon_codes[row['TaxonCode']].nil?
               taxon = Protonym.new(name: row['CitGenus'], project_id: $project_id)
               taxon1 = Protonym.find_by(name: row['ValGenus'], project_id: $project_id)
-              taxon.parent_id = find_family_id_ucd(row['Family']) if taxon.parent_id.nil?
-              taxon.year_of_publication = row['CitDate'] if taxon.year_of_publication.nil?
-              taxon.verbatim_author = row['CitAuthor'] if taxon.verbatim_author.nil?
+              taxon.parent_id = find_family_id_ucd(row['Family'])
+              taxon.year_of_publication = row['CitDate'] if row['CitSpecies'].blank? && row['CitSubgenus'].blank?
+              taxon.verbatim_author = row['CitAuthor'] if row['CitSpecies'].blank? && row['CitSubgenus'].blank?
               taxon.rank_class = 'NomenclaturalRank::Iczn::GenusGroup::Genus'
-              byebug unless taxon.valid?
+              #byebug unless taxon.valid?
               if taxon.valid?
                 taxon.save!
               else
                 taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin') if !taxon.errors.messages[:name].blank?
                 taxon.save!
               end
+              @data.genera_index.merge!(taxon.name => taxon.id)
 
               if row['ValSpecies'].blank?  && row['CitSpecies'].blank?
                 @data.taxon_codes.merge!(row['TaxonCode'] => taxon.id)
                 taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
-                @data.genera_index.merge!(taxon.name => taxon.id)
                 TaxonNameRelationship.create!(subject_taxon_name: taxon, object_taxon_name: taxon1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
               end
           end
@@ -320,14 +324,14 @@ namespace :tw do
             taxon.parent_id = parent if taxon.parent_id.nil?
             taxon.year_of_publication = row['CitDate'] if taxon.year_of_publication.nil?
             taxon.verbatim_author = row['CitAuthor'] if taxon.verbatim_author.nil?
-            taxon.rank_class = 'NomenclaturalRank::Iczn::GenusGroup::Subgenus'
+            taxon.rank_class = 'NomenclaturalRank::Iczn::GenusGroup::Subgenus' if taxon.rank_class.nil?
             byebug unless taxon.valid?
             taxon.save!
+            @data.genera_index.merge!(name => taxon.id)
 
             if row['ValSpecies'].blank?  && row['CitSpecies'].blank?
               @data.taxon_codes.merge!(row['TaxonCode'] => taxon.id)
               taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
-              @data.genera_index.merge!(name => taxon.id)
             end
           end
         end
@@ -347,13 +351,17 @@ namespace :tw do
             taxon.year_of_publication = row['ValDate'] if taxon.year_of_publication.nil?
             taxon.verbatim_author = row['ValAuthor'] if taxon.verbatim_author.nil?
             taxon.rank_class = 'NomenclaturalRank::Iczn::SpeciesGroup::Species'
-            byebug unless taxon.valid?
-            taxon.save!
+            if taxon.valid?
+              taxon.save!
+            else
+              taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin') if !taxon.errors.messages[:name].blank?
+              taxon.save!
+            end
+            @data.species_index.merge!(row['ValGenus'].to_s + ' ' + name => taxon.id)
 
             if row['ValGenus'].to_s == row['CitGenus'] && row['ValSpecies'].to_s == row['CitSpecies']
               @data.taxon_codes.merge!(row['TaxonCode'] => taxon.id)
               taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
-              @data.species_index.merge!(row['ValGenus'].to_s + ' ' + name => taxon.id)
               origsubgen = @data.genera_index[row['CitSubgen']]
               TaxonNameRelationship.create!(subject_taxon_name_id: parent, object_taxon_name: taxon, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus') if taxon.original_genus.nil?
               TaxonNameRelationship.create!(subject_taxon_name_id: origsubgen, object_taxon_name: taxon, type: 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus') if taxon.original_subgenus.nil? && !origsubgen.nil?
@@ -373,26 +381,245 @@ namespace :tw do
             parent = @data.genera_index[row['ValGenus']]
             origgen = @data.genera_index[row['CitGenus']]
             origsubgen = @data.genera_index[row['CitSubgen']]
-            name = row['CitSpecies'].to_s
+            name = row['CitSpecies'].gsub('sp. ', '').to_s
             taxon = Protonym.find_or_create_by(name: name, parent_id: parent, project_id: $project_id)
             taxon.year_of_publication = row['CitDate'] if taxon.year_of_publication.nil?
             taxon.verbatim_author = row['CitAuthor'] if taxon.verbatim_author.nil?
             taxon.rank_class = 'NomenclaturalRank::Iczn::SpeciesGroup::Species'
-            byebug unless taxon.valid?
-            taxon.save!
+            if taxon.valid?
+              taxon.save!
+            else
+              taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin') if !taxon.errors.messages[:name].blank?
+              taxon.save!
+            end
 
             @data.taxon_codes.merge!(row['TaxonCode'] => taxon.id)
             taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
             @data.species_index.merge!(row['ValGenus'].to_s + ' ' + name => taxon.id)
             taxon1 = @data.species_index[row['ValGenus'].to_s + ' ' + row['ValSpecies'].to_s]
-            TaxonNameRelationship.create!(subject_taxon_name: taxon, object_taxon_name: taxon1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+            byebug if taxon1.nil?
+            TaxonNameRelationship.create!(subject_taxon_name: taxon, object_taxon_name_id: taxon1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
             TaxonNameRelationship.create!(subject_taxon_name_id: origgen, object_taxon_name: taxon, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus') if taxon.original_genus.nil?
             TaxonNameRelationship.create!(subject_taxon_name_id: origsubgen, object_taxon_name: taxon, type: 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus') if taxon.original_subgenus.nil? && !origsubgen.nil?
-            taxon.original_genus = origgen if taxon.original_genus.nil?
-            taxon.original_subgenus = origsubgen if taxon.original_subgenus.nil? && !origsubgen.nil?
           end
         end
       end
+
+      def handle_language_ucd
+        path = @args[:data_directory] + 'LANGUAGE.txt'
+        print "\nHandling Language\n"
+        raise "file #{path} not found" if not File.exists?(path)
+        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
+        file.each_with_index do |row, i|
+          print "\r#{i}"
+          l = Language.where(alpha_2: row['Code'].downcase).first
+          if l.nil?
+            print "\n   Language not resolved: #{row['Code']} - #{row['Language']}\n"
+          else
+            @data.languages.merge!(row['Code'].downcase => l.id) unless l.nil?
+          end
+        end
+      end
+
+      def handle_references_ucd
+          # - 0   RefCode   | varchar(15)  |
+          # - 1   Author    | varchar(52)  |
+          # - 2   Year      | varchar(4)   |
+          # - 3   Letter    | varchar(2)   | # ?! key/value - if they want to maintain a manual system let them
+          # - 4   PubDate   | date         |
+          # - 5   Title     | varchar(188) |
+          # - 6   JourBook  | varchar(110) |
+          # - 7   Volume    | varchar(20)  |
+          # - 8   Pages     | varchar(36)  |
+          # - 9   Location  | varchar(27)  | # Attribute::Internal
+          # - 10  Source    | varchar(28)  | # Attribute::Internal
+          # - 11  Check     | varchar(11)  | # Attribute::Internal
+          # - 12  ChalcFam  | varchar(20)  | # Attribute::Internal a key/value (memory aid of john)
+          # - 13  KeywordA  | varchar(2)   | # Tag
+          # - 14  KeywordB  | varchar(2)   | # Tag
+          # - 15  KeywordC  | varchar(2)   | # Tag
+          # - 16  LanguageA | varchar(2)   | Attribute::Internal & Language
+          # - 17  LanguageB | varchar(2)   | Attribute::Internal
+          # - 18  LanguageC | varchar(2)   | Attribute::Internal
+          # - 19  M_Y       | varchar(1)   | # Attribute::Internal fuzziness on month/day/year - an annotation
+          # 20  PDF_file  | varchar(1)   | # [X or Y] TODO: NOT HANDLED
+
+          # 0 RefCode
+          # - 1 Translate
+          # - 2 Notes
+          # - 3 Publisher
+          # - 4 ExtAuthor
+          # - 5 ExtTitle
+          # - 6 ExtJournal
+          # - 7 Editor
+
+        path1 = @args[:data_directory] + 'REFS.txt'
+        path2 = @args[:data_directory] + 'REFEXT.txt'
+        print "\nHandling References\n"
+        raise "file #{path1} not found" if not File.exists?(path1)
+        raise "file #{path2} not found" if not File.exists?(path2)
+        file1 = CSV.foreach(path1, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
+        file2 = CSV.foreach(path2, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
+
+
+
+
+
+          fext_data = {}
+
+          File.foreach(path2) do |csv_line|
+            r = column_values(fix_line(csv_line))
+            fext_data.merge!(
+                r[0] => { translate: r[1], notes: r[2], publisher: r[3], ext_author: r[4], ext_title: r[5], ext_journal: r[6], editor: r[7] }
+            )
+          end
+
+          namespace = Namespace.new(name: 'UCD refCode', short_name: 'UCDabc')
+          namespace.save!
+
+          keywords = {
+              'Refs:Location' => Predicate.new(name: 'Refs::Location', definition: 'The verbatim value in Ref#location.'),
+              'Refs:Source' => Predicate.new(name: 'Refs::Source', definition: 'The verbatim value in Ref#source.'),
+              'Refs:Check' => Predicate.new(name: 'Refs::Check', definition: 'The verbatim value in Ref#check.'),
+              'Refs:LanguageA' => Predicate.new(name: 'Refs::LanguageA', definition: 'The verbatim value in Refs#LanguageA'),
+              'Refs:LanguageB' => Predicate.new(name: 'Refs::LanguageB', definition: 'The verbatim value in Refs#LanguageB'),
+              'Refs:LanguageC' => Predicate.new(name: 'Refs::LanguageC', definition: 'The verbatim value in Refs#LanguageC'),
+              'Refs:ChalcFam' => Predicate.new(name: 'Refs::ChalcFam', definition: 'The verbatim value in Refs#ChalcFam'),
+              'Refs:M_Y' => Predicate.new(name: 'Refs::M_Y', definition: 'The verbatim value in Refs#M_Y.'),
+              'Refs:PDF_file' => Predicate.new(name: 'Refs::PDF_file', definition: 'The verbatim value in Refs#PDF_file.'),
+              'RefsExt:Translate' => Predicate.new(name: 'RefsExt::Translate', definition: 'The verbatim value in RefsExt#Translate.'),
+          }
+
+          keywords.values.each do |k|
+            k.save!
+          end
+
+          i = 0
+
+          File.foreach(path1) do |csv_line|
+            row = column_values(fix_line(csv_line))
+
+            year, month, day = nil, nil, nil
+            if row[4] != 'NULL'
+              year, month, day = row[4].split('-', 3)
+              month = Utilities::Dates::SHORT_MONTH_FILTER[month]
+              month = month.to_s if !month.nil?
+            end
+
+            stated_year = row[2]
+            if year.nil?
+              year = stated_year
+              stated_year = nil
+            end
+
+            title = [row[5],  (fext_data[row[0]] && !fext_data[row[0]][:ext_title].blank? ? fext_data[row[0]][:ext_title] : nil)].compact.join(" ")
+            journal = [row[6],  (fext_data[row[0]] && !fext_data[row[0]][:ext_journal].blank? ? fext_data[row[0]][:ext_journal] : nil)].compact.join(" ")
+            author = [row[1],  (fext_data[row[0]] && !fext_data[row[0]][:ext_author].blank? ? fext_data[row[0]][:ext_author] : nil)].compact.join(" ")
+
+            b = Source::Bibtex.new(
+                author: author,
+                year: (year.blank? ? nil : year.to_i),
+                month: month,
+                day: (day.blank? ? nil : day.to_i) ,
+                stated_year: stated_year,
+                year_suffix: row[3],
+                title: title,
+                booktitle: journal,
+                volume: row[7],
+                pages: row[8],
+                bibtex_type: 'article',
+                language: (row[16] ? Language.where(alpha_2: row[16] ).first : nil),
+                publisher: (fext_data[row[0]] ? fext_data[row[0]][:publisher] : nil),
+                editor: (fext_data[row[0]] ? fext_data[row[0]][:editor] : nil ),
+            )
+
+            b.publisher = nil if b.publisher.blank? # lazy get rid of ""
+            b.editor = nil if b.editor.blank?
+
+            b.save!
+
+            b.identifiers.build(type: 'Identifier::LocalId', namespace: namespace, identifier: row[0])
+
+            b.data_attributes.build(type: 'DataAttribute::InternalAttribute', predicate: keywords['Refs:Location'], value: row[9])    if !row[9].blank?
+            b.data_attributes.build(type: 'DataAttribute::InternalAttribute', predicate: keywords['Refs:Source'], value: row[10])     if !row[10].blank?
+            b.data_attributes.build(type: 'DataAttribute::InternalAttribute', predicate: keywords['Refs:Check'], value: row[11])      if !row[11].blank?
+            b.data_attributes.build(type: 'DataAttribute::InternalAttribute', predicate: keywords['Refs::ChalcFam'], value: row[12])  if !row[12].blank?
+            b.data_attributes.build(type: 'DataAttribute::InternalAttribute', predicate: keywords['Refs:LanguageA'], value: row[16])  if !row[16].blank?
+            b.data_attributes.build(type: 'DataAttribute::InternalAttribute', predicate: keywords['Refs:LanguageB'], value: row[17])  if !row[17].blank?
+            b.data_attributes.build(type: 'DataAttribute::InternalAttribute', predicate: keywords['Refs:LanguageB'], value: row[18])  if !row[18].blank?
+            b.data_attributes.build(type: 'DataAttribute::InternalAttribute', predicate: keywords['Refs:M_Y'], value: row[19])        if !row[19].blank?
+
+            if fext_data[row[0]]
+              b.data_attributes.build(type: 'DataAttribute::InternalAttribute', predicate: keywords['RefsExt:Translate'], value: fext_data[row[0]][:translate]) if !fext_data[row[0]][:translate].blank?
+              b.notes.build(text: fext_data[row[0]][:note]) if !fext_data[row[0]][:note].nil?
+            end
+
+            [13,14,15].each do |i|
+              k =  Keyword.with_alternate_value_on(:name, row[i]).first
+              if k
+                b.tags.build(keyword: k)
+              end
+            end
+
+            !b.save
+
+            print "#{i},"
+            i+=1
+            break if i > 200
+          end
+        end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      end ######################## references
+
+
+
+
+
+
+
+
+
+
+
 
       def handle_genus_ucd
         path = @args[:data_directory] + 'Genus.txt'

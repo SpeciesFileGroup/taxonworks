@@ -1012,10 +1012,10 @@ namespace :tw do
               created_at: time_from_field(created_on),
               updated_at: time_from_field(row['ModifiedOn'])
             )
-            p.parent_id = parent_index[row['Parent'].to_s].id unless row['Parent'].blank? || parent_index[row['Parent'].to_s].nil?
+            p.parent_id = parent_index[row['Parent'].to_s] unless row['Parent'].blank? || parent_index[row['Parent'].to_s].nil?
             if rank == 'NomenclaturalRank'
               p = Protonym.find_or_create_by(name: 'Root', rank_class: 'NomenclaturalRank', project_id: $project_id)
-              parent_index.merge!(row['ID'] => p)
+              parent_index.merge!(row['ID'] => p.id)
             elsif !p.parent_id.blank?
               bench = Benchmark.measure {
                 data.keywords.each do |k|
@@ -1027,7 +1027,7 @@ namespace :tw do
               if p.valid?
                 p.save!
                 build_otu_insects(row, p, data)
-                parent_index.merge!(row['ID'] => p)
+                parent_index.merge!(row['ID'] => p.id)
                 data.taxa_index.merge!(row['TaxonCode'] => p)
               else
                 puts "\n#{p.name}"
@@ -1041,6 +1041,7 @@ namespace :tw do
             p.notes.create(text: row['Remarks']) unless row['Remarks'].blank?
           end
 
+          parent_index = nil
           import.metadata['taxa'] = true
           checkpoint_save_insects(import) if ENV['no_transaction']
         end
