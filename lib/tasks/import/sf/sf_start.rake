@@ -1,4 +1,5 @@
 require 'fileutils'
+require 'logged_task'
 
 ### rake tw:project_import:species_file:create_users user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/ no_transaction=true
 
@@ -16,11 +17,9 @@ namespace :tw do
 
       desc 'update TW.sources of bibtex type = book'
       ### time rake tw:project_import:sf_start:update_sources_with_booktitle_publisher_address user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
-      task :update_sources_with_booktitle_publisher_address => [:data_directory, :environment, :user_id] do
+      LoggedTask.define :update_sources_with_booktitle_publisher_address => [:data_directory, :environment, :user_id] do | logger |
         # should have combined this into original source creation
         # @todo Not found: Slater, J.A. Date unknown. A Catalogue of the Lygaeidae of the world. << RefID = 44058, PubID = 21898
-
-        puts 'Running update_sources_with_booktitle_publisher_address...'
 
         import = Import.find_or_create_by(name: 'SpeciesFileData')
         get_sf_booktitle_publisher_address = import.get('SFPubIDTitlePublisherAddress')
@@ -38,21 +37,21 @@ namespace :tw do
           next if get_sf_booktitle_publisher_address[row['PubID']].nil?
           next if (row['Title'].empty? and row['PubID'] == '0' and row['Series'].empty? and row['Volume'].empty? and row['Issue'].empty? and row['ActualYear'].empty? and row['StatedYear'].empty?) or row['AccessCode'] == '4'
 
-          puts "working with SF.RefID #{row['RefID']} = TW.source_id #{get_tw_source_id[row['RefID']]}, SF.PubID = #{row['PubID']}"
+          logger.info "working with SF.RefID #{row['RefID']} = TW.source_id #{get_tw_source_id[row['RefID']]}, SF.PubID = #{row['PubID']}"
 
           source = Source.find_by(id: get_tw_source_id[row['RefID']].to_i)
           if source.nil?  # can't find
-            puts "Error: Source not found (RefID = #{row['RefID']}), Error #{error_counter += 1}"
+            logger.error "Source not found (RefID = #{row['RefID']}), Error #{error_counter += 1}"
           elsif source.class == Source::Verbatim
-            puts "Verbatim source, skipping"
+            logger.info "Verbatim source, skipping"
           elsif not source.update(get_sf_booktitle_publisher_address[row['PubID']])
-            puts "Failed to update, Error #{error_counter += 1}, msg: #{source.errors.messages}"
+            logger.error "Failed to update, Error #{error_counter += 1}", { msg: source.errors.messages }
           else
             successful_update_counter += 1
           end
 
         end
-        puts "Books processed = #{successful_update_counter}, Errors = #{error_counter}"
+        logger.info "Books processed = #{successful_update_counter}, Errors = #{error_counter}"
       end
 
       desc 'create book hash consisting of book_title:, publisher:, and place_published: (address)'
