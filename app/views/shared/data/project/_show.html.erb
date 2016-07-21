@@ -84,12 +84,8 @@
                 <h2>Attributes</h2>
               </div>
 
-              <div class="attributes">
-                <% if lookup_context.exists?('card', '/' + object_class_name(object.metamorphosize) + '/', true) %>
-                  <%= render partial: object_card_partial_path(object.metamorphosize), locals: {object: object} %>
-                <% else %>
-                  <%= render partial: '/shared/data/all/show/card', locals: {object: object} %>
-                <% end %>
+              <div class="attributes"> 
+                <%= render partial: object_attributes_partial_path(object.metamorphosize), locals: {object: object} %>
                 <%= render partial: '/shared/data/all/show/housekeeping', locals: {object: object} -%>
               </div>        
             </div>
