@@ -84,7 +84,7 @@ namespace :tw do
 
           if parent_id == nil
             puts "ALERT: Could not find parent_id (error #{no_parent_counter += 1}! Set to animalia_id = #{animalia_id}"
-            parent_id = animalia_id   # this is problematic; need real solution
+            parent_id = animalia_id # this is problematic; need real solution
           end
 
           name_status = row['NameStatus']
@@ -252,6 +252,46 @@ namespace :tw do
         ap get_sf_status_flags
         puts 'SFTaxonNameIDToTWOtuID'
         ap get_tw_otu_id
+
+      end
+
+      desc 'create bad valid name list (will create OTUs) and new parent_ids for taxa subordinate to the bad valid names'
+      ### time rake tw:project_import:sf_taxa:create_bad_valid_name_and_sub_parent_hashes user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
+      task :create_bad_valid_name_and_sub_parent_hashes => [:data_directory, :environment, :user_id] do
+        # Can be run independently at any time
+
+        puts 'Running bad valid name and sub parent hashes...'
+
+        get_sf_above_id = {} # key = SF.TaxonNameID of bad valid name, value = SF.AboveID of bad valid name
+        get_sf_new_parent_id = {} # key = SF.TaxonNameID of bad valid name subordinate, value = SF.AboveID of bad valid name
+
+        path = @args[:data_directory] + 'sfBadValidNames.txt'
+        file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
+
+        file.each do |row|
+          # byebug
+          # puts row.inspect
+          make_otu = row['MakeOTU']
+          taxon_name_id = row['TaxonNameID']
+          use_above_id = row['UseAboveID']
+          print "working with TaxonNameID = #{taxon_name_id}, MakeOTU = #{make_otu} \n"
+
+          if make_otu == '1'
+            get_sf_above_id[taxon_name_id] = use_above_id
+          else
+            get_sf_new_parent_id[taxon_name_id] = use_above_id
+          end
+        end
+
+        import = Import.find_or_create_by(name: 'SpeciesFileData')
+        import.set('SFBadValidNameIDToSFAboveID', get_sf_above_id)
+        import.set('SFSubordinateIDToSFNewParentID', get_sf_new_parent_id)
+
+        puts 'SFBadValidNameIDToSFAboveID'
+        ap get_sf_above_id
+
+        puts 'SFSubordinateIDToSFNewParentID'
+        ap get_sf_new_parent_id
 
       end
 
