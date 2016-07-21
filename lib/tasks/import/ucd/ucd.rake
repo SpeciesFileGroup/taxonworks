@@ -35,7 +35,7 @@ namespace :tw do
 
       class ImportedDataUcd
         attr_accessor :publications_index, :genera_index, :species_index, :keywords, :family_groups, :superfamilies, :families,
-                      :taxon_codes, :languages
+                      :taxon_codes, :languages, :references
         def initialize()
           @publications_index = {}
           @keywords = {}
@@ -84,13 +84,14 @@ namespace :tw do
         raise '$project_id or $user_id not set.'  if $project_id.nil? || $user_id.nil?
 
         #$project_id = 1
-        handle_fgnames_ucd
-        handle_master_ucd_families
-        handle_master_ucd_valid_genera
-        handle_master_ucd_invalid_genera
-        handle_master_ucd_invalid_subgenera
-        handle_master_ucd_valid_species
-        handle_master_ucd_invalid_species
+
+        #handle_fgnames_ucd
+        #handle_master_ucd_families
+        #handle_master_ucd_valid_genera
+        #handle_master_ucd_invalid_genera
+        #handle_master_ucd_invalid_subgenera
+        #handle_master_ucd_valid_species
+        #handle_master_ucd_invalid_species
 
         handle_language_ucd
         handle_references_ucd
@@ -415,8 +416,9 @@ namespace :tw do
           l = Language.where(alpha_2: row['Code'].downcase).first
           if l.nil?
             print "\n   Language not resolved: #{row['Code']} - #{row['Language']}\n"
+            @data.languages.merge!(row['Code'].downcase => [nil, row['Language']])
           else
-            @data.languages.merge!(row['Code'].downcase => l.id) unless l.nil?
+            @data.languages.merge!(row['Code'].downcase => [l.id, row['Language']])
           end
         end
       end
@@ -461,116 +463,100 @@ namespace :tw do
         file1 = CSV.foreach(path1, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
         file2 = CSV.foreach(path2, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
 
-          fext_data = {}
+        namespace = Namespace.find_or_create_by(name: 'UCD refCode', short_name: 'UCDabc')
+        keywords = {
+            'Refs:Location' => Predicate.find_or_create_by(name: 'Refs::Location', definition: 'The verbatim value in Ref#location.', project_id: $project_id),
+            'Refs:Source' => Predicate.find_or_create_by(name: 'Refs::Source', definition: 'The verbatim value in Ref#source.', project_id: $project_id),
+            'Refs:Check' => Predicate.find_or_create_by(name: 'Refs::Check', definition: 'The verbatim value in Ref#check.', project_id: $project_id),
+            'Refs:LanguageA' => Predicate.find_or_create_by(name: 'Refs::LanguageA', definition: 'The verbatim value in Refs#LanguageA', project_id: $project_id),
+            'Refs:LanguageB' => Predicate.find_or_create_by(name: 'Refs::LanguageB', definition: 'The verbatim value in Refs#LanguageB', project_id: $project_id),
+            'Refs:LanguageC' => Predicate.find_or_create_by(name: 'Refs::LanguageC', definition: 'The verbatim value in Refs#LanguageC', project_id: $project_id),
+            'Refs:ChalcFam' => Predicate.find_or_create_by(name: 'Refs::ChalcFam', definition: 'The verbatim value in Refs#ChalcFam', project_id: $project_id),
+            'Refs:M_Y' => Predicate.find_or_create_by(name: 'Refs::M_Y', definition: 'The verbatim value in Refs#M_Y.', project_id: $project_id),
+            'Refs:PDF_file' => Predicate.find_or_create_by(name: 'Refs::PDF_file', definition: 'The verbatim value in Refs#PDF_file.', project_id: $project_id),
+            'RefsExt:Translate' => Predicate.find_or_create_by(name: 'RefsExt::Translate', definition: 'The verbatim value in RefsExt#Translate.', project_id: $project_id),
+        }
 
-        file.each_with_index do |row, i|
+        fext_data = {}
+        file1.each_with_index do |r, i|
+          fext_data.merge!(
+              r[0] => { translate: r[1], notes: r[2], publisher: r[3], ext_author: r[4], ext_title: r[5], ext_journal: r[6], editor: r[7] }
+          )
+        end
+
+
+        file1.each_with_index do |row, i|
           print "\r#{i}"
+
+          year, month, day = nil, nil, nil
+          unless row['PubDate'].nil?
+            year, month, day = row['PubDate'].split('-', 3)
+            month = Utilities::Dates::SHORT_MONTH_FILTER[month]
+            month = month.to_s if !month.nil?
+          end
+          stated_year = row['Year']
+          if year.nil?
+            year = stated_year
+            stated_year = nil
+          end
+
+          title = [row['Title'],  (fext_data[row['RefCode']] && !fext_data[row['RefCode']][:ext_title].blank? ? fext_data[row['RefCode']][:ext_title] : nil)].compact.join(" ")
+          journal = [row['JourBook'],  (fext_data[row['RefCode']] && !fext_data[row['RefCode']][:ext_journal].blank? ? fext_data[row['RefCode']][:ext_journal] : nil)].compact.join(" ")
+          author = [row['Author'],  (fext_data[row['RefCode']] && !fext_data[row['RefCode']][:ext_author].blank? ? fext_data[row['RefCode']][:ext_author] : nil)].compact.join(" ")
+
+          b = Source::Bibtex.create!(
+              author: author,
+              year: (year.blank? ? nil : year.to_i),
+              month: month,
+              day: (day.blank? ? nil : day.to_i) ,
+              stated_year: stated_year,
+              year_suffix: row['Letter'],
+              title: title,
+              booktitle: journal,
+              volume: row['Volume'],
+              pages: row['Pages'],
+              bibtex_type: 'article',
+              language_id: ( row['LanguageA'].blank? ? nil : @data.languages[row['LanguageA'].downcase][0] ),
+              language: ( row['LanguageA'].blank? ? nil : @data.languages[row['LanguageA'].downcase][1] ),
+              publisher: (fext_data[row['RefCode']] ? fext_data[row['RefCode']][:publisher] : nil),
+              editor: (fext_data[row['RefCode']] ? fext_data[row['RefCode']][:editor] : nil )
+          )
+          @data.references.merge!(row['RefCode'].downcase => b.id)
+
+          b.identifiers.create!(type: 'Identifier::Local::Import', namespace: namespace, identifier: row['RefCode'])
+
+          b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:Location'], value: row['Location'])   if !row['Location'].blank?
+          b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:Source'], value: row['Source'])       if !row['Source'].blank?
+          b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:Check'], value: row['Check'])         if !row['Check'].blank?
+          b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:ChalcFam'], value: row['ChalcFam'])   if !row['ChalcFam'].blank?
+          b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:LanguageA'], value: row['LanguageA']) if !row['LanguageA'].blank?
+          b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:LanguageB'], value: row['LanguageB']) if !row['LanguageB'].blank?
+          b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:LanguageC'], value: row['LanguageC']) if !row['LanguageC'].blank?
+          b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:M_Y'], value: row['M_Y'])             if !row['M_Y'].blank?
+
+          if fext_data[row['RefCode']]
+            b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['RefsExt:Translate'], value: fext_data[row['RefCode']][:translate]) unless fext_data[row['RefCode']][:translate].blank?
+            b.notes.create!(text: fext_data[row['RefCode']][:note]) unless fext_data[row['RefCode']][:note].blank?
+          end
+
+          # - 13  KeywordA  | varchar(2)   | # Tag
+          # - 14  KeywordB  | varchar(2)   | # Tag
+          # - 15  KeywordC  | varchar(2)   | # Tag
+
+
+          ['KeywordA', 'KeywordB', 'KeywordC'].each do |i|
+            k =  Keyword.with_alternate_value_on(:name, row[i]).first
+            b.tags.build(keyword: k) unless k.nil?
+          end
         end
 
 
 
 
 
-          File.foreach(path2) do |csv_line|
-            r = column_values(fix_line(csv_line))
-            fext_data.merge!(
-                r[0] => { translate: r[1], notes: r[2], publisher: r[3], ext_author: r[4], ext_title: r[5], ext_journal: r[6], editor: r[7] }
-            )
-          end
 
-          namespace = Namespace.new(name: 'UCD refCode', short_name: 'UCDabc')
-          namespace.save!
 
-          keywords = {
-              'Refs:Location' => Predicate.new(name: 'Refs::Location', definition: 'The verbatim value in Ref#location.'),
-              'Refs:Source' => Predicate.new(name: 'Refs::Source', definition: 'The verbatim value in Ref#source.'),
-              'Refs:Check' => Predicate.new(name: 'Refs::Check', definition: 'The verbatim value in Ref#check.'),
-              'Refs:LanguageA' => Predicate.new(name: 'Refs::LanguageA', definition: 'The verbatim value in Refs#LanguageA'),
-              'Refs:LanguageB' => Predicate.new(name: 'Refs::LanguageB', definition: 'The verbatim value in Refs#LanguageB'),
-              'Refs:LanguageC' => Predicate.new(name: 'Refs::LanguageC', definition: 'The verbatim value in Refs#LanguageC'),
-              'Refs:ChalcFam' => Predicate.new(name: 'Refs::ChalcFam', definition: 'The verbatim value in Refs#ChalcFam'),
-              'Refs:M_Y' => Predicate.new(name: 'Refs::M_Y', definition: 'The verbatim value in Refs#M_Y.'),
-              'Refs:PDF_file' => Predicate.new(name: 'Refs::PDF_file', definition: 'The verbatim value in Refs#PDF_file.'),
-              'RefsExt:Translate' => Predicate.new(name: 'RefsExt::Translate', definition: 'The verbatim value in RefsExt#Translate.'),
-          }
 
-          keywords.values.each do |k|
-            k.save!
-          end
-
-          i = 0
-
-          File.foreach(path1) do |csv_line|
-            row = column_values(fix_line(csv_line))
-
-            year, month, day = nil, nil, nil
-            if row[4] != 'NULL'
-              year, month, day = row[4].split('-', 3)
-              month = Utilities::Dates::SHORT_MONTH_FILTER[month]
-              month = month.to_s if !month.nil?
-            end
-
-            stated_year = row[2]
-            if year.nil?
-              year = stated_year
-              stated_year = nil
-            end
-
-            title = [row[5],  (fext_data[row[0]] && !fext_data[row[0]][:ext_title].blank? ? fext_data[row[0]][:ext_title] : nil)].compact.join(" ")
-            journal = [row[6],  (fext_data[row[0]] && !fext_data[row[0]][:ext_journal].blank? ? fext_data[row[0]][:ext_journal] : nil)].compact.join(" ")
-            author = [row[1],  (fext_data[row[0]] && !fext_data[row[0]][:ext_author].blank? ? fext_data[row[0]][:ext_author] : nil)].compact.join(" ")
-
-            b = Source::Bibtex.new(
-                author: author,
-                year: (year.blank? ? nil : year.to_i),
-                month: month,
-                day: (day.blank? ? nil : day.to_i) ,
-                stated_year: stated_year,
-                year_suffix: row[3],
-                title: title,
-                booktitle: journal,
-                volume: row[7],
-                pages: row[8],
-                bibtex_type: 'article',
-                language: (row[16] ? Language.where(alpha_2: row[16] ).first : nil),
-                publisher: (fext_data[row[0]] ? fext_data[row[0]][:publisher] : nil),
-                editor: (fext_data[row[0]] ? fext_data[row[0]][:editor] : nil ),
-            )
-
-            b.publisher = nil if b.publisher.blank? # lazy get rid of ""
-            b.editor = nil if b.editor.blank?
-
-            b.save!
-
-            b.identifiers.build(type: 'Identifier::LocalId', namespace: namespace, identifier: row[0])
-
-            b.data_attributes.build(type: 'DataAttribute::InternalAttribute', predicate: keywords['Refs:Location'], value: row[9])    if !row[9].blank?
-            b.data_attributes.build(type: 'DataAttribute::InternalAttribute', predicate: keywords['Refs:Source'], value: row[10])     if !row[10].blank?
-            b.data_attributes.build(type: 'DataAttribute::InternalAttribute', predicate: keywords['Refs:Check'], value: row[11])      if !row[11].blank?
-            b.data_attributes.build(type: 'DataAttribute::InternalAttribute', predicate: keywords['Refs::ChalcFam'], value: row[12])  if !row[12].blank?
-            b.data_attributes.build(type: 'DataAttribute::InternalAttribute', predicate: keywords['Refs:LanguageA'], value: row[16])  if !row[16].blank?
-            b.data_attributes.build(type: 'DataAttribute::InternalAttribute', predicate: keywords['Refs:LanguageB'], value: row[17])  if !row[17].blank?
-            b.data_attributes.build(type: 'DataAttribute::InternalAttribute', predicate: keywords['Refs:LanguageB'], value: row[18])  if !row[18].blank?
-            b.data_attributes.build(type: 'DataAttribute::InternalAttribute', predicate: keywords['Refs:M_Y'], value: row[19])        if !row[19].blank?
-
-            if fext_data[row[0]]
-              b.data_attributes.build(type: 'DataAttribute::InternalAttribute', predicate: keywords['RefsExt:Translate'], value: fext_data[row[0]][:translate]) if !fext_data[row[0]][:translate].blank?
-              b.notes.build(text: fext_data[row[0]][:note]) if !fext_data[row[0]][:note].nil?
-            end
-
-            [13,14,15].each do |i|
-              k =  Keyword.with_alternate_value_on(:name, row[i]).first
-              if k
-                b.tags.build(keyword: k)
-              end
-            end
-
-            !b.save
-
-            print "#{i},"
-            i+=1
-            break if i > 200
-          end
 
 
 
@@ -942,16 +928,16 @@ namespace :tw do
         namespace.save!
 
         keywords = {
-          'Refs:Location' => Predicate.new(name: 'Refs::Location', definition: 'The verbatim value in Ref#location.'),
-          'Refs:Source' => Predicate.new(name: 'Refs::Source', definition: 'The verbatim value in Ref#source.'),
-          'Refs:Check' => Predicate.new(name: 'Refs::Check', definition: 'The verbatim value in Ref#check.'),
-          'Refs:LanguageA' => Predicate.new(name: 'Refs::LanguageA', definition: 'The verbatim value in Refs#LanguageA'),
-          'Refs:LanguageB' => Predicate.new(name: 'Refs::LanguageB', definition: 'The verbatim value in Refs#LanguageB'),
-          'Refs:LanguageC' => Predicate.new(name: 'Refs::LanguageC', definition: 'The verbatim value in Refs#LanguageC'),
-          'Refs:ChalcFam' => Predicate.new(name: 'Refs::ChalcFam', definition: 'The verbatim value in Refs#ChalcFam'),
-          'Refs:M_Y' => Predicate.new(name: 'Refs::M_Y', definition: 'The verbatim value in Refs#M_Y.'),
-          'Refs:PDF_file' => Predicate.new(name: 'Refs::PDF_file', definition: 'The verbatim value in Refs#PDF_file.'),
-          'RefsExt:Translate' => Predicate.new(name: 'RefsExt::Translate', definition: 'The verbatim value in RefsExt#Translate.'),
+          'Refs:Location' => Predicate.find_or_create_by(name: 'Refs::Location', definition: 'The verbatim value in Ref#location.'),
+          'Refs:Source' => Predicate.find_or_create_by(name: 'Refs::Source', definition: 'The verbatim value in Ref#source.'),
+          'Refs:Check' => Predicate.find_or_create_by(name: 'Refs::Check', definition: 'The verbatim value in Ref#check.'),
+          'Refs:LanguageA' => Predicate.find_or_create_by(name: 'Refs::LanguageA', definition: 'The verbatim value in Refs#LanguageA'),
+          'Refs:LanguageB' => Predicate.find_or_create_by(name: 'Refs::LanguageB', definition: 'The verbatim value in Refs#LanguageB'),
+          'Refs:LanguageC' => Predicate.find_or_create_by(name: 'Refs::LanguageC', definition: 'The verbatim value in Refs#LanguageC'),
+          'Refs:ChalcFam' => Predicate.find_or_create_by(name: 'Refs::ChalcFam', definition: 'The verbatim value in Refs#ChalcFam'),
+          'Refs:M_Y' => Predicate.find_or_create_by(name: 'Refs::M_Y', definition: 'The verbatim value in Refs#M_Y.'),
+          'Refs:PDF_file' => Predicate.find_or_create_by(name: 'Refs::PDF_file', definition: 'The verbatim value in Refs#PDF_file.'),
+          'RefsExt:Translate' => Predicate.find_or_create_by(name: 'RefsExt::Translate', definition: 'The verbatim value in RefsExt#Translate.'),
         }
 
         keywords.values.each do |k|

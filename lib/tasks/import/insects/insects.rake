@@ -165,8 +165,11 @@ namespace :tw do
         handle_biological_relationship_classes_insects(@data1, @import)
         handle_preparation_types_insects(@data1, @import)
         handle_people_insects(@data1, @import)
+        GC.start
         handle_taxa_insects(@data1, @import)
+        GC.start
         handle_loans_insects(@data1, @import)
+        GC.start
 
         # !! The following can not be loaded from the database they are always created anew.
 
@@ -178,15 +181,21 @@ namespace :tw do
         @redis.flushall
 
         index_collecting_events_from_accessions_new(@data1, @import)
+        GC.start
         index_collecting_events_from_ledgers(@data1, @import)
+        GC.start
         index_specimen_records_from_specimens_insects(@data1, @import)
+        GC.start
         index_specimen_records_from_specimens_insects_new(@data1, @import)
+        GC.start
         index_specimen_records_from_neon(@data1, @import)
 
         puts "\nTotal collecting events to build: #{@redis.keys.count}."
 
         handle_associations_insects(@data1, @import)
+        GC.start
         handle_loan_specimens_insects(@data1)
+        GC.start
         handle_letters_insects(@data1)
         handle_collection_profile_insects(@data1)
         handle_locality_images(@data1)
