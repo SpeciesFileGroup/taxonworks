@@ -7,18 +7,10 @@ $(document).ready(function() {
 
 function opacityUpdates() {
 	var childs = $(".recent_updates ul").children().length,
-		opacityValue = 1,
-		opacityResult;
+		opacityValue = 1;
 
-	if((childs/10) == 1) {
-		opacityResult = 0.1;
-	} 
-	else {
-		opacityResult = childs/10;
-	};
 	for(i = 1; i <= childs; i++) {
-		$(".recent_updates li:nth-child("+(i)+")").css("opacity", opacityValue);
-		opacityValue -= opacityResult;
+		$(".recent_updates li:nth-child("+(i)+")").css("opacity", (opacityValue-(i*0.1)));
 	}
 }
 
