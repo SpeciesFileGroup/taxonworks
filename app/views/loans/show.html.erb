@@ -26,7 +26,7 @@
   </ul>
 
   <h3> Loan Items </h3>
-  <%= render('/loan_items/loan_table', loan_items: @loan.loan_items) -%>
+    <%= render('/loan_items/loan_table', loan_items: @loan.loan_items.order(:position)) -%>
   <%= @loan.loan_items.any? ? nil : content_tag(:span, 'None.', class: :warning) -%>
 <% end %>
 

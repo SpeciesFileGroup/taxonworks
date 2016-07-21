@@ -29,7 +29,7 @@
         </tr>
         </thead>
         <tbody>
-        <% @loan.loan_items.each do |loan_item| %>
+        <% @loan.loan_items.order(:position).each do |loan_item| %>
             <tr>
               <td><%= object_tag(loan_item.loan_item_object) %></td>
               <td align="center"><%= loan_item.position %></td>
