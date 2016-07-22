@@ -31,7 +31,7 @@ class Tasks::LoansController < ApplicationController
           message = "Loan items #{item_list.to_s} returned on #{save_date}."
         when /create/i # parse the information for taxon determination
           loan_items.each do |item|
-            TaxonDetermination.create(taxon_determination_params)
+            TaxonDetermination.create(local_taxon_determination_params)
             item_list.push(item[0])
           end
           message = "Taxon determinations created for loan items: #{item_list.to_s}."
@@ -51,7 +51,7 @@ class Tasks::LoansController < ApplicationController
 
   private
 
-  def taxon_determination_params
+  def local_taxon_determination_params
     params.require(:taxon_determination).permit(:biological_collection_object_id,
                                                 :otu_id,
                                                 :year_made,
