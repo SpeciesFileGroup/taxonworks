@@ -3,7 +3,7 @@
 
     <%= render partial: '/people/role_picker', locals: {role: Determiner.new(), object: @taxon_determination, f: f} %>
 
-    <div class="field">
+    <div class="field" id="bio_object">
       <%= f.label :biological_collection_object_id %><br>
       <%= render partial: 'workbench/elements/forms/ajax_select',
                  locals: {controller: '/collection_objects',

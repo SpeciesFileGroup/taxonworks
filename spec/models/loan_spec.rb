@@ -64,14 +64,15 @@ describe Loan, :type => :model do
       specify 'create an OTU loan item' do
         expect(true).to be_truthy
       end
+
       specify 'create a collection object loan item' do
         expect(true).to be_truthy
       end
+
       describe 'create a container loan item' do
         specify 'create some collection objects to put in a container' do
           expect(true).to be_truthy
         end
-
       end
     end
   end

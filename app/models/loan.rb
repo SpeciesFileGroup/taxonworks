@@ -106,7 +106,7 @@ class Loan < ActiveRecord::Base
 
   # @return [Scope] of CollectionObject
   def collection_objects
-    list = collection_objects_ids
+    list = collection_object_ids
     if list.empty?
       CollectionObject.where('false')
     else
@@ -117,7 +117,7 @@ class Loan < ActiveRecord::Base
   protected
 
   # @return [Array] collection_object ids
-  def collection_objects_ids
+  def collection_object_ids
     # pile1 = Loan.joins(:loan_items).where(loan_items: {loan_id: self.id})
     retval = []
     loan_items.pluck(:id).each { |item_id|
@@ -126,7 +126,7 @@ class Loan < ActiveRecord::Base
         when /contain/i # if this item is a container
           # link = dump_collection_object_ids(item.loan_item_object)
           # retval.push(link)
-          retval.push(item.loan_item_object.dump_container_contents.map(&:id))
+          retval.push(item.loan_item_object.collection_object_ids)
         when /object/i # if this item is a collection object
           retval.push(item.loan_item_object_id)
         else
