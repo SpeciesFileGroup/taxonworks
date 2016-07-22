@@ -1,0 +1,41 @@
+.papertrail_box {
+  background-color: #FCFCFC;
+  border-radius: 3px;
+  border: 1px solid #e5e5e5;
+  box-shadow: 0 0px 3px 0 #e5e5e5;
+  padding: 10px;
+  margin: 10px 0px 10px 0px;
+  transition: background-color 0.5s ease;
+}
+
+.papertrail_box:hover{
+  background-color: lightgray;
+}
+
+#papertrail_filter_box{
+  width: 500px;
+  display: inline-block;
+  overflow: auto;
+
+  #papertrail_filter_title{
+    padding-bottom: 5px;
+  }
+
+  input{
+    display: block;
+  }
+
+  #papertrail_user_box{
+    width: 200px;
+    float: left;
+  }
+
+  #date_picker_box{
+    width: 250px;
+    float: right;
+
+    .start_datepicker_box{
+      margin-bottom: 5px;
+    }
+  }
+}

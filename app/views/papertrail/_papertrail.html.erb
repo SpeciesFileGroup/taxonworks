@@ -1,6 +1,4 @@
-<div class="papertrail_box">
-  id: <%= papertrail.id -%>
-  <p>
+<div data-user-id="<%= papertrail.whodunnit %>" data-date-created="<%= papertrail.created_at %>" class="papertrail_box">
   <strong>Event:</strong>
   <%= papertrail.event %>
   </p>

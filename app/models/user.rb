@@ -306,6 +306,15 @@ class User < ActiveRecord::Base
     @require_password_presence = true
   end
 
+  def self.find_for_autocomplete(params)
+    # Should we check for a valid term parameter before running the sql query?
+    if params[:term] != nil && params[:term].length > 0
+      return select('id, name').where('name ILIKE ? or name ILIKE ?', params[:term], "#{params[:term]}%")
+    else
+      return {}
+    end
+  end
+
   private
 
   def set_remember_token

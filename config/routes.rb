@@ -534,6 +534,10 @@ TaxonWorks::Application.routes.draw do
       get 'recently_created_data'
       get 'recently_created_stats'
     end
+
+    collection do
+      get 'lookup_user'
+    end
   end
 
   match '/signup', to: 'users#new', via: 'get'
