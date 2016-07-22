@@ -43,6 +43,19 @@ class PapertrailController < ApplicationController
     else
       version_index_a = params[:version_a].to_i;
       version_index_b = params[:version_b].to_i;
+
+      if version_index_a < 1 || version_index_a > @object.versions.length
+        record_not_found
+        return
+      end
+
+      # If version_b index is outside the range treat it as if it means that
+      # we should compare the current version to an older version, thus set it 
+      # equal to version_b index for simplicity for later on
+      if version_index_b < 0 || version_index_b > @object.versions.length
+        version_index_b = version_index_a;
+      end
+
       version_a = @object.versions[version_index_a]
       version_b = @object.versions[version_index_b]
 
@@ -56,6 +69,13 @@ class PapertrailController < ApplicationController
         @user_old = User.find(version_a.whodunnit).name
         @attributes_new = version_b.reify.attributes
         @attributes_old = version_a.reify.attributes
+      end
+
+      # If the index for version_a and version_b match it means
+      # we're comparing the current version against an older one
+      if(version_index_a == version_index_b)
+        @user_new = User.find(@object["created_by_id"]).name
+        @attributes_new = @object.attributes;
       end
 
       render 'compare'

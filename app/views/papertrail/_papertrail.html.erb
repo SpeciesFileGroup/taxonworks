@@ -1,8 +1,8 @@
 <div data-user-id="<%= papertrail.whodunnit %>" data-date-created="<%= papertrail.created_at %>" class="papertrail_box">
+  <input class="version_checkbox" type="checkbox" value="<%= papertrail.index %>" data-version-index="<%= papertrail.index %>">
   <strong>Event:</strong>
   <%= papertrail.event %>
   </p>
-
   <p>
   <strong>User Whodunnit:</strong>
   <%= User.find(papertrail.whodunnit).name %>

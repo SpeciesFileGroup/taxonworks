@@ -2,13 +2,12 @@
 
 <div>Return <%= object_link(@object) -%></div>
 
-<div id="papertrail_filter_box">
-    <h4 id="papertrail_filter_title">Filter by</h4>
-    <div id="papertrail_user_box">
+<div id="filter_box">
+    <h4 id="filter_title">Filter by</h4>
+    <div id="user_box">
         <%= render "users/user_picker" %>
     </div>
-
-    <div id="date_picker_box">
+    <div id="datepicker_box">
         <div class="start_datepicker_box">
             <label for="start_datepicker">Start Date</label>
             <input id="start_datepicker" class="datepicker" type="text" placeholder="Select start date...">
@@ -17,7 +16,17 @@
             <label for="end_datepicker">End Date</label>
             <input id="end_datepicker" class="datepicker" type="text" placeholder="Select end date...">
         </div>
+        <div id="datepicker_error_box">
+            <p id="datepicker_error_message"></p>
+        </div>
     </div>
+</div>
+
+<div id="compare_box">
+    <h4 id="compare_title">Compare by</h4>
+    <p id="compare_info">Select at least one to compare the current version to or select two to compare between</p>
+    <button id="button_select" data-select-mode="0">Select to compare</button>
+    <button id="button_compare_selected">Compare selected</button>
 </div>
 
 <%= render(partial: 'papertrail', collection: @object.versions.drop(1).reverse, locals: {object_id: @object.id, object_type: @object.class}) -%>

@@ -6,18 +6,22 @@
   padding: 10px;
   margin: 10px 0px 10px 0px;
   transition: background-color 0.5s ease;
+  
+  .version_checkbox{
+    float: right;
+  }
 }
 
 .papertrail_box:hover{
   background-color: lightgray;
 }
 
-#papertrail_filter_box{
+#filter_box{
   width: 500px;
   display: inline-block;
   overflow: auto;
 
-  #papertrail_filter_title{
+  #filter_title{
     padding-bottom: 5px;
   }
 
@@ -25,17 +29,38 @@
     display: block;
   }
 
-  #papertrail_user_box{
+  #user_box{
     width: 200px;
     float: left;
   }
 
-  #date_picker_box{
+  #datepicker_box{
     width: 250px;
     float: right;
 
     .start_datepicker_box{
       margin-bottom: 5px;
     }
+
+    #datepicker_error_box{
+      width: 200px;
+
+      #datepicker_error_message{
+        word-wrap: break-word;
+      }
+    }
+  }
+}
+
+#compare_box{
+  width: 500px;
+  float: right;
+
+  #compare_title{
+    padding-bottom: 5px;
+  }
+
+  #button_compare_selected{
+    display: none;
   }
 }
