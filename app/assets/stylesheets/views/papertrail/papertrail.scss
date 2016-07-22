@@ -7,8 +7,10 @@
   margin: 10px 0px 10px 0px;
   transition: background-color 0.5s ease;
   
-  .version_checkbox{
-    float: right;
+  .version_header{
+    .version_checkbox{
+      float: right;
+    }
   }
 }
 
@@ -20,6 +22,7 @@
   width: 500px;
   display: inline-block;
   overflow: auto;
+  padding: 10px;
 
   #filter_title{
     padding-bottom: 5px;
@@ -54,7 +57,9 @@
 
 #compare_box{
   width: 500px;
-  float: right;
+  position: absolute;
+  left: 550px;
+  top: 170px;
 
   #compare_title{
     padding-bottom: 5px;

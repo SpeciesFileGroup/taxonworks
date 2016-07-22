@@ -1,23 +1,22 @@
 <div data-user-id="<%= papertrail.whodunnit %>" data-date-created="<%= papertrail.created_at %>" class="papertrail_box">
-  <input class="version_checkbox" type="checkbox" value="<%= papertrail.index %>" data-version-index="<%= papertrail.index %>">
-  <strong>Event:</strong>
-  <%= papertrail.event %>
-  </p>
-  <p>
-  <strong>User Whodunnit:</strong>
-  <%= User.find(papertrail.whodunnit).name %>
-  </p>
-
-  <p>
-  <strong>Object</strong>
-  <pre><%= papertrail.object %></pre>
-  </p>
-
-  <p>
-  <strong>Created at</strong>
-  <pre><%= papertrail.created_at %></pre>
-  </p>
-  <%#= form_for(@object, url: papertrail_update_path(object_id: object_id, object_type: object_type, restore_version_id: papertrail.index), method: :put, action: 'update') do |f| %>
-  <%#= f.submit "Restore" %>
-  <%# end %>
+  <div class="version_header">
+    <input class="version_checkbox" type="checkbox" value="<%= papertrail.index %>" data-version-index="<%= papertrail.index %>">
+    <p>
+      <strong>Author:</strong>
+      <%= User.find(papertrail.whodunnit).name %>
+    </p>
+    <p>
+      <strong>Created at:</strong>
+      <%= papertrail.created_at %>
+    </p>
+  </div>
+  <div class="version_details">
+    <p>
+      <strong>Object</strong>
+      <pre><%= papertrail.object %></pre>
+    </p>
+    <%#= form_for(@object, url: papertrail_update_path(object_id: object_id, object_type: object_type, restore_version_id: papertrail.index), method: :put, action: 'update') do |f| %>
+    <%#= f.submit "Restore" %>
+    <%# end %>
+  </div>
 </div>
