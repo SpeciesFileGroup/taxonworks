@@ -16,8 +16,8 @@ ActiveRecord::Schema.define(version: 20160725171413) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
-  enable_extension "fuzzystrmatch"
   enable_extension "hstore"
+  enable_extension "fuzzystrmatch"
   enable_extension "citext"
 
   create_table "alternate_values", force: :cascade do |t|
@@ -406,6 +406,9 @@ ActiveRecord::Schema.define(version: 20160725171413) do
     t.integer  "project_id",    null: false
     t.string   "name"
     t.string   "disposition"
+    t.integer  "disposition_x"
+    t.integer  "disposition_y"
+    t.integer  "disposition_z"
     t.integer  "size_x"
     t.integer  "size_y"
     t.integer  "size_z"
