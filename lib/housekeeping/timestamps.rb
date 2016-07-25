@@ -5,6 +5,13 @@
 module Housekeeping::Timestamps
   extend ActiveSupport::Concern
 
+  included do
+    # related_class = self.name
+    # related_table_name = self.table_name
+
+    scope :created_before_date, -> (date) { where('created_at < ?', "#{date}") }
+  end
+
   module ClassMethods
     def created_this_week
       where(created_at: 1.weeks.ago..Time.now) 
