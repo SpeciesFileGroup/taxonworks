@@ -1,60 +1,65 @@
-#  "wet", "dry", or "slide"
+# A collection profile, extensible, but currently sensu INHS/Colin Favret.
+# See Favret, C., et al. "Profiling natural history collections: A method for quantitative and comparative health assessment." 
+# Collection Forum. Vol. 22. No. 1-2. 2007.
+#
+# Data is validated against a .yml definition in config/initializers/constants/data/collection_profile_indices.yml
+# That file is loaded to COLLECTION_PROFILE_INDICES[:Favret][:dry][:conservation_status][1] 
 #
 # @!attribute container_id
 #   @return [Integer]
-#   @todo
+#      the (physical) Container beign profiled 
 #
 # @!attribute otu_id
 #   @return [Integer]
-#   @todo
+#     the encompassing taxon found in this container 
 #
 # @!attribute conservation_status
 #   @return [Integer]
-#   @todo
+#    See Favret et al. (2007) (cited above) 
 #
 # @!attribute processing_state
 #   @return [Integer]
-#   @todo
+#    See Favret et al. (2007) (cited above) 
 #
 # @!attribute container_condition
 #   @return [Integer]
-#   @todo
+#    See Favret et al. (2007) (cited above) 
 #
 # @!attribute condition_of_labels
 #   @return [Integer]
-#   @todo
+#    See Favret et al. (2007) (cited above) 
 #
 # @!attribute identification_level
 #   @return [Integer]
-#   @todo
+#    See Favret et al. (2007) (cited above) 
 #
 # @!attribute arrangement_level
 #   @return [Integer]
-#   @todo
+#    See Favret et al. (2007) (cited above) 
 #
 # @!attribute data_quality
 #   @return [Integer]
-#   @todo
+#    See Favret et al. (2007) (cited above) 
 #
 # @!attribute computerization_level
 #   @return [Integer]
-#   @todo
+#    See Favret et al. (2007) (cited above) 
 #
 # @!attribute number_of_collection_objects
 #   @return [Integer]
-#   @todo
+#     a count of the number of collection objects in this container (asserted, not as calculated in TW) 
 #
 # @!attribute number_of_containers
 #   @return [Integer]
-#   @todo
+#     a count of the number of containers inside this container (asserted, not as calculated in TW) 
 #
 # @!attribute project_id
 #   @return [Integer]
-#   the project ID
+#     the Project ID
 #
 # @!attribute collection_type
 #   @return [String]
-#   @todo
+#     one of 'wet', 'dry', 'slide' sensu Favret.  Model is extensible via editing .yml and new profile types.
 #
 class CollectionProfile < ActiveRecord::Base
   include Housekeeping
@@ -67,12 +72,17 @@ class CollectionProfile < ActiveRecord::Base
   belongs_to :container
   belongs_to :otu
 
+  # Once created the intent is that CollectionProfiles are #dup(ed), not
+  # edited.  If there was a data error pass true here
+  attr_accessor :force_update
+
   scope :with_collection_type_string, -> (type_string) {where(collection_type: type_string)}
-  scope :with_container_id, -> (container) {where(container_id: container) }                     #  better to not add order here .order('created_at DESC') }
-  scope :with_otu_id, -> (otu) {where(otu_id: otu)  }                                           # .order('created_at DESC') }
+  scope :with_container_id, -> (container) {where(container_id: container) }                    
+  scope :with_otu_id, -> (otu) {where(otu_id: otu)  }                                          
 
   # Use shared scopes lib/housekeeping/timestamps for this
-  scope :created_before_date, -> (date) { where('"collection_profiles"."id" in (SELECT DISTINCT ON (id) id FROM collection_profiles WHERE created_at < ? ORDER BY id, created_at DESC)', "#{date}")}
+  # deprecated for timestamps#created_before_date 
+  # scope :created_before_date, -> (date) { where('"collection_profiles"."id" in (SELECT DISTINCT ON (id) id FROM collection_profiles WHERE created_at < ? ORDER BY id, created_at DESC)', "#{date}")}
 
   validates :conservation_status,
             :processing_state,
@@ -82,15 +92,13 @@ class CollectionProfile < ActiveRecord::Base
             :arrangement_level,
             :data_quality,
             :computerization_level,
-            :collection_type,
-            presence: true
+            :collection_type, presence: true
 
-  before_validation :validate_type,
+  validate :validate_type, 
     :validate_number,
-    :validate_indices,
-    :validate_date
+    :validate_indices
 
-  # COLLECTION_PROFILE_INDICES[:Favret][:dry][:conservation_status][1] - see config/initializers/collection_profile.rb for indices
+  validate :prevent_editing, unless: 'self.force_update'
 
   def self.find_for_autocomplete(params)
     Queries::CollectionProfileAutocompleteQuery.new(params[:term]).all.where(project_id: params[:project_id])
@@ -121,8 +129,6 @@ class CollectionProfile < ActiveRecord::Base
 
   #endregion
 
-  #region Validation
-
   private
 
   def validate_type
@@ -146,38 +152,20 @@ class CollectionProfile < ActiveRecord::Base
   def validate_indices
     unless self.collection_type.blank?
       ct = self.collection_type.to_sym
-      unless self.conservation_status.blank?
-        errors.add(:conservation_status, 'Invalid entry') if COLLECTION_PROFILE_INDICES[:Favret][ct][:conservation_status][self.conservation_status].nil?
-      end
-      unless self.processing_state.blank?
-        errors.add(:processing_state, 'Invalid entry') if COLLECTION_PROFILE_INDICES[:Favret][ct][:processing_state][self.processing_state].nil?
-      end
-      unless self.container_condition.blank?
-        errors.add(:container_condition, 'Invalid entry') if COLLECTION_PROFILE_INDICES[:Favret][ct][:container_condition][self.container_condition].nil?
-      end
-      unless self.condition_of_labels.blank?
-        errors.add(:condition_of_labels, 'Invalid entry') if COLLECTION_PROFILE_INDICES[:Favret][ct][:condition_of_labels][self.condition_of_labels].nil?
-      end
-      unless self.identification_level.blank?
-        errors.add(:identification_level, 'Invalid entry') if COLLECTION_PROFILE_INDICES[:Favret][ct][:identification_level][self.identification_level].nil?
-      end
-      unless self.arrangement_level.blank?
-        errors.add(:arrangement_level, 'Invalid entry') if COLLECTION_PROFILE_INDICES[:Favret][ct][:arrangement_level][self.arrangement_level].nil?
-      end
-      unless self.data_quality.blank?
-        errors.add(:data_quality, 'Invalid entry') if COLLECTION_PROFILE_INDICES[:Favret][ct][:data_quality][self.data_quality].nil?
-      end
-      unless self.computerization_level.blank?
-        errors.add(:computerization_level, 'Invalid entry') if COLLECTION_PROFILE_INDICES[:Favret][ct][:computerization_level][self.computerization_level].nil?
+
+      COLLECTION_PROFILE_INDICES[:Favret][ct].keys.each do |a|
+        v = self.send(a)
+        unless v.nil?
+          errors.add(a.to_sym, 'Invalid entry') if COLLECTION_PROFILE_INDICES[:Favret][ct][a.to_sym][v].nil?
+        end
       end
     end
   end
 
-  def validate_date
-    unless self.created_at == self.updated_at
-      errors.add(:updated_at, 'Collection profile should not be updated. Updated version should be saved as a new record')
+  def prevent_editing
+    unless self.new_record? || (self.created_at == self.updated_at) # a little strange, handles Factories?!
+      errors.add(:base, 'Collection profile should not be updated. Updated version should be saved as a new record')
     end
   end
 
-  #endregion
 end

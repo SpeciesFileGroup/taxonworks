@@ -14,32 +14,62 @@ describe CollectionProfile, :type => :model do
     end
   end
 
-  context 'attributes' do 
-    specify 'conservation_status' do
-      expect(collection_profile).to respond_to(:conservation_status)
-    end
-    specify 'processing_state' do
-      expect(collection_profile).to respond_to(:processing_state)
-    end
-    specify 'container_condition' do
-      expect(collection_profile).to respond_to(:container_condition)
-    end
-    specify 'condition_of_labels' do
-      expect(collection_profile).to respond_to(:condition_of_labels)
-    end
-    specify 'identification_level' do
-      expect(collection_profile).to respond_to(:identification_level)
-    end
-    specify 'arrangement_level' do
-      expect(collection_profile).to respond_to(:arrangement_level)
-    end
-    specify 'data_quality' do
-      expect(collection_profile).to respond_to(:data_quality)
-    end
-    specify 'computerization_level' do
-      expect(collection_profile).to respond_to(:computerization_level)
+  context 'attributes include' do
+    COLLECTION_PROFILE_INDICES[:Favret][:wet].keys.each do |k|
+      specify "#{k}" do
+        expect(collection_profile).to respond_to(k)
+      end
     end
   end
+
+  context 'validation' do
+    let(:dry_collection_profile) { FactoryGirl.create(:dry_collection_profile) }
+
+    specify 'a valid profile' do
+      expect(dry_collection_profile.valid?).to be_truthy
+    end
+
+    context 'data is restricted to legal values' do
+      let(:p) { FactoryGirl.build_stubbed(:dry_collection_profile,
+                                          conservation_status: 5,
+                                          processing_state: 5,
+                                          container_condition: 5,
+                                          condition_of_labels: 5,
+                                          identification_level: 5,
+                                          arrangement_level: 5,
+                                          data_quality: 5,
+                                          computerization_level: 5) 
+      }
+
+      specify 'for all profile attributes' do
+        expect(p.valid?).to be_falsey
+      end
+
+      context 'Favret - nothing matches 5' do
+        before { p.valid? }
+        
+        COLLECTION_PROFILE_INDICES[:Favret][:dry].keys.each do |k|
+          specify "#{k}" do
+            expect(p.errors.include?(k.to_sym)).to be_truthy 
+          end
+        end
+      end
+    end
+
+    context 'updates' do
+      let!(:p) { FactoryGirl.create(:dry_collection_profile) }
+      before {   p.updated_at = Time.now + 5.days }
+
+      specify 'are not subsequently allowed' do
+        expect(p.valid?).to be_falsey
+      end
+
+      specify 'unless forced' do
+        p.force_update = true
+        expect(p.valid?).to be_truthy
+      end
+    end 
+  end # end validate
 
   context 'methods' do
     let(:indices) { 
@@ -65,40 +95,10 @@ describe CollectionProfile, :type => :model do
     end
   end
 
-  context 'validate' do
-    specify 'valid profile' do
-      p = FactoryGirl.create(:dry_collection_profile)
-      expect(p.valid?).to be_truthy
-    end
-    specify 'missing fields' do
-      p = FactoryGirl.build_stubbed(:dry_collection_profile,
-                                    conservation_status: 5,
-                                    processing_state: 5,
-                                    container_condition: 5,
-                                    condition_of_labels: 5,
-                                    identification_level: 5,
-                                    arrangement_level: 5,
-                                    data_quality: 5,
-                                    computerization_level: 5)
-      expect(p.valid?).to be_falsey
-      expect(p.errors.include?(:conservation_status)).to be_truthy
-      expect(p.errors.include?(:processing_state)).to be_truthy
-      expect(p.errors.include?(:container_condition)).to be_truthy
-      expect(p.errors.include?(:condition_of_labels)).to be_truthy
-      expect(p.errors.include?(:identification_level)).to be_truthy
-      expect(p.errors.include?(:arrangement_level)).to be_truthy
-      expect(p.errors.include?(:data_quality)).to be_truthy
-      expect(p.errors.include?(:computerization_level)).to be_truthy
-    end
-    specify 'invalid updated_at' do
-      p = FactoryGirl.create(:dry_collection_profile)
-      p.updated_at = Time.now + 5.days
-      expect(p.valid?).to be_falsey
-    end
-  end
+
 
   context 'indices' do
-    specify 'count' do
+    specify 'size(?)' do
       expect(COLLECTION_PROFILE_INDICES[:Favret][:dry][:conservation_status].size).to eq(3)
       expect(COLLECTION_PROFILE_INDICES[:Favret][:wet][:conservation_status].size).to eq(3)
       expect(COLLECTION_PROFILE_INDICES[:Favret][:slide][:conservation_status].size).to eq(3)
@@ -124,10 +124,12 @@ describe CollectionProfile, :type => :model do
       expect(COLLECTION_PROFILE_INDICES[:Favret][:wet][:computerization_level].size).to eq(3)
       expect(COLLECTION_PROFILE_INDICES[:Favret][:slide][:computerization_level].size).to eq(3)
     end
+
     specify 'index value' do
       expect(COLLECTION_PROFILE_INDICES[:Favret][:dry][:conservation_status][1].class).to eq(String)
       expect(COLLECTION_PROFILE_INDICES[:Favret][:dry][:conservation_status][5]).to eq(nil)
     end
+
   end
 
   context 'concerns' do

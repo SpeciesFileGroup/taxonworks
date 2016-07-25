@@ -17,11 +17,15 @@ class CollectionProfilesController < ApplicationController
 
   # GET /collection_profiles/new
   def new
-    @collection_profile = CollectionProfile.new
+    @collection_profile = CollectionProfile.new(collection_type: :dry)
   end
 
   # GET /collection_profiles/1/edit
   def edit
+  end
+
+  def swap_form_attribute_types
+    render partial: 'collection_profile_collection_type_attributes_form', locals: { collection_profile: CollectionProfile.new(params.permit(:collection_type)) }
   end
 
   # POST /collection_profiles
@@ -103,7 +107,7 @@ class CollectionProfilesController < ApplicationController
     params.require(:collection_profile).permit(:container_id, :otu_id, :conservation_status, :processing_state,
                                                :container_condition, :condition_of_labels, :identification_level,
                                                :arrangement_level, :data_quality, :computerization_level,
-                                               :number_of_collection_objects, :number_of_containers, :collection_type
+                                               :number_of_collection_objects, :number_of_containers, :collection_type, :force_update
     )
   end
 end

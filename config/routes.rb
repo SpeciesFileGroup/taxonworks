@@ -108,10 +108,11 @@ TaxonWorks::Application.routes.draw do
   resources :collection_profiles do
     concerns [:data_routes]
   end
+  match 'collection_profiles/swap_form_attribute_types/:collection_type', to: 'collection_profiles#swap_form_attribute_types', via: :get, method: :js
 
   resources :collecting_events do
     concerns [:data_routes]
-    get :autocomplete_collecting_event_verbatim_locality, :on => :collection
+    get :autocomplete_collecting_event_verbatim_locality, on: :collection
     member do
       get :card
     end

@@ -1,77 +1,69 @@
 <%= form_for(@collection_profile) do |f| %>
-    <%= render 'shared/errors', object: @collection_profile %>
+  <%= render 'shared/errors', object: @collection_profile %>
 
-    <div class="field">
-      <%= f.label :container_id %>
-      <br>
-      <%= f.number_field :container_id %>
+  <div class="flexbox">
+    <div class="item item1">
+      <div class="field">
+        <%= f.label :container_id %><br>
+        <%= render 'workbench/elements/forms/ajax_select',
+          controller: 'containers',
+          object: 'collection_profile',
+          method: 'container_id',
+          tag_id: 'container_id_for_collection_profile',
+          size: 60,
+          display: container_tag(@collection_profile.container) %>
     </div>
-    <div class="field">
-      <%= f.label :otu_id %><br>
-      <%= render partial: 'workbench/elements/forms/ajax_select',
-                 locals: {controller: 'otus',
-                          object: 'collection_profile',
-                          method: 'otu_id',
-                          tag_id: 'otu_id_for_collection_profile',
-                          size: '',
-                          display: otu_tag(@collection_profile.otu)} %>
-    </div>
-    <div class="field">
-      <%= f.label :conservation_status %>
-      <br>
-      <%= f.number_field :conservation_status %>
-    </div>
-    <div class="field">
-      <%= f.label :processing_state %>
-      <br>
-      <%= f.number_field :processing_state %>
-    </div>
-    <div class="field">
-      <%= f.label :container_condition %>
-      <br>
-      <%= f.number_field :container_condition %>
-    </div>
-    <div class="field">
-      <%= f.label :condition_of_labels %>
-      <br>
-      <%= f.number_field :condition_of_labels %>
-    </div>
-    <div class="field">
-      <%= f.label :identification_level %>
-      <br>
-      <%= f.number_field :identification_level %>
-    </div>
-    <div class="field">
-      <%= f.label :arrangement_level %>
-      <br>
-      <%= f.number_field :arrangement_level %>
-    </div>
-    <div class="field">
-      <%= f.label :data_quality %>
-      <br>
-      <%= f.number_field :data_quality %>
-    </div>
-    <div class="field">
-      <%= f.label :computerization_level %>
-      <br>
-      <%= f.number_field :computerization_level %>
-    </div>
+
     <div class="field">
       <%= f.label :number_of_collection_objects %>
       <br>
-      <%= f.number_field :number_of_collection_objects %>
+      <%= f.number_field :number_of_collection_objects %> ( calculated items in this container: <%= container_collection_item_count(@collection_profile.container) -%> )
     </div>
+
     <div class="field">
       <%= f.label :number_of_containers %>
       <br>
-      <%= f.number_field :number_of_containers %>
+      <%= f.number_field :number_of_containers %> ( calculated containers in this container: <%= @collection_profile.try(:container).try(:descendants).try(:count) -%> )
     </div>
-    <div class="field">
-      <%= f.label :collection_type %>
-      <br>
-      <%= f.text_field :collection_type %>
     </div>
-    <div class="actions">
-      <%= f.submit %>
+
+    <div class="item item2">
+
+      <div class="field">
+        <%= f.label :collection_type %>
+        <%= content_tag(:em, '(changing type will reset values)') -%>
+        <br>
+        <% COLLECTION_PROFILE_INDICES[:Favret].keys.each do |v| -%>
+          <%= f.radio_button(:collection_type, v, class: [:collection_type_option]) -%> <%= label_tag(v, v) -%> <br>
+        <% end %>
+      </div>
+
+      <div class="field">
+        <%= f.label :otu_id %><br>
+        <%= render 'workbench/elements/forms/ajax_select',
+          controller: 'otus',
+          object: 'collection_profile',
+          method: 'otu_id',
+          tag_id: 'otu_id_for_collection_profile',
+          size: 60,
+          display: otu_autocomplete_selected_tag(@collection_profile.otu) %>
     </div>
+
+    <div id="collection_profile_typed_attributes">
+      <%= render 'collection_profile_collection_type_attributes_form', collection_profile: @collection_profile, f: f -%>
+    </div>
+    </div>
+
+  </div>
+  <div class="field">
+    <%= f.label :force_update %>
+    <br>
+    <%= f.check_box :force_update %>
+  </div>
+
+  <div class="actions">
+    <%= f.submit %>
+  </div>
 <% end %>
+
+

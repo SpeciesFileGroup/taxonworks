@@ -14,8 +14,21 @@ module CollectionProfilesHelper
     render('/collection_profiles/quick_search_form')
   end
 
-# @todo Not sure if this is needed. If it is, there is no collection_profiles.name...
-# def collection_profiles_link_list_tag(collection_profiles)
-#   collection_profiles.collect { |c| link_to(c.name, c) }.join(",")
-# end
+  def collection_profile_attribute_status_tag(collection_profile, attribute)
+    v = collection_profile.send(attribute)
+    v ||= COLLECTION_PROFILE_INDICES[:Favret][collection_profile.collection_type.to_sym][attribute].keys.first
+    "#{v} - " + COLLECTION_PROFILE_INDICES[:Favret][collection_profile.collection_type.to_sym][attribute][v]
+  end
+
+  def collection_profile_select_options(collection_type, attribute, selected)
+    options_for_select(
+      COLLECTION_PROFILE_INDICES[:Favret][collection_type.to_sym][attribute].collect{|i,t| ["#{i} - #{t}", i]},
+      selected: selected
+    )
+  end
+
+  def collection_profile_select(collection_profile, attribute)
+    select_tag("collection_profile[#{attribute}]", collection_profile_select_options(collection_profile.collection_type, attribute, collection_profile.send(attribute))  )
+  end
+
 end

@@ -6,4 +6,11 @@
   <%= content_tag(:li, verify_accessions_task_link(@collection_object))   %>
 <% end %>
 
+<%= content_for :associated do -%>
+  <h3> Taxon Determinations </h3>
+  <% @collection_object.taxon_determinations.each do |td| -%>
+    <%= taxon_determination_link(td) %> 
+  <% end %>
+<% end %>
+
 <%= render(partial: 'shared/data/project/show', locals: {object: @collection_object}) -%>

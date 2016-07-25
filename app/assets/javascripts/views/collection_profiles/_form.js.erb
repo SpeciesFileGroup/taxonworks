@@ -1,0 +1,38 @@
+/*
+
+   Code behind collection_profile attributes updating in /edit and /new
+
+ */
+
+var TW = TW || {};
+TW.views = TW.views || {};
+TW.views.collection_profiles = TW.views.collection_profiles || {};
+TW.views.collection_profiles.form = TW.views.collection_profiles.form || {};
+
+Object.assign(TW.views.collection_profiles.form, { 
+
+  update_collection_type_attributes: function() {
+    var t = $('input[name="collection_profile[collection_type]"]:checked').val();
+    $.get( "/collection_profiles/swap_form_attribute_types/" + t, function( data ) {
+      $( "#collection_profile_typed_attributes" ).html( data );
+    });
+  },
+
+  initialize_selector: function(form) {
+    $('.collection_type_option').change(this.update_collection_type_attributes);
+  } 
+}
+);
+
+
+var _initialize_collection_profile_form;
+
+_initialize_collection_profile_form = function
+initialize_collection_profile_form() {
+  if ( $('#collection_profile_typed_attributes').length ) {
+    TW.views.collection_profiles.form.initialize_selector(); 
+  }
+};
+
+$(document).ready(_initialize_collection_profile_form);
+

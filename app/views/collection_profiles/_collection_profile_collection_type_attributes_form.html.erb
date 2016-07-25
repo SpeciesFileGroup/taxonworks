@@ -1,0 +1,8 @@
+
+<% %I{conservation_status processing_state container_condition condition_of_labels identification_level arrangement_level data_quality computerization_level}.each do |v| %>
+  <div class="field">
+    <%= label_tag("collection_profile_#{v}", v.to_s.humanize)   %><br>
+    <%= collection_profile_select(collection_profile, v) %>
+  </div>
+<% end -%>
+
