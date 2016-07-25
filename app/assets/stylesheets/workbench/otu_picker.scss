@@ -1,0 +1,90 @@
+@import 'base/palette';
+
+.otu_picker_autocomplete {
+	position: relative;
+}
+.otu_picker {
+	.new_plus {
+		display: none;
+	}
+}
+
+.new_added {
+	display: none;
+	border-radius: 50%;
+	width: 30px;
+	height: 30px;
+	background-color: $navigation_background;
+	background-image: image-url("ok.svg");
+	background-position: center;
+	background-repeat: no-repeat;
+	transition: background-color, 0.5s ease;
+	background-color: #AED581;
+}
+
+.inline_otu_picker {
+	display: flex;
+	align-items: center;
+	flex-direction: row;
+	input {
+		width: 300px;
+	}	
+	.new_plus {
+		margin: 5px;
+	}
+}
+
+#new_otu {
+	width: 240px;
+	border-radius: 2px;
+	box-shadow: 0px 2px 3px 0px $navigation_border;
+	border: 1px solid $navigation_border;
+	padding: 15px;
+	margin-bottom: 15px;
+	position: relative;
+	flex-direction: row;
+	.fields {
+		padding-left: 15px;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+	}
+	.field {
+		display: flex;
+		flex-direction: column;
+		label {
+			text-align: left;
+		}
+	}
+	#new_otu:active {
+		transition: block 0.3s ease;
+	}
+	.link {
+		align-items: center;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+	}
+
+	#otu_picker_new_undo {
+		position: absolute;
+		top:5px;
+		right: -15px;
+	}
+
+	#otu_picker_new_undo:hover {
+		-webkit-animation-name: rotate; 
+		-webkit-animation-duration: 0.5s; 
+		-webkit-animation-iteration-count: 1;
+		-webkit-animation-timing-function: linear;
+		-moz-animation-name: rotate; 
+		-moz-animation-duration: 0.5s; 
+		-moz-animation-iteration-count: 1;
+		-moz-animation-timing-function: linear;
+	}
+	@-webkit-keyframes rotate {
+		from {-webkit-transform: rotate(360deg);}
+		to {-webkit-transform: rotate(0deg);}
+	}	
+}

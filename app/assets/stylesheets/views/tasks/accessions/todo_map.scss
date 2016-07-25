@@ -1,0 +1,29 @@
+@import 'base/palette';
+
+#todo_map {
+  display: flex;
+  flex-direction: row;
+  flex-flow: row wrap;
+
+  .card {
+    display: flex;
+    height: 40px;
+    width: 50px;
+    border: 1px solid silver;
+    padding: .2em; 
+    margin: .5em;
+    
+     align-items: center;
+     p {
+       width: 100%;
+       text-align: center;
+     }
+  }
+
+  .finished {
+    background-color: $color-complement-0;
+  }
+
+
+}
+

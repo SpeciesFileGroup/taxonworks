@@ -30,11 +30,24 @@ class Tasks::LoansController < ApplicationController
           end
           message = "Loan items #{item_list.to_s} returned on #{save_date}."
         when /create/i # parse the information for taxon determination
-          loan_items.each do |item|
-            TaxonDetermination.create(local_taxon_determination_params)
-            item_list.push(item[0])
+          collection_object_ids = []
+          loan_items.each do |id| # only collection objects get taxon determination
+            item = LoanItem.find(id[0])
+            case item.loan_item_object_type
+              when /object/i # collection object
+                collection_object_ids.push(item.loan_item_object_id)
+              when /contain/i # container
+                collection_object_ids.push(item.loan_item_object.collection_object_ids)
+              else # otu, for instance
+                # next
+            end
+            item_list.push(item.id)
           end
-          message = "Taxon determinations created for loan items: #{item_list.to_s}."
+          list = collection_object_ids.flatten
+          list.each do |bio_object_id|
+            TaxonDetermination.create(local_taxon_determination_params.merge(biological_collection_object_id: bio_object_id))
+          end
+          message = "#{list.count} Taxon determinations created for loan items: #{item_list.flatten.to_s}."
         else
           # nothing to do, really
       end

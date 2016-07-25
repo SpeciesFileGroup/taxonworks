@@ -1,0 +1,97 @@
+@import 'base/dimensions';
+@import 'base/palette';
+
+// Used for model/index routes only
+
+#model_index.shared {
+  border-left:4px solid $color-secondary-1-3;
+}
+
+#model_index.application_defined {
+  border-left:4px solid $color-primary-4;
+}	
+
+#model_index {
+  border-radius:3px;
+  margin:0 auto;
+  width:1080px;
+  position: absolute;
+  z-index:5;
+  top: 40%;
+  left: 50%;
+  transform: translateY(-75%) translateX(-50%);
+  background-color:$panel_background;
+  border:1px solid $navigation_border;
+  box-shadow: 0 0px 3px 0 $navigation_border;
+  align-items: center; 
+  border-left: 4px solid $color-secondary-2-4;
+
+  &.flexbox {
+    justify-content: space-around;
+	flex-flow: row wrap;
+  }
+
+	.favourite_link {
+	    background-image: image-url('empty_star.svg');
+	    background-size: 24px;
+	    margin-right: 15px;
+	    margin-left: 15px;
+	    background-position: left, center;
+	    padding: 24px;
+	    padding-right: 0px;
+	    font-size: 0px;
+	    background-repeat: no-repeat;
+	    text-decoration: none;
+	  }
+	 .unfavorite_link {
+	    font-size: 0px;
+	    margin-right: 15px;
+	    margin-left: 15px;
+	    padding: 24px;
+	    padding-right: 0px;
+	    background-image: image-url('star.svg');
+	    background-size: 24px;
+	    background-position: left, center;
+	    background-repeat: no-repeat;    
+	    text-decoration: none;   
+	}
+  
+  h1 {
+	  font-weight:100;
+  }
+  
+  a {
+  	font-weight: 100;
+	padding:8px;
+	text-decoration:none;
+	background-size:15px;
+	background-position:5px center;
+	background-repeat: no-repeat;
+	padding-left:25px;
+  }
+  
+  input[type="text"] {
+	  width:250px;
+  }
+
+	.icon-download a
+	{
+		background-image: image-url('download.svg');
+	}
+	
+	.icon-fav-star {
+		width:20px; display:inline; padding-right:5px;	
+	}
+  
+   min-height: 50px;
+  
+  .item {
+	  text-align: center;
+	  display: flex;
+	  flex-direction: row;
+	  justify-content: center;
+	  align-items: center;
+  }
+}
+
+

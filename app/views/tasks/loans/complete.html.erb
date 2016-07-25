@@ -3,17 +3,6 @@
 <h3>Loan to : <%= object_tag(@loan) %>, Loan ID: <%= @loan.id %></h3>
 <!-- Listing the collection objects -->
 <div id="loan_completion_widget" hidden="hidden">
-  <!--<%#= form_tag(loan_items_list_path, {method: :get}) do %>-->
-<%#= render partial: 'workbench/elements/forms/ajax_select',
-               locals:  {controller: '/loans',
-                         object:     nil,
-                         method:     'loan_id',
-                         tag_id:     'loan_id_for_loan_complete_form',
-                         size:       '',
-                         display:    ''} %>
-<%#= submit_tag 'Show' %>
-  <!--<%# end %>-->
-
   <%= form_tag(loan_items_action_url, {method: 'get'}) do %>
       <%= hidden_field_tag('loan_id', @loan.id) %>
       <table border="1">

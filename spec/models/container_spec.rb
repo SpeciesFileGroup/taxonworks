@@ -41,15 +41,23 @@ describe Container, :type => :model do
 
   context '.containerize()' do
     let(:objects) {  [Specimen.create, Specimen.create] }
-    let(:c) {  Container.containerize(objects) } 
+    let(:c) { Container.containerize(objects) }
+
+    specify 'dumping out collection objects' do
+      expect(c.dump_container_contents).to contain_exactly(objects[0], objects[1])
+    end
+
+    specify 'dumping out collection object ids' do
+      expect(c.collection_object_ids).to contain_exactly(objects[0].id, objects[1].id)
+    end
 
     specify 'defaults to Container::Virtual'  do
-      expect(c.class).to eq(Container::Virtual) 
+      expect(c.class).to eq(Container::Virtual)
     end
 
     specify 'builds container items' do
       # size - in memory
-      expect(c.container_items.size).to eq(2) 
+      expect(c.container_items.size).to eq(2)
     end
 
     specify 'is not saved by default' do
@@ -63,7 +71,7 @@ describe Container, :type => :model do
     specify 'when saved saves container objects' do
       c.save
       expect(c.container_items.count).to eq(2)
-    end 
+    end
   end
 
   context 'containable items' do

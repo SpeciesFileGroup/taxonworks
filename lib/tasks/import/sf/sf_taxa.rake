@@ -36,11 +36,21 @@ namespace :tw do
 
 # pass 2
 
+      # desc 'try the logger utility'
+      # ### time rake tw:project_import:sf_taxa:try_logger user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
+      # LoggedTask.define :try_logger => [:data_directory, :environment, :user_id] do |logger|
+      #   logger.info "This is :try_logger"
+      #   logger.warn "This is a logger warning"
+      #   logger.error "This is a big bad nasty error message"
+      # end
+
+
       desc 'create all SF taxa (pass 1)'
       ### time rake tw:project_import:sf_taxa:create_all_sf_taxa_pass1 user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
-      task :create_all_sf_taxa_pass1 => [:data_directory, :environment, :user_id] do
+      LoggedTask.define :create_all_sf_taxa_pass1 => [:data_directory, :environment, :user_id] do | logger |
+        # LoggedTask.define :update_sources_with_booktitle_publisher_address => [:data_directory, :environment, :user_id] do | logger |
 
-        puts 'Creating all SF taxa (pass 1)...'
+        logger.info 'Creating all SF taxa (pass 1)...'
 
         import = Import.find_or_create_by(name: 'SpeciesFileData')
         get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
@@ -49,14 +59,16 @@ namespace :tw do
         get_tw_project_id = import.get('SFFileIDToTWProjectID')
         get_animalia_id = import.get('ProjectIDToAnimaliaID') # key = TW.Project.id, value TW.TaxonName.id where Name = 'Animalia', used when AboveID = 0
         get_sf_parent_id = import.get('SFSynonymIDToSFParentID')
+        get_otu_sf_above_id = import.get('SFBadValidNameIDToSFAboveID')
+        get_sf_new_parent_id = import.get('SFSubordinateIDToSFNewParentID')
 
         get_tw_taxon_name_id = {} # key = SF.TaxonNameID, value = TW.taxon_name.id
         get_sf_name_status = {} # key = SF.TaxonNameID, value = SF.NameStatus
         get_sf_status_flags = {} # key = SF.TaxonNameID, value = SF.StatusFlags
-        get_tw_otu_id = {} # key = SF.TaxonNameID, value = TW.otu.id; used for temporary SF taxa
+        get_tw_otu_id = {} # key = SF.TaxonNameID, value = TW.otu.id; used for temporary or bad valid SF taxa
 
-        path = @args[:data_directory] + 'tblTaxa.txt'
-        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+        path = @args[:data_directory] + 'tblTaxaByStr.txt'
+        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
         error_counter = 0
         count_found = 0
@@ -70,7 +82,7 @@ namespace :tw do
 
           project_id = get_tw_project_id[row['FileID']]
 
-          print "Working with TW.project_id: #{project_id} = SF.FileID #{row['FileID']}, SF.TaxonNameID #{taxon_name_id} (count #{count_found += 1}) \n"
+          logger.info "Working with TW.project_id: #{project_id} = SF.FileID #{row['FileID']}, SF.TaxonNameID #{taxon_name_id} (count #{count_found += 1}) \n"
 
           animalia_id = get_animalia_id[project_id.to_s]
 
@@ -78,19 +90,23 @@ namespace :tw do
             parent_id = animalia_id
           elsif row['NameStatus'] == '7' # = synonym
             parent_id = get_tw_taxon_name_id[get_sf_parent_id[taxon_name_id]] # assumes tw_taxon_name_id exists
+          elsif get_otu_sf_above_id.has_key?(taxon_name_id) # bad valid sf taxon name
+            parent_id = get_otu_sf_above_id[taxon_name_id]
+          elsif get_sf_new_parent_id.has_key?(taxon_name_id) # subordinate of bad valid taxon name
+            parent_id = get_sf_new_parent_id[taxon_name_id]
           else
             parent_id = get_tw_taxon_name_id[row['AboveID']]
           end
 
           if parent_id == nil
-            puts "ALERT: Could not find parent_id (error #{no_parent_counter += 1}! Set to animalia_id = #{animalia_id}"
+            logger.warn "ALERT: Could not find parent_id (error #{no_parent_counter += 1}! Set to animalia_id = #{animalia_id}"
             parent_id = animalia_id # this is problematic; need real solution
           end
 
           name_status = row['NameStatus']
           status_flags = row['StatusFlags']
 
-          if name_status == '2' # temporary, create OTU, not TaxonName
+          if name_status == '2' or get_otu_sf_above_id.has_key?(taxon_name_id) # temporary, create OTU, not TaxonName
             otu = Otu.new(
                 name: row['Name'],
                 taxon_name_id: parent_id,
@@ -102,13 +118,13 @@ namespace :tw do
             )
 
             if otu.save
-              puts "  Note!! Created OTU for temporary taxon, otu.id: #{otu.id}"
+              logger.info "Note!! Created OTU for temporary taxon, otu.id: #{otu.id}"
               get_tw_otu_id[row['TaxonNameID']] = otu.id.to_s
               get_sf_name_status[row['TaxonNameID']] = name_status
               get_sf_status_flags[row['TaxonNameID']] = status_flags
 
             else
-              puts "     OTU ERROR (#{error_counter += 1}): " + otu.errors.full_messages.join(';')
+              logger.error "OTU ERROR (#{error_counter += 1}): " + otu.errors.full_messages.join(';')
             end
 
           else
@@ -233,8 +249,7 @@ namespace :tw do
               get_sf_status_flags[row['TaxonNameID']] = status_flags
 
             else
-              puts "     TaxonName ERROR (#{error_counter += 1}) AFTER synonym test: " + taxon_name.errors.full_messages.join(';')
-              puts "parent_id = #{parent_id}"
+              logger.error "TaxonName ERROR (#{error_counter += 1}) AFTER synonym test (parent_id = #{parent_id}): " + taxon_name.errors.full_messages.join(';')
             end
           end
         end
@@ -244,13 +259,13 @@ namespace :tw do
         import.set('SFTaxonNameIDToSFStatusFlags', get_sf_status_flags)
         import.set('SFTaxonNameIDToTWOtuID', get_tw_otu_id)
 
-        puts 'SFTaxonNameIDToTWTaxonNameID'
+        logger.info 'SFTaxonNameIDToTWTaxonNameID'
         ap get_tw_taxon_name_id
-        puts 'SFTaxonNameIDToSFNameStatus'
+        logger.info 'SFTaxonNameIDToSFNameStatus'
         ap get_sf_name_status
-        puts 'SFTaxonNameIDToSFStatusFlags'
+        logger.info 'SFTaxonNameIDToSFStatusFlags'
         ap get_sf_status_flags
-        puts 'SFTaxonNameIDToTWOtuID'
+        logger.info 'SFTaxonNameIDToTWOtuID'
         ap get_tw_otu_id
 
       end
@@ -262,7 +277,7 @@ namespace :tw do
 
         puts 'Running bad valid name and sub parent hashes...'
 
-        get_sf_above_id = {} # key = SF.TaxonNameID of bad valid name, value = SF.AboveID of bad valid name
+        get_otu_sf_above_id = {} # key = SF.TaxonNameID of bad valid name, value = SF.AboveID of bad valid name
         get_sf_new_parent_id = {} # key = SF.TaxonNameID of bad valid name subordinate, value = SF.AboveID of bad valid name
 
         path = @args[:data_directory] + 'sfBadValidNames.txt'
@@ -277,18 +292,18 @@ namespace :tw do
           print "working with TaxonNameID = #{taxon_name_id}, MakeOTU = #{make_otu} \n"
 
           if make_otu == '1'
-            get_sf_above_id[taxon_name_id] = use_above_id
+            get_otu_sf_above_id[taxon_name_id] = use_above_id
           else
             get_sf_new_parent_id[taxon_name_id] = use_above_id
           end
         end
 
         import = Import.find_or_create_by(name: 'SpeciesFileData')
-        import.set('SFBadValidNameIDToSFAboveID', get_sf_above_id)
+        import.set('SFBadValidNameIDToSFAboveID', get_otu_sf_above_id)
         import.set('SFSubordinateIDToSFNewParentID', get_sf_new_parent_id)
 
         puts 'SFBadValidNameIDToSFAboveID'
-        ap get_sf_above_id
+        ap get_otu_sf_above_id
 
         puts 'SFSubordinateIDToSFNewParentID'
         ap get_sf_new_parent_id
