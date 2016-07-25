@@ -1,1 +1,16 @@
+<% content_for :associated do -%>
+
+  <h3> Nested containers </h3>
+  <% @container.descendants.each do |c| -%>
+    <%= object_link(c) -%> </br>
+  <% end %>
+  <%= content_tag(:em, 'None.') if @container.descendants.count == 0 -%>
+
+  <h3> Contained objects </h3>
+  <% @container.container_items.each do |i| -%>
+    <%= object_link(i) -%> </br>
+  <% end %>
+  <%= content_tag(:em, 'None.') if @container.container_items.count == 0 -%>
+<% end %>
+
 <%= render(partial: 'shared/data/project/show', locals: {object: @container}) -%>
