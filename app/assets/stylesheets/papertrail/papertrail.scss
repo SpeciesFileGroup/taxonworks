@@ -28,18 +28,26 @@
     padding-bottom: 5px;
   }
 
-  input{
-    display: block;
-  }
-
   #user_box{
     width: 200px;
     float: left;
+
+    .user_item_box{
+      height: 25px;
+
+      label, input{
+        float: left;
+      }
+    }
   }
 
   #datepicker_box{
     width: 250px;
     float: right;
+
+    input{
+      display: block;
+    }
 
     .start_datepicker_box{
       margin-bottom: 5px;

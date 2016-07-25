@@ -114,17 +114,6 @@ class UsersController < ApplicationController
     render json: @user.data_breakdown_for_chartkick_recent
   end
 
-  def lookup_user
-    @user = User.find_for_autocomplete(params)
-
-    render json: @user.collect { |u|
-      {
-        name: u.name,
-        object_id: u.id
-      }
-    }
-  end
-
   private
 
     def user_params

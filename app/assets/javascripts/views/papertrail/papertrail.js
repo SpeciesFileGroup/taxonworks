@@ -1,10 +1,11 @@
 PAPERTRAIL = {
     versions_selected: 0,
     $versions: null,
-    $checkboxes: null,
-    $prev_checkbox: null,
+    $version_checkboxes: null,
+    $prev_version_checkbox: null,
     $button_select: null,
     $button_compare: null,
+    $user_checkboxes: null,
 
     initialize: function(){
         PAPERTRAIL.$versions = $(".papertrail_box");
@@ -15,13 +16,26 @@ PAPERTRAIL = {
         if(PAPERTRAIL.$versions.length == 0)
             return false;
 
+        // User checkboxes
+        PAPERTRAIL.$user_checkboxes = $(".user_item")
+        PAPERTRAIL.$user_checkboxes.click(PAPERTRAIL.update_versions_list)
+        PAPERTRAIL.$user_checkboxes.prop("checked", true);
+
+        // Compare buttons
         PAPERTRAIL.$button_select = $("#button_select");
         PAPERTRAIL.$button_compare = $("#button_compare_selected");
 
-        PAPERTRAIL.$checkboxes = $(".version_checkbox");
-        PAPERTRAIL.$checkboxes.hide();
+        PAPERTRAIL.$button_select.click(function(){
+            PAPERTRAIL.button_select_clicked();
+        });
 
-        PAPERTRAIL.$checkboxes.click(function(e){
+        PAPERTRAIL.$button_compare.click(PAPERTRAIL.button_compare_clicked);
+
+        // Version checkboxes
+        PAPERTRAIL.$version_checkboxes = $(".version_checkbox");
+        PAPERTRAIL.$version_checkboxes.hide();
+
+        PAPERTRAIL.$version_checkboxes.click(function(e){
             e.stopPropagation();
             PAPERTRAIL.checkbox_clicked($(this));
         });
@@ -32,32 +46,17 @@ PAPERTRAIL = {
             $checkbox.prop("checked", !$checkbox.prop("checked"));
             PAPERTRAIL.checkbox_clicked($checkbox);
         });
-
-        PAPERTRAIL.$button_select.click(function(){
-            PAPERTRAIL.button_select_clicked();
-        });
-
-        PAPERTRAIL.$button_compare.click(PAPERTRAIL.button_compare_clicked);
         
         // Set up the datepickers and callbacks
         $(".datepicker").datepicker();
         $(".datepicker").change(PAPERTRAIL.update_versions_list);
-
-        // Update versions list when a user has been added to the list
-        $(".user_picker_autocomplete").on("autocompleteclose", PAPERTRAIL.update_versions_list);
-
-        // Update versions list when a user has been removed from the list
-        $(".user_filter_list").click(function(e){ 
-            if($(e.target).hasClass("remove_user_item"))
-                PAPERTRAIL.update_versions_list();
-        });
     },
 
     // Shows/Hides papertrail version based on user filter list criteria
     update_versions_list: function(){
         PAPERTRAIL.exit_compare_mode();
 
-        let user_ids = PAPERTRAIL.get_users_from_list();
+        let user_names = PAPERTRAIL.get_users_from_list();
         let dates = PAPERTRAIL.get_dates();
 
         // Iterate over each version checking it against users and dates from the filter box
@@ -74,11 +73,11 @@ PAPERTRAIL = {
                 hide = true;
 
             // Hide papertrails modified by users in the filter list
-            if(!hide && user_ids.length > 0){
+            if(!hide){
                 let found = false;
 
-                for(let user_id_index = 0; user_id_index < user_ids.length; user_id_index++){
-                    if(user_ids[user_id_index] === $version.data("user-id")){
+                for(let user_id_index = 0; user_id_index < user_names.length; user_id_index++){
+                    if(user_names[user_id_index] === $version.data("user-name")){
                         found = true;
                         break;
                     }
@@ -96,23 +95,24 @@ PAPERTRAIL = {
         }
     },
 
-    // Gets all the user ids in the uscheckeder filter list
+    // Gets all the user names from checkboxes that are checked
+    // in the user filter list
     // Returns array of user ids
     get_users_from_list: function(){
-        let user_ids = [];
-        let $users = $(".user_item");
+        let user_names = [];
 
-        for(let i = 0; i < $users.length; i++)
-            user_ids.push($($users[i]).data("user-id"));
+        for(let i = 0; i < PAPERTRAIL.$user_checkboxes.length; i++)
+            if(PAPERTRAIL.$user_checkboxes[i].checked)
+                user_names.push(PAPERTRAIL.$user_checkboxes[i].getAttribute("data-user-name"));
 
-        return user_ids;
+        return user_names;
     },
 
     // Gets the dates from the filter box
     // Returns an object with members start and end
     // which contain the start and end dates.
     // If a date is not parseable the respective member is null
-    // or if start date is button_select_clickedafter end date they are both null
+    // or if start date is button_select_clicked after end date they are both null
     get_dates: function(){
         let start_date = new Date($("#start_datepicker").val());
         let end_date = new Date($("#end_datepicker").val());
@@ -157,8 +157,8 @@ PAPERTRAIL = {
     // Show compare button and version checkboxes
     enter_compare_mode: function(){
         PAPERTRAIL.versions_selected = 0;
-        PAPERTRAIL.$checkboxes.prop("checked", false);
-        PAPERTRAIL.$checkboxes.show();
+        PAPERTRAIL.$version_checkboxes.prop("checked", false);
+        PAPERTRAIL.$version_checkboxes.show();
         PAPERTRAIL.$button_compare.show();
         PAPERTRAIL.$button_compare.prop("disabled", true);
         PAPERTRAIL.$button_select.html("Cancel select to compare");
@@ -167,7 +167,7 @@ PAPERTRAIL = {
 
     // Hide compare button and version checkboxes
     exit_compare_mode: function(){
-        PAPERTRAIL.$checkboxes.hide();
+        PAPERTRAIL.$version_checkboxes.hide();
         PAPERTRAIL.$button_compare.hide();
         PAPERTRAIL.$button_select.html("Select to compare");
         PAPERTRAIL.$button_select.data("select-mode", 0);
@@ -177,9 +177,9 @@ PAPERTRAIL = {
     button_compare_clicked: function(){
         let version_ids = [];
 
-        for(let i = 0; i < PAPERTRAIL.$checkboxes.length; i++)
-            if(PAPERTRAIL.$checkboxes[i].checked)
-                version_ids.push($(PAPERTRAIL.$checkboxes[i]).data("version-index"));
+        for(let i = 0; i < PAPERTRAIL.$version_checkboxes.length; i++)
+            if(PAPERTRAIL.$version_checkboxes[i].checked)
+                version_ids.push($(PAPERTRAIL.$version_checkboxes[i]).data("version-index"));
 
         if(version_ids.length < 2)
             version_ids.push(-1);
@@ -201,11 +201,11 @@ PAPERTRAIL = {
                 PAPERTRAIL.$button_compare.prop("disabled", false);
 
             else if(PAPERTRAIL.versions_selected >= 3){
-                PAPERTRAIL.$prev_checkbox.prop("checked", false);
+                PAPERTRAIL.$prev_version_checkbox.prop("checked", false);
                 PAPERTRAIL.versions_selected = 2;
             }
 
-            PAPERTRAIL.$prev_checkbox = $checkbox;
+            PAPERTRAIL.$prev_version_checkbox = $checkbox;
         }
 
         else{

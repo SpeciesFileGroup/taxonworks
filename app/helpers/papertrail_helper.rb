@@ -126,6 +126,8 @@ module PapertrailHelper
         }
     end
 
+    # Returns an html string of <p> where a <p> is given the class of 
+    # style_class if it is in the highlighted_words array
     def get_highlighted_words words, highlighted_words, highlighted_words_indices, style_class
         start_index = 0
         end_index = 0
@@ -159,5 +161,24 @@ module PapertrailHelper
         end
 
         return html_string.html_safe
+    end
+
+    # Returns a hash of all the unique authors for a papertrail obj
+    # hash key is the author email, hash value is the author name
+    def get_unique_authors version_list
+        unique_authors = {}
+
+        # Iterate over each version
+        version_list.each do |version|
+            version_author = User.find(version.whodunnit)
+
+            # If the current version author email is not present in the
+            # unique_authors hash, add it
+            if !unique_authors.key?(version_author.email)
+                unique_authors[version_author.email] = version_author.name
+            end
+        end
+
+        return unique_authors
     end
 end

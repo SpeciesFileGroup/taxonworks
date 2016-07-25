@@ -5,7 +5,14 @@
 <div id="filter_box">
     <h4 id="filter_title">Filter by</h4>
     <div id="user_box">
-        <%= render "users/user_picker" %>
+        <% unique_authors = get_unique_authors(@object.versions.drop(1).reverse) %>
+
+        <% unique_authors.each do |key, value| %>
+            <div class="user_item_box">
+                <input id="<%= value %>" class="user_item" type="checkbox" data-user-name="<%= value %>">
+                <label for="<%= value %>"><%= value %></label>
+            </div>
+        <% end %>
     </div>
     <div id="datepicker_box">
         <div class="start_datepicker_box">
