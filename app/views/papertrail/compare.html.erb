@@ -1,6 +1,6 @@
 <div class="compare-content">
     <h1>Compare</h1>
-    <div>Return <%= object_link(@object) -%></div>
+    <div><%= link_to('Return', papertrail_path(object_type: @object.class, object_id: @object.id))-%></div>
     <table class="compare-table">
         <tr class="compare-table-row">
             <td>

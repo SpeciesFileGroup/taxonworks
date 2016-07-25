@@ -114,30 +114,39 @@ PAPERTRAIL = {
     // If a date is not parseable the respective member is null
     // or if start date is button_select_clicked after end date they are both null
     get_dates: function(){
-        let start_date = new Date($("#start_datepicker").val());
-        let end_date = new Date($("#end_datepicker").val());
-        let start_date_valid = !isNaN(start_date.getTime());
-        let end_date_valid = !isNaN(end_date.getTime());
+        let start_date = null;
+        let end_date = null;
+        let start_date_valid = is_valid_date($("#start_datepicker").val());
+        let end_date_valid = is_valid_date($("#end_datepicker").val());
         let $datepicker_error_message = $("#datepicker_error_message");
+        let date_error_message = "";
 
-        $datepicker_error_message.text("");
-        $datepicker_error_message.hide();
+        if(start_date_valid){
+            start_date = new Date($("#start_datepicker").val());
+            start_date.setHours(0, 0, 0, 0);
+        }
 
-        if(!start_date_valid)
-            start_date = null;
+        else
+            date_error_message += "Invalid start date<br>"
 
-        if(!end_date_valid)
-            end_date = null;
+        if(end_date_valid){
+            end_date = new Date($("#end_datepicker").val());
+            end_date.setHours(23, 59, 59, 999);
+        }
+
+        else
+            date_error_message += "Invalid end date<br>"
 
         if(start_date_valid && end_date_valid){
             if(start_date > end_date){
-                $datepicker_error_message.text("Error: Start date is after end date");
-                $datepicker_error_message.show();
+                date_error_message = "Error: Start date is after end date<br>";
                 
                 start_date = null;
                 end_date = null;
             }
         }
+
+        $datepicker_error_message.html(date_error_message);
 
         return {start: start_date, end: end_date};
     },
@@ -214,6 +223,19 @@ PAPERTRAIL = {
             if(PAPERTRAIL.versions_selected == 0)
                 PAPERTRAIL.$button_compare.prop("disabled", true);
         }
+    },
+
+    // Returns date string for the first of the oldest version,
+    // string format 'mm/dd/yyyy'
+    get_oldest_version_date: function(){
+        // This assumes that the last element in the version list is the oldest
+        // This is dependant on the order that the version list is passed
+        // into the papertrail partial
+        let oldest_date = new Date(PAPERTRAIL.$versions[PAPERTRAIL.$versions.length - 1].getAttribute("data-date-created"));
+        
+        oldest_date.setHours(0, 0, 0, 0);
+
+        return convert_date_to_string(oldest_date);
     }
 };
 
