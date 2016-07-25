@@ -50,6 +50,33 @@
 	box-shadow: 0px 1px 2px 0px #888;
 	margin: 5px;
 }
+
+#otu_picker_add_ok {
+	border-radius: 50%;
+	width: 30px;
+	height: 30px;
+	display: block;
+	background-color: #AED581;
+	font-size: 0px;
+	background-position: center;
+	background-repeat: no-repeat;
+	background-image: image-url("ok.svg");
+	box-shadow: 0px 1px 2px 0px #888;
+}
+
+#otu_picker_new_undo {
+	border-radius: 50%;
+	width: 30px;
+	height: 30px;
+	display: block;
+	background-color: #F44336;
+	font-size: 0px;
+	background-position: center;
+	background-repeat: no-repeat;
+	background-image: image-url("undo.svg");
+	box-shadow: 0px 1px 2px 0px #888;	
+}
+
 .new_plus, .add_total_row {
 	@extend .circle-button;
 	background-color: #AED581;

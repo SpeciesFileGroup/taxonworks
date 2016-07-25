@@ -1,5 +1,5 @@
-@import 'palette';
-@import 'shared_data/show';
+@import 'base/palette';
+@import 'views/shared_data/show';
 
 .favourite_link {
     background-image: image-url('empty_star.svg');

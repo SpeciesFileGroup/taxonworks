@@ -1,0 +1,36 @@
+$standard_padding: 1em;
+$pane_padding: 1em;
+$pane_border: 1px solid silver;
+$pane_margin: .2em;
+
+.full_viewport_whitespace {
+  .item {
+    padding: $standard_padding;
+  }
+}
+
+.break_words {
+  word-break: break-all;
+}
+
+.tiny_space {
+  padding: 4px 
+}
+
+.small_space {
+  padding: 8px;
+}
+
+.base_space {
+
+}
+
+.large_space {
+
+}
+
+.x-large_space {
+}
+
+
+

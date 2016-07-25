@@ -1,0 +1,48 @@
+/* Login Screen */
+@import 'base/palette';
+
+#login-container {
+	position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-top: -150px;
+    margin-left: -150px;
+    width: 300px;
+    height: 200px;
+	
+	.box-login {
+		background-color: #FFF;
+		padding:15px;
+		border-radius:3px;
+		border:1px solid $navigation_border;
+		box-shadow:0 0px 3px 0 $navigation_border;
+	}
+	.item {
+		padding:3px;
+		display:flex;
+		justify-content:space-between;
+		align-items:center;
+		
+	}
+	.item a {
+		padding-top:10px;
+		text-decoration:none;
+	}
+	.item a:first-letter {
+		text-transform:uppercase;
+	}
+	input[type="text"] {
+		width:240px;
+	}
+	
+	input[type="submit"] {
+		margin:0px;
+	}
+	
+	h1 {
+		text-align:center;
+	}
+	input[type="password"] {
+		width:240px;
+	}
+}
