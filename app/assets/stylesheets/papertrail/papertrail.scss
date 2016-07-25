@@ -1,0 +1,76 @@
+.papertrail_box {
+  background-color: #FCFCFC;
+  border-radius: 3px;
+  border: 1px solid #e5e5e5;
+  box-shadow: 0 0px 3px 0 #e5e5e5;
+  padding: 10px;
+  margin: 10px 0px 10px 0px;
+  transition: background-color 0.5s ease;
+  
+  .version_header{
+    .version_checkbox{
+      float: right;
+    }
+  }
+}
+
+.papertrail_box:hover{
+  background-color: lightgray;
+}
+
+#filter_box{
+  width: 500px;
+  display: inline-block;
+  overflow: auto;
+  padding: 10px;
+
+  #filter_title{
+    padding-bottom: 5px;
+  }
+
+  input{
+    display: block;
+  }
+
+  #user_box{
+    width: 200px;
+    float: left;
+  }
+
+  #datepicker_box{
+    width: 250px;
+    float: right;
+
+    .start_datepicker_box{
+      margin-bottom: 5px;
+    }
+
+    #datepicker_error_box{
+      width: 200px;
+
+      #datepicker_error_message{
+        word-wrap: break-word;
+      }
+    }
+  }
+}
+
+#compare_box{
+  width: 500px;
+  position: absolute;
+  left: 550px;
+  top: 170px;
+
+  #compare_title{
+    padding-bottom: 5px;
+  }
+
+  #button_compare_selected{
+    display: none;
+  }
+}
+
+#help_one{
+    position: absolute;
+    left: 100px;
+}
