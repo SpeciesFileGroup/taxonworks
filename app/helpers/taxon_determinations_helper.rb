@@ -8,12 +8,21 @@ module TaxonDeterminationsHelper
   end
 
   # @return [String]
-  #   as for taxon_determination_tag but does not re  ference collection object
+  #   as for taxon_determination_tag but does not reference collection object
   def determination_tag(taxon_determination)
     [ taxon_determination_name(taxon_determination),
       taxon_determination_by(taxon_determination),
       taxon_determination_on(taxon_determination)
     ].join(" ")
+  end
+# 
+  # @return [String]
+  #   as for taxon_determination_tag but does not reference collection object, links to OTU
+  def taxon_determination_link(taxon_determination)
+    [ link_to(taxon_determination_name(taxon_determination), taxon_determination.otu),
+      taxon_determination_by(taxon_determination),
+      taxon_determination_on(taxon_determination)
+    ].join(" ").html_safe
   end
 
   # @return [String]
