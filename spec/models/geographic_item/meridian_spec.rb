@@ -20,7 +20,7 @@ describe GeographicItem, type: :model, group: :geo do
   # Also:
   #   http://gis.stackexchange.com/questions/29975/postgis-incorrect-interpretation-of-a-polygon-that-intersects-the-180th-meridia
   #   http://postgis.net/docs/using_postgis_dbmanagement.html#PostGIS_Geography
-  context 'certain known errors ' do
+  xcontext 'certain known errors ' do
 
     # this shape is designed to cross the anti-meridian, with a centroid in the Western Hemisphere, around -179.5
     let(:a) { RSPEC_GEO_FACTORY.point(179, 27) }
