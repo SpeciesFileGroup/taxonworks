@@ -11,13 +11,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160527191600) do
+ActiveRecord::Schema.define(version: 20160725171413) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
-  enable_extension "hstore"
   enable_extension "fuzzystrmatch"
+  enable_extension "hstore"
+  enable_extension "citext"
 
   create_table "alternate_values", force: :cascade do |t|
     t.text     "value",                            null: false
@@ -213,12 +214,12 @@ ActiveRecord::Schema.define(version: 20160527191600) do
     t.string   "elevation_precision"
     t.text     "field_notes"
     t.string   "md5_of_verbatim_label"
-    t.datetime "created_at",                                 null: false
-    t.datetime "updated_at",                                 null: false
+    t.datetime "created_at",                                              null: false
+    t.datetime "updated_at",                                              null: false
     t.text     "cached"
-    t.integer  "created_by_id",                              null: false
-    t.integer  "updated_by_id",                              null: false
-    t.integer  "project_id",                                 null: false
+    t.integer  "created_by_id",                                           null: false
+    t.integer  "updated_by_id",                                           null: false
+    t.integer  "project_id",                                              null: false
     t.integer  "start_date_year"
     t.integer  "end_date_year"
     t.integer  "start_date_day"
@@ -238,10 +239,12 @@ ActiveRecord::Schema.define(version: 20160527191600) do
     t.string   "cached_level0_geographic_name"
     t.string   "cached_level1_geographic_name"
     t.string   "cached_level2_geographic_name"
+    t.jsonb    "import_attributes",                          default: {}, null: false
   end
 
   add_index "collecting_events", ["created_by_id"], name: "index_collecting_events_on_created_by_id", using: :btree
   add_index "collecting_events", ["geographic_area_id"], name: "index_collecting_events_on_geographic_area_id", using: :btree
+  add_index "collecting_events", ["import_attributes"], name: "index_collecting_events_on_import_attributes", using: :gin
   add_index "collecting_events", ["project_id"], name: "index_collecting_events_on_project_id", using: :btree
   add_index "collecting_events", ["updated_by_id"], name: "index_collecting_events_on_updated_by_id", using: :btree
 
@@ -261,14 +264,14 @@ ActiveRecord::Schema.define(version: 20160527191600) do
 
   create_table "collection_objects", force: :cascade do |t|
     t.integer  "total"
-    t.string   "type",                      null: false
-    t.datetime "created_at",                null: false
-    t.datetime "updated_at",                null: false
+    t.string   "type",                                   null: false
+    t.datetime "created_at",                             null: false
+    t.datetime "updated_at",                             null: false
     t.integer  "preparation_type_id"
     t.integer  "repository_id"
-    t.integer  "created_by_id",             null: false
-    t.integer  "updated_by_id",             null: false
-    t.integer  "project_id",                null: false
+    t.integer  "created_by_id",                          null: false
+    t.integer  "updated_by_id",                          null: false
+    t.integer  "project_id",                             null: false
     t.text     "buffered_collecting_event"
     t.text     "buffered_determinations"
     t.text     "buffered_other_labels"
@@ -277,10 +280,12 @@ ActiveRecord::Schema.define(version: 20160527191600) do
     t.date     "accessioned_at"
     t.string   "deaccession_reason"
     t.date     "deaccessioned_at"
+    t.jsonb    "import_attributes",         default: {}, null: false
   end
 
   add_index "collection_objects", ["collecting_event_id"], name: "index_collection_objects_on_collecting_event_id", using: :btree
   add_index "collection_objects", ["created_by_id"], name: "index_collection_objects_on_created_by_id", using: :btree
+  add_index "collection_objects", ["import_attributes"], name: "index_collection_objects_on_import_attributes", using: :gin
   add_index "collection_objects", ["preparation_type_id"], name: "index_collection_objects_on_preparation_type_id", using: :btree
   add_index "collection_objects", ["project_id"], name: "index_collection_objects_on_project_id", using: :btree
   add_index "collection_objects", ["ranged_lot_category_id"], name: "index_collection_objects_on_ranged_lot_category_id", using: :btree
@@ -317,21 +322,23 @@ ActiveRecord::Schema.define(version: 20160527191600) do
   add_index "collection_profiles", ["updated_by_id"], name: "index_collection_profiles_on_updated_by_id", using: :btree
 
   create_table "common_names", force: :cascade do |t|
-    t.string   "name",               null: false
+    t.string   "name",                            null: false
     t.integer  "geographic_area_id"
     t.integer  "otu_id"
     t.integer  "language_id"
     t.integer  "start_year"
     t.integer  "end_year"
-    t.integer  "project_id",         null: false
-    t.integer  "created_by_id",      null: false
-    t.integer  "updated_by_id",      null: false
-    t.datetime "created_at",         null: false
-    t.datetime "updated_at",         null: false
+    t.integer  "project_id",                      null: false
+    t.integer  "created_by_id",                   null: false
+    t.integer  "updated_by_id",                   null: false
+    t.datetime "created_at",                      null: false
+    t.datetime "updated_at",                      null: false
+    t.jsonb    "import_attributes",  default: {}, null: false
   end
 
   add_index "common_names", ["created_by_id"], name: "index_common_names_on_created_by_id", using: :btree
   add_index "common_names", ["geographic_area_id"], name: "index_common_names_on_geographic_area_id", using: :btree
+  add_index "common_names", ["import_attributes"], name: "index_common_names_on_import_attributes", using: :gin
   add_index "common_names", ["language_id"], name: "index_common_names_on_language_id", using: :btree
   add_index "common_names", ["name"], name: "index_common_names_on_name", using: :btree
   add_index "common_names", ["otu_id"], name: "index_common_names_on_otu_id", using: :btree
@@ -358,6 +365,9 @@ ActiveRecord::Schema.define(version: 20160527191600) do
     t.integer  "created_by_id",         null: false
     t.integer  "updated_by_id",         null: false
     t.integer  "project_id",            null: false
+    t.integer  "disposition_x"
+    t.integer  "disposition_y"
+    t.integer  "disposition_z"
   end
 
   add_index "container_items", ["contained_object_id", "contained_object_type"], name: "index_container_items_on_contained_object_id_and_type", using: :btree
@@ -390,13 +400,15 @@ ActiveRecord::Schema.define(version: 20160527191600) do
     t.datetime "created_at",    null: false
     t.datetime "updated_at",    null: false
     t.integer  "parent_id"
-    t.integer  "depth"
     t.string   "type",          null: false
     t.integer  "created_by_id", null: false
     t.integer  "updated_by_id", null: false
     t.integer  "project_id",    null: false
     t.string   "name"
     t.string   "disposition"
+    t.integer  "size_x"
+    t.integer  "size_y"
+    t.integer  "size_z"
   end
 
   add_index "containers", ["created_by_id"], name: "index_containers_on_created_by_id", using: :btree
@@ -719,21 +731,26 @@ ActiveRecord::Schema.define(version: 20160527191600) do
   add_index "languages", ["updated_by_id"], name: "index_languages_on_updated_by_id", using: :btree
 
   create_table "loan_items", force: :cascade do |t|
-    t.integer  "loan_id",               null: false
+    t.integer  "loan_id",                            null: false
     t.date     "date_returned"
-    t.integer  "position",              null: false
-    t.integer  "created_by_id",         null: false
-    t.integer  "updated_by_id",         null: false
-    t.integer  "project_id",            null: false
-    t.datetime "created_at",            null: false
-    t.datetime "updated_at",            null: false
+    t.integer  "position",                           null: false
+    t.integer  "created_by_id",                      null: false
+    t.integer  "updated_by_id",                      null: false
+    t.integer  "project_id",                         null: false
+    t.datetime "created_at",                         null: false
+    t.datetime "updated_at",                         null: false
     t.integer  "loan_item_object_id"
     t.string   "loan_item_object_type"
     t.integer  "total"
     t.string   "disposition"
+    t.integer  "disposition_x"
+    t.integer  "disposition_y"
+    t.integer  "disposition_z"
+    t.jsonb    "import_attributes",     default: {}, null: false
   end
 
   add_index "loan_items", ["created_by_id"], name: "index_loan_items_on_created_by_id", using: :btree
+  add_index "loan_items", ["import_attributes"], name: "index_loan_items_on_import_attributes", using: :gin
   add_index "loan_items", ["loan_id"], name: "index_loan_items_on_loan_id", using: :btree
   add_index "loan_items", ["position"], name: "index_loan_items_on_position", using: :btree
   add_index "loan_items", ["project_id"], name: "index_loan_items_on_project_id", using: :btree
@@ -759,9 +776,11 @@ ActiveRecord::Schema.define(version: 20160527191600) do
     t.string   "recipient_honorarium"
     t.string   "recipient_country"
     t.text     "lender_address",       default: "Lender's address not provided.", null: false
+    t.jsonb    "import_attributes",    default: {},                               null: false
   end
 
   add_index "loans", ["created_by_id"], name: "index_loans_on_created_by_id", using: :btree
+  add_index "loans", ["import_attributes"], name: "index_loans_on_import_attributes", using: :gin
   add_index "loans", ["project_id"], name: "index_loans_on_project_id", using: :btree
   add_index "loans", ["updated_by_id"], name: "index_loans_on_updated_by_id", using: :btree
 
@@ -832,33 +851,37 @@ ActiveRecord::Schema.define(version: 20160527191600) do
 
   create_table "otus", force: :cascade do |t|
     t.string   "name"
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
-    t.integer  "created_by_id", null: false
-    t.integer  "updated_by_id", null: false
-    t.integer  "project_id",    null: false
+    t.datetime "created_at",                     null: false
+    t.datetime "updated_at",                     null: false
+    t.integer  "created_by_id",                  null: false
+    t.integer  "updated_by_id",                  null: false
+    t.integer  "project_id",                     null: false
     t.integer  "taxon_name_id"
+    t.jsonb    "import_attributes", default: {}, null: false
   end
 
   add_index "otus", ["created_by_id"], name: "index_otus_on_created_by_id", using: :btree
+  add_index "otus", ["import_attributes"], name: "index_otus_on_import_attributes", using: :gin
   add_index "otus", ["project_id"], name: "index_otus_on_project_id", using: :btree
   add_index "otus", ["taxon_name_id"], name: "index_otus_on_taxon_name_id", using: :btree
   add_index "otus", ["updated_by_id"], name: "index_otus_on_updated_by_id", using: :btree
 
   create_table "people", force: :cascade do |t|
-    t.string   "type",          null: false
-    t.string   "last_name",     null: false
+    t.string   "type",                           null: false
+    t.string   "last_name",                      null: false
     t.string   "first_name"
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
+    t.datetime "created_at",                     null: false
+    t.datetime "updated_at",                     null: false
     t.string   "suffix"
     t.string   "prefix"
-    t.integer  "created_by_id", null: false
-    t.integer  "updated_by_id", null: false
+    t.integer  "created_by_id",                  null: false
+    t.integer  "updated_by_id",                  null: false
     t.text     "cached"
+    t.jsonb    "import_attributes", default: {}, null: false
   end
 
   add_index "people", ["created_by_id"], name: "index_people_on_created_by_id", using: :btree
+  add_index "people", ["import_attributes"], name: "index_people_on_import_attributes", using: :gin
   add_index "people", ["type"], name: "index_people_on_type", using: :btree
   add_index "people", ["updated_by_id"], name: "index_people_on_updated_by_id", using: :btree
 
@@ -1025,20 +1048,22 @@ ActiveRecord::Schema.define(version: 20160527191600) do
   add_index "serial_chronologies", ["updated_by_id"], name: "index_serial_chronologies_on_updated_by_id", using: :btree
 
   create_table "serials", force: :cascade do |t|
-    t.integer  "created_by_id",                       null: false
-    t.integer  "updated_by_id",                       null: false
-    t.datetime "created_at",                          null: false
-    t.datetime "updated_at",                          null: false
+    t.integer  "created_by_id",                                    null: false
+    t.integer  "updated_by_id",                                    null: false
+    t.datetime "created_at",                                       null: false
+    t.datetime "updated_at",                                       null: false
     t.string   "place_published"
     t.integer  "primary_language_id"
     t.integer  "first_year_of_issue",       limit: 2
     t.integer  "last_year_of_issue",        limit: 2
     t.integer  "translated_from_serial_id"
     t.text     "publisher"
-    t.text     "name",                                null: false
+    t.text     "name",                                             null: false
+    t.jsonb    "import_attributes",                   default: {}, null: false
   end
 
   add_index "serials", ["created_by_id"], name: "index_serials_on_created_by_id", using: :btree
+  add_index "serials", ["import_attributes"], name: "index_serials_on_import_attributes", using: :gin
   add_index "serials", ["primary_language_id"], name: "index_serials_on_primary_language_id", using: :btree
   add_index "serials", ["translated_from_serial_id"], name: "index_serials_on_translated_from_serial_id", using: :btree
   add_index "serials", ["updated_by_id"], name: "index_serials_on_updated_by_id", using: :btree
@@ -1065,7 +1090,7 @@ ActiveRecord::Schema.define(version: 20160527191600) do
     t.string   "school"
     t.string   "series"
     t.text     "title"
-    t.string   "type",                               null: false
+    t.string   "type",                                            null: false
     t.string   "volume"
     t.string   "doi"
     t.text     "abstract"
@@ -1073,11 +1098,11 @@ ActiveRecord::Schema.define(version: 20160527191600) do
     t.string   "language"
     t.string   "stated_year"
     t.string   "verbatim"
-    t.datetime "created_at",                         null: false
-    t.datetime "updated_at",                         null: false
+    t.datetime "created_at",                                      null: false
+    t.datetime "updated_at",                                      null: false
     t.string   "bibtex_type"
-    t.integer  "created_by_id",                      null: false
-    t.integer  "updated_by_id",                      null: false
+    t.integer  "created_by_id",                                   null: false
+    t.integer  "updated_by_id",                                   null: false
     t.integer  "day",                      limit: 2
     t.integer  "year",                     limit: 2
     t.string   "isbn"
@@ -1092,10 +1117,12 @@ ActiveRecord::Schema.define(version: 20160527191600) do
     t.text     "cached"
     t.text     "cached_author_string"
     t.date     "cached_nomenclature_date"
+    t.jsonb    "import_attributes",                  default: {}, null: false
   end
 
   add_index "sources", ["bibtex_type"], name: "index_sources_on_bibtex_type", using: :btree
   add_index "sources", ["created_by_id"], name: "index_sources_on_created_by_id", using: :btree
+  add_index "sources", ["import_attributes"], name: "index_sources_on_import_attributes", using: :gin
   add_index "sources", ["language_id"], name: "index_sources_on_language_id", using: :btree
   add_index "sources", ["serial_id"], name: "index_sources_on_serial_id", using: :btree
   add_index "sources", ["type"], name: "index_sources_on_type", using: :btree
@@ -1226,18 +1253,18 @@ ActiveRecord::Schema.define(version: 20160527191600) do
   create_table "taxon_names", force: :cascade do |t|
     t.string   "name"
     t.integer  "parent_id"
-    t.string   "cached_html",                                   null: false
+    t.string   "cached_html",                                                null: false
     t.string   "cached_author_year"
     t.string   "cached_higher_classification"
-    t.datetime "created_at",                                    null: false
-    t.datetime "updated_at",                                    null: false
+    t.datetime "created_at",                                                 null: false
+    t.datetime "updated_at",                                                 null: false
     t.integer  "year_of_publication"
     t.string   "verbatim_author"
     t.string   "rank_class"
-    t.string   "type",                                          null: false
-    t.integer  "created_by_id",                                 null: false
-    t.integer  "updated_by_id",                                 null: false
-    t.integer  "project_id",                                    null: false
+    t.string   "type",                                                       null: false
+    t.integer  "created_by_id",                                              null: false
+    t.integer  "updated_by_id",                                              null: false
+    t.integer  "project_id",                                                 null: false
     t.string   "cached_original_combination"
     t.string   "cached_secondary_homonym"
     t.string   "cached_primary_homonym"
@@ -1251,12 +1278,18 @@ ActiveRecord::Schema.define(version: 20160527191600) do
     t.string   "cached"
     t.string   "verbatim_name"
     t.integer  "cached_valid_taxon_name_id"
+    t.jsonb    "import_attributes",                             default: {}, null: false
   end
 
+  add_index "taxon_names", ["cached", "cached_author_year"], name: "index_taxon_names_on_cached_and_cached_author_year", using: :btree
+  add_index "taxon_names", ["cached"], name: "index_taxon_names_on_cached", using: :btree
+  add_index "taxon_names", ["cached_author_year"], name: "index_taxon_names_on_cached_author_year", using: :btree
   add_index "taxon_names", ["created_by_id"], name: "index_taxon_names_on_created_by_id", using: :btree
+  add_index "taxon_names", ["import_attributes"], name: "index_taxon_names_on_import_attributes", using: :gin
   add_index "taxon_names", ["name"], name: "index_taxon_names_on_name", using: :btree
   add_index "taxon_names", ["parent_id"], name: "index_taxon_names_on_parent_id", using: :btree
   add_index "taxon_names", ["project_id"], name: "index_taxon_names_on_project_id", using: :btree
+  add_index "taxon_names", ["rank_class"], name: "index_taxon_names_on_rank_class", using: :btree
   add_index "taxon_names", ["type"], name: "index_taxon_names_on_type", using: :btree
   add_index "taxon_names", ["updated_by_id"], name: "index_taxon_names_on_updated_by_id", using: :btree
 
@@ -1280,18 +1313,20 @@ ActiveRecord::Schema.define(version: 20160527191600) do
   add_index "test_classes", ["updated_by_id"], name: "index_test_classes_on_updated_by_id", using: :btree
 
   create_table "type_materials", force: :cascade do |t|
-    t.integer  "protonym_id",          null: false
-    t.integer  "biological_object_id", null: false
-    t.string   "type_type",            null: false
-    t.integer  "created_by_id",        null: false
-    t.integer  "updated_by_id",        null: false
-    t.integer  "project_id",           null: false
-    t.datetime "created_at",           null: false
-    t.datetime "updated_at",           null: false
+    t.integer  "protonym_id",                       null: false
+    t.integer  "biological_object_id",              null: false
+    t.string   "type_type",                         null: false
+    t.integer  "created_by_id",                     null: false
+    t.integer  "updated_by_id",                     null: false
+    t.integer  "project_id",                        null: false
+    t.datetime "created_at",                        null: false
+    t.datetime "updated_at",                        null: false
+    t.jsonb    "import_attributes",    default: {}, null: false
   end
 
   add_index "type_materials", ["biological_object_id"], name: "index_type_materials_on_biological_object_id", using: :btree
   add_index "type_materials", ["created_by_id"], name: "index_type_materials_on_created_by_id", using: :btree
+  add_index "type_materials", ["import_attributes"], name: "index_type_materials_on_import_attributes", using: :gin
   add_index "type_materials", ["project_id"], name: "index_type_materials_on_project_id", using: :btree
   add_index "type_materials", ["protonym_id"], name: "index_type_materials_on_protonym_id", using: :btree
   add_index "type_materials", ["type_type"], name: "index_type_materials_on_type_type", using: :btree

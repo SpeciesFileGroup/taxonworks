@@ -4,10 +4,6 @@
 #   @return [Integer]
 #     identifies the container this container is contained in
 #
-# @!attribute depth
-#   @return [Integer]
-#     awesome_nested_set attribute
-#
 # @!attribute type
 #   @return [String]
 #     STI, the type of container
@@ -59,6 +55,12 @@ class Container < ActiveRecord::Base
   #   valid containers class names that this container can fit in, by default none
   def self.valid_parents
     []
+  end
+
+  # @return [Scope]
+  #   CollectionObjects, all of them, for this container
+  def all_collection_objects
+    CollectionObject.joins(container: [:container_items]).where(container_items: {container_id: self_and_descendants.pluck(:id)})
   end
 
   # @return [Container]
