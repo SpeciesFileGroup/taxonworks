@@ -200,7 +200,7 @@ class CollectionObject < ActiveRecord::Base
 
   def annotations
     h = annotations_hash
-    h.merge!('biocuration classifications' => self.biocuration_classes) if self.biological? && self.biocuration_classifications.any?
+    (h['biocuration classifications'] = self.biocuration_classes) if self.biological? && self.biocuration_classifications.any?
     h
   end
 
