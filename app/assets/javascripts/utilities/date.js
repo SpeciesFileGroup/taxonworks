@@ -3,8 +3,6 @@
 function get_todays_date(){
     let today = new Date();
     
-    today.setHours(23, 59, 59, 999);
-
     return convert_date_to_string(new Date());
 }
 

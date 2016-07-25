@@ -25,10 +25,7 @@ PAPERTRAIL = {
         PAPERTRAIL.$button_select = $("#button_select");
         PAPERTRAIL.$button_compare = $("#button_compare_selected");
 
-        PAPERTRAIL.$button_select.click(function(){
-            PAPERTRAIL.button_select_clicked();
-        });
-
+        PAPERTRAIL.$button_select.click(PAPERTRAIL.button_select_clicked);
         PAPERTRAIL.$button_compare.click(PAPERTRAIL.button_compare_clicked);
 
         // Version checkboxes
@@ -50,6 +47,12 @@ PAPERTRAIL = {
         // Set up the datepickers and callbacks
         $(".datepicker").datepicker();
         $(".datepicker").change(PAPERTRAIL.update_versions_list);
+
+        $("#start_datepicker").val(get_todays_date());
+        $("#end_datepicker").val(PAPERTRAIL.get_oldest_version_date());
+
+        // Update the versions list for the first time
+        PAPERTRAIL.update_versions_list();
     },
 
     // Shows/Hides papertrail version based on user filter list criteria
