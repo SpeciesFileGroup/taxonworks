@@ -7,7 +7,7 @@ module Shared::Containable
     has_one :container_item, as: :contained_object
     has_one :container, through: :container_item
 
-    accepts_nested_attributes_for :container
+    accepts_nested_attributes_for :container, reject_if: :reject_container, allow_destroy: true
   end 
 
   def contained?
@@ -32,5 +32,13 @@ module Shared::Containable
     end
     parts.join("; ") 
   end
+
+  protected
+
+  def reject_container(attributed)
+    (attributed['container'].blank? && attributed['container_id'].blank?) &&  
+    (attributed['container_item'].blank? && attributed['container_item_id']).blank? 
+  end
+
 
 end
