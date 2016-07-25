@@ -2,7 +2,7 @@
 # A loan item is a CollectionObject, Container, or historical reference to 
 # something that has been loaned via (Otu)
 #
-# THanks to https://neanderslob.com/2015/11/03/polymorphic-associations-the-smart-way-using-global-ids/ for global_entity.
+# Thanks to https://neanderslob.com/2015/11/03/polymorphic-associations-the-smart-way-using-global-ids/ for global_entity.
 #
 #
 # @!attribute loan_id
@@ -102,7 +102,7 @@ class LoanItem < ActiveRecord::Base
   protected
 
   def total_provided_only_when_otu
-    errors.add(:total, 'Total only providable when item is an otu') if total && loan_item_object_type != 'Otu'
+    errors.add(:total, 'only providable when item is an OTU.') if total && loan_item_object_type != 'Otu'
   end
 
   # @todo @mjy What *is* the right construct for 'LoanItem'?

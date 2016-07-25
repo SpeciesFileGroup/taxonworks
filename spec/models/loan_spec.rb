@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Loan, :type => :model do
+describe Loan, type: :model do
 
   context 'concerns' do
     it_behaves_like 'is_data'
@@ -51,8 +51,12 @@ describe Loan, :type => :model do
                .container_items[0].contained_object
                .container_items[0].contained_object
                .container_items[0].contained_object).to eq(vial)
-
     end
+
+    specify 'can not be destroyed' do
+      expect(loan.destroy).to be_falsey
+    end
+
   end
 
   context 'loan_items' do
@@ -71,7 +75,6 @@ describe Loan, :type => :model do
         specify 'create some collection objects to put in a container' do
           expect(true).to be_truthy
         end
-
       end
     end
   end

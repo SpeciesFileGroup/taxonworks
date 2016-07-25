@@ -1,0 +1,13 @@
+<div class="loan_item_selection flexbox" id="select_loan_item">
+  <div class="item item1"> Select loan item type: </div>
+  <div class="autocomplete_type_selector item item2">
+    <%= radio_button_tag(:autocomplete_type, 'collection_objects', true) -%> Collection object  <br>
+    <%= radio_button_tag(:autocomplete_type, 'otus') -%> OTU  <br>
+    <%= radio_button_tag(:autocomplete_type, 'containers') -%> Container  <br>
+  </div>
+
+  <div class="item item3"> 
+    <%= text_field_tag 'loan_item_autocomplete', nil, id: 'loan_item_autocomplete', placeholder: 'Select a loan item' %> 
+    <span id="loan_item_not_found" class="warning"></span>         
+  </div>
+</div>

@@ -13,7 +13,7 @@ module LoanItemsHelper
 
   def loan_item_link(loan_item)
     return nil if loan_item.nil?
-    link_to(loan_item_tag(loan_item).html_safe, metamorphosize_if(loan_item.loan_item_object))
+    link_to(loan_item_tag(loan_item), loan_item) # metamorphosize_if(loan_item.loan_item_object))
   end
 
   def loan_items_search_form

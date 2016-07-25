@@ -2,7 +2,8 @@ module LoansHelper
 
   def loan_tag(loan)
     return nil if loan.nil?
-    v = loan.recipient_email
+     
+    v = [loan.id, *loan.people.collect{|a| a.name}.join(', '), loan.recipient_address].compact.join(" - ").gsub(/\n/, '; ') 
     v.blank? ? "[#{loan.to_param}]" : v
   end
 
@@ -13,10 +14,6 @@ module LoansHelper
 
   def loans_search_form
     render('/loans/quick_search_form')
-  end
-
-  def loan_recipient_tag(loan)
-    return nil if loan.nil?
   end
 
 end

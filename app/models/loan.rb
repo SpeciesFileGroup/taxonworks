@@ -68,7 +68,7 @@ class Loan < ActiveRecord::Base
 
   has_paper_trail
 
-  has_many :loan_items
+  has_many :loan_items, dependent: :restrict_with_error
 
   has_many :loan_recipient_roles, class_name: 'LoanRecipient', as: :role_object
   has_many :loan_supervisor_roles, class_name: 'LoanSupervisor', as: :role_object

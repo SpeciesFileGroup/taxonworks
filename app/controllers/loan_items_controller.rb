@@ -1,7 +1,7 @@
 class LoanItemsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_loan_item, only: [:update, :destroy]
+  before_action :set_loan_item, only: [:update, :destroy, :show, :edit]
 
   # GET /loan_items
   # GET /loan_items.json
@@ -17,7 +17,7 @@ class LoanItemsController < ApplicationController
 
   # GET /loan_items/new
   def new
-    @loan_item = LoanItem.new
+    @loan_item = LoanItem.new(loan: Loan.new)
   end
 
   # GET /loan_items/1/edit
@@ -51,7 +51,7 @@ class LoanItemsController < ApplicationController
         format.html { redirect_to :back, notice: 'Loan item was successfully updated.' }
         format.json { render :show, status: :ok, location: @loan_item }
       else
-        format.html { redirect_to :back, notice: 'Loan item was NOT successfully updated.' }
+        format.html { redirect_to :back, notice: 'Loan item was NOT successfully updated.' + @loan_item.errors.full_messages.join('; ') }
         format.json { render json: @loan_item.errors, status: :unprocessable_entity }
       end
     end
@@ -98,8 +98,11 @@ class LoanItemsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def loan_item_params
-      params.require(:loan_item).permit(:loan_id, :collection_object_status, :date_returned, :loan_item_object_id, :loan_item_object_type,
-                                        :position
+      params.require(:loan_item).permit(
+        :loan_id, :collection_object_status, :date_returned, :loan_item_object_id, :loan_item_object_type,
+        :date_returned_jquery, :disposition, :total,  
+        :global_entity,
+        :position
       )
     end
 end
