@@ -10,6 +10,14 @@
     .compare-table {
         width: 100%;
 
+        table, th, td {
+            border: 1px solid black;
+        }
+
+        td {
+            width: 50%;
+        }
+
         .compare-table-row {
             width: 100%;
         }
@@ -30,12 +38,4 @@
 
 .row-modified-added {
     background-color: #EAFFEA;
-}
-
-table, th, td {
-    border: 1px solid black;
-}
-
-td {
-    width: 50%;
 }
