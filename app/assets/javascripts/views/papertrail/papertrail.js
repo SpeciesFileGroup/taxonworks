@@ -48,8 +48,8 @@ PAPERTRAIL = {
         $(".datepicker").datepicker();
         $(".datepicker").change(PAPERTRAIL.update_versions_list);
 
-        $("#start_datepicker").val(get_todays_date());
-        $("#end_datepicker").val(PAPERTRAIL.get_oldest_version_date());
+        $("#start_datepicker").val(PAPERTRAIL.get_oldest_version_date());
+        $("#end_datepicker").val(get_todays_date());
 
         // Update the versions list for the first time
         PAPERTRAIL.update_versions_list();
@@ -66,7 +66,7 @@ PAPERTRAIL = {
         for(let version_index = 0; version_index < PAPERTRAIL.$versions.length; version_index++){
             let hide = false;
             let $version = $(PAPERTRAIL.$versions[version_index]);
-            let version_date = new Date($version.data("date-created"));
+            let version_date = new Date($version.data("date-created").replace(/-/g, "/"));
 
             // Hide papertrials NOT within the specified dates
             if(dates.start && dates.start > version_date)
@@ -200,7 +200,7 @@ PAPERTRAIL = {
         new_url += "/compare" + window.location.search;
         new_url += "&version_a=" + version_ids[0];
         new_url += "&version_b=" + version_ids[1];
-        
+    
         window.location = new_url;
     },
 
@@ -234,11 +234,9 @@ PAPERTRAIL = {
         // This assumes that the last element in the version list is the oldest
         // This is dependant on the order that the version list is passed
         // into the papertrail partial
-        let oldest_date = new Date(PAPERTRAIL.$versions[PAPERTRAIL.$versions.length - 1].getAttribute("data-date-created"));
-        
-        oldest_date.setHours(0, 0, 0, 0);
+        let date_string = PAPERTRAIL.$versions[PAPERTRAIL.$versions.length - 1].getAttribute("data-date-created").replace(/-/g, "/");
 
-        return convert_date_to_string(oldest_date);
+        return convert_date_to_string(new Date(date_string));
     }
 };
 

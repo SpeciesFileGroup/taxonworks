@@ -8,7 +8,11 @@
             </td>
             
             <td>
-                <h3>Newer</h3>
+                <% if @comparing_current %>
+                    <h3>Current</h3>
+                <% else %>
+                    <h3>Newer</h3>
+                <% end %>
             </td>
         </tr>
 
