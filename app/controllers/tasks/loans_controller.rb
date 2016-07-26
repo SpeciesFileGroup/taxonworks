@@ -6,6 +6,30 @@ class Tasks::LoansController < ApplicationController
     @collection_objects = @loan.collection_objects
   end
 
+  def update_status
+    @loan = Loan.find(params['id'])
+    if params[:disposition].blank?
+      flash[:notice] = "Select a status first."
+    else
+      if LoanItem.update_status(loan_item_ids_params, params.permit(:disposition)[:disposition])
+        flash[:notice] = "Updated status of #{loan_item_ids_params.count} records."
+      else   
+        flash[:notice] = "Failed to update #{loan_item_ids_params.count} records."
+      end
+    end
+
+    @taxon_determination = TaxonDetermination.new()
+    @loan_item = LoanItem.new(loan: @loan)
+
+    render :complete2
+  end
+
+  def complete2
+    @loan               = Loan.find(params['id'])
+    @taxon_determination = TaxonDetermination.new()
+    @loan_item = LoanItem.new(loan: @loan)
+  end
+
   # def add_determination
   # end
 
@@ -65,10 +89,15 @@ class Tasks::LoansController < ApplicationController
   def loan_items_list
     @loan               = Loan.find(params['id'])
     @loan_items         = @loan.loan_items.order(:position)
-    @collection_objects = Loan.find(params['id']).collection_objects
+    @collection_objects = @loan.collection_objects
   end
 
   private
+
+  def loan_item_ids_params
+    items = params.permit(loan_items: [:id])[:loan_items]
+    items ? items.collect{|k,v| v['id']} : []
+  end
 
   def local_taxon_determination_params
     params.require(:taxon_determination).permit(:biological_collection_object_id,

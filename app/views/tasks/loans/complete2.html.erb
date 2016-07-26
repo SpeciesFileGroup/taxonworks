@@ -1,0 +1,15 @@
+<h1>Tasks::Loans#complete</h1>
+
+<%= link_to('back', @loan) -%>
+
+<h3>Loan to : <%= object_tag(@loan) %>, Loan ID: <%= @loan.id %></h3>
+<%= form_for(@loan, html: { id: 'loan_form'}) do |f| -%>
+  <%= f.fields_for(:loan_items) do |loan_item| -%>
+    <%= loan_item.object.id -%> <%= check_box_tag("loan_items[#{loan_item.index}][id]", loan_item.object.id, checked: false) -%>
+  <% end %>
+<% end %>
+
+<%= form_tag(loan_update_status_path(@loan), method: :post, class: 'loan_update_form' ) do |li| -%>
+  <%= select_tag(:disposition, options_for_select(LoanItem::STATUS, :blank), include_blank: true) %><br>
+  <%= submit_tag 'Update status' -%>
+<% end %> 

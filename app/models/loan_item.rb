@@ -99,6 +99,20 @@ class LoanItem < ActiveRecord::Base
     end
   end
 
+  def self.update_status(loan_item_ids = [], disposition = nil)
+    return false if loan_item_ids.empty? || disposition.nil?
+    begin
+      LoanItem.transaction do 
+        LoanItem.where(id: loan_item_ids).each do |li|
+          li.update(disposition: disposition)
+        end
+      end
+    rescue
+      return false
+    end
+    true
+  end
+
   protected
 
   def total_provided_only_when_otu
