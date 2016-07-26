@@ -15,20 +15,21 @@ class Tasks::LoansController < ApplicationController
     message    = 'No loan items selected.'
     unless loan_items.nil?
       item_list = []
+      page_loan = params['loan']
       # two different commit messages:
       case params[:commit]
         when /update/i # parse for date of item return
-          date      = params[:date_returned]
-          save_date = Date.new(date['date(1i)'].to_i,
-                               date['date(2i)'].to_i,
-                               date['date(3i)'].to_i)
+          date = params['loan']
+          # save_date = Date.new(date['date(1i)'].to_i,
+          #                      date['date(2i)'].to_i,
+          #                      date['date(3i)'].to_i)
           loan_items.each do |id|
-            item               = LoanItem.find(id[0])
-            item.date_returned = save_date
-            item_list.push(item.id)
-            item.save
+            # item               = LoanItem.find(id[0])
+            # item.date_returned =
+            # item_list.push(item.id)
+            # item.save
           end
-          message = "Loan items #{item_list.to_s} returned on #{save_date}."
+          message = "Loan items #{item_list.to_s} returned on #{'save_date'}."
         when /create/i # parse the information for taxon determination
           collection_object_ids = []
           loan_items.each do |id| # only collection objects get taxon determination
