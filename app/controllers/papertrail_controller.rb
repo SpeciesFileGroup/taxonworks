@@ -23,7 +23,7 @@ class PapertrailController < ApplicationController
     if invalid_object(@object)
       record_not_found
     else
-      version_id = params[:restore_version_id]
+      version_id = params[:restore_version_id].to_i
 
       # The version at index 0 is the version created before something is made,
       # as in the state of the obj before it was created, aka all attributes null
