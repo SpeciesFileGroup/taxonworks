@@ -35,7 +35,7 @@
         <%= text_field_tag(:date_returned, nil, {class: :datepicker_recurring_start, size: 9}) %><br>
         <%= submit_tag('Update selected date') %>
         <hr>
-        <%= select_tag(:disposition, options_for_select(LoanItem::STATUS)) %><br>
+        <%= select_tag(:disposition, options_for_select(LoanItem::STATUS, :blank), include_blank: true) %><br>
         <%= submit_tag('Update selected status') %>
         <hr>
         <%= render(partial: 'taxon_determinations/form',
