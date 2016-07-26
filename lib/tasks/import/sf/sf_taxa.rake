@@ -36,19 +36,18 @@ namespace :tw do
 
 # pass 2
 
-      # desc 'try the logger utility'
-      # ### time rake tw:project_import:sf_taxa:try_logger user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
-      # LoggedTask.define :try_logger => [:data_directory, :environment, :user_id] do |logger|
-      #   logger.info "This is :try_logger"
-      #   logger.warn "This is a logger warning"
-      #   logger.error "This is a big bad nasty error message"
-      # end
+# desc 'try the logger utility'
+# ### time rake tw:project_import:sf_taxa:try_logger user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
+# LoggedTask.define :try_logger => [:data_directory, :environment, :user_id] do |logger|
+#   logger.info "This is :try_logger"
+#   logger.warn "This is a logger warning"
+#   logger.error "This is a big bad nasty error message"
+# end
 
 
       desc 'create all SF taxa (pass 1)'
       ### time rake tw:project_import:sf_taxa:create_all_sf_taxa_pass1 user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
-      LoggedTask.define :create_all_sf_taxa_pass1 => [:data_directory, :environment, :user_id] do | logger |
-        # LoggedTask.define :update_sources_with_booktitle_publisher_address => [:data_directory, :environment, :user_id] do | logger |
+      LoggedTask.define :create_all_sf_taxa_pass1 => [:data_directory, :environment, :user_id] do |logger|
 
         logger.info 'Creating all SF taxa (pass 1)...'
 
@@ -67,7 +66,7 @@ namespace :tw do
         get_sf_status_flags = {} # key = SF.TaxonNameID, value = SF.StatusFlags
         get_tw_otu_id = {} # key = SF.TaxonNameID, value = TW.otu.id; used for temporary or bad valid SF taxa
 
-        path = @args[:data_directory] + 'tblTaxaByStr.txt'
+        path = @args[:data_directory] + 'sfTaxaByTaxonNameStr.txt'
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
         error_counter = 0
@@ -99,7 +98,7 @@ namespace :tw do
           end
 
           if parent_id == nil
-            logger.warn "ALERT: Could not find parent_id (error #{no_parent_counter += 1}! Set to animalia_id = #{animalia_id}"
+            logger.warn "ALERT: Could not find parent_id (error #{no_parent_counter += 1})! Set to animalia_id = #{animalia_id}"
             parent_id = animalia_id # this is problematic; need real solution
           end
 
@@ -272,10 +271,10 @@ namespace :tw do
 
       desc 'create bad valid name list (will create OTUs) and new parent_ids for taxa subordinate to the bad valid names'
       ### time rake tw:project_import:sf_taxa:create_bad_valid_name_and_sub_parent_hashes user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
-      task :create_bad_valid_name_and_sub_parent_hashes => [:data_directory, :environment, :user_id] do
+      LoggedTask.define :create_bad_valid_name_and_sub_parent_hashes => [:data_directory, :environment, :user_id] do |logger|
         # Can be run independently at any time
 
-        puts 'Running bad valid name and sub parent hashes...'
+        logger.info 'Running bad valid name and sub parent hashes...'
 
         get_otu_sf_above_id = {} # key = SF.TaxonNameID of bad valid name, value = SF.AboveID of bad valid name
         get_sf_new_parent_id = {} # key = SF.TaxonNameID of bad valid name subordinate, value = SF.AboveID of bad valid name
@@ -289,7 +288,7 @@ namespace :tw do
           make_otu = row['MakeOTU']
           taxon_name_id = row['TaxonNameID']
           use_above_id = row['UseAboveID']
-          print "working with TaxonNameID = #{taxon_name_id}, MakeOTU = #{make_otu} \n"
+          logger.info "working with TaxonNameID = #{taxon_name_id}, MakeOTU = #{make_otu} \n"
 
           if make_otu == '1'
             get_otu_sf_above_id[taxon_name_id] = use_above_id
