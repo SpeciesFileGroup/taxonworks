@@ -2,15 +2,14 @@
 
 <h3>Loan to : <%= object_tag(@loan) %>, Loan ID: <%= @loan.id %></h3>
 <!-- Listing the collection objects -->
-<div id="loan_completion_widget" hidden="hidden" class="loan_item_selection flexbox">
+<div id="loan_completion_widget" hidden="hidden" class="loan_completion flexbox">
   <div class="item item1">
-    <%= form_for(@loan, {url: loan_items_action_url, method: 'get'}) do |form| %>
+    <%= form_tag(loan_items_action_url, {method: 'get'}) do %>
         <%= hidden_field_tag('loan_id', @loan.id) %>
         <table class="tablesorter" border="1">
           <thead>
           <tr>
             <%= fancy_th_tag(name: 'Loaned item') -%>
-            <%#= fancy_th_tag(name: 'Position') -%>
             <%= fancy_th_tag(name: 'Date returned') %>
             <%= fancy_th_tag(name: 'Collection object status') -%>
             <%= fancy_th_tag(name: 'Total') -%>
@@ -19,49 +18,34 @@
           </tr>
           </thead>
           <tbody class="loan_items_list">
-          <%= form.fields_for(:loan_items, @loan.loan_items.order(:position)) do |loan_item| %>
 
-              <%# @loan.loan_items.order(:position).each do |loan_item| %>
-              <!--<tr>-->
-              <!--<td><%#= object_tag(loan_item.loan_item_object) %></td>-->
-              <!--<td align="center"><%#= loan_item.position %></td>-->
-              <!--<td><%#= loan_item.date_returned %></td>-->
-              <!--<td><%#= loan_item.disposition %></td>-->
-              <!--<td><%#= loan_item.total_items %></td>-->
-              <!--<td><%#= loan_item.loan_item_object_type %></td>-->
-              <!--</tr>-->
-              <!--<%# end %>-->
-
-              <%= loan_item.hidden_field :global_entity -%>
-              <%= content_tag(:tr,
-                              class: [:contextMenuCells, :btn, 'btn-neutral', :loan_item],
-                              data:  {'loan_item-gid'   => loan_item.object.to_global_id.to_s,
-                                      'loan-item-index' => loan_item.index}) do -%>
-                  <%= content_tag(:td, object_tag(loan_item.object.loan_item_object)) %>
-                  <%#= content_tag(:td, loan_item.object.position, align: :center) %>
-                  <%= content_tag(:td, loan_item.text_field(:date_returned_jquery,
-                                                            class: :datepicker_recurring_start, size: 9)) %>
-                  <%= content_tag(:td, loan_item.select(:disposition, options_for_select(LoanItem::STATUS,
-                                                                                         selected: loan_item.object.disposition),
-                                                        include_blank: true)) -%>
-                  <%= content_tag(:td, (loan_item.object.loan_item_object_type == 'Otu' ?
-                      (loan_item.text_field(:total, size: 4)) : nil)) %>
-                  <%= content_tag(:td, loan_item.object.loan_item_object_type) %>
-                  <%= content_tag(:td, check_box_tag("loan_items[#{loan_item.object.id}]"), align: :center) %>
-                  <!--<td align="center"><%#= check_box_tag("loan_items[#{loan_item.id}]") %></td>-->
-              <% end %>
+          <% @loan.loan_items.order(:position).each do |loan_item| %>
+              <tr>
+                <td><%= object_tag(loan_item.loan_item_object) %></td>
+                <td><%= loan_item.date_returned %></td>
+                <td><%= loan_item.disposition %></td>
+                <td><%= loan_item.loan_item_object_type == 'Otu' ? loan_item.total : nil %></td>
+                <td><%= loan_item.loan_item_object_type %></td>
+                <td align="center"><%= check_box_tag("loan_items[#{loan_item.id}]") %></td>
+              </tr>
           <% end %>
           </tbody>
         </table>
-        <%= submit_tag('Update selected loan item information') %>
+        <hr>
+        <%= text_field_tag(:date_returned, nil, {class: :datepicker_recurring_start, size: 9}) %><br>
+        <%= submit_tag('Update selected date') %>
+        <hr>
+        <%= select_tag(:disposition, options_for_select(LoanItem::STATUS)) %><br>
+        <%= submit_tag('Update selected status') %>
+        <hr>
+        <%= render(partial: 'taxon_determinations/form',
+                   locals:  {object: new_taxon_determination}) %>
         </div>
         <div class="item item2">
+
         </div>
         <div class="item item3">
 
-          <%= render(partial: 'taxon_determinations/form',
-                     locals:  {object: new_taxon_determination}) %>
         </div>
     <% end %>
-
     </div>

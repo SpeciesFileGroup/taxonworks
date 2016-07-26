@@ -1,0 +1,32 @@
+var TW = TW || {};
+TW.views = TW.views || {};
+TW.views.tasks = TW.views.tasks || {};
+TW.views.tasks.loans = TW.views.tasks.loans || {};
+TW.views.tasks.loans.form = TW.views.tasks.loans.form || {};
+
+Object.assign(TW.views.tasks.loans.form, {
+
+  initialize: function () {
+    // Bind injected datepicker elements
+    $('body').on('focus', ".datepicker_recurring_start", function () {
+      $(this).datepicker();
+    });
+  }
+});
+
+var _init_loan_completion_widget;
+
+_init_loan_completion_widget = function init_loan_completion() {
+  var widget = $('#loan_completion_widget');
+  if (widget.length) {
+    widget.removeAttr('hidden');  // unhide the loan completion widget div
+    var bio_object = $('#bio_object');
+    if (bio_object.length) {
+      bio_object.attr("hidden", true);  // hide the biological collection object section
+    }
+    TW.views.tasks.loans.form.initialize(widget)
+  }
+};
+
+$(document).ready(_init_loan_completion_widget);
+$(document).on("page:load", _init_loan_completion_widget);
