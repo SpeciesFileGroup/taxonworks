@@ -1,0 +1,51 @@
+@import 'base/palette';
+@import 'base/whitespace';
+
+#hub_order {
+  table {
+    display: flex;
+    justify-content: center;
+    box-shadow: none;
+  }
+
+  tr {
+    color: $color-secondary-2-4;
+    margin: 10px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    float: left;
+    border-bottom: 2px solid transparent;
+  }
+  tr:hover {
+    span {
+      background-image: image-url("drag.svg");
+    }    
+    color: $default_text;
+    background-color: $body_background;
+    border-bottom: 2px solid $color-secondary-2-4;
+  }
+
+  td:active {
+    span {
+      background-image: image-url("scroll-h.svg");
+     
+    }
+  }
+  td {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    span {
+      background-repeat: no-repeat;
+      padding-left: 20px;
+      background-position: left, center;
+    }
+    font-size: 12px;
+    border:none;
+    text-transform: uppercase;
+  }
+}

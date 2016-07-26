@@ -1,12 +1,6 @@
 @import 'base/palette';
 @import 'base/whitespace';
 
-.no_bullets {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
 .recent_updates  {
   max-width: 1080px;
   position: absolute;
@@ -58,37 +52,4 @@
 
 .dfn_bold {
   font-weight: bold;
-}
-
-.breadcrumb_list {
-  display: flex;
-  flex-direction: row;
-  flex-flow: wrap;
-  list-style: none;
-  margin: 0px;
-  padding:0px;
-  li {
-    margin-right: 5px;
-    background-repeat: no-repeat;
-    background-size: 8px;
-    background-position: left, center;
-    padding-left: 15px;
-    background-image: image-url("arrow-right.svg");
-  }
-  li:first-child {
-    padding-left: 0px;
-    background-image: none;
-  }
-}
-
-.green {
-  color: green;
-}
-
-.brown {
-  color: brown;
-}
-
-.red {
-  color: red;
 }

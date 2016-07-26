@@ -1,0 +1,55 @@
+@import 'base/palette';
+
+.ui-dialog {
+  border:none !important;
+  border-radius: 0px !important;
+}
+.ui-corner-all {background: $body_background !important}
+.ui-datepicker {
+  display: none;
+  box-shadow: 0 0px 3px 0 $navigation_border;
+  border:none !important;
+  border-radius: 0px;
+  .ui-corner-all {
+    border:none;
+    border-radius: 0px;
+  }
+}
+.ui-datepicker-title {
+  font-weight: 100;
+}
+.ui-datepicker-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  padding: 10px;
+}
+
+.ui-datepicker-calendar {
+  a {
+    text-decoration: none;
+    background-color: transparent !important;
+  }
+  a.ui-state-default {
+    background-color: transparent !important;
+    border: none;
+  }
+  .ui-datepicker-current-day {
+    color: $body_background;
+    background-color: $color-complement-3;
+  }
+  td {
+    border-bottom: 1px solid $navigation_border;
+    border-left: 1px solid $navigation_border;    
+    text-align: center;
+  }
+  tr:hover {
+    background-color: transparent;
+    td {
+      border-left:1px solid $navigation_border;
+    }
+    td:hover {
+      background-color:  $color-complement-2;
+    }
+  }
+}
