@@ -108,6 +108,23 @@ module Shared::IsData
     def not_ids(*ids)
       where.not(id: ids)
     end
+
+    # @return [Boolean]
+    #   use update vs. a set of ids, but require the update to pass for all or none
+    def batch_update_attribute(ids: [], attribute: nil, value: nil)
+      return false if ids.empty? || attribute.nil? || value.nil? 
+      begin
+        self.transaction do 
+          self.where(id: ids).each do |li|
+            li.update(attribute => value)
+          end
+        end
+      rescue
+        return false
+      end
+      true
+    end
+
   end
 
   protected
