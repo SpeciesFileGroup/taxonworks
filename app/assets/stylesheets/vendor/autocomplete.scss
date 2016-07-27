@@ -22,6 +22,40 @@
 	width: auto;
 }
 
+.ui-menu a {
+	background-color: none;
+}
+
+.ui-autocomplete {
+	border:none;
+	box-shadow: 0 2px 4px 0 $navigation_border;
+	font-weight: 100;
+	background-color: $color-secondary-2-1;
+}
+
+.ui-menu-item {
+	font-size: 12px;
+	padding: 5px;
+	font-weight: bold;
+	color: $color-secondary-2-4;
+	.subtle {
+		font-size: 10px;
+		font-weight: 100;
+	}    
+	mark {
+		font-weight: 100;
+		color: $default_text;
+		background: none;
+	}
+}  
+
+.ui-menu-item:hover {
+	background: none;
+	background-color: $color-complement-2;
+	border:1px solid transparent;
+}
+
+
 .autocomplete.ui-menu-item {
 	word-wrap: break-word;
 	padding: .2em;
