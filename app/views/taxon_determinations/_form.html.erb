@@ -1,8 +1,6 @@
 <%= form_for(@taxon_determination) do |f| %>
     <%= render 'shared/errors', object: @taxon_determination %>
 
-    <%= render partial: '/people/role_picker', locals: {role: Determiner.new(), object: @taxon_determination, f: f} %>
-
     <div class="field" id="bio_object">
       <%= f.label :biological_collection_object_id %><br>
       <%= render partial: 'workbench/elements/forms/ajax_select',
@@ -13,6 +11,7 @@
                           display: collection_object_tag(@taxon_determination.biological_collection_object)} %>
     </div>
 
+    <%= render partial: '/people/role_picker', locals: {role: Determiner.new(), object: @taxon_determination, f: f} %>
 
     <%= render '/otus/otu_picker', otu: @taxon_determination.otu, f: f -%>
 
@@ -28,6 +27,8 @@
       <%= f.label :day_made %><br>
       <%= f.text_field :day_made, size: 2 %>
     </div>
+
+
     <div class="actions">
       <%= f.submit %>
     </div>

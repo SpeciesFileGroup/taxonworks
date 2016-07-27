@@ -99,6 +99,21 @@ class LoanItem < ActiveRecord::Base
     end
   end
 
+  def self.batch_determine_loan_items(ids: [], params: {})
+    t = TaxonDetermination.new(params)
+    begin
+      LoanItem.transaction do
+        LoanItem.where(id: ids, loan_item_object_type: 'CollectionObject').each do |li|
+          li.loan_item_object.taxon_determinations << t.dup
+          li.loan_item_object.taxon_determinations.last.move_to_top
+        end
+      end
+    rescue
+      return false
+    end
+    true
+  end
+
   protected
 
   def total_provided_only_when_otu

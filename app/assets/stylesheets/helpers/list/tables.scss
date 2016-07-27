@@ -6,7 +6,7 @@
 }
 table {
   box-shadow: 0 0 3px 0 $navigation_border;
-  border-radius: 5px;
+  border-radius: 3px;
   width: auto;
   border-spacing: 0;
   border-collapse: collapse;  
@@ -26,14 +26,14 @@ table {
   th.headerSortUp { 
     background-image: image-url('arrow-up.svg');
     background-position: right, center;
-    padding-right: 15px;
+    padding-right: $standard_padding;
     background-repeat: no-repeat;
   } 
 
   th.headerSortDown { 
     background-image: image-url('arrow-down.svg');
     background-position: right, center;
-    padding-right: 15px;
+    padding-right: $standard_padding;
     background-repeat: no-repeat;  
   } 
 

@@ -1,0 +1,39 @@
+<h1>Tasks::Loans#complete</h1>
+
+<%= link_to('back', @loan) -%>
+
+<h3>Loan to : <%= object_tag(@loan) %>, Loan ID: <%= @loan.id %></h3>
+
+<%= form_for(@loan, html: { id: 'loan_form'}) do |f| -%>
+  <%= f.fields_for(:loan_items) do |loan_item| -%>
+    <%= loan_item.object.id -%> <%= check_box_tag("loan_items[#{loan_item.index}][id]", loan_item.object.id, checked: false) -%>
+  <% end %>
+<% end %>
+
+<%= form_tag(loan_update_status_path(@loan), method: :post, class: 'loan_update_form' ) do |li| -%>
+  <%= select_tag(:disposition, options_for_select(LoanItem::STATUS, :blank), include_blank: true) %><br>
+  <%= submit_tag 'Update status' -%>
+<% end %> 
+
+<%= form_tag(loan_return_items_path(@loan), method: :post, class: 'loan_update_form' ) do |li| -%>
+  <%= text_field_tag(:date_returned, nil, {class: :datepicker_recurring_start, size: 9}) %> <br>
+  <%= submit_tag 'Return items' -%>
+<% end %> 
+
+<%= form_for(@taxon_determination, url: loan_add_determination_path(@loan), method: :post, html: {class: 'loan_update_form'} ) do |f| -%>
+  <div class="field" id="bio_object">
+    <%= f.label :biological_collection_object_id %><br>
+    <%= render  'workbench/elements/forms/ajax_select',
+      controller: '/collection_objects',
+      object: 'taxon_determination',
+      method: 'biological_collection_object_id',
+      tag_id: 'biological_collection_object_id_for_taxon_determination',
+      display: collection_object_tag(@taxon_determination.biological_collection_object) %>
+</div>
+
+  <%= render partial: '/people/role_picker', locals: {role: Determiner.new(), object: @taxon_determination, f: f} %>
+
+  <%= render '/otus/otu_picker', otu: @taxon_determination.otu, f: f -%>
+
+  <%= submit_tag 'Set determinations' -%>
+<% end %> 

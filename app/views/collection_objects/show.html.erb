@@ -8,8 +8,8 @@
 
 <%= content_for :associated do -%>
   <h3> Taxon Determinations </h3>
-  <% @collection_object.taxon_determinations.each do |td| -%>
-    <%= taxon_determination_link(td) %> 
+  <% @collection_object.taxon_determinations.order(position: :desc).each do |td| -%>
+    <%= taxon_determination_link(td) %><br> 
   <% end %>
 <% end %>
 

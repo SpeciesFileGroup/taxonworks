@@ -54,37 +54,37 @@ textarea:focus, input:focus{
 fieldset {
   border-radius:3px;
   border:1px solid $navigation_border;
-  background-color:#FFF;  
+  background-color:$body_background;  
 }
 
 form input, textarea {
 	padding:5px;
-	padding-left:10px;
-	padding-right:10px;
+	padding-left:$standard_padding;
+	padding-right:$standard_padding;
 	border-radius:3px;
 	border:1px solid $navigation_border;
-	background-color:#FFF;
+	background-color:$body_background;
 }
 
 input[type="submit"] {
   height: 25px;
-  padding-left: 10px;
-  padding-right: 10px;
-  color: #FFF;
+  padding-left: $standard_padding;
+  padding-right: standard_padding;
+  color: $body_background;
   border-radius: 3px;
   border:1px solid;
   border:transparent;
-  box-shadow: 0px 2px 4px 0px $navigation_border;
+  box-shadow: 0px 1px 3px 0px $navigation_border;
   background-color: #9CCC65;
 }
 
 select {
   padding:5px;
-  padding-left:10px;
-  padding-right:10px;
+  padding-left:$standard_padding;
+  padding-right:$standard_padding;
   border-radius:3px;
   border:1px solid $muted_blue;
-  background-color:#FFF;
+  background-color:$body_background;
   height: 25px;
 }
 
@@ -108,7 +108,7 @@ form div.required {
       display: none;
     }
     input {
-      padding-left: 1em;
+      padding-left: $standard_padding;
     }
   }
 }
@@ -117,14 +117,19 @@ form div.required {
   overflow: auto;
   .field {
     float: left;
-    padding-right: 1em
+    padding-right: $standard_padding;
   }
 }
 
 .field {
   &.label_above { 
-    br { display:inline ;} 
-    label {float: left; display: block;}
+    br { 
+      display:inline;
+    } 
+    label {
+      float: left; 
+      display: block;
+    }
   }
 }
 

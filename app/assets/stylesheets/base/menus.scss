@@ -1,0 +1,109 @@
+@import 'base/palette';
+@import 'base/whitespace';
+
+.navigation-controls {
+  font-weight: 100;
+  display: flex;
+  font-size: 12px;
+  flex-direction:row;
+  justify-content:space-between;
+  align-items: center;
+  input[type="text"] {
+    width:170px;
+  }       
+  input[type="submit"] {
+    width:50px;
+  }               
+
+  .navigation-item:first-child {
+    border-left:none;
+  }
+  .navigation-item {
+    color: $default_text;
+    border-bottom:1px solid $navigation_border;
+    cursor: pointer;
+    width: 100%;
+    display: flex;
+    flex-direction:row;
+    justify-content:center;
+    align-items:center;
+    position: relative;
+    align-items: center;
+    padding-top: $standard_padding;
+    padding-bottom: $standard_padding;
+    border-left: 1px solid $navigation_border;
+    text-align: center;
+    a {
+      color: $default_text;
+      text-decoration: none;
+    }
+    em:first-letter {
+      text-transform: uppercase;
+    }
+    .dropdown {
+      display: none;
+      z-index: 100;
+      top: 100%;
+      left: 0;
+      right: 0;
+      flex-direction: column;
+      position: absolute;
+      border-bottom-left-radius: 3px;
+      border-bottom-right-radius: 3px;
+      padding-botom: $standard_padding;
+      border:1px solid $navigation_border;
+      background-color: $body_background; 
+      box-shadow: 0 1px 2px 0 $navigation_border; 
+      margin: 0px;  
+      padding: 0px; 
+      text-align: left;         
+      li {
+        margin: 0px;
+        display: flex;
+        flex-direction: row;
+        a {
+          width: 100%;
+          height: 100%;
+          display:block;
+          padding: 5px;
+          padding-left: $standard_padding;
+          font-size: 12px;
+        }
+      }
+      li:hover {
+        color: $body_background;
+        background-color: $color-complement-3;
+        a {
+          color: $body_background;
+        }
+      }
+      li:last-child {
+        border-bottom: none;
+      }
+    }
+  }
+
+  .menu-drop {
+    background-image: image-url("arrow-down.svg");
+    background-position: 95%,center;
+    background-repeat: no-repeat;
+  }
+
+  .menu-drop:hover {
+    background-image: image-url("g_arrow-down.svg");
+    background-position: 95%,center;
+    background-repeat: no-repeat;
+  } 
+
+  .navigation-item:hover {
+    background-color: $color-complement-2;
+    box-shadow:inset 0px 1px 2px 0px $color-complement-3;
+    img {
+      opacity: 1;
+    }
+    .dropdown {
+      display: flex;
+      background-color: $color-secondary-2-1;
+    }
+  }
+}
