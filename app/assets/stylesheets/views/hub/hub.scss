@@ -47,19 +47,16 @@
     transition: opacity 0.5s ease;
   }
   .restart-background:hover {
-    -webkit-animation-name: rotate-restart; 
+    -webkit-animation-name: rotate-inverted; 
     -webkit-animation-duration: 0.5s; 
     -webkit-animation-iteration-count: 1;
     -webkit-animation-timing-function: linear;
-    -moz-animation-name: rotate-restart; 
+    -moz-animation-name: rotate-inverted; 
     -moz-animation-duration: 0.5s; 
     -moz-animation-iteration-count: 1;
     -moz-animation-timing-function: linear;
   }
-  @-webkit-keyframes rotate-restart {
-    from {-webkit-transform: rotate(0deg);}
-    to {-webkit-transform: rotate(360deg);}
-  } 
+
   
  #hub_tabs { 
     display: flex;
@@ -78,9 +75,11 @@
         flex-direction: row;
         justify-content: center;
         align-items: center;
-        padding-top: 10px;
-        padding-bottom: 10px;
-        margin-right: 30px;
+        padding-top: $standard_padding;
+        padding-bottom: $standard_padding*0.25;
+        margin-bottom: $standard_padding*0.5;
+        margin-right: $standard_padding*2;
+
         border-bottom: 2px solid transparent;
         border-top: 2px solid transparent;
       }

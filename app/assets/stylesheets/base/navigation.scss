@@ -1,3 +1,4 @@
+@import 'base/whitespace';
 @import 'base/palette';
 @import 'views/shared_data/show';
 
@@ -45,9 +46,9 @@ a {
   font-weight: 100;
   position: relative;
   border-bottom: 1px solid $navigation_border;
-  background-color:#FFF;
+  background-color:$body-background;
   height: 45px;
-  padding-right: 15px;
+  padding-right: $standard_margin;
   .hub-project {
     position: relative;
     margin-left: 1em;
@@ -57,7 +58,7 @@ a {
     margin: 0px;
     padding:0px;
     display: flex;
-    margin-left:15px;
+    margin-left:$standard_margin;
   }
 
   li a:first-letter {
@@ -132,8 +133,8 @@ a {
       color: $navigation_border;
       content: "|";
       align-items: center;
-      padding-left:15px;
-      padding-right:15px;
+      padding-left:$standard_padding;
+      padding-right:$standard_padding;
     }
 
     li:last-child:after {

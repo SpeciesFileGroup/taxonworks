@@ -21,7 +21,7 @@
 
   .task_card {
     border: 1px solid $navigation_border;
-    margin: 0.5em;
+    margin: $standard_margin * 0.5;
     width: 450px;
     min-height: 200px;
     border-radius: 3px;
@@ -35,9 +35,9 @@
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid $navigation_border;
-    padding: 0.5em;
-    padding-left: 1em;
-    padding-right: 1em;
+    padding: $standard_padding * 0.5;
+    padding-left: $standard_padding;
+    padding-right: $standard_padding;
 
     .status:first-letter {
       text-transform: uppercase;
@@ -109,7 +109,7 @@
 
   .task_name {
     font-size: 18px;
-    padding: 1em; 
+    padding: $standard_padding; 
     a {
       color: $color-secondary-2-4;
     }

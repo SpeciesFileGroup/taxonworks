@@ -1,15 +1,18 @@
 @import 'base/palette';
+@import 'base/whitespace';
 
 .ui-dialog {
   border:none !important;
-  border-radius: 0px !important;
+  border-radius: 3px !important;
+  padding: 0px;
 }
 .ui-corner-all {background: $body_background !important}
 .ui-datepicker {
   display: none;
   box-shadow: 0 0px 3px 0 $navigation_border;
   border:none !important;
-  border-radius: 0px;
+  border-radius: 3px;
+  margin:0px;
   .ui-corner-all {
     border:none;
     border-radius: 0px;
@@ -22,18 +25,26 @@
   display: flex;
   flex-direction: row;
   justify-content: space-around;
-  padding: 10px;
 }
 
+
 .ui-datepicker-calendar {
+  margin: 0px;
+  margin-top: 5px;
   a {
     text-decoration: none;
     background-color: transparent !important;
   }
   a.ui-state-default {
-    background-color: transparent !important;
+    background: none !important;
     border: none;
+
   }
+
+  .ui-datepicker-today {
+    background-color: $color-complement-2;
+  }
+
   .ui-datepicker-current-day {
     color: $body_background;
     background-color: $color-complement-3;
