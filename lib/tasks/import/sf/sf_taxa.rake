@@ -88,17 +88,25 @@ namespace :tw do
           if row['AboveID'] == '0' # must check AboveID = 0 before synonym
             parent_id = animalia_id
           elsif row['NameStatus'] == '7' # = synonym
-            parent_id = get_tw_taxon_name_id[get_sf_parent_id[taxon_name_id]] # assumes tw_taxon_name_id exists
+            # new synonym parent id could be = 0 if RankID bubbles up to top
+            # logger.info "get_sf_parent_id[taxon_name_id] = #{get_sf_parent_id[taxon_name_id]}, taxon_name_id.class = #{taxon_name_id.class}"
+            if get_sf_parent_id[taxon_name_id.to_s] == '0'  # use animalia_id
+              parent_id = animalia_id
+            else
+              parent_id = get_tw_taxon_name_id[get_sf_parent_id[taxon_name_id]] # assumes tw_taxon_name_id exists
+            end
           elsif get_otu_sf_above_id.has_key?(taxon_name_id) # bad valid sf taxon name
-            parent_id = get_otu_sf_above_id[taxon_name_id]
+            parent_id = get_tw_taxon_name_id[get_otu_sf_above_id[taxon_name_id]]
+            # logger.info "get_otu_sf_above_id.has_key? parent_id = #{parent_id}"
           elsif get_sf_new_parent_id.has_key?(taxon_name_id) # subordinate of bad valid taxon name
-            parent_id = get_sf_new_parent_id[taxon_name_id]
+            parent_id = get_tw_taxon_name_id[get_sf_new_parent_id[taxon_name_id]]
+            # logger.info "get_sf_new_parent_id.has_key? parent_id = #{parent_id}"
           else
             parent_id = get_tw_taxon_name_id[row['AboveID']]
           end
 
           if parent_id == nil
-            logger.warn "ALERT: Could not find parent_id (error #{no_parent_counter += 1})! Set to animalia_id = #{animalia_id}"
+            logger.warn "ALERT: Could not find parent_id of SF.TaxonNameID = #{taxon_name_id} (error #{no_parent_counter += 1})! Set to animalia_id = #{animalia_id}"
             parent_id = animalia_id # this is problematic; need real solution
           end
 
@@ -117,13 +125,13 @@ namespace :tw do
             )
 
             if otu.save
-              logger.info "Note!! Created OTU for temporary taxon, otu.id: #{otu.id}"
+              logger.info "Note!! Created OTU for temporary taxon SF.TaxonNameID = #{taxon_name_id}, otu.id = #{otu.id}"
               get_tw_otu_id[row['TaxonNameID']] = otu.id.to_s
               get_sf_name_status[row['TaxonNameID']] = name_status
               get_sf_status_flags[row['TaxonNameID']] = status_flags
 
             else
-              logger.error "OTU ERROR (#{error_counter += 1}): " + otu.errors.full_messages.join(';')
+              logger.error "OTU ERROR (#{error_counter += 1}) for SF.TaxonNameID = #{taxon_name_id}: " + otu.errors.full_messages.join(';')
             end
 
           else
@@ -187,7 +195,8 @@ namespace :tw do
             # if taxon_name.save
             if taxon_name.valid?
               taxon_name.save!
-              get_tw_taxon_name_id[row['TaxonNameID']] = taxon_name.id
+              # logger.info "taxon_name.id = #{taxon_name.id}"
+              get_tw_taxon_name_id[row['TaxonNameID']] = taxon_name.id.to_s
               get_sf_name_status[row['TaxonNameID']] = name_status
               get_sf_status_flags[row['TaxonNameID']] = status_flags
 
@@ -248,7 +257,7 @@ namespace :tw do
               get_sf_status_flags[row['TaxonNameID']] = status_flags
 
             else
-              logger.error "TaxonName ERROR (#{error_counter += 1}) AFTER synonym test (parent_id = #{parent_id}): " + taxon_name.errors.full_messages.join(';')
+              logger.error "TaxonName ERROR (#{error_counter += 1}) AFTER synonym test (SF.TaxonNameID = #{taxon_name_id}, parent_id = #{parent_id}): " + taxon_name.errors.full_messages.join(';')
             end
           end
         end
@@ -258,13 +267,13 @@ namespace :tw do
         import.set('SFTaxonNameIDToSFStatusFlags', get_sf_status_flags)
         import.set('SFTaxonNameIDToTWOtuID', get_tw_otu_id)
 
-        logger.info 'SFTaxonNameIDToTWTaxonNameID'
+        puts 'SFTaxonNameIDToTWTaxonNameID'
         ap get_tw_taxon_name_id
-        logger.info 'SFTaxonNameIDToSFNameStatus'
+        puts 'SFTaxonNameIDToSFNameStatus'
         ap get_sf_name_status
-        logger.info 'SFTaxonNameIDToSFStatusFlags'
+        puts 'SFTaxonNameIDToSFStatusFlags'
         ap get_sf_status_flags
-        logger.info 'SFTaxonNameIDToTWOtuID'
+        puts 'SFTaxonNameIDToTWOtuID'
         ap get_tw_otu_id
 
       end
