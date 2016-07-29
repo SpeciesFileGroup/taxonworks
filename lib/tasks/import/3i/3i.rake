@@ -47,10 +47,10 @@
             0 => '',
             1 => Ranks.lookup(:iczn, :subspecies),
             2 => Ranks.lookup(:iczn, :species),
-            4 => 'NomenclaturalRank::Iczn::SpeciesGroup::SpeciesGroup',
+            4 => 'NomenclaturalRank::Iczn::SpeciesGroup::Superspecies',
             6 => Ranks.lookup(:iczn, :subgenus),
             7 => Ranks.lookup(:iczn, :genus),
-            8 => 'NomenclaturalRank::Iczn::GenusGroup::GenusGroup',
+            8 => 'NomenclaturalRank::Iczn::GenusGroup::Supergenus',
             9 => Ranks.lookup(:iczn, :subtribe),
             10 => Ranks.lookup(:iczn, :tribe),
             11 => Ranks.lookup(:iczn, :supertribe),
@@ -405,7 +405,7 @@
         language = %w(French Russian German Japanese Chinese English Korean Polish Italian Georgian )
 
         file.each_with_index do |row, i|
-          if i < 100000 ######################
+          if i < 1000000 ######################
           print "\r#{i}"
           journal, serial_id, volume, pages = parse_bibliography_3i(row['Bibliography'])
           year, year_suffix = parse_year_3i(row['Year'])
@@ -467,7 +467,7 @@
           if source.valid?
             source.save!
             source.project_sources.create!
-            @data.publications_index.merge!(row['Key3'] => source.id)
+            @data.publications_index[row['Key3']] = source.id
           else
             byebug
           end
@@ -486,7 +486,6 @@
 
         serial_id = Serial.where(name: matchdata[1]).limit(1).pluck(:id).first
         serial_id ||= Serial.with_any_value_for(:name, matchdata[1]).limit(1).pluck(:id).first
-        #serial_id = serial.nil? ? nil : serial.id
         journal = matchdata[4].blank? ? matchdata[1] : bibl
         volume = matchdata[2]
         pages = matchdata[3]
@@ -509,7 +508,7 @@
         #speciesname
 
         file.each_with_index do |row, i|
-          @data.nouns.merge!(row['speciesname'] => true)
+          @data.nouns[row['speciesname']] = true
         end
 
       end
@@ -574,11 +573,11 @@
             if i < 200000
             print "\r#{i}"
             if row['Name'] == 'Incertae sedis' || row['Name'] == 'Unplaced'
-              @data.incertae_sedis.merge!(row['Key'] => @data.taxon_index[row['Parent']])
+              @data.incertae_sedis[row['Key']] = @data.taxon_index[row['Parent']]
             elsif row['Status'] == '7' ### common name
             elsif row['Status'] == '8' && !find_taxon_3i(row['Parent']).try(:rank_class).to_s.include?('Family') ### combination
             elsif row['Status'] == '2'
-              @data.original_combination.merge!(row['OriginalCombinationOf'] => row)
+              @data.original_combination[row['OriginalCombinationOf']] = row
             elsif row['Status'] == '16'
               rank = @ranks[row['Rank'].to_i]
               otu = Otu.create!(name: 'Genus ' + row['Name']) if rank.to_s.include?('Genus')
@@ -600,7 +599,7 @@
               taxon = find_taxon_3i(row['Parent'])
               taxon.data_attributes.new(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['FirstRevisor'].id, value: (row['Name'] + ' ' + row['Author'].to_s + ', ' + row['Year'].to_s + row['YearRem'].to_s).squish)
               taxon.valid? ? taxon.save! : byebug
-              @data.emendation.merge!(row['Parent'] => row)
+              @data.emendation[row['Parent']] = row
             else
               name = row['Name'].split(' ').last
               vname = row['Name'].split(' ').last
@@ -688,7 +687,7 @@
 
               if taxon.valid?
                 taxon.save!
-                @data.taxon_index.merge!(row['Key'] => taxon.id)
+                @data.taxon_index[row['Key']] = taxon.id
               else
                 taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin') if taxon.rank_string =~ /Family/ && row['Status'] != '0' && !taxon.errors.messages[:name].blank?
                 taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin') if taxon.rank_string =~ /Species/ && row['Status'] != '0' && taxon.errors.full_messages.include?('Name name must be lower case')
@@ -697,7 +696,7 @@
 
                 if taxon.valid?
                   taxon.save!
-                  @data.taxon_index.merge!(row['Key'] => taxon.id)
+                  @data.taxon_index[row['Key']] = taxon.id
                 else
                   print "\n#{row['Key']}         #{row['Name']}"
                   print "\n#{taxon.errors.full_messages}\n"
@@ -926,7 +925,7 @@
           print "\r#{i}"
           tmp = {}
           %w(Phylum Class Order Family Genus Subgenus Species Variety).each do |c|
-            tmp.merge!(c => row[c]) unless row[c].blank?
+            tmp[c] = row[c] unless row[c].blank?
           end
 
           otu = @data.unique_host_plant_index[tmp]
@@ -951,7 +950,7 @@
               plant = Protonym.find_or_create_by!(name: row['Family'], rank_class: Ranks.lookup(:icn, 'family'), parent: parent, project_id: $project_id)
               parent = plant
               otu = Otu.find_or_create_by!(taxon_name_id: plant.id, project_id: $project_id).id
-              @data.host_plant_index.merge!(row['Family'] => otu)
+              @data.host_plant_index[row['Family']] = otu
             end
             unless row['Genus'].blank?
               plant = Protonym.find_or_create_by!(name: row['Genus'], rank_class: Ranks.lookup(:icn, 'genus'), parent: parent, project_id: $project_id)
@@ -975,7 +974,7 @@
               plant = Protonym.find_or_create_by!(name: row['Variety'], rank_class: Ranks.lookup(:icn, 'variety'), verbatim_author: author, parent: parent, project_id: $project_id)
             end
             otu = Otu.find_or_create_by!(taxon_name_id: plant.id, project_id: $project_id).id
-            @data.unique_host_plant_index.merge!(tmp => otu)
+            @data.unique_host_plant_index[tmp] = otu
           end
 
           unless row['CommonName'].blank?
@@ -988,8 +987,8 @@
             end
           end
 
-          @data.host_plant_index.merge!(row['HostPlant'] => otu)
-          @data.host_plant_index.merge!(row['CommonName'] => otu) unless row['CommonName'].blank?
+          @data.host_plant_index[row['HostPlant']] = otu
+          @data.host_plant_index[row['CommonName']] = otu unless row['CommonName'].blank?
 
         end
       end
@@ -1158,7 +1157,7 @@
 
         file.each_with_index do |row, i|
           print "\r#{i}"
-          @data.countries.merge!(row['Key6'] => row)
+          @data.countries[row['Key6']] = row
         end
       end
 
@@ -1177,7 +1176,7 @@
 
         file.each_with_index do |row, i|
           print "\r#{i}"
-          @data.museums.merge!(row['abbreviation'] => row['TW_acronim']) unless row['TW_acronim'].blank?
+          @data.museums[row['abbreviation']] = row['TW_acronim'] unless row['TW_acronim'].blank?
         end
       end
 
@@ -1296,7 +1295,7 @@
       def find_or_create_collecting_event_3i(ce)
         tmp_ce = { }
         @locality_columns_3i.each do |c|
-          tmp_ce.merge!(c => ce[c]) unless ce[c].blank?
+          tmp_ce[c] = ce[c] unless ce[c].blank?
         end
         tmp_ce_sorted = tmp_ce.sort.to_s
         c_stored = @data.geographic_areas[Digest::MD5.hexdigest(tmp_ce_sorted)]
@@ -1366,7 +1365,7 @@
             c.data_attributes.create(type: 'ImportAttribute', import_predicate: 'georeference_error', value: 'Geolocation uncertainty is conflicting with geographic area') unless gr.valid?
           end
 
-          @data.geographic_areas.merge!(Digest::MD5.hexdigest(tmp_ce_sorted) => c.id)
+          @data.geographic_areas[Digest::MD5.hexdigest(tmp_ce_sorted)] = c.id
           return c
         else
           byebug

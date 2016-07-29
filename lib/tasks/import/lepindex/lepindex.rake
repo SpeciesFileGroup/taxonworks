@@ -379,7 +379,7 @@ namespace :tw do
               parent_id = family unless family.nil?
               if subfamily.nil? && !row['Current_subfamily'].blank? && row['Current_subfamily'] != 'Subfamily unassigned'
                 if row['Current_subfamily'] =~ / group/
-                  subfamily = Protonym.find_or_create_by(name: row['Current_subfamily'].gsub(' group', ''), parent_id: parent_id, rank_class: 'NomenclaturalRank::Iczn::GenusGroup::GenusGroup', project_id: $project_id).id
+                  subfamily = Protonym.find_or_create_by(name: row['Current_subfamily'].gsub(' group', ''), parent_id: parent_id, rank_class: 'NomenclaturalRank::Iczn::GenusGroup::Supergenus', project_id: $project_id).id
                 else
                   subfamily = Protonym.find_or_create_by(name: row['Current_subfamily'], parent_id: parent_id, rank_class: Ranks.lookup(:iczn, 'subfamily'), project_id: $project_id).id
                 end

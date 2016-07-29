@@ -1,7 +1,7 @@
 class NomenclaturalRank::Iczn::FamilyGroup::Subfamily < NomenclaturalRank::Iczn::FamilyGroup
 
   def self.parent_rank
-    NomenclaturalRank::Iczn::FamilyGroup::SubfamilyGroup
+    NomenclaturalRank::Iczn::FamilyGroup::Supersubfamily
   end
 
   def self.validate_name_format(taxon_name)
@@ -15,6 +15,6 @@ class NomenclaturalRank::Iczn::FamilyGroup::Subfamily < NomenclaturalRank::Iczn:
   end
 
   def self.valid_parents
-    [NomenclaturalRank::Iczn::FamilyGroup::Family.to_s, NomenclaturalRank::Iczn::FamilyGroup::SubfamilyGroup.to_s]
+    [NomenclaturalRank::Iczn::FamilyGroup::Family.to_s, NomenclaturalRank::Iczn::FamilyGroup::Supersubfamily.to_s]
   end
 end
