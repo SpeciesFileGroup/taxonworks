@@ -806,7 +806,7 @@ class TaxonName < ActiveRecord::Base
     eo = '<i>'
     ec = '</i>'
     return "#{eo}#{verbatim_name}#{ec}".gsub(' f. ', ec + ' f. ' + eo).gsub(' var. ', ec + ' var. ' + eo) if !self.verbatim_name.nil? && self.type == 'Combination'
-    return "#{eo}#{name}#{ec}" if self.rank_string == 'NomenclaturalRank::Iczn::GenusGroup::GenusGroup'
+    return "#{eo}#{name}#{ec}" if self.rank_string == 'NomenclaturalRank::Iczn::GenusGroup::Supergenus'
     d = full_name_hash
    
     elements = []

@@ -1,4 +1,4 @@
-class NomenclaturalRank::Iczn::FamilyGroup::SubfamilyGroup < NomenclaturalRank::Iczn::FamilyGroup
+class NomenclaturalRank::Iczn::FamilyGroup::Supersubfamily < NomenclaturalRank::Iczn::FamilyGroup
 
   def self.parent_rank
     NomenclaturalRank::Iczn::FamilyGroup::Family

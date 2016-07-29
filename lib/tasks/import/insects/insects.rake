@@ -319,7 +319,7 @@ namespace :tw do
                                  'tending' => ['Attendance', :direct],
                                  'vicinity' => ['Pollination', :direct] }
 
-        biological_relationships.keys.each do |br|
+        biological_relationships.each_key do |br|
           b = BiologicalRelationship.where(name: br, project_id: $project_id)
           if b.empty?
             b = BiologicalRelationship.create(name: br)
@@ -328,13 +328,13 @@ namespace :tw do
           end
         end
 
-        export_relationships.keys.each do |br|
+        export_relationships.each_key do |br|
           if export_relationships[br] == :ignore
-            data.biological_relationships.merge!(br => :ignore)
+            data.biological_relationships[br] = :ignore
           else
             b = BiologicalRelationship.where(name: export_relationships[br][0], project_id: $project_id).first
             rt = export_relationships[br][1]
-            data.biological_relationships.merge!(br => {'biological_relationship' => b, 'direction' => rt})
+            data.biological_relationships[br] = {'biological_relationship' => b, 'direction' => rt}
           end
         end
       end
@@ -387,7 +387,7 @@ namespace :tw do
           else
             n = n.first
           end
-          data.namespaces.merge!(cn => n)
+          data.namespaces[cn] = n
         end
 
         n = Namespace.where(institution: 'INHS Insect Collection', short_name: 'NEON')
@@ -396,7 +396,7 @@ namespace :tw do
         else
           n = n.first
         end
-        data.namespaces.merge!('NEON' => n)
+        data.namespaces['NEON'] = n
 
         n = Namespace.where(institution: 'INHS Insect Collection', name: 'INHS loan invoice')
         if n.empty?
@@ -404,7 +404,7 @@ namespace :tw do
         else
           n = n.first
         end
-        data.namespaces.merge!('Invoice' => n)
+        data.namespaces['Invoice'] = n
 
         n = Namespace.where(institution: 'INHS Insect Collection', name: 'INHS drawer')
         if n.empty?
@@ -412,7 +412,7 @@ namespace :tw do
         else
           n = n.first
         end
-        data.namespaces.merge!('dry' => n)
+        data.namespaces['dry'] = n
 
         n = Namespace.where(institution: 'INHS Insect Collection', name: 'INHS vial rack')
         if n.empty?
@@ -420,7 +420,7 @@ namespace :tw do
         else
           n = n.first
         end
-        data.namespaces.merge!('wet' => n)
+        data.namespaces['wet'] = n
 
         n = Namespace.where(institution: 'INHS Insect Collection', name: 'INHS slide box')
         if n.empty?
@@ -428,7 +428,7 @@ namespace :tw do
         else
           n = n.first
         end
-        data.namespaces.merge!('slide' => n)
+        data.namespaces['slide'] = n
 
         data.namespaces.merge!(taxon_namespace: @taxon_namespace)
         data.namespaces.merge!(accession_namespace: @accession_namespace)
@@ -506,15 +506,15 @@ namespace :tw do
           else
             t = t.first
           end
-          data.preparation_types.merge!(pt[0] => t)
+          data.preparation_types[pt[0]] = t
         end
-        data.preparation_types.merge!('Slides' => data.preparation_types['Slide'])
-        data.preparation_types.merge!('slides' => data.preparation_types['Slide'])
-        data.preparation_types.merge!('slide' => data.preparation_types['Slide'])
-        data.preparation_types.merge!('Vials' => data.preparation_types['Vial'])
-        data.preparation_types.merge!('vials' => data.preparation_types['Vial'])
-        data.preparation_types.merge!('vial' => data.preparation_types['Vial'])
-        data.preparation_types.merge!('Jars' => data.preparation_types['Jar'])
+        data.preparation_types['Slides'] = data.preparation_types['Slide']
+        data.preparation_types['slides'] = data.preparation_types['Slide']
+        data.preparation_types['slide'] = data.preparation_types['Slide']
+        data.preparation_types['Vials'] = data.preparation_types['Vial']
+        data.preparation_types['vials'] = data.preparation_types['Vial']
+        data.preparation_types['vial'] = data.preparation_types['Vial']
+        data.preparation_types['Jars'] = data.preparation_types['Jar']
         data.preparation_types.merge!('jars' => data.preparation_types['Jar'])
         data.preparation_types.merge!('jar' => data.preparation_types['Jar'])
         data.preparation_types.merge!('pill box' => data.preparation_types['Pill box'])
@@ -571,14 +571,14 @@ namespace :tw do
         if import.metadata['controlled_vocabulary']
           print "from database.\n"
           Predicate.all.each do |cv|
-            data.keywords.merge!(cv.name => cv)
+            data.keywords[cv.name] = cv
           end
           data.keywords.merge!('Exuvium' => data.keywords['Exuvia'])
           Keyword.all.each do |cv|
-            data.keywords.merge!(cv.name => cv)
+            data.keywords[cv.name] = cv
           end
           BiologicalProperty.all.each do |cv|
-            data.biological_properties.merge!(cv.name => cv)
+            data.biological_properties[cv.name] = cv
           end
         else
           print "as newly parsed.\n"
@@ -664,7 +664,7 @@ namespace :tw do
           }
 
           biological_properties.each do |bp|
-            data.biological_properties.merge!(bp[0] => BiologicalProperty.create(name: bp[0], definition: bp[1]))
+            data.biological_properties[bp[0]] = BiologicalProperty.create(name: bp[0], definition: bp[1])
           end
 
           import.metadata['controlled_vocabulary'] = true
@@ -702,7 +702,7 @@ namespace :tw do
             s = data.people_id[p['SupervisorID']]
             user.notes.create(text: 'Student of ' + s['FirstName'] + ' ' + s['LastName']) unless s.blank?
           end
-          data.user_index.merge!(id => user)
+          data.user_index[id] = user
           user.id
         else
           $user_id
@@ -751,7 +751,7 @@ namespace :tw do
       def find_or_create_collecting_event_insects(ce, data)
         tmp_ce = { }
         LOCALITY_COLUMNS.each do |c|
-          tmp_ce.merge!(c => ce[c]) unless ce[c].blank?
+          tmp_ce[c] = ce[c] unless ce[c].blank?
         end
         tmp_ce_sorted = tmp_ce.sort.to_s
         c_from_redis = @redis.get(Digest::MD5.hexdigest(tmp_ce_sorted))
@@ -893,7 +893,7 @@ namespace :tw do
           @redis.set(Digest::MD5.hexdigest(tmp_ce_sorted), c.id)
           return c
         else
-          @invalid_collecting_event_index.merge!(tmp_ce => nil)
+          @invalid_collecting_event_index[tmp_ce] = nil
           return nil
         end
       end
@@ -921,15 +921,15 @@ namespace :tw do
         if import.metadata['people']
           print "from database.  Indexing People by PeopleID..."
           f.each do |row|
-            data.people_id.merge!(row['PeopleID'] => row)
+            data.people_id[row['PeopleID']] = row
           end
 
           DataAttribute.where(import_predicate: 'PeopleID', attribute_subject_type: 'User').each do |u|
-            data.user_index.merge!(u.value => u.attribute_subject)
+            data.user_index[u.value] = u.attribute_subject
           end
 
           DataAttribute.where(controlled_vocabulary_term_id: data.keywords['PeopleID'].id, attribute_subject_type: 'Person').each do |p|
-            data.people_index.merge!(p.value => p.attribute_subject)
+            data.people_index[p.value] = p.attribute_subject
           end
           print "done.\n"
         else
@@ -954,8 +954,8 @@ namespace :tw do
               InternalAttribute.create(attribute_subject: p, predicate: k[1], value: row[k[0]]) unless row[k[0]].blank?
             end
 
-            data.people_id.merge!(row['PeopleID'] => row)
-            data.people_index.merge!(row['PeopleID'] => p)
+            data.people_id[row['PeopleID']] = row
+            data.people_index[row['PeopleID']] = p
           end
           import.metadata['people'] = true
           checkpoint_save_insects(import) if ENV['no_transaction']
@@ -1024,7 +1024,7 @@ namespace :tw do
             p.parent_id = parent_index[row['Parent'].to_s] unless row['Parent'].blank? || parent_index[row['Parent'].to_s].nil?
             if rank == 'NomenclaturalRank'
               p = Protonym.find_or_create_by(name: 'Root', rank_class: 'NomenclaturalRank', project_id: $project_id)
-              parent_index.merge!(row['ID'] => p.id)
+              parent_index[row['ID']] = p.id
             elsif !p.parent_id.blank?
               bench = Benchmark.measure {
                 data.keywords.each do |k|
@@ -1036,8 +1036,8 @@ namespace :tw do
               if p.valid?
                 p.save!
                 build_otu_insects(row, p, data)
-                parent_index.merge!(row['ID'] => p.id)
-                data.taxa_index.merge!(row['TaxonCode'] => p)
+                parent_index[row['ID']] = p.id
+                data.taxa_index[row['TaxonCode']] = p
               else
                 puts "\n#{p.name}"
                 puts p.errors.messages
@@ -1081,14 +1081,14 @@ namespace :tw do
         lo.each do |row|
           tmp_l = {}
           locality_fields.each do |c|
-            tmp_l.merge!(c => row[c]) unless row[c].blank?
+            tmp_l[c] = row[c] unless row[c].blank?
           end
 
           tmp_l['County'] = geo_translate(tmp_l['County']) unless tmp_l['County'].blank?
           tmp_l['State'] = geo_translate(tmp_l['State']) unless tmp_l['State'].blank?
           tmp_l['Country'] = geo_translate(tmp_l['Country']) unless tmp_l['Country'].blank?
 
-          data.localities_index.merge!(row['LocalityCode'] => tmp_l)
+          data.localities_index[row['LocalityCode']] = tmp_l
         end
         print "done\n"
       end
@@ -1109,17 +1109,17 @@ namespace :tw do
           tmp_l = {}
           tmp_m = {}
           match_fields.each do |m|
-            tmp_m.merge!(m => row[m]) unless row[m].blank?
+            tmp_m[m] = row[m] unless row[m].blank?
           end
           locality_fields.each do |c|
-            tmp_l.merge!(c => row[c]) unless row[c].blank?
+            tmp_l[c] = row[c] unless row[c].blank?
           end
 
           tmp_l['County'] = geo_translate(tmp_l['County']) unless tmp_l['County'].blank?
           tmp_l['State'] = geo_translate(tmp_l['State']) unless tmp_l['State'].blank?
           tmp_l['Country'] = geo_translate(tmp_l['Country']) unless tmp_l['Country'].blank?
 
-          data.partially_resolved_index.merge!(tmp_m => tmp_l) if row['Done'] == '1'
+          data.partially_resolved_index[tmp_m] = tmp_l if row['Done'] == '1'
         end
         print "done\n"
       end
@@ -1146,10 +1146,10 @@ namespace :tw do
               #Utilities::Hashes.puts_collisions(tmp_ce, LOCALITIES[locality_code])
               se.merge!(data.localities_index[locality_code])
             else
-              data.unmatched_localities.merge!(locality_code => nil) unless locality_code.blank?
+              data.unmatched_localities[locality_code] = nil unless locality_code.blank?
             end
             specimen_fields.each do |c|
-              se.merge!(c => row[c]) unless row[c].blank?
+              se[c] = row[c] unless row[c].blank?
             end
 
             bench = Benchmark.measure {
@@ -1163,7 +1163,7 @@ namespace :tw do
 
             no_specimens = false
             if count_fields.collect{ |f| se[f] }.select{ |n| !n.nil? }.empty?
-              se.merge!('OtherSpecimens' => '1')
+              se['OtherSpecimens'] = '1'
               no_specimens = true
             end
 
@@ -1204,7 +1204,7 @@ namespace :tw do
                   Role.create(person: data.people_index[se['AccessionSource']], role_object: specimen, type: 'AccessionProvider') unless se['AccessionSource'].blank?
                   Role.create(person: data.people_index[se['DeaccessionRecipient']], role_object: specimen, type: 'DeaccessionRecipient') unless se['DeaccessionRecipient'].blank?
                 else
-                  data.invalid_specimens.merge!(se['Prefix'] + ' ' + se['CatalogueNumber'] => nil)
+                  data.invalid_specimens[se['Prefix'] + ' ' + se['CatalogueNumber']] = nil
                 end
 
                 unless specimen.valid?
@@ -1231,7 +1231,7 @@ namespace :tw do
 
         sp.each_with_index do |row, i|
           print "\r#{i}      "
-          data.host_plant_index.merge!(row['Host'] => row['TaxonCode']) unless row['TaxonCode'].blank?
+          data.host_plant_index[row['Host']] = row['TaxonCode'] unless row['TaxonCode'].blank?
         end
       end
 
@@ -1260,7 +1260,7 @@ namespace :tw do
 
           tmp_m = {}
           match_fields.each do |m|
-            tmp_m.merge!(m => row[m]) unless row[m].blank?
+            tmp_m[m] = row[m] unless row[m].blank?
           end
           partially_resolved = data.partially_resolved_index[tmp_m]
 
@@ -1270,11 +1270,11 @@ namespace :tw do
           unless partially_resolved.nil?
             if locality_code.nil?
               locality_fields_without_locality_code.each do |m|
-                extra_fields.merge!(m => row[m]) unless row[m].blank?
+                extra_fields[m] = row[m] unless row[m].blank?
               end
             else
               locality_fields_with_locality_code.each do |m|
-                extra_fields.merge!(m => row[m]) unless row[m].blank?
+                extra_fields[m] = row[m] unless row[m].blank?
               end
             end
           end
@@ -1284,11 +1284,11 @@ namespace :tw do
           if !data.localities_index[locality_code].nil?
             se.merge!(data.localities_index[locality_code])
           else
-            data.unmatched_localities.merge!(locality_code => nil) unless locality_code.blank?
+            data.unmatched_localities[locality_code] = nil unless locality_code.blank?
           end
 
           specimen_fields.each do |c|
-            se.merge!(c => row[c]) unless row[c].blank?
+            se[c] = row[c] unless row[c].blank?
           end
           se.merge!(extra_fields)
 
@@ -1298,7 +1298,7 @@ namespace :tw do
 
           no_specimens = false
           if count_fields.collect{ |f| se[f] }.select{ |n| !n.nil? }.empty?
-            se.merge!('OtherSpecimens' => '1')
+            se['OtherSpecimens'] = '1'
             no_specimens = true
           end
 
@@ -1346,7 +1346,7 @@ namespace :tw do
                 specimen.tags.create(keyword: data.keywords['ZeroTotal']) if no_specimens
                 add_bioculation_class_insects(specimen, count, data)
               else
-                data.invalid_specimens.merge!(se['Prefix'] + ' ' + se['CatalogueNumber'] => nil)
+                data.invalid_specimens[se['Prefix'] + ' ' + se['CatalogueNumber']] = nil
               end
 
               unless specimen.valid?
@@ -1381,10 +1381,10 @@ namespace :tw do
           if !data.localities_index[locality_code].nil?
             se.merge!(data.localities_index[locality_code])
           else
-            data.unmatched_localities.merge!(locality_code => nil) unless locality_code.blank?
+            data.unmatched_localities[locality_code] = nil unless locality_code.blank?
           end
           specimen_fields.each do |c|
-            se.merge!(c => row[c]) unless row[c].blank?
+            se[c] = row[c] unless row[c].blank?
           end
 
           collecting_event = find_or_create_collecting_event_insects(se, data)
@@ -1392,7 +1392,7 @@ namespace :tw do
 
           no_specimens = false
           if count_fields.collect{ |f| se[f] }.select{ |n| !n.nil? }.empty?
-            se.merge!('OtherSpecimens' => '1')
+            se['OtherSpecimens'] = '1'
             no_specimens = true
           end
           objects = []
@@ -1420,7 +1420,7 @@ namespace :tw do
                 specimen.tags.create(keyword: data.keywords['ZeroTotal']) if no_specimens
                 add_bioculation_class_insects(specimen, count, data)
               else
-                data.invalid_specimens.merge!(se['Prefix'] + ' ' + se['CatalogueNumber'] => nil)
+                data.invalid_specimens[se['Prefix'] + ' ' + se['CatalogueNumber']] = nil
               end
             end
           end
@@ -1452,7 +1452,7 @@ namespace :tw do
         else
           raise 'No objects in container.'
         end
-        data.duplicate_specimen_ids.merge!(row['Prefix'].to_s + ' ' + row['CatalogNumber'].to_s => nil) unless identifier.valid?
+        data.duplicate_specimen_ids[row['Prefix'].to_s + ' ' + row['CatalogNumber'].to_s] = nil unless identifier.valid?
       end
 
       def add_bioculation_class_insects(o, bcc, data)
@@ -1495,7 +1495,7 @@ namespace :tw do
               end
             end
           else
-            data.unmatched_taxa.merge!(row['TaxonCode'] => nil) unless row['TaxonCode'].blank?
+            data.unmatched_taxa[row['TaxonCode']] = nil unless row['TaxonCode'].blank?
           end
         end
       end
@@ -1513,7 +1513,7 @@ namespace :tw do
           print "\r#{i}"
           tmp_ce = { }
           fields.each do |c|
-            tmp_ce.merge!(c => row[c]) unless row[c].blank?
+            tmp_ce[c] = row[c] unless row[c].blank?
           end
           tmp_ce['County'] = geo_translate(tmp_ce['County']) unless tmp_ce['County'].blank?
           tmp_ce['State'] = geo_translate(tmp_ce['State']) unless tmp_ce['State'].blank?
@@ -1541,7 +1541,7 @@ namespace :tw do
           tmp_ce = { }
         
           fields.each do |c|
-            tmp_ce.merge!(c => row[c]) unless row[c].blank?
+            tmp_ce[c] = row[c] unless row[c].blank?
           end
          
           unless tmp_ce['LocalityCode'].nil?
@@ -1637,7 +1637,7 @@ namespace :tw do
         if import.metadata['loans']
           print "from database.  Indexing Loans by InvoiceID..."
           Identifier.where(namespace_id: data.namespaces['Invoice']).each do |l|
-            data.loans.merge!(l.identifier => l.identifier_object)
+            data.loans[l.identifier] = l.identifier_object
           end
           print "done.\n"
         else
@@ -1675,7 +1675,7 @@ namespace :tw do
                              created_at: time_from_field(row['CreatedOn'])
             )
             byebug unless l.valid?
-            data.loans.merge!(row['InvoiceID'] => l)
+            data.loans[row['InvoiceID']] = l
             l.notes.create(text: row['Comments']) unless row['Comments'].blank?
             l.data_attributes.create(import_predicate: 'Signature', value: row['Signature'].to_s, type: 'ImportAttribute') unless row['Signature'].blank?
             l.data_attributes.create(import_predicate: 'StudentSignature', value: row['StudentSignature'].to_s, type: 'ImportAttribute') unless row['StudentSignature'].blank?
@@ -1712,7 +1712,7 @@ namespace :tw do
             end
             count = nil if count == 0
             a.merge!('TaxonCode' => row['TaxonCode'], 'Total' => count)
-            data.loan_invoice_speciments.merge!(row['CatalogNumber'] => a)
+            data.loan_invoice_speciments[row['CatalogNumber']] = a
           end
         end
       end
@@ -1903,7 +1903,7 @@ namespace :tw do
             r = r.first.id
           end
         end
-        data.rooms.merge!(row['Room'] => r)
+        data.rooms[row['Room']] = r
         r
       end
 
@@ -1961,7 +1961,7 @@ namespace :tw do
           if $matchless_for_geographic_area[geog_search]
             $matchless_for_geographic_area[geog_search] += 1
           else
-            $matchless_for_geographic_area.merge!(geog_search => 1)
+            $matchless_for_geographic_area[geog_search] = 1
           end
         elsif match.count > 1
           match = match.select{|g| !g.geographic_items.empty?}
@@ -1970,13 +1970,13 @@ namespace :tw do
           if $matchless_for_geographic_area[geog_search]
             $matchless_for_geographic_area[geog_search] += 1
           else
-            $matchless_for_geographic_area.merge!(geog_search => 1)
+            $matchless_for_geographic_area[geog_search] = 1
           end
         elsif match.count == 1
           if $found_geographic_areas[geog_search]
             $found_geographic_areas[geog_search] += 1
           else
-            $found_geographic_areas.merge!(geog_search => 1)
+            $found_geographic_areas[geog_search] = 1
           end
           geographic_area = match[0]
         else

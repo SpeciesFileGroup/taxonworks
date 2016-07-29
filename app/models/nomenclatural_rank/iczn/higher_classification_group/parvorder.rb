@@ -1,4 +1,4 @@
-class NomenclaturalRank::Iczn::HigherClassificationGroup::SubinfraordinalGroup < NomenclaturalRank::Iczn::HigherClassificationGroup
+class NomenclaturalRank::Iczn::HigherClassificationGroup::Parvorder < NomenclaturalRank::Iczn::HigherClassificationGroup
 
   def self.parent_rank
     NomenclaturalRank::Iczn::HigherClassificationGroup::Infraorder

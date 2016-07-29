@@ -4,25 +4,25 @@ require 'fileutils'
 
 
 
-# COLL.txt
-# COUNTRY.txt
+# COLL.txt         Done
+# COUNTRY.txt      Done
 # DIST.txt
-# FAMTRIB.txt
+# FAMTRIB.txt       Done
 # FGNAMES.txt       Done
-# GENUS.txt
+# GENUS.txt         Done
 # H-FAM.txt
 # HKNEW.txt
 # HOSTFAM.txt
 # HOSTS.txt
 # JOURNALS.txt
 # KEYWORDS.txt
-# LANGUAGE.txt
-# MASTER.txt
+# LANGUAGE.txt     Done
+# MASTER.txt       Done
 # P-TYPE.txt
 # REFEXT.txt
 # RELATION.txt
 # RELIABLE.txt
-# SPECIES.txt
+# SPECIES.txt     Done
 # STATUS.txt
 # TRAN.txt
 # TSTAT.txt
@@ -35,17 +35,23 @@ namespace :tw do
 
       class ImportedDataUcd
         attr_accessor :publications_index, :genera_index, :species_index, :keywords, :family_groups, :superfamilies, :families,
-                      :taxon_codes, :languages, :references
+                      :taxon_codes, :languages, :references, :countries, :collections, :all_genera_index, :all_species_index, :topics
         def initialize()
           @publications_index = {}
           @keywords = {}
           @genera_index = {}
+          @all_genera_index = {}
           @species_index = {}
+          @all_species_index = {}
           @family_groups = {}
           @superfamilies = {}
           @families = {}
           @taxon_codes = {}
           @languages = {}
+          @countries = {}
+          @collections = {}
+          @references = {}
+          @topics = {}
         end
 
 
@@ -83,20 +89,31 @@ namespace :tw do
         handle_projects_and_users_ucd
         raise '$project_id or $user_id not set.'  if $project_id.nil? || $user_id.nil?
 
-        #$project_id = 1
-
-        #handle_fgnames_ucd
-        #handle_master_ucd_families
-        #handle_master_ucd_valid_genera
-        #handle_master_ucd_invalid_genera
-        #handle_master_ucd_invalid_subgenera
-        #handle_master_ucd_valid_species
-        #handle_master_ucd_invalid_species
+        $project_id = 1
+        @root = Protonym.find_or_create_by(name: 'Root', rank_class: 'NomenclaturalRank', project_id: $project_id)
 
         handle_language_ucd
-        handle_references_ucd
+        handle_countries_ucd
+        handle_collections_ucd
 
-        handle_genus_ucd
+#        handle_references_ucd
+
+#        handle_fgnames_ucd
+#        handle_master_ucd_families
+#        handle_master_ucd_valid_genera
+#        handle_master_ucd_invalid_genera
+#        handle_master_ucd_invalid_subgenera
+#        handle_master_ucd_valid_species
+#        handle_master_ucd_invalid_species
+#        handle_family_ucd
+#        handle_genus_ucd
+        handle_species_ucd
+
+#        handle_keywords_ucd
+#        handle_hknew_ucd
+#        handle_h_fam_ucd
+#        handle_hostfam_ucd
+
 
         print "\n\n !! Success. End time: #{Time.now} \n\n"
 
@@ -137,15 +154,16 @@ namespace :tw do
 
           @import.metadata['project_and_users'] = true
         end
-        root = Protonym.find_or_create_by(name: 'Root', rank_class: 'NomenclaturalRank', project_id: $project_id)
-        @order = Protonym.find_or_create_by(name: 'Hymenoptera', parent: root, rank_class: 'NomenclaturalRank::Iczn::HigherClassificationGroup::Order', project_id: $project_id)
-        @data.superfamilies.merge!('1' => Protonym.find_or_create_by(name: 'Serphitoidea', parent: @order, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Superfamily', project_id: $project_id).id)
-        @data.superfamilies.merge!('2' => Protonym.find_or_create_by(name: 'Chalcidoidea', parent: @order, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Superfamily', project_id: $project_id).id)
-        @data.superfamilies.merge!('3' => Protonym.find_or_create_by(name: 'Mymarommatoidea', parent: @order, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Superfamily', project_id: $project_id).id)
-        @data.families.merge!('' => @order.id)
-        @data.keywords.merge!('ucd_imported' => Keyword.find_or_create_by(name: 'ucd_imported', definition: 'Imported from UCD database.'))
-        @data.keywords.merge!('taxon_id' => Namespace.find_or_create_by(name: 'UCD_Taxon_ID', short_name: 'UCD_Taxon_ID'))
-        @data.keywords.merge!('family_id' => Namespace.find_or_create_by(name: 'UCD_Family_ID', short_name: 'UCD_Family_ID'))
+        @root = Protonym.find_or_create_by(name: 'Root', rank_class: 'NomenclaturalRank', project_id: $project_id)
+        @order = Protonym.find_or_create_by(name: 'Hymenoptera', parent: @root, rank_class: 'NomenclaturalRank::Iczn::HigherClassificationGroup::Order', project_id: $project_id)
+        @data.superfamilies['1'] = Protonym.find_or_create_by(name: 'Serphitoidea', parent: @order, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Superfamily', project_id: $project_id).id
+        @data.superfamilies['2'] = Protonym.find_or_create_by(name: 'Chalcidoidea', parent: @order, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Superfamily', project_id: $project_id).id
+        @data.superfamilies['3'] = Protonym.find_or_create_by(name: 'Mymarommatoidea', parent: @order, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Superfamily', project_id: $project_id).id
+        @data.families[''] = @order.id
+        @data.keywords['ucd_imported'] = Keyword.find_or_create_by(name: 'ucd_imported', definition: 'Imported from UCD database.')
+        @data.keywords['taxon_id'] = Namespace.find_or_create_by(name: 'UCD_Taxon_ID', short_name: 'UCD_Taxon_ID')
+        @data.keywords['family_id'] = Namespace.find_or_create_by(name: 'UCD_Family_ID', short_name: 'UCD_Family_ID')
+        @data.keywords['host_family_id'] = Namespace.find_or_create_by(name: 'UCD_Host_Family_ID', short_name: 'UCD_Host_Family_ID')
       end
 
       def handle_fgnames_ucd
@@ -167,13 +185,13 @@ namespace :tw do
           tribe = row['Tribe'].blank? ? nil : Protonym.find_or_create_by!(name: row['Tribe'], parent: subfamily, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Tribe', project_id: $project_id)
 
           if !tribe.nil?
-            @data.families.merge!(row['FamCode'] => tribe.id)
+            @data.families[row['FamCode']] = tribe.id
             tribe.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['family_id'], identifier: row['FamCode'].to_s)
           elsif !subfamily.nil?
-            @data.families.merge!(row['FamCode'] => subfamily.id)
+            @data.families[row['FamCode']] = subfamily.id
             subfamily.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['family_id'], identifier: row['FamCode'].to_s)
           else
-            @data.families.merge!(row['FamCode'] => family.id)
+            @data.families[row['FamCode']] = family.id
             family.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['family_id'], identifier: row['FamCode'].to_s)
           end
         end
@@ -213,7 +231,8 @@ namespace :tw do
             taxon.save!
 
             if row['ValAuthor'] == row['CitAuthor']
-              @data.taxon_codes.merge!(row['TaxonCode'] => taxon.id)
+              @data.taxon_codes[row['TaxonCode']] = taxon.id
+              taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['taxon_id'], identifier: row['TaxonCode'].to_s)
             else
               name = row['CitAuthor'].split(' ').first
               author = row['CitAuthor'].gsub(name + ' ', '')
@@ -243,7 +262,7 @@ namespace :tw do
               else
                 byebug
               end
-              @data.taxon_codes.merge!(row['TaxonCode'] => taxon1.id)
+              @data.taxon_codes[row['TaxonCode']] = taxon1.id
               taxon1.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['taxon_id'], identifier: row['TaxonCode'].to_s)
               taxon1.data_attributes.create!(type: 'ImportAttribute', import_predicate: 'HomCode', value: row['HomCode']) unless row['HomCode'].blank?
               TaxonNameRelationship.create!(subject_taxon_name: taxon1, object_taxon_name: taxon, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
@@ -263,15 +282,16 @@ namespace :tw do
             name = row['ValGenus']
             taxon = Protonym.find_or_create_by(name: name, project_id: $project_id)
             taxon.parent_id = find_family_id_ucd(row['Family']) if taxon.parent_id.nil?
-            taxon.year_of_publication = row['ValDate'] if taxon.year_of_publication.nil?
-            taxon.verbatim_author = row['ValAuthor'] if taxon.verbatim_author.nil?
-            taxon.rank_class = 'NomenclaturalRank::Iczn::GenusGroup::Genus'
+            taxon.year_of_publication = row['ValDate'] if taxon.year_of_publication.nil? && row['ValSpecies'].blank?
+            taxon.verbatim_author = row['ValAuthor'] if taxon.verbatim_author.nil? && row['ValSpecies'].blank?
+            taxon.rank_class = 'NomenclaturalRank::Iczn::GenusGroup::Genus' if taxon.rank_class.nil?
             byebug unless taxon.valid?
             taxon.save!
-            @data.genera_index.merge!(name => taxon.id)
+            @data.all_genera_index[name] = taxon.id
 
             if row['ValGenus'].to_s == row['CitGenus'] && row['CitSubgen'].blank? && row['ValSpecies'].blank?  && row['CitSpecies'].blank?
-              @data.taxon_codes.merge!(row['TaxonCode'] => taxon.id)
+              @data.genera_index[name] = taxon.id
+              @data.taxon_codes[row['TaxonCode']] = taxon.id
               taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
             end
           end
@@ -285,27 +305,28 @@ namespace :tw do
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
         file.each_with_index do |row, i|
           print "\r#{i}"
-          if !@data.genera_index[row['CitGenus']].nil?
-          elsif !row['CitGenus'].blank? && @data.taxon_codes[row['TaxonCode']].nil?
-              taxon = Protonym.new(name: row['CitGenus'], project_id: $project_id)
+          if !row['CitGenus'].blank? && @data.taxon_codes[row['TaxonCode']].nil?
+              taxon = Protonym.find_or_create_by(name: row['CitGenus'], project_id: $project_id)
               taxon1 = Protonym.find_by(name: row['ValGenus'], project_id: $project_id)
-              taxon.parent_id = find_family_id_ucd(row['Family'])
-              taxon.year_of_publication = row['CitDate'] if row['CitSpecies'].blank? && row['CitSubgenus'].blank?
-              taxon.verbatim_author = row['CitAuthor'] if row['CitSpecies'].blank? && row['CitSubgenus'].blank?
-              taxon.rank_class = 'NomenclaturalRank::Iczn::GenusGroup::Genus'
-              #byebug unless taxon.valid?
+              taxon.parent_id = find_family_id_ucd(row['Family']) if taxon.parent_id.nil?
+              taxon.year_of_publication = row['CitDate'] if taxon.year_of_publication.nil? && row['CitSpecies'].blank? && row['CitSubgenus'].blank?
+              taxon.verbatim_author = row['CitAuthor'] if taxon.verbatim_author.nil? && row['CitSpecies'].blank? && row['CitSubgenus'].blank?
+              taxon.rank_class = 'NomenclaturalRank::Iczn::GenusGroup::Genus' if taxon.rank_class.nil?
               if taxon.valid?
                 taxon.save!
               else
                 taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin') if !taxon.errors.messages[:name].blank?
                 taxon.save!
               end
-              @data.genera_index.merge!(taxon.name => taxon.id)
+              @data.all_genera_index[taxon.name] = taxon.id
 
-              if row['ValSpecies'].blank?  && row['CitSpecies'].blank?
-                @data.taxon_codes.merge!(row['TaxonCode'] => taxon.id)
+              if row['ValSpecies'].blank? && row['CitSpecies'].blank? && row['CitSubgen'].blank?
                 taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
-                TaxonNameRelationship.create!(subject_taxon_name: taxon, object_taxon_name: taxon1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+                if @data.genera_index[row['CitGenus']].nil?
+                  @data.genera_index[taxon.name] = taxon.id
+                  @data.taxon_codes[row['TaxonCode']] = taxon.id
+                  TaxonNameRelationship.create!(subject_taxon_name: taxon, object_taxon_name: taxon1, type: 'TaxonNameRelationship::Iczn::Invalidating')
+                end
               end
           end
         end
@@ -318,22 +339,28 @@ namespace :tw do
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
         file.each_with_index do |row, i|
           print "\r#{i}"
-          if !row['CitSubgen'].blank? && (@data.genera_index[row['CitSubgen']].nil? || row['CitSpecies'].blank?) && @data.taxon_codes[row['TaxonCode']].nil?
+          if !row['CitSubgen'].blank? && row['CitSpecies'].blank? && @data.taxon_codes[row['TaxonCode']].nil?
             name = row['CitSubgen'].gsub(')', '').gsub('?', '').capitalize
             parent = @data.genera_index[row['ValGenus']]
             taxon = Protonym.find_or_create_by(name: name, project_id: $project_id)
             taxon.parent_id = parent if taxon.parent_id.nil?
-            taxon.year_of_publication = row['CitDate'] if taxon.year_of_publication.nil?
-            taxon.verbatim_author = row['CitAuthor'] if taxon.verbatim_author.nil?
-            taxon.rank_class = 'NomenclaturalRank::Iczn::GenusGroup::Subgenus' if taxon.rank_class.nil?
+            taxon.year_of_publication = row['CitDate'] if taxon.year_of_publication.nil? && row['CitSpecies'].blank?
+            taxon.verbatim_author = row['CitAuthor'] if taxon.verbatim_author.nil? && row['CitSpecies'].blank?
+            taxon.rank_class = 'NomenclaturalRank::Iczn::GenusGroup::Subgenus' if taxon.rank_class.nil? && row['CitSpecies'].blank?
             byebug unless taxon.valid?
             taxon.save!
-            @data.genera_index.merge!(name => taxon.id)
+            @data.all_genera_index[name] = taxon.id
 
-            if row['ValSpecies'].blank?  && row['CitSpecies'].blank?
-              @data.taxon_codes.merge!(row['TaxonCode'] => taxon.id)
-              taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
+            if taxon.rank_class == 'NomenclaturalRank::Iczn::GenusGroup::Genus' && taxon.name == name
+              origgen = @data.all_genera_index[row['CitGenus']]
+              c = Combination.new()
+              c.genus = TaxonName.find(origgen) unless origgen.nil?
+              c.subgenus = taxon
+              c.save!
             end
+            @data.genera_index[name] = taxon.id
+            @data.taxon_codes[row['TaxonCode']] = taxon.id
+            taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
           end
         end
       end
@@ -345,8 +372,9 @@ namespace :tw do
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
         file.each_with_index do |row, i|
           print "\r#{i}"
-          if !row['ValSpecies'].blank? && @data.species_index[row['ValGenus'].to_s + ' ' + row['ValSpecies'].to_s].nil? && @data.taxon_codes[row['TaxonCode']].nil?
-            parent = @data.genera_index[row['ValGenus']]
+          if !@data.species_index[row['ValGenus'].to_s + ' ' + row['ValSpecies'].to_s].nil?
+          elsif !row['ValSpecies'].blank? && @data.taxon_codes[row['TaxonCode']].nil?
+            parent = @data.all_genera_index[row['ValGenus']]
             name = row['ValSpecies'].to_s
             taxon = Protonym.find_or_create_by(name: name, parent_id: parent, project_id: $project_id)
             taxon.year_of_publication = row['ValDate'] if taxon.year_of_publication.nil?
@@ -358,12 +386,14 @@ namespace :tw do
               taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin') if !taxon.errors.messages[:name].blank?
               taxon.save!
             end
-            @data.species_index.merge!(row['ValGenus'].to_s + ' ' + name => taxon.id)
 
-            if row['ValGenus'].to_s == row['CitGenus'] && row['ValSpecies'].to_s == row['CitSpecies']
-              @data.taxon_codes.merge!(row['TaxonCode'] => taxon.id)
+            @data.all_species_index[row['ValGenus'].to_s + ' ' + name] = taxon.id
+            if row['ValSpecies'].to_s == row['CitSpecies'] && row['ValAuthor'] == '(' + row['CitAuthor'] + ')' && row['ValDate'] == row['CitDate']
+              @data.species_index[row['ValGenus'].to_s + ' ' + name] = taxon.id
+              @data.taxon_codes[row['TaxonCode']] = taxon.id
               taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
-              origsubgen = @data.genera_index[row['CitSubgen']]
+              origsubgen = @data.all_genera_index[row['CitSubgen']]
+              TaxonNameRelationship.create!(subject_taxon_name: taxon, object_taxon_name: taxon, type: 'TaxonNameRelationship::OriginalCombination::OriginalSpecies')
               TaxonNameRelationship.create!(subject_taxon_name_id: parent, object_taxon_name: taxon, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus') if taxon.original_genus.nil?
               TaxonNameRelationship.create!(subject_taxon_name_id: origsubgen, object_taxon_name: taxon, type: 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus') if taxon.original_subgenus.nil? && !origsubgen.nil?
             end
@@ -378,10 +408,10 @@ namespace :tw do
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
         file.each_with_index do |row, i|
           print "\r#{i}"
-          if !row['CitSpecies'].blank? && @data.species_index[row['ValGenus'].to_s + ' ' + row['CitSpecies'].to_s].nil? && @data.taxon_codes[row['TaxonCode']].nil?
-            parent = @data.genera_index[row['ValGenus']]
-            origgen = @data.genera_index[row['CitGenus']]
-            origsubgen = @data.genera_index[row['CitSubgen']]
+          if !row['CitSpecies'].blank? && @data.taxon_codes[row['TaxonCode']].nil?
+            parent = @data.all_genera_index[row['ValGenus']]
+            origgen = @data.all_genera_index[row['CitGenus']]
+            origsubgen = @data.all_genera_index[row['CitSubgen']]
             name = row['CitSpecies'].gsub('sp. ', '').to_s
             taxon = Protonym.find_or_create_by(name: name, parent_id: parent, project_id: $project_id)
             taxon.year_of_publication = row['CitDate'] if taxon.year_of_publication.nil?
@@ -394,32 +424,75 @@ namespace :tw do
               taxon.save!
             end
 
-            @data.taxon_codes.merge!(row['TaxonCode'] => taxon.id)
-            taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
-            @data.species_index.merge!(row['ValGenus'].to_s + ' ' + name => taxon.id)
-            taxon1 = @data.species_index[row['ValGenus'].to_s + ' ' + row['ValSpecies'].to_s]
+            @data.taxon_codes[row['TaxonCode']] = taxon.id
+            #@data.species_index[row['ValGenus'].to_s + ' ' + name] = taxon.id
+            taxon1 = @data.all_species_index[row['ValGenus'].to_s + ' ' + row['ValSpecies'].to_s]
             byebug if taxon1.nil?
-            TaxonNameRelationship.create!(subject_taxon_name: taxon, object_taxon_name_id: taxon1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
-            TaxonNameRelationship.create!(subject_taxon_name_id: origgen, object_taxon_name: taxon, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus') if taxon.original_genus.nil?
-            TaxonNameRelationship.create!(subject_taxon_name_id: origsubgen, object_taxon_name: taxon, type: 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus') if taxon.original_subgenus.nil? && !origsubgen.nil?
+            if taxon.id == taxon1 || !taxon.original_genus.nil?
+                c = Combination.new()
+                c.genus = TaxonName.find(origgen) unless origgen.nil?
+                c.subgenus = TaxonName.find(origsubgen) unless origsubgen.nil?
+                c.species = taxon
+                c.save!
+            else
+              TaxonNameRelationship.create!(subject_taxon_name: taxon, object_taxon_name_id: taxon1, type: 'TaxonNameRelationship::Iczn::Invalidating')
+              TaxonNameRelationship.create!(subject_taxon_name_id: origgen, object_taxon_name: taxon, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus') if taxon.original_genus.nil?
+              TaxonNameRelationship.create!(subject_taxon_name_id: origsubgen, object_taxon_name: taxon, type: 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus') if taxon.original_subgenus.nil? && !origsubgen.nil?
+            end
+            taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
           end
         end
       end
 
       def handle_language_ucd
+
+        lng_transl = {'al' => 'sq',
+                      'ge' => 'ka',
+                      'gr' => 'el',
+                      'in' => 'id',
+                      'kz' => 'kk',
+                      'ma' => 'mk',
+                      'pe' => 'fa',
+                      'sh' => 'hr',
+                      'vt' => 'vi'
+        }
         path = @args[:data_directory] + 'LANGUAGE.txt'
-        print "\nHandling Language\n"
+        print "\nHandling LANGUAGE\n"
         raise "file #{path} not found" if not File.exists?(path)
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
         file.each_with_index do |row, i|
           print "\r#{i}"
-          l = Language.where(alpha_2: row['Code'].downcase).first
+          c = row['Code'].downcase
+          c = lng_transl[c] unless lng_transl[c].nil?
+          l = Language.where(alpha_2: c).first
           if l.nil?
             print "\n   Language not resolved: #{row['Code']} - #{row['Language']}\n"
-            @data.languages.merge!(row['Code'].downcase => [nil, row['Language']])
+            @data.languages[row['Code'].downcase] = [nil, row['Language']]
           else
-            @data.languages.merge!(row['Code'].downcase => [l.id, row['Language']])
+            @data.languages[row['Code'].downcase] = [l.id, row['Language']]
           end
+        end
+      end
+
+      def handle_countries_ucd
+        path = @args[:data_directory] + 'COUNTRY.txt'
+        print "\nHandling COUNTRY\n"
+        raise "file #{path} not found" if not File.exists?(path)
+        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
+        file.each_with_index do |row, i|
+          print "\r#{i}"
+          @data.countries[row['Country'] + '|' + row['State']] = row['UCD_name']
+        end
+      end
+
+      def handle_collections_ucd
+        path = @args[:data_directory] + 'COLL.txt'
+        print "\nHandling COLL\n"
+        raise "file #{path} not found" if not File.exists?(path)
+        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
+        file.each_with_index do |row, i|
+          print "\r#{i}"
+          @data.collections[row['Acronym']] = row['Depository']
         end
       end
 
@@ -463,7 +536,7 @@ namespace :tw do
         file1 = CSV.foreach(path1, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
         file2 = CSV.foreach(path2, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
 
-        namespace = Namespace.find_or_create_by(name: 'UCD refCode', short_name: 'UCDabc')
+        namespace = Namespace.find_or_create_by(name: 'UCD_RefCode', short_name: 'UCD_RefCode')
         keywords = {
             'Refs:Location' => Predicate.find_or_create_by(name: 'Refs::Location', definition: 'The verbatim value in Ref#location.', project_id: $project_id),
             'Refs:Source' => Predicate.find_or_create_by(name: 'Refs::Source', definition: 'The verbatim value in Ref#source.', project_id: $project_id),
@@ -499,12 +572,24 @@ namespace :tw do
             year = stated_year
             stated_year = nil
           end
+          print "\nYear out of range: #{year}\n" if year.to_i < 1500 || year.to_i > 2018
+          year = nil if year.to_i < 1500 || year.to_i > 2018
+          stated_year = nil if stated_year.to_i < 1500 || stated_year.to_i > 2018
 
           title = [row['Title'],  (fext_data[row['RefCode']] && !fext_data[row['RefCode']][:ext_title].blank? ? fext_data[row['RefCode']][:ext_title] : nil)].compact.join(" ")
           journal = [row['JourBook'],  (fext_data[row['RefCode']] && !fext_data[row['RefCode']][:ext_journal].blank? ? fext_data[row['RefCode']][:ext_journal] : nil)].compact.join(" ")
           author = [row['Author'],  (fext_data[row['RefCode']] && !fext_data[row['RefCode']][:ext_author].blank? ? fext_data[row['RefCode']][:ext_author] : nil)].compact.join(" ")
+          if row['LanguageA'].blank? || @data.languages[row['LanguageA'].downcase].nil?
+            language, language_id = nil, nil
+          else
+            language_id = @data.languages[row['LanguageA'].downcase][0]
+            language = @data.languages[row['LanguageA'].downcase][1]
+          end
+          serial_id = Serial.where(name: journal).limit(1).pluck(:id).first
+          serial_id ||= Serial.with_any_value_for(:name, journal).limit(1).pluck(:id).first
 
-          b = Source::Bibtex.create!(
+
+          b = Source::Bibtex.new(
               author: author,
               year: (year.blank? ? nil : year.to_i),
               month: month,
@@ -513,105 +598,89 @@ namespace :tw do
               year_suffix: row['Letter'],
               title: title,
               booktitle: journal,
+              serial_id: serial_id,
               volume: row['Volume'],
               pages: row['Pages'],
               bibtex_type: 'article',
-              language_id: ( row['LanguageA'].blank? ? nil : @data.languages[row['LanguageA'].downcase][0] ),
-              language: ( row['LanguageA'].blank? ? nil : @data.languages[row['LanguageA'].downcase][1] ),
+              language_id: language_id,
+              language: language,
               publisher: (fext_data[row['RefCode']] ? fext_data[row['RefCode']][:publisher] : nil),
               editor: (fext_data[row['RefCode']] ? fext_data[row['RefCode']][:editor] : nil )
           )
-          @data.references.merge!(row['RefCode'].downcase => b.id)
+          if b.valid?
+            b.save
+            b.identifiers.create!(type: 'Identifier::Local::Import', namespace: namespace, identifier: row['RefCode'])
 
-          b.identifiers.create!(type: 'Identifier::Local::Import', namespace: namespace, identifier: row['RefCode'])
+            b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:Location'], value: row['Location'])   if !row['Location'].blank?
+            b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:Source'], value: row['Source'])       if !row['Source'].blank?
+            b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:Check'], value: row['Check'])         if !row['Check'].blank?
+            b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:ChalcFam'], value: row['ChalcFam'])   if !row['ChalcFam'].blank?
+            b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:LanguageA'], value: row['LanguageA']) if !row['LanguageA'].blank?
+            b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:LanguageB'], value: row['LanguageB']) if !row['LanguageB'].blank?
+            b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:LanguageC'], value: row['LanguageC']) if !row['LanguageC'].blank?
+            b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:M_Y'], value: row['M_Y'])             if !row['M_Y'].blank?
 
-          b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:Location'], value: row['Location'])   if !row['Location'].blank?
-          b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:Source'], value: row['Source'])       if !row['Source'].blank?
-          b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:Check'], value: row['Check'])         if !row['Check'].blank?
-          b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:ChalcFam'], value: row['ChalcFam'])   if !row['ChalcFam'].blank?
-          b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:LanguageA'], value: row['LanguageA']) if !row['LanguageA'].blank?
-          b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:LanguageB'], value: row['LanguageB']) if !row['LanguageB'].blank?
-          b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:LanguageC'], value: row['LanguageC']) if !row['LanguageC'].blank?
-          b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:M_Y'], value: row['M_Y'])             if !row['M_Y'].blank?
+            if fext_data[row['RefCode']]
+              b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['RefsExt:Translate'], value: fext_data[row['RefCode']][:translate]) unless fext_data[row['RefCode']][:translate].blank?
+              b.notes.create!(text: fext_data[row['RefCode']][:note]) unless fext_data[row['RefCode']][:note].blank?
+            end
 
-          if fext_data[row['RefCode']]
-            b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['RefsExt:Translate'], value: fext_data[row['RefCode']][:translate]) unless fext_data[row['RefCode']][:translate].blank?
-            b.notes.create!(text: fext_data[row['RefCode']][:note]) unless fext_data[row['RefCode']][:note].blank?
+            ['KeywordA', 'KeywordB', 'KeywordC'].each do |i|
+              k =  Keyword.with_alternate_value_on(:name, row[i]).first
+              b.tags.build(keyword: k) unless k.nil?
+            end
+            @data.references[row['RefCode']] = b.id
+          else
+            #byebug
           end
 
-          # - 13  KeywordA  | varchar(2)   | # Tag
-          # - 14  KeywordB  | varchar(2)   | # Tag
-          # - 15  KeywordC  | varchar(2)   | # Tag
-
-
-          ['KeywordA', 'KeywordB', 'KeywordC'].each do |i|
-            k =  Keyword.with_alternate_value_on(:name, row[i]).first
-            b.tags.build(keyword: k) unless k.nil?
-          end
         end
+      end
 
 
+      def handle_family_ucd
+        path = @args[:data_directory] + 'FAMTRIB.txt'
+        print "\nHandling FAMTRIB\n"
+        raise "file #{path} not found" if not File.exists?(path)
+        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
 
+        keywords = {
+            'FamTrib:Status' => Predicate.find_or_create_by(name: 'FamTrib:Status', definition: 'The verbatim value in FamTrib#Status.', project_id: $project_id)
+        }.freeze
 
+        status_type = {
+            'FY' => 'Family of',
+            'SB' => 'Subfamily of',
+            'SF' => 'New status, subgenus of',
+            'VF' => 'Family of',
+            'VI' => 'Valid subtribe of',
+            'VT' => 'Valid tribe of'
+        }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      end ######################## references
-
-
-
-
-
-
-
-
-
-
+        file.each_with_index do |row, i|
+          print "\r#{i}"
+          taxon = find_taxon_ucd(row['TaxonCode'])
+          genus = find_taxon_id_ucd(row['Code'])
+          ref = find_source_id_ucd(row['RefCode'])
+          print "\n TaxonCode: #{row['TaxonCode']} not found \n" if !row['TaxonCode'].blank? || taxon.nil?
+          print "\n Genus Code: #{row['Code']} not found \n" if !row['Code'].blank? || genus.nil?
+          unless taxon.nil?
+            unless genus.nil?
+              TaxonNameRelationship.create!(type: 'TaxonNameRelationship::Typification::Family', subject_taxon_name_id: genus, object_taxon_name: taxon)
+            end
+            unless ref.nil?
+              taxon.citations.create!(source_id: ref, pages: row['PageRef'], is_original: true)
+            end
+            taxon.notes.create!(text: row['Notes']) unless row['Notes'].blank?
+            taxon.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['FamTrib:Status'], value: status_type[row['Status']]) unless row['Status'].blank?
+          end
+          #byebug if i < 50
+        end
+      end
 
 
       def handle_genus_ucd
-        path = @args[:data_directory] + 'Genus.txt'
+        path = @args[:data_directory] + 'GENUS.txt'
         print "\nHandling GENUS\n"
         raise "file #{path} not found" if not File.exists?(path)
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
@@ -621,14 +690,19 @@ namespace :tw do
             'OD' => 'TaxonNameRelationship::Typification::Genus::OriginalDesignation',
             'OM' => 'TaxonNameRelationship::Typification::Genus::OriginalDesignation',
             'SD' => 'TaxonNameRelationship::Typification::Genus::SubsequentDesignation',
-            'SM' => 'TaxonNameRelationship::Typification::Genus::Monotypy::Subsequent'
+            'SM' => 'TaxonNameRelationship::Typification::Genus::Monotypy::Subsequent',
+            ''   => 'TaxonNameRelationship::Typification::Genus'
         }.freeze
 
-        status_type = {
-            'NG' => 'new genus', # nothing
-            'RN' => 'replacement name', # relationship
-            'SG' => 'subgenus', # rank and parent
-            'UE' => 'Unjustified emend', #'relationship'
+        keywords = {
+            'Genus:Status' => Predicate.find_or_create_by(name: 'Genus:Status', definition: 'The verbatim value in Genus#Status.', project_id: $project_id)
+        }.freeze
+
+            status_type = {
+            'NG' => 'New genus', # nothing
+            'RN' => 'Replacement name', # relationship
+            'SG' => 'Subgenus', # rank and parent
+            'UE' => 'Unjustified emendantion', #relationship
             'UR' => 'Unnecessary replacement name', #relationship
             'US' => 'Unjustified emendation, new status' #relationship
         }
@@ -637,403 +711,233 @@ namespace :tw do
           print "\r#{i}"
           taxon = find_taxon_ucd(row['TaxonCode'])
           species = find_taxon_id_ucd(row['Code'])
-          print "\n TaxonCode: #{row['TaxonCode']} not found" if !row['TaxonCode'].blank? and taxon.nil?
-          print "\n Species Code: #{row['Code']} not found" if !row['Code'].blank? and species.nil?
+          ref = find_source_id_ucd(row['RefCode'])
+          designator = find_source_id_ucd(row['Designator'])
+          print "\n TaxonCode: #{row['TaxonCode']} not found \n" if !row['TaxonCode'].blank? || taxon.nil?
+          print "\n Species Code: #{row['Code']} not found \n" if !row['Code'].blank? || species.nil?
+          typedesign = row['TypeDesign'].blank? ? type_type[''] : type_type[row['TypeDesign']]
+          unless taxon.nil?
+            unless species.nil?
+              TaxonNameRelationship.create(type: typedesign, subject_taxon_name_id: species, object_taxon_name: taxon,
+                                            origin_citation_attributes: {source_id: designator, pages: row['PageDesign']})
+            end
+            unless ref.nil?
+              taxon.citations.create(source_id: ref, pages: row['PageRef'], is_original: true)
+            end
+            taxon.notes.create(text: row['Notes']) unless row['Notes'].blank?
+            taxon.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Genus:Status'], value: status_type[row['Status']]) unless row['Status'].blank?
+          end
+          #byebug if i < 50
+        end
+      end
+
+      def handle_species_ucd
+        path = @args[:data_directory] + 'SPECIES.txt'
+        print "\nHandling SPECIES\n"
+        raise "file #{path} not found" if not File.exists?(path)
+        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
+
+        keywords = {
+            'Region' => Predicate.find_or_create_by(name: 'Species:Region', definition: 'The verbatim value in Species#Region.', project_id: $project_id),
+            'Species:Country' => Predicate.find_or_create_by(name: 'Species:Region', definition: 'The verbatim value in Species#Coutry-State.', project_id: $project_id),
+            'Coll:Depository' => Predicate.find_or_create_by(name: 'Coll:Depository', definition: 'The verbatim value in Coll#Depository.', project_id: $project_id),
+            'Sex' => Predicate.find_or_create_by(name: 'Species:Sex', definition: 'The verbatim value in Species#Sex.', project_id: $project_id),
+            'Figures' => Predicate.find_or_create_by(name: 'Species:Figures', definition: 'The verbatim value in Species#Figures.', project_id: $project_id),
+            'PrimType' => Predicate.find_or_create_by(name: 'Species:PrimType', definition: 'The verbatim value in Species#PrimType.', project_id: $project_id),
+            'TypeSex' => Predicate.find_or_create_by(name: 'Species:TypeSex', definition: 'The verbatim value in Species#TypeSex.', project_id: $project_id),
+            'Designator' => Predicate.find_or_create_by(name: 'Species:Designator', definition: 'The verbatim value in Species#Designator.', project_id: $project_id),
+            'Depository' => Predicate.find_or_create_by(name: 'Species:Depository', definition: 'The verbatim value in Species#Depository.', project_id: $project_id),
+            'TypeNumber' => Predicate.find_or_create_by(name: 'Species:TypeNumber', definition: 'The verbatim value in Species#TypeNumber.', project_id: $project_id),
+            'DeposB' => Predicate.find_or_create_by(name: 'Species:DeposB', definition: 'The verbatim value in Species#DeposB.', project_id: $project_id),
+            'DeposC' => Predicate.find_or_create_by(name: 'Species:DeposC', definition: 'The verbatim value in Species#DeposC.', project_id: $project_id),
+            'Species:CurrStat' => Predicate.find_or_create_by(name: 'Species:CurrStat', definition: 'The verbatim value in Species#CurrStat.', project_id: $project_id),
+            'Status:Meaning' => Predicate.find_or_create_by(name: 'Status:Meaning', definition: 'The verbatim value in Status#Meaning.', project_id: $project_id)
+        }.freeze
+        topics = {
+            'Figures' => Topic.find_or_create_by(name: 'Figures', definition: 'Original source has figures.', project_id: $project_id)
+        }
+
+        status_type = {
+            'AB' => 'Aberration',
+            'FM' => 'Form',
+            'NS' => 'New species',
+            'NT' => 'New species, invalid spelling',
+            'NU' => 'New species, misspelt generic name',
+            'NW' => 'New species, misspelt subgeneric name',
+            'NY' => 'New species, generic placement queried',
+            'RN' => 'Replacement name',
+            'SS' => 'Subspecies',
+            'UE' => 'Unjustified emendation',
+            'UN' => 'Unjustified emendation, new combination',
+            'UR' => 'Unnecessary replacement name',
+            'VM' => 'Variety, misspelt species name',
+            'VR' => 'Variety',
+            'VS' => 'Valid species'
+        }
+        classification_type = {
+            'AB' => 'TaxonNameClassification::Iczn::Unavailable::Excluded::Infrasubspecific',
+            'FM' => 'TaxonNameClassification::Iczn::Unavailable::VarietyOrFormAfter1960',
+            'VR' => 'TaxonNameClassification::Iczn::Unavailable::VarietyOrFormAfter1960',
+            'FS' => 'TaxonNameClassification::Iczn::Fossil',
+            'ND' => 'TaxonNameClassification::Iczn::Available::Valid::NomenDubium',
+            'NN' => 'TaxonNameClassification::Iczn::Unavailable::NomenNudum',
+        }
+
+
+        file.each_with_index do |row, i|
+          print "\r#{i}"
+          taxon = find_taxon_ucd(row['TaxonCode'])
+          ref = find_source_id_ucd(row['RefCode'])
+          print "\n TaxonCode: #{row['TaxonCode']} not found \n" if !row['TaxonCode'].blank? && taxon.nil?
+          unless taxon.nil?
+            unless ref.nil?
+              c = taxon.citations.create(source_id: ref, pages: row['PageRef'], is_original: true)
+              if c.valid?
+                c.citation_topics.find_or_create_by(topic: topics['Figures'], project_id: $project_id) unless row['Figures'].blank?
+              end
+            end
+            taxon.notes.create(text: row['Notes']) unless row['Notes'].blank?
+            taxon.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Status:Meaning'], value: status_type[row['CurrStat']]) unless status_type[row['CurrStat']].nil?
+            taxon.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Species:Country'], value: @data.countries[row['Country'] + '|' + row['State']]) unless @data.countries[row['Country'] + '|' + row['State']].nil?
+            taxon.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Coll:Depository'], value: @data.collections[row['Depository']]) unless @data.collections[row['Depository']].nil?
+            keywords.each_key do |k|
+              taxon.data_attributes.create(type: 'InternalAttribute', predicate: keywords[k], value: row[k]) unless row[k].blank?
+            end
+            taxon.taxon_name_classifications.create(type: classification_type[row['CurrStat']]) unless classification_type[row['CurrStat']].nil?
+          end
+        end
+      end
+
+      def handle_h_fam_ucd
+        keywords = {
+            'SuperFam' => Predicate.find_or_create_by(name: 'H-Fam:SuperFam', definition: 'The verbatim value in H-Fam#SuperFam.', project_id: $project_id)
+        }.freeze
+
+        path = @args[:data_directory] + 'H-FAM.txt'
+        print "\nHandling H-FAM\n"
+        raise "file #{path} not found" if not File.exists?(path)
+        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
+        file.each_with_index do |row, i|
+          print "\r#{i}"
+          name = row['Order'].to_s.gsub('.', '')
+          if name.blank?
+            taxon = @root
+          else
+            taxon = Protonym.find_or_create_by(name: name, parent: @root, rank_class: 'NomenclaturalRank::Iczn::HigherClassificationGroup::Order', project_id: $project_id)
+            if row['Family'] =~/^[A-Z]\w*aceae/
+              taxon.rank_class = 'NomenclaturalRank::Icn::HigherClassificationGroup::Order'
+              taxon.save
+            end
+          end
+          parent = taxon
+          if row['SuperFam'] =~/^[A-Z]\w*oidea/
+            name = row['SuperFam']
+            taxon = Protonym.find_or_create_by(name: name, parent: parent, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Superfamily', project_id: $project_id)
+          end
+          parent = taxon
+          name = row['Family'].to_s.gsub(' indet.', '').gsub(' (part)', '').gsub(' ', '')
+          if row['Family'] =~/^[A-Z]\w*idae/
+            taxon = Protonym.find_or_create_by(name: name, parent: parent, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Family', project_id: $project_id)
+          elsif row['Family'] =~/^[A-Z]\w*aceae/
+              taxon = Protonym.find_or_create_by(name: name, parent: parent, rank_class: 'NomenclaturalRank::Icn::FamilyGroup::Family', project_id: $project_id)
+          elsif row['Family'] == 'Slime mould'
+            taxon = Protonym.find_or_create_by(name: 'Slime', parent: @root, rank_class: 'NomenclaturalRank::Iczn::HigherClassificationGroup::Kingdom', project_id: $project_id)
+          end
+          taxon.data_attributes.create(type: 'InternalAttribute', predicate: keywords['SuperFam'], value: row['SuperFam']) if !row['SuperFam'].blank? && !taxon.parent.nil? && taxon.parent.rank_class != 'NomenclaturalRank::Iczn::FamilyGroup::Superfamily' && taxon.data_attributes.nil?
+          taxon.identifiers.find_or_create_by(type: 'Identifier::Local::Import', namespace: @data.keywords['host_family_id'], identifier: row['Code']) if !row['Code'].blank?
+        end
+
+      end
+
+      def handle_hostfam_ucd
+        keywords = {
+            'HosNumber' => Predicate.find_or_create_by(name: 'Hostfam:HosNumber', definition: 'The verbatim value in Hostfam#HosNumber.', project_id: $project_id)
+        }.freeze
+
+        path = @args[:data_directory] + 'HOSTFAM.txt'
+        print "\nHandling HOSTFAM\n"
+        raise "file #{path} not found" if not File.exists?(path)
+        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
+        file.each_with_index do |row, i|
+          print "\r#{i}"
+          parent = find_host_family_id_ucd('PrimHosFam') || @root.id
+          taxon = Protonym.find_or_create_by(name: row['HosGenus'], parent_id: parent, rank_class: 'NomenclaturalRank::Iczn::GenusGroup::Genus', project_id: $project_id)
+          parent = taxon.id
+          unless row['HosSpecies'].blank?
+            taxon = Protonym.find_or_create_by(name: row['HosSpecies'], rank_class: 'NomenclaturalRank::Iczn::SpeciesGroup::Species', parent_id: parent, project_id: $project_id)
+          end
+          unless row['HosAuthor'].blank?
+            taxon.verbatim_author = row['HosAuthor']
+            taxon.save if taxon.valid?
+          end
+          taxon.data_attributes.create(type: 'InternalAttribute', predicate: keywords['HosNumber'], value: row['HosNumber']) if !row['HosNumber'].blank? && taxon.data_attributes.nil?
+        end
+
+      end
+
+      def handle_keywords_ucd
+        tags = {'1' => Keyword.find_or_create_by(name: '1', definition: 'Taxonomic', project_id: $project_id),
+                '2' => Keyword.find_or_create_by(name: '2', definition: 'Biological', project_id: $project_id),
+                '3' => Keyword.find_or_create_by(name: '3', definition: 'Economic', project_id: $project_id),
+        }.freeze
+        path = @args[:data_directory] + 'KEYWORDS.txt'
+        print "\nHandling KEYWORDS\n"
+        raise "file #{path} not found" if not File.exists?(path)
+        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
+        file.each_with_index do |row, i|
+          print "\r#{i}"
+          definition = row['Meaning'].to_s.length < 4 ? row['Meaning'] + '.' : row['Meaning']
+          topic = Topic.find_or_create_by(name: row['KeyWords'], definition: definition, project_id: $project_id)
+          topic.tags.find_or_create_by(keyword: tags[row['Category']]) unless row['Category'].blank?
+          @data.topics[row['KeyWords']] = topic
+        end
+      end
+
+      def handle_hknew_ucd
+        path = @args[:data_directory] + 'HKNEW.txt'
+        print "\nHandling HKNEW\n"
+        raise "file #{path} not found" if not File.exists?(path)
+        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
+        file.each_with_index do |row, i|
+          print "\r#{i}"
+          taxon = find_taxon_ucd(row['TaxonCode'])
+          print "\n TaxonCode: #{row['TaxonCode']} not found \n" if !row['TaxonCode'].blank? || taxon.nil?
+
+          ref = find_source_id_ucd(row['RefCode'])
+
+          c = taxon.citations.find_or_create_by(source_id: ref, pages: row['PageRef']) if !ref.nil? && !taxon.nil?
+          c.citation_topics.find_or_create_by(topic: @data.topics[row['Keyword']], project_id: $project_id) unless row['Keywords'].blank?
+
         end
       end
 
 
 
+
       def find_taxon_id_ucd(key)
-        @data.taxon_index[key.to_s] || Identifier.where(cached: 'UCD_Taxon_ID ' + key.to_s, identifier_object_type: 'TaxonName', project_id: $project_id).limit(1).pluck(:identifier_object_id).first
+        @data.taxon_codes[key.to_s] || Identifier.where(cached: 'UCD_Taxon_ID ' + key.to_s, identifier_object_type: 'TaxonName', project_id: $project_id).limit(1).pluck(:identifier_object_id).first
       end
 
       def find_family_id_ucd(key)
         @data.families[key.to_s] || Identifier.where(cached: 'UCD_Family_ID ' + key.to_s, identifier_object_type: 'TaxonName', project_id: $project_id).limit(1).pluck(:identifier_object_id).first
       end
 
+      def find_host_family_id_ucd(key)
+        @data.families[key.to_s] || Identifier.where(cached: 'UCD_Host_Family_ID ' + key.to_s, identifier_object_type: 'TaxonName', project_id: $project_id).limit(1).pluck(:identifier_object_id).first
+      end
+
       def find_taxon_ucd(key)
         Identifier.find_by(cached: 'UCD_Taxon_ID ' + key.to_s, identifier_object_type: 'TaxonName', project_id: $project_id).try(:identifier_object)
       end
 
-      # TODO: Fix this
-      ###### commented out to clear general rake failure 07/18/16 @tuckerjd
-      # @data.families[row['Family']]
-
-
-
-
-
-
-
-
-
-
-
-
-=begin
-      desc 'reconcile colls'
-      task :reconcile_colls => [:data_directory, :environment] do |t, args|
-        path = @args[:data_directory] + 'coll.csv'
-        raise 'file not found' if not File.exists?(path)
-
-        f = CSV.open(path, col_sep: "\t")
-        f.each do |row|
-          if r = Repository.where(acronym: row[0]).first
-            # puts r.id
-          else
-            print "#{row[0]}\t#{row[1]}\n" if not  Repository.where(acronym: "#{row[0]}\<IH\>").first
-          end
-        end
-
-        f.close
+      def find_source_ucd(key)
+        Identifier.find_by(cached: 'UCD_RefCode ' + key.to_s, identifier_object_type: 'Source', project_id: $project_id).try(:identifier_object)
       end
 
-      desc 'reconcile language'
-      task :reconcile_languages => [:data_directory, :environment] do |t, args|
-        path = @args[:data_directory] + 'language.csv'
-        raise 'file not found' if not File.exists?(path)
-
-        f = CSV.open(path, col_sep: "\t")
-        f.each do |row|
-          if r = Language.where(alpha_2: row[0]).first
-            # puts r.id
-          else
-            print "#{row[0]}\t#{row[1]}\n"
-          end
-        end
-        f.close
+      def find_source_id_ucd(key)
+        @data.references[key.to_s] || Identifier.where(cached: 'UCD_RefCode ' + key.to_s, identifier_object_type: 'Source', project_id: $project_id).limit(1).pluck(:identifier_object_id).first
       end
 
-      desc 'reconcile Refs::Chalcfam (look for unique values'
-      task :reconcile_refs_chalcfam => [:data_directory, :environment] do |t, args|
-        path = @args[:data_directory] + 'refs.csv'
-
-        raise 'file not found' if not File.exists?(path)
-
-        # f = CSV.open(path, col_sep: "\t")
-        families = {}
-
-        # This pattern handles quotes/escaping crap MySQL export
-        File.foreach(path) do |csv_line|
-          row = column_values(fix_line(csv_line))
-
-          if row[12]
-            v = row[12].strip
-            r = nil
-            if v  =~ /\s/
-              r = Regexp.new(/\s/)
-            else
-              r = Regexp.new(/(?=[A-Z])/)
-            end
-
-            row[12].split(r).inject(families){|hsh, v| hsh.merge!(v => nil)}
-          end
-        end
-
-        print families.keys.sort.join(", ")
-        # f.close
-      end
-
-
-
-      desc 'handle_names - rake tw:project_import:ucd:handle_master[/Users/matt/src/sf/import/ucd/csv]'
-      task :handle_names => [:data_directory, :environment] do |t, args|
-        # Master            # Famtrib         # Genus           # Species
-        # 0  TaxonCode      # 0  TaxonCode    # 0  TaxonCode    # 0  TaxonCode
-        # 1  ValGenus       # 1  RefCode      # 1  RefCode      # 1  Region
-        # 2  ValSpecies     # 2  PageRef      # 2  PageRef      # 2  Country
-        # 3  HomCode        # 3  H_levelTax   # 3  Code         # 3  State
-        # 4  ValAuthor      # 4  Of_for_to    # 4  CitGenus     # 4  RefCode
-                            # 5  Status       # 5  CitSpecies   # 4  PageRef
-        # 5  CitGenus       # 6  CitGenus     # 6  CitAuthor    # 5  Figures
-        # 6  CitSubgen      # 7  CitAuthor    # 7  TypeDesign   # 6  Sex
-        # 7  CitSpecies     # 8  Code         # 8  Designator   # 7  CurrStat
-        # 8  CitSubsp       # 9 Notes         # 9  PageDesign   # 8  PrimType
-        # 9 CitAuthor                         # 10 Status       # 9  TypeSex
-                                                                # 10 Designator
-        # 10 Family                                             # 11 Pages
-        # 11 ValDate                                            # 12 Depository
-        # 12 CitDate                                            # 13 Notes
-                                                                # 14 TypeNumber
-                                                                # 15 DeposB
-                                                                # 16 DeposC
-
-
-        puts "names ... "
-
-        path1 = @args[:data_directory] + 'master.csv'
-        path2 = @args[:data_directory] + 'famtrib.csv'
-        path3 = @args[:data_directory] + 'genus.csv'
-        path4 = @args[:data_directory] + 'species.csv'
-
-        (1..4).each do |p|
-          raise 'file not found' if not File.exists?(eval("path#{p}"))
-        end
-
-        m  = CSV.open(path1, col_sep: "\t")
-        ft = CSV.open(path2, col_sep: "\t")
-        g  = CSV.open(path3, col_sep: "\t")
-        s  = CSV.open(path4, col_sep: "\t")
-
-        root = TaxonName.new(name: 'Root', rank_class: NomenclaturalRank, parent_id: nil)
-        root.save!
-
-        chalcidoidea = TaxonName.new(name: 'Chalcidoidea', parent: root, rank_class: Ranks.lookup(:iczn, 'superfamily'))
-        chalcidoidea.save!
-
-        #mi = ft.inject({}).{|hsh, row| hsh.merge!(row[0] => row[0..
-
-        ft.each do |row|
-
-
-        end
-
-        count_higher_taxa = 0
-
-        valid_names = { }
-
-        # valid pass
-        m.each do |row|
-
-        rank = nil
-
-        # puts row[0]
-
-        valid_genus = row[1]
-        valid_species = row[2]
-        valid_author = row[4]
-
-        if valid_genus.blank? && valid_species.blank?
-          rank = :higher
-        elsif valid_species.blank?
-          rank = :genus
-        else
-          rank = :species
-        end
-
-        higher_taxon, authors = row[4].split(/\s/,2) if rank == :higher
-
-        # superfamilies = length(family) = 0 and valgenus
-
-        if rank == :higher
-          puts row[0], higher_taxon,  authors , ""
-          count_higher_taxa += 1
-        end
-        # o.identifiers.build(type: 'Identifier::LocalId', namespace: namespace, identifier: row[0])
-        end
-        puts count_higher_taxa
-      end
-
-
-
-
-      desc 'handle_famtrib - rake tw:project_import:ucd:handle_famtrib[/Users/matt/src/sf/import/ucd/csv]'
-      task :handle_famtrib => [:data_directory, :environment] do |t, args|
-
-
-
-
-
-
-
-
-
-
-      end
-
-      desc 'handle keywords - rake tw:project_import:ucd:keywords[/Users/matt/src/sf/import/ucd/csv]'
-      task :handle_keywords => [:data_directory, :environment] do |t, args|
-        # 0  Keywords
-        # 1  Meaning
-        # 2  Category
-
-        path = @args[:data_directory] + 'keywords.csv'
-        f = CSV.open(path, col_sep: "\t")
-        keywords = []
-        abbreviations = []
-        tags = []
-
-        meta_keywords = {
-          '1' => Keyword.new(name: 'Taxonomic Keyword in UCD', definition: 'The Topic categorized by Noyes as being taxonomic (1 in UCD).'),
-          '2' => Keyword.new(name: 'Biological Keyword in UCD', definition: 'The Topic categorized by Noyes as being biological (2 in UCD).'),
-          '3' => Keyword.new(name: 'Economic Keyword in UCD Keyword', definition: 'The Topic categorized by Noyes as being economic (3 in UCD).')
-        }
-        f.each do |row|
-          t = Keyword.new(name: row[1], definition: "The topic derived from the UCD keyword for #{row[1]}.")
-          keywords.push t
-          abbreviations.push AlternateValue::Abbreviation.new(alternate_value_object: t, value: row[0], alternate_value_object_attribute: :name)
-          tags.push Tag.new(keyword: meta_keywords[row[2]], tag_object: t)
-        end
-
-        Topic.transaction do
-          [meta_keywords.values, keywords, abbreviations, tags].each do |objs|
-            objs.each do |o|
-              o.save!
-            end
-          end
-
-          # puts keyowrds.map(&:valid?), abbreviations.map(&:valid?), tags.map(&:valid?), meta_keywords.values
-        end
-      end
-
-      desc 'handle refs - rake tw:project_import:ucd:handle_refs[/Users/matt/src/sf/import/ucd/csv]'
-      task :handle_refs => [:data_directory, :environment, :handle_keywords] do |t, args|
-        # - 0   RefCode   | varchar(15)  |
-        # - 1   Author    | varchar(52)  |
-        # - 2   Year      | varchar(4)   |
-        # - 3   Letter    | varchar(2)   | # ?! key/value - if they want to maintain a manual system let them
-        # - 4   PubDate   | date         |
-        # - 5   Title     | varchar(188) |
-        # - 6   JourBook  | varchar(110) |
-        # - 7   Volume    | varchar(20)  |
-        # - 8   Pages     | varchar(36)  |
-        # - 9   Location  | varchar(27)  | # Attribute::Internal
-        # - 10  Source    | varchar(28)  | # Attribute::Internal
-        # - 11  Check     | varchar(11)  | # Attribute::Internal
-        # - 12  ChalcFam  | varchar(20)  | # Attribute::Internal a key/value (memory aid of john)
-        # - 13  KeywordA  | varchar(2)   | # Tag
-        # - 14  KeywordB  | varchar(2)   | # Tag
-        # - 15  KeywordC  | varchar(2)   | # Tag
-        # - 16  LanguageA | varchar(2)   | Attribute::Internal & Language
-        # - 17  LanguageB | varchar(2)   | Attribute::Internal
-        # - 18  LanguageC | varchar(2)   | Attribute::Internal
-        # - 19  M_Y       | varchar(1)   | # Attribute::Internal fuzziness on month/day/year - an annotation
-        # 20  PDF_file  | varchar(1)   | # [X or Y] TODO: NOT HANDLED
-
-        # 0 RefCode
-        # - 1 Translate
-        # - 2 Notes
-        # - 3 Publisher
-        # - 4 ExtAuthor
-        # - 5 ExtTitle
-        # - 6 ExtJournal
-        # - 7 Editor
-
-        path1 = @args[:data_directory] + 'refs.csv'
-        path2 = @args[:data_directory] + 'refext.csv'
-        raise 'file not found' if not File.exists?(path1)
-        raise 'file not found' if not File.exists?(path2)
-
-        fext_data = {}
-
-        File.foreach(path2) do |csv_line|
-          r = column_values(fix_line(csv_line))
-          fext_data.merge!(
-            r[0] => { translate: r[1], notes: r[2], publisher: r[3], ext_author: r[4], ext_title: r[5], ext_journal: r[6], editor: r[7] }
-          )
-        end
-
-        namespace = Namespace.new(name: 'UCD refCode', short_name: 'UCDabc')
-        namespace.save!
-
-        keywords = {
-          'Refs:Location' => Predicate.find_or_create_by(name: 'Refs::Location', definition: 'The verbatim value in Ref#location.'),
-          'Refs:Source' => Predicate.find_or_create_by(name: 'Refs::Source', definition: 'The verbatim value in Ref#source.'),
-          'Refs:Check' => Predicate.find_or_create_by(name: 'Refs::Check', definition: 'The verbatim value in Ref#check.'),
-          'Refs:LanguageA' => Predicate.find_or_create_by(name: 'Refs::LanguageA', definition: 'The verbatim value in Refs#LanguageA'),
-          'Refs:LanguageB' => Predicate.find_or_create_by(name: 'Refs::LanguageB', definition: 'The verbatim value in Refs#LanguageB'),
-          'Refs:LanguageC' => Predicate.find_or_create_by(name: 'Refs::LanguageC', definition: 'The verbatim value in Refs#LanguageC'),
-          'Refs:ChalcFam' => Predicate.find_or_create_by(name: 'Refs::ChalcFam', definition: 'The verbatim value in Refs#ChalcFam'),
-          'Refs:M_Y' => Predicate.find_or_create_by(name: 'Refs::M_Y', definition: 'The verbatim value in Refs#M_Y.'),
-          'Refs:PDF_file' => Predicate.find_or_create_by(name: 'Refs::PDF_file', definition: 'The verbatim value in Refs#PDF_file.'),
-          'RefsExt:Translate' => Predicate.find_or_create_by(name: 'RefsExt::Translate', definition: 'The verbatim value in RefsExt#Translate.'),
-        }
-
-        keywords.values.each do |k|
-          k.save!
-        end
-
-        i = 0
-
-        File.foreach(path1) do |csv_line|
-          row = column_values(fix_line(csv_line))
-
-          year, month, day = nil, nil, nil
-          if row[4] != 'NULL'
-            year, month, day = row[4].split('-', 3)
-            month = Utilities::Dates::SHORT_MONTH_FILTER[month]
-            month = month.to_s if !month.nil?
-          end
-
-          stated_year = row[2]
-          if year.nil?
-            year = stated_year
-            stated_year = nil
-          end
-
-          title = [row[5],  (fext_data[row[0]] && !fext_data[row[0]][:ext_title].blank? ? fext_data[row[0]][:ext_title] : nil)].compact.join(" ")
-          journal = [row[6],  (fext_data[row[0]] && !fext_data[row[0]][:ext_journal].blank? ? fext_data[row[0]][:ext_journal] : nil)].compact.join(" ")
-          author = [row[1],  (fext_data[row[0]] && !fext_data[row[0]][:ext_author].blank? ? fext_data[row[0]][:ext_author] : nil)].compact.join(" ")
-
-          b = Source::Bibtex.new(
-            author: author,
-            year: (year.blank? ? nil : year.to_i),
-            month: month,
-            day: (day.blank? ? nil : day.to_i) ,
-            stated_year: stated_year,
-            year_suffix: row[3],
-            title: title,
-            booktitle: journal,
-            volume: row[7],
-            pages: row[8],
-            bibtex_type: 'article',
-            language: (row[16] ? Language.where(alpha_2: row[16] ).first : nil),
-            publisher: (fext_data[row[0]] ? fext_data[row[0]][:publisher] : nil),
-            editor: (fext_data[row[0]] ? fext_data[row[0]][:editor] : nil ),
-          )
-
-          b.publisher = nil if b.publisher.blank? # lazy get rid of ""
-          b.editor = nil if b.editor.blank?
-
-          b.save!
-
-          b.identifiers.build(type: 'Identifier::LocalId', namespace: namespace, identifier: row[0])
-
-          b.data_attributes.build(type: 'DataAttribute::InternalAttribute', predicate: keywords['Refs:Location'], value: row[9])    if !row[9].blank?
-          b.data_attributes.build(type: 'DataAttribute::InternalAttribute', predicate: keywords['Refs:Source'], value: row[10])     if !row[10].blank?
-          b.data_attributes.build(type: 'DataAttribute::InternalAttribute', predicate: keywords['Refs:Check'], value: row[11])      if !row[11].blank?
-          b.data_attributes.build(type: 'DataAttribute::InternalAttribute', predicate: keywords['Refs::ChalcFam'], value: row[12])  if !row[12].blank?
-          b.data_attributes.build(type: 'DataAttribute::InternalAttribute', predicate: keywords['Refs:LanguageA'], value: row[16])  if !row[16].blank?
-          b.data_attributes.build(type: 'DataAttribute::InternalAttribute', predicate: keywords['Refs:LanguageB'], value: row[17])  if !row[17].blank?
-          b.data_attributes.build(type: 'DataAttribute::InternalAttribute', predicate: keywords['Refs:LanguageB'], value: row[18])  if !row[18].blank?
-          b.data_attributes.build(type: 'DataAttribute::InternalAttribute', predicate: keywords['Refs:M_Y'], value: row[19])        if !row[19].blank?
-
-          if fext_data[row[0]]
-            b.data_attributes.build(type: 'DataAttribute::InternalAttribute', predicate: keywords['RefsExt:Translate'], value: fext_data[row[0]][:translate]) if !fext_data[row[0]][:translate].blank?
-            b.notes.build(text: fext_data[row[0]][:note]) if !fext_data[row[0]][:note].nil?
-          end
-
-          [13,14,15].each do |i|
-            k =  Keyword.with_alternate_value_on(:name, row[i]).first
-            if k
-              b.tags.build(keyword: k)
-            end
-          end
-
-          !b.save
-
-          print "#{i},"
-          i+=1
-          break if i > 200
-        end
-      end
-
-      task :sql_dump_script do
-        puts 'SET NAMES utf8;'
-        %w{coll country dist famtrib fgnames genus h-fam hknew hostfam hosts journals keywords language master p-type refext refs relation reliable species status tran tstat wwwimaok}.each do |t|
-          puts "SELECT * FROM `#{t}` INTO OUTFILE '/tmp/ucd/#{t}.csv'
-        FIELDS
-          TERMINATED BY '\\t'
-          OPTIONALLY ENCLOSED BY '\"'
-          ESCAPED BY '\\\\'
-        LINES
-          TERMINATED BY '\\n';"
-          # ENCLOSED BY '|' # Ruby CSV is borked, to be fixed in 2.1
-          # Ruby CSV wants "" (two quotes) as an escaped quote by default) - so we need to convert with rows
-        end
-      end
-=end
 
     end
   end
