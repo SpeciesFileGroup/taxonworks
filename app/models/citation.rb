@@ -32,7 +32,7 @@ class Citation < ActiveRecord::Base
   has_many :topics, through: :citation_topics
 
   validates_presence_of  :source_id
-  validates_uniqueness_of :source_id, scope: [:citation_object_type, :citation_object_id]
+  validates_uniqueness_of :source_id, scope: [:citation_object_type, :citation_object_id, :pages]
 
   accepts_nested_attributes_for :citation_topics, allow_destroy: true, reject_if: :reject_citation_topics
   accepts_nested_attributes_for :topics, allow_destroy: true, reject_if: :reject_topic
@@ -43,6 +43,7 @@ class Citation < ActiveRecord::Base
     if citation_object_type == 'TaxonName'
       citation_object.update_attribute(:cached_author_year, citation_object.get_author_and_year)
     end
+    true
   end
 
   # @return [Scope of matching sources]
@@ -75,6 +76,8 @@ class Citation < ActiveRecord::Base
       end
     end
   end
+
+  protected
 
   def reject_citation_topics(attributed)
     attributes['id'].blank? && attributed['topic_id'].blank? && attributed['topic'].blank? && attributed['topic_attributes'].blank?

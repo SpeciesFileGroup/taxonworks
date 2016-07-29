@@ -4,25 +4,25 @@ require 'fileutils'
 
 
 
-# COLL.txt         Done
-# COUNTRY.txt      Done
+# COLL.txt          Done
+# COUNTRY.txt       Done
 # DIST.txt
 # FAMTRIB.txt       Done
 # FGNAMES.txt       Done
 # GENUS.txt         Done
-# H-FAM.txt
-# HKNEW.txt
-# HOSTFAM.txt
+# H-FAM.txt         Done
+# HKNEW.txt         Done
+# HOSTFAM.txt       Done
 # HOSTS.txt
 # JOURNALS.txt
-# KEYWORDS.txt
-# LANGUAGE.txt     Done
-# MASTER.txt       Done
+# KEYWORDS.txt      Done
+# LANGUAGE.txt      Done
+# MASTER.txt        Done
 # P-TYPE.txt
 # REFEXT.txt
 # RELATION.txt
 # RELIABLE.txt
-# SPECIES.txt     Done
+# SPECIES.txt       Done
 # STATUS.txt
 # TRAN.txt
 # TSTAT.txt
@@ -107,10 +107,10 @@ namespace :tw do
 #        handle_master_ucd_invalid_species
 #        handle_family_ucd
 #        handle_genus_ucd
-        handle_species_ucd
+#        handle_species_ucd
 
-#        handle_keywords_ucd
-#        handle_hknew_ucd
+        handle_keywords_ucd
+        handle_hknew_ucd
 #        handle_h_fam_ucd
 #        handle_hostfam_ucd
 
@@ -901,13 +901,16 @@ namespace :tw do
         file.each_with_index do |row, i|
           print "\r#{i}"
           taxon = find_taxon_ucd(row['TaxonCode'])
-          print "\n TaxonCode: #{row['TaxonCode']} not found \n" if !row['TaxonCode'].blank? || taxon.nil?
+          print "\n TaxonCode: #{row['TaxonCode']} not found \n" if row['TaxonCode'].blank? || taxon.nil?
 
           ref = find_source_id_ucd(row['RefCode'])
-
-          c = taxon.citations.find_or_create_by(source_id: ref, pages: row['PageRef']) if !ref.nil? && !taxon.nil?
-          c.citation_topics.find_or_create_by(topic: @data.topics[row['Keyword']], project_id: $project_id) unless row['Keywords'].blank?
-
+          page = row['PageRef'].blank? ? nil : row['PageRef']
+          if !ref.nil? && !taxon.nil?
+            #c = Citation.find_or_create_by(source_id: ref, pages: row['PageRef'], citation_object_type: 'TaxonName', citation_object_id: taxon.id, project_id: $project_id)
+            c = taxon.citations.find_or_create_by(source_id: ref, pages: page)
+            c.citation_topics.find_or_create_by(topic: @data.topics[row['Keyword']], project_id: $project_id) unless row['Keywords'].blank?
+            c.notes.find_or_create_by(text: row['Notes']) unless row['Notes'].blank?
+          end
         end
       end
 

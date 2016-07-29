@@ -213,12 +213,12 @@ ActiveRecord::Schema.define(version: 20160725171413) do
     t.string   "elevation_precision"
     t.text     "field_notes"
     t.string   "md5_of_verbatim_label"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at",                                 null: false
+    t.datetime "updated_at",                                 null: false
     t.text     "cached"
-    t.integer "created_by_id", null: false
-    t.integer "updated_by_id", null: false
-    t.integer "project_id", null: false
+    t.integer  "created_by_id",                              null: false
+    t.integer  "updated_by_id",                              null: false
+    t.integer  "project_id",                                 null: false
     t.integer  "start_date_year"
     t.integer  "end_date_year"
     t.integer  "start_date_day"
@@ -261,14 +261,14 @@ ActiveRecord::Schema.define(version: 20160725171413) do
 
   create_table "collection_objects", force: :cascade do |t|
     t.integer  "total"
-    t.string "type", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.string   "type",                      null: false
+    t.datetime "created_at",                null: false
+    t.datetime "updated_at",                null: false
     t.integer  "preparation_type_id"
     t.integer  "repository_id"
-    t.integer "created_by_id", null: false
-    t.integer "updated_by_id", null: false
-    t.integer "project_id", null: false
+    t.integer  "created_by_id",             null: false
+    t.integer  "updated_by_id",             null: false
+    t.integer  "project_id",                null: false
     t.text     "buffered_collecting_event"
     t.text     "buffered_determinations"
     t.text     "buffered_other_labels"
@@ -317,17 +317,17 @@ ActiveRecord::Schema.define(version: 20160725171413) do
   add_index "collection_profiles", ["updated_by_id"], name: "index_collection_profiles_on_updated_by_id", using: :btree
 
   create_table "common_names", force: :cascade do |t|
-    t.string "name", null: false
+    t.string   "name",               null: false
     t.integer  "geographic_area_id"
     t.integer  "otu_id"
     t.integer  "language_id"
     t.integer  "start_year"
     t.integer  "end_year"
-    t.integer "project_id", null: false
-    t.integer "created_by_id", null: false
-    t.integer "updated_by_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.integer  "project_id",         null: false
+    t.integer  "created_by_id",      null: false
+    t.integer  "updated_by_id",      null: false
+    t.datetime "created_at",         null: false
+    t.datetime "updated_at",         null: false
   end
 
   add_index "common_names", ["created_by_id"], name: "index_common_names_on_created_by_id", using: :btree
@@ -718,14 +718,14 @@ ActiveRecord::Schema.define(version: 20160725171413) do
   add_index "languages", ["updated_by_id"], name: "index_languages_on_updated_by_id", using: :btree
 
   create_table "loan_items", force: :cascade do |t|
-    t.integer "loan_id", null: false
+    t.integer  "loan_id",               null: false
     t.date     "date_returned"
-    t.integer "position", null: false
-    t.integer "created_by_id", null: false
-    t.integer "updated_by_id", null: false
-    t.integer "project_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.integer  "position",              null: false
+    t.integer  "created_by_id",         null: false
+    t.integer  "updated_by_id",         null: false
+    t.integer  "project_id",            null: false
+    t.datetime "created_at",            null: false
+    t.datetime "updated_at",            null: false
     t.integer  "loan_item_object_id"
     t.string   "loan_item_object_type"
     t.integer  "total"
@@ -831,11 +831,11 @@ ActiveRecord::Schema.define(version: 20160725171413) do
 
   create_table "otus", force: :cascade do |t|
     t.string   "name"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.integer "created_by_id", null: false
-    t.integer "updated_by_id", null: false
-    t.integer "project_id", null: false
+    t.datetime "created_at",    null: false
+    t.datetime "updated_at",    null: false
+    t.integer  "created_by_id", null: false
+    t.integer  "updated_by_id", null: false
+    t.integer  "project_id",    null: false
     t.integer  "taxon_name_id"
   end
 
@@ -845,15 +845,15 @@ ActiveRecord::Schema.define(version: 20160725171413) do
   add_index "otus", ["updated_by_id"], name: "index_otus_on_updated_by_id", using: :btree
 
   create_table "people", force: :cascade do |t|
-    t.string "type", null: false
-    t.string "last_name", null: false
+    t.string   "type",          null: false
+    t.string   "last_name",     null: false
     t.string   "first_name"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at",    null: false
+    t.datetime "updated_at",    null: false
     t.string   "suffix"
     t.string   "prefix"
-    t.integer "created_by_id", null: false
-    t.integer "updated_by_id", null: false
+    t.integer  "created_by_id", null: false
+    t.integer  "updated_by_id", null: false
     t.text     "cached"
   end
 
@@ -1024,17 +1024,17 @@ ActiveRecord::Schema.define(version: 20160725171413) do
   add_index "serial_chronologies", ["updated_by_id"], name: "index_serial_chronologies_on_updated_by_id", using: :btree
 
   create_table "serials", force: :cascade do |t|
-    t.integer "created_by_id", null: false
-    t.integer "updated_by_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.integer  "created_by_id",                       null: false
+    t.integer  "updated_by_id",                       null: false
+    t.datetime "created_at",                          null: false
+    t.datetime "updated_at",                          null: false
     t.string   "place_published"
     t.integer  "primary_language_id"
     t.integer  "first_year_of_issue",       limit: 2
     t.integer  "last_year_of_issue",        limit: 2
     t.integer  "translated_from_serial_id"
     t.text     "publisher"
-    t.text "name", null: false
+    t.text     "name",                                null: false
   end
 
   add_index "serials", ["created_by_id"], name: "index_serials_on_created_by_id", using: :btree
@@ -1064,7 +1064,7 @@ ActiveRecord::Schema.define(version: 20160725171413) do
     t.string   "school"
     t.string   "series"
     t.text     "title"
-    t.string "type", null: false
+    t.string   "type",                               null: false
     t.string   "volume"
     t.string   "doi"
     t.text     "abstract"
@@ -1072,11 +1072,11 @@ ActiveRecord::Schema.define(version: 20160725171413) do
     t.string   "language"
     t.string   "stated_year"
     t.string   "verbatim"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at",                         null: false
+    t.datetime "updated_at",                         null: false
     t.string   "bibtex_type"
-    t.integer "created_by_id", null: false
-    t.integer "updated_by_id", null: false
+    t.integer  "created_by_id",                      null: false
+    t.integer  "updated_by_id",                      null: false
     t.integer  "day",                      limit: 2
     t.integer  "year",                     limit: 2
     t.string   "isbn"
@@ -1225,18 +1225,18 @@ ActiveRecord::Schema.define(version: 20160725171413) do
   create_table "taxon_names", force: :cascade do |t|
     t.string   "name"
     t.integer  "parent_id"
-    t.string "cached_html", null: false
+    t.string   "cached_html",                                   null: false
     t.string   "cached_author_year"
     t.string   "cached_higher_classification"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at",                                    null: false
+    t.datetime "updated_at",                                    null: false
     t.integer  "year_of_publication"
     t.string   "verbatim_author"
     t.string   "rank_class"
-    t.string "type", null: false
-    t.integer "created_by_id", null: false
-    t.integer "updated_by_id", null: false
-    t.integer "project_id", null: false
+    t.string   "type",                                          null: false
+    t.integer  "created_by_id",                                 null: false
+    t.integer  "updated_by_id",                                 null: false
+    t.integer  "project_id",                                    null: false
     t.string   "cached_original_combination"
     t.string   "cached_secondary_homonym"
     t.string   "cached_primary_homonym"
@@ -1279,14 +1279,14 @@ ActiveRecord::Schema.define(version: 20160725171413) do
   add_index "test_classes", ["updated_by_id"], name: "index_test_classes_on_updated_by_id", using: :btree
 
   create_table "type_materials", force: :cascade do |t|
-    t.integer "protonym_id", null: false
-    t.integer "biological_object_id", null: false
-    t.string "type_type", null: false
-    t.integer "created_by_id", null: false
-    t.integer "updated_by_id", null: false
-    t.integer "project_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.integer  "protonym_id",          null: false
+    t.integer  "biological_object_id", null: false
+    t.string   "type_type",            null: false
+    t.integer  "created_by_id",        null: false
+    t.integer  "updated_by_id",        null: false
+    t.integer  "project_id",           null: false
+    t.datetime "created_at",           null: false
+    t.datetime "updated_at",           null: false
   end
 
   add_index "type_materials", ["biological_object_id"], name: "index_type_materials_on_biological_object_id", using: :btree

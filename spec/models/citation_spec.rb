@@ -29,6 +29,12 @@ describe Citation, type: :model, group: :annotators do
       expect(c2.errors.messages[:source_id][0]).to eq('has already been taken')
     end
 
+    specify 'validate uniqueness of pages with nil and empty string. Nullify before save.' do
+      expect(Citation.create(citation_object: o, source: s, pages: '').id).to be_truthy
+      expect(Citation.create(citation_object: o, source: s, pages: nil).id).to be_falsey
+      expect(Citation.find_or_create_by(citation_object: o, source: s, pages: nil).id).to eq(1)
+    end
+
     context 'database constraints' do
       before { c3.source = s }
 
