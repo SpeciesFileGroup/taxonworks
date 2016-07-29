@@ -43,7 +43,7 @@
                 <% row_modified_added = "row-modified-added" %>
             <% end %>
 
-            <% key_string = key.to_s.split('_').map(&:capitalize).join(' ') %>
+            <% key_string = key.to_s.humanize %>
             
             <tr class="compare-table-row">
                 <td class="<%= row_modified_deleted %>">

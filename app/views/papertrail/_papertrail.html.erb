@@ -6,17 +6,28 @@
       <%= User.find(papertrail.whodunnit).name %>
     </p>
     <p>
-      <strong>Created at:</strong>
-      <%= papertrail.created_at %>
+      <strong>Updated at:</strong>
+      <% attributes = papertrail.reify.attributes %>
+      <%= attributes["updated_at"] %>
     </p>
   </div>
-  <div class="version_details">
-    <p>
+  <div id="version_details_<%= papertrail.index %>" data-object-type="<%= object_type %>" class="version_details">
       <strong>Object</strong>
-      <pre><%= papertrail.object %></pre>
-    </p>
-    <%= form_for(@object, url: papertrail_update_path(object_id: object_id, object_type: object_type, restore_version_id: papertrail.index), method: :put, action: 'update') do |f| %>
-    <%= f.submit "Restore", data: {confirm: "Are you sure?"} %>
-    <% end %>
-  </div>
+      
+      
+      <% attributes = filter_out_attributes(attributes) %>
+      <% attributes.delete("updated_at") %>
+
+      <% attributes.each do |key, value| %>
+        <div class="version_detail">
+          <% input_id = key.to_s + "_" + papertrail.index.to_s %>
+          <input id="<%= input_id %>" class="version_detail_checkbox version_detail_checkbox_<%= papertrail.index %>" data-key="<%= key %>" data-value="<%= value %>" type="checkbox">
+          <label for="<%= input_id %>"><%= key.to_s.humanize %>: <%= value %></label>
+        </div>
+      <% end %>
+    </div>
+    <div class="version_restore_buttons">
+      <button class="button_restore_mode" data-papertrail-index="<%= papertrail.index %>">Restore</button>
+      <button id="button_confirm_restore_<%= papertrail.index %>" class="button_confirm_restore" data-papertrail-index="<%= papertrail.index %>">Confirm Restore</button> 
+    </div>
 </div>

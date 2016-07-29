@@ -2,6 +2,7 @@ PAPERTRAIL = {
     versions_selected: 0,
     $versions: null,
     $version_checkboxes: null,
+    $version_detail_checkboxes: null,
     $prev_version_checkbox: null,
     $button_select: null,
     $button_compare: null,
@@ -44,6 +45,21 @@ PAPERTRAIL = {
             PAPERTRAIL.checkbox_clicked($checkbox);
         });
         
+        // Version detail checkboxes
+        PAPERTRAIL.$version_detail_checkboxes = $(".version_detail_checkbox");
+        PAPERTRAIL.$version_detail_checkboxes.css("visibility", "hidden");
+
+        // Restore buttons
+        $(".button_confirm_restore").hide();
+        
+        $(".button_confirm_restore").click(function(){
+            PAPERTRAIL.button_confirm_restore_clicked($(this))
+        });
+        
+        $(".button_restore_mode").click(function(){
+            PAPERTRAIL.button_restore_mode_clicked($(this));
+        });
+
         // Set up the datepickers and callbacks
         $(".datepicker").datepicker();
         $(".datepicker").change(PAPERTRAIL.update_versions_list);
@@ -154,8 +170,109 @@ PAPERTRAIL = {
         return {start: start_date, end: end_date};
     },
 
+    // Enter/Exit restore mode
+    button_restore_mode_clicked: function($button){
+        $prev_button_restore_mode = $(".restore_mode_active");
+       
+        // Check if we're already in restore mode
+        if($prev_button_restore_mode.length > 0){
+            
+            // Is the button that was clicked the one with the restore mode active
+            // If so just exit restore mode
+            if($button.hasClass("restore_mode_active"))
+                PAPERTRAIL.exit_restore_mode();
+
+            // Else exit the previous restore mode and enter restore mode
+            // with this button aka this papertrail version
+            else{
+                let key = $prev_button_restore_mode.data("papertrail-index");
+                PAPERTRAIL.exit_restore_mode();
+                PAPERTRAIL.enter_restore_mode($button);
+            }
+        }
+
+        else{
+            let key = $button.data("papertrail-index");
+            PAPERTRAIL.enter_restore_mode($button);
+        }
+    },
+
+    // Shows all checkboxes for a papertrail version and
+    // sets them all to checked. Adds a "restore_mode_active"
+    // css class to the button that was clicked, changes the 
+    // text for that button to "Cancel Restore", shows the 
+    // confirm restore button, adds "show_confirm_restore_button" css class
+    enter_restore_mode: function($button){
+        let key = $button.data("papertrail-index");
+        let $checkboxes = $(".version_detail_checkbox_" + key);
+        
+        // Show all checkboxes for a papertrail version and set them to checked
+        $checkboxes.css("visibility", "visible");
+        $checkboxes.prop("checked", true);
+
+        // Add css class and change text for the button
+        $button.addClass("restore_mode_active");
+        $button.html("Cancel Restore");
+
+        // Show confirm restore button for that papertrail version
+        let button_confirm = $("#button_confirm_restore_" + key);
+        button_confirm.addClass("show_confirm_restore_button");
+        button_confirm.show();
+    },
+
+    // Hides all checkboxes, remove css class "restore_mode_active" from
+    // button that was clicked, remove css class "show_confirm_restore_button"
+    // from restore button.
+    exit_restore_mode: function(){
+        // Hide all checkboxes
+        PAPERTRAIL.$version_detail_checkboxes.css("visibility", "hidden");
+
+        // Reset restore button text and remove css class
+        let $button_restore = $(".restore_mode_active");$
+
+        $button_restore.removeClass("restore_mode_active");
+        $button_restore.html("Restore");
+
+        // Hide confirm restore button and remove css class
+        let $button_confirm_restore = $(".show_confirm_restore_button");
+
+        $button_confirm_restore.removeClass("show_confirm_restore_button");
+        $button_confirm_restore.hide();
+    },
+
+    // Updates the object with the selected attributes of the current papertrail version
+    button_confirm_restore_clicked: function($button){
+        // Get all selected attributes to update with
+        let key = $button.data("papertrail-index");
+
+        let key_values = $("input:checkbox:checked.version_detail_checkbox_" + key).map(function(){
+            let $self = $(this);
+
+            return { key: $self.data("key"), value: $self.data("value") };
+        });
+
+        let $papertrail_header = $("#papertrail_header");
+        let url_data = {"attributes": {}};
+
+        url_data["object_id"] = $papertrail_header.data("object-id");
+        url_data["object_type"] = $papertrail_header.data("object-type");
+        url_data["restore_version_id"] = key;
+        
+        for(let i = 0; i < key_values.length; i++)
+            url_data["attributes"][key_values[i].key] = key_values[i].value;
+
+        $.ajax({
+            type: 'PUT',
+            url: "/papertrail/update",
+            dataType: 'json',
+            data: url_data
+        }).done(function(resp){
+            window.location = resp.url;
+        });
+    },
+
     // Shows/Hides the compare button and version checkboxes
-    button_select_clicked: function($button_select){
+    button_select_clicked: function(){
 
         // Show compare button and version checkboxes
         if(PAPERTRAIL.$button_select.data("select-mode") === 0)

@@ -32,15 +32,35 @@ class PapertrailController < ApplicationController
       if version_id < 1 || version_id >= @object.versions.length
         record_not_found
       else
-        @object = @object.versions[params[:restore_version_id].to_i].reify
+        new_attributes = params[:attributes]
 
-        if @object.save
+        if !new_attributes.nil? 
+          new_attributes.each do |key, value|
+            if @object.has_attribute?(key)
+              @object.assign_attributes(Hash[key, value])
+            end
+          end
+        end
+
+        if @object.changed? && @object.save
           flash[:notice] = "Successfully restored!"
         else
           flash[:alert] = "Unsuccessfully restored!"
         end
 
-        redirect_to papertrail_path(object_type: @object.class, object_id: @object.id)
+        json_resp = { "url": papertrail_path(object_type: @object.class, object_id: @object.id) }
+
+        # If the object is a child class of "ControlledVocabularyTerm" then we need to use the 
+        # type member variable since the class member variable doesn't reflect the new class 
+        # yet and the type is the correct one thus the link thats generated will be correct
+        if ControlledVocabularyTerm > @object.class
+          json_resp["url"] = papertrail_path(object_type: @object.type, object_id: @object.id)
+        end
+
+        respond_to do |format|
+          format.html { redirect_to(papertrail_path(object_type: @object.type, object_id: @object.id)) }
+          format.json { render json: json_resp }
+        end
       end
     end
   end
@@ -95,8 +115,9 @@ class PapertrailController < ApplicationController
         @comparing_current = true
       end
 
+      @attributes_new = view_context.filter_out_attributes(@attributes_new)
+      @attributes_old = view_context.filter_out_attributes(@attributes_old)
       render 'compare'
     end
   end
-
 end
