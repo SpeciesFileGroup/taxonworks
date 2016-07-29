@@ -9,7 +9,7 @@ module NilifyBlanks
   extend ActiveSupport::Concern
 
   included do
-    before_save :nilify_blanks
+    before_validation :nilify_blanks
   end
 
   def nilify_blanks
