@@ -1,9 +1,5 @@
 # A container localizes the proximity of one ore more physical things, at this point in TW this is restricted to a number of collection objects.
 #
-# @!attribute parent_id
-#   @return [Integer]
-#     identifies the container this container is contained in
-#
 # @!attribute type
 #   @return [String]
 #     STI, the type of container
@@ -22,27 +18,127 @@
 #
 class Container < ActiveRecord::Base
 
-  has_closure_tree
-
   include Housekeeping
   include Shared::IsData
   include Shared::Identifiable
+  
   include Shared::Containable
+
   include Shared::Taggable
   include SoftValidation
 
-  has_many :container_items, inverse_of: :container
-  has_many :collection_objects, through: :container_items, source: :contained_object, source_type: 'CollectionObject', validate: false
   has_many :collection_profiles
 
   validates :type, presence: true
-  validate :enclosing_container_is_valid
   validate :type_is_valid
 
-  before_destroy :check_for_children
+  before_destroy :check_for_contents
 
-  def type_is_valid
-    raise ActiveRecord::SubclassNotFound, 'Invalid subclass' if type && !Container.descendants.map(&:name).include?(type)
+  # @return [ContainerItem Scope]
+  #    return all ContainerItems contained in this container (non recursive)
+  def container_items
+    container_item(true).try(:children) || ContainerItem.none
+  end
+
+  # @return [ContainerItem Scope]
+  #   return all ContainerItems contained in this container (recursive)
+  def all_container_items
+    container_item(true).try(:descendants) || ContainerItem.none
+  end
+
+  # @return [Array]
+  #   return all #contained_object(s) (non-recursive)
+  def contained_objects
+    return [] if !container_item(true)
+    container_item.children.map(&:contained_object)
+  end
+
+  # @return [Array]
+  #   return all #contained_object(s) (recursive)
+  def all_contained_objects
+    return [] if !container_item(true)
+    container_item.descendants.map(&:contained_object)
+  end
+
+  # @return [Array] of CollectionObject#id of this container's CollectionObjects only (no recursion)
+  def collection_objects
+    container_items.containing_collection_objects.map(&:contained_object)
+  end
+
+  # @return [Array] of CollectionObject#id of this container's CollectionObjects only (with recursion)
+  def collection_objects
+    all_container_items.containing_collection_objects.map(&:contained_object)
+  end
+
+  # @return [Array] of CollectionObject#id of this container's contents (no recursion)
+  def collection_object_ids
+    container_items.containing_collection_objects.pluck(&:id)
+  end
+
+  # @return [Array] of CollectionObject#id of this container's contents (recursive)
+  def all_collection_object_ids
+    all_contained_items.containing_collection_objects.pluck(&:id)
+  end
+
+  # @return [Boolean]
+  #    add the objects to this container
+  def add_container_items(objects)
+    return false if new_record?
+    begin
+     Container.transaction do
+       ci = container_item
+       ci ||= ContainerItem.create!(contained_object: self)
+
+       objects.each do |o|
+         return false if o.new_record? || !o.containable? # does this roll back transaction
+         ContainerItem.create!(parent: ci, contained_object: o)
+       end
+
+     end
+   rescue ActiveRecord::RecordInvalid
+     return false
+   end
+    true 
+  end
+
+  # @return [Boolean] 
+  #   regardless whether size is defined, whether there is anything in this container (non-recursive)
+  def is_empty?
+    !container_items.any?
+  end
+
+  # @return [Boolean]
+  #   true if size is defined, and there is no space left in this container (non-recursive) 
+  def is_full?
+    available_space == 0
+  end
+
+  # @return [Integer]
+  #   the free space in this container (non-recursive)
+  def available_space
+    in_container = container_items.count
+    size - in_container
+  end
+
+  # @return [Integer, nil]
+  #   the total number of "slots" or "spaces" this container has, it's size
+  def size
+    return nil if size_x.blank? && size_y.blank? && size_z.blank?
+    if size_x
+      if size_y
+        if size_z
+          size_x * size_y * size_z 
+        else
+          size_x * size_y
+        end
+      else
+        size_x
+      end
+    end
+  end
+  
+  def self.find_for_autocomplete(params)
+    Queries::ContainerAutocompleteQuery.new(params[:term], project_id: params[:project_id]).result
   end
 
   # @return [String]
@@ -57,89 +153,49 @@ class Container < ActiveRecord::Base
     []
   end
 
-  # @return [Scope]
-  #   CollectionObjects, all of them, for this container
-  def all_collection_objects
-    CollectionObject.joins(container: [:container_items]).where(container_items: {container_id: self_and_descendants.pluck(:id)})
-  end
-
   # @return [Container]
-  #   places all objects in a new, unsaved container and returns that container, unsaved!
+  #   places all objects in a new, container, saves it off, all objects must not be new_records
   def self.containerize(objects, klass = Container::Virtual)
-    c = klass.new
-    objects.each do |o|
-      c.container_items.build(contained_object: o)
+    c = nil
+    begin
+      Container.transaction do
+        c = klass.create()
+        ci = ContainerItem.create(contained_object: c)
+
+        objects.each do |o|
+          return false if o.new_record?
+          ContainerItem.create(parent: ci, contained_object: o)
+        end
+
+      end
+    rescue ActiveRecord::RecordInvalid
+      return false
     end
     c
   end
 
-  # @return [Scope] of this container's contents
-  def dump_container_contents
-    # retval = []
-    # container_items.each { |item|
-    #   case item.contained_object_type
-    #     when /contain/i # if this item is a container, try to dump the contents
-    #       retval.push(item.contained_object.dump_container_contents)
-    #     else # otherwise, just include whatever it is
-    #       retval.push(item.contained_object)
-    #   end
-    # }
-    # retval.flatten
-    CollectionObject.where(id: collection_object_ids)
-  end
-
-  # @return [Array] of ids of this container's contents
-  def collection_object_ids
-    retval = []
-    container_items.each { |item|
-      case item.contained_object_type
-        when /contain/i # if this item is a container, try to dump the contents
-          retval.push(item.contained_object.collection_object_ids)
-        else # otherwise, just include whatever it is
-          retval.push(item.contained_object_id)
-      end
-    }
-    retval.flatten
-  end
-
-  # @return [Array of {Object}s]
-  #   all objects contained in this and nested containers
-  def all_objects
-    dump_container_contents
-    #  all_containers.collect{|c| c.container_item.collect{|ci| ci.contained_object}}.flatten
-    #  container_items = ContainerItem.joins(:containers).where(containers: {left:
-  end
-
-  def self.find_for_autocomplete(params)
-    Queries::ContainerAutocompleteQuery.new(params[:term], project_id: params[:project_id]).result
-  end
 
   protected
 
-  def check_for_children
-    unless leaf?
-      errors[:base] << "has attached names, delete these first"
+  def type_is_valid
+    raise ActiveRecord::SubclassNotFound, 'Invalid subclass' if type && !Container.descendants.map(&:name).include?(type)
+  end
+
+  def check_for_contents
+    if container_items.any?  
+      errors.add(:base, 'is not empty, empty it before destroying it') 
       return false
     end
   end
 
-  def enclosing_container_is_valid
-    if self.parent
-      if !self.class.valid_parents.include?(self.parent.type)
-        errors.add(:type, "#{self.class.name} can not be nested in the parent container type #{self.parent.class.name}")
-      end
-    end
-  end
+# def enclosing_container_is_valid
+#   if self.parent
+#     if !self.class.valid_parents.include?(self.parent.type)
+#       errors.add(:type, "#{self.class.name} can not be nested in the parent container type #{self.parent.class.name}")
+#     end
+#   end
+# end
 
-  def process
-    loan      = Loan.find(3111)
-    site      = loan.loan_items[0].loan_item_object
-    building  = site.container_items[0].contained_object
-    room      = building.container_items[0].contained_object
-    vial_rack = room.container_items[0].contained_object
-    vial      = vial_rack.container_items[0].contained_object
-    specimens = vial.container_items
-  end
 
 end
 

@@ -1,7 +1,8 @@
 require 'rails_helper'
 
-describe Container, :type => :model do
+describe Container, type: :model, group: :containers do
   let(:container) { Container.new }
+  let(:objects) {  [Specimen.create, Specimen.create] }
 
   context 'validation' do
     specify 'type is required' do
@@ -21,74 +22,124 @@ describe Container, :type => :model do
       container.type = 'Container::Drawer'
       expect(container.valid?).to be_truthy
     end
+
+    context 'with contained items' do
+      before {
+        container.type = 'Container::Virtual'
+        container.save!
+        container.add_container_items(objects)
+      }
+
+      specify 'can not be destroyed' do 
+        expect(container.destroy).to be_falsey
+      end
+    end
   end
 
   context 'associations' do
     context 'has_many' do
-      specify 'container_items' do
-        expect(container).to respond_to(:container_items)
-      end
-
-      specify 'collection_objects' do
-        expect(container.collection_objects << CollectionObject.new).to be_truthy
-      end
-
       specify 'collection_profiles' do
         expect(container.collection_profiles << CollectionProfile.new).to be_truthy
       end
     end
   end
 
-  context '.containerize()' do
-    let(:objects) {  [Specimen.create, Specimen.create] }
+  context '.containerize' do
     let(:c) { Container.containerize(objects) }
 
-    specify 'dumping out collection objects' do
-      expect(c.dump_container_contents).to contain_exactly(objects[0], objects[1])
-    end
-
-    specify 'dumping out collection object ids' do
-      expect(c.collection_object_ids).to contain_exactly(objects[0].id, objects[1].id)
+    specify 'returns a saved container' do
+      expect(c.id).to be_truthy 
     end
 
     specify 'defaults to Container::Virtual'  do
       expect(c.class).to eq(Container::Virtual)
     end
 
-    specify 'builds container items' do
-      # size - in memory
-      expect(c.container_items.size).to eq(2)
-    end
-
-    specify 'is not saved by default' do
-      expect(c.new_record?).to be_truthy
-    end
-
-    specify 'can be saved' do
-      expect(c.save).to be_truthy
-    end
-
-    specify 'when saved saves container objects' do
-      c.save
-      expect(c.container_items.count).to eq(2)
+    specify 'returns false if objects are not saved' do
+      expect(Container.containerize([Specimen.new])).to be_falsey
     end
   end
 
-  context 'containable items' do
-    before(:each) {
-      container.type = 'Container::Virtual'
-    }
+  context 'container items' do
+    let(:c) { FactoryGirl.create(:valid_container) }
 
-    specify 'add items to an unsaved container' do
-      container.collection_objects << (FactoryGirl.create(:valid_specimen))
-      expect(container.save).to be_truthy
-      expect(container.container_items.count).to eq(1)
+    specify '#container_items' do
+      expect(container).to respond_to(:container_items)
+    end
+
+    specify '#collection_objects' do
+      expect(container).to respond_to(:collection_objects)
+    end
+
+    specify '#add_container_items' do
+      expect(c.add_container_items(objects)).to be_truthy
+    end
+
+    specify '#add_container_items fails on container.new_record?' do
+      new_container = Container.new
+      expect(new_container.add_container_items(objects)).to be_falsey
+    end
+
+    context 'when added to a container' do
+      before { 
+        c.add_container_items(objects)
+      }
+
+      specify '#container_items' do
+        expect(c.container_items.count).to eq(2)
+      end
+
+      specify '#contained_objects' do
+        expect(c.contained_objects.count).to eq(2)
+      end
     end
   end
 
-  context 'from awesome_nested_set' do
-    specify 'root' do
-      expect(container).to respond_to(:root)
+  context 'size' do
+    context 'x set' do
+      before {container.size_x = 3}
+
+      specify '#size (one dimensional)' do
+        expect(container.size).to eq(3)
+      end
+
+      context 'y set' do
+        before {container.size_y = 3}
+
+        specify '#size (two dimensional)' do
+          expect(container.size).to eq(9)
+        end
+
+        context 'z set' do
+          before {container.size_z = 3}
+
+          specify '#size (three dimensional)' do
+            expect(container.size).to eq(27)
+          end
+        end
+      end
+    end
+
+    context 'filling a container' do
+      before {
+        container.size_x = 3
+        container.size_y = 3
+        container.type = 'Container::Virtual'
+        container.save!
+        container.add_container_items(objects)
+      }
+
+      specify '#is_full?' do
+        expect(container.is_full?).to be_falsey 
+      end
+
+      specify '#is_empty?' do
+        expect(container.is_empty?).to be_falsey 
+      end
+
+      specify '#available_space' do
+        expect(container.available_space).to eq(7)
+      end
     end
   end
 
