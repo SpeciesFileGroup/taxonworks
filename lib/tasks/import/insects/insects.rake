@@ -1770,7 +1770,7 @@ namespace :tw do
                               loan_item_object: loan_item_object,
                               total: total,
                               date_returned: time_from_field(row['DateReturned']),
-                              collection_object_status: status[row['Status'].to_s.downcase]
+                              disposition: status[row['Status'].to_s.downcase]
             )
           end
         end

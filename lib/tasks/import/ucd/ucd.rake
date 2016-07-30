@@ -24,9 +24,9 @@ require 'fileutils'
 # RELIABLE.txt
 # SPECIES.txt       Done
 # STATUS.txt
-# TRAN.txt
+# TRAN.txt          not needed
 # TSTAT.txt
-# WWWIMAOK.txt
+# WWWIMAOK.txt      image related
 
 namespace :tw do
   namespace :project_import do
@@ -89,30 +89,30 @@ namespace :tw do
         handle_projects_and_users_ucd
         raise '$project_id or $user_id not set.'  if $project_id.nil? || $user_id.nil?
 
-        $project_id = 1
-        @root = Protonym.find_or_create_by(name: 'Root', rank_class: 'NomenclaturalRank', project_id: $project_id)
+#        $project_id = 1
+#        @root = Protonym.find_or_create_by(name: 'Root', rank_class: 'NomenclaturalRank', project_id: $project_id)
 
         handle_language_ucd
         handle_countries_ucd
         handle_collections_ucd
 
-#        handle_references_ucd
+        handle_references_ucd
 
-#        handle_fgnames_ucd
-#        handle_master_ucd_families
-#        handle_master_ucd_valid_genera
-#        handle_master_ucd_invalid_genera
-#        handle_master_ucd_invalid_subgenera
-#        handle_master_ucd_valid_species
-#        handle_master_ucd_invalid_species
-#        handle_family_ucd
-#        handle_genus_ucd
-#        handle_species_ucd
+        handle_fgnames_ucd
+        handle_master_ucd_families
+        handle_master_ucd_valid_genera
+        handle_master_ucd_invalid_genera
+        handle_master_ucd_invalid_subgenera
+        handle_master_ucd_valid_species
+        handle_master_ucd_invalid_species
+        handle_family_ucd
+        handle_genus_ucd
+        handle_species_ucd
 
         handle_keywords_ucd
         handle_hknew_ucd
-#        handle_h_fam_ucd
-#        handle_hostfam_ucd
+        handle_h_fam_ucd
+        handle_hostfam_ucd
 
 
         print "\n\n !! Success. End time: #{Time.now} \n\n"
@@ -674,7 +674,6 @@ namespace :tw do
             taxon.notes.create!(text: row['Notes']) unless row['Notes'].blank?
             taxon.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['FamTrib:Status'], value: status_type[row['Status']]) unless row['Status'].blank?
           end
-          #byebug if i < 50
         end
       end
 
@@ -727,7 +726,6 @@ namespace :tw do
             taxon.notes.create(text: row['Notes']) unless row['Notes'].blank?
             taxon.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Genus:Status'], value: status_type[row['Status']]) unless row['Status'].blank?
           end
-          #byebug if i < 50
         end
       end
 
@@ -906,7 +904,6 @@ namespace :tw do
           ref = find_source_id_ucd(row['RefCode'])
           page = row['PageRef'].blank? ? nil : row['PageRef']
           if !ref.nil? && !taxon.nil?
-            #c = Citation.find_or_create_by(source_id: ref, pages: row['PageRef'], citation_object_type: 'TaxonName', citation_object_id: taxon.id, project_id: $project_id)
             c = taxon.citations.find_or_create_by(source_id: ref, pages: page)
             c.citation_topics.find_or_create_by(topic: @data.topics[row['Keyword']], project_id: $project_id) unless row['Keywords'].blank?
             c.notes.find_or_create_by(text: row['Notes']) unless row['Notes'].blank?
@@ -914,8 +911,9 @@ namespace :tw do
         end
       end
 
+      def handle_tstat_ucd
 
-
+      end
 
       def find_taxon_id_ucd(key)
         @data.taxon_codes[key.to_s] || Identifier.where(cached: 'UCD_Taxon_ID ' + key.to_s, identifier_object_type: 'TaxonName', project_id: $project_id).limit(1).pluck(:identifier_object_id).first
