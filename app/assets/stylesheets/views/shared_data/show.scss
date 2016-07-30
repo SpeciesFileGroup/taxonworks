@@ -67,22 +67,6 @@
   background: none;
 }
 
-.no-borders {
-  border:none !important;
-}
-
-.no-shadow {
-  box-shadow:none !important;
-}  
-
-.content {
-  padding: $standard_padding;
-  a {
-    font-size: 12px;
-    text-decoration: none;
-  }
-}
-
 mark {
   font-weight: bold;
   background-color: transparent;
@@ -105,7 +89,6 @@ mark {
       max-width: 100%;
     }                     
   }
-
 
   strong {
     font-weight: 100;

@@ -169,3 +169,20 @@
   }
   
 }
+
+
+.no-borders {
+  border:none !important;
+}
+
+.no-shadow {
+  box-shadow:none !important;
+}  
+
+.content {
+  padding: $standard_padding;
+  a {
+    font-size: 12px;
+    text-decoration: none;
+  }
+}

@@ -12,30 +12,15 @@
 	font-weight: 100;
 
 	a {
-		font-size:13px;
 		padding: $standard_padding;
-		text-decoration: none;
-		-webkit-transition: 0.3s ease;
-		transition: 0.3s ease;
-	}
-
-	a:hover {
-		-webkit-transition: 0.3s ease;
-		transition: 0.3s ease;
-		color: $focus_link_color;
 	}
 
 	#taxonworks {
 		a {
 			color: $default_text;
 			padding: 0px;
-			font-weight: 100;
 			font-size: 22px;
 			text-decoration: none;
-
-		}
-		a:hover {
-			background-color:transparent;
 		}
 	}
 
@@ -55,16 +40,6 @@
 	color: $default_text !important;
 }
 
-.all_hub_category {
-	margin-top: 5px;
-	padding: .1em;
-	font-size: 120%;
-	font-weight: bold;
-	background: $color-secondary-2-2;
-	border-bottom: 1px solid $color-secondary-1-4;
-}
-
-// Not a header ?!
 #main {
 	margin:0 auto;
 	padding-left:$standard_padding;

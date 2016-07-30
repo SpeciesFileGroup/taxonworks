@@ -1,34 +1,34 @@
-// Place all the styles related to the dashboard controller here.
-// They will automatically be included in application.css.
-// You can use Sass (SCSS) here: http://sass-lang.com/
+@import 'base/palette';
+@import 'base/whitespace';
+@import 'base/fonts';
 
- @import 'base/palette';
-
- #dashboard {
- 	display: flex;
- 	flex-direction:column;
- 	justify-content:flex-start;
- 	align-items:center;
- 	h1 {
- 		font-weight: 100;
- 		font-size: 20px;
- 	}
+#dashboard {
+	display: flex;
+	flex-direction:column;
+	justify-content:flex-start;
+	align-items:center;
+	h1 {
+		font-weight: 100;
+		font-size: $font_title;
+	}
 	.flexbox {
 		max-width: 1280px;
-	  	display: flex;
-	  	flex-direction: row; 
-	  	flex-wrap: nowrap;
-	  	justify-content: center;
-	  	width: 100%;
+		display: flex;
+		flex-direction: row; 
+		flex-wrap: nowrap;
+		justify-content: center;
+		width: 100%;
 		.space-distance {
-			margin-left: 0.5em;
-			margin-right: 0.5em;
+			margin-left: $standard_margin;
+			margin-right: $standard_margin;
+		}	
+		h2 {
+			font-size: $font_title;
+			font-weight: 100;
 		}	
 		h3 {
+			font-size: $font_subtitle;
 			font-weight: 100;
-		}		
-		a {
-			text-decoration: none;
-		}
+		}				
 	}
 }

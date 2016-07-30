@@ -1,5 +1,6 @@
 /* Login Screen */
 @import 'base/palette';
+@import 'base/whitespace';
 
 #login-container {
 	position: absolute;
@@ -12,7 +13,7 @@
 	
 	.box-login {
 		background-color: #FFF;
-		padding:15px;
+		padding:$standard_padding;
 		border-radius:3px;
 		border:1px solid $navigation_border;
 		box-shadow:0 0px 3px 0 $navigation_border;

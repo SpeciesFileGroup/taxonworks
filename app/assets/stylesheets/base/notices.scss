@@ -3,40 +3,19 @@
 
 .alert {
   display: flex;
+  z-index: 999;
   position: absolute;
   flex-direction: row;
   margin: 0px;
   align-items: center;
   left: 50%;
   opacity: 0; 
-  transform: translateX(-50%);
-  padding: 0.5em; 
+  transform: translateY(-100%) translateX(-50%);
+  padding: $standard_padding; 
   border-top:none;
   border-bottom-right-radius: 3px;
   border-bottom-left-radius: 3px;
-  animation: entering 5s;
-  @keyframes entering {
-    0%  { 
-      opacity: 0;
-      transform: translateY(-50%) translateX(-50%);
-
-    }
-    50% { 
-      
-      opacity: 1; 
-
-    }
-    70% { 
-      
-      opacity: 1; 
-
-    }    
-    100% { 
-      
-      opacity: 0; 
-
-    }        
-  }
+  animation: alert-show 5s ease;
 
 
   &.alert-notice {
@@ -48,4 +27,8 @@
   	box-shadow: 0 0 3px 0 $color-primary-3;
     background: $color-primary-2;
   }
+}
+.alert-error {
+    box-shadow: 0 0 3px 0 $color-primary-3;
+    background: $color-primary-2; 
 }
