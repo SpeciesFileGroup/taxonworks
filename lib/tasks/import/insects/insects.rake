@@ -161,42 +161,42 @@ namespace :tw do
         handle_namespaces_insects(@data1, @import)
 
         handle_controlled_vocabulary_insects(@data1, @import)
-        handle_biocuration_classes_insects(@data1, @import)
-        handle_biological_relationship_classes_insects(@data1, @import)
-        handle_preparation_types_insects(@data1, @import)
-        handle_people_insects(@data1, @import)
+#        handle_biocuration_classes_insects(@data1, @import)
+#        handle_biological_relationship_classes_insects(@data1, @import)
+#        handle_preparation_types_insects(@data1, @import)
+#        handle_people_insects(@data1, @import)
         GC.start
-        handle_taxa_insects(@data1, @import)
+#        handle_taxa_insects(@data1, @import)
         GC.start
-        handle_loans_insects(@data1, @import)
+#        handle_loans_insects(@data1, @import)
         GC.start
 
         # !! The following can not be loaded from the database they are always created anew.
 
-        build_localities_index_insects(@data1)
+#        build_localities_index_insects(@data1)
 
         puts "Indexing collecting events."
         # should be run to clear redis database. if specimen from diffrent tables run one buy one, data could be left in Redis and reused
 
-        @redis.flushall
+#        @redis.flushall
 
-        index_collecting_events_from_accessions_new(@data1, @import)
+#        index_collecting_events_from_accessions_new(@data1, @import)
         GC.start
-        index_collecting_events_from_ledgers(@data1, @import)
+#        index_collecting_events_from_ledgers(@data1, @import)
         GC.start
-        index_specimen_records_from_specimens_insects(@data1, @import)
+#        index_specimen_records_from_specimens_insects(@data1, @import)
         GC.start
-        index_specimen_records_from_specimens_insects_new(@data1, @import)
+#        index_specimen_records_from_specimens_insects_new(@data1, @import)
         GC.start
-        index_specimen_records_from_neon(@data1, @import)
+#        index_specimen_records_from_neon(@data1, @import)
 
         puts "\nTotal collecting events to build: #{@redis.keys.count}."
 
-        handle_associations_insects(@data1, @import)
+#        handle_associations_insects(@data1, @import)
         GC.start
-        handle_loan_specimens_insects(@data1)
+#        handle_loan_specimens_insects(@data1)
         GC.start
-        handle_letters_insects(@data1)
+#        handle_letters_insects(@data1)
         handle_collection_profile_insects(@data1)
         handle_locality_images(@data1)
         handle_loan_images(@data1)
@@ -1897,10 +1897,10 @@ namespace :tw do
         if r.nil?
           r = Container::Room.with_project_id($project_id).where(name: row['name'])
           if r.empty?
-            r = Container::Room.create!(name: row['Room'] ).id
+            r = Container::Room.create!(name: row['Room'] )
             ContainerItem.create!(container: @collection_container, contained_object: r)
           else
-            r = r.first.id
+            r = r.first
           end
         end
         data.rooms[row['Room']] = r
