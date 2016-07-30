@@ -185,16 +185,13 @@ PAPERTRAIL = {
             // Else exit the previous restore mode and enter restore mode
             // with this button aka this papertrail version
             else{
-                let key = $prev_button_restore_mode.data("papertrail-index");
                 PAPERTRAIL.exit_restore_mode();
                 PAPERTRAIL.enter_restore_mode($button);
             }
         }
 
-        else{
-            let key = $button.data("papertrail-index");
+        else
             PAPERTRAIL.enter_restore_mode($button);
-        }
     },
 
     // Shows all checkboxes for a papertrail version and
@@ -256,11 +253,21 @@ PAPERTRAIL = {
 
         url_data["object_id"] = $papertrail_header.data("object-id");
         url_data["object_type"] = $papertrail_header.data("object-type");
-        url_data["restore_version_id"] = key;
         
         for(let i = 0; i < key_values.length; i++)
             url_data["attributes"][key_values[i].key] = key_values[i].value;
 
+        PAPERTRAIL.ajax_update(url_data);
+    },
+
+    // Makes an ajax update put request with "url_data" as the data,
+    // also redirects the page to the papertrail version page of the
+    // object that was updated
+    // Format for url_data must include
+    //      object_id: num
+    //      object_type: string
+    //      attributes: {}
+    ajax_update: function(url_data){
         $.ajax({
             type: 'PUT',
             url: "/papertrail/update",

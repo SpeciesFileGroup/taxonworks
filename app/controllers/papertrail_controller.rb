@@ -23,44 +23,36 @@ class PapertrailController < ApplicationController
     if invalid_object(@object)
       record_not_found
     else
-      version_id = params[:restore_version_id].to_i
+      new_attributes = params[:attributes]
 
-      # The version at index 0 is the version created before something is made,
-      # as in the state of the obj before it was created, aka all attributes null
-      # thus why index of 1 (when it actually has attributes) is the smallest
-      # an index can be for a proper version
-      if version_id < 1 || version_id >= @object.versions.length
-        record_not_found
-      else
-        new_attributes = params[:attributes]
-
-        if !new_attributes.nil? 
-          new_attributes.each do |key, value|
-            if @object.has_attribute?(key)
-              @object.assign_attributes(Hash[key, value])
-            end
+      if !new_attributes.nil? 
+        new_attributes.each do |key, value|
+          if @object.has_attribute?(key)
+            @object.assign_attributes(Hash[key, value])
           end
         end
+      end
 
-        if @object.changed? && @object.save
-          flash[:notice] = "Successfully restored!"
-        else
-          flash[:alert] = "Unsuccessfully restored!"
-        end
+      if !@object.changed?
+        flash[:notice] = "No changes made!"
+      elsif @object.save
+        flash[:notice] = "Successfully restored!"
+      else
+        flash[:alert] = "Unsuccessfully restored!"
+      end
 
-        json_resp = { "url": papertrail_path(object_type: @object.class, object_id: @object.id) }
+      json_resp = { "url": papertrail_path(object_type: @object.class, object_id: @object.id) }
 
-        # If the object is a child class of "ControlledVocabularyTerm" then we need to use the 
-        # type member variable since the class member variable doesn't reflect the new class 
-        # yet and the type is the correct one thus the link thats generated will be correct
-        if ControlledVocabularyTerm > @object.class
-          json_resp["url"] = papertrail_path(object_type: @object.type, object_id: @object.id)
-        end
+      # If the object is a child class of "ControlledVocabularyTerm" then we need to use the 
+      # type member variable since the class member variable doesn't reflect the new class 
+      # yet and the type is the correct one thus the link thats generated will be correct
+      if ControlledVocabularyTerm > @object.class
+        json_resp["url"] = papertrail_path(object_type: @object.type, object_id: @object.id)
+      end
 
-        respond_to do |format|
-          format.html { redirect_to(papertrail_path(object_type: @object.type, object_id: @object.id)) }
-          format.json { render json: json_resp }
-        end
+      respond_to do |format|
+        format.html { redirect_to(papertrail_path(object_type: @object.type, object_id: @object.id)) }
+        format.json { render json: json_resp }
       end
     end
   end

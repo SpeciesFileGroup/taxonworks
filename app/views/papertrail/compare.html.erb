@@ -1,28 +1,48 @@
-<div class="compare-content">
-    <h1>Compare</h1>
+<div class="compare_content">
+    <h1 id="papertrail_compare_header" data-object-id="<%= @object.id %>" data-object-type="<%= @object.class %>" >Compare</h1>
     <div><%= link_to('Return', papertrail_path(object_type: @object.class, object_id: @object.id))-%></div>
-    <table class="compare-table">
-        <tr class="compare-table-row">
+    <table class="compare_table">
+        <tr class="compare_table_row">
             <td>
-                <h3>Older</h3>
+                <h3>Attribute</h3>
+            </td>
+
+            <td>
+                <h3>Older
+                    <span class="version_restore_buttons">
+                        <button class="button_restore_mode" data-type="old">Restore</button>
+                        <button id="button_confirm_restore_old" class="button_confirm_restore" data-type="old">Confirm Restore</button> 
+                    </span>
+                </h3>
             </td>
             
             <td>
                 <% if @comparing_current %>
-                    <h3>Current</h3>
+                    <h3>Current
+                    <span class="version_restore_buttons" style="visibility: hidden">
                 <% else %>
-                    <h3>Newer</h3>
+                    <h3>Newer
+                    <span class="version_restore_buttons">
                 <% end %>
+                        
+                            <button class="button_restore_mode" data-type="new">Restore</button>
+                            <button id="button_confirm_restore_new" class="button_confirm_restore"  data-type="new">Confirm Restore</button> 
+                        </span>
+                    </h3>
             </td>
         </tr>
 
-        <tr class="compare-table-row">
+        <tr class="compare_table_row">
             <td>
-                <span>Author: <%= @user_old %></span>
+                <span>Author:</span>
+            </td>
+
+            <td>
+                <span><%= @user_old %></span>
             </td>
             
             <td>
-                <span>Author: <%= @user_new %></span>
+                <span><%= @user_new %></span>
             </td>
         </tr>
 
@@ -39,21 +59,36 @@
             <% row_modified_added = "" %>
 
             <% if diffs["deleted_strings"].length > 0 || diffs["added_strings"].length > 0 %>
-                <% row_modified_deleted = "row-modified-deleted" %>
-                <% row_modified_added = "row-modified-added" %>
+                <% row_modified_deleted = "row_modified_deleted" %>
+                <% row_modified_added = "row_modified_added" %>
             <% end %>
 
             <% key_string = key.to_s.humanize %>
             
-            <tr class="compare-table-row">
-                <td class="<%= row_modified_deleted %>">
+            <tr class="compare_table_row">
+                <!-- Attribute column -->
+                <td>
                     <span><%= key_string %>:</span>
-                    <%= get_highlighted_words(@attributes_old[key].to_s, diffs["deleted_strings"], diffs["deleted_strings_indices"], "highlight-deleted") %>
+                </td>
+
+                <!-- Older column -->
+                <td class="<%= row_modified_deleted %>">
+                    <% if key != "updated_at" %>
+                        <input id="<%= key %>_old" class="version_detail_checkbox version_detail_checkbox_old" data-key="<%= key %>" data-value="<%= @attributes_old[key] %>" type="checkbox">
+                    <% end %>
+                    <label for="<%= key %>_old">
+                        <%= get_highlighted_words(@attributes_old[key].to_s, diffs["deleted_strings"], diffs["deleted_strings_indices"], "highlight_deleted") %>
+                    </label>
                 </td>
                 
+                <!-- Newer/Current column -->
                 <td class="<%= row_modified_added %>">
-                    <span><%= key_string %>:</span>
-                    <%= get_highlighted_words(@attributes_new[key].to_s, diffs["added_strings"], diffs["added_strings_indices"], "highlight-added") %>
+                    <% if key != "updated_at" && !@comparing_current %>
+                        <input id="<%= key %>_new" class="version_detail_checkbox version_detail_checkbox_new" data-key="<%= key %>" data-value="<%= @attributes_new[key] %>" type="checkbox">
+                    <% end %>
+                    <label for="<%= key %>_new">
+                        <%= get_highlighted_words(@attributes_new[key].to_s, diffs["added_strings"], diffs["added_strings_indices"], "highlight_added") %>
+                    </label>
                 </td>
             </tr>
         <% end %>
