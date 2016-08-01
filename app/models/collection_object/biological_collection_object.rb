@@ -19,6 +19,12 @@ class CollectionObject::BiologicalCollectionObject < CollectionObject
   soft_validate(:sv_missing_preparation_type, set: :missing_preparation_type)
   soft_validate(:sv_missing_repository, set: :missing_repository)
 
+  def current_taxon_determination=(taxon_determination)
+    if taxon_determinations.include?(taxon_determination)
+      taxon_determination.move_to_top
+    end
+  end
+
   def reorder_determinations_by(attribute = :date)
     determinations = []
     if attribute == :date
@@ -28,7 +34,7 @@ class CollectionObject::BiologicalCollectionObject < CollectionObject
     end
 
     determinations.each_with_index do |td, i|
-      td.update(position: i+1)
+      td.position = i + 1
     end
 
     begin
@@ -37,7 +43,7 @@ class CollectionObject::BiologicalCollectionObject < CollectionObject
           td.save
         end
       end
-    rescue
+    rescue ActiveRecord::RecordInvalid
       return false
     end
     return true

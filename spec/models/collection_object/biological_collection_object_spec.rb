@@ -61,7 +61,7 @@ describe CollectionObject::BiologicalCollectionObject, :type => :model do
       expect(o.reorder_determinations_by()).to be_truthy
       o.reload
       y = Time.now.year.to_i
-      expect(o.taxon_determinations.map(&:year_made)).to eq([y, 1980, 1920])
+      expect(o.taxon_determinations.order('taxon_determinations.position').map(&:year_made)).to eq([y, 1980, 1920])
       expect(o.current_taxon_determination.year_made).to eq(y)
     end
   end

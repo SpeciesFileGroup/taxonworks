@@ -6,11 +6,19 @@
   <%= content_tag(:li, verify_accessions_task_link(@collection_object))   %>
 <% end %>
 
+<%= content_for :add do -%>
+  <%= content_tag(:li, link_to('Add to container', containerize_collection_object_path(@collection_object))) %>
+<% end %>
+
 <%= content_for :associated do -%>
   <h3> Taxon Determinations </h3>
-  <% @collection_object.taxon_determinations.order(position: :desc).each do |td| -%>
+  <% @collection_object.taxon_determinations.order(:position).each do |td| -%>
     <%= taxon_determination_link(td) %><br> 
   <% end %>
+
+  <%= draw_container_tag(@collection_object.container) -%>
+
 <% end %>
+
 
 <%= render(partial: 'shared/data/project/show', locals: {object: @collection_object}) -%>

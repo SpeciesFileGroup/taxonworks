@@ -177,7 +177,6 @@ describe CollectionObject, type: :model do
   end
 
   context 'nested attributes' do
-
     specify 'a new otu and determination can be created' do
       s = CollectionObject.new(total: 1,
                                taxon_determinations_attributes: [
@@ -186,11 +185,13 @@ describe CollectionObject, type: :model do
                               )
 
       expect(s.save).to be_truthy
-    #  s.reload
       expect(s.taxon_determinations.count).to eq(1)
       expect(s.taxon_determinations.first.otu.name).to eq('King Kong')
       expect(s.taxon_determinations.first.otu.id).to be_truthy
     end
+  end
+
+  context 'taxon_determinations' do
 
   end
 

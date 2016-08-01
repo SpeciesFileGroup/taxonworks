@@ -97,7 +97,7 @@ class CollectionObject < ActiveRecord::Base
   has_many :otus, through: :taxon_determinations, inverse_of: :collection_objects
 
   # This is a problem, but here for the forseeable future for nested attributes purporses.
-  has_many :taxon_determinations, -> {order('taxon_determinations.position') }, foreign_key: :biological_collection_object_id, inverse_of: :biological_collection_object
+  has_many :taxon_determinations, foreign_key: :biological_collection_object_id, inverse_of: :biological_collection_object
 
   has_one :preferred_catalog_number, through: :current_otu, source: :taxon_name
 
@@ -561,10 +561,10 @@ class CollectionObject < ActiveRecord::Base
 
   def reject_taxon_determinations(attributed)
     if attributed['otu_id'].blank?
-      return true if attributed['otu_attributes'].blank?
-      if h = attributed['otu_attributes']
-        return true if h['name'].blank? && h['taxon_name_id'].blank?
-      end
+      return true if attributed['otu_attributes'].empty?
+
+      h = attributed['otu_attributes']
+      return true if h['name'].blank? && h['taxon_name_id'].blank?
     end
     false
   end

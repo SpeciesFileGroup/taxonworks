@@ -16,7 +16,9 @@
 #
 # @!attribute position
 #   @return [Integer]
-#   @todo
+#     for acts_as_list, !! the determinations with the smallest position is the current/preferred determination,
+#     i.e. the one that you want to be seen for the collection object, it is NOT necessarily the most recent 
+#     determination made
 #
 # @!attribute project_id
 #   @return [Integer]
@@ -39,13 +41,6 @@
 class TaxonDetermination < ActiveRecord::Base
   acts_as_list scope: [:biological_collection_object_id]
 
-  after_create :sort_to_top
-
-  def sort_to_top 
-    reload
-    self.move_to_top
-  end
-
   include Housekeeping
   include Shared::Citable
   include Shared::HasRoles
@@ -61,7 +56,7 @@ class TaxonDetermination < ActiveRecord::Base
   accepts_nested_attributes_for :otu, allow_destroy: false, reject_if: proc { |attributes| attributes['name'].blank? && attributes['taxon_name_id'].blank?  }
 
   validates :biological_collection_object, presence: true
-  validates :otu, presence: true # TODO - probably bad
+  validates :otu, presence: true # TODO - probably bad, and preventing nested determinations, should just use DB validation
 
   # @todo factor these out (see also TaxonDetermination, Source::Bibtex)
   validates_numericality_of :year_made,
@@ -84,6 +79,12 @@ class TaxonDetermination < ActiveRecord::Base
                             message:               '%{value} is not valid for the month provided'
 
   before_save :set_made_fields_if_not_provided
+  after_create :sort_to_top
+
+  def sort_to_top 
+    reload
+    self.move_to_top
+  end
 
   def date
     [year_made, month_made, day_made].compact.join("-")
