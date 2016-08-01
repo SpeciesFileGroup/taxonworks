@@ -78,25 +78,29 @@ class PapertrailController < ApplicationController
       # If version_b index is outside the range treat it as if it means that
       # we should compare the current version to an older version, thus set it 
       # equal to version_a index for simplicity for later on
-      if version_index_b < 0 || version_index_b >= @object.versions.length
+      if version_index_b <= 0 || version_index_b >= @object.versions.length
         version_index_b = version_index_a;
       end
 
+      # Make version_index_a be an index to the newer version
+      # thus if version_index_b is greater than version_index_a
+      # we must swap the two values to make version_index_a
+      # an index to the newer version
+      if version_index_b > version_index_a
+        tmp_version_index = version_index_b
+        version_index_b = version_index_a
+        version_index_a = tmp_version_index
+      end
+      
+      # version_a will point to the newer version
+      # version_b will point to the older version
       version_a = @object.versions[version_index_a]
       version_b = @object.versions[version_index_b]
 
-      if version_index_a > version_index_b
-        @user_new = User.find(version_a.whodunnit).name
-        @user_old = User.find(version_b.whodunnit).name
-        @attributes_new = version_a.reify.attributes
-        @attributes_old = version_b.reify.attributes
-      else
-        @user_new = User.find(version_b.whodunnit).name
-        @user_old = User.find(version_a.whodunnit).name
-        @attributes_new = version_b.reify.attributes
-        @attributes_old = version_a.reify.attributes
-      end
-
+      @user_new = User.find(version_a.whodunnit).name
+      @user_old = User.find(version_b.whodunnit).name
+      @attributes_new = version_a.reify.attributes
+      @attributes_old = version_b.reify.attributes
       @comparing_current = false
 
       # If the index for version_a and version_b match it means

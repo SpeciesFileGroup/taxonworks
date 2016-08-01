@@ -172,6 +172,9 @@ PAPERTRAIL = {
 
     // Enter/Exit restore mode
     button_restore_mode_clicked: function($button){
+        // Exit compare mode
+        PAPERTRAIL.exit_compare_mode();
+
         $prev_button_restore_mode = $(".restore_mode_active");
        
         // Check if we're already in restore mode
@@ -280,6 +283,8 @@ PAPERTRAIL = {
 
     // Shows/Hides the compare button and version checkboxes
     button_select_clicked: function(){
+        // Exit restore mode
+        PAPERTRAIL.exit_restore_mode();
 
         // Show compare button and version checkboxes
         if(PAPERTRAIL.$button_select.data("select-mode") === 0)
