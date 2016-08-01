@@ -100,15 +100,33 @@ class LoanItem < ActiveRecord::Base
   end
 
   def self.batch_determine_loan_items(ids: [], params: {})
+    return false if ids.empty?
     t = TaxonDetermination.new(params)
+    new_td = nil  
+    people = []
+    otu = nil
+
     begin
       LoanItem.transaction do
-        LoanItem.where(id: ids, loan_item_object_type: 'CollectionObject').each do |li|
-          li.loan_item_object.taxon_determinations << t.dup
-          li.loan_item_object.taxon_determinations.last.move_to_top
+        LoanItem.where(id: ids, loan_item_object_type: 'CollectionObject').each do |li| # change this scope to handle containers
+          n = t.dup
+          if otu.nil?
+            li.loan_item_object.taxon_determinations << n
+            new_td = li.loan_item_object.taxon_determinations.last 
+            otu = n.otu
+            people = new_td.people
+          else
+            
+            n.otu = otu
+            n.people << people
+            li.loan_item_object.taxon_determinations << n
+            new_td = li.loan_item_object.taxon_determinations.last 
+          end
+
+          new_td.move_to_top
         end
       end
-    rescue
+    rescue ActiveRecord::RecordInvalid
       return false
     end
     true
