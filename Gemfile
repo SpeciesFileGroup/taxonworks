@@ -99,7 +99,7 @@ gem 'dropzonejs-rails', '~> 0.7.3'
 
 # SFG gems
 gem 'taxonifi', '0.4.0'
-gem 'sqed', '0.2.0'
+gem 'sqed', '0.2.4'
 
 group :test, :development do
   gem 'faker', '~> 1.6.1'
