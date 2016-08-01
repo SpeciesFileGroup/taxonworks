@@ -49,7 +49,7 @@ describe 'Ranks' do
 #       expect(NomenclaturalRank.top_rank(NomenclaturalRank::Icn)).to eq(NomenclaturalRank::Icn::HigherClassificationGroup::Kingdom)
 
         # Behaviour is a little different
-        expect(NomenclaturalRank::Iczn::FamilyGroup.top_rank).to eq(NomenclaturalRank::Iczn::FamilyGroup::Nanoorder)
+        expect(NomenclaturalRank::Iczn::FamilyGroup.top_rank).to eq(NomenclaturalRank::Iczn::FamilyGroup::Nanorder)
       end
 
       specify "Class#ordered_ranks returns descendant classes" do

@@ -1,4 +1,4 @@
-class NomenclaturalRank::Iczn::HigherClassificationGroup::Nanoorder < NomenclaturalRank::Iczn::HigherClassificationGroup
+class NomenclaturalRank::Iczn::HigherClassificationGroup::Nanorder < NomenclaturalRank::Iczn::HigherClassificationGroup
 
   def self.parent_rank
     NomenclaturalRank::Iczn::HigherClassificationGroup::Parvorder
@@ -11,10 +11,6 @@ class NomenclaturalRank::Iczn::HigherClassificationGroup::Nanoorder < Nomenclatu
     # @todo: @mjy: superfamily group rank in SF does not have type genus nor any naming constraints. Following line was commented out for temporary import compatibility.
     # taxon_name.errors.add(:name, 'name must end in -oidea') if not(taxon_name.name =~ /.*oidea\Z/)
 
-  end
-
-  def self.valid_name_ending
-    'oidea'
   end
 
   def self.typical_use
