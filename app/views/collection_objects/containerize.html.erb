@@ -1,0 +1,26 @@
+<h1>Add collection object to container</h1>
+
+<p><%= link_to('back', @collection_object.metamorphosize) -%> </p>
+
+<p>Working with: <%= collection_object_tag(@collection_object) -%> </p>
+
+<p>Existing container: <%= @collection_object.container ? container_tag(@collection_object.container) : content_tag(:strong, 'none') -%></p>
+
+<%= form_for(@container_item) do |f| -%>
+  <%= f.hidden_field :global_entity -%>
+
+  <div class="field">
+    <%= f.label :container %>
+    <br>
+    <%= render 'workbench/elements/forms/ajax_select',
+      controller: '/containers',
+      object: 'container_item',
+      method: 'container_id',
+      tag_id: 'container_id_for_container_item',
+      display: container_tag(@container_item.container),
+      size: 20 %>
+  </div>
+
+<%= f.submit -%>
+<% end %>
+
