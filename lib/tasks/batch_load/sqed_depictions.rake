@@ -25,19 +25,24 @@ namespace :tw do
       end
 
 
+      # Import Sqed formatted images.
+      # By default it assumes :cross pattern and layout.  If you want to provide anything else
+      # you should provide both a target_pattern and a target_layout
+      #
       # Basic format: 
       #   rake tw:batch_load:sqed_depiction:import total=1 data_directory=/Users/matt/Desktop/images/ project_id=1 user_id=1 
       # Extended format:
-      #   rake tw:batch_load:sqed_depiction:import total=1 layout=cross metada_map="{"0": "curator_metadata", "1": "identifier", "2": "image_registration", "3": "annotated_specimen"}" boundary_Finder='Sqed::BoundaryFinder::ColorLineFinder' data_directory=/Users/matt/Desktop/images/ preprocess_result=false project_id=1 user_id=1 
-      desc 'import collection object depictions'
+      #   rake tw:batch_load:sqed_depiction:import total=1 target_layout=cross metadata_map="{"0": "curator_metadata", "1": "identifier", "2": "image_registration", "3": "annotated_specimen"}" boundary_Finder='Sqed::BoundaryFinder::ColorLineFinder' data_directory=/Users/matt/Desktop/images/ preprocess_result=false project_id=1 user_id=1 
+      desc 'import sqed formated collection object depictions'
       task import: [:environment, :project_id, :user_id, :data_directory] do |t|
 
         # These match sqed and sqed_depiction extraction_metadata patterns
-        @args.merge!(boundary_color: (ENV['boundary_color'] || 'green'))
+        @args.merge!(target_layout: (ENV['target_layout'] || :cross))
         @args.merge!(boundary_finder: (ENV['boundary_finder'] || 'Sqed::BoundaryFinder::ColorLineFinder'))
-        @args.merge!(has_border: (ENV['has_border'] || 'false'))
-        @args.merge!(layout: (ENV['layout'] || 'cross'))
         @args.merge!(metadata_map: (ENV['metadata_map'] || '{"0": "curator_metadata", "1": "identifier", "2": "image_registration", "3": "annotated_specimen"}'))
+
+        @args.merge!(has_border: (ENV['has_border'] || 'false'))
+        @args.merge!(boundary_color: (ENV['boundary_color'] || :green))
 
         # Stored in/defines the CollectionObject instance
         @args.merge!(total: (ENV['total'] || '1'))
@@ -47,10 +52,10 @@ namespace :tw do
         @args[:has_border] = (@args[:has_border] == 'true' ? true : false)
         @args[:boundary_color] = @args[:boundary_color].to_sym
 
-        puts "Using attributes:".yellow.bold
+        puts "Using attributes:".yellow
         print @args
 
-        puts "\nProcessing images: \n".yellow.bold
+        puts "\nProcessing images: \n".yellow
 
         begin
           Dir.glob(@args[:data_directory] + "**/*.*").sort.in_groups_of(20, false) do |group| 
@@ -59,7 +64,7 @@ namespace :tw do
                 print f.blue + ": "
 
                 if SqedDepiction.joins(:image).where(images: {image_file_fingerprint: Digest::MD5.file(f).hexdigest }, project_id: $project_id).any?
-                  print "exists as depiction, skipping\n".bold
+                  print "exists as depiction, skipping\n"
                   next
                 end
 
@@ -67,11 +72,11 @@ namespace :tw do
                 collection_object = CollectionObject.new(total: @args[:total])
 
                 sqed_depiction = SqedDepiction.new(
-                  layout: @args[:layout],
-                  metadata_map: @args[:metadata_map],
+                  boundary_color: @args[:boundary_color],
                   boundary_finder: @args[:boundary_finder],
                   has_border: @args[:has_border],
-                  boundary_color: @args[:boundary_color],
+                  layout: @args[:target_layout],
+                  metadata_map: @args[:metadata_map],
 
                   depiction_attributes: { 
                     image: image,
@@ -92,7 +97,7 @@ namespace :tw do
                 end
               end
 
-              puts "group handled".yellow.bold
+              puts "group handled".yellow
             end # end transaction
           end
 

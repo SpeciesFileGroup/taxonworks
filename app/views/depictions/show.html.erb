@@ -2,12 +2,18 @@
   <%= content_tag(:li, link_to('Transcribe', sqed_depiction_breakdown_task_path(@depiction.sqed_depiction), 'data-no-turbolink' => 'true')) if @depiction.sqed_depiction -%>
 <% end %>
 
-<%= content_for :associated do -%><!---- some reason this isn't rendering? ---->
+<%= content_for :associated do -%>
   <% if @depiction.sqed_depiction -%>
     <h3> Sqed Depiction </h3>
     <p>
     <strong>Metadata map:</strong>
     <%= @depiction.sqed_depiction.metadata_map %>
+    </p>
+    <p><strong>Layout:</strong>
+    <%= @depiction.sqed_depiction.layout %>
+    </p>
+    <p><strong>Result boundary coordinates:</strong>
+    <%= @depiction.sqed_depiction.result_boundary_coordinates %>
     </p>
   <% end %>
 <% end %>
