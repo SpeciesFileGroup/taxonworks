@@ -93,9 +93,10 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
     member do
       get 'depictions'
+      get 'containerize'
     end
     collection do
-      post :preview_simple_batch_load # should be get
+      get :preview_simple_batch_load # should be get
       post :create_simple_batch_load
     end
   end
@@ -134,7 +135,7 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
   end
 
-  resources :container_items, except: [:new, :edit] do
+  resources :container_items, except: [:edit] do
     concerns [:data_routes]
   end
 
