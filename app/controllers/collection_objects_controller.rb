@@ -1,7 +1,7 @@
 class CollectionObjectsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_collection_object, only: [:show, :edit, :update, :destroy,
+  before_action :set_collection_object, only: [:show, :edit, :update, :destroy, :containerize,
                                                :depictions, :images, :geo_json]
 
   # GET /collection_objects
@@ -161,6 +161,10 @@ class CollectionObjectsController < ApplicationController
       flash[:alert] = 'File to batch upload must be supplied.'
     end
     render :batch_load
+  end
+
+  def containerize
+    @container_item = ContainerItem.new(contained_object: @collection_object)
   end
 
   private

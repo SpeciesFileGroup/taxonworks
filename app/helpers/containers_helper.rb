@@ -20,4 +20,22 @@ module ContainersHelper
     v == 0 ? 'empty' : v 
   end
 
+  # TODO: move content to containers/_card
+  def draw_container_tag(container)
+    return nil if container.nil?
+
+    content_tag(:div, class: :draw_container) do
+      content_tag(:div) do
+        container_tag(container)
+      end + 
+
+      content_tag(:div) do
+        content_tag(:ul) do
+          container.container_items.collect{ |a| content_tag(:li, container_item_tag(a)) } 
+        end
+      end
+    end
+
+  end
+
 end
