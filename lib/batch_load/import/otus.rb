@@ -18,9 +18,9 @@ module BatchLoad
       csv.each do |row|
         parse_result = BatchLoad::RowParse.new
         # creation of the possible-objects list
-        parse_result.objects.merge!(otu: [])
+        parse_result.objects[:otu] = []
         # attach the results to the row
-        @processed_rows.merge!(i => parse_result)
+        @processed_rows[i] = parse_result
 
         temp_row               = row
         temp_row['project_id'] = @project_id.to_s if row['project_id'].blank?
@@ -34,7 +34,7 @@ module BatchLoad
             otu_match = Digest::SHA256.digest(otu_attributes.to_s)
             otu       = build_objects[otu_match] if otu.blank?
             otu       = Otu.new(otu_attributes) if otu.blank?
-            build_objects.merge!(otu_match => otu)
+            build_objects[otu_match] = otu
             parse_result.objects[:otu].push(otu)
           end
         end
@@ -42,7 +42,6 @@ module BatchLoad
         i += 1
       end
       @total_lines = i - 1
-
     end
 
     def build
