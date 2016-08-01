@@ -1933,7 +1933,7 @@ namespace :tw do
 
         Dir.glob(path).each_with_index do |file, i|
           print "\r#{i}"
-          name = file.match(/([^\/.]*)[_-]([^\/.]*).pdf$/)
+          name = file.match(/(^\d*)[_-].*\.pdf$/)
           identifier = name.nil? ? nil : name[1]
           unless identifier.nil?
             loan = Identifier.where(project_id: $project_id, cached: 'Invoice ' + identifier, identifier_object_type: 'Loan').first.try(:identifier_object)
