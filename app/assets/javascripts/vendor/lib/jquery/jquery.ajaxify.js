@@ -10,7 +10,7 @@
     request: function(element, options) {
       var $element = $(element);
       var $form = null;
-      opts = {};
+      var opts = {};
 
       if ($element.attr('href'))
       {

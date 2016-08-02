@@ -52,7 +52,7 @@ function initialize_citation_topic_autocomplete(form) {
 
 function bind_definition_listener(form) {
     form.find(".definition").keyup(function() {
-      d = form.find(".definition").val();
+      var d = form.find(".definition").val();
       if (d.length == 0) {
         $(".citation_topic_picker_add_new").attr("hidden", true);
       }
@@ -113,7 +113,7 @@ function bind_topic_label_mirroring(form) {
 // Bind the remove action/functionality to a links
 function bind_remove_citation_topic_links(links) {
   links.click(function () {
-    list_item = $(this).parent('li');
+    var list_item = $(this).parent('li');
     var citation_topic_picker = list_item.closest('.citation_topic_picker');
     var citation_topic_id = list_item.data('citation-topic-id');
     var citation_topic_index = list_item.data('citation-topic-index');

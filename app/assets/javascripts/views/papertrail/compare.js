@@ -26,7 +26,7 @@ PAPERTRAIL_COMPARE = {
 
     // Enter/Exit restore mode
     button_restore_mode_clicked: function($button){
-        $prev_button_restore_mode = $(".restore_mode_active");
+        let $prev_button_restore_mode = $(".restore_mode_active");
        
         // Check if we're already in restore mode
         if($prev_button_restore_mode.length > 0){

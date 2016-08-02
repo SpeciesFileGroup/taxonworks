@@ -2,26 +2,26 @@ var CarrouselTask = function (sec, rows, columns) {
   // sec = Name of data section, this is for identify div.
   // rows = This is for the number of rows that will be displayed, if this number is less than the number of items, it will activate the navigation controls
 
-  this.childs = [],
-  this.start = 0,
-  this.middleBoxSize = 650,
-  this.boxSize = 500,
+  this.childs = [];
+  this.start = 0;
+  this.middleBoxSize = 650;
+  this.boxSize = 500;
   this.active = [];
   this.arrayPos = 0;
-  this.maxCards = rows * columns,
-  this.maxColumns = columns,
-  this.childsCount = 0,
-  this.isEmpty,
-  this.sectionTag = "",
-  this.filters = {},
-  this.maxRow = rows,
+  this.maxCards = rows * columns;
+  this.maxColumns = columns;
+  this.childsCount = 0;
+  this.isEmpty;
+  this.sectionTag = "";
+  this.filters = {};
+  this.maxRow = rows;
   this.sectionTag = sec;
-    this.changeTasks = rows; //Number of new task displayed when the user moves
-    this.resetChildsCount();
-    this.filterChilds();
-    this.injectNavList();
-    this.changeSize();
-  };
+  this.changeTasks = rows; //Number of new task displayed when the user moves
+  this.resetChildsCount();
+  this.filterChilds();
+  this.injectNavList();
+  this.changeSize();
+};
 
   CarrouselTask.prototype.changeSize = function() {
     $(this.sectionTag).children(".task-section").css("width",((this.maxColumns*475) + "px"));
@@ -64,7 +64,7 @@ var CarrouselTask = function (sec, rows, columns) {
 
     $(this.sectionTag + " .task-nav-list").empty();
 
-    for(i = 0; i < this.active.length; i++) {
+    for(let i = 0; i < this.active.length; i++) {
       if((i >= childIndex) && (count > 0)) {
         $(this.sectionTag + " .task-nav-list").append('<div class="task-nav-item active"></div>');
         count--;
@@ -128,7 +128,7 @@ var CarrouselTask = function (sec, rows, columns) {
       this.changeSelectedNavList(this.start);
       this.arrayPos = 0;
     }
-    for (i = this.start; i < this.active.length; i++) {
+    for (let i = this.start; i < this.active.length; i++) {
 
       child = $(this.sectionTag + ' .task_card:nth-child('+ this.active[i] +')');
       if(count < this.maxCards) {
@@ -162,7 +162,7 @@ var CarrouselTask = function (sec, rows, columns) {
     this.active = [];
     this.childs = [];
 
-    for (i = 1; i <= this.childsCount; i++) {
+    for (let i = 1; i <= this.childsCount; i++) {
       child = $(this.sectionTag + ' .task_card:nth-child('+ (i) +')');
       if(this.checkChildFilter(child)) {
         this.active[activeCount] = i;

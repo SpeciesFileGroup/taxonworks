@@ -1,8 +1,8 @@
 // depiction.js
 
 function toggle_depiction_form_fields(type_label) {
-  types = ['otu', 'collecting_event', 'collection_object'],
-  to_show = type_label;
+  var types = ['otu', 'collecting_event', 'collection_object'];
+  var to_show = type_label;
 
   // hide not visible (we can't hide everything
   // and show because we lose content of inputs
@@ -16,7 +16,7 @@ function toggle_depiction_form_fields(type_label) {
 
 $(document).ready( function() {
   if ($('#depiction_edit').length > 0) {
-    current_type = $('#depiction_edit input[checked="checked"]').first();
+    var current_type = $('#depiction_edit input[checked="checked"]').first();
 
     if (current_type.val() == undefined) {
       // new record

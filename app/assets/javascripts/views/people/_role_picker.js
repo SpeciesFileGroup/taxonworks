@@ -169,7 +169,7 @@ function bind_label_mirroring(form) {
 
 // bind a hover event to an ellipsis
 function bind_hover(form) {
-  hiConfig = {
+  var hiConfig = {
     sensitivity: 3, // number = sensitivity threshold (must be 1 or higher)
     interval: 400, // number = milliseconds for onMouseOver polling interval
     timeout: 200, // number = milliseconds delay before onMouseOut

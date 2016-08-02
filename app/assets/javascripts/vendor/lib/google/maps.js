@@ -52,8 +52,8 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
         else {              // this is not a feature collection, so what is it?
           if (data["otu_ids"] != undefined) {
             for (var j = 0; j < data["otu_ids"].length; j++) {
-              this_otu_id = data["otu_ids"][j];
-              this_feature_collection = data[this_otu_id];
+              var this_otu_id = data["otu_ids"][j];
+              var this_feature_collection = data[this_otu_id];
               this.doFeatureCollection(this_feature_collection, this_otu_id, chained);
             }
           }

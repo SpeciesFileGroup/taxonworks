@@ -40,7 +40,7 @@ function make_topic_list_sortable(form) {
 }
 // bind a hover event to an ellipsis
 function bind_hover_topic(form) {
-  hiConfig = {
+  var hiConfig = {
     sensitivity: 3, // number = sensitivity threshold (must be 1 or higher)
     interval: 400, // number = milliseconds for onMouseOver polling interval
     timeout: 200, // number = milliseconds delay before onMouseOut
@@ -98,7 +98,7 @@ function remove_topic_link() {
 
 function bind_remove_section_links(links) {
   links.click(function () {
-    list_item = $(this).parent('li');
+    var list_item = $(this).parent('li');
     var topic_picker = list_item.closest('.topic_picker');
     var topic_id = list_item.data('section-id');
     var topic_index = list_item.data('section-index');

@@ -2,8 +2,8 @@
 
 
 function toggle_source_form_fields(type_label) {
-  types = ['bibtex', 'verbatim', 'human'];
-  to_show = type_label.split('::')[1].toLowerCase();
+  var types = ['bibtex', 'verbatim', 'human'];
+  var to_show = type_label.split('::')[1].toLowerCase();
 
   // show everything
   $('#fields_for_' + to_show).show();
@@ -31,7 +31,7 @@ function toggle_source_form_fields(type_label) {
 
 $(document).ready(function() {
   if ($('#source_edit_type').length > 0) {
-    current_type = $('#source_edit_type input[checked="checked"]').first();
+    var current_type = $('#source_edit_type input[checked="checked"]').first();
 
     if ($('form[id="new_source"]').length == 1) { // current_type.val() == undefined
       // new record

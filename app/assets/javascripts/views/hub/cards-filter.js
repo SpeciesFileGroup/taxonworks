@@ -92,7 +92,7 @@ var CarrouselData = function (sec, rows, columns) {
 			this.maxRow = this.childs;
 		}
 
-		for (i = 1; i <= this.maxRow; i++) {
+		for (let i = 1; i <= this.maxRow; i++) {
 			child = $('.data_section[data-section="' + this.sectionTag + '"] > .cards-section > .card-container:nth-child('+ (i) +')');
 			if(this.checkChildFilter(child.children().children(".status"))) {
 				child.show(250);

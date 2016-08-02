@@ -1,11 +1,11 @@
 // quick_verbatim_material_task.js
 
 function update_attribute_names(link) {
-  new_id = new Date().getTime();
-  regex = new RegExp("_update_", "g");
+  var new_id = new Date().getTime();
+  var regex = new RegExp("_update_", "g");
   $('input[name*="_update_"]').each(function(i) {
-    a = $(this).attr('name').replace(regex, new_id); 
-    b = $(this).attr('id').replace(regex, new_id); 
+    var a = $(this).attr('name').replace(regex, new_id);
+    var b = $(this).attr('id').replace(regex, new_id);
     $(this).attr('name', a);  
     $(this).attr('id', b);
   });

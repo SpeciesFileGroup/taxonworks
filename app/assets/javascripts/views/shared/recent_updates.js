@@ -9,7 +9,7 @@ function opacityUpdates() {
 	var childs = $(".recent_updates ul").children().length,
 		opacityValue = 1;
 
-	for(i = 1; i <= childs; i++) {
+	for(var i = 1; i <= childs; i++) {
 		$(".recent_updates li:nth-child("+(i)+")").css("opacity", (opacityValue-(i*0.1)));
 	}
 }
