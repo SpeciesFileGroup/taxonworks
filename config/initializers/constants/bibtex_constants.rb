@@ -34,7 +34,7 @@ BIBTEX_FIELDS = [
     :language,
     :stated_year,
     :bibtex_type
-]
+].freeze
 
 #    :lccn,
 # :price,
@@ -55,7 +55,7 @@ VALID_BIBTEX_TYPES = %w{
       phdthesis
       proceedings
       techreport
-      unpublished}
+      unpublished}.freeze
 
 VALID_BIBTEX_MONTHS = %w{
   jan
@@ -69,4 +69,4 @@ VALID_BIBTEX_MONTHS = %w{
   sep
   oct
   nov
-  dec}
+  dec}.freeze

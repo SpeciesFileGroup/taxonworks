@@ -7,4 +7,4 @@ SKOS_RELATIONS = {
   'skos:relatedMatch' => 'Related match (an associative relation, neither more general nor specific).',
   'skos:closeMatch' => 'Close match (almost the same, but not interchangable).',  
   'skos:exactMatch' => 'Exact match (the same, interchangable)'
-}
+}.freeze
