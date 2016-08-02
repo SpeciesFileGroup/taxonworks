@@ -69,24 +69,36 @@ describe GeographicItem, type: :model, group: :geo do
       let(:shape_neg_box) { RSPEC_GEO_FACTORY.polygon(pre_neg_box_lines) }
       let(:neg_box) { FactoryGirl.create(:geographic_item, polygon: shape_neg_box) }
 
-      specify 'pos_point found in pos_box' do
+      specify 'pos_box contains pos_point' do
         expect(pos_box.contains?(pos_point.geo_object)).to be_truthy
-        expect(pos_point.within?(pos_box.geo_object)).to be_truthy
       end
 
-      specify 'neg_point found in pos_box' do
+      specify 'pos_box contains neg_point' do
         expect(pos_box.contains?(neg_point.geo_object)).to be_truthy
-        expect(neg_point.within?(pos_box.geo_object)).to be_truthy
       end
 
-      specify 'pos_point found in neg_box' do
+      specify 'neg_box contains neg_point' do
+        expect(neg_box.contains?(neg_point.geo_object)).to be_truthy
+      end
+
+      specify 'neg_box contains pos_point' do
         expect(neg_box.contains?(pos_point.geo_object)).to be_truthy
+      end
+
+      specify 'pos_point is within neg_box' do
         expect(pos_point.within?(neg_box.geo_object)).to be_truthy
       end
 
-      specify 'neg_point found in neg_box' do
-        expect(neg_box.contains?(neg_point.geo_object)).to be_truthy
+      specify 'pos_point is within pos_box' do
+        expect(pos_point.within?(pos_box.geo_object)).to be_truthy
+      end
+
+      specify 'neg_point is within neg_box' do
         expect(neg_point.within?(neg_box.geo_object)).to be_truthy
+      end
+
+      specify 'neg_point is within pos_box' do
+        expect(neg_point.within?(pos_box.geo_object)).to be_truthy
       end
     end
 
