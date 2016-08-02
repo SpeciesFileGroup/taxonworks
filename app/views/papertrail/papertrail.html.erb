@@ -1,7 +1,41 @@
-<h2> Papertrail for <%= object_tag(@object) -%> </h2>
+<h2 id="papertrail_header" data-object-id="<%= @object.id %>" data-object-type="<%= @object.class %>"> Papertrail for <%= object_tag(@object) -%> </h2>
 
-Return <%= object_link(@object) -%>
+<div>Return <%= object_link(@object) -%></div>
 
-<%= render(partial: 'papertrail', collection: @object.versions) -%>
+<div id="filter_box">
+    <h4 id="filter_title">Filter by</h4>
+    <div id="user_box">
+        <% unique_authors = get_unique_authors(@object.versions.drop(1).reverse) %>
+
+        <% unique_authors.each do |key, value| %>
+            <div class="user_item_box">
+                <input id="<%= value %>" class="user_item" type="checkbox" data-user-name="<%= value %>">
+                <label for="<%= value %>"><%= value %></label>
+            </div>
+        <% end %>
+    </div>
+    <div id="datepicker_box">
+        <div class="start_datepicker_box">
+            <label for="start_datepicker">Start Date</label>
+            <input id="start_datepicker" class="datepicker" type="text" placeholder="Select start date...">
+        </div>
+        <div class="end_datepicker_box">
+            <label for="end_datepicker">End Date</label>
+            <input id="end_datepicker" class="datepicker" type="text" placeholder="Select end date...">
+        </div>
+        <div id="datepicker_error_box">
+            <p id="datepicker_error_message"></p>
+        </div>
+    </div>
+</div>
+
+<div id="compare_box">
+    <h4 id="compare_title">Compare by</h4>
+    <p id="compare_info">Select at least one to compare the current version to or select two to compare between</p>
+    <button id="button_select" data-select-mode="0">Select to compare</button>
+    <button id="button_compare_selected">Compare selected</button>
+</div>
+
+<%= render(partial: 'papertrail', collection: @object.versions.drop(1).reverse, locals: {object_id: @object.id, object_type: @object.class}) -%>
 
 

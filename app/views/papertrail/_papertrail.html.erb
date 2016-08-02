@@ -1,22 +1,32 @@
-<div>
-  id: <%= papertrail.id -%>
-  <p>
-  <strong>Event</strong>
-  <%= papertrail.event %>
-  </p>
+<div data-user-name="<%= User.find(papertrail.whodunnit).name %>" data-date-created="<%= papertrail.created_at %>" class="papertrail_box">
+  <div class="version_header">
+    <input class="version_checkbox" type="checkbox" value="<%= papertrail.index %>" data-version-index="<%= papertrail.index %>">
+    <p>
+      <strong>Author:</strong>
+      <%= User.find(papertrail.whodunnit).name %>
+    </p>
+    <p>
+      <strong>Updated at:</strong>
+      <% attributes = papertrail.reify.attributes %>
+      <%= attributes["updated_at"] %>
+    </p>
+  </div>
+  <div id="version_details_<%= papertrail.index %>" data-object-type="<%= object_type %>" class="version_details">
+      <strong>Attributes</strong>
+      
+      <% attributes = filter_out_attributes(attributes) %>
+      <% attributes.delete("updated_at") %>
 
-  <p>
-  <strong>Whodunnit</strong>
-  <%= papertrail.whodunnit %>
-  </p>
-
-  <p>
-  <strong>Object</strong>
-  <pre><%= papertrail.object %></pre>
-  </p>
-
-  <p>
-  <strong>Created at</strong>
-  <pre><%= papertrail.created_at %></pre>
-  </p>
+      <% attributes.each do |key, value| %>
+        <div class="version_detail">
+          <% input_id = key.to_s + "_" + papertrail.index.to_s %>
+          <input id="<%= input_id %>" class="version_detail_checkbox version_detail_checkbox_<%= papertrail.index %>" data-key="<%= key %>" data-value="<%= value %>" type="checkbox">
+          <label for="<%= input_id %>"><%= key.to_s.humanize %>: <%= value %></label>
+        </div>
+      <% end %>
+    </div>
+    <div class="version_restore_buttons">
+      <button class="button_restore_mode" data-papertrail-index="<%= papertrail.index %>">Restore</button>
+      <button id="button_confirm_restore_<%= papertrail.index %>" class="button_confirm_restore" data-papertrail-index="<%= papertrail.index %>">Confirm Restore</button> 
+    </div>
 </div>

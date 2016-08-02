@@ -1,0 +1,43 @@
+// #FFECEC red
+// #EAFFEA green
+// #F8CBCB darker red
+// #A6F3A6 darker green
+
+.compare_content{
+    width: 1000px;
+    // margin: 0 auto;
+
+    .compare_table {
+        //width: 100%;
+
+        table, th, td {
+            border: 1px solid black;
+        }
+
+        tr {
+            .highlight_deleted {
+                background-color:#F8CBCB;
+            }
+
+            .highlight_added {
+                background-color: #A6F3A6;
+            }
+
+            .row_modified_deleted {
+                background-color: #FFECEC;
+            }
+
+            .row_modified_added {
+                background-color: #EAFFEA;
+            }
+        }
+    }
+
+    .version_restore_buttons{
+        margin-left: 25px;
+
+        button{
+            width: 115px;            
+        }
+    }
+}
