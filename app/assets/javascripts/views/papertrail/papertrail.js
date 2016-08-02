@@ -18,8 +18,8 @@ PAPERTRAIL = {
             return false;
 
         // User checkboxes
-        PAPERTRAIL.$user_checkboxes = $(".user_item")
-        PAPERTRAIL.$user_checkboxes.click(PAPERTRAIL.update_versions_list)
+        PAPERTRAIL.$user_checkboxes = $(".user_item");
+        PAPERTRAIL.$user_checkboxes.click(PAPERTRAIL.update_versions_list);
         PAPERTRAIL.$user_checkboxes.prop("checked", true);
 
         // Compare buttons
@@ -146,7 +146,7 @@ PAPERTRAIL = {
         }
 
         else
-            date_error_message += "Invalid start date<br>"
+            date_error_message += "Invalid start date<br>";
 
         if(end_date_valid){
             end_date = new Date($("#end_datepicker").val());
@@ -154,7 +154,7 @@ PAPERTRAIL = {
         }
 
         else
-            date_error_message += "Invalid end date<br>"
+            date_error_message += "Invalid end date<br>";
 
         if(start_date_valid && end_date_valid){
             if(start_date > end_date){
@@ -228,7 +228,7 @@ PAPERTRAIL = {
         PAPERTRAIL.$version_detail_checkboxes.css("visibility", "hidden");
 
         // Reset restore button text and remove css class
-        let $button_restore = $(".restore_mode_active");$
+        let $button_restore = $(".restore_mode_active");
 
         $button_restore.removeClass("restore_mode_active");
         $button_restore.html("Restore");

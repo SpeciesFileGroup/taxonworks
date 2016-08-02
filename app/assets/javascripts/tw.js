@@ -4,10 +4,10 @@
 
 // TW || (TW = {});
 
-var TW = TW || {
+  var TW = TW || {
 
-  tasks : {},
+    tasks : {}
 
-};
+  };
 
 

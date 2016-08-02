@@ -95,7 +95,7 @@ $(document).ready(function() {
 	$(document).on('click','.help-background-active', function() {
 		activeDisableHelp();
 	});		
-}
+};
 
   if($("[data-help]").length) {
     helpSystem();

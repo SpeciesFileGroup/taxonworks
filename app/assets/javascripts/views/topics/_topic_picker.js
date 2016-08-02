@@ -15,7 +15,7 @@ function initialize_topic_autocomplete(form) {
       bind_hover_topic(form);
     },
     select: function (event, ui) {    // execute on select event in search text box
-      insert_existing_topic(form, ui.item.object_id, ui.item.label)
+      insert_existing_topic(form, ui.item.object_id, ui.item.label);
       clear_topic_picker(form);
       make_topic_list_sortable(form);     // was this inadvertantly lost?
       return false;

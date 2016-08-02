@@ -528,7 +528,7 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
 
     getTypeData: function (thisType, bounds) {        // this version does not create google objects
       if (thisType == undefined) {      // this test if to avoid js errors from  features without geometry
-        return                          // google maps forgives features wthout geometries
+        return;                         // google maps forgives features wthout geometries
       }
       var i;                                    // loop
       var j;

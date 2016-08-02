@@ -55,7 +55,7 @@ _initialize_google_maps_georeference_widget = function init_new_georeference_goo
 
         });
     }
-}
+};
 
 $(document).ready(_initialize_google_maps_georeference_widget);
 $(document).on("page:load", _initialize_google_maps_georeference_widget);

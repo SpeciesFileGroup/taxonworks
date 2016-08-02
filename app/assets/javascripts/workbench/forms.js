@@ -3,7 +3,7 @@
 
 function bind_required_fields_and_submit() {
   $("form input.required_for_submit").change( function() {
-    empty = false
+    empty = false;
     $("form input.required_for_submit").each( function() {
       empty = ($(this).val().length <= 0);
       if (empty)

@@ -79,7 +79,7 @@ PAPERTRAIL_COMPARE = {
         PAPERTRAIL_COMPARE.$version_detail_checkboxes.hide();
 
         // Reset restore button text and remove css class
-        let $button_restore = $(".restore_mode_active");$
+        let $button_restore = $(".restore_mode_active");
 
         $button_restore.removeClass("restore_mode_active");
         $button_restore.html("Restore");
@@ -113,6 +113,6 @@ PAPERTRAIL_COMPARE = {
 
         PAPERTRAIL.ajax_update(url_data);
     },
-}
+};
 
 $(document).ready(PAPERTRAIL_COMPARE.initialize);

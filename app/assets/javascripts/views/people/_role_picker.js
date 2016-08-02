@@ -11,7 +11,7 @@ function get_first_name(string) {
     return string.split(delimiter, 2)[0];
   } else {
     return null;
-  };
+  }
 }
 
 // Return a last name split on (white) space or commma
@@ -25,7 +25,7 @@ function get_last_name(string) {
     return string.split(delimiter, 2)[1];
   } else {
     return string
-  };
+  }
 }
 
 // Build a name string - first_name and last_name must be strings

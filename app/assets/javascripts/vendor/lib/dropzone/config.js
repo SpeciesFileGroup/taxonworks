@@ -100,7 +100,7 @@ $(document).on('page:change', function(event) {
 
 $(document).on('ready page:load', function(event) {
   _init_dropzone_for_task_simple_specimen();
-  _init_dropzone_for_images()
+  _init_dropzone_for_images();
   _init_dropzone_for_depictions();
 });
 

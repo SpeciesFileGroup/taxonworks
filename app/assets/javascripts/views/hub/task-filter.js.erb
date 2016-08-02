@@ -21,22 +21,22 @@ var CarrouselTask = function (sec, rows, columns) {
     this.filterChilds();
     this.injectNavList();
     this.changeSize();
-  }
+  };
 
   CarrouselTask.prototype.changeSize = function() {
     $(this.sectionTag).children(".task-section").css("width",((this.maxColumns*475) + "px"));
     if(this.maxRow < 99){
       $(this.sectionTag).children(".task-section").css("height",((this.maxRow*250) + "px"));
     }
-  }
+  };
 
   CarrouselTask.prototype.addFilter = function(nameFilter) {
     this.filters[nameFilter] = false;
-  }
+  };
 
   CarrouselTask.prototype.empty = function() {
     return this.isEmpty;
-  }
+  };
 
   CarrouselTask.prototype.resetFilters = function() {
     for (var key in this.filters) {
@@ -45,7 +45,7 @@ var CarrouselTask = function (sec, rows, columns) {
     this.resetView();
     this.filterChilds();
     this.showChilds();    
-  }  
+  };
 
   CarrouselTask.prototype.injectNavList = function() {
     for(i = 0; i < this.childsCount; i++) {
@@ -56,7 +56,7 @@ var CarrouselTask = function (sec, rows, columns) {
         $(this.sectionTag + " .task-nav-list").append('<div class="task-nav-item active"></div>');
       }
     }
-  }
+  };
 
   CarrouselTask.prototype.changeSelectedNavList = function(childIndex) {
     var
@@ -73,7 +73,7 @@ var CarrouselTask = function (sec, rows, columns) {
         $(this.sectionTag + " .task-nav-list").append('<div class="task-nav-item"></div>');
       }
     }
-  }
+  };
 
   CarrouselTask.prototype.checkChildFilter = function(childTag) {
     var find = 0;
@@ -93,23 +93,23 @@ var CarrouselTask = function (sec, rows, columns) {
     else {
       return false;
     }   
-  }
+  };
 
   CarrouselTask.prototype.resetChildsCount = function() {
     this.childsCount = $(this.sectionTag + ' .task_card').length;
-  }
+  };
 
   CarrouselTask.prototype.setFilterStatus = function(filterTag, value)  {
     this.filters[filterTag] = value;
     this.filterChilds();
-  }
+  };
 
   CarrouselTask.prototype.changeFilter = function(filterTag)  {
     this.filters[filterTag] = !this.filters[filterTag];
     this.resetView();
     this.filterChilds();
     this.showChilds();
-  }
+  };
 
   CarrouselTask.prototype.showChilds = function(childIndex) {
     var
@@ -144,7 +144,7 @@ var CarrouselTask = function (sec, rows, columns) {
       this.isEmpty = false;
     }
     this.noTaskFound();
-  }
+  };
 
   CarrouselTask.prototype.noTaskFound = function(count) {
     if(this.isEmpty) {
@@ -153,7 +153,7 @@ var CarrouselTask = function (sec, rows, columns) {
     else {
       $(this.sectionTag + ' .no-tasks').fadeOut(250);
     }
-  }
+  };
   CarrouselTask.prototype.filterChilds = function() {
     var
     find = 0,
@@ -173,11 +173,11 @@ var CarrouselTask = function (sec, rows, columns) {
     }
     this.navigation((find > this.maxCards));
     this.showMoreNav((find > this.maxCards));
-  }
+  };
 
   CarrouselTask.prototype.resetView = function() {
     $(this.sectionTag + ' .task_card').css("display","none");
-  }
+  };
 
   CarrouselTask.prototype.navigation = function(value) {
     if(value) {
@@ -186,7 +186,7 @@ var CarrouselTask = function (sec, rows, columns) {
     else {
       $(this.sectionTag + " .navigation a").hide(250);
     }
-  }
+  };
 
   CarrouselTask.prototype.loadingDown = function() {
     var
@@ -203,7 +203,7 @@ var CarrouselTask = function (sec, rows, columns) {
       }
     }
     this.changeSelectedNavList(this.arrayPos);
-  }
+  };
 
 
   CarrouselTask.prototype.showMoreNav = function(value) {
@@ -213,7 +213,7 @@ var CarrouselTask = function (sec, rows, columns) {
     else {
       $('.more_tasks_nav').fadeOut(250);
     }
-  }
+  };
 
   CarrouselTask.prototype.loadingUp = function() {
     var
@@ -229,4 +229,4 @@ var CarrouselTask = function (sec, rows, columns) {
       }
     }
     this.changeSelectedNavList(this.arrayPos);
-  }
+  };

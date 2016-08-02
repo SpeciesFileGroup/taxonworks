@@ -11,7 +11,7 @@ _init_geographic_area_map = function init_geographic_area_map()         // initi
             //add_map_listeners();
         }
     }
-}
+};
 $(document).ready(_init_geographic_area_map);
 $(document).on("page:load", _init_geographic_area_map);
 

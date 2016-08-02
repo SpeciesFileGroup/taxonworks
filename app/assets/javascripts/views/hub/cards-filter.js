@@ -25,18 +25,18 @@ var CarrouselData = function (sec, rows, columns) {
 		else {
 			$('.data_section[data-section="' + this.sectionTag + '"]').css("max-width", 'auto');
 		}
-	}
+	};
 
 	CarrouselData.prototype.addFilter = function (nameFilter) {
 		this.filters[nameFilter] = false;
-	}	
+	};
 
 	CarrouselData.prototype.resetFilters = function() {
 		for (var key in this.filters) {
 			this.filters[key] = false
 		}		
 		this.filterChilds();
-	}
+	};
 
 
 	CarrouselData.prototype.checkChildFilter = function(childTag) {
@@ -56,15 +56,15 @@ var CarrouselData = function (sec, rows, columns) {
 		else {
 			return false;
 		}		
-	}
+	};
 
 	CarrouselData.prototype.resetChildsCount = function() {
 	  	this.childs = $('.data_section[data-section="' + this.sectionTag + '"] > .cards-section > .card-container ').length;
-	}
+	};
 
 	CarrouselData.prototype.empty = function() {
 		return this.isEmpty;
-	}
+	};
 
 	CarrouselData.prototype.showEmptyLabel = function() {
 		if(this.isEmpty) {
@@ -73,17 +73,17 @@ var CarrouselData = function (sec, rows, columns) {
 		else {
 			$('[data-section="' + this.sectionTag + '"] div[data-attribute="empty"]').hide(250);
 		}
-	}
+	};
 
 	CarrouselData.prototype.changeFilter = function(filterTag)	{
 		this.filters[filterTag] = !this.filters[filterTag];
 		this.filterChilds();
-	}	
+	};
 
 	CarrouselData.prototype.setFilterStatus = function(filterTag, value)	{
 		this.filters[filterTag] = value;
 		this.filterChilds();
-	}	
+	};
 
 	CarrouselData.prototype.filterChilds = function() {
 		var
@@ -104,7 +104,7 @@ var CarrouselData = function (sec, rows, columns) {
 		}
 		this.isEmpty = (find <= 0);
 		this.showEmptyLabel();
-	}	
+	};
 
 	CarrouselData.prototype.navigation = function(value) {
 		if(value) {
@@ -113,7 +113,7 @@ var CarrouselData = function (sec, rows, columns) {
 		else {
 			$('.data_section[data-section="'+ this.sectionTag +'"] div.data-controls').css("display","none");
 		}
-	}
+	};
 
 
 	CarrouselData.prototype.loadingUp = function() {
@@ -130,7 +130,7 @@ var CarrouselData = function (sec, rows, columns) {
 	        	this.nro--;
 	      	}        
 	    }  
-	} 
+	};
 
     CarrouselData.prototype.loadingDown = function() {
     	var
@@ -148,4 +148,4 @@ var CarrouselData = function (sec, rows, columns) {
 	        	this.nro++;
 	      	}          
     	} 
-  	}	 
+  	};

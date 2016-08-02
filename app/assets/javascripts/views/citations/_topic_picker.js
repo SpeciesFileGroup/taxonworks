@@ -52,7 +52,7 @@ function initialize_citation_topic_autocomplete(form) {
 
 function bind_definition_listener(form) {
     form.find(".definition").keyup(function() {
-      d = form.find(".definition").val()
+      d = form.find(".definition").val();
       if (d.length == 0) {
         $(".citation_topic_picker_add_new").attr("hidden", true);
       }

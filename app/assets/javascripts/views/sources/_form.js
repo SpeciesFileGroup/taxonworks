@@ -35,12 +35,12 @@ $(document).ready(function() {
 
     if ($('form[id="new_source"]').length == 1) { // current_type.val() == undefined
       // new record
-      toggle_source_form_fields('Source::Bibtex')
-      $('#source_type_sourcebibtex').attr('checked', true)
+      toggle_source_form_fields('Source::Bibtex');
+      $('#source_type_sourcebibtex').attr('checked', true);
     }
     else {
       // existing record
-      toggle_source_form_fields(current_type.val())
+      toggle_source_form_fields(current_type.val());
       // disable any option, you can't swap types
       $('#source_edit_type :input').each(function(i) {
         $(this).attr("disabled", "true");
