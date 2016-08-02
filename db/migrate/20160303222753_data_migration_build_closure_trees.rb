@@ -1,7 +1,8 @@
 class DataMigrationBuildClosureTrees < ActiveRecord::Migration
   def change
-    TaxonName.rebuild!
-    Container.rebuild!
-    GeographicArea.rebuild!
+    # !! not original, updated to reflect absence in Container
+    TaxonName.rebuild! if TaxonName.respond_to?(:rebuild!)
+    Container.rebuild! if Container.respond_to?(:rebuild!)
+    GeographicArea.rebuild! if GeographicArea.respond_to?(:rebuild!)
   end
 end
