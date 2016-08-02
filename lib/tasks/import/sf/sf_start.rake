@@ -1,13 +1,43 @@
 require 'fileutils'
 require 'logged_task'
 
-### rake tw:project_import:species_file:create_users user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/ no_transaction=true
+#################################################################################################
+# Task run order: Run following tasks from sf_start.rake first, then tasks from sf_taxa.rake (see order there)
+# Note "first" task is an composite of first several tasks
+### time rake tw:project_import:sf_start:run_tasks_through_sources user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
 
-## check out default user_id if SF.FileUserID < 1
+# If for some reason the composite task does not run, run them in this order:
+### time rake tw:project_import:sf_start:create_users user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
+### time rake tw:project_import:sf_start:create_people user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
+### time rake tw:project_import:sf_start:map_serials user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
+### time rake tw:project_import:sf_start:map_pub_type user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
+### time rake tw:project_import:sf_start:map_ref_links user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
+### time rake tw:project_import:sf_start:list_verbatim_refs user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
+### time rake tw:project_import:sf_start:create_projects user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
+### time rake tw:project_import:sf_start:create_sources user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
+############## End of run all rake tasks through sources without no_ref_list
+
+# Now for the "second" group of tasks
+### time rake tw:project_import:sf_start:run_tasks_between_sources_and_source_roles user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
+
+# If for some reason the second composite task does not run, run them in this order:
+### time rake tw:project_import:sf_start:create_source_editor_array user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
+### time rake tw:project_import:sf_start:create_source_roles user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
+############## End of second group of tasks
+
+# Now the last two tasks:
+### time rake tw:project_import:sf_start:create_sf_book_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
+### time rake tw:project_import:sf_start:update_sources_with_booktitle_publisher_address user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
+
+############## End of tasks in sf_start.rake, go to sf_taxa.rake
+#################################################################################################
+
 
 namespace :tw do
   namespace :project_import do
     namespace :sf_start do
+
+      ## check out default user_id if SF.FileUserID < 1
 
       # Outstanding issues for ProjectSources
       #   Add data_attribute to ProjectSources from sfVerbatimRefs (this is instead of dealing with tblRefs.ContainingRefID)
@@ -81,6 +111,7 @@ namespace :tw do
         ap get_sf_booktitle_publisher_address
       end
 
+      #################### UNUSED #########################
       # desc 'create RefIDToPubID hash      UNUSED!!'
       # task :create_ref_id_to_pub_id_hash => [:data_directory, :environment, :user_id] do
       #   ### time rake tw:project_import:species_file:create_ref_id_to_pub_id_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/

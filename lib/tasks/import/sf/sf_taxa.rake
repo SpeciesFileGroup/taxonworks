@@ -1,10 +1,22 @@
 require 'fileutils'
 
+#################################################################################################
+# Task run order: Run all tasks from sf_start.rake first, then these from sf_taxa.rake
+### time rake tw:project_import:sf_taxa:create_rank_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
+### time rake tw:project_import:sf_taxa:create_animalia_below_root user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
+### time rake tw:project_import:sf_taxa:create_sf_synonym_id_to_new_parent_id_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
+### time rake tw:project_import:sf_taxa:create_bad_valid_name_and_sub_parent_hashes user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
+### time rake tw:project_import:sf_taxa:create_all_sf_taxa_pass1 user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
+
+####### End of all tasks!
+#################################################################################################
+
+
 namespace :tw do
   namespace :project_import do
     namespace :sf_taxa do
 
-# import taxa
+      # import taxa
 # original_genus_id: cannot set until all taxa (for a given project) are imported; and the out of scope taxa as well
 # pass 1:
 #         ok create SFTaxonNameIDToTWTaxonNameID hash;
@@ -90,7 +102,7 @@ namespace :tw do
           elsif row['NameStatus'] == '7' # = synonym
             # new synonym parent id could be = 0 if RankID bubbles up to top
             # logger.info "get_sf_parent_id[taxon_name_id] = #{get_sf_parent_id[taxon_name_id]}, taxon_name_id.class = #{taxon_name_id.class}"
-            if get_sf_parent_id[taxon_name_id.to_s] == '0'  # use animalia_id
+            if get_sf_parent_id[taxon_name_id.to_s] == '0' # use animalia_id
               parent_id = animalia_id
             else
               parent_id = get_tw_taxon_name_id[get_sf_parent_id[taxon_name_id]] # assumes tw_taxon_name_id exists
@@ -320,10 +332,10 @@ namespace :tw do
 
       desc 'create SF synonym.id to new parent.id hash'
       ### time rake tw:project_import:sf_taxa:create_sf_synonym_id_to_new_parent_id_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
-      task :create_sf_synonym_id_to_new_parent_id_hash => [:data_directory, :environment, :user_id] do
+      LoggedTask.define :create_sf_synonym_id_to_new_parent_id_hash => [:data_directory, :environment, :user_id] do |logger|
         # Can be run independently at any time
 
-        puts 'Running SF new synonym parent hash...'
+        logger.info 'Running SF new synonym parent hash...'
 
         get_sf_parent_id = {} # key = SF.TaxonNameID of synonym, value = SF.TaxonNameID of new parent
 
@@ -334,7 +346,7 @@ namespace :tw do
           # byebug
           # puts row.inspect
           taxon_name_id = row['TaxonNameID']
-          print "working with #{taxon_name_id} \n"
+          logger.info "working with #{taxon_name_id} \n"
           get_sf_parent_id[taxon_name_id] = row['NewAboveID']
         end
 
@@ -348,10 +360,10 @@ namespace :tw do
 
       desc 'create Animalia taxon name subordinate to each project Root (and make hash of project.id, animalia.id'
       ### time rake tw:project_import:sf_taxa:create_animalia_below_root user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
-      task :create_animalia_below_root => [:data_directory, :environment, :user_id] do
+      LoggedTask.define :create_animalia_below_root => [:data_directory, :environment, :user_id] do |logger|
         # Can be run independently at any time after projects created BUT not after animalia species created (must restore to before)
 
-        puts 'Running create_animalia_below_root...'
+        logger.info 'Running create_animalia_below_root...'
 
         import = Import.find_or_create_by(name: 'SpeciesFileData')
         get_tw_project_id = import.get('SFFileIDToTWProjectID')
@@ -361,7 +373,7 @@ namespace :tw do
         get_tw_project_id.values.each do |project_id|
 
           this_project = Project.find(project_id)
-          puts "working with project.id: #{project_id}, root_name: #{this_project.root_taxon_name.name}, root_name_id: #{this_project.root_taxon_name.id}"
+          logger.info "working with project.id: #{project_id}, root_name: #{this_project.root_taxon_name.name}, root_name_id: #{this_project.root_taxon_name.id}"
 
           animalia_taxon_name = Protonym.new(
               name: 'Animalia',
@@ -388,10 +400,10 @@ namespace :tw do
 
       desc 'create rank hash'
       ### time rake tw:project_import:sf_taxa:create_rank_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
-      task :create_rank_hash => [:data_directory, :environment, :user_id] do
+      LoggedTask.define :create_rank_hash => [:data_directory, :environment, :user_id] do |logger|
         # Can be run independently at any time
 
-        puts 'Running create_rank_hash...'
+        logger.info 'Running create_rank_hash...'
 
         get_tw_rank_string = {} # key = SF.RankID, value = TW.rank_string (Ranks.lookup(SF.Rank.Name))
 
@@ -402,7 +414,26 @@ namespace :tw do
           rank_id = row['RankID']
           next if ['90', '100'].include?(rank_id) # RankID = 0, "not specified", will = nil
 
-          get_tw_rank_string[rank_id] = Ranks.lookup(:iczn, row['RankName'])
+          case rank_id.to_i
+            when 11 then
+              rank_name = 'subsuperspecies'
+            when 12 then
+              rank_name = 'superspecies'
+            when 14 then
+              rank_name = 'supersuperspecies'
+            when 22 then
+              rank_name = 'supergenus'
+            when 39 then
+              rank_name = 'supersubfamily'
+            when 44 then
+              rank_name = 'nanorder'
+            when 45 then
+              rank_name = 'parvorder'
+            else
+              rank_name = row['RankName']
+          end
+
+          get_tw_rank_string[rank_id] = Ranks.lookup(:iczn, rank_name)
         end
 
         import = Import.find_or_create_by(name: 'SpeciesFileData')
