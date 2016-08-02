@@ -35,8 +35,6 @@
 ## @!attribute disposition_z 
 #   @return [Integer]
 #     a z coordinate for this item in its container 
-
-#
 #
 class ContainerItem < ActiveRecord::Base
   has_closure_tree
@@ -46,8 +44,6 @@ class ContainerItem < ActiveRecord::Base
 
   attr_accessor :global_entity
 
-  # belongs_to :container
-  
   belongs_to :contained_object, polymorphic: true
 
   # !! this will prevent accepts_nested assignments if we add this

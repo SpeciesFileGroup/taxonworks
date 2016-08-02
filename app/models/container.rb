@@ -178,7 +178,7 @@ class Container < ActiveRecord::Base
   protected
 
   def type_is_valid
-    raise ActiveRecord::SubclassNotFound, 'Invalid subclass' if type && !Container.descendants.map(&:name).include?(type)
+    raise ActiveRecord::SubclassNotFound, 'Invalid subclass' if type && !CONTAINER_TYPES.include?(type)
   end
 
   def check_for_contents
@@ -187,14 +187,6 @@ class Container < ActiveRecord::Base
       return false
     end
   end
-
-# def enclosing_container_is_valid
-#   if self.parent
-#     if !self.class.valid_parents.include?(self.parent.type)
-#       errors.add(:type, "#{self.class.name} can not be nested in the parent container type #{self.parent.class.name}")
-#     end
-#   end
-# end
 
 
 end
