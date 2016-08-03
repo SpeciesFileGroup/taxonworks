@@ -13,6 +13,8 @@ RSpec.describe Matrix, type: :model do
 
   end
 
+  let(:matrix) {Matrix.new}
+
   context :validation do
     before {matrix.valid?}
     specify 'name is required' do
