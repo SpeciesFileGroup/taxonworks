@@ -75,6 +75,14 @@ Core: # a Section
       - Genetic
   Extract:
     status: :prototype
+    related_models:
+      - BiologicalRelationship
+    categories: 
+      - biology
+  Matrix:
+    status: :prototype
+    categories:
+      - matrix
 Supporting:
   AssertedDistribution:
     status: :prototype
