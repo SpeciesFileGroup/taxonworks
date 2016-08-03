@@ -232,6 +232,10 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
   end
 
+  resources :matrices do
+    concerns [:data_routes]
+  end
+
   resources :notes, except: [:show] do
     concerns [:data_routes]
   end

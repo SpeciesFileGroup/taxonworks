@@ -59,6 +59,12 @@ Core: # a Section
      status: :prototype
      related_models:
        - BiologicalRelationship
+  Matrix:
+     status: :prototype
+     categories:
+       - matrix
+
+
 Supporting:
   AssertedDistribution:
     categories:
