@@ -711,19 +711,19 @@ class GeographicItem < ActiveRecord::Base
       clean_string = wkt_string.downcase.gsub('(', '').gsub(')', '') #    # make the string convenient
       if clean_string.include? 'polygon' #                                # to look for the case we are treating
         coord_string = clean_string.gsub('polygon ', '') #                # synthesize a polygon feature - the hard way!
-        coordinates = parse_wkt_coords(coord_string)
+        coordinates  = parse_wkt_coords(coord_string)
         # check for anti-meridian crossing polygon
-        value = '{"type": "Feature", "geometry": {"type": "Polygon", "coordinates": [' + coordinates + ']}, "properties": {}}'
+        value        = '{"type": "Feature", "geometry": {"type": "Polygon", "coordinates": [' + coordinates + ']}, "properties": {}}'
         # e.g., value: "{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[141.6796875,68.46379955520322],[154.3359375,41.64007838467894],[-143.0859375,49.49667452747045],[141.6796875,68.46379955520322]]]},"properties":{}}"
-        feature = RGeo::GeoJSON.decode(value, :json_parser => :json)
+        feature      = RGeo::GeoJSON.decode(value, :json_parser => :json)
         # e.g., feature: #<RGeo::GeoJSON::Feature:0x3fd189717f4c id=nil geom="POLYGON ((141.6796875 68.46379955520322, 154.3359375 41.64007838467894, -143.0859375 49.49667452747045, 141.6796875 68.46379955520322))">
-        geometry = feature.geometry
-        geometry = geometry.as_text
-        ob = JSON.parse(value)
-        coords = ob['geometry']['coordinates'][0] # get the coordinates
+        geometry     = feature.geometry
+        geometry     = geometry.as_text
+        ob           = JSON.parse(value)
+        coords       = ob['geometry']['coordinates'][0] # get the coordinates
 
-        last_x = nil; this_x = nil; anti_chrossed = false # initialize for anti-meridian detection
-        last_y = nil; this_y = nil; bias_x = 360 #          # this section can be generalized for > 2 crossings
+        last_x  = nil; this_x = nil; anti_chrossed = false # initialize for anti-meridian detection
+        last_y  = nil; this_y = nil; bias_x = 360 #          # this section can be generalized for > 2 crossings
         point_1 = nil; point_1_x = nil; point_1_y = nil;
         point_2 = nil; point_2_x = nil; point_2_y = nil;
         coords_1 = []; coords_2 = [];
@@ -732,24 +732,24 @@ class GeographicItem < ActiveRecord::Base
           this_y = coords[index][1] #                   # get y value
           if (anti_meridian_check(last_x, this_x))
             anti_chrossed = true #                      # set flag if detector triggers
-            bias_x = -360 #                             # IF we are crossing from east to west
+            bias_x        = -360 #                             # IF we are crossing from east to west
             if (last_x < 0) #                           # we are crossing from west to east
               bias_x = 360 #                            # reverse bias
             end
             delta_x = (this_x - last_x) - bias_x #      # assume west to east crossing for now
             delta_y = this_y - last_y #                 # don't care if we cross the equator
             if (point_1 == nil) #                       # if this is the first crossing
-              point_1 = index #                         # this is the point after which we insert
+              point_1   = index #                         # this is the point after which we insert
               point_1_x = -180 #                        # terminus for western hemisphere
               if last_x > 0 #                           # wrong assumption, reverse
                 point_1_x = -point_1_x
               end
-              d_x = point_1_x - last_x #                # distance from last point to terminus
+              d_x       = point_1_x - last_x #                # distance from last point to terminus
               point_1_y = last_y + d_x * delta_y / delta_x
             else
-              point_2 = index
+              point_2   = index
               point_2_x = -point_1_x #                 # this is only true for the degenerate case of only 2 crossings
-              d_x = point_2_x - last_x
+              d_x       = point_2_x - last_x
               point_2_y = last_y + d_x * delta_y / delta_x
             end
           end
@@ -763,39 +763,39 @@ class GeographicItem < ActiveRecord::Base
               coords_1[index] = point #               # just transcribe the points to polygon 1
             end
             if index == point_1 #                     # first transit
-              coords_1[point_1] = [point_1_x, point_1_y] # truncate first polygon at anti-meridian
+              coords_1[point_1]     = [point_1_x, point_1_y] # truncate first polygon at anti-meridian
               coords_1[point_1 + 1] = [point_1_x, point_2_y] # continue truncation with second intersection point
-              index_1 = index + 2 #                   # set up next insertion point for first polygon
+              index_1               = index + 2 #                   # set up next insertion point for first polygon
 
               coords_2[0] = [point_2_x, point_2_y] # begin polygon 2 with the mirror line in the opposite direction
               coords_2[1] = [point_2_x, point_1_y] # then first intersection where x is fixed at anti-meridian
               coords_2[2] = point #                    # continue second polygon with first point past transition
-              index_2 = 3 #                           # set up next insertion point
+              index_2     = 3 #                           # set up next insertion point
             end
             if index > point_1 && index < point_2 #   # continue second polygon from its stub
               coords_2[index_2] = point #             # transcribe the next point(s)
-              index_2 = index_2 + 1
+              index_2           = index_2 + 1
             end
             if index == point_2 #                     # second transit
               coords_2[index_2] = [point_2_x, point_2_y] # # end the second polygon with the mirror line origin point
               coords_1[index_1] = point #             # copy the current original point to the first polygon
-              index_1 = index_1 + 1 #                 # update its pointer, finished with polygon 2
+              index_1           = index_1 + 1 #                 # update its pointer, finished with polygon 2
             end
             if index > point_2 #                      # final phase, finish up polygon 1
               coords_1[index_1] = point #             # transcribe any remaining points
-              index_1 = index_1 + 1 #                 # update its pointer until we reach the initial point
+              index_1           = index_1 + 1 #                 # update its pointer until we reach the initial point
             end
           }
 
-          ob["geometry"]["type"] = 'MultiPolygon'
+          ob["geometry"]["type"]        = 'MultiPolygon'
           ob["geometry"]["coordinates"] = [] #                     # replace the original coordinates
           ob["geometry"]["coordinates"].push([]) #                     # replace the original coordinates
           ob["geometry"]["coordinates"].push([]) #                     # replace the original coordinates
           ob["geometry"]["coordinates"][0].push(coords_2) #                     # replace the original coordinates
           ob["geometry"]["coordinates"][1].push(coords_1) #                     # append first coordinates with second
-          job = ob.as_json.to_s.gsub('=>', ':') #                           # change back to a feature string
+          job        = ob.as_json.to_s.gsub('=>', ':') #                           # change back to a feature string
           my_feature = RGeo::GeoJSON.decode(job, :json_parser => :json) #   # replicate "normal" steps above
-          geometry = my_feature.geometry.as_text #                         # extract the WKT
+          geometry   = my_feature.geometry.as_text #                         # extract the WKT
           geometry
         else
           wkt_string
@@ -828,10 +828,10 @@ class GeographicItem < ActiveRecord::Base
     end
 
     def parse_wkt_coords(wkt_coords)
-      points = wkt_coords.split(',')
+      points      = wkt_coords.split(',')
       coordinates = '['
       points.each_with_index { |point, index|
-        pointxy = point.split(' ')
+        pointxy     = point.split(' ')
         coordinates += '[' + pointxy[0] + ', ' + pointxy[1] + ']'
         if index < points.count - 1
           coordinates += ', '

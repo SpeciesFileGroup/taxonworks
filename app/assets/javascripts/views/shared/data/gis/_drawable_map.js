@@ -19,7 +19,7 @@ _init_drawable_map = function init_drawable_map() {
           // Remove the last created shape if it exists.
           if (gr_last != null) {
             if (gr_last[0] != null) {
-              removeItemFromMap(gr_last[0]);
+              TW.vendor.lib.google.maps.draw.removeItemFromMap(gr_last[0]);
             }
           }
           gr_last = [event.overlay, event.type];
