@@ -991,6 +991,20 @@ ActiveRecord::Schema.define(version: 20170131041944) do
   add_index "loans", ["project_id"], name: "index_loans_on_project_id", using: :btree
   add_index "loans", ["updated_by_id"], name: "index_loans_on_updated_by_id", using: :btree
 
+  create_table "matrices", force: :cascade do |t|
+    t.string   "name",          null: false
+    t.integer  "created_by_id", null: false
+    t.integer  "updated_by_id", null: false
+    t.integer  "project_id"
+    t.datetime "created_at",    null: false
+    t.datetime "updated_at",    null: false
+  end
+
+  add_index "matrices", ["created_by_id"], name: "index_matrices_on_created_by_id", using: :btree
+  add_index "matrices", ["name"], name: "index_matrices_on_name", using: :btree
+  add_index "matrices", ["project_id"], name: "index_matrices_on_project_id", using: :btree
+  add_index "matrices", ["updated_by_id"], name: "index_matrices_on_updated_by_id", using: :btree
+
   create_table "namespaces", force: :cascade do |t|
     t.string   "institution"
     t.string   "name",                null: false
@@ -1761,6 +1775,9 @@ ActiveRecord::Schema.define(version: 20170131041944) do
   add_foreign_key "loans", "projects", name: "loans_project_id_fkey"
   add_foreign_key "loans", "users", column: "created_by_id", name: "loans_created_by_id_fkey"
   add_foreign_key "loans", "users", column: "updated_by_id", name: "loans_updated_by_id_fkey"
+  add_foreign_key "matrices", "projects"
+  add_foreign_key "matrices", "users", column: "created_by_id"
+  add_foreign_key "matrices", "users", column: "updated_by_id"
   add_foreign_key "namespaces", "users", column: "created_by_id", name: "namespaces_created_by_id_fkey"
   add_foreign_key "namespaces", "users", column: "updated_by_id", name: "namespaces_updated_by_id_fkey"
   add_foreign_key "notes", "projects", name: "notes_project_id_fkey"
