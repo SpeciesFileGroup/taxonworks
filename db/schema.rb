@@ -11,13 +11,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160725171413) do
+ActiveRecord::Schema.define(version: 20160728144837) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
-  enable_extension "hstore"
   enable_extension "fuzzystrmatch"
+  enable_extension "hstore"
 
   create_table "alternate_values", force: :cascade do |t|
     t.text     "value",                            null: false
@@ -338,18 +338,16 @@ ActiveRecord::Schema.define(version: 20160725171413) do
   add_index "common_names", ["project_id"], name: "index_common_names_on_project_id", using: :btree
   add_index "common_names", ["updated_by_id"], name: "index_common_names_on_updated_by_id", using: :btree
 
-  create_table "container_hierarchies", id: false, force: :cascade do |t|
+  create_table "container_item_hierarchies", id: false, force: :cascade do |t|
     t.integer "ancestor_id",   null: false
     t.integer "descendant_id", null: false
     t.integer "generations",   null: false
   end
 
-  add_index "container_hierarchies", ["ancestor_id", "descendant_id", "generations"], name: "container_anc_desc_idx", unique: true, using: :btree
-  add_index "container_hierarchies", ["descendant_id"], name: "container_desc_idx", using: :btree
+  add_index "container_item_hierarchies", ["ancestor_id", "descendant_id", "generations"], name: "container_item_anc_desc_idx", unique: true, using: :btree
+  add_index "container_item_hierarchies", ["descendant_id"], name: "container_item_desc_idx", using: :btree
 
   create_table "container_items", force: :cascade do |t|
-    t.integer  "container_id",          null: false
-    t.integer  "position",              null: false
     t.datetime "created_at",            null: false
     t.datetime "updated_at",            null: false
     t.integer  "contained_object_id",   null: false
@@ -358,12 +356,14 @@ ActiveRecord::Schema.define(version: 20160725171413) do
     t.integer  "created_by_id",         null: false
     t.integer  "updated_by_id",         null: false
     t.integer  "project_id",            null: false
+    t.integer  "disposition_x"
+    t.integer  "disposition_y"
+    t.integer  "disposition_z"
+    t.integer  "parent_id"
   end
 
   add_index "container_items", ["contained_object_id", "contained_object_type"], name: "index_container_items_on_contained_object_id_and_type", using: :btree
-  add_index "container_items", ["container_id"], name: "index_container_items_on_container_id", using: :btree
   add_index "container_items", ["created_by_id"], name: "index_container_items_on_created_by_id", using: :btree
-  add_index "container_items", ["position"], name: "index_container_items_on_position", using: :btree
   add_index "container_items", ["project_id"], name: "index_container_items_on_project_id", using: :btree
   add_index "container_items", ["updated_by_id"], name: "index_container_items_on_updated_by_id", using: :btree
 
@@ -389,18 +389,19 @@ ActiveRecord::Schema.define(version: 20160725171413) do
   create_table "containers", force: :cascade do |t|
     t.datetime "created_at",    null: false
     t.datetime "updated_at",    null: false
-    t.integer  "parent_id"
     t.string   "type",          null: false
     t.integer  "created_by_id", null: false
     t.integer  "updated_by_id", null: false
     t.integer  "project_id",    null: false
     t.string   "name"
     t.string   "disposition"
+    t.integer  "size_x"
+    t.integer  "size_y"
+    t.integer  "size_z"
   end
 
   add_index "containers", ["created_by_id"], name: "index_containers_on_created_by_id", using: :btree
   add_index "containers", ["disposition"], name: "index_containers_on_disposition", using: :btree
-  add_index "containers", ["parent_id"], name: "index_containers_on_parent_id", using: :btree
   add_index "containers", ["project_id"], name: "index_containers_on_project_id", using: :btree
   add_index "containers", ["type"], name: "index_containers_on_type", using: :btree
   add_index "containers", ["updated_by_id"], name: "index_containers_on_updated_by_id", using: :btree
@@ -1412,7 +1413,6 @@ ActiveRecord::Schema.define(version: 20160725171413) do
   add_foreign_key "common_names", "projects"
   add_foreign_key "common_names", "users", column: "created_by_id"
   add_foreign_key "common_names", "users", column: "updated_by_id"
-  add_foreign_key "container_items", "containers", name: "container_items_container_id_fkey"
   add_foreign_key "container_items", "projects", name: "container_items_project_id_fkey"
   add_foreign_key "container_items", "users", column: "created_by_id", name: "container_items_created_by_id_fkey"
   add_foreign_key "container_items", "users", column: "updated_by_id", name: "container_items_updated_by_id_fkey"
@@ -1420,7 +1420,6 @@ ActiveRecord::Schema.define(version: 20160725171413) do
   add_foreign_key "container_labels", "projects", name: "container_labels_project_id_fkey"
   add_foreign_key "container_labels", "users", column: "created_by_id", name: "container_labels_created_by_id_fkey"
   add_foreign_key "container_labels", "users", column: "updated_by_id", name: "container_labels_updated_by_id_fkey"
-  add_foreign_key "containers", "containers", column: "parent_id", name: "containers_parent_id_fkey"
   add_foreign_key "containers", "projects", name: "containers_project_id_fkey"
   add_foreign_key "containers", "users", column: "created_by_id", name: "containers_created_by_id_fkey"
   add_foreign_key "containers", "users", column: "updated_by_id", name: "containers_updated_by_id_fkey"
