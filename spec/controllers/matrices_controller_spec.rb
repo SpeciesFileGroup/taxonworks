@@ -111,9 +111,15 @@ RSpec.describe MatricesController, type: :controller do
 
       it "updates the requested matrix" do
         matrix = Matrix.create! valid_attributes
+<<<<<<< 78e56ca3c2632af3840134e92a40c450e3f7cb5d
         put :update, {id: matrix.to_param, matrix: {name: 'new name'}}, session: valid_session
         matrix.reload
         expect(matrix.name).to eq('new name')
+=======
+        put :update, {id: matrix.to_param, matrix: new_attributes}, session: valid_session
+        matrix.reload
+        skip("Add assertions for updated state")
+>>>>>>> Scaffolded matrix model, basics integrated in TW interface. Tests updated.
       end
 
       it "assigns the requested matrix as @matrix" do
