@@ -123,8 +123,8 @@ class ContainerItem < ActiveRecord::Base
 
   # parent_id links an object to a container through container_item
   def parent_contained_object_is_container
-    unless parent_id.blank? || parent.nil?
-      errors.add(:parent_id, "can only be set if parent's contained object is container") if parent.contained_object_type != 'Container'
+    unless parent_id.blank? && parent.nil?
+      errors.add(:parent_id, "can only be set if parent's contained object is a container") if parent.contained_object_type != 'Container'
     end
   end
 

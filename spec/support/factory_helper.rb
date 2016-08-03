@@ -1,7 +1,8 @@
 
-def strip_housekeeping_attributes(attributes)
+def strip_housekeeping_attributes(attributes = {})
   i = RESERVED_ATTRIBUTES.dup
   i.delete(:type)
+  i.delete(:parent_id)
   attributes.delete_if {|j, k| i.map(&:to_s).include?(j) } 
 end
 

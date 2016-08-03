@@ -24,7 +24,7 @@ module ApplicationEnumeration
   #   a whitelist of the attributes of a given instance that may be annotated
   # !! Some models have blacklists (e.g. Serial)
   def self.annotatable_attributes(object)
-    object.attributes.select{|k,v| !v.blank? && !(k =~ /.*_id\z|cached_*.*/)}.keys.map(&:to_sym) - RESERVED_ATTRIBUTES
+    object.attributes.select{|k,v| !v.blank? && !(k =~ /.*_id\z|cached_*.*/)}.keys.map(&:to_sym) - ( RESERVED_ATTRIBUTES - [:parent_id])  
   end
 
   # !! See the built in self.descendants for actual inheritance tracking, this is path based.

@@ -49,7 +49,7 @@ describe ContainerItemsController, :type => :controller do
       it "creates a new ContainerItem" do
         expect {
           post :create, {:container_item => valid_attributes}, valid_session
-        }.to change(ContainerItem, :count).by(1)
+        }.to change(ContainerItem, :count).by(2) # !! not one, as the parent enclosing container has to be created as well
       end
 
       it "assigns a newly created container_item as @container_item" do

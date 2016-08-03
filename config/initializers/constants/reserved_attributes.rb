@@ -14,7 +14,3 @@ RESERVED_ATTRIBUTES = [
   :project_id,
 ].freeze
 
-VENDOR_ATTRIBUTES = [
-  :parent_id,
-  :position,
-].freeze
