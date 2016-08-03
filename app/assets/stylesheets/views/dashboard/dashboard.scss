@@ -8,6 +8,7 @@
 	justify-content:flex-start;
 	align-items:center;
 	h1 {
+		margin: $standard_margin;
 		font-weight: 100;
 		font-size: $font_title;
 	}

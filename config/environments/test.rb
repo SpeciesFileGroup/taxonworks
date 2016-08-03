@@ -40,8 +40,7 @@ TaxonWorks::Application.configure do
 
   # http://stackoverflow.com/questions/20183877/assets-are-not-loaded-during-capybara-rspec-spec
   # unless ENV['TAXONWORKS_TEST_WITH_PRECOMPILE']
-  #   config.action_controller.asset_host = "file://#{::Rails.root}/public"
-  #   config.assets.prefix = 'assets_test'
+  #   config.assets.prefix = '/assets_test'
   # end
 
   require 'taxonworks'
