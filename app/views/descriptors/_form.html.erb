@@ -1,15 +1,20 @@
-<%= form_for(@descriptor) do |f| %>
-    <%= render 'shared/errors', object: @descriptor %>
+<%= form_for(@descriptor.metamorphosize) do |f| %>
+  <%= render 'shared/errors', object: @descriptor %>
 
-    <div class="required">
-      <div class="field">
-        <%= f.label :descriptor_id %>
-        <br>
-        <%= f.text_field :descriptor_id %>
-      </div>
-    </div>
+  <div class="field">
+    <%= f.label :name %><br>
+    <%= f.text_field :name %>
+  </div>
+  <div class="field">
+    <%= f.label :short_name %><br>
+    <%= f.text_field :short_name %>
+  </div>
 
-    <div class="actions">
-      <%= f.submit %>
-    </div>
+  <div class="field">
+    <%= f.label :type %><br>
+    <%= f.select :type, options_for_select(DESCRIPTOR_TYPES.invert.to_a, selected: f.object.type), include_blank: true %>
+  </div>
+ <div class="actions">
+    <%= f.submit %>
+  </div>
 <% end %>
