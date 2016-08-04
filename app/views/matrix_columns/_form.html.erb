@@ -1,0 +1,35 @@
+<%= form_for(@matrix_column) do |f| %>
+  <%= render 'shared/errors', object: @matrix_column %>
+
+
+
+
+
+  <div class="field">
+    <%= f.label :matrix %>
+    <br>
+    <%= render :partial => 'workbench/elements/forms/ajax_select',
+      locals:  {controller: 'matrices',
+                object:     'matrix_column',
+                method:     'matrix_id',
+                tag_id:     'matrix_id_for_matrix_column',
+                size:       '50%',
+                display:    object_tag(@matrix_column.matrix)} %>
+  </div>
+
+  <div class="field">
+    <%= f.label :descriptor %>
+    <br>
+    <%= render :partial => 'workbench/elements/forms/ajax_select',
+      locals:  {controller: 'descriptors',
+                object:     'matrix_column',
+                method:     'descriptor_id',
+                tag_id:     'descriptor_id_for_matrix_column',
+                size:       '50%',
+                display:    object_tag(@matrix_column.descriptor)} %>
+  </div>
+
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>
