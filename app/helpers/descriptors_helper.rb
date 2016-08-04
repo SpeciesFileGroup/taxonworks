@@ -1,7 +1,8 @@
 module DescriptorsHelper
+
   def descriptor_tag(descriptor)
     return nil if descriptor.nil?
-    descriptor.id.to_s
+    descriptor.name
   end
 
   def descriptors_search_form
@@ -10,6 +11,7 @@ module DescriptorsHelper
 
   def descriptor_link(descriptor)
     return nil if descriptor.nil?
-    link_to(descriptor_tag(descriptor), descriptor)
+    link_to(descriptor_tag(descriptor).html_safe, descriptor.metamorphosize)
   end
+
 end
