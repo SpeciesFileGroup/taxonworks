@@ -11,13 +11,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160803203508) do
+ActiveRecord::Schema.define(version: 20160804142825) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
-  enable_extension "fuzzystrmatch"
   enable_extension "hstore"
+  enable_extension "fuzzystrmatch"
   enable_extension "citext"
 
   create_table "alternate_values", force: :cascade do |t|
@@ -505,6 +505,23 @@ ActiveRecord::Schema.define(version: 20160803203508) do
   add_index "derived_collection_objects", ["collection_object_observation_id"], name: "dco_collection_object_observation", using: :btree
   add_index "derived_collection_objects", ["project_id"], name: "index_derived_collection_objects_on_project_id", using: :btree
 
+  create_table "descriptors", force: :cascade do |t|
+    t.string   "name",          null: false
+    t.string   "short_name"
+    t.string   "type",          null: false
+    t.integer  "created_by_id", null: false
+    t.integer  "updated_by_id", null: false
+    t.integer  "project_id",    null: false
+    t.datetime "created_at",    null: false
+    t.datetime "updated_at",    null: false
+  end
+
+  add_index "descriptors", ["created_by_id"], name: "index_descriptors_on_created_by_id", using: :btree
+  add_index "descriptors", ["name"], name: "index_descriptors_on_name", using: :btree
+  add_index "descriptors", ["project_id"], name: "index_descriptors_on_project_id", using: :btree
+  add_index "descriptors", ["short_name"], name: "index_descriptors_on_short_name", using: :btree
+  add_index "descriptors", ["updated_by_id"], name: "index_descriptors_on_updated_by_id", using: :btree
+
   create_table "documentation", force: :cascade do |t|
     t.integer  "documentation_object_id",   null: false
     t.string   "documentation_object_type", null: false
@@ -738,9 +755,6 @@ ActiveRecord::Schema.define(version: 20160803203508) do
     t.string   "loan_item_object_type"
     t.integer  "total"
     t.string   "disposition"
-    t.integer  "disposition_x"
-    t.integer  "disposition_y"
-    t.integer  "disposition_z"
     t.jsonb    "import_attributes",     default: {}, null: false
   end
 
@@ -1290,15 +1304,11 @@ ActiveRecord::Schema.define(version: 20160803203508) do
     t.jsonb    "import_attributes",                             default: {}, null: false
   end
 
-  add_index "taxon_names", ["cached", "cached_author_year"], name: "index_taxon_names_on_cached_and_cached_author_year", using: :btree
-  add_index "taxon_names", ["cached"], name: "index_taxon_names_on_cached", using: :btree
-  add_index "taxon_names", ["cached_author_year"], name: "index_taxon_names_on_cached_author_year", using: :btree
   add_index "taxon_names", ["created_by_id"], name: "index_taxon_names_on_created_by_id", using: :btree
   add_index "taxon_names", ["import_attributes"], name: "index_taxon_names_on_import_attributes", using: :gin
   add_index "taxon_names", ["name"], name: "index_taxon_names_on_name", using: :btree
   add_index "taxon_names", ["parent_id"], name: "index_taxon_names_on_parent_id", using: :btree
   add_index "taxon_names", ["project_id"], name: "index_taxon_names_on_project_id", using: :btree
-  add_index "taxon_names", ["rank_class"], name: "index_taxon_names_on_rank_class", using: :btree
   add_index "taxon_names", ["type"], name: "index_taxon_names_on_type", using: :btree
   add_index "taxon_names", ["updated_by_id"], name: "index_taxon_names_on_updated_by_id", using: :btree
 
@@ -1479,6 +1489,9 @@ ActiveRecord::Schema.define(version: 20160803203508) do
   add_foreign_key "data_attributes", "projects", name: "data_attributes_project_id_fkey"
   add_foreign_key "data_attributes", "users", column: "created_by_id", name: "data_attributes_created_by_id_fkey"
   add_foreign_key "data_attributes", "users", column: "updated_by_id", name: "data_attributes_updated_by_id_fkey"
+  add_foreign_key "descriptors", "projects"
+  add_foreign_key "descriptors", "users", column: "created_by_id"
+  add_foreign_key "descriptors", "users", column: "updated_by_id"
   add_foreign_key "documentation", "documents"
   add_foreign_key "documentation", "projects"
   add_foreign_key "documentation", "users", column: "created_by_id"
