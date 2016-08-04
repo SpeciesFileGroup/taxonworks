@@ -11,6 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
+<<<<<<< 8b129f1f93a7dae9a729c4235f18a5c016d6b0bf
 <<<<<<< 78e56ca3c2632af3840134e92a40c450e3f7cb5d
 <<<<<<< e05e4cc2eb1387691a848cff5bbe3acb10472e5a
 ActiveRecord::Schema.define(version: 20160805183537) do
@@ -18,20 +19,32 @@ ActiveRecord::Schema.define(version: 20160805183537) do
 ActiveRecord::Schema.define(version: 20160819205425) do
 >>>>>>> asserted distribution update
 =======
+=======
+<<<<<<< 117b48823b2f206e5267066769a427a453ad3743
+>>>>>>> Scaffolding "Descriptor", the superclass for matrix "characters".  Added to hub, basic round-trip creation possible.
 <<<<<<< 29686c409b664e214c5ee433378803d5a917b4b6
 ActiveRecord::Schema.define(version: 20160819205425) do
 =======
 ActiveRecord::Schema.define(version: 20160803203508) do
 >>>>>>> Scaffolded matrix model, basics integrated in TW interface. Tests updated.
+<<<<<<< 8b129f1f93a7dae9a729c4235f18a5c016d6b0bf
 >>>>>>> Scaffolded matrix model, basics integrated in TW interface. Tests updated.
+=======
+=======
+ActiveRecord::Schema.define(version: 20160804142825) do
+>>>>>>> Scaffolding "Descriptor", the superclass for matrix "characters".  Added to hub, basic round-trip creation possible.
+>>>>>>> Scaffolding "Descriptor", the superclass for matrix "characters".  Added to hub, basic round-trip creation possible.
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
-  enable_extension "fuzzystrmatch"
   enable_extension "hstore"
+<<<<<<< 8b129f1f93a7dae9a729c4235f18a5c016d6b0bf
 <<<<<<< 78e56ca3c2632af3840134e92a40c450e3f7cb5d
 =======
+=======
+  enable_extension "fuzzystrmatch"
+>>>>>>> Scaffolding "Descriptor", the superclass for matrix "characters".  Added to hub, basic round-trip creation possible.
   enable_extension "citext"
 >>>>>>> Scaffolded matrix model, basics integrated in TW interface. Tests updated.
 
@@ -769,9 +782,6 @@ ActiveRecord::Schema.define(version: 20160803203508) do
     t.string   "loan_item_object_type"
     t.integer  "total"
     t.string   "disposition"
-    t.integer  "disposition_x"
-    t.integer  "disposition_y"
-    t.integer  "disposition_z"
     t.jsonb    "import_attributes",     default: {}, null: false
   end
 
@@ -1380,15 +1390,11 @@ ActiveRecord::Schema.define(version: 20160803203508) do
     t.jsonb    "import_attributes",                             default: {}, null: false
   end
 
-  add_index "taxon_names", ["cached", "cached_author_year"], name: "index_taxon_names_on_cached_and_cached_author_year", using: :btree
-  add_index "taxon_names", ["cached"], name: "index_taxon_names_on_cached", using: :btree
-  add_index "taxon_names", ["cached_author_year"], name: "index_taxon_names_on_cached_author_year", using: :btree
   add_index "taxon_names", ["created_by_id"], name: "index_taxon_names_on_created_by_id", using: :btree
   add_index "taxon_names", ["import_attributes"], name: "index_taxon_names_on_import_attributes", using: :gin
   add_index "taxon_names", ["name"], name: "index_taxon_names_on_name", using: :btree
   add_index "taxon_names", ["parent_id"], name: "index_taxon_names_on_parent_id", using: :btree
   add_index "taxon_names", ["project_id"], name: "index_taxon_names_on_project_id", using: :btree
-  add_index "taxon_names", ["rank_class"], name: "index_taxon_names_on_rank_class", using: :btree
   add_index "taxon_names", ["type"], name: "index_taxon_names_on_type", using: :btree
   add_index "taxon_names", ["updated_by_id"], name: "index_taxon_names_on_updated_by_id", using: :btree
 
