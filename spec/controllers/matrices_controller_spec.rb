@@ -111,9 +111,9 @@ RSpec.describe MatricesController, type: :controller do
 
       it "updates the requested matrix" do
         matrix = Matrix.create! valid_attributes
-        put :update, {id: matrix.to_param, matrix: new_attributes}, session: valid_session
+        put :update, {id: matrix.to_param, matrix: {name: 'new name'}}, session: valid_session
         matrix.reload
-        skip("Add assertions for updated state")
+        expect(matrix.name).to eq('new name')
       end
 
       it "assigns the requested matrix as @matrix" do
