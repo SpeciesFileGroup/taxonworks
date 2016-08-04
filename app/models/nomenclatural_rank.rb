@@ -118,6 +118,7 @@ class NomenclaturalRank
   end
 
   # TODO: move this to lib/application_ennumeration
+  # !! The use of this moved into a frozen or || solution likely.
   def self.collect_descendants_to_s(*classes)
     ans = []
     classes.each do |klass|
