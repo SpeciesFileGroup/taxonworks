@@ -250,12 +250,15 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
   end
 
+<<<<<<< 5d62c767fdff42382dda42edc7aaf8caea631395
   resources :matrix_column_items do
     concerns [:data_routes]
   end
 
 =======
 >>>>>>> Scaffolded matrix model, basics integrated in TW interface. Tests updated.
+=======
+>>>>>>> Added matrix_row table, with model/controller spec completed.
   resources :notes, except: [:show] do
     concerns [:data_routes]
   end
