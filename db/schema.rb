@@ -16,8 +16,8 @@ ActiveRecord::Schema.define(version: 20160728144837) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
-  enable_extension "fuzzystrmatch"
   enable_extension "hstore"
+  enable_extension "fuzzystrmatch"
 
   create_table "alternate_values", force: :cascade do |t|
     t.text     "value",                            null: false
