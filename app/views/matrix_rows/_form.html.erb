@@ -1,0 +1,42 @@
+<%= form_for(@matrix_row) do |f| %>
+  <%= render 'shared/errors', object: @matrix_row %>
+
+  <div class="field">
+        <%= f.label :matrix_id %>
+        <br>
+        <%= render partial: 'workbench/elements/forms/ajax_select',
+                   locals:  {controller:  'matrices',
+                             object: 'matrix_row',
+                             method:  'matrix_id',
+                             tag_id:  'matrix_id_for_matrix_row',
+                             display:  matrix_tag(@matrix_row.matrix),
+                             size: 20} %>
+  </div>
+
+  <div class="field">
+        <%= f.label :otu_id %>
+        <br>
+        <%= render partial: 'workbench/elements/forms/ajax_select',
+                   locals:  {controller:  'otus',
+                             object: 'matrix_row',
+                             method:  'otu_id',
+                             tag_id:  'otu_id_for_matrix_row',
+                             display:  otu_tag(@matrix_row.otu),
+                             size: 20} %>
+  </div>
+
+  <div class="field">
+        <%= f.label :collection_object_id %>
+        <br>
+        <%= render partial: 'workbench/elements/forms/ajax_select',
+                   locals:  {controller:  'collection_objects',
+                             object: 'matrix_row',
+                             method:  'collection_object_id',
+                             tag_id:  'collection_object_id_for_matrix_row',
+                             display:  collection_object_tag(@matrix_row.collection_object),
+                             size: 20} %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>
