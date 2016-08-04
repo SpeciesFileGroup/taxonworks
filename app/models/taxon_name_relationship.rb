@@ -19,6 +19,10 @@
 # TaxonNameRelationships have a domain (attributes on the subject) and range (attributes on the object).  So if you use 
 # a relatinship you may be asserting a TaxonNameClassification also exists for the subject or object.
 #
+# @todo Note that many of the TODOs do not show up in Yard?? They are copied here so you can find them in the code:
+# @todo SourceClassifiedAs is not really Combination in the other sense
+# @todo validate, that all the relationships in the table could be linked to relationships in classes (if those had changed)
+# @todo Check if more than one species associated with the genus in the original paper
 #
 # @!attribute subject_taxon_name_id
 #   @return [Integer]

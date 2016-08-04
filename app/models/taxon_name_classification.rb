@@ -259,7 +259,6 @@ class TaxonNameClassification < ActiveRecord::Base
 
   private
 
-
   def nomenclature_code_matches
     if taxon_name && type && nomenclature_code
       errors.add(:taxon_name, "missmatched with asserted nomenclature code") if nomenclature_code != taxon_name.rank_class.nomenclatural_code
@@ -270,12 +269,14 @@ class TaxonNameClassification < ActiveRecord::Base
     errors.add(:type, "Status not found") if !self.type.nil? and !TAXON_NAME_CLASSIFICATION_NAMES.include?(self.type.to_s)
   end
 
+
   # @todo move these to a shared library (see NomenclaturalRank too)
   def self.collect_to_s(*args)
     args.collect{|arg| arg.to_s}
   end
   
   # @todo move these to a shared library (see NomenclaturalRank too)
+  # !! using this strongly suggests something can be optimized, meomized etc.
   def self.collect_descendants_to_s(*classes)
     ans = []
     classes.each do |klass|
@@ -285,6 +286,7 @@ class TaxonNameClassification < ActiveRecord::Base
   end
  
   # @todo move these to a shared library (see NomenclaturalRank too)
+  # !! using this strongly suggests something can be optimized, meomized etc.
   def self.collect_descendants_and_itself_to_s(*classes)
     classes.collect{|k| k.to_s} + self.collect_descendants_to_s(*classes)
   end
