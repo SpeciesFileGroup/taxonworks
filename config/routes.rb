@@ -2,6 +2,7 @@ TaxonWorks::Application.routes.draw do
 
 
   
+
   # All models that use data controllers should include this concern.
   # See http://api.rubyonrails.org/classes/ActionDispatch/Routing/Mapper/Concerns.html to extend it to take options if need be.
   # TODO: This will have to be broken down to core_data_routes, and supporting_data_routes
@@ -273,6 +274,10 @@ TaxonWorks::Application.routes.draw do
   end
 
   resources :matrices do
+    concerns [:data_routes]
+  end
+
+  resources :matrix_columns do
     concerns [:data_routes]
   end
 
