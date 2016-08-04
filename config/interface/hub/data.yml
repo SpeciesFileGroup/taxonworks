@@ -63,8 +63,6 @@ Core: # a Section
      status: :prototype
      categories:
        - matrix
-
-
 Supporting:
   AssertedDistribution:
     categories:
