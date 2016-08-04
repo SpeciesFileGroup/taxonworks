@@ -217,7 +217,11 @@ Supporting:
   Protocol:
     status: :prototype
     related_models:
-      - ProtocolRelationship 
+      - ProtocolRelationship
+  MatrixRow:
+    status: :prototype
+    categories:
+      - matrix
   Namespace:
     status: :prototype
     shared: true
