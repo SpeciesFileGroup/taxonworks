@@ -163,6 +163,10 @@ Supporting:
     shared: true
     categories:
       - collection_object
+  MatrixRow:
+    status: :prototype
+    categories:
+      - matrix
   Namespace:
     shared: true
   RangedLotCategory:

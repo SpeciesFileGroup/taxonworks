@@ -1,0 +1,24 @@
+<%= render("/shared/data/all/list/list_header", objects: @matrix_rows) -%>
+
+<table class="tablesorter">
+  <thead>
+  <tr>
+    <%= fancy_th_tag(name: 'Matrix') -%>
+    <%= fancy_th_tag(name: 'Otu') -%>
+    <%= fancy_th_tag(name: 'Collection Object') -%>
+    <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
+    <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
+  </tr>
+  </thead>
+
+  <tbody>
+  <% @matrix_rows.each do |matrix_row| %>
+      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+          <td><%= matrix_tag(matrix_row.matrix) %></td>
+          <td><%= otu_tag(matrix_row.otu) -%></td>
+          <td><%= collection_object_tag(matrix_row.collection_object) -%></td>
+          <%= fancy_metadata_cells_tag(matrix_row) -%>
+      <% end %>
+  <% end %>
+  </tbody>
+</table>
