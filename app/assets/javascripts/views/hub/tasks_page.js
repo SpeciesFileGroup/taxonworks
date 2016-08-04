@@ -26,6 +26,15 @@ function initTaskCarrousel() {
     task.resetFilters();
   }
 
+  function resetFilters() {
+    task.resetFilters();
+    $('.reset-all-filters').fadeOut(0);
+  }  
+
+  $('.reset-all-filters').on('click', function() {
+    resetFilters(); 
+  });
+
   $('#filter').on('click', '[data-filter-category]', function() {
     if($(this).attr("data-filter-category") == "reset") {
       task.resetFilters();
@@ -33,7 +42,14 @@ function initTaskCarrousel() {
     else {
       task.changeFilter("data-category-"+ $(this).attr("data-filter-category"));
     }
+    if(task.empty()) {
+      $('.reset-all-filters').fadeIn();
+    }
+    else {
+      $('.reset-all-filters').fadeOut(0);
+    }    
   });
+
   $('.navigation').on('click', 'a', function() {
     if($(this).attr('data-arrow') == "down") {
       task.loadingDown();

@@ -7,12 +7,11 @@ $(document).ready(function() {
 function initDataCardsPage() {
 
   var 
-  favorites = new CarrouselData("Favorites",99,4),	
   core = new CarrouselData("Core",99,1),	
   supporting = new CarrouselData("Supporting",99,2),	
   annotations = new CarrouselData("Annotations",99,1);
 
-  [favorites, core, supporting, annotations].forEach(function(element) {
+  [core, supporting, annotations].forEach(function(element) {
     element.addFilter("data-category-collecting_event");
     element.addFilter("data-category-Taxon_name");
     element.addFilter("data-category-source");
@@ -21,12 +20,14 @@ function initDataCardsPage() {
     element.filterChilds();
   });
 
+
   function changeAllSectionsFilter() {
-  [favorites, core, supporting, annotations].forEach(function(element) {
-    element.resetFilters();
-    element.filterChilds();
-  });
- }
+    [core, supporting, annotations].forEach(function(element) {
+      element.resetFilters();
+      element.filterChilds();
+      $('.reset-all-filters').fadeOut(0);
+    });
+  }
 
   $('.data_card').mousedown(function(event) {
   	if((event.which) == 1) {
@@ -41,11 +42,22 @@ function initDataCardsPage() {
       changeAllSectionsFilter();
     }
     else {
-      [favorites, core, supporting, annotations].forEach(function(element) {
+      [core, supporting, annotations].forEach(function(element) {
         element.changeFilter("data-category-"+ elementFilter);
       });
     }
-  });  
+    if(core.empty() && supporting.empty() && annotations.empty()) {
+      $('[data-section="Supporting"] .reset-all-filters').fadeIn();
+    }
+    else {
+      $('.reset-all-filters').fadeOut(0);
+    }    
+  }); 
+
+  $('.reset-all-filters').on('click', function() {
+    changeAllSectionsFilter(); 
+  });
+
 
   $('.data_card div[data-category-collecting_event="true"]').append("<img src='<%= asset_path('geo_location.svg') %>'/>");
   $('.data_card div[data-category-taxon_name="true"]').append("<img src='<%= asset_path('new.svg') %>'/>");
