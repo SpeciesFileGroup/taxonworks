@@ -5,8 +5,7 @@ class Matrix < ActiveRecord::Base
   include Shared::IsData
   include Shared::Taggable
   include Shared::Notable
-
-  belongs_to :project
+  include Shared::DataAttributes
 
   validates_presence_of :name
 
