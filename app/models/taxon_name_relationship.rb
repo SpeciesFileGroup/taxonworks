@@ -4,7 +4,6 @@
 # @todo SourceClassifiedAs is not really Combination in the other sense
 # @todo validate, that all the relationships in the table could be linked to relationships in classes (if those had changed)
 # @todo Check if more than one species associated with the genus in the original paper
-# @todo Check if more than one species associated with the genus in the original paper
 #
 # @!attribute subject_taxon_name_id
 #   @return [Integer]
