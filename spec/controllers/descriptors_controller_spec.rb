@@ -19,7 +19,7 @@ require 'rails_helper'
 # that an instance is receiving a specific message.
 
 RSpec.describe DescriptorsController, type: :controller do
-  before(:each){
+  before(:each) {
     sign_in
   }
 
@@ -31,7 +31,7 @@ RSpec.describe DescriptorsController, type: :controller do
   }
 
   let(:invalid_attributes) {
-    {descriptor_id: nil}
+    {name: nil}
   }
 
   # This should return the minimal set of values that should be in the session
@@ -40,10 +40,10 @@ RSpec.describe DescriptorsController, type: :controller do
   let(:valid_session) { {} }
 
   describe "GET #index" do
-    it "assigns all descriptors as @descriptors" do
+    it "assigns recent descriptors as @recent_objects" do
       descriptor = Descriptor.create! valid_attributes
       get :index, {}, session: valid_session
-      expect(assigns(:recent_objects)).to eq([descriptor])
+      expect(assigns(:recent_objects).to_a).to eq([descriptor])
     end
   end
 
@@ -86,7 +86,7 @@ RSpec.describe DescriptorsController, type: :controller do
 
       it "redirects to the created descriptor" do
         post :create, {descriptor: valid_attributes}, session: valid_session
-        expect(response).to redirect_to(Descriptor.last)
+        expect(response).to redirect_to(Descriptor.last.metamorphosize)
       end
     end
 
@@ -111,9 +111,9 @@ RSpec.describe DescriptorsController, type: :controller do
 
       it "updates the requested descriptor" do
         descriptor = Descriptor.create! valid_attributes
-        put :update, {id: descriptor.to_param, descriptor: new_attributes}, session: valid_session
+        put :update, {id: descriptor.to_param, descriptor: {name: 'new name'}}, session: valid_session
         descriptor.reload
-        skip("Add assertions for updated state")
+        expect(descriptor.name).to eq('new name')
       end
 
       it "assigns the requested descriptor as @descriptor" do
@@ -125,7 +125,7 @@ RSpec.describe DescriptorsController, type: :controller do
       it "redirects to the descriptor" do
         descriptor = Descriptor.create! valid_attributes
         put :update, {id: descriptor.to_param, descriptor: valid_attributes}, session: valid_session
-        expect(response).to redirect_to(descriptor)
+        expect(response).to redirect_to(descriptor.metamorphosize)
       end
     end
 
@@ -138,7 +138,7 @@ RSpec.describe DescriptorsController, type: :controller do
 
       it "re-renders the 'edit' template" do
         descriptor = Descriptor.create! valid_attributes
-        put :update, {id: descriptor.to_param, descriptor: invalid_attributes}, session: valid_session
+        put :update,  {id: descriptor.to_param, descriptor: invalid_attributes}, session: valid_session
         expect(response).to render_template("edit")
       end
     end
