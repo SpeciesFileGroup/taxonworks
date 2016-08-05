@@ -291,7 +291,7 @@ namespace :tw do
 
         biological_relationships = { 'Attendance' => ['Attendant', 'Attended insect'],
                                      'Predation' => ['Predator', 'Prey'],
-                                     'Parasitism' => ['Parasite', 'Host'],
+                                     'Parasitism' => ['Parasitoid', 'Host'],
                                      'Host plant' => ['Host', 'Herbivor'],
                                      'Pollination' => ['Pollinator', 'Pollinated plant'],
                                      'Mating' => ['Mate', 'Mate'],
@@ -655,7 +655,7 @@ namespace :tw do
                                     'Host' => 'An animal or plant on or in which a parasite or commensal organism lives',
                                     'Herbivor' => 'An animal that feeds on plants',
                                     'Mate' => 'breeding partner',
-                                    'Parasite' => 'An organism that lives in or on another organism',
+                                    'Parasitoid' => 'An organism that lives in or on another organism',
                                     'Pollinator' => 'An insect pollinating a plant',
                                     'Pollinated plant' => 'A plant visited by insects',
                                     'Predator' => 'An animal that preys on others',

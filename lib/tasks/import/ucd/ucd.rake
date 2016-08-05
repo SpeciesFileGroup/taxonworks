@@ -6,21 +6,21 @@ require 'fileutils'
 
 # COLL.txt          Done
 # COUNTRY.txt       Done
-# DIST.txt
+# DIST.txt          Most of the areas do not match TW areas
 # FAMTRIB.txt       Done
 # FGNAMES.txt       Done
 # GENUS.txt         Done
 # H-FAM.txt         Done
 # HKNEW.txt         Done
 # HOSTFAM.txt       Done
-# HOSTS.txt
+# HOSTS.txt         Done
 # JOURNALS.txt      not needed
 # KEYWORDS.txt      Done
 # LANGUAGE.txt      Done
 # MASTER.txt        Done
 # P-TYPE.txt        Done
 # REFEXT.txt        Done
-# RELATION.txt
+# RELATION.txt      Done
 # RELIABLE.txt      Done
 # SPECIES.txt       Done
 # STATUS.txt        Done
@@ -121,6 +121,8 @@ namespace :tw do
         handle_hostfam_ucd
         handle_reliable_ucd
         handle_ptype_ucd
+        handle_hosts_ucd
+        handle_dist_ucd
 
         print "\n\n !! Success. End time: #{Time.now} \n\n"
 
@@ -171,6 +173,7 @@ namespace :tw do
         @data.keywords['taxon_id'] = Namespace.find_or_create_by(name: 'UCD_Taxon_ID', short_name: 'UCD_Taxon_ID')
         @data.keywords['family_id'] = Namespace.find_or_create_by(name: 'UCD_Family_ID', short_name: 'UCD_Family_ID')
         @data.keywords['host_family_id'] = Namespace.find_or_create_by(name: 'UCD_Host_Family_ID', short_name: 'UCD_Host_Family_ID')
+        @data.keywords['hos_number'] = Namespace.find_or_create_by(name: 'UCD_Hos_Number', short_name: 'UCD_Hos_Number')
       end
 
       def handle_fgnames_ucd
@@ -1035,10 +1038,6 @@ namespace :tw do
       end
 
       def handle_hostfam_ucd
-        keywords = {
-            'HosNumber' => Predicate.find_or_create_by(name: 'Hostfam:HosNumber', definition: 'The verbatim value in Hostfam#HosNumber.', project_id: $project_id)
-        }.freeze
-
         path = @args[:data_directory] + 'HOSTFAM.txt'
         print "\nHandling HOSTFAM\n"
         raise "file #{path} not found" if not File.exists?(path)
@@ -1055,9 +1054,119 @@ namespace :tw do
             taxon.verbatim_author = row['HosAuthor']
             taxon.save if taxon.valid?
           end
-          taxon.data_attributes.create(type: 'InternalAttribute', predicate: keywords['HosNumber'], value: row['HosNumber']) if !row['HosNumber'].blank? && taxon.data_attributes.nil?
+          taxon.identifiers.create(type: 'Identifier::Local::Import', namespace: @data.keywords['hos_number'], identifier: row['HosNumber']) if !row['HosNumber'].blank?
         end
+      end
 
+      def handle_hosts_ucd
+        relation = {'APL' => BiologicalRelationship.find_or_create_by(name: 'Plant associate', project_id: $project_id),
+                    'AST' => BiologicalRelationship.find_or_create_by(name: 'Associate', project_id: $project_id),
+                    'HYP' => BiologicalRelationship.find_or_create_by(name: 'Parasitoid', project_id: $project_id),
+                    'PAH' => BiologicalRelationship.find_or_create_by(name: 'Parasitoid host', project_id: $project_id),
+                    'PLH' => BiologicalRelationship.find_or_create_by(name: 'Plant host', project_id: $project_id),
+                    'PRH' => BiologicalRelationship.find_or_create_by(name: 'Primary host', project_id: $project_id),
+        }.freeze
+        bp = { 'Pollinator' => BiologicalProperty.find_or_create_by(name: 'Pollinator', definition:'An insect pollinating a plant'),
+               'Pollinated plant' => BiologicalProperty.find_or_create_by(name: 'Pollinated plant', definition:'A plant visited by insects'),
+               'Attendant' => BiologicalProperty.find_or_create_by(name: 'Attendant', definition:'An insect attending another insect'),
+               'Attended insect' => BiologicalProperty.find_or_create_by(name: 'Attended insect', definition:'An insect attended by another insect'),
+               'Host' => BiologicalProperty.find_or_create_by(name: 'Host', definition:'An animal or plant on or in which a parasite or commensal organism lives'),
+               'Parasitoid' => BiologicalProperty.find_or_create_by(name: 'Parasitoid', definition:'An organism that lives in or on another organism'),
+        }
+
+        a1 = BiologicalRelationshipType.find_or_create_by(biological_property: bp['Pollinator'], biological_relationship: relation['APL'], type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
+        a2 = BiologicalRelationshipType.find_or_create_by(biological_property: bp['Pollinated plant'], biological_relationship: relation['APL'], type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
+        a1 = BiologicalRelationshipType.find_or_create_by(biological_property: bp['Attendant'], biological_relationship: relation['AST'], type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
+        a2 = BiologicalRelationshipType.find_or_create_by(biological_property: bp['Attended insect'], biological_relationship: relation['AST'], type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
+        a1 = BiologicalRelationshipType.find_or_create_by(biological_property: bp['Host'], biological_relationship: relation['HYP'], type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
+        a2 = BiologicalRelationshipType.find_or_create_by(biological_property: bp['Parasitoid'], biological_relationship: relation['HYP'], type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
+        a1 = BiologicalRelationshipType.find_or_create_by(biological_property: bp['Parasitoid'], biological_relationship: relation['PAH'], type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
+        a2 = BiologicalRelationshipType.find_or_create_by(biological_property: bp['Host'], biological_relationship: relation['PAH'], type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
+        a1 = BiologicalRelationshipType.find_or_create_by(biological_property: bp['Parasitoid'], biological_relationship: relation['PLH'], type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
+        a2 = BiologicalRelationshipType.find_or_create_by(biological_property: bp['Host'], biological_relationship: relation['PLH'], type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
+        a1 = BiologicalRelationshipType.find_or_create_by(biological_property: bp['Parasitoid'], biological_relationship: relation['PRH'], type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
+        a2 = BiologicalRelationshipType.find_or_create_by(biological_property: bp['Host'], biological_relationship: relation['PRH'], type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
+
+        keywords = {
+            'ParTypeA' => Predicate.find_or_create_by(name: 'Hosts:ParTypeA', definition: 'The verbatim value in Hosts#ParTypeA.', project_id: $project_id),
+            'ParTypeB' => Predicate.find_or_create_by(name: 'Hosts:ParTypeB', definition: 'The verbatim value in Hosts#ParTypeB.', project_id: $project_id),
+            'ParTypeC' => Predicate.find_or_create_by(name: 'Hosts:ParTypeC', definition: 'The verbatim value in Hosts#ParTypeC.', project_id: $project_id),
+            'ParTypeD' => Predicate.find_or_create_by(name: 'Hosts:ParTypeD', definition: 'The verbatim value in Hosts#ParTypeD.', project_id: $project_id),
+            'ReliableA' => Predicate.find_or_create_by(name: 'Hosts:ReliableA', definition: 'The verbatim value in Hosts#ReliableA.', project_id: $project_id),
+            'ReliableB' => Predicate.find_or_create_by(name: 'Hosts:ReliableB', definition: 'The verbatim value in Hosts#ReliableB.', project_id: $project_id),
+            'Comment' => Predicate.find_or_create_by(name: 'Hosts:Comment', definition: 'The verbatim value in Hosts#Comment.', project_id: $project_id),
+            'CommonName' => Predicate.find_or_create_by(name: 'Hosts:CommonName', definition: 'The verbatim value in Hosts#CommenName.', project_id: $project_id),
+        }.freeze
+
+        path = @args[:data_directory] + 'HOSTS.txt'
+        print "\nHandling HOSTS\n"
+        raise "file #{path} not found" if not File.exists?(path)
+        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
+        file.each_with_index do |row, i|
+          print "\r#{i}"
+          taxon = find_taxon_id_ucd(row['TaxonCode'])
+          host = find_host_id_ucd(row['HosNumber'])
+          host = find_host_family_id_ucd('PrimHosFam') if row['HosNumber'].blank?
+          ref = find_source_id_ucd(row['RefCode'])
+          br = ralation[row['Relation']]
+          if taxon && host && relation
+            subject = Otu.find_or_create_by(taxon_name_id: taxon)
+            object = Otu.find_or_create_by(taxon_name_id: host)
+            r = BiologicalAssociation.find_or_create_by!(biological_relationship: br, biological_association_subject: subject, biological_association_object: object, project_id: $project_id)
+            r.citations.create!(source_id: ref, pages: row['PageRef']) unless ref.nil?
+            r.notes.create!(text: row['Notes']) unless row['Notes'].blank?
+            r.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['ParTypeA'], value: @data.ptype[row['ParTypeA']]) unless row['ParTypeA'].blank?
+            r.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['ParTypeB'], value: @data.ptype[row['ParTypeB']]) unless row['ParTypeB'].blank?
+            r.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['ParTypeC'], value: @data.ptype[row['ParTypeC']]) unless row['ParTypeC'].blank?
+            r.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['ParTypeD'], value: @data.ptype[row['ParTypeD']]) unless row['ParTypeD'].blank?
+            r.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['ReliableA'], value: @data.reliable[row['ReliableA']]) unless row['ReliableA'].blank?
+            r.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['ReliableB'], value: @data.reliable[row['ReliableB']]) unless row['ReliableB'].blank?
+            r.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Comment'], value: row['Comment']) unless row['Comment'].blank?
+            r.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['CommonName'], value: row['CommonName']) unless row['CommonName'].blank?
+          else
+            print "\nInvalid host relationship: TaxonCode: #{row['TaxonCode']}, Relation: #{row['Relation']}, HosNumber: #{row['HosNumber']}\n"
+          end
+        end
+      end
+
+      def handle_dist_ucd
+        keywords = {
+            'PageRef' => Predicate.find_or_create_by(name: 'Dist:PageRef', definition: 'The verbatim value in Dist#PageRef.', project_id: $project_id),
+            'Keyword' => Predicate.find_or_create_by(name: 'Dist:Keyword', definition: 'The verbatim value in Dist#Keyword.', project_id: $project_id),
+            'Reliable' => Predicate.find_or_create_by(name: 'Dist:Reliable', definition: 'The verbatim value in Dist#Reliable.', project_id: $project_id),
+            'Comment' => Predicate.find_or_create_by(name: 'Dist:Comment', definition: 'The verbatim value in Dist#Comment.', project_id: $project_id),
+        }.freeze
+
+        unresolved = {}
+        path = @args[:data_directory] + 'DIST.txt'
+        print "\nHandling DIST\n"
+        raise "file #{path} not found" if not File.exists?(path)
+        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
+        file.each_with_index do |row, i|
+          print "\r#{i}"
+          taxon = find_taxon_id_ucd(row['TaxonCode'])
+          otu = Otu.find_or_create_by(taxon_name_id: taxon)
+          ref = find_source_id_ucd(row['RefCode'])
+          ga = GeographicArea.find_by_self_and_parents(@data.countries[row['Country'] + '|' + row['State']])
+          if otu && ga
+            ad = AssertedDistribution.create!(
+                otu: otu,
+                geographic_area: ga,
+                source_id: ref,
+                is_absent: nil,
+                project_id: $project_id )
+            ad.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Reliable'], value: @data.reliable[row['Reliable']]) unless row['Reliable'].blank?
+            ad.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Comment'], value: row['Comment']) unless row['Comment'].blank?
+            ad.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['PageRef'], value: row['PageRef']) unless row['PageRef'].blank?
+            ad.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Keyword'], value: @data.keywords[row['Keyword']]) unless row['KeyWord'].blank?
+            ad.notes.create!(text: row['Notes']) unless row['Notes'].blank?
+          elsif ag.nil?
+            unresolved[@data.countries[row['Country'] + '|' + row['State']]] = true
+          end
+        end
+        unresolved.each_key do |k|
+          print"\n Unresolved locality: #{k}"
+        end
       end
 
       def handle_keywords_ucd
@@ -1339,8 +1448,16 @@ namespace :tw do
         @data.families[key.to_s] || Identifier.where(cached: 'UCD_Host_Family_ID ' + key.to_s, identifier_object_type: 'TaxonName', project_id: $project_id).limit(1).pluck(:identifier_object_id).first
       end
 
+      def find_host_id_ucd(key)
+        @data.taxon_codes[key.to_s] || Identifier.where(cached: 'UCD_Hos_Number ' + key.to_s, identifier_object_type: 'TaxonName', project_id: $project_id).limit(1).pluck(:identifier_object_id).first
+      end
+
       def find_taxon_ucd(key)
         Identifier.find_by(cached: 'UCD_Taxon_ID ' + key.to_s, identifier_object_type: 'TaxonName', project_id: $project_id).try(:identifier_object)
+      end
+
+      def find_host_ucd(key)
+        Identifier.find_by(cached: 'UCD_Hos_Number ' + key.to_s, identifier_object_type: 'TaxonName', project_id: $project_id).try(:identifier_object)
       end
 
       def find_source_ucd(key)
