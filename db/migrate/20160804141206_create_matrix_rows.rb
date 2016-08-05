@@ -12,7 +12,7 @@ class CreateMatrixRows < ActiveRecord::Migration
       t.timestamps null: false
     end
 
-    add_foreign_key :matrices, :users, column: :created_by_id
-    add_foreign_key :matrices, :users, column: :updated_by_id
+    add_foreign_key :matrix_rows, :users, column: :created_by_id
+    add_foreign_key :matrix_rows, :users, column: :updated_by_id
   end
 end
