@@ -94,7 +94,7 @@ var CarrouselData = function (sec, rows, columns) {
 
 		for (let i = 1; i <= this.maxRow; i++) {
 			child = $('.data_section[data-section="' + this.sectionTag + '"] > .cards-section > .card-container:nth-child('+ (i) +')');
-			if(this.checkChildFilter(child.children().children(".status"))) {
+			if(this.checkChildFilter(child.children().children(".categories"))) {
 				child.show(250);
 				find++;
 			}

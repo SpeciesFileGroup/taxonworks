@@ -52,27 +52,31 @@
     display: flex;
     flex-direction:row;
     align-items:center;
+    position: relative;
     margin: $standard_margin * 0.5;
     [data-method="post"] {
       display: none;
       transition: background-color 0.5s ease,
-                  box-shadow 0.5s ease;      
+      box-shadow 0.5s ease;      
     }
   }
 
   .data_card:hover {
     transition: background-color 0.5s ease,
-                box-shadow 0.5s ease;
+    box-shadow 0.5s ease;
     background-color: $navigation_background;
     box-shadow:inset 0px 1px 5px 0px $navigation_border;
     border-left: 4px solid $default_text;
     transition: background-color 0.5s ease,
-                border 0.5s ease,
-                box-shadow 0.5s ease;     
+    border 0.5s ease,
+    box-shadow 0.5s ease;     
     img {
       opacity: 1;
       width: 14px;
       margin-left:5px;
+    }
+    .box-status {
+      opacity: 1;
     }
   }
 
@@ -92,8 +96,8 @@
     box-shadow: 0 0px 3px 0 $navigation_border;    
 
     transition: background-color 0.5s ease,
-                border 0.5s ease,
-                box-shadow 0.5s ease;    
+    border 0.5s ease,
+    box-shadow 0.5s ease;    
 
     a {
       color: $default_text;
@@ -108,7 +112,7 @@
     border-left:4px solid $color-primary-4;
   }
 
-  .status {
+  .categories {
     display: flex;
     flex-direction:row;
     img {
@@ -118,22 +122,34 @@
     }
   }  
 
+  .box-status {
+    opacity: 0.5;
+    right:15px;
+    top:0px;
+    width: 10px;
+    height: 10px;
+    border-radius: 0px;
+    border-bottom-right-radius: 50%;
+    border-bottom-left-radius: 50%;
+    position: absolute;
+  }
+
   @media screen and (min-width: 1339px) {
-      .data_section {
-          width: 1300px !important;
-      }
+    .data_section {
+      width: 1300px !important;
+    }
   }
 
   @media screen and (min-width: 1024px) and (max-width: 1338px) {
-      .data_section {
-          width: 500px !important;
-      }
+    .data_section {
+      width: 500px !important;
+    }
   }  
 
   @media screen and (min-width: 1023px) and (max-width: 800px) {
-      .data_section {
-          width: 250px !important;
-      }
+    .data_section {
+      width: 250px !important;
+    }
   }    
 
 }

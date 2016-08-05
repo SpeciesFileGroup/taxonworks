@@ -1,0 +1,35 @@
+@import 'base/palette';   
+@import 'base/whitespace';    
+
+
+.status {
+  box-shadow: 0 0 3px 0 $navigation_border;
+  border-radius: 50%;
+  font-size: 0px;
+  width: 12px;
+  height: 12px;
+}
+
+.unknown {
+  box-shadow: 0 0 1px 0 #adadad;
+  border:0.5px solid #adadad;
+  background-color: #bbbbbb;
+}
+
+.stable {
+  box-shadow: 0 0 1px 0 #de9f34;
+  border:0.5px solid #de9f34;
+  background-color: #fdbd41;
+}    
+
+.prototype {
+  box-shadow: 0 0 1px 0 #ef4b47;
+  border:0.5px solid #ef4b47;      
+  background-color: #fc615d;
+}   
+
+.complete {
+  box-shadow: 0 0 1px 0 #27aa35;
+  border:0.5px solid #27aa35;
+  background-color: #35c94a;
+}

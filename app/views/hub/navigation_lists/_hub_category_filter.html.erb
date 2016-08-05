@@ -2,18 +2,27 @@
   <div class="flexbox">
     <div class="item item2">
       <div class="panel">
+
         <div class='title action-line'>
-          Filter 
+          <div class="horizontal-left-content">
+            Filter
+            <div class="filter-category">
+              <div class="status unknown" data-filter-category="unknown"></div>
+              <div class="status prototype" data-filter-category="prototype"></div>
+              <div class="status stable" data-filter-category="stable"></div>
+              <div class="status complete" data-filter-category="complete"></div>
+            </div>
+          </div>
           <div class="small-icon reset" data-filter-category="reset" data-icon="reset">
             Reset
           </div>  
         </div> 
         <div class="navigation-controls">
         	<% UserTasks::CATEGORIES.each do |c| -%>
-          	<%= content_tag(:div, c.humanize, 'data-filter-category' => c, 'data-favorite' => true, 'class' => 'navigation-item') -%>
-          <% end %>                                 
-        </div>        
-      </div>  
-    </div>
-  </div>
+         <%= content_tag(:div, c.humanize, 'data-filter-category' => c, 'data-favorite' => true, 'class' => 'navigation-item') -%>
+         <% end %>                                 
+       </div>        
+     </div>  
+   </div>
+ </div>
 </div>

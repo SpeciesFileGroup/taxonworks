@@ -121,6 +121,14 @@
       flex-direction:column;
     }
   }
+
+  .filter-category {
+    display: flex;
+    margin-left: $standard_margin*0.5;
+    width: 80px;
+    justify-content: space-around;
+    cursor: pointer;
+  }
 }
 
   #navigation_list {
