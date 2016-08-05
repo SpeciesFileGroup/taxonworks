@@ -8,7 +8,7 @@ module NomenclatureCatalog
     end
 
     def ordered_by_nomenclature_date
-      items.sort{|a,b| a.nomenclature_date <=> b.nomenclature_date } 
+      items.sort{|a,b| (a.nomenclature_date || Time.utc(1)) <=> (b.nomenclature_date || Time.utc(1))}
     end
 
     def source_list

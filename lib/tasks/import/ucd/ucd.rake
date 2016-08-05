@@ -18,10 +18,10 @@ require 'fileutils'
 # KEYWORDS.txt      Done
 # LANGUAGE.txt      Done
 # MASTER.txt        Done
-# P-TYPE.txt
+# P-TYPE.txt        Done
 # REFEXT.txt        Done
 # RELATION.txt
-# RELIABLE.txt
+# RELIABLE.txt      Done
 # SPECIES.txt       Done
 # STATUS.txt        Done
 # TRAN.txt          not needed
@@ -36,7 +36,7 @@ namespace :tw do
       class ImportedDataUcd
         attr_accessor :publications_index, :genera_index, :species_index, :keywords, :family_groups, :superfamilies, :families,
                       :taxon_codes, :languages, :references, :countries, :collections, :all_genera_index, :all_species_index, :topics, :combinations,
-                      :new_combinations
+                      :reliable, :ptype
         def initialize()
           @publications_index = {}
           @keywords = {}
@@ -55,9 +55,9 @@ namespace :tw do
           @topics = {}
           @combinations = {}
           @new_combinations = {}
+          @reliable = {}
+          @ptype = {}
         end
-
-
       end
 
       task :import_ucd => [:data_directory, :environment] do |t|
@@ -119,6 +119,8 @@ namespace :tw do
         handle_hknew_ucd
         handle_h_fam_ucd
         handle_hostfam_ucd
+        handle_reliable_ucd
+        handle_ptype_ucd
 
         print "\n\n !! Success. End time: #{Time.now} \n\n"
 
@@ -246,8 +248,7 @@ namespace :tw do
               if rank.parent.to_s == 'NomenclaturalRank::Iczn::FamilyGroup'
                 alternative_name = Protonym.family_group_name_at_rank(name, rank.rank_name)
                 if name != alternative_name
-                  name = alternative_name
-                  vname = row['Name']
+                  name, vname = alternative_name, name
                 end
               end
 
@@ -270,7 +271,7 @@ namespace :tw do
               @data.taxon_codes[row['TaxonCode']] = taxon1.id
               taxon1.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['taxon_id'], identifier: row['TaxonCode'].to_s)
               taxon1.data_attributes.create!(type: 'ImportAttribute', import_predicate: 'HomCode', value: row['HomCode']) unless row['HomCode'].blank?
-              #TaxonNameRelationship.create!(subject_taxon_name: taxon1, object_taxon_name: taxon, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+              TaxonNameRelationship.create!(subject_taxon_name: taxon1, object_taxon_name: taxon, type: 'TaxonNameRelationship::Iczn::Invalidating')
             end
           end
         end
@@ -329,7 +330,7 @@ namespace :tw do
                 if @data.combinations['TaxonCode'].blank?
                   if @data.genera_index[row['CitGenus']].nil?
                     @data.genera_index[taxon.name] = taxon.id
-                    #TaxonNameRelationship.create!(subject_taxon_name: taxon, object_taxon_name: taxon1, type: 'TaxonNameRelationship::Iczn::Invalidating')
+                    TaxonNameRelationship.create!(subject_taxon_name: taxon, object_taxon_name: taxon1, type: 'TaxonNameRelationship::Iczn::Invalidating')
                   end
                 else
                   #@data.new_combinations['TaxonCode'] = {'genus' => row['CitGenus']}
@@ -481,7 +482,7 @@ namespace :tw do
                 taxon = c
               end
             else
-              #TaxonNameRelationship.create!(subject_taxon_name: taxon, object_taxon_name_id: taxon1, type: 'TaxonNameRelationship::Iczn::Invalidating')
+              TaxonNameRelationship.create!(subject_taxon_name: taxon, object_taxon_name_id: taxon1, type: 'TaxonNameRelationship::Iczn::Invalidating')
               TaxonNameRelationship.create!(subject_taxon_name_id: origgen, object_taxon_name: taxon, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus') if taxon.original_genus.nil?
               TaxonNameRelationship.create!(subject_taxon_name_id: origsubgen, object_taxon_name: taxon, type: 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus') if taxon.original_subgenus.nil? && !origsubgen.nil?
             end
@@ -542,7 +543,7 @@ namespace :tw do
                 taxon = c
               end
             else
-              #TaxonNameRelationship.create!(subject_taxon_name: taxon, object_taxon_name_id: taxon1, type: 'TaxonNameRelationship::Iczn::Invalidating')
+              TaxonNameRelationship.create!(subject_taxon_name: taxon, object_taxon_name_id: taxon1, type: 'TaxonNameRelationship::Iczn::Invalidating')
               TaxonNameRelationship.create!(subject_taxon_name_id: origgen, object_taxon_name: taxon, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus') if taxon.original_genus.nil?
               TaxonNameRelationship.create!(subject_taxon_name_id: origsubgen, object_taxon_name: taxon, type: 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus') if taxon.original_subgenus.nil? && !origsubgen.nil?
               TaxonNameRelationship.create!(subject_taxon_name_id: origspecies, object_taxon_name: taxon, type: 'TaxonNameRelationship::OriginalCombination::OriginalSpecies') if taxon.original_species.nil? && !origspecies.nil?
@@ -603,6 +604,29 @@ namespace :tw do
           @data.collections[row['Acronym']] = row['Depository']
         end
       end
+
+      def handle_reliable_ucd
+        path = @args[:data_directory] + 'RELIABLE.txt'
+        print "\nHandling RELIABLE\n"
+        raise "file #{path} not found" if not File.exists?(path)
+        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
+        file.each_with_index do |row, i|
+          print "\r#{i}"
+          @data.reliable[row['Score']] = row['Meaning']
+        end
+      end
+
+      def handle_ptype_ucd
+        path = @args[:data_directory] + 'P-TYPE.txt'
+        print "\nHandling P-TYPE\n"
+        raise "file #{path} not found" if not File.exists?(path)
+        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
+        file.each_with_index do |row, i|
+          print "\r#{i}"
+          @data.ptype[row['Code']] = row['ParType']
+        end
+      end
+
 
       def handle_references_ucd
           # - 0   RefCode   | varchar(15)  |
@@ -831,7 +855,8 @@ namespace :tw do
               taxon.citations.create!(source_id: ref, pages: row['PageRef'], is_original: true)
             end
             taxon.notes.create!(text: row['Notes']) unless row['Notes'].blank?
-            taxon.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['FamTrib:Status'], value: status_type[row['Status']]) unless row['Status'].blank?
+            da = taxon.data_attributes.create(type: 'InternalAttribute', predicate: keywords['FamTrib:Status'], value: status_type[row['Status']]) unless row['Status'].blank?
+            byebug unless da.valid?
           end
         end
       end
@@ -883,7 +908,7 @@ namespace :tw do
               taxon.citations.create(source_id: ref, pages: row['PageRef'], is_original: true)
             end
             taxon.notes.create(text: row['Notes']) unless row['Notes'].blank?
-            taxon.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Genus:Status'], value: status_type[row['Status']]) unless row['Status'].blank?
+            taxon.data_attributes.find_or_create_by!(type: 'InternalAttribute', predicate: keywords['Genus:Status'], value: status_type[row['Status']]) unless row['Status'].blank?
           end
         end
       end
@@ -933,8 +958,6 @@ namespace :tw do
         }
         classification_type = {
             'AB' => 'TaxonNameClassification::Iczn::Unavailable::Excluded::Infrasubspecific',
-            'FM' => 'TaxonNameClassification::Iczn::Unavailable::VarietyOrFormAfter1960',
-            'VR' => 'TaxonNameClassification::Iczn::Unavailable::VarietyOrFormAfter1960',
             'FS' => 'TaxonNameClassification::Iczn::Fossil',
             'ND' => 'TaxonNameClassification::Iczn::Available::Valid::NomenDubium',
             'NN' => 'TaxonNameClassification::Iczn::Unavailable::NomenNudum',
@@ -954,11 +977,16 @@ namespace :tw do
               end
             end
             taxon.notes.create(text: row['Notes']) unless row['Notes'].blank?
-            taxon.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Status:Meaning'], value: status_type[row['CurrStat']]) unless status_type[row['CurrStat']].nil?
-            taxon.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Species:Country'], value: @data.countries[row['Country'] + '|' + row['State']]) unless @data.countries[row['Country'] + '|' + row['State']].nil?
-            taxon.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Coll:Depository'], value: @data.collections[row['Depository']]) unless @data.collections[row['Depository']].nil?
+            taxon.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Status:Meaning'], value: status_type[row['CurrStat']]) unless status_type[row['CurrStat']].nil?
+            taxon.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Species:Country'], value: @data.countries[row['Country'] + '|' + row['State']]) unless @data.countries[row['Country'] + '|' + row['State']].nil?
+            taxon.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Coll:Depository'], value: @data.collections[row['Depository']]) unless @data.collections[row['Depository']].nil?
             keywords.each_key do |k|
-              taxon.data_attributes.create(type: 'InternalAttribute', predicate: keywords[k], value: row[k]) unless row[k].blank?
+              da = taxon.data_attributes.create(type: 'InternalAttribute', predicate: keywords[k], value: row[k]) unless row[k].blank?
+              byebug unless da.valid?
+            end
+            if taxon.type == 'Combination' && !classification_type[row['CurrStat']].nil?
+              valid = TaxonName.find(taxon.cached_valid_taxon_name_id)
+              taxon = valid
             end
             taxon.taxon_name_classifications.create(type: classification_type[row['CurrStat']]) unless classification_type[row['CurrStat']].nil?
           end
@@ -1001,7 +1029,7 @@ namespace :tw do
             taxon = Protonym.find_or_create_by(name: 'Slime', parent: @root, rank_class: 'NomenclaturalRank::Iczn::HigherClassificationGroup::Kingdom', project_id: $project_id)
           end
           taxon.data_attributes.create(type: 'InternalAttribute', predicate: keywords['SuperFam'], value: row['SuperFam']) if !row['SuperFam'].blank? && !taxon.parent.nil? && taxon.parent.rank_class != 'NomenclaturalRank::Iczn::FamilyGroup::Superfamily' && taxon.data_attributes.nil?
-          taxon.identifiers.find_or_create_by(type: 'Identifier::Local::Import', namespace: @data.keywords['host_family_id'], identifier: row['Code']) if !row['Code'].blank?
+          taxon.identifiers.create(type: 'Identifier::Local::Import', namespace: @data.keywords['host_family_id'], identifier: row['Code']) if !row['Code'].blank?
         end
 
       end
@@ -1236,7 +1264,7 @@ namespace :tw do
 #            name << species.split.last unless species.blank?
 #            name << subspecies.split.last unless subspecies.blank?
 #            name = name.join(' ')
-            taxon = TaxonName.where(cached: name, classified_as: classified_as, project_id: $project_id).first
+#            taxon = TaxonName.where(cached: name, classified_as: classified_as, project_id: $project_id).first
 #            if taxon.nil?
 #              taxon = Combination.new
 #              taxon.genus = TaxonName.find(@data.all_genera_index[genus]) unless genus.blank?
@@ -1252,25 +1280,50 @@ namespace :tw do
             taxon.citations.create(source_id: ref, pages: row['PageRef']) unless ref.nil?
             taxon.citations.create(source_id: ref2, pages: row['PagesB']) unless ref2.nil?
           end
-          if !classification[row['Status']].nil? && !taxon.nil?
-            c = TaxonNameClassification.find_or_create_by(taxon_name: taxon, type: classification[row['Status']])
-            c.citations.create(source_id: ref, pages: row['PageRef']) unless ref.nil?
-            c.citations.create(source_id: ref2, pages: row['PagesB']) unless ref2.nil?
+          if !notes[row['Status']].nil? && !taxon.nil?
+            taxon.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Status'], value: notes[row['Status']])
+          end
+          taxon.notes.create(text: row['Notes'].to_s + ' ' + row['Code'].to_s) if !row['Notes'].blank? && !taxon.nil?
+          if taxon.nil?
+            print "\nInvalid TaxonCode: #{row['TaxonCode']}\n"
+          else
+            if taxon.type = 'Combination'
+              valid = TaxonName.find(taxon.cached_valid_taxon_name_id)
+              taxon = valid
+            end
+          end
+          if !taxon1.nil? && taxon1.type = 'Combination'
+            valid = TaxonName.find(taxon1.cached_valid_taxon_name_id)
+            taxon1 = valid
           end
           if !relationship[row['Status']].nil? && !taxon.nil? && !taxon1.nil?
             if taxon != taxon1
-              c = TaxonNameRelationship.find_or_create_by(subject_taxon_name: taxon, object_taxon_name: taxon1, type: relationship[row['Status']])
-              c.citations.create(source_id: ref, pages: row['PageRef']) unless ref.nil?
-              c.citations.create(source_id: ref2, pages: row['PagesB']) unless ref2.nil?
+              c = TaxonNameRelationship.where(subject_taxon_name: taxon, object_taxon_name: taxon1, type: 'TaxonNameRelationship::Iczn::Invalidating').first
+              if relationship[row['Status']].include?('TaxonNameRelationship::Iczn::Invalidating')
+                c.update_column(:type, relationship[row['Status']])
+              else
+                c = TaxonNameRelationship.find_or_create_by(subject_taxon_name: taxon, object_taxon_name: taxon1, type: relationship[row['Status']])
+              end
+              if c.valid?
+                c.citations.create(source_id: ref, pages: row['PageRef']) unless ref.nil?
+                c.citations.create(source_id: ref2, pages: row['PagesB']) unless ref2.nil?
+              else
+                print "\nInvalid relationship: TaxonCode: #{row['TaxonCode']}, Status: #{row['Status']}, Code: #{row['Code']}\n"
+              end
             else
               taxon.citations.create(source_id: ref, pages: row['PageRef']) unless ref.nil?
               taxon.citations.create(source_id: ref2, pages: row['PagesB']) unless ref2.nil?
             end
           end
-          if !notes[row['Status']].nil? && !taxon.nil?
-            taxon.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Status'], value: notes[row['Status']])
+          if !classification[row['Status']].nil? && !taxon.nil?
+            c = TaxonNameClassification.find_or_create_by(taxon_name: taxon, type: classification[row['Status']])
+            if c.valid?
+              c.citations.create(source_id: ref, pages: row['PageRef']) unless ref.nil?
+              c.citations.create(source_id: ref2, pages: row['PagesB']) unless ref2.nil?
+            else
+              print "\nInvalid status: TaxonCode: #{row['TaxonCode']}, Status: #{row['Status']}, Code: #{row['Code']}\n"
+            end
           end
-          taxon.notes.create(text: row['Notes'].to_s + ' ' + row['Code'].to_s) if !row['Notes'].blank? && !taxon.nil?
         end
       end
 

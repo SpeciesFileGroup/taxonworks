@@ -6,7 +6,7 @@
 #
 class TaxonNameRelationship::SourceClassifiedAs < TaxonNameRelationship
 
-  validates_uniqueness_of :subject_taxon_name_id, scope: :type
+#  validates_uniqueness_of :subject_taxon_name_id, scope: :type
 
   # left_side
   def self.valid_subject_ranks
