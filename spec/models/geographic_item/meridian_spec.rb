@@ -58,6 +58,9 @@ describe GeographicItem, type: :model, group: :geo do
       let(:pre_pos_point) { RSPEC_GEO_FACTORY.point(179.1, 26) }
       let(:pre_neg_point) { RSPEC_GEO_FACTORY.point(-178.1, 26) }
 
+      let(:pre_pos_point_out) { RSPEC_GEO_FACTORY.point(175, 26) }
+      let(:pre_neg_point_out) { RSPEC_GEO_FACTORY.point(-175, 26) }
+
       let(:pre_pos_box_lines) { pre_line_string_f_i }
       let(:pre_neg_box_lines) { RSPEC_GEO_FACTORY.line_string([b, a, d, c]) }
 
@@ -69,8 +72,15 @@ describe GeographicItem, type: :model, group: :geo do
       let(:shape_neg_box) { RSPEC_GEO_FACTORY.polygon(pre_neg_box_lines) }
       let(:neg_box) { FactoryGirl.create(:geographic_item, polygon: shape_neg_box) }
 
+      let(:pos_point_out) { FactoryGirl.create(:geographic_item, point: pre_pos_point_out) }
+      let(:neg_point_out) { FactoryGirl.create(:geographic_item, point: pre_neg_point_out) }
+
       specify 'pos_box contains pos_point' do
         expect(pos_box.contains?(pos_point.geo_object)).to be_truthy
+      end
+
+      specify 'pos_box does not contain pos_point_out' do
+        expect(pos_box.contains?(pos_point_out.geo_object)).to be_falsey
       end
 
       specify 'pos_box contains neg_point' do
@@ -79,6 +89,10 @@ describe GeographicItem, type: :model, group: :geo do
 
       specify 'neg_box contains neg_point' do
         expect(neg_box.contains?(neg_point.geo_object)).to be_truthy
+      end
+
+      specify 'neg_box does not contain neg_point_out' do
+        expect(neg_box.contains?(neg_point_out.geo_object)).to be_falsey
       end
 
       specify 'neg_box contains pos_point' do
@@ -99,6 +113,10 @@ describe GeographicItem, type: :model, group: :geo do
 
       specify 'neg_point is within pos_box' do
         expect(neg_point.within?(pos_box.geo_object)).to be_truthy
+      end
+
+      specify 'pos_point_out is not found in pos_box' do
+
       end
     end
 

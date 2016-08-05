@@ -21,7 +21,7 @@ class Container < ActiveRecord::Base
   include Housekeeping
   include Shared::IsData
   include Shared::Identifiable
-  
+
   include Shared::Containable
 
   include Shared::Taggable
@@ -60,10 +60,10 @@ class Container < ActiveRecord::Base
     container_item.descendants.map(&:contained_object)
   end
 
-  # @return [Array] of CollectionObject#id of this container's CollectionObjects only (no recursion)
-  def collection_objects
-    container_items.containing_collection_objects.map(&:contained_object)
-  end
+  # # @return [Array] of CollectionObject#id of this container's CollectionObjects only (no recursion)
+  # def collection_objects
+  #   container_items.containing_collection_objects.map(&:contained_object)
+  # end
 
   # @return [Array] of CollectionObject#id of this container's CollectionObjects only (with recursion)
   def collection_objects
@@ -98,17 +98,17 @@ class Container < ActiveRecord::Base
    rescue ActiveRecord::RecordInvalid
      return false
    end
-    true 
+    true
   end
 
-  # @return [Boolean] 
+  # @return [Boolean]
   #   regardless whether size is defined, whether there is anything in this container (non-recursive)
   def is_empty?
     !container_items.any?
   end
 
   # @return [Boolean]
-  #   true if size is defined, and there is no space left in this container (non-recursive) 
+  #   true if size is defined, and there is no space left in this container (non-recursive)
   def is_full?
     available_space == 0
   end
@@ -127,7 +127,7 @@ class Container < ActiveRecord::Base
     if size_x
       if size_y
         if size_z
-          size_x * size_y * size_z 
+          size_x * size_y * size_z
         else
           size_x * size_y
         end
@@ -136,7 +136,7 @@ class Container < ActiveRecord::Base
       end
     end
   end
-  
+
   def self.find_for_autocomplete(params)
     Queries::ContainerAutocompleteQuery.new(params[:term], project_id: params[:project_id]).result
   end
@@ -182,8 +182,8 @@ class Container < ActiveRecord::Base
   end
 
   def check_for_contents
-    if container_items.any?  
-      errors.add(:base, 'is not empty, empty it before destroying it') 
+    if container_items.any?
+      errors.add(:base, 'is not empty, empty it before destroying it')
       return false
     end
   end
