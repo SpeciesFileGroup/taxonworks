@@ -3,19 +3,19 @@
 #
 # @!attribute keyword_id
 #   @return [Integer]
-#   @todo
+#      the keyword used in this tag 
 #
 # @!attribute tag_object_id
 #   @return [Integer]
-#   @todo
+#      Rails polymorphic, id of the object being tagged
 #
 # @!attribute tag_object_type
 #   @return [String]
-#   @todo
+#      Rails polymorphic, type of the object being tagged 
 #
 # @!attribute tag_object_attribute
 #   @return [String]
-#   @todo
+#      the specific attribute being referenced with the tag (not required) 
 #
 # @!attribute project_id
 #   @return [Integer]
@@ -23,12 +23,13 @@
 #
 # @!attribute position
 #   @return [Integer]
-#   @todo
+#     acts_as_list sort, scope is tagged object
 #
 class Tag < ActiveRecord::Base
   include Housekeeping
   include Shared::IsData
   include Shared::AttributeAnnotations
+  include Shared::MatrixHooks
 
   acts_as_list scope: [:keyword_id]
 
@@ -74,6 +75,13 @@ class Tag < ActiveRecord::Base
         }
       end
     end
+  end
+
+  # @return [MatrixColumnItem instance, false]
+  #   the object corresponding to the keyword used in this tag if it exists
+  def matrix_column_item
+    i = MatrixColumnItem::TaggedDescriptor.where(controlled_vocabulary_term_id: keyword_id).limit(1)
+    i.first if i.any?
   end
 
   protected
