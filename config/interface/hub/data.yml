@@ -150,6 +150,13 @@ Supporting:
       - Matrix
       - Descriptor
     status: :prototype
+  MatrixColumnItem: 
+    categories: 
+      - matrix
+    related_models: 
+      - Matrix
+      - Descriptor
+    status: :prototype
   OtuPageLayout:
     related_models:
       - ControlledVocabularyTerm

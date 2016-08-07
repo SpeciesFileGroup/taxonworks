@@ -1,0 +1,23 @@
+<%= render("/shared/data/all/list/list_header", objects: @matrix_column_items) -%>
+
+<table class="tablesorter">
+  <thead>
+  <tr>
+    <%= fancy_th_tag(name: 'Name') -%>
+    <%= fancy_th_tag(name: 'Type') -%>
+    <%= fancy_th_tag(name: 'Descriptor') -%>
+  </tr>
+  </thead>
+
+  <tbody>
+  <% @matrix_column_items.each do |matrix_column_item| %>
+      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+          <td><%= matrix_tag(matrix_column_item.matrix) %></td>
+          <td><%= matrix_column_item.type %></td>
+          <td><%= descriptor_tag(matrix_column_item.descriptor) %></td>
+          <%= fancy_metadata_cells_tag(matrix_column_item) -%>
+      <% end %>
+  <% end %>
+  </tbody>
+</table>
+
