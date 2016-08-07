@@ -28,12 +28,29 @@ $(document).ready(function() {
 			}
 		});   
 
+
 		function resetStatusFilter(element) {
 			element.setFilterStatus("data-category-prototype",false);
 			element.setFilterStatus("data-category-unknown",false);
 			element.setFilterStatus("data-category-stable",false);
 			element.setFilterStatus("data-category-complete",false);                  
 		}
+
+		$('#filter .switch input').on('click', function() {
+			if(!$(this).is(':checked')) {
+				resetStatusFilter(favoritesTask);
+				resetStatusFilter(favoritesData);
+				favoritesData.filterChilds();
+				favoritesTask.refresh();
+			}
+		});  
+
+
+		$('#filter .filter-category [data-filter-category]').on('click', function() {
+			if($(this).hasClass("activated")) {
+				resetStatusFilter();
+			}
+		}); 		
 
 		$('#filter .filter-category [data-filter-category]').on('click', function() {
 			if(!$(this).hasClass("activated")) {

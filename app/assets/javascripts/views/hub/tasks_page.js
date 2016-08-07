@@ -37,6 +37,19 @@ function initTaskCarrousel() {
       task.setFilterStatus("data-category-complete",false);                     
   }
 
+  function updateFilter() {
+      task.filterChilds(); 
+      task.refresh();
+  }
+
+  $('#filter .switch input').on('click', function() {
+    if(!$(this).is(':checked')) {
+      resetStatusFilter();
+      updateFilter();
+    }
+  });  
+
+
   $('#filter .filter-category [data-filter-category]').on('click', function() {
     if($(this).hasClass("activated")) {
       resetStatusFilter();
