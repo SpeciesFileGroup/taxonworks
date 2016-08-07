@@ -12,7 +12,7 @@ function initFilterBar() {
   $('[data-filter-category="biology"]').prepend('<img src="<%= asset_path("biology.svg") %>"/>'); 
 
   function deactivateBackgroundColorLink(selector) {
-  $(selector).removeClass("activated");
+    $(selector).removeClass("activated");
   }
 
   function activateBackgroundColorLink(selector) {
@@ -25,18 +25,63 @@ function initFilterBar() {
     }
     else {
       activateBackgroundColorLink(selector);
-      }
+    }
   }
-   $('#filter [data-filter-category]').on('click', function() {
+  $('#filter [data-filter-category]').on('click', function() {
     changeBackgroundColorLink('[data-filter-category="'+ $(this).attr("data-filter-category") +'"]');
-   }); 
-
-  $('#filter [data-filter-category="reset"]').on('click', function() {
-      deactivateBackgroundColorLink('[data-filter-category]');
   }); 
 
+  $('#filter .filter-category [data-filter-category]').on('click', function() {
+    var hasClass = $(this).hasClass("activated");
+    deactivateBackgroundColorLink('.filter-category [data-filter-category]');
+    if(hasClass) {
+      activateBackgroundColorLink('[data-filter-category="'+ $(this).attr("data-filter-category") +'"]');      
+    }
+  }); 
+
+
+  //Add classes for cards when the filter status is active
+  $('#filter .switch input').on('click', function() {
+    if($(this).is(':checked')) {
+      $('.filter-category').css('display','flex');
+      $('.filter-category').hide();
+      $('.filter-category').fadeIn(250);
+    }
+    else {
+      $('.filter-category').fadeOut(250);
+    }
+
+    if(!$(this).data('switch')) {
+      $('.filter_data').each(function() {
+        if($(this).children().length > 0) {
+          $(this).addClass("categories");
+        }
+        else {
+          $(this).addClass("status");
+        }
+      })
+      $(this).data('switch',true)
+    }
+    else {
+      $('.filter_data').each(function() {
+        if($(this).children().length > 0) {
+          $(this).removeClass("categories");
+        }
+        else {
+          $(this).removeClass("status");
+        }
+      })      
+      $(this).data('switch',false)
+    }
+  }); 
+
+
+  $('#filter [data-filter-category="reset"]').on('click', function() {
+    deactivateBackgroundColorLink('[data-filter-category]');
+  });     
+
   $('.reset-all-filters').on('click', function() {
-      deactivateBackgroundColorLink('[data-filter-category]');
+    deactivateBackgroundColorLink('[data-filter-category]');
   }); 
 
 }

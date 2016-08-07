@@ -32,9 +32,7 @@ var CarrouselData = function (sec, rows, columns) {
 	};
 
 	CarrouselData.prototype.resetFilters = function() {
-		for (var key in this.filters) {
-			this.filters[key] = false
-		}		
+		this.filters = {};
 		this.filterChilds();
 	};
 
@@ -94,7 +92,7 @@ var CarrouselData = function (sec, rows, columns) {
 
 		for (let i = 1; i <= this.maxRow; i++) {
 			child = $('.data_section[data-section="' + this.sectionTag + '"] > .cards-section > .card-container:nth-child('+ (i) +')');
-			if(this.checkChildFilter(child.children().children(".categories"))) {
+			if(this.checkChildFilter(child.children().children(".filter_data"))) {
 				child.show(250);
 				find++;
 			}

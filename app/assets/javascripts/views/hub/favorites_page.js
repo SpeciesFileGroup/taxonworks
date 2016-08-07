@@ -4,9 +4,9 @@ $(document).ready(function() {
 		favoritesTask = new CarrouselTask("#task_carrousel",99,1);
 		favoritesTask.filterChilds();
 		favoritesTask.resetView();
-    	favoritesTask.filterChilds();
-    	favoritesTask.showChilds();   
-    	favoritesData = new CarrouselData("Favorites-Task",10,2);
+		favoritesTask.filterChilds();
+		favoritesTask.showChilds();   
+		favoritesData = new CarrouselData("Favorites-Task",10,2);
 		favoritesData = new CarrouselData("Favorites-Data",10,1);
 		favoritesData.filterChilds();
 		$('.data_card').mousedown(function(event) {
@@ -14,16 +14,6 @@ $(document).ready(function() {
 				location.href = $(this).children("a").attr('href');
 			}
 		}); 
-
-		[favoritesTask, favoritesData].forEach(function(element) {
-			element.addFilter("data-category-collecting_event");
-			element.addFilter("data-category-Taxon_name");
-			element.addFilter("data-category-source");
-			element.addFilter("data-category-collection_object");
-			element.addFilter("data-category-biology");
-			element.filterChilds();
-
-		});
 
 		function resetFilters() {
 			[favoritesTask, favoritesData].forEach(function(element) {
@@ -36,7 +26,21 @@ $(document).ready(function() {
 			if((event.which) == 1) {
 				location.href = $(this).children("a").attr('href');
 			}
-		});    
+		});   
+
+		function resetStatusFilter(element) {
+			element.setFilterStatus("data-category-prototype",false);
+			element.setFilterStatus("data-category-unknown",false);
+			element.setFilterStatus("data-category-stable",false);
+			element.setFilterStatus("data-category-complete",false);                  
+		}
+
+		$('#filter .filter-category [data-filter-category]').on('click', function() {
+			if(!$(this).hasClass("activated")) {
+				resetStatusFilter(favoritesData);
+				resetStatusFilter(favoritesTask);
+			}
+		});  		 
 
 		$('#filter [data-filter-category]').on('click', function() {
 			var

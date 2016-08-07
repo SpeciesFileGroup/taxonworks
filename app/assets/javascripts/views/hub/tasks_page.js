@@ -17,13 +17,8 @@ function initTaskCarrousel() {
   task = new CarrouselTask("#task_carrousel", task_column, task_column);
   restartCarrouselTask(task);
 
-  function restartCarrouselTask(element) {
-    element.addFilter("data-category-collecting_event");
-    element.addFilter("data-category-Taxon_name");
-    element.addFilter("data-category-source");
-    element.addFilter("data-category-collection_object");
-    element.addFilter("data-category-biology");  
-    task.resetFilters();
+  function restartCarrouselTask(element) {  
+    element.resetFilters();
   }
 
   function resetFilters() {
@@ -34,6 +29,19 @@ function initTaskCarrousel() {
   $('.reset-all-filters').on('click', function() {
     resetFilters(); 
   });
+
+  function resetStatusFilter() {
+      task.setFilterStatus("data-category-prototype",false);
+      task.setFilterStatus("data-category-unknown",false);
+      task.setFilterStatus("data-category-stable",false);
+      task.setFilterStatus("data-category-complete",false);                     
+  }
+
+  $('#filter .filter-category [data-filter-category]').on('click', function() {
+    if($(this).hasClass("activated")) {
+      resetStatusFilter();
+    }
+  }); 
 
   $('#filter').on('click', '[data-filter-category]', function() {
     if($(this).attr("data-filter-category") == "reset") {
@@ -49,6 +57,7 @@ function initTaskCarrousel() {
       $('.reset-all-filters').fadeOut(0);
     }    
   });
+  
 
   $('.navigation').on('click', 'a', function() {
     if($(this).attr('data-arrow') == "down") {

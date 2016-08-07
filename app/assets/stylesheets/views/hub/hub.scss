@@ -93,44 +93,6 @@
     }
   }  
 
-#filter {
-  margin-top: $standard_margin;
-  font-weight: 100;
-
-  .activated {
-    background-color: $color-complement-2 !important;
-    box-shadow:inset 0px 1px 2px 0px $color-complement-3 !important;
-  } 
-  img {
-    padding-right: 5px;
-    opacity: 0.8;
-  }
-
-  .flexbox {
-    display: flex;
-    justify-content:space-between;
-    width: 1040px;
-
-    .item2 {
-      display: flex;
-      width: 100%;
-      min-width: 450px;
-    }
-
-    .item { 
-      flex-direction:column;
-    }
-  }
-
-  .filter-category {
-    display: flex;
-    margin-left: $standard_margin*0.5;
-    width: 80px;
-    justify-content: space-around;
-    cursor: pointer;
-  }
-}
-
   #navigation_list {
     display: flex;
     justify-content:flex-start;

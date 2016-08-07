@@ -75,7 +75,7 @@
       width: 14px;
       margin-left:5px;
     }
-    .box-status {
+    .filter_data {
       opacity: 1;
     }
   }
@@ -112,27 +112,33 @@
     border-left:4px solid $color-primary-4;
   }
 
-  .categories {
+  .filter_data {
+    opacity: 0.5;
     display: flex;
     flex-direction:row;
-    img {
-      opacity: 0.5;
+    transition: opacity 0.5s ease;
+    svg {
       width: 14px;
+      height: 14px;
       margin-left:5px;
     }
-  }  
-
-  .box-status {
-    opacity: 0.5;
-    right:15px;
-    top:0px;
-    width: 10px;
-    height: 10px;
-    border-radius: 0px;
-    border-bottom-right-radius: 50%;
-    border-bottom-left-radius: 50%;
-    position: absolute;
   }
+
+  .categories.unknown {
+    color: #bbbbbb;
+  }
+
+  .categories.stable {
+    color: #fdbd41;
+  }    
+
+  .categories.prototype {   
+    color: #fc615d;
+  }   
+
+  .categories.complete {
+    color: #35c94a;
+  }  
 
   @media screen and (min-width: 1339px) {
     .data_section {
