@@ -42,6 +42,7 @@
     padding-left: $standard_padding * 0.25;
     padding-right: $standard_padding * 0.25;
     margin-bottom: $standard_margin * 0.25;
+    margin-left: 90px;
     border:1px solid $navigation_border;
     background-color: $color-secondary-2-1;
     box-shadow:inset 0px 1px 5px 0px $navigation_border; 
@@ -76,7 +77,8 @@
     transition: .4s;
   }
 
-  .slider:after {
+  .status-name {
+    text-transform:capitalize;
     font-size: 12px;
     left:40px;
     top: -1px;
@@ -96,17 +98,15 @@
     background-color: $color-secondary-2-1;
   }
 
+  .prototype .activated.slider:after  {
+    content:"asdfasfs";
+  }
+
   input:checked ~ .filter-category {
     display: flex;
   }
 
-  input:checked + .slider {
-    //background-color: #2196F3;
-  }
 
-  input:checked + .slider:after {
-    display: none;
-  }  
 
   input:checked + .slider:before {
     transform: translateX(16px);

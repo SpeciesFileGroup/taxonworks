@@ -35,6 +35,9 @@ function initFilterBar() {
     var hasClass = $(this).hasClass("activated");
     deactivateBackgroundColorLink('.filter-category [data-filter-category]');
     if(hasClass) {
+      $('.status-name').text($(this).data("filter-category"));
+      $('.status-name').css("box-shadow", "inset 0px 0px 3px 0px " + $(this).css("background-color"));
+      $('.status-name').css("opacity", 0.8);
       activateBackgroundColorLink('[data-filter-category="'+ $(this).attr("data-filter-category") +'"]');      
     }
   }); 
@@ -46,12 +49,6 @@ function initFilterBar() {
       $('.filter-category').css('display','flex');
       $('.filter-category').hide();
       $('.filter-category').fadeIn(250);
-    }
-    else {
-      $('.filter-category').fadeOut(250);
-    }
-
-    if(!$(this).data('switch')) {
       $('.filter_data').each(function() {
         if($(this).children().length > 0) {
           $(this).addClass("categories");
@@ -59,28 +56,30 @@ function initFilterBar() {
         else {
           $(this).addClass("status");
         }
-      })
-      $(this).data('switch',true)
+      });      
     }
     else {
+      $('.filter-category').fadeOut(250);
       $('.filter_data').each(function() {
-        if($(this).children().length > 0) {
-          $(this).removeClass("categories");
-        }
-        else {
-          $(this).removeClass("status");
-        }
-      })      
-      $(this).data('switch',false)
+        $(this).removeClass("categories");
+        $(this).removeClass("status");
+      });       
     }
   }); 
 
+  function restartFilterStatus() {
+      $('.status-name').css("box-shadow","inset 0px 1px 5px 0px #e5e5e5");
+      $('.status-name').css("background-color", "#FCFCFC");
+      $('.status-name').text("Status");
+  }
 
   $('#filter [data-filter-category="reset"]').on('click', function() {
+    restartFilterStatus();   
     deactivateBackgroundColorLink('[data-filter-category]');
   });     
 
   $('.reset-all-filters').on('click', function() {
+    restartFilterStatus();  
     deactivateBackgroundColorLink('[data-filter-category]');
   }); 
 

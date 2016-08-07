@@ -80,7 +80,6 @@ var CarrouselData = function (sec, rows, columns) {
 
 	CarrouselData.prototype.setFilterStatus = function(filterTag, value)	{
 		this.filters[filterTag] = value;
-		this.filterChilds();
 	};
 
 	CarrouselData.prototype.filterChilds = function() {
