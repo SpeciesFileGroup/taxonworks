@@ -79,6 +79,7 @@
   }
 
   .status-name {
+    z-index: 2;
     text-transform:capitalize;
     font-size: $font_small;
     left:40px;

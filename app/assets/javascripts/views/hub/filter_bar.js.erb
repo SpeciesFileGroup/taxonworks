@@ -64,8 +64,8 @@ function initFilterBar() {
     else {
       restartFilterStatus();
       deactivateBackgroundColorLink('.filter-category [data-filter-category]');
-      $('.filter-category').hide("slide", { direction: "left" }, 250);
-      $('.filter-category').fadeOut(250);
+      $('.filter-category').hide("slide", { direction: "left" }, 500);
+
       $('.filter_data').each(function() {
         $(this).removeClass("categories");
         $(this).removeClass("status");
