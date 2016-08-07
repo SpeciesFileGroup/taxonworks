@@ -35,6 +35,20 @@ function initDataCardsPage() {
     });    
   }
 
+  function updateFilter() {
+    [core, supporting, annotations].forEach(function(element) {
+      element.filterChilds();
+    });      
+  }
+
+  $('#filter .switch input').on('click', function() {
+
+    if(!$(this).is(':checked')) {
+      resetStatusFilter();
+      updateFilter()
+    }
+  });  
+
   $('#filter .filter-category [data-filter-category]').on('click', function() {
     if(!$(this).hasClass("activated")) {
       resetStatusFilter();      

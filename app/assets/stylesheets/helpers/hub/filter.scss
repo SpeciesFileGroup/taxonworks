@@ -80,7 +80,7 @@
 
   .status-name {
     text-transform:capitalize;
-    font-size: $font_normal;
+    font-size: $font_small;
     left:40px;
     top: -1px;
     display: flex;
@@ -104,7 +104,7 @@
 
   input:checked + .slider:before {
     transform: translateX(16px);
-    background-color: #444;
+    background-color: $color-complement-2;
   }
 
   .switch {
