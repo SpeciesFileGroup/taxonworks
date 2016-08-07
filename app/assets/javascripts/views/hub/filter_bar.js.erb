@@ -36,8 +36,7 @@ function initFilterBar() {
     deactivateBackgroundColorLink('.filter-category [data-filter-category]');
     if(hasClass) {
       $('.status-name').text($(this).data("filter-category"));
-      $('.status-name').css("box-shadow", "inset 0px 0px 3px 0px " + $(this).css("background-color"));
-      $('.status-name').css("opacity", 0.8);
+      $('.status-name').css("color", $(this).css("background-color"));
       activateBackgroundColorLink('[data-filter-category="'+ $(this).attr("data-filter-category") +'"]');      
     }
   }); 
@@ -48,6 +47,7 @@ function initFilterBar() {
     if($(this).is(':checked')) {
       $('.filter-category').css('display','flex');
       $('.filter-category').hide();
+      $('.filter-category').show("slide", { direction: "right" }, 250);
       $('.filter-category').fadeIn(250);
       $('.filter_data').each(function() {
         if($(this).children().length > 0) {
@@ -59,6 +59,7 @@ function initFilterBar() {
       });      
     }
     else {
+      $('.filter-category').hide("slide", { direction: "right" }, 250);
       $('.filter-category').fadeOut(250);
       $('.filter_data').each(function() {
         $(this).removeClass("categories");
@@ -68,8 +69,7 @@ function initFilterBar() {
   }); 
 
   function restartFilterStatus() {
-      $('.status-name').css("box-shadow","inset 0px 1px 5px 0px #e5e5e5");
-      $('.status-name').css("background-color", "#FCFCFC");
+      $('.status-name').css("color", "#444");
       $('.status-name').text("Status");
   }
 

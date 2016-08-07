@@ -1,5 +1,6 @@
 @import 'base/palette';   
-@import 'base/whitespace';    
+@import 'base/whitespace'; 
+@import 'base/fonts';    
 
 
 #filter {
@@ -79,13 +80,12 @@
 
   .status-name {
     text-transform:capitalize;
-    font-size: 12px;
+    font-size: $font_normal;
     left:40px;
     top: -1px;
     display: flex;
     align-items: center;
     position: absolute;
-    content:"Status";
     background-color: $navigation_background;
     width: 90px;
     height: 24px;    
@@ -93,20 +93,14 @@
     border-radius: 3px;
     border-bottom-left-radius: 0px;
     border-top-left-radius: 0px;  
-    box-shadow:inset 0px 1px 5px 0px $navigation_border;  
+    box-shadow: 0px 1px 3px 0px $navigation_border;  
     border:1px solid $navigation_border;
     background-color: $color-secondary-2-1;
-  }
-
-  .prototype .activated.slider:after  {
-    content:"asdfasfs";
   }
 
   input:checked ~ .filter-category {
     display: flex;
   }
-
-
 
   input:checked + .slider:before {
     transform: translateX(16px);
@@ -127,7 +121,7 @@
     border:1px solid $navigation_border;
     border-right: 0px;    
     background-color: $navigation_background;
-    box-shadow:inset 0px 1px 5px 0px $navigation_border;
+    box-shadow: 0px 1px 3px 0px $navigation_border;
   }  
 }
 
