@@ -1,0 +1,50 @@
+<%= form_for(@matrix_column_item.metamorphosize) do |f| %>
+  <%= render 'shared/errors', object: @matrix_column_item %>
+
+  <div class="field">
+    <%= f.label :type %><br>
+    <%= f.text_field :type %>
+  </div>
+
+  <div class="field">
+    <%= f.label :matrix %>
+    <br>
+    <%= render :partial => 'workbench/elements/forms/ajax_select',
+      locals:  {controller: 'matrices',
+                object:     'matrix_column_item',
+                method:     'matrix_id',
+                tag_id:     'matrix_id_for_matrix_column)item',
+                size:       '50%',
+                display:    object_tag(@matrix_column_item.matrix)} %>
+  </div>
+
+  <div class="field">
+    <%= f.label :descriptor %>
+    <br>
+    <%= render :partial => 'workbench/elements/forms/ajax_select',
+      locals:  {controller: 'descriptors',
+                object:     'matrix_column_item',
+                method:     'descriptor_id',
+                tag_id:     'descriptor_id_for_matrix_column_item',
+                size:       '50%',
+                display:    object_tag(@matrix_column_item.descriptor)} %>
+  </div>
+
+ 
+   <div class="field">
+    <%= f.label :controlled_vocabulary_term, 'Keyword' %>
+    <br>
+    <%= render :partial => 'workbench/elements/forms/ajax_select',
+      locals:  {controller: 'keywords',
+                object:     'matrix_column_item',
+                method:     'controlled_vocabulary_term_id',
+                tag_id:     'controlled_vocabulary_term_id_for_matrix_column_item',
+                size:       '50%',
+                display:    object_tag(@matrix_column_item.controlled_vocabulary_term)} %>
+    </div>
+  
+  
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>
