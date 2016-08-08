@@ -1,0 +1,119 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Descriptor:</strong>
+  <%= @observation.descriptor %>
+</p>
+
+<p>
+  <strong>Otu:</strong>
+  <%= @observation.otu %>
+</p>
+
+<p>
+  <strong>Collection object:</strong>
+  <%= @observation.collection_object %>
+</p>
+
+<p>
+  <strong>Character state:</strong>
+  <%= @observation.character_state %>
+</p>
+
+<p>
+  <strong>Frequency:</strong>
+  <%= @observation.frequency %>
+</p>
+
+<p>
+  <strong>Continuous value:</strong>
+  <%= @observation.continuous_value %>
+</p>
+
+<p>
+  <strong>Continuous unit:</strong>
+  <%= @observation.continuous_unit %>
+</p>
+
+<p>
+  <strong>Sample n:</strong>
+  <%= @observation.sample_n %>
+</p>
+
+<p>
+  <strong>Sample min:</strong>
+  <%= @observation.sample_min %>
+</p>
+
+<p>
+  <strong>Sample max:</strong>
+  <%= @observation.sample_max %>
+</p>
+
+<p>
+  <strong>Sample median:</strong>
+  <%= @observation.sample_median %>
+</p>
+
+<p>
+  <strong>Sample mean:</strong>
+  <%= @observation.sample_mean %>
+</p>
+
+<p>
+  <strong>Sample units:</strong>
+  <%= @observation.sample_units %>
+</p>
+
+<p>
+  <strong>Sample:</strong>
+  <%= @observation.sample %>
+</p>
+
+<p>
+  <strong>Sample standard error:</strong>
+  <%= @observation.sample_standard_error %>
+</p>
+
+<p>
+  <strong>Presence:</strong>
+  <%= @observation.presence %>
+</p>
+
+<p>
+  <strong>Description:</strong>
+  <%= @observation.description %>
+</p>
+
+<p>
+  <strong>Cached:</strong>
+  <%= @observation.cached %>
+</p>
+
+<p>
+  <strong>Cached column label:</strong>
+  <%= @observation.cached_column_label %>
+</p>
+
+<p>
+  <strong>Cached row label:</strong>
+  <%= @observation.cached_row_label %>
+</p>
+
+<p>
+  <strong>Created by:</strong>
+  <%= @observation.created_by_id %>
+</p>
+
+<p>
+  <strong>Updated by:</strong>
+  <%= @observation.updated_by_id %>
+</p>
+
+<p>
+  <strong>Project:</strong>
+  <%= @observation.project %>
+</p>
+
+<%= link_to 'Edit', edit_observation_path(@observation) %> |
+<%= link_to 'Back', observations_path %>

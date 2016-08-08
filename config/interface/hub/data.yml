@@ -205,6 +205,12 @@ Supporting:
       - Matrix
       - Descriptor
     status: :prototype
+  Observation:
+    categories: 
+      - matrix
+    related_models:
+      - Descriptor
+      - Matrix
   OtuPageLayout:
     status: :prototype
     related_models:

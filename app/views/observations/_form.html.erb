@@ -1,0 +1,105 @@
+<%= form_for(@observation) do |f| %>
+  <% if @observation.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@observation.errors.count, "error") %> prohibited this observation from being saved:</h2>
+
+      <ul>
+      <% @observation.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :descriptor_id %><br>
+    <%= f.text_field :descriptor_id %>
+  </div>
+  <div class="field">
+    <%= f.label :otu_id %><br>
+    <%= f.text_field :otu_id %>
+  </div>
+  <div class="field">
+    <%= f.label :collection_object_id %><br>
+    <%= f.text_field :collection_object_id %>
+  </div>
+  <div class="field">
+    <%= f.label :character_state_id %><br>
+    <%= f.text_field :character_state_id %>
+  </div>
+  <div class="field">
+    <%= f.label :frequency %><br>
+    <%= f.text_field :frequency %>
+  </div>
+  <div class="field">
+    <%= f.label :continuous_value %><br>
+    <%= f.text_field :continuous_value %>
+  </div>
+  <div class="field">
+    <%= f.label :continuous_unit %><br>
+    <%= f.text_field :continuous_unit %>
+  </div>
+  <div class="field">
+    <%= f.label :sample_n %><br>
+    <%= f.number_field :sample_n %>
+  </div>
+  <div class="field">
+    <%= f.label :sample_min %><br>
+    <%= f.text_field :sample_min %>
+  </div>
+  <div class="field">
+    <%= f.label :sample_max %><br>
+    <%= f.text_field :sample_max %>
+  </div>
+  <div class="field">
+    <%= f.label :sample_median %><br>
+    <%= f.text_field :sample_median %>
+  </div>
+  <div class="field">
+    <%= f.label :sample_mean %><br>
+    <%= f.text_field :sample_mean %>
+  </div>
+  <div class="field">
+    <%= f.label :sample_units %><br>
+    <%= f.text_field :sample_units %>
+  </div>
+  <div class="field">
+    <%= f.label :sample_standard_error %><br>
+    <%= f.text_field :sample_standard_error %>
+  </div>
+  <div class="field">
+    <%= f.label :presence %><br>
+    <%= f.check_box :presence %>
+  </div>
+  <div class="field">
+    <%= f.label :description %><br>
+    <%= f.text_area :description %>
+  </div>
+  <div class="field">
+    <%= f.label :cached %><br>
+    <%= f.text_field :cached %>
+  </div>
+  <div class="field">
+    <%= f.label :cached_column_label %><br>
+    <%= f.text_field :cached_column_label %>
+  </div>
+  <div class="field">
+    <%= f.label :cached_row_label %><br>
+    <%= f.text_field :cached_row_label %>
+  </div>
+  <div class="field">
+    <%= f.label :created_by_id %><br>
+    <%= f.number_field :created_by_id %>
+  </div>
+  <div class="field">
+    <%= f.label :updated_by_id %><br>
+    <%= f.number_field :updated_by_id %>
+  </div>
+  <div class="field">
+    <%= f.label :project_id %><br>
+    <%= f.text_field :project_id %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>
