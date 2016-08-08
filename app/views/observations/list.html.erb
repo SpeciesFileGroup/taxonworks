@@ -1,0 +1,60 @@
+<%= render("/shared/data/all/list/list_header", objects: @observations) -%>
+
+<table class="tablesorter">
+  <thead>
+  <tr>
+    <%= fancy_th_tag(name: 'Descriptor') -%>
+    <%= fancy_th_tag(name: 'Otu') -%>
+    <%= fancy_th_tag(name: 'Collection object') -%>
+    <%= fancy_th_tag(name: 'Character state') -%>
+    <%= fancy_th_tag(name: 'Frequency') -%>
+
+    <%= fancy_th_tag(name: 'Continuous value') -%>
+    <%= fancy_th_tag(name: 'Continuous unit') -%>
+    
+    <%= fancy_th_tag(name: 'Sample n') -%>
+    <%= fancy_th_tag(name: 'Sample min') -%>
+    <%= fancy_th_tag(name: 'Sample max') -%>
+    <%= fancy_th_tag(name: 'Sample median') -%>
+    <%= fancy_th_tag(name: 'Sample mean') -%>
+    <%= fancy_th_tag(name: 'Sample units') -%>
+    <%= fancy_th_tag(name: 'Sample standard deviation') -%>
+
+    <%= fancy_th_tag(name: 'Presence / absence') -%>
+    <%= fancy_th_tag(name: 'Description') -%>
+
+    <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
+    <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
+  </tr>
+  </thead>
+
+  <tbody>
+  <% @observations.each do |observation| %>
+      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+          <td><%= otu.name %></td>
+          <td><%= taxon_name_link(otu.taxon_name) %></td>
+
+          <td><%= otu_tag(observation.otu) %></td>
+          <td><%= collection_object_tag(observation.collection_object) %></td>
+          <td><%= observation.character_state %>TODO: UPDATE ME</td>
+          <td><%= observation.frequency %></td>
+          <td><%= observation.continuous_value %></td>
+          <td><%= observation.continuous_unit %></td>
+          <td><%= observation.sample_n %></td>
+          <td><%= observation.sample_min %></td>
+          <td><%= observation.sample_max %></td>
+          <td><%= observation.sample_median %></td>
+          <td><%= observation.sample_mean %></td>
+          <td><%= observation.sample_units %></td>
+          <td><%= observation.sample %></td>
+          <td><%= observation.sample_standard_error %></td>
+          <td><%= observation.presence %></td>
+          <td><%= observation.description %></td>
+
+          <%= fancy_metadata_cells_tag(otu) -%>
+        <% end %>
+  <% end %>
+  </tbody>
+</table>
+
+
