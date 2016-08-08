@@ -12,6 +12,7 @@ branches:
       - travis-trusty-beta
 addons:
   postgresql: "9.4"
+  firefox: latest
   apt:
     packages:
       - libgeos-dev
