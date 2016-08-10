@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160804185715) do
+ActiveRecord::Schema.define(version: 20160805183537) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -796,15 +796,35 @@ ActiveRecord::Schema.define(version: 20160804185715) do
   add_index "matrices", ["project_id"], name: "index_matrices_on_project_id", using: :btree
   add_index "matrices", ["updated_by_id"], name: "index_matrices_on_updated_by_id", using: :btree
 
+  create_table "matrix_column_items", force: :cascade do |t|
+    t.integer  "matrix_id",                     null: false
+    t.string   "type",                          null: false
+    t.integer  "descriptor_id"
+    t.integer  "controlled_vocabulary_term_id"
+    t.integer  "created_by_id",                 null: false
+    t.integer  "updated_by_id",                 null: false
+    t.integer  "project_id",                    null: false
+    t.datetime "created_at",                    null: false
+    t.datetime "updated_at",                    null: false
+  end
+
+  add_index "matrix_column_items", ["controlled_vocabulary_term_id"], name: "index_matrix_column_items_on_controlled_vocabulary_term_id", using: :btree
+  add_index "matrix_column_items", ["created_by_id"], name: "index_matrix_column_items_on_created_by_id", using: :btree
+  add_index "matrix_column_items", ["descriptor_id"], name: "index_matrix_column_items_on_descriptor_id", using: :btree
+  add_index "matrix_column_items", ["matrix_id"], name: "index_matrix_column_items_on_matrix_id", using: :btree
+  add_index "matrix_column_items", ["project_id"], name: "index_matrix_column_items_on_project_id", using: :btree
+  add_index "matrix_column_items", ["updated_by_id"], name: "index_matrix_column_items_on_updated_by_id", using: :btree
+
   create_table "matrix_columns", force: :cascade do |t|
-    t.integer  "matrix_id",     null: false
-    t.integer  "descriptor_id", null: false
+    t.integer  "matrix_id",       null: false
+    t.integer  "descriptor_id",   null: false
     t.integer  "position"
-    t.integer  "created_by_id", null: false
-    t.integer  "updated_by_id", null: false
-    t.integer  "project_id",    null: false
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
+    t.integer  "created_by_id",   null: false
+    t.integer  "updated_by_id",   null: false
+    t.integer  "project_id",      null: false
+    t.datetime "created_at",      null: false
+    t.datetime "updated_at",      null: false
+    t.integer  "reference_count"
   end
 
   add_index "matrix_columns", ["created_by_id"], name: "index_matrix_columns_on_created_by_id", using: :btree
@@ -1549,6 +1569,12 @@ ActiveRecord::Schema.define(version: 20160804185715) do
   add_foreign_key "matrices", "projects"
   add_foreign_key "matrices", "users", column: "created_by_id"
   add_foreign_key "matrices", "users", column: "updated_by_id"
+  add_foreign_key "matrix_column_items", "controlled_vocabulary_terms"
+  add_foreign_key "matrix_column_items", "descriptors"
+  add_foreign_key "matrix_column_items", "matrices"
+  add_foreign_key "matrix_column_items", "projects"
+  add_foreign_key "matrix_column_items", "users", column: "created_by_id"
+  add_foreign_key "matrix_column_items", "users", column: "updated_by_id"
   add_foreign_key "matrix_columns", "descriptors"
   add_foreign_key "matrix_columns", "matrices"
   add_foreign_key "matrix_columns", "projects"
@@ -1558,6 +1584,8 @@ ActiveRecord::Schema.define(version: 20160804185715) do
   add_foreign_key "matrix_rows", "matrices"
   add_foreign_key "matrix_rows", "otus"
   add_foreign_key "matrix_rows", "projects"
+  add_foreign_key "matrix_rows", "users", column: "created_by_id"
+  add_foreign_key "matrix_rows", "users", column: "updated_by_id"
   add_foreign_key "namespaces", "users", column: "created_by_id", name: "namespaces_created_by_id_fkey"
   add_foreign_key "namespaces", "users", column: "updated_by_id", name: "namespaces_updated_by_id_fkey"
   add_foreign_key "notes", "projects", name: "notes_project_id_fkey"

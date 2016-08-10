@@ -38,13 +38,17 @@ var CarrouselTask = function (sec, rows, columns) {
     return this.isEmpty;
   };
 
+  CarrouselTask.prototype.refresh = function() {
+    this.resetView();
+    this.filterChilds();
+    this.showChilds(); 
+  };  
+
   CarrouselTask.prototype.resetFilters = function() {
     for (var key in this.filters) {
       this.filters[key] = false
     }   
-    this.resetView();
-    this.filterChilds();
-    this.showChilds();    
+    this.refresh();    
   };
 
   CarrouselTask.prototype.injectNavList = function() {
@@ -101,7 +105,6 @@ var CarrouselTask = function (sec, rows, columns) {
 
   CarrouselTask.prototype.setFilterStatus = function(filterTag, value)  {
     this.filters[filterTag] = value;
-    this.filterChilds();
   };
 
   CarrouselTask.prototype.changeFilter = function(filterTag)  {

@@ -8,7 +8,7 @@ module HubHelper
         } +
         content_tag(:div, '', class: 'task-header-right') {
           task.categories.collect{|c| 
-            content_tag(:div, c.humanize, class: "categories #{c}", "data-category-#{c}" => "true" ) # @josé icon injected in here, switch div to img tag.
+            content_tag(:div, c.humanize, class: "categories #{c}", "data-category-#{c}" => "true", "data-category-#{task.status}" => "true" )
           }.join().html_safe +
           favorite_page_link('tasks', task.prefix) 
         } 
@@ -25,7 +25,7 @@ module HubHelper
   def data_card(data)
     content_tag(:div, class:  ['data_card', data.shared_css, data.application_css].flatten.join(' ')) do  
       content_tag(:div, "", 
-                  data.categories.inject({}){|hsh,c| hsh.merge!("data-category-#{c}" => "true") }.merge( class: "status #{data.status}") 
+                  data.categories.inject({}){|hsh,c| hsh.merge!("data-category-#{c}" => "true") }.merge(class: [:filter_data, "#{data.status}"], "data-category-#{data.status}" => "true")
                  ) + 
         data_link(data) 
     end

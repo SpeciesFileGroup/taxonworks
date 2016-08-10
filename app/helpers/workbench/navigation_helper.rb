@@ -56,7 +56,7 @@ module Workbench::NavigationHelper
     elsif model.name == 'ProjectSource'
       link_to('New', new_source_path, 'class' => 'small-icon', 'data-icon' => 'new')
     else
-      link_to('New', new_path_for_model(model), 'class' => 'small-icon', 'data-icon' => 'new')
+      link_to(content_tag(:span, 'New', 'class' => 'small-icon', data: { icon: :new}), new_path_for_model(model), 'class' => 'navigation-item')
     end
   end
 

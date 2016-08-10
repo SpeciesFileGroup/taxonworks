@@ -291,7 +291,7 @@ namespace :tw do
 
         biological_relationships = { 'Attendance' => ['Attendant', 'Attended insect'],
                                      'Predation' => ['Predator', 'Prey'],
-                                     'Parasitism' => ['Parasite', 'Host'],
+                                     'Parasitism' => ['Parasitoid', 'Host'],
                                      'Host plant' => ['Host', 'Herbivor'],
                                      'Pollination' => ['Pollinator', 'Pollinated plant'],
                                      'Mating' => ['Mate', 'Mate'],
@@ -655,7 +655,7 @@ namespace :tw do
                                     'Host' => 'An animal or plant on or in which a parasite or commensal organism lives',
                                     'Herbivor' => 'An animal that feeds on plants',
                                     'Mate' => 'breeding partner',
-                                    'Parasite' => 'An organism that lives in or on another organism',
+                                    'Parasitoid' => 'An organism that lives in or on another organism',
                                     'Pollinator' => 'An insect pollinating a plant',
                                     'Pollinated plant' => 'A plant visited by insects',
                                     'Predator' => 'An animal that preys on others',
@@ -1439,11 +1439,9 @@ namespace :tw do
 
       if objects.count > 1 # Identifier on container.f
 
-          c = Container.containerize(objects, CONTAINER_TYPE[row['PreparationType'].to_s].constantize )
-          c.save
-          c.identifiers << identifier if identifier
-         
-         # TODO: should already be saved off 
+         c = Container.containerize(objects, CONTAINER_TYPE[row['PreparationType'].to_s].constantize )
+         c.save
+         c.identifiers << identifier if identifier
          c.save
 
         elsif objects.count == 1 # Identifer on object
@@ -1918,7 +1916,6 @@ namespace :tw do
           unless identifier.nil?
             if ce = Identifier.where(project_id: $project_id, cached: 'Accession Code ' + identifier, identifier_object_type: 'CollectingEvent').first.try(:identifier_object)
               ce.depictions << Depiction.create(image_attributes: { image_file: File.open(file) })
-
             else
               print "\nCollecting event with identifier #{identifier} does not exist\n"             
               #d1 = Depiction.create(image_attributes: { image_file: File.open(file) }, depiction_object: ce)

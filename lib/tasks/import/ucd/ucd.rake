@@ -6,26 +6,26 @@ require 'fileutils'
 
 # COLL.txt          Done
 # COUNTRY.txt       Done
-# DIST.txt
+# DIST.txt          Most of the areas do not match TW areas
 # FAMTRIB.txt       Done
 # FGNAMES.txt       Done
 # GENUS.txt         Done
 # H-FAM.txt         Done
 # HKNEW.txt         Done
 # HOSTFAM.txt       Done
-# HOSTS.txt
-# JOURNALS.txt
+# HOSTS.txt         Done
+# JOURNALS.txt      not needed
 # KEYWORDS.txt      Done
 # LANGUAGE.txt      Done
 # MASTER.txt        Done
-# P-TYPE.txt
-# REFEXT.txt
-# RELATION.txt
-# RELIABLE.txt
+# P-TYPE.txt        Done
+# REFEXT.txt        Done
+# RELATION.txt      Done
+# RELIABLE.txt      Done
 # SPECIES.txt       Done
-# STATUS.txt
+# STATUS.txt        Done
 # TRAN.txt          not needed
-# TSTAT.txt
+# TSTAT.txt         Done
 # WWWIMAOK.txt      image related
 
 namespace :tw do
@@ -35,7 +35,8 @@ namespace :tw do
 
       class ImportedDataUcd
         attr_accessor :publications_index, :genera_index, :species_index, :keywords, :family_groups, :superfamilies, :families,
-                      :taxon_codes, :languages, :references, :countries, :collections, :all_genera_index, :all_species_index, :topics
+                      :taxon_codes, :languages, :references, :countries, :collections, :all_genera_index, :all_species_index, :topics, :combinations,
+                      :reliable, :ptype
         def initialize()
           @publications_index = {}
           @keywords = {}
@@ -52,9 +53,11 @@ namespace :tw do
           @collections = {}
           @references = {}
           @topics = {}
+          @combinations = {}
+          @new_combinations = {}
+          @reliable = {}
+          @ptype = {}
         end
-
-
       end
 
       task :import_ucd => [:data_directory, :environment] do |t|
@@ -98,6 +101,7 @@ namespace :tw do
 
         handle_references_ucd
 
+        combinations_codes_ucd
         handle_fgnames_ucd
         handle_master_ucd_families
         handle_master_ucd_valid_genera
@@ -105,15 +109,20 @@ namespace :tw do
         handle_master_ucd_invalid_subgenera
         handle_master_ucd_valid_species
         handle_master_ucd_invalid_species
+        handle_master_ucd_invalid_subspecies
         handle_family_ucd
         handle_genus_ucd
         handle_species_ucd
+        handle_tstat_ucd
 
         handle_keywords_ucd
         handle_hknew_ucd
         handle_h_fam_ucd
         handle_hostfam_ucd
-
+        handle_reliable_ucd
+        handle_ptype_ucd
+        handle_hosts_ucd
+        handle_dist_ucd
 
         print "\n\n !! Success. End time: #{Time.now} \n\n"
 
@@ -164,6 +173,7 @@ namespace :tw do
         @data.keywords['taxon_id'] = Namespace.find_or_create_by(name: 'UCD_Taxon_ID', short_name: 'UCD_Taxon_ID')
         @data.keywords['family_id'] = Namespace.find_or_create_by(name: 'UCD_Family_ID', short_name: 'UCD_Family_ID')
         @data.keywords['host_family_id'] = Namespace.find_or_create_by(name: 'UCD_Host_Family_ID', short_name: 'UCD_Host_Family_ID')
+        @data.keywords['hos_number'] = Namespace.find_or_create_by(name: 'UCD_Hos_Number', short_name: 'UCD_Hos_Number')
       end
 
       def handle_fgnames_ucd
@@ -241,8 +251,7 @@ namespace :tw do
               if rank.parent.to_s == 'NomenclaturalRank::Iczn::FamilyGroup'
                 alternative_name = Protonym.family_group_name_at_rank(name, rank.rank_name)
                 if name != alternative_name
-                  name = alternative_name
-                  vname = row['Name']
+                  name, vname = alternative_name, name
                 end
               end
 
@@ -265,7 +274,7 @@ namespace :tw do
               @data.taxon_codes[row['TaxonCode']] = taxon1.id
               taxon1.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['taxon_id'], identifier: row['TaxonCode'].to_s)
               taxon1.data_attributes.create!(type: 'ImportAttribute', import_predicate: 'HomCode', value: row['HomCode']) unless row['HomCode'].blank?
-              TaxonNameRelationship.create!(subject_taxon_name: taxon1, object_taxon_name: taxon, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+              TaxonNameRelationship.create!(subject_taxon_name: taxon1, object_taxon_name: taxon, type: 'TaxonNameRelationship::Iczn::Invalidating')
             end
           end
         end
@@ -289,7 +298,7 @@ namespace :tw do
             taxon.save!
             @data.all_genera_index[name] = taxon.id
 
-            if row['ValGenus'].to_s == row['CitGenus'] && row['CitSubgen'].blank? && row['ValSpecies'].blank?  && row['CitSpecies'].blank?
+            if row['ValGenus'].to_s == row['CitGenus'] && row['CitSubgen'].blank? && row['ValSpecies'].blank?  && row['CitSpecies'].blank? && @data.combinations['TaxonCode'].blank?
               @data.genera_index[name] = taxon.id
               @data.taxon_codes[row['TaxonCode']] = taxon.id
               taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
@@ -320,13 +329,25 @@ namespace :tw do
               end
               @data.all_genera_index[taxon.name] = taxon.id
 
-              if row['ValSpecies'].blank? && row['CitSpecies'].blank? && row['CitSubgen'].blank?
-                taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
-                if @data.genera_index[row['CitGenus']].nil?
-                  @data.genera_index[taxon.name] = taxon.id
-                  @data.taxon_codes[row['TaxonCode']] = taxon.id
-                  TaxonNameRelationship.create!(subject_taxon_name: taxon, object_taxon_name: taxon1, type: 'TaxonNameRelationship::Iczn::Invalidating')
+              if row['ValSpecies'].blank? && row['CitSpecies'].blank? && row['CitSubgen'].blank? && row['CitSubsp'].blank?
+                if @data.combinations['TaxonCode'].blank?
+                  if @data.genera_index[row['CitGenus']].nil?
+                    @data.genera_index[taxon.name] = taxon.id
+                    TaxonNameRelationship.create!(subject_taxon_name: taxon, object_taxon_name: taxon1, type: 'TaxonNameRelationship::Iczn::Invalidating')
+                  end
+                else
+                  #@data.new_combinations['TaxonCode'] = {'genus' => row['CitGenus']}
+                  c = Combination.new
+                  c.genus = TaxonName.find(@data.all_species_index[taxon])
+                  if c.valid?
+                    c.save!
+                    taxon = c
+                  else
+                    byebug
+                  end
                 end
+                @data.taxon_codes[row['TaxonCode']] = taxon.id
+                taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
               end
           end
         end
@@ -339,7 +360,7 @@ namespace :tw do
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
         file.each_with_index do |row, i|
           print "\r#{i}"
-          if !row['CitSubgen'].blank? && row['CitSpecies'].blank? && @data.taxon_codes[row['TaxonCode']].nil?
+          if !row['CitSubgen'].blank? && row['CitSpecies'].blank? && row['CitSubsp'].blank? && @data.taxon_codes[row['TaxonCode']].nil?
             name = row['CitSubgen'].gsub(')', '').gsub('?', '').capitalize
             parent = @data.genera_index[row['ValGenus']]
             taxon = Protonym.find_or_create_by(name: name, project_id: $project_id)
@@ -352,11 +373,25 @@ namespace :tw do
             @data.all_genera_index[name] = taxon.id
 
             if taxon.rank_class == 'NomenclaturalRank::Iczn::GenusGroup::Genus' && taxon.name == name
-              origgen = @data.all_genera_index[row['CitGenus']]
-              c = Combination.new()
-              c.genus = TaxonName.find(origgen) unless origgen.nil?
-              c.subgenus = taxon
-              c.save!
+              if @data.combinations['TaxonCode'].blank?
+                origgen = @data.all_genera_index[row['CitGenus']]
+                c = Combination.new()
+                c.genus = TaxonName.find(origgen) unless origgen.nil?
+                c.subgenus = taxon
+                c.save!
+                taxon = c
+              else
+                #@data.new_combinations['TaxonCode'] = {'genus' => row['CitGenus'], 'subgenus' => row['CitSubgen']}
+                c = Combination.new
+                c.genus = TaxonName.find(@data.all_genera_index[origgen]) unless origgen.blank?
+                c.subgenus = TaxonName.find(@data.all_species_index[taxon])
+                if c.valid?
+                  c.save!
+                else
+                  byebug
+                end
+                taxon = c
+              end
             end
             @data.genera_index[name] = taxon.id
             @data.taxon_codes[row['TaxonCode']] = taxon.id
@@ -388,7 +423,7 @@ namespace :tw do
             end
 
             @data.all_species_index[row['ValGenus'].to_s + ' ' + name] = taxon.id
-            if row['ValSpecies'].to_s == row['CitSpecies'] && row['ValAuthor'] == '(' + row['CitAuthor'] + ')' && row['ValDate'] == row['CitDate']
+            if row['ValSpecies'].to_s == row['CitSpecies'] && row['ValAuthor'] == '(' + row['CitAuthor'] + ')' && row['ValDate'] == row['CitDate'] && row['CitSubsp'].blank? && @data.combinations['TaxonCode'].blank?
               @data.species_index[row['ValGenus'].to_s + ' ' + name] = taxon.id
               @data.taxon_codes[row['TaxonCode']] = taxon.id
               taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
@@ -408,7 +443,7 @@ namespace :tw do
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
         file.each_with_index do |row, i|
           print "\r#{i}"
-          if !row['CitSpecies'].blank? && @data.taxon_codes[row['TaxonCode']].nil?
+          if !row['CitSpecies'].blank? && row['CitSubsp'].blank? && @data.taxon_codes[row['TaxonCode']].nil?
             parent = @data.all_genera_index[row['ValGenus']]
             origgen = @data.all_genera_index[row['CitGenus']]
             origsubgen = @data.all_genera_index[row['CitSubgen']]
@@ -428,16 +463,93 @@ namespace :tw do
             #@data.species_index[row['ValGenus'].to_s + ' ' + name] = taxon.id
             taxon1 = @data.all_species_index[row['ValGenus'].to_s + ' ' + row['ValSpecies'].to_s]
             byebug if taxon1.nil?
-            if taxon.id == taxon1 || !taxon.original_genus.nil?
+            if (taxon.id == taxon1 || !taxon.original_genus.nil?)
+              if @data.combinations['TaxonCode'].blank?
                 c = Combination.new()
                 c.genus = TaxonName.find(origgen) unless origgen.nil?
                 c.subgenus = TaxonName.find(origsubgen) unless origsubgen.nil?
                 c.species = taxon
                 c.save!
+                taxon = c
+              else
+                #@data.new_combinations['TaxonCode'] = {'genus' => row['CitGenus'], 'subgenus' => row['CitSubgen'], 'species' => row['ValGenus'].to_s + ' ' + row['CitSpecies'].to_s}
+                c = Combination.new
+                c.genus = TaxonName.find(@data.all_genera_index[origgen]) unless origgen.blank?
+                c.subgenus = TaxonName.find(@data.all_genera_index[origsubgen]) unless origsubgen.blank?
+                c.species = TaxonName.find(@data.all_species_index[taxon])
+                if c.valid?
+                  c.save!
+                else
+                  byebug
+                end
+                taxon = c
+              end
             else
               TaxonNameRelationship.create!(subject_taxon_name: taxon, object_taxon_name_id: taxon1, type: 'TaxonNameRelationship::Iczn::Invalidating')
               TaxonNameRelationship.create!(subject_taxon_name_id: origgen, object_taxon_name: taxon, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus') if taxon.original_genus.nil?
               TaxonNameRelationship.create!(subject_taxon_name_id: origsubgen, object_taxon_name: taxon, type: 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus') if taxon.original_subgenus.nil? && !origsubgen.nil?
+            end
+            taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
+          end
+        end
+      end
+
+      def handle_master_ucd_invalid_subspecies
+        path = @args[:data_directory] + 'MASTER.txt'
+        print "\nHandling MASTER -- Invalid subspecies\n"
+        raise "file #{path} not found" if not File.exists?(path)
+        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
+        file.each_with_index do |row, i|
+          print "\r#{i}"
+          if !row['CitSubsp'].blank? && @data.taxon_codes[row['TaxonCode']].nil?
+            parent = @data.all_genera_index[row['ValGenus']]
+            origgen = @data.all_genera_index[row['CitGenus']]
+            origsubgen = @data.all_genera_index[row['CitSubgen']]
+            origspecies = @data.all_species_index[row['ValGenus'].to_s + ' ' + row['CitSpecies'].to_s]
+            name = row['CitSubsp'].gsub('sp. ', '').to_s
+            taxon = Protonym.find_or_create_by(name: name, parent_id: parent, project_id: $project_id)
+            taxon.year_of_publication = row['CitDate'] if taxon.year_of_publication.nil?
+            taxon.verbatim_author = row['CitAuthor'] if taxon.verbatim_author.nil?
+            taxon.rank_class = 'NomenclaturalRank::Iczn::SpeciesGroup::Species'
+            if taxon.valid?
+              taxon.save!
+            else
+              taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin') if !taxon.errors.messages[:name].blank?
+              taxon.save!
+            end
+
+            @data.taxon_codes[row['TaxonCode']] = taxon.id
+            #@data.species_index[row['ValGenus'].to_s + ' ' + name] = taxon.id
+            taxon1 = @data.all_species_index[row['ValGenus'].to_s + ' ' + row['ValSpecies'].to_s]
+            byebug if taxon1.nil?
+            if (taxon.id == taxon1 || !taxon.original_genus.nil?)
+              if @data.combinations['TaxonCode'].blank?
+                c = Combination.new()
+                c.genus = TaxonName.find(origgen) unless origgen.nil?
+                c.subgenus = TaxonName.find(origsubgen) unless origsubgen.nil?
+                c.species = TaxonName.find(origspecies) unless origspecies.nil?
+                c.subspecies = taxon
+                c.save!
+                taxon = c
+              else
+                #@data.new_combinations['TaxonCode'] = {'genus' => row['CitGenus'], 'subgenus' => row['CitSubgen'], 'species' => row['ValGenus'].to_s + ' ' + row['CitSpecies'].to_s, 'subspecies' => row['ValGenus'].to_s + ' ' + row['CitSubsp'].to_s}
+                c = Combination.new
+                c.genus = TaxonName.find(@data.all_genera_index[origgen]) unless origgen.blank?
+                c.subgenus = TaxonName.find(@data.all_genera_index[origsubgen]) unless origsubgen.blank?
+                c.species = TaxonName.find(@data.all_species_index[origspecies]) unless origspecies.blank?
+                c.subspecies = TaxonName.find(@data.all_species_index[taxon])
+                if c.valid?
+                  c.save!
+                else
+                  byebug
+                end
+                taxon = c
+              end
+            else
+              TaxonNameRelationship.create!(subject_taxon_name: taxon, object_taxon_name_id: taxon1, type: 'TaxonNameRelationship::Iczn::Invalidating')
+              TaxonNameRelationship.create!(subject_taxon_name_id: origgen, object_taxon_name: taxon, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus') if taxon.original_genus.nil?
+              TaxonNameRelationship.create!(subject_taxon_name_id: origsubgen, object_taxon_name: taxon, type: 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus') if taxon.original_subgenus.nil? && !origsubgen.nil?
+              TaxonNameRelationship.create!(subject_taxon_name_id: origspecies, object_taxon_name: taxon, type: 'TaxonNameRelationship::OriginalCombination::OriginalSpecies') if taxon.original_species.nil? && !origspecies.nil?
             end
             taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
           end
@@ -495,6 +607,29 @@ namespace :tw do
           @data.collections[row['Acronym']] = row['Depository']
         end
       end
+
+      def handle_reliable_ucd
+        path = @args[:data_directory] + 'RELIABLE.txt'
+        print "\nHandling RELIABLE\n"
+        raise "file #{path} not found" if not File.exists?(path)
+        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
+        file.each_with_index do |row, i|
+          print "\r#{i}"
+          @data.reliable[row['Score']] = row['Meaning']
+        end
+      end
+
+      def handle_ptype_ucd
+        path = @args[:data_directory] + 'P-TYPE.txt'
+        print "\nHandling P-TYPE\n"
+        raise "file #{path} not found" if not File.exists?(path)
+        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
+        file.each_with_index do |row, i|
+          print "\r#{i}"
+          @data.ptype[row['Code']] = row['ParType']
+        end
+      end
+
 
       def handle_references_ucd
           # - 0   RefCode   | varchar(15)  |
@@ -556,7 +691,6 @@ namespace :tw do
               r[0] => { translate: r[1], notes: r[2], publisher: r[3], ext_author: r[4], ext_title: r[5], ext_journal: r[6], editor: r[7] }
           )
         end
-
 
         file1.each_with_index do |row, i|
           print "\r#{i}"
@@ -637,6 +771,58 @@ namespace :tw do
         end
       end
 
+      def combinations_codes_ucd
+        combinations = {
+            'CG' => 'Misspelt generic name, new combination for',
+            'CS' => 'New combination, status revived for',
+            'FM' => 'Form',
+            'FR' => 'Form, new status for',
+            'GI' => 'Generic placement incorrect',
+            'GQ' => 'Generic placement queried',
+            'GR' => 'Generic placement queried, new combination for',
+            'GS' => 'Generic name synonymized with', # only generic name provided for species
+            'IA' => 'Incorrect gender agreement of species name in',
+            'JG' => 'Misspelt generic name, justified emendation of',
+            'MC' => 'Mandatory change of species name in',
+            'NA' => 'Name based based on alternative original spelling of',
+            'NC' => 'New combination for',
+            'NE' => 'New combination, justified emendation of',
+            'NF' => 'New combination based on misspelt species name',
+            'NH' => 'New combination based on unjustified emendation of',
+            'NI' => 'New combination based on lapsus for',
+            'NJ' => 'New combination based on incorrect emendation of',
+            'NK' => 'New combination, incorrect justified emendation of',
+            'NL' => 'New combination, by implication, for',
+            'NO' => 'New status, subspecies of',
+            'NV' => 'Name revived for',
+            'NZ' => 'New combination based on misspelt species name of',
+            'PC' => 'Possible new combination in',
+            'PF' => 'Possible new combination for',
+            'RC' => 'Revived combination for',
+            'RV' => 'Revived combination, valid species for',
+            'SC' => 'New status, new combination for',
+            'SF' => 'New status, subgenus of',
+            'SJ' => 'Subsequent use of unjustified emendation of',
+            'SN' => 'New status for',
+            'SR' => 'Status revived',
+            'SS' => 'Subspecies',
+            'SV' => 'Spelling validated',
+            'SW' => 'Status revived, combination revived for',
+            'TI' => 'Transferred, by implication, from',
+            'VC' => 'Valid species, new combination',
+            'VO' => 'Variety, new status for',
+        }.freeze
+
+        path = @args[:data_directory] + 'TSTAT.txt'
+        print "\nHandling TSTAT - combinations\n"
+        raise "file #{path} not found" if not File.exists?(path)
+        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
+        file.each_with_index do |row, i|
+          print "\r#{i}"
+          @data.combinations[row['TaxonCode']] = true if combinations[row['Status']] && row['TaxonCode'].to_s != row['Code'].to_s
+        end
+      end
+
 
       def handle_family_ucd
         path = @args[:data_directory] + 'FAMTRIB.txt'
@@ -662,8 +848,8 @@ namespace :tw do
           taxon = find_taxon_ucd(row['TaxonCode'])
           genus = find_taxon_id_ucd(row['Code'])
           ref = find_source_id_ucd(row['RefCode'])
-          print "\n TaxonCode: #{row['TaxonCode']} not found \n" if !row['TaxonCode'].blank? || taxon.nil?
-          print "\n Genus Code: #{row['Code']} not found \n" if !row['Code'].blank? || genus.nil?
+          print "\n TaxonCode: #{row['TaxonCode']} not found \n" if !row['TaxonCode'].blank? && taxon.nil?
+          print "\n Genus Code: #{row['Code']} not found \n" if !row['Code'].blank? && genus.nil?
           unless taxon.nil?
             unless genus.nil?
               TaxonNameRelationship.create!(type: 'TaxonNameRelationship::Typification::Family', subject_taxon_name_id: genus, object_taxon_name: taxon)
@@ -672,7 +858,8 @@ namespace :tw do
               taxon.citations.create!(source_id: ref, pages: row['PageRef'], is_original: true)
             end
             taxon.notes.create!(text: row['Notes']) unless row['Notes'].blank?
-            taxon.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['FamTrib:Status'], value: status_type[row['Status']]) unless row['Status'].blank?
+            da = taxon.data_attributes.create(type: 'InternalAttribute', predicate: keywords['FamTrib:Status'], value: status_type[row['Status']]) unless row['Status'].blank?
+            byebug unless da.valid?
           end
         end
       end
@@ -712,8 +899,8 @@ namespace :tw do
           species = find_taxon_id_ucd(row['Code'])
           ref = find_source_id_ucd(row['RefCode'])
           designator = find_source_id_ucd(row['Designator'])
-          print "\n TaxonCode: #{row['TaxonCode']} not found \n" if !row['TaxonCode'].blank? || taxon.nil?
-          print "\n Species Code: #{row['Code']} not found \n" if !row['Code'].blank? || species.nil?
+          print "\n TaxonCode: #{row['TaxonCode']} not found \n" if !row['TaxonCode'].blank? && taxon.nil?
+          print "\n Species Code: #{row['Code']} not found \n" if !row['Code'].blank? && species.nil?
           typedesign = row['TypeDesign'].blank? ? type_type[''] : type_type[row['TypeDesign']]
           unless taxon.nil?
             unless species.nil?
@@ -724,7 +911,7 @@ namespace :tw do
               taxon.citations.create(source_id: ref, pages: row['PageRef'], is_original: true)
             end
             taxon.notes.create(text: row['Notes']) unless row['Notes'].blank?
-            taxon.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Genus:Status'], value: status_type[row['Status']]) unless row['Status'].blank?
+            taxon.data_attributes.find_or_create_by!(type: 'InternalAttribute', predicate: keywords['Genus:Status'], value: status_type[row['Status']]) unless row['Status'].blank?
           end
         end
       end
@@ -774,8 +961,6 @@ namespace :tw do
         }
         classification_type = {
             'AB' => 'TaxonNameClassification::Iczn::Unavailable::Excluded::Infrasubspecific',
-            'FM' => 'TaxonNameClassification::Iczn::Unavailable::VarietyOrFormAfter1960',
-            'VR' => 'TaxonNameClassification::Iczn::Unavailable::VarietyOrFormAfter1960',
             'FS' => 'TaxonNameClassification::Iczn::Fossil',
             'ND' => 'TaxonNameClassification::Iczn::Available::Valid::NomenDubium',
             'NN' => 'TaxonNameClassification::Iczn::Unavailable::NomenNudum',
@@ -795,11 +980,16 @@ namespace :tw do
               end
             end
             taxon.notes.create(text: row['Notes']) unless row['Notes'].blank?
-            taxon.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Status:Meaning'], value: status_type[row['CurrStat']]) unless status_type[row['CurrStat']].nil?
-            taxon.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Species:Country'], value: @data.countries[row['Country'] + '|' + row['State']]) unless @data.countries[row['Country'] + '|' + row['State']].nil?
-            taxon.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Coll:Depository'], value: @data.collections[row['Depository']]) unless @data.collections[row['Depository']].nil?
+            taxon.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Status:Meaning'], value: status_type[row['CurrStat']]) unless status_type[row['CurrStat']].nil?
+            taxon.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Species:Country'], value: @data.countries[row['Country'] + '|' + row['State']]) unless @data.countries[row['Country'] + '|' + row['State']].nil?
+            taxon.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Coll:Depository'], value: @data.collections[row['Depository']]) unless @data.collections[row['Depository']].nil?
             keywords.each_key do |k|
-              taxon.data_attributes.create(type: 'InternalAttribute', predicate: keywords[k], value: row[k]) unless row[k].blank?
+              da = taxon.data_attributes.create(type: 'InternalAttribute', predicate: keywords[k], value: row[k]) unless row[k].blank?
+              byebug unless da.valid?
+            end
+            if taxon.type == 'Combination' && !classification_type[row['CurrStat']].nil?
+              valid = TaxonName.find(taxon.cached_valid_taxon_name_id)
+              taxon = valid
             end
             taxon.taxon_name_classifications.create(type: classification_type[row['CurrStat']]) unless classification_type[row['CurrStat']].nil?
           end
@@ -842,16 +1032,12 @@ namespace :tw do
             taxon = Protonym.find_or_create_by(name: 'Slime', parent: @root, rank_class: 'NomenclaturalRank::Iczn::HigherClassificationGroup::Kingdom', project_id: $project_id)
           end
           taxon.data_attributes.create(type: 'InternalAttribute', predicate: keywords['SuperFam'], value: row['SuperFam']) if !row['SuperFam'].blank? && !taxon.parent.nil? && taxon.parent.rank_class != 'NomenclaturalRank::Iczn::FamilyGroup::Superfamily' && taxon.data_attributes.nil?
-          taxon.identifiers.find_or_create_by(type: 'Identifier::Local::Import', namespace: @data.keywords['host_family_id'], identifier: row['Code']) if !row['Code'].blank?
+          taxon.identifiers.create(type: 'Identifier::Local::Import', namespace: @data.keywords['host_family_id'], identifier: row['Code']) if !row['Code'].blank?
         end
 
       end
 
       def handle_hostfam_ucd
-        keywords = {
-            'HosNumber' => Predicate.find_or_create_by(name: 'Hostfam:HosNumber', definition: 'The verbatim value in Hostfam#HosNumber.', project_id: $project_id)
-        }.freeze
-
         path = @args[:data_directory] + 'HOSTFAM.txt'
         print "\nHandling HOSTFAM\n"
         raise "file #{path} not found" if not File.exists?(path)
@@ -868,9 +1054,119 @@ namespace :tw do
             taxon.verbatim_author = row['HosAuthor']
             taxon.save if taxon.valid?
           end
-          taxon.data_attributes.create(type: 'InternalAttribute', predicate: keywords['HosNumber'], value: row['HosNumber']) if !row['HosNumber'].blank? && taxon.data_attributes.nil?
+          taxon.identifiers.create(type: 'Identifier::Local::Import', namespace: @data.keywords['hos_number'], identifier: row['HosNumber']) if !row['HosNumber'].blank?
         end
+      end
 
+      def handle_hosts_ucd
+        relation = {'APL' => BiologicalRelationship.find_or_create_by(name: 'Plant associate', project_id: $project_id),
+                    'AST' => BiologicalRelationship.find_or_create_by(name: 'Associate', project_id: $project_id),
+                    'HYP' => BiologicalRelationship.find_or_create_by(name: 'Parasitoid', project_id: $project_id),
+                    'PAH' => BiologicalRelationship.find_or_create_by(name: 'Parasitoid host', project_id: $project_id),
+                    'PLH' => BiologicalRelationship.find_or_create_by(name: 'Plant host', project_id: $project_id),
+                    'PRH' => BiologicalRelationship.find_or_create_by(name: 'Primary host', project_id: $project_id),
+        }.freeze
+        bp = { 'Pollinator' => BiologicalProperty.find_or_create_by(name: 'Pollinator', definition:'An insect pollinating a plant'),
+               'Pollinated plant' => BiologicalProperty.find_or_create_by(name: 'Pollinated plant', definition:'A plant visited by insects'),
+               'Attendant' => BiologicalProperty.find_or_create_by(name: 'Attendant', definition:'An insect attending another insect'),
+               'Attended insect' => BiologicalProperty.find_or_create_by(name: 'Attended insect', definition:'An insect attended by another insect'),
+               'Host' => BiologicalProperty.find_or_create_by(name: 'Host', definition:'An animal or plant on or in which a parasite or commensal organism lives'),
+               'Parasitoid' => BiologicalProperty.find_or_create_by(name: 'Parasitoid', definition:'An organism that lives in or on another organism'),
+        }
+
+        a1 = BiologicalRelationshipType.find_or_create_by(biological_property: bp['Pollinator'], biological_relationship: relation['APL'], type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
+        a2 = BiologicalRelationshipType.find_or_create_by(biological_property: bp['Pollinated plant'], biological_relationship: relation['APL'], type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
+        a1 = BiologicalRelationshipType.find_or_create_by(biological_property: bp['Attendant'], biological_relationship: relation['AST'], type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
+        a2 = BiologicalRelationshipType.find_or_create_by(biological_property: bp['Attended insect'], biological_relationship: relation['AST'], type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
+        a1 = BiologicalRelationshipType.find_or_create_by(biological_property: bp['Host'], biological_relationship: relation['HYP'], type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
+        a2 = BiologicalRelationshipType.find_or_create_by(biological_property: bp['Parasitoid'], biological_relationship: relation['HYP'], type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
+        a1 = BiologicalRelationshipType.find_or_create_by(biological_property: bp['Parasitoid'], biological_relationship: relation['PAH'], type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
+        a2 = BiologicalRelationshipType.find_or_create_by(biological_property: bp['Host'], biological_relationship: relation['PAH'], type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
+        a1 = BiologicalRelationshipType.find_or_create_by(biological_property: bp['Parasitoid'], biological_relationship: relation['PLH'], type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
+        a2 = BiologicalRelationshipType.find_or_create_by(biological_property: bp['Host'], biological_relationship: relation['PLH'], type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
+        a1 = BiologicalRelationshipType.find_or_create_by(biological_property: bp['Parasitoid'], biological_relationship: relation['PRH'], type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
+        a2 = BiologicalRelationshipType.find_or_create_by(biological_property: bp['Host'], biological_relationship: relation['PRH'], type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
+
+        keywords = {
+            'ParTypeA' => Predicate.find_or_create_by(name: 'Hosts:ParTypeA', definition: 'The verbatim value in Hosts#ParTypeA.', project_id: $project_id),
+            'ParTypeB' => Predicate.find_or_create_by(name: 'Hosts:ParTypeB', definition: 'The verbatim value in Hosts#ParTypeB.', project_id: $project_id),
+            'ParTypeC' => Predicate.find_or_create_by(name: 'Hosts:ParTypeC', definition: 'The verbatim value in Hosts#ParTypeC.', project_id: $project_id),
+            'ParTypeD' => Predicate.find_or_create_by(name: 'Hosts:ParTypeD', definition: 'The verbatim value in Hosts#ParTypeD.', project_id: $project_id),
+            'ReliableA' => Predicate.find_or_create_by(name: 'Hosts:ReliableA', definition: 'The verbatim value in Hosts#ReliableA.', project_id: $project_id),
+            'ReliableB' => Predicate.find_or_create_by(name: 'Hosts:ReliableB', definition: 'The verbatim value in Hosts#ReliableB.', project_id: $project_id),
+            'Comment' => Predicate.find_or_create_by(name: 'Hosts:Comment', definition: 'The verbatim value in Hosts#Comment.', project_id: $project_id),
+            'CommonName' => Predicate.find_or_create_by(name: 'Hosts:CommonName', definition: 'The verbatim value in Hosts#CommenName.', project_id: $project_id),
+        }.freeze
+
+        path = @args[:data_directory] + 'HOSTS.txt'
+        print "\nHandling HOSTS\n"
+        raise "file #{path} not found" if not File.exists?(path)
+        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
+        file.each_with_index do |row, i|
+          print "\r#{i}"
+          taxon = find_taxon_id_ucd(row['TaxonCode'])
+          host = find_host_id_ucd(row['HosNumber'])
+          host = find_host_family_id_ucd('PrimHosFam') if row['HosNumber'].blank?
+          ref = find_source_id_ucd(row['RefCode'])
+          br = ralation[row['Relation']]
+          if taxon && host && relation
+            subject = Otu.find_or_create_by(taxon_name_id: taxon)
+            object = Otu.find_or_create_by(taxon_name_id: host)
+            r = BiologicalAssociation.find_or_create_by!(biological_relationship: br, biological_association_subject: subject, biological_association_object: object, project_id: $project_id)
+            r.citations.create!(source_id: ref, pages: row['PageRef']) unless ref.nil?
+            r.notes.create!(text: row['Notes']) unless row['Notes'].blank?
+            r.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['ParTypeA'], value: @data.ptype[row['ParTypeA']]) unless row['ParTypeA'].blank?
+            r.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['ParTypeB'], value: @data.ptype[row['ParTypeB']]) unless row['ParTypeB'].blank?
+            r.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['ParTypeC'], value: @data.ptype[row['ParTypeC']]) unless row['ParTypeC'].blank?
+            r.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['ParTypeD'], value: @data.ptype[row['ParTypeD']]) unless row['ParTypeD'].blank?
+            r.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['ReliableA'], value: @data.reliable[row['ReliableA']]) unless row['ReliableA'].blank?
+            r.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['ReliableB'], value: @data.reliable[row['ReliableB']]) unless row['ReliableB'].blank?
+            r.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Comment'], value: row['Comment']) unless row['Comment'].blank?
+            r.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['CommonName'], value: row['CommonName']) unless row['CommonName'].blank?
+          else
+            print "\nInvalid host relationship: TaxonCode: #{row['TaxonCode']}, Relation: #{row['Relation']}, HosNumber: #{row['HosNumber']}\n"
+          end
+        end
+      end
+
+      def handle_dist_ucd
+        keywords = {
+            'PageRef' => Predicate.find_or_create_by(name: 'Dist:PageRef', definition: 'The verbatim value in Dist#PageRef.', project_id: $project_id),
+            'Keyword' => Predicate.find_or_create_by(name: 'Dist:Keyword', definition: 'The verbatim value in Dist#Keyword.', project_id: $project_id),
+            'Reliable' => Predicate.find_or_create_by(name: 'Dist:Reliable', definition: 'The verbatim value in Dist#Reliable.', project_id: $project_id),
+            'Comment' => Predicate.find_or_create_by(name: 'Dist:Comment', definition: 'The verbatim value in Dist#Comment.', project_id: $project_id),
+        }.freeze
+
+        unresolved = {}
+        path = @args[:data_directory] + 'DIST.txt'
+        print "\nHandling DIST\n"
+        raise "file #{path} not found" if not File.exists?(path)
+        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
+        file.each_with_index do |row, i|
+          print "\r#{i}"
+          taxon = find_taxon_id_ucd(row['TaxonCode'])
+          otu = Otu.find_or_create_by(taxon_name_id: taxon)
+          ref = find_source_id_ucd(row['RefCode'])
+          ga = GeographicArea.find_by_self_and_parents(@data.countries[row['Country'] + '|' + row['State']])
+          if otu && ga
+            ad = AssertedDistribution.create!(
+                otu: otu,
+                geographic_area: ga,
+                source_id: ref,
+                is_absent: nil,
+                project_id: $project_id )
+            ad.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Reliable'], value: @data.reliable[row['Reliable']]) unless row['Reliable'].blank?
+            ad.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Comment'], value: row['Comment']) unless row['Comment'].blank?
+            ad.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['PageRef'], value: row['PageRef']) unless row['PageRef'].blank?
+            ad.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Keyword'], value: @data.keywords[row['Keyword']]) unless row['KeyWord'].blank?
+            ad.notes.create!(text: row['Notes']) unless row['Notes'].blank?
+          elsif ag.nil?
+            unresolved[@data.countries[row['Country'] + '|' + row['State']]] = true
+          end
+        end
+        unresolved.each_key do |k|
+          print"\n Unresolved locality: #{k}"
+        end
       end
 
       def handle_keywords_ucd
@@ -914,60 +1210,53 @@ namespace :tw do
       def handle_tstat_ucd
 
         relationship = {
-        'AC' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling', # 'Alternative original combination of',
-        'AS' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling', # 'Alternative original spelling of',
-        'AT' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling', # 'Alternative original status of',
-        'CH' => 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary', # 'Junior secondary homonym of',
-        'CM' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling', # 'Misspelt species name, compared with',
-        'DT' => 'TaxonNameRelationship::Typification::Genus::SubsequentDesignation', # 'Designated type species of'
-        'IC' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling', # 'Misspelling based on original lapsus for',
-        'ID' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication', # 'Identified subsequently as',
-        'IE' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnjustifiedEmendation', # 'Incorrect, justified emendation of',
-        'IN' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling', #'Invalid spelling of',
-        'IO' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling', # 'Incorrect original spelling of',
-        'IT' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective', # 'Isotypic (same primary type) with',
-        'JH' => 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary', # 'Junior primary homonym of',
-        'LA' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling', # 'Lapsus for',
-        'MA' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication', # 'Misidentified as',
-        'MB' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling', # 'Misspelling of genus and species names of',
-        'MF' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling', # 'Misspelt family group name',
-        'MG' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling', # 'Misspelling of genus name',
-        'MI' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication', # 'Misidentification',
-        'MJ' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling', # 'Misspelt species name, synonym of',
-        'MO' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication', # 'Misidentification of',
-        'MP' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication', # 'Misidentification (in part) as',
-        'MS' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling', # 'Misspelling of species group name',
-        'MY' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling', # 'Misspelt family group name of',
-        'NM' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling', # 'Misspelt species name, new combination for',
-        'NR' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression', # 'Name rejected in favour of',
-        'OT' => 'TaxonNameRelationship::Typification::Genus::RulingByCommission', # 'Placed on official list as type species of',
-        'PL' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling', # 'Possible lapsus for',
-        'PM' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication', # 'Misidentification (in part) of',
-        'PO' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication', # 'Possible misidentification of',
-        'RN' => 'TaxonNameRelationship::Iczn::PotentiallyValidating::ReplacementName', # 'Replacement name',
-        'RO' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::SynonymicHomonym', # 'Repetition of original description of',
-        'SA' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnjustifiedEmendation', # 'Spelling rejected',
-        'SE' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling', # 'Misspelling based on incorrect emendation of',
-        'SH' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::SynonymicHomonym', # 'Junior synonym and homonym of',
-        'SL' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling', # 'New status, lapsus for',
-        'ST' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym', # 'Synonymized, by implication, with',
-        'SY' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym', # 'Synonym of',
-        'TD' => 'TaxonNameRelationship::Typification::Genus::SubsequentDesignation', # 'Designated type species of',
-        'TS' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym', # 'Type species transferred to',
-        'UE' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnjustifiedEmendation', # 'Unjustified emendation',
-        'UI' => 'Unavailable name, identified subsequently as',
-        'UR' => 'Unnecessary replacement name',
-        'UV' => 'Unavailable name',
-        'VC' => 'Valid species, new combination',
-        'VF' => 'Family of',
-        'VG' => 'Valid genus',
-        'VI' => 'Valid subtribe of',
-        'VM' => 'Variety, misspelt species name',
-        'VO' => 'Variety, new status for',
-        'VR' => 'Variety',
-        'VS' => 'Valid species',
-        'VT' => 'Valid tribe of',
-        'VY' => 'Valid superfamily'
+            'AC' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling', # 'Alternative original combination of',
+            'AS' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling', # 'Alternative original spelling of',
+            'AT' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling', # 'Alternative original status of',
+            'CH' => 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary', # 'Junior secondary homonym of',
+            'CM' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling', # 'Misspelt species name, compared with',
+            'DT' => 'TaxonNameRelationship::Typification::Genus::SubsequentDesignation', # 'Designated type species of'
+            'IC' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling', # 'Misspelling based on original lapsus for',
+            'ID' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication', # 'Identified subsequently as',
+            'IE' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnjustifiedEmendation', # 'Incorrect, justified emendation of',
+            'IN' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling', #'Invalid spelling of',
+            'IO' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling', # 'Incorrect original spelling of',
+            'IT' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective', # 'Isotypic (same primary type) with',
+            'JH' => 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary', # 'Junior primary homonym of',
+            'LA' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling', # 'Lapsus for',
+            'MA' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication', # 'Misidentified as',
+            'MB' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling', # 'Misspelling of genus and species names of',
+            'MF' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling', # 'Misspelt family group name',
+            'MG' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling', # 'Misspelling of genus name',
+            'MI' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication', # 'Misidentification',
+            'MJ' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling', # 'Misspelt species name, synonym of',
+            'MO' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication', # 'Misidentification of',
+            'MP' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication', # 'Misidentification (in part) as',
+            'MS' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling', # 'Misspelling of species group name',
+            'MY' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling', # 'Misspelt family group name of',
+            'NM' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling', # 'Misspelt species name, new combination for',
+            'NR' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression', # 'Name rejected in favour of',
+            'OT' => 'TaxonNameRelationship::Typification::Genus::RulingByCommission', # 'Placed on official list as type species of',
+            'PL' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling', # 'Possible lapsus for',
+            'PM' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication', # 'Misidentification (in part) of',
+            'PO' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication', # 'Possible misidentification of',
+            'RN' => 'TaxonNameRelationship::Iczn::PotentiallyValidating::ReplacementName', # 'Replacement name',
+            'RO' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::SynonymicHomonym', # 'Repetition of original description of',
+            'SA' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnjustifiedEmendation', # 'Spelling rejected',
+            'SE' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling', # 'Misspelling based on incorrect emendation of',
+            'SH' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::SynonymicHomonym', # 'Junior synonym and homonym of',
+            'SL' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling', # 'New status, lapsus for',
+            'ST' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym', # 'Synonymized, by implication, with',
+            'SY' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym', # 'Synonym of',
+            'TD' => 'TaxonNameRelationship::Typification::Genus::SubsequentDesignation', # 'Designated type species of',
+            'TS' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym', # 'Type species transferred to',
+            'UE' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnjustifiedEmendation', # 'Unjustified emendation',
+            'UI' => 'TaxonNameRelationship::Iczn::Invalidating', # 'Unavailable name, identified subsequently as',
+            'UR' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnnecessaryReplacementName', # 'Unnecessary replacement name',
+            'VM' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling', # 'Variety, misspelt species name',
+            'FY' => 'TaxonNameRelationship::SourceClassifiedAs', # 'Family of',
+            'SB' => 'TaxonNameRelationship::SourceClassifiedAs', # 'Subfamily of',
+            'TT' => 'TaxonNameRelationship::SourceClassifiedAs', # 'Transferred, by implication, to',
         }.freeze
 
         classification = {
@@ -981,16 +1270,14 @@ namespace :tw do
             'OR' => 'TaxonNameClassification::Iczn::Unavailable::Suppressed', # 'Placed on Official List of Rejected Names',
             'OS' => 'TaxonNameClassification::Iczn::Available::OfficialListOfSpecificNamesInZoology', # 'Placed on Official List of Species Names',
             'SI' => 'TaxonNameClassification::Iczn::Available::Valid::NomenDubium', # 'Species inquirenda',
-        }
+            'UI' => 'TaxonNameClassification::Iczn::Unavailable', # 'Unavailable name, identified subsequently as',
+            'UV' => 'TaxonNameClassification::Iczn::Unavailable', # 'Unavailable name',
+        }.freeze
 
         combination = {
             'CG' => 'Misspelt generic name, new combination for',
             'CS' => 'New combination, status revived for',
-            'FM' => 'Form',
             'FR' => 'Form, new status for',
-            'FY' => 'TaxonNameRelationship::SourceClassifiedAs', # 'Family of',
-            'SB' => 'TaxonNameRelationship::SourceClassifiedAs', # 'Subfamily of',
-            'TT' => 'TaxonNameRelationship::SourceClassifiedAs', # 'Transferred, by implication, to',
             'GI' => 'Generic placement incorrect',
             'GQ' => 'Generic placement queried',
             'GR' => 'Generic placement queried, new combination for',
@@ -1023,9 +1310,13 @@ namespace :tw do
             'SV' => 'Spelling validated',
             'SW' => 'Status revived, combination revived for',
             'TI' => 'Transferred, by implication, from',
-        }
+            'VC' => 'Valid species, new combination',
+            'VO' => 'Variety, new status for',
+        }.freeze
 
         notes = {
+            'FM' => 'Form',
+            'FR' => 'Form, new status for',
             'PS' => 'Possible synonym of',
             'CF' => 'Compared with',
             'CR' => 'New combination and replacement',
@@ -1045,8 +1336,104 @@ namespace :tw do
             'SG' => 'Subgenus',
             'SZ' => 'Superfamily',
             'TC' => 'Type species cited as',
-        }
+            'VF' => 'Family of',
+            'VG' => 'Valid genus',
+            'VI' => 'Valid subtribe of',
+            'VR' => 'Variety',
+            'VS' => 'Valid species',
+            'VT' => 'Valid tribe of',
+            'VY' => 'Valid superfamily',
+            'GQ' => 'Generic placement queried',
+            'GR' => 'Generic placement queried, new combination for',
+            'GI' => 'Generic placement incorrect',
+            'IA' => 'Incorrect gender agreement of species name in',
+        }.freeze
 
+        keywords = {
+            'status' => Predicate.find_or_create_by(name: 'Status:Defenition', definition: 'The verbatim value in Status#Defenition.', project_id: $project_id)
+        }.freeze
+
+        path = @args[:data_directory] + 'TSTAT.txt'
+        print "\nHandling TSTAT\n"
+        raise "file #{path} not found" if not File.exists?(path)
+        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
+        file.each_with_index do |row, i|
+          print "\r#{i}"
+          taxon = find_taxon_ucd(row['TaxonCode'])
+          taxon1 = find_taxon_ucd(row['Code'])
+          ref = find_source_id_ucd(row['RefCode'])
+          ref2 = find_source_id_ucd(row['RefCodeB'])
+          if !combination[row['Status']].nil? # && @data.new_combinations[row['TaxonCode']]
+#            genus = @data.new_combinations[row['TaxonCode']]['genus']
+#            subgenus = @data.new_combinations[row['TaxonCode']]['subgenus']
+#            species = @data.new_combinations[row['TaxonCode']]['species']
+#            subspecies = @data.new_combinations[row['TaxonCode']]['subspeces']
+#            name = [genus] unless genus.blank?
+#            name << '(' + subgenus + ')' unless subgenus.blank?
+#            name << species.split.last unless species.blank?
+#            name << subspecies.split.last unless subspecies.blank?
+#            name = name.join(' ')
+#            taxon = TaxonName.where(cached: name, classified_as: classified_as, project_id: $project_id).first
+#            if taxon.nil?
+#              taxon = Combination.new
+#              taxon.genus = TaxonName.find(@data.all_genera_index[genus]) unless genus.blank?
+#              taxon.subgenus = TaxonName.find(@data.all_genera_index[subgenus]) unless subgenus.blank?
+#              taxon.species = TaxonName.find(@data.all_species_index[species]) unless species.blank?
+#              taxon.subspecies = TaxonName.find(@data.all_species_index[subspecies]) unless subspecies.blank?
+#              if taxon.valid?
+#                taxon.save!
+#              else
+#                byebug
+#              end
+#            end
+            taxon.citations.create(source_id: ref, pages: row['PageRef']) unless ref.nil?
+            taxon.citations.create(source_id: ref2, pages: row['PagesB']) unless ref2.nil?
+          end
+          if !notes[row['Status']].nil? && !taxon.nil?
+            taxon.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Status'], value: notes[row['Status']])
+          end
+          taxon.notes.create(text: row['Notes'].to_s + ' ' + row['Code'].to_s) if !row['Notes'].blank? && !taxon.nil?
+          if taxon.nil?
+            print "\nInvalid TaxonCode: #{row['TaxonCode']}\n"
+          else
+            if taxon.type = 'Combination'
+              valid = TaxonName.find(taxon.cached_valid_taxon_name_id)
+              taxon = valid
+            end
+          end
+          if !taxon1.nil? && taxon1.type = 'Combination'
+            valid = TaxonName.find(taxon1.cached_valid_taxon_name_id)
+            taxon1 = valid
+          end
+          if !relationship[row['Status']].nil? && !taxon.nil? && !taxon1.nil?
+            if taxon != taxon1
+              c = TaxonNameRelationship.where(subject_taxon_name: taxon, object_taxon_name: taxon1, type: 'TaxonNameRelationship::Iczn::Invalidating').first
+              if relationship[row['Status']].include?('TaxonNameRelationship::Iczn::Invalidating')
+                c.update_column(:type, relationship[row['Status']])
+              else
+                c = TaxonNameRelationship.find_or_create_by(subject_taxon_name: taxon, object_taxon_name: taxon1, type: relationship[row['Status']])
+              end
+              if c.valid?
+                c.citations.create(source_id: ref, pages: row['PageRef']) unless ref.nil?
+                c.citations.create(source_id: ref2, pages: row['PagesB']) unless ref2.nil?
+              else
+                print "\nInvalid relationship: TaxonCode: #{row['TaxonCode']}, Status: #{row['Status']}, Code: #{row['Code']}\n"
+              end
+            else
+              taxon.citations.create(source_id: ref, pages: row['PageRef']) unless ref.nil?
+              taxon.citations.create(source_id: ref2, pages: row['PagesB']) unless ref2.nil?
+            end
+          end
+          if !classification[row['Status']].nil? && !taxon.nil?
+            c = TaxonNameClassification.find_or_create_by(taxon_name: taxon, type: classification[row['Status']])
+            if c.valid?
+              c.citations.create(source_id: ref, pages: row['PageRef']) unless ref.nil?
+              c.citations.create(source_id: ref2, pages: row['PagesB']) unless ref2.nil?
+            else
+              print "\nInvalid status: TaxonCode: #{row['TaxonCode']}, Status: #{row['Status']}, Code: #{row['Code']}\n"
+            end
+          end
+        end
       end
 
       def find_taxon_id_ucd(key)
@@ -1061,8 +1448,16 @@ namespace :tw do
         @data.families[key.to_s] || Identifier.where(cached: 'UCD_Host_Family_ID ' + key.to_s, identifier_object_type: 'TaxonName', project_id: $project_id).limit(1).pluck(:identifier_object_id).first
       end
 
+      def find_host_id_ucd(key)
+        @data.taxon_codes[key.to_s] || Identifier.where(cached: 'UCD_Hos_Number ' + key.to_s, identifier_object_type: 'TaxonName', project_id: $project_id).limit(1).pluck(:identifier_object_id).first
+      end
+
       def find_taxon_ucd(key)
         Identifier.find_by(cached: 'UCD_Taxon_ID ' + key.to_s, identifier_object_type: 'TaxonName', project_id: $project_id).try(:identifier_object)
+      end
+
+      def find_host_ucd(key)
+        Identifier.find_by(cached: 'UCD_Hos_Number ' + key.to_s, identifier_object_type: 'TaxonName', project_id: $project_id).try(:identifier_object)
       end
 
       def find_source_ucd(key)
