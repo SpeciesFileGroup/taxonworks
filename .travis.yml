@@ -10,6 +10,7 @@ branches:
       - Rails-5.0
       - development
       - travis-trusty-beta
+      - matrix
 addons:
   postgresql: "9.4"
   firefox: "46.0"
