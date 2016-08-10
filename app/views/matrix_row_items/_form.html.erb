@@ -1,0 +1,55 @@
+<%= form_for(@matrix_row_item) do |f| %>
+  <%= render 'shared/errors', object: @matrix_row_item %>
+
+  <div class="field">
+        <%= f.label :matrix_id %>
+        <br>
+        <%= render partial: 'workbench/elements/forms/ajax_select',
+                   locals:  {controller:  'matrices',
+                             object: 'matrix_row_item',
+                             method:  'matrix_id',
+                             tag_id:  'matrix_id_for_matrix_row_item',
+                             display:  matrix_tag(@matrix_row_item.matrix),
+                             size: 20} %>
+  </div>
+
+  <div class="field">
+        <%= f.label :otu_id %>
+        <br>
+        <%= render partial: 'workbench/elements/forms/ajax_select',
+                   locals:  {controller:  'otus',
+                             object: 'matrix_row_item',
+                             method:  'otu_id',
+                             tag_id:  'otu_id_for_matrix_row_item',
+                             display:  otu_tag(@matrix_row_item.otu),
+                             size: 20} %>
+  </div>
+
+  <div class="field">
+        <%= f.label :collection_object_id %>
+        <br>
+        <%= render partial: 'workbench/elements/forms/ajax_select',
+                   locals:  {controller:  'collection_objects',
+                             object: 'matrix_row_item',
+                             method:  'collection_object_id',
+                             tag_id:  'collection_object_id_for_matrix_row_item',
+                             display:  collection_object_tag(@matrix_row_item.collection_object),
+                             size: 20} %>
+  </div>
+
+  <div class="field">
+        <%= f.label :controlled_vocabulary_term_id %>
+        <br>
+        <%= render partial: 'workbench/elements/forms/ajax_select',
+                   locals:  {controller:  'keywords',
+                             object: 'matrix_row_item',
+                             method:  'controlled_vocabulary_term_id',
+                             tag_id:  'controlled_vocabulary_term_id_for_matrix_row_item',
+                             display:  controlled_vocabulary_term_tag(@matrix_row_item.controlled_vocabulary_term),
+                             size: 20} %>
+  </div>
+
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>
