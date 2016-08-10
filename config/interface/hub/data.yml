@@ -235,6 +235,14 @@ Supporting:
     status: :prototype
     categories:
       - matrix
+    related_models:
+      - Matrix
+  MatrixRowItem:
+    status: :prototype
+    categories:
+      - matrix
+    related_models:
+      - Matrix   
   Namespace:
     status: :prototype
     shared: true

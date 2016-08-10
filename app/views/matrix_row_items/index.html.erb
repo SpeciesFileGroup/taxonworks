@@ -1,0 +1,41 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Listing Matrix Row Items</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Matrix</th>
+      <th>Type</th>
+      <th>Collection object</th>
+      <th>Otu</th>
+      <th>Keyword</th>
+      <th>Created by</th>
+      <th>Updated by</th>
+      <th>Project</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @matrix_row_items.each do |matrix_row_item| %>
+      <tr>
+        <td><%= matrix_row_item.matrix %></td>
+        <td><%= matrix_row_item.type %></td>
+        <td><%= matrix_row_item.collection_object %></td>
+        <td><%= matrix_row_item.otu %></td>
+        <td><%= matrix_row_item.keyword %></td>
+        <td><%= matrix_row_item.created_by_id %></td>
+        <td><%= matrix_row_item.updated_by_id %></td>
+        <td><%= matrix_row_item.project %></td>
+        <td><%= link_to 'Show', matrix_row_item %></td>
+        <td><%= link_to 'Edit', edit_matrix_row_item_path(matrix_row_item) %></td>
+        <td><%= link_to 'Destroy', matrix_row_item, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Matrix row item', new_matrix_row_item_path %>

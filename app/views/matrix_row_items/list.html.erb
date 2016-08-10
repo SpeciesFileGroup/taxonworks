@@ -1,0 +1,26 @@
+<%= render("/shared/data/all/list/list_header", objects: @matrix_row_items) -%>
+
+<table class="tablesorter">
+  <thead>
+  <tr>
+    <%= fancy_th_tag(name: 'Matrix') -%>
+    <%= fancy_th_tag(name: 'Otu') -%>
+    <%= fancy_th_tag(name: 'Collection Object') -%>
+    <%= fancy_th_tag(name: 'Controlled vocabulary term') -%>
+    <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
+    <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
+  </tr>
+  </thead>
+
+  <tbody>
+  <% @matrix_row_items.each do |matrix_row_item| %>
+      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+          <td><%= matrix_tag(matrix_row_item.matrix) %></td>
+          <td><%= otu_tag(matrix_row_item.otu) -%></td>
+          <td><%= collection_object_tag(matrix_row_item.collection_object) -%></td>
+          <td><%= controlled_vocabulary_term_tag(matrix_row_item.controlled_vocabulary_term) -%></td>
+          <%= fancy_metadata_cells_tag(matrix_row_item) -%>
+      <% end %>
+  <% end %>
+  </tbody>
+</table>
