@@ -29,6 +29,10 @@ class BiologicalAssociation < ActiveRecord::Base
   include Shared::Citable
   include Shared::IsData
   include SoftValidation
+  include Shared::DataAttributes
+  include Shared::Notable
+
+
 
   belongs_to :biological_relationship, inverse_of: :biological_associations
   belongs_to :biological_association_subject, polymorphic: true

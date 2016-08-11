@@ -98,10 +98,13 @@ namespace :tw do
         handle_language_ucd
         handle_countries_ucd
         handle_collections_ucd
+        handle_keywords_ucd
+        handle_reliable_ucd
+        combinations_codes_ucd
 
         handle_references_ucd
+        Utilities::Files.lines_per_file(Dir["#{@args[:data_directory]}/**/*.txt"])
 
-        combinations_codes_ucd
         handle_fgnames_ucd
         handle_master_ucd_families
         handle_master_ucd_valid_genera
@@ -115,14 +118,13 @@ namespace :tw do
         handle_species_ucd
         handle_tstat_ucd
 
-        handle_keywords_ucd
         handle_hknew_ucd
         handle_h_fam_ucd
         handle_hostfam_ucd
-        handle_reliable_ucd
         handle_ptype_ucd
         handle_hosts_ucd
         handle_dist_ucd
+        soft_validations_ucd
 
         print "\n\n !! Success. End time: #{Time.now} \n\n"
 
@@ -287,6 +289,8 @@ namespace :tw do
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
         file.each_with_index do |row, i|
           print "\r#{i}"
+
+#          byebug if row['TaxonCode'] == 'PentarR' || row['TaxonCode'] == 'TrichoWb' || row['TaxonCode'] == 'TrichoW'
           if !row['ValGenus'].blank? && @data.genera_index[row['ValGenus']].nil?
             name = row['ValGenus']
             taxon = Protonym.find_or_create_by(name: name, project_id: $project_id)
@@ -314,6 +318,7 @@ namespace :tw do
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
         file.each_with_index do |row, i|
           print "\r#{i}"
+#          byebug if row['TaxonCode'] == 'PentarR' || row['TaxonCode'] == 'TrichoWb' || row['TaxonCode'] == 'TrichoW'
           if !row['CitGenus'].blank? && @data.taxon_codes[row['TaxonCode']].nil?
               taxon = Protonym.find_or_create_by(name: row['CitGenus'], project_id: $project_id)
               taxon1 = Protonym.find_by(name: row['ValGenus'], project_id: $project_id)
@@ -360,6 +365,7 @@ namespace :tw do
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
         file.each_with_index do |row, i|
           print "\r#{i}"
+#          byebug if row['TaxonCode'] == 'PentarR' || row['TaxonCode'] == 'TrichoWb' || row['TaxonCode'] == 'TrichoW'
           if !row['CitSubgen'].blank? && row['CitSpecies'].blank? && row['CitSubsp'].blank? && @data.taxon_codes[row['TaxonCode']].nil?
             name = row['CitSubgen'].gsub(')', '').gsub('?', '').capitalize
             parent = @data.genera_index[row['ValGenus']]
@@ -911,7 +917,7 @@ namespace :tw do
               taxon.citations.create(source_id: ref, pages: row['PageRef'], is_original: true)
             end
             taxon.notes.create(text: row['Notes']) unless row['Notes'].blank?
-            taxon.data_attributes.find_or_create_by!(type: 'InternalAttribute', predicate: keywords['Genus:Status'], value: status_type[row['Status']]) unless row['Status'].blank?
+            taxon.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Genus:Status'], value: status_type[row['Status']]) unless row['Status'].blank?
           end
         end
       end
@@ -924,7 +930,7 @@ namespace :tw do
 
         keywords = {
             'Region' => Predicate.find_or_create_by(name: 'Species:Region', definition: 'The verbatim value in Species#Region.', project_id: $project_id),
-            'Species:Country' => Predicate.find_or_create_by(name: 'Species:Region', definition: 'The verbatim value in Species#Coutry-State.', project_id: $project_id),
+            'Species:Country' => Predicate.find_or_create_by(name: 'Species:Country', definition: 'The verbatim value in Species#Coutry-State.', project_id: $project_id),
             'Coll:Depository' => Predicate.find_or_create_by(name: 'Coll:Depository', definition: 'The verbatim value in Coll#Depository.', project_id: $project_id),
             'Sex' => Predicate.find_or_create_by(name: 'Species:Sex', definition: 'The verbatim value in Species#Sex.', project_id: $project_id),
             'Figures' => Predicate.find_or_create_by(name: 'Species:Figures', definition: 'The verbatim value in Species#Figures.', project_id: $project_id),
@@ -966,7 +972,6 @@ namespace :tw do
             'NN' => 'TaxonNameClassification::Iczn::Unavailable::NomenNudum',
         }
 
-
         file.each_with_index do |row, i|
           print "\r#{i}"
           taxon = find_taxon_ucd(row['TaxonCode'])
@@ -981,11 +986,11 @@ namespace :tw do
             end
             taxon.notes.create(text: row['Notes']) unless row['Notes'].blank?
             taxon.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Status:Meaning'], value: status_type[row['CurrStat']]) unless status_type[row['CurrStat']].nil?
-            taxon.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Species:Country'], value: @data.countries[row['Country'] + '|' + row['State']]) unless @data.countries[row['Country'] + '|' + row['State']].nil?
+            taxon.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Species:Country'], value: @data.countries[row['Country'].to_s + '|' + row['State'].to_s]) unless @data.countries[row['Country'].to_s + '|' + row['State'].to_s].blank?
             taxon.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Coll:Depository'], value: @data.collections[row['Depository']]) unless @data.collections[row['Depository']].nil?
             keywords.each_key do |k|
               da = taxon.data_attributes.create(type: 'InternalAttribute', predicate: keywords[k], value: row[k]) unless row[k].blank?
-              byebug unless da.valid?
+              byebug if da && !da.valid?
             end
             if taxon.type == 'Combination' && !classification_type[row['CurrStat']].nil?
               valid = TaxonName.find(taxon.cached_valid_taxon_name_id)
@@ -1046,7 +1051,7 @@ namespace :tw do
           print "\r#{i}"
           parent = find_host_family_id_ucd('PrimHosFam') || @root.id
           taxon = Protonym.find_or_create_by(name: row['HosGenus'], parent_id: parent, rank_class: 'NomenclaturalRank::Iczn::GenusGroup::Genus', project_id: $project_id)
-          parent = taxon.id
+          parent = taxon.id if taxon.valid?
           unless row['HosSpecies'].blank?
             taxon = Protonym.find_or_create_by(name: row['HosSpecies'], rank_class: 'NomenclaturalRank::Iczn::SpeciesGroup::Species', parent_id: parent, project_id: $project_id)
           end
@@ -1054,6 +1059,7 @@ namespace :tw do
             taxon.verbatim_author = row['HosAuthor']
             taxon.save if taxon.valid?
           end
+          taxon = TaxonName.find(parent) unless taxon.valid?
           taxon.identifiers.create(type: 'Identifier::Local::Import', namespace: @data.keywords['hos_number'], identifier: row['HosNumber']) if !row['HosNumber'].blank?
         end
       end
@@ -1106,25 +1112,25 @@ namespace :tw do
           print "\r#{i}"
           taxon = find_taxon_id_ucd(row['TaxonCode'])
           host = find_host_id_ucd(row['HosNumber'])
-          host = find_host_family_id_ucd('PrimHosFam') if row['HosNumber'].blank?
+          host = find_host_family_id_ucd(row['PrimHosFam']) if row['HosNumber'].blank?
           ref = find_source_id_ucd(row['RefCode'])
-          br = ralation[row['Relation']]
-          if taxon && host && relation
+          br = relation[row['Relation']]
+          if taxon && host && br
             subject = Otu.find_or_create_by(taxon_name_id: taxon)
             object = Otu.find_or_create_by(taxon_name_id: host)
             r = BiologicalAssociation.find_or_create_by!(biological_relationship: br, biological_association_subject: subject, biological_association_object: object, project_id: $project_id)
-            r.citations.create!(source_id: ref, pages: row['PageRef']) unless ref.nil?
-            r.notes.create!(text: row['Notes']) unless row['Notes'].blank?
-            r.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['ParTypeA'], value: @data.ptype[row['ParTypeA']]) unless row['ParTypeA'].blank?
-            r.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['ParTypeB'], value: @data.ptype[row['ParTypeB']]) unless row['ParTypeB'].blank?
-            r.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['ParTypeC'], value: @data.ptype[row['ParTypeC']]) unless row['ParTypeC'].blank?
-            r.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['ParTypeD'], value: @data.ptype[row['ParTypeD']]) unless row['ParTypeD'].blank?
-            r.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['ReliableA'], value: @data.reliable[row['ReliableA']]) unless row['ReliableA'].blank?
-            r.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['ReliableB'], value: @data.reliable[row['ReliableB']]) unless row['ReliableB'].blank?
-            r.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Comment'], value: row['Comment']) unless row['Comment'].blank?
-            r.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['CommonName'], value: row['CommonName']) unless row['CommonName'].blank?
+            r.citations.create(source_id: ref, pages: row['PageRef']) unless ref.nil?
+            r.notes.create(text: row['Notes']) unless row['Notes'].blank?
+            r.data_attributes.create(type: 'InternalAttribute', predicate: keywords['ParTypeA'], value: @data.ptype[row['ParTypeA']]) unless row['ParTypeA'].blank?
+            r.data_attributes.create(type: 'InternalAttribute', predicate: keywords['ParTypeB'], value: @data.ptype[row['ParTypeB']]) unless row['ParTypeB'].blank?
+            r.data_attributes.create(type: 'InternalAttribute', predicate: keywords['ParTypeC'], value: @data.ptype[row['ParTypeC']]) unless row['ParTypeC'].blank?
+            r.data_attributes.create(type: 'InternalAttribute', predicate: keywords['ParTypeD'], value: @data.ptype[row['ParTypeD']]) unless row['ParTypeD'].blank?
+            r.data_attributes.create(type: 'InternalAttribute', predicate: keywords['ReliableA'], value: @data.reliable[row['ReliableA']]) unless row['ReliableA'].blank?
+            r.data_attributes.create(type: 'InternalAttribute', predicate: keywords['ReliableB'], value: @data.reliable[row['ReliableB']]) unless row['ReliableB'].blank?
+            r.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Comment'], value: row['Comment']) unless row['Comment'].blank?
+            r.data_attributes.create(type: 'InternalAttribute', predicate: keywords['CommonName'], value: row['CommonName']) unless row['CommonName'].blank?
           else
-            print "\nInvalid host relationship: TaxonCode: #{row['TaxonCode']}, Relation: #{row['Relation']}, HosNumber: #{row['HosNumber']}\n"
+            print "\nInvalid host relationship: TaxonCode: #{row['TaxonCode']}, Relation: #{row['Relation']}, PrimHosFam: #{row['PrimHosFam']}, HosNumber: #{row['HosNumber']}\n"
           end
         end
       end
@@ -1147,20 +1153,32 @@ namespace :tw do
           taxon = find_taxon_id_ucd(row['TaxonCode'])
           otu = Otu.find_or_create_by(taxon_name_id: taxon)
           ref = find_source_id_ucd(row['RefCode'])
-          ga = GeographicArea.find_by_self_and_parents(@data.countries[row['Country'] + '|' + row['State']])
-          if otu && ga
-            ad = AssertedDistribution.create!(
+          ga = GeographicArea.find_by_self_and_parents([@data.countries[row['Country'] + '|' + row['State']]])
+          if ga.count > 1
+            ga = ga.select{|g| !g.geographic_items.empty?}
+            ga = ga.first unless ga.empty?
+          elsif ga.count == 1
+            ga = ga.first
+          else
+            ga = nil
+          end
+
+          if otu && otu.valid? && ga
+            ad = AssertedDistribution.find_or_create_by(
                 otu: otu,
                 geographic_area: ga,
                 source_id: ref,
                 is_absent: nil,
                 project_id: $project_id )
-            ad.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Reliable'], value: @data.reliable[row['Reliable']]) unless row['Reliable'].blank?
-            ad.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Comment'], value: row['Comment']) unless row['Comment'].blank?
-            ad.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['PageRef'], value: row['PageRef']) unless row['PageRef'].blank?
-            ad.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Keyword'], value: @data.keywords[row['Keyword']]) unless row['KeyWord'].blank?
-            ad.notes.create!(text: row['Notes']) unless row['Notes'].blank?
-          elsif ag.nil?
+            if ad.valid?
+              ad.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Reliable'], value: @data.reliable[row['Reliable']]) unless row['Reliable'].blank?
+              ad.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Comment'], value: row['Comment']) unless row['Comment'].blank?
+              ad.data_attributes.create(type: 'InternalAttribute', predicate: keywords['PageRef'], value: row['PageRef']) unless row['PageRef'].blank?
+              ad.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Keyword'], value: row['Keyword']) unless row['Keyword'].blank?
+              # row['Keyword'] => citation.topic.
+              ad.notes.create(text: row['Notes']) unless row['Notes'].blank?
+            end
+          elsif ga.nil?
             unresolved[@data.countries[row['Country'] + '|' + row['State']]] = true
           end
         end
@@ -1359,6 +1377,7 @@ namespace :tw do
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
         file.each_with_index do |row, i|
           print "\r#{i}"
+#          byebug if row['Code'] == 'PentarR'
           taxon = find_taxon_ucd(row['TaxonCode'])
           taxon1 = find_taxon_ucd(row['Code'])
           ref = find_source_id_ucd(row['RefCode'])
@@ -1395,20 +1414,18 @@ namespace :tw do
           taxon.notes.create(text: row['Notes'].to_s + ' ' + row['Code'].to_s) if !row['Notes'].blank? && !taxon.nil?
           if taxon.nil?
             print "\nInvalid TaxonCode: #{row['TaxonCode']}\n"
-          else
-            if taxon.type = 'Combination'
-              valid = TaxonName.find(taxon.cached_valid_taxon_name_id)
-              taxon = valid
-            end
+          elsif taxon.type == 'Combination'
+            valid = TaxonName.find(taxon.cached_valid_taxon_name_id)
+            taxon = valid
           end
-          if !taxon1.nil? && taxon1.type = 'Combination'
+          if !taxon1.nil? && taxon1.type == 'Combination'
             valid = TaxonName.find(taxon1.cached_valid_taxon_name_id)
             taxon1 = valid
           end
           if !relationship[row['Status']].nil? && !taxon.nil? && !taxon1.nil?
             if taxon != taxon1
               c = TaxonNameRelationship.where(subject_taxon_name: taxon, object_taxon_name: taxon1, type: 'TaxonNameRelationship::Iczn::Invalidating').first
-              if relationship[row['Status']].include?('TaxonNameRelationship::Iczn::Invalidating')
+              if relationship[row['Status']].include?('TaxonNameRelationship::Iczn::Invalidating') && !c.nil?
                 c.update_column(:type, relationship[row['Status']])
               else
                 c = TaxonNameRelationship.find_or_create_by(subject_taxon_name: taxon, object_taxon_name: taxon1, type: relationship[row['Status']])
@@ -1468,6 +1485,36 @@ namespace :tw do
         @data.references[key.to_s] || Identifier.where(cached: 'UCD_RefCode ' + key.to_s, identifier_object_type: 'Source', project_id: $project_id).limit(1).pluck(:identifier_object_id).first
       end
 
+      def soft_validations_ucd
+        fixed = 0
+        print "\nApply soft validation fixes to taxa 1st pass \n"
+        TaxonName.where(project_id: $project_id).each_with_index do |t, i|
+          print "\r#{i}    Fixes applied: #{fixed}"
+          t.soft_validate
+          t.fix_soft_validations
+          t.soft_validations.soft_validations.each do |f|
+            fixed += 1  if f.fixed?
+          end
+        end
+        print "\nApply soft validation fixes to relationships \n"
+        TaxonNameRelationship.where(project_id: $project_id).each_with_index do |t, i|
+          print "\r#{i}    Fixes applied: #{fixed}"
+          t.soft_validate
+          t.fix_soft_validations
+          t.soft_validations.soft_validations.each do |f|
+            fixed += 1  if f.fixed?
+          end
+        end
+        print "\nApply soft validation fixes to taxa 2nd pass \n"
+        TaxonName.where(project_id: $project_id).each_with_index do |t, i|
+          print "\r#{i}    Fixes applied: #{fixed}"
+          t.soft_validate
+          t.fix_soft_validations
+          t.soft_validations.soft_validations.each do |f|
+            fixed += 1  if f.fixed?
+          end
+        end
+      end
 
     end
   end
