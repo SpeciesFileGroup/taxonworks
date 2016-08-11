@@ -333,6 +333,10 @@ TaxonWorks::Application.routes.draw do
 
   resources :serial_chronologies, only: [:create, :update, :destroy]
 
+  resources :sequences do
+    concerns [:data_routes]
+  end
+
   resources :sources do
     concerns [:data_routes]
     collection do

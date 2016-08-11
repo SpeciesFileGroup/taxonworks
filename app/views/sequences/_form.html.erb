@@ -1,0 +1,21 @@
+<%= form_for(@sequence) do |f| %>
+    <%= render 'shared/errors', object: @sequence %>
+
+    <div class="required">
+      <div class="field">
+        <%= f.label :sequence %>
+        <br>
+        <%= f.text_field :sequence %>
+      </div>
+
+      <div class="field">
+        <%= f.label :sequence_type %>
+        <br>
+        <%= f.text_field :sequence_type %>
+      </div>
+    </div>
+
+    <div class="actions">
+      <%= f.submit %>
+    </div>
+<% end %>
