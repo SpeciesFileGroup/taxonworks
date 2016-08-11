@@ -59,6 +59,8 @@ Core: # a Section
      status: :prototype
      related_models:
        - BiologicalRelationship
+  Sequence:
+    status: :prototype
 Supporting:
   AssertedDistribution:
     categories:
