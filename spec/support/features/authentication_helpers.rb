@@ -5,22 +5,22 @@ module Features
   # Likely not used anywhere anymore
     def sign_up_with(email, password, password_confirmation)
       visit signup_path
-      fill_in 'Email',                 with: email
-      fill_in 'Password',              with: password
+      fill_in 'session_email', with: email
+      fill_in 'session_password', with: password
       fill_in 'Password confirmation', with: password_confirmation
       click_button 'Create account'
     end
 
     def sign_in_with(email, password)
       visit signin_path
-      fill_in 'Email',    with: email
-      fill_in 'Password', with: password
+      fill_in 'session_email', with: email
+      fill_in 'session_password', with: password
       click_button 'Sign in'
       find_link('Sign out')  # TODO: check for Capybara bug fix down the road?
     end
 
     def select_a_project(project)
-      visit select_project_path(project) 
+      visit select_project_path(project)
     end
 
     def sign_in_project_administrator_and_select_project
@@ -54,7 +54,7 @@ module Features
     end
 
     def user_project_attributes(user, project)
-      {creator: user, updater: user, project: project} 
+      {creator: user, updater: user, project: project}
     end
 
     protected
@@ -67,7 +67,7 @@ module Features
 
       @project = Project.create!(name: 'My Project', creator: @administrator, updater: @administrator, without_root_taxon_name: true)
       @project.project_members.create!(creator: @administrator, updater: @administrator, user: @project_administrator, is_project_administrator: true)
-      @project.project_members.create!(creator: @administrator, updater: @administrator, user: @user) 
+      @project.project_members.create!(creator: @administrator, updater: @administrator, user: @user)
     end
   end
 end
