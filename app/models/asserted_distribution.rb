@@ -27,6 +27,9 @@ class AssertedDistribution < ActiveRecord::Base
   include SoftValidation
   include Shared::IsData
   include Shared::Taggable
+  include Shared::DataAttributes
+  include Shared::Citable
+
 
   belongs_to :otu
   belongs_to :geographic_area
