@@ -76,6 +76,6 @@ class SequenceRelationshipsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def sequence_relationship_params
-      params.require(:sequence_relationship).permit(:subject_sequence, :type, :object_sequence, :created_by_id, :updated_by_id, :project_id)
+      params.require(:sequence_relationship).permit(:subject_sequence, :relationship_type, :object_sequence, :created_by_id, :updated_by_id, :project_id)
     end
 end
