@@ -61,6 +61,10 @@ Core: # a Section
        - BiologicalRelationship
   Sequence:
     status: :prototype
+    related_model:
+      - SequenceRelationship
+    categories:
+      - Genetic
 Supporting:
   AssertedDistribution:
     categories:
@@ -165,6 +169,12 @@ Supporting:
     related_models:
       - Source
       - Person
+  SequenceRelationship:
+    status: :prototype
+    related_model:
+      - Sequence
+    categories:
+      - Genetic
   TaxonDetermination:
      categories:
        - collection_object
