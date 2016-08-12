@@ -3,9 +3,33 @@
 
     <div class="required">
       <div class="field">
-        <%= f.label :type %>
+        <%= f.label :relationship_type %>
         <br>
-        <%= f.text_field :type %>
+        <%= f.text_field :relationship_type %>
+      </div>
+
+      <div class="field">
+        <%= f.label :subject_sequence %>
+        <br>
+        <%= render partial: 'workbench/elements/forms/ajax_select',
+                   locals:  {controller:  'sequences',
+                             object: 'sequence_relationship',
+                             method:  'subject_sequence',
+                             tag_id:  'subject_sequence_id_for_sequence_relationship',
+                             display:  sequence_autocomplete_selected_tag(@sequence_relationship.subject_sequence),
+                             size: 20} %>
+      </div>
+
+      <div class="field">
+        <%= f.label :object_sequence %>
+        <br>
+        <%= render partial: 'workbench/elements/forms/ajax_select',
+                   locals:  {controller:  'sequences',
+                             object: 'sequence_relationship',
+                             method:  'object_sequence',
+                             tag_id:  'object_sequence_id_for_sequence_relationship',
+                             display:  sequence_autocomplete_selected_tag(@sequence_relationship.object_sequence),
+                             size: 20} %>
       </div>
     <div class="actions">
       <%= f.submit %>
