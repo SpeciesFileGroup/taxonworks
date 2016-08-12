@@ -1,0 +1,13 @@
+<%= form_for(@sequence_relationship) do |f| %>
+    <%= render 'shared/errors', object: @sequence_relationship %>
+
+    <div class="required">
+      <div class="field">
+        <%= f.label :type %>
+        <br>
+        <%= f.text_field :type %>
+      </div>
+    <div class="actions">
+      <%= f.submit %>
+    </div>
+<% end %>
