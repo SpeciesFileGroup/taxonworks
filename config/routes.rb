@@ -350,6 +350,10 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
   end
 
+  resources :sequence_relationships do
+    concerns [:data_routes]
+  end
+  
   resources :sources do
     concerns [:data_routes]
     collection do

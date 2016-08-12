@@ -1,0 +1,28 @@
+<%= render("/shared/data/all/list/list_header", objects: @sequence_relationships) -%>
+
+<table class="tablesorter">
+  <thead>
+  <tr>
+    <%= fancy_th_tag(name: 'Subject sequence') -%>
+    <%= fancy_th_tag(name: 'Subject sequence type') -%>
+    <%= fancy_th_tag(name: 'Object sequence') -%>
+    <%= fancy_th_tag(name: 'Object sequence type') -%>
+    <%= fancy_th_tag(name: 'Relationship type') -%>
+    <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
+    <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
+  </tr>
+  </thead>
+
+  <tbody>
+  <% @sequence_relationships.each do |sequence_relationship| %>
+      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+          <td><%= sequence_link(sequence_relationship.subject_sequence) %></td>
+          <td><%= sequence_relationship.subject_sequence_type %></td>
+          <td><%= sequence_link(sequence_relationship.object_sequence) %></td>
+          <td><%= sequence_relationship.object_sequence_type %></td>
+          <td><%= sequence_relationship.type %></td>
+          <%= fancy_metadata_cells_tag(sequence_relationship) -%>
+      <% end %>
+  <% end %>
+  </tbody>
+</table>
