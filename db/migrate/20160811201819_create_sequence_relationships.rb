@@ -1,9 +1,9 @@
 class CreateSequenceRelationships < ActiveRecord::Migration
   def change
     create_table :sequence_relationships do |t|
-      t.polymorphic :subject_sequence, foreign_key: true
-      t.string :type
-      t.polymorphic :object_sequence, foreign_key: true
+      t.references :subject_sequence, polymorphic: true, null: false
+      t.string :relationship_type
+      t.references :object_sequence, polymorphic: true, null: false
       t.integer :created_by_id, null: false
       t.integer :updated_by_id, null: false
       t.references :project, index: true, foreign_key: true
