@@ -12,17 +12,22 @@ describe "AssertedDistributions", :type => :feature do
   context 'signed in as user, with some records created' do
     before {
       sign_in_user_and_select_project
+      # TODO: Figure out why these two variables are *not* properly set in this set of tests, but are, in other feature test sets
+      $user_id = @user.id; $project_id = @project.id
       5.times { factory_girl_create_for_user_and_project(:valid_otu, @user, @project) }
       5.times.each_with_index { |i|
         FactoryGirl.create(:valid_asserted_distribution,
-                           otu: Otu.all[i],
+                           otu:             Otu.all[i],
                            geographic_area: g,
-                           source: s,
-                           creator: @user,
-                           updater: @user,
-                           project: @project)
+                           source:          s,
+                           creator:         @user,
+                           updater:         @user,
+                           project:         @project)
       }
     }
+    after {
+      AssertedDistribution.delete_all
+      GeographicArea.delete_all }
 
     describe 'GET /asserted_distributions' do
       before {
@@ -50,25 +55,25 @@ describe "AssertedDistributions", :type => :feature do
 
 
     context 'testing new asserted distribution' do
-      before { visit asserted_distributions_path } 
+      before { visit asserted_distributions_path }
 
       specify 'can create a new asserted distribution', js: true do
         o = Otu.create!(user_project_attributes(@user, @project).merge(name: 'zzzz'))
         g = GeographicArea.first
         s = Source.first
 
-        click_link('New') 
+        click_link('New')
         expect(page.has_field?('asserted_distribution[otu_id]', :type => 'text')).to be_truthy
-        
+
         expect(page.has_field?('geographic_area_id_for_asserted_distribution', :type => 'text')).to be_truthy
         expect(page.has_field?('source_id_for_asserted_distribution', :type => 'text')).to be_truthy
 
-        fill_otu_widget_autocomplete('asserted_distribution[otu_id]', with: 'zzzz', select: o.id) 
+        fill_otu_widget_autocomplete('asserted_distribution[otu_id]', with: 'zzzz', select: o.id)
         fill_autocomplete('geographic_area_id_for_asserted_distribution', with: g.name, select: g.id)
         fill_autocomplete('source_id_for_asserted_distribution', with: s.cached, select: s.id)
 
         click_button('Create Asserted distribution')
-        
+
         expect(page).to have_text('zzzz')
         expect(page).to have_text(g.name)
       end
