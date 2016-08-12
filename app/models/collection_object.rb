@@ -58,9 +58,6 @@
 #
 class CollectionObject < ActiveRecord::Base
 
-
-
-
   include GlobalID::Identification
 
   # @todo DDA: may be buffered_accession_number should be added.  MJY: This would promote non-"barcoded" data capture, I'm not sure we want to do this?!
@@ -116,7 +113,7 @@ class CollectionObject < ActiveRecord::Base
   def reject_collecting_event(attributed)
     reject = true
     CollectingEvent.data_attributes.each do |a|
-      if !attributed[a].blank? 
+      if !attributed[a].blank?
         reject = false
         break
       end
