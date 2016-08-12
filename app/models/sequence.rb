@@ -12,6 +12,9 @@ class Sequence < ActiveRecord::Base
   
   belongs_to :project
 
+  has_many :sequence_relationships, as: :subject_sequence
+  has_many :sequence_relationships, as: :object_sequence
+
   validates_presence_of :sequence
   validates_inclusion_of :sequence_type, in: ["DNA", "RNA", "AA"]
 end

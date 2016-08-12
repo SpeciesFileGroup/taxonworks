@@ -68,6 +68,31 @@ class SequencesController < ApplicationController
     end
   end
 
+  def search
+    if params[:id].blank?
+      redirect_to sequences_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+    else
+      redirect_to sequence_path(params[:id])
+    end
+  end
+
+  def autocomplete
+    @sequences = Sequence.where(project_id: sessions_current_project_id).where('sequence ILIKE ?', "#{params[:term]}%")
+
+    data = @sequences.collect do |t|
+      {id:              t.id,
+       label:           t.sequence,
+       gid:             t.to_global_id.to_s,
+       response_values: {
+         params[:method] => t.id
+       },
+       label_html:      t.sequence
+      }
+    end
+
+    render :json => data
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_sequence
