@@ -723,7 +723,7 @@ class TaxonNameRelationship < ActiveRecord::Base
     else
       s_new = s
     end
-    if s != s_new & !s.nil?
+    if s != s_new && !s.nil?
       self.subject_taxon_name = s_new
       begin
         TaxonNameRelationship.transaction do

@@ -518,17 +518,22 @@ class Protonym < TaxonName
       end
 
       if self.original_genus.nil? && !t.original_genus.nil?
-        self.original_combination_genus = t.original_combination_genus
+        self.original_genus = t.original_genus
         fixed = true
       end
 
       if self.original_subgenus.nil? && !t.original_subgenus.nil?
-        self.original_combination_subgenus = t.original_combination_subgenus
+        self.original_subgenus = t.original_subgenus
         fixed = true
       end
 
       if self.original_species.nil? && !t.original_species.nil?
-        self.original_combination_species = t.original_combination_species
+        self.original_species = t.original_species
+        fixed = true
+      end
+
+      if self.original_subspecies.nil? && !t.original_subspecies.nil?
+        self.original_subspecies = t.original_subspecies
         fixed = true
       end
 
