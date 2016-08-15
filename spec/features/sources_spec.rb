@@ -39,7 +39,7 @@ describe 'Sources', type: :feature, group: :sources do
 
   context "as a user create a record" do
     before {
-      sign_in_user_and_select_project 
+      sign_in_user_and_select_project
       Source::Bibtex.create!(by: @user,
                              bibtex_type:  'article',
                              title:        'Article Title',
@@ -72,8 +72,15 @@ describe 'Sources', type: :feature, group: :sources do
 
   context 'testing new source' do
     before {
+      echo                           = Capybara.default_max_wait_time
+      Capybara.default_max_wait_time = 15 # slows down Capybara enough to see what's happening on the form
       sign_in_user_and_select_project
-      visit sources_path } 
+      visit sources_path
+      Capybara.default_max_wait_time = echo
+    }
+    after {
+      click_link('Sign out')
+    }
 
     specify 'can create a new BibTeX source', js: true do
       s = Serial.create!(name: 'My Serial', creator: @user, updater: @user)
@@ -90,9 +97,9 @@ describe 'Sources', type: :feature, group: :sources do
 
       select('article', from: 'source_bibtex_type')
 
-      fill_in('Title', with: 'Unicorns and Honey Badgers') 
-      fill_in('Author', with: 'Wombat, H.P.') 
-      fill_in('Year', with: '1920') 
+      fill_in('Title', with: 'Unicorns and Honey Badgers')
+      fill_in('Author', with: 'Wombat, H.P.')
+      fill_in('Year', with: '1920')
       fill_autocomplete('serial_id_for_source', with: 'My Serial', select: s.id) # fill out Serial autocomplete with 'My Serial'
       click_button('Create Source') # when I click the 'Create Source' button
       expect(page).to have_content("Source by 'Wombat, H.P.' was successfully created.")
@@ -100,7 +107,7 @@ describe 'Sources', type: :feature, group: :sources do
 
     specify 'can create a new Verbatim source' do
       #Capybara.ignore_hidden_elements = true
-      click_link('New') 
+      click_link('New')
       choose('source_type_sourceverbatim') # select the Verbatim radio button
       expect(page.has_checked_field?('source_type_sourceverbatim')).to be_truthy
       expect(page.has_field?('source_verbatim', :type => 'textarea')).to be_truthy
@@ -135,8 +142,8 @@ describe 'Sources', type: :feature, group: :sources do
       expect(page).to have_content('Person, T. (1700) I am a soft valid article. Journal of Test Articles.')
       expect(page).to have_link('Edit')
       click_link('Edit')
-     
-      # Beth - on edit this default to disabled, so taking this out for now   
+
+      # Beth - on edit this default to disabled, so taking this out for now
       # expect(page.has_checked_field?('source_type_sourcebibtex')).to be_truthy
 #      expect(find_field('source_bibtex_type').value).to be('article')
       select('article', from: 'source_bibtex_type')
@@ -161,10 +168,10 @@ describe 'Sources', type: :feature, group: :sources do
       expect(page).to have_content(@src_verbatim.cached)
       expect(page).to have_link('Edit')
       click_link('Edit')
-      
-      # disabled on edit, so this finder isn't working 
+
+      # disabled on edit, so this finder isn't working
       # expect(page.has_checked_field?('source_type_sourceverbatim')).to be_truthy
-      
+
       expect(page.find_field('Verbatim').value).to eq(tmp)
       expect(page.has_field?('Author')).to be_falsey
       expect(page.has_field?('Journal')).to be_falsey
