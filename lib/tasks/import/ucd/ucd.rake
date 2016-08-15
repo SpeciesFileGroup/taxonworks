@@ -344,12 +344,8 @@ namespace :tw do
                   #@data.new_combinations['TaxonCode'] = {'genus' => row['CitGenus']}
                   c = Combination.new
                   c.genus = TaxonName.find(@data.all_species_index[taxon])
-                  if c.valid?
-                    c.save!
-                    taxon = c
-                  else
-                    byebug
-                  end
+                  c.save!
+                  taxon = c
                 end
                 @data.taxon_codes[row['TaxonCode']] = taxon.id
                 taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
@@ -365,12 +361,12 @@ namespace :tw do
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
         file.each_with_index do |row, i|
           print "\r#{i}"
-#          byebug if row['TaxonCode'] == 'PentarR' || row['TaxonCode'] == 'TrichoWb' || row['TaxonCode'] == 'TrichoW'
+          #byebug if row['TaxonCode'] == 'PentarR' || row['TaxonCode'] == 'TrichoWb' || row['TaxonCode'] == 'TrichoW'
           if !row['CitSubgen'].blank? && row['CitSpecies'].blank? && row['CitSubsp'].blank? && @data.taxon_codes[row['TaxonCode']].nil?
             name = row['CitSubgen'].gsub(')', '').gsub('?', '').capitalize
             parent = @data.genera_index[row['ValGenus']]
             taxon = Protonym.find_or_create_by(name: name, project_id: $project_id)
-            taxon.parent_id = parent if taxon.parent_id.nil?
+            taxon.parent_id = parent if taxon.parent_id.nil? && parent
             taxon.year_of_publication = row['CitDate'] if taxon.year_of_publication.nil? && row['CitSpecies'].blank?
             taxon.verbatim_author = row['CitAuthor'] if taxon.verbatim_author.nil? && row['CitSpecies'].blank?
             taxon.rank_class = 'NomenclaturalRank::Iczn::GenusGroup::Subgenus' if taxon.rank_class.nil? && row['CitSpecies'].blank?
@@ -378,7 +374,7 @@ namespace :tw do
             taxon.save!
             @data.all_genera_index[name] = taxon.id
 
-            if taxon.rank_class == 'NomenclaturalRank::Iczn::GenusGroup::Genus' && taxon.name == name
+            if taxon.rank_class.to_s == 'NomenclaturalRank::Iczn::GenusGroup::Genus' && taxon.name == name
               if @data.combinations['TaxonCode'].blank?
                 origgen = @data.all_genera_index[row['CitGenus']]
                 c = Combination.new()
@@ -391,15 +387,12 @@ namespace :tw do
                 c = Combination.new
                 c.genus = TaxonName.find(@data.all_genera_index[origgen]) unless origgen.blank?
                 c.subgenus = TaxonName.find(@data.all_species_index[taxon])
-                if c.valid?
-                  c.save!
-                else
-                  byebug
-                end
+                c.save!
                 taxon = c
               end
+            else
+              @data.genera_index[name] = taxon.id
             end
-            @data.genera_index[name] = taxon.id
             @data.taxon_codes[row['TaxonCode']] = taxon.id
             taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
           end
@@ -483,11 +476,7 @@ namespace :tw do
                 c.genus = TaxonName.find(@data.all_genera_index[origgen]) unless origgen.blank?
                 c.subgenus = TaxonName.find(@data.all_genera_index[origsubgen]) unless origsubgen.blank?
                 c.species = TaxonName.find(@data.all_species_index[taxon])
-                if c.valid?
-                  c.save!
-                else
-                  byebug
-                end
+                c.save!
                 taxon = c
               end
             else
@@ -1487,6 +1476,15 @@ namespace :tw do
 
       def soft_validations_ucd
         fixed = 0
+        print "\nApply soft validation fixes to relationships \n"
+        TaxonNameRelationship.where(project_id: $project_id).each_with_index do |t, i|
+          print "\r#{i}    Fixes applied: #{fixed}"
+          t.soft_validate
+          t.fix_soft_validations
+          t.soft_validations.soft_validations.each do |f|
+            fixed += 1  if f.fixed?
+          end
+        end
         print "\nApply soft validation fixes to taxa 1st pass \n"
         TaxonName.where(project_id: $project_id).each_with_index do |t, i|
           print "\r#{i}    Fixes applied: #{fixed}"

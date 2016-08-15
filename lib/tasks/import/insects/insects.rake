@@ -1896,7 +1896,7 @@ namespace :tw do
           r = Container::Room.with_project_id($project_id).where(name: row['name'])
           if r.empty?
             r = Container::Room.create!(name: row['Room'] )
-            ContainerItem.create!(container: @collection_container, contained_object: r)
+            ContainerItem.create!(container_id: @collection_container, contained_object: r)
           else
             r = r.first
           end
