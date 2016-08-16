@@ -15,6 +15,9 @@ describe 'ControlledVocabularyTerms', :type => :feature do
         FactoryGirl.create(:valid_controlled_vocabulary_term, user_project_attributes(@user, @project))
       }
     }
+    after {
+      click_link('Sign out')
+    }
 
     describe 'GET /controlled_vocabulary_terms' do
       before {
@@ -38,7 +41,7 @@ describe 'ControlledVocabularyTerms', :type => :feature do
       }
 
       it_behaves_like 'a_data_model_with_standard_show'
-   end
+    end
   end
 
   context 'creating a new controlled vocabulary term' do
@@ -76,7 +79,7 @@ describe 'ControlledVocabularyTerms', :type => :feature do
           click_link('New') # when I click the new link
 
           select('Keyword', from: 'controlled_vocabulary_term_type') # I select 'Keyword' from the Type dropdown
-          fill_in('Name', with: 'TestKeyword')  # I fill in the name field with 'TestKeyword'
+          fill_in('Name', with: 'TestKeyword') # I fill in the name field with 'TestKeyword'
           fill_in('Definition', with: 'TestKeyword definition') # I fill in the definition field with 'TestKeyword definition'
 
           click_button('Create Controlled vocabulary term') # I click the 'Create Controlled vocabulary term' button
