@@ -1,3 +1,3 @@
-class ReversePrimer < SequenceRelationship
+class SequenceRelationship::ReversePrimer < SequenceRelationship
 
 end
