@@ -1,0 +1,3 @@
+class ReversePrimer < SequenceRelationship
+
+end
