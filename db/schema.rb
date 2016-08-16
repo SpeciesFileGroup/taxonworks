@@ -1043,8 +1043,8 @@ ActiveRecord::Schema.define(version: 20160816202904) do
     t.integer  "updated_by_id",       null: false
     t.datetime "created_at",          null: false
     t.datetime "updated_at",          null: false
-    t.string   "type",                null: false
     t.integer  "project_id",          null: false
+    t.string   "type",                null: false
   end
 
   create_table "sequences", force: :cascade do |t|
