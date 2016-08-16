@@ -1,0 +1,10 @@
+<%= form_tag(search_sequences_path, {method: :get}) do %>
+    <%= render partial: '/workbench/elements/forms/ajax_select',
+               locals:  {controller: 'sequence_relationships',
+                         object:     nil,
+                         method:     'id',
+                         tag_id:     'sequence_relationship_id_for_quick_search_form',
+                         size:       '',
+                         display:    ''} %>
+    <%= submit_tag 'Show' %>
+<% end %>
