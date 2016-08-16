@@ -1,0 +1,10 @@
+<%= form_tag(search_gene_attributes_path, {method: :get}) do %>
+    <%= render partial: '/workbench/elements/forms/ajax_select',
+               locals:  {controller: 'gene_attributes',
+                         object:     nil,
+                         method:     'id',
+                         tag_id:     'gene_attribute_id_for_quick_search_form',
+                         size:       '',
+                         display:    ''} %>
+    <%= submit_tag 'Show' %>
+<% end %>

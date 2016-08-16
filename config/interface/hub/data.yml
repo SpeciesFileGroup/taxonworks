@@ -49,6 +49,11 @@ Core: # a Section
      related_models:
        - Serial
        - People
+  GeneAttribute:
+    status: :prototype
+    related_models:
+      - Sequence
+      - SequenceRelationship
   ProjectSource:
     status: :prototype
     related_models:
