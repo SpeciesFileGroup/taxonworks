@@ -1,3 +1,3 @@
-class ForwardPrimer < SequenceRelationship
+class SequenceRelationship::ForwardPrimer < SequenceRelationship
 
 end
