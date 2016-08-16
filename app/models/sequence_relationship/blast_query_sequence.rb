@@ -1,3 +1,3 @@
-class BlastQuerySequence < SequenceRelationship
+class SequenceRelationship::BlastQuerySequence < SequenceRelationship
 
 end
