@@ -1,0 +1,32 @@
+<%= render("/shared/data/all/list/list_header", objects: @gene_attributes) -%>
+
+t.references :descriptor, index: true, foreign_key: true, null: false
+      t.references :sequence, index: true, foreign_key: true, null: false
+      t.string :sequence_relationship_type
+      t.references :controlled_vocabulary_term, index: true, foreign_key: true
+
+<table class="tablesorter">
+  <thead>
+  <tr>
+    <%= fancy_th_tag(name: 'Descriptor') -%>
+    <%= fancy_th_tag(name: 'Sequence') -%>
+    <%= fancy_th_tag(name: 'Sequence relationship type') -%>
+    <%= fancy_th_tag(name: 'Controlled vocabulary term') -%>
+    <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
+    <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
+  </tr>
+  </thead>
+
+  <tbody>
+  <% @gene_attributes.each do |gene_attribute| %>
+      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+          <td><%= gene_attribute.descriptor_id %></td>
+          <td><%= gene_attribute.sequence_id %></td>
+          <td><%= gene_attribute.sequence_relationship_type %></td>
+          <td><%= gene_attribute.controlled_vocabulary_term_id %></td>
+          <%= fancy_metadata_cells_tag(gene_attribute) -%>
+      <% end %>
+  <% end %>
+  </tbody>
+</table>
+
