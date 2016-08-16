@@ -1,0 +1,3 @@
+class ForwardPrimer < SequenceRelationship
+
+end

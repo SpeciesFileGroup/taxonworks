@@ -3,32 +3,32 @@
 
     <div class="required">
       <div class="field">
-        <%= f.label :relationship_type %>
+        <%= f.label :type %>
         <br>
-        <%= f.text_field :relationship_type %>
+        <%= f.select :type, options_for_select(sequence_relationship_type_select_options, @sequence_relationship.type) %>
       </div>
 
       <div class="field">
-        <%= f.label :subject_sequence %>
+        <%= f.label :subject_sequence_id %>
         <br>
         <%= render partial: 'workbench/elements/forms/ajax_select',
                    locals:  {controller:  'sequences',
                              object: 'sequence_relationship',
-                             method:  'subject_sequence',
+                             method:  'subject_sequence_id',
                              tag_id:  'subject_sequence_id_for_sequence_relationship',
-                             display:  sequence_autocomplete_selected_tag(@sequence_relationship.subject_sequence),
+                             display:  sequence_autocomplete_selected_tag(@sequence_relationship.subject_sequence_id),
                              size: 20} %>
       </div>
 
       <div class="field">
-        <%= f.label :object_sequence %>
+        <%= f.label :object_sequence_id %>
         <br>
         <%= render partial: 'workbench/elements/forms/ajax_select',
                    locals:  {controller:  'sequences',
                              object: 'sequence_relationship',
-                             method:  'object_sequence',
+                             method:  'object_sequence_id',
                              tag_id:  'object_sequence_id_for_sequence_relationship',
-                             display:  sequence_autocomplete_selected_tag(@sequence_relationship.object_sequence),
+                             display:  sequence_autocomplete_selected_tag(@sequence_relationship.object_sequence_id),
                              size: 20} %>
       </div>
     <div class="actions">
