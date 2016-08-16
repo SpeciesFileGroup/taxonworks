@@ -3,6 +3,7 @@
 <table class="tablesorter">
   <thead>
   <tr>
+    <%= fancy_th_tag(name: 'Name') -%>
     <%= fancy_th_tag(name: 'Sequence') -%>
     <%= fancy_th_tag(name: 'Sequence type') -%>
     <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
@@ -13,6 +14,7 @@
   <tbody>
   <% @sequences.each do |sequence| %>
       <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+          <td><%= sequence.name %></td>
           <td><%= sequence.sequence %></td>
           <td><%= sequence.sequence_type %></td>
           <%= fancy_metadata_cells_tag(sequence) -%>
