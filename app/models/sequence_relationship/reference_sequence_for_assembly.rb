@@ -1,3 +1,3 @@
-class ReferenceSequenceForAssembly < SequenceRelationship
+class SequenceRelationship::ReferenceSequenceForAssembly < SequenceRelationship
 
 end
