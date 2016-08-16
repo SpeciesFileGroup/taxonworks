@@ -1,0 +1,3 @@
+class ConfidenceLevel < ControlledVocabularyTerm
+
+end
