@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160811201819) do
+ActiveRecord::Schema.define(version: 20160815173958) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1009,32 +1009,28 @@ ActiveRecord::Schema.define(version: 20160811201819) do
   add_index "roles", ["updated_by_id"], name: "index_roles_on_updated_by_id", using: :btree
 
   create_table "sequence_relationships", force: :cascade do |t|
-    t.integer  "subject_sequence_id",   null: false
-    t.string   "subject_sequence_type", null: false
-    t.string   "relationship_type"
-    t.integer  "object_sequence_id",    null: false
-    t.string   "object_sequence_type",  null: false
-    t.integer  "created_by_id",         null: false
-    t.integer  "updated_by_id",         null: false
-    t.integer  "project_id"
-    t.datetime "created_at",            null: false
-    t.datetime "updated_at",            null: false
+    t.integer  "subject_sequence_id", null: false
+    t.integer  "object_sequence_id",  null: false
+    t.integer  "created_by_id",       null: false
+    t.integer  "updated_by_id",       null: false
+    t.datetime "created_at",          null: false
+    t.datetime "updated_at",          null: false
+    t.integer  "project_id",          null: false
+    t.string   "type",                null: false
   end
 
-  add_index "sequence_relationships", ["project_id"], name: "index_sequence_relationships_on_project_id", using: :btree
-
   create_table "sequences", force: :cascade do |t|
-    t.text     "sequence"
-    t.string   "sequence_type"
     t.integer  "created_by_id", null: false
     t.integer  "updated_by_id", null: false
-    t.integer  "project_id"
     t.datetime "created_at",    null: false
     t.datetime "updated_at",    null: false
+    t.text     "sequence",      null: false
+    t.string   "sequence_type", null: false
+    t.integer  "project_id",    null: false
+    t.string   "name"
   end
 
   add_index "sequences", ["created_by_id"], name: "index_sequences_on_created_by_id", using: :btree
-  add_index "sequences", ["project_id"], name: "index_sequences_on_project_id", using: :btree
   add_index "sequences", ["updated_by_id"], name: "index_sequences_on_updated_by_id", using: :btree
 
   create_table "serial_chronologies", force: :cascade do |t|
@@ -1555,8 +1551,12 @@ ActiveRecord::Schema.define(version: 20160811201819) do
   add_foreign_key "roles", "projects", name: "roles_project_id_fkey"
   add_foreign_key "roles", "users", column: "created_by_id", name: "roles_created_by_id_fkey"
   add_foreign_key "roles", "users", column: "updated_by_id", name: "roles_updated_by_id_fkey"
-  add_foreign_key "sequence_relationships", "projects"
-  add_foreign_key "sequences", "projects"
+  add_foreign_key "sequence_relationships", "sequences", column: "object_sequence_id"
+  add_foreign_key "sequence_relationships", "sequences", column: "subject_sequence_id"
+  add_foreign_key "sequence_relationships", "users", column: "created_by_id"
+  add_foreign_key "sequence_relationships", "users", column: "updated_by_id"
+  add_foreign_key "sequences", "users", column: "created_by_id"
+  add_foreign_key "sequences", "users", column: "updated_by_id"
   add_foreign_key "serial_chronologies", "serials", column: "preceding_serial_id", name: "serial_chronologies_preceding_serial_id_fkey"
   add_foreign_key "serial_chronologies", "serials", column: "succeeding_serial_id", name: "serial_chronologies_succeeding_serial_id_fkey"
   add_foreign_key "serial_chronologies", "users", column: "created_by_id", name: "serial_chronologies_created_by_id_fkey"

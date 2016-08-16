@@ -35,7 +35,7 @@ class SequenceRelationshipsController < ApplicationController
 
     respond_to do |format|
       if @sequence_relationship.save
-        format.html { redirect_to @sequence_relationship, notice: 'Sequence relationship was successfully created.' }
+        format.html { redirect_to sequence_relationship_path(@sequence_relationship), notice: 'Sequence relationship was successfully created.' }
         format.json { render :show, status: :created, location: @sequence_relationship }
       else
         format.html { render :new }
@@ -49,7 +49,7 @@ class SequenceRelationshipsController < ApplicationController
   def update
     respond_to do |format|
       if @sequence_relationship.update(sequence_relationship_params)
-        format.html { redirect_to @sequence_relationship, notice: 'Sequence relationship was successfully updated.' }
+        format.html { redirect_to @sequence_relationship.metamorphosize, notice: 'Sequence relationship was successfully updated.' }
         format.json { render :show, status: :ok, location: @sequence_relationship }
       else
         format.html { render :edit }
@@ -68,6 +68,14 @@ class SequenceRelationshipsController < ApplicationController
     end
   end
 
+  def search
+    if params[:id].blank?
+      redirect_to sequence_relationships_path, notice: 'You must select an item from the list with a click or tab press before clicking show.'
+    else
+      redirect_to sequence_relationship_path(params[:id])
+    end
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_sequence_relationship
@@ -76,6 +84,6 @@ class SequenceRelationshipsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def sequence_relationship_params
-      params.require(:sequence_relationship).permit(:subject_sequence, :relationship_type, :object_sequence, :created_by_id, :updated_by_id, :project_id)
+      params.require(:sequence_relationship).permit(:subject_sequence_id, :type, :object_sequence_id, :created_by_id, :updated_by_id, :project_id)
     end
 end
