@@ -26,6 +26,7 @@ describe "AssertedDistributions", :type => :feature do
       }
     }
     after {
+      click_link('Sign out')
       AssertedDistribution.delete_all
       GeographicArea.delete_all }
 
