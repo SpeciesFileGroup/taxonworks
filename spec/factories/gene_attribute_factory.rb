@@ -5,7 +5,6 @@ FactoryGirl.define do
       association :sequence, factory: :valid_sequence 
       sequence_relationship_type SequenceRelationship::ReversePrimer
       association :controlled_vocabulary_term, factory: :valid_controlled_vocabulary_term
-      position 1
     end
   end
 end
