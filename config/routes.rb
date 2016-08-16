@@ -197,6 +197,10 @@ TaxonWorks::Application.routes.draw do
     end
   end
 
+  resources :gene_attributes do
+    concerns [:data_routes]
+  end
+
   resources :geographic_areas_geographic_items, except: [:index, :show]
 
   resources :geographic_area_types
@@ -661,7 +665,7 @@ TaxonWorks::Application.routes.draw do
   #     resources :comments
   #     resources :sales do
   #       get 'recent', on: :collection
-  #     end
+  #     end  resources :gene_attributes
   #   end
 
   # Example resource route within a namespace:
