@@ -9,14 +9,14 @@
       </div>
 
       <div class="field">
-        <%= f.label :sequence_id %>
+        <%= f.label :sequence %>
         <br>
         <%= render partial: 'workbench/elements/forms/ajax_select',
-                   locals:  {controller:  'gene_attributes',
+                   locals:  {controller:  'sequences',
                              object: 'gene_attribute',
-                             method:  'sequence_id',
-                             tag_id:  'sequence_id_for_gene_attribute',
-                             display:  sequence_autocomplete_selected_tag(@gene_attribute.sequence_id),
+                             method:  'sequence',
+                             tag_id:  'sequence_for_gene_attribute',
+                             display:  sequence_autocomplete_selected_tag(@gene_attribute.sequence),
                              size: 20} %>
       </div>
     </div>

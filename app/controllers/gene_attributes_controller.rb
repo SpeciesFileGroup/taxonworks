@@ -6,7 +6,7 @@ class GeneAttributesController < ApplicationController
   # GET /gene_attributes
   # GET /gene_attributes.json
   def index
-    @recent_objects = GeneAttribute.recent_from_project_id(Sessions_current_project_id).order(updated_at: :desc).limit(10)
+    @recent_objects = GeneAttribute.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
     render 'shared/data/all/index'
   end
 
@@ -25,7 +25,7 @@ class GeneAttributesController < ApplicationController
   end
 
   def list
-    @gene_attributes = GeneAttribute.with_project_id(Sessions_current_project_id).page(params[:page])
+    @gene_attributes = GeneAttribute.with_project_id(sessions_current_project_id).page(params[:page])
   end
 
   # POST /gene_attributes

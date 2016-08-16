@@ -1,7 +1,8 @@
 class CreateGeneAttributes < ActiveRecord::Migration
   def change
     create_table :gene_attributes do |t|
-      t.references :descriptor, index: true, foreign_key: true, null: false
+      #t.references :descriptor, index: true, foreign_key: true, null: false
+      t.integer :descriptor_id, null: false
       t.references :sequence, index: true, foreign_key: true, null: false
       t.string :sequence_relationship_type
       t.references :controlled_vocabulary_term, index: true, foreign_key: true

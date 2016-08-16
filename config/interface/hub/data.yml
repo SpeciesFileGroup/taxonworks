@@ -133,6 +133,8 @@ Supporting:
     categories:
       - collection_object
       - collecting_event
+  Descriptor:
+    status: :prototype
   Georeference:
     status: :prototype
     categories:
