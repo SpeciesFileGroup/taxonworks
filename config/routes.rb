@@ -181,6 +181,10 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
   end
 
+  resources :descriptors do
+    concerns [:data_routes]
+  end
+
   resources :documents do
     concerns [:data_routes]
   end
