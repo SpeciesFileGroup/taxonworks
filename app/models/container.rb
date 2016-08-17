@@ -77,7 +77,7 @@ class Container < ActiveRecord::Base
 
   # @return [Array] of CollectionObject#id of this container's contents (recursive)
   def all_collection_object_ids
-    all_contained_items.containing_collection_objects.pluck(&:id)
+    all_container_items.containing_collection_objects.pluck(&:id)
   end
 
   # @return [Boolean]
