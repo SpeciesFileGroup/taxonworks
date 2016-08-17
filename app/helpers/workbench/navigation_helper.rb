@@ -51,7 +51,7 @@ module Workbench::NavigationHelper
   end
 
   def new_for_model_link(model)
-    if %w{Note Tag Citation Identifier DataAttribute AlternateValue GeographicArea ContainerItem}.include?(model.name)
+    if %w{Note Tag Citation Identifier DataAttribute AlternateValue GeographicArea ContainerItem Confidence}.include?(model.name)
       nil
     elsif model.name == 'ProjectSource'
       link_to('New', new_source_path, 'class' => 'small-icon', 'data-icon' => 'new')
