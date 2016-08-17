@@ -1,0 +1,26 @@
+<%= render("/shared/data/all/list/list_header", objects: @confidences) -%>
+
+<table class="tablesorter">
+  <thead>
+  <tr>
+    <%= fancy_th_tag(name: 'Confidence object type') -%>
+    <%= fancy_th_tag(name: 'Confidence object') -%>
+    <%= fancy_th_tag(name: 'Confidence level') -%>
+    <%= fancy_th_tag(name: 'Position') -%>
+    <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
+    <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
+  </tr>
+  </thead>
+
+  <tbody>
+  <% @confidences.each do |confidence| %>
+      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+          <td><%= confidence.confidence_object_type %></td>
+          <td><%= object_tag(confidence.confidence_object) %></td>
+          <td><%= confidence.confidence_level.name %></td>
+          <td><%= confidence.position %></td>
+          <%= fancy_metadata_cells_tag(confidence) -%>
+      <% end %>
+  <% end %>
+  </tbody>
+</table>
