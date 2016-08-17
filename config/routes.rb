@@ -89,6 +89,10 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
   end
 
+  resources :confidences, except: [:edit, :show] do
+    concerns [:data_routes]
+  end
+  
   resources :collection_objects do
     concerns [:data_routes]
     member do

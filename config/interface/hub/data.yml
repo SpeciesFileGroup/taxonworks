@@ -243,3 +243,4 @@ Annotations:
     status: :prototype
     related_models:
       - ControlledVocabularyTerm
+  Confidence:

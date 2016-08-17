@@ -1,0 +1,19 @@
+<div class="attributes">
+  <p id="notice"><%= notice %></p>
+
+  <p>
+    <strong>Confidence level:</strong>
+    <%= object_link(@confidence.confidence_level) %>
+  </p>
+
+  <p>
+    <strong>Confidence object:</strong>
+    <%= object_link(@confidence.confidence_object) %>
+  </p>
+
+  <p>
+    <strong>Confidence object type:</strong>
+    <%= @confidence.confidence_object_type %>
+  </p>
+
+</div>
