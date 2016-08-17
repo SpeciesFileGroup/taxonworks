@@ -1,6 +1,6 @@
-# A container item is something that has been "localized to" a container.  
-# We can't say that it is "in" the container, because not all containers (e.g. a pin with three specimens) contain the object.  
-# By "localized to" we mean that if you can find the container, then its contents should also be locatable.  
+# A container item is something that has been "localized to" a container.
+# We can't say that it is "in" the container, because not all containers (e.g. a pin with three specimens) contain the object.
+# By "localized to" we mean that if you can find the container, then its contents should also be locatable.
 #
 # This concept is a graph edge defining the relationship to the container.
 #
@@ -24,30 +24,30 @@
 #   @return [Integer]
 #   the project ID
 #
-## @!attribute disposition_x 
+## @!attribute disposition_x
 #   @return [Integer]
-#     a x coordinate for this item in its container 
+#     a x coordinate for this item in its container
 #
-## @!attribute disposition_y 
+## @!attribute disposition_y
 #   @return [Integer]
-#     a y coordinate for this item in its container 
+#     a y coordinate for this item in its container
 #
-## @!attribute disposition_z 
+## @!attribute disposition_z
 #   @return [Integer]
-#     a z coordinate for this item in its container 
+#     a z coordinate for this item in its container
 #
 class ContainerItem < ActiveRecord::Base
   has_closure_tree
 
   include Housekeeping
-  include Shared::IsData 
+  include Shared::IsData
 
   attr_accessor :global_entity
 
   belongs_to :contained_object, polymorphic: true
 
   # !! this will prevent accepts_nested assignments if we add this
-  validates_presence_of :contained_object 
+  validates_presence_of :contained_object
 
   validate :parent_contained_object_is_container
   validate :contained_object_is_container_when_parent_id_is_blank
@@ -61,7 +61,7 @@ class ContainerItem < ActiveRecord::Base
 
   def container=(object)
     if object.metamorphosize.class.to_s == 'Container'
-      if parent 
+      if parent
         parent.contained_object = object
       else
         self.parent = ContainerItem.new(contained_object: object)
@@ -69,13 +69,13 @@ class ContainerItem < ActiveRecord::Base
 
       parent.save! if !parent.new_record?
       self.save! unless self.new_record?
-    end 
+    end
   end
 
   # @return [container]
-  #   the container for this ContainerItem 
+  #   the container for this ContainerItem
   def container
-    parent.contained_object
+    parent(true).try(:contained_object) || Container.none
   end
 
   def global_entity
@@ -90,14 +90,14 @@ class ContainerItem < ActiveRecord::Base
     Queries::ContainerItemAutocompleteQuery.new(params[:term]).all.where(project_id: params[:project_id])
   end
 
-  
+
   protected
 
   def object_fits_in_container
-    if parent 
+    if parent
       %w{x y z}.each do |coord|
         c = self.send("disposition_#{coord}")
-        errors.add("disposition_#{coord}".to_sym, 'is larger than the container size') if c && parent.contained_object.send("size_#{coord}") < c 
+        errors.add("disposition_#{coord}".to_sym, 'is larger than the container size') if c && parent.contained_object.send("size_#{coord}") < c
       end
     end
   end
@@ -114,11 +114,11 @@ class ContainerItem < ActiveRecord::Base
     end
   end
 
-  # if the contained_object is a CollectionObject, it must have a parent container reference 
+  # if the contained_object is a CollectionObject, it must have a parent container reference
   def contained_object_is_container_when_parent_id_is_blank
     if parent_id.blank?
       errors.add(:parent_id, 'can only be blank if object is a container') if contained_object_type != 'Container'
-    end 
+    end
   end
 
   # parent_id links an object to a container through container_item
