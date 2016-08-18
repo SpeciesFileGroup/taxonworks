@@ -12,4 +12,9 @@ module ProtocolsHelper
   def protocols_search_form
     render('/protocols/quick_search_form')
   end
+
+  def protocol_autocomplete_selected_tag(protocol)
+    return nil if protocol.nil?
+    protocol_tag(protocol)
+  end
 end

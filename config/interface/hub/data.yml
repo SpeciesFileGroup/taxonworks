@@ -58,6 +58,8 @@ Core: # a Section
       - source
   Protocol:
     status: :prototype
+    related_models:
+      - ProtocolRelationship
   BiologicalAssociation:
      status: :prototype
      related_models:
@@ -178,6 +180,10 @@ Supporting:
     shared: true
     categories:
       - collection_object
+  ProtocolRelationship:
+    status: :prototype
+    related_models:
+      - Protocol
   Namespace:
     status: :prototype
     shared: true
