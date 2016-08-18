@@ -4,7 +4,7 @@ class Confidence < ActiveRecord::Base
 
   acts_as_list scope: [:confidence_level_id]
 
-  belongs_to :confidence_level_id
+  belongs_to :confidence_level
   belongs_to :confidence_object, polymorphic: true
 
   belongs_to :controlled_vocabulary_term, foreign_key: :confidence_level_id
