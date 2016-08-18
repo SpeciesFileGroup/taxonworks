@@ -1,0 +1,24 @@
+<%= render("/shared/data/all/list/list_header", objects: @protocols) -%>
+
+<table class="tablesorter">
+  <thead>
+  <tr>
+    <%= fancy_th_tag(name: 'Name') -%>
+    <%= fancy_th_tag(name: 'Short name') -%>
+    <%= fancy_th_tag(name: 'Description') -%>
+    <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
+    <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
+  </tr>
+  </thead>
+
+  <tbody>
+  <% @protocols.each do |protocol| %>
+      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+          <td><%= protocol.name %></td>
+          <td><%= protocol.short_name %></td>
+          <td><%= protocol.description %></td>
+          <%= fancy_metadata_cells_tag(protocol) -%>
+      <% end %>
+  <% end %>
+  </tbody>
+</table>

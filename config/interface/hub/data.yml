@@ -55,6 +55,8 @@ Core: # a Section
       - Person 
     categories:
       - source
+  Protocol:
+    status: :prototype
   BiologicalAssociation:
      status: :prototype
      related_models:
