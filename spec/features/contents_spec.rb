@@ -10,15 +10,18 @@ describe 'Contents', type: :feature do
     before {
       sign_in_user_and_select_project
     }
+    after {
+      click_link('Sign out')
+    }
 
     context 'with some records created' do
       let!(:o) { factory_girl_create_for_user_and_project(:valid_otu, @user, @project) }
-      let!(:t) { factory_girl_create_for_user_and_project(:valid_topic, @user, @project) } 
+      let!(:t) { factory_girl_create_for_user_and_project(:valid_topic, @user, @project) }
       before do
         10.times {
           FactoryGirl.create(:valid_content,
-                             otu: o, 
-                             topic: t,
+                             otu:     o,
+                             topic:   t,
                              project: @project,
                              creator: @user,
                              updater: @user

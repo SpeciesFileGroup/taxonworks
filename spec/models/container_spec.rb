@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe Container, type: :model, group: :containers do
   let(:container) { Container.new }
-  let(:objects) {  [Specimen.create, Specimen.create] }
+  let(:objects) { [Specimen.create, Specimen.create] }
 
   context 'validation' do
     specify 'type is required' do
@@ -11,11 +11,11 @@ describe Container, type: :model, group: :containers do
 
     specify 'type can not be an invalid type' do
       container.type = 'aaa'
-      expect {container.save}.to raise_error(ActiveRecord::SubclassNotFound)
+      expect { container.save }.to raise_error(ActiveRecord::SubclassNotFound)
     end
 
     specify 'invalid type can not be assigned on #new' do
-      expect {Container.new(type: 'aaa')}.to raise_error(ActiveRecord::SubclassNotFound)
+      expect { Container.new(type: 'Can::Soda') }.to raise_error(ActiveRecord::SubclassNotFound)
     end
 
     specify 'type can be a valid type' do
@@ -30,7 +30,7 @@ describe Container, type: :model, group: :containers do
         container.add_container_items(objects)
       }
 
-      specify 'can not be destroyed' do 
+      specify 'can not be destroyed' do
         expect(container.destroy).to be_falsey
       end
     end
@@ -48,10 +48,10 @@ describe Container, type: :model, group: :containers do
     let(:c) { Container.containerize(objects) }
 
     specify 'returns a saved container' do
-      expect(c.id).to be_truthy 
+      expect(c.id).to be_truthy
     end
 
-    specify 'defaults to Container::Virtual'  do
+    specify 'defaults to Container::Virtual' do
       expect(c.class).to eq(Container::Virtual)
     end
 
@@ -81,7 +81,7 @@ describe Container, type: :model, group: :containers do
     end
 
     context 'when added to a container' do
-      before { 
+      before {
         c.add_container_items(objects)
       }
 
@@ -97,21 +97,21 @@ describe Container, type: :model, group: :containers do
 
   context 'size' do
     context 'x set' do
-      before {container.size_x = 3}
+      before { container.size_x = 3 }
 
       specify '#size (one dimensional)' do
         expect(container.size).to eq(3)
       end
 
       context 'y set' do
-        before {container.size_y = 3}
+        before { container.size_y = 3 }
 
         specify '#size (two dimensional)' do
           expect(container.size).to eq(9)
         end
 
         context 'z set' do
-          before {container.size_z = 3}
+          before { container.size_z = 3 }
 
           specify '#size (three dimensional)' do
             expect(container.size).to eq(27)
@@ -124,22 +124,45 @@ describe Container, type: :model, group: :containers do
       before {
         container.size_x = 3
         container.size_y = 3
-        container.type = 'Container::Virtual'
+        container.type   = 'Container::Virtual'
         container.save!
         container.add_container_items(objects)
       }
 
       specify '#is_full?' do
-        expect(container.is_full?).to be_falsey 
+        expect(container.is_full?).to be_falsey
       end
 
       specify '#is_empty?' do
-        expect(container.is_empty?).to be_falsey 
+        expect(container.is_empty?).to be_falsey
       end
 
       specify '#available_space' do
         expect(container.available_space).to eq(7)
       end
+    end
+  end
+
+  xcontext 'a complex stack of containers and other containable objects' do
+    # build container hierarchy
+    let(:vial) { Container.containerize(specimens, Container::Vial) }
+    let(:vial_rack) { Container.containerize([vial], Container::VialRack) }
+    let(:add_specimen) { vial_rack.add_container_items([specimen]) }
+    let(:room) { Container.containerize([vial_rack], Container::Room) }
+    let(:building) { Container.containerize([room], Container::Building) }
+    let(:site) { Container.containerize([building], Container::Site) }
+
+    # a pair of collection objects for one container
+    let(:specimens) { [Specimen.create, Specimen.create] }
+    # a single collection objects for another container
+    let(:specimen) { FactoryGirl.create(:valid_specimen) }
+
+    specify 'finding some collection objects somewhere in the stack' do
+      expect(site.save).to be_truthy
+      expect(add_specimen).to be_truthy
+      expect(site.collection_objects).to contain_exactly(specimen,
+                                                         specimens[0],
+                                                         specimens[1])
     end
   end
 
