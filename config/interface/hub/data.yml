@@ -148,6 +148,9 @@ Supporting:
       - collection_object
   Namespace:
     shared: true
+  OriginRelationship:
+    catgories:
+      - collection_object
   RangedLotCategory:
     categories:
       - collection_object
