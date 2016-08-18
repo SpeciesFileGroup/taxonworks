@@ -11,7 +11,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
+<<<<<<< b18ef85c55fc4cdb3d1f7d35fe1e7b5c40286af1
 ActiveRecord::Schema.define(version: 20160909173656) do
+=======
+ActiveRecord::Schema.define(version: 20160817212253) do
+>>>>>>> Added Protocols model with views and passing controller/specs
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -343,10 +347,16 @@ ActiveRecord::Schema.define(version: 20160909173656) do
     t.integer  "position",               null: false
     t.integer  "created_by_id",          null: false
     t.integer  "updated_by_id",          null: false
+<<<<<<< b18ef85c55fc4cdb3d1f7d35fe1e7b5c40286af1
     t.integer  "project_id",             null: false
     t.datetime "created_at",             null: false
     t.datetime "updated_at",             null: false
     t.integer  "confidence_level_id",    null: false
+=======
+    t.integer  "project_id"
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
+>>>>>>> Added Protocols model with views and passing controller/specs
   end
 
   add_index "confidences", ["project_id"], name: "index_confidences_on_project_id", using: :btree
@@ -513,21 +523,32 @@ ActiveRecord::Schema.define(version: 20160909173656) do
   add_index "derived_collection_objects", ["project_id"], name: "index_derived_collection_objects_on_project_id", using: :btree
 
   create_table "descriptors", force: :cascade do |t|
+<<<<<<< b18ef85c55fc4cdb3d1f7d35fe1e7b5c40286af1
     t.string   "name",          null: false
     t.string   "short_name"
     t.string   "type",          null: false
     t.integer  "created_by_id", null: false
     t.integer  "updated_by_id", null: false
     t.integer  "project_id",    null: false
+=======
+    t.integer  "descriptor_id", null: false
+    t.integer  "created_by_id", null: false
+    t.integer  "updated_by_id", null: false
+    t.integer  "project_id"
+>>>>>>> Added Protocols model with views and passing controller/specs
     t.datetime "created_at",    null: false
     t.datetime "updated_at",    null: false
   end
 
+<<<<<<< b18ef85c55fc4cdb3d1f7d35fe1e7b5c40286af1
   add_index "descriptors", ["created_by_id"], name: "index_descriptors_on_created_by_id", using: :btree
   add_index "descriptors", ["name"], name: "index_descriptors_on_name", using: :btree
   add_index "descriptors", ["project_id"], name: "index_descriptors_on_project_id", using: :btree
   add_index "descriptors", ["short_name"], name: "index_descriptors_on_short_name", using: :btree
   add_index "descriptors", ["updated_by_id"], name: "index_descriptors_on_updated_by_id", using: :btree
+=======
+  add_index "descriptors", ["project_id"], name: "index_descriptors_on_project_id", using: :btree
+>>>>>>> Added Protocols model with views and passing controller/specs
 
   create_table "documentation", force: :cascade do |t|
     t.integer  "documentation_object_id",   null: false
@@ -565,6 +586,23 @@ ActiveRecord::Schema.define(version: 20160909173656) do
   add_index "documents", ["document_file_file_name"], name: "index_documents_on_document_file_file_name", using: :btree
   add_index "documents", ["document_file_file_size"], name: "index_documents_on_document_file_file_size", using: :btree
   add_index "documents", ["document_file_updated_at"], name: "index_documents_on_document_file_updated_at", using: :btree
+
+  create_table "gene_attributes", force: :cascade do |t|
+    t.integer  "descriptor_id",                 null: false
+    t.integer  "sequence_id",                   null: false
+    t.string   "sequence_relationship_type"
+    t.integer  "controlled_vocabulary_term_id"
+    t.integer  "position"
+    t.integer  "created_by_id",                 null: false
+    t.integer  "updated_by_id",                 null: false
+    t.integer  "project_id",                    null: false
+    t.datetime "created_at",                    null: false
+    t.datetime "updated_at",                    null: false
+  end
+
+  add_index "gene_attributes", ["controlled_vocabulary_term_id"], name: "index_gene_attributes_on_controlled_vocabulary_term_id", using: :btree
+  add_index "gene_attributes", ["project_id"], name: "index_gene_attributes_on_project_id", using: :btree
+  add_index "gene_attributes", ["sequence_id"], name: "index_gene_attributes_on_sequence_id", using: :btree
 
   create_table "geographic_area_hierarchies", id: false, force: :cascade do |t|
     t.integer "ancestor_id",   null: false
@@ -987,6 +1025,19 @@ ActiveRecord::Schema.define(version: 20160909173656) do
   add_index "projects", ["created_by_id"], name: "index_projects_on_created_by_id", using: :btree
   add_index "projects", ["updated_by_id"], name: "index_projects_on_updated_by_id", using: :btree
 
+  create_table "protocols", force: :cascade do |t|
+    t.string   "name",          null: false
+    t.text     "short_name",    null: false
+    t.text     "description",   null: false
+    t.integer  "created_by_id", null: false
+    t.integer  "updated_by_id", null: false
+    t.integer  "project_id"
+    t.datetime "created_at",    null: false
+    t.datetime "updated_at",    null: false
+  end
+
+  add_index "protocols", ["project_id"], name: "index_protocols_on_project_id", using: :btree
+
   create_table "public_contents", force: :cascade do |t|
     t.integer  "otu_id",        null: false
     t.integer  "topic_id",      null: false
@@ -1057,6 +1108,31 @@ ActiveRecord::Schema.define(version: 20160909173656) do
   add_index "roles", ["role_object_id", "role_object_type"], name: "index_roles_on_role_object_id_and_type", using: :btree
   add_index "roles", ["type"], name: "index_roles_on_type", using: :btree
   add_index "roles", ["updated_by_id"], name: "index_roles_on_updated_by_id", using: :btree
+
+  create_table "sequence_relationships", force: :cascade do |t|
+    t.integer  "subject_sequence_id", null: false
+    t.integer  "object_sequence_id",  null: false
+    t.integer  "created_by_id",       null: false
+    t.integer  "updated_by_id",       null: false
+    t.datetime "created_at",          null: false
+    t.datetime "updated_at",          null: false
+    t.integer  "project_id",          null: false
+    t.string   "type",                null: false
+  end
+
+  create_table "sequences", force: :cascade do |t|
+    t.integer  "created_by_id", null: false
+    t.integer  "updated_by_id", null: false
+    t.datetime "created_at",    null: false
+    t.datetime "updated_at",    null: false
+    t.text     "sequence",      null: false
+    t.string   "sequence_type", null: false
+    t.integer  "project_id",    null: false
+    t.string   "name"
+  end
+
+  add_index "sequences", ["created_by_id"], name: "index_sequences_on_created_by_id", using: :btree
+  add_index "sequences", ["updated_by_id"], name: "index_sequences_on_updated_by_id", using: :btree
 
   create_table "serial_chronologies", force: :cascade do |t|
     t.integer  "preceding_serial_id",  null: false
@@ -1462,10 +1538,14 @@ ActiveRecord::Schema.define(version: 20160909173656) do
   add_foreign_key "common_names", "projects"
   add_foreign_key "common_names", "users", column: "created_by_id"
   add_foreign_key "common_names", "users", column: "updated_by_id"
+<<<<<<< b18ef85c55fc4cdb3d1f7d35fe1e7b5c40286af1
   add_foreign_key "confidences", "controlled_vocabulary_terms", column: "confidence_level_id"
   add_foreign_key "confidences", "projects"
   add_foreign_key "confidences", "users", column: "created_by_id"
   add_foreign_key "confidences", "users", column: "updated_by_id"
+=======
+  add_foreign_key "confidences", "projects"
+>>>>>>> Added Protocols model with views and passing controller/specs
   add_foreign_key "container_items", "projects", name: "container_items_project_id_fkey"
   add_foreign_key "container_items", "users", column: "created_by_id", name: "container_items_created_by_id_fkey"
   add_foreign_key "container_items", "users", column: "updated_by_id", name: "container_items_updated_by_id_fkey"
@@ -1489,14 +1569,20 @@ ActiveRecord::Schema.define(version: 20160909173656) do
   add_foreign_key "data_attributes", "users", column: "created_by_id", name: "data_attributes_created_by_id_fkey"
   add_foreign_key "data_attributes", "users", column: "updated_by_id", name: "data_attributes_updated_by_id_fkey"
   add_foreign_key "descriptors", "projects"
+<<<<<<< b18ef85c55fc4cdb3d1f7d35fe1e7b5c40286af1
   add_foreign_key "descriptors", "users", column: "created_by_id"
   add_foreign_key "descriptors", "users", column: "updated_by_id"
+=======
+>>>>>>> Added Protocols model with views and passing controller/specs
   add_foreign_key "documentation", "documents"
   add_foreign_key "documentation", "projects"
   add_foreign_key "documentation", "users", column: "created_by_id"
   add_foreign_key "documentation", "users", column: "updated_by_id"
   add_foreign_key "documents", "users", column: "created_by_id"
   add_foreign_key "documents", "users", column: "updated_by_id"
+  add_foreign_key "gene_attributes", "controlled_vocabulary_terms"
+  add_foreign_key "gene_attributes", "projects"
+  add_foreign_key "gene_attributes", "sequences"
   add_foreign_key "geographic_area_types", "users", column: "created_by_id", name: "geographic_area_types_created_by_id_fkey"
   add_foreign_key "geographic_area_types", "users", column: "updated_by_id", name: "geographic_area_types_updated_by_id_fkey"
   add_foreign_key "geographic_areas", "geographic_area_types", name: "geographic_areas_geographic_area_type_id_fkey"
@@ -1570,6 +1656,7 @@ ActiveRecord::Schema.define(version: 20160909173656) do
   add_foreign_key "project_sources", "users", column: "updated_by_id", name: "project_sources_updated_by_id_fkey"
   add_foreign_key "projects", "users", column: "created_by_id", name: "projects_created_by_id_fkey"
   add_foreign_key "projects", "users", column: "updated_by_id", name: "projects_updated_by_id_fkey"
+  add_foreign_key "protocols", "projects"
   add_foreign_key "public_contents", "contents", name: "public_contents_content_id_fkey"
   add_foreign_key "public_contents", "controlled_vocabulary_terms", column: "topic_id", name: "public_contents_topic_id_fkey"
   add_foreign_key "public_contents", "otus", name: "public_contents_otu_id_fkey"
@@ -1585,6 +1672,12 @@ ActiveRecord::Schema.define(version: 20160909173656) do
   add_foreign_key "roles", "projects", name: "roles_project_id_fkey"
   add_foreign_key "roles", "users", column: "created_by_id", name: "roles_created_by_id_fkey"
   add_foreign_key "roles", "users", column: "updated_by_id", name: "roles_updated_by_id_fkey"
+  add_foreign_key "sequence_relationships", "sequences", column: "object_sequence_id"
+  add_foreign_key "sequence_relationships", "sequences", column: "subject_sequence_id"
+  add_foreign_key "sequence_relationships", "users", column: "created_by_id"
+  add_foreign_key "sequence_relationships", "users", column: "updated_by_id"
+  add_foreign_key "sequences", "users", column: "created_by_id"
+  add_foreign_key "sequences", "users", column: "updated_by_id"
   add_foreign_key "serial_chronologies", "serials", column: "preceding_serial_id", name: "serial_chronologies_preceding_serial_id_fkey"
   add_foreign_key "serial_chronologies", "serials", column: "succeeding_serial_id", name: "serial_chronologies_succeeding_serial_id_fkey"
   add_foreign_key "serial_chronologies", "users", column: "created_by_id", name: "serial_chronologies_created_by_id_fkey"
