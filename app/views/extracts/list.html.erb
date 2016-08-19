@@ -1,0 +1,33 @@
+<%= render("/shared/data/all/list/list_header", objects: @extracts) -%>
+
+<table class="tablesorter">
+  <thead>
+  <tr>
+    <%= fancy_th_tag(name: 'Quantity value') -%>
+    <%= fancy_th_tag(name: 'Quantity unit') -%>
+    <%= fancy_th_tag(name: 'Quantity concentration') -%>
+    <%= fancy_th_tag(name: 'Verbatim anatomical origin') -%>
+    <%= fancy_th_tag(name: 'Year made') -%>
+    <%= fancy_th_tag(name: 'Month made') -%>
+    <%= fancy_th_tag(name: 'Day made') -%>
+    <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
+    <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
+  </tr>
+  </thead>
+
+  <tbody>
+  <% @extracts.each do |extract| %>
+      <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
+          <%= fancy_th_tag(name: 'quantity_value') -%>
+          <%= fancy_th_tag(name: 'quantity_unit') -%>
+          <%= fancy_th_tag(name: 'quantity_concentration') -%>
+          <%= fancy_th_tag(name: 'verbatim_anatomical_origin') -%>
+          <%= fancy_th_tag(name: 'year_made') -%>
+          <%= fancy_th_tag(name: 'month_made') -%>
+          <%= fancy_th_tag(name: 'day_made') -%>
+          <%= fancy_metadata_cells_tag(extract) -%>
+      <% end %>
+  <% end %>
+  </tbody>
+</table>
+

@@ -185,6 +185,10 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
   end
 
+  resources :extracts do
+    concerns [:data_routes]
+  end
+  
   resources :geographic_areas do
     concerns [:data_routes]
     collection do
