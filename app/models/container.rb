@@ -154,7 +154,7 @@ class Container < ActiveRecord::Base
   end
 
   # @return [Container]
-  #   places all objects in a new, container, saves it off, all objects must not be new_records
+  #   places all objects in a new, parent-less container, saves it off, all objects must not be new_records
   def self.containerize(objects, klass = Container::Virtual)
     c = nil
     begin
