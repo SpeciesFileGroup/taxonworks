@@ -1,6 +1,6 @@
 <p>
   <strong>Parent:</strong>
-  <%= object_link(@container.parent) %>
+  <%= object_link(@container.container_item.parent.contained_object) if @container.container_item.parent %>
 </p>
 
 <p>
