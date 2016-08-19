@@ -150,5 +150,5 @@ class AssertedDistribution < ActiveRecord::Base
       end
     end
   end
-  
+
 end
