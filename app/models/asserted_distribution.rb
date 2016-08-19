@@ -77,9 +77,9 @@ class AssertedDistribution < ActiveRecord::Base
     a.origin_citation = Citation.new if defaults[:source_id].blank?
     a
   end
-  
+
   def to_geo_json_feature
-    retval = {
+    {
       'type'       => 'Feature',
       'geometry'   => RGeo::GeoJSON.encode(self.geographic_area.geographic_items.first.geo_object),
       'properties' => {
@@ -88,13 +88,6 @@ class AssertedDistribution < ActiveRecord::Base
         }
       }
     }
-    retval
-  end
-
-  # @return [True]
-  #   see citable.rb
-  def requires_citation?
-    true
   end
 
   protected
@@ -149,5 +142,5 @@ class AssertedDistribution < ActiveRecord::Base
       end
     end
   end
-
+  
 end
