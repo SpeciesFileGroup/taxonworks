@@ -63,11 +63,6 @@ Core: # a Section
      status: :prototype
      categories:
        - matrix
-<<<<<<< 78e56ca3c2632af3840134e92a40c450e3f7cb5d
-=======
-
-
->>>>>>> Scaffolded matrix model, basics integrated in TW interface. Tests updated.
 Supporting:
   AssertedDistribution:
     categories:
