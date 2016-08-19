@@ -11,6 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
+<<<<<<< f8b814f7ba463434b0ba4b7c3a361db9a6665822
 <<<<<<< 8acfc777d588ca2e3192efc80f69f5ae8bdb11b0
 <<<<<<< 204e1d7eed74314a5c93b77ecc4fee692bed60f6
 <<<<<<< b18ef85c55fc4cdb3d1f7d35fe1e7b5c40286af1
@@ -24,6 +25,9 @@ ActiveRecord::Schema.define(version: 20160818212441) do
 =======
 ActiveRecord::Schema.define(version: 20160819172558) do
 >>>>>>> Added missing foreign keys created/updated_by_id to protocols and protocol relationships models
+=======
+ActiveRecord::Schema.define(version: 20160819181056) do
+>>>>>>> Added project_id not null to protocols and protocol_relationships tables
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -355,6 +359,7 @@ ActiveRecord::Schema.define(version: 20160819172558) do
     t.integer  "position",               null: false
     t.integer  "created_by_id",          null: false
     t.integer  "updated_by_id",          null: false
+<<<<<<< f8b814f7ba463434b0ba4b7c3a361db9a6665822
 <<<<<<< b18ef85c55fc4cdb3d1f7d35fe1e7b5c40286af1
     t.integer  "project_id",             null: false
     t.datetime "created_at",             null: false
@@ -362,6 +367,9 @@ ActiveRecord::Schema.define(version: 20160819172558) do
     t.integer  "confidence_level_id",    null: false
 =======
     t.integer  "project_id"
+=======
+    t.integer  "project_id",             null: false
+>>>>>>> Added project_id not null to protocols and protocol_relationships tables
     t.datetime "created_at",             null: false
     t.datetime "updated_at",             null: false
 >>>>>>> Added Protocols model with views and passing controller/specs
@@ -1057,7 +1065,7 @@ ActiveRecord::Schema.define(version: 20160819172558) do
     t.integer  "position",                          null: false
     t.integer  "created_by_id",                     null: false
     t.integer  "updated_by_id",                     null: false
-    t.integer  "project_id"
+    t.integer  "project_id",                        null: false
     t.datetime "created_at",                        null: false
     t.datetime "updated_at",                        null: false
   end
@@ -1071,7 +1079,7 @@ ActiveRecord::Schema.define(version: 20160819172558) do
     t.text     "description",   null: false
     t.integer  "created_by_id", null: false
     t.integer  "updated_by_id", null: false
-    t.integer  "project_id"
+    t.integer  "project_id",    null: false
     t.datetime "created_at",    null: false
     t.datetime "updated_at",    null: false
   end
@@ -1585,7 +1593,12 @@ ActiveRecord::Schema.define(version: 20160819172558) do
   add_foreign_key "confidences", "users", column: "updated_by_id"
 =======
   add_foreign_key "confidences", "projects"
+<<<<<<< f8b814f7ba463434b0ba4b7c3a361db9a6665822
 >>>>>>> Added Protocols model with views and passing controller/specs
+=======
+  add_foreign_key "confidences", "users", column: "created_by_id"
+  add_foreign_key "confidences", "users", column: "updated_by_id"
+>>>>>>> Added project_id not null to protocols and protocol_relationships tables
   add_foreign_key "container_items", "projects", name: "container_items_project_id_fkey"
   add_foreign_key "container_items", "users", column: "created_by_id", name: "container_items_created_by_id_fkey"
   add_foreign_key "container_items", "users", column: "updated_by_id", name: "container_items_updated_by_id_fkey"
@@ -1723,10 +1736,12 @@ ActiveRecord::Schema.define(version: 20160819172558) do
   add_foreign_key "roles", "projects", name: "roles_project_id_fkey"
   add_foreign_key "roles", "users", column: "created_by_id", name: "roles_created_by_id_fkey"
   add_foreign_key "roles", "users", column: "updated_by_id", name: "roles_updated_by_id_fkey"
+  add_foreign_key "sequence_relationships", "projects"
   add_foreign_key "sequence_relationships", "sequences", column: "object_sequence_id"
   add_foreign_key "sequence_relationships", "sequences", column: "subject_sequence_id"
   add_foreign_key "sequence_relationships", "users", column: "created_by_id"
   add_foreign_key "sequence_relationships", "users", column: "updated_by_id"
+  add_foreign_key "sequences", "projects"
   add_foreign_key "sequences", "users", column: "created_by_id"
   add_foreign_key "sequences", "users", column: "updated_by_id"
   add_foreign_key "serial_chronologies", "serials", column: "preceding_serial_id", name: "serial_chronologies_preceding_serial_id_fkey"
