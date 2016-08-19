@@ -1,10 +1,10 @@
 <% content_for :associated do -%>
 
   <h3> Nested containers </h3>
-  <% @container.descendants.each do |c| -%>
-    <%= object_link(c) -%> </br>
+    <% @container.container_item.descendants.each do |c| -%>
+        <%= object_link(c.container) -%> </br>
   <% end %>
-  <%= content_tag(:em, 'None.') if @container.descendants.count == 0 -%>
+    <%= content_tag(:em, 'None.') if @container.container_item.descendants.count == 0 -%>
 
   <h3> Contained objects </h3>
   <% @container.container_items.each do |i| -%>
