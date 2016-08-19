@@ -11,9 +11,9 @@ describe AssertedDistribution, type: :model, group: :geo do
         expect(asserted_distribution.otu = Otu.new).to be_truthy
       end
 
-      specify 'source' do
-        expect(asserted_distribution.source = Source.new).to be_truthy
-      end
+#      specify 'source' do
+#        expect(asserted_distribution.source = Source.new).to be_truthy
+#      end
 
       specify 'geographic_area' do
         expect(asserted_distribution.geographic_area = GeographicArea.new).to be_truthy
@@ -24,17 +24,19 @@ describe AssertedDistribution, type: :model, group: :geo do
   context 'validation' do
     specify 'duplicate record' do
       ad1 = FactoryGirl.create(:valid_asserted_distribution)
-      ad2 = FactoryGirl.build_stubbed(:valid_asserted_distribution, otu_id: ad1.otu_id, source_id: ad1.source_id, geographic_area_id: ad1.geographic_area_id)
+#      ad2 = FactoryGirl.build_stubbed(:valid_asserted_distribution, otu_id: ad1.otu_id, source_id: ad1.source_id, geographic_area_id: ad1.geographic_area_id)
+      ad2 = FactoryGirl.build_stubbed(:valid_asserted_distribution, otu_id: ad1.otu_id, geographic_area_id: ad1.geographic_area_id)
       expect(ad1.valid?).to be_truthy
       expect(ad2.valid?).to be_falsey
       expect(ad2.errors.include?(:geographic_area_id)).to be_truthy
     end
     
     specify 'missing fields' do
-      ad1 = FactoryGirl.build_stubbed(:valid_asserted_distribution, otu_id: nil, source_id: nil, geographic_area_id: nil)
+#      ad1 = FactoryGirl.build_stubbed(:valid_asserted_distribution, otu_id: nil, source_id: nil, geographic_area_id: nil)
+      ad1 = FactoryGirl.build_stubbed(:valid_asserted_distribution, otu_id: nil, geographic_area_id: nil)
       expect(ad1.valid?).to be_falsey
       expect(ad1.errors.include?(:geographic_area_id)).to be_truthy
-      expect(ad1.errors.include?(:source_id)).to be_truthy
+#      expect(ad1.errors.include?(:source_id)).to be_truthy
      
        expect(ad1.errors.include?(:otu)).to be_truthy
     end
@@ -61,7 +63,7 @@ describe AssertedDistribution, type: :model, group: :geo do
   context 'stub_new' do
 
     let(:otu) { FactoryGirl.create(:valid_otu) }
-    let(:source) { FactoryGirl.create(:valid_source) }
+#    let(:source) { FactoryGirl.create(:valid_source) }
 
     before(:all) do
       generate_political_areas_with_collecting_events
@@ -76,7 +78,7 @@ describe AssertedDistribution, type: :model, group: :geo do
       point = @gr_n3_ob.geographic_item.geo_object
       areas = GeographicArea.find_by_lat_long(point.y, point.x)
       stubs = AssertedDistribution.stub_new({'otu_id'           => otu.id,
-                                             'source_id'        => source.id,
+#                                             'source_id'        => source.id,
                                              'geographic_areas' => areas}).map(&:geographic_area)
       expect(stubs.map(&:name)).to include('Great Northern Land Mass', 'Old Boxia', 'R', 'RN3', 'N3')
     end

@@ -1821,7 +1821,7 @@ namespace :tw do
                                        created_at: time_from_field(row['CreatedOn']),
                                        updated_by_id: find_or_create_collection_user_insects(row['ModifiedBy'], data),
                                        updated_at: time_from_field(row['ModifiedOn']),
-                                       parent_id: room,
+                                       #parent_id: room,
                                        type: container_type[row['CollectionType']],
                                        name: nil
           )

@@ -33,19 +33,22 @@ class AssertedDistribution < ActiveRecord::Base
 
   belongs_to :otu
   belongs_to :geographic_area
-  belongs_to :source, inverse_of: :asserted_distributions
+#  belongs_to :source, inverse_of: :asserted_distributions
 
   accepts_nested_attributes_for :otu, allow_destroy: false, reject_if: proc { |attributes| attributes['name'].blank? && attributes['taxon_name_id'].blank?  }
 
   validates_presence_of :otu_id, message: 'Taxon is not specified', if: proc { |attributes| attributes['otu_attributes'] && (!attributes['otu_attributes']['name'] || !attributes['otu_attributes']['taxon_name_id'])}
 
-  validates_presence_of :geographic_area_id, message: 'Geographic area is not selected'
-  validates_presence_of :source_id, message: 'Source is not selected'
-  validates :geographic_area, presence: true
+#  validates_presence_of :geographic_area_id, message: 'Geographic area is not selected'
+#  validates_presence_of :source_id, message: 'Source is not selected'
+#  validates :geographic_area, presence: true
   validates :otu, presence: true
-  validates :source, presence: true
+#  validates :source, presence: true
 
-  validates_uniqueness_of :geographic_area_id, scope: [:otu_id, :source_id], message: 'record for this source/otu combination already exists'
+#  validates_uniqueness_of :geographic_area_id, scope: [:otu_id, :source_id], message: 'record for this source/otu combination already exists'
+  validates_uniqueness_of :geographic_area_id, scope: :otu_id
+
+  before_validation :check_required_fields
 
   scope :with_otu_id, -> (otu_id) { where(otu_id: otu_id) }
   scope :with_geographic_area_id, -> (geographic_area_id) { where(geographic_area_id: geographic_area_id) }
@@ -58,8 +61,19 @@ class AssertedDistribution < ActiveRecord::Base
   def self.find_for_autocomplete(params)
     # where('geographic_area LIKE ?', "%#{params[:term]}%").with_project_id(params[:project_id])
     term = params[:term]
-    include(:geographic_area, :otu, :source).
-      where(geographic_areas: {name: term}, otus: {name: term}, sources: {cached: term}).with_project_id(params[:project_id])
+#    include(:geographic_area, :otu, :source).
+#      where(geographic_areas: {name: term}, otus: {name: term}, sources: {cached: term}).with_project_id(params[:project_id])
+    include(:geographic_area, :otu).
+        where(geographic_areas: {name: term}, otus: {name: term}).with_project_id(params[:project_id])
+  end
+
+  protected
+
+  def check_required_fields
+    if self.geographic_area_id.nil? && self.verbatim_geographic_area.blank?
+      errors.add(:geographic_area_id, 'and/or verbatim geographic area should be selected')
+      errors.add(:verbatim_geographic_area, 'and/or geographic area should be selected')
+    end
   end
 
   #region Soft validation
@@ -87,7 +101,8 @@ class AssertedDistribution < ActiveRecord::Base
   def self.stub_new(options = {})
     result = []
     options['geographic_areas'].each do |ga|
-      result.push(AssertedDistribution.new(source_id: options['source_id'], otu_id: options['otu_id'], geographic_area: ga))
+#      result.push(AssertedDistribution.new(source_id: options['source_id'], otu_id: options['otu_id'], geographic_area: ga))
+      result.push(AssertedDistribution.new(otu_id: options['otu_id'], geographic_area: ga))
     end
     result
   end
