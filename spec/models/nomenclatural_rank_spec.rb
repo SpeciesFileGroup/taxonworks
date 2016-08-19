@@ -30,7 +30,7 @@ describe NomenclaturalRank, type: :model do
         expect(NomenclaturalRank::Icn.top_rank).to eq(NomenclaturalRank::Icn::HigherClassificationGroup::Kingdom)
 
         # Behaviour is a little different for group levels
-        expect(NomenclaturalRank::Iczn::FamilyGroup.top_rank).to eq(NomenclaturalRank::Iczn::FamilyGroup::Nanorder)
+        expect(NomenclaturalRank::Iczn::FamilyGroup.top_rank).to eq(NomenclaturalRank::Iczn::FamilyGroup::Superfamily)
       end
     end
 

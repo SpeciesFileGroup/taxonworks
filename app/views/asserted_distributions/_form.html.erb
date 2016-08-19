@@ -18,16 +18,11 @@
       </div>
 
       <div class="field">
-        <%= f.label :source %>
+        <%= f.label :verbatim_geographic_area %>
         <br>
-        <%= render '/workbench/elements/forms/ajax_select',
-          controller:  'sources',
-          object: 'asserted_distribution',
-          method: 'source_id',
-          tag_id: 'source_id_for_asserted_distribution',
-          display: source_tag(@asserted_distribution.source),
-          size:  20 %>
+        <%= f.text_field :verbatim_geographic_area %>
       </div>
+
     </div>
 
     <div class="optional">
