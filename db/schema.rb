@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160817002127) do
+ActiveRecord::Schema.define(version: 20160819174452) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -344,7 +344,7 @@ ActiveRecord::Schema.define(version: 20160817002127) do
     t.integer  "position",               null: false
     t.integer  "created_by_id",          null: false
     t.integer  "updated_by_id",          null: false
-    t.integer  "project_id"
+    t.integer  "project_id",             null: false
     t.datetime "created_at",             null: false
     t.datetime "updated_at",             null: false
   end
@@ -558,6 +558,23 @@ ActiveRecord::Schema.define(version: 20160817002127) do
   add_index "documents", ["document_file_file_name"], name: "index_documents_on_document_file_file_name", using: :btree
   add_index "documents", ["document_file_file_size"], name: "index_documents_on_document_file_file_size", using: :btree
   add_index "documents", ["document_file_updated_at"], name: "index_documents_on_document_file_updated_at", using: :btree
+
+  create_table "extracts", force: :cascade do |t|
+    t.decimal  "quantity_value",             null: false
+    t.string   "quantity_unit",              null: false
+    t.decimal  "quantity_concentration",     null: false
+    t.string   "verbatim_anatomical_origin", null: false
+    t.integer  "year_made",                  null: false
+    t.integer  "month_made",                 null: false
+    t.integer  "day_made",                   null: false
+    t.integer  "created_by_id",              null: false
+    t.integer  "updated_by_id",              null: false
+    t.integer  "project_id",                 null: false
+    t.datetime "created_at",                 null: false
+    t.datetime "updated_at",                 null: false
+  end
+
+  add_index "extracts", ["project_id"], name: "index_extracts_on_project_id", using: :btree
 
   create_table "gene_attributes", force: :cascade do |t|
     t.integer  "descriptor_id",                 null: false
@@ -978,6 +995,34 @@ ActiveRecord::Schema.define(version: 20160817002127) do
   add_index "projects", ["created_by_id"], name: "index_projects_on_created_by_id", using: :btree
   add_index "projects", ["updated_by_id"], name: "index_projects_on_updated_by_id", using: :btree
 
+  create_table "protocol_relationships", force: :cascade do |t|
+    t.integer  "protocol_id",                       null: false
+    t.integer  "protocol_relationship_object_id",   null: false
+    t.string   "protocol_relationship_object_type", null: false
+    t.integer  "position",                          null: false
+    t.integer  "created_by_id",                     null: false
+    t.integer  "updated_by_id",                     null: false
+    t.integer  "project_id"
+    t.datetime "created_at",                        null: false
+    t.datetime "updated_at",                        null: false
+  end
+
+  add_index "protocol_relationships", ["project_id"], name: "index_protocol_relationships_on_project_id", using: :btree
+  add_index "protocol_relationships", ["protocol_id"], name: "index_protocol_relationships_on_protocol_id", using: :btree
+
+  create_table "protocols", force: :cascade do |t|
+    t.string   "name",          null: false
+    t.text     "short_name",    null: false
+    t.text     "description",   null: false
+    t.integer  "created_by_id", null: false
+    t.integer  "updated_by_id", null: false
+    t.integer  "project_id"
+    t.datetime "created_at",    null: false
+    t.datetime "updated_at",    null: false
+  end
+
+  add_index "protocols", ["project_id"], name: "index_protocols_on_project_id", using: :btree
+
   create_table "public_contents", force: :cascade do |t|
     t.integer  "otu_id",        null: false
     t.integer  "topic_id",      null: false
@@ -1056,8 +1101,8 @@ ActiveRecord::Schema.define(version: 20160817002127) do
     t.integer  "updated_by_id",       null: false
     t.datetime "created_at",          null: false
     t.datetime "updated_at",          null: false
-    t.integer  "project_id",          null: false
     t.string   "type",                null: false
+    t.integer  "project_id",          null: false
   end
 
   create_table "sequences", force: :cascade do |t|
@@ -1480,6 +1525,8 @@ ActiveRecord::Schema.define(version: 20160817002127) do
   add_foreign_key "common_names", "users", column: "created_by_id"
   add_foreign_key "common_names", "users", column: "updated_by_id"
   add_foreign_key "confidences", "projects"
+  add_foreign_key "confidences", "users", column: "created_by_id"
+  add_foreign_key "confidences", "users", column: "updated_by_id"
   add_foreign_key "container_items", "projects", name: "container_items_project_id_fkey"
   add_foreign_key "container_items", "users", column: "created_by_id", name: "container_items_created_by_id_fkey"
   add_foreign_key "container_items", "users", column: "updated_by_id", name: "container_items_updated_by_id_fkey"
@@ -1509,9 +1556,14 @@ ActiveRecord::Schema.define(version: 20160817002127) do
   add_foreign_key "documentation", "users", column: "updated_by_id"
   add_foreign_key "documents", "users", column: "created_by_id"
   add_foreign_key "documents", "users", column: "updated_by_id"
+  add_foreign_key "extracts", "projects"
+  add_foreign_key "extracts", "users", column: "created_by_id"
+  add_foreign_key "extracts", "users", column: "updated_by_id"
   add_foreign_key "gene_attributes", "controlled_vocabulary_terms"
   add_foreign_key "gene_attributes", "projects"
   add_foreign_key "gene_attributes", "sequences"
+  add_foreign_key "gene_attributes", "users", column: "created_by_id"
+  add_foreign_key "gene_attributes", "users", column: "updated_by_id"
   add_foreign_key "geographic_area_types", "users", column: "created_by_id", name: "geographic_area_types_created_by_id_fkey"
   add_foreign_key "geographic_area_types", "users", column: "updated_by_id", name: "geographic_area_types_updated_by_id_fkey"
   add_foreign_key "geographic_areas", "geographic_area_types", name: "geographic_areas_geographic_area_type_id_fkey"
@@ -1582,6 +1634,13 @@ ActiveRecord::Schema.define(version: 20160817002127) do
   add_foreign_key "project_sources", "users", column: "updated_by_id", name: "project_sources_updated_by_id_fkey"
   add_foreign_key "projects", "users", column: "created_by_id", name: "projects_created_by_id_fkey"
   add_foreign_key "projects", "users", column: "updated_by_id", name: "projects_updated_by_id_fkey"
+  add_foreign_key "protocol_relationships", "projects"
+  add_foreign_key "protocol_relationships", "protocols"
+  add_foreign_key "protocol_relationships", "users", column: "created_by_id"
+  add_foreign_key "protocol_relationships", "users", column: "updated_by_id"
+  add_foreign_key "protocols", "projects"
+  add_foreign_key "protocols", "users", column: "created_by_id"
+  add_foreign_key "protocols", "users", column: "updated_by_id"
   add_foreign_key "public_contents", "contents", name: "public_contents_content_id_fkey"
   add_foreign_key "public_contents", "controlled_vocabulary_terms", column: "topic_id", name: "public_contents_topic_id_fkey"
   add_foreign_key "public_contents", "otus", name: "public_contents_otu_id_fkey"
