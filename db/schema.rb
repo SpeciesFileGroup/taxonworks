@@ -11,6 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
+<<<<<<< 254ebeecca37dbbb4c19b7ed40065f1742cdd3e7
 <<<<<<< bd332365e6fa15fbd23ab2beb47eea82ab8270b3
 <<<<<<< 3bea80e5dc324d70da4ee80999389d8341bdf029
 <<<<<<< f8b814f7ba463434b0ba4b7c3a361db9a6665822
@@ -36,6 +37,9 @@ ActiveRecord::Schema.define(version: 20160817212253) do
 =======
 ActiveRecord::Schema.define(version: 20160818212441) do
 >>>>>>> Added ProtocolRelationship model with views and passing model/controller specs
+=======
+ActiveRecord::Schema.define(version: 20160819172558) do
+>>>>>>> Added missing foreign keys created/updated_by_id to protocols and protocol relationships models
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -627,7 +631,10 @@ ActiveRecord::Schema.define(version: 20160818212441) do
   add_index "documents", ["document_file_file_size"], name: "index_documents_on_document_file_file_size", using: :btree
   add_index "documents", ["document_file_updated_at"], name: "index_documents_on_document_file_updated_at", using: :btree
 
+<<<<<<< 254ebeecca37dbbb4c19b7ed40065f1742cdd3e7
 <<<<<<< 3bea80e5dc324d70da4ee80999389d8341bdf029
+=======
+>>>>>>> Added missing foreign keys created/updated_by_id to protocols and protocol relationships models
   create_table "extracts", force: :cascade do |t|
     t.decimal  "quantity_value",             null: false
     t.string   "quantity_unit",              null: false
@@ -645,8 +652,11 @@ ActiveRecord::Schema.define(version: 20160818212441) do
 
   add_index "extracts", ["project_id"], name: "index_extracts_on_project_id", using: :btree
 
+<<<<<<< 254ebeecca37dbbb4c19b7ed40065f1742cdd3e7
 =======
 >>>>>>> Added Protocols model with views and passing controller/specs
+=======
+>>>>>>> Added missing foreign keys created/updated_by_id to protocols and protocol relationships models
   create_table "gene_attributes", force: :cascade do |t|
     t.integer  "descriptor_id",                 null: false
     t.integer  "sequence_id",                   null: false
@@ -1694,6 +1704,7 @@ ActiveRecord::Schema.define(version: 20160818212441) do
   add_foreign_key "documentation", "users", column: "updated_by_id"
   add_foreign_key "documents", "users", column: "created_by_id"
   add_foreign_key "documents", "users", column: "updated_by_id"
+<<<<<<< 254ebeecca37dbbb4c19b7ed40065f1742cdd3e7
 <<<<<<< 3bea80e5dc324d70da4ee80999389d8341bdf029
   add_foreign_key "extracts", "projects"
   add_foreign_key "extracts", "users", column: "created_by_id"
@@ -1708,6 +1719,16 @@ ActiveRecord::Schema.define(version: 20160818212441) do
   add_foreign_key "gene_attributes", "projects"
   add_foreign_key "gene_attributes", "sequences"
 >>>>>>> Added Protocols model with views and passing controller/specs
+=======
+  add_foreign_key "extracts", "projects"
+  add_foreign_key "extracts", "users", column: "created_by_id"
+  add_foreign_key "extracts", "users", column: "updated_by_id"
+  add_foreign_key "gene_attributes", "controlled_vocabulary_terms"
+  add_foreign_key "gene_attributes", "projects"
+  add_foreign_key "gene_attributes", "sequences"
+  add_foreign_key "gene_attributes", "users", column: "created_by_id"
+  add_foreign_key "gene_attributes", "users", column: "updated_by_id"
+>>>>>>> Added missing foreign keys created/updated_by_id to protocols and protocol relationships models
   add_foreign_key "geographic_area_types", "users", column: "created_by_id", name: "geographic_area_types_created_by_id_fkey"
   add_foreign_key "geographic_area_types", "users", column: "updated_by_id", name: "geographic_area_types_updated_by_id_fkey"
   add_foreign_key "geographic_areas", "geographic_area_types", name: "geographic_areas_geographic_area_type_id_fkey"
@@ -1794,9 +1815,17 @@ ActiveRecord::Schema.define(version: 20160818212441) do
 =======
   add_foreign_key "protocol_relationships", "projects"
   add_foreign_key "protocol_relationships", "protocols"
+<<<<<<< 254ebeecca37dbbb4c19b7ed40065f1742cdd3e7
 >>>>>>> Added ProtocolRelationship model with views and passing model/controller specs
   add_foreign_key "protocols", "projects"
 >>>>>>> Added Protocols model with views and passing controller/specs
+=======
+  add_foreign_key "protocol_relationships", "users", column: "created_by_id"
+  add_foreign_key "protocol_relationships", "users", column: "updated_by_id"
+  add_foreign_key "protocols", "projects"
+  add_foreign_key "protocols", "users", column: "created_by_id"
+  add_foreign_key "protocols", "users", column: "updated_by_id"
+>>>>>>> Added missing foreign keys created/updated_by_id to protocols and protocol relationships models
   add_foreign_key "public_contents", "contents", name: "public_contents_content_id_fkey"
   add_foreign_key "public_contents", "controlled_vocabulary_terms", column: "topic_id", name: "public_contents_topic_id_fkey"
   add_foreign_key "public_contents", "otus", name: "public_contents_otu_id_fkey"
