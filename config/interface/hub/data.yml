@@ -70,6 +70,8 @@ Core: # a Section
       - SequenceRelationship
     categories:
       - Genetic
+  Extract:
+    status: :prototype
 Supporting:
   AssertedDistribution:
     categories:
