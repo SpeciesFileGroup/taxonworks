@@ -11,6 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
+<<<<<<< 8acfc777d588ca2e3192efc80f69f5ae8bdb11b0
 <<<<<<< 204e1d7eed74314a5c93b77ecc4fee692bed60f6
 <<<<<<< b18ef85c55fc4cdb3d1f7d35fe1e7b5c40286af1
 ActiveRecord::Schema.define(version: 20160909173656) do
@@ -20,6 +21,9 @@ ActiveRecord::Schema.define(version: 20160817212253) do
 =======
 ActiveRecord::Schema.define(version: 20160818212441) do
 >>>>>>> Added ProtocolRelationship model with views and passing model/controller specs
+=======
+ActiveRecord::Schema.define(version: 20160819172558) do
+>>>>>>> Added missing foreign keys created/updated_by_id to protocols and protocol relationships models
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -590,6 +594,23 @@ ActiveRecord::Schema.define(version: 20160818212441) do
   add_index "documents", ["document_file_file_name"], name: "index_documents_on_document_file_file_name", using: :btree
   add_index "documents", ["document_file_file_size"], name: "index_documents_on_document_file_file_size", using: :btree
   add_index "documents", ["document_file_updated_at"], name: "index_documents_on_document_file_updated_at", using: :btree
+
+  create_table "extracts", force: :cascade do |t|
+    t.decimal  "quantity_value",             null: false
+    t.string   "quantity_unit",              null: false
+    t.decimal  "quantity_concentration",     null: false
+    t.string   "verbatim_anatomical_origin", null: false
+    t.integer  "year_made",                  null: false
+    t.integer  "month_made",                 null: false
+    t.integer  "day_made",                   null: false
+    t.integer  "created_by_id",              null: false
+    t.integer  "updated_by_id",              null: false
+    t.integer  "project_id",                 null: false
+    t.datetime "created_at",                 null: false
+    t.datetime "updated_at",                 null: false
+  end
+
+  add_index "extracts", ["project_id"], name: "index_extracts_on_project_id", using: :btree
 
   create_table "gene_attributes", force: :cascade do |t|
     t.integer  "descriptor_id",                 null: false
@@ -1599,9 +1620,14 @@ ActiveRecord::Schema.define(version: 20160818212441) do
   add_foreign_key "documentation", "users", column: "updated_by_id"
   add_foreign_key "documents", "users", column: "created_by_id"
   add_foreign_key "documents", "users", column: "updated_by_id"
+  add_foreign_key "extracts", "projects"
+  add_foreign_key "extracts", "users", column: "created_by_id"
+  add_foreign_key "extracts", "users", column: "updated_by_id"
   add_foreign_key "gene_attributes", "controlled_vocabulary_terms"
   add_foreign_key "gene_attributes", "projects"
   add_foreign_key "gene_attributes", "sequences"
+  add_foreign_key "gene_attributes", "users", column: "created_by_id"
+  add_foreign_key "gene_attributes", "users", column: "updated_by_id"
   add_foreign_key "geographic_area_types", "users", column: "created_by_id", name: "geographic_area_types_created_by_id_fkey"
   add_foreign_key "geographic_area_types", "users", column: "updated_by_id", name: "geographic_area_types_updated_by_id_fkey"
   add_foreign_key "geographic_areas", "geographic_area_types", name: "geographic_areas_geographic_area_type_id_fkey"
@@ -1677,7 +1703,11 @@ ActiveRecord::Schema.define(version: 20160818212441) do
   add_foreign_key "projects", "users", column: "updated_by_id", name: "projects_updated_by_id_fkey"
   add_foreign_key "protocol_relationships", "projects"
   add_foreign_key "protocol_relationships", "protocols"
+  add_foreign_key "protocol_relationships", "users", column: "created_by_id"
+  add_foreign_key "protocol_relationships", "users", column: "updated_by_id"
   add_foreign_key "protocols", "projects"
+  add_foreign_key "protocols", "users", column: "created_by_id"
+  add_foreign_key "protocols", "users", column: "updated_by_id"
   add_foreign_key "public_contents", "contents", name: "public_contents_content_id_fkey"
   add_foreign_key "public_contents", "controlled_vocabulary_terms", column: "topic_id", name: "public_contents_topic_id_fkey"
   add_foreign_key "public_contents", "otus", name: "public_contents_otu_id_fkey"
