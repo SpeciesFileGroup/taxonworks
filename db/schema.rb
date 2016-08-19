@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160819003713) do
+ActiveRecord::Schema.define(version: 20160819171810) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1100,8 +1100,8 @@ ActiveRecord::Schema.define(version: 20160819003713) do
     t.integer  "updated_by_id",       null: false
     t.datetime "created_at",          null: false
     t.datetime "updated_at",          null: false
-    t.integer  "project_id",          null: false
     t.string   "type",                null: false
+    t.integer  "project_id",          null: false
   end
 
   create_table "sequences", force: :cascade do |t|
@@ -1553,9 +1553,13 @@ ActiveRecord::Schema.define(version: 20160819003713) do
   add_foreign_key "documents", "users", column: "created_by_id"
   add_foreign_key "documents", "users", column: "updated_by_id"
   add_foreign_key "extracts", "projects"
+  add_foreign_key "extracts", "users", column: "created_by_id"
+  add_foreign_key "extracts", "users", column: "updated_by_id"
   add_foreign_key "gene_attributes", "controlled_vocabulary_terms"
   add_foreign_key "gene_attributes", "projects"
   add_foreign_key "gene_attributes", "sequences"
+  add_foreign_key "gene_attributes", "users", column: "created_by_id"
+  add_foreign_key "gene_attributes", "users", column: "updated_by_id"
   add_foreign_key "geographic_area_types", "users", column: "created_by_id", name: "geographic_area_types_created_by_id_fkey"
   add_foreign_key "geographic_area_types", "users", column: "updated_by_id", name: "geographic_area_types_updated_by_id_fkey"
   add_foreign_key "geographic_areas", "geographic_area_types", name: "geographic_areas_geographic_area_type_id_fkey"
