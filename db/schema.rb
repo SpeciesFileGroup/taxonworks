@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160819172558) do
+ActiveRecord::Schema.define(version: 20160819181056) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -343,7 +343,7 @@ ActiveRecord::Schema.define(version: 20160819172558) do
     t.integer  "position",               null: false
     t.integer  "created_by_id",          null: false
     t.integer  "updated_by_id",          null: false
-    t.integer  "project_id"
+    t.integer  "project_id",             null: false
     t.datetime "created_at",             null: false
     t.datetime "updated_at",             null: false
   end
@@ -1001,7 +1001,7 @@ ActiveRecord::Schema.define(version: 20160819172558) do
     t.integer  "position",                          null: false
     t.integer  "created_by_id",                     null: false
     t.integer  "updated_by_id",                     null: false
-    t.integer  "project_id"
+    t.integer  "project_id",                        null: false
     t.datetime "created_at",                        null: false
     t.datetime "updated_at",                        null: false
   end
@@ -1015,7 +1015,7 @@ ActiveRecord::Schema.define(version: 20160819172558) do
     t.text     "description",   null: false
     t.integer  "created_by_id", null: false
     t.integer  "updated_by_id", null: false
-    t.integer  "project_id"
+    t.integer  "project_id",    null: false
     t.datetime "created_at",    null: false
     t.datetime "updated_at",    null: false
   end
@@ -1523,6 +1523,8 @@ ActiveRecord::Schema.define(version: 20160819172558) do
   add_foreign_key "common_names", "users", column: "created_by_id"
   add_foreign_key "common_names", "users", column: "updated_by_id"
   add_foreign_key "confidences", "projects"
+  add_foreign_key "confidences", "users", column: "created_by_id"
+  add_foreign_key "confidences", "users", column: "updated_by_id"
   add_foreign_key "container_items", "projects", name: "container_items_project_id_fkey"
   add_foreign_key "container_items", "users", column: "created_by_id", name: "container_items_created_by_id_fkey"
   add_foreign_key "container_items", "users", column: "updated_by_id", name: "container_items_updated_by_id_fkey"
@@ -1652,10 +1654,12 @@ ActiveRecord::Schema.define(version: 20160819172558) do
   add_foreign_key "roles", "projects", name: "roles_project_id_fkey"
   add_foreign_key "roles", "users", column: "created_by_id", name: "roles_created_by_id_fkey"
   add_foreign_key "roles", "users", column: "updated_by_id", name: "roles_updated_by_id_fkey"
+  add_foreign_key "sequence_relationships", "projects"
   add_foreign_key "sequence_relationships", "sequences", column: "object_sequence_id"
   add_foreign_key "sequence_relationships", "sequences", column: "subject_sequence_id"
   add_foreign_key "sequence_relationships", "users", column: "created_by_id"
   add_foreign_key "sequence_relationships", "users", column: "updated_by_id"
+  add_foreign_key "sequences", "projects"
   add_foreign_key "sequences", "users", column: "created_by_id"
   add_foreign_key "sequences", "users", column: "updated_by_id"
   add_foreign_key "serial_chronologies", "serials", column: "preceding_serial_id", name: "serial_chronologies_preceding_serial_id_fkey"
