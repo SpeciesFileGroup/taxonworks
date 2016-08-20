@@ -5,7 +5,7 @@
       <div class="field">
         <%= f.label :type %>
         <br>
-        <%= f.select :type, options_for_select(sequence_relationship_type_select_options, @sequence_relationship.type) %>
+        <%= f.select :type, options_for_select(SEQUENCE_RELATIONSHIP_TYPE_SELECT, @sequence_relationship.type) %>
       </div>
 
       <div class="field">
