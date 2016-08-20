@@ -9,10 +9,6 @@ module SequenceRelationshipsHelper
         link_to(sequence_relationship_tag(sequence_relationship.metamorphosize).html_safe, sequence_relationship.metamorphosize)
     end
 
-    def sequence_relationship_type_select_options
-        %w[ReversePrimer ForwardPrimer BlastQuerySequence ReferenceSequenceForAssembly]
-    end
-
     def sequence_relationships_search_form
         render('/sequence_relationships/quick_search_form')
     end
