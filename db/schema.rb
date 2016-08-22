@@ -11,57 +11,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-<<<<<<< 5d62c767fdff42382dda42edc7aaf8caea631395
-<<<<<<< 8b129f1f93a7dae9a729c4235f18a5c016d6b0bf
-<<<<<<< 78e56ca3c2632af3840134e92a40c450e3f7cb5d
-<<<<<<< e05e4cc2eb1387691a848cff5bbe3acb10472e5a
-ActiveRecord::Schema.define(version: 20160805183537) do
-=======
-ActiveRecord::Schema.define(version: 20160819205425) do
->>>>>>> asserted distribution update
-=======
-=======
-=======
-<<<<<<< ef944e743629fcdf58c50bb4557decd299d6b415
->>>>>>> Added matrix_row table, with model/controller spec completed.
-<<<<<<< 117b48823b2f206e5267066769a427a453ad3743
->>>>>>> Scaffolding "Descriptor", the superclass for matrix "characters".  Added to hub, basic round-trip creation possible.
-<<<<<<< 29686c409b664e214c5ee433378803d5a917b4b6
-ActiveRecord::Schema.define(version: 20160819205425) do
-=======
-ActiveRecord::Schema.define(version: 20160803203508) do
->>>>>>> Scaffolded matrix model, basics integrated in TW interface. Tests updated.
-<<<<<<< 8b129f1f93a7dae9a729c4235f18a5c016d6b0bf
->>>>>>> Scaffolded matrix model, basics integrated in TW interface. Tests updated.
-=======
-=======
-ActiveRecord::Schema.define(version: 20160804142825) do
->>>>>>> Scaffolding "Descriptor", the superclass for matrix "characters".  Added to hub, basic round-trip creation possible.
-<<<<<<< 5d62c767fdff42382dda42edc7aaf8caea631395
->>>>>>> Scaffolding "Descriptor", the superclass for matrix "characters".  Added to hub, basic round-trip creation possible.
-=======
-=======
-ActiveRecord::Schema.define(version: 20160804185715) do
->>>>>>> Added matrix_row table, with model/controller spec completed.
->>>>>>> Added matrix_row table, with model/controller spec completed.
+ActiveRecord::Schema.define(version: 20160822165551) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
-<<<<<<< 5d62c767fdff42382dda42edc7aaf8caea631395
   enable_extension "hstore"
-<<<<<<< 8b129f1f93a7dae9a729c4235f18a5c016d6b0bf
-<<<<<<< 78e56ca3c2632af3840134e92a40c450e3f7cb5d
-=======
-=======
   enable_extension "fuzzystrmatch"
->>>>>>> Scaffolding "Descriptor", the superclass for matrix "characters".  Added to hub, basic round-trip creation possible.
-  enable_extension "citext"
->>>>>>> Scaffolded matrix model, basics integrated in TW interface. Tests updated.
-=======
-  enable_extension "fuzzystrmatch"
-  enable_extension "hstore"
->>>>>>> Added matrix_row table, with model/controller spec completed.
 
   create_table "alternate_values", force: :cascade do |t|
     t.text     "value",                            null: false
@@ -85,21 +41,22 @@ ActiveRecord::Schema.define(version: 20160804185715) do
   add_index "alternate_values", ["updated_by_id"], name: "index_alternate_values_on_updated_by_id", using: :btree
 
   create_table "asserted_distributions", force: :cascade do |t|
-    t.integer  "otu_id",                   null: false
-    t.integer  "geographic_area_id",       null: false
-    t.integer  "project_id",               null: false
-    t.integer  "created_by_id",            null: false
-    t.integer  "updated_by_id",            null: false
-    t.datetime "created_at",               null: false
-    t.datetime "updated_at",               null: false
+    t.integer  "otu_id",             null: false
+    t.integer  "geographic_area_id", null: false
+    t.integer  "source_id",          null: false
+    t.integer  "project_id",         null: false
+    t.integer  "created_by_id",      null: false
+    t.integer  "updated_by_id",      null: false
+    t.datetime "created_at",         null: false
+    t.datetime "updated_at",         null: false
     t.boolean  "is_absent"
-    t.string   "verbatim_geographic_area"
   end
 
   add_index "asserted_distributions", ["created_by_id"], name: "index_asserted_distributions_on_created_by_id", using: :btree
   add_index "asserted_distributions", ["geographic_area_id"], name: "index_asserted_distributions_on_geographic_area_id", using: :btree
   add_index "asserted_distributions", ["otu_id"], name: "index_asserted_distributions_on_otu_id", using: :btree
   add_index "asserted_distributions", ["project_id"], name: "index_asserted_distributions_on_project_id", using: :btree
+  add_index "asserted_distributions", ["source_id"], name: "index_asserted_distributions_on_source_id", using: :btree
   add_index "asserted_distributions", ["updated_by_id"], name: "index_asserted_distributions_on_updated_by_id", using: :btree
 
   create_table "biocuration_classifications", force: :cascade do |t|
@@ -381,6 +338,19 @@ ActiveRecord::Schema.define(version: 20160804185715) do
   add_index "common_names", ["project_id"], name: "index_common_names_on_project_id", using: :btree
   add_index "common_names", ["updated_by_id"], name: "index_common_names_on_updated_by_id", using: :btree
 
+  create_table "confidences", force: :cascade do |t|
+    t.integer  "confidence_object_id",   null: false
+    t.string   "confidence_object_type", null: false
+    t.integer  "position",               null: false
+    t.integer  "created_by_id",          null: false
+    t.integer  "updated_by_id",          null: false
+    t.integer  "project_id"
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
+  end
+
+  add_index "confidences", ["project_id"], name: "index_confidences_on_project_id", using: :btree
+
   create_table "container_item_hierarchies", id: false, force: :cascade do |t|
     t.integer "ancestor_id",   null: false
     t.integer "descendant_id", null: false
@@ -542,21 +512,17 @@ ActiveRecord::Schema.define(version: 20160804185715) do
   add_index "derived_collection_objects", ["project_id"], name: "index_derived_collection_objects_on_project_id", using: :btree
 
   create_table "descriptors", force: :cascade do |t|
+    t.integer  "created_by_id", null: false
+    t.integer  "updated_by_id", null: false
+    t.integer  "project_id"
+    t.datetime "created_at",    null: false
+    t.datetime "updated_at",    null: false
     t.string   "name",          null: false
     t.string   "short_name"
     t.string   "type",          null: false
-    t.integer  "created_by_id", null: false
-    t.integer  "updated_by_id", null: false
-    t.integer  "project_id",    null: false
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
   end
 
-  add_index "descriptors", ["created_by_id"], name: "index_descriptors_on_created_by_id", using: :btree
-  add_index "descriptors", ["name"], name: "index_descriptors_on_name", using: :btree
   add_index "descriptors", ["project_id"], name: "index_descriptors_on_project_id", using: :btree
-  add_index "descriptors", ["short_name"], name: "index_descriptors_on_short_name", using: :btree
-  add_index "descriptors", ["updated_by_id"], name: "index_descriptors_on_updated_by_id", using: :btree
 
   create_table "documentation", force: :cascade do |t|
     t.integer  "documentation_object_id",   null: false
@@ -594,6 +560,40 @@ ActiveRecord::Schema.define(version: 20160804185715) do
   add_index "documents", ["document_file_file_name"], name: "index_documents_on_document_file_file_name", using: :btree
   add_index "documents", ["document_file_file_size"], name: "index_documents_on_document_file_file_size", using: :btree
   add_index "documents", ["document_file_updated_at"], name: "index_documents_on_document_file_updated_at", using: :btree
+
+  create_table "extracts", force: :cascade do |t|
+    t.decimal  "quantity_value",             null: false
+    t.string   "quantity_unit",              null: false
+    t.decimal  "quantity_concentration",     null: false
+    t.string   "verbatim_anatomical_origin", null: false
+    t.integer  "year_made",                  null: false
+    t.integer  "month_made",                 null: false
+    t.integer  "day_made",                   null: false
+    t.integer  "created_by_id",              null: false
+    t.integer  "updated_by_id",              null: false
+    t.integer  "project_id",                 null: false
+    t.datetime "created_at",                 null: false
+    t.datetime "updated_at",                 null: false
+  end
+
+  add_index "extracts", ["project_id"], name: "index_extracts_on_project_id", using: :btree
+
+  create_table "gene_attributes", force: :cascade do |t|
+    t.integer  "descriptor_id",                 null: false
+    t.integer  "sequence_id",                   null: false
+    t.string   "sequence_relationship_type"
+    t.integer  "controlled_vocabulary_term_id"
+    t.integer  "position"
+    t.integer  "created_by_id",                 null: false
+    t.integer  "updated_by_id",                 null: false
+    t.integer  "project_id",                    null: false
+    t.datetime "created_at",                    null: false
+    t.datetime "updated_at",                    null: false
+  end
+
+  add_index "gene_attributes", ["controlled_vocabulary_term_id"], name: "index_gene_attributes_on_controlled_vocabulary_term_id", using: :btree
+  add_index "gene_attributes", ["project_id"], name: "index_gene_attributes_on_project_id", using: :btree
+  add_index "gene_attributes", ["sequence_id"], name: "index_gene_attributes_on_sequence_id", using: :btree
 
   create_table "geographic_area_hierarchies", id: false, force: :cascade do |t|
     t.integer "ancestor_id",   null: false
@@ -839,8 +839,6 @@ ActiveRecord::Schema.define(version: 20160804185715) do
   add_index "matrices", ["project_id"], name: "index_matrices_on_project_id", using: :btree
   add_index "matrices", ["updated_by_id"], name: "index_matrices_on_updated_by_id", using: :btree
 
-<<<<<<< 5d62c767fdff42382dda42edc7aaf8caea631395
-<<<<<<< 78e56ca3c2632af3840134e92a40c450e3f7cb5d
   create_table "matrix_column_items", force: :cascade do |t|
     t.integer  "matrix_id",                     null: false
     t.string   "type",                          null: false
@@ -870,17 +868,6 @@ ActiveRecord::Schema.define(version: 20160804185715) do
     t.datetime "created_at",      null: false
     t.datetime "updated_at",      null: false
     t.integer  "reference_count"
-=======
-  create_table "matrix_columns", force: :cascade do |t|
-    t.integer  "matrix_id",     null: false
-    t.integer  "descriptor_id", null: false
-    t.integer  "position"
-    t.integer  "created_by_id", null: false
-    t.integer  "updated_by_id", null: false
-    t.integer  "project_id",    null: false
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
->>>>>>> Added matrix_row table, with model/controller spec completed.
   end
 
   add_index "matrix_columns", ["created_by_id"], name: "index_matrix_columns_on_created_by_id", using: :btree
@@ -888,6 +875,28 @@ ActiveRecord::Schema.define(version: 20160804185715) do
   add_index "matrix_columns", ["matrix_id"], name: "index_matrix_columns_on_matrix_id", using: :btree
   add_index "matrix_columns", ["project_id"], name: "index_matrix_columns_on_project_id", using: :btree
   add_index "matrix_columns", ["updated_by_id"], name: "index_matrix_columns_on_updated_by_id", using: :btree
+
+  create_table "matrix_row_items", force: :cascade do |t|
+    t.integer  "matrix_id",                     null: false
+    t.string   "type",                          null: false
+    t.integer  "collection_object_id"
+    t.integer  "otu_id"
+    t.integer  "controlled_vocabulary_term_id"
+    t.integer  "created_by_id",                 null: false
+    t.integer  "updated_by_id",                 null: false
+    t.integer  "project_id",                    null: false
+    t.datetime "created_at",                    null: false
+    t.datetime "updated_at",                    null: false
+    t.integer  "position"
+  end
+
+  add_index "matrix_row_items", ["collection_object_id"], name: "index_matrix_row_items_on_collection_object_id", using: :btree
+  add_index "matrix_row_items", ["controlled_vocabulary_term_id"], name: "index_matrix_row_items_on_controlled_vocabulary_term_id", using: :btree
+  add_index "matrix_row_items", ["created_by_id"], name: "index_matrix_row_items_on_created_by_id", using: :btree
+  add_index "matrix_row_items", ["matrix_id"], name: "index_matrix_row_items_on_matrix_id", using: :btree
+  add_index "matrix_row_items", ["otu_id"], name: "index_matrix_row_items_on_otu_id", using: :btree
+  add_index "matrix_row_items", ["project_id"], name: "index_matrix_row_items_on_project_id", using: :btree
+  add_index "matrix_row_items", ["updated_by_id"], name: "index_matrix_row_items_on_updated_by_id", using: :btree
 
   create_table "matrix_rows", force: :cascade do |t|
     t.integer  "matrix_id",            null: false
@@ -899,6 +908,7 @@ ActiveRecord::Schema.define(version: 20160804185715) do
     t.integer  "project_id",           null: false
     t.datetime "created_at",           null: false
     t.datetime "updated_at",           null: false
+    t.integer  "reference_count"
   end
 
   add_index "matrix_rows", ["collection_object_id"], name: "index_matrix_rows_on_collection_object_id", using: :btree
@@ -908,11 +918,6 @@ ActiveRecord::Schema.define(version: 20160804185715) do
   add_index "matrix_rows", ["project_id"], name: "index_matrix_rows_on_project_id", using: :btree
   add_index "matrix_rows", ["updated_by_id"], name: "index_matrix_rows_on_updated_by_id", using: :btree
 
-<<<<<<< 5d62c767fdff42382dda42edc7aaf8caea631395
-=======
->>>>>>> Scaffolded matrix model, basics integrated in TW interface. Tests updated.
-=======
->>>>>>> Added matrix_row table, with model/controller spec completed.
   create_table "namespaces", force: :cascade do |t|
     t.string   "institution"
     t.string   "name",                null: false
@@ -943,6 +948,60 @@ ActiveRecord::Schema.define(version: 20160804185715) do
   add_index "notes", ["note_object_id", "note_object_type"], name: "index_notes_on_note_object_id_and_type", using: :btree
   add_index "notes", ["project_id"], name: "index_notes_on_project_id", using: :btree
   add_index "notes", ["updated_by_id"], name: "index_notes_on_updated_by_id", using: :btree
+
+  create_table "observations", force: :cascade do |t|
+    t.integer  "descriptor_id"
+    t.integer  "otu_id"
+    t.integer  "collection_object_id"
+    t.integer  "character_state_id"
+    t.string   "frequency"
+    t.decimal  "continuous_value"
+    t.string   "continuous_unit"
+    t.integer  "sample_n"
+    t.decimal  "sample_min"
+    t.decimal  "sample_max"
+    t.decimal  "sample_median"
+    t.decimal  "sample_mean"
+    t.string   "sample_units"
+    t.decimal  "sample_standard_deviation"
+    t.decimal  "sample_standard_error"
+    t.boolean  "presence"
+    t.text     "description"
+    t.string   "cached"
+    t.string   "cached_column_label"
+    t.string   "cached_row_label"
+    t.integer  "created_by_id",             null: false
+    t.integer  "updated_by_id",             null: false
+    t.integer  "project_id",                null: false
+    t.datetime "created_at",                null: false
+    t.datetime "updated_at",                null: false
+    t.string   "type",                      null: false
+  end
+
+  add_index "observations", ["character_state_id"], name: "index_observations_on_character_state_id", using: :btree
+  add_index "observations", ["collection_object_id"], name: "index_observations_on_collection_object_id", using: :btree
+  add_index "observations", ["descriptor_id"], name: "index_observations_on_descriptor_id", using: :btree
+  add_index "observations", ["otu_id"], name: "index_observations_on_otu_id", using: :btree
+  add_index "observations", ["project_id"], name: "index_observations_on_project_id", using: :btree
+
+  create_table "origin_relationships", force: :cascade do |t|
+    t.integer  "old_object_id",   null: false
+    t.string   "old_object_type", null: false
+    t.integer  "new_object_id",   null: false
+    t.string   "new_object_type", null: false
+    t.integer  "position"
+    t.integer  "created_by_id",   null: false
+    t.integer  "updated_by_id",   null: false
+    t.integer  "project_id",      null: false
+    t.datetime "created_at",      null: false
+    t.datetime "updated_at",      null: false
+  end
+
+  add_index "origin_relationships", ["created_by_id"], name: "index_origin_relationships_on_created_by_id", using: :btree
+  add_index "origin_relationships", ["new_object_type", "new_object_id"], name: "index_origin_relationships_on_new_object_type_and_new_object_id", using: :btree
+  add_index "origin_relationships", ["old_object_type", "old_object_id"], name: "index_origin_relationships_on_old_object_type_and_old_object_id", using: :btree
+  add_index "origin_relationships", ["project_id"], name: "index_origin_relationships_on_project_id", using: :btree
+  add_index "origin_relationships", ["updated_by_id"], name: "index_origin_relationships_on_updated_by_id", using: :btree
 
   create_table "otu_page_layout_sections", force: :cascade do |t|
     t.integer  "otu_page_layout_id",    null: false
@@ -1085,6 +1144,34 @@ ActiveRecord::Schema.define(version: 20160804185715) do
   add_index "projects", ["created_by_id"], name: "index_projects_on_created_by_id", using: :btree
   add_index "projects", ["updated_by_id"], name: "index_projects_on_updated_by_id", using: :btree
 
+  create_table "protocol_relationships", force: :cascade do |t|
+    t.integer  "protocol_id",                       null: false
+    t.integer  "protocol_relationship_object_id",   null: false
+    t.string   "protocol_relationship_object_type", null: false
+    t.integer  "position",                          null: false
+    t.integer  "created_by_id",                     null: false
+    t.integer  "updated_by_id",                     null: false
+    t.integer  "project_id"
+    t.datetime "created_at",                        null: false
+    t.datetime "updated_at",                        null: false
+  end
+
+  add_index "protocol_relationships", ["project_id"], name: "index_protocol_relationships_on_project_id", using: :btree
+  add_index "protocol_relationships", ["protocol_id"], name: "index_protocol_relationships_on_protocol_id", using: :btree
+
+  create_table "protocols", force: :cascade do |t|
+    t.string   "name",          null: false
+    t.text     "short_name",    null: false
+    t.text     "description",   null: false
+    t.integer  "created_by_id", null: false
+    t.integer  "updated_by_id", null: false
+    t.integer  "project_id"
+    t.datetime "created_at",    null: false
+    t.datetime "updated_at",    null: false
+  end
+
+  add_index "protocols", ["project_id"], name: "index_protocols_on_project_id", using: :btree
+
   create_table "public_contents", force: :cascade do |t|
     t.integer  "otu_id",        null: false
     t.integer  "topic_id",      null: false
@@ -1155,6 +1242,31 @@ ActiveRecord::Schema.define(version: 20160804185715) do
   add_index "roles", ["role_object_id", "role_object_type"], name: "index_roles_on_role_object_id_and_type", using: :btree
   add_index "roles", ["type"], name: "index_roles_on_type", using: :btree
   add_index "roles", ["updated_by_id"], name: "index_roles_on_updated_by_id", using: :btree
+
+  create_table "sequence_relationships", force: :cascade do |t|
+    t.integer  "subject_sequence_id", null: false
+    t.integer  "object_sequence_id",  null: false
+    t.integer  "created_by_id",       null: false
+    t.integer  "updated_by_id",       null: false
+    t.datetime "created_at",          null: false
+    t.datetime "updated_at",          null: false
+    t.integer  "project_id",          null: false
+    t.string   "type",                null: false
+  end
+
+  create_table "sequences", force: :cascade do |t|
+    t.integer  "created_by_id", null: false
+    t.integer  "updated_by_id", null: false
+    t.datetime "created_at",    null: false
+    t.datetime "updated_at",    null: false
+    t.text     "sequence",      null: false
+    t.string   "sequence_type", null: false
+    t.integer  "project_id",    null: false
+    t.string   "name"
+  end
+
+  add_index "sequences", ["created_by_id"], name: "index_sequences_on_created_by_id", using: :btree
+  add_index "sequences", ["updated_by_id"], name: "index_sequences_on_updated_by_id", using: :btree
 
   create_table "serial_chronologies", force: :cascade do |t|
     t.integer  "preceding_serial_id",  null: false
@@ -1502,6 +1614,7 @@ ActiveRecord::Schema.define(version: 20160804185715) do
   add_foreign_key "asserted_distributions", "geographic_areas", name: "asserted_distributions_geographic_area_id_fkey"
   add_foreign_key "asserted_distributions", "otus", name: "asserted_distributions_otu_id_fkey"
   add_foreign_key "asserted_distributions", "projects", name: "asserted_distributions_project_id_fkey"
+  add_foreign_key "asserted_distributions", "sources", name: "asserted_distributions_source_id_fkey"
   add_foreign_key "asserted_distributions", "users", column: "created_by_id", name: "asserted_distributions_created_by_id_fkey"
   add_foreign_key "asserted_distributions", "users", column: "updated_by_id", name: "asserted_distributions_updated_by_id_fkey"
   add_foreign_key "biocuration_classifications", "collection_objects", column: "biological_collection_object_id", name: "biocuration_classifications_biological_collection_object_i_fkey"
@@ -1560,6 +1673,7 @@ ActiveRecord::Schema.define(version: 20160804185715) do
   add_foreign_key "common_names", "projects"
   add_foreign_key "common_names", "users", column: "created_by_id"
   add_foreign_key "common_names", "users", column: "updated_by_id"
+  add_foreign_key "confidences", "projects"
   add_foreign_key "container_items", "projects", name: "container_items_project_id_fkey"
   add_foreign_key "container_items", "users", column: "created_by_id", name: "container_items_created_by_id_fkey"
   add_foreign_key "container_items", "users", column: "updated_by_id", name: "container_items_updated_by_id_fkey"
@@ -1583,14 +1697,20 @@ ActiveRecord::Schema.define(version: 20160804185715) do
   add_foreign_key "data_attributes", "users", column: "created_by_id", name: "data_attributes_created_by_id_fkey"
   add_foreign_key "data_attributes", "users", column: "updated_by_id", name: "data_attributes_updated_by_id_fkey"
   add_foreign_key "descriptors", "projects"
-  add_foreign_key "descriptors", "users", column: "created_by_id"
-  add_foreign_key "descriptors", "users", column: "updated_by_id"
   add_foreign_key "documentation", "documents"
   add_foreign_key "documentation", "projects"
   add_foreign_key "documentation", "users", column: "created_by_id"
   add_foreign_key "documentation", "users", column: "updated_by_id"
   add_foreign_key "documents", "users", column: "created_by_id"
   add_foreign_key "documents", "users", column: "updated_by_id"
+  add_foreign_key "extracts", "projects"
+  add_foreign_key "extracts", "users", column: "created_by_id"
+  add_foreign_key "extracts", "users", column: "updated_by_id"
+  add_foreign_key "gene_attributes", "controlled_vocabulary_terms"
+  add_foreign_key "gene_attributes", "projects"
+  add_foreign_key "gene_attributes", "sequences"
+  add_foreign_key "gene_attributes", "users", column: "created_by_id"
+  add_foreign_key "gene_attributes", "users", column: "updated_by_id"
   add_foreign_key "geographic_area_types", "users", column: "created_by_id", name: "geographic_area_types_created_by_id_fkey"
   add_foreign_key "geographic_area_types", "users", column: "updated_by_id", name: "geographic_area_types_updated_by_id_fkey"
   add_foreign_key "geographic_areas", "geographic_area_types", name: "geographic_areas_geographic_area_type_id_fkey"
@@ -1629,37 +1749,44 @@ ActiveRecord::Schema.define(version: 20160804185715) do
   add_foreign_key "matrices", "projects"
   add_foreign_key "matrices", "users", column: "created_by_id"
   add_foreign_key "matrices", "users", column: "updated_by_id"
-<<<<<<< 5d62c767fdff42382dda42edc7aaf8caea631395
-<<<<<<< 78e56ca3c2632af3840134e92a40c450e3f7cb5d
   add_foreign_key "matrix_column_items", "controlled_vocabulary_terms"
   add_foreign_key "matrix_column_items", "descriptors"
   add_foreign_key "matrix_column_items", "matrices"
   add_foreign_key "matrix_column_items", "projects"
   add_foreign_key "matrix_column_items", "users", column: "created_by_id"
   add_foreign_key "matrix_column_items", "users", column: "updated_by_id"
-=======
->>>>>>> Added matrix_row table, with model/controller spec completed.
   add_foreign_key "matrix_columns", "descriptors"
   add_foreign_key "matrix_columns", "matrices"
   add_foreign_key "matrix_columns", "projects"
   add_foreign_key "matrix_columns", "users", column: "created_by_id"
   add_foreign_key "matrix_columns", "users", column: "updated_by_id"
+  add_foreign_key "matrix_row_items", "collection_objects"
+  add_foreign_key "matrix_row_items", "controlled_vocabulary_terms"
+  add_foreign_key "matrix_row_items", "matrices"
+  add_foreign_key "matrix_row_items", "otus"
+  add_foreign_key "matrix_row_items", "projects"
+  add_foreign_key "matrix_row_items", "users", column: "created_by_id"
+  add_foreign_key "matrix_row_items", "users", column: "updated_by_id"
   add_foreign_key "matrix_rows", "collection_objects"
   add_foreign_key "matrix_rows", "matrices"
   add_foreign_key "matrix_rows", "otus"
   add_foreign_key "matrix_rows", "projects"
-<<<<<<< 5d62c767fdff42382dda42edc7aaf8caea631395
   add_foreign_key "matrix_rows", "users", column: "created_by_id"
   add_foreign_key "matrix_rows", "users", column: "updated_by_id"
-=======
->>>>>>> Scaffolded matrix model, basics integrated in TW interface. Tests updated.
-=======
->>>>>>> Added matrix_row table, with model/controller spec completed.
   add_foreign_key "namespaces", "users", column: "created_by_id", name: "namespaces_created_by_id_fkey"
   add_foreign_key "namespaces", "users", column: "updated_by_id", name: "namespaces_updated_by_id_fkey"
   add_foreign_key "notes", "projects", name: "notes_project_id_fkey"
   add_foreign_key "notes", "users", column: "created_by_id", name: "notes_created_by_id_fkey"
   add_foreign_key "notes", "users", column: "updated_by_id", name: "notes_updated_by_id_fkey"
+  add_foreign_key "observations", "collection_objects"
+  add_foreign_key "observations", "descriptors"
+  add_foreign_key "observations", "otus"
+  add_foreign_key "observations", "projects"
+  add_foreign_key "observations", "users", column: "created_by_id"
+  add_foreign_key "observations", "users", column: "updated_by_id"
+  add_foreign_key "origin_relationships", "projects"
+  add_foreign_key "origin_relationships", "users", column: "created_by_id"
+  add_foreign_key "origin_relationships", "users", column: "updated_by_id"
   add_foreign_key "otu_page_layout_sections", "controlled_vocabulary_terms", column: "topic_id", name: "otu_page_layout_sections_topic_id_fkey"
   add_foreign_key "otu_page_layout_sections", "otu_page_layouts", name: "otu_page_layout_sections_otu_page_layout_id_fkey"
   add_foreign_key "otu_page_layout_sections", "projects", name: "otu_page_layout_sections_project_id_fkey"
@@ -1690,6 +1817,9 @@ ActiveRecord::Schema.define(version: 20160804185715) do
   add_foreign_key "project_sources", "users", column: "updated_by_id", name: "project_sources_updated_by_id_fkey"
   add_foreign_key "projects", "users", column: "created_by_id", name: "projects_created_by_id_fkey"
   add_foreign_key "projects", "users", column: "updated_by_id", name: "projects_updated_by_id_fkey"
+  add_foreign_key "protocol_relationships", "projects"
+  add_foreign_key "protocol_relationships", "protocols"
+  add_foreign_key "protocols", "projects"
   add_foreign_key "public_contents", "contents", name: "public_contents_content_id_fkey"
   add_foreign_key "public_contents", "controlled_vocabulary_terms", column: "topic_id", name: "public_contents_topic_id_fkey"
   add_foreign_key "public_contents", "otus", name: "public_contents_otu_id_fkey"
@@ -1705,6 +1835,14 @@ ActiveRecord::Schema.define(version: 20160804185715) do
   add_foreign_key "roles", "projects", name: "roles_project_id_fkey"
   add_foreign_key "roles", "users", column: "created_by_id", name: "roles_created_by_id_fkey"
   add_foreign_key "roles", "users", column: "updated_by_id", name: "roles_updated_by_id_fkey"
+  add_foreign_key "sequence_relationships", "projects"
+  add_foreign_key "sequence_relationships", "sequences", column: "object_sequence_id"
+  add_foreign_key "sequence_relationships", "sequences", column: "subject_sequence_id"
+  add_foreign_key "sequence_relationships", "users", column: "created_by_id"
+  add_foreign_key "sequence_relationships", "users", column: "updated_by_id"
+  add_foreign_key "sequences", "projects"
+  add_foreign_key "sequences", "users", column: "created_by_id"
+  add_foreign_key "sequences", "users", column: "updated_by_id"
   add_foreign_key "serial_chronologies", "serials", column: "preceding_serial_id", name: "serial_chronologies_preceding_serial_id_fkey"
   add_foreign_key "serial_chronologies", "serials", column: "succeeding_serial_id", name: "serial_chronologies_succeeding_serial_id_fkey"
   add_foreign_key "serial_chronologies", "users", column: "created_by_id", name: "serial_chronologies_created_by_id_fkey"
