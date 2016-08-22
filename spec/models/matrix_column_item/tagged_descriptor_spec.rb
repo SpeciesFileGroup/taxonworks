@@ -93,10 +93,19 @@ RSpec.describe MatrixColumnItem::TaggedDescriptor, type: :model, group: :matrix 
 
         context 'adding another tag to an existing cvt' do
           let(:descriptor4) { FactoryGirl.create(:valid_descriptor) }
-          before { Tag.create(keyword: other_keyword, tag_object: descriptor4)  }
+          let!(:new_tag) { Tag.create(keyword: other_keyword, tag_object: descriptor4) }
 
           specify 'matrix column is added' do
             expect(MatrixColumn.all.map(&:descriptor).map(&:metamorphosize)).to contain_exactly( descriptor1, descriptor2, descriptor3, descriptor4) 
+          end
+
+          specify 'only added matrix column is incremented' do
+            expect(MatrixColumn.all.pluck(:reference_count)).to contain_exactly(1, 1, 2, 1)
+          end
+
+          specify 'destroying newly created tag only decrements its own matrix column' do
+            new_tag.destroy
+            expect(MatrixColumn.all.pluck(:reference_count)).to contain_exactly(1, 1, 2)
           end
         end
       end
