@@ -1,0 +1,2 @@
+<%%= render '<%= model_path_prefix %>/batch_load/<%= name %>/batch_load' -%>
+
