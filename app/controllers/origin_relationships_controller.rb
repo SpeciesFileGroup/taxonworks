@@ -73,6 +73,6 @@ class OriginRelationshipsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def origin_relationship_params
-      params.require(:origin_relationship).permit(:old_object, :new_object, :position, :created_by_id, :updated_by_id, :project_id)
+      params.require(:origin_relationship).permit(:old_object_id, :old_object_type, :new_object_id, :new_object_type, :position, :created_by_id, :updated_by_id, :project_id)
     end
 end
