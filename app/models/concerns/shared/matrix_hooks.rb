@@ -7,25 +7,31 @@ module Shared::MatrixHooks
 
   extend ActiveSupport::Concern
   included do
-    after_save :update_matrix_columns, if: :matrix_column_item
-    after_destroy :cleanup_matrix_columns, if: :matrix_column_item
+    after_save :update_matrix
+    after_destroy :cleaup_matrix
   end
 
   module ClassMethods
   end
 
-  def update_matrix_columns
+  def update_matrix
     if matrix_column_item
-      matrix_column_item.update_matrix_columns 
+      matrix_column_item.update_matrix_columns
     end
-    true
+
+    if matrix_row_item
+      matrix_row_item.update_matrix_rows
+    end
   end
 
-  def cleanup_matrix_columns
+  def cleaup_matrix 
     if matrix_column_item
-      matrix_column_item.cleanup_matrix_columns 
+      matrix_column_item.cleanup_matrix_columns
     end
-    true 
+
+    if matrix_row_item
+      matrix_row_item.cleanup_matrix_rows
+    end
   end
 
   protected 
