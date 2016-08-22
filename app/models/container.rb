@@ -81,27 +81,6 @@ class Container < ActiveRecord::Base
   end
 
   # @return [Boolean]
-  #    add the objects to this container
-  def add_container_items(objects)
-    return false if new_record?
-    begin
-     Container.transaction do
-       ci = container_item
-       ci ||= ContainerItem.create!(contained_object: self)
-
-       objects.each do |o|
-         return false if o.new_record? || !o.containable? # does this roll back transaction
-         ContainerItem.create!(parent: ci, contained_object: o)
-       end
-
-     end
-   rescue ActiveRecord::RecordInvalid
-     return false
-   end
-    true
-  end
-
-  # @return [Boolean]
   #   regardless whether size is defined, whether there is anything in this container (non-recursive)
   def is_empty?
     !container_items.any?
@@ -154,26 +133,59 @@ class Container < ActiveRecord::Base
   end
 
   # @return [Container]
-  #   places all objects in a new, parent-less container, saves it off, all objects must not be new_records
+  #   places all objects in a new, parent-less container, saves it off,
+  #   None of the objects are permitted to be new_records
   def self.containerize(objects, klass = Container::Virtual)
-    c = nil
+    new_container = nil
     begin
       Container.transaction do
-        c = klass.create()
-        ci = ContainerItem.create(contained_object: c)
+        new_container = klass.create()
+        cip           = ContainerItem.create(contained_object: new_container)
 
         objects.each do |o|
           return false if o.new_record?
-          ContainerItem.create(parent: ci, contained_object: o)
+          if o.container_item.nil?
+            ContainerItem.create(parent: cip, contained_object: o)
+          else
+            o.container_item.parent_id = cip.id
+            o.container_item.save
+          end
         end
-
       end
     rescue ActiveRecord::RecordInvalid
       return false
     end
-    c
+    new_container
   end
 
+
+  # @return [Boolean]
+  #    add the objects to this container
+  def add_container_items(objects)
+    return false if new_record?
+    begin
+      Container.transaction do
+        cip = container_item
+        # cip ||= ContainerItem.create!(contained_object: self)
+        if cip.nil?
+          cip = ContainerItem.create!(contained_object: self)
+        end
+
+        objects.each do |o|
+          return false if o.new_record? || !o.containable? # does this roll back transaction
+          if o.container_item.nil?
+            ContainerItem.create!(parent: cip, contained_object: o)
+          else
+            o.container_item.parent_id = cip.id
+            o.container_item.save # this triggers the closure_tree parenting/re-parenting
+          end
+        end
+      end
+    rescue ActiveRecord::RecordInvalid
+      return false
+    end
+    true
+  end
 
   protected
 
@@ -187,8 +199,6 @@ class Container < ActiveRecord::Base
       return false
     end
   end
-
-
 end
 
 Dir[Rails.root.to_s + '/app/models/container/**/*.rb'].each { |file| require_dependency file }

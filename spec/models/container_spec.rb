@@ -148,8 +148,8 @@ describe Container, type: :model, group: :containers do
     let(:site) { Container::Site.create }
     let(:building) { Container::Building.create(contained_in: site) }
     let(:room) { Container::Room.create(contained_in: building) }
-    let(:vial_rack) { Container::VialRack.create(contained_in: room) }
-    let(:vial) { Container::Vial.create(contained_in: vial_rack) }
+    let(:rack) { Container::VialRack.create(contained_in: room) }
+    let(:vial) { Container::Vial.create(contained_in: rack) }
 
     # a pair of collection objects for one container
     let!(:specimens) { [Specimen.create(contained_in: vial), Specimen.create(contained_in: vial)] }
@@ -158,7 +158,7 @@ describe Container, type: :model, group: :containers do
     # a single collection objects for another container
     let(:specimen) { FactoryGirl.create(:valid_specimen) }
 
-    let(:add_specimen) { vial_rack.add_container_items([specimen]) }
+    let(:add_specimen) { rack.add_container_items([specimen]) }
 
     specify 'finding some collection objects somewhere in the stack' do
       expect(add_specimen).to be_truthy
@@ -171,9 +171,9 @@ describe Container, type: :model, group: :containers do
   context 'a complex bottom-up stack of containers and other containable objects' do
     # build container hierarchy
     let(:vial) { Container.containerize(specimens, Container::Vial) }
-    let(:vial_rack) { Container.containerize([vial], Container::VialRack) }
-    let(:add_specimen) { vial_rack.add_container_items([specimen]) }
-    let(:room) { Container.containerize([vial_rack], Container::Room) }
+    let(:rack) { Container.containerize([vial], Container::VialRack) }
+    let(:add_specimen) { rack.add_container_items([specimen]) }
+    let(:room) { Container.containerize([rack], Container::Room) }
     let(:building) { Container.containerize([room], Container::Building) }
     let(:site) { Container.containerize([building], Container::Site) }
 
@@ -190,6 +190,7 @@ describe Container, type: :model, group: :containers do
                                                          specimens[1])
     end
   end
+
   context 'concerns' do
     it_behaves_like 'containable'
     it_behaves_like 'identifiable'

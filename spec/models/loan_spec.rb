@@ -9,12 +9,12 @@ describe Loan, type: :model do
   context 'loan with items' do
     let(:test_support) {
       reload!
-      vial      = Container.find(39386)
-      vial_rack = vial.container_item.container
-      room      = vial_rack.container_item.container
-      building  = room.container_item.container
-      site      = building.container_item.container
-      loan      = Loan.find(3111)
+      vial     = Container.find(39386)
+      rack     = vial.container_item.container
+      room     = rack.container_item.container
+      building = room.container_item.container
+      site     = building.container_item.container
+      loan     = Loan.find(3111)
     }
     # build container hierarchy
     let(:specimens) { [Specimen.create, Specimen.create] }

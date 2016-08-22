@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160819205425) do
+ActiveRecord::Schema.define(version: 20160804142825) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -41,21 +41,22 @@ ActiveRecord::Schema.define(version: 20160819205425) do
   add_index "alternate_values", ["updated_by_id"], name: "index_alternate_values_on_updated_by_id", using: :btree
 
   create_table "asserted_distributions", force: :cascade do |t|
-    t.integer  "otu_id",                   null: false
-    t.integer  "geographic_area_id",       null: false
-    t.integer  "project_id",               null: false
-    t.integer  "created_by_id",            null: false
-    t.integer  "updated_by_id",            null: false
-    t.datetime "created_at",               null: false
-    t.datetime "updated_at",               null: false
+    t.integer "otu_id", null: false
+    t.integer "geographic_area_id", null: false
+    t.integer "source_id", null: false
+    t.integer "project_id", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.boolean  "is_absent"
-    t.string   "verbatim_geographic_area"
   end
 
   add_index "asserted_distributions", ["created_by_id"], name: "index_asserted_distributions_on_created_by_id", using: :btree
   add_index "asserted_distributions", ["geographic_area_id"], name: "index_asserted_distributions_on_geographic_area_id", using: :btree
   add_index "asserted_distributions", ["otu_id"], name: "index_asserted_distributions_on_otu_id", using: :btree
   add_index "asserted_distributions", ["project_id"], name: "index_asserted_distributions_on_project_id", using: :btree
+  add_index "asserted_distributions", ["source_id"], name: "index_asserted_distributions_on_source_id", using: :btree
   add_index "asserted_distributions", ["updated_by_id"], name: "index_asserted_distributions_on_updated_by_id", using: :btree
 
   create_table "biocuration_classifications", force: :cascade do |t|
@@ -496,6 +497,23 @@ ActiveRecord::Schema.define(version: 20160819205425) do
   add_index "derived_collection_objects", ["collection_object_id"], name: "dco_collection_object", using: :btree
   add_index "derived_collection_objects", ["collection_object_observation_id"], name: "dco_collection_object_observation", using: :btree
   add_index "derived_collection_objects", ["project_id"], name: "index_derived_collection_objects_on_project_id", using: :btree
+
+  create_table "descriptors", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "short_name"
+    t.string "type", null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "project_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  add_index "descriptors", ["created_by_id"], name: "index_descriptors_on_created_by_id", using: :btree
+  add_index "descriptors", ["name"], name: "index_descriptors_on_name", using: :btree
+  add_index "descriptors", ["project_id"], name: "index_descriptors_on_project_id", using: :btree
+  add_index "descriptors", ["short_name"], name: "index_descriptors_on_short_name", using: :btree
+  add_index "descriptors", ["updated_by_id"], name: "index_descriptors_on_updated_by_id", using: :btree
 
   create_table "documentation", force: :cascade do |t|
     t.integer  "documentation_object_id",   null: false
@@ -1353,6 +1371,7 @@ ActiveRecord::Schema.define(version: 20160819205425) do
   add_foreign_key "asserted_distributions", "geographic_areas", name: "asserted_distributions_geographic_area_id_fkey"
   add_foreign_key "asserted_distributions", "otus", name: "asserted_distributions_otu_id_fkey"
   add_foreign_key "asserted_distributions", "projects", name: "asserted_distributions_project_id_fkey"
+  add_foreign_key "asserted_distributions", "sources", name: "asserted_distributions_source_id_fkey"
   add_foreign_key "asserted_distributions", "users", column: "created_by_id", name: "asserted_distributions_created_by_id_fkey"
   add_foreign_key "asserted_distributions", "users", column: "updated_by_id", name: "asserted_distributions_updated_by_id_fkey"
   add_foreign_key "biocuration_classifications", "collection_objects", column: "biological_collection_object_id", name: "biocuration_classifications_biological_collection_object_i_fkey"
@@ -1433,6 +1452,9 @@ ActiveRecord::Schema.define(version: 20160819205425) do
   add_foreign_key "data_attributes", "projects", name: "data_attributes_project_id_fkey"
   add_foreign_key "data_attributes", "users", column: "created_by_id", name: "data_attributes_created_by_id_fkey"
   add_foreign_key "data_attributes", "users", column: "updated_by_id", name: "data_attributes_updated_by_id_fkey"
+  add_foreign_key "descriptors", "projects"
+  add_foreign_key "descriptors", "users", column: "created_by_id"
+  add_foreign_key "descriptors", "users", column: "updated_by_id"
   add_foreign_key "documentation", "documents"
   add_foreign_key "documentation", "projects"
   add_foreign_key "documentation", "users", column: "created_by_id"
