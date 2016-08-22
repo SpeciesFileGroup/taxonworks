@@ -1,6 +1,6 @@
 class Observation::Continuous < Observation 
 
-  validates :continuous_value, presence: true 
+  validates_presence_of :continuous_value 
 
   protected
  
