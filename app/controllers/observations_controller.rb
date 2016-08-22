@@ -35,7 +35,7 @@ class ObservationsController < ApplicationController
 
     respond_to do |format|
       if @observation.save
-        format.html { redirect_to @observation, notice: 'Observation was successfully created.' }
+        format.html { redirect_to observation_path(@observation), notice: 'Observation was successfully created.' }
         format.json { render :show, status: :created, location: @observation }
       else
         format.html { render :new }
@@ -49,7 +49,7 @@ class ObservationsController < ApplicationController
   def update
     respond_to do |format|
       if @observation.update(observation_params)
-        format.html { redirect_to @observation, notice: 'Observation was successfully updated.' }
+        format.html { redirect_to @observation.metamorphosize, notice: 'Observation was successfully updated.' }
         format.json { render :show, status: :ok, location: @observation }
       else
         format.html { render :edit }
@@ -76,6 +76,6 @@ class ObservationsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def observation_params
-      params.require(:observation).permit(:descriptor_id, :otu_id, :collection_object_id, :character_state_id, :frequency, :continuous_value, :continuous_unit, :sample_n, :sample_min, :sample_max, :sample_median, :sample_mean, :sample_units, :sample, :sample_standard_error, :presence, :description, :cached, :cached_column_label, :cached_row_label, :created_by_id, :updated_by_id, :project_id)
+      params.require(:observation).permit(:descriptor_id, :otu_id, :collection_object_id, :character_state_id, :frequency, :continuous_value, :continuous_unit, :sample_n, :sample_min, :sample_max, :sample_median, :sample_mean, :sample_units, :sample, :sample_standard_error, :presence, :description, :cached, :cached_column_label, :cached_row_label, :type, :created_by_id, :updated_by_id, :project_id)
     end
 end
