@@ -20,41 +20,47 @@ class MatrixRowItem < ActiveRecord::Base
   after_destroy :cleanup_matrix_rows
 
   def update_matrix_rows
-    all_otus = otus
-    all_collection_objects = collection_objects
+    objects = Array.new
+    objects.push *otus if otus
+    objects.push *collection_objects if collection_objects
 
-    if all_otus
-      all_otus.each do |o|
-        mr = MatrixRow.find_or_create_by(matrix: matrix, otu: o)
-        mr.update_columns(reference_count: mr.reference_count + 1)
-      end
-    end
-
-    if all_collection_objects
-      all_collection_objects.each do |co|
-        mr = MatrixRow.find_or_create_by(matrix: matrix, collection_object: co)
-        mr.update_columns(reference_count: mr.reference_count + 1)
-      end
+    objects.each do |o|
+      update_single_matrix_row o
     end
   end
 
   def cleanup_matrix_rows
-    all_otus = otus
-    all_collection_objects = collection_objects
-    
     rows = Array.new
-    rows.push *MatrixRow.where(matrix: matrix, otu_id: all_otus.map(&:id)) if all_otus
-    rows.push *MatrixRow.where(matrix: matrix, collection_object_id: all_collection_objects.map(&:id)) if all_collection_objects
+    rows.push *MatrixRow.where(matrix: matrix, otu_id: otus.map(&:id)) if otus
+    rows.push *MatrixRow.where(matrix: matrix, collection_object_id: collection_objects.map(&:id)) if collection_objects
 
     rows.each do |mr|
-      current = mr.reference_count - 1
-
-      if current == 0
-        mr.delete
-      else
-        mr.update_columns(reference_count: current)
-      end
+      decrement_matrix_row_reference_count mr
     end
+  end
+
+  def update_single_matrix_row(object)
+    mr = nil
+
+    if object.is_a? Otu
+      mr = MatrixRow.find_or_create_by(matrix: matrix, otu: object)
+    elsif object.is_a? CollectionObject
+      mr = MatrixRow.find_or_create_by(matrix: matrix, collection_object: object)
+    end
+
+    mr.update_columns(reference_count: mr.reference_count + 1)
+  end
+
+  def cleanup_single_matrix_row(object)
+    mr = nil
+
+    if object.is_a? Otu
+      mr = MatrixRow.where(matrix: matrix, otu_id: object.id).first
+    elsif object.is_a? CollectionObject
+      mr = MatrixRow.where(matrix: matrix, collection_object_id: object.id).first
+    end
+
+    decrement_matrix_row_reference_count mr
   end
 
   def self.human_name
@@ -93,6 +99,18 @@ class MatrixRowItem < ActiveRecord::Base
   def type_is_subclassed
     if !MATRIX_ROW_ITEM_TYPES[type]
       errors.add(:type, 'type must be a valid subclass')
+    end
+  end
+
+  private
+
+  def decrement_matrix_row_reference_count(mr)
+    current = mr.reference_count - 1
+
+    if current == 0
+      mr.delete
+    else
+      mr.update_columns(reference_count: current)
     end
   end
 end

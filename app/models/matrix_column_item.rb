@@ -23,21 +23,31 @@ class MatrixColumnItem < ActiveRecord::Base
 
   def cleanup_matrix_columns
     MatrixColumn.where(descriptor_id: descriptors.map(&:id), matrix: matrix).each do |mc|
-      current = mc.reference_count - 1 
-      if current == 0
-        mc.delete
-      else
-        mc.update_columns(reference_count: current)
-      end
+      cleanup_single_matrix_column mc.descriptor_id, mc
     end
     true
   end
 
   def update_matrix_columns
     descriptors.each do |d|
-      mc = MatrixColumn.find_or_create_by(matrix: matrix, descriptor: d)
-      mc.update_columns(reference_count: mc.reference_count + 1)
+      update_single_matrix_column d
     end
+  end
+
+  def cleanup_single_matrix_column(descriptor_id, mc = nil)
+    mc ||= MatrixColumn.where(descriptor_id: descriptor_id, matrix: matrix).first
+    
+    current = mc.reference_count - 1 
+    if current == 0
+      mc.delete
+    else
+      mc.update_columns(reference_count: current)
+    end
+  end
+
+  def update_single_matrix_column(descriptor)
+    mc = MatrixColumn.find_or_create_by(matrix: matrix, descriptor: descriptor)
+    mc.update_columns(reference_count: mc.reference_count + 1)
   end
 
   def self.human_name

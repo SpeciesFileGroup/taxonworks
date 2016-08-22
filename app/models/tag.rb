@@ -86,18 +86,28 @@ class Tag < ActiveRecord::Base
     end
   end
 
-  # @return [MatrixColumnItem instance, false]
-  #   the object corresponding to the keyword used in this tag if it exists
+  # @return [{"matrix_column_item": matrix_column_item, "descriptor": descriptor}, false]
+  #   the hash corresponding to the keyword used in this tag if it exists
   def matrix_column_item
-    i = MatrixColumnItem::TaggedDescriptor.where(controlled_vocabulary_term_id: keyword_id).limit(1)
-    i.first if i.any?
+    mci = MatrixColumnItem::TaggedDescriptor.where(controlled_vocabulary_term_id: keyword_id).limit(1)
+
+    if mci.any?
+      return { "matrix_column_item": mci.first, "descriptor": tag_object }
+    else
+      return false
+    end
   end
 
-  # @return [MatrixRowItem instance, false]
-  # the object corresponding to the keyword used in this tag if it exists
+  # @return [{"matrix_row_item": matrix_column_item, "object": object}, false]
+  # the hash corresponding to the keyword used in this tag if it exists
   def matrix_row_item
     mri = MatrixRowItem::TaggedRowItem.where(controlled_vocabulary_term_id: keyword_id).limit(1)
-    mri.first if mri.any?
+    
+    if mri.any?
+      return { "matrix_row_item": mri.first, "object": tag_object }
+    else
+      return false
+    end
   end
 
   protected
