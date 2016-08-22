@@ -93,6 +93,13 @@ class Tag < ActiveRecord::Base
     i.first if i.any?
   end
 
+  # @return [MatrixRowItem instance, false]
+  # the object corresponding to the keyword used in this tag if it exists
+  def matrix_row_item
+    mri = MatrixRowItem::TaggedRowItem.where(controlled_vocabulary_term_id: keyword_id).limit(1)
+    mri.first if mri.any?
+  end
+
   protected
 
   def keyword_is_allowed_on_object
