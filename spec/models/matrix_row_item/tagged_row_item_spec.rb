@@ -112,11 +112,8 @@ RSpec.describe MatrixRowItem::TaggedRowItem, type: :model, group: :matrix do
         context 'adding another tag to an existing controlled vocabulary term' do
           let(:otu3) { FactoryGirl.create(:valid_otu) }
           let(:co2) { FactoryGirl.create(:valid_collection_object) }
-
-          before {
-            Tag.create(keyword: other_keyword, tag_object: otu3)
-            Tag.create(keyword: other_keyword, tag_object: co2)
-          }
+          let!(:new_tag1) { Tag.create(keyword: other_keyword, tag_object: otu3) }
+          let!(:new_tag2) { Tag.create(keyword: other_keyword, tag_object: co2) }
 
           specify 'otu matrix_row is added' do
             expect(MatrixRow.all.map(&:otu)).to contain_exactly(otu1, otu2, nil, otu3, nil)
@@ -124,6 +121,15 @@ RSpec.describe MatrixRowItem::TaggedRowItem, type: :model, group: :matrix do
 
           specify 'collection_object matrix_row is added' do
             expect(MatrixRow.all.map(&:collection_object).map do |o| o.metamorphosize if !o.nil? end).to contain_exactly(nil, nil, co1, nil, co2)
+          end
+
+          specify 'only added matrix rows are incremented' do
+            expect(MatrixRow.all.pluck(:reference_count)).to contain_exactly(1, 1, 2, 1, 1)
+          end
+
+          specify 'destroying newly created tag only decrements its own matrix row' do
+            new_tag1.destroy
+            expect(MatrixRow.all.pluck(:reference_count)).to contain_exactly(1, 1, 2, 1)
           end
         end
       end
