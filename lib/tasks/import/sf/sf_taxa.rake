@@ -17,44 +17,44 @@ namespace :tw do
     namespace :sf_taxa do
 
       # import taxa
-# original_genus_id: cannot set until all taxa (for a given project) are imported; and the out of scope taxa as well
-# pass 1:
-#         ok create SFTaxonNameIDToTWTaxonNameID hash;
-#         ok save NameStatus, StatusFlags, in hashes as data_attributes or hashes?;
-#         ok set rank according to sf_rank_id_to_tw_rank_string hash;
-#         ok set classification if
-#           nomen nudum = TaxonNameClassification::Iczn::Unavailable::NomenNudum (StatusFlags & 8 = 8 if NameStatus = 4 or 7),
-#           nomen dubium = TaxonNameClassification::Iczn::Available::Valid::NomenDubium (StatusFlags & 16 = 16 if NameStatus = 5 or 7), and
-#           fossil = TaxonNameClassification::Iczn::Fossil (extinct = 1)
-#           (other classifications will probably have relationships)
-#         ok add nomenclatural comment as TW.Note (in row['Comment']);
-#         ok if temporary, make an OTU which has the TaxonNameID of the AboveID as the taxon name reference (or find the most recent valid above ID);
-#         ok natural order is TaxonNameStr (must be in order to ensure synonym parent already imported);
-#         ok for synonyms, use sf_synonym_id_to_parent_id_hash; create error message if not found (hash was created from dynamic tblTaxa later than .txt);
-# ADD HOUSEKEEPING to _attributes
+      # original_genus_id: cannot set until all taxa (for a given project) are imported; and the out of scope taxa as well
+      # pass 1:
+      #         ok create SFTaxonNameIDToTWTaxonNameID hash;
+      #         ok save NameStatus, StatusFlags, in hashes as data_attributes or hashes?;
+      #         ok set rank according to sf_rank_id_to_tw_rank_string hash;
+      #         ok set classification if
+      #           nomen nudum = TaxonNameClassification::Iczn::Unavailable::NomenNudum (StatusFlags & 8 = 8 if NameStatus = 4 or 7),
+      #           nomen dubium = TaxonNameClassification::Iczn::Available::Valid::NomenDubium (StatusFlags & 16 = 16 if NameStatus = 5 or 7), and
+      #           fossil = TaxonNameClassification::Iczn::Fossil (extinct = 1)
+      #           (other classifications will probably have relationships)
+      #         ok add nomenclatural comment as TW.Note (in row['Comment']);
+      #         ok if temporary, make an OTU which has the TaxonNameID of the AboveID as the taxon name reference (or find the most recent valid above ID);
+      #         ok natural order is TaxonNameStr (must be in order to ensure synonym parent already imported);
+      #         ok for synonyms, use sf_synonym_id_to_parent_id_hash; create error message if not found (hash was created from dynamic tblTaxa later than .txt);
+      # ADD HOUSEKEEPING to _attributes
 
-# 20160628
-# Tasks before dumping and restoring db
-#   ok Keep copy of current db with some taxa imported
-#   Force Import hashes to be strings and change usage instances accordingly
-#   ok Manually transfer three adjunct tables: RefIDToRefLink (probably table sfRefLinks which generates ref_id_to_ref_link.txt), sfVerbatimRefs and sfSynonymParents created by ScriptsFor1db2tw.sql
-#   Make sure path references correct subdirectory (working vs. old)
-#   ok Figure out how to assign myself as project member in each SF, what about universal user like 3i does??
-#   ok Make sure none_species_file does not get created (FileID must be > 0)
-#   ok Write get_tw_taxon_name_id to db! And three others...
-#   ok Use TaxonNameClassification::Iczn::Unavailable::NotLatin for Name Name must be latinized, no digits or spaces allowed
-#   no, use NotLatin: Use TaxonNameClassification::Iczn::Unavailable for non-latinized family group name synonyms
-#   ok FixSFSynonymIDToParentID to iterate until Parent RankID > synonym RankID
+      # 20160628
+      # Tasks before dumping and restoring db
+      #   ok Keep copy of current db with some taxa imported
+      #   Force Import hashes to be strings and change usage instances accordingly
+      #   ok Manually transfer three adjunct tables: RefIDToRefLink (probably table sfRefLinks which generates ref_id_to_ref_link.txt), sfVerbatimRefs and sfSynonymParents created by ScriptsFor1db2tw.sql
+      #   Make sure path references correct subdirectory (working vs. old)
+      #   ok Figure out how to assign myself as project member in each SF, what about universal user like 3i does??
+      #   ok Make sure none_species_file does not get created (FileID must be > 0)
+      #   ok Write get_tw_taxon_name_id to db! And three others...
+      #   ok Use TaxonNameClassification::Iczn::Unavailable::NotLatin for Name Name must be latinized, no digits or spaces allowed
+      #   no, use NotLatin: Use TaxonNameClassification::Iczn::Unavailable for non-latinized family group name synonyms
+      #   ok FixSFSynonymIDToParentID to iterate until Parent RankID > synonym RankID
 
-# pass 2
+      # pass 2
 
-# desc 'try the logger utility'
-# ### time rake tw:project_import:sf_taxa:try_logger user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
-# LoggedTask.define :try_logger => [:data_directory, :environment, :user_id] do |logger|
-#   logger.info "This is :try_logger"
-#   logger.warn "This is a logger warning"
-#   logger.error "This is a big bad nasty error message"
-# end
+      # desc 'try the logger utility'
+      # ### time rake tw:project_import:sf_taxa:try_logger user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
+      # LoggedTask.define :try_logger => [:data_directory, :environment, :user_id] do |logger|
+      #   logger.info "This is :try_logger"
+      #   logger.warn "This is a logger warning"
+      #   logger.error "This is a big bad nasty error message"
+      # end
 
 
       desc 'create all SF taxa (pass 1)'
@@ -78,6 +78,9 @@ namespace :tw do
         get_sf_status_flags = {} # key = SF.TaxonNameID, value = SF.StatusFlags
         get_tw_otu_id = {} # key = SF.TaxonNameID, value = TW.otu.id; used for temporary or bad valid SF taxa
 
+        keyword = Keyword.find_or_create_by(
+            name: 'Taxon name validation failed', definition: 'Taxon name validation failed', project_id: project_id)
+
         path = @args[:data_directory] + 'sfTaxaByTaxonNameStr.txt'
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
@@ -90,6 +93,7 @@ namespace :tw do
           next unless taxon_name_id.to_i > 0
           next if row['TaxonNameStr'].start_with?('1100048-1143863') # name = MiscImages (body parts)
           next if row['RankID'] == '90' # TaxonNameID = 1221948, Name = Deletable, RankID = 90 == Life, FileID = 1
+          next if row['AccessCode'].to_i == 4
 
           project_id = get_tw_project_id[row['FileID']]
 
@@ -248,11 +252,12 @@ namespace :tw do
               # and row['NameStatus'] == '7'
               # taxon_name.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::NotLatin')
 
-            elsif row['NameStatus'] == '7' # make all NotLatin... Dmitry Add project_id
-              # case taxon_name.errors.full_messages.include? # ArgumentError: wrong number of arguments (given 0, expected 1)
-              #   when 'Name name must end in -oidea', 'Name name must end in -idae', 'Name name must end in ini', 'Name name must end in -inae'
-              #     taxon_name.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable')
-              #   when 'Name Name must be latinized, no digits or spaces allowed'
+              # elsif row['NameStatus'] == '7' # make all NotLatin... Dmitry Add project_id
+              #   # case taxon_name.errors.full_messages.include? # ArgumentError: wrong number of arguments (given 0, expected 1)
+              #   #   when 'Name name must end in -oidea', 'Name name must end in -idae', 'Name name must end in ini', 'Name name must end in -inae'
+              #   #     taxon_name.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable')
+              #   #   when 'Name Name must be latinized, no digits or spaces allowed'
+            else
               taxon_name.taxon_name_classifications.new(
                   type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin',
                   project_id: project_id,
@@ -260,6 +265,13 @@ namespace :tw do
                   updated_at: row['LastUpdate'],
                   created_by_id: get_tw_user_id[row['CreatedBy']],
                   updated_by_id: get_tw_user_id[row['ModifiedBy']])
+
+              taxon_name.tags.new(keyword: keyword,
+                                  project_id: project_id,
+                                  created_at: row['CreatedOn'],
+                                  updated_at: row['LastUpdate'],
+                                  created_by_id: get_tw_user_id[row['CreatedBy']],
+                                  updated_by_id: get_tw_user_id[row['ModifiedBy']])
             end
 
             if taxon_name.valid?
