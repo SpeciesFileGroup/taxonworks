@@ -145,11 +145,11 @@ describe Container, type: :model, group: :containers do
 
   context 'a complex top-down stack of containers and other containable objects' do
     # build container hierarchy
-    let(:site) { Container::Site.create }
-    let(:building) { Container::Building.create(contained_in: site) }
-    let(:room) { Container::Room.create(contained_in: building) }
-    let(:rack) { Container::VialRack.create(contained_in: room) }
-    let(:vial) { Container::Vial.create(contained_in: rack) }
+    let(:site) { Container::Site.create(name: 'INHS Test Site') }
+    let(:building) { Container::Building.create(name: 'Forbes', contained_in: site) }
+    let(:room) { Container::Room.create(name: 'Room 2064', contained_in: building) }
+    let(:rack) { Container::VialRack.create(name: 'credenza', contained_in: room) }
+    let(:vial) { Container::Vial.create(name: 'water bottle', contained_in: rack) }
 
     # a pair of collection objects for one container
     let!(:specimens) { [Specimen.create(contained_in: vial), Specimen.create(contained_in: vial)] }

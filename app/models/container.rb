@@ -140,14 +140,14 @@ class Container < ActiveRecord::Base
     begin
       Container.transaction do
         new_container = klass.create()
-        cip           = ContainerItem.create(contained_object: new_container)
+        ci_parent     = ContainerItem.create(contained_object: new_container)
 
         objects.each do |o|
           return false if o.new_record?
           if o.container_item.nil?
-            ContainerItem.create(parent: cip, contained_object: o)
+            ContainerItem.create(parent: ci_parent, contained_object: o)
           else
-            o.container_item.parent_id = cip.id
+            o.container_item.parent_id = ci_parent.id
             o.container_item.save
           end
         end
@@ -165,18 +165,18 @@ class Container < ActiveRecord::Base
     return false if new_record?
     begin
       Container.transaction do
-        cip = container_item
+        ci_parent = container_item
         # cip ||= ContainerItem.create!(contained_object: self)
-        if cip.nil?
-          cip = ContainerItem.create!(contained_object: self)
+        if ci_parent.nil?
+          ci_parent = ContainerItem.create!(contained_object: self)
         end
 
         objects.each do |o|
           return false if o.new_record? || !o.containable? # does this roll back transaction
           if o.container_item.nil?
-            ContainerItem.create!(parent: cip, contained_object: o)
+            ContainerItem.create!(parent: ci_parent, contained_object: o)
           else
-            o.container_item.parent_id = cip.id
+            o.container_item.parent_id = ci_parent.id
             o.container_item.save # this triggers the closure_tree parenting/re-parenting
           end
         end
