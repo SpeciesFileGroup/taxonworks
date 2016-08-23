@@ -1156,13 +1156,15 @@ namespace :tw do
             ad = AssertedDistribution.find_or_create_by(
                 otu: otu,
                 geographic_area: ga,
-                source_id: ref,
+#                source_id: ref,
                 is_absent: nil,
+                verbatim_geographic_area: @data.countries[row['Country'] + '|' + row['State']],
                 project_id: $project_id )
             if ad.valid?
+              ad.citations.create(source_id: ref, pages: row['PageRef']) unless ref.nil?
               ad.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Reliable'], value: @data.reliable[row['Reliable']]) unless row['Reliable'].blank?
               ad.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Comment'], value: row['Comment']) unless row['Comment'].blank?
-              ad.data_attributes.create(type: 'InternalAttribute', predicate: keywords['PageRef'], value: row['PageRef']) unless row['PageRef'].blank?
+#              ad.data_attributes.create(type: 'InternalAttribute', predicate: keywords['PageRef'], value: row['PageRef']) unless row['PageRef'].blank?
               ad.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Keyword'], value: row['Keyword']) unless row['Keyword'].blank?
               # row['Keyword'] => citation.topic.
               ad.notes.create(text: row['Notes']) unless row['Notes'].blank?

@@ -13,7 +13,8 @@
         attr_accessor :people_index, :user_index, :publications_index, :citations_index, :genera_index, :images_index,
                       :parent_id_index, :statuses, :taxon_index, :citation_to_publication_index, :keywords,
                       :incertae_sedis, :emendation, :original_combination, :unique_host_plant_index,
-                      :host_plant_index, :topics, :nouns, :countries, :geographic_areas, :museums, :namespaces, :biocuration_classes
+                      :host_plant_index, :topics, :nouns, :countries, :geographic_areas, :museums, :namespaces, :biocuration_classes,
+                      :people
         def initialize()
           @keywords = {}                  # keyword -> ControlledVocabularyTerm
           @people_index = {}              # PeopleID -> Person object
@@ -38,6 +39,7 @@
           @museums = {}
           @namespaces = {}
           @biocuration_classes = {}
+          @people = {}
         end
       end
 
@@ -47,10 +49,12 @@
             0 => '',
             1 => Ranks.lookup(:iczn, :subspecies),
             2 => Ranks.lookup(:iczn, :species),
-            4 => 'NomenclaturalRank::Iczn::SpeciesGroup::Superspecies',
+            4 => Ranks.lookup(:iczn, :superspecies),
+            #4 => 'NomenclaturalRank::Iczn::SpeciesGroup::Superspecies',
             6 => Ranks.lookup(:iczn, :subgenus),
             7 => Ranks.lookup(:iczn, :genus),
-            8 => 'NomenclaturalRank::Iczn::GenusGroup::Supergenus',
+            8 => Ranks.lookup(:iczn, :supergenus),
+            #8 => 'NomenclaturalRank::Iczn::GenusGroup::Supergenus',
             9 => Ranks.lookup(:iczn, :subtribe),
             10 => Ranks.lookup(:iczn, :tribe),
             11 => Ranks.lookup(:iczn, :supertribe),
@@ -224,12 +228,13 @@
         handle_projects_and_users_3i
         raise '$project_id or $user_id not set.'  if $project_id.nil? || $user_id.nil?
 
-        $project_id = 1
+#        $project_id = 1
         handle_controlled_vocabulary_3i
-        #handle_references_3i
-        #handle_taxonomy_3i
-        #handle_taxon_name_relationships_3i
-        #handle_citation_topics_3i
+        handle_litauthors_3i
+        handle_references_3i
+        handle_taxonomy_3i
+        handle_taxon_name_relationships_3i
+        handle_citation_topics_3i
         handle_host_plant_name_dictionary_3i
         handle_host_plants_3i
         handle_distribution_3i
@@ -275,9 +280,8 @@
         end
 
         @root = Protonym.find_or_create_by(name: 'Root', rank_class: 'NomenclaturalRank', project_id: $project_id)
-        @data.keywords.merge!('3i_imported' => Keyword.find_or_create_by(name: '3i_imported', definition: 'Imported from 3i database.'))
+        @data.keywords['3i_imported'] = Keyword.find_or_create_by(name: '3i_imported', definition: 'Imported from 3i database.')
       end
-
 
       def handle_controlled_vocabulary_3i
         print "\nHandling CV \n"
@@ -356,26 +360,51 @@
           a1 = BiologicalRelationshipType.create(biological_property: @data.keywords['Host'], biological_relationship: @host_plant_relationship, type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
           a2 = BiologicalRelationshipType.create(biological_property: @data.keywords['Herbivor'], biological_relationship: @host_plant_relationship, type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
         end
-        @parasitoid_relationship = BiologicalRelationship.where(name: 'Parasitism', project_id: $project_id)
-        if @parasitoid_relationship.empty?
+        @parasitoid_relationship = BiologicalRelationship.where(name: 'Parasitism', project_id: $project_id).first
+        if @parasitoid_relationship.nil?
           @parasitoid_relationship = BiologicalRelationship.create(name: 'Parasitism')
           a1 = BiologicalRelationshipType.create(biological_property: @data.keywords['Parasitoid'], biological_relationship: @parasitoid_relationship, type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
           a2 = BiologicalRelationshipType.create(biological_property: @data.keywords['Host'], biological_relationship: @parasitoid_relationship, type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
         end
-        @attendance_relationship = BiologicalRelationship.where(name: 'Attendance', project_id: $project_id)
-        if @attendance_relationship.empty?
+        @attendance_relationship = BiologicalRelationship.where(name: 'Attendance', project_id: $project_id).first
+        if @attendance_relationship.nil?
           @attendance_relationship = BiologicalRelationship.create(name: 'Attendance')
           a1 = BiologicalRelationshipType.create(biological_property: @data.keywords['Attendant'], biological_relationship: @attendance_relationship, type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
           a2 = BiologicalRelationshipType.create(biological_property: @data.keywords['Host'], biological_relationship: @attendance_relationship, type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
         end
-        @mutualism_relationship = BiologicalRelationship.where(name: 'Mutualism', project_id: $project_id)
-        if @mutualism_relationship.empty?
+        @mutualism_relationship = BiologicalRelationship.where(name: 'Mutualism', project_id: $project_id).first
+        if @mutualism_relationship.nil?
           @mutualism_relationship = BiologicalRelationship.create(name: 'Mutualism')
           a1 = BiologicalRelationshipType.create(biological_property: @data.keywords['Symbiont'], biological_relationship: @mutualism_relationship, type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
           a2 = BiologicalRelationshipType.create(biological_property: @data.keywords['Host'], biological_relationship: @mutualism_relationship, type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
         end
       end
 
+      def handle_litauthors_3i
+        # Author
+        # FullName
+        path = @args[:data_directory] + 'litauthors.txt'
+        print "\nHandling litauthors\n"
+        raise "file #{path} not found" if not File.exists?(path)
+        file = CSV.foreach(path, col_sep: "\t", headers: true)
+        file.each_with_index do |row, i|
+          print "\r#{i}"
+          if row['FullName'].blank?
+            person = Person.parse_to_people(row['Author']).first
+          else
+            person = Person.parse_to_people(row['FullName']).first
+          end
+          if person.valid?
+            person.data_attributes.new(type: 'ImportAttribute', import_predicate: '3i_Author', value: row['Author']) unless row['Author'].blank?
+            person.data_attributes.new(type: 'ImportAttribute', import_predicate: 'AuthorDrMetcalf', value: row['FullName']) unless row['FullName'].blank?
+            person.save!
+            @data.people[row['Author']] = person.id
+          else
+            byebug
+          end
+
+        end
+      end
 
       def handle_references_3i
 
@@ -405,13 +434,12 @@
         language = %w(French Russian German Japanese Chinese English Korean Polish Italian Georgian )
 
         file.each_with_index do |row, i|
-          if i < 1000000 ######################
           print "\r#{i}"
           journal, serial_id, volume, pages = parse_bibliography_3i(row['Bibliography'])
           year, year_suffix = parse_year_3i(row['Year'])
           taxonomy, distribution, illustration, typhlocybinae = nil, nil, nil, nil
           note = row['Notes']
-            source = Source::Bibtex.new( author: row['AuthorDrMetcalf'].blank? ? row['Author'] : row['AuthorDrMetcalf'],
+            source = Source::Bibtex.new( author: row['Author'],
                                          year: year,
                                          year_suffix: year_suffix,
                                          title: row['Title'],
@@ -429,6 +457,7 @@
           source.data_attributes.new(type: 'ImportAttribute', import_predicate: 'Author3i', value: row['AY']) unless row['AY'].blank?
           source.data_attributes.new(type: 'ImportAttribute', import_predicate: 'YearReference', value: row['Year']) unless row['Year'].blank?
           source.data_attributes.new(type: 'ImportAttribute', import_predicate: 'BibliographyReference', value: row['Bibliography']) unless row['Bibliography'].blank?
+          source.data_attributes.new(type: 'ImportAttribute', import_predicate: 'AuthorDrMetcalf', value: row['AuthorDrMetcalf']) unless row['AuthorDrMetcalf'].blank?
 
           if !note.blank? && note.include?('Taxonomy only and distribution')
             source.tags.new(keyword: @data.keywords['Distribution'])
@@ -468,10 +497,13 @@
             source.save!
             source.project_sources.create!
             @data.publications_index[row['Key3']] = source.id
+            authors = row['Author'].gsub('., ', '.|').split('|')
+            authors.each_with_index do |author, i|
+              sa = SourceAuthor.create(person_id: @data.people[author], role_object: source, position: i + 1)
+            end
           else
             byebug
           end
-          end #########################################################
         end
 
         puts "\nResolved #{@data.publications_index.keys.count} publications\n"
@@ -570,7 +602,6 @@
 
 
           file.each_with_index do |row, i|
-            if i < 200000
             print "\r#{i}"
             if row['Name'] == 'Incertae sedis' || row['Name'] == 'Unplaced'
               @data.incertae_sedis[row['Key']] = @data.taxon_index[row['Parent']]
@@ -705,12 +736,8 @@
                 if !row['DescriptEn'].blank? && (row['DescriptEn'].include?('<h2>Notes</h2>') || row['DescriptEn'].include?('<h2>Remarks</h2>'))
                   taxon.otus.first.contents.new(topic_id: @data.keywords['Notes'], text: row['DescriptEn'].gsub('<h2>Notes</h2>').gsub('<h2>Remarks</h2>').squish)
                 end
-
               end
-
             end
-
-            end ############################
           end
       end
 
@@ -725,8 +752,6 @@
         Combination.tap{}
 
         file.each_with_index do |row, i|
-
-          if i < 200000 #######################################
             print "\r#{i} (Relationships)"
             taxon = nil
             taxon = find_taxon_3i(row['Key'])
@@ -889,12 +914,7 @@
               else
                 byebug
               end
-
-
             end
-
-          end ###################
-
         end
       end
 
