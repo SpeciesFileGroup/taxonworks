@@ -165,6 +165,8 @@ class Container < ActiveRecord::Base
     return false if new_record?
     begin
       Container.transaction do
+        self.reload # this seems to be required under some (as yet undefined) circumstances.
+        # TODO: Figure out why this reload is required.
         ci_parent = container_item
         # cip ||= ContainerItem.create!(contained_object: self)
         if ci_parent.nil?
