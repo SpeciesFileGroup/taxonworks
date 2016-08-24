@@ -1,11 +1,11 @@
 class TwTaskGenerator < Rails::Generators::Base
   source_root File.expand_path('../templates', __FILE__)
 
-  desc 'Used to stub out a task'
+  desc 'Used to stub out a TaxonWorks task'
 
-  argument :controller_base_name, type: 'string', required: true
-  argument :path_to_controller, type: 'string', required: true
-  argument :methods_actions_names, type: 'array', required: true
+  argument :controller_base_name, type: 'string', required: true, banner: '<controller_base_name>'
+  argument :path_to_controller, type: 'string', required: true, banner: '<"path/to/controller_folder/">'
+  argument :methods_actions_names, type: 'array', required: true, banner: '<method_name:action:route_name>'
 
   def setup_args
     @paths = path_to_controller.split("/")
@@ -23,15 +23,6 @@ class TwTaskGenerator < Rails::Generators::Base
         @route_actions.push(action)
         @route_names.push(name + "_task")
     end
-
-    # ap controller_base_name
-    # ap path_to_controller
-    # ap methods_actions_names
-
-    # ap @paths
-    # ap @route_methods
-    # ap @route_actions
-    # ap @route_names
   end
 
   def add_scopes_to_routes
@@ -47,14 +38,15 @@ class TwTaskGenerator < Rails::Generators::Base
         scope_index += 1
 
         if scope_index >= scopes.length
-          puts "WARNING: '#{scopes[scope_index - 1]}' already exists!"
-          break
+          puts "ERROR: scope '#{controller_base_name}' for controller '#{controller_base_name}' already exists!"
+          abort
         end
       end
     end
 
     if scope_index == 0
-      puts "WARNING: Couldn't find 'task' scope!"
+      puts "ERROR: Couldn't find 'task' scope!"
+      abort
     end
 
     route_str = ""
@@ -99,7 +91,6 @@ class TwTaskGenerator < Rails::Generators::Base
     end
 
     append_to_file "config/interface/hub/user_tasks.yml", user_tasks_str
-    ap full_controller_class_name
   end
 
   def create_controller_folders
@@ -112,7 +103,7 @@ class TwTaskGenerator < Rails::Generators::Base
   end
 
   def create_controller
-    template "controller", "app/controllers/tasks/#{@paths.join('/')}/#{controller_base_name}_controller.rb"
+    template "controller", "app/controllers/tasks/#{path_to_controller}#{controller_base_name}_controller.rb"
   end
 
   def create_view_folders
@@ -128,7 +119,7 @@ class TwTaskGenerator < Rails::Generators::Base
 
   def create_views
     @route_methods.each do |method|
-      create_file "app/views/tasks/#{@paths.join('/')}/#{controller_base_name}/#{method}.html.rb"
+      create_file "app/views/tasks/#{path_to_controller}#{controller_base_name}/#{method}.html.erb"
     end
   end
 
