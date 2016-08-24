@@ -88,8 +88,8 @@ class TwTaskGenerator < Rails::Generators::Base
   def add_to_user_task
     user_tasks_str = "\n"
 
-    @route_actions.each do |action|
-      user_tasks_str += "#{controller_base_name}_#{action}_task:\n"
+    @route_methods.each do |method|
+      user_tasks_str += "#{controller_base_name}_#{method}_task:\n"
       user_tasks_str += "  hub: true\n"
       user_tasks_str += "  name: 'TODO'\n"
       user_tasks_str += "  related:\n"
@@ -115,20 +115,37 @@ class TwTaskGenerator < Rails::Generators::Base
     template "controller", "app/controllers/tasks/#{@paths.join('/')}/#{controller_base_name}_controller.rb"
   end
 
+  def create_view_folders
+    directory_name = "app/views/tasks"
+
+    @paths.each do |path|
+      directory_name += "/#{path}"
+      Dir.mkdir(directory_name) unless File.directory?(directory_name)
+    end
+
+    Dir.mkdir(directory_name += "/#{controller_base_name}") unless File.directory?(directory_name)
+  end
+
+  def create_views
+    @route_methods.each do |method|
+      create_file "app/views/tasks/#{@paths.join('/')}/#{controller_base_name}/#{method}.html.rb"
+    end
+  end
+
   private
   
   def controller_class_name
-    controller_base_name.tr('_', '').titleize
+    controller_base_name.titleize.tr(' ', '')
   end
 
   def full_controller_class_name
     controller_name = "Tasks::"
     controller_name += @paths.inject("") do |str, elem|
-      str += "#{elem.tr('_', '').titleize}::" 
+      str += "#{elem.titleize.tr(' ', '')}::" 
     end
 
     controller_name += controller_class_name
-    "#{controller_name[0...controller_name.length - 2]}Controller"
+    "#{controller_name.chomp("::")}Controller"
   end
 
 end 
