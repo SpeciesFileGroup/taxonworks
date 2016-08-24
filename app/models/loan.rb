@@ -124,9 +124,7 @@ class Loan < ActiveRecord::Base
       item = LoanItem.find(item_id)
       case item.loan_item_object_type
         when /contain/i # if this item is a container
-          # link = dump_collection_object_ids(item.loan_item_object)
-          # retval.push(link)
-          retval.push(item.loan_item_object.collection_objects.map(&:id))
+          retval.push(item.loan_item_object.all_collection_object_ids)
         when /object/i # if this item is a collection object
           retval.push(item.loan_item_object_id)
         else
