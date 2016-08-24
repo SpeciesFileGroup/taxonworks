@@ -1,0 +1,8 @@
+class <%= full_controller_class_name %> < ApplicationController
+  include TaskControllerConfigration
+  
+<% @route_methods.each do |method_name| %>
+  def <%= method_name %>
+  end
+<% end %>
+end
