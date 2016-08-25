@@ -1,5 +1,4 @@
-
-# A loan item is a CollectionObject, Container, or historical reference to 
+# A loan item is a CollectionObject, Container, or historical reference to
 # something that has been loaned via (Otu)
 #
 # Thanks to https://neanderslob.com/2015/11/03/polymorphic-associations-the-smart-way-using-global-ids/ for global_entity.
@@ -7,11 +6,11 @@
 #
 # @!attribute loan_id
 #   @return [Integer]
-#   Id of the loan 
+#   Id of the loan
 #
 # @!attribute loan_object_type
 #   @return [String]
-#   Polymorphic- one of Container, CollectionObject, or Otu 
+#   Polymorphic- one of Container, CollectionObject, or Otu
 #
 # @!attribute loan_object_id
 #   @return [Integer]
@@ -19,24 +18,24 @@
 #
 # @!attribute date_returned
 #   @return [DateTime]
-#   The date the item was returned. 
+#   The date the item was returned.
 #
-# @!attribute disposition 
+# @!attribute disposition
 #   @return [String]
 #     an evolving controlled vocabulary used to differentiate loan object status when it differs from that of the overal loan, see LoanItem::STATUS
 #
 # @!attribute position
 #   @return [Integer]
-#    Sorts the items in relation to the loan. 
+#    Sorts the items in relation to the loan.
 #
 # @!attribute project_id
 #   @return [Integer]
 #   the project ID
 #
-# @!attribute total 
+# @!attribute total
 #   @return [Integer]
-#     when type is OTU an arbitrary total can be provided 
-#     
+#     when type is OTU an arbitrary total can be provided
+#
 class LoanItem < ActiveRecord::Base
   acts_as_list scope: :loan
 
@@ -56,12 +55,12 @@ class LoanItem < ActiveRecord::Base
   validates_presence_of :loan_item_object_id, :loan_item_object_type
 
   validates :loan_id, presence: true
-  validates_uniqueness_of :loan, scope: [:loan_item_object_type, :loan_item_object_id] 
+  validates_uniqueness_of :loan, scope: [:loan_item_object_type, :loan_item_object_id]
 
   validate :total_provided_only_when_otu
 
   validates_inclusion_of :loan_item_object_type, in: %w{Otu CollectionObject Container}
-  validates_inclusion_of :disposition, in: STATUS, if: '!disposition.blank?' 
+  validates_inclusion_of :disposition, in: STATUS, if: '!disposition.blank?'
 
   def global_entity
     self.loan_item_object.to_global_id if self.loan_item_object.present?
@@ -76,7 +75,7 @@ class LoanItem < ActiveRecord::Base
   end
 
   def date_returned_jquery
-    self.date_returned 
+    self.date_returned
   end
 
   def returned?
@@ -88,40 +87,54 @@ class LoanItem < ActiveRecord::Base
   # TODO: this does not factor in nested items in a container
   def total_items
     case loan_item_object_type
-    when 'Otu'
-      total ? total : nil
-    when 'Container'
-      loan_item_object.container_items.try(:count)
-    when 'CollectionObject'
-      loan_item_object.total.to_i
-    else
-      nil      
+      when 'Otu'
+        total ? total : nil
+      when 'Container'
+        loan_item_object.container_items.try(:count)
+      when 'CollectionObject'
+        loan_item_object.total.to_i
+      else
+        nil
     end
   end
 
   def self.batch_determine_loan_items(ids: [], params: {})
     return false if ids.empty?
-    t = TaxonDetermination.new(params)
-    new_td = nil  
+    t      = TaxonDetermination.new(params)
+    new_td = nil
     people = []
-    otu = nil
+    otu    = nil
 
     begin
       LoanItem.transaction do
-        LoanItem.where(id: ids, loan_item_object_type: 'CollectionObject').each do |li| # change this scope to handle containers
-          n = t.dup
-          if otu.nil?
-            li.loan_item_object.taxon_determinations << n
-            new_td = li.loan_item_object.taxon_determinations.last 
-            otu = n.otu
-            people = new_td.people
-          else
-            
-            n.otu = otu
-            n.people << people
-            li.loan_item_object.taxon_determinations << n
-            new_td = li.loan_item_object.taxon_determinations.last 
+        item_list = []
+        LoanItem.where(id: ids).each do |li|
+          # loan_item may be a container, an OTU, or a collection object
+          case li.loan_item_object_type
+            when /contain/i # if this item is a container, dig into the container for the collection objects themselves
+              item_list.push(li.loan_item_object.collection_objects)
+            when /object/i, /otu/i # if this item is a collection object or an out,just add the object
+              item_list.push(li.loan_item_object)
+            else
+              # should not be here
+              raise
           end
+
+          item_list.flatten.each { |item|
+            n = t.dup
+            if otu.nil?
+              item.taxon_determinations << n
+              new_td = item.taxon_determinations.last
+              otu    = n.otu
+              people = new_td.people
+            else
+
+              n.otu = otu
+              n.people << people
+              item.taxon_determinations << n
+              new_td = item.taxon_determinations.last
+            end
+          }
 
           new_td.move_to_top
         end

@@ -2,6 +2,7 @@
 
 <h3>Loan to : <%= object_tag(@loan) %>, Loan ID: <%= @loan.id %></h3>
 <!-- Listing the collection objects -->
+<%= link_to('back', @loan) -%>
 <div id="loan_completion_widget" hidden="hidden" class="loan_completion flexbox">
   <div class="item item1">
     <%= form_tag(loan_items_action_url, {method: 'get'}) do %>

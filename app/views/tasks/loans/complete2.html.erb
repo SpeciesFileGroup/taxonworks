@@ -13,27 +13,31 @@
 <%= form_tag(loan_update_status_path(@loan), method: :post, class: 'loan_update_form' ) do |li| -%>
   <%= select_tag(:disposition, options_for_select(LoanItem::STATUS, :blank), include_blank: true) %><br>
   <%= submit_tag 'Update status' -%>
-<% end %> 
+<% end %>
 
 <%= form_tag(loan_return_items_path(@loan), method: :post, class: 'loan_update_form' ) do |li| -%>
   <%= text_field_tag(:date_returned, nil, {class: :datepicker_recurring_start, size: 9}) %> <br>
   <%= submit_tag 'Return items' -%>
-<% end %> 
+<% end %>
 
 <%= form_for(@taxon_determination, url: loan_add_determination_path(@loan), method: :post, html: {class: 'loan_update_form'} ) do |f| -%>
-  <div class="field" id="bio_object">
-    <%= f.label :biological_collection_object_id %><br>
-    <%= render  'workbench/elements/forms/ajax_select',
-      controller: '/collection_objects',
-      object: 'taxon_determination',
-      method: 'biological_collection_object_id',
-      tag_id: 'biological_collection_object_id_for_taxon_determination',
-      display: collection_object_tag(@taxon_determination.biological_collection_object) %>
-</div>
 
   <%= render partial: '/people/role_picker', locals: {role: Determiner.new(), object: @taxon_determination, f: f} %>
 
   <%= render '/otus/otu_picker', otu: @taxon_determination.otu, f: f -%>
 
-  <%= submit_tag 'Set determinations' -%>
-<% end %> 
+    <div class="field">
+      <%= f.label :year_made %><br>
+      <%= f.text_field :year_made, size: 4 %>
+    </div>
+    <div class="field">
+      <%= f.label :month_made %><br>
+      <%= f.text_field :month_made, size: 2 %>
+    </div>
+    <div class="field">
+      <%= f.label :day_made %><br>
+      <%= f.text_field :day_made, size: 2 %>
+    </div>
+
+    <%= submit_tag 'Set determinations' -%>
+<% end %>
