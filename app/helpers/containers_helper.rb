@@ -2,7 +2,7 @@ module ContainersHelper
 
   def container_tag(container)
     return nil if container.nil?
-    container.name? ? container.name : (container.class.name + " [" + container.to_param + "]").html_safe
+    container.name ? container.name : (container.class.name + " [" + container.to_param + "]").html_safe
   end
 
   def container_link(container)
@@ -10,7 +10,14 @@ module ContainersHelper
     link_to(container_tag(container.metamorphosize).html_safe, container.metamorphosize)
   end
 
+  def container_parent_tag(container)
+    return nil if container.container_item.nil?
+    return nil if container.container_item.parent.nil?
+    container_tag(container.container_item.parent.contained_object)
+  end
+
   def container_parent_link(container)
+    return nil if container.container_item.nil?
     return nil if container.container_item.parent.nil?
     link_to(container.container_item.parent.contained_object)
   end

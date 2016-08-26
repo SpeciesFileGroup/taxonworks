@@ -100,16 +100,18 @@ class LoanItem < ActiveRecord::Base
 
   def self.batch_determine_loan_items(ids: [], params: {})
     return false if ids.empty?
-    t      = TaxonDetermination.new(params)
-    new_td = nil
-    people = []
-    otu    = nil
+    # these objects will be created/persisted to be used for each of the loan items identified by the input ids
+    proto_td = TaxonDetermination.new(params) # build a td from the input data
+    this_td  = nil
+    people   = []
+    otu      = nil
 
     begin
       LoanItem.transaction do
-        item_list = []
         LoanItem.where(id: ids).each do |li|
-          # loan_item may be a container, an OTU, or a collection object
+          # start with an empty list
+          item_list = [] # this list contains the objects which are to have a taxon determination applied for
+          # this loan item which may be a container, an OTU, or a collection object
           case li.loan_item_object_type
             when /contain/i # if this item is a container, dig into the container for the collection objects themselves
               item_list.push(li.loan_item_object.collection_objects)
@@ -120,23 +122,25 @@ class LoanItem < ActiveRecord::Base
               raise
           end
 
-          item_list.flatten.each { |item|
-            n = t.dup
+          item_list.flatten.each { |item| # process this list (usually only one object)
+            n = proto_td.dup # we are going to use the same dertermination information for each of the items
             if otu.nil?
+              n.save
               item.taxon_determinations << n
-              new_td = item.taxon_determinations.last
-              otu    = n.otu
-              people = new_td.people
+              this_td = item.taxon_determinations.last
+              otu     = n.otu
+              people  = this_td.people
             else
 
               n.otu = otu
               n.people << people
               item.taxon_determinations << n
-              new_td = item.taxon_determinations.last
+              this_td = item.taxon_determinations.last
             end
+            n.save
           }
 
-          new_td.move_to_top
+          this_td.move_to_top
         end
       end
     rescue ActiveRecord::RecordInvalid
