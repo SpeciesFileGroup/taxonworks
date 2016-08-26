@@ -69,7 +69,10 @@ class Identifier < ActiveRecord::Base
     import: Identifier::Local::Import,
     otu_utility: Identifier::Local::OtuUtility,
     accession_code: Identifier::Local::AccessionCode,
-    unknown: Identifier::Unknown
+    unknown: Identifier::Unknown,
+    collecting_event: Identifier::Local::CollectingEvent,
+    taxon_concept: Identifier::Local::TaxonConcept,
+    collection_object: Identifier::Local::CollectionObject
   }
 
   # Please DO NOT include the following: 
