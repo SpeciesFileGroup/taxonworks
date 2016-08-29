@@ -115,23 +115,24 @@ class LoanItem < ActiveRecord::Base
           case li.loan_item_object_type
             when /contain/i # if this item is a container, dig into the container for the collection objects themselves
               item_list.push(li.loan_item_object.collection_objects)
-            when /object/i, /otu/i # if this item is a collection object or an out,just add the object
+            when /object/i
               item_list.push(li.loan_item_object)
+            when /otu/i # if this item is a collection object, just add the object
+              # can't use an OTU as a determination object.
             else
               # should not be here
-              raise
+              raise 'This loan_item is not a container, an OTU, or a collection object.'
           end
 
           item_list.flatten.each { |item| # process this list (usually only one object)
-            n = proto_td.dup # we are going to use the same dertermination information for each of the items
+            n                              = proto_td.dup # we are going to use the same dertermination information for each of the items
+            n.biological_collection_object = item
             if otu.nil?
-              n.save
               item.taxon_determinations << n
               this_td = item.taxon_determinations.last
               otu     = n.otu
               people  = this_td.people
             else
-
               n.otu = otu
               n.people << people
               item.taxon_determinations << n
