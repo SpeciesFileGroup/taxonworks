@@ -5,6 +5,7 @@ module Shared::Containable
 
   included do
 
+    # A Container that is !new_record
     attr_accessor :contained_in
 
     after_save :contain, if: '!contained_in.blank?'

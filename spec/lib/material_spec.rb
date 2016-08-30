@@ -67,8 +67,8 @@ describe 'Material' do
       @two_objects_stub['collection_objects']['object1']['total'] = 1
       @two_objects_stub['collection_objects']['object2']['total'] = 2
       response = Material.create_quick_verbatim(@two_objects_stub)
-      expect(response.collection_objects.first.container.class).to eq(Container::Virtual)
-      expect(response.collection_objects.first.container).to eq(response.collection_objects.last.container)
+      expect(response.collection_objects.first.contained_in.class).to eq(Container::Virtual)
+      expect(response.collection_objects.first.contained_in).to eq(response.collection_objects.last.contained_in)
     end
 
     specify 'assigns a note when provided' do
@@ -136,7 +136,7 @@ describe 'Material' do
       @two_objects_stub['identifier']['identifier'] = '1234'
 
       r = Material.create_quick_verbatim(@two_objects_stub)
-      expect(r.collection_objects.first.container.identifiers.size).to eq(1) # ! .count
+      expect(r.collection_objects.first.contained_in.identifiers.size).to eq(1) # ! .count
     end
 
   end

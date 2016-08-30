@@ -1,6 +1,8 @@
 # Methods for handling the "bulk" accession of collection objects
 module Material
-    
+   
+  # @return [ QuickVerbatimResponse instance ]
+  #   the data are not yet saved
   def self.create_quick_verbatim(options  = {}) 
     # We could refactor this to use nested attributes, but it's not that much cleaner 
     opts = {
@@ -43,9 +45,9 @@ module Material
       end
 
       object.notes << note.dup if note
-      object.container = container if container
-      object.identifiers << identifier if identifier && !container 
 
+      object.contained_in = container if container # = container if container
+      object.identifiers << identifier if identifier && !container 
       response.collection_objects.push(object)
       object = nil
     end
@@ -87,7 +89,7 @@ module Material
       @note       = Note.new(form_params['note'])
       @repository = Repository.find(form_params['repository']['id']) if (form_params['repository'] && !form_params['repository']['id'].blank?)
       @identifier = Identifier::Local::CatalogNumber.new(form_params['identifier'])
-      @namespace  = @identifier.namespace 
+      @namespace  = identifier.namespace 
     end
 
     def locks=(value)
@@ -141,8 +143,16 @@ module Material
 
       begin
         ActiveRecord::Base.transaction do
-          collection_objects.map(&:save!)
+
+          collection_objects.each do |o|
+            if o.contained_in
+              o.contained_in.save! if o.contained_in.new_record?
+            end
+
+            o.save!
+          end
         end
+        
         return true
       rescue ActiveRecord::RecordInvalid => invalid
         return false, invalid.record.errors 
