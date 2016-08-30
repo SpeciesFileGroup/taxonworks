@@ -290,7 +290,9 @@ describe Material::QuickVerbatimResponse do
     i = FactoryGirl.build(:valid_identifier_local_catalog_number, identifier_object: nil)
     n = Note.new(text: "fasdfasdf")
     b = FactoryGirl.create(:valid_biocuration_class) 
+    c = FactoryGirl.build(:valid_container)
 
+    a.contained_in = c
     a.identifiers << i 
     a.notes << n
     a.biocuration_classifications.build(biocuration_class: b)
@@ -311,6 +313,7 @@ describe Material::QuickVerbatimResponse do
     expect(Identifier.count).to eq(1)
     expect(Note.count).to eq(1)
     expect(BiocurationClassification.count).to eq(1)
+    expect(Container.count).to eq(1)
   end
 
 end
