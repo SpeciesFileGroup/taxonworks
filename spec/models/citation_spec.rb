@@ -30,9 +30,10 @@ describe Citation, type: :model, group: :annotators do
     end
 
     specify 'validate uniqueness of pages with nil and empty string. Nullify before save.' do
+      expect(Citation.count).to eq(0) 
       expect(Citation.create(citation_object: o, source: s, pages: '').id).to be_truthy
       expect(Citation.create(citation_object: o, source: s, pages: nil).id).to be_falsey
-      expect(Citation.find_or_create_by(citation_object: o, source: s, pages: nil).id).to eq(1)
+      expect(Citation.find_or_create_by(citation_object: o, source: s, pages: nil).id).to eq(Citation.first.id)
     end
 
     context 'database constraints' do

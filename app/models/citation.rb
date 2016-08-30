@@ -39,13 +39,6 @@ class Citation < ActiveRecord::Base
 
   after_save :update_related_cached_values, if: 'is_original?'
 
-  def update_related_cached_values
-    if citation_object_type == 'TaxonName'
-      citation_object.update_attribute(:cached_author_year, citation_object.get_author_and_year)
-    end
-    true
-  end
-
   # @return [Scope of matching sources]
   def self.find_for_autocomplete(params)
     term    = params['term']
@@ -85,6 +78,13 @@ class Citation < ActiveRecord::Base
 
   def reject_topic(attributed)
     attributed['name'].blank? || attributed['definition'].blank?
+  end
+
+  def update_related_cached_values
+    if citation_object_type == 'TaxonName'
+      citation_object.update_attribute(:cached_author_year, citation_object.get_author_and_year)
+    end
+    true
   end
 
 end
