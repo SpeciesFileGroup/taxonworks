@@ -33,7 +33,10 @@
 
       <aside>
         <% flash.each do |key, value| %>
-          <p class="alert alert-<%= key %>"><%= value %></p>
+          <div class="alert alert-<%= key %>">
+            <div class="message"><%= value %></div> 
+            <div class="alert-close"></div>
+          </div>
         <% end %>
       </aside>
 
