@@ -13,7 +13,7 @@
 #
 module UserTasks
 
-  CATEGORIES = %w{taxon_name source collection_object collecting_event biology}
+  CATEGORIES = %w{taxon_name source collection_object collecting_event biology}.freeze
 
   # A convenience wrapper for handling user task related metadata.
   class UserTask
@@ -96,7 +96,7 @@ module UserTasks
   end
 
   # The raw YAML (Hash)
-  TASK_DATA = YAML.load_file(Rails.root + 'config/interface/hub/user_tasks.yml') 
+  TASK_DATA = YAML.load_file(Rails.root + 'config/interface/hub/user_tasks.yml').freeze 
 
   tasks = {}
   TASK_DATA.each do |td|
@@ -104,7 +104,7 @@ module UserTasks
   end
 
   # A Hash of prefix => UserTasks::UserTask 
-  INDEXED_TASKS = tasks
+  INDEXED_TASKS = tasks.freeze
 
   # @return [Array of UserTasks::UserTask]
   #    the UserTasks instances
