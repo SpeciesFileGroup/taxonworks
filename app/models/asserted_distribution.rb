@@ -67,6 +67,19 @@ class AssertedDistribution < ActiveRecord::Base
         where(geographic_areas: {name: term}, otus: {name: term}).with_project_id(params[:project_id])
   end
 
+  def to_geo_json_feature
+    retval = {
+      'type'       => 'Feature',
+      'geometry'   => RGeo::GeoJSON.encode(self.geographic_area.geographic_items.first.geo_object),
+      'properties' => {
+        'asserted_distribution' => {
+          'id' => self.id
+        }
+      }
+    }
+    retval
+  end
+
   protected
 
   def check_required_fields
@@ -119,19 +132,4 @@ class AssertedDistribution < ActiveRecord::Base
   end
 
   #end region
-
-  def to_geo_json_feature
-    retval = {
-      'type'       => 'Feature',
-      'geometry'   => RGeo::GeoJSON.encode(self.geographic_area.geographic_items.first.geo_object),
-      'properties' => {
-        'asserted_distribution' => {
-          'id' => self.id
-        }
-      }
-    }
-    retval
-  end
-
-
 end

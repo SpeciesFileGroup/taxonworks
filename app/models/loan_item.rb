@@ -115,9 +115,9 @@ class LoanItem < ActiveRecord::Base
           case li.loan_item_object_type
             when /contain/i # if this item is a container, dig into the container for the collection objects themselves
               item_list.push(li.loan_item_object.collection_objects)
-            when /object/i
+            when /object/i # if this item is a collection object, just add the object
               item_list.push(li.loan_item_object)
-            when /otu/i # if this item is a collection object, just add the object
+            when /otu/i # not strictly needed, but helps keep track of what the loan_item is.
               # can't use an OTU as a determination object.
             else
               # should not be here
