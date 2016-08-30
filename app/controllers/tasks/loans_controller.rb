@@ -4,6 +4,9 @@ class Tasks::LoansController < ApplicationController
   before_filter :set_objects, only: [:complete, :update_status, :return_items, :add_determination]
 
   def complete
+    @loan                = Loan.find(params['id'])
+    @taxon_determination = TaxonDetermination.new()
+    @loan_item           = LoanItem.new(loan: @loan)
   end
 
   def update_status
@@ -17,7 +20,7 @@ class Tasks::LoansController < ApplicationController
       end
     end
 
-    render :complete2
+    render :complete
   end
 
   def return_items
@@ -31,7 +34,7 @@ class Tasks::LoansController < ApplicationController
       end
     end
 
-    render :complete2
+    render :complete
   end
 
   def add_determination
@@ -41,14 +44,7 @@ class Tasks::LoansController < ApplicationController
       flash[:notice] = "Failed to update #{loan_item_ids_params.count} records."
     end
 
-    render :complete2
-  end
-
-
-  def complete2
-    @loan                = Loan.find(params['id'])
-    @taxon_determination = TaxonDetermination.new()
-    @loan_item           = LoanItem.new(loan: @loan)
+    render :complete
   end
 
   def act_on_items
