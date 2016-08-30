@@ -152,45 +152,42 @@ describe Material::QuickVerbatimResponse do
     ProjectsAndUsers.clean_slate
   }
 
-  before(:each) {
-    @response = Material::QuickVerbatimResponse.new()
-  }
+  let(:response)  { Material::QuickVerbatimResponse.new() }
 
   specify '#collection_object' do
-    expect(@response.collection_object.class).to eq(Material::QuickVerbatimObject)
+    expect(response.collection_object.class).to eq(Material::QuickVerbatimObject)
   end
 
   specify  '#locks_object' do
-    expect(@response.locks.class).to eq(Forms::FieldLocks)
+    expect(response.locks.class).to eq(Forms::FieldLocks)
   end
 
   context 'data entry locks' do
     specify '#form_params' do
-      expect(@response).to respond_to(:form_params)
+      expect(response).to respond_to(:form_params)
     end
 
     specify '#locked?' do
-      expect(@response.locked?('note')).to be_falsey
+      expect(response.locked?('note')).to be_falsey
     end
   end
 
   specify '#next_identifier' do
-    expect(@response).to respond_to(:next_identifier)
+    expect(response).to respond_to(:next_identifier)
   end
 
   specify '#next_identifier is nill unless #lock_increment' do
-    expect(@response.next_identifier).to eq(nil)
+    expect(response.next_identifier).to eq(nil)
   end
 
   context '#duplicate_with_locks' do
+    let(:namespace) { FactoryGirl.create(:valid_namespace) }
+    let(:repository) { FactoryGirl.create(:valid_repository, name: 'The vault.') }
     before {
-      @namespace = FactoryGirl.create(:valid_namespace)
-      @repository = FactoryGirl.create(:valid_repository, name: 'The vault.')
-
       form_params = {
         'note' => {'text' => 'Locked me.'},
-        'identifier' => {'namespace_id' => @namespace.id, 'identifier' => '123'},
-        'repository' => {'id' => @repository.id}, 
+        'identifier' => {'namespace_id' => namespace.id, 'identifier' => '123'},
+        'repository' => {'id' => repository.id}, 
         'locks' => {
           'locks' => { # proxy for object
             'namespace' => '0',
@@ -204,9 +201,9 @@ describe Material::QuickVerbatimResponse do
         }
       }
 
-      @response.form_params = form_params
-      @response.build_models
-      @new = @response.duplicate_with_locks
+      response.form_params = form_params
+      response.build_models
+      @new = response.duplicate_with_locks
     }
 
     specify 'persists lock_ attributes' do
@@ -225,7 +222,7 @@ describe Material::QuickVerbatimResponse do
       end
 
       specify 'identifier' do
-        expect(@new.identifier.namespace).to eq(@namespace)  
+        expect(@new.identifier.namespace).to eq(namespace)  
       end
     end
 
@@ -241,32 +238,32 @@ describe Material::QuickVerbatimResponse do
   context 'identifier increments' do
     context 'when #lock_increment true' do
       before {
-        @response.locks.lock('locks', 'increment') #  = '1' # coming off form_params()
+        response.locks.lock('locks', 'increment') #  = '1' # coming off form_params()
       }
       specify '#next_identifier is +1 when #lock_increment' do
-        @response.identifier = FactoryGirl.build(:valid_identifier, identifier: '1')
-        expect(@response.next_identifier).to eq('2')
+        response.identifier = FactoryGirl.build(:valid_identifier, identifier: '1')
+        expect(response.next_identifier).to eq('2')
       end
 
       specify '#next_identifier is +1 when #lock_increment and pre-fixed alphanumeric' do
-        @response.identifier = FactoryGirl.build(:valid_identifier, identifier: 'A1')
-        expect(@response.next_identifier).to eq('A2')
+        response.identifier = FactoryGirl.build(:valid_identifier, identifier: 'A1')
+        expect(response.next_identifier).to eq('A2')
       end
 
       specify '#next_identifier is +1 when #lock_increment and post-fixed alphanumeric' do
-        @response.identifier = FactoryGirl.build(:valid_identifier, identifier: '1A')
-        expect(@response.next_identifier).to eq('2A')
+        response.identifier = FactoryGirl.build(:valid_identifier, identifier: '1A')
+        expect(response.next_identifier).to eq('2A')
       end
 
       specify '#next_identifier is +1 when #lock_increment and pre and post-fixed alphanumeric' do
-        @response.identifier = FactoryGirl.build(:valid_identifier, identifier: 'AB1A')
-        expect(@response.next_identifier).to eq('AB2A')
+        response.identifier = FactoryGirl.build(:valid_identifier, identifier: 'AB1A')
+        expect(response.next_identifier).to eq('AB2A')
       end
     end
   end
   
   specify '#collection_objects' do
-    expect(@response.collection_objects).to eq([]) 
+    expect(response.collection_objects).to eq([]) 
   end
 
   # specify '#next_identifier(IdentifierFactory)' do
@@ -274,15 +271,15 @@ describe Material::QuickVerbatimResponse do
   # end
 
   specify '#identifier' do
-    expect(@response.identifier.class).to eq(Identifier::Local::CatalogNumber) 
+    expect(response.identifier.class).to eq(Identifier::Local::CatalogNumber) 
   end
 
   specify '#repository' do
-    expect(@response.repository.class).to eq(Repository) 
+    expect(response.repository.class).to eq(Repository) 
   end
 
   specify '#note' do
-    expect(@response.note.class).to eq(Note) 
+    expect(response.note.class).to eq(Note) 
   end
 
   specify '#save' do
@@ -296,16 +293,16 @@ describe Material::QuickVerbatimResponse do
     a.identifiers << i 
     a.notes << n
     a.biocuration_classifications.build(biocuration_class: b)
-    #  a.biocuration_classes << b
+    # a.biocuration_classes << b
 
-    @response.collection_objects.push(a)
+    response.collection_objects.push(a)
 
     expect(Specimen.count).to eq(0)
     expect(Identifier.count).to eq(0)
     expect(Note.count).to eq(0)
     expect(BiocurationClassification.count).to eq(0)
 
-    success, errors = @response.save
+    success, errors = response.save
 
     expect(success).to be(true) 
    
