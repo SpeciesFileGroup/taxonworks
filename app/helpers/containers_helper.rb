@@ -22,6 +22,7 @@ module ContainersHelper
     link_to(container.container_item.parent.contained_object)
   end
 
+
   def containers_search_form
     render('/containers/quick_search_form')
   end
@@ -60,7 +61,10 @@ module ContainersHelper
         end
       end
     end
+  end
 
+  def add_or_move_to_container_link(object)
+    link_to( (object.contained? ? 'Move to another' : 'Add to' ) + ' container', containerize_collection_object_path(object) )
   end
 
 end

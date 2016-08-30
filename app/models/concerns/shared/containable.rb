@@ -1,14 +1,14 @@
-# Shared code for...
+# Shared code for objects that maybe be placed in Container(s).
 #
 module Shared::Containable
   extend ActiveSupport::Concern
 
   included do
 
-    # A Container that is !new_record
+    # A Container that is !new_record, or a container_id
     attr_accessor :contained_in
 
-    after_save :contain, if: '!contained_in.blank?'
+    after_save :contain, if: '!contained_in.blank?' #  || !contained_in_id.blank?'
 
     has_one :container_item, as: :contained_object
     has_one :parent_container_item, through: :container_item, source: :parent, class_name: 'ContainerItem'
@@ -16,7 +16,14 @@ module Shared::Containable
   end 
 
   def contain
-    put_in_container(contained_in)
+    c = nil 
+    if contained_in.is_a?(Container)
+      c = contained_in
+    else
+      c = Container.find(contained_in)
+    end
+
+    put_in_container(c)
   end
 
   # @return [Boolean]

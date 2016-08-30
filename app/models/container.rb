@@ -1,4 +1,5 @@
-# A container localizes the proximity of one ore more physical things, at this point in TW this is restricted to a number of collection objects.
+# A container localizes the proximity of one ore more physical things, at this point in TW this is restricted to a number of collection objects. 
+# Objects are placed in containers by reference through a ContainerItem.
 #
 # @!attribute type
 #   @return [String]
@@ -88,6 +89,12 @@ class Container < ActiveRecord::Base
   end
 
   # @return [Boolean]
+  #   whether this container is nested in other containers 
+  def is_nested?
+    container_item && container_item.ancestors.any?
+  end
+
+  # @return [Boolean]
   #   true if size is defined, and there is no space left in this container (non-recursive)
   def is_full?
     available_space == 0
@@ -135,7 +142,8 @@ class Container < ActiveRecord::Base
 
   # @return [Container]
   #   places all objects in a new, parent-less container, saves it off,
-  #   None of the objects are permitted to be new_records
+  #   None of the objects are permitted to be new_records.  
+  #   !! If an object is in another container it is moved to the new container created here.
   def self.containerize(objects, klass = Container::Virtual)
     new_container = nil
     begin
@@ -145,11 +153,10 @@ class Container < ActiveRecord::Base
 
         objects.each do |o|
           return false if o.new_record?
-          if o.container_item.nil?
+          if o.container_item.nil? # contain an uncontained objet
             ContainerItem.create(parent: ci_parent, contained_object: o)
-          else
-            o.container_item.parent_id = ci_parent.id
-            o.container_item.save
+          else # move the object if it's in a container already
+            o.container_item.update(parent_id: ci_parent.id)
           end
         end
       end
@@ -159,28 +166,25 @@ class Container < ActiveRecord::Base
     new_container
   end
 
-
   # @return [Boolean]
   #    add the objects to this container
   def add_container_items(objects)
     return false if new_record?
+    
+    # TODO: Figure out why this reload is required.
+    self.reload # this seems to be required under some (as yet undefined) circumstances.
     begin
       Container.transaction do
-        self.reload # this seems to be required under some (as yet undefined) circumstances.
-        # TODO: Figure out why this reload is required.
         ci_parent = container_item
-        # cip ||= ContainerItem.create!(contained_object: self)
-        if ci_parent.nil?
-          ci_parent = ContainerItem.create!(contained_object: self)
-        end
+        ci_parent ||= ContainerItem.create!(contained_object: self)
 
         objects.each do |o|
           return false if o.new_record? || !o.containable? # does this roll back transaction
           if o.container_item.nil?
             ContainerItem.create!(parent: ci_parent, contained_object: o)
-          else
-            o.container_item.parent_id = ci_parent.id
-            o.container_item.save # this triggers the closure_tree parenting/re-parenting
+          else # move the object to a new container
+            # this triggers the closure_tree parenting/re-parenting
+            o.container_item.update(parent_id: ci_parent.id)
           end
         end
       end

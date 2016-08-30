@@ -1,16 +1,23 @@
 <% content_for :associated do -%>
-
-  <h3> Nested containers </h3>
-    <% @container.container_item.descendants.each do |c| -%>
-        <%= object_link(c.container) -%> </br>
+  <h3> Nesting containers </h3>
+  <% if @container.is_nested? -%> 
+    <ul>
+    <% @container.container_item.ancestors.each do |c| -%>
+      <%= content_tag(:li, container_link(c.container)) -%>
+    <% end %>
+    </ul>
+  <% else %>
+    <%= content_tag(:em, 'None.') -%>
   <% end %>
-    <%= content_tag(:em, 'None.') if @container.container_item.descendants.count == 0 -%>
 
-  <h3> Contained objects </h3>
-  <% @container.container_items.each do |i| -%>
-    <%= object_link(i) -%> </br>
+  <% if !@container.is_empty? -%>
+    <h3> Contained objects </h3>
+    <% @container.all_contained_objects.each do |i| -%>
+      <%= object_link(i) -%> </br>
+    <% end %>
+  <% else %>
+    <%= content_tag(:em, 'Container is empty.') if @container.container_items.count == 0 -%>
   <% end %>
-  <%= content_tag(:em, 'None.') if @container.container_items.count == 0 -%>
 <% end %>
 
 <%= render(partial: 'shared/data/project/show', locals: {object: @container}) -%>

@@ -180,6 +180,7 @@ class CollectionObjectsController < ApplicationController
       :ranged_lot_category_id, :collecting_event_id,
       :buffered_collecting_event, :buffered_deteriminations,
       :buffered_other_labels, :deaccessioned_at, :deaccession_reason,
+      :contained_in,
       collecting_event_attributes: []
     )
   end

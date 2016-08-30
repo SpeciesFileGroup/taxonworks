@@ -12,14 +12,18 @@
   </div>
 
   <div class="field">
-    <%= f.label :parent %><br>
-    <%= render partial: 'workbench/elements/forms/ajax_select',
-               locals:  {controller:  'containers',
-                         object: 'parent',
-                         method:  'container_id',
-                         tag_id:  'container_id_for_container',
-                         display:  container_tag(@container.parent),
-                         size: 20} %>
+    <%= f.label :size_x %><br>
+    <%= f.text_field :size_x %>
+  </div>
+
+  <div class="field">
+    <%= f.label :size_y %><br>
+    <%= f.text_field :size_y %>
+  </div>
+
+  <div class="field">
+    <%= f.label :size_z %><br>
+    <%= f.text_field :size_z %>
   </div>
 
   <div class="field">

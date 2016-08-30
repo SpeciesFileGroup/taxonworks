@@ -21,7 +21,7 @@
 #   some additional modifier arbitrarily defining the position of this item, aka disposition, always relative to enclosing container
 #
 # @!attribute project_id
-#   @return [Integer]
+#   @return [Integers
 #   the project ID
 #
 ## @!attribute disposition_x
