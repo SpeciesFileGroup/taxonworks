@@ -5,10 +5,39 @@
 <h3>Loan to : <%= object_tag(@loan) %>, Loan ID: <%= @loan.id %></h3>
 
 <%= form_for(@loan, html: { id: 'loan_form'}) do |f| -%>
-  <%= f.fields_for(:loan_items) do |loan_item| -%>
-    <%= loan_item.object.id -%> <%= check_box_tag("loan_items[#{loan_item.index}][id]", loan_item.object.id, checked: false) -%>
-  <% end %>
+
+  <table class="tablesorter" border="1">
+
+    <thead>
+      <tr>
+        <%= fancy_th_tag(name: 'Loaned item') -%>
+        <%= fancy_th_tag(name: 'Date returned') %>
+        <%= fancy_th_tag(name: 'Collection object status') -%>
+        <%= fancy_th_tag(name: 'Total') -%>
+        <%= fancy_th_tag(name: 'Type') -%>
+        <%= fancy_th_tag(name: 'Select item') -%>
+      </tr>
+    </thead>
+    <tbody class="loan_items_list">
+
+      <%= f.fields_for(:loan_items) do |loan_item| -%>
+
+        <tr>
+          <td><%= object_tag(loan_item.object.loan_item_object) %></td>
+          <td><%= loan_item.object.date_returned %></td>
+          <td><%= loan_item.object.disposition %></td>
+          <td><%= loan_item.object.loan_item_object_type == 'Otu' ? loan_item.object.total : nil %></td>
+          <td><%= loan_item.object.loan_item_object_type %></td>
+
+          <td> <%= check_box_tag("loan_items[#{loan_item.index}][id]", loan_item.object.id, checked: false) -%>  </td>
+
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
 <% end %>
+
 
 <%= form_tag(loan_update_status_path(@loan), method: :post, class: 'loan_update_form' ) do |li| -%>
   <%= select_tag(:disposition, options_for_select(LoanItem::STATUS, :blank), include_blank: true) %><br>

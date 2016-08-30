@@ -98,50 +98,45 @@ class LoanItem < ActiveRecord::Base
     end
   end
 
+  # @return [Array]
+  #   all objects that can have a taxon determination applied to them for htis loan item 
+  def determinable_objects
+    # this loan item which may be a container, an OTU, or a collection object
+    case loan_item_object_type
+    when /contain/i # if this item is a container, dig into the container for the collection objects themselves
+      loan_item_object.collection_objects
+    when /object/i # if this item is a collection object, just add the object
+      [loan_item_object]
+    when /otu/i # not strictly needed, but helps keep track of what the loan_item is.
+      [] # can't use an OTU as a determination object.
+    end
+  end
+
+  # @params :ids -> an ID of a loan_item
   def self.batch_determine_loan_items(ids: [], params: {})
     return false if ids.empty?
     # these objects will be created/persisted to be used for each of the loan items identified by the input ids
-    proto_td = TaxonDetermination.new(params) # build a td from the input data
-    this_td  = nil
-    people   = []
-    otu      = nil
+    td = TaxonDetermination.new(params) # build a td from the input data
 
     begin
       LoanItem.transaction do
+        item_list = [] # Array of objects that can have a taxon determination
         LoanItem.where(id: ids).each do |li|
-          # start with an empty list
-          item_list = [] # this list contains the objects which are to have a taxon determination applied for
-          # this loan item which may be a container, an OTU, or a collection object
-          case li.loan_item_object_type
-            when /contain/i # if this item is a container, dig into the container for the collection objects themselves
-              item_list.push(li.loan_item_object.collection_objects)
-            when /object/i # if this item is a collection object, just add the object
-              item_list.push(li.loan_item_object)
-            when /otu/i # not strictly needed, but helps keep track of what the loan_item is.
-              # can't use an OTU as a determination object.
-            else
-              # should not be here
-              raise 'This loan_item is not a container, an OTU, or a collection object.'
-          end
+          item_list.push li.determinable_objects
+        end
 
-          item_list.flatten.each { |item| # process this list (usually only one object)
-            n                              = proto_td.dup # we are going to use the same dertermination information for each of the items
-            n.biological_collection_object = item
-            if otu.nil?
-              item.taxon_determinations << n
-              this_td = item.taxon_determinations.last
-              otu     = n.otu
-              people  = this_td.people
-            else
-              n.otu = otu
-              n.people << people
-              item.taxon_determinations << n
-              this_td = item.taxon_determinations.last
-            end
-            n.save
-          }
+        item_list.flatten!
 
-          this_td.move_to_top
+        first = item_list.pop
+        td.biological_collection_object = first
+        td.save!
+
+        item_list.flatten.each do |item|
+          n = td.dup
+          n.determiners << td.determiners
+          n.biological_collection_object = item
+          n.save
+          n.move_to_top 
         end
       end
     rescue ActiveRecord::RecordInvalid
