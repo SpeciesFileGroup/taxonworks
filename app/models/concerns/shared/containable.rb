@@ -50,22 +50,5 @@ module Shared::Containable
   def contained_by?(kontainer)
     enclosing_containers.include?(kontainer)
   end
-
-
-  # @return [String, nil]
-  #    a string representation of the containers location, includes disposition of the containers if provided
- #def location 
- #  parts = [] 
- #  enclosing_containers.each do |c| 
- #    s = c.name.blank? ? c.class.class_name : c.name
- #    s += " [#{c.disposition}]" if !c.disposition.blank? 
- #    parts.push s 
- #  end
- #  parts.join("; ") 
- #end
-
-
-
-
   
 end

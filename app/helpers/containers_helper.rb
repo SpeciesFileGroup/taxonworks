@@ -32,6 +32,19 @@ module ContainersHelper
     v == 0 ? 'empty' : v
   end
 
+  # @return [String, nil]
+  #    a string representation of the containers location, includes disposition of the containers if provided
+  def container_location(object)
+    return nil if !object.containable?
+    parts = [] 
+    object.enclosing_containers.each do |c| 
+      s = c.name.blank? ? c.class.class_name : c.name
+      s += " [#{c.disposition}]" if !c.disposition.blank? 
+      parts.push s 
+    end
+    parts.join("; ") 
+  end
+
   # TODO: move content to containers/_card
   def draw_container_tag(container)
     return nil if container.nil?
