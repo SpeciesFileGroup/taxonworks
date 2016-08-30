@@ -54,6 +54,7 @@ describe 'Containables', type: :model, group: :containers do
     specify '#enclosing_containers' do
       containable_class.contained_in = envelope
       containable_class.save
+      containable_class.reload
       expect(containable_class.enclosing_containers).to eq([envelope, drawer, box, building])
     end
 
