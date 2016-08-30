@@ -110,18 +110,6 @@ class CollectionObject < ActiveRecord::Base
   accepts_nested_attributes_for :taxon_determinations, allow_destroy: true, reject_if: :reject_taxon_determinations
   accepts_nested_attributes_for :collecting_event, allow_destroy: true, reject_if: :reject_collecting_event
 
-  def reject_collecting_event(attributed)
-    reject = true
-    CollectingEvent.data_attributes.each do |a|
-      if !attributed[a].blank?
-        reject = false
-        break
-      end
-    end
-    # !! does not account for georeferences_attributes!
-    reject
-  end
-
   validates_presence_of :type
   validate :check_that_either_total_or_ranged_lot_category_id_is_present
   validate :check_that_both_of_category_and_total_are_not_present
@@ -569,5 +557,17 @@ class CollectionObject < ActiveRecord::Base
   # @todo Write this. Changing from one type to another is ONLY allowed via this method, not by updating attributes
   # def transmogrify_to(new_type)
   # end
+
+  def reject_collecting_event(attributed)
+    reject = true
+    CollectingEvent.data_attributes.each do |a|
+      if !attributed[a].blank?
+        reject = false
+        break
+      end
+    end
+    # !! does not account for georeferences_attributes!
+    reject
+  end
 
 end

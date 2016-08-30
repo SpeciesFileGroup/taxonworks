@@ -64,7 +64,7 @@ describe TaxonDetermination, type: :model do
       t = TaxonDetermination.new(otu: otu1) 
       specimen.taxon_determinations << t
       specimen.taxon_determinations.last.move_to_top
-      expect(specimen.preferred_taxon_determination.otu).to eq(otu1)
+      expect(specimen.current_taxon_determination.otu).to eq(otu1)
     end
 
   end
