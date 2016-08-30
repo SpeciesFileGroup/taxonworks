@@ -21,6 +21,8 @@ module BatchLoad
       i = 1
       # loop throw rows
       csv.each do |row|
+        # Only accept records from DRM to keep things simple for now
+        next if row['locality_database'] != "DRM"
 
         parse_result = BatchLoad::RowParse.new
         parse_result.objects[:collection_object] = []
@@ -64,8 +66,14 @@ module BatchLoad
           co_attributes = { type: 'Specimen', total: 1, identifiers_attributes: co_identifiers }
           co = CollectionObject.new(co_attributes)
 
+          # Collecting event that this collection object corresponds to
+          ces = CollectingEvent.with_namespaced_identifier('Castor', row['collecting_event_guid'])
+          ce = nil
+          ce = ces.first if ces.any?
+          co.collecting_event = ce if !ce.nil?
+
           parse_result.objects[:collection_object].push(co);
-        rescue
+        #rescue
            # ....
            # puts "SOMETHING WENT WRONG WITH COLLECTION OBJECT SPECIMENS INTERPRETER BATCH LOAD"
         end
