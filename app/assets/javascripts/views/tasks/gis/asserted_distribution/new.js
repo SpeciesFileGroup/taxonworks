@@ -78,7 +78,7 @@ function add_click_services_to_new_asserted_distribution_map(map, event) {     /
         // original map canvas parameters are now lost, so we have to find them again
         var bounds = {};
         var children = feature_collection.parentElement.children;
-        for (let m = 0; m < children.length; m++) {
+        for (var m = 0; m < children.length; m++) {
           if (children[m].id.search("_canvas") >= 0) {
             bounds.canvas_width = children[m].style.width.toString().split('px')[0];
             bounds.canvas_height = children[m].style.height.toString().split('px')[0];
