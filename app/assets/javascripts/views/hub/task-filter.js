@@ -68,7 +68,7 @@ var CarrouselTask = function (sec, rows, columns) {
 
     $(this.sectionTag + " .task-nav-list").empty();
 
-    for(let i = 0; i < this.active.length; i++) {
+    for(var i = 0; i < this.active.length; i++) {
       if((i >= childIndex) && (count > 0)) {
         $(this.sectionTag + " .task-nav-list").append('<div class="task-nav-item active"></div>');
         count--;
@@ -131,7 +131,7 @@ var CarrouselTask = function (sec, rows, columns) {
       this.changeSelectedNavList(this.start);
       this.arrayPos = 0;
     }
-    for (let i = this.start; i < this.active.length; i++) {
+    for (var i = this.start; i < this.active.length; i++) {
 
       child = $(this.sectionTag + ' .task_card:nth-child('+ this.active[i] +')');
       if(count < this.maxCards) {
@@ -165,7 +165,7 @@ var CarrouselTask = function (sec, rows, columns) {
     this.active = [];
     this.childs = [];
 
-    for (let i = 1; i <= this.childsCount; i++) {
+    for (var i = 1; i <= this.childsCount; i++) {
       child = $(this.sectionTag + ' .task_card:nth-child('+ (i) +')');
       if(this.checkChildFilter(child)) {
         this.active[activeCount] = i;
