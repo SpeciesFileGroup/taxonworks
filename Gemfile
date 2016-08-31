@@ -26,7 +26,9 @@ gem 'sass-rails', '~> 5.0.2'
 
 gem 'sprockets-rails'
 gem 'sprockets', '~> 3.0'
-gem 'babel-transpiler'
+gem 'sprockets-es6', require: 'sprockets/es6'
+
+# gem 'babel-transpiler'
 
 
 # Use Uglifier as compressor for JavaScript assets

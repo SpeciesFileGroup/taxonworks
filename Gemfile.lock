@@ -362,6 +362,10 @@ GEM
     sprockets (3.7.0)
       concurrent-ruby (~> 1.0)
       rack (> 1, < 3)
+    sprockets-es6 (0.9.1)
+      babel-source (>= 5.8.11)
+      babel-transpiler
+      sprockets (>= 3.0.0)
     sprockets-rails (3.1.1)
       actionpack (>= 4.0)
       activesupport (>= 4.0)
@@ -418,7 +422,6 @@ DEPENDENCIES
   activerecord-postgis-adapter (~> 3.1.4)
   acts_as_list (~> 0.7.4)
   awesome_print
-  babel-transpiler
   bcrypt (~> 3.1.11)
   best_in_place (~> 3.1.0)
   better_errors (~> 2.0)
@@ -479,6 +482,7 @@ DEPENDENCIES
   selenium-webdriver (~> 2.53.4)
   spring-commands-rspec (~> 1.0.2)
   sprockets (~> 3.0)
+  sprockets-es6
   sprockets-rails
   sqed (= 0.2.4)
   taxonifi (= 0.4.0)
