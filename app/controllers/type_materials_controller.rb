@@ -69,11 +69,11 @@ class TypeMaterialsController < ApplicationController
   end
 
   def list
-    @type_materials = TypeMaterial.with_project_id($project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
+    @type_materials = TypeMaterial.with_project_id(sessions_current_project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
   end
 
   def autocomplete
-    @type_materials = TypeMaterial.find_for_autocomplete(params.merge(project_id: sessions_current_project_id)) # in model
+    @type_materials = Queries::TypeMaterialAutocompleteQuery.new(params[:term], project_id: sessions_current_project_id).all
 
     data = @type_materials.collect do |t|
       {id: t.id,

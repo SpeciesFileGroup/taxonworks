@@ -99,12 +99,6 @@ class TypeMaterial < ActiveRecord::Base
     end
   end
 
-  def self.find_for_autocomplete(params)
-    term = params[:term]
-    include(:protonym, :material, :source).
-      where(protonyms: {id: term}, collection_objects: {id: term}, sources: {id: term}).with_project_id(params[:project_id])
-  end
-
   def self.generate_download(scope)
     CSV.generate do |csv|
       csv << column_names

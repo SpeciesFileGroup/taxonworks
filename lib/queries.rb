@@ -41,15 +41,15 @@ module Queries
     end
 
     def start_wildcard
-      @query_string + '%'
+      '%' + query_string 
     end
 
     def end_wildcard
-      @query_string + '%'
+      query_string + '%'
     end
 
     def start_and_end_wildcard
-      '%' + @query_string + '%'
+      '%' + query_string + '%'
     end
 
     def terms
@@ -71,7 +71,7 @@ module Queries
 
     # Replace with a full text indexing approach
     def build_terms
-      @terms = query_string.split(/\s+/).compact.collect{|t| [t, "#{t}%", "%#{t}%"]}.flatten
+      @terms = [end_wildcard, start_and_end_wildcard]  # query_string.split(/\s+/).compact.collect{|t| [t, "#{t}%", "%#{t}%"]}.flatten
     end
     
     def no_digits 
