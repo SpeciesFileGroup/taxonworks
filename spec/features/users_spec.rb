@@ -8,6 +8,7 @@ describe 'Users' do
   # When an administrator signs in, what does he see, what can he do?
   # # When an admin creates new user, how does he initialize user password?
 
+  let(:user_update_ok_text) {'Changes to your account information have been saved.'} 
 
   context 'when user is signed in' do # before user signs in, s/he is on /signin page
     context 'with unprivileged user' do  
@@ -56,7 +57,7 @@ describe 'Users' do
             fill_in 'Password confirmation', with: '1234ZZZ!'
             click_button 'Update User'
 
-            expect(page).to have_css('p.alert.alert-success', text: 'Changes to your account information have been saved.')
+            expect(page).to have_text(user_update_ok_text)
           end
 
           before { visit edit_user_path(@user) } # click_link 'Edit account'
@@ -67,7 +68,7 @@ describe 'Users' do
             # fill_in 'Password confirmation', with: '1234ZZZ!'
             click_button 'Update User'
 
-            expect(page).to have_css('p.alert.alert-success', text: 'Changes to your account information have been saved.')
+            expect(page).to have_text(user_update_ok_text)
           end
 
           before { visit edit_user_path(@user) } # click_link 'Edit account'
@@ -78,7 +79,7 @@ describe 'Users' do
             fill_in 'Password confirmation', with: nil
             click_button 'Update User'
 
-            expect(page).to_not have_css('p.alert.alert-success', text: 'Changes to your account information have been saved.')
+            expect(page).to_not have_text(user_update_ok_text)
           end
         end
       end
@@ -220,7 +221,7 @@ describe 'Users' do
           fill_in 'Password confirmation', with: '1234ZZZ!'
           click_button 'Update User'
    
-          expect(page).to have_css('p.alert.alert-success', text: 'Changes to your account information have been saved.')
+          expect(page).to have_text(user_update_ok_text)
         end
       end
 
@@ -293,8 +294,8 @@ describe 'Users' do
       end
     end
 
-    feature 'flagged for password reset', js: true do
-      before { 
+    feature 'flagged for password reset' do
+      before {
           User.create!(name: 'Test',
             email: 'flagged@example.com',
             password: '12345678',
@@ -302,6 +303,7 @@ describe 'Users' do
             self_created: true,
             is_flagged_for_password_reset: true)
       }
+    
       scenario 'requesting password reset from sign in process' do
         password = '12345678abcd'
         visit root_path
