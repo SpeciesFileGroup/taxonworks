@@ -88,11 +88,10 @@ describe GeographicItem, type: :model, group: :geo do
             context 'not contained/enclosed' do
               @out = %I{left_right_anti_line_partial right_left_anti_line_partial left_right_anti_line_out right_left_anti_line_out}  
 
-
               @out.each do |s|
                 specify "#{s}" do
                   expect(GeographicItem.find_by_sql(
-                    "SELECT ST_Contains(ST_GeomFromText('#{right_left_anti_box}'), ST_GeomFromText('#{s}')) as r;"
+                    "SELECT ST_Contains(ST_GeomFromText('#{right_left_anti_box}'), ST_GeomFromText('#{send(s)}')) as r;"
                   ).first.r).to be false 
                 end
               end
@@ -101,7 +100,7 @@ describe GeographicItem, type: :model, group: :geo do
 
           end
         end
-      end # end raw SQL
+      end 
     end
   end
 end
