@@ -83,7 +83,7 @@ Object.assign(TW.vendor.lib.google.maps.draw, {            // internally referre
       var map = new google.maps.Map(document.getElementById(map_canvas), mapOptions);
 
       map.data.setStyle({
-        icon: '/assets/map_icons/mm_20_gray.png',
+        icon: '<%= asset_path("map_icons/mm_20_gray.png") %>',
         fillColor: '#222222',
         strokeOpacity: 0.5,
         strokeColor: "black",
@@ -352,7 +352,7 @@ Object.assign(TW.vendor.lib.google.maps.draw, {            // internally referre
           drawingModes: drawingModes
         },
         markerOptions: {
-          icon: '/assets/map_icons/mm_20_red.png',
+          icon: '<%= asset_path("map_icons/mm_20_red.png") %>',
           editable: true
         },
         circleOptions: {
