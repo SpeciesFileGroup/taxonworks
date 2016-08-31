@@ -65,6 +65,10 @@ module UserTasks
      #@defaults.merge!(verb: route.verb)
     end
 
+    def categories
+      @categories.nil? ? [] : @categories
+    end
+    
     def status
       @status.nil? ? 'unknown' : @status
     end

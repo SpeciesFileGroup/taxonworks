@@ -17,7 +17,7 @@ class TwTaskGenerator < Rails::Generators::Base
         split_str = str.split(":")
         method = split_str[0]
         action = split_str[1]
-        name = split_str[2] || action + "_" + controller_base_name
+        name = split_str[2] || "#{method}_#{controller_base_name}"
 
         @route_methods.push(method)
         @route_actions.push(action)
@@ -80,14 +80,16 @@ class TwTaskGenerator < Rails::Generators::Base
   def add_to_user_task
     user_tasks_str = "\n"
 
-    @route_methods.each do |method|
-      user_tasks_str += "#{controller_base_name}_#{method}_task:\n"
+    @route_names.each_with_index do |name, index|
+      next if @route_actions[index] != "get"
+      
+      user_tasks_str += "#{name}:\n"
       user_tasks_str += "  hub: true\n"
-      user_tasks_str += "  name: 'TODO'\n"
+      user_tasks_str += "  name: 'TODO: Task name'\n"
       user_tasks_str += "  related:\n"
       user_tasks_str += "  categories:\n"
       user_tasks_str += "  status: prototype\n"
-      user_tasks_str += "  description: 'FILL ME IN'\n"
+      user_tasks_str += "  description: 'TODO: Task description'\n"
     end
 
     append_to_file "config/interface/hub/user_tasks.yml", user_tasks_str

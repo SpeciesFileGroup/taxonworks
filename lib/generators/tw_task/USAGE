@@ -18,7 +18,8 @@ Example:
                 post
                 patch 
                 etc
-            route_name OPTIONAL note- '_task' will automatically be appended: 
+            route_name OPTIONAL, if none is provided one will be made in the format of method_name + controller_base_name + '_task
+                otherwise '_task' will be appended to route_name: 
                 task_name
     
     The result of this command will be
@@ -40,36 +41,36 @@ Example:
                 scope :fasta_load, controller: 'tasks/sequence/fasta_load' do
                     get 'index', as: 'get_fast_load_task'
                     post 'verify', as: 'verify_task_name_task'
-                    put 'replace', as: 'put_fasta_load_task'
+                    put 'replace', as: 'replace_fasta_load_task'
                 end
             end
 
         append  config/interface/hub/user_tasks.yml:
             fasta_load_index_task:
                 hub: true
-                name: 'TODO'
+                name: 'TODO: Task name'
                 related:
                 categories:
                 status: prototype
-                description: 'FILL ME IN'
+                description: 'TODO: Task description'
             fasta_load_verify_task:
                 hub: true
-                name: 'TODO'
+                name: 'TODO: Task name'
                 related:
                 categories:
                 status: prototype
-                description: 'FILL ME IN'
+                description: 'TODO: Task description'
             fasta_load_replace_task:
                 hub: true
-                name: 'TODO'
+                name: 'TODO: Task name'
                 related:
                 categories:
                 status: prototype
-                description: 'FILL ME IN'
+                description: 'TODO: Task description'
 
         create  app/controllers/tasks/sequence/fasta_load_controller.rb:
             class Tasks::Sequence::FastaLoadController < ApplicationController
-                include TaskControllerConfigration
+                include TaskControllerConfiguration
 
                 # GET
                 def index
