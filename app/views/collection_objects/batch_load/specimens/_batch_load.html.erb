@@ -5,29 +5,33 @@
     <div class="item item1 one_third_width">
       <h3> Description and requirements </h3>
 
-      <p> Reads a castor exported specimens file and creates them in TaxonWorks </p>
+      <p> Creates collection objects from a Castor to TaxonWorks exported collection objects file. Attaches at most 4 identifiers of type Identifier::Local::CollectionObject to each collection object.</p>
       <ul>
         <li>A tab-delimited, UTF-8 compatible text file is required.</li>
-        <li>Column headers are XXX (see <%= link_to('sample template', asset_path('batch_load_templates/collection_objects__batch_load.tab'), target: '_blank') -%>).</li>
-        <li>If X then Y.</li>
-        <li>Multiple uploads of the same data will X.</li>
-        <li>It is assumed Z1.</li>
-        <li>It is assumed Z2.</li>
+        <li>Column headers are here <%= link_to('sample template', asset_path('batch_load_templates/collection_objects/collection_objects_specimens_batch_load.tab'), target: '_blank') -%>).</li>
+        <li>Multiple uploads of the same data will do something, not sure.</li>
+        <li>Only creates collection objects if the column value of "locality_code_prefix" of the current row is "DRM"</li>
         <li>There is currently some|no size limit to the file being loaded but this may change in the future.</li>
+        <li>Assumes a namespace with name "Castor" and shortname "CTR" exists</li>
+        <li>Assumes a namespace with name "Morphbank" and shortname "MBK" exists</li>
+        <li>Assumes a namespace with name "DRMLabVoucher" and shortname "DRMLV" exists</li>
+        <li>Assumes a namespace with name "DRMFieldVoucher" and shortname "DRMFV" exists</li>
+        <li>Assumes a namespace with name "DRMFieldNumbers" and shortname "DRMFN" exists</li>
+        <li>Identifier with namespace Castor will be attached with the value of the "guid" column if not blank</li>
+        <li>Identifier with namespace Morphbank will be attached with the value of the "morphbank_specimen_id" column if not blank</li>
+        <li>Identifier with namespace DRMLabVoucher will be attached with the value of the "specimen_number" column if not blank</li>
+        <li>Identifier with namespace DRMFieldVoucher will be attached with the value of the "voucher_number_prefix" + "voucher_number_stirng" column if not blank</li>
+        <li>Only links to a collecting event that has an attached Identifier with namespace Castor and with a value that matches this objects "collecting_event_guid" column</li>
       </ul>
     </div>
 
     <div class="item item2 one_third_width">
       <h3> Example file </h3>
 
-      <p> A tab delimited formatted file ... DESCRIPTION ... 
+      <p> Part of the example tab delimited formatted file. 
         In the example whitespace is a tab. View sample file template.</p>
 
-      <pre class="fixed_width_font">
-        header1 header2 header3
-        Aidae Aus bus
-        Aidae Aus cus
-        Bidae Bus eus</pre>
+      <pre class="fixed_width_font">guid morphbank_specimen_id sample_code_prefix sample_code suffix det_confidence id_notes locality_code_prefix locality_code_string...</pre>
     </div>
 
     <div class="item item3">

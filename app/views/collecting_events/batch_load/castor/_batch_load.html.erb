@@ -5,29 +5,27 @@
     <div class="item item1 one_third_width">
       <h3> Description and requirements </h3>
 
-      <p> TODO: Does X. </p>
+      <p> Creates collecting events from a Castor to TaxonWorks exported collecting events file. Attaches at most 2 identifiers of type Identifier::Local::CollectingEvent to each collection object.</p>
       <ul>
         <li>A tab-delimited, UTF-8 compatible text file is required.</li>
-        <li>Column headers are XXX (see <%= link_to('sample template', asset_path('batch_load_templates/collecting_events__batch_load.tab'), target: '_blank') -%>).</li>
-        <li>If X then Y.</li>
-        <li>Multiple uploads of the same data will X.</li>
-        <li>It is assumed Z1.</li>
-        <li>It is assumed Z2.</li>
+        <li>Column headers are here <%= link_to('sample template', asset_path('batch_load_templates/collecting_events/collecting_events_castor_batch_load.tab'), target: '_blank') %>.</li>
+        <li>Multiple uploads of the same data will do something, not sure.</li>
+        <li>Only creates collecting events if the column value of "locality_database" of the current row is "DRM"</li>
         <li>There is currently some|no size limit to the file being loaded but this may change in the future.</li>
+        <li>Assumes a namespace with name "Castor" and shortname "CTR" exists</li>
+        <li>Assumes a namespace with name "DRMFieldNumbers" and shortname "DRMFN" exists</li>
+        <li>Identifier with namespace Castor will be attached with the value of the "guid" column if not blank</li>
+        <li>Identifier with namespace DRMFieldNumbers will be attached with the value of the "locality_code_prefix" + "locality_code_string" column if not blank</li>
       </ul>
     </div>
 
     <div class="item item2 one_third_width">
       <h3> Example file </h3>
 
-      <p> A tab delimited formatted file ... DESCRIPTION ... 
+      <p> Part of the example tab delimited formatted file. 
         In the example whitespace is a tab. View sample file template.</p>
 
-      <pre class="fixed_width_font">
-        header1 header2 header3
-        Aidae Aus bus
-        Aidae Aus cus
-        Bidae Bus eus</pre>
+      <pre class="fixed_width_font">guid locality_code_prefix locality_code_string longitude latitude method error georeference_error_units verbatim_location...</pre>
     </div>
 
     <div class="item item3">
