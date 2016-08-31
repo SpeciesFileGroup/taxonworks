@@ -110,14 +110,14 @@ RSpec.describe SequenceRelationshipsController, type: :controller do
         {subject_sequence_id: FactoryGirl.create(:valid_sequence).id, 
         object_sequence_id: FactoryGirl.create(:valid_sequence).id,
         type: SequenceRelationship::ReversePrimer}
-        #skip("Add a hash of attributes valid for your model")
       }
 
       it "updates the requested sequence_relationship" do
         sequence_relationship = SequenceRelationship.create! valid_attributes
         put :update, {id: sequence_relationship.to_param, sequence_relationship: new_attributes}, session: valid_session
         sequence_relationship.reload
-        skip("Add assertions for updated state")
+
+        expect(sequence_relationship.subject_sequence_id == new_attributes[:subject_sequence_id] && sequence_relationship.object_sequence_id == new_attributes[:object_sequence_id])
       end
 
       it "assigns the requested sequence_relationship as @sequence_relationship" do
