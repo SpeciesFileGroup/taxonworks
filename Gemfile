@@ -24,6 +24,11 @@ gem 'redis', '~> 3.3.0'
 # Use SCSS for stylesheets
 gem 'sass-rails', '~> 5.0.2'
 
+gem 'sprockets-rails'
+gem 'sprockets', '~> 3.0'
+gem 'babel-transpiler'
+
+
 # Use Uglifier as compressor for JavaScript assets
 gem 'uglifier', '~> 3.0'
 
@@ -96,6 +101,8 @@ gem 'chartkick', '~> 2.0.0'
 gem 'groupdate', '~> 3.0.0'
 
 gem 'dropzonejs-rails', '~> 0.7.3'
+
+
 
 # SFG gems
 gem 'taxonifi', '0.4.0'
