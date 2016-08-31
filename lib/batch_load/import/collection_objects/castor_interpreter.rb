@@ -1,6 +1,6 @@
 # TODO: THIS IS A GENERATED STUB, it does not function
 module BatchLoad
-  class Import::CollectionObjects::SpecimensInterpreter < BatchLoad::Import
+  class Import::CollectionObjects::CastorInterpreter < BatchLoad::Import
 
     def initialize(**args)
       @collection_objects = {}
@@ -75,7 +75,7 @@ module BatchLoad
           parse_result.objects[:collection_object].push(co);
         #rescue
            # ....
-           # puts "SOMETHING WENT WRONG WITH COLLECTION OBJECT SPECIMENS INTERPRETER BATCH LOAD"
+           # puts "SOMETHING WENT WRONG WITH COLLECTION OBJECT castor INTERPRETER BATCH LOAD"
         end
         i += 1
       end

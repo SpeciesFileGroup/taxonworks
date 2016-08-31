@@ -124,8 +124,8 @@ TaxonWorks::Application.routes.draw do
       get 'containerize'
     end
     collection do
-      post :preview_specimens_batch_load
-      post :create_specimens_batch_load
+      post :preview_castor_batch_load
+      post :create_castor_batch_load
     end
   end
   match 'collection_objects/by_identifier/:identifier', to: 'collection_objects#by_identifier', via: :get

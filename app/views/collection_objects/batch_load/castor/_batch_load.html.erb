@@ -1,5 +1,5 @@
 <div>
-  <h2> Specimens batch load </h2>
+  <h2> Castor batch load </h2>
 
   <div class="flexbox full_viewport_whitespace">
     <div class="item item1 one_third_width">
@@ -8,7 +8,7 @@
       <p> Creates collection objects from a Castor to TaxonWorks exported collection objects file. Attaches at most 4 identifiers of type Identifier::Local::CollectionObject to each collection object.</p>
       <ul>
         <li>A tab-delimited, UTF-8 compatible text file is required.</li>
-        <li>Column headers are here <%= link_to('sample template', asset_path('batch_load_templates/collection_objects/collection_objects_specimens_batch_load.tab'), target: '_blank') -%>).</li>
+        <li>Column headers are here <%= link_to('sample template', asset_path('batch_load_templates/collection_objects/collection_objects_castor_batch_load.tab'), target: '_blank') -%>).</li>
         <li>Multiple uploads of the same data will do something, not sure.</li>
         <li>Only creates collection objects if the column value of "locality_code_prefix" of the current row is "DRM"</li>
         <li>There is currently some|no size limit to the file being loaded but this may change in the future.</li>
@@ -36,7 +36,7 @@
 
     <div class="item item3">
       <h3> Go! </h3>
-      <%= render partial: '/collection_objects/batch_load/specimens/form', locals: {url: preview_specimens_batch_load_collection_objects_path, submit: :preview} -%>
+      <%= render partial: '/collection_objects/batch_load/castor/form', locals: {url: preview_castor_batch_load_collection_objects_path, submit: :preview} -%>
     </div>
   </div>
 </div>
