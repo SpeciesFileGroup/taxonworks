@@ -13,10 +13,12 @@ module Shared::Containable
     has_one :container_item, as: :contained_object
     has_one :parent_container_item, through: :container_item, source: :parent, class_name: 'ContainerItem'
     has_one :container, through: :parent_container_item, source: :contained_object, source_type: 'Container'
-  end 
+  end
 
+  # what has been put in contained_in might be a container, or the id of a container:
+  # convert an id to a container, and put self into that container
   def contain
-    c = nil 
+    c = nil
     if contained_in.is_a?(Container)
       c = contained_in
     else
@@ -53,9 +55,9 @@ module Shared::Containable
   end
 
   # return [Boolean]
-  #   whether this object is contained by the passed container 
+  #   whether this object is contained by the passed container
   def contained_by?(kontainer)
     enclosing_containers.include?(kontainer)
   end
-  
+
 end

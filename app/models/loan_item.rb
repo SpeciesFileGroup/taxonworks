@@ -99,7 +99,7 @@ class LoanItem < ActiveRecord::Base
   end
 
   # @return [Array]
-  #   all objects that can have a taxon determination applied to them for htis loan item 
+  #   all objects that can have a taxon determination applied to them for htis loan item
   def determinable_objects
     # this loan item which may be a container, an OTU, or a collection object
     case loan_item_object_type
@@ -129,14 +129,14 @@ class LoanItem < ActiveRecord::Base
 
         first = item_list.pop
         td.biological_collection_object = first
-        td.save!
+        td.save! # create and save the first one so we can dup it in the next step
 
-        item_list.flatten.each do |item|
+        item_list.each do |item|
           n = td.dup
           n.determiners << td.determiners
           n.biological_collection_object = item
           n.save
-          n.move_to_top 
+          n.move_to_top
         end
       end
     rescue ActiveRecord::RecordInvalid
