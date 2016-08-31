@@ -2,9 +2,7 @@ module LoansHelper
 
   def loan_tag(loan)
     return nil if loan.nil?
-     
-    v = [loan.id, *loan.people.collect{|a| a.name}.join(', '), loan.recipient_address].compact.join(" - ").gsub(/\n/, '; ') 
-    v.blank? ? "[#{loan.to_param}]" : v
+    [loan.id, loan.people.collect{|a| a.name}.join(', '), loan.recipient_address].delete_if{|b| b.blank? }.join(" - ").gsub(/\n/, '; ') 
   end
 
   def loan_link(loan)
