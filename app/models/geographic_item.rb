@@ -65,6 +65,9 @@ class GeographicItem < ActiveRecord::Base
      WHEN 'GeographicItem::GeometryCollection' THEN geometry_collection
   END".freeze
 
+  # ANTI_MERIDIAN = '0X0102000020E61000000200000000000000008066400000000000405640000000000080664000000000004056C0'
+  ANTI_MERIDIAN = 'LINESTRING (180 89.0, 180 -89)'.freeze
+
   has_many :geographic_areas_geographic_items, dependent: :destroy, inverse_of: :geographic_item
   has_many :geographic_areas, through: :geographic_areas_geographic_items
   has_many :geographic_area_types, through: :geographic_areas
@@ -87,6 +90,15 @@ class GeographicItem < ActiveRecord::Base
   scope :err_with_collecting_event, -> { joins(:georeferences_through_error_geographic_item) }
 
   class << self
+
+    # @return [Boolean]
+    #   whether or not the wtk intersects with the anti-meridian
+    #   !! StrongParams security considerations
+    def crosses_anti_meridian?(wkt)
+      GeographicItem.find_by_sql(
+        "SELECT ST_Intersects(ST_GeogFromText('#{wkt}'), ST_GeogFromText('#{ANTI_MERIDIAN}')) as r;"
+      ).first.r
+    end
 
     # @param [Integer] geographic_area_id
     # @param [String] shape_in in json
@@ -269,6 +281,8 @@ class GeographicItem < ActiveRecord::Base
         AS f"
     end
 
+    #  # @return [String]
+    #    returns one or more geographic items combined as a single geometry in column 'single'
     def single_geometry_sql(*geographic_item_ids)
       "(SELECT single.single_geometry FROM (#{GeographicItem.st_collect_sql(geographic_item_ids)}) AS single)"
     end
@@ -311,23 +325,43 @@ class GeographicItem < ActiveRecord::Base
 
     # TODO: Remove the hard coded 4326 reference
     def contained_by_wkt_sql(wkt)
-      goodWKT = check_fix_wkt(wkt)
-      return "ST_ContainsProperly(ST_GeomFromText('#{goodWKT}', 4326), (
-        CASE geographic_items.type
-           WHEN 'GeographicItem::MultiPolygon' THEN multi_polygon::geometry
-           WHEN 'GeographicItem::Point' THEN point::geometry
-           WHEN 'GeographicItem::LineString' THEN line_string::geometry
-           WHEN 'GeographicItem::Polygon' THEN polygon::geometry
-           WHEN 'GeographicItem::MultiLineString' THEN multi_line_string::geometry
-           WHEN 'GeographicItem::MultiPoint' THEN multi_point::geometry
-        END
-        )
-      )"
+
+      if crosses_anti_meridian?(wkt)
+        return "ST_ContainsProperly(ST_ShiftLongitude(ST_GeomFromText('#{wkt}', 4326)), (
+          CASE geographic_items.type
+             WHEN 'GeographicItem::MultiPolygon' THEN ST_ShiftLongitude(multi_polygon::geometry)
+             WHEN 'GeographicItem::Point' THEN ST_ShiftLongitude(point::geometry)
+             WHEN 'GeographicItem::LineString' THEN ST_ShiftLongitude(line_string::geometry)
+             WHEN 'GeographicItem::Polygon' THEN ST_ShiftLongitude(polygon::geometry)
+             WHEN 'GeographicItem::MultiLineString' THEN ST_ShiftLongitude(multi_line_string::geometry)
+             WHEN 'GeographicItem::MultiPoint' THEN ST_ShiftLongitude(multi_point::geometry)
+          END
+          )
+        )"
+      else
+        # goodWKT = check_fix_wkt(wkt)
+        return "ST_ContainsProperly(ST_GeomFromText('#{goodWKT}', 4326), (
+          CASE geographic_items.type
+             WHEN 'GeographicItem::MultiPolygon' THEN multi_polygon::geometry
+             WHEN 'GeographicItem::Point' THEN point::geometry
+             WHEN 'GeographicItem::LineString' THEN line_string::geometry
+             WHEN 'GeographicItem::Polygon' THEN polygon::geometry
+             WHEN 'GeographicItem::MultiLineString' THEN multi_line_string::geometry
+             WHEN 'GeographicItem::MultiPoint' THEN multi_point::geometry
+          END
+          )
+        )"
+      end
     end
 
     # @return [String] sql for contained_by via ST_ContainsProperly
     # Note: Can not use GEOMETRY_SQL because geometry_collection is not supported in ST_ContainsProperly
     def contained_by_where_sql(*geographic_item_ids)
+
+      # if antimeridian
+      #
+      # else
+
       "ST_ContainsProperly(
       #{GeographicItem.geometry_sql2(*geographic_item_ids)},
       CASE geographic_items.type
@@ -338,6 +372,8 @@ class GeographicItem < ActiveRecord::Base
          WHEN 'GeographicItem::MultiLineString' THEN multi_line_string::geometry
          WHEN 'GeographicItem::MultiPoint' THEN multi_point::geometry
       END)"
+
+      # end
     end
 
     # @return [String] sql for containing via ST_CoveredBy
@@ -357,7 +393,7 @@ class GeographicItem < ActiveRecord::Base
 
     # example, not used
     def geometry_for_collection_sql(*geographic_item_ids)
-      'SELECT ' + GeographicItem::GEOMETRY_SQL + " AS geometry FROM geographic_items wHERE id IN ( #{geographic_item_ids.join(',')} )"
+      'SELECT ' + GeographicItem::GEOMETRY_SQL + " AS geometry FROM geographic_items WHERE id IN ( #{geographic_item_ids.join(',')} )"
     end
 
     #
@@ -707,139 +743,142 @@ class GeographicItem < ActiveRecord::Base
       )
     end
 
-    def check_fix_wkt(wkt_string)
-      clean_string = wkt_string.downcase.gsub('(', '').gsub(')', '') #    # make the string convenient
-      if clean_string.include? 'polygon' #                                # to look for the case we are treating
-        coord_string = clean_string.gsub('polygon ', '') #                # synthesize a polygon feature - the hard way!
-        coordinates  = parse_wkt_coords(coord_string)
-        # check for anti-meridian crossing polygon
-        value        = '{"type": "Feature", "geometry": {"type": "Polygon", "coordinates": [' + coordinates + ']}, "properties": {}}'
-        # e.g., value: "{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[141.6796875,68.46379955520322],[154.3359375,41.64007838467894],[-143.0859375,49.49667452747045],[141.6796875,68.46379955520322]]]},"properties":{}}"
-        feature      = RGeo::GeoJSON.decode(value, :json_parser => :json)
-        # e.g., feature: #<RGeo::GeoJSON::Feature:0x3fd189717f4c id=nil geom="POLYGON ((141.6796875 68.46379955520322, 154.3359375 41.64007838467894, -143.0859375 49.49667452747045, 141.6796875 68.46379955520322))">
-        geometry     = feature.geometry
-        geometry     = geometry.as_text
-        ob           = JSON.parse(value)
-        coords       = ob['geometry']['coordinates'][0] # get the coordinates
+    # DEPRECATED
+    # def check_fix_wkt(wkt_string)
+    #   clean_string = wkt_string.downcase.gsub('(', '').gsub(')', '') #    # make the string convenient
+    #   if clean_string.include? 'polygon' #                                # to look for the case we are treating
+    #     coord_string = clean_string.gsub('polygon ', '') #                # synthesize a polygon feature - the hard way!
+    #     coordinates  = parse_wkt_coords(coord_string)
+    #     # check for anti-meridian crossing polygon
+    #     value        = '{"type": "Feature", "geometry": {"type": "Polygon", "coordinates": [' + coordinates + ']}, "properties": {}}'
+    #     # e.g., value: "{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[141.6796875,68.46379955520322],[154.3359375,41.64007838467894],[-143.0859375,49.49667452747045],[141.6796875,68.46379955520322]]]},"properties":{}}"
+    #     feature      = RGeo::GeoJSON.decode(value, :json_parser => :json)
+    #     # e.g., feature: #<RGeo::GeoJSON::Feature:0x3fd189717f4c id=nil geom="POLYGON ((141.6796875 68.46379955520322, 154.3359375 41.64007838467894, -143.0859375 49.49667452747045, 141.6796875 68.46379955520322))">
+    #     geometry     = feature.geometry
+    #     geometry     = geometry.as_text
+    #     ob           = JSON.parse(value)
+    #     coords       = ob['geometry']['coordinates'][0] # get the coordinates
+    # 
+    #     last_x  = nil; this_x = nil; anti_chrossed = false # initialize for anti-meridian detection
+    #     last_y  = nil; this_y = nil; bias_x = 360 #          # this section can be generalized for > 2 crossings
+    #     point_1 = nil; point_1_x = nil; point_1_y = nil;
+    #     point_2 = nil; point_2_x = nil; point_2_y = nil;
+    #     coords_1 = []; coords_2 = [];
+    #     coords.each_with_index { |point, index|
+    #       this_x = coords[index][0] #                   # get x value
+    #       this_y = coords[index][1] #                   # get y value
+    #       if (anti_meridian_check(last_x, this_x))
+    #         anti_chrossed = true #                      # set flag if detector triggers
+    #         bias_x        = -360 #                             # IF we are crossing from east to west
+    #         if (last_x < 0) #                           # we are crossing from west to east
+    #           bias_x = 360 #                            # reverse bias
+    #         end
+    #         delta_x = (this_x - last_x) - bias_x #      # assume west to east crossing for now
+    #         delta_y = this_y - last_y #                 # don't care if we cross the equator
+    #         if (point_1 == nil) #                       # if this is the first crossing
+    #           point_1   = index #                         # this is the point after which we insert
+    #           point_1_x = -180 #                        # terminus for western hemisphere
+    #           if last_x > 0 #                           # wrong assumption, reverse
+    #             point_1_x = -point_1_x
+    #           end
+    #           d_x       = point_1_x - last_x #                # distance from last point to terminus
+    #           point_1_y = last_y + d_x * delta_y / delta_x
+    #         else
+    #           point_2   = index
+    #           point_2_x = -point_1_x #                 # this is only true for the degenerate case of only 2 crossings
+    #           d_x       = point_2_x - last_x
+    #           point_2_y = last_y + d_x * delta_y / delta_x
+    #         end
+    #       end
+    #       last_x = this_x #                           # move to next line segment
+    #       last_y = this_y #                           # until polygon start point
+    #     }
+    #     if (anti_chrossed)
+    #       index_1 = 0; index_2 = 0 #                  # indices into the constructed semi-polygons
+    #       coords.each_with_index { |point, index|
+    #         if index < point_1 #                      # first phase, initial points before transit
+    #           coords_1[index] = point #               # just transcribe the points to polygon 1
+    #         end
+    #         if index == point_1 #                     # first transit
+    #           coords_1[point_1]     = [point_1_x, point_1_y] # truncate first polygon at anti-meridian
+    #           coords_1[point_1 + 1] = [point_1_x, point_2_y] # continue truncation with second intersection point
+    #           index_1               = index + 2 #                   # set up next insertion point for first polygon
+    # 
+    #           coords_2[0] = [point_2_x, point_2_y] # begin polygon 2 with the mirror line in the opposite direction
+    #           coords_2[1] = [point_2_x, point_1_y] # then first intersection where x is fixed at anti-meridian
+    #           coords_2[2] = point #                    # continue second polygon with first point past transition
+    #           index_2     = 3 #                           # set up next insertion point
+    #         end
+    #         if index > point_1 && index < point_2 #   # continue second polygon from its stub
+    #           coords_2[index_2] = point #             # transcribe the next point(s)
+    #           index_2           = index_2 + 1
+    #         end
+    #         if index == point_2 #                     # second transit
+    #           coords_2[index_2] = [point_2_x, point_2_y] # # end the second polygon with the mirror line origin point
+    #           coords_1[index_1] = point #             # copy the current original point to the first polygon
+    #           index_1           = index_1 + 1 #                 # update its pointer, finished with polygon 2
+    #         end
+    #         if index > point_2 #                      # final phase, finish up polygon 1
+    #           coords_1[index_1] = point #             # transcribe any remaining points
+    #           index_1           = index_1 + 1 #                 # update its pointer until we reach the initial point
+    #         end
+    #       }
+    # 
+    #       ob["geometry"]["type"]        = 'MultiPolygon'
+    #       ob["geometry"]["coordinates"] = [] #                     # replace the original coordinates
+    #       ob["geometry"]["coordinates"].push([]) #                     # replace the original coordinates
+    #       ob["geometry"]["coordinates"].push([]) #                     # replace the original coordinates
+    #       ob["geometry"]["coordinates"][0].push(coords_2) #                     # replace the original coordinates
+    #       ob["geometry"]["coordinates"][1].push(coords_1) #                     # append first coordinates with second
+    #       job        = ob.as_json.to_s.gsub('=>', ':') #                           # change back to a feature string
+    #       my_feature = RGeo::GeoJSON.decode(job, :json_parser => :json) #   # replicate "normal" steps above
+    #       geometry   = my_feature.geometry.as_text #                         # extract the WKT
+    #       geometry
+    #     else
+    #       wkt_string
+    #     end
+    #   else
+    #     wkt_string
+    #   end
+    # end
 
-        last_x  = nil; this_x = nil; anti_chrossed = false # initialize for anti-meridian detection
-        last_y  = nil; this_y = nil; bias_x = 360 #          # this section can be generalized for > 2 crossings
-        point_1 = nil; point_1_x = nil; point_1_y = nil;
-        point_2 = nil; point_2_x = nil; point_2_y = nil;
-        coords_1 = []; coords_2 = [];
-        coords.each_with_index { |point, index|
-          this_x = coords[index][0] #                   # get x value
-          this_y = coords[index][1] #                   # get y value
-          if (anti_meridian_check(last_x, this_x))
-            anti_chrossed = true #                      # set flag if detector triggers
-            bias_x        = -360 #                             # IF we are crossing from east to west
-            if (last_x < 0) #                           # we are crossing from west to east
-              bias_x = 360 #                            # reverse bias
-            end
-            delta_x = (this_x - last_x) - bias_x #      # assume west to east crossing for now
-            delta_y = this_y - last_y #                 # don't care if we cross the equator
-            if (point_1 == nil) #                       # if this is the first crossing
-              point_1   = index #                         # this is the point after which we insert
-              point_1_x = -180 #                        # terminus for western hemisphere
-              if last_x > 0 #                           # wrong assumption, reverse
-                point_1_x = -point_1_x
-              end
-              d_x       = point_1_x - last_x #                # distance from last point to terminus
-              point_1_y = last_y + d_x * delta_y / delta_x
-            else
-              point_2   = index
-              point_2_x = -point_1_x #                 # this is only true for the degenerate case of only 2 crossings
-              d_x       = point_2_x - last_x
-              point_2_y = last_y + d_x * delta_y / delta_x
-            end
-          end
-          last_x = this_x #                           # move to next line segment
-          last_y = this_y #                           # until polygon start point
-        }
-        if (anti_chrossed)
-          index_1 = 0; index_2 = 0 #                  # indices into the constructed semi-polygons
-          coords.each_with_index { |point, index|
-            if index < point_1 #                      # first phase, initial points before transit
-              coords_1[index] = point #               # just transcribe the points to polygon 1
-            end
-            if index == point_1 #                     # first transit
-              coords_1[point_1]     = [point_1_x, point_1_y] # truncate first polygon at anti-meridian
-              coords_1[point_1 + 1] = [point_1_x, point_2_y] # continue truncation with second intersection point
-              index_1               = index + 2 #                   # set up next insertion point for first polygon
+    # DEPRECATED
+    # def anti_meridian_check(last_x, this_x) # returns true if anti-meridian crossed
+    #   if last_x
+    #     if last_x <= 0
+    #       if (((this_x >= 0 || this_x < -180))) # sign change from west to east
+    #         xm = (0.5 * (this_x - last_x)).abs # find intersection
+    #         if (xm > 90)
+    #           return true
+    #         end
+    #       end
+    #     end
+    #     if last_x >= 0
+    #       if (((this_x <= 0) || this_x > 180))
+    #         xm = (0.5 * (last_x - this_x)).abs
+    #         if (xm > 90)
+    #           return true
+    #         end
+    #       end
+    #     end
+    #   end
+    #   false
+    # end
 
-              coords_2[0] = [point_2_x, point_2_y] # begin polygon 2 with the mirror line in the opposite direction
-              coords_2[1] = [point_2_x, point_1_y] # then first intersection where x is fixed at anti-meridian
-              coords_2[2] = point #                    # continue second polygon with first point past transition
-              index_2     = 3 #                           # set up next insertion point
-            end
-            if index > point_1 && index < point_2 #   # continue second polygon from its stub
-              coords_2[index_2] = point #             # transcribe the next point(s)
-              index_2           = index_2 + 1
-            end
-            if index == point_2 #                     # second transit
-              coords_2[index_2] = [point_2_x, point_2_y] # # end the second polygon with the mirror line origin point
-              coords_1[index_1] = point #             # copy the current original point to the first polygon
-              index_1           = index_1 + 1 #                 # update its pointer, finished with polygon 2
-            end
-            if index > point_2 #                      # final phase, finish up polygon 1
-              coords_1[index_1] = point #             # transcribe any remaining points
-              index_1           = index_1 + 1 #                 # update its pointer until we reach the initial point
-            end
-          }
-
-          ob["geometry"]["type"]        = 'MultiPolygon'
-          ob["geometry"]["coordinates"] = [] #                     # replace the original coordinates
-          ob["geometry"]["coordinates"].push([]) #                     # replace the original coordinates
-          ob["geometry"]["coordinates"].push([]) #                     # replace the original coordinates
-          ob["geometry"]["coordinates"][0].push(coords_2) #                     # replace the original coordinates
-          ob["geometry"]["coordinates"][1].push(coords_1) #                     # append first coordinates with second
-          job        = ob.as_json.to_s.gsub('=>', ':') #                           # change back to a feature string
-          my_feature = RGeo::GeoJSON.decode(job, :json_parser => :json) #   # replicate "normal" steps above
-          geometry   = my_feature.geometry.as_text #                         # extract the WKT
-          geometry
-        else
-          wkt_string
-        end
-      else
-        wkt_string
-      end
-    end
-
-    def anti_meridian_check(last_x, this_x) # returns true if anti-meridian crossed
-      if last_x
-        if last_x <= 0
-          if (((this_x >= 0 || this_x < -180))) # sign change from west to east
-            xm = (0.5 * (this_x - last_x)).abs # find intersection
-            if (xm > 90)
-              return true
-            end
-          end
-        end
-        if last_x >= 0
-          if (((this_x <= 0) || this_x > 180))
-            xm = (0.5 * (last_x - this_x)).abs
-            if (xm > 90)
-              return true
-            end
-          end
-        end
-      end
-      false
-    end
-
-    def parse_wkt_coords(wkt_coords)
-      points      = wkt_coords.split(',')
-      coordinates = '['
-      points.each_with_index { |point, index|
-        pointxy     = point.split(' ')
-        coordinates += '[' + pointxy[0] + ', ' + pointxy[1] + ']'
-        if index < points.count - 1
-          coordinates += ', '
-        end
-      }
-      coordinates += ']'
-      coordinates
-    end
+    # DEPRECATED
+    # def parse_wkt_coords(wkt_coords)
+    #   points      = wkt_coords.split(',')
+    #   coordinates = '['
+    #   points.each_with_index { |point, index|
+    #     pointxy     = point.split(' ')
+    #     coordinates += '[' + pointxy[0] + ', ' + pointxy[1] + ']'
+    #     if index < points.count - 1
+    #       coordinates += ', '
+    #     end
+    #   }
+    #   coordinates += ']'
+    #   coordinates
+    # end
 
   end # class << self
 
