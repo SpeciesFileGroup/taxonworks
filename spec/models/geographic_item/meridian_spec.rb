@@ -46,7 +46,7 @@ describe GeographicItem, type: :model, group: :geo do
     #- antimeridian crossing line NOT contained by anti_box, crosses anti from eastern to western (easterly)
     let(:left_right_anti_line_out) { 'LINESTRING (170.5 26.0, 175.0 25.5)' }
     #- antimeridian crossing line NOT contained by anti_box, crosses anti from western to eastern (westerly)
-    let(:right_left_anti_line_out) { 'LINESTRING (-170.5 26.0, -165.8 25.5)' }
+    let(:right_left_anti_line_out) { 'LINESTRING (-170.5 26.0, -175.8 25.5)' }
 
     #- antimeridian crossing line not contained by anti_box
     # let(:east_west_anti_line_x){  'LINESTRING (178.5 26.0, -179.5 25.5)' }
