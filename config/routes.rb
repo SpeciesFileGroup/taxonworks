@@ -391,6 +391,11 @@ TaxonWorks::Application.routes.draw do
 
   resources :sequences do
     concerns [:data_routes]
+
+    collection do
+      post :preview_genbank_batch_load
+      post :create_genbank_batch_load
+    end
   end
 
   resources :sequence_relationships do
