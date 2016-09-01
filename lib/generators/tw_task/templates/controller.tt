@@ -1,0 +1,8 @@
+class <%= full_controller_class_name %> < ApplicationController
+  include TaskControllerConfiguration
+<% @route_methods.each_with_index do |method_name, index| %>
+  # <%= @route_actions[index].upcase %>
+  def <%= method_name %>
+  end
+<% end %>
+end
