@@ -46,21 +46,7 @@ Example:
             end
 
         append  config/interface/hub/user_tasks.yml:
-            fasta_load_index_task:
-                hub: true
-                name: 'TODO: Task name'
-                related:
-                categories:
-                status: prototype
-                description: 'TODO: Task description'
-            fasta_load_verify_task:
-                hub: true
-                name: 'TODO: Task name'
-                related:
-                categories:
-                status: prototype
-                description: 'TODO: Task description'
-            fasta_load_replace_task:
+            get_fast_load_task:
                 hub: true
                 name: 'TODO: Task name'
                 related:
