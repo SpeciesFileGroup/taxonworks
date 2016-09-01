@@ -96,7 +96,7 @@ describe GeographicItem, type: :model, group: :geo do
               end
             end
 
-            context 'not contained/enclosed' do
+            context 'not (completely) contained/enclosed' do
               @out = %I{left_right_anti_line_partial right_left_anti_line_partial left_right_anti_line_out right_left_anti_line_out}
 
               @out.each do |s|
@@ -141,7 +141,7 @@ describe GeographicItem, type: :model, group: :geo do
               end
             end
 
-            context 'not completely contained/enclosed' do
+            context 'not (completely) contained/enclosed' do
               @out = %I{left_right_anti_line_partial right_left_anti_line_partial left_right_anti_line_out right_left_anti_line_out}
 
               @out.each do |s|
