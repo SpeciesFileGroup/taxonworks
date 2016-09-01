@@ -78,7 +78,7 @@ describe GeographicItem, type: :model, group: :geo do
               specify 'right-left anti line' do
                 expect(GeographicItem.find_by_sql(
                   "SELECT ST_Contains(ST_GeomFromText('#{right_left_anti_box}'), ST_GeomFromText('#{right_left_anti_line}')) as r;"
-                ).first.r).to be true
+                ).first.r).to be false
               end
             end
 
@@ -86,7 +86,7 @@ describe GeographicItem, type: :model, group: :geo do
               specify 'left-right anti line' do
                 expect(GeographicItem.find_by_sql(
                   "SELECT ST_Contains(ST_GeomFromText('#{left_right_anti_box}'), ST_GeomFromText('#{left_right_anti_line}')) as r;"
-                ).first.r).to be true
+                ).first.r).to be false
               end
 
               specify 'west-east line' do
