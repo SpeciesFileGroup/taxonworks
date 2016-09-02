@@ -433,7 +433,6 @@ DEPENDENCIES
   chronic (~> 0.10)
   citeproc-ruby (~> 1.1.4)
   closure_tree (~> 6.0.0)
-  coffee-rails (~> 4.0)
   colorize (~> 0.8.1)
   coveralls (~> 0.8.13)
   csl (~> 1.4.3)

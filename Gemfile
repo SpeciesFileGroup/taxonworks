@@ -35,7 +35,7 @@ gem 'sprockets-es6', require: 'sprockets/es6'
 gem 'uglifier', '~> 3.0.02'
 
 # Use CoffeeScript for .js.coffee assets and views
-gem 'coffee-rails', '~> 4.0'
+# gem 'coffee-rails', '~> 4.0'
 
 # Use jquery as the JavaScript library
 gem 'jquery-rails', '~> 4.1.1'
