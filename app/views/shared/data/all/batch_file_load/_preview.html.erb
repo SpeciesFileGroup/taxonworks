@@ -20,7 +20,6 @@
         <th>Count</th>
         <th>Type</th>
         <th>Valid</th>
-        <th>Attributes</th>
       </tr>
 
       <% object_count = 0 %>
@@ -33,7 +32,6 @@
             <td><%= object_count %>
             <td><%= object.class.name.demodulize %></td>
             <td><%= object.valid? %></td>
-            <td><%= object.attributes %></td>
           </tr>
         <% end %>
       <% end %>
