@@ -136,6 +136,7 @@ namespace :tw do
       puts "Users in users.yml are valid.".yellow
     end
 
+    desc "Load users from users.yml - rake tw:initialize:load_users data_directory=/path/to/file/"
     task :load_users => [:environment, :data_directory, :validate_users] do
       file      = @args[:data_directory] + 'users.yml'
       user_data = {}
