@@ -1,13 +1,32 @@
-<% content_for :warn_level do %>
-  <%= render partial: '/shared/data/all/batch_file_load/warn_level_input' %>
+<% content_for :warn_level do -%>
+    <%#= warn_level_input(@result) -%>
 <% end %>
 
 <%= content_for :batch_form do -%>
   <%= render partial: '/otus/batch_file_load/simple/form', locals: {url: create_simple_batch_file_load_otus_path, submit: :create} -%>
 <% end %>
 
-<!-- Uncomment this section to write your own preview files breakdown view -->
-<%#= content_for :files_breakdown do -%>
-<%# end %>
+<%= content_for :line_breakdown do -%>
+  <% @result.processed_files[:names].each_with_index do |filename, file_index| %>
+    <h4>File <%= file_index + 1 %>: <%= filename %></h4>
+    <table class="top_align_text" border="1">
+      <tr>
+        <th>Type</th>
+        <th>Object</th>
+      </tr>
+
+      <% @result.processed_files[:objects][file_index].each do |type, objects| %>
+        <% objects.each do |object| %>
+          <tr>
+            <td><%= object.class.name.demodulize %></td>
+            <td><%= object_link(object) %></td>
+          </tr>
+        <% end %>
+      <% end %>
+    </table>
+  <% end %>
+<% end %>
+
 
 <%= render partial: '/shared/data/all/batch_file_load/preview' -%>
+
