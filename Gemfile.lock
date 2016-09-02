@@ -461,7 +461,7 @@ DEPENDENCIES
   paperclip (~> 4.3.6)
   paperclip-meta (~> 2.0)
   parallel_tests (~> 2.5.0)
-  passenger (~> 5.0.28)
+  passenger (~> 5.0.30)
   pg (~> 0.18.4)
   psych (~> 2.0.16)
   rabl (~> 0.12.0)

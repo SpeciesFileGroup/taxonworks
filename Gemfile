@@ -149,6 +149,6 @@ end
 
 group :production do
   gem 'execjs'
-  gem 'passenger', '~> 5.0.28'
+  gem 'passenger', '~> 5.0.30'
 end
 
