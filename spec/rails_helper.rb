@@ -50,7 +50,7 @@ Capybara.register_driver :selenium do |app|
 
   when 'chrome'
     # puts '[Selenium is using chrome.]'.yellow 
-    Capybara::Selenium::Driver.new(app, browser: :chrome)
+    Capybara::Selenium::Driver.new(app, browser: :chrome, set_window_size: '1400x1400')
 
   when 'firefox'
     # puts '[Selenium is using firefox.]'.yellow 
