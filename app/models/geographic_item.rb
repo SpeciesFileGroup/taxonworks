@@ -340,7 +340,7 @@ class GeographicItem < ActiveRecord::Base
         )"
       else
         # goodWKT = check_fix_wkt(wkt)
-        return "ST_ContainsProperly(ST_GeomFromText('#{goodWKT}', 4326), (
+        return "ST_ContainsProperly(ST_GeomFromText('#{wkt}', 4326), (
           CASE geographic_items.type
              WHEN 'GeographicItem::MultiPolygon' THEN multi_polygon::geometry
              WHEN 'GeographicItem::Point' THEN point::geometry
