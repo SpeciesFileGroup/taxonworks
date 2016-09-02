@@ -2,13 +2,13 @@ namespace :tw do
   namespace :maintenance do
     namespace :users do
 
-      desc 'dump email addresses for all users of this instance in comma seperated file'
+      desc 'dump email addresses for all users of this instance (STDOUT/screen)'
       task  :dump_emails =>  [:environment] do |t|
         puts "\n" + User.pluck(:email).join(',') + "\n\n"
       end
 
       # rake tw:maintenance:users:send_maintenance:email file=some_file subject = 'Some subject'
-      desc 'send an email to *all users* regarding pending maintenance - use sparingly' 
+      desc "send an email to *all users* regarding pending maintenance, use sparingly - <file=some_file subject='some subject'>" 
       task  :send_maintenance_email =>  [:environment, :file] do |t|
         subject = ENV['subject']
         subject ||= 'TaxonWorks maintenance'
@@ -33,7 +33,6 @@ namespace :tw do
       # For downstream use of the file see also: 
       #   rake tw:initialize:validate_users
       #   rake tw:initialize:load_users
-      #    
       desc 'dump a users.yml file with all existing users to backup_directory, intent is sandbox use' 
       task 'dump_yaml' => [:environment, :backup_directory] do
         users = {}
