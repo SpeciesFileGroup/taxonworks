@@ -13,7 +13,7 @@ branches:
       - matrix
 addons:
   postgresql: "9.5"
-  firefox: "46.0"
+  firefox: "48.0.1"
   apt:
     packages:
       - libgeos-dev
