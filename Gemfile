@@ -19,7 +19,7 @@ gem 'rgeo-geojson', '~> 0.4.3'
 # Redis support
 #   http://redis.io/clients#ruby
 gem 'hiredis', '~> 0.6.1'
-gem 'redis', '~> 3.3.0'
+gem 'redis', '~> 3.3.1'
 
 # Use SCSS for stylesheets
 gem 'sass-rails', '~> 5.0.2'

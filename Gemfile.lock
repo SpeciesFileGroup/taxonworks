@@ -467,7 +467,7 @@ DEPENDENCIES
   rabl (~> 0.12.0)
   rails (~> 4.2.6)
   rails-jquery-autocomplete
-  redis (~> 3.3.0)
+  redis (~> 3.3.1)
   ref2bibtex (~> 0.0.3)
   responders (~> 2.0)
   rgeo-geojson (~> 0.4.3)
