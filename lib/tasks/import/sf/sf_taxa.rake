@@ -103,7 +103,7 @@ namespace :tw do
 
           if row['AboveID'] == '0' # must check AboveID = 0 before synonym
             parent_id = animalia_id
-          elsif row['NameStatus'] == '7' # = synonym
+          elsif row['NameStatus'] == '7' # = synonym; MUST handle synonym parent before BadValidName (because latter doesn't treat synonym parents)
             # new synonym parent id could be = 0 if RankID bubbles up to top
             # logger.info "get_sf_parent_id[taxon_name_id] = #{get_sf_parent_id[taxon_name_id]}, taxon_name_id.class = #{taxon_name_id.class}"
             if get_sf_parent_id[taxon_name_id.to_s] == '0' # use animalia_id
@@ -302,43 +302,33 @@ namespace :tw do
 
       end
 
-      desc 'create bad valid name list (will create OTUs) and new parent_ids for taxa subordinate to the bad valid names'
-      ### time rake tw:project_import:sf_taxa:create_bad_valid_name_and_sub_parent_hashes user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
-      LoggedTask.define :create_bad_valid_name_and_sub_parent_hashes => [:data_directory, :environment, :user_id] do |logger|
+      desc 'create OTUs for ill-formed names hash'
+      ### time rake tw:project_import:sf_taxa:create_otus_for_ill_formed_names_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
+      LoggedTask.define :create_otus_for_ill_formed_names_hash => [:data_directory, :environment, :user_id] do |logger|
         # Can be run independently at any time
 
-        logger.info 'Running bad valid name and sub parent hashes...'
+        logger.info 'Running create otus for ill-formed names hash...'
 
         get_otu_sf_above_id = {} # key = SF.TaxonNameID of bad valid name, value = SF.AboveID of bad valid name
-        get_sf_new_parent_id = {} # key = SF.TaxonNameID of bad valid name subordinate, value = SF.AboveID of bad valid name
 
-        path = @args[:data_directory] + 'sfBadValidNames.txt'
+        path = @args[:data_directory] + 'sfMakeOTUs.txt'
         file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
         file.each do |row|
           # byebug
           # puts row.inspect
-          make_otu = row['MakeOTU']
           taxon_name_id = row['TaxonNameID']
-          use_above_id = row['UseAboveID']
-          logger.info "working with TaxonNameID = #{taxon_name_id}, MakeOTU = #{make_otu} \n"
+          above_id = row['AboveID']
+          logger.info "working with TaxonNameID = #{taxon_name_id} \n"
 
-          if make_otu == '1'
-            get_otu_sf_above_id[taxon_name_id] = use_above_id
-          else
-            get_sf_new_parent_id[taxon_name_id] = use_above_id
-          end
+          get_otu_sf_above_id[taxon_name_id] = above_id
         end
 
-        import = Import.find_or_create_by(name: 'SpeciesFileData')
-        import.set('SFBadValidNameIDToSFAboveID', get_otu_sf_above_id)
-        import.set('SFSubordinateIDToSFNewParentID', get_sf_new_parent_id)
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          import.set('SFIllFormedNameIDToSFAboveID', get_otu_sf_above_id)
 
-        puts 'SFBadValidNameIDToSFAboveID'
-        ap get_otu_sf_above_id
-
-        puts 'SFSubordinateIDToSFNewParentID'
-        ap get_sf_new_parent_id
+          puts 'SFIllFormedNameIDToSFAboveID'
+          ap get_otu_sf_above_id
 
       end
 
