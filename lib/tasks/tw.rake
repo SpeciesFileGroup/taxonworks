@@ -53,8 +53,10 @@ namespace :tw do
         raise "No backup_directory passed (like backup_directory=/tmp/foo) and backup_directory setting is not present (see application_settings.yml in /config)"
       end
     end
+   
     @args[:backup_directory] = (ENV['backup_directory'] || default )
-    raise "path (#{default}) not found" if !Dir.exists?(@args[:backup_directory]) 
+
+    raise "path (#{@args[:backup_directory]}) not found" if !Dir.exists?(@args[:backup_directory]) 
     @args
   end
 
