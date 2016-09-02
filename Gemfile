@@ -120,7 +120,7 @@ group :test, :development do
   gem 'rspec-activemodel-mocks', '~> 1.0.2'
   gem 'inch', '~> 0.7'
   gem 'byebug', '~> 9.0.5', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
-  gem 'awesome_print'
+  gem 'awesome_print', '~> 1.7'
   gem 'factory_girl_rails', '~> 4.7'
   gem 'selenium-webdriver', '~> 2.53.4'
 end
@@ -132,7 +132,7 @@ group :development do
   gem 'guard-rspec', '~> 4.7', require: false
   gem 'parallel_tests', '~> 2.5.0'
   gem 'web-console', '~> 3.1.1'
-  gem 'rubocop', '~> 0.40.0'
+  gem 'rubocop', '~> 0.42.0'
 end
 
 group :doc do
