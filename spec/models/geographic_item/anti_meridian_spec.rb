@@ -22,6 +22,8 @@ describe GeographicItem, type: :model, group: :geo do
 
   # after(:all) { clean_slate_geo }
 
+  let(:shift_method) { PSQL_VERSION == '2.2' ? "ST_ShiftLongitude" : "ST_Shift_Longitude" }
+
   context 'anti-meridian' do
     # Containers left side/object/A component of ST_Contains(A, B)
     # crosses anti from eastern to western (easterly)
@@ -156,7 +158,7 @@ describe GeographicItem, type: :model, group: :geo do
             [ '-90 26', '0 26', '90 26' ].each do |p| # points in really wide box
               specify "shifted #{b}/#{p}" do
                 expect(GeographicItem.find_by_sql(
-                  "SELECT ST_Contains(ST_ShiftLongitude(ST_GeomFromText('#{send(b)}')), ST_GeomFromText('POINT(#{p})')) as r;"
+                  "SELECT ST_Contains(#{shift_method}(ST_GeomFromText('#{send(b)}')), ST_GeomFromText('POINT(#{p})')) as r;"
                 ).first.r).to be false 
               end
             end
@@ -164,20 +166,20 @@ describe GeographicItem, type: :model, group: :geo do
             ['180 26', '179.9 26' ].each do |p| # points not in really wide box 
               specify "shifted #{b}/#{p}" do
                 expect(GeographicItem.find_by_sql(
-                  "SELECT ST_Contains(ST_ShiftLongitude(ST_GeomFromText('#{send(b)}')), ST_GeomFromText('POINT(#{p})')) as r;"
+                  "SELECT ST_Contains(#{shift_method}(ST_GeomFromText('#{send(b)}')), ST_GeomFromText('POINT(#{p})')) as r;"
                 ).first.r).to be true 
               end
             end
 
             specify "#{b} (positive shifted does not contain negative point)" do
               expect(GeographicItem.find_by_sql(
-                "SELECT ST_Contains(ST_ShiftLongitude(ST_GeomFromText('#{send(b)}')), ST_GeomFromText('POINT(-179.9 26)')) as r;"
+                "SELECT ST_Contains(#{shift_method}(ST_GeomFromText('#{send(b)}')), ST_GeomFromText('POINT(-179.9 26)')) as r;"
               ).first.r).to be false 
             end
 
             specify "#{b} (both shifted does contain point)" do
               expect(GeographicItem.find_by_sql(
-                "SELECT ST_Contains(ST_ShiftLongitude(ST_GeomFromText('#{send(b)}')), ST_ShiftLongitude(ST_GeomFromText('POINT(-179.9 26)'))) as r;"
+                "SELECT ST_Contains(#{shift_method}(ST_GeomFromText('#{send(b)}')), #{shift_method}(ST_GeomFromText('POINT(-179.9 26)'))) as r;"
               ).first.r).to be true 
             end
           end
@@ -188,13 +190,13 @@ describe GeographicItem, type: :model, group: :geo do
           context 'entirely enclosed in right-left anti-box' do
             specify 'left-right anti line' do
               expect(GeographicItem.find_by_sql(
-                "SELECT ST_Contains(ST_ShiftLongitude(ST_GeomFromText('#{right_left_anti_box}')), ST_ShiftLongitude(ST_GeomFromText('#{left_right_anti_line}'))) as r;"
+                "SELECT ST_Contains(#{shift_method}(ST_GeomFromText('#{right_left_anti_box}')), #{shift_method}(ST_GeomFromText('#{left_right_anti_line}'))) as r;"
               ).first.r).to be true
             end
 
             specify 'west-east line' do
               expect(GeographicItem.find_by_sql(
-                "SELECT ST_Contains(ST_ShiftLongitude(ST_GeomFromText('#{right_left_anti_box}')), ST_ShiftLongitude(ST_GeomFromText('#{right_left_anti_line}'))) as r;"
+                "SELECT ST_Contains(#{shift_method}(ST_GeomFromText('#{right_left_anti_box}')), #{shift_method}(ST_GeomFromText('#{right_left_anti_line}'))) as r;"
               ).first.r).to be true
             end
           end
@@ -202,13 +204,13 @@ describe GeographicItem, type: :model, group: :geo do
           context 'entirely enclosed in left-right anti-box' do
             specify 'left-right anti line' do
               expect(GeographicItem.find_by_sql(
-                "SELECT ST_Contains(ST_ShiftLongitude(ST_GeomFromText('#{left_right_anti_box}')), ST_ShiftLongitude(ST_GeomFromText('#{left_right_anti_line}'))) as r;"
+                "SELECT ST_Contains(#{shift_method}(ST_GeomFromText('#{left_right_anti_box}')), #{shift_method}(ST_GeomFromText('#{left_right_anti_line}'))) as r;"
               ).first.r).to be true
             end
 
             specify 'right-left anti line' do
               expect(GeographicItem.find_by_sql(
-                "SELECT ST_Contains(ST_ShiftLongitude(ST_GeomFromText('#{left_right_anti_box}')), ST_ShiftLongitude(ST_GeomFromText('#{right_left_anti_line}'))) as r;"
+                "SELECT ST_Contains(#{shift_method}(ST_GeomFromText('#{left_right_anti_box}')), #{shift_method}(ST_GeomFromText('#{right_left_anti_line}'))) as r;"
               ).first.r).to be true
             end
           end
@@ -219,7 +221,7 @@ describe GeographicItem, type: :model, group: :geo do
             @out.each do |s|
               specify "#{s}" do
                 expect(GeographicItem.find_by_sql(
-                  "SELECT ST_Contains(ST_ShiftLongitude(ST_GeomFromText('#{right_left_anti_box}')), ST_ShiftLongitude(ST_GeomFromText('#{send(s)}'))) as r;"
+                  "SELECT ST_Contains(#{shift_method}(ST_GeomFromText('#{right_left_anti_box}')), #{shift_method}(ST_GeomFromText('#{send(s)}'))) as r;"
                 ).first.r).to be false
               end
             end

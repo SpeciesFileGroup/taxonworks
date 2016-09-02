@@ -107,6 +107,10 @@ RSpec.configure do |config|
     # if ENV['TAXONWORKS_TEST_WITH_PRECOMPILE']
     #   %x[bundle exec rake assets:precompile]
     # end
+    #
+    
+    ActiveRecord::Base.connection.select_all("SELECT PostGIS_version() v").first['v'] =~ /(\d+.\d+)/
+    PSQL_VERSION = $1 
   end
 
   config.after(:suite) do
