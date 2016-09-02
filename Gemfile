@@ -74,7 +74,7 @@ gem 'paperclip', '~> 4.3.6'
 gem 'paperclip-meta', '~> 2.0'
 
 # Ordering records
-gem 'acts_as_list', '~> 0.7.4'
+gem 'acts_as_list', '~> 0.8.0'
 
 # Versioning
 gem 'paper_trail', '~> 4.0.0.rc'

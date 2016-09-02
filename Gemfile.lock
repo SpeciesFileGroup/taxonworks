@@ -39,7 +39,7 @@ GEM
       minitest (~> 5.1)
       thread_safe (~> 0.3, >= 0.3.4)
       tzinfo (~> 1.1)
-    acts_as_list (0.7.7)
+    acts_as_list (0.8.0)
       activerecord (>= 3.0)
     addressable (2.4.0)
     archive-tar-minitar (0.5.2)
@@ -306,7 +306,7 @@ GEM
       activemodel (>= 3.0)
       activesupport (>= 3.0)
       rspec-mocks (>= 2.99, < 4.0)
-    rspec-core (3.5.2)
+    rspec-core (3.5.3)
       rspec-support (~> 3.5.0)
     rspec-expectations (3.5.0)
       diff-lcs (>= 1.2.0, < 2.0)
@@ -366,7 +366,7 @@ GEM
       babel-source (>= 5.8.11)
       babel-transpiler
       sprockets (>= 3.0.0)
-    sprockets-rails (3.1.1)
+    sprockets-rails (3.2.0)
       actionpack (>= 4.0)
       activesupport (>= 4.0)
       sprockets (>= 3.0.0)
@@ -420,7 +420,7 @@ PLATFORMS
 
 DEPENDENCIES
   activerecord-postgis-adapter (~> 3.1.4)
-  acts_as_list (~> 0.7.4)
+  acts_as_list (~> 0.8.0)
   awesome_print
   bcrypt (~> 3.1.11)
   best_in_place (~> 3.1.0)
