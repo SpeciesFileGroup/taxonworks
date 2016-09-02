@@ -1,0 +1,39 @@
+<h2> Batch preview </h2>
+
+<% if @result.valid? -%>
+    <p> To complete this batch import, select the file again and click create:
+      <%= content_for :batch_form -%>
+    </p>
+<% end %>
+
+<%#= render partial: 'shared/data/all/batch_load/import_file_properties' %>
+
+<h3> Object breakdown </h3>
+<% if content_for?(:line_breakdown) -%>
+    <%= yield :line_breakdown -%>
+<% else %>
+
+  <% @result.processed_files[:names].each_with_index do |filename, file_index| %>
+    <h4>File <%= file_index + 1 %>: <%= filename %></h4>
+    <table class="top_align_text" border="1">
+      <tr>
+        <th>Type</th>
+        <th>Object</th>
+      </tr>
+
+      <% @result.processed_files[:objects].each do |hash| %>
+        <% hash.each do |type, objects| %>
+          <% objects.each do |object| %>
+            <tr>
+              <td><%= object %></td>
+              <td><%= object_link(object) %></td>
+            </tr>
+          <% end %>
+        <% end %>
+      <% end %>
+    </table>
+  <% end %>
+<% end %>
+
+<h3> Input file </h3>
+<%#= render partial: '/shared/data/all/batch_load/input_file', locals: {csv: @result.csv} -%>
