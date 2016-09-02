@@ -1,0 +1,19 @@
+<%= form_tag url, multipart: true do -%>
+
+    <div class="field">
+      <%= label_tag 'files[]', 'Select files' -%>
+      <br>
+      <%= file_field_tag 'files[]', multiple: true -%>
+    </div>
+
+
+    <% if @result -%>
+
+      <p> TODO: ADD OTHER METADATA INPUT OPTIONS HERE </p>
+
+    <% end %>
+
+    <%= content_for :warn_level -%>
+
+    <%= submit_tag submit -%>
+<% end %>
