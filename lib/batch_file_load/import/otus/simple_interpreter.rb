@@ -1,5 +1,5 @@
 module BatchFileLoad
-  class Import::Otus < BatchFileLoad::Import
+  class Import::Otus::SimpleInterpreter < BatchFileLoad::Import
     def initialize(**args)
       super(args)
     end
