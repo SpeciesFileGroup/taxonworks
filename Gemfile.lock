@@ -100,7 +100,7 @@ GEM
       coffee-script-source
       execjs
     coffee-script-source (1.10.0)
-    colorize (0.7.7)
+    colorize (0.8.1)
     concurrent-ruby (1.0.2)
     coveralls (0.8.15)
       json (>= 1.8, < 3)
@@ -434,7 +434,7 @@ DEPENDENCIES
   citeproc-ruby (~> 1.1.4)
   closure_tree (~> 6.0.0)
   coffee-rails (~> 4.0)
-  colorize (~> 0.7.7)
+  colorize (~> 0.8.1)
   coveralls (~> 0.8.13)
   csl (~> 1.4.3)
   csl-styles (~> 1.0.1.6)
