@@ -92,7 +92,7 @@ gem 'validates_timeliness', '~> 4.0.0'
 gem 'bcrypt', '~> 3.1.11'
 
 # API view template engine
-gem 'rabl', '~> 0.12.0'
+gem 'rabl', '~> 0.13.0'
 
 gem 'rmagick', '~> 2.16'
 

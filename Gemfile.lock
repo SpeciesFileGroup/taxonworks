@@ -244,7 +244,7 @@ GEM
       method_source (~> 0.8.1)
       slop (~> 3.4)
     psych (2.0.17)
-    rabl (0.12.0)
+    rabl (0.13.0)
       activesupport (>= 2.3.14)
     rack (1.6.4)
     rack-test (0.6.3)
@@ -464,7 +464,7 @@ DEPENDENCIES
   passenger (~> 5.0.30)
   pg (~> 0.18.4)
   psych (~> 2.0.16)
-  rabl (~> 0.12.0)
+  rabl (~> 0.13.0)
   rails (~> 4.2.6)
   rails-jquery-autocomplete
   redis (~> 3.3.1)
