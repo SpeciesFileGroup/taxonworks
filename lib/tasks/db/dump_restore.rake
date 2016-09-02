@@ -3,7 +3,7 @@ require 'benchmark'
 
 namespace :tw do
   namespace :db do
-    
+
     desc 'Dump the data to a PostgreSQL custom-format dump file does NOT include structure'
     task :dump => [:environment, :backup_directory, :db_user] do
       if Support::Database.pg_database_exists?
@@ -30,16 +30,16 @@ namespace :tw do
     #       Remedy: Ensure your database is not used by other processes. Check to see how many connections to the database exist.
     # 
     desc 'Dump the data as a backup, then restore the db from the specified file.'
-   task :restore => [:dump, 'db:drop', 'db:create' ] do 
+    task :restore => [:dump, 'db:drop', 'db:create' ] do 
 
       # TODO: NEED TO DIE IF *RAILS* (server) IS RUNNING
 
       puts "Initializing restore for #{Rails.env} environment".yellow 
       raise 'Specify a dump file: rake tw:db:restore file=myfile.dump'.yellow if not ENV['file']
-  
+
       database = ActiveRecord::Base.connection.current_database
 
-      path     = File.join(@args[:backup_directory], ENV["file"])
+      path = File.join(@args[:backup_directory], ENV["file"])
       puts "Restoring #{database} from #{path}".yellow
 
       puts(Benchmark.measure { `pg_restore --username=#{ENV["db_user"]} --host=localhost --format=custom --disable-triggers --dbname=#{database} #{path}` })
