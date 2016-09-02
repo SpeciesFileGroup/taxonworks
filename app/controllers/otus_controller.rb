@@ -139,11 +139,7 @@ class OtusController < ApplicationController
 
   def preview_simple_batch_file_load
     if params[:files]
-      puts "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
-      #ap params[:files].collect { |i| i.tempfile.read.force_encoding('utf-8') }
-      puts "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
-
-      @result = BatchFileLoad::Import::Otus.new(batch_params)
+      @result = BatchFileLoad::Import::Otus::SimpleInterpreter.new(batch_params)
       digest_cookie(params[:files][0].tempfile, :batch_file_load_simple_md5)
       render 'otus/batch_file_load/simple/preview'
     else
@@ -154,10 +150,10 @@ class OtusController < ApplicationController
 
   def create_simple_batch_file_load
     if params[:files] && digested_cookie_exists?(params[:files][0].tempfile, :batch_file_load_simple_md5)
-      @result = BatchFileLoad::Import::Otus.new(batch_params)
+      @result = BatchFileLoad::Import::Otus::SimpleInterpreter.new(batch_params)
 
       if @result.create
-        flash[:notice] = "Successfully processed #{@result.files_successfully_procesed} file(s), #{@result.total_records_created} otus were created."
+        flash[:notice] = "Successfully processed #{@result.total_files_processed} file(s), #{@result.total_records_created} otus were created."
         render 'otus/batch_file_load/simple/create'
         return
       else
