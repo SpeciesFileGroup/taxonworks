@@ -239,7 +239,9 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
                 }
               }
               else {        // area in both hemispheres, but spans over 180 degrees or crosses antimeridian
-                if (bounds.anti && bounds.prime) {   // this case is deferred
+                if (bounds.anti && bounds.prime) {   // this case is essentially 180 + west and east hangovers
+                  //wx = 180 - (bounds.xxminm + 180) + (bounds.xxmaxp - 180);
+                  //center_long = bounds.xxminm + wx / 2;
                 }
                 else {
                   if (bounds.prime) {
@@ -473,8 +475,19 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
       bounds.mminx0 = 0.0;
       bounds.mmaxx0 = -45.0;
 
-      bounds.prime = false;
+      bounds.prime = false;         // marker for prime meridian crossed
+      bounds.true_now = false;      // marker for this point pair crossing
+      bounds.prime_cont = false;    // flag for continuation of geometry
+      bounds.prime_dir = 0;         // dire
       bounds.anti = false;
+      bounds.anti_now = false;
+      bounds.anti_cont = false;
+      bounds.anti_dir = 0;
+
+      bounds.xxminm = -180;
+      bounds.xxmaxm = 0;
+      bounds.xxminp = 0;
+      bounds.xxmaxp = 180;
     },
 
 // this is the scanner version; no google objects are created
@@ -578,7 +591,7 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
           thisX = thisType.coordinates[l][0];
           thisY = thisType.coordinates[l][1];
           if (lastX) {
-            if (this.meridianCheck(bounds, lastX, thisX, lastY, thisY)) {   // true if crossed anti-meridian
+            if (this.meridianCheck(bounds, lastX, thisX)) {   // true if crossed anti-meridian
               if (thisX < -180) {
                 ltNeg180 = true
               }             // permuted case detector
@@ -609,7 +622,7 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
             this.xgtlt(bounds, thisType.coordinates[k][l][0]);
             this.ygtlt(bounds, thisType.coordinates[k][l][1]); //box check
             if (lastX) {
-              if (this.meridianCheck(bounds, lastX, thisX, lastY, thisY)) {   // true if crossed anti-meridian
+              if (this.meridianCheck(bounds, lastX, thisX)) {   // true if crossed anti-meridian
               }
             }
             lastX = thisX;
@@ -625,11 +638,12 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
           for (l = 0; l < thisType.coordinates[k].length; l++) {
             thisX = thisType.coordinates[k][l][0];
             if (lastX) {
-              if (this.meridianCheck(bounds, lastX, thisX, lastY, thisY)) {   // true if crossed anti-meridian
+              if (this.meridianCheck(bounds, lastX, thisX)) {   // true if crossed anti-meridian
                 if (thisX < -180) {
                   ltNeg180 = true
                 }             // permuted case detector
               }
+              this.extendedCheck(bounds, lastX, thisX);
             }
             lastX = thisX;
             lastY = thisY;
@@ -654,7 +668,7 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
             this.xgtlt(bounds, thisX);    // thisType.coordinates[k][l][0]);
             this.ygtlt(bounds, thisType.coordinates[k][l][1]); //box check
             if (lastX) {
-              if (this.meridianCheck(bounds, lastX, thisX, lastY, thisY)) {   // true if crossed anti-meridian
+              if (this.meridianCheck(bounds, lastX, thisX)) {   // true if crossed anti-meridian
                 if (thisX < -180) {
                   ltNeg180 = true
                 }
@@ -792,14 +806,33 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
             xm = 0.5 * (thisX - lastX);
             if (Math.abs(xm) > 90) {          // gross test for closer to anti-meridian
               bounds.anti = true;
+              bounds.anti_now = true;         // must be cleared on next read
+              bounds.anti_cont = true;
+              bounds.anti_dir = -1;           // -1 is toward west
+              if (bounds.prime_cont) {        // did we go from the prime meridian to the anti-meridian?
+                // reset some bounds?
+                bounds.prime_cont = false;
+                bounds.prime_dir = 0;
+              }
               bounds.xmaxp = 180.0;
               bounds.xminm = -180.0;
+              // // crossing antimeridian from west to east, so make extended bound xxminm
+              //if ((bounds.xxminm = thisX - 360) < bounds.xxminm) { bounds.xxminm = thisX - 360;}
               return true;
             }
             else {                            // crossing closer to prime meridian
               bounds.prime = true;
+              bounds.prime_now = true;
+              bounds.prime_cont = true;
+              bounds.prime_dir = 1;           // +1 is toward east
+              if (bounds.anti_cont) {
+                // reset some bounds?
+                bounds.anti_cont = false;
+                bounds.anti_dir = 0;
+              }
               bounds.xmaxm = 0;
               bounds.xminp = 0;
+              //bounds.xxminp = -thisX;
               return false;
             }
           }
@@ -809,20 +842,77 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
             xm = 0.5 * (lastX - thisX);
             if (Math.abs(xm) > 90) {          // gross test for closer to anti-meridian
               bounds.anti = true;
+              bounds.anti_now = true;
+              bounds.anti_cont = true;
+              bounds.anti_dir = 1;            // +1 is toward east
+              if (bounds.prime_cont) {        // did we go from the prime meridian to the anti-meridian?
+                // reset some bounds?
+                bounds.prime_cont = false;
+                bounds.prime_dir = 0;
+              }
               bounds.xmaxp = 180.0;
               bounds.xminm = -180.0;
+              //// crossing antimeridian from east to west, so make extended bound xxmaxp
+              //bounds.xxmaxp = thisX + 360;
               return true;
             }
             else {                            // crossing closer to prime meridian
               bounds.prime = true;
+              bounds.prime_now = true;
+              bounds.prime_cont = true;
+              bounds.prime_dir = -1;          // -1 is toward west
+              if (bounds.anti_cont) {
+                // reset some bounds?
+                bounds.anti_cont = false;
+                bounds.anti_dir = 0;
+              }
               bounds.xmaxm = 0;
               bounds.xminp = 0;
+              //bounds.xxmaxm = -thisX;
               return false;
             }
           }
         }
       }
       return undefined;
+    },
+
+      extendedCheck: function (bounds, lastX, thisX) {
+        // need continuation semaphores for each meridian crossing
+        // if cross both merdians, we were inside the polygon
+        // if cross the same meridian these are the points we want
+        if (bounds.prime_cont) {          // crossing prime meridian is the simpler case
+          if (bounds.prime_dir > 0) {
+            if (thisX > bounds.xxmaxm) {
+              bounds.xxmaxm = thisX
+            }
+          }
+          else {
+            if (thisX < bounds.xxminp) {
+              bounds.xxminp = thisX
+            }
+          }
+        }
+        if (bounds.anti_cont) {
+          if (bounds.anti_dir < 0) {
+            if (bounds.anti_now) {
+              thisX = 360 - thisX
+            }
+            if (thisX < bounds.xxminm) {
+              bounds.xxminm = thisX
+            }
+          }
+          else {
+            if (bounds.anti_now) {
+              thisX = thisX - 360
+            }
+            if (thisX > bounds.xxmaxp) {
+              bounds.xxmaxp = thisX
+            }
+          }
+        }
+        bounds.anti_now = false;
+        bounds.prime_now = false;
     }
 
   }
