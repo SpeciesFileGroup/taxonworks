@@ -22,7 +22,7 @@ gem 'hiredis', '~> 0.6.1'
 gem 'redis', '~> 3.3.1'
 
 # Use SCSS for stylesheets
-gem 'sass-rails', '~> 5.0.2'
+gem 'sass-rails', '~> 5.0.6'
 
 gem 'sprockets-rails'
 gem 'sprockets', '~> 3.0'
@@ -46,6 +46,10 @@ gem 'best_in_place', '~> 3.1.0'
 
 # Turbolinks makes following links in your web application faster.
 # Read more: https://github.com/rails/turbolinks
+#
+# See: https://gorails.com/episodes/upgrade-to-turbolinks-5 for notes 
+# on updating.
+# 
 gem 'turbolinks', '~> 2.5'
 gem 'jquery-turbolinks', '~> 2.1'
 

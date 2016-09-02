@@ -477,7 +477,7 @@ DEPENDENCIES
   rspec-activemodel-mocks (~> 1.0.2)
   rspec-rails (~> 3.4)
   rubocop (~> 0.40.0)
-  sass-rails (~> 5.0.2)
+  sass-rails (~> 5.0.6)
   sdoc
   selenium-webdriver (~> 2.53.4)
   spring-commands-rspec (~> 1.0.2)
