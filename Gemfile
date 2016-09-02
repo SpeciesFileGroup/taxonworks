@@ -92,7 +92,7 @@ gem 'rabl', '~> 0.12.0'
 
 gem 'rmagick', '~> 2.14'
 
-gem 'exception_notification', '~> 4.1.2'
+gem 'exception_notification', '~> 4.2.1'
 
 gem 'modularity', '~> 2.0.1'
 
