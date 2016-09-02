@@ -1,26 +1,24 @@
 <h3> Import file properties </h3>
 <ul>
   <li>Successfully
-    processed: <%= content_tag(:span, (@result.processed ? 'yes' : 'no'), class: (@result.processed ? 'passed' : 'warning')) -%>
+    processed: <%= content_tag(:span, (@result.processed ? 'yes' : 'no'), class: (@result.processed ? 'passed' : 'warning')) -%></li>
+  <li>Total rows (total/with data/empty):
+    <%= @result.total_lines ? @result.total_lines : '?' -%>
+    /<%= @result.total_data_lines ? @result.total_data_lines : '?' -%>
+    /<%= @result.total_lines && @result.total_data_lines ? (@result.total_lines - @result.total_data_lines) : '?' -%>
   </li>
-  <li>Total files: <%= @result.processed_files[:names].length %></li>
-  <li>Total objects: <%= @result.total_records_processed %></li>
 
-  <li> These files
-    are <%= content_tag(:span, @result.warn_level_ok? ? 'OK' : 'NOT OK', class: (@result.warn_level_ok? ? 'passed' : 'warning')) -%>
+  <li> This file
+    is <%= content_tag(:span, @result.warn_level_ok? ? 'OK' : 'NOT OK', class: (@result.warn_level_ok? ? 'passed' : 'warning')) -%>
     for import level "warn".
   </li>
-  <li> These files
-    are <%= content_tag(:span, @result.file_strict_level_ok? ? 'OK' : 'NOT OK', class: (@result.file_strict_level_ok? ? 'passed' : 'warning')) -%>
-    for import level "file strict".
+  <li> This file
+    is <%= content_tag(:span, @result.line_strict_level_ok? ? 'OK' : 'NOT OK', class: (@result.line_strict_level_ok? ? 'passed' : 'warning')) -%>
+    for import level "line strict".
   </li>
-  <li> These files
-    are <%= content_tag(:span, @result.object_strict_level_ok? ? 'OK' : 'NOT OK', class: (@result.object_strict_level_ok? ? 'passed' : 'warning')) -%>
-    for import level "object strict".
-  </li>
-  <li> These files
-    are <%= content_tag(:span, @result.file_object_strict_level_ok? ? 'OK' : 'NOT OK', class: (@result.file_object_strict_level_ok? ? 'passed' : 'warning')) -%>
-    for import level "file strict" and "object strict".
+  <li> This file
+    is <%= content_tag(:span, @result.strict_level_ok? ? 'OK' : 'NOT OK', class: (@result.strict_level_ok? ? 'passed' : 'warning')) -%>
+    for import level "strict".
   </li>
 
   <%= @result.file_errors.collect { |e| content_tag(:li, content_tag(:span, e, class: 'warning')) }.join.html_safe -%>
