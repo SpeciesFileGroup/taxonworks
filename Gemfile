@@ -57,8 +57,8 @@ gem 'closure_tree', '~> 6.0.0'
 
 # BibTex handling
 gem 'csl', '~> 1.4.3' # git: 'https://github.com/inkshuk/csl-ruby'
-gem 'bibtex-ruby', '~> 4.4.0'
-gem 'citeproc-ruby', '~> 1.1.0'
+gem 'bibtex-ruby', '~> 4.4.2'
+gem 'citeproc-ruby', '~> 1.1.4'
 gem 'csl-styles', '~> 1.0.1.6'
 
 gem 'ref2bibtex', '~> 0.0.3'
