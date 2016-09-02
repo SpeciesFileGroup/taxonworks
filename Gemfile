@@ -90,7 +90,7 @@ gem 'bcrypt', '~> 3.1.11'
 # API view template engine
 gem 'rabl', '~> 0.12.0'
 
-gem 'rmagick', '~> 2.14'
+gem 'rmagick', '~> 2.16'
 
 gem 'exception_notification', '~> 4.2.1'
 

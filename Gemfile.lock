@@ -472,7 +472,7 @@ DEPENDENCIES
   responders (~> 2.0)
   rgeo-geojson (~> 0.4.3)
   rgeo-shapefile (~> 0.4.1)
-  rmagick (~> 2.14)
+  rmagick (~> 2.16)
   rspec (~> 3.4)
   rspec-activemodel-mocks (~> 1.0.2)
   rspec-rails (~> 3.4)
