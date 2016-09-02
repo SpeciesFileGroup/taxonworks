@@ -15,7 +15,7 @@ Dir[Rails.root.to_s + '/app/models/geographic_item/**/*.rb'].each { |file| requi
 #                |
 #
 # The take home message- if you use ST_Contains(ST_ShiftLongitude(), ST_ShiftLongitude()) then everything will "just work".
-#
+# IFF the "A" argument crosses the anti-meridian.
 #
 #
 describe GeographicItem, type: :model, group: :geo do
@@ -250,6 +250,13 @@ describe GeographicItem, type: :model, group: :geo do
           end
         end
       end
+    end
+
+    context 'Verify array of GeographicItem IDs shifts longitude correctly for each geography' do
+      # use boxes and lines above to make GeographicItem(s)' geometries (?)
+      # a fair amount of infrastructure needs to be synthesized here to be able to get a list of GI IDs
+      # from a geometry collection whose geometries are ShiftLongitude-d depending on
+      # crosses_anti_meridian_by_id?()
     end
   end
 end
