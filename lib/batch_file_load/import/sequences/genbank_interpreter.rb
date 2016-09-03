@@ -29,11 +29,15 @@ module BatchFileLoad
       return if !valid?
       @processed = true
 
+      # GenBank GBK
+      namespace_genbank = Namespace.find_by(name: 'GenBank')
+
       @filenames.each_with_index do |name, file_index|
         objects_in_file = {}
         objects_in_file[:sequence] = []
 
-        sequence_attributes = { name: nil, sequence_type: nil, sequence: nil }
+        # Sequence attributes
+        sequence_attributes = { name: nil, sequence_type: nil, sequence: nil, identifiers_attributes: [] }
         file_content = @file_contents[file_index]
 
         new_line_index = file_content.index("\n") # Double quotes are needed to properly interpret new line character
@@ -41,15 +45,38 @@ module BatchFileLoad
         sequence_attributes[:sequence_type] = "DNA"
         sequence_attributes[:sequence] = file_content[(new_line_index + 1)...(file_content.length - 1)]
 
-        # ap file_content
-        # ap sequence_attributes
+        # Identifiers 
+        sequence_identifier_genbank_text = get_genbank_text(name)
+        
 
+        sequence_identifier_genbank = { namespace: namespace_genbank,
+                                       type: 'Identifier::Local::Sequence',
+                                       identifier: sequence_identifier_genbank_text }
+
+        sequence_attributes[:identifiers_attributes].push(sequence_identifier_genbank) if !sequence_identifier_genbank_text.blank?
+        ap sequence_identifier_genbank
         sequence = Sequence.new(sequence_attributes)
         objects_in_file[:sequence].push(sequence)
 
         @processed_files[:names].push(name)
         @processed_files[:objects].push(objects_in_file)
       end
+    end
+
+    private
+
+    def get_genbank_text(filename)
+      # _&aKJ624355_&
+      genbank_pattern = "_&a"
+      beg_genbank_text_index = filename.index(genbank_pattern)
+      
+      if beg_genbank_text_index
+        beg_genbank_text_index += genbank_pattern.length
+        end_genbank_text_index = filename.index("_&", beg_genbank_text_index)
+        return filename[beg_genbank_text_index...end_genbank_text_index]
+      end
+
+      return ""
     end
   end
 end
