@@ -13,10 +13,12 @@ module BatchLoad
       # Morphbank         MBK
       # DRMLabVoucher     DRMLV
       # DRMFieldVoucher   DRMFV
+      # GenBank           DRMDNAV
       namespace_castor = Namespace.find_by(name: 'Castor')
       namespace_morphbank = Namespace.find_by(name: 'Morphbank')
       namespace_drm_lab_voucher = Namespace.find_by(name: 'DRMLabVoucher')
       namespace_drm_field_voucher = Namespace.find_by(name: 'DRMFieldVoucher')
+      namespace_drm_dna_voucher = Namespace.find_by(name: 'GenBank')
 
       i = 1
       # loop throw rows
@@ -26,6 +28,7 @@ module BatchLoad
 
         parse_result = BatchLoad::RowParse.new
         parse_result.objects[:collection_object] = []
+        parse_result.objects[:extract] = []
 
         @processed_rows[i] = parse_result
 
@@ -33,13 +36,13 @@ module BatchLoad
           # use a BatchLoad::ColumnResolver or other method to match row data to TW 
           #  ...
 
-          # Text for identifiers
+          # Text for collection object identifiers
           co_identifier_castor_text = row['guid']
           co_identifier_morphbank_text = row['morphbank_specimen_id']
           co_identifier_drm_field_voucher_text = row['specimen_number']
           co_identifier_drm_lab_voucher_text = "#{row['voucher_number_prefix']}#{row['voucher_number_stirng']}"
 
-          # Identifiers
+          # Collection object identifiers
           co_identifier_castor = { namespace: namespace_castor,
                                    type: 'Identifier::Local::CollectionObject',
                                    identifier: co_identifier_castor_text }
@@ -57,7 +60,7 @@ module BatchLoad
                                             identifier: co_identifier_drm_lab_voucher_text }                                     
 
           # Collection object
-          co_identifiers = Array.new
+          co_identifiers = []
           co_identifiers.push(co_identifier_castor)             if !co_identifier_castor_text.blank?
           co_identifiers.push(co_identifier_morphbank)          if !co_identifier_morphbank_text.blank?
           co_identifiers.push(co_identifier_drm_field_voucher)  if !co_identifier_drm_field_voucher_text.blank?
@@ -73,6 +76,30 @@ module BatchLoad
           co.collecting_event = ce if !ce.nil?
 
           parse_result.objects[:collection_object].push(co);
+
+          # Text for extract identifiers
+          extract_identifier_drm_dna_voucher_text = "#{row['sample_code_prefix']}#{row['sample_code']}"
+
+          # Extract identifiers
+          extract_identifier_drm_dna_voucher = { namespace: namespace_drm_dna_voucher,
+                                                 type: 'Identifier::Local::CollectionObject',
+                                                 identifier: extract_identifier_drm_dna_voucher_text }
+
+          extract_identifiers = []
+          extract_identifiers.push(extract_identifier_drm_dna_voucher) if !extract_identifier_drm_dna_voucher_text.blank?
+
+          extract_attributes = { quantity_value: 0, 
+                                 quantity_unit: 0,
+                                 quantity_concentration: 0, 
+                                 verbatim_anatomical_origin: "verbatim_anatomical_origin", 
+                                 year_made: 0, 
+                                 month_made: 0, 
+                                 day_made: 0,
+                                 identifiers_attributes: extract_identifiers }
+          extract = Extract.new(extract_attributes)
+
+          parse_result.objects[:extract].push(extract)
+
         #rescue
            # ....
            # puts "SOMETHING WENT WRONG WITH COLLECTION OBJECT castor INTERPRETER BATCH LOAD"
