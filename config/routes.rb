@@ -393,8 +393,8 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
 
     collection do
-      post :preview_genbank_batch_load
-      post :create_genbank_batch_load
+      post :preview_genbank_batch_file_load
+      post :create_genbank_batch_file_load
     end
   end
 
