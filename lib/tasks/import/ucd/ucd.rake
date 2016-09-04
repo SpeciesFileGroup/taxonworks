@@ -1460,14 +1460,21 @@ namespace :tw do
         @data.taxon_codes[key.to_s] || Identifier.where(cached: 'UCD_Hos_Number ' + key.to_s, identifier_object_type: 'TaxonName', project_id: $project_id).limit(1).pluck(:identifier_object_id).first
       end
 
+      
+      # TODO: This should pluck an :id not, return the object?
       def find_taxon_ucd(key)
         Identifier.find_by(cached: 'UCD_Taxon_ID ' + key.to_s, identifier_object_type: 'TaxonName', project_id: $project_id).try(:identifier_object)
       end
 
+
+      # TODO: This should pluck an :id not, return the object?
+      # Not used?!
       def find_host_ucd(key)
         Identifier.find_by(cached: 'UCD_Hos_Number ' + key.to_s, identifier_object_type: 'TaxonName', project_id: $project_id).try(:identifier_object)
       end
 
+      # TODO: This should pluck an :id not, return the object?
+      # NOT used?!
       def find_source_ucd(key)
         Identifier.find_by(cached: 'UCD_RefCode ' + key.to_s, identifier_object_type: 'Source', project_id: $project_id).try(:identifier_object)
       end
