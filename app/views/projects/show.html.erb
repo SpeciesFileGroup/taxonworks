@@ -34,11 +34,4 @@
     </div>
   </div>
 
-  <% if sessions_current_project_id == @project.id -%>
-    <div class="row2">
-      <h2> Recently created </h2>
-      <%= column_chart recently_created_stats_project_path, width: '500px', height: '300px', discrete: true, library: { backgroundColor: "#eee", vAxis: { format: '#'}  }  %>
-    </div>
-  <% end %>
-
 </div>
