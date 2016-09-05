@@ -38,5 +38,13 @@ old_object              new_object
   # the old_object and new_object don't have to be saved first
   # validates_presence_of :old_object, :new_object
 
+  validate :valid_source_target_pairs
 
+  def valid_source_target_pairs
+    if !VALID_ORIGINS.key?(old_object_type)
+      errors.add(:old_object_type, 'is not a valid origin relationship source!')
+    elsif !VALID_ORIGINS[old_object_type].include?(new_object_type)
+      errors.add(:new_object_type, "is not a valid origin relationship target for source #{old_object_type}")
+    end
+  end
 end

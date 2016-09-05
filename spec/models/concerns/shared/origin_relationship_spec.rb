@@ -34,20 +34,6 @@ context 'OriginRelationship', :type => :model do
           expect{with_is_origin_for_blank.save!}.to raise_error(ArgumentError)
         end
       end
-
-      context 'given matching target classes' do
-        specify 'model has 1 origin_relationship' do
-          with_is_origin_for_matches.save!
-          expect(with_is_origin_for_matches.origin_relationships.length).to be 1
-        end
-      end
-
-      context 'given mismatching target classes' do
-        specify 'model has no origin_relationships' do
-          with_is_origin_for_mismatches.save!
-          expect(with_is_origin_for_mismatches.origin_relationships.length).to be 0
-        end
-      end
     end
     
     context 'without "is_origin_for"' do
