@@ -92,6 +92,7 @@ class Project < ActiveRecord::Base
      TaxonNameRelationship
      TaxonName 
      ControlledVocabularyTerm
+     OriginRelationship
      ProjectMember  
     }
 
