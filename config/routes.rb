@@ -254,6 +254,10 @@ TaxonWorks::Application.routes.draw do
     end
   end
 
+  resources :origin_relationships do
+    concerns [:data_routes]
+  end
+
   resources :otu_page_layout_sections, only: [:create, :update, :destroy]
 
   resources :people do

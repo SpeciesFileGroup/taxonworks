@@ -179,6 +179,9 @@ Supporting:
   Namespace:
     status: :prototype
     shared: true
+  OriginRelationship:
+    catgories:
+      - collection_object
   RangedLotCategory:
     status: :prototype
     categories:

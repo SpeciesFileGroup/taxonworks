@@ -1,0 +1,17 @@
+<%= form_for(@origin_relationship) do |f| %>
+
+  <%= render 'shared/errors', object: @origin_relationship %>
+
+  <div class="field">
+    <%= f.label :old_object %><br>
+    <%= f.text_field :old_object %>
+  </div>
+  <div class="field">
+    <%= f.label :new_object %><br>
+    <%= f.text_field :new_object %>
+  </div>
+ 
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>
