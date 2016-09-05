@@ -719,7 +719,7 @@ namespace :tw do
 
 
           b = Source::Bibtex.new(
-              author: author,
+              author: author.gsub(/;/, ' and '),
               year: (year.blank? ? nil : year.to_i),
               month: month,
               day: (day.blank? ? nil : day.to_i) ,

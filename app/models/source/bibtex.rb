@@ -862,7 +862,7 @@ class Source::Bibtex < Source
         break
       end
     end
-    #TODO This test for authors doesn't work with a new record.
+    #TODO This test for auth doesn't work with a new record.
     if (self.authors.count > 0 || self.editors.count > 0 || !self.serial.nil?)
       valid = true
     end
