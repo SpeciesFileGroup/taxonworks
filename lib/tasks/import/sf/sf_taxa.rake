@@ -70,14 +70,15 @@ namespace :tw do
         get_tw_project_id = import.get('SFFileIDToTWProjectID')
         get_animalia_id = import.get('ProjectIDToAnimaliaID') # key = TW.Project.id, value TW.TaxonName.id where Name = 'Animalia', used when AboveID = 0
         get_sf_parent_id = import.get('SFSynonymIDToSFParentID')
-        get_otu_sf_above_id = import.get('SFBadValidNameIDToSFAboveID')
-        get_sf_new_parent_id = import.get('SFSubordinateIDToSFNewParentID')
+        get_otu_sf_above_id = import.get('SFIllFormedNameIDToSFAboveID')
+        # get_sf_new_parent_id = import.get('SFSubordinateIDToSFNewParentID')
 
         get_tw_taxon_name_id = {} # key = SF.TaxonNameID, value = TW.taxon_name.id
         get_sf_name_status = {} # key = SF.TaxonNameID, value = SF.NameStatus
         get_sf_status_flags = {} # key = SF.TaxonNameID, value = SF.StatusFlags
         get_tw_otu_id = {} # key = SF.TaxonNameID, value = TW.otu.id; used for temporary or bad valid SF taxa
 
+        project_id = 1  # default value, will be updated before keyword is used
         keyword = Keyword.find_or_create_by(
             name: 'Taxon name validation failed', definition: 'Taxon name validation failed', project_id: project_id)
 
@@ -114,8 +115,8 @@ namespace :tw do
           elsif get_otu_sf_above_id.has_key?(taxon_name_id) # bad valid sf taxon name
             parent_id = get_tw_taxon_name_id[get_otu_sf_above_id[taxon_name_id]]
             # logger.info "get_otu_sf_above_id.has_key? parent_id = #{parent_id}"
-          elsif get_sf_new_parent_id.has_key?(taxon_name_id) # subordinate of bad valid taxon name
-            parent_id = get_tw_taxon_name_id[get_sf_new_parent_id[taxon_name_id]]
+          # elsif get_sf_new_parent_id.has_key?(taxon_name_id) # subordinate of bad valid taxon name
+          #   parent_id = get_tw_taxon_name_id[get_sf_new_parent_id[taxon_name_id]]
             # logger.info "get_sf_new_parent_id.has_key? parent_id = #{parent_id}"
           else
             parent_id = get_tw_taxon_name_id[row['AboveID']]
@@ -129,7 +130,8 @@ namespace :tw do
           name_status = row['NameStatus']
           status_flags = row['StatusFlags']
 
-          if name_status == '2' or get_otu_sf_above_id.has_key?(taxon_name_id) # temporary, create OTU, not TaxonName
+          # if name_status == '2' or get_otu_sf_above_id.has_key?(taxon_name_id) # temporary, create OTU, not TaxonName
+          if get_otu_sf_above_id.has_key?(taxon_name_id) # temporary, create OTU, not TaxonName
             otu = Otu.new(
                 name: row['Name'],
                 taxon_name_id: parent_id,
@@ -141,7 +143,7 @@ namespace :tw do
             )
 
             if otu.save
-              logger.info "Note!! Created OTU for temporary taxon SF.TaxonNameID = #{taxon_name_id}, otu.id = #{otu.id}"
+              logger.info "Note!! Created OTU for temporary or ill-formed taxon SF.TaxonNameID = #{taxon_name_id}, otu.id = #{otu.id}"
               get_tw_otu_id[row['TaxonNameID']] = otu.id.to_s
               get_sf_name_status[row['TaxonNameID']] = name_status
               get_sf_status_flags[row['TaxonNameID']] = status_flags
@@ -324,20 +326,20 @@ namespace :tw do
           get_otu_sf_above_id[taxon_name_id] = above_id
         end
 
-          import = Import.find_or_create_by(name: 'SpeciesFileData')
-          import.set('SFIllFormedNameIDToSFAboveID', get_otu_sf_above_id)
+        import = Import.find_or_create_by(name: 'SpeciesFileData')
+        import.set('SFIllFormedNameIDToSFAboveID', get_otu_sf_above_id)
 
-          puts 'SFIllFormedNameIDToSFAboveID'
-          ap get_otu_sf_above_id
+        puts 'SFIllFormedNameIDToSFAboveID'
+        ap get_otu_sf_above_id
 
       end
 
-      desc 'create SF synonym.id to new parent.id hash'
+      desc 'create SF synonym, nomen nudum, nomen dubium.ids to new parent.id hash'
       ### time rake tw:project_import:sf_taxa:create_sf_synonym_id_to_new_parent_id_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
       LoggedTask.define :create_sf_synonym_id_to_new_parent_id_hash => [:data_directory, :environment, :user_id] do |logger|
         # Can be run independently at any time
 
-        logger.info 'Running SF new synonym parent hash...'
+        logger.info 'Running SF new synonym, nomen novum, nomen dubium parent hash...'
 
         get_sf_parent_id = {} # key = SF.TaxonNameID of synonym, value = SF.TaxonNameID of new parent
 
