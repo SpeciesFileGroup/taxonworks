@@ -257,6 +257,8 @@ describe GeographicItem, type: :model, group: :geo do
       # a fair amount of infrastructure needs to be synthesized here to be able to get a list of GI IDs
       # from a geometry collection whose geometries are ShiftLongitude-d depending on
       # crosses_anti_meridian_by_id?()
+      # We are trying to find any/all GeographicItem which are contained in the group specified by the list of
+      # GeographicItem.IDs -- i.e., we are collecting GeographicItem-s
 
 
       let(:eastern_box_text) { 'POLYGON(( 176.0 27.0,  179.0 27.0,  179.0 25.0,  176.0 25.0,  176.0 27.0))' }
@@ -279,6 +281,23 @@ describe GeographicItem, type: :model, group: :geo do
           specify "#{item} returns true" do
             expect(GeographicItem.crosses_anti_meridian_by_id?(send(item).id)).to be_truthy
           end
+        end
+      end
+
+      context 'set of crossing object ids is detected' do
+        specify "[l_r_box, r_l_line, l_r_line] returns true" do
+          expect(GeographicItem.crosses_anti_meridian_by_id?([l_r_box.id,
+                                                              r_l_line.id,
+                                                              l_r_line.id])).to be_truthy
+        end
+      end
+
+      context 'set of heterogeneous object ids is detected' do
+        specify "[eastern_box, r_l_line, l_r_line] returns true" do
+          expect(GeographicItem.crosses_anti_meridian_by_id?([eastern_box.id,
+                                                              l_r_box.id,
+                                                              r_l_line.id,
+                                                              l_r_line.id])).to be_falsey
         end
       end
 
