@@ -15,12 +15,18 @@ module Shared::OriginRelationship
 
   module ClassMethods
     def is_origin_for(*args)
-      define_method :get_valid_origin_relationship_target_tables do
-        if args.length == 0
-          raise ArgumentError.new("is_origin_for must have valid target tables supplied!")
-        end
-
+      if args.length == 0
+        raise ArgumentError.new("is_origin_for must have an array full of valid target tables supplied!")
+      end
+      
+      # Returns the valid target tables in symbol form
+      define_method :valid_origin_target_tables do
         args
+      end
+
+      # Returns the valid target tables in class form
+      define_singleton_method :valid_origin_target_classes do
+        args.collect{ |table_symbol| table_symbol.to_s.classify.constantize }
       end
     end
   end
@@ -28,10 +34,10 @@ module Shared::OriginRelationship
   private
 
   def reject_origin_relationships(attributes)
-    if !defined? get_valid_origin_relationship_target_tables
+    if !defined? valid_origin_target_tables
       raise NoMethodError.new('"is_origin_for" must be called with valid target tables in the class including the "OriginRelationship" module!')
     end
 
-    attributes['new_object'].blank? || !get_valid_origin_relationship_target_tables.include?(attributes['new_object'].class.table_name.to_sym)
+    attributes['new_object'].blank? || !valid_origin_target_tables.include?(attributes['new_object'].class.table_name.to_sym)
   end
 end

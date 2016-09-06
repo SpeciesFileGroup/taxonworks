@@ -10,13 +10,13 @@ RSpec.describe OriginRelationship, type: :model do
   context 'validation' do
     before { origin_relationship.valid? }
 
-    # specify '#old_object is required' do
-    #   expect(origin_relationship.errors.include?(:old_object)).to be_truthy
-    # end
+    specify '#old_object is required' do
+      expect(origin_relationship.errors.include?(:source)).to be_truthy
+    end
 
-    # specify '#new_object is required' do
-    #   expect(origin_relationship.errors.include?(:new_object)).to be_truthy
-    # end
+    specify '#new_object is required' do
+      expect(origin_relationship.errors.include?(:target)).to be_truthy
+    end
 
     
     context 'with old and new set' do

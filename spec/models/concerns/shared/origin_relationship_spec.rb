@@ -1,24 +1,12 @@
 require 'rails_helper'
 
 context 'OriginRelationship', :type => :model do
-  let(:class_attributes_single) do
-    { origin_relationships_attributes: [{ new_object: FactoryGirl.build(:valid_collection_object) }] }
+  let(:matching_origin_targets) do
+    { origin_relationships_attributes: [{ new_object: TestClass.new }] }
   end
 
-  let(:with_is_origin_for_blank) do
-    WithIsOriginForBlank.new(class_attributes_single) 
-  end
-  
-  let(:without_is_origin_for) do
-    WithoutIsOriginFor.new(class_attributes_single) 
-  end
-
-  let(:with_is_origin_for_matches) do
-    WithIsOriginForMatches.new(class_attributes_single) 
-  end
-  
-  let(:with_is_origin_for_mismatches) do
-    WithIsOriginForMismatches.new(class_attributes_single) 
+  let(:mismatching_origin_targets) do
+    { origin_relationships_attributes: [{ new_object: MismatchingClass.new }] }
   end
 
   context 'associations' do
@@ -29,16 +17,21 @@ context 'OriginRelationship', :type => :model do
 
   context 'validations' do
     context 'with "is_origin_for"' do
-      context 'blank, no arguments supplied' do
-        specify 'raise "ArgumentError"' do
-          expect{with_is_origin_for_blank.save!}.to raise_error(ArgumentError)
+      context 'matching target origins' do
+        specify 'origin_relationship successfully added' do
+          origin_object = WithIsOriginForMatching.new(matching_origin_targets)
+          origin_object.save!
+
+          expect(origin_object.origin_relationships.length).to be 1
         end
       end
-    end
-    
-    context 'without "is_origin_for"' do
-      specify 'raise "NoMethodError" for not calling "is_origin_for"' do
-        expect{without_is_origin_for.save!}.to raise_error(NoMethodError)
+
+      context 'mismatching target origins' do
+        specify 'origin_relationship unsuccessfully added' do
+          origin_object = WithIsOriginForMatching.new(mismatching_origin_targets)
+
+          expect(origin_object.valid?).to be_falsey
+        end
       end
     end
   end
@@ -50,17 +43,22 @@ class BaseOriginRelationShip < ActiveRecord::Base
   include Shared::OriginRelationship
 end
 
-class WithIsOriginForBlank < BaseOriginRelationShip
-  is_origin_for
+class WithIsOriginForMatching < ActiveRecord::Base
+  include Housekeeping
+  include FakeTable
+  include Shared::OriginRelationship
+
+  is_origin_for :test_classes
 end
 
-class WithoutIsOriginFor < BaseOriginRelationShip
+# This has to be named "TestClass" since the fake table type
+# when converted to a symbol is ":test_classes"
+class TestClass < ActiveRecord::Base
+  include Housekeeping
+  include FakeTable
 end
 
-class WithIsOriginForMatches < BaseOriginRelationShip
-  is_origin_for :collection_objects, :extracts
-end
-
-class WithIsOriginForMismatches < BaseOriginRelationShip
-  is_origin_for :collecting_events
+class MismatchingClass < ActiveRecord::Base
+  include Housekeeping
+  include FakeTable
 end
