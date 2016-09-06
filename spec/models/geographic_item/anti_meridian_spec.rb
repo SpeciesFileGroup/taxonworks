@@ -259,7 +259,7 @@ describe GeographicItem, type: :model, group: :geo do
       # crosses_anti_meridian_by_id?()
 
 
-      let(:easter_box_text) { 'POLYGON(( 176.0 27.0,  179.0 27.0,  179.0 25.0,  176.0 25.0,  176.0 27.0))' }
+      let(:eastern_box_text) { 'POLYGON(( 176.0 27.0,  179.0 27.0,  179.0 25.0,  176.0 25.0,  176.0 27.0))' }
       let(:eastern_box) { GeographicItem.create(polygon: Gis::FACTORY.parse_wkt(eastern_box_text)) }
       let(:western_box_text) { 'POLYGON((-179.0 27.0, -176.0 27.0, -176.0 25.0, -179.0 25.0, -179.0 27.0))' }
       let(:western_box) { GeographicItem.create(polygon: Gis::FACTORY.parse_wkt(eastern_box_text)) }
@@ -285,11 +285,24 @@ describe GeographicItem, type: :model, group: :geo do
       context 'each non-crossing object id is not detected' do
         %I{eastern_box western_box}.each do |item|
           specify "#{item} returns true" do
-            expect(GeographicItem.crosses_anti_meridian_by_id?(send(item).id)).to be_truthy
+            expect(GeographicItem.crosses_anti_meridian_by_id?(send(item).id)).to be_falsey
           end
         end
       end
 
     end
+
+    context 'verify GeographicItem.crosses_anti_meridian?(wkt) works' do
+      let(:eastern_box_text) { 'POLYGON(( 176.0 27.0,  179.0 27.0,  179.0 25.0,  176.0 25.0,  176.0 27.0))' }
+
+      specify "left_right_anti_box" do
+        expect(GeographicItem.crosses_anti_meridian?(left_right_anti_box)).to be_truthy
+      end
+
+      specify "eastern_box_text" do
+        expect(GeographicItem.crosses_anti_meridian?(eastern_box_text)).to be_falsey
+      end
+    end
+
   end
 end
