@@ -17,12 +17,28 @@
         %>
       </div>
 
-      <div class="field">
-        <%= f.label :verbatim_geographic_area %>
+      <%= f.fields_for :origin_citation, @asserted_distribution.origin_citation do |s| -%>
+        <div class="field">
+          <%= s.label :source %>
+          <br>
+          <%= render( partial: 'workbench/elements/forms/ajax_select', locals:
+                     {controller: 'sources',
+                      related_object: @asserted_distribution.source,
+                      object: 'asserted_distribution[origin_citation_attributes]',
+                      method: 'source_id',
+                      tag_id: 'source_id_for_original_citation_asserted_distribution',
+                      size: '50%',
+                      display: source_tag(@asserted_distribution.source)}) 
+                    %>
+      </div>
+      <% end %>
+
+
+    <div class="field">
+      <%= f.label :verbatim_geographic_area %>
         <br>
         <%= f.text_field :verbatim_geographic_area %>
       </div>
-
     </div>
 
     <div class="optional">

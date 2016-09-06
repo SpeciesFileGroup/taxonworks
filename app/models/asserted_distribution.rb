@@ -1,5 +1,5 @@
-# Asserted distribution is...
-#   @todo
+# An Asserted distribution is the assertion that a taxon is present in some *spatial area*.
+#
 #
 # @!attribute otu_id
 #   @return [Integer]
@@ -30,10 +30,8 @@ class AssertedDistribution < ActiveRecord::Base
   include Shared::DataAttributes
   include Shared::Citable
 
-
   belongs_to :otu
   belongs_to :geographic_area
-#  belongs_to :source, inverse_of: :asserted_distributions
 
   accepts_nested_attributes_for :otu, allow_destroy: false, reject_if: proc { |attributes| attributes['name'].blank? && attributes['taxon_name_id'].blank?  }
 
