@@ -7,7 +7,7 @@ Dir[Rails.root.to_s + '/app/models/geographic_item/**/*.rb'].each { |file| requi
 
 # An exercise in exploring and handling data that crosses the anti-meridian.
 #
-#           anti-meridian 
+#           anti-meridian
 #                |
 #           X----|---->
 #  east/left     |        west/right
@@ -52,22 +52,22 @@ describe GeographicItem, type: :model, group: :geo do
     let(:right_left_anti_line_out) { 'LINESTRING (-170.5 26.0, -175.8 25.5)' }
 
     #- antimeridian string
-    let(:anti_s) { 'LINESTRING (180 89.0, 180 -89)' } 
+    let(:anti_s) { 'LINESTRING (180 89.0, 180 -89)' }
 
     context 'raw SQL' do
 
-      context 'box checks' do 
+      context 'box checks' do
         [:left_right_anti_box, :right_left_anti_box].each do |b|
-          specify "box #{b} is ST_IsValid?" do 
+          specify "box #{b} is ST_IsValid?" do
             expect(GeographicItem.find_by_sql(
               "SELECT ST_IsValid(ST_GeomFromText('#{send(b)}')) as r;"
-            ).first.r).to be true 
+            ).first.r).to be true
           end
 
-          specify "#{b} ST_Intersects with anti-merdian (we can detect things crossing the AM" do 
+          specify "#{b} ST_Intersects with anti-merdian (we can detect things crossing the AM" do
             expect(GeographicItem.find_by_sql(
               "SELECT ST_Intersects(ST_GeogFromText('#{send(b)}'), ST_GeogFromText('#{anti_s}')) as r;"
-            ).first.r).to be true 
+            ).first.r).to be true
           end
         end
       end
@@ -107,19 +107,19 @@ describe GeographicItem, type: :model, group: :geo do
             @boxes = %I{left_right_anti_box right_left_anti_box}
 
             @boxes.each do |b|
-              [ '-90 26', '0 26', '90 26' ].each do |p| # points in really wide box
+              ['-90 26', '0 26', '90 26'].each do |p| # points in really wide box
                 specify "#{b}/#{p}" do
                   expect(GeographicItem.find_by_sql(
                     "SELECT ST_Contains(ST_GeomFromText('#{send(b)}'), ST_GeomFromText('POINT(#{p})')) as r;"
-                  ).first.r).to be true 
+                  ).first.r).to be true
                 end
               end
 
-              ['180 26', '179.9 26', '-179.9 26' ].each do |p| # points not in really wide box 
+              ['180 26', '179.9 26', '-179.9 26'].each do |p| # points not in really wide box
                 specify "#{b}/#{p}" do
                   expect(GeographicItem.find_by_sql(
                     "SELECT ST_Contains(ST_GeomFromText('#{send(b)}'), ST_GeomFromText('POINT(#{p})')) as r;"
-                  ).first.r).to be false 
+                  ).first.r).to be false
                 end
               end
             end
@@ -132,7 +132,7 @@ describe GeographicItem, type: :model, group: :geo do
                   specify "#{b}/#{s}" do
                     expect(GeographicItem.find_by_sql(
                       "SELECT ST_Contains(ST_GeomFromText('#{send(b)}'), ST_GeomFromText('#{send(s)}')) as r;"
-                    ).first.r).to be true 
+                    ).first.r).to be true
                   end
                 end
 
@@ -140,7 +140,7 @@ describe GeographicItem, type: :model, group: :geo do
                   specify "#{b}/#{s}" do
                     expect(GeographicItem.find_by_sql(
                       "SELECT ST_Contains(ST_GeomFromText('#{send(b)}'), ST_GeomFromText('#{send(s)}')) as r;"
-                    ).first.r).to be false 
+                    ).first.r).to be false
                   end
                 end
               end
@@ -155,32 +155,32 @@ describe GeographicItem, type: :model, group: :geo do
           @boxes = %I{left_right_anti_box right_left_anti_box}
 
           @boxes.each do |b|
-            [ '-90 26', '0 26', '90 26' ].each do |p| # points in really wide box
+            ['-90 26', '0 26', '90 26'].each do |p| # points in really wide box
               specify "shifted #{b}/#{p}" do
                 expect(GeographicItem.find_by_sql(
                   "SELECT ST_Contains(#{shift_method}(ST_GeomFromText('#{send(b)}')), ST_GeomFromText('POINT(#{p})')) as r;"
-                ).first.r).to be false 
+                ).first.r).to be false
               end
             end
 
-            ['180 26', '179.9 26' ].each do |p| # points not in really wide box 
+            ['180 26', '179.9 26'].each do |p| # points not in really wide box
               specify "shifted #{b}/#{p}" do
                 expect(GeographicItem.find_by_sql(
                   "SELECT ST_Contains(#{shift_method}(ST_GeomFromText('#{send(b)}')), ST_GeomFromText('POINT(#{p})')) as r;"
-                ).first.r).to be true 
+                ).first.r).to be true
               end
             end
 
             specify "#{b} (positive shifted does not contain negative point)" do
               expect(GeographicItem.find_by_sql(
                 "SELECT ST_Contains(#{shift_method}(ST_GeomFromText('#{send(b)}')), ST_GeomFromText('POINT(-179.9 26)')) as r;"
-              ).first.r).to be false 
+              ).first.r).to be false
             end
 
             specify "#{b} (both shifted does contain point)" do
               expect(GeographicItem.find_by_sql(
                 "SELECT ST_Contains(#{shift_method}(ST_GeomFromText('#{send(b)}')), #{shift_method}(ST_GeomFromText('POINT(-179.9 26)'))) as r;"
-              ).first.r).to be true 
+              ).first.r).to be true
             end
           end
         end
@@ -234,19 +234,19 @@ describe GeographicItem, type: :model, group: :geo do
       # Note _lines can not be used in ST_Covers!
 
       %I{left_right_anti_box right_left_anti_box}.each do |b|
-        [ '-90 26', '0 26', '90 26' ].each do |p| # points in really wide box
+        ['-90 26', '0 26', '90 26'].each do |p| # points in really wide box
           specify "#{b}/#{p}" do
             expect(GeographicItem.find_by_sql(
               "SELECT ST_Covers(ST_GeogFromText('#{send(b)}'), ST_GeogFromText('POINT(#{p})')) as r;"
-            ).first.r).to be false 
+            ).first.r).to be false
           end
         end
 
-        ['180 26', '179.9 26', '-179.9 26' ].each do |p| # points not in really wide box 
+        ['180 26', '179.9 26', '-179.9 26'].each do |p| # points not in really wide box
           specify "#{b}/#{p}" do
             expect(GeographicItem.find_by_sql(
               "SELECT ST_Covers(ST_GeogFromText('#{send(b)}'), ST_GeogFromText('POINT(#{p})')) as r;"
-            ).first.r).to be true 
+            ).first.r).to be true
           end
         end
       end
@@ -257,6 +257,39 @@ describe GeographicItem, type: :model, group: :geo do
       # a fair amount of infrastructure needs to be synthesized here to be able to get a list of GI IDs
       # from a geometry collection whose geometries are ShiftLongitude-d depending on
       # crosses_anti_meridian_by_id?()
+
+
+      let(:easter_box_text) { 'POLYGON(( 176.0 27.0,  179.0 27.0,  179.0 25.0,  176.0 25.0,  176.0 27.0))' }
+      let(:eastern_box) { GeographicItem.create(polygon: Gis::FACTORY.parse_wkt(eastern_box_text)) }
+      let(:western_box_text) { 'POLYGON((-179.0 27.0, -176.0 27.0, -176.0 25.0, -179.0 25.0, -179.0 27.0))' }
+      let(:western_box) { GeographicItem.create(polygon: Gis::FACTORY.parse_wkt(eastern_box_text)) }
+      let(:l_r_box) { GeographicItem.create(polygon: Gis::FACTORY.parse_wkt(left_right_anti_box)) }
+      let(:l_r_line) { GeographicItem.create(line_string: Gis::FACTORY.parse_wkt(left_right_anti_line)) }
+      let(:r_l_line) { GeographicItem.create(line_string: Gis::FACTORY.parse_wkt(right_left_anti_line)) }
+      let(:build_structure) {
+        l_r_box
+        eastern_box
+        western_box
+        r_l_line
+        l_r_line
+      }
+
+      context 'each crossing object id is detected' do
+        %I{l_r_box r_l_line l_r_line}.each do |item|
+          specify "#{item} returns true" do
+            expect(GeographicItem.crosses_anti_meridian_by_id?(send(item).id)).to be_truthy
+          end
+        end
+      end
+
+      context 'each non-crossing object id is not detected' do
+        %I{eastern_box western_box}.each do |item|
+          specify "#{item} returns true" do
+            expect(GeographicItem.crosses_anti_meridian_by_id?(send(item).id)).to be_truthy
+          end
+        end
+      end
+
     end
   end
 end
