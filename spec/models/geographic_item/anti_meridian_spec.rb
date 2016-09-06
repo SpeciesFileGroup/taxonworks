@@ -276,7 +276,7 @@ describe GeographicItem, type: :model, group: :geo do
         l_r_line
       }
 
-      context 'each crossing object id is detected' do
+      xcontext 'each crossing object id is detected' do
         %I{l_r_box r_l_line l_r_line}.each do |item|
           specify "#{item} returns true" do
             expect(GeographicItem.crosses_anti_meridian_by_id?(send(item).id)).to be_truthy
@@ -284,7 +284,7 @@ describe GeographicItem, type: :model, group: :geo do
         end
       end
 
-      context 'set of crossing object ids is detected' do
+      xcontext 'set of crossing object ids is detected' do
         specify "[l_r_box, r_l_line, l_r_line] returns true" do
           expect(GeographicItem.crosses_anti_meridian_by_id?([l_r_box.id,
                                                               r_l_line.id,
@@ -292,7 +292,7 @@ describe GeographicItem, type: :model, group: :geo do
         end
       end
 
-      context 'set of heterogeneous object ids is detected' do
+      xcontext 'set of heterogeneous object ids is detected' do
         specify "[eastern_box, r_l_line, l_r_line] returns true" do
           expect(GeographicItem.crosses_anti_meridian_by_id?([eastern_box.id,
                                                               l_r_box.id,
@@ -301,7 +301,7 @@ describe GeographicItem, type: :model, group: :geo do
         end
       end
 
-      context 'each non-crossing object id is not detected' do
+      xcontext 'each non-crossing object id is not detected' do
         %I{eastern_box western_box}.each do |item|
           specify "#{item} returns true" do
             expect(GeographicItem.crosses_anti_meridian_by_id?(send(item).id)).to be_falsey
