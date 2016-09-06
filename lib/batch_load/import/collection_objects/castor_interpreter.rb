@@ -50,7 +50,7 @@ module BatchLoad
           extract_attributes = { quantity_value: 0, 
                                  quantity_unit: 0,
                                  quantity_concentration: 0, 
-                                 verbatim_anatomical_origin: "verbatim_anatomical_origin", 
+                                 verbatim_anatomical_origin: row['taxon_name'], 
                                  year_made: 0, 
                                  month_made: 0, 
                                  day_made: 0,
