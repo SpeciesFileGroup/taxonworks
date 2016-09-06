@@ -105,7 +105,7 @@ class GeographicItem < ActiveRecord::Base
     #   !! StrongParams security considerations
     def crosses_anti_meridian_by_id?(*ids)
       GeographicItem.find_by_sql(
-          "SELECT ST_Intersects(SELECT single FROM #{GeographicItem.single_geometry_sql(*ids)}, ST_GeogFromText('#{ANTI_MERIDIAN}')) as r;"
+          "SELECT ST_Intersects((SELECT single_geometry FROM (#{GeographicItem.single_geometry_sql(*ids)}) as left_intersect), ST_GeogFromText('#{ANTI_MERIDIAN}')) as r;"
       ).first.r
     end
 
