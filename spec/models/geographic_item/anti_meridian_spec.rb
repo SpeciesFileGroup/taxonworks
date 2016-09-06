@@ -260,15 +260,19 @@ describe GeographicItem, type: :model, group: :geo do
       # We are trying to find any/all GeographicItem which are contained in the group specified by the list of
       # GeographicItem.IDs -- i.e., we are collecting GeographicItem-s
 
-
       let(:eastern_box_text) { 'POLYGON(( 176.0 27.0,  179.0 27.0,  179.0 25.0,  176.0 25.0,  176.0 27.0))' }
       let(:eastern_box) { GeographicItem.create(polygon: Gis::FACTORY.parse_wkt(eastern_box_text)) }
       let(:western_box_text) { 'POLYGON((-179.0 27.0, -176.0 27.0, -176.0 25.0, -179.0 25.0, -179.0 27.0))' }
+
       let(:western_box) { GeographicItem.create(polygon: Gis::FACTORY.parse_wkt(eastern_box_text)) }
       let(:l_r_box) { GeographicItem.create(polygon: Gis::FACTORY.parse_wkt(left_right_anti_box)) }
       let(:l_r_line) { GeographicItem.create(line_string: Gis::FACTORY.parse_wkt(left_right_anti_line)) }
       let(:r_l_line) { GeographicItem.create(line_string: Gis::FACTORY.parse_wkt(right_left_anti_line)) }
+
+      let(:point_in_eastern_box) {  GeographicItem.create(point: Gis::FACTORY.parse_wkt('POINT(178 26.0)' )) } 
+
       let(:build_structure) {
+        point_in_eastern_box
         l_r_box
         eastern_box
         western_box
@@ -276,7 +280,7 @@ describe GeographicItem, type: :model, group: :geo do
         l_r_line
       }
 
-      xcontext 'each crossing object id is detected' do
+      context 'each crossing object id is detected' do
         %I{l_r_box r_l_line l_r_line}.each do |item|
           specify "#{item} returns true" do
             expect(GeographicItem.crosses_anti_meridian_by_id?(send(item).id)).to be_truthy
@@ -284,7 +288,7 @@ describe GeographicItem, type: :model, group: :geo do
         end
       end
 
-      xcontext 'set of crossing object ids is detected' do
+      context 'set of crossing object ids is detected' do
         specify "[l_r_box, r_l_line, l_r_line] returns true" do
           expect(GeographicItem.crosses_anti_meridian_by_id?([l_r_box.id,
                                                               r_l_line.id,
@@ -292,22 +296,40 @@ describe GeographicItem, type: :model, group: :geo do
         end
       end
 
-      xcontext 'set of heterogeneous object ids is detected' do
+      context 'set of heterogeneous object ids is detected' do
         specify "[eastern_box, r_l_line, l_r_line] returns true" do
           expect(GeographicItem.crosses_anti_meridian_by_id?([eastern_box.id,
                                                               l_r_box.id,
                                                               r_l_line.id,
-                                                              l_r_line.id])).to be_falsey
+                                                              l_r_line.id])).to be_truthy
         end
       end
 
-      xcontext 'each non-crossing object id is not detected' do
+      context 'each non-crossing object id is not detected' do
         %I{eastern_box western_box}.each do |item|
           specify "#{item} returns true" do
             expect(GeographicItem.crosses_anti_meridian_by_id?(send(item).id)).to be_falsey
           end
         end
       end
+
+      context '.contained_by_with_antimeridian_check(*ids)' do
+        before{ build_structure}
+
+        xspecify 'results from merdian crossing and non-meridian crossing polygons are found' do
+          # why is lr_r_box not finding l_r_line
+          # did we put point_in_easter_box in l_r_box by chance?
+          expect(GeographicItem.contained_by_with_antimeridian_check(eastern_box.id, l_r_box.id).map(&:id)).to contain_exactly(point_in_eastern_box.id, l_r_line.id )
+        end
+
+        specify 'shifting a already shifted polygon has no effect' do
+          shifted_wkt = eastern_box.geo_object.to_s
+          expect(shifted_wkt =~ /-/).to be_falsey
+          expect(GeographicItem.where(GeographicItem.contained_by_wkt_sql(shifted_wkt)).map(&:id)).to contain_exactly(point_in_eastern_box.id)
+        end
+
+      end
+
 
     end
 

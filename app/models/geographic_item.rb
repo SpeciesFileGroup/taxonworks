@@ -101,8 +101,11 @@ class GeographicItem < ActiveRecord::Base
     end
 
     # @return [Boolean]
-    #   whether or not each GeographicItem intersects the anti-meridian
+    #   whether or not any GeographicItem passed intersects the anti-meridian
     #   !! StrongParams security considerations
+    #   This is our first line of defense against queries that define multiple shapes, one or 
+    #   more of which crosses the anti-meridian.  In this case the current TW strategy within the
+    #   UI is to abandon the search, and prompt the user to refactor the query.
     def crosses_anti_meridian_by_id?(*ids)
       GeographicItem.find_by_sql(
           "SELECT ST_Intersects((SELECT single_geometry FROM (#{GeographicItem.single_geometry_sql(*ids)}) as left_intersect), ST_GeogFromText('#{ANTI_MERIDIAN}')) as r;"
@@ -332,9 +335,36 @@ class GeographicItem < ActiveRecord::Base
       END)"
     end
 
+    # @return [Array]
+    #   If we detect that some query id has crossed the meridian, then loop through
+    #   and "manually" build up a list of results. 
+    #   Should only be used if GeographicItem.crosses_anti_meridian_by_id? is true.
+    #   Note that this does not return a Scope, so you can't chain it like contained_by?
+    # TODO: test this
+    def contained_by_with_antimeridian_check(*ids)
+      results = []
+
+      crossing_ids = []  
+
+      ids.each do |id|
+        crossing_ids.push(id) if GeographicItem.crosses_anti_meridian_by_id?(id)
+      end
+
+      ok_ids = ids - crossing_ids
+      results.push GeographicItem.contained_by(ok_ids).to_a
+    
+      crossing_ids.each do |id|
+        r =  GeographicItem.where(
+          GeographicItem.contained_by_wkt_sql(GeographicItem.find(id).geo_object.to_s)
+        ).to_a
+        results.push(r)
+      end
+
+      results.flatten.uniq
+    end
+
     # TODO: Remove the hard coded 4326 reference
     def contained_by_wkt_sql(wkt)
-
       if crosses_anti_meridian?(wkt)
         return "ST_ContainsProperly(ST_ShiftLongitude(ST_GeomFromText('#{wkt}', 4326)), (
           CASE geographic_items.type
@@ -365,12 +395,8 @@ class GeographicItem < ActiveRecord::Base
 
     # @return [String] sql for contained_by via ST_ContainsProperly
     # Note: Can not use GEOMETRY_SQL because geometry_collection is not supported in ST_ContainsProperly
+    # Note: !! If the target GeographicItem#id crosses the anti-meridian then you may/will get unexpected results. 
     def contained_by_where_sql(*geographic_item_ids)
-
-      # if antimeridian
-      #
-      # else
-
       "ST_ContainsProperly(
       #{GeographicItem.geometry_sql2(*geographic_item_ids)},
       CASE geographic_items.type
@@ -381,8 +407,6 @@ class GeographicItem < ActiveRecord::Base
          WHEN 'GeographicItem::MultiLineString' THEN multi_line_string::geometry
          WHEN 'GeographicItem::MultiPoint' THEN multi_point::geometry
       END)"
-
-      # end
     end
 
     # @return [String] sql for containing via ST_CoveredBy
