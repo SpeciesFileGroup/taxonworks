@@ -25,6 +25,10 @@ class OriginRelationshipsController < ApplicationController
   def edit
   end
 
+  def list
+    @origin_relationships = OriginRelationship.with_project_id(sessions_current_project_id).page(params[:page])
+  end
+
   # POST /origin_relationships
   # POST /origin_relationships.json
   def create

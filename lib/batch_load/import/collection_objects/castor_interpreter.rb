@@ -36,6 +36,29 @@ module BatchLoad
           # use a BatchLoad::ColumnResolver or other method to match row data to TW 
           #  ...
 
+          # Text for extract identifiers
+          extract_identifier_drm_dna_voucher_text = "#{row['sample_code_prefix']}#{row['sample_code']}"
+
+          # Extract identifiers
+          extract_identifier_drm_dna_voucher = { namespace: namespace_drm_dna_voucher,
+                                                 type: 'Identifier::Local::CollectionObject',
+                                                 identifier: extract_identifier_drm_dna_voucher_text }
+
+          extract_identifiers = []
+          extract_identifiers.push(extract_identifier_drm_dna_voucher) if !extract_identifier_drm_dna_voucher_text.blank?
+
+          extract_attributes = { quantity_value: 0, 
+                                 quantity_unit: 0,
+                                 quantity_concentration: 0, 
+                                 verbatim_anatomical_origin: "verbatim_anatomical_origin", 
+                                 year_made: 0, 
+                                 month_made: 0, 
+                                 day_made: 0,
+                                 identifiers_attributes: extract_identifiers }
+          extract = Extract.new(extract_attributes)
+
+          parse_result.objects[:extract].push(extract)
+
           # Text for collection object identifiers
           co_identifier_castor_text = row['guid']
           co_identifier_morphbank_text = row['morphbank_specimen_id']
@@ -59,6 +82,9 @@ module BatchLoad
                                             type: 'Identifier::Local::CollectionObject',
                                             identifier: co_identifier_drm_lab_voucher_text }                                     
 
+          # OriginRelationship between CollecitonObject and Extract
+          co_origin_relationships_attributes = [{ new_object: extract}]
+
           # Collection object
           co_identifiers = []
           co_identifiers.push(co_identifier_castor)             if !co_identifier_castor_text.blank?
@@ -66,7 +92,7 @@ module BatchLoad
           co_identifiers.push(co_identifier_drm_field_voucher)  if !co_identifier_drm_field_voucher_text.blank?
           co_identifiers.push(co_identifier_drm_lab_voucher)    if !co_identifier_drm_lab_voucher_text.blank?
 
-          co_attributes = { type: 'Specimen', total: 1, identifiers_attributes: co_identifiers }
+          co_attributes = { type: 'Specimen', total: 1, identifiers_attributes: co_identifiers, origin_relationships_attributes: co_origin_relationships_attributes }
           co = CollectionObject.new(co_attributes)
 
           # Collecting event that this collection object corresponds to
@@ -76,29 +102,6 @@ module BatchLoad
           co.collecting_event = ce if !ce.nil?
 
           parse_result.objects[:collection_object].push(co);
-
-          # Text for extract identifiers
-          extract_identifier_drm_dna_voucher_text = "#{row['sample_code_prefix']}#{row['sample_code']}"
-
-          # Extract identifiers
-          extract_identifier_drm_dna_voucher = { namespace: namespace_drm_dna_voucher,
-                                                 type: 'Identifier::Local::CollectionObject',
-                                                 identifier: extract_identifier_drm_dna_voucher_text }
-
-          extract_identifiers = []
-          extract_identifiers.push(extract_identifier_drm_dna_voucher) if !extract_identifier_drm_dna_voucher_text.blank?
-
-          extract_attributes = { quantity_value: 0, 
-                                 quantity_unit: 0,
-                                 quantity_concentration: 0, 
-                                 verbatim_anatomical_origin: "verbatim_anatomical_origin", 
-                                 year_made: 0, 
-                                 month_made: 0, 
-                                 day_made: 0,
-                                 identifiers_attributes: extract_identifiers }
-          extract = Extract.new(extract_attributes)
-
-          parse_result.objects[:extract].push(extract)
 
         #rescue
            # ....
