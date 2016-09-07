@@ -7,6 +7,8 @@
     <%= fancy_th_tag(name: 'Collection object status') -%>
     <%= fancy_th_tag(name: 'Total') -%>
     <%= fancy_th_tag(name: 'Type') -%>
+    <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
+    <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
   </tr>
   </thead>
 
@@ -18,6 +20,7 @@
         <td><%= loan_item.disposition %></td>
         <td><%= loan_item_total_string(loan_item) %></td>
         <td><%= loan_item.loan_item_object_type %></td>
+        <%= fancy_metadata_cells_tag(loan_item.loan_item_object) -%>
       <% end %>
   <% end %>
   </tbody>
