@@ -15,8 +15,12 @@
   <% @collection_object.taxon_determinations.order(:position).each do |td| -%>
     <%= taxon_determination_link(td) %><br> 
   <% end %>
+  <%= content_tag(:em, 'None.') if !@collection_object.taxon_determinations.any? -%>
 
   <%= draw_container_tag(@collection_object.container) -%>
+
+  <%= on_loan_tag(@collection_object) -%>
+
 <% end %>
 
 <%= render(partial: 'shared/data/project/show', locals: {object: @collection_object}) -%>

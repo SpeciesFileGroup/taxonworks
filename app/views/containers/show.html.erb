@@ -1,4 +1,6 @@
 <% content_for :associated do -%>
+  <%= on_loan_tag(@container) -%>
+
   <h3> Nesting containers </h3>
   <% if @container.is_nested? -%> 
     <ul>

@@ -14,4 +14,11 @@ module LoansHelper
     render('/loans/quick_search_form')
   end
 
+  def on_loan_tag(object)
+    if object.is_loanable? && object.on_loan?
+      content_tag(:h3, 'Loan status') + 
+        content_tag(:p, ('On ' + link_to('loan', object.loan) + '. Due back on ' + object.loan_return_date.to_s + '.').html_safe)
+    end
+  end
+
 end
