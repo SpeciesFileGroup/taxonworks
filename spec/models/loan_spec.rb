@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Loan, type: :model do
+describe Loan, type: :model, group: :loans do
 
   context 'concerns' do
     it_behaves_like 'is_data'

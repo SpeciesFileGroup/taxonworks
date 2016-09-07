@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe LoanItem, :type => :model do
+describe LoanItem, type: :model, group: :loans do
 
   let(:loan_item) { LoanItem.new }
   let(:valid_loan_item) { FactoryGirl.create(:valid_loan_item) }
