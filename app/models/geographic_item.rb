@@ -357,8 +357,10 @@ class GeographicItem < ActiveRecord::Base
       results.push GeographicItem.contained_by(non_crossing_ids).to_a if non_crossing_ids.any?
 
       crossing_ids.each do |id|
+        # [61666, 61661, 61659, 61654, 61639]
         r = GeographicItem.where(
-          GeographicItem.contained_by_wkt_crossing_sql(GeographicItem.find(id).geo_object.to_s)
+            GeographicItem.contained_by_wkt_shifted_sql(GeographicItem.find(id).geo_object.to_s)
+        # GeographicItem.contained_by_wkt_shifted_sql(GeographicItem.find_by_sql("SELECT ST_AsText(polygon) FROM geographic_items WHERE id = #{id}"))
         ).to_a
         results.push(r)
       end
@@ -366,7 +368,9 @@ class GeographicItem < ActiveRecord::Base
       results.flatten.uniq
     end
 
-    def contained_by_wkt_crossing_sql(wkt)
+    # @return [String] the SQL fragment for the specific geometry type, shifted by longitude
+    # Note: this routine is called when it is already known that the A argument crosses anti-meridian
+    def contained_by_wkt_shifted_sql(wkt)
       retval = "ST_ContainsProperly(ST_ShiftLongitude(ST_GeomFromText('#{wkt}', 4326)), (
           CASE geographic_items.type
              WHEN 'GeographicItem::MultiPolygon' THEN ST_ShiftLongitude(multi_polygon::geometry)
@@ -384,7 +388,7 @@ class GeographicItem < ActiveRecord::Base
     # TODO: Remove the hard coded 4326 reference
     def contained_by_wkt_sql(wkt)
       if crosses_anti_meridian?(wkt)
-        retval = contained_by_wkt_crossing_sql(wkt)
+        retval = contained_by_wkt_shifted_sql(wkt)
       else
         retval = "ST_ContainsProperly(ST_GeomFromText('#{wkt}', 4326), (
           CASE geographic_items.type
@@ -1007,6 +1011,7 @@ class GeographicItem < ActiveRecord::Base
       self.class::SHAPE_COLUMN
     end
   end
+
 
   # !!TODO: migrate these to use native column calls this to "native"
 
