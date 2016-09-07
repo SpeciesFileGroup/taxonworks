@@ -260,28 +260,33 @@ describe GeographicItem, type: :model, group: :geo do
       # We are trying to find any/all GeographicItem which are contained in the group specified by the list of
       # GeographicItem.IDs -- i.e., we are collecting GeographicItem-s
 
+      # boxes
       let(:eastern_box_text) { 'POLYGON(( 176.0 27.0,  179.0 27.0,  179.0 25.0,  176.0 25.0,  176.0 27.0))' }
       let(:eastern_box) { GeographicItem.create(polygon: Gis::FACTORY.parse_wkt(eastern_box_text)) }
       let(:western_box_text) { 'POLYGON((-179.0 27.0, -176.0 27.0, -176.0 25.0, -179.0 25.0, -179.0 27.0))' }
+      let(:western_box) { GeographicItem.create(polygon: Gis::FACTORY.parse_wkt(western_box_text)) }
+      let(:crossing_box) { GeographicItem.create(polygon: Gis::FACTORY.parse_wkt(left_right_anti_box)) }
 
-      let(:western_box) { GeographicItem.create(polygon: Gis::FACTORY.parse_wkt(eastern_box_text)) }
-      let(:l_r_box) { GeographicItem.create(polygon: Gis::FACTORY.parse_wkt(left_right_anti_box)) }
+      # lines
       let(:l_r_line) { GeographicItem.create(line_string: Gis::FACTORY.parse_wkt(left_right_anti_line)) }
       let(:r_l_line) { GeographicItem.create(line_string: Gis::FACTORY.parse_wkt(right_left_anti_line)) }
 
-      let(:point_in_eastern_box) {  GeographicItem.create(point: Gis::FACTORY.parse_wkt('POINT(178 26.0)' )) } 
+      # points
+      let(:point_in_eastern_box) { GeographicItem.create(point: Gis::FACTORY.parse_wkt('POINT(178 26.0)')) }
+      let(:point_in_western_box) { GeographicItem.create(point: Gis::FACTORY.parse_wkt('POINT(-178.0 26.0)')) }
 
       let(:build_structure) {
-        point_in_eastern_box
-        l_r_box
-        eastern_box
         western_box
+        eastern_box
+        point_in_western_box
+        point_in_eastern_box
+        crossing_box
         r_l_line
         l_r_line
       }
 
       context 'each crossing object id is detected' do
-        %I{l_r_box r_l_line l_r_line}.each do |item|
+        %I{crossing_box r_l_line l_r_line}.each do |item|
           specify "#{item} returns true" do
             expect(GeographicItem.crosses_anti_meridian_by_id?(send(item).id)).to be_truthy
           end
@@ -289,8 +294,8 @@ describe GeographicItem, type: :model, group: :geo do
       end
 
       context 'set of crossing object ids is detected' do
-        specify "[l_r_box, r_l_line, l_r_line] returns true" do
-          expect(GeographicItem.crosses_anti_meridian_by_id?([l_r_box.id,
+        specify "[crossing_box, r_l_line, l_r_line] returns true" do
+          expect(GeographicItem.crosses_anti_meridian_by_id?([crossing_box.id,
                                                               r_l_line.id,
                                                               l_r_line.id])).to be_truthy
         end
@@ -299,7 +304,7 @@ describe GeographicItem, type: :model, group: :geo do
       context 'set of heterogeneous object ids is detected' do
         specify "[eastern_box, r_l_line, l_r_line] returns true" do
           expect(GeographicItem.crosses_anti_meridian_by_id?([eastern_box.id,
-                                                              l_r_box.id,
+                                                              crossing_box.id,
                                                               r_l_line.id,
                                                               l_r_line.id])).to be_truthy
         end
@@ -316,10 +321,26 @@ describe GeographicItem, type: :model, group: :geo do
       context '.contained_by_with_antimeridian_check(*ids)' do
         before{ build_structure}
 
+        specify 'results from single non-meridian crossing polygon is found' do
+          # invokes geometry_sql2
+          # using contained_by_with_antimeridian_check is not harmful for non-crossing objects
+          expect(GeographicItem.contained_by_with_antimeridian_check(western_box.id).map(&:id)).to contain_exactly(point_in_western_box.id)
+        end
+
+        specify 'results from multiple non-meridian crossing polygons are found' do
+          # invokes geometry_sql2
+          # using contained_by_with_antimeridian_check is not harmful for non-crossing objects
+          expect(GeographicItem.contained_by_with_antimeridian_check(eastern_box.id, western_box.id).map(&:id)).to contain_exactly(point_in_eastern_box.id, point_in_western_box.id)
+        end
+
+        xspecify 'results from a meridian crossing polygon are found' do
+          # why is crossing_box not finding l_r_line or r_l_line
+          expect(GeographicItem.contained_by_with_antimeridian_check(crossing_box.id).map(&:id)).to contain_exactly(l_r_line.id, r_l_line.id)
+        end
+
         xspecify 'results from merdian crossing and non-meridian crossing polygons are found' do
-          # why is lr_r_box not finding l_r_line
-          # did we put point_in_easter_box in l_r_box by chance?
-          expect(GeographicItem.contained_by_with_antimeridian_check(eastern_box.id, l_r_box.id).map(&:id)).to contain_exactly(point_in_eastern_box.id, l_r_line.id )
+          # why is crossing_box not finding l_r_line or r_l_line
+          expect(GeographicItem.contained_by_with_antimeridian_check(eastern_box.id, western_box.id, crossing_box.id).map(&:id)).to contain_exactly(point_in_eastern_box.id, point_in_western_box.id, l_r_line.id, r_l_line.id)
         end
 
         specify 'shifting a already shifted polygon has no effect' do

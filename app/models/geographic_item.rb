@@ -103,7 +103,7 @@ class GeographicItem < ActiveRecord::Base
     # @return [Boolean]
     #   whether or not any GeographicItem passed intersects the anti-meridian
     #   !! StrongParams security considerations
-    #   This is our first line of defense against queries that define multiple shapes, one or 
+    #   This is our first line of defense against queries that define multiple shapes, one or
     #   more of which crosses the anti-meridian.  In this case the current TW strategy within the
     #   UI is to abandon the search, and prompt the user to refactor the query.
     def crosses_anti_meridian_by_id?(*ids)
@@ -302,8 +302,9 @@ class GeographicItem < ActiveRecord::Base
     # @return [String]
     #   returns a single geometry "column" (paren wrapped) as "single" for multiple geographic item ids, or the geometry as 'geometry' for a single id
     def geometry_sql2(*geographic_item_ids)
+      geographic_item_ids.flatten! # *ALWAYS* reduce the pile to a single level of ids
       if geographic_item_ids.count == 1
-        "(#{GeographicItem.geometry_for_sql(geographic_item_ids.flatten.first)})"
+        "(#{GeographicItem.geometry_for_sql(geographic_item_ids.first)})"
       else
         GeographicItem.single_geometry_sql(geographic_item_ids)
       end
@@ -337,22 +338,24 @@ class GeographicItem < ActiveRecord::Base
 
     # @return [Array]
     #   If we detect that some query id has crossed the meridian, then loop through
-    #   and "manually" build up a list of results. 
+    #   and "manually" build up a list of results.
     #   Should only be used if GeographicItem.crosses_anti_meridian_by_id? is true.
     #   Note that this does not return a Scope, so you can't chain it like contained_by?
     # TODO: test this
     def contained_by_with_antimeridian_check(*ids)
+      ids.flatten! # make sure there is only one level of splat  (*)
       results = []
 
-      crossing_ids = []  
+      crossing_ids = []
 
       ids.each do |id|
+        # push each which crosses
         crossing_ids.push(id) if GeographicItem.crosses_anti_meridian_by_id?(id)
       end
 
-      ok_ids = ids - crossing_ids
-      results.push GeographicItem.contained_by(ok_ids).to_a
-    
+      non_crossing_ids = ids - crossing_ids
+      results.push GeographicItem.contained_by(non_crossing_ids).to_a if non_crossing_ids.any?
+
       crossing_ids.each do |id|
         r =  GeographicItem.where(
           GeographicItem.contained_by_wkt_sql(GeographicItem.find(id).geo_object.to_s)
@@ -395,7 +398,7 @@ class GeographicItem < ActiveRecord::Base
 
     # @return [String] sql for contained_by via ST_ContainsProperly
     # Note: Can not use GEOMETRY_SQL because geometry_collection is not supported in ST_ContainsProperly
-    # Note: !! If the target GeographicItem#id crosses the anti-meridian then you may/will get unexpected results. 
+    # Note: !! If the target GeographicItem#id crosses the anti-meridian then you may/will get unexpected results.
     def contained_by_where_sql(*geographic_item_ids)
       "ST_ContainsProperly(
       #{GeographicItem.geometry_sql2(*geographic_item_ids)},
@@ -791,7 +794,7 @@ class GeographicItem < ActiveRecord::Base
     #     geometry     = geometry.as_text
     #     ob           = JSON.parse(value)
     #     coords       = ob['geometry']['coordinates'][0] # get the coordinates
-    # 
+    #
     #     last_x  = nil; this_x = nil; anti_chrossed = false # initialize for anti-meridian detection
     #     last_y  = nil; this_y = nil; bias_x = 360 #          # this section can be generalized for > 2 crossings
     #     point_1 = nil; point_1_x = nil; point_1_y = nil;
@@ -836,7 +839,7 @@ class GeographicItem < ActiveRecord::Base
     #           coords_1[point_1]     = [point_1_x, point_1_y] # truncate first polygon at anti-meridian
     #           coords_1[point_1 + 1] = [point_1_x, point_2_y] # continue truncation with second intersection point
     #           index_1               = index + 2 #                   # set up next insertion point for first polygon
-    # 
+    #
     #           coords_2[0] = [point_2_x, point_2_y] # begin polygon 2 with the mirror line in the opposite direction
     #           coords_2[1] = [point_2_x, point_1_y] # then first intersection where x is fixed at anti-meridian
     #           coords_2[2] = point #                    # continue second polygon with first point past transition
@@ -856,7 +859,7 @@ class GeographicItem < ActiveRecord::Base
     #           index_1           = index_1 + 1 #                 # update its pointer until we reach the initial point
     #         end
     #       }
-    # 
+    #
     #       ob["geometry"]["type"]        = 'MultiPolygon'
     #       ob["geometry"]["coordinates"] = [] #                     # replace the original coordinates
     #       ob["geometry"]["coordinates"].push([]) #                     # replace the original coordinates
