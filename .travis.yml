@@ -12,7 +12,7 @@ branches:
       - travis-trusty-beta
       - matrix
 addons:
-  postgresql: "9.4"
+  postgresql: "9.5"
   firefox: "46.0"
   apt:
     packages:
