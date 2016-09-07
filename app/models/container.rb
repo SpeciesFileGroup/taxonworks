@@ -27,7 +27,8 @@ class Container < ActiveRecord::Base
 
   include Shared::Taggable
   include SoftValidation
-
+  include Shared::Loanable
+  
   has_many :collection_profiles
 
   validates :type, presence: true

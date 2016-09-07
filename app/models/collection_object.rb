@@ -66,6 +66,7 @@ class CollectionObject < ActiveRecord::Base
   include Shared::Citable
   include Shared::Containable
   include Shared::DataAttributes
+  include Shared::Loanable
   include Shared::HasRoles
   include Shared::Identifiable
   include Shared::Notable

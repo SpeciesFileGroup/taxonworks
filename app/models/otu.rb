@@ -33,6 +33,7 @@ class Otu < ActiveRecord::Base
   include Shared::Taggable
   include Shared::IsData
   include Shared::Depictions
+  include Shared::Loanable
 
   include SoftValidation
 
