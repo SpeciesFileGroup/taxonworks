@@ -319,7 +319,7 @@ describe GeographicItem, type: :model, group: :geo do
       end
 
       context '.contained_by_with_antimeridian_check(*ids)' do
-        before{ build_structure}
+        before { build_structure }
 
         specify 'results from single non-meridian crossing polygon is found' do
           # invokes geometry_sql2
@@ -333,8 +333,9 @@ describe GeographicItem, type: :model, group: :geo do
           expect(GeographicItem.contained_by_with_antimeridian_check(eastern_box.id, western_box.id).map(&:id)).to contain_exactly(point_in_eastern_box.id, point_in_western_box.id)
         end
 
-        xspecify 'results from a meridian crossing polygon are found' do
+        xspecify 'results from single meridian crossing polygon are found' do
           # why is crossing_box not finding l_r_line or r_l_line
+          # why does crossing_box find one of the points
           expect(GeographicItem.contained_by_with_antimeridian_check(crossing_box.id).map(&:id)).to contain_exactly(l_r_line.id, r_l_line.id)
         end
 
@@ -348,10 +349,7 @@ describe GeographicItem, type: :model, group: :geo do
           expect(shifted_wkt =~ /-/).to be_falsey
           expect(GeographicItem.where(GeographicItem.contained_by_wkt_sql(shifted_wkt)).map(&:id)).to contain_exactly(point_in_eastern_box.id)
         end
-
       end
-
-
     end
 
     context 'verify GeographicItem.crosses_anti_meridian?(wkt) works' do
@@ -365,6 +363,5 @@ describe GeographicItem, type: :model, group: :geo do
         expect(GeographicItem.crosses_anti_meridian?(eastern_box_text)).to be_falsey
       end
     end
-
   end
 end
