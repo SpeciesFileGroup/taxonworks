@@ -7,6 +7,8 @@
     <%= fancy_th_tag(name: 'Total') -%>
     <%= fancy_th_tag(name: 'Preparation type') -%>
     <%= fancy_th_tag(name: 'Repository') -%>
+    <%= fancy_th_tag(name: 'Identifier', group: 'associated') -%>
+    <%= fancy_th_tag(name: 'Taxon determination', group: 'associated') -%>
     <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
     <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
   </tr>
@@ -19,6 +21,8 @@
           <td><%= collection_object.total %></td>
           <td><%= object_tag(collection_object.preparation_type) %></td>
           <td><%= object_tag(collection_object.repository) %></td>
+          <td> <%= collection_object.preferred_catalog_number.try(:cached) -%> </td>
+          <td> <%= determination_tag(collection_object.current_taxon_determination) -%> </td>
           <%= fancy_metadata_cells_tag(collection_object) -%>
       <% end %>
   <% end %>
