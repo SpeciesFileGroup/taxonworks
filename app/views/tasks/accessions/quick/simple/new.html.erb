@@ -52,7 +52,16 @@
                     </div>
                   </div>
               <% end %>
-          <% end %>
+         <% end %>
+
+        <div class="field">
+          <%= f.label :preparation_type %>
+          <br>
+          <%= f.select :preparation_type_id, options_from_collection_for_select(PreparationType.all, :id, :name, f.object.preparation_type_id),  include_blank: true  -%>
+          <%= lock_tag(@locks, :specimen, :preparation_type_id) -%>
+        </div>
+
+
           <hr>
           <div class="flex-wrap-row" data-help="These fields are used to create a related collecting event."> <!---- collecting event block ---->
             <div class="flex-wrap-column">

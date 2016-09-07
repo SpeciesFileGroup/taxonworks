@@ -44,7 +44,7 @@ class Tasks::Accessions::Quick::SimpleController < ApplicationController
 
   def stub(defaults: {})
     s = Specimen.new(collecting_event_id: defaults[:collecting_event_id] )
-
+    s.preparation_type_id = defaults[:preparation_type_id]
 
     s.identifiers << Identifier::Local::CatalogNumber.new( 
                                                           namespace_id: defaults[:namespace_id],
@@ -57,24 +57,24 @@ class Tasks::Accessions::Quick::SimpleController < ApplicationController
     s
   end
 
-
   def next_identifier
     return nil if !@locks.locked?('identifier', 'increment') 
     Utilities::Strings.increment_contained_integer(identifier_param)
   end
 
-
   def locked_params(locks: nil)
     {
       collecting_event_id: locks.resolve(:collecting_event, :collecting_event_id, collecting_event_id_param),
       namespace_id: locks.resolve(:identifier, :namespace_id, namespace_id_param ),
-      otu_id: locks.resolve(:taxon_determination, :otu_id, otu_id_param)
+      otu_id: locks.resolve(:taxon_determination, :otu_id, otu_id_param),
+      preparation_type_id: locks.resolve(:specimen, :preparation_type_id, preparation_type_id_param)
     }
   end
 
   def specimen_params
     params.require(:specimen).permit(
       # :collecting_event_id,
+      :preparation_type_id,
       identifiers_attributes: [:id, :namespace_id, :identifier, :type, :_destroy],
       tags_attributes: [:id, :keyword_id, :_destroy],
       taxon_determinations_attributes: [:id, :otu_id, :_destroy, 
@@ -97,14 +97,25 @@ class Tasks::Accessions::Quick::SimpleController < ApplicationController
     keys
   end
 
-  def collecting_event_params
-    id =  params.require(:specimen).permit(:collecting_event_id)[:collecting_event_id]
-    return {collecting_event_id: id} if !id.blank?
-    params.require(:specimen).permit(collecting_event_attributes: [:id, :_destroy, :verbatim_locality, :verbatim_label, :geographic_area_id]).reject{|k,v| v.blank?}
+  def preparation_type_id_param
+    begin
+      params[:specimen].require(:preparation_type_id)
+    rescue ActionController::ParameterMissing  
+      @specimen.preparation_type_id if @specimen
+    end
   end
- 
+
+  def collecting_event_params
+    begin
+      id = params[:specimen].require(:collecting_event_id)
+      {collecting_event_id: id} 
+    rescue ActionController::ParameterMissing  
+      params.require(:specimen).permit(collecting_event_attributes: [:id, :_destroy, :verbatim_locality, :verbatim_label, :geographic_area_id]).reject{|k,v| v.blank?}
+    end
+  end
+
   def lock_params
-    params.permit(locks: { identifier: [:namespace_id, :increment], taxon_determination: [:otu_id], collecting_event: [:collecting_event_id] })[:locks]
+    params.permit(locks: {specimen: [:preparation_type_id], identifier: [:namespace_id, :increment], taxon_determination: [:otu_id], collecting_event: [:collecting_event_id] })[:locks]
   end
 
   def namespace_id_param
@@ -114,7 +125,6 @@ class Tasks::Accessions::Quick::SimpleController < ApplicationController
   def identifier_param
     params[:specimen].try(:[], :identifiers_attributes).try(:[], "0").try(:[], :identifier)
   end
-
 
   #
   # Both otu and collecting event can be found or created from scratch, we 
@@ -138,8 +148,6 @@ class Tasks::Accessions::Quick::SimpleController < ApplicationController
       id
     end 
   end
-
-
 
 
 end
