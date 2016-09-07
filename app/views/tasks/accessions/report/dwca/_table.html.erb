@@ -1,6 +1,7 @@
 
-<table>
+<table class="tablesorter">
 
+  <thead>
   <tr>
     <th> Catalog Number </th>
     <th> Repository </th>
@@ -14,26 +15,32 @@
     <th> Latitude </th>
     <th> Longitude </th>
     <th> Precision (m) </th>
+    <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
+    <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
   </tr>
+  </thead>
 
+  <tbody>
   <% collection_objects.each do |o| -%>
+    <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
 
-   <tr>
-    <td> <%= o.preferred_catalog_number.try(:cached) -%> </td>
-    <td> <%= repository_tag(o.repository) %></td>
-    <td> <%= o.dwca_family -%> </td>
-    <td> <%= o.dwca_genus -%> </td>
-    <td> <%= o.dwca_species -%> </td>
-    <td> <%= o.dwca_country -%> </td>
-    <td> <%= o.dwca_state -%> </td>
-    <td> <%= o.dwca_county -%> </td>
-    <td> <%= o.dwca_locality -%> </td>
-    <td> Latitude </td>
-    <td> Longitude </td>
-    <td> Precision (m) </td>
-  </tr> 
+      <td> <%= o.preferred_catalog_number.try(:cached) -%> </td>
+      <td> <%= repository_tag(o.repository) %></td>
+      <td> <%= o.dwca_family -%> </td>
+      <td> <%= o.dwca_genus -%> </td>
+      <td> <%= o.dwca_species -%> </td>
+      <td> <%= o.dwca_country -%> </td>
+      <td> <%= o.dwca_state -%> </td>
+      <td> <%= o.dwca_county -%> </td>
+      <td> <%= o.dwca_locality -%> </td>
+      <td> Latitude </td>
+      <td> Longitude </td>
+      <td> Precision (m) </td>
+      <%= fancy_metadata_cells_tag(o) -%>
+    <% end %>
 
   <% end %>
 
+  </tbody>
 </table>
 
