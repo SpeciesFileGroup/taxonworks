@@ -1,4 +1,4 @@
-# Shared code for...
+# Shared code for a classes that are "data" sensu TaxonWorks (things like Projects, users, and preferences are not data).
 #
 module Shared::IsData
 
@@ -42,6 +42,10 @@ module Shared::IsData
 
   def has_depictions?
     self.class < Shared::Depictions ? true : false
+  end
+
+  def is_loanable? 
+    self.class < Shared::Loanable ? true : false
   end
 
   # Also need to check has_one relationships
