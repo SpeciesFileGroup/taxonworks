@@ -29,7 +29,7 @@
         <div class="field">
           <%= f.label :preparation_type %>
           <br>
-          <%= f.select :preparation_type_id, options_from_collection_for_select(PreparationType.all, :id, :name) -%>
+          <%= f.select :preparation_type_id, options_from_collection_for_select(PreparationType.all, :id, :name, f.object.preparation_type_id),  include_blank: true  -%>
         </div>
 
         <div class="field">
