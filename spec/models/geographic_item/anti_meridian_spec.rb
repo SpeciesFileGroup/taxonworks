@@ -335,7 +335,7 @@ describe GeographicItem, type: :model, group: :geo do
 
         xspecify 'results from single meridian crossing polygon are found' do
           # why is crossing_box not finding l_r_line or r_l_line
-          # why does crossing_box find one of the points
+          # why does crossing_box find point_in_easter_box
           expect(GeographicItem.contained_by_with_antimeridian_check(crossing_box.id).map(&:id)).to contain_exactly(l_r_line.id, r_l_line.id)
         end
 

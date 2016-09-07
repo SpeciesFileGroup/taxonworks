@@ -96,7 +96,7 @@ class GeographicItem < ActiveRecord::Base
     #   !! StrongParams security considerations
     def crosses_anti_meridian?(wkt)
       GeographicItem.find_by_sql(
-          "SELECT ST_Intersects(ST_GeogFromText('#{wkt}'), ST_GeogFromText('#{ANTI_MERIDIAN}')) as r;"
+        "SELECT ST_Intersects(ST_GeogFromText('#{wkt}'), ST_GeogFromText('#{ANTI_MERIDIAN}')) as r;"
       ).first.r
     end
 
@@ -108,7 +108,7 @@ class GeographicItem < ActiveRecord::Base
     #   UI is to abandon the search, and prompt the user to refactor the query.
     def crosses_anti_meridian_by_id?(*ids)
       GeographicItem.find_by_sql(
-          "SELECT ST_Intersects((SELECT single_geometry FROM (#{GeographicItem.single_geometry_sql(*ids)}) as left_intersect), ST_GeogFromText('#{ANTI_MERIDIAN}')) as r;"
+        "SELECT ST_Intersects((SELECT single_geometry FROM (#{GeographicItem.single_geometry_sql(*ids)}) as left_intersect), ST_GeogFromText('#{ANTI_MERIDIAN}')) as r;"
       ).first.r
     end
 
@@ -357,8 +357,8 @@ class GeographicItem < ActiveRecord::Base
       results.push GeographicItem.contained_by(non_crossing_ids).to_a if non_crossing_ids.any?
 
       crossing_ids.each do |id|
-        r =  GeographicItem.where(
-          GeographicItem.contained_by_wkt_sql(GeographicItem.find(id).geo_object.to_s)
+        r = GeographicItem.where(
+          GeographicItem.contained_by_wkt_crossing_sql(GeographicItem.find(id).geo_object.to_s)
         ).to_a
         results.push(r)
       end
@@ -366,10 +366,8 @@ class GeographicItem < ActiveRecord::Base
       results.flatten.uniq
     end
 
-    # TODO: Remove the hard coded 4326 reference
-    def contained_by_wkt_sql(wkt)
-      if crosses_anti_meridian?(wkt)
-        return "ST_ContainsProperly(ST_ShiftLongitude(ST_GeomFromText('#{wkt}', 4326)), (
+    def contained_by_wkt_crossing_sql(wkt)
+      retval = "ST_ContainsProperly(ST_ShiftLongitude(ST_GeomFromText('#{wkt}', 4326)), (
           CASE geographic_items.type
              WHEN 'GeographicItem::MultiPolygon' THEN ST_ShiftLongitude(multi_polygon::geometry)
              WHEN 'GeographicItem::Point' THEN ST_ShiftLongitude(point::geometry)
@@ -380,9 +378,15 @@ class GeographicItem < ActiveRecord::Base
           END
           )
         )"
+      retval
+    end
+
+    # TODO: Remove the hard coded 4326 reference
+    def contained_by_wkt_sql(wkt)
+      if crosses_anti_meridian?(wkt)
+        retval = contained_by_wkt_crossing_sql(wkt)
       else
-        # goodWKT = check_fix_wkt(wkt)
-        return "ST_ContainsProperly(ST_GeomFromText('#{wkt}', 4326), (
+        retval = "ST_ContainsProperly(ST_GeomFromText('#{wkt}', 4326), (
           CASE geographic_items.type
              WHEN 'GeographicItem::MultiPolygon' THEN multi_polygon::geometry
              WHEN 'GeographicItem::Point' THEN point::geometry
@@ -394,6 +398,7 @@ class GeographicItem < ActiveRecord::Base
           )
         )"
       end
+      retval
     end
 
     # @return [String] sql for contained_by via ST_ContainsProperly
