@@ -60,6 +60,10 @@ module Queries
       query_string.split(/\s+/).select{|t| Utilities::Strings.is_i?(t)}
     end
 
+    def wildcard_wrapped_integers
+      integers.collect{|i| "%#{i}%"}
+    end
+
     def strings
       a = query_string.split(/\s+/).select{|t| !(t =~ /\d+/)} 
       a.empty? ? [ query_string] : a
@@ -131,7 +135,7 @@ module Queries
     end
 
     def with_identifier_like
-      identifier_table[:cached].matches(start_and_end_wildcard)
+      identifier_table[:cached].matches(start_and_end_wildcard).or(identifier_table[:cached].matches(wildcard_wrapped_integers))
     end
 
   end

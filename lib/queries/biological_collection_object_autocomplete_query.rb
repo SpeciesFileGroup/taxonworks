@@ -1,24 +1,11 @@
 module Queries
-  class BiologicalCollectionObjectAutocompleteQuery
+  class BiologicalCollectionObjectAutocompleteQuery < Queries::Query
     include Arel::Nodes
 
     attr_accessor :terms
 
-    def initialize(string)
-      build_terms(string)
-    end
-
-    def terms=(string)
-      build_terms(string)
-    end
-
-    def build_terms(string)
-      string = string.to_s
-      @terms = [string] + string.split(/\s/).collect{|t| [t, "#{t}%"]}.flatten 
-    end
-
     def where_sql
-      with_id.or(identified_by).or(otu_determined_as).or(taxon_name_determined_as).to_sql
+      with_id.or(with_identifier_like).or(otu_determined_as).or(taxon_name_determined_as).to_sql
     end
 
     def all 
@@ -46,19 +33,15 @@ module Queries
     end
 
     def with_id 
-      table[:id].eq(@terms.first.to_i)
-    end
-
-    def identified_by
-      identifier_table[:cached].eq_any(@terms) 
+      table[:id].eq(terms.first.to_i)
     end
 
     def otu_determined_as 
-      otu_table[:name].matches_any(@terms)
+      otu_table[:name].matches_any(terms)
     end
 
     def taxon_name_determined_as 
-      taxon_name_table[:name].matches_any(@terms).or(taxon_name_table[:cached].matches_any(@terms) )
+      taxon_name_table[:name].matches_any(terms).or(taxon_name_table[:cached].matches_any(terms) )
     end
   
   end
