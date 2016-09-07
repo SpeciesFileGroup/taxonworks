@@ -400,6 +400,9 @@ TaxonWorks::Application.routes.draw do
     collection do
       post :preview_genbank_batch_file_load
       post :create_genbank_batch_file_load
+
+      post :preview_genbank_batch_load
+      post :create_genbank_batch_load
     end
   end
 

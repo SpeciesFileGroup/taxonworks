@@ -32,21 +32,20 @@ module BatchFileLoad
       # GenBank GBK
       namespace_genbank = Namespace.find_by(name: 'GenBank')
 
-      @filenames.each_with_index do |name, file_index|
+      @filenames.each_with_index do |filename, file_index|
         objects_in_file = {}
         objects_in_file[:sequence] = []
+        objects_in_file[:origin_relationship] = []
 
         # Sequence attributes
         sequence_attributes = { name: nil, sequence_type: nil, sequence: nil, identifiers_attributes: [] }
         file_content = @file_contents[file_index]
 
-        new_line_index = file_content.index("\n") # Double quotes are needed to properly interpret new line character
-        #sequence_attributes[:name] = file_content[1...file_content.index(' ')]
-        sequence_attributes[:sequence_type] = "DNA"
-        sequence_attributes[:sequence] = file_content[(new_line_index + 1)...(file_content.length - 1)]
+        sequence_attributes[:sequence_type] = get_sequence_type(filename)
+        sequence_attributes[:sequence] = get_sequence(file_content)
 
-        # Identifiers 
-        sequence_identifier_genbank_text = get_genbank_text(name)
+        # Identifiers for Sequence
+        sequence_identifier_genbank_text = get_genbank_text(filename)
         
 
         sequence_identifier_genbank = { namespace: namespace_genbank,
@@ -54,11 +53,24 @@ module BatchFileLoad
                                        identifier: sequence_identifier_genbank_text }
 
         sequence_attributes[:identifiers_attributes].push(sequence_identifier_genbank) if !sequence_identifier_genbank_text.blank?
-        ap sequence_identifier_genbank
         sequence = Sequence.new(sequence_attributes)
         objects_in_file[:sequence].push(sequence)
 
-        @processed_files[:names].push(name)
+        # Extract that this sequence came from
+        extracts = Extract.with_namespaced_identifier('GenBank', get_voucher_number(filename))  
+        extract = nil
+        extract = extracts.first if extracts.any?
+
+        # OriginRelationship for Extract(source) and Sequence(target)
+        if !extract.nil?
+          origin_relationship_attributes = { old_object: extract, new_object: sequence }
+          origin_relationship = OriginRelationship.new(origin_relationship_attributes)
+          ap origin_relationship
+          ap origin_relationship.valid?
+          objects_in_file[:origin_relationship].push(origin_relationship)
+        end
+
+        @processed_files[:names].push(filename)
         @processed_files[:objects].push(objects_in_file)
       end
     end
@@ -77,6 +89,29 @@ module BatchFileLoad
       end
 
       return ""
+    end
+
+    def get_sequence(file_content)
+      new_line_index = file_content.index("\n") # Double quotes are needed to properly interpret new line character
+      file_content[(new_line_index + 1)...(file_content.length - 1)]
+    end
+
+    def get_sequence_type(filename)
+      "DNA"
+    end
+
+    def get_voucher_number(filename)
+      # &vDRMDNA2303_&
+      voucher_pattern = "&vDRM"
+      beg_voucher_text_index = filename.index(voucher_pattern)
+
+      if beg_voucher_text_index == -1
+        return ""
+      end
+
+      beg_voucher_text_index += voucher_pattern.length
+      end_voucher_text_index = filename.index("_&", beg_voucher_text_index)
+      return filename[beg_voucher_text_index...end_voucher_text_index]
     end
   end
 end
