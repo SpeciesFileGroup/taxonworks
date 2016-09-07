@@ -58,8 +58,8 @@ class LoanItem < ActiveRecord::Base
   validates_uniqueness_of :loan, scope: [:loan_item_object_type, :loan_item_object_id]
 
   validate :total_provided_only_when_otu
+  validate :loan_object_is_loanable
 
-  validates_inclusion_of :loan_item_object_type, in: %w{Otu CollectionObject Container}
   validates_inclusion_of :disposition, in: STATUS, if: '!disposition.blank?'
 
   def global_entity
@@ -151,9 +151,8 @@ class LoanItem < ActiveRecord::Base
     errors.add(:total, 'only providable when item is an OTU.') if total && loan_item_object_type != 'Otu'
   end
 
-  # @todo @mjy What *is* the right construct for 'LoanItem'?
-  def self.find_for_autocomplete(params)
-    # where('recipient_email LIKE ?', "#{params[:term]}%")
+  def loan_object_is_loanable
+    loan_item_object && loan_item_object.respond_to?(:loanable?)
   end
 
 end
