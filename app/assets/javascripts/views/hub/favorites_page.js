@@ -83,5 +83,9 @@ $(document).ready(function() {
 			resetFilters();	
 		});
 
+		$('.task_card .unfavorite_link').on('click', function() {
+			$(this).closest('.task_card').hide(250);
+		});  		
+
 	}
 });
