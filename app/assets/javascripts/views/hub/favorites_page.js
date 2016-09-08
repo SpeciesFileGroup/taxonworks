@@ -83,8 +83,8 @@ $(document).ready(function() {
 			resetFilters();	
 		});
 
-		$('.task_card .unfavorite_link').on('click', function() {
-			$(this).closest('.task_card').hide(250);
+		$('.task_card .unfavorite_link').on('click', function(task) {
+			$(task.target).closest('.task_card').hide(250);
 		});  		
 
 	}
