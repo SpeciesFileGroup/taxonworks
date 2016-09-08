@@ -272,14 +272,18 @@ describe GeographicItem, type: :model, group: :geo do
       let(:r_l_line) { GeographicItem.create(line_string: Gis::FACTORY.parse_wkt(right_left_anti_line)) }
 
       # points
-      let(:point_in_eastern_box) { GeographicItem.create(point: Gis::FACTORY.parse_wkt('POINT(178 26.0)')) }
-      let(:point_in_western_box) { GeographicItem.create(point: Gis::FACTORY.parse_wkt('POINT(-178.0 26.0)')) }
+      let(:point_in_eastern_box) { GeographicItem.create(point: Gis::FACTORY.parse_wkt('POINT(177 26.0)')) }
+      let(:point_in_europe) { GeographicItem.create(point: Gis::FACTORY.parse_wkt('POINT(17 26.0)')) }
+      let(:point_in_england) { GeographicItem.create(point: Gis::FACTORY.parse_wkt('POINT(1 26.0)')) }
+      let(:point_in_western_box) { GeographicItem.create(point: Gis::FACTORY.parse_wkt('POINT(-177.0 26.0)')) }
 
       let(:build_structure) {
         western_box
         eastern_box
         point_in_western_box
         point_in_eastern_box
+        point_in_europe
+        point_in_england
         crossing_box
         r_l_line
         l_r_line
@@ -333,13 +337,13 @@ describe GeographicItem, type: :model, group: :geo do
           expect(GeographicItem.contained_by_with_antimeridian_check(eastern_box.id, western_box.id).map(&:id)).to contain_exactly(point_in_eastern_box.id, point_in_western_box.id)
         end
 
-        xspecify 'results from single meridian crossing polygon are found' do
+        specify 'results from single meridian crossing polygon are found' do
           # why is crossing_box not finding l_r_line or r_l_line
           # why does crossing_box find point_in_eastern_box
           expect(GeographicItem.contained_by_with_antimeridian_check(crossing_box.id).map(&:id)).to contain_exactly(l_r_line.id, r_l_line.id)
         end
 
-        xspecify 'results from merdian crossing and non-meridian crossing polygons are found' do
+        specify 'results from merdian crossing and non-meridian crossing polygons are found' do
           # why is crossing_box not finding l_r_line or r_l_line
           expect(GeographicItem.contained_by_with_antimeridian_check(eastern_box.id, western_box.id, crossing_box.id).map(&:id)).to contain_exactly(point_in_eastern_box.id, point_in_western_box.id, l_r_line.id, r_l_line.id)
         end
