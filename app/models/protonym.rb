@@ -632,29 +632,32 @@ class Protonym < TaxonName
   def sv_fix_add_nominotypical_sub
     rank = self.rank_class.to_s
     p = self.parent
-    begin
-      Protonym.transaction do
-        if rank =~ /Family/
-          name = Protonym.family_group_base(self.parent.name)
-          case self.rank_class.rank_name
-          when 'subfamily'
-            name += 'inae'
-          when 'tribe'
-            name += 'ini'
-          when 'subtribe'
-            name += 'ina'
+    prank = p.rank_class.to_s
+    if (rank =~ /Family/ && prank =~ /Family/) || (rank =~ /Genus/ && prank =~ /Genus/) || (rank =~ /Species/ && prank =~ /Species/)
+      begin
+        Protonym.transaction do
+          if rank =~ /Family/ && prank =~ /Family/
+            name = Protonym.family_group_base(self.parent.name)
+            case self.rank_class.rank_name
+              when 'subfamily'
+                name += 'inae'
+              when 'tribe'
+                name += 'ini'
+              when 'subtribe'
+                name += 'ina'
+            end
+          else
+            name = p.name
           end
-        else
-          name = p.name
-        end
 
-        t = Protonym.new(name: name, rank_class: rank, verbatim_author: p.verbatim_author, year_of_publication: p.year_of_publication, source: p.source, parent: p)
-        t.save
-        t.soft_validate
-        t.fix_soft_validations
-        return true
+          t = Protonym.new(name: name, rank_class: rank, verbatim_author: p.verbatim_author, year_of_publication: p.year_of_publication, source: p.source, parent: p)
+          t.save
+          t.soft_validate
+          t.fix_soft_validations
+          return true
+        end
+      rescue
       end
-    rescue
     end
   end
 

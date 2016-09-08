@@ -295,15 +295,17 @@ namespace :tw do
                                      'Host plant' => ['Host', 'Herbivor'],
                                      'Pollination' => ['Pollinator', 'Pollinated plant'],
                                      'Mating' => ['Mate', 'Mate'],
-                                     'Dissected genitalia' => ['Genitalia', 'Body'],
-                                     'Dissected body part' => ['Body part', 'Body'],
+#                                     'Dissected genitalia' => ['Genitalia', 'Body'],
+#                                     'Dissected body part' => ['Body part', 'Body'],
                                      'Reared' => ['Exuvia or pupa', 'Body'] }
 
         export_relationships = { '15430'  => :ignore,
                                  'attendant' => ['Attendance', :direct],
                                  'body'  => :ignore,
-                                 'body part (not genitalia)' => ['Dissected body part', :reverse],
-                                 'genitalia' => ['Dissected genitalia', :reverse],
+#                                 'body part (not genitalia)' => ['Dissected body part', :reverse],
+#                                 'genitalia' => ['Dissected genitalia', :reverse],
+                                 'body part (not genitalia)' => :origin,
+                                 'genitalia' => :origin,
                                  'host' => ['Host plant', :reverse],
                                  'host of' => ['Host plant', :reverse],
                                  'mate' => ['Mating', :direct],
@@ -406,29 +408,37 @@ namespace :tw do
         end
         data.namespaces['Invoice'] = n
 
-        n = Namespace.where(institution: 'INHS Insect Collection', name: 'INHS drawer')
+        n = Namespace.where(institution: 'INHS Insect Collection', name: 'INHS container')
         if n.empty?
-          n = Namespace.create(institution: 'INHS Insect Collection', name: 'INHS drawer', short_name: 'D')
+          n = Namespace.create(institution: 'INHS Insect Collection', name: 'INHS container', short_name: 'Container')
         else
           n = n.first
         end
-        data.namespaces['dry'] = n
+        data.namespaces['container'] = n
 
-        n = Namespace.where(institution: 'INHS Insect Collection', name: 'INHS vial rack')
-        if n.empty?
-          n = Namespace.create(institution: 'INHS Insect Collection', name: 'INHS vial rack', short_name: 'R')
-        else
-          n = n.first
-        end
-        data.namespaces['wet'] = n
+#        n = Namespace.where(institution: 'INHS Insect Collection', name: 'INHS drawer')
+#        if n.empty?
+#          n = Namespace.create(institution: 'INHS Insect Collection', name: 'INHS drawer', short_name: 'D')
+#        else
+#          n = n.first
+#        end
+#        data.namespaces['dry'] = n
 
-        n = Namespace.where(institution: 'INHS Insect Collection', name: 'INHS slide box')
-        if n.empty?
-          n = Namespace.create(institution: 'INHS Insect Collection', name: 'INHS slide box', short_name: 'S')
-        else
-          n = n.first
-        end
-        data.namespaces['slide'] = n
+#        n = Namespace.where(institution: 'INHS Insect Collection', name: 'INHS vial rack')
+#        if n.empty?
+#          n = Namespace.create(institution: 'INHS Insect Collection', name: 'INHS vial rack', short_name: 'R')
+#        else
+#          n = n.first
+#        end
+#        data.namespaces['wet'] = n
+
+#        n = Namespace.where(institution: 'INHS Insect Collection', name: 'INHS slide box')
+#        if n.empty?
+#          n = Namespace.create(institution: 'INHS Insect Collection', name: 'INHS slide box', short_name: 'S')
+#        else
+#          n = n.first
+#        end
+#        data.namespaces['slide'] = n
 
         data.namespaces.merge!(taxon_namespace: @taxon_namespace)
         data.namespaces.merge!(accession_namespace: @accession_namespace)
@@ -586,6 +596,8 @@ namespace :tw do
           data.keywords.merge!('INHS' => Keyword.create(name: 'INHS', definition: 'Belongs to INHS Insect collection.'))
           data.keywords.merge!('INHS_imported' => Keyword.create(name: 'INHS_imported', definition: 'Imported from INHS Insect collection database.'))
           data.keywords.merge!('INHS_letters' => Keyword.create(name: 'INHS_letters', definition: 'Loan correspondance imported from INHS Insect collection database.'))
+          data.keywords.merge!('body part (not genitalia)' => Keyword.create(name: 'body part (not genitalia)', definition: 'Dissected body part (not genitalia).'))
+          data.keywords.merge!('genitalia' => Keyword.create(name: 'genitalia', definition: 'Dissected genitalia.'))
 
           # from collecting_events
           PREDICATES.each do |p|
@@ -1605,21 +1617,26 @@ namespace :tw do
               otu = identifier.empty? ? nil : identifier.first.identifier_object
             end
 
-            if direction == :direct
-              subject = specimen
-              object = related_specimen.nil? ? otu : related_specimen
-            elsif direction == :reverse
-              subject = related_specimen.nil? ? otu : related_specimen
-              object = specimen
-            end
+            if br == :origin
+              OriginRelationship.create(new_object: related_specimen, old_object: specimen)
+              related_specimen.tags.create(keyword: data.keywords[row['Type']])
+            else
 
-            if object && subject
-              BiologicalAssociation.create(biological_relationship: br,
-                                           biological_association_subject: subject,
-                                           biological_association_object: object
-              )
-            end
+              if direction == :direct
+                subject = specimen
+                object = related_specimen.nil? ? otu : related_specimen
+              elsif direction == :reverse
+                subject = related_specimen.nil? ? otu : related_specimen
+                object = specimen
+              end
 
+              if object && subject
+                BiologicalAssociation.create(biological_relationship: br,
+                                             biological_association_subject: subject,
+                                             biological_association_object: object
+                )
+              end
+            end
           end
         end
 
@@ -1823,9 +1840,10 @@ namespace :tw do
                                        updated_at: time_from_field(row['ModifiedOn']),
                                        #parent_id: room,
                                        type: container_type[row['CollectionType']],
-                                       name: nil
+                                       name: nil,
+                                       contained_in: room
           )
-          ContainerItem.create!(container: room, contained_object: container)
+          container.identifiers.create!(namespace: data.namespaces['container'], identifier: row['ID'], type: 'Identifier::Local::ContainerCode') unless row['ID'].blank?
 
 
           ['Label1_1', 'Label1_2', 'Label1_3', 'Label1_4', 'Label2_1', 'Label2_2', 'Label2_3', 'Label2_4'].each do |l|
@@ -1886,6 +1904,7 @@ namespace :tw do
                                    collection_type: row['CollectionType']
                                 )
           cp.notes.create!(text: row['Remarks']) unless row['Remarks'].blank?
+
         end
       end
 
@@ -1893,10 +1912,10 @@ namespace :tw do
         return @collection_container if row['Room'].nil?
         r = data.rooms[row['Room']]
         if r.nil?
-          r = Container::Room.with_project_id($project_id).where(name: row['name'])
+          r = Container::Room.with_project_id($project_id).where(name: row['Room'])
           if r.empty?
-            r = Container::Room.create!(name: row['Room'] )
-            ContainerItem.create!(container_id: @collection_container, contained_object: r)
+            r = Container::Room.create!(name: row['Room'], contained_in: @collection_container )
+            #ContainerItem.create!(container_id: @collection_container, contained_object: r)
           else
             r = r.first
           end

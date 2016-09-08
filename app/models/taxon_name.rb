@@ -781,7 +781,8 @@ class TaxonName < ActiveRecord::Base
   # @return [String]
   #  a monomial if names is above genus, or a full epithet if below. 
   def get_full_name
-    return name unless self.type == 'Combination' || GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_string)
+    return verbatim_name if self.type != 'Combination' && !GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_string) && !self.verbatim_name.nil?
+    return name if self.type != 'Combination' && !GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_string)
     return verbatim_name if !self.verbatim_name.nil? && self.type == 'Combination'
     d  = full_name_hash
     elements = []
@@ -797,7 +798,8 @@ class TaxonName < ActiveRecord::Base
   # @return [String]
   #  a monomial if names is above genus, or a full epithet if below, includes html
   def get_full_name_html
-    return name unless self.type == 'Combination' || GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_string)
+    return verbatim_name if self.type != 'Combination' && !GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_string) && !self.verbatim_name.nil?
+    return name if self.type != 'Combination' && !GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_string)
     eo = '<i>'
     ec = '</i>'
     return "#{eo}#{verbatim_name}#{ec}".gsub(' f. ', ec + ' f. ' + eo).gsub(' var. ', ec + ' var. ' + eo) if !self.verbatim_name.nil? && self.type == 'Combination'

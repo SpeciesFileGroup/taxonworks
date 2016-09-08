@@ -1,7 +1,7 @@
 require 'fileutils'
 
 ### rake tw:project_import:ucd:import_ucd data_directory=/Users/proceps/src/sf/import/ucd/working/ no_transaction=true
-
+### rake tw:db:restore backup_directory=/Users/proceps/src/sf/import/ucd/dump/ file=2016-09-07_211456UTC.dump
 
 
 # COLL.txt          Done
@@ -95,7 +95,6 @@ namespace :tw do
 #        $project_id = 1
 #        @root = Protonym.find_or_create_by(name: 'Root', rank_class: 'NomenclaturalRank', project_id: $project_id)
 
-        handle_language_ucd
         handle_countries_ucd
         handle_collections_ucd
         handle_keywords_ucd
@@ -124,6 +123,7 @@ namespace :tw do
         handle_ptype_ucd
         handle_hosts_ucd
         handle_dist_ucd
+
         soft_validations_ucd
 
         print "\n\n !! Success. End time: #{Time.now} \n\n"
@@ -1485,15 +1485,15 @@ namespace :tw do
 
       def soft_validations_ucd
         fixed = 0
-        print "\nApply soft validation fixes to relationships \n"
-        TaxonNameRelationship.where(project_id: $project_id).each_with_index do |t, i|
-          print "\r#{i}    Fixes applied: #{fixed}"
-          t.soft_validate
-          t.fix_soft_validations
-          t.soft_validations.soft_validations.each do |f|
-            fixed += 1  if f.fixed?
-          end
-        end
+#        print "\nApply soft validation fixes to relationships \n"
+#        TaxonNameRelationship.where(project_id: $project_id).each_with_index do |t, i|
+#          print "\r#{i}    Fixes applied: #{fixed}"
+#          t.soft_validate
+#          t.fix_soft_validations
+#          t.soft_validations.soft_validations.each do |f|
+#            fixed += 1  if f.fixed?
+#          end
+#        end
         print "\nApply soft validation fixes to taxa 1st pass \n"
         TaxonName.where(project_id: $project_id).each_with_index do |t, i|
           print "\r#{i}    Fixes applied: #{fixed}"
