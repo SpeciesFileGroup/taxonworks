@@ -90,6 +90,7 @@ namespace :tw do
         no_parent_counter = 0
 
         file.each_with_index do |row, i|
+
           taxon_name_id = row['TaxonNameID']
           next unless taxon_name_id.to_i > 0
           next if row['TaxonNameStr'].start_with?('1100048-1143863') # name = MiscImages (body parts)
@@ -112,8 +113,11 @@ namespace :tw do
             else
               parent_id = get_tw_taxon_name_id[get_sf_parent_id[taxon_name_id]] # assumes tw_taxon_name_id exists
             end
-          elsif get_otu_sf_above_id.has_key?(taxon_name_id) # bad valid sf taxon name
+          elsif get_otu_sf_above_id.has_key?(taxon_name_id) # ill-formed sf taxon name, will make OTU
             parent_id = get_tw_taxon_name_id[get_otu_sf_above_id[taxon_name_id]]
+            # problem with two instances of parent not properly selected when nominotypical species, seems to default to nominotypical subspecies:
+            # TaxonNameID 1225991 (Plec, tadzhikistanicum, nomen dubium, parent should be 1166943)
+            # TaxonNameID 1170406 (Plec, suppleta, nomen nudum, parent should be 1170405)
             # logger.info "get_otu_sf_above_id.has_key? parent_id = #{parent_id}"
           # elsif get_sf_new_parent_id.has_key?(taxon_name_id) # subordinate of bad valid taxon name
           #   parent_id = get_tw_taxon_name_id[get_sf_new_parent_id[taxon_name_id]]

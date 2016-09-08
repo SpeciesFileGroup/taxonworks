@@ -16,8 +16,8 @@ ActiveRecord::Schema.define(version: 20160819205425) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
-  enable_extension "hstore"
   enable_extension "fuzzystrmatch"
+  enable_extension "hstore"
 
   create_table "alternate_values", force: :cascade do |t|
     t.text     "value",                            null: false
@@ -551,40 +551,6 @@ ActiveRecord::Schema.define(version: 20160819205425) do
   add_index "documents", ["document_file_file_size"], name: "index_documents_on_document_file_file_size", using: :btree
   add_index "documents", ["document_file_updated_at"], name: "index_documents_on_document_file_updated_at", using: :btree
 
-  create_table "extracts", force: :cascade do |t|
-    t.decimal  "quantity_value",             null: false
-    t.string   "quantity_unit",              null: false
-    t.decimal  "quantity_concentration",     null: false
-    t.string   "verbatim_anatomical_origin", null: false
-    t.integer  "year_made",                  null: false
-    t.integer  "month_made",                 null: false
-    t.integer  "day_made",                   null: false
-    t.integer  "created_by_id",              null: false
-    t.integer  "updated_by_id",              null: false
-    t.integer  "project_id",                 null: false
-    t.datetime "created_at",                 null: false
-    t.datetime "updated_at",                 null: false
-  end
-
-  add_index "extracts", ["project_id"], name: "index_extracts_on_project_id", using: :btree
-
-  create_table "gene_attributes", force: :cascade do |t|
-    t.integer  "descriptor_id",                 null: false
-    t.integer  "sequence_id",                   null: false
-    t.string   "sequence_relationship_type"
-    t.integer  "controlled_vocabulary_term_id"
-    t.integer  "position"
-    t.integer  "created_by_id",                 null: false
-    t.integer  "updated_by_id",                 null: false
-    t.integer  "project_id",                    null: false
-    t.datetime "created_at",                    null: false
-    t.datetime "updated_at",                    null: false
-  end
-
-  add_index "gene_attributes", ["controlled_vocabulary_term_id"], name: "index_gene_attributes_on_controlled_vocabulary_term_id", using: :btree
-  add_index "gene_attributes", ["project_id"], name: "index_gene_attributes_on_project_id", using: :btree
-  add_index "gene_attributes", ["sequence_id"], name: "index_gene_attributes_on_sequence_id", using: :btree
-
   create_table "geographic_area_hierarchies", id: false, force: :cascade do |t|
     t.integer "ancestor_id",   null: false
     t.integer "descendant_id", null: false
@@ -1077,31 +1043,6 @@ ActiveRecord::Schema.define(version: 20160819205425) do
   add_index "roles", ["type"], name: "index_roles_on_type", using: :btree
   add_index "roles", ["updated_by_id"], name: "index_roles_on_updated_by_id", using: :btree
 
-  create_table "sequence_relationships", force: :cascade do |t|
-    t.integer  "subject_sequence_id", null: false
-    t.integer  "object_sequence_id",  null: false
-    t.integer  "created_by_id",       null: false
-    t.integer  "updated_by_id",       null: false
-    t.datetime "created_at",          null: false
-    t.datetime "updated_at",          null: false
-    t.integer  "project_id",          null: false
-    t.string   "type",                null: false
-  end
-
-  create_table "sequences", force: :cascade do |t|
-    t.integer  "created_by_id", null: false
-    t.integer  "updated_by_id", null: false
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
-    t.text     "sequence",      null: false
-    t.string   "sequence_type", null: false
-    t.integer  "project_id",    null: false
-    t.string   "name"
-  end
-
-  add_index "sequences", ["created_by_id"], name: "index_sequences_on_created_by_id", using: :btree
-  add_index "sequences", ["updated_by_id"], name: "index_sequences_on_updated_by_id", using: :btree
-
   create_table "serial_chronologies", force: :cascade do |t|
     t.integer  "preceding_serial_id",  null: false
     t.integer  "succeeding_serial_id", null: false
@@ -1537,14 +1478,6 @@ ActiveRecord::Schema.define(version: 20160819205425) do
   add_foreign_key "documentation", "users", column: "updated_by_id"
   add_foreign_key "documents", "users", column: "created_by_id"
   add_foreign_key "documents", "users", column: "updated_by_id"
-  add_foreign_key "extracts", "projects"
-  add_foreign_key "extracts", "users", column: "created_by_id"
-  add_foreign_key "extracts", "users", column: "updated_by_id"
-  add_foreign_key "gene_attributes", "controlled_vocabulary_terms"
-  add_foreign_key "gene_attributes", "projects"
-  add_foreign_key "gene_attributes", "sequences"
-  add_foreign_key "gene_attributes", "users", column: "created_by_id"
-  add_foreign_key "gene_attributes", "users", column: "updated_by_id"
   add_foreign_key "geographic_area_types", "users", column: "created_by_id", name: "geographic_area_types_created_by_id_fkey"
   add_foreign_key "geographic_area_types", "users", column: "updated_by_id", name: "geographic_area_types_updated_by_id_fkey"
   add_foreign_key "geographic_areas", "geographic_area_types", name: "geographic_areas_geographic_area_type_id_fkey"
@@ -1633,14 +1566,6 @@ ActiveRecord::Schema.define(version: 20160819205425) do
   add_foreign_key "roles", "projects", name: "roles_project_id_fkey"
   add_foreign_key "roles", "users", column: "created_by_id", name: "roles_created_by_id_fkey"
   add_foreign_key "roles", "users", column: "updated_by_id", name: "roles_updated_by_id_fkey"
-  add_foreign_key "sequence_relationships", "projects"
-  add_foreign_key "sequence_relationships", "sequences", column: "object_sequence_id"
-  add_foreign_key "sequence_relationships", "sequences", column: "subject_sequence_id"
-  add_foreign_key "sequence_relationships", "users", column: "created_by_id"
-  add_foreign_key "sequence_relationships", "users", column: "updated_by_id"
-  add_foreign_key "sequences", "projects"
-  add_foreign_key "sequences", "users", column: "created_by_id"
-  add_foreign_key "sequences", "users", column: "updated_by_id"
   add_foreign_key "serial_chronologies", "serials", column: "preceding_serial_id", name: "serial_chronologies_preceding_serial_id_fkey"
   add_foreign_key "serial_chronologies", "serials", column: "succeeding_serial_id", name: "serial_chronologies_succeeding_serial_id_fkey"
   add_foreign_key "serial_chronologies", "users", column: "created_by_id", name: "serial_chronologies_created_by_id_fkey"
