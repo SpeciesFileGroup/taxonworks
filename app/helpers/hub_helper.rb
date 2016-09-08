@@ -1,5 +1,6 @@
 module HubHelper
 
+  # TODO FIX ON Turbolinks 5.0
   def task_card(task)
     content_tag(:div, '', class: 'task_card') { 
       content_tag(:div,'' , class: 'task_header') {
@@ -13,13 +14,13 @@ module HubHelper
           favorite_page_link('tasks', task.prefix) 
         } 
       } +
-      content_tag(:div, link_to(task.name, send(task.path) ), class: 'task_name') +
+      content_tag(:div, link_to(task.name, send(task.path), data: { no_turbolink: true } ), class: 'task_name') +
       content_tag(:div, task.description, class: 'task_description') 
     }
   end
 
   def data_link(data)
-    link_to(data.name, data.klass)
+    link_to(data.name, data.klass, data: { no_turbolink: true })
   end
 
   def data_card(data)
