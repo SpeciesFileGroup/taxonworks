@@ -20,7 +20,7 @@ module HubHelper
   end
 
   def data_link(data)
-    link_to(data.name, data.klass, data: { no_turbolink: true })
+    link_to(data.name, data.klass)
   end
 
   def data_card(data)
