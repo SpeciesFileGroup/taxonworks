@@ -32,7 +32,7 @@ class Georeference::VerbatimData < Georeference
         end
       end
 
-      point      = collecting_event.map_center(delta_z)
+      point      = collecting_event.verbatim_map_center(delta_z)
       attributes = {point: point}
       attributes.merge!(by: self.by) if self.by
 

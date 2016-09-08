@@ -682,9 +682,8 @@ class CollectingEvent < ActiveRecord::Base
     retval
   end
 
-
   # @return [Hash]
-  #   classifies this collecting event into  country, state, county categories
+  #   classifies this collecting event into country, state, county categories
   def geographic_name_classification
     # if names are stored in the database, and the the geographic_area_id has not changed
     if has_cached_geographic_names? && !geographic_area_id_changed?
@@ -693,7 +692,6 @@ class CollectingEvent < ActiveRecord::Base
       r = get_geographic_name_classification
       cache_geographic_names(r, true)
     end
-
   end
 
   def get_geographic_name_classification
@@ -711,9 +709,9 @@ class CollectingEvent < ActiveRecord::Base
       when :geographic_area # elsif geographic_area
       # quick
       r = geographic_area.geographic_name_classification
-    when :map_center # elsif map_center
+    when :verbatim_map_center # elsif map_center
       # slowest
-      r = GeographicItem.point_inferred_geographic_name_hierarchy(map_center)
+      r = GeographicItem.point_inferred_geographic_name_hierarchy(verbatim_map_center)
     end
     r ||= {}
   end
@@ -739,11 +737,14 @@ class CollectingEvent < ActiveRecord::Base
     values
   end
 
+  # @return [Symbol, nil]
+  #    determines (prioritizes) the method to be used to decided the geographic name classification 
+  #    (string labels for country, state, county) for this collecting_event.
   def geographic_name_classification_method
     return :preferred_georeference if preferred_georeference
     return :geographic_area_with_shape if geographic_area.try(:has_shape?)
     return :geographic_area if geographic_area
-    return :map_center if map_center
+    return :verbatim_map_center if verbatim_map_center
     nil
   end
 
@@ -911,11 +912,11 @@ class CollectingEvent < ActiveRecord::Base
   end
 
   def latitude
-    map_center.try(:x)
+    verbatim_map_center.try(:x)
   end
 
   def longitude
-    map_center.try(:y)
+    verbatim_map_center.try(:y)
   end
 
   # @return [Hash]
@@ -975,14 +976,41 @@ class CollectingEvent < ActiveRecord::Base
   end
 
   # @param [Float] delta_z, will be used to fill in the z coordinate of the point
-  # @return [RGeo::Geographic::ProjectedPointImpl] for the *verbatim* latitude/longitude only
-  def map_center(delta_z = 0.0)
+  # @return [RGeo::Geographic::ProjectedPointImpl, nil] 
+  #    for the *verbatim* latitude/longitude only
+  def verbatim_map_center(delta_z = 0.0)
     unless verbatim_latitude.blank? or verbatim_longitude.blank?
       lat     = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_latitude.to_s)
       long    = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_longitude.to_s)
       elev    = Utilities::Geo.distance_in_meters(verbatim_elevation.to_s)
       delta_z = elev unless elev == 0.0
       Gis::FACTORY.point(long, lat, delta_z)
+    else
+      nil
+    end
+  end
+
+  # @return [Symbol, nil]
+  #   the name of the method that will return an Rgeo object that represent
+  #   the "preferred" centroid for this collecting event
+  def map_center_method
+    return :preferred_georeference if preferred_georeference
+    return :verbatim_map_center if verbatim_map_center
+    return :geographic_area if geographic_area.try(:has_shape?)
+    nil
+  end
+
+  # @return [Rgeo::Geographic::ProjectedPointImpl, nil]
+  def map_center
+    case map_center_method
+    when :geographic_area
+      geographic_area.default_geographic_item.geo_object.centroid 
+    when :verbatim_map_center 
+      verbatim_map_center
+    when :preferred_georeference
+      preferred_georeference.geographic_item.centroid
+    else
+      nil 
     end
   end
 
@@ -1013,7 +1041,7 @@ class CollectingEvent < ActiveRecord::Base
     if self.verbatim_latitude.blank? || self.verbatim_longitude.blank?
       'POINT (0.0 0.0 0.0)'
     else
-      self.map_center.to_s
+      self.verbatim_map_center.to_s
     end
   end
 

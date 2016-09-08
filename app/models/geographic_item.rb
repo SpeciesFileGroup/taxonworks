@@ -978,6 +978,14 @@ class GeographicItem < ActiveRecord::Base
     [r.latitude, r.longitude]
   end
 
+  # @return [RGeo::Geographic::ProjectedPointImpl]
+  #    representing the centroid of this geographic item
+  def centroid
+    # Gis::FACTORY.point(*center_coords.reverse)
+    return geo_object if type == 'GeographicItem::Point'
+    return geo_object.centroid
+  end
+
   # @return [Double] distance in meters (slower, more accurate)
   def st_distance(geographic_item_id) # geo_object
     GeographicItem.where(id: id).pluck("ST_Distance((#{GeographicItem.select_geography_sql(self.id)}), (#{GeographicItem.select_geography_sql(geographic_item_id)})) as d").first
