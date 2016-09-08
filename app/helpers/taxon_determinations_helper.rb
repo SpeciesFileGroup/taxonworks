@@ -10,6 +10,7 @@ module TaxonDeterminationsHelper
   # @return [String]
   #   as for taxon_determination_tag but does not reference collection object
   def determination_tag(taxon_determination)
+    return nil if taxon_determination.nil?
     [ taxon_determination_name(taxon_determination),
       taxon_determination_by(taxon_determination),
       taxon_determination_on(taxon_determination)
