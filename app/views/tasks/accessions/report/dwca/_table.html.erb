@@ -10,7 +10,7 @@
     <th> Species </th>
     <th> Country </th>
     <th> State </th>
-    <th> County <th>
+    <th> County </th>
     <th> Locality </th>
     <th> Latitude </th>
     <th> Longitude </th>
@@ -33,8 +33,8 @@
       <td> <%= o.dwca_state -%> </td>
       <td> <%= o.dwca_county -%> </td>
       <td> <%= o.dwca_locality -%> </td>
-      <td> Latitude </td>
-      <td> Longitude </td>
+      <td> <%= o.dwca_latitude -%> </td>
+      <td> <%= o.dwca_longitude -%>  </td>
       <td> Precision (m) </td>
       <%= fancy_metadata_cells_tag(o) -%>
     <% end %>

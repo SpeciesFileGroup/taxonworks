@@ -994,10 +994,17 @@ class CollectingEvent < ActiveRecord::Base
   #   the name of the method that will return an Rgeo object that represent
   #   the "preferred" centroid for this collecting event
   def map_center_method
-    return :preferred_georeference if preferred_georeference
-    return :verbatim_map_center if verbatim_map_center
+    return :preferred_georeference if preferred_georeference     # => { georeferenceProtocol => ?  }
+    return :verbatim_map_center if verbatim_map_center           # => { }
     return :geographic_area if geographic_area.try(:has_shape?)
     nil
+  end
+
+  # http://tools.gbif.org/dwca-assistant/
+  def dwca_map_center_attributes 
+   #return {
+   #  ... 
+   #}
   end
 
   # @return [Rgeo::Geographic::ProjectedPointImpl, nil]

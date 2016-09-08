@@ -58,11 +58,11 @@ module Dwca::CollectionObjectExtensions
   end
 
   def dwca_latitude
-
+    try(:collecting_event).try(:map_center).try(:y)
   end
 
   def dwca_longitude
-
+    try(:collecting_event).try(:map_center).try(:x)
   end
 
   def dwca_precision
