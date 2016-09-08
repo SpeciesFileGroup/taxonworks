@@ -10,7 +10,28 @@
   .activated {
     background-color: $color-complement-2 !important;
     box-shadow:inset 0px 1px 2px 0px $color-complement-3 !important;
+          opacity: 1 !important;
   } 
+  .activated.status {
+    box-shadow:none !important;
+  }
+
+  .activated.prototype {
+    background-color: #fc615d !important;
+  } 
+
+  .activated.unknown {
+    background-color: #bbbbbb!important;
+  }
+
+  .activated.stable {
+    background-color: #fdbd41!important;
+  }    
+
+  .activated.complete {
+    background-color: #35c94a!important;
+  }
+
   img {
     padding-right: 5px;
     opacity: 0.8;
@@ -49,6 +70,14 @@
     box-shadow:inset 0px 1px 5px 0px $navigation_border; 
     border-top-left-radius: 0px;
     border-bottom-left-radius: 0px;
+    .status {
+      transition: opacity 0.5s ease;
+      opacity: 0.3;
+    }
+    .status:hover {
+      transition: opacity 0.5s ease;
+      opacity: 0.5;
+    }
   }
 
 
@@ -157,3 +186,4 @@
   border:0.5px solid #27aa35;
   background-color: #35c94a;
 }
+
