@@ -1,6 +1,16 @@
 <% content_for :associated do -%>
   <%= on_loan_tag(@container) -%>
 
+  <h3> Container labels</h3>
+  <% if @container.container_labels.any? -%>
+
+    <% @container.container_labels.each do |i| -%>
+      <%= content_tag(:div, i.label) -%> </br>
+    <% end %>
+  <% else %>
+    <%= content_tag(:em, 'Container is unlabeled.') if @container.container_items.count == 0 -%>
+  <% end %>
+
   <h3> Nesting containers </h3>
   <% if @container.is_nested? -%> 
     <ul>
@@ -12,14 +22,15 @@
     <%= content_tag(:em, 'None.') -%>
   <% end %>
 
+  <h3> Contained objects </h3>
   <% if !@container.is_empty? -%>
-    <h3> Contained objects </h3>
     <% @container.all_contained_objects.each do |i| -%>
       <%= object_link(i) -%> </br>
     <% end %>
   <% else %>
     <%= content_tag(:em, 'Container is empty.') if @container.container_items.count == 0 -%>
   <% end %>
+
 <% end %>
 
 <%= render(partial: 'shared/data/project/show', locals: {object: @container}) -%>

@@ -3,11 +3,12 @@
 <table class="tablesorter">
   <thead>
   <tr>
-    <%= fancy_th_tag(name: 'Parent') -%>
+    <%= fancy_th_tag(name: 'Name') -%>
     <%= fancy_th_tag(name: 'Type') -%>
     <%= fancy_th_tag(name: 'Container') -%>
-    <%= fancy_th_tag(name: 'Name') -%>
     <%= fancy_th_tag(name: 'Disposition') -%>
+    <%= fancy_th_tag(name: 'Labels', group: 'associated') -%>
+    <%= fancy_th_tag(name: 'Identifier', group: 'associated') -%>
     <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
     <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
   </tr>
@@ -16,12 +17,13 @@
   <tbody>
   <% @containers.each do |container| %>
       <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
-          <td><%= container_parent_tag(container) %></td>
-          <td><%= container.type %></td>
-          <td><%= container.container %></td>
-          <td><%= container.name %></td>
-          <td><%= container.disposition %></td>
-          <%= fancy_metadata_cells_tag(container) -%>
+        <td><%= container.name %></td>
+        <td><%= container.type %></td>
+        <td><%= container_tag(container.container)  %></td> <!---- containers_helper.rb ---->
+        <td><%= container.disposition %></td>
+        <td><%= container_labels_tag(container) %></td>
+        <td><%= identifiers_tag(container) -%></td> 
+        <%= fancy_metadata_cells_tag(container) -%>
       <% end %>
   <% end %>
   </tbody>

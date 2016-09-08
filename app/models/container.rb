@@ -30,6 +30,7 @@ class Container < ActiveRecord::Base
   include Shared::Loanable
   
   has_many :collection_profiles
+  has_many :container_labels
 
   validates :type, presence: true
   validate :type_is_valid
