@@ -3,19 +3,18 @@
 
   <h3> Container labels</h3>
   <% if @container.container_labels.any? -%>
-
     <% @container.container_labels.each do |i| -%>
-      <%= content_tag(:div, i.label) -%> </br>
+      <%= content_tag(:pre, i.label) -%> </br>
     <% end %>
   <% else %>
-    <%= content_tag(:em, 'Container is unlabeled.') if @container.container_items.count == 0 -%>
+    <%= content_tag(:em, 'Unlabeled.') -%>
   <% end %>
 
   <h3> Nesting containers </h3>
   <% if @container.is_nested? -%> 
     <ul>
     <% @container.container_item.ancestors.each do |c| -%>
-      <%= content_tag(:li, container_link(c.container)) -%>
+      <%= content_tag(:li, container_link(c.contained_object)) -%>
     <% end %>
     </ul>
   <% else %>
