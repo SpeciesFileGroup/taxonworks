@@ -1,33 +1,32 @@
 namespace :tw do
   namespace :project_import do
-    namespace :import_all do
+    namespace :sf_import do
 
-      # try %w ????
+      # try %w instead of literal array syntax ???? (see markup)
 
-      # desc 'run all import tasks'
-      # ### time rake tw:project_import:import_all:run_all_import_tasks user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
-      # task :run_all_import_tasks => [
-      #     'sf_start:create_users',
-      #     'sf_start:create_people',
-      #     'sf_start:map_serials',
-      #     'sf_start:map_pub_type',
-      #     'sf_start:map_ref_links',
-      #     'sf_start:list_verbatim_refs',
-      #     'sf_start:create_projects',
-      #     'sf_start:create_sources',
-      #     'sf_start:create_source_editor_array',
-      #     'sf_start:create_source_roles',
-      #     'sf_start:create_sf_book_hash',
-      #     'sf_start:update_sources_with_booktitle_publisher_address',
-      #
-      #     'sf_taxa:create_rank_hash',
-      #     'sf_taxa:create_animalia_below_root',
-      #     'sf_taxa:create_sf_synonym_id_to_new_parent_id_hash',
-      #     'sf_taxa:create_bad_valid_name_and_sub_parent_hashes',
-      #     'sf_taxa:create_all_sf_taxa_pass1'
-      # ] do
-      #   puts 'Ran everything!'
-      # end
+      desc 'time rake tw:project_import:sf_import:run_all_import_tasks user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+      task :run_all_import_tasks => [
+          'start:create_users',
+          'start:create_people',
+          'start:map_serials',
+          'start:map_pub_type',
+          'start:map_ref_links',
+          'start:list_verbatim_refs',
+          'start:create_projects',
+          'start:create_sources',
+          'start:create_source_editor_array',
+          'start:create_source_roles',
+          'start:create_sf_book_hash',
+          'start:update_sources_with_booktitle_publisher_address',
+
+          'taxa:create_rank_hash',
+          'taxa:create_animalia_below_root',
+          'taxa:create_sf_synonym_id_to_new_parent_id_hash',
+          'taxa:create_otus_for_ill_formed_names_hash',
+          'taxa:create_all_sf_taxa_pass1'
+      ] do
+        puts 'Ran everything!'
+      end
     end
   end
 end
