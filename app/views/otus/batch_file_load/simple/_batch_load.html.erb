@@ -5,29 +5,22 @@
     <div class="item item1 one_third_width">
       <h3> Description and requirements </h3>
 
-      <p> TODO: Does X. </p>
+      <p> Creates a new OTU, one for each file provided. </p>
       <ul>
-        <li>A tab-delimited, UTF-8 compatible text file is required.</li>
-        <li>Column headers are XXX (see <%= link_to('sample template', asset_path('batch_file_load_templates/otus/otus_simple_batch_file_load.tab'), target: '_blank') -%>).</li>
-        <li>If X then Y.</li>
-        <li>Multiple uploads of the same data will X.</li>
-        <li>It is assumed Z1.</li>
-        <li>It is assumed Z2.</li>
-        <li>There is currently some|no size limit to the file being loaded but this may change in the future.</li>
+        <li>A UTF-8 compatible text file is required.</li>
+        <li>The Otu name will be the entire contents of each file</li>
+        <li>Example Otu file (see <%= link_to('sample template', asset_path('batch_file_load_templates/otus/simple/simple.txt'), target: '_blank') -%>).</li>
+        <li>You can only upload 127 files max at once</li>
       </ul>
     </div>
 
     <div class="item item2 one_third_width">
       <h3> Example file </h3>
 
-      <p> A tab delimited formatted file ... DESCRIPTION ... 
-        In the example whitespace is a tab. View sample file template.</p>
+      <p>A file with a bunch of words to comprise the Otu name</p>
 
       <pre class="fixed_width_font">
-        header1 header2 header3
-        Aidae Aus bus
-        Aidae Aus cus
-        Bidae Bus eus</pre>
+        Otu name...</pre>
     </div>
 
     <div class="item item3">

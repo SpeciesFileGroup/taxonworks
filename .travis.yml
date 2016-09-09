@@ -13,6 +13,7 @@ branches:
       - matrix
       - dna
       - eyelet
+      - batch_file_load
 addons:
   postgresql: "9.4"
   firefox: "46.0"
