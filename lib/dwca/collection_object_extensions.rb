@@ -1,5 +1,5 @@
 module Dwca::CollectionObjectExtensions
- 
+
   attr_accessor :taxonomy
 
   def taxonomy
@@ -7,8 +7,8 @@ module Dwca::CollectionObjectExtensions
   end
 
   # http://rs.tdwg.org/dwc/terms/basisOfRecord
-  def dwca_basis_of_record 
-    'Preserved Specimen'  
+  def dwca_basis_of_record
+    'Preserved Specimen'
   end
 
   # http://rs.tdwg.org/dwc/terms/family
@@ -30,13 +30,13 @@ module Dwca::CollectionObjectExtensions
     preferred_catalog_number.try(:cached)
   end
 
-  def dwca_latitude
-    try(:collecting_event).try(:verbatim_latitude)
-  end
-
-  def dwca_latitude
-    try(:collecting_event).try(:verbatim_longitude)
-  end
+  # def dwca_latitude
+  #   try(:collecting_event).try(:verbatim_latitude)
+  # end
+  #
+  # def dwca_latitude
+  #   try(:collecting_event).try(:verbatim_longitude)
+  # end
 
   def dwca_country
     v = try(:collecting_event).try(:geographic_name_classification)
