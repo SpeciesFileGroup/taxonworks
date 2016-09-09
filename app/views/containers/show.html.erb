@@ -1,34 +1,36 @@
 <% content_for :associated do -%>
-  <%= on_loan_tag(@container) -%>
+    <%= on_loan_tag(@container) -%>
 
-  <h3> Container labels</h3>
-  <% if @container.container_labels.any? -%>
-    <% @container.container_labels.each do |i| -%>
-      <%= content_tag(:pre, i.label) -%> </br>
+    <h3> Container labels</h3>
+    <% if @container.container_labels.any? -%>
+        <% @container.container_labels.each do |i| -%>
+            <%= content_tag(:pre, i.label) -%> </br>
+        <% end %>
+    <% else %>
+        <%= content_tag(:em, 'Unlabeled.') -%>
     <% end %>
-  <% else %>
-    <%= content_tag(:em, 'Unlabeled.') -%>
-  <% end %>
 
-  <h3> Nesting containers </h3>
-  <% if @container.is_nested? -%> 
-    <ul>
-    <% @container.container_item.ancestors.each do |c| -%>
-      <%= content_tag(:li, container_link(c.contained_object)) -%>
+    <h3> Nesting containers </h3>
+    <% if @container.is_nested? -%>
+        <ul>
+          <% @container.container_item.ancestors.each do |c| -%>
+              <%= content_tag(:li, container_link(c.contained_object)) -%>
+          <% end %>
+        </ul>
+    <% else %>
+        <%= content_tag(:em, 'None.') -%>
     <% end %>
-    </ul>
-  <% else %>
-    <%= content_tag(:em, 'None.') -%>
-  <% end %>
 
-  <h3> Contained objects </h3>
-  <% if !@container.is_empty? -%>
-    <% @container.all_contained_objects.each do |i| -%>
-      <%= object_link(i) -%> </br>
+    <h3> Contained objects </h3>
+    <% if !@container.is_empty? -%>
+        <ul>
+          <% @container.all_contained_objects.each do |i| -%>
+              <%= content_tag(:li, object_link(i)) -%>
+          <% end %>
+        </ul>
+    <% else %>
+        <%= content_tag(:em, 'Container is empty.') if @container.container_items.count == 0 -%>
     <% end %>
-  <% else %>
-    <%= content_tag(:em, 'Container is empty.') if @container.container_items.count == 0 -%>
-  <% end %>
 
 <% end %>
 
