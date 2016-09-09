@@ -11,7 +11,8 @@ branches:
     - Rails-5.0
     - development
     - travis-trusty-beta
-    - eyelet 
+    - eyelet
+    - importing-from-castor
 addons:
   postgresql: "9.5"
   firefox: "47.0.1"
