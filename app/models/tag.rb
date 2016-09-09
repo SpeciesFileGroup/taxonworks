@@ -1,21 +1,21 @@
-# Tag definition...
-# @todo
+# A Tag links a ControlledVocabularyTerm::Keyword to a Data object. 
 #
 # @!attribute keyword_id
 #   @return [Integer]
-#   @todo
+#     the controlled vocabulary term used in the tag 
 #
 # @!attribute tag_object_id
 #   @return [Integer]
-#   @todo
+#      Rails polymorphic. The id of of the object being tagged.
 #
 # @!attribute tag_object_type
 #   @return [String]
-#   @todo
+#      Rails polymorphic.  The type of the object being tagged. 
 #
 # @!attribute tag_object_attribute
 #   @return [String]
-#   @todo
+#      the specific attribute (column) that this tag is in reference to.  Optional.  When not
+#      provided the tag pertains to the whole object. 
 #
 # @!attribute project_id
 #   @return [Integer]
@@ -23,7 +23,7 @@
 #
 # @!attribute position
 #   @return [Integer]
-#   @todo
+#     a user definable sort code on the tags on an object, handled by acts_as_list
 #
 class Tag < ActiveRecord::Base
   include Housekeeping
