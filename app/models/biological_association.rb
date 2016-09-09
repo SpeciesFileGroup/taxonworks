@@ -31,7 +31,7 @@ class BiologicalAssociation < ActiveRecord::Base
   include SoftValidation
   include Shared::DataAttributes
   include Shared::Notable
-
+  include Shared::Confidence
 
 
   belongs_to :biological_relationship, inverse_of: :biological_associations

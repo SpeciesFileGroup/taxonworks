@@ -117,10 +117,11 @@ class TaxonName < ActiveRecord::Base
   include Shared::Taggable
   include Shared::Identifiable
   include Shared::Notable
-  include Shared::IsData
-  include SoftValidation
   include Shared::Depictions
   include Shared::Citable
+  include Shared::IsData
+  include Shared::Confidence
+  include SoftValidation
 
   # @return [Boolean]
   #   When true, also creates an OTU that is tied to this taxon name

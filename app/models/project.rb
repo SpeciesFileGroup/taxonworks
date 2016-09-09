@@ -58,6 +58,7 @@ class Project < ActiveRecord::Base
      Note
      PinboardItem
      Tag
+     Confidence 
      Role
      TaggedSectionKeyword   
      AssertedDistribution

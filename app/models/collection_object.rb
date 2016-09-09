@@ -71,9 +71,10 @@ class CollectionObject < ActiveRecord::Base
   include Shared::Identifiable
   include Shared::Notable
   include Shared::Taggable
-  include Shared::IsData
   include Shared::Depictions
   include Shared::OriginRelationship
+  include Shared::Confidence
+  include Shared::IsData
   include SoftValidation
 
   include Dwca::CollectionObjectExtensions

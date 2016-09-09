@@ -40,6 +40,12 @@ module Shared::IsData
     self.class < Shared::Taggable ? true : false
   end
 
+  def has_confidences?
+    self.class < Shared::Confidence ? true : false
+  end
+
+
+
   def has_depictions?
     self.class < Shared::Depictions ? true : false
   end
@@ -128,7 +134,6 @@ module Shared::IsData
       end
       true
     end
-
   end
 
   protected
@@ -144,6 +149,7 @@ module Shared::IsData
     result.merge!('notes' => self.notes) if self.has_notes? && self.notes.any?
     result.merge!('tags' => self.tags) if self.has_tags? && self.tags.any?
     result.merge!('depictions' => self.depictions) if self.has_depictions? && self.depictions.any?
+    result.merge!('confidences' => self.confidences) if self.has_confidences? && self.confidences.any?
     result
   end
 

@@ -24,6 +24,7 @@ class Citation < ActiveRecord::Base
   include Housekeeping
   include Shared::IsData
   include Shared::Notable
+  include Shared::Confidence  
 
   belongs_to :citation_object, polymorphic: :true
   belongs_to :source, inverse_of: :citations
