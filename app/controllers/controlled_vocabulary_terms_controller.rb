@@ -133,6 +133,6 @@ class ControlledVocabularyTermsController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def controlled_vocabulary_term_params
-    params.require(:controlled_vocabulary_term).permit(:type, :name, :definition, :uri, :uri_relation)
+    params.require(:controlled_vocabulary_term).permit(:type, :name, :definition, :uri, :uri_relation, :css_color)
   end
 end

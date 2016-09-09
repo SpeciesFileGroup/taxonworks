@@ -89,10 +89,20 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
   end
 
-  resources :confidences, except: [:edit, :show] do
+  resources :confidences do # , except: [:edit, :show]
     concerns [:data_routes]
   end
-  
+
+  resources :confidence_levels, only: [] do
+    collection do
+      get 'autocomplete'
+    end
+  end
+
+
+
+
+
   resources :collection_objects do
     concerns [:data_routes]
     member do

@@ -5,18 +5,16 @@
 
     <div class="field">
       <%= f.label :confidence_level_id %>
-      <%#= f.number_field :confidence_level_id %>
       <br>
-      <%= render :partial => 'workbench/elements/forms/ajax_select',
-                 :locals  => {:controller => 'confidences',
-                              :object     => 'confidence',
-                              :method     => 'confidence_level_id',
-                              :confidence_id     => 'confidence_level_id_for_controlled_vocabulary_term',
-                              :display    => object_tag(@confidence.confidence_object)} %>
+      <%= render partial: 'workbench/elements/forms/ajax_select',
+                 locals:  {controller: 'confidence_levels',
+                              object:  'confidence',
+                              method:  'confidence_level_id',
+                              tag_id: 'confidence_level_id_for_controlled_vocabulary_term',
+                              display: object_tag(@confidence.confidence_level)} %>
     </div>
 
     <%= f.hidden_field :confidence_object_type %>
-
     <%= f.hidden_field :confidence_object_id %>
 
     <div class="actions">

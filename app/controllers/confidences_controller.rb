@@ -17,7 +17,12 @@ class ConfidencesController < ApplicationController
 
   # GET /confidences/new
   def new
-    @confidence = Confidence.new
+    # uggg-ish
+    if !ConfidenceLevel.for_confidences.with_project_id(sessions_current_project_id).any? # if there are none
+      @return_path = "/confidences/new?confidence[confidence_object_id]=#{params[:confidence][:confidence_object_id]}&confidence[confidence_object_type]=#{params[:confidence][:confidence_object_type]}"
+      redirect_to new_controlled_vocabulary_term_path(return_path: @return_path), notice: 'Create a confidence level or two first!' and return
+    end
+    @confidence = Confidence.new(confidence_params)
   end
 
   # # GET /confidences/1/edit
@@ -35,10 +40,12 @@ class ConfidencesController < ApplicationController
 
     respond_to do |format|
       if @confidence.save
-        format.html { redirect_to @confidence, notice: 'Confidence was successfully created.' }
+        format.html { redirect_to @confidence.confidence_object.metamorphosize, notice: 'Confidence was successfully created.' }
         format.json { render :show, status: :created, location: @confidence }
       else
-        format.html { render :new }
+        format.html { 
+          redirect_to :back, notice: 'Confidence was NOT successfully created.'
+        }
         format.json { render json: @confidence.errors, status: :unprocessable_entity }
       end
     end
@@ -77,13 +84,13 @@ class ConfidencesController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_confidence
-      @confidence = Confidence.find(params[:id])
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_confidence
+    @confidence = Confidence.find(params[:id])
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def confidence_params
-      params.require(:confidence).permit(:confidence_object, :position, :created_by_id, :updated_by_id, :project_id)
-    end
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def confidence_params
+    params.require(:confidence).permit(:confidence_level_id, :confidence_object_id, :confidence_object_type)
+  end
 end

@@ -4,7 +4,7 @@ class TagsController < ApplicationController
   before_action :set_tag, only: [:update, :destroy]
 
   def new
-    if !Keyword.for_tags.with_project_id($project_id).any? # if there are none
+    if !Keyword.for_tags.with_project_id(sessions_current_project_id).any? # if there are none
       @return_path = "/tags/new?tag[tag_object_attribute]=&tag[tag_object_id]=#{params[:tag][:tag_object_id]}&tag[tag_object_type]=#{params[:tag][:tag_object_type]}"
       redirect_to new_controlled_vocabulary_term_path(return_path: @return_path), notice: 'Create a keyword or two first!' and return
     end
@@ -14,7 +14,7 @@ class TagsController < ApplicationController
   # GET /tags
   # GET /tags.json
   def index
-    @recent_objects = Tag.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
+    @recent_objects = Tag.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
     render '/shared/data/all/index'
   end
 
@@ -66,7 +66,7 @@ class TagsController < ApplicationController
   end
 
   def list
-    @tags = Tag.where(project_id: $project_id).order(:tag_object_type).page(params[:page])
+    @tags = Tag.where(project_id: sessions_current_project_id).order(:tag_object_type).page(params[:page])
   end
 
   # GET /tags/search
