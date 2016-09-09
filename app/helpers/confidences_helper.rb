@@ -1,7 +1,7 @@
 module ConfidencesHelper
   def confidence_tag(confidence)
     return nil if confidence.nil?
-    confidence.id.to_s
+    content_tag(:span, confidence.confidence_level.name, style: "background-color: #{confidence.confidence_level.css_color};")
   end
 
   def confidence_link(confidence)
@@ -12,4 +12,12 @@ module ConfidencesHelper
   def confidences_search_form
     render('/confidences/quick_search_form')
   end
+
+  def add_confidence_link(object: nil, attribute: nil)
+    link_to('Add confidence', new_confidence_path(confidence: {
+                                      confidence_object_type: object.class.base_class.name,
+                                      confidence_object_id: object.id
+                                      })) if object.has_confidences?
+  end
+
 end

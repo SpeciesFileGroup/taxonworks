@@ -159,7 +159,8 @@ module Workbench::NavigationHelper
      content_tag(:li, add_data_attribute_link(object: object)),
      content_tag(:li, add_identifier_link(object: object)),
      content_tag(:li, add_note_link(object: object)),
-     content_tag(:li, add_tag_link(object: object))
+     content_tag(:li, add_tag_link(object: object)),
+     content_tag(:li, add_confidence_link(object: object))
     ].compact.join('').html_safe
   end
 

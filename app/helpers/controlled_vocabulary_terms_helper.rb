@@ -2,7 +2,7 @@ module ControlledVocabularyTermsHelper
 
   def controlled_vocabulary_term_tag(controlled_vocabulary_term)
     return nil if controlled_vocabulary_term.nil?
-    controlled_vocabulary_term.name
+    color_tag(controlled_vocabulary_term.css_color, controlled_vocabulary_term.name)
   end
 
   def controlled_vocabulary_term_link(controlled_vocabulary_term)
@@ -11,7 +11,7 @@ module ControlledVocabularyTermsHelper
   end
 
   def controlled_vocabulary_term_type_select_options
-    %w[Keyword Topic Predicate BiologicalProperty BiocurationGroup BiocurationClass]
+    %w[Keyword Topic Predicate BiologicalProperty BiocurationGroup BiocurationClass ConfidenceLevel]
   end
 
   def term_and_definition_tag(controlled_vocabulary_term)
@@ -20,6 +20,11 @@ module ControlledVocabularyTermsHelper
 
   def controlled_vocabulary_terms_search_form
     render('/controlled_vocabulary_terms/quick_search_form')
+  end
+
+  def color_tag(css_color = nil, value)
+    return value if css_color.nil?
+    content_tag(:span, value, style: "background-color: #{css_color};") # todo- make some nice border
   end
 
 end
