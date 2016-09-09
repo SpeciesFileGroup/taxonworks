@@ -12,6 +12,7 @@ branches:
       - travis-trusty-beta
       - matrix
       - dna
+      - eyelet
 addons:
   postgresql: "9.4"
   firefox: "46.0"
