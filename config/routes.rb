@@ -437,6 +437,9 @@ TaxonWorks::Application.routes.draw do
     collection do
       post :preview_simple_batch_load # should be get
       post :create_simple_batch_load
+
+      post :preview_castor_batch_load
+      post :create_castor_batch_load
     end
     member do
       get :browse
