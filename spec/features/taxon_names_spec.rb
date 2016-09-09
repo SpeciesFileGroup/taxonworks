@@ -72,7 +72,7 @@ describe 'TaxonNames', type: :feature do
       }
 
       specify 'the original combination is set based on parent relationships' do
-        expect(page).to have_content('Cached name: Aus specius')
+        expect(page).to have_content('Cached html: Aus specius')
       end
 
       specify 'there is an edit combination link', js: true do
