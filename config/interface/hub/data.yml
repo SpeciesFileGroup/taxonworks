@@ -29,26 +29,26 @@ Core: # a Section
     related_models:
       - Georeference
   CollectionObject: 
-     status: :prototype
-     categories:
-       - collection_object
-     related_models:
-       - CollectingEvent
-       - TaxonDetermination
-       - Repository
+    status: :prototype
+    categories:
+      - collection_object
+    related_models:
+      - CollectingEvent
+      - TaxonDetermination
+      - Repository
   ControlledVocabularyTerm :
-     status: :prototype
-     related_models:
-       - Tag
-       - DataAttribute
+    status: :prototype
+    related_models:
+      - Tag
+      - DataAttribute
   Source:
-     status: :prototype
-     shared: true
-     categories:
-       - source 
-     related_models:
-       - Serial
-       - People
+    status: :prototype
+    shared: true
+    categories:
+      - source 
+    related_models:
+      - Serial
+      - People
   GeneAttribute:
     status: :prototype
     related_models:
@@ -62,11 +62,11 @@ Core: # a Section
     categories:
       - source
   BiologicalAssociation:
-     status: :prototype
-     related_models:
-       - BiologicalRelationship
+    status: :prototype
+    related_models:
+      - BiologicalRelationship
     categories: 
-       - biology
+      - biology
   Sequence:
     status: :prototype
     related_model:
