@@ -35,7 +35,7 @@ class MatrixRowItemsController < ApplicationController
 
     respond_to do |format|
       if @matrix_row_item.save
-        format.html { redirect_to @matrix_row_item, notice: 'Matrix row item was successfully created.' }
+        format.html { redirect_to @matrix_row_item.metamorphosize, notice: 'Matrix row item was successfully created.' }
         format.json { render :show, status: :created, location: @matrix_row_item }
       else
         format.html { render :new }
@@ -49,7 +49,7 @@ class MatrixRowItemsController < ApplicationController
   def update
     respond_to do |format|
       if @matrix_row_item.update(matrix_row_item_params)
-        format.html { redirect_to @matrix_row_item, notice: 'Matrix row item was successfully updated.' }
+        format.html { redirect_to @matrix_row_item.metamorphosize, notice: 'Matrix row item was successfully updated.' }
         format.json { render :show, status: :ok, location: @matrix_row_item }
       else
         format.html { render :edit }
