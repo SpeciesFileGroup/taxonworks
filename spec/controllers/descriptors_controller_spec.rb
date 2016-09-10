@@ -19,7 +19,7 @@ require 'rails_helper'
 # that an instance is receiving a specific message.
 
 RSpec.describe DescriptorsController, type: :controller do
-  before(:each) {
+  before(:each){
     sign_in
   }
 
@@ -40,10 +40,10 @@ RSpec.describe DescriptorsController, type: :controller do
   let(:valid_session) { {} }
 
   describe "GET #index" do
-    it "assigns recent descriptors as @recent_objects" do
+    it "assigns all descriptors as @descriptors" do
       descriptor = Descriptor.create! valid_attributes
       get :index, {}, session: valid_session
-      expect(assigns(:recent_objects).to_a).to eq([descriptor])
+      expect(assigns(:recent_objects)).to eq([descriptor])
     end
   end
 
@@ -106,14 +106,14 @@ RSpec.describe DescriptorsController, type: :controller do
   describe "PUT #update" do
     context "with valid params" do
       let(:new_attributes) {
-        skip("Add a hash of attributes valid for your model")
+        {name: 'new name'}
       }
 
       it "updates the requested descriptor" do
         descriptor = Descriptor.create! valid_attributes
-        put :update, {id: descriptor.to_param, descriptor: {name: 'new name'}}, session: valid_session
+        put :update, {id: descriptor.to_param, descriptor: new_attributes}, session: valid_session
         descriptor.reload
-        expect(descriptor.name).to eq('new name')
+        expect(descriptor.name == new_attributes['name'])
       end
 
       it "assigns the requested descriptor as @descriptor" do
@@ -138,7 +138,7 @@ RSpec.describe DescriptorsController, type: :controller do
 
       it "re-renders the 'edit' template" do
         descriptor = Descriptor.create! valid_attributes
-        put :update,  {id: descriptor.to_param, descriptor: invalid_attributes}, session: valid_session
+        put :update, {id: descriptor.to_param, descriptor: invalid_attributes}, session: valid_session
         expect(response).to render_template("edit")
       end
     end

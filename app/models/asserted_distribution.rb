@@ -1,5 +1,5 @@
-# Asserted distribution is...
-#   @todo
+# An Asserted distribution is the assertion that a taxon is present in some *spatial area*.
+#
 #
 # @!attribute otu_id
 #   @return [Integer]
@@ -30,10 +30,8 @@ class AssertedDistribution < ActiveRecord::Base
   include Shared::DataAttributes
   include Shared::Citable
 
-
   belongs_to :otu
   belongs_to :geographic_area
-#  belongs_to :source, inverse_of: :asserted_distributions
 
   accepts_nested_attributes_for :otu, allow_destroy: false, reject_if: proc { |attributes| attributes['name'].blank? && attributes['taxon_name_id'].blank?  }
 
@@ -65,6 +63,19 @@ class AssertedDistribution < ActiveRecord::Base
 #      where(geographic_areas: {name: term}, otus: {name: term}, sources: {cached: term}).with_project_id(params[:project_id])
     include(:geographic_area, :otu).
         where(geographic_areas: {name: term}, otus: {name: term}).with_project_id(params[:project_id])
+  end
+
+  def to_geo_json_feature
+    retval = {
+      'type'       => 'Feature',
+      'geometry'   => RGeo::GeoJSON.encode(self.geographic_area.geographic_items.first.geo_object),
+      'properties' => {
+        'asserted_distribution' => {
+          'id' => self.id
+        }
+      }
+    }
+    retval
   end
 
   protected
@@ -119,19 +130,4 @@ class AssertedDistribution < ActiveRecord::Base
   end
 
   #end region
-
-  def to_geo_json_feature
-    retval = {
-      'type'       => 'Feature',
-      'geometry'   => RGeo::GeoJSON.encode(self.geographic_area.geographic_items.first.geo_object),
-      'properties' => {
-        'asserted_distribution' => {
-          'id' => self.id
-        }
-      }
-    }
-    retval
-  end
-
-
 end
