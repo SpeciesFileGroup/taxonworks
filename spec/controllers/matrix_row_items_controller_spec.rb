@@ -20,15 +20,19 @@ require 'rails_helper'
 
 RSpec.describe MatrixRowItemsController, type: :controller do
 
+  before {
+    sign_in
+  }
+
   # This should return the minimal set of attributes required to create a valid
   # MatrixRowItem. As you add validations to MatrixRowItem, be sure to
   # adjust the attributes here as well.
   let(:valid_attributes) {
-    skip("Add a hash of attributes valid for your model")
+    strip_housekeeping_attributes(FactoryGirl.build(:valid_matrix_row_item).attributes)
   }
 
   let(:invalid_attributes) {
-    skip("Add a hash of attributes invalid for your model")
+    valid_attributes.merge(matrix_id: nil)
   }
 
   # This should return the minimal set of values that should be in the session
@@ -39,22 +43,22 @@ RSpec.describe MatrixRowItemsController, type: :controller do
   describe "GET #index" do
     it "assigns all matrix_row_items as @matrix_row_items" do
       matrix_row_item = MatrixRowItem.create! valid_attributes
-      get :index, params: {}, session: valid_session
-      expect(assigns(:matrix_row_items)).to eq([matrix_row_item])
+      get :index, {}, session: valid_session
+      expect(assigns(:recent_objects)).to eq([matrix_row_item])
     end
   end
 
   describe "GET #show" do
     it "assigns the requested matrix_row_item as @matrix_row_item" do
       matrix_row_item = MatrixRowItem.create! valid_attributes
-      get :show, params: {id: matrix_row_item.to_param}, session: valid_session
+      get :show, {id: matrix_row_item.to_param}, session: valid_session
       expect(assigns(:matrix_row_item)).to eq(matrix_row_item)
     end
   end
 
   describe "GET #new" do
     it "assigns a new matrix_row_item as @matrix_row_item" do
-      get :new, params: {}, session: valid_session
+      get :new, {}, session: valid_session
       expect(assigns(:matrix_row_item)).to be_a_new(MatrixRowItem)
     end
   end
@@ -62,7 +66,7 @@ RSpec.describe MatrixRowItemsController, type: :controller do
   describe "GET #edit" do
     it "assigns the requested matrix_row_item as @matrix_row_item" do
       matrix_row_item = MatrixRowItem.create! valid_attributes
-      get :edit, params: {id: matrix_row_item.to_param}, session: valid_session
+      get :edit, {id: matrix_row_item.to_param}, session: valid_session
       expect(assigns(:matrix_row_item)).to eq(matrix_row_item)
     end
   end
@@ -71,30 +75,30 @@ RSpec.describe MatrixRowItemsController, type: :controller do
     context "with valid params" do
       it "creates a new MatrixRowItem" do
         expect {
-          post :create, params: {matrix_row_item: valid_attributes}, session: valid_session
+          post :create, {matrix_row_item: valid_attributes}, session: valid_session
         }.to change(MatrixRowItem, :count).by(1)
       end
 
       it "assigns a newly created matrix_row_item as @matrix_row_item" do
-        post :create, params: {matrix_row_item: valid_attributes}, session: valid_session
+        post :create, {matrix_row_item: valid_attributes}, session: valid_session
         expect(assigns(:matrix_row_item)).to be_a(MatrixRowItem)
         expect(assigns(:matrix_row_item)).to be_persisted
       end
 
       it "redirects to the created matrix_row_item" do
-        post :create, params: {matrix_row_item: valid_attributes}, session: valid_session
-        expect(response).to redirect_to(MatrixRowItem.last)
+        post :create, {matrix_row_item: valid_attributes}, session: valid_session
+        expect(response).to redirect_to(MatrixRowItem.last.metamorphosize)
       end
     end
 
     context "with invalid params" do
       it "assigns a newly created but unsaved matrix_row_item as @matrix_row_item" do
-        post :create, params: {matrix_row_item: invalid_attributes}, session: valid_session
-        expect(assigns(:matrix_row_item)).to be_a_new(MatrixRowItem)
+        post :create, {matrix_row_item: invalid_attributes}, session: valid_session
+        expect(assigns(:matrix_row_item).metamorphosize).to be_a_new(MatrixRowItem)
       end
 
       it "re-renders the 'new' template" do
-        post :create, params: {matrix_row_item: invalid_attributes}, session: valid_session
+        post :create, {matrix_row_item: invalid_attributes}, session: valid_session
         expect(response).to render_template("new")
       end
     end
@@ -102,40 +106,40 @@ RSpec.describe MatrixRowItemsController, type: :controller do
 
   describe "PUT #update" do
     context "with valid params" do
-      let(:new_attributes) {
-        skip("Add a hash of attributes valid for your model")
+      let!(:new_attributes) {
+        { matrix_id: FactoryGirl.create(:valid_matrix).id }
       }
 
       it "updates the requested matrix_row_item" do
         matrix_row_item = MatrixRowItem.create! valid_attributes
-        put :update, params: {id: matrix_row_item.to_param, matrix_row_item: new_attributes}, session: valid_session
+        put :update, {id: matrix_row_item.to_param, matrix_row_item: new_attributes}, session: valid_session
         matrix_row_item.reload
-        skip("Add assertions for updated state")
+        expect(matrix_row_item.matrix_id).to eq(new_attributes[:matrix_id])
       end
 
       it "assigns the requested matrix_row_item as @matrix_row_item" do
         matrix_row_item = MatrixRowItem.create! valid_attributes
-        put :update, params: {id: matrix_row_item.to_param, matrix_row_item: valid_attributes}, session: valid_session
+        put :update, {id: matrix_row_item.to_param, matrix_row_item: valid_attributes}, session: valid_session
         expect(assigns(:matrix_row_item)).to eq(matrix_row_item)
       end
 
       it "redirects to the matrix_row_item" do
         matrix_row_item = MatrixRowItem.create! valid_attributes
-        put :update, params: {id: matrix_row_item.to_param, matrix_row_item: valid_attributes}, session: valid_session
-        expect(response).to redirect_to(matrix_row_item)
+        put :update, {id: matrix_row_item.to_param, matrix_row_item: valid_attributes}, session: valid_session
+        expect(response).to redirect_to(matrix_row_item.metamorphosize)
       end
     end
 
     context "with invalid params" do
       it "assigns the matrix_row_item as @matrix_row_item" do
         matrix_row_item = MatrixRowItem.create! valid_attributes
-        put :update, params: {id: matrix_row_item.to_param, matrix_row_item: invalid_attributes}, session: valid_session
+        put :update, {id: matrix_row_item.to_param, matrix_row_item: invalid_attributes}, session: valid_session
         expect(assigns(:matrix_row_item)).to eq(matrix_row_item)
       end
 
       it "re-renders the 'edit' template" do
         matrix_row_item = MatrixRowItem.create! valid_attributes
-        put :update, params: {id: matrix_row_item.to_param, matrix_row_item: invalid_attributes}, session: valid_session
+        put :update, {id: matrix_row_item.to_param, matrix_row_item: invalid_attributes}, session: valid_session
         expect(response).to render_template("edit")
       end
     end
@@ -145,13 +149,13 @@ RSpec.describe MatrixRowItemsController, type: :controller do
     it "destroys the requested matrix_row_item" do
       matrix_row_item = MatrixRowItem.create! valid_attributes
       expect {
-        delete :destroy, params: {id: matrix_row_item.to_param}, session: valid_session
+        delete :destroy, {id: matrix_row_item.to_param}, session: valid_session
       }.to change(MatrixRowItem, :count).by(-1)
     end
 
     it "redirects to the matrix_row_items list" do
       matrix_row_item = MatrixRowItem.create! valid_attributes
-      delete :destroy, params: {id: matrix_row_item.to_param}, session: valid_session
+      delete :destroy, {id: matrix_row_item.to_param}, session: valid_session
       expect(response).to redirect_to(matrix_row_items_url)
     end
   end
