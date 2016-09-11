@@ -8,7 +8,6 @@ module LoggedTask
     task_number = @@task_number += 1
 
     task_sym = "__LOGGED_ROOT_TASK_DETECTOR_#{task_number}".to_sym
-    Rake::Task.define_task(task_sym) { @@root_task_number = task_number unless @@root_task_number }
 
     args[0] = { args.first => [] } if args.first.is_a?(Symbol)
     args[0].values[0].unshift(task_sym)
@@ -32,6 +31,8 @@ module LoggedTask
         raise
       end
     end
+
+    Rake::Task.define_task(task_sym) { @@root_task_number = task_number unless @@root_task_number }
   end
 
   private
