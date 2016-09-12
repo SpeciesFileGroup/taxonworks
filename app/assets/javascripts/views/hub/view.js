@@ -24,11 +24,10 @@ $(document).ready(function(){
 								"margin-top": "1em",
 								"justify-content": "flex-start"});
 
-	$('#data_cards').css({"flex-direction": "column",
-						 "width": "100%"});
+	$('#data_cards').css({"flex-direction": "column","flex-grow": "1"});
 
-	$('[data-section="Core"').css("min-width", "100%");
-	$('[data-section="Supporting"').css("min-width", "100%");
-	$('[data-section="Annotations"').css("min-width", "100%");
+	$('[data-section="Core"]').css("min-width", "100%");
+	$('[data-section="Supporting"]').css("min-width", "100%");
+	$('[data-section="Annotations"]').css("min-width", "100%");
 }
 });

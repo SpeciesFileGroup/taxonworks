@@ -18,7 +18,7 @@ Core: # a Section
   TaxonName:
     status: :prototype
     categories:
-      - taxon_name
+      - nomenclature
     related_models:
       - Otu
       - TaxonNameRelationship
@@ -104,7 +104,7 @@ Supporting:
   CommonName:
     status: :prototype
     categories:
-      - taxon_name
+      - nomenclature
   Document:
     status: :prototype
     related_models:
@@ -210,21 +210,21 @@ Supporting:
   TaxonNameClassification:
     status: :prototype
     categories:
-      - taxon_name 
+      - nomenclature 
     related_models:
       - TaxonName
       - TaxonNameRelationship
   TaxonNameRelationship:
     status: :prototype
     categories:
-      - taxon_name 
+      - nomenclature 
     related_model:
       - TaxonName
       - TaxonNameClassification
   TypeMaterial:
     status: :prototype
     categories:
-      - taxon_name 
+      - nomenclature 
       - collection_object
 Annotations:
   AlternateValue:
