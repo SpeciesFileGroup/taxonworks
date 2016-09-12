@@ -40,20 +40,6 @@
     border:none;
   }  
 
-  .reset {
-    cursor: pointer;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    font-size: 12px;
-    opacity: 0.5;
-  }
-
-  .reset:hover {
-    opacity: 1;
-    fill:#444;
-  }
-
   .to-right {
     position: absolute; 
     top: 0; 

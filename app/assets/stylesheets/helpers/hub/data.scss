@@ -7,7 +7,7 @@
 #data_cards {
   box-shadow: 0 0px 3px 0 $navigation_border;
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: top;
   margin-bottom: $standard_margin;
   background-color: $panel_background;
@@ -17,6 +17,7 @@
     justify-content:flex-start;
     flex-direction:column;   
     width:250px; 
+    max-width: 250px;
     border-radius: 3px;
     margin: 0.5em;
   }
@@ -39,11 +40,26 @@
     display: none;
   }
 
+  [data-section="Core"] {
+    width:250px;
+    max-width:250px;
+  }
+
+  [data-section="Supporting"] {
+    width:500px;
+    max-width:500px;
+  }
+
+  [data-section="Annotations"] {
+    width:250px;
+    max-width:250px;
+  }    
+
   .cards-section {
     order:1;
     display: flex;
     flex-direction:row;
-    justify-content:center;
+    justify-content:flex-start;
     flex-flow: row wrap;
     padding: $standard_padding * 0.5;
   }

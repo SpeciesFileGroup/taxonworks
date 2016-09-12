@@ -5,25 +5,26 @@
 
         <div class='title action-line'>
           <div class="horizontal-left-content">
-          <span>Filter</span>            
-            <div class="horizontal-left-content">
-              <label class="switch">
-                <input type="checkbox" data-switch="false">
-                <div class="slider"></div>
-                <div class="status-name">Status</div>
-              </label>                 
-              <div class="filter-category">
-                <div class="status unknown" data-filter-category="unknown"></div>
-                <div class="status prototype" data-filter-category="prototype"></div>
-                <div class="status stable" data-filter-category="stable"></div>
-                <div class="status complete" data-filter-category="complete"></div>
-              </div>
-            </div>
+            <span>Filter</span>            
+
           </div>
           <div class="small-icon reset" data-filter-category="reset" data-icon="reset">
             Reset
           </div>  
         </div> 
+        <div class="filter-status">
+          <label class="switch">
+            <input type="checkbox" data-switch="false">
+            <div class="slider"></div>
+            <div class="status-name">Status</div>
+          </label>                 
+          <div class="filter-category">
+            <div class="status unknown" data-filter-category="unknown"></div>
+            <div class="status prototype" data-filter-category="prototype"></div>
+            <div class="status stable" data-filter-category="stable"></div>
+            <div class="status complete" data-filter-category="complete"></div>
+          </div>
+        </div>
         <div class="navigation-controls">
         	<% UserTasks::CATEGORIES.each do |c| -%>
          <%= content_tag(:div, c.humanize, 'data-filter-category' => c, 'data-favorite' => true, 'class' => 'navigation-item') -%>

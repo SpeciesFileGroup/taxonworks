@@ -6,6 +6,42 @@
 #filter {
   margin-top: $standard_margin;
   font-weight: 100;
+  position:relative;
+
+  .reset {
+    top:15px;
+    position: absolute;
+    cursor: pointer;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    font-size: 12px;
+    opacity: 0.5;
+    right:$standard_padding;
+  }
+
+  .reset:hover {
+    opacity: 1;
+    fill:#444;
+  }  
+  .navigation-item {
+    border-top:1px solid $navigation_border;
+  }
+
+.horizontal-left-content {
+  display: flex;
+  flex-direction: column;
+  align-items: left;
+  justify-content: flex-start;
+}
+  .filter-status {
+    margin: 1em;
+    margin-top: $standard_margin;
+    display: flex;
+    align-items: left;
+    flex-direction: row;
+    justify-content: flex-start;
+  }
 
   .activated {
     background-color: $color-complement-2 !important;
@@ -45,7 +81,7 @@
     .item2 {
       display: flex;
       width: 100%;
-      min-width: 450px;
+      min-width: 250px;
     }
 
     .item { 
@@ -63,7 +99,7 @@
     align-items: center;
     padding-left: $standard_padding * 0.25;
     padding-right: $standard_padding * 0.25;
-    margin-bottom: $standard_margin * 0.25;
+    //margin-bottom: $standard_margin * 0.25;
     margin-left: 90px;
     border:1px solid $navigation_border;
     background-color: $color-secondary-2-1;
@@ -142,12 +178,12 @@
     display: inline-block;
     width: 40px;
     height: 24px;    
-    margin-left: $standard_margin*0.5;
+    //margin-left: $standard_margin*0.5;
     justify-content: space-around;
     border-radius: 3px;
     border-bottom-right-radius: 0px;
     border-top-right-radius: 0px;
-    margin-bottom: $standard_margin * 0.25;
+    //margin-bottom: $standard_margin * 0.25;
     border:1px solid $navigation_border;
     border-right: 0px;    
     background-color: $navigation_background;

@@ -18,13 +18,6 @@ var CarrouselData = function (sec, rows, columns) {
 		if(this.maxRow >= this.childs) {
 			this.navigation(false);
 		}
-
-		if(columns >= 1) {
-			$('.data_section[data-section="' + this.sectionTag + '"]').css("max-width",(250*columns) + 'px');
-		}
-		else {
-			$('.data_section[data-section="' + this.sectionTag + '"]').css("max-width", 'auto');
-		}
 	};
 
 	CarrouselData.prototype.addFilter = function (nameFilter) {
