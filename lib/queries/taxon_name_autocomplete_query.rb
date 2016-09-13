@@ -10,7 +10,7 @@ module Queries
      a = TaxonName.where(with_project_id.to_sql).where(['name = ?', query_string]).order(:name).all +
      b = TaxonName.joins(parent_child_join).where(with_project_id.to_sql).where(parent_child_where.to_sql).limit(3).order(:name).all       
      c = TaxonName.where(where_sql).limit(dynamic_limit).order(:cached).all
-     a + b + c 
+     (a + b + c).uniq
     end
 
     def table
