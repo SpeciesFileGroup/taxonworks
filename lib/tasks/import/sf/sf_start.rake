@@ -5,6 +5,8 @@ namespace :tw do
       require 'logged_task'
       namespace :start do
 
+        # Anyone who runs these tasks:  Substitute Your id as user_id, not user_id=1
+
         ## check out default user_id if SF.FileUserID < 1
 
         # Outstanding issues for ProjectSources
@@ -320,8 +322,8 @@ namespace :tw do
 
           get_tw_project_id = {} # key = SF.FileID, value = TW.project_id
 
-          # create mb as project member for each project
-          user = User.find_by_email('mbeckman@illinois.edu')
+          # create mb as project member for each project -- commented out for Sandbox
+          # user = User.find_by_email('mbeckman@illinois.edu')
 
           path = @args[:data_directory] + 'tblFiles.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
@@ -344,7 +346,8 @@ namespace :tw do
 
               get_tw_project_id[file_id] = project.id.to_s
 
-              ProjectMember.create!(user_id: user.id, project: project, is_project_administrator: true)
+              # commented out project_member for Sandbox use
+              # ProjectMember.create!(user_id: user.id, project: project, is_project_administrator: true)
 
             else
               logger.info "ERROR (#{error_counter += 1}): " + source.errors.full_messages.join(';')
@@ -359,8 +362,8 @@ namespace :tw do
 
         end
 
-        desc 'list SF.RefID to VerbatimRefString'
-        ### time rake tw:project_import:sf_import:start:list_verbatim_refs user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
+        desc 'time rake tw:project_import:sf_import:start:list_verbatim_refs user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        # list SF.RefID to VerbatimRefString
         LoggedTask.define :list_verbatim_refs => [:data_directory, :environment, :user_id] do |logger|
           # Can be run independently at any time
 
@@ -384,11 +387,6 @@ namespace :tw do
 
           puts 'RefIDToVerbatimRef'
           ap get_sf_verbatim_ref
-
-
-          #####
-          user = User.find_by_email('mbeckman@illinois.edu')
-          logger.info "user_id = #{user.id}"
 
         end
 
