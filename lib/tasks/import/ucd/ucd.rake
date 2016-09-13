@@ -34,7 +34,7 @@ namespace :tw do
 
 
       class ImportedDataUcd
-        attr_accessor :publications_index, :genera_index, :species_index, :keywords, :family_groups, :superfamilies, :families,
+        attr_accessor :publications_index, :genera_index, :species_index, :keywords, :family_groups, :superfamilies, :families, :hostfamilies,
                       :taxon_codes, :languages, :references, :countries, :collections, :all_genera_index, :all_species_index, :topics, :combinations,
                       :reliable, :ptype
         def initialize()
@@ -47,6 +47,7 @@ namespace :tw do
           @family_groups = {}
           @superfamilies = {}
           @families = {}
+          @hostfamilies = {}
           @taxon_codes = {}
           @languages = {}
           @countries = {}
@@ -738,6 +739,7 @@ namespace :tw do
           )
           if b.valid?
             b.save
+            b.project_sources.create!
             b.identifiers.create!(type: 'Identifier::Local::Import', namespace: namespace, identifier: row['RefCode'])
 
             b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:Location'], value: row['Location'])   if !row['Location'].blank?
@@ -1027,6 +1029,7 @@ namespace :tw do
           end
           taxon.data_attributes.create(type: 'InternalAttribute', predicate: keywords['SuperFam'], value: row['SuperFam']) if !row['SuperFam'].blank? && !taxon.parent.nil? && taxon.parent.rank_class != 'NomenclaturalRank::Iczn::FamilyGroup::Superfamily' && taxon.data_attributes.nil?
           taxon.identifiers.create(type: 'Identifier::Local::Import', namespace: @data.keywords['host_family_id'], identifier: row['Code']) if !row['Code'].blank?
+          @data.hostfamilies[row['Code']] = taxon.id
         end
 
       end
@@ -1038,11 +1041,13 @@ namespace :tw do
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
         file.each_with_index do |row, i|
           print "\r#{i}"
-          parent = find_host_family_id_ucd('PrimHosFam') || @root.id
-          taxon = Protonym.find_or_create_by(name: row['HosGenus'], parent_id: parent, rank_class: 'NomenclaturalRank::Iczn::GenusGroup::Genus', project_id: $project_id)
-          parent = taxon.id if taxon.valid?
+          parent = find_host_family_id_ucd(row['PrimHosFam']) || @root.id
+          parent = TaxonName.find(parent)
+          nc = parent == @root ? :iczn : parent.rank_class.nomenclatural_code
+          taxon = Protonym.find_or_create_by(name: row['HosGenus'], parent: parent, rank_class: Ranks.lookup(nc, 'Genus'), project_id: $project_id)
+          parent = taxon if taxon.valid?
           unless row['HosSpecies'].blank?
-            taxon = Protonym.find_or_create_by(name: row['HosSpecies'], rank_class: 'NomenclaturalRank::Iczn::SpeciesGroup::Species', parent_id: parent, project_id: $project_id)
+            taxon = Protonym.find_or_create_by(name: row['HosSpecies'], rank_class: Ranks.lookup(nc, 'Species'), parent: parent, project_id: $project_id)
           end
           unless row['HosAuthor'].blank?
             taxon.verbatim_author = row['HosAuthor']
@@ -1453,7 +1458,7 @@ namespace :tw do
       end
 
       def find_host_family_id_ucd(key)
-        @data.families[key.to_s] || Identifier.where(cached: 'UCD_Host_Family_ID ' + key.to_s, identifier_object_type: 'TaxonName', project_id: $project_id).limit(1).pluck(:identifier_object_id).first
+        @data.hostfamilies[key.to_s] || Identifier.where(cached: 'UCD_Host_Family_ID ' + key.to_s, identifier_object_type: 'TaxonName', project_id: $project_id).limit(1).pluck(:identifier_object_id).first
       end
 
       def find_host_id_ucd(key)
