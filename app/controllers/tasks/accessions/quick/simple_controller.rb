@@ -97,14 +97,17 @@ class Tasks::Accessions::Quick::SimpleController < ApplicationController
     keys
   end
 
+  # @return [Id, nil]
   def preparation_type_id_param
     begin
-      params[:specimen].require(:preparation_type_id)
+      params.require(:specimen).require(:preparation_type_id)
+      
     rescue ActionController::ParameterMissing  
       @specimen.preparation_type_id if @specimen
     end
   end
 
+  # @return [Hash]
   def collecting_event_params
     begin
       id = params[:specimen].require(:collecting_event_id)
@@ -131,6 +134,8 @@ class Tasks::Accessions::Quick::SimpleController < ApplicationController
   # must therefor look in two different places.
   # 
 
+
+  # @return [Id, nil]
   def otu_id_param
     id = params[:specimen].try(:[], :taxon_determinations_attributes).try(:[], "0").try(:[], "otu_id") 
     if id.blank?
