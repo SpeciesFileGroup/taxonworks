@@ -31,7 +31,7 @@ module BatchLoad
 
     def parent_taxon_name
       return @parent_taxon_name if @parent_taxon_name
-      if @parent_taxon_name_id
+      if !@parent_taxon_name_id.blank?
         begin
           @parent_taxon_name = TaxonName.find(parent_taxon_name_id)
         rescue ActiveRecord::RecordNotFound
