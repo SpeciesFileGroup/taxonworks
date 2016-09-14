@@ -141,21 +141,21 @@ new_asserted_distribution_task:
   name: 'New asserted distribution from map'
   description: 'Create asserted distributions by selecting OTUs and sources, then click a map to select a geographic area. OTU and source are lockable as defaults for the next record.'
   status: prototype
-  categories: 
+  categories:
     - source
 browse_nomenclature_task:
   hub: true
   name: 'Browse nomenclature'
   description: 'Browse through nomenclature, focusing on a single record at a time.'
   status: prototype
-  categories: 
+  categories:
     - nomenclature
 nomenclature_by_source_task:
   hub: true
   name: 'Nomenclature by source'
   description: 'Browse the nomenclatural data extracted from a particular source, focusing on a single source at a time.'
   status: prototype
-  categories: 
+  categories:
     - nomenclature
     - source
 report_dwca_task:
@@ -166,5 +166,10 @@ report_dwca_task:
   categories:
     - collection_object
     - collecting_event
-
-
+index_area_and_date_task:
+  hub: true
+  name: 'TODO: Task name'
+  related:
+  categories:
+  status: prototype
+  description: 'TODO: Task description'
