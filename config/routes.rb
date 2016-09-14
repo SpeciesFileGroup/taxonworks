@@ -378,6 +378,15 @@ TaxonWorks::Application.routes.draw do
   ### End of resources except user related located below scopes ###
 
   scope :tasks do
+    scope :collection_objects do
+      scope :area_and_date, controller: 'tasks/collection_objects/area_and_date' do
+        get 'index', as: 'index_area_and_date_task'
+        post 'find', as: 'find_area_and_date_task'
+        get 'set_area', as: 'by_area_task'
+        get 'set_date', as: 'by_date_task'
+      end
+    end
+
     # Scopes arranged alphabetically first level below :tasks
 
     scope :accessions do

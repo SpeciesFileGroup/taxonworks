@@ -136,3 +136,11 @@ simple_specimen_task:
     - collection_object
     - collecting_event
   status: prototype
+
+index_area_and_date_task:
+  hub: true
+  name: 'TODO: Task name'
+  related:
+  categories:
+  status: prototype
+  description: 'TODO: Task description'
