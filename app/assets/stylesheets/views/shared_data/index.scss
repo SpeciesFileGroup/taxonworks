@@ -16,7 +16,6 @@
   border-radius:3px;
   margin:0 auto;
   min-width:1080px;
-  box-sizing: border-box;
   position: absolute;
   z-index:5;
   top: 40%;
@@ -31,15 +30,16 @@
   border-left: 4px solid $color-secondary-2-4;
 
   &.flexbox {
-    justify-content: space-between;
+    justify-content: space-around;
 	flex-flow: row nowrap;
-	//flex-direction: row;
-	flex-shrink: 1;
   }
 
   .item2 {
 	form {
-		width:370px;
+		display: flex;
+		flex-wrap: nowrap;
+		align-items: center;
+		flex-grow: 1;
 	}
   }
 	.favourite_link {
@@ -59,6 +59,7 @@
 	    background-position: left, center;
 	    background-repeat: no-repeat;    
 	    text-decoration: none;   
+	    width: 30px;
 	}
   
   h1 {
@@ -68,11 +69,12 @@
   a {
   	font-weight: 100;
 	text-decoration:none;
+	flex-wrap: nowrap;
   }
   
   input[type="text"] {
-  	max-width: 250px;
-	width:250px;
+  	flex-grow: 1;
+  	margin-right: $standard_margin*0.25;
   }
   
   .fav-link {
@@ -87,7 +89,6 @@
 	  flex-direction: row;
 	  justify-content: center;
 	  align-items: center;
-
   }
 }
 
