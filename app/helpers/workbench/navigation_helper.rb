@@ -54,9 +54,9 @@ module Workbench::NavigationHelper
     if %w{Note Tag Citation Identifier DataAttribute AlternateValue GeographicArea ContainerItem Confidence}.include?(model.name)
       nil
     elsif model.name == 'ProjectSource'
-      link_to('New', new_source_path, 'class' => 'small-icon', 'data-icon' => 'new')
+      link_to('New', new_source_path, 'data-icon' => 'new')
     else
-      link_to(content_tag(:span, 'New', 'class' => 'small-icon', data: { icon: :new}), new_path_for_model(model), 'class' => 'navigation-item')
+      link_to('New', new_path_for_model(model), 'data-icon' => 'new')
     end
   end
 
@@ -70,7 +70,7 @@ module Workbench::NavigationHelper
 
   def download_for_model_link(model)
     if self.controller.respond_to?(:download)
-      link_to('Download', download_path_for_model(model))
+      link_to('Download', download_path_for_model(model), 'data-icon' => 'download')
     else
       content_tag(:em, 'Download not yet available.')
     end

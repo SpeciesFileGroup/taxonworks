@@ -1,20 +1,23 @@
 <%= content_tag(:div, id: :model_index, class: ['flexbox', @hub_model_metadata.combined_css])  do -%>
+  <div class="item fav-link">
+    <%= favorite_page_link('data', @data_model.name) -%>
+  </div>  
   <div class="item item1">
-    <%= favorite_page_link('data', @data_model.name) -%><h1><%= model_name_title -%></h1>
+    <h1><%= model_name_title -%></h1>
   </div>  
   <div class="item item2">
     <%= search_form_for_model(@hub_model_metadata.klass) %>
   </div>  
-  <div class="item item3 icon-new">
+  <div class="item item3">
     <%= new_for_model_link(@hub_model_metadata.klass)  %>  
   </div>
-  <div class="item item4 icon-batch">
+  <div class="item item4">
     <%= batch_load_link -%>  
   </div>
-  <div class="item item5 icon-list">
+  <div class="item item5">
     <%= list_for_model_link(@hub_model_metadata.klass) %>
   </div>
-  <div class="item item6 icon-download">
+  <div class="item item6">
     <%= download_for_model_link(@hub_model_metadata.klass) %>
   </div>
 <% end %>
