@@ -378,12 +378,14 @@ TaxonWorks::Application.routes.draw do
   ### End of resources except user related located below scopes ###
 
   scope :tasks do
+
     scope :collection_objects do
       scope :area_and_date, controller: 'tasks/collection_objects/area_and_date' do
         get 'index', as: 'index_area_and_date_task'
         post 'find', as: 'find_area_and_date_task'
         get 'set_area', as: 'by_area_task'
         get 'set_date', as: 'by_date_task'
+        get 'download', action: 'download_result', as: 'result_download_task'
       end
     end
 
@@ -518,9 +520,9 @@ TaxonWorks::Application.routes.draw do
       get 'complete2/:id', action: :complete2, as: 'loan_complete2_task'
 
       # all technically Loan Routes
-      post 'add_determination/:id', as: 'loan_add_determination', action: :add_determination 
-      post 'return_items/:id', as: 'loan_return_items', action: :return_items 
-      post 'update_status/:id', as: 'loan_update_status',action:  :update_status 
+      post 'add_determination/:id', as: 'loan_add_determination', action: :add_determination
+      post 'return_items/:id', as: 'loan_return_items', action: :return_items
+      post 'update_status/:id', as: 'loan_update_status', action: :update_status
 
       get 'act_on_items', as: 'loan_items_action'
       get 'loan_items_list', as: 'loan_items_list'
@@ -574,7 +576,7 @@ TaxonWorks::Application.routes.draw do
   match '/papertrail/compare/', to: 'papertrail#compare', as: 'papertrail_compare', via: :get
   match '/papertrail/:id', to: 'papertrail#show', as: 'paper_trail_version', via: :get
   match '/papertrail/update/', to: 'papertrail#update', as: 'papertrail_update', via: :put
-  
+
 
   # TODO: Remove or rewrite endpoint implementation
   # get '/api/v1/taxon_names/' => 'api/v1/taxon_names#all'
