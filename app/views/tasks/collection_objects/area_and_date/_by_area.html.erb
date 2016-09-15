@@ -1,10 +1,10 @@
 <%= form_tag(by_area_task_url) do %>
     <!--begin model area selector insertion/invocation segment-->
     <%= render(partial: 'shared/data/gis/area_selector',
-               locals: {passed_in_tag_id: 'geographic_area_id_for_by_area',
-                        drawing_modes: 'active: polygon, circle',
-                        selection_object: 'CollectionObject',
-                        shown_georeferences: @geographic_area}) %>
+               locals: {passed_in_tag_id:    'geographic_area_id_for_by_area',
+                        drawing_modes:       'active: polygon, circle',
+                        selection_object:    'CollectionObject',
+                        shown_georeferences: @geographic_areas}) %>
     <!--end model insertion/invocation segment-->
     <%= submit_tag('Set', id: 'set_area') %>
 <% end %>
