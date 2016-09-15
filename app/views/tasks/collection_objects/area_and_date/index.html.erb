@@ -1,8 +1,40 @@
 <h1>Task: Collection objects by area and date range</h1>
 <div class="flexbox">
   <div class="item item1" align="center">
-    <%= render(:partial => 'by_area') %>
+    <div id="select_area">
+      <h2>Select area</h2>
+      <%= render(:partial => 'by_area') %>
+    </div>
+    <div id="select_date_range">
+      <h2>Select date range</h2>
+    </div>
   </div>
+
   <div class="item item2" align="center">
+    <div id="action_find">
+      <%= form_tag(find_area_and_date_task_url) do %>
+          <%= submit_tag('Find') %>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="item item3" align="center">
+    <div id="result_">
+      <h2>Result</h2>
+      <%= submit_tag('download', {disabled: params[:geographic_area_id].nil?}) %>
+
+      Select the result table, or the map.<br>
+      <%= link_to('Results', '#', class: :on_selector, hidden: :true) %>
+      <%= link_to('Map', '#', class: :result_map_toggle) %>
+
+      <div id="show_table">
+        <%= render 'result_table', collection_objects: @collection_objects %>
+      </div>
+
+      <div id="show_map">
+        <%= simple_map(report_georeferences(@collection_objects, @geographic_area), 'border="1"') -%>
+      </div>
+
+    </div>
   </div>
 </div>
