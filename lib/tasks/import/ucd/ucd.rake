@@ -125,6 +125,8 @@ namespace :tw do
         handle_hosts_ucd
         handle_dist_ucd
 
+        print "\n\n !! Success. End time: #{Time.now} \n\n"
+
         soft_validations_ucd
 
         print "\n\n !! Success. End time: #{Time.now} \n\n"
