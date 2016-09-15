@@ -13,7 +13,6 @@
 }
 
 .injected_new_header {
-	font-weight: bold;
 	margin-bottom: $standard_margin;
 	padding-bottom: 5px;
 	border-bottom: 1px solid  $navigation_background;
@@ -37,7 +36,6 @@
 .ui-menu-item {
 	font-size: 12px;
 	padding: 5px;
-	font-weight: bold;
 	color: $color-secondary-2-4;
 	.subtle {
 		font-size: 10px;
@@ -45,7 +43,7 @@
 	}    
 	mark {
 		font-weight: 100;
-		color: $default_text;
+		color: $color-primary-4;
 		background: none;
 	}
 }  
@@ -63,16 +61,15 @@
 	border-bottom: 1px solid silver;
 }
 
-.ui-menu-item a{
+.ui-menu-item a {
 	width: 400px;
 	font-size: 12px;
 	padding: 5px;
-	font-weight: bold;
+	//font-weight: bold;
 	color: $color-secondary-2-4;
 	.subtle {
 		font-size: 10px;
 		font-weight: 100;
 	}    
 }
-
 
