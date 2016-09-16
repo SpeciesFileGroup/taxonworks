@@ -2,9 +2,7 @@ var _init_map_table;
 
 _init_map_table = function init_map_table() {
 
-  var gr_last = null;     // last item drawn
   var result_map;  // intended for use to display on a map objects which know how to GeoJSON themselves
-  var drawable_map_shell = $('#_drawable_map_outer');
 
   $(".result_map_toggle").click(function (event) {           // switch to the map
     $("#show_list").attr('hidden', true);         // hide the area selector
@@ -12,6 +10,7 @@ _init_map_table = function init_map_table() {
     $(".result_list_toggle").removeAttr('hidden');           // expose the other link
     $(".result_map_toggle").attr('hidden', true);
     $("[name='[geographic_area_id]']").attr('value', '');
+    result_map = _init_simple_map();
   });
 
   $(".result_list_toggle").click(function (event) {          // switch to the area by name selector
