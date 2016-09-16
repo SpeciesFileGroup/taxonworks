@@ -23,15 +23,15 @@
       <h2>Result</h2>
       <%= submit_tag('download', {disabled: params[:geographic_area_id].nil?}) %>
 
-      Select the result table, or the map.<br>
-      <%= link_to('Results', '#', class: :on_selector, hidden: :true) %>
+      Select the result list, or the map.<br>
+      <%= link_to('List', '#', class: :result_list_toggle, hidden: :true) %>
       <%= link_to('Map', '#', class: :result_map_toggle) %>
 
-      <div id="show_table">
-        <%= render 'result_table', collection_objects: @collection_objects %>
+      <div id="show_list">
+        <%= render 'result_list', collection_objects: @collection_objects %>
       </div>
 
-      <div id="show_map">
+      <div id="show_map" hidden>
         <%= simple_map(report_georeferences(@collection_objects, @geographic_area), 'border="1"') -%>
       </div>
 
