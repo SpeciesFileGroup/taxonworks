@@ -5,7 +5,7 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
   def index
     @geographic_areas   = GeographicArea.where('false')
     @collection_objects = CollectionObject.where('false')
-      # @collection_objects = CollectionObject.limit(3)
+    # @collection_objects = CollectionObject.limit(3)
   end
 
   # POST
@@ -14,9 +14,10 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
     @collection_objects = CollectionObject.where('false')
   end
 
-  # GET
+  # POST
   def set_area
-
+    @geographic_area          = GeographicArea.find(params[:geographic_area_id])
+    @collection_objects_count = 3
   end
 
   # GET
