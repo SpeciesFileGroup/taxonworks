@@ -21,11 +21,18 @@ _init_map_table = function init_map_table() {
     $("#drawn_area_shape").attr('value', '');
   });
 
-  $("set_area").click(function (event) {      // register the click handler for the made-from-scratch-button
-      var feature = TW.vendor.lib.google.maps.draw.buildFeatureCollectionFromShape(gr_last[0], gr_last[1]);
-      $("#drawn_area_shape").val(JSON.stringify(feature[0]));
+  $("#set_area").click(function (event) {      // register the click handler for the made-from-scratch-button
+    var geo_id = $("input[name='[geographic_area_id]']").val();
+    $.get('set_area', geo_id);
+
+    $("#set_area").on("ajax:success", function (e, data) {
+        $("#area_count").val(data);
+        return true;
+      }
+    );
     }
   );
+  //event.preventDefault();
 
 
 };
