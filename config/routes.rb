@@ -407,7 +407,7 @@ TaxonWorks::Application.routes.draw do
       scope :area_and_date, controller: 'tasks/collection_objects/area_and_date' do
         get 'index', as: 'index_area_and_date_task'
         post 'find', as: 'find_area_and_date_task'
-        post 'set_area', as: 'by_area_task'
+        get 'set_area', as: 'by_area_task'
         get 'set_date', as: 'by_date_task'
         get 'download', action: 'download_result', as: 'result_download_task'
       end
