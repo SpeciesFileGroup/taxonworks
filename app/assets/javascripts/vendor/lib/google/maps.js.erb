@@ -298,7 +298,7 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
               if (wm > wp) {                       // determine wider group
                 center_long = xmm - wp / 2;        // adjust western mid/mean point by half width of eastern
                 if (center_long < -180) {
-                  center_long = 360 - center_long;
+                  center_long = 360 + center_long;  // shift to a valid hemisphere coordinate
                 }       // bias from -180
               }                                    // e.g., USA
               else {
@@ -554,11 +554,14 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
       var thisX;        // to current point
       var thisY;
       var ltNeg180;     // flag for detection of permuted line segment
+      var gtPos180;     // flag for detection of permuted line segment
+      var sign;
       lastX = undefined;                        // polygon starting in western hemisphere crossing anti-meridian
       ltNeg180 = false;                         // has all negative x-coordinates
-
+      gtPos180 = false;                         // eastern-starting polys have all positive x-coords
+      sign = 0;
       if (thisType.type == "FeatureCollection") {
-        for (var i = 0; i < thisType.features.length; i++) {
+        for (i = 0; i < thisType.features.length; i++) {
           if (typeof (thisType.features[i].type) != "undefined") {
             this.getFeature(thisType.features[i], bounds);		//  recurse if FeatureCollection
           }     //thisType != undefined
@@ -632,7 +635,7 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
       }
 
       if (thisType.type == "Polygon") {           // special segments to compensate for permutation in controller
-
+///*
         for (k = 0; k < thisType.coordinates.length; k++) {   // first scan polygon to detect permuted case
           // k enumerates polygons, l enumerates points
           for (l = 0; l < thisType.coordinates[k].length; l++) {
@@ -640,7 +643,12 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
             if (lastX) {
               if (this.meridianCheck(bounds, lastX, thisX)) {   // true if crossed anti-meridian
                 if (thisX < -180) {
-                  ltNeg180 = true
+                  ltNeg180 = true;
+                  sign = -1;
+                }             // permuted case detector
+                if (thisX > 180) {
+                  gtPos180 = true;
+                  sign = 1;
                 }             // permuted case detector
               }
               this.extendedCheck(bounds, lastX, thisX);
@@ -650,16 +658,16 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
           }
         }
 
-        if (ltNeg180) {                                         // if permuted case detected
+        if (ltNeg180 || gtPos180) {                                         // if permuted case detected
           for (k = 0; k < thisType.coordinates.length; k++) {
             // k enumerates polygons, l enumerates points
             for (l = 0; l < thisType.coordinates[k].length; l++) {
               thisX = thisType.coordinates[k][l][0];
-              thisType.coordinates[k][l][0] = 360 + thisX;      // revert/convert permuted polygon to positive polygon
+              thisType.coordinates[k][l][0] = sign * (360 - thisX);      // revert/convert permuted polygon to positive polygon
             }
           }
         }
-
+//*/
         lastX = undefined;                                      // now scan for bounds on adjusted polygon
         for (k = 0; k < thisType.coordinates.length; k++) {
           // k enumerates polygons, l enumerates points
@@ -802,79 +810,147 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
         var xm; // = 0.5 * (lastX + thisX);       // midpoint of current segment
 
         if (lastX <= 0) {                     // if prior point is western and this point is eastern
-          if (thisX >= 0 || thisX < -180) {   // since postGIS may give points past +180
-            xm = 0.5 * (thisX - lastX);
+          /*
+           if (thisX >= 0 || thisX < -180) {   // since postGIS/RGeo may give points past +180
+           xm = 0.5 * (thisX + lastX);       // calculate for same sign case
+           if (thisX >= 0) {xm = thisX - lastX;} // reverse if other case
+           if (Math.abs(xm) > 90) {          // gross test for closer to anti-meridian
+           bounds.anti = true;
+           bounds.anti_now = true;         // must be cleared on next read
+           bounds.anti_cont = true;
+           bounds.anti_dir = -1;           // -1 is toward west
+           if (bounds.prime_cont) {        // did we go from the prime meridian to the anti-meridian?
+           // reset some bounds?
+           bounds.prime_cont = false;
+           bounds.prime_dir = 0;
+           }
+           bounds.xmaxp = 180.0;
+           bounds.xminm = -180.0;
+           // // crossing antimeridian from west to east, so make extended bound xxminm
+           //if ((bounds.xxminm = thisX - 360) < bounds.xxminm) { bounds.xxminm = thisX - 360;}
+           return true;
+
+
+           else {                            // crossing closer to prime meridian
+           bounds.prime = true;
+           bounds.prime_now = true;
+           bounds.prime_cont = true;
+           bounds.prime_dir = 1;           // +1 is toward east
+           if (bounds.anti_cont) {
+           // reset some bounds?
+           bounds.anti_cont = false;
+           bounds.anti_dir = 0;
+           }
+           bounds.xmaxm = 0;
+           bounds.xminp = 0;
+           //bounds.xxminp = -thisX;
+           return false;
+           }
+           }
+           */
+          if (thisX >= 0) {                 // crossing a meridian, sign changed
+            xm = 0.5 * (thisX - lastX);     // calculate midpoint of west to east segment
+            if (Math.abs(xm) > 90) {          // gross test for closer to anti-meridian
+              bounds.anti = true;
+              bounds.anti_now = true;         // must be cleared on next read
+              bounds.anti_cont = true;
+              bounds.anti_dir = 1;           // -1 is toward west
+            }
+            else {                            // crossing closer to prime meridian
+              bounds.prime = true;
+              bounds.prime_now = true;
+              bounds.prime_cont = true;
+              bounds.prime_dir = -1;           // +1 is toward east
+            }
+          }
+          if (thisX <= -180) {                  // and lastX < 0
+            xm = 0.5 * (thisX + lastX);
             if (Math.abs(xm) > 90) {          // gross test for closer to anti-meridian
               bounds.anti = true;
               bounds.anti_now = true;         // must be cleared on next read
               bounds.anti_cont = true;
               bounds.anti_dir = -1;           // -1 is toward west
-              if (bounds.prime_cont) {        // did we go from the prime meridian to the anti-meridian?
-                // reset some bounds?
-                bounds.prime_cont = false;
-                bounds.prime_dir = 0;
-              }
-              bounds.xmaxp = 180.0;
-              bounds.xminm = -180.0;
-              // // crossing antimeridian from west to east, so make extended bound xxminm
-              //if ((bounds.xxminm = thisX - 360) < bounds.xxminm) { bounds.xxminm = thisX - 360;}
-              return true;
             }
-            else {                            // crossing closer to prime meridian
+            else {
               bounds.prime = true;
               bounds.prime_now = true;
               bounds.prime_cont = true;
               bounds.prime_dir = 1;           // +1 is toward east
-              if (bounds.anti_cont) {
-                // reset some bounds?
-                bounds.anti_cont = false;
-                bounds.anti_dir = 0;
-              }
-              bounds.xmaxm = 0;
-              bounds.xminp = 0;
-              //bounds.xxminp = -thisX;
-              return false;
             }
+
           }
         }
         if (lastX >= 0) {                     // if prior point is eastern and this point is western
-          if ((thisX <= 0) || thisX > 180) {  // since postGIS may give points past +180
-            xm = 0.5 * (lastX - thisX);
+          /*
+           if ((thisX <= 0) || thisX > 180) {  // since postGIS may give points past +180
+           xm = 0.5 * (lastX + thisX);       // calculate for same sign case
+           if (thisX >= 0) {xm = thisX - lastX;} // reverse if other case
+           if (Math.abs(xm) > 90) {          // gross test for closer to anti-meridian
+           bounds.anti = true;
+           bounds.anti_now = true;
+           bounds.anti_cont = true;
+           bounds.anti_dir = 1;            // +1 is toward east
+           if (bounds.prime_cont) {        // did we go from the prime meridian to the anti-meridian?
+           // reset some bounds?
+           bounds.prime_cont = false;
+           bounds.prime_dir = 0;
+           }
+           bounds.xmaxp = 180.0;
+           bounds.xminm = -180.0;
+           //// crossing antimeridian from east to west, so make extended bound xxmaxp
+           //bounds.xxmaxp = thisX + 360;
+           return true;
+           }
+           else {                            // crossing closer to prime meridian
+           bounds.prime = true;
+           bounds.prime_now = true;
+           bounds.prime_cont = true;
+           bounds.prime_dir = -1;          // -1 is toward west
+           if (bounds.anti_cont) {
+           // reset some bounds?
+           bounds.anti_cont = false;
+           bounds.anti_dir = 0;
+           }
+           bounds.xmaxm = 0;
+           bounds.xminp = 0;
+           //bounds.xxmaxm = -thisX;
+           return false;
+           }
+           }
+           */
+          if (thisX <= 0) {                 // crossing a meridian, sign changed
+            xm = 0.5 * (thisX - lastX);     // calculate midpoint of west to east segment
             if (Math.abs(xm) > 90) {          // gross test for closer to anti-meridian
               bounds.anti = true;
-              bounds.anti_now = true;
+              bounds.anti_now = true;         // must be cleared on next read
               bounds.anti_cont = true;
-              bounds.anti_dir = 1;            // +1 is toward east
-              if (bounds.prime_cont) {        // did we go from the prime meridian to the anti-meridian?
-                // reset some bounds?
-                bounds.prime_cont = false;
-                bounds.prime_dir = 0;
-              }
-              bounds.xmaxp = 180.0;
-              bounds.xminm = -180.0;
-              //// crossing antimeridian from east to west, so make extended bound xxmaxp
-              //bounds.xxmaxp = thisX + 360;
-              return true;
+              bounds.anti_dir = 1;           // -1 is toward west
             }
             else {                            // crossing closer to prime meridian
               bounds.prime = true;
               bounds.prime_now = true;
               bounds.prime_cont = true;
-              bounds.prime_dir = -1;          // -1 is toward west
-              if (bounds.anti_cont) {
-                // reset some bounds?
-                bounds.anti_cont = false;
-                bounds.anti_dir = 0;
-              }
-              bounds.xmaxm = 0;
-              bounds.xminp = 0;
-              //bounds.xxmaxm = -thisX;
-              return false;
+              bounds.prime_dir = -1;           // +1 is toward east
+            }
+          }
+          if (thisX >= 180) {                  // and lastX >= 0
+            xm = 0.5 * (thisX + lastX);
+            if (Math.abs(xm) > 90) {          // gross test for closer to anti-meridian
+              bounds.anti = true;
+              bounds.anti_now = true;         // must be cleared on next read
+              bounds.anti_cont = true;
+              bounds.anti_dir = +1;           // -1 is toward west
+            }
+            else {
+              bounds.prime = true;
+              bounds.prime_now = true;
+              bounds.prime_cont = true;
+              bounds.prime_dir = -1;           // +1 is toward east
             }
           }
         }
+        return undefined;
       }
-      return undefined;
     },
 
       extendedCheck: function (bounds, lastX, thisX) {

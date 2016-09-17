@@ -1,4 +1,4 @@
-<%= form_tag(by_area_task_url) do %>
+<%= form_tag(by_area_task_url, remote: true) do %>
     <!--begin model area selector insertion/invocation segment-->
     <%= render(partial: 'shared/data/gis/area_selector',
                locals: {passed_in_tag_id:    'geographic_area_id_for_by_area',
