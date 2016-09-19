@@ -45,7 +45,9 @@ _init_map_table = function init_map_table() {
     $("#find_area_and_date_commit").click(function (event) {
       $("#result_span").text('**********');
       $.get('find', $("#set_area_form").serialize(), function (local_data) {
-          $("#result_span").text('We hit FIND');
+        var popcorn = local_data;
+        var html = local_data.html;
+        $("#show_list").html(html);
         }, 'json'  // I expect a json response
       );
       event.preventDefault();
