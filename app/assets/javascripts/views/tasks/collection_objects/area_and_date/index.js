@@ -22,6 +22,7 @@ _init_map_table = function init_map_table() {
   });
 
   $("#set_area").click(function (event) {      // register the click handler for the made-from-scratch-button
+    $("#area_count").text('**********');
     //var geo_id = $("input[name='[geographic_area_id]']").val();
     $.get('set_area', $("input[name='[geographic_area_id]']").serialize(), function (local_data) {
         var popcorn = local_data;
@@ -29,18 +30,18 @@ _init_map_table = function init_map_table() {
       }, 'json'  // I expect a json response
     );
 
-    $("#set_area").on("ajax:success", function (e, data) {
-        $("#area_count").text(data.html);
-        return true;
-      }
-    ).on("#ajax:errror", function (e, xhr, status, error) {
-        $("area_count").text("<p>set_area error => " + error + "</p>")
-      }
-    );
     event.preventDefault();
     }
   );
   //event.preventDefault();
+  //$("#set_area").on("ajax:success", function (e, data) {
+  //    $("#area_count").text(data.html);
+  //    return true;
+  //  }
+  //).on("#ajax:errror", function (e, xhr, status, error) {
+  //    $("area_count").text("<p>set_area error => " + error + "</p>")
+  //  }
+  //);
 
 };
 
