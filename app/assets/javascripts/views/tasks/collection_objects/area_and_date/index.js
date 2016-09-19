@@ -22,18 +22,25 @@ _init_map_table = function init_map_table() {
   });
 
   $("#set_area").click(function (event) {      // register the click handler for the made-from-scratch-button
-    var geo_id = $("input[name='[geographic_area_id]']").val();
-    $.get('set_area', geo_id);
+    //var geo_id = $("input[name='[geographic_area_id]']").val();
+    $.get('set_area', $("input[name='[geographic_area_id]']").serialize(), function (local_data) {
+        var popcorn = local_data;
+        $("#area_count").text(local_data.html);
+      }, 'json'  // I expect a json response
+    );
 
     $("#set_area").on("ajax:success", function (e, data) {
-        $("#area_count").val(data);
+        $("#area_count").text(data.html);
         return true;
       }
+    ).on("#ajax:errror", function (e, xhr, status, error) {
+        $("area_count").text("<p>set_area error => " + error + "</p>")
+      }
     );
+    event.preventDefault();
     }
   );
   //event.preventDefault();
-
 
 };
 

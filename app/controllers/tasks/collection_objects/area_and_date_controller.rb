@@ -16,31 +16,11 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
 
   # GET
   def set_area
-    message = ''
-    value = params['gr_geographic_item_attributes_shape']
-    if value.blank?
-      @georeferences = Georeference.where('false')
-    else
-      feature = RGeo::GeoJSON.decode(value, :json_parser => :json)
-      geometry = feature.geometry
-      this_type = geometry.geometry_type.to_s.downcase
-      geometry = geometry.as_text
-      radius = feature['radius']
-      case this_type
-        when 'point'
-          @georeferences = Georeference.joins(:geographic_item).where(GeographicItem.within_radius_of_wkt_sql(geometry, radius))
-        when 'polygon'
-          @georeferences = Georeference.joins(:geographic_item).where(GeographicItem.contained_by_wkt_sql(geometry))
-        else
-      end
-      if @georeferences.length == 0
-        message = 'no objects contained in drawn shape'
-      end
-      render_gr_select_json(message)
-    end
+    geographic_area_id        = params[:geographic_area_id]
+    shape_in                  = params[:drawn_area_shape]
+    @collection_objects_count = GeographicItem.gather_selected_data(geographic_area_id, shape_in, 'CollectionObject').count
 
-
-    @geographic_area          = GeographicArea.find(params[:geographic_area_id])
+    render json: {html: @collection_objects_count.to_s}
   end
 
   # GET
