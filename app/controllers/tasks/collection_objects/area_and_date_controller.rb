@@ -16,6 +16,7 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
 
     @collection_objects = GeographicItem.gather_selected_data(@geographic_area_id, @shape_in, 'CollectionObject')
     # generate map and/or list
+    # render json: {'tasks/accessions/report/dwca/table', collection_objects: @collection_objects}
     render json: {html: @collection_objects_count.to_s}
   end
 
