@@ -14,6 +14,7 @@ _init_drawable_map = function init_drawable_map() {
       $(".on_selector").removeAttr('hidden');           // expose the other link
       $(".map_toggle").attr('hidden', true);
       $("[name='[geographic_area_id]']").attr('value', '');
+      $("#geographic_area_id_for_by_area").prop('value', '');
       drawable_map = TW.vendor.lib.google.maps.draw.initializeGoogleMapWithDrawManager(_drawable_map_form);
       google.maps.event.addListener(drawable_map[1], 'overlaycomplete', function (event) {
           // Remove the last created shape if it exists.
