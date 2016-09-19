@@ -48,6 +48,10 @@ _init_map_table = function init_map_table() {
         var popcorn = local_data;
         var html = local_data.html;
         $("#show_list").html(html);
+        if (local_data.feature_collection) {
+          $("#show_map").removeAttr('hidden');
+          result_map = TW.vendor.lib.google.maps.initializeMap('simple_map_canvas', local_data.feature_collection);
+        }
         }, 'json'  // I expect a json response
       );
       event.preventDefault();
