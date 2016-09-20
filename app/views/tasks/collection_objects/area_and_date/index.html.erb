@@ -1,3 +1,4 @@
+<%= render(partial: 'layouts/map_header') %>
 <h1>Task: Collection objects by area and date range</h1>
 <div class="flexbox">
   <div class="item item1" align="center">
@@ -38,7 +39,7 @@
 
       <div id="show_map" hidden>
         <!--on first paint, these variables will be empty, so we get an empty map -->
-        <%= simple_map(report_georeferences(@collection_objects, @geographic_area), 'border="1"') -%>
+        <%= simple_map_component(report_georeferences(@collection_objects, @geographic_area), 'border="1"') -%>
       </div>
 
     </div>

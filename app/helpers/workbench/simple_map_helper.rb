@@ -6,11 +6,13 @@ module Workbench::SimpleMapHelper
   # @param [String] border_string set to 'border="1"' if the table should have borders
   def simple_map(map_objects, map_center = nil, border_string = '')
     render(partial: 'layouts/map_header')
-    render(partial: 'shared/data/gis/simple_map',
-           locals:  {map_objects:   map_objects,
-                     map_center:    map_center,
-                     border_string: border_string})
-    # fail
+    simple_map_component(map_objects, map_center, border_string)
   end
 
+  def simple_map_component(map_objects, map_center = nil, border_string = '')
+    render(partial: 'shared/data/gis/simple_map',
+           locals: {map_objects: map_objects,
+                    map_center: map_center,
+                    border_string: border_string})
+  end
 end
