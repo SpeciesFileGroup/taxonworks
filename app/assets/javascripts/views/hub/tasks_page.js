@@ -91,11 +91,12 @@ function initTaskCarrousel() {
     task.resetView();
     task.showChilds(itemID);
   });
-  //Mousetrap Keys
-  Mousetrap.bind('left', function() {
+
+  //Keyboard Shortcuts
+  createShortcut("left","Show previous card tasks", "Hub tasks", function() {
     task.loadingUp();
   });
-  Mousetrap.bind('right', function() {
+  createShortcut("right","Show previous card tasks", "Hub tasks", function() {
     task.loadingDown();
   });  
   

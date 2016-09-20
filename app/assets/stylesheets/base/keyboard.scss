@@ -5,9 +5,16 @@
 #keyShortcuts {
 
 	.legend {
-		float: right;
-		margin: $standard_margin;
+		z-index: 5000;
+		display: none;
+		position: fixed;
+		bottom: $standard_margin;
+		right: $standard_margin;
+		cursor: pointer;
 		font-size: $font_small;
+		background-color: $panel_background;
+		padding: $standard_padding;
+		border-radius: 3px;
 	}
 
 	.panel {
@@ -85,7 +92,7 @@
 		position:fixed; 
 		top:0px; 
 		left:0px; 
-		z-index:800;
+		z-index:7000;
 	}
 
 	.main {
@@ -109,4 +116,8 @@
 		border-bottom: 2px solid $navigation_border;
 
 	}
+}
+
+.help-button-active + #keyShortcuts .legend {
+    display: block;
 }
