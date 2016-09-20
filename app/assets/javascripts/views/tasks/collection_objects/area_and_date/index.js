@@ -3,6 +3,7 @@ var _init_map_table;
 _init_map_table = function init_map_table() {
   if ($("#set_area_form").length) {
     var result_map;  // intended for use to display on a map objects which know how to GeoJSON themselves
+    var result_collection;
 
     $(".result_map_toggle").click(function (event) {           // switch to the map
       $("#show_list").attr('hidden', true);         // hide the area selector
@@ -11,6 +12,7 @@ _init_map_table = function init_map_table() {
       $(".result_map_toggle").attr('hidden', true);
       $("[name='[geographic_area_id]']").attr('value', '');
       result_map = _init_simple_map();
+      result_map = TW.vendor.lib.google.maps.initializeMap('simple_map_canvas', result_collection);
     });
 
     $(".result_list_toggle").click(function (event) {          // switch to the area by name selector
@@ -43,14 +45,23 @@ _init_map_table = function init_map_table() {
     //  }
     //);
     $("#find_area_and_date_commit").click(function (event) {
-      $("#result_span").text('**********');
+      //$("#result_span").text('**********');
       $.get('find', $("#set_area_form").serialize(), function (local_data) {
-        var popcorn = local_data;
         var html = local_data.html;
+        var message = local_data.message;
+        result_collection = local_data.feature_collection;
+        if (message.length == 0) {
+          $("#result_span").text("Total: " + local_data.collection_objects_count);
+        }
+        else {
+          $("#result_span").text(message);
+        }
         $("#show_list").html(html);
         if (local_data.feature_collection) {
-          $("#show_map").removeAttr('hidden');
-          result_map = TW.vendor.lib.google.maps.initializeMap('simple_map_canvas', local_data.feature_collection);
+          if ($("#show_map").attr("hidden") != "hidden") {
+            //$("#show_map").removeAttr('hidden');
+            result_map = TW.vendor.lib.google.maps.initializeMap('simple_map_canvas', result_collection);
+          }
         }
         }, 'json'  // I expect a json response
       );
