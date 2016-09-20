@@ -13,11 +13,13 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
   def find
     message             = ''
     @geographic_area_id = params[:geographic_area_id]
+    @geographic_area    = GeographicArea.find(@geographic_area_id) unless @geographic_area_id.blank?
     @shape_in           = params[:drawn_area_shape]
 
     @collection_objects       = GeographicItem.gather_selected_data(@geographic_area_id, @shape_in, 'CollectionObject')
     @collection_objects_count = @collection_objects.count
-    @feature_collection       = ::Gis::GeoJSON.feature_collection(@collection_objects.map(&:collecting_event).flatten)
+    @feature_collection       = ::Gis::GeoJSON.feature_collection(find_georeferences_for(@collection_objects,
+                                                                                         @geographic_area))
 
     message                   = 'No collection objects found.' if @collection_objects_count == 0
     render_co_select_json(message)
@@ -57,4 +59,13 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
                      locals:  {collection_objects: @collection_objects}
     )
   end
+
+  def find_georeferences_for(collection_objects, geographic_area)
+    retval = collection_objects.map(&:collecting_event).uniq.map(&:georeferences).flatten
+    if retval.empty?
+      retval.push(geographic_area)
+    end
+    retval
+  end
+
 end
