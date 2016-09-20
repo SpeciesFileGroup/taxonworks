@@ -6,6 +6,7 @@
       <h3><span id="area_count">####</span></h3>
       <%= render(:partial => 'by_area') %>
     </div>
+    <hr>
     <div id="select_date_range">
       <h2>Select date range</h2>
     </div>
@@ -22,8 +23,10 @@
   <div class="item item3" align="center">
     <div id="result_">
       <h2>Result</h2>
-      <h3><span id="result_span">_</span></h3>
-      <%= submit_tag('download', {disabled: params[:geographic_area_id].nil?}) %>
+      <h3><span id="result_span"> </span></h3>
+      <%= form_tag(result_download_task_url, id: 'download_form', method: :get, remote: true) do %>
+          <%= submit_tag('download') %>
+      <% end %>
 
       Select the result list, or the map.<br>
       <%= link_to('List', '#', class: :result_list_toggle, hidden: :true) %>
@@ -34,6 +37,7 @@
       </div>
 
       <div id="show_map" hidden>
+        <!--on first paint, these variables will be empty, so we get an empty map -->
         <%= simple_map(report_georeferences(@collection_objects, @geographic_area), 'border="1"') -%>
       </div>
 
