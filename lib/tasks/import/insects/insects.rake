@@ -1623,8 +1623,6 @@ namespace :tw do
               OriginRelationship.create(new_object: related_specimen, old_object: specimen)
               related_specimen.tags.create(keyword: data.keywords[row['Type']])
             else
-
-              a == a
               if direction == :direct
                 subject = specimen
                 object = related_specimen.nil? ? otu : related_specimen
