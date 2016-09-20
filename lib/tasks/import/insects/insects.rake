@@ -115,7 +115,7 @@ namespace :tw do
             main_build_loop_insects
           else
             ActiveRecord::Base.transaction do 
-              main_build_loop 
+              main_build_loop_insects
               raise
             end
           end
