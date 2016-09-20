@@ -17,4 +17,13 @@ module ProtocolsHelper
     return nil if protocol.nil?
     protocol_tag(protocol)
   end
+
+  def add_protocol_link(object: nil, attribute: nil)
+    link_to('Add protocol', new_protocol_relationship_path(protocol_relationship: {
+                                      protocol_object_type:      object.class.base_class.name,
+                                      protocol_object_id:        object.id,
+                                      protocol_object_attribute: attribute})) if object.has_protocols?
+  end
+
+
 end

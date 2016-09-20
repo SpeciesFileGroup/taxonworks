@@ -56,10 +56,6 @@ Core: # a Section
       - Person 
     categories:
       - source
-  Protocol:
-    status: :prototype
-    related_models:
-      - ProtocolRelationship
   BiologicalAssociation:
      status: :prototype
      related_models:
@@ -180,10 +176,10 @@ Supporting:
     shared: true
     categories:
       - collection_object
-  ProtocolRelationship:
+  Protocol:
     status: :prototype
     related_models:
-      - Protocol
+      - ProtocolRelationship 
   Namespace:
     status: :prototype
     shared: true
@@ -247,6 +243,10 @@ Annotations:
     status: :prototype
   Note:
     status: :prototype
+  ProtocolRelationship:
+    status: :prototype
+    related_models:
+      - Protocol
   Tag:
     status: :prototype
     related_models:

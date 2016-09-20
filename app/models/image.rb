@@ -43,6 +43,7 @@ class Image < ActiveRecord::Base
   include Shared::Identifiable
   include Shared::Notable
   include Shared::Taggable
+  include Shared::Protocols
   include Shared::IsData
   include SoftValidation
 

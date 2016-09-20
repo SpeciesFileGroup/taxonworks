@@ -18,6 +18,12 @@ class ProtocolRelationshipsController < ApplicationController
   # GET /protocol_relationships/new
   def new
     @protocol_relationship = ProtocolRelationship.new
+
+    if !Protocol.with_project_id(sessions_current_project_id).any? 
+      redirect_to new_protocol_path, notice: 'Create a protocol or two first.' and return
+    end
+    @protocol_relationship= ProtocolRelationship.new(protocol_relationship_params)
+
   end
 
   # GET /protocol_relationships/1/edit
@@ -77,13 +83,11 @@ class ProtocolRelationshipsController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
     def set_protocol_relationship
       @protocol_relationship = ProtocolRelationship.find(params[:id])
     end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
     def protocol_relationship_params
-      params.require(:protocol_relationship).permit(:protocol_id, :protocol_relationship_object_id, :protocol_relationship_object_type, :position, :created_by_id, :updated_by_id, :project_id)
+      params.require(:protocol_relationship).permit(:protocol_id, :protocol_relationship_object_id, :protocol_relationship_object_type, :position)
     end
 end

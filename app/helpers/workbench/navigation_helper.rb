@@ -51,7 +51,11 @@ module Workbench::NavigationHelper
   end
 
   def new_for_model_link(model)
+<<<<<<< 8aac39e85baf5184e260f668a79a1701a25f90dc
     if %w{Note Tag Citation Identifier DataAttribute AlternateValue GeographicArea ContainerItem Confidence}.include?(model.name)
+=======
+    if %w{Note Tag Citation Identifier DataAttribute AlternateValue GeographicArea ContainerItem ProtocolRelationship}.include?(model.name)
+>>>>>>> Add per class protocol indicator, and give images protocols. Fix an
       nil
     elsif model.name == 'ProjectSource'
       link_to('New', new_source_path, 'class' => 'small-icon', 'data-icon' => 'new')
@@ -160,7 +164,8 @@ module Workbench::NavigationHelper
      content_tag(:li, add_identifier_link(object: object)),
      content_tag(:li, add_note_link(object: object)),
      content_tag(:li, add_tag_link(object: object)),
-     content_tag(:li, add_confidence_link(object: object))
+     content_tag(:li, add_confidence_link(object: object)),
+     content_tag(:li, add_protocol_link(object: object))
     ].compact.join('').html_safe
   end
 
