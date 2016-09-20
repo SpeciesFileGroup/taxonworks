@@ -1624,6 +1624,7 @@ namespace :tw do
               related_specimen.tags.create(keyword: data.keywords[row['Type']])
             else
 
+              a == a
               if direction == :direct
                 subject = specimen
                 object = related_specimen.nil? ? otu : related_specimen
