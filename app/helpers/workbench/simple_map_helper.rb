@@ -11,8 +11,8 @@ module Workbench::SimpleMapHelper
 
   def simple_map_component(map_objects, map_center = nil, border_string = '')
     render(partial: 'shared/data/gis/simple_map',
-           locals:  {map_objects:   map_objects,
-                     map_center:    map_center,
-                     border_string: border_string})
+           locals: {map_objects: map_objects,
+                    map_center: map_center,
+                    border_string: border_string})
   end
 end
