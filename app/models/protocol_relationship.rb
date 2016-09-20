@@ -4,10 +4,12 @@ class ProtocolRelationship < ActiveRecord::Base
 
   acts_as_list scope: [:protocol_id]
 
-  belongs_to :protocol
+  belongs_to :protocol, inverse_of: :protocol_relationships
   belongs_to :protocol_relationship_object, polymorphic: true
 
-  validates_presence_of :protocol_id
-  validates_presence_of :protocol_relationship_object_id
-  validates_presence_of :protocol_relationship_object_type
+  # Do not include these validations, they will prevent nested_attributes_for from passing (see
+  # incompatibility with polymorphic objects)  
+  # validates_presence_of :protocol_relationship_object_id, :protocol_relationship_object_type
+ 
+  validates_presence_of :protocol 
 end

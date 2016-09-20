@@ -1,8 +1,14 @@
+# A Protocol is a recipe for how something is done. 
+#
+# Protocols are simple records, they can be Document(ed) with
+#  external files (pdfs, text files, etc.)
+# 
 class Protocol < ActiveRecord::Base
   include Housekeeping
   include Shared::IsData
+#  include Shared::Documentable
 
-  belongs_to :project
+  has_many :protocol_relationships, inverse_of: :protocol
 
   validates_presence_of :name
   validates_uniqueness_of :name, case_sensitive: false

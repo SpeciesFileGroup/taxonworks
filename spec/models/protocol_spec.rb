@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Protocol, type: :model do
+RSpec.describe Protocol, type: :model, group: :protocol do
   let(:protocol) {Protocol.new}
 
   context 'validation' do
@@ -21,20 +21,16 @@ RSpec.describe Protocol, type: :model do
 
       context 'unique name' do
         before(:each){
-          name_protocol = FactoryGirl.build(:valid_protocol)
-          name_protocol.name = "Name1"
-          name_protocol.save!
+          name_protocol = FactoryGirl.create(:valid_protocol, name: 'Name1')
         }
 
         specify 'same casing' do
-          new_protocol = FactoryGirl.build(:valid_protocol)
-          new_protocol.name = "Name1"
+          new_protocol = FactoryGirl.build(:valid_protocol, name: 'Name1')
           expect(new_protocol.valid?).to be_falsey
         end
 
         specify 'different casing' do
-          new_protocol = FactoryGirl.build(:valid_protocol)
-          new_protocol.name = "name1"
+          new_protocol = FactoryGirl.build(:valid_protocol, name: 'name1')
           expect(new_protocol.valid?).to be_falsey
         end
       end

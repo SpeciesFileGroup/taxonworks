@@ -1,25 +1,32 @@
 require 'rails_helper'
 
-RSpec.describe ProtocolRelationship, type: :model do
+RSpec.describe ProtocolRelationship, type: :model, group: :protocol do
   let(:protocol_relationship) {ProtocolRelationship.new}
+  let(:protocol) { FactoryGirl.create(:valid_protocol) }
 
   context 'validations' do
 
-    context 'fails when not given' do
+    context 'adds error' do
       before(:each){
         protocol_relationship.valid?
       }
 
       specify 'protocol_id' do
-        expect(protocol_relationship.errors.include?(:protocol_id)).to be_truthy
+        expect(protocol_relationship.errors.include?(:protocol)).to be_truthy
+      end
+    end
+    context 'raises for polymorphic fields' do
+
+      before{protocol_relationship.protocol = FactoryGirl.create(:valid_protocol)}
+
+      specify '#protocol_relationship_object_type' do
+        protocol_relationship.protocol_relationship_object_id = 1  
+        expect{protocol_relationship.save}.to raise_error ActiveRecord::StatementInvalid
       end
 
-      specify 'protocol_relationship_object_id' do
-        expect(protocol_relationship.errors.include?(:protocol_relationship_object_id)).to be_truthy
-      end
-
-      specify 'protocol_relationship_object_type' do
-        expect(protocol_relationship.errors.include?(:protocol_relationship_object_type)).to be_truthy
+      specify '#protocol_relationship_object_id' do
+        protocol_relationship.protocol_relationship_object_type = 'Image' 
+        expect{protocol_relationship.save}.to raise_error ActiveRecord::StatementInvalid 
       end
     end
 
