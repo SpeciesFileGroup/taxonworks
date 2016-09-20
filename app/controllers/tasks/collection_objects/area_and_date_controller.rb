@@ -15,13 +15,11 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
     @geographic_area_id = params[:geographic_area_id]
     @shape_in           = params[:drawn_area_shape]
 
-    @collection_objects = GeographicItem.gather_selected_data(@geographic_area_id, @shape_in, 'CollectionObject')
-    if @collection_objects.any?
-      # generate map and/or list
-      @feature_collection = ::Gis::GeoJSON.feature_collection(@collection_objects.map(&:collecting_event).flatten)
-    else
-      message = 'No collection objects found.'
-    end
+    @collection_objects       = GeographicItem.gather_selected_data(@geographic_area_id, @shape_in, 'CollectionObject')
+    @collection_objects_count = @collection_objects.count
+    @feature_collection       = ::Gis::GeoJSON.feature_collection(@collection_objects.map(&:collecting_event).flatten)
+
+    message                   = 'No collection objects found.' if @collection_objects_count == 0
     render_co_select_json(message)
   end
 
@@ -48,7 +46,10 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
   end
 
   def render_co_select_json(message)
-    render json: {message: message, html: co_render_to_html, feature_collection: @feature_collection}
+    render json: {message:                  message,
+                  html:                     co_render_to_html,
+                  feature_collection:       @feature_collection,
+                  collection_objects_count: @collection_objects_count.to_s}
   end
 
   def co_render_to_html
