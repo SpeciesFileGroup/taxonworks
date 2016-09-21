@@ -44,8 +44,6 @@ module Shared::IsData
     self.class < Shared::Confidence ? true : false
   end
 
-
-
   def has_depictions?
     self.class < Shared::Depictions ? true : false
   end
@@ -153,11 +151,8 @@ module Shared::IsData
     result.merge!('notes' => self.notes) if self.has_notes? && self.notes.any?
     result.merge!('tags' => self.tags) if self.has_tags? && self.tags.any?
     result.merge!('depictions' => self.depictions) if self.has_depictions? && self.depictions.any?
-<<<<<<< 8aac39e85baf5184e260f668a79a1701a25f90dc
     result.merge!('confidences' => self.confidences) if self.has_confidences? && self.confidences.any?
-=======
     result.merge!('protocols' => self.protocols) if self.has_protocols? && self.protocols.any?
->>>>>>> Add per class protocol indicator, and give images protocols. Fix an
     result
   end
 
