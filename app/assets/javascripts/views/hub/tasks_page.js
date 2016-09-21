@@ -96,7 +96,7 @@ function initTaskCarrousel() {
   createShortcut("left","Show previous card tasks", "Hub tasks", function() {
     task.loadingUp();
   });
-  createShortcut("right","Show previous card tasks", "Hub tasks", function() {
+  createShortcut("right","Show next card tasks", "Hub tasks", function() {
     task.loadingDown();
   });  
   

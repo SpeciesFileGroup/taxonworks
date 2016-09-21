@@ -6,6 +6,9 @@ _init_dropzone_for_images = function init_dropzone_for_images() {
       paramName: "image[image_file]", // The name that will be used to transfer the file
       maxFilesize: 100,
       dictDefaultMessage: "Drag and drop images here or click to upload.",
+      success: function(file, dataUrl) {
+        $(file.previewElement).wrap('<a href="'+dataUrl.result.id+'"></a>');
+      },   
       accept: function(file, done) {
         done();
       }

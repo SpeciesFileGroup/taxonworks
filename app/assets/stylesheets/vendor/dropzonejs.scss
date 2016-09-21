@@ -5,15 +5,15 @@
 #basic-images.dropzone {
 	border: 2px dashed $color-secondary-2-4 !important;
 	padding: $standard_padding*4 !important;
-	background-color: #000;
 	width:100%;
 	background-color: $soft_background !important;
 	border-radius:5px !important;
+
+
 }
 
 .dz-default {
 	font-size: $font_title*1.5 !important;
 	font-weight: 100 !important;
 	color:#555 !important;
-
 }

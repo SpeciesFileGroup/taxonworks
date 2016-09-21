@@ -5,11 +5,11 @@
 #keyShortcuts {
 
 	.legend {
-		z-index: 5000;
+		z-index: 900;
 		display: none;
 		position: fixed;
-		bottom: $standard_margin;
-		right: $standard_margin;
+		bottom: 20px;
+		left: 75px;
 		cursor: pointer;
 		font-size: $font_small;
 		background-color: $panel_background;
