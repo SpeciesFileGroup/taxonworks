@@ -1,28 +1,5 @@
-
 <div class="flexbox">
-  <div class="item item1"> 
-
-
-    <h3> Select an image through the browser </h3>
-
-    <%= form_for(@image, multipart: true) do |f| %>
-      <%= render 'shared/errors', object: @image %>
-
-      <div class="field">
-        <%= f.label :image_file %>
-
-        <div class="image_field"> <%= image_tag(@image.image_file.url(:thumb)) if !@image.new_record? -%> </div>
-
-        <%= f.file_field :image_file, class: :required_for_submit %>
-      </div>
-
-      <div class="actions">
-        <%= f.submit id: 'submit_with_required', disabled: :disabled %>
-      </div>
-    <% end %>
-  </div>
-  <div class="item item2">
-    <h3> Drag drop images from your desktop </h3>
+  <div class="item item1" style="display:flex;justify-content:center;">
     <%= dropzone_form(@image) -%> 
   </div>
 </div>
