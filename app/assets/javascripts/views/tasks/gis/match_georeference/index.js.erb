@@ -480,7 +480,7 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
    // Datepicker fix
 
   $(document).ready(function () {
-    if($("#st_datepicker").length) {
+    if ($("#st_datepicker").length) {  // see if we need a datepicker for start date
       var d = new Date();
       var n = d.getFullYear();
       var dateInput = $("#st_datepicker");
@@ -490,52 +490,17 @@ _init_match_georeference_page_widget = function init_match_georeference_page() {
       dateInput.datepicker({dateFormat: format});
       dateInput.datepicker('setDate', $.datepicker.parseDate(format, dateInput.val()));
     }
-    if($("#en_datepicker").length) {
+    if ($("#en_datepicker").length) {  /// see if we need a datepicker for end date
       var d = new Date();
-      var n = d.getFullYear();   
+      var n = d.getFullYear();
       var dateInput = $("#en_datepicker");
-      var format = 'yy-mm-dd';    
-           
+      var format = 'yy-mm-dd';
+
       $("#en_datepicker").datepicker({changeMonth: true, changeYear: true, yearRange: "1700:" + n });
       dateInput.datepicker({dateFormat: format});
       dateInput.datepicker('setDate', $.datepicker.parseDate(format, dateInput.val()));
-    }    
-  });  
-  /* ----
-
-   Jim - something in this block of code (that is run on every page- is that intended?)
-   is raising an error on every page and preventing the source -> new javascript from
-   running, logged as TW-273
-
-   $(function () {
-   $("#st_datepicker").datepicker();
-   });
-
-   $(function () {
-   $("#en_datepicker").datepicker();
-   });
-
-
-   // https://api.jqueryui.com/datepicker/
-   //# This makes the pop-up show the actual db date by fixing a format difference.
-   $(function () {
-   var dateInput = $("#st_datepicker");
-   var format = 'dd-MM-yy';
-   dateInput.datepicker({dateFormat: format});
-   dateInput.datepicker('setDate', $.datepicker.parseDate(format, dateInput.val()));
-   });
-
-
-   // https://api.jqueryui.com/datepicker/
-   //# This makes the pop-up show the actual db date by fixing a format difference.
-   $(function () {
-   var dateInput = $("#en_datepicker");
-   var format = 'yy-mm-dd';
-   dateInput.datepicker({dateFormat: format});
-   dateInput.datepicker('setDate', $.datepicker.parseDate(format, dateInput.val()));
-   });
-
-   ---- end block --- */
+    }
+  });
 };
 
 $(document).ready(_init_match_georeference_page_widget);
