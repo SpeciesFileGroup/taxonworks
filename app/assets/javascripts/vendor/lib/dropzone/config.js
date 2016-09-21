@@ -8,6 +8,7 @@ _init_dropzone_for_images = function init_dropzone_for_images() {
       dictDefaultMessage: "Drag and drop images here or click to upload.",
       success: function(file, dataUrl) {
         $(file.previewElement).wrap('<a href="/images/'+dataUrl.result.id+'"></a>');
+        file.previewElement.classList.add("dz-success");
       },   
       accept: function(file, done) {
         done();
