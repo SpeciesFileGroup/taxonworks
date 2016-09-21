@@ -4,9 +4,11 @@ _init_map_table = function init_map_table() {
   if ($("#set_area_form").length) {
     var result_map;  // intended for use to display on a map objects which know how to GeoJSON themselves
     var result_collection;
+    //var area_selector = $("#geographic_area_id_for_by_area");
 
-    $(".result_map_toggle").click(function (event) {           // switch to the map
-      $("#show_list").attr('hidden', true);         // hide the area selector
+    $(".result_map_toggle").click(function (event) {           // switch to the map view
+      $("#area_count").text('####');
+      $("#show_list").attr('hidden', true);         // hide the list view
       $("#show_map").removeAttr('hidden');          // reveal the map
       $(".result_list_toggle").removeAttr('hidden');           // expose the other link
       $(".result_map_toggle").attr('hidden', true);
@@ -15,7 +17,8 @@ _init_map_table = function init_map_table() {
       result_map = TW.vendor.lib.google.maps.initializeMap('simple_map_canvas', result_collection);
     });
 
-    $(".result_list_toggle").click(function (event) {          // switch to the area by name selector
+    $(".result_list_toggle").click(function (event) {          // switch to the list view
+      $("#area_count").text('####');
       $("#show_map").attr('hidden', true);          // hide the map
       $("#show_list").removeAttr('hidden');         // reveal the area selector
       $(".result_map_toggle").removeAttr('hidden');            // expose the other link
@@ -24,7 +27,7 @@ _init_map_table = function init_map_table() {
     });
 
     $("#set_area").click(function (event) {      // register the click handler for the made-from-scratch-button
-        $("#area_count").text('**********');
+      $("#area_count").text('----');
         //var geo_id = $("input[name='[geographic_area_id]']").val();
         $.get('set_area', $("#set_area_form").serialize(), function (local_data) {
             var popcorn = local_data;
@@ -52,7 +55,7 @@ _init_map_table = function init_map_table() {
         result_collection = local_data.feature_collection;
         if (message.length == 0) {
           $("#result_span").text("Total: " + local_data.collection_objects_count);
-        }
+          }
         else {
           $("#result_span").text(message);
         }
