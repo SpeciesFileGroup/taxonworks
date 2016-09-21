@@ -10,6 +10,25 @@
     <hr>
     <div id="select_date_range">
       <h2>Select date range</h2>
+      <h3><span id="date_count">####</span></h3>
+      <table class="no-shadow" border="1">
+        <tr>
+          <td>
+            <label for="st_datepicker"></label>
+            <input type="text" id="st_datepicker" name="st_datepicker" size="10"/>
+          </td>
+          <td>
+            <label for="en_datepicker"></label>
+            <input type="text" id="en_datepicker" name="en_datepicker" size="10"/>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="2">
+
+          </td>
+        </tr>
+      </table>
+      <label for="st_datepicker"></label>
     </div>
   </div>
 
@@ -24,24 +43,20 @@
   <div class="item item3" align="center">
     <div id="result_">
       <h2>Result</h2>
-      <h3><span id="result_span"> </span></h3>
+      <h3><span id="result_span">####</span></h3>
+      Select the result list, or the map of results.<br>
+      <%= link_to('List', '#', class: :result_list_toggle, hidden: :true) %>
+      <%= link_to('Map', '#', class: :result_map_toggle) %>
       <%= form_tag(result_download_task_url, id: 'download_form', method: :get, remote: true) do %>
           <%= submit_tag('download') %>
       <% end %>
-
-      Select the result list, or the map.<br>
-      <%= link_to('List', '#', class: :result_list_toggle, hidden: :true) %>
-      <%= link_to('Map', '#', class: :result_map_toggle) %>
-
       <div id="show_list">
         <%= render 'result_list', collection_objects: @collection_objects %>
       </div>
-
       <div id="show_map" hidden>
         <!--on first paint, these variables will be empty, so we get an empty map -->
         <%= simple_map_component(report_georeferences(@collection_objects, @geographic_area), 'border="1"') -%>
       </div>
-
     </div>
   </div>
 </div>
