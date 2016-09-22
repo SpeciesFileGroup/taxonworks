@@ -147,7 +147,7 @@ _init_map_table = function init_map_table() {
     }
 
     $("#st_flexpicker").change(function (event) {
-        $.get('set_date', $("#select_date_range").serialize(), function (local_data) {
+      $.get('set_date', $("#set_date_form").serialize(), function (local_data) {
             var popcorn = local_data;
             $("#graph_frame").innerHTML(local_data.html);
           }, 'json'  // I expect a json response
@@ -157,7 +157,7 @@ _init_map_table = function init_map_table() {
     );
 
     $("#en_flexpicker").change(function (event) {
-        $.get('set_date', $("#select_date_range").serialize(), function (local_data) {
+      $.get('set_date', $("#set_date_form").serialize(), function (local_data) {
             var popcorn = local_data;
             $("#graph_frame").innerHTML(local_data.html);
           }, 'json'  // I expect a json response
