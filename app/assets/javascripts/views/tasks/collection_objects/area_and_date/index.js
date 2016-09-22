@@ -79,25 +79,25 @@ _init_map_table = function init_map_table() {
     var format = 'ATOM';
     var dateInput;
 
-    if ($("#st_flexpicker").length) {  // see if we need a datepicker for start date
+    if ($("#st_fixedpicker").length) {  // see if we need a datepicker for start date
       var d = new Date();
       var n = d.getFullYear();
       var dateInput = $("#st_flexpicker");
       var format = 'ATOM';
 
-      $("#st_flexpicker").datepicker({changeMonth: true, changeYear: true, yearRange: "1700:" + n});
-      dateInput.datepicker({dateFormat: format});
-      dateInput.datepicker('setDate', $.datepicker.parseDate(format, dateInput.val()));
+      $("#st_fixedpicker").datepicker({changeMonth: true, changeYear: true, yearRange: "1700:" + n});
+      //dateInput.datepicker({dateFormat: format});
+      //dateInput.datepicker('setDate', $.datepicker.parseDate(format, dateInput.val()));
     }
-    if ($("#en_flexpicker").length) {  /// see if we need a datepicker for end date
+    if ($("#en_fixedpicker").length) {  /// see if we need a datepicker for end date
       var d = new Date();
       var n = d.getFullYear();
       var dateInput = $("#en_flexpicker");
       var format = 'ATOM';
 
-      $("#en_flexpicker").datepicker({changeMonth: true, changeYear: true, yearRange: "1700:" + n});
-      dateInput.datepicker({dateFormat: format});
-      dateInput.datepicker('setDate', $.datepicker.parseDate(format, dateInput.val()));
+      $("#en_fixedpicker").datepicker({changeMonth: true, changeYear: true, yearRange: "1700:" + n});
+      //dateInput.datepicker({dateFormat: format});
+      //dateInput.datepicker('setDate', $.datepicker.parseDate(format, dateInput.val()));
     }
 
     ////if ($("#st_fixedpicker").length) {
@@ -119,8 +119,12 @@ _init_map_table = function init_map_table() {
     //
     //set_control($("#en_fixedpicker"), $("#en_flexpicker"), format, year, today);
 
-    $("#st_fixedpicker").click(function () {
-      $("#st_flexpicker").val($("#st_fixedpicker").datepicker.getDate());
+    $("#st_fixedpicker").click(function (event) {
+      $("#st_flexpicker").val($("#st_fixedpicker").datepicker("getDate"));
+    });
+
+    $("#en_fixedpicker").click(function (event) {
+      $("#en_flexpicker").val($("#en_fixedpicker").datepicker("getDate"));
     });
 
     function set_control(control, input, format, year, today) {
