@@ -59,7 +59,7 @@ _init_map_table = function init_map_table() {
             }
           else {
             $("#result_span").text(message);
-          }
+            }
           $("#show_list").html(html);
           if (local_data.feature_collection) {
             if ($("#show_map").attr("hidden") != "hidden") {
@@ -145,6 +145,26 @@ _init_map_table = function init_map_table() {
         input.val(today);
       }
     }
+
+    $("#st_flexpicker").change(function (event) {
+        $.get('set_date', $("#select_date_range").serialize(), function (local_data) {
+            var popcorn = local_data;
+            $("#graph_frame").innerHTML(local_data.html);
+          }, 'json'  // I expect a json response
+        );
+        event.preventDefault();
+      }
+    );
+
+    $("#en_flexpicker").change(function (event) {
+        $.get('set_date', $("#select_date_range").serialize(), function (local_data) {
+            var popcorn = local_data;
+            $("#graph_frame").innerHTML(local_data.html);
+          }, 'json'  // I expect a json response
+        );
+        event.preventDefault();
+      }
+    );
 
   }
 };
