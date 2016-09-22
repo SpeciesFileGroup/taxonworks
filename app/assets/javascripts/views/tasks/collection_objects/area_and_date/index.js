@@ -56,7 +56,7 @@ _init_map_table = function init_map_table() {
           result_collection = local_data.feature_collection;
           if (message.length == 0) {
             $("#result_span").text("Total: " + local_data.collection_objects_count);
-          }
+            }
           else {
             $("#result_span").text(message);
           }
@@ -73,37 +73,63 @@ _init_map_table = function init_map_table() {
       })
     }
 
-    function set_control(control, input, format, year, today) {
-      if (control.length) {
-        control.datepicker({dateFormat: format, changeMonth: true, changeYear: true, yearRange: "1700:" + year})
-        input.val(today)
-      }
-    }
-
     var today = new Date();
     var year = today.getFullYear();
     today = today.toLocaleDateString('en-US', {year: 'numeric', month: '2-digit', day: '2-digit'});
-    var format = 'dd-MM-yy';
+    var format = 'ATOM';
     var dateInput;
 
-    //if ($("#st_fixedpicker").length) {
-    //  $("#st_fixedpicker").datepicker({dateFormat: format, changeMonth: true, changeYear: true, yearRange: "1700:" + year});
-    //  dateInput = $("#st_flexpicker");
-    //  dateInput.val(today.toLocaleDateString());
-    //  dateInput.datepicker("onSelect",  dateInput);
-    //  //dateInput.datepicker('setDate', $.datepicker.parseDate(format, dateInput.val()));
-    //}
+    if ($("#st_flexpicker").length) {  // see if we need a datepicker for start date
+      var d = new Date();
+      var n = d.getFullYear();
+      var dateInput = $("#st_flexpicker");
+      var format = 'ATOM';
 
-    set_control($("#st_fixedpicker"), $("#st_flexpicker"), format, year, today);
+      $("#st_flexpicker").datepicker({changeMonth: true, changeYear: true, yearRange: "1700:" + n});
+      dateInput.datepicker({dateFormat: format});
+      dateInput.datepicker('setDate', $.datepicker.parseDate(format, dateInput.val()));
+    }
+    if ($("#en_flexpicker").length) {  /// see if we need a datepicker for end date
+      var d = new Date();
+      var n = d.getFullYear();
+      var dateInput = $("#en_flexpicker");
+      var format = 'ATOM';
 
-    //if ($("#en_fixedpicker").length) {
-    //  $("#en_fixedpicker").datepicker({dateFormat: format, changeMonth: true, changeYear: true, yearRange: "1700:" + year});
-    //  dateInput = $("#en_flexpicker");
-    //  dateInput.val(today.toLocaleDateString());
-    //  //dateInput.datepicker('setDate', $.datepicker.parseDate(format, dateInput.val()));
-    //}
+      $("#en_flexpicker").datepicker({changeMonth: true, changeYear: true, yearRange: "1700:" + n});
+      dateInput.datepicker({dateFormat: format});
+      dateInput.datepicker('setDate', $.datepicker.parseDate(format, dateInput.val()));
+    }
 
-    set_control($("#en_fixedpicker"), $("#en_flexpicker"), format, year, today);
+    ////if ($("#st_fixedpicker").length) {
+    ////  $("#st_fixedpicker").datepicker({dateFormat: format, changeMonth: true, changeYear: true, yearRange: "1700:" + year});
+    ////  dateInput = $("#st_flexpicker");
+    ////  dateInput.val(today.toLocaleDateString());
+    ////  dateInput.datepicker("onSelect",  dateInput);
+    ////  //dateInput.datepicker('setDate', $.datepicker.parseDate(format, dateInput.val()));
+    ////}
+    //
+    //set_control($("#st_fixedpicker"), $("#st_flexpicker"), format, year, today);
+    //
+    ////if ($("#en_fixedpicker").length) {
+    ////  $("#en_fixedpicker").datepicker({dateFormat: format, changeMonth: true, changeYear: true, yearRange: "1700:" + year});
+    ////  dateInput = $("#en_flexpicker");
+    ////  dateInput.val(today.toLocaleDateString());
+    ////  //dateInput.datepicker('setDate', $.datepicker.parseDate(format, dateInput.val()));
+    ////}
+    //
+    //set_control($("#en_fixedpicker"), $("#en_flexpicker"), format, year, today);
+
+    $("#st_fixedpicker").click(function () {
+      $("#st_flexpicker").val($("#st_fixedpicker").datepicker.getDate());
+    });
+
+    function set_control(control, input, format, year, today) {
+      if (control.length) {
+        control.datepicker({dateFormat: format, changeMonth: true, changeYear: true, yearRange: "1700:" + year});
+        input.val(today);
+      }
+    }
+
   }
 };
 
