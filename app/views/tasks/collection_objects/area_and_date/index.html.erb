@@ -12,33 +12,34 @@
       <div id="select_date_range">
         <h2>Select date range</h2>
         <h3><span id="date_count">####</span></h3>
-        <table class="no-shadow" border="1">
-          <tr>
-            <td align="center">
-              <label for="st_flexpicker"></label>
-              <input type="text" id="st_flexpicker" name="st_flexpicker" size="10"/>
-            </td>
-            <td align="center">
-              <label for="en_flexpicker"></label>
-              <input type="text" id="en_flexpicker" name="en_flexpicker" size="10"/>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <div id="st_fixedpicker"></div>
-            </td>
-            <td>
-              <div id="en_fixedpicker"></div>
-            </td>
-          </tr>
-          <tr>
-            <td align="center" colspan="2" rowspan="2" id="graph_frame">
-              <div>result graph</div>
-            </td>
-          </tr>
-          <tr></tr>
-        </table>
-        <label for="st_datepicker"></label>
+        <%= form_tag(by_date_task_url, id: 'set_date_form', remote: true) do %>
+            <table class="no-shadow" border="1">
+              <tr>
+                <td align="center">
+                  <label for="st_flexpicker"></label>
+                  <input type="text" id="st_flexpicker" name="st_flexpicker" size="10"/>
+                </td>
+                <td align="center">
+                  <label for="en_flexpicker"></label>
+                  <input type="text" id="en_flexpicker" name="en_flexpicker" size="10"/>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div id="st_fixedpicker"></div>
+                </td>
+                <td>
+                  <div id="en_fixedpicker"></div>
+                </td>
+              </tr>
+              <tr>
+                <td align="center" colspan="2" rowspan="2" id="graph_frame">
+                  <div>result graph</div>
+                </td>
+              </tr>
+              <tr></tr>
+            </table>
+        <% end %>
       </div>
     </div>
 

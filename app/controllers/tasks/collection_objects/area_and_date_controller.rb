@@ -36,7 +36,7 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
 
   # GET
   def set_date
-
+    jim = 0
   end
 
   def download_result
