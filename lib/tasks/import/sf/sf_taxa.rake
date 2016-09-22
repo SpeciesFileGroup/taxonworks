@@ -5,6 +5,47 @@ namespace :tw do
       require 'logged_task'
       namespace :taxa do
 
+        desc 'time rake tw:project_import:sf_import:taxa:create_type_species user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        LoggedTask.define :create_type_species => [:data_directory, :environment, :user_id] do |logger|
+
+          logger.info 'Creating type species...'
+
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
+          get_tw_source_id = import.get('SFRefIDToTWSourceID')
+          get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID')
+
+          path = @args[:data_directory] + 'tblTypeSpecies.txt'
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+
+          type_species_reason_hash = { '0' => 'unknown',
+                                       '1' => 'Typification::Genus::Monotypy::Original',
+                                       '2' => 'Typification::Genus::OriginalDesignation',
+                                       '3' => 'Typification::Genus::SubsequentDesignation',
+                                       '4' => 'Typification::Genus::Monotypy', # test if = '5', then add second reason 'original_designation' (= '3')
+                                       '5' => 'Typification::Genus::Monotypy::Subsequent',
+                                       '6' => 'Typification::Genus::Tautonomy::Absolute',
+                                       '7' => 'Typification::Genus::Tautonomy::Linnaean',
+                                       '8' => 'Typification::Genus::RulingByCommission',
+                                       '9' => 'inherited from replaced name'
+          }
+
+          file.each_with_index do |row, i|
+
+            genus_name_id = get_tw_taxon_name_id[row['GenusNameID']]  # is integer
+            species_name_id = get_tw_taxon_name_id[row['SpeciesNameID']]
+            reason = row['Reason']  # test if = '5', then add second reason 'original_designation' (= '3')
+            authority_ref_id = get_tw_source_id[row['AuthorityRefID']]  # is string
+            first_family_group_name_id = get_tw_taxon_name_id[row['FirstFamGrpNameID']]
+
+            # Need project_id for each genus (for TaxonNameRelationship): can I query TaxonNames?
+
+            TaxonNameRelationship.new
+          end
+
+        end
+
+
         # import taxa
         # original_genus_id: cannot set until all taxa (for a given project) are imported; and the out of scope taxa as well
         # pass 1:
