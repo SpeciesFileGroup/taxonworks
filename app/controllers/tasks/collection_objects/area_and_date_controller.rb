@@ -36,7 +36,9 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
 
   # GET
   def set_date
-    @collection_objects_count = CollectionObject.find_by_sql('select count(id) from collection_objects where id > 0 AND created_at BETWEEN \'2014-01-01\' AND \'2016-09-20\' AND project_id = 1').first.count
+    start_date = params[:st_flexpicker].gsub('/', '-')
+    end_date = params[:en_flexpicker].gsub('/', '-')
+    @collection_objects_count = CollectionObject.find_by_sql("select count(id) from collection_objects where id > 0 AND created_at BETWEEN '#{start_date}' AND '#{end_date}' AND project_id = 1").first.count
     render json: {html: @collection_objects_count.to_s}
   end
 
