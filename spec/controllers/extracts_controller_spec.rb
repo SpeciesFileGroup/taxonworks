@@ -31,9 +31,11 @@ RSpec.describe ExtractsController, type: :controller do
   }
 
   let(:invalid_attributes) {
-    {quantity_value: nil,
+    {
+      quantity_value: nil,
       quantity_unit: nil,
-      quantity_concentration: nil,
+      concentration_value: nil,
+      concentration_unit: nil,
       verbatim_anatomical_origin: nil,
       year_made: nil,
       month_made: nil,

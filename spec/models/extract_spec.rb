@@ -17,10 +17,6 @@ RSpec.describe Extract, type: :model do
         expect(extract.errors.include?(:quantity_unit)).to be_truthy
       end
 
-      specify 'quantity_concentration' do
-        expect(extract.errors.include?(:quantity_concentration)).to be_truthy
-      end
-
       specify 'verbatim_anatomical_origin' do
         expect(extract.errors.include?(:verbatim_anatomical_origin)).to be_truthy
       end
@@ -39,7 +35,7 @@ RSpec.describe Extract, type: :model do
     end
 
     context 'passes when given' do
-      specify 'quantity_value and quantity_unit and quantity_concentration and verbatim_anatomical_origin and year_made and month_made and day_made' do
+      specify 'quantity_value and quantity_unit and concentration_value and concentration_unit and verbatim_anatomical_origin and year_made and month_made and day_made' do
         expect(FactoryGirl.build(:valid_extract).valid?).to be_truthy
       end
     end
