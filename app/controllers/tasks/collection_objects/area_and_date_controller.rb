@@ -36,7 +36,8 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
 
   # GET
   def set_date
-    jim = 0
+    @collection_objects_count = CollectionObject.find_by_sql('select count(id) from collection_objects where id > 0 AND created_at BETWEEN \'2014-01-01\' AND \'2016-09-20\' AND project_id = 1').first.count
+    render json: {html: @collection_objects_count.to_s}
   end
 
   def download_result
