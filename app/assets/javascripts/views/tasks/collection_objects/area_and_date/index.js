@@ -155,7 +155,7 @@ _init_map_table = function init_map_table() {
     $("#st_flexpicker").change(function (event) {
       $.get('set_date', $("#set_date_form").serialize(), function (local_data) {
             var popcorn = local_data;
-            $("#graph_frame").innerHTML(local_data.html);
+          $("#date_count").text(local_data.html);
           }, 'json'  // I expect a json response
         );
         event.preventDefault();
@@ -165,7 +165,7 @@ _init_map_table = function init_map_table() {
     $("#en_flexpicker").change(function (event) {
       $.get('set_date', $("#set_date_form").serialize(), function (local_data) {
             var popcorn = local_data;
-            $("#graph_frame").innerHTML(local_data.html);
+          $("#date_count").text(local_data.html);
           }, 'json'  // I expect a json response
         );
         event.preventDefault();
