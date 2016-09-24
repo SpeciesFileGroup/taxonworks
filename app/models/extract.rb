@@ -1,4 +1,4 @@
-# An extract is something that was taken out of another thing and quantified
+# An extract is the quantified physical entity that originated from a collection object
 
 class Extract < ActiveRecord::Base
   include Housekeeping
