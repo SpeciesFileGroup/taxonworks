@@ -18,7 +18,7 @@ require 'rails_helper'
 # Message expectations are only used when there is no simpler way to specify
 # that an instance is receiving a specific message.
 
-RSpec.describe ExtractsController, type: :controller do
+RSpec.describe ExtractsController, type: :controller, group: :extract do
   before(:each){
     sign_in
   }
@@ -31,9 +31,11 @@ RSpec.describe ExtractsController, type: :controller do
   }
 
   let(:invalid_attributes) {
-    {quantity_value: nil,
+    {
+      quantity_value: nil,
       quantity_unit: nil,
-      quantity_concentration: nil,
+      concentration_value: nil,
+      concentration_unit: nil,
       verbatim_anatomical_origin: nil,
       year_made: nil,
       month_made: nil,
