@@ -684,10 +684,9 @@ namespace :tw do
         }
 
         fext_data = {}
+        
         file1.each_with_index do |r, i|
-          fext_data.merge!(
-              r[0] => { translate: r[1], notes: r[2], publisher: r[3], ext_author: r[4], ext_title: r[5], ext_journal: r[6], editor: r[7] }
-          )
+          fext_data[r[0]] =  { translate: r[1], notes: r[2], publisher: r[3], ext_author: r[4], ext_title: r[5], ext_journal: r[6], editor: r[7] }
         end
 
         file1.each_with_index do |row, i|
@@ -700,11 +699,11 @@ namespace :tw do
             month = month.to_s if !month.nil?
           end
           stated_year = row['Year']
-          if year.nil?
+          if year.nil? # TODO: check for "" too?
             year = stated_year
             stated_year = nil
           end
-          print "\nYear out of range: #{year}\n" if year.to_i < 1500 || year.to_i > 2018
+          print "\nYear out of range: [#{year}]\n" if year.to_i < 1500 || year.to_i > 2018
           year = nil if year.to_i < 1500 || year.to_i > 2018
           stated_year = nil if stated_year.to_i < 1500 || stated_year.to_i > 2018
 
@@ -717,12 +716,12 @@ namespace :tw do
             language_id = @data.languages[row['LanguageA'].downcase][0]
             language = @data.languages[row['LanguageA'].downcase][1]
           end
-          serial_id = Serial.where(name: journal).limit(1).pluck(:id).first
-          serial_id ||= Serial.with_any_value_for(:name, journal).limit(1).pluck(:id).first
 
+          serial_id = Serial.where(name: journal).limit(1).pluck(:id).first
+          serial_id ||= Serial.with_any_value_for(:name, journal).limit(1).pluck(:id).first # uses AlternateValues for search as well
 
           b = Source::Bibtex.new(
-              author: author.gsub(/;/, ' and '),
+              author: author.split(';').compact.join(' and '),
               year: (year.blank? ? nil : year.to_i),
               month: month,
               day: (day.blank? ? nil : day.to_i) ,
@@ -739,35 +738,41 @@ namespace :tw do
               publisher: (fext_data[row['RefCode']] ? fext_data[row['RefCode']][:publisher] : nil),
               editor: (fext_data[row['RefCode']] ? fext_data[row['RefCode']][:editor] : nil )
           )
-          if b.valid?
-            b.save
-            b.project_sources.create!
-            b.identifiers.create!(type: 'Identifier::Local::Import', namespace: namespace, identifier: row['RefCode'])
 
-            b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:Location'], value: row['Location'])   if !row['Location'].blank?
-            b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:Source'], value: row['Source'])       if !row['Source'].blank?
-            b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:Check'], value: row['Check'])         if !row['Check'].blank?
-            b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:ChalcFam'], value: row['ChalcFam'])   if !row['ChalcFam'].blank?
-            b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:LanguageA'], value: row['LanguageA']) if !row['LanguageA'].blank?
-            b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:LanguageB'], value: row['LanguageB']) if !row['LanguageB'].blank?
-            b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:LanguageC'], value: row['LanguageC']) if !row['LanguageC'].blank?
-            b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:M_Y'], value: row['M_Y'])             if !row['M_Y'].blank?
+          # if b.valid?
+          b.save
+          b.project_sources.create!
+          b.identifiers.create!(type: 'Identifier::Local::Import', namespace: namespace, identifier: row['RefCode'])
 
-            if fext_data[row['RefCode']]
-              b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['RefsExt:Translate'], value: fext_data[row['RefCode']][:translate]) unless fext_data[row['RefCode']][:translate].blank?
-              b.notes.create!(text: fext_data[row['RefCode']][:note]) unless fext_data[row['RefCode']][:note].blank?
-            end
+          b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:Location'], value: row['Location'])   if !row['Location'].blank?
+          b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:Source'], value: row['Source'])       if !row['Source'].blank?
+          b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:Check'], value: row['Check'])         if !row['Check'].blank?
+          b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:ChalcFam'], value: row['ChalcFam'])   if !row['ChalcFam'].blank?
+          b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:LanguageA'], value: row['LanguageA']) if !row['LanguageA'].blank?
+          b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:LanguageB'], value: row['LanguageB']) if !row['LanguageB'].blank?
+          b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:LanguageC'], value: row['LanguageC']) if !row['LanguageC'].blank?
+          b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:M_Y'], value: row['M_Y'])             if !row['M_Y'].blank?
 
-            ['KeywordA', 'KeywordB', 'KeywordC'].each do |i|
-              k =  Keyword.with_alternate_value_on(:name, row[i]).first
-              b.tags.build(keyword: k) unless k.nil?
-            end
-            @data.references[row['RefCode']] = b.id
-          else
-            #byebug
+          if fext_data[row['RefCode']]
+            b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['RefsExt:Translate'], value: fext_data[row['RefCode']][:translate]) unless fext_data[row['RefCode']][:translate].blank?
+            b.notes.create!(text: fext_data[row['RefCode']][:note]) unless fext_data[row['RefCode']][:note].blank?
           end
 
+          ['KeywordA', 'KeywordB', 'KeywordC'].each do |i|
+            k =  Keyword.with_alternate_value_on(:name, row[i]).first
+            b.tags.build(keyword: k) unless k.nil?
+          end
+          @data.references[row['RefCode']] = b.id
+          # else
+            #byebug
+          # end
+
         end
+
+        fext_data = nil
+        keywords = nil 
+        file1.close 
+        file2.close
       end
 
       def combinations_codes_ucd
