@@ -28,13 +28,14 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
       area_objects = GeographicItem.gather_selected_data(@geographic_area_id, @shape_in, 'CollectionObject')
     end
 
-    if @start_date.blank? and @end_date.blank?
+    if (@start_date.blank? || @end_date.blank?) || area_objects.count == 0
       date_objects = CollectionObject.where('false')
     else
-      date_objects = CollectionObject.find_by_sql("select * from collection_objects where id in #{area_objects.map(&:id)} AND created_at BETWEEN '#{@start_date}' AND '#{@end_date}' AND project_id = #{sessions_current_project_id}")
+      area_list = area_objects.map(&:id).to_s.gsub('[', '(').gsub(']', ')')
+      # @collection_objects = CollectionObject.find_by_sql("select * from collection_objects where id in #{area_list} AND created_at BETWEEN '#{@start_date}' AND '#{@end_date}' AND project_id = #{sessions_current_project_id}")
+      @collection_objects = CollectionObject.where(id: area_objects.map(&:id)).where(created_at: @start_date.to_date..@end_date.to_date)
     end
-
-    @collection_objects = area_objects + date_objects
+    # @collection_objects = area_objects + date_objects
 
     @collection_objects_count = @collection_objects.count
     @feature_collection       = ::Gis::GeoJSON.feature_collection(find_georeferences_for(@collection_objects,
@@ -56,7 +57,8 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
   def set_date
     @start_date               = params[:st_flexpicker].gsub('/', '-') # convert stipulated date format
     @end_date                 = params[:en_flexpicker].gsub('/', '-') # to postgresql date format
-    @collection_objects_count = CollectionObject.find_by_sql("select count(id) from collection_objects where id > 0 AND created_at BETWEEN '#{@start_date}' AND '#{@end_date}' AND project_id = #{sessions_current_project_id}").first.count
+    # @collection_objects_count = CollectionObject.find_by_sql("select count(id) from collection_objects where id > 0 AND created_at BETWEEN '#{@start_date}' AND '#{@end_date}' AND project_id = #{sessions_current_project_id}").first.count
+    @collection_objects_count = CollectionObject.where(:created_at => @start_date.to_date..@end_date.to_date).count
     render json: {html: @collection_objects_count.to_s}
     # integrate graph next
   end
