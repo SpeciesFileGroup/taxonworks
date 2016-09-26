@@ -50,7 +50,7 @@ _init_map_table = function init_map_table() {
       //);
       $("#find_area_and_date_commit").click(function (event) {
         //$("#result_span").text('**********');
-        $.get('find', $("#set_area_and_date_form").serialize(), function (local_data) {
+        $.get('find', $("#set_area_form").serialize() + '&' + $("#set_date_form").serialize(), function (local_data) {
           var html = local_data.html;
           var message = local_data.message;
           result_collection = local_data.feature_collection;
