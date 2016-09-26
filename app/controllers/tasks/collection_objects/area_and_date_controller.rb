@@ -12,15 +12,33 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
   # find all of the objects within the supplied area and within the supplied data range
   def find
     message             = ''
+    # area_objects = nil
+    # date_objects = nil
+
+    # find the objects in the selected area
     @geographic_area_id = params[:geographic_area_id]
     @geographic_area    = GeographicArea.find(@geographic_area_id) unless @geographic_area_id.blank?
     @shape_in           = params[:drawn_area_shape]
+    @start_date         = params[:st_flexpicker].gsub('/', '-') # convert stipulated date format
+    @end_date           = params[:en_flexpicker].gsub('/', '-') # to postgresql date format
 
-    @collection_objects       = GeographicItem.gather_selected_data(@geographic_area_id, @shape_in, 'CollectionObject')
+    if @shape_in.blank? and @geographic_area_id.blank
+      area_objects = CollectionObject.where('false')
+    else
+      area_objects = GeographicItem.gather_selected_data(@geographic_area_id, @shape_in, 'CollectionObject')
+    end
+
+    if @start_date.blank? and @end_date.blank?
+      date_objects = CollectionObject.where('false')
+    else
+      date_objects = CollectionObject.find_by_sql("select * from collection_objects where id in #{area_objects.map(&:id)} AND created_at BETWEEN '#{@start_date}' AND '#{@end_date}' AND project_id = #{sessions_current_project_id}")
+    end
+
+    @collection_objects = area_objects + date_objects
+
     @collection_objects_count = @collection_objects.count
     @feature_collection       = ::Gis::GeoJSON.feature_collection(find_georeferences_for(@collection_objects,
                                                                                          @geographic_area))
-
     message                   = 'No collection objects found.' if @collection_objects_count == 0
     render_co_select_json(message)
   end
@@ -36,9 +54,9 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
 
   # GET
   def set_date
-    @start_date = params[:st_flexpicker].gsub('/', '-') # convert stipulated date format
-    @end_date = params[:en_flexpicker].gsub('/', '-') # to postgresql date format
-    @collection_objects_count = CollectionObject.find_by_sql("select count(id) from collection_objects where id > 0 AND created_at BETWEEN '#{@start_date}' AND '#{@end_date}' AND project_id = 1").first.count
+    @start_date               = params[:st_flexpicker].gsub('/', '-') # convert stipulated date format
+    @end_date                 = params[:en_flexpicker].gsub('/', '-') # to postgresql date format
+    @collection_objects_count = CollectionObject.find_by_sql("select count(id) from collection_objects where id > 0 AND created_at BETWEEN '#{@start_date}' AND '#{@end_date}' AND project_id = #{sessions_current_project_id}").first.count
     render json: {html: @collection_objects_count.to_s}
     # integrate graph next
   end

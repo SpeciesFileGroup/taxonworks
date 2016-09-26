@@ -3,43 +3,45 @@
   <h1>Task: Collection objects by area and date range</h1>
   <div class="flexbox">
     <div class="item item1" align="center">
-      <div id="select_area">
-        <h2>Select area</h2>
-        <h3><span id="area_count">####</span></h3>
-        <%= render(:partial => 'by_area') %>
-      </div>
-      <hr>
-      <div id="select_date_range">
-        <h2>Select date range</h2>
-        <h3><span id="date_count">####</span></h3>
-        <%= form_tag(by_date_task_url, id: 'set_date_form', remote: true) do %>
-            <table class="no-shadow" border="1">
-              <tr>
-                <td align="center">
-                  <label for="st_flexpicker"></label>
-                  <input type="text" id="st_flexpicker" name="st_flexpicker" size="10"/>
-                </td>
-                <td align="center">
-                  <label for="en_flexpicker"></label>
-                  <input type="text" id="en_flexpicker" name="en_flexpicker" size="10"/>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <div id="st_fixedpicker"></div>
-                </td>
-                <td>
-                  <div id="en_fixedpicker"></div>
-                </td>
-              </tr>
-              <tr>
-                <td align="center" colspan="2" rowspan="2" id="graph_frame">
-                  <div>result graph</div>
-                </td>
-              </tr>
-              <tr></tr>
-            </table>
-        <% end %>
+      <div id="set_area_and_date_form">
+        <div id="select_area">
+          <h2>Select area</h2>
+          <h3><span id="area_count">####</span></h3>
+          <%= render(:partial => 'by_area') %>
+        </div>
+        <hr>
+        <div id="select_date_range">
+          <h2>Select date range</h2>
+          <h3><span id="date_count">####</span></h3>
+          <%= form_tag(by_date_task_url, id: 'set_date_form', remote: true) do %>
+              <table class="no-shadow" border="1">
+                <tr>
+                  <td align="center">
+                    <label for="st_flexpicker"></label>
+                    <input type="text" id="st_flexpicker" name="st_flexpicker" size="10"/>
+                  </td>
+                  <td align="center">
+                    <label for="en_flexpicker"></label>
+                    <input type="text" id="en_flexpicker" name="en_flexpicker" size="10"/>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div id="st_fixedpicker"></div>
+                  </td>
+                  <td>
+                    <div id="en_fixedpicker"></div>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="center" colspan="2" rowspan="2" id="graph_frame">
+                    <div>result graph</div>
+                  </td>
+                </tr>
+                <tr></tr>
+              </table>
+          <% end %>
+        </div>
       </div>
     </div>
 
@@ -54,7 +56,7 @@
     <div class="item item3" align="center">
       <div id="result_">
         <h2>Result</h2>
-        <h3><span id="result_span">####</span></h3>
+        <h3><span id="date_count">####</span></h3>
         Select the result list, or the map of results.<br>
         <%= link_to('List', '#', class: :result_list_toggle, hidden: :true) %>
         <%= link_to('Map', '#', class: :result_map_toggle) %>
