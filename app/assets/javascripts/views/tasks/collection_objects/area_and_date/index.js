@@ -50,7 +50,7 @@ _init_map_table = function init_map_table() {
       //);
       $("#find_area_and_date_commit").click(function (event) {
         //$("#result_span").text('**********');
-        $.get('find', $("#set_area_form").serialize(), function (local_data) {
+        $.get('find', $("#set_area_and_date_form").serialize(), function (local_data) {
           var html = local_data.html;
           var message = local_data.message;
           result_collection = local_data.feature_collection;
@@ -154,7 +154,6 @@ _init_map_table = function init_map_table() {
 
     $("#st_flexpicker").change(function (event) {
       $.get('set_date', $("#set_date_form").serialize(), function (local_data) {
-            var popcorn = local_data;
           $("#date_count").text(local_data.html);
           }, 'json'  // I expect a json response
         );
@@ -164,7 +163,6 @@ _init_map_table = function init_map_table() {
 
     $("#en_flexpicker").change(function (event) {
       $.get('set_date', $("#set_date_form").serialize(), function (local_data) {
-            var popcorn = local_data;
           $("#date_count").text(local_data.html);
           }, 'json'  // I expect a json response
         );
