@@ -15,37 +15,104 @@ namespace :tw do
           get_tw_source_id = import.get('SFRefIDToTWSourceID')
           get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID')
 
+          # @todo: Temporary "fix" to convert all values to string; will be fixed next time taxon names are imported and following do can be deleted
+          get_tw_taxon_name_id.each do |key, value|
+            get_tw_taxon_name_id[key] = value.to_s
+          end
+
           path = @args[:data_directory] + 'tblTypeSpecies.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
-          type_species_reason_hash = { '0' => 'unknown',
-                                       '1' => 'Typification::Genus::Monotypy::Original',
-                                       '2' => 'Typification::Genus::OriginalDesignation',
-                                       '3' => 'Typification::Genus::SubsequentDesignation',
-                                       '4' => 'Typification::Genus::Monotypy', # test if = '5', then add second reason 'original_designation' (= '3')
-                                       '5' => 'Typification::Genus::Monotypy::Subsequent',
-                                       '6' => 'Typification::Genus::Tautonomy::Absolute',
-                                       '7' => 'Typification::Genus::Tautonomy::Linnaean',
-                                       '8' => 'Typification::Genus::RulingByCommission',
-                                       '9' => 'inherited from replaced name'
+          type_species_reason_hash = {'0' => 'TaxonNameRelationship::Typification::Genus', # unknown
+
+                                      '1' => 'TaxonNameRelationship::Typification::Genus::Monotypy::Original',
+                                      '2' => 'TaxonNameRelationship::Typification::Genus::OriginalDesignation',
+                                      '3' => 'TaxonNameRelationship::Typification::Genus::SubsequentDesignation',
+                                      '4' => 'TaxonNameRelationship::Typification::Genus::OriginalDesignation', # was monotypy and original designation, OriginalDesignation has priority per Dmitry, make note about SF value
+                                      '5' => 'TaxonNameRelationship::Typification::Genus::Monotypy::Subsequent',
+                                      '6' => 'TaxonNameRelationship::Typification::Genus::Tautonomy::Absolute',
+                                      '7' => 'TaxonNameRelationship::Typification::Genus::Tautonomy::Linnaean',
+                                      '8' => 'TaxonNameRelationship::Typification::Genus::RulingByCommission',
+                                      '9' => 'TaxonNameRelationship::Typification::Genus' # inherited from replaced name
           }
+
+          count_found = 0
+          tnr_error_counter = 0
 
           file.each_with_index do |row, i|
 
-            genus_name_id = get_tw_taxon_name_id[row['GenusNameID']]  # is integer
-            species_name_id = get_tw_taxon_name_id[row['SpeciesNameID']]
-            reason = row['Reason']  # test if = '5', then add second reason 'original_designation' (= '3')
-            authority_ref_id = get_tw_source_id[row['AuthorityRefID']]  # is string
-            first_family_group_name_id = get_tw_taxon_name_id[row['FirstFamGrpNameID']]
+            genus_name_id = get_tw_taxon_name_id[row['GenusNameID']].to_i
+            species_name_id = get_tw_taxon_name_id[row['SpeciesNameID']].to_i
+            reason = row['Reason'] # test if = '4' to add note after; if reason = 9, make note in SF it is inherited from replaced name
+            authority_ref_id = get_tw_source_id[row['AuthorityRefID']] # is string
+            first_family_group_name_id = get_tw_taxon_name_id[row['FirstFamGrpNameID']].to_i # make import attribute
 
-            # Need project_id for each genus (for TaxonNameRelationship): can I query TaxonNames?
+            # project_id = TaxonName.where(id: genus_name_id ).pluck(:project_id).first vs. TaxonName.find(genus_name_id).project_id
+            project_id = TaxonName.find(genus_name_id).project_id
 
-            TaxonNameRelationship.new
+            logger.info "Working with TW.project_id: #{project_id}, SF.TaxonNameID #{row['GenusNameID']} = TW.TaxonNameID #{genus_name_id} (count #{count_found += 1}) \n"
+
+            tnr = TaxonNameRelationship.create(
+                subject_taxon_name_id: species_name_id,
+                object_taxon_name_id: genus_name_id,
+                type: type_species_reason_hash[reason],
+                created_at: row['CreatedOn'],
+                updated_at: row['LastUpdate'],
+                created_by_id: get_tw_user_id[row['CreatedBy']],
+                updated_by_id: get_tw_user_id[row['ModifiedBy']],
+                project_id: project_id,
+            )
+
+            unless tnr.valid?
+              logger.info "TaxonNameRelationship ERROR TW.taxon_name_id #{genus_name_id} (#{tnr_error_counter += 1}): " + tnr.errors.full_messages.join(';')
+
+            else
+              tnr.save!
+
+              logger.info "TaxonNameRelationship TW.taxon_name_id #{genus_name_id}, after save"
+
+              tnr.citations.create!(
+                  source_id: authority_ref_id,
+                  project_id: project_id
+              ) unless authority_ref_id == '0'
+
+              logger.info "TaxonNameRelationship TW.taxon_name_id #{genus_name_id}, after citation"
+
+              Notes.create!(
+                  text: 'SF reason: monotypy and original designation',
+                  note_object_id: genus_name_id,
+                  note_object_type: TaxonName,
+                  project_id: project_id
+              ) if reason == '4'
+
+              logger.info "TaxonNameRelationship TW.taxon_name_id #{genus_name_id}, after note reason 4"
+
+              Notes.create(
+                  text: 'SF reason: inherited from replaced name',
+                  note_object_id: genus_name_id,
+                  note_object_type: TaxonName,
+                  project_id: project_id
+              ) if reason == '9'
+
+              logger.info "TaxonNameRelationship TW.taxon_name_id #{genus_name_id}, after note reason 9"
+
+              DataAttribute.create!(
+                  type: 'ImportAttribute',
+                  attribute_subject_id: genus_name_id,
+                  attribute_subject_type: TaxonName,
+                  import_predicate: 'FirstFamilyGroupName',
+                  value: first_family_group_name_id,
+                  project_id: project_id
+              ) unless first_family_group_name_id == 0
+
+              logger.info "TaxonNameRelationship TW.taxon_name_id #{genus_name_id}, after family grp name"
+
+            end
           end
 
         end
 
-
+        ### ---------------------------------------------------------------------------------------------------------------------------------------------
         # import taxa
         # original_genus_id: cannot set until all taxa (for a given project) are imported; and the out of scope taxa as well
         # pass 1:
@@ -85,6 +152,8 @@ namespace :tw do
         #   logger.warn "This is a logger warning"
         #   logger.error "This is a big bad nasty error message"
         # end
+        ### ---------------------------------------------------------------------------------------------------------------------------------------------
+
 
         desc 'time rake tw:project_import:sf_import:taxa:create_all_sf_taxa_pass1 user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         LoggedTask.define :create_all_sf_taxa_pass1 => [:data_directory, :environment, :user_id] do |logger|
@@ -310,7 +379,8 @@ namespace :tw do
 
               if taxon_name.valid?
                 taxon_name.save! # taxon won't be saved if something wrong with classifications_attributes, read about !
-                get_tw_taxon_name_id[row['TaxonNameID']] = taxon_name.id
+                # @todo: Make sure get_tw_taxon_name_id.value is string
+                get_tw_taxon_name_id[row['TaxonNameID']] = taxon_name.id.to_s # original import made this an integer
                 get_sf_name_status[row['TaxonNameID']] = name_status
                 get_sf_status_flags[row['TaxonNameID']] = status_flags
 
