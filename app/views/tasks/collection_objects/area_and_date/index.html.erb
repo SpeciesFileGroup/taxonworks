@@ -1,4 +1,7 @@
 <%= render(partial: 'layouts/map_header') %>
+<%= content_for :head do -%>
+    <%= javascript_include_tag "http://www.google.com/jsapi", "chartkick" %>
+<% end %>
 <div id="co_by_area_and_date">
   <h1>Task: Collection objects by area and date range</h1>
   <div class="flexbox">
