@@ -66,7 +66,7 @@ _init_map_table = function init_map_table() {
               //$("#show_map").removeAttr('hidden');
               result_map = TW.vendor.lib.google.maps.initializeMap('simple_map_canvas', result_collection);
             }
-          }
+            }
           }, 'json'  // I expect a json response
         );
         event.preventDefault();
@@ -162,12 +162,21 @@ _init_map_table = function init_map_table() {
       }
     );
 
+    $("#st_fixedpicker").datepicker({
+        onClose: function (dateText) {
+          alert(dateText);
+          $("#st_flexpicker").change();
+        }
+      }
+    );
+
     $("#en_flexpicker").change(function (event) {
-      $.get('set_date', $("#set_date_form").serialize(), function (local_data) {
-          $("#date_count").text(local_data.html);
-          $("#graph_frame").html(local_data.chart);
-          }, 'json'  // I expect a json response
-        );
+      $("#st_flexpicker").change();
+      //$.get('set_date', $("#set_date_form").serialize(), function (local_data) {
+      //      $("#date_count").text(local_data.html);
+      //      $("#graph_frame").html(local_data.chart);
+      //    }, 'json'  // I expect a json response
+      //  );
         event.preventDefault();
       }
     );
