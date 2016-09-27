@@ -58,13 +58,15 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
     @start_date               = params[:st_flexpicker].gsub('/', '-') # convert stipulated date format
     @end_date                 = params[:en_flexpicker].gsub('/', '-') # to postgresql date format
     # @collection_objects_count = CollectionObject.find_by_sql("select count(id) from collection_objects where id > 0 AND created_at BETWEEN '#{@start_date}' AND '#{@end_date}' AND project_id = #{sessions_current_project_id}").first.count
-    @collection_objects_count = CollectionObject.where(:created_at => @start_date.to_date..@end_date.to_date).count
-    # @collection_objects = CollectionObject.where(:created_at => @start_date.to_date..@end_date.to_date)
-    # @collection_objects_count = @collection_objects.count
-    # chart = render_to_string(partial: 'stats')
+    # @collection_objects_count = CollectionObject.where(:created_at => @start_date.to_date..@end_date.to_date).count
+    @collection_objects       = CollectionObject.where(created_at: @start_date.to_date..@end_date.to_date)
+    @collection_objects_count = @collection_objects.count
+    chart                     = render_to_string(partial: 'stats',
+                                                 locals:  {count:   @collection_objects_count,
+                                                           objects: @collection_objects})
     # render json: {html: @collection_objects_count.to_s, chart: @collection_objects.data_breakdown_for_chartkick_recent}
-    # render json: {html: @collection_objects_count.to_s, chart: chart}
-    render json: {html: @collection_objects_count.to_s}
+    render json: {html: @collection_objects_count.to_s, chart: chart}
+      # render json: {html: @collection_objects_count.to_s}
   end
 
   def download_result
