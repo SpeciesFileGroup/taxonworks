@@ -1,27 +1,36 @@
 $(document).ready(function() {
+
 	if($("#quick_bar").length) {
-		Mousetrap.bind('alt+ctrl+h alt+ctrl+h', function(e) {
-			window.location = "/hub";
-		});
-		if((window.location.href).indexOf('/tasks/') > 0) {
-			$('#quick_bar').hide();
-			$('#header_bar').hide();
-			$('.task_bar').hide();
-		}		
-		$('body').append("<div class='button-collapse-header button-collapse-arrow-up'></div>");
+
+		createShortcut("alt+h","Show/hide quick bar", "General shortcuts", function() {hideQuickBar()} );
+
+		$('body').append("<div class='button-collapse-header'></div>");
 		$('.button-collapse-header').on('click', function() {
-			if($(this).hasClass('button-collapse-arrow-down')) {
-				$(this).removeClass('button-collapse-arrow-down');
-				$(this).addClass('button-collapse-arrow-up');
+			hideQuickBar(250);
+		});
+
+		function hideQuickBar(time) {
+
+			if($('.button-collapse-header').css('display') == "none") {
+				$('.button-collapse-header').fadeIn(time);
 			}
 			else {
-				$(this).addClass('button-collapse-arrow-down');
-				$(this).removeClass('button-collapse-arrow-up');
-			}
-			$('#quick_bar').slideToggle(250);
-			$('#header_bar').slideToggle(250);
-			$('.task_bar').slideToggle(250);
+				$('.button-collapse-header').fadeOut(0);
+			}			
+			$('#quick_bar').slideToggle(time);
+			$('#header_bar').slideToggle(time);
+			$('.task_bar').slideToggle(time);
+		}
+
+		Mousetrap.bind('alt+ctrl+h', function(e) {
+			window.location = "/hub";
 		});
+
+		if((window.location.href).indexOf('/tasks/') > 0) {
+			hideQuickBar(0);
+		}
+
+
 	}
 });
 
