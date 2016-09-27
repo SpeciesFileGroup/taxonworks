@@ -79,65 +79,10 @@ _init_map_table = function init_map_table() {
     var format = 'yy/mm/dd';
     var dateInput;
 
-    //if ($("#st_fixedpicker").length) {  // see if we need a datepicker for start date
-    //  var d = new Date();
-    //  var n = d.getFullYear();
-    //  //var dateInput = $("#st_flexpicker");
-    //  //var format = 'yy/mm/dd';
-    //
-    //  $("#st_fixedpicker").datepicker({
-    //    altField: "#st_flexpicker",
-    //    dateFormat: format,
-    //    changeMonth: true,
-    //    changeYear: true,
-    //    yearRange: "1700:" + n
-    //  });
-    //  //dateInput.datepicker({dateFormat: format});
-    //  //dateInput.datepicker('setDate', $.datepicker.parseDate(format, dateInput.val()));
-    //}
-    //if ($("#en_fixedpicker").length) {  /// see if we need a datepicker for end date
-    //  var d = new Date();
-    //  var n = d.getFullYear();
-    //  //var dateInput = $("#en_flexpicker");
-    //  //var format = 'mm/dd/yy';
-    //
-    //  $("#en_fixedpicker").datepicker({
-    //    altField: "#en_flexpicker",
-    //    dateFormat: format,
-    //    changeMonth: true,
-    //    changeYear: true,
-    //    yearRange: "1700:" + n
-    //  });
-    //  //dateInput.datepicker({dateFormat: format});
-    //  //dateInput.datepicker('setDate', $.datepicker.parseDate(format, dateInput.val()));
-    //}
 
-    ////if ($("#st_fixedpicker").length) {
-    ////  $("#st_fixedpicker").datepicker({dateFormat: format, changeMonth: true, changeYear: true, yearRange: "1700:" + year});
-    ////  dateInput = $("#st_flexpicker");
-    ////  dateInput.val(today.toLocaleDateString());
-    ////  dateInput.datepicker("onSelect",  dateInput);
-    ////  //dateInput.datepicker('setDate', $.datepicker.parseDate(format, dateInput.val()));
-    ////}
-    //
     set_control($("#st_fixedpicker"), $("#st_flexpicker"), format, year, today);
-    //
-    ////if ($("#en_fixedpicker").length) {
-    ////  $("#en_fixedpicker").datepicker({dateFormat: format, changeMonth: true, changeYear: true, yearRange: "1700:" + year});
-    ////  dateInput = $("#en_flexpicker");
-    ////  dateInput.val(today.toLocaleDateString());
-    ////  //dateInput.datepicker('setDate', $.datepicker.parseDate(format, dateInput.val()));
-    ////}
-    //
-    set_control($("#en_fixedpicker"), $("#en_flexpicker"), format, year, today);
 
-    //$("#st_fixedpicker").click(function (event) {
-    //  $("#st_flexpicker").val($("#st_fixedpicker").datepicker("getDate"));
-    //});
-    //
-    //$("#en_fixedpicker").click(function (event) {
-    //  $("#en_flexpicker").val($("#en_fixedpicker").datepicker("getDate"));
-    //});
+    set_control($("#en_fixedpicker"), $("#en_flexpicker"), format, year, today);
 
     function set_control(control, input, format, year, today) {
       if (control.length) {
@@ -153,37 +98,31 @@ _init_map_table = function init_map_table() {
     }
 
     $("#st_flexpicker").change(function (event) {
+      update_and_graph(event)
+    });    // listener for keyboard
+
+    $("#en_flexpicker").change(function (event) {
+      update_and_graph(event)
+    });    // change of date
+
+    $("#st_fixedpicker").change(function (event) {
+      update_and_graph(event)
+    });   // listener for day
+
+    $("#en_fixedpicker").change(function (event) {
+      update_and_graph(event)
+    });   // click date change
+
+    function update_and_graph(event) {
       $.get('set_date', $("#set_date_form").serialize(), function (local_data) {
           $("#date_count").text(local_data.html);
           $("#graph_frame").html(local_data.chart);
-          }, 'json'  // I expect a json response
-        );
-        event.preventDefault();
-      }
-    );
-
-    $("#st_fixedpicker").datepicker({
-        onClose: function (dateText) {
-          alert(dateText);
-          $("#st_flexpicker").change();
-        }
-      }
-    );
-
-    $("#en_flexpicker").change(function (event) {
-      $("#st_flexpicker").change();
-      //$.get('set_date', $("#set_date_form").serialize(), function (local_data) {
-      //      $("#date_count").text(local_data.html);
-      //      $("#graph_frame").html(local_data.chart);
-      //    }, 'json'  // I expect a json response
-      //  );
-        event.preventDefault();
-      }
-    );
-
+        }, 'json'  // I expect a json response
+      );
+      event.preventDefault();
+    }
   }
 };
-
 
 $(document).ready(_init_map_table);
 $(document).on('page:load', _init_map_table);
