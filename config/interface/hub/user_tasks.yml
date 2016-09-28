@@ -18,7 +18,7 @@
 #               complete: users can expect the interfaces to remain in their present form
 #               stable: primary elements are complete, but minor changes (CSS, feedback etc.) may change
 #               prototype: while production ready, anything can change
-#               uknown: task has not been classifed
+#               unknown: task has not been classified
 #
 ---
 nearby_locality_task:
@@ -168,8 +168,9 @@ report_dwca_task:
     - collecting_event
 index_area_and_date_task:
   hub: true
-  name: 'TODO: Task name'
+  name: 'Collection objects by area and date'
   related:
   categories:
+      - collection_object
   status: prototype
-  description: 'TODO: Task description'
+  description: 'Find collection objects using an area, and a range of dates.'
