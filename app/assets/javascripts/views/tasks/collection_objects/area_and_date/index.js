@@ -153,6 +153,12 @@ _init_map_table = function init_map_table() {
       }
     });
 
+    $("#double_date_range").mouseup(function (event) {
+      $("#st_flexpicker").val($(".label.select-label")[1].textContent);
+      $("#en_flexpicker").val($(".label.select-label")[0].textContent);
+      update_and_graph(event);
+    })
+
   }
 };
 
