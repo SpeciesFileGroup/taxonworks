@@ -1,0 +1,65 @@
+.range-picker-wrapper {
+    position: relative;
+}
+
+.range-picker {
+    position: relative;
+}
+
+.range-picker .not-select-process {
+    display: block;
+    height: 5px;
+    background-color: #d1d6d0;
+    border-top: 1px solid #afb3bb;
+    border-radius: 3px;
+}
+
+.range-picker .process {
+    position: absolute;
+    height: 5px;
+    top: 0;
+    left: 0;
+    background-color: #20b426;
+    border-radius: 3px;
+}
+
+.range-picker .label {
+    display: inline-block;
+    padding: 2px 4px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.range-picker .range-label {
+    margin-top: 4px;
+    background-color: #e1e4e9;
+    color: #9ba0b9;
+}
+
+.range-picker .end-label {
+    float: right;
+}
+
+.range-picker .select-label {
+    display: block;
+    position: absolute;
+    z-index: 0;
+    bottom: 100%;
+    font-family: monospace;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    background-color: #20b426;
+    color: #fff;
+}
+
+.range-picker .select-label:after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    margin-left: -4px;
+    border: 4px solid transparent;
+    border-top-color: #20b426;
+}
