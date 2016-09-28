@@ -38,11 +38,21 @@ namespace :tw do
 
           count_found = 0
           tnr_error_counter = 0
+          no_species_counter = 0
+          no_genus_counter = 0
 
           file.each_with_index do |row, i|
+            next if row['SpeciesNameID'] == '0'
 
             genus_name_id = get_tw_taxon_name_id[row['GenusNameID']].to_i
+
+            if genus_name_id == 0
+              logger.error "TaxonNameRelationship ERROR SF.GenusNameID #{row['GenusNameID']} (#{no_genus_counter += 1}): NO TW GENUS"
+              next
+            end
+
             species_name_id = get_tw_taxon_name_id[row['SpeciesNameID']].to_i
+
             reason = row['Reason'] # test if = '4' to add note after; if reason = 9, make note in SF it is inherited from replaced name
             authority_ref_id = get_tw_source_id[row['AuthorityRefID']] # is string
             first_family_group_name_id = get_tw_taxon_name_id[row['FirstFamGrpNameID']].to_i # make import attribute
@@ -50,7 +60,19 @@ namespace :tw do
             # project_id = TaxonName.where(id: genus_name_id ).pluck(:project_id).first vs. TaxonName.find(genus_name_id).project_id
             project_id = TaxonName.find(genus_name_id).project_id
 
-            logger.info "Working with TW.project_id: #{project_id}, SF.TaxonNameID #{row['GenusNameID']} = TW.TaxonNameID #{genus_name_id} (count #{count_found += 1}) \n"
+            logger.info "Working with TW.project_id: #{project_id}, SF.GenusNameID #{row['GenusNameID']} = TW.GenusNameID #{genus_name_id}, SF.SpeciesNameID #{row['SpeciesNameID']} = TW.SpeciesNameID #{species_name_id} (count #{count_found += 1}) \n"
+
+            if species_name_id == 0
+              logger.error "TaxonNameRelationship ERROR TW.taxon_name_id #{genus_name_id} (#{no_species_counter += 1}): NO TW SPECIES"
+              note = Note.create!(
+                  text: "Problem with type species: SF species TaxonNameID = #{row['SpeciesNameID']} not present in taxon_names",
+                  note_object_id: genus_name_id,
+                  note_object_type: TaxonName,
+                  project_id: project_id
+              )
+              next
+            end
+
 
             tnr = TaxonNameRelationship.create(
                 subject_taxon_name_id: species_name_id,
@@ -63,49 +85,49 @@ namespace :tw do
                 project_id: project_id,
             )
 
-            unless tnr.valid?
-              logger.info "TaxonNameRelationship ERROR TW.taxon_name_id #{genus_name_id} (#{tnr_error_counter += 1}): " + tnr.errors.full_messages.join(';')
-
-            else
+            if tnr.valid?
               tnr.save!
 
-              logger.info "TaxonNameRelationship TW.taxon_name_id #{genus_name_id}, after save"
+              # logger.info "TaxonNameRelationship TW.taxon_name_id #{genus_name_id}, after save"
+              #
+              # tnr.citations.create!(
+              #     source_id: authority_ref_id,
+              #     project_id: project_id
+              # ) unless authority_ref_id == '0'
+              #
+              # logger.info "TaxonNameRelationship TW.taxon_name_id #{genus_name_id}, after citation"
+              #
+              # Notes.create!(
+              #     text: 'SF reason: monotypy and original designation',
+              #     note_object_id: genus_name_id,
+              #     note_object_type: TaxonName,
+              #     project_id: project_id
+              # ) if reason == '4'
+              #
+              # logger.info "TaxonNameRelationship TW.taxon_name_id #{genus_name_id}, after note reason 4"
+              #
+              # Notes.create(
+              #     text: 'SF reason: inherited from replaced name',
+              #     note_object_id: genus_name_id,
+              #     note_object_type: TaxonName,
+              #     project_id: project_id
+              # ) if reason == '9'
+              #
+              # logger.info "TaxonNameRelationship TW.taxon_name_id #{genus_name_id}, after note reason 9"
+              #
+              # DataAttribute.create!(
+              #     type: 'ImportAttribute',
+              #     attribute_subject_id: genus_name_id,
+              #     attribute_subject_type: TaxonName,
+              #     import_predicate: 'FirstFamilyGroupName',
+              #     value: first_family_group_name_id,
+              #     project_id: project_id
+              # ) unless first_family_group_name_id == 0
+              #
+              # logger.info "TaxonNameRelationship TW.taxon_name_id #{genus_name_id}, after family grp name"
 
-              tnr.citations.create!(
-                  source_id: authority_ref_id,
-                  project_id: project_id
-              ) unless authority_ref_id == '0'
-
-              logger.info "TaxonNameRelationship TW.taxon_name_id #{genus_name_id}, after citation"
-
-              Notes.create!(
-                  text: 'SF reason: monotypy and original designation',
-                  note_object_id: genus_name_id,
-                  note_object_type: TaxonName,
-                  project_id: project_id
-              ) if reason == '4'
-
-              logger.info "TaxonNameRelationship TW.taxon_name_id #{genus_name_id}, after note reason 4"
-
-              Notes.create(
-                  text: 'SF reason: inherited from replaced name',
-                  note_object_id: genus_name_id,
-                  note_object_type: TaxonName,
-                  project_id: project_id
-              ) if reason == '9'
-
-              logger.info "TaxonNameRelationship TW.taxon_name_id #{genus_name_id}, after note reason 9"
-
-              DataAttribute.create!(
-                  type: 'ImportAttribute',
-                  attribute_subject_id: genus_name_id,
-                  attribute_subject_type: TaxonName,
-                  import_predicate: 'FirstFamilyGroupName',
-                  value: first_family_group_name_id,
-                  project_id: project_id
-              ) unless first_family_group_name_id == 0
-
-              logger.info "TaxonNameRelationship TW.taxon_name_id #{genus_name_id}, after family grp name"
+            else # tnr not valid
+              logger.error "TaxonNameRelationship ERROR TW.taxon_name_id #{genus_name_id} (#{tnr_error_counter += 1}): " + tnr.errors.full_messages.join(';')
 
             end
           end
