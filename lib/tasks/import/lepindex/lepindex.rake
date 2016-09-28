@@ -636,7 +636,9 @@ namespace :tw do
       def soft_validations_lepindex
         fixed = 0
         print "\nApply soft validation fixes to taxa 1st pass \n"
-        TaxonName.where(project_id: $project_id).each_with_index do |t, i|
+        i = 0
+        TaxonName.where(project_id: $project_id).find_each do |t|
+          i += 1
           print "\r#{i}    Fixes applied: #{fixed}"
           t.soft_validate
           t.fix_soft_validations
@@ -645,7 +647,9 @@ namespace :tw do
           end
         end
         print "\nApply soft validation fixes to relationships \n"
-        TaxonNameRelationship.where(project_id: $project_id).each_with_index do |t, i|
+        i = 0
+        TaxonNameRelationship.where(project_id: $project_id).find_each do |t|
+          i += 1
           print "\r#{i}    Fixes applied: #{fixed}"
           t.soft_validate
           t.fix_soft_validations
@@ -654,7 +658,9 @@ namespace :tw do
           end
         end
         print "\nApply soft validation fixes to taxa 2nd pass \n"
-        TaxonName.where(project_id: $project_id).each_with_index do |t, i|
+        i = 0
+        TaxonName.where(project_id: $project_id).find_each do |t|
+          i += 1
           print "\r#{i}    Fixes applied: #{fixed}"
           t.soft_validate
           t.fix_soft_validations

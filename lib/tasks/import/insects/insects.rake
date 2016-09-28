@@ -1013,7 +1013,9 @@ namespace :tw do
           f = CSV.open(path, col_sep: "\t", :headers => true)
 
           code = :iczn
-          f.each_with_index do |row, i|             #f.first(500).each_with_index
+          i = 0
+          f.each do |row|             #f.first(500).each_with_index
+            i += 1
             name = row['Name']
             author = (row['Parens'] ? "(#{row['Author']})" : row['Author']) unless row['Author'].blank?
             author ||= nil
@@ -1150,7 +1152,9 @@ namespace :tw do
         specimen_fields = %w{ Prefix CatalogNumber PreparationType TaxonCode LocalityCode AccessionSource DeaccessionRecipient DeaccessionCause DeaccessionDate DateCollectedBeginning DateCollectedEnding Collector LocalityLabel AccessionNumberLabel DeterminationLabel OtherLabel SpecialCollection IdentifiedBy YearIdentified CollectionMethod Habitat Type TypeName Remarks AdultMale AdultFemale Immature Pupa Exuvium AdultUnsexed AgeUnknown OtherSpecimens Checked OldLocalityCode OldCollector OldIdentifiedBy CreatedBy CreatedOn ModifiedOn ModifiedBy }.freeze
         count_fields = %w{ AdultMale AdultFemale Immature Pupa Exuvium AdultUnsexed AgeUnknown OtherSpecimens }.freeze
 
-        sp.each_with_index do |row, i|
+        i = 0
+        sp.each do |row|
+          i += 1
 
           unless row['Prefix'] == 'Loan Invoice'
             locality_code = row['LocalityCode']
@@ -1269,7 +1273,9 @@ namespace :tw do
         match_fields = %w{ AccessionNumber DeterminationLabel OtherLabel LocalityLabel }.freeze
         br = data.biological_relationships['host']['biological_relationship']
 
-        sp.each_with_index do |row, i|
+        i = 0
+        sp.each do |row|
+          i += 1
           print "\r#{i}      "
 
           tmp_m = {}
@@ -1386,7 +1392,9 @@ namespace :tw do
         specimen_fields = %w{ SampleID MuseumID TaxonCode IdentifiedBy IdentifierEmail IdentifierInstitution IdentificationMethod TaxonomyNotes ExtraInfo Remarks VoucherStatus TissueDescriptor AssociatedTaxa AssociatedSpecimens ExternalURLs Collector DateCollectedBeginning DateCollectedEnding CollectionMethod LocalityCode GPSSource CoordinateAccuracy EventTime CollectionDateAccuracy SamplingProtocol CollectionNotes SiteCode AdultMale AdultFemale AdultUnsexed }
         count_fields = %w{ AdultMale AdultFemale Immature Pupa Exuvium AdultUnsexed AgeUnknown OtherSpecimens }
 
-        sp.each_with_index do |row, i|
+        i = 0
+        sp.each do |row|
+          i += 1
           print "\r#{i}      "
 
           locality_code = row['LocalityCode']
@@ -1521,7 +1529,9 @@ namespace :tw do
         fields = %w{LocalityLabel Habitat Host AccessionNumber Country State County Locality Park DateCollectedBeginning DateCollectedEnding Collector CollectionMethod Elev_m Elev_ft NS Lat_deg Lat_min Lat_sec EW Long_deg Long_min Long_sec Comments PrecisionCode Datum ModifiedBy ModifiedOn}
 
         puts "\naccession new records\n"
-        ac.each_with_index do |row, i|
+        i = 0
+        ac.each do |row|
+          i += 1
           print "\r#{i}"
           tmp_ce = { }
           fields.each do |c|
@@ -1549,7 +1559,9 @@ namespace :tw do
 
         puts "\n  from ledgers\n"
 
-        le.each_with_index do |row, i|
+        i = 0
+        le.each do |row|
+          i += 1
           tmp_ce = { }
         
           fields.each do |c|
@@ -1591,7 +1603,9 @@ namespace :tw do
         #fields = %w{ Prefix CatalogNumber AssociatedPrefix AssociatedCatalogNumber AssociatedTaxonCode Type }
         puts "\n  Handle associations \n"
 
-        as.each_with_index do |row, i|
+        i = 0
+        as.each do |row|
+          i += 1
           print "\r#{i}"
           br = data.biological_relationships[row['Type'].to_s.downcase]
           if row['Type'].blank?
@@ -1658,7 +1672,9 @@ namespace :tw do
           print "done.\n"
         else
           print "as newly parsed.\n"
-          lo.each_with_index do |row, i|
+          i = 0
+          lo.each do |row|
+            i += 1
             print "\r#{i}"
             next if row['RecipientID'].blank?
             date_closed = (row['Canceled'] == 'Canceled') ? Time.current : nil
@@ -1719,7 +1735,9 @@ namespace :tw do
         specimen_fields = %w{ Prefix CatalogNumber TaxonCode AdultMale AdultFemale Immature Pupa Exuvium AdultUnsexed AgeUnknown OtherSpecimens }
         count_fields = %w{ AdultMale AdultFemale Immature Pupa Exuvium AdultUnsexed AgeUnknown OtherSpecimens }
 
-        sp.each_with_index do |row, i|
+        i = 0
+        sp.each do |row|
+          i += 1
           if row['Prefix'].downcase == 'loan invoice'
             count = 0
             a = {}
@@ -1752,7 +1770,9 @@ namespace :tw do
                    'retained' => 'Retained',
                    'returned' => 'Returned' }
 
-        ls.each_with_index do |row, i|
+        i = 0
+        ls.each do |row|
+          i += 1
           print "\r#{i}"
           specimen = nil
           invoice = data.loans[row['InvoiceID']]
@@ -1829,7 +1849,9 @@ namespace :tw do
 
         container_type = {'wet' => 'Container::VialRack', 'dry' => 'Container::Drawer', 'slide' => 'Container::SlideBox'}
 
-        ls.each_with_index do |row, i|
+        i = 0
+        ls.each do |row|
+          i += 1
           print "\r#{i}"
           otu = Identifier.where(project_id: $project_id, cached: 'Taxon Code ' + row['TaxonCode'].to_s, identifier_object_type: 'Otu').first.try(:identifier_object)
           
