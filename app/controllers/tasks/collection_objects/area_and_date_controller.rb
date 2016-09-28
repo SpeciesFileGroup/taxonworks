@@ -22,7 +22,7 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
     @start_date         = params[:st_flexpicker].gsub('/', '-') # convert stipulated date format
     @end_date           = params[:en_flexpicker].gsub('/', '-') # to postgresql date format
 
-    if @shape_in.blank? and @geographic_area_id.blank? # missing "?"
+    if @shape_in.blank? and @geographic_area_id.blank? # missing "? "
       area_objects = CollectionObject.where('false')
     else
       area_objects = GeographicItem.gather_selected_data(@geographic_area_id, @shape_in, 'CollectionObject')
