@@ -230,8 +230,8 @@ class CollectingEvent < ActiveRecord::Base
   validates_presence_of :time_end_minute, if: '!self.time_end_second.blank?'
   validates_presence_of :time_end_hour, if: '!self.time_end_minute.blank?'
 
-  validates :start_date_year, date_year: true
-  validates :end_date_year, date_year: true
+  validates :start_date_year, date_year: { min_year: 1000, max_year: Time.now.year + 5}
+  validates :end_date_year, date_year: { min_year: 1000, max_year: Time.now.year + 5}
   
   validates :start_date_month, date_month: true
   validates :end_date_month, date_month: true
@@ -242,21 +242,11 @@ class CollectingEvent < ActiveRecord::Base
   validates_presence_of :end_date_month,
                         if: '!end_date_day.nil?'
 
-  validates_numericality_of :end_date_day,
-                            allow_nil:             true,
-                            only_integer:          true,
-                            greater_than:          0,
-                            less_than_or_equal_to: Proc.new { |a| Time.utc(a.end_date_year, a.end_date_month).end_of_month.day },
-                            unless:                'end_date_year.nil? || end_date_month.nil?',
-                            message:               '%{value} is not a valid end_date_day for the month provided'
+  validates :end_date_day, date_day: { year_sym: :end_date_year, month_sym: :end_date_month },
+            unless: 'end_date_year.nil? || end_date_month.nil?'
 
-  validates_numericality_of :start_date_day,
-                            allow_nil:             true,
-                            only_integer:          true,
-                            greater_than:          0,
-                            less_than_or_equal_to: Proc.new { |a| Time.utc(a.start_date_year, a.start_date_month).end_of_month.day },
-                            unless:                'start_date_year.nil? || start_date_month.nil?',
-                            message:               '%{value} is not a valid start_date_day for the month provided'
+  validates :start_date_day, date_day: { year_sym: :start_date_year, month_sym: :start_date_month },
+            unless: 'start_date_year.nil? || start_date_month.nil?'
 
 
   soft_validate(:sv_minimally_check_for_a_label)
