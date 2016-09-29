@@ -352,11 +352,7 @@ class Source::Bibtex < Source
                         message: 'year is required when month or stated_year is provided'
 
   # @todo refactor out date validation methods so that they can be unified (TaxonDetermination, CollectingEvent)
-  validates_numericality_of :year,
-                            only_integer:          true, greater_than: 999,
-                            less_than_or_equal_to: Time.now.year + 2,
-                            allow_blank:           true,
-                            message:               'year must be an integer greater than 999 and no more than 2 years in the future'
+  validates :year, date_year: { min_year: 1000, max_year: Time.now.year + 2, message: "year must be an integer greater than 999 and no more than 2 years in the future" }
 
   validates_presence_of :month,
                         if:      '!day.nil?',
@@ -367,13 +363,8 @@ class Source::Bibtex < Source
                          allow_blank: true,
                          message:     ' month'
 
-  validates_numericality_of :day,
-                            allow_blank:           true,
-                            only_integer:          true,
-                            greater_than:          0,
-                            less_than_or_equal_to: Proc.new { |a| Time.utc(a.year, a.month).end_of_month.day },
-                            :unless                => 'year.nil? || month.nil?',
-                            message:               '%{value} is not a valid day for the month provided'
+  validates :day, date_day: { year_sym: :year, month_sym: :month },
+            unless: 'year.nil? || month.nil?'
 
   validates :url, :format => {:with    => URI::regexp(%w(http https ftp)),
                               message: "[%{value}] is not a valid URL"}, allow_blank: true

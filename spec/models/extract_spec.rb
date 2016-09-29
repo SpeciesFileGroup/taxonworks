@@ -49,7 +49,7 @@ RSpec.describe Extract, type: :model, group: :extract do
 
       context 'year_made' do
         specify '< 1000' do 
-          valid_extract.year_made = 1000
+          valid_extract.year_made = 999
         end
 
         specify '> Time.now.year + 5' do 
