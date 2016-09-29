@@ -59,24 +59,10 @@ class TaxonDetermination < ActiveRecord::Base
   validates :otu, presence: true # TODO - probably bad, and preventing nested determinations, should just use DB validation
 
   # @todo factor these out (see also TaxonDetermination, Source::Bibtex)
-  validates_numericality_of :year_made,
-                            only_integer:          true,
-                            greater_than:          1757,
-                            less_than_or_equal_to: Time.now.year,
-                            allow_nil:             true,
-                            message:               ' must be a 4 digit integer greater than 1757'
-  validates_inclusion_of :month_made,
-                         in:        1..12,
-                         allow_nil: true,
-                         message:   ' is not an integer from 1-12'
-  validates_numericality_of :day_made,
-                            unless:                'year_made.nil? || month_made.nil? || ![*(1..12)].include?(month_made)',
-                            allow_nil:             true,
-                            only_integer:          true,
-                            greater_than:          0,
-                            less_than:             32,
-                            less_than_or_equal_to: Proc.new { |a| Time.utc(a.year_made, a.month_made).end_of_month.day },
-                            message:               '%{value} is not valid for the month provided'
+  validates :year_made, date_year: { min_year: 1757, max_year: Time.now.year }
+  validates :month_made, date_month: true
+  validates :day_made, date_day: { year_sym: :year_made, month_sym: :month_made },
+            unless: 'year_made.nil? || month_made.nil?'
 
   before_save :set_made_fields_if_not_provided
   after_create :sort_to_top
