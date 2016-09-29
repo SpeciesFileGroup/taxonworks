@@ -120,6 +120,7 @@ class GeographicItem < ActiveRecord::Base
     # @return [Scope] of the requested search_object_type
     def gather_selected_data(geographic_area_id, shape_in, search_object_class, paging = false, page = 1)
       if shape_in.blank?
+        # get the shape from the geographic area, if possible
         shape_in = GeographicArea.joins(:geographic_items)
                      .find(geographic_area_id)
                      .default_geographic_item.geo_object
@@ -169,7 +170,7 @@ class GeographicItem < ActiveRecord::Base
       case shape_type
         when 'point'
           query = query.where(GeographicItem.within_radius_of_wkt_sql(geometry, radius))
-        when 'polygon'
+        when 'polygon', 'multipolygon'
           query = query.where(GeographicItem.contained_by_wkt_sql(geometry))
         else
           # query is unchanged
