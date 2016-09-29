@@ -157,8 +157,20 @@ _init_map_table = function init_map_table() {
       $("#st_flexpicker").val($(".label.select-label")[1].textContent);
       $("#en_flexpicker").val($(".label.select-label")[0].textContent);
       update_and_graph(event);
-    })
-
+        //$(".label.range-label")[0].textContent = $(".label.select-label")[1].textContent;
+        //$(".label.range-label")[1].textContent = $(".label.select-label")[0].textContent;
+        $("#double_date_range").rangepicker({
+          type: "double",
+          startValue: $(".label.select-label")[1].textContent,
+          endValue: $(".label.select-label")[0].textContent,
+          translateSelectLabel: function (currentPosition, totalPosition) {
+            var timeOffset = offset * ( currentPosition / totalPosition);
+            var date = new Date(+startDate + parseInt(timeOffset));
+            return dateFormat(date, "yyyy/MM/dd");
+          }
+        });
+      }
+    )
   }
 };
 
