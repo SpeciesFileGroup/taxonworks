@@ -58,7 +58,6 @@ class TaxonDetermination < ActiveRecord::Base
   validates :biological_collection_object, presence: true
   validates :otu, presence: true # TODO - probably bad, and preventing nested determinations, should just use DB validation
 
-  # @todo factor these out (see also TaxonDetermination, Source::Bibtex)
   validates :year_made, date_year: { min_year: 1757, max_year: Time.now.year }
   validates :month_made, date_month: true
   validates :day_made, date_day: { year_sym: :year_made, month_sym: :month_made },
