@@ -191,7 +191,7 @@ class TaxonNameClassification < ActiveRecord::Base
 
   def sv_validate_disjoint_classes
     classifications = TaxonNameClassification.where_taxon_name(self.taxon_name).not_self(self)
-    classifications.each  do |i|
+    classifications.find_each  do |i|
       soft_validations.add(:type, "Conflicting with another status: '#{i.type_name}'") if self.type_class.disjoint_taxon_name_classes.include?(i.type_name)
     end
   end
