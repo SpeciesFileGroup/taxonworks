@@ -155,21 +155,26 @@ _init_map_table = function init_map_table() {
     });
 
     $("#double_date_range").mouseup(function (event) {
-      $("#st_flexpicker").val($(".label.select-label")[1].textContent);
-      $("#en_flexpicker").val($(".label.select-label")[0].textContent);
+      var newStartText = $(".label.select-label")[1].textContent;
+      var newEndText = $(".label.select-label")[0].textContent;
+      var newStartDate = new Date(newStartText);
+      var newEndDate = new Date(newEndText);
+      $("#st_flexpicker").val(newStartText);
+      $("#en_flexpicker").val(newEndText);
+      //offset = newEndDate - newStartDate;
       update_and_graph(event);
       //$(".label.range-label")[0].textContent = $(".label.select-label")[1].textContent;
       //$(".label.range-label")[1].textContent = $(".label.select-label")[0].textContent;
-      $("#double_date_range").rangepicker({
-        type: "double",
-        startValue: $(".label.select-label")[1].textContent,
-        endValue: $(".label.select-label")[0].textContent,
-        translateSelectLabel: function (currentPosition, totalPosition) {
-          var timeOffset = offset * ( currentPosition / totalPosition);
-          var date = new Date(+startDate + parseInt(timeOffset));
-          return dateFormat(date, "yyyy/MM/dd");
-        }
-        });
+      //$("#double_date_range").rangepicker({
+      //  type: "double",
+      //    startValue: newStartText,
+      //    endValue: newEndText,
+      //  translateSelectLabel: function (currentPosition, totalPosition) {
+      //    var timeOffset = offset * ( currentPosition / totalPosition);
+      //    var date = new Date(+newStartDate + parseInt(timeOffset));
+      //    return dateFormat(date, "yyyy/MM/dd");
+      //  }
+      //  });
       }
     )
   }
