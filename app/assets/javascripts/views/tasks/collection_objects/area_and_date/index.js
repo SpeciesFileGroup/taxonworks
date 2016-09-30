@@ -176,7 +176,18 @@ _init_map_table = function init_map_table() {
       //  }
       //  });
       }
-    )
+    );
+
+    $("#toggle_slide_calendar").click(function () {
+      $("#tr_slider").toggle();
+      $("#tr_calendar").toggle();
+      if ($("#toggle_slide_calendar").val() == 'Use Calendar') {
+        $("#toggle_slide_calendar").val("Use Slider");
+      }
+      else {
+        $("#toggle_slide_calendar").val("Use Calendar");
+      }
+    })
   }
 };
 
