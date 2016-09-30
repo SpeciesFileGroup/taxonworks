@@ -16,6 +16,8 @@
         <div id="select_date_range">
           <h2>Select date range</h2>
           <h3><span id="date_count">####</span></h3>
+          <span id="early_date" hidden="hidden"><%= @early_date.to_date.to_s %></span>
+          <span id="late_date" hidden="hidden"><%= @late_date.to_date.to_s %></span>
           <%= form_tag(by_date_task_url, id: 'set_date_form', remote: true) do %>
               <table class="no-shadow" border="1">
                 <tr>
