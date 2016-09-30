@@ -14,29 +14,28 @@
         </div>
         <hr>
         <div id="select_date_range">
-          <h2>Select date range</h2>
+          <h2>Select date range</h2><input type="button" id="toggle_slide_calendar" value="Use Calendar">
           <h3><span id="date_count">####</span></h3>
           <span id="early_date" hidden="hidden"><%= @early_date.to_date.to_s %></span>
           <span id="late_date" hidden="hidden"><%= @late_date.to_date.to_s %></span>
           <%= form_tag(by_date_task_url, id: 'set_date_form', remote: true) do %>
-              <table class="no-shadow" border="1">
+              <table class="no-shadow" border="1" width="700">
                 <tr>
-                  <td align="center">
+                  <td align="center" width="350">
                     <label for="st_flexpicker"></label>
                     <input type="text" id="st_flexpicker" name="st_flexpicker" size="10"/>
                   </td>
-                  <td align="center">
+                  <td align="center" width="350">
                     <label for="en_flexpicker"></label>
                     <input type="text" id="en_flexpicker" name="en_flexpicker" size="10"/>
                   </td>
                 </tr>
-                <tr>
-                  <td colspan="2" rowspan="2">
+                <tr id="tr_slider">
+                  <td colspan="2">
                     <div id="double_date_range"></div>
                   </td>
                 </tr>
-                <tr></tr>
-                <tr>
+                <tr id="tr_calendar" hidden>
                   <td>
                     <div id="st_fixedpicker"></div>
                   </td>
@@ -45,11 +44,10 @@
                   </td>
                 </tr>
                 <tr>
-                  <td align="center" colspan="2" rowspan="2" id="graph_frame">
+                  <td align="center" colspan="2" id="graph_frame">
                     <div>result graph</div>
                   </td>
                 </tr>
-                <tr></tr>
               </table>
           <% end %>
         </div>
