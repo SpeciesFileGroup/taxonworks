@@ -77,7 +77,7 @@ namespace :tw do
               next
             end
 
-            tnr = TaxonNameRelationship.create(
+            tnr = TaxonNameRelationship.new(
                 subject_taxon_name_id: species_name_id,
                 object_taxon_name_id: genus_name_id,
                 type: type_species_reason_hash[reason],
@@ -90,75 +90,65 @@ namespace :tw do
 
             if tnr.valid?
               tnr.save!
-
               puts 'TaxonNameRelationship created'
 
-              tnr_cit = tnr.citations.create(
-                  source_id: authority_ref_id,
-                  project_id: project_id
-              ) unless row['AuthorityRefID'] == '0'
+              if row['AuthorityRefID'].to_i > 0
+                tnr_cit = tnr.citations.create(source_id: authority_ref_id,
+                                               project_id: project_id)
+                if tnr_cit.valid?
+                  tnr_cit.save!
+                  puts 'Citation created'
+                else # tnr_cit not valid
+                  logger.error "TaxonNameRelationship citation ERROR TW.taxon_name_id #{genus_name_id} (#{error_counter += 1}): " + tnr_cit.errors.full_messages.join(';')
+                end
+              end
 
-              if tnr_cit.valid?
-                tnr_cit.save!
-
-                puts 'Citation created'
-
-                note4 = Note.create(
-                    text: 'SF reason: monotypy and original designation',
-                    note_object_id: genus_name_id,
-                    note_object_type: 'TaxonName',
-                    project_id: project_id
-                ) if reason == '4'
+              if reason == '4'
+                note4 = Note.create(text: 'SF reason: monotypy and original designation',
+                                    note_object_id: genus_name_id,
+                                    note_object_type: 'TaxonName',
+                                    project_id: project_id)
 
                 if note4.valid?
                   note4.save!
-
                   puts 'Note4 created'
-
-                  note9 = Note.create(
-                      text: 'SF reason: inherited from replaced name',
-                      note_object_id: genus_name_id,
-                      note_object_type: 'TaxonName',
-                      project_id: project_id
-                  ) if reason == '9'
-
-                  if note9.valid?
-                    note9.save!
-
-                    puts 'Note9 created'
-
-                    da = DataAttribute.create(
-                        type: 'ImportAttribute',
-                        attribute_subject_id: genus_name_id,
-                        attribute_subject_type: TaxonName,
-                        import_predicate: 'FirstFamilyGroupName',
-                        value: first_family_group_name_id,
-                        project_id: project_id
-                    ) unless first_family_group_name_id == 0
-
-                    if da.valid?
-                      da.save!
-
-                      puts 'FirstFamilyGroupName (da) created'
-
-                    else # da not valid
-                      logger.error "DataAttribute ERROR TW.taxon_name_id #{} (#{error_counter += 1}): " + da_cit.errors.full_messages.join(';')
-                    end
-
-                  else # note9 not valid
-                    logger.error "TaxonNameRelationship ERROR TW.taxon_name_id #{genus_name_id} (#{error_counter += 1}): " + note9.errors.full_messages.join(';')
-                  end
-
                 else # note4 not valid
-                  logger.error "TaxonNameRelationship ERROR TW.taxon_name_id #{genus_name_id} (#{error_counter += 1}): " + note4.errors.full_messages.join(';')
+                  logger.error "TaxonName note4 ERROR TW.taxon_name_id #{genus_name_id} (#{error_counter += 1}): " + note4.errors.full_messages.join(';')
                 end
+              end
 
-              else # tnr_cit not valid
-                logger.error "TaxonNameRelationship ERROR TW.taxon_name_id #{genus_name_id} (#{error_counter += 1}): " + tnr_cit.errors.full_messages.join(';')
+              if reason == '9'
+                note9 = Note.create(text: 'SF reason: inherited from replaced name',
+                                    note_object_id: genus_name_id,
+                                    note_object_type: 'TaxonName',
+                                    project_id: project_id)
+
+                if note9.valid?
+                  note9.save!
+                  puts 'Note9 created'
+                else # note9 not valid
+                  logger.error "TaxonName note9 ERROR TW.taxon_name_id #{genus_name_id} (#{error_counter += 1}): " + note9.errors.full_messages.join(';')
+                end
+              end
+
+              if first_family_group_name_id > 0
+                da = DataAttribute.create(type: 'ImportAttribute',
+                                          attribute_subject_id: genus_name_id,
+                                          attribute_subject_type: TaxonName,
+                                          import_predicate: 'FirstFamilyGroupName',
+                                          value: first_family_group_name_id,
+                                          project_id: project_id)
+
+                if da.valid?
+                  da.save!
+                  puts 'FirstFamilyGroupName (da) created'
+                else # da not valid
+                  logger.error "DataAttribute ERROR TW.taxon_name_id #{} (#{error_counter += 1}): " + da.errors.full_messages.join(';')
+                end
               end
 
             else # tnr not valid
-              logger.error "TaxonNameRelationship ERROR TW.taxon_name_id #{genus_name_id} (#{tnr_error_counter += 1}): " + tnr.errors.full_messages.join(';')
+              logger.error "TaxonNameRelationship ERROR TW.taxon_name_id #{genus_name_id} (#{error_counter += 1}): " + tnr.errors.full_messages.join(';')
             end
           end
         end
