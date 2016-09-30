@@ -87,6 +87,7 @@ _init_map_table = function init_map_table() {
     function set_control(control, input, format, year, today) {
       if (control.length) {
         control.datepicker({
+          //defaultDate: today,
           altField: input,
           dateFormat: format,
           changeMonth: true,
@@ -138,8 +139,8 @@ _init_map_table = function init_map_table() {
       return fmt;
     }
 
-    var startDate = new Date("1700/1/1"),
-      endDate = new Date(),
+    var startDate = new Date($("#early_date").text()),
+      endDate = new Date($("#late_date").text()),
       offset = endDate - startDate;
 
     $("#double_date_range").rangepicker({
@@ -154,25 +155,20 @@ _init_map_table = function init_map_table() {
     });
 
     $("#double_date_range").mouseup(function (event) {
-      var newStartText = $(".label.select-label")[1].textContent;
-      var newEndText = $(".label.select-label")[0].textContent;
-      var newStartDate = new Date(newStartText);
-      var newEndDate = new Date(newEndText);
-      $("#st_flexpicker").val(newStartText);
-      $("#en_flexpicker").val(newEndText);
-      offset = newEndDate - newStartDate;
+      $("#st_flexpicker").val($(".label.select-label")[1].textContent);
+      $("#en_flexpicker").val($(".label.select-label")[0].textContent);
       update_and_graph(event);
-        //$(".label.range-label")[0].textContent = $(".label.select-label")[1].textContent;
-        //$(".label.range-label")[1].textContent = $(".label.select-label")[0].textContent;
-        $("#double_date_range").rangepicker({
-          type: "double",
-          startValue: newStartText,
-          endValue: newEndText,
-          translateSelectLabel: function (currentPosition, totalPosition) {
-            var timeOffset = offset * ( currentPosition / totalPosition);
-            var date = new Date(+startDate + parseInt(timeOffset));
-            return dateFormat(date, "yyyy/MM/dd");
-          }
+      //$(".label.range-label")[0].textContent = $(".label.select-label")[1].textContent;
+      //$(".label.range-label")[1].textContent = $(".label.select-label")[0].textContent;
+      $("#double_date_range").rangepicker({
+        type: "double",
+        startValue: $(".label.select-label")[1].textContent,
+        endValue: $(".label.select-label")[0].textContent,
+        translateSelectLabel: function (currentPosition, totalPosition) {
+          var timeOffset = offset * ( currentPosition / totalPosition);
+          var date = new Date(+startDate + parseInt(timeOffset));
+          return dateFormat(date, "yyyy/MM/dd");
+        }
         });
       }
     )
