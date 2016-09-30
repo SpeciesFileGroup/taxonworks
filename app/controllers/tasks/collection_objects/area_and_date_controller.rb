@@ -5,6 +5,8 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
   def index
     @geographic_areas   = GeographicArea.where('false')
     @collection_objects = CollectionObject.where('false')
+    @early_date         = CollectionObject.order(:created_at).limit(1).pluck(:created_at).first
+    @late_date          = CollectionObject.order(created_at: :desc).limit(1).pluck(:created_at).first
     # @collection_objects = CollectionObject.limit(3)
   end
 
@@ -31,7 +33,7 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
     if (@start_date.blank? || @end_date.blank?) || area_objects.count == 0
       date_objects = CollectionObject.where('false')
     else
-      area_list = area_objects.map(&:id).to_s.gsub('[', '(').gsub(']', ')')
+      area_list           = area_objects.map(&:id).to_s.gsub('[', '(').gsub(']', ')')
       # @collection_objects = CollectionObject.find_by_sql("select * from collection_objects where id in #{area_list} AND created_at BETWEEN '#{@start_date}' AND '#{@end_date}' AND project_id = #{sessions_current_project_id}")
       @collection_objects = CollectionObject.where(id: area_objects.map(&:id)).where(created_at: @start_date.to_date..@end_date.to_date)
     end
@@ -66,7 +68,7 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
                                                            objects: @collection_objects})
     # render json: {html: @collection_objects_count.to_s, chart: @collection_objects.data_breakdown_for_chartkick_recent}
     render json: {html: @collection_objects_count.to_s, chart: chart}
-      # render json: {html: @collection_objects_count.to_s}
+    # render json: {html: @collection_objects_count.to_s}
   end
 
   def download_result
