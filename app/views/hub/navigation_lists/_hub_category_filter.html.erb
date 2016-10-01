@@ -24,7 +24,10 @@
             <div class="status stable" data-filter-category="stable"></div>
             <div class="status complete" data-filter-category="complete"></div>
           </div>
-        </div>
+        </div>        
+        <form class="navigation-item">
+          <input type="text" placeholder="Search" class="item" id="search-filter">
+        </form>
         <div class="navigation-controls">
         	<% UserTasks::CATEGORIES.each do |c| -%>
          <%= content_tag(:div, c.humanize, 'data-filter-category' => c, 'data-favorite' => true, 'class' => 'navigation-item') -%>

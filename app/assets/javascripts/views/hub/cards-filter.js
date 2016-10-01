@@ -75,6 +75,35 @@ var CarrouselData = function (sec, rows, columns) {
 		this.filters[filterTag] = value;
 	};
 
+	CarrouselData.prototype.filterKeys = function(handleKey) {
+		for(var i = 0; i <= this.childs; i++) {			
+			child = $('.data_section[data-section="' + this.sectionTag + '"] > .cards-section > .card-container:nth-child('+ (i) +')');
+			if(this.checkChildFilter(child.children().children(".filter_data"))) {
+				if($(child).text().toLowerCase().indexOf(handleKey.toLowerCase()) > 0 || handleKey == "") {
+					child.show();
+				}
+				else {
+					child.hide();
+				}
+			}
+		}
+		this.checkEmpty();
+	}
+
+	CarrouselData.prototype.checkEmpty = function() {
+		var
+			count = 0;
+
+		for(var i = 0; i < this.childs; i++) {			
+			child = $('.data_section[data-section="' + this.sectionTag + '"] > .cards-section > .card-container:nth-child('+ (i) +')');
+			if(!$(child).is(":visible")) {			
+				count++;
+			}
+		}
+		this.isEmpty = (count == this.childs ? true : false);
+		this.showEmptyLabel();
+	}
+
 	CarrouselData.prototype.filterChilds = function() {
 		var
 		find = 0;

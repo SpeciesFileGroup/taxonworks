@@ -8,6 +8,12 @@
   font-weight: 100;
   position:relative;
 
+  #search-filter {
+    margin: $standard_margin;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
   .reset {
     top:15px;
     position: absolute;

@@ -37,6 +37,12 @@ function initTaskCarrousel() {
       task.setFilterStatus("data-category-complete",false);                     
   }
 
+  $('#search-filter').keyup( function() {
+    var
+      chain = $(this).val();
+      task.filterKeys(chain);                 
+  });  
+
   function updateFilter() {
       task.filterChilds(); 
       task.refresh();

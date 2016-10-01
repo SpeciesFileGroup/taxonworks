@@ -99,6 +99,36 @@ var CarrouselTask = function (sec, rows, columns) {
     }   
   };
 
+  CarrouselTask.prototype.filterKeys = function(handleKey) {
+    for(var i = 0; i <= this.childsCount; i++) {     
+      child = $(this.sectionTag + ' .task_card:nth-child('+ i +')');
+      if(this.checkChildFilter(child)) {
+        if($(child).text().toLowerCase().indexOf(handleKey.toLowerCase()) > 0 || handleKey == "") {
+          child.show();
+        }
+        else {
+          child.hide();
+        }
+      }
+    }
+    this.checkEmpty();
+  }
+
+  CarrouselTask.prototype.checkEmpty = function() {
+    var
+      count = 0;
+
+    for(var i = 0; i < this.childsCount; i++) {      
+      child = $(this.sectionTag + ' .task_card:nth-child('+ i +')');
+      console.log($(child).text());
+      if(!$(child).is(":visible")) {      
+        count++;
+      }
+    }
+    this.isEmpty = (count == this.childs ? true : false);
+    this.noTaskFound();
+  }  
+
   CarrouselTask.prototype.resetChildsCount = function() {
     this.childsCount = $(this.sectionTag + ' .task_card').length;
   };
