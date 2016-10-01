@@ -13,21 +13,16 @@
     padding:9px;
     padding-left: 25px;
     z-index: 300;
-    font-size: 0px;
-    position: absolute;
     background-color: $panel_background;
     width: 20px;
     top: -36px;
     left:15px;
     height: 36px;
-    justify-content: center;
-    align-items: center;
     border-radius: 100%; 
     box-shadow: 0 1px 3px 0 $navigation_border;
  
     transition: background-size 0.3s ease,
                 background-color 0.3s ease,
-                font-size 0.5s ease,
                 top 0.5s ease,
                 opacity 0.5s ease,
                 padding-left 0.5s ease;  
@@ -39,7 +34,6 @@
    	top:-25px;
     transition: background-size 0.3s ease,
                 background-color 0.3s ease,
-                font-size 0.5s ease,
                 top 0.5s ease,
                 opacity 0.5s ease,
                 padding-left 0.5s ease;

@@ -95,14 +95,6 @@
 		z-index:7000;
 	}
 
-	.main {
-		position: fixed;
-		display: flex;
-		transform: translateX(50%) translateY(50%);
-		width: 200px;
-		height: 200px;
-	}
-
 	.key {
 		font-size: $font_tiny;
 		font-weight: 500;

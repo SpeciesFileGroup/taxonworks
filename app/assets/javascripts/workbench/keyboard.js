@@ -35,8 +35,12 @@ $(document).ready(function() {
 							</thead> \
 							<tbody data-shortcut-section="General shortcuts"> \
 								<tr> \
-									<td><div class="key">Alt Ctrl h</div></td> \
+									<td><div class="key">alt+ctrl+h</div></td> \
 									<td>Go to hub</td> \
+								</tr> \
+								<tr> \
+									<td><div class="key">alt+shft+?</div></td> \
+									<td>Show/hide help</td> \
 								</tr> \
 							<tbody>';	
 
