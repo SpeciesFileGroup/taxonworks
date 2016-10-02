@@ -59,7 +59,6 @@ function initDataCardsPage() {
     var
      chain = $(this).val();
     [core, supporting, annotations].forEach(function(element) {
-      console.log(chain);
       element.filterKeys(chain);                
     });       
   });

@@ -120,7 +120,6 @@ var CarrouselTask = function (sec, rows, columns) {
 
     for(var i = 0; i < this.childsCount; i++) {      
       child = $(this.sectionTag + ' .task_card:nth-child('+ i +')');
-      console.log($(child).text());
       if(!$(child).is(":visible")) {      
         count++;
       }
