@@ -7,16 +7,12 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
     @collection_objects = CollectionObject.where('false')
     @early_date         = CollectionObject.order(:created_at).limit(1).pluck(:created_at).first
     @late_date          = CollectionObject.order(created_at: :desc).limit(1).pluck(:created_at).first
-    # @collection_objects = CollectionObject.limit(3)
   end
 
   # POST
   # find all of the objects within the supplied area and within the supplied data range
   def find
     message             = ''
-    # area_objects = nil
-    # date_objects = nil
-
     # find the objects in the selected area
     @geographic_area_id = params[:geographic_area_id]
     @geographic_area    = GeographicArea.find(@geographic_area_id) unless @geographic_area_id.blank?
