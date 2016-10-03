@@ -187,8 +187,11 @@ _init_map_table = function init_map_table() {
       else {
         $("#toggle_slide_calendar").val("Use Calendar");
       }
-    })
-  }
+    });
+
+    $("#toggle_slide_calendar").click();    // set rendered display to design doc state
+
+  }       // end of active code block
 };
 
 $(document).ready(_init_map_table);
