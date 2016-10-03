@@ -40,6 +40,7 @@ describe Tasks::CollectionObjects::AreaAndDateController, type: :controller do
 
   describe '#set_date' do
     it "renders count of collection objects based on the start and end dates" do
+      # yesterday and tomorrow, because all objects were made today (now)
       get(:set_date, {st_flexpicker: Date.yesterday.to_s, en_flexpicker: Date.tomorrow.to_s})
       expect(response).to have_http_status(:success)
       expect(JSON.parse(response.body)['html']).to eq('17')

@@ -139,9 +139,9 @@ _init_map_table = function init_map_table() {
       return fmt;
     }
 
-    var startDate = new Date($("#early_date").text()),
-      endDate = new Date($("#late_date").text()),
-      offset = endDate - startDate;
+    var startDate = new Date($("#early_date").text());
+    var endDate = new Date($("#late_date").text());
+    var offset = endDate - startDate;
 
     $("#double_date_range").rangepicker({
       type: "double",
