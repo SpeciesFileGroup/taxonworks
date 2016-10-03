@@ -9,13 +9,13 @@
       <div id="set_area_and_date_form">
         <div id="select_area">
           <h2>Select area</h2>
-          <h3><span id="area_count">####</span></h3>
+          <h3><span id="area_count">????</span></h3>
           <%= render(:partial => 'by_area') %>
         </div>
         <hr>
         <div id="select_date_range">
           <h2>Select date range</h2><input type="button" id="toggle_slide_calendar" value="Use Calendar">
-          <h3><span id="date_count">####</span></h3>
+          <h3><span id="date_count">????</span></h3>
           <span id="early_date" hidden="hidden"><%= @early_date.to_date.to_s %></span>
           <span id="late_date" hidden="hidden"><%= @late_date.to_date.to_s %></span>
           <%= form_tag(by_date_task_url, id: 'set_date_form', remote: true) do %>
@@ -65,7 +65,7 @@
     <div class="item item3" align="center">
       <div id="result_">
         <h2>Result</h2>
-        <h3><span id="result_span">####</span></h3>
+        <h3><span id="result_span">????</span></h3>
         Select the result list, or the map of results.<br>
         <%= link_to('List', '#', class: :result_list_toggle, hidden: :true) %>
         <%= link_to('Map', '#', class: :result_map_toggle) %>
