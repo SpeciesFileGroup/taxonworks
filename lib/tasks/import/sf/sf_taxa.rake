@@ -5,6 +5,64 @@ namespace :tw do
       require 'logged_task'
       namespace :taxa do
 
+        desc 'time rake tw:project_import:sf_import:taxa:create_type_genera user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        LoggedTask.define :create_type_genera => [:data_directory, :environment, :user_id] do |logger|
+
+          logger.info 'Creating type genera...'
+
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
+          get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID')
+          get_tw_otu_id = import.get('SFTaxonNameIDToTWOtuID')
+
+          # @todo: Temporary "fix" to convert all values to string; will be fixed next time taxon names are imported and following do can be deleted
+          get_tw_taxon_name_id.each do |key, value|
+            get_tw_taxon_name_id[key] = value.to_s
+          end
+
+          path = @args[:data_directory] + 'tblTypeGenera.txt'
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+
+          count_found = 0
+          error_counter = 0
+
+          file.each_with_index do |row, i|
+            next if get_tw_otu_id.has_key?(row['FamilyNameID']) # ignore if ill-formed family name created only as OTU
+
+            genus_name_id = get_tw_taxon_name_id[row['GenusNameID']].to_i
+            family_name_id = get_tw_taxon_name_id[row['FamilyNameID']].to_i
+
+            if family_name_id == 0
+              logger.error "TaxonNameRelationship SUPPRESSED family name SF.TaxonNameID = #{row['FamilyNameID']}"
+              next
+            end
+
+            # project_id = TaxonName.where(id: genus_name_id ).pluck(:project_id).first vs. TaxonName.find(genus_name_id).project_id
+            project_id = TaxonName.find(family_name_id).project_id
+
+            logger.info "Working with TW.project_id: #{project_id}, SF.FamilyNameID #{row['FamilyNameID']} = TW.FamilyNameID #{family_name_id}, SF.GenusNameID #{row['GenusNameID']} = TW.GenusNameID #{genus_name_id} (count #{count_found += 1}) \n"
+
+            tnr = TaxonNameRelationship.new(
+                subject_taxon_name_id: genus_name_id,
+                object_taxon_name_id: family_name_id,
+                type: 'TaxonNameRelationship::Typification::Family',
+                created_at: row['CreatedOn'],
+                updated_at: row['LastUpdate'],
+                created_by_id: get_tw_user_id[row['CreatedBy']],
+                updated_by_id: get_tw_user_id[row['ModifiedBy']],
+                project_id: project_id,
+            )
+
+            if tnr.valid?
+              tnr.save!
+              puts 'TaxonNameRelationship created'
+
+            else # tnr not valid
+              logger.error "TaxonNameRelationship ERROR TW.taxon_name_id #{family_name_id} (#{error_counter += 1}): " + tnr.errors.full_messages.join(';')
+            end
+          end
+        end
+
         desc 'time rake tw:project_import:sf_import:taxa:create_type_species user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         LoggedTask.define :create_type_species => [:data_directory, :environment, :user_id] do |logger|
 
@@ -47,6 +105,7 @@ namespace :tw do
             next if [1109922, 1195997, 1198855].freeze.include?(row['GenusNameID'].to_i) # bad data in Orthoptera (first) and Psocodea (rest)
 
             # @todo: SF TaxonNameID pairs must be manually fixed: 1132639/1132641 (Orthoptera) and 1184619/1184569 (Mantodea)
+            # @todo: 18 sources not found (see log)
 
             genus_name_id = get_tw_taxon_name_id[row['GenusNameID']].to_i
 
@@ -92,8 +151,8 @@ namespace :tw do
               tnr.save!
               puts 'TaxonNameRelationship created'
 
-              if row['AuthorityRefID'].to_i > 0
-                tnr_cit = tnr.citations.create(source_id: authority_ref_id,
+              if row['AuthorityRefID'].to_i > 0 # 20 out of 1924 sources not found
+                tnr_cit = tnr.citations.new(source_id: authority_ref_id,
                                                project_id: project_id)
                 if tnr_cit.valid?
                   tnr_cit.save!
@@ -104,7 +163,7 @@ namespace :tw do
               end
 
               if reason == '4'
-                note4 = Note.create(text: 'SF reason: monotypy and original designation',
+                note4 = Note.new(text: 'SF reason: monotypy and original designation',
                                     note_object_id: genus_name_id,
                                     note_object_type: 'TaxonName',
                                     project_id: project_id)
@@ -118,7 +177,7 @@ namespace :tw do
               end
 
               if reason == '9'
-                note9 = Note.create(text: 'SF reason: inherited from replaced name',
+                note9 = Note.new(text: 'SF reason: inherited from replaced name',
                                     note_object_id: genus_name_id,
                                     note_object_type: 'TaxonName',
                                     project_id: project_id)
@@ -132,7 +191,7 @@ namespace :tw do
               end
 
               if first_family_group_name_id > 0
-                da = DataAttribute.create(type: 'ImportAttribute',
+                da = DataAttribute.new(type: 'ImportAttribute',
                                           attribute_subject_id: genus_name_id,
                                           attribute_subject_type: TaxonName,
                                           import_predicate: 'FirstFamilyGroupName',
