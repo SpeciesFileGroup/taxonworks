@@ -80,21 +80,21 @@ _init_map_table = function init_map_table() {
     var dateInput;
 
 
-    set_control($("#st_fixedpicker"), $("#st_flexpicker"), format, year, today);
+    set_control($("#st_fixedpicker"), $("#st_flexpicker"), format, year, $("#early_date").text());
 
-    set_control($("#en_fixedpicker"), $("#en_flexpicker"), format, year, today);
+    set_control($("#en_fixedpicker"), $("#en_flexpicker"), format, year, $("#late_date").text());
 
-    function set_control(control, input, format, year, today) {
+    function set_control(control, input, format, year, st_en_day) {
       if (control.length) {
         control.datepicker({
-          //defaultDate: today,
+          defaultDate: new Date(st_en_day),
           altField: input,
           dateFormat: format,
           changeMonth: true,
           changeYear: true,
           yearRange: "1700:" + year
         });
-        //input.val(today);
+        //input.val(on_day);
       }
     }
 
