@@ -14,9 +14,10 @@
         </div>
         <hr>
         <div id="select_date_range">
-          <h2>Select date range</h2>by slider <label class="switch"><input type="checkbox" id="toggle_slide_calendar">
+          <h2>Select date range</h2>
+          <span style="vertical-align: 75%"> by slider </span><label class="switch"><input type="checkbox" id="toggle_slide_calendar">
           <div class="slider round"></div>
-        </label> by calendar
+        </label><span style="vertical-align: 75%"> by calendar</span>
           <h3><span id="date_count">????</span></h3>
           <span id="early_date" hidden="hidden"><%= @early_date.to_date.to_s %></span>
           <span id="late_date" hidden="hidden"><%= @late_date.to_date.to_s %></span>
