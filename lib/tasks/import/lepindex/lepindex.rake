@@ -683,7 +683,8 @@ namespace :tw do
           existing_user = User.where(email: email.downcase)
 
           if existing_user.empty?
-            user = User.create(email: email, password: '3242341aas', password_confirmation: '3242341aas', name: user_name,
+            pwd = rand(36**10).to_s(36)
+            user = User.create(email: email, password: pwd, password_confirmation: pwd, name: user_name,
                                tags_attributes:   [ { keyword: @lepindex_imported } ]
             )
           else
