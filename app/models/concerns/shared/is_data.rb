@@ -127,7 +127,7 @@ module Shared::IsData
       return false if ids.empty? || attribute.nil? || value.nil? 
       begin
         self.transaction do 
-          self.where(id: ids).each do |li|
+          self.where(id: ids).find_each do |li|
             li.update(attribute => value)
           end
         end
