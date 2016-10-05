@@ -38,13 +38,10 @@ function initTaskCarrousel() {
   }
 
   $('#search-filter').keyup( function() {
-    var
-      chain = $(this).val();
-      task.filterKeys(chain);                 
+      task.refresh();           
   });  
 
   function updateFilter() {
-      task.filterChilds(); 
       task.refresh();
   }
 
