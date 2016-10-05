@@ -945,6 +945,7 @@
         file.each_with_index do |row, i|
           print "\r#{i}"
           tmp = {}
+          #TODO: make this a frozen constant
           %w(Phylum Class Order Family Genus Subgenus Species Variety).each do |c|
             tmp[c] = row[c] unless row[c].blank?
           end

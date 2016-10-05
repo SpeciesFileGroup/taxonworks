@@ -281,17 +281,17 @@ class User < ActiveRecord::Base
         count = self.send(r.name).count
 
         if data[n]
-          data[n].merge!(key => count)
+          data[n][key] = count
         else
-          data.merge!(n => {key => count})
+          data[n] = {key => count}
         end
 
         if count == 0
-          data[n].merge!(:first_created => 'n/a')
-          data[n].merge!(:last_updated => 'n/a')
+          data[n][:first_created] = 'n/a'
+          data[n][:last_updated] = 'n/a'
         else
-          data[n].merge!(:first_created => self.send(r.name).limit(1).order(created_at: :asc).first.created_at)
-          data[n].merge!(:last_updated => self.send(r.name).limit(1).order(updated_at: :desc).first.updated_at)
+          data[n][:first_created] = self.send(r.name).limit(1).order(created_at: :asc).first.created_at
+          data[n][:last_updated] = self.send(r.name).limit(1).order(updated_at: :desc).first.updated_at
        end
       end
     end

@@ -940,11 +940,11 @@ namespace :tw do
             data.people_id[row['PeopleID']] = row
           end
 
-          DataAttribute.where(import_predicate: 'PeopleID', attribute_subject_type: 'User').each do |u|
+          DataAttribute.where(import_predicate: 'PeopleID', attribute_subject_type: 'User').find_each do |u|
             data.user_index[u.value] = u.attribute_subject
           end
 
-          DataAttribute.where(controlled_vocabulary_term_id: data.keywords['PeopleID'].id, attribute_subject_type: 'Person').each do |p|
+          DataAttribute.where(controlled_vocabulary_term_id: data.keywords['PeopleID'].id, attribute_subject_type: 'Person').find_each do |p|
             data.people_index[p.value] = p.attribute_subject
           end
           print "done.\n"
@@ -1668,7 +1668,7 @@ namespace :tw do
         print "\nHandling Loans "
         if import.metadata['loans']
           print "from database.  Indexing Loans by InvoiceID..."
-          Identifier.where(namespace_id: data.namespaces['Invoice']).each do |l|
+          Identifier.where(namespace_id: data.namespaces['Invoice']).find_each do |l|
             data.loans[l.identifier] = l.identifier_object
           end
           print "done.\n"
