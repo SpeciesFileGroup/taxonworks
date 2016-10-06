@@ -48,12 +48,11 @@ module BatchLoad
           extract_identifiers.push(extract_identifier_drm_dna_voucher) if !extract_identifier_drm_dna_voucher_text.blank?
 
           extract_attributes = { quantity_value: 0, 
-                                 quantity_unit: 0,
-                                 quantity_concentration: 0, 
+                                 quantity_unit: 0, 
                                  verbatim_anatomical_origin: row['taxon_name'], 
-                                 year_made: 0, 
-                                 month_made: 0, 
-                                 day_made: 0,
+                                 year_made: 2015, 
+                                 month_made: 10, 
+                                 day_made: 10,
                                  identifiers_attributes: extract_identifiers }
           extract = Extract.new(extract_attributes)
 
