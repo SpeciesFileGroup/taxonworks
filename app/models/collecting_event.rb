@@ -336,18 +336,18 @@ class CollectingEvent < ActiveRecord::Base
     def contained_within(geographic_item)
       CollectingEvent.joins(:geographic_items).where(GeographicItem.contained_by_where_sql(geographic_item.id))
 
-    # pieces = GeographicItem.joins(:georeferences).is_contained_by('any', geographic_item)
-    # # pieces = GeographicItem.is_contained_by('any', geographic_item)
-    # pieces
+      # pieces = GeographicItem.joins(:georeferences).is_contained_by('any', geographic_item)
+      # # pieces = GeographicItem.is_contained_by('any', geographic_item)
+      # pieces
 
-    # ce = []
-    # pieces.each { |o|
-    #   ce.push(o.collecting_events_through_georeferences.to_a)
-    #   ce.push(o.collecting_events_through_georeference_error_geographic_item.to_a)
-    # }
-    # pieces = CollectingEvent.where('id in (?)', ce.flatten.map(&:id).uniq)
+      # ce = []
+      # pieces.each { |o|
+      #   ce.push(o.collecting_events_through_georeferences.to_a)
+      #   ce.push(o.collecting_events_through_georeference_error_geographic_item.to_a)
+      # }
+      # pieces = CollectingEvent.where('id in (?)', ce.flatten.map(&:id).uniq)
 
-    # pieces.excluding(self)
+      # pieces.excluding(self)
     end
 
     # @param collecting_events [CollectingEvent Scope]
@@ -367,10 +367,76 @@ class CollectingEvent < ActiveRecord::Base
     # Other
     #
 
+    # engineered for st_flexpicker/en_flexpicker (yyyy/mm/dd)
+    # @param [String] st_date (yyyy/mm/dd)
+    # @param [String] end_date (yyyy/mm/dd)
+    # @param [Boolean] limited default = false,
+    #                           true; found range must be completely inside supplied range
+    #                           false; found range is only required to start inside supplied range
+    # @return [String] sql for records between the two specific dates
+    def date_sql_from_dates(st_date, end_date, limited = false)
+      # unless st_date.blank? # very unlikely to be blank
+      parts                        = st_date.split('/')
+      st_year, st_month, st_day    = parts[0].to_i, parts[1].to_i, parts[2].to_i
+      # end
+      # unless end_date.blank? # very unlikely to be blank
+      parts                        = end_date.split('/')
+      end_year, end_month, end_day = parts[0].to_i, parts[1].to_i, parts[2].to_i
+      # end
+
+      part_0                       = 'start_date_year is not null'
+
+      if limited # full range must be inside supplied range
+        # string has to have four pieces:
+        #   0) ignore start dates with no start year
+        #   1) last part of start year
+        #   2) any full years between start and end
+        #   3) first part of last year
+
+        part_1 = "(start_date_year = #{st_year}"
+        part_1 += " and ((start_date_month between #{st_month + 1} and 12)"
+        part_1 += " or (start_date_month = #{st_month} and Start_date_day >= #{st_day}))"
+
+        part_2 = "(start_date_year between #{st_year + 1} and #{end_year - 1})"
+
+        part_3 = "(end_date_year = #{end_date_year}"
+        part_3 += " and ((end_date_month < #{end_month}"
+        part_3 += " or (end_date_month = #{end_month} and end_date_day <= #{end_day}))"
+
+      else # start_date is inside supplied range
+        # string has to have four pieces:
+        #   0) ignore start dates with no start year
+        #   1) last part of start year
+        #   2) any full years between start and end
+        #   3) first part of last year
+
+        part_1 = "(start_date_year = #{st_year}"
+        part_1 += " and ((start_date_month between #{st_month + 1} and 12)"
+        part_1 += " or (start_date_month = #{st_month} and start_date_day >= #{st_day})))"
+
+        part_2 = "(start_date_year between #{st_year + 1} and #{end_year - 1})"
+
+        part_3 = "(start_date_year = #{end_year}"
+        part_3 += " and ((start_date_month < #{end_month})"
+        part_3 += " or (start_date_month = #{end_month} and start_date_day <= #{end_day})))"
+
+      end
+      sql_string = part_0 + ' and ' + [part_1, part_2, part_3].join(' or ')
+      sql_string
+    end
+
+    # @param [Hash] params of parameters
+    # @return [Scope] of selected collecting events with georeferences
+    def in_date_range_sql(params)
+      sql_string = date_sql_from_dates(params[:st_flexpicker], params[:en_flexpicker])
+      CollectingEvent.where(sql_string).uniq
+    end
+
     # @param [Hash] of parameters in the style of 'params'
     # @return [Scope] of selected collecting_events
     # TODO: ARELIZE, likely in lib/queries
     def filter(params)
+      sql_string = ''
       unless params.blank? # not strictly necessary, but handy for debugging
         sql_string          = Utilities::Dates.date_sql_from_params(params)
 
@@ -379,12 +445,14 @@ class CollectingEvent < ActiveRecord::Base
         any_label_fragment  = params['any_label_text']
         id_fragment         = params['identifier_text']
 
+        prefix = ''
         unless v_locality_fragment.blank?
           unless sql_string.blank?
             prefix = ' and '
           end
           sql_string += "#{ prefix }verbatim_locality ilike '%#{v_locality_fragment}%'"
         end
+        prefix = ''
         unless any_label_fragment.blank?
           unless sql_string.blank?
             prefix = 'and '
@@ -503,8 +571,6 @@ class CollectingEvent < ActiveRecord::Base
   end
 
 
-
-
   # @return [String]
   #   like 00, 00:00, or 00:00:00
   def time_start
@@ -615,7 +681,7 @@ class CollectingEvent < ActiveRecord::Base
 
   def collecting_events_contained_in_error
     # find all the GIs and EGIs associated with CEs
-     # TODO: this will be impossibly slow in present form
+    # TODO: this will be impossibly slow in present form
     pieces = GeographicItem.with_collecting_event_through_georeferences.to_a
 
     me = self.error_geographic_items.first.geo_object
@@ -664,22 +730,22 @@ class CollectingEvent < ActiveRecord::Base
 
     # there are a few ways we can end up with no GIs
     # unless gi_list.nil? # no references GeographicAreas or Georeferences at all, or
-      unless gi_list.empty? # no available GeographicItems to test
-        # map the resulting GIs to their corresponding GAs
-        # pieces  = GeographicItem.where(id: gi_list.flatten.map(&:id).uniq)
-        # pieces = gi_list
-        ga_list = GeographicArea.joins(:geographic_area_type, :geographic_areas_geographic_items).
-          where(geographic_area_types:             {name: types},
-                geographic_areas_geographic_items: {geographic_item_id: gi_list}).uniq
+    unless gi_list.empty? # no available GeographicItems to test
+      # map the resulting GIs to their corresponding GAs
+      # pieces  = GeographicItem.where(id: gi_list.flatten.map(&:id).uniq)
+      # pieces = gi_list
+      ga_list = GeographicArea.joins(:geographic_area_type, :geographic_areas_geographic_items).
+        where(geographic_area_types:             {name: types},
+              geographic_areas_geographic_items: {geographic_item_id: gi_list}).uniq
 
-        # WAS: now find all of the GAs which have the same names as the ones we collected.
+      # WAS: now find all of the GAs which have the same names as the ones we collected.
 
-        # map the names to an array of results
-        ga_list.each { |i|
-          retval[i.name] ||= [] # if we haven't come across this name yet, set it to point to a blank array
-          retval[i.name].push i # we now have at least a blank array, push the result into it
-        }
-      end
+      # map the names to an array of results
+      ga_list.each { |i|
+        retval[i.name] ||= [] # if we haven't come across this name yet, set it to point to a blank array
+        retval[i.name].push i # we now have at least a blank array, push the result into it
+      }
+    end
     # end
     retval
   end
@@ -698,22 +764,22 @@ class CollectingEvent < ActiveRecord::Base
 
   def get_geographic_name_classification
     case geographic_name_classification_method
-    when  :preferred_georeference
-      # quick
-      r = preferred_georeference.geographic_item.quick_geographic_name_hierarchy # almost never the case, UI not setup to do this
-      # slow
-      r = preferred_georeference.geographic_item.inferred_geographic_name_hierarchy if r == {} # therefor defaults to slow
+      when :preferred_georeference
+        # quick
+        r = preferred_georeference.geographic_item.quick_geographic_name_hierarchy # almost never the case, UI not setup to do this
+        # slow
+        r = preferred_georeference.geographic_item.inferred_geographic_name_hierarchy if r == {} # therefor defaults to slow
       when :geographic_area_with_shape # geographic_area.try(:has_shape?)
-      # quick
-      r = geographic_area.geographic_name_classification # do not round trip to the geographic_item, it just points back to the geographic area
-      # slow
-      r = geographic_area.default_geographic_item.inferred_geographic_name_hierarchy if r == {}
+        # quick
+        r = geographic_area.geographic_name_classification # do not round trip to the geographic_item, it just points back to the geographic area
+        # slow
+        r = geographic_area.default_geographic_item.inferred_geographic_name_hierarchy if r == {}
       when :geographic_area # elsif geographic_area
-      # quick
-      r = geographic_area.geographic_name_classification
-    when :verbatim_map_center # elsif map_center
-      # slowest
-      r = GeographicItem.point_inferred_geographic_name_hierarchy(verbatim_map_center)
+        # quick
+        r = geographic_area.geographic_name_classification
+      when :verbatim_map_center # elsif map_center
+        # slowest
+        r = GeographicItem.point_inferred_geographic_name_hierarchy(verbatim_map_center)
     end
     r ||= {}
   end
@@ -723,10 +789,10 @@ class CollectingEvent < ActiveRecord::Base
   end
 
   def cached_geographic_name_classification
-    h = {}
+    h           = {}
     h[:country] = cached_level0_geographic_name if cached_level0_geographic_name
-    h[:state] = cached_level1_geographic_name if cached_level1_geographic_name
-    h[:county] = cached_level2_geographic_name if cached_level2_geographic_name
+    h[:state]   = cached_level1_geographic_name if cached_level1_geographic_name
+    h[:county]  = cached_level2_geographic_name if cached_level2_geographic_name
     h
   end
 
@@ -740,7 +806,7 @@ class CollectingEvent < ActiveRecord::Base
   end
 
   # @return [Symbol, nil]
-  #    determines (prioritizes) the method to be used to decided the geographic name classification 
+  #    determines (prioritizes) the method to be used to decided the geographic name classification
   #    (string labels for country, state, county) for this collecting_event.
   def geographic_name_classification_method
     return :preferred_georeference if preferred_georeference
@@ -898,18 +964,18 @@ class CollectingEvent < ActiveRecord::Base
     }
 
     focus = case lat_long_source
-            when :georeference
-              preferred_georeference.geographic_item
-            when :geographic_area
-              geographic_area.geographic_area_map_focus
-            else
-              nil
+              when :georeference
+                preferred_georeference.geographic_item
+              when :geographic_area
+                geographic_area.geographic_area_map_focus
+              else
+                nil
             end
 
     parameters.merge!(
-                      'Longitude' => focus.point.x,
-                      'Latitude'  => focus.point.y
-                     ) unless focus.nil?
+      'Longitude' => focus.point.x,
+      'Latitude'  => focus.point.y
+    ) unless focus.nil?
     parameters
   end
 
@@ -956,8 +1022,8 @@ class CollectingEvent < ActiveRecord::Base
     }
 
     if geographic_items.any?
-      geo_item_id = geographic_items.select(:id).first.id
-      base['geometry'] = JSON.parse( GeographicItem.select("ST_AsGeoJSON(#{GeographicItem::GEOMETRY_SQL}::geometry) geo_json").find(geo_item_id).geo_json)
+      geo_item_id      = geographic_items.select(:id).first.id
+      base['geometry'] = JSON.parse(GeographicItem.select("ST_AsGeoJSON(#{GeographicItem::GEOMETRY_SQL}::geometry) geo_json").find(geo_item_id).geo_json)
     end
     base
   end
@@ -978,7 +1044,7 @@ class CollectingEvent < ActiveRecord::Base
   end
 
   # @param [Float] delta_z, will be used to fill in the z coordinate of the point
-  # @return [RGeo::Geographic::ProjectedPointImpl, nil] 
+  # @return [RGeo::Geographic::ProjectedPointImpl, nil]
   #    for the *verbatim* latitude/longitude only
   def verbatim_map_center(delta_z = 0.0)
     unless verbatim_latitude.blank? or verbatim_longitude.blank?
@@ -996,35 +1062,35 @@ class CollectingEvent < ActiveRecord::Base
   #   the name of the method that will return an Rgeo object that represent
   #   the "preferred" centroid for this collecting event
   def map_center_method
-    return :preferred_georeference if preferred_georeference     # => { georeferenceProtocol => ?  }
-    return :verbatim_map_center if verbatim_map_center           # => { }
+    return :preferred_georeference if preferred_georeference # => { georeferenceProtocol => ?  }
+    return :verbatim_map_center if verbatim_map_center # => { }
     return :geographic_area if geographic_area.try(:has_shape?)
     nil
   end
 
   # http://tools.gbif.org/dwca-assistant/
-  def dwca_map_center_attributes 
-   #return {
-   #  ... 
-   #}
+  def dwca_map_center_attributes
+    #return {
+    #  ...
+    #}
   end
 
   # @return [Rgeo::Geographic::ProjectedPointImpl, nil]
   def map_center
     case map_center_method
-    when :geographic_area
-      geographic_area.default_geographic_item.geo_object.centroid 
-    when :verbatim_map_center 
-      verbatim_map_center
-    when :preferred_georeference
-      preferred_georeference.geographic_item.centroid
-    else
-      nil 
+      when :geographic_area
+        geographic_area.default_geographic_item.geo_object.centroid
+      when :verbatim_map_center
+        verbatim_map_center
+      when :preferred_georeference
+        preferred_georeference.geographic_item.centroid
+      else
+        nil
     end
   end
 
   def names
-    geographic_area.nil? ? [] : geographic_area.self_and_ancestors.where("name != 'Earth'").collect{|ga| ga.name }
+    geographic_area.nil? ? [] : geographic_area.self_and_ancestors.where("name != 'Earth'").collect { |ga| ga.name }
   end
 
   def georeference_latitude
@@ -1084,10 +1150,10 @@ class CollectingEvent < ActiveRecord::Base
     elsif !document_label.blank?
       string = document_label
     else
-      name = cached_geographic_name_classification.values.join(': ')
+      name       = cached_geographic_name_classification.values.join(': ')
       date       = [start_date_string, end_date_string].compact.join('-')
       place_date = [verbatim_locality, date].compact.join(', ')
-      string     = [name, place_date, verbatim_collectors, verbatim_method].select{|a| !a.blank?}.join("\n")
+      string     = [name, place_date, verbatim_collectors, verbatim_method].select { |a| !a.blank? }.join("\n")
     end
 
     string = "[#{self.to_param}]" if string.blank?
