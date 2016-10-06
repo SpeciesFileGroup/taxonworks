@@ -27,13 +27,13 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
     end
 
     if (@start_date.blank? || @end_date.blank?) || area_objects.count == 0
-      date_objects = CollectionObject.where('false')
+      @collection_objects = CollectionObject.where('false')
     else
-      area_list           = area_objects.map(&:id).to_s.gsub('[', '(').gsub(']', ')')
-      # @collection_objects = CollectionObject.find_by_sql("select * from collection_objects where id in #{area_list} AND created_at BETWEEN '#{@start_date}' AND '#{@end_date}' AND project_id = #{sessions_current_project_id}")
-      @collection_objects = CollectionObject.where(id: area_objects.map(&:id)).where(created_at: @start_date.to_date..@end_date.to_date)
+      collecting_events   = CollectingEvent.in_date_range_sql(params)
+      @collection_objects = CollectionObject.includes(:collecting_event)
+                              .where(collecting_event_id: collecting_events)
+                              .where(id: area_objects.map(&:id))
     end
-    # @collection_objects = area_objects + date_objects
 
     @collection_objects_count = @collection_objects.count
     @feature_collection       = ::Gis::GeoJSON.feature_collection(find_georeferences_for(@collection_objects,

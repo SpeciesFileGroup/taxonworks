@@ -26,7 +26,7 @@ describe Tasks::CollectionObjects::AreaAndDateController, type: :controller do
       expect(JSON.parse(response.body)['html']).to eq('13')
     end
 
-    it "renders count of collection objects in a drawn area" do
+    it 'renders count of collection objects in a drawn area' do
       # {"type"=>"Feature", "geometry"=>{"type"=>"MultiPolygon", "coordinates"=>[[[[33, 28, 0], [37, 28, 0], [37, 26, 0], [33, 26, 0], [33, 28, 0]]]]}, "properties"=>{"geographic_item"=>{"id"=>23}}}
       get(:set_area, {drawn_area_shape: GeographicArea
                                           .where(name: 'Big Boxia')
@@ -39,12 +39,37 @@ describe Tasks::CollectionObjects::AreaAndDateController, type: :controller do
   end
 
   describe '#set_date' do
-    it "renders count of collection objects based on the start and end dates" do
-      # yesterday and tomorrow, because all objects were made today (now)
+    it 'renders count of collection objects based on the start and end dates' do
       get(:set_date, {st_flexpicker: Date.parse('1971/01/01').to_s.gsub('-', '/'), en_flexpicker: Date.parse('1980/12/31').to_s.gsub('-', '/')})
       expect(response).to have_http_status(:success)
       expect(JSON.parse(response.body)['html']).to eq('8')
     end
-
+  end
+  describe '#find' do
+    it 'renders dwca of the selected collection objects, and geo_json feature collection' do
+      get(:find, {st_flexpicker:    Date.parse('1971/01/01').to_s.gsub('-', '/'),
+                  en_flexpicker:    Date.parse('1980/12/31').to_s.gsub('-', '/'),
+                  drawn_area_shape: GeographicArea
+                                      .where(name: 'West Boxia')
+                                      .first
+                                      .default_geographic_item
+                                      .to_geo_json_feature})
+      expect(response).to have_http_status(:success)
+      expect(JSON.parse(response.body)['collection_objects_count']).to eq('2')
+      fc = JSON.parse(response.body)['feature_collection']
+      expect(fc).to eq({'type'     => 'FeatureCollection',
+                        'features' => [{'type'       => 'Feature',
+                                        'geometry'   => {'type'        => 'Point',
+                                                         'coordinates' => [33.5, 27.5, 0.0]},
+                                        'properties' => {'georeference' => {'id'  => 1,
+                                                                            'tag' => 'Georeference ID = 1'}},
+                                        'id'         => 1},
+                                       {'type'       => 'Feature',
+                                        'geometry'   => {'type'        => 'Point',
+                                                         'coordinates' => [33.5, 26.5, 0.0]},
+                                        'properties' => {'georeference' => {'id'  => 4,
+                                                                            'tag' => 'Georeference ID = 4'}},
+                                        'id'         => 2}]})
+    end
   end
 end
