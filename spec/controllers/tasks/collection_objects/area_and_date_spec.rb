@@ -71,5 +71,41 @@ describe Tasks::CollectionObjects::AreaAndDateController, type: :controller do
                                                                             'tag' => 'Georeference ID = 4'}},
                                         'id'         => 2}]})
     end
+
+    describe 'certain specific combinations of collecting event dates' do
+
+      it 'single day' do
+        get(:find, {st_flexpicker:    Date.parse('1971/01/01').to_s.gsub('-', '/'),
+                    en_flexpicker:    Date.parse('1971/1/1').to_s.gsub('-', '/'),
+                    drawn_area_shape: GeographicArea
+                                        .where(name: 'West Boxia')
+                                        .first
+                                        .default_geographic_item
+                                        .to_geo_json_feature})
+        expect(JSON.parse(response.body)['collection_objects_count']).to eq('1')
+      end
+
+      it 'single month' do
+        get(:find, {st_flexpicker:    Date.parse('1974/04/01').to_s.gsub('-', '/'),
+                    en_flexpicker:    Date.parse('1974/4/30').to_s.gsub('-', '/'),
+                    drawn_area_shape: GeographicArea
+                                        .where(name: 'Great Northern Land Mass')
+                                        .first
+                                        .default_geographic_item
+                                        .to_geo_json_feature})
+        expect(JSON.parse(response.body)['collection_objects_count']).to eq('1')
+      end
+
+      it 'single year' do
+        get(:find, {st_flexpicker:    Date.parse('1973/01/01').to_s.gsub('-', '/'),
+                    en_flexpicker:    Date.parse('1973/12/31').to_s.gsub('-', '/'),
+                    drawn_area_shape: GeographicArea
+                                        .where(name: 'Big Boxia')
+                                        .first
+                                        .default_geographic_item
+                                        .to_geo_json_feature})
+        expect(JSON.parse(response.body)['collection_objects_count']).to eq('1')
+      end
+    end
   end
 end
