@@ -5,8 +5,30 @@ namespace :tw do
       require 'logged_task'
       namespace :taxa do
 
+=begin
+Processing relationships based on tblTaxa
+  Note: nominotypical subs are automatically calculated.
+
+Original genus
+
+Unspecified homonym
+
+Synonym
+
+Incertae sedis, AboveID: TaxonNameRelationship::Iczn::Validating::UncertainPlacement
+
+
+
+
+
+
+
+
+
+=end
+
         desc 'time rake tw:project_import:sf_import:taxa:create_some_related_taxa user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        LoggedTask.define :create_some_related_taxa=> [:data_directory, :environment, :user_id] do |logger|
+        LoggedTask.define :create_some_related_taxa => [:data_directory, :environment, :user_id] do |logger|
 
           logger.info 'Creating some related taxa (from tblRelatedTaxa)...'
 
@@ -25,6 +47,7 @@ namespace :tw do
 
           count_found = 0
           error_counter = 0
+          suppressed_counter = 0
 
           file.each_with_index do |row, i|
             # next if get_tw_otu_id.has_key?(row['FamilyNameID']) # ignore if ill-formed family name created only as OTU
@@ -55,10 +78,13 @@ namespace :tw do
                 object_name_id = older_name_id
             end
 
-            # if family_name_id == 0
-            #   logger.error "TaxonNameRelationship SUPPRESSED family name SF.TaxonNameID = #{row['FamilyNameID']}"
-            #   next
-            # end
+            if older_name_id == 0
+              logger.error "TaxonNameRelationship SUPPRESSED older name SF.TaxonNameID = #{row['OlderNameID']} (#{suppressed_counter += 1})"
+              next
+            elsif younger_name_id == 0
+              logger.error "TaxonNameRelationship SUPPRESSED younger name SF.TaxonNameID = #{row['YoungerNameID']} (#{suppressed_counter += 1})"
+              next
+            end
 
             # project_id = TaxonName.where(id: genus_name_id ).pluck(:project_id).first vs. TaxonName.find(genus_name_id).project_id
             project_id = TaxonName.find(older_name_id).project_id
@@ -81,7 +107,7 @@ namespace :tw do
               puts 'TaxonNameRelationship created'
 
             else # tnr not valid
-              logger.error "TaxonNameRelationship tblRelatedTaxa ERROR TW.object_name_id #{object_name_id} (#{error_counter += 1}): " + tnr.errors.full_messages.join(';')
+              logger.error "TaxonNameRelationship tblRelatedTaxa ERROR tw.project_id #{project_id}, SF.OlderNameID #{row['OlderNameID']} = tw.object_name_id #{object_name_id} (#{error_counter += 1}): " + tnr.errors.full_messages.join(';')
             end
           end
         end
