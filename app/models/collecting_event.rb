@@ -163,7 +163,6 @@ class CollectingEvent < ActiveRecord::Base
   include Shared::Depictions
   include Shared::IsData
   include Shared::Confidence
-  include Shared::Documentation
   include SoftValidation
 
   has_paper_trail
@@ -367,128 +366,69 @@ class CollectingEvent < ActiveRecord::Base
     # Other
     #
 
-    # engineered for search_start_date/search_end_date (yyyy/mm/dd)
-    # @param [String] start_date (yyyy/mm/dd)
+    # engineered for st_flexpicker/en_flexpicker (yyyy/mm/dd)
+    # @param [String] st_date (yyyy/mm/dd)
     # @param [String] end_date (yyyy/mm/dd)
-    # @param [Boolean] allow_partial default = true,
-    #                                  true; found range is only required to start inside supplied range
-    #                                  false; found range must be completely inside supplied range
+    # @param [Boolean] limited default = false,
+    #                           true; found range must be completely inside supplied range
+    #                           false; found range is only required to start inside supplied range
     # @return [String] sql for records between the two specific dates
-    def date_sql_from_dates(search_start_date, search_end_date, allow_partial = true)
-      date_parts  = search_start_date.split('/')
-      start_year  = date_parts[0].to_i
-      start_month = date_parts[1].to_i
-      start_day   = date_parts[2].to_i
+    def date_sql_from_dates(st_date, end_date, limited = false)
+      # unless st_date.blank? # very unlikely to be blank
+      parts                        = st_date.split('/')
+      st_year, st_month, st_day    = parts[0].to_i, parts[1].to_i, parts[2].to_i
+      # end
+      # unless end_date.blank? # very unlikely to be blank
+      parts                        = end_date.split('/')
+      end_year, end_month, end_day = parts[0].to_i, parts[1].to_i, parts[2].to_i
+      # end
 
-      date_parts = search_end_date.split('/')
-      end_year   = date_parts[0].to_i
-      end_month  = date_parts[1].to_i
-      end_day    = date_parts[2].to_i
+      part_0                       = 'start_date_year is not null'
 
-      part_0     = 'start_date_year is not null'
+      if limited # full range must be inside supplied range
+        # string has to have four pieces:
+        #   0) ignore start dates with no start year
+        #   1) last part of start year
+        #   2) any full years between start and end
+        #   3) first part of last year
 
-      # start_date is inside supplied range
-      # string has to have four pieces (part_s):
-      #   0) ignore start dates with no start year
-      #   1) last part of start year
-      #   2) any full years between start and end
-      #   3) first part of last year
+        part_1 = "(start_date_year = #{st_year}"
+        part_1 += " and ((start_date_month between #{st_month + 1} and 12)"
+        part_1 += " or (start_date_month = #{st_month} and Start_date_day >= #{st_day}))"
 
-      # special_part = (search_start_date >= {record start date}) AND (search_end_date <= {record end date})
-      # special_part = (start_date_year <= #{start_year} and (start_date_month <= #{start_month}) and (start_date_day <= #{start_day}))
-      special_part_1 = "(((start_date_year = #{start_year})
-        and ((start_date_month = #{start_month} and (start_date_day <= #{start_day})) or (start_date_month < #{start_month})))
-          or (start_date_year < #{start_year}))"
-      special_part_2 = "(((end_date_year = #{end_year})
-        and ((end_date_month = #{end_month} and (end_date_day >= #{end_day})) or (end_date_month > #{end_month})))
-        or (end_date_year > #{end_year}))"
-      special_part   = ''
+        part_2 = "(start_date_year between #{st_year + 1} and #{end_year - 1})"
 
-      if (allow_partial)
-        special_part = ' or (' + special_part_1 + '
-         and
-         ' + special_part_2 + ')'
+        part_3 = "(end_date_year = #{end_date_year}"
+        part_3 += " and ((end_date_month < #{end_month}"
+        part_3 += " or (end_date_month = #{end_month} and end_date_day <= #{end_day}))"
+
+      else # start_date is inside supplied range
+        # string has to have four pieces:
+        #   0) ignore start dates with no start year
+        #   1) last part of start year
+        #   2) any full years between start and end
+        #   3) first part of last year
+
+        part_1 = "(start_date_year = #{st_year}"
+        part_1 += " and ((start_date_month between #{st_month + 1} and 12)"
+        part_1 += " or (start_date_month = #{st_month} and start_date_day >= #{st_day})))"
+
+        part_2 = "(start_date_year between #{st_year + 1} and #{end_year - 1})"
+
+        part_3 = "(start_date_year = #{end_year}"
+        part_3 += " and ((start_date_month < #{end_month})"
+        part_3 += " or (start_date_month = #{end_month} and start_date_day <= #{end_day})))"
+
       end
-
-      if (start_year == end_year) or (end_year - start_year < 2) # test for whole years between date extent
-        part_2s = '' # if no whole years, remove clause
-        part_2e = ''
-      else
-        part_2e = "(end_date_year between #{start_year + 1} and #{end_year - 1})"
-        part_2s = "(start_date_year between #{start_year + 1} and #{end_year - 1})"
-        # part_2e = part_2s
-      end
-
-      # from start date to end of start year
-      part_1s = "(start_date_year = #{start_year}"
-      part_1s += " and ((start_date_month between #{start_month + 1} and 12)"
-      part_1s += " or (start_date_month = #{start_month} and start_date_day >= #{start_day})))"
-
-      # from beginning of end year to end date
-      part_3s = "(start_date_year = #{end_year}"
-      part_3s += " and ((start_date_month < #{end_month})"
-      part_3s += " or (start_date_month = #{end_month} and start_date_day <= #{end_day})))"
-
-      select_1_3 = (start_year == end_year) ? ' and ' : ' or '
-      st_string = "((#{part_0} and #{part_1s}#{select_1_3}#{part_3s})#{part_2s.blank? ? '' : " or #{part_2s}"})"
-
-      # end_date is inside supplied range
-      # string has to have three pieces:
-      #   1) first part of end year
-      #   2) any full years between start and end
-      #   3) last part of start year
-
-      part_1e = "(end_date_year = #{end_year}"
-      part_1e += " and ((end_date_month between 1 and #{end_month - 1})"
-      part_1e += " or (end_date_month = #{end_month} and end_date_day <= #{end_day})))"
-      part_1e = "((end_date_year is NULL) and (#{st_string})) OR " + part_1e
-
-      part_3e = "(end_date_year = #{start_year}"
-      part_3e += " and ((end_date_month > #{start_month})"
-      part_3e += " or (end_date_month = #{start_month} and end_date_day >= #{start_day})))"
-
-
-      en_string = '((' + part_1e + select_1_3 + part_3e + ')' + (part_2e.blank? ? '' : ' or ') + part_2e + ')'
-
-      sql_string = st_string + (allow_partial ? ' or ' : ' and ') + en_string + special_part
+      sql_string = part_0 + ' and ' + [part_1, part_2, part_3].join(' or ')
       sql_string
     end
 
-    # @param [Hash] in the form of params
-    # @return [Hash] in the form of params
-    def normalize_and_order_dates(params)
-      start_date = params[:search_start_date]
-      end_date   = params[:search_end_date]
-
-      if start_date.blank? and end_date.blank? # set entire range
-        start_date = '1700/1/1'
-        end_date   = Date.today.strftime('%Y/%m/%d')
-      else
-        if end_date.blank? # set a one-day range
-          end_date = start_date
-        end
-        if start_date.blank? # set a one-day range
-          start_date = end_date
-        end
-      end
-
-      if Date.parse(start_date) > Date.parse(end_date) # need to swap s and e?
-        start_date, end_date = end_date, start_date
-      end
-
-      params[:search_start_date] = start_date # string like '1700/01/01'
-      params[:search_end_date]   = end_date # string like '2016/11/03'
-      params
-    end
-
-    # @param [Hash] search_start_date string in form 'yyyy/mm/dd'
-    # @param [Hash] search_end_date string in form 'yyyy/mm/dd'
-    # @param [Hash] partial_overlap 'on' or 'off'
+    # @param [Hash] params of parameters
     # @return [Scope] of selected collecting events with georeferences
-    def in_date_range(search_start_date: nil, search_end_date: nil, partial_overlap: 'on')
-      allow_partial = (partial_overlap.downcase == 'off' ? false : true)
-      sql_string    = date_sql_from_dates(search_start_date, search_end_date, allow_partial)
-      CollectingEvent.where(sql_string).where(project: $project_id).uniq
+    def in_date_range_sql(params)
+      sql_string = date_sql_from_dates(params[:st_flexpicker], params[:en_flexpicker])
+      CollectingEvent.where(sql_string).uniq
     end
 
     # @param [Hash] of parameters in the style of 'params'
