@@ -53,11 +53,13 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
 
   # GET
   def set_date
-    @start_date               = params[:st_flexpicker].gsub('/', '-') # convert stipulated date format
-    @end_date                 = params[:en_flexpicker].gsub('/', '-') # to postgresql date format
-    # @collection_objects_count = CollectionObject.find_by_sql("select count(id) from collection_objects where id > 0 AND created_at BETWEEN '#{@start_date}' AND '#{@end_date}' AND project_id = #{sessions_current_project_id}").first.count
-    # @collection_objects_count = CollectionObject.where(:created_at => @start_date.to_date..@end_date.to_date).count
-    @collection_objects       = CollectionObject.where(created_at: @start_date.to_date..@end_date.to_date)
+    @start_date               = params[:st_flexpicker]
+    @end_date                 = params[:en_flexpicker]
+
+    # range_sql = CollectingEvent.date_sql_from_dates(@start_date, @end_date, false)
+    collecting_events         = CollectingEvent.in_date_range_sql(params)
+    @collection_objects       = CollectionObject.includes(:collecting_event)
+                                  .where(collecting_event_id: collecting_events)
     @collection_objects_count = @collection_objects.count
     chart                     = render_to_string(partial: 'stats',
                                                  locals:  {count:   @collection_objects_count,
