@@ -374,54 +374,61 @@ class CollectingEvent < ActiveRecord::Base
     #                           false; found range is only required to start inside supplied range
     # @return [String] sql for records between the two specific dates
     def date_sql_from_dates(st_date, end_date, limited = false)
-      # unless st_date.blank? # very unlikely to be blank
-      parts                        = st_date.split('/')
-      st_year, st_month, st_day    = parts[0].to_i, parts[1].to_i, parts[2].to_i
-      # end
-      # unless end_date.blank? # very unlikely to be blank
-      parts                        = end_date.split('/')
-      end_year, end_month, end_day = parts[0].to_i, parts[1].to_i, parts[2].to_i
-      # end
+      parts    = st_date.split('/')
+      st_year  = parts[0].to_i
+      st_month = parts[1].to_i
+      st_day   = parts[2].to_i
 
-      part_0                       = 'start_date_year is not null'
+      parts     = end_date.split('/')
+      end_year  = parts[0].to_i
+      end_month = parts[1].to_i
+      end_day   = parts[2].to_i
 
-      if limited # full range must be inside supplied range
-        # string has to have four pieces:
-        #   0) ignore start dates with no start year
-        #   1) last part of start year
-        #   2) any full years between start and end
-        #   3) first part of last year
+      part_0  = 'start_date_year is not null'
 
-        part_1 = "(start_date_year = #{st_year}"
-        part_1 += " and ((start_date_month between #{st_month + 1} and 12)"
-        part_1 += " or (start_date_month = #{st_month} and Start_date_day >= #{st_day}))"
+      # start_date is inside supplied range
+      # string has to have four pieces:
+      #   0) ignore start dates with no start year
+      #   1) last part of start year
+      #   2) any full years between start and end
+      #   3) first part of last year
 
-        part_2 = "(start_date_year between #{st_year + 1} and #{end_year - 1})"
+      part_1s = "(start_date_year = #{st_year}"
+      part_1s += " and ((start_date_month between #{st_month + 1} and 12)"
+      part_1s += " or (start_date_month = #{st_month} and start_date_day >= #{st_day})))"
 
-        part_3 = "(end_date_year = #{end_date_year}"
-        part_3 += " and ((end_date_month < #{end_month}"
-        part_3 += " or (end_date_month = #{end_month} and end_date_day <= #{end_day}))"
+      part_2s = "(start_date_year between #{st_year + 1} and #{end_year - 1})"
 
-      else # start_date is inside supplied range
-        # string has to have four pieces:
-        #   0) ignore start dates with no start year
-        #   1) last part of start year
-        #   2) any full years between start and end
-        #   3) first part of last year
+      part_3s = "(start_date_year = #{end_year}"
+      part_3s += " and ((start_date_month < #{end_month})"
+      part_3s += " or (start_date_month = #{end_month} and start_date_day <= #{end_day})))"
 
-        part_1 = "(start_date_year = #{st_year}"
-        part_1 += " and ((start_date_month between #{st_month + 1} and 12)"
-        part_1 += " or (start_date_month = #{st_month} and start_date_day >= #{st_day})))"
+      # end_date is inside supplied range
+      # string has to have three pieces:
+      #   1) last part of start year
+      #   2) any full years between start and end
+      #   3) first part of last year
 
-        part_2 = "(start_date_year between #{st_year + 1} and #{end_year - 1})"
+      part_1e = "(end_date_year = #{end_year}"
+      part_1e += " and ((end_date_month between 1 and #{end_month - 1})"
+      part_1e += " or (end_date_month = #{end_month} and end_date_day <= #{end_day})))"
 
-        part_3 = "(start_date_year = #{end_year}"
-        part_3 += " and ((start_date_month < #{end_month})"
-        part_3 += " or (start_date_month = #{end_month} and start_date_day <= #{end_day})))"
+      part_2e = "(end_date_year between #{st_year + 1} and #{end_year - 1})"
 
+      part_3e = "(end_date_year = #{end_year}"
+      part_3e += " and ((end_date_month > #{end_month})"
+      part_3e += " or (end_date_month = #{end_month} and end_date_day >= #{end_day})))"
+
+
+      st_string = part_0 + ' and ' + [part_1s, part_2s, part_3s].join(' or ')
+      en_string = part_0 + ' and ' + [part_1e, part_2e, part_3e].join(' or ')
+
+      if limited
+        connect = ' and '
+      else
+        connect = ' or '
       end
-      sql_string = part_0 + ' and ' + [part_1, part_2, part_3].join(' or ')
-      sql_string
+      sql_string = st_string + connect + en_string
     end
 
     # @param [Hash] params of parameters
