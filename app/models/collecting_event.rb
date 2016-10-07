@@ -370,11 +370,11 @@ class CollectingEvent < ActiveRecord::Base
     # engineered for st_flexpicker/en_flexpicker (yyyy/mm/dd)
     # @param [String] st_date (yyyy/mm/dd)
     # @param [String] end_date (yyyy/mm/dd)
-    # @param [Boolean] limited default = false,
-    #                           true; found range must be completely inside supplied range
-    #                           false; found range is only required to start inside supplied range
+    # @param [Boolean] greedy default = true,
+    #                           false; found range must be completely inside supplied range
+    #                           true; found range is only required to start inside supplied range
     # @return [String] sql for records between the two specific dates
-    def date_sql_from_dates(st_date, end_date, limited = false)
+    def date_sql_from_dates(st_date, end_date, greedy = true)
       parts    = st_date.split('/')
       st_year  = parts[0].to_i
       st_month = parts[1].to_i
@@ -416,8 +416,8 @@ class CollectingEvent < ActiveRecord::Base
       part_3e += " and ((end_date_month > #{end_month})"
       part_3e += " or (end_date_month = #{end_month} and end_date_day >= #{end_day})))"
 
-      if (st_year == end_year) or (end_year - st_year < 2)
-        part_2s = ''
+      if (st_year == end_year) or (end_year - st_year < 2) # test for whole years between date extent
+        part_2s = '' # if no whole years, remove clause
         part_2e = ''
       else
         part_2s = "(start_date_year between #{st_year + 1} and #{end_year - 1})"
@@ -428,10 +428,10 @@ class CollectingEvent < ActiveRecord::Base
 
       en_string = part_1e + (part_2e.blank? ? '' : ' or ') + part_2e + ' or ' + part_3e
 
-      if limited
-        connect = ' and '
-      else
+      if greedy
         connect = ' or '
+      else
+        connect = ' and '
       end
       sql_string = st_string + connect + en_string
       sql_string
