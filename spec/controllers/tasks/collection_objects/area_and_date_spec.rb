@@ -74,9 +74,9 @@ describe Tasks::CollectionObjects::AreaAndDateController, type: :controller do
 
     describe 'certain specific combinations of collecting event dates' do
 
-      it 'single day' do
-        get(:find, {st_flexpicker:    Date.parse('1971/01/01').to_s.gsub('-', '/'),
-                    en_flexpicker:    Date.parse('1971/1/1').to_s.gsub('-', '/'),
+      it 'spans a single day' do
+        get(:find, {st_flexpicker:    '1971/01/01',
+                    en_flexpicker:    '1971/1/1',
                     drawn_area_shape: GeographicArea
                                         .where(name: 'West Boxia')
                                         .first
@@ -85,9 +85,9 @@ describe Tasks::CollectionObjects::AreaAndDateController, type: :controller do
         expect(JSON.parse(response.body)['collection_objects_count']).to eq('1')
       end
 
-      it 'single month' do
-        get(:find, {st_flexpicker:    Date.parse('1974/04/01').to_s.gsub('-', '/'),
-                    en_flexpicker:    Date.parse('1974/4/30').to_s.gsub('-', '/'),
+      it 'spans a single month' do
+        get(:find, {st_flexpicker:    '1974/04/01',
+                    en_flexpicker:    '1974/4/30',
                     drawn_area_shape: GeographicArea
                                         .where(name: 'Great Northern Land Mass')
                                         .first
@@ -96,9 +96,31 @@ describe Tasks::CollectionObjects::AreaAndDateController, type: :controller do
         expect(JSON.parse(response.body)['collection_objects_count']).to eq('1')
       end
 
-      it 'single year' do
-        get(:find, {st_flexpicker:    Date.parse('1973/01/01').to_s.gsub('-', '/'),
-                    en_flexpicker:    Date.parse('1973/12/31').to_s.gsub('-', '/'),
+      it 'spans a single year' do
+        get(:find, {st_flexpicker:    '1973/01/01',
+                    en_flexpicker:    '1973/12/31',
+                    drawn_area_shape: GeographicArea
+                                        .where(name: 'Big Boxia')
+                                        .first
+                                        .default_geographic_item
+                                        .to_geo_json_feature})
+        expect(JSON.parse(response.body)['collection_objects_count']).to eq('1')
+      end
+
+      it 'spans a partial year' do
+        get(:find, {st_flexpicker:    '1973/01/01',
+                    en_flexpicker:    '1973/12/31',
+                    drawn_area_shape: GeographicArea
+                                        .where(name: 'Big Boxia')
+                                        .first
+                                        .default_geographic_item
+                                        .to_geo_json_feature})
+        expect(JSON.parse(response.body)['collection_objects_count']).to eq('1')
+      end
+
+      it 'spans part of two year' do
+        get(:find, {st_flexpicker:    '1974/03/01',
+                    en_flexpicker:    '1975/6/30',
                     drawn_area_shape: GeographicArea
                                         .where(name: 'Big Boxia')
                                         .first
