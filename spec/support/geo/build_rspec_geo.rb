@@ -1451,6 +1451,20 @@ def generate_collecting_events(user = nil)
                               error_geographic_item: @item_m1,
                               geographic_item:       GeographicItem.new(point: @item_m1.st_centroid))
 
+  @ce_m1a = FactoryGirl.create(:collecting_event,
+                               start_date_year:   1971,
+                               start_date_month:  6,
+                               start_date_day:    6,
+                               verbatim_locality: 'Lesser Boxia Lake',
+                               verbatim_label:    '@ce_m1a',
+                               geographic_area:   @area_m1)
+  @co_m1a = FactoryGirl.create(:valid_collection_object, {collecting_event: @ce_m1a})
+  @gr_m1a = FactoryGirl.create(:georeference_verbatim_data,
+                               api_request:           'gr_m1a',
+                               collecting_event:      @ce_m1a,
+                               error_geographic_item: @item_m1,
+                               geographic_item:       GeographicItem.new(point: @item_m1.st_centroid))
+
   @ce_n1 = FactoryGirl.create(:collecting_event,
                               start_date_year:  1972,
                               start_date_month: 2,
