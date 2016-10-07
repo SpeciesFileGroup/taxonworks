@@ -397,8 +397,6 @@ class CollectingEvent < ActiveRecord::Base
       part_1s += " and ((start_date_month between #{st_month + 1} and 12)"
       part_1s += " or (start_date_month = #{st_month} and start_date_day >= #{st_day})))"
 
-      part_2s = "(start_date_year between #{st_year + 1} and #{end_year - 1})"
-
       part_3s = "(start_date_year = #{end_year}"
       part_3s += " and ((start_date_month < #{end_month})"
       part_3s += " or (start_date_month = #{end_month} and start_date_day <= #{end_day})))"
@@ -413,15 +411,21 @@ class CollectingEvent < ActiveRecord::Base
       part_1e += " and ((end_date_month between 1 and #{end_month - 1})"
       part_1e += " or (end_date_month = #{end_month} and end_date_day <= #{end_day})))"
 
-      part_2e = "(end_date_year between #{st_year + 1} and #{end_year - 1})"
-
       part_3e = "(end_date_year = #{end_year}"
       part_3e += " and ((end_date_month > #{end_month})"
       part_3e += " or (end_date_month = #{end_month} and end_date_day >= #{end_day})))"
 
+      if (st_year == end_year) or (end_year - st_year < 2)
+        part_2s = ''
+        part_2e = ''
+      else
+        part_2s = "(start_date_year between #{st_year + 1} and #{end_year - 1})"
+        part_2e = part_2s
+      end
 
-      st_string = part_0 + ' and ' + [part_1s, part_2s, part_3s].join(' or ')
-      en_string = part_0 + ' and ' + [part_1e, part_2e, part_3e].join(' or ')
+      st_string = "#{part_0} and #{part_1s}#{part_2s.blank? ? '' : " or #{part_2s}"} or #{part_3s}"
+
+      en_string = part_1e + (part_2e.blank? ? '' : ' or ') + part_2e + ' or ' + part_3e
 
       if limited
         connect = ' and '
@@ -429,6 +433,7 @@ class CollectingEvent < ActiveRecord::Base
         connect = ' or '
       end
       sql_string = st_string + connect + en_string
+      sql_string
     end
 
     # @param [Hash] params of parameters
