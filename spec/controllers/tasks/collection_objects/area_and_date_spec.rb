@@ -78,7 +78,7 @@ describe Tasks::CollectionObjects::AreaAndDateController, type: :controller do
         get(:find, {st_flexpicker:    '1971/01/01',
                     en_flexpicker:    '1971/1/1',
                     drawn_area_shape: GeographicArea
-                                        .where(name: 'West Boxia')
+                                        .where(name: 'Great Northern Land Mass')
                                         .first
                                         .default_geographic_item
                                         .to_geo_json_feature})
@@ -100,7 +100,7 @@ describe Tasks::CollectionObjects::AreaAndDateController, type: :controller do
         get(:find, {st_flexpicker:    '1973/01/01',
                     en_flexpicker:    '1973/12/31',
                     drawn_area_shape: GeographicArea
-                                        .where(name: 'Big Boxia')
+                                        .where(name: 'Great Northern Land Mass')
                                         .first
                                         .default_geographic_item
                                         .to_geo_json_feature})
@@ -111,7 +111,7 @@ describe Tasks::CollectionObjects::AreaAndDateController, type: :controller do
         get(:find, {st_flexpicker:    '1973/01/01',
                     en_flexpicker:    '1973/12/31',
                     drawn_area_shape: GeographicArea
-                                        .where(name: 'Big Boxia')
+                                        .where(name: 'Great Northern Land Mass')
                                         .first
                                         .default_geographic_item
                                         .to_geo_json_feature})
@@ -122,11 +122,11 @@ describe Tasks::CollectionObjects::AreaAndDateController, type: :controller do
         get(:find, {st_flexpicker:    '1974/03/01',
                     en_flexpicker:    '1975/6/30',
                     drawn_area_shape: GeographicArea
-                                        .where(name: 'Big Boxia')
+                                        .where(name: 'Great Northern Land Mass')
                                         .first
                                         .default_geographic_item
                                         .to_geo_json_feature})
-        expect(JSON.parse(response.body)['collection_objects_count']).to eq('1')
+        expect(JSON.parse(response.body)['collection_objects_count']).to eq('2')
       end
     end
   end
