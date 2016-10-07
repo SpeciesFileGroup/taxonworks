@@ -17,8 +17,7 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
     @geographic_area_id = params[:geographic_area_id]
     @geographic_area    = GeographicArea.find(@geographic_area_id) unless @geographic_area_id.blank?
     @shape_in           = params[:drawn_area_shape]
-    @start_date         = params[:st_flexpicker].gsub('/', '-') # convert stipulated date format
-    @end_date           = params[:en_flexpicker].gsub('/', '-') # to postgresql date format
+    set_and_order_dates(params)
 
     if @shape_in.blank? and @geographic_area_id.blank? # missing "? "
       area_objects = CollectionObject.where('false')
@@ -53,9 +52,7 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
 
   # GET
   def set_date
-    @start_date               = params[:st_flexpicker]
-    @end_date                 = params[:en_flexpicker]
-
+    set_and_order_dates(params)
     # range_sql = CollectingEvent.date_sql_from_dates(@start_date, @end_date, false)
     collecting_events         = CollectingEvent.in_date_range_sql(params)
     @collection_objects       = CollectionObject.includes(:collecting_event)
@@ -96,6 +93,18 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
       retval.push(geographic_area)
     end
     retval
+  end
+
+  def set_and_order_dates(params)
+    @start_date = params[:st_flexpicker]
+    @end_date = params[:en_flexpicker]
+    if (@start_date > @end_date)
+      params[:st_flexpicker] = @end_date
+      params[:en_flexpicker] = @start_date
+      @start_date = params[:st_flexpicker]
+      @end_date = params[:en_flexpicker]
+    end
+
   end
 
 end
