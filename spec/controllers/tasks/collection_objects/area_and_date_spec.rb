@@ -75,8 +75,8 @@ describe Tasks::CollectionObjects::AreaAndDateController, type: :controller do
     describe 'certain specific combinations of collecting event dates' do
 
       it 'spans a single day' do
-        get(:find, {st_flexpicker:    '1971/01/01',
-                    en_flexpicker:    '1971/1/1',
+        get(:find, {st_flexpicker:    '1981/01/01',
+                    en_flexpicker:    '1981/1/1',
                     drawn_area_shape: GeographicArea
                                         .where(name: 'Great Northern Land Mass')
                                         .first
@@ -85,7 +85,7 @@ describe Tasks::CollectionObjects::AreaAndDateController, type: :controller do
         result = JSON.parse(response.body)
         expect(result['collection_objects_count']).to eq('1')
         georeference_id = result['feature_collection']['features'][0]['properties']['georeference']['id']
-        expect(Georeference.find(georeference_id).collecting_event.verbatim_label).to eq('@ce_m1')
+        expect(Georeference.find(georeference_id).collecting_event.verbatim_label).to eq('@ce_m3')
       end
 
       it 'spans a single month' do
@@ -99,12 +99,28 @@ describe Tasks::CollectionObjects::AreaAndDateController, type: :controller do
         result = JSON.parse(response.body)
         expect(result['collection_objects_count']).to eq('1')
         georeference_id = result['feature_collection']['features'][0]['properties']['georeference']['id']
-        expect(Georeference.find(georeference_id).collecting_event.verbatim_label).to eq('@ce_m1')
+        expect(Georeference.find(georeference_id).collecting_event.verbatim_label).to eq('@ce_p1')
       end
 
       it 'spans a single year' do
-        get(:find, {st_flexpicker:    '1973/01/01',
-                    en_flexpicker:    '1973/12/31',
+        get(:find, {st_flexpicker:    '1971/01/01',
+                    en_flexpicker:    '1971/12/31',
+                    drawn_area_shape: GeographicArea
+                                        .where(name: 'Great Northern Land Mass')
+                                        .first
+                                        .default_geographic_item
+                                        .to_geo_json_feature})
+        result = JSON.parse(response.body)
+        expect(result['collection_objects_count']).to eq('2')
+        georeference_id = result['feature_collection']['features'][0]['properties']['georeference']['id']
+        expect(Georeference.find(georeference_id).collecting_event.verbatim_label).to eq('@ce_m1')
+        georeference_id = result['feature_collection']['features'][1]['properties']['georeference']['id']
+        expect(Georeference.find(georeference_id).collecting_event.verbatim_label).to eq('@ce_m1a')
+      end
+
+      it 'spans four months of a year' do
+        get(:find, {st_flexpicker:    '1971/05/01',
+                    en_flexpicker:    '1971/8/31',
                     drawn_area_shape: GeographicArea
                                         .where(name: 'Great Northern Land Mass')
                                         .first
@@ -113,21 +129,23 @@ describe Tasks::CollectionObjects::AreaAndDateController, type: :controller do
         result = JSON.parse(response.body)
         expect(result['collection_objects_count']).to eq('1')
         georeference_id = result['feature_collection']['features'][0]['properties']['georeference']['id']
-        expect(Georeference.find(georeference_id).collecting_event.verbatim_label).to eq('@ce_m1')
+        expect(Georeference.find(georeference_id).collecting_event.verbatim_label).to eq('@ce_m1a')
       end
 
       it 'spans a partial year' do
-        get(:find, {st_flexpicker:    '1973/01/01',
-                    en_flexpicker:    '1973/12/31',
+        get(:find, {st_flexpicker:    '1971/01/01',
+                    en_flexpicker:    '1971/12/31',
                     drawn_area_shape: GeographicArea
                                         .where(name: 'Great Northern Land Mass')
                                         .first
                                         .default_geographic_item
                                         .to_geo_json_feature})
         result = JSON.parse(response.body)
-        expect(result['collection_objects_count']).to eq('1')
+        expect(result['collection_objects_count']).to eq('2')
         georeference_id = result['feature_collection']['features'][0]['properties']['georeference']['id']
         expect(Georeference.find(georeference_id).collecting_event.verbatim_label).to eq('@ce_m1')
+        georeference_id = result['feature_collection']['features'][1]['properties']['georeference']['id']
+        expect(Georeference.find(georeference_id).collecting_event.verbatim_label).to eq('@ce_m1a')
       end
 
       it 'spans part of two year' do
