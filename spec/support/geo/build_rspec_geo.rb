@@ -1524,7 +1524,8 @@ def generate_collecting_events(user = nil)
                                 start_date_day:   6,
                                 verbatim_label:   '@ce_n2',
                                 geographic_area:  @area_n2)
-  @co_n2   = FactoryGirl.create(:valid_collection_object, {collecting_event: @ce_n2})
+  @co_n2_a = FactoryGirl.create(:valid_collection_object, {collecting_event: @ce_n2})
+  @co_n2_b = FactoryGirl.create(:valid_collection_object, {collecting_event: @ce_n2})
   @gr_n2_a = FactoryGirl.create(:georeference_verbatim_data,
                                 api_request:           'gr_n2_a',
                                 collecting_event:      @ce_n2,
