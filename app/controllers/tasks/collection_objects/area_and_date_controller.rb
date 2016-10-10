@@ -28,7 +28,7 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
     if (@start_date.blank? || @end_date.blank?) || area_objects.count == 0
       @collection_objects = CollectionObject.where('false')
     else
-      collecting_events   = CollectingEvent.in_date_range_sql(params)
+      collecting_events   = CollectingEvent.in_date_range(params)
       @collection_objects = CollectionObject.includes(:collecting_event)
                               .where(collecting_event_id: collecting_events)
                               .where(id: area_objects.map(&:id))
@@ -54,7 +54,7 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
   def set_date
     set_and_order_dates(params)
     # range_sql = CollectingEvent.date_sql_from_dates(@start_date, @end_date, false)
-    collecting_events         = CollectingEvent.in_date_range_sql(params)
+    collecting_events         = CollectingEvent.in_date_range(params)
     @collection_objects       = CollectionObject.includes(:collecting_event)
                                   .where(collecting_event_id: collecting_events)
     @collection_objects_count = @collection_objects.count
