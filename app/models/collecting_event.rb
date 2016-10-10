@@ -392,6 +392,13 @@ class CollectingEvent < ActiveRecord::Base
       #   1) last part of start year
       #   2) any full years between start and end
       #   3) first part of last year
+      if (end_year > st_year)
+        if ((end_year - st_year) > 2)
+          part_0 = "(" + part_0 + " and (start_date_year between #{st_year + 1} and #{end_year - 1}))"
+        else
+          part_0 = "(" + part_0 + " and (start_date_year between #{st_year} and #{end_year}))"
+        end
+      end
 
       part_1s = "(start_date_year = #{st_year}"
       part_1s += " and ((start_date_month between #{st_month + 1} and 12)"
