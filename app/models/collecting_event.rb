@@ -423,9 +423,9 @@ class CollectingEvent < ActiveRecord::Base
         part_2e = part_2s
       end
 
-      st_string = "#{part_0} and #{part_1s}#{part_2s.blank? ? '' : " or #{part_2s}"} or #{part_3s}"
+      st_string = "(#{part_0} and #{part_1s} and #{part_3s})#{part_2s.blank? ? '' : " or #{part_2s}"}"
 
-      en_string = part_1e + (part_2e.blank? ? '' : ' or ') + part_2e + ' or ' + part_3e
+      en_string = part_1e + ' and ' + part_3e + (part_2e.blank? ? '' : ' or ') + part_2e
 
       if greedy
         connect = ' or '
