@@ -426,7 +426,7 @@ class CollectingEvent < ActiveRecord::Base
 
       st_string = "(#{part_0} and #{part_1s} and #{part_3s})#{part_2s.blank? ? '' : " or #{part_2s}"}"
 
-      en_string = part_1e + ' and ' + part_3e + (part_2e.blank? ? '' : ' or ') + part_2e
+      en_string = '(' + part_1e + ' and ' + part_3e + ')' + (part_2e.blank? ? '' : ' or ') + part_2e
 
       if greedy
         connect = ' or '
@@ -439,7 +439,7 @@ class CollectingEvent < ActiveRecord::Base
 
     # @param [Hash] params of parameters
     # @return [Scope] of selected collecting events with georeferences
-    def in_date_range_sql(params)
+    def in_date_range(params)
       sql_string = date_sql_from_dates(params[:st_flexpicker], params[:en_flexpicker])
       CollectingEvent.where(sql_string).uniq
     end

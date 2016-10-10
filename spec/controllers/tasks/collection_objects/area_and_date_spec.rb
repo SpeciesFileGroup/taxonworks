@@ -82,7 +82,10 @@ describe Tasks::CollectionObjects::AreaAndDateController, type: :controller do
                                         .first
                                         .default_geographic_item
                                         .to_geo_json_feature})
-        expect(JSON.parse(response.body)['collection_objects_count']).to eq('1')
+        result = JSON.parse(response.body)
+        expect(result['collection_objects_count']).to eq('1')
+        georeference_id = result['feature_collection']['features'][0]['properties']['georeference']['id']
+        expect(Georeference.find(georeference_id).collecting_event.verbatim_label).to eq('@ce_m1')
       end
 
       it 'spans a single month' do
@@ -93,7 +96,10 @@ describe Tasks::CollectionObjects::AreaAndDateController, type: :controller do
                                         .first
                                         .default_geographic_item
                                         .to_geo_json_feature})
-        expect(JSON.parse(response.body)['collection_objects_count']).to eq('1')
+        result = JSON.parse(response.body)
+        expect(result['collection_objects_count']).to eq('1')
+        georeference_id = result['feature_collection']['features'][0]['properties']['georeference']['id']
+        expect(Georeference.find(georeference_id).collecting_event.verbatim_label).to eq('@ce_m1')
       end
 
       it 'spans a single year' do
@@ -104,7 +110,10 @@ describe Tasks::CollectionObjects::AreaAndDateController, type: :controller do
                                         .first
                                         .default_geographic_item
                                         .to_geo_json_feature})
-        expect(JSON.parse(response.body)['collection_objects_count']).to eq('1')
+        result = JSON.parse(response.body)
+        expect(result['collection_objects_count']).to eq('1')
+        georeference_id = result['feature_collection']['features'][0]['properties']['georeference']['id']
+        expect(Georeference.find(georeference_id).collecting_event.verbatim_label).to eq('@ce_m1')
       end
 
       it 'spans a partial year' do
@@ -115,7 +124,10 @@ describe Tasks::CollectionObjects::AreaAndDateController, type: :controller do
                                         .first
                                         .default_geographic_item
                                         .to_geo_json_feature})
-        expect(JSON.parse(response.body)['collection_objects_count']).to eq('1')
+        result = JSON.parse(response.body)
+        expect(result['collection_objects_count']).to eq('1')
+        georeference_id = result['feature_collection']['features'][0]['properties']['georeference']['id']
+        expect(Georeference.find(georeference_id).collecting_event.verbatim_label).to eq('@ce_m1')
       end
 
       it 'spans part of two year' do
@@ -126,7 +138,10 @@ describe Tasks::CollectionObjects::AreaAndDateController, type: :controller do
                                         .first
                                         .default_geographic_item
                                         .to_geo_json_feature})
-        expect(JSON.parse(response.body)['collection_objects_count']).to eq('2')
+        result = JSON.parse(response.body)
+        expect(result['collection_objects_count']).to eq('1')
+        georeference_id = result['feature_collection']['features'][0]['properties']['georeference']['id']
+        expect(Georeference.find(georeference_id).collecting_event.verbatim_label).to eq('@ce_m1')
       end
     end
   end
