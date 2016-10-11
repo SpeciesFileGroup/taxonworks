@@ -392,13 +392,13 @@ class CollectingEvent < ActiveRecord::Base
       #   1) last part of start year
       #   2) any full years between start and end
       #   3) first part of last year
-      if (end_year > st_year)
-        if ((end_year - st_year) > 2)
-          part_0 = "(" + part_0 + " and (start_date_year between #{st_year + 1} and #{end_year - 1}))"
-        else
-          part_0 = "(" + part_0 + " and (start_date_year between #{st_year} and #{end_year}))"
-        end
-      end
+      # if (end_year > st_year)
+      #   if ((end_year - st_year) > 2)
+      #     part_0 = "(" + part_0 + " and (start_date_year between #{st_year + 1} and #{end_year - 1}))"
+      #   else
+      #     part_0 = "(" + part_0 + " and (start_date_year between #{st_year} and #{end_year}))"
+      #   end
+      # end
 
       part_1s = "(start_date_year = #{st_year}"
       part_1s += " and ((start_date_month between #{st_month + 1} and 12)"
@@ -422,6 +422,11 @@ class CollectingEvent < ActiveRecord::Base
       part_3e += " and ((end_date_month > #{end_month})"
       part_3e += " or (end_date_month = #{end_month} and end_date_day >= #{end_day})))"
 
+      if st_year == end_year
+        select_2_3 = ' and '
+      else
+        select_2_3 = ' or '
+      end
       if (st_year == end_year) or (end_year - st_year < 2) # test for whole years between date extent
         part_2s = '' # if no whole years, remove clause
         part_2e = ''
@@ -430,16 +435,11 @@ class CollectingEvent < ActiveRecord::Base
         part_2e = part_2s
       end
 
-      st_string = "(#{part_0} and #{part_1s} and #{part_3s})#{part_2s.blank? ? '' : " or #{part_2s}"}"
+      st_string = "(#{part_0} and #{part_1s}#{select_2_3}#{part_3s})#{part_2s.blank? ? '' : " or #{part_2s}"}"
 
-      en_string = '(' + part_1e + ' and ' + part_3e + ')' + (part_2e.blank? ? '' : ' or ') + part_2e
+      en_string = '(' + part_1e + select_2_3 + part_3e + ')' + (part_2e.blank? ? '' : ' or ') + part_2e
 
-      if greedy
-        connect = ' or '
-      else
-        connect = ' and '
-      end
-      sql_string = st_string + connect + en_string
+      sql_string = st_string + (greedy ? ' or ' : ' and ') + en_string
       sql_string
     end
 
