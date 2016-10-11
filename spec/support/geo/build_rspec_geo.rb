@@ -1580,6 +1580,9 @@ def generate_collecting_events(user = nil)
                               start_date_year:   1982,
                               start_date_month:  2,
                               start_date_day:    2,
+                              end_date_year: 1984,
+                              end_date_month: 9,
+                              end_date_day: 15,
                               verbatim_locality: 'Greater Boxia Lake',
                               verbatim_label:    '@ce_n3',
                               geographic_area:   @area_n3)
