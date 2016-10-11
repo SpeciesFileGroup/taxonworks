@@ -183,6 +183,43 @@ describe Tasks::CollectionObjects::AreaAndDateController, type: :controller do
         georeference_id = result['feature_collection']['features'][3]['properties']['georeference']['id']
         expect(Georeference.find(georeference_id).collecting_event.verbatim_label).to eq('@ce_n2')
       end
+
+      # following two tests obviated by ambiguity in comparison of ranges
+      xit 'fails parts of two years in a non-greedy search for 1982/02/02-1984/09/15' do
+        get(:find, {st_flexpicker: '1982/02/01',
+                    en_flexpicker: '1984/6/30',
+                    greedy: 'off',
+                    drawn_area_shape: GeographicArea
+                                          .where(name: 'Great Northern Land Mass')
+                                          .first
+                                          .default_geographic_item
+                                          .to_geo_json_feature})
+        result = JSON.parse(response.body)
+        expect(result['collection_objects_count']).to eq('0')
+        # georeference_id = result['feature_collection']['features'][0]['properties']['georeference']['id']
+        # expect(Georeference.find(georeference_id).collecting_event.verbatim_label).to eq('@ce_p1')
+        # georeference_id = result['feature_collection']['features'][1]['properties']['georeference']['id']
+        # expect(Georeference.find(georeference_id).collecting_event.verbatim_label).to eq('@ce_m2 in Big Boxia')
+      end
+
+      xit 'spans parts of two years in a non-greedy search' do
+        get(:find, {st_flexpicker: '1982/02/01',
+                    en_flexpicker: '1984/9/30',
+                    greedy: 'off',
+                    drawn_area_shape: GeographicArea
+                                          .where(name: 'Great Northern Land Mass')
+                                          .first
+                                          .default_geographic_item
+                                          .to_geo_json_feature})
+        result = JSON.parse(response.body)
+        expect(result['collection_objects_count']).to eq('1')
+        georeference_id = result['feature_collection']['features'][0]['properties']['georeference']['id']
+        expect(Georeference.find(georeference_id).collecting_event.verbatim_label).to eq('@ce_n3')
+        # georeference_id = result['feature_collection']['features'][1]['properties']['georeference']['id']
+        # expect(Georeference.find(georeference_id).collecting_event.verbatim_label).to eq('@ce_m2 in Big Boxia')
+      end
+
+
     end
   end
 end

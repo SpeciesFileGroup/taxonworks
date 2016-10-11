@@ -423,11 +423,7 @@ class CollectingEvent < ActiveRecord::Base
       part_3e += " and ((end_date_month > #{end_month})"
       part_3e += " or (end_date_month = #{end_month} and end_date_day >= #{end_day})))"
 
-      if st_year == end_year
-        select_2_3 = ' and '
-      else
-        select_2_3 = ' or '
-      end
+      (st_year == end_year) ? select_1_3 = ' and ' : select_1_3 = ' or '
       if (st_year == end_year) or (end_year - st_year < 2) # test for whole years between date extent
         part_2s = '' # if no whole years, remove clause
         part_2e = ''
@@ -436,9 +432,9 @@ class CollectingEvent < ActiveRecord::Base
         part_2e = part_2s
       end
 
-      st_string = "(#{part_0} and #{part_1s}#{select_2_3}#{part_3s})#{part_2s.blank? ? '' : " or #{part_2s}"}"
+      st_string = "(#{part_0} and #{part_1s}#{select_1_3}#{part_3s})#{part_2s.blank? ? '' : " or #{part_2s}"}"
 
-      en_string = '(' + part_1e + select_2_3 + part_3e + ')' + (part_2e.blank? ? '' : ' or ') + part_2e
+      en_string = '(' + part_1e + select_1_3 + part_3e + ')' + (part_2e.blank? ? '' : ' or ') + part_2e
 
       sql_string = st_string + (greedy ? ' or ' : ' and ') + en_string
       sql_string
@@ -447,7 +443,11 @@ class CollectingEvent < ActiveRecord::Base
     # @param [Hash] params of parameters
     # @return [Scope] of selected collecting events with georeferences
     def in_date_range(params)
-      sql_string = date_sql_from_dates(params[:st_flexpicker], params[:en_flexpicker])
+      params_greedy = true
+      if (params[:greedy] == "off")
+        params_greedy = false
+      end
+      sql_string = date_sql_from_dates(params[:st_flexpicker], params[:en_flexpicker], params_greedy)
       CollectingEvent.where(sql_string).uniq
     end
 
