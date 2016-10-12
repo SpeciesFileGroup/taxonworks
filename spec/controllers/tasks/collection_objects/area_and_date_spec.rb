@@ -23,7 +23,7 @@ describe Tasks::CollectionObjects::AreaAndDateController, type: :controller do
     it 'renders count of collection objects in a specific names area' do
       get(:set_area, {geographic_area_id: GeographicArea.where(name: 'Great Northern Land Mass').first.id})
       expect(response).to have_http_status(:success)
-      expect(JSON.parse(response.body)['html']).to eq('13')
+      expect(JSON.parse(response.body)['html']).to eq('16')
     end
 
     it 'renders count of collection objects in a drawn area' do
@@ -34,7 +34,7 @@ describe Tasks::CollectionObjects::AreaAndDateController, type: :controller do
                                           .default_geographic_item
                                           .to_geo_json_feature})
       expect(response).to have_http_status(:success)
-      expect(JSON.parse(response.body)['html']).to eq('7')
+      expect(JSON.parse(response.body)['html']).to eq('10')
     end
   end
 
@@ -42,7 +42,7 @@ describe Tasks::CollectionObjects::AreaAndDateController, type: :controller do
     it 'renders count of collection objects based on the start and end dates' do
       get(:set_date, {st_flexpicker: Date.parse('1971/01/01').to_s.gsub('-', '/'), en_flexpicker: Date.parse('1980/12/31').to_s.gsub('-', '/')})
       expect(response).to have_http_status(:success)
-      expect(JSON.parse(response.body)['html']).to eq('8')
+      expect(JSON.parse(response.body)['html']).to eq('10')
     end
   end
   describe '#find' do
@@ -55,21 +55,14 @@ describe Tasks::CollectionObjects::AreaAndDateController, type: :controller do
                                       .default_geographic_item
                                       .to_geo_json_feature})
       expect(response).to have_http_status(:success)
-      expect(JSON.parse(response.body)['collection_objects_count']).to eq('2')
-      fc = JSON.parse(response.body)['feature_collection']
-      expect(fc).to eq({'type'     => 'FeatureCollection',
-                        'features' => [{'type'       => 'Feature',
-                                        'geometry'   => {'type'        => 'Point',
-                                                         'coordinates' => [33.5, 27.5, 0.0]},
-                                        'properties' => {'georeference' => {'id'  => 1,
-                                                                            'tag' => 'Georeference ID = 1'}},
-                                        'id'         => 1},
-                                       {'type'       => 'Feature',
-                                        'geometry'   => {'type'        => 'Point',
-                                                         'coordinates' => [33.5, 26.5, 0.0]},
-                                        'properties' => {'georeference' => {'id'  => 4,
-                                                                            'tag' => 'Georeference ID = 4'}},
-                                        'id'         => 2}]})
+      expect(JSON.parse(response.body)['collection_objects_count']).to eq('3')
+      result          = JSON.parse(response.body)['feature_collection']['features']
+      georeference_id = result[0]['properties']['georeference']['id']
+      expect(Georeference.find(georeference_id).collecting_event.verbatim_label).to eq('@ce_m1')
+      georeference_id = result[1]['properties']['georeference']['id']
+      expect(Georeference.find(georeference_id).collecting_event.verbatim_label).to eq('@ce_m1a')
+      georeference_id = result[2]['properties']['georeference']['id']
+      expect(Georeference.find(georeference_id).collecting_event.verbatim_label).to eq('@ce_m2 in Big Boxia')
     end
 
     describe 'certain specific combinations of collecting event dates' do
@@ -134,7 +127,7 @@ describe Tasks::CollectionObjects::AreaAndDateController, type: :controller do
 
       it 'spans a partial year' do
         get(:find, {st_flexpicker:    '1971/01/01',
-                    en_flexpicker: '1971/08/31',
+                    en_flexpicker:    '1971/08/31',
                     drawn_area_shape: GeographicArea
                                         .where(name: 'Great Northern Land Mass')
                                         .first
@@ -152,10 +145,10 @@ describe Tasks::CollectionObjects::AreaAndDateController, type: :controller do
         get(:find, {st_flexpicker:    '1974/03/01',
                     en_flexpicker:    '1975/6/30',
                     drawn_area_shape: GeographicArea
-                                          .where(name: 'Great Northern Land Mass')
-                                          .first
-                                          .default_geographic_item
-                                          .to_geo_json_feature})
+                                        .where(name: 'Great Northern Land Mass')
+                                        .first
+                                        .default_geographic_item
+                                        .to_geo_json_feature})
         result = JSON.parse(response.body)
         expect(result['collection_objects_count']).to eq('2')
         georeference_id = result['feature_collection']['features'][0]['properties']['georeference']['id']
@@ -165,13 +158,13 @@ describe Tasks::CollectionObjects::AreaAndDateController, type: :controller do
       end
 
       it 'spans parts of several years' do
-        get(:find, {st_flexpicker: '1974/03/01',
-                    en_flexpicker: '1976/08/31',
+        get(:find, {st_flexpicker:    '1974/03/01',
+                    en_flexpicker:    '1976/08/31',
                     drawn_area_shape: GeographicArea
-                                          .where(name: 'Great Northern Land Mass')
-                                          .first
-                                          .default_geographic_item
-                                          .to_geo_json_feature})
+                                        .where(name: 'Great Northern Land Mass')
+                                        .first
+                                        .default_geographic_item
+                                        .to_geo_json_feature})
         result = JSON.parse(response.body)
         expect(result['collection_objects_count']).to eq('4')
         georeference_id = result['feature_collection']['features'][0]['properties']['georeference']['id']
@@ -185,41 +178,33 @@ describe Tasks::CollectionObjects::AreaAndDateController, type: :controller do
       end
 
       # following two tests obviated by ambiguity in comparison of ranges
-      xit 'fails parts of two years in a non-greedy search for 1982/02/02-1984/09/15' do
-        get(:find, {st_flexpicker: '1982/02/01',
-                    en_flexpicker: '1984/6/30',
-                    greedy: 'off',
+      xit 'excludes parts of two years in a non-greedy search for 1982/02/02-1984/09/15' do
+        get(:find, {st_flexpicker:    '1982/02/01',
+                    en_flexpicker:    '1984/6/30',
+                    greedy:           'off',
                     drawn_area_shape: GeographicArea
-                                          .where(name: 'Great Northern Land Mass')
-                                          .first
-                                          .default_geographic_item
-                                          .to_geo_json_feature})
+                                        .where(name: 'Great Northern Land Mass')
+                                        .first
+                                        .default_geographic_item
+                                        .to_geo_json_feature})
         result = JSON.parse(response.body)
         expect(result['collection_objects_count']).to eq('0')
-        # georeference_id = result['feature_collection']['features'][0]['properties']['georeference']['id']
-        # expect(Georeference.find(georeference_id).collecting_event.verbatim_label).to eq('@ce_p1')
-        # georeference_id = result['feature_collection']['features'][1]['properties']['georeference']['id']
-        # expect(Georeference.find(georeference_id).collecting_event.verbatim_label).to eq('@ce_m2 in Big Boxia')
       end
 
       xit 'spans parts of two years in a non-greedy search' do
-        get(:find, {st_flexpicker: '1982/02/01',
-                    en_flexpicker: '1984/9/30',
-                    greedy: 'off',
+        get(:find, {st_flexpicker:    '1982/02/01',
+                    en_flexpicker:    '1984/9/30',
+                    greedy:           'off',
                     drawn_area_shape: GeographicArea
-                                          .where(name: 'Great Northern Land Mass')
-                                          .first
-                                          .default_geographic_item
-                                          .to_geo_json_feature})
+                                        .where(name: 'Great Northern Land Mass')
+                                        .first
+                                        .default_geographic_item
+                                        .to_geo_json_feature})
         result = JSON.parse(response.body)
         expect(result['collection_objects_count']).to eq('1')
         georeference_id = result['feature_collection']['features'][0]['properties']['georeference']['id']
         expect(Georeference.find(georeference_id).collecting_event.verbatim_label).to eq('@ce_n3')
-        # georeference_id = result['feature_collection']['features'][1]['properties']['georeference']['id']
-        # expect(Georeference.find(georeference_id).collecting_event.verbatim_label).to eq('@ce_m2 in Big Boxia')
       end
-
-
     end
   end
 end
