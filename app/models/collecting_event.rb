@@ -392,13 +392,6 @@ class CollectingEvent < ActiveRecord::Base
       #   1) last part of start year
       #   2) any full years between start and end
       #   3) first part of last year
-      # if (end_year > st_year)
-      #   if ((end_year - st_year) > 2)
-      #     part_0 = "(" + part_0 + " and (start_date_year between #{st_year + 1} and #{end_year - 1}))"
-      #   else
-      #     part_0 = "(" + part_0 + " and (start_date_year between #{st_year} and #{end_year}))"
-      #   end
-      # end
 
       part_1s = "(start_date_year = #{st_year}"
       part_1s += " and ((start_date_month between #{st_month + 1} and 12)"
@@ -422,7 +415,7 @@ class CollectingEvent < ActiveRecord::Base
       part_3e += " and ((end_date_month > #{end_month})"
       part_3e += " or (end_date_month = #{end_month} and end_date_day >= #{end_day})))"
 
-      (st_year == end_year) ? select_1_3 = ' and ' : select_1_3 = ' or '
+      select_1_3 = (st_year == end_year) ? ' and ' : ' or '
       if (st_year == end_year) or (end_year - st_year < 2) # test for whole years between date extent
         part_2s = '' # if no whole years, remove clause
         part_2e = ''
@@ -443,7 +436,7 @@ class CollectingEvent < ActiveRecord::Base
     # @return [Scope] of selected collecting events with georeferences
     def in_date_range(params)
       params_greedy = true
-      if (params[:greedy] == "off")
+      if params[:greedy] == "off"
         params_greedy = false
       end
       sql_string = date_sql_from_dates(params[:st_flexpicker], params[:en_flexpicker], params_greedy)
