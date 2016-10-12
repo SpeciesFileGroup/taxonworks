@@ -151,10 +151,12 @@ describe Tasks::CollectionObjects::AreaAndDateController, type: :controller do
                                         .to_geo_json_feature})
         result = JSON.parse(response.body)
         expect(result['collection_objects_count']).to eq('2')
-        georeference_id = result['feature_collection']['features'][0]['properties']['georeference']['id']
-        expect(Georeference.find(georeference_id).collecting_event.verbatim_label).to eq('@ce_p1')
-        georeference_id = result['feature_collection']['features'][1]['properties']['georeference']['id']
-        expect(Georeference.find(georeference_id).collecting_event.verbatim_label).to eq('@ce_m2 in Big Boxia')
+        features          = result['feature_collection']['features']
+        georeference_id   = features[0]['properties']['georeference']['id']
+        collecting_events = [Georeference.find(georeference_id).collecting_event.verbatim_label]
+        georeference_id   = features[1]['properties']['georeference']['id']
+        collecting_events.push(Georeference.find(georeference_id).collecting_event.verbatim_label)
+        expect(collecting_events).to include('@ce_m2 in Big Boxia', '@ce_p1')
       end
 
       it 'spans parts of several years' do
@@ -167,14 +169,16 @@ describe Tasks::CollectionObjects::AreaAndDateController, type: :controller do
                                         .to_geo_json_feature})
         result = JSON.parse(response.body)
         expect(result['collection_objects_count']).to eq('4')
-        georeference_id = result['feature_collection']['features'][0]['properties']['georeference']['id']
-        expect(Georeference.find(georeference_id).collecting_event.verbatim_label).to eq('@ce_p1')
-        georeference_id = result['feature_collection']['features'][1]['properties']['georeference']['id']
-        expect(Georeference.find(georeference_id).collecting_event.verbatim_label).to eq('@ce_m2 in Big Boxia')
-        georeference_id = result['feature_collection']['features'][2]['properties']['georeference']['id']
-        expect(Georeference.find(georeference_id).collecting_event.verbatim_label).to eq('@ce_n2')
-        georeference_id = result['feature_collection']['features'][3]['properties']['georeference']['id']
-        expect(Georeference.find(georeference_id).collecting_event.verbatim_label).to eq('@ce_n2')
+        features          = result['feature_collection']['features']
+        georeference_id   = features[0]['properties']['georeference']['id']
+        collecting_events = [Georeference.find(georeference_id).collecting_event.verbatim_label]
+        georeference_id   = features[1]['properties']['georeference']['id']
+        collecting_events.push(Georeference.find(georeference_id).collecting_event.verbatim_label)
+        georeference_id = features[2]['properties']['georeference']['id']
+        collecting_events.push(Georeference.find(georeference_id).collecting_event.verbatim_label)
+        georeference_id = features[3]['properties']['georeference']['id']
+        collecting_events.push(Georeference.find(georeference_id).collecting_event.verbatim_label)
+        expect(collecting_events).to include('@ce_m2 in Big Boxia', '@ce_p1', '@ce_n2', '@ce_n2')
       end
 
       # following two tests obviated by ambiguity in comparison of ranges
