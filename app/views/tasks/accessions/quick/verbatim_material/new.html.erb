@@ -1,6 +1,6 @@
 <h2>Task: Quick verbatim material</h2>
 <%= form_tag create_verbatim_material_task_path, class: [:panel, "no-shadow"], id: :quick_task do %>
-  <div class="flexbox"> 
+    <div class="flexbox">
     <div class="item item1">
       <div id="identifier" class="fields-container side_by_side_fields">
         <div class="field field-align-center">
@@ -63,7 +63,7 @@
         <div class="field">
           <%= label_tag :note, "Notes", data: {help: 'This note is copied to each collection object.'} %>
           <%= text_area :note, :text %>
-          <%= lock_tag(@locks, :locks, :note ) %>      
+          <%= lock_tag(@locks, :locks, :note) %>
         </div>
       </div>
     </div>
@@ -78,7 +78,7 @@
 <% end %>
 
 <br><br>
-<h3> Recently created <h3>
+<h3> Recently created </h3>
 <div>
   <%= render('/tasks/accessions/report/dwca/table', collection_objects: @recent) -%>
 </div>
