@@ -20,7 +20,7 @@ module Workbench::NavigationHelper
   end
 
   def slideout_pinboard
-    render(partial: '/shared/data/slideout/panel')  if sessions_current_project 
+    render(partial: '/shared/data/slideout/panel')  if sessions_current_project && sessions_signed_in?
   end  
 
   # A previous record link. 
