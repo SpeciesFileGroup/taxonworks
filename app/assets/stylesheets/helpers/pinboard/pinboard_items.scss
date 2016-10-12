@@ -10,18 +10,35 @@
 		border-bottom: 1px solid $navigation_border;
 	}
 	ul {
-		margin: 0px;
-		padding: $standard_padding;
+		padding: 0px;
+		margin:0px;
+	}
+	.remove {
+		display: none;
+		font-size: 0px;
+		width: 15px;
+		height: 15px;
+		margin-right: 1em;
+		background-image: image-url('close.svg');
+		background-position: left, center;
+		opacity: 0.3;
+		background-repeat: no-repeat;
 	}
 	li {
+		border-bottom: 1px solid #FAFAFA;
+		border-left:5px solid transparent;
 		display: flex;
 		flex-direction:row;
 		align-items:center;
 		justify-content:space-between;
-		border-radius: 3px;
+		padding: $standard_padding*0.5;
+		padding-left: $standard_padding*2;
 	}
 	li:hover {
 		opacity: 1;
 		background-color: $navigation_background;
+		.remove {
+			display: inline-block;
+		}
 	}
 }

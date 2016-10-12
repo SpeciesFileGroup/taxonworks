@@ -1,0 +1,71 @@
+$header-color: #00796B;
+$category-header-color: #004D40;
+$default-padding: 2em;
+
+.slide-panel {
+	z-index: 1000;
+	right: -400px;
+	top: 0px;
+	position: fixed;
+	width: 400px;
+	height: 100vh;
+	background-color: #FFF;
+	box-shadow: 0px 1px 4px 0px #888;
+
+	.slide-panel-header {
+		width: 100%;
+		height: 60px;
+		display: flex;
+		font-size: 18px;
+		color: #FFF;
+		align-items: center;
+		padding-left: $default-padding;
+		background-color: $header-color;
+	}
+
+	.slide-panel-category-item {
+		display: flex;
+		align-items: center;
+	}
+
+	.slide-panel-category-content {
+		border-left: 5px solid transparent;
+		padding-left: $default-padding;
+	}	
+
+	.slide-panel-category-header {
+		padding: 0.8em;
+		color: #828282;
+		cursor: pointer;
+		background-color: #F9F9F9;
+		padding-left: $default-padding;
+		border-left: 5px solid $category-header-color;
+		background-image: image-url('arrow-down.svg');
+		background-position: right 1em center;
+		background-repeat: no-repeat;
+	}
+
+	.slide-panel-circle-icon {
+		opacity: 0.8;
+		width: 55px;
+		height: 55px;
+		position: absolute;
+		cursor: pointer;
+		left: -27px;
+		top: 50%;
+		border-radius: 50%;
+		background-color: $category-header-color;
+		background-image: image-url('b_pin.svg');
+		background-repeat: no-repeat;
+		background-position: center;
+		background-size: 25px;
+		box-shadow: 0px 1px 2px 0px #444;
+		transition: background-size 0.5s ease, opacity 0.3s ease;
+	}
+	
+	.slide-panel-circle-icon:hover {
+		opacity: 1;
+		background-size: 30px;
+		transition: background-size 0.3s ease, opacity 0.3s ease;
+	}	
+}

@@ -19,6 +19,10 @@ module Workbench::NavigationHelper
     content_tag(:span, (previous_link(instance) + ' | ' + next_link(instance)).html_safe)
   end
 
+  def slideout_pinboard
+    render(partial: '/shared/data/slideout/panel')  if sessions_current_project 
+  end  
+
   # A previous record link. 
   def previous_link(instance)
     text = 'Previous'
