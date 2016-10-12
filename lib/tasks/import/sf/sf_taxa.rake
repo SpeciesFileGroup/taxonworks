@@ -19,13 +19,111 @@ Incertae sedis, AboveID: TaxonNameRelationship::Iczn::Validating::UncertainPlace
 
 
 
-
-
-
-
-
-
 =end
+
+        desc 'time rake tw:project_import:sf_import:taxa:create_status_flag_relationships user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        LoggedTask.define :create_status_flag_relationships => [:data_directory, :environment, :user_id] do |logger|
+
+          logger.info 'Creating relationships from StatusFlags...'
+
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
+          get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID')
+          get_tw_project_id = import.get('SFFileIDToTWProjectID')
+          # get_tw_otu_id = import.get('SFTaxonNameIDToTWOtuID')
+
+          # @todo: Temporary "fix" to convert all values to string; will be fixed next time taxon names are imported and following do can be deleted
+          get_tw_taxon_name_id.each do |key, value|
+            get_tw_taxon_name_id[key] = value.to_s
+          end
+
+          path = @args[:data_directory] + 'sfTaxaByTaxonNameStr.txt'
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
+
+          count_found = 0
+          error_counter = 0
+
+          file.each_with_index do |row, i|
+
+            project_id = get_tw_project_id[row['FileID']].to_i
+            taxon_name_id = get_tw_taxon_name_id[row['TaxonNameID']].to_i
+
+            logger.info "Working with TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id}, RankID #{row['RankID']} (count #{count_found += 1}) \n"
+
+            if row['RankID'] < 11 and row['OriginalGenusID'] > 0 # There are some SF genera with OriginalGenusID set???
+
+              original_genus_id = get_tw_taxon_name_id[row['OriginalGenusID']].to_i
+
+              tnr = TaxonNameRelationship.new(
+                  subject_taxon_name_id: original_genus_id,
+                  object_taxon_name_id: taxon_name_id,
+                  type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus',
+                  created_at: Time.now,
+                  updated_at: Time.now,
+                  created_by_id: $user_id,
+                  updated_by_id: $user_id,
+                  project_id: project_id
+              )
+
+              if tnr.valid?
+                tnr.save!
+                puts 'TaxonNameRelationship OriginalGenusID created'
+
+              else # tnr not valid
+                logger.error "TaxonNameRelationship OriginalGenusID ERROR tw.project_id #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id}, SF.OriginalGenusID #{row['OriginalGenusID']} = TW.original_genus_id #{original_genus_id} (#{error_counter += 1}): " + tnr.errors.full_messages.join(';')
+              end
+
+            end
+
+            status_flags = row['StatusFlags'].to_i
+
+            if status_flags > 0
+
+              status_flags_array = row['StatusFlags'].to_i # need to add call to Hernan's set bit function
+
+              for bit_position in 0..status_flags_array.length - 1 # length is number of bits set
+
+                # set type, subject, object for each when case
+                # use current user and time for housekeeping
+
+                case status_flags_array[bit_position]
+
+                  when 0 # informal, inconsistently used?
+                  when 1 # subsequent misspelling
+                  when 2 # unjustified emendation
+                  when 3 # nomen nudum
+                  when 4 # nomen dubium
+                  when 5 # incertae sedis
+                  when 6 # justified emendation
+                  when 7 # nomen protectum
+                  when 8 # suppressed by ruling
+                  when 9 # misapplied
+                  when 10 # preoccupied
+                  when 11 # primary homonym
+                  when 12 # secondary homonym
+                  when 13 # nomen oblitum
+                  when 14 # unnecessary replacement
+                  when 15 # incorrect original spelling
+                  when 16 # other comment
+                  when 17 # unavailable other
+                  when 18 # junior synonym
+                  when 19 # nomen novum
+                  when 20 # original name
+                  when 21 # subsequent name
+                  when 22 # unspecified homonym
+                  when 23 # lapsus calami
+                  when 24 # corrected lapsus
+                  when 25 # nomen nudum made available
+
+                end
+
+                # create the tnr here
+
+              end
+            end
+          end
+        end
+
 
         desc 'time rake tw:project_import:sf_import:taxa:create_some_related_taxa user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         LoggedTask.define :create_some_related_taxa => [:data_directory, :environment, :user_id] do |logger|
@@ -63,7 +161,7 @@ Incertae sedis, AboveID: TaxonNameRelationship::Iczn::Validating::UncertainPlace
                                  '5' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnjustifiedEmendation',
                                  '6' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnnecessaryReplacementName',
                                  '7' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication',
-                                 '8' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling',  # lapsus calami>>corrected lapsus
+                                 '8' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling', # lapsus calami>>corrected lapsus
                                  '9' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym' # nomen nudum>>nomen nudum made available
             }
 
@@ -73,7 +171,7 @@ Incertae sedis, AboveID: TaxonNameRelationship::Iczn::Validating::UncertainPlace
               when 1, 4, 5, 6, 7 then
                 subject_name_id = older_name_id
                 object_name_id = younger_name_id
-              else  # 2, 3, 8, 9
+              else # 2, 3, 8, 9
                 subject_name_id = younger_name_id
                 object_name_id = older_name_id
             end
@@ -99,7 +197,7 @@ Incertae sedis, AboveID: TaxonNameRelationship::Iczn::Validating::UncertainPlace
                 updated_at: row['LastUpdate'],
                 created_by_id: get_tw_user_id[row['CreatedBy']],
                 updated_by_id: get_tw_user_id[row['ModifiedBy']],
-                project_id: project_id,
+                project_id: project_id
             )
 
             if tnr.valid?
@@ -262,7 +360,7 @@ Incertae sedis, AboveID: TaxonNameRelationship::Iczn::Validating::UncertainPlace
 
               if row['AuthorityRefID'].to_i > 0 # 20 out of 1924 sources not found
                 tnr_cit = tnr.citations.new(source_id: authority_ref_id,
-                                               project_id: project_id)
+                                            project_id: project_id)
                 if tnr_cit.valid?
                   tnr_cit.save!
                   puts 'Citation created'
@@ -273,9 +371,9 @@ Incertae sedis, AboveID: TaxonNameRelationship::Iczn::Validating::UncertainPlace
 
               if reason == '4'
                 note4 = Note.new(text: 'SF reason: monotypy and original designation',
-                                    note_object_id: genus_name_id,
-                                    note_object_type: 'TaxonName',
-                                    project_id: project_id)
+                                 note_object_id: genus_name_id,
+                                 note_object_type: 'TaxonName',
+                                 project_id: project_id)
 
                 if note4.valid?
                   note4.save!
@@ -287,9 +385,9 @@ Incertae sedis, AboveID: TaxonNameRelationship::Iczn::Validating::UncertainPlace
 
               if reason == '9'
                 note9 = Note.new(text: 'SF reason: inherited from replaced name',
-                                    note_object_id: genus_name_id,
-                                    note_object_type: 'TaxonName',
-                                    project_id: project_id)
+                                 note_object_id: genus_name_id,
+                                 note_object_type: 'TaxonName',
+                                 project_id: project_id)
 
                 if note9.valid?
                   note9.save!
@@ -301,11 +399,11 @@ Incertae sedis, AboveID: TaxonNameRelationship::Iczn::Validating::UncertainPlace
 
               if first_family_group_name_id > 0
                 da = DataAttribute.new(type: 'ImportAttribute',
-                                          attribute_subject_id: genus_name_id,
-                                          attribute_subject_type: TaxonName,
-                                          import_predicate: 'FirstFamilyGroupName',
-                                          value: first_family_group_name_id,
-                                          project_id: project_id)
+                                       attribute_subject_id: genus_name_id,
+                                       attribute_subject_type: TaxonName,
+                                       import_predicate: 'FirstFamilyGroupName',
+                                       value: first_family_group_name_id,
+                                       project_id: project_id)
 
                 if da.valid?
                   da.save!
@@ -755,6 +853,8 @@ Incertae sedis, AboveID: TaxonNameRelationship::Iczn::Validating::UncertainPlace
           puts = 'SFRankIDToTWRankString'
           ap get_tw_rank_string
         end
+
+
       end
     end
   end
