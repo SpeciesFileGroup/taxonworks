@@ -6,19 +6,15 @@ module Utilities::Numbers
     # returns an array of bits set (power of 2) starting at 0, e.g., [0, 3, 22]
     # use to decode StatusFlags in SF.tblTaxa
     ret_val = []
-    power = 1
     counter = 0
 
-    until int == 0
+    until number == 0
       ret_val << counter unless (number & 1) == 0 # << = push
       counter += 1
-      power <<= 1 # <<= = left shift
-      source >>= 1 # >>= = right shift
+      number >>= 1 # >>= = right shift
     end
 
     ret_val
   end
 
-
 end
-
