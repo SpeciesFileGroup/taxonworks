@@ -84,14 +84,13 @@ function list() {
     $(elementObject.parents('table').find('th:nth-child(' + ($(elementObject).index() + 1) + ')')).toggle(250);
   }
 
-
-  Mousetrap.bind('left', function () {
+createShortcut("left", "Go to previous page", "Lists", function () {
     if ($('.page-navigator a[rel="previous"]').length > 0) {
       location.href = $('.page-navigator a[rel="previous"]').attr('href');
     }
   });
 
-  Mousetrap.bind('right', function () {
+ createShortcut('right', "Go to next page", "Lists", function () {
     if ($('.page-navigator a[rel="next"]').length > 0) {
       location.href = $('.page-navigator a[rel="next"]').attr('href');
     }

@@ -987,6 +987,34 @@ ActiveRecord::Schema.define(version: 20160909173656) do
   add_index "projects", ["created_by_id"], name: "index_projects_on_created_by_id", using: :btree
   add_index "projects", ["updated_by_id"], name: "index_projects_on_updated_by_id", using: :btree
 
+  create_table "protocol_relationships", force: :cascade do |t|
+    t.integer  "protocol_id",                       null: false
+    t.integer  "protocol_relationship_object_id",   null: false
+    t.string   "protocol_relationship_object_type", null: false
+    t.integer  "position",                          null: false
+    t.integer  "created_by_id",                     null: false
+    t.integer  "updated_by_id",                     null: false
+    t.integer  "project_id",                        null: false
+    t.datetime "created_at",                        null: false
+    t.datetime "updated_at",                        null: false
+  end
+
+  add_index "protocol_relationships", ["project_id"], name: "index_protocol_relationships_on_project_id", using: :btree
+  add_index "protocol_relationships", ["protocol_id"], name: "index_protocol_relationships_on_protocol_id", using: :btree
+
+  create_table "protocols", force: :cascade do |t|
+    t.string   "name",          null: false
+    t.text     "short_name",    null: false
+    t.text     "description",   null: false
+    t.integer  "created_by_id", null: false
+    t.integer  "updated_by_id", null: false
+    t.integer  "project_id",    null: false
+    t.datetime "created_at",    null: false
+    t.datetime "updated_at",    null: false
+  end
+
+  add_index "protocols", ["project_id"], name: "index_protocols_on_project_id", using: :btree
+
   create_table "public_contents", force: :cascade do |t|
     t.integer  "otu_id",        null: false
     t.integer  "topic_id",      null: false
@@ -1570,6 +1598,13 @@ ActiveRecord::Schema.define(version: 20160909173656) do
   add_foreign_key "project_sources", "users", column: "updated_by_id", name: "project_sources_updated_by_id_fkey"
   add_foreign_key "projects", "users", column: "created_by_id", name: "projects_created_by_id_fkey"
   add_foreign_key "projects", "users", column: "updated_by_id", name: "projects_updated_by_id_fkey"
+  add_foreign_key "protocol_relationships", "projects"
+  add_foreign_key "protocol_relationships", "protocols"
+  add_foreign_key "protocol_relationships", "users", column: "created_by_id"
+  add_foreign_key "protocol_relationships", "users", column: "updated_by_id"
+  add_foreign_key "protocols", "projects"
+  add_foreign_key "protocols", "users", column: "created_by_id"
+  add_foreign_key "protocols", "users", column: "updated_by_id"
   add_foreign_key "public_contents", "contents", name: "public_contents_content_id_fkey"
   add_foreign_key "public_contents", "controlled_vocabulary_terms", column: "topic_id", name: "public_contents_topic_id_fkey"
   add_foreign_key "public_contents", "otus", name: "public_contents_otu_id_fkey"

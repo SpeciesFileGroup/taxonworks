@@ -587,7 +587,7 @@ class Protonym < TaxonName
     end
     # this taxon is a type, but not included in nominal taxon
     if !!self.type_of_taxon_names
-      self.type_of_taxon_names.each do |t|
+      self.type_of_taxon_names.find_each do |t|
         soft_validations.add(:base, "This taxon is type of #{t.rank_class.rank_name} #{t.name} but is not included there") unless self.get_valid_taxon_name.ancestors.include?(t.get_valid_taxon_name)
       end
     end
@@ -795,7 +795,7 @@ class Protonym < TaxonName
       if self.is_fossil?
         taxa = Protonym.where(parent_id: self.id)
         unless taxa.empty?
-          taxa.each do |t|
+          taxa.find_each do |t|
             soft_validations.add(:base, 'Extinct taxon has extant children') unless t.is_fossil?
           end
         end

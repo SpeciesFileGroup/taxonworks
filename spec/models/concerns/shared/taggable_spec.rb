@@ -46,13 +46,13 @@ describe 'Taggable', :type => :model do
   end
 
   context 'methods' do
-    specify 'has_tags? with no tags' do
-      expect(class_with_tags.has_tags?).to eq(false)
+    specify '#tagged? with no tags' do
+      expect(class_with_tags.tagged?).to eq(false)
     end
 
-    specify 'has_tags? with a tag' do
+    specify '#tagged? with a tag' do
       class_with_tags.tags << Tag.new(keyword: FactoryGirl.create(:valid_keyword))
-      expect(class_with_tags.has_tags?).to eq(true)
+      expect(class_with_tags.tagged?).to eq(true)
     end
     context 'object with notes on destroy' do
       specify 'attached notes are destroyed' do

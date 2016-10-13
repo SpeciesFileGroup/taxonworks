@@ -411,6 +411,7 @@ namespace :tw do
                 @data.parent_id_index.merge!('species:' + row['Current_genus'].to_s + ' ' + row['Current_species'].to_s => species)
               end
               parent_id = species unless species.nil?
+              #byebug if row['Original_Genus'] == 'ACANTHOSPHINX'
 
               unless row['SCIENTIFIC_NAME_on_card'] == 'GENUS UNKNOWN' || row['SCIENTIFIC_NAME_on_card'] =~ /_AUCTORUM/
                 name = (rank =~ /GENUS/) ? row['SCIENTIFIC_NAME_on_card'].titleize : row['SCIENTIFIC_NAME_on_card']
@@ -434,8 +435,9 @@ namespace :tw do
                                         created_at: time_from_field(row['Date_changed']),
                                         updated_at: $user_id
                 )
+                #byebug if name == 'adriana'
                 %w{TaxonNo Original_Genus OrigSubgen Original_Species Original_Subspecies Original_Infrasubspecies Availability valid_parent_id ButmothNo}.each do |k|
-                  protonym.data_attributes.new(import_predicate: k, value: row['k'], type: 'ImportAttribute') unless row['k'].blank?
+                  protonym.data_attributes.new(import_predicate: k, value: row[k], type: 'ImportAttribute') unless row[k].blank?
                 end
                 protonym.data_attributes.new(import_predicate: 'Original_Year', value: row['Original_Year'], type: 'ImportAttribute') if !row['Original_Year'].blank? && protonym.year_of_publication.blank?
 
@@ -512,9 +514,6 @@ namespace :tw do
 
                   ref = brow.nil? ? nil : @data.citation_to_publication_index[brow['GENUS_REF']]
 
-                  # !! TODO: FIX
-                 #  protonym.source_id = ref unless ref.nil?
-
                   citation = brow.nil? ? nil : @data.citations_index[brow['GENUS_REF']]
                   c = Citation.create!(citation_object: protonym, is_original: true, source_id: ref, pages: citation['PAGE']) unless ref.nil? || citation.nil?
 
@@ -525,6 +524,7 @@ namespace :tw do
                   TaxonNameClassification.create!(taxon_name_id: protonym.id, type: @classification_classes[row['Availability']])
                 end
 
+                #byebug if row['TaxonNo'] == '48940'
                 %w{Original_Genus OrigSubgen Original_Species Original_Subspecies Original_Infrasubspecies}.each do |t|
                   if t == 'Original_Genus' || t == 'OrigSubgen'
                     n = row[t]
@@ -558,8 +558,13 @@ namespace :tw do
               stn = @data.parent_id_index['genus:' + r['original'].to_s]
               stn = @data.parent_id_index['subgenus:' + r['original'].to_s] if stn.nil?
               if stn.nil?  && r['original'] != 'ORIGINAL GENUS UNDETERMINED'
-                genus = Protonym.find_or_create_by(name: r['original'].titleize, parent_id: @lepidoptera.id, rank_class: Ranks.lookup(:iczn, 'genus'), project_id: $project_id).id
-                @data.parent_id_index.merge!('genus:' + r['Current_genus'].to_s => genus)
+                stn = Protonym.find_or_create_by(name: r['original'].titleize, rank_class: Ranks.lookup(:iczn, 'genus'), project_id: $project_id)
+                if stn.parent_id.nil?
+                  stn.parent_id = @lepidoptera.id
+                  stn.save
+                end
+                stn = stn.id
+                @data.parent_id_index.merge!('genus:' + r['Current_genus'].to_s => stn)
               end
             elsif origr == 'species'
               stn = @data.parent_id_index['species:' + r['original'].to_s]
@@ -631,7 +636,9 @@ namespace :tw do
       def soft_validations_lepindex
         fixed = 0
         print "\nApply soft validation fixes to taxa 1st pass \n"
-        TaxonName.where(project_id: $project_id).each_with_index do |t, i|
+        i = 0
+        TaxonName.where(project_id: $project_id).find_each do |t|
+          i += 1
           print "\r#{i}    Fixes applied: #{fixed}"
           t.soft_validate
           t.fix_soft_validations
@@ -640,7 +647,9 @@ namespace :tw do
           end
         end
         print "\nApply soft validation fixes to relationships \n"
-        TaxonNameRelationship.where(project_id: $project_id).each_with_index do |t, i|
+        i = 0
+        TaxonNameRelationship.where(project_id: $project_id).find_each do |t|
+          i += 1
           print "\r#{i}    Fixes applied: #{fixed}"
           t.soft_validate
           t.fix_soft_validations
@@ -649,7 +658,9 @@ namespace :tw do
           end
         end
         print "\nApply soft validation fixes to taxa 2nd pass \n"
-        TaxonName.where(project_id: $project_id).each_with_index do |t, i|
+        i = 0
+        TaxonName.where(project_id: $project_id).find_each do |t|
+          i += 1
           print "\r#{i}    Fixes applied: #{fixed}"
           t.soft_validate
           t.fix_soft_validations
@@ -672,7 +683,8 @@ namespace :tw do
           existing_user = User.where(email: email.downcase)
 
           if existing_user.empty?
-            user = User.create(email: email, password: '3242341aas', password_confirmation: '3242341aas', name: user_name,
+            pwd = rand(36**10).to_s(36)
+            user = User.create(email: email, password: pwd, password_confirmation: pwd, name: user_name,
                                tags_attributes:   [ { keyword: @lepindex_imported } ]
             )
           else

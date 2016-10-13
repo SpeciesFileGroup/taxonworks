@@ -125,6 +125,8 @@ namespace :tw do
         handle_hosts_ucd
         handle_dist_ucd
 
+#        print "\n\n !! Success. End time: #{Time.now} \n\n"
+
         soft_validations_ucd
 
         print "\n\n !! Success. End time: #{Time.now} \n\n"
@@ -148,7 +150,8 @@ namespace :tw do
 
           user = User.where(email: email)
           if user.empty?
-            user = User.create(email: email, password: '3242341aas', password_confirmation: '3242341aas', name: user_name, self_created: true)
+            pwd = rand(36**10).to_s(36)
+            user = User.create(email: email, password: pwd, password_confirmation: pwd, name: user_name, self_created: true)
           else
             user = user.first
           end
@@ -191,7 +194,9 @@ namespace :tw do
         print "\nHandling FGNAMES\n"
         raise "file #{path} not found" if not File.exists?(path)
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
-        file.each_with_index do |row, i|
+        i = 0
+        file.each do |row|
+          i += 1
           print "\r#{i}"
           family = row['Family'].blank? ? nil : Protonym.find_or_create_by!(name: row['Family'], parent_id: @data.superfamilies[row['SuperfamFK']], rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Family', project_id: $project_id)
           subfamily = row['Subfam'].blank? ? nil : Protonym.find_or_create_by!(name: row['Subfam'], parent: family, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Subfamily', project_id: $project_id)
@@ -228,7 +233,9 @@ namespace :tw do
         print "\nHandling MASTER -- Families\n"
         raise "file #{path} not found" if not File.exists?(path)
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
-        file.each_with_index do |row, i|
+        i = 0
+        file.each do |row|
+          i += 1
           print "\r#{i}"
           if row['ValGenus'].blank?
             name = row['ValAuthor'].split(' ').first
@@ -288,7 +295,9 @@ namespace :tw do
         print "\nHandling MASTER -- Valid genera\n"
         raise "file #{path} not found" if not File.exists?(path)
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
-        file.each_with_index do |row, i|
+        i = 0
+        file.each do |row|
+          i += 1
           print "\r#{i}"
 
 #          byebug if row['TaxonCode'] == 'PentarR' || row['TaxonCode'] == 'TrichoWb' || row['TaxonCode'] == 'TrichoW'
@@ -317,7 +326,9 @@ namespace :tw do
         print "\nHandling MASTER -- Invalid genera\n"
         raise "file #{path} not found" if not File.exists?(path)
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
-        file.each_with_index do |row, i|
+        i = 0
+        file.each do |row|
+          i += 1
           print "\r#{i}"
 #          byebug if row['TaxonCode'] == 'PentarR' || row['TaxonCode'] == 'TrichoWb' || row['TaxonCode'] == 'TrichoW'
           if !row['CitGenus'].blank? && @data.taxon_codes[row['TaxonCode']].nil?
@@ -360,7 +371,9 @@ namespace :tw do
         print "\nHandling MASTER -- Invalid subgenera\n"
         raise "file #{path} not found" if not File.exists?(path)
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
-        file.each_with_index do |row, i|
+        i = 0
+        file.each do |row|
+          i += 1
           print "\r#{i}"
           #byebug if row['TaxonCode'] == 'PentarR' || row['TaxonCode'] == 'TrichoWb' || row['TaxonCode'] == 'TrichoW'
           if !row['CitSubgen'].blank? && row['CitSpecies'].blank? && row['CitSubsp'].blank? && @data.taxon_codes[row['TaxonCode']].nil?
@@ -405,7 +418,9 @@ namespace :tw do
         print "\nHandling MASTER -- Valid species\n"
         raise "file #{path} not found" if not File.exists?(path)
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
-        file.each_with_index do |row, i|
+        i = 0
+        file.each do |row|
+          i += 1
           print "\r#{i}"
           if !@data.species_index[row['ValGenus'].to_s + ' ' + row['ValSpecies'].to_s].nil?
           elsif !row['ValSpecies'].blank? && @data.taxon_codes[row['TaxonCode']].nil?
@@ -441,7 +456,9 @@ namespace :tw do
         print "\nHandling MASTER -- Invalid species\n"
         raise "file #{path} not found" if not File.exists?(path)
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
-        file.each_with_index do |row, i|
+        i = 0
+        file.each do |row|
+          i += 1
           print "\r#{i}"
           if !row['CitSpecies'].blank? && row['CitSubsp'].blank? && @data.taxon_codes[row['TaxonCode']].nil?
             parent = @data.all_genera_index[row['ValGenus']]
@@ -495,7 +512,9 @@ namespace :tw do
         print "\nHandling MASTER -- Invalid subspecies\n"
         raise "file #{path} not found" if not File.exists?(path)
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
-        file.each_with_index do |row, i|
+        i = 0
+        file.each do |row|
+          i += 1
           print "\r#{i}"
           if !row['CitSubsp'].blank? && @data.taxon_codes[row['TaxonCode']].nil?
             parent = @data.all_genera_index[row['ValGenus']]
@@ -682,13 +701,14 @@ namespace :tw do
         }
 
         fext_data = {}
+        
         file1.each_with_index do |r, i|
-          fext_data.merge!(
-              r[0] => { translate: r[1], notes: r[2], publisher: r[3], ext_author: r[4], ext_title: r[5], ext_journal: r[6], editor: r[7] }
-          )
+          fext_data[r[0]] =  { translate: r[1], notes: r[2], publisher: r[3], ext_author: r[4], ext_title: r[5], ext_journal: r[6], editor: r[7] }
         end
 
-        file1.each_with_index do |row, i|
+        i = 0
+        file1.each do |row|
+          i += 1
           print "\r#{i}"
 
           year, month, day = nil, nil, nil
@@ -698,11 +718,11 @@ namespace :tw do
             month = month.to_s if !month.nil?
           end
           stated_year = row['Year']
-          if year.nil?
+          if year.nil? # TODO: check for "" too?
             year = stated_year
             stated_year = nil
           end
-          print "\nYear out of range: #{year}\n" if year.to_i < 1500 || year.to_i > 2018
+          print "\nYear out of range: [#{year}]\n" if year.to_i < 1500 || year.to_i > 2018
           year = nil if year.to_i < 1500 || year.to_i > 2018
           stated_year = nil if stated_year.to_i < 1500 || stated_year.to_i > 2018
 
@@ -715,12 +735,12 @@ namespace :tw do
             language_id = @data.languages[row['LanguageA'].downcase][0]
             language = @data.languages[row['LanguageA'].downcase][1]
           end
+
           serial_id = Serial.where(name: journal).limit(1).pluck(:id).first
-          serial_id ||= Serial.with_any_value_for(:name, journal).limit(1).pluck(:id).first
+          serial_id ||= Serial.with_any_value_for(:name, journal).limit(1).pluck(:id).first # uses AlternateValues for search as well
 
-
-          b = Source::Bibtex.new(
-              author: author.gsub(/;/, ' and '),
+          b = Source::Bibtex.find_or_create_by(
+              author: author.split(/\s*\;\s*/).compact.join(' and '),
               year: (year.blank? ? nil : year.to_i),
               month: month,
               day: (day.blank? ? nil : day.to_i) ,
@@ -737,8 +757,9 @@ namespace :tw do
               publisher: (fext_data[row['RefCode']] ? fext_data[row['RefCode']][:publisher] : nil),
               editor: (fext_data[row['RefCode']] ? fext_data[row['RefCode']][:editor] : nil )
           )
+
+
           if b.valid?
-            b.save
             b.project_sources.create!
             b.identifiers.create!(type: 'Identifier::Local::Import', namespace: namespace, identifier: row['RefCode'])
 
@@ -762,10 +783,13 @@ namespace :tw do
             end
             @data.references[row['RefCode']] = b.id
           else
-            #byebug
+            print "\nThe reference with RefCode: #{row['RefCode']} is invalid\n"
           end
 
         end
+
+        fext_data = nil
+        keywords = nil 
       end
 
       def combinations_codes_ucd
@@ -840,7 +864,9 @@ namespace :tw do
             'VT' => 'Valid tribe of'
         }
 
-        file.each_with_index do |row, i|
+        i = 0
+        file.each do |row|
+          i += 1
           print "\r#{i}"
           taxon = find_taxon_ucd(row['TaxonCode'])
           genus = find_taxon_id_ucd(row['Code'])
@@ -890,7 +916,9 @@ namespace :tw do
             'US' => 'Unjustified emendation, new status' #relationship
         }
 
-        file.each_with_index do |row, i|
+        i = 0
+        file.each do |row|
+          i += 1
           print "\r#{i}"
           taxon = find_taxon_ucd(row['TaxonCode'])
           species = find_taxon_id_ucd(row['Code'])
@@ -963,7 +991,9 @@ namespace :tw do
             'NN' => 'TaxonNameClassification::Iczn::Unavailable::NomenNudum',
         }
 
-        file.each_with_index do |row, i|
+        i = 0
+        file.each do |row|
+          i += 1
           print "\r#{i}"
           taxon = find_taxon_ucd(row['TaxonCode'])
           ref = find_source_id_ucd(row['RefCode'])
@@ -1102,7 +1132,9 @@ namespace :tw do
         print "\nHandling HOSTS\n"
         raise "file #{path} not found" if not File.exists?(path)
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
-        file.each_with_index do |row, i|
+        i = 0
+        file.each do |row|
+          i += 1
           print "\r#{i}"
           taxon = find_taxon_id_ucd(row['TaxonCode'])
           host = find_host_id_ucd(row['HosNumber'])
@@ -1142,7 +1174,9 @@ namespace :tw do
         print "\nHandling DIST\n"
         raise "file #{path} not found" if not File.exists?(path)
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
-        file.each_with_index do |row, i|
+        i = 0
+        file.each do |row|
+          i += 1
           print "\r#{i}"
           taxon = find_taxon_id_ucd(row['TaxonCode'])
           otu = Otu.find_or_create_by(taxon_name_id: taxon)
@@ -1371,7 +1405,9 @@ namespace :tw do
         print "\nHandling TSTAT\n"
         raise "file #{path} not found" if not File.exists?(path)
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
-        file.each_with_index do |row, i|
+        i = 0
+        file.each do |row|
+          i += 1
           print "\r#{i}"
 #          byebug if row['Code'] == 'PentarR'
           taxon = find_taxon_ucd(row['TaxonCode'])
@@ -1500,7 +1536,9 @@ namespace :tw do
 #          end
 #        end
         print "\nApply soft validation fixes to taxa 1st pass \n"
-        TaxonName.where(project_id: $project_id).each_with_index do |t, i|
+        i = 0
+        TaxonName.where(project_id: $project_id).find_each do |t|
+          i += 1
           print "\r#{i}    Fixes applied: #{fixed}"
           t.soft_validate
           t.fix_soft_validations
@@ -1509,7 +1547,9 @@ namespace :tw do
           end
         end
         print "\nApply soft validation fixes to relationships \n"
-        TaxonNameRelationship.where(project_id: $project_id).each_with_index do |t, i|
+        i = 0
+        TaxonNameRelationship.where(project_id: $project_id).find_each do |t|
+          i += 1
           print "\r#{i}    Fixes applied: #{fixed}"
           t.soft_validate
           t.fix_soft_validations
@@ -1518,7 +1558,9 @@ namespace :tw do
           end
         end
         print "\nApply soft validation fixes to taxa 2nd pass \n"
-        TaxonName.where(project_id: $project_id).each_with_index do |t, i|
+        i = 0
+        TaxonName.where(project_id: $project_id).find_each do |t|
+          i += 1
           print "\r#{i}    Fixes applied: #{fixed}"
           t.soft_validate
           t.fix_soft_validations

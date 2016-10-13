@@ -19,6 +19,10 @@ module Workbench::NavigationHelper
     content_tag(:span, (previous_link(instance) + ' | ' + next_link(instance)).html_safe)
   end
 
+  def slideout_pinboard
+    render(partial: '/shared/data/slideout/panel')  if sessions_current_project && sessions_signed_in?
+  end  
+
   # A previous record link. 
   def previous_link(instance)
     text = 'Previous'
@@ -51,12 +55,12 @@ module Workbench::NavigationHelper
   end
 
   def new_for_model_link(model)
-    if %w{Note Tag Citation Identifier DataAttribute AlternateValue GeographicArea ContainerItem Confidence}.include?(model.name)
+    if %w{Note Tag Citation Identifier DataAttribute AlternateValue GeographicArea ContainerItem ProtocolRelationship}.include?(model.name)
       nil
     elsif model.name == 'ProjectSource'
       link_to('New', new_source_path, 'class' => 'small-icon', 'data-icon' => 'new')
     else
-      link_to(content_tag(:span, 'New', 'class' => 'small-icon', data: { icon: :new}), new_path_for_model(model), 'class' => 'navigation-item')
+      link_to(content_tag(:span, 'New', 'class' => 'small-icon', data: { icon: :new }), new_path_for_model(model), 'class' => 'navigation-item')
     end
   end
 
@@ -70,7 +74,7 @@ module Workbench::NavigationHelper
 
   def download_for_model_link(model)
     if self.controller.respond_to?(:download)
-      link_to('Download', download_path_for_model(model))
+      link_to('Download', download_path_for_model(model), 'data-icon' => 'download')
     else
       content_tag(:em, 'Download not yet available.')
     end
@@ -160,7 +164,8 @@ module Workbench::NavigationHelper
      content_tag(:li, add_identifier_link(object: object)),
      content_tag(:li, add_note_link(object: object)),
      content_tag(:li, add_tag_link(object: object)),
-     content_tag(:li, add_confidence_link(object: object))
+     content_tag(:li, add_confidence_link(object: object)),
+     content_tag(:li, add_protocol_link(object: object))
     ].compact.join('').html_safe
   end
 

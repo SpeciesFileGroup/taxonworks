@@ -131,7 +131,8 @@ class TaxonName < ActiveRecord::Base
   #  When true, also cached values are not built
   attr_accessor :no_cached
 
-  NO_CACHED_MESSAGE = 'PROJECT REQUIRES TAXON NAME CACHE REBUILD'
+  NO_CACHED_MESSAGE = 'PROJECT REQUIRES TAXON NAME CACHE REBUILD'.freeze
+  SPECIES_EPITHET_RANKS = %w{species subspecies variety subvariety form subform}.freeze
 
   has_closure_tree
   has_paper_trail
@@ -448,11 +449,11 @@ class TaxonName < ActiveRecord::Base
       list_of_taxa_to_check = list.empty? ? [self] : list.keys.select{|t| list[t] == false}
       list_of_taxa_to_check.each do |t|
         potentialy_invalid_relationships = t.related_taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID).order_by_oldest_source_first
-        potentialy_invalid_relationships.each do |r|
+        potentialy_invalid_relationships.find_each do |r|
           if !TaxonNameClassification.where_taxon_name(r.subject_taxon_name).with_type_array(TAXON_NAME_CLASS_NAMES_VALID).empty?
             # do nothing, taxon has a status of valid name
           elsif r == r.subject_taxon_name.first_possible_valid_taxon_name_relationship
-            list.merge!(r.subject_taxon_name => false) if list[r.subject_taxon_name].nil?
+            list[r.subject_taxon_name] = false if list[r.subject_taxon_name].nil?
           end
 
         end
@@ -770,11 +771,11 @@ class TaxonName < ActiveRecord::Base
       misspelling = i.cached_misspelling ? ' [sic]' : nil
 
       if self.respond_to?(method)
-        data.merge!(rank => send(method, i, gender))
+        data[rank] = send(method, i, gender)
       else
-        data.merge!(rank => i.name)
+        data[rank] = i.name
       end
-      # data.merge!(rank => send(method, i, gender)) if self.respond_to?(method)
+      # data[rank] = send(method, i, gender) if self.respond_to?(method)
     end
     data
   end
@@ -808,14 +809,14 @@ class TaxonName < ActiveRecord::Base
     d = full_name_hash
    
     elements = []
-    d.merge!('genus' => [nil, '[' + self.original_genus.cached_html + ']']) if !d['genus'] && self.original_genus
-    d.merge!('genus' => [nil, '[GENUS UNKNOWN]']) unless d['genus']
+    d['genus'] = [nil, '[' + self.original_genus.cached_html + ']'] if !d['genus'] && self.original_genus
+    d['genus'] = [nil, '[GENUS UNKNOWN]'] unless d['genus']
 
     elements.push("#{eo}#{d['genus'][1]}#{ec}") if d['genus']
     elements.push ['(', %w{subgenus section subsection series subseries}.collect { |r| d[r] ? [d[r][0], "#{eo}#{d[r][1]}#{ec}"] : nil }, ')']
     elements.push ['(', eo, d['superspecies'][1], ec, ')'] if d['superspecies']
 
-    %w{species subspecies variety subvariety form subform}.each do |r|
+    SPECIES_EPITHET_RANKS.each do |r|
       elements.push(d[r][0], "#{eo}#{d[r][1]}#{ec}") if d[r]
     end
 
@@ -1115,7 +1116,7 @@ class TaxonName < ActiveRecord::Base
   def self.generate_download(scope)
     CSV.generate do |csv|
       csv << column_names
-      scope.order(id: :asc).each do |o|
+      scope.order(id: :asc).find_each do |o|
         csv << o.attributes.values_at(*column_names).collect { |i|
           i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
         }

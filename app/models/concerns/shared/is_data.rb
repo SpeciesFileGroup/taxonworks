@@ -44,14 +44,16 @@ module Shared::IsData
     self.class < Shared::Confidence ? true : false
   end
 
-
-
   def has_depictions?
     self.class < Shared::Depictions ? true : false
   end
 
   def is_loanable? 
     self.class < Shared::Loanable ? true : false
+  end
+  
+  def has_protocols?
+    self.class < Shared::Protocols ? true : false
   end
 
   # Also need to check has_one relationships
@@ -125,7 +127,7 @@ module Shared::IsData
       return false if ids.empty? || attribute.nil? || value.nil? 
       begin
         self.transaction do 
-          self.where(id: ids).each do |li|
+          self.where(id: ids).find_each do |li|
             li.update(attribute => value)
           end
         end
@@ -142,14 +144,15 @@ module Shared::IsData
   # Contains all "annotations" for this instance
   def annotations_hash
     result = {}
-    result.merge!('alternate values' => self.alternate_values) if self.has_alternate_values? && self.alternate_values.any?
-    result.merge!('citations' => self.citations) if self.has_citations? && self.citations.any?
-    result.merge!('data attributes' => self.data_attributes) if self.has_data_attributes? && self.data_attributes.any?
-    result.merge!('identifiers' => self.identifiers) if self.has_identifiers? && self.identifiers.any?
-    result.merge!('notes' => self.notes) if self.has_notes? && self.notes.any?
-    result.merge!('tags' => self.tags) if self.has_tags? && self.tags.any?
-    result.merge!('depictions' => self.depictions) if self.has_depictions? && self.depictions.any?
-    result.merge!('confidences' => self.confidences) if self.has_confidences? && self.confidences.any?
+    result['alternate values'] = self.alternate_values if self.has_alternate_values? && self.alternate_values.any?
+    result['citations'] = self.citations if self.has_citations? && self.citations.any?
+    result['data attributes'] = self.data_attributes if self.has_data_attributes? && self.data_attributes.any?
+    result['identifiers'] = self.identifiers if self.has_identifiers? && self.identifiers.any?
+    result['notes'] = self.notes if self.has_notes? && self.notes.any?
+    result['tags'] = self.tags if self.has_tags? && self.tags.any?
+    result['depictions'] = self.depictions if self.has_depictions? && self.depictions.any?
+    result['confidences'] = self.confidences if self.has_confidences? && self.confidences.any?
+    result['protocols'] = self.protocols if self.has_protocols? && self.protocols.any?
     result
   end
 

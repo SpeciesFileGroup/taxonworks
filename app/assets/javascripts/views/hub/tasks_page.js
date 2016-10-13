@@ -37,8 +37,11 @@ function initTaskCarrousel() {
       task.setFilterStatus("data-category-complete",false);                     
   }
 
+  $('#search-filter').keyup( function() {
+      task.refresh();           
+  });  
+
   function updateFilter() {
-      task.filterChilds(); 
       task.refresh();
   }
 
@@ -91,11 +94,12 @@ function initTaskCarrousel() {
     task.resetView();
     task.showChilds(itemID);
   });
-  //Mousetrap Keys
-  Mousetrap.bind('left', function() {
+
+  //Keyboard Shortcuts
+  createShortcut("left","Show previous card tasks", "Hub tasks", function() {
     task.loadingUp();
   });
-  Mousetrap.bind('right', function() {
+  createShortcut("right","Show next card tasks", "Hub tasks", function() {
     task.loadingDown();
   });  
   

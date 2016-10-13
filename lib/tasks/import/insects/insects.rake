@@ -115,7 +115,7 @@ namespace :tw do
             main_build_loop_insects
           else
             ActiveRecord::Base.transaction do 
-              main_build_loop 
+              main_build_loop_insects
               raise
             end
           end
@@ -161,42 +161,42 @@ namespace :tw do
         handle_namespaces_insects(@data1, @import)
 
         handle_controlled_vocabulary_insects(@data1, @import)
-#        handle_biocuration_classes_insects(@data1, @import)
-#        handle_biological_relationship_classes_insects(@data1, @import)
-#        handle_preparation_types_insects(@data1, @import)
-#        handle_people_insects(@data1, @import)
+        handle_biocuration_classes_insects(@data1, @import)
+        handle_biological_relationship_classes_insects(@data1, @import)
+        handle_preparation_types_insects(@data1, @import)
+        handle_people_insects(@data1, @import)
         GC.start
-#        handle_taxa_insects(@data1, @import)
+        handle_taxa_insects(@data1, @import)
         GC.start
-#        handle_loans_insects(@data1, @import)
+        handle_loans_insects(@data1, @import)
         GC.start
 
         # !! The following can not be loaded from the database they are always created anew.
 
-#        build_localities_index_insects(@data1)
+        build_localities_index_insects(@data1)
 
         puts "Indexing collecting events."
         # should be run to clear redis database. if specimen from diffrent tables run one buy one, data could be left in Redis and reused
 
-#        @redis.flushall
+        @redis.flushall
 
-#        index_collecting_events_from_accessions_new(@data1, @import)
+        index_collecting_events_from_accessions_new(@data1, @import)
         GC.start
-#        index_collecting_events_from_ledgers(@data1, @import)
+        index_collecting_events_from_ledgers(@data1, @import)
         GC.start
-#        index_specimen_records_from_specimens_insects(@data1, @import)
+        index_specimen_records_from_specimens_insects(@data1, @import)
         GC.start
-#        index_specimen_records_from_specimens_insects_new(@data1, @import)
+        index_specimen_records_from_specimens_insects_new(@data1, @import)
         GC.start
-#        index_specimen_records_from_neon(@data1, @import)
+        index_specimen_records_from_neon(@data1, @import)
 
         puts "\nTotal collecting events to build: #{@redis.keys.count}."
 
-#        handle_associations_insects(@data1, @import)
+        handle_associations_insects(@data1, @import)
         GC.start
-#        handle_loan_specimens_insects(@data1)
+        handle_loan_specimens_insects(@data1)
         GC.start
-#        handle_letters_insects(@data1)
+        handle_letters_insects(@data1)
         handle_collection_profile_insects(@data1)
         handle_locality_images(@data1)
         handle_loan_images(@data1)
@@ -229,7 +229,8 @@ namespace :tw do
 
           user = User.where(email: email)
           if user.empty?
-            user = User.create(email: email, password: '3242341aas', password_confirmation: '3242341aas', name: user_name, self_created: true)
+            pwd = rand(36**10).to_s(36)
+            user = User.create(email: email, password: pwd, password_confirmation: pwd, name: user_name, self_created: true)
           else
             user = user.first
           end
@@ -333,6 +334,8 @@ namespace :tw do
         export_relationships.each_key do |br|
           if export_relationships[br] == :ignore
             data.biological_relationships[br] = :ignore
+          elsif export_relationships[br] == :origin
+            data.biological_relationships[br] = :origin
           else
             b = BiologicalRelationship.where(name: export_relationships[br][0], project_id: $project_id).first
             rt = export_relationships[br][1]
@@ -700,7 +703,8 @@ namespace :tw do
           existing_user = User.where(email: email.downcase)
 
           if existing_user.empty?
-            user = User.create(email: email, password: '3242341aas', password_confirmation: '3242341aas', name: user_name,
+            pwd = rand(36**10).to_s(36)
+            user = User.create(email: email, password: pwd, password_confirmation: pwd, name: user_name,
                    data_attributes_attributes: [ {value: p['PeopleID'], import_predicate: 'PeopleID', type: 'ImportAttribute'} ],
                    tags_attributes:   [ { keyword: data.keywords['INHS_imported'] } ]
             )
@@ -936,11 +940,11 @@ namespace :tw do
             data.people_id[row['PeopleID']] = row
           end
 
-          DataAttribute.where(import_predicate: 'PeopleID', attribute_subject_type: 'User').each do |u|
+          DataAttribute.where(import_predicate: 'PeopleID', attribute_subject_type: 'User').find_each do |u|
             data.user_index[u.value] = u.attribute_subject
           end
 
-          DataAttribute.where(controlled_vocabulary_term_id: data.keywords['PeopleID'].id, attribute_subject_type: 'Person').each do |p|
+          DataAttribute.where(controlled_vocabulary_term_id: data.keywords['PeopleID'].id, attribute_subject_type: 'Person').find_each do |p|
             data.people_index[p.value] = p.attribute_subject
           end
           print "done.\n"
@@ -1011,7 +1015,9 @@ namespace :tw do
           f = CSV.open(path, col_sep: "\t", :headers => true)
 
           code = :iczn
-          f.each_with_index do |row, i|             #f.first(500).each_with_index
+          i = 0
+          f.each do |row|             #f.first(500).each_with_index
+            i += 1
             name = row['Name']
             author = (row['Parens'] ? "(#{row['Author']})" : row['Author']) unless row['Author'].blank?
             author ||= nil
@@ -1148,7 +1154,9 @@ namespace :tw do
         specimen_fields = %w{ Prefix CatalogNumber PreparationType TaxonCode LocalityCode AccessionSource DeaccessionRecipient DeaccessionCause DeaccessionDate DateCollectedBeginning DateCollectedEnding Collector LocalityLabel AccessionNumberLabel DeterminationLabel OtherLabel SpecialCollection IdentifiedBy YearIdentified CollectionMethod Habitat Type TypeName Remarks AdultMale AdultFemale Immature Pupa Exuvium AdultUnsexed AgeUnknown OtherSpecimens Checked OldLocalityCode OldCollector OldIdentifiedBy CreatedBy CreatedOn ModifiedOn ModifiedBy }.freeze
         count_fields = %w{ AdultMale AdultFemale Immature Pupa Exuvium AdultUnsexed AgeUnknown OtherSpecimens }.freeze
 
-        sp.each_with_index do |row, i|
+        i = 0
+        sp.each do |row|
+          i += 1
 
           unless row['Prefix'] == 'Loan Invoice'
             locality_code = row['LocalityCode']
@@ -1267,7 +1275,9 @@ namespace :tw do
         match_fields = %w{ AccessionNumber DeterminationLabel OtherLabel LocalityLabel }.freeze
         br = data.biological_relationships['host']['biological_relationship']
 
-        sp.each_with_index do |row, i|
+        i = 0
+        sp.each do |row|
+          i += 1
           print "\r#{i}      "
 
           tmp_m = {}
@@ -1384,7 +1394,9 @@ namespace :tw do
         specimen_fields = %w{ SampleID MuseumID TaxonCode IdentifiedBy IdentifierEmail IdentifierInstitution IdentificationMethod TaxonomyNotes ExtraInfo Remarks VoucherStatus TissueDescriptor AssociatedTaxa AssociatedSpecimens ExternalURLs Collector DateCollectedBeginning DateCollectedEnding CollectionMethod LocalityCode GPSSource CoordinateAccuracy EventTime CollectionDateAccuracy SamplingProtocol CollectionNotes SiteCode AdultMale AdultFemale AdultUnsexed }
         count_fields = %w{ AdultMale AdultFemale Immature Pupa Exuvium AdultUnsexed AgeUnknown OtherSpecimens }
 
-        sp.each_with_index do |row, i|
+        i = 0
+        sp.each do |row|
+          i += 1
           print "\r#{i}      "
 
           locality_code = row['LocalityCode']
@@ -1519,7 +1531,9 @@ namespace :tw do
         fields = %w{LocalityLabel Habitat Host AccessionNumber Country State County Locality Park DateCollectedBeginning DateCollectedEnding Collector CollectionMethod Elev_m Elev_ft NS Lat_deg Lat_min Lat_sec EW Long_deg Long_min Long_sec Comments PrecisionCode Datum ModifiedBy ModifiedOn}
 
         puts "\naccession new records\n"
-        ac.each_with_index do |row, i|
+        i = 0
+        ac.each do |row|
+          i += 1
           print "\r#{i}"
           tmp_ce = { }
           fields.each do |c|
@@ -1547,7 +1561,9 @@ namespace :tw do
 
         puts "\n  from ledgers\n"
 
-        le.each_with_index do |row, i|
+        i = 0
+        le.each do |row|
+          i += 1
           tmp_ce = { }
         
           fields.each do |c|
@@ -1589,7 +1605,9 @@ namespace :tw do
         #fields = %w{ Prefix CatalogNumber AssociatedPrefix AssociatedCatalogNumber AssociatedTaxonCode Type }
         puts "\n  Handle associations \n"
 
-        as.each_with_index do |row, i|
+        i = 0
+        as.each do |row|
+          i += 1
           print "\r#{i}"
           br = data.biological_relationships[row['Type'].to_s.downcase]
           if row['Type'].blank?
@@ -1621,7 +1639,6 @@ namespace :tw do
               OriginRelationship.create(new_object: related_specimen, old_object: specimen)
               related_specimen.tags.create(keyword: data.keywords[row['Type']])
             else
-
               if direction == :direct
                 subject = specimen
                 object = related_specimen.nil? ? otu : related_specimen
@@ -1651,13 +1668,15 @@ namespace :tw do
         print "\nHandling Loans "
         if import.metadata['loans']
           print "from database.  Indexing Loans by InvoiceID..."
-          Identifier.where(namespace_id: data.namespaces['Invoice']).each do |l|
+          Identifier.where(namespace_id: data.namespaces['Invoice']).find_each do |l|
             data.loans[l.identifier] = l.identifier_object
           end
           print "done.\n"
         else
           print "as newly parsed.\n"
-          lo.each_with_index do |row, i|
+          i = 0
+          lo.each do |row|
+            i += 1
             print "\r#{i}"
             next if row['RecipientID'].blank?
             date_closed = (row['Canceled'] == 'Canceled') ? Time.current : nil
@@ -1718,7 +1737,9 @@ namespace :tw do
         specimen_fields = %w{ Prefix CatalogNumber TaxonCode AdultMale AdultFemale Immature Pupa Exuvium AdultUnsexed AgeUnknown OtherSpecimens }
         count_fields = %w{ AdultMale AdultFemale Immature Pupa Exuvium AdultUnsexed AgeUnknown OtherSpecimens }
 
-        sp.each_with_index do |row, i|
+        i = 0
+        sp.each do |row|
+          i += 1
           if row['Prefix'].downcase == 'loan invoice'
             count = 0
             a = {}
@@ -1751,7 +1772,9 @@ namespace :tw do
                    'retained' => 'Retained',
                    'returned' => 'Returned' }
 
-        ls.each_with_index do |row, i|
+        i = 0
+        ls.each do |row|
+          i += 1
           print "\r#{i}"
           specimen = nil
           invoice = data.loans[row['InvoiceID']]
@@ -1828,7 +1851,9 @@ namespace :tw do
 
         container_type = {'wet' => 'Container::VialRack', 'dry' => 'Container::Drawer', 'slide' => 'Container::SlideBox'}
 
-        ls.each_with_index do |row, i|
+        i = 0
+        ls.each do |row|
+          i += 1
           print "\r#{i}"
           otu = Identifier.where(project_id: $project_id, cached: 'Taxon Code ' + row['TaxonCode'].to_s, identifier_object_type: 'Otu').first.try(:identifier_object)
           

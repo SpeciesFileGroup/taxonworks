@@ -5,13 +5,15 @@ _init_dropzone_for_images = function init_dropzone_for_images() {
     Dropzone.options.basicImages = {
       paramName: "image[image_file]", // The name that will be used to transfer the file
       maxFilesize: 100,
-      thumbnail: function(file, dataUrl) {
-      $('.image_field').replaceWith('<img src="'+dataUrl+ '"/>');
-      },      
+      dictDefaultMessage: "Drag and drop images here or click to upload.",
+      success: function(file, dataUrl) {
+        $(file.previewElement).wrap('<a href="/images/'+dataUrl.result.id+'"></a>');
+        file.previewElement.classList.add("dz-success");
+      },   
       accept: function(file, done) {
         done();
       }
-    };
+    };      
   }
 };
 

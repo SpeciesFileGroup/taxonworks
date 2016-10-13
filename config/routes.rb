@@ -305,6 +305,14 @@ TaxonWorks::Application.routes.draw do
     end
   end
 
+  resources :protocols do
+    concerns [:data_routes]
+  end
+
+  resources :protocol_relationships do  
+    concerns [:data_routes]
+  end
+
   resources :public_contents, only: [:create, :update, :destroy]
 
   resources :ranged_lot_categories do

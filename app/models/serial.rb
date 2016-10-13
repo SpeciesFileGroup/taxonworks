@@ -166,7 +166,7 @@ class Serial < ActiveRecord::Base
     # provides an array of all previous incarnations of me
 
     out_array = []
-    start_serial.immediately_preceding_serials.order(:name).each do |serial|
+    start_serial.immediately_preceding_serials.order(:name).find_each do |serial|
       out_array.push(serial)
       prev = all_previous(serial)
 
@@ -178,7 +178,7 @@ class Serial < ActiveRecord::Base
   def all_succeeding(start_serial=self)
     # provides an array of all succeeding incarnations of me
     out_array = []
-    start_serial.immediately_succeeding_serials.order(:name).each do |serial|
+    start_serial.immediately_succeeding_serials.order(:name).find_each do |serial|
       out_array.push(serial)
       succeeding = all_succeeding(serial)
 
@@ -190,7 +190,7 @@ class Serial < ActiveRecord::Base
   def self.generate_download(scope)
     CSV.generate do |csv|
       csv << column_names
-      scope.order(id: :asc).each do |o|
+      scope.order(id: :asc).find_each do |o|
         csv << o.attributes.values_at(*column_names).collect { |i|
           i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
         }

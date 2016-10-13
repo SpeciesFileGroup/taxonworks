@@ -7,10 +7,6 @@
       align-items: center;
     }
 
-    .icon-list {
-      padding-left: 20px !important;
-    }
-
     .small-icon {
       background-size: 12px 12px;
       padding-left: 18px;
@@ -148,4 +144,8 @@
 
     [data-icon="options"] {
       background-image: image-url("options.svg");
-    }       
+    }   
+
+    [data-icon="close"] {
+      background-image: image-url("close.svg");
+    }           

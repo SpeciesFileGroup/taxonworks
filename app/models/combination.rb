@@ -168,7 +168,7 @@ class Combination < TaxonName
     protonyms_by_rank.each do |rank, name|
       gender = name.gender_name if rank == 'genus'
       method = "#{rank.gsub(/\s/, '_')}_name_elements"
-      data.merge!(rank => send(method, name, gender)) if self.respond_to?(method)
+      data[rank] = send(method, name, gender) if self.respond_to?(method)
     end
     data
   end
@@ -179,7 +179,7 @@ class Combination < TaxonName
     result = {}
     APPLICABLE_RANKS.each do |rank|
       if protonym = self.send(rank)
-        result.merge!(rank => protonym)
+        result[rank] = protonym
       end
     end
     result

@@ -1,44 +1,43 @@
 @import 'base/palette';
 
 .button-collapse-header {
-	display: block;
-	border-radius: 50%;
-	width: 50px;
-	height: 50px;
-	background-color: #88B769;
-	box-shadow: 0px 1px 2px 0px #444;
-	opacity: 0.5;
-	position: fixed;
-	top:-41px;
-	right: 0px;
-	background-repeat: no-repeat;
-	background-position: center;
-	background-size: 16px 16px;
-	transform: translateX(-50%);
-	transition: top 0.5s ease,
-	width 0.5s ease,
-	background-position 0.5s ease,
-	opacity 0.5s ease,				
-	height 0.5s ease;
-}
+	cursor:pointer;
+    opacity: 0.6;
+    position: absolute;
+    display: none;
+    margin-left: 1em;
+    background-image: image-url('hub.svg');
+    background-size:25px;
+    background-repeat:no-repeat;
+    background-position: center; 
+    padding:9px;
+    padding-left: 25px;
+    z-index: 300;
+    background-color: $panel_background;
+    width: 20px;
+    top: -36px;
+    left:15px;
+    height: 36px;
+    border-radius: 100%; 
+    box-shadow: 0 1px 3px 0 $navigation_border;
+ 
+    transition: background-size 0.3s ease,
+                background-color 0.3s ease,
+                top 0.5s ease,
+                opacity 0.5s ease,
+                padding-left 0.5s ease;  
 
-.button-collapse-arrow-up {
-	background-image: image-url("b-arrow-up.svg");
-}
-
-.button-collapse-arrow-down {
-	background-image: image-url("b-arrow-down.svg");
 }
 
 .button-collapse-header:hover {
-	transition: top 0.5s ease,
-	left 0.5s ease,
-	background-position 0.5s ease,
-	opacity 0.5s ease;
-	top: -25px;
-	background-position: 17px 26px;
-	opacity: 1;
-	z-index: 999999;
+    opacity: 1;
+   	top:-25px;
+    transition: background-size 0.3s ease,
+                background-color 0.3s ease,
+                top 0.5s ease,
+                opacity 0.5s ease,
+                padding-left 0.5s ease;
+  	background-size:35px;
 }
 
 .circle-button {

@@ -55,6 +55,14 @@ function initDataCardsPage() {
     }
   });  
 
+  $('#search-filter').keyup( function() {
+    var
+     chain = $(this).val();
+    [core, supporting, annotations].forEach(function(element) {
+      element.filterKeys(chain);                
+    });       
+  });
+
   $('#filter [data-filter-category]').on('click', function() {
     var
     elementFilter = $(this).attr('data-filter-category');

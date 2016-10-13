@@ -1,0 +1,25 @@
+<%= form_for(@protocol_relationship) do |f| %>
+  <%= render 'shared/errors', object: @protocol_relationship %>
+
+  <div class="required">
+    <div class="field">
+      <%= f.label :protocol_id %>
+      <br>
+      <%= render partial: 'workbench/elements/forms/ajax_select',
+        locals:  {controller:  'protocols',
+                  object: 'protocol_relationship',
+                  method:  'protocol_id',
+                  tag_id:  'protocol_id_for_protocol_relationship',
+                  display:  protocol_autocomplete_selected_tag(@protocol_relationship.protocol),
+                  size: 20} %>
+  </div>
+  </div>
+
+
+  <%= f.hidden_field :protocol_relationship_object_type %>
+  <%= f.hidden_field :protocol_relationship_object_id %>
+
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

@@ -335,7 +335,7 @@ class TaxonNameRelationship < ActiveRecord::Base
 
   def sv_validate_disjoint_relationships
     subject_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self.subject_taxon_name).not_self(self)
-    subject_relationships.each  do |i|
+    subject_relationships.find_each  do |i|
       if self.type_class.disjoint_taxon_name_relationships.include?(i.type_name)
         soft_validations.add(:type, "Conflicting with another relationship: '#{i.object_relationship_name}'")
       end
@@ -743,7 +743,7 @@ class TaxonNameRelationship < ActiveRecord::Base
   def self.generate_download(scope)
     CSV.generate do |csv|
       csv << column_names
-      scope.order(id: :asc).each do |o|
+      scope.order(id: :asc).find_each do |o|
         csv << o.attributes.values_at(*column_names).collect { |i|
           i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
         }

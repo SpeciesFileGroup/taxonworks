@@ -260,7 +260,8 @@
 
           user = User.where(email: email)
           if user.empty?
-            user = User.create(email: email, password: '3242341aas', password_confirmation: '3242341aas', name: user_name, self_created: true)
+            pwd = rand(36**10).to_s(36)
+            user = User.create(email: email, password: pwd, password_confirmation: pwd, name: user_name, self_created: true)
           else
             user = user.first
           end
@@ -944,6 +945,7 @@
         file.each_with_index do |row, i|
           print "\r#{i}"
           tmp = {}
+          #TODO: make this a frozen constant
           %w(Phylum Class Order Family Genus Subgenus Species Variety).each do |c|
             tmp[c] = row[c] unless row[c].blank?
           end

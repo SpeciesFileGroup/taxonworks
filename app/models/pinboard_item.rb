@@ -56,7 +56,7 @@ class PinboardItem < ActiveRecord::Base
   end
 
   def set_as_insertable
-    PinboardItem.where(project_id: project_id, pinned_object_type: pinned_object_type).each do |p|
+    PinboardItem.where(project_id: project_id, pinned_object_type: pinned_object_type).find_each do |p|
       p.update(is_inserted: false)
     end
     update(is_inserted: true)

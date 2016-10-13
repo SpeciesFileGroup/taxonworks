@@ -82,22 +82,53 @@ var CarrouselTask = function (sec, rows, columns) {
   CarrouselTask.prototype.checkChildFilter = function(childTag) {
     var find = 0;
     var isTrue = 0;
-    for (var key in this.filters) {
 
-      if(this.filters[key] == true) {
-        find++;
-        if ($(childTag).has("["+ key +"]").length) {
-          isTrue++;
-        }
-      } 
-    }
-    if(isTrue == find) {
+      for (var key in this.filters) {
+
+        if(this.filters[key] == true) {
+          find++;
+          if ($(childTag).has("["+ key +"]").length) {
+            isTrue++;
+          }
+        } 
+      }
+      if((isTrue == find) && (this.filterKeys(childTag))) {
+        return true;
+      }
+      else {
+        return false;
+      }  
+     
+  };
+
+  CarrouselTask.prototype.filterKeys = function(child) {
+    if(($(child).find('.task_name a').text().toLowerCase().indexOf($('#search-filter').val().toLowerCase()) >= 0) || ($('#search-filter').val() == "")) {
       return true;
     }
     else {
+      var words = $('#search-filter').val().toLowerCase().trim().split(" ");
+      for(var i = 0; i < words.length; i++) {
+        if ($(child).find('.task_description').text().toLowerCase().indexOf(words[i]) >= 0) {
+          return true;
+        }
+      }
       return false;
-    }   
-  };
+    }
+  }
+
+  CarrouselTask.prototype.checkEmpty = function() {
+    var
+      count = 0;
+
+    for(var i = 0; i < this.childsCount; i++) {      
+      child = $(this.sectionTag + ' .task_card:nth-child('+ i +')');
+      if(!$(child).is(":visible")) {      
+        count++;
+      }
+    }
+    this.isEmpty = (count == this.childs ? true : false);
+    this.noTaskFound();
+  }  
 
   CarrouselTask.prototype.resetChildsCount = function() {
     this.childsCount = $(this.sectionTag + ' .task_card').length;

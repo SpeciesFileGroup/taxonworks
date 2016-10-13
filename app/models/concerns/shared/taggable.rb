@@ -14,7 +14,7 @@ module Shared::Taggable
     accepts_nested_attributes_for :tags, reject_if: :reject_tags, allow_destroy: true
   end
 
-  def has_tags?
+  def tagged?
     self.tags.any?
   end
 

@@ -69,6 +69,10 @@ $(document).ready(function() {
 		$(className).fadeIn(250);
 	}
 
+  	Mousetrap.bind("alt+shift+/", function() { 
+		activeDisableHelp(); 
+	});
+
 	$(document).on({
 	    mouseenter: function (evt) {
 	    	if(helpActive()) {

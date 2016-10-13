@@ -176,6 +176,10 @@ Supporting:
     shared: true
     categories:
       - collection_object
+  Protocol:
+    status: :prototype
+    related_models:
+      - ProtocolRelationship 
   Namespace:
     status: :prototype
     shared: true
@@ -239,6 +243,10 @@ Annotations:
     status: :prototype
   Note:
     status: :prototype
+  ProtocolRelationship:
+    status: :prototype
+    related_models:
+      - Protocol
   Tag:
     status: :prototype
     related_models:
