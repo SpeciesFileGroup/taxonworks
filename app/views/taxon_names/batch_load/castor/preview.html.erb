@@ -13,6 +13,7 @@
       <th class="four_character_width">data count</th>
       <th> name(s) </th>
       <th class=""> data errors* </th>
+      <th class=""> parse errros </th>
     </tr>
 
     <% @result.sorted_processed_rows.each do |i, rp| -%>
@@ -20,12 +21,11 @@
         <%= batch_line_link_td(i) -%> 
         <%= batch_all_objects_count_td(rp) -%>
         <td>
-          <%= 'EXAMPLE' -%>
+          <%= rp.objects[:taxon_names].each_with_index.collect{|n, i| "#{i + 1}: " +  n.get_full_name }.join('<br>').html_safe -%>
         </td> 
 
-        <td>
-          <%= 'EXAMPLE' -%>
-        </td> 
+        <%= batch_data_errors_td(rp) -%>
+        <%= batch_parse_errors_td(rp) -%>
 
       </tr>
     <% end -%> 
