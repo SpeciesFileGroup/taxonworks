@@ -55,14 +55,16 @@ describe Tasks::CollectionObjects::AreaAndDateController, type: :controller do
                                       .default_geographic_item
                                       .to_geo_json_feature})
       expect(response).to have_http_status(:success)
-      expect(JSON.parse(response.body)['collection_objects_count']).to eq('3')
-      result          = JSON.parse(response.body)['feature_collection']['features']
-      georeference_id = result[0]['properties']['georeference']['id']
-      expect(Georeference.find(georeference_id).collecting_event.verbatim_label).to eq('@ce_m1')
-      georeference_id = result[1]['properties']['georeference']['id']
-      expect(Georeference.find(georeference_id).collecting_event.verbatim_label).to eq('@ce_m1a')
-      georeference_id = result[2]['properties']['georeference']['id']
-      expect(Georeference.find(georeference_id).collecting_event.verbatim_label).to eq('@ce_m2 in Big Boxia')
+      result = JSON.parse(response.body)
+      expect(result['collection_objects_count']).to eq('3')
+      features          = result['feature_collection']['features']
+      georeference_id   = features[0]['properties']['georeference']['id']
+      collecting_events = [Georeference.find(georeference_id).collecting_event.verbatim_label]
+      georeference_id   = features[1]['properties']['georeference']['id']
+      collecting_events.push(Georeference.find(georeference_id).collecting_event.verbatim_label)
+      georeference_id = features[2]['properties']['georeference']['id']
+      collecting_events.push(Georeference.find(georeference_id).collecting_event.verbatim_label)
+      expect(collecting_events).to include('@ce_m1', '@ce_m1a', '@ce_m2 in Big Boxia')
     end
 
     describe 'certain specific combinations of collecting event dates' do
