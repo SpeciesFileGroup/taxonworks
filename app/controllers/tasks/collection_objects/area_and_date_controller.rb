@@ -32,6 +32,7 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
       @collection_objects = CollectionObject.includes(:collecting_event)
                               .where(collecting_event_id: collecting_events)
                               .where(id: area_objects.map(&:id))
+                              .page(params[:page])
     end
 
     @collection_objects_count = @collection_objects.count
@@ -82,7 +83,7 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
   end
 
   def co_render_to_html
-    render_to_string(partial: 'tasks/accessions/report/dwca/table',
+    render_to_string(partial: 'result_list',
                      locals:  {collection_objects: @collection_objects}
     )
   end
@@ -97,12 +98,12 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
 
   def set_and_order_dates(params)
     @start_date = params[:st_flexpicker]
-    @end_date = params[:en_flexpicker]
+    @end_date   = params[:en_flexpicker]
     if (@start_date > @end_date)
       params[:st_flexpicker] = @end_date
       params[:en_flexpicker] = @start_date
-      @start_date = params[:st_flexpicker]
-      @end_date = params[:en_flexpicker]
+      @start_date            = params[:st_flexpicker]
+      @end_date              = params[:en_flexpicker]
     end
 
   end

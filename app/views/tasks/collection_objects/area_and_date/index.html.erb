@@ -77,7 +77,7 @@
             <%= submit_tag('download') %>
         <% end %>
         <div id="show_list">
-          <%= render 'result_list', collection_objects: @collection_objects %>
+          <%= render('result_list', collection_objects: @collection_objects) if @collection_objects.count > 0 %>
         </div>
         <div id="show_map" hidden>
           <!--on first paint, these variables will be empty, so we get an empty map -->
