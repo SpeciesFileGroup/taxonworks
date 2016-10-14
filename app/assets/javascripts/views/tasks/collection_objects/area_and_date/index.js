@@ -8,7 +8,7 @@ _init_map_table = function init_map_table() {
       //var area_selector = $("#geographic_area_id_for_by_area");
 
       $(".result_map_toggle").click(function (event) {           // switch to the map view
-        $("#area_count").text('####');
+        $("#area_count").text('????');
         $("#show_list").attr('hidden', true);         // hide the list view
         $("#show_map").removeAttr('hidden');          // reveal the map
         $(".result_list_toggle").removeAttr('hidden');           // expose the other link
@@ -19,7 +19,7 @@ _init_map_table = function init_map_table() {
       });
 
       $(".result_list_toggle").click(function (event) {          // switch to the list view
-        $("#area_count").text('####');
+        $("#area_count").text('????');
         $("#show_map").attr('hidden', true);          // hide the map
         $("#show_list").removeAttr('hidden');         // reveal the area selector
         $(".result_map_toggle").removeAttr('hidden');            // expose the other link
@@ -48,9 +48,12 @@ _init_map_table = function init_map_table() {
       //    $("area_count").text("<p>set_area error => " + error + "</p>")
       //  }
       //);
-      $("#find_area_and_date_commit").click(function (event) {
+      $("#find_area_and_date_commit").click(function (event, href) {
         //$("#result_span").text('**********');
-        $.get('find', $("#set_area_form").serialize() + '&' + $("#set_date_form").serialize(), function (local_data) {
+        if (href == undefined) {
+          href = $("#set_area_form").serialize() + '&' + $("#set_date_form").serialize();
+        }
+        $.get('find', href, function (local_data) {
           var html = local_data.html;
           var message = local_data.message;
           result_collection = local_data.feature_collection;
@@ -67,10 +70,19 @@ _init_map_table = function init_map_table() {
               result_map = TW.vendor.lib.google.maps.initializeMap('simple_map_canvas', result_collection);
             }
             }
+          processPagination();
           }, 'json'  // I expect a json response
         );
         event.preventDefault();
       })
+    }
+
+    function processPagination() {
+      if ($('.pagination') != undefined) {
+        //for (i = 0;$('.pagination').children.length; i++) {
+        //  $('.pagination').children[i].children[0].attr['hrefUrl'] = $('.pagination').children[i].attr['href'];
+        //}
+      }
     }
 
     var today = new Date();
