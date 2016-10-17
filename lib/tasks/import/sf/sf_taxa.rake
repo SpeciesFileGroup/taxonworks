@@ -47,10 +47,6 @@ namespace :tw do
                   subject_taxon_name_id: original_genus_id,
                   object_taxon_name_id: taxon_name_id,
                   type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus',
-                  created_at: Time.now,
-                  updated_at: Time.now,
-                  created_by_id: $user_id,
-                  updated_by_id: $user_id,
                   project_id: project_id
               )
 
@@ -859,10 +855,6 @@ namespace :tw do
                 parent_id: this_project.root_taxon_name.id,
                 rank_class: NomenclaturalRank::Iczn::HigherClassificationGroup::Kingdom,
                 project_id: project_id,
-                created_at: Time.now,
-                updated_at: Time.now,
-                created_by_id: $user_id,
-                updated_by_id: $user_id
             )
 
             if animalia_taxon_name.save

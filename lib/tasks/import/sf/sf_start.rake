@@ -336,10 +336,6 @@ namespace :tw do
 
             project = Project.new(
                 name: "#{website_name}_species_file",
-                created_at: Time.now, # row['CreatedOn'],
-                updated_at: Time.now, # row['LastUpdate'],
-                created_by_id: $user_id, # get_tw_user_id[row['CreatedBy']],
-                updated_by_id: $user_id # get_tw_user_id[row['ModifiedBy']]
             )
 
             if project.save
