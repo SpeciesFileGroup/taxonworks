@@ -11,7 +11,7 @@ namespace :tw do
           logger.info 'Creating relationships from StatusFlags...'
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
-          get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
+          # get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
           get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID')
           get_tw_project_id = import.get('SFFileIDToTWProjectID')
           get_tw_otu_id = import.get('SFTaxonNameIDToTWOtuID')
@@ -28,7 +28,7 @@ namespace :tw do
           error_counter = 0
 
           file.each_with_index do |row, i|
-            next unless taxon_name_id.to_i > 0
+            next unless row['TaxonNameID'].to_i > 0
             next if get_tw_otu_id.has_key?(row['TaxonNameID']) # check if OTU was made
             next if row['TaxonNameStr'].start_with?('1100048-1143863') # name = MiscImages (body parts)
             next if row['RankID'] == '90' # TaxonNameID = 1221948, Name = Deletable, RankID = 90 == Life, FileID = 1
@@ -41,7 +41,7 @@ namespace :tw do
 
             logger.info "Working with TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id}, RankID #{row['RankID']} (count #{count_found += 1}) \n"
 
-            if row['RankID'] < 11 and row['OriginalGenusID'] > 0 # There are some SF genera with OriginalGenusID set???
+            if row['RankID'] < '11' and row['OriginalGenusID'] > '0' # There are some SF genera with OriginalGenusID set???
 
               tnr = TaxonNameRelationship.new(
                   subject_taxon_name_id: original_genus_id,
@@ -82,10 +82,6 @@ namespace :tw do
                     tnc = taxon_name_classifications.new(
                         type: 'TaxonNameClassification::Iczn::Unavailable',
                         taxon_name_id: taxon_name_id,
-                        created_at: Time.now,
-                        updated_at: Time.now,
-                        created_by_id: $user_id,
-                        updated_by_id: $user_id,
                         project_id: project_id
                     )
                     if tnc.valid?
@@ -98,12 +94,20 @@ namespace :tw do
                     type = 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling'
                   when 2 # unjustified emendation
                     type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnjustifiedEmendation'
-                  when 3 and name_status == '7' # nomen nudum
+                  when 3 # nomen nudum
                     # if taxon is also synonym, treat as senior/junior synonym
-                    type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym'
-                  when 4 and name_status == '7' # nomen dubium
+                    if name_status == '7'
+                      type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym'
+                    else
+                      no_relationship = true
+                    end
+                  when 4 # nomen dubium
                     # if taxon is also synonym, treat as senior/junior synonym
-                    type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym'
+                    if name_status == '7'
+                      type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym'
+                    else
+                      no_relationship
+                    end
                   when 5 # incertae sedis
                     type = 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement'
 
@@ -142,10 +146,6 @@ namespace :tw do
                         text: "Species File taxon (TaxonNameID = #{row['TaxonNameID']}) marked as 'original name'",
                         note_object_id: taxon_name_id,
                         note_object_type: 'TaxonName',
-                        created_at: Time.now,
-                        updated_at: Time.now,
-                        created_by_id: $user_id,
-                        updated_by_id: $user_id,
                         project_id: project_id
                     )
 
@@ -176,10 +176,6 @@ namespace :tw do
                     subject_taxon_name_id: above_id,
                     object_taxon_name_id: taxon_name_id,
                     type: type,
-                    created_at: Time.now,
-                    updated_at: Time.now,
-                    created_by_id: $user_id,
-                    updated_by_id: $user_id,
                     project_id: project_id
                 )
 

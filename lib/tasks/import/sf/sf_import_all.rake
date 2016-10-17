@@ -23,7 +23,10 @@ namespace :tw do
           'taxa:create_animalia_below_root',
           'taxa:create_sf_synonym_id_to_new_parent_id_hash',
           'taxa:create_otus_for_ill_formed_names_hash',
-          'taxa:create_all_sf_taxa_pass1'
+          'taxa:create_all_sf_taxa_pass1',
+          'taxa:create_type_species',
+          'taxa:create_type_genera',
+          'taxa:create_some_related_taxa'
       ] do
         puts 'Ran everything!'
       end
