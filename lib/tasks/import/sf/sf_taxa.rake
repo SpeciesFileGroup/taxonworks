@@ -5,7 +5,6 @@ namespace :tw do
       require 'logged_task'
       namespace :taxa do
 
-
         desc 'time rake tw:project_import:sf_import:taxa:create_status_flag_relationships user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         LoggedTask.define :create_status_flag_relationships => [:data_directory, :environment, :user_id] do |logger|
 
@@ -15,7 +14,7 @@ namespace :tw do
           get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
           get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID')
           get_tw_project_id = import.get('SFFileIDToTWProjectID')
-          # get_tw_otu_id = import.get('SFTaxonNameIDToTWOtuID')
+          get_tw_otu_id = import.get('SFTaxonNameIDToTWOtuID')
 
           # @todo: Temporary "fix" to convert all values to string; will be fixed next time taxon names are imported and following do can be deleted
           get_tw_taxon_name_id.each do |key, value|
@@ -29,16 +28,20 @@ namespace :tw do
           error_counter = 0
 
           file.each_with_index do |row, i|
+            next unless taxon_name_id.to_i > 0
+            next if get_tw_otu_id.has_key?(row['TaxonNameID']) # check if OTU was made
+            next if row['TaxonNameStr'].start_with?('1100048-1143863') # name = MiscImages (body parts)
+            next if row['RankID'] == '90' # TaxonNameID = 1221948, Name = Deletable, RankID = 90 == Life, FileID = 1
+            next if row['AccessCode'].to_i == 4
 
             project_id = get_tw_project_id[row['FileID']].to_i
             taxon_name_id = get_tw_taxon_name_id[row['TaxonNameID']].to_i
             above_id = get_tw_taxon_name_id[row['AboveID']].to_i
+            original_genus_id = get_tw_taxon_name_id[row['OriginalGenusID']].to_i
 
             logger.info "Working with TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id}, RankID #{row['RankID']} (count #{count_found += 1}) \n"
 
             if row['RankID'] < 11 and row['OriginalGenusID'] > 0 # There are some SF genera with OriginalGenusID set???
-
-              original_genus_id = get_tw_taxon_name_id[row['OriginalGenusID']].to_i
 
               tnr = TaxonNameRelationship.new(
                   subject_taxon_name_id: original_genus_id,
@@ -58,151 +61,120 @@ namespace :tw do
               else # tnr not valid
                 logger.error "TaxonNameRelationship OriginalGenusID ERROR tw.project_id #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id}, SF.OriginalGenusID #{row['OriginalGenusID']} = TW.original_genus_id #{original_genus_id} (#{error_counter += 1}): " + tnr.errors.full_messages.join(';')
               end
-
             end
 
             status_flags = row['StatusFlags'].to_i
 
             if status_flags > 0
 
-              status_flags_array = row['StatusFlags'].to_i # need to add call to Hernan's set bit function
+              status_flags_array = Utilities::Numbers.get_bits(status_flags)
+              name_status = row['NameStatus']
 
-              for bit_position in 0..status_flags_array.length - 1 # length is number of bits set
-
-                # set type, subject, object for each when case
-                # use current user and time for housekeeping
+              # for bit_position in 0..status_flags_array.length - 1 # length is number of bits set
+              status_flags_array.each do |bit_position|
 
                 no_relationship = false # set to true if no relationship should be created
 
-                case status_flags_array[bit_position]
+                case bit_position
 
-                  when 0 # informal, inconsistently used?
+                  when 0 # informal (inconsistently used)
+                    # if encountered, classify as unavailable
+                    tnc = taxon_name_classifications.new(
+                        type: 'TaxonNameClassification::Iczn::Unavailable',
+                        taxon_name_id: taxon_name_id,
+                        created_at: Time.now,
+                        updated_at: Time.now,
+                        created_by_id: $user_id,
+                        updated_by_id: $user_id,
+                        project_id: project_id
+                    )
+                    if tnc.valid?
+                      save!
+                    else
+                      logger.error "TaxonNameClassification Unavailable ERROR tw.project_id #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id}, (#{error_counter += 1}): " + tnc.errors.full_messages.join(';')
+                    end
+                    no_relationship = true
                   when 1 # subsequent misspelling
                     type = 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling'
-                    subject_taxon_name_id = above_id
-                    object_taxon_name_id = taxon_name_id
                   when 2 # unjustified emendation
                     type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnjustifiedEmendation'
-                    subject_taxon_name_id = above_id
-                    object_taxon_name_id = taxon_name_id
-                  when 3 # nomen nudum
-                    # if taxon is also synonym, treat as senior/junior homonym
-                    if row['NameStatus'] == '7'
+                  when 3 and name_status == '7' # nomen nudum
+                    # if taxon is also synonym, treat as senior/junior synonym
+                    type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym'
+                  when 4 and name_status == '7' # nomen dubium
+                    # if taxon is also synonym, treat as senior/junior synonym
+                    type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym'
+                  when 5 # incertae sedis
+                    type = 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement'
+
+                  # when 6 # justified emendation; reciprocal of 15
+
+                  # when 7 # nomen protectum; reciprocal of 8
+
+                  when 8 # suppressed by ruling
+                    type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression'
+                  when 9 # misapplied
+                    type = 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication'
+                  when 10 # preoccupied; if not in scope, no relationship
+                    type = 'TaxonNameRelationship::Iczn::Invalidating::Homonym'
+                  when 11 # primary homonym
+                    type = 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary'
+                  when 12 # secondary homonym
+                    type = 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary'
+                  when 13 # nomen oblitum
+                    type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym::ForgottenName'
+                  when 14 # unnecessary replacement
+                    type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnnecessaryReplacementName'
+                  when 15 # incorrect original spelling
+                    type = 'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling'
+
+                  # when 16 # other comment; comments were entered at time of taxon import
+
+                  when 17 # unavailable other; use invalidating?
+                    type = 'TaxonNameRelationship::Iczn::Invalidating'
+                  when 18 # junior synonym
+                    type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym'
+
+                  # when 19 # nomen novum; reciprocal of 10, 11, 12, others?
+
+                  when 20 # original name
+                    Note.create!(
+                        text: "Species File taxon (TaxonNameID = #{row['TaxonNameID']}) marked as 'original name'",
+                        note_object_id: taxon_name_id,
+                        note_object_type: 'TaxonName',
+                        created_at: Time.now,
+                        updated_at: Time.now,
+                        created_by_id: $user_id,
+                        updated_by_id: $user_id,
+                        project_id: project_id
+                    )
+
+                    if name_status == '7' # create senior/junior synonym
                       type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym'
-                      subject_taxon_name_id = above_id
-                      object_taxon_name_id = taxon_name_id
                     else
                       no_relationship = true
                     end
-                  when 4 # nomen dubium
-                    # Is this a classification?
-                    type = ''
-                    subject_taxon_name_id = 0
-                    object_taxon_name_id = 0
-                  when 5 # incertae sedis
-                    type = 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement'
-                    subject_taxon_name_id = taxon_name_id
-                    object_taxon_name_id = above_id
-                  when 6 # justified emendation
-                    # THIS taxon is justified emendation, who is incorrect spelling?
-                    type = ''
-                    subject_taxon_name_id = 0
-                    object_taxon_name_id = 0
-                  when 7 # nomen protectum
-                    # THIS taxon is protected, who is suppressed?
-                    type = ''
-                    subject_taxon_name_id = 0
-                    object_taxon_name_id = 0
-                  when 8 # suppressed by ruling
-                    type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression'
-                    subject_taxon_name_id = above_id
-                    object_taxon_name_id = taxon_name_id
-                  when 9 # misapplied
-                    type = 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication'
-                    subject_taxon_name_id = above_id
-                    object_taxon_name_id = taxon_name_id
-                  when 10 # preoccupied
-                    type = 'TaxonNameRelationship::Iczn::Invalidating::Homonym'
-                    subject_taxon_name_id = above_id
-                    object_taxon_name_id = taxon_name_id
-                  when 11 # primary homonym
-                    type = 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary'
-                    subject_taxon_name_id = above_id
-                    object_taxon_name_id = taxon_name_id
-                  when 12 # secondary homonym
-                    type = 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary'
-                    subject_taxon_name_id = above_id
-                    object_taxon_name_id = taxon_name_id
-                  when 13 # nomen oblitum
-                    type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym::ForgottenName'
-                    subject_taxon_name_id = above_id
-                    object_taxon_name_id = taxon_name_id
-                  when 14 # unnecessary replacement
-                    type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnnecessaryReplacementName'
-                    subject_taxon_name_id = above_id
-                    object_taxon_name_id = taxon_name_id
-                  when 15 # incorrect original spelling
-                    type = 'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling'
-                    subject_taxon_name_id = above_id
-                    object_taxon_name_id = taxon_name_id
-                  when 16 # other comment
-                    # comments were entered at time of taxon import
-                    type = ''
-                    subject_taxon_name_id = 0
-                    object_taxon_name_id = 0
-                  when 17 # unavailable other
-                    #  is this the same as 'invalidating'?
-                    type = 'TaxonNameRelationship::Iczn::Invalidating'
-                    subject_taxon_name_id = above_id
-                    object_taxon_name_id = taxon_name_id
-                  when 18 # junior synonym
-                    type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym'
-                    subject_taxon_name_id = above_id
-                    object_taxon_name_id = taxon_name_id
-                  when 19 # nomen novum
-                    # THIS is nomen novum, which name was replaced?
-                    type = ''
-                    subject_taxon_name_id = 0
-                    object_taxon_name_id = 0
-                  when 20 # original name
-                    # only use THIS taxon as original name if a synonym
-                    # it's not necessarily incorrect_original_name
-                    # what about family_before_1961
-                    type = ''
-                    subject_taxon_name_id = 0
-                    object_taxon_name_id = 0
-                  when 21 # subsequent name
-                    # THIS taxon is subsequent name, what did it replace?
-                    type = ''
-                    subject_taxon_name_id = 0
-                    object_taxon_name_id = 0
+
+                  # when 21 # subsequent name; reciprocal of homonym or required emendation?
+
                   when 22 # unspecified homonym
                     type = 'TaxonNameRelationship::Iczn::Invalidating::Homonym'
-                    subject_taxon_name_id = above_id
-                    object_taxon_name_id = taxon_name_id
-                  when 23 # lapsus calami
-                    # treat as incorrect original spelling for now
+                  when 23 # lapsus calami; treat as incorrect original spelling for now
                     type = 'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling'
-                    subject_taxon_name_id = above_id
-                    object_taxon_name_id = taxon_name_id
-                  when 24 # corrected lapsus
-                    # reciprocal of 23
-                    type = ''
-                    subject_taxon_name_id = 0
-                    object_taxon_name_id = 0
-                  when 25 # nomen nudum made available
-                    # reciprocal of 3
-                    type = ''
-                    subject_taxon_name_id = 0
-                    object_taxon_name_id = 0
 
+                  # when 24 # corrected lapsus; reciprocal of 23
+
+                  # when 25 # nomen nudum made available; treat as reciprocal of 3 for now
+
+                  else
+                    no_relationship = true
                 end
 
                 next if no_relationship
 
                 tnr = TaxonNameRelationship.new(
-                    :subject_taxon_name_id => subject_taxon_name_id,
-                    object_taxon_name_id: object_taxon_name_id,
+                    subject_taxon_name_id: above_id,
+                    object_taxon_name_id: taxon_name_id,
                     type: type,
                     created_at: Time.now,
                     updated_at: Time.now,
@@ -223,7 +195,6 @@ namespace :tw do
             end
           end
         end
-
 
         desc 'time rake tw:project_import:sf_import:taxa:create_some_related_taxa user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         LoggedTask.define :create_some_related_taxa => [:data_directory, :environment, :user_id] do |logger|
