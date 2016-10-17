@@ -702,7 +702,7 @@ namespace :tw do
 
         fext_data = {}
         
-        file1.each_with_index do |r, i|
+        file2.each_with_index do |r, i|
           fext_data[r[0]] =  { translate: r[1], notes: r[2], publisher: r[3], ext_author: r[4], ext_title: r[5], ext_journal: r[6], editor: r[7] }
         end
 
@@ -761,7 +761,7 @@ namespace :tw do
 
           if b.valid?
             b.project_sources.create!
-            b.identifiers.create!(type: 'Identifier::Local::Import', namespace: namespace, identifier: row['RefCode'])
+            b.identifiers.create!(type: 'Identifier::Local::Import', namespace: namespace, identifier: row['RefCode'] + row['Letter'].to_s)
 
             b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:Location'], value: row['Location'])   if !row['Location'].blank?
             b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Refs:Source'], value: row['Source'])       if !row['Source'].blank?

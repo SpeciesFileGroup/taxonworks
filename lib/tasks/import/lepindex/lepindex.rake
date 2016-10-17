@@ -210,7 +210,7 @@ namespace :tw do
                                          series: tmp['SERIES'],
                                          institution: tmp['PUBLISHER_INSTITUTE'],
                                          volume: tmp['VOLUME'],
-                                         title: tmp['FULLTITLE'],
+                                         journal: tmp['FULLTITLE'],
                                          number: tmp['PART'],
                                          url: url,
                                          bibtex_type: 'article'

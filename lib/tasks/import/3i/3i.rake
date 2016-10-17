@@ -451,9 +451,9 @@
                                          bibtex_type: 'article'
             )
 
-          source.alternate_values.new(value: row['Author'], type: 'AlternateValue::Abbreviation', alternate_value_object_attribute: 'author') if !row['AuthorDrMetcalf'].blank? && row['AuthorDrMetcalf'] != row['Author']
+          #source.alternate_values.new(value: row['Author'], type: 'AlternateValue::Abbreviation', alternate_value_object_attribute: 'author') if !row['AuthorDrMetcalf'].blank? && row['AuthorDrMetcalf'] != row['Author']
 
-          InternalAttribute.new(attribute_subject: source, predicate: @data.keywords['CallNumberDrMetcalf'], value: row['CallNumberDrMetcalf']) unless row['CallNumberDrMetcalf'].blank?
+          source.data_attributes.new(type: 'InternalAttribute', predicate: @data.keywords['CallNumberDrMetcalf'], value: row['CallNumberDrMetcalf']) unless row['CallNumberDrMetcalf'].blank?
 
           source.data_attributes.new(type: 'ImportAttribute', import_predicate: 'Author3i', value: row['AY']) unless row['AY'].blank?
           source.data_attributes.new(type: 'ImportAttribute', import_predicate: 'YearReference', value: row['Year']) unless row['Year'].blank?
@@ -472,6 +472,7 @@
             source.tags.new(keyword: @data.keywords['Typhlocybinae'])
             note = note[2..-1]
           end
+          #TODO check illustrations
           if !note.blank? && note.include?('Illustrations done')
             source.tags.new(keyword: @data.keywords['Illustrations'])
             note.gsub!('Illustrations done', '')
@@ -500,7 +501,14 @@
             @data.publications_index[row['Key3']] = source.id
             authors = row['Author'].gsub('., ', '.|').split('|')
             authors.each_with_index do |author, i|
-              sa = SourceAuthor.create(person_id: @data.people[author], role_object: source, position: i + 1)
+              a = @data.people[author]
+              if a.nil?
+                a = Person.parse_to_people(author).first
+                a.save!
+                a = a.id
+                @data.people[author] = a
+              end
+              sa = SourceAuthor.create(person_id: a, role_object: source, position: i + 1)
             end
           else
             byebug
