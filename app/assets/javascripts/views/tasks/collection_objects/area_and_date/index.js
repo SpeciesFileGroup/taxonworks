@@ -48,9 +48,12 @@ _init_map_table = function init_map_table() {
       //    $("area_count").text("<p>set_area error => " + error + "</p>")
       //  }
       //);
-      $("#find_area_and_date_commit").click(function (event) {
+      $("#find_area_and_date_commit").click(function (event, href) {
         //$("#result_span").text('**********');
-        $.get('find', $("#set_area_form").serialize() + '&' + $("#set_date_form").serialize(), function (local_data) {
+        if (href == undefined) {
+          href = $("#set_area_form").serialize() + '&' + $("#set_date_form").serialize();
+        }
+        $.get('find', href, function (local_data) {
           var html = local_data.html;
           var message = local_data.message;
           result_collection = local_data.feature_collection;
@@ -67,10 +70,19 @@ _init_map_table = function init_map_table() {
               result_map = TW.vendor.lib.google.maps.initializeMap('simple_map_canvas', result_collection);
             }
             }
+          processPagination();
           }, 'json'  // I expect a json response
         );
         event.preventDefault();
       })
+    }
+
+    function processPagination() {
+      if ($('.pagination') != undefined) {
+        //for (i = 0;$('.pagination').children.length; i++) {
+        //  $('.pagination').children[i].children[0].attr['hrefUrl'] = $('.pagination').children[i].attr['href'];
+        //}
+      }
     }
 
     var today = new Date();
