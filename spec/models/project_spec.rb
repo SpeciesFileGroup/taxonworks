@@ -67,6 +67,19 @@ describe Project, type: :model do
         expect(project.valid?).to be_truthy
       end
     end
+
+    context 'name uniqueness' do
+      before {
+        project.name = 'Foo'
+        project.save!
+      }
+
+      specify 'name duplicate names are not allowed' do
+        p = Project.new(name: 'Foo')
+        expect(p.valid?).to be_falsey
+        expect(p.errors.include?(:name)).to be_truthy
+      end
+    end
   end
 
   context 'workbench_settings' do

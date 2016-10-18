@@ -33,6 +33,7 @@ class Project < ActiveRecord::Base
   after_create :create_root_taxon_name, unless: 'self.without_root_taxon_name == true'
 
   validates_presence_of :name
+  validates_uniqueness_of :name
 
   def clear_workbench_settings
     self.update('workbench_settings' => DEFAULT_WORKBENCH_SETTINGS)
