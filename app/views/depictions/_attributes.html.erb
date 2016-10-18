@@ -1,10 +1,16 @@
 <p>
-  <strong>Depiction object:</strong>
-  <%= object_link( @depiction.depiction_object.metamorphosize) %>
+<strong>Depiction object:</strong>
+<%= object_link( @depiction.depiction_object.metamorphosize) %>
 </p>
 
 <p>
   <strong>Image:</strong>
-  <%= link_to(image_tag(@depiction.image.image_file.url(:medium)), image_path(@depiction.image)) %>
+
+  <div class="easyzoom easyzoom--overlay">
+    <%= link_to( image_tag(@depiction.image.image_file.url, 'class' => 'imageZoom'), @depiction.image.image_file.url ) %>
+  </div>
 </p>
+
+
+
 
