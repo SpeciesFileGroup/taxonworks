@@ -8,7 +8,7 @@ _init_map_table = function init_map_table() {
       //var area_selector = $("#geographic_area_id_for_by_area");
 
       $(".result_map_toggle").click(function (event) {           // switch to the map view
-        $("#area_count").text('####');
+        $("#area_count").text('????');
         $("#show_list").attr('hidden', true);         // hide the list view
         $("#show_map").removeAttr('hidden');          // reveal the map
         $(".result_list_toggle").removeAttr('hidden');           // expose the other link
@@ -19,7 +19,7 @@ _init_map_table = function init_map_table() {
       });
 
       $(".result_list_toggle").click(function (event) {          // switch to the list view
-        $("#area_count").text('####');
+        $("#area_count").text('????');
         $("#show_map").attr('hidden', true);          // hide the map
         $("#show_list").removeAttr('hidden');         // reveal the area selector
         $(".result_map_toggle").removeAttr('hidden');            // expose the other link
@@ -28,7 +28,7 @@ _init_map_table = function init_map_table() {
       });
 
       $("#set_area").click(function (event) {      // register the click handler for the made-from-scratch-button
-          $("#area_count").text('----');
+        $("#area_count").text('????');
           //var geo_id = $("input[name='[geographic_area_id]']").val();
           $.get('set_area', $("#set_area_form").serialize(), function (local_data) {
               var popcorn = local_data;

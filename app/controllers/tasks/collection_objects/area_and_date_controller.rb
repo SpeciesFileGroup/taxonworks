@@ -3,10 +3,11 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
 
   # GET
   def index
-    @geographic_areas   = GeographicArea.where('false')
-    @collection_objects = CollectionObject.where('false')
-    @early_date         = CollectionObject.order(:created_at).limit(1).pluck(:created_at).first
-    @late_date          = CollectionObject.order(created_at: :desc).limit(1).pluck(:created_at).first
+    @geographic_areas         = GeographicArea.where('false')
+    @collection_objects       = CollectionObject.where('false')
+    @collection_objects_count = 0
+    @early_date               = CollectionObject.order(:created_at).limit(1).pluck(:created_at).first
+    @late_date                = CollectionObject.order(created_at: :desc).limit(1).pluck(:created_at).first
   end
 
   # POST
