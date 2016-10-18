@@ -63,17 +63,17 @@ _init_map_table = function init_map_table() {
           else {
             $("#result_span").text(message);
             }
-          $("#show_list").html(html);
+            //$("#show_list").html(html);
           if (local_data.feature_collection) {
             if ($("#show_map").attr("hidden") != "hidden") {
               //$("#show_map").removeAttr('hidden');
               result_map = TW.vendor.lib.google.maps.initializeMap('simple_map_canvas', result_collection);
             }
             }
-          processPagination();
-          }, 'json'  // I expect a json response
+            //processPagination();
+          }//, 'json'  // I expect a json response
         );
-        event.preventDefault();
+        //event.preventDefault();
       })
     }
 
