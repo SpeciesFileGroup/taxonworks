@@ -18,7 +18,7 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
     @geographic_area_id = params[:geographic_area_id]
     @geographic_area    = GeographicArea.find(@geographic_area_id) unless @geographic_area_id.blank?
     @shape_in           = params[:drawn_area_shape]
-    set_and_order_dates(params)
+    # set_and_order_dates(params)
 
     if @shape_in.blank? and @geographic_area_id.blank? # missing "? "
       area_objects = CollectionObject.where('false')
