@@ -28,7 +28,7 @@ _init_map_table = function init_map_table() {
       });
 
       $("#set_area").click(function (event) {      // register the click handler for the made-from-scratch-button
-          $("#area_count").text('----');
+        $("#area_count").text('????');
           //var geo_id = $("input[name='[geographic_area_id]']").val();
           $.get('set_area', $("#set_area_form").serialize(), function (local_data) {
               var popcorn = local_data;
