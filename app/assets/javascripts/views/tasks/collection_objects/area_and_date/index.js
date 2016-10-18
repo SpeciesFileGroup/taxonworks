@@ -73,7 +73,7 @@ _init_map_table = function init_map_table() {
             //processPagination();
           }//, 'json'  // I expect a json response
         );
-        //event.preventDefault();
+        event.preventDefault();
       })
     }
 
