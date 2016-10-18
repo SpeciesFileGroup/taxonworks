@@ -1,3 +1,2 @@
-<p><%= page_entries_info(@collection_objects) %></p> <%= paginate @collection_objects %>
+<p id="paging_data"><%= paging_info %></p><%= paging %>
 <%= render 'tasks/accessions/report/dwca/table', collection_objects: @collection_objects %>
-<%#= render 'tasks/accessions/report/dwca/table', collection_objects: @collection_objects %>
