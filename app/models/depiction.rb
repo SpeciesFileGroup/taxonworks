@@ -24,6 +24,8 @@ class Depiction < ActiveRecord::Base
   include Shared::Taggable
   include Shared::IsData
 
+  acts_as_list scope: [:depiction_object_type, :depiction_object_id]
+
   belongs_to :image, inverse_of: :depictions
   belongs_to :depiction_object, polymorphic: true
 

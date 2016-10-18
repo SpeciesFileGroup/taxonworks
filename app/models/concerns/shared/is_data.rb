@@ -150,7 +150,7 @@ module Shared::IsData
     result['identifiers'] = self.identifiers if self.has_identifiers? && self.identifiers.any?
     result['notes'] = self.notes if self.has_notes? && self.notes.any?
     result['tags'] = self.tags if self.has_tags? && self.tags.any?
-    result['depictions'] = self.depictions if self.has_depictions? && self.depictions.any?
+    result['depictions'] = self.depictions.order('depictions.position') if self.has_depictions? && self.depictions.any?
     result['confidences'] = self.confidences if self.has_confidences? && self.confidences.any?
     result['protocols'] = self.protocols if self.has_protocols? && self.protocols.any?
     result
