@@ -230,7 +230,7 @@ namespace :tw do
           user = User.where(email: email)
           if user.empty?
             pwd = rand(36**10).to_s(36)
-            user = User.create(email: email, password: pwd, password_confirmation: pwd, name: user_name, self_created: true)
+            user = User.create(email: email, password: pwd, password_confirmation: pwd, name: user_name, self_created: true, is_flagged_for_password_reset: true)
           else
             user = user.first
           end
@@ -704,7 +704,7 @@ namespace :tw do
 
           if existing_user.empty?
             pwd = rand(36**10).to_s(36)
-            user = User.create(email: email, password: pwd, password_confirmation: pwd, name: user_name,
+            user = User.create(email: email, password: pwd, password_confirmation: pwd, name: user_name, is_flagged_for_password_reset: true,
                    data_attributes_attributes: [ {value: p['PeopleID'], import_predicate: 'PeopleID', type: 'ImportAttribute'} ],
                    tags_attributes:   [ { keyword: data.keywords['INHS_imported'] } ]
             )

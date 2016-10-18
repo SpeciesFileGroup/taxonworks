@@ -151,7 +151,7 @@ namespace :tw do
           user = User.where(email: email)
           if user.empty?
             pwd = rand(36**10).to_s(36)
-            user = User.create(email: email, password: pwd, password_confirmation: pwd, name: user_name, self_created: true)
+            user = User.create(email: email, password: pwd, password_confirmation: pwd, name: user_name, self_created: true, is_flagged_for_password_reset: true)
           else
             user = user.first
           end
