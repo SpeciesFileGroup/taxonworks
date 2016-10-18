@@ -6,6 +6,8 @@
     <%= fancy_th_tag(name: 'Citation object type') -%>
     <%= fancy_th_tag(name: 'Citation object') -%>
     <%= fancy_th_tag(name: 'Source') -%>
+    <%= fancy_th_tag(name: 'Pages') -%>
+    <%= fancy_th_tag(name: 'Is original') -%>
     <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
     <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
   </tr>
@@ -17,6 +19,8 @@
           <td><%= citation.citation_object_type %></td>
           <td><%= object_tag(citation.citation_object) %></td>
           <td><%= source_tag(citation.source) %></td>
+          <td><%= citation.pages %></td>
+          <td><%= citation.is_original %></td>
           <%= fancy_metadata_cells_tag(citation) -%>
       <% end %>
   <% end %>
