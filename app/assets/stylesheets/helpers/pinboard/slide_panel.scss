@@ -13,9 +13,14 @@ $default-padding: 2em;
 	background-color: #FFF;
 	box-shadow: 0px 1px 4px 0px #888;
 	font-weight: 100;
-
 	a {
 		text-decoration: none;
+	}
+
+	.slide-panel-content {
+		overflow-y:auto;
+		height:95%;
+		box-sizing: border-box;
 	}	
 
 	.slide-panel-header {
@@ -58,7 +63,7 @@ $default-padding: 2em;
 		position: absolute;
 		cursor: pointer;
 		left: -27px;
-		top: 50%;
+		top: 50vh;
 		border-radius: 50%;
 		background-color: $category-header-color;
 		background-image: image-url('b_pin.svg');
@@ -74,4 +79,10 @@ $default-padding: 2em;
 		background-size: 30px;
 		transition: background-size 0.3s ease, opacity 0.3s ease;
 	}	
+}
+
+.slide-document {
+	.slide-panel-header {
+		background-color: #770000;
+	}
 }
