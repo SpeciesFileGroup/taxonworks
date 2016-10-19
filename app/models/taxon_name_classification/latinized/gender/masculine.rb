@@ -3,7 +3,7 @@ class TaxonNameClassification::Latinized::Gender::Masculine < TaxonNameClassific
   NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000048'
 
   def self.possible_genus_endings
-    %w(us ops ites oides ides odes istes ornis cola)
+    %w(us ops ites oides ides odes istes ornis colasour)
   end
 
   def self.possible_species_endings

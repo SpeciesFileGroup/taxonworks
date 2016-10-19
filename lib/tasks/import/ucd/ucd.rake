@@ -139,6 +139,9 @@ namespace :tw do
         project_name = 'UCD'
         user_name = 'eucharitid'
         $user_id, $project_id = nil, nil
+        project1 = Project.where(name: project_name).first
+        project_name = project_name + ' ' + Time.now.to_s  unless project1.nil?
+
         if @import.metadata['project_and_users']
           print "from database.\n"
           project = Project.where(name: project_name).first

@@ -125,6 +125,9 @@ namespace :tw do
         project_name = 'Lepindex'
         user_name = 'Lepindex Import'
         $user_id, $project_id = nil, nil
+        project1 = Project.where(name: project_name).first
+        project_name = project_name + ' ' + Time.now.to_s  unless project1.nil?
+
         if @import.metadata['project_and_users']
           print "from database.\n"
           project = Project.where(name: project_name).first
@@ -205,7 +208,14 @@ namespace :tw do
           end
           if @data.publications_index[tmp].nil?
             url = row['BHLPage'].blank? ? nil : row['BHLPage']
-            source = Source::Bibtex.new( address: tmp['PUBLISHER_ADDRESS'],
+            author = tmp['IN_AUTHOR'].blank? ? tmp['AUTHOR'] : tmp['IN_AUTHOR']
+            author = author.to_s.gsub(', ', ' and ').gsub(' & ', ' and ')
+            year, stated_year, month = nil, nil, nil
+            year = tmp['PUBLICATION_YEAR'] if tmp['PUBLICATION_YEAR'] =~/\A\d\d\d\d\z/
+            stated_year = tmp['PRINTED_DATE'] if tmp['PRINTED_DATE'] =~/\A\d\d\d\d\z/
+            month = tmp['PUBLICATION_MONTH'] if month_list.include?(tmp['PUBLICATION_MONTH'])
+
+            source = Source::Bibtex.find_or_create_by( address: tmp['PUBLISHER_ADDRESS'],
                                          publisher: tmp['PUBLISHER_NAME'],
                                          series: tmp['SERIES'],
                                          institution: tmp['PUBLISHER_INSTITUTE'],
@@ -213,27 +223,23 @@ namespace :tw do
                                          journal: tmp['FULLTITLE'],
                                          number: tmp['PART'],
                                          url: url,
-                                         bibtex_type: 'article'
+                                         bibtex_type: 'article',
+                                         author: author,
+                                         year: year,
+                                         stated_year: stated_year,
+                                         month: month
             )
-            if tmp['PUBLICATION_YEAR'] =~/\A\d\d\d\d\z/
-              source.year = tmp['PUBLICATION_YEAR']
-            elsif !tmp['PUBLICATION_YEAR'].blank?
+            if !tmp['PUBLICATION_YEAR'].blank? && year.nil?
               source.data_attributes.new(import_predicate: 'PUBLICATION_YEAR', value: tmp['PUBLICATION_YEAR'], type: 'ImportAttribute')
             end
-            if tmp['PRINTED_DATE'] =~/\A\d\d\d\d\z/
-              source.stated_year = tmp['PRINTED_DATE']
-            elsif !tmp['PRINTED_DATE'].blank?
+            if !tmp['PRINTED_DATE'].blank? && stated_year.nil?
               source.data_attributes.new(import_predicate: 'PRINTED_DATE', value: tmp['PRINTED_DATE'], type: 'ImportAttribute')
             end
-            if month_list.include?(tmp['PUBLICATION_MONTH'])
-              source.month = tmp['PUBLICATION_MONTH']
-            elsif !tmp['PUBLICATION_MONTH'].blank?
+            if !tmp['PUBLICATION_MONTH'].blank? && month.nil?
               source.data_attributes.new(import_predicate: 'PUBLICATION_MONTH', value: tmp['PUBLICATION_MONTH'], type: 'ImportAttribute')
             end
-            source.author = tmp['IN_AUTHOR'].blank? ? tmp['AUTHOR'] : tmp['IN_AUTHOR']
-          
 
-            source.save!
+            #source.save!
             source.project_sources.create!
             source = source.id
             @data.publications_index.merge!(tmp => source)
