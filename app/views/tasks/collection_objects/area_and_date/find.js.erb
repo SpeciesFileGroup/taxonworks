@@ -2,6 +2,7 @@ var content;
 
 content = $('<%= escape_javascript(render(partial: 'result_list',
                                            locals:  {collection_objects: @collection_objects}
-) ) %>');
+                                         )
+                                  ) %>');
 
 $("#show_list").html(content);
