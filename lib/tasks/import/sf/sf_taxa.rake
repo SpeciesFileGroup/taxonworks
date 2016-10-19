@@ -6,6 +6,8 @@ namespace :tw do
       namespace :taxa do
 
         desc 'time rake tw:project_import:sf_import:taxa:create_status_flag_relationships user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        #  real	50m52.744s
+
         LoggedTask.define :create_status_flag_relationships => [:data_directory, :environment, :user_id] do |logger|
 
           logger.info 'Creating relationships from StatusFlags...'
@@ -15,6 +17,7 @@ namespace :tw do
           get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID')
           get_tw_project_id = import.get('SFFileIDToTWProjectID')
           get_tw_otu_id = import.get('SFTaxonNameIDToTWOtuID')
+          get_animalia_id = import.get('ProjectIDToAnimaliaID') # key = TW.Project.id, value TW.TaxonName.id where Name = 'Animalia', used when AboveID = 0
 
           # @todo: Temporary "fix" to convert all values to string; will be fixed next time taxon names are imported and following do can be deleted
           get_tw_taxon_name_id.each do |key, value|
@@ -36,8 +39,13 @@ namespace :tw do
 
             project_id = get_tw_project_id[row['FileID']].to_i
             taxon_name_id = get_tw_taxon_name_id[row['TaxonNameID']].to_i
-            above_id = get_tw_taxon_name_id[row['AboveID']].to_i
             original_genus_id = get_tw_taxon_name_id[row['OriginalGenusID']].to_i
+
+            if row['AboveID'] = '0'
+              above_id = get_animalia_id[project_id.to_s].to_i
+            else
+              above_id = get_tw_taxon_name_id[row['AboveID']].to_i
+            end
 
             logger.info "Working with TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id}, RankID #{row['RankID']} (count #{count_found += 1}) \n"
 
@@ -55,7 +63,7 @@ namespace :tw do
                 puts 'TaxonNameRelationship OriginalGenusID created'
 
               else # tnr not valid
-                logger.error "TaxonNameRelationship OriginalGenusID ERROR tw.project_id #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id}, SF.OriginalGenusID #{row['OriginalGenusID']} = TW.original_genus_id #{original_genus_id} (#{error_counter += 1}): " + tnr.errors.full_messages.join(';')
+                logger.error "TaxonNameRelationship OriginalGenusID ERROR tw.project_id #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id}, SF.OriginalGenusID #{row['OriginalGenusID']} = TW.original_genus_id #{original_genus_id} (Error # #{error_counter += 1}): " + tnr.errors.full_messages.join(';')
               end
             end
 
@@ -75,15 +83,16 @@ namespace :tw do
 
                   when 0 # informal (inconsistently used)
                     # if encountered, classify as unavailable
-                    tnc = taxon_name_classifications.new(
+                    tnc = TaxonNameClassification.new(
                         type: 'TaxonNameClassification::Iczn::Unavailable',
                         taxon_name_id: taxon_name_id,
                         project_id: project_id
                     )
                     if tnc.valid?
-                      save!
+                      tnc.save!
+                      puts 'TaxonNameClassification Unavailable created'
                     else
-                      logger.error "TaxonNameClassification Unavailable ERROR tw.project_id #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id}, (#{error_counter += 1}): " + tnc.errors.full_messages.join(';')
+                      logger.error "TaxonNameClassification Unavailable ERROR tw.project_id #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id}, (Error # #{error_counter += 1}): " + tnc.errors.full_messages.join(';')
                     end
                     no_relationship = true
                   when 1 # subsequent misspelling
@@ -180,7 +189,7 @@ namespace :tw do
                   puts "TaxonNameRelationship '#{type}' created"
 
                 else # tnr not valid
-                  logger.error "TaxonNameRelationship '#{type}' ERROR tw.project_id #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id}, SF.OriginalGenusID #{row['OriginalGenusID']} = TW.original_genus_id #{original_genus_id} (#{error_counter += 1}): " + tnr.errors.full_messages.join(';')
+                  logger.error "TaxonNameRelationship '#{type}' ERROR tw.project_id #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id}, SF.OriginalGenusID #{row['OriginalGenusID']} = TW.original_genus_id #{original_genus_id} (Error # #{error_counter += 1}): " + tnr.errors.full_messages.join(';')
                 end
 
               end

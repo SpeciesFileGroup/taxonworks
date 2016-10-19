@@ -26,7 +26,8 @@ namespace :tw do
           'taxa:create_all_sf_taxa_pass1',
           'taxa:create_type_species',
           'taxa:create_type_genera',
-          'taxa:create_some_related_taxa'
+          'taxa:create_some_related_taxa',
+          'taxa:create_status_flag_relationships'
       ] do
         puts 'Ran everything!'
       end
