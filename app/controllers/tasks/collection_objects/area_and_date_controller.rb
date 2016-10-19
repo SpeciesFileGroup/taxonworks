@@ -20,7 +20,7 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
     @shape_in           = params[:drawn_area_shape]
     set_and_order_dates(params)
 
-    if @shape_in.blank? and @geographic_area_id.blank? # missing "? "
+    if @shape_in.blank? and @geographic_area_id.blank? # missing "? " was fixed
       area_objects = CollectionObject.where('false')
     else
       area_objects = GeographicItem.gather_selected_data(@geographic_area_id, @shape_in, 'CollectionObject')
@@ -29,7 +29,7 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
     if (@start_date.blank? || @end_date.blank?) || area_objects.count == 0
       @collection_objects = CollectionObject.where('false')
     else
-      collecting_events   = CollectingEvent.in_date_range(params)
+      collecting_events = CollectingEvent.in_date_range(params['st_flexpicker'], params['en_flexpicker'], params['greedy'])
       @collection_objects = CollectionObject.includes(:collecting_event)
                               .where(collecting_event_id: collecting_events)
                               .where(id: area_objects.map(&:id))

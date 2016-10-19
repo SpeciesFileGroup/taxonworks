@@ -39,7 +39,7 @@ _init_map_table = function init_map_table() {
           event.preventDefault();
         }
       );
-      //event.preventDefault();
+      // below could be used as template for auto-get on .overlaycomplete
       //$("#set_area").on("ajax:success", function (e, data) {
       //    $("#area_count").text(data.html);
       //    return true;
@@ -57,12 +57,14 @@ _init_map_table = function init_map_table() {
           var html = local_data.html;
           var message = local_data.message;
           result_collection = local_data.feature_collection;
-          if (message.length == 0) {
-            $("#result_span").text("Total: " + local_data.collection_objects_count);
+          if (message != undefined) {
+            if (message.length == 0) {
+              $("#result_span").text("Total: " + local_data.collection_objects_count);
             }
-          else {
-            $("#result_span").text(message);
+            else {
+              $("#result_span").text(message);
             }
+          }
             //$("#show_list").html(html);
           if (local_data.feature_collection) {
             if ($("#show_map").attr("hidden") != "hidden") {
