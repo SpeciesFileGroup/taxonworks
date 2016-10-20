@@ -50,29 +50,57 @@ namespace :tw do
             logger.info "Working with TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id}, RankID #{row['RankID']} (count #{count_found += 1}) \n"
 
             if row['RankID'] < '11' and row['OriginalGenusID'] > '0' # There are some SF genera with OriginalGenusID set???
-
               tnr = TaxonNameRelationship.new(
                   subject_taxon_name_id: original_genus_id,
                   object_taxon_name_id: taxon_name_id,
                   type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus',
                   project_id: project_id
               )
-
               if tnr.valid?
                 tnr.save!
                 puts 'TaxonNameRelationship OriginalGenusID created'
-
               else # tnr not valid
                 logger.error "TaxonNameRelationship OriginalGenusID ERROR tw.project_id #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id}, SF.OriginalGenusID #{row['OriginalGenusID']} = TW.original_genus_id #{original_genus_id} (Error # #{error_counter += 1}): " + tnr.errors.full_messages.join(';')
               end
             end
 
+            name_status = row['NameStatus']
             status_flags = row['StatusFlags'].to_i
+
+            if name_status == '7' and status_flags == 0 # add invalidating relationship to above_id (162 instances)
+              tnr = TaxonNameRelationship.new(
+                  subject_taxon_name_id: above_id,
+                  object_taxon_name_id: taxon_name_id,
+                  type: 'TaxonNameRelationship::Iczn::Invalidating',
+                  project_id: project_id
+              )
+              if tnr.valid?
+                tnr.save!
+                puts 'TaxonNameRelationship Invalidating created'
+              else # tnr not valid
+                logger.error "TaxonNameRelationship Invalidating ERROR tw.project_id #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id} (Error # #{error_counter += 1}): " + tnr.errors.full_messages.join(';')
+              end
+            end
+
+            # Create import attribute (?) if NecAuthor.length > 0
+            if row['NecAuthor'].length > 0
+              da = DataAttribute.new(type: 'ImportAttribute',
+                                     attribute_subject_id: taxon_name_id,
+                                     attribute_subject_type: TaxonName,
+                                     import_predicate: 'Nec author',
+                                     value: row['NecAuthor'],
+                                     project_id: project_id)
+              if da.valid?
+                da.save!
+                puts 'DataAttribute NecAuthor created'
+              else # da not valid
+                logger.error "DataAttribute NecAuthor ERROR SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id} (#{error_counter += 1}): " + da.errors.full_messages.join(';')
+              end
+            end
 
             if status_flags > 0
 
               status_flags_array = Utilities::Numbers.get_bits(status_flags)
-              name_status = row['NameStatus']
 
               # for bit_position in 0..status_flags_array.length - 1 # length is number of bits set
               status_flags_array.each do |bit_position|
@@ -124,12 +152,17 @@ namespace :tw do
                     type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression'
                   when 9 # misapplied
                     type = 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication'
+
+                  # - - -
+                  # When 10 - 12, may not have relationship in SF; new rule: If making relationship with AboveID fails, create classification only (invalid::homonym)
                   when 10 # preoccupied; if not in scope, no relationship
                     type = 'TaxonNameRelationship::Iczn::Invalidating::Homonym'
                   when 11 # primary homonym
                     type = 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary'
                   when 12 # secondary homonym
                     type = 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary'
+                  # - - -
+
                   when 13 # nomen oblitum
                     type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym::ForgottenName'
                   when 14 # unnecessary replacement
@@ -189,9 +222,24 @@ namespace :tw do
                   puts "TaxonNameRelationship '#{type}' created"
 
                 else # tnr not valid
-                  logger.error "TaxonNameRelationship '#{type}' ERROR tw.project_id #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id}, SF.OriginalGenusID #{row['OriginalGenusID']} = TW.original_genus_id #{original_genus_id} (Error # #{error_counter += 1}): " + tnr.errors.full_messages.join(';')
-                end
+                  logger.error "TaxonNameRelationship '#{type}' ERROR tw.project_id #{project_id}, object: SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id}, subject: SF.TaxonNameID #{row['AboveID']} = TW.taxon_name_id #{above_id} (Error # #{error_counter += 1}): " + tnr.errors.full_messages.join(';')
 
+                  # if tnr fails because current taxon is homonym (preoccupied, primary, or secondary) and AboveID doesn't make sense: create classification instead 'TaxonNameClassification::Iczn::Available::Invalid::Homonym'
+                  if [10, 11, 12].include?(bit_position)
+                    tnc = TaxonNameClassification.new(
+                        type: 'TaxonNameClassification::Iczn::Available::Invalid::Homonym',
+                        taxon_name_id: taxon_name_id,
+                        project_id: project_id
+                    )
+                    if tnc.valid?
+                      tnc.save!
+                      puts 'TaxonNameClassification Invalid::Homonym created'
+                    else
+                      logger.error "TaxonNameClassification Invalid::Homonym ERROR tw.project_id #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id}, (Error # #{error_counter += 1}): " + tnc.errors.full_messages.join(';')
+
+                    end
+                  end
+                end
               end
             end
           end
@@ -481,7 +529,7 @@ namespace :tw do
                   da.save!
                   puts 'FirstFamilyGroupName (da) created'
                 else # da not valid
-                  logger.error "DataAttribute ERROR TW.taxon_name_id #{} (#{error_counter += 1}): " + da.errors.full_messages.join(';')
+                  logger.error "DataAttribute ERROR TW.taxon_name_id #{genus_name_id} (#{error_counter += 1}): " + da.errors.full_messages.join(';')
                 end
               end
 
