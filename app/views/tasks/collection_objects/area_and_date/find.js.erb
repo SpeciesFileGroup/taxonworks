@@ -1,19 +1,24 @@
+// j is an alias for escape_javascript
 var html;
-html = $('<%= escape_javascript(render(partial: 'result_list',
-                                       locals:  {collection_objects: @collection_objects})) %>');
+html = $('<%= j(render(partial: 'result_list',
+                       locals:  {collection_objects: @collection_objects})) %>');
 $("#show_list").html(html);
 
+var paging;
+paging = $('<%= j(render(partial: 'paging_data')) %>');
+$("#paging_span").html(paging);
+
 var message, collection_objects_count, feature_collection;
-message = $('<%= escape_javascript(@package[:message]) %>').selector;
+message = $('<%= @package[:message] %>').selector;
 if (message.length == 0) {
-  collection_objects_count = $('<%= escape_javascript(@package[:collection_objects_count]) %>').selector;
+  collection_objects_count = $('<%= @package[:collection_objects_count] %>').selector;
   $("#result_span").text("Total: " + collection_objects_count);
 }
 else {
   $("#result_span").text(message);
 }
 
-result_collection = <%= (@package[:feature_collection].to_json.html_safe) %>;
+result_collection = <%= @package[:feature_collection].to_json.html_safe %>;
 if (result_collection) {
   if ($("#show_map").attr("hidden") != "hidden") {
     result_map = TW.vendor.lib.google.maps.initializeMap('simple_map_canvas', result_collection);
