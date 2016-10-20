@@ -67,7 +67,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         let!(:ce1) { CollectingEvent.create!(parse_stubs(b, c)) }
 
         specify 'returns' do
-          expect(CollectingEvent.in_date_range(params)).to contain_exactly(ce1) 
+          expect(CollectingEvent.in_date_range(params[:search_start_date], params[:search_end_date], params[:partial_overlap])).to contain_exactly(ce1)
         end
       end
 
@@ -80,7 +80,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         let!(:ce1) { CollectingEvent.create!(parse_stubs(b, d)) }
 
         specify 'returns' do
-          expect(CollectingEvent.in_date_range(params)).to contain_exactly() 
+          expect(CollectingEvent.in_date_range(params[:search_start_date], params[:search_end_date], params[:partial_overlap])).to contain_exactly()
         end
       end
 
@@ -93,7 +93,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         let!(:ce1) { CollectingEvent.create!(parse_stubs(b, nil)) }
 
         specify 'returns' do
-          expect(CollectingEvent.in_date_range(params)).to contain_exactly(ce1) 
+          expect(CollectingEvent.in_date_range(params[:search_start_date], params[:search_end_date], params[:partial_overlap])).to contain_exactly(ce1)
         end
       end
     end
@@ -109,7 +109,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         let!(:ce1) { CollectingEvent.create!(parse_stubs(a, c)) }
 
         specify 'returns' do
-          expect(CollectingEvent.in_date_range(params)).to contain_exactly() 
+          expect(CollectingEvent.in_date_range(params[:search_start_date], params[:search_end_date], params[:partial_overlap])).to contain_exactly()
         end
       end
 
@@ -125,7 +125,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         let!(:ce1) { CollectingEvent.create!(parse_stubs(a, d)) }
 
         specify 'returns' do
-          expect(CollectingEvent.in_date_range(params)).to contain_exactly() 
+          expect(CollectingEvent.in_date_range(params[:search_start_date], params[:search_end_date], params[:partial_overlap])).to contain_exactly()
         end
       end
 
@@ -138,7 +138,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         let!(:ce1) { CollectingEvent.create!(parse_stubs(c, d)) }
 
         specify 'returns' do
-          expect(CollectingEvent.in_date_range(params)).to contain_exactly() 
+          expect(CollectingEvent.in_date_range(params[:search_start_date], params[:search_end_date], params[:partial_overlap])).to contain_exactly()
         end
       end
 
@@ -151,7 +151,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         let!(:ce1) { CollectingEvent.create!(parse_stubs(c, nil)) }
 
         specify 'returns' do
-          expect(CollectingEvent.in_date_range(params)).to contain_exactly() 
+          expect(CollectingEvent.in_date_range(params[:search_start_date], params[:search_end_date], params[:partial_overlap])).to contain_exactly()
         end
       end
     end
@@ -173,7 +173,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         let!(:ce1) { CollectingEvent.create!(parse_stubs(b, c)) }
 
         specify 'returns' do
-          expect(CollectingEvent.in_date_range(params)).to contain_exactly(ce1) 
+          expect(CollectingEvent.in_date_range(params[:search_start_date], params[:search_end_date], params[:partial_overlap])).to contain_exactly(ce1)
         end
       end
 
@@ -186,7 +186,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         let!(:ce1) { CollectingEvent.create!(parse_stubs(b, d)) }
 
         specify 'returns' do
-          expect(CollectingEvent.in_date_range(params)).to contain_exactly(ce1) 
+          expect(CollectingEvent.in_date_range(params[:search_start_date], params[:search_end_date], params[:partial_overlap])).to contain_exactly(ce1)
         end
       end
 
@@ -199,7 +199,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         let!(:ce1) { CollectingEvent.create!(parse_stubs(b, nil)) }
 
         specify 'returns' do
-          expect(CollectingEvent.in_date_range(params)).to contain_exactly(ce1) 
+          expect(CollectingEvent.in_date_range(params[:search_start_date], params[:search_end_date], params[:partial_overlap])).to contain_exactly(ce1)
         end
       end
     end
@@ -215,7 +215,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         let!(:ce1) { CollectingEvent.create!(parse_stubs(a, c)) }
 
         specify 'returns' do
-          expect(CollectingEvent.in_date_range(params)).to contain_exactly(ce1) 
+          expect(CollectingEvent.in_date_range(params[:search_start_date], params[:search_end_date], params[:partial_overlap])).to contain_exactly(ce1)
         end
       end
 
@@ -231,7 +231,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         let!(:ce1) { CollectingEvent.create!(parse_stubs(a, d)) }
 
         specify 'returns' do
-          expect(CollectingEvent.in_date_range(params)).to contain_exactly(ce1) 
+          expect(CollectingEvent.in_date_range(params[:search_start_date], params[:search_end_date], params[:partial_overlap])).to contain_exactly(ce1)
         end
       end
 
@@ -244,7 +244,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         let!(:ce1) { CollectingEvent.create!(parse_stubs(c, d)) }
 
         specify 'returns' do
-          expect(CollectingEvent.in_date_range(params)).to contain_exactly() 
+          expect(CollectingEvent.in_date_range(params[:search_start_date], params[:search_end_date], params[:partial_overlap])).to contain_exactly()
         end
       end
 
@@ -257,7 +257,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         let!(:ce1) { CollectingEvent.create!(parse_stubs(c, nil)) }
 
         specify 'returns' do
-          expect(CollectingEvent.in_date_range(params)).to contain_exactly() 
+          expect(CollectingEvent.in_date_range(params[:search_start_date], params[:search_end_date], params[:partial_overlap])).to contain_exactly()
         end
       end
     end
