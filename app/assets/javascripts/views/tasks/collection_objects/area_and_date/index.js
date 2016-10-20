@@ -1,10 +1,10 @@
 var _init_map_table;
+var result_collection;
 
 _init_map_table = function init_map_table() {
   if ($("#co_by_area_and_date").length) {
     if ($("#set_area_form").length) {
       var result_map;  // intended for use to display on a map objects which know how to GeoJSON themselves
-      var result_collection;
       //var area_selector = $("#geographic_area_id_for_by_area");
 
       $(".result_map_toggle").click(function (event) {           // switch to the map view
@@ -54,24 +54,24 @@ _init_map_table = function init_map_table() {
           href = $("#set_area_form").serialize() + '&' + $("#set_date_form").serialize();
         }
         $.get('find', href, function (local_data) {
-          var html = local_data.html;
-          var message = local_data.message;
-          result_collection = local_data.feature_collection;
-          if (message != undefined) {
-            if (message.length == 0) {
-              $("#result_span").text("Total: " + local_data.collection_objects_count);
-            }
-            else {
-              $("#result_span").text(message);
-            }
-          }
-            //$("#show_list").html(html);
-          if (local_data.feature_collection) {
-            if ($("#show_map").attr("hidden") != "hidden") {
-              //$("#show_map").removeAttr('hidden');
-              result_map = TW.vendor.lib.google.maps.initializeMap('simple_map_canvas', result_collection);
-            }
-            }
+          //var html = local_data.html;
+          //var message = local_data.message;
+          ////result_collection = local_data.feature_collection;
+          //if (message != undefined) {
+          //  if (message.length == 0) {
+          //    $("#result_span").text("Total: " + local_data.collection_objects_count);
+          //  }
+          //  else {
+          //    $("#result_span").text(message);
+          //  }
+          //}
+          ////$("#show_list").html(html);
+          //if (local_data.feature_collection) {
+          //  if ($("#show_map").attr("hidden") != "hidden") {
+          //    //$("#show_map").removeAttr('hidden');
+          //    result_map = TW.vendor.lib.google.maps.initializeMap('simple_map_canvas', result_collection);
+          //  }
+          //}
             //processPagination();
           }//, 'json'  // I expect a json response
         );
