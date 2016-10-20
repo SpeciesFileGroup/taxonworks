@@ -76,6 +76,7 @@
         <%= form_tag(result_download_task_url, id: 'download_form', method: :get, remote: true) do %>
             <%= submit_tag('download') %>
         <% end %>
+        <span id="paging_span"></span>
         <div id="show_list">
           <%= render('result_list', collection_objects: @collection_objects) if @collection_objects.count > 0 %>
         </div>
