@@ -30,7 +30,7 @@
 #
 # @!attribute year_of_publication
 #   @return [Integer]
-#   the 4 digit year when this name was published! @proceps- clarify vs. made available.  ? = Source.year?
+#    sensu ICZN - the 4 digit year when this name was published, i.e. made available. Not the publishers date stamped on the title page, but the actual date of publication. Precidence for taxon name publication year is TaxonName#year_of_publication, Source#year, Source#stated_year.
 #
 # @!attribute verbatim_author
 #   @return [String]
