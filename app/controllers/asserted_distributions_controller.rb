@@ -18,12 +18,12 @@ class AssertedDistributionsController < ApplicationController
 
   # GET /asserted_distributions/new
   def new
-    @asserted_distribution = AssertedDistribution.new(source: Source.new)
+    @asserted_distribution = AssertedDistribution.new(origin_citation: Citation.new)
   end
 
   # GET /asserted_distributions/1/edit
   def edit
-   @asserted_distribution.source = Source.new if !@asserted_distribution.source
+    @asserted_distribution.origin_citation.source = Source.new if !@asserted_distribution.origin_citation.source
   end
 
   # POST /asserted_distributions
@@ -33,12 +33,15 @@ class AssertedDistributionsController < ApplicationController
     respond_to do |format|
       if @asserted_distribution.save
         if params[:return_to]
+         
+          # !! 
           source_id = (params.permit('lock_source') ? params[:asserted_distribution][:source_id] : nil)
+
           format.html { redirect_to new_asserted_distribution_task_path(
-                                      asserted_distribution: {
-                                        otu_id:    @asserted_distribution.otu.to_param,
-                                        source_id: source_id}),
-                                    notice: 'Asserted distribution was successfully created.' }
+            asserted_distribution: {
+              otu_id:    @asserted_distribution.otu.to_param,
+              source_id: source_id}),
+              notice: 'Asserted distribution was successfully created.' }
         else
           format.html { redirect_to @asserted_distribution, notice: 'Asserted distribution was successfully created.' }
         end

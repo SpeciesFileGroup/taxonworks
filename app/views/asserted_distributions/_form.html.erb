@@ -28,17 +28,10 @@
                       method: 'source_id',
                       tag_id: 'source_id_for_original_citation_asserted_distribution',
                       size: '50%',
-                      display: source_tag(@asserted_distribution.source)}) 
+                      display: source_tag(@asserted_distribution.origin_citation.source)}) 
                     %>
       </div>
       <% end %>
-
-
-    <div class="field">
-      <%= f.label :verbatim_geographic_area %>
-        <br>
-        <%= f.text_field :verbatim_geographic_area %>
-      </div>
     </div>
 
     <div class="optional">
