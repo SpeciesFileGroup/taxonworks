@@ -40,7 +40,8 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
     @feature_collection       = ::Gis::GeoJSON.feature_collection(find_georeferences_for(@collection_objects,
                                                                                          @geographic_area))
     message                   = 'No collection objects found.' if @collection_objects_count == 0
-      # render_co_select_json(message)
+    @package                  = render_co_select_package(message)
+    # render_co_select_json(message)
   end
 
   # GET
@@ -74,6 +75,12 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
 
   def gather_data
 
+  end
+
+  def render_co_select_package(message)
+    {message:                  message,
+     feature_collection:       @feature_collection,
+     collection_objects_count: @collection_objects_count.to_s}
   end
 
   def render_co_select_json(message)
