@@ -108,11 +108,13 @@ gem 'groupdate', '~> 3.0.0'
 
 gem 'dropzonejs-rails', '~> 0.7.3'
 
-
+gem 'awesome_print', '~> 1.7'
 
 # SFG gems
 gem 'taxonifi', '0.4.0'
 gem 'sqed', '0.2.4'
+
+
 
 group :test, :development do
   gem 'faker', '~> 1.6.1'
@@ -120,7 +122,6 @@ group :test, :development do
   gem 'rspec-activemodel-mocks', '~> 1.0.2'
   gem 'inch', '~> 0.7'
   gem 'byebug', '~> 9.0.5', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
-  gem 'awesome_print', '~> 1.7'
   gem 'factory_girl_rails', '~> 4.7'
   gem 'selenium-webdriver', '~> 2.53.4'
 end
