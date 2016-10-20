@@ -1,7 +1,7 @@
 # Shared code for Citations.  
 #
-#   The default behaviour with order by youngest source and oldest source is to place records with NIL *last* in the list.  
-#   When multiple citations exist the earliest or latest is used in the sort order.
+#  The default behaviour with order by youngest source and oldest source is to place records with NIL *last* in the list.  
+#  When multiple citations exist the earliest or latest is used in the sort order.
 #
 module Shared::Citable
   extend ActiveSupport::Concern
@@ -53,7 +53,7 @@ module Shared::Citable
       d =  Arel::Attribute.new(Arel::Table.new(:sources), :cached_nomenclature_date)
       r  = Arel::Attribute.new(Arel::Table.new(related_table_name), :id)
       f1 = Arel::Nodes::NamedFunction.new('Now', [] )
-    
+
       func = Arel::Nodes::NamedFunction.new('COALESCE', [d, f1])
       func2 = Arel::Nodes::NamedFunction.new('min', [func])
 
@@ -67,14 +67,23 @@ module Shared::Citable
         where("citations.citation_object_type = '#{related_class}' OR citations.citation_object_type is null").
         group(r).
         order(func2)
-  end 
+    end 
 
     accepts_nested_attributes_for :citations, reject_if: :reject_citations, allow_destroy: true
     accepts_nested_attributes_for :origin_citation, reject_if: :reject_citations, allow_destroy: true
+
+    validate :origin_citation_source_id, if: '!new_record?'
   end
 
-  class_methods do
 
+  def origin_citation_source_id
+    if origin_citation && origin_citation.source_id.blank?
+      errors.add(:base, 'the origin citation must have a source')
+    end
+  end
+
+
+  class_methods do
     def oldest_by_citation
       order_by_oldest_source_first.limit(1).to_a.first
     end
@@ -84,6 +93,12 @@ module Shared::Citable
     end
   end
 
+  # @return [Boolean]
+  #   if at least one citation is required override this with true in including class
+  def requires_citation?
+    false
+  end
+
   def cited?
     self.citations.any?
   end
@@ -91,7 +106,9 @@ module Shared::Citable
   protected 
 
   def reject_citations(attributed)
-    attributed['source_id'].blank? # || attributed['type'].blank?
-end
+    if new_record? && attributed['source_id'].blank?
+      true
+    end
+  end
 
 end

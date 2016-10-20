@@ -1,4 +1,5 @@
-# An Asserted distribution is the assertion that a taxon is present in some *spatial area*.
+# An AssertedDistribution is the assertion that a taxon is present in some *spatial area*.  It requires a Citation indicating where/who made the assertion.  
+# In TaxonWorks the areas are drawn from GeographicAreas, which essentially represent a gazeteer of 3 levels of subdivision (e.g. country, state, county).
 #
 #
 # @!attribute otu_id
@@ -19,7 +20,7 @@
 #
 # @!attribute is_absent
 #   @return [Boolean]
-#   @todo
+#     a positive negative, when true then there exists an assertion that the taxon is not present in the area
 #
 class AssertedDistribution < ActiveRecord::Base
   include Housekeeping
@@ -36,18 +37,16 @@ class AssertedDistribution < ActiveRecord::Base
   accepts_nested_attributes_for :otu, allow_destroy: false, reject_if: proc { |attributes| attributes['name'].blank? && attributes['taxon_name_id'].blank?  }
 
   validates_presence_of :otu_id, message: 'Taxon is not specified', if: proc { |attributes| attributes['otu_attributes'] && (!attributes['otu_attributes']['name'] || !attributes['otu_attributes']['taxon_name_id'])}
+  validates_presence_of :geographic_area_id, message: 'geographic area is not selected'
 
-#  validates_presence_of :geographic_area_id, message: 'Geographic area is not selected'
-#  validates_presence_of :source_id, message: 'Source is not selected'
-#  validates :geographic_area, presence: true
+  # Might not be able to do these for nested attributes
+  validates :geographic_area, presence: true
   validates :otu, presence: true
-#  validates :source, presence: true
 
-#  validates_uniqueness_of :geographic_area_id, scope: [:otu_id, :source_id], message: 'record for this source/otu combination already exists'
-  validates_uniqueness_of :geographic_area_id, scope: :otu_id
+  validates_uniqueness_of :geographic_area_id, scope: [:project_id, :otu_id], message: 'record for this source/otu combination already exists'
 
-  before_validation :check_required_fields
-
+  validate :new_records_include_citation
+  
   scope :with_otu_id, -> (otu_id) { where(otu_id: otu_id) }
   scope :with_geographic_area_id, -> (geographic_area_id) { where(geographic_area_id: geographic_area_id) }
   scope :with_geographic_area_array, -> (geographic_area_array) { where('geographic_area_id IN (?)', geographic_area_array) }
@@ -55,6 +54,7 @@ class AssertedDistribution < ActiveRecord::Base
   scope :without_is_absent, -> { where('is_absent = false OR is_absent is Null') }
 
   soft_validate(:sv_conflicting_geographic_area, set: :conflicting_geographic_area)
+
 
   def self.find_for_autocomplete(params)
     # where('geographic_area LIKE ?', "%#{params[:term]}%").with_project_id(params[:project_id])
@@ -65,8 +65,15 @@ class AssertedDistribution < ActiveRecord::Base
         where(geographic_areas: {name: term}, otus: {name: term}).with_project_id(params[:project_id])
   end
 
+  # @return [True]
+  #   see citable.rb
+  def requires_citation?
+    true
+  end
+
+
   def to_geo_json_feature
-    retval = {
+    {
       'type'       => 'Feature',
       'geometry'   => RGeo::GeoJSON.encode(self.geographic_area.geographic_items.first.geo_object),
       'properties' => {
@@ -75,19 +82,15 @@ class AssertedDistribution < ActiveRecord::Base
         }
       }
     }
-    retval
   end
 
   protected
 
-  def check_required_fields
-    if self.geographic_area_id.nil? && self.verbatim_geographic_area.blank?
-      errors.add(:geographic_area_id, 'and/or verbatim geographic area should be selected')
-      errors.add(:verbatim_geographic_area, 'and/or geographic area should be selected')
-    end
+  def new_records_include_citation
+    if new_record? && source.blank? && origin_citation.blank?
+      errors.add(:base, 'required citation is not provided')
+    end 
   end
-
-  #region Soft validation
 
   def sv_conflicting_geographic_area
     ga = self.geographic_area
@@ -103,17 +106,17 @@ class AssertedDistribution < ActiveRecord::Base
     end
   end
 
-  #end region
-
-  #region Class methods
-
   # @param options [Hash] of e.g., {otu_id: 5, source_id: 5, geographic_areas: Array of {GeographicArea}}
-  # @return an array of new AssertedDistributions.
+  # @return an array of AssertedDistributions.new()
   def self.stub_new(options = {})
+    options.symbolize_keys!
     result = []
-    options['geographic_areas'].each do |ga|
-#      result.push(AssertedDistribution.new(source_id: options['source_id'], otu_id: options['otu_id'], geographic_area: ga))
-      result.push(AssertedDistribution.new(otu_id: options['otu_id'], geographic_area: ga))
+    options[:geographic_areas].each do |ga|
+      result.push(AssertedDistribution.new(
+        otu_id: options[:otu_id], 
+        geographic_area: ga,
+        origin_citation_attributes: {source_id: options[:source_id]}
+      ))
     end
     result
   end
@@ -128,6 +131,5 @@ class AssertedDistribution < ActiveRecord::Base
       end
     end
   end
-
-  #end region
+  
 end

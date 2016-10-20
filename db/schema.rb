@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161018204006) do
+ActiveRecord::Schema.define(version: 20161020143529) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -41,15 +41,14 @@ ActiveRecord::Schema.define(version: 20161018204006) do
   add_index "alternate_values", ["updated_by_id"], name: "index_alternate_values_on_updated_by_id", using: :btree
 
   create_table "asserted_distributions", force: :cascade do |t|
-    t.integer  "otu_id",                   null: false
-    t.integer  "geographic_area_id",       null: false
-    t.integer  "project_id",               null: false
-    t.integer  "created_by_id",            null: false
-    t.integer  "updated_by_id",            null: false
-    t.datetime "created_at",               null: false
-    t.datetime "updated_at",               null: false
+    t.integer  "otu_id",             null: false
+    t.integer  "geographic_area_id", null: false
+    t.integer  "project_id",         null: false
+    t.integer  "created_by_id",      null: false
+    t.integer  "updated_by_id",      null: false
+    t.datetime "created_at",         null: false
+    t.datetime "updated_at",         null: false
     t.boolean  "is_absent"
-    t.string   "verbatim_geographic_area"
   end
 
   add_index "asserted_distributions", ["created_by_id"], name: "index_asserted_distributions_on_created_by_id", using: :btree

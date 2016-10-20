@@ -38,6 +38,15 @@ class Citation < ActiveRecord::Base
   accepts_nested_attributes_for :citation_topics, allow_destroy: true, reject_if: :reject_citation_topics
   accepts_nested_attributes_for :topics, allow_destroy: true, reject_if: :reject_topic
 
+  before_destroy :prevent_if_required
+
+  def prevent_if_required
+    if !new_record? && citation_object.requires_citation? && citation_object.citations(true).count == 1
+      errors.add(:base, 'at least one citation is required')
+      return false
+    end 
+  end
+
   after_save :update_related_cached_values, if: 'is_original?'
 
   # @return [Scope of matching sources]

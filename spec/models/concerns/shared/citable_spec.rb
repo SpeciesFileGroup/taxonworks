@@ -70,7 +70,7 @@ describe 'Citable', type: :model, group: [:nomenclature] do
       expect(class_with_citations.cited?).to eq(false)
     end
 
-    specify 'cited? with some citations' do
+    specify '#cited? with some citations' do
       class_with_citations.citations << citation 
       expect(class_with_citations.cited?).to eq(true)
     end
