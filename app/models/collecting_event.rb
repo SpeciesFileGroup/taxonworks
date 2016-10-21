@@ -370,11 +370,11 @@ class CollectingEvent < ActiveRecord::Base
     # engineered for st_flexpicker/en_flexpicker (yyyy/mm/dd)
     # @param [String] st_date (yyyy/mm/dd)
     # @param [String] end_date (yyyy/mm/dd)
-    # @param [Boolean] greedy default = true,
-    #                           false; found range must be completely inside supplied range
-    #                           true; found range is only required to start inside supplied range
+    # @param [Boolean] allow_partial default = true,
+    #                                  true; found range is only required to start inside supplied range
+    #                                  false; found range must be completely inside supplied range
     # @return [String] sql for records between the two specific dates
-    def date_sql_from_dates(st_date, end_date, greedy = true)
+    def date_sql_from_dates(st_date, end_date, allow_partial = true)
       parts    = st_date.split('/')
       st_year  = parts[0].to_i
       st_month = parts[1].to_i
@@ -429,15 +429,17 @@ class CollectingEvent < ActiveRecord::Base
 
       en_string = '(' + part_1e + select_1_3 + part_3e + ')' + (part_2e.blank? ? '' : ' or ') + part_2e
 
-      sql_string = st_string + (greedy ? ' or ' : ' and ') + en_string
+      sql_string = st_string + (allow_partial ? ' or ' : ' and ') + en_string
       sql_string
     end
 
-    # @param [Hash] params of parameters
+    # @param [Hash] search_start_date
+    # @param [Hash] search_end_date
+    # @param [Hash] partial_overlap
     # @return [Scope] of selected collecting events with georeferences
-    def in_date_range(search_start_date = '', search_end_date = '', partial_overlap = 'on')
-      allow_partial = (partial_overlap == "off" ? false : true)
-      sql_string = date_sql_from_dates(search_start_date, search_end_date, allow_partial)
+    def in_date_range(search_start_date: nil, search_end_date: nil, partial_overlap: 'on')
+      allow_partial = (partial_overlap.casecmp('off') ? false : true)
+      sql_string    = date_sql_from_dates(search_start_date, search_end_date, allow_partial)
       CollectingEvent.where(sql_string).uniq
     end
 
