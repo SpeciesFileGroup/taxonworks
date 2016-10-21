@@ -244,7 +244,7 @@ namespace :tw do
             #source.save!
             begin
               source.project_sources.create!
-            rescue 'ActiveRecord::RecordInvalid'
+            rescue ActiveRecord::RecordInvalid
             end
 
             source_id = source.id
