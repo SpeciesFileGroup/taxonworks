@@ -78,7 +78,7 @@ namespace :tw do
                 tnr.save!
                 puts 'TaxonNameRelationship Invalidating created'
               else # tnr not valid
-                logger.error "TaxonNameRelationship Invalidating ERROR tw.project_id #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id} (Error # #{error_counter += 1}): " + tnr.errors.full_messages.join(';')
+                logger.error "TaxonNameRelationship Invalidating ERROR tw.project_id #{project_id}, object: SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id}, subject: SF.TaxonNameID #{row['AboveID']} = TW.taxon_name_id #{above_id} (Error # #{error_counter += 1}): " + tnr.errors.full_messages.join(';')
               end
             end
 
