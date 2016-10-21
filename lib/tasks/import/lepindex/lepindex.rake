@@ -26,6 +26,7 @@ namespace :tw do
         end
       end
 
+        desc 'import_all lep index data, like rake tw:project_import:lepindex data_directory=/foo/var/'
         task :import_all => [:data_directory, :environment] do |t|
 
           @list_of_relationships = []
@@ -229,6 +230,7 @@ namespace :tw do
                                          stated_year: stated_year,
                                          month: month
             )
+            
             if !tmp['PUBLICATION_YEAR'].blank? && year.nil?
               source.data_attributes.new(import_predicate: 'PUBLICATION_YEAR', value: tmp['PUBLICATION_YEAR'], type: 'ImportAttribute')
             end
@@ -240,14 +242,19 @@ namespace :tw do
             end
 
             #source.save!
-            source.project_sources.create!
-            source = source.id
-            @data.publications_index.merge!(tmp => source)
+            begin
+              source.project_sources.create!
+            rescue 'ActiveRecord::RecordInvalid'
+            end
+
+            source_id = source.id
+            @data.publications_index.merge!(tmp => source_id)
           else
-            source = @data.publications_index[tmp]
+            source_id = @data.publications_index[tmp]
           end
+
           @data.citations_index.merge!(row['NEW_REF_ID'] => row)
-          @data.citation_to_publication_index.merge!(row['NEW_REF_ID'] => source)
+          @data.citation_to_publication_index.merge!(row['NEW_REF_ID'] => source_id)
         end
 
         puts "\nResolved #{@data.publications_index.keys.count} publications\n"
