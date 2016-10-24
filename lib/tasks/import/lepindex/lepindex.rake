@@ -1,6 +1,6 @@
 require 'fileutils'
 
-### rake tw:project_import:lepindex:import_all data_directory=/Users/proceps/src/sf/import/lep_index/ no_transaction=true
+### rake tw:project_import:lepindex:import_all data_directory=/Users/proceps/src/lep_index/ no_transaction=true
 
 namespace :tw do
   namespace :project_import do
@@ -231,7 +231,7 @@ namespace :tw do
               source.data_attributes.new(import_predicate: 'PUBLICATION_MONTH', value: tmp['PUBLICATION_MONTH'], type: 'ImportAttribute')
             end
             source.author = tmp['IN_AUTHOR'].blank? ? tmp['AUTHOR'] : tmp['IN_AUTHOR']
-          
+
 
             source.save!
             source.project_sources.create!

@@ -5,8 +5,8 @@ require 'benchmark'
 # When first starting development, use a blank database with:
 #    rake db:drop && rake db:create && rake db:migrate
 #
-#    rake tw:project_import:insects:import_insects data_directory=/Users/proceps/src/sf/import/inhs-insect-collection-data/ no_transaction=true
-# Only data upto the handle_taxa_insects can be loaded from the database or restored from 
+#    rake tw:project_import:insects:import_insects data_directory=/Users/proceps/src/inhs-insect-collection-data/ no_transaction=true
+# Only data upto the handle_taxa_insects can be loaded from the database or restored from
 # a dump file.  All data after that (specimens, collecting events) must be parsed from scratch.
 #
 # Be aware of shared methods in lib/tasks/import/shared.rake.
@@ -17,6 +17,8 @@ require 'benchmark'
 # a.set(a, b)
 # a.get(a)
 # hash.sort
+# reload the previous database as stored in repository:
+# rake tw:db:restore file=2016-10-07_222525UTC.dump  backup_directory=/Users/proceps/src/inhs-insect-collection-data/pg_dumps/
 
 namespace :tw do
   namespace :project_import do
@@ -58,7 +60,7 @@ namespace :tw do
 
         end
 
-        def export_to_pg(data_directory) 
+        def export_to_pg(data_directory)
           puts "\nExporting snapshot of datababase to all.dump."
           Support::Database.pg_dump_all('taxonworks_development', data_directory, 'all.dump')
         end
@@ -92,8 +94,8 @@ namespace :tw do
       # Attributes to strip on CollectingEvent creation
       STRIP_LIST = %w{ModifiedBy ModifiedOn CreatedBy CreatedOn Latitude Longitude Elevation} # the last three are calculated
 
-#      TAXA = {}
-#      PEOPLE = {}
+      #      TAXA = {}
+      #      PEOPLE = {}
 
       desc "Import the INHS insect collection dataset.\n
       rake tw:project_import:insects:import_insects data_directory=/Users/matt/src/sf/import/inhs-insect-collection-data/  \n
@@ -104,8 +106,8 @@ namespace :tw do
         puts @args
         Utilities::Files.lines_per_file(Dir["#{@args[:data_directory]}/TXT/**/*.txt"])
 
-        @dump_directory = dump_directory(@args[:data_directory]) 
-        @data1 = ImportedData1.new
+        @dump_directory = dump_directory(@args[:data_directory])
+        @data1          = ImportedData1.new
 
         restore_from_pg_dump if ENV['restore_from_dump'] && File.exists?(@dump_directory + 'all.dump')
 
@@ -114,7 +116,7 @@ namespace :tw do
             puts 'Importing without a transaction (data will be left in the database).'
             main_build_loop_insects
           else
-            ActiveRecord::Base.transaction do 
+            ActiveRecord::Base.transaction do
               main_build_loop_insects
               raise
             end
@@ -131,7 +133,7 @@ namespace :tw do
       end
 
       # handle the tables in this order
-      #--- mostly done 
+      #--- mostly done
       #  people.txt
       #  taxa_hierarchical.txt
       #--- mostly done
@@ -153,9 +155,9 @@ namespace :tw do
       #  neon.txt
 
       def main_build_loop_insects
-        @import = Import.find_or_create_by(name: IMPORT_NAME)  
-        @import.metadata ||= {} 
-        
+        @import          = Import.find_or_create_by(name: IMPORT_NAME)
+        @import.metadata ||= {}
+
         handle_projects_and_users_insects(@data1, @import)
         raise '$project_id or $user_id not set.'  if $project_id.nil? || $user_id.nil?
         handle_namespaces_insects(@data1, @import)
@@ -788,9 +790,9 @@ namespace :tw do
 
         if !ce['LocalityLabel'].blank? && ce['LocalityLabel'].to_s.length > 5
           md5 = Utilities::Strings.generate_md5(ce['LocalityLabel'])
-         
+
           c = CollectingEvent.where(md5_of_verbatim_label: md5, project_id: $project_id).first
-          
+
           if !c.nil? && c_from_redis.nil?
             @redis.set(Digest::MD5.hexdigest(tmp_ce_sorted), c.id)
 
@@ -883,9 +885,9 @@ namespace :tw do
           end
 
           gr = geolocation_uncertainty.nil? ? false : c.generate_verbatim_data_georeference(true, no_cached: true)
-          
+
           unless gr == false
-            gr.is_public = true        
+            gr.is_public = true
 
             if gr.valid?
               c.update_column(:geographic_area_id, nil)
@@ -893,16 +895,16 @@ namespace :tw do
               gr.save
             end
 
-            # Do a second pass to see if the uncertainty 
+            # Do a second pass to see if the uncertainty
             gr.error_radius = geolocation_uncertainty
 
             if gr.valid?
               gr.no_cached = true
               gr.save
             else
-              c.data_attributes.create(type: 'ImportAttribute', 
-                                       import_predicate: 'georeference_error', 
-                                       value: 'Geolocation uncertainty is conflicting with geographic area') 
+              c.data_attributes.create(type:             'ImportAttribute',
+                                       import_predicate: 'georeference_error',
+                                       value:            'Geolocation uncertainty is conflicting with geographic area')
             end
           end
 
@@ -980,22 +982,22 @@ namespace :tw do
 
       #   ID             Not Included (parent use only)
       #
-      #   Name           TaxonName#name  
+      #   Name           TaxonName#name
       #   Author         TaxonName#verbatim_author
       #   Year           TaxonName#year_of_publication
       #   Parens         TaxonName#verbatim_author addition
       #   Rank           TaxonName#rank
       #   Parent         TaxonName#parent_id
-      #   Synonyms       'Taxa#Synonyms'  
-      #   References     'Taxa#References' 
+      #   Synonyms       'Taxa#Synonyms'
+      #   References     'Taxa#References'
       #   Remarks         Note
-      #   CreatedOn 
+      #   CreatedOn
       #   ModifiedOn
-      #   CreatedBy 
+      #   CreatedBy
       #   ModifiedBy
       #
       # -- is on the OTU
-      #   TaxonCode      New Namespace Identifier 
+      #   TaxonCode      New Namespace Identifier
       def handle_taxa_insects(data, import)
         print "Handling taxa "
         if import.metadata['taxa']
@@ -1565,11 +1567,11 @@ namespace :tw do
         le.each do |row|
           i += 1
           tmp_ce = { }
-        
+
           fields.each do |c|
             tmp_ce[c] = row[c] unless row[c].blank?
           end
-         
+
           unless tmp_ce['LocalityCode'].nil?
             if data.localities_index[tmp_ce['LocalityCode']].nil?
               print "\nLocality Code #{tmp_ce['LocalityCode']} does not exist!\n"
@@ -1784,11 +1786,11 @@ namespace :tw do
               #specimen = identifier.empty? ? nil : identifier.first.identifier_object
 
          #     otu = Otu.with_project_id($project_id).with_identifier('Taxon Code ' + data.loan_invoice_speciments[row['CatalogNumber']]['TaxonCode'].to_s)
-          
+
               otu = Identifier.where(
-                project_id: $project_id, 
-                cached: 'Taxon Code ' + data.loan_invoice_speciments[row['CatalogNumber']]['TaxonCode'].to_s,
-                identifier_object_type: 'Otu' 
+                project_id:             $project_id,
+                cached:                 'Taxon Code ' + data.loan_invoice_speciments[row['CatalogNumber']]['TaxonCode'].to_s,
+                identifier_object_type: 'Otu'
               ).first.try(:identifier_object)
 
               loan_item_object = otu # .empty? ? nil : otu.first
@@ -1856,7 +1858,7 @@ namespace :tw do
           i += 1
           print "\r#{i}"
           otu = Identifier.where(project_id: $project_id, cached: 'Taxon Code ' + row['TaxonCode'].to_s, identifier_object_type: 'Otu').first.try(:identifier_object)
-          
+
           room = find_or_create_room_insects(row, data)
 
           container = Container.create!(created_by_id: find_or_create_collection_user_insects(row['CreatedBy'], data),
@@ -1961,7 +1963,7 @@ namespace :tw do
             if ce = Identifier.where(project_id: $project_id, cached: 'Accession Code ' + identifier, identifier_object_type: 'CollectingEvent').first.try(:identifier_object)
               ce.depictions << Depiction.create(image_attributes: { image_file: File.open(file) })
             else
-              print "\nCollecting event with identifier #{identifier} does not exist\n"             
+              print "\nCollecting event with identifier #{identifier} does not exist\n"
               #d1 = Depiction.create(image_attributes: { image_file: File.open(file) }, depiction_object: ce)
             end
           end
@@ -2087,7 +2089,7 @@ namespace :tw do
 
       def parse_elevation_insects(ce)
         ft =  ce['Elev_ft']
-        m = ce['Elev_m'] 
+        m  = ce['Elev_m']
 
         if !ft.blank? && !m.blank? && !Utilities::Measurements.feet_equals_meters(ft, m)
           puts "\n !! Feet and meters both providing and not equal: #{ft}, #{m}."

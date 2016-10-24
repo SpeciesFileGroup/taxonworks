@@ -1,7 +1,7 @@
 require 'fileutils'
 
-### rake tw:project_import:ucd:import_ucd data_directory=/Users/proceps/src/sf/import/ucd/working/ no_transaction=true
-### rake tw:db:restore backup_directory=/Users/proceps/src/sf/import/ucd/dump/ file=2016-09-07_211456UTC.dump
+### rake tw:project_import:ucd:import_ucd data_directory=/Users/proceps/src/ucd/working/ no_transaction=true
+### rake tw:db:restore backup_directory=/Users/proceps/src/ucd/dump/ file=2016-09-07_211456UTC.dump
 
 
 # COLL.txt          Done
@@ -701,7 +701,7 @@ namespace :tw do
         }
 
         fext_data = {}
-        
+
         file1.each_with_index do |r, i|
           fext_data[r[0]] =  { translate: r[1], notes: r[2], publisher: r[3], ext_author: r[4], ext_title: r[5], ext_journal: r[6], editor: r[7] }
         end
@@ -789,7 +789,7 @@ namespace :tw do
         end
 
         fext_data = nil
-        keywords = nil 
+        keywords  = nil
       end
 
       def combinations_codes_ucd
@@ -1501,7 +1501,7 @@ namespace :tw do
         @data.taxon_codes[key.to_s] || Identifier.where(cached: 'UCD_Hos_Number ' + key.to_s, identifier_object_type: 'TaxonName', project_id: $project_id).limit(1).pluck(:identifier_object_id).first
       end
 
-      
+
       # TODO: This should pluck an :id not, return the object?
       def find_taxon_ucd(key)
         Identifier.find_by(cached: 'UCD_Taxon_ID ' + key.to_s, identifier_object_type: 'TaxonName', project_id: $project_id).try(:identifier_object)

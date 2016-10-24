@@ -1,6 +1,6 @@
   require 'fileutils'
 
-  ### rake tw:project_import:access3i:import_all data_directory=/Users/proceps/src/sf/import/3i/TXT/ no_transaction=true
+  ### rake tw:project_import:access3i:import_all data_directory=/Users/proceps/src/3i/TXT/ no_transaction=true
 
   namespace :tw do
     namespace :project_import do
@@ -1075,7 +1075,7 @@
         # HostPlant
         # Notes
         # size
-        
+
         path = @args[:data_directory] + 'littable.txt'
         print "\nHandling citation topics\n"
         raise "file #{path} not found" if not File.exists?(path)
