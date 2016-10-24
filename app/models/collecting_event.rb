@@ -367,7 +367,7 @@ class CollectingEvent < ActiveRecord::Base
     # Other
     #
 
-    # engineered for st_flexpicker/en_flexpicker (yyyy/mm/dd)
+    # engineered for search_start_date/search_end_date (yyyy/mm/dd)
     # @param [String] st_date (yyyy/mm/dd)
     # @param [String] end_date (yyyy/mm/dd)
     # @param [Boolean] allow_partial default = true,
