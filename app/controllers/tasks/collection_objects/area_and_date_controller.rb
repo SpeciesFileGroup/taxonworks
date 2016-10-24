@@ -29,7 +29,7 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
     if (@start_date.blank? || @end_date.blank?) || area_objects.count == 0
       @collection_objects = CollectionObject.where('false')
     else
-      collecting_events = CollectingEvent.in_date_range(params['st_flexpicker'], params['en_flexpicker'], params['greedy'])
+      collecting_events = CollectingEvent.in_date_range(date_range_params) #
       @collection_objects = CollectionObject.includes(:collecting_event)
                               .where(collecting_event_id: collecting_events)
                               .where(id: area_objects.map(&:id))
@@ -57,7 +57,7 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
   def set_date
     set_and_order_dates(params)
     # range_sql = CollectingEvent.date_sql_from_dates(@start_date, @end_date, false)
-    collecting_events         = CollectingEvent.in_date_range(params)
+    collecting_events = CollectingEvent.in_date_range(date_range_params)
     @collection_objects       = CollectionObject.includes(:collecting_event)
                                   .where(collecting_event_id: collecting_events)
     @collection_objects_count = @collection_objects.count
@@ -105,15 +105,21 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
   end
 
   def set_and_order_dates(params)
-    @start_date = params[:st_flexpicker]
-    @end_date   = params[:en_flexpicker]
+    @start_date = params[:search_start_date]
+    @end_date = params[:search_end_date]
     if (@start_date > @end_date)
-      params[:st_flexpicker] = @end_date
-      params[:en_flexpicker] = @start_date
-      @start_date            = params[:st_flexpicker]
-      @end_date              = params[:en_flexpicker]
+      params[:search_start_date] = @end_date
+      params[:search_end_date] = @start_date
+      @start_date = params[:search_start_date]
+      @end_date = params[:search_end_date]
     end
 
+  end
+
+  protected
+
+  def date_range_params
+    params.permit('search_start_date', 'search_end_date', 'partial_overlap').to_h.symbolize_keys
   end
 
 end
