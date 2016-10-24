@@ -94,9 +94,9 @@ _init_map_table = function init_map_table() {
     var dateInput;
 
 
-    set_control($("#st_fixedpicker"), $("#st_flexpicker"), format, year, $("#early_date").text());
+    set_control($("#st_fixedpicker"), $("#search_start_date"), format, year, $("#early_date").text());
 
-    set_control($("#en_fixedpicker"), $("#en_flexpicker"), format, year, $("#late_date").text());
+    set_control($("#en_fixedpicker"), $("#search_end_date"), format, year, $("#late_date").text());
 
     function set_control(control, input, format, year, st_en_day) {
       if (control.length) {
@@ -112,11 +112,11 @@ _init_map_table = function init_map_table() {
       }
     }
 
-    $("#st_flexpicker").change(function (event) {
+    $("#search_start_date").change(function (event) {
       update_and_graph(event)
     });    // listener for keyboard
 
-    $("#en_flexpicker").change(function (event) {
+    $("#search_end_date").change(function (event) {
       update_and_graph(event)
     });    // change of date
 
@@ -173,8 +173,8 @@ _init_map_table = function init_map_table() {
       var newEndText = $(".label.select-label")[0].textContent;
       var newStartDate = new Date(newStartText);
       var newEndDate = new Date(newEndText);
-      $("#st_flexpicker").val(newStartText);
-      $("#en_flexpicker").val(newEndText);
+      $("#search_start_date").val(newStartText);
+      $("#search_end_date").val(newEndText);
       //offset = newEndDate - newStartDate;
       update_and_graph(event);
       //$(".label.range-label")[0].textContent = $(".label.select-label")[1].textContent;
