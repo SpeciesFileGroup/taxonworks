@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Tasks::CollectionObjects::AreaAndDateController, type: :controller do
+describe Tasks::CollectionObjects::AreaAndDateController, type: :controller, group: [:geo, :collecting_event] do
   # include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before(:all) {
