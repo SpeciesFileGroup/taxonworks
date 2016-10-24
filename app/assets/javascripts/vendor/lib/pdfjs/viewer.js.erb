@@ -1,7 +1,7 @@
 
 $(document).ready(function() {
 
-var pdfUrl = '/system/documents/document_files/000/000/001/original/compressed.tracemonkey_pldi_09.pdf'; //<--- Change the route here.
+var pdfUrl = '/system/documents/document_files/000/000/003/original/compressed.tracemonkey_pldi_09.pdf'; //<--- Change the route here.
 
 'use strict';
 
@@ -64,6 +64,9 @@ var pdfUrl = '/system/documents/document_files/000/000/001/original/compressed.t
         var canvasContext = canvas.getContext('2d');
         var viewport = pdfPage.getViewport(actualScale);
         PAGE_HEIGHT = viewport.height;
+
+        $(container).empty();
+        $(canvas).empty();
 
         widthPixelDensity = Math.floor(viewport.width/window.devicePixelRatio) + 'px';
         heightPixelDensity = Math.floor(viewport.height/window.devicePixelRatio) + 'px';
@@ -168,7 +171,6 @@ var pdfUrl = '/system/documents/document_files/000/000/001/original/compressed.t
 
     $('#viewer').mouseup(function() {
       textCopy = getSelectedText();
-     // alert(textCopy);
     });
 
     $( "input" ).dblclick(function() {
