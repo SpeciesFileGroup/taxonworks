@@ -1,7 +1,5 @@
-<div class="slide-panel">
-  <div class="slide-panel-header">Pinboard</div>
-  <div class="slide-panel-category">
-  <%= render partial: '/pinboard_items/pinboard' -%>
-  </div> 
+<div class="slide-panel <%= yield :header_class %>">
+  <div class="slide-panel-header"><%= yield :panel_name -%> </div>
+    <%= yield :panel_contents -%>
   <div class="slide-panel-circle-icon"></div>
 </div>

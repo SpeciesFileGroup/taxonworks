@@ -18,9 +18,12 @@ $default-padding: 2em;
 	}
 
 	.slide-panel-content {
+		position: relative;
+		display: block;
 		overflow-y:auto;
-		height:95%;
-		box-sizing: border-box;
+		overflow-x: auto;
+		width: 100%;
+		height: calc(100% - 60px);
 	}	
 
 	.slide-panel-header {
@@ -33,6 +36,11 @@ $default-padding: 2em;
 		padding-left: $default-padding;
 		background-color: $header-color;
 	}
+
+	.slide-panel-category-content {
+		border-left: 5px solid transparent;
+		padding-left: $default-padding;
+	}	
 
 	.slide-panel-category-item {
 		display: flex;
@@ -85,4 +93,10 @@ $default-padding: 2em;
 	.slide-panel-header {
 		background-color: #770000;
 	}
+	.slide-panel-circle-icon {
+		top:calc(50vh - 60px);
+		background-color: #770000;
+		background-image: image-url('b_book.svg');
+	}
+
 }

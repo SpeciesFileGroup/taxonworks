@@ -1,0 +1,194 @@
+
+$(document).ready(function() {
+
+var pdfUrl = '/system/documents/document_files/000/000/001/original/compressed.tracemonkey_pldi_09.pdf'; //<--- Change the route here.
+
+'use strict';
+
+    var pdfDocument = void 0;
+    var PAGE_HEIGHT = void 0;
+    var DEFAULT_SCALE = 1.3;
+    var actualScale = DEFAULT_SCALE;
+    var actualPage;
+
+    PDFJS.workerSrc = '<%= asset_path("vendor/src/pdfjs/pdf.worker.js") %>';
+    PDFJS.disableWorker = true; 
+
+    loadPDF(pdfUrl);
+
+    function loadPDF(pdfUrl) {
+      $('#viewer').empty();
+
+      PDFJS.getDocument(pdfUrl).then(function (pdf) {
+        pdfDocument = pdf;
+
+        var viewer = document.getElementById('viewer');
+        for (var i = 0; i < pdf.pdfInfo.numPages; i++) {
+          var page = createEmptyPage(i + 1);
+          viewer.appendChild(page);
+        }
+        actualPage = 1;
+        loadPage(actualPage);
+      });
+    }
+
+    function createEmptyPage(num) {
+      var page = document.createElement('div');
+      var canvas = document.createElement('canvas');
+      var wrapper = document.createElement('div');
+      var textLayer = document.createElement('div');
+
+      page.className = 'page';
+      wrapper.className = 'canvasWrapper';
+      textLayer.className = 'textLayer';
+
+      page.setAttribute('id', 'pageContainer' + num);
+      page.setAttribute('data-loaded', 'false');
+      page.setAttribute('data-page-number', num);
+
+      canvas.setAttribute('id', 'page' + num);
+
+      page.appendChild(wrapper);
+      page.appendChild(textLayer);
+      wrapper.appendChild(canvas);
+
+      return page;
+    }
+
+    function loadPage(pageNum) {
+      return pdfDocument.getPage(pageNum).then(function (pdfPage) {
+        var page = document.getElementById('pageContainer' + pageNum);
+        var canvas = page.querySelector('canvas');
+        var wrapper = page.querySelector('.canvasWrapper');
+        var container = page.querySelector('.textLayer');
+        var canvasContext = canvas.getContext('2d');
+        var viewport = pdfPage.getViewport(actualScale);
+        PAGE_HEIGHT = viewport.height;
+
+        widthPixelDensity = Math.floor(viewport.width/window.devicePixelRatio) + 'px';
+        heightPixelDensity = Math.floor(viewport.height/window.devicePixelRatio) + 'px';
+
+        canvas.width = viewport.width * 2;
+        canvas.height = viewport.height * 2;
+
+        canvas.style.width = "100%";
+        canvas.style.height = "100%";
+        wrapper.style.width = viewport.width;
+        wrapper.style.height = viewport.height;
+
+        page.style.width = viewport.width  + 'px';
+        page.style.height = viewport.height + 'px';
+        container.style.width = viewport.width  + 'px';
+        container.style.height = viewport.height + 'px';
+        canvasContext.scale(2,2);    
+
+        pdfPage.render({
+          canvasContext: canvasContext,
+          viewport: viewport
+        });
+
+        pdfPage.getTextContent().then(function (textContent) {
+          PDFJS.renderTextLayer({
+            textContent: textContent,
+            container: container,
+            viewport: viewport,
+            textDivs: []
+          });
+        });
+
+        page.setAttribute('data-loaded', 'true');
+
+        return pdfPage;
+      });
+    }
+
+    function handleWindowScroll(scrollPosition) {
+
+      var visiblePageNum = Math.round(scrollPosition / PAGE_HEIGHT) + 1;
+      actualPage = visiblePageNum;
+      var visiblePage = $('.page[data-page-number="' + visiblePageNum + '"][data-loaded="false"]');
+      if ($(visiblePage).attr('data-loaded') == 'false') {
+        $(visiblePage).attr('data-loaded', 'true');
+        loadPage(visiblePageNum);
+      }
+    }
+
+    function resetLoadedStatus(num) {
+        $('.page').each(function(i) {
+            $(this).attr('data-loaded', 'false');
+        });
+    }
+
+    function displayPage(pdf, num) {
+      pdf.getPage(num).then(function getPage(page) { renderPage(page); });
+    }
+
+    $("#nextbutton").on('click', function() {
+      nextPage();   
+    });
+
+         
+    $("#prevbutton").on('click', function() {
+      prevPage();
+    });
+
+
+    $("#zoominbutton").on('click', function() {     
+      actualScale = actualScale + 0.25;
+      resetLoadedStatus(actualPage);
+      loadPage(actualPage);            
+    });
+
+    $("#zoomoutbutton").on('click', function() {  
+      if (actualScale <= 0.25) {
+        return;
+      }
+      actualScale = actualScale - 0.25;
+      resetLoadedStatus(actualPage);            
+      loadPage(actualPage);
+    }); 
+
+    function nextPage() {
+      handleWindowScroll($(".slide-document .slide-panel-content").scrollTop());
+      $(".slide-document .slide-panel-content").animate({
+        scrollTop: (actualPage * (PAGE_HEIGHT+10))
+      }, 500);
+    }  
+
+    function prevPage() {
+      handleWindowScroll($(".slide-document .slide-panel-content").scrollTop());
+      $(".slide-document .slide-panel-content").animate({
+        scrollTop: ((actualPage-2) * (PAGE_HEIGHT+10))
+      }, 500);
+    }            
+
+    //pdf.js end
+
+    var textCopy = '';
+
+    $('#viewer').mouseup(function() {
+      textCopy = getSelectedText();
+     // alert(textCopy);
+    });
+
+    $( "input" ).dblclick(function() {
+      $(this).val(textCopy);
+    });
+
+    $( "textarea" ).dblclick(function() {
+      $(this).val(textCopy);
+    });    
+
+    $('.slide-document .slide-panel-content').scroll(function() {
+        handleWindowScroll($(this).scrollTop());
+    }); 
+
+    function getSelectedText() {
+        if (window.getSelection) {
+            return window.getSelection().toString();
+        } else if (document.selection) {
+            return document.selection.createRange().text;
+        }
+        return '';
+    }
+});

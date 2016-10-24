@@ -1,6 +1,17 @@
 # Methods for 1) generating paths; or 2) generating links.
 module Workbench::NavigationHelper
 
+  # Slideout panels
+
+  def slideout_pinboard
+    render(partial: '/shared/data/slideout/pinboard')  if sessions_current_project && sessions_signed_in?
+  end    
+
+  def slideout_pdf_viewer
+
+    render(partial: '/shared/data/slideout/document')  if sessions_current_project && sessions_signed_in?
+  end    
+
   def quick_bar
     render(partial: '/workbench/navigation/quick_bar')  if sessions_current_project 
   end
@@ -17,11 +28,7 @@ module Workbench::NavigationHelper
 
   def forward_back_links(instance)
     content_tag(:span, (previous_link(instance) + ' | ' + next_link(instance)).html_safe)
-  end
-
-  def slideout_pinboard
-    render(partial: '/shared/data/slideout/panel')  if sessions_current_project && sessions_signed_in?
-  end  
+  end 
 
   # A previous record link. 
   def previous_link(instance)

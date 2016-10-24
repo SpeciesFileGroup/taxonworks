@@ -1,0 +1,19 @@
+<% content_for :header_class, "slide-document", :flush => true  %>
+<% content_for :panel_name, "PDF Document viewer", :flush => true  %>
+<% content_for :panel_contents, :flush => true  do %>
+  <div class="toolbar-pdf">
+      <button id="prevbutton" type="button"></button>    
+      <button id="nextbutton" type="button"></button>
+      <button id="zoominbutton" type="button"></button>
+      <button id="zoomoutbutton" type="button"></button>
+    </div>   
+  <div class="slide-panel-content" id="pdfViewerContainer">  
+    <div class="slide-panel-category">
+      <div >
+        <div id="viewer" class="pdfViewer"></div>
+      </div>
+    </div>
+  </div> 
+<% end %>
+
+<%= render partial: '/shared/data/slideout/panel' %>
