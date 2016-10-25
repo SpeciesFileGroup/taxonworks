@@ -35,7 +35,8 @@ describe 'tasks/gis/collection_objects/area_and_date', type: :feature, group: [:
         find('.map_toggle').click
         execute_script("document.getElementById('drawn_area_shape').type = 'text'")
         this_xpath = find(:xpath, "//input[@id='drawn_area_shape']")
-        this_xpath.set '{"type":"Feature", "geometry":{"type"=>"MultiPolygon", "coordinates":[[[[33, 28, 0], [37, 28, 0], [37, 26, 0], [33, 26, 0], [33, 28, 0]]]]}, "properties":{"geographic_item":{"id"=>23}}}'
+        # this_xpath.set '{"type":"Feature", "geometry":{"type":"Polygon", "coordinates":[[[33, 28, 0], [37, 28, 0], [37, 26, 0], [33, 26, 0], [33, 28, 0]]]}, "properties":{"geographic_item":{"id"=>23}}}'
+        this_xpath.set '{"type"=>"Feature", "geometry"=>{"type"=>"MultiPolygon", "coordinates"=>[[[[33, 28, 0], [37, 28, 0], [37, 26, 0], [33, 26, 0], [33, 28, 0]]]]}, "properties"=>{"geographic_item"=>{"id"=>23}}}'
         # find(:xpath, "//form[@id='set_area_form']/div[@id='map_selector']/div[@id='_drawable_map_outer']/input[@id='drawn_area_shape']").set '{"type"=>"Feature", "geometry"=>{"type"=>"MultiPolygon", "coordinates"=>[[[[33, 28, 0], [37, 28, 0], [37, 26, 0], [33, 26, 0], [33, 28, 0]]]]}, "properties"=>{"geographic_item"=>{"id"=>23}}}'
         click_button('Set')
         expect(find('#area_count')).to have_text('16')
