@@ -230,11 +230,12 @@
 
 #        $project_id = 1
         handle_controlled_vocabulary_3i
-        handle_litauthors_3i
-        handle_references_3i
-        handle_taxonomy_3i
-        handle_taxon_name_relationships_3i
-        handle_citation_topics_3i
+#        handle_litauthors_3i
+#        handle_references_3i
+#        handle_taxonomy_3i
+#        handle_taxon_name_relationships_3i
+#        handle_citation_topics_3i
+        index_collecting_events_from_accessions_new_3i
         handle_host_plant_name_dictionary_3i
         handle_host_plants_3i
         handle_distribution_3i
@@ -930,6 +931,62 @@
         end
       end
 
+      def index_collecting_events_from_accessions_new_3i
+
+
+        path = @args[:data_directory] + 'accessions_new.txt' # self contained
+        raise 'file not found' if not File.exists?(path)
+
+        ac = CSV.open(path, col_sep: "\t", :headers => true)
+
+        fields = %w{LocalityLabel Habitat Host AccessionNumber Country State County Locality Park DateCollectedBeginning DateCollectedEnding Collector CollectionMethod Elev_m Elev_ft NS Lat_deg Lat_min Lat_sec EW Long_deg Long_min Long_sec Comments PrecisionCode Datum ModifiedBy ModifiedOn}
+
+        field_translate = {
+            'NS' => 'LatNS',
+            'Lat_deg' => 'LatDeg',
+            'Lat_min' => 'LatMin',
+            'Lat_sec' => 'LatSec',
+            'EW' => 'LongEW',
+            'Long_deg' => 'LongDeg',
+            'Long_min' => 'LongMin',
+            'Long_sec' => 'LongSec',
+            'Elev_m' => 'ElevationF',
+            'Elev_ft' => 'ElevationM',
+            'Locality' => 'GLocality',
+            'CollectionMethod' => 'Method',
+            'Habitat' => 'Ecology',
+            'DateCollectedBeginning' => 'Date',
+            'DateCollectedEnding' => 'DateTo',
+            'Collector' => 'Collectors'
+        }
+
+        puts "\naccession new records\n"
+        i = 0
+        ac.each do |row|
+          i += 1
+          print "\r#{i}"
+          tmp_ce = { }
+          fields.each do |c|
+            tmp_ce[c] = row[c] unless row[c].blank?
+          end
+          field_translate.keys.each do |c|
+            tmp_ce[field_translate[c]] = tmp_ce[c]
+          end
+          tmp_ce['County'] = geo_translate_3i(tmp_ce['County']) unless tmp_ce['County'].blank?
+          tmp_ce['State'] = geo_translate_3i(tmp_ce['State']) unless tmp_ce['State'].blank?
+          tmp_ce['Country'] = geo_translate_3i(tmp_ce['Country']) unless tmp_ce['Country'].blank?
+
+          tmp_ce.merge!('CreatedBy' => '1031', 'CreatedOn' => '01/20/2014 12:00:00')
+
+          find_or_create_collecting_event_3i(tmp_ce)
+        end
+      end
+
+      def geo_translate_3i(name)
+        GEO_NAME_TRANSLATOR[name] ? GEO_NAME_TRANSLATOR[name] : name
+      end
+
+
       def handle_host_plant_name_dictionary_3i
         #CommonName
         # HostPlant
@@ -1342,13 +1399,15 @@
         latitude, longitude = parse_lat_long_3i(ce) unless [4, 5, 6].include?(ce['Precision'].to_i)
         sdm, sdd, sdy, edm, edd, edy = parse_dates_3i(ce)
         elevation, verbatim_elevation = parse_elevation_3i(ce)
-        geographic_area = GeographicArea.find(ce['TW_id'])
+        geographic_area = ce['TW_id'].blank? ? nil : GeographicArea.find(ce['TW_id'])
         geolocation_uncertainty = parse_geolocation_uncertainty_3i(ce)
         locality =  ce['SLocality'].blank? ? ce['GLocality'] : ce['GLocality'].to_s + ', ' + ce['SLocality'].to_s
+        locality = ce['Locality'] if locality.blank? && !ce['Locality'].blank?
+        collector =
 
         c = CollectingEvent.new(
             geographic_area: geographic_area,
-            verbatim_label: nil,
+            verbatim_label: ce['LocalityLabel'],
             verbatim_locality: locality,
             verbatim_collectors: ce['Collectors'],
             verbatim_method: ce['Method'],
