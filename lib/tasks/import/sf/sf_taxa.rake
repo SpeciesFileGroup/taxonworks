@@ -8,6 +8,9 @@ namespace :tw do
         desc 'time rake tw:project_import:sf_import:taxa:create_status_flag_relationships user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         #  real	50m52.744s
 
+        # [ERROR]2016-10-25 16:08:20.363: TaxonNameRelationship 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling' ERROR tw.project_id 2, object: SF.TaxonNameID 1136056 = TW.taxon_name_id 37956, subject: SF.TaxonNameID 1136054 = TW.taxon_name_id 37954 (Error # 747): Object taxon name has already been taken;Subject taxon name has already been taken
+
+
         LoggedTask.define :create_status_flag_relationships => [:data_directory, :environment, :user_id] do |logger|
 
           logger.info 'Creating relationships from StatusFlags...'
@@ -41,7 +44,7 @@ namespace :tw do
             taxon_name_id = get_tw_taxon_name_id[row['TaxonNameID']].to_i
             original_genus_id = get_tw_taxon_name_id[row['OriginalGenusID']].to_i
 
-            if row['AboveID'] = '0'
+            if row['AboveID'] == '0'
               above_id = get_animalia_id[project_id.to_s].to_i
             else
               above_id = get_tw_taxon_name_id[row['AboveID']].to_i
@@ -68,17 +71,17 @@ namespace :tw do
             status_flags = row['StatusFlags'].to_i
 
             if name_status == '7' and status_flags == 0 # add invalidating relationship to above_id (162 instances)
-              tnr = TaxonNameRelationship.new(
-                  subject_taxon_name_id: above_id,
-                  object_taxon_name_id: taxon_name_id,
-                  type: 'TaxonNameRelationship::Iczn::Invalidating',
+              # Not sure why >100 errors on invalidating alone; sometimes subject/object same rank, sometimes not??
+              tnc = TaxonNameClassification.new(
+                  type: 'TaxonNameClassification::Iczn::Unavailable',
+                  taxon_name_id: taxon_name_id,
                   project_id: project_id
               )
-              if tnr.valid?
-                tnr.save!
-                puts 'TaxonNameRelationship Invalidating created'
-              else # tnr not valid
-                logger.error "TaxonNameRelationship Invalidating ERROR tw.project_id #{project_id}, object: SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id}, subject: SF.TaxonNameID #{row['AboveID']} = TW.taxon_name_id #{above_id} (Error # #{error_counter += 1}): " + tnr.errors.full_messages.join(';')
+              if tnc.valid?
+                tnc.save!
+                puts 'TaxonNameClassification::Iczn::Unavailable created'
+              else # tnc not valid
+                logger.error "TaxonNameClassification 'TaxonNameClassification::Iczn::Unavailable' ERROR tw.project_id #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id} (Error # #{error_counter += 1}): " + tnc.errors.full_messages.join(';')
               end
             end
 
@@ -139,7 +142,7 @@ namespace :tw do
                     if name_status == '7'
                       type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym'
                     else
-                      no_relationship
+                      no_relationship = true
                     end
                   when 5 # incertae sedis
                     type = 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement'
