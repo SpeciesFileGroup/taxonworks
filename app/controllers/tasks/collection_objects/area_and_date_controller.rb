@@ -7,7 +7,13 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
     @collection_objects       = CollectionObject.where('false')
     @collection_objects_count = 0
     @early_date               = CollectionObject.order(:created_at).limit(1).pluck(:created_at).first
+    if @early_date.blank?
+      @early_date = '1700/01/01'
+    end
     @late_date                = CollectionObject.order(created_at: :desc).limit(1).pluck(:created_at).first
+    if @late_date.blank?
+      @late_date = Date.today.to_date
+    end
   end
 
   # POST
