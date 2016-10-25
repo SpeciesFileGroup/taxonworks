@@ -54,6 +54,8 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
   def set_area
     @geographic_area_id       = params[:geographic_area_id]
     @shape_in                 = params[:drawn_area_shape]
+    # pass "{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[-37.44140625,6.606409866484716],[-60.64453125,-13.638865761743363],[-38.14453125,-26.168582477207565],[-37.44140625,6.606409866484716]]]},"properties":{}}"
+    # fail "{"type"=>"Feature", "geometry"=>{"type"=>"MultiPolygon", "coordinates"=>[[[[33, 28, 0], [37, 28, 0], [37, 26, 0], [33, 26, 0], [33, 28, 0]]]]}, "properties"=>{"geographic_item"=>{"id"=>23}}}"
     @collection_objects_count = GeographicItem.gather_selected_data(@geographic_area_id, @shape_in, 'CollectionObject').count
 
     render json: {html: @collection_objects_count.to_s}
