@@ -14,7 +14,7 @@ describe GeographicItem, type: :model, group: :geo do
 
   context 'using ce_test_objects' do
     before(:all) {
-      generate_ce_test_objects
+      generate_ce_test_objects(1, 1)
     }
 
     let(:geographic_item) { FactoryGirl.build(:geographic_item) }

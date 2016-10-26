@@ -2,8 +2,8 @@ require 'rails_helper'
 
 describe Tasks::Gis::LocalityController, type: :controller do
   before(:all) {
-    generate_ce_test_objects
-  } 
+    generate_ce_test_objects(1, 1)
+  }
 
   before(:each) {
     sign_in

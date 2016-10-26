@@ -6,7 +6,7 @@ describe Tasks::Gis::MatchGeoreferenceController, type: :controller do
 
   context '/tasks/gis/match_georeference with prebuilt geo objects' do
     before(:all) {
-      generate_ce_test_objects
+      generate_ce_test_objects(1, 1)
     }
 
     before(:each) {

@@ -53,7 +53,7 @@ describe Tasks::CollectionObjects::AreaAndDateController, type: :controller, gro
       # expect(collecting_events).to include('@ce_m1', '@ce_m1a', '@ce_m2 in Big Boxia')
     end
 
-    describe 'certain specific combinations of collecting event dates' do
+    xdescribe 'certain specific combinations of collecting event dates' do
       let(:params) {
         {search_start_date: '1981/01/01',
          search_end_date: '1981/1/1',
