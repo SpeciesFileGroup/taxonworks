@@ -313,7 +313,7 @@ describe Georeference, type: :model, group: :geo do
 
   context 'scopes' do
     before(:all) {
-      generate_geo_test_objects
+      generate_geo_test_objects($user_id, $project_id)
     }
 
     after(:all) {

@@ -9,7 +9,7 @@ describe Gis::GeoJSON, group: :geo, type: :model do
 
   before(:all) {
     generate_political_areas_with_collecting_events
-    generate_geo_test_objects
+    generate_geo_test_objects($user_id, $project_id)
   }
 
   after(:all) {

@@ -54,7 +54,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         end
 
         context 'with a verbatim georeference' do
-          before do 
+          before do
             collecting_event.update_attributes(
               verbatim_latitude: '27.5',
               verbatim_longitude: '33.5'
@@ -70,7 +70,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         context 'after #geographic_name_classification has been called, cached values are set' do
           context 'with a geographic_area (no shape) set to country (level0)' do
             before do
-              collecting_event.update_column(:geographic_area_id, country.id) 
+              collecting_event.update_column(:geographic_area_id, country.id)
               collecting_event.geographic_name_classification
             end
 
@@ -81,7 +81,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
 
           context 'with a geographic_area (no shape) set to state (level1)' do
             before do
-              collecting_event.update_column(:geographic_area_id, state.id) 
+              collecting_event.update_column(:geographic_area_id, state.id)
               collecting_event.geographic_name_classification
             end
 
@@ -92,7 +92,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
 
           context 'with a geographic_area (no shape) set to county (level2)' do
             before do
-              collecting_event.update_column(:geographic_area_id, county.id) 
+              collecting_event.update_column(:geographic_area_id, county.id)
               collecting_event.geographic_name_classification
             end
 
@@ -103,9 +103,9 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
 
           context 'cached values are updated after geographic_area_id is updated' do
             before do
-              collecting_event.update_column(:geographic_area_id, county.id) 
+              collecting_event.update_column(:geographic_area_id, county.id)
               collecting_event.geographic_name_classification
-              collecting_event.update_attribute(:geographic_area_id, state.id) 
+              collecting_event.update_attribute(:geographic_area_id, state.id)
             end
 
             specify '#cached_geographic_name_classification returns { country: country_name, state: state_name }' do
@@ -116,7 +116,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
           context 'cached values are NOT updated when no_cache: true' do
             before do
               collecting_event.no_cached = true
-              collecting_event.update_attribute(:geographic_area_id, county.id) 
+              collecting_event.update_attribute(:geographic_area_id, county.id)
             end
 
             specify '#cached_geographic_name_classification returns {  }' do
@@ -136,12 +136,12 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         end
 
         specify '#map_center' do
-          expect(collecting_event.map_center).to eq(nil) 
+          expect(collecting_event.map_center).to eq(nil)
         end
 
         context 'geographic_area_provided' do
           before {
-            collecting_event.geographic_area = @area_m1 
+            collecting_event.geographic_area = @area_m1
           }
 
           specify '#map_center_method' do
@@ -159,7 +159,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
             }
 
             specify '#map_center_method' do
-              expect(collecting_event.map_center_method).to eq( :verbatim_map_center ) 
+              expect(collecting_event.map_center_method).to eq(:verbatim_map_center)
             end
 
             specify 'return verbatim_map_center' do
@@ -169,7 +169,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
             context 'georeference provided' do
               before {
                 collecting_event.save
-             
+
                 FactoryGirl.create(:georeference_verbatim_data,
                                    collecting_event: collecting_event,
                                    geographic_item: GeographicItem.new(point: @item_m1.geo_object.centroid))
@@ -183,7 +183,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
               specify 'return georeference#geographic_item centroid' do
                 expect(collecting_event.map_center).to eq(@item_m1.geo_object.centroid   )
               end
-            end  
+            end
           end
         end
 
@@ -211,7 +211,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
     # you could just pick one column, and we can abstract out the problem later.
     context 'when the CE has a GR' do
       before(:all) {
-        generate_ce_test_objects
+        generate_ce_test_objects(1, 1)
       }
 
       context 'and that GR has some combination of GIs, and EGIs' do
@@ -253,8 +253,8 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
 
       context 'and that GR has both GI and EGI' do
         # was: 'find other CEs that have GR whose GIs or EGIs are within some radius of the EGI'
-        specify 'find other CEs that have GR whose GIs are within some radius' do 
-          pieces = @ce_p2.collecting_events_within_radius_of(1000000) 
+        specify 'find other CEs that have GR whose GIs are within some radius' do
+          pieces = @ce_p2.collecting_events_within_radius_of(1000000)
           expect(pieces.count).to eq(4)
           expect(pieces).to include(@ce_p1, @ce_p3,
                                     @ce_p4, @ce_p7)
@@ -430,7 +430,7 @@ end
 
 context 'geopolitical labels' do
 
-  # this context is here 2x, see if we can simlify it 
+  # this context is here 2x, see if we can simlify it
   before(:all) {
     # create some bogus countries, states, provinces, counties, and a parish
     generate_political_areas_with_collecting_events
