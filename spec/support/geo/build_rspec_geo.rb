@@ -488,19 +488,40 @@ E1_OR_E5  = RSPEC_GEO_FACTORY.parse_wkt('MULTIPOLYGON (((-19.0 9.0 0.0, -9.0 9.0
 P16_ON_A = RSPEC_GEO_FACTORY.parse_wkt('POINT (-23.0 18.0 0.0)')
 
 # THIS CAN NOT BE CALLED IN ANY SPEC environment, only when debugging outside spec
-def prepare_test
-  u        = User.order(:id).first
-  u        = FactoryGirl.create(:valid_user, id: 1) if u.nil?
-  $user_id = u.id
+# @param [Integer] user_id to use to build objects
+# @param [Integer] project_id to use to build objects
+# @return [$user_id]
+def prepare_test(user_id, project_id)
+  if $user_id.nil?
+    if user_id.nil?
+      u        = User.order(:id).first
+      u        = FactoryGirl.create(:valid_user, id: 1) if u.nil?
+      $user_id = u.id
+    else
+      $user_id = user_id
+    end
+  end
 
-  p           = Project.order(:id).first
-  p           = FactoryGirl.create(:valid_project, id: 1, without_root_taxon_name: true) if p.nil?
-  $project_id = p.id
+  if $project_id.nil?
+    if project_id.nil?
+      p           = Project.order(:id).first
+      p           = FactoryGirl.create(:valid_project, id: 1, without_root_taxon_name: true) if p.nil?
+      $project_id = p.id
+    else
+      $project_id = project_id
+    end
+  end
+  $user_id
 end
 
 # Generates a set of unsaved GeographicItems
-def generate_geo_test_objects(run_in_console = false, user = nil)
-  prepare_test if run_in_console
+# @param [Integer] user_id
+# @param [Integer] project_id
+# @param [Boolean] run_in_console
+# @param [User] user
+# @return [Hash] of debug names and ids
+def generate_geo_test_objects(user_id, project_id, run_in_console = false, user = nil)
+  prepare_test(user_id, project_id) if run_in_console
 
   @p0  = FactoryGirl.build(:geographic_item_point, point: POINT0.as_binary) # 0
   @p1  = FactoryGirl.build(:geographic_item_point, point: POINT1.as_binary) # 1
@@ -680,8 +701,8 @@ def generate_geo_test_objects(run_in_console = false, user = nil)
   @debug_names
 end
 
-def generate_ce_test_objects(run_in_console = false, user = nil)
-  @debug_names = generate_geo_test_objects(run_in_console, user) if @p0.nil?
+def generate_ce_test_objects(user_id, project_id, run_in_console = false, user = nil)
+  @debug_names = generate_geo_test_objects(user_id, project_id, run_in_console, user) if @p0.nil?
 
   @ce_p0 = FactoryGirl.create(:collecting_event, verbatim_label: '@ce_p0')
 
@@ -831,7 +852,7 @@ def generate_ce_test_objects(run_in_console = false, user = nil)
   #                                 geographic_item: @item_v)
 end
 
-def generate_political_areas_with_collecting_events(run_in_console = false, _user = nil)
+def generate_political_areas_with_collecting_events(user_id = nil, project_id = nil, run_in_console = false, user = nil)
 =begin
 
 4 by 4 matrix of squares:
@@ -948,7 +969,7 @@ Two different shapes with the same name, 'East Boxia', and
 
 =end
 
-  prepare_test unless run_in_console
+  prepare_test(user_id, project_id) unless run_in_console
 
   gat_country   = GeographicAreaType.find_or_create_by(name: 'Country')
   gat_state     = GeographicAreaType.find_or_create_by(name: 'State')
@@ -1580,9 +1601,9 @@ def generate_collecting_events(user = nil)
                               start_date_year:   1982,
                               start_date_month:  2,
                               start_date_day:    2,
-                              end_date_year: 1984,
-                              end_date_month: 9,
-                              end_date_day: 15,
+                              end_date_year:     1984,
+                              end_date_month:    9,
+                              end_date_day:      15,
                               verbatim_locality: 'Greater Boxia Lake',
                               verbatim_label:    '@ce_n3',
                               geographic_area:   @area_n3)
