@@ -44,6 +44,9 @@ namespace :tw do
             taxon_name_id = get_tw_taxon_name_id[row['TaxonNameID']].to_i
             original_genus_id = get_tw_taxon_name_id[row['OriginalGenusID']].to_i
 
+            # pluck parent_id; thought I needed it for incertae sedis, but actually I don't
+            # parent_id = TaxonName.where(id: taxon_name_id).pluck(:parent_id)[0]
+
             if row['AboveID'] == '0'
               above_id = get_animalia_id[project_id.to_s].to_i
             else
@@ -128,6 +131,7 @@ namespace :tw do
                     no_relationship = true
                   when 1 # subsequent misspelling
                     type = 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling'
+                    subject_taxon_name_id = this_taxon
                   when 2 # unjustified emendation
                     type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnjustifiedEmendation'
                   when 3 # nomen nudum
@@ -213,16 +217,28 @@ namespace :tw do
 
                 next if no_relationship
 
-                tnr = TaxonNameRelationship.new(
-                    subject_taxon_name_id: above_id,
-                    object_taxon_name_id: taxon_name_id,
+                # tnr = TaxonNameRelationship.where(subject_taxon_name_id: above_id,
+                #                                   object_taxon_name_id: taxon_name_id,
+                #                                   type: type,
+                #                                   project_id: project_id)
+                #
+                # tnr = TaxonNameRelationship.new(
+                #     subject_taxon_name_id: above_id,
+                #     object_taxon_name_id: taxon_name_id,
+                #     type: type,
+                #     project_id: project_id
+                # )  if tnr.nil?
+
+                tnr = TaxonNameRelationship.find_or_create_by(
+                    subject_taxon_name_id: taxon_name_id,
+                    object_taxon_name_id: above_id,
                     type: type,
                     project_id: project_id
                 )
 
                 if tnr.valid?
-                  tnr.save!
-                  puts "TaxonNameRelationship '#{type}' created"
+                  # tnr.save!
+                  puts "TaxonNameRelationship '#{type}' exists"
 
                 else # tnr not valid
                   logger.error "TaxonNameRelationship '#{type}' ERROR tw.project_id #{project_id}, object: SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id}, subject: SF.TaxonNameID #{row['AboveID']} = TW.taxon_name_id #{above_id} (Error # #{error_counter += 1}): " + tnr.errors.full_messages.join(';')
@@ -242,6 +258,16 @@ namespace :tw do
 
                     end
                   end
+
+                  # create note or tag containing the SF status_flag, failed TW relationship type, and error message (approximately 295 instances)
+
+
+
+
+
+
+
+
                 end
               end
             end
