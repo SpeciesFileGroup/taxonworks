@@ -69,7 +69,7 @@ describe 'tasks/gis/collection_objects/area_and_date', type: :feature, group: [:
 
       describe '#find', js: true do
         drawn_area_shape = '{"type":"Feature", "geometry":{"type":"Polygon", "coordinates":[[[33, 28, 0], [34, 28, 0], [34, 24, 0], [33, 24, 0], [33, 28, 0]]]}}'
-        it 'sucks' do
+        it 'renders count of objects and table found using a drawn area and date range' do
           visit(index_area_and_date_task_path)
           find('#search_start_date').set '1971/01/01'
           find('#search_end_date').set '1980/12/31'
