@@ -6,10 +6,7 @@ namespace :tw do
       namespace :taxa do
 
         desc 'time rake tw:project_import:sf_import:taxa:create_status_flag_relationships user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        #  real	50m52.744s
-
-        # [ERROR]2016-10-25 16:08:20.363: TaxonNameRelationship 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling' ERROR tw.project_id 2, object: SF.TaxonNameID 1136056 = TW.taxon_name_id 37956, subject: SF.TaxonNameID 1136054 = TW.taxon_name_id 37954 (Error # 747): Object taxon name has already been taken;Subject taxon name has already been taken
-
+        #  real	~1 hour
 
         LoggedTask.define :create_status_flag_relationships => [:data_directory, :environment, :user_id] do |logger|
 
@@ -112,6 +109,7 @@ namespace :tw do
               status_flags_array.each do |bit_position|
 
                 no_relationship = false # set to true if no relationship should be created
+                bit_flag_name = ''
 
                 case bit_position
 
@@ -129,11 +127,13 @@ namespace :tw do
                       logger.error "TaxonNameClassification Unavailable ERROR tw.project_id #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id}, (Error # #{error_counter += 1}): " + tnc.errors.full_messages.join(';')
                     end
                     no_relationship = true
+                    bit_flag_name = 'informal'
                   when 1 # subsequent misspelling
                     type = 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling'
-                    subject_taxon_name_id = this_taxon
+                    bit_flag_name = 'subsequent misspelling'
                   when 2 # unjustified emendation
                     type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnjustifiedEmendation'
+                    bit_flag_name = 'unjustified emendation'
                   when 3 # nomen nudum
                     # if taxon is also synonym, treat as senior/junior synonym
                     if name_status == '7'
@@ -141,6 +141,7 @@ namespace :tw do
                     else
                       no_relationship = true
                     end
+                    bit_flag_name = 'nomen nudum'
                   when 4 # nomen dubium
                     # if taxon is also synonym, treat as senior/junior synonym
                     if name_status == '7'
@@ -148,8 +149,10 @@ namespace :tw do
                     else
                       no_relationship = true
                     end
+                    bit_flag_name = 'nomen dubium'
                   when 5 # incertae sedis
                     type = 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement'
+                    bit_flag_name = 'incertae sedis'
 
                   # when 6 # justified emendation; reciprocal of 15
 
@@ -157,32 +160,42 @@ namespace :tw do
 
                   when 8 # suppressed by ruling
                     type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression'
+                    bit_flag_name = 'suppressed by ruling'
                   when 9 # misapplied
                     type = 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication'
+                    bit_flag_name = 'misapplied'
 
                   # - - -
                   # When 10 - 12, may not have relationship in SF; new rule: If making relationship with AboveID fails, create classification only (invalid::homonym)
                   when 10 # preoccupied; if not in scope, no relationship
                     type = 'TaxonNameRelationship::Iczn::Invalidating::Homonym'
+                    bit_flag_name = 'preoccupied'
                   when 11 # primary homonym
                     type = 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary'
+                    bit_flag_name = 'primary homonym'
                   when 12 # secondary homonym
                     type = 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary'
+                    bit_flag_name = 'secondary homonym'
                   # - - -
 
                   when 13 # nomen oblitum
                     type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym::ForgottenName'
+                    bit_flag_name = 'nomen oblitum'
                   when 14 # unnecessary replacement
                     type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnnecessaryReplacementName'
+                    bit_flag_name = 'unnecessary replacement'
                   when 15 # incorrect original spelling
                     type = 'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling'
+                    bit_flag_name = 'incorrect original spelling'
 
                   # when 16 # other comment; comments were entered at time of taxon import
 
                   when 17 # unavailable other; use invalidating?
                     type = 'TaxonNameRelationship::Iczn::Invalidating'
+                    bit_flag_name = 'unavailable other'
                   when 18 # junior synonym
                     type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym'
+                    bit_flag_name = 'junior synonym'
 
                   # when 19 # nomen novum; reciprocal of 10, 11, 12, others?
 
@@ -199,13 +212,16 @@ namespace :tw do
                     else
                       no_relationship = true
                     end
+                    bit_flag_name = 'original name'
 
                   # when 21 # subsequent name; reciprocal of homonym or required emendation?
 
                   when 22 # unspecified homonym
                     type = 'TaxonNameRelationship::Iczn::Invalidating::Homonym'
+                    bit_flag_name = 'unspecified homonym'
                   when 23 # lapsus calami; treat as incorrect original spelling for now
                     type = 'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling'
+                    bit_flag_name = 'lapsus calami'
 
                   # when 24 # corrected lapsus; reciprocal of 23
 
@@ -259,15 +275,13 @@ namespace :tw do
                     end
                   end
 
-                  # create note or tag containing the SF status_flag, failed TW relationship type, and error message (approximately 295 instances)
-
-
-
-
-
-
-
-
+                  # 234 failures 27 October 2016
+                  Note.create!(
+                      text: "Species File taxon (TaxonNameID = #{row['TaxonNameID']}), marked as '#{bit_flag_name}', TaxonNameRelationship type '#{type}' failed, error message '#{tnr.errors.full_messages.join('; ')}'",
+                      note_object_id: taxon_name_id,
+                      note_object_type: 'TaxonName',
+                      project_id: project_id
+                  )
                 end
               end
             end

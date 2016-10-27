@@ -45,5 +45,11 @@ Rake task, kind of error, file or project id [instances]
   - OlderNameID = YoungerNameID ("Object taxon name Taxon should not refer to itself"), FileID = 1, 8, 11, 14, 56 [56 instances]
   - Suppressed older or younger name, probably OTU was created for ill-formed name, FileID = unknown for suppressions [45 instances]
 
+:create_status_flag_relationships
+  - 234 failed attempts to create TaxonNameRelationships, mostly due to rank issues
+  - Created note for each failure detailing SF status flag value, attempted relationship, error message
+
+
+
 
 =end
