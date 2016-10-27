@@ -505,38 +505,14 @@ class CollectionObject < ActiveRecord::Base
     retval
   end
 
-  # @param [Array] collecting_event_ids (e.g., from CollectingEvent.in_date_range)
-  # @param [Array] area_object_ids (e.g., from GeographicItem.gather_selected_data())
+  # @param [Array] of collecting_event ids (e.g., from CollectingEvent.in_date_range)
+  # @param [Array] of ids of area_objects (e.g., from GeographicItem.gather_selected_data())
   # @return [Scope] of intersection of collecting events (usually by date range)
   #   and collection objects (usually by inclusion in geographic areas/items)
-  def self.from_collecting_events(collecting_event_ids, area_object_ids, area_set, project_id)
-    collecting_events_clause = {collecting_event_id: collecting_event_ids, project: project_id}
-    area_objects_clause = {id: area_object_ids, project: project_id}
-    if (collecting_event_ids.empty?)
-      collecting_events_clause = {project: project_id}
-    end
-    if (area_object_ids.empty?)
-      area_objects_clause = {}
-      if (area_set)
-        area_objects_clause = 'false'
-      end
-    end
-    retval = CollectionObject.joins(:collecting_event)
-                 .where(collecting_events_clause)
-                 .where(area_objects_clause)
-    retval
-  end
-
-  # @param [Hash] search_start_date string in form 'yyyy/mm/dd'
-  # @param [Hash] search_end_date string in form 'yyyy/mm/dd'
-  # @param [Hash] partial_overlap 'on' or 'off'
-  # @return [Scope] of selected collection objects through collecting events with georeferences
-  def self.in_date_range(search_start_date: nil, search_end_date: nil, partial_overlap: 'on')
-    collecting_event_ids = CollectingEvent.in_date_range({search_start_date: search_start_date,
-                                                          search_end_date:   search_end_date,
-                                                          partial_overlap:   partial_overlap}).pluck(:id)
-    retval = CollectionObject.joins(:collecting_event)
-                             .where(collecting_event_id: collecting_event_ids, project: $project_id)
+  def self.from_collecting_events(collecting_event_ids, area_object_ids, project_id)
+    retval = CollectionObject.includes(:collecting_event)
+               .where(collecting_event_id: collecting_event_ids, project: project_id)
+               .where(id: area_object_ids, project: project_id)
     retval
   end
 
