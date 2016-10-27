@@ -82,7 +82,7 @@ class CollectionObject < ActiveRecord::Base
   is_origin_for :collection_objects
   has_paper_trail
 
-  CO_OTU_HEADERS = %w{OTU OTU\ name Family Genus Species Country State County Locality Latitude Longitude}.freeze
+  CO_OTU_HEADERS      = %w{OTU OTU\ name Family Genus Species Country State County Locality Latitude Longitude}.freeze
   BUFFERED_ATTRIBUTES = %i{buffered_collecting_event buffered_determinations buffered_other_labels}.freeze
 
   has_one :accession_provider_role, class_name: 'AccessionProvider', as: :role_object
@@ -353,8 +353,8 @@ class CollectionObject < ActiveRecord::Base
   def self.ce_headers(project_id)
     CollectionObject.selected_column_names
     cvt_list = InternalAttribute.where(project_id: project_id, attribute_subject_type: 'CollectingEvent')
-      .distinct
-      .pluck(:controlled_vocabulary_term_id)
+                 .distinct
+                 .pluck(:controlled_vocabulary_term_id)
     # add selectable column names (unselected) to the column name list list
     ControlledVocabularyTerm.where(id: cvt_list).map(&:name).sort.each { |column_name|
       @selected_column_names[:ce][:in][column_name] = {checked: '0'}
@@ -363,7 +363,7 @@ class CollectionObject < ActiveRecord::Base
       .pluck(:import_predicate).uniq.sort.each { |column_name|
       @selected_column_names[:ce][:im][column_name] = {checked: '0'}
     }
-      @selected_column_names
+    @selected_column_names
   end
 
   # @param [CollectionObject] collection_object from which to extract attributes
@@ -382,23 +382,23 @@ class CollectionObject < ActiveRecord::Base
           group[type_key.to_sym].keys.each { |header|
             this_val = nil
             case type_key.to_sym
-            when :in
-              all_internal_das.each { |da|
-                if da.predicate.name == header
-                  this_val = da.value
-                  break
-                end
-              }
-              retval.push(this_val) # push one value (nil or not) for each selected header
-            when :im
-              all_import_das.each { |da|
-                if da.import_predicate == header
-                  this_val = da.value
-                  break
-                end
-              }
-              retval.push(this_val) # push one value (nil or not) for each selected header
-            else
+              when :in
+                all_internal_das.each { |da|
+                  if da.predicate.name == header
+                    this_val = da.value
+                    break
+                  end
+                }
+                retval.push(this_val) # push one value (nil or not) for each selected header
+              when :im
+                all_import_das.each { |da|
+                  if da.import_predicate == header
+                    this_val = da.value
+                    break
+                  end
+                }
+                retval.push(this_val) # push one value (nil or not) for each selected header
+              else
             end
           }
         }
@@ -413,8 +413,8 @@ class CollectionObject < ActiveRecord::Base
   def self.co_headers(project_id)
     CollectionObject.selected_column_names
     cvt_list = InternalAttribute.where(project_id: project_id, attribute_subject_type: 'CollectionObject')
-      .distinct
-      .pluck(:controlled_vocabulary_term_id)
+                 .distinct
+                 .pluck(:controlled_vocabulary_term_id)
     # add selectable column names (unselected) to the column name list list
     ControlledVocabularyTerm.where(id: cvt_list).map(&:name).sort.each { |column_name|
       @selected_column_names[:co][:in][column_name] = {checked: '0'}
@@ -423,7 +423,7 @@ class CollectionObject < ActiveRecord::Base
       .pluck(:import_predicate).uniq.sort.each { |column_name|
       @selected_column_names[:co][:im][column_name] = {checked: '0'}
     }
-      @selected_column_names
+    @selected_column_names
   end
 
   # @param [CollectionObject] collection_object from which to extract attributes
@@ -503,6 +503,16 @@ class CollectionObject < ActiveRecord::Base
     retval
   end
 
+  # @param [Array] of collecting_event ids (e.g., from CollectingEvent.in_date_range)
+  # @param [Array] of ids of area_objects (e.g., from GeographicItem.gather_selected_data())
+  # @return [Scope] of intersection of collecting events (usually by date range)
+  #   and collection objects (usually by inclusion in geographic areas/items)
+  def self.from_collecting_events(collecting_event_ids, area_object_ids, project_id)
+    retval = CollectionObject.includes(:collecting_event)
+               .where(collecting_event_id: collecting_event_ids, project: project_id)
+               .where(id: area_object_ids, project: project_id)
+    retval
+  end
 
   def sv_missing_accession_fields
     soft_validations.add(:accessioned_at, 'Date is not selected') if self.accessioned_at.nil? && !self.accession_provider.nil?
