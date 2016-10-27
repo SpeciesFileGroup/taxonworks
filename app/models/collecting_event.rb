@@ -438,7 +438,7 @@ class CollectingEvent < ActiveRecord::Base
     # @param [Hash] partial_overlap
     # @return [Scope] of selected collecting events with georeferences
     def in_date_range(search_start_date: nil, search_end_date: nil, partial_overlap: 'on')
-      allow_partial = (partial_overlap.casecmp('off') ? false : true)
+      allow_partial = (partial_overlap.downcase == 'off' ? false : true)
       sql_string    = date_sql_from_dates(search_start_date, search_end_date, allow_partial)
       CollectingEvent.where(sql_string).uniq
     end
