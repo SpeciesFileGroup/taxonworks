@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
+describe CollectionObject, type: :model do
 
   let(:collection_object) { CollectionObject.new() }
   let(:ranged_lot_category) { FactoryGirl.create(:valid_ranged_lot_category) }
@@ -31,7 +31,7 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
 
     context 'both total and ranged_lot_category_id may not be present' do
       before {
-        collection_object.total                  = 10
+        collection_object.total = 10
         collection_object.ranged_lot_category_id = 10
       }
       specify 'when a CollectionObject' do
@@ -80,14 +80,14 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
       end
 
       specify 'a Lot when assigned a ranged lot and nilled total changes to RangedLot' do
-        l.total               = nil
+        l.total = nil
         l.ranged_lot_category = ranged_lot_category
         l.save!
         expect(l.type).to eq('RangedLot')
       end
 
       specify 'a Specimen when assigned a ranged lot and nilled total changes to RangedLot' do
-        s.total               = nil
+        s.total = nil
         s.ranged_lot_category = ranged_lot_category
         s.save!
         expect(s.type).to eq('RangedLot')
@@ -138,7 +138,7 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
     end
 
     context 'has_many' do
-      # technically not supposed to have these, they are to be biological only
+      # technically not supposed to have these, they are to be biological only 
       specify 'taxon_determinations' do
         collection_object.taxon_determinations << FactoryGirl.create(:valid_taxon_determination)
         collection_object.total = 1
@@ -178,10 +178,10 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
 
   context 'nested attributes' do
     specify 'a new otu and determination can be created' do
-      s = CollectionObject.new(total:                           1,
+      s = CollectionObject.new(total: 1,
                                taxon_determinations_attributes: [
-                                                                  {otu_attributes: {name: 'King Kong'}}
-                                                                ]
+                                   {otu_attributes: {name: 'King Kong'}}
+                               ]
       )
 
       expect(s.save).to be_truthy
@@ -216,7 +216,7 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
 
     context 'deaccession fields are missing' do
       specify 'deaccession_reason is missing' do
-        o.deaccessioned_at      = '12/12/2014'
+        o.deaccessioned_at = '12/12/2014'
         o.deaccession_recipient = p
         o.soft_validate(:missing_deaccession_fields)
         expect(o.soft_validations.messages_on(:deaccession_reason).count).to eq(1)
@@ -230,21 +230,21 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
 
       specify 'deaccessioned_at is missing' do
         o.deaccession_reason = 'Because.'
-        o.deaccessioned_at   = '12/12/2014'
+        o.deaccessioned_at = '12/12/2014'
         o.soft_validate(:missing_deaccession_fields)
         expect(o.soft_validations.messages_on(:base).count).to eq(1)
       end
     end
   end
 
-  context ':in_date_range' do
+  context ':from_collecting_events' do
     describe 'various date ranges' do
       # let (:collecting_event_ids) {CollectingEvent.in_date_range({search_start_date: '1981/01/01', search_end_date: '1981/1/1'}).pluck(:id)}
       # let (:area_object_ids) {CollectionObject.all.pluck(:id)} # because all of the relevant collection objects created are in this area})
-      before(:all) {
+      before {
         generate_political_areas_with_collecting_events
       }
-      after(:all) {
+      after {
         clean_slate_geo
       }
 # let(:params) {
@@ -265,9 +265,9 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
 # end
       describe 'spanning a single day' do
         specify "should find 1 record" do
-          collection_objects = CollectionObject.in_date_range({search_start_date: '1981/01/01', search_end_date: '1981/1/1'})
-          expect(collection_objects.count).to eq(1)
-          expect(collection_objects.map(&:collecting_event).map(&:verbatim_label)).to contain_exactly('@ce_m3')
+          collecting_event_ids = CollectingEvent.in_date_range({search_start_date: '1981/01/01', search_end_date: '1981/1/1'}).pluck(:id)
+          area_object_ids = CollectionObject.all.pluck(:id) # because all of the relevant collection objects created are in this area
+          expect(CollectionObject.from_collecting_events(collecting_event_ids, area_object_ids, $project_id).count).to eq(1)
         end
       end
 # let(:params) {
@@ -288,9 +288,9 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
 # end
       describe 'spanning a single month' do
         specify "should find 1 record" do
-          collection_objects = CollectionObject.in_date_range({search_start_date: '1974/04/01', search_end_date: '1974/4/30'})
-          expect(collection_objects.count).to eq(1)
-          expect(collection_objects.map(&:collecting_event).map(&:verbatim_label)).to contain_exactly('@ce_p1')
+          collecting_event_ids = CollectingEvent.in_date_range({search_start_date: '1974/04/01', search_end_date: '1974/4/30'}).pluck(:id)
+          area_object_ids = CollectionObject.all.pluck(:id) # because all of the relevant collection objects created are in this area
+          expect(CollectionObject.from_collecting_events(collecting_event_ids, area_object_ids, $project_id).count).to eq(1)
         end
       end
 
@@ -315,9 +315,9 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
 # end
       describe 'spanning a single year' do
         specify "should find 2 records" do
-          collection_objects = CollectionObject.in_date_range({search_start_date: '1971/01/01', search_end_date: '1971/12/31'})
-          expect(collection_objects.count).to eq(2)
-          expect(collection_objects.map(&:collecting_event).map(&:verbatim_label)).to contain_exactly('@ce_m1', '@ce_m1a')
+          collecting_event_ids = CollectingEvent.in_date_range({search_start_date: '1971/01/01', search_end_date: '1971/12/31'}).pluck(:id)
+          area_object_ids = CollectionObject.all.pluck(:id) # because all of the relevant collection objects created are in this area
+          expect(CollectionObject.from_collecting_events(collecting_event_ids, area_object_ids, $project_id).count).to eq(2)
         end
       end
 
@@ -339,9 +339,9 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
 # end
       describe 'spanning four months of a year' do
         specify "should find 1 record" do
-          collection_objects = CollectionObject.in_date_range({search_start_date: '1971/05/01', search_end_date: '1971/8/31'})
-          expect(collection_objects.count).to eq(1)
-          expect(collection_objects.map(&:collecting_event).map(&:verbatim_label)).to contain_exactly('@ce_m1a')
+          collecting_event_ids = CollectingEvent.in_date_range({search_start_date: '1971/05/01', search_end_date: '1971/8/31'}).pluck(:id)
+          area_object_ids = CollectionObject.all.pluck(:id) # because all of the relevant collection objects created are in this area
+          expect(CollectionObject.from_collecting_events(collecting_event_ids, area_object_ids, $project_id).count).to eq(1)
         end
       end
 #
@@ -365,9 +365,9 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
 # end
       describe 'spanning a partial year' do
         specify "should find 2 records" do
-          collection_objects = CollectionObject.in_date_range({search_start_date: '1971/01/01', search_end_date: '1971/08/31'})
-          expect(collection_objects.count).to eq(2)
-          expect(collection_objects.map(&:collecting_event).map(&:verbatim_label)).to contain_exactly('@ce_m1', '@ce_m1a')
+          collecting_event_ids = CollectingEvent.in_date_range({search_start_date: '1971/01/01', search_end_date: '1971/08/31'}).pluck(:id)
+          area_object_ids = CollectionObject.all.pluck(:id) # because all of the relevant collection objects created are in this area
+          expect(CollectionObject.from_collecting_events(collecting_event_ids, area_object_ids, $project_id).count).to eq(2)
         end
       end
 #
@@ -393,9 +393,9 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
 # end
       describe 'spanning parts of two years' do
         specify "should find 2 records" do
-          collection_objects = CollectionObject.in_date_range({search_start_date: '1974/03/01', search_end_date: '1975/06/30'})
-          expect(collection_objects.count).to eq(2)
-          expect(collection_objects.map(&:collecting_event).map(&:verbatim_label)).to contain_exactly('@ce_m2 in Big Boxia', '@ce_p1')
+          collecting_event_ids = CollectingEvent.in_date_range({search_start_date: '1974/03/01', search_end_date: '1975/06/30'}).pluck(:id)
+          area_object_ids = CollectionObject.all.pluck(:id) # because all of the relevant collection objects created are in this area
+          expect(CollectionObject.from_collecting_events(collecting_event_ids, area_object_ids, $project_id).count).to eq(2)
         end
       end
 #
@@ -427,138 +427,44 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
 # end
 #
       describe 'spanning parts of several years' do
-        specify "should find 4 records" do
-          collection_objects = CollectionObject.in_date_range({search_start_date: '1974/03/01', search_end_date: '1976/08/31'})
-          expect(collection_objects.count).to eq(4)
-          expect(collection_objects.map(&:collecting_event).map(&:verbatim_label)).to contain_exactly('@ce_m2 in Big Boxia', '@ce_p1', '@ce_n2', '@ce_n2')
+        specify "should find 2 records" do
+          collecting_event_ids = CollectingEvent.in_date_range({search_start_date: '1974/03/01', search_end_date: '1976/08/31'}).pluck(:id)
+          area_object_ids = CollectionObject.all.pluck(:id) # because all of the relevant collection objects created are in this area
+          expect(CollectionObject.from_collecting_events(collecting_event_ids, area_object_ids, $project_id).count).to eq(4)
         end
       end
-# # following two tests obviated by ambiguity in comparison of ranges
-# xit 'excludes parts of two years in a non-greedy search for 1982/02/02-1984/09/15' do
-#
-#   xhr(:get, :find, {search_start_date: '1982/02/01',
-#                     search_end_date: '1984/6/30',
-#                     greedy:           'off',
-#                     drawn_area_shape: GeographicArea
-#                                           .where(name: 'Great Northern Land Mass')
-#                                           .first
-#                                           .default_geographic_item
-#                                           .to_geo_json_feature})
-#   result = JSON.parse(response.body)
-#   expect(result['collection_objects_count']).to eq('0')
-# end
-#
-      describe 'excludes parts of two years in a non-greedy search for 1982/02/02-1984/09/15' do
-        specify 'should find no records' do
-          collection_objects = CollectionObject.in_date_range({search_start_date: '1982/02/01', search_end_date: '1983/01/31', partial_overlap: 'Off'})
-          expect(collection_objects.count).to eq(0)
-          expect(collection_objects.map(&:collecting_event).map(&:verbatim_label)).to contain_exactly()
-        end
-      end
-# let (:params) {
-#   {search_start_date: '1982/02/01',
-#    search_end_date: '1984/9/30',
-#    greedy: 'off',
-#    drawn_area_shape: GeographicArea
-#                          .where(name: 'Great Northern Land Mass')
-#                          .first
-#                          .default_geographic_item
-#                          .to_geo_json_feature}
-# }
-# xit 'spans parts of two years in a non-greedy search' do
-#   xhr(:get, :find, params)
-#   result = JSON.parse(response.body)
-#   expect(result['collection_objects_count']).to eq('1')
-#   georeference_id = result['feature_collection']['features'][0]['properties']['georeference']['id']
-#   expect(Georeference.find(georeference_id).collecting_event.verbatim_label).to eq('@ce_n3')
-# end
-      describe 'spanning parts of two years in a non-greedy search for 1982/02/02-1984/09/15' do
-        specify 'should find 1 record' do
-          collection_objects = CollectionObject.in_date_range({search_start_date: '1982/02/01', search_end_date: '1984/06/30', partial_overlap: 'Off'})
-          expect(collection_objects.count).to eq(2)
-          expect(collection_objects.map(&:collecting_event).map(&:verbatim_label)).to contain_exactly('@ce_o3',
-                                                                                                      '@ce_p3')
-        end
-      end
-    end
-  end
-
-  context ':from_collecting_events' do
-    before(:all) {
-      generate_political_areas_with_collecting_events
-    }
-    after(:all) {
-      clean_slate_geo
-    }
-    describe 'all collecting events' do
-      specify 'should find 19 collection objects' do
-        collecting_event_ids = CollectingEvent.all.pluck(:id)
-        collection_objects   = CollectionObject.from_collecting_events(collecting_event_ids, [], false, $project_id)
-        expect(CollectionObject.count).to eq(20)
-        expect(collection_objects.count).to eq(19)
-      end
-    end
-
-    describe 'slice of collecting events by dates' do
-      specify 'should find 10 collection objects' do
-        # this is not a particular date range, but it covers collecting events which have more than one
-        # collection object
-        collecting_event_ids = CollectingEvent.in_date_range({search_start_date: '1970/01/01', search_end_date: '1979/12/31', partial_overlap: 'on'}).pluck(:id)
-        area_object_ids = CollectionObject.all.pluck(:id) # equivalent to the whole world - not a very good isolation test
-        collection_objects   = CollectionObject.from_collecting_events(collecting_event_ids,
-                                                                       area_object_ids,
-                                                                       true,
-                                                                       $project_id)
-        expect(collecting_event_ids.count).to eq(9)
-        expect(collection_objects.count).to eq(10)
-      end
-    end
-
-    describe 'slice of collecting_events by area' do
-      specify 'should find 1 collecting object' do
-        collecting_event_ids = CollectingEvent.contained_within(@item_r).pluck(:id) + (CollectingEvent.contained_within(@item_s).pluck(:id))
-        area_object_ids      = CollectionObject.where(collecting_event_id: collecting_event_ids).map(&:id)
-        collecting_event_ids = CollectingEvent.in_date_range({search_start_date: '1970/01/01', search_end_date: '1982/12/31', partial_overlap: 'off'}).pluck(:id)
-        collection_objects   = CollectionObject.from_collecting_events(collecting_event_ids,
-                                                                       area_object_ids,
-                                                                       false,
-                                                                       $project_id)
-        expect(collecting_event_ids.count).to eq(10)
-        expect(collection_objects.count).to eq(1)
-        found_c_os = [@co_m3]
-        found_c_os.each_with_index { |c_o, index|
-          expect(collection_objects[index].metamorphosize).to eq(c_o)
-        }
-      end
-
-      specify 'should find 2 collecting objects' do
-        collecting_event_ids = CollectingEvent.contained_within(@item_r).pluck(:id) + (CollectingEvent.contained_within(@item_s).pluck(:id))
-        area_object_ids = CollectionObject.where(collecting_event_id: collecting_event_ids).map(&:id)
-        collecting_event_ids = CollectingEvent.in_date_range({search_start_date: '1970/01/01', search_end_date: '1982/12/31', partial_overlap: 'On'}).pluck(:id)
-        collection_objects = CollectionObject.from_collecting_events(collecting_event_ids,
-                                                                     area_object_ids,
-                                                                     false,
-                                                                     $project_id)
-        expect(collecting_event_ids.count).to eq(11)
-        expect(collection_objects.count).to eq(2)
-        found_c_os = [@co_m3, @co_n3]
-        found_c_os.each_with_index { |c_o, index|
-          expect(collection_objects[index].metamorphosize).to eq(c_o)
-        }
-      end
-
-      specify 'should find 0 collecting objects' do
-        collecting_event_ids = CollectingEvent.contained_within(@item_wb).pluck(:id)
-        collection_objects   = CollectionObject.from_collecting_events(collecting_event_ids,
-                                                                       [],
-                                                                       true,
-                                                                       $project_id)
-        expect(collecting_event_ids.count).to eq(6)
-        expect(collection_objects.count).to eq(0)
-      end
-    end
-
-    describe 'collection_objects by area' do
+      # # following two tests obviated by ambiguity in comparison of ranges
+      # xit 'excludes parts of two years in a non-greedy search for 1982/02/02-1984/09/15' do
+      #
+      #   xhr(:get, :find, {search_start_date: '1982/02/01',
+      #                     search_end_date: '1984/6/30',
+      #                     greedy:           'off',
+      #                     drawn_area_shape: GeographicArea
+      #                                           .where(name: 'Great Northern Land Mass')
+      #                                           .first
+      #                                           .default_geographic_item
+      #                                           .to_geo_json_feature})
+      #   result = JSON.parse(response.body)
+      #   expect(result['collection_objects_count']).to eq('0')
+      # end
+      #
+      # let (:params) {
+      #   {search_start_date: '1982/02/01',
+      #    search_end_date: '1984/9/30',
+      #    greedy: 'off',
+      #    drawn_area_shape: GeographicArea
+      #                          .where(name: 'Great Northern Land Mass')
+      #                          .first
+      #                          .default_geographic_item
+      #                          .to_geo_json_feature}
+      # }
+      # xit 'spans parts of two years in a non-greedy search' do
+      #   xhr(:get, :find, params)
+      #   result = JSON.parse(response.body)
+      #   expect(result['collection_objects_count']).to eq('1')
+      #   georeference_id = result['feature_collection']['features'][0]['properties']['georeference']['id']
+      #   expect(Georeference.find(georeference_id).collecting_event.verbatim_label).to eq('@ce_n3')
+      # end
     end
   end
 
