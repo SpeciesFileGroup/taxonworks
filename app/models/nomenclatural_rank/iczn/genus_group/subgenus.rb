@@ -1,7 +1,7 @@
 class NomenclaturalRank::Iczn::GenusGroup::Subgenus < NomenclaturalRank::Iczn::GenusGroup
 
   def self.parent_rank
-    NomenclaturalRank::Iczn::GenusGroup::Genus
+    NomenclaturalRank::Iczn::GenusGroup::Supersubgenus
   end
 
   def self.valid_parents
