@@ -687,7 +687,7 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
       end
 
       specify 'FirstRevisorAction' do
-        r1 = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @s1, object_taxon_name: @s2, type: 'TaxonNameRelationship::Iczn::PotentiallyValidating::FirstRevisorAction')
+        r1 = TaxonNameRelationship::Iczn::PotentiallyValidating::FirstRevisorAction.new( subject_taxon_name: @s1, object_taxon_name: @s2)
         r1.soft_validate(:validate_priority)
         expect(r1.soft_validations.messages_on(:object_taxon_name_id).size).to eq(1)
         expect(r1.soft_validations.messages_on(:type).size).to eq(1)

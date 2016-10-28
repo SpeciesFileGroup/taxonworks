@@ -2,6 +2,18 @@ class TaxonNameRelationship::Iczn::PotentiallyValidating::FirstRevisorAction < T
 
   NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000271'
 
+  # Override priority test
+  def sv_validate_priority
+    unless self.type_class.nomenclatural_priority.nil?
+      date1 = self.subject_taxon_name.nomenclature_date
+      date2 = self.object_taxon_name.nomenclature_date
+      unless date1 == date2
+        soft_validations.add(:type, 'Both taxa should be described on the same date')
+        soft_validations.add(:object_taxon_name_id, 'Taxon has different publication date')
+      end
+    end
+  end
+
   def self.assignable
     true
   end

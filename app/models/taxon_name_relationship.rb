@@ -1,14 +1,28 @@
-# A NOMEN based relationship between two Protonyms.
+# A NOMEN https://github.com/SpeciesFileGroup/nomen relationship between two Protonyms.
 #
-# @todo Note that many of the TODOs do not show up in Yard?? They are copied here so you can find them in the code:
-# @todo SourceClassifiedAs is not really Combination in the other sense
-# @todo validate, that all the relationships in the table could be linked to relationships in classes (if those had changed)
-# @todo Check if more than one species associated with the genus in the original paper
-# @todo Check if more than one species associated with the genus in the original paper
+# Unless otherwise noted relationships read left to right, and can be interpreted by inserting "of" after the class name.
+#
+# For example the triple:
+#
+#    Subject: Aus aus - TaxonNameRelationship::Iczn::Invalidating::Synonym - Object: Bus bus
+# 
+# Can be read as:
+#   
+#    aus synonym OF bus
+#  
+#  Note that not all relationships are reflective.  We can't say, for the example above we can't say
+#  
+#    bus valid_name OF aus
+#    
+# Note that we can not say that all names that are subjects are valid, for instance, this is determined on a case by case basis. 
+#
+# TaxonNameRelationships have a domain (attributes on the subject) and range (attributes on the object).  So if you use 
+# a relatinship you may be asserting a TaxonNameClassification also exists for the subject or object.
+#
 #
 # @!attribute subject_taxon_name_id
 #   @return [Integer]
-#    the subject taxon name 
+#    the subject taxon name
 #
 # @!attribute object_taxon_name_id
 #   @return [Integer]
@@ -28,8 +42,8 @@ class TaxonNameRelationship < ActiveRecord::Base
   include Shared::IsData
   include SoftValidation
 
-  # @return [Boolean]
-  # When true, also cached values are not built
+  # @return [Boolean, nil]
+  #   When true, cached values are not built
   attr_accessor :no_cached
 
   belongs_to :subject_taxon_name, class_name: 'TaxonName', foreign_key: :subject_taxon_name_id # left side
@@ -83,18 +97,25 @@ class TaxonNameRelationship < ActiveRecord::Base
     !!/TaxonNameRelationship::(OriginalCombination|Combination)/.match(self.type.to_s)
   end.to_s
 
-  def aliases
-    []
-  end
+  # def aliases
+  #   []
+  # end
 
-  def object_properties
-    []
-  end
-
+  # @return [Array of TaxonNameClassification]
+  #  the inferable TaxonNameClassification(s) added to the subject when this relationship is used
+  #  !! Not implemented 
   def subject_properties
     []
   end
 
+  # @return [Array of TaxonNameClassification]
+  #  the inferable TaxonNameClassification(s) added to the subject when this relationship is used
+  #  !! Not implmented
+  def object_properties
+    []
+  end
+
+  # @return [Array of 
   # left side
   def self.valid_subject_ranks
     []
@@ -139,16 +160,21 @@ class TaxonNameRelationship < ActiveRecord::Base
     nil # :direct - for subject is younger than object; :reverse - for object is younger than subject
   end
 
+  # @return String
+  #    if we read the relationship like
+  #      subject <something>_of object then this text is injected into the string
   def subject_relationship_name
-    label = self.type_name.demodulize.underscore.humanize.downcase
-    label = label.gsub('e1', 'e 1').gsub('e2', 'e 2')
-    label
+    #  label =
+    self.type_name.demodulize.underscore.humanize.downcase
+    # label = label.gsub('e1', 'e 1').gsub('e2', 'e 2')
+    #  label
   end
 
+  # @return String
+  #    if we read the relationship like
+  #      object <something>_of subject then this text is injected into the string
   def object_relationship_name
-    label = self.type_name.demodulize.underscore.humanize.downcase
-    label = label.gsub('e1', 'e 1').gsub('e2', 'e 2')
-    label
+     self.type_name.demodulize.underscore.humanize.downcase
   end
 
   def type_name
@@ -592,13 +618,8 @@ class TaxonNameRelationship < ActiveRecord::Base
     unless self.type_class.nomenclatural_priority.nil?
       date1 = self.subject_taxon_name.nomenclature_date
       date2 = self.object_taxon_name.nomenclature_date
-      invalid_statuses = TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID & self.subject_taxon_name.taxon_name_classifications.collect{|c| c.type_class.to_s}
-      if self.type_name == 'TaxonNameRelationship::Iczn::PotentiallyValidating::FirstRevisorAction'
-        unless date1 == date2
-          soft_validations.add(:type, 'Both taxa should be described on the same date')
-          soft_validations.add(:object_taxon_name_id, 'Taxon has different publication date')
-        end
-      elsif !!date1 and !!date2
+     if !!date1 and !!date2
+        invalid_statuses = TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID & self.subject_taxon_name.taxon_name_classifications.collect{|c| c.type_class.to_s}
         case self.type_class.nomenclatural_priority
           when :direct
             if date2 > date1 && invalid_statuses.empty?
