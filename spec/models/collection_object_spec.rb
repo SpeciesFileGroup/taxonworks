@@ -462,6 +462,15 @@ describe CollectionObject, type: :model do
       #   expect(result['collection_objects_count']).to eq('0')
       # end
       #
+      describe 'excludes parts of two years in a non-greedy search for 1982/02/02-1984/09/15' do
+        specify 'should find no records' do
+          collecting_event_ids = CollectingEvent.in_date_range({search_start_date: '1982/02/01', search_end_date: '1984/06/30', partial_overlap: 'Off'}).pluck(:id)
+          area_object_ids = CollectionObject.all.pluck(:id) # because all of the relevant collection objects created are in this area
+          collection_objects = CollectionObject.from_collecting_events(collecting_event_ids, area_object_ids, $project_id)
+          expect(collection_objects.count).to eq(0)
+          expect(collection_objects.map(&:collecting_event).map(&:verbatim_label)).to contain_exactly()
+        end
+      end
       # let (:params) {
       #   {search_start_date: '1982/02/01',
       #    search_end_date: '1984/9/30',
@@ -479,6 +488,15 @@ describe CollectionObject, type: :model do
       #   georeference_id = result['feature_collection']['features'][0]['properties']['georeference']['id']
       #   expect(Georeference.find(georeference_id).collecting_event.verbatim_label).to eq('@ce_n3')
       # end
+      describe 'spanning parts of two years in a non-greedy search for 1982/02/02-1984/09/15' do
+        specify 'should find 1 record' do
+          collecting_event_ids = CollectingEvent.in_date_range({search_start_date: '1982/02/01', search_end_date: '1984/06/30', partial_overlap: 'Off'}).pluck(:id)
+          area_object_ids = CollectionObject.all.pluck(:id) # because all of the relevant collection objects created are in this area
+          collection_objects = CollectionObject.from_collecting_events(collecting_event_ids, area_object_ids, $project_id)
+          expect(collection_objects.count).to eq(1)
+          expect(collection_objects.map(&:collecting_event).map(&:verbatim_label)).to contain_exactly('@ce_n3')
+        end
+      end
     end
   end
 
