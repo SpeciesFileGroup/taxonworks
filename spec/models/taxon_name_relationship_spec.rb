@@ -511,14 +511,16 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
 
       specify 'homonym and totally suppressed' do
         r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @g2, object_taxon_name: @g1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression::Total')
-        r2 = FactoryGirl.build_stubbed(:taxon_name_relationship, subject_taxon_name: @genus, object_taxon_name: @g2, source: @source, type: 'TaxonNameRelationship::Iczn::Invalidating::Homonym')
+        r2 = TaxonNameRelationship::Iczn::Invalidating::Homonym.new(subject_taxon_name: @genus, object_taxon_name: @g2, source: @source)
         r2.soft_validate('validate_homonym_relationships')
         expect(r2.soft_validations.messages_on(:type).size).to eq(1)
       end
       specify 'homonym without nomen novum' do
-        r1 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @g2, object_taxon_name: @g1, type: 'TaxonNameRelationship::Iczn::Invalidating::Homonym')
+        r1 = TaxonNameRelationship::Iczn::Invalidating::Homonym.create( subject_taxon_name: @g2, object_taxon_name: @g1)
         r1.soft_validate('validate_homonym_relationships')
+        
         expect(r1.soft_validations.messages_on(:type).size).to eq(1)
+
         r2 = FactoryGirl.create(:taxon_name_relationship, subject_taxon_name: @genus, object_taxon_name: @g2, type: 'TaxonNameRelationship::Iczn::PotentiallyValidating::ReplacementName')
         r1.soft_validate('validate_homonym_relationships')
         expect(r1.soft_validations.messages_on(:type).size).to eq(1)
