@@ -17,22 +17,27 @@ module TaxonNameRelationshipsHelper
   #   subject + relationship type 
   def taxon_name_relationship_for_subject_tag(taxon_name_relationship)
     return nil if taxon_name_relationship.nil?
-    content_tag(:span, taxon_name_relationship.subject_relationship_name) + 
-      ' (See ' + taxon_name_link(taxon_name_relationship.object_taxon_name) + 
-      (taxon_name_relationship.object_taxon_name.cached_valid_taxon_name_id ?  # test for nil, it's not always being set?!
-       ' ' +
-       TaxonName.find(taxon_name_relationship.object_taxon_name.cached_valid_taxon_name_id).try(:cached_author_year).to_s +  # was object
-       ')' : nil
-      )
+    [
+      content_tag(:span, taxon_name_relationship.object_status , class: :string_emphasis),
+      taxon_name_link(taxon_name_relationship.object_taxon_name),
+      taxon_name_relationship.object_taxon_name.cached_author_year
+    ].join(' ').html_safe  
+
+
   end
 
   # @return [String]
   #  relationship_type + object
   def taxon_name_relationship_for_object_tag(taxon_name_relationship)
-    return nil if taxon_name_relationship.nil?
-    [ taxon_name_link(taxon_name_relationship.subject_taxon_name),
+    [
+      content_tag(:span, taxon_name_relationship.subject_status , class: :string_emphasis),
+      taxon_name_link(taxon_name_relationship.subject_taxon_name),
       taxon_name_relationship.subject_taxon_name.cached_author_year
-    ].join(' ') + content_tag(:span, ' ' + taxon_name_relationship.object_relationship_name, class: :string_emphasis)
+    ].join(' ').html_safe  
+
+
+
+
   end
 
 
@@ -40,7 +45,7 @@ module TaxonNameRelationshipsHelper
   def type_taxon_name_relationship_tag(taxon_name_relationship)
     return nil if taxon_name_relationship.nil?
     # TODO: add original citation to relationship rendering
-    content_tag(:span, [ taxon_name_relationship.object_relationship_name.capitalize,  
+    content_tag(:span, [ taxon_name_relationship.subject_status.capitalize,
                       taxon_name_link(taxon_name_relationship.subject_taxon_name),
                       taxon_name_relationship.subject_taxon_name.cached_author_year ].join(' ').html_safe, class: 'type_information'
                )
