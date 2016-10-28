@@ -9,7 +9,7 @@
 #   @return [Integer]
 #   The id of the parent taxon. The parent child relationship is exclusively organizational. All statuses and relationships
 #   of a taxon name must be explicitly defined via taxon name relationships or classifications. The parent of a taxon name
-#   can be thought of the "place where you'd find this name in a hierarchy if you knew literally *nothing* else about that name."
+#   can be thought of as  "the place where you'd find this name in a hierarchy if you knew literally *nothing* else about that name."
 #   In practice read each monomial in the name (protonym or combination) from right to left, the parent is the parent of the last monomial read.
 #   There are 3 simple rules for determening the parent of a Protonym or Combination:
 #     1) the parent must always be at least one rank higher than the target names rank
