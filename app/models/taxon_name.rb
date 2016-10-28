@@ -122,6 +122,10 @@ class TaxonName < ActiveRecord::Base
   include Shared::IsData
   include Shared::Confidence
   include SoftValidation
+  include Shared::AlternateValues
+
+  # Class constants
+  ALTERNATE_VALUES_FOR = [:rank_class] # don't even think about putting this on #name
 
   # @return [Boolean]
   #   When true, also creates an OTU that is tied to this taxon name
@@ -352,7 +356,7 @@ class TaxonName < ActiveRecord::Base
     list = TaxonNameClassification.where_taxon_name(self).with_type_array(ICZN_TAXON_NAME_CLASSIFICATION_NAMES + ICN_TAXON_NAME_CLASSIFICATION_NAMES)
     s = list.empty? ? [] : list.collect{|c| c.classification_label}
     list = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(STATUS_TAXON_NAME_RELATIONSHIP_NAMES)
-    s = list.empty? ? s : s + list.collect{|c| c.object_relationship_name}
+    s = list.empty? ? s : s + list.collect{|c| c.subject_status}
     s
   end
 
@@ -813,8 +817,7 @@ class TaxonName < ActiveRecord::Base
     d['genus'] = [nil, '[GENUS UNKNOWN]'] unless d['genus']
 
     elements.push("#{eo}#{d['genus'][1]}#{ec}") if d['genus']
-    elements.push ['(', %w{subgenus section subsection series subseries}.collect { |r| d[r] ? [d[r][0], "#{eo}#{d[r][1]}#{ec}"] : nil }, ')']
-    elements.push ['(', eo, d['superspecies'][1], ec, ')'] if d['superspecies']
+    elements.push ['(', %w{subgenus section subsection series subseries superspecies}.collect { |r| d[r] ? [d[r][0], "#{eo}#{d[r][1]}#{ec}"] : nil }, ')']
 
     SPECIES_EPITHET_RANKS.each do |r|
       elements.push(d[r][0], "#{eo}#{d[r][1]}#{ec}") if d[r]
@@ -851,6 +854,10 @@ class TaxonName < ActiveRecord::Base
 
   def subseries_name_elements(*args)
     ['subser.', args[0].name_with_misspelling(args[1])]
+  end
+
+  def superspecies_name_elements(*args)
+    [nil, args[0].name_with_misspelling(args[1])]
   end
 
   def species_group_name_elements(*args)
@@ -912,31 +919,31 @@ class TaxonName < ActiveRecord::Base
       gender        = nil
 
       relationships.each do |i|
-        case i.object_relationship_name
-          when 'original genus'
+        case i.type # subject_status
+          when /OriginalGenus/ #'original genus'
             genus  = '<i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
             gender = i.subject_taxon_name.gender_name
-          when 'original subgenus'
+          when /OriginalSubgenus/ # 'original subgenus'
             subgenus += '<i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
-          when 'original section'
+          when /OriginalSection/ # 'original section'
             subgenus += 'sect. <i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
-          when 'original subsection'
+          when /OriginalSubsection/ #'original subsection'
             subgenus += 'subsect. <i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
-          when 'original series'
+          when /OriginalSeries/ # 'original series'
             subgenus += 'ser. <i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
-          when 'original subseries'
+          when /OriginalSubseries/ #  'original subseries'
             subgenus += 'subser. <i>' + i.subject_taxon_name.name_with_misspelling(nil) + '</i> '
-          when 'original species'
+          when /OriginalSpecies/ #  'original species'
             species += '<i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
-          when 'original subspecies'
+          when /OriginalSubSpecies/ # 'original subspecies'
             species += '<i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
-          when 'original variety'
+          when /OriginalVariety/ #  'original variety'
             species += 'var. <i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
-          when 'original subvariety'
+          when /OriginalSubvariety/ # 'original subvariety'
             species += 'subvar. <i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
-          when 'original form'
+          when /OriginalForm/ # 'original form'
             species += 'f. <i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
-          when 'original subform'
+          when /OriginalSubform/ #  'original subform'
             species += 'subf. <i>' + i.subject_taxon_name.name_with_misspelling(gender) + '</i> '
         end
       end

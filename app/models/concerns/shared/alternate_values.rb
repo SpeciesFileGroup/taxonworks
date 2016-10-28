@@ -1,4 +1,4 @@
-# Shared code for...
+# Shared code for providing alternate values for individual columns.
 #
 module Shared::AlternateValues
   extend ActiveSupport::Concern
