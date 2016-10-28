@@ -80,7 +80,7 @@ class TaxonNameRelationship < ActiveRecord::Base
   soft_validate(:sv_synonym_linked_to_valid_name, set: :synonym_linked_to_valid_name)
   soft_validate(:sv_matching_type_genus, set: :matching_type_genus)
   soft_validate(:sv_validate_priority, set: :validate_priority)
-  soft_validate(:sv_validate_homonym_relationships, set: :validate_homonym_relationships)
+
   soft_validate(:sv_coordinated_taxa, set: :coordinated_taxa)
 
   scope :where_subject_is_taxon_name, -> (taxon_name) {where(subject_taxon_name_id: taxon_name)}
@@ -644,38 +644,7 @@ class TaxonNameRelationship < ActiveRecord::Base
     end
   end
 
-  def sv_validate_homonym_relationships
-    if self.type_name =~ /TaxonNameRelationship::Iczn::Invalidating::Homonym/
-      if !self.object_taxon_name.iczn_set_as_total_suppression_of.nil?
-        soft_validations.add(:type, 'Taxon should not be treated as homonym, since the related taxon is totally suppressed')
-      elsif self.subject_taxon_name.iczn_set_as_synonym_of.nil?
-        if self.subject_taxon_name.iczn_replacement_names.empty?
-          soft_validations.add(:type, 'Please select a nomen novum and/or valid name')
-        else
-          soft_validations.add(:type, 'Please select a valid name using synonym relationships',
-                               fix: :sv_add_synonym_for_homonym, success_message: 'Synonym relationship was added')
-        end
-      end
-    end
-  end
 
-  def sv_add_synonym_for_homonym
-    if self.type_name =~ /TaxonNameRelationship::Iczn::Invalidating::Homonym/
-      if self.subject_taxon_name.iczn_set_as_synonym_of.nil?
-        unless self.subject_taxon_name.iczn_replacement_names.empty?
-          self.subject_taxon_name.iczn_set_as_synonym_of = self.object_taxon_name
-          begin
-            TaxonNameRelationship.transaction do
-              self.save
-              return true
-            end
-          rescue
-          end
-        end
-      end
-    end
-    false
-  end
 
   def sv_coordinated_taxa
     s = self.subject_taxon_name

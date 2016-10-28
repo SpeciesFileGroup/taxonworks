@@ -515,6 +515,7 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
         r2.soft_validate('validate_homonym_relationships')
         expect(r2.soft_validations.messages_on(:type).size).to eq(1)
       end
+      
       specify 'homonym without nomen novum' do
         r1 = TaxonNameRelationship::Iczn::Invalidating::Homonym.create( subject_taxon_name: @g2, object_taxon_name: @g1)
         r1.soft_validate('validate_homonym_relationships')
