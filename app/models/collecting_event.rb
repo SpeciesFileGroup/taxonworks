@@ -432,14 +432,38 @@ class CollectingEvent < ActiveRecord::Base
       sql_string
     end
 
-    # @param [Hash] search_start_date
-    # @param [Hash] search_end_date
-    # @param [Hash] partial_overlap
+    # @param [Hash] in the form of params
+    # @return [Hash] in the form of params
+    def normalize_and_order_dates(params)
+      start_date = params[:search_start_date]
+      end_date   = params[:search_end_date]
+
+      if start_date.blank? and end_date.blank? # set entire range
+        start_date = '1700/1/1'
+        end_date   = Date.today.to_date
+      else
+        if @end_date.blank? # set a one-day range
+          end_date = start_date
+        end
+      end
+
+      if start_date > end_date # need to swap s and e?
+        start_date, end_date = end_date, start_date
+      end
+
+      params[:search_start_date] = start_date
+      params[:search_end_date]   = end_date
+      params
+    end
+
+    # @param [Hash] search_start_date string in form 'yyyy/mm/dd'
+    # @param [Hash] search_end_date string in form 'yyyy/mm/dd'
+    # @param [Hash] partial_overlap 'on' or 'off'
     # @return [Scope] of selected collecting events with georeferences
     def in_date_range(search_start_date: nil, search_end_date: nil, partial_overlap: 'on')
       allow_partial = (partial_overlap.downcase == 'off' ? false : true)
       sql_string    = date_sql_from_dates(search_start_date, search_end_date, allow_partial)
-      CollectingEvent.where(sql_string).uniq
+      CollectingEvent.where(sql_string).where(project: $project_id).uniq
     end
 
     # @param [Hash] of parameters in the style of 'params'
