@@ -420,6 +420,7 @@ class CollectingEvent < ActiveRecord::Base
         part_2s = '' # if no whole years, remove clause
         part_2e = ''
       else
+        # part_2s = "(end_date_year between #{st_year + 1} and #{end_year - 1})"
         part_2s = "(start_date_year between #{st_year + 1} and #{end_year - 1})"
         part_2e = part_2s
       end
