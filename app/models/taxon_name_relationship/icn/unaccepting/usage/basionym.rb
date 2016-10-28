@@ -16,11 +16,11 @@ class TaxonNameRelationship::Icn::Unaccepting::Usage::Basionym < TaxonNameRelati
             TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Illegitimate)
   end
 
-  def subject_relationship_name
+  def object_status
     'legitimate name'
   end
 
-  def object_relationship_name
+  def subject_status
     'basionym'
   end
 

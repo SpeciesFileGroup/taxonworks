@@ -10,11 +10,11 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective < TaxonName
             TaxonNameRelationship::Iczn::Invalidating::Synonym::ForgottenName)
   end
 
-  def subject_relationship_name
+  def object_status
     'senior subjective synonym'
   end
 
-  def object_relationship_name
+  def subject_status
     'subjective synonym'
   end
 

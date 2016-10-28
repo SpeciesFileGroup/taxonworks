@@ -8,11 +8,11 @@ class TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpellin
                                       TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling)
   end
 
-  def subject_relationship_name
+  def object_status
     'justified emendation'
   end
 
-  def object_relationship_name
+  def subject_status
     'incorrect original spelling'
   end
 

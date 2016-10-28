@@ -12,11 +12,11 @@ class TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961 < Tax
     FAMILY_RANK_NAMES_ICZN
   end
 
-  def subject_relationship_name
+  def object_status
     'family name based on genus synonym replaced before 1961'
   end
 
-  def object_relationship_name
+  def subject_status
     'as family name based on genus synonym replaced before 1961'
   end
 

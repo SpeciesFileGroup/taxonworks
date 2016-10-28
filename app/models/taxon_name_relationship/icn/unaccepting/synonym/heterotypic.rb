@@ -8,11 +8,11 @@ class TaxonNameRelationship::Icn::Unaccepting::Synonym::Heterotypic < TaxonNameR
         self.collect_descendants_and_itself_to_s(TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic)
   end
 
-  def subject_relationship_name
+  def object_status
     'heterotypic senior synonym'
   end
 
-  def object_relationship_name
+  def subject_status
     'heterotypic synonym'
   end
 

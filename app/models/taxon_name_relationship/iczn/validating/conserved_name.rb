@@ -26,11 +26,11 @@ class TaxonNameRelationship::Iczn::Validating::ConservedName < TaxonNameRelation
     :reverse
   end
 
-  def subject_relationship_name
+  def object_status
     'suppressed'
   end
 
-  def object_relationship_name
+  def subject_status
     'conserved'
   end
 

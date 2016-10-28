@@ -6,11 +6,11 @@ class TaxonNameRelationship::Icn::Accepting::SanctionedName < TaxonNameRelations
     true
   end
 
-  def subject_relationship_name
+  def object_status
     'rejected'
   end
 
-  def object_relationship_name
+  def subject_status
     'sanctioned'
   end
 

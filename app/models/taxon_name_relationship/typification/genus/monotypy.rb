@@ -19,11 +19,11 @@ class TaxonNameRelationship::Typification::Genus::Monotypy < TaxonNameRelationsh
             TaxonNameRelationship::Typification::Genus::RulingByCommission)
   end
 
-  def subject_relationship_name
+  def object_status
     'type of genus by monotypy'
   end
 
-  def object_relationship_name
+  def subject_status
     'type species by monotypy'
   end
 

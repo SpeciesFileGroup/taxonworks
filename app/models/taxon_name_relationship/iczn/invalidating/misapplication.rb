@@ -8,11 +8,11 @@ class TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication < TaxonNa
                                       TaxonNameRelationship::Iczn::Invalidating::Homonym)
   end
 
-  def subject_relationship_name
+  def object_status
     'correct application'
   end
 
-  def object_relationship_name
+  def subject_status
     'misapplication'
   end
 

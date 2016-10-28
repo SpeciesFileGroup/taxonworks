@@ -9,7 +9,7 @@ class TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm < Ta
   end
 
 
-  def object_relationship_name
+  def subject_status
     'family-group name form'
   end
 

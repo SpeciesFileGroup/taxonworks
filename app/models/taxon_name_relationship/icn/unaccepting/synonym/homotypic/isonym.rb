@@ -9,11 +9,11 @@ class TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic::Isonym < Taxo
             TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic::OrthographicVariant)
   end
 
-  def subject_relationship_name
+  def object_status
     'set as isonym'
   end
 
-  def object_relationship_name
+  def subject_status
     'isonym'
   end
 

@@ -18,11 +18,11 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary < TaxonNameRel
         self.collect_to_s(TaxonNameRelationship::Iczn::Invalidating::Homonym)
   end
 
-  def subject_relationship_name
+  def object_status
     'senior primary homonym'
   end
 
-  def object_relationship_name
+  def subject_status
     'primary homonym'
   end
 

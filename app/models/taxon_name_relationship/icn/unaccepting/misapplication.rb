@@ -16,11 +16,11 @@ class TaxonNameRelationship::Icn::Unaccepting::Usage::Misapplication < TaxonName
             TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Illegitimate)
   end
 
-  def subject_relationship_name
+  def object_status
     'correct application'
   end
 
-  def object_relationship_name
+  def subject_status
     'misapplication'
   end
 

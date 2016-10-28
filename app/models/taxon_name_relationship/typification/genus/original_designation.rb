@@ -19,11 +19,11 @@ class TaxonNameRelationship::Typification::Genus::OriginalDesignation < TaxonNam
             TaxonNameRelationship::Typification::Genus::RulingByCommission)
   end
 
-  def subject_relationship_name
+  def object_status
     'type of genus by original designation'
   end
 
-  def object_relationship_name
+  def subject_status
     'type species by original designation'
   end
 

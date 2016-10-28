@@ -8,11 +8,11 @@ class TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling < TaxonNameR
                                       TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling)
   end
 
-  def subject_relationship_name
+  def object_status
     'correct spelling'
   end
 
-  def object_relationship_name
+  def subject_status
     'misspelling'
   end
 

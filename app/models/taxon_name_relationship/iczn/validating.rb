@@ -22,11 +22,11 @@ class TaxonNameRelationship::Iczn::Validating < TaxonNameRelationship::Iczn
 
   end
 
-  def subject_relationship_name
+  def object_status
     'valid'
   end
 
-  def object_relationship_name
+  def subject_status
     'invalid'
   end
 

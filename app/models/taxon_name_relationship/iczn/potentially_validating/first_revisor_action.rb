@@ -18,11 +18,11 @@ class TaxonNameRelationship::Iczn::PotentiallyValidating::FirstRevisorAction < T
     true
   end
 
-  def subject_relationship_name
+  def object_status
     'first revisor action'
   end
 
-  def object_relationship_name
+  def subject_status
     'first revisor action'
   end
 

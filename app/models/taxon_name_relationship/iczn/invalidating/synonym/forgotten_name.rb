@@ -10,11 +10,11 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::ForgottenName < TaxonN
             TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective)
   end
 
-  def subject_relationship_name
+  def object_status
     'nomen protectum'
   end
 
-  def object_relationship_name
+  def subject_status
     'nomen oblitum'
   end
 

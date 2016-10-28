@@ -15,11 +15,11 @@ class TaxonNameRelationship::Typification::Family < TaxonNameRelationship::Typif
         self.collect_descendants_and_itself_to_s(TaxonNameRelationship::Typification::Genus)
   end
 
-  def subject_relationship_name
+  def object_status
     'type of family'
   end
 
-  def object_relationship_name
+  def subject_status
     'type genus'
   end
 

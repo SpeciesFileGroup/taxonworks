@@ -18,11 +18,11 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary < TaxonNameR
             TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary)
   end
 
-  def subject_relationship_name
+  def object_status
     'senior secondary homonym'
   end
 
-  def object_relationship_name
+  def subject_status
     'secondary homonym'
   end
 

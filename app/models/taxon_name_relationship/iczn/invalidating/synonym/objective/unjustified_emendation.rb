@@ -9,11 +9,11 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::Unjustified
             TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnnecessaryReplacementName)
   end
 
-  def subject_relationship_name
+  def object_status
     'correct original spelling'
   end
 
-  def object_relationship_name
+  def subject_status
     'unjustified emendation'
   end
 

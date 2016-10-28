@@ -9,11 +9,11 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::Unnecessary
             TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::SynonymicHomonym)
   end
 
-  def subject_relationship_name
+  def object_status
     'unnecessary replaced'
   end
 
-  def object_relationship_name
+  def subject_status
     'unnecessary replacement'
   end
 

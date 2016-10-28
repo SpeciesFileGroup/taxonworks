@@ -23,4 +23,26 @@ class TaxonNameRelationship::OriginalCombination < TaxonNameRelationship
     RANKS.index(::ICN_LOOKUP[self.name.demodulize.underscore.humanize.downcase.gsub('original ', '')])
   end
 
+
+
+  # @return String
+  #    the status inferred by the relationship to the subject name 
+  def subject_status
+#   rank =  self.type_name.demodulize.underscore.humanize.downcase
+#   "original #{rank}" 
+  
+   rank =  self.type_name.demodulize.underscore.humanize.downcase
+   "with #{rank}"
+  end
+
+    # @return String
+  #    the status inferred by the relationship to the subject name 
+  def object_status
+#   rank =  self.type_name.demodulize.underscore.humanize.downcase
+#   "original #{rank}" 
+   rank =  self.type_name.demodulize.underscore.humanize.downcase
+   "#{rank} of"
+  end
+
+
 end

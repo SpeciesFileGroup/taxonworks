@@ -12,11 +12,11 @@ class TaxonNameRelationship::Icn::Accepting::AlternativeFamilyName < TaxonNameRe
     FAMILY_RANK_NAMES_ICN
   end
 
-  def subject_relationship_name
+  def object_status
     'as alternative family name'
   end
 
-  def object_relationship_name
+  def subject_status
     'alternative family name'
   end
 

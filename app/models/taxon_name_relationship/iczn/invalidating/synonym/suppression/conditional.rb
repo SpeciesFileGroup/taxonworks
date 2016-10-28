@@ -9,11 +9,11 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression::Condition
             TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression::Total)
   end
 
-  def subject_relationship_name
+  def object_status
     'conserved'
   end
 
-  def subject_relationship_name
+  def object_status
     'conditionaly suppressed'
   end
 

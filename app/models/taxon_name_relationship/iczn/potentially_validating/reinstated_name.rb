@@ -2,7 +2,7 @@ class TaxonNameRelationship::Iczn::PotentiallyValidating::ReinstatedName < Taxon
 
   NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000269'
 
-  def subject_relationship_name
+  def object_status
     'reinstated name'
   end
 
@@ -10,11 +10,11 @@ class TaxonNameRelationship::Iczn::PotentiallyValidating::ReinstatedName < Taxon
     true
   end
 
-  def subject_relationship_name
+  def object_status
     'as reinstated'
   end
 
-  def object_relationship_name
+  def subject_status
     'reinstated'
   end
 

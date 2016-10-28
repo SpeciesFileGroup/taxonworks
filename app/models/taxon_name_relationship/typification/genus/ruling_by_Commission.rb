@@ -19,11 +19,11 @@ class TaxonNameRelationship::Typification::Genus::RulingByCommission < TaxonName
             TaxonNameRelationship::Typification::Genus::SubsequentDesignation)
   end
 
-  def subject_relationship_name
+  def object_status
     'type of genus by ruling by Commission'
   end
 
-  def object_relationship_name
+  def subject_status
     'type species by ruling by Commission'
   end
 

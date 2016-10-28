@@ -9,11 +9,11 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::SynonymicHo
             TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnnecessaryReplacementName)
   end
 
-  def subject_relationship_name
+  def object_status
     'senior synonymic homonym'
   end
 
-  def object_relationship_name
+  def subject_status
     'synonymic homonym'
   end
 

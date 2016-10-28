@@ -22,11 +22,11 @@ class TaxonNameRelationship::Iczn::Validating::UncertainPlacement < TaxonNameRel
     true
   end
 
-  def subject_relationship_name
+  def object_status
     'incertae sedis'
   end
 
-  def object_relationship_name
+  def subject_status
     'as incertae sedis'
   end
 

@@ -16,11 +16,11 @@ class TaxonNameRelationship::Icn::Unaccepting::Usage::Misspelling < TaxonNameRel
         TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Illegitimate::Superfluous)
   end
 
-  def subject_relationship_name
+  def object_status
     'correct spelling'
   end
 
-  def object_relationship_name
+  def subject_status
     'misspelling'
   end
 

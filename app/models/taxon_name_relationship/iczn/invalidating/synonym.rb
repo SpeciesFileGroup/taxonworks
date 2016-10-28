@@ -17,11 +17,11 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym < TaxonNameRelationship
     [ TaxonNameClassification::Iczn::Invalid ]
   end
 
-  def subject_relationship_name
+  def object_status
     'senior synonym'
   end
 
-  def object_relationship_name
+  def subject_status
     'synonym'
   end
 
