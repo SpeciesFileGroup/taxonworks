@@ -166,16 +166,49 @@ namespace :tw do
                     bit_flag_name = 'misapplied'
 
                   # - - -
-                  # When 10 - 12, may not have relationship in SF; new rule: If making relationship with AboveID fails, create classification only (invalid::homonym)
-                  when 10 # preoccupied; if not in scope, no relationship
-                    type = 'TaxonNameRelationship::Iczn::Invalidating::Homonym'
-                    bit_flag_name = 'preoccupied'
-                  when 11 # primary homonym
-                    type = 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary'
-                    bit_flag_name = 'primary homonym'
-                  when 12 # secondary homonym
-                    type = 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary'
-                    bit_flag_name = 'secondary homonym'
+                  # When 10 - 12, 22, may not have relationship in SF; new rule: If making relationship with AboveID fails, create classification only (invalid::homonym)
+                  when 10, 11, 12, 22 # create homonym classification and synonym relationship, then add note to taxon name about SF status, e.g., preoccupied
+                    tnc = TaxonNameClassification.new(
+                        type: 'TaxonNameClassification::Iczn::Available::Invalid::Homonym',
+                        taxon_name_id: taxon_name_id,
+                        project_id: project_id
+                    )
+                    if tnc.valid?
+                      tnc.save!
+                      puts 'TaxonNameClassification Invalid::Homonym created'
+                    else
+                      logger.error "TaxonNameClassification Invalid::Homonym ERROR tw.project_id #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id}, (Error # #{error_counter += 1}): " + tnc.errors.full_messages.join(';')
+                    end
+
+                    type = 'TaxonNameRelationship::Iczn::Invalidating::Synonym'
+
+                    case bit_position
+                      when 10
+                        bit_flag_name = 'preoccupied'
+                      when 11
+                        bit_flag_name = 'primary homonym'
+                      when 12
+                        bit_flag_name = 'secondary homonym'
+                      when 22
+                        bit_flag_name = 'unspecified homonym'
+                    end
+
+                    Note.create!(
+                        text: "Species File taxon (TaxonNameID = #{row['TaxonNameID']}), marked as '#{bit_flag_name}', created generic TaxonNameRelationship type '#{type}'",
+                        note_object_id: taxon_name_id,
+                        note_object_type: 'TaxonName',
+                        project_id: project_id
+                    )
+
+                  # when 10 # preoccupied; if not in scope, no relationship
+                  #   type = 'TaxonNameRelationship::Iczn::Invalidating::Homonym'
+                  #   bit_flag_name = 'preoccupied'
+                  # when 11 # primary homonym
+                  #   type = 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary'
+                  #   bit_flag_name = 'primary homonym'
+                  # when 12 # secondary homonym
+                  #   type = 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary'
+                  #   bit_flag_name = 'secondary homonym'
                   # - - -
 
                   when 13 # nomen oblitum
@@ -216,9 +249,9 @@ namespace :tw do
 
                   # when 21 # subsequent name; reciprocal of homonym or required emendation?
 
-                  when 22 # unspecified homonym
-                    type = 'TaxonNameRelationship::Iczn::Invalidating::Homonym'
-                    bit_flag_name = 'unspecified homonym'
+                  # when 22 # unspecified homonym
+                  #   type = 'TaxonNameRelationship::Iczn::Invalidating::Homonym'
+                  #   bit_flag_name = 'unspecified homonym'
                   when 23 # lapsus calami; treat as incorrect original spelling for now
                     type = 'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling'
                     bit_flag_name = 'lapsus calami'
@@ -290,6 +323,7 @@ namespace :tw do
 
         desc 'time rake tw:project_import:sf_import:taxa:create_some_related_taxa user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         LoggedTask.define :create_some_related_taxa => [:data_directory, :environment, :user_id] do |logger|
+          # 45 errors, 2.5 minutes
 
           logger.info 'Creating some related taxa (from tblRelatedTaxa)...'
 
@@ -325,18 +359,46 @@ namespace :tw do
                                  '6' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnnecessaryReplacementName',
                                  '7' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication',
                                  '8' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling', # lapsus calami>>corrected lapsus
-                                 '9' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym' # nomen nudum>>nomen nudum made available
+                                 '9' => 'TaxonNameRelationship::Iczn::Invalidating' # ::Synonym' # nomen nudum>>nomen nudum made available
             }
 
             # @todo: @mjy Matt and Dmitry need to come up with two new relationships (lapsus calami / corrected lapsus, nomen nudum / nomen nudum made available) that are semantically sound
 
             case relationship.to_i
-              when 1, 4, 5, 6, 7 then
-                subject_name_id = older_name_id
-                object_name_id = younger_name_id
-              else # 2, 3, 8, 9
+              when 1
                 subject_name_id = younger_name_id
                 object_name_id = older_name_id
+              when 2
+                subject_name_id = older_name_id
+                object_name_id = younger_name_id
+              when 3
+                subject_name_id = older_name_id
+                object_name_id = younger_name_id
+              when 4
+                subject_name_id = younger_name_id
+                object_name_id = older_name_id
+              when 5
+                subject_name_id = younger_name_id
+                object_name_id = older_name_id
+              when 6
+                subject_name_id = younger_name_id
+                object_name_id = older_name_id
+              when 7
+                subject_name_id = younger_name_id
+                object_name_id = older_name_id
+              when 8
+                subject_name_id = older_name_id
+                object_name_id = younger_name_id
+              when 9
+                subject_name_id = older_name_id
+                object_name_id = younger_name_id
+
+              # when 1 , 4, 5, 6, 7 then
+              #   subject_name_id = older_name_id
+              #   object_name_id = younger_name_id
+              # else # 2, 3, 8, 9
+              #   subject_name_id = younger_name_id
+              #   object_name_id = older_name_id
             end
 
             if older_name_id == 0
@@ -352,19 +414,19 @@ namespace :tw do
 
             logger.info "Working with TW.project_id: #{project_id}, SF.OlderNameID #{row['OlderNameID']} = TW.older_name_id #{older_name_id}, SF.YoungerNameID #{row['YoungerNameID']} = TW.younger_name_id #{younger_name_id} (count #{count_found += 1}) \n"
 
-            tnr = TaxonNameRelationship.new(
+            tnr = TaxonNameRelationship.find_or_create_by(
                 subject_taxon_name_id: subject_name_id,
                 object_taxon_name_id: object_name_id,
                 type: relationship_hash[relationship],
-                created_at: row['CreatedOn'],
-                updated_at: row['LastUpdate'],
-                created_by_id: get_tw_user_id[row['CreatedBy']],
-                updated_by_id: get_tw_user_id[row['ModifiedBy']],
+                # created_at: row['CreatedOn'],
+                # updated_at: row['LastUpdate'],
+                # created_by_id: get_tw_user_id[row['CreatedBy']],
+                # updated_by_id: get_tw_user_id[row['ModifiedBy']],
                 project_id: project_id
             )
 
             if tnr.valid?
-              tnr.save!
+              # tnr.save!
               puts 'TaxonNameRelationship created'
 
             else # tnr not valid
