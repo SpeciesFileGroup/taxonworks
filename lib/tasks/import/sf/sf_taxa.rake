@@ -6,7 +6,7 @@ namespace :tw do
       namespace :taxa do
 
         desc 'time rake tw:project_import:sf_import:taxa:create_status_flag_relationships user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        #  real	~1 hour
+        #  real	~1 hour, 62.5 minutes, 256 errors (a little > 234 before today's changes)
 
         LoggedTask.define :create_status_flag_relationships => [:data_directory, :environment, :user_id] do |logger|
 
