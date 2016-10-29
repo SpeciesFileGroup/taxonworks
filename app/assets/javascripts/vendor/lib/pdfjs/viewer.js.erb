@@ -1,8 +1,6 @@
 
 $(document).ready(function() {
 
-var pdfUrl = '/system/documents/document_files/000/000/003/original/compressed.tracemonkey_pldi_09.pdf'; //<--- Change the route here.
-
 'use strict';
 
     var pdfDocument = void 0;
@@ -13,8 +11,6 @@ var pdfUrl = '/system/documents/document_files/000/000/003/original/compressed.t
 
     PDFJS.workerSrc = '<%= asset_path("vendor/src/pdfjs/pdf.worker.js") %>';
     PDFJS.disableWorker = true; 
-
-    loadPDF(pdfUrl);
 
     function loadPDF(pdfUrl) {
       $('#viewer').empty();
@@ -68,8 +64,8 @@ var pdfUrl = '/system/documents/document_files/000/000/003/original/compressed.t
         $(container).empty();
         $(canvas).empty();
 
-        widthPixelDensity = Math.floor(viewport.width/window.devicePixelRatio) + 'px';
-        heightPixelDensity = Math.floor(viewport.height/window.devicePixelRatio) + 'px';
+        var widthPixelDensity = Math.floor(viewport.width/window.devicePixelRatio) + 'px';
+        var heightPixelDensity = Math.floor(viewport.height/window.devicePixelRatio) + 'px';
 
         canvas.width = viewport.width * 2;
         canvas.height = viewport.height * 2;
@@ -179,6 +175,10 @@ var pdfUrl = '/system/documents/document_files/000/000/003/original/compressed.t
 
     $( "textarea" ).dblclick(function() {
       $(this).val(textCopy);
+    });    
+
+    $('[data-pdfviewer]').on("click", function() {
+      loadPDF($(this).attr("data-pdfviewer"));
     });    
 
     $('.slide-document .slide-panel-content').scroll(function() {

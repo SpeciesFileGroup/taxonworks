@@ -21,6 +21,11 @@
 		padding: 0px;
 		margin:0px;
 	}
+
+	.pdfviewerItem {
+
+	}
+
 	.remove {
 		display: none;
 		font-size: 0px;
@@ -34,6 +39,7 @@
 	}
 
 	li {
+		position: relative;
 		border-bottom: 1px solid #FAFAFA;
 		border-left:5px solid transparent;
 		display: flex;
