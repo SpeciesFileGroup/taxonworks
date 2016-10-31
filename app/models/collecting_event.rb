@@ -443,7 +443,7 @@ class CollectingEvent < ActiveRecord::Base
         start_date = '1700/1/1'
         end_date = Date.today.to_date.to_s.gsub('-', '/')
       else
-        if @end_date.blank? # set a one-day range
+        if end_date.blank? # set a one-day range
           end_date = start_date
         end
       end
