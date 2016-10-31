@@ -60,15 +60,19 @@ describe 'tasks/gis/collection_objects/area_and_date', type: :feature, group: [:
       describe '#set_date', js: true do
         it 'renders count of collection objects based on the start and end dates' do
           visit(index_area_and_date_task_path)
-          find_search_start_date = find('#search_start_date')
+          c_wait = Capybara.default_max_wait_time
+          find('#search_start_date').set('1971/01/01')
+          # find_search_start_date = find('#search_start_date')
+          # find_search_start_date.set '1971/01/01'
+          find('#search_end_date').set('1980/12/31')
+          # find_search_end_date = find('#search_end_date')
+          # find_search_end_date.set('1980/12/31')
+          # check('partial_overlap')
           find_search_start_date.set '1971/01/01'
-          find_search_end_date = find('#search_end_date')
-          find_search_end_date.set('1980/12/31')
-          # find('#search_end_date').click
-          check('partial_overlap')
-          Capybara.default_wait_time.set 4
-          find_search_start_date.set '1971/01/01'
+          Capybara.default_max_wait_time = 60
+          find('#search_start_date').click
           expect(find('#date_count')).to have_content('10')
+          Capybara.default_max_wait_time = c_wait
         end
       end
 
