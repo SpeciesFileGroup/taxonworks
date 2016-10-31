@@ -23,7 +23,12 @@
 	}
 
 	.pdfviewerItem {
+		display: none;
+		cursor: pointer;
+	}
 
+	.itemOptions {
+		margin-right: 0.5em;
 	}
 
 	.remove {
@@ -31,9 +36,8 @@
 		font-size: 0px;
 		width: 15px;
 		height: 15px;
-		margin-right: 1em;
 		background-image: image-url('close.svg');
-		background-position: left, center;
+		background-position: left, center, top 8px;
 		opacity: 0.3;
 		background-repeat: no-repeat;
 	}
@@ -52,6 +56,9 @@
 		opacity: 1;
 		background-color: $navigation_background;
 		.remove {
+			display: inline-block;
+		}
+		.pdfviewerItem {
 			display: inline-block;
 		}
 	}

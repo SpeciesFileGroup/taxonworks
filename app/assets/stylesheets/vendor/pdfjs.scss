@@ -96,7 +96,16 @@ button:focus {
     background-color: #FAFAFA;
 }
 #viewer {
+  position: relative;
   margin-top: 30px;
+}
+
+#pdfEmptyMessage {
+  width: 400px;
+  position: absolute;
+  text-align: center;
+  padding-top: 1em;
+  font-weight: 100;
 }
 
 .textLayer {
