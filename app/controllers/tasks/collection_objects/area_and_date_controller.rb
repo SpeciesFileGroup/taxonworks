@@ -8,11 +8,11 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
     @collection_objects_count = 0
     @early_date               = CollectionObject.where(project: sessions_current_project_id).order(:created_at).limit(1).pluck(:created_at).first
     if @early_date.blank?
-      @early_date = '1700/01/01'
+      @early_date = Date.parse('1700/01/01')
     end
     @late_date = CollectionObject.where(project: sessions_current_project_id).order(created_at: :desc).limit(1).pluck(:created_at).first
     if @late_date.blank?
-      @late_date = Date.today.to_date
+      @late_date = Date.today
     end
   end
 
