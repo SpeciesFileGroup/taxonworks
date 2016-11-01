@@ -58,6 +58,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
   context 'partial_overlap OFF' do
     context 'search params completely surround target' do
 
+      #    a  b   c   d
       # ---*--s---e---*
       context 'surrounding start and end date' do
         let(:params) {
@@ -71,7 +72,8 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         end
       end
 
-      # ---*--s--*--d---
+      #    a  b  c  d
+      # ---*--s--*--e---
       context 'surrounding start date, end not provided' do
         let(:params) {
           {search_start_date: a, search_end_date: c, partial_overlap: 'off'}
@@ -84,6 +86,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         end
       end
 
+      #    a  b  c
       # ---*--s--*------
       context 'surrounding start date, end not provided' do
         let(:params) {
@@ -100,6 +103,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
 
     context 'search params surround one target' do
 
+      #       a  b  c  d
       # ------s--*--e--*---
       context 'search inside start/end' do
         let(:params) {
@@ -116,6 +120,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
     end
 
     context 'search params surround neither target' do
+      #       a  b  c  d
       # ------s--*--*--e---
       context 'search inside start/end' do
         let(:params) {
@@ -129,6 +134,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         end
       end
 
+      #  a b     c    d
       # -*-*-----s----e-----
       context 'search inside start/end' do
         let(:params) {
@@ -142,6 +148,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         end
       end
 
+      #  a b     c
       # -*-*-----s----------
       context 'search inside start/end' do
         let(:params) {
@@ -164,6 +171,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
 
     context 'search params completely surround target' do
 
+      #    a  b   c   d
       # ---*--s---e---*
       context 'surrounding start and end date' do
         let(:params) {
@@ -177,7 +185,8 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         end
       end
 
-      # ---*--s--*--d---
+      #    a  b  c  d
+      # ---*--s--*--e---
       context 'surrounding start date, end not provided' do
         let(:params) {
           {search_start_date: a, search_end_date: c, partial_overlap: 'on'}
@@ -190,6 +199,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         end
       end
 
+      #    a  b  c
       # ---*--s--*------
       context 'surrounding start date, end not provided' do
         let(:params) {
@@ -206,6 +216,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
 
     context 'search params surround one target' do
 
+      #       a  b  c  d
       # ------s--*--e--*---
       context 'search inside start/end' do
         let(:params) {
@@ -222,6 +233,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
     end
 
     context 'search params surround neither target' do
+      #       a  b  c  d
       # ------s--*--*--e---
       context 'search inside start/end' do
         let(:params) {
@@ -235,6 +247,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         end
       end
 
+      #  a b     c    d
       # -*-*-----s----e-----
       context 'search inside start/end' do
         let(:params) {
@@ -248,6 +261,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         end
       end
 
+      #  a b     c
       # -*-*-----s----------
       context 'search inside start/end' do
         let(:params) {
