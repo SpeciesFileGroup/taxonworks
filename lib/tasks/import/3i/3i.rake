@@ -230,11 +230,11 @@
 
 #        $project_id = 1
         handle_controlled_vocabulary_3i
-#        handle_litauthors_3i
-#        handle_references_3i
-#        handle_taxonomy_3i
-#        handle_taxon_name_relationships_3i
-#        handle_citation_topics_3i
+        handle_litauthors_3i
+        handle_references_3i
+        handle_taxonomy_3i
+        handle_taxon_name_relationships_3i
+        handle_citation_topics_3i
         index_collecting_events_from_accessions_new_3i
         handle_host_plant_name_dictionary_3i
         handle_host_plants_3i
@@ -291,6 +291,9 @@
       def handle_controlled_vocabulary_3i
         print "\nHandling CV \n"
 
+        @accession_namespace = Namespace.create(institution: '3i Auchenorrhyncha', name: 'Accession Code', short_name: 'Accession Code')
+
+
         @data.keywords.merge!(
             #'AuthorDrMetcalf' => Predicate.find_or_create_by(name: 'AuthorDrMetcalf', definition: 'Author name from DrMetcalf bibliography database.', project_id: $project_id),
             '3i_imported' => Keyword.find_or_create_by(name: '3i_imported', definition: 'Imported from 3i database.', project_id: $project_id),
@@ -301,6 +304,7 @@
             #'YearReference' => Predicate.find_or_create_by(name: 'year_reference', definition: 'Year string as it appears in the nomenclatural reference.', project_id: $project_id),
             'Ethymology' => Predicate.find_or_create_by(name: 'ethymology', definition: 'Ethymology.', project_id: $project_id),
             'TypeDepository' => Predicate.find_or_create_by(name: 'type_depository', definition: 'Type depository.', project_id: $project_id),
+            'HostPlant' => Predicate.find_or_create_by(name: 'host_plant', definition: 'Host plant.', project_id: $project_id),
             'YearRem' => Predicate.find_or_create_by(name: 'nomenclatural_string', definition: 'Nomenclatural remarks.', project_id: $project_id),
             'Typification' => Predicate.find_or_create_by(name: 'type_designated_by', definition: 'Type designated by', project_id: $project_id),
             'FirstRevisor' => Predicate.find_or_create_by(name: 'first_revisor_action', definition: 'First revisor action', project_id: $project_id),
@@ -941,6 +945,9 @@
 
         fields = %w{LocalityLabel Habitat Host AccessionNumber Country State County Locality Park DateCollectedBeginning DateCollectedEnding Collector CollectionMethod Elev_m Elev_ft NS Lat_deg Lat_min Lat_sec EW Long_deg Long_min Long_sec Comments PrecisionCode Datum ModifiedBy ModifiedOn}
 
+        fields1 = %w{Host AccessionNumber Comments PrecisionCode Datum}
+
+
         field_translate = {
             'NS' => 'LatNS',
             'Lat_deg' => 'LatDeg',
@@ -953,11 +960,13 @@
             'Elev_m' => 'ElevationF',
             'Elev_ft' => 'ElevationM',
             'Locality' => 'GLocality',
+            'Park' => 'SLocality',
             'CollectionMethod' => 'Method',
             'Habitat' => 'Ecology',
             'DateCollectedBeginning' => 'Date',
             'DateCollectedEnding' => 'DateTo',
-            'Collector' => 'Collectors'
+            'Collector' => 'Collectors',
+            'PrecisionCode' => 'Precision'
         }
 
         puts "\naccession new records\n"
@@ -976,9 +985,8 @@
           tmp_ce['State'] = geo_translate_3i(tmp_ce['State']) unless tmp_ce['State'].blank?
           tmp_ce['Country'] = geo_translate_3i(tmp_ce['Country']) unless tmp_ce['Country'].blank?
 
-          tmp_ce.merge!('CreatedBy' => '1031', 'CreatedOn' => '01/20/2014 12:00:00')
+          ce = find_or_create_collecting_event_3i(tmp_ce)
 
-          find_or_create_collecting_event_3i(tmp_ce)
         end
       end
 
@@ -1424,7 +1432,7 @@
             verbatim_latitude: latitude,
             verbatim_longitude: longitude,
             verbatim_geolocation_uncertainty: geolocation_uncertainty,
-            verbatim_datum: nil,
+            verbatim_datum: ce['Datum'],
             field_notes: nil,
             verbatim_date: nil,
             no_cached: true,
@@ -1437,7 +1445,9 @@
           c.data_attributes.create(import_predicate: 'State', value: ce['State'].to_s, type: 'ImportAttribute') unless ce['State'].blank?
           c.data_attributes.create(import_predicate: 'County', value: ce['County'].to_s, type: 'ImportAttribute') unless ce['County'].blank?
           gr = geolocation_uncertainty.nil? ? false : c.generate_verbatim_data_georeference(true, no_cached: true)
-
+          c.notes.create(text: ce['Comments']) unless ce['Comments'].blank?
+          c.data_attributes.new(type: 'InternalAttribute', predicate: @data.keywords['HostPlant'], value: ce['Host']) unless ce['Host'].blank?
+          c.identifiers.create(identifier: ce['AccessionNumber'], namespace: @accession_namespace, type: 'Identifier::Local::AccessionCode') unless ce['AccessionNumber'].blank?
 
           unless gr == false
             ga, c.geographic_area_id = c.geographic_area_id, nil
@@ -1463,6 +1473,33 @@
           byebug
         end
       end
+
+      def parse_geolocation_uncertainty_3i(ce)
+        return ce['CoordinateAccuracy'] unless ce['CoordinateAccuracy'].blank?
+
+        geolocation_uncertainty = nil
+        unless ce['PrecisionCode'].blank?
+          case ce['PrecisionCode'].to_i
+            when 1
+              geolocation_uncertainty = 10
+            when 2
+              geolocation_uncertainty = 1000
+            when 3
+              geolocation_uncertainty = 10000
+            when 4
+              nil
+            #geolocation_uncertainty = 100000
+            when 5
+              nil
+            #geolocation_uncertainty = 1000000
+            when 6
+              nil
+            #geolocation_uncertainty = 1000000
+          end
+        end
+        return geolocation_uncertainty
+      end
+
 
       def add_bioculation_class_3i(o, bcc)
         BiocurationClassification.create(biocuration_class: @data.biocuration_classes['Specimens'], biological_collection_object: o) if bcc == 'Specimens'
