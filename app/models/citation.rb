@@ -41,7 +41,7 @@ class Citation < ActiveRecord::Base
   before_destroy :prevent_if_required
 
   def prevent_if_required
-    if !new_record? && citation_object.requires_citation? && citation_object.citations(true).count == 1
+    if !marked_for_destruction? && !new_record? && citation_object.requires_citation? && citation_object.citations(true).count == 1
       errors.add(:base, 'at least one citation is required')
       return false
     end 

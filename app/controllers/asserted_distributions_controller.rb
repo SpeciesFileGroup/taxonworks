@@ -32,19 +32,7 @@ class AssertedDistributionsController < ApplicationController
     @asserted_distribution = AssertedDistribution.new(asserted_distribution_params)
     respond_to do |format|
       if @asserted_distribution.save
-        if params[:return_to]
-         
-          # !! 
-          source_id = (params.permit('lock_source') ? params[:asserted_distribution][:source_id] : nil)
-
-          format.html { redirect_to new_asserted_distribution_task_path(
-            asserted_distribution: {
-              otu_id:    @asserted_distribution.otu.to_param,
-              source_id: source_id}),
-              notice: 'Asserted distribution was successfully created.' }
-        else
-          format.html { redirect_to @asserted_distribution, notice: 'Asserted distribution was successfully created.' }
-        end
+        format.html { redirect_to @asserted_distribution, notice: 'Asserted distribution was successfully created.' }
         format.json { render :show, status: :created, location: @asserted_distribution }
       else
         format.html { render :new }
@@ -70,7 +58,9 @@ class AssertedDistributionsController < ApplicationController
   # DELETE /asserted_distributions/1
   # DELETE /asserted_distributions/1.json
   def destroy
+    @asserted_distribution.mark_citations_for_destruction
     @asserted_distribution.destroy
+  
     respond_to do |format|
       format.html { redirect_to asserted_distributions_url, notice: 'Asserted distribution was successfully destroyed.' }
       format.json { head :no_content }

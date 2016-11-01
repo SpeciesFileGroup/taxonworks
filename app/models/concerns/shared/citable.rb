@@ -75,13 +75,11 @@ module Shared::Citable
     validate :origin_citation_source_id, if: '!new_record?'
   end
 
-
   def origin_citation_source_id
     if origin_citation && origin_citation.source_id.blank?
       errors.add(:base, 'the origin citation must have a source')
     end
   end
-
 
   class_methods do
     def oldest_by_citation
@@ -103,11 +101,16 @@ module Shared::Citable
     self.citations.any?
   end
 
+  def mark_citations_for_destruction
+    citations.map(&:mark_for_destruction)
+  end
+
   protected 
 
   def reject_citations(attributed)
-    if new_record? && attributed['source_id'].blank?
-      true
+    return true if attributed['source_id'].blank?
+    if !new_record?
+      return true if attributed['id'].blank?
     end
   end
 
