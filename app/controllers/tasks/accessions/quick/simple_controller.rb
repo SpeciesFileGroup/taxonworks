@@ -42,6 +42,7 @@ class Tasks::Accessions::Quick::SimpleController < ApplicationController
     @recent = CollectionObject.created_last(5).where(created_by_id: sessions_current_user_id, project_id: sessions_current_project_id)
   end
 
+  # TODO: move this to model!
   def stub(defaults: {})
     s = Specimen.new(collecting_event_id: defaults[:collecting_event_id] )
     s.preparation_type_id = defaults[:preparation_type_id]
@@ -133,7 +134,6 @@ class Tasks::Accessions::Quick::SimpleController < ApplicationController
   # Both otu and collecting event can be found or created from scratch, we 
   # must therefor look in two different places.
   # 
-
 
   # @return [Id, nil]
   def otu_id_param

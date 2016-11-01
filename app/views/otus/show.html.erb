@@ -6,7 +6,7 @@
 
 <%= content_for :report do -%>
   <%= content_tag(:li, link_to('Distribution',
-                                 otu_distribution_data_task_path(@otu.to_param),
+                                 create_asserted_distribution_task_path(AssertedDistribution.new(otu: @otu)),
                                  'data-no-turbolink' => true) ) %>
   <%= content_tag(:li, link_to('Contents', preview_otu_content_path(@otu.id), 'data-no-turbolink' => true)) %>
 <% end %>
@@ -14,7 +14,5 @@
 <%= content_for :associated do -%>
   <%= on_loan_tag(@otu) -%>
 <% end %>
-
-
 
 <%= render(partial: 'shared/data/project/show', locals: {object: @otu}) -%>

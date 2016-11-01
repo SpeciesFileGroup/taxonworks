@@ -136,3 +136,11 @@ simple_specimen_task:
     - collection_object
     - collecting_event
   status: prototype
+new_asserted_distribution_task:
+  hub: true
+  name: 'New asserted distribution from map'
+  description: 'Create asserted distributions by selecting OTUs and sources, then click a map to select a geographic area. OTU and source are lockable as defaults for the next record.'
+  categories:
+  status: prototype
+  categories: 
+    - source
