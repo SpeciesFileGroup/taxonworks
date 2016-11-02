@@ -437,14 +437,14 @@ class CollectingEvent < ActiveRecord::Base
         part_2s = '' # if no whole years, remove clause
         part_2e = ''
       else
-        # part_2s = "(end_date_year between #{start_year + 1} and #{end_year - 1})"
+        part_2e = "(end_date_year between #{start_year + 1} and #{end_year - 1})"
         part_2s = "(start_date_year between #{start_year + 1} and #{end_year - 1})"
-        part_2e = part_2s
+        # part_2e = part_2s
       end
 
-      st_string = "(#{part_0} and #{part_1s}#{select_1_3}#{part_3s})#{part_2s.blank? ? '' : " or #{part_2s}"}"
+      st_string = "((#{part_0} and #{part_1s}#{select_1_3}#{part_3s})#{part_2s.blank? ? '' : " or #{part_2s}"})"
 
-      en_string = '(' + part_1e + select_1_3 + part_3e + ')' + (part_2e.blank? ? '' : ' or ') + part_2e
+      en_string = '((' + part_1e + select_1_3 + part_3e + ')' + (part_2e.blank? ? '' : ' or ') + part_2e + ')'
 
       sql_string = st_string + (allow_partial ? ' or ' : ' and ') + en_string + special_part
       sql_string

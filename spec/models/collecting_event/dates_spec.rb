@@ -115,7 +115,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
       end
     end
 
-    context 'search params surround one target' do
+    context 'search range surrounds one target' do
 
       #       a  b  c  d
       # ------s--*--e--*---
