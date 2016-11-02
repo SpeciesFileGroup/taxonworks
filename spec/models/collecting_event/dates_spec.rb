@@ -29,17 +29,17 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
 
   def parse_stubs(start_data, end_data)
     start_data ||= '//'
-    end_data   ||= '//'
+    end_data ||= '//'
 
     sy, sm, sd = start_data.split('/')
     ey, em, ed = end_data.split('/')
     {
-      start_date_year:  sy,
-      start_date_month: sm,
-      start_date_day:   sd,
-      end_date_year:    ey,
-      end_date_month:   em,
-      end_date_day:     ed
+        start_date_year: sy,
+        start_date_month: sm,
+        start_date_day: sd,
+        end_date_year: ey,
+        end_date_month: em,
+        end_date_day: ed
     }
   end
 
@@ -56,6 +56,20 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
   # end
 
   context 'partial_overlap OFF (strict)' do
+    #       a  b  c  d
+    # ------s--*--*--e---
+    context 'search range completely inside record start/end' do
+      let(:params) {
+        {search_start_date: b, search_end_date: c, partial_overlap: 'OfF'}
+      }
+
+      let!(:ce1) { CollectingEvent.create!(parse_stubs(a, d)) }
+
+      specify 'returns none' do
+        expect(CollectingEvent.in_date_range(params)).to contain_exactly()
+      end
+    end
+
     context 'search range completely/partially surround target range' do
 
       #    a  b   c   d
@@ -105,7 +119,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
 
       #       a  b  c  d
       # ------s--*--e--*---
-      context 'search range encloses inside record end, but not record start' do
+      context 'search range encloses record end, but not record start' do
         let(:params) {
           {search_start_date: b, search_end_date: d, partial_overlap: 'off'}
         }
@@ -214,11 +228,11 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
       end
     end
 
-    context 'search params surround one target' do
+    context 'search range surrounds only end date of target' do
 
       #       a  b  c  d
       # ------s--*--e--*---
-      context 'search start/end encloses record end' do
+      context 'search range encloses record end' do
         let(:params) {
           {search_start_date: b, search_end_date: d, partial_overlap: 'on'}
         }
@@ -229,24 +243,23 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
           expect(CollectingEvent.in_date_range(params)).to contain_exactly(ce1)
         end
       end
-
     end
 
-    context 'search params surround neither target' do
-      #       a  b  c  d
-      # ------s--*--*--e---
-      context 'record range completely encloses search start/end' do
-        let(:params) {
-          {search_start_date: b, search_end_date: c, partial_overlap: 'on'}
-        }
+    #       a  b  c  d
+    # ------s--*--*--e---
+    context 'record range completely encloses search start/end' do
+      let(:params) {
+        {search_start_date: b, search_end_date: c, partial_overlap: 'on'}
+      }
 
-        let!(:ce1) { CollectingEvent.create!(parse_stubs(a, d)) }
+      let!(:ce1) { CollectingEvent.create!(parse_stubs(a, d)) }
 
-        specify 'returns one' do
-          expect(CollectingEvent.in_date_range(params)).to contain_exactly(ce1)
-        end
+      specify 'returns one' do
+        expect(CollectingEvent.in_date_range(params)).to contain_exactly(ce1)
       end
+    end
 
+    context 'search range surrounds neither target' do
       #  a b     c    d
       # -*-*-----s----e-----
       context 'record range completely outside search start/end' do
@@ -259,7 +272,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         specify 'returns none' do
           expect(CollectingEvent.in_date_range(params)).to contain_exactly()
         end
-      end
+        end
 
       #  a b     c
       # -*-*-----s----------
@@ -273,7 +286,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         specify 'returns none' do
           expect(CollectingEvent.in_date_range(params)).to contain_exactly()
         end
+        end
       end
-    end
   end
 end
