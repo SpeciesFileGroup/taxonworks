@@ -33,4 +33,5 @@
 #
 class ImportAttribute < DataAttribute
    validates_presence_of :import_predicate
+   validates_uniqueness_of :value, scope: [:attribute_subject_id, :attribute_subject_type, :type, :import_predicate, :project_id]
 end

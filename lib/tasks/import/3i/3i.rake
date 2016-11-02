@@ -448,7 +448,8 @@
           year, year_suffix = parse_year_3i(row['Year'])
           taxonomy, distribution, illustration, typhlocybinae = nil, nil, nil, nil
           note = row['Notes']
-            source = Source::Bibtex.new( author: row['Author'],
+          author = row['Author'].gsub('., ', '.|').split('|').compact.join(' and ')
+          source = Source::Bibtex.find_or_create_by( author: author,
                                          year: year,
                                          year_suffix: year_suffix,
                                          title: row['Title'],
@@ -461,35 +462,35 @@
 
           #source.alternate_values.new(value: row['Author'], type: 'AlternateValue::Abbreviation', alternate_value_object_attribute: 'author') if !row['AuthorDrMetcalf'].blank? && row['AuthorDrMetcalf'] != row['Author']
 
-          source.data_attributes.new(type: 'InternalAttribute', predicate: @data.keywords['CallNumberDrMetcalf'], value: row['CallNumberDrMetcalf']) unless row['CallNumberDrMetcalf'].blank?
+          source.data_attributes.create(type: 'InternalAttribute', predicate: @data.keywords['CallNumberDrMetcalf'], value: row['CallNumberDrMetcalf']) unless row['CallNumberDrMetcalf'].blank?
 
-          source.data_attributes.new(type: 'ImportAttribute', import_predicate: 'Author3i', value: row['AY']) unless row['AY'].blank?
-          source.data_attributes.new(type: 'ImportAttribute', import_predicate: 'YearReference', value: row['Year']) unless row['Year'].blank?
-          source.data_attributes.new(type: 'ImportAttribute', import_predicate: 'BibliographyReference', value: row['Bibliography']) unless row['Bibliography'].blank?
-          source.data_attributes.new(type: 'ImportAttribute', import_predicate: 'AuthorDrMetcalf', value: row['AuthorDrMetcalf']) unless row['AuthorDrMetcalf'].blank?
+          source.data_attributes.create(type: 'ImportAttribute', import_predicate: 'Author3i', value: row['AY']) unless row['AY'].blank?
+          source.data_attributes.create(type: 'ImportAttribute', import_predicate: 'YearReference', value: row['Year']) unless row['Year'].blank?
+          source.data_attributes.create(type: 'ImportAttribute', import_predicate: 'BibliographyReference', value: row['Bibliography']) unless row['Bibliography'].blank?
+          source.data_attributes.create(type: 'ImportAttribute', import_predicate: 'AuthorDrMetcalf', value: row['AuthorDrMetcalf']) unless row['AuthorDrMetcalf'].blank?
 
           if !note.blank? && note.include?('Taxonomy only and distribution')
-            source.tags.new(keyword: @data.keywords['Distribution'])
+            source.tags.create(keyword: @data.keywords['Distribution'])
             note.gsub!(' and distribution', '')
           end
           if !note.blank? && note.include?('Taxonomy only')
-            source.tags.new(keyword: @data.keywords['Taxonomy'])
+            source.tags.create(keyword: @data.keywords['Taxonomy'])
             note.gsub!('Taxonomy only', '')
           end
           if !note.blank? && note.index('T ') == 0
-            source.tags.new(keyword: @data.keywords['Typhlocybinae'])
+            source.tags.create(keyword: @data.keywords['Typhlocybinae'])
             note = note[2..-1]
           end
           #TODO check illustrations
           if !note.blank? && note.include?('Illustrations done')
-            source.tags.new(keyword: @data.keywords['Illustrations'])
+            source.tags.create(keyword: @data.keywords['Illustrations'])
             note.gsub!('Illustrations done', '')
           end
           note.squish! unless note.nil?
 
 
-          source.notes.new(text: row['NotesDrMetcalf']) unless row['NotesDrMetcalf'].blank?
-          source.notes.new(text: note) unless note.blank?
+          source.notes.create(text: row['NotesDrMetcalf']) unless row['NotesDrMetcalf'].blank?
+          source.notes.create(text: note) unless note.blank?
 
           language.each do |l|
             if (row['Notes'].to_s + ' ' + row['Bibliography'].to_s).include?('In ' + l)
@@ -497,10 +498,10 @@
             end
           end
 
-          source.identifiers.new(type: 'Identifier::Local::Import', namespace: @data.keywords['IDDrMetcalf'], identifier: row['IDDrMetcalf']) unless row['IDDrMetcalf'].blank?
-          source.identifiers.new(type: 'Identifier::Local::Import', namespace: @data.keywords['Key3'], identifier: row['Key3']) unless row['Key3'].blank?
-          source.identifiers.new(type: 'Identifier::Local::Import', namespace: @data.keywords['FLOW-ID'], identifier: row['FLOW-ID']) if !row['FLOW-ID'].blank? && !row['FLOW-ID'] == '0'
-          source.identifiers.new(type: 'Identifier::Local::Import', namespace: @data.keywords['DelphacidaeID'], identifier: row['DelphacidaeID']) if !row['DelphacidaeID'].blank? && !row['DelphacidaeID'] == '0'
+          source.identifiers.create(type: 'Identifier::Local::Import', namespace: @data.keywords['IDDrMetcalf'], identifier: row['IDDrMetcalf']) unless row['IDDrMetcalf'].blank?
+          source.identifiers.create(type: 'Identifier::Local::Import', namespace: @data.keywords['Key3'], identifier: row['Key3']) unless row['Key3'].blank?
+          source.identifiers.create(type: 'Identifier::Local::Import', namespace: @data.keywords['FLOW-ID'], identifier: row['FLOW-ID']) if !row['FLOW-ID'].blank? && !row['FLOW-ID'] == '0'
+          source.identifiers.create(type: 'Identifier::Local::Import', namespace: @data.keywords['DelphacidaeID'], identifier: row['DelphacidaeID']) if !row['DelphacidaeID'].blank? && !row['DelphacidaeID'] == '0'
 
 
           if source.valid?
