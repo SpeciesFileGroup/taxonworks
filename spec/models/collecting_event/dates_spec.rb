@@ -55,26 +55,26 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
   #   end
   # end
 
-  context 'partial_overlap OFF' do
-    context 'search params completely surround target' do
+  context 'partial_overlap OFF (strict)' do
+    context 'search range completely/partially surround target range' do
 
       #    a  b   c   d
       # ---*--s---e---*
-      context 'surrounding start and end date' do
+      context 'search range completely encloses record start/end' do
         let(:params) {
           {search_start_date: a, search_end_date: d, partial_overlap: 'OFF'}
         }
 
         let!(:ce1) { CollectingEvent.create!(parse_stubs(b, c)) }
 
-        specify 'returns 1' do
+        specify 'returns one' do
           expect(CollectingEvent.in_date_range(params)).to contain_exactly(ce1)
         end
       end
 
       #    a  b  c  d
       # ---*--s--*--e---
-      context 'surrounding start date, end not provided' do
+      context 'search range encloses record start date, but not end' do
         let(:params) {
           {search_start_date: a, search_end_date: c, partial_overlap: 'off'}
         }
@@ -88,14 +88,14 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
 
       #    a  b  c
       # ---*--s--*------
-      context 'surrounding start date, end not provided' do
+      context 'search range encloses record start date, record end not provided' do
         let(:params) {
           {search_start_date: a, search_end_date: c, partial_overlap: 'off'}
         }
 
         let!(:ce1) { CollectingEvent.create!(parse_stubs(b, nil)) }
 
-        specify 'returns 1' do
+        specify 'returns one' do
           expect(CollectingEvent.in_date_range(params)).to contain_exactly(ce1)
         end
       end
@@ -105,7 +105,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
 
       #       a  b  c  d
       # ------s--*--e--*---
-      context 'search inside start/end' do
+      context 'search range encloses inside record end, but not record start' do
         let(:params) {
           {search_start_date: b, search_end_date: d, partial_overlap: 'off'}
         }
@@ -122,7 +122,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
     context 'search params surround neither target' do
       #       a  b  c  d
       # ------s--*--*--e---
-      context 'search inside start/end' do
+      context 'search range enclosed by record range' do
         let(:params) {
           {search_start_date: b, search_end_date: c, partial_overlap: 'off'}
         }
@@ -136,7 +136,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
 
       #  a b     c    d
       # -*-*-----s----e-----
-      context 'search inside start/end' do
+      context 'search range and record range completely seperate' do
         let(:params) {
           {search_start_date: a, search_end_date: b, partial_overlap: 'off'}
         }
@@ -150,7 +150,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
 
       #  a b     c
       # -*-*-----s----------
-      context 'search inside start/end' do
+      context 'search range and record start completely separate, no record end provided' do
         let(:params) {
           {search_start_date: a, search_end_date: b, partial_overlap: 'off'}
         }
@@ -167,7 +167,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
 
   # ----
 
-  context 'partial_overlapp ON' do
+  context 'partial_overlap ON (lenient)' do
 
     context 'search params completely surround target' do
 
@@ -218,14 +218,14 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
 
       #       a  b  c  d
       # ------s--*--e--*---
-      context 'search inside start/end' do
+      context 'search start/end encloses record end' do
         let(:params) {
           {search_start_date: b, search_end_date: d, partial_overlap: 'on'}
         }
 
         let!(:ce1) { CollectingEvent.create!(parse_stubs(a, c)) }
 
-        specify 'returns' do
+        specify 'returns one' do
           expect(CollectingEvent.in_date_range(params)).to contain_exactly(ce1)
         end
       end
@@ -235,42 +235,42 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
     context 'search params surround neither target' do
       #       a  b  c  d
       # ------s--*--*--e---
-      context 'search inside start/end' do
+      context 'record range completely encloses search start/end' do
         let(:params) {
           {search_start_date: b, search_end_date: c, partial_overlap: 'on'}
         }
 
         let!(:ce1) { CollectingEvent.create!(parse_stubs(a, d)) }
 
-        specify 'returns' do
+        specify 'returns one' do
           expect(CollectingEvent.in_date_range(params)).to contain_exactly(ce1)
         end
       end
 
       #  a b     c    d
       # -*-*-----s----e-----
-      context 'search inside start/end' do
+      context 'record range completely outside search start/end' do
         let(:params) {
           {search_start_date: a, search_end_date: b, partial_overlap: 'on'}
         }
 
         let!(:ce1) { CollectingEvent.create!(parse_stubs(c, d)) }
 
-        specify 'returns' do
+        specify 'returns none' do
           expect(CollectingEvent.in_date_range(params)).to contain_exactly()
         end
       end
 
       #  a b     c
       # -*-*-----s----------
-      context 'search inside start/end' do
+      context 'record outside search start/end, record end not provided' do
         let(:params) {
           {search_start_date: a, search_end_date: b, partial_overlap: 'on'}
         }
 
         let!(:ce1) { CollectingEvent.create!(parse_stubs(c, nil)) }
 
-        specify 'returns' do
+        specify 'returns none' do
           expect(CollectingEvent.in_date_range(params)).to contain_exactly()
         end
       end
