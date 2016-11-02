@@ -29,7 +29,7 @@ BIBTEX_FIELDS = [
     :isbn,
     :issn,
     :abstract,
-    :keywords,
+    :verbatim_keywords, #was keywords
     :copyright,
     :language,
     :stated_year,

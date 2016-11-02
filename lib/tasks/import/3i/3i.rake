@@ -230,7 +230,7 @@
 
 #        $project_id = 1
         handle_controlled_vocabulary_3i
-        handle_litauthors_3i
+#        handle_litauthors_3i
         handle_references_3i
         handle_taxonomy_3i
         handle_taxon_name_relationships_3i
@@ -443,6 +443,7 @@
         language = %w(French Russian German Japanese Chinese English Korean Polish Italian Georgian )
 
         file.each_with_index do |row, i|
+          next if i < 158
           print "\r#{i}"
           journal, serial_id, volume, pages = parse_bibliography_3i(row['Bibliography'])
           year, year_suffix = parse_year_3i(row['Year'])
