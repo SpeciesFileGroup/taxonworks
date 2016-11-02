@@ -424,6 +424,7 @@ class CollectingEvent < ActiveRecord::Base
       #   2) any full years between start and end
       #   3) last part of start year
 
+      # part_1e = "(end_date_year is NULL) OR "
       part_1e = "(end_date_year = #{end_year}"
       part_1e += " and ((end_date_month between 1 and #{end_month - 1})"
       part_1e += " or (end_date_month = #{end_month} and end_date_day <= #{end_day})))"
