@@ -1,5 +1,7 @@
-# An AssertedDistribution is the assertion that a taxon is present in some *spatial area*.  It requires a Citation indicating where/who made the assertion.  
+# An AssertedDistribution is the source-backed assertion that a taxon (OTU) is present in some *spatial area*.  It requires a Citation indicating where/who made the assertion.  
 # In TaxonWorks the areas are drawn from GeographicAreas, which essentially represent a gazeteer of 3 levels of subdivision (e.g. country, state, county).
+#
+# AssertedDistributions can be asserts that the source indicates that a taxon is NOT present in an area.  This is a "positive negative" in , i.e. the Source can be thought of recording evidence that a taxon is not present. TaxonWorks does not differentiate between types of negative evidence.  
 #
 #
 # @!attribute otu_id
@@ -20,7 +22,8 @@
 #
 # @!attribute is_absent
 #   @return [Boolean]
-#     a positive negative, when true then there exists an assertion that the taxon is not present in the area
+#     a positive negative, when true then there exists an assertion that the taxon is not present in the spatial area
+#
 #
 class AssertedDistribution < ActiveRecord::Base
   include Housekeeping
@@ -55,14 +58,21 @@ class AssertedDistribution < ActiveRecord::Base
 
   soft_validate(:sv_conflicting_geographic_area, set: :conflicting_geographic_area)
 
-
   def self.find_for_autocomplete(params)
-    # where('geographic_area LIKE ?', "%#{params[:term]}%").with_project_id(params[:project_id])
     term = params[:term]
-#    include(:geographic_area, :otu, :source).
-#      where(geographic_areas: {name: term}, otus: {name: term}, sources: {cached: term}).with_project_id(params[:project_id])
     include(:geographic_area, :otu).
         where(geographic_areas: {name: term}, otus: {name: term}).with_project_id(params[:project_id])
+  end
+
+  # @return [AssertedDistribution]
+  #   used to also stub an #origin_citation, as required
+  def self.stub(defaults: {})
+    a = AssertedDistribution.new(
+      otu_id: defaults[:otu_id], 
+      origin_citation_attributes: {source_id: defaults[:source_id]}
+    )
+    a.origin_citation = Citation.new if defaults[:source_id].blank?
+    a
   end
 
   # @return [True]
@@ -71,7 +81,8 @@ class AssertedDistribution < ActiveRecord::Base
     true
   end
 
-
+  # @return [Hash]
+  #   this asserted distribution as a GeoJSON feature
   def to_geo_json_feature
     {
       'type'       => 'Feature',
