@@ -1,5 +1,5 @@
 /* 
-   javascript for tasks/gis/new
+   javascript for tasks/gis/asserted_distribution/new
  */
 
 var TW = TW || {};
@@ -11,53 +11,54 @@ Object.assign(TW.tasks.gis.asserted_distributions, {
 
   init_asserted_distributions_map: function () {
     if ($("#new_asserted_distribution_map_canvas").length) {
-      if (document.getElementById('feature_collection') != null) {
-        var newadwidget = $("#feature_collection");
-        var fcdata = newadwidget.data('feature-collection');
-        //    alert(fcdata);
-        var map = TW.vendor.lib.google.maps.initializeMap("new_asserted_distribution_map_canvas", fcdata); // fcdata
-        TW.tasks.gis.asserted_distributions.add_new_asserted_distribution_map_listeners(map);
-      }
+      var map = TW.vendor.lib.google.maps.initializeMap("new_asserted_distribution_map_canvas", null); 
+      TW.tasks.gis.asserted_distributions.add_new_asserted_distribution_map_listeners(map);
     }
   },
 
   // TODO Rich- move this to general JS libraries
   clear_map: function (map) {
-    // quick_new_asserted_distribution_form and feature collection geoJSON
     map.data.forEach(function (feature) {
       map.data.remove(feature);
-    });    // clear the map.data
-
+    });    
   },
 
   // TODO: Rich move this to the general maps library
   set_bounds: function(feature_collection) {
-      // original map canvas parameters are now lost, so we have to find them again
-      var bounds = {};
-      var children = feature_collection.parentElement.children;
-      
-      for (var m = 0; m < children.length; m++) {
-        if (children[m].id.search("_canvas") >= 0) {
-          bounds.canvas_width = children[m].style.width.toString().split('px')[0];
-          bounds.canvas_height = children[m].style.height.toString().split('px')[0];
-          bounds.canvas_ratio = bounds.canvas_width / bounds.canvas_height;
-          break;
-        }
+    // original map canvas parameters are now lost, so we have to find them again
+    var bounds = {};
+    var children = feature_collection.parentElement.children;
+        alert('here!')
+    for (var m = 0; m < children.length; m++) {
+      if (children[m].id.search("_canvas") >= 0) {
+        bounds.canvas_width = children[m].style.width.toString().split('px')[0];
+        bounds.canvas_height = children[m].style.height.toString().split('px')[0];
+        bounds.canvas_ratio = bounds.canvas_width / bounds.canvas_height;
+        break;
       }
-      return bounds
+    }
+    return bounds
   },
 
-  new_asserted_distribution_check_preemption: function () {       // page-specific check for postback prerequisites
-          // add_listeners end
-    if ($("[name=asserted_distribution\\[origin_citation_attributes\\]\\[source_id\\]]")[0].value == ""  ) { // ")[0].value == "") {   // slightly convoluted since name not id
-    // if ($("[name=asserted_distribution\\[origin_citation_attributes\\]\\[source_id\\]]")[0].value == "") {   // slightly convoluted since name not id
-      $("#sourceError").text("Please set a source before selecting an area!");
+  // prevent map click action if otu and source are not selected
+  new_asserted_distribution_check_preemption: function () {  
+    // add_listeners end
+    var source = "[name=asserted_distribution\\[origin_citation_attributes\\]\\[source_id\\]]"
+    var otu = "[name=asserted_distribution\\[otu_id\\]]"
+
+    if ($(source)[0].value == "" ) {
+      $("#source_error").show();
       return true;
     }
-    else {
-      $("#sourceError").text("");
-      return false;
+
+    if ($(otu)[0].value == "" ) {
+      $("#otu_error").show();
+      return true;
     }
+
+    $("#source_error").hide();
+    $("otu_error").hide();
+    return false;
   },
 
   bind_create_buttons: function () {
@@ -66,7 +67,7 @@ Object.assign(TW.tasks.gis.asserted_distributions, {
       form.append($('<input hidden name="asserted_distribution[geographic_area_id]" value="' + $(this).data('geographic-area-id') + '">' ));
     });
   },
-  
+
   bind_mouseover: function(map) {
     $("[id^=button_]").mouseover(function () {       // set mouseover for each area
       var this_id = this.id;
@@ -98,49 +99,51 @@ Object.assign(TW.tasks.gis.asserted_distributions, {
     });
   },
 
+  // present and configure choices when the map is clicked
   add_click_services_to_new_asserted_distribution_map: function (map, event) {     // click event passed in
-    // captures and displays map coordinates from click event thru asserted_distribution/new.html.erb..span:map_coords
+  
     // checks for preemptive condition
-    // requests and displays choices from asserted_distribution_controller thru .../new...span:qnadf
-    // clears previous map data features
-    // sets mouseover/mouseout behavior for buttons via forEach(function(feature))
-    //   in map.data corresponding to "button_nnnn" where nnnn is area id
-    // resizes, recenters map based on new features
-
     if (this.new_asserted_distribution_check_preemption()) {
       return;
     };
 
     var mapLatLng = event.latLng;
-    $("#map_coords").html('Coordinates: Latitude = ' + mapLatLng.lat().toFixed(6) + ' , Longitude = ' + mapLatLng.lng().toFixed(6));
     $("#latitude").val(mapLatLng.lat());
-    $("#longitude").val(mapLatLng.lng());
+    $("#longitude").val(mapLatLng.lng()); 
 
-    $.get('generate_choices', $('form#new_asserted_distribution_from_map_form').serialize(), function (local_data) {
-      $("#choices").html(local_data['html']);              // render the html  
+    $("#choices").mx_spinner('show');
 
-      TW.tasks.gis.asserted_distributions.bind_create_buttons();
+    // requests and displays choices from asserted_distribution_controller thru .../new...span:qnadf
+    $.get('generate_choices', $('form#new_asserted_distribution_from_map_form').serialize(), 'json')
+      .done(function(local_data) {
+        var data = local_data['feature_collection'];
 
-      var data = local_data['feature_collection'];
-      TW.tasks.gis.asserted_distributions.clear_map(map);
+        $("#choices").mx_spinner('hide');  
 
-      map.data.addGeoJson(data);      // add the geo features corresponding to the forms
+        // render the choices (html)
+        $("#choices").html(local_data['html']);     
 
-      TW.tasks.gis.asserted_distributions.bind_mouseover(map);
-      TW.tasks.gis.asserted_distributions.bind_mouseout(map);
+        TW.tasks.gis.asserted_distributions.bind_create_buttons();
+        TW.tasks.gis.asserted_distributions.clear_map(map);          // clears previous map data features
 
-      // TODO: all of the following code should be in general maps library
-      //       called something like TW.vendor.lib.google.maps.bound_and_recenter(map, feature_collection)
-      // TODO: where the hell is feature_collection getting initialized?! 
-      var bounds = TW.tasks.gis.asserted_distributions.set_bounds(feature_collection)
-      
-      TW.vendor.lib.google.maps.getData(data, bounds);
-      var center_lat_long = TW.vendor.lib.google.maps.get_window_center(bounds);
-      map.setCenter(center_lat_long);
-      map.setZoom(bounds.gzoom);
-    },
-      'json' // expect a JSON response
-    );
+        map.data.addGeoJson(data);      // add the geo features corresponding to the forms
+
+        TW.tasks.gis.asserted_distributions.bind_mouseover(map);
+        TW.tasks.gis.asserted_distributions.bind_mouseout(map);
+
+        // resizes, recenters map based on new features
+
+        // TODO: all of the following code should be in general maps library
+        //       called something like TW.vendor.lib.google.maps.bound_and_recenter(map, feature_collection)
+        // TODO: where the hell is feature_collection getting initialized?! 
+        var bounds = TW.tasks.gis.asserted_distributions.set_bounds(feature_collection);
+
+        // TODO: new bounds is not working, because feature_collection is undefined
+        TW.vendor.lib.google.maps.getData(data, bounds);
+        var center_lat_long = TW.vendor.lib.google.maps.get_window_center(bounds);
+        map.setCenter(center_lat_long);
+        map.setZoom(bounds.gzoom);
+      });
   },
 
   add_new_asserted_distribution_map_listeners: function (map) {      // 4 listeners, one for map as a whole 3 for map.data features
@@ -191,7 +194,7 @@ Object.assign(TW.tasks.gis.asserted_distributions, {
       }
       ;
     });
-    
+
     map.data.addListener('mouseover', function (event) {
       map.data.revertStyle();
       map.data.overrideStyle(event.feature, {fillColor: '#880000'});  // mid-level red

@@ -471,10 +471,12 @@ TaxonWorks::Application.routes.draw do
       post 'list' # , action: 'list', as: 'locatity_list_task'
     end
 
-    scope :gis, controller: 'tasks/gis/asserted_distribution' do
-      get 'new', action: 'new', as: 'new_asserted_distribution_task'
-      post 'create', action: 'create', as: 'create_asserted_distribution_task'
-      get 'generate_choices'
+    scope :gis do
+      scope :asserted_distribution,  controller: 'tasks/gis/asserted_distribution' do
+        get 'new', action: 'new', as: 'new_asserted_distribution_task'
+        post 'create', action: 'create', as: 'create_asserted_distribution_task'
+        get 'generate_choices'
+      end
     end
 
     scope :gis, controller: 'tasks/gis/draw_map_item' do
