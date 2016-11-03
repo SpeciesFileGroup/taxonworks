@@ -407,7 +407,16 @@ class CollectingEvent < ActiveRecord::Base
          and
          ' + special_part_2 + ')'
       end
-      # special_part = ''
+
+      if (start_year == end_year) or (end_year - start_year < 2) # test for whole years between date extent
+        part_2s = '' # if no whole years, remove clause
+        part_2e = ''
+      else
+        part_2e = "(end_date_year between #{start_year + 1} and #{end_year - 1})"
+        part_2s = "(start_date_year between #{start_year + 1} and #{end_year - 1})"
+        # part_2e = part_2s
+      end
+
       # from start date to end of start year
       part_1s = "(start_date_year = #{start_year}"
       part_1s += " and ((start_date_month between #{start_month + 1} and 12)"
@@ -418,32 +427,24 @@ class CollectingEvent < ActiveRecord::Base
       part_3s += " and ((start_date_month < #{end_month})"
       part_3s += " or (start_date_month = #{end_month} and start_date_day <= #{end_day})))"
 
+      select_1_3 = (start_year == end_year) ? ' and ' : ' or '
+      st_string = "((#{part_0} and #{part_1s}#{select_1_3}#{part_3s})#{part_2s.blank? ? '' : " or #{part_2s}"})"
+
       # end_date is inside supplied range
       # string has to have three pieces:
       #   1) first part of end year
       #   2) any full years between start and end
       #   3) last part of start year
 
-      # part_1e = "(end_date_year is NULL) OR "
       part_1e = "(end_date_year = #{end_year}"
       part_1e += " and ((end_date_month between 1 and #{end_month - 1})"
       part_1e += " or (end_date_month = #{end_month} and end_date_day <= #{end_day})))"
+      part_1e = "((end_date_year is NULL) and (#{st_string})) OR " + part_1e
 
       part_3e = "(end_date_year = #{start_year}"
       part_3e += " and ((end_date_month > #{start_month})"
       part_3e += " or (end_date_month = #{start_month} and end_date_day >= #{start_day})))"
 
-      select_1_3 = (start_year == end_year) ? ' and ' : ' or '
-      if (start_year == end_year) or (end_year - start_year < 2) # test for whole years between date extent
-        part_2s = '' # if no whole years, remove clause
-        part_2e = ''
-      else
-        part_2e = "(end_date_year between #{start_year + 1} and #{end_year - 1})"
-        part_2s = "(start_date_year between #{start_year + 1} and #{end_year - 1})"
-        # part_2e = part_2s
-      end
-
-      st_string = "((#{part_0} and #{part_1s}#{select_1_3}#{part_3s})#{part_2s.blank? ? '' : " or #{part_2s}"})"
 
       en_string = '((' + part_1e + select_1_3 + part_3e + ')' + (part_2e.blank? ? '' : ' or ') + part_2e + ')'
 
