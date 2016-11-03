@@ -384,7 +384,7 @@ class CollectingEvent < ActiveRecord::Base
       end_month  = date_parts[1].to_i
       end_day    = date_parts[2].to_i
 
-      part_0         = 'start_date_year is not null'
+      part_0     = 'start_date_year is not null'
 
       # start_date is inside supplied range
       # string has to have four pieces (part_s):
@@ -402,6 +402,7 @@ class CollectingEvent < ActiveRecord::Base
         and ((end_date_month = #{end_month} and (end_date_day >= #{end_day})) or (end_date_month > #{end_month})))
         or (end_date_year > #{end_year}))"
       special_part   = ''
+
       if (allow_partial)
         special_part = ' or (' + special_part_1 + '
          and
