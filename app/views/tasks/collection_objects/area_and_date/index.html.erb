@@ -19,8 +19,8 @@
           <div class="slider round"></div>
         </label><span style="vertical-align: 75%"> by calendar</span>
           <h3><span id="date_count">????</span></h3>
-          <span id="early_date" hidden="hidden"><%= @early_date.to_date.to_s %></span>
-          <span id="late_date" hidden="hidden"><%= @late_date.to_date.to_s %></span>
+          <span id="early_date" hidden="hidden"><%= @early_date.strftime('%Y/%m/%d') %></span>
+          <span id="late_date" hidden="hidden"><%= @late_date.strftime('%Y/%m/%d') %></span>
           <%= form_tag(by_date_task_url, id: 'set_date_form', remote: true) do %>
               Partial overlap search: <input type="checkbox" id="partial_overlap" checked="checked"/>
               <table class="no-shadow" border="1" width="700">
