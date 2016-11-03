@@ -63,7 +63,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         {search_start_date: b, search_end_date: c, partial_overlap: 'OfF'}
       }
 
-      let!(:ce1) { CollectingEvent.create!(parse_stubs(a, d)) }
+      let!(:ce1) { CollectingEvent.create!(parse_stubs(a, d).merge(verbatim_label: "#{a} -- #{d}")) }
 
       specify 'returns none' do
         expect(CollectingEvent.in_date_range(params)).to contain_exactly()
@@ -79,7 +79,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
           {search_start_date: a, search_end_date: d, partial_overlap: 'OFF'}
         }
 
-        let!(:ce1) { CollectingEvent.create!(parse_stubs(b, c)) }
+        let!(:ce1) { CollectingEvent.create!(parse_stubs(b, c).merge(verbatim_label: "#{b} -- #{c}")) }
 
         specify 'returns one' do
           expect(CollectingEvent.in_date_range(params)).to contain_exactly(ce1)
@@ -93,7 +93,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
           {search_start_date: a, search_end_date: c, partial_overlap: 'off'}
         }
 
-        let!(:ce1) { CollectingEvent.create!(parse_stubs(b, d)) }
+        let!(:ce1) { CollectingEvent.create!(parse_stubs(b, d).merge(verbatim_label: "#{b} -- #{d}")) }
 
         specify 'returns none' do
           expect(CollectingEvent.in_date_range(params)).to contain_exactly()
@@ -107,7 +107,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
           {search_start_date: a, search_end_date: c, partial_overlap: 'off'}
         }
 
-        let!(:ce1) { CollectingEvent.create!(parse_stubs(b, nil)) }
+        let!(:ce1) { CollectingEvent.create!(parse_stubs(b, nil).merge(verbatim_label: "#{b} -- nil")) }
 
         specify 'returns one' do
           expect(CollectingEvent.in_date_range(params)).to contain_exactly(ce1)
@@ -124,7 +124,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
           {search_start_date: b, search_end_date: d, partial_overlap: 'off'}
         }
 
-        let!(:ce1) { CollectingEvent.create!(parse_stubs(a, c)) }
+        let!(:ce1) { CollectingEvent.create!(parse_stubs(a, c).merge(verbatim_label: "#{a} -- #{c}")) }
 
         specify 'returns none' do
           expect(CollectingEvent.in_date_range(params)).to contain_exactly()
@@ -141,7 +141,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
           {search_start_date: b, search_end_date: c, partial_overlap: 'off'}
         }
 
-        let!(:ce1) { CollectingEvent.create!(parse_stubs(a, d)) }
+        let!(:ce1) { CollectingEvent.create!(parse_stubs(a, d).merge(verbatim_label: "#{a} -- #{d}")) }
 
         specify 'returns none' do
           expect(CollectingEvent.in_date_range(params)).to contain_exactly()
@@ -155,7 +155,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
           {search_start_date: a, search_end_date: b, partial_overlap: 'off'}
         }
 
-        let!(:ce1) { CollectingEvent.create!(parse_stubs(c, d)) }
+        let!(:ce1) { CollectingEvent.create!(parse_stubs(c, d).merge(verbatim_label: "#{c} -- #{d}")) }
 
         specify 'returns none' do
           expect(CollectingEvent.in_date_range(params)).to contain_exactly()
@@ -169,7 +169,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
           {search_start_date: a, search_end_date: b, partial_overlap: 'off'}
         }
 
-        let!(:ce1) { CollectingEvent.create!(parse_stubs(c, nil)) }
+        let!(:ce1) { CollectingEvent.create!(parse_stubs(c, nil).merge(verbatim_label: "#{c} -- nil")) }
 
         specify 'returns none' do
           expect(CollectingEvent.in_date_range(params)).to contain_exactly()
@@ -192,7 +192,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
           {search_start_date: a, search_end_date: d, partial_overlap: 'on'}
         }
 
-        let!(:ce1) { CollectingEvent.create!(parse_stubs(b, c)) }
+        let!(:ce1) { CollectingEvent.create!(parse_stubs(b, c).merge(verbatim_label: "#{b} -- #{c}")) }
 
         specify 'returns' do
           expect(CollectingEvent.in_date_range(params)).to contain_exactly(ce1)
@@ -206,7 +206,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
           {search_start_date: a, search_end_date: c, partial_overlap: 'on'}
         }
 
-        let!(:ce1) { CollectingEvent.create!(parse_stubs(b, d)) }
+        let!(:ce1) { CollectingEvent.create!(parse_stubs(b, d).merge(verbatim_label: "#{b} -- #{d}")) }
 
         specify 'returns' do
           expect(CollectingEvent.in_date_range(params)).to contain_exactly(ce1)
@@ -220,7 +220,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
           {search_start_date: a, search_end_date: c, partial_overlap: 'on'}
         }
 
-        let!(:ce1) { CollectingEvent.create!(parse_stubs(b, nil)) }
+        let!(:ce1) { CollectingEvent.create!(parse_stubs(b, nil).merge(verbatim_label: "#{b} -- nil")) }
 
         specify 'returns' do
           expect(CollectingEvent.in_date_range(params)).to contain_exactly(ce1)
@@ -237,7 +237,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
           {search_start_date: b, search_end_date: d, partial_overlap: 'on'}
         }
 
-        let!(:ce1) { CollectingEvent.create!(parse_stubs(a, c)) }
+        let!(:ce1) { CollectingEvent.create!(parse_stubs(a, c).merge(verbatim_label: "#{a} -- #{c}")) }
 
         specify 'returns one' do
           expect(CollectingEvent.in_date_range(params)).to contain_exactly(ce1)
@@ -252,7 +252,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         {search_start_date: b, search_end_date: c, partial_overlap: 'on'}
       }
 
-      let!(:ce1) { CollectingEvent.create!(parse_stubs(a, d)) }
+      let!(:ce1) { CollectingEvent.create!(parse_stubs(a, d).merge(verbatim_label: "#{a} -- #{d}")) }
 
       specify 'returns one' do
         expect(CollectingEvent.in_date_range(params)).to contain_exactly(ce1)
@@ -267,7 +267,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
           {search_start_date: a, search_end_date: b, partial_overlap: 'on'}
         }
 
-        let!(:ce1) { CollectingEvent.create!(parse_stubs(c, d)) }
+        let!(:ce1) { CollectingEvent.create!(parse_stubs(c, d).merge(verbatim_label: "#{c} -- #{d}")) }
 
         specify 'returns none' do
           expect(CollectingEvent.in_date_range(params)).to contain_exactly()
@@ -281,7 +281,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
           {search_start_date: a, search_end_date: b, partial_overlap: 'on'}
         }
 
-        let!(:ce1) { CollectingEvent.create!(parse_stubs(c, nil)) }
+        let!(:ce1) { CollectingEvent.create!(parse_stubs(c, nil).merge(verbatim_label: "#{c} -- nil")) }
 
         specify 'returns none' do
           expect(CollectingEvent.in_date_range(params)).to contain_exactly()
