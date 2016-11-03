@@ -216,52 +216,52 @@ class CollectingEvent < ActiveRecord::Base
   validates :geographic_area, presence: true, allow_nil: true
 
   validates :time_start_hour,
-            allow_nil: true,
+            allow_nil:    true,
             numericality: {
-                only_integer: true,
-                greater_than: -1, less_than: 24,
-                message: 'start time hour must be 0-23'
+              only_integer: true,
+              greater_than: -1, less_than: 24,
+              message:      'start time hour must be 0-23'
             }
 
   validates :time_start_minute,
-            allow_nil: true,
+            allow_nil:    true,
             numericality: {
-                only_integer: true,
-                greater_than: -1, less_than: 60,
-                message: 'start time minute must be 0-59'
+              only_integer: true,
+              greater_than: -1, less_than: 60,
+              message:      'start time minute must be 0-59'
             }
 
   validates :time_start_second,
-            allow_nil: true,
+            allow_nil:    true,
             numericality: {
-                only_integer: true,
-                greater_than: -1, less_than: 60,
-                message: 'start time second must be 0-59'
+              only_integer: true,
+              greater_than: -1, less_than: 60,
+              message:      'start time second must be 0-59'
             }
 
   validates_presence_of :time_start_minute, if: '!self.time_start_second.blank?'
   validates_presence_of :time_start_hour, if: '!self.time_start_minute.blank?'
 
   validates :time_end_hour,
-            allow_nil: true,
+            allow_nil:    true,
             numericality: {
-                only_integer: true,
-                in: (0..23),
-                message: 'end time hour must be 0-23'}
+              only_integer: true,
+              in:           (0..23),
+              message:      'end time hour must be 0-23'}
 
   validates :time_end_minute,
-            allow_nil: true,
+            allow_nil:    true,
             numericality: {
-                only_integer: true,
-                in: (0..59),
-                message: 'end time minute must be 0-59'}
+              only_integer: true,
+              in:           (0..59),
+              message:      'end time minute must be 0-59'}
 
   validates :time_end_second,
-            allow_nil: true,
+            allow_nil:    true,
             numericality: {
-                only_integer: true,
-                in: (0..59),
-                message: 'end time second must be 0-59'}
+              only_integer: true,
+              in:           (0..59),
+              message:      'end time second must be 0-59'}
 
   validates_presence_of :time_end_minute, if: '!self.time_end_second.blank?'
   validates_presence_of :time_end_hour, if: '!self.time_end_minute.blank?'
@@ -270,27 +270,27 @@ class CollectingEvent < ActiveRecord::Base
   validates :start_date_year,
             numericality: {only_integer: true,
                            greater_than: 1000,
-                           less_than: (Time.now.year + 5),
-                           message: 'start date year must be an integer greater than 1500, and no more than 5 years in the future'},
-            length: {is: 4},
-            allow_nil: true
+                           less_than:    (Time.now.year + 5),
+                           message:      'start date year must be an integer greater than 1500, and no more than 5 years in the future'},
+            length:       {is: 4},
+            allow_nil:    true
 
   validates :end_date_year,
             numericality: {only_integer: true,
                            greater_than: 1000,
-                           less_than: (Time.now.year + 5),
-                           message: 'end date year must be an integer greater than 1500, and no more than 5 years int he future'},
-            length: {is: 4},
-            allow_nil: true
+                           less_than:    (Time.now.year + 5),
+                           message:      'end date year must be an integer greater than 1500, and no more than 5 years int he future'},
+            length:       {is: 4},
+            allow_nil:    true
 
   # @todo these are just simple integer validations now, fix!
   validates :start_date_month,
             numericality: {only_integer: true, greater_than: 0, less_than: 13},
-            unless: 'start_date_month.blank?'
+            unless:       'start_date_month.blank?'
 
   validates :end_date_month,
             numericality: {only_integer: true, greater_than: 0, less_than: 13},
-            unless: 'end_date_month.blank?'
+            unless:       'end_date_month.blank?'
 
   validates_presence_of :start_date_month,
                         if: '!start_date_day.nil?'
@@ -299,20 +299,20 @@ class CollectingEvent < ActiveRecord::Base
                         if: '!end_date_day.nil?'
 
   validates_numericality_of :end_date_day,
-                            allow_nil: true,
-                            only_integer: true,
-                            greater_than: 0,
+                            allow_nil:             true,
+                            only_integer:          true,
+                            greater_than:          0,
                             less_than_or_equal_to: Proc.new { |a| Time.utc(a.end_date_year, a.end_date_month).end_of_month.day },
-                            unless: 'end_date_year.nil? || end_date_month.nil?',
-                            message: '%{value} is not a valid end_date_day for the month provided'
+                            unless:                'end_date_year.nil? || end_date_month.nil?',
+                            message:               '%{value} is not a valid end_date_day for the month provided'
 
   validates_numericality_of :start_date_day,
-                            allow_nil: true,
-                            only_integer: true,
-                            greater_than: 0,
+                            allow_nil:             true,
+                            only_integer:          true,
+                            greater_than:          0,
                             less_than_or_equal_to: Proc.new { |a| Time.utc(a.start_date_year, a.start_date_month).end_of_month.day },
-                            unless: 'start_date_year.nil? || start_date_month.nil?',
-                            message: '%{value} is not a valid start_date_day for the month provided'
+                            unless:                'start_date_year.nil? || start_date_month.nil?',
+                            message:               '%{value} is not a valid start_date_day for the month provided'
 
 
   soft_validate(:sv_minimally_check_for_a_label)
@@ -374,17 +374,17 @@ class CollectingEvent < ActiveRecord::Base
     #                                  false; found range must be completely inside supplied range
     # @return [String] sql for records between the two specific dates
     def date_sql_from_dates(search_start_date, search_end_date, allow_partial = true)
-      date_parts = search_start_date.split('/')
-      start_year = date_parts[0].to_i
+      date_parts  = search_start_date.split('/')
+      start_year  = date_parts[0].to_i
       start_month = date_parts[1].to_i
-      start_day = date_parts[2].to_i
+      start_day   = date_parts[2].to_i
 
       date_parts = search_end_date.split('/')
-      end_year = date_parts[0].to_i
-      end_month = date_parts[1].to_i
-      end_day = date_parts[2].to_i
+      end_year   = date_parts[0].to_i
+      end_month  = date_parts[1].to_i
+      end_day    = date_parts[2].to_i
 
-      part_0 = 'start_date_year is not null'
+      part_0         = 'start_date_year is not null'
 
       # start_date is inside supplied range
       # string has to have four pieces (part_s):
@@ -401,7 +401,7 @@ class CollectingEvent < ActiveRecord::Base
       special_part_2 = "(((end_date_year = #{end_year})
         and ((end_date_month = #{end_month} and (end_date_day >= #{end_day})) or (end_date_month > #{end_month})))
         or (end_date_year > #{end_year}))"
-      special_part = ''
+      special_part   = ''
       if (allow_partial)
         special_part = ' or (' + special_part_1 + '
          and
@@ -455,23 +455,23 @@ class CollectingEvent < ActiveRecord::Base
     # @return [Hash] in the form of params
     def normalize_and_order_dates(params)
       start_date = params[:search_start_date]
-      end_date = params[:search_end_date]
+      end_date   = params[:search_end_date]
 
       if start_date.blank? and end_date.blank? # set entire range
         start_date = '1700/1/1'
-        end_date = Date.today.to_date.to_s.gsub('-', '/')
+        end_date   = Date.today.strftime('%Y/%m/%d')
       else
         if end_date.blank? # set a one-day range
           end_date = start_date
         end
       end
 
-      if start_date > end_date # need to swap s and e?
+      if Date.parse(start_date) > Date.parse(end_date) # need to swap s and e?
         start_date, end_date = end_date, start_date
       end
 
-      params[:search_start_date] = start_date
-      params[:search_end_date] = end_date
+      params[:search_start_date] = start_date # string like '1700/01/01'
+      params[:search_end_date]   = end_date # string like '2016/11/03'
       params
     end
 
@@ -481,7 +481,7 @@ class CollectingEvent < ActiveRecord::Base
     # @return [Scope] of selected collecting events with georeferences
     def in_date_range(search_start_date: nil, search_end_date: nil, partial_overlap: 'on')
       allow_partial = (partial_overlap.downcase == 'off' ? false : true)
-      sql_string = date_sql_from_dates(search_start_date, search_end_date, allow_partial)
+      sql_string    = date_sql_from_dates(search_start_date, search_end_date, allow_partial)
       CollectingEvent.where(sql_string).where(project: $project_id).uniq
     end
 
@@ -491,12 +491,12 @@ class CollectingEvent < ActiveRecord::Base
     def filter(params)
       sql_string = ''
       unless params.blank? # not strictly necessary, but handy for debugging
-        sql_string = Utilities::Dates.date_sql_from_params(params)
+        sql_string          = Utilities::Dates.date_sql_from_params(params)
 
         # processing text data
         v_locality_fragment = params['verbatim_locality_text']
-        any_label_fragment = params['any_label_text']
-        id_fragment = params['identifier_text']
+        any_label_fragment  = params['any_label_text']
+        id_fragment         = params['identifier_text']
 
         prefix = ''
         unless v_locality_fragment.blank?
@@ -554,14 +554,14 @@ class CollectingEvent < ActiveRecord::Base
         exit
       end
 
-      passed = 0
-      failed = 0
+      passed    = 0
+      failed    = 0
       attempted = 0
 
       CollectingEvent.includes(:georeferences).where(georeferences: {id: nil}).each do |c|
         next if c.verbatim_latitude.blank? || c.verbatim_longitude.blank?
         attempted += 1
-        g = c.generate_verbatim_data_georeference(true)
+        g         = c.generate_verbatim_data_georeference(true)
         if g.errors.empty?
           passed += 1
           puts "created for #{c.id}"
@@ -663,10 +663,10 @@ class CollectingEvent < ActiveRecord::Base
   #    a GeographicItem instance representing a translation of the verbaitm values, not saved
   def build_verbatim_geographic_item
     if self.verbatim_latitude && self.verbatim_longitude && !self.new_record?
-      local_latitude = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_latitude)
+      local_latitude  = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_latitude)
       local_longitude = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_longitude)
-      elev = Utilities::Geo.distance_in_meters(verbatim_elevation)
-      point = Gis::FACTORY.point(local_latitude, local_longitude, elev)
+      elev            = Utilities::Geo.distance_in_meters(verbatim_elevation)
+      point           = Gis::FACTORY.point(local_latitude, local_longitude, elev)
       GeographicItem.new(point: point)
     else
       nil
@@ -685,9 +685,9 @@ class CollectingEvent < ActiveRecord::Base
   #   all geographic_items associated with this collecting_event through georeferences only
   def all_geographic_items
     GeographicItem.
-        joins('LEFT JOIN georeferences g2 ON geographic_items.id = g2.error_geographic_item_id').
-        joins('LEFT JOIN georeferences g1 ON geographic_items.id = g1.geographic_item_id').
-        where(['(g1.collecting_event_id = ? OR g2.collecting_event_id = ?) AND (g1.geographic_item_id IS NOT NULL OR g2.error_geographic_item_id IS NOT NULL)', self.id, self.id])
+      joins('LEFT JOIN georeferences g2 ON geographic_items.id = g2.error_geographic_item_id').
+      joins('LEFT JOIN georeferences g1 ON geographic_items.id = g1.geographic_item_id').
+      where(['(g1.collecting_event_id = ? OR g2.collecting_event_id = ?) AND (g1.geographic_item_id IS NOT NULL OR g2.error_geographic_item_id IS NOT NULL)', self.id, self.id])
   end
 
   # @return [GeographicItem, nil]
@@ -709,15 +709,15 @@ class CollectingEvent < ActiveRecord::Base
     return CollectingEvent.where(id: -1) if !preferred_georeference
     geographic_item_id = preferred_georeference.geographic_item_id
     CollectingEvent.not_self(self)
-        .joins(:geographic_items)
-        .where(GeographicItem.within_radius_of_item_sql(geographic_item_id, distance))
+      .joins(:geographic_items)
+      .where(GeographicItem.within_radius_of_item_sql(geographic_item_id, distance))
   end
 
   # @return [Scope]
   # Find all (other) CEs which have GIs or EGIs (through georeferences) which intersect self
   def collecting_events_intersecting_with
     pieces = GeographicItem.with_collecting_event_through_georeferences.intersecting('any', self.geographic_items.first).uniq
-    gr = [] # all collecting events for a geographic_item
+    gr     = [] # all collecting events for a geographic_item
 
     pieces.each { |o|
       gr.push(o.collecting_events_through_georeferences.to_a)
@@ -761,8 +761,8 @@ class CollectingEvent < ActiveRecord::Base
     return CollectingEvent.none if compared_string.nil?
     order_str = CollectingEvent.send(:sanitize_sql_for_conditions, ["levenshtein(collecting_events.#{column}, ?)", compared_string])
     CollectingEvent.where('id <> ?', self.to_param).
-        order(order_str).
-        limit(limit)
+      order(order_str).
+      limit(limit)
   end
 
   # @param [String]
@@ -778,7 +778,7 @@ class CollectingEvent < ActiveRecord::Base
   #     which are country_level, and have GIs containing the (GI and/or EGI) of this CE
   # @todo this needs more work, possibily direct AREL table manipulation.
   def name_hash(types)
-    retval = {}
+    retval  = {}
     gi_list = containing_geographic_items
 
     # there are a few ways we can end up with no GIs
@@ -788,8 +788,8 @@ class CollectingEvent < ActiveRecord::Base
       # pieces  = GeographicItem.where(id: gi_list.flatten.map(&:id).uniq)
       # pieces = gi_list
       ga_list = GeographicArea.joins(:geographic_area_type, :geographic_areas_geographic_items).
-          where(geographic_area_types: {name: types},
-                geographic_areas_geographic_items: {geographic_item_id: gi_list}).uniq
+        where(geographic_area_types:             {name: types},
+              geographic_areas_geographic_items: {geographic_item_id: gi_list}).uniq
 
       # WAS: now find all of the GAs which have the same names as the ones we collected.
 
@@ -842,10 +842,10 @@ class CollectingEvent < ActiveRecord::Base
   end
 
   def cached_geographic_name_classification
-    h = {}
+    h           = {}
     h[:country] = cached_level0_geographic_name if cached_level0_geographic_name
-    h[:state] = cached_level1_geographic_name if cached_level1_geographic_name
-    h[:county] = cached_level2_geographic_name if cached_level2_geographic_name
+    h[:state]   = cached_level1_geographic_name if cached_level1_geographic_name
+    h[:county]  = cached_level2_geographic_name if cached_level2_geographic_name
     h
   end
 
@@ -922,12 +922,12 @@ class CollectingEvent < ActiveRecord::Base
   def name_from_geopolitical_hash(name_hash)
     return nil if name_hash.keys.count == 0
     return name_hash.keys.first if name_hash.keys.count == 1
-    most_key = nil
+    most_key   = nil
     most_count = 0
     name_hash.keys.sort.each do |k| # alphabetically first (keys are unordered)
       if name_hash[k].size > most_count
         most_count = name_hash[k].size
-        most_key = k
+        most_key   = k
       end
     end
     most_key
@@ -1009,11 +1009,11 @@ class CollectingEvent < ActiveRecord::Base
   #   parameters from collecting event that are of use to geolocate
   def geolocate_attributes
     parameters = {
-        'country' => country_name,
-        'state' => state_or_province_name,
-        'county' => county_or_equivalent_name,
-        'locality' => verbatim_locality,
-        'Placename' => verbatim_locality,
+      'country'   => country_name,
+      'state'     => state_or_province_name,
+      'county'    => county_or_equivalent_name,
+      'locality'  => verbatim_locality,
+      'Placename' => verbatim_locality,
     }
 
     focus = case lat_long_source
@@ -1026,8 +1026,8 @@ class CollectingEvent < ActiveRecord::Base
             end
 
     parameters.merge!(
-        'Longitude' => focus.point.x,
-        'Latitude' => focus.point.y
+      'Longitude' => focus.point.x,
+      'Latitude'  => focus.point.y
     ) unless focus.nil?
     parameters
   end
@@ -1057,12 +1057,12 @@ class CollectingEvent < ActiveRecord::Base
     # !! avoid loading the whole geographic item, just grab the bits we need:
     # self.georeferences(true)  # do this to
     to_simple_json_feature.merge({
-                                     'properties' => {
-                                         'collecting_event' => {
-                                             'id' => self.id,
-                                             'tag' => "Collecting event #{self.id}."
-                                         }
+                                   'properties' => {
+                                     'collecting_event' => {
+                                       'id'  => self.id,
+                                       'tag' => "Collecting event #{self.id}."
                                      }
+                                   }
                                  })
   end
 
@@ -1070,12 +1070,12 @@ class CollectingEvent < ActiveRecord::Base
   #   i.e. geographic_areas_geogrpahic_items.where( gaz = 'some string')
   def to_simple_json_feature
     base = {
-        'type' => 'Feature',
-        'properties' => {}
+      'type'       => 'Feature',
+      'properties' => {}
     }
 
     if geographic_items.any?
-      geo_item_id = geographic_items.select(:id).first.id
+      geo_item_id      = geographic_items.select(:id).first.id
       base['geometry'] = JSON.parse(GeographicItem.select("ST_AsGeoJSON(#{GeographicItem::GEOMETRY_SQL}::geometry) geo_json").find(geo_item_id).geo_json)
     end
     base
@@ -1090,10 +1090,10 @@ class CollectingEvent < ActiveRecord::Base
   #   5.  id
   def next_without_georeference
     CollectingEvent.excluding(self).
-        includes(:georeferences).
-        where(project_id: self.project_id, georeferences: {collecting_event_id: nil}).
-        order(:verbatim_locality, :geographic_area_id, :start_date_year, :updated_at, :id).
-        first
+      includes(:georeferences).
+      where(project_id: self.project_id, georeferences: {collecting_event_id: nil}).
+      order(:verbatim_locality, :geographic_area_id, :start_date_year, :updated_at, :id).
+      first
   end
 
   # @param [Float] delta_z, will be used to fill in the z coordinate of the point
@@ -1101,9 +1101,9 @@ class CollectingEvent < ActiveRecord::Base
   #    for the *verbatim* latitude/longitude only
   def verbatim_map_center(delta_z = 0.0)
     unless verbatim_latitude.blank? or verbatim_longitude.blank?
-      lat = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_latitude.to_s)
-      long = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_longitude.to_s)
-      elev = Utilities::Geo.distance_in_meters(verbatim_elevation.to_s)
+      lat     = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_latitude.to_s)
+      long    = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_longitude.to_s)
+      elev    = Utilities::Geo.distance_in_meters(verbatim_elevation.to_s)
       delta_z = elev unless elev == 0.0
       Gis::FACTORY.point(long, lat, delta_z)
     else
@@ -1203,10 +1203,10 @@ class CollectingEvent < ActiveRecord::Base
     elsif !document_label.blank?
       string = document_label
     else
-      name = cached_geographic_name_classification.values.join(': ')
-      date = [start_date_string, end_date_string].compact.join('-')
+      name       = cached_geographic_name_classification.values.join(': ')
+      date       = [start_date_string, end_date_string].compact.join('-')
       place_date = [verbatim_locality, date].compact.join(', ')
-      string = [name, place_date, verbatim_collectors, verbatim_method].select { |a| !a.blank? }.join("\n")
+      string     = [name, place_date, verbatim_collectors, verbatim_method].select { |a| !a.blank? }.join("\n")
     end
 
     string = "[#{self.to_param}]" if string.blank?
@@ -1215,9 +1215,9 @@ class CollectingEvent < ActiveRecord::Base
   end
 
   def set_times_to_nil_if_form_provided_blank
-    matches = ['0001-01-01 00:00:00 UTC', '2000-01-01 00:00:00 UTC']
+    matches         = ['0001-01-01 00:00:00 UTC', '2000-01-01 00:00:00 UTC']
     self.time_start = nil if matches.include?(self.time_start.to_s)
-    self.time_end = nil if matches.include?(self.time_end.to_s)
+    self.time_end   = nil if matches.include?(self.time_end.to_s)
   end
 
   def check_verbatim_geolocation_uncertainty
