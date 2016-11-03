@@ -1,7 +1,9 @@
-/* Basic library to parse through TW returned geoJSON and draw a FeatureCollection on a Google Map.
- */
-var TW = TW || {};                      // TW "namespacing" object
-TW.vendor = TW.vendor || {};            // mimic directory structure in app/assets/javascripts
+/* 
+  Basic library to parse through TW returned geoJSON and draw a FeatureCollection on a Google Map.
+*/
+
+var TW = TW || {};                      
+TW.vendor = TW.vendor || {};            
 TW.vendor.lib = TW.vendor.lib || {};
 TW.vendor.lib.google = TW.vendor.lib.google || {};
 TW.vendor.lib.google.maps = TW.vendor.lib.google.maps || {};
@@ -47,7 +49,7 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
       var chained = JSON.parse('{"type":"FeatureCollection","features":[]}'); // container for the distribution
       if (data["type"] == "FeatureCollection") {  // once again, only looking for feature collections, but with properties
         this.doFeatureCollection(data, null, chained);
-      }   // end: if data.type == 'FeatureCollection'
+      } // end: if data.type == 'FeatureCollection'
       else {              // this is not a feature collection, so what is it?
         if (data["otu_ids"] != undefined) {
           for (var j = 0; j < data["otu_ids"].length; j++) {
@@ -77,6 +79,7 @@ Object.assign(TW.vendor.lib.google.maps, {               // internally referred 
         canvas_ratio = width / height;
       }
     }
+    
     var bounds = {};    //xminp: xmaxp: xminm: xmaxm: ymin: ymax: -90.0, center_long: center_lat: gzoom:
     this.getData(chained, bounds);               // scan var data as feature collection with homebrew traverser, collecting bounds
     bounds.canvas_ratio = canvas_ratio;
