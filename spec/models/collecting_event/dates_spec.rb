@@ -34,12 +34,12 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
     sy, sm, sd = start_data.split('/')
     ey, em, ed = end_data.split('/')
     {
-        start_date_year: sy,
-        start_date_month: sm,
-        start_date_day: sd,
-        end_date_year: ey,
-        end_date_month: em,
-        end_date_day: ed
+      start_date_year: sy,
+      start_date_month: sm,
+      start_date_day: sd,
+      end_date_year: ey,
+      end_date_month: em,
+      end_date_day: ed
     }
   end
 
@@ -55,7 +55,90 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
   #   end
   # end
 
+
+  context 'combined' do
+    #       a     b  
+    # ------*-----*------
+    #       a     b            yes
+    #                 c     d   no 
+    #
+
+    let!(:ce1) { CollectingEvent.create!(parse_stubs(a, b).merge(verbatim_label: "#{a} -- #{b}")) }
+    let!(:ce2) { CollectingEvent.create!(parse_stubs(c, d).merge(verbatim_label: "#{c} -- #{d}")) }
+
+    let(:params) {
+      {search_start_date: a, search_end_date: b}
+    }
+
+    specify 'returns one (strict)' do
+      expect(CollectingEvent.in_date_range(params.merge(partial_overlap: 'OfF'))).to contain_exactly(ce1)
+    end
+
+    specify 'returns one (lenient)' do
+      expect(CollectingEvent.in_date_range(params.merge(partial_overlap: 'on'))).to contain_exactly(ce1)
+    end
+  end
+
+  context 'combined (strict)' do
+    #       a     c  
+    # ------*-----*------
+    #       a     c      yes
+    #          b     d   no 
+    #
+
+    let!(:ce1) { CollectingEvent.create!(parse_stubs(a, c).merge(verbatim_label: "#{a} -- #{c}")) }
+    let!(:ce2) { CollectingEvent.create!(parse_stubs(b, d).merge(verbatim_label: "#{b} -- #{d}")) }
+
+    let(:params) {
+      {search_start_date: a, search_end_date: c, partial_overlap: 'OfF'}
+    }
+
+    specify 'returns one' do
+      expect(CollectingEvent.in_date_range(params)).to contain_exactly(ce1)
+    end
+  end
+
+
+  context 'combined (lenient)' do
+    #       a     c  
+    # ------*-----*------
+    #       a     c      yes
+    #          b     d   no 
+    #
+
+    let!(:ce1) { CollectingEvent.create!(parse_stubs(a, c).merge(verbatim_label: "#{a} -- #{c}")) }
+    let!(:ce2) { CollectingEvent.create!(parse_stubs(b, c).merge(verbatim_label: "#{b} -- #{c}")) }
+
+    let(:params) {
+      {search_start_date: a, search_end_date: c, partial_overlap: 'on'}
+    }
+
+    specify 'returns both' do
+      expect(CollectingEvent.in_date_range(params)).to contain_exactly(ce1, ce2)
+    end
+  end
+
+
   context 'partial_overlap OFF (strict)' do
+
+    #       a        d
+    #       *        *
+    # ------s--------e---
+    context 'search range completely inside record start/end' do
+      let(:params) {
+        {search_start_date: a, search_end_date: d, partial_overlap: 'OfF'}
+      }
+
+      let!(:ce1) { CollectingEvent.create!(parse_stubs(a, d).merge(verbatim_label: "#{a} -- #{d}")) }
+
+      specify 'returns none' do
+        expect(CollectingEvent.in_date_range(params)).to contain_exactly(ce1)
+      end
+    end
+
+
+
+
     #       a  b  c  d
     # ------s--*--*--e---
     context 'search range completely inside record start/end' do
@@ -183,6 +266,24 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
 
   context 'partial_overlap ON (lenient)' do
 
+
+
+    #       a        d
+    #       *        *
+    # ------s--------e---
+    context 'search range completely inside record start/end' do
+      let(:params) {
+        {search_start_date: a, search_end_date: d, partial_overlap: 'on'}
+      }
+
+      let!(:ce1) { CollectingEvent.create!(parse_stubs(a, d).merge(verbatim_label: "#{a} -- #{d}")) }
+
+      specify 'returns none' do
+        expect(CollectingEvent.in_date_range(params)).to contain_exactly(ce1)
+      end
+    end
+
+
     context 'search params completely surround target' do
 
       #    a  b   c   d
@@ -272,7 +373,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         specify 'returns none' do
           expect(CollectingEvent.in_date_range(params)).to contain_exactly()
         end
-        end
+      end
 
       #  a b     c
       # -*-*-----s----------
@@ -286,7 +387,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
         specify 'returns none' do
           expect(CollectingEvent.in_date_range(params)).to contain_exactly()
         end
-        end
       end
+    end
   end
 end
