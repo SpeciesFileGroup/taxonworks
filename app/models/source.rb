@@ -204,6 +204,8 @@ class Source < ActiveRecord::Base
   has_many :projects, through: :project_sources
   has_many :project_sources, dependent: :destroy
 
+  has_many :asserted_distributions, through: :citations, source: :citation_object, source_type: 'AssertedDistribution'
+
   before_save :set_cached
 
   validates_presence_of :type
