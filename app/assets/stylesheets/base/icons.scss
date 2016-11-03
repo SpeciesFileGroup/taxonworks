@@ -38,6 +38,10 @@
       background-image: image-url("drag.svg");
     }
 
+    [data-icon="link"] {
+      background-image: image-url("link.svg");
+    }      
+
     [data-icon="list"] {
       background-image: image-url("list.svg");
     }         
