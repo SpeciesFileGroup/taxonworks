@@ -143,9 +143,11 @@ namespace :tw do
         LoggedTask.define :import_nomenclator_strings => [:data_directory, :environment, :user_id] do |logger|
           # Can be run independently at any time
 
-          logger.info 'Running create_rank_hash...'
+          logger.info 'Running import_nomenclator_strings...'
 
           get_nomenclator_string = {} # key = SF.NomenclatorID, value = SF.nomenclator_string
+
+          count_found = 0
 
           path = @args[:data_directory] + 'sfNomenclatorStrings.txt'
           file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
@@ -155,6 +157,8 @@ namespace :tw do
             next if nomenclator_id == '0'
 
             nomenclator_string = row['NomenclatorString']
+
+            logger.info "Working with SF.NomenclatorID '#{nomenclator_id}', SF.NomenclatorString '#{nomenclator_string}' (count #{count_found += 1}) \n"
 
             get_nomenclator_string[nomenclator_id] = nomenclator_string
           end
