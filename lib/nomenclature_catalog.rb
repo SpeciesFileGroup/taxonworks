@@ -1,9 +1,9 @@
 module NomenclatureCatalog
   # @return a complete list of citations pertinent to the taxonomic history
   def self.data_for(taxon_name)
-    data = NomenclatureCatalog::CatalogEntry.new
+    data = NomenclatureCatalog::CatalogEntry.new(taxon_name)
 
-    data.items <<  NomenclatureCatalog::EntryItem.new(object: taxon_name, taxon_name: taxon_name, citation: taxon_name.origin_citation, nomenclature_date: taxon_name.nomenclature_date)
+    data.items << NomenclatureCatalog::EntryItem.new(object: taxon_name, taxon_name: taxon_name, citation: taxon_name.origin_citation, nomenclature_date: taxon_name.nomenclature_date)
 
     taxon_name.subsequent_citations.each do |c|
       data.items << NomenclatureCatalog::EntryItem.new(object: taxon_name, taxon_name: taxon_name, citation: c, nomenclature_date: c.source.date)
@@ -32,7 +32,6 @@ module NomenclatureCatalog
         data.items <<  NomenclatureCatalog::EntryItem.new(object: c, taxon_name: c, citation: t, nomenclature_date: c.source.date) 
       end
     end
-
 
     data
   end

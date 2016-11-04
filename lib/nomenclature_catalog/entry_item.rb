@@ -1,5 +1,6 @@
 module NomenclatureCatalog
 
+  # Is 1:1 with a Citation 
   class EntryItem 
 
     attr_accessor :object
