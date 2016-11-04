@@ -127,11 +127,17 @@ _init_map_table = function init_map_table() {
     $("#en_fixedpicker").change(function (event) {
       update_and_graph(event)
     });   // click date change
+    $("#partial_toggle").change(function (event) {
+      update_and_graph(event)
+    });   // click date change
 
     function update_and_graph(event) {
+      $("#graph_frame").mx_spinner('show');
       $.get('set_date', $("#set_date_form").serialize(), function (local_data) {
           $("#date_count").text(local_data.html);
           $("#graph_frame").html(local_data.chart);
+        $("#graph_frame").mx_spinner('hide');
+
         }, 'json'  // I expect a json response
       );
       event.preventDefault();
