@@ -1,0 +1,92 @@
+<h1 class="task_header"> Nomenclature by source </h1>
+
+<div id="show" class="panels-container ">
+  <div class="item item1">
+    <div class="panel separate-right">
+      <div class="title nav-line">
+        Navigate 
+      </div>
+      <div class="navigation-controls">
+        <%= pin_item_to_pinboard_link(@source, sessions_current_user) -%>       
+        <%= edit_object_link(@source) -%>
+        <%= link_to(content_tag(:span, 'Show', data: {icon: :edit}, class: 'small-icon'), @source.metamorphosize, class: 'navigation-item') -%>
+      </div>
+    </div>
+  </div>
+  <div class="item item2">
+    <div class="panel separate-left">
+      <div class="title action-line">
+        <div class="title-section flexbox column-big">
+          <%= content_tag(:span, source_tag(@source), class: 'name') -%> 
+        </div>
+      </div>
+    </div>    
+
+    <div class="flexbox"> 
+      <div>
+        <div class="panels-container">
+          <div id="brownse-main-panel" class="panel separate-left separate-right attributes-panel">
+            <div class="break_words content">
+              <div class="title-section"> 
+                <h2> Names (<%= @source.citations.where(citation_object_type: 'TaxonName').count -%> citations) </h2>
+              </div>
+              <div class="attributes"> 
+                <ul class="taxonomic_history">
+                  <% @source.citations.where(citation_object_type: 'TaxonName').sort{|a,b| a.citation_object.cached <=> b.citation_object.cached}.each do |c| -%>
+                    <%= content_tag(:li, taxon_name_browse_link(c.citation_object)) -%> 
+                  <% end %>
+                </ul>
+              </div>
+
+              <div class="title-section"> 
+                <h2> Relationships  (<%= @source.citations.where(citation_object_type: 'TaxonNameRelationship').count -%> citations) </h2>
+              </div>
+              <div class="attributes"> 
+                <ul class="taxonomic_history">
+                  <% @source.citations.where(citation_object_type: 'TaxonNameRelationship').each do |c| -%>
+                    <%= content_tag(:li, object_tag(c.citation_object)) -%> 
+                  <% end %>
+                </ul>
+              </div>
+
+              <div class="title-section"> 
+              <h2> Taxon name classifications (<%= @source.citations.where(citation_object_type: 'TaxonNameClassifications').count -%>) </h2>
+              </div>
+              <div class="attributes"> 
+                <ul class="taxonomic_history">
+                  <% @source.citations.where(citation_object_type: 'TaxonNameClassifications').each do |c| -%>
+                    <%= content_tag(:li, object_tag(c.citation_object)) -%> 
+                  <% end %>
+                </ul>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="separate-panel-top"> 
+        <div class="flex-wrap-row"> 
+          <div id="validation-panel" class="panel fullSize content separate-left separate-bottom">
+            <%= render(partial: '/shared/data/all/show/soft_validation', locals: {object: @source}) -%> 
+          </div>
+
+          <div class="panel fullSize content separate-left separate-bottom">
+            <div class="attributes information-panel">
+              <%= identifier_list_tag(@source) -%> 
+              <%= data_attribute_list_tag(@source) -%> 
+              <%= note_list_tag(@source) -%> 
+              <%= tag_list_tag(@source) -%> 
+            </div>
+          </div>
+          <div class="panel content fullSize separate-left">
+            <div class="attributes">
+              <%= render(partial: '/shared/data/all/show/housekeeping', locals: {object: @source}) -%> 
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

@@ -150,4 +150,11 @@ browse_nomenclature_task:
   status: prototype
   categories: 
     - nomenclature
-
+nomenclature_by_source_task:
+  hub: true
+  name: 'Nomenclature by source'
+  description: 'Browse the nomenclatural data extracted from a particular source, focusing on a single source at a time.'
+  status: prototype
+  categories: 
+    - nomenclature
+    - source

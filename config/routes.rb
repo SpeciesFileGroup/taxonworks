@@ -542,6 +542,11 @@ TaxonWorks::Application.routes.draw do
       scope :browse, controller: 'tasks/nomenclature/browse' do
         get '(:id)', action: :index, as: 'browse_nomenclature_task'
       end
+
+      scope :by_source, controller: 'tasks/nomenclature/by_source' do
+        get '(:id)', action: :index, as: 'nomenclature_by_source_task'
+      end
+
     end
 
     scope :people, controller: 'tasks/people/author' do
