@@ -68,6 +68,13 @@ module SourcesHelper
     source.project_sources.where.not(project_id: sessions_current_project_id).references(:projects_sources).any?
   end
 
+  def source_nomenclature_tag(source, topics)
+    t = [source_tag(source)]
+    t.push [':', topic_list_tag(topics).html_safe] if !topics.blank?
+    t.push link_to('', nomenclature_by_source_task_path(source), data: {icon: 'link'}, target: :_blank)
+    t.flatten.compact.join(' ').html_safe
+  end
+
 
   # TODO: write helper methods
   # context 'source format variations' do
