@@ -524,7 +524,7 @@ class CollectionObject < ActiveRecord::Base
     collecting_event_ids = CollectingEvent.in_date_range({search_start_date: search_start_date,
                                                           search_end_date:   search_end_date,
                                                           partial_overlap:   partial_overlap}).pluck(:id)
-    retval               = CollectionObject.includes(:collecting_event)
+    retval = CollectionObject.joins(:collecting_event)
                              .where(collecting_event_id: collecting_event_ids, project: $project_id)
     retval
   end
