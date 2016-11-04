@@ -633,7 +633,8 @@ namespace :tw do
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
         file.each_with_index do |row, i|
           print "\r#{i}"
-          @data.reliable[row['Score']] = row['Meaning']
+          c = ConfidenceLevel.find_or_create_by(name: row['Score'], definition: row['Meaning'], project_id: $project_id)
+          @data.reliable[row['Score']] = c.id
         end
       end
 
@@ -758,7 +759,7 @@ namespace :tw do
               language_id: language_id,
               language: language,
               publisher: (fext_data[row['RefCode']] ? fext_data[row['RefCode']][:publisher] : nil),
-              editor: (fext_data[row['RefCode']] ? fext_data[row['RefCode']][:editor] : nil )
+              editor: (fext_data[row['RefCode']] ? fext_data[row['RefCode']][:editor].split(/\s*\;\s*/).compact.join(' and ') : nil )
           )
 
 
@@ -1125,8 +1126,8 @@ namespace :tw do
             'ParTypeB' => Predicate.find_or_create_by(name: 'Hosts:ParTypeB', definition: 'The verbatim value in Hosts#ParTypeB.', project_id: $project_id),
             'ParTypeC' => Predicate.find_or_create_by(name: 'Hosts:ParTypeC', definition: 'The verbatim value in Hosts#ParTypeC.', project_id: $project_id),
             'ParTypeD' => Predicate.find_or_create_by(name: 'Hosts:ParTypeD', definition: 'The verbatim value in Hosts#ParTypeD.', project_id: $project_id),
-            'ReliableA' => Predicate.find_or_create_by(name: 'Hosts:ReliableA', definition: 'The verbatim value in Hosts#ReliableA.', project_id: $project_id),
-            'ReliableB' => Predicate.find_or_create_by(name: 'Hosts:ReliableB', definition: 'The verbatim value in Hosts#ReliableB.', project_id: $project_id),
+            #'ReliableA' => Predicate.find_or_create_by(name: 'Hosts:ReliableA', definition: 'The verbatim value in Hosts#ReliableA.', project_id: $project_id),
+            #'ReliableB' => Predicate.find_or_create_by(name: 'Hosts:ReliableB', definition: 'The verbatim value in Hosts#ReliableB.', project_id: $project_id),
             'Comment' => Predicate.find_or_create_by(name: 'Hosts:Comment', definition: 'The verbatim value in Hosts#Comment.', project_id: $project_id),
             'CommonName' => Predicate.find_or_create_by(name: 'Hosts:CommonName', definition: 'The verbatim value in Hosts#CommenName.', project_id: $project_id),
         }.freeze
@@ -1154,10 +1155,12 @@ namespace :tw do
             r.data_attributes.create(type: 'InternalAttribute', predicate: keywords['ParTypeB'], value: @data.ptype[row['ParTypeB']]) unless row['ParTypeB'].blank?
             r.data_attributes.create(type: 'InternalAttribute', predicate: keywords['ParTypeC'], value: @data.ptype[row['ParTypeC']]) unless row['ParTypeC'].blank?
             r.data_attributes.create(type: 'InternalAttribute', predicate: keywords['ParTypeD'], value: @data.ptype[row['ParTypeD']]) unless row['ParTypeD'].blank?
-            r.data_attributes.create(type: 'InternalAttribute', predicate: keywords['ReliableA'], value: @data.reliable[row['ReliableA']]) unless row['ReliableA'].blank?
-            r.data_attributes.create(type: 'InternalAttribute', predicate: keywords['ReliableB'], value: @data.reliable[row['ReliableB']]) unless row['ReliableB'].blank?
             r.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Comment'], value: row['Comment']) unless row['Comment'].blank?
             r.data_attributes.create(type: 'InternalAttribute', predicate: keywords['CommonName'], value: row['CommonName']) unless row['CommonName'].blank?
+            r.confidences.create(position: 1, confidence_level_id: @data.reliable[row['ReliableA']]) unless row['ReliableA'].blank?
+            r.confidences.create(position: 2, confidence_level_id: @data.reliable[row['ReliableB']]) unless row['ReliableB'].blank?
+            #r.data_attributes.create(type: 'InternalAttribute', predicate: keywords['ReliableA'], value: @data.reliable[row['ReliableA']]) unless row['ReliableA'].blank?
+            #r.data_attributes.create(type: 'InternalAttribute', predicate: keywords['ReliableB'], value: @data.reliable[row['ReliableB']]) unless row['ReliableB'].blank?
           else
             print "\nInvalid host relationship: TaxonCode: #{row['TaxonCode']}, Relation: #{row['Relation']}, PrimHosFam: #{row['PrimHosFam']}, HosNumber: #{row['HosNumber']}\n"
           end
@@ -1168,7 +1171,7 @@ namespace :tw do
         keywords = {
             'PageRef' => Predicate.find_or_create_by(name: 'Dist:PageRef', definition: 'The verbatim value in Dist#PageRef.', project_id: $project_id),
             'Keyword' => Predicate.find_or_create_by(name: 'Dist:Keyword', definition: 'The verbatim value in Dist#Keyword.', project_id: $project_id),
-            'Reliable' => Predicate.find_or_create_by(name: 'Dist:Reliable', definition: 'The verbatim value in Dist#Reliable.', project_id: $project_id),
+            #'Reliable' => Predicate.find_or_create_by(name: 'Dist:Reliable', definition: 'The verbatim value in Dist#Reliable.', project_id: $project_id),
             'Comment' => Predicate.find_or_create_by(name: 'Dist:Comment', definition: 'The verbatim value in Dist#Comment.', project_id: $project_id),
         }.freeze
 
@@ -1204,7 +1207,8 @@ namespace :tw do
                 project_id: $project_id )
             if ad.valid?
               ad.citations.create(source_id: ref, pages: row['PageRef']) unless ref.nil?
-              ad.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Reliable'], value: @data.reliable[row['Reliable']]) unless row['Reliable'].blank?
+#              ad.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Reliable'], value: @data.reliable[row['Reliable']]) unless row['Reliable'].blank?
+              ad.confidences.create(confidence_level_id: @data.reliable[row['Reliable']]) unless row['Reliable'].blank?
               ad.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Comment'], value: row['Comment']) unless row['Comment'].blank?
 #              ad.data_attributes.create(type: 'InternalAttribute', predicate: keywords['PageRef'], value: row['PageRef']) unless row['PageRef'].blank?
               ad.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Keyword'], value: row['Keyword']) unless row['Keyword'].blank?

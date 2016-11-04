@@ -230,7 +230,7 @@
 
 #        $project_id = 1
         handle_controlled_vocabulary_3i
-#        handle_litauthors_3i
+        handle_litauthors_3i
         handle_references_3i
         handle_taxonomy_3i
         handle_taxon_name_relationships_3i
@@ -240,6 +240,7 @@
         handle_host_plants_3i
         handle_distribution_3i
         handle_localities_3i
+        handle_parasitoids_3i
 
         print "\n\n !! Success. End time: #{Time.now} \n\n"
       end
@@ -443,7 +444,6 @@
         language = %w(French Russian German Japanese Chinese English Korean Polish Italian Georgian )
 
         file.each_with_index do |row, i|
-          next if i < 158
           print "\r#{i}"
           journal, serial_id, volume, pages = parse_bibliography_3i(row['Bibliography'])
           year, year_suffix = parse_year_3i(row['Year'])
@@ -514,14 +514,16 @@
               a = @data.people[author]
               if a.nil?
                 a = Person.parse_to_people(author).first
-                a.save!
-                a = a.id
-                @data.people[author] = a
+                unless a.nil?
+                  a.save!
+                  a = a.id
+                  @data.people[author] = a
+                end
               end
-              sa = SourceAuthor.create(person_id: a, role_object: source, position: i + 1)
+              sa = SourceAuthor.create(person_id: a, role_object: source, position: i + 1) unless a.nil?
             end
           else
-            byebug
+            puts "\nDuplicate record: #{row}\n"
           end
         end
 
@@ -680,6 +682,7 @@
                 byebug if parent.parent.nil?
                 parent = parent.parent
               end
+              name = name.gsub('2222', '').gsub('1111', '')
 
               taxon = Protonym.new( name: name,
                                     parent: parent,
@@ -1644,36 +1647,88 @@
       end
 
 
-        def find_taxon_id_3i(key)
-          #@data.taxon_index[key.to_s] || Protonym.with_identifier('3i_Taxon_ID ' + key.to_s).find_by(project_id: $project_id).try(:id)
-          @data.taxon_index[key.to_s] || Identifier.where(cached: '3i_Taxon_ID ' + key.to_s, identifier_object_type: 'TaxonName', project_id: $project_id).limit(1).pluck(:identifier_object_id).first
+      def find_taxon_id_3i(key)
+        #@data.taxon_index[key.to_s] || Protonym.with_identifier('3i_Taxon_ID ' + key.to_s).find_by(project_id: $project_id).try(:id)
+        @data.taxon_index[key.to_s] || Identifier.where(cached: '3i_Taxon_ID ' + key.to_s, identifier_object_type: 'TaxonName', project_id: $project_id).limit(1).pluck(:identifier_object_id).first
+      end
+
+      def find_taxon_3i(key)
+        Identifier.find_by(cached: '3i_Taxon_ID ' + key.to_s, identifier_object_type: 'TaxonName', project_id: $project_id).try(:identifier_object)
+        #Protonym.with_identifier('3i_Taxon_ID ' + key.to_s).find_by(project_id: $project_id)
+      end
+
+      def find_otu(key)
+        otu = nil
+       # otu = Otu.joins(taxon_name: :identifiers).where(identifiers: {cached: '3i_Taxon_ID ' + key.to_s}, project_id: $project_id).first
+       # otu = Otu.joins(:identifiers).where(identifiers: {cached: '3i_Taxon_ID ' + key.to_s}, project_id: $project_id).first if otu.nil?
+
+        r = Identifier.find_by(cached: '3i_Taxon_ID ' + key.to_s, project_id: $project_id)
+        if r.identifier_object_type == 'TaxonName'
+          r.identifier_object.otus.first
+        elsif r.identifier_object_type == 'Otu'
+          r.identifier_object
+        else
+          raise
         end
 
-        def find_taxon_3i(key)
-          Identifier.find_by(cached: '3i_Taxon_ID ' + key.to_s, identifier_object_type: 'TaxonName', project_id: $project_id).try(:identifier_object)
-          #Protonym.with_identifier('3i_Taxon_ID ' + key.to_s).find_by(project_id: $project_id)
-        end
+        # otu
+      end
 
-        def find_otu(key)
-          otu = nil
-         # otu = Otu.joins(taxon_name: :identifiers).where(identifiers: {cached: '3i_Taxon_ID ' + key.to_s}, project_id: $project_id).first
-         # otu = Otu.joins(:identifiers).where(identifiers: {cached: '3i_Taxon_ID ' + key.to_s}, project_id: $project_id).first if otu.nil?
+      def find_publication_id(key3)
+        #@data.publications_index[key3.to_s] || Source.with_identifier('3i_Source_ID ' + key3.to_s).first.try(:id)
+        @data.publications_index[key3.to_s] || Identifier.where(cached: '3i_Source_ID ' + key3.to_s).limit(1).pluck(:identifier_object_id).first
+      end
 
-          r = Identifier.find_by(cached: '3i_Taxon_ID ' + key.to_s, project_id: $project_id)
-          if r.identifier_object_type == 'TaxonName'
-            r.identifier_object.otus.first
-          elsif r.identifier_object_type == 'Otu'
-            r.identifier_object
-          else
-            raise
+      def handle_parasitoids_3i
+        # Key
+        # Order
+        # Superfamily
+        # Family
+        # Genus
+        # Species
+        # Author
+        # Year
+        # Page
+        # Key3
+
+        path = @args[:data_directory] + 'parasitoids.txt'
+        print "\nHandling parasitoids\n"
+        raise "file #{path} not found" if not File.exists?(path)
+        file = CSV.foreach(path, col_sep: "\t", headers: true)
+
+        file.each_with_index do |row, i|
+          print "\r#{i}"
+          p = Protonym.find_by(name: row['Order'], rank_class: Ranks.lookup(:iczn, 'Order'), project_id: $project_id)
+          p = Protonym.find_or_create_by(name: row['Superfamily'], parent_id: p.id, rank_class: Ranks.lookup(:iczn, 'Superfamily'), project_id: $project_id) unless row['Superfamily'].blank?
+          p = Protonym.find_or_create_by(name: row['Family'], rank_class: Ranks.lookup(:iczn, 'Family'), project_id: $project_id) unless row['Family'].blank?
+          if family.parent_id != p.id
+            family.parent_id = p.id
+            family.save!
           end
-
-          # otu
+          p = family
+          p = Protonym.find_or_create_by(name: row['Genus'], parent_id: p.id, rank_class: Ranks.lookup(:iczn, 'Genus'), project_id: $project_id) unless row['Genus'].blank?
+          p = Protonym.find_or_create_by(name: row['Species'], parent_id: p.id, rank_class: Ranks.lookup(:iczn, 'Species'), project_id: $project_id) unless row['Species'].blank?
+          if p.verbatim_author.blank? || p.year_of_publication.blank?
+            p.verbatim_author = row['Author'] if p.verbatim_author.blank?
+            p.year_of_publication = row['Year'] if p.verbatim_author.blank?
+            p.save!
+          end
+          parasitoid = Otu.find_or_create_by(taxon_name_id: p.id, project_id: $project_id)
+          taxon = find_otu(row['Key'])
+          source = find_publication_id(row['Key3'])
+          if parasitoid && taxon
+            ba = BiologicalAssociation.find_or_create_by!(biological_relationship: @parasitoid_relationship,
+                                                          biological_association_subject: parasitoid,
+                                                          biological_association_object: taxon,
+                                                          project_id: $project_id
+            )
+            Citation.find_or_create_by!(citation_object: ba, source_id: source, project_id: $project_id, pages: row['Page']) unless source.blank?
+          else
+            print "\nRow #{row} is problematic\n"
+          end
         end
 
-        def find_publication_id(key3)
-          #@data.publications_index[key3.to_s] || Source.with_identifier('3i_Source_ID ' + key3.to_s).first.try(:id)
-          @data.publications_index[key3.to_s] || Identifier.where(cached: '3i_Source_ID ' + key3.to_s).limit(1).pluck(:identifier_object_id).first
+
         end
 
       end
