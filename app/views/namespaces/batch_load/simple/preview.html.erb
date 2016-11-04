@@ -1,0 +1,48 @@
+<% content_for :warn_level do -%>
+    <%= warn_level_input(@result) -%>
+<% end %>
+
+<%= content_for :batch_form do -%>
+  <%= render partial: '/namespaces/batch_load/simple/form', locals: {url: create_simple_batch_load_namespaces_path, submit: :create} -%>
+<% end %>
+
+<%= content_for :line_breakdown do -%>
+  <table class="top_align_text"> 
+    <tr>
+      <th class="">line</th>
+      <th class="">data count</th>
+      <th class="">institution</th>
+      <th class="">name</th>
+      <th class="">short_name</th>
+      <th class="">verbatim_short_name</th>
+      <th class="">data errors*</th>
+    </tr>
+
+    <% @result.sorted_processed_rows.each do |i, rp| -%>
+      <tr>
+        <%= batch_line_link_td(i) -%> 
+        <%= batch_all_objects_count_td(rp) -%>
+        <td>
+          <%= rp.objects[:namespaces].collect{|n| n.institution }.join('<br>').html_safe -%>
+        </td> 
+        <td>
+          <%= rp.objects[:namespaces].collect{|n| n.name }.join('<br>').html_safe -%>
+        </td> 
+        <td>
+          <%= rp.objects[:namespaces].collect{|n| n.short_name }.join('<br>').html_safe -%>
+        </td>
+        <td>
+          <%= rp.objects[:namespaces].collect{|n| n.verbatim_short_name }.join('<br>').html_safe -%>
+        </td> 
+        <td>
+          <%= rp.objects[:namespaces].collect{|n| n.errors.full_messages }.join('<br>').html_safe -%>
+        </td> 
+
+      </tr>
+    <% end -%> 
+  </table>
+<% end %>
+
+
+<%= render partial: '/shared/data/all/batch_load/preview' -%>
+

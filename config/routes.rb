@@ -244,6 +244,11 @@ TaxonWorks::Application.routes.draw do
 
   resources :namespaces do
     concerns [:data_routes]
+
+    collection do
+      post :preview_simple_batch_load
+      post :create_simple_batch_load
+    end
   end
 
   resources :notes, except: [:show] do
