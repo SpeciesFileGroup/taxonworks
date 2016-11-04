@@ -1,4 +1,33 @@
 class NamespacesController < ApplicationController
+
+def batch_load
+end
+
+def preview_simple_batch_load 
+  if params[:file] 
+    @result = BatchLoad::Import::Namespaces::SimpleInterpreter.new(batch_params)
+    digest_cookie(params[:file].tempfile, :Simple_namespaces_md5)
+    render 'namespaces/batch_load/simple/preview'
+  else
+    flash[:notice] = "No file provided!"
+    redirect_to action: :batch_load 
+  end
+end
+
+def create_simple_batch_load
+  if params[:file] && digested_cookie_exists?(params[:file].tempfile, :Simple_namespaces_md5)
+    @result = BatchLoad::Import::Namespaces::SimpleInterpreter.new(batch_params)
+    if @result.create
+      flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} namespaces were created."
+      render 'namespaces/batch_load/simple/create' and return
+    else
+      flash[:alert] = 'Batch import failed.'
+    end
+  else
+    flash[:alert] = 'File to batch upload must be supplied.'
+  end
+  render :batch_load
+end
   include DataControllerConfiguration::SharedDataControllerConfiguration
   before_action :set_namespace, only: [:show, :edit, :update, :destroy]
 
@@ -106,5 +135,9 @@ class NamespacesController < ApplicationController
   # Never trust parameters from the scary internet, only allow the white list through.
   def namespace_params
     params.require(:namespace).permit(:institution, :name, :short_name, :verbatim_short_name)
+  end
+
+  def batch_params
+    params.permit(:file, :import_level).merge(user_id: sessions_current_user_id, project_id: $project_id).symbolize_keys
   end
 end
