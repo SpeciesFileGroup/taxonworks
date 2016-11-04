@@ -80,6 +80,10 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
 
   end
 
+  def within_year
+
+  end
+
   def render_co_select_package(message)
     {message:                  message,
      feature_collection:       @feature_collection,
