@@ -23,6 +23,7 @@
           <span id="late_date" hidden="hidden"><%= @late_date.strftime('%Y/%m/%d') %></span>
           <%= form_tag(by_date_task_url, id: 'set_date_form', remote: true) do %>
               Partial overlap search: <%= check_box nil, 'partial_overlap', {id: :partial_toggle}, 'on', 'off' %>
+              &nbsp; &nbsp; &nbsp;<input id="reset_slider" type="button" value="Reset Slider"/>
               <table class="no-shadow" border="1" width="700">
                 <tr>
                   <td align="center" width="280">

@@ -132,11 +132,11 @@ _init_map_table = function init_map_table() {
     });   // click date change
 
     function update_and_graph(event) {
-      $("#graph_frame").mx_spinner('show');
+      $("#select_date_range").mx_spinner('show');
       $.get('set_date', $("#set_date_form").serialize(), function (local_data) {
           $("#date_count").text(local_data.html);
           $("#graph_frame").html(local_data.chart);
-        $("#graph_frame").mx_spinner('hide');
+        $("#select_date_range").mx_spinner('hide');
 
         }, 'json'  // I expect a json response
       );
@@ -175,26 +175,48 @@ _init_map_table = function init_map_table() {
     });
 
     $("#double_date_range").mouseup(function (event) {
+      var range_factor = 1.0;
       var newStartText = $(".label.select-label")[1].textContent;
       var newEndText = $(".label.select-label")[0].textContent;
-      var newStartDate = new Date(newStartText);
-      var newEndDate = new Date(newEndText);
+      var newStartDate = (new Date(newStartText)) / range_factor;
+      var newEndDate = range_factor * (new Date(newEndText));
       $("#search_start_date").val(newStartText);
       $("#search_end_date").val(newEndText);
-      //offset = newEndDate - newStartDate;
+      offset = (newEndDate - newStartDate);
       update_and_graph(event);
-      //$(".label.range-label")[0].textContent = $(".label.select-label")[1].textContent;
-      //$(".label.range-label")[1].textContent = $(".label.select-label")[0].textContent;
-      //$("#double_date_range").rangepicker({
-      //  type: "double",
-      //    startValue: newStartText,
-      //    endValue: newEndText,
-      //  translateSelectLabel: function (currentPosition, totalPosition) {
-      //    var timeOffset = offset * ( currentPosition / totalPosition);
-      //    var date = new Date(+newStartDate + parseInt(timeOffset));
-      //    return dateFormat(date, "yyyy/MM/dd");
-      //  }
-      //  });
+      $(".label.range-label")[0].textContent = $(".label.select-label")[1].textContent;
+      $(".label.range-label")[1].textContent = $(".label.select-label")[0].textContent;
+      $("#double_date_range").rangepicker({
+        type: "double",
+        startValue: newStartText,
+        endValue: newEndText,
+        translateSelectLabel: function (currentPosition, totalPosition) {
+          var timeOffset = offset * ( currentPosition / totalPosition);
+          var date = new Date(+newStartDate + parseInt(timeOffset));
+          return dateFormat(date, "yyyy/MM/dd");
+        }
+      });
+      }
+    );
+
+    $("#reset_slider").click(function (event) {
+        var startDate = new Date($("#early_date").text());
+        var endDate = new Date($("#late_date").text());
+        var offset = endDate - startDate;
+        $("#double_date_range").rangepicker({
+          type: "double",
+          startValue: dateFormat(startDate, "yyyy/MM/dd"),
+          endValue: dateFormat(endDate, "yyyy/MM/dd"),
+          translateSelectLabel: function (currentPosition, totalPosition) {
+            var timeOffset = offset * ( currentPosition / totalPosition);
+            var date = new Date(+startDate + parseInt(timeOffset));
+            return dateFormat(date, "yyyy/MM/dd");
+          }
+        });
+        $("#search_start_date").val($("#early_date").text());
+        $("#search_end_date").val($("#late_date").text());
+        update_and_graph(event);
+        event.preventDefault();
       }
     );
 
