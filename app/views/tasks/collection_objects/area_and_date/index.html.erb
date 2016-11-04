@@ -22,7 +22,7 @@
           <span id="early_date" hidden="hidden"><%= @early_date.strftime('%Y/%m/%d') %></span>
           <span id="late_date" hidden="hidden"><%= @late_date.strftime('%Y/%m/%d') %></span>
           <%= form_tag(by_date_task_url, id: 'set_date_form', remote: true) do %>
-              Partial overlap search: <input type="checkbox" id="partial_overlap" checked="checked"/>
+              Partial overlap search: <%= check_box nil, 'partial_overlap', {id: :partial_toggle}, 'on', 'off' %>
               <table class="no-shadow" border="1" width="700">
                 <tr>
                   <td align="center" width="280">
