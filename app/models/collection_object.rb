@@ -508,9 +508,17 @@ class CollectionObject < ActiveRecord::Base
   # @return [Scope] of intersection of collecting events (usually by date range)
   #   and collection objects (usually by inclusion in geographic areas/items)
   def self.from_collecting_events(collecting_event_ids, area_object_ids, project_id)
+    collecting_events_clause = {collecting_event_id: collecting_event_ids, project: project_id}
+    area_objects_clause = {id: area_object_ids, project: project_id}
+    if (collecting_event_ids.empty?)
+      collecting_events_clause = {project: project_id}
+    end
+    if (area_object_ids.empty?)
+      area_objects_clause = {}
+    end
     retval = CollectionObject.includes(:collecting_event)
-               .where(collecting_event_id: collecting_event_ids, project: project_id)
-               .where(id: area_object_ids, project: project_id)
+                 .where(collecting_events_clause)
+                 .where(area_objects_clause)
     retval
   end
 
