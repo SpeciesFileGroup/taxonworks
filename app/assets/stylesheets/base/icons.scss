@@ -32,13 +32,29 @@
 
     [data-icon="help"] {
       background-image: image-url("help.svg");
-    }         
+    }       
+
+    [data-icon="expand"] {
+      background-image: image-url("expand.svg");
+    }       
+
+    [data-icon="contract"] {
+      background-image: image-url("contract.svg");
+    }           
+
+    [data-icon="chain"] {
+      background-image: image-url("chain.svg");
+    }           
 
     [data-icon="drag"] {
       background-image: image-url("drag.svg");
     }
 
     [data-icon="link"] {
+      background-position: left top;
+      display: block;
+      padding-top: 16px;
+      padding-left: 0px;
       background-image: image-url("link.svg");
     }      
 

@@ -1,10 +1,9 @@
-<?xml version="1.0" encoding="utf-8"?>
-<svg version="1.2" baseProfile="tiny" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-	 x="0px" y="0px" viewBox="0 0 240.7 195.5" xml:space="preserve">
-<g id="XMLID_17_">
-	<path id="XMLID_13_" fill="#030104" d="M165.5,0v29.7c-53.2,0.5-105.8,47-105.8,106c25.5-24.8,55.7-47.2,105.8-45.4v30l75.2-60.2
-		L165.5,0z"/>
-	<path id="XMLID_7_" fill="#030104" d="M0,60.2l0,105.3c0,16.6,13.5,30.1,30.1,30.1h150.4c16.6,0,30.1-13.5,30.1-30.1v-54.1
-		l-30.1,24.1v30.1H30.1V60.2h33.8l37.6-30.1H30.1C13.5,30.1,0,43.6,0,60.2z"/>
+<?xml version="1.0" encoding="iso-8859-1"?>
+<svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 100 100" style="enable-background:new 0 0 100 100;" xml:space="preserve">
+<g>
+	<path style="fill:#030104;" d="M75,79H10V34h12.975c0,0,3.447-4.484,10.85-10H5c-2.762,0-5,2.238-5,5v55c0,2.762,2.238,5,5,5h75
+		c2.762,0,5-2.238,5-5V65.268l-10,8.226V79z M66.81,44.25V62L100,35.997L66.81,11v15.652C26.5,26.652,26.5,66.5,26.5,66.5
+		C37.908,47.759,44.93,44.25,66.81,44.25z"/>
 </g>
 </svg>
