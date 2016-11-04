@@ -1,19 +1,21 @@
-  <div id="browse-view" class="panel content">
-    <%= render('breadcrumb_navigator', taxon_name: @taxon_name) -%>
+<h1 class="task_header"> Browse nomenclature </h1>
+
+<div id="browse-view" class="panel content">
+    <%= render('/taxon_names/breadcrumb_navigator', taxon_name: @taxon_name, target: :browse_nomenclature_task_path) -%>
   </div>
   <div id="show" class="panels-container ">
     <div class="item item1">
       <div class="panel separate-right">
         <div class="title nav-line">
-          <%= model_name_title -%>: Browse
+          Navigate 
         </div>
         <div class="navigation-controls">
           <%= edit_taxon_name_link(@taxon_name) -%>
-          <%= link_to(content_tag(:span, 'Show', 'data-icon' => 'edit', 'class' => 'small-icon'), @taxon_name.metamorphosize, 'class' => 'navigation-item') -%>
+          <%= link_to(content_tag(:span, 'Show', data: {icon: :edit}, class: 'small-icon'), @taxon_name.metamorphosize, class: 'navigation-item') -%>
         </div>
-          <%= render('classification_navigator', taxon_name: @taxon_name) -%>
+          <%= render('/taxon_names/classification_navigator', taxon_name: @taxon_name) -%>
         <div class="content"> 
-          <%= render('parent_navigator', taxon_name: @taxon_name, mode: :browse) -%>
+          <%= render('/taxon_names/parent_navigator', taxon_name: @taxon_name, target: :browse_nomenclature_task_path) -%>
         </div>
       </div>
     </div>
@@ -22,14 +24,8 @@
         <div class="title action-line">
           <div class="title-section flexbox column-big">
             <%= content_tag(:span, full_taxon_name_tag(@taxon_name), class: 'name') -%> <span class="to-right"><%= taxon_name_classification_status_tag(@taxon_name) -%></span>
-            <%= content_tag(:span,latinization_tag(@taxon_name)) -%>
+            <%= content_tag(:span, latinization_tag(@taxon_name)) -%>
           </div>
-          <!-- Not implemented yet
-          <ul class="horizontal_navbar context-menu">
-            <li>| + |</li>
-            <li>| - |</li>
-          </ul>
-          -->
         </div>
 
         <div id="filterBrowse" class="navigation-controls">
@@ -78,8 +74,9 @@
       <div class="separate-panel-top"> 
         <div class="flex-wrap-row"> 
           <div id="validation-panel" class="panel fullSize content separate-left separate-bottom">
-            <%= render(partial: '/shared/data/all/show/soft_validation', locals: {object: @taxon_name}) -%> 
+            <%= render(partial: '/shared/data/all/show/soft_validation', locals: {object: @taxon_name.metamorphosize}) -%> 
           </div>
+
           <div class="panel fullSize content separate-left separate-bottom">
             <div class="attributes information-panel">
               <%= identifier_list_tag(@taxon_name) -%> 

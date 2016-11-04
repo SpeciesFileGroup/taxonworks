@@ -1135,6 +1135,26 @@ class TaxonName < ActiveRecord::Base
     !self.parent_id.nil? || (self.parent && self.parent.persisted?)
   end
 
+  def next_sibling
+    if siblings.any?
+      siblings = self_and_siblings.order(:cached).pluck(:id)
+      s = siblings.index(id)
+      TaxonName.find(siblings[ s + 1]) if s < siblings.length - 1
+    else
+      nil
+    end
+  end
+
+  def previous_sibling
+    if siblings.any?
+      siblings = self_and_siblings.order(:cached).pluck(:id)
+      s = siblings.index(id)
+      TaxonName.find(siblings[ s - 1]) if s != 0 
+    else
+      nil 
+    end
+  end
+
   protected
 
   def check_for_children

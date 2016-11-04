@@ -129,10 +129,6 @@ class TaxonNamesController < ApplicationController
     render :batch_load
   end
 
-  def browse
-    @data = NomenclatureCatalog.data_for(@taxon_name)
-  end
-
   private
   # Use callbacks to share common setup or constraints between actions.
   def set_taxon_name 

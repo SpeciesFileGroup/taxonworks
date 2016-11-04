@@ -538,6 +538,10 @@ TaxonWorks::Application.routes.draw do
           get ':taxon_name_id', action: :index, as: 'basis_catalog_task'
         end
       end
+
+      scope :browse, controller: 'tasks/nomenclature/browse' do
+        get '(:id)', action: :index, as: 'browse_nomenclature_task'
+      end
     end
 
     scope :people, controller: 'tasks/people/author' do

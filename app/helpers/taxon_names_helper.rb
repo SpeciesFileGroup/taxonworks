@@ -227,39 +227,36 @@ module TaxonNamesHelper
     end
   end
 
-  def ancestor_browse_taxon_name_link(taxon_name)
+  def ancestor_browse_taxon_name_link(taxon_name, path = :browse_nomenclature_task_path)
     text = 'Ancestor'
-    taxon_name.ancestors.any? ? link_to(content_tag(:span, text, 'data-icon' => 'arrow-up', 'class' => 'small-icon'), browse_taxon_name_path(taxon_name.ancestors.first.metamorphosize), 'class' => 'navigation-item', 'data-arrow' => 'ancestor') : content_tag(:div, content_tag(:span, text, 'class' => 'small-icon', 'data-icon' => 'arrow-up'), 'class' => 'navigation-item disable')
+    taxon_name.ancestors.any? ? 
+      link_to(content_tag(:span, text, data: {icon: 'arrow-up'}, class: 'small-icon'), send(path,taxon_name.ancestors.first.metamorphosize), class: 'navigation-item', data: {arrow: 'ancestor'}) :
+      content_tag(:div, content_tag(:span, text, class: 'small-icon', data: {icon: 'arrow-up'}), class: 'navigation-item disable')
   end
 
-  def descendant_browse_taxon_name_link(taxon_name)
+  def descendant_browse_taxon_name_link(taxon_name, path = :browse_nomenclature_task_path)
     text = 'Descendant'
-    taxon_name.descendants.any? ? link_to(content_tag(:span, text, 'data-icon' => 'arrow-down', 'class' => 'small-icon'), browse_taxon_name_path(taxon_name.descendants.first.metamorphosize), 'class' => 'navigation-item', 'data-arrow' => 'descendant') : content_tag(:div, content_tag(:span, text, 'class' => 'small-icon', 'data-icon' => 'arrow-down'), 'class' => 'navigation-item disable') 
+    taxon_name.descendants.any? ? 
+      link_to(content_tag(:span, text, data: {icon: 'arrow-down'}, class: 'small-icon'), send(path, taxon_name.descendants.first.metamorphosize), class: 'navigation-item', data: {arrow: 'descendant'}) : 
+      content_tag(:div, content_tag(:span, text, class: 'small-icon', data: {icon: 'arrow-down'}), class: 'navigation-item disable') 
   end
 
-  def next_sibling_browse_taxon_name_link(taxon_name)
+  def next_sibling_browse_taxon_name_link(taxon_name, path = :browse_nomenclature_task_path)
     text = 'Next'
-    link_object = nil
+    link_object = taxon_name.next_sibling
 
-    if taxon_name.siblings.any?
-      siblings = taxon_name.self_and_siblings.order(:cached).pluck(:id)
-      s = siblings.index(taxon_name.id)
-      link_object = TaxonName.find(siblings[ s + 1]) if s < siblings.length - 1
-    end
-
-    link_object.nil? ? content_tag(:div, content_tag(:span, text, 'class' => 'small-icon icon-right', 'data-icon' => 'arrow-right'), 'class' => 'navigation-item disable') : link_to(content_tag(:span, text, 'data-icon' => 'arrow-right', 'class' => 'small-icon icon-right'), browse_taxon_name_path(link_object.metamorphosize), 'class' => 'navigation-item', 'data-arrow' => 'next')
+    link_object.nil? ? 
+      content_tag(:div, content_tag(:span, text, class: 'small-icon icon-right', data: {icon: 'arrow-right'}), class:  'navigation-item disable') : 
+      link_to(content_tag(:span, text, data: {icon: 'arrow-right'}, class: 'small-icon icon-right'), send(path, link_object.metamorphosize), class: 'navigation-item', data: {arrow: 'next'})
   end
 
-  def previous_sibling_browse_taxon_name_link(taxon_name)
+  def previous_sibling_browse_taxon_name_link(taxon_name, path = :browse_nomenclature_task_path)
     text = 'Previous'
-    link_object = nil
-    if taxon_name.siblings.any?
-      siblings = taxon_name.self_and_siblings.order(:cached).pluck(:id)
-      s = siblings.index(taxon_name.id)
-      link_object = TaxonName.find(siblings[ s - 1]) if s != 0 
-    end
+    link_object = taxon_name.previous_sibling
 
-    link_object.nil? ? content_tag(:div, content_tag(:span, text, 'class' => 'small-icon', 'data-icon' => 'arrow-left'), 'class' => 'navigation-item disable') : link_to(content_tag(:span, text, 'data-icon' => 'arrow-left', 'class' => 'small-icon'), browse_taxon_name_path(link_object.metamorphosize), 'class' => 'navigation-item', 'data-arrow' => 'back')
+    link_object.nil? ? 
+      content_tag(:div, content_tag(:span, text, class: 'small-icon', data: {icon: 'arrow-left'}), class: 'navigation-item disable') : 
+      link_to(content_tag(:span, text, data: {icon: 'arrow-left'}, class: 'small-icon'), send(path, link_object.metamorphosize), class: 'navigation-item', data: {arrow: 'back'})
   end
 
 end

@@ -4,14 +4,13 @@
     <% taxon_name.ancestor_protonyms.each do |p| -%>
       <li>
         <p> 
-          <%= mode == :browse ? taxon_name_browse_link(p) : taxon_name_link(p)  -%> 
+        <%= link_to(taxon_name_tag(p), send(target, p)) -%>
           <span class="subtle">
             <%= p.cached_author_year -%>
           </span>
         </p>
       </li>
     <% end %>
-  
 
     <li class="selected">
       <%= image_tag('arrow-right.svg') %>
@@ -27,7 +26,7 @@
     <% taxon_name.children.order(:name).where(type: 'Protonym').each do |p| -%>
       <li>
         <p>
-          <%= mode == :browse ? taxon_name_browse_link(p) : taxon_name_link(p) -%>
+          <%= link_to(taxon_name_tag(p), send(target, p)) -%>
           <span class="subtle">
             <%= p.cached_author_year -%>
           </span>

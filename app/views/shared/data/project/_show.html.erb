@@ -7,10 +7,8 @@
         </div> 
 
         <div class="navigation-controls">
-          <%= link_to(content_tag(:span, 'Browse','class' => 'small-icon', 'data-icon' => 'browse'), browse_taxon_name_path(@taxon_name), 'class' => 'navigation-item') if controller.respond_to?(:browse) -%>
           <%= previous_link(object) -%> 
           <%= next_link(object) -%>
-
         </div> 
        
         <div class="navigation-controls">
