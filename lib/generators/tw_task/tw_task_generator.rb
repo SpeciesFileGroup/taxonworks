@@ -7,7 +7,24 @@ class TwTaskGenerator < Rails::Generators::Base
   argument :path_to_controller, type: 'string', required: true, banner: '<"path/to/controller_folder/">'
   argument :methods_actions_names, type: 'array', required: true, banner: '<method_name:action:route_name>'
 
-  def setup_args
+  def check_args
+    error_str = ""
+
+    if path_to_controller[0] == "/"
+      error_str += "ERROR: 'path_to_controller' can't begin with a '/'\n"
+    end
+
+    if path_to_controller[path_to_controller.length - 1] != "/"
+      error_str += "ERROR: 'path_to_controller' must end with a '/'\n"
+    end
+
+    if error_str.length > 0
+      puts error_str
+      abort
+    end
+  end
+
+  def process_args
     @paths = path_to_controller.split("/")
     @route_methods = Array.new
     @route_actions = Array.new
@@ -33,14 +50,14 @@ class TwTaskGenerator < Rails::Generators::Base
       scopes.push("scope :#{path}")
     end
 
-    File.read("config/routes.rb").split("\n").each do |line|
-      if line.include?(scopes[scope_index])
-        scope_index += 1
+    innermost_scope_str = "scope :#{controller_base_name}, controller: 'tasks/#{path_to_controller}#{controller_base_name}'"
 
-        if scope_index >= scopes.length
-          puts "ERROR: scope '#{controller_base_name}' for controller '#{controller_base_name}' already exists!"
-          abort
-        end
+    File.read("config/routes.rb").split("\n").each do |line|
+      if line.include?(innermost_scope_str)
+        puts "ERROR: \"#{innermost_scope_str}\" already exists!"
+        abort
+      elsif scope_index < scopes.length && line.include?(scopes[scope_index])
+        scope_index += 1
       end
     end
 
@@ -60,7 +77,7 @@ class TwTaskGenerator < Rails::Generators::Base
       indent_str += "  "
     end
 
-    route_str += "#{indent_str}scope :#{controller_base_name}, controller: 'tasks/#{path_to_controller}#{controller_base_name}' do\n"
+    route_str += "#{indent_str}#{innermost_scope_str} do\n"
     
     @route_actions.each_with_index do |action, index|
       route_str += "#{indent_str}  #{action} '#{@route_methods[index]}', as: '#{@route_names[index]}'\n"
