@@ -71,7 +71,7 @@ module SourcesHelper
   def source_nomenclature_tag(source, topics)
     t = [source_tag(source)]
     t.push [':', topic_list_tag(topics).html_safe] if !topics.blank?
-    t.push link_to('', nomenclature_by_source_task_path(source), data: {icon: 'link'}, target: :_blank)
+    t.push link_to('', nomenclature_by_source_task_path(source), class: 'separate-left', data: {icon: 'link'}, target: :_blank)
     t.flatten.compact.join(' ').html_safe
   end
 
