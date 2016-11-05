@@ -123,7 +123,7 @@ namespace :tw do
         handle_hostfam_ucd
         handle_ptype_ucd
         handle_hosts_ucd
-        handle_dist_ucd
+        #handle_dist_ucd
 
 #        print "\n\n !! Success. End time: #{Time.now} \n\n"
 

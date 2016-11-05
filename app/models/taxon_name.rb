@@ -894,7 +894,7 @@ class TaxonName < ActiveRecord::Base
     elsif gender.nil? || self.rank_string =~ /Genus/
       self.name.to_s
     else
-      self.name_in_gender(gender)
+      self.name_in_gender(gender).to_s
     end
   end
 
