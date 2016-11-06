@@ -32,7 +32,6 @@ namespace :tw do
   namespace :project_import do
     namespace :ucd do
 
-
       class ImportedDataUcd
         attr_accessor :publications_index, :genera_index, :species_index, :keywords, :family_groups, :superfamilies, :families, :hostfamilies,
                       :taxon_codes, :languages, :references, :countries, :collections, :all_genera_index, :all_species_index, :topics, :combinations,
@@ -61,6 +60,7 @@ namespace :tw do
         end
       end
 
+      desc 'import UCD data, data_directory='
       task :import_ucd => [:data_directory, :environment] do |t|
 
 
@@ -125,7 +125,6 @@ namespace :tw do
         handle_hosts_ucd
         #handle_dist_ucd
 
-#        print "\n\n !! Success. End time: #{Time.now} \n\n"
 
         soft_validations_ucd
 
@@ -707,7 +706,7 @@ namespace :tw do
         fext_data = {}
         
         file2.each_with_index do |r, i|
-          fext_data[r[0]] =  { translate: r[1], notes: r[2], publisher: r[3], ext_author: r[4], ext_title: r[5], ext_journal: r[6], editor: r[7] }
+          fext_data[r[0]] = { translate: r[1], notes: r[2], publisher: r[3], ext_author: r[4], ext_title: r[5], ext_journal: r[6], editor: r[7] }
         end
 
         i = 0
@@ -763,7 +762,9 @@ namespace :tw do
           )
 
 
-          if b.valid?
+          # change this to ID check, must faster
+          if !b.id.blank? 
+          # if b.valid?
             #b.project_sources.create!
             b.identifiers.create(type: 'Identifier::Local::Import', namespace: namespace, identifier: row['RefCode'] + row['Letter'].to_s)
 
@@ -886,7 +887,10 @@ namespace :tw do
             end
             taxon.notes.create!(text: row['Notes']) unless row['Notes'].blank?
             da = taxon.data_attributes.create(type: 'InternalAttribute', predicate: keywords['FamTrib:Status'], value: status_type[row['Status']]) unless row['Status'].blank?
-            byebug unless da.valid?
+
+            # da might not even be created based on line above
+            # byebug unless da.valid?
+            byebug if da.try(:id).blank?
           end
         end
       end
@@ -1005,7 +1009,8 @@ namespace :tw do
           unless taxon.nil?
             unless ref.nil?
               c = taxon.citations.create(source_id: ref, pages: row['PageRef'], is_original: true)
-              if c.valid?
+             
+              if c.valid?  # this valid? is ok, because it's already calculated from the create above
                 c.citation_topics.find_or_create_by(topic: topics['Figures'], project_id: $project_id) unless row['Figures'].blank?
               end
             end
@@ -1015,7 +1020,8 @@ namespace :tw do
             taxon.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Coll:Depository'], value: @data.collections[row['Depository']]) unless @data.collections[row['Depository']].nil?
             keywords.each_key do |k|
               da = taxon.data_attributes.create(type: 'InternalAttribute', predicate: keywords[k], value: row[k]) unless row[k].blank?
-              byebug if da && !da.valid?
+
+              byebug if da && !da.valid?  
             end
             if taxon.type == 'Combination' && !classification_type[row['CurrStat']].nil?
               valid = TaxonName.find(taxon.cached_valid_taxon_name_id)
@@ -1079,7 +1085,7 @@ namespace :tw do
           parent = TaxonName.find(parent)
           nc = parent == @root ? :iczn : parent.rank_class.nomenclatural_code
           taxon = Protonym.find_or_create_by(name: row['HosGenus'], parent: parent, rank_class: Ranks.lookup(nc, 'Genus'), project_id: $project_id)
-          parent = taxon if taxon.valid?
+          parent = taxon if !taxon.id.blank? # if found don't validate it! 
           unless row['HosSpecies'].blank?
             taxon = Protonym.find_or_create_by(name: row['HosSpecies'], rank_class: Ranks.lookup(nc, 'Species'), parent: parent, project_id: $project_id)
           end
@@ -1087,7 +1093,7 @@ namespace :tw do
             taxon.verbatim_author = row['HosAuthor']
             taxon.save if taxon.valid?
           end
-          taxon = TaxonName.find(parent) unless taxon.valid?
+          taxon = TaxonName.find(parent) unless taxon.valid? # bad form to re-use variable name
           taxon.identifiers.create(type: 'Identifier::Local::Import', namespace: @data.keywords['hos_number'], identifier: row['HosNumber']) if !row['HosNumber'].blank?
         end
       end
@@ -1184,41 +1190,65 @@ namespace :tw do
         file.each do |row|
           i += 1
           print "\r#{i}"
-          taxon = find_taxon_id_ucd(row['TaxonCode'])
-          otu = Otu.find_or_create_by(taxon_name_id: taxon)
+          
           ref = find_source_id_ucd(row['RefCode'])
-          ga = GeographicArea.find_by_self_and_parents([@data.countries[row['Country'] + '|' + row['State']]])
-          if ga.count > 1
-            ga = ga.select{|g| !g.geographic_items.empty?}
-            ga = ga.first unless ga.empty?
-          elsif ga.count == 1
-            ga = ga.first
-          else
-            ga = nil
+          if ref.nil?  # no point in searching forward, abort
+            print "  Reference #{row['RefCode']} not found skipping asserted distribution for this row!\n"
+            next
           end
 
-          if otu && otu.valid? && ga
-            ad = AssertedDistribution.find_or_create_by(
-                otu: otu,
-                geographic_area: ga,
-#                source_id: ref,
-                is_absent: nil,
-                verbatim_geographic_area: @data.countries[row['Country'] + '|' + row['State']],
-                project_id: $project_id )
-            if ad.valid?
-              ad.citations.create(source_id: ref, pages: row['PageRef']) unless ref.nil?
-#              ad.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Reliable'], value: @data.reliable[row['Reliable']]) unless row['Reliable'].blank?
-              ad.confidences.create(confidence_level_id: @data.reliable[row['Reliable']]) unless row['Reliable'].blank?
-              ad.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Comment'], value: row['Comment']) unless row['Comment'].blank?
-#              ad.data_attributes.create(type: 'InternalAttribute', predicate: keywords['PageRef'], value: row['PageRef']) unless row['PageRef'].blank?
-              ad.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Keyword'], value: row['Keyword']) unless row['Keyword'].blank?
-              # row['Keyword'] => citation.topic.
-              ad.notes.create(text: row['Notes']) unless row['Notes'].blank?
-            end
-          elsif ga.nil?
-            unresolved[@data.countries[row['Country'] + '|' + row['State']]] = true
+          taxon = find_taxon_id_ucd(row['TaxonCode'])
+          otu = Otu.find_or_create_by(taxon_name_id: taxon)
+
+          if otu.id.blank? # no point in searching forward, abort - don't check valid, check if ID is there, it has to be valid then
+            print " OTU for TaxonCode #{row['TaxonCode']} not found skipping asserted distribution for this row!\n"
+            next
           end
+
+          area_name = @data.countries[row['Country'] + '|' + row['State']]
+
+          ga = GeographicArea.
+            joins(:geographic_items).                                                            # only records that also have geographic items
+            find_by_self_and_parents([area_name]).
+            limit(1).first
+
+        # if ga.count > 1
+        #   ga = ga.select{|g| !g.geographic_items.empty?}
+        #   ga = ga.first unless ga.empty?
+        # elsif ga.count == 1
+        #   ga = ga.first
+        # else
+        #   ga = nil
+        # end
+
+          if ga.nil?
+            print " Geographic Area for TaxonCode #{area_name} not found skipping asserted distribution for this row!\n"
+            unresolved[area_name] = true
+            next
+          end
+
+          # at this point you know you have an otu, a ga, and a ref, no need to check validity
+          ad = AssertedDistribution.find_or_create_by(
+            otu: otu,
+            geographic_area: ga,
+            origin_citation_attributes: {source_id: ref, pages: row['PageRef'] },
+            # is_absent: nil,
+            project_id: $project_id 
+          )
+          
+          if !ad.id.blank? #  valid? , if found, don't validate it again 
+            # No point to this unless record is not found: should handle these in a different pass or with new logic
+            #            verbatim_geographic_area: @data.countries[row['Country'] + '|' + row['State']],
+            ad.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Reliable'], value: @data.reliable[row['Reliable']]) unless row['Reliable'].blank?
+            ad.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Comment'], value: row['Comment']) unless row['Comment'].blank?
+            #              ad.data_attributes.create(type: 'InternalAttribute', predicate: keywords['PageRef'], value: row['PageRef']) unless row['PageRef'].blank?
+            ad.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Keyword'], value: row['Keyword']) unless row['Keyword'].blank?
+            # row['Keyword'] => citation.topic.
+            ad.notes.create(text: row['Notes']) unless row['Notes'].blank?
+          end
+
         end
+
         unresolved.each_key do |k|
           print"\n Unresolved locality: #{k}"
         end
@@ -1463,26 +1493,32 @@ namespace :tw do
           end
           if !relationship[row['Status']].nil? && !taxon.nil? && !taxon1.nil?
             if taxon != taxon1
+
               c = TaxonNameRelationship.where(subject_taxon_name: taxon, object_taxon_name: taxon1, type: 'TaxonNameRelationship::Iczn::Invalidating').first
+              
               if relationship[row['Status']].include?('TaxonNameRelationship::Iczn::Invalidating') && !c.nil?
                 c.update_column(:type, relationship[row['Status']])
               else
                 c = TaxonNameRelationship.find_or_create_by(subject_taxon_name: taxon, object_taxon_name: taxon1, type: relationship[row['Status']])
               end
-              if c.valid?
+          
+              if !c.id.blank? # valid?
                 c.citations.create(source_id: ref, pages: row['PageRef']) unless ref.nil?
                 c.citations.create(source_id: ref2, pages: row['PagesB']) unless ref2.nil?
               else
                 print "\nInvalid relationship: TaxonCode: #{row['TaxonCode']}, Status: #{row['Status']}, Code: #{row['Code']}\n"
               end
+
             else
               taxon.citations.create(source_id: ref, pages: row['PageRef']) unless ref.nil?
               taxon.citations.create(source_id: ref2, pages: row['PagesB']) unless ref2.nil?
             end
           end
+
           if !classification[row['Status']].nil? && !taxon.nil?
             c = TaxonNameClassification.find_or_create_by(taxon_name: taxon, type: classification[row['Status']])
-            if c.valid?
+            
+            if !c.id.blank? # c.valid?
               c.citations.create(source_id: ref, pages: row['PageRef']) unless ref.nil?
               c.citations.create(source_id: ref2, pages: row['PagesB']) unless ref2.nil?
             else
