@@ -242,7 +242,6 @@ namespace :tw do
             name = row['ValAuthor'].split(' ').first
             author = row['ValAuthor'].gsub(name + ' ', '')
 
-            # TODO: seems very dangerous, shouldn't you find by parent name as well?! , won't this build homonyms?
             taxon = Protonym.find_or_create_by(name: name, project_id: $project_id)
             taxon.parent = @order if taxon.parent_id.nil?
 
@@ -293,14 +292,14 @@ namespace :tw do
                 end
               end
 
-              if taxon1.valid?
-                taxon1.save!
-              elsif !taxon1.errors.messages[:name].blank?
-                taxon1.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin')
-                taxon1.save!
-              else
-                byebug
-              end
+            # if taxon1.valid?
+            #   taxon1.save!
+            # elsif !taxon1.errors.messages[:name].blank?
+            #   taxon1.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin')
+            #   taxon1.save!
+            # else
+            #   byebug
+            # end
 
               @data.taxon_codes[row['TaxonCode']] = taxon1.id
               taxon1.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['taxon_id'], identifier: row['TaxonCode'].to_s)
@@ -329,9 +328,6 @@ namespace :tw do
             taxon.year_of_publication = row['ValDate'] if taxon.year_of_publication.nil? && row['ValSpecies'].blank?
             taxon.verbatim_author = row['ValAuthor'] if taxon.verbatim_author.nil? && row['ValSpecies'].blank?
             taxon.rank_class = 'NomenclaturalRank::Iczn::GenusGroup::Genus' if taxon.rank_class.nil?
-
-
-            #   byebug unless taxon.valid?
 
             begin
               taxon.save!
@@ -368,7 +364,6 @@ namespace :tw do
             taxon.verbatim_author = row['CitAuthor'] if taxon.verbatim_author.nil? && row['CitSpecies'].blank? && row['CitSubgenus'].blank?
             taxon.rank_class = 'NomenclaturalRank::Iczn::GenusGroup::Genus' if taxon.rank_class.nil?
 
-            #               if taxon.valid?             
             begin
               taxon.save!
             rescue ActiveRecord::RecordInvalid
@@ -461,10 +456,10 @@ namespace :tw do
           print "\r#{i}"
 
           # skip this species if we created it already
-          next if !@data.species_index[row['ValGenus'].to_s + ' ' + row['ValSpecies'].to_s].nil? # TODO: don't nest, next 
+          next if !@data.species_index[row['ValGenus'].to_s + ' ' + row['ValSpecies'].to_s].nil? 
 
           if !row['ValSpecies'].blank? && @data.taxon_codes[row['TaxonCode']].nil?
-            parent_id = @data.all_genera_index[row['ValGenus']]  # TODO: use _id 
+            parent_id = @data.all_genera_index[row['ValGenus']]  
             name = row['ValSpecies'].to_s
             taxon = Protonym.find_or_create_by(name: name, parent_id: parent_id, project_id: $project_id)
             taxon.year_of_publication = row['ValDate'] if taxon.year_of_publication.nil?
@@ -477,14 +472,6 @@ namespace :tw do
               taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin') if !taxon.errors.messages[:name].blank?
               taxon.save!
             end
-
-            # TODO this pattern calls the expensive .valid? chain 2x, once on .valid, and once on .save!
-            # if taxon.valid?
-            #   taxon.save!
-            # else
-            #   taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin') if !taxon.errors.messages[:name].blank?
-            #   taxon.save!
-            # end
 
             @data.all_species_index[row['ValGenus'].to_s + ' ' + name] = taxon.id
             if row['ValSpecies'].to_s == row['CitSpecies'] && row['ValAuthor'] == '(' + row['CitAuthor'] + ')' && row['ValDate'] == row['CitDate'] && row['CitSubsp'].blank? && @data.combinations['TaxonCode'].blank?
@@ -525,13 +512,6 @@ namespace :tw do
               taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin') if !taxon.errors.messages[:name].blank?
               taxon.save!
             end
-
-            # if taxon.valid?
-            #   taxon.save!
-            # else
-            #   taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin') if !taxon.errors.messages[:name].blank?
-            #   taxon.save!
-            # end
 
             @data.taxon_codes[row['TaxonCode']] = taxon.id
             #@data.species_index[row['ValGenus'].to_s + ' ' + name] = taxon.id
@@ -591,13 +571,6 @@ namespace :tw do
               taxon.save!
             end
 
-            # if taxon.valid?
-            #   taxon.save!
-            # else
-            #   taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin') if !taxon.errors.messages[:name].blank?
-            #   taxon.save!
-            # end
-
             @data.taxon_codes[row['TaxonCode']] = taxon.id
             #@data.species_index[row['ValGenus'].to_s + ' ' + name] = taxon.id
             taxon1 = @data.all_species_index[row['ValGenus'].to_s + ' ' + row['ValSpecies'].to_s]
@@ -624,12 +597,6 @@ namespace :tw do
                 rescue ActiveRecord::RecordInvalid
                   byebug 
                 end
-
-                # if c.valid?
-                #   c.save!
-                # else
-                #   byebug
-                # end
 
                 taxon = c
               end
@@ -791,12 +758,14 @@ namespace :tw do
             month = Utilities::Dates::SHORT_MONTH_FILTER[month]
             month = month.to_s if !month.nil?
           end
+          
           stated_year = row['Year']
-          if year.nil? # TODO: check for "" too?
+          if year.nil? 
             year = stated_year
             stated_year = nil
           end
-          print "\nYear out of range: [#{year}]\n" if year.to_i < 1500 || year.to_i > 2018
+
+          print "\nYear out of range: [#{year.to_i == 0 ? 'not provided' : year}]\n" if year.to_i < 1500 || year.to_i > 2018
           year = nil if year.to_i < 1500 || year.to_i > 2018
           stated_year = nil if stated_year.to_i < 1500 || stated_year.to_i > 2018
 
@@ -831,7 +800,6 @@ namespace :tw do
             publisher: (fext_data[row['RefCode']] ? fext_data[row['RefCode']][:publisher] : nil),
             editor: (fext_data[row['RefCode']] ? fext_data[row['RefCode']][:editor].split(/\s*\;\s*/).compact.join(' and ') : nil )
           )
-
 
           # change this to ID check, must faster
           if !b.id.blank? 
@@ -959,8 +927,6 @@ namespace :tw do
             taxon.notes.create!(text: row['Notes']) unless row['Notes'].blank?
             da = taxon.data_attributes.create(type: 'InternalAttribute', predicate: keywords['FamTrib:Status'], value: status_type[row['Status']]) unless row['Status'].blank?
 
-            # TODO: da might not even be created based on line above
-            # byebug unless da.valid?
             byebug if da.try(:id).blank?
           end
         end
@@ -979,7 +945,7 @@ namespace :tw do
           'OM' => 'TaxonNameRelationship::Typification::Genus::OriginalDesignation',
           'SD' => 'TaxonNameRelationship::Typification::Genus::SubsequentDesignation',
           'SM' => 'TaxonNameRelationship::Typification::Genus::Monotypy::Subsequent',
-          ''   => 'TaxonNameRelationship::Typification::Genus' # TODO: this right?
+          ''   => 'TaxonNameRelationship::Typification::Genus' # This is correct
         }.freeze
 
         keywords = {
@@ -1081,7 +1047,7 @@ namespace :tw do
             unless ref.nil?
               c = taxon.citations.create(source_id: ref, pages: row['PageRef'], is_original: true)
 
-              if !c.id.blank? # TODO:  valid?  # validation called on create, don't validate again, check for ID 
+              if !c.id.blank? 
                 c.citation_topics.find_or_create_by(topic: topics['Figures'], project_id: $project_id) unless row['Figures'].blank?
               end
 
@@ -1182,6 +1148,14 @@ namespace :tw do
           # it could become invalid if verbatim_author is set? 
           taxon = TaxonName.find(parent) unless taxon.valid? # bad form to re-use variable name - and this doesn't make sense, you already have a parent why find it again?
           taxon.identifiers.create(type: 'Identifier::Local::Import', namespace: @data.keywords['hos_number'], identifier: row['HosNumber']) if !row['HosNumber'].blank?
+
+          # TODO: review
+          # replace with this?
+          # unless taxon.valid?
+          #   parent.identifiers.create(type: 'Identifier::Local::Import', namespace: @data.keywords['hos_number'], identifier: row['HosNumber']) if !row['HosNumber'].blank?
+          # end
+
+
         end
 
         file.close
@@ -1204,19 +1178,18 @@ namespace :tw do
                'Parasitoid' => BiologicalProperty.find_or_create_by(name: 'Parasitoid', definition:'An organism that lives in or on another organism'),
         }
 
-        #  TODO: Why assign these to variables?
-        a1 = BiologicalRelationshipType.find_or_create_by(biological_property: bp['Pollinator'], biological_relationship: relation['APL'], type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
-        a2 = BiologicalRelationshipType.find_or_create_by(biological_property: bp['Pollinated plant'], biological_relationship: relation['APL'], type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
-        a1 = BiologicalRelationshipType.find_or_create_by(biological_property: bp['Attendant'], biological_relationship: relation['AST'], type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
-        a2 = BiologicalRelationshipType.find_or_create_by(biological_property: bp['Attended insect'], biological_relationship: relation['AST'], type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
-        a1 = BiologicalRelationshipType.find_or_create_by(biological_property: bp['Host'], biological_relationship: relation['HYP'], type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
-        a2 = BiologicalRelationshipType.find_or_create_by(biological_property: bp['Parasitoid'], biological_relationship: relation['HYP'], type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
-        a1 = BiologicalRelationshipType.find_or_create_by(biological_property: bp['Parasitoid'], biological_relationship: relation['PAH'], type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
-        a2 = BiologicalRelationshipType.find_or_create_by(biological_property: bp['Host'], biological_relationship: relation['PAH'], type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
-        a1 = BiologicalRelationshipType.find_or_create_by(biological_property: bp['Parasitoid'], biological_relationship: relation['PLH'], type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
-        a2 = BiologicalRelationshipType.find_or_create_by(biological_property: bp['Host'], biological_relationship: relation['PLH'], type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
-        a1 = BiologicalRelationshipType.find_or_create_by(biological_property: bp['Parasitoid'], biological_relationship: relation['PRH'], type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
-        a2 = BiologicalRelationshipType.find_or_create_by(biological_property: bp['Host'], biological_relationship: relation['PRH'], type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
+        BiologicalRelationshipType.find_or_create_by(biological_property: bp['Pollinator'], biological_relationship: relation['APL'], type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
+        BiologicalRelationshipType.find_or_create_by(biological_property: bp['Pollinated plant'], biological_relationship: relation['APL'], type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
+        BiologicalRelationshipType.find_or_create_by(biological_property: bp['Attendant'], biological_relationship: relation['AST'], type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
+        BiologicalRelationshipType.find_or_create_by(biological_property: bp['Attended insect'], biological_relationship: relation['AST'], type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
+        BiologicalRelationshipType.find_or_create_by(biological_property: bp['Host'], biological_relationship: relation['HYP'], type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
+        BiologicalRelationshipType.find_or_create_by(biological_property: bp['Parasitoid'], biological_relationship: relation['HYP'], type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
+        BiologicalRelationshipType.find_or_create_by(biological_property: bp['Parasitoid'], biological_relationship: relation['PAH'], type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
+        BiologicalRelationshipType.find_or_create_by(biological_property: bp['Host'], biological_relationship: relation['PAH'], type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
+        BiologicalRelationshipType.find_or_create_by(biological_property: bp['Parasitoid'], biological_relationship: relation['PLH'], type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
+        BiologicalRelationshipType.find_or_create_by(biological_property: bp['Host'], biological_relationship: relation['PLH'], type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
+        BiologicalRelationshipType.find_or_create_by(biological_property: bp['Parasitoid'], biological_relationship: relation['PRH'], type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
+        BiologicalRelationshipType.find_or_create_by(biological_property: bp['Host'], biological_relationship: relation['PRH'], type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
 
         keywords = {
           'ParTypeA' => Predicate.find_or_create_by(name: 'Hosts:ParTypeA', definition: 'The verbatim value in Hosts#ParTypeA.', project_id: $project_id),
@@ -1609,7 +1582,7 @@ namespace :tw do
           if !classification[row['Status']].nil? && !taxon.nil?
             c = TaxonNameClassification.find_or_create_by(taxon_name: taxon, type: classification[row['Status']])
 
-            if !c.id.blank? # c.valid?
+            if !c.id.blank?
               c.citations.create(source_id: ref, pages: row['PageRef']) unless ref.nil?
               c.citations.create(source_id: ref2, pages: row['PagesB']) unless ref2.nil?
             else
