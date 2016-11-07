@@ -57,7 +57,7 @@
     cursor: pointer;
     width: 24px;
     height:24px;
-    background-size: 12px;
+    background-size: 14px;
     background-position: center;
     background-repeat: no-repeat;
     border-radius: 3px;
@@ -100,14 +100,10 @@
 
 .expand {    
     @extend .box-button;
-    background-size: 16px;
     background-image: image-url("expand.svg");
-    background-repeat: no-repeat;
 }
 
 .contract {
     @extend .box-button;   
-    background-size: 16px;
     background-image: image-url("contract.svg");
-    background-repeat: no-repeat;
 }
