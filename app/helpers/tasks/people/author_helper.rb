@@ -1,8 +1,5 @@
 module Tasks::People::AuthorHelper
 
-  def a_range
-    ('A'..'Z')
-  end
 
   def letter_color(letter)
     style = ''
