@@ -46,11 +46,41 @@ namespace :tw do
 
             # project_id = TaxonName.find(older_name_id).project_id
 
+            # housekeeping attributed to SF last_editor, etc.
+            # origin_citation_attributes: {source_id: get_tw_source_id[row['RefID']],
+            #                              project_id: project_id,
+            #                              created_at: row['CreatedOn'],
+            #                              updated_at: row['LastUpdate'],
+            #                              created_by_id: get_tw_user_id[row['CreatedBy']],
+            #                              updated_by_id: get_tw_user_id[row['ModifiedBy']]}
+
+
+                # CiteInfoFlags, treat like StatusFlags, append all info_flags into single string as import_attributes
+            # use topics
+
+
+            # info_flags = row['InfoFlags'].to_i
+            #
+            # if info_flags > 0
+            #
+            #   cite_info_flags_array = Utilities::Numbers.get_bits(info_flags)
+            #
+            #   # for bit_position in 0..status_flags_array.length - 1 # length is number of bits set
+            #   status_flags_array.each do |bit_position|
+            #
+            #     no_relationship = false # set to true if no relationship should be created
+            #     bit_flag_name = ''
+            #
+            #     case bit_position
+            #
+            #
+            #     #   end of example
 
 
 
 
-            older_name_id = get_tw_taxon_name_id[row['OlderNameID']].to_i
+
+                older_name_id = get_tw_taxon_name_id[row['OlderNameID']].to_i
             younger_name_id = get_tw_taxon_name_id[row['YoungerNameID']].to_i
             relationship = row['Relationship']
 
@@ -169,9 +199,9 @@ namespace :tw do
           puts = 'SFNomenclatorIDToSFNomenclatorString'
           ap get_nomenclator_string
         end
+
+
       end
-
-
     end
   end
 end

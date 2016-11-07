@@ -425,7 +425,8 @@ namespace :tw do
                 project_id: project_id
             )
 
-            if tnr.valid?
+           # if tnr.valid?
+            if !tnr.try(:id).nil?
               # tnr.save!
               puts 'TaxonNameRelationship created'
 
