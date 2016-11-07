@@ -59,7 +59,7 @@ class Otu < ActiveRecord::Base
   scope :with_taxon_name_id, -> (taxon_name_id) { where(taxon_name_id: taxon_name_id) }
   scope :with_name, -> (name) { where(name: name) }
 
-  before_validation :check_required_fields
+  validate :check_required_fields
 
   soft_validate(:sv_taxon_name, set: :taxon_name)
   soft_validate(:sv_duplicate_otu, set: :duplicate_otu)
