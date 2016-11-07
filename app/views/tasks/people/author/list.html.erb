@@ -2,17 +2,12 @@
 	<div class="title nav-line">
 		Task: Authors - Alphabetical
 	</div>
-	<div class="navigation-bar-left">
-		<ul class="left_justified_navbar context-menu">
-		<% a_range.each do |letter| %>
-		    <li><%= link_to("#{letter}", "\##{letter}") -%></li>
-		<% end %>
-		</ul>
-	</div>
+  <%= a_to_z_links -%>
 </div>
+
 <div class="panel">
 	<div class="content">
-		<% a_range.each do |letter| %>
+		<% a_to_z_range.each do |letter| %>
 	    	<a name='<%= "#{letter}" %>'></a>
 	    <%= letter_color(letter).html_safe %>
 	    <p>
