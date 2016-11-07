@@ -1,11 +1,16 @@
 class ProjectMembersController < ApplicationController
   before_action :require_superuser_sign_in 
   before_action :set_project_member, only: [:edit, :update, :destroy]
+  before_action :set_form_variables, only: [:new, :create]
+
+  def set_form_variables
+    @available_users = User.all.not_in_project(sessions_current_project_id).order(:name)
+    @target_letters = @available_users.collect{|u| u.name[0].upcase}.uniq
+  end
 
   # GET /project_members/new
   def new
-    @project_member = ProjectMember.new(project_member_params)
-    @available_users = User.not_in_project(@project_member.project_id) 
+    @project_member = ProjectMember.new(project_id: sessions_current_project_id)
     redirect_to project_path(@project_member.project), alert: 'There are no additional users available to add to this project.' if !@available_users.any?
   end
 
@@ -14,18 +19,23 @@ class ProjectMembersController < ApplicationController
   end
 
   # POST /project_members
-  # POST /project_members.json
   def create
-    @project_member = ProjectMember.new(project_member_params)
 
-    respond_to do |format|
-      if @project_member.save
-        format.html { redirect_to project_path(@project_member.project), notice: "#{@project_member.user.name} was successfully added to #{@project_member.project.name}" }
-        format.json { render :show, status: :created, location: @project_member }
-      else
-        format.html { render :new }
-        format.json { render json: @project_member.errors, status: :unprocessable_entity }
+    project = Project.find(sessions_current_project)
+
+    begin
+
+      ActiveRecord::Base.transaction do
+        project_members_params[:user_ids].each do |user_id|
+          project.project_members.create!(project_member_params.merge(user_id: user_id)) 
+        end 
       end
+
+      @project_member = ProjectMember.new(project_member_params)
+      redirect_to project_path(sessions_current_project_id), notice: "Project members were added to project." 
+
+    rescue ActiveRecord::RecordInvalid
+      render :new 
     end
   end
 
@@ -56,11 +66,15 @@ class ProjectMembersController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_project_member
-      @project_member = ProjectMember.where(project_id: $project_id).find(params[:id])
+      @project_member = ProjectMember.where(project_id: sessions_current_project_id).find(params[:id])
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def project_member_params
-      params.require(:project_member).permit(:project_id, :user_id, :is_project_administrator)
+      params.require(:project_member).permit(:project_id, :is_project_administrator)
+    end
+
+    def project_members_params
+      params.require(:project_member).permit(user_ids: [])
     end
 end

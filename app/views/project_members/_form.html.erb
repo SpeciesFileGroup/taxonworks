@@ -1,21 +1,41 @@
 <%= form_for(@project_member) do |f| %>
   <%= render 'shared/errors', object: @project_member %>
 
+  <div class="actions">
+    <%= f.submit 'Create project member(s)' %>
+  </div>
+
   <div class="field">
-    <%= f.label :project_id %><br>
-    <strong> <%= @project_member.project.name -%></strong>
+    For: <%= f.label :project_id, @project_member.project.name %><br>
     <%= f.hidden_field :project_id -%>
   </div>
 
   <div class="field">
-    <%= f.label :user_id %><br>
-    <%= f.select :user_id, options_from_collection_for_select(User.all.not_in_project(@project_member.project_id).order(:email, :name), :id, :email, selected: @project_member.user) %>
+    <%= f.check_box :is_project_administrator %>  <%= f.label :is_project_administrator %> (sets for all!)
   </div>
 
-  <div class="field">
-    <%= f.label :is_project_administrator %><br>
-    <%= f.check_box :is_project_administrator %>
-  </div>
+  
+  <h3> Pick users </h3>
+
+   <%= a_to_z_links(@target_letters) -%> 
+
+  <% @available_users.group_by{|u| u.name[0].upcase}.each do |group, users| %>
+    <h3><%= link_to(group, '#alphabet_nav', name: group) -%></h3>
+    <% users.in_groups_of(5, false).each do |g| -%>
+      <div style="float: left">
+        <% g.each do |user| -%>
+          <label>
+            <%= check_box_tag "project_member[user_ids][]", user.id %>
+            <%= user.name %> | <%= user.email.gsub(/...@.../, '*******') %>
+          </label><br>
+        <% end %>
+
+      </div>
+    <% end %>
+    <br style="clear:both;" />
+  <% end %>
+
+
 
   <div class="actions">
     <%= f.submit %>
