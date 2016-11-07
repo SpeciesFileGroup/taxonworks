@@ -15,10 +15,11 @@ input[type=checkbox].increment { display: none; }
   background-size: 12px;
   background-position: center;
   background-repeat: no-repeat;
-  border-radius: 50%;
+  border-radius: 3px;
   transition: background-color 0.5s ease;
-  background-color: #F5F5F5;
-
+  border: 1px solid $navigation_border;
+  background-color: $color-secondary-2-1;
+  box-shadow: 0 0px 3px 0 $navigation_border;     
 }
 
 .increment {
@@ -33,14 +34,14 @@ input[type=checkbox].increment { display: none; }
 
 input[type=checkbox]:checked + label.lock {
  background-image:image-url('locked.svg');
- background-color: #AED581;
- transition: background-color 0.5s ease;
+ box-shadow:inset 0px 1px 5px 0px $navigation_border;
+ background-color: $navigation_background;
 }
 
 input[type=checkbox]:checked + label.increment {
  background-image:image-url('inc.svg');
- background-color: #AED581;
- transition: background-color 0.5s ease;
+ box-shadow:inset 0px 1px 5px 0px $navigation_border;
+ background-color: $navigation_background;
 }
 
 .mx-autocomplete {
@@ -58,7 +59,7 @@ fieldset {
 }
 
 form input, textarea {
-	padding:5px;
+	padding:$standard_padding*0.5;
 	padding-left:$standard_padding;
 	padding-right:$standard_padding;
 	border-radius:3px;
@@ -79,7 +80,7 @@ input[type="submit"] {
 }
 
 select {
-  padding:5px;
+  padding:$standard_padding*0.5;
   padding-left:$standard_padding;
   padding-right:$standard_padding;
   border-radius:3px;
