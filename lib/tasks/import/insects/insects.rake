@@ -820,11 +820,13 @@ namespace :tw do
             elsif !ce['AccessionNumber'].blank?
               id1 = c.identifiers.new(identifier: ce['AccessionNumber'], namespace: @accession_namespace, type: 'Identifier::Local::AccessionCode')
             end
-            if id1.valid?
+
+            begin
               id1.save!
-            else
+            rescue ActiveRecord::RecordInvalid
               puts "\nDuplicate identifier: #{ce['AccessionNumber']}\n"
             end
+
          end
          return c
         end
@@ -868,8 +870,10 @@ namespace :tw do
             updated_at: time_from_field(ce['ModifiedOn']),
             no_cached: true
         )
-        if c.valid?
+
+        begin
           c.save!
+
           c.notes.create(text: ce['Comments']) unless ce['Comments'].blank?
 
           data.keywords.each do |k|
@@ -883,14 +887,14 @@ namespace :tw do
           end
 
           gr = geolocation_uncertainty.nil? ? false : c.generate_verbatim_data_georeference(true, no_cached: true)
-          
+
           unless gr == false
             gr.is_public = true        
 
             if gr.valid?
               c.update_column(:geographic_area_id, nil)
               gr.no_cached = true
-              gr.save
+              gr.save # could still be invalid
             end
 
             # Do a second pass to see if the uncertainty 
@@ -904,14 +908,18 @@ namespace :tw do
                                        import_predicate: 'georeference_error', 
                                        value: 'Geolocation uncertainty is conflicting with geographic area') 
             end
+
+
+
           end
 
           @redis.set(Digest::MD5.hexdigest(tmp_ce_sorted), c.id)
           return c
-        else
+        rescue ActiveRecord::RecordInvalid 
           @invalid_collecting_event_index[tmp_ce] = nil
           return nil
         end
+
       end
 
       #- 0 PeopleID          Import Identifier
@@ -1051,16 +1059,23 @@ namespace :tw do
               }
 
               print "\r#{i}\t#{bench.to_s.strip}  #{name}  (Taxon code: #{row['TaxonCode']})                         " #  \t\t#{rank}
-              if p.valid?
+
+
+              begin
                 p.save!
+              
+                # This line might be broken now? 
                 build_otu_insects(row, p, data)
+                
                 parent_index[row['ID']] = p.id
                 data.taxa_index[row['TaxonCode']] = p
-              else
+              rescue ActiveRecord::RecordInvalid 
                 puts "\n#{p.name}"
                 puts p.errors.messages
                 puts
               end
+
+
             else
               puts "\n  No parent for #{p.name}.\n"
             end
@@ -1209,7 +1224,7 @@ namespace :tw do
                     updated_at: time_from_field(se['ModifiedOn'])
                     )
 
-                if specimen.valid?
+                begin
                   specimen.save!
                   objects += [specimen]
                   specimen.notes.create(text: se['Remarks']) unless se['Remarks'].blank?
@@ -1223,13 +1238,11 @@ namespace :tw do
 
                   Role.create(person: data.people_index[se['AccessionSource']], role_object: specimen, type: 'AccessionProvider') unless se['AccessionSource'].blank?
                   Role.create(person: data.people_index[se['DeaccessionRecipient']], role_object: specimen, type: 'DeaccessionRecipient') unless se['DeaccessionRecipient'].blank?
-                else
+                rescue ActiveRecord::RecordInvalid 
                   data.invalid_specimens[se['Prefix'] + ' ' + se['CatalogueNumber']] = nil
                 end
 
-                unless specimen.valid?
-                  byebug
-                end
+                byebug if specimen.try(:id).blank?
               end
             end
             add_identifiers_insects(objects, row, data)
@@ -1344,7 +1357,7 @@ namespace :tw do
                   updated_at: time_from_field(se['ModifiedOn'])
               )
 
-              if specimen.valid?
+              begin
                 specimen.save!
                 objects += [specimen]
                 specimen.notes.create(text: se['Remarks']) unless se['Remarks'].blank?
@@ -1358,7 +1371,7 @@ namespace :tw do
                   BiologicalAssociation.create(biological_relationship: br,
                                                biological_association_subject: host,
                                                biological_association_object: specimen
-                  )
+                                              )
                 end
 
                 data.keywords.each do |k|
@@ -1367,13 +1380,12 @@ namespace :tw do
 
                 specimen.tags.create(keyword: data.keywords['ZeroTotal']) if no_specimens
                 add_bioculation_class_insects(specimen, count, data)
-              else
+              rescue ActiveRecord::RecordInvalid 
                 data.invalid_specimens[se['Prefix'] + ' ' + se['CatalogueNumber']] = nil
               end
 
-              unless specimen.valid?
-                byebug
-              end
+              byebug if specimen.try(:id).nil?
+
             end
           end
           add_identifiers_insects(objects, row, data)
@@ -1432,7 +1444,7 @@ namespace :tw do
                   collecting_event: collecting_event
               )
 
-              if specimen.valid?
+              begin
                 specimen.save!
                 objects += [specimen]
                 specimen.notes.create(text: se['Remarks']) unless se['Remarks'].blank?
@@ -1443,7 +1455,7 @@ namespace :tw do
 
                 specimen.tags.create(keyword: data.keywords['ZeroTotal']) if no_specimens
                 add_bioculation_class_insects(specimen, count, data)
-              else
+              rescue ActiveRecord::RecordInvalid 
                 data.invalid_specimens[se['Prefix'] + ' ' + se['CatalogueNumber']] = nil
               end
             end
@@ -1461,12 +1473,12 @@ namespace :tw do
         identifier = Identifier::Local::CatalogNumber.new(namespace: data.namespaces[row['Prefix']], identifier: row['CatalogNumber']) unless row['CatalogNumber'].blank?
         identifier = Identifier::Local::CatalogNumber.new(namespace: data.namespaces['NEON'], identifier: row['SampleID']) unless row['SampleID'].blank?
 
-      if objects.count > 1 # Identifier on container.f
+        if objects.count > 1 # Identifier on container.f
 
-         c = Container.containerize(objects, CONTAINER_TYPE[row['PreparationType'].to_s].constantize )
-         c.save
-         c.identifiers << identifier if identifier
-         c.save
+          c = Container.containerize(objects, CONTAINER_TYPE[row['PreparationType'].to_s].constantize )
+          c.save
+          c.identifiers << identifier if identifier
+          c.save
 
         elsif objects.count == 1 # Identifer on object
           objects.first.identifiers << identifier if identifier
@@ -1474,7 +1486,8 @@ namespace :tw do
         else
           raise 'No objects in container.'
         end
-        data.duplicate_specimen_ids[row['Prefix'].to_s + ' ' + row['CatalogNumber'].to_s] = nil unless identifier.valid?
+
+        data.duplicate_specimen_ids[row['Prefix'].to_s + ' ' + row['CatalogNumber'].to_s] = nil unless identifier.try(:id).nil?
       end
 
       def add_bioculation_class_insects(o, bcc, data)
@@ -1509,7 +1522,7 @@ namespace :tw do
               unless type.nil?
                 type = type + 's' if o.type == "Lot"
                 tm = TypeMaterial.create(protonym_id: otu.taxon_name_id, material: o, type_type: type )
-                if tm.valid?
+                if !tm.id.blank? # tm.valid?
                   tm.data_attributes.create(type: 'InternalAttribute', controlled_vocabulary_term_id: data.keywords['TypeName'], value: row['TypeName']) unless row['TypeName'].blank?
                 else
                   o.data_attributes.create(type: 'ImportAttribute', import_predicate: 'type_material_error', value: 'Type material was not created. There are some inconsistensies.')
@@ -1708,7 +1721,7 @@ namespace :tw do
                              created_by_id: find_or_create_collection_user_insects(row['CreatedBy'], data),
                              created_at: time_from_field(row['CreatedOn'])
             )
-            byebug unless l.valid?
+            byebug if l.id.blank? #  l.valid?
             data.loans[row['InvoiceID']] = l
             l.notes.create(text: row['Comments']) unless row['Comments'].blank?
             l.data_attributes.create(import_predicate: 'Signature', value: row['Signature'].to_s, type: 'ImportAttribute') unless row['Signature'].blank?
