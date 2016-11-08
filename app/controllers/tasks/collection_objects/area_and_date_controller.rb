@@ -30,6 +30,7 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
       area_object_ids = CollectionObject.where('false')
     else
       area_object_ids = GeographicItem.gather_selected_data(@geographic_area_id, @shape_in, 'CollectionObject').map(&:id)
+      area_set = true
     end
 
     if (@start_date.blank? || @end_date.blank?) #|| area_object_ids.count == 0
@@ -38,6 +39,7 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
       collecting_event_ids = CollectingEvent.in_date_range(date_range_params).pluck(:id)
       @collection_objects  = CollectionObject.from_collecting_events(collecting_event_ids,
                                                                      area_object_ids,
+                                                                     area_set,
                                                                      sessions_current_project_id).page(params[:page])
     end
 
