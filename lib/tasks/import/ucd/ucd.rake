@@ -32,32 +32,77 @@ namespace :tw do
   namespace :project_import do
     namespace :ucd do
 
+      #:nodoc: all
       class ImportedDataUcd
-        attr_accessor :publications_index, :genera_index, :species_index, :keywords, :family_groups, :superfamilies, :families, :hostfamilies,
-          :taxon_codes, :languages, :references, :countries, :collections, :all_genera_index, :all_species_index, :topics, :combinations,
-          :reliable, :ptype
-        def initialize()
-          @publications_index = {}
-          @keywords = {}
-          @genera_index = {}
-          @all_genera_index = {}
-          @species_index = {}
-          @all_species_index = {}
-          @family_groups = {}
-          @superfamilies = {}
-          @families = {}
-          @hostfamilies = {}
-          @taxon_codes = {}
-          @languages = {}
-          @countries = {}
-          @collections = {}
-          @references = {}
-          @topics = {}
-          @combinations = {}
-          @new_combinations = {}
-          @reliable = {}
-          @ptype = {}
+
+     #  attr_accessor :publications_index, :genera_index, :species_index, :keywords, :family_groups, :superfamilies, :families, :hostfamilies,
+     #    :taxon_codes, :languages, :references, :countries, :collections, :all_genera_index, :all_species_index, :topics, :combinations,
+     #    :reliable, :ptype, :import, :done
+
+        attr_accessor :import
+
+        LOOKUPS = %w{ 
+          user_id
+          project_id
+          publications_index
+          keywords
+          genera_index
+          all_genera_index
+          species_index
+          all_species_index
+          family_groups
+          superfamilies
+          families 
+          hostfamilies
+          taxon_codes
+          languages
+          countries
+          collections
+          references 
+          topics 
+          combinations 
+          new_combinations 
+          reliable 
+          ptype
+          done
+        }.freeze 
+
+        LOOKUPS.each do |l|
+          self.send(:attr_accessor, l)
         end
+
+        def initialize()
+
+          @import = Import.find_or_create_by(name: 'UCD IMPORT')
+
+          LOOKUPS.each do |l|
+            existing = import.get(l)
+            existing ||= {}
+            send("#{l}=", existing )
+          end
+
+          persist!
+        end
+
+        def persist!
+          LOOKUPS.each do |l|
+            import.set(l.to_s, send(l))
+          end 
+        end
+        
+        def done!(lookup)
+          done.merge!(lookup => 1)
+        end
+
+        def redo!
+          import.set('done', {})
+        end
+
+        # We've initialized #done, so just look it up
+        def done?(lookup)
+          done[lookup] == 1
+        end
+
       end
 
       desc 'import UCD data, data_directory=/foo/ no_transaction=true'
@@ -75,23 +120,21 @@ namespace :tw do
               raise
             end
           end
+          
         end
       end
 
       def main_build_loop_ucd
         print "\nStart time: #{Time.now}\n"
-
-        @import = Import.find_or_create_by(name: @import_name)
-        @import.metadata ||= {}
-        @data =  ImportedDataUcd.new
         puts @args
         Utilities::Files.lines_per_file(Dir["#{@args[:data_directory]}/**/*.txt"])
 
+        $user_id, $project_id = nil, nil
+
+        @data = ImportedDataUcd.new
+
         handle_projects_and_users_ucd
         raise '$project_id or $user_id not set.'  if $project_id.nil? || $user_id.nil?
-
-        #        $project_id = 1
-        #        @root = Protonym.find_or_create_by(name: 'Root', rank_class: 'NomenclaturalRank', project_id: $project_id)
 
         handle_countries_ucd
         handle_collections_ucd
@@ -100,7 +143,6 @@ namespace :tw do
         combinations_codes_ucd
 
         handle_references_ucd
-        Utilities::Files.lines_per_file(Dir["#{@args[:data_directory]}/**/*.txt"])
 
         handle_fgnames_ucd
         handle_master_ucd_families
@@ -122,52 +164,48 @@ namespace :tw do
         handle_hosts_ucd
         handle_dist_ucd
 
-
+        print "\n\n !! Pre soft validation done. End time: #{Time.now} \n\n"
+        
         soft_validations_ucd
 
         print "\n\n !! Success. End time: #{Time.now} \n\n"
 
       end
 
+      # 
+      # For the purposes of the UCD we assume the user
+      # will be created when this rolls on production
+      #
       def handle_projects_and_users_ucd
-        print "\nHandling projects and users "
-        email = 'eucharitid@mail.net'
-        project_name = 'UCD'
-        user_name = 'eucharitid'
-        $user_id, $project_id = nil, nil
-        project1 = Project.where(name: project_name).first
-        project_name = project_name + ' ' + Time.now.to_s  unless project1.nil?
+        handle = 'projects_and_users' 
 
-        if @import.metadata['project_and_users']
+        print "\nHandling projects and users "
+
+        if @data.done?(handle)
           print "from database.\n"
-          project = Project.where(name: project_name).first
-          user = User.where(email: email).first
-          $project_id = project.id
-          $user_id = user.id
+
+          $project_id = @data.project_id 
+          $user_id = @data.user_id
         else
           print "as newly parsed.\n"
 
-          user = User.where(email: email)
-          if user.empty?
-            pwd = rand(36**10).to_s(36)
-            user = User.create(email: email, password: pwd, password_confirmation: pwd, name: user_name, self_created: true, is_flagged_for_password_reset: true)
-          else
-            user = user.first
-          end
-          $user_id = user.id # set for project line below
+          email = 'j.noyes@nhm.ac.uk'
+          pwd = rand(36**10).to_s(36)
 
-          project = nil
+          print " found existing user #{email} " if user = User.find_by_email(email) 
+          user ||= User.create!(email: email , password: pwd, password_confirmation: pwd, name: 'John Noyes', is_flagged_for_password_reset: true, self_created: true )
 
-          if project.nil?
-            project = Project.create(name: project_name)
-          end
+          project = Project.create!(name: 'UCD ' + Time.now.to_s, by: user)
 
-          $project_id = project.id
-          pm = ProjectMember.new(user: user, project: project, is_project_administrator: true)
-          pm.save! if pm.valid?
+          ProjectMember.create(project: project, user: user, is_project_administrator: true, by: user)                    
 
-          @import.metadata['project_and_users'] = true
+          @data.project_id = project.id
+          @data.user_id = user.id 
         end
+
+        $project_id = @data.project_id 
+        $user_id = @data.user_id
+
         @root = Protonym.find_or_create_by(name: 'Root', rank_class: 'NomenclaturalRank', project_id: $project_id)
         @order = Protonym.find_or_create_by(name: 'Hymenoptera', parent: @root, rank_class: 'NomenclaturalRank::Iczn::HigherClassificationGroup::Order', project_id: $project_id)
         @data.superfamilies['1'] = Protonym.find_or_create_by(name: 'Serphitoidea', parent: @order, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Superfamily', project_id: $project_id).id
@@ -175,46 +213,88 @@ namespace :tw do
         @data.superfamilies['3'] = Protonym.find_or_create_by(name: 'Mymarommatoidea', parent: @order, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Superfamily', project_id: $project_id).id
         @data.families[''] = @order.id
 
-        # TODO: shouldn't this be an ID?
-        @data.keywords['ucd_imported'] = Keyword.find_or_create_by(name: 'ucd_imported', definition: 'Imported from UCD database.')
-        @data.keywords['taxon_id'] = Namespace.find_or_create_by(name: 'UCD_Taxon_ID', short_name: 'UCD_Taxon_ID')
-        @data.keywords['family_id'] = Namespace.find_or_create_by(name: 'UCD_Family_ID', short_name: 'UCD_Family_ID')
-        @data.keywords['host_family_id'] = Namespace.find_or_create_by(name: 'UCD_Host_Family_ID', short_name: 'UCD_Host_Family_ID')
-        @data.keywords['hos_number'] = Namespace.find_or_create_by(name: 'UCD_Hos_Number', short_name: 'UCD_Hos_Number')
+        @data.keywords['ucd_imported'] = Keyword.find_or_create_by(name: 'ucd_imported', definition: 'Imported from UCD database.').id
+        @data.keywords['taxon_id'] = Namespace.find_or_create_by(name: 'UCD_Taxon_ID', short_name: 'UCD_Taxon_ID').id
+        @data.keywords['family_id'] = Namespace.find_or_create_by(name: 'UCD_Family_ID', short_name: 'UCD_Family_ID').id
+        @data.keywords['host_family_id'] = Namespace.find_or_create_by(name: 'UCD_Host_Family_ID', short_name: 'UCD_Host_Family_ID').id
+        @data.keywords['hos_number'] = Namespace.find_or_create_by(name: 'UCD_Hos_Number', short_name: 'UCD_Hos_Number').id
+    
+        @data.done!(handle)
+        @data.persist!
       end
 
       def handle_fgnames_ucd
-        #FamCode
-        # FamGroup
-        # Family
-        # Subfam
-        # Tribe
-        # SuperfamFK
-        # SortOrder
-        path = @args[:data_directory] + 'FGNAMES.txt'
-        print "\nHandling FGNAMES\n"
-        raise "file #{path} not found" if not File.exists?(path)
-        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
-        i = 0
-        file.each do |row|
-          i += 1
-          print "\r#{i}"
-          family = row['Family'].blank? ? nil : Protonym.find_or_create_by!(name: row['Family'], parent_id: @data.superfamilies[row['SuperfamFK']], rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Family', project_id: $project_id)
-          subfamily = row['Subfam'].blank? ? nil : Protonym.find_or_create_by!(name: row['Subfam'], parent: family, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Subfamily', project_id: $project_id)
-          tribe = row['Tribe'].blank? ? nil : Protonym.find_or_create_by!(name: row['Tribe'], parent: subfamily, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Tribe', project_id: $project_id)
+        handle = 'handle_fgnames_ucd'
+        print "\nHandling FGNAMES "
+        
+        if !@data.done?(handle)
+          puts 'as new'
+          #FamCode
+          # FamGroup
+          # Family
+          # Subfam
+          # Tribe
+          # SuperfamFK
+          # SortOrder
+          path = @args[:data_directory] + 'FGNAMES.txt'
+          raise "file #{path} not found" if not File.exists?(path)
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
+          i = 0
+          file.each do |row|
+            i += 1
+            print "\r#{i}"
+            family = row['Family'].blank? ? nil : Protonym.find_or_create_by!(name: row['Family'], parent_id: @data.superfamilies[row['SuperfamFK']], rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Family', project_id: $project_id)
+            subfamily = row['Subfam'].blank? ? nil : Protonym.find_or_create_by!(name: row['Subfam'], parent: family, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Subfamily', project_id: $project_id)
+            tribe = row['Tribe'].blank? ? nil : Protonym.find_or_create_by!(name: row['Tribe'], parent: subfamily, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Tribe', project_id: $project_id)
 
-          if !tribe.nil?
-            @data.families[row['FamCode']] = tribe.id
-            tribe.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['family_id'], identifier: row['FamCode'].to_s)
-          elsif !subfamily.nil?
-            @data.families[row['FamCode']] = subfamily.id
-            subfamily.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['family_id'], identifier: row['FamCode'].to_s)
-          else
-            @data.families[row['FamCode']] = family.id
-            family.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['family_id'], identifier: row['FamCode'].to_s)
+            if !tribe.nil?
+              @data.families[row['FamCode']] = tribe.id
+              tribe.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['family_id'], identifier: row['FamCode'].to_s)
+            elsif !subfamily.nil?
+              @data.families[row['FamCode']] = subfamily.id
+              subfamily.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['family_id'], identifier: row['FamCode'].to_s)
+            else
+              @data.families[row['FamCode']] = family.id
+              family.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['family_id'], identifier: row['FamCode'].to_s)
+            end
           end
+
+          @data.done!(handle)
+          @data.persist!
+        else
+          puts 'from database' 
         end
       end
+
+      def handle_keywords_ucd
+        handle = 'handle_keywords_ucd'
+        print "\nHandling KEYWORDS "
+        if !@data.done?(handle)
+          puts 'as new'
+
+          tags = {'1' => Keyword.find_or_create_by(name: '1', definition: 'Taxonomic', project_id: $project_id),
+                  '2' => Keyword.find_or_create_by(name: '2', definition: 'Biological', project_id: $project_id),
+                  '3' => Keyword.find_or_create_by(name: '3', definition: 'Economic', project_id: $project_id),
+          }.freeze
+          path = @args[:data_directory] + 'KEYWORDS.txt'
+
+          raise "file #{path} not found" if not File.exists?(path)
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
+          file.each_with_index do |row, i|
+            print "\r#{i}"
+            definition = row['Meaning'].to_s.length < 4 ? row['Meaning'] + '.' : row['Meaning']
+            topic = Topic.find_or_create_by(name: row['KeyWords'], definition: definition, project_id: $project_id)
+            topic.tags.find_or_create_by(keyword: tags[row['Category']]) unless row['Category'].blank?
+            @data.topics[row['KeyWords']] = topic
+          end
+
+          @data.done!(handle)
+          @data.persist!
+        else
+          puts 'from database'  
+        end
+      end
+
 
       def handle_master_ucd_families
         #TaxonCode
@@ -231,7 +311,7 @@ namespace :tw do
         # ValDate
         # CitDate
         path = @args[:data_directory] + 'MASTER.txt'
-        print "\nHandling MASTER -- Families\n"
+        print "Handling MASTER -- Families "
         raise "file #{path} not found" if not File.exists?(path)
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
         i = 0
@@ -612,77 +692,130 @@ namespace :tw do
       end
 
       def handle_language_ucd
+        handle = 'handle_language_ucd' 
+        print "\nHandling LANGUAGE "
+        if !@data.done?(handle)
+          puts "as new"
+          lng_transl = {'al' => 'sq',
+                        'ge' => 'ka',
+                        'gr' => 'el',
+                        'in' => 'id',
+                        'kz' => 'kk',
+                        'ma' => 'mk',
+                        'pe' => 'fa',
+                        'sh' => 'hr',
+                        'vt' => 'vi'
+          }
+          path = @args[:data_directory] + 'LANGUAGE.txt'
 
-        lng_transl = {'al' => 'sq',
-                      'ge' => 'ka',
-                      'gr' => 'el',
-                      'in' => 'id',
-                      'kz' => 'kk',
-                      'ma' => 'mk',
-                      'pe' => 'fa',
-                      'sh' => 'hr',
-                      'vt' => 'vi'
-        }
-        path = @args[:data_directory] + 'LANGUAGE.txt'
-        print "\nHandling LANGUAGE\n"
-        raise "file #{path} not found" if not File.exists?(path)
-        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
-        file.each_with_index do |row, i|
-          print "\r#{i}"
-          c = row['Code'].downcase
-          c = lng_transl[c] unless lng_transl[c].nil?
-          l = Language.where(alpha_2: c).first
-          if l.nil?
-            print "\n   Language not resolved: #{row['Code']} - #{row['Language']}\n"
-            @data.languages[row['Code'].downcase] = [nil, row['Language']]
-          else
-            @data.languages[row['Code'].downcase] = [l.id, row['Language']]
+          raise "file #{path} not found" if not File.exists?(path)
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
+          file.each_with_index do |row, i|
+            print "\r#{i}"
+            c = row['Code'].downcase
+            c = lng_transl[c] unless lng_transl[c].nil?
+            l = Language.where(alpha_2: c).first
+            if l.nil?
+              print "\n   Language not resolved: #{row['Code']} - #{row['Language']}\n"
+              @data.languages[row['Code'].downcase] = [nil, row['Language']]
+            else
+              @data.languages[row['Code'].downcase] = [l.id, row['Language']]
+            end
           end
+
+          @data.done!(handle)
+          @data.persist!
+        else
+          puts 'from database'
         end
       end
 
       def handle_countries_ucd
-        path = @args[:data_directory] + 'COUNTRY.txt'
-        print "\nHandling COUNTRY\n"
-        raise "file #{path} not found" if not File.exists?(path)
-        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
-        file.each_with_index do |row, i|
-          print "\r#{i}"
-          @data.countries[row['Country'] + '|' + row['State']] = row['UCD_name']
+        handle = 'handle_countries_ucd' 
+        print "\nHandling COUNTRY "
+
+        if !@data.done?(handle)
+          puts "as new"
+          path = @args[:data_directory] + 'COUNTRY.txt'
+
+          raise "file #{path} not found" if not File.exists?(path)
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
+          file.each_with_index do |row, i|
+            print "\r#{i}"
+            @data.countries[row['Country'] + '|' + row['State']] = row['UCD_name']
+          end
+       
+          @data.done!(handle)
+          @data.persist!
+        else
+          puts 'from database'
         end
       end
 
       def handle_collections_ucd
-        path = @args[:data_directory] + 'COLL.txt'
-        print "\nHandling COLL\n"
-        raise "file #{path} not found" if not File.exists?(path)
-        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
-        file.each_with_index do |row, i|
-          print "\r#{i}"
-          @data.collections[row['Acronym']] = row['Depository']
+        handle = 'handle_collections_ucd' 
+        print "\nHandling COLL "
+
+        if !@data.done?(handle)
+          puts 'as new'
+          path = @args[:data_directory] + 'COLL.txt'
+
+          raise "file #{path} not found" if not File.exists?(path)
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
+          file.each_with_index do |row, i|
+            print "\r#{i}"
+            @data.collections[row['Acronym']] = row['Depository']
+          end
+
+          @data.done!(handle)
+          @data.persist!
+        else
+          puts 'from database'
         end
       end
 
       def handle_reliable_ucd
-        path = @args[:data_directory] + 'RELIABLE.txt'
-        print "\nHandling RELIABLE\n"
-        raise "file #{path} not found" if not File.exists?(path)
-        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
-        file.each_with_index do |row, i|
-          print "\r#{i}"
-          c = ConfidenceLevel.find_or_create_by(name: row['Score'], definition: row['Meaning'], project_id: $project_id)
-          @data.reliable[row['Score']] = c.id
+        handle = 'handle_reliable_ucd' 
+        print "\nHandling RELIABLE "
+
+        if !@data.done?(handle)
+          puts 'as new'
+          path = @args[:data_directory] + 'RELIABLE.txt'
+
+          raise "file #{path} not found" if not File.exists?(path)
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
+          file.each_with_index do |row, i|
+            print "\r#{i}"
+            c = ConfidenceLevel.find_or_create_by(name: row['Score'], definition: row['Meaning'], project_id: $project_id)
+            @data.reliable[row['Score']] = c.id
+          end
+
+          @data.done!(handle)
+          @data.persist!
+        else
+          puts 'from database'
         end
       end
 
       def handle_ptype_ucd
-        path = @args[:data_directory] + 'P-TYPE.txt'
-        print "\nHandling P-TYPE\n"
-        raise "file #{path} not found" if not File.exists?(path)
-        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
-        file.each_with_index do |row, i|
-          print "\r#{i}"
-          @data.ptype[row['Code']] = row['ParType']
+        handle = 'handle_ptype_ucd' 
+        print "\nHandling P-TYPE "
+
+        if !@data.done?(handle)
+          puts 'as new'
+
+          path = @args[:data_directory] + 'P-TYPE.txt'
+
+          raise "file #{path} not found" if not File.exists?(path)
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
+          file.each_with_index do |row, i|
+            print "\r#{i}"
+            @data.ptype[row['Code']] = row['ParType']
+          end
+          @data.done!(handle)
+          @data.persist!
+        else
+          puts 'from database'
         end
       end
 
@@ -1314,24 +1447,6 @@ namespace :tw do
 
         unresolved.each_key do |k|
           print"\n Unresolved locality: #{k}"
-        end
-      end
-
-      def handle_keywords_ucd
-        tags = {'1' => Keyword.find_or_create_by(name: '1', definition: 'Taxonomic', project_id: $project_id),
-                '2' => Keyword.find_or_create_by(name: '2', definition: 'Biological', project_id: $project_id),
-                '3' => Keyword.find_or_create_by(name: '3', definition: 'Economic', project_id: $project_id),
-        }.freeze
-        path = @args[:data_directory] + 'KEYWORDS.txt'
-        print "\nHandling KEYWORDS\n"
-        raise "file #{path} not found" if not File.exists?(path)
-        file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
-        file.each_with_index do |row, i|
-          print "\r#{i}"
-          definition = row['Meaning'].to_s.length < 4 ? row['Meaning'] + '.' : row['Meaning']
-          topic = Topic.find_or_create_by(name: row['KeyWords'], definition: definition, project_id: $project_id)
-          topic.tags.find_or_create_by(keyword: tags[row['Category']]) unless row['Category'].blank?
-          @data.topics[row['KeyWords']] = topic
         end
       end
 

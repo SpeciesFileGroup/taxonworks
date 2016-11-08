@@ -1,12 +1,16 @@
 # A class used for transient data, primarily in the development of import scripts.  
 #
+# @!attribute name 
+#   @return [String]
+#     required, the lookup name 
+#
 # @!attribute metadata 
 #   @return [Hstore]
-#     an Hstore column
+#     a Hstore column
 #
 # @!attribute metadata_json 
 #   @return [Json]
-#     an JSON column
+#     a JSON column
 #
 # Possible usage 
 #   
