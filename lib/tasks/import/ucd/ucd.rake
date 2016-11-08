@@ -1157,8 +1157,6 @@ namespace :tw do
 
 
         end
-
-        file.close
       end
 
       def handle_hosts_ucd
