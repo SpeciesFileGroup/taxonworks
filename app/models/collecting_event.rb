@@ -467,6 +467,9 @@ class CollectingEvent < ActiveRecord::Base
         if end_date.blank? # set a one-day range
           end_date = start_date
         end
+        if start_date.blank? # set a one-day range
+          start_date = end_date
+        end
       end
 
       if Date.parse(start_date) > Date.parse(end_date) # need to swap s and e?
