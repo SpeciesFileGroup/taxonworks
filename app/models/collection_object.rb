@@ -507,7 +507,7 @@ class CollectionObject < ActiveRecord::Base
   # @param [Array] area_object_ids (e.g., from GeographicItem.gather_selected_data())
   # @return [Scope] of intersection of collecting events (usually by date range)
   #   and collection objects (usually by inclusion in geographic areas/items)
-  def self.from_collecting_events(collecting_event_ids, area_object_ids, project_id)
+  def self.from_collecting_events(collecting_event_ids, area_object_ids, area_set, project_id)
     collecting_events_clause = {collecting_event_id: collecting_event_ids, project: project_id}
     area_objects_clause = {id: area_object_ids, project: project_id}
     if (collecting_event_ids.empty?)
@@ -515,6 +515,9 @@ class CollectionObject < ActiveRecord::Base
     end
     if (area_object_ids.empty?)
       area_objects_clause = {}
+      if (area_set)
+        area_objects_clause = 'false'
+      end
     end
     retval = CollectionObject.includes(:collecting_event)
                  .where(collecting_events_clause)
