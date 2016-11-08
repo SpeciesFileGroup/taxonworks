@@ -120,7 +120,7 @@ namespace :tw do
         handle_hostfam_ucd
         handle_ptype_ucd
         handle_hosts_ucd
-        #handle_dist_ucd
+        handle_dist_ucd
 
 
         soft_validations_ucd
@@ -1157,6 +1157,7 @@ namespace :tw do
 
 
         end
+
       end
 
       def handle_hosts_ucd
