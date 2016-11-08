@@ -267,7 +267,7 @@ describe CollectionObject, type: :model do
         specify "should find 1 record" do
           collecting_event_ids = CollectingEvent.in_date_range({search_start_date: '1981/01/01', search_end_date: '1981/1/1'}).pluck(:id)
           area_object_ids = CollectionObject.all.pluck(:id) # because all of the relevant collection objects created are in this area
-          collection_objects = CollectionObject.from_collecting_events(collecting_event_ids, area_object_ids, $project_id)
+          collection_objects = CollectionObject.from_collecting_events(collecting_event_ids, area_object_ids, true, $project_id)
           expect(collection_objects.count).to eq(1)
           expect(collection_objects.map(&:collecting_event).map(&:verbatim_label)).to contain_exactly('@ce_m3')
         end
@@ -292,7 +292,7 @@ describe CollectionObject, type: :model do
         specify "should find 1 record" do
           collecting_event_ids = CollectingEvent.in_date_range({search_start_date: '1974/04/01', search_end_date: '1974/4/30'}).pluck(:id)
           area_object_ids = CollectionObject.all.pluck(:id) # because all of the relevant collection objects created are in this area
-          collection_objects = CollectionObject.from_collecting_events(collecting_event_ids, area_object_ids, $project_id)
+          collection_objects = CollectionObject.from_collecting_events(collecting_event_ids, area_object_ids, true, $project_id)
           expect(collection_objects.count).to eq(1)
           expect(collection_objects.map(&:collecting_event).map(&:verbatim_label)).to contain_exactly('@ce_p1')
         end
@@ -321,7 +321,7 @@ describe CollectionObject, type: :model do
         specify "should find 2 records" do
           collecting_event_ids = CollectingEvent.in_date_range({search_start_date: '1971/01/01', search_end_date: '1971/12/31'}).pluck(:id)
           area_object_ids = CollectionObject.all.pluck(:id) # because all of the relevant collection objects created are in this area
-          collection_objects = CollectionObject.from_collecting_events(collecting_event_ids, area_object_ids, $project_id)
+          collection_objects = CollectionObject.from_collecting_events(collecting_event_ids, area_object_ids, true, $project_id)
           expect(collection_objects.count).to eq(2)
           expect(collection_objects.map(&:collecting_event).map(&:verbatim_label)).to contain_exactly('@ce_m1', '@ce_m1a')
         end
@@ -347,7 +347,7 @@ describe CollectionObject, type: :model do
         specify "should find 1 record" do
           collecting_event_ids = CollectingEvent.in_date_range({search_start_date: '1971/05/01', search_end_date: '1971/8/31'}).pluck(:id)
           area_object_ids = CollectionObject.all.pluck(:id) # because all of the relevant collection objects created are in this area
-          collection_objects = CollectionObject.from_collecting_events(collecting_event_ids, area_object_ids, $project_id)
+          collection_objects = CollectionObject.from_collecting_events(collecting_event_ids, area_object_ids, true, $project_id)
           expect(collection_objects.count).to eq(1)
           expect(collection_objects.map(&:collecting_event).map(&:verbatim_label)).to contain_exactly('@ce_m1a')
         end
@@ -375,7 +375,7 @@ describe CollectionObject, type: :model do
         specify "should find 2 records" do
           collecting_event_ids = CollectingEvent.in_date_range({search_start_date: '1971/01/01', search_end_date: '1971/08/31'}).pluck(:id)
           area_object_ids = CollectionObject.all.pluck(:id) # because all of the relevant collection objects created are in this area
-          collection_objects = CollectionObject.from_collecting_events(collecting_event_ids, area_object_ids, $project_id)
+          collection_objects = CollectionObject.from_collecting_events(collecting_event_ids, area_object_ids, true, $project_id)
           expect(collection_objects.count).to eq(2)
           expect(collection_objects.map(&:collecting_event).map(&:verbatim_label)).to contain_exactly('@ce_m1', '@ce_m1a')
         end
@@ -405,7 +405,7 @@ describe CollectionObject, type: :model do
         specify "should find 2 records" do
           collecting_event_ids = CollectingEvent.in_date_range({search_start_date: '1974/03/01', search_end_date: '1975/06/30'}).pluck(:id)
           area_object_ids = CollectionObject.all.pluck(:id) # because all of the relevant collection objects created are in this area
-          collection_objects = CollectionObject.from_collecting_events(collecting_event_ids, area_object_ids, $project_id)
+          collection_objects = CollectionObject.from_collecting_events(collecting_event_ids, area_object_ids, true, $project_id)
           expect(collection_objects.count).to eq(2)
           expect(collection_objects.map(&:collecting_event).map(&:verbatim_label)).to contain_exactly('@ce_m2 in Big Boxia', '@ce_p1')
         end
@@ -442,7 +442,7 @@ describe CollectionObject, type: :model do
         specify "should find 2 records" do
           collecting_event_ids = CollectingEvent.in_date_range({search_start_date: '1974/03/01', search_end_date: '1976/08/31'}).pluck(:id)
           area_object_ids = CollectionObject.all.pluck(:id) # because all of the relevant collection objects created are in this area
-          collection_objects = CollectionObject.from_collecting_events(collecting_event_ids, area_object_ids, $project_id)
+          collection_objects = CollectionObject.from_collecting_events(collecting_event_ids, area_object_ids, true, $project_id)
           expect(collection_objects.count).to eq(4)
           expect(collection_objects.map(&:collecting_event).map(&:verbatim_label)).to contain_exactly('@ce_m2 in Big Boxia', '@ce_p1', '@ce_n2', '@ce_n2')
         end
@@ -466,7 +466,7 @@ describe CollectionObject, type: :model do
         specify 'should find no records' do
           collecting_event_ids = CollectingEvent.in_date_range({search_start_date: '1982/02/01', search_end_date: '1984/06/30', partial_overlap: 'Off'}).pluck(:id)
           area_object_ids = CollectionObject.all.pluck(:id) # because all of the relevant collection objects created are in this area
-          collection_objects = CollectionObject.from_collecting_events(collecting_event_ids, area_object_ids, $project_id)
+          collection_objects = CollectionObject.from_collecting_events(collecting_event_ids, area_object_ids, true, $project_id)
           expect(collection_objects.count).to eq(0)
           expect(collection_objects.map(&:collecting_event).map(&:verbatim_label)).to contain_exactly()
         end
@@ -492,7 +492,7 @@ describe CollectionObject, type: :model do
         specify 'should find 1 record' do
           collecting_event_ids = CollectingEvent.in_date_range({search_start_date: '1982/02/01', search_end_date: '1984/06/30', partial_overlap: 'Off'}).pluck(:id)
           area_object_ids = CollectionObject.all.pluck(:id) # because all of the relevant collection objects created are in this area
-          collection_objects = CollectionObject.from_collecting_events(collecting_event_ids, area_object_ids, $project_id)
+          collection_objects = CollectionObject.from_collecting_events(collecting_event_ids, area_object_ids, true, $project_id)
           expect(collection_objects.count).to eq(1)
           expect(collection_objects.map(&:collecting_event).map(&:verbatim_label)).to contain_exactly('@ce_n3')
         end
