@@ -185,6 +185,10 @@ $(document).ready(function() {
         handleWindowScroll($(this).scrollTop());
     }); 
 
+    $('.slide-document').resizable({
+      handles: "w"
+    });
+
     function getSelectedText() {
         if (window.getSelection) {
             return window.getSelection().toString();

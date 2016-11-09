@@ -19,7 +19,7 @@ input[type=checkbox].increment { display: none; }
   transition: background-color 0.5s ease;
   border: 1px solid $navigation_border;
   background-color: $color-secondary-2-1;
-  box-shadow: 0 0px 3px 0 $navigation_border;     
+  box-shadow: 0px 0px 2px 0px $navigation_border;     
 }
 
 .increment {
