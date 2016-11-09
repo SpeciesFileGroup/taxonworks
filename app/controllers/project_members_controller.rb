@@ -10,6 +10,7 @@ class ProjectMembersController < ApplicationController
 
   # GET /project_members/new
   def new
+    redirect_to hub_path, notice: 'Select a project first.' if !sessions_project_selected?
     @project_member = ProjectMember.new(project_id: sessions_current_project_id)
     redirect_to project_path(@project_member.project), alert: 'There are no additional users available to add to this project.' if !@available_users.any?
   end
