@@ -7,8 +7,8 @@ describe DataAttribute, type: :model, group: :annotators do
     before(:each) {
       attribute.valid?
     }
-    context 'requires' do
 
+    context 'requires' do
       specify 'attribute_subject' do 
         # this eliminate all model based validation requirements
         attribute.type = 'ImportAttribute'
@@ -26,15 +26,33 @@ describe DataAttribute, type: :model, group: :annotators do
       end
     end
 
-    #    specify
+    context 'uniqueness' do
+      let(:o) {FactoryGirl.create(:valid_otu) }
 
-    # Hmmm.. review this
-    specify 'key/value is unique' do
-      a = FactoryGirl.create(:valid_data_attribute, value: 'black')
-      p = ImportAttribute.new(attribute_subject: a.attribute_subject, import_predicate: 'hair color', value: 'black')
-      expect(p.valid?).to be_falsey
-      expect(p.errors.include?(:value)).to be_truthy
+      context 'InternalAttribute' do
+        let(:p) { FactoryGirl.create(:valid_controlled_vocabulary_term_predicate) }
+
+        let!(:d1) { InternalAttribute.create(attribute_subject: o, predicate: p, value: 'abc' ) }
+        let(:d2) { InternalAttribute.new(attribute_subject: o, predicate: p, value: 'abc' ) }
+
+        specify 'key/value is unique' do
+          expect(d2.valid?).to be_falsey
+          expect(d2.errors.include?(:value)).to be_truthy
+        end
+      end
+
+      # TODO: ImportAttribute tests, move there
+      context 'ImportAttribute' do
+        let!(:a1) { ImportAttribute.create(attribute_subject: o, import_predicate: 'hair color', value: 'black') }
+        let(:a2) { ImportAttribute.new(attribute_subject: o, import_predicate: 'hair color', value: 'black') }
+
+        specify 'key/value is unique' do
+          expect(a2.valid?).to be_falsey
+          expect(a2.errors.include?(:value)).to be_truthy
+        end
+      end
     end
+
   end
 
   context 'houskeeping on data attributes' do

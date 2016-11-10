@@ -31,8 +31,6 @@ class DataAttribute < ActiveRecord::Base
   include Shared::IsData 
   include Shared::DualAnnotator
 
-#   include Shared::Annotates
-
   belongs_to :attribute_subject, polymorphic: true
 
   # Please DO NOT include the following:  (follows Identifier approach)

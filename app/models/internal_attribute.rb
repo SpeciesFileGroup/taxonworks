@@ -9,7 +9,9 @@
 #
 class InternalAttribute < DataAttribute 
   belongs_to :predicate, foreign_key: 'controlled_vocabulary_term_id', inverse_of: :internal_attributes, class_name: 'Predicate'
-  # validates :predicate, presence: true
+
   validates_presence_of :controlled_vocabulary_term_id
-  validates_uniqueness_of :value, scope: [:attribute_subject_id, :attribute_subject_type, :type, :controlled_vocabulary_term_id, :project_id]
+  validates_uniqueness_of :value, scope: [:attribute_subject_id, :attribute_subject_type, :type, :controlled_vocabulary_term_id]
+
+
 end
