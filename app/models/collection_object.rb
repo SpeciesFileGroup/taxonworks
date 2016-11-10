@@ -521,7 +521,7 @@ class CollectionObject < ActiveRecord::Base
         area_objects_clause = 'false'
       end
     end
-    retval = CollectionObject.includes(:collecting_event)
+    retval = CollectionObject.joins(:collecting_event)
                  .where(collecting_events_clause)
                  .where(area_objects_clause)
     retval
