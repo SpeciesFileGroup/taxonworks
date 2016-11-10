@@ -138,7 +138,7 @@ describe CollectionObject, type: :model do
     end
 
     context 'has_many' do
-      # technically not supposed to have these, they are to be biological only 
+      # technically not supposed to have these, they are to be biological only
       specify 'taxon_determinations' do
         collection_object.taxon_determinations << FactoryGirl.create(:valid_taxon_determination)
         collection_object.total = 1
@@ -464,9 +464,9 @@ describe CollectionObject, type: :model do
       #
       describe 'excludes parts of two years in a non-greedy search for 1982/02/02-1984/09/15' do
         specify 'should find no records' do
-          collecting_event_ids = CollectingEvent.in_date_range({search_start_date: '1982/02/01', search_end_date: '1984/06/30', partial_overlap: 'Off'}).pluck(:id)
-          area_object_ids = CollectionObject.all.pluck(:id) # because all of the relevant collection objects created are in this area
-          collection_objects = CollectionObject.from_collecting_events(collecting_event_ids, area_object_ids, true, $project_id)
+          collecting_event_ids = CollectingEvent.in_date_range({search_start_date: '1982/02/01', search_end_date: '1983/01/31', partial_overlap: 'Off'}).pluck(:id)
+          area_object_ids      = CollectionObject.all.pluck(:id) # because all of the relevant collection objects created are in this area
+          collection_objects   = CollectionObject.from_collecting_events(collecting_event_ids, area_object_ids, true, $project_id)
           expect(collection_objects.count).to eq(0)
           expect(collection_objects.map(&:collecting_event).map(&:verbatim_label)).to contain_exactly()
         end
