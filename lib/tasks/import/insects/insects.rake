@@ -245,7 +245,7 @@ namespace :tw do
 
           $project_id = project.id
           pm = ProjectMember.new(user: user, project: project, is_project_administrator: true)
-          pm.save! if pm.valid?
+          pm.save
 
           cc = Container.where(name: project_name)
           if cc.empty?
@@ -891,7 +891,7 @@ namespace :tw do
           unless gr == false
             gr.is_public = true        
 
-            if gr.valid?
+            unless gr.id.nil?
               c.update_column(:geographic_area_id, nil)
               gr.no_cached = true
               gr.save # could still be invalid
@@ -900,11 +900,11 @@ namespace :tw do
             # Do a second pass to see if the uncertainty 
             gr.error_radius = geolocation_uncertainty
 
-            if gr.valid?
+            begin
               gr.no_cached = true
-              gr.save
-            else
-              c.data_attributes.create(type: 'ImportAttribute', 
+              gr.save!
+            rescue ActiveRecord::RecordInvalid
+              c.data_attributes.create(type: 'ImportAttribute',
                                        import_predicate: 'georeference_error', 
                                        value: 'Geolocation uncertainty is conflicting with geographic area') 
             end
@@ -2108,11 +2108,11 @@ namespace :tw do
 
         elevation, verbatim_elevation = nil, nil
 
-        if !ce['Elev_ft'].blank?
-          elevation = ce['Elev_ft'].to_i * 0.305
-          verbatim_elevation = ce['Elev_ft'] + ' ft.'
-        elsif !ce['Elev_m'].blank?
-          elevation = ce['Elev_m'].to_i
+        if !ft.blank?
+          elevation = ft.to_i * 0.305
+          verbatim_elevation = ft + ' ft.'
+        elsif !m.blank?
+          elevation = m.to_i
         end
         [elevation, verbatim_elevation]
       end

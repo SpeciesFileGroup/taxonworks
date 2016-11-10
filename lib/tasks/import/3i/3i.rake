@@ -279,8 +279,7 @@
           end
 
           $project_id = project.id
-          pm = ProjectMember.new(user: user, project: project, is_project_administrator: true)
-          pm.save! if pm.valid?
+          pm = ProjectMember.create(user: user, project: project, is_project_administrator: true)
 
           @import.metadata['project_and_users'] = true
         end
@@ -404,14 +403,14 @@
           else
             person = Person.parse_to_people(row['FullName']).first
           end
-          if person.valid?
+#          if person.valid?
             person.data_attributes.new(type: 'ImportAttribute', import_predicate: '3i_Author', value: row['Author']) unless row['Author'].blank?
             person.data_attributes.new(type: 'ImportAttribute', import_predicate: 'AuthorDrMetcalf', value: row['FullName']) unless row['FullName'].blank?
             person.save!
             @data.people[row['Author']] = person.id
-          else
-            byebug
-          end
+#          else
+#            byebug
+#          end
 
         end
       end
@@ -505,7 +504,7 @@
           source.identifiers.create(type: 'Identifier::Local::Import', namespace: @data.keywords['DelphacidaeID'], identifier: row['DelphacidaeID']) if !row['DelphacidaeID'].blank? && !row['DelphacidaeID'] == '0'
 
 
-          if source.valid?
+          begin
             source.save!
             source.project_sources.create!
             @data.publications_index[row['Key3']] = source.id
@@ -522,7 +521,7 @@
               end
               sa = SourceAuthor.create(person_id: a, role_object: source, position: i + 1) unless a.nil?
             end
-          else
+          rescue ActiveRecord::RecordInvalid
             puts "\nDuplicate record: #{row}\n"
           end
         end
@@ -637,20 +636,20 @@
               otu.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['Key'], identifier: row['Key'])
             elsif row['Status'] == '18'
               taxon = find_taxon_3i(row['Parent'])
-              taxon.data_attributes.new(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['Typification'].id, value: ('Type designation: ' + row['Author'].to_s + ', ' + row['Year'].to_s + row['YearRem'].to_s).squish)
-              taxon.valid? ? taxon.save! : byebug
+              taxon.data_attributes.create!(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['Typification'].id, value: ('Type designation: ' + row['Author'].to_s + ', ' + row['Year'].to_s + row['YearRem'].to_s).squish)
+#              taxon.valid? ? taxon.save! : byebug
             elsif row['Status'] == '19'
               taxon = find_taxon_3i(row['Parent'])
-              taxon.data_attributes.new(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['Typification'].id, value: ('Neotype designation: ' + row['Author'].to_s + ', ' + row['Year'].to_s + row['YearRem'].to_s).squish)
-              taxon.valid? ? taxon.save! : byebug
+              taxon.data_attributes.create!(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['Typification'].id, value: ('Neotype designation: ' + row['Author'].to_s + ', ' + row['Year'].to_s + row['YearRem'].to_s).squish)
+#              taxon.valid? ? taxon.save! : byebug
             elsif row['Status'] == '20'
               taxon = find_taxon_3i(row['Parent'])
-              taxon.data_attributes.new(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['Typification'].id, value: ('Lectotype designation: ' + row['Author'].to_s + ', ' + row['Year'].to_s + row['YearRem'].to_s).squish)
-              taxon.valid? ? taxon.save! : byebug
+              taxon.data_attributes.create!(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['Typification'].id, value: ('Lectotype designation: ' + row['Author'].to_s + ', ' + row['Year'].to_s + row['YearRem'].to_s).squish)
+#              taxon.valid? ? taxon.save! : byebug
             elsif row['Status'] == '25'  && !find_taxon_3i(row['Parent']).rank_class.to_s.include?('Family') # emendation
               taxon = find_taxon_3i(row['Parent'])
-              taxon.data_attributes.new(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['FirstRevisor'].id, value: (row['Name'] + ' ' + row['Author'].to_s + ', ' + row['Year'].to_s + row['YearRem'].to_s).squish)
-              taxon.valid? ? taxon.save! : byebug
+              taxon.data_attributes.create!(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['FirstRevisor'].id, value: (row['Name'] + ' ' + row['Author'].to_s + ', ' + row['Year'].to_s + row['YearRem'].to_s).squish)
+#              taxon.valid? ? taxon.save! : byebug
               @data.emendation[row['Parent']] = row
             else
               name = row['Name'].split(' ').last
@@ -738,10 +737,10 @@
               taxon.original_variety = taxon if row['Name'].include?(' var. ')
               taxon.original_form = taxon if row['Name'].include?(' f. ')
 
-              if taxon.valid?
+              begin
                 taxon.save!
                 @data.taxon_index[row['Key']] = taxon.id
-              else
+              rescue ActiveRecord::RecordInvalid
                 taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin') if taxon.rank_string =~ /Family/ && row['Status'] != '0' && !taxon.errors.messages[:name].blank?
                 taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin') if taxon.rank_string =~ /Species/ && row['Status'] != '0' && taxon.errors.full_messages.include?('Name name must be lower case')
                 taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin') if taxon.rank_string =~ /Species/ && row['Status'] != '0' && taxon.errors.full_messages.include?('Name Name must be latinized, no digits or spaces allowed')
@@ -756,7 +755,7 @@
                   #byebug
                 end
                 if !row['DescriptEn'].blank? && (row['DescriptEn'].include?('<h2>Notes</h2>') || row['DescriptEn'].include?('<h2>Remarks</h2>'))
-                  taxon.otus.first.contents.new(topic_id: @data.keywords['Notes'], text: row['DescriptEn'].gsub('<h2>Notes</h2>').gsub('<h2>Remarks</h2>').squish)
+                  taxon.otus.first.contents.create(topic_id: @data.keywords['Notes'], text: row['DescriptEn'].gsub('<h2>Notes</h2>').gsub('<h2>Remarks</h2>').squish)
                 end
               end
             end
@@ -828,18 +827,18 @@
               if !@data.emendation[row['Parent']].blank? && row['OriginalCombinationOf'] == row['Parent']
                 source = find_taxon_3i(@data.emendation[row['Parent']]).try(['Key3']).nil? ? nil : @data.publications_index[@data.emendation[row['Parent']]['Key3']] unless @data.emendation[row['Parent']].nil?
                 tnr = TaxonNameRelationship::Iczn::PotentiallyValidating::FirstRevisorAction.create(object_taxon_name: find_taxon_3i(@data.emendation[row['Parent']]['Parent']), subject_taxon_name: taxon, origin_citation_attributes: {source_id: source}) if !@data.emendation[row['Parent']].blank? && row['OriginalCombinationOf'] == row['Parent']
-                byebug unless tnr.valid?
+                byebug if tnr.id.nil?
               end
 
-              if taxon.valid?
+              begin
                 taxon.save!
-              else
+              rescue ActiveRecord::RecordInvalid
                 byebug
               end
 
               if synonym_statuses.include?(row['Status']) # %w(1 6 8 10 11 14 17 22 23 24 26 27 28 29)
                 tnr = TaxonNameRelationship.create(subject_taxon_name: taxon, object_taxon_name: find_taxon_3i(row['Parent']), type: @relationship_classes[row['Status'].to_i])
-                byebug unless tnr.valid?
+                byebug if tnr.id.nil?
               end
 
             elsif row['Status'] == '8' || row['Status'] == '25' ### taxon name combinations
@@ -886,19 +885,17 @@
               i3_combination.squish!
 
 
-              if c.valid?
+              begin
                 c.save!
                 if !i3_combination.blank? && i3_combination != c.cached
                   #c.data_attributes.create(type: 'ImportAttribute', import_predicate: 'combination_in_3i', value: i3_combination)
                   #c.data_attributes.create(type: 'ImportAttribute', import_predicate: 'name_in_3i', value: row['Name'])
                   c.verbatim_name = i3_combination
-
                   c.valid? ? c.save! : byebug
                 end
-              else
+              rescue ActiveRecord::RecordInvalid
                 print "\n#{row['Key']}         #{row['Name']}"
                 print "\n#{c.errors.full_messages}\n"
-                #byebug
               end
 
             elsif row['Status'] == '7' #  common name
@@ -931,9 +928,9 @@
                   taxon.original_variety = taxon
                 end
               end
-              if taxon.valid?
+              begin
                 taxon.save!
-              else
+              rescue ActiveRecord::RecordInvalid
                 byebug
               end
             end
@@ -1083,9 +1080,9 @@
           unless row['CommonName'].blank?
             lng = Language.find_by_alpha_3_bibliographic(@languages[row['lng'].to_s.downcase])
             c = CommonName.new(otu_id: otu, name: row['CommonName'], language: lng)
-            if c.valid?
+            begin
               c.save
-            else
+            rescue ActiveRecord::RecordInvalid
               byebug
             end
           end
@@ -1182,9 +1179,9 @@
             c.citation_topics.find_or_create_by(topic: @data.topics['Synonymy'], project_id: $project_id) if row['Synonymy'] == '1'
             c.citation_topics.find_or_create_by(topic: @data.topics['Host'], project_id: $project_id) if row['Host'] == '1'
 
-            if c.valid?
+            begin
               c.save!
-            else
+            rescue ActiveRecord::RecordInvalid
               byebug
             end
             if row['Synonymy'] == '1'
@@ -1228,12 +1225,14 @@
           print "\nGeographic area does not match Country = #{country['TW_name']}; GeographicArea = #{ga.name}\n" if !ga.nil? && ga.name != country['TW_name']
 
           if !otu.nil? && !source.nil? && !ga.nil?
-            ad = AssertedDistribution.find_or_create_by!(
+            ad = AssertedDistribution.find_or_create_by(
                                     otu: otu,
                                     geographic_area: ga,
-                                    source_id: source,
+                                    #source_id: source,
                                     is_absent: erroneously,
                                     project_id: $project_id )
+            c = ad.citations.find_or_create_by(source_id: source, project_id: $project_id)
+
 
             ad.tags.find_or_create_by!(keyword: @data.keywords['introduced']) if introduced
           end
@@ -1333,7 +1332,7 @@
         count_fields = %w{ Specimens Males Females Nymphs }.freeze
 
         file.each_with_index do |row, i|
-          if i < 1000000 #######################
+          next if i < 1000000 #######################
           print "\r#{i}"
 
           collecting_event = find_or_create_collecting_event_3i(row)
@@ -1358,7 +1357,7 @@
                   buffered_other_labels: nil,
                   collecting_event: collecting_event
               )
-              if specimen.valid?
+              begin
                 specimen.save!
                 Citation.find_or_create_by!(citation_object: specimen, source_id: source, project_id: $project_id) unless source.blank?
                 objects += [specimen]
@@ -1382,16 +1381,13 @@
 
                 specimen.tags.create(keyword: @data.keywords['ZeroTotal']) if no_specimens
                 add_bioculation_class_3i(specimen, count)
-              end
-
-              unless specimen.valid?
+              rescue ActiveRecord::RecordInvalid
                 byebug
               end
             end
           end
           add_identifiers_3i(objects, row)
           add_determinations_3i(objects, row)
-          end ########################
         end
       end
 
@@ -1444,14 +1440,17 @@
        #     with_verbatim_data_georeference: true
         )
 
-        if c.valid?
-          c.save!
+        begin
+          c.save
+          if c.id.nil? && !c.errors.messages[:md5_of_verbatim_label].blank?
+            c = CollectingEvent.where(md5_of_verbatim_label: c.md5_of_verbatim_label).first
+          end
           c.data_attributes.create(import_predicate: 'Country', value: ce['Country'].to_s, type: 'ImportAttribute') unless ce['Country'].blank?
           c.data_attributes.create(import_predicate: 'State', value: ce['State'].to_s, type: 'ImportAttribute') unless ce['State'].blank?
           c.data_attributes.create(import_predicate: 'County', value: ce['County'].to_s, type: 'ImportAttribute') unless ce['County'].blank?
           gr = geolocation_uncertainty.nil? ? false : c.generate_verbatim_data_georeference(true, no_cached: true)
           c.notes.create(text: ce['Comments']) unless ce['Comments'].blank?
-          c.data_attributes.new(type: 'InternalAttribute', predicate: @data.keywords['HostPlant'], value: ce['Host']) unless ce['Host'].blank?
+          c.data_attributes.create(type: 'InternalAttribute', predicate: @data.keywords['HostPlant'], value: ce['Host']) unless ce['Host'].blank?
           c.identifiers.create(identifier: ce['AccessionNumber'], namespace: @accession_namespace, type: 'Identifier::Local::AccessionCode') unless ce['AccessionNumber'].blank?
 
           unless gr == false
@@ -1474,7 +1473,7 @@
 
           @data.geographic_areas[Digest::MD5.hexdigest(tmp_ce_sorted)] = c.id
           return c
-        else
+        rescue ActiveRecord::RecordInvalid
           byebug
         end
       end
@@ -1557,14 +1556,13 @@
               unless type.nil?
                 type = type + 's' if o.type == "Lot"
                 tm = TypeMaterial.create(protonym_id: otu.taxon_name_id, material: o, type_type: type )
-                unless tm.valid?
+                if tm.id.nil?
                   o.data_attributes.create(type: 'ImportAttribute', import_predicate: 'type_material_error', value: 'Type material was not created. There are some inconsistensies.')
                 end
               end
             end
           end
         end
-
       end
 
 

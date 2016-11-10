@@ -6,12 +6,12 @@ class TaxonNameRelationship::Iczn < TaxonNameRelationship
 
   # left_side
   def self.valid_subject_ranks
-    FAMILY_RANK_NAMES_ICZN + GENUS_AND_SPECIES_RANK_NAMES_ICZN
+    ::ICZN #FAMILY_RANK_NAMES_ICZN + GENUS_AND_SPECIES_RANK_NAMES_ICZN
   end
 
   # right_side
   def self.valid_object_ranks
-    FAMILY_RANK_NAMES_ICZN + GENUS_AND_SPECIES_RANK_NAMES_ICZN
+    ::ICZN #FAMILY_RANK_NAMES_ICZN + GENUS_AND_SPECIES_RANK_NAMES_ICZN
   end
 
   def self.disjoint_subject_classes
