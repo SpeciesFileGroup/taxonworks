@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe CollectionObject, type: :model do
+describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
 
   let(:collection_object) { CollectionObject.new() }
   let(:ranged_lot_category) { FactoryGirl.create(:valid_ranged_lot_category) }
