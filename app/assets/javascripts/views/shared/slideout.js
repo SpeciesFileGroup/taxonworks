@@ -1,5 +1,5 @@
 $(document).ready(function() {
-	$('.slide-panel-circle-icon').on('click', function() {
+	$('.slide-panel-circle-icon').on('click', function() {		
 		closeHideSlideoutPanel($(this).parent());
 	});
 
@@ -9,8 +9,9 @@ $(document).ready(function() {
 
 
 	function closeHideSlideoutPanel(panel) {
+		$(panel).css("left", "");		
 		if($(panel).css('right') == '0px') {
-			$(panel).animate({right: "-400px"}, 500);
+			$(panel).animate({right: "-" + $(panel).css("width")}, 500);
 			$(panel).css('z-index',"1000");
 		}
 		else {
