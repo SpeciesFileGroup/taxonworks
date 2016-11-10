@@ -1458,6 +1458,9 @@ def generate_collecting_events(user = nil)
   user ||= User.find($user_id)
   raise 'no user provided or determinable for generate_collecting_events' if user.nil?
 
+  # this is an orphaned collection object, which can only be found by direct reference
+  @co_00 = FactoryGirl.create(:valid_collection_object)
+
   @ce_m1 = FactoryGirl.create(:collecting_event,
                               start_date_year:   1971,
                               start_date_month:  1,
