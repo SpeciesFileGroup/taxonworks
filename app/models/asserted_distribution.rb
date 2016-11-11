@@ -98,10 +98,12 @@ class AssertedDistribution < ActiveRecord::Base
   protected
 
   def new_records_include_citation
-    if new_record? && source.blank? && origin_citation.blank?
+    if new_record? && source.blank? && origin_citation.blank? && !citations.any? 
       errors.add(:base, 'required citation is not provided')
     end 
   end
+
+  
 
   def sv_conflicting_geographic_area
     ga = self.geographic_area

@@ -2,9 +2,10 @@ require 'rails_helper'
 
 describe AssertedDistribution, type: :model, group: :geo do
 
-  let(:asserted_distribution) { FactoryGirl.build(:asserted_distribution) }
+  let(:asserted_distribution) { AssertedDistribution.new }
   let(:source) { FactoryGirl.create(:valid_source) }
   let(:otu) { FactoryGirl.create(:valid_otu) }
+  let(:geographic_area) { FactoryGirl.create(:valid_geographic_area) }
 
   context 'associations' do
     context 'belongs_to' do
@@ -21,11 +22,11 @@ describe AssertedDistribution, type: :model, group: :geo do
   context 'validation' do
     context 'a citation is required' do
       before {
-        asserted_distribution.geographic_area = FactoryGirl.create(:valid_geographic_area)
+        asserted_distribution.geographic_area = geographic_area
         asserted_distribution.otu = otu
       }
 
-      specify 'absence of #source and #origin_citation invalidates' do
+      specify 'absence of #source, #origin_citation, #citations invalidates' do
         expect(asserted_distribution.valid?).to be_falsey
         expect(asserted_distribution.errors.include?(:base)).to be_truthy
       end 
@@ -42,10 +43,44 @@ describe AssertedDistribution, type: :model, group: :geo do
         expect(asserted_distribution.citations.count).to eq(1) 
       end
 
-      specify 'attempting to delete citation fails when only one exists' do
-        asserted_distribution.source = source
-        asserted_distribution.save!
-        expect(asserted_distribution.citations.first.destroy).to be_falsey
+      specify 'providing a citation with #citations_attributes validates' do
+        asserted_distribution.citations_attributes = [ {source: source }]
+        expect(asserted_distribution.save).to be_truthy
+        expect(asserted_distribution.citations.count).to eq(1) 
+      end
+
+      specify 'providing a citation with #citations.build validates' do
+        asserted_distribution.citations.build(source: source) 
+        expect(asserted_distribution.save).to be_truthy
+        expect(asserted_distribution.citations.count).to eq(1) 
+      end
+
+      specify 'providing a citation with #citations <<  validates' do
+        asserted_distribution.citations << Citation.new(source: source) 
+        expect(asserted_distribution.save).to be_truthy
+        expect(asserted_distribution.citations.count).to eq(1) 
+      end
+
+      specify 'all attributes with #new validates' do
+        a = AssertedDistribution.new(otu: otu, geographic_area: geographic_area, citations_attributes: [{source_id: source.id}])
+        expect(a.save).to be_truthy
+        expect(a.citations.count).to eq(1)
+      end
+
+      context 'attempting to delete last citation' do
+        specify 'when citation is origin_ciation' do
+          asserted_distribution.source = source
+          asserted_distribution.save!
+          expect(asserted_distribution.citations.count).to eq(1)
+          expect(asserted_distribution.citations(true).first.destroy).to be_falsey
+        end
+
+        specify 'when citation is not origin citation' do
+          asserted_distribution.citations << Citation.new(source: source) 
+          expect(asserted_distribution.save).to be_truthy
+          expect(asserted_distribution.citations.count).to eq(1)
+          expect(asserted_distribution.citations(true).first.destroy).to be_falsey 
+        end
       end
     end
     

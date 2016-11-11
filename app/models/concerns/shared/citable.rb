@@ -10,7 +10,7 @@ module Shared::Citable
     related_class = self.name
     related_table_name = self.table_name
 
-    has_many :citations, as: :citation_object, validate: false, dependent: :destroy
+    has_many :citations, as: :citation_object, validate: false, dependent: :destroy 
     has_many :citation_topics, through: :citations
     has_many :topics, through: :citation_topics
    
@@ -73,6 +73,9 @@ module Shared::Citable
     accepts_nested_attributes_for :origin_citation, reject_if: :reject_citations, allow_destroy: true
 
     validate :origin_citation_source_id, if: '!new_record?'
+
+    # Rquired to drigger validat callbacks, which in turn set user_id related housekeeping
+    validates_associated :citations
   end
 
   def origin_citation_source_id
@@ -108,7 +111,7 @@ module Shared::Citable
   protected 
 
   def reject_citations(attributed)
-    return true if attributed['source_id'].blank?
+    return true if attributed['source_id'].blank? && attributed['source'].blank?
     if !new_record?
       return true if attributed['id'].blank?
     end
