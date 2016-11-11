@@ -127,6 +127,7 @@ group :test, :development do
 end
 
 group :development do
+  gem 'tunemygc'
   gem 'better_errors', '~> 2.0'
   gem 'binding_of_caller'
   gem 'spring-commands-rspec', '~> 1.0.2'
