@@ -59,10 +59,10 @@ namespace :tw do
                   type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus',
                   project_id: project_id
               )
-              if tnr.valid?
+              begin
                 tnr.save!
                 puts 'TaxonNameRelationship OriginalGenusID created'
-              else # tnr not valid
+              rescue ActiveRecord::RecordInvalid # tnr not valid
                 logger.error "TaxonNameRelationship OriginalGenusID ERROR tw.project_id #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id}, SF.OriginalGenusID #{row['OriginalGenusID']} = TW.original_genus_id #{original_genus_id} (Error # #{error_counter += 1}): " + tnr.errors.full_messages.join(';')
               end
             end
@@ -77,10 +77,10 @@ namespace :tw do
                   taxon_name_id: taxon_name_id,
                   project_id: project_id
               )
-              if tnc.valid?
+              begin
                 tnc.save!
                 puts 'TaxonNameClassification::Iczn::Unavailable created'
-              else # tnc not valid
+              rescue ActiveRecord::RecordInvalid # tnc not valid
                 logger.error "TaxonNameClassification 'TaxonNameClassification::Iczn::Unavailable' ERROR tw.project_id #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id} (Error # #{error_counter += 1}): " + tnc.errors.full_messages.join(';')
               end
             end
@@ -93,10 +93,10 @@ namespace :tw do
                                      import_predicate: 'Nec author',
                                      value: row['NecAuthor'],
                                      project_id: project_id)
-              if da.valid?
+              begin
                 da.save!
                 puts 'DataAttribute NecAuthor created'
-              else # da not valid
+              rescue ActiveRecord::RecordInvalid # da not valid
                 logger.error "DataAttribute NecAuthor ERROR SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id} (#{error_counter += 1}): " + da.errors.full_messages.join(';')
               end
             end
@@ -120,10 +120,10 @@ namespace :tw do
                         taxon_name_id: taxon_name_id,
                         project_id: project_id
                     )
-                    if tnc.valid?
+                    begin
                       tnc.save!
                       puts 'TaxonNameClassification Unavailable created'
-                    else
+                    rescue ActiveRecord::RecordInvalid
                       logger.error "TaxonNameClassification Unavailable ERROR tw.project_id #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id}, (Error # #{error_counter += 1}): " + tnc.errors.full_messages.join(';')
                     end
                     no_relationship = true
@@ -173,10 +173,10 @@ namespace :tw do
                         taxon_name_id: taxon_name_id,
                         project_id: project_id
                     )
-                    if tnc.valid?
+                    begin
                       tnc.save!
                       puts 'TaxonNameClassification Invalid::Homonym created'
-                    else
+                    rescue ActiveRecord::RecordInvalid
                       logger.error "TaxonNameClassification Invalid::Homonym ERROR tw.project_id #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id}, (Error # #{error_counter += 1}): " + tnc.errors.full_messages.join(';')
                     end
 
@@ -285,7 +285,7 @@ namespace :tw do
                     project_id: project_id
                 )
 
-                if tnr.valid?
+                if !tnr.try(:id).nil?
                   # tnr.save!
                   puts "TaxonNameRelationship '#{type}' exists"
 
@@ -299,10 +299,10 @@ namespace :tw do
                         taxon_name_id: taxon_name_id,
                         project_id: project_id
                     )
-                    if tnc.valid?
+                    begin
                       tnc.save!
                       puts 'TaxonNameClassification Invalid::Homonym created'
-                    else
+                    rescue ActiveRecord::RecordInvalid
                       logger.error "TaxonNameClassification Invalid::Homonym ERROR tw.project_id #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id}, (Error # #{error_counter += 1}): " + tnc.errors.full_messages.join(';')
 
                     end
@@ -425,10 +425,9 @@ namespace :tw do
                 project_id: project_id
             )
 
-           # if tnr.valid?
             if !tnr.try(:id).nil?
               # tnr.save!
-              puts 'TaxonNameRelationship created'
+              puts 'TaxonNameRelationship created or already existed'
 
             else # tnr not valid
               logger.error "TaxonNameRelationship tblRelatedTaxa ERROR tw.project_id #{project_id}, SF.OlderNameID #{row['OlderNameID']} = tw.object_name_id #{object_name_id} (#{error_counter += 1}): " + tnr.errors.full_messages.join(';')
@@ -487,11 +486,11 @@ namespace :tw do
                 project_id: project_id,
             )
 
-            if tnr.valid?
+            begin
               tnr.save!
               puts 'TaxonNameRelationship created'
 
-            else # tnr not valid
+            rescue ActiveRecord::RecordInvalid # tnr not valid
               logger.error "TaxonNameRelationship ERROR TW.taxon_name_id #{family_name_id} (#{error_counter += 1}): " + tnr.errors.full_messages.join(';')
             end
           end
@@ -580,17 +579,17 @@ namespace :tw do
                 project_id: project_id,
             )
 
-            if tnr.valid?
+            begin
               tnr.save!
               puts 'TaxonNameRelationship created'
 
               if row['AuthorityRefID'].to_i > 0 # 20 out of 1924 sources not found
                 tnr_cit = tnr.citations.new(source_id: authority_ref_id,
                                             project_id: project_id)
-                if tnr_cit.valid?
+                begin
                   tnr_cit.save!
                   puts 'Citation created'
-                else # tnr_cit not valid
+                rescue ActiveRecord::RecordInvalid # tnr_cit not valid
                   logger.error "TaxonNameRelationship citation ERROR TW.taxon_name_id #{genus_name_id} (#{error_counter += 1}): " + tnr_cit.errors.full_messages.join(';')
                 end
               end
@@ -601,10 +600,10 @@ namespace :tw do
                                  note_object_type: 'TaxonName',
                                  project_id: project_id)
 
-                if note4.valid?
+                begin
                   note4.save!
                   puts 'Note4 created'
-                else # note4 not valid
+                rescue ActiveRecord::RecordInvalid # note4 not valid
                   logger.error "TaxonName note4 ERROR TW.taxon_name_id #{genus_name_id} (#{error_counter += 1}): " + note4.errors.full_messages.join(';')
                 end
               end
@@ -615,10 +614,10 @@ namespace :tw do
                                  note_object_type: 'TaxonName',
                                  project_id: project_id)
 
-                if note9.valid?
+                begin
                   note9.save!
                   puts 'Note9 created'
-                else # note9 not valid
+                rescue ActiveRecord::RecordInvalid # note9 not valid
                   logger.error "TaxonName note9 ERROR TW.taxon_name_id #{genus_name_id} (#{error_counter += 1}): " + note9.errors.full_messages.join(';')
                 end
               end
@@ -631,10 +630,10 @@ namespace :tw do
                                        value: first_family_group_name_id,
                                        project_id: project_id)
 
-                if da.valid?
+                begin
                   da.save!
                   puts 'FirstFamilyGroupName (da) created'
-                else # da not valid
+                rescue ActiveRecord::RecordInvalid # da not valid
                   logger.error "DataAttribute ERROR TW.taxon_name_id #{genus_name_id} (#{error_counter += 1}): " + da.errors.full_messages.join(';')
                 end
               end
@@ -844,56 +843,16 @@ namespace :tw do
                   updated_by_id: get_tw_user_id[row['ModifiedBy']]
               )
 
-              # if taxon_name.save
-              if taxon_name.valid?
+
+              begin
                 taxon_name.save!
                 # logger.info "taxon_name.id = #{taxon_name.id}"
                 get_tw_taxon_name_id[row['TaxonNameID']] = taxon_name.id.to_s
                 get_sf_name_status[row['TaxonNameID']] = name_status
                 get_sf_status_flags[row['TaxonNameID']] = status_flags
 
-                # add taxon_name_classifications here
-
-
-                # test if valid before save; if one of anticipated import errors, add classification, then try to save again...
-
-                # Dmitry's code:
-                # if taxon.valid?
-                #   taxon.save!
-                #   @data.taxon_index.merge!(row['Key'] => taxon.id)
-                # else
-                #   taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin') if taxon.rank_string =~ /Family/ && row['Status'] != '0' && !taxon.errors.messages[:name].blank?
-                #   taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin') if taxon.rank_string =~ /Species/ && row['Status'] != '0' && taxon.errors.full_messages.include?('Name name must be lower case')
-                #   taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin') if taxon.rank_string =~ /Species/ && row['Status'] != '0' && taxon.errors.full_messages.include?('Name Name must be latinized, no digits or spaces allowed')
-                #   taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin') if taxon.rank_string =~ /Genus/ && row['Status'] != '0' && taxon.errors.full_messages.include?('Name Name must be latinized, no digits or spaces allowed')
-                #
-                #   if taxon.valid?
-                #     taxon.save!
-                #     @data.taxon_index.merge!(row['Key'] => taxon.id)
-                #   else
-                #     print "\n#{row['Key']}         #{row['Name']}"
-                #     print "\n#{taxon.errors.full_messages}\n"
-                #     #byebug
-                #   end
-                # end of Dmitry's code
-
-                #
-                # case taxon_name.errors.full_messages.include?
-                # when 'Name name must end in -oidea', 'Name name must end in -idae', 'Name name must end in ini', 'Name name must end in -inae'
-                # and row['NameStatus'] == '7'
-                # taxon_name.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable')
-
-                #
-                # when 'Name Name must be latinized, no digits or spaces allowed'
-                # and row['NameStatus'] == '7'
-                # taxon_name.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::NotLatin')
-
-                # elsif row['NameStatus'] == '7' # make all NotLatin... Dmitry Add project_id
-                #   # case taxon_name.errors.full_messages.include? # ArgumentError: wrong number of arguments (given 0, expected 1)
-                #   #   when 'Name name must end in -oidea', 'Name name must end in -idae', 'Name name must end in ini', 'Name name must end in -inae'
-                #   #     taxon_name.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable')
-                #   #   when 'Name Name must be latinized, no digits or spaces allowed'
-              else
+              # if one of anticipated import errors, add classification, then try to save again...
+              rescue ActiveRecord::RecordInvalid
                 taxon_name.taxon_name_classifications.new(
                     type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin',
                     project_id: project_id,
@@ -910,14 +869,14 @@ namespace :tw do
                                     updated_by_id: get_tw_user_id[row['ModifiedBy']])
               end
 
-              if taxon_name.valid?
+              begin
                 taxon_name.save! # taxon won't be saved if something wrong with classifications_attributes, read about !
                 # @todo: Make sure get_tw_taxon_name_id.value is string
                 get_tw_taxon_name_id[row['TaxonNameID']] = taxon_name.id.to_s # original import made this an integer
                 get_sf_name_status[row['TaxonNameID']] = name_status
                 get_sf_status_flags[row['TaxonNameID']] = status_flags
 
-              else
+              rescue ActiveRecord::RecordInvalid
                 logger.error "TaxonName ERROR (#{error_counter += 1}) AFTER synonym test (SF.TaxonNameID = #{taxon_name_id}, parent_id = #{parent_id}): " + taxon_name.errors.full_messages.join(';')
               end
             end

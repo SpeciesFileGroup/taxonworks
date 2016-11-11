@@ -604,21 +604,12 @@ namespace :tw do
                   alternate_value_object_attribute: 'last_name'
               )
 
-              # TODO: example here
               begin
                 a.save!
                 logger.info "Attribute added (#{added_counter += 1})"
               rescue ActiveRecord::RecordInvalid
                 logger.info "Attribute ERROR (#{error_counter += 1}): invalid attribute -- " + a.errors.full_messages.join(';')
               end
-
-              # if a.valid?
-              #   a.save!
-              #   logger.info "Attribute added (#{added_counter += 1})"
-              # else
-              #   logger.info "Attribute ERROR (#{error_counter += 1}): invalid attribute -- " + a.errors.full_messages.join(';')
-              # end
-
             end
           end
           logger.info "person_error_counter = #{person_error_counter}, added_counter = #{added_counter}, error_counter = #{error_counter}"

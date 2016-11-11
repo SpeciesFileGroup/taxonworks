@@ -55,7 +55,7 @@ namespace :tw do
             #                              updated_by_id: get_tw_user_id[row['ModifiedBy']]}
 
 
-                # CiteInfoFlags, treat like StatusFlags, append all info_flags into single string as import_attributes
+            # CiteInfoFlags, treat like StatusFlags, append all info_flags into single string as import_attributes
             # use topics
 
 
@@ -77,10 +77,7 @@ namespace :tw do
             #     #   end of example
 
 
-
-
-
-                older_name_id = get_tw_taxon_name_id[row['OlderNameID']].to_i
+            older_name_id = get_tw_taxon_name_id[row['OlderNameID']].to_i
             younger_name_id = get_tw_taxon_name_id[row['YoungerNameID']].to_i
             relationship = row['Relationship']
 
@@ -158,7 +155,7 @@ namespace :tw do
                 project_id: project_id
             )
 
-            if tnr.valid?
+            if !tnr.try(:id).nil?
               # tnr.save!
               puts 'TaxonNameRelationship created'
 
