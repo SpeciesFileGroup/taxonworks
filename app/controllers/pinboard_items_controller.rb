@@ -1,6 +1,5 @@
 class PinboardItemsController < ApplicationController
   before_action :require_sign_in 
-
   before_action :set_pinboard_item, only: [:destroy]
 
   # POST /pinboard_items
@@ -19,7 +18,9 @@ class PinboardItemsController < ApplicationController
   end
 
   # Stub a "reorder" method
-  def reorder
+  def update_position
+    PinboardItem.reorder(params.require(:order))
+    render nothing: true
   end
 
   # DELETE /pinboard_items/1
@@ -33,12 +34,10 @@ class PinboardItemsController < ApplicationController
   end
 
   private
-  # Use callbacks to share common setup or constraints between actions.
   def set_pinboard_item
     @pinboard_item = PinboardItem.with_project_id($project_id).find(params[:id])
   end
 
-  # Never trust parameters from the scary internet, only allow the white list through.
   def pinboard_item_params
     params.require(:pinboard_item).permit(:pinned_object_id, :pinned_object_type, :user_id, :is_inserted, :is_cross_project, :inserted_count)
   end

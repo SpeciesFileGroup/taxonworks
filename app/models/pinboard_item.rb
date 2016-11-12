@@ -1,37 +1,36 @@
-# PinboardItem definition...
-#   @todo
+# A PinboardItem is an object on a user's pinboard. 
 #
 # @!attribute pinned_object_id
 #   @return [Integer]
-#   @todo
+#      the id of the object being pinned 
 #
 # @!attribute pinned_object_type
 #   @return [String]
-#   @todo
+#     the type of the object being pinned 
 #
 # @!attribute user_id
 #   @return [Integer]
-#   @todo Should this be listed or is it considered part of housekeeping??
+#      this identifies the pinboard 
 #
 # @!attribute project_id
 #   @return [Integer]
-#   the project ID
+#   the project ID 
 #
 # @!attribute position
 #   @return [Integer]
-#   @todo
+#     the relative position of this object, nests within object type 
 #
 # @!attribute is_inserted
 #   @return [Boolean]
-#   @todo
+#     when true this pinboard item is automatically inserted into accepting form fields 
 #
-# @!attribute is_cross_platform
+# @!attribute is_cross_project
 #   @return [Boolean]
-#   @todo
+#     pinboard item will show up regardless of which project is selected 
 #
 # @!attribute inserted_count
 #   @return [Integer]
-#   @todo
+#     (not implemented) - the number of times this item has been inserted 
 #
 class PinboardItem < ActiveRecord::Base
   include Housekeeping
@@ -46,6 +45,12 @@ class PinboardItem < ActiveRecord::Base
   validates_uniqueness_of :user_id, scope: [ :pinned_object_id, :pinned_object_type ]
 
   scope :for_object, -> (object) {where(pinned_object_id: object.id, pinned_object_type: object.class.to_s) }
+
+  def self.reorder(pinboard_item_ids)
+    pinboard_item_ids.each_with_index do |id, i|
+      PinboardItem.find(id).update_attribute(:position, i)
+    end    
+  end
 
   def is_inserted?
     !is_inserted.blank?

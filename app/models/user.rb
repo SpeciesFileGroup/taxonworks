@@ -246,10 +246,13 @@ class User < ActiveRecord::Base
     true
   end
 
+  # TODO:  This needs to show cross-project pinboard items as well
   def pinboard_hash(project_id)
-    pinboard_items.where(project_id: project_id).order('pinned_object_type DESC').to_a.group_by { |a| a.pinned_object_type }
+    pinboard_items.where(project_id: project_id).order('pinned_object_type DESC, position').to_a.group_by { |a| a.pinned_object_type }
   end
 
+  # @return [Integer]
+  #   the total records of this klass created by this user
   def total_objects(klass) # klass_name is a string, need .constantize in next line
     klass.where(creator: self).count
   end

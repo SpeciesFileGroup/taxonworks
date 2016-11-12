@@ -31,7 +31,7 @@ TaxonWorks::Application.routes.draw do
   # Note singular 'resource'
   resource :hub, controller: 'hub', only: [:index] do
     get '/', action: :index
-    get 'order_tabs'
+    get 'order_tabs' # should be POST
     post 'update_tab_order'
   end
 
@@ -53,7 +53,12 @@ TaxonWorks::Application.routes.draw do
   end
 
   resources :project_members, except: [:index, :show]
-  resources :pinboard_items, only: [:create, :destroy]
+  resources :pinboard_items, only: [:create, :destroy] do
+    collection do
+      post 'update_position'
+      post 'update_type_position'
+    end
+  end
 
   ### Below this point, please keep objects in alphabetical order ###
 
