@@ -52,7 +52,7 @@ describe Identifier::Global, type: :model, group: :identifiers do
     specify 'same identifer is allowed b/w project (same type)' do
       id = 'http://abc.net/bar/22'
       expect(otu.identifiers << Identifier::Global::Uri.new(identifier: id )).to be_truthy
-      p = FactoryGirl.create(:valid_project)
+      p = FactoryGirl.create(:valid_project, name: 'New Project')
       i = Identifier::Global::Uri.new(identifier: id, identifier_object: FactoryGirl.create(:valid_otu, project_id: p.id), project_id: p.id)
       expect(i.valid?).to be_truthy
       expect(i.errors.include?(:identifier)).to be_falsey
