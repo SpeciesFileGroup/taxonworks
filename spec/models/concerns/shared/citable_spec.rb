@@ -13,12 +13,6 @@ describe 'Citable', type: :model, group: [:nomenclature] do
       expect(class_with_citations.save!).to be_truthy
       expect(class_with_citations.citations(true).count).to eq(1)
     end
-
-    specify 'with #new, unsaved base raises (creator_id not being set)' do
-      class_with_citations.citations << Citation.new(source: source)
-      expect{class_with_citations.save!}.to raise_error(ActiveRecord::StatementInvalid)
-      expect(class_with_citations.citations(true).count).to eq(0)
-    end
   end
 
   context 'associations' do
