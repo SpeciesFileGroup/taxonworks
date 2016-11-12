@@ -66,12 +66,12 @@ describe "AssertedDistributions", :type => :feature do
         click_link('New')
         expect(page.has_field?('asserted_distribution[otu_id]', :type => 'text')).to be_truthy
 
-        expect(page.has_field?('geographic_area_id_for_asserted_distribution', :type => 'text')).to be_truthy
-        # expect(page.has_field?('source_id_for_asserted_distribution', :type => 'text')).to be_truthy
+        expect(page.has_field?('geographic_area_id_for_asserted_distribution', type: 'text')).to be_truthy
+        expect(page.has_field?('source_id_for_original_citation_asserted_distribution', type: 'text')).to be_truthy
 
         fill_otu_widget_autocomplete('asserted_distribution[otu_id]', with: 'zzzz', select: o.id)
         fill_autocomplete('geographic_area_id_for_asserted_distribution', with: g.name, select: g.id)
-        # fill_autocomplete('source_id_for_asserted_distribution', with: s.cached, select: s.id)
+        fill_autocomplete('source_id_for_original_citation_asserted_distribution', with: s.cached, select: s.id)
 
         click_button('Create Asserted distribution')
 
