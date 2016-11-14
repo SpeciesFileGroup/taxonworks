@@ -504,10 +504,10 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
         # this is not a particular date range, but it covers collecting events which have more than one
         # collection object
         collecting_event_ids = CollectingEvent.in_date_range({search_start_date: '1970/01/01', search_end_date: '1979/12/31', partial_overlap: 'on'}).pluck(:id)
-        area_object_ids      = CollectionObject.where(collecting_event_id: collecting_event_ids).map(&:id)
+        area_object_ids = CollectionObject.all.pluck(:id) # equivalent to the whole world - not a very good isolation test
         collection_objects   = CollectionObject.from_collecting_events(collecting_event_ids,
                                                                        area_object_ids,
-                                                                       false,
+                                                                       true,
                                                                        $project_id)
         expect(collecting_event_ids.count).to eq(9)
         expect(collection_objects.count).to eq(10)
@@ -515,15 +515,36 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
     end
 
     describe 'slice of collecting_events by area' do
-      specify 'should find 5 collecting objects' do
-        collecting_event_ids = CollectingEvent.contained_within(@item_wb).pluck(:id)
+      specify 'should find 1 collecting objects' do
+        collecting_event_ids = CollectingEvent.contained_within(@item_r).pluck(:id) + (CollectingEvent.contained_within(@item_s).pluck(:id))
         area_object_ids      = CollectionObject.where(collecting_event_id: collecting_event_ids).map(&:id)
+        collecting_event_ids = CollectingEvent.in_date_range({search_start_date: '1970/01/01', search_end_date: '1982/12/31', partial_overlap: 'off'}).pluck(:id)
         collection_objects   = CollectionObject.from_collecting_events(collecting_event_ids,
                                                                        area_object_ids,
                                                                        false,
                                                                        $project_id)
-        expect(collecting_event_ids.count).to eq(6)
-        expect(collection_objects.count).to eq(5)
+        expect(collecting_event_ids.count).to eq(10)
+        expect(collection_objects.count).to eq(1)
+        found_c_os = [@co_m3]
+        found_c_os.each_with_index { |c_o, index|
+          expect(collection_objects[index].metamorphosize).to eq(c_o)
+        }
+      end
+
+      specify 'should find 2 collecting objects' do
+        collecting_event_ids = CollectingEvent.contained_within(@item_r).pluck(:id) + (CollectingEvent.contained_within(@item_s).pluck(:id))
+        area_object_ids = CollectionObject.where(collecting_event_id: collecting_event_ids).map(&:id)
+        collecting_event_ids = CollectingEvent.in_date_range({search_start_date: '1970/01/01', search_end_date: '1982/12/31', partial_overlap: 'On'}).pluck(:id)
+        collection_objects = CollectionObject.from_collecting_events(collecting_event_ids,
+                                                                     area_object_ids,
+                                                                     false,
+                                                                     $project_id)
+        expect(collecting_event_ids.count).to eq(11)
+        expect(collection_objects.count).to eq(2)
+        found_c_os = [@co_m3, @co_n3]
+        found_c_os.each_with_index { |c_o, index|
+          expect(collection_objects[index].metamorphosize).to eq(c_o)
+        }
       end
 
       specify 'should find 0 collecting objects' do
