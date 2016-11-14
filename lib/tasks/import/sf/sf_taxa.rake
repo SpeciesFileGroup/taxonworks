@@ -638,7 +638,7 @@ namespace :tw do
                 end
               end
 
-            else # tnr not valid
+            rescue ActiveRecord::RecordInvalid # tnr not valid
               logger.error "TaxonNameRelationship ERROR TW.taxon_name_id #{genus_name_id} (#{error_counter += 1}): " + tnr.errors.full_messages.join(';')
             end
           end
