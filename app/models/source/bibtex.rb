@@ -641,10 +641,10 @@ class Source::Bibtex < Source
       else
         b = self.to_bibtex
         b.parse_names
-        return b.author.tokens.collect { |t| t.last }.to_sentence(last_word_connector: ' & ')
+        return b.author.tokens.collect{ |t| t.last }.to_sentence(last_word_connector: ' & ', two_words_connector: ' & ')
       end
     else # use normalized records 
-      return self.authors.collect { |a| a.full_last_name }.to_sentence(last_word_connector: ' & ')
+      return self.authors.collect{ |a| a.full_last_name }.to_sentence(last_word_connector: ' & ', two_words_connector: ' & ')
     end
   end
 
