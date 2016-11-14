@@ -141,7 +141,10 @@ class TaxonName < ActiveRecord::Base
   has_closure_tree
   has_paper_trail
   
-  belongs_to :valid_taxon_name, class_name: TaxonName, foreign_key: :cached_valid_taxon_name_id
+  belongs_to :valid_taxon_name, class_name: 'TaxonName', foreign_key: :cached_valid_taxon_name_id
+
+  # TODO: think of a different name, and test
+  has_many :historical_taxon_names, class_name: 'TaxonName', foreign_key: :cached_valid_taxon_name_id 
 
   before_validation :set_type_if_empty
   before_save :set_cached_names
