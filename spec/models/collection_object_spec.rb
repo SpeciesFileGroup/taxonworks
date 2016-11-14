@@ -504,7 +504,11 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
         # this is not a particular date range, but it covers collecting events which have more than one
         # collection object
         collecting_event_ids = CollectingEvent.in_date_range({search_start_date: '1970/01/01', search_end_date: '1979/12/31', partial_overlap: 'on'}).pluck(:id)
-        collection_objects   = CollectionObject.from_collecting_events(collecting_event_ids, [], false, $project_id)
+        area_object_ids      = CollectionObject.where(collecting_event_id: collecting_event_ids).map(&:id)
+        collection_objects   = CollectionObject.from_collecting_events(collecting_event_ids,
+                                                                       area_object_ids,
+                                                                       false,
+                                                                       $project_id)
         expect(collecting_event_ids.count).to eq(9)
         expect(collection_objects.count).to eq(10)
       end
@@ -513,8 +517,9 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
     describe 'slice of collecting_events by area' do
       specify 'should find 5 collecting objects' do
         collecting_event_ids = CollectingEvent.contained_within(@item_wb).pluck(:id)
+        area_object_ids      = CollectionObject.where(collecting_event_id: collecting_event_ids).map(&:id)
         collection_objects   = CollectionObject.from_collecting_events(collecting_event_ids,
-                                                                       [],
+                                                                       area_object_ids,
                                                                        false,
                                                                        $project_id)
         expect(collecting_event_ids.count).to eq(6)
