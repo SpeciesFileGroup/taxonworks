@@ -515,7 +515,7 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
     end
 
     describe 'slice of collecting_events by area' do
-      specify 'should find 1 collecting objects' do
+      specify 'should find 1 collecting object' do
         collecting_event_ids = CollectingEvent.contained_within(@item_r).pluck(:id) + (CollectingEvent.contained_within(@item_s).pluck(:id))
         area_object_ids      = CollectionObject.where(collecting_event_id: collecting_event_ids).map(&:id)
         collecting_event_ids = CollectingEvent.in_date_range({search_start_date: '1970/01/01', search_end_date: '1982/12/31', partial_overlap: 'off'}).pluck(:id)
