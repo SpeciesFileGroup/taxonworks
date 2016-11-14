@@ -1,43 +1,56 @@
 class ProjectMembersController < ApplicationController
   before_action :require_superuser_sign_in 
+  
   before_action :set_project_member, only: [:edit, :update, :destroy]
-  before_action :set_form_variables, only: [:new, :create]
-
-  def set_form_variables
-    @available_users = User.all.not_in_project(sessions_current_project_id).order(:name)
-    @target_letters = @available_users.collect{|u| u.name[0].upcase}.uniq
-  end
-
+  before_action :set_member_project, only: [:many_new, :new, :create_many]
+  before_action :set_available_users, only: [:many_new, :new]
+  before_action :set_form_variables, only: [:many_new]
+  
   # GET /project_members/new
   def new
-    redirect_to hub_path, notice: 'Select a project first.' if !sessions_project_selected?
-    @project_member = ProjectMember.new(project_id: sessions_current_project_id)
+    @project_member = ProjectMember.new(project_member_params)
     redirect_to project_path(@project_member.project), alert: 'There are no additional users available to add to this project.' if !@available_users.any?
   end
 
-  # GET /project_members/1/edit
+    # GET /project_members/1/edit
   def edit
   end
 
-  # POST /project_members
+  # POST /otus
   def create
+    @project_member = ProjectMember.new(project_member_params)
 
-    project = Project.find(sessions_current_project)
+    respond_to do |format|
+      if @project_member.save
+        format.html { redirect_to project_path(@project_member.project),
+                      notice: "User #{@project_member.user.name}' was successfully added to #{@project_member.project.name}." }
+      else
+        set_available_users
+        format.html { render action: 'new' }
+      end
+    end
+  end
 
+  # POST /project_members/create_many
+  def create_many
     begin
-
       ActiveRecord::Base.transaction do
         project_members_params[:user_ids].each do |user_id|
-          project.project_members.create!(project_member_params.merge(user_id: user_id)) 
+          @member_project.project_members.create!(project_member_params.merge(user_id: user_id)) 
         end 
       end
 
       @project_member = ProjectMember.new(project_member_params)
-      redirect_to project_path(sessions_current_project_id), notice: "Project members were added to project." 
+      redirect_to project_path(@member_project), notice: "Project members were added to project." 
 
     rescue ActiveRecord::RecordInvalid
-      render :new 
+      redirect_to many_new_project_members_path, notice: "There was a problem adding project members, none were added." 
     end
+  end
+
+  def many_new
+    @project_member = ProjectMember.new(project_member_params)
+    redirect_to project_path(@project_member.project), alert: 'There are no additional users available to add to this project.' if !@available_users.any?
   end
 
   # PATCH/PUT /project_members/1
@@ -65,17 +78,33 @@ class ProjectMembersController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_project_member
-      @project_member = ProjectMember.where(project_id: sessions_current_project_id).find(params[:id])
-    end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def project_member_params
-      params.require(:project_member).permit(:project_id, :is_project_administrator)
-    end
+  def set_available_users
+    @available_users = User.all.not_in_project(@member_project).order(:name)
+  end
 
-    def project_members_params
-      params.require(:project_member).permit(user_ids: [])
-    end
-end
+  def set_form_variables
+    @target_letters = @available_users.collect{|u| u.name[0].upcase}.uniq
+  end
+
+  def set_project_member
+    @project_member = ProjectMember.find(params[:id])
+  end
+
+ def set_member_project
+    @member_project = Project.find(project_id_param)
+  end
+
+  def project_member_params
+    params.require(:project_member).permit(:project_id, :is_project_administrator, :user_id)
+  end
+
+  def project_members_params
+    params.require(:project_member).permit(:project_id, user_ids: []) 
+  end
+
+  def project_id_param
+    params.require(:project_member).permit(:project_id)[:project_id]
+  end
+
+end 

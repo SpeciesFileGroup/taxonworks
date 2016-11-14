@@ -23,11 +23,13 @@ RSpec.describe ProjectMembersController, :type => :controller do
     sign_in_administrator 
     @unplaced_user = FactoryGirl.create(:valid_user)
   }
+
   # This should return the minimal set of attributes required to create a valid
   # ProjectMember. As you add validations to ProjectMember, be sure to
   # adjust the attributes here as well.
-  let(:valid_attributes) { {user_id: @unplaced_user.id, project_id: 1, created_by_id: 1, updated_by_id: 1} }
-  let(:invalid_attributes) { {user_id: @unplaced_user.id, project_id: nil,  created_by_id: 1, updated_by_id: 1} }
+  let(:valid_attributes) { {user_id: @unplaced_user.id, project_id: 1 } }
+  let(:invalid_attributes) { {user_id: @unplaced_user.id, project_id: nil } } # also invalid for _many_
+  let(:create_many_valid_attributes) { { user_ids: [@unplaced_user.id], project_id: 1} }
 
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in
@@ -63,7 +65,7 @@ RSpec.describe ProjectMembersController, :type => :controller do
         expect(assigns(:project_member)).to be_persisted
       end
 
-      it "redirects to the created project_member" do
+      it "redirects to the project overview page" do
         post :create, {:project_member => valid_attributes}, valid_session
         expect(response).to redirect_to(project_path(1))
       end
@@ -81,6 +83,32 @@ RSpec.describe ProjectMembersController, :type => :controller do
       end
     end
   end
+
+  describe "POST create_many" do
+    describe "with valid params" do
+      it "creates a new ProjectMember" do
+        expect {
+          post :create_many, {:project_member => create_many_valid_attributes}, valid_session
+        }.to change(ProjectMember, :count).by(1)
+      end
+    end
+
+    describe "with invalid params (no project_id)" do
+      it "assigns a stubbed project_member as @project_member" do
+        post :create_many, {:project_member => invalid_attributes}, valid_session
+        expect(response.status).to eq(404)
+        #expect(response).to render_template('many_new')
+        #expect(assigns(:project_member)).to be_a_new(ProjectMember)
+      end
+    end
+
+    describe "with invalid params (invalid user_id)" do
+      it "assigns a stubbed project_member as @project_member" do
+        post :create_many, {:project_member => invalid_attributes.merge(project_id: 1, user_ids: [12312, 123321])}, valid_session
+        expect(response).to redirect_to( many_new_project_members_path) 
+      end
+    end
+  end 
 
   describe "PUT update" do
     describe "with valid params" do
