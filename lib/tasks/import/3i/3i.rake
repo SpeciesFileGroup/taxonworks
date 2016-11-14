@@ -228,7 +228,7 @@
         handle_projects_and_users_3i
         raise '$project_id or $user_id not set.'  if $project_id.nil? || $user_id.nil?
 
-#        $project_id = 1
+        #$project_id = 1
         handle_controlled_vocabulary_3i
         handle_litauthors_3i
         handle_references_3i
@@ -1123,7 +1123,7 @@
             print "\n#{row['Family']} does not exists\n"
           end
 
-          s = find_publication_id(row['Key3'])
+          s = find_publication_id_3i(row['Key3'])
 
           if subject && object
             ba = BiologicalAssociation.find_or_create_by!(biological_relationship: @host_plant_relationship,
@@ -1166,7 +1166,7 @@
           if p.nil?
             print "\nProblematic Key: #{row['Key']}\n"
           else
-            source = find_publication_id(row['Key3'])
+            source = find_publication_id_3i(row['Key3'])
 
             byebug if p.nil?
             c = p.citations.find_or_create_by!(source_id: source, project_id: $project_id)
@@ -1213,7 +1213,7 @@
         file.each_with_index do |row, i|
           print "\r#{i}"
           otu = find_otu(row['Key'])
-          source = find_publication_id(row['Key3'])
+          source = find_publication_id_3i(row['Key3'])
           country = @data.countries[row['Key6']]
           erroneously, introduced = nil, false
           unless country.nil?
@@ -1231,9 +1231,8 @@
                                     #source_id: source,
                                     is_absent: erroneously,
                                     project_id: $project_id )
-            c = ad.citations.find_or_create_by(source_id: source, project_id: $project_id)
-
-
+            c = ad.citations.new(source_id: source, project_id: $project_id)
+            ad.save
             ad.tags.find_or_create_by!(keyword: @data.keywords['introduced']) if introduced
           end
 
@@ -1337,7 +1336,7 @@
 
           collecting_event = find_or_create_collecting_event_3i(row)
           repository = Repository.find_by_acronym(@data.museums[row['Museum']]) unless @data.museums[row['Museum']].blank?
-          source = find_publication_id(row['Key3'])
+          source = find_publication_id_3i(row['Key3'])
 
           no_specimens = false
           if count_fields.collect{ |f| row[f] }.select{ |n| !n.nil? }.empty?
@@ -1672,9 +1671,12 @@
         # otu
       end
 
-      def find_publication_id(key3)
-        #@data.publications_index[key3.to_s] || Source.with_identifier('3i_Source_ID ' + key3.to_s).first.try(:id)
+      def find_publication_id_3i(key3)
         @data.publications_index[key3.to_s] || Identifier.where(cached: '3i_Source_ID ' + key3.to_s).limit(1).pluck(:identifier_object_id).first
+      end
+
+      def find_publication_3i(key3)
+        @data.publications_index[key3.to_s] || Identifier.where(cached: '3i_Source_ID ' + key3.to_s).limit(1).first
       end
 
       def handle_parasitoids_3i
@@ -1695,17 +1697,18 @@
         file = CSV.foreach(path, col_sep: "\t", headers: true)
 
         file.each_with_index do |row, i|
+          next if row['Family'].blank?
           print "\r#{i}"
           p = Protonym.find_by(name: row['Order'], rank_class: Ranks.lookup(:iczn, 'Order'), project_id: $project_id)
           p = Protonym.find_or_create_by(name: row['Superfamily'], parent_id: p.id, rank_class: Ranks.lookup(:iczn, 'Superfamily'), project_id: $project_id) unless row['Superfamily'].blank?
-          p = Protonym.find_or_create_by(name: row['Family'], rank_class: Ranks.lookup(:iczn, 'Family'), project_id: $project_id) unless row['Family'].blank?
+          family = Protonym.find_or_create_by(name: row['Family'], rank_class: Ranks.lookup(:iczn, 'Family'), project_id: $project_id) unless row['Family'].blank?
           if family.parent_id != p.id
             family.parent_id = p.id
             family.save!
           end
           p = family
           p = Protonym.find_or_create_by(name: row['Genus'], parent_id: p.id, rank_class: Ranks.lookup(:iczn, 'Genus'), project_id: $project_id) unless row['Genus'].blank?
-          p = Protonym.find_or_create_by(name: row['Species'], parent_id: p.id, rank_class: Ranks.lookup(:iczn, 'Species'), project_id: $project_id) unless row['Species'].blank?
+          p = Protonym.find_or_create_by(name: row['Species'], parent_id: p.id, rank_class: Ranks.lookup(:iczn, 'Species'), project_id: $project_id) if !row['Species'].blank? && row['Species'].to_s.length > 1
           if p.verbatim_author.blank? || p.year_of_publication.blank?
             p.verbatim_author = row['Author'] if p.verbatim_author.blank?
             p.year_of_publication = row['Year'] if p.verbatim_author.blank?
@@ -1713,7 +1716,7 @@
           end
           parasitoid = Otu.find_or_create_by(taxon_name_id: p.id, project_id: $project_id)
           taxon = find_otu(row['Key'])
-          source = find_publication_id(row['Key3'])
+          source = find_publication_id_3i(row['Key3'])
           if parasitoid && taxon
             ba = BiologicalAssociation.find_or_create_by!(biological_relationship: @parasitoid_relationship,
                                                           biological_association_subject: parasitoid,

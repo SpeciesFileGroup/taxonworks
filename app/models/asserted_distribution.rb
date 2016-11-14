@@ -43,8 +43,8 @@ class AssertedDistribution < ActiveRecord::Base
   validates_presence_of :geographic_area_id, message: 'geographic area is not selected'
 
   # Might not be able to do these for nested attributes
-  validates :geographic_area, presence: true
-  validates :otu, presence: true
+  #validates :geographic_area, presence: true
+  #validates :otu, presence: true
 
   validates_uniqueness_of :geographic_area_id, scope: [:project_id, :otu_id], message: 'record for this source/otu combination already exists'
 
