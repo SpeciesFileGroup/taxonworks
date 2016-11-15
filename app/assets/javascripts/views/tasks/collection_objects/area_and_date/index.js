@@ -53,6 +53,7 @@ _init_map_table = function init_map_table() {
         if (href == undefined) {
           href = $("#set_area_form").serialize() + '&' + $("#set_date_form").serialize();
         }
+        $("#find_item").mx_spinner('show');
         $.get('find', href, function (local_data) {
           //var html = local_data.html;
           //var message = local_data.message;
@@ -73,6 +74,7 @@ _init_map_table = function init_map_table() {
           //  }
           //}
             //processPagination();
+          $("#find_item").mx_spinner('hide');
           }//, 'json'  // I expect a json response
         );
         event.preventDefault();
