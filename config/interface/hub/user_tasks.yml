@@ -18,7 +18,7 @@
 #               complete: users can expect the interfaces to remain in their present form
 #               stable: primary elements are complete, but minor changes (CSS, feedback etc.) may change
 #               prototype: while production ready, anything can change
-#               unknown: task has not been classified
+#               uknown: task has not been classifed
 #
 ---
 nearby_locality_task:
@@ -167,3 +167,4 @@ index_area_and_date_task:
       - collection_object
   status: prototype
   description: 'Find collection objects using an area, and a range of dates.'
+
