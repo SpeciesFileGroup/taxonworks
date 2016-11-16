@@ -11,8 +11,8 @@ namespace :tw do
           logger.info 'Creating citations...'
           # Probably have original description from taxon import: how to handle duplicate?
           # Create note for tblCites.Note
-          # Create data_attributes for:
-          #   NomenclatorID becomes nomenclator_string
+          # Create data_attributes for NomenclatorID becomes nomenclator_string
+          # Create topics for:
           #   NewNameStatusID
           #   TypeInfoID
           #   ConceptChangeID
@@ -27,13 +27,14 @@ namespace :tw do
           get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID')
           # get_tw_otu_id = import.get('SFTaxonNameIDToTWOtuID')
           get_tw_source_id = import.get('SFRefIDToTWSourceID')
-
           get_nomenclator_string = import.get('SFNomenclatorIDToSFNomenclatorString')
 
           # @todo: Temporary "fix" to convert all values to string; will be fixed next time taxon names are imported and following do can be deleted
           get_tw_taxon_name_id.each do |key, value|
             get_tw_taxon_name_id[key] = value.to_s
           end
+
+          # set up topics
 
           path = @args[:data_directory] + 'tblCites.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
@@ -42,22 +43,19 @@ namespace :tw do
           error_counter = 0
 
           file.each_with_index do |row, i|
-            # next if get_tw_otu_id.has_key?(row['FamilyNameID']) # ignore if ill-formed family name created only as OTU
+            taxon_name_id = get_tw_taxon_name_id[row['TaxonNameID']].to_i
+            next unless TaxonName.where(id: taxon_name_id).any?
 
-            # project_id = TaxonName.find(older_name_id).project_id
+            project_id = TaxonName.find(taxon_name_id).project_id.to_i
+            source_id = get_tw_source_id[row['RefID']].to_i
 
-            # housekeeping attributed to SF last_editor, etc.
-            # origin_citation_attributes: {source_id: get_tw_source_id[row['RefID']],
-            #                              project_id: project_id,
-            #                              created_at: row['CreatedOn'],
-            #                              updated_at: row['LastUpdate'],
-            #                              created_by_id: get_tw_user_id[row['CreatedBy']],
-            #                              updated_by_id: get_tw_user_id[row['ModifiedBy']]}
+            logger.info "Working with TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id},
+SF.RefID #{row['RefID']} = TW.source_id #{row['']}, SF.SeqNum #{row['SeqNum']} (count #{count_found += 1}) \n"
 
 
-            # CiteInfoFlags, treat like StatusFlags, append all info_flags into single string as import_attributes
-            # use topics
 
+
+            # CiteInfoFlags = tblCites.InfoFlags, treat like StatusFlags, append all info_flags into single string as topics
 
             # info_flags = row['InfoFlags'].to_i
             #
@@ -77,72 +75,6 @@ namespace :tw do
             #     #   end of example
 
 
-            older_name_id = get_tw_taxon_name_id[row['OlderNameID']].to_i
-            younger_name_id = get_tw_taxon_name_id[row['YoungerNameID']].to_i
-            relationship = row['Relationship']
-
-            relationship_hash = {'1' => 'TaxonNameRelationship::Iczn::PotentiallyValidating::ReplacementName',
-                                 '2' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::ForgottenName',
-                                 '3' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling',
-                                 '4' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling',
-                                 '5' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnjustifiedEmendation',
-                                 '6' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnnecessaryReplacementName',
-                                 '7' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication',
-                                 '8' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling', # lapsus calami>>corrected lapsus
-                                 '9' => 'TaxonNameRelationship::Iczn::Invalidating' # ::Synonym' # nomen nudum>>nomen nudum made available
-            }
-
-            # @todo: @mjy Matt and Dmitry need to come up with two new relationships (lapsus calami / corrected lapsus, nomen nudum / nomen nudum made available) that are semantically sound
-
-            case relationship.to_i
-              when 1
-                subject_name_id = younger_name_id
-                object_name_id = older_name_id
-              when 2
-                subject_name_id = older_name_id
-                object_name_id = younger_name_id
-              when 3
-                subject_name_id = older_name_id
-                object_name_id = younger_name_id
-              when 4
-                subject_name_id = younger_name_id
-                object_name_id = older_name_id
-              when 5
-                subject_name_id = younger_name_id
-                object_name_id = older_name_id
-              when 6
-                subject_name_id = younger_name_id
-                object_name_id = older_name_id
-              when 7
-                subject_name_id = younger_name_id
-                object_name_id = older_name_id
-              when 8
-                subject_name_id = older_name_id
-                object_name_id = younger_name_id
-              when 9
-                subject_name_id = older_name_id
-                object_name_id = younger_name_id
-
-              # when 1 , 4, 5, 6, 7 then
-              #   subject_name_id = older_name_id
-              #   object_name_id = younger_name_id
-              # else # 2, 3, 8, 9
-              #   subject_name_id = younger_name_id
-              #   object_name_id = older_name_id
-            end
-
-            if older_name_id == 0
-              logger.error "TaxonNameRelationship SUPPRESSED older name SF.TaxonNameID = #{row['OlderNameID']} (#{suppressed_counter += 1})"
-              next
-            elsif younger_name_id == 0
-              logger.error "TaxonNameRelationship SUPPRESSED younger name SF.TaxonNameID = #{row['YoungerNameID']} (#{suppressed_counter += 1})"
-              next
-            end
-
-            # project_id = TaxonName.where(id: genus_name_id ).pluck(:project_id).first vs. TaxonName.find(genus_name_id).project_id
-            project_id = TaxonName.find(older_name_id).project_id
-
-            logger.info "Working with TW.project_id: #{project_id}, SF.OlderNameID #{row['OlderNameID']} = TW.older_name_id #{older_name_id}, SF.YoungerNameID #{row['YoungerNameID']} = TW.younger_name_id #{younger_name_id} (count #{count_found += 1}) \n"
 
             tnr = TaxonNameRelationship.find_or_create_by(
                 subject_taxon_name_id: subject_name_id,
