@@ -57,10 +57,11 @@
           <% end %>
         </div>
         <hr>
-        <div id="select_taxon_name">
-          <h2>Select named taxon</h2>
-          <h3><span id="taxon_count">????</span></h3>
-          <%= render(partial: 'by_taxon_name') %>
+        <div id="select_otu">
+          <h2>Select otu</h2>
+          <h3><span id="otu_count">????</span></h3>
+          Descendants (if available): <%= check_box nil, 'descendants', {id: :descendant_toggle}, 'on', 'off' %>
+          <%= render(partial: 'by_otu') %>
         </div>
       </div>
     </div>
