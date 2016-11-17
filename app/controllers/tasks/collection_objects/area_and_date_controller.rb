@@ -80,10 +80,16 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
   end
 
   # GET
-  def set_taxon_name
-    @taxon_name_id            = params[:taxon_name_id]
-    @taxon_name               = TaxonName.find(@taxon_name_id)
-    @collection_objects       = CollectionObject.where('false')
+  def set_otu
+    @otu_id = params[:otu_id]
+    @otu    = Otu.find(@otu_id)
+
+    if @otu.taxon_name.blank?
+      @collection_objects = @otu.collection_objects
+    else
+      @collection_objects = CollectionObject.includes(:taxon_names)
+                              .where(taxon_names_id: @otu.taxon_name.descendants)
+    end
     @collection_objects_count = @collection_objects.count
     render json: {html: @collection_objects_count.to_s}
   end

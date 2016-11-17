@@ -27,12 +27,15 @@ _init_map_table = function init_map_table() {
         $("#drawn_area_shape").attr('value', '');
       });
   
-      $("#set_taxon_name").click(function (event) {
-          $("taxon_count").text('????');
-        $("select_taxon_name").mx_spinner('show');
+      $("#set_otu").click(function (event) {
+        $("#otu_count").text('????');
+        $("#select_otu").mx_spinner('show');
     
-        // do the GET here.
-        $("select_taxon_name").mx_spinner('hide');
+        $.('set_otu', $("#set_otu_form").serialize(), function (local_data) {
+          $("#otu_count").text(local_data.html);
+          $("#select_otu").mx_spinner('hide');
+        }, 'json'  // I expect a json response
+          );
           event.preventDefault();
         }
       );
