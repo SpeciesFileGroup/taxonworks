@@ -1,4 +1,7 @@
 source 'https://rubygems.org'
+# rvm osx-ssl-certs update all
+# https://rvm.io/support/fixing-broken-ssl-certificates
+
 ruby '2.3.1'
 
 gem 'rails', '~> 4.2.6'
