@@ -7,11 +7,11 @@
                         shown_georeferences: @geographic_areas}) %>
     <!--end model insertion/invocation segment-->
     <%= render(:partial => 'workbench/elements/forms/ajax_select',
-               :locals  => {:controller => '/taxon_names',
+               :locals  => {:controller => '/otus',
                             :object     => '',
-                            :method     => 'taxon_name_id',
-                            :tag_id     => 'taxon_name_id_for_by_taxon_name',
+                            :method     => 'otu_id',
+                            :tag_id     => 'otu_id_for_by_taxon_name',
                             :size       => 20,
                             :display    => ''}) %><br>
-    <%= submit_tag('Set otu', id: 'set_taxon_name') %>
+    <%= submit_tag('Set OTU', id: 'set_otu') %>
 <% end %>
