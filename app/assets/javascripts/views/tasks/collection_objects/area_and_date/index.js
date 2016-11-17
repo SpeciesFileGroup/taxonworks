@@ -29,7 +29,10 @@ _init_map_table = function init_map_table() {
   
       $("#set_taxon_name").click(function (event) {
           $("taxon_count").text('????');
-          $("select_taxon_name")
+        $("select_taxon_name").mx_spinner('show');
+    
+        // do the GET here.
+        $("select_taxon_name").mx_spinner('hide');
           event.preventDefault();
         }
       );
