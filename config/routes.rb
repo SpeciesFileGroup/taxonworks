@@ -325,7 +325,7 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
   end
 
-  resources :protocol_relationships do  
+  resources :protocol_relationships do
     concerns [:data_routes]
   end
 
@@ -409,6 +409,7 @@ TaxonWorks::Application.routes.draw do
         get 'find', as: 'find_area_and_date_task'
         get 'set_area', as: 'by_area_task'
         get 'set_date', as: 'by_date_task'
+        get 'set_taxon_name', as: 'by_taxon_name_task'
         get 'download', action: 'download_result', as: 'result_download_task'
       end
     end

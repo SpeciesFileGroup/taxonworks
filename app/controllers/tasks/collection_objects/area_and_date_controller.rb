@@ -74,6 +74,15 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
     render json: {html: @collection_objects_count.to_s, chart: chart}
   end
 
+  # GET
+  def set_taxon_name
+    @taxon_name_id            = params[:taxon_name_id]
+    @taxon_name               = TaxonName.find(@taxon_name_id)
+    @collection_objects       = CollectionObject.where('false')
+    @collection_objects_count = @collection_objects.count
+    render json: {html: @collection_objects_count.to_s}
+  end
+
   def download_result
 
   end
