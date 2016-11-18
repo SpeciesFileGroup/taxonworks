@@ -24,6 +24,10 @@ class TaxonNameRelationship::Iczn::Invalidating < TaxonNameRelationship::Iczn
     true
   end
 
+  def subject_properties
+    [ TaxonNameClassification::Iczn::Available::Invalid ]
+  end
+
   def object_status
     'valid'
   end
