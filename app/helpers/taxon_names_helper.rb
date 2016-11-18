@@ -27,99 +27,27 @@ module TaxonNamesHelper
   #  the name in original combiantion, with author year, and HTML
   def full_original_taxon_name_tag(taxon_name)
     return nil if taxon_name.nil?
-    [original_taxon_name_tag(taxon_name), original_author_year(taxon_name)].compact.join(" ").html_safe
+    [
+      original_taxon_name_tag(taxon_name), 
+      history_author_year_tag(taxon_name)
+    ].compact.join(" ").html_safe
   end
 
-  # TODO: !! ug, hackish
   def original_author_year(taxon_name)
     return nil if taxon_name.nil? || taxon_name.cached_author_year.nil?
     taxon_name.cached_author_year.gsub(/^\(|\)$/, '')
   end
 
-  def taxon_name_history_tag(taxon_name, citation, date, is_subsequent = false)
-    # taxon name in original combination
-    # taxon name author year
-    # { citation author/year }
-    # { citation pages }
-    # { type information }
-    # { status }
-    # { citation notes }
-    # { citation topics }
-
-    # Each item must be spanned, or generate a span, and classed for styling
-    [
-      content_tag(:span, link_to(original_taxon_name_tag(taxon_name), browse_nomenclature_task_path(taxon_name)), class: [:original_taxon_name, original_citation_css(taxon_name, citation) ] ), 
-      history_author_year(taxon_name, citation),
-      history_pages(citation),
-      history_statuses(taxon_name, citation, is_subsequent), 
-      history_notes(citation),
-      history_topics(citation),
-      history_type_material(taxon_name, is_subsequent) 
-    ].compact.join.html_safe
-  end
-  
-  def original_citation_css(taxon_name, citation)
-    return nil if citation.nil?
-    'original_description' if citation.is_original? && taxon_name == citation.citation_object
+  def current_author_year(taxon_name)
+    return nil if taxon_name.nil? || taxon_name.cached_author_year.nil?
+    taxon_name.cached_author_year
   end
 
-  def history_type_material(taxon_name, is_subsequent)
-    return nil if taxon_name.type == 'Combination' || is_subsequent
-    content_tag(:span, type_taxon_name_relationship_tag(taxon_name.type_taxon_name_relationship), class: 'type_information')
-  end
-
-  def history_topics(citation)
-    return nil if citation.nil?
-    content_tag(:span, citation.citation_topics.collect{|t| t.topic.name}.join(", "), class: 'citation_topics')
-  end
-
-  def history_notes(citation)
-    return nil if citation.nil? || !citation.notes.any?
-    content_tag(:span, citation.notes.collect{|n| n.text}.join, class: 'citation_notes') if citation.notes?
-  end
-
-  # @return [String, nil]
-  #   A brief summary of the validity of the name (e.g. 'Valid')
-  #     ... think this has to be refined, it doesn't quite make sense to show multiple status per relationship
-  def history_statuses(taxon_name, citation, is_subsequent = false)
-    return nil if taxon_name.taxon_name_statuses.empty? || is_subsequent 
-    content_tag(:span, (' (' + taxon_name.taxon_name_statuses.join(', ') + ')').html_safe, class: 'status')
-  end
-
-  def history_pages(citation)
-    return nil if citation.nil?
-    content_tag(:span, ": #{citation.pages}.", class: 'pages') if citation.pages
-  end
-
-  # @return [String]
-  #   the name, or citation author year, prioritized by original/new with punctuation
-  def history_author_year(taxon_name, citation) 
-    return content_tag(:em, ' verbatim reference, details not yet handled', class: :warning) if citation.try(:source).try(:type) == 'Source::Verbatim'
-    
-    if citation.try(:is_original) || citation.nil?
-      v = original_author_year(taxon_name)
-      content_tag(:span, " #{v}", class: 'taxon_name_author_year') if defined? v.length && v.length > 0
-    elsif !citation.nil?
-      content_tag(:span, '. ' + citation.source.author_year, class: 'citation_author_year') 
-    end
-  end
-
-  def nomenclature_line_tag(nomenclature_catalog_item)
-    i = nomenclature_catalog_item
-    c = i.citation
-
-    content_tag(:li, class: :history_record) do
-      taxon_name_history_tag(i.taxon_name, i.citation, i.nomenclature_date, i.is_subsequent?)
-    end
-  end
-
-  def latinization_tag(taxon_name)
-    list = TaxonNameClassification.where_taxon_name(@taxon_name).with_type_array(LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES)
-    if list.any?
-      content_tag(:h3, 'Latinization') +
-        list.collect{|c|
-        content_tag(:span, c.classification_label) 
-      }.join('; ').html_safe 
+  def taxon_name_short_status(taxon_name)
+    if taxon_name.unavailable_or_invalid?
+      content_tag(:span, 'This name is not valid/accepted.', class: :brief_status, data: {icon: :attention}) 
+    else
+      content_tag(:span, 'This name is valid/accepted.', class: :brief_status, data: {icon: :ok }) 
     end
   end
 
@@ -131,6 +59,12 @@ module TaxonNamesHelper
     return nil if taxon_name.nil?
     taxon_name.cached
   end
+
+  def taxon_name_latinization_tag(taxon_name)
+    list = TaxonNameClassification.where_taxon_name(@taxon_name).with_type_array(LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES).map(&:classification_label)
+    content_tag(:span, "The name \"#{taxon_name.name}\" is #{list.first.indefinite_article} #{list.to_sentence}.", class: 'history__latinized_classifications') if list.any?
+  end
+
 
   def taxon_name_link(taxon_name)
     return nil if taxon_name.nil?
