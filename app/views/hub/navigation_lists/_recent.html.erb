@@ -1,9 +1,7 @@
 <div>
-
-  <ul>
-  
+  <ul class="slide-panel-category-content">
     <% @sessions_current_user.footprints['recently_visited'].each do |hsh| -%>
-      <%= content_tag(:li, recent_route_link(hsh))  -%>
+      <%= content_tag(:li, recent_route_link(hsh), class: 'slide-panel-category-item')  -%>
     <% end %>
   </ul>
 
