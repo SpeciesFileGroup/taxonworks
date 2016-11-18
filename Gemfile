@@ -73,6 +73,8 @@ gem 'latex-decode', '~> 0.2.2'
 
 # gem 'anystyle-parser' # use when we stabilize
 
+gem 'indefinite_article'
+
 # Pagination
 gem 'kaminari', '~> 0.17.0'
 
