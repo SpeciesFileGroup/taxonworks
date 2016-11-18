@@ -24,10 +24,16 @@ module Shared::Citable
 
     scope :without_citations, -> { includes(:citations).where(citations: {id: nil}) }
 
+    # scope :order_by_youngest_source_first, -> { 
+    #  joins("LEFT OUTER JOIN citations on #{related_table_name}.id = citations.citation_object_id LEFT OUTER JOIN sources ON citations.source_id = sources.id").
+    #  group("#{related_table_name}.id").order("MAX(COALESCE(sources.cached_nomenclature_date, Date('1-1-0001'))) DESC").
+    #  where("((citations.citation_object_type = '#{related_class}') OR (citations.citation_object_type is null))")
+    # } 
+
     scope :order_by_youngest_source_first, -> { 
-      joins("LEFT OUTER JOIN citations on #{related_table_name}.id = citations.citation_object_id LEFT OUTER JOIN sources ON citations.source_id = sources.id").
-      group("#{related_table_name}.id").order("MAX(COALESCE(sources.cached_nomenclature_date, Date('1-1-1'))) DESC").
-      where("citations.citation_object_type = '#{related_class}' OR citations.citation_object_type is null")
+      joins("LEFT OUTER JOIN citations ON #{related_table_name}.id = citations.citation_object_id AND citations.citation_object_type = '#{related_class}'
+             LEFT OUTER JOIN sources ON citations.source_id = sources.id").
+      group("#{related_table_name}.id").order("MAX(COALESCE(sources.cached_nomenclature_date, Date('1-1-0001'))) DESC") 
     } 
 
     # SEE https://github.com/rails/arel/issues/399 for issue with ordering by named function
@@ -63,8 +69,13 @@ module Shared::Citable
       #    Arel::Nodes::OuterJoin.new(join.left, join.right)
       #  end
 
-      joins("LEFT OUTER JOIN citations on #{related_table_name}.id = citations.citation_object_id LEFT OUTER JOIN sources ON citations.source_id = sources.id").
-        where("citations.citation_object_type = '#{related_class}' OR citations.citation_object_type is null").
+
+      # was
+      #      joins("LEFT OUTER JOIN citations ON #{related_table_name}.id = citations.citation_object_id LEFT OUTER JOIN sources ON citations.source_id = sources.id").
+      #      where("citations.citation_object_type = '#{related_class}' OR citations.citation_object_type is null").
+
+      joins("LEFT OUTER JOIN citations ON #{related_table_name}.id = citations.citation_object_id AND citations.citation_object_type = '#{related_class}' 
+            LEFT OUTER JOIN sources ON citations.source_id = sources.id").
         group(r).
         order(func2)
     end 
@@ -74,7 +85,7 @@ module Shared::Citable
 
     validate :origin_citation_source_id, if: '!new_record?'
 
-    # Rquired to drigger validat callbacks, which in turn set user_id related housekeeping
+    # Required to drigger validat callbacks, which in turn set user_id related housekeeping
     validates_associated :citations
   end
 
@@ -86,11 +97,11 @@ module Shared::Citable
 
   class_methods do
     def oldest_by_citation
-      order_by_oldest_source_first.limit(1).to_a.first
+      order_by_oldest_source_first.to_a.first
     end
 
     def youngest_by_citation
-      order_by_youngest_source_first.limit(1).to_a.first
+      order_by_youngest_source_first.to_a.first
     end
   end
 
