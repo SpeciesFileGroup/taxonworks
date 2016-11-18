@@ -14,11 +14,19 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym < TaxonNameRelationship
   end
 
   def object_status
-    'senior synonym of'
+    'senior synonym'
   end
 
   def subject_status
-    'synonym of'
+    'synonym'
+  end
+
+  def subject_status_connector_to_object
+    ' of'
+  end
+
+  def object_status_connector_to_subject
+    ' of'
   end
 
   def self.assignment_method

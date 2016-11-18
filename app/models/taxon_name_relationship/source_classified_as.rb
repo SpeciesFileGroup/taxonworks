@@ -26,12 +26,21 @@ class TaxonNameRelationship::SourceClassifiedAs < TaxonNameRelationship
 
   # Shoudl be reversed!?
   def subject_status
-    'as classified for'
+    'as classified'
   end
 
   def object_status
-    'classified as'
+    'classified'
   end
+
+  def subject_status_connector_to_object
+    ' for'
+  end
+
+  def object_status_connector_to_subject
+    ' as'
+  end
+
 
   # genus.source_classified_as = Family
   def self.assignment_method

@@ -82,7 +82,7 @@ module TaxonNames::CatalogHelper
   #   a parenthesized line item containing relationship and related name
   def history_other_name(catalog_item, reference_taxon_name)
     if catalog_item.from_relationship? 
-      content_tag(:span, " (#{catalog_item.object.subject_status} #{full_original_taxon_name_tag(catalog_item.other_name)})#{soft_validation_alert_tag(catalog_item.object)}".html_safe, class: [:history__other_name])
+      content_tag(:span, " (#{catalog_item.object.subject_status.to_s + catalog_item.object.subject_status_connector_to_object.to_s} #{full_original_taxon_name_tag(catalog_item.other_name)})#{soft_validation_alert_tag(catalog_item.object)}".html_safe, class: [:history__other_name])
     end
   end
 

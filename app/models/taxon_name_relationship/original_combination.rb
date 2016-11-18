@@ -23,7 +23,9 @@ class TaxonNameRelationship::OriginalCombination < TaxonNameRelationship
     RANKS.index(::ICN_LOOKUP[self.name.demodulize.underscore.humanize.downcase.gsub('original ', '')])
   end
 
-
+  def object_status_connector_to_subject
+    ' with'
+  end
 
   # @return String
   #    the status inferred by the relationship to the subject name 

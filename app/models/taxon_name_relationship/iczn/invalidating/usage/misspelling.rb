@@ -9,11 +9,11 @@ class TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling < TaxonNameR
   end
 
   def object_status
-    'correct spelling for'
+    'correct spelling'
   end
 
   def subject_status
-    'misspelling of'
+    'misspelling'
   end
 
   def self.gbif_status_of_subject

@@ -27,4 +27,9 @@ class TaxonNameRelationship::Combination < TaxonNameRelationship
     :reverse
   end
 
+  def object_status_connector_to_subject
+    ' with'
+  end
+
+
 end

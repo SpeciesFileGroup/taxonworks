@@ -22,6 +22,10 @@ class TaxonNameRelationship::Iczn::Validating < TaxonNameRelationship::Iczn
 
   end
 
+  def subject_status_connector_to_object
+    ' for'
+  end
+
   def object_status
     'valid'
   end

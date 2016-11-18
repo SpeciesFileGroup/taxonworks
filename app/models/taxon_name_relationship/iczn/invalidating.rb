@@ -40,6 +40,11 @@ class TaxonNameRelationship::Iczn::Invalidating < TaxonNameRelationship::Iczn
     'invalidum'
   end
 
+  def object_status_connector_to_subject
+    ' for'
+  end
+
+
   # as.
   def self.assignment_method
     # bus.set_as_iczn_invalid_of(aus)

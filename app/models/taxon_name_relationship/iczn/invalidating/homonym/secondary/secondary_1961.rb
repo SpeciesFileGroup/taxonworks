@@ -8,7 +8,7 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary::Secondary19
   end
 
   def object_status
-    'secondary senior homonym replacement before 1961'
+    'senior secondary homonym'
   end
 
   def subject_status
