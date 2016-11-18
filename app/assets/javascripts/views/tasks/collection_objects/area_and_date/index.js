@@ -30,8 +30,8 @@ _init_map_table = function init_map_table() {
       $("#set_otu").click(function (event) {
         $("#otu_count").text('????');
         $("#select_otu").mx_spinner('show');
-    
-        $.('set_otu', $("#set_otu_form").serialize(), function (local_data) {
+  
+        $.get('set_otu', $("#set_otu_form").serialize(), function (local_data) {
           $("#otu_count").text(local_data.html);
           $("#select_otu").mx_spinner('hide');
         }, 'json'  // I expect a json response
