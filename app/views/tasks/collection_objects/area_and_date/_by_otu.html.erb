@@ -6,6 +6,7 @@
                         selection_object:    'CollectionObject',
                         shown_georeferences: @geographic_areas}) %>
     <!--end model insertion/invocation segment-->
+    Descendants (if available): <%= check_box nil, 'descendants', {id: :descendant_toggle}, 'on', 'off' %><br>
     <%= render(:partial => 'workbench/elements/forms/ajax_select',
                :locals  => {:controller => '/otus',
                             :object     => '',
