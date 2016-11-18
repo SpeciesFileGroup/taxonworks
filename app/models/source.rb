@@ -207,7 +207,12 @@ class Source < ActiveRecord::Base
 
   validates_presence_of :type
 
-  accepts_nested_attributes_for :project_sources, reject_if: proc { |attributes| attributes['project_id'].blank? }
+  accepts_nested_attributes_for :project_sources, reject_if: :reject_project_sources
+ 
+  def reject_project_sources(attributed)
+    return true if attributed['project_id'].blank? 
+    return true if ProjectSource.where(project_id: attributed['project_id'], source_id: id).any?
+  end 
 
   def cited_objects
     self.citations.collect { |t| t.citation_object }
