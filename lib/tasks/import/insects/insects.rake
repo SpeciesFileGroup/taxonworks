@@ -1487,7 +1487,7 @@ namespace :tw do
           raise 'No objects in container.'
         end
 
-        data.duplicate_specimen_ids[row['Prefix'].to_s + ' ' + row['CatalogNumber'].to_s] = nil unless identifier.try(:id).nil?
+        data.duplicate_specimen_ids[row['Prefix'].to_s + ' ' + row['CatalogNumber'].to_s] = nil if identifier.try(:id).nil?
       end
 
       def add_bioculation_class_insects(o, bcc, data)
