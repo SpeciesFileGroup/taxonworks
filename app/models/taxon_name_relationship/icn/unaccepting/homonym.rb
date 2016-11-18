@@ -15,6 +15,10 @@ class  TaxonNameRelationship::Icn::Unaccepting::Homonym <  TaxonNameRelationship
             TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Legitimate)
   end
 
+  def subject_properties
+    [ TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Illegitimate::Homonym ]
+  end
+
   def object_status
     'homonym'
   end

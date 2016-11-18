@@ -8,6 +8,9 @@ class TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm < Ta
                                       TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling)
   end
 
+  def subject_properties
+    []
+  end
 
   def subject_status
     'family-group name form'

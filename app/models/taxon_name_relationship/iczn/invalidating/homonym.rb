@@ -16,6 +16,11 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym < TaxonNameRelationship
 #    self.parent.disjoint_object_classes
 #  end
 
+  def subject_properties
+    [ TaxonNameClassification::Iczn::Available::Invalid::Homonym ]
+  end
+
+
   def object_status
     'senior homonym'
   end

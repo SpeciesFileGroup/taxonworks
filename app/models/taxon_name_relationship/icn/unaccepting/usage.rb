@@ -9,4 +9,9 @@ class TaxonNameRelationship::Icn::Unaccepting::Usage < TaxonNameRelationship::Ic
         self.collect_descendants_and_itself_to_s(TaxonNameRelationship::Icn::Unaccepting::Synonym)
   end
 
+  def subject_properties
+    [ TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished ]
+  end
+
+
 end

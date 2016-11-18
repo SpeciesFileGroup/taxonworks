@@ -16,6 +16,11 @@ class TaxonNameRelationship::Icn::Unaccepting::Usage::Misapplication < TaxonName
             TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Illegitimate)
   end
 
+  def subject_properties
+    [ TaxonNameClassification::Icn::NotEffectivelyPublished ]
+  end
+
+
   def object_status
     'correct application'
   end

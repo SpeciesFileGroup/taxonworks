@@ -15,6 +15,10 @@ class TaxonNameRelationship::Icn::Accepting < TaxonNameRelationship::Icn
         TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Illegitimate)
   end
 
+  def subject_properties
+    [ TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Legitimate ]
+  end
+
   def self.gbif_status_of_subject
     'valid'
   end

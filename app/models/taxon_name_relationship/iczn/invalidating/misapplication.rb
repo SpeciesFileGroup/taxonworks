@@ -8,6 +8,10 @@ class TaxonNameRelationship::Iczn::Invalidating::Usage::Misapplication < TaxonNa
                                       TaxonNameRelationship::Iczn::Invalidating::Homonym)
   end
 
+  def subject_properties
+    [ TaxonNameClassification::Iczn::Unavailable ]
+  end
+
   def object_status
     'correct application'
   end

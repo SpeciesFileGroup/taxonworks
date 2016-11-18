@@ -14,7 +14,7 @@
                       :parent_id_index, :statuses, :taxon_index, :citation_to_publication_index, :keywords,
                       :incertae_sedis, :emendation, :original_combination, :unique_host_plant_index,
                       :host_plant_index, :topics, :nouns, :countries, :geographic_areas, :museums, :namespaces, :biocuration_classes,
-                      :people
+                      :people, :source_ay
         def initialize()
           @keywords = {}                  # keyword -> ControlledVocabularyTerm
           @people_index = {}              # PeopleID -> Person object
@@ -40,6 +40,7 @@
           @namespaces = {}
           @biocuration_classes = {}
           @people = {}
+          @source_ay = {}
         end
       end
 
@@ -144,7 +145,7 @@
             12 => 'TaxonNameClassification::Iczn::Available::Valid::NomenDubium',
             13 => 'TaxonNameClassification::Iczn::Unavailable::NomenNudum',
             22 => 'TaxonNameClassification::Iczn::Unavailable::NonBinomial',
-            24 => 'TaxonNameClassification::Iczn::Unavailable',
+#           24 => 'TaxonNameClassification::Iczn::Unavailable',
             28 => 'TaxonNameClassification::Iczn::Available::Invalid',
             29 => 'TaxonNameClassification::Iczn::Unavailable::Excluded::Infrasubspecific', ### infrasubspecific
         }.freeze
@@ -319,7 +320,7 @@
             'Typhlocybinae' => Keyword.find_or_create_by(name: 'Typhlocybinae updated', definition: 'Information related to Typhlocybinae entered to the DB.', project_id: $project_id),
             'Illustrations' => Keyword.find_or_create_by(name: 'Illustrations exported', definition: 'Illustrations of Typhlocybinae species entered to the DB.', project_id: $project_id),
             'Distribution' => Keyword.find_or_create_by(name: 'Distribution exported', definition: 'Illustrations on species distribution entered to the DB.', project_id: $project_id),
-            'Notes' => Topic.find_or_create_by(name: 'Notes', definition: 'Notes topic on the OTU.', project_id: $project_id),
+            'Notes' => Topic.find_or_create_by(name: 'notes', definition: 'Notes topic on the OTU.', project_id: $project_id),
             'Host' => BiologicalProperty.find_or_create_by(name: 'Host', definition: 'An animal or plant on or in which a parasite or commensal organism lives.', project_id: $project_id),
             'Herbivor' => BiologicalProperty.find_or_create_by(name: 'Herbivor', definition: 'An animal that feeds on plants.', project_id: $project_id),
             'Parasitoid' => BiologicalProperty.find_or_create_by(name: 'Parasitoid', definition: 'An organism that lives in or on another organism.', project_id: $project_id),
@@ -353,14 +354,14 @@
         )
 
         @data.topics.merge!(
-                        'Descriptions' => Topic.find_or_create_by(name: 'Description', definition: 'Source has morphological description.', project_id: $project_id),
-                        'Records' => Topic.find_or_create_by(name: 'Distribution', definition: 'Source has data on species distrebution or studied material.', project_id: $project_id),
-                        'Pictures' => Topic.find_or_create_by(name: 'Illustrations', definition: 'Source has illustrations.', project_id: $project_id),
-                        'Types' => Topic.find_or_create_by(name: 'Original description', definition: 'Source has original description.', project_id: $project_id),
-                        'Keys' => Topic.find_or_create_by(name: 'Identification key', definition: 'Source has identification key.', project_id: $project_id),
-                        'Synonymy' => Topic.find_or_create_by(name: 'Synonymy', definition: 'Source has synonymy records.', project_id: $project_id),
-                        'Host' => Topic.find_or_create_by(name: 'Host plants', definition: 'Source has host plant records.', project_id: $project_id),
-                        'Parasitoids' => Topic.find_or_create_by(name: 'Parasitoids', definition: 'Source has parasitoid records.', project_id: $project_id),
+                        'Descriptions' => Topic.find_or_create_by(name: 'description', definition: 'Source has morphological description.', project_id: $project_id),
+                        'Records' => Topic.find_or_create_by(name: 'distribution', definition: 'Source has data on species distrebution or studied material.', project_id: $project_id),
+                        'Pictures' => Topic.find_or_create_by(name: 'illustrations', definition: 'Source has illustrations.', project_id: $project_id),
+                        'Types' => Topic.find_or_create_by(name: 'original description', definition: 'Source has original description.', project_id: $project_id),
+                        'Keys' => Topic.find_or_create_by(name: 'identification key', definition: 'Source has identification key.', project_id: $project_id),
+                        'Synonymy' => Topic.find_or_create_by(name: 'synonymy', definition: 'Source has synonymy records.', project_id: $project_id),
+                        'Host' => Topic.find_or_create_by(name: 'host plants', definition: 'Source has host plant records.', project_id: $project_id),
+                        'Parasitoids' => Topic.find_or_create_by(name: 'parasitoids', definition: 'Source has parasitoid records.', project_id: $project_id),
         )
 
         @host_plant_relationship = BiologicalRelationship.where(name: 'Host plant', project_id: $project_id).first
@@ -464,7 +465,8 @@
 
           source.data_attributes.create(type: 'InternalAttribute', predicate: @data.keywords['CallNumberDrMetcalf'], value: row['CallNumberDrMetcalf']) unless row['CallNumberDrMetcalf'].blank?
 
-          source.data_attributes.create(type: 'ImportAttribute', import_predicate: 'Author3i', value: row['AY']) unless row['AY'].blank?
+          source.data_attributes.create(type: 'ImportAttribute', import_predicate: 'AY3i', value: row['AY']) unless row['AY'].blank?
+          source.data_attributes.create(type: 'ImportAttribute', import_predicate: 'Author3i', value: row['Author']) unless row['Author'].blank?
           source.data_attributes.create(type: 'ImportAttribute', import_predicate: 'YearReference', value: row['Year']) unless row['Year'].blank?
           source.data_attributes.create(type: 'ImportAttribute', import_predicate: 'BibliographyReference', value: row['Bibliography']) unless row['Bibliography'].blank?
           source.data_attributes.create(type: 'ImportAttribute', import_predicate: 'AuthorDrMetcalf', value: row['AuthorDrMetcalf']) unless row['AuthorDrMetcalf'].blank?
@@ -508,6 +510,7 @@
             source.save!
             source.project_sources.create!
             @data.publications_index[row['Key3']] = source.id
+            @data.source_ay[row['Key3']] = row['AY']
             authors = row['Author'].gsub('., ', '.|').split('|')
             authors.each_with_index do |author, i|
               a = @data.people[author]
@@ -731,7 +734,13 @@
               t3 = taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::Suppressed::OfficialIndexOfRejectedFamilyGroupNamesInZoology') if row['YearRem'].to_s.include?('Official Index of Rejected and Invalid Family-Group Names in Zoology')
               t1 = taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::Suppressed::OfficialIndexOfRejectedGenericNamesInZoology') if row['YearRem'].to_s.include?('Official Index of Rejected and Invalid Generic Names in Zoology')
               t2 = taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::Suppressed::OfficialIndexOfRejectedSpecificNamesInZoology') if row['YearRem'].to_s.include?('Official Index of Rejected and Invalid Specific Names in Zoology')
-              taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::LessThanTwoLetters') if name.length == 1
+              if row['Status'].to_i == 24
+                if name.length == 1
+                  taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::LessThanTwoLetters')
+                else
+                  taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable')
+                end
+              end
 
               taxon.iczn_uncertain_placement = TaxonName.find(@data.incertae_sedis[row['Parent']]) if @data.incertae_sedis[row['Parent']]
               taxon.original_variety = taxon if row['Name'].include?(' var. ')
@@ -740,6 +749,15 @@
               begin
                 taxon.save!
                 @data.taxon_index[row['Key']] = taxon.id
+
+
+
+                if @data.source_ay[source] == row['Author']
+                  SourceAuthor.where(role_object_type: 'Source', role_object_id: source, project_id: $project_id).find_each do |sa|
+                    TaxonNameAuthor.create(person_id: sa.person_id, role_object: taxon, position: sa.position)
+                  end
+                end
+
               rescue ActiveRecord::RecordInvalid
                 taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin') if taxon.rank_string =~ /Family/ && row['Status'] != '0' && !taxon.errors.messages[:name].blank?
                 taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin') if taxon.rank_string =~ /Species/ && row['Status'] != '0' && taxon.errors.full_messages.include?('Name name must be lower case')
@@ -769,6 +787,7 @@
         file = CSV.foreach(path, col_sep: "\t", headers: true)
 
         synonym_statuses = %w(1 6 8 10 11 14 17 22 23 24 26 27 28 29).freeze
+        homonym_statuses = %w(3 4 5).freeze
 
         Combination.tap{}
 
@@ -840,6 +859,11 @@
                 tnr = TaxonNameRelationship.create(subject_taxon_name: taxon, object_taxon_name: find_taxon_3i(row['Parent']), type: @relationship_classes[row['Status'].to_i])
                 byebug if tnr.id.nil?
               end
+              if homonym_statuses.include?(row['Status']) && row['Rank'] == '0'
+                tnr = TaxonNameRelationship.create(subject_taxon_name: taxon, object_taxon_name: find_taxon_3i(row['Parent']), type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+                byebug if tnr.id.nil?
+              end
+
 
             elsif row['Status'] == '8' || row['Status'] == '25' ### taxon name combinations
               taxon = find_taxon_3i(row['CombinationOf']) || find_taxon_3i(row['Parent'])

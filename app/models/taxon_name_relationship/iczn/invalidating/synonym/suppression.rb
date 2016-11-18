@@ -10,6 +10,10 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression < TaxonNam
             TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective)
   end
 
+  def subject_properties
+    [ TaxonNameClassification::Iczn::Unavailable::Suppressed ]
+  end
+
   def object_status
     'conserved'
   end
