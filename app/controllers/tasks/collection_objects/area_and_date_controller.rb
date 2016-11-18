@@ -28,25 +28,24 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
     @shape_in           = params[:drawn_area_shape]
     set_and_order_dates(params)
 
-    area_set        = (@shape_in.blank? and @geographic_area_id.blank?) ? false : true
-
-    if area_set
-      area_object_ids = GeographicItem.gather_selected_data(@geographic_area_id,
-                                                            @shape_in,
-                                                            'CollectionObject').pluck(:id)
+    if @shape_in.blank? and @geographic_area_id.blank? # missing "? " was fixed
+      area_object_ids = CollectionObject.where('false')
     else
-      area_object_ids = []
+      area_object_ids = GeographicItem.gather_selected_data(@geographic_area_id, @shape_in, 'CollectionObject').map(&:id)
+      area_set        = true
     end
-
-    if @start_date.blank? || @end_date.blank? #|| area_object_ids.count == 0
+    otu_id = @otu_id
+    if (@start_date.blank? || @end_date.blank?) #|| area_object_ids.count == 0
       @collection_objects = CollectionObject.where('false')
     else
       collecting_event_ids = CollectingEvent.in_date_range(date_range_params).pluck(:id)
       @collection_objects  = CollectionObject.from_collecting_events(collecting_event_ids,
                                                                      area_object_ids,
                                                                      area_set,
-                                                                     sessions_current_project_id).page(params[:page])
+                                                                     sessions_current_project_id,
+                                                                     otu_id).page(params[:page])
     end
+    @collection_objects = @collection_objects + @otu_collection_objects
 
     @collection_objects_count = @collection_objects.count
     @feature_collection       = ::Gis::GeoJSON.feature_collection(find_georeferences_for(@collection_objects,
@@ -55,6 +54,7 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
     @package                  = render_co_select_package(message)
     # render_co_select_json(message)
   end
+
 
   # GET
   # @return [Object] json object containing count
@@ -85,13 +85,13 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
     @otu    = Otu.find(@otu_id)
 
     if params[:descendants].downcase == 'off' or @otu.taxon_name.blank?
-      @collection_objects = @otu.collection_objects
+      @otu_collection_objects = @otu.collection_objects
     else
-      @collection_objects = CollectionObject.joins(:taxon_names)
+      @otu_collection_objects = CollectionObject.joins(:taxon_names)
                               .where(taxon_names: {id: @otu.taxon_name.self_and_descendants})
     end
-    @collection_objects_count = @collection_objects.count
-    render json: {html: @collection_objects_count.to_s}
+    @otu_collection_objects_count = @otu_collection_objects.count
+    render json: {html: @otu_collection_objects_count.to_s}
   end
 
   def render_co_select_package(message)
