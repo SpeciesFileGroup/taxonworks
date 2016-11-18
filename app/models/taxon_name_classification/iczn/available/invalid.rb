@@ -11,4 +11,8 @@ class TaxonNameClassification::Iczn::Available::Invalid < TaxonNameClassificatio
     'invalidum'
   end
 
+  def label
+    'invalid'
+  end
+
 end
