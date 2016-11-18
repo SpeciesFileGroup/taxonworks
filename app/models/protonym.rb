@@ -25,7 +25,8 @@ class Protonym < TaxonName
     :check_new_parent_class,
     :validate_source_type,
     :new_parent_taxon_name,
-    :name_is_latinized
+    :name_is_latinized,
+    :name_is_valid_format
 
   after_create :create_otu,  if: 'self.also_create_otu'
 
@@ -302,7 +303,36 @@ class Protonym < TaxonName
     }
   end
 
+
+  # @return [Boolean]
+  #   whether this name has one of the TaxonNameClassifications that except it from being tested as latinized
+  def has_latinized_exceptions?
+    # The second half of this handles classifications in memory, as required to save a non-latinized name (i.e. don't tune it to .any?)
+    # !((type == 'Protonym') && (taxon_name_classifications.collect{|t| t.type} & EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS).empty?)
+
+    # Is faster than above?
+    if type == 'Protonym'
+      taxon_name_classifications.each do |tc| # ! find_each
+        return true if TaxonName::EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS.include?(tc.type)
+      end
+    end
+    false
+  end
+
+  def is_latin?
+    !NOT_LATIN.match(name) || has_latinized_exceptions?
+  end
+
   protected
+
+  def name_is_latinized
+    errors.add(:name, 'Name must be latinized, no digits or spaces allowed') if !is_latin?
+  end
+
+  def name_is_valid_format
+    rank_class.validate_name_format(self) if rank_class && rank_class.respond_to?(:validate_name_format) && !has_latinized_exceptions?
+  end
+
 
   def create_otu
     Otu.create(by: self.creator, project: self.project, taxon_name_id: self.id)
@@ -865,7 +895,6 @@ class Protonym < TaxonName
     rescue
     end
   end
-
 
   #  def sv_fix_add_relationship(method, object_id)
   #    begin
