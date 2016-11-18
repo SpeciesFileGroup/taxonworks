@@ -87,8 +87,8 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
     if @otu.taxon_name.blank?
       @collection_objects = @otu.collection_objects
     else
-      @collection_objects = CollectionObject.includes(:taxon_names)
-                              .where(taxon_names_id: @otu.taxon_name.descendants)
+      @collection_objects = CollectionObject.joins(:taxon_names)
+                              .where(taxon_names: {id: @otu.taxon_name.descendants})
     end
     @collection_objects_count = @collection_objects.count
     render json: {html: @collection_objects_count.to_s}
