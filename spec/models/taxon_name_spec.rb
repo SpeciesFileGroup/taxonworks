@@ -573,6 +573,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
               expect(g1.get_valid_taxon_name).to eq(g4)
               expect(g4.list_of_invalid_taxon_names.sort_by { |n| n.id }).to eq([g1, g2])
             end
+            
             specify 'list of invalid taxon names' do
               a   = FactoryGirl.create(:relationship_genus, name: 'Aus', parent: @family)
               b   = FactoryGirl.create(:relationship_genus, name: 'Bus', parent: @family)
@@ -636,14 +637,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
                 expect(b.get_valid_taxon_name).to eq(a)
               end
             end
-
-            specify 'list of statuses' do
-              a  = FactoryGirl.create(:relationship_genus, name: 'Aus', parent: @family)
-              b  = FactoryGirl.create(:relationship_genus, name: 'Bus', parent: @family)
-              s  = TaxonNameClassification::Iczn::Unavailable.create(taxon_name: a)
-              r1 = TaxonNameRelationship::Iczn::Invalidating::Synonym.create(subject_taxon_name: a, object_taxon_name: b)
-              expect(a.taxon_name_statuses).to eq(['unavailable [iczn]', 'synonym'])
-            end
+            
             specify 'combination_list' do
               a           = FactoryGirl.create(:relationship_genus, name: 'Aus', parent: @family)
               b           = FactoryGirl.create(:relationship_genus, name: 'Bus', parent: @family)
@@ -661,53 +655,6 @@ describe TaxonName, type: :model, group: [:nomenclature] do
               expect(b.combination_list_all).to eq([c2])
               expect(b.combination_list_self).to eq([c2])
             end
-          end
-
-        end
-
-        context 'when rank ICZN family' do
-          specify "is validly_published when ending in '-idae'" do
-            @family.valid?
-            expect(@family.errors.include?(:name)).to be_falsey
-          end
-
-          specify "is invalidly_published when not ending in '-idae'" do
-            t = Protonym.new(name: 'Aus', rank_class: Ranks.lookup(:iczn, 'family'))
-            t.valid?
-            expect(t.errors.include?(:name)).to be_truthy
-          end
-
-          specify 'is invalidly_published when not capitalized' do
-            taxon_name.name       = 'fooidae'
-            taxon_name.rank_class = Ranks.lookup(:iczn, 'family')
-            taxon_name.type = 'Protonym'
-            taxon_name.valid?
-            expect(taxon_name.errors.include?(:name)).to be_truthy
-          end
-
-          specify 'species name starting with upper case' do
-            taxon_name.name       = 'Aus'
-            taxon_name.rank_class = Ranks.lookup(:iczn, 'species')
-            taxon_name.valid?
-            taxon_name.type = 'Protonym'
-            expect(taxon_name.errors.include?(:name)).to be_truthy
-          end
-        end
-
-        context 'when rank ICN family' do
-          specify "is validly_published when ending in '-aceae'" do
-            taxon_name.name       = 'Aaceae'
-            taxon_name.type = 'Protonym'
-            taxon_name.rank_class = Ranks.lookup(:icn, 'family')
-            taxon_name.valid?
-            expect(taxon_name.errors.include?(:name)).to be_falsey
-          end
-          specify "is invalidly_published when not ending in '-aceae'" do
-            taxon_name.name       = 'Aus'
-            taxon_name.type = 'Protonym'
-            taxon_name.rank_class = Ranks.lookup(:icn, 'family')
-            taxon_name.valid?
-            expect(taxon_name.errors.include?(:name)).to be_truthy
           end
         end
       end
@@ -828,97 +775,119 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         end
       end
     end
+
+    context 'status string arrays' do
+      let!(:a)  { FactoryGirl.create(:relationship_genus, name: 'Aus', parent: @family) }
+      let!(:b)  { FactoryGirl.create(:relationship_genus, name: 'Bus', parent: @family) }
+      let!(:s)  { TaxonNameClassification::Iczn::Unavailable.create(taxon_name: a) }
+      let!(:r1) { TaxonNameRelationship::Iczn::Invalidating::Synonym.create(subject_taxon_name: a, object_taxon_name: b) }
+
+      specify '#combined_statuses' do
+        expect(a.combined_statuses).to eq(['synonym of', 'unavailable [iczn]'])
+      end
+
+      specify '#status_from_classifications' do
+        expect(a.statuses_from_classifications).to eq(['unavailable [iczn]'])
+      end
+
+      specify '#status_from_relationships' do
+        expect(a.statuses_from_relationships).to eq(['synonym of'])
+      end
+    end
+
+
   end # END before(:all) spinups
 
   # DO NOT USE before(:all) OR any factory that creates the full hierarchy here
   context 'clean slates' do
-    context 'methods from awesome_nested_set' do
       let(:p) { Project.create(name: 'Taxon-name root test.', without_root_taxon_name: true) }
       let(:root1) { FactoryGirl.create(:root_taxon_name, project_id: 1) }
       let(:root2) { FactoryGirl.build(:root_taxon_name) }
 
-      context 'root names' do
-        specify 'a second root (parent is nul) in a given project is not allowed' do
-          expect(root1.parent).to be_nil
-          expect(root2.parent).to be_nil
-          expect(root1.project_id).to eq(1)
-          expect(root2.project_id).to eq(1)
-          expect(root2.valid?).to be_falsey
-          expect(root2.errors.include?(:parent_id)).to be_truthy
+      context 'methods from awesome_nested_set' do
+
+        context 'root names' do
+          specify 'a second root (parent is nul) in a given project is not allowed' do
+            expect(root1.parent).to be_nil
+            expect(root2.parent).to be_nil
+            expect(root1.project_id).to eq(1)
+            expect(root2.project_id).to eq(1)
+            expect(root2.valid?).to be_falsey
+            expect(root2.errors.include?(:parent_id)).to be_truthy
+          end
+
+          specify 'permit multiple roots in different projects' do
+            root2.project_id = p.id
+            expect(root2.parent).to be_nil
+            expect(root2.valid?).to be_truthy
+          end
+
+          specify 'roots can be saved without raising' do
+            root2.project_id = p.id
+            expect(root2.save).to be_truthy
+            expect(root1.save).to be_truthy
+          end
+
+          specify 'scope project_root' do
+            root1.save
+            expect(TaxonName.project_root(1).first).to eq(root1)
+          end
         end
 
-        specify 'permit multiple roots in different projects' do
-          root2.project_id = p.id
-          expect(root2.parent).to be_nil
-          expect(root2.valid?).to be_truthy
-        end
+        # run through the awesome_nested_set methods: https://github.com/collectiveidea/awesome_nested_set/wiki/_pages
+        context 'handle a simple hierarchy with awesome_nested_set' do
+          let!(:new_root) { FactoryGirl.create(:root_taxon_name, project: p) }
+          let!(:family1) { Protonym.create!(rank_class: Ranks.lookup(:iczn, 'family'), name: 'Aidae', parent: new_root, project: p) }
+          let!(:genus1) { Protonym.create!(rank_class: Ranks.lookup(:iczn, 'genus'), name: 'Aus', parent: family1, project: p) }
+          let!(:genus2) { Protonym.create!(rank_class: Ranks.lookup(:iczn, 'genus'), name: 'Bus', parent: family1, project: p) }
+          let!(:species1) { Protonym.create!(rank_class: Ranks.lookup(:iczn, 'species'), name: 'aus', parent: genus1, project: p) }
+          let!(:species2) { Protonym.create!(rank_class: Ranks.lookup(:iczn, 'species'), name: 'bus', parent: genus2, project: p) }
 
-        specify 'roots can be saved without raising' do
-          root2.project_id = p.id
-          expect(root2.save).to be_truthy
-          expect(root1.save).to be_truthy
-        end
+          specify 'root' do
+            expect(species1.root).to eq(new_root)
+          end
 
-        specify 'scope project_root' do
-          root1.save
-          expect(TaxonName.project_root(1).first).to eq(root1)
+          specify 'ancestors' do
+            expect(new_root.ancestors.size).to eq(0)
+            expect(family1.ancestors.size).to eq(1)
+            expect(family1.ancestors).to eq([new_root])
+            expect(species1.ancestors.size).to eq(3)
+          end
+
+          specify 'parent' do
+            expect(new_root.parent).to eq(nil)
+            expect(family1.parent).to eq(new_root)
+          end
+
+          specify 'leaves' do
+            new_root.reload
+            expect(new_root.leaves.to_a).to contain_exactly(species1, species2) # doesn't test order
+          end
+
+          # replicate
+          #       specify 'move_to_child_of' do
+          #         species2.move_to_child_of(genus1)
+          #         genus2.reload
+          #         expect(genus2.children).to eq([])
+          #         genus1.reload
+          #         expect(genus1.children.to_a).to eq([species1, species2])
+          #       end
+
+          context 'housekeeping with ancestors and descendants' do
+            # xspecify 'updated_on is not touched for ancestors when a child moves' do
+            #   g1_updated = genus1.updated_at
+            #   g1_created = genus1.created_at
+            #   g2_updated = genus2.updated_at
+            #   g2_created = genus2.created_at
+            #   species1.move_to_child_of(genus2)
+            #   expect(genus1.updated_at).to eq(g1_updated)
+            #   expect(genus1.created_at).to eq(g1_created)
+            #   expect(genus2.updated_at).to eq(g2_updated)
+            #   expect(genus2.created_at).to eq(g2_created)
+            # end
+          end
         end
       end
-
-      # run through the awesome_nested_set methods: https://github.com/collectiveidea/awesome_nested_set/wiki/_pages
-      context 'handle a simple hierarchy with awesome_nested_set' do
-        let!(:new_root) { FactoryGirl.create(:root_taxon_name, project: p) }
-        let!(:family1) { Protonym.create!(rank_class: Ranks.lookup(:iczn, 'family'), name: 'Aidae', parent: new_root, project: p) }
-        let!(:genus1) { Protonym.create!(rank_class: Ranks.lookup(:iczn, 'genus'), name: 'Aus', parent: family1, project: p) }
-        let!(:genus2) { Protonym.create!(rank_class: Ranks.lookup(:iczn, 'genus'), name: 'Bus', parent: family1, project: p) }
-        let!(:species1) { Protonym.create!(rank_class: Ranks.lookup(:iczn, 'species'), name: 'aus', parent: genus1, project: p) }
-        let!(:species2) { Protonym.create!(rank_class: Ranks.lookup(:iczn, 'species'), name: 'bus', parent: genus2, project: p) }
-
-        specify 'root' do
-          expect(species1.root).to eq(new_root)
-        end
-
-        specify 'ancestors' do
-          expect(new_root.ancestors.size).to eq(0)
-          expect(family1.ancestors.size).to eq(1)
-          expect(family1.ancestors).to eq([new_root])
-          expect(species1.ancestors.size).to eq(3)
-        end
-
-        specify 'parent' do
-          expect(new_root.parent).to eq(nil)
-          expect(family1.parent).to eq(new_root)
-        end
-
-        specify 'leaves' do
-          new_root.reload
-          expect(new_root.leaves.to_a).to contain_exactly(species1, species2) # doesn't test order
-        end
-
-        # replicate
-#       specify 'move_to_child_of' do
-#         species2.move_to_child_of(genus1)
-#         genus2.reload
-#         expect(genus2.children).to eq([])
-#         genus1.reload
-#         expect(genus1.children.to_a).to eq([species1, species2])
-#       end
-
-        context 'housekeeping with ancestors and descendants' do
-          # xspecify 'updated_on is not touched for ancestors when a child moves' do
-          #   g1_updated = genus1.updated_at
-          #   g1_created = genus1.created_at
-          #   g2_updated = genus2.updated_at
-          #   g2_created = genus2.created_at
-          #   species1.move_to_child_of(genus2)
-          #   expect(genus1.updated_at).to eq(g1_updated)
-          #   expect(genus1.created_at).to eq(g1_created)
-          #   expect(genus2.updated_at).to eq(g2_updated)
-          #   expect(genus2.created_at).to eq(g2_created)
-          # end
-        end
-      end
-    end
   end
 
   context 'concerns' do
