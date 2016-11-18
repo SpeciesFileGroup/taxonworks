@@ -1,5 +1,6 @@
 module CitationsHelper
 
+
   def citation_tag(citation)
     return nil if citation.nil?
     citation_string = (
@@ -13,7 +14,8 @@ module CitationsHelper
     if citation.citation_topics.any? 
       str = str + ' [' + citation.citation_topics.collect{|ct| ct.topic.name + (ct.pages? ? ": #{ct.pages}" : "")}.join(', ') + ']' 
     end
-    str += '.'
+    str += '.' 
+#    str += citation.is_original? ? ' ORIGINAL' : ' SUBSEQUENT'
     str.html_safe
   end
 
@@ -34,6 +36,13 @@ module CitationsHelper
 
   def edit_citation_link(citation)
     edit_object_link(citation)
+  end
+
+  def citation_author_year_tag(citation)
+    if !citation.nil?
+      str = citation.source.author_year
+      str.blank? ? 'NOT PROVIDED/CACHE ERROR' : str 
+    end
   end
 
   # @return [True]
