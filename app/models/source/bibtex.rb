@@ -452,8 +452,8 @@ class Source::Bibtex < Source
       b[:doi] = dois.first.identifier # TW only allows one DOI per object
     end
 
-    b.author = self.compute_bibtex_names('author') unless (self.authors.size == 0 && self.author.blank?)
-    b.editor = self.compute_bibtex_names('editor') unless (self.editors.size == 0 && self.editor.blank?)
+    b.author = self.compute_bibtex_names('author') unless (!self.authors.any? && self.author.blank?)
+    b.editor = self.compute_bibtex_names('editor') unless (!self.editors.any? && self.editor.blank?)
 
     b.key    = self.id unless self.new_record? # id.blank?
     b
@@ -595,7 +595,7 @@ class Source::Bibtex < Source
 
   # @todo create related Serials
 
-  #endregion  ruby-bibtex related
+  #endregion ruby-bibtex related
 
   #region getters & setters
 
@@ -635,7 +635,7 @@ class Source::Bibtex < Source
   #   last names formatted as displayed in nomenclatural authority (iczn), prioritizes
   #   normalized people records before bibtex author string
   def authority_name
-    if self.authors.count == 0 # no normalized people, use string
+    if self.authors.count == 0 # no normalized people, use string, !! not .any? because of in-memory setting?!
       if self.author.blank?
         return ('')
       else
@@ -648,7 +648,6 @@ class Source::Bibtex < Source
     end
   end
 
-  #region identifiers
   def isbn=(value)
     write_attribute(:isbn, value)
     unless value.blank?
@@ -695,14 +694,6 @@ class Source::Bibtex < Source
         tw_issn.destroy
       end
       self.identifiers.build(type: 'Identifier::Global::Issn', identifier: value)
-      # if tw_issn.nil?
-      #   self.identifiers.build(type: 'Identifier::Global::Issn', identifier: value)
-      # else
-      #   if tw_issn.identifier != value
-      #     tw_issn.destroy
-      #     self.identifiers.build(type: 'Identifier::Global::Issn', identifier: value)
-      #   end
-      # end
     end
   end
 
@@ -715,14 +706,12 @@ class Source::Bibtex < Source
     URI(self.url) unless self.url.blank?
   end
 
-  # @todo Turn this into a has_one relationship
+  # @return [Identifier]
+  #   the identifier of this type, relies on Identifier to enforce has_one for Global identifiers,
+  #   !! behaviour for Identifier::Local types may be unexpected
   def identifier_string_of_type(type)
-    # This relies on the identifier class to enforce a single version of any identifier
-    identifiers = self.identifiers.of_type(type)
-    identifiers.size == 0 ? nil : identifiers.first.identifier
+    identifiers.of_type(type).first.try(:identifier)
   end
-
-  #endregion identifiers
 
   # @todo if language is set => set language_id
   # def language=(value)
@@ -730,7 +719,6 @@ class Source::Bibtex < Source
   # end
   #endregion getters & setters
 
-  #region has_<attribute>? section
   def has_authors? # is there a bibtex author or author roles?
     return true if !(self.author.blank?) # author attribute is empty
     return false if self.new_record? # nothing saved yet, so no author roles are saved yet
@@ -755,19 +743,17 @@ class Source::Bibtex < Source
     false
   end
 
-  #endregion has_<attribute>? section
-
   #region time/date related
 
-  # An memoizer, getter for cached_nomenclature_date, computes if not .persisted?
   # @return [Date] 
+  #  An memoizer, getter for cached_nomenclature_date, computes if not .persisted?
   def date
     set_cached_nomenclature_date if !self.persisted?
     self.cached_nomenclature_date
   end
 
-  # The effective year of publication as per nomenclatural rules.
   # @return [Integer]
+  #  The effective year of publication as per nomenclatural rules
   def nomenclature_year
     date.year if date
   end
@@ -780,43 +766,35 @@ class Source::Bibtex < Source
     )
   end
 
-  # @todo move the test for nomenclature_date to spec/lib/utilities/dates_spec.rb
-
   #endregion    time/date related
 
-  #region cached values section
-  #
+
+  # @return [BibTex::Bibliography]
+  #   initialized with this source as an entry
+  def bibtex_bibliography
+    bx_entry = to_bibtex
+    bx_entry.year = '0000' if bx_entry.year.blank? # cludge to fix render problem with year
+    b = BibTeX::Bibliography.new
+    b.add(bx_entry)
+    b
+  end
+
+  # @return [String]
+  #   this source, rendered in the provided CSL style, as text
+  def render_with_style(style = 'vancouver', format = 'text')
+    cp = CiteProc::Processor.new(style: style, format: format) # There is a problem with the zootaxa format and letters!
+    cp.import(bibtex_bibliography.to_citeproc)
+    cp.render(:bibliography, id: cp.items.keys.first).first.strip
+  end 
 
   # @return [String]
   #   a full representation, using bibtex
   # String must be length > 0
-  def cached_string(format)
-    unless (format == 'text') || (format == 'html')
-      return(nil)
-    end
-
-    bx_entry = self.to_bibtex
-
-    if bx_entry.key.blank?
-      bx_entry.key = 'tmpID'
-    end
-
-    if bx_entry.year.blank? # cludge to fix render problem with year
-      bx_entry.year = '0000'
-    end
-
-    key             = bx_entry.key
-    bx_bibliography = BibTeX::Bibliography.new
-    bx_bibliography.add(bx_entry)
-
-    cp = CiteProc::Processor.new(style: 'zootaxa', format: format)
-    cp.import(bx_bibliography.to_citeproc)
-    output = cp.render(:bibliography, id: key).first.strip
-
-    output.sub('(0ADAD)', '') # citeproc renders year 0000 as (0ADAD)
+  def cached_string(format = 'text')
+    return nil  unless (format == 'text') || (format == 'html')
+    str = render_with_style('zootaxa', format) # the current TaxonWorks default ... make a constant
+    str.sub('(0ADAD)', '') # citeproc renders year 0000 as (0ADAD)
   end
-
-  #endregion cached values section
 
   protected
 
@@ -958,7 +936,7 @@ class Source::Bibtex < Source
   end
 
   def sv_has_note
-    if (self.note.blank?) && (self.notes.count == 0)
+    if (self.note.blank?) && (!self.notes.any?)
       soft_validations.add(:note, 'Valid BibTeX requires a note with an unpublished source.')
     end
   end
