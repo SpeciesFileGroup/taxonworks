@@ -120,7 +120,7 @@ module NomenclatureCatalog
       items.each do |i|
        d.push i.nomenclature_date
       end
-      d.sort 
+      d.compact.sort 
     end
 
     def all_topics
@@ -128,7 +128,7 @@ module NomenclatureCatalog
       sources.each do |s|
         t.push topics_for_source(s)
       end
-      t.flatten.uniq.sort
+      t.flatten.uniq.compact.sort
     end
 
   end
