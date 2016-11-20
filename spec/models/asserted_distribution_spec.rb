@@ -3,6 +3,7 @@ require 'rails_helper'
 describe AssertedDistribution, type: :model, group: :geo do
 
   let(:asserted_distribution) { AssertedDistribution.new }
+
   let(:source) { FactoryGirl.create(:valid_source) }
   let(:otu) { FactoryGirl.create(:valid_otu) }
   let(:geographic_area) { FactoryGirl.create(:valid_geographic_area) }
@@ -20,6 +21,19 @@ describe AssertedDistribution, type: :model, group: :geo do
   end
 
   context 'validation' do
+
+    context 'required base attributes' do
+      before { asserted_distribution.valid? }
+
+      specify '#otu is required' do
+        expect(asserted_distribution.errors.include?(:otu)).to be_truthy
+      end
+
+      specify '#geographic_area is required' do
+        expect(asserted_distribution.errors.include?(:geographic_area)).to be_truthy
+      end
+    end
+
     context 'a citation is required' do
       before {
         asserted_distribution.geographic_area = geographic_area
@@ -91,13 +105,7 @@ describe AssertedDistribution, type: :model, group: :geo do
       expect(ad2.valid?).to be_falsey
       expect(ad2.errors.include?(:geographic_area_id)).to be_truthy
     end
-    
-    specify 'missing fields' do
-      ad1 = FactoryGirl.build_stubbed(:valid_asserted_distribution, otu_id: nil, geographic_area_id: nil)
-      expect(ad1.valid?).to be_falsey
-      expect(ad1.errors.include?(:geographic_area_id)).to be_truthy
-      expect(ad1.errors.include?(:otu)).to be_truthy
-    end
+  
   end
 
   context 'soft validation' do
