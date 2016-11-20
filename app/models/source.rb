@@ -192,6 +192,7 @@ class Source < ActiveRecord::Base
   include Shared::SharedAcrossProjects
   include Shared::Taggable
   include Shared::IsData
+  include Shared::Documentation
 
   has_paper_trail
 
