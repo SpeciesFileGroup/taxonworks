@@ -1,3 +1,5 @@
+include Term::ANSIColor
+
 namespace :tw do
   namespace :maintenance do
     namespace :interface do
@@ -5,8 +7,8 @@ namespace :tw do
       task  :reset_hub_tabs =>  [:environment] do |t|
         ActiveRecord::Base.transaction do
           User.update_all(hub_tab_order: DEFAULT_HUB_TAB_ORDER)
-          puts "User hub tab order reset.".yellow.bold
-        end
+          print yellow { bold { "User hub tab order reset." } }, "\n" 
+         end
       end
     end
   end
