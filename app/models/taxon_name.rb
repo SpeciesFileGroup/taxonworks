@@ -364,8 +364,8 @@ class TaxonName < ActiveRecord::Base
 
   # @return [Array of String]
   #   the unique string labels derived from TaxonNameClassifications 
-  def taxon_name_classifications_for_statuses
-    list = taxon_name_classicitations_for_statuses
+  def statuses_from_classifications
+    list = taxon_name_classifications_for_statuses
     list.empty? ? [] : list.collect{|c| c.classification_label }.sort
   end
 
