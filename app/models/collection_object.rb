@@ -548,10 +548,9 @@ class CollectionObject < ActiveRecord::Base
   # @param [Array] area_object_ids (e.g., from GeographicItem.gather_selected_data())
   # @return [Scope] of intersection of collecting events (usually by date range)
   #   and collection objects (usually by inclusion in geographic areas/items)
-  def self.from_collecting_events(collecting_event_ids, area_object_ids, area_set, project_id, otu_id)
+  def self.from_collecting_events(collecting_event_ids, area_object_ids, area_set, project_id)
     collecting_events_clause = {collecting_event_id: collecting_event_ids, project: project_id}
     area_objects_clause = {id: area_object_ids, project: project_id}
-    otu_objects_clause = {otu_id: otu_id}
     if (collecting_event_ids.empty?)
       collecting_events_clause = {project: project_id}
     end
@@ -564,7 +563,6 @@ class CollectionObject < ActiveRecord::Base
     retval = CollectionObject.joins(:collecting_event)
                  .where(collecting_events_clause)
                  .where(area_objects_clause)
-                 .where()
     retval
   end
 
