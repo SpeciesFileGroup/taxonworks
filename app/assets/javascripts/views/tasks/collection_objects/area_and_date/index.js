@@ -66,7 +66,7 @@ _init_map_table = function init_map_table() {
       $("#find_area_and_date_commit").click(function (event, href) {
         //$("#result_span").text('**********');
         if (href == undefined) {
-          href = $("#set_area_form").serialize() + '&' + $("#set_date_form").serialize() + '&' + $("#set_otu_form");
+          href = $("#set_area_form").serialize() + '&' + $("#set_date_form").serialize() + '&' + $("#set_otu_form").serialize();
         }
         $("#find_item").mx_spinner('show');
         $.get('find', href, function (local_data) {

@@ -46,13 +46,15 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
       @collection_objects  = CollectionObject.from_collecting_events(collecting_event_ids,
                                                                      area_object_ids,
                                                                      area_set,
-                                                                     sessions_current_project_id,
-                                                                     otu_id).page(params[:page])
+                                                                     sessions_current_project_id).page(params[:page])
     end
 
     # @collection_objects has to be the intersection
-    @collection_objects = @collection_objects + @otu_collection_objects
-
+    @otu_co_ids = @otu_collection_objects.map(&:id)
+    unless @otu_id.blank?
+      @collection_objects = @collection_objects.where(id: @otu_co_ids)
+    end
+    # @collection_objects = (@collection_objects + @otu_collection_objects).uniq
     @collection_objects_count = @collection_objects.count
     @feature_collection       = ::Gis::GeoJSON.feature_collection(find_georeferences_for(@collection_objects,
                                                                                          @geographic_area))
@@ -97,13 +99,16 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
   # @param [String] descendants: 'on' for inclusion of other otus attached to the taxon_name (if available)
   #                              'off' to limit to the collection objects of this otu only
   def gather_otu_objects(otu_id, descendants)
-    @otu = Otu.find(otu_id)
-
+    @otu = Otu.joins(:collecting_events).where(id: otu_id).first
+    if @otu.nil?
+      @otu_collection_objects = CollectionObject.where('false')
+    else
     if descendants.downcase == 'off' or @otu.taxon_name.blank?
       @otu_collection_objects = @otu.collection_objects
     else
       @otu_collection_objects = CollectionObject.joins(:taxon_names)
                                   .where(taxon_names: {id: @otu.taxon_name.self_and_descendants})
+    end
     end
     @otu_collection_objects_count = @otu_collection_objects.count
   end
