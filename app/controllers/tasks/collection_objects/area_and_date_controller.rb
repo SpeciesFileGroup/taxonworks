@@ -103,12 +103,12 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
     if @otu.nil?
       @otu_collection_objects = CollectionObject.where('false')
     else
-    if descendants.downcase == 'off' or @otu.taxon_name.blank?
-      @otu_collection_objects = @otu.collection_objects
-    else
-      @otu_collection_objects = CollectionObject.joins(:taxon_names)
-                                  .where(taxon_names: {id: @otu.taxon_name.self_and_descendants})
-    end
+      if descendants.downcase == 'off' or @otu.taxon_name.blank?
+        @otu_collection_objects = @otu.collection_objects
+      else
+        @otu_collection_objects = CollectionObject.joins(:taxon_names)
+                                    .where(taxon_names: {id: @otu.taxon_name.self_and_descendants})
+      end
     end
     @otu_collection_objects_count = @otu_collection_objects.count
   end
