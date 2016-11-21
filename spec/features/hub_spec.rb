@@ -90,7 +90,7 @@ describe 'Hub', :type => :feature do
                                (3 for each otu, one for Otus)
 =end
 
-    specify 'should see recent links' do
+    xspecify 'should see recent links' do
       sign_in_user_and_select_project
       otu1 = Otu.new(name: 'a', by: @user, project: @project)
       otu1.save!

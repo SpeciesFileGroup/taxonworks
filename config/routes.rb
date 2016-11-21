@@ -52,7 +52,13 @@ TaxonWorks::Application.routes.draw do
     get 'data_overview'
   end
 
-  resources :project_members, except: [:index, :show]
+  resources :project_members, except: [:index, :show] do
+    collection do
+      get :many_new
+      post :create_many
+    end
+  end
+
   resources :pinboard_items, only: [:create, :destroy] do
     collection do
       post 'update_position'

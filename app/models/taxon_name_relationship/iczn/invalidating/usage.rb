@@ -13,4 +13,8 @@ class TaxonNameRelationship::Iczn::Invalidating::Usage < TaxonNameRelationship::
     false
   end
 
+  def subject_properties
+    [ TaxonNameClassification::Iczn::Unavailable ]
+  end
+
 end

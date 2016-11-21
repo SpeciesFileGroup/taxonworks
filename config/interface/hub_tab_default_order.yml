@@ -1,9 +1,9 @@
 ---
 :default:  
- - favorite
- - recent
- - data
- - tasks
- - worker
- - icons 
- - related
+  - tasks
+  - data
+  - favorite
+# - worker
+# - icons 
+# - related
+# - recent

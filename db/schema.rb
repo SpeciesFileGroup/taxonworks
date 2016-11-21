@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161020143529) do
+ActiveRecord::Schema.define(version: 20161109214506) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -533,7 +533,6 @@ ActiveRecord::Schema.define(version: 20161020143529) do
     t.integer  "documentation_object_id",   null: false
     t.string   "documentation_object_type", null: false
     t.integer  "document_id",               null: false
-    t.string   "type",                      null: false
     t.json     "page_map"
     t.integer  "project_id",                null: false
     t.integer  "created_by_id",             null: false
@@ -546,7 +545,6 @@ ActiveRecord::Schema.define(version: 20161020143529) do
   add_index "documentation", ["document_id"], name: "index_documentation_on_document_id", using: :btree
   add_index "documentation", ["documentation_object_id", "documentation_object_type"], name: "index_doc_on_doc_object_type_and_doc_object_id", using: :btree
   add_index "documentation", ["project_id"], name: "index_documentation_on_project_id", using: :btree
-  add_index "documentation", ["type"], name: "index_documentation_on_type", using: :btree
   add_index "documentation", ["updated_by_id"], name: "index_documentation_on_updated_by_id", using: :btree
 
   create_table "documents", force: :cascade do |t|

@@ -7,11 +7,11 @@ class TaxonNameRelationship::Iczn::PotentiallyValidating::ReplacementName < Taxo
   end
 
   def object_status
-    'homonym'
+    'replaced with'
   end
 
   def subject_status
-    'nomen novum'
+    'nomen novum for'
   end
 
   def self.gbif_status_of_subject

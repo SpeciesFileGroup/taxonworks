@@ -138,7 +138,86 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
       expect(genus.taxon_name_relationships.size).to be(1)
     end
   end
-  
+
+  context 'latinization' do
+    let(:invalid_spelling) { Protonym.new(name: '1234', rank_class: Ranks.lookup(:iczn, 'genus'), parent: root) }
+    context 'with invalid spelling' do
+
+      specify 'does not #have_latinized_exceptions?' do
+        expect(invalid_spelling.has_latinized_exceptions?).to be_falsey
+      end
+
+      specify 'is not #is_latin?' do
+        expect(invalid_spelling.is_latin?).to be_falsey
+      end
+
+      specify '#have_latinized_exceptions?' do
+        invalid_spelling.taxon_name_classifications << TaxonName::EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS.first.constantize.new
+        expect(invalid_spelling.has_latinized_exceptions?).to be_truthy
+      end
+
+      context 'when rank ICZN family' do
+        let(:family) { Protonym.new(name: 'Fooidae', rank_class: Ranks.lookup(:iczn, 'family'), parent: root) }
+        specify "is validly_published when ending in '-idae'" do
+          family.valid?
+          expect(family.errors.include?(:name)).to be_falsey
+        end
+
+        specify "is invalidly_published when not ending in '-idae'" do
+          t = Protonym.new(name: 'Aus', rank_class: Ranks.lookup(:iczn, 'family'))
+          t.valid?
+          expect(t.errors.include?(:name)).to be_truthy
+        end
+
+        specify 'is invalidly_published when not capitalized' do
+          protonym.name       = 'fooidae'
+          protonym.rank_class = Ranks.lookup(:iczn, 'family')
+          protonym.valid?
+          expect(protonym.errors.include?(:name)).to be_truthy
+        end
+
+        specify 'species name starting with upper case' do
+          protonym.name       = 'Aus'
+          protonym.rank_class = Ranks.lookup(:iczn, 'species')
+          protonym.valid?
+          expect(protonym.errors.include?(:name)).to be_truthy
+        end
+      end
+
+      context 'when rank ICN family' do
+        specify "is validly_published when ending in '-aceae'" do
+          protonym.name       = 'Aaceae'
+          protonym.rank_class = Ranks.lookup(:icn, 'family')
+          protonym.valid?
+          expect(protonym.errors.include?(:name)).to be_falsey
+        end
+        specify "is invalidly_published when not ending in '-aceae'" do
+          protonym.name       = 'Aus'
+          protonym.rank_class = Ranks.lookup(:icn, 'family')
+          protonym.valid?
+          expect(protonym.errors.include?(:name)).to be_truthy
+        end
+      end
+    end
+
+    context 'with valid spelling' do
+      before { invalid_spelling.name = 'Aus' }
+
+      specify 'does not #have_latinized_exceptions?' do
+        expect(invalid_spelling.has_latinized_exceptions?).to be_falsey
+      end
+
+      specify '#is_latin?' do
+        expect(invalid_spelling.is_latin?).to be_truthy
+      end
+    end
+  end
+
+
+
+
+
+
   context 'parallel creation of OTUs' do
     let(:p) {Protonym.new(parent: @order , name: 'Aus', rank_class: Ranks.lookup(:iczn, 'genus')) }
 

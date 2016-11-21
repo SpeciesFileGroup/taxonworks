@@ -22,4 +22,9 @@ class TaxonNameRelationship::Typification < TaxonNameRelationship
     :reverse
   end
 
+  def object_status_connector_to_subject
+    ' with'
+  end
+
+
 end

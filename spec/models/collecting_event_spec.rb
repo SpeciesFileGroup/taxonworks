@@ -351,6 +351,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
     it_behaves_like 'notable'
     it_behaves_like 'taggable'
     it_behaves_like 'is_data'
+    it_behaves_like 'documentation'
   end
 
 end

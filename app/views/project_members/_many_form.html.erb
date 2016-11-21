@@ -1,0 +1,43 @@
+<%= form_for(@project_member, url: create_many_project_members_path ) do |f| %>
+  <%= render 'shared/errors', object: @project_member %>
+
+  <div class="actions">
+    <%= f.submit 'Create project member(s)' %>
+  </div>
+
+  <div class="field">
+    For: <%= f.label :project_id, @project_member.project.name %><br>
+    <%= f.hidden_field :project_id -%>
+  </div>
+
+  <div class="field">
+    <%= f.check_box :is_project_administrator %>  <%= f.label :is_project_administrator %> (sets for all!)
+  </div>
+
+  
+  <h3> Pick users </h3>
+
+   <%= a_to_z_links(@target_letters) -%> 
+
+  <% @available_users.group_by{|u| u.name[0].upcase}.each do |group, users| %>
+    <h3><%= link_to(group, '#alphabet_nav', name: group) -%></h3>
+    <% users.in_groups_of(5, false).each do |g| -%>
+      <div style="float: left">
+        <% g.each do |user| -%>
+          <label>
+            <%= check_box_tag "project_member[user_ids][]", user.id %>
+            <%= user.name %> | <%= user.email.gsub(/...@.../, '*******') %>
+          </label><br>
+        <% end %>
+
+      </div>
+    <% end %>
+    <br style="clear:both;" />
+  <% end %>
+
+
+
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

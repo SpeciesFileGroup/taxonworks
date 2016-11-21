@@ -34,17 +34,17 @@ class AssertedDistribution < ActiveRecord::Base
   include Shared::DataAttributes
   include Shared::Citable
 
-  belongs_to :otu
-  belongs_to :geographic_area
+  belongs_to :otu, inverse_of: :asserted_distributions
+  belongs_to :geographic_area, inverse_of: :asserted_distributions
 
   accepts_nested_attributes_for :otu, allow_destroy: false, reject_if: proc { |attributes| attributes['name'].blank? && attributes['taxon_name_id'].blank?  }
-
-  validates_presence_of :otu_id, message: 'Taxon is not specified', if: proc { |attributes| attributes['otu_attributes'] && (!attributes['otu_attributes']['name'] || !attributes['otu_attributes']['taxon_name_id'])}
+  
+  # validates_presence_of :otu_id, message: 'Taxon is not specified', if:  proc { |attributes| attributes['otu_id'].nil?  ( attributes['otu_attributes'] && (!attributes['otu_attributes']['name'] || !attributes['otu_attributes']['taxon_name_id']))}
   validates_presence_of :geographic_area_id, message: 'geographic area is not selected'
 
   # Might not be able to do these for nested attributes
-  #validates :geographic_area, presence: true
-  #validates :otu, presence: true
+  validates :geographic_area, presence: true
+  validates :otu, presence: true
 
   validates_uniqueness_of :geographic_area_id, scope: [:project_id, :otu_id], message: 'record for this source/otu combination already exists'
 
@@ -103,6 +103,9 @@ class AssertedDistribution < ActiveRecord::Base
     end 
   end
 
+  def new_records_include_otu
+
+  end
   
 
   def sv_conflicting_geographic_area

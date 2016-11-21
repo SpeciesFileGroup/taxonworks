@@ -17,6 +17,10 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::Unjustified
     'unjustified emendation'
   end
 
+  def subject_status_connector_to_object
+    ' for'
+  end
+
   def self.assignment_method
     # bus.set_as_iczn_unjustified_emendation_of(aus)
     :iczn_set_as_unjustified_emendation_of

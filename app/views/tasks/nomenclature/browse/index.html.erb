@@ -1,107 +1,103 @@
+<%= content_for :head do -%>
+ <%= javascript_include_tag "http://www.google.com/jsapi", "chartkick" %>
+<% end %>
+
 <h1 class="task_header"> Browse nomenclature </h1>
 
 <div id="browse-view" class="panel content">
-  <%= render('/taxon_names/breadcrumb_navigator', taxon_name: @taxon_name, target: :browse_nomenclature_task_path) -%>
-</div>
-
-<div id="show" class="panels-container ">
-  <div class="item item1">
-    <div class="panel separate-right">
-      <div class="title nav-line">
-        Navigate 
-      </div>
-      <div class="navigation-controls">
-        
-        <%= edit_taxon_name_link(@taxon_name) -%>
-        <%= link_to(content_tag(:span, 'Show', data: {icon: :edit}, class: 'small-icon'), @taxon_name.metamorphosize, class: 'navigation-item') -%>
-      </div>
-      <%= render('/taxon_names/classification_navigator', taxon_name: @taxon_name) -%>
-      <div class="content"> 
-        <%= render('/taxon_names/parent_navigator', taxon_name: @taxon_name, target: :browse_nomenclature_task_path) -%>
-      </div>
-    </div>
+  <div> 
+    <span class="right_float">  <%= pin_item_to_pinboard_link(@taxon_name, sessions_current_user) -%><!---- Make a button ----> </span>
+    <%= render('/taxon_names/breadcrumb_navigator', taxon_name: @taxon_name, target: :browse_nomenclature_task_path) -%>
   </div>
-  <div class="item item2">
-    <div class="panel separate-left">
-      <div class="title action-line">
-        <div class="title-section flexbox column-big">
-          <%= content_tag(:span, full_taxon_name_tag(@taxon_name), class: 'name') -%> <span class="to-right"><%= taxon_name_classification_status_tag(@taxon_name) -%></span>
-          <%= content_tag(:span, latinization_tag(@taxon_name)) -%>
+  <div id="show" class="panels-container ">
+    <div class="item item1">
+      <div class="panel separate-right">
+        <div class="title nav-line">
+          Navigate 
+        </div>
 
-          <div> 
-            <%= pin_item_to_pinboard_link(@taxon_name, sessions_current_user) -%>       
+        <div class="navigation-controls">
+          <%= link_to(content_tag(:span, 'Show', class: 'small-icon'), @taxon_name.metamorphosize, class: 'navigation-item') -%>
+          <%= edit_taxon_name_link(@taxon_name) -%>
+        </div>
+
+         <%= render('/taxon_names/classification_navigator', taxon_name: @taxon_name) -%>
+
+        <div class="navigation-controls">
+          <div class="navigation-item">
+            <%= form_tag( browse_nomenclature_task_path, method: :get) do %>
+              <%= render  'workbench/elements/forms/ajax_select',
+                controller:  '/taxon_names',
+                object: '',
+                method:  'id',
+                tag_id:  'taxon_name_id_for_browse_nomenclature',
+                size: 20 %>
+              <%= submit_tag 'show' -%>
+            <% end %>
           </div>
         </div>
-      </div>
 
-      <div id="filterBrowse" class="navigation-controls">
-        <div class="navigation-item" data-filter-reset="reset">
-          <span data-icon="reset" class="small-icon">Reset</span>
+        <div class="content"> 
+          <%= render('/taxon_names/parent_navigator', taxon_name: @taxon_name, target: :browse_nomenclature_task_path) -%>
         </div>
-        <div class="navigation-item" data-filter=".taxon_name_author_year">
-          <span data-icon="show" class="small-icon">Author/Year</span>
-        </div>  
-        <div class="navigation-item" data-filter=".type_information">
-          <span data-icon="show" class="small-icon">Type information</span>
-        </div> 
-        <div class="navigation-item" data-filter=".status">
-          <span data-icon="show" class="small-icon">Status</span>
-        </div>                              
+
       </div>
-    </div>    
-    
-    <div class="flexbox"> 
-      <div>
-        <div class="panels-container">
-          <div id="brownse-main-panel" class="panel separate-left separate-right attributes-panel">
-            <div class="break_words content">
-              <div class="title-section"> 
-                <h2>Taxonomic history</h2>
-              </div>
+    </div>
+
+    <div class="item item2">
+      <div class="flexbox"> 
+        <div id="brownse-main-panel" class="panel separate-left separate-right attributes-panel">
+          <div class="break_words">
+            <div class="content center_text"> 
+              <h2>
+                <%= content_tag(:span, full_taxon_name_tag(@taxon_name), class: 'name') -%>
+              </h2>
+            </div>
+            <%= render "filter" %><!---- @José this will be the slide-out (to bottom) as discussed ---->
+            <div class="content">
               <div class="attributes"> 
                 <ul class="taxonomic_history">
                   <% @data.ordered_by_nomenclature_date.each do |c| -%>
-                    <%= nomenclature_line_tag(c) -%> 
+                    <%= nomenclature_catalog_li_tag(c, @data.reference_taxon_name) -%> 
                   <% end %>
                 </ul>
-              </div>
-              <div class="attributes"> 
-                <%= content_tag(:h3, 'Citations') if @data.source_list.any? -%>
-                <ul class="citations">
-                  <% @data.source_list.each do |s| -%>
-                    <%= content_tag(:li, source_nomenclature_tag(s, @data.topics_for_source(s))) -%>
-                  <% end %> 
-                </ul>                          
+                <br/>
+                <% if @data.sources.any? %> 
+                  <%= content_tag(:h3, 'Citations')-%>
+                  <ul class="citations">
+                    <% @data.sources.each do |s| -%>
+                      <%= content_tag(:li, source_nomenclature_tag(s, @data.topics_for_source(s))) -%>
+                    <% end %> 
+                  </ul>                          
+                <% end %>
               </div>
             </div>
           </div>
         </div>
-      </div>
-
-      <div class="separate-panel-top"> 
-        <div class="flex-wrap-row"> 
-          <div id="validation-panel" class="panel fullSize content separate-left separate-bottom">
-            <%= render(partial: '/shared/data/all/show/soft_validation', locals: {object: @taxon_name.metamorphosize}) -%>  
-          
-          
-          </div>
-
-          <div class="panel fullSize content separate-left separate-bottom">
-            <div class="attributes information-panel">
-              <%= identifier_list_tag(@taxon_name) -%> 
-              <%= data_attribute_list_tag(@taxon_name) -%> 
-              <%= note_list_tag(@taxon_name) -%> 
-              <%= tag_list_tag(@taxon_name) -%> 
+          <div class="flex-wrap-row"> 
+            <%= render "summary" %>
+            <%= render "soft_validation" %>
+            <div class="panel fullSize content separate-left separate-bottom">
+              <div class="attributes information-panel">
+                <div class="title-section"> 
+                  <h2>Annotations</h2>
+                </div>
+                <%= identifier_list_tag(@taxon_name) -%> 
+                <%= data_attribute_list_tag(@taxon_name) -%> 
+                <%= note_list_tag(@taxon_name) -%> 
+                <%= tag_list_tag(@taxon_name) -%> 
+              </div>
+            </div>
+            <div class="panel content fullSize separate-left">
+              <div class="attributes">
+                <%= render(partial: '/shared/data/all/show/housekeeping', locals: {object: @taxon_name}) -%> 
+              </div>
             </div>
           </div>
-          <div class="panel content fullSize separate-left">
-            <div class="attributes">
-              <%= render(partial: '/shared/data/all/show/housekeeping', locals: {object: @taxon_name}) -%> 
-            </div>
-          </div>
-        </div>
+
       </div>
+
     </div>
-
   </div>
+
 </div>

@@ -5,7 +5,11 @@ module Workbench::NavigationHelper
 
   def slideout_pinboard
     render(partial: '/shared/data/slideout/pinboard')  if sessions_current_project && sessions_signed_in?
-  end    
+  end  
+
+  def slideout_recent
+    render(partial: '/shared/data/slideout/recent')  if sessions_current_project && sessions_signed_in?
+  end      
 
   def slideout_pdf_viewer
 

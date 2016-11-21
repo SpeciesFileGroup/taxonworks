@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'Citable', type: :model, group: [:nomenclature] do
+describe 'Citable', type: :model, group: [:nomenclature, :citations] do
   let(:class_with_citations) { TestCitable.new } 
   let(:citation) { FactoryGirl.build(:citation, source: source) }
 
@@ -136,7 +136,7 @@ describe 'Citable', type: :model, group: [:nomenclature] do
     end
 
     context 'reordering does not raise' do
-     
+
       # presently raises, just don't do it, see comments
       # specify ".order_by_yougest_source_first.last" do
       #   expect{TestCitable.order_by_youngest_source_first.last}.to_not raise_error # not_raise # (TestCitable.oldest_by_citation).to eq(b)
@@ -207,15 +207,85 @@ describe 'Citable', type: :model, group: [:nomenclature] do
       end
     end
 
+
     context 'with nils' do
       let!(:d) { TestCitable.create } 
-    
+
+      specify '#order_by_oldest_source_first with no citation' do
+        expect(TestCitable.order_by_oldest_source_first.to_a).to eq([a,c,b,d])
+      end
+
+      specify '#order_by_youngest_source_first with no citation' do
+        expect(TestCitable.order_by_youngest_source_first.to_a.map(&:id)).to eq([b,c,a,d].map(&:id))
+      end
+
+      specify '#youngest_by_citation with no citation' do
+        expect(TestCitable.youngest_by_citation).to eq(b)
+      end
+
+      specify '#oldest_by_citation with no citation' do
+        expect(TestCitable.oldest_by_citation).to eq(a)
+      end
+
       specify "with nils" do
         Citation.create(citation_object: d, source: nil_source)  
         expect(TestCitable.order_by_oldest_source_first.to_a).to eq([a,c,b,d])
       end
+    
+      context 'AND' do
+
+        before {
+          a.update_column(:string, 'first set')
+          b.update_column(:string, 'second set')
+          c.update_column(:string, 'third set')
+          d.update_column(:string, 'third set') # !! INTENTIONALLY c
+        }
+
+        specify '#order_by_youngest_source_first with no citation' do
+          expect(TestCitable.where(string: 'first set').order_by_youngest_source_first.to_a).to eq([a])
+        end
+
+        specify '#youngest_by_citation' do
+          expect(TestCitable.where(string: 'first set').youngest_by_citation).to eq(a)
+        end
+
+        specify '#youngest_by_citation with null' do
+          expect(TestCitable.where(string: 'third set').youngest_by_citation).to eq(c)
+        end
+
+        specify '#oldest_by_citation' do
+          expect(TestCitable.where(string: 'first set').oldest_by_citation).to eq(a)
+        end
+
+        specify '#order_by_oldest_source_first with no citation' do
+          expect(TestCitable.where(string: 'first set').order_by_oldest_source_first.to_a).to eq([a])
+        end
+
+        specify '#oldest_by_citation null' do
+          expect(TestCitable.where(string: 'third set').oldest_by_citation).to eq(c)
+        end
+      end
+    end
+  end
+
+  context 'with no citations' do
+    let!(:d) { TestCitable.create } 
+
+    specify '#order_by_oldest_source_first with no citation' do
+      expect(TestCitable.order_by_oldest_source_first.to_a).to eq([d])
     end
 
+    specify '#order_by_youngest_source_first with no citation' do
+      expect(TestCitable.order_by_youngest_source_first.to_a ).to eq([d])
+    end
+
+    specify '#youngest_by_citation with no citation' do
+      expect(TestCitable.youngest_by_citation).to eq(d)
+    end
+
+    specify '#oldest_by_citation with no citation' do
+      expect(TestCitable.oldest_by_citation).to eq(d)
+    end
   end
 
 end

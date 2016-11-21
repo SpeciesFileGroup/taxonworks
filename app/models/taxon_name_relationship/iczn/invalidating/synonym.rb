@@ -13,16 +13,20 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym < TaxonNameRelationship
         self.collect_descendants_and_itself_to_s(TaxonNameClassification::Iczn::Available::Invalid)
   end
 
-  def object_properties
-    [ TaxonNameClassification::Iczn::Invalid ]
-  end
-
   def object_status
     'senior synonym'
   end
 
   def subject_status
     'synonym'
+  end
+
+  def subject_status_connector_to_object
+    ' of'
+  end
+
+  def object_status_connector_to_subject
+    ' of'
   end
 
   def self.assignment_method

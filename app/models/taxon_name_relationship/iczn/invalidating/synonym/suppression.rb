@@ -10,6 +10,10 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression < TaxonNam
             TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective)
   end
 
+  def subject_properties
+    [ TaxonNameClassification::Iczn::Unavailable::Suppressed ]
+  end
+
   def object_status
     'conserved'
   end
@@ -17,6 +21,15 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression < TaxonNam
   def subject_status
     'suppressed'
   end
+
+  def subject_status_connector_to_object
+    ' under'
+  end
+
+  def object_status_connector_to_subject
+    ' for'
+  end
+
 
   def self.gbif_status_of_subject
     'rejiciendum'

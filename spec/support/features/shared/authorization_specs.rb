@@ -54,6 +54,7 @@ shared_examples 'a_login_required_controller' do
 end
 
 # All(?) actions must require administration
+# Assumes an otherwise valid request
 shared_examples 'an_administrator_login_required_controller' do
   describe 'authorization' do
     describe "submitting request without sign_in redirects to root_path" do
@@ -79,16 +80,53 @@ shared_examples 'an_administrator_login_required_controller' do
 
     end
 
-    describe 'submitting request as administrator renders the index' do
+    describe 'submitting a valid request as administrator renders the index' do
       before {
         sign_in_administrator
         visit(index_path)
       }
 
-      specify 'foo' do
+      specify 'Page should have administrator link' do
         expect(page).to have_text('Administration')
       end
     end
   end
 end
+
+
+#
+# it_behaves_like 'is_authorized_when_signed_in_as_administator' do 
+#   let(:administrator) { @administrator }
+#   let(:index_path) { your_path() }
+# end
+#
+shared_examples 'is_authorized_when_signed_in_as_administator' do
+  specify {
+    paths.each do |path|
+      visit path
+      # stronger expectation here
+      expect(page).to have_text('Administration')
+    end
+  } 
+end 
+
+
+
+# it_behaves_like 'is_not_authorized_when_signed_in_as_user' do 
+#   let(:administrator) { @user }
+#   let(:index_path) { your_path() }
+# end
+#
+shared_examples 'is_not_authorized_when_signed_in_as_user' do
+  specify {
+    paths.each do |path|
+      visit path
+      # stronger expectation here
+      expect(current_path).to eq(root_path)
+    end
+  } 
+end 
+
+
+
 

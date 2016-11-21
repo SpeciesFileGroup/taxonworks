@@ -7,6 +7,10 @@ class TaxonNameRelationship::Icn::Unaccepting < TaxonNameRelationship::Icn
         self.collect_descendants_to_s(TaxonNameRelationship::Icn::Accepting)
   end
 
+  def subject_properties
+    [ TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Illegitimate ]
+  end
+
   def object_status
     'accepted name'
   end

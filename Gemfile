@@ -1,4 +1,7 @@
 source 'https://rubygems.org'
+# rvm osx-ssl-certs update all
+# https://rvm.io/support/fixing-broken-ssl-certificates
+
 ruby '2.3.1'
 
 gem 'rails', '~> 4.2.6'
@@ -69,6 +72,8 @@ gem 'ref2bibtex', '~> 0.0.3'
 gem 'latex-decode', '~> 0.2.2'
 
 # gem 'anystyle-parser' # use when we stabilize
+
+gem 'indefinite_article'
 
 # Pagination
 gem 'kaminari', '~> 0.17.0'

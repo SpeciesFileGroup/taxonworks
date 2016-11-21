@@ -21,6 +21,10 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::Unnecessary
     'superfluum'
   end
 
+  def subject_status_connector_to_object
+    ' for'
+  end
+
   def self.assignment_method
     # bus.set_as_iczn_unnecessary_replacement_name_of(aus)
     :iczn_set_as_unnecessary_replaced_name

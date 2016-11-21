@@ -8,19 +8,25 @@ module NomenclatureCatalog
     # Optional
     attr_accessor :citation 
 
-    # Provide a nomenclature data if available, if it is
-    # not provided 
+    # Date from the name perspective (e.g. sorted by original publication date)
+    # See also citation_date
     attr_accessor :nomenclature_date
 
+    # Date from the citation perspective (e.g. the date when the assertion in this entry was published)
+    # See also nomenclature_date
+    attr_accessor :citation_date
+
+    # Required
     attr_accessor :taxon_name
 
-    def initialize(object: nil, taxon_name: nil, citation: nil, nomenclature_date: nil)
+    def initialize(object: nil, taxon_name: nil, citation: nil, nomenclature_date: nil, citation_date: nil)
       raise if object.nil? || taxon_name.nil?
       raise if nomenclature_date.nil? && !(object.class == 'Protonym' || 'Combination' || 'TaxonNameRelationship')
 
       @object = object
       @taxon_name = taxon_name
       @nomenclature_date = nomenclature_date
+      @citation_date = citation_date
       @citation = citation
     end
 
@@ -36,12 +42,25 @@ module NomenclatureCatalog
       @nomenclature_date.nil? ? object.nomenclature_date : @nomenclature_date
     end
 
+    def citation_date
+    end
+
     def object_class
       object.class.name
     end
 
+    def from_relationship?
+      object_class =~ /^TaxonNameRelationship/
+    end
+
     def is_subsequent?
       object == taxon_name && !citation.try(:is_original?)
+    end
+
+    def other_name
+      if from_relationship?
+        ([object.subject_taxon_name, object.object_taxon_name] - [taxon_name]).first
+      end
     end
 
     protected

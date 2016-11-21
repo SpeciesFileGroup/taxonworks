@@ -111,6 +111,9 @@
 #
 class TaxonName < ActiveRecord::Base
 
+  has_closure_tree
+  has_paper_trail
+
   include Housekeeping
   include Shared::DataAttributes
   include Shared::HasRoles
@@ -125,7 +128,19 @@ class TaxonName < ActiveRecord::Base
   include Shared::AlternateValues
 
   # Class constants
-  ALTERNATE_VALUES_FOR = [:rank_class] # don't even think about putting this on #name
+  ALTERNATE_VALUES_FOR = [:rank_class].freeze # don't even think about putting this on #name
+
+  EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS = ['TaxonNameClassification::Iczn::Unavailable::NotLatin',
+                                              'TaxonNameClassification::Iczn::Unavailable::LessThanTwoLetters',
+                                              'TaxonNameClassification::Iczn::Unavailable::NotLatinizedAfter1899',
+                                              'TaxonNameClassification::Iczn::Unavailable::NotLatinizedBefore1900AndNotAccepted',
+                                              'TaxonNameClassification::Iczn::Unavailable::NonBinomial',
+                                              'TaxonNameClassification::Iczn::Available::Invalid::FamilyGroupNameForm'].freeze
+
+  NO_CACHED_MESSAGE = 'PROJECT REQUIRES TAXON NAME CACHE REBUILD'.freeze
+  SPECIES_EPITHET_RANKS = %w{species subspecies variety subvariety form subform}.freeze
+
+  NOT_LATIN = Regexp.new(/[^a-zA-Z|\-]/).freeze
 
   # @return [Boolean]
   #   When true, also creates an OTU that is tied to this taxon name
@@ -134,14 +149,6 @@ class TaxonName < ActiveRecord::Base
   # @return [Boolean]
   #  When true, also cached values are not built
   attr_accessor :no_cached
-
-  NO_CACHED_MESSAGE = 'PROJECT REQUIRES TAXON NAME CACHE REBUILD'.freeze
-  SPECIES_EPITHET_RANKS = %w{species subspecies variety subvariety form subform}.freeze
-
-  has_closure_tree
-  has_paper_trail
-  
-  belongs_to :valid_taxon_name, class_name: TaxonName, foreign_key: :cached_valid_taxon_name_id
 
   before_validation :set_type_if_empty
   before_save :set_cached_names
@@ -157,11 +164,14 @@ class TaxonName < ActiveRecord::Base
     :check_new_rank_class,
     :check_new_parent_class,
     :validate_source_type,
-    :validate_one_root_per_project,
-    :name_is_latinized
+    :validate_one_root_per_project
 
   validates_presence_of :type, message: 'is not specified'
 
+  # TODO: think of a different name, and test
+  has_many :historical_taxon_names, class_name: 'TaxonName', foreign_key: :cached_valid_taxon_name_id 
+
+  belongs_to :valid_taxon_name, class_name: 'TaxonName', foreign_key: :cached_valid_taxon_name_id
   has_one :source_classified_as_relationship, -> {
     where(taxon_name_relationships: {type: 'TaxonNameRelationship::SourceClassifiedAs'} ) 
   }, class_name: 'TaxonNameRelationship::SourceClassifiedAs', foreign_key: :subject_taxon_name_id
@@ -352,12 +362,28 @@ class TaxonName < ActiveRecord::Base
     part_of_speech_instance.try(:classification_label).try(:downcase) 
   end
 
-  def taxon_name_statuses
-    list = TaxonNameClassification.where_taxon_name(self).with_type_array(ICZN_TAXON_NAME_CLASSIFICATION_NAMES + ICN_TAXON_NAME_CLASSIFICATION_NAMES)
-    s = list.empty? ? [] : list.collect{|c| c.classification_label}
+  # @return [Array of String]
+  #   the unique string labels derived from TaxonNameClassifications 
+  def statuses_from_classifications
+    list = taxon_name_classifications_for_statuses
+    list.empty? ? [] : list.collect{|c| c.classification_label }.sort
+  end
+
+  def taxon_name_classifications_for_statuses
+    TaxonNameClassification.where_taxon_name(self).with_type_array(ICZN_TAXON_NAME_CLASSIFICATION_NAMES + ICN_TAXON_NAME_CLASSIFICATION_NAMES)
+  end
+
+  # @return [Array of String]
+  #   the unique string labels derived from and TaxonNameRelationships
+  def statuses_from_relationships
     list = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(STATUS_TAXON_NAME_RELATIONSHIP_NAMES)
-    s = list.empty? ? s : s + list.collect{|c| c.subject_status}
-    s
+    list.empty? ? [] : list.collect{|c| c.subject_status}.sort
+  end
+
+  # @return [Array of String]
+  #   the unique string labels derived from both TaxonNameClassifications and TaxonNameRelationships
+  def combined_statuses
+    (statuses_from_classifications + statuses_from_relationships).uniq.sort
   end
 
   def combination_list_all
@@ -433,7 +459,7 @@ class TaxonName < ActiveRecord::Base
   # @return [TaxonNameRelationship]
   #  returns youngest taxon name relationship where the name is subject.
   def first_possible_valid_taxon_name_relationship
-    self.taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID).youngest_by_citation # order_by_youngest_source_first.first 
+    self.taxon_name_relationships(true).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID).youngest_by_citation 
   end
 
   # @return [TaxonName]
@@ -470,7 +496,7 @@ class TaxonName < ActiveRecord::Base
 
   def gbif_status_array
     return nil if self.class.nil?
-    return ['combinatio'] if self.class == 'Combination'
+    return ['combination'] if self.class == 'Combination' 
     s1 = self.taxon_name_classifications.collect{|c| c.class.gbif_status}.compact
     return s1 unless s1.empty?
     s2 = self.taxon_name_relationships.collect{|r| r.class.gbif_status_of_subject}
@@ -630,7 +656,7 @@ class TaxonName < ActiveRecord::Base
           dependants.each do |i|
             i.update_columns(cached: i.get_full_name,
                              cached_html: i.get_full_name_html)
-            if i.rank_string =~/Species/
+            if i.rank_string =~ /Species/
               i.update_columns(:cached_secondary_homonym => i.get_genus_species(:current, :self),
                                :cached_secondary_homonym_alternative_spelling => i.get_genus_species(:current, :alternative))
             end
@@ -651,7 +677,6 @@ class TaxonName < ActiveRecord::Base
                              cached_html: i.get_full_name_html)
           end
         end
-
 
         unless classified_as_relationships.empty?
           related_taxa = classified_as_relationships.collect{|i| i.subject_taxon_name}.uniq
@@ -1164,7 +1189,6 @@ class TaxonName < ActiveRecord::Base
     end
   end
 
-
   #region Validation
 
   def validate_parent_is_set
@@ -1215,23 +1239,6 @@ class TaxonName < ActiveRecord::Base
   # See subclasses
   def validate_rank_class_class
     true
-  end
-
-
-  def name_is_latinized
-    exepted_with_taxon_name_classifications = ['TaxonNameClassification::Iczn::Unavailable::NotLatin',
-                                               'TaxonNameClassification::Iczn::Unavailable::LessThanTwoLetters',
-                                               'TaxonNameClassification::Iczn::Unavailable::NotLatinizedAfter1899',
-                                               'TaxonNameClassification::Iczn::Unavailable::NotLatinizedBefore1900AndNotAccepted',
-                                               'TaxonNameClassification::Iczn::Unavailable::NonBinomial',
-                                               'TaxonNameClassification::Iczn::Available::Invalid::FamilyGroupNameForm']
-    if (taxon_name_classifications.collect{|t| t.type} & exepted_with_taxon_name_classifications).empty? && type == 'Protonym'
-      if name =~ /[^a-zA-Z|\-]/
-        errors.add(:name, 'Name must be latinized, no digits or spaces allowed')
-      elsif rank_class && rank_class.respond_to?(:validate_name_format)
-        rank_class.validate_name_format(self)
-      end
-    end
   end
 
   # @proceps self.rank_class_was is not a class method anywhere, so this comparison is vs. nil

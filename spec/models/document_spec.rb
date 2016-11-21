@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Document, type: :model do
+RSpec.describe Document, type: :model, group: :documentation do
 
   let(:document) { FactoryGirl.create(:valid_document) }
 

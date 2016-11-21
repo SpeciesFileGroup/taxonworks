@@ -62,8 +62,6 @@ class Combination < TaxonName
     where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Combination::%'")
   }, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id
 
-  has_many :combination_taxon_names, through: :combination_relationships, source: :subject_taxon_name
-
   has_many :combination_relationships_as_subject, -> {
     joins(:taxon_name_relationships)
     where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Combination::%'")

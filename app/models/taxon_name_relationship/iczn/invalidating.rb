@@ -24,6 +24,10 @@ class TaxonNameRelationship::Iczn::Invalidating < TaxonNameRelationship::Iczn
     true
   end
 
+  def subject_properties
+    [ TaxonNameClassification::Iczn::Available::Invalid ]
+  end
+
   def object_status
     'valid'
   end
@@ -35,6 +39,11 @@ class TaxonNameRelationship::Iczn::Invalidating < TaxonNameRelationship::Iczn
   def self.gbif_status_of_subject
     'invalidum'
   end
+
+  def object_status_connector_to_subject
+    ' for'
+  end
+
 
   # as.
   def self.assignment_method

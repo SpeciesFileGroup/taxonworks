@@ -1,4 +1,6 @@
 @import 'base/fonts';
+@import 'base/whitespace';
+@import 'base/palette';
 $header-color: #00796B;
 $category-header-color: #004D40;
 $default-padding: 2em;
@@ -86,7 +88,7 @@ $default-padding: 2em;
 		opacity: 1;
 		background-size: 30px;
 		transition: background-size 0.3s ease, opacity 0.3s ease;
-	}	
+	}		
 }
 
 .slide-document {
@@ -98,5 +100,36 @@ $default-padding: 2em;
 		background-color: #770000;
 		background-image: image-url('b_book.svg');
 	}
+}
 
+.slide-recent {
+	.slide-panel-header {
+		background-color: #0097A7;
+	}
+	.slide-panel-circle-icon {
+		top:calc(50vh - 120px);
+		background-color: #00838F;
+		background-image: image-url('recent_slide.svg');
+	}
+}
+
+.slide-recent {
+	.slide-panel-category-content {
+		padding: 0px;
+		margin:0px;
+	}
+	.slide-panel-category-item {
+		position: relative;
+		border-bottom: 1px solid #FAFAFA;
+		border-left:5px solid transparent;
+		display: flex;
+		align-items: center;
+		justify-content:space-between;
+		padding: $standard_padding*0.5;
+		padding-left: $standard_padding*2;		
+	}
+	.slide-panel-category-item:hover {
+		opacity: 1;
+		background-color: $navigation_background;
+	}	
 }
