@@ -177,7 +177,7 @@ class TaxonNameClassification < ActiveRecord::Base
   def sv_proper_classification
     if TAXON_NAME_CLASSIFICATION_NAMES.include?(self.type)
       # self.type_class is a Class
-      if not self.type_class.applicable_ranks.include?(self.taxon_name.rank_class.to_s)
+      if not self.type_class.applicable_ranks.include?(self.taxon_name.rank_string)
         soft_validations.add(:type, 'The status is unapplicable to the name of ' + self.taxon_name.rank_class.rank_name + ' rank')
       end
     end
