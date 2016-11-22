@@ -2,18 +2,13 @@
   <h2> Summary </h2>
   <p> 
   <%= taxon_name_short_status(@taxon_name) -%>
-  The record is a <%= @taxon_name.type -%>.
-  <%= content_tag(:span, taxon_name_latinization_tag(@taxon_name)) -%>  Records exist in the date range <%= @data.date_range.join(' to ') -%>.
-  <%= @data.names.count -%> names are referenced in this entry.
-
-  <%= "Records have the following topics: #{@data.topics.map(&:name).to_sentence}." if !@data.topics.empty? -%>
-
-  <%# line_chart(
-    project.send(relationship).limit(100).group_by_year("#{relationship}.created_at").count
-  )  %> 
-
-  <% if @data.names.count > 20 -%>
-    <%= area_chart(@data.year_hash, xtitle: "Year", ytitle: "Record #")  %> 
+  The record is for a <%= @taxon_name.type -%>.
+  <%= content_tag(:span, taxon_name_latinization_tag(@taxon_name)) -%>
+  There are <%= @data.names.count -%> names are referenced in this entry.
+  <%= "Citations for this record include following topics: #{@data.topics.map(&:name).to_sentence}." if !@data.topics.empty? -%>
+  <%= Utilities::Dates.date_range_sentence_tag(@data.date_range) -%>
+  <% if @data.names.count > 5 -%>
+    <%= column_chart(@data.year_hash, xtitle: "Year", ytitle: "Record #")  %> 
   <% end %>
 
   </p>
