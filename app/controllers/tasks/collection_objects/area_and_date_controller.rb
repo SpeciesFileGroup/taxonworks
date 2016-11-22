@@ -27,11 +27,16 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
     set_and_order_dates(params)
 
     area_set        = (@shape_in.blank? and @geographic_area_id.blank?) ? false : true
-    area_object_ids = GeographicItem.gather_selected_data(@geographic_area_id,
-                                                          @shape_in,
-                                                          'CollectionObject').pluck(:id)
 
-    if (@start_date.blank? || @end_date.blank?) #|| area_object_ids.count == 0
+    if area_set
+      area_object_ids = GeographicItem.gather_selected_data(@geographic_area_id,
+                                                            @shape_in,
+                                                            'CollectionObject').pluck(:id)
+    else
+      area_object_ids = []
+    end
+
+    if @start_date.blank? || @end_date.blank? #|| area_object_ids.count == 0
       @collection_objects = CollectionObject.where('false')
     else
       collecting_event_ids = CollectingEvent.in_date_range(date_range_params).pluck(:id)
