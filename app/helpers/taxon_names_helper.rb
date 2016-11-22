@@ -51,6 +51,11 @@ module TaxonNamesHelper
     end
   end
 
+  def taxon_name_gender_sentence_tag(taxon_name)
+    return nil if taxon_name.nil?
+    "The name is #{taxon_name.gender_name}." if taxon_name.gender_name
+  end
+
   def cached_classified_as_tag(taxon_name)
     taxon_name.cached_classified_as ? taxon_name.cached_classified_as.strip.html_safe : ''
   end
@@ -61,10 +66,9 @@ module TaxonNamesHelper
   end
 
   def taxon_name_latinization_tag(taxon_name)
-    list = TaxonNameClassification.where_taxon_name(@taxon_name).with_type_array(LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES).map(&:classification_label)
-    content_tag(:span, "The name \"#{taxon_name.name}\" is #{list.first.indefinite_article} #{list.to_sentence}.", class: 'history__latinized_classifications') if list.any?
+    list = taxon_name.taxon_name_classifications.with_type_array(LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES).map(&:classification_label)
+    content_tag(:span,  "The word \"#{taxon_name.name}\" has the following Latin-based classifications: #{list.to_sentence}.", class: 'history__latinized_classifications') if list.any?
   end
-
 
   def taxon_name_link(taxon_name)
     return nil if taxon_name.nil?
@@ -136,14 +140,14 @@ module TaxonNamesHelper
   end
 
   def ancestor_browse_taxon_name_link(taxon_name, path = :browse_nomenclature_task_path)
-    text = 'Ancestor'
+    text = 'Up'
     taxon_name.ancestors.any? ? 
       link_to(content_tag(:span, text, data: {icon: 'arrow-up'}, class: 'small-icon'), send(path,taxon_name.ancestors.first.metamorphosize), class: 'navigation-item', data: {arrow: 'ancestor'}) :
       content_tag(:div, content_tag(:span, text, class: 'small-icon', data: {icon: 'arrow-up'}), class: 'navigation-item disable')
   end
 
   def descendant_browse_taxon_name_link(taxon_name, path = :browse_nomenclature_task_path)
-    text = 'Descendant'
+    text = 'Down'
     taxon_name.descendants.any? ? 
       link_to(content_tag(:span, text, data: {icon: 'arrow-down'}, class: 'small-icon'), send(path, taxon_name.descendants.first.metamorphosize), class: 'navigation-item', data: {arrow: 'descendant'}) : 
       content_tag(:div, content_tag(:span, text, class: 'small-icon', data: {icon: 'arrow-down'}), class: 'navigation-item disable') 
@@ -166,5 +170,6 @@ module TaxonNamesHelper
       content_tag(:div, content_tag(:span, text, class: 'small-icon', data: {icon: 'arrow-left'}), class: 'navigation-item disable') : 
       link_to(content_tag(:span, text, data: {icon: 'arrow-left'}, class: 'small-icon'), send(path, link_object.metamorphosize), class: 'navigation-item', data: {arrow: 'back'})
   end
+
 
 end
