@@ -26,12 +26,10 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
     @shape_in           = params[:drawn_area_shape]
     set_and_order_dates(params)
 
-    if @shape_in.blank? and @geographic_area_id.blank? # missing "? " was fixed
-      area_object_ids = CollectionObject.where('false')
-    else
-      area_object_ids = GeographicItem.gather_selected_data(@geographic_area_id, @shape_in, 'CollectionObject').map(&:id)
-      area_set = true
-    end
+    area_set        = (@shape_in.blank? and @geographic_area_id.blank?) ? false : true
+    area_object_ids = GeographicItem.gather_selected_data(@geographic_area_id,
+                                                          @shape_in,
+                                                          'CollectionObject').pluck(:id)
 
     if (@start_date.blank? || @end_date.blank?) #|| area_object_ids.count == 0
       @collection_objects = CollectionObject.where('false')
