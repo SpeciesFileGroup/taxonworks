@@ -92,7 +92,7 @@ class Protonym < TaxonName
     end
   end
 
-  # this is not really needed
+  # TODO: this is not really needed
   scope :named, -> (name) {where(name: name)}
   
   scope :with_name_in_array, -> (array) { where('name in (?)', array) }  
@@ -121,7 +121,8 @@ class Protonym < TaxonName
   # TODO, move to IsData or IsProjectData
   scope :with_project, -> (project_id) {where(project_id: project_id)}
 
-#  scope :that_is_valid, -> {where('taxon_names.id != taxon_names.cached_valid_taxon_name_id') }
+  # TODO: isn't this the way to do it now?
+  # scope :that_is_valid, -> {where('taxon_names.id != taxon_names.cached_valid_taxon_name_id') }
 
   scope :that_is_valid, -> {
     joins('LEFT OUTER JOIN taxon_name_relationships tnr ON taxon_names.id = tnr.subject_taxon_name_id').
@@ -155,11 +156,7 @@ class Protonym < TaxonName
 
   # @return [boolean]
   def is_fossil?
-    if !TaxonNameClassification.where_taxon_name(self).with_type_contains('::Fossil').empty?
-      true
-    else
-      false
-    end
+    taxon_name_classifications.with_type_contains('::Fossil').any? 
   end
 
   def list_of_coordinated_names
@@ -194,6 +191,8 @@ class Protonym < TaxonName
     return list
   end
 
+  # @return [Protonym]
+  #   the accepted "valid" version of this name in the present classification
   def get_valid_taxon_name
     v = first_possible_valid_taxon_name
     if v == self
@@ -207,6 +206,8 @@ class Protonym < TaxonName
     end
   end
 
+  # @return [String, nil]
+  #   a string, without parenthesis, that includes author and year
   def get_author_and_year
     case self.rank_class.try(:nomenclatural_code)
       when :iczn
@@ -219,7 +220,6 @@ class Protonym < TaxonName
     ay.blank? ? nil : ay
   end
 
-
   def lowest_rank_coordinated_taxon
     list = [self] + list_of_coordinated_names
     if list.count == 1
@@ -230,6 +230,8 @@ class Protonym < TaxonName
     end
   end
 
+  # @return [Array]
+  #    all descendant and ancestor protonyms for this Protonym
   def ancestors_and_descendants
     Protonym.ancestors_and_descendants_of(self).not_self(self).to_a
   end
@@ -241,12 +243,13 @@ class Protonym < TaxonName
 
   def self.family_group_name_at_rank(name_string, rank_string)
     if name_string == family_group_base(name_string)
-      return name_string
+      name_string
     else
-      return family_group_base(name_string) + Ranks.lookup(:iczn, rank_string).constantize.try(:valid_name_ending).to_s
+      family_group_base(name_string) + Ranks.lookup(:iczn, rank_string).constantize.try(:valid_name_ending).to_s
     end
   end
 
+  # @return [ TypeMaterial, [] ]  ?!
   def get_primary_type
     return [] unless self.rank_class.parent.to_s =~ /Species/
     s = self.type_materials.syntypes
@@ -260,22 +263,22 @@ class Protonym < TaxonName
     end
   end
 
-  def has_same_primary_type(taxon2) # two taxa has the same primary type speciemens
-    return true unless self.rank_class.parent.to_s =~ /Species/
-    taxon1_types = self.get_primary_type.sort_by{|i| i.id}
+  # !! TODO: Should not be possible- fix the incoming data
+  # @return [Boolean]
+  #    true if taxon2 has the same primary type 
+  def has_same_primary_type(taxon2) 
+    return true unless rank_class.parent.to_s =~ /Species/
+
+    taxon1_types = get_primary_type.sort_by{|i| i.id}
     taxon2_types = taxon2.get_primary_type.sort_by{|i| i.id}
-    return true if taxon1_types.empty? && taxon2_types.empty? # both are empty
+    return true if taxon1_types.empty? && taxon2_types.empty? # both are empty !! If they are both empty then they don't have the same type, the have no types  !!
     return false if taxon1_types.empty? || taxon2_types.empty? # one is empty
 
-    if taxon1_types.collect{|i| i.biological_object_id} == taxon2_types.collect{|i| i.biological_object_id}
-      true
-    else
-      false
-    end
+    taxon1_types.map(&:biological_object_id) == taxon2_types.map(&:biological_object_id) # collect{|i| i.biological_object_id} 
   end
 
   # return [Array of TaxonNameRelationship]
-  #   classes that are applicable to this name, as deterimned by Rank
+  #   classes that are applicable to this name, as deterimined by Rank
   def original_combination_class_relationships
     relations = []
     TaxonNameRelationship::OriginalCombination.descendants.each do |r|
@@ -323,6 +326,18 @@ class Protonym < TaxonName
     !NOT_LATIN.match(name) || has_latinized_exceptions?
   end
 
+  def is_species_rank?
+    SPECIES_RANK_NAMES.include?(rank_string)
+  end
+
+  def is_genus_rank?
+    GENUS_RANK_NAMES.include?(rank_string)
+  end
+
+  def is_family_rank?
+    FAMILY_RANK_NAMES.include?(rank_string)
+  end
+
   protected
 
   def name_is_latinized
@@ -332,7 +347,6 @@ class Protonym < TaxonName
   def name_is_valid_format
     rank_class.validate_name_format(self) if rank_class && rank_class.respond_to?(:validate_name_format) && !has_latinized_exceptions?
   end
-
 
   def create_otu
     Otu.create(by: self.creator, project: self.project, taxon_name_id: self.id)
@@ -350,7 +364,7 @@ class Protonym < TaxonName
   end
 
   def validate_rank_class_class
-    errors.add(:rank_class, 'Rank not found') unless RANKS.include?(rank_class.to_s)
+    errors.add(:rank_class, 'Rank not found') unless RANKS.include?(rank_string)
   end 
 
   #endregion
@@ -365,20 +379,20 @@ class Protonym < TaxonName
 
   def sv_validate_parent_rank
     if self.rank_class
-      if self.rank_class.to_s == 'NomenclaturalRank' || self.parent.rank_class.to_s == 'NomenclaturalRank' || !!self.iczn_uncertain_placement_relationship
+      if rank_string == 'NomenclaturalRank' || self.parent.rank_string == 'NomenclaturalRank' || !!self.iczn_uncertain_placement_relationship
         true
-      elsif !self.rank_class.valid_parents.include?(self.parent.rank_class.to_s)
+      elsif !self.rank_class.valid_parents.include?(self.parent.rank_string)
         soft_validations.add(:rank_class, "The rank #{self.rank_class.rank_name} is not compatible with the rank of parent (#{self.parent.rank_class.rank_name}). The name should be marked as Incertae sedis")
       end
     end
   end
 
   def sv_missing_relationships
-    if SPECIES_RANK_NAMES.include?(self.rank_class.to_s)
+    if is_species_rank? 
       soft_validations.add(:base, 'Original genus is not selected') if self.original_genus.nil?
-    elsif GENUS_RANK_NAMES.include?(self.rank_class.to_s)
+    elsif is_genus_rank? 
       soft_validations.add(:base, 'Type species is not selected') if self.type_species.nil?
-    elsif FAMILY_RANK_NAMES.include?(self.rank_class.to_s)
+    elsif is_family_rank? 
       soft_validations.add(:base, 'Type genus is not selected') if self.type_genus.nil?
     end
     if !self.iczn_set_as_homonym_of.nil? || !TaxonNameClassification.where_taxon_name(self).with_type_string('TaxonNameClassification::Iczn::Available::Invalid::Homonym').empty?
@@ -387,9 +401,9 @@ class Protonym < TaxonName
   end
 
   def sv_missing_classifications
-    if SPECIES_RANK_NAMES.include?(self.rank_class.to_s)
+    if is_species_rank?
       soft_validations.add(:base, 'Part of speech is not specified') if self.part_of_speech_class.nil?
-    elsif GENUS_RANK_NAMES.include?(self.rank_class.to_s)
+    elsif is_genus_rank? 
       if self.gender_class.nil?
         g = genus_suggested_gender
         soft_validations.add(:base, "Gender is not specified#{ g.nil? ? '' : ' (possible gender is ' + g + ')'}")
@@ -397,9 +411,9 @@ class Protonym < TaxonName
     end
   end
 
-  # Why protected
+  # TODO: Why protected?  What does it do?
   def genus_suggested_gender
-    return nil unless self.rank_class.to_s =~/Genus/
+    return nil unless rank_string =~/Genus/
     TAXON_NAME_CLASSIFICATION_GENDER_CLASSES.each do |g|
       g.possible_genus_endings.each do |e|
         return g.name.demodulize.underscore.humanize.downcase if self.name =~ /^[a-zA-Z]*#{e}$/
@@ -409,10 +423,11 @@ class Protonym < TaxonName
   end
 
   def sv_species_gender_agreement
-    if SPECIES_RANK_NAMES.include?(self.rank_class.to_s)
+    if is_species_rank? 
       s = self.part_of_speech_name
       unless self.part_of_speech_name.nil?
         if s =~ /(adjective|participle)/
+          
           if self.feminine_name.blank?
             soft_validations.add(:feminine_name, 'Spelling in feminine is not provided')
           else
@@ -421,6 +436,7 @@ class Protonym < TaxonName
               soft_validations.add(:feminine_name, "Name has non feminine ending: -#{e}")
             end
           end
+
           if self.masculine_name.blank?
             soft_validations.add(:masculine_name, 'Spelling in masculine is not provided')
           else
@@ -429,6 +445,7 @@ class Protonym < TaxonName
               soft_validations.add(:masculine_name, "Name has non masculine ending: -#{e}")
             end
           end
+          
           if self.neuter_name.blank?
             soft_validations.add(:neuter_name, 'Spelling in neuter is not provided')
           else
@@ -437,6 +454,7 @@ class Protonym < TaxonName
               soft_validations.add(:neuter_name, "Name has non neuter ending: -#{e}")
             end
           end
+          
           if self.masculine_name.blank? && self.feminine_name.blank? && self.neuter_name.blank?
             g = self.ancestor_at_rank('genus').gender_class
             unless g.nil?
@@ -446,16 +464,12 @@ class Protonym < TaxonName
               end
             end
           end
+        
         else
-          unless self.feminine_name.blank?
-            soft_validations.add(:feminine_name, 'Alternative spelling is not required for the name being noun')
-          end
-          unless self.masculine_name.blank?
-            soft_validations.add(:masculine_name, 'Alternative spelling is not required for the name being noun')
-          end
-          unless self.neuter_name.blank?
-            soft_validations.add(:neuter_name, 'Alternative spelling is not required for the name being noun')
-          end
+         
+          soft_validations.add(:feminine_name, 'Alternative spelling is not required for the name being noun') unless self.feminine_name.blank?
+          soft_validations.add(:masculine_name, 'Alternative spelling is not required for the name being noun')  unless self.masculine_name.blank?
+          soft_validations.add(:neuter_name, 'Alternative spelling is not required for the name being noun')  unless self.neuter_name.blank?
 
         end
       end
@@ -464,14 +478,14 @@ class Protonym < TaxonName
 
   # why protected
   def species_questionable_ending(g, n)
-    return nil unless self.rank_class.to_s =~/Species/
+    return nil unless rank_string =~ /Species/
     g.questionable_species_endings.each do |e|
       return e if n =~ /^[a-z]*#{e}$/
     end
     nil
   end
 
-  # !! TODO: @proceps - make these individual validations !!  way to complex here
+  # !! TODO: @proceps - make these individual validations !! way too complex here
   def sv_validate_coordinated_names
     list_of_coordinated_names.each do |t|
       soft_validations.add(:base, "The source does not match with the source of the coordinated #{t.rank_class.rank_name}",
@@ -481,9 +495,9 @@ class Protonym < TaxonName
       soft_validations.add(:year_of_publication, "The year does not match with the year of the coordinated #{t.rank_class.rank_name}",
                            fix: :sv_fix_coordinated_names, success_message: 'Year was updated') unless self.year_of_publication == t.year_of_publication
       soft_validations.add(:base, "The gender does not match with the gender of the coordinated #{t.rank_class.rank_name}",
-                           fix: :sv_fix_coordinated_names, success_message: 'Gender was updated') if self.rank_class.to_s =~ /Genus/ && self.gender_class != t.gender_class
+                           fix: :sv_fix_coordinated_names, success_message: 'Gender was updated') if rank_string =~ /Genus/ && self.gender_class != t.gender_class
       soft_validations.add(:base, "The part of speech does not match with the part of speech of the coordinated #{t.rank_class.rank_name}",
-                           fix: :sv_fix_coordinated_names, success_message: 'Gender was updated') if self.rank_class.to_s =~ /Species/ && self.part_of_speech_class != t.part_of_speech_class
+                           fix: :sv_fix_coordinated_names, success_message: 'Gender was updated') if rank_string =~ /Species/ && self.part_of_speech_class != t.part_of_speech_class
       soft_validations.add(:base, "The original genus does not match with the original genus of coordinated #{t.rank_class.rank_name}",
                            fix: :sv_fix_coordinated_names, success_message: 'Original genus was updated') unless self.original_genus == t.original_genus
       soft_validations.add(:base, "The original subgenus does not match with the original subgenus of the coordinated #{t.rank_class.rank_name}",
@@ -506,7 +520,7 @@ class Protonym < TaxonName
 
   end
 
-  # way too long, 
+  # TODO: way too long 
   def sv_fix_coordinated_names
     fixed = false
     gender = self.gender_class
@@ -637,7 +651,7 @@ class Protonym < TaxonName
 
   def sv_single_sub_taxon
     if self.rank_class
-      rank = self.rank_class.to_s
+      rank = rank_string 
       if rank != 'potentially_validating rank' && self.rank_class.nomenclatural_code == :iczn && %w(subspecies subgenus subtribe tribe subfamily).include?(self.rank_class.rank_name)
         sisters = self.parent.descendants.with_rank_class(rank)
         if rank =~ /Family/
@@ -660,9 +674,9 @@ class Protonym < TaxonName
   end
 
   def sv_fix_add_nominotypical_sub
-    rank = self.rank_class.to_s
+    rank = rank_string 
     p = self.parent
-    prank = p.rank_class.to_s
+    prank = p.rank_string
     if (rank =~ /Family/ && prank =~ /Family/) || (rank =~ /Genus/ && prank =~ /Genus/) || (rank =~ /Species/ && prank =~ /Species/)
       begin
         Protonym.transaction do
@@ -686,7 +700,8 @@ class Protonym < TaxonName
           t.fix_soft_validations
           return true
         end
-      rescue
+      rescue ActiveRecord::RecordInvalid # naked rescue is very bad
+        return false
       end
     end
   end
@@ -714,7 +729,7 @@ class Protonym < TaxonName
     unless self.unavailable_or_invalid?
       if self.id == self.lowest_rank_coordinated_taxon.id
         possible_synonyms = []
-        if self.rank_class.to_s =~ /Species/
+        if rank_string =~ /Species/
           primary_types = self.get_primary_type
           unless primary_types.empty?
             p = primary_types.collect!{|t| t.biological_object_id}
@@ -841,7 +856,7 @@ class Protonym < TaxonName
       set_primary_homonym
       set_primary_homonym_alternative_spelling
 
-      if self.rank_class.to_s =~ /Species/
+      if rank_string =~ /Species/
         set_secondary_homonym
         set_secondary_homonym_alternative_spelling
       end
