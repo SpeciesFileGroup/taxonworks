@@ -43,13 +43,21 @@
         <% else  %>
           <em> No members added yet! </em>
         <% end %>
-        <%= add_project_member_link(@project.to_param) -%><br>
-        <%= link_to('Add new user', signup_path) -%>
+
+        <ul class="no_bullets list list-arrow">
+          <%= content_tag(:li, add_project_member_link(@project))  -%>
+          <%= content_tag(:li, link_to('Add many project members', many_new_project_members_path(project_member: {project_id: @project}) )) -%>
+          <%= content_tag(:li, link_to('Add new user', signup_path)) -%>
+        </ul>
+
       </div>
 
       <div class="item item3">
         <h2> Metadata </h2>
-        <%= link_to 'Stats', stats_project_path, data: { no_turbolink: true } -%>
+
+        <ul class="no_bullets list list-arrow">
+          <%= content_tag(:li, link_to('Stats', stats_project_path, data: { no_turbolink: true })) -%>
+        </ul>
       </div>
     </div>
   </div>
