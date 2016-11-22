@@ -75,33 +75,7 @@
       display: block;
     }      
   }
-
-  .list-arrow {
-    li {
-      background-image: none;
-      background-repeat: no-repeat;
-      background-position: -14px, center;        
-      background-image: image-url("arrow-right.svg");
-      transition: background-position 0.5s ease;
-      background-size: 10px;
-    }
-    li:hover {
-      list-style: none;
-      transition: background-position 0.5s ease;
-      background-position: 0px, center;        
-    }
-  }
-
-  .list {
-    margin: 0px;
-    padding: 0px;
-    li {
-      padding: 5px;
-      padding-left: $standard_padding*1.5;
-      margin:0px;
-    }
-  }
-
+ 
   .nav-line {
     border-bottom: 3px solid $color-secondary-2-4;
   } 
