@@ -158,3 +158,13 @@ nomenclature_by_source_task:
   categories: 
     - nomenclature
     - source
+report_dwca_task:
+  hub: true
+  name: 'Report DWCA table'
+  description: 'Collection objects with calculated attributes that will ultimately be exported to DWCA.'
+  status: prototype
+  categories:
+    - collection_object
+    - collecting_event
+
+
