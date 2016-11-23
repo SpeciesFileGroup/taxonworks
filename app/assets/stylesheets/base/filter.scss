@@ -3,7 +3,7 @@
 @import 'base/fonts'; 
 
 .filter {
-
+	position:relative;
 	.active {
 		background-color: $color-complement-2 !important;
 	    box-shadow:inset 0px 1px 2px 0px $color-complement-3 !important;
@@ -11,9 +11,9 @@
 	}
 
 	.open {
-		z-index: 5;
 		position: absolute;
-		left: calc(50% -30px);
+		left: calc(50% -40px);
+		bottom: -25px;
 		background-image: image-url('b_show.svg');
 		background-color: $color-secondary-2-4;
 		background-size: 14px;
@@ -31,7 +31,8 @@
 }
 
 [data-filter-slide] {
-	//margin: -20px;
+	z-index: 5;
+	box-shadow: 0px 2px 3px 0px $navigation-background;
 }
 	[data-filter-slide="down"] {
 		display: block;
