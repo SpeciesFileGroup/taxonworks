@@ -6,6 +6,8 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
     @geographic_areas         = GeographicArea.where('false')
     @collection_objects       = CollectionObject.where('false')
     @collection_objects_count = 0
+    # TODO: Convert to dates from collecting events JDT
+    # select distinct collecting_events.Start_date_year from collection_objects inner join collecting_events on collecting_event_id = collecting_events.id order by Start_date_year limit 100
     @early_date               = CollectionObject.where(project: sessions_current_project_id).order(:created_at).limit(1).pluck(:created_at).first
     if @early_date.blank?
       @early_date = Date.parse('1700/01/01')
@@ -84,18 +86,6 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
     @collection_objects       = CollectionObject.where('false')
     @collection_objects_count = @collection_objects.count
     render json: {html: @collection_objects_count.to_s}
-  end
-
-  def download_result
-
-  end
-
-  def gather_data
-
-  end
-
-  def within_year
-
   end
 
   def render_co_select_package(message)
