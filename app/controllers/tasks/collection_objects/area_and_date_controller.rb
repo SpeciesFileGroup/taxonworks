@@ -141,9 +141,10 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
   end
 
   def set_and_order_dates(params)
-    params      = CollectingEvent.normalize_and_order_dates(params)
-    @start_date = params[:search_start_date]
-    @end_date   = params[:search_end_date]
+    @start_date, @end_date     = Utilities::Dates.normalize_and_order_dates(params[:search_start_date],
+                                                                            params[:search_end_date])
+    params[:search_start_date] = @start_date
+    params[:search_end_date]   = @end_date
   end
 
   protected
