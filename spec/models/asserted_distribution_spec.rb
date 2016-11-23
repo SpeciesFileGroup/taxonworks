@@ -3,7 +3,6 @@ require 'rails_helper'
 describe AssertedDistribution, type: :model, group: :geo do
 
   let(:asserted_distribution) { AssertedDistribution.new }
-
   let(:source) { FactoryGirl.create(:valid_source) }
   let(:otu) { FactoryGirl.create(:valid_otu) }
   let(:geographic_area) { FactoryGirl.create(:valid_geographic_area) }
@@ -43,36 +42,36 @@ describe AssertedDistribution, type: :model, group: :geo do
       specify 'absence of #source, #origin_citation, #citations invalidates' do
         expect(asserted_distribution.valid?).to be_falsey
         expect(asserted_distribution.errors.include?(:base)).to be_truthy
-      end 
+      end
 
       specify 'providing #source validates' do
         asserted_distribution.source = source
         expect(asserted_distribution.save).to be_truthy
-        expect(asserted_distribution.citations.count).to eq(1) 
+        expect(asserted_distribution.citations.count).to eq(1)
       end
 
       specify 'providing #origin_citation validates' do
         asserted_distribution.origin_citation = Citation.new(source: source)
         expect(asserted_distribution.save).to be_truthy
-        expect(asserted_distribution.citations.count).to eq(1) 
+        expect(asserted_distribution.citations.count).to eq(1)
       end
 
       specify 'providing a citation with #citations_attributes validates' do
         asserted_distribution.citations_attributes = [ {source: source }]
         expect(asserted_distribution.save).to be_truthy
-        expect(asserted_distribution.citations.count).to eq(1) 
+        expect(asserted_distribution.citations.count).to eq(1)
       end
 
       specify 'providing a citation with #citations.build validates' do
-        asserted_distribution.citations.build(source: source) 
+        asserted_distribution.citations.build(source: source)
         expect(asserted_distribution.save).to be_truthy
-        expect(asserted_distribution.citations.count).to eq(1) 
+        expect(asserted_distribution.citations.count).to eq(1)
       end
 
       specify 'providing a citation with #citations <<  validates' do
-        asserted_distribution.citations << Citation.new(source: source) 
+        asserted_distribution.citations << Citation.new(source: source)
         expect(asserted_distribution.save).to be_truthy
-        expect(asserted_distribution.citations.count).to eq(1) 
+        expect(asserted_distribution.citations.count).to eq(1)
       end
 
       specify 'all attributes with #new validates' do
@@ -90,14 +89,14 @@ describe AssertedDistribution, type: :model, group: :geo do
         end
 
         specify 'when citation is not origin citation' do
-          asserted_distribution.citations << Citation.new(source: source) 
+          asserted_distribution.citations << Citation.new(source: source)
           expect(asserted_distribution.save).to be_truthy
           expect(asserted_distribution.citations.count).to eq(1)
-          expect(asserted_distribution.citations(true).first.destroy).to be_falsey 
+          expect(asserted_distribution.citations(true).first.destroy).to be_falsey
         end
       end
     end
-    
+
     specify 'duplicate record' do
       ad1 = FactoryGirl.create(:valid_asserted_distribution)
       ad2 = FactoryGirl.build_stubbed(:valid_asserted_distribution, otu_id: ad1.otu_id, geographic_area_id: ad1.geographic_area_id)
@@ -105,7 +104,7 @@ describe AssertedDistribution, type: :model, group: :geo do
       expect(ad2.valid?).to be_falsey
       expect(ad2.errors.include?(:geographic_area_id)).to be_truthy
     end
-  
+
   end
 
   context 'soft validation' do
@@ -117,7 +116,7 @@ describe AssertedDistribution, type: :model, group: :geo do
       ad2.soft_validate(:conflicting_geographic_area)
       expect(ad2.soft_validations.messages_on(:geographic_area_id).count).to eq(1)
     end
-    
+
     specify 'is_absent - True' do
       ga  = FactoryGirl.create(:level2_geographic_area)
       ad1 = FactoryGirl.create(:valid_asserted_distribution, geographic_area: ga)
