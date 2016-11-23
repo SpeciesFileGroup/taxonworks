@@ -76,15 +76,16 @@ _init_map_table = function init_map_table() {
         event.preventDefault();
       })
     }
-  
+
     var today = new Date();
     var year = today.getFullYear();
     var format = 'yy/mm/dd';
     var dateInput;
 
-    set_control($("#st_fixedpicker"), $("#search_start_date"), format, year, $("#early_date").text());
-  
-    set_control($("#en_fixedpicker"), $("#search_end_date"), format, year, $("#late_date").text());
+
+    set_control($("#st_fixedpicker"), $("#search_start_date"), format, year, $("#earliest_date").text());
+
+    set_control($("#en_fixedpicker"), $("#search_end_date"), format, year, $("#latest_date").text());
   
     function set_control(control, input, format, year, st_en_day) {
       if (control.length) {
@@ -146,9 +147,9 @@ _init_map_table = function init_map_table() {
       }
       return fmt;
     }
-  
-    var startDate = new Date($("#early_date").text());
-    var endDate = new Date($("#late_date").text());
+
+    var startDate = new Date($("#earliest_date").text());
+    var endDate = new Date($("#latest_date").text());
     var offset = endDate - startDate;
   
     $("#double_date_range").rangepicker({
@@ -188,8 +189,8 @@ _init_map_table = function init_map_table() {
     );
   
     $("#reset_slider").click(function (event) {
-        var startDate = new Date($("#early_date").text());
-        var endDate = new Date($("#late_date").text());
+      var startDate = new Date($("#earliest_date").text());
+      var endDate = new Date($("#latest_date").text());
         var offset = endDate - startDate;
         $("#double_date_range").rangepicker({
           type: "double",
@@ -201,8 +202,8 @@ _init_map_table = function init_map_table() {
             return dateFormat(date, "yyyy/MM/dd");
           }
         });
-        $("#search_start_date").val($("#early_date").text());
-        $("#search_end_date").val($("#late_date").text());
+      $("#search_start_date").val($("#earliest_date").text());
+      $("#search_end_date").val($("#latest_date").text());
         update_and_graph(event);
         event.preventDefault();
       }
