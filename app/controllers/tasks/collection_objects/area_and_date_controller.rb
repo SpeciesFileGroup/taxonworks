@@ -6,16 +6,8 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
     @geographic_areas         = GeographicArea.where('false')
     @collection_objects       = CollectionObject.where('false')
     @collection_objects_count = 0
-    # TODO: Convert to dates from collecting events JDT
-    # select distinct collecting_events.Start_date_year from collection_objects inner join collecting_events on collecting_event_id = collecting_events.id order by Start_date_year limit 100
-    @early_date               = CollectionObject.where(project: sessions_current_project_id).order(:created_at).limit(1).pluck(:created_at).first
-    if @early_date.blank?
-      @early_date = Date.parse('1700/01/01')
-    end
-    @late_date = CollectionObject.where(project: sessions_current_project_id).order(created_at: :desc).limit(1).pluck(:created_at).first
-    if @late_date.blank?
-      @late_date = Date.today
-    end
+    @earliest_date = CollectionObject.earliest_date
+    @latest_date = CollectionObject.latest_date
   end
 
   # POST
@@ -62,7 +54,6 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
     @package                  = render_co_select_package(message)
     # render_co_select_json(message)
   end
-
 
   # GET
   # @return [Object] json object containing count

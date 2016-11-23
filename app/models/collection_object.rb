@@ -295,6 +295,14 @@ class CollectionObject < ActiveRecord::Base
     end
   end
 
+  def self.earliest_date
+    CollectingEvent.joins(:collection_objects).minimum(:start_date_year).to_s + "/01/01"
+  end
+
+  def self.latest_date
+    CollectingEvent.joins(:collection_objects).maximum(:end_date_year).to_s + "/12/31"
+  end
+
   # Find all collection objects which have collecting events which have georeferences which have geographic_items which
   # are located within the geographic item supplied
   # @param [GeographicItem] geographic_item_id
