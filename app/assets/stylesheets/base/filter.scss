@@ -1,0 +1,29 @@
+@import 'base/palette';   
+@import 'base/whitespace'; 
+@import 'base/fonts'; 
+
+.filter {
+
+	.active {
+		background-color: $color-complement-2 !important;
+	    box-shadow:inset 0px 1px 2px 0px $color-complement-3 !important;
+	    opacity: 1 !important;		
+	}
+
+	.open {
+		background-image: image-url('b_show.svg');
+		background-color: $color-secondary-2-4;
+		background-size: 16px;
+		background-position: center;
+		background-repeat: no-repeat; 
+	}
+
+}
+
+	[data-filter-slide="down"] {
+		display: block;
+	}
+
+	[data-filter-slide="close"] {
+		display: none;
+	}	

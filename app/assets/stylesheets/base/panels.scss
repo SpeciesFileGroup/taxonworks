@@ -27,11 +27,17 @@
     flex-direction: row;
   }
   h2 { 
-    margin: $standard_padding*.5 0;
     font-weight: 100;
     margin-bottom: $standard_padding;
     border-bottom: 1px solid $navigation_border;    
   }
+
+  .subtitle { 
+    display: flex;
+    justify-content:space-between;
+    font-weight: 100;
+    border-bottom: 1px solid $navigation_border;    
+  }  
 
   .subheader {
     padding-top: $standard_padding * 0.5;

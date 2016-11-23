@@ -91,6 +91,13 @@
 	background-image: image-url("trash.svg");
 }
 
+.pin-button {
+    @extend .circle-button;
+    background-color: $color-secondary-2-4;
+    background-size: 16px;
+    background-image: image-url("b_pin.svg");
+}
+
 .button-undo {
 	display: none;
 	@extend .circle-button;
