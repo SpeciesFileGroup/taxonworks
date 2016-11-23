@@ -93,9 +93,14 @@
 
 .pin-button {
     @extend .circle-button;
-    background-color: $color-secondary-2-4;
+    background-color: #00796B;
     background-size: 16px;
     background-image: image-url("b_pin.svg");
+}
+
+.disable-button {
+    opacity: 0.5;
+    background-color: $navigation_border;
 }
 
 .button-undo {

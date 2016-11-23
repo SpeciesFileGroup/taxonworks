@@ -36,13 +36,13 @@
           </div>
           <ul class="horizontal_navbar context-menu" >
             <li data-icon="show"><a href="#" view-bottom>Development view</a></li>
+            <li><%= pin_item_to_pinboard_link(object, sessions_current_user) -%></li>
           </ul>
         </div> 
 
         <div class="navigation-controls">
           <%= edit_object_link(object) if controller.respond_to?(:edit) -%>
-          <%= destroy_object_link(object) if controller.respond_to?(:destroy) -%>
-          <%= pin_item_to_pinboard_link(object, sessions_current_user) -%>       
+          <%= destroy_object_link(object) if controller.respond_to?(:destroy) -%>  
           <div class="navigation-item menu-drop">
             <span id="show_annotate_dropdown" class="small-icon" data-icon="annotate">Annotate</span>
             <ul class="dropdown">
