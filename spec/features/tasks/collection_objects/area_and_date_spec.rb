@@ -32,7 +32,7 @@ describe 'tasks/gis/collection_objects/area_and_date', type: :feature, group: [:
           # expect(JSON.parse(response.body)['html']).to eq('16')
           fill_autocomplete('geographic_area_id_for_by_area', with: 'Great Northern', select: gnlm.id)
           # expect(page).to have_content('Land Mass')
-          click_button('Set')
+          click_button('Set area')
           expect(find('#area_count')).to have_text('16')
         end
 
@@ -44,7 +44,7 @@ describe 'tasks/gis/collection_objects/area_and_date', type: :feature, group: [:
           # this_xpath.set '{"type":"Feature", "geometry":{"type":"Polygon", "coordinates":[[[33, 28, 0], [37, 28, 0], [37, 26, 0], [33, 26, 0], [33, 28, 0]]]}, "properties":{"geographic_item":{"id"=>23}}}'
           this_xpath.set json_string
           # find(:xpath, "//form[@id='set_area_form']/div[@id='map_selector']/div[@id='_drawable_map_outer']/input[@id='drawn_area_shape']").set '{"type"=>"Feature", "geometry"=>{"type"=>"MultiPolygon", "coordinates"=>[[[[33, 28, 0], [37, 28, 0], [37, 26, 0], [33, 26, 0], [33, 28, 0]]]]}, "properties"=>{"geographic_item"=>{"id"=>23}}}'
-          click_button('Set')
+          click_button('Set area')
           expect(find('#area_count')).to have_text('10')
           # xhr(:get, :set_area, {drawn_area_shape: GeographicArea
           #                                           .where(name: 'Big Boxia')
