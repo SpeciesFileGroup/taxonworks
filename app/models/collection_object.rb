@@ -296,11 +296,21 @@ class CollectionObject < ActiveRecord::Base
   end
 
   def self.earliest_date
-    CollectingEvent.joins(:collection_objects).minimum(:start_date_year).to_s + "/01/01"
+    a = CollectingEvent.joins(:collection_objects).minimum(:start_date_year)
+    b = CollectingEvent.joins(:collection_objects).minimum(:end_date_year)
+    if a < b
+      b = a
+    end
+    b.to_s + "/01/01"
   end
 
   def self.latest_date
-    CollectingEvent.joins(:collection_objects).maximum(:end_date_year).to_s + "/12/31"
+    a = CollectingEvent.joins(:collection_objects).maximum(:start_date_year)
+    b = CollectingEvent.joins(:collection_objects).maximum(:end_date_year)
+    if a > b
+      b = a
+    end
+    b.to_s + "/12/31"
   end
 
   # Find all collection objects which have collecting events which have georeferences which have geographic_items which
