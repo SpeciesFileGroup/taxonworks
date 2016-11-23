@@ -6,7 +6,7 @@
 
 <div id="browse-view" class="panel content">
   <div> 
-    <span class="right_float"> <div class=" pin-button"></div> <!----  <%= pin_item_to_pinboard_link(@taxon_name, sessions_current_user) -%>Make a button ----> </span>
+    <span class="right_float"><%= pin_item_to_pinboard_link(@taxon_name, sessions_current_user) -%></span>
     <%= render('/taxon_names/breadcrumb_navigator', taxon_name: @taxon_name, target: :browse_nomenclature_task_path) -%>
   </div>
   <div id="show" class="panels-container ">
