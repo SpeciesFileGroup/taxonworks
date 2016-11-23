@@ -67,47 +67,18 @@ _init_map_table = function init_map_table() {
         }
         $("#find_item").mx_spinner('show');
         $.get('find', href, function (local_data) {
-          //var html = local_data.html;
-          //var message = local_data.message;
-          ////result_collection = local_data.feature_collection;
-          //if (message != undefined) {
-          //  if (message.length == 0) {
-          //    $("#result_span").text("Total: " + local_data.collection_objects_count);
-          //  }
-          //  else {
-          //    $("#result_span").text(message);
-          //  }
-          //}
-          ////$("#show_list").html(html);
-          //if (local_data.feature_collection) {
-          //  if ($("#show_map").attr("hidden") != "hidden") {
-          //    //$("#show_map").removeAttr('hidden');
-          //    result_map = TW.vendor.lib.google.maps.initializeMap('simple_map_canvas', result_collection);
-          //  }
-          //}
-            //processPagination();
-          $("#find_item").mx_spinner('hide');
+          // $("#find_item").mx_spinner('hide');  # this has been relocated to .../find.js.erb
           }//, 'json'  // I expect a json response
         );
         event.preventDefault();
       })
     }
   
-    function processPagination() {
-      if ($('.pagination') != undefined) {
-        //for (i = 0;$('.pagination').children.length; i++) {
-        //  $('.pagination').children[i].children[0].attr['hrefUrl'] = $('.pagination').children[i].attr['href'];
-        //}
-      }
-    }
-  
     var today = new Date();
     var year = today.getFullYear();
-    //today = today.toLocaleDateString('en-US', {year: 'numeric', month: '2-digit', day: '2-digit'});
     var format = 'yy/mm/dd';
     var dateInput;
-  
-  
+
     set_control($("#st_fixedpicker"), $("#search_start_date"), format, year, $("#early_date").text());
   
     set_control($("#en_fixedpicker"), $("#search_end_date"), format, year, $("#late_date").text());
