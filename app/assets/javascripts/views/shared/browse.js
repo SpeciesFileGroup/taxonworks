@@ -6,20 +6,26 @@ $(document).ready(function() {
 function browseView() {
 
 	$('.filter .open').on('click', function() {
-		$(this).addClass('active');
+		activeColor($(this))
 	});
+
+	function activeColor(tag) {
+
+		if($(tag).hasClass('active')) {
+			$(tag).removeClass('active');
+		}
+		else {
+			$(tag).addClass('active');
+		}
+	}
 	
 	$('#filterBrowse_button').on('click', function() {
 		$('[data-filter-slide]').slideToggle(250);
 	});
 
 	$('#filterBrowse').on('click', '.navigation-item', function(selector) {
-		if($(this).hasClass('active')) {
-			$(this).removeClass('active');
-		}
-		else {
-			$(this).addClass('active');
-		}
+
+		activeColor($(this));
 		if($(this).attr('data-filter') === 'reset') {
 			$('[data-filter]').each( function() {
 				$($(this).attr('data-filter')).animate({
