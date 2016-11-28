@@ -542,9 +542,10 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
         expect(collecting_event_ids.count).to eq(11)
         expect(collection_objects.count).to eq(2)
         found_c_os = [@co_m3, @co_n3]
-        found_c_os.each_with_index { |c_o, index|
-          expect(collection_objects[index].metamorphosize).to eq(c_o)
+        collection_objects.each_with_index { |c_o, index|
+          collection_objects[index] = collection_objects[index].metamorphosize
         }
+        expect(collection_objects).to contain_exactly(*found_c_os)
       end
 
       specify 'should find 0 collecting objects' do
