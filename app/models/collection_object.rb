@@ -295,22 +295,43 @@ class CollectionObject < ActiveRecord::Base
     end
   end
 
-  def self.earliest_date
-    a = CollectingEvent.joins(:collection_objects).minimum(:start_date_year)
-    b = CollectingEvent.joins(:collection_objects).minimum(:end_date_year)
-    if a < b
-      b = a
+  def self.earliest_date(project_id)
+    a = CollectingEvent.joins(:collection_objects).where(project_id: project_id).minimum(:start_date_year)
+    b = CollectingEvent.joins(:collection_objects).where(project_id: project_id).minimum(:end_date_year)
+
+    return '1700/01/01' if a.nil? && b.nil?
+
+    d = nil
+
+    if a && b
+      if a < b
+        d = a
+      end
+    else
+      d = a || b
     end
-    b.to_s + "/01/01"
+    d.to_s + '/01/01'
   end
 
-  def self.latest_date
-    a = CollectingEvent.joins(:collection_objects).maximum(:start_date_year)
-    b = CollectingEvent.joins(:collection_objects).maximum(:end_date_year)
-    if a > b
-      b = a
+  def self.latest_date(project_id)
+    a = CollectingEvent.joins(:collection_objects).where(project_id: project_id).maximum(:start_date_year)
+    b = CollectingEvent.joins(:collection_objects).where(project_id: project_id).maximum(:end_date_year)
+
+    c = Time.now.strftime("%Y/%m/%d")
+
+    return c if a.nil? && b.nil?
+
+    d = nil
+
+    if a && b
+      if a > b
+        d = b
+      end
+    else
+      d = a || b
     end
-    b.to_s + "/12/31"
+
+      d.to_s + '/12/31'
   end
 
   # Find all collection objects which have collecting events which have georeferences which have geographic_items which
