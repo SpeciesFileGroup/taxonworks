@@ -53,7 +53,7 @@ module NomenclatureCatalog
     end
 
     def date_range
-      [dates.first, dates.last]  
+      [dates.first, dates.last].compact
     end
 
     def dates

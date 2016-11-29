@@ -35,13 +35,13 @@ class ProjectMembersController < ApplicationController
   def create_many
     begin
       ActiveRecord::Base.transaction do
-        project_members_params[:user_ids].each do |user_id|
+        project_members_params.each do |user_id|
           @member_project.project_members.create!(project_member_params.merge(user_id: user_id)) 
         end 
       end
 
       @project_member = ProjectMember.new(project_member_params)
-      redirect_to project_path(@member_project), notice: "Project members were added to project." 
+      redirect_to project_path(@member_project), notice: "Project members were #{project_members_params.empty? ? 'not selected.' : 'added to project.'}"
 
     rescue ActiveRecord::RecordInvalid
       redirect_to many_new_project_members_path, notice: "There was a problem adding project members, none were added." 
@@ -100,7 +100,7 @@ class ProjectMembersController < ApplicationController
   end
 
   def project_members_params
-    params.require(:project_member).permit(:project_id, user_ids: []) 
+    params.require(:project_member).permit(user_ids: [])[:user_ids] || []
   end
 
   def project_id_param

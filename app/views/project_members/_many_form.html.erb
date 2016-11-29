@@ -6,21 +6,22 @@
   </div>
 
   <div class="field">
-    For: <%= f.label :project_id, @project_member.project.name %><br>
+    Project: <%= f.label :project_id, @project_member.project.name %><br>
     <%= f.hidden_field :project_id -%>
   </div>
 
   <div class="field">
-    <%= f.check_box :is_project_administrator %>  <%= f.label :is_project_administrator %> (sets for all!)
+    <%= f.check_box :is_project_administrator %>  <%= f.label :is_project_administrator %> <span class="warning"> All selected members will be set as project administrators.</span>
   </div>
-
   
-  <h3> Pick users </h3>
+  <h3> Users </h3>
 
-   <%= a_to_z_links(@target_letters) -%> 
+  <% if @target_letters.size > 5 -%>
+    <%= a_to_z_links(@target_letters) -%> 
+  <% end %>
 
   <% @available_users.group_by{|u| u.name[0].upcase}.each do |group, users| %>
-    <h3><%= link_to(group, '#alphabet_nav', name: group) -%></h3>
+    <h3><%= link_to(group, '#alphabet_nav', name: group) if @target_letters.size > 5  -%></h3>
     <% users.in_groups_of(5, false).each do |g| -%>
       <div style="float: left">
         <% g.each do |user| -%>
@@ -35,9 +36,8 @@
     <br style="clear:both;" />
   <% end %>
 
-
-
+  <br>
   <div class="actions">
-    <%= f.submit %>
+    <%= f.submit 'Create project member(s)' %>
   </div>
 <% end %>

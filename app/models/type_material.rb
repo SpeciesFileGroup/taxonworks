@@ -85,6 +85,8 @@ class TypeMaterial < ActiveRecord::Base
 
   validate :check_type_type
 
+  # TODO: really should be validating uniqueness at this point, it's type material, not garbage records
+
   def type_source
     if !!self.source
       self.source
@@ -121,7 +123,7 @@ class TypeMaterial < ActiveRecord::Base
         errors.add(:type_type, 'Not a legal type for the nomenclatural code provided') 
       end
       unless self.protonym.rank_class.parent.to_s =~ /Species/
-        errors.add(:protonym_id, 'Type cannot be designated for a not species group taxon')
+        errors.add(:protonym_id, 'Type cannot be designated, name is not a species group name')
       end
     end
   end
@@ -142,7 +144,7 @@ class TypeMaterial < ActiveRecord::Base
   end
 
   def sv_type_source
-    soft_validations.add(:base, 'Source is not selected neither for type nor for taxon') unless type_source # !!self.
+    soft_validations.add(:base, 'Source is not selected neither for type nor for taxon') unless type_source 
   end
 
   #endregion

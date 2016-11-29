@@ -19,6 +19,11 @@ http://flexboxin5.com/
  	justify-content: flex-start;
  }
 
+ .middle {
+  display: flex;
+  align-items: center;
+ }
+
  .flex-separate {
  	display: flex;
  	justify-content: space-between;

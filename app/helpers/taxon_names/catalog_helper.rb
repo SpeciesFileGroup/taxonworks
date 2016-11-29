@@ -2,18 +2,18 @@
 # Each history_ method must generate a span
 module TaxonNames::CatalogHelper
 
-  def nomenclature_catalog_li_tag(nomenclature_catalog_item, reference_taxon_name, style = 'basic')
-    content_tag(:li, nomenclature_line_tag(nomenclature_catalog_item, reference_taxon_name, style), class: :history__record)
+  def nomenclature_catalog_li_tag(nomenclature_catalog_item, reference_taxon_name, target = :browse_nomenclature_task_path)
+    content_tag(:li, nomenclature_line_tag(nomenclature_catalog_item, reference_taxon_name, target), class: :history__record)
   end
 
-  def nomenclature_line_tag(nomenclature_catalog_item, reference_taxon_name, style = 'basic')
+  def nomenclature_line_tag(nomenclature_catalog_item, reference_taxon_name, target = :browse_nomenclature_task_path)
     i = nomenclature_catalog_item
     t = i.taxon_name
     c = i.citation
     r = reference_taxon_name
 
     [  
-      history_taxon_name(t, r, c),                # the subject, or protonym
+      history_taxon_name(t, r, c, target),        # the subject, or protonym
       history_author_year(t, c),                  # author year of the subject, or protonym
                                                  
       history_subject_original_citation(i),      
@@ -29,16 +29,21 @@ module TaxonNames::CatalogHelper
     ].compact.join.html_safe
   end
 
-  def history_taxon_name(taxon_name, r, c)
+  def history_taxon_name(taxon_name, r, c, target = nil)
     name = original_taxon_name_tag(taxon_name)
     body = nil
     css = nil
+    soft_validation = nil
+
+    if target
+      body = link_to(name, send(target, taxon_name) )
+    else
+      body = name 
+    end
 
     if taxon_name == r
-      body = name 
       css = 'history__reference_taxon_name'
     else
-      body = link_to(name, browse_nomenclature_task_path(taxon_name))
       css = 'history__related_taxon_name' 
       soft_validation = soft_validation_alert_tag(taxon_name)
     end
@@ -144,10 +149,6 @@ module TaxonNames::CatalogHelper
     end
   end
 
-
-
-
-
   def history_topics(citation)
     return nil if citation.nil?
     content_tag(:span, nil_wrap(' [', citation.citation_topics.collect{|t| t.topic.name}.join(", "), ']'), class: 'history__citation_topics')
@@ -155,7 +156,7 @@ module TaxonNames::CatalogHelper
 
   def history_type_material(taxon_name, is_subsequent)
     return nil if taxon_name.type == 'Combination' || is_subsequent
-    content_tag(:span, type_taxon_name_relationship_tag(taxon_name.type_taxon_name_relationship), class: 'history__type_information')
+    content_tag(:span, ' '.html_safe + type_taxon_name_relationship_tag(taxon_name.type_taxon_name_relationship), class: 'history__type_information')
   end
 
   protected
@@ -166,7 +167,5 @@ module TaxonNames::CatalogHelper
     return nil if citation.nil?
     'history__original_description' if citation.is_original? && taxon_name == citation.citation_object
   end
-
-
 
 end

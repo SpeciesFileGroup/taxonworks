@@ -235,4 +235,23 @@ module Utilities::Dates
     Time.new(year, month, day)
   end
 
+  # @param [Array] of 0-2 dates
+  # @return [String, nil]
+  #   a sentence spelling out the date range
+  def self.date_range_sentence_tag(date_range)
+    format = "%Y-%b-%d"
+    date_range.compact!
+    if date_range.empty?
+      nil
+    else
+      if date_range.size == 2
+        'Records exist in the date range ' + date_range.collect{|d| d.strftime(format)}.join(' to ') + '.'
+      elsif date_range.size == 1
+        "A record exists from #{date_range.first.strftime(format)}."
+      else
+        'Hmm, that is a curious date range!'
+      end
+    end
+  end
+
 end

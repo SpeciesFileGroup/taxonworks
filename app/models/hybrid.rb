@@ -38,7 +38,7 @@ class Hybrid < TaxonName
   protected
 
   def validate_rank_class_class
-    errors.add(:rank_class, 'It is not an ICN rank') unless ICN.include?(rank_class.to_s)
+    errors.add(:rank_class, 'It is not an ICN rank') unless ICN.include?(rank_string)
   end
 
   def sv_hybrid_name_relationships

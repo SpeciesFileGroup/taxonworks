@@ -1,8 +1,5 @@
 <h1>Projects</h1>
-
-<%= link_to 'List', '/projects/list' %>
-
-<br>
-
-<%= link_to('New Project', new_project_path) if is_administrator? %>
-
+<ul class="no_bullets list list-arrow">
+  <%= content_tag(:li, link_to('List', '/projects/list')) %>
+  <%= content_tag(:li, link_to('New Project', new_project_path)) if is_administrator? %>
+</ul>

@@ -270,7 +270,7 @@ class TaxonNameRelationship < ActiveRecord::Base
     unless self.type_class.blank? # only validate if it is set
       if object_taxon_name
         if object_taxon_name.type == 'Protonym' || object_taxon_name.type == 'Hybrid'
-          unless self.type_class.valid_object_ranks.include?(self.object_taxon_name.rank_class.to_s)
+          unless self.type_class.valid_object_ranks.include?(self.object_taxon_name.rank_string)
             errors.add(:object_taxon_name_id, 'Rank of this taxon is not compatible with the relationship')
             errors.add(:type, 'Not compatible with the rank of object taxon')
           end
@@ -279,7 +279,7 @@ class TaxonNameRelationship < ActiveRecord::Base
 
       if subject_taxon_name
         if subject_taxon_name.type == 'Protonym' || subject_taxon_name.type == 'Hybrid'
-          unless self.type_class.valid_subject_ranks.include?(self.subject_taxon_name.parent.rank_class.to_s)
+          unless self.type_class.valid_subject_ranks.include?(self.subject_taxon_name.parent.rank_string)
             soft_validations.add(:subject_taxon_name_id, 'Rank of this taxon is not compatible with the relationship')
             soft_validations.add(:type, 'Not compatible with the rank of subject taxon')
           end
@@ -499,7 +499,7 @@ class TaxonNameRelationship < ActiveRecord::Base
       when 'TaxonNameRelationship::Iczn::Invalidating'
         soft_validations.add(:type, 'Please specify the reason for the name being Invalid') unless self.subject_taxon_name.unavailable?
       when 'TaxonNameRelationship::Iczn::Invalidating::Homonym'
-        if NomenclaturalRank::Iczn::SpeciesGroup.descendants.collect{|t| t.to_s}.include?(self.subject_taxon_name.rank_class.to_s)
+        if NomenclaturalRank::Iczn::SpeciesGroup.descendants.collect{|t| t.to_s}.include?(self.subject_taxon_name.rank_string)
           soft_validations.add(:type, 'Please specify if this is a primary or secondary homonym',
               fix: :sv_fix_specify_homonymy_type, success_message: 'Homonym updated to being primary or secondary')
         end
@@ -678,9 +678,9 @@ class TaxonNameRelationship < ActiveRecord::Base
     elsif self.type_name =~ /TaxonNameRelationship::(OriginalCombination|Combination|SourceClassifiedAs)/
 
       list = s.list_of_coordinated_names + [s]
-      if s.rank_class.to_s =~ /Species/ # species group
+      if s.rank_string =~ /Species/ # species group
         s_new =  list.detect{|t| t.rank_class.rank_name == 'species'}
-      elsif s.rank_class.to_s=~ /Genus/
+      elsif s.rank_string =~ /Genus/
         s_new =  list.detect{|t| t.rank_class.rank_name == 'genus'}
       else
         s_new = s
@@ -719,9 +719,9 @@ class TaxonNameRelationship < ActiveRecord::Base
   def sv_fix_combination_relationship
     s = self.subject_taxon_name
     list = s.list_of_coordinated_names + [s]
-    if s.rank_class.to_s =~ /Species/
+    if s.rank_string =~ /Species/
       s_new = list.detect{|t| t.rank_class.rank_name == 'species'}
-    elsif s.rank_class.to_s=~ /Genus/
+    elsif s.rank_string =~ /Genus/
       s_new = list.detect{|t| t.rank_class.rank_name == 'genus'}
     else
       s_new = s
