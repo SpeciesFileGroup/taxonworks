@@ -158,10 +158,7 @@ class TaxonNameRelationship < ActiveRecord::Base
   # @return String
   #    the status inferred by the relationship to the object name 
   def object_status
-    #  label =
     self.type_name.demodulize.underscore.humanize.downcase
-    # label = label.gsub('e1', 'e 1').gsub('e2', 'e 2')
-    #  label
   end
 
   # @return String
@@ -180,6 +177,14 @@ class TaxonNameRelationship < ActiveRecord::Base
   #    the connecting word in the relationship from the object name to subject name
   def object_status_connector_to_subject
     ' of'
+  end
+
+  def subject_status_tag
+    subject_status + subject_status_connector_to_object
+  end
+
+  def object_status_tag
+    object_status + object_status_connector_to_subject
   end
 
   def type_name
@@ -216,8 +221,6 @@ class TaxonNameRelationship < ActiveRecord::Base
   def is_combination?
     !!/TaxonNameRelationship::(OriginalCombination|Combination)/.match(self.type.to_s)
   end.to_s
-
-
 
   protected
 

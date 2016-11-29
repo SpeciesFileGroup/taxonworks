@@ -27,24 +27,29 @@ class TaxonNameRelationship::OriginalCombination < TaxonNameRelationship
     ' with'
   end
 
+
   # @return String
   #    the status inferred by the relationship to the subject name 
   def subject_status
-#   rank =  self.type_name.demodulize.underscore.humanize.downcase
-#   "original #{rank}" 
-  
-   rank =  self.type_name.demodulize.underscore.humanize.downcase
-   "with #{rank}"
+    'as ' +  self.type_name.demodulize.underscore.humanize.downcase 
   end
 
-    # @return String
-  #    the status inferred by the relationship to the subject name 
-  def object_status
-#   rank =  self.type_name.demodulize.underscore.humanize.downcase
-#   "original #{rank}" 
-   rank =  self.type_name.demodulize.underscore.humanize.downcase
-   "#{rank} of"
+  def subject_status_connector_to_object
+    ' of'
   end
+
+  # @return String
+  #    the status inferred by the relationship to the object name 
+  def object_status
+   'in original combination with ' +  self.type_name.demodulize.underscore.humanize.downcase 
+  end
+
+
+
+  def object_status_connector_to_subject
+    ''
+  end
+
 
 
 end
