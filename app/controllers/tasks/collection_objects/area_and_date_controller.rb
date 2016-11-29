@@ -6,8 +6,8 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
     @geographic_areas         = GeographicArea.where('false')
     @collection_objects       = CollectionObject.where('false')
     @collection_objects_count = 0
-    @earliest_date = CollectionObject.earliest_date
-    @latest_date = CollectionObject.latest_date
+    @earliest_date = CollectionObject.earliest_date(sessions_current_project_id)
+    @latest_date = CollectionObject.latest_date(sessions_current_project_id)
   end
 
   # POST
@@ -27,6 +27,7 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
       area_object_ids = GeographicItem.gather_selected_data(@geographic_area_id, @shape_in, 'CollectionObject').map(&:id)
       area_set        = true
     end
+
     @otu_id     = params[:otu_id]
     descendants = params[:descendants]
     gather_otu_objects(@otu_id, descendants) # sets @@otu_collection_objects
