@@ -43,8 +43,8 @@
 .circle-button {
 	border-radius: 50%;
 	display: block;
-	width: 30px;
-	height: 30px;
+	width: 25px;
+	height: 25px;
 	font-size: 0px;
 	background-position: center;
 	background-repeat: no-repeat;
@@ -94,7 +94,8 @@
 .pin-button {
     @extend .circle-button;
     background-color: #00796B;
-    background-size: 16px;
+    margin:0px;
+    background-size: 14px;
     background-image: image-url("b_pin.svg");
 }
 
