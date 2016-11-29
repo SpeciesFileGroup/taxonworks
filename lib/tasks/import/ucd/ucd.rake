@@ -1678,6 +1678,7 @@ namespace :tw do
                 c.update_column(:type, relationship[row['Status']])
               else
                 c = TaxonNameRelationship.find_or_create_by(subject_taxon_name: taxon, object_taxon_name: taxon1, type: relationship[row['Status']])
+                c1 = TaxonNameClassification.find_or_create_by(taxon_name: taxon, type: 'TaxonNameClassification::Iczn::Available::Valid')
               end
 
               if !c.id.blank? # valid?
