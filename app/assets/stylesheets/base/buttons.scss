@@ -16,10 +16,11 @@
     background-color: $panel_background;
     width: 20px;
     top: -36px;
-    left:15px;
+    left:0px;
     height: 36px;
     border-radius: 100%; 
-    box-shadow: 0 1px 3px 0 $navigation_border;
+    border:1px solid $color-secondary-2-4;
+    box-shadow: 0 1px 3px 0 $color-secondary-2-4;
  
     transition: background-size 0.3s ease,
                 background-color 0.3s ease,
@@ -43,8 +44,8 @@
 .circle-button {
 	border-radius: 50%;
 	display: block;
-	width: 25px;
-	height: 25px;
+	width: 24px;
+	height: 24px;
 	font-size: 0px;
 	background-position: center;
 	background-repeat: no-repeat;
