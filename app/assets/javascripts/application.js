@@ -24,12 +24,12 @@
 //= require autocomplete-rails
 //= require best_in_place
 //= require dropzone
-//= require_tree ./workbench
-//= require_tree ./views
-//= require_tree ./utilities
-//= require_tree ./vendor/lib
-//= require_tree ./vendor/lib/jquery
 //= require_tree ./vendor/src/jquery
 //= require_directory ./vendor/src
+//= require_tree ./vendor/lib
+//= require_tree ./vendor/lib/jquery
+//= require_tree ./views
+//= require_tree ./utilities
+//= require_tree ./workbench
 //= require turbolinks
 

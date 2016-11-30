@@ -7,7 +7,7 @@
               <%= i.hidden_field :type -%>
 
               <div class="side_by_side_fields">
-                <div class="field">
+                <div class="field input-checkbox-field">
                   <%= i.label :namespace_id, 'Catalog number' %>
                   <%= render '/workbench/elements/forms/ajax_select',
                              controller:        '/namespaces',
@@ -22,24 +22,26 @@
                   <% if @specimen.identifiers.size == 1 %>
                       <%= lock_tag(@locks, :identifier, :namespace_id) -%>
                   <% end %>
+                  </div>
+                   <div class="field input-checkbox-field">
 
                   <%= i.text_field :identifier %>
 
                   <% if @specimen.identifiers.size == 1 %>
                       <%= lock_tag(@locks, :identifier, :increment, 'increment') -%>
                   <% end %>
-
+                  </div>
                   <%= destroy_related_link(i) -%>
                 </div>
-              </div>
-
           <% end %>
 
           <%= f.fields_for(:taxon_determinations, @specimen.taxon_determinations) do |o| -%>
               <div class="field">
                 <label>OTU</label>
-                <%= render '/otus/otu_picker', otu: o.object.otu, f: o -%>
-                <%= lock_tag(@locks, :taxon_determination, :otu_id) -%>
+                <div class="field input-checkbox-field">
+                  <%= render '/otus/otu_picker', otu: o.object.otu, f: o -%>
+                  <%= lock_tag(@locks, :taxon_determination, :otu_id) -%>
+                </div>
               </div>
           <% end %>
 
@@ -54,7 +56,7 @@
               <% end %>
          <% end %>
 
-        <div class="field">
+        <div class="field input-checkbox-field">
           <%= f.label :preparation_type %>
           <br>
           <%= f.select :preparation_type_id, options_from_collection_for_select(PreparationType.all, :id, :name, f.object.preparation_type_id),  include_blank: true  -%>

@@ -9,11 +9,11 @@
     <%= link_to 'Add new', '#', id: :otu_picker_add_new, class: 'new_plus', hidden: true %> 
   </div>
 
-  <div id="new_otu" class="add_new inline_fields" hidden >
+  <div id="new_otu" class="add_new" hidden >
     <%= content_tag(:div, 'New OTU', class: 'injected_new_header') -%>
 
     <%= f.fields_for :otu_attributes, Otu.new do |o| %>
-      <div class="flex-separate">
+      <div class="flex-separate inline_fields">
         <div class="fields"> 
           <div class="field">
             <%= o.label :name %>
