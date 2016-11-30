@@ -213,12 +213,11 @@ namespace :tw do
         @data.superfamilies['3'] = Protonym.find_or_create_by(name: 'Mymarommatoidea', parent: @order, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Superfamily', project_id: $project_id).id
         @data.families[''] = @order.id
 
-        @data.keywords['ucd_imported'] = Keyword.find_or_create_by(name: 'ucd_imported', definition: 'Imported from UCD database.').id
+        @data.keywords['ucd_imported'] = Keyword.find_or_create_by(name: 'UCD_imported', definition: 'Imported from UCD database.').id
         @data.keywords['taxon_id'] = Namespace.find_or_create_by(name: 'UCD_Taxon_ID', short_name: 'UCD_Taxon_ID').id
         @data.keywords['family_id'] = Namespace.find_or_create_by(name: 'UCD_Family_ID', short_name: 'UCD_Family_ID').id
         @data.keywords['host_family_id'] = Namespace.find_or_create_by(name: 'UCD_Host_Family_ID', short_name: 'UCD_Host_Family_ID').id
         @data.keywords['hos_number'] = Namespace.find_or_create_by(name: 'UCD_Hos_Number', short_name: 'UCD_Hos_Number').id
-    
         @data.done!(handle)
         @data.persist!
       end
@@ -249,13 +248,13 @@ namespace :tw do
 
             if !tribe.nil?
               @data.families[row['FamCode']] = tribe.id
-              tribe.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['family_id'], identifier: row['FamCode'].to_s)
+              tribe.identifiers.create!(type: 'Identifier::Local::Import', namespace_id: @data.keywords['family_id'], identifier: row['FamCode'].to_s)
             elsif !subfamily.nil?
               @data.families[row['FamCode']] = subfamily.id
-              subfamily.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['family_id'], identifier: row['FamCode'].to_s)
+              subfamily.identifiers.create!(type: 'Identifier::Local::Import', namespace_id: @data.keywords['family_id'], identifier: row['FamCode'].to_s)
             else
               @data.families[row['FamCode']] = family.id
-              family.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['family_id'], identifier: row['FamCode'].to_s)
+              family.identifiers.create!(type: 'Identifier::Local::Import', namespace_id: @data.keywords['family_id'], identifier: row['FamCode'].to_s)
             end
           end
 
@@ -339,7 +338,7 @@ namespace :tw do
 
             if row['ValAuthor'] == row['CitAuthor']
               @data.taxon_codes[row['TaxonCode']] = taxon.id
-              taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['taxon_id'], identifier: row['TaxonCode'].to_s)
+              taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace_id: @data.keywords['taxon_id'], identifier: row['TaxonCode'].to_s)
             else
               name = row['CitAuthor'].split(' ').first
               author = row['CitAuthor'].gsub(name + ' ', '')
@@ -382,7 +381,7 @@ namespace :tw do
             # end
 
               @data.taxon_codes[row['TaxonCode']] = taxon1.id
-              taxon1.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['taxon_id'], identifier: row['TaxonCode'].to_s)
+              taxon1.identifiers.create!(type: 'Identifier::Local::Import', namespace_id: @data.keywords['taxon_id'], identifier: row['TaxonCode'].to_s)
               taxon1.data_attributes.create!(type: 'ImportAttribute', import_predicate: 'HomCode', value: row['HomCode']) unless row['HomCode'].blank?
               TaxonNameRelationship.create!(subject_taxon_name: taxon1, object_taxon_name: taxon, type: 'TaxonNameRelationship::Iczn::Invalidating')
             end
@@ -420,7 +419,7 @@ namespace :tw do
             if row['ValGenus'].to_s == row['CitGenus'] && row['CitSubgen'].blank? && row['ValSpecies'].blank?  && row['CitSpecies'].blank? && @data.combinations['TaxonCode'].blank?
               @data.genera_index[name] = taxon.id
               @data.taxon_codes[row['TaxonCode']] = taxon.id
-              taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
+              taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace_id: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
             end
           end
         end
@@ -467,7 +466,7 @@ namespace :tw do
                 taxon = c
               end
               @data.taxon_codes[row['TaxonCode']] = taxon.id
-              taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
+              taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace_id: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
             end
           end
         end
@@ -520,7 +519,7 @@ namespace :tw do
               @data.genera_index[name] = taxon.id
             end
             @data.taxon_codes[row['TaxonCode']] = taxon.id
-            taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
+            taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace_id: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
           end
         end
       end
@@ -557,7 +556,7 @@ namespace :tw do
             if row['ValSpecies'].to_s == row['CitSpecies'] && row['ValAuthor'] == '(' + row['CitAuthor'] + ')' && row['ValDate'] == row['CitDate'] && row['CitSubsp'].blank? && @data.combinations['TaxonCode'].blank?
               @data.species_index[row['ValGenus'].to_s + ' ' + name] = taxon.id
               @data.taxon_codes[row['TaxonCode']] = taxon.id
-              taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
+              taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace_id: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
               origsubgen = @data.all_genera_index[row['CitSubgen']]
               TaxonNameRelationship.create!(subject_taxon_name: taxon, object_taxon_name: taxon, type: 'TaxonNameRelationship::OriginalCombination::OriginalSpecies')
               TaxonNameRelationship.create!(subject_taxon_name_id: parent_id, object_taxon_name: taxon, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus') if taxon.original_genus.nil?
@@ -619,7 +618,7 @@ namespace :tw do
               TaxonNameRelationship::OriginalCombination::OriginalGenus.create!(subject_taxon_name_id: origgen, object_taxon_name: taxon) if taxon.original_genus.nil?
               TaxonNameRelationship::OriginalCombination::OriginalSubgenus.create!(subject_taxon_name_id: origsubgen, object_taxon_name: taxon) if taxon.original_subgenus.nil? && !origsubgen.nil?
             end
-            taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
+            taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace_id: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
           end
         end
       end
@@ -686,7 +685,7 @@ namespace :tw do
               TaxonNameRelationship.create!(subject_taxon_name_id: origsubgen, object_taxon_name: taxon, type: 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus') if taxon.original_subgenus.nil? && !origsubgen.nil?
               TaxonNameRelationship.create!(subject_taxon_name_id: origspecies, object_taxon_name: taxon, type: 'TaxonNameRelationship::OriginalCombination::OriginalSpecies') if taxon.original_species.nil? && !origspecies.nil?
             end
-            taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
+            taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace_id: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
           end
         end
       end
@@ -1239,7 +1238,7 @@ namespace :tw do
             taxon = Protonym.find_or_create_by(name: 'Slime', parent: @root, rank_class: 'NomenclaturalRank::Iczn::HigherClassificationGroup::Kingdom', project_id: $project_id)
           end
           taxon.data_attributes.create(type: 'InternalAttribute', predicate: keywords['SuperFam'], value: row['SuperFam']) if !row['SuperFam'].blank? && !taxon.parent.nil? && taxon.parent.rank_class != 'NomenclaturalRank::Iczn::FamilyGroup::Superfamily' && taxon.data_attributes.nil?
-          taxon.identifiers.create(type: 'Identifier::Local::Import', namespace: @data.keywords['host_family_id'], identifier: row['Code']) if !row['Code'].blank?
+          taxon.identifiers.create(type: 'Identifier::Local::Import', namespace_id: @data.keywords['host_family_id'], identifier: row['Code']) if !row['Code'].blank?
           @data.hostfamilies[row['Code']] = taxon.id
         end
 
@@ -1280,12 +1279,12 @@ namespace :tw do
 
           # it could become invalid if verbatim_author is set? 
           taxon = TaxonName.find(parent) unless taxon.valid? # bad form to re-use variable name - and this doesn't make sense, you already have a parent why find it again?
-          taxon.identifiers.create(type: 'Identifier::Local::Import', namespace: @data.keywords['hos_number'], identifier: row['HosNumber']) if !row['HosNumber'].blank?
+          taxon.identifiers.create(type: 'Identifier::Local::Import', namespace_id: @data.keywords['hos_number'], identifier: row['HosNumber']) if !row['HosNumber'].blank?
 
           # TODO: review
           # replace with this?
           # unless taxon.valid?
-          #   parent.identifiers.create(type: 'Identifier::Local::Import', namespace: @data.keywords['hos_number'], identifier: row['HosNumber']) if !row['HosNumber'].blank?
+          #   parent.identifiers.create(type: 'Identifier::Local::Import', namespace_id: @data.keywords['hos_number'], identifier: row['HosNumber']) if !row['HosNumber'].blank?
           # end
 
 
