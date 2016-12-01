@@ -108,7 +108,7 @@ gem 'modularity', '~> 2.0.1'
 gem 'colorize', '~> 0.8.1'
 gem 'term-ansicolor', '~> 1.3', '>= 1.3.2' # colorize doesn't seem to be working properly, using this instead.
 
-gem 'chartkick', '~> 2.0.0'
+gem 'chartkick', '~> 2.1.3'
 gem 'groupdate', '~> 3.0.0'
 
 gem 'dropzonejs-rails', '~> 0.7.3'
