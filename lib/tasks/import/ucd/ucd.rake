@@ -901,6 +901,7 @@ namespace :tw do
           year = nil if year.to_i < 1500 || year.to_i > 2018
           stated_year = nil if stated_year.to_i < 1500 || stated_year.to_i > 2018
 
+          # Need to translate | | to \textit{ } I think (bibtex format)
           title = [row['Title'],  (fext_data[row['RefCode']] && !fext_data[row['RefCode']][:ext_title].blank? ? fext_data[row['RefCode']][:ext_title] : nil)].compact.join(" ")
           journal = [row['JourBook'],  (fext_data[row['RefCode']] && !fext_data[row['RefCode']][:ext_journal].blank? ? fext_data[row['RefCode']][:ext_journal] : nil)].compact.join(" ")
           author = [row['Author'],  (fext_data[row['RefCode']] && !fext_data[row['RefCode']][:ext_author].blank? ? fext_data[row['RefCode']][:ext_author] : nil)].compact.join(" ")
@@ -950,7 +951,7 @@ namespace :tw do
 
             if fext_data[row['RefCode']]
               b.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['RefsExt:Translate'], value: fext_data[row['RefCode']][:translate]) unless fext_data[row['RefCode']][:translate].blank?
-              b.notes.create!(text: fext_data[row['RefCode']][:note]) unless fext_data[row['RefCode']][:note].blank?
+              b.notes.create!(text: fext_data[row['RefCode']][:note].gsub(/|/,'_')) unless fext_data[row['RefCode']][:note].blank?
             end
 
             ['KeywordA', 'KeywordB', 'KeywordC'].each do |i|
@@ -1056,7 +1057,7 @@ namespace :tw do
             unless ref.nil?
               taxon.citations.create!(source_id: ref, pages: row['PageRef'], is_original: true)
             end
-            taxon.notes.create!(text: row['Notes']) unless row['Notes'].blank?
+            taxon.notes.create!(text: row['Notes'].gsub(/|/,'_')) unless row['Notes'].blank?
             da = taxon.data_attributes.create(type: 'InternalAttribute', predicate: keywords['FamTrib:Status'], value: status_type[row['Status']]) unless row['Status'].blank?
 
             byebug if da.try(:id).blank?
@@ -1112,7 +1113,7 @@ namespace :tw do
             unless ref.nil?
               taxon.citations.create(source_id: ref, pages: row['PageRef'], is_original: true)
             end
-            taxon.notes.create(text: row['Notes']) unless row['Notes'].blank?
+            taxon.notes.create(text: row['Notes'].gsub(/|/,'_')) unless row['Notes'].blank?
             taxon.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Genus:Status'], value: status_type[row['Status']]) unless row['Status'].blank?
           end
         end
@@ -1184,7 +1185,7 @@ namespace :tw do
               end
 
             end
-            taxon.notes.create(text: row['Notes']) unless row['Notes'].blank?
+            taxon.notes.create(text: row['Notes'].gsub(/|/,'_')) unless row['Notes'].blank?
             taxon.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Status:Meaning'], value: status_type[row['CurrStat']]) unless status_type[row['CurrStat']].nil?
             taxon.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Species:Country'], value: @data.countries[row['Country'].to_s + '|' + row['State'].to_s]) unless @data.countries[row['Country'].to_s + '|' + row['State'].to_s].blank?
             taxon.data_attributes.create!(type: 'InternalAttribute', predicate: keywords['Coll:Depository'], value: @data.collections[row['Depository']]) unless @data.collections[row['Depository']].nil?
@@ -1351,7 +1352,7 @@ namespace :tw do
             object = Otu.find_or_create_by(taxon_name_id: host)
             r = BiologicalAssociation.find_or_create_by!(biological_relationship: br, biological_association_subject: subject, biological_association_object: object, project_id: $project_id)
             r.citations.create(source_id: ref, pages: row['PageRef']) unless ref.nil?
-            r.notes.create(text: row['Notes']) unless row['Notes'].blank?
+            r.notes.create(text: row['Notes'].gsub(/|/,'_')) unless row['Notes'].blank?
             r.data_attributes.create(type: 'InternalAttribute', predicate: keywords['ParTypeA'], value: @data.ptype[row['ParTypeA']]) unless row['ParTypeA'].blank?
             r.data_attributes.create(type: 'InternalAttribute', predicate: keywords['ParTypeB'], value: @data.ptype[row['ParTypeB']]) unless row['ParTypeB'].blank?
             r.data_attributes.create(type: 'InternalAttribute', predicate: keywords['ParTypeC'], value: @data.ptype[row['ParTypeC']]) unless row['ParTypeC'].blank?
@@ -1439,7 +1440,7 @@ namespace :tw do
             #              ad.data_attributes.create(type: 'InternalAttribute', predicate: keywords['PageRef'], value: row['PageRef']) unless row['PageRef'].blank?
             ad.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Keyword'], value: row['Keyword']) unless row['Keyword'].blank?
             # row['Keyword'] => citation.topic.
-            ad.notes.create(text: row['Notes']) unless row['Notes'].blank?
+            ad.notes.create(text: row['Notes'].gsub(/|/,'_')) unless row['Notes'].blank?
           end
 
         end
@@ -1464,7 +1465,7 @@ namespace :tw do
           if !ref.nil? && !taxon.nil?
             c = taxon.citations.find_or_create_by(source_id: ref, pages: page)
             c.citation_topics.find_or_create_by(topic: @data.topics[row['Keyword']], project_id: $project_id) unless row['Keywords'].blank?
-            c.notes.find_or_create_by(text: row['Notes']) unless row['Notes'].blank?
+            c.notes.find_or_create_by(text: row['Notes'].gsub(/|/,'_')) unless row['Notes'].blank?
           end
         end
       end
@@ -1657,7 +1658,7 @@ namespace :tw do
           if !notes[row['Status']].nil? && !taxon.nil?
             taxon.data_attributes.create(type: 'InternalAttribute', predicate: keywords['Status'], value: notes[row['Status']])
           end
-          taxon.notes.create(text: row['Notes'].to_s + ' ' + row['Code'].to_s) if !row['Notes'].blank? && !taxon.nil?
+          taxon.notes.create(text: row['Notes'].to_s.gsub(/|/,'_') + ' ' + row['Code'].to_s) if !row['Notes'].blank? && !taxon.nil?
           if taxon.nil?
             print "\nInvalid TaxonCode: #{row['TaxonCode']}\n"
           elsif taxon.type == 'Combination'
