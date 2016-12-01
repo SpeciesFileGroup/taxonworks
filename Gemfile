@@ -141,7 +141,7 @@ group :development do
   gem 'spring-commands-rspec', '~> 1.0.2'
   gem 'guard-rspec', '~> 4.7', require: false
   gem 'parallel_tests', '~> 2.5.0'
-  gem 'web-console', '~> 3.1.1'
+  gem 'web-console', '~> 3.3.0'
   gem 'rubocop', '~> 0.42.0'
 end
 
@@ -152,7 +152,7 @@ end
 group :test do
   gem 'rspec', '~> 3.4'
   gem 'coveralls', '~> 0.8.13', require: false
-  gem 'capybara', '~> 2.7.1'
+  gem 'capybara', '~> 2.10.2'
   gem 'timecop', '~> 0.8.1'
   gem 'webmock', '~> 2.0.1'
   gem 'vcr', '~> 3.0.0'
