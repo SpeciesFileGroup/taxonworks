@@ -4,7 +4,7 @@ source 'https://rubygems.org'
 
 ruby '2.3.1'
 
-gem 'rails', '~> 4.2.6'
+gem 'rails', '~> 4.2.7.1'
 gem 'psych', '~> 2.0.16'
 gem 'responders', '~> 2.0'
 
@@ -106,10 +106,10 @@ gem 'exception_notification', '~> 4.2.1'
 gem 'modularity', '~> 2.0.1'
 
 gem 'colorize', '~> 0.8.1'
-gem 'term-ansicolor', '~> 1.3', '>= 1.3.2' # colorize doesn't seem to be working properly, using this instead.
+gem 'term-ansicolor', '~> 1.4.0' # '~> 1.3', '>= 1.3.2' # colorize doesn't seem to be working properly, using this instead.
 
 gem 'chartkick', '~> 2.1.3'
-gem 'groupdate', '~> 3.0.0'
+gem 'groupdate', '~> 3.1.1'
 
 gem 'dropzonejs-rails', '~> 0.7.3'
 

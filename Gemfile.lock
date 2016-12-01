@@ -145,7 +145,7 @@ GEM
     globalid (0.3.7)
       activesupport (>= 4.1.0)
     gn_uuid (0.5.0)
-    groupdate (3.0.2)
+    groupdate (3.1.1)
       activesupport (>= 3)
     guard (2.14.0)
       formatador (>= 0.2.4)
@@ -450,7 +450,7 @@ DEPENDENCIES
   factory_girl_rails (~> 4.7)
   faker (~> 1.6.1)
   ffi-geos
-  groupdate (~> 3.0.0)
+  groupdate (~> 3.1.1)
   guard-rspec (~> 4.7)
   hiredis (~> 0.6.1)
   inch (~> 0.7)
@@ -470,7 +470,7 @@ DEPENDENCIES
   pg (~> 0.18.4)
   psych (~> 2.0.16)
   rabl (~> 0.13.0)
-  rails (~> 4.2.6)
+  rails (~> 4.2.7.1)
   rails-jquery-autocomplete
   redcarpet (~> 3.3)
   redis (~> 3.3.1)
