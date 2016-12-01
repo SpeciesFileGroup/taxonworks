@@ -53,7 +53,7 @@ gem 'best_in_place', '~> 3.1.0'
 # See: https://gorails.com/episodes/upgrade-to-turbolinks-5 for notes 
 # on updating.
 # 
-gem 'turbolinks', '~> 2.5'
+gem 'turbolinks', '~> 2.5.3'
 gem 'jquery-turbolinks', '~> 2.1'
 
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
