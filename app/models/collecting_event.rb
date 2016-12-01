@@ -163,6 +163,7 @@ class CollectingEvent < ActiveRecord::Base
   include Shared::Depictions
   include Shared::IsData
   include Shared::Confidence
+  include Shared::Documentation
   include SoftValidation
 
   has_paper_trail
