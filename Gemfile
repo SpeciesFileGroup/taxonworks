@@ -60,7 +60,7 @@ gem 'jquery-turbolinks', '~> 2.1'
 gem 'jbuilder', '~> 2.5.0'
 gem 'chronic', '~> 0.10'
 
-gem 'closure_tree', '~> 6.0.0'
+gem 'closure_tree', '~> 6.2.0'
 
 # BibTex handling
 gem 'csl', '~> 1.4.3' # git: 'https://github.com/inkshuk/csl-ruby'
