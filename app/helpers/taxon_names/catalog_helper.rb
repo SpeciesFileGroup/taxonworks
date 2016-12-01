@@ -18,14 +18,13 @@ module TaxonNames::CatalogHelper
                                                  
       history_subject_original_citation(i),      
       history_statuses(i),                        # TaxonNameClassification summary
-                                                 
       history_other_name(i, r),                   # The TaxonNameRelaltionship
       history_in(t, c),                           #  citation for related name 
       history_pages(c),                           #  pages for citation of related name
-                                                 
       history_citation_notes(c),                  # Notes on the citation 
       history_topics(c),                          # Topics on the citation
-      history_type_material(t, i.is_subsequent?), # Type material reference 
+#      (i.object.class.name == 'Protonym' ? history_type_material(t, i.is_subsequent?) : nil), # Type material reference 
+      history_type_material(i),
     ].compact.join.html_safe
   end
 
@@ -87,7 +86,7 @@ module TaxonNames::CatalogHelper
   #   a parenthesized line item containing relationship and related name
   def history_other_name(catalog_item, reference_taxon_name)
     if catalog_item.from_relationship? 
-      content_tag(:span, " (#{catalog_item.object.subject_status.to_s + catalog_item.object.subject_status_connector_to_object.to_s} #{full_original_taxon_name_tag(catalog_item.other_name)})#{soft_validation_alert_tag(catalog_item.object)}".html_safe, class: [:history__other_name])
+      content_tag(:span, " (#{catalog_item.object.subject_status_tag} #{full_original_taxon_name_tag(catalog_item.other_name)})#{soft_validation_alert_tag(catalog_item.object)}".html_safe, class: [:history__other_name])
     end
   end
 
@@ -138,13 +137,13 @@ module TaxonNames::CatalogHelper
 
   # @return [String, nil]
   #    return the citation author/year if differeing from the taxon name author year 
-  #   !! USED ?! 
   def history_in(t, c)
     if c
       a = history_author_year_tag(t) 
       b = citation_author_year_tag(c)
+
       if a != b
-        content_tag(:span,  ": #{b}", class: [:history__in])
+        return content_tag(:span,  ": #{b}", class: [:history__in])
       end
     end
   end
@@ -154,9 +153,9 @@ module TaxonNames::CatalogHelper
     content_tag(:span, nil_wrap(' [', citation.citation_topics.collect{|t| t.topic.name}.join(", "), ']'), class: 'history__citation_topics')
   end
 
-  def history_type_material(taxon_name, is_subsequent)
-    return nil if taxon_name.type == 'Combination' || is_subsequent
-    content_tag(:span, ' '.html_safe + type_taxon_name_relationship_tag(taxon_name.type_taxon_name_relationship), class: 'history__type_information')
+  def history_type_material(entry_item)
+    return nil if entry_item.object_class != 'Protonym' || entry_item.is_subsequent?
+    content_tag(:span, ' '.html_safe + type_taxon_name_relationship_tag(entry_item.taxon_name.type_taxon_name_relationship), class: 'history__type_information')
   end
 
   protected
