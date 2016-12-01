@@ -1459,21 +1459,24 @@ def generate_collecting_events(user = nil)
   raise 'no user provided or determinable for generate_collecting_events' if user.nil?
 
   # this is an orphaned collection object, which can only be found by direct reference
-  @co_00 = FactoryGirl.create(:valid_collection_object)
+  @td_00 = FactoryGirl.create(:valid_taxon_determination)
+  @co_00 = @td_00.biological_collection_object
 
-  @ce_m1 = FactoryGirl.create(:collecting_event,
-                              start_date_year:   1971,
-                              start_date_month:  1,
-                              start_date_day:    1,
-                              verbatim_locality: 'Lesser Boxia Lake',
-                              verbatim_label:    '@ce_m1',
-                              geographic_area:   @area_m1)
-  @co_m1 = FactoryGirl.create(:valid_collection_object, {collecting_event: @ce_m1})
-  @gr_m1 = FactoryGirl.create(:georeference_verbatim_data,
-                              api_request:           'gr_m1',
-                              collecting_event:      @ce_m1,
-                              error_geographic_item: @item_m1,
-                              geographic_item:       GeographicItem.new(point: @item_m1.st_centroid))
+  @ce_m1                  = FactoryGirl.create(:collecting_event,
+                                               start_date_year:   1971,
+                                               start_date_month:  1,
+                                               start_date_day:    1,
+                                               verbatim_locality: 'Lesser Boxia Lake',
+                                               verbatim_label:    '@ce_m1',
+                                               geographic_area:   @area_m1)
+  @td_m1                  = FactoryGirl.create(:valid_taxon_determination)
+  @co_m1                  = @td_m1.biological_collection_object
+  @co_m1.collecting_event = @ce_m1
+  @gr_m1                  = FactoryGirl.create(:georeference_verbatim_data,
+                                               api_request:           'gr_m1',
+                                               collecting_event:      @ce_m1,
+                                               error_geographic_item: @item_m1,
+                                               geographic_item:       GeographicItem.new(point: @item_m1.st_centroid))
 
   @ce_m1a = FactoryGirl.create(:collecting_event,
                                start_date_year:   1971,
