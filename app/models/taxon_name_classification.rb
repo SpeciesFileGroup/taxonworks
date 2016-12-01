@@ -139,18 +139,19 @@ class TaxonNameClassification < ActiveRecord::Base
   def set_cached_names_for_taxon_names
     begin
       TaxonName.transaction do
-        t = self.taxon_name
-        if self.type_name =~ /Fossil|Hybrid/
+        t = taxon_name
+        if type_name =~ /Fossil|Hybrid/
           t.update_columns(cached: t.get_full_name,
                            cached_html: t.get_full_name_html)
-        elsif TAXON_NAME_CLASS_NAMES_VALID.include?(self.type_name)
+        elsif TAXON_NAME_CLASS_NAMES_VALID.include?(type_name)
           vn = t.get_valid_taxon_name
+          vn.update_column(:cached_valid_taxon_name_id, vn.id)  # update self too!
           vn.list_of_invalid_taxon_names.each do |s|
             s.update_column(:cached_valid_taxon_name_id, vn.id)
           end
         end
       end
-      rescue
+    rescue ActiveRecord::RecordInvalid 
     end
     false
   end

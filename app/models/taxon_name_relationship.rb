@@ -86,15 +86,15 @@ class TaxonNameRelationship < ActiveRecord::Base
   scope :where_subject_is_taxon_name, -> (taxon_name) {where(subject_taxon_name_id: taxon_name)}
   scope :where_object_is_taxon_name, -> (taxon_name) {where(object_taxon_name_id: taxon_name)}
   scope :where_object_in_taxon_names, -> (taxon_name_array) {where('"taxon_name_relationships"."object_taxon_name_id" IN (?)', taxon_name_array)}
-  scope :with_type_string, -> (type_string) {where('"taxon_name_relationships"."type" LIKE ?', "#{type_string}" ) }
-  scope :with_type_base, -> (base_string) {where('"taxon_name_relationships"."type" LIKE ?', "#{base_string}%" ) }
+#  scope :with_type_string, -> (type_string) {where('"taxon_name_relationships"."type" LIKE ?', "#{type_string}" ) }
+
+  scope :with_type_string, -> (type_string) { where(sanitize_sql_array(["taxon_name_relationships.type = '%s'", type_string])) } #   #{?type_string}"where('"taxon_name_relationships"."type" LIKE ?', "#{type_string}" ) }
+
+  scope :with_type_base,     -> (base_string) {where('"taxon_name_relationships"."type" LIKE ?', "#{base_string}%" ) } 
+  scope :with_type_contains, -> (base_string) {where('"taxon_name_relationships"."type" LIKE ?', "%#{base_string}%" ) } 
+
   scope :with_two_type_bases, -> (base_string1, base_string2) {where("taxon_name_relationships.type LIKE '#{base_string1}%' OR taxon_name_relationships.type LIKE '#{base_string2}%'" ) }
   scope :with_type_array, -> (base_array) {where('taxon_name_relationships.type IN (?)', base_array ) }
-  scope :with_type_contains, -> (base_string) {where('"taxon_name_relationships"."type" LIKE ?', "%#{base_string}%" ) }
-
-  # def aliases
-  #   []
-  # end
 
   # @return [Array of TaxonNameClassification]
   #  the inferable TaxonNameClassification(s) added to the subject when this relationship is used
@@ -110,22 +110,26 @@ class TaxonNameRelationship < ActiveRecord::Base
     []
   end
 
-  # @return [Array of 
-  # left side
+  # @return [Array of NomenclatureRank]
+  #   the valid ranks to which the subject name can belong, set in subclasses. (left side)
   def self.valid_subject_ranks
     []
   end
 
-  # right_side
+
+  # @return [Array of NomenclatureRank]
+  #   the valid ranks to which the object name can belong, set in subclasses. (right side)
   def self.valid_object_ranks
     []
   end
 
-  # disjoint relationships for the taxon as a subject
+  # @return [Array of TaxonNameRelationships]
+  #   if this relationships is set for the subject, then others in this array should not be used for that subject
   def self.disjoint_taxon_name_relationships
     []
   end
 
+  # TODO: why isn't this disjoint?
   # disjoint relationships for the taxon as a object
   def self.required_taxon_name_relationships
     []
@@ -151,42 +155,52 @@ class TaxonNameRelationship < ActiveRecord::Base
     false
   end
 
+  # @return [Symbol]
+  #   determine the relative age of subject and object
+  #   :direct - subject is younger than object
+  #   :reverse - object is younger than subject
   def self.nomenclatural_priority
-    nil # :direct - for subject is younger than object; :reverse - for object is younger than subject
+    nil 
   end
 
-  # @return String
+  # @return [String]
   #    the status inferred by the relationship to the object name 
   def object_status
     self.type_name.demodulize.underscore.humanize.downcase
   end
 
-  # @return String
+  # @return [String]
   #    the status inferred by the relationship to the subject name 
   def subject_status
     self.type_name.demodulize.underscore.humanize.downcase
   end
 
-  # @return String
+  # @return [String]
   #    the connecting word in the relationship from the subject name to object name
   def subject_status_connector_to_object
     ' of'
   end
 
-  # @return String
+  # @return [String]
   #    the connecting word in the relationship from the object name to subject name
   def object_status_connector_to_subject
     ' of'
   end
 
+  # @return [String]
+  #   a readable fragement combining status and connector
   def subject_status_tag
     subject_status + subject_status_connector_to_object
   end
 
+  # @return [String]
+  #   a readable fragement combining status and connector
   def object_status_tag
     object_status + object_status_connector_to_subject
   end
 
+  # @return [String, nil]
+  #   the type of this relationship, IF the type is a valid name, else nil
   def type_name
     r = self.type
     TAXON_NAME_RELATIONSHIP_NAMES.include?(r) ? r : nil
@@ -196,9 +210,11 @@ class TaxonNameRelationship < ActiveRecord::Base
     write_attribute(:type, value.to_s)
   end
 
+  # @return [TaxonNameRelationship, String]
+  #    the type as a class, if legal, else a string  ! Strangeish
   def type_class
     r = read_attribute(:type).to_s
-    r = TAXON_NAME_RELATIONSHIP_NAMES.include?(r) ? r.safe_constantize : r
+    TAXON_NAME_RELATIONSHIP_NAMES.include?(r) ? r.safe_constantize : r
   end
 
   # TODO: match on either name
@@ -206,13 +222,14 @@ class TaxonNameRelationship < ActiveRecord::Base
     where(id: params[:term]).with_project_id(params[:project_id])
   end
 
+  # @return [String, nil]
+  #   the NOMEN uri for this type
   def self.nomen_uri
     const_defined?(:NOMEN_URI, false) ? self::NOMEN_URI : nil
   end
 
-  # Used to determine nomenclatural priorities
   # @return [Time]
-  #   effective date of publication.
+  #   effective date of publication, used to determine nomenclatural priorities
   def nomenclature_date
     self.source ? (self.source.cached_nomenclature_date ? self.source.cached_nomenclature_date.to_time : Time.now) : Time.now
   end
@@ -220,7 +237,7 @@ class TaxonNameRelationship < ActiveRecord::Base
   # @todo SourceClassifiedAs is not really Combination in the other sense
   def is_combination?
     !!/TaxonNameRelationship::(OriginalCombination|Combination)/.match(self.type.to_s)
-  end.to_s
+  end
 
   protected
 
@@ -500,7 +517,7 @@ class TaxonNameRelationship < ActiveRecord::Base
         soft_validations.add(:type, 'Please specify if this is a homotypic or heterotypic synonym',
             fix: :sv_fix_specify_synonymy_type, success_message: 'Synonym updated to being homotypic or heterotypic')
       when 'TaxonNameRelationship::Iczn::Invalidating'
-        soft_validations.add(:type, 'Please specify the reason for the name being Invalid') unless self.subject_taxon_name.unavailable?
+        soft_validations.add(:type, 'Please specify the reason for the name being Invalid') unless self.subject_taxon_name.classification_invalid_or_unavailable?
       when 'TaxonNameRelationship::Iczn::Invalidating::Homonym'
         if NomenclaturalRank::Iczn::SpeciesGroup.descendants.collect{|t| t.to_s}.include?(self.subject_taxon_name.rank_string)
           soft_validations.add(:type, 'Please specify if this is a primary or secondary homonym',

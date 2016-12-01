@@ -147,7 +147,7 @@ class Protonym < TaxonName
   # @return [Array of Strings]
   #   genera where the species was placed
   def all_generic_placements
-    valid_name = self.get_valid_taxon_name
+    valid_name = get_valid_taxon_name
     return nil unless valid_name.rank_string !=~/Species/
     descendants_and_self = valid_name.descendants + [self] + self.combinations
     relationships        = TaxonNameRelationship.where_object_in_taxon_names(descendants_and_self).with_two_type_bases('TaxonNameRelationship::OriginalCombination::OriginalGenus', 'TaxonNameRelationship::Combination::Genus')
@@ -765,7 +765,7 @@ class Protonym < TaxonName
 
   def sv_potential_homonyms
     if self.parent
-      unless self.unavailable? || !Protonym.with_taxon_name_relationships_as_subject.with_homonym_or_suppressed.empty? #  self.unavailable_or_invalid?
+      unless classification_invalid_or_unavailable? || !Protonym.with_taxon_name_relationships_as_subject.with_homonym_or_suppressed.empty? #  self.unavailable_or_invalid?
         if self.id == self.lowest_rank_coordinated_taxon.id
           rank_base = self.rank_class.parent.to_s
           name1 = self.cached_primary_homonym ? self.cached_primary_homonym : nil
