@@ -21,6 +21,7 @@ describe 'tasks/gis/collection_objects/area_and_date', type: :feature, group: [:
         generate_political_areas_with_collecting_events(@user_id, @project_id)
       }
       let!(:gnlm) { GeographicArea.where(name: 'Great Northern Land Mass').first }
+      let!(:otum1) { Otu.where(name: 'Find me').first }
       # let(:json_string) { eval('{"type"=>"Feature", "geometry"=>{"type"=>"MultiPolygon", "coordinates"=>[[[[33, 28, 0], [37, 28, 0], [37, 26, 0], [33, 26, 0], [33, 28, 0]]]]}, "properties"=>{"geographic_item"=>{"id"=>23}}}').to_json }
       let(:json_string) { '{"type":"Feature", "geometry":{"type":"Polygon", "coordinates":[[[33, 28, 0], [37, 28, 0], [37, 26, 0], [33, 26, 0], [33, 28, 0]]]}}' }
 
@@ -80,6 +81,18 @@ describe 'tasks/gis/collection_objects/area_and_date', type: :feature, group: [:
         end
       end
 
+      describe '#set_otu', js: true do
+        it 'renders count of collection objects based on a selected otu' do
+          visit(index_area_and_date_task_path)
+          # c_wait = Capybara.default_max_wait_time
+          # Capybara.default_max_wait_time = 60
+          fill_autocomplete('otu_id_for_by_otu', with: 'Find me', select: otum1.id)
+          find('#set_otu').click
+          expect(find('#otu_count')).to have_content('1')
+          # Capybara.default_max_wait_time = c_wait
+        end
+      end
+
       describe '#find', js: true do
         drawn_area_shape = '{"type":"Feature", "geometry":{"type":"Polygon", "coordinates":[[[33, 28, 0], [34, 28, 0], [34, 24, 0], [33, 24, 0], [33, 28, 0]]]}}'
         it 'renders count of objects and table found using a drawn area and date range' do
@@ -95,7 +108,6 @@ describe 'tasks/gis/collection_objects/area_and_date', type: :feature, group: [:
           expect(find('#result_span')).to have_text('Total: 3')
           expect(find(:xpath, "//div['show_list']/table[@class='tablesorter']/thead")).to have_text('Catalog Number')
         end
-
       end
     end
   end
