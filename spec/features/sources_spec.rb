@@ -153,17 +153,22 @@ describe 'Sources', type: :feature, group: :sources do
       expect(find_field('Journal').value).to eq('Journal of Test Articles')
       expect(find_field('Year').value).to eq('1700')
       expect(page.has_field?('Verbatim contents')).to be_truthy
-      expect(page.has_field?('source_verbatim')).to be_falsey
+
+      expect(page).to have_selector('#source_verbatim', visible: false)
+
       fill_in('Author', with: 'Wombat, H.P.') # change Author to 'Wombat, H.P.'
       fill_in('Year', with: '1920') # change Year to '1920'
       click_button('Update Bibtex')
       expect(page).to have_content("Source was successfully updated.")
       expect(page).to have_content('Wombat, H.P. (1920) I am a soft valid article. Journal of Test Articles.')
     end
+    
     specify 'I can find my verbatim source and it has an edit link & I can edit the source', js: true do
       @src_verbatim = factory_girl_create_for_user(:valid_source_verbatim, @user)
       tmp           = @src_verbatim.verbatim
+      
       fill_autocomplete('source_id_for_quick_search_form', with: @src_verbatim.cached, select: @src_verbatim.id)
+     
       click_button('Show')
       expect(page).to have_content(@src_verbatim.cached)
       expect(page).to have_link('Edit')
@@ -172,12 +177,15 @@ describe 'Sources', type: :feature, group: :sources do
       # disabled on edit, so this finder isn't working
       # expect(page.has_checked_field?('source_type_sourceverbatim')).to be_truthy
 
-      expect(page.find_field('Verbatim').value).to eq(tmp)
-      expect(page.has_field?('Author')).to be_falsey
-      expect(page.has_field?('Journal')).to be_falsey
-      expect(page.has_field?('Year')).to be_falsey
-      expect(page.has_field?('Verbatim contents')).to be_falsey
-      expect(page.has_field?('source_verbatim')).to be_truthy
+      expect(find_field('Verbatim').value).to eq(tmp)
+
+#      expect(page.has_field?('Author')).to be_falsey
+
+      expect(page).to have_selector('#source_author', visible: false)
+      expect(page).to have_selector('#source_journal', visible: false)
+      expect(page).to have_selector('#source_year', visible: false)
+      expect(page).to have_selector('#source_verbatim_contents', visible: false)
+      expect(page).to have_selector('#source_verbatim', visible: true)
 
       fill_in('Verbatim', with: 'New Verbatim source')
       click_button('Update Verbatim')
