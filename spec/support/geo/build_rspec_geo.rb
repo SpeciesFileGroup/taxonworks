@@ -1474,6 +1474,7 @@ def generate_collecting_events(user = nil)
   @td_m1.otu.name = 'Find me'
   @td_m1.otu.save
   @co_m1.collecting_event = @ce_m1
+  @co_m1.save
   @gr_m1                  = FactoryGirl.create(:georeference_verbatim_data,
                                                api_request:           'gr_m1',
                                                collecting_event:      @ce_m1,
