@@ -5,10 +5,13 @@ class Tasks::Bibliography::VerbatimReferenceController <ApplicationController
   def new
   end
 
-  # POST
-  # gets the citation from user and passes it to preview
   def preview 
-    @source = Source.new_from_citation(citation: params[:citation])
+    if citation_param.blank?
+      flash[:notice] = 'Provide a citation.' 
+      render :new and return 
+    else
+      @source = Source.new_from_citation(citation: citation_param)
+    end
   end
 
   def create_verbatim
@@ -20,7 +23,6 @@ class Tasks::Bibliography::VerbatimReferenceController <ApplicationController
       flash[:notice] = "Failed to create verbatim source. #{@source.errors.full_messages}."
       render :new 
     end
-
   end
 
   def create_bibtex
@@ -44,6 +46,14 @@ class Tasks::Bibliography::VerbatimReferenceController <ApplicationController
   end
 
   protected
+
+  def citation_param
+    begin
+      params.require(:citation) 
+    rescue ActionController::ParameterMissing 
+      nil      
+    end
+  end
 
   def source_params
     params['source'].merge!(project_sources_attributes: [{project_id: sessions_current_project_id.to_s}])
