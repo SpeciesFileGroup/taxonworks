@@ -22,7 +22,7 @@ class Source::Verbatim < Source
 
   def generate_bibtex
     return false if self.verbatim.blank?
-    result = Source.new_from_citation(citation: self.verbatim)
+    result = Source.new_from_citation(citation: verbatim)
     if result.type == 'Source::Bibtex'
       result
     else
