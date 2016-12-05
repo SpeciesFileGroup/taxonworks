@@ -1,6 +1,11 @@
 source 'https://rubygems.org'
+# only solutions for osx:
 # rvm osx-ssl-certs update all
 # https://rvm.io/support/fixing-broken-ssl-certificates
+#
+# if above doesn't work, try:
+  # brew update # then
+  # brew upgrade openssl
 
 ruby '2.3.1'
 

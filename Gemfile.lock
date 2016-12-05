@@ -204,7 +204,7 @@ GEM
     mime-types-data (3.2016.0521)
     mimemagic (0.3.0)
     mini_portile2 (2.1.0)
-    minitest (5.10.0)
+    minitest (5.10.1)
     modularity (2.0.1)
     multi_json (1.12.1)
     namae (0.11.3)
@@ -229,7 +229,7 @@ GEM
     parallel (1.10.0)
     parallel_tests (2.5.0)
       parallel
-    parser (2.3.3.0)
+    parser (2.3.3.1)
       ast (~> 2.2)
     parsley-store (0.3.6)
       biodiversity (~> 3.1)
