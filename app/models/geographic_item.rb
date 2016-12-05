@@ -949,7 +949,18 @@ class GeographicItem < ActiveRecord::Base
   #     returning country, state, and county categories
   def inferred_geographic_name_hierarchy
     v = {}
-    (containing_geographic_areas + geographic_areas.limit(1)).each do |a|
+    # !! Ordering by name is arbitrary, and likely to cause downstream problems, but might solve non-deterministic merge issue.
+    # !! The real solution here is to add a sort to prioritize by gazeteer.
+    # !! This ordering basically means that if two areas with country (for example) level are found, the first in the alphabet is selected, then sorting by id if equally named
+    (containing_geographic_areas
+      .joins(:geographic_areas_geographic_items)
+      .merge(GeographicAreasGeographicItem.ordered_by_data_origin)
+      .order('geographic_areas.name') + 
+    geographic_areas
+      .joins(:geographic_areas_geographic_items)
+      .merge(GeographicAreasGeographicItem
+      .ordered_by_data_origin)
+      .order('geographic_areas.name').limit(1)).each do |a| 
       v.merge!(a.categorize)
     end
     v
