@@ -79,7 +79,7 @@ module TaxonNames::CatalogHelper
   #   any Notes on the citation in question 
   def history_citation_notes(citation)
     return nil if citation.nil? || !citation.notes.any?
-    content_tag(:span, citation.notes.collect{|n| n.text}.join, class: 'history__citation_notes') 
+    content_tag(:span, citation.notes.collect{|n| note_tag(n)}.join.html_safe, class: 'history__citation_notes') 
   end
 
   # @return [String, nil]
