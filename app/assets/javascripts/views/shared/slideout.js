@@ -11,10 +11,12 @@ $(document).ready(function() {
 	function closeHideSlideoutPanel(panel) {
 		$(panel).css("left", "");		
 		if($(panel).css('right') == '0px') {
+			$(panel).attr('data-panel-open','false');
 			$(panel).animate({right: "-" + $(panel).css("width")}, 500);
 			$(panel).css('z-index',"1000");
 		}
 		else {
+			$(panel).attr('data-panel-open','true');
 			$(panel).animate({right: "0px"}, 500);
 			$(panel).css('z-index',"1100");
 		}		

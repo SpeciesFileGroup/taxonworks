@@ -1,0 +1,17 @@
+<%= form_tag(by_taxon_name_task_url, id: 'set_taxon_name_form', remote: true) do %>
+    <!--begin model area selector insertion/invocation segment-->
+    <%#= render(partial: 'shared/data/gis/area_selector',
+               locals: {passed_in_tag_id:    'geographic_area_id_for_by_area',
+                        drawing_modes:       'active: polygon, circle',
+                        selection_object:    'CollectionObject',
+                        shown_georeferences: @geographic_areas}) %>
+    <!--end model insertion/invocation segment-->
+    <%= render(:partial => 'workbench/elements/forms/ajax_select',
+               :locals  => {:controller => '/taxon_names',
+                            :object     => '',
+                            :method     => 'taxon_name_id',
+                            :tag_id     => 'taxon_name_id_for_by_taxon_name',
+                            :size       => 20,
+                            :display    => ''}) %><br>
+    <%= submit_tag('Set otu', id: 'set_taxon_name') %>
+<% end %>

@@ -1,4 +1,6 @@
-# A taxonomic name (nomenclature only). 
+# A taxonomic name (nomenclature only). See also NOMEN.
+#
+# There are 3 subclasses, Protonym, Combination, and Hybrid.  
 #
 # @!attribute name
 #   @return [String, nil]
@@ -319,7 +321,9 @@ class TaxonName < ActiveRecord::Base
   #   effective date of publication.
   def nomenclature_date
     return nil if self.id.nil?
-    family_before_1961 = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_string('TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961').first
+     family_before_1961 = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_string('TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961').first
+
+    # family_before_1961 = taxon_name_relationships.with_type_string('TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961').first
     if family_before_1961.nil?
       year = self.year_of_publication ? Time.utc(self.year_of_publication, 12, 31) : nil
       self.source ? (self.source.cached_nomenclature_date ? self.source.cached_nomenclature_date.to_time : year) : year
@@ -388,16 +392,21 @@ class TaxonName < ActiveRecord::Base
     (statuses_from_classifications + statuses_from_relationships).uniq.sort
   end
 
+  # @return [Array of Protonym]
+  #   all of the names this name has been in in combinations
   def combination_list_all
-    list = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_base('TaxonNameRelationship::Combination')
-    return [] if list.empty?
-    list.collect{|r| r.object_taxon_name}.uniq
+    # list = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_base('TaxonNameRelationship::Combination')
+    taxon_name_relationships.with_type_base('TaxonNameRelationship::Combination').collect{|r| r.object_taxon_name}.uniq
+    # return [] if list.empty?
+    # list.collect{|r| r.object_taxon_name}.uniq
   end
 
+  # @return [Array of Protonym]
+  #   for all names this name has been in combination with, select those names that are of the same rank (!! CONFIRM?)
   def combination_list_self
-    list = combination_list_all
-    return [] if list.empty?
-    list.select{|c| c.protonyms_by_rank[c.protonyms_by_rank.keys.last] == self}
+    # list = 
+    # return [] if list.empty?
+    combination_list_all.select{|c| c.protonyms_by_rank[c.protonyms_by_rank.keys.last] == self}
   end
 
   # @return [String]
@@ -406,72 +415,92 @@ class TaxonName < ActiveRecord::Base
     (self.cached_html.to_s + ' ' + self.cached_author_year.to_s).squish!
   end
   
-  # @return [TaxonName | nil] an ancestor at the specified rank
+  # @return [TaxonName, nil] an ancestor at the specified rank
   def ancestor_at_rank(rank)
-    TaxonName.ancestors_of(self).with_rank_class(Ranks.lookup(self.rank_class.nomenclatural_code, rank)).first
+    #  TaxonName.ancestors_of(self).with_rank_class(Ranks.lookup(self.rank_class.nomenclatural_code, rank)).first
+    ancestors.with_rank_class(Ranks.lookup(self.rank_class.nomenclatural_code, rank)).first
   end
 
   # @return [Array of TaxonName] ancestors of type 'Protonym'
   def ancestor_protonyms
-    TaxonName.where(type: 'Protonym').ancestors_of(self)
+    #  TaxonName.where(type: 'Protonym').ancestors_of(self)
+    ancestors.where(type: 'Protonym')
   end
 
-# @return [Array of TaxonName] descendants of type 'Protonym'
+  # @return [Array of TaxonName] descendants of type 'Protonym'
   def descendant_protonyms
-    TaxonName.descendants_of(self).where(type: 'Protonym')
+    #  TaxonName.descendants_of(self).where(type: 'Protonym')
+    descendants.where(type: 'Protonym')
+  end
+
+  # @return [Boolean]
+  #   after all inference on the validity of a name, the result is stored
+  #   in cached_valid_taxon_name_id, #is_valid checks that result
+  def is_valid?
+    id == cached_valid_taxon_name_id
+  end
+
+  # @return [Boolean]
+  #   true if there is a relationship where then name is asserted to be invalid 
+  def relationship_invalid?
+    !first_possible_valid_taxon_name_relationship.nil? 
+  end
+
+  # @return [Boolean]
+  #  true if this name has any classification asserting that it is valid
+  def classification_valid?
+    taxon_name_classifications.with_type_array(TAXON_NAME_CLASS_NAMES_VALID).any? # !TaxonNameClassification.where_taxon_name(self).with_type_array(TAXON_NAME_CLASS_NAMES_VALID).empty?
+  end
+
+  # @return [Boolean]
+  #  whether this name has any classification asserting that this the name is NOT valid or that it is unavailable
+  def classification_invalid_or_unavailable?
+    taxon_name_classifications.with_type_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).any? # !TaxonNameClassification.where_taxon_name(self).with_type_array(TAXON_NAME_CLASS_NAMES_VALID).empty?
   end
 
   #  @return [Boolean] 
   #     return true if name is unavailable OR invalid, else false, checks both classifications and relationships
   def unavailable_or_invalid?
-    if !TaxonNameClassification.where_taxon_name(self).with_type_array(TAXON_NAME_CLASS_NAMES_VALID).empty?
-      false
-    elsif !first_possible_valid_taxon_name_relationship.nil? || !TaxonNameClassification.where_taxon_name(self).with_type_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).empty?
-      true
-    else
-      false
-    end
+    return false if classification_valid?
+    classification_invalid_or_unavailable? || relationship_invalid?
   end
 
   # @return [True|False]
-  def unavailable?
-    if !TaxonNameClassification.where_taxon_name(self).with_type_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).empty?
-      true
-    else
-      false
-    end
-  end
-
-  # @return [True|False]
+  #   true if this name has a TaxonNameClassification of Fossil
   def fossil?
-     !TaxonNameClassification.where_taxon_name(self).with_type_contains('Fossil').empty? ? true : false
+    # !TaxonNameClassification.where_taxon_name(self).with_type_contains('Fossil').empty? ? true : false
+    taxon_name_classifications.with_type_contains('Fossil').any?
   end
 
+  # @return [True|False]
+  #   true if this name has a TaxonNameClassification of hybrid 
   def hybrid?
-    !TaxonNameClassification.where_taxon_name(self).with_type_contains('Hybrid').empty? ? true : false
+    taxon_name_classifications.where_taxon_name(self).with_type_contains('Hybrid').any?
+    #   !TaxonNameClassification.where_taxon_name(self).with_type_contains('Hybrid').empty? ? true : false
   end
 
   # @return [TaxonName]
-  #   a valid taxon_name for an invalid name or self for valid name.
+  #  a valid taxon_name for an invalid name or self for valid name.
+  #  a stub here - See Protonym and Combination
   def get_valid_taxon_name
-    # see in protonym and combination
     nil
   end
 
   # @return [TaxonNameRelationship]
-  #  returns youngest taxon name relationship where the name is subject.
+  #  returns youngest taxon name relationship where self is the subject.
   def first_possible_valid_taxon_name_relationship
-    self.taxon_name_relationships(true).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID).youngest_by_citation 
+    taxon_name_relationships(true).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_INVALID).youngest_by_citation 
   end
 
   # @return [TaxonName]
-  #  returns SubjectTaxonName form youngest taxon name relationship.
+  #    returns the youngest #object_taxon_name from the youngest taxon name relationship.
   def first_possible_valid_taxon_name
-    relationship = first_possible_valid_taxon_name_relationship
-    relationship.nil? ? self : relationship.object_taxon_name
-  end
+    return self if !unavailable_or_invalid?                      # catches all cases where no Classifications or Relationships are provided
+    relationship = first_possible_valid_taxon_name_relationship  
+    relationship.nil? ? self : relationship.object_taxon_name    # ?! probably the if is caught by unavailable_or_invalid already
+   end
 
-  # @return [TaxonName array]
+  # @return [Array of TaxonName]
   #  returns list of invalid names for a given taxon.
   def list_of_invalid_taxon_names
     first_pass = true
@@ -563,6 +592,7 @@ class TaxonName < ActiveRecord::Base
     else
       n = self.name.squish
     end
+    
     return n
   end
 
@@ -1241,7 +1271,6 @@ class TaxonName < ActiveRecord::Base
   def validate_source_type
     errors.add(:base, 'Source must be a Bibtex') if self.source && self.source.type != 'Source::Bibtex'
   end
-
 
   #TODO: validate that all the ranks in the table could be linked to ranks in classes (if those had changed)
 

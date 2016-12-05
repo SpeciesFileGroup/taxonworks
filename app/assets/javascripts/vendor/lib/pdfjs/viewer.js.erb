@@ -170,7 +170,9 @@ $(document).ready(function() {
     });
 
     $( "input" ).dblclick(function() {
-      $(this).val(textCopy);
+      if($('[data-panel-name="pdfviewer"]').attr('data-panel-open') == 'true') {
+        $(this).val(textCopy);
+      }
     });
 
     $( "textarea" ).dblclick(function() {

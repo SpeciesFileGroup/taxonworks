@@ -10,7 +10,7 @@
         <div id="select_area">
           <h2>Select area</h2>
           <h3><span id="area_count">????</span></h3>
-          <%= render(:partial => 'by_area') %>
+          <%= render(partial: 'by_area') %>
         </div>
         <hr>
         <div id="select_date_range">
@@ -55,6 +55,12 @@
                 </tr>
               </table>
           <% end %>
+        </div>
+        <hr>
+        <div id="select_taxon_name">
+          <h2>Select named taxon</h2>
+          <h3><span id="taxon_count">????</span></h3>
+          <%= render(partial: 'by_taxon_name') %>
         </div>
       </div>
     </div>

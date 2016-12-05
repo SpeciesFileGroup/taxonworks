@@ -32,7 +32,7 @@ describe 'tasks/gis/collection_objects/area_and_date', type: :feature, group: [:
           # expect(JSON.parse(response.body)['html']).to eq('16')
           fill_autocomplete('geographic_area_id_for_by_area', with: 'Great Northern', select: gnlm.id)
           # expect(page).to have_content('Land Mass')
-          click_button('Set')
+          click_button('Set area')
           expect(find('#area_count')).to have_text('16')
         end
 
@@ -44,7 +44,7 @@ describe 'tasks/gis/collection_objects/area_and_date', type: :feature, group: [:
           # this_xpath.set '{"type":"Feature", "geometry":{"type":"Polygon", "coordinates":[[[33, 28, 0], [37, 28, 0], [37, 26, 0], [33, 26, 0], [33, 28, 0]]]}, "properties":{"geographic_item":{"id"=>23}}}'
           this_xpath.set json_string
           # find(:xpath, "//form[@id='set_area_form']/div[@id='map_selector']/div[@id='_drawable_map_outer']/input[@id='drawn_area_shape']").set '{"type"=>"Feature", "geometry"=>{"type"=>"MultiPolygon", "coordinates"=>[[[[33, 28, 0], [37, 28, 0], [37, 26, 0], [33, 26, 0], [33, 28, 0]]]]}, "properties"=>{"geographic_item"=>{"id"=>23}}}'
-          click_button('Set')
+          click_button('Set area')
           expect(find('#area_count')).to have_text('10')
           # xhr(:get, :set_area, {drawn_area_shape: GeographicArea
           #                                           .where(name: 'Big Boxia')
@@ -60,8 +60,8 @@ describe 'tasks/gis/collection_objects/area_and_date', type: :feature, group: [:
       describe '#set_date', js: true do
         it 'renders count of collection objects based on the start and end dates' do
           visit(index_area_and_date_task_path)
-          # c_wait = Capybara.default_max_wait_time
-          # Capybara.default_max_wait_time = 60
+          c_wait = Capybara.default_max_wait_time
+          Capybara.default_max_wait_time = 60
           execute_script("document.getElementById('search_start_date').value = '1971/01/01'")
           execute_script("document.getElementById('search_end_date').value = '1980/12/31'")
           find('#search_start_date').set('1971/01/01')
@@ -76,7 +76,7 @@ describe 'tasks/gis/collection_objects/area_and_date', type: :feature, group: [:
           # find_search_start_date.set '1971/01/01'
           # find('#search_start_date').click
           expect(find('#date_count')).to have_content('10')
-          # Capybara.default_max_wait_time = c_wait
+          Capybara.default_max_wait_time = c_wait
         end
       end
 

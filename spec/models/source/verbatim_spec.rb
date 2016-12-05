@@ -3,7 +3,7 @@ require 'rails_helper'
 describe Source::Verbatim, :type => :model do
 
   let(:verbatim_source) { Source::Verbatim.new }
-  let(:citation) { 'Smith, J. 1860. A steam-driven engine for computing species richness. Biopunk II, p. 1-20.' }
+  let(:citation) { '111111111111111111111111111111' }
 
   context 'validation' do
     before { verbatim_source.valid? }
@@ -13,7 +13,7 @@ describe Source::Verbatim, :type => :model do
     end
 
     specify 'only #verbatim can be provided (ignores cached)' do
-      verbatim_source.title = "Gears and Widgets in Biomachine"
+      verbatim_source.title = "A cold-fusion driven engine for computing."
       verbatim_source.valid?
       expect(verbatim_source.errors.include?(:title)).to be_truthy
     end 

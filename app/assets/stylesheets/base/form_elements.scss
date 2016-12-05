@@ -8,18 +8,17 @@ input[type=checkbox].increment { display: none; }
 .icon-checkbox {
   display: inline-block;
   cursor: pointer;
-  width: 25px;
-  height:25px;
-  max-width: 25px;
-  max-height:25px;
+  width: 26px;
+  height:26px;
+  max-width: 26px;
+  max-height:26px;
   background-size: 12px;
   background-position: center;
   background-repeat: no-repeat;
   border-radius: 3px;
   transition: background-color 0.5s ease;
   border: 1px solid $navigation_border;
-  background-color: $color-secondary-2-1;
-  box-shadow: 0px 0px 2px 0px $navigation_border;     
+  background-color: $color-secondary-2-1;    
 }
 
 .increment {
@@ -34,14 +33,28 @@ input[type=checkbox].increment { display: none; }
 
 input[type=checkbox]:checked + label.lock {
  background-image:image-url('locked.svg');
- box-shadow:inset 0px 1px 5px 0px $navigation_border;
+ box-shadow:inset 0px 1px 3px 0px $navigation_border;
  background-color: $navigation_background;
 }
 
 input[type=checkbox]:checked + label.increment {
  background-image:image-url('inc.svg');
- box-shadow:inset 0px 1px 5px 0px $navigation_border;
+ box-shadow:inset 0px 1px 3px 0px $navigation_border;
  background-color: $navigation_background;
+}
+
+.input-checkbox-field {
+  //position: relative;
+  input, select {
+    border-bottom-right-radius: 0px;
+    border-top-right-radius: 0px;
+  }
+  label {
+    border-left: 0px;
+    border-bottom-left-radius: 0px;
+    border-top-left-radius: 0px;
+    margin-left: 0px !important;
+  }
 }
 
 .mx-autocomplete {

@@ -78,6 +78,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
       specify 'responses to source' do
         expect(taxon_name).to respond_to(:source)
       end
+
       specify 'responses to valid_taxon_name' do
         s = FactoryGirl.create(:iczn_species, name: 'afafa', parent: @genus, valid_taxon_name: @species)
         expect(s.valid_taxon_name).to eq(s)
@@ -544,6 +545,98 @@ describe TaxonName, type: :model, group: [:nomenclature] do
           end
 
           context 'valid_taxon_name' do
+            context 'validity with/out classifications' do
+              let!(:valid_genus) { Protonym.create(name: 'Aus', rank_class: Ranks.lookup(:iczn, :genus), parent: @family) } 
+              let!(:other_genus) { Protonym.create(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: @family) } 
+
+              before { 
+                TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(subject_taxon_name: valid_genus, object_taxon_name: other_genus) 
+              }
+
+              context 'without valid classification' do
+                specify '#relationship_invalid?' do
+                  expect(valid_genus.relationship_invalid?).to be_truthy
+                end
+
+                specify '#classification_invalid_or_unavailable?' do
+                  expect(valid_genus.classification_invalid_or_unavailable?).to be_falsey
+                end
+
+                specify '#classification_valid?' do
+                  expect(valid_genus.classification_valid?).to be_falsey
+                end
+
+                specify '#unavailable_or_invalid?' do
+                  expect(valid_genus.unavailable_or_invalid?).to be_truthy
+                end
+
+                # ONLY #reload when you expect after_save to be examined (in our case cached value checks)
+                context 'values set after_save' do
+                  before {
+                    valid_genus.reload
+                    other_genus.reload
+                  }
+                  
+                  specify '#is_valid?' do
+                    expect(valid_genus.is_valid?).to be_falsey
+                  end
+
+                  specify 'valid name is other' do
+                    expect(valid_genus.valid_taxon_name).to eq(other_genus)
+                  end
+                end
+              end
+
+              context 'with valid classification' do
+                before {
+                  TaxonNameClassification::Iczn::Available::Valid.create!(taxon_name: valid_genus) 
+                }
+           
+                specify '#relationship_invalid?' do
+                  expect(valid_genus.relationship_invalid?).to be_truthy
+                end
+
+                specify '#classification_invalid_or_unavailable?' do
+                  expect(valid_genus.classification_invalid_or_unavailable?).to be_falsey
+                end
+
+                specify '#classification_valid?' do
+                  expect(valid_genus.classification_valid?).to be_truthy
+                end
+
+                specify '#unavailable_or_invalid?' do
+                  expect(valid_genus.unavailable_or_invalid?).to be_falsey
+                end
+
+                context 'values set after_save' do
+                  before {
+                    valid_genus.reload
+                    other_genus.reload
+                  }
+
+                  specify '#is_valid?' do
+                    expect(valid_genus.is_valid?).to be_truthy
+                  end
+
+                  specify 'valid name is self' do
+                    expect(valid_genus.valid_taxon_name).to eq(valid_genus)
+                  end
+
+                  # specify '#is_valid? after save' do
+                  #   a = FactoryGirl.create(:valid_protonym, name: 'Qus', rank_class: Ranks.lookup(:iczn, :genus), parent: @family)  
+                  #   b = FactoryGirl.create(:valid_protonym, name: 'Rus', rank_class: Ranks.lookup(:iczn, :genus), parent: @family)  
+                  #   TaxonNameRelationship::Iczn::Invalidating::Synonym.create(subject_taxon_name: a, object_taxon_name: b) 
+                  #   TaxonNameClassification::Iczn::Available::Valid.create!(taxon_name: a) 
+                  #   a.reload
+                  #   b.reload
+
+                  #   expect(a.is_valid?).to be_truthy
+                  # end
+
+                end
+              end
+            end
+
             specify 'get_valid_taxon_name' do
               g1 = FactoryGirl.create(:relationship_genus, name: 'Cus', parent: @family)
               g2 = FactoryGirl.create(:relationship_genus, name: 'Cus', parent: @family)

@@ -27,9 +27,28 @@ class TaxonNameRelationship::Combination < TaxonNameRelationship
     :reverse
   end
 
+  # @return String
+  #    the status inferred by the relationship to the object name 
+  def object_status
+    self.type_name.demodulize.underscore.humanize.downcase + ' in combination'
+  end
+
+  # @return String
+  #    the status inferred by the relationship to the subject name 
+  def subject_status
+    ' as ' +  self.type_name.demodulize.underscore.humanize.downcase + ' in combination'
+  end
+
+  def subject_status_connector_to_object
+    ''
+  end
+
+
   def object_status_connector_to_subject
     ' with'
   end
+
+
 
 
 end

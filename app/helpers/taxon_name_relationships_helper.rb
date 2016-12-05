@@ -18,26 +18,20 @@ module TaxonNameRelationshipsHelper
   def taxon_name_relationship_for_subject_tag(taxon_name_relationship)
     return nil if taxon_name_relationship.nil?
     [
-      content_tag(:span, taxon_name_relationship.object_status , class: :string_emphasis),
-      taxon_name_link(taxon_name_relationship.object_taxon_name),
+      content_tag(:span, taxon_name_relationship.subject_status_tag , class: :string_emphasis),
+      original_taxon_name_link(taxon_name_relationship.object_taxon_name),
       taxon_name_relationship.object_taxon_name.cached_author_year
     ].join(' ').html_safe  
-
-
   end
 
   # @return [String]
   #  relationship_type + object
   def taxon_name_relationship_for_object_tag(taxon_name_relationship)
     [
-      content_tag(:span, taxon_name_relationship.subject_status.to_s + taxon_name_relationship.subject_status_connector_to_object.to_s, class: :string_emphasis),
-      taxon_name_link(taxon_name_relationship.subject_taxon_name),
+      content_tag(:span, taxon_name_relationship.object_status_tag, class: :string_emphasis),
+      original_taxon_name_link(taxon_name_relationship.subject_taxon_name),
       taxon_name_relationship.subject_taxon_name.cached_author_year
     ].join(' ').html_safe  
-
-
-
-
   end
 
 

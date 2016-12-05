@@ -6,6 +6,8 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
     @geographic_areas         = GeographicArea.where('false')
     @collection_objects       = CollectionObject.where('false')
     @collection_objects_count = 0
+    # TODO: Convert to dates from collecting events JDT
+    # select distinct collecting_events.Start_date_year from collection_objects inner join collecting_events on collecting_event_id = collecting_events.id order by Start_date_year limit 100
     @early_date               = CollectionObject.where(project: sessions_current_project_id).order(:created_at).limit(1).pluck(:created_at).first
     if @early_date.blank?
       @early_date = Date.parse('1700/01/01')
@@ -26,14 +28,17 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
     @shape_in           = params[:drawn_area_shape]
     set_and_order_dates(params)
 
-    if @shape_in.blank? and @geographic_area_id.blank? # missing "? " was fixed
-      area_object_ids = CollectionObject.where('false')
+    area_set        = (@shape_in.blank? and @geographic_area_id.blank?) ? false : true
+
+    if area_set
+      area_object_ids = GeographicItem.gather_selected_data(@geographic_area_id,
+                                                            @shape_in,
+                                                            'CollectionObject').pluck(:id)
     else
-      area_object_ids = GeographicItem.gather_selected_data(@geographic_area_id, @shape_in, 'CollectionObject').map(&:id)
-      area_set = true
+      area_object_ids = []
     end
 
-    if (@start_date.blank? || @end_date.blank?) #|| area_object_ids.count == 0
+    if @start_date.blank? || @end_date.blank? #|| area_object_ids.count == 0
       @collection_objects = CollectionObject.where('false')
     else
       collecting_event_ids = CollectingEvent.in_date_range(date_range_params).pluck(:id)
@@ -74,16 +79,13 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
     render json: {html: @collection_objects_count.to_s, chart: chart}
   end
 
-  def download_result
-
-  end
-
-  def gather_data
-
-  end
-
-  def within_year
-
+  # GET
+  def set_taxon_name
+    @taxon_name_id            = params[:taxon_name_id]
+    @taxon_name               = TaxonName.find(@taxon_name_id)
+    @collection_objects       = CollectionObject.where('false')
+    @collection_objects_count = @collection_objects.count
+    render json: {html: @collection_objects_count.to_s}
   end
 
   def render_co_select_package(message)

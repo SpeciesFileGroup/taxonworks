@@ -1,10 +1,15 @@
 source 'https://rubygems.org'
+# only solutions for osx:
 # rvm osx-ssl-certs update all
 # https://rvm.io/support/fixing-broken-ssl-certificates
+#
+# if above doesn't work, try:
+  # brew update # then
+  # brew upgrade openssl
 
 ruby '2.3.1'
 
-gem 'rails', '~> 4.2.6'
+gem 'rails', '~> 4.2.7.1'
 gem 'psych', '~> 2.0.16'
 gem 'responders', '~> 2.0'
 
@@ -53,14 +58,14 @@ gem 'best_in_place', '~> 3.1.0'
 # See: https://gorails.com/episodes/upgrade-to-turbolinks-5 for notes 
 # on updating.
 # 
-gem 'turbolinks', '~> 2.5'
+gem 'turbolinks', '~> 2.5.3'
 gem 'jquery-turbolinks', '~> 2.1'
 
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
 gem 'jbuilder', '~> 2.5.0'
 gem 'chronic', '~> 0.10'
 
-gem 'closure_tree', '~> 6.0.0'
+gem 'closure_tree', '~> 6.2.0'
 
 # BibTex handling
 gem 'csl', '~> 1.4.3' # git: 'https://github.com/inkshuk/csl-ruby'
@@ -106,14 +111,16 @@ gem 'exception_notification', '~> 4.2.1'
 gem 'modularity', '~> 2.0.1'
 
 gem 'colorize', '~> 0.8.1'
-gem 'term-ansicolor', '~> 1.3', '>= 1.3.2' # colorize doesn't seem to be working properly, using this instead.
+gem 'term-ansicolor', '~> 1.4.0' # '~> 1.3', '>= 1.3.2' # colorize doesn't seem to be working properly, using this instead.
 
-gem 'chartkick', '~> 2.0.0'
-gem 'groupdate', '~> 3.0.0'
+gem 'chartkick', '~> 2.1.3'
+gem 'groupdate', '~> 3.1.1'
 
 gem 'dropzonejs-rails', '~> 0.7.3'
 
 gem 'awesome_print', '~> 1.7'
+
+gem 'redcarpet', '~> 3.3'
 
 # SFG gems
 gem 'taxonifi', '0.4.0'
@@ -139,7 +146,7 @@ group :development do
   gem 'spring-commands-rspec', '~> 1.0.2'
   gem 'guard-rspec', '~> 4.7', require: false
   gem 'parallel_tests', '~> 2.5.0'
-  gem 'web-console', '~> 3.1.1'
+  gem 'web-console', '~> 3.3.0'
   gem 'rubocop', '~> 0.42.0'
 end
 
@@ -150,9 +157,9 @@ end
 group :test do
   gem 'rspec', '~> 3.4'
   gem 'coveralls', '~> 0.8.13', require: false
-  gem 'capybara', '~> 2.7.1'
+  gem 'capybara', '~> 2.10.2'
   gem 'timecop', '~> 0.8.1'
-  gem 'webmock', '~> 2.0.1'
+  gem 'webmock', '~> 2.1.0'
   gem 'vcr', '~> 3.0.0'
   gem 'database_cleaner', '~> 1.5.3'
 # gem 'simplecov', :require => false

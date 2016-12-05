@@ -34,73 +34,71 @@ namespace :tw do
             get_tw_taxon_name_id[key] = value.to_s
           end
 
-          # set up topics
-
           path = @args[:data_directory] + 'tblCites.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
           count_found = 0
           error_counter = 0
+          no_taxon_counter = 0
+          cite_found_counter = 0
 
           file.each_with_index do |row, i|
             taxon_name_id = get_tw_taxon_name_id[row['TaxonNameID']].to_i
-            next unless TaxonName.where(id: taxon_name_id).any?
+            # next unless TaxonName.where(id: taxon_name_id).any?
 
-            project_id = TaxonName.find(taxon_name_id).project_id.to_i
-            source_id = get_tw_source_id[row['RefID']].to_i
-            logger.info "Working with TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id},
-SF.RefID #{row['RefID']} = TW.source_id #{row['']}, SF.SeqNum #{row['SeqNum']} (count #{count_found += 1}) \n"
-
-            # @todo Original description citation most likely exists already but pages are source pages, not cite pages
-
-            # is origin?
-            # match source_id, cit_type, cit_obj_id
-
-            # if citation = Citation.where(source_id: <>, is_origin: true, ...).first
-            # citation.notes << Note.new(text: row['Note']) unless row['Note'].blank?
-            # citation.update_column(:pages, row['Pages'])
-            #
-            # else
-            #  citation = Citation.new()
-            #
-            #
-            #
-
-            cite_pages = row['CitePages']
-
-            # Basic citation can now be created:
-            citation = Citation.new(
-                source_id: source_id,
-                pages: cite_pages,
-                # is_original:
-                citation_object_type: 'TaxonName',
-                citation_object_id: taxon_name_id,
-
-                ## Note: Add as attribute before save citation
-                notes_attributes: [{text: (row['Note'].blank? ? nil : row['Note']),
-                                    project_id: project_id,
-                                    created_at: row['CreatedOn'],
-                                    updated_at: row['LastUpdate'],
-                                    created_by_id: get_tw_user_id[row['CreatedBy']],
-                                    updated_by_id: get_tw_user_id[row['ModifiedBy']]}],
-
-                # housekeeping for citation
-                project_id: project_id,
-                created_at: row['CreatedOn'],
-                updated_at: row['LastUpdate'],
-                created_by_id: get_tw_user_id[row['CreatedBy']],
-                updated_by_id: get_tw_user_id[row['ModifiedBy']]
-            )
-
-            begin
-              citation.save!
-              logger.info "Citation saved"
-            rescue ActiveRecord::RecordInvalid # citation not valid
-              logger.info "Citation ERROR (#{error_counter += 1}): " + citation.errors.full_messages.join(';')
+            if !TaxonName.where(id: taxon_name_id).exists?
+              logger.warn "SF.TaxonNameID = #{row['TaxonNameID']} was not created in TW (no_taxon_counter = #{no_taxon_counter += 1})"
               next
             end
 
-            ### After citation created
+            project_id = TaxonName.find(taxon_name_id).project_id.to_i
+            source_id = get_tw_source_id[row['RefID']].to_i
+
+            logger.info "Working with TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id},
+SF.RefID #{row['RefID']} = TW.source_id #{row['']}, SF.SeqNum #{row['SeqNum']} (count #{count_found += 1}) \n"
+
+            cite_pages = row['CitePages']
+
+            # Original description citation most likely already exists but pages are source pages, not cite pages
+            if citation = Citation.where(source_id: source_id, citation_object_type: 'TaxonName', citation_object_id: taxon_name_id, is_original: true).first
+              citation.notes << Note.new(text: row['Note'], project_id: project_id) unless row['Note'].blank?  # project_id? ; what is << ?
+              citation.update_column(:pages, cite_pages) # update pages to cite_pages
+              logger.info "Citation found: citation.id = #{citation.id}, taxon_name_id = #{taxon_name_id}, cite_pages = '#{cite_pages}' (cite_found_counter = #{cite_found_counter += 1}"
+
+            else  # create new citation
+              citation = Citation.new(
+                  source_id: source_id,
+                  pages: cite_pages,
+                  is_original: (row['SeqNum'] == '1' ? true : false),
+                  citation_object_type: 'TaxonName',
+                  citation_object_id: taxon_name_id,
+
+                  ## Note: Add as attribute before save citation
+                  notes_attributes: [{text: row['Note'],  # (row['Note'].blank? ? nil :   rejected automatically by notable
+                                      project_id: project_id,
+                                      created_at: row['CreatedOn'],
+                                      updated_at: row['LastUpdate'],
+                                      created_by_id: get_tw_user_id[row['CreatedBy']],
+                                      updated_by_id: get_tw_user_id[row['ModifiedBy']]}],
+
+                  # housekeeping for citation
+                  project_id: project_id,
+                  created_at: row['CreatedOn'],
+                  updated_at: row['LastUpdate'],
+                  created_by_id: get_tw_user_id[row['CreatedBy']],
+                  updated_by_id: get_tw_user_id[row['ModifiedBy']]
+              )
+
+              begin
+                citation.save!
+                logger.info "Citation saved"
+              rescue ActiveRecord::RecordInvalid # citation not valid
+                logger.info "Citation ERROR (#{error_counter += 1}): " + citation.errors.full_messages.join(';')
+                next
+              end
+            end
+
+            ### After citation updated or created
 
             ## Nomenclator: DataAttribute of citation, NomenclatorID > 0
             if row['NomenclatorID'] != '0' # OR could value: be evaluated below based on NomenclatorID?
@@ -123,10 +121,16 @@ SF.RefID #{row['RefID']} = TW.source_id #{row['']}, SF.SeqNum #{row['SeqNum']} (
               end
             end
 
-
-            ## NewNameStatus: As tags to citations, create 16 keywords for each project, set up in case statement
+            ## NewNameStatus: As tags to citations, create 16 keywords for each project, set up in case statement; test for NewNameStatusID > 0
             # Table.where('keywords LIKE ?', '%crescent%').all
             ControlledVocabularyTerm.where('uri LIKE ?', '%/new_name_status/1')
+
+            tag = Tag.new(
+                         keyword_id: ControlledVocabularyTerm.where('uri LIKE ? and id = ?', '%/new_name_status/1', project_id).pluck(:id).first,
+                         tag_object_id: citation.id,
+                         tag_object_type: 'Citation',
+                         project_id: project_id
+            )
 
             ## TypeInfo: As tags to citations, create n keywords for each project, set up in case statement (2364 cases!)
 

@@ -335,19 +335,6 @@ class CollectingEvent < ActiveRecord::Base
     # TODO: use joins(:geographic_items).where(containing scope), simplied to
     def contained_within(geographic_item)
       CollectingEvent.joins(:geographic_items).where(GeographicItem.contained_by_where_sql(geographic_item.id))
-
-      # pieces = GeographicItem.joins(:georeferences).is_contained_by('any', geographic_item)
-      # # pieces = GeographicItem.is_contained_by('any', geographic_item)
-      # pieces
-
-      # ce = []
-      # pieces.each { |o|
-      #   ce.push(o.collecting_events_through_georeferences.to_a)
-      #   ce.push(o.collecting_events_through_georeference_error_geographic_item.to_a)
-      # }
-      # pieces = CollectingEvent.where('id in (?)', ce.flatten.map(&:id).uniq)
-
-      # pieces.excluding(self)
     end
 
     # @param collecting_events [CollectingEvent Scope]
