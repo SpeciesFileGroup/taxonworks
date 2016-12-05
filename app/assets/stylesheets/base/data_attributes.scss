@@ -10,15 +10,15 @@
   }
   .header-title {
       margin: $standard_padding*.5 0;
-      font-weight: 100;
+      font-weight: 600;
       margin-bottom: $standard_padding;
       border-bottom: 1px solid $navigation_border;    
   }
+  
   p {
     margin: 0 0 $standard_padding*0.6 0; 
     padding: 0;
-    font-weight: bold;
-
+    font-weight: 600;
     strong {
       font-weight: 100;
       text-align: center;
@@ -60,7 +60,6 @@
   }
 
   .attribute_set {
-
   }
 }
 

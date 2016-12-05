@@ -5,12 +5,12 @@
 .history_record {
 
   .original_taxon_name {
-    font-weight: normal;
+    font-weight: 400;
   }
 
   .taxon_name_author_year {
     color: gray;
-    font-weight: normal;
+    font-weight: 400;
   }
   .type_information {
     padding-left: 5px;
@@ -42,7 +42,7 @@
   }
 
   .selected {
-    font-weight: bold;
+    font-weight: 700;
     font-size: 13px;
   }
 
