@@ -26,8 +26,7 @@ RSpec.describe DocumentationController, type: :controller do
   # This should return the minimal set of attributes required to create a valid
   # Documentation. As you add validations to Documentation, be sure to
   # adjust the attributes here as well.
-  let(:valid_attributes) { strip_housekeeping_attributes(FactoryGirl.build(:valid_documentation).attributes)
-  }
+  let(:valid_attributes) { strip_housekeeping_attributes(FactoryGirl.build(:valid_documentation).attributes) }
 
   let(:documentation_target) { FactoryGirl.create(:valid_collecting_event) }
   let(:document) { FactoryGirl.create(:valid_document) }
@@ -95,7 +94,7 @@ RSpec.describe DocumentationController, type: :controller do
     end
 
     # TODO: @mjy need to re-define the validation process in the face of accepts_nested_attributes
-    xcontext 'with invalid params' do
+    context 'with invalid params' do
       it 'assigns a newly created but unsaved documentation as @documentation' do
         post :create, {:documentation => {documentation_object_id: 1}}, valid_session
         expect(assigns(:documentation)).to be_a_new(Documentation)
@@ -141,8 +140,7 @@ RSpec.describe DocumentationController, type: :controller do
         expect(assigns(:documentation)).to eq(documentation)
       end
 
-      # TODO: @mjy need to re-define the validation process in the face of accepts_nested_attributes
-      xit 're-renders the \'edit\' template' do
+      it 're-renders the \'edit\' template' do
         documentation = Documentation.create! valid_attributes
         put :update, {:id => documentation.to_param, :documentation => {documentation_object_id: nil}}, valid_session
         expect(response).to render_template('edit')

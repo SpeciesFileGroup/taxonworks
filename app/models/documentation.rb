@@ -28,12 +28,15 @@ class Documentation < ActiveRecord::Base
   include Shared::IsData
   include SoftValidation
 
-  belongs_to :documentation_object, polymorphic: true
-  belongs_to :document
 
   # These are all handled on the database side as not-null constraints
   # They can't be validated because we use accepts_nested_attributes
   # validates_presence_of :documentation_object_type, :documentation_object_id, :document_id
+  # We catch invalid statements with this around: 
+  around_save :catch_statement_invalid
+
+  belongs_to :documentation_object, polymorphic: true
+  belongs_to :document
 
   validates_presence_of :document
 
@@ -42,6 +45,21 @@ class Documentation < ActiveRecord::Base
 
   def self.find_for_autocomplete(params)
     Queries::DocumentationAutocompleteQuery.new(params[:term]).all.where(project_id: params[:project_id])
+  end
+
+  protected 
+
+
+  def catch_statement_invalid
+    begin
+      yield # calls :after_save callback
+    rescue ActiveRecord::StatementInvalid => e
+      if e.original_exception.class.name == 'PG::NotNullViolation'
+        errors.add(:base, 'a required field was not provided')
+      else
+        raise 
+      end
+    end
   end
 
 end
