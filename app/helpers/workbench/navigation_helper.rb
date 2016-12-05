@@ -177,7 +177,7 @@ module Workbench::NavigationHelper
      content_tag(:li, add_tag_link(object: object)),
      content_tag(:li, add_confidence_link(object: object)),
      content_tag(:li, add_protocol_link(object: object))
-    ].compact.join('').html_safe
+    ].compact.join.html_safe
   end
 
   def safe_object_from_attributes(hsh)
