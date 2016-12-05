@@ -12,6 +12,12 @@
 #   nukes geo related tables, only to be used in after(:all)
 def clean_slate_geo # rubocop:disable Metrics/AbcSize
   # Order matters!
+  TaxonDetermination.delete_all
+  ActiveRecord::Base.connection.reset_pk_sequence!('taxon_determinations')
+
+  Otu.delete_all
+  ActiveRecord::Base.connection.reset_pk_sequence!('otus')
+
   Georeference.delete_all
   ActiveRecord::Base.connection.reset_pk_sequence!('georeferences')
 
