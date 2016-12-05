@@ -1,4 +1,4 @@
-# Shared code for...
+# Shared code for objects that have Identifiers.
 #
 module Shared::Identifiable
 

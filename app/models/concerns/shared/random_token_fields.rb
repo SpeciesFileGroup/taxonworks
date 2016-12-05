@@ -1,4 +1,4 @@
-# Shared code for...
+# Shared code for extending classes with random-token fields.
 #
 module Shared::RandomTokenFields
   as_trait do |*fields|

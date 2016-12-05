@@ -1,4 +1,4 @@
-# Shared code for...
+# Shared code for extending data classes with Notes.
 #
 module Shared::Notable
   extend ActiveSupport::Concern

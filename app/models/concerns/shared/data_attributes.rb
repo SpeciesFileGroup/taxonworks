@@ -1,4 +1,4 @@
-# Shared code for...
+# Shared code extending data classes with data-attributes (predicate->value tags).
 #
 module Shared::DataAttributes
   extend ActiveSupport::Concern
