@@ -8,8 +8,11 @@
   width: 100%;
 }
 
+.panel h2, h3, h4, .subtitle {
+ font-weight: 100;
+}
+
 .panel {
-  font-weight: 100;
   border-top-right-radius: 3px;
   border-top-left-radius: 3px;
   display: flex;
@@ -27,20 +30,18 @@
     flex-direction: row;
   }
   h2 { 
-    font-weight: 100;
     border-bottom: 1px solid $navigation_border;    
   }
 
   .subtitle { 
     display: flex;
     justify-content:space-between;
-    font-weight: 100;
     border-bottom: 1px solid $navigation_border;    
   }  
 
   .subheader {
     padding-top: $standard_padding * 0.5;
-    font-weight: 900;
+    font-weight: 700;
     font-size: 16px;
     border:none;
   }  
@@ -132,7 +133,6 @@
     box-shadow: none !important;
     opacity: 0.5 !important;
   }
-  
 }
 
 

@@ -2,17 +2,15 @@
   <div class="flexbox">
     <div class="item item2">
       <div class="panel">
-
         <div class='title action-line'>
           <div class="horizontal-left-content">
             <span>Filter</span>            
-
           </div>
-          <div class="small-icon reset" data-filter-category="reset" data-icon="reset">
+          <div class="small-icon reset" data-filter-category="reset" data-icon="reset" data-help="Remove filters, show everything.">
             Reset
           </div>  
         </div> 
-        <div class="filter-status">
+        <div class="filter-status" data-help="Show only those features whose interfaces and functionality are at a certain level of completion. Red: expect major change; Yellow: functionality is more or less stable, form may change; Green: form and functionality are stable.">
           <label class="switch">
             <input type="checkbox" data-switch="false">
             <div class="slider"></div>
@@ -25,8 +23,8 @@
             <div class="status complete" data-filter-category="complete"></div>
           </div>
         </div>        
-        <form class="navigation-item">
-          <input type="text" placeholder="Search" class="item" id="search-filter" autofocus="true">
+        <form class="navigation-item" data-help="Choose only those options that contain the provided text in the title or description.">
+            <input type="text" placeholder="Filter by text" class="item" id="search-filter" autofocus="true" >
         </form>
         <div class="navigation-controls">
         	<% UserTasks::CATEGORIES.each do |c| -%>

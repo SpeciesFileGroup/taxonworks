@@ -62,8 +62,10 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
             Georeference::VerbatimData.create!(collecting_event: collecting_event)
           end
 
-          specify 'country, state, county are cached on creation of georefernce' do
-            expect(collecting_event.cached_geographic_name_classification).to eq( {:country=>"West Boxia", :state=>"QT", :county=>"M1"} )
+          specify 'country, state, county are cached on creation of georeference' do
+            # expect(collecting_event.cached_geographic_name_classification).to eq( {:country=>"West Boxia", :state=>"QT", :county=>"M1"} )
+            expect(collecting_event.cached_geographic_name_classification).to eq( {:country=>"West Boxia", :state=>"West Boxia", :county=>"QTM2"} )
+            
           end
         end
 

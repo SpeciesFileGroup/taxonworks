@@ -1,10 +1,12 @@
 =begin
+Shared code for extending data classes with an OriginRelationship
+
   Instructions on how to use this concern:
     1) Include this concern in the table that can have origin relationship target tables
     2) Call "is_origin_for" with valid target tables
       ex is_origin_for :collection_objects, collecting_events etc
-=end
 
+=end
 module Shared::OriginRelationship
   extend ActiveSupport::Concern
 

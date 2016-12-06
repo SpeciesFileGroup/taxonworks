@@ -86,7 +86,7 @@ describe 'Otus', type: :feature do
 
         it 'Returns a response including an arrry of ids for a related taxon_name plus author/year' do
           text = otu2.taxon_name.cached + ' ' + otu2.taxon_name.cached_author_year
-          text.gsub!(' ', '%20')
+          text = URI.escape(text)
           visit "/api/v1/otus/by_name/#{text}?project_id=#{otu2.project.id}&token=#{@user.api_access_token}"
           expect(JSON.parse(page.body)['result']['otu_ids']).to eq([otu2.id])
         end

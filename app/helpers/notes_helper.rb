@@ -34,9 +34,12 @@ module NotesHelper
     destroy_object_link(note)
   end
 
-  def note_tag(note)
+ def note_tag(note)
     return nil if note.nil?
-    note.text
+
+    # Note that markdown standard includes a p.  It is upto the style class
+    # to remove/hide this class, do NOT replace it here or post-process it (for the time being).
+    MARKDOWN_HTML.render(note.text)
   end
 
   def note_link(note)

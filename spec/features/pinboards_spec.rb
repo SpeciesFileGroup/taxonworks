@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe "Pinboards", type: :feature do
 
-  context 'signed in witha project selected' do
+  context 'signed in with a project selected' do
     before {sign_in_user_and_select_project}
     context 'pinning items' do
       let!(:o) { Otu.create(name: 'Pinny', by: @user, project: @project) }
@@ -26,7 +26,7 @@ RSpec.describe "Pinboards", type: :feature do
           specify 'and link is gone (should be changed to "Unpin"!)' do
             expect(page.has_link?('Pin')).to be_falsey
           end
-                   
+
         end
       end
     end

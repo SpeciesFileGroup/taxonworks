@@ -3,20 +3,20 @@ module Features
   module AuthenticationHelpers
 
   # Likely not used anywhere anymore
-    def sign_up_with(email, password, password_confirmation)
-      visit signup_path
-      fill_in 'session_email', with: email
-      fill_in 'session_password', with: password
-      fill_in 'Password confirmation', with: password_confirmation
-      click_button 'Create account'
-    end
+  # def sign_up_with(email, password, password_confirmation)
+  #   visit signup_path
+  #   fill_in 'session_email', with: email
+  #   fill_in 'session_password', with: password
+  #   fill_in 'Password confirmation', with: password_confirmation
+  #   click_button 'Create account'
+  # end
 
     def sign_in_with(email, password)
       visit signin_path
       fill_in 'session_email', with: email
       fill_in 'session_password', with: password
-      click_button 'Sign in'
-      find_link('Sign out')  # TODO: check for Capybara bug fix down the road?
+      click_button 'sign_in'
+      find_link('sign_out')  # TODO: check for Capybara bug fix down the road?
     end
 
     def select_a_project(project)
