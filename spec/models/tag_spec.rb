@@ -2,7 +2,9 @@ require 'rails_helper'
 
 describe Tag, type: :model, group: :annotators do
 
-  let(:tag) {FactoryGirl.build(:tag)}
+  let(:tag) { Tag.new }
+  let(:keyword) { FactoryGirl.create(:valid_keyword) }
+  let(:otu) { FactoryGirl.create(:valid_otu) }
 
   context 'associations' do
     specify 'tag_object' do 
@@ -85,6 +87,48 @@ describe Tag, type: :model, group: :annotators do
       specify 'position is set' do
         t1 = FactoryGirl.create(:valid_tag)
         expect(t1.position).to eq(1)
+      end
+    end
+
+    context 'global ids/entity' do
+      before {
+        tag.tag_object_global_entity = otu.to_global_id
+        tag.keyword = keyword
+        tag.save!
+      }
+      
+      specify 'tag_object can be set by global_id' do
+        expect(tag.tag_object).to eq(otu)
+      end
+
+      specify 'tag_object_global_entity can be returned' do
+        expect(tag.tag_object_global_entity).to eq(otu.to_global_id)
+      end
+
+    end
+
+    context 'keyword nested attributes' do 
+      let(:o) { Otu.new(name: 'Some otu', tags_attributes: [ { keyword_attributes: {name: 'foo', definition: 'not bar'}} ]) }
+
+      specify 'keyword can be created' do
+        expect(o.save).to be_truthy
+        expect(o.keywords.count).to eq(1)
+        expect(Tag.count).to eq(1) 
+        expect(Keyword.count).to eq(1) 
+      end
+
+      specify 'when tag is destroyed keyword is left' do
+        expect(o.save).to be_truthy
+        o.tags.destroy_all
+        expect(o.tags.count).to eq(0)
+        expect(o.keywords.count).to eq(0)
+        expect(Keyword.first.name).to eq('foo')
+      end
+
+      specify 'keyword can be referenced' do
+        o1 = Otu.new(name: 'Other otu', tags_attributes: [ {keyword: keyword} ])
+        expect(o1.save).to be_truthy
+        expect(o1.keywords).to contain_exactly(keyword)
       end
     end
 

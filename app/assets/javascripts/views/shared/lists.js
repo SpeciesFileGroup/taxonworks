@@ -46,7 +46,7 @@ function list() {
   displayList = unique(dataList);
 
   if (displayList.length > 0) {
-    $('.panels-container').append(createDivDisplay());
+    $('#nav-list').append(createDivDisplay());
   }
 
 
