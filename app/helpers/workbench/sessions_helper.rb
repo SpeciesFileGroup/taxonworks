@@ -136,7 +136,7 @@ module Workbench::SessionsHelper
       project_settings_link, 
       administration_link,
       link_to('Account', sessions_current_user),
-      link_to('Sign out', signout_path, method: :delete)
+      link_to('Sign out', signout_path, method: :delete, id: 'sign_out')
     ]
   end
 

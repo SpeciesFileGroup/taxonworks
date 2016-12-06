@@ -16,7 +16,7 @@ describe 'ControlledVocabularyTerms', :type => :feature do
       }
     }
     after {
-      click_link('Sign out')
+      click_link('sign_out')
     }
 
     describe 'GET /controlled_vocabulary_terms' do
@@ -53,7 +53,7 @@ describe 'ControlledVocabularyTerms', :type => :feature do
       Capybara.default_max_wait_time = echo
     }
     after {
-      click_link('Sign out')
+      click_link('sign_out')
     }
 
     specify 'adding a new controlled vocabulary term' do
