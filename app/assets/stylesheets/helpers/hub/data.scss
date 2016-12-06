@@ -4,6 +4,8 @@
 @import 'base/palette';
 @import 'base/whitespace';
 
+
+
 #data_cards {
   box-shadow: 0 0px 3px 0 $navigation_border;
   display: flex;
@@ -11,6 +13,8 @@
   align-items: top;
   margin-bottom: $standard_margin;
   background-color: $panel_background;
+  flex-direction: column;
+  flex-grow: 1;
 
   .data_section {
     display: flex;
@@ -43,16 +47,19 @@
   [data-section="Core"] {
     width:250px;
     max-width:250px;
+    min-width: 100%;
   }
 
   [data-section="Supporting"] {
     width:500px;
     max-width:500px;
+    min-width: 100%;
   }
 
   [data-section="Annotations"] {
     width:250px;
     max-width:250px;
+    min-width: 100%;
   }    
 
   .cards-section {
