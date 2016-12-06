@@ -45,7 +45,7 @@
       display: flex;
       flex-direction: row;
       align-items: center;
-      font-size: 12px;
+      font-size: $font_small;
       opacity: 0.5;
       right:$standard_padding;
     }
@@ -103,13 +103,10 @@
 
     .flexbox {
       display: flex;
-      //justify-content:space-between;
       width: 250px;
 
       .item2 {
         display: flex;
-        //width: 100%;
-       // min-width: 250px;
       }
 
       .item { 
@@ -127,7 +124,6 @@
       align-items: center;
       padding-left: $standard_padding * 0.25;
       padding-right: $standard_padding * 0.25;
-      //margin-bottom: $standard_margin * 0.25;
       margin-left: 90px;
       border:1px solid $navigation_border;
       background-color: $color-secondary-2-1;
@@ -206,12 +202,10 @@
       display: inline-block;
       width: 40px;
       height: 24px;    
-      //margin-left: $standard_margin*0.5;
       justify-content: space-around;
       border-radius: 3px;
       border-bottom-right-radius: 0px;
       border-top-right-radius: 0px;
-      //margin-bottom: $standard_margin * 0.25;
       border:1px solid $navigation_border;
       border-right: 0px;    
       background-color: $navigation_background;
