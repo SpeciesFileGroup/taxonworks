@@ -28,7 +28,10 @@ module Shared::Taggable
   protected 
 
   def reject_tags(attributed)
-    attributed['keyword_id'].blank?
+    attributed['keyword_id'].blank? &&
+      (attributed['keyword_attributes'] && (attributed['keyword_attributes']['name'].blank? || attributed['keyword_attributes']['definition'].blank?))
   end
+
+
 
 end

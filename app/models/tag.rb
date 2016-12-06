@@ -44,8 +44,18 @@ class Tag < ActiveRecord::Base
 
   validates_uniqueness_of :keyword_id, scope: [:tag_object_id, :tag_object_type]
 
+  accepts_nested_attributes_for :keyword, reject_if: :reject_keyword, allow_destroy: true
+
   def tag_object_class
     tag_object.class
+  end
+
+  def tag_object_global_entity
+    self.tag_object.to_global_id if self.tag_object.present?
+  end
+
+  def tag_object_global_entity=(entity)
+    self.tag_object = GlobalID::Locator.locate entity
   end
 
   def self.find_for_autocomplete(params)
@@ -91,6 +101,10 @@ class Tag < ActiveRecord::Base
     if !tag_object.taggable_with.include?(keyword.class.name)
       errors.add(:tag_object, "this tag_object_type (#{tag_object.class}) can not be tagged with this keyword class (#{keyword.class})")
     end
+  end
+
+  def reject_keyword(attributed)
+    attributed['name'].blank? || attributed['definition'].blank?
   end
 
 end
