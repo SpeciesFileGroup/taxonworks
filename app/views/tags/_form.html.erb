@@ -3,7 +3,6 @@
 
     <p><strong><%= @tag.tag_object.class.name %>:</strong> <%= object_tag(@tag.tag_object) -%>
       <%= new_tag_tag(@tag.tag_object) %>
-      <input type="button" id="tag_splat" value="*" onclick='$("#tag_auto").removeAttr("hidden")'/></p>
     <div id="tag_auto" hidden>
       <div class="field">
         <%= f.label :keyword_id %>

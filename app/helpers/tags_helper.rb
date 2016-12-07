@@ -6,7 +6,7 @@ module TagsHelper
   end
 
   def new_tag_tag(tag_object) # tag_object ia to be tagged
-
+    render '/tags/tag_button'
   end
 
   def tags_search_form
