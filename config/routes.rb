@@ -111,9 +111,6 @@ TaxonWorks::Application.routes.draw do
   end
 
 
-
-
-
   resources :collection_objects do
     concerns [:data_routes]
     member do
@@ -409,7 +406,7 @@ TaxonWorks::Application.routes.draw do
         get 'find', as: 'find_area_and_date_task'
         get 'set_area', as: 'by_area_task'
         get 'set_date', as: 'by_date_task'
-        get 'set_taxon_name', as: 'by_taxon_name_task'
+        get 'set_otu', as: 'by_otu_task'
         get 'download', action: 'download_result', as: 'result_download_task'
       end
     end
@@ -500,7 +497,7 @@ TaxonWorks::Application.routes.draw do
     end
 
     scope :gis do
-      scope :asserted_distribution,  controller: 'tasks/gis/asserted_distribution' do
+      scope :asserted_distribution, controller: 'tasks/gis/asserted_distribution' do
         get 'new', action: 'new', as: 'new_asserted_distribution_task'
         post 'create', action: 'create', as: 'create_asserted_distribution_task'
         get 'generate_choices'

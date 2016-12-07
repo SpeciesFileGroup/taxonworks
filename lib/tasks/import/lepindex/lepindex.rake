@@ -1,6 +1,6 @@
 require 'fileutils'
 
-### rake tw:project_import:lepindex:import_all data_directory=/Users/proceps/src/sf/import/lep_index/ no_transaction=true
+### rake tw:project_import:lepindex:import_all data_directory=/Users/proceps/src/lep_index/ no_transaction=true
 
 namespace :tw do
   namespace :project_import do
@@ -125,9 +125,6 @@ namespace :tw do
         project_name = 'Lepindex'
         user_name = 'Lepindex Import'
         $user_id, $project_id = nil, nil
-        project1 = Project.where(name: project_name).first
-        project_name = project_name + ' ' + Time.now.to_s  unless project1.nil?
-
         if @import.metadata['project_and_users']
           print "from database.\n"
           project = Project.where(name: project_name).first
@@ -139,7 +136,7 @@ namespace :tw do
 
           user = User.where(email: email)
           if user.empty?
-            user = User.create(email: email, password: '3242341aas', password_confirmation: '3242341aas', name: user_name, self_created: true, is_flagged_for_password_reset: true)
+            user = User.create(email: email, password: '3242341aas', password_confirmation: '3242341aas', name: user_name, self_created: true)
           else
             user = user.first
           end
@@ -208,39 +205,36 @@ namespace :tw do
           end
           if @data.publications_index[tmp].nil?
             url = row['BHLPage'].blank? ? nil : row['BHLPage']
-            author = tmp['IN_AUTHOR'].blank? ? tmp['AUTHOR'] : tmp['IN_AUTHOR']
-            author = author.to_s.gsub(', ', ' and ').gsub(' & ', ' and ')
-            year, stated_year, month = nil, nil, nil
-            year = tmp['PUBLICATION_YEAR'] if tmp['PUBLICATION_YEAR'] =~/\A\d\d\d\d\z/
-            stated_year = tmp['PRINTED_DATE'] if tmp['PRINTED_DATE'] =~/\A\d\d\d\d\z/
-            month = tmp['PUBLICATION_MONTH'] if month_list.include?(tmp['PUBLICATION_MONTH'])
-
-            source = Source::Bibtex.find_or_create_by( address: tmp['PUBLISHER_ADDRESS'],
+            source = Source::Bibtex.new( address: tmp['PUBLISHER_ADDRESS'],
                                          publisher: tmp['PUBLISHER_NAME'],
                                          series: tmp['SERIES'],
                                          institution: tmp['PUBLISHER_INSTITUTE'],
                                          volume: tmp['VOLUME'],
-                                         journal: tmp['FULLTITLE'],
+                                         title: tmp['FULLTITLE'],
                                          number: tmp['PART'],
                                          url: url,
-                                         bibtex_type: 'article',
-                                         author: author,
-                                         year: year,
-                                         stated_year: stated_year,
-                                         month: month
+                                         bibtex_type: 'article'
             )
-            if !tmp['PUBLICATION_YEAR'].blank? && year.nil?
+            if tmp['PUBLICATION_YEAR'] =~/\A\d\d\d\d\z/
+              source.year = tmp['PUBLICATION_YEAR']
+            elsif !tmp['PUBLICATION_YEAR'].blank?
               source.data_attributes.new(import_predicate: 'PUBLICATION_YEAR', value: tmp['PUBLICATION_YEAR'], type: 'ImportAttribute')
             end
-            if !tmp['PRINTED_DATE'].blank? && stated_year.nil?
+            if tmp['PRINTED_DATE'] =~/\A\d\d\d\d\z/
+              source.stated_year = tmp['PRINTED_DATE']
+            elsif !tmp['PRINTED_DATE'].blank?
               source.data_attributes.new(import_predicate: 'PRINTED_DATE', value: tmp['PRINTED_DATE'], type: 'ImportAttribute')
             end
-            if !tmp['PUBLICATION_MONTH'].blank? && month.nil?
+            if month_list.include?(tmp['PUBLICATION_MONTH'])
+              source.month = tmp['PUBLICATION_MONTH']
+            elsif !tmp['PUBLICATION_MONTH'].blank?
               source.data_attributes.new(import_predicate: 'PUBLICATION_MONTH', value: tmp['PUBLICATION_MONTH'], type: 'ImportAttribute')
             end
+            source.author = tmp['IN_AUTHOR'].blank? ? tmp['AUTHOR'] : tmp['IN_AUTHOR']
 
-            #source.save!
-            source.project_sources.create
+
+            source.save!
+            source.project_sources.create!
             source = source.id
             @data.publications_index.merge!(tmp => source)
           else
@@ -337,41 +331,6 @@ namespace :tw do
         # Last_changed_by
         # Date_changed
 
-        keywords = {
-            'TaxonNo' => Predicate.find_or_create_by(name: 'viadocs::TaxonNo', definition: 'The verbatim value in viadocs#TaxonNo.', project_id: $project_id),
-            'Original_Genus' => Predicate.find_or_create_by(name: 'viadocs::Original_Genus', definition: 'The verbatim value in viadocs#Original_Genus.', project_id: $project_id),
-            'OrigSubgen' => Predicate.find_or_create_by(name: 'viadocs::OrigSubgen', definition: 'The verbatim value in viadocs#OrigSubgen.', project_id: $project_id),
-            'Original_Species' => Predicate.find_or_create_by(name: 'viadocs::Original_Species', definition: 'The verbatim value in viadocs#Original_Species', project_id: $project_id),
-            'Original_Subspecies' => Predicate.find_or_create_by(name: 'viadocs::Original_Subspecies', definition: 'The verbatim value in viadocs#Original_Subspecies', project_id: $project_id),
-            'Original_Infrasubspecies' => Predicate.find_or_create_by(name: 'viadocs::Original_Infrasubspecies', definition: 'The verbatim value in viadocs#Original_Infrasubspecies', project_id: $project_id),
-            'Availability' => Predicate.find_or_create_by(name: 'viadocs::Availability', definition: 'The verbatim value in viadocs#Availability', project_id: $project_id),
-            'valid_parent_id' => Predicate.find_or_create_by(name: 'viadocs::valid_parent_id', definition: 'The verbatim value in viadocs#valid_parent_id.', project_id: $project_id),
-            'ButmothNo' => Predicate.find_or_create_by(name: 'viadocs::ButmothNo', definition: 'The verbatim value in viadocs#ButmothNo.', project_id: $project_id),
-            'Original_Year' => Predicate.find_or_create_by(name: 'viadocs::Original_Year', definition: 'The verbatim value in viadocs#Original_Year.', project_id: $project_id),
-            'Card_code' => Predicate.find_or_create_by(name: 'IMAGES::Card_code', definition: 'The verbatim value in IMAGES#Card_code.', project_id: $project_id),
-            'Path' => Predicate.find_or_create_by(name: 'IMAGES::Path', definition: 'The verbatim value in IMAGES#Path.', project_id: $project_id),
-            'Front_image' => Predicate.find_or_create_by(name: 'IMAGES::Front_image', definition: 'The verbatim value in IMAGES#Front_image.', project_id: $project_id),
-            'Back_image' => Predicate.find_or_create_by(name: 'IMAGES::Back_image', definition: 'The verbatim value in IMAGES#Back_image.', project_id: $project_id),
-
-            'GENUS_MEMO' => Predicate.find_or_create_by(name: 'GENUS_MEMO', definition: 'The verbatim value in BUTMOTH_SPECIESFILE_MASTER#GENUS_MEMO.', project_id: $project_id),
-            'GENUS_REF' => Predicate.find_or_create_by(name: 'GENUS_REF', definition: 'The verbatim value in BUTMOTH_SPECIESFILE_MASTER#GENUS_REF.', project_id: $project_id),
-            'TS_REF' => Predicate.find_or_create_by(name: 'TS_REF', definition: 'The verbatim value in BUTMOTH_SPECIESFILE_MASTER#TS_REF.', project_id: $project_id),
-            'TS_GENUS' => Predicate.find_or_create_by(name: 'TS_GENUS', definition: 'The verbatim value in BUTMOTH_SPECIESFILE_MASTER#TS_GENUS.', project_id: $project_id),
-            'TS_SPECIES' => Predicate.find_or_create_by(name: 'TS_SPECIES', definition: 'The verbatim value in BUTMOTH_SPECIESFILE_MASTER#TS_SPECIES.', project_id: $project_id),
-            'TS_AUTHOR' => Predicate.find_or_create_by(name: 'TS_AUTHOR', definition: 'The verbatim value in BUTMOTH_SPECIESFILE_MASTER#TS_AUTHOR.', project_id: $project_id),
-            'TS_YEAR' => Predicate.find_or_create_by(name: 'TS_YEAR', definition: 'The verbatim value in BUTMOTH_SPECIESFILE_MASTER#TS_YEAR.', project_id: $project_id),
-            'TS_PAGE_COMMENT' => Predicate.find_or_create_by(name: 'TS_PAGE_COMMENT', definition: 'The verbatim value in BUTMOTH_SPECIESFILE_MASTER#TS_PAGE_COMMENT.', project_id: $project_id),
-            'TS_COUNTRY' => Predicate.find_or_create_by(name: 'TS_COUNTRY', definition: 'The verbatim value in BUTMOTH_SPECIESFILE_MASTER#TS_COUNTRY.', project_id: $project_id),
-            'TS_LOCALITY' => Predicate.find_or_create_by(name: 'TS_LOCALITY', definition: 'The verbatim value in BUTMOTH_SPECIESFILE_MASTER#TS_LOCALITY.', project_id: $project_id),
-            'TS_TYPE_STATUS' => Predicate.find_or_create_by(name: 'TS_TYPE_STATUS', definition: 'The verbatim value in BUTMOTH_SPECIESFILE_MASTER#TS_TYPE_STATUS.', project_id: $project_id),
-            'TS_TYPE_DEPOSITORY' => Predicate.find_or_create_by(name: 'TS_TYPE_DEPOSITORY', definition: 'The verbatim value in BUTMOTH_SPECIESFILE_MASTER#TS_TYPE_DEPOSITORY.', project_id: $project_id),
-            'TS_LECTOTYPE_BY' => Predicate.find_or_create_by(name: 'TS_LECTOTYPE_BY', definition: 'The verbatim value in BUTMOTH_SPECIESFILE_MASTER#TS_LECTOTYPE_BY.', project_id: $project_id),
-            'TS_COMMENT' => Predicate.find_or_create_by(name: 'TS_COMMENT', definition: 'The verbatim value in BUTMOTH_SPECIESFILE_MASTER#TS_COMMENT.', project_id: $project_id),
-            'TSD_REF' => Predicate.find_or_create_by(name: 'TSD_REF', definition: 'The verbatim value in BUTMOTH_SPECIESFILE_MASTER#TSD_REF.', project_id: $project_id),
-            'TSD_DESIGNATION' => Predicate.find_or_create_by(name: 'TSD_DESIGNATION', definition: 'The verbatim value in BUTMOTH_SPECIESFILE_MASTER#TSD_DESIGNATION.', project_id: $project_id),
-            'TSD_COMMENT' => Predicate.find_or_create_by(name: 'TSD_COMMENT', definition: 'The verbatim value in BUTMOTH_SPECIESFILE_MASTER#TSD_COMMENT.', project_id: $project_id),
-            }
-        
         path = @args[:data_directory] + 'VIADOCS.txt'
         print "\nHandling species\n"
         raise "file #{path} not found" if not File.exists?(path)
@@ -478,11 +437,9 @@ namespace :tw do
                 )
                 #byebug if name == 'adriana'
                 %w{TaxonNo Original_Genus OrigSubgen Original_Species Original_Subspecies Original_Infrasubspecies Availability valid_parent_id ButmothNo}.each do |k|
-                  #protonym.data_attributes.new(import_predicate: k, value: row[k], type: 'ImportAttribute') unless row[k].blank?
-                  protonym.data_attributes.new(type: 'InternalAttribute', predicate: keywords[k], value: row[k]) unless row[k].blank?
+                  protonym.data_attributes.new(import_predicate: k, value: row[k], type: 'ImportAttribute') unless row[k].blank?
                 end
-                #protonym.data_attributes.new(import_predicate: 'Original_Year', value: row['Original_Year'], type: 'ImportAttribute') if !row['Original_Year'].blank? && protonym.year_of_publication.blank?
-                protonym.data_attributes.new(type: 'InternalAttribute', predicate: keywords['Original_Year'], value: row['Original_Year']) if !row['Original_Year'].blank? && protonym.year_of_publication.blank?
+                protonym.data_attributes.new(import_predicate: 'Original_Year', value: row['Original_Year'], type: 'ImportAttribute') if !row['Original_Year'].blank? && protonym.year_of_publication.blank?
 
                 protonym.taxon_name_classifications.new(type: @classification_classes['not latin']) if name =~ /\d+-../
 
@@ -512,8 +469,7 @@ namespace :tw do
                 unless @data.images_index[row['TaxonNo']].nil?
                   #o = Otu.create(taxon_name_id: protonym.id)
                   %w{Card_code Path Front_image Back_image}.each do |k|
-                    #protonym.data_attributes.create!(import_predicate: k, value: @data.images_index[row['TaxonNo']][k], type: 'ImportAttribute')
-                    protonym.data_attributes.create!(type: 'InternalAttribute', predicate: keywords[k], value: @data.images_index[row['TaxonNo']][k])
+                    protonym.data_attributes.create!(import_predicate: k, value: @data.images_index[row['TaxonNo']][k], type: 'ImportAttribute')
                   end
 
                   file1 = @args[:data_directory] + @data.images_index[row['TaxonNo']]['Path'].gsub("Q:\\", '').gsub("\\", '/') + @data.images_index[row['TaxonNo']]['Front_image']
@@ -552,8 +508,7 @@ namespace :tw do
                     print "\nButmothNo #{row['ButmothNo']} is invalid\n"
                   else
                     butmoth_fields.each do |f|
-#                      protonym.data_attributes.find_or_create_by(import_predicate: f, value: brow[f], type: 'ImportAttribute', project_id: $project_id) unless brow[f].blank?
-                      protonym.data_attributes.create(type: 'InternalAttribute', predicate: keywords[f], value: brow[f]) unless brow[f].blank?
+                      protonym.data_attributes.find_or_create_by(import_predicate: f, value: brow[f], type: 'ImportAttribute', project_id: $project_id) unless brow[f].blank?
                     end
                   end
 
@@ -729,7 +684,7 @@ namespace :tw do
 
           if existing_user.empty?
             pwd = rand(36**10).to_s(36)
-            user = User.create(email: email, password: pwd, password_confirmation: pwd, name: user_name, is_flagged_for_password_reset: true,  
+            user = User.create(email: email, password: pwd, password_confirmation: pwd, name: user_name,
                                tags_attributes:   [ { keyword: @lepindex_imported } ]
             )
           else

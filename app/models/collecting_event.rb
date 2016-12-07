@@ -441,33 +441,6 @@ class CollectingEvent < ActiveRecord::Base
       sql_string
     end
 
-    # @param [Hash] in the form of params
-    # @return [Hash] in the form of params
-    def normalize_and_order_dates(params)
-      start_date = params[:search_start_date]
-      end_date   = params[:search_end_date]
-
-      if start_date.blank? and end_date.blank? # set entire range
-        start_date = '1700/1/1'
-        end_date   = Date.today.strftime('%Y/%m/%d')
-      else
-        if end_date.blank? # set a one-day range
-          end_date = start_date
-        end
-        if start_date.blank? # set a one-day range
-          start_date = end_date
-        end
-      end
-
-      if Date.parse(start_date) > Date.parse(end_date) # need to swap s and e?
-        start_date, end_date = end_date, start_date
-      end
-
-      params[:search_start_date] = start_date # string like '1700/01/01'
-      params[:search_end_date]   = end_date # string like '2016/11/03'
-      params
-    end
-
     # @param [Hash] search_start_date string in form 'yyyy/mm/dd'
     # @param [Hash] search_end_date string in form 'yyyy/mm/dd'
     # @param [Hash] partial_overlap 'on' or 'off'

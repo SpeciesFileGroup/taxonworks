@@ -235,6 +235,37 @@ module Utilities::Dates
     Time.new(year, month, day)
   end
 
+  # @param [String] start_date in the form of 'yyyy/mm/dd'
+  # @param [String] end_date in the form of 'yyyy/mm/dd'
+  # @return [String, String] start_date, end_date in proper order
+  def self.normalize_and_order_dates(start_date, end_date)
+    if start_date.blank? and end_date.blank? # set entire range
+      start_date = '1700/1/1'
+      end_date   = Date.today.strftime('%Y/%m/%d')
+    else
+      if end_date.blank? # set a one-day range
+        end_date = start_date
+      end
+      if start_date.blank? # set a one-day range
+        start_date = end_date
+      end
+    end
+
+    start_date, end_date = order_dates(start_date, end_date)
+
+    return start_date, end_date
+  end
+
+  # @param [String] start_date in the form of 'yyyy/mm/dd'
+  # @param [String] end_date in the form of 'yyyy/mm/dd'
+  # @return [String, String] start_date, end_date in proper order
+  def self.order_dates(start_date, end_date)
+    if Date.parse(start_date) > Date.parse(end_date) # need to swap s and e?
+      start_date, end_date = end_date, start_date
+    end
+    return start_date, end_date
+  end
+
   # @param [Array] of 0-2 dates
   # @return [String, nil]
   #   a sentence spelling out the date range

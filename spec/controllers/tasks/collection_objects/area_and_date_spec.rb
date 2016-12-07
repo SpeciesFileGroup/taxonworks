@@ -8,7 +8,7 @@
 #     generate_political_areas_with_collecting_events
 #   }
 #   before(:each) {
-#     sign_in
+# sign_in
 #   }
 #   after(:all) { clean_slate_geo }
 #
