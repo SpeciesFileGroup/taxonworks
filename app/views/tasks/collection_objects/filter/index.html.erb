@@ -4,28 +4,53 @@
 <% end %>
 
 <div id="co_by_area_and_date">
-  <h1>Task: Collection objects by area and date range</h1>
+  <h2>Task: Collection objects by area and date range</h2>
   <div class="flexbox">
-    <div class="item item1" align="center">
-      <div id="set_area_and_date_form">
-        <div id="select_area" class="filter_facet">
-          <h2>Select area</h2>
-          <h3><span id="area_count">????</span></h3>
-          <%= render('by_area') %>
-        </div>
-        <hr>
-        <div id="select_date_range" class="filter_facet">
-          <%= render "by_date" %>
-        </div>
-        <hr>
-        <div id="select_otu"  class="filter_facet">
-          <h2>Select otu</h2>
-          <h3><span id="otu_count">????</span></h3>
-          <%= render('by_otu') %>
+    <div id="filter-collection-objects" class="item item1 panel">
+    <div class="title nav-line">Search</div>
+      <div class="content">
+        <div id="set_area_and_date_form">
+          <div id="select_area" class="filter_facet panel content separate-bottom">
+          <div class=" title-section">
+            <h2>Select area</h2>
+            <div class="to-right">
+              <label class="switch-toggle">
+                <input type="checkbox" id="toggle_slide_area">
+                <div class="slider-toggle round"></div>
+                <div class="toggle-options">
+                  <span>Map</span>
+                  <span>Area</span>
+                </div>
+              </label>
+            </div>
+            </div>
+            <h3><span id="area_count">????</span></h3>
+            <%= render('by_area') %>
+          </div>
+          <div id="select_date_range" class="filter_facet panel content separate-bottom">
+            <div class=" title-section">
+              <h2>Select date range</h2>
+              <div class="to-right">
+                <label class="switch-toggle">
+                  <input type="checkbox" id="toggle_slide_calendar">
+                  <div class="slider-toggle round"></div>
+                  <div class="toggle-options">
+                    <span>Calendar</span>
+                    <span>Timeline</span>
+                  </div>
+                </label>
+              </div>
+            </div>          
+            <%= render "by_date" %>
+          </div>
+          <div id="select_otu"  class="filter_facet panel content separate-bottom">
+            <h2>Select otu</h2>
+            <h3><span id="otu_count">????</span></h3>
+            <%= render('by_otu') %>
+          </div>
         </div>
       </div>
     </div>
-
     <div id="find_item" class="item item2" align="center">
       <div id="action_find">
         <%= form_tag(find_collection_objects_task_url, id: 'find_area_and_date_form', method: :get, remote: true) do %>
