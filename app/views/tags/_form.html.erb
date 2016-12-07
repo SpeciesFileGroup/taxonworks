@@ -1,25 +1,28 @@
 <%= form_for(@tag) do |f| %>
     <%= render 'shared/errors', object: @tag %>
 
-    <p><strong><%= @tag.tag_object.class.name %>:</strong> <%= object_tag(@tag.tag_object) -%>  </p>
+    <p><strong><%= @tag.tag_object.class.name %>:</strong> <%= object_tag(@tag.tag_object) -%>
+      <%= new_tag_tag(@tag.tag_object) %>
+      <input type="button" id="tag_splat" value="*" onclick='$("#tag_auto").removeAttr("hidden")'/></p>
+    <div id="tag_auto" hidden>
+      <div class="field">
+        <%= f.label :keyword_id %>
+        <%#= f.number_field :keyword_id %>
+        <br>
+        <%= render :partial => 'workbench/elements/forms/ajax_select',
+                   :locals => {:controller => 'keywords',
+                               :object => 'tag',
+                               :method => 'keyword_id',
+                               :tag_id => 'keyword_id_for_controlled_vocabulary_term',
+                               :display => object_tag(@tag.keyword)} %>
+      </div>
 
-    <div class="field">
-      <%= f.label :keyword_id %>
-      <%#= f.number_field :keyword_id %>
-      <br>
-      <%= render :partial => 'workbench/elements/forms/ajax_select',
-                 :locals  => {:controller => 'keywords',
-                              :object     => 'tag',
-                              :method     => 'keyword_id',
-                              :tag_id     => 'keyword_id_for_controlled_vocabulary_term',
-                              :display    => object_tag(@tag.keyword)} %>
-    </div>
+      <%= f.hidden_field :tag_object_type %>
 
-    <%= f.hidden_field :tag_object_type %>
+      <%= f.hidden_field :tag_object_id %>
 
-    <%= f.hidden_field :tag_object_id %>
-
-    <div class="actions">
-      <%= f.submit %>
+      <div class="actions">
+        <%= f.submit %>
+      </div>
     </div>
 <% end %>

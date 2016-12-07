@@ -5,6 +5,10 @@ module TagsHelper
     tag.controlled_vocabulary_term.name
   end
 
+  def new_tag_tag(tag_object) # tag_object ia to be tagged
+
+  end
+
   def tags_search_form
     render '/tags/quick_search_form'
   end
