@@ -1,4 +1,4 @@
-class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
+class Tasks::CollectionObjects::FilterController < ApplicationController
   include TaskControllerConfiguration
 
   # GET
@@ -20,7 +20,7 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
     @shape_in           = params[:drawn_area_shape]
     set_and_order_dates(params)
 
-    if @shape_in.blank? and @geographic_area_id.blank? # missing "? " was fixed
+    if @shape_in.blank? and @geographic_area_id.blank? 
       area_object_ids = CollectionObject.where('false')
       area_set        = false
     else
@@ -32,10 +32,16 @@ class Tasks::CollectionObjects::AreaAndDateController < ApplicationController
     descendants = params[:descendants]
     gather_otu_objects(@otu_id, descendants) # sets @@otu_collection_objects
 
+    
+    # TODO: move all this to the logic of the method 
     if @start_date.blank? || @end_date.blank? #|| area_object_ids.count == 0
+      # TODO: This will never get hit, right?!
       @collection_objects = CollectionObject.where('false')
     else
+      # TODO: this makes no sense if no date is provided!
       collecting_event_ids = CollectingEvent.in_date_range(date_range_params).pluck(:id)
+
+      # TODO: can be optimized, if no dates provided, then only look for objects by area!
       @collection_objects  = CollectionObject.from_collecting_events(collecting_event_ids,
                                                                      area_object_ids,
                                                                      area_set,

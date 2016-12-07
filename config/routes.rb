@@ -401,13 +401,13 @@ TaxonWorks::Application.routes.draw do
   scope :tasks do
 
     scope :collection_objects do
-      scope :area_and_date, controller: 'tasks/collection_objects/area_and_date' do
-        get 'index', as: 'index_area_and_date_task'
-        get 'find', as: 'find_area_and_date_task'
-        get 'set_area', as: 'by_area_task'
-        get 'set_date', as: 'by_date_task'
-        get 'set_otu', as: 'by_otu_task'
-        get 'download', action: 'download_result', as: 'result_download_task'
+      scope :filter, controller: 'tasks/collection_objects/filter' do
+        get 'index', as: 'collection_objects_filter_task' #'index_area_and_date_task'
+        get 'find', as: 'find_collection_objects_task' # 'find_area_and_date_task'
+        get 'set_area'  , as: 'set_area_for_collection_object_filter'
+        get 'set_date', as: 'set_date_for_collection_object_filter'
+        get 'set_otu', as: 'set_otu_for_collection_object_filter'
+        get 'download', action: 'download', as: 'download_collection_object_filter_result'
       end
     end
 

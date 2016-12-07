@@ -42,8 +42,6 @@ def clean_slate_geo # rubocop:disable Metrics/AbcSize
   GeographicAreaHierarchy.delete_all
 
   true
-
-
 end
 
 # @return [Multipolygon]
@@ -858,7 +856,7 @@ def generate_ce_test_objects(user_id, project_id, run_in_console = false, user =
   #                                 geographic_item: @item_v)
 end
 
-def generate_political_areas_with_collecting_events(user_id = nil, project_id = nil, run_in_console = false, user = nil)
+
 =begin
 
 4 by 4 matrix of squares:
@@ -974,6 +972,7 @@ Two different shapes with the same name, 'East Boxia', and
 |------|------|------|------| |------|------|------|------|
 
 =end
+def generate_political_areas_with_collecting_events(user_id = nil, project_id = nil, run_in_console = false, user = nil)
 
   prepare_test(user_id, project_id) unless run_in_console
 
