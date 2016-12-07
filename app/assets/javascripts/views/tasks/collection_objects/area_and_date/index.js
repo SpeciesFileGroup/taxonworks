@@ -27,12 +27,15 @@ _init_map_table = function init_map_table() {
         $("#drawn_area_shape").attr('value', '');
       });
   
-      $("#set_taxon_name").click(function (event) {
-          $("taxon_count").text('????');
-        $("select_taxon_name").mx_spinner('show');
-    
-        // do the GET here.
-        $("select_taxon_name").mx_spinner('hide');
+      $("#set_otu").click(function (event) {
+        $("#otu_count").text('????');
+        $("#select_otu").mx_spinner('show');
+  
+        $.get('set_otu', $("#set_otu_form").serialize(), function (local_data) {
+          $("#otu_count").text(local_data.html);
+          $("#select_otu").mx_spinner('hide');
+        }, 'json'  // I expect a json response
+          );
           event.preventDefault();
         }
       );
@@ -63,7 +66,7 @@ _init_map_table = function init_map_table() {
       $("#find_area_and_date_commit").click(function (event, href) {
         //$("#result_span").text('**********');
         if (href == undefined) {
-          href = $("#set_area_form").serialize() + '&' + $("#set_date_form").serialize() + '&' + $("#set_taxon_name_form");
+          href = $("#set_area_form").serialize() + '&' + $("#set_date_form").serialize() + '&' + $("#set_otu_form").serialize();
         }
         $("#find_item").mx_spinner('show');
         $.get('find', href, function (local_data) {
@@ -73,15 +76,16 @@ _init_map_table = function init_map_table() {
         event.preventDefault();
       })
     }
-  
+
     var today = new Date();
     var year = today.getFullYear();
     var format = 'yy/mm/dd';
     var dateInput;
 
-    set_control($("#st_fixedpicker"), $("#search_start_date"), format, year, $("#early_date").text());
-  
-    set_control($("#en_fixedpicker"), $("#search_end_date"), format, year, $("#late_date").text());
+
+    set_control($("#st_fixedpicker"), $("#search_start_date"), format, year, $("#earliest_date").text());
+
+    set_control($("#en_fixedpicker"), $("#search_end_date"), format, year, $("#latest_date").text());
   
     function set_control(control, input, format, year, st_en_day) {
       if (control.length) {
@@ -143,9 +147,9 @@ _init_map_table = function init_map_table() {
       }
       return fmt;
     }
-  
-    var startDate = new Date($("#early_date").text());
-    var endDate = new Date($("#late_date").text());
+
+    var startDate = new Date($("#earliest_date").text());
+    var endDate = new Date($("#latest_date").text());
     var offset = endDate - startDate;
   
     $("#double_date_range").rangepicker({
@@ -185,8 +189,8 @@ _init_map_table = function init_map_table() {
     );
   
     $("#reset_slider").click(function (event) {
-        var startDate = new Date($("#early_date").text());
-        var endDate = new Date($("#late_date").text());
+      var startDate = new Date($("#earliest_date").text());
+      var endDate = new Date($("#latest_date").text());
         var offset = endDate - startDate;
         $("#double_date_range").rangepicker({
           type: "double",
@@ -198,8 +202,8 @@ _init_map_table = function init_map_table() {
             return dateFormat(date, "yyyy/MM/dd");
           }
         });
-        $("#search_start_date").val($("#early_date").text());
-        $("#search_end_date").val($("#late_date").text());
+      $("#search_start_date").val($("#earliest_date").text());
+      $("#search_end_date").val($("#latest_date").text());
         update_and_graph(event);
         event.preventDefault();
       }

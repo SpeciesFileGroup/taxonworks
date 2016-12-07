@@ -166,11 +166,11 @@ report_dwca_task:
   categories:
     - collection_object
     - collecting_event
-index_area_and_date_task:
+collection_objects_filter_task:
   hub: true
-  name: 'Collection objects by area and date'
+  name: 'Collection objects by area, date and OTU.'
   related:
   categories:
-      - collection_object
+    - collection_object
   status: prototype
-  description: 'Find collection objects using an area, and a range of dates.'
+  description: 'Find collection objects using an area, date range, or taxon determination (OTU).'

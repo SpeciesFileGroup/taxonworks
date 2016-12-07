@@ -12,6 +12,12 @@
 #   nukes geo related tables, only to be used in after(:all)
 def clean_slate_geo # rubocop:disable Metrics/AbcSize
   # Order matters!
+  TaxonDetermination.delete_all
+  ActiveRecord::Base.connection.reset_pk_sequence!('taxon_determinations')
+
+  Otu.delete_all
+  ActiveRecord::Base.connection.reset_pk_sequence!('otus')
+
   Georeference.delete_all
   ActiveRecord::Base.connection.reset_pk_sequence!('georeferences')
 
@@ -36,8 +42,6 @@ def clean_slate_geo # rubocop:disable Metrics/AbcSize
   GeographicAreaHierarchy.delete_all
 
   true
-
-
 end
 
 # @return [Multipolygon]
@@ -852,7 +856,7 @@ def generate_ce_test_objects(user_id, project_id, run_in_console = false, user =
   #                                 geographic_item: @item_v)
 end
 
-def generate_political_areas_with_collecting_events(user_id = nil, project_id = nil, run_in_console = false, user = nil)
+
 =begin
 
 4 by 4 matrix of squares:
@@ -968,6 +972,7 @@ Two different shapes with the same name, 'East Boxia', and
 |------|------|------|------| |------|------|------|------|
 
 =end
+def generate_political_areas_with_collecting_events(user_id = nil, project_id = nil, run_in_console = false, user = nil)
 
   prepare_test(user_id, project_id) unless run_in_console
 
@@ -1459,21 +1464,27 @@ def generate_collecting_events(user = nil)
   raise 'no user provided or determinable for generate_collecting_events' if user.nil?
 
   # this is an orphaned collection object, which can only be found by direct reference
-  @co_00 = FactoryGirl.create(:valid_collection_object)
+  @td_00 = FactoryGirl.create(:valid_taxon_determination)
+  @co_00 = @td_00.biological_collection_object
 
-  @ce_m1 = FactoryGirl.create(:collecting_event,
-                              start_date_year:   1971,
-                              start_date_month:  1,
-                              start_date_day:    1,
-                              verbatim_locality: 'Lesser Boxia Lake',
-                              verbatim_label:    '@ce_m1',
-                              geographic_area:   @area_m1)
-  @co_m1 = FactoryGirl.create(:valid_collection_object, {collecting_event: @ce_m1})
-  @gr_m1 = FactoryGirl.create(:georeference_verbatim_data,
-                              api_request:           'gr_m1',
-                              collecting_event:      @ce_m1,
-                              error_geographic_item: @item_m1,
-                              geographic_item:       GeographicItem.new(point: @item_m1.st_centroid))
+  @ce_m1          = FactoryGirl.create(:collecting_event,
+                                               start_date_year:   1971,
+                                               start_date_month:  1,
+                                               start_date_day:    1,
+                                               verbatim_locality: 'Lesser Boxia Lake',
+                                               verbatim_label:    '@ce_m1',
+                                               geographic_area:   @area_m1)
+  @td_m1          = FactoryGirl.create(:valid_taxon_determination)
+  @co_m1          = @td_m1.biological_collection_object
+  @td_m1.otu.name = 'Find me'
+  @td_m1.otu.save
+  @co_m1.collecting_event = @ce_m1
+  @co_m1.save
+  @gr_m1                  = FactoryGirl.create(:georeference_verbatim_data,
+                                               api_request:           'gr_m1',
+                                               collecting_event:      @ce_m1,
+                                               error_geographic_item: @item_m1,
+                                               geographic_item:       GeographicItem.new(point: @item_m1.st_centroid))
 
   @ce_m1a = FactoryGirl.create(:collecting_event,
                                start_date_year:   1971,
