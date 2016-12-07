@@ -10,10 +10,10 @@ input[type=checkbox].increment { display: none; }
   display: inline-block;
   font-size: $font_small;
   cursor: pointer;
-  width: 24px;
-  height:24px;
-  max-width: 24px;
-  max-height:24px;
+  width: 26px;
+  height:26px;
+  max-width: 26px;
+  max-height:26px;
   background-size: 12px;
   background-position: center;
   background-repeat: no-repeat;
@@ -74,7 +74,7 @@ fieldset {
 
 form input, textarea {
   font-size: $font_tiny;
-	padding:$standard_padding*0.4;
+	padding:$standard_padding*0.5;
 	padding-left:$standard_padding;
 	padding-right:$standard_padding;
 	border-radius:3px;
@@ -98,7 +98,7 @@ select {
   border-radius:3px;
   border:1px solid $muted_blue;
   background-color:$body_background;
-  height: 25px;
+  font-size: $font_tiny;
 }
 
 .ui-autocomplete {
