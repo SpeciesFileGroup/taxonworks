@@ -18,7 +18,8 @@
 #     # can be called individually.
 #     soft_validate(:other_soft_validation_method, set: :some_set)
 #     soft_validate(:yet_another_method, set: :some_other_set )
-#  
+#     soft_validate(:a_third_method, resolution: [:route_name, route_name2]) 
+#
 #     $hungry = true 
 # 
 #     def a_soft_validation_method
@@ -210,7 +211,7 @@ module SoftValidation
   #     :fix_not_yet_run        (there is a fix method available, but it hasn't been run)
   #     :no_fix_available       (no fix method was provided)
   class SoftValidation
-    attr_accessor :attribute, :message, :fix, :fix_trigger, :success_message, :failure_message, :fixed
+    attr_accessor :attribute, :message, :fix, :fix_trigger, :success_message, :failure_message, :fixed, :resolutions
 
     def initialize
       @fixed = :fix_not_yet_run
@@ -254,6 +255,13 @@ module SoftValidation
         self.soft_validation_methods[self.name][options[:set]] ||= []
         self.soft_validation_methods[self.name][options[:set]] << method 
       end
+
+     if options[:resolutions]
+       raise 'resolutions is not an Array' if not options[:resolutions].class <= Array
+       self.soft_validation_methods[self.name][options[:resolutions]] ||= []
+       self.soft_validation_methods[self.name][options[:set]] << options[:resolutions] 
+     end
+      
       true
     end
 
