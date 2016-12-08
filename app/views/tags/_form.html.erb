@@ -2,8 +2,7 @@
     <%= render 'shared/errors', object: @tag %>
 
     <p><strong><%= @tag.tag_object.class.name %>:</strong> <%= object_tag(@tag.tag_object) -%>
-      <%= new_tag_tag(@tag.tag_object) %></p>
-    <div id="tag_auto" hidden>
+    <div id="tag_auto">
       <div class="field">
         <%= f.label :keyword_id %>
         <%#= f.number_field :keyword_id %>
