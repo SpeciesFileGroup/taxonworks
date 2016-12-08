@@ -7,10 +7,10 @@
   <h2>Task: Collection objects by area and date range</h2>
   <div class="flexbox">
     <div id="filter-collection-objects" class="item item1 panel">
-    <div class="title nav-line">Search</div>
-      <div class="content">
+    <div class="title action-line">Filter</div>
+      <div>
         <div id="set_area_and_date_form">
-          <div id="select_area" class="filter_facet panel content separate-bottom">
+          <div id="select_area" class="filter_facet panel content no-shadow">
           <div class=" title-section">
             <h2>Select area</h2>
             <div class="to-right">
@@ -27,12 +27,12 @@
             </div>
             </div>
           </div>
-          <div id="area-container">
-            <h3><span id="area_count">????</span></h3>
+          <div id="area-container" class="content">
+            <h3>Area count: <span id="area_count">????</span></h3>
             <%= render('by_area') %>
           </div>
           </div>
-          <div id="select_date_range" class="filter_facet panel content separate-bottom">
+          <div id="select_date_range" class="filter_facet panel content no-shadow">
             <div class=" title-section">
               <h2 class="inline">Select date range</h2>
               <div class="to-right">
@@ -49,14 +49,21 @@
                 </div>
               </div>
             </div>
-            <div id="date-range-container">          
+            <div id="date-range-container" class="content">          
               <%= render "by_date" %>
             </div>
           </div>
-          <div id="select_otu"  class="filter_facet panel content separate-bottom">
+          <div id="select_otu" class="filter_facet panel content no-shadow">
+           <div class=" title-section">
             <h2>Select otu</h2>
-            <h3><span id="otu_count">????</span></h3>
-            <%= render('by_otu') %>
+            <div class="to-right">
+              <div expand-container="#otu-container"></div>
+            </div>
+            </div>
+            <div id="otu-container" class="content">
+              <h3><span id="otu_count">????</span></h3>
+              <%= render('by_otu') %>
+            </div>
           </div>
         </div>
       </div>
