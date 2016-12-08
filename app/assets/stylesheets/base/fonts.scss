@@ -21,9 +21,15 @@ $font_subtitle: 14px;
 $font_title: 16px;
 
 .micro_type {}
-.small_type {}
+.small_type {
+	font-size: $font_small;
+}
 .regular_type { font-size: 12px; }
 .large_type { font-size: 13px; }
+
+.normal_type {
+	font-size: $font_normal;
+}
 
 .hide_text {
 	font-size: 0px !important;
