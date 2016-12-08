@@ -195,7 +195,10 @@ class TaxonName < ActiveRecord::Base
   scope :with_type, -> (type) {where(type: type)} 
 
   scope :descendants_of, -> (taxon_name) { with_ancestor(taxon_name )}
-  scope :ancestors_of, -> (taxon_name) { joins(:descendant_hierarchies).order('taxon_name_hierarchies.generations DESC').where(taxon_name_hierarchies: {descendant_id: taxon_name.id}).where('taxon_name_hierarchies.ancestor_id != ?', taxon_name.id) }
+  scope :ancestors_of, -> (taxon_name) { joins(:descendant_hierarchies)
+    .order('taxon_name_hierarchies.generations DESC')
+    .where(taxon_name_hierarchies: {descendant_id: taxon_name.id})
+    .where('taxon_name_hierarchies.ancestor_id != ?', taxon_name.id) }
 
   # this is subtly different, it includes self in present form, it also doesn't order
   scope :ancestors_and_descendants_of, -> (taxon_name) { 
@@ -423,14 +426,13 @@ class TaxonName < ActiveRecord::Base
 
   # @return [Array of TaxonName] ancestors of type 'Protonym'
   def ancestor_protonyms
-    #  TaxonName.where(type: 'Protonym').ancestors_of(self)
-    ancestors.where(type: 'Protonym')
+    Protonym.ancestors_of(self)
+   # ancestors.where(type: 'Protonym')
   end
 
   # @return [Array of TaxonName] descendants of type 'Protonym'
   def descendant_protonyms
-    #  TaxonName.descendants_of(self).where(type: 'Protonym')
-    descendants.where(type: 'Protonym')
+    Protonym.descendants_of(self)
   end
 
   # @return [Boolean]
