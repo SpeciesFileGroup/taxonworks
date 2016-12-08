@@ -6,7 +6,9 @@ module TagsHelper
   end
 
   def new_tag_tag(taggable_object) # tag_object ia to be tagged
-    # TODO: new_tag_tag has to take an object and retrun a string to use as a link to the tags/new page
+    # TODO: new_tag_tag has to take an object and return a string to use as a link to the tags/new page
+    # also TODO: We need to bew able to accommodate multiple tag_splats on a given, page, each with a
+    # different object type (i.e. anything which includes Taggable.
     visitation = "/tags/new?tag[tag_object_attribute]=&tag[tag_object_id]=#{taggable_object.id}&tag[tag_object_type]=#{taggable_object.class}"
 
     render(partial: '/tags/tag_button', locals: {href_string: visitation})
