@@ -64,7 +64,7 @@ input:checked + .slider:before {
     position: relative;
     display: inline-block;
     width: 140px;
-    height: 24px;
+    height: 26px;
 }
 
 .switch-toggle input {
@@ -89,7 +89,7 @@ input:checked + .slider:before {
     position: absolute;
     z-index: 2;
     content: "";
-    height: 23px;
+    height: 24px;
     width: 70px;
     left: -1px;
     bottom: -1px;

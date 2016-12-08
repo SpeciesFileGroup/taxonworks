@@ -14,6 +14,7 @@
           <div class=" title-section">
             <h2>Select area</h2>
             <div class="to-right">
+            <div class="horizontal-center-content">
               <label class="switch-toggle">
                 <input type="checkbox" id="toggle_slide_area">
                 <div class="slider-toggle round"></div>
@@ -22,15 +23,20 @@
                   <span>Area</span>
                 </div>
               </label>
+              <div class="separate-left" expand-container="#area-container"></div>
             </div>
             </div>
+          </div>
+          <div id="area-container">
             <h3><span id="area_count">????</span></h3>
             <%= render('by_area') %>
           </div>
+          </div>
           <div id="select_date_range" class="filter_facet panel content separate-bottom">
             <div class=" title-section">
-              <h2>Select date range</h2>
+              <h2 class="inline">Select date range</h2>
               <div class="to-right">
+              <div class="horizontal-center-content">
                 <label class="switch-toggle">
                   <input type="checkbox" id="toggle_slide_calendar">
                   <div class="slider-toggle round"></div>
@@ -39,9 +45,13 @@
                     <span>Timeline</span>
                   </div>
                 </label>
+                <div class="separate-left" expand-container="#date-range-container"></div>
+                </div>
               </div>
-            </div>          
-            <%= render "by_date" %>
+            </div>
+            <div id="date-range-container">          
+              <%= render "by_date" %>
+            </div>
           </div>
           <div id="select_otu"  class="filter_facet panel content separate-bottom">
             <h2>Select otu</h2>
