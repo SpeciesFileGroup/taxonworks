@@ -28,20 +28,26 @@ class TaxonNameRelationship::Iczn::Invalidating < TaxonNameRelationship::Iczn
     [ TaxonNameClassification::Iczn::Available::Invalid ]
   end
 
-  def object_status
-    'valid'
-  end
 
   def subject_status
     'invalid'
   end
 
-  def self.gbif_status_of_subject
-    'invalidum'
+  def object_status
+    'valid'
+  end
+
+  def subject_status_connector_to_object
+    ', linked to'
   end
 
   def object_status_connector_to_subject
     ' for'
+  end
+
+
+  def self.gbif_status_of_subject
+    'invalidum'
   end
 
 
