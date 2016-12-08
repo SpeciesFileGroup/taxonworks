@@ -10,7 +10,7 @@ describe 'Tags', :type => :feature do
     before {
       sign_in_user_and_select_project
 
-      o = Otu.create!(name: 'Cow', by: @user, project: @project)
+      o = CollectingEvent.create!(verbatim_label: 'Cow', by: @user, project: @project)
 
       keywords = []
       ['slow', 'medium', 'fast'].each do |n|
@@ -38,9 +38,9 @@ describe 'Tags', :type => :feature do
 
     describe 'the structure of tag_splat' do
       specify 'has a splat' do
-        o        = Otu.first
-        visit_me = "tags/new?tag[tag_object_attribute]=&tag[tag_object_id]=#{o.id}&tag[tag_object_type]=#{o.class}"
-        visit(visit_me)
+        o = CollectingEvent.first
+        # visit_me = "tags/new?tag[tag_object_attribute]=&tag[tag_object_id]=#{o.id}&tag[tag_object_type]=#{o.class}"
+        visit("collecting_events/#{o.id}")
         expect(find('#tag_splat').value).to have_text('*')
       end
     end
