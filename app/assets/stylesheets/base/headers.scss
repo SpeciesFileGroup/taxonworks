@@ -1,15 +1,15 @@
 @import 'base/palette';
 @import 'base/whitespace';
+@import 'base/fonts';
 
 #header_bar {
 	margin:0 auto;
 	padding-left:$standard_padding;
 	padding-right:$standard_padding;
 	align-items:center;
-	background-color: $navigation_background;
-	border-bottom: 1px solid $navigation_border;
+	background-color: #FFF;
+	border:1px solid $navigation-border;
 	height:50px;
-	font-weight: normal;
 
 	a {
 		padding: $standard_padding;

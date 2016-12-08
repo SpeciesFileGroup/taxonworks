@@ -9,7 +9,6 @@
 	align-items:center;
 	h1 {
 		margin: $standard_margin;
-//		font-weight: 100;
 		font-size: $font_title;
 	}
 	.flexbox {
@@ -25,11 +24,9 @@
 		}	
 		h2 {
 			font-size: $font_title;
-//			font-weight: 100;
 		}	
 		h3 {
 			font-size: $font_subtitle;
-//			font-weight: 100;
 		}				
 	}
 }

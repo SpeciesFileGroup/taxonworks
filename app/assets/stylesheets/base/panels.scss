@@ -19,7 +19,7 @@
   display: flex;
   flex-direction:column;
   justify-content:flex-start;
-  box-shadow: 0 0px 2px 0px $navigation_border;
+  box-shadow: 0 1px 1px rgba(0,0,0,.2);
   background-color: $panel_background;
   a {
     text-decoration: none;
@@ -84,20 +84,20 @@
   }
  
   .nav-line {
-    border-bottom: 3px solid $color-secondary-2-4;
+    border-bottom: 2px solid $color-secondary-2-4;
   } 
 
   .title.shared {
-    border-bottom:3px solid $color-secondary-1-3;
+    border-bottom:2px solid $color-secondary-1-3;
   }
 
   .title.application_defined {
-    border-bottom:3px solid $color-primary-4;
+    border-bottom:2px solid $color-primary-4;
   }
 
 
   .action-line {
-    border-bottom:3px solid $color-complement-3;
+    border-bottom:2px solid $color-complement-3;
   }  
 
   .navigation-bar-right {

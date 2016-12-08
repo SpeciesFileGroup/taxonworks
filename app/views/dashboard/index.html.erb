@@ -1,9 +1,5 @@
 <div id="dashboard">
-  <h1 class="center_text" style="font-weight:100;"> 
-    <span class="subtle">Dashboard for</span> 
-    <%= user_tag(sessions_current_user) -%> 
-  </h1> 
-    <div class="flexbox">
+    <div class="flexbox panels-container">
       <div class="item item1 column-tiny separate-right">
         <div class="panel">
           <div class="title nav-line">
@@ -18,7 +14,7 @@
           </div>
         </div>
       </div>
-      <div class="item item1 column-big space-distance">
+      <div class="item item1 column-big separate-right separate-left">
         <div class="panel">
           <div class="title nav-line">
             <span data-icon="openFolder" class="inline">

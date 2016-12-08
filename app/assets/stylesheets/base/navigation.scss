@@ -45,10 +45,11 @@ a {
   justify-content: space-between;
   font-weight: 100;
   position: relative;
-  border-bottom: 1px solid $navigation_border;
-  background-color:$body-background;
+ // border-bottom: 1px solid $navigation_border;
+  background-color:#FFF;
   height: 45px;
   padding-right: $standard_margin;
+  box-shadow:0 2px 2px rgba(0,0,0,.2);
   .hub-project {
     position: relative;
     margin-left: 1em;

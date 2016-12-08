@@ -69,7 +69,7 @@ textarea:focus, input:focus{
 fieldset {
   border-radius:3px;
   border:1px solid $navigation_border;
-  background-color:$body_background;  
+  background-color:#FFF;  
 }
 
 form input, textarea {
@@ -79,11 +79,11 @@ form input, textarea {
 	padding-right:$standard_padding;
 	border-radius:3px;
 	border:1px solid $navigation_border;
-	background-color:$body_background;
+	background-color:#FFF;
 }
 
 input[type="submit"] {
-  color: $body_background;
+  color: #FFF;
   border-radius: 3px;
   border:1px solid;
   border:transparent;
@@ -97,7 +97,7 @@ select {
   padding-right:$standard_padding;
   border-radius:3px;
   border:1px solid $muted_blue;
-  background-color:$body_background;
+  background-color:#FFF;
   font-size: $font_tiny;
 }
 
