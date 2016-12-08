@@ -28,7 +28,7 @@
             </div>
           </div>
           <div id="area-container" class="content">
-            <h3>Area count: <span id="area_count">????</span></h3>
+            <h3>Result: <span id="area_count">????</span></h3>
             <%= render('by_area') %>
           </div>
           </div>
@@ -76,9 +76,12 @@
       </div>
     </div>
 
-    <div class="item item3" align="center">
-      <div id="result_">
-        <h2>Result</h2>
+    <div class="item item3 panel">
+   
+      <div class="title nav-line">
+        Result
+      </div>
+          <div id="result_" class="content">     
         <h3><span id="result_span">????</span></h3>
         Select the result list, or the map of results.<br>
         <%= link_to('List', '#', class: :result_list_toggle, hidden: :true) %>
