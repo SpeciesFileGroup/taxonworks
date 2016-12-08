@@ -9,18 +9,6 @@ namespace :tw do
         LoggedTask.define :create_some_related_taxa => [:data_directory, :environment, :user_id] do |logger|
 
           logger.info 'Creating citations...'
-          # Probably have original description from taxon import: how to handle duplicate?
-          # Create note for tblCites.Note
-          # Create data_attributes for NomenclatorID becomes nomenclator_string
-          # Create topics for:
-          #   NewNameStatusID
-          #   TypeInfoID
-          #   ConceptChangeID
-          #   CurrentConcept
-          #   InfoFlags
-          #   InfoFlagStatus
-          #   PolynomialStatus
-
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
@@ -61,11 +49,11 @@ SF.RefID #{row['RefID']} = TW.source_id #{row['']}, SF.SeqNum #{row['SeqNum']} (
 
             # Original description citation most likely already exists but pages are source pages, not cite pages
             if citation = Citation.where(source_id: source_id, citation_object_type: 'TaxonName', citation_object_id: taxon_name_id, is_original: true).first
-              citation.notes << Note.new(text: row['Note'], project_id: project_id) unless row['Note'].blank?  # project_id? ; what is << ?
+              citation.notes << Note.new(text: row['Note'], project_id: project_id) unless row['Note'].blank? # project_id? ; what is << ?
               citation.update_column(:pages, cite_pages) # update pages to cite_pages
               logger.info "Citation found: citation.id = #{citation.id}, taxon_name_id = #{taxon_name_id}, cite_pages = '#{cite_pages}' (cite_found_counter = #{cite_found_counter += 1}"
 
-            else  # create new citation
+            else # create new citation
               citation = Citation.new(
                   source_id: source_id,
                   pages: cite_pages,
@@ -74,12 +62,23 @@ SF.RefID #{row['RefID']} = TW.source_id #{row['']}, SF.SeqNum #{row['SeqNum']} (
                   citation_object_id: taxon_name_id,
 
                   ## Note: Add as attribute before save citation
-                  notes_attributes: [{text: row['Note'],  # (row['Note'].blank? ? nil :   rejected automatically by notable
+                  notes_attributes: [{text: row['Note'], # (row['Note'].blank? ? nil :   rejected automatically by notable
                                       project_id: project_id,
                                       created_at: row['CreatedOn'],
                                       updated_at: row['LastUpdate'],
                                       created_by_id: get_tw_user_id[row['CreatedBy']],
                                       updated_by_id: get_tw_user_id[row['ModifiedBy']]}],
+
+                  ## NewNameStatus, TypeInfo: Add in tag_attribute array before save citation
+                  tags_attributes: [
+                      {keyword_id: (row['NewNameStatus'].to_i > 0 ? ControlledVocabularyTerm.where('uri LIKE ? and id = ?', "%/new_name_status/#{row['NewNameStatus']}", project_id).limit(1).pluck(:id).first : nil), project_id: project_id},
+                      {}
+                  ],
+
+                  confidences_attributes: [{}
+
+                  ],
+
 
                   # housekeeping for citation
                   project_id: project_id,
@@ -98,13 +97,19 @@ SF.RefID #{row['RefID']} = TW.source_id #{row['']}, SF.SeqNum #{row['SeqNum']} (
               end
             end
 
+            # citation.tags_attributes = [{}]  # if after citation saved, need citation.tags, etec.
+
+
             ### After citation updated or created
+
+            # @todo: Any reason to believe that attributes below would fail? Do I need to save (begin/rescue)?
 
             ## Nomenclator: DataAttribute of citation, NomenclatorID > 0
             if row['NomenclatorID'] != '0' # OR could value: be evaluated below based on NomenclatorID?
               da = DataAttribute.new(type: 'ImportAttribute',
                                      attribute_subject_id: citation.id,
                                      attribute_subject_type: 'Citation',
+                                     # attribute_subject: citation,        replaces two lines above
                                      import_predicate: 'Nomenclator',
                                      value: get_nomenclator_string[row['NomenclatorID']],
                                      project_id: project_id,
@@ -121,28 +126,45 @@ SF.RefID #{row['RefID']} = TW.source_id #{row['']}, SF.SeqNum #{row['SeqNum']} (
               end
             end
 
-            ## NewNameStatus: As tags to citations, create 16 keywords for each project, set up in case statement; test for NewNameStatusID > 0
-            # Table.where('keywords LIKE ?', '%crescent%').all
-            ControlledVocabularyTerm.where('uri LIKE ?', '%/new_name_status/1')
 
-            tag = Tag.new(
-                         keyword_id: ControlledVocabularyTerm.where('uri LIKE ? and id = ?', '%/new_name_status/1', project_id).pluck(:id).first,
-                         tag_object_id: citation.id,
-                         tag_object_type: 'Citation',
-                         project_id: project_id
-            )
+            # begin/rescue/end around all items below , and use create instead of new vs. create!
+            # begin
+
+            ## NewNameStatus: As tags to citations, create 16 keywords for each project, set up in case statement; test for NewNameStatusID > 0
+
+            if row['NewNameStatus'].to_i > 0
+              tag = Tag.new(
+                  keyword_id: ControlledVocabularyTerm.where('uri LIKE ? and project_id = ?', "%/new_name_status/#{row['NewNameStatus']}", project_id).limit(1).pluck(:id).first,
+                  tag_object_id: citation.id,
+                  tag_object_type: 'Citation',
+                  project_id: project_id
+              )
+            end
+
 
             ## TypeInfo: As tags to citations, create n keywords for each project, set up in case statement (2364 cases!)
 
+            if row['TypeInfoID'].to_i > 0
+              tag = Tag.new(
+                  keyword_id: ControlledVocabularyTerm.where('uri LIKE ? and id = ?', "%/type_info/#{row['TypeInfoID']}", project_id).pluck(:id).first,
+                  tag_object_id: citation.id,
+                  tag_object_type: 'Citation',
+                  project_id: project_id
+              )
+            end
+
 
             ## ConceptChange: For now, do not import, only 2000 out of 31K were not automatically calculated, downstream in TW we will use Euler
+
 
             ## CurrentConcept: bit: For now, do not import
             # select * from tblCites c inner join tblTaxa t on c.TaxonNameID = t.TaxonNameID where c.CurrentConcept = 1 and t.NameStatus = 7
 
 
             ## InfoFlags: Attribute/topic of citation?!! Treat like StatusFlags for individual values
-            # use as topics on citations for OTUs, make duplicate citation on OTU, then topic on that citation
+            # @todo: use as topics on citations for OTUs, make duplicate citation on OTU, then topic on that citation
+
+            # inner loop on each citation to iterate through multiple topics contained in bitwise InfoFlags
 
             info_flags = row['InfoFlags'].to_i
 
@@ -151,24 +173,21 @@ SF.RefID #{row['RefID']} = TW.source_id #{row['']}, SF.SeqNum #{row['SeqNum']} (
 
               cite_info_flags_array.each do |bit_position|
 
-                # no_relationship = false # set to true if no relationship should be created
-                # bit_flag_name = ''
+                # only need something like tags above, value is simply based on uri
 
-                case bit_position
-
-                  when 1 # Image or description
-                  when 2 # Phylogeny or classification
-                  when 3 # Ecological data
-                  when 4 # Specimen or distribution
-                  when 5 # Key
-                  when 6 # Life history
-                  when 7 # Behavior
-                  when 8 # Economic matters
-                  when 9 # Physiology
-                  when 10 # Structure
-                end
+                #cite_topic = CitationtTopic.save(
+                cite_topic = CitationTopic.new(
+                    topic_id: ControlledVocabularyTerm.where('uri LIKE ? and id = ?', "%/cite_info_flags/#{bit_position}", project_id).pluck(:id).first,
+                    citation_id: citation.id,
+                    project_id: project_id
+                )
               end
             end
+            #    logger.error "foo" if cite_topic.id.nil?
+
+            #rescue ActiveRecord::RecordInvalid => e
+
+            # end
 
 
             ## InfoFlagStatus: Add confidence, 1 = partial data or needs review, 2 = complete data
@@ -207,7 +226,6 @@ SF.RefID #{row['RefID']} = TW.source_id #{row['']}, SF.SeqNum #{row['SeqNum']} (
 
             ## PolynomialStatus: based on NewNameStatus: Used to detect "fake" (previous combos) synonyms
             # Not included in initial import; after import, in TW, when we calculate CoL output derived from OTUs, and if CoL output is clearly wrong then revisit this issue
-
 
           end
         end
@@ -270,6 +288,11 @@ SF.RefID #{row['RefID']} = TW.source_id #{row['']}, SF.SeqNum #{row['SeqNum']} (
                   {name: 'Physiology', definition: 'Physiology is included', uri: 'http://speciesfile.org/legacy/cite_info_flags/8', uri_relation: 'skos:closeMatch', type: 'Topic'},
                   {name: 'Structure', definition: 'Anatomy, cytology, genetic or other structural information is included', uri: 'http://speciesfile.org/legacy/cite_info_flags/9', uri_relation: 'skos:closeMatch', type: 'Topic'},
               ],
+
+              info_flag_status: [
+                  {name: 'partial data or needs review', definition: 'partial data or needs review', uri: 'http://speciesfile.org/legacy/info_flag_status/1', uri_relation: 'skos:closeMatch', type: 'ConfidenceLevel'},
+                  {name: 'complete data', definition: 'complete data', uri: 'http://speciesfile.org/legacy/info_flag_status/2', uri_relation: 'skos:closeMatch', type: 'ConfidenceLevel'},
+              ]
 
           }
 
