@@ -6,7 +6,10 @@ module TagsHelper
   end
 
   def new_tag_tag(tag_object) # tag_object ia to be tagged
-    render '/tags/tag_button'
+    # TODO: new_tag_tag has to take an object and retrun a string to use as a link to the tags/new page
+    visitation = "/tags/new?tag[tag_object_attribute]=&tag[tag_object_id]=#{tag_object.id}&ta[btag_object_type]=#{tag_object.class}"
+
+    render(partial: '/tags/tag_button', locals: {href_string: visitation})
   end
 
   def tags_search_form
@@ -47,16 +50,16 @@ module TagsHelper
   # @return [True]
   #   indicates a custom partial should be used, see list_helper.rb
   def tags_recent_objects_partial
-    true 
+    true
   end
 
   # @return [String (html), nil]
-  #    a ul/li of tags for the object 
+  #    a ul/li of tags for the object
   def tag_list_tag(object)
     if object.tags.any?
       content_tag(:h3, 'Tags') +
       content_tag(:ul, class: 'tag_list') do
-        object.tags.collect{|a| content_tag(:li, tag_tag(a)) }.join.html_safe 
+        object.tags.collect { |a| content_tag(:li, tag_tag(a)) }.join.html_safe
       end
     end
   end

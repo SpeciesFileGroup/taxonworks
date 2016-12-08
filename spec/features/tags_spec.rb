@@ -23,9 +23,7 @@ describe 'Tags', :type => :feature do
     }
 
     describe 'GET /tags' do
-      before {
-        visit tags_path
-      }
+      before { visit tags_path }
 
       it_behaves_like 'a_data_model_with_annotations_index'
     end
@@ -36,9 +34,16 @@ describe 'Tags', :type => :feature do
       it_behaves_like 'a_data_model_with_standard_list'
     end
 
-
     # pending 'clicking a tag link anywhere renders the tagged object in <some> view'
 
+    describe 'the structure of tag_splat' do
+      specify 'has a splat' do
+        o        = Otu.first
+        visit_me = "tags/new?tag[tag_object_attribute]=&tag[tag_object_id]=#{o.id}&tag[tag_object_type]=#{o.class}"
+        visit(visit_me)
+        expect(find('#tag_splat').value).to have_text('*')
+      end
+    end
   end
 end
 
