@@ -13,7 +13,7 @@ namespace :tw do
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
           get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID')
-          # get_tw_otu_id = import.get('SFTaxonNameIDToTWOtuID')
+          get_tw_otu_id = import.get('SFTaxonNameIDToTWOtuID')
           get_tw_source_id = import.get('SFRefIDToTWSourceID')
           get_nomenclator_string = import.get('SFNomenclatorIDToSFNomenclatorString')
 
@@ -36,6 +36,10 @@ namespace :tw do
 
             if !TaxonName.where(id: taxon_name_id).exists?
               logger.warn "SF.TaxonNameID = #{row['TaxonNameID']} was not created in TW (no_taxon_counter = #{no_taxon_counter += 1})"
+
+              # @todo: Test if OTU exists? Add citation to OTU?
+
+
               next
             end
 
@@ -48,7 +52,7 @@ SF.RefID #{row['RefID']} = TW.source_id #{row['']}, SF.SeqNum #{row['SeqNum']} (
             cite_pages = row['CitePages']
 
             # Original description citation most likely already exists but pages are source pages, not cite pages
-            if citation = Citation.where(source_id: source_id, citation_object_type: 'TaxonName', citation_object_id: taxon_name_id, is_original: true).first
+            if citation == Citation.where(source_id: source_id, citation_object_type: 'TaxonName', citation_object_id: taxon_name_id, is_original: true).first
               citation.notes << Note.new(text: row['Note'], project_id: project_id) unless row['Note'].blank? # project_id? ; what is << ?
               citation.update_column(:pages, cite_pages) # update pages to cite_pages
               logger.info "Citation found: citation.id = #{citation.id}, taxon_name_id = #{taxon_name_id}, cite_pages = '#{cite_pages}' (cite_found_counter = #{cite_found_counter += 1}"
@@ -69,15 +73,15 @@ SF.RefID #{row['RefID']} = TW.source_id #{row['']}, SF.SeqNum #{row['SeqNum']} (
                                       created_by_id: get_tw_user_id[row['CreatedBy']],
                                       updated_by_id: get_tw_user_id[row['ModifiedBy']]}],
 
-                  ## NewNameStatus, TypeInfo: Add in tag_attribute array before save citation
+                  ## NewNameStatus: As tags to citations, create 16 keywords for each project, set up in case statement; test for NewNameStatusID > 0
+                  ## TypeInfo: As tags to citations, create n keywords for each project, set up in case statement (2364 cases!)
                   tags_attributes: [
-                      {keyword_id: (row['NewNameStatus'].to_i > 0 ? ControlledVocabularyTerm.where('uri LIKE ? and id = ?', "%/new_name_status/#{row['NewNameStatus']}", project_id).limit(1).pluck(:id).first : nil), project_id: project_id},
-                      {}
+                      {keyword_id: (row['NewNameStatus'].to_i > 0 ? ControlledVocabularyTerm.where('uri LIKE ? and project_id = ?', "%/new_name_status/#{row['NewNameStatus']}", project_id).limit(1).pluck(:id).first : nil), project_id: project_id},
+                      {keyword_id: (row['TypeInfoID'].to_i > 0 ? ControlledVocabularyTerm.where('uri LIKE ? and project_id = ?', "%/type_info/#{row['TypeInfoID']}", project_id).limit(1).pluck(:id).first : nil), project_id: project_id}
                   ],
 
-                  confidences_attributes: [{}
-
-                  ],
+                  ## InfoFlagStatus: Add confidence, 1 = partial data or needs review, 2 = complete data
+                  confidences_attributes: [{confidence_level_id: (row['InfoFlagStatus'].to_i > 0 ? ControlledVocabularyTerm.where('uri LIKE ? and project_id = ?', "%/info_flag_status/#{row['InfoFlagStatus']}", project_id).limit(1).pluck(:id).first : nil), project_id: project_id}],
 
 
                   # housekeeping for citation
@@ -97,12 +101,8 @@ SF.RefID #{row['RefID']} = TW.source_id #{row['']}, SF.SeqNum #{row['SeqNum']} (
               end
             end
 
-            # citation.tags_attributes = [{}]  # if after citation saved, need citation.tags, etec.
-
 
             ### After citation updated or created
-
-            # @todo: Any reason to believe that attributes below would fail? Do I need to save (begin/rescue)?
 
             ## Nomenclator: DataAttribute of citation, NomenclatorID > 0
             if row['NomenclatorID'] != '0' # OR could value: be evaluated below based on NomenclatorID?
@@ -127,33 +127,6 @@ SF.RefID #{row['RefID']} = TW.source_id #{row['']}, SF.SeqNum #{row['SeqNum']} (
             end
 
 
-            # begin/rescue/end around all items below , and use create instead of new vs. create!
-            # begin
-
-            ## NewNameStatus: As tags to citations, create 16 keywords for each project, set up in case statement; test for NewNameStatusID > 0
-
-            if row['NewNameStatus'].to_i > 0
-              tag = Tag.new(
-                  keyword_id: ControlledVocabularyTerm.where('uri LIKE ? and project_id = ?', "%/new_name_status/#{row['NewNameStatus']}", project_id).limit(1).pluck(:id).first,
-                  tag_object_id: citation.id,
-                  tag_object_type: 'Citation',
-                  project_id: project_id
-              )
-            end
-
-
-            ## TypeInfo: As tags to citations, create n keywords for each project, set up in case statement (2364 cases!)
-
-            if row['TypeInfoID'].to_i > 0
-              tag = Tag.new(
-                  keyword_id: ControlledVocabularyTerm.where('uri LIKE ? and id = ?', "%/type_info/#{row['TypeInfoID']}", project_id).pluck(:id).first,
-                  tag_object_id: citation.id,
-                  tag_object_type: 'Citation',
-                  project_id: project_id
-              )
-            end
-
-
             ## ConceptChange: For now, do not import, only 2000 out of 31K were not automatically calculated, downstream in TW we will use Euler
 
 
@@ -165,6 +138,21 @@ SF.RefID #{row['RefID']} = TW.source_id #{row['']}, SF.SeqNum #{row['SeqNum']} (
             # @todo: use as topics on citations for OTUs, make duplicate citation on OTU, then topic on that citation
 
             # inner loop on each citation to iterate through multiple topics contained in bitwise InfoFlags
+
+            otu = get_tw_otu_id[taxon_name_id]
+
+            otu_citation = citation.dup
+            citation.citation_object = otu
+            begin
+              otu_citation.save!
+            rescue ActiveRecord::RecordInvalid # otu_citation not valid
+              logger.error = "Citation for OTU failed, etc."
+            end
+
+
+            # citation.dup
+            # citation.citation_object = my_otu
+            # citation.save
 
             info_flags = row['InfoFlags'].to_i
 
@@ -183,45 +171,6 @@ SF.RefID #{row['RefID']} = TW.source_id #{row['']}, SF.SeqNum #{row['SeqNum']} (
                 )
               end
             end
-            #    logger.error "foo" if cite_topic.id.nil?
-
-            #rescue ActiveRecord::RecordInvalid => e
-
-            # end
-
-
-            ## InfoFlagStatus: Add confidence, 1 = partial data or needs review, 2 = complete data
-            # @!attribute confidence_level_id
-            #   @return [Integer]
-            #     the controlled vocabulary term used in the confidence
-            #
-            # @!attribute confidence_object_id
-            #   @return [Integer]
-            #      Rails polymorphic. The id of of the object being annotated.
-            #
-            # @!attribute confidence_object_type
-            #   @return [String]
-            #      Rails polymorphic.  The type of the object being annotated.
-            #
-            # @!attribute project_id
-            #   @return [Integer]
-            #   the project ID
-            #
-            # @!attribute position
-            #   @return [Integer]
-            #     a user definable sort code on the tags on an object, handled by acts_as_list
-
-            # [11/18/16, 4:10:27 PM] Marilyn Beckman: For confidences, do I first create a ConfidenceLevel which defines the item about which I am confident?
-            # [11/18/16, 4:10:56 PM] Marilyn Beckman: Then I assign a specific confidence for a given datum??
-
-            info_flag_status = row['InfoFlagStatus'].to_i
-
-            # if info_flag_status > 0
-            #   confidence = Confidence.new(
-            #                              confidence_level_id: row['InfoFlagStatus'],
-            #
-            #   )
-            # end
 
 
             ## PolynomialStatus: based on NewNameStatus: Used to detect "fake" (previous combos) synonyms
