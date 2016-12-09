@@ -40,10 +40,9 @@ describe 'Tags', :type => :feature do
     describe 'the structure of tag_splat' do
       specify 'has a splat' do
         ce = CollectingEvent.first
-        visit("collecting_events/#{ce.id}")
-        expect(find('#tag_splat').value).to have_text('*')
+        visit("#{ce.class.name.tableize}/#{ce.id}")
+        expect(find("#tag_splat_#{ce.class.name}_#{ce.id}").value).to have_text('*')
       end
     end
   end
 end
-
