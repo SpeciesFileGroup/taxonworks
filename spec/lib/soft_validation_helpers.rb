@@ -36,7 +36,7 @@ class Softy
   end
 
   def you_do_it?
-    soft_validations.add(:mohr, 'fix it urselv!', method: __callee__) if true 
+    soft_validations.add(:mohr, 'fix it urselv!', resolution_with: __method__) if true 
   end
 
   def cook_cheezburgers
