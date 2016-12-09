@@ -33,14 +33,18 @@ module SoftValidation
   #     :fix_not_yet_run        (there is a fix method available, but it hasn't been run)
   #     :no_fix_available       (no fix method was provided)
   class SoftValidation
-    attr_accessor :attribute, :message, :fix, :fix_trigger, :success_message, :failure_message, :fixed, :resolutions
+    attr_accessor :attribute, :message, :fix, :fix_trigger, :success_message, :failure_message, :fixed, :resolution
 
-    def initialize
+    def initialize(options = {})
       @fixed = :fix_not_yet_run
+
+      options.each do |k,v|
+        send("#{k}=", v)
+      end  
     end
 
     def fixed?
-      return true if @fixed == :fixed
+      return true if fixed == :fixed
       false
     end
 

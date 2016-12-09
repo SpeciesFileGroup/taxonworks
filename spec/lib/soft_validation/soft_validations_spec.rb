@@ -9,7 +9,7 @@ describe 'SoftValidations', group: :soft_validation do
   end
 
   specify 'add(:invalid_attribute, "message") raises' do
-    expect{soft_validations.add(:foo, 'no cheezburgahz!')}.to raise_error(RuntimeError, /not a column name/)
+    expect{soft_validations.add(:foo, 'no cheezburgahz!')}.to raise_error(SoftValidation::SoftValidationError, /not a column name/)
   end
 
   specify 'add(:attribute, "message")' do
