@@ -52,5 +52,6 @@ describe 'SoftValidations', group: :soft_validation do
   specify 'messages_on' do
     expect(soft_validations).to respond_to(:messages)
   end
+
 end
 
