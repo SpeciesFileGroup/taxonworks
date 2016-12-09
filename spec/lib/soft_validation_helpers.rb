@@ -31,6 +31,10 @@ class Softy
     soft_validations.add(:mohr, 'hungry (for cheez)!') if @hungry 
   end
 
+  def just_bun?
+    soft_validations.add(:mohr, 'just bun!') if true 
+  end
+
   def cook_cheezburgers
     @hungry = false
     true

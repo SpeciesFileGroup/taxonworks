@@ -42,6 +42,10 @@ module SoftValidation
       @resolution
     end
 
+    def resolution
+      @resolution || []
+    end
+
     # @return[Boolean]
     #  a name and description provided
     def described?

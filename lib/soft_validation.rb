@@ -195,8 +195,8 @@ module SoftValidation
   end 
 
   # @return [True] 
-  # @param [:set, Symbol]  set the set of soft validations to run
-  # @param [:ancestors, Boolean] wether to also validate ancestors soft validations
+  # @param [:set, Symbol] the set of soft validations to run
+  # @param [:ancestors, Boolean] whether to also validate ancestors soft validations
   def soft_validate(set = :all, include_ancestors = true)
     clear_soft_validations
     soft_validations

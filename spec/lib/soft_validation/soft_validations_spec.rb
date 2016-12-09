@@ -53,5 +53,9 @@ describe 'SoftValidations', group: :soft_validation do
     expect(soft_validations).to respond_to(:messages)
   end
 
+  specify '#resolution_for' do
+    expect(soft_validations).to respond_to(:resolution_for)
+  end
+
 end
 
