@@ -38,6 +38,7 @@ module SoftValidation
 
       options[:attribute] = attribute
       options[:message] = message
+      options[:resolution] = resolution_for(options[:method])
 
       sv = SoftValidation.new(
         options
@@ -60,6 +61,7 @@ module SoftValidation
     end
 
     def resolution_for(method)
+      return [] if method.nil?
       self.instance.class.soft_validation_methods[self.instance.class.name][method].resolution
     end
 
