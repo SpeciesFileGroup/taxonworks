@@ -132,6 +132,22 @@ describe 'SoftValidation', group: :soft_validation do
       end
     end
 
+    context 'with a validation instance that is resolvable' do
+      before {
+        Softy.soft_validate(:you_do_it?, resolution: [:root_path])
+      }
+
+      let(:softy) {Softy.new}
+
+      context 'after valiation' do
+        before { softy.soft_validate }
+
+        specify 'resolution is possible' do
+          expect(softy.soft_validations.soft_validations.first.resolution).to contain_exactly(:root_path)
+        end
+      end
+    end
+
     context 'with a couple of validations' do
       before do 
         # Stub the validation methods 

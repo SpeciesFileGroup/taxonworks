@@ -39,11 +39,9 @@ module SoftValidation
       options[:attribute] = attribute
       options[:message] = message
       options[:resolution] = resolution_for(options[:method])
+      options.delete(:method)
 
-      sv = SoftValidation.new(
-        options
-      )
-      
+      sv = SoftValidation.new(options)
       sv.fix_trigger ||= :automatic
 
       @soft_validations << sv
