@@ -17,7 +17,7 @@ input[type=checkbox].increment { display: none; }
   background-size: 12px;
   background-position: center;
   background-repeat: no-repeat;
-  border-radius: 3px;
+  border-radius: 2px;
   transition: background-color 0.5s ease;
   border: 1px solid $navigation_border;
   background-color: $color-secondary-2-1;    
@@ -73,10 +73,10 @@ fieldset {
 }
 
 form input, textarea {
-  font-size: $font_tiny;
-	padding:$standard_padding*0.5;
-	padding-left:$standard_padding;
-	padding-right:$standard_padding;
+  font-size: $font_small;
+	padding:$standard_padding*0.4;
+	padding-left:$standard_padding*0.9;
+	padding-right:$standard_padding*0.9;
 	border-radius:3px;
 	border:1px solid $navigation_border;
 	background-color:#FFF;
