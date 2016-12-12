@@ -55,11 +55,14 @@
     </div>
 
   </div>
-  <div class="field">
-    <%= f.label :force_update %>
-    <br>
-    <%= f.check_box :force_update %>
-  </div>
+
+  <% unless f.object.new_record? -%>
+    <div class="field">
+      <%= f.label :force_update %>
+      <br>
+      <%= f.check_box :force_update %>
+    </div>
+  <% end %>
 
   <div class="actions">
     <%= f.submit %>

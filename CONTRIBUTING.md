@@ -3,7 +3,15 @@ Contributing
 
 ###  How do I report a bug
 
-Use the [issue tracker][13]. You can use [waffle.io](https://waffle.io/SpeciesFileGroup/taxonworks) to do this as well.
+First [read this][14].
+
+Use the [issue tracker][13]. You can use [waffle.io](https://waffle.io/SpeciesFileGroup/taxonworks) to do this as well. 
+
+Some other conventions:
+
+* Categorize your issue using a label.
+* Use the prefix "task -" in the name to indicate the request for a new or improved task.
+* Use the prefix of your project name if reporting errors with a specific project.
 
 ###  How do I set up my development environment?
 
@@ -33,3 +41,4 @@ See [db/schema.rb](db/schema.rb), or, better, checkout out the model [documentat
 [10]: http://rdoc.taxonworks.org/frames
 [12]: http://rdoc.info/gems/yard/file/docs/Tags.md
 [13]: https://github.com/SpeciesFileGroup/taxonworks/issues
+[14]: http://wiki.taxonworks.org/index.php/Feedback 

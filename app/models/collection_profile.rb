@@ -100,10 +100,6 @@ class CollectionProfile < ActiveRecord::Base
 
   validate :prevent_editing, unless: 'self.force_update'
 
-  def self.find_for_autocomplete(params)
-    Queries::CollectionProfileAutocompleteQuery.new(params[:term]).all.where(project_id: params[:project_id])
-  end
-
   # region Profile indices
 
   # @return [Array]

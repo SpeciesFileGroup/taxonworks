@@ -2,7 +2,7 @@ var _init_map_table;
 var result_collection;
 
 _init_map_table = function init_map_table() {
-  if ($("#co_by_area_and_date").length) {
+  if ($("#co_by_area_and_date").length) {   
     if ($("#set_area_form").length) {
       var result_map;  // intended for use to display on a map objects which know how to GeoJSON themselves
       //var area_selector = $("#geographic_area_id_for_by_area");
@@ -175,6 +175,11 @@ _init_map_table = function init_map_table() {
       update_and_graph(event);
       $(".label.range-label")[0].textContent = $(".label.select-label")[1].textContent;
       $(".label.range-label")[1].textContent = $(".label.select-label")[0].textContent;
+
+      //Synchronize datapicker with rangepicker
+      $("#st_fixedpicker").datepicker("setDate", new Date(dateFormat(new Date(newStartText), "yyyy/MM/dd")));
+      $("#en_fixedpicker").datepicker("setDate", new Date(dateFormat(new Date(newEndText), "yyyy/MM/dd")));
+
       $("#double_date_range").rangepicker({
         type: "double",
         startValue: newStartText,
@@ -185,13 +190,13 @@ _init_map_table = function init_map_table() {
           return dateFormat(date, "yyyy/MM/dd");
         }
       });
-      }
-    );
+    });
+
   
     $("#reset_slider").click(function (event) {
       var startDate = new Date($("#earliest_date").text());
       var endDate = new Date($("#latest_date").text());
-        var offset = endDate - startDate;
+      var offset = endDate - startDate;
         $("#double_date_range").rangepicker({
           type: "double",
           startValue: dateFormat(startDate, "yyyy/MM/dd"),
@@ -208,10 +213,10 @@ _init_map_table = function init_map_table() {
         event.preventDefault();
       }
     );
-  
+ 
     $("#toggle_slide_calendar").click(function () {
-      $("#tr_slider").toggle();
-      $("#tr_calendar").toggle();
+      $("#tr_slider").toggle(250);
+      $("#tr_calendar").toggle(250);
       if ($("#toggle_slide_calendar").val() == 'Use Calendar') {
         $("#toggle_slide_calendar").val("Use Slider");
       }
@@ -219,8 +224,9 @@ _init_map_table = function init_map_table() {
         $("#toggle_slide_calendar").val("Use Calendar");
       }
     });
-  
-    $("#toggle_slide_calendar").click();    // set rendered display to design doc state
+    $("#tr_slider").hide();
+    $("#tr_calendar").show();  
+    //$("#toggle_slide_calendar").click();    // set rendered display to design doc state
   
   }       // end of active code block
 };

@@ -10,14 +10,14 @@ input[type=checkbox].increment { display: none; }
   display: inline-block;
   font-size: $font_small;
   cursor: pointer;
-  width: 24px;
-  height:24px;
-  max-width: 24px;
-  max-height:24px;
+  width: 26px;
+  height:26px;
+  max-width: 26px;
+  max-height:26px;
   background-size: 12px;
   background-position: center;
   background-repeat: no-repeat;
-  border-radius: 3px;
+  border-radius: 2px;
   transition: background-color 0.5s ease;
   border: 1px solid $navigation_border;
   background-color: $color-secondary-2-1;    
@@ -69,21 +69,21 @@ textarea:focus, input:focus{
 fieldset {
   border-radius:3px;
   border:1px solid $navigation_border;
-  background-color:$body_background;  
+  background-color:#FFF;  
 }
 
 form input, textarea {
-  font-size: $font_tiny;
+  font-size: $font_small;
 	padding:$standard_padding*0.4;
-	padding-left:$standard_padding;
-	padding-right:$standard_padding;
+	padding-left:$standard_padding*0.9;
+	padding-right:$standard_padding*0.9;
 	border-radius:3px;
 	border:1px solid $navigation_border;
-	background-color:$body_background;
+	background-color:#FFF;
 }
 
 input[type="submit"] {
-  color: $body_background;
+  color: #FFF;
   border-radius: 3px;
   border:1px solid;
   border:transparent;
@@ -97,8 +97,8 @@ select {
   padding-right:$standard_padding;
   border-radius:3px;
   border:1px solid $muted_blue;
-  background-color:$body_background;
-  height: 25px;
+  background-color:#FFF;
+  font-size: $font_tiny;
 }
 
 .ui-autocomplete {

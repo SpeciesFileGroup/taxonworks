@@ -81,6 +81,8 @@ Supporting:
       - biology
   CollectionProfile:
     status: :prototype
+    categories: 
+      - collection_object
   CollectionObjectObservation:
     status: :prototype
     categories:
