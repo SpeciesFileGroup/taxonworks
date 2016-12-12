@@ -54,7 +54,7 @@ module Protonym::SoftValidationExtensions
       elsif is_genus_rank? 
         soft_validations.add(:base, 'Type species is not selected') if self.type_species.nil?
       elsif is_family_rank? 
-        soft_validations.add(:base, 'Type genus is not selected', resolutions: [:edit_otu]) if self.type_genus.nil?
+        soft_validations.add(:base, 'Type genus is not selected') if self.type_genus.nil?
       end
       if !self.iczn_set_as_homonym_of.nil? || !TaxonNameClassification.where_taxon_name(self).with_type_string('TaxonNameClassification::Iczn::Available::Invalid::Homonym').empty?
         soft_validations.add(:base, 'The replacement name for the homonym is not selected') if self.iczn_set_as_synonym_of.nil?
