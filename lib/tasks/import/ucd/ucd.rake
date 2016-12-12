@@ -1253,19 +1253,38 @@ namespace :tw do
         file.each_with_index do |row, i|
           print "\r#{i}"
 
-          # TODO: don't reuse variables like this, it leads to downstream confusion 
-          parent = find_host_family_id_ucd(row['PrimHosFam']) || @root.id # should be parent_id
+          # TODO: don't reuse variables like this, it leads to downstream confusion
+          family = find_host_family_id_ucd(row['PrimHosFam']) || @root.id # should be parent_id
+          parent = family
           parent = TaxonName.find(parent) # this will raise if parent doesn't exist, so if you go further it does exist
 
           nc = parent == @root ? :iczn : parent.rank_class.nomenclatural_code
 
-          taxon = Protonym.find_or_create_by(name: row['HosGenus'], parent: parent, rank_class: Ranks.lookup(nc, 'Genus'), project_id: $project_id)
+          taxon = Protonym.where(name: row['HosGenus'], rank_class: Ranks.lookup(nc, 'Genus'), project_id: $project_id).order(:id).first
 
-          parent = taxon if !taxon.id.blank? # if found don't validate it! 
+          if !taxon.nil?
+            ancestors = taxon.safe_self_and_ancestors.collect{|t| t.id}
+            if !ancestors.include?(family)
+              taxon = Protonym.find_or_create_by(name: row['HosGenus'], parent: parent, rank_class: Ranks.lookup(nc, 'Genus'), project_id: $project_id)
+            end
+          else
+            taxon = Protonym.find_or_create_by(name: row['HosGenus'], parent: parent, rank_class: Ranks.lookup(nc, 'Genus'), project_id: $project_id)
+          end
+
+
+          parent = taxon if !taxon.id.blank? # if found don't validate it!
 
           # TODO: now re-using taxon?.. confusing 
           unless row['HosSpecies'].blank?
-            taxon = Protonym.find_or_create_by(name: row['HosSpecies'], rank_class: Ranks.lookup(nc, 'Species'), parent: parent, project_id: $project_id)
+            taxon = Protonym.where(cached: row['HosGenus'] + ' ' + row['HosSpecies'], rank_class: Ranks.lookup(nc, 'Species'), project_id: $project_id).order(:id).first
+            if !taxon.nil?
+              ancestors = taxon.safe_self_and_ancestors.collect{|t| t.id}
+              if !ancestors.include?(family)
+                taxon = Protonym.find_or_create_by(name: row['HosSpecies'], rank_class: Ranks.lookup(nc, 'Species'), parent: parent, project_id: $project_id)
+              end
+            else
+              taxon = Protonym.find_or_create_by(name: row['HosSpecies'], rank_class: Ranks.lookup(nc, 'Species'), parent: parent, project_id: $project_id)
+            end
           end
 
           #   unless row['HosAuthor'].blank?
@@ -1281,16 +1300,7 @@ namespace :tw do
           # it could become invalid if verbatim_author is set? 
           taxon = TaxonName.find(parent) unless taxon.valid? # bad form to re-use variable name - and this doesn't make sense, you already have a parent why find it again?
           taxon.identifiers.create(type: 'Identifier::Local::Import', namespace_id: @data.keywords['hos_number'], identifier: row['HosNumber']) if !row['HosNumber'].blank?
-
-          # TODO: review
-          # replace with this?
-          # unless taxon.valid?
-          #   parent.identifiers.create(type: 'Identifier::Local::Import', namespace_id: @data.keywords['hos_number'], identifier: row['HosNumber']) if !row['HosNumber'].blank?
-          # end
-
-
         end
-
       end
 
       def handle_hosts_ucd
