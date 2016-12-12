@@ -325,7 +325,7 @@ class CollectionObject < ActiveRecord::Base
 
     if a && b
       if a > b
-        d = b
+        d = a
       end
     else
       d = a || b
