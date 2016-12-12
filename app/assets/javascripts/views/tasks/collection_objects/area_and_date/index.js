@@ -100,6 +100,12 @@ _init_map_table = function init_map_table() {
         //input.val(on_day);
       }
     }
+
+
+    $("#toggle_slide_area").on("click", function() {  
+      $(".map_toggle").remove();
+      $(".on_selector").remove();
+    });
   
     $("#search_start_date").change(function (event) {
       update_and_graph(event)
@@ -226,6 +232,8 @@ _init_map_table = function init_map_table() {
     });
     $("#tr_slider").hide();
     $("#tr_calendar").show();  
+    $(".map_toggle").remove();
+    $(".on_selector").remove();
     //$("#toggle_slide_calendar").click();    // set rendered display to design doc state
   
   }       // end of active code block

@@ -5,8 +5,8 @@
   width: 100%;
 }
 table {
-  box-shadow: 0 0 3px 0 $navigation_border;
-  border-radius: 3px;
+  box-shadow: 0 0 2px 0 $navigation_border;
+  border-radius: 2px;
   width: auto;
   border-spacing: 0;
   border-collapse: collapse;  
@@ -25,14 +25,14 @@ table {
 
   th.headerSortUp { 
     background-image: image-url('arrow-up.svg');
-    background-position: right, center;
+    background-position: right $standard_padding center;
     padding-right: $standard_padding;
     background-repeat: no-repeat;
   } 
 
   th.headerSortDown { 
     background-image: image-url('arrow-down.svg');
-    background-position: right, center;
+    background-position: right $standard_padding center;
     padding-right: $standard_padding;
     background-repeat: no-repeat;  
   } 
@@ -69,7 +69,7 @@ table {
     font-weight: 500;
     color: $default_text;
     font-size: 12px;
-    border-bottom: 4px solid $color-complement-3;
+    border-bottom: 2px solid $color-complement-3;
     text-align: left;
     a {
       img {

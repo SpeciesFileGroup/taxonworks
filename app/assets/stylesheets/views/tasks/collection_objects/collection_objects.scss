@@ -1,4 +1,13 @@
-#filter-collection-objects {
-	width: 700px;
-	max-width: 640px;
+#co_by_area_and_date {
+
+	#filter-collection-objects {
+		width: 700px;
+		max-width: 640px;
+	}
+
+	#set_area_form {
+		#textAreaSelector {
+			display: none;
+		}
+	}
 }
