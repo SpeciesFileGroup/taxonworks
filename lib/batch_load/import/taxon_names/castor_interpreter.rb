@@ -35,7 +35,8 @@ module BatchLoad
 
     def build_taxon_names
       i = 0
-  
+
+      namespace_castor = Namespace.find_by(:name, "Castor")
       taxon_names = {}
 
       csv.each do |row|
@@ -51,6 +52,15 @@ module BatchLoad
           next if row['rank'] == "series"
           next if row['taxon_name'] == "unidentified"
       
+          taxon_name_identifier_castor_text = row["guid"]
+          taxon_name_identifier_castor = { namespace: namespace_castor,
+                                           type: "Identifier::Local::TaxonConcept",
+                                           identifier: taxon_name_identifier_castor_text
+          }
+
+          taxon_name_identifiers = []
+          taxon_name_identifiers.push(taxon_name_identifier_castor) if !taxon_name_identifier_castor_text.blank?
+
           protonym_attributes = {
             name: row['taxon_name'],
             year_of_publication: year_of_publication(row['author_year']),
@@ -59,7 +69,8 @@ module BatchLoad
             also_create_otu: @also_create_otu,
             project: @project,
             verbatim_author: verbatim_author(row['author_year']),
-            taxon_name_authors_attributes: taxon_name_authors_attributes(verbatim_author(row['author_year']))
+            taxon_name_authors_attributes: taxon_name_authors_attributes(verbatim_author(row['author_year'])),
+            identifiers_attributes: taxon_name_identifiers
           }
 
           p = Protonym.new(protonym_attributes)

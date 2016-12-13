@@ -59,15 +59,20 @@ module BatchLoad
           parse_result.objects[:extract].push(extract)
 
           # Text for collection object identifiers
-          co_identifier_castor_text = row['guid']
+          co_identifier_castor_guid_text = row['guid']
+          co_identifier_castor_taxon_guid_text = row['taxon_guid']
           co_identifier_morphbank_text = row['morphbank_specimen_id']
           co_identifier_drm_field_voucher_text = row['specimen_number']
           co_identifier_drm_lab_voucher_text = "#{row['voucher_number_prefix']}#{row['voucher_number_stirng']}"
 
           # Collection object identifiers
-          co_identifier_castor = { namespace: namespace_castor,
+          co_identifier_castor_guid = { namespace: namespace_castor,
                                    type: 'Identifier::Local::CollectionObject',
-                                   identifier: co_identifier_castor_text }
+                                   identifier: co_identifier_castor_guid_text }
+
+          co_identifier_castor_taxon_guid = { namespace: namespace_castor,
+                                   type: 'Identifier::Local::TaxonConcept',
+                                   identifier: co_identifier_castor_taxon_guid_text }
 
           co_identifier_morphbank = { namespace: namespace_morphbank,
                                       type: 'Identifier::Local::CollectionObject',
@@ -86,7 +91,8 @@ module BatchLoad
 
           # Collection object
           co_identifiers = []
-          co_identifiers.push(co_identifier_castor)             if !co_identifier_castor_text.blank?
+          co_identifiers.push(co_identifier_castor_guid)        if !co_identifier_castor_guid_text.blank?
+          co_identifiers.push(co_identifier_castor_taxon_guid)  if !co_identifier_castor_taxon_guid_text.blank?
           co_identifiers.push(co_identifier_morphbank)          if !co_identifier_morphbank_text.blank?
           co_identifiers.push(co_identifier_drm_field_voucher)  if !co_identifier_drm_field_voucher_text.blank?
           co_identifiers.push(co_identifier_drm_lab_voucher)    if !co_identifier_drm_lab_voucher_text.blank?
