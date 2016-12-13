@@ -6,7 +6,7 @@ class TaxonNamesController < ApplicationController
   # GET /taxon_names
   # GET /taxon_names.json
   def index
-    @recent_objects = TaxonName.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
+    @recent_objects = TaxonName.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
     render '/shared/data/all/index'
   end
 
@@ -92,12 +92,12 @@ class TaxonNamesController < ApplicationController
   end
 
   def list
-    @taxon_names = TaxonName.with_project_id($project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
+    @taxon_names = TaxonName.with_project_id(session_current_project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
   end
 
   # GET /taxon_names/download
   def download
-    send_data TaxonName.generate_download( TaxonName.where(project_id: $project_id) ), type: 'text', filename: "taxon_names_#{DateTime.now.to_s}.csv"
+    send_data TaxonName.generate_download( TaxonName.where(project_id: sessions_current_project_id) ), type: 'text', filename: "taxon_names_#{DateTime.now.to_s}.csv"
   end
 
   def batch_load
@@ -132,7 +132,7 @@ class TaxonNamesController < ApplicationController
   private
   # Use callbacks to share common setup or constraints between actions.
   def set_taxon_name 
-    @taxon_name = TaxonName.with_project_id($project_id).includes(:creator, :updater).find(params[:id]) 
+    @taxon_name = TaxonName.with_project_id(sessions_current_project_id).includes(:creator, :updater).find(params[:id]) 
     @recent_object = @taxon_name
   end
 
@@ -147,7 +147,7 @@ class TaxonNamesController < ApplicationController
   end
 
   def batch_params
-    params.permit(:file, :parent_taxon_name_id, :nomenclature_code, :also_create_otu, :import_level).merge(user_id: sessions_current_user_id, project_id: $project_id).symbolize_keys
+    params.permit(:file, :parent_taxon_name_id, :nomenclature_code, :also_create_otu, :import_level).merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).symbolize_keys
   end
 
 end
