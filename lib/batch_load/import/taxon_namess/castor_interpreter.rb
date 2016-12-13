@@ -1,6 +1,6 @@
 # TODO: THIS IS A GENERATED STUB, it does not function
 module BatchLoad
-  class Import::TaxonNames::CastorInterpreter < BatchLoad::Import
+  class Import::TaxonNamess::CastorInterpreter < BatchLoad::Import
 
     # The parent for the top level names
     attr_accessor :parent_taxon_name
@@ -36,7 +36,7 @@ module BatchLoad
     def build_taxon_names
       i = 0
 
-      namespace_castor = Namespace.find_by(:name, "Castor")
+      namespace_castor = Namespace.find_by(name: "Castor")
       taxon_names = {}
 
       csv.each do |row|
