@@ -68,7 +68,7 @@ module BatchLoad
     end
 
     def get_taxon_name(filename)
-      # bembidion.info:taxon-concepts:000261
+      # Identifier to find collection object
       voucher_number = get_voucher_number(filename)
       identifier_text = voucher_number
 
@@ -76,13 +76,16 @@ module BatchLoad
       collection_object = nil
       collection_object = collection_objects.first if collection_objects.any?
 
-      puts "Identifiers"
+      # Taxon determination associated with collection object
+      taxon_determinations = TaxonDetermination.where(biological_collection_object_id: collection_object.id)
+      taxon_determination = nil
+      taxon_determination = taxon_determinations.first if taxon_determinations.any?
 
-      collection_object.identifiers.each do |identifier|
-        ap identifier
+      if taxon_determination
+        otu = taxon_determination.otu
+        taxon_name = otu.taxon_name
+        return taxon_name.name
       end
-
-      puts "END Identifiers"
 
       ""
     end
