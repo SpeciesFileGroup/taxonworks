@@ -43,16 +43,7 @@ module BatchLoad
 
     def get_genbank_text(filename)
       # _&aKJ624355_&
-      genbank_pattern = "_&a"
-      beg_genbank_text_index = filename.index(genbank_pattern)
-      
-      if beg_genbank_text_index
-        beg_genbank_text_index += genbank_pattern.length
-        end_genbank_text_index = filename.index("_&", beg_genbank_text_index)
-        return filename[beg_genbank_text_index...end_genbank_text_index]
-      end
-
-      ""
+      return get_between_strings(filename, "_&a", "_&")
     end
 
     def get_sequence(file_content)
@@ -67,43 +58,42 @@ module BatchLoad
 
     def get_voucher_number(filename)
       # &vDRMDNA2303_&
-      voucher_pattern = "&vDRM"
-      beg_voucher_text_index = filename.index(voucher_pattern)
-
-      if beg_voucher_text_index
-        beg_voucher_text_index += voucher_pattern.length
-        end_voucher_text_index = filename.index("_&", beg_voucher_text_index)
-        return filename[beg_voucher_text_index...end_voucher_text_index]
-      end
-
-      ""
+      return get_between_strings(filename, "&vDRM", "_&")
     end
 
     def get_gene_fragement(filename)
-      # _&fCOIBC_&
-      gene_fragement_pattern = "_&f"
-      beg_gene_fragement_text_index = filename.index(gene_fragement_pattern)
+      # _&fCOIBC_& or _&gCOIBC_&
+      f_fragement = get_between_strings(filename, "_&f", "_&")
+      return f_fragement.blank? ? get_between_strings(filename, "_&g", "_&") : f_fragement
+    end
 
-      if beg_gene_fragement_text_index
-        beg_gene_fragement_text_index += gene_fragement_pattern.length
-        end_gene_fragement_text_index = filename.index("_&", beg_gene_fragement_text_index)
-        return filename[beg_gene_fragement_text_index...end_gene_fragement_text_index]
+    def get_taxon_name(filename)
+      # bembidion.info:taxon-concepts:000261
+      voucher_number = get_voucher_number(filename)
+      identifier_text = voucher_number
+
+      collection_objects = CollectionObject.with_namespaced_identifier("DRMDNA", identifier_text)
+      collection_object = nil
+      collection_object = collection_objects.first if collection_objects.any?
+
+      puts "Identifiers"
+
+      collection_object.identifiers.each do |identifier|
+        ap identifier
       end
+
+      puts "END Identifiers"
 
       ""
     end
 
-    def get_taxon_name(filename)
-      # _&nBembidion obliquulum.fas
-      taxon_name_pattern = "_&n"
-      beg_taxon_name_text_index = filename.index(taxon_name_pattern)
+    def get_between_strings(str, beg_marker, end_marker)
+      beg_marker_index = str.index(beg_marker)
 
-      if beg_taxon_name_text_index
-        beg_taxon_name_text_index += taxon_name_pattern.length
-        end_taxon_name_text_index = filename.index(".fas", beg_taxon_name_text_index)
-        taxon_name = filename[beg_taxon_name_text_index...end_taxon_name_text_index]
-        taxon_name.tr!(" ", "-")
-        return taxon_name
+      if beg_marker_index
+        beg_marker_index += beg_marker.length
+        end_marker_index = str.index(end_marker, beg_marker_index)
+        return str[beg_marker_index...end_marker_index] if end_marker_index
       end
 
       ""
