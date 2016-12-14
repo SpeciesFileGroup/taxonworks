@@ -6,7 +6,11 @@
   border-radius: 3px !important;
   padding: 0px;
 }
-.ui-corner-all {background: $body_background !important}
+.ui-corner-all { 
+  background: $body_background !important;
+  display:flex;
+  align-items: center;
+}
 .ui-datepicker {
   display: none;
   box-shadow: 0 0px 3px 0 $navigation_border;
@@ -19,7 +23,7 @@
   }
 }
 .ui-datepicker-title {
-  font-weight: 100;
+  font-weight: 300;
 }
 .ui-datepicker-header {
   display: flex;

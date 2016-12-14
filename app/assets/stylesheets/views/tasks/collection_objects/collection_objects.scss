@@ -1,9 +1,17 @@
 #co_by_area_and_date {
-
-	#filter-collection-objects {
-		width: 700px;
-		max-width: 640px;
+	position: relative;
+#filter-collection-objects {
+	top: 0px;
+	width: 600px;
+	position: fixed !important;
+	//margin-left: -1em !important;
+	.content {
+		padding: 2em;
 	}
+	.slide-panel-circle-icon {
+		background-image: image-url("filter.svg");
+	}
+}
 
 	#set_area_form {
 		#textAreaSelector {

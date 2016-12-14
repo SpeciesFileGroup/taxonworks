@@ -19,7 +19,7 @@
   display: flex;
   flex-direction:column;
   justify-content:flex-start;
-  box-shadow: 0 1px 2px rgba(0,0,0,.2);
+  box-shadow: 0 1px 1px rgba(0,0,0,.2);
   background-color: $panel_background;
   a {
     text-decoration: none;
@@ -57,15 +57,19 @@
     position: relative;
   }
 
+  .border-bottom {
+    border-bottom: 1px solid $navigation_border;
+  }
+
   .title {
     display: flex;
-    min-height: 35px;
-    padding-top: 5px;
+    min-height: 34px;
+    padding-top: 4px;
     font-size: $font_title;
     align-items:center;
     padding-left: $standard_padding;
     padding-right: $standard_padding;
-    border-bottom: 5px solid transparent;
+    border-bottom: 2px solid transparent;
     justify-content:space-between;  
     position: relative; 
     a {

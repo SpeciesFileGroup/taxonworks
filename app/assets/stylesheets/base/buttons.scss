@@ -66,11 +66,11 @@
     background-size: 14px;
     background-position: center;
     background-repeat: no-repeat;
-    border-radius: 3px;
+    border-radius: 2px;
     transition: background-color 0.5s ease;
     border: 1px solid $navigation_border;
     background-color: $color-secondary-2-1;
-    box-shadow: 0 0px 3px 0 $navigation_border;    
+    box-shadow: 0 0px 1px 0 $navigation_border;    
 }
 
 #otu_picker_add_ok {

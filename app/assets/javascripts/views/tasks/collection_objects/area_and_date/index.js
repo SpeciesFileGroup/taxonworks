@@ -8,6 +8,14 @@ _init_map_table = function init_map_table() {
       //var area_selector = $("#geographic_area_id_for_by_area");
   
       $(".result_map_toggle").click(function (event) {           // switch to the map view
+        switchMap();
+      });
+  
+      $(".result_list_toggle").click(function (event) {          // switch to the list view
+        switchList();
+      });
+
+      function switchMap() {
         $("#area_count").text('????');
         $("#show_list").attr('hidden', true);         // hide the list view
         $("#show_map").removeAttr('hidden');          // reveal the map
@@ -16,15 +24,24 @@ _init_map_table = function init_map_table() {
         $("[name='[geographic_area_id]']").attr('value', '');
         result_map = _init_simple_map();
         result_map = TW.vendor.lib.google.maps.initializeMap('simple_map_canvas', result_collection);
-      });
-  
-      $(".result_list_toggle").click(function (event) {          // switch to the list view
+      }
+
+      function switchList() {
         $("#area_count").text('????');
         $("#show_map").attr('hidden', true);          // hide the map
         $("#show_list").removeAttr('hidden');         // reveal the area selector
         $(".result_map_toggle").removeAttr('hidden');            // expose the other link
         $(".result_list_toggle").attr('hidden', true);
-        $("#drawn_area_shape").attr('value', '');
+        $("#drawn_area_shape").attr('value', '');        
+      }
+
+      $("#toggle-list-map").on("click", function() {
+        if($(this).is(":checked")) {
+          switchMap();
+        } 
+        else {
+          switchList()
+        }
       });
   
       $("#set_otu").click(function (event) {
@@ -83,9 +100,9 @@ _init_map_table = function init_map_table() {
     var dateInput;
 
 
-    set_control($("#st_fixedpicker"), $("#search_start_date"), format, year, $("#earliest_date").text());
+    set_control($("#search_start_date"), $("#search_start_date"), format, year, $("#earliest_date").text());
 
-    set_control($("#en_fixedpicker"), $("#search_end_date"), format, year, $("#latest_date").text());
+    set_control($("#search_end_date"), $("#search_end_date"), format, year, $("#latest_date").text());
   
     function set_control(control, input, format, year, st_en_day) {
       if (control.length) {
@@ -95,17 +112,15 @@ _init_map_table = function init_map_table() {
           dateFormat: format,
           changeMonth: true,
           changeYear: true,
+   //       showOn: "button",
+   //   buttonImage: "images/calendar.gif",
+   //   buttonImageOnly: true,
+   //   buttonText: "Select date",
           yearRange: "1700:" + year
         });
         //input.val(on_day);
       }
     }
-
-
-    $("#toggle_slide_area").on("click", function() {  
-      $(".map_toggle").remove();
-      $(".on_selector").remove();
-    });
   
     $("#search_start_date").change(function (event) {
       update_and_graph(event)
@@ -230,8 +245,6 @@ _init_map_table = function init_map_table() {
         $("#toggle_slide_calendar").val("Use Calendar");
       }
     });
-    $("#tr_slider").hide();
-    $("#tr_calendar").show();  
     $(".map_toggle").remove();
     $(".on_selector").remove();
     //$("#toggle_slide_calendar").click();    // set rendered display to design doc state

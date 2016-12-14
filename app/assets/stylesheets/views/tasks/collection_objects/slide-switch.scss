@@ -1,5 +1,6 @@
 @import 'base/palette';
 @import 'base/whitespace';
+@import 'base/fonts';
 
 .switch {
     position: relative;
@@ -94,7 +95,7 @@ input:checked + .slider:before {
     left: -1px;
     bottom: -1px;
     border:1px solid $navigation-border;
-    box-shadow: 0px 2px 3px 0px $navigation-border;
+    box-shadow: 0px 0px 2px 0px $navigation-border;
     background-color: #FFF;
     -webkit-transition: .2s;
     transition: .2s;
@@ -116,7 +117,8 @@ input:checked + .slider:before {
     display: flex;
     justify-content: space-around;
     align-items: center;
-    height: 26px;
+    height: 28px;
+    font-size: $font_small;
     width: 100%;
     box-sizing: border-box;
     opacity: 0.6;
@@ -138,9 +140,9 @@ input:checked + .slider-toggle:before {
 
 /* Rounded sliders */
 .slider-toggle.round {
-    border-radius: 3px;
+    border-radius: 2px;
 }
 
 .slider-toggle.round:before {
-    border-radius: 3px;
+    border-radius: 2px;
 }
