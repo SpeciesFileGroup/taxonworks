@@ -185,5 +185,8 @@ class CreateDwcOccurrence < ActiveRecord::Migration
       t.references :project, index: true, foreign_key: true
       t.timestamps
     end
+
+    add_foreign_key :dwc_occurrences, :users, column: :created_by_id
+    add_foreign_key :dwc_occurrences, :users, column: :updated_by_id
   end
 end
