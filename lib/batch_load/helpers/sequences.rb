@@ -77,14 +77,16 @@ module BatchLoad
       collection_object = collection_objects.first if collection_objects.any?
 
       # Taxon determination associated with collection object
-      taxon_determinations = TaxonDetermination.where(biological_collection_object_id: collection_object.id)
-      taxon_determination = nil
-      taxon_determination = taxon_determinations.first if taxon_determinations.any?
+      if collection_object
+        taxon_determinations = TaxonDetermination.where(biological_collection_object_id: collection_object.id)
+        taxon_determination = nil
+        taxon_determination = taxon_determinations.first if taxon_determinations.any?
 
-      if taxon_determination
-        otu = taxon_determination.otu
-        taxon_name = otu.taxon_name
-        return taxon_name.name
+        if taxon_determination
+          otu = taxon_determination.otu
+          taxon_name = otu.taxon_name
+          return taxon_name.name
+        end
       end
 
       ""
