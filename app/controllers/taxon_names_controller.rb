@@ -92,7 +92,7 @@ class TaxonNamesController < ApplicationController
   end
 
   def list
-    @taxon_names = TaxonName.with_project_id(session_current_project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
+    @taxon_names = TaxonName.with_project_id(sessions_current_project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
   end
 
   # GET /taxon_names/download
