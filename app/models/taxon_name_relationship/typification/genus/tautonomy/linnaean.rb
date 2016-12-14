@@ -1,9 +1,14 @@
+# frozen_string_literal: true
+# Defines a Tautonomy b/w subject and object.
+# TODO: missing URI
 class TaxonNameRelationship::Typification::Genus::Tautonomy::Linnaean < TaxonNameRelationship::Typification::Genus::Tautonomy
 
   def self.disjoint_taxon_name_relationships
-    self.parent.disjoint_taxon_name_relationships +
-        self.collect_to_s(TaxonNameRelationship::Typification::Genus::Tautonomy,
-            TaxonNameRelationship::Typification::Genus::Tautonomy::Absolute)
+    parent.disjoint_taxon_name_relationships +
+      collect_to_s(
+        TaxonNameRelationship::Typification::Genus::Tautonomy,
+        TaxonNameRelationship::Typification::Genus::Tautonomy::Absolute
+      )
   end
 
   def object_status
