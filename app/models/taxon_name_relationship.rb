@@ -46,15 +46,18 @@ class TaxonNameRelationship < ActiveRecord::Base
   #   When true, cached values are not built
   attr_accessor :no_cached
 
-  belongs_to :subject_taxon_name, class_name: 'TaxonName', foreign_key: :subject_taxon_name_id # left side
-  belongs_to :object_taxon_name, class_name: 'TaxonName', foreign_key: :object_taxon_name_id   # right side
+  belongs_to :subject_taxon_name, class_name: 'TaxonName', foreign_key: :subject_taxon_name_id, inverse_of: :taxon_name_relationships  # left side
+  belongs_to :object_taxon_name, class_name: 'TaxonName', foreign_key: :object_taxon_name_id, inverse_of: :related_taxon_name_relationships    # right side
 
   after_save :set_cached_names_for_taxon_names, unless: 'self.no_cached'
   after_destroy :set_cached_names_for_taxon_names, unless: 'self.no_cached'
 
   validates_presence_of :type, message: 'Relationship type should be specified'
-  validates_presence_of :subject_taxon_name_id, message: 'Taxon is not selected'
-  validates_presence_of :object_taxon_name_id, message: 'Taxon is not selected'
+  validates_presence_of :subject_taxon_name
+  validates_presence_of :object_taxon_name
+# validates_presence_of :subject_taxon_name_id, message: 'Taxon is not selected'
+# validates_presence_of :object_taxon_name_id, message: 'Taxon is not selected'
+
   validates_uniqueness_of :object_taxon_name_id, scope: :type, if: :is_combination?
   validates_uniqueness_of :object_taxon_name_id, scope: [:type, :subject_taxon_name_id], unless: :is_combination?
 
@@ -266,8 +269,8 @@ class TaxonNameRelationship < ActiveRecord::Base
   end
 
   def validate_subject_and_object_are_not_identical
-    if self.object_taxon_name_id == self.subject_taxon_name_id
-      errors.add(:object_taxon_name_id, 'Taxon should not refer to itself') unless self.type =~ /OriginalCombination/
+    if self.object_taxon_name == self.subject_taxon_name
+      errors.add(:object_taxon_name, 'Taxon should not refer to itself') unless self.type =~ /OriginalCombination/
     end
   end
 
