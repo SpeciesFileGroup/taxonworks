@@ -53,11 +53,10 @@ class TaxonNameRelationship < ActiveRecord::Base
   after_destroy :set_cached_names_for_taxon_names, unless: 'self.no_cached'
 
   validates_presence_of :type, message: 'Relationship type should be specified'
-  validates_presence_of :subject_taxon_name
-  validates_presence_of :object_taxon_name
-# validates_presence_of :subject_taxon_name_id, message: 'Taxon is not selected'
-# validates_presence_of :object_taxon_name_id, message: 'Taxon is not selected'
+  validates_presence_of :subject_taxon_name, message: 'missing taxon name on left side'
+  validates_presence_of :object_taxon_name, message: 'missing taxon name on right side'
 
+  # TODO: these are likely not speced!  May have to change them to reference object rather than id
   validates_uniqueness_of :object_taxon_name_id, scope: :type, if: :is_combination?
   validates_uniqueness_of :object_taxon_name_id, scope: [:type, :subject_taxon_name_id], unless: :is_combination?
 
