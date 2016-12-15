@@ -42,7 +42,9 @@ module BatchLoad
       csv.each do |row|
         i += 1
         parse_result = BatchLoad::RowParse.new
-        parse_result.objects[:taxon_names] = []
+        parse_result.objects[:taxon_name] = []
+        parse_result.objects[:taxon_name_relationship] = []
+        parse_result.objects[:taxon_name_classification] = []
 
         @processed_rows[i] = parse_result
 
@@ -84,7 +86,35 @@ module BatchLoad
             p.parent = taxon_names[parent_taxon_name_id]
           end
           
-          parse_result.objects[:taxon_names].push p
+          parse_result.objects[:taxon_name].push p
+
+          # TaxonNameRelationship
+          related_name_id = row['related_name_id']
+
+          if !taxon_names[related_name_id].nil?
+            related_name_nomen_class = nil
+
+            begin
+              related_name_nomen_class = row['related_name_nomen_class'].constantize
+
+              if related_name_nomen_class.ancestors.include?(TaxonNameRelationship)
+                taxon_name_relationship = related_name_nomen_class.new(subject_taxon_name: p, object_taxon_name: taxon_names[related_name_id])
+                parse_result.objects[:taxon_name_relationship].push taxon_name_relationship
+              end
+            rescue NameError
+            end
+          end
+
+          # TaxonNameClassification
+          begin
+            name_nomen_class = row['name_nomen_classification'].constantize
+
+            if name_nomen_class.ancestors.include?(TaxonNameClassification)
+              taxon_name_classification = TaxonNameClassification.new(taxon_name: p, type: row['name_nomen_classification'])
+              parse_result.objects[:taxon_name_classification].push taxon_name_classification
+            end
+          rescue NameError
+          end
         end
       end
     end

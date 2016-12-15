@@ -152,7 +152,7 @@ class TaxonNamesController < ApplicationController
     if params[:file] && digested_cookie_exists?(params[:file].tempfile, :Castor_taxon_names_md5)
       @result = BatchLoad::Import::TaxonNamess::CastorInterpreter.new(batch_params)
       if @result.create
-        flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} TODO RECORD TYPES were created."
+        flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} items were created."
         render 'taxon_names/batch_load/castor/create' and return
       else
         flash[:alert] = 'Batch import failed.'
