@@ -13,14 +13,14 @@ Object.assign(TW.views.tags.tag_picker, {
     // https://jqueryui.com/autocomplete/
     //
     // all of these should likely be renamed for namespacing purposes
-    initialize_autocomplete(form);
-    bind_new_link(form);
-    bind_switch_link(form);
-    bind_expand_link(form);
-    bind_label_mirroring(form);
-    bind_remove_links(form.find('.remove_tag'));
-    make_tag_list_sortable(form);
-    bind_position_handling_to_submit_button(form);
+    this.initialize_autocomplete(form);
+    this.bind_new_link(form);
+    this.bind_switch_link(form);
+    this.bind_expand_link(form);
+    this.bind_label_mirroring(form);
+    this.bind_remove_links(form.find('.remove_tag'));
+    this.make_tag_list_sortable(form);
+    this.bind_position_handling_to_submit_button(form);
   },
 
 // Return a first name, splits on (white) space or comma
@@ -87,11 +87,11 @@ Object.assign(TW.views.tags.tag_picker, {
   autocomplete_input.autocomplete({
     source: '/people/lookup_person',
     open: function (event, ui) {
-      bind_hover(form);
+      TW.views.tags.tag_picker.bind_hover(form);
     },
     select: function (event, ui) {    // execute on select event in search text box
-      insert_existing_person(form, ui.item.object_id, ui.item.label);
-      clear_tag_picker(form);
+      TW.views.tags.tag_picker.insert_existing_person(form, ui.item.object_id, ui.item.label);
+      TW.views.tags.tag_picker.clear_tag_picker(form);
       return false;
     }
   }).autocomplete("instance")._renderItem = function (ul, item) {
@@ -131,9 +131,9 @@ Object.assign(TW.views.tags.tag_picker, {
   bind_new_link: function (form) {
   // Add a tag to the list via the add new form
   form.find(".tag_picker_add_new").click(function () {
-    insert_new_person(form);
+    this.insert_new_person(form);
     form.find('.new_person').attr("hidden", true); // hide the form fields
-    clear_tag_picker(form); // clear autocomplete input box
+    this.clear_tag_picker(form); // clear autocomplete input box
   });
   },
 
@@ -166,13 +166,13 @@ Object.assign(TW.views.tags.tag_picker, {
     .append($('<input hidden name="' + person_base + '[first_name]" value="' + form.find(".first_name").val() + '" >'))
     .append($('<input hidden name="' + person_base + '[suffix]" value="' + form.find(".suffix").val() + '" >'))
     .append($('<input hidden name="' + person_base + '[prefix]" value="' + form.find(".prefix").val() + '" >'))
-    .append(remove_link())
+    .append(this.remove_link())
   );
   },
 
   remove_link: function () {
   var link = $('<a href="#" class="remove_tag">remove</a>');
-  bind_remove_links(link);
+    this.bind_remove_links(link);
   return link;
   },
 
@@ -256,7 +256,7 @@ Object.assign(TW.views.tags.tag_picker, {
   list_items.sortable({
     change: function (event, ui) {
       if ($('form[id^="new_"]').length == 0) {
-        warn_for_save(form.find('.tag_picker_message'));
+        this.warn_for_save(form.find('.tag_picker_message'));
       }
     }
   });

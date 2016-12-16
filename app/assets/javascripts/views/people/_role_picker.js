@@ -87,11 +87,11 @@ Object.assign(TW.views.people.role_picker, {
   autocomplete_input.autocomplete({
     source: '/people/lookup_person',
     open: function (event, ui) {
-      this.bind_hover(form);
+      TW.views.people.role_picker.bind_hover(form);
     },
     select: function (event, ui) {    // execute on select event in search text box
-      this / insert_existing_person(form, ui.item.object_id, ui.item.label);
-      this.clear_role_picker(form);
+      TW.views.people.role_picker.insert_existing_person(form, ui.item.object_id, ui.item.label);
+      TW.views.people.role_picker.clear_role_picker(form);
       return false;
     }
   }).autocomplete("instance")._renderItem = function (ul, item) {
@@ -103,8 +103,8 @@ Object.assign(TW.views.people.role_picker, {
   // Copy search textbox content to .new_person .name_label
   autocomplete_input.keyup(function () {
     var input_term = autocomplete_input.val();
-    var last_name = this.get_last_name(input_term);
-    var first_name = get_first_name(input_term);
+    var last_name = TW.views.people.role_picker.get_last_name(input_term);
+    var first_name = TW.views.people.role_picker.get_first_name(input_term);
 
     if (input_term.length == 0) {
       form.find(".new_person").attr("hidden", true);
@@ -196,7 +196,7 @@ Object.assign(TW.views.people.role_picker, {
   // update mirrored label
   form.find(".role_picker_person_form input").on("change keyup", function () {
     form.find(".name_label").html(
-      this.get_full_name(form.find(".first_name").val(), form.find(".last_name").val())
+      TW.views.people.role_picker.get_full_name(form.find(".first_name").val(), form.find(".last_name").val())
     );
   });
   },
