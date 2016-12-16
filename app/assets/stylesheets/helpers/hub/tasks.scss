@@ -27,8 +27,10 @@
     width: 468px;
     min-height: 200px;
     border-radius: 2px;
-    background-color: $soft_background;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.2);   
+    background-color: #FFF;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.2);  
+    transition: transform 0.3s ease,
+                box-shadow 0.3s ease; 
     .task_header {
       opacity: 0.5;
     }
@@ -37,10 +39,11 @@
   .task_card:hover {
     transition: background-color 0.5s ease,
     box-shadow 0.5s ease;
-    background-color: $navigation_background;
-    box-shadow:inset 0px 1px 2px 0px rgba(0,0,0,.3);
+    box-shadow: 0px 3px 5px 0px rgba(0,0,0,.3);
     transition: background-color 0.5s ease,
-    box-shadow 0.5s ease;     
+                transform 0.3s ease,
+                box-shadow 0.3s ease;  
+    transform: scale(1.025);   
     .filter_data {
       opacity: 1;
     }
@@ -123,9 +126,9 @@
 
   .task_description {
     font-size: 14px;
-    font-weight: 100;
-    line-height: 125%;
-    padding: 0em 2em 1em 2em;
+    font-weight: 300;
+    padding-left: $standard_padding * 1.4;
+    padding-right: $standard_padding * 1.4;
   }
 
   .navigation {

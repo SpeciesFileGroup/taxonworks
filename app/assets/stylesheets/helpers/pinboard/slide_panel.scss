@@ -35,7 +35,7 @@ $default-padding: 2em;
 		width: auto;
 		height: 60px;
 		display: flex;
-		font-size: 18px;
+		font-size: $font_title;
 		color: #FFF;
 		align-items: center;
 		padding-left: $default-padding;
@@ -113,20 +113,6 @@ $default-padding: 2em;
 		top:calc(50vh - 120px);
 		background-color: #00838F;
 		background-image: image-url('recent_slide.svg');
-	}
-}
-
-.slide-filter {
-	.slide-panel-header {
-		background-color: #689f38;
-	}
-	.slide-panel-circle-icon {
-		top:calc(50vh - 120px);
-		background-color: #558b2f;
-		background-image: image-url('recent_slide.svg');
-	}
-	.slide-panel-category-header {
-		border-color: #558b2f;
 	}
 }
 

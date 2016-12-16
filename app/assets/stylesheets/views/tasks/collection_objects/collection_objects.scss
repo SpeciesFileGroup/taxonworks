@@ -3,8 +3,6 @@
 #filter-collection-objects {
 	top: 0px;
 	width: 600px;
-	position: fixed !important;
-	//margin-left: -1em !important;
 	.content {
 		padding: 2em;
 	}
@@ -12,6 +10,23 @@
 		background-image: image-url("filter.svg");
 	}
 }
+
+
+	.slide-filter {
+		.slide-panel-header {
+			background-color: #689f38;
+		}
+		.slide-panel-circle-icon {
+			top:calc(50vh - 120px);
+			background-color: #558b2f;
+			background-image: image-url('recent_slide.svg');
+		}
+		.slide-panel-category-header {
+			border-color: #558b2f;
+		}
+	}
+
+
 
 	#set_area_form {
 		#textAreaSelector {

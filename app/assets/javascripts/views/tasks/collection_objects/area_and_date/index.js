@@ -122,25 +122,13 @@ _init_map_table = function init_map_table() {
       }
     }
   
-    $("#search_start_date").bind({
-      paste : function(event){
-        update_and_graph(event.originalEvent.clipboardData.getData('Text'));
-      },
-      change :function(event){
-        update_and_graph(event);
-      }
+    $("#search_start_date").change(function (event) {
+      update_and_graph(event)
     });    // listener for keyboard
   
-   // change of date
-
-    $("#search_end_date").bind({
-      paste : function(event){
-        update_and_graph(event.originalEvent.clipboardData.getData('Text'));
-      },
-      change :function(event){
-        update_and_graph(event);
-      }
-    });
+    $("#search_end_date").change(function (event) {
+      update_and_graph(event)
+    });    // change of date
   
     $("#st_fixedpicker").change(function (event) {
       update_and_graph(event)
