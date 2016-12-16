@@ -118,17 +118,29 @@ _init_map_table = function init_map_table() {
    //   buttonText: "Select date",
           yearRange: "1700:" + year
         });
-        //input.val(on_day);
+        input.val(st_en_day);
       }
     }
   
-    $("#search_start_date").change(function (event) {
-      update_and_graph(event)
+    $("#search_start_date").bind({
+      paste : function(event){
+        update_and_graph(event.originalEvent.clipboardData.getData('Text'));
+      },
+      change :function(event){
+        update_and_graph(event);
+      }
     });    // listener for keyboard
   
-    $("#search_end_date").change(function (event) {
-      update_and_graph(event)
-    });    // change of date
+   // change of date
+
+    $("#search_end_date").bind({
+      paste : function(event){
+        update_and_graph(event.originalEvent.clipboardData.getData('Text'));
+      },
+      change :function(event){
+        update_and_graph(event);
+      }
+    });
   
     $("#st_fixedpicker").change(function (event) {
       update_and_graph(event)

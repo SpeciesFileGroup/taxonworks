@@ -125,6 +125,9 @@ $default-padding: 2em;
 		background-color: #558b2f;
 		background-image: image-url('recent_slide.svg');
 	}
+	.slide-panel-category-header {
+		border-color: #558b2f;
+	}
 }
 
 .slide-recent {

@@ -12,13 +12,13 @@
           <div id="set_area_and_date_form">
           <div class="slide-panel-category">
             <div id="select_area" class="filter_facet slide-panel-category-header">
-              <span>Select area</span>
+              <span>Area</span>
             </div>
             
             <div class="slide-panel-category-content content">
-              <div class="flex-separate">
-                <span>Result: <span id="area_count">????</span></span>
-                <label class="switch-toggle">
+              <div class="flex-separate separate-bottom">
+                <span class="middle">Result: <span id="area_count">????</span></span>
+                <label class="switch-toggle" id="label_toggle_slide_area">
                   <input type="checkbox" id="toggle_slide_area">
                   <div class="slider-toggle round"></div>
                   <div class="toggle-options">
@@ -34,7 +34,7 @@
           </div>
           <div class="slide-panel-category">
             <div id="select_date_range" class="filter_facet slide-panel-category-header">
-                Select date range </div>
+                Date range </div>
               <div id="date-range-container" class="slide-panel-category-content content">  
                 <span>Result: <span id="date_count">????</span></span>        
                 <%= render "by_date" %>
@@ -43,7 +43,7 @@
           </div>
           <div class="slide-panel-category">
           <div id="select_otu" class="filter_facet slide-panel-category-header">
-              Select otu</div>
+              Otu</div>
             <div id="otu-container" class="slide-panel-category-content content">
               <span>Result:<span id="otu_count">????</span></span>
               <%= render('by_otu') %>
@@ -88,7 +88,8 @@
       </div> 
       <div id="show_list">
         <%= render('result_list', collection_objects: @collection_objects) if @collection_objects.count > 0 %>
-      </div> 
+      </div>
+      <span id="result_span"></span> 
     </div>
   </div>
     <div id="show_map" hidden>
