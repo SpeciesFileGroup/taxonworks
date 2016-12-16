@@ -48,7 +48,7 @@
                       :parent_id_index, :statuses, :taxon_index, :citation_to_publication_index, :keywords,
                       :incertae_sedis, :emendation, :original_combination, :unique_host_plant_index,
                       :host_plant_index, :topics, :nouns, :countries, :geographic_areas, :museums, :namespaces, :biocuration_classes,
-                      :people, :source_ay
+                      :people, :source_ay, :source_checked_taxonomy
         def initialize()
           @keywords = {}                  # keyword -> ControlledVocabularyTerm
           @people_index = {}              # PeopleID -> Person object
@@ -75,6 +75,7 @@
           @biocuration_classes = {}
           @people = {}
           @source_ay = {}
+          @source_checked_taxonomy = {}
         end
       end
 
@@ -273,8 +274,8 @@
         handle_host_plant_name_dictionary_3i
         handle_host_plants_3i
         handle_distribution_3i
-        handle_localities_3i
         handle_parasitoids_3i
+        handle_localities_3i
 
         print "\n\n !! Success. End time: #{Time.now} \n\n"
       end
@@ -510,6 +511,7 @@
           if !note.blank? && note.include?('Taxonomy only')
             source.tags.create(keyword: @data.keywords['Taxonomy'])
             note.gsub!('Taxonomy only', '')
+            @data.source_checked_taxonomy[source.id] = true
           end
           if !note.blank? && note.index('T ') == 0
             source.tags.create(keyword: @data.keywords['Typhlocybinae'])
@@ -648,7 +650,9 @@
                   'f' => 'TaxonNameClassification::Latinized::Gender::Feminine',
                   'n' => 'TaxonNameClassification::Latinized::Gender::Neuter' }.freeze
 
-        synonym_statuses = %w(1 6 8 10 11 14 17 22 23 24 26 27 28 29)
+        confidence = ConfidenceLevel.find_or_create_by(name: 'Verified', definition: 'Verified against the original source', project_id: $project_id).id
+
+          synonym_statuses = %w(1 6 8 10 11 14 17 22 23 24 26 27 28 29).freeze
 
           path = @args[:data_directory] + 'taxon.txt'
           print "\nHandling taxonomy\n"
@@ -739,6 +743,10 @@
               taxon.data_attributes.new(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['TypeDepository'].id, value: row['TypeDepository']) unless row['TypeDepository'].blank?
               taxon.data_attributes.new(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['YearRem'].id, value: row['YearRem']) unless row['YearRem'].blank?
               taxon.data_attributes.new(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['PageAuthor'].id, value: row['PageAuthor']) unless row['PageAuthor'].blank?
+
+              if @data.source_checked_taxonomy[source]
+                taxon.confidences.create(position: 1, confidence_level_id: confidence)
+              end
 
               if !row['DescriptEn'].blank? && row['DescriptEn'].include?('<h2>Similar species</h2>')
                 taxon.data_attributes.new(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['SimilarSpecies'].id, value: row['DescriptEn'].gsub('<h2>Similar species</h2>', '').squish)
@@ -1393,7 +1401,7 @@
         count_fields = %w{ Specimens Males Females Nymphs }.freeze
 
         file.each_with_index do |row, i|
-          next if i < 1000000 #######################
+          # next if i < 1000000 #######################
           print "\r#{i}"
 
           collecting_event = find_or_create_collecting_event_3i(row)
