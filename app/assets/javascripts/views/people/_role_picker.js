@@ -1,61 +1,97 @@
+var TW = TW || {};                      // TW "namespacing" object
+TW.views = TW.views || {};            // mimic directory structure in app/assets/javascripts
+TW.views.people = TW.views.people || {};
+TW.views.people.role_picker = TW.views.people.role_picker || {};
+
+Object.assign(TW.views.people.role_picker, {
+
+//
+// Initialize the widget
+//
+  initialize_role_picker: function (form, role_type) {
+    // turn the input into an jQuery autocompleter
+    // https://jqueryui.com/autocomplete/
+    //
+    // all of these should likely be renamed for namespacing purposes
+    this.initialize_autocomplete(form);
+    this.bind_new_link(form);
+    this.bind_switch_link(form);
+    this.bind_expand_link(form);
+    this.bind_label_mirroring(form);
+    this.bind_remove_links(form.find('.remove_role'));
+    this.make_role_list_sortable(form);
+    this.bind_position_handling_to_submit_button(form);
+  },
 
 // Return a first name, splits on (white) space or comma
-function get_first_name(string) {
+  get_first_name: function (string) {
 
-  // if there is no space or , there is no first name
-  if ((string.indexOf(",") > 1) || (string.indexOf(" ") > 1)) {
-    var delimiter;
-    if(string.indexOf(",") > 1) {delimiter = ","}
-    if(string.indexOf(", ") > 1) {delimiter = ", "}
-    if(string.indexOf(" ") > 1 && delimiter != ", ") {delimiter = " "}
-    return string.split(delimiter, 2)[0];
-  } else {
-    return null;
-  }
-}
+    // if there is no space or , there is no first name
+    if ((string.indexOf(",") > 1) || (string.indexOf(" ") > 1)) {
+      var delimiter;
+      if (string.indexOf(",") > 1) {
+        delimiter = ","
+      }
+      if (string.indexOf(", ") > 1) {
+        delimiter = ", "
+      }
+      if (string.indexOf(" ") > 1 && delimiter != ", ") {
+        delimiter = " "
+      }
+      return string.split(delimiter, 2)[0];
+    } else {
+      return null;
+    }
+  },
 
 // Return a last name split on (white) space or commma
-function get_last_name(string) {
+  get_last_name: function (string) {
   // if there no space or comma then the whole string is the *last* name
-  if ((string.indexOf(",") > 1) || (string.indexOf(" ") > 1) ) {
+    if ((string.indexOf(",") > 1) || (string.indexOf(" ") > 1)) {
     var delimiter;
-    if(string.indexOf(",") > 1) {delimiter = ","}
-    if(string.indexOf(", ") > 1) {delimiter = ", "}
-    if(string.indexOf(" ") > 1 && delimiter != ", ") {delimiter = " "}
+      if (string.indexOf(",") > 1) {
+        delimiter = ","
+      }
+      if (string.indexOf(", ") > 1) {
+        delimiter = ", "
+      }
+      if (string.indexOf(" ") > 1 && delimiter != ", ") {
+        delimiter = " "
+      }
     return string.split(delimiter, 2)[1];
   } else {
     return string
   }
-}
+  },
 
 // Build a name string - first_name and last_name must be strings
-function get_full_name(first_name, last_name) {
+  get_full_name: function (first_name, last_name) {
   var separator = "";
   if (!!last_name && !!first_name) {
     separator = ", ";
   }
   return (last_name + separator + first_name);
-}
+  },
 
 // Empties search text box and hide new_person div
-function clear_role_picker(form) {
+  clear_role_picker: function (form) {
   var role_picker;
   role_picker = form.find('.role_picker_autocomplete');
   $(role_picker).val("");
   form.find(".new_person").attr("hidden", true);
-}
+  },
 
-function initialize_autocomplete(form) {
+  initialize_autocomplete: function (form) {
   var autocomplete_input = form.find(".role_picker_autocomplete");
 
   autocomplete_input.autocomplete({
     source: '/people/lookup_person',
     open: function (event, ui) {
-      bind_hover(form);
+      this.bind_hover(form);
     },
     select: function (event, ui) {    // execute on select event in search text box
-      insert_existing_person(form, ui.item.object_id, ui.item.label);
-      clear_role_picker(form);
+      this / insert_existing_person(form, ui.item.object_id, ui.item.label);
+      this.clear_role_picker(form);
       return false;
     }
   }).autocomplete("instance")._renderItem = function (ul, item) {
@@ -67,7 +103,7 @@ function initialize_autocomplete(form) {
   // Copy search textbox content to .new_person .name_label
   autocomplete_input.keyup(function () {
     var input_term = autocomplete_input.val();
-    var last_name = get_last_name(input_term);
+    var last_name = this.get_last_name(input_term);
     var first_name = get_first_name(input_term);
 
     if (input_term.length == 0) {
@@ -75,7 +111,7 @@ function initialize_autocomplete(form) {
     }
     else {
       form.find(".new_person").removeAttr("hidden");
-    };
+    }
 
     if (input_term.indexOf(",") > 1) {   //last name, first name format
       var swap = first_name;
@@ -86,108 +122,106 @@ function initialize_autocomplete(form) {
     form.find(".first_name").val(first_name).change();
     form.find(".last_name").val(last_name).change();
   });
-};
-
+  },
 
 //
 // Binding actions (clicks) to links 
 //
 
-function bind_new_link(form) {
+  bind_new_link: function (form) {
   // Add a role to the list via the add new form 
   form.find(".role_picker_add_new").click(function () {
-    insert_new_person(form);
+    this.insert_new_person(form);
     form.find('.new_person').attr("hidden", true); // hide the form fields
-    clear_role_picker(form); // clear autocomplete input box
+    this.clear_role_picker(form); // clear autocomplete input box
   });
-}
+  },
 
-function insert_existing_person(form, person_id, label) {
+  insert_existing_person: function (form, person_id, label) {
   var base_class = form.data('base-class');
-  var random_index = new Date().getTime(); 
+    var random_index = new Date().getTime();
   var role_list = form.find(".role_list");
 
   // type
-  role_list.append( $('<input hidden name="' + base_class + '[roles_attributes][' +  random_index + '][type]" value="' + form.data('role-type') +  '" >') );
-  role_list.append( $('<input hidden name="' + base_class + '[roles_attributes][' +  random_index + '][person_id]" value="' + person_id +  '" >') );
+    role_list.append($('<input hidden name="' + base_class + '[roles_attributes][' + random_index + '][type]" value="' + form.data('role-type') + '" >'));
+    role_list.append($('<input hidden name="' + base_class + '[roles_attributes][' + random_index + '][person_id]" value="' + person_id + '" >'));
 
   // insert visible list item
-  role_list.append( $('<li class="role_item" data-role-index="' + random_index + '">').append( label).append('&nbsp;').append(remove_link()) );
-};
+    role_list.append($('<li class="role_item" data-role-index="' + random_index + '">').append(label).append('&nbsp;').append(remove_link()));
+  },
 
-function insert_new_person(form) {
+  insert_new_person: function (form) {
   var base_class = form.data('base-class');
-  var random_index = new Date().getTime(); 
-  var person_base = base_class + '[roles_attributes][' + random_index + '][person_attributes]'; 
+    var random_index = new Date().getTime();
+    var person_base = base_class + '[roles_attributes][' + random_index + '][person_attributes]';
   var role_list = form.find(".role_list");
 
   // type
   role_list.append($('<li class="role_item" data-new-person="true" data-role-index="' + random_index + '" >')
-  .append(form.find('.name_label').text() + '&nbsp;' )
-  .append( $('<input hidden name="' + base_class + '[roles_attributes][' +  random_index + '][type]" value="' + form.data('role-type') +  '" >') )
+    .append(form.find('.name_label').text() + '&nbsp;')
+    .append($('<input hidden name="' + base_class + '[roles_attributes][' + random_index + '][type]" value="' + form.data('role-type') + '" >'))
 
-  // names 
-  .append( $('<input hidden name="' + person_base + '[last_name]" value="' + form.find(".last_name").val() + '" >') )
-  .append( $('<input hidden name="' + person_base + '[first_name]" value="' + form.find(".first_name").val() + '" >') )
-  .append( $('<input hidden name="' + person_base + '[suffix]" value="' + form.find(".suffix").val() + '" >') )
-  .append( $('<input hidden name="' + person_base + '[prefix]" value="' + form.find(".prefix").val() + '" >') )
-  .append(remove_link())
+    // names
+    .append($('<input hidden name="' + person_base + '[last_name]" value="' + form.find(".last_name").val() + '" >'))
+    .append($('<input hidden name="' + person_base + '[first_name]" value="' + form.find(".first_name").val() + '" >'))
+    .append($('<input hidden name="' + person_base + '[suffix]" value="' + form.find(".suffix").val() + '" >'))
+    .append($('<input hidden name="' + person_base + '[prefix]" value="' + form.find(".prefix").val() + '" >'))
+    .append(this.remove_link())
   );
+  },
 
-};
-
-function remove_link() {
+  remove_link: function () {
   var link = $('<a href="#" class="remove_role">remove</a>');
-  bind_remove_links(link);
+    this.bind_remove_links(link);
   return link;
-}
+  },
 
-function bind_switch_link(form) {
+  bind_switch_link: function (form) {
   // click switches the values in the first & last names
   form.find(".role_picker_switch").click(function () {
     var tmp = form.find(".first_name").val();
     form.find(".first_name").val(form.find(".last_name").val()).change();
     form.find(".last_name").val(tmp).change();
   });
-};
+  },
 
-function bind_expand_link(form) {
+  bind_expand_link: function (form) {
   // click alternately hides and displays role_picker_person_form
   form.find(".role_picker_expand").click(function () {
     form.find(".role_picker_person_form").toggle();
   });
-}
+  },
 
-function bind_label_mirroring(form) {
+  bind_label_mirroring: function (form) {
   // update mirrored label
   form.find(".role_picker_person_form input").on("change keyup", function () {
     form.find(".name_label").html(
-      get_full_name(form.find(".first_name").val(), form.find(".last_name").val())
-      );
+      this.get_full_name(form.find(".first_name").val(), form.find(".last_name").val())
+    );
   });
-}
+  },
 
 // bind a hover event to an ellipsis
-function bind_hover(form) {
+  bind_hover: function (form) {
   var hiConfig = {
     sensitivity: 3, // number = sensitivity threshold (must be 1 or higher)
     interval: 400, // number = milliseconds for onMouseOver polling interval
     timeout: 200, // number = milliseconds delay before onMouseOut
     over: function () {
       var url = ('/people/' + $(this).data('personId') + '/details');
-      $.get(url, function( data ) {
-        form.find(".person_details" ).html( data );
+      $.get(url, function (data) {
+        form.find(".person_details").html(data);
       });
     }, // function = onMouseOver callback (REQUIRED)
     out: function () {
-      form.find(".person_details" ).html('');
+      form.find(".person_details").html('');
     } // function = onMouseOut callback (REQUIRED)
   };
   $('.hoverme').hoverIntent(hiConfig);
-}
+  },
 
 // Bind the remove action/functionality to a links
-function bind_remove_links(links) {
+  bind_remove_links: function (links) {
   links.click(function () {
     list_item = $(this).parent('li');
     var role_picker = list_item.closest('.role_picker');
@@ -197,73 +231,57 @@ function bind_remove_links(links) {
 
     if (role_id != undefined) {
       var role_list = list_item.closest('.role_list');
-     
+
       // if this is not a new person 
-      if (list_item.data('new-person') != "true")  {
+      if (list_item.data('new-person') != "true") {
         // if there is an ID from an existing item add the necessary (hidden) _destroy input
-        role_list.append($('<input hidden name="' + base_class + '[roles_attributes][' +  role_index + '][id]" value="' + role_id + '" >') );
-        role_list.append($('<input hidden name="' + base_class + '[roles_attributes][' +  role_index + '][_destroy]" value="1" >') );
+        role_list.append($('<input hidden name="' + base_class + '[roles_attributes][' + role_index + '][id]" value="' + role_id + '" >'));
+        role_list.append($('<input hidden name="' + base_class + '[roles_attributes][' + role_index + '][_destroy]" value="1" >'));
 
         // Provide a warning that the list must be saved to properly delete the records, tweak if we think necessary
-        warn_for_save(role_list.siblings('.role_picker_message'));
+        this.warn_for_save(role_list.siblings('.role_picker_message'));
       }
     }
     list_item.remove();
   });
-};
+  },
 
-function warn_for_save(msg_div) {
-  msg_div.addClass('warning');
-  msg_div.html('Update required to confirm removal/reorder.');
-}
+// warn_for_save: function (msg_div) {
+//   msg_div.addClass('warning');
+//   msg_div.html('Update required to confirm removal/reorder.');
+// },
 
-function make_role_list_sortable(form) {
+  make_role_list_sortable: function (form) {
   var list_items = form.find('.role_list');
   list_items.sortable({
-    change: function( event, ui ) {
+    change: function (event, ui) {
       if ($('form[id^="new_"]').length == 0) {
-        warn_for_save(form.find('.role_picker_message')); 
+        this.warn_for_save(form.find('.role_picker_message'));
       }
-    }  
+    }
   });
   list_items.disableSelection();
-}
+  },
 
 
-function bind_position_handling_to_submit_button(form) {
+  bind_position_handling_to_submit_button: function (form) {
   var base_class = form.data('base-class');
-  
+
   form.closest('form').find('input[name="commit"]').click(function () {
     var i = 1;
     var role_index;
-    form.find('.role_item').each( function() {
+    form.find('.role_item').each(function () {
       console.log($(this));
       role_index = $(this).data('role-index');
       $(this).append(
-        $('<input hidden name="' + base_class + '[roles_attributes][' +  role_index + '][position]" value="' + i + '" >')
-        );
-      i = i + 1; 
+        $('<input hidden name="' + base_class + '[roles_attributes][' + role_index + '][position]" value="' + i + '" >')
+      );
+      i = i + 1;
     });
   });
 }
 
-//
-// Initialize the widget
-//
-function initialize_role_picker( form, role_type) {
-  // turn the input into an jQuery autocompleter
-  // https://jqueryui.com/autocomplete/ 
-  //
-  // all of these should likely be renamed for namespacing purposes
-  initialize_autocomplete(form);
-  bind_new_link(form);
-  bind_switch_link(form);
-  bind_expand_link(form);
-  bind_label_mirroring(form);
-  bind_remove_links(form.find('.remove_role')); 
-  make_role_list_sortable(form);
-  bind_position_handling_to_submit_button(form);
-};
+});
 
 var _initialize_role_picker_widget;
 
@@ -271,7 +289,7 @@ _initialize_role_picker_widget = function
   init_role_picker() {
     $('.role_picker').each( function() {
       var role_type = $(this).data('role-type');
-      initialize_role_picker($(this), role_type); 
+      TW.views.people.role_picker.initialize_role_picker($(this), role_type);
     });
 };
 
