@@ -22,7 +22,7 @@ class CreateDwcOccurrence < ActiveRecord::Migration
       t.string :behavior
       t.string :bibliographicCitation
       t.string :catalogNumber
-      t.string :class
+      t.string :dwcClass
       t.string :collectionCode
       t.string :collectionID
       t.string :continent
@@ -177,9 +177,7 @@ class CreateDwcOccurrence < ActiveRecord::Migration
       t.string :vernacularName
       t.string :waterBody
       t.string :year
-
-      t.references :collection_object
-      t.references :asserted_distribution
+      t.references :dwc_occurrence_object, polymorphic: true
       t.integer :created_by_id, null: false
       t.integer :updated_by_id, null: false
       t.references :project, index: true, foreign_key: true
