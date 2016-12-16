@@ -59,9 +59,10 @@ SF.RefID #{row['RefID']} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}
             # puts new_name_uri if new_name_uri
             # puts type_info_uri if type_info_uri
 
-            new_name_cvt_id =   Keyword.where('uri = ? AND project_id = ?', new_name_uri, project_id).limit(1).pluck(:id).first if new_name_uri
+            new_name_cvt_id = Keyword.where('uri = ? AND project_id = ?', new_name_uri, project_id).limit(1).pluck(:id).first if new_name_uri
+            type_info_cvt_id = Keyword.where('uri = ? AND project_id = ?', type_info_uri, project_id).limit(1).pluck(:id).first if type_info_uri
 
-            # puts new_name_cvt_id.to_s + ' !!!!!!'     if new_name_cvt_id
+            ap "NewNameStatusID = #{new_name_cvt_id.to_s}; TypeInfoID = #{type_info_cvt_id.to_s}"   # if new_name_cvt_id
 
             metadata = {
                 ## Note: Add as attribute before save citation
@@ -74,13 +75,16 @@ SF.RefID #{row['RefID']} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}
 
                 ## NewNameStatus: As tags to citations, create 16 keywords for each project, set up in case statement; test for NewNameStatusID > 0
                 ## TypeInfo: As tags to citations, create n keywords for each project, set up in case statement (2364 cases!)
-                tags_attributes: [
-                  #  {keyword_id: (row['NewNameStatus'].to_i > 0 ? ControlledVocabularyTerm.where('uri LIKE ? and project_id = ?', "%/new_name_status/#{row['NewNameStatusID']}", project_id).limit(1).pluck(:id).first : nil), project_id: project_id},
-                  #  {keyword_id: (row['TypeInfoID'].to_i > 0 ? ControlledVocabularyTerm.where('uri LIKE ? and project_id = ?', "%/type_info/#{row['TypeInfoID']}", project_id).limit(1).pluck(:id).first : nil), project_id: project_id}
-                    {keyword_id: (new_name_uri ? new_name_cvt_id : nil), project_id: project_id},
-                    {keyword_id: (type_info_uri ? Keyword.where('uri = ? AND project_id = ?', type_info_uri, project_id).limit(1).pluck(:id).first : nil), project_id: project_id}
+                # tags_attributes: [
+                #     #  {keyword_id: (row['NewNameStatus'].to_i > 0 ? ControlledVocabularyTerm.where('uri LIKE ? and project_id = ?', "%/new_name_status/#{row['NewNameStatusID']}", project_id).limit(1).pluck(:id).first : nil), project_id: project_id},
+                #     #  {keyword_id: (row['TypeInfoID'].to_i > 0 ? ControlledVocabularyTerm.where('uri LIKE ? and project_id = ?', "%/type_info/#{row['TypeInfoID']}", project_id).limit(1).pluck(:id).first : nil), project_id: project_id}
+                #     {keyword_id: (new_name_uri ? new_name_cvt_id : nil), project_id: project_id},
+                #     {keyword_id: (type_info_uri ? Keyword.where('uri = ? AND project_id = ?', type_info_uri, project_id).limit(1).pluck(:id).first : nil), project_id: project_id}
+                #
+                # ],
 
-                ],
+                tags_attributes: [{keyword_id: (new_name_uri ? new_name_cvt_id : nil), project_id: project_id}],
+                tags_attributes: [{keyword_id: (type_info_uri ? type_info_cvt_id : nil), project_id: project_id}],
 
                 ## InfoFlagStatus: Add confidence, 1 = partial data or needs review, 2 = complete data
                 confidences_attributes: [{confidence_level_id: (row['InfoFlagStatus'].to_i > 0 ? ControlledVocabularyTerm.where('uri LIKE ? and project_id = ?', "%/info_flag_status/#{row['InfoFlagStatus']}", project_id).limit(1).pluck(:id).first : nil), project_id: project_id}]
