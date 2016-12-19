@@ -138,8 +138,6 @@ class Georeference < ActiveRecord::Base
     retval
   end
 
-  # GeographicItem.connection.select_all("select st_dwithin((select point from geographic_items where id = 34820), (select polygon from geographic_items where id = 34809), 6800)").first['st_dwithin']
-
   # @return [Rgeo::polygon, nil]
   #   a polygon representing the buffer
   def error_radius_buffer_polygon
