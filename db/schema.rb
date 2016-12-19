@@ -579,7 +579,7 @@ ActiveRecord::Schema.define(version: 20161214221651) do
     t.string   "behavior"
     t.string   "bibliographicCitation"
     t.string   "catalogNumber"
-    t.string   "class"
+    t.string   "dwcClass"
     t.string   "collectionCode"
     t.string   "collectionID"
     t.string   "continent"
@@ -734,8 +734,8 @@ ActiveRecord::Schema.define(version: 20161214221651) do
     t.string   "vernacularName"
     t.string   "waterBody"
     t.string   "year"
-    t.integer  "collection_object_id"
-    t.integer  "asserted_distribution_id"
+    t.integer  "dwc_occurrence_object_id"
+    t.string   "dwc_occurrence_object_type"
     t.integer  "created_by_id",                       null: false
     t.integer  "updated_by_id",                       null: false
     t.integer  "project_id"
