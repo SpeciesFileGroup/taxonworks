@@ -46,6 +46,7 @@ class Project < ActiveRecord::Base
     known = ActiveRecord::Base.subclasses.select { |a| a.column_names.include?('project_id') }.map(&:name)
 
     order = %w{
+     DwcOccurrence
      ProtocolRelationship
      Protocol
      AlternateValue
