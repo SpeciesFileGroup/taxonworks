@@ -81,15 +81,18 @@ _init_map_table = function init_map_table() {
       //  }
       //);
       $("#find_area_and_date_commit").click(function (event, href) {
-        //$("#result_span").text('**********');
-        if (href == undefined) {
-          href = $("#set_area_form").serialize() + '&' + $("#set_date_form").serialize() + '&' + $("#set_otu_form").serialize();
+
+        toggleFilter();
+        if(validateDates()) {
+          if (href == undefined) {
+            href = $("#set_area_form").serialize() + '&' + $("#set_date_form").serialize() + '&' + $("#set_otu_form").serialize();
+          }
+          $("#find_item").mx_spinner('show');
+          $.get('find', href, function (local_data) {
+            // $("#find_item").mx_spinner('hide');  # this has been relocated to .../find.js.erb
+            }//, 'json'  // I expect a json response
+          );
         }
-        $("#find_item").mx_spinner('show');
-        $.get('find', href, function (local_data) {
-          // $("#find_item").mx_spinner('hide');  # this has been relocated to .../find.js.erb
-          }//, 'json'  // I expect a json response
-        );
         event.preventDefault();
       })
     }
@@ -112,14 +115,19 @@ _init_map_table = function init_map_table() {
           dateFormat: format,
           changeMonth: true,
           changeYear: true,
-   //       showOn: "button",
-   //   buttonImage: "images/calendar.gif",
-   //   buttonImageOnly: true,
-   //   buttonText: "Select date",
           yearRange: "1700:" + year
         });
         input.val(st_en_day);
       }
+    }
+
+    $("#filter-button").on("click", function() {
+      toggleFilter();
+    });
+
+    function toggleFilter() {
+      $("#filter-collection-objects").toggle();
+      $("#show_list").toggle();   
     }
   
     $("#search_start_date").change(function (event) {
@@ -141,17 +149,47 @@ _init_map_table = function init_map_table() {
       update_and_graph(event)
     });   // click date change
   
-    function update_and_graph(event) {
-      $("#select_date_range").mx_spinner('show');
-      $.get('set_date', $("#set_date_form").serialize(), function (local_data) {
-          $("#date_count").text(local_data.html);
-          $("#graph_frame").html(local_data.chart);
-        $("#select_date_range").mx_spinner('hide');
-          
-        }, 'json'  // I expect a json response
-      );
-      event.preventDefault();
+    function update_and_graph(event) {      
+      validateDate(event.target);
+      if(validateDates()) {  
+        $("#select_date_range").mx_spinner('show');
+        $.get('set_date', $("#set_date_form").serialize(), function (local_data) {
+            $("#date_count").text(local_data.html);
+            $("#graph_frame").html(local_data.chart);
+            $("#select_date_range").mx_spinner('hide');    
+          }, 'json'  // I expect a json response
+        );
+      }
+      else {
+        
+       // alert("Invalid date, please verify you are using the correct format: (yyyy/mmm/dd)")
+      }
+        event.preventDefault();
     }
+
+    function convert_date_to_string(date) {
+      var time = new Date(date);
+      return (time.getFullYear() + "/" + (time.getMonth() + 1)+ "/" + time.getDate());
+    }
+
+    function validateDate(value) {
+      if (is_valid_date($(value).val())) { 
+        $(value).val(convert_date_to_string($(value).val())); // Update the value of input field to prevent bad date with zero
+        $(value).parent().find(".warning-date").text("");
+      }
+      else {
+        $(value).parent().find(".warning-date").text("Invalid date, please verify you're using the correct format: (yyyy/mm/dd)");
+      }
+    }
+
+    function validateDates() {
+      return (is_valid_date($("#search_start_date").val())) && is_valid_date($("#search_end_date").val());
+    }
+
+    function validateDateRange() {
+      return (new Date($("#search_start_date").val())) < (new Date($("#search_end_date").val()));
+    }
+
   
     function dateFormat(date, fmt) {
       var o = {

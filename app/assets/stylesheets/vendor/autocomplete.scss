@@ -29,7 +29,7 @@
 .ui-autocomplete {
 	border:none;
 	box-shadow: 0 2px 4px 0 $navigation_border;
-	font-weight: 100;
+	font-weight: 300;
 	background-color: $color-secondary-2-1;
 }
 
@@ -39,10 +39,10 @@
 	color: $color-secondary-2-4;
 	.subtle {
 		font-size: 10px;
-		font-weight: 100;
+		font-weight: 300;
 	}    
 	mark {
-		font-weight: 100;
+		font-weight: 300;
 		color: $color-primary-4;
 		background: none;
 	}
@@ -69,7 +69,7 @@
 	color: $color-secondary-2-4;
 	.subtle {
 		font-size: 10px;
-		font-weight: 100;
+		font-weight: 300;
 	}    
 }
 
