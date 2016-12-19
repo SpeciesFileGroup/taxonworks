@@ -132,6 +132,7 @@ class Otu < ActiveRecord::Base
   # add logic for has_many handling (e.g. identifiers) etc.
   # ultmately, each key maps to a proc that returns a value
   #
+  # deprecated for new approach in CollectionObject, AssertedDistribution
   def dwca_core
     core = Dwca::GbifProfile::CoreTaxon.new
 
@@ -147,10 +148,10 @@ class Otu < ActiveRecord::Base
   end
 
   def otu_name
-    if !self.name.blank?
-      self.name
+    if !name.blank?
+      name
     elsif !self.taxon_name_id.nil?
-      self.taxon_name.cached_name_and_author_year
+      self.taxon_name.cached_html_name_and_author_year
     else
       nil
     end
