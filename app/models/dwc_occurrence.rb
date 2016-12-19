@@ -28,19 +28,16 @@ class DwcOccurrence < ActiveRecord::Base
   def basis 
     case dwc_occurrence_object_type
     when 'CollectionObject'
-     'PreservedSpecimen'
+      return 'PreservedSpecimen'
     when 'AssertedDistribution'
       case dwc_occurrence_object.source.try(:type)
       when 'Source::Bibtex'
-        'Occurrence'
+        return 'Occurrence'
       when 'Source::Human'
-        'HumanObservation'
-      else
-        nil
+        return 'HumanObservation'
       end
-    else
-      nil 
     end
+    'Undefined'
   end
 
   def stale? 
@@ -48,7 +45,7 @@ class DwcOccurrence < ActiveRecord::Base
   end
 
   protected
- 
+
   def set_basis_of_record
     write_attribute(:basisOfRecord, basis)
   end
