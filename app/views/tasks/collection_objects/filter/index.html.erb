@@ -6,7 +6,7 @@
 <div id="co_by_area_and_date">
   <h1>Task - Collection objects by area and date range</h1>
 
- <div class="flex-wrap-row">
+ <div class="flex-wrap-row" id="find_item">
     <div class="item item2">
       <div id="nav-list" class="panels-container">  
         <div class="panel column-big" data-help="Use the left and right buttoms to hide or show columns groups">
@@ -96,7 +96,7 @@
             </div>
             </div>
             </div>
-          <div id="find_item">
+          <div>
             <div id="action_find" class="content">
               <%= form_tag(find_collection_objects_task_url, id: 'find_area_and_date_form', method: :get, remote: true) do %>
                 <%= submit_tag('FIND', id: 'find_area_and_date_commit') %>
