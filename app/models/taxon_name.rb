@@ -144,6 +144,9 @@ class TaxonName < ActiveRecord::Base
 
   NOT_LATIN = Regexp.new(/[^a-zA-Z|\-]/).freeze # Dash is allowed?
 
+  delegate :nomenclatural_code, to: :rank_class
+  delegate :rank_name, to: :rank_class
+
   # @return [Boolean]
   #   When true, also creates an OTU that is tied to this taxon name
   attr_accessor :also_create_otu
@@ -155,7 +158,7 @@ class TaxonName < ActiveRecord::Base
   before_validation :set_type_if_empty
   before_save :set_cached_names
   after_save :create_new_combination_if_absent, unless: 'self.no_cached'
-  after_save :set_cached_names_for_dependants_and_self, unless: 'self.no_cached'
+  after_save :set_cached_names_for_dependants_and_self, unless: 'self.no_cached' # !!! do we run set cached names 2 x !?!
   after_save :set_cached_valid_taxon_name_id
   before_destroy :check_for_children
 
@@ -282,7 +285,7 @@ class TaxonName < ActiveRecord::Base
   # @return [String]
   #   rank as human readable shortform, like 'genus' or 'species'
   def rank
-    ::RANKS.include?(rank_string) ? self.rank_class.rank_name : nil
+    ::RANKS.include?(rank_string) ? rank_name : nil
   end
 
   # @return [String]
@@ -414,14 +417,21 @@ class TaxonName < ActiveRecord::Base
 
   # @return [String]
   #   combination of cached_html and cached_author_year.
-  def cached_name_and_author_year
-    (self.cached_html.to_s + ' ' + self.cached_author_year.to_s).squish!
+  def cached_html_name_and_author_year
+    [cached_html, cached_author_year].compact.join(' ')
+ 
   end
-  
+ 
+ # @return [String]
+ #   combination of cached and cached_author_year.
+ def cached_name_and_author_year
+   [cached, cached_author_year].compact.join(' ')
+ end
+
   # @return [TaxonName, nil] an ancestor at the specified rank
   def ancestor_at_rank(rank)
     #  TaxonName.ancestors_of(self).with_rank_class(Ranks.lookup(self.rank_class.nomenclatural_code, rank)).first
-    ancestors.with_rank_class(Ranks.lookup(self.rank_class.nomenclatural_code, rank)).first
+    ancestors.with_rank_class(Ranks.lookup(nomenclatural_code, rank)).first
   end
 
   # @return [Array of TaxonName] ancestors of type 'Protonym'
@@ -544,8 +554,8 @@ class TaxonName < ActiveRecord::Base
   def name_with_alternative_spelling
     if self.class != Protonym || rank_class.nil? || rank_string =~ /::Icn::/
       return nil
-    elsif self.rank_string =~ /Species/
-      n = self.name.squish # remove extra spaces and line brakes
+    elsif rank_string =~ /Species/
+      n = name.squish # remove extra spaces and line brakes
       n = n.split(' ').last
       n = n[0..-4] + 'ae' if n =~ /^[a-z]*iae$/ # -iae > -ae in the end of word
       n = n[0..-6] + 'orum' if n =~ /^[a-z]*iorum$/ # -iorum > -orum
@@ -584,7 +594,7 @@ class TaxonName < ActiveRecord::Base
             gsub('ph', 'f').
             gsub('-', '')
       n = n[0, 3] + n[3..-4].gsub('o', 'i') + n[-3, 3] if n.length > 6 # connecting vowel in the middle of the word (nigrocinctus vs. nigricinctus)
-    elsif self.rank_string =~ /Family/
+    elsif rank_string =~ /Family/
       n_base = Protonym.family_group_base(self.name)
       if n_base.nil? || n_base == self.name
         n = self.name
@@ -676,7 +686,7 @@ class TaxonName < ActiveRecord::Base
     begin
       TaxonName.transaction do
 
-        if self.rank_string =~/Species|Genus/
+        if rank_string =~/Species|Genus/
           dependants =  TaxonName.with_type('Protonym').descendants_of(self).to_a # self.descendant_protonyms 
           original_combination_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('OriginalCombination')
           combination_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('::Combination')
@@ -846,9 +856,9 @@ class TaxonName < ActiveRecord::Base
   # @return [String]
   #  a monomial if names is above genus, or a full epithet if below. 
   def get_full_name
-    return verbatim_name if self.type != 'Combination' && !GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_string) && !self.verbatim_name.nil?
-    return name if self.type != 'Combination' && !GENUS_AND_SPECIES_RANK_NAMES.include?(self.rank_string)
-    return verbatim_name if !self.verbatim_name.nil? && self.type == 'Combination'
+    return verbatim_name if type != 'Combination' && !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string) && !verbatim_name.nil?
+    return name if type != 'Combination' && !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string)
+    return verbatim_name if !verbatim_name.nil? && type == 'Combination'
     d  = full_name_hash
     elements = []
     elements.push(d['genus'])
@@ -1224,14 +1234,14 @@ class TaxonName < ActiveRecord::Base
   def validate_parent_rank_is_higher
     if self.parent && !self.rank_class.blank? && self.rank_string != 'NomenclaturalRank'
       if RANKS.index(self.rank_string) <= RANKS.index(self.parent.rank_string)
-        errors.add(:parent_id, "The parent rank (#{self.parent.rank_class.rank_name}) is not higher than #{self.rank_class.rank_name}")
+        errors.add(:parent_id, "The parent rank (#{self.parent.rank_class.rank_name}) is not higher than #{rank_name}")
       end
 
       if (self.rank_class != self.rank_class_was) && # TODO: @proceps this catches nothing, as self.rank_class_was is never defined!
         self.children &&
         !self.children.empty? &&
         RANKS.index(self.rank_string) >= self.children.collect { |r| RANKS.index(r.rank_string) }.max
-        errors.add(:rank_class, "The taxon rank (#{self.rank_class.rank_name}) is not higher than child ranks")
+        errors.add(:rank_class, "The taxon rank (#{rank_name}) is not higher than child ranks")
       end
     end
   end
@@ -1245,10 +1255,10 @@ class TaxonName < ActiveRecord::Base
   end
 
   def check_new_parent_class
-    if self.type == 'Protonym' && self.parent_id != self.parent_id_was && !self.parent_id_was.nil? && self.rank_class.nomenclatural_code == :iczn
+    if self.type == 'Protonym' && self.parent_id != self.parent_id_was && !self.parent_id_was.nil? && nomenclatural_code == :iczn
       if old_parent = TaxonName.find_by(id: self.parent_id_was)
-        if (self.rank_class.rank_name == 'subgenus' || self.rank_class.rank_name == 'subspecies') && old_parent.name == self.name
-          errors.add(:parent_id, "The nominotypical #{self.rank_class.rank_name} #{self.name} could not be moved out of the nominal #{old_parent.rank_class.rank_name}")
+        if (rank_name == 'subgenus' || rank_name == 'subspecies') && old_parent.name == self.name
+          errors.add(:parent_id, "The nominotypical #{rank_name} #{name} could not be moved out of the nominal #{old_parent.rank_name}")
         end
       end
     end
@@ -1265,7 +1275,7 @@ class TaxonName < ActiveRecord::Base
     if (self.rank_class != self.rank_class_was) && !self.rank_class_was.nil?
       old_rank_group = self.rank_class_was.safe_constantize.parent
       if self.rank_class.parent != old_rank_group
-        errors.add(:rank_class, "A new taxon rank (#{self.rank_class.rank_name}) should be in the #{old_rank_group.rank_name}")
+        errors.add(:rank_class, "A new taxon rank (#{rank_name}) should be in the #{old_rank_group.rank_name}")
       end
     end
   end
@@ -1286,10 +1296,10 @@ class TaxonName < ActiveRecord::Base
     if self.rank_class
       # TODO: name these Regexp somewhere
       if (self.name =~ /^[a-zA-Z]*$/) || # !! should reference NOT_LATIN 
-          (self.rank_class.nomenclatural_code == :iczn && self.name =~ /^[a-zA-Z]-[a-zA-Z]*$/) ||
-          (self.rank_class.nomenclatural_code == :icn && self.name =~  /^[a-zA-Z]*-[a-zA-Z]*$/) ||
-          (self.rank_class.nomenclatural_code == :icn && self.name =~ /^[a-zA-Z]*\s×\s[a-zA-Z]*$/) ||
-          (self.rank_class.nomenclatural_code == :icn && self.name =~ /^×\s[a-zA-Z]*$/)
+          (nomenclatural_code == :iczn && self.name =~ /^[a-zA-Z]-[a-zA-Z]*$/) ||
+          (nomenclatural_code == :icn && self.name =~  /^[a-zA-Z]*-[a-zA-Z]*$/) ||
+          (nomenclatural_code == :icn && self.name =~ /^[a-zA-Z]*\s×\s[a-zA-Z]*$/) ||
+          (nomenclatural_code == :icn && self.name =~ /^×\s[a-zA-Z]*$/)
         correct_name_format = true
       end
 
