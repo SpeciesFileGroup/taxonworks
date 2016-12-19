@@ -230,8 +230,8 @@ module Tasks::Gis::ReportHelper
   def build_row(c_o)
     retval = []
 
-    retval[0]  = c_o.get_otu_id
-    retval[1]  = c_o.get_otu_name
+    retval[0]  = c_o.otu_id
+    retval[1]  = c_o.otu_name
     retval[2]  = c_o.name_at_rank_string(:family)
     retval[3]  = c_o.name_at_rank_string(:genus)
     retval[4]  = c_o.name_at_rank_string(:species)
