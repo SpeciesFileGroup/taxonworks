@@ -16,7 +16,7 @@
 #
 # @!attribute respository_id
 #   @return [Integer]
-#   The id of the Repository.  This is the "home" repository, *not* where the specimen currently is located.  Repositories may indicate ownership BUT NOT ALWAYS. The assertion is only that "if this collection object was not being used, then it should be in this repository".
+#   The id of the Repository.  This is the "home" repository, *not* where the specimen currently is located.  Repositories may indicate ownership BUT NOT ALWAYS (this is custody, not ownership). The assertion is only that "if this collection object was not being used, then it should be in this repository".
 #
 # @!attribute project_id
 #   @return [Integer]
@@ -59,9 +59,6 @@
 class CollectionObject < ActiveRecord::Base
 
   include GlobalID::Identification
-
-  # @todo DDA: may be buffered_accession_number should be added.  MJY: This would promote non-"barcoded" data capture, I'm not sure we want to do this?!
-
   include Housekeeping
   include Shared::Citable
   include Shared::Containable
@@ -77,13 +74,31 @@ class CollectionObject < ActiveRecord::Base
   include Shared::IsData
   include SoftValidation
 
-  include Dwca::CollectionObjectExtensions
+  include Shared::IsDwcOccurrence
+  include CollectionObject::DwcExtensions 
 
   is_origin_for :collection_objects
   has_paper_trail
 
   CO_OTU_HEADERS      = %w{OTU OTU\ name Family Genus Species Country State County Locality Latitude Longitude}.freeze
   BUFFERED_ATTRIBUTES = %i{buffered_collecting_event buffered_determinations buffered_other_labels}.freeze
+
+  # Otu delegations
+  delegate :name, to: :current_otu, prefix: :otu, allow_nil: true # could be Otu#otu_name?
+  delegate :id, to: :current_otu, prefix: :otu, allow_nil: true
+
+  # Identifier delegations
+  delegate :cached, to: :preferred_catalog_number, prefix: :catalog_number, allow_nil: true
+
+  # CollectingEvent delegations
+  delegate :map_center, to: :collecting_event, prefix: :collecting_event, allow_nil: true
+
+  # Repository delegations
+  delegate :acronym, to: :repository, prefix: :repository, allow_nil: true
+  delegate :url, to: :repository, prefix: :repository, allow_nil: true 
+
+  # Preparation delegations
+  delegate :name, to: :preparation_type, prefix: :preparation_type, allow_nil: true
 
   has_one :accession_provider_role, class_name: 'AccessionProvider', as: :role_object
   has_one :accession_provider, through: :accession_provider_role, source: :person
@@ -126,7 +141,7 @@ class CollectionObject < ActiveRecord::Base
   soft_validate(:sv_missing_deaccession_fields, set: :missing_deaccession_fields)
 
   def preferred_catalog_number
-    Identifier::Local::CatalogNumber.where(identifier_object: self).first #   self.identifiers.of_type('Local::CatalogNumber').order('identifiers.position ASC').first
+    Identifier::Local::CatalogNumber.where(identifier_object: self).first 
   end
 
   def missing_determination
@@ -184,7 +199,7 @@ class CollectionObject < ActiveRecord::Base
   end
 
   # return [Boolean]
-  #    true if instance is a subclass of BiologicalCollectionObject
+  #    True if instance is a subclass of BiologicalCollectionObject
   def biological?
     self.class <= BiologicalCollectionObject ? true : false
   end
@@ -194,39 +209,15 @@ class CollectionObject < ActiveRecord::Base
     (h['biocuration classifications'] = self.biocuration_classes) if self.biological? && self.biocuration_classifications.any?
     h
   end
-
-  # @return [Otu] if the otu exists, return it
-  def get_otu
-    self.otus.first unless self.otus.empty?
-  end
-
-  # @return [Integer] if the otu exists, return the id
-  def get_otu_id
-    otu = get_otu
-    otu.id unless otu.nil?
-  end
-
-  # @return [String] if the otu exists, return the name
-  def get_otu_name
-    otu = get_otu
-    otu.name unless otu.nil?
-  end
-
-  # @return [String] if the otu exists, return the associated taxon name
-  def get_otu_taxon_name
-    otu = get_otu
-    otu.taxon_name unless otu.nil?
-  end
-
+  
   # @param [String] rank
   # @return [String] if the otu exists, return the taxon name at the rank supplied
   def name_at_rank_string(rank)
     retval = nil
-    otu    = get_otu_taxon_name
-    retval = otu.ancestor_at_rank(rank) unless otu.nil?
+    tn    = current_taxon_name 
+    retval = tn.ancestor_at_rank(rank) unless tn.nil?
     retval.cached_html unless retval.nil?
   end
-
 
   # @param [Scope] selected of CollectionObject
   def self.generate_download(scope)
@@ -265,8 +256,8 @@ class CollectionObject < ActiveRecord::Base
       csv << row
       if table_data.nil?
         scope.order(id: :asc).each do |c_o|
-          row = [c_o.get_otu_id,
-                 c_o.get_otu_name,
+          row = [c_o.otu_id,
+                 c_o.otu_name,
                  c_o.name_at_rank_string(:family),
                  c_o.name_at_rank_string(:genus),
                  c_o.name_at_rank_string(:species),
@@ -295,6 +286,9 @@ class CollectionObject < ActiveRecord::Base
     end
   end
 
+
+  # TODO: this should be refactored to be collection object centric AFTER 
+  # it is spec'd
   def self.earliest_date(project_id)
     a = CollectingEvent.joins(:collection_objects).where(project_id: project_id).minimum(:start_date_year)
     b = CollectingEvent.joins(:collection_objects).where(project_id: project_id).minimum(:end_date_year)
@@ -313,6 +307,8 @@ class CollectionObject < ActiveRecord::Base
     d.to_s + '/01/01'
   end
 
+  # TODO: this should be refactored to be collection object centric AFTER 
+  # it is spec'd
   def self.latest_date(project_id)
     a = CollectingEvent.joins(:collection_objects).where(project_id: project_id).maximum(:start_date_year)
     b = CollectingEvent.joins(:collection_objects).where(project_id: project_id).maximum(:end_date_year)
@@ -331,7 +327,7 @@ class CollectionObject < ActiveRecord::Base
       d = a || b
     end
 
-      d.to_s + '/12/31'
+    d.to_s + '/12/31'
   end
 
   # Find all collection objects which have collecting events which have georeferences which have geographic_items which
@@ -632,10 +628,6 @@ class CollectionObject < ActiveRecord::Base
     end
     false
   end
-
-  # @todo Write this. Changing from one type to another is ONLY allowed via this method, not by updating attributes
-  # def transmogrify_to(new_type)
-  # end
 
   def reject_collecting_event(attributed)
     reject = true
