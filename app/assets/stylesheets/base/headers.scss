@@ -7,7 +7,7 @@
 	padding-left:$standard_padding;
 	padding-right:$standard_padding;
 	align-items:center;
-	background-color: $color-header;
+	background-color: $color-header;	
 	height:50px;
 
 	a {
@@ -39,6 +39,13 @@
 
 #header_bar.sandbox {
 	background-color: $color-primary-0;
+	#session_nav a { 
+		color: $color-secondary-2-4;
+	}
+
+	#taxonworks a {
+		color: $default_text;
+	}
 } 
 
 .current_hub_category {
