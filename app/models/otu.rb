@@ -82,20 +82,6 @@ class Otu < ActiveRecord::Base
     Otu.joins(taxon_name: [:ancestor_hierarchies]).where(taxon_name_hierarchies: {ancestor_id: tn.id} )
   end
 
-  # @return [CSV]
-  # Generate a CSV version of the raw Otus table for the given scope
-  # Ripped from http://railscasts.com/episodes/362-exporting-csv-and-excel
-  def self.generate_download(scope)
-    CSV.generate do |csv|
-      csv << column_names
-      scope.order(id: :asc).find_each do |o|
-        csv << o.attributes.values_at(*column_names).collect { |i|
-          i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
-        }
-      end
-    end
-  end
-
   # TODO: This need to be renamed to reflect "simple" association
   def self.batch_preview(file: nil, ** args)
     # f     = CSV.read(file, headers: true, col_sep: "\t", skip_blanks: true, header_converters: :symbol)
