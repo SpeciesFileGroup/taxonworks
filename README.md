@@ -1,6 +1,8 @@
 TaxonWorks
 ==========
 
+[![Join the chat at https://gitter.im/SpeciesFileGroup/taxonworks](https://badges.gitter.im/SpeciesFileGroup/taxonworks.svg)](https://gitter.im/SpeciesFileGroup/taxonworks?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 [![Continuous Integration Status][1]][2]
 [![Coverage Status][3]][4]
 [![CodePolice][5]][6]
