@@ -1,16 +1,15 @@
+# Methods that recieve or generate a String. This methods in this library should be completely independant (i.e. ultimately gemifiable) from TaxonWorks.
 module Utilities::Strings
 
+  # return [String, nil]
+  #   stub a string of a certain length
   def self.random_string(string_length)
     return nil if string_length.to_i == 0
     ('a'..'z').to_a.shuffle[0, string_length].join
   end
 
-  # ! NICE !
-  def self.random_taxon_name
-    'Aus bus'
-  end
-
-  # Strips space, leaves internal widespace as is
+  # @return [String, nil]
+  #   strips space, leaves internal whitespace as is, returns nil if nothing is left
   def self.nil_strip(string) # string should have content or be empty
     if !string.nil?
       string.strip!
@@ -19,7 +18,8 @@ module Utilities::Strings
     string
   end
 
-  # Strips space both condenses space
+  # @return [String, nil]
+  #  strips pre/post fixed space and condenses internal spaces, but returns nil (not empty string) if nothing is left
   def self.nil_squish_strip(string)
     if !string.nil?
       string.squish!
@@ -41,7 +41,7 @@ module Utilities::Strings
     [a,(b.to_i + 1), c].compact.join
   end
 
-  # adds a second single quote to escape apostrophe in SQL query strings
+  # Adds a second single quote to escape apostrophe in SQL query strings
   def self.escape_single_quote(string)
     return nil if string.blank?
     string.gsub("'", "''")
@@ -50,6 +50,7 @@ module Utilities::Strings
   # @return [Array]
   #   returns an array of strings that are or() matchable, includes wildcards
   #   !! Make sure your string is safe !!
+  #   TODO: This should likely get added to Queries, it's too specific for anything else
   def self.termify(string)
     return [] if !string || !string.class == String 
     [string, "%#{string}", "%#{string}%", "%#{string}%"] + string.split(/\s/).collect{|t| [t, "#{t}%"]}.flatten 
@@ -58,8 +59,17 @@ module Utilities::Strings
   # @return [Boolean]
   #   whether the string is an integer (positive or negative)
   # see http://stackoverflow.com/questions/1235863/test-if-a-string-is-basically-an-integer-in-quotes-using-ruby
+  # Note:  Might checkout CSV::Converters constants to see how they handle this
   def self.is_i?(string)
     /\A[-+]?\d+\z/ === string
+  end
+
+  # @return [String, param]
+  #   the goal is to sanitizie an individual string such that it is usable in *TAB* delimited, UTF-8, column.  See Download
+  #   TODO: Likely need to handle quotes
+  def self.sanitize_for_csv(string)
+    return string if string.blank?
+    string.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
   end
 
 end
