@@ -18,6 +18,24 @@ describe 'IsDwcOccurrence', type: :model, group: :darwin_core do
       specify 'no dwc_occurrence record is created' do
         expect(class_with_dwc_occurrence.dwc_occurrence_persisted?).to be_falsey
       end
+ 
+      context 'post creation serialization' do
+        specify '#set_dwc_occurrence returns' do
+          expect(class_with_dwc_occurrence.set_dwc_occurrence).to be_kind_of(DwcOccurrence) 
+        end
+
+        context 'updating dwc_occurence' do
+         before { class_with_dwc_occurrence.set_dwc_occurrence }
+
+         # TODO: if/when we check for identity need to change the record to force an update
+         specify 'uses the existing record' do
+           old_id = class_with_dwc_occurrence.dwc_occurrence.id 
+           class_with_dwc_occurrence.set_dwc_occurrence
+           expect( class_with_dwc_occurrence.dwc_occurrence.id).to eq(old_id)
+         end
+        end
+      end
+
     end
 
     context '#generate_dwc_occurrence true' do
@@ -52,9 +70,9 @@ describe 'IsDwcOccurrence', type: :model, group: :darwin_core do
           end
         end
       end
- 
-
     end
+
+  
   end
 end
 

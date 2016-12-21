@@ -5,7 +5,6 @@ module Shared::IsDwcOccurrence
   extend ActiveSupport::Concern
   
   included do
-
     delegate :persisted?, to: :dwc_occurrence, prefix: :dwc_occurrence, allow_nil: true
 
     has_one :dwc_occurrence, as: :dwc_occurrence_object
@@ -17,9 +16,12 @@ module Shared::IsDwcOccurrence
   end
 
   def set_dwc_occurrence
-    # TODO: do a changed check on self
-    dwc_occurrence.destroy if dwc_occurrence
-    create_dwc_occurrence(dwc_occurrence_attributes)
+    if dwc_occurrence_persisted?
+      dwc_occurrence.update(dwc_occurrence_attributes)
+    else      
+      create_dwc_occurrence(dwc_occurrence_attributes)
+    end
+    dwc_occurrence
   end
 
   def dwc_occurrence_attributes
@@ -28,6 +30,14 @@ module Shared::IsDwcOccurrence
       a[k] = send(v)
     end
     a
+  end
+
+  def get_dwc_occurrence
+    if dwc_occurrence_persisted?
+      dwc_occurrence
+    else
+      set_dwc_occurrence
+    end
   end
 
 end
