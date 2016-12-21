@@ -48,6 +48,7 @@ class Project < ActiveRecord::Base
     order = %w{
      DwcOccurrence
      ProtocolRelationship
+     CharacterState
      Protocol
      AlternateValue
      DataAttribute 

@@ -1,0 +1,39 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Listing Character States</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Label</th>
+      <th>Descriptor</th>
+      <th>Position</th>
+      <th>Project</th>
+      <th>Updated by</th>
+      <th>Created by</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @character_states.each do |character_state| %>
+      <tr>
+        <td><%= character_state.name %></td>
+        <td><%= character_state.label %></td>
+        <td><%= character_state.descriptor %></td>
+        <td><%= character_state.position %></td>
+        <td><%= character_state.project %></td>
+        <td><%= character_state.updated_by_id %></td>
+        <td><%= character_state.created_by_id %></td>
+        <td><%= link_to 'Show', character_state %></td>
+        <td><%= link_to 'Edit', edit_character_state_path(character_state) %></td>
+        <td><%= link_to 'Destroy', character_state, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Character state', new_character_state_path %>
