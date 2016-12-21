@@ -1,0 +1,39 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Name:</strong>
+  <%= @character_state.name %>
+</p>
+
+<p>
+  <strong>Label:</strong>
+  <%= @character_state.label %>
+</p>
+
+<p>
+  <strong>Descriptor:</strong>
+  <%= @character_state.descriptor %>
+</p>
+
+<p>
+  <strong>Position:</strong>
+  <%= @character_state.position %>
+</p>
+
+<p>
+  <strong>Project:</strong>
+  <%= @character_state.project %>
+</p>
+
+<p>
+  <strong>Updated by:</strong>
+  <%= @character_state.updated_by_id %>
+</p>
+
+<p>
+  <strong>Created by:</strong>
+  <%= @character_state.created_by_id %>
+</p>
+
+<%= link_to 'Edit', edit_character_state_path(@character_state) %> |
+<%= link_to 'Back', character_states_path %>
