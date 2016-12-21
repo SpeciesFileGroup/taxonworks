@@ -25,6 +25,11 @@ class DwcOccurrence < ActiveRecord::Base
   validates :dwc_occurrence_object, presence: true
   validates_uniqueness_of :dwc_occurrence_object_id, scope: [:dwc_occurrence_object_type, :project_id]
 
+  # @return [Scope]
+  def self.computed_columns
+    select(['id'] + CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys ) 
+  end
+
   def basis 
     case dwc_occurrence_object_type
     when 'CollectionObject'
