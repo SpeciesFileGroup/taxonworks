@@ -72,7 +72,7 @@ Core: # a Section
     related_model:
       - SequenceRelationship
     categories:
-      - Genetic
+      - Dna
   Extract:
     status: :prototype
     related_models:
@@ -272,7 +272,7 @@ Supporting:
     related_model:
       - Sequence
     categories:
-      - Genetic
+      - Dna
   TaxonDetermination:
     status: :prototype
     categories:
