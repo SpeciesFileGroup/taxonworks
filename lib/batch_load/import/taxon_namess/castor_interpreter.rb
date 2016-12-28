@@ -35,13 +35,14 @@ module BatchLoad
 
     def build_taxon_names
       @total_data_lines = 0
-      i = 1
+      i = 0
 
       namespace_castor = Namespace.find_by(name: "Castor")
       taxon_names = {}
 
       csv.each do |row|
         i += 1
+
         parse_result = BatchLoad::RowParse.new
         parse_result.objects[:taxon_name] = []
         parse_result.objects[:taxon_name_relationship] = []
@@ -120,7 +121,7 @@ module BatchLoad
         end
       end
 
-      @total_lines = i - 1
+      @total_lines = i
     end
 
     def build

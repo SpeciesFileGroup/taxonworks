@@ -15,16 +15,17 @@ module BatchLoad
       namespace_drm_field_numbers = Namespace.find_by(name: 'DRMFieldNumbers')
 
       @total_data_lines = 0
-      i = 1
+      i = 0
       # loop throw rows
       csv.each do |row|
-        # Only accept records from DRM to keep things simple for now
-        next if row['locality_code_prefix'] != "DRM"
-
+        i += 1
         parse_result = BatchLoad::RowParse.new
         parse_result.objects[:collecting_event] = []
 
         @processed_rows[i] = parse_result
+
+        # Only accept records from DRM to keep things simple for now
+        next if row['locality_code_prefix'] != "DRM"
 
         begin # processing
           # use a BatchLoad::ColumnResolver or other method to match row data to TW 
@@ -75,10 +76,9 @@ module BatchLoad
         #rescue
            # ....
         end
-        i += 1
       end
 
-      @total_lines = i - 1
+      @total_lines = i
     end
 
     def build
