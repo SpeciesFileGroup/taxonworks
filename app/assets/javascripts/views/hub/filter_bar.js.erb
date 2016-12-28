@@ -11,6 +11,7 @@ function initFilterBar() {
   $('[data-filter-category="collecting_event"]').prepend('<img src="<%= asset_path("geo_location.svg") %>"/>'); 
   $('[data-filter-category="biology"]').prepend('<img src="<%= asset_path("biology.svg") %>"/>'); 
   $('[data-filter-category="matrix"]').prepend('<img src="<%= asset_path("matrix.svg") %>"/>'); 
+  $('[data-filter-category="dna"]').prepend('<img src="<%= asset_path("helix.svg") %>"/>'); 
 
   function deactivateBackgroundColorLink(selector) {
     $(selector).removeClass("activated");
