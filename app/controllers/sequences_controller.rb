@@ -146,7 +146,7 @@ class SequencesController < ApplicationController
     if params[:file] && digested_cookie_exists?(params[:file].tempfile, :Genbank_sequences_md5)
       @result = BatchLoad::Import::Sequences::GenbankInterpreter.new(batch_params)
       if @result.create
-        flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} TODO RECORD TYPES were created."
+        flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} sequences were created."
         render 'sequences/batch_load/genbank/create' and return
       else
         flash[:alert] = 'Batch import failed.'

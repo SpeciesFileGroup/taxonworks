@@ -10,7 +10,7 @@ module BatchLoad
 
     # TODO: update this
     def build_sequences
-
+      @total_data_lines = 0
       i = 1
       # loop throw rows
       csv.each do |row|
@@ -29,12 +29,15 @@ module BatchLoad
           parse_result.objects[:sequence].push(sequence)
 
           origin_relationship = create_origin_relationship(row["filename"], sequence)
-          parse_result.objects[:origin_relationship].push(sequence) if sequence
+          parse_result.objects[:origin_relationship].push(origin_relationship) if origin_relationship
+          @total_data_lines += 1 if sequence.present?
         #rescue
            # ....
         end
         i += 1
       end
+
+      @total_lines = i - 1
     end
 
     def build

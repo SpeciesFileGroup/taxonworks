@@ -22,6 +22,7 @@ module BatchLoad
       namespace_drm_field_voucher = Namespace.find_by(name: 'DRMFieldVoucher')
       namespace_drm_dna_voucher = Namespace.find_by(name: 'DRMDNAVoucher')
 
+      @total_data_lines = 0
       i = 1
       # loop throw rows
       csv.each do |row|
@@ -109,6 +110,7 @@ module BatchLoad
           co.collecting_event = ce if !ce.nil?
 
           parse_result.objects[:collection_object].push(co);
+          @total_data_lines += 1 if co.present?
 
           # Taxon determination between this object and taxon name otus this object belongs to
           taxon_names = TaxonName.with_namespaced_identifier('Castor', row["taxon_guid"])
@@ -123,12 +125,15 @@ module BatchLoad
               parse_result.objects[:taxon_determination].push(taxon_determination) if taxon_name
             end
           end
+
         #rescue
            # ....
            # puts "SOMETHING WENT WRONG WITH COLLECTION OBJECT castor INTERPRETER BATCH LOAD"
         end
         i += 1
       end
+
+      @total_lines = i - 1
     end
 
     def build

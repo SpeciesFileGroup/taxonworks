@@ -14,6 +14,7 @@ module BatchLoad
       namespace_castor = Namespace.find_by(name: 'Castor')
       namespace_drm_field_numbers = Namespace.find_by(name: 'DRMFieldNumbers')
 
+      @total_data_lines = 0
       i = 1
       # loop throw rows
       csv.each do |row|
@@ -70,11 +71,14 @@ module BatchLoad
           ce = CollectingEvent.new(ce_attributes)
 
           parse_result.objects[:collecting_event].push(ce)
+          @total_data_lines += 1 if ce.present?
         #rescue
            # ....
         end
         i += 1
       end
+
+      @total_lines = i - 1
     end
 
     def build

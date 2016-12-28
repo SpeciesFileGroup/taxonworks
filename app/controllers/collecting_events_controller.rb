@@ -133,7 +133,7 @@ class CollectingEventsController < ApplicationController
     if params[:file] && digested_cookie_exists?(params[:file].tempfile, :batch_collecting_events_md5)
       @result = BatchLoad::Import::CollectingEvent.new(batch_params)
       if @result.create
-        flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} collection objects were created."
+        flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} collecting events were created."
         render 'collecting_events/batch_load/simple/create' and return
       else
         flash[:alert] = 'Batch import failed.'
@@ -165,7 +165,7 @@ class CollectingEventsController < ApplicationController
     if params[:file] && digested_cookie_exists?(params[:file].tempfile, :Castor_collecting_events_md5)
       @result = BatchLoad::Import::CollectingEvents::CastorInterpreter.new(batch_params)
       if @result.create
-        flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} TODO RECORD TYPES were created."
+        flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} collecting events were created."
         render 'collecting_events/batch_load/castor/create' and return
       else
         flash[:alert] = 'Batch import failed.'

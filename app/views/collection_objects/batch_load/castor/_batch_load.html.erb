@@ -5,7 +5,8 @@
     <div class="item item1 one_third_width">
       <h3> Description and requirements </h3>
 
-      <p> Creates collection objects from a Castor to TaxonWorks exported collection objects file. Attaches at most 4 identifiers of type Identifier::Local::CollectionObject to each collection object.</p>
+      <p>
+        Creates collection objects, extracts, and taxon determinations from a Castor to TaxonWorks exported collection objects file. Attaches at most 5 identifiers to each collection object and at most 1 identifier to each extract.</p>
       <ul>
         <li>A tab-delimited, UTF-8 compatible text file is required.</li>
         <li>Column headers are here <%= link_to('sample template', asset_path('batch_load_templates/collection_objects/collection_objects_castor_batch_load.tab'), target: '_blank') -%>).</li>
@@ -16,13 +17,16 @@
         <li>Assumes a namespace with name "Morphbank" and shortname "MBK" exists</li>
         <li>Assumes a namespace with name "DRMLabVoucher" and shortname "DRMLV" exists</li>
         <li>Assumes a namespace with name "DRMFieldVoucher" and shortname "DRMFV" exists</li>
-        <li>Assumes a namespace with name "DRMFieldNumbers" and shortname "DRMFN" exists</li>
-        <li>Assumes a namespace with name "GenBank" and shortname "DRMDNAV" exists</li>
-        <li>Identifier with namespace Castor will be attached with the value of the "guid" column if not blank</li>
-        <li>Identifier with namespace Morphbank will be attached with the value of the "morphbank_specimen_id" column if not blank</li>
-        <li>Identifier with namespace DRMLabVoucher will be attached with the value of the "specimen_number" column if not blank</li>
-        <li>Identifier with namespace DRMFieldVoucher will be attached with the value of the "voucher_number_prefix" + "voucher_number_stirng" column if not blank</li>
+        <li>Assumes a namespace with name "DRMDNAVoucher" and shortname "DRMDNA" exists</li>
+        <li>Assumes a namespace with name "GenBank" and shortname "GBK" exists</li>
+        <li>Identifier with namespace Castor will be attached with the value of the "guid" column if not blank to each collection object</li>
+        <li>Identifier with namespace Morphbank will be attached with the value of the "morphbank_specimen_id" column if not blank to each collection object</li>
+        <li>Identifier with namespace DRMLabVoucher will be attached with the value of the "specimen_number" column if not blank to each collection object</li>
+        <li>Identifier with namespace DRMFieldVoucher will be attached with the value of the "voucher_number_prefix" + "voucher_number_stirng" column if not blank to each collection object</li>
+        <li>Identifier with namespace DRMDNAVoucher will be attached with the value of the "voucher_number_prefix" + "voucher_number_stirng" column if not blank to each collection object</li>
+        <li>Identifier with namespace GenBank will be attached with the value of the "sample_code_prefix" and "sample_code" columns if not blank to each extract</li>
         <li>Only links to a collecting event that has an attached Identifier with namespace Castor and with a value that matches this objects "collecting_event_guid" column</li>
+        <li>Creates taxon determinations between each collection object and all its matching taxon names otus</li>
       </ul>
     </div>
 

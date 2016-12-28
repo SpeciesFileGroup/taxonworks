@@ -5,14 +5,12 @@
     <div class="item item1 one_third_width">
       <h3> Description and requirements </h3>
 
-      <p> TODO: Does X. </p>
+      <p>Creates sequences and origin relationships from and attaches at most 1 identifier to each sequence</p>
       <ul>
         <li>A tab-delimited, UTF-8 compatible text file is required.</li>
-        <li>Column headers are XXX (see <%= link_to('sample template', asset_path('batch_load_templates/sequences__batch_load.tab'), target: '_blank') -%>).</li>
-        <li>If X then Y.</li>
-        <li>Multiple uploads of the same data will X.</li>
-        <li>It is assumed Z1.</li>
-        <li>It is assumed Z2.</li>
+        <li>Column headers are "filename" and "file_content" (see <%= link_to('sample template', asset_path('batch_load_templates/sequences/sequences_genbank_batch_load.tab'), target: '_blank') -%>).</li>
+        <li>Multiple uploads of the same data will fail.</li>
+        <li>Assumes a namespace with name "GenBank" and shortname "GBK" exists</li>
         <li>There is currently some|no size limit to the file being loaded but this may change in the future.</li>
       </ul>
     </div>
@@ -20,14 +18,11 @@
     <div class="item item2 one_third_width">
       <h3> Example file </h3>
 
-      <p> A tab delimited formatted file ... DESCRIPTION ... 
-        In the example whitespace is a tab. View sample file template.</p>
+      <p> A tab delimited formatted file. In the example whitespace is a tab. View sample file template.</p>
 
       <pre class="fixed_width_font">
-        header1 header2 header3
-        Aidae Aus bus
-        Aidae Aus cus
-        Bidae Bus eus</pre>
+        filename file_content
+      </pre>
     </div>
 
     <div class="item item3">

@@ -6,6 +6,7 @@ module BatchLoad
     end
 
     def build_namespaces
+      @total_data_lines = 0
       i = 1
 
       namespaces = {};
@@ -28,6 +29,7 @@ module BatchLoad
 
           namespace = Namespace.new(namespace_attributes)
           parse_result.objects[:namespaces].push namespace
+          @total_data_lines += 1 if namespace.present?
         # rescue TODO: THIS IS A GENERATED STUB, it does not function
         end
         i += 1

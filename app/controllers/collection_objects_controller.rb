@@ -188,7 +188,7 @@ class CollectionObjectsController < ApplicationController
     if params[:file] && digested_cookie_exists?(params[:file].tempfile, :Castor_collection_objects_md5)
       @result = BatchLoad::Import::CollectionObjects::CastorInterpreter.new(batch_params)
       if @result.create
-        flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} TODO RECORD TYPES were created."
+        flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} items were created."
         render 'collection_objects/batch_load/castor/create' and return
       else
         flash[:alert] = 'Batch import failed.'

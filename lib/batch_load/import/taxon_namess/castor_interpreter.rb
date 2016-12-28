@@ -34,7 +34,8 @@ module BatchLoad
     end
 
     def build_taxon_names
-      i = 0
+      @total_data_lines = 0
+      i = 1
 
       namespace_castor = Namespace.find_by(name: "Castor")
       taxon_names = {}
@@ -87,6 +88,7 @@ module BatchLoad
           end
           
           parse_result.objects[:taxon_name].push p
+          @total_data_lines += 1 if p.present?
 
           # TaxonNameRelationship
           related_name_id = row['related_name_id']
@@ -117,6 +119,8 @@ module BatchLoad
           end
         end
       end
+
+      @total_lines = i - 1
     end
 
     def build
