@@ -6,11 +6,11 @@ rvm:
 bundler_args: --without development
 branches:
   only:
-      - master
-      - Rails-5.0
-      - development
-      - travis-trusty-beta
-      - matrix
+    - master
+    - Rails-5.0
+    - development
+    - travis-trusty-beta
+    - eyelet 
 addons:
   postgresql: "9.4"
   firefox: "46.0"
