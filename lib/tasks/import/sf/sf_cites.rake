@@ -83,8 +83,8 @@ SF.RefID #{row['RefID']} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}
                 #
                 # ],
 
-                tags_attributes: [{keyword_id: (new_name_uri ? new_name_cvt_id : nil), project_id: project_id}],
-                tags_attributes: [{keyword_id: (type_info_uri ? type_info_cvt_id : nil), project_id: project_id}],
+                tags_attributes: [{keyword_id: new_name_uri, project_id: project_id}],
+                tags_attributes: [{keyword_id: type_info_uri, project_id: project_id}],
 
                 ## InfoFlagStatus: Add confidence, 1 = partial data or needs review, 2 = complete data
                 confidences_attributes: [{confidence_level_id: (row['InfoFlagStatus'].to_i > 0 ? ControlledVocabularyTerm.where('uri LIKE ? and project_id = ?', "%/info_flag_status/#{row['InfoFlagStatus']}", project_id).limit(1).pluck(:id).first : nil), project_id: project_id}]
