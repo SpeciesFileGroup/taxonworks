@@ -1,3 +1,5 @@
+
+
 # A SequenceRelationship relates to strings of DNA/RNA/AA to one other in the form:
 #  #subject is_a #type of #object
 #
@@ -5,6 +7,8 @@
 # 
 class SequenceRelationship < ActiveRecord::Base
   include Housekeeping
+  
+  # not sure we need these 3: 
   # include Shared::Protocol
   # include Shared::Confidence
   # include Shared::Documentation
@@ -19,10 +23,7 @@ class SequenceRelationship < ActiveRecord::Base
   validates_presence_of :subject_sequence
   validates_presence_of :object_sequence
   validates_presence_of :type
-  
+
 end
 
-require_dependency 'sequence_relationship/reverse_primer'
-require_dependency 'sequence_relationship/forward_primer'
-require_dependency 'sequence_relationship/blast_query_sequence'
-require_dependency 'sequence_relationship/reference_sequence_for_assembly'
+Dir[Rails.root.to_s + '/app/models/sequence_relationship/**/*.rb'].sort.each {|file| require_dependency file }
