@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Sequence, type: :model do
+RSpec.describe Sequence, type: :model, group: [:dna] do
   let(:sequence) {Sequence.new}
 
   context 'validation' do
