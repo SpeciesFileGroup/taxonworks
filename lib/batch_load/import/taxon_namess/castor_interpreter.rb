@@ -46,7 +46,6 @@ module BatchLoad
         parse_result = BatchLoad::RowParse.new
         parse_result.objects[:taxon_name] = []
         parse_result.objects[:taxon_name_relationship] = []
-        parse_result.objects[:taxon_name_classification] = []
 
         @processed_rows[i] = parse_result
 
@@ -109,15 +108,8 @@ module BatchLoad
           end
 
           # TaxonNameClassification
-          begin
-            name_nomen_class = row['name_nomen_classification'].constantize
-
-            if name_nomen_class.ancestors.include?(TaxonNameClassification)
-              taxon_name_classification = TaxonNameClassification.new(taxon_name: p, type: row['name_nomen_classification'])
-              parse_result.objects[:taxon_name_classification].push taxon_name_classification
-            end
-          rescue NameError
-          end
+          name_nomen_classification = row['name_nomen_classification']
+          p.taxon_name_classifications.new(type: name_nomen_classification) if TaxonName::EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS.include?(name_nomen_classification)
         end
       end
 
@@ -136,35 +128,26 @@ module BatchLoad
     def year_of_publication(author_year)
       split_author_year = author_year.split(" ")
       year = split_author_year[split_author_year.length - 1]
-      return year
+      year =~ /\A\d+\z/ ? year : ""
     end
 
     def verbatim_author(author_year)
-      split_author_year = author_year.split(" ")
-      verbatim_author = split_author_year[0...(split_author_year.length - 1)]
-      return verbatim_author
+      author_end_index = author_year.rindex(" ") 
+      author_end_index ||= author_year.length
+      author_year[0...author_end_index]
     end
 
-    def taxon_name_authors_attributes(author_year)
-      author_info = verbatim_author(author_year)
-
+    def taxon_name_authors_attributes(author_info)
       multiple_author_query = "and"
       multiple_author_index = author_info.index(multiple_author_query)
+      split_author_info = multiple_author_index.nil? ? [author_info] : author_info.split(multiple_author_query)
+      author_infos = []
 
-      if multiple_author_index.nil?
-        return [author_info(author_info)]
-      else
-        multiple_author_index += multiple_author_query.length
-        split_author_info = author_info.split(multiple_author_query)
-
-        author_infos = []
-
-        split_author_info.each do |author_str|
-          author_infos.push author_info(author_str)
-        end
-
-        return author_infos
+      split_author_info.each do |author_str|
+        author_infos.push(author_info(author_str)) if author_str != "NA" && author_str != "unpublished"
       end
+
+      author_infos
     end
 
     def author_info(author_string)
@@ -181,7 +164,7 @@ module BatchLoad
         first_name = split_author_info[1] 
       end
 
-      return { last_name: last_name, first_name: first_name, suffix: "suffix" }
+      { last_name: last_name, first_name: first_name, suffix: "suffix" }
     end
   end
 end
