@@ -35,6 +35,21 @@ context 'OriginRelationship', :type => :model do
       end
     end
   end
+
+  context 'new/old objects' do
+    let(:o) { TestClass.create }
+
+    specify '#old_objects' do 
+      expect(:o).to respond_to(:old_objects)
+    end
+
+    specify '#new_objects' do
+      expect(:o).to respond_to(:new_objects)
+    end
+  end
+
+
+
 end
 
 class BaseOriginRelationShip < ActiveRecord::Base

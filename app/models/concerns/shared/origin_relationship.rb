@@ -2,16 +2,19 @@
 Shared code for extending data classes with an OriginRelationship
 
   Instructions on how to use this concern:
-    1) Include this concern in the table that can have origin relationship target tables
-    2) Call "is_origin_for" with valid target tables
-      ex is_origin_for :collection_objects, collecting_events etc
+    1) Include this concern (include Shared::OriginRelationship) in BOTH models that are related
+    2) In the "old" model call "is_origin_for" with valid target tables, e.g.:
+       is_origin_for :collection_objects, :collecting_events etc
 
 =end
 module Shared::OriginRelationship
   extend ActiveSupport::Concern
 
   included do
+    # these are technically only necessary on the new side, but are OK to spam on the old side (some of which need it)
     has_many :origin_relationships, as: :old_object, validate: true, dependent: :destroy
+    has_many :old_objects, through: :origin_relationships
+    has_many :new_objects, through: :origin_relationships
     accepts_nested_attributes_for :origin_relationships, reject_if: :reject_origin_relationships
   end
 
