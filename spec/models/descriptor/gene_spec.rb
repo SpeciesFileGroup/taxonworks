@@ -54,6 +54,18 @@ RSpec.describe Descriptor::Gene, type: :model, group: [:descriptor, :matrix] do
 
   context '#sequences' do
 
+    # otu
+    # collection object
+    # extract
+    # sequence1  
+    # sequence2
+    # sequence3
+    # sequence rel1 fwd
+    # sequence rel2 rev
+    # sequence rel3 fwd
+    # sequence rel4 rev
+    #
+    #
 
   end 
 

@@ -2,6 +2,7 @@ require 'rails_helper'
 
 RSpec.describe Sequence, type: :model, group: [:dna] do
   let(:sequence) {Sequence.new}
+  let(:primer) { FactoryGirl.create(:valid_sequence) }
 
   context 'validation' do
     context 'fails when not given' do
@@ -26,6 +27,66 @@ RSpec.describe Sequence, type: :model, group: [:dna] do
       specify 'sequence and valid sequence_type' do
         sequence = FactoryGirl.create(:valid_sequence)
         expect(sequence.valid?).to be_truthy
+      end
+    end
+
+    context 'associations' do
+      context 'has_many helpers' do 
+        SequenceRelationship.descendants.each do |d|
+          t = d.name.demodulize.tableize.singularize
+          relationships = "#{t}_relationships".to_sym
+          sequences = "#{t}_sequences".to_sym
+
+          specify "##{relationships}" do
+            expect(sequence.send("#{relationships}=", [d.new])).to be_truthy
+          end
+
+          specify "##{sequences}" do
+            expect(sequence.send("#{sequences}=", [Sequence.new])).to be_truthy
+          end
+
+          specify "nested_attributes" do
+            expect(sequence.send("#{sequences}_attributes=", [{sequence: Sequence.new}])).to be_truthy
+          end
+        end
+
+        context 'basic use' do
+          before { sequence.update_attributes(sequence_type: 'DNA', sequence: 'ACGT') }
+          context 'setting attributes' do
+            before do
+              sequence.forward_primer_sequences = [ primer ]
+              sequence.save!
+            end 
+
+            specify 'relationships are created' do
+              expect(sequence.related_sequence_relationships.count).to eq(1)
+            end
+
+            specify 'reference named relationship' do
+              expect(sequence.forward_primer_sequences).to contain_exactly(primer)
+            end
+
+            specify 'reference #sequence' do
+              expect(primer.sequences).to contain_exactly(sequence)
+            end
+
+            specify 'reference #related_sequences' do
+              expect(sequence.related_sequences).to contain_exactly(primer)
+            end
+          end
+
+          context 'nested attributes' do
+            before do
+              sequence.forward_primer_sequences_attributes = [{sequence: 'ACgT', sequence_type: 'DNA'}] 
+              sequence.save!
+            end
+
+            specify 'reference #related_sequences' do
+              expect(sequence.related_sequences.first.sequence).to eq('ACgT') 
+            end
+          end
+          
+        end
       end
     end
   end
