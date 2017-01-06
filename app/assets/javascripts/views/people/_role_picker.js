@@ -131,9 +131,9 @@ Object.assign(TW.views.people.role_picker, {
   bind_new_link: function (form) {
   // Add a role to the list via the add new form 
   form.find(".role_picker_add_new").click(function () {
-    this.insert_new_person(form);
+    TW.views.people.role_picker.insert_new_person(form);
     form.find('.new_person').attr("hidden", true); // hide the form fields
-    this.clear_role_picker(form); // clear autocomplete input box
+    TW.views.people.role_picker.clear_role_picker(form); // clear autocomplete input box
   });
   },
 
@@ -172,7 +172,7 @@ Object.assign(TW.views.people.role_picker, {
 
   remove_link: function () {
   var link = $('<a href="#" class="remove_role">remove</a>');
-    this.bind_remove_links(link);
+    TW.views.people.role_picker.bind_remove_links(link);
   return link;
   },
 
@@ -239,7 +239,7 @@ Object.assign(TW.views.people.role_picker, {
         role_list.append($('<input hidden name="' + base_class + '[roles_attributes][' + role_index + '][_destroy]" value="1" >'));
 
         // Provide a warning that the list must be saved to properly delete the records, tweak if we think necessary
-        this.warn_for_save(role_list.siblings('.role_picker_message'));
+        TW.views.people.role_picker.warn_for_save(role_list.siblings('.role_picker_message'));
       }
     }
     list_item.remove();
@@ -256,7 +256,7 @@ Object.assign(TW.views.people.role_picker, {
   list_items.sortable({
     change: function (event, ui) {
       if ($('form[id^="new_"]').length == 0) {
-        this.warn_for_save(form.find('.role_picker_message'));
+        TW.views.people.role_picker.warn_for_save(form.find('.role_picker_message'));
       }
     }
   });
