@@ -3,7 +3,7 @@ TW.views = TW.views || {};            // mimic directory structure in app/assets
 TW.views.topics = TW.views.topics || {};
 TW.views.topics.topic_picker = TW.views.topics.topic_picker || {};
 
-Object.assign(TW.views.people.role_picker, {
+Object.assign(TW.views.topics.topic_picker, {
 
 //
 // Initialize the widget
