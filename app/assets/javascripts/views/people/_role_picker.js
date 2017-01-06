@@ -147,7 +147,7 @@ Object.assign(TW.views.people.role_picker, {
     role_list.append($('<input hidden name="' + base_class + '[roles_attributes][' + random_index + '][person_id]" value="' + person_id + '" >'));
 
     // insert visible list item
-    role_list.append($('<li class="role_item" data-role-index="' + random_index + '">').append(label).append('&nbsp;').append(remove_link()));
+    role_list.append($('<li class="role_item" data-role-index="' + random_index + '">').append(label).append('&nbsp;').append(TW.views.people.role_picker.remove_link()));
   },
 
   insert_new_person: function (form) {
