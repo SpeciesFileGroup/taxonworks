@@ -17,8 +17,8 @@ _init_map_table = function init_map_table() {
 
       function switchMap() {
         $("#area_count").text('????');
-        $("#show_list").attr('hidden', true);         // hide the list view
-        $("#show_map").removeAttr('hidden');          // reveal the map
+        $("#show_list").hide();         // hide the list view
+        $("#show_map").show();          // reveal the map
         $(".result_list_toggle").removeAttr('hidden');           // expose the other link
         $(".result_map_toggle").attr('hidden', true);
         $("[name='[geographic_area_id]']").attr('value', '');
@@ -28,8 +28,8 @@ _init_map_table = function init_map_table() {
 
       function switchList() {
         $("#area_count").text('????');
-        $("#show_map").attr('hidden', true);          // hide the map
-        $("#show_list").removeAttr('hidden');         // reveal the area selector
+        $("#show_map").hide();          // hide the map
+        $("#show_list").show();         // reveal the area selector
         $(".result_map_toggle").removeAttr('hidden');            // expose the other link
         $(".result_list_toggle").attr('hidden', true);
         $("#drawn_area_shape").attr('value', '');        
@@ -40,7 +40,7 @@ _init_map_table = function init_map_table() {
           switchMap();
         } 
         else {
-          switchList()
+          switchList();
         }
       });
   
@@ -127,7 +127,7 @@ _init_map_table = function init_map_table() {
 
     function toggleFilter() {
       $("#filter-collection-objects").toggle();
-      $("#show_list").toggle();   
+      $("#result_view").toggle();   
     }
   
     $("#search_start_date").change(function (event) {
@@ -151,7 +151,8 @@ _init_map_table = function init_map_table() {
   
     function update_and_graph(event) {      
       validateDate(event.target);
-      if(validateDates()) {  
+      if(validateDates()) { 
+        updateRangePicker(new Date($("#search_start_date").val()), new Date($("#search_end_date").val())); 
         $("#select_date_range").mx_spinner('show');
         $.get('set_date', $("#set_date_form").serialize(), function (local_data) {
             $("#date_count").text(local_data.html);
@@ -210,17 +211,8 @@ _init_map_table = function init_map_table() {
     var startDate = new Date($("#earliest_date").text());
     var endDate = new Date($("#latest_date").text());
     var offset = endDate - startDate;
-  
-    $("#double_date_range").rangepicker({
-      type: "double",
-      startValue: dateFormat(startDate, "yyyy/MM/dd"),
-      endValue: dateFormat(endDate, "yyyy/MM/dd"),
-      translateSelectLabel: function (currentPosition, totalPosition) {
-        var timeOffset = offset * ( currentPosition / totalPosition);
-        var date = new Date(+startDate + parseInt(timeOffset));
-        return dateFormat(date, "yyyy/MM/dd");
-      }
-    });
+
+    updateRangePicker(startDate, endDate);
   
     $("#double_date_range").mouseup(function (event) {
       var range_factor = 1.0;
@@ -230,7 +222,7 @@ _init_map_table = function init_map_table() {
       var newEndDate = range_factor * (new Date(newEndText));
       $("#search_start_date").val(newStartText);
       $("#search_end_date").val(newEndText);
-      offset = (newEndDate - newStartDate);
+
       update_and_graph(event);
       $(".label.range-label")[0].textContent = $(".label.select-label")[1].textContent;
       $(".label.range-label")[1].textContent = $(".label.select-label")[0].textContent;
@@ -239,35 +231,30 @@ _init_map_table = function init_map_table() {
       $("#st_fixedpicker").datepicker("setDate", new Date(dateFormat(new Date(newStartText), "yyyy/MM/dd")));
       $("#en_fixedpicker").datepicker("setDate", new Date(dateFormat(new Date(newEndText), "yyyy/MM/dd")));
 
+      updateRangePicker(newStartDate, newEndDate);
+
+    });
+
+    function updateRangePicker(newStartDate, newEndDate) {
+      var offset = newEndDate - newStartDate;
+
       $("#double_date_range").rangepicker({
         type: "double",
-        startValue: newStartText,
-        endValue: newEndText,
+        startValue: newStartDate,
+        endValue: newEndDate,
         translateSelectLabel: function (currentPosition, totalPosition) {
           var timeOffset = offset * ( currentPosition / totalPosition);
           var date = new Date(+newStartDate + parseInt(timeOffset));
           return dateFormat(date, "yyyy/MM/dd");
         }
       });
-    });
+    }
 
   
     $("#reset_slider").click(function (event) {
-      var startDate = new Date($("#earliest_date").text());
-      var endDate = new Date($("#latest_date").text());
-      var offset = endDate - startDate;
-        $("#double_date_range").rangepicker({
-          type: "double",
-          startValue: dateFormat(startDate, "yyyy/MM/dd"),
-          endValue: dateFormat(endDate, "yyyy/MM/dd"),
-          translateSelectLabel: function (currentPosition, totalPosition) {
-            var timeOffset = offset * ( currentPosition / totalPosition);
-            var date = new Date(+startDate + parseInt(timeOffset));
-            return dateFormat(date, "yyyy/MM/dd");
-          }
-        });
-      $("#search_start_date").val($("#earliest_date").text());
-      $("#search_end_date").val($("#latest_date").text());
+        $("#search_start_date").val($("#earliest_date").text());
+        $("#search_end_date").val($("#latest_date").text());
+        updateRangePicker(startDate, endDate);
         update_and_graph(event);
         event.preventDefault();
       }

@@ -5,10 +5,6 @@
 #co_by_area_and_date {
 	position: relative;
 
-	#show_list {
-		display: none;
-	}
-
 	h1, h2 {		
 		font-weight: 400;
 		margin-top: 20px;
@@ -23,12 +19,19 @@
 		background-image: image-url("filter.svg");
 	}
 
+	#result_view, .range-label {
+		display: none;
+	}
+
+	#reset_slider, #set_area, #set_otu {
+		margin-top: $standard_margin;
+	}
+
 	#filter-collection-objects {
 		width: 100%;
 		position: absolute;
 		top: 150px;
 		left: 0px;
-		//z-index: 100;
 
 		.panel {
 			width: 590px;

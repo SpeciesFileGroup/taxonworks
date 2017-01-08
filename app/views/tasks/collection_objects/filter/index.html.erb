@@ -6,12 +6,12 @@
 <div id="co_by_area_and_date">
   <h1>Task - Collection objects by area and date range</h1>
 
- <div class="flex-wrap-row" id="find_item">
+ <div class="flex-wrap-row">
     <div class="item item2">
       <div id="nav-list" class="panels-container">  
-        <div class="panel column-big" data-help="Use the left and right buttoms to hide or show columns groups">
+        <div id="find_item" class="panel column-big" data-help="Use the left and right buttoms to hide or show columns groups">
           <div class="title nav-line">
-            <span id="result_title_list">Collection objects</span>
+            <span id="result_title_list">Filter</span>
             <div class="horizontal-center-content middle">
               <div class="circle-button" id="filter-button"></div>
               <label class="switch-toggle" data-help="Select the result list, or the map of results.">
@@ -39,24 +39,30 @@
           </div>
         </div>  
       </div> 
-      <div id="show_list">
-        <%= render('result_list', collection_objects: @collection_objects) if @collection_objects.count > 0 %>
-      </div>
-      <div id="show_map" hidden>
-        <!--on first paint, these variables will be empty, so we get an empty map -->
-        <%= simple_map_component(report_georeferences(@collection_objects, @geographic_area), 'border="1"') -%>
-      </div>      
-      <span id="result_span"></span> 
     </div>
   </div>
 
+  <div id="result_view">
+    <div id="show_list">
+      <%= render('result_list', collection_objects: @collection_objects) if @collection_objects.count > 0 %>
+    </div>
+    <div id="show_map" hidden>
+      <!--on first paint, these variables will be empty, so we get an empty map -->
+      <%= simple_map_component(report_georeferences(@collection_objects, @geographic_area), 'border="1"') -%>
+    </div>      
+    <span id="result_span"></span> 
+  </div>  
+
   <div id="filter-collection-objects" class="flex-wrap-row middle">  
-      <div class="">
+      <div class="flex-wrap-row">
           <div id="set_area_and_date_form">
-            <div class="panel content  border-bottom" id="select_area">
+            <div class="panel content border-bottom separate-right" id="select_area">
               <div class="content">
                 <div class="filter_facet flex-separate middle title-filter-categories">
                   <span class="uppercase">Select area</span>
+               
+                </div>
+                <h3>Result: <span id="area_count">????</span></h3> 
                     <label class="switch-toggle" id="label_toggle_slide_area">
                       <input type="checkbox" id="toggle_slide_area">
                       <div class="slider-toggle round"></div>
@@ -64,15 +70,13 @@
                         <span>Map</span>
                         <span>Area</span>
                       </div>
-                    </label>                
-                </div>
-                <h3>Result: <span id="area_count">????</span></h3>    
+                    </label>                    
                 <div id="area-container">              
                   <%= render('by_area') %>
                 </div>
               </div>
             </div>
-          <div class="panel content" id="select_date_range">
+          <div class="panel content separate-top" id="select_date_range">
             <div class="content">
               <div class="filter_facet flex-separate middle title-filter-categories">
                 <span class="uppercase">Date range</span>
@@ -90,11 +94,11 @@
                 <span class="uppercase">Otu</span>
               </div>
               <h3>Result:<span id="otu_count">????</span></h3>
+              <div id="otu-container">
+                <%= render('by_otu') %>
+              </div>
             </div>
-            <div id="otu-container" class="content">
-              <%= render('by_otu') %>
-            </div>
-            </div>
+          </div>
             </div>
           <div>
             <div id="action_find" class="content">
@@ -104,6 +108,5 @@
             </div>
           </div>
       </div>
-     <!--  <div class="slide-panel-circle-icon"></div>-->
     </div>
 </div>
