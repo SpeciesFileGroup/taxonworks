@@ -38,12 +38,12 @@ Object.assign(TW.views.topics.topic_picker, {
     autocomplete_input.autocomplete({
       source: '/topics/lookup_topic',
       open: function (event, ui) {
-        TW.views.people.role_picker.bind_hover(form);
+        TW.views.people.topic_picker.bind_hover(form);
       },
       select: function (event, ui) {    // execute on select event in search text box
-        TW.views.people.role_picker.insert_existing_topic(form, ui.item.object_id, ui.item.label);
-        TW.views.people.role_picker.clear_topic_picker(form);
-        TW.views.people.role_picker.make_topic_list_sortable(form);     // was this inadvertantly lost?
+        TW.views.people.topic_picker.insert_existing_topic(form, ui.item.object_id, ui.item.label);
+        TW.views.people.topic_picker.clear_topic_picker(form);
+        TW.views.people.topic_picker.make_topic_list_sortable(form);     // was this inadvertantly lost?
         return false;
       }
     }).autocomplete("instance")._renderItem = function (ul, item) {
@@ -119,7 +119,7 @@ Object.assign(TW.views.topics.topic_picker, {
 
   remove_link: function () {
     var link = $('<a href="#" class="remove_topic">remove</a>');
-    TW.views.people.role_picker.bind_remove_section_links(link);
+    TW.views.people.topic_picker.bind_remove_section_links(link);
     return link;
   },
 
