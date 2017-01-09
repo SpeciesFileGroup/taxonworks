@@ -1,3 +1,4 @@
-$("#dwc_occurrence_table").append("<%= j dwc_table_row_tag(@dwc_occurrence) %>"); 
+var id = "#dwc_row_stub_<%= @dwc_occurrence.dwc_occurrence_object_id.to_s -%>"; 
+$(id).replaceWith("<%= j dwc_occurrence_table_row_tag(@dwc_occurrence) %>"); 
 
 

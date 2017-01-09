@@ -13,15 +13,15 @@ Object.assign(TW.tasks.accessions.report.dwc, {
   init_dwc_report: function () {
     var tbl = $("#dwc_occurrence_table");
     if (tbl.length) {
-      ids = $(tbl).data('collection-object-ids').split(' ');
-      ids.forEach(function(id) {
-        
+
+      $(".dwc_row_stub").each(function() {
+        var id = $(this).data('collectionObjectId');
+       
         $.get('dwc/row/' + id, {}, function (local_data) {
-         // $("#area_count").text(local_data.html);
-         // $("#select_area").mx_spinner('hide');
+          // $("#area_count").text(local_data.html);
+          // $("#select_area").mx_spinner('hide');
         });
 
-        
       });
     }
   }

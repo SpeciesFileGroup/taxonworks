@@ -7,9 +7,10 @@
 
 <p><%= page_entries_info @collection_objects %></p> <%= paginate @collection_objects %> 
 
-<%= content_tag(:table, id: :dwc_occurrence_table, data: {'collection-object-ids' => @collection_objects.map(&:id).join(' ')}) do -%>
+<%= content_tag(:table, id: :dwc_occurrence_table) do -%>
 
-  <%= dwc_table_header_tag -%>
+  <%= dwc_occurrence_table_header_tag -%>
+  <%= dwc_occurrence_table_body_tag(@collection_objects) %>
 
 <% end %>
 

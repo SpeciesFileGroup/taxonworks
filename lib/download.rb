@@ -1,9 +1,6 @@
-
-
 # Code that translates scopes into downloadable tab-delimited CSV. Dependant on Postgresql. 
 #
 module Download
-
 
   # @params exclude_columns [Array] delete referenced columns from result 
   # @params trim_rows [Array] delete rows from result if no data provided

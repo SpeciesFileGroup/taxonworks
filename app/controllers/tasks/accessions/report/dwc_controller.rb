@@ -2,7 +2,7 @@ class Tasks::Accessions::Report::DwcController < ApplicationController
   include TaskControllerConfiguration
 
   def index 
-    @collection_objects = CollectionObject.includes(:dwc_occurrence).with_project_id(sessions_current_project_id).page(params[:page])
+    @collection_objects = CollectionObject.order(:id).includes(:dwc_occurrence).with_project_id(sessions_current_project_id).page(params[:page])
   end
 
   def row
