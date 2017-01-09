@@ -6,6 +6,11 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
   let(:ranged_lot_category) { FactoryGirl.create(:valid_ranged_lot_category) }
 
   context 'validation' do
+
+    specify '.valid_new_object_classes' do
+      expect(CollectionObject.valid_new_object_classes).to contain_exactly('CollectionObject', 'Extract')
+    end
+
     specify 'type is not set when total/ranged_lot are not provided' do
       collection_object.valid?
       expect(collection_object.type).to eq(nil)

@@ -28,25 +28,24 @@ sequence / sequence
 =end
 
   # Don't validate presence of old_object or new_object
-  # so that nested attributes can work in such a way where
-  # the old_object and new_object don't have to be saved first
-  # validates_presence_of :old_object, :new_object
+  # so that nested attributes can work in such a way that
+  # old_object and new_object don't have to be saved first
 
   validate :valid_source_target_pairs
 
   def valid_source_target_pairs
     if old_object_type.nil? || new_object_type.nil?
-      errors.add(:source, "can't be nil!") if old_object_type.nil?
-      errors.add(:target, "can't be nil!") if new_object_type.nil?
+      errors.add(:old_object, "can't be nil!") if old_object_type.nil?
+      errors.add(:new_object, "can't be nil!") if new_object_type.nil?
       return
     end
 
     old_object_type_class = old_object_type.constantize
 
-    if !old_object_type_class.respond_to?(:valid_origin_target_classes)
-      errors.add(:source, "#{old_object_type} is not a valid origin relationship source!")
-    elsif !old_object_type_class.valid_origin_target_classes.include?(new_object_type.constantize)
-      errors.add(:target, "#{new_object_type} is not a valid origin relationship target for source #{old_object_type}")
+    if !old_object_type_class.respond_to?(:valid_new_object_classes)
+      errors.add(:old_object, "#{old_object_type} is not a valid origin relationship old object")
+    elsif !old_object_type_class.valid_new_object_classes.include?(new_object_type)
+      errors.add(:new_object, "#{new_object_type} is not a valid origin relationship new object for old object #{old_object_type}")
     end
   end
 end

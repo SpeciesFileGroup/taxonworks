@@ -5,6 +5,11 @@ RSpec.describe Sequence, type: :model, group: [:dna] do
   let(:primer) { FactoryGirl.create(:valid_sequence) }
 
   context 'validation' do
+
+    specify '.valid_new_object_classes' do
+      expect(Sequence.valid_new_object_classes).to contain_exactly('Sequence')
+    end
+
     context 'fails when not given' do
       specify 'sequence' do
         sequence.valid?

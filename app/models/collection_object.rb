@@ -72,12 +72,13 @@ class CollectionObject < ActiveRecord::Base
   include Shared::OriginRelationship
   include Shared::Confidence
   include Shared::IsData
+  include Shared::Protocols
   include SoftValidation
 
   include Shared::IsDwcOccurrence
   include CollectionObject::DwcExtensions 
 
-  is_origin_for :collection_objects
+  is_origin_for 'CollectionObject', 'Extract'
   has_paper_trail
 
   CO_OTU_HEADERS      = %w{OTU OTU\ name Family Genus Species Country State County Locality Latitude Longitude}.freeze
