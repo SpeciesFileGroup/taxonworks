@@ -69,7 +69,7 @@ module Utilities::Strings
   #   TODO: Likely need to handle quotes
   def self.sanitize_for_csv(string)
     return string if string.blank?
-    string.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
+    string.to_s.gsub(/\n|\t/, ' ') 
   end
 
 end

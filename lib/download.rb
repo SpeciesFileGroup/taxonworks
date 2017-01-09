@@ -1,18 +1,34 @@
-# Code that translates scopes into downloadable tab-delimited CSV.
+
+
+# Code that translates scopes into downloadable tab-delimited CSV. Dependant on Postgresql. 
+#
 module Download
+
 
   # @params exclude_columns [Array] delete referenced columns from result 
   # @params trim_rows [Array] delete rows from result if no data provided
   # @params trim_columns [Array] delete columns from result if no data provided
    # @return [String]
   #   translate a scope into a CSV table, with optional tweaks to the data
-  def self.generate_csv(scope, exclude_columns: [], trim_rows: false, trim_columns: false)
+  #
+  # This is a very nice reference for future consideration: 
+  #   http://collectiveidea.com/blog/archives/2015/03/05/optimizing-rails-for-memory-usage-part-3-pluck-and-database-laziness
+  def self.generate_csv(scope, exclude_columns: [], header_converters: {}, trim_rows: false, trim_columns: false)
+
+    # Check to see if keys is deterministicly ordered
     column_names = scope.columns_hash.keys
-    headers = CSV::Row.new(column_names, column_names, true)
-    tbl = CSV::Table.new([headers])
+   
+    h = CSV.new(column_names.join(','), header_converters: header_converters, headers: true)
+    h.read
     
-    scope.find_each do |o|
-      tbl << o.attributes.values_at(*column_names).collect{|v| Utilities::Strings.sanitize_for_csv(v) }
+    headers = CSV::Row.new(h.headers, h.headers, true)
+
+    tbl = CSV::Table.new([headers])
+   
+    # Pluck rows is from postgresql_cursor gem  
+    scope.pluck_rows(*column_names).each do |o|
+      tbl << o.collect{|v| Utilities::Strings.sanitize_for_csv(v) }
+      # If keys are not deterministic: .attributes.values_at(*column_names).collect{|v| Utilities::Strings.sanitize_for_csv(v) }
     end
 
     Download.delete_columns(tbl, exclude_columns) if !exclude_columns.empty?

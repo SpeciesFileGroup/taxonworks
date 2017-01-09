@@ -10,7 +10,12 @@ class Tasks::Accessions::Report::DwcController < ApplicationController
   end
 
   def download
-    send_data Download.generate_csv(DwcOccurrence.computed_columns.where(project_id: sessions_current_project_id), trim_columns: true, trim_rows: true), type: 'text', filename: "dwc_occurrences_#{DateTime.now.to_s}.csv"
+    send_data Download.generate_csv(
+      DwcOccurrence.computed_columns.where(project_id: sessions_current_project_id), 
+      trim_columns: true, 
+      trim_rows: true,
+      header_converters: [:dwc_headers]
+    ), type: 'text', filename: "dwc_occurrences_#{DateTime.now.to_s}.csv"
   end
 
 end

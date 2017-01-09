@@ -17,6 +17,16 @@ class DwcOccurrence < ActiveRecord::Base
 
   include Housekeeping
 
+  HEADER_CONVERTERS = {
+    'dwcClass' => 'class',
+  }.freeze
+
+  CSV::HeaderConverters[:dwc_headers] = lambda do |field|
+    d = DwcOccurrence::HEADER_CONVERTERS[field]
+    d ? d : field
+  end
+
+
   belongs_to :dwc_occurrence_object, polymorphic: true 
 
   before_validation :set_basis_of_record
@@ -56,3 +66,6 @@ class DwcOccurrence < ActiveRecord::Base
   end
 
 end
+
+
+
