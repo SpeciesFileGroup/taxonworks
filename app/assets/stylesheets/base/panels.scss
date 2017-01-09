@@ -10,16 +10,14 @@
 }
 
 .panel h2, h3, h4, .subtitle {
- font-weight: 100;
+ font-weight: 300;
 }
 
 .panel {
-  border-top-right-radius: 3px;
-  border-top-left-radius: 3px;
   display: flex;
   flex-direction:column;
   justify-content:flex-start;
-  box-shadow: 0 1px 1px rgba(0,0,0,.2);
+  box-shadow: 0 1px 2px rgba(0,0,0,.2);
   background-color: $panel_background;
   a {
     text-decoration: none;
@@ -63,8 +61,8 @@
 
   .title {
     display: flex;
-    min-height: 34px;
-    padding-top: 4px;
+    min-height: 42px;
+    //padding-top: 4px;
     font-size: $font_title;
     align-items:center;
     padding-left: $standard_padding;

@@ -6,7 +6,7 @@ module ConfidencesHelper
 
   def confidence_link(confidence)
     return nil if confidence.nil?
-    link_to(confidence_tag(confidence.html), confidence)
+    link_to(confidence_tag(confidence), confidence)
   end
 
   def confidences_search_form

@@ -7,8 +7,7 @@
 	padding-left:$standard_padding;
 	padding-right:$standard_padding;
 	align-items:center;
-	background-color: $navigation-background;
-	border:1px solid $navigation-border;
+	background-color: $color-header;	
 	height:50px;
 
 	a {
@@ -17,20 +16,36 @@
 
 	#taxonworks {
 		a {
-			color: $default_text;
+			color: #FFF;
 			padding: 0px;
-			font-size: 22px;
+			font-size: 20px;
+			font-weight: 300;
 			text-decoration: none;
 		}
 	}
 
 	#session_nav {
 		flex-grow: 0;
+		a {  
+			padding: 0px;
+			color: #FFF;
+
+		}
+		li {
+			padding-left: $standard_padding;
+		}
 	}
 }
 
 #header_bar.sandbox {
 	background-color: $color-primary-0;
+	#session_nav a { 
+		color: $color-secondary-2-4;
+	}
+
+	#taxonworks a {
+		color: $default_text;
+	}
 } 
 
 .current_hub_category {

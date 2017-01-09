@@ -102,12 +102,12 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
       before(:each) {
         taxon_name_relationship.valid? 
       }
-      specify 'subject_taxon_name_id' do
-        expect(taxon_name_relationship.errors.include?(:subject_taxon_name_id)).to be_truthy
+      specify 'subject_taxon_name' do
+        expect(taxon_name_relationship.errors.include?(:subject_taxon_name)).to be_truthy
       end
 
-      specify 'object_taxon_name_id' do
-        expect(taxon_name_relationship.errors.include?(:object_taxon_name_id)).to be_truthy
+      specify 'object_taxon_name' do
+        expect(taxon_name_relationship.errors.include?(:object_taxon_name)).to be_truthy
       end
 
       specify 'type' do
@@ -115,11 +115,11 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
       end
     end
 
-    specify 'object_taxon_name_id != subject_taxon_name_id' do
+    specify 'object_taxon_name != subject_taxon_name' do
       taxon_name_relationship.object_taxon_name = @species
       taxon_name_relationship.subject_taxon_name = @species 
       taxon_name_relationship.valid?
-      expect(taxon_name_relationship.errors.include?(:object_taxon_name_id)).to be_truthy
+      expect(taxon_name_relationship.errors.include?(:object_taxon_name)).to be_truthy
     end
 
     context 'object and subject should share the same potentially_validating code' do

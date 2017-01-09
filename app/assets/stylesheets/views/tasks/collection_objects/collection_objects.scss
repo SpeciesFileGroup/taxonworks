@@ -1,17 +1,92 @@
+@import 'base/palette';
+@import 'base/fonts';
+@import 'base/whitespace';
+
 #co_by_area_and_date {
 	position: relative;
-#filter-collection-objects {
-	top: 0px;
-	width: 600px;
-	position: fixed !important;
-	//margin-left: -1em !important;
-	.content {
-		padding: 2em;
+
+	h1, h2 {		
+		font-weight: 400;
+		margin-top: 20px;
+		margin-bottom: 10px;
 	}
-	.slide-panel-circle-icon {
+	h1 {
+		color: #666;
+	}
+
+	#filter-button {
+		background-color: green;
 		background-image: image-url("filter.svg");
 	}
-}
+
+	#result_view, .range-label {
+		display: none;
+	}
+
+	#reset_slider, #set_area, #set_otu {
+		margin-top: $standard_margin;
+	}
+
+	#filter-collection-objects {
+		width: 100%;
+		position: absolute;
+		top: 150px;
+		left: 0px;
+
+		.panel {
+			width: 590px;
+			min-width: 590px;	
+		}
+
+		h3 {
+			text-align: right;
+			display: block;
+		}		
+
+		.warning-date {
+			color: red;
+		}
+
+		.title-filter-categories {
+			font-size: $font_small;
+			border-bottom: 1px solid $navigation-border;
+		}
+	}
+
+
+
+	.slide-filter {
+		position: absolute;
+		top: 50px;
+
+		#geographic_area_id_for_by_area {
+			background-image: image-url("search.svg");
+			background-repeat: no-repeat;
+			background-position: left;
+			padding-left: 20px;
+			background-size: 18px;			
+			border: 0px;
+			border-radius: 0px;
+		}
+		.slide-panel-header {
+			background-color: #fff;
+			color: #000;
+			font-size: $font_normal;
+		}
+		.slide-panel-circle-icon {
+			top:calc(50vh - 120px);
+			background-color: #558b2f;
+			background-image: image-url('recent_slide.svg');
+		}
+		.slide-panel-category-header {
+			border: none;
+			background-color: transparent;
+			text-transform: uppercase;
+			font-size: $font_normal;
+		}
+	}
+
+
 
 	#set_area_form {
 		#textAreaSelector {

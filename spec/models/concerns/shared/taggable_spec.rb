@@ -1,7 +1,8 @@
 require 'rails_helper'
 
-describe 'Taggable', :type => :model do
+describe 'Taggable', type: :model, group: :tags do
   let(:class_with_tags) { TestTaggable.new } 
+  let(:keyword) { FactoryGirl.create(:valid_keyword) }
 
   context 'associations' do
     specify 'has many tags' do
@@ -19,10 +20,7 @@ describe 'Taggable', :type => :model do
 
   context 'scopes' do
     context '.with_tags' do
-      before {
-        @a = FactoryGirl.create(:valid_keyword)
-        @b = Tag.create(tag_object: class_with_tags, keyword: @a)
-      }
+      let!(:b) { Tag.create(tag_object: class_with_tags, keyword: keyword)}
 
       specify 'without tags' do
         expect(class_with_tags.class.without_tags.count).to eq(0)
@@ -64,6 +62,25 @@ describe 'Taggable', :type => :model do
         expect(Tag.count).to eq(0)
       end
     end
+  end
+
+  context 'use' do
+    context 'when multiple nested tags are provided' do
+      before{ 
+        class_with_tags.tags_attributes = [
+          {keyword_id: keyword.id },
+          {keyword_id: nil}
+        ]
+      }
+
+      context 'and one of them is invalid' do
+        before { class_with_tags.save! }
+
+        specify 'then the other is still created' do
+          expect(class_with_tags.tags.first.keyword).to eq(keyword)
+        end
+      end
+    end 
   end
 end
 
