@@ -1,7 +1,11 @@
 require 'rails_helper'
-describe CollectionObject::BiologicalCollectionObject, :type => :model do
+describe CollectionObject::BiologicalCollectionObject, type: :model, group: :collection_objects do
 
   let(:biological_collection_object) { FactoryGirl.build(:collection_object_biological_collection_object) }
+
+  specify '.valid_new_object_classes' do
+    expect(CollectionObject::BiologicalCollectionObject.valid_new_object_classes).to contain_exactly('Extract', 'CollectionObject::BiologicalCollectionObject')
+  end
 
   context 'associations' do
     context 'has_many' do
@@ -29,7 +33,7 @@ describe CollectionObject::BiologicalCollectionObject, :type => :model do
       biological_collection_object.save!
       expect(biological_collection_object.type).to eq('Specimen')
     end
-    
+
     specify 'subclass is properly assigned when total is > 1' do
       biological_collection_object.total = 5
       biological_collection_object.save!
@@ -52,7 +56,7 @@ describe CollectionObject::BiologicalCollectionObject, :type => :model do
     specify '#reorder_determinations_by(:year)' do
       expect(biological_collection_object).to respond_to(:reorder_determinations_by)
       o = Specimen.new(otus_attributes: [{name: 'one'}, {name: 'two'}, {name: 'three'}])
-      
+
       expect(o.save).to be_truthy
 
       o.taxon_determinations.first.update(year_made: 1920)
@@ -69,7 +73,7 @@ describe CollectionObject::BiologicalCollectionObject, :type => :model do
   context 'instance methods' do
     let(:o) { Specimen.new(otus_attributes: [{name: 'one'}, {name: 'two'}]) }
     before { o.save }
-    
+
     # expected behaviour is that the last determination created is the first on the list
     specify '#current_taxon_determination' do
       expect(o.current_taxon_determination(true).position).to eq(1)
@@ -124,7 +128,5 @@ describe CollectionObject::BiologicalCollectionObject, :type => :model do
         expect(TaxonDetermination.all.size).to eq(0)
       end
     end
-
   end
-
 end

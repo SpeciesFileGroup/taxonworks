@@ -33,6 +33,7 @@ class GeneAttribute < ActiveRecord::Base
   belongs_to :sequence, inverse_of: :gene_attributes
 
   # Not yet implemented.
+  # Deprecated: Use Tag/Keyword
   # belongs_to :controlled_vocabulary_term
 
   validates :descriptor, presence: true
