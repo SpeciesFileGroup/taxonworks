@@ -19,6 +19,8 @@ gem 'pg', '~> 0.18.4'
 # Postgis
 gem 'activerecord-postgis-adapter', '~> 3.1.4'
 
+gem 'postgresql_cursor'
+
 # rgeo support
 gem 'ffi-geos'
 gem 'rgeo-shapefile', '~> 0.4.1'
