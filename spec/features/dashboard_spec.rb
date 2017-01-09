@@ -30,7 +30,7 @@ describe 'Dashboard' do
     end
 
     it 'should show user' 's dashboard' do
-      expect(page).to have_selector('h1', text: 'Dashboard')
+      expect(page).to have_selector('h1', text: "Dashboard for #{@user.name}")
       expect(page).to have_selector('.panel .title', text: 'Projects')
 
       # it 'should have user-specific information in horizontal_navbar'

@@ -1,21 +1,24 @@
 <span id="earliest_date" hidden="hidden"><%= @earliest_date %></span>
 <span id="latest_date" hidden="hidden"><%= @latest_date %></span>
 <%= form_tag(set_date_for_collection_object_filter_path, id: 'set_date_form', remote: true) do %>
-  <p>Partial overlap search: <%= check_box nil, 'partial_overlap', {id: :partial_toggle}, 'on', 'off' %></p>
+  <span>Partial overlap search: <%= check_box nil, 'partial_overlap', {id: :partial_toggle}, 'on', 'off' %></span><br>
+  <br>
     <div class="flex-separate">
       <div>
         <label for="search_start_date">Start date:</label><br>
-        <input type="text" id="search_start_date" name="search_start_date"/>
+        <input type="text" id="search_start_date" name="search_start_date"/><br>
+        <span class="warning-date"></span>
       </div>
       <div>
         <label for="search_end_date">End date:</label><br>
-        <input type="text" id="search_end_date" name="search_end_date" />
+        <input type="text" id="search_end_date" name="search_end_date" /><br>
+        <span class="warning-date"></span>
       </div>
     </div>
     <br/>
-    <div id="tr_slider" class="flex-wrap-column" >
+    <div id="tr_slider" class="flex-wrap-column">
       <div id="double_date_range"></div>
-      <div class="horizontal-center-content"><br>
+      <div class="horizontal-center-content">
         <input id="reset_slider" type="button" value="Reset Slider"/>
       </div>
     </div>

@@ -4,95 +4,109 @@
 <% end %>
 
 <div id="co_by_area_and_date">
-  <h2>Task: Collection objects by area and date range</h2>
-  <div class="slide-panel slide-left slide-filter" id="filter-collection-objects" data-panel-open="true" data-panel-name="collection-objects-filter">
-    <div class="slide-panel-header">Filter</div>          
-      <div class="slide-panel-content">
-        <div>
-          <div id="set_area_and_date_form">
-          <div class="slide-panel-category">
-            <div id="select_area" class="filter_facet slide-panel-category-header">
-              <span>Select area</span>
-            </div>
-            
-            <div class="slide-panel-category-content content">
-              <div class="flex-separate">
-                <span>Result: <span id="area_count">????</span></span>
-                <label class="switch-toggle">
-                  <input type="checkbox" id="toggle_slide_area">
-                  <div class="slider-toggle round"></div>
-                  <div class="toggle-options">
-                    <span>Map</span>
-                    <span>Area</span>
-                  </div>
-                </label>            
-              </div>
-              <div id="area-container">              
-                <%= render('by_area') %>
-              </div>
-            </div>
-          </div>
-          <div class="slide-panel-category">
-            <div id="select_date_range" class="filter_facet slide-panel-category-header">
-                Select date range </div>
-              <div id="date-range-container" class="slide-panel-category-content content">  
-                <span>Result: <span id="date_count">????</span></span>        
-                <%= render "by_date" %>
-              </div>
-            </div>
-          </div>
-          <div class="slide-panel-category">
-          <div id="select_otu" class="filter_facet slide-panel-category-header">
-              Select otu</div>
-            <div id="otu-container" class="slide-panel-category-content content">
-              <span>Result:<span id="otu_count">????</span></span>
-              <%= render('by_otu') %>
-            </div>
-            </div>
-          
-          <div id="action_find" class="content">
-            <%= form_tag(find_collection_objects_task_url, id: 'find_area_and_date_form', method: :get, remote: true) do %>
-              <%= submit_tag('Find', id: 'find_area_and_date_commit') %>
-            <% end %>
-          </div>
-        </div>
-      </div><div class="slide-panel-circle-icon"></div>
-    </div>
-      
-  <div class="flex-wrap-row">
+  <h1>Task - Collection objects by area and date range</h1>
+
+ <div class="flex-wrap-row">
     <div class="item item2">
       <div id="nav-list" class="panels-container">  
-        <div class="panel column-big" data-help="Use the left and right buttoms to hide or show columns groups">
+        <div id="find_item" class="panel column-big" data-help="Use the left and right buttoms to hide or show columns groups">
           <div class="title nav-line">
-            Collection objects
-            <label class="switch-toggle" data-help="Select the result list, or the map of results.">
-              <input type="checkbox" id="toggle-list-map">
-              <div class="slider-toggle round"></div>
-              <div class="toggle-options">
-                <span>Map</span>
-                <span>List</span>
-              </div>
-            </label>                 
+            <span id="result_title_list">Filter</span>
+            <div class="horizontal-center-content middle">
+              <div class="circle-button" id="filter-button"></div>
+              <label class="switch-toggle" data-help="Select the result list, or the map of results.">
+                <input type="checkbox" id="toggle-list-map">
+                <div class="slider-toggle round"></div>
+                <div class="toggle-options">
+                  <span>Map</span>
+                  <span>List</span>
+                </div>
+              </label>                 
+            </div>
           </div>      
           <div class="flex-separate"> 
             <div class="navigation-bar-left">
-              <span id="paging_span"></span>
+              <span id="paging_span" class="flex-separate">
+              </span>
+              <span id="paging_span" class="flex-separate">
+              </span>              
             </div>
             <div class="navigation-bar-right">  
               <%= form_tag(find_collection_objects_task_url, id: 'download_form', method: :get, remote: true) do %>
-                <%= submit_tag('download') %>
+                <%= submit_tag('Download') %>
               <% end %>            
             </div>
           </div>
         </div>  
       </div> 
-      <div id="show_list">
-        <%= render('result_list', collection_objects: @collection_objects) if @collection_objects.count > 0 %>
-      </div> 
     </div>
   </div>
+
+  <div id="result_view">
+    <div id="show_list">
+      <%= render('result_list', collection_objects: @collection_objects) if @collection_objects.count > 0 %>
+    </div>
     <div id="show_map" hidden>
       <!--on first paint, these variables will be empty, so we get an empty map -->
       <%= simple_map_component(report_georeferences(@collection_objects, @geographic_area), 'border="1"') -%>
+    </div>      
+    <span id="result_span"></span> 
+  </div>  
+
+  <div id="filter-collection-objects" class="flex-wrap-row middle">  
+      <div class="flex-wrap-row">
+          <div id="set_area_and_date_form">
+            <div class="panel content border-bottom separate-right" id="select_area">
+              <div class="content">
+                <div class="filter_facet flex-separate middle title-filter-categories">
+                  <span class="uppercase">Select area</span>
+               
+                </div>
+                <h3>Result: <span id="area_count">????</span></h3> 
+                    <label class="switch-toggle" id="label_toggle_slide_area">
+                      <input type="checkbox" id="toggle_slide_area">
+                      <div class="slider-toggle round"></div>
+                      <div class="toggle-options">
+                        <span>Map</span>
+                        <span>Area</span>
+                      </div>
+                    </label>                    
+                <div id="area-container">              
+                  <%= render('by_area') %>
+                </div>
+              </div>
+            </div>
+          <div class="panel content separate-top" id="select_date_range">
+            <div class="content">
+              <div class="filter_facet flex-separate middle title-filter-categories">
+                <span class="uppercase">Date range</span>
+              </div>
+               <h3 class="result-text">Result: <span id="date_count">????</span></h3>
+                <div id="date-range-container">        
+                  <%= render "by_date" %>                                
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="panel content" id="select_otu">
+            <div class="content">
+              <div class="filter_facet flex-separate middle title-filter-categories">
+                <span class="uppercase">Otu</span>
+              </div>
+              <h3>Result:<span id="otu_count">????</span></h3>
+              <div id="otu-container">
+                <%= render('by_otu') %>
+              </div>
+            </div>
+          </div>
+            </div>
+          <div>
+            <div id="action_find" class="content">
+              <%= form_tag(find_collection_objects_task_url, id: 'find_area_and_date_form', method: :get, remote: true) do %>
+                <%= submit_tag('FIND', id: 'find_area_and_date_commit') %>
+              <% end %>
+            </div>
+          </div>
+      </div>
     </div>
 </div>

@@ -38,7 +38,7 @@ describe 'tasks/gis/collection_objects/filter', type: :feature, group: [:geo, :c
 
           it 'renders count of collection objects in a drawn area' do
             visit(collection_objects_filter_task_path)
-            find('.map_toggle').click
+            find('#label_toggle_slide_area').click
             execute_script("document.getElementById('drawn_area_shape').type = 'text'")
             this_xpath = find(:xpath, "//input[@id='drawn_area_shape']")
             # this_xpath.set '{"type":"Feature", "geometry":{"type":"Polygon", "coordinates":[[[33, 28, 0], [37, 28, 0], [37, 26, 0], [33, 26, 0], [33, 28, 0]]]}, "properties":{"geographic_item":{"id"=>23}}}'
@@ -65,6 +65,7 @@ describe 'tasks/gis/collection_objects/filter', type: :feature, group: [:geo, :c
             execute_script("document.getElementById('search_start_date').value = '1971/01/01'")
             execute_script("document.getElementById('search_end_date').value = '1980/12/31'")
             find('#search_start_date').set('1971/01/01')
+
             # find_search_start_date = find('#search_start_date')
             # find_search_start_date.set '1971/01/01'
             # find('#search_end_date').set('1980/12/31')
@@ -96,10 +97,12 @@ describe 'tasks/gis/collection_objects/filter', type: :feature, group: [:geo, :c
           drawn_area_shape = '{"type":"Feature", "geometry":{"type":"Polygon", "coordinates":[[[33, 28, 0], [34, 28, 0], [34, 24, 0], [33, 24, 0], [33, 28, 0]]]}}'
           it 'renders count of objects and table found using a drawn area and date range' do
             visit(collection_objects_filter_task_path)
+            execute_script("document.getElementById('search_start_date').value = '1971/01/01'")
+            execute_script("document.getElementById('search_end_date').value = '1980/12/31'")            
             find('#search_start_date').set '1971/01/01'
-            find('#search_end_date').set '1980/12/31'
+            #find('#search_end_date').set '1980/12/31'
             #find('#search_start_date').click
-            find('.map_toggle').click
+            find('#label_toggle_slide_area').click
             execute_script("document.getElementById('drawn_area_shape').type = 'text'")
             this_xpath = find(:xpath, "//input[@id='drawn_area_shape']")
             this_xpath.set drawn_area_shape

@@ -67,7 +67,7 @@
     align-items: center;
     z-index: 1;
     position: absolute; 
-    top: 52px; 
+    top: 50px; 
     left: 50%;
     width: auto;
     transform: translateX(-50%);
@@ -128,7 +128,7 @@
     }
 
     .related-title {
-      font-weight: 100;
+      font-weight: 300;
       font-size: 15px;
       margin: 0;
       padding-bottom: $standard_padding * 0.5;

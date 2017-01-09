@@ -21,7 +21,7 @@
             overlay.remove();
           }
           var offset = target.offset();
-          overlay = $("<div>&nbsp;</div>")
+          overlay = $("<div class='middle box-spinner'><div class='spinner'></div></div>")
                         .outerWidth(target.outerWidth())
                         .outerHeight(target.outerHeight())
                         .css('left', offset.left)

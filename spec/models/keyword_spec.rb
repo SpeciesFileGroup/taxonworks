@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Keyword, :type => :model do
+describe Keyword, type: :model, group: :tags do
   let(:keyword) { FactoryGirl.build(:keyword) }
 
   context "validation" do
