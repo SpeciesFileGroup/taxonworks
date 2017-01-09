@@ -128,7 +128,7 @@ gem 'redcarpet', '~> 3.3'
 gem 'taxonifi', '0.4.0'
 gem 'sqed', '0.2.4'
 
-
+# gem 'zip'
 
 group :test, :development do
   gem 'faker', '~> 1.6.1'
