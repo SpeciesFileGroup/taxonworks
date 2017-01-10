@@ -12,10 +12,28 @@
 #
 # DWC attributes are camelCase to facilitate matching
 # dwcClass is a replacement for the Rails reserved 'Class'
+#
+#
+# All DC attributes (attributes not in DwcOccurrence::TW_ATTRIBUTES) in this table are namespaced to dc ("http://purl.org/dc/terms/", "http://rs.tdwg.org/dwc/terms/")
+#
 class DwcOccurrence < ActiveRecord::Base
   self.inheritance_column = nil 
 
   include Housekeeping
+
+  DC_NAMESPACE = 'http://rs.tdwg.org/dwc/terms/'
+
+  # Not yet implemented, but likely needed
+  # ? :id
+  TW_ATTRIBUTES = [
+    :project_id,
+    :created_at,
+    :updated_at,
+    :created_by_id,
+    :updated_by_id,
+    :dwc_occurrence_object_type,
+    :dwc_occurence_object_id
+  ]
 
   HEADER_CONVERTERS = {
     'dwcClass' => 'class',
@@ -25,7 +43,6 @@ class DwcOccurrence < ActiveRecord::Base
     d = DwcOccurrence::HEADER_CONVERTERS[field]
     d ? d : field
   end
-
 
   belongs_to :dwc_occurrence_object, polymorphic: true 
 
@@ -37,7 +54,7 @@ class DwcOccurrence < ActiveRecord::Base
 
   # @return [Scope]
   def self.computed_columns
-    select(['id'] + CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys ) 
+    select(['id', 'basisOfRecord'] + CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys ) 
   end
 
   def basis 

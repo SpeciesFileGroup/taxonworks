@@ -10,7 +10,7 @@ class Tasks::Accessions::Report::DwcController < ApplicationController
   end
 
   def download
-    data = nil
+    # If failing remove begin/ensure/end to report Raised errors
     begin
       data = Dwca::Packer::Data.new(sessions_current_project_id)
       send_data(data.getzip, :type => 'application/zip', filename: data.filename)
