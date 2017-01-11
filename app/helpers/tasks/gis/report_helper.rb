@@ -174,8 +174,14 @@ module Tasks::Gis::ReportHelper
     retstring
   end
 
+  # @return [Array]
+  #   TODO: of array of Georeferences OR geographic areas? -> why
   def report_georeferences(collection_objects, geographic_area)
-    retval = collection_objects.map(&:collecting_event).uniq.map(&:georeferences).flatten
+
+    # all georeferences for a set of collection objects
+    #  retval = collection_objects.map(&:collecting_event).uniq.map(&:georeferences).flatten
+    retval = Georeference.joins(collecting_event: [:collection_objects]).where(collection_objects: {id: collection_objects})
+
     if retval.empty?
       retval.push(geographic_area)
     end
