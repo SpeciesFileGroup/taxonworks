@@ -3,7 +3,6 @@ class Tasks::CollectionObjects::FilterController < ApplicationController
 
   # GET
   def index
-    @geographic_areas         = GeographicArea.none 
     @collection_objects       = CollectionObject.none
     @earliest_date = CollectionObject.earliest_date(sessions_current_project_id)
     @latest_date = CollectionObject.latest_date(sessions_current_project_id)
