@@ -135,7 +135,7 @@ group :test, :development do
   gem 'inch', '~> 0.7'
   gem 'byebug', '~> 9.0.5', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'factory_girl_rails', '~> 4.7'
-  gem 'selenium-webdriver', '~> 3.0.5'
+  gem 'selenium-webdriver', '~> 2.53.4'
 end
 
 group :development do
