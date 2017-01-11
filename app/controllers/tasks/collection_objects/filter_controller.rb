@@ -4,7 +4,7 @@ class Tasks::CollectionObjects::FilterController < ApplicationController
 
   # GET
   def index
-    @collection_objects       = CollectionObject.none
+    @collection_objects = CollectionObject.none
   end
 
   def filter_params
@@ -16,13 +16,14 @@ class Tasks::CollectionObjects::FilterController < ApplicationController
   def find
     message             = ''
     # find the objects in the selected area
-    @geographic_area_id = params[:geographic_area_id]
+    @geographic_area_id = filter_params[:geographic_area_id] # params[:geographic_area_id]
     @geographic_area    = GeographicArea.find(@geographic_area_id) unless @geographic_area_id.blank?
-    @shape_in           = params[:drawn_area_shape]
+    @shape_in           = filter_params[:drawn_area_shape] #  params[:drawn_area_shape]
+
     set_and_order_dates(params)
 
     if @shape_in.blank? and @geographic_area_id.blank? 
-      area_object_ids = CollectionObject.where('false')
+      area_object_ids = CollectionObject.none
       area_set        = false
     else
       area_object_ids = GeographicItem.gather_selected_data(@geographic_area_id, @shape_in, 'CollectionObject').map(&:id)
@@ -37,7 +38,7 @@ class Tasks::CollectionObjects::FilterController < ApplicationController
     # TODO: move all this to the logic of the method 
     if @start_date.blank? || @end_date.blank? #|| area_object_ids.count == 0
       # TODO: This will never get hit, right?!
-      @collection_objects = CollectionObject.where('false')
+      @collection_objects = CollectionObject.none
     else
       # TODO: this makes no sense if no date is provided!
       collecting_event_ids = CollectingEvent.in_date_range(date_range_params).pluck(:id)
@@ -100,7 +101,7 @@ class Tasks::CollectionObjects::FilterController < ApplicationController
   def gather_otu_objects(otu_id, descendants)
     @otu = Otu.joins(:collecting_events).where(id: otu_id).first
     if @otu.nil?
-      @otu_collection_objects = CollectionObject.where('false')
+      @otu_collection_objects = CollectionObject.none
     else
       if descendants.downcase == 'off' or @otu.taxon_name.blank?
         @otu_collection_objects = @otu.collection_objects
