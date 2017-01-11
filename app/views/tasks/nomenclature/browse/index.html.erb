@@ -1,12 +1,14 @@
 <h1 class="task_header"> Browse nomenclature </h1>
 
-<div id="browse-view" class="panel content">
-  <div> 
-    <span class="right_float"><%= pin_item_to_pinboard_link(@taxon_name, sessions_current_user) -%></span>
-    <%= render('/taxon_names/breadcrumb_navigator', taxon_name: @taxon_name, target: :browse_nomenclature_task_path) -%>
+<div id="browse-view" class="">
+  <div class="panel content"> 
+    <div class="flex-separate middle">
+      <%= render('/taxon_names/breadcrumb_navigator', taxon_name: @taxon_name, target: :browse_nomenclature_task_path) -%>
+      <span class="right_float"><%= pin_item_to_pinboard_link(@taxon_name, sessions_current_user) -%></span>    
+    </div>
   </div>
 
-  <div id="show" class="panels-container ">
+  <div id="show" class="panels-container">
     <div class="item item1">
       <div class="panel separate-right">
         <div class="title nav-line">
