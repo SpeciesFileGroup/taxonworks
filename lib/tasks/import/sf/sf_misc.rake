@@ -19,7 +19,7 @@ Thinking out loud
 tblEcoRelationships (tblEcoRoles, tblOtherEcoTaxa)
 
 tblSources -- half-baked concept often used for copyright into
-
+                                                                                 F
 tblImages/Sounds (tblImageTypes)
 
 Key-related
