@@ -13,8 +13,8 @@ describe 'Dashboard' do
     it 'should provide access to sign in' do
       expect(page).to have_selector('h1', text: 'TaxonWorks')
       expect(page).to have_selector('form') { |form|
-        expect(form).to have_selector('input[name=email]')
-        expect(form).to have_selector('input[name=password]')
+        expect(form).to have_selector('input[name="session[email]"]')
+        expect(form).to have_selector('input[name="session[password]"]')
         expect(form).to have_selector('input[type=submit]', 'Sign in')
       }
 
