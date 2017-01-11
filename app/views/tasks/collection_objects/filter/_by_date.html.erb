@@ -1,6 +1,6 @@
 
-<%= content_tag(:span, CollectionObject.earliest_date(sessions_current_project_id), id: :earliest_date, hidden: hidden) -%>
-<%= content_tag(:span, CollectionObject.latest_date(sessions_current_project_id), id: :latest_date, hidden: hidden) -%>
+<%= content_tag(:span, CollectionObject.earliest_date(sessions_current_project_id), id: :earliest_date, hidden: true) -%>
+<%= content_tag(:span, CollectionObject.latest_date(sessions_current_project_id), id: :latest_date, hidden: true) -%>
 
 <%= form_tag(set_date_for_collection_object_filter_path, id: 'set_date_form', remote: true) do %>
   <span>Partial overlap search: <%= check_box nil, 'partial_overlap', {id: :partial_toggle}, 'on', 'off' %></span><br>
