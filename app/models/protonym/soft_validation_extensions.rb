@@ -404,12 +404,12 @@ module Protonym::SoftValidationExtensions
             if !list1.empty?
               list1.each do |s|
                 if rank_base =~ /Species/
-                  soft_validations.add(:base, "Taxon should be a primary homonym of #{s.cached_name_and_author_year}")
+                  soft_validations.add(:base, "Taxon should be a primary homonym of #{s.cached_html_name_and_author_year}")
                   #  fix: :sv_fix_add_relationship('iczn_set_as_primary_homonym_of'.to_sym, s.id),
                   #  success_message: 'Primary homonym relationship was added',
                   #  failure_message: 'Fail to add a relationship')
                 elsif
-                  soft_validations.add(:base, "Taxon should be an homonym of #{s.cached_name_and_author_year}")
+                  soft_validations.add(:base, "Taxon should be an homonym of #{s.cached_html_name_and_author_year}")
                 end
               end
             else
@@ -419,9 +419,9 @@ module Protonym::SoftValidationExtensions
               if !list2.empty?
                 list2.each do |s|
                   if rank_base =~ /Species/
-                    soft_validations.add(:base, "Taxon could be a primary homonym of #{s.cached_name_and_author_year} (alternative spelling)")
+                    soft_validations.add(:base, "Taxon could be a primary homonym of #{s.cached_html_name_and_author_year} (alternative spelling)")
                   elsif
-                    soft_validations.add(:base, "Taxon could be an homonym of #{s.cached_name_and_author_year} (alternative spelling)")
+                    soft_validations.add(:base, "Taxon could be an homonym of #{s.cached_html_name_and_author_year} (alternative spelling)")
                   end
                 end
               elsif rank_base =~ /Species/
@@ -430,7 +430,7 @@ module Protonym::SoftValidationExtensions
                 list3 = reduce_list_of_synonyms(possible_secondary_homonyms)
                 if !list3.empty?
                   list3.each do |s|
-                    soft_validations.add(:base, "Taxon should be a secondary homonym of #{s.cached_name_and_author_year}")
+                    soft_validations.add(:base, "Taxon should be a secondary homonym of #{s.cached_html_name_and_author_year}")
                   end
                 else
                   name4 = self.cached_secondary_homonym ? self.cached_secondary_homonym_alternative_spelling : nil
@@ -438,7 +438,7 @@ module Protonym::SoftValidationExtensions
                   list4 = reduce_list_of_synonyms(possible_secondary_homonyms_alternative_spelling)
                   if !list4.empty?
                     list4.each do |s|
-                      soft_validations.add(:base, "Taxon could be a secondary homonym of #{s.cached_name_and_author_year} (alternative spelling)")
+                      soft_validations.add(:base, "Taxon could be a secondary homonym of #{s.cached_html_name_and_author_year} (alternative spelling)")
                     end
                   end
                 end

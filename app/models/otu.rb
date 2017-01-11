@@ -82,20 +82,6 @@ class Otu < ActiveRecord::Base
     Otu.joins(taxon_name: [:ancestor_hierarchies]).where(taxon_name_hierarchies: {ancestor_id: tn.id} )
   end
 
-  # @return [CSV]
-  # Generate a CSV version of the raw Otus table for the given scope
-  # Ripped from http://railscasts.com/episodes/362-exporting-csv-and-excel
-  def self.generate_download(scope)
-    CSV.generate do |csv|
-      csv << column_names
-      scope.order(id: :asc).find_each do |o|
-        csv << o.attributes.values_at(*column_names).collect { |i|
-          i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
-        }
-      end
-    end
-  end
-
   # TODO: This need to be renamed to reflect "simple" association
   def self.batch_preview(file: nil, ** args)
     # f     = CSV.read(file, headers: true, col_sep: "\t", skip_blanks: true, header_converters: :symbol)
@@ -132,6 +118,7 @@ class Otu < ActiveRecord::Base
   # add logic for has_many handling (e.g. identifiers) etc.
   # ultmately, each key maps to a proc that returns a value
   #
+  # deprecated for new approach in CollectionObject, AssertedDistribution
   def dwca_core
     core = Dwca::GbifProfile::CoreTaxon.new
 
@@ -147,10 +134,10 @@ class Otu < ActiveRecord::Base
   end
 
   def otu_name
-    if !self.name.blank?
-      self.name
+    if !name.blank?
+      name
     elsif !self.taxon_name_id.nil?
-      self.taxon_name.cached_name_and_author_year
+      self.taxon_name.cached_html_name_and_author_year
     else
       nil
     end

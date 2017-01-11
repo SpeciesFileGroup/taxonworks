@@ -19,6 +19,11 @@ gem 'pg', '~> 0.18.4'
 # Postgis
 gem 'activerecord-postgis-adapter', '~> 3.1.4'
 
+gem 'delayed_job_active_record'
+gem 'daemons'
+
+gem 'postgresql_cursor'
+
 # rgeo support
 gem 'ffi-geos'
 gem 'rgeo-shapefile', '~> 0.4.1'
@@ -126,7 +131,6 @@ gem 'redcarpet', '~> 3.3'
 # SFG gems
 gem 'taxonifi', '0.4.0'
 gem 'sqed', '0.2.4'
-
 
 group :test, :development do
   gem 'faker', '~> 1.6.1'

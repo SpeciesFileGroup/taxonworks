@@ -34,6 +34,9 @@ class AssertedDistribution < ActiveRecord::Base
   include Shared::DataAttributes
   include Shared::Citable
 
+  include Shared::IsDwcOccurrence
+  include AssertedDistribution::DwcExtensions 
+
   belongs_to :otu, inverse_of: :asserted_distributions
   belongs_to :geographic_area, inverse_of: :asserted_distributions
 

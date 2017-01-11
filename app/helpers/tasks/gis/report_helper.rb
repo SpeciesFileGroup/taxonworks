@@ -230,14 +230,14 @@ module Tasks::Gis::ReportHelper
   def build_row(c_o)
     retval = []
 
-    retval[0]  = c_o.get_otu_id
-    retval[1]  = c_o.get_otu_name
+    retval[0]  = c_o.otu_id
+    retval[1]  = c_o.otu_name
     retval[2]  = c_o.name_at_rank_string(:family)
     retval[3]  = c_o.name_at_rank_string(:genus)
     retval[4]  = c_o.name_at_rank_string(:species)
-    retval[5]  = c_o.dwca_country # c_o.collecting_event.country
-    retval[6]  = c_o.dwca_state # c_o.collecting_event.state
-    retval[7]  = c_o.dwca_county # c_o.collecting_event.county
+    retval[5]  = c_o.dwc_country # c_o.collecting_event.country
+    retval[6]  = c_o.dwc_state_province # c_o.collecting_event.state
+    retval[7]  = c_o.dwc_county # c_o.collecting_event.county
     retval[8]  = c_o.collecting_event.verbatim_locality
     retval[9]  = c_o.collecting_event.georeference_latitude
     retval[10] = c_o.collecting_event.georeference_longitude

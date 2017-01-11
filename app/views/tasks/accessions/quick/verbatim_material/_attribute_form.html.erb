@@ -19,4 +19,7 @@
 
 </div>
 
-<% if @biocuration_groups.count == 0 -%> <div class='item item1'> Total: <%= number_field_tag('collection_objects[object1][total]') %> </div> <% end %>
+<% if @biocuration_groups.count == 0 -%>
+  <div class='item item1'> Total: <%= number_field_tag('collection_objects[object1][total]') %> </div> 
+  <p class='notice'> You have no biocuration attributes defined (e.g. Male, Female, Adult, seed). <%= link_to('Create some', build_biocuration_groups_task_path, data: {icon: 'link'}, target: :_blank) -%>.</p>
+<% end %>

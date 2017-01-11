@@ -26,4 +26,34 @@ module CollectionObjectsHelper
     link_to('Verify', verify_accessions_task_path(by: priority.metamorphosize.class.name.tableize.singularize.to_sym, id: priority.to_param))
   end
 
+  def dwc_occurrence_table_row_stub(collection_object)
+    r = collection_object.dwc_occurrence
+    if r 
+      dwc_occurrence_table_row_tag(r)
+    else
+      id = collection_object.to_param
+      content_tag(:tr, nil, id: "dwc_row_stub_#{id}", data: {'collection-object-id': id}, class: 'dwc_row_stub' ) 
+    end
+  end
+
+  def dwc_occurrence_table_row_tag(dwc_occurrence)
+    o = metamorphosize_if(dwc_occurrence.dwc_occurrence_object)
+    content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do
+      [CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys.collect{|k| content_tag(:td, dwc_occurrence.send(k))}.join,
+       fancy_show_tag(o), 
+       fancy_edit_tag(o)
+      ].join.html_safe
+    end
+  end
+
+  def dwc_occurrence_table_header_tag
+    content_tag(:tr, CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys.collect{|k| content_tag(:th, k)}.join.html_safe, class: [:header]) 
+  end
+
+  def dwc_occurrence_table_body_tag(collection_objects)
+    collection_objects.collect do |c| 
+      dwc_occurrence_table_row_stub(c).html_safe
+    end.join.html_safe 
+  end
+
 end
