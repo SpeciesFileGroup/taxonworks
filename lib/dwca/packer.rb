@@ -1,3 +1,5 @@
+require 'zip'
+
 module Dwca::Packer
 
   # Wrapper to build DWCA zipfiles for a specific project.
