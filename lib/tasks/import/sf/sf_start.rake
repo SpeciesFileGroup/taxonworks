@@ -250,8 +250,7 @@ namespace :tw do
 
           file.each_with_index do |row, i|
             # break if i == 20
-            # next if row["RefID"].to_i < 38387
-            next if (row['Title'].empty? and row['PubID'] == '0' and row['Series'].empty? and row['Volume'].empty? and row['Issue'].empty? and row['ActualYear'].empty? and row['StatedYear'].empty?) or row['AccessCode'] == '4'
+            next if (row['Title'].empty? and row['PubID'] == '0' and row['Series'].empty? and row['Volume'].empty? and row['Issue'].empty? and row['ActualYear'].empty? and row['StatedYear'].empty? and row['ContainingRefID'] == '0') or row['AccessCode'] == '4'
             ref_id = row['RefID']
 
             logger.info "working with SF.RefID = #{ref_id}, SF.FileID = #{row['FileID']} \n"
@@ -261,7 +260,7 @@ namespace :tw do
             actual_year = row['ActualYear']
             stated_year = row['StatedYear']
 
-            if actual_year == '0' or stated_year == '0' or actual_year.include?('-') or stated_year.include?('-') or pub_type == 'unpublished'
+            if row['ContainingRefID'].to_i > 0 or actual_year == '0' or stated_year == '0' or actual_year.include?('-') or stated_year.include?('-') or pub_type == 'unpublished'
               # create a verbatim source
               source = Source::Verbatim.new(
                   verbatim: get_sf_verbatim_ref[ref_id],

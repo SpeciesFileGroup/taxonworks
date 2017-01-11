@@ -22,6 +22,8 @@ namespace :tw do
             get_tw_taxon_name_id[key] = value.to_s
           end
 
+          # NOTE: SF RefInRefs were not imported prior to 11 Jan 2017. They should have been handled as verbatim ref. Patch is now in the create_sources task and should be handled once that task is rerun.
+
           path = @args[:data_directory] + 'tblCites.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
