@@ -494,6 +494,7 @@ DEPENDENCIES
   rspec-rails (~> 3.4)
   rubocop (~> 0.46.0)
   ruby-prof
+  rubyzip (~> 1.2.0)
   sass-rails (~> 5.0.6)
   sdoc
   selenium-webdriver (~> 2.53.4)

@@ -22,6 +22,8 @@ gem 'activerecord-postgis-adapter', '~> 3.1.4'
 gem 'delayed_job_active_record'
 gem 'daemons'
 
+gem 'rubyzip', '~> 1.2.0'
+
 gem 'postgresql_cursor'
 
 # rgeo support
