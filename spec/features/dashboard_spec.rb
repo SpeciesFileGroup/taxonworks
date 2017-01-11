@@ -15,7 +15,7 @@ describe 'Dashboard' do
       expect(page).to have_selector('form') { |form|
         expect(form).to have_selector('input[name="session[email]"]')
         expect(form).to have_selector('input[name="session[password]"]')
-        expect(form).to have_selector('input[type=submit]', 'Sign in')
+        expect(form).to have_selector('input[type="submit"][value="Sign in"]')
       }
 
       expect(page).to have_link('forgot password?')
