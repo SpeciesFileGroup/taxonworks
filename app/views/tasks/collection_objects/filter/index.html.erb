@@ -56,58 +56,13 @@
 
   <div id="filter-collection-objects" class="flex-wrap-row middle">  
     <div class="flex-wrap-row">
-
       <div id="set_area_and_date_form">
-        
-        <div class="panel content" id="select_area">
-          <div class="content">
-            <div class="filter_facet flex-separate middle title-filter-categories">
-              <span class="uppercase">Select area</span>
-            </div>
-            <h3>Result: <span id="area_count">????</span></h3> 
-            <label class="switch-toggle" id="label_toggle_slide_area">
-              <input type="checkbox" id="toggle_slide_area">
-              <div class="slider-toggle round"></div>
-              <div class="toggle-options">
-                <span>Map</span>
-                <span>Area</span>
-              </div>
-            </label>                    
-            <div id="area-container">              
-              <%= render('by_area') %>
-            </div>
-          </div>
-        </div>
-
-        <div class="panel content separate-top" id="select_date_range">
-          <div class="content">
-            <div class="filter_facet flex-separate middle title-filter-categories">
-              <span class="uppercase">Date range</span>
-            </div>
-            <h3 class="result-text">Result: <span id="date_count">????</span></h3>
-            <div id="date-range-container">        
-              <%= render "by_date" %>                                
-            </div>
-          </div>
-        </div>
-
-        <div class="panel content  separate-top" id="select_otu">
-          <div class="content">
-            <div class="filter_facet flex-separate middle title-filter-categories">
-              <span class="uppercase">Otu</span>
-            </div>
-            <h3>Result:<span id="otu_count">????</span></h3>
-            <div id="otu-container">
-              <%= render('by_otu') %>
-            </div>
-          </div>
-        </div>
-
-
+        <%= render "select_area_facet" %>
+        <%= render "select_date_range_facet" %>
+        <%= render "select_otu_facet" %>
       </div>
-
-
     </div>
+    
     <div>
       <div id="action_find" class="content">
         <%= form_tag(find_collection_objects_task_url, id: 'find_area_and_date_form', method: :get, remote: true) do %>
