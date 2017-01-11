@@ -51,7 +51,9 @@ class ControlledVocabularyTerm < ActiveRecord::Base
 
   def self.find_for_autocomplete(params)
     term = "#{params[:term]}%"
-    where('name LIKE ? OR definition ILIKE ? OR name ILIKE ? OR name = ?', term, "#{term}%", "%term", term ).where(project_id: params[:project_id])
+    # where('name LIKE ? OR definition ILIKE ? OR name ILIKE ? OR name = ?', term, "#{term}%", "%term", term )
+    where("name LIKE '#{term}' OR name ILIKE '%#{term}' OR name = '#{term}' OR definition ILIKE '%#{term}'")
+        .where(project_id: params[:project_id])
   end
 
   def self.generate_download(scope)

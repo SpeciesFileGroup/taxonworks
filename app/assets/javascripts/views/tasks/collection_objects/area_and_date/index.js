@@ -81,9 +81,9 @@ _init_map_table = function init_map_table() {
       //  }
       //);
       $("#find_area_and_date_commit").click(function (event, href) {
-
-        toggleFilter();
-        if(validateDates()) {
+        
+        if(validateDates() && validateDateRange()) {
+          toggleFilter();
           if (href == undefined) {
             href = $("#set_area_form").serialize() + '&' + $("#set_date_form").serialize() + '&' + $("#set_otu_form").serialize();
           }
@@ -92,6 +92,9 @@ _init_map_table = function init_map_table() {
             // $("#find_item").mx_spinner('hide');  # this has been relocated to .../find.js.erb
             }//, 'json'  // I expect a json response
           );
+        }
+        else {
+          $("body").append('<div class="alert alert-error"><div class="message">Incorrect dates</div><div class="alert-close"></div></div>');
         }
         event.preventDefault();
       })

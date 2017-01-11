@@ -83,7 +83,7 @@ SF.RefID #{row['RefID']} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}
                 #
                 # ],
 
-                tags_attributes: [{keyword_id: new_name_uri, project_id: project_id}, {keyword_id: type_info_uri, project_id: project_id}],
+                tags_attributes: [{keyword_id: new_name_cvt_id, project_id: project_id}, {keyword_id: type_info_cvt_id, project_id: project_id}],
      
 
                 ## InfoFlagStatus: Add confidence, 1 = partial data or needs review, 2 = complete data
