@@ -59,6 +59,9 @@ module Dwca::Packer
     # This is a stub, and only half-heartedly done. You should be using IPT for the time being.
     # @return [Tempfile]
     #   metadata about this dataset
+    # See also 
+    #    https://github.com/gbif/ipt/wiki/resourceMetadata 
+    #    https://github.com/gbif/ipt/wiki/resourceMetadata#exemplar-datasets 
     def eml 
       return @eml if @eml
       @eml = Tempfile.new('eml.xml')

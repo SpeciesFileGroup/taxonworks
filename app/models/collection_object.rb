@@ -83,6 +83,9 @@ class CollectionObject < ActiveRecord::Base
   CO_OTU_HEADERS      = %w{OTU OTU\ name Family Genus Species Country State County Locality Latitude Longitude}.freeze
   BUFFERED_ATTRIBUTES = %i{buffered_collecting_event buffered_determinations buffered_other_labels}.freeze
 
+  after_save :add_to_dwc_occurrence
+
+  
   # Otu delegations
   delegate :name, to: :current_otu, prefix: :otu, allow_nil: true # could be Otu#otu_name?
   delegate :id, to: :current_otu, prefix: :otu, allow_nil: true
@@ -599,6 +602,11 @@ class CollectionObject < ActiveRecord::Base
   end
 
   protected
+
+  def add_to_dwc_occurrence
+    get_dwc_occurrence
+  end
+  handle_asynchronously :add_to_dwc_occurrence, run_at: Proc.new { 20.seconds.from_now }
 
   def check_that_both_of_category_and_total_are_not_present
     errors.add(:ranged_lot_category_id, 'Both ranged_lot_category and total can not be set') if !ranged_lot_category_id.blank? && !total.blank?

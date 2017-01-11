@@ -11,13 +11,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161214221651) do
+ActiveRecord::Schema.define(version: 20170111034039) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
-  enable_extension "fuzzystrmatch"
   enable_extension "hstore"
+  enable_extension "fuzzystrmatch"
 
   create_table "alternate_values", force: :cascade do |t|
     t.text     "value",                            null: false
@@ -156,6 +156,25 @@ ActiveRecord::Schema.define(version: 20161214221651) do
   add_index "biological_relationships", ["created_by_id"], name: "bio_rel_created_by", using: :btree
   add_index "biological_relationships", ["project_id"], name: "bio_rel_project", using: :btree
   add_index "biological_relationships", ["updated_by_id"], name: "bio_rel_updated_by", using: :btree
+
+  create_table "character_states", force: :cascade do |t|
+    t.string   "name",          null: false
+    t.string   "label",         null: false
+    t.integer  "descriptor_id", null: false
+    t.integer  "position"
+    t.integer  "project_id"
+    t.integer  "updated_by_id", null: false
+    t.integer  "created_by_id", null: false
+    t.datetime "created_at",    null: false
+    t.datetime "updated_at",    null: false
+  end
+
+  add_index "character_states", ["created_by_id"], name: "index_character_states_on_created_by_id", using: :btree
+  add_index "character_states", ["descriptor_id"], name: "index_character_states_on_descriptor_id", using: :btree
+  add_index "character_states", ["label"], name: "index_character_states_on_label", using: :btree
+  add_index "character_states", ["name"], name: "index_character_states_on_name", using: :btree
+  add_index "character_states", ["project_id"], name: "index_character_states_on_project_id", using: :btree
+  add_index "character_states", ["updated_by_id"], name: "index_character_states_on_updated_by_id", using: :btree
 
   create_table "citation_topics", force: :cascade do |t|
     t.integer  "topic_id",      null: false
@@ -478,6 +497,22 @@ ActiveRecord::Schema.define(version: 20161214221651) do
   add_index "data_attributes", ["type"], name: "index_data_attributes_on_type", using: :btree
   add_index "data_attributes", ["updated_by_id"], name: "index_data_attributes_on_updated_by_id", using: :btree
 
+  create_table "delayed_jobs", force: :cascade do |t|
+    t.integer  "priority",   default: 0, null: false
+    t.integer  "attempts",   default: 0, null: false
+    t.text     "handler",                null: false
+    t.text     "last_error"
+    t.datetime "run_at"
+    t.datetime "locked_at"
+    t.datetime "failed_at"
+    t.string   "locked_by"
+    t.string   "queue"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "delayed_jobs", ["priority", "run_at"], name: "delayed_jobs_priority", using: :btree
+
   create_table "depictions", force: :cascade do |t|
     t.string   "depiction_object_type", null: false
     t.integer  "depiction_object_id",   null: false
@@ -748,7 +783,7 @@ ActiveRecord::Schema.define(version: 20161214221651) do
   create_table "extracts", force: :cascade do |t|
     t.decimal  "quantity_value",             null: false
     t.string   "quantity_unit",              null: false
-    t.string   "verbatim_anatomical_origin", null: false
+    t.string   "verbatim_anatomical_origin"
     t.integer  "year_made",                  null: false
     t.integer  "month_made",                 null: false
     t.integer  "day_made",                   null: false
@@ -1826,6 +1861,10 @@ ActiveRecord::Schema.define(version: 20161214221651) do
   add_foreign_key "biological_relationships", "projects", name: "biological_relationships_project_id_fkey"
   add_foreign_key "biological_relationships", "users", column: "created_by_id", name: "biological_relationships_created_by_id_fkey"
   add_foreign_key "biological_relationships", "users", column: "updated_by_id", name: "biological_relationships_updated_by_id_fkey"
+  add_foreign_key "character_states", "descriptors"
+  add_foreign_key "character_states", "projects"
+  add_foreign_key "character_states", "users", column: "created_by_id"
+  add_foreign_key "character_states", "users", column: "updated_by_id"
   add_foreign_key "citation_topics", "citations", name: "citation_topics_citation_id_fkey"
   add_foreign_key "citation_topics", "controlled_vocabulary_terms", column: "topic_id", name: "citation_topics_topic_id_fkey"
   add_foreign_key "citation_topics", "projects", name: "citation_topics_project_id_fkey"

@@ -19,6 +19,9 @@ gem 'pg', '~> 0.18.4'
 # Postgis
 gem 'activerecord-postgis-adapter', '~> 3.1.4'
 
+gem 'delayed_job_active_record'
+gem 'daemons'
+
 gem 'postgresql_cursor'
 
 # rgeo support
