@@ -46,7 +46,7 @@
     <div id="show_list">
       <%= render('result_list', collection_objects: @collection_objects) if @collection_objects.count > 0 %>
     </div>
-  
+
     <div id="show_map" hidden>
       <!--on first paint, these variables will be empty, so we get an empty map -->
       <%= simple_map_component(report_georeferences(@collection_objects, nil), 'border="1"') -%>
@@ -62,7 +62,7 @@
         <%= render "select_otu_facet" %>
       </div>
     </div>
-    
+
     <div>
       <div id="action_find" class="content">
         <%= form_tag(find_collection_objects_task_url, id: 'find_area_and_date_form', method: :get, remote: true) do %>
@@ -71,5 +71,4 @@
       </div>
     </div>
   </div>
-</div>
 </div>
