@@ -1,11 +1,14 @@
+
 class Tasks::CollectionObjects::FilterController < ApplicationController
   include TaskControllerConfiguration
 
   # GET
   def index
     @collection_objects       = CollectionObject.none
-    @earliest_date = CollectionObject.earliest_date(sessions_current_project_id)
-    @latest_date = CollectionObject.latest_date(sessions_current_project_id)
+  end
+
+  def filter_params
+    params.permit(:geographic_area_id, :drawn_area_shape)
   end
 
   # POST
