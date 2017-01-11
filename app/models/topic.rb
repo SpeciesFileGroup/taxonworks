@@ -11,7 +11,8 @@ class Topic < ControlledVocabularyTerm
 
   def self.find_for_autocomplete(params)
     term = "#{params[:term]}%"
-    ControlledVocabularyTerm.where('name LIKE ? OR definition ILIKE ? OR name ILIKE ? OR name = ?', term, "#{term}%", "%term", term ).where(project_id: params[:project_id], type: 'Topic')
+    where_string = "name LIKE '#{term}' OR name ILIKE '%#{term}' OR name = '#{term}' OR definition ILIKE '%#{term}'"
+    ControlledVocabularyTerm.where(where_string).where(project_id: params[:project_id], type: 'Topic')
   end
 
 end
