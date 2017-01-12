@@ -372,7 +372,9 @@ class CollectingEvent < ActiveRecord::Base
       end_month  = date_parts[1].to_i
       end_day    = date_parts[2].to_i
 
-      part_0         = 'start_date_year is not null'
+      t = 'collecting_events'
+
+      part_0         = "#{t}.start_date_year is not null"
 
       # start_date is inside supplied range
       # string has to have four pieces (part_s):
@@ -383,12 +385,12 @@ class CollectingEvent < ActiveRecord::Base
 
       # special_part = (search_start_date >= {record start date}) AND (search_end_date <= {record end date})
       # special_part = (start_date_year <= #{start_year} and (start_date_month <= #{start_month}) and (start_date_day <= #{start_day}))
-      special_part_1 = "(((start_date_year = #{start_year})
-        and ((start_date_month = #{start_month} and (start_date_day <= #{start_day})) or (start_date_month < #{start_month})))
-          or (start_date_year < #{start_year}))"
-      special_part_2 = "(((end_date_year = #{end_year})
-        and ((end_date_month = #{end_month} and (end_date_day >= #{end_day})) or (end_date_month > #{end_month})))
-        or (end_date_year > #{end_year}))"
+      special_part_1 = "(((#{t}.start_date_year = #{start_year})
+        and ((#{t}.start_date_month = #{start_month} and (#{t}.start_date_day <= #{start_day})) or (#{t}.start_date_month < #{start_month})))
+          or (#{t}.start_date_year < #{start_year}))"
+      special_part_2 = "(((#{t}.end_date_year = #{end_year})
+        and ((#{t}.end_date_month = #{end_month} and (#{t}.end_date_day >= #{end_day})) or (#{t}.end_date_month > #{end_month})))
+        or (#{t}.end_date_year > #{end_year}))"
       special_part   = ''
 
       if allow_partial
@@ -401,20 +403,20 @@ class CollectingEvent < ActiveRecord::Base
         part_2s = '' # if no whole years, remove clause
         part_2e = ''
       else
-        part_2e = "(end_date_year between #{start_year + 1} and #{end_year - 1})"
-        part_2s = "(start_date_year between #{start_year + 1} and #{end_year - 1})"
+        part_2e = "(#{t}.end_date_year between #{start_year + 1} and #{end_year - 1})"
+        part_2s = "(#{t}.start_date_year between #{start_year + 1} and #{end_year - 1})"
         # part_2e = part_2s
       end
 
       # from start date to end of start year
-      part_1s = "(start_date_year = #{start_year}"
-      part_1s += " and ((start_date_month between #{start_month + 1} and 12)"
-      part_1s += " or (start_date_month = #{start_month} and start_date_day >= #{start_day})))"
+      part_1s = "(#{t}.start_date_year = #{start_year}"
+      part_1s += " and ((#{t}.start_date_month between #{start_month + 1} and 12)"
+      part_1s += " or (#{t}.start_date_month = #{start_month} and #{t}.start_date_day >= #{start_day})))"
 
       # from beginning of end year to end date
-      part_3s = "(start_date_year = #{end_year}"
-      part_3s += " and ((start_date_month < #{end_month})"
-      part_3s += " or (start_date_month = #{end_month} and start_date_day <= #{end_day})))"
+      part_3s = "(#{t}.start_date_year = #{end_year}"
+      part_3s += " and ((#{t}.start_date_month < #{end_month})"
+      part_3s += " or (#{t}.start_date_month = #{end_month} and #{t}.start_date_day <= #{end_day})))"
 
       select_1_3 = (start_year == end_year) ? ' and ' : ' or '
       st_string  = "((#{part_0} and #{part_1s}#{select_1_3}#{part_3s})#{part_2s.blank? ? '' : " or #{part_2s}"})"
@@ -425,14 +427,14 @@ class CollectingEvent < ActiveRecord::Base
       #   2) any full years between start and end
       #   3) last part of start year
 
-      part_1e    = "(end_date_year = #{end_year}"
-      part_1e    += " and ((end_date_month between 1 and #{end_month - 1})"
-      part_1e    += " or (end_date_month = #{end_month} and end_date_day <= #{end_day})))"
-      part_1e    = "((end_date_year is NULL) and (#{st_string})) OR " + part_1e
+      part_1e    = "(#{t}.end_date_year = #{end_year}"
+      part_1e    += " and ((#{t}.end_date_month between 1 and #{end_month - 1})"
+      part_1e    += " or (#{t}.end_date_month = #{end_month} and #{t}.end_date_day <= #{end_day})))"
+      part_1e    = "((#{t}.end_date_year is NULL) and (#{st_string})) OR " + part_1e
 
-      part_3e = "(end_date_year = #{start_year}"
-      part_3e += " and ((end_date_month > #{start_month})"
-      part_3e += " or (end_date_month = #{start_month} and end_date_day >= #{start_day})))"
+      part_3e = "(#{t}.end_date_year = #{start_year}"
+      part_3e += " and ((#{t}.end_date_month > #{start_month})"
+      part_3e += " or (#{t}.end_date_month = #{start_month} and #{t}.end_date_day >= #{start_day})))"
 
 
       en_string = '((' + part_1e + select_1_3 + part_3e + ')' + (part_2e.blank? ? '' : ' or ') + part_2e + ')'
@@ -448,7 +450,7 @@ class CollectingEvent < ActiveRecord::Base
     def in_date_range(search_start_date: nil, search_end_date: nil, partial_overlap: 'on')
       allow_partial = (partial_overlap.downcase == 'off' ? false : true)
       sql_string    = date_sql_from_dates(search_start_date, search_end_date, allow_partial)
-      CollectingEvent.where(sql_string).where(project: $project_id).uniq
+      where(sql_string).uniq
     end
 
     # @param [Hash] of parameters in the style of 'params'
