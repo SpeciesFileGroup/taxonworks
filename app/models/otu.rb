@@ -59,6 +59,16 @@ class Otu < ActiveRecord::Base
   scope :with_taxon_name_id, -> (taxon_name_id) { where(taxon_name_id: taxon_name_id) }
   scope :with_name, -> (name) { where(name: name) }
 
+  # @return scope
+  def self.self_and_descendants_of(otu_id)
+    o = Otu.includes(:taxon_name).find(otu_id)
+    if o && o.taxon_name
+      with_taxon_name_id(Otu.find(otu_id).taxon_name.self_and_descendants)
+    else
+      Otu.where(id: otu_id)
+    end
+  end
+
   validate :check_required_fields
 
   soft_validate(:sv_taxon_name, set: :taxon_name)
