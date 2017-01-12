@@ -191,10 +191,6 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
     end
   end
 
-  context 'taxon_determinations' do
-
-  end
-
   context 'soft validation' do
     let(:o) { Specimen.new }
     let(:p) { Person.new }
@@ -247,22 +243,24 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
       after(:all) {
         clean_slate_geo
       }
-# let(:params) {
-#   {search_start_date: '1981/01/01',
-#    search_end_date: '1981/1/1',
-#    drawn_area_shape: GeographicArea
-#                          .where(name: 'Great Northern Land Mass')
-#                          .first
-#                          .default_geographic_item
-#                          .to_geo_json_feature}
-# }
-# it 'spans a single day' do
-#   xhr(:get, :find, params)
-#   result = JSON.parse(response.body)
-#   expect(result['collection_objects_count']).to eq('1')
-#   georeference_id = result['feature_collection']['features'][0]['properties']['georeference']['id']
-#   expect(Georeference.find(georeference_id).collecting_event.verbatim_label).to eq('@ce_m3')
-# end
+
+      # let(:params) {
+      #   {search_start_date: '1981/01/01',
+      #    search_end_date: '1981/1/1',
+      #    drawn_area_shape: GeographicArea
+      #                          .where(name: 'Great Northern Land Mass')
+      #                          .first
+      #                          .default_geographic_item
+      #                          .to_geo_json_feature}
+      # }
+      # it 'spans a single day' do
+      #   xhr(:get, :find, params)
+      #   result = JSON.parse(response.body)
+      #   expect(result['collection_objects_count']).to eq('1')
+      #   georeference_id = result['feature_collection']['features'][0]['properties']['georeference']['id']
+      #   expect(Georeference.find(georeference_id).collecting_event.verbatim_label).to eq('@ce_m3')
+      # end
+      
       describe 'spanning a single day' do
         specify "should find 1 record" do
           collection_objects = CollectionObject.in_date_range({search_start_date: '1981/01/01', search_end_date: '1981/1/1'})
