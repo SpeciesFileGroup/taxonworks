@@ -112,81 +112,69 @@ class GeographicItem < ActiveRecord::Base
       ).first.r
     end
 
+
+    # TODO: * remove pagination, do that at the controller
+    #       * rename to reflect either/or and what is being returned 
     # @param [Integer] geographic_area_id
-    # @param [String] shape_in in json
+    # @param [String] shape_in in JSON (TODO: what kind? / details on specification)
     # @param [String] search_object_class
     # @param [Boolean] paging (default false)
     # @param [Integer] page (default 1)
     # @return [Scope] of the requested search_object_type
-    def gather_selected_data(geographic_area_id, shape_in, search_object_class, paging = false, page = 1)
+    def gather_selected_data(geographic_area_id, shape_in, search_object_class)
       if shape_in.blank?
         # get the shape from the geographic area, if possible
         if geographic_area_id.blank?
           finding = search_object_class.constantize
-          found = finding.where('false')
+          found = finding.none
         else
           shape_in = GeographicArea.joins(:geographic_items)
                          .find(geographic_area_id)
                          .default_geographic_item.geo_object
-          found = gather_area_data(shape_in, search_object_class, paging, page)
+          found = objects_contained_by_geo_object(shape_in, search_object_class)
         end
       else
-        found = gather_map_data(shape_in, search_object_class, paging, page)
+        found = gather_map_data(shape_in, search_object_class)
       end
       found
     end
 
     # @param [geo_object]
     # @param [String] search_object_class
-    # @param [Boolean] paging
-    # @param [Integer] page (default 1)
-    # @return [Scope] of the requested search_object_type
-    def gather_area_data(shape, search_object_class, paging, page = 1)
+    # @return [Scope] 
+    #    all objects of search_object_class contained by the geo_object geometry
+    def objects_contained_by_geo_object(geo_object, search_object_class)
       finding = search_object_class.constantize
-      geometry = shape.to_s
-
-      query = finding.joins(:geographic_items).where(project_id: $project_id)
-                  .where(GeographicItem.contained_by_wkt_sql(geometry))
-
-      if paging
-        retval = query.page(page)
-      else
-        retval = query
-      end
-      retval
+      geometry = geo_object.to_s
+      finding.joins(:geographic_items).where(GeographicItem.contained_by_wkt_sql(geometry))
     end
 
-    # @param [String] feature in json
+    # @param [String] feature in JSON
     # @param [String] search_object_class
-    # @param [Boolean] paging
-    # @param [Integer] page (default 1)
-    # @return [Scope] of the requested search_object_type
-    def gather_map_data(feature, search_object_class, paging, page = 1)
+    # @return [Scope] of the requested search_object_type 
+    #   This function takes a feature, i.e. a string that is the result
+    #   of drawing on a Google map, and submited as a form variable,
+    #   and translates that to a scope for a provided search_object_class.
+    #   e.g. Return all CollectionObjects in this drawn area
+    #        Return all CollectionObjects in the radius around this point
+    def gather_map_data(feature, search_object_class)
       finding = search_object_class.constantize
-      feature = RGeo::GeoJSON.decode(feature, :json_parser => :json)
-      # isolate the WKT
-      geometry = feature.geometry
+      feature = RGeo::GeoJSON.decode(feature, json_parser: :json)
+      geometry = feature.geometry       # isolate the WKT
       shape_type = geometry.geometry_type.to_s.downcase
       geometry = geometry.as_text
       radius = feature['radius']
 
-      query = finding.joins(:geographic_items).where(project_id: $project_id)
+      query = finding.joins(:geographic_items)
 
       case shape_type
-        when 'point'
-          query = query.where(GeographicItem.within_radius_of_wkt_sql(geometry, radius))
-        when 'polygon', 'multipolygon'
-          query = query.where(GeographicItem.contained_by_wkt_sql(geometry))
-        else
-          # query is unchanged
-      end
-
-      if paging
-        retval = query.page(page)
+      when 'point'
+        query.where(GeographicItem.within_radius_of_wkt_sql(geometry, radius))
+      when 'polygon', 'multipolygon'
+        query.where(GeographicItem.contained_by_wkt_sql(geometry))
       else
-        retval = query
+        query
       end
-      retval
     end
 
     #
@@ -392,6 +380,8 @@ class GeographicItem < ActiveRecord::Base
     end
 
     # TODO: Remove the hard coded 4326 reference
+    # @params [String] wkt
+    # @return [String] SQL fragment limiting geographics items to those in this WKT
     def contained_by_wkt_sql(wkt)
       if crosses_anti_meridian?(wkt)
         retval = contained_by_wkt_shifted_sql(wkt)
@@ -429,7 +419,7 @@ class GeographicItem < ActiveRecord::Base
 
     # @return [String] sql for containing via ST_CoveredBy
     # TODO: Remove the hard coded 4326 reference
-    # TODO: should this be wkt_point instaead of rgeo_point?
+    # TODO: should this be wkt_point instead of rgeo_point?
     def containing_where_for_point_sql(rgeo_point)
       "ST_CoveredBy(
         ST_GeomFromText('#{rgeo_point}', 4326),
@@ -1036,7 +1026,6 @@ class GeographicItem < ActiveRecord::Base
       self.class::SHAPE_COLUMN
     end
   end
-
 
   # !!TODO: migrate these to use native column calls this to "native"
 
