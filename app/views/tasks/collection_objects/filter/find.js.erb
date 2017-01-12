@@ -10,16 +10,16 @@ paging = $('<%= j(render(partial: 'paging_data')) %>');
 $("#paging_span").html(paging);
 
 var message, collection_objects_count, feature_collection;
-message = $('<%= @package[:message] %>').selector;
+message = $('<%= 'No collection objects found.' if @collection_objects.count == 0 %>').selector;
 if (message.length == 0) {
-  collection_objects_count = $('<%= @package[:collection_objects_count] %>').selector;
+  collection_objects_count = $('<%= @collection_objects.count.to_s %>').selector;
   $("#result_span").text("Total: " + collection_objects_count);
 }
 else {
   $("#result_span").text(message);
 }
 
-result_collection = <%= @package[:feature_collection].to_json.html_safe %>;
+result_collection = <%= ::Gis::GeoJSON.feature_collection(Georeference.joins(:collection_objects).where(collection_objects: {id: @collection_objects})).to_json.html_safe %>;
 if (result_collection) {
   if ($("#show_map").attr("hidden") != "hidden") {
     result_map = TW.vendor.lib.google.maps.initializeMap('simple_map_canvas', result_collection);
