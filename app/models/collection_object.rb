@@ -214,24 +214,9 @@ class CollectionObject < ActiveRecord::Base
   end
   
   # @param [String] rank
-  # @return [String] if the otu exists, return the taxon name at the rank supplied
+  # @return [String] if a determination exists, and the Otu in the determination has a taxon name then return the taxon name at the rank supplied
   def name_at_rank_string(rank)
-    retval = nil
-    tn    = current_taxon_name 
-    retval = tn.ancestor_at_rank(rank) unless tn.nil?
-    retval.cached_html unless retval.nil?
-  end
-
-  # @param [Scope] selected of CollectionObject
-  def self.generate_download(scope)
-    CSV.generate do |csv|
-      csv << column_names
-      scope.order(id: :asc).each do |o|
-        csv << o.attributes.values_at(*column_names).collect { |i|
-          i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
-        }
-      end
-    end
+    current_taxon_name.try(:ancestor_at_rank, rank).try(:cached_html)
   end
 
   # @param [Scope] scope of selected CollectionObjects
@@ -333,6 +318,9 @@ class CollectionObject < ActiveRecord::Base
     d.to_s + '/12/31'
   end
 
+  # TODO: Clarify this.
+  # CAREFULL - this isn't _in_, this is *with*, if it was in it would be spatial query, not a join(:geographic_items)
+  #
   # Find all collection objects which have collecting events which have georeferences which have geographic_items which
   # are located within the geographic item supplied
   # @param [GeographicItem] geographic_item_id
@@ -353,29 +341,6 @@ class CollectionObject < ActiveRecord::Base
     else
       retval = CollectionObject.joins(:geographic_items).where(GeographicItem.contained_by_where_sql(geographic_item.id)).limit(limit).includes(:data_attributes, :collecting_event)
     end
-    retval
-  end
-
-  # @param [String] geographic_shape as EWKT (TODO: See right side 'draw' of match-georeference for implimentation)
-  # @return [Scope] of CollectionObject
-  def self.in_geographic_shape(geographic_shape, steps = false)
-    # raise 'in_geographic_shape is unfinished'
-    geographic_item_id = geographic_item.id
-    if steps
-      gi     = GeographicItem.find(geographic_item_id)
-      # find the geographic_items inside gi
-      step_1 = GeographicItem.is_contained_by('any', gi) # .pluck(:id)
-      # find the georeferences from the geographic_items
-      step_2 = step_1.map(&:georeferences).uniq.flatten
-      # find the collecting events connected to the georeferences
-      step_3 = step_2.map(&:collecting_event).uniq.flatten
-      # find the collection objects associated with the collecting events
-      step_4 = step_3.map(&:collection_objects).flatten.map(&:id).uniq
-      retval = CollectionObject.where(id: step_4.sort)
-    else
-      retval = CollectionObject.joins(:geographic_items).where(GeographicItem.is_contained_by_sql('any', geographic_item)).includes(:data_attributes, :collecting_event)
-    end
-
     retval
   end
 
@@ -550,15 +515,18 @@ class CollectionObject < ActiveRecord::Base
   def self.from_collecting_events(collecting_event_ids, area_object_ids, area_set, project_id)
     collecting_events_clause = {collecting_event_id: collecting_event_ids, project: project_id}
     area_objects_clause = {id: area_object_ids, project: project_id}
+
     if (collecting_event_ids.empty?)
       collecting_events_clause = {project: project_id}
     end
+
     if (area_object_ids.empty?)
       area_objects_clause = {}
       if (area_set)
         area_objects_clause = 'false'
       end
     end
+    
     retval = CollectionObject.joins(:collecting_event)
                  .where(collecting_events_clause)
                  .where(area_objects_clause)
@@ -568,14 +536,11 @@ class CollectionObject < ActiveRecord::Base
   # @param [Hash] search_start_date string in form 'yyyy/mm/dd'
   # @param [Hash] search_end_date string in form 'yyyy/mm/dd'
   # @param [Hash] partial_overlap 'on' or 'off'
-  # @return [Scope] of selected collection objects through collecting events with georeferences
+  # @return [Scope] of selected collection objects through collecting events with georeferences, remember to scope to project!
   def self.in_date_range(search_start_date: nil, search_end_date: nil, partial_overlap: 'on')
-    collecting_event_ids = CollectingEvent.in_date_range({search_start_date: search_start_date,
-                                                          search_end_date:   search_end_date,
-                                                          partial_overlap:   partial_overlap}).pluck(:id)
-    retval = CollectionObject.joins(:collecting_event)
-                             .where(collecting_event_id: collecting_event_ids, project: $project_id)
-    retval
+    allow_partial = (partial_overlap.downcase == 'off' ? false : true) # TODO: Just get the correct values from the form!
+    where_sql = CollectingEvent.date_sql_from_dates(search_start_date, search_end_date, allow_partial)
+    joins(:collecting_event).where(where_sql)
   end
 
   def sv_missing_accession_fields
