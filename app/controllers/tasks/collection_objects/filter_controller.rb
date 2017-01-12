@@ -39,6 +39,8 @@ class Tasks::CollectionObjects::FilterController < ApplicationController
     Queries::CollectionObjectFilterQuery.new(filter_params)
       .result
       .with_project_id(sessions_current_project_id)
+      .order('collection_objects.id')
+      .includes(:repository, {taxon_determinations: [{otu: :taxon_name}]}, :identifiers)
   end
 
   def filter_params
