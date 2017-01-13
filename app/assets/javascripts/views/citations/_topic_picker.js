@@ -54,10 +54,10 @@ function bind_definition_listener(form) {
     form.find(".definition").keyup(function() {
       var d = form.find(".definition").val();
       if (d.length == 0) {
-        $(".citation_topic_picker_add_new").attr("hidden", true);
+        $(".citation_topic_picker_add_new").hide();
       }
       else {
-        $(".citation_topic_picker_add_new").removeAttr("hidden");
+        $(".citation_topic_picker_add_new").css("display","flex");
       }
     })
 }
@@ -85,19 +85,18 @@ function insert_new_topic(form) {
 
   citation_topic_list.append(
       $('<li class="citation_topic_item" data-new-topic="true" data-topic-index="' + random_index + '" >')
-      .append(name + '&nbsp;')
-      .append('pages: <input name="' + citation_topic_base + '[pages]" >')
+      .append('<div><div>' + name + '</div><input name="' + citation_topic_base + '[pages]" placeholder="Pages"></div>')
       .append( $('<input hidden name="' + topic_base + '[name]" value="' + name + '" >') )
       .append( $('<input hidden name="' + topic_base + '[definition]" value="' + form.find(".definition").val() + '" >') )
 
       .append(remove_citation_topic_link())
       );
 
-  $(".citation_topic_picker_add_new").attr("hidden", true);
+  $(".citation_topic_picker_add_new").hide();
 };
 
 function remove_citation_topic_link() {
-  var link = $('<a href="#" class="remove_citation_topic">remove</a>');
+  var link = $('<a href="#" class="remove_citation_topic delete-circle">remove</a>');
   bind_remove_citation_topic_links(link);
   return link;
 }

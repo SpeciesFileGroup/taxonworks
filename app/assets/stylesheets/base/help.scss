@@ -2,6 +2,7 @@
 @import 'base/whitespace';
 
 .help-button {
+	cursor: pointer;
 	position: fixed;
 	z-index: 999;
 	top:calc(50vh + 60px); 
