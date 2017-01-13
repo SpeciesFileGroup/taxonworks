@@ -105,7 +105,27 @@ _init_map_table = function init_map_table() {
           
           toggleFilter();
           if (href == undefined) {
-            href = $("#set_area_form").serialize() + '&' + $("#set_date_form").serialize() + '&' + $("#set_otu_form").serialize();
+            var href = '';
+            var params = [];
+
+
+            if ( $('#area_count').text() != '????' ) {
+              params.push($("#set_area_form").serialize());
+            }
+
+            if ( $('#date_count').text() != '????' ) {
+            
+              params.push($("#set_date_form").serialize());
+            }
+
+            if ( $('#otu_count').text() != '????' ) {
+              params.push($("#set_otu_form").serialize());
+            }
+
+            href = params.join("&");
+
+
+//            href = $("#set_area_form").serialize() + '&' + $("#set_date_form").serialize() + '&' + $("#set_otu_form").serialize();
           }
           $("#find_item").mx_spinner('show');
           $.get('find', href, function (local_data) {
@@ -114,6 +134,7 @@ _init_map_table = function init_map_table() {
           );
           $("#download_button").removeAttr("disabled");
         }
+        
         else {
           $("body").append('<div class="alert alert-error"><div class="message">Incorrect dates</div><div class="alert-close"></div></div>');
         }
@@ -127,8 +148,8 @@ _init_map_table = function init_map_table() {
     var dateInput;
 
     validateResult();
+    
     set_control($("#search_start_date"), $("#search_start_date"), format, year, $("#earliest_date").text());
-
     set_control($("#search_end_date"), $("#search_end_date"), format, year, $("#latest_date").text());
   
     function set_control(control, input, format, year, st_en_day) {
@@ -192,6 +213,7 @@ _init_map_table = function init_map_table() {
         event.preventDefault();
     }
 
+    // TODO: move to a general lib
     function convert_date_to_string(date) {
       var time = new Date(date);
       return (time.getFullYear() + "/" + (time.getMonth() + 1)+ "/" + time.getDate());

@@ -8,7 +8,7 @@ class Tasks::CollectionObjects::FilterController < ApplicationController
 
   # POST
   def find
-    @collection_objects = collection_objects.page(params[:page])
+    @collection_objects = collection_objects.order(:id).page(params[:page])
   end
 
   # GET
