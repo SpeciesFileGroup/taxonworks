@@ -94,6 +94,10 @@ $default-padding: 2em;
 	}		
 }
 
+	[data-panel-open="true"] .slide-panel-circle-icon {
+		opacity: 1;
+	}
+
 .slide-document {
 	.slide-panel-header {
 		background-color: #770000;
