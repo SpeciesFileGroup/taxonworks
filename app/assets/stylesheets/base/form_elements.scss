@@ -91,6 +91,12 @@ input[type="submit"] {
   background-color: #9CCC65;
 }
 
+input[type="submit"][disabled] {
+  background-color: #FFF;
+  color: #000;
+  opacity: 0.6;
+}
+
 select {
   padding:$standard_padding*0.5;
   padding-left:$standard_padding;

@@ -14,9 +14,16 @@
 		color: #666;
 	}
 
-	#filter-button {
+	.filter-button {
 		background-color: green;
 		background-image: image-url("filter.svg");
+	}
+
+	#find_area_and_date_commit {
+		top:30px;
+		right: 20px;
+		opacity: 1;
+		background-image: none;
 	}
 
 	#result_view, .range-label {
@@ -27,13 +34,12 @@
 		margin-top: $standard_margin;
 	}
 
-	#filter-collection-objects {
-		width: 100%;
-		position: absolute;
-		top: 150px;
-		left: 0px;
 
-		.panel {
+
+	#filter-collection-objects {
+
+		.panel, .slide-panel {
+			box-sizing: border-box;
 			width: 590px;
 			min-width: 590px;	
 		}

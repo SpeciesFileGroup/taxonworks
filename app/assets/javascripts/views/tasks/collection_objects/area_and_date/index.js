@@ -51,6 +51,7 @@ _init_map_table = function init_map_table() {
         $.get('set_otu', $("#set_otu_form").serialize(), function (local_data) {
           $("#otu_count").text(local_data.html);
           $("#select_otu").mx_spinner('hide');
+          validateResult();
         }, 'json'  // I expect a json response
           );
           event.preventDefault();
@@ -65,12 +66,30 @@ _init_map_table = function init_map_table() {
               var popcorn = local_data;
               $("#area_count").text(local_data.html);
             $("#select_area").mx_spinner('hide');
+            validateResult();
           }, 'json'  // I expect a json response
-          );
-  
+        );
+        
         event.preventDefault();
         }
       );
+
+      function cleanResults() {
+        $("#show_list").empty();
+        $("#result_span").empty();
+      }
+
+      function validateResult() {
+        var i = 0;
+
+        if(($("#date_count").text() > 0) || ($("#area_count").text() > 0) || ($("#otu_count").text() > 0)){
+          $("#find_area_and_date_commit").removeAttr("disabled");
+        }
+        else {
+          $("#find_area_and_date_commit").attr("disabled", "disabled");
+        }
+        cleanResults();
+      }
       // below could be used as template for auto-get on .overlaycomplete
       //$("#set_area").on("ajax:success", function (e, data) {
       //    $("#area_count").text(data.html);
@@ -83,6 +102,7 @@ _init_map_table = function init_map_table() {
       $("#find_area_and_date_commit").click(function (event, href) {
         
         if(validateDates() && validateDateRange()) {
+          
           toggleFilter();
           if (href == undefined) {
             href = $("#set_area_form").serialize() + '&' + $("#set_date_form").serialize() + '&' + $("#set_otu_form").serialize();
@@ -92,6 +112,7 @@ _init_map_table = function init_map_table() {
             // $("#find_item").mx_spinner('hide');  # this has been relocated to .../find.js.erb
             }//, 'json'  // I expect a json response
           );
+          $("#download_button").removeAttr("disabled");
         }
         else {
           $("body").append('<div class="alert alert-error"><div class="message">Incorrect dates</div><div class="alert-close"></div></div>');
@@ -105,7 +126,7 @@ _init_map_table = function init_map_table() {
     var format = 'yy/mm/dd';
     var dateInput;
 
-
+    validateResult();
     set_control($("#search_start_date"), $("#search_start_date"), format, year, $("#earliest_date").text());
 
     set_control($("#search_end_date"), $("#search_end_date"), format, year, $("#latest_date").text());
@@ -124,12 +145,11 @@ _init_map_table = function init_map_table() {
       }
     }
 
-    $("#filter-button").on("click", function() {
+    $(".filter-button").on("click", function() {
       toggleFilter();
     });
 
     function toggleFilter() {
-      $("#filter-collection-objects").toggle();
       $("#result_view").toggle();   
     }
   
@@ -160,7 +180,8 @@ _init_map_table = function init_map_table() {
         $.get('set_date', $("#set_date_form").serialize(), function (local_data) {
             $("#date_count").text(local_data.html);
             $("#graph_frame").html(local_data.chart);
-            $("#select_date_range").mx_spinner('hide');    
+            $("#select_date_range").mx_spinner('hide');  
+            validateResult();  
           }, 'json'  // I expect a json response
         );
       }

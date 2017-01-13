@@ -1,6 +1,6 @@
 $(document).ready(function() {
 	$('.slide-panel-circle-icon').on('click', function() {		
-		closeHideSlideoutPanel($(this).parent());
+		closeHideSlideoutPanel($(this).closest('.slide-panel'));
 	});
 
 	$('.slide-panel-category-header').on('click', function() {
