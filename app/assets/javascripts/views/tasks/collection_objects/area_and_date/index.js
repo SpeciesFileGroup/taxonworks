@@ -190,7 +190,9 @@ _init_map_table = function init_map_table() {
       update_and_graph(event)
     });   // click date change
     $("#partial_toggle").change(function (event) {
-      update_and_graph(event)
+      if ($("#date_count").text() != "????") {
+        update_and_graph(event)
+      }
     });   // click date change
   
     function update_and_graph(event) {      
@@ -301,7 +303,9 @@ _init_map_table = function init_map_table() {
         $("#search_start_date").val($("#earliest_date").text());
         $("#search_end_date").val($("#latest_date").text());
         updateRangePicker(startDate, endDate);
-        update_and_graph(event);
+        $("#graph_frame").empty();
+        $("#date_count").text("????");
+        validateResult();
         event.preventDefault();
       }
     );
