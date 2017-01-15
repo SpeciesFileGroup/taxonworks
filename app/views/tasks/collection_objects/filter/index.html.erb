@@ -14,7 +14,7 @@
             <div class="title nav-line">
               <span id="result_title_list">Results</span>
               <div class="horizontal-center-content middle">
-                <label class="switch-toggle" data-help="Select the result list, or the map of results.">
+                <label class="switch-toggle" data-help="Switch the result view between list or the map">
                   <input type="checkbox" id="toggle-list-map">
                   <div class="slider-toggle round"></div>
                   <div class="toggle-options">
@@ -27,9 +27,7 @@
             <div class="flex-separate"> 
               <div class="navigation-bar-left">
                 <span id="paging_span" class="flex-separate">
-                </span>
-                <span id="paging_span" class="flex-separate">
-                </span>              
+                </span>            
               </div>
               <div class="navigation-bar-right">  
                 <%= form_tag(find_collection_objects_task_url, id: 'download_form', method: :get, remote: true) do %>

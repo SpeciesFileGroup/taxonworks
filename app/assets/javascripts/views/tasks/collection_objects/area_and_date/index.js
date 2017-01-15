@@ -16,23 +16,23 @@ _init_map_table = function init_map_table() {
       });
 
       function switchMap() {
-        $("#area_count").text('????');
+        $("#paging_span").hide();
         $("#show_list").hide();         // hide the list view
         $("#show_map").show();          // reveal the map
         $(".result_list_toggle").removeAttr('hidden');           // expose the other link
         $(".result_map_toggle").attr('hidden', true);
-        $("[name='[geographic_area_id]']").attr('value', '');
+        $("[name='[geographic_area_id]']").attr('value', '');        
         result_map = _init_simple_map();
         result_map = TW.vendor.lib.google.maps.initializeMap('simple_map_canvas', result_collection);
       }
 
       function switchList() {
-        $("#area_count").text('????');
         $("#show_map").hide();          // hide the map
         $("#show_list").show();         // reveal the area selector
         $(".result_map_toggle").removeAttr('hidden');            // expose the other link
         $(".result_list_toggle").attr('hidden', true);
-        $("#drawn_area_shape").attr('value', '');        
+        $("#drawn_area_shape").attr('value', '');  
+        $("#paging_span").show();
       }
 
       $("#toggle-list-map").on("click", function() {
@@ -77,6 +77,7 @@ _init_map_table = function init_map_table() {
       function cleanResults() {
         $("#show_list").empty();
         $("#result_span").empty();
+        $("#paging_span").empty();
       }
 
       function validateResult() {
