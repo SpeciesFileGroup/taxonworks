@@ -19,7 +19,7 @@ $(document).ready(function() {
 
 	$('body').append('<div class="help-legend"></div>');
 	$('body').append('<div class="help-background-active"></div>');
-	$('body').append('<div class="help-button"></div>');
+	$('body').append('<div class="help-button"><div class="help-button-description">Help</div></div>');
 
 	
 	function addBubbleTips(className) {

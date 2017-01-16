@@ -7,6 +7,10 @@ $(document).ready(function() {
 		$(this).parent().find('.slide-panel-category-content').toggle(250);
 	});	
 
+	$('.slide-panel').each(function(i) {
+		$(this).find('.slide-panel-description').text($(this).children('.slide-panel-header').text());
+	});
+
 
 	function closeHideSlideoutPanel(panel) {
 		if($(panel).hasClass("slide-left")){

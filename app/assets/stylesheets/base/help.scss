@@ -31,6 +31,10 @@
 	opacity: 1;
 	background-size: 40px;
 	transition: background-size 0.3s ease, opacity 0.3s ease, right 0.5s ease;
+
+	.help-button-description {
+		display: block;
+	}	
 }		
 
 .help-button-active {
@@ -74,6 +78,44 @@
 	background-color: #FFF;
 	z-index:9000;
 	display: none;
+}
+
+
+.help-button-description {
+	display: none;
+	font-weight: 300;
+	position: absolute;
+	white-space: nowrap;
+	padding: $standard_padding*0.5;
+	background-color: #FFF;
+	box-shadow: 0px 1px 1px 0px rgba(0,0,0,0.2);
+	right:70px;
+	top:13px;
+	padding-left: $standard_padding;
+	padding-right: $standard_padding;
+	border-radius: 3px;
+}
+
+.help-button-description:after, .help-button-description:before {
+	left: 100%;
+	top: 50%;
+	border: solid transparent;
+	content: " ";
+	height: 0;
+	width: 0;
+	position: absolute;
+	pointer-events: none;
+}
+
+.help-button-description:after {
+	border-left-color: #FFF;
+	border-width: 6px;
+	margin-top: -6px;
+}
+.help-button-description:before {
+	border-left-color: rgba(0,0,0,0.2);
+	border-width: 6px;
+	margin-top: -5px;
 }
 
 .help-bubble-tip {
