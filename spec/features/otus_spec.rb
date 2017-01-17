@@ -102,5 +102,15 @@ describe 'Otus', type: :feature do
         expect(page).to have_content("Otu 'test' was successfully created.")
       end
     end
+
+    context 'downloading OTU table', js: true do
+      let!(:csv) { Download.generate_csv(Otu.where(project_id: @project_id)) }
+      specify 'otus table can be donwloaded as-is' do
+        visit otus_path
+        click_link('Download')
+        expect( Features::Downloads::download_content).to eq(csv)
+      end
+    end
+
   end
 end
