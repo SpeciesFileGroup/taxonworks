@@ -10,7 +10,7 @@ module Download
   #
   # This is a very nice reference for future consideration: 
   #   http://collectiveidea.com/blog/archives/2015/03/05/optimizing-rails-for-memory-usage-part-3-pluck-and-database-laziness
-  def self.generate_csv(scope, exclude_columns: [], header_converters: {}, trim_rows: false, trim_columns: false)
+  def self.generate_csv(scope, exclude_columns: [], header_converters: [], trim_rows: false, trim_columns: false)
 
     # Check to see if keys is deterministicly ordered
     column_names = scope.columns_hash.keys
