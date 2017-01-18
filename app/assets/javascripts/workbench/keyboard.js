@@ -117,8 +117,7 @@ $(document).ready(function() {
 	}
 	if($("[data-shortcut-key]").length) {
 	  	if (!$("[data-help]").length) {
-	  		helpSystem();
-	  		helpLoaded = true;
+		    TW.workbench.help.init_helpSystem();
 	  	}
 	    keyShortcuts();	
 	}
