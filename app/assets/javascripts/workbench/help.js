@@ -49,11 +49,11 @@ Object.assign(TW.workbench.help, {
 		});	
 
 
-		$(".help-button").on('click', function(event) {
+		$(".help-button").on('click', function() {
 			TW.workbench.help.activeDisableHelp();
 		});	
 
-		$(".help-background-active").on('click','.help-background-active', function() {
+		$(".help-background-active").on('click', function() {
 			TW.workbench.help.activeDisableHelp();
 		});	
 	},
