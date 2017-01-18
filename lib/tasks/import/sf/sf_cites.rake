@@ -50,6 +50,8 @@ namespace :tw do
             project_id = TaxonName.find(taxon_name_id).project_id.to_i
             source_id = get_tw_source_id[row['RefID']].to_i
 
+            next if source_id == 0
+
             logger.info "Working with TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id},
 SF.RefID #{row['RefID']} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (count #{count_found += 1}) \n"
 

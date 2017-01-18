@@ -29,7 +29,8 @@ namespace :tw do
           'taxa:create_some_related_taxa',
           'taxa:create_status_flag_relationships',
 
-          'cites:import_nomenclator_strings'
+          'cites:import_nomenclator_strings',
+          'cites:create_cvts_for_citations'
 
       ] do
         puts 'Ran everything!'
