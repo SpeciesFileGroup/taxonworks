@@ -104,42 +104,45 @@ _init_map_table = function init_map_table() {
       //  }
       //);
 
-      $("#find_area_and_date_commit").click(function (event, href) {
-        if(validateDates() && validateDateRange()) {
-          
-          toggleFilter();
-          if (href == undefined) {
-            var href = '';
-            var params = [];
+      $("#find_area_and_date_commit").click(function (event) {
+        toggleFilter();
+        ajaxRequest(event, "find");
+      });
 
-            if ( $('#area_count').text() != '????' ) {
-              params.push($("#set_area_form").serialize());
-            }
+      $("#download_button").click(function (event) {
+        ajaxRequest(event, "download");
+      });      
 
-            if ( $('#date_count').text() != '????' ) {
-            
-              params.push($("#set_date_form").serialize());
-            }
+      function ajaxRequest(event, href) {
+        if(validateDates() && validateDateRange()) {   
+          var data = '';
+          var params = [];
 
-            if ( $('#otu_count').text() != '????' ) {
-              params.push($("#set_otu_form").serialize());
-            }
-
-            href = params.join("&");
+          if ( $('#area_count').text() != '????' ) {
+            params.push($("#set_area_form").serialize());
           }
+
+          if ( $('#date_count').text() != '????' ) {    
+            params.push($("#set_date_form").serialize());
+          }
+
+          if ( $('#otu_count').text() != '????' ) {
+            params.push($("#set_otu_form").serialize());
+          }
+
+          data = params.join("&");
+
           $("#find_item").mx_spinner('show');
-          $.get('find', href, function (local_data) {
+          $.get(href, data, function (local_data) {
             // $("#find_item").mx_spinner('hide');  # this has been relocated to .../find.js.erb
-            }//, 'json'  // I expect a json response
-          );
+          });//, 'json'  // I expect a json response
           $("#download_button").removeAttr("disabled");
-        }
-        
+        }          
         else {
           $("body").append('<div class="alert alert-error"><div class="message">Incorrect dates</div><div class="alert-close"></div></div>');
         }
         event.preventDefault();
-      })
+      }      
     }
 
     var today = new Date();
