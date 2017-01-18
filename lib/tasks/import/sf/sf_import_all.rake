@@ -4,8 +4,8 @@ namespace :tw do
 
       # try %w instead of literal array syntax ???? (see markup)
 
-      desc 'time rake tw:project_import:sf_import:run_all_import_tasks user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-      task :run_all_import_tasks => [
+      desc 'time rake tw:project_import:sf_import:run_sources_import_tasks user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+      task :run_sources_import_tasks => [
           'start:create_users',
           'start:create_people',
           'start:map_serials',
@@ -18,7 +18,13 @@ namespace :tw do
           'start:create_source_roles',
           'start:create_sf_book_hash',
           'start:update_sources_with_booktitle_publisher_address',
+      ] do
+        puts 'Ran sources tasks!'
+      end
 
+
+      desc 'time rake tw:project_import:sf_import:run_taxa_import_tasks user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+      task :run_taxa_import_tasks => [
           'taxa:create_rank_hash',
           'taxa:create_animalia_below_root',
           'taxa:create_sf_synonym_id_to_new_parent_id_hash',
@@ -28,12 +34,17 @@ namespace :tw do
           'taxa:create_type_genera',
           'taxa:create_some_related_taxa',
           'taxa:create_status_flag_relationships',
+      ] do
+        puts 'Ran taxa tasks!'
+      end
 
+
+      desc 'time rake tw:project_import:sf_import:run_cites_import_tasks user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+      task :run_cites_import_tasks => [
           'cites:import_nomenclator_strings',
           'cites:create_cvts_for_citations'
-
       ] do
-        puts 'Ran everything!'
+        puts 'Ran cites tasks!'
       end
     end
   end
