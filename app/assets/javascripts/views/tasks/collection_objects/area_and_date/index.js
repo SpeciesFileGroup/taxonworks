@@ -92,6 +92,8 @@ _init_map_table = function init_map_table() {
         }
         cleanResults();
       }
+
+
       // below could be used as template for auto-get on .overlaycomplete
       //$("#set_area").on("ajax:success", function (e, data) {
       //    $("#area_count").text(data.html);
@@ -101,15 +103,14 @@ _init_map_table = function init_map_table() {
       //    $("area_count").text("<p>set_area error => " + error + "</p>")
       //  }
       //);
+
       $("#find_area_and_date_commit").click(function (event, href) {
-        
         if(validateDates() && validateDateRange()) {
           
           toggleFilter();
           if (href == undefined) {
             var href = '';
             var params = [];
-
 
             if ( $('#area_count').text() != '????' ) {
               params.push($("#set_area_form").serialize());
@@ -125,9 +126,6 @@ _init_map_table = function init_map_table() {
             }
 
             href = params.join("&");
-
-
-//            href = $("#set_area_form").serialize() + '&' + $("#set_date_form").serialize() + '&' + $("#set_otu_form").serialize();
           }
           $("#find_item").mx_spinner('show');
           $.get('find', href, function (local_data) {

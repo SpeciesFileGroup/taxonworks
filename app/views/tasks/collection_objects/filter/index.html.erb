@@ -29,6 +29,7 @@
                 <span id="paging_span" class="flex-separate">
                 </span>            
               </div>
+
               <div class="navigation-bar-right">  
                 <%= form_tag(find_collection_objects_task_url, id: 'download_form', method: :get, remote: true) do %>
                   <%= submit_tag('Download', id: :download_button, disabled: :disabled) %>
