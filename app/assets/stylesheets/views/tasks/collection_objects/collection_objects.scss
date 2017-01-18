@@ -1,6 +1,7 @@
 @import 'base/palette';
 @import 'base/fonts';
 @import 'base/whitespace';
+@import 'base/buttons';
 
 #co_by_area_and_date {
 	position: relative;
@@ -20,6 +21,7 @@
 	}
 
 	#find_area_and_date_commit {
+		@extend .button-default;
 		top:15px;
 		right: 20px;
 		opacity: 1;
@@ -60,40 +62,6 @@
 			border-bottom: 1px solid $navigation-border;
 		}
 	}
-
-
-
-	.slide-filter {
-		position: absolute;
-		top: 50px;
-
-		#geographic_area_id_for_by_area {
-			background-image: image-url("search.svg");
-			background-repeat: no-repeat;
-			background-position: left;
-			padding-left: 20px;
-			background-size: 18px;			
-			border: 0px;
-			border-radius: 0px;
-		}
-		.slide-panel-header {
-			background-color: #fff;
-			color: #000;
-			font-size: $font_normal;
-		}
-		.slide-panel-circle-icon {
-			top:calc(50vh - 120px);
-			background-color: #558b2f;
-			background-image: image-url('recent_slide.svg');
-		}
-		.slide-panel-category-header {
-			border: none;
-			background-color: transparent;
-			text-transform: uppercase;
-			font-size: $font_normal;
-		}
-	}
-
 
 
 	#set_area_form {

@@ -88,6 +88,7 @@ _init_map_table = function init_map_table() {
         }
         else {
           $("#find_area_and_date_commit").attr("disabled", "disabled");
+          $("#download_button").attr("disabled", "disabled");
         }
         cleanResults();
       }

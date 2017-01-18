@@ -87,6 +87,7 @@ form input, textarea {
 
 input[type="submit"] {
   position: relative;
+  background-color: $color-button-default;
   cursor: pointer;
   color: #444;
   border-radius: 3px;

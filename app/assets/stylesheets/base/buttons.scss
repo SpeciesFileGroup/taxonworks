@@ -10,6 +10,15 @@
   border: 1px solid $navigation_border;  
 }
 
+.button-default {
+    color: #000;
+    background-color: $color-button-default;
+    &:disabled {
+      color: #999;
+      background-color: $color-button-disabled; 
+    }   
+}
+
 .button-submit {
     color: #FFF;
     background-color: $color-action-button;  
