@@ -76,9 +76,12 @@ $(document).ready(function() {
 	$(document).on({
 	    mouseenter: function (evt) {
 	    	if(helpActive()) {
+	    		var
+	    			position = this.getBoundingClientRect();
+
 	    		$('.help-legend').empty();
-	    		$('.help-legend').css("left", (evt.clientX+10) + "px");
-	    		$('.help-legend').css("top", (evt.clientY+10) + "px");
+	    		$('.help-legend').css("left", (position.left) + "px");
+	    		$('.help-legend').css("top", (position.top+$(this).height()+14) + "px");
 		    	$('.help-legend').show(100);
 		    	$('.help-legend').append('<span>' + $(this).parent().attr("data-help") + '</span>');
 		    	hideAllExcept($(this).attr("data-bubble-id"));
