@@ -38,25 +38,25 @@ function show() {
     }
   }); 
 
-  createShortcut("left", "Go to previous", "Taxon names browse", function() {
+  TW.workbench.keyboard.createShortcut("left", "Go to previous", "Taxon names browse", function() {
     if($('[data-arrow="back"]').is('a')) {
       location.href = $('[data-arrow="back"]').attr('href');
     }
   });
 
-  createShortcut("right", "Go to next", "Taxon names browse", function() {
+  TW.workbench.keyboard.createShortcut("right", "Go to next", "Taxon names browse", function() {
     if($('[data-arrow="next"]').is('a')) {
       location.href = $('[data-arrow="next"]').attr('href');
     }
   });    
 
-  createShortcut("up", "Go to ancestor", "Taxon names browse", function() {
+  TW.workbench.keyboard.createShortcut("up", "Go to ancestor", "Taxon names browse", function() {
     if($('[data-arrow="back"]').is('a')) {
       location.href = $('[data-arrow="ancestor"]').attr('href');
     }
   });
 
-  createShortcut("down", "Go to descendant", "Taxon names browse", function() {
+  TW.workbench.keyboard.createShortcut("down", "Go to descendant", "Taxon names browse", function() {
     if($('[data-arrow="descendant"]').is('a')) {
       location.href = $('[data-arrow="descendant"]').attr('href');
     }

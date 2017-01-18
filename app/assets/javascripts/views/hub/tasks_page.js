@@ -96,10 +96,10 @@ function initTaskCarrousel() {
   });
 
   //Keyboard Shortcuts
-  createShortcut("left","Show previous card tasks", "Hub tasks", function() {
+  TW.workbench.keyboard.createShortcut("left","Show previous card tasks", "Hub tasks", function() {
     task.loadingUp();
   });
-  createShortcut("right","Show next card tasks", "Hub tasks", function() {
+  TW.workbench.keyboard.createShortcut("right","Show next card tasks", "Hub tasks", function() {
     task.loadingDown();
   });  
   

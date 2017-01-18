@@ -84,13 +84,13 @@ function list() {
     $(elementObject.parents('table').find('th:nth-child(' + ($(elementObject).index() + 1) + ')')).toggle(250);
   }
 
-createShortcut("left", "Go to previous page", "Lists", function () {
+  TW.workbench.keyboard.createShortcut("left", "Go to previous page", "Lists", function () {
     if ($('.page-navigator a[rel="previous"]').length > 0) {
       location.href = $('.page-navigator a[rel="previous"]').attr('href');
     }
   });
 
- createShortcut('right', "Go to next page", "Lists", function () {
+  TW.workbench.keyboard.createShortcut('right', "Go to next page", "Lists", function () {
     if ($('.page-navigator a[rel="next"]').length > 0) {
       location.href = $('.page-navigator a[rel="next"]').attr('href');
     }

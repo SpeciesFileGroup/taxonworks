@@ -2,7 +2,7 @@ $(document).ready(function() {
 
 	if($("#quick_bar").length) {
 
-		createShortcut("alt+h","Show/hide quick bar", "General shortcuts", function() {hideQuickBar()} );
+		TW.workbench.keyboard.createShortcut("alt+h","Show/hide quick bar", "General shortcuts", function() {hideQuickBar()} );
 
 		$('body').append("<div class='button-collapse-header'></div>");
 		$('.button-collapse-header').on('click', function() {

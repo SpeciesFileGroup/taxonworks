@@ -66,7 +66,7 @@ Object.assign(TW.workbench.help, {
 	},
 
 	activeDisableHelp: function() {	
-	//alert();	
+	
 		if(firstClick) {
 			TW.workbench.help.addBubbleTips('[data-help]');
 			firstClick = false;
