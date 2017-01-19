@@ -80,6 +80,13 @@ _init_map_table = function init_map_table() {
         $("#paging_span").empty();
       }
 
+      function validateMaxResults(value) {
+        if($(Number($("#result_span").text())) <= value) {
+          return true;
+        }
+        return false;
+      }
+
       function validateResult() {
         var i = 0;
 
@@ -110,7 +117,13 @@ _init_map_table = function init_map_table() {
       });
 
       $("#download_button").click(function (event) {
-        ajaxRequest(event, "download");
+        if(validateMaxResults(1000)) {
+          ajaxRequest(event, "download");
+        }
+        else {
+          $("body").append('<div class="alert alert-error"><div class="message">To Download- refine result to less than 1000 records</div><div class="alert-close"></div></div>');          
+          return false;
+        }
       });      
 
       function ajaxRequest(event, href) {

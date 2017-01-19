@@ -107,7 +107,7 @@ describe 'tasks/gis/collection_objects/filter', type: :feature, group: [:geo, :c
             this_xpath.set drawn_area_shape
             click_button('Set area')
             find('#find_area_and_date_commit').click
-            expect(find('#result_span')).to have_text('Total: 3')
+            find('#result_span', visible: false, text: '3')
             expect(find(:xpath, "//div['show_list']/table[@class='tablesorter']/thead")).to have_text('Catalog Number')
           end
         end

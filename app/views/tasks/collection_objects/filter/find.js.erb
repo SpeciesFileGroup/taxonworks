@@ -12,8 +12,8 @@ $("#paging_span").html(paging);
 var message, collection_objects_count, feature_collection;
 message = $('<%= 'No collection objects found.' if @collection_objects.count == 0 %>').selector;
 if (message.length == 0) {
-  collection_objects_count = $('<%= @collection_objects.count.to_s %>').selector;
-  $("#result_span").text("Total: " + collection_objects_count);
+  collection_objects_count = $('<%= @collection_objects.total_count.to_s %>').selector;
+  $("#result_span").text(collection_objects_count);
 }
 else {
   $("#result_span").text(message);
