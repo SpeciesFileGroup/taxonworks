@@ -15,11 +15,13 @@ module Shared::IsDwcOccurrence
   module ClassMethods
   end
 
+  # @return [DwcOccurrence]
+  #  TODO:  !! Currently uses updater_id of this record, need to change that to be user-definable
   def set_dwc_occurrence
     if dwc_occurrence_persisted?
       dwc_occurrence.update(dwc_occurrence_attributes)
     else      
-      create_dwc_occurrence(dwc_occurrence_attributes)
+      create_dwc_occurrence!(dwc_occurrence_attributes)
     end
     dwc_occurrence
   end
@@ -29,6 +31,9 @@ module Shared::IsDwcOccurrence
     self.class::DWC_OCCURRENCE_MAP.each do |k,v|
       a[k] = send(v)
     end
+    a[:project_id] = project_id
+    a[:created_by_id] = created_by_id
+    a[:updated_by_id] = updated_by_id
     a
   end
 
