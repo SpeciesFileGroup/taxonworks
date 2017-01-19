@@ -51,11 +51,4 @@ module Workbench::DisplayHelper
     object.class.base_class.name.tableize.to_s
   end
 
-  # @return [String]
-  #   return nil if content.nil?, else wrap and return string if provided
-  def nil_wrap(pre = nil, content = nil, post = nil)
-    return nil if content.blank?
-    [pre, content, post].compact.join.html_safe
-  end
-
 end
