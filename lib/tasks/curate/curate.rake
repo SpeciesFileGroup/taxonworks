@@ -1,12 +1,10 @@
-
 namespace :tw do
 
   # Tasks that auto-curate data
   namespace :curate do
 
-    desc "Index collection objects as dwc_occurrence records"
+    desc "Index collection objects into dwc_occurrence records, no updating, only creation"
     task :build_dwc_occurrences => [:environment] do |t|
-
       if ENV['total'] 
         total = ENV['total'].to_i
       else
