@@ -81,7 +81,7 @@ _init_map_table = function init_map_table() {
       }
 
       function validateMaxResults(value) {
-        if($(Number($("#result_span").text())) <= value) {
+        if(Number($("#result_span").text()) <= value) {
           return true;
         }
         return false;
