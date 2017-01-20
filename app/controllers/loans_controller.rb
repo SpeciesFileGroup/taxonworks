@@ -7,7 +7,7 @@ class LoansController < ApplicationController
   # GET /loans
   # GET /loans.json
   def index
-    @recent_objects = Loan.includes(:loan_items).recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
+    @recent_objects = Loan.includes(:loan_items).recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
     render '/shared/data/all/index'
   end
 
@@ -70,7 +70,7 @@ class LoansController < ApplicationController
   end
 
   def list
-    @loans = Loan.with_project_id($project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
+    @loans = Loan.with_project_id(sessions_current_project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
   end
 
   def search
@@ -97,37 +97,36 @@ class LoansController < ApplicationController
     render :json => data
   end
 
-# GET /loans/download
+  # GET /loans/download
   def download
     send_data Loan.generate_download( Loan.where(project_id: sessions_current_project_id) ), type: 'text', filename: "loans_#{DateTime.now.to_s}.csv"
   end
 
-
-
   private
-  # Use callbacks to share common setup or constraints between actions.
+  
   def set_loan
-    @loan = Loan.with_project_id($project_id).find(params[:id])
+    @loan = Loan.with_project_id(sessions_current_project_id).find(params[:id])
     @recent_object = @loan
   end
 
-  # Never trust parameters from the scary internet, only allow the white list through.
   def loan_params
     params.require(:loan).permit(:date_requested, :request_method, :date_sent, :date_received,
                                  :date_return_expected, :recipient_person_id, :recipient_address,
                                  :recipient_email, :recipient_phone, :recipient_country, :supervisor_person_id,
                                  :supervisor_email, :supervisor_phone, :date_closed, :recipient_honorarium, 
-                                 loan_items_attributes: [:_destroy, 
-                                                        :id, 
-                                                        :global_entity,
-                                                        :position,
-                                                        :total, 
-                                                        :disposition, 
-                                                        :date_returned,
-                                                        :date_returned_jquery ],
-                                 roles_attributes: [:id, :_destroy, :type, :person_id, :position,
-                                                    person_attributes: [:last_name, :first_name, :suffix, :prefix]],
-
-    )
+                                 loan_items_attributes: [
+                                   :_destroy, 
+                                   :id, 
+                                   :global_entity,
+                                   :position,
+                                   :total, 
+                                   :disposition, 
+                                   :date_,
+                                   :date_returned_jquery ],
+                                   roles_attributes: [
+                                     :id, :_destroy, :type, :person_id, :position,
+                                     person_attributes: [
+                                       :last_name, :first_name, :suffix, :prefix]],
+                                )
   end
 end

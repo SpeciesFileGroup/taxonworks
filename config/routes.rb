@@ -549,9 +549,6 @@ TaxonWorks::Application.routes.draw do
       post 'add_determination/:id', as: 'loan_add_determination', action: :add_determination
       post 'return_items/:id', as: 'loan_return_items', action: :return_items
       post 'update_status/:id', as: 'loan_update_status', action: :update_status
-
-      get 'act_on_items', as: 'loan_items_action'
-      get 'loan_items_list', as: 'loan_items_list'
     end
 
     scope :nomenclature do
