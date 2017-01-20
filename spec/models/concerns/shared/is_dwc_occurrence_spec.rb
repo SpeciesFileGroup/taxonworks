@@ -61,7 +61,7 @@ describe 'IsDwcOccurrence', type: :model, group: :darwin_core do
 
         context 'is used to' do
           specify 'generate #dwc_occurrence_attributes' do
-            expect(class_with_dwc_occurrence.dwc_occurrence_attributes).to eq({island: 'Gold', disposition: 'Old Men'})
+            expect(class_with_dwc_occurrence.dwc_occurrence_attributes).to eq({island: 'Gold', disposition: 'Old Men', project_id: nil, updated_by_id: nil, created_by_id: nil })
           end
 
           specify 'set attributes named in #keys by the methods in #values' do
