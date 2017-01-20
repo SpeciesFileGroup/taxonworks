@@ -7,7 +7,13 @@ describe 'Otus', type: :feature do
   it_behaves_like 'a_login_required_and_project_selected_controller'
 
   context 'signed in as a user' do
-    before { sign_in_user_and_select_project }
+    before do 
+     
+      sign_in_user_and_select_project
+      @user.generate_api_access_token
+      @user.save!
+
+    end 
 
     context 'with some records created' do
       before {
@@ -47,36 +53,36 @@ describe 'Otus', type: :feature do
       end
 
       describe 'GET /api/v1/otus/by_name/{variants of name}' do
-        before do
-          @user.generate_api_access_token
-          @user.save!
-          @taxon_name_root = Protonym.find_or_create_by(name:          'Root',
-                                                        rank_class:    'NomenclaturalRank',
-                                                        created_by_id: @user.id,
-                                                        updated_by_id: @user.id,
-                                                        parent_id:     nil,
-                                                        project_id:    @project.id)
-          @taxon_name_root.save
-          @taxon_name = Protonym.create(name:                'Adidae',
-                                        type:                'Protonym',
-                                        rank_class:          Ranks.lookup(:iczn, 'Family'),
-                                        verbatim_author:     'SueMe',
-                                        year_of_publication: 1884,
-                                        # cached:              'Adidae',
-                                        # cached_author_year:  '(SueMe, 1884)',
-                                        created_by_id:       @user.id,
-                                        updated_by_id:       @user.id,
-                                        project_id:          @project.id,
-                                        parent_id:           @taxon_name_root.id,
-                                        also_create_otu:     true)
 
-        end
+        let(:taxon_name_root) {
+          Protonym.find_or_create_by(name:          'Root',
+                                     rank_class:    'NomenclaturalRank',
+                                     created_by_id: @user.id,
+                                     updated_by_id: @user.id,
+                                     parent_id:     nil,
+                                     project_id:    @project.id)
+        }
+
+        let(:taxon_name) {
+          Protonym.create!(
+            name: 'Adidae',
+            type: 'Protonym',
+            rank_class: Ranks.lookup(:iczn, 'Family'),
+            verbatim_author: 'SueMe',
+            year_of_publication: 1884,
+            by: @user,
+            project: @project,
+            parent: taxon_name_root,
+            also_create_otu: true
+          )
+        }
 
         let(:otu) { Otu.fifth }
-        let(:otu2) { @taxon_name.otus.first }
+        let(:otu2) { taxon_name.otus.first }
 
         it 'Returns a response including an array of ids for an otu name' do
-          visit "/api/v1/otus/by_name/#{otu.name}?project_id=#{otu.project.id}&token=#{@user.api_access_token}"
+          route = URI.escape("/api/v1/otus/by_name/#{otu.name}?project_id=#{otu.project.id}&token=#{@user.api_access_token}")
+          visit route 
           expect(JSON.parse(page.body)['result']['otu_ids']).to eq([otu.id])
         end
 
@@ -107,9 +113,9 @@ describe 'Otus', type: :feature do
       end
 
       context 'downloading OTU table', js: true do
-        let!(:csv) { Download.generate_csv(Otu.where(project_id: @project_id)) }
+        let!(:csv) { Download.generate_csv(Otu.where(project_id: @project.id)) }
         specify 'otus table can be donwloaded as-is' do
-          sleep 2
+          sleep 5 
           visit otus_path
           click_link('Download')
           expect( Features::Downloads::download_content).to eq(csv)

@@ -34,8 +34,7 @@ VCR.configure do |c|
   c.allow_http_connections_when_no_cassette = true
 end
 
-
-Capybara.default_max_wait_time = 4
+Capybara.default_max_wait_time = 8
 
 # Set in config/application_settings:
 #
