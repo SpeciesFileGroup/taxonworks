@@ -118,7 +118,7 @@ _init_map_table = function init_map_table() {
 
       $("#download_button").click(function (event) {
         if(validateMaxResults(1000)) {
-          ajaxRequest(event, "download");
+          //ajaxRequest(event, "download");
         }
         else {
           $("body").append('<div class="alert alert-error"><div class="message">To Download- refine result to less than 1000 records</div><div class="alert-close"></div></div>');          
