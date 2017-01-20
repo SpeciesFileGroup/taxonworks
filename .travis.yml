@@ -23,6 +23,7 @@ before_script:
   - sh -e /etc/init.d/xvfb start
   - cp config/database.yml.example config/database.yml
   - cp config/secrets.yml.example config/secrets.yml
+  - mkdir tmp/
   - mkdir tmp/downloads 
   - psql -U postgres -c 'create role taxonworks_development login createdb superuser;' 
   - bundle exec rake db:drop  
