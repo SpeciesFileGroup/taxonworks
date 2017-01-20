@@ -71,6 +71,7 @@ describe 'Otus', type: :feature do
                                         also_create_otu:     true)
 
         end
+
         let(:otu) { Otu.fifth }
         let(:otu2) { @taxon_name.otus.first }
 
@@ -94,26 +95,27 @@ describe 'Otus', type: :feature do
           expect(JSON.parse(page.body)['result']['otu_ids']).to eq([otu2.id])
         end
       end
-    end
 
-    context 'creating a new OTU' do
-      specify 'I can exercise the new link feature' do
-        visit otus_path
-        click_link('New')
-        fill_in 'Name', with: 'test'
-        click_button 'Create Otu'
-        expect(page).to have_content("Otu 'test' was successfully created.")
+      context 'creating a new OTU' do
+        specify 'I can exercise the new link feature' do
+          visit otus_path
+          click_link('New')
+          fill_in 'Name', with: 'test'
+          click_button 'Create Otu'
+          expect(page).to have_content("Otu 'test' was successfully created.")
+        end
       end
-    end
 
-    context 'downloading OTU table', js: true do
-      let!(:csv) { Download.generate_csv(Otu.where(project_id: @project_id)) }
-      specify 'otus table can be donwloaded as-is' do
-        visit otus_path
-        click_link('Download')
-        expect( Features::Downloads::download_content).to eq(csv)
+      context 'downloading OTU table', js: true do
+        let!(:csv) { Download.generate_csv(Otu.where(project_id: @project_id)) }
+        specify 'otus table can be donwloaded as-is' do
+          sleep 2
+          visit otus_path
+          click_link('Download')
+          expect( Features::Downloads::download_content).to eq(csv)
+        end
       end
-    end
 
+    end
   end
 end
