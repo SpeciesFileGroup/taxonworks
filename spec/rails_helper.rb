@@ -35,6 +35,8 @@ VCR.configure do |c|
 end
 
 
+Capybara.default_max_wait_time = 4
+
 # Set in config/application_settings:
 #
 # test:
