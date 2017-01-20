@@ -87,7 +87,7 @@ Capybara.register_driver :selenium do |app|
     profile['browser.download.folderList'] = 2
     profile['browser.helperApps.alwaysAsk.force'] = false
     profile['browser.download.manager.showWhenStarting'] = false
-    profile['browser.helperApps.neverAsk.saveToDisk'] = 'TEXT/PLAIN'
+    profile['browser.helperApps.neverAsk.saveToDisk'] = 'TEXT/PLAIN;application/zip;'
 
     # !! Marionette not successfully tested
     # See https://developer.mozilla.org/en-US/docs/Mozilla/QA/Marionette/WebDriver
