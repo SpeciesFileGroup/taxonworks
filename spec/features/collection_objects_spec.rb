@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe 'CollectionObjects', type: :feature do
   let(:index_path) { collection_objects_path }
-  let(:page_index_name) { 'collection objects' }
+  let(:page_title) { 'Collection objects' }
 
   it_behaves_like 'a_login_required_and_project_selected_controller'
 
@@ -22,7 +22,7 @@ describe 'CollectionObjects', type: :feature do
     describe 'GET /collection_objects/list' do
       before { visit list_collection_objects_path }
 
-      it_behaves_like 'a_data_model_with_standard_list'
+      it_behaves_like 'a_data_model_with_standard_list_and_records_created'
     end
 
     describe 'GET /collection_objects/n' do

@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe 'Sources', type: :feature, group: :sources do
   #Capybara.default_wait_time = 15  # slows down Capybara enough to see what's happening on the form
-  let(:page_index_name) { 'sources' }
+  let(:page_title) { 'Sources' }
   let(:index_path) { sources_path }
 
   it_behaves_like 'a_login_required_controller'
@@ -25,7 +25,7 @@ describe 'Sources', type: :feature, group: :sources do
         visit list_sources_path
       end
 
-      it_behaves_like 'a_data_model_with_standard_list'
+      it_behaves_like 'a_data_model_with_standard_list_and_records_created'
     end
 
     describe 'GET /sources/n' do

@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe 'tasks/gis/collection_objects/filter', type: :feature, group: [:geo, :collection_objects] do
   context 'with properly built collection of objects' do
-    let(:page_index_name) { 'collection objects by area and date' }
+    let(:page_title) { 'Collection objects by area and date' }
     let(:index_path) { collection_objects_filter_task_path }
 
     it_behaves_like 'a_login_required_and_project_selected_controller'

@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe 'tasks/accessions/report/dwc', type: :feature, group: [:collection_objects, :darwin_core] do
   context 'with properly built collection of objects' do
-    let(:page_index_name) { 'DWC Occurrence Report' }
+    let(:page_title) { 'DWC Occurrence Report' }
     let(:index_path) { report_dwc_task_path }
 
     it_behaves_like 'a_login_required_and_project_selected_controller'

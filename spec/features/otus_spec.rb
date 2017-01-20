@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe 'Otus', type: :feature do
   let(:index_path) { otus_path }
-  let(:page_index_name) { 'otus' }
+  let(:page_title) { 'Otus' }
 
   it_behaves_like 'a_login_required_and_project_selected_controller'
 
@@ -41,7 +41,7 @@ describe 'Otus', type: :feature do
           visit list_otus_path
         end
 
-        it_behaves_like 'a_data_model_with_standard_list'
+        it_behaves_like 'a_data_model_with_standard_list_and_records_created'
       end
 
       describe 'GET /otus/n' do

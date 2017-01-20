@@ -4,7 +4,7 @@ describe 'GeographicAreaTypes', :type => :feature do
 
 # it_behaves_like 'a_login_required_controller' do 
 #   let(:index_path) { geographic_area_types_path }
-#   let(:page_index_name) { 'Geographic Area Types' }
+#   let(:page_title) { 'Geographic Area Types' }
 # end
 
 # describe 'GET /geographic_area_types' do

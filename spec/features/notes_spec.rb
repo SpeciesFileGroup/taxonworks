@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe 'Notes', :type => :feature do
   let(:index_path) { notes_path }
-  let(:page_index_name) { 'notes' }
+  let(:page_title) { 'Notes' }
 
   it_behaves_like 'a_login_required_and_project_selected_controller'
 
@@ -23,7 +23,7 @@ describe 'Notes', :type => :feature do
     describe 'GET /notes/list' do
       before { visit list_notes_path }
 
-      it_behaves_like 'a_data_model_with_standard_list'
+      it_behaves_like 'a_data_model_with_standard_list_and_records_created'
     end
   end
 end

@@ -3,7 +3,7 @@ require 'rails_helper'
 describe 'Loans', type: :feature do
 
   let(:index_path) { loans_path }
-  let(:page_index_name) { 'loans' }
+  let(:page_title) { 'Loans' }
 
   it_behaves_like 'a_login_required_and_project_selected_controller'
 
@@ -29,7 +29,7 @@ describe 'Loans', type: :feature do
           visit list_loans_path
         end
 
-        it_behaves_like 'a_data_model_with_standard_list'
+        it_behaves_like 'a_data_model_with_standard_list_and_records_created'
       end
 
       describe 'GET /loans/n' do

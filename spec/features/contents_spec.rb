@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe 'Contents', type: :feature do
   let(:index_path) { contents_path }
-  let(:page_index_name) { 'contents' }
+  let(:page_title) { 'Contents' }
 
   it_behaves_like 'a_login_required_and_project_selected_controller'
 
@@ -36,7 +36,7 @@ describe 'Contents', type: :feature do
 
       describe 'GET /contents/list' do
         before { visit list_contents_path }
-        it_behaves_like 'a_data_model_with_standard_list'
+        it_behaves_like 'a_data_model_with_standard_list_and_records_created'
       end
 
       describe 'GET /contents/n' do

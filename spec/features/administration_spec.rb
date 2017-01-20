@@ -4,7 +4,7 @@ describe 'Administration', :type => :feature do
  
   it_behaves_like 'an_administrator_login_required_controller' do
     let(:index_path) { administration_path }
-    let(:page_index_name) { 'Administration' }
+    let(:page_title) { 'Administration' }
   end
 
   describe 'GET /otus' do

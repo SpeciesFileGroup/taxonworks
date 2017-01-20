@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe "CollectionObjectObservations", type: :feature do
   let(:index_path) { collection_object_observations_path }
-  let(:page_index_name) { 'collection object observation' }
+  let(:page_title) { 'Collection object observation' }
 
   it_behaves_like 'a_login_required_and_project_selected_controller'
 
@@ -35,7 +35,7 @@ RSpec.describe "CollectionObjectObservations", type: :feature do
           visit list_collection_object_observations_path
         end
 
-        it_behaves_like 'a_data_model_with_standard_list'
+        it_behaves_like 'a_data_model_with_standard_list_and_records_created'
       end
 
       describe 'GET /collection_object_observations/n' do

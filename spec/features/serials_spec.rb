@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 describe 'Serials', :type => :feature do
-  let(:page_index_name) { 'serials' }
+  let(:page_title) { 'Serials' }
   let(:index_path) { serials_path }
 
   it_behaves_like 'a_login_required_controller'
@@ -25,7 +25,7 @@ describe 'Serials', :type => :feature do
         visit list_serials_path
       end
 
-      it_behaves_like 'a_data_model_with_standard_list'
+      it_behaves_like 'a_data_model_with_standard_list_and_records_created'
     end
 
     describe 'GET /serials/n' do

@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe 'Citations', :type => :feature do
   let(:index_path) { citations_path }
-  let(:page_index_name) { 'citations' }
+  let(:page_title) { 'Citations' }
 
   it_behaves_like 'a_login_required_and_project_selected_controller'
 
@@ -29,7 +29,7 @@ describe 'Citations', :type => :feature do
         visit list_citations_path
       }
 
-      it_behaves_like 'a_data_model_with_standard_list'
+      it_behaves_like 'a_data_model_with_standard_list_and_records_created'
     end
 
     context 'citations list' do

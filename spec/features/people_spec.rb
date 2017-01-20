@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 describe 'People', :type => :feature do
-  let(:page_index_name) { 'people' }
+  let(:page_title) { 'People' }
   let(:index_path) { people_path }
 
   it_behaves_like 'a_login_required_controller'
@@ -25,7 +25,7 @@ describe 'People', :type => :feature do
         visit list_people_path
       end
 
-      it_behaves_like 'a_data_model_with_standard_list'
+      it_behaves_like 'a_data_model_with_standard_list_and_records_created'
     end
 
     describe 'GET /people/n' do

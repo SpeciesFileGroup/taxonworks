@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 describe 'GeographicAreas', type: :feature do
-  let(:page_index_name) { 'geographic areas' }
+  let(:page_title) { 'Geographic areas' }
   let(:index_path) { geographic_areas_path }
 
   it_behaves_like 'a_login_required_controller'
@@ -21,7 +21,7 @@ describe 'GeographicAreas', type: :feature do
     describe 'GET /geographic_areas/list' do
       before { visit list_geographic_areas_path }
 
-      it_behaves_like 'a_data_model_with_standard_list'
+      it_behaves_like 'a_data_model_with_standard_list_and_records_created'
     end
 
     describe 'GET /geographic_areas/n' do
