@@ -118,16 +118,15 @@ _init_map_table = function init_map_table() {
 
       $("#download_button").click(function (event) {
         if(validateMaxResults(1000)) {
-          //ajaxRequest(event, "download");
+          downloadForm(event);
         }
         else {
           $("body").append('<div class="alert alert-error"><div class="message">To Download- refine result to less than 1000 records</div><div class="alert-close"></div></div>');          
           return false;
         }
-      });      
+      });    
 
-      function ajaxRequest(event, href) {
-        if(validateDates() && validateDateRange()) {   
+      function serializeFields() {
           var data = '';
           var params = [];
 
@@ -143,10 +142,24 @@ _init_map_table = function init_map_table() {
             params.push($("#set_otu_form").serialize());
           }
 
-          data = params.join("&");
+          return data = params.join("&");
+      }
 
+      function downloadForm(event) {
+        event.preventDefault;
+        if(validateMaxResults(1000)) {
+          $('#download_form').attr('action', "download?" + serializeFields()).submit();
+        }
+        else {
+          $("body").append('<div class="alert alert-error"><div class="message">To Download- refine result to less than 1000 records</div><div class="alert-close"></div></div>');          
+          return false;
+        }
+      }        
+
+      function ajaxRequest(event, href) {
+        if(validateDates() && validateDateRange()) {   
           $("#find_item").mx_spinner('show');
-          $.get(href, data, function (local_data) {
+          $.get(href, serializeFields(), function (local_data) {
             // $("#find_item").mx_spinner('hide');  # this has been relocated to .../find.js.erb
           });//, 'json'  // I expect a json response
           $("#download_button").removeAttr("disabled");

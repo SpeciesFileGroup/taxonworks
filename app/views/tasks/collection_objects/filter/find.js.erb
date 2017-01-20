@@ -1,5 +1,6 @@
 // j is an alias for escape_javascript
 var html;
+$("#find_item").mx_spinner('show');
 html = $('<%= j(render(partial: 'result_list',
                        locals:  {collection_objects: @collection_objects})) %>');
 $("#show_list").html(html);
