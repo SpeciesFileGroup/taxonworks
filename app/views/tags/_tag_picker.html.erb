@@ -5,32 +5,15 @@
     <span class="tag_picker_message"></span>
 
     <ul class="tag_list">
-      <%= f.fields_for :tags, @taggable_object.tags.each do |tag_fields| %>
-          <% if !(tag_fields.object.first.new_record?) %>
+      <%= f.fields_for :tags, @taggable_object.tags do |tag_fields| %>
 
-              <li class="tag_item" data-tag-id="<%= tag_fields.object.first.attributes['id'] -%>" data-tag-index="<%= tag_fields.object.first.attributes['id'] -%>">
-                <%= tag_fields.text_field :id, hidden: true -%>
-                <%= tag_tag(tag_fields.object.tag) -%>
-                pages: <%= tag_fields.text_field :pages -%>
-
-                <%= link_to('remove', "#", class: :remove_tag) -%>
-              </li>
-
-
-          <% else %>
               <% inc_index = "#{Time.now.to_i}#{tag_fields.object.first.attributes['id']}" %>
 
-              <%= content_tag(:li, 'data-content-tag-index' => inc_index) do -%>
+          <li class="tag_item" data-tag-id="<%= tag_fields.object.first.attributes['id'] -%>" data-tag-index="<%= tag_fields.object.first.attributes['id'] -%>">
+            <%= tag_tag(tag_fields.object.first) -%>
+            <%= link_to('remove', "#", class: :remove_tag) -%>
+          </li>
 
-                  <%= tag_fields.fields_for :tag do |tg_fields| %>
-                      <%= tg_fields.hidden_field :name -%>
-                      <%= tg_fields.hidden_field :definition -%>
-                      <%= tag_tag(tg_fields.object.tag) -%> <%= link_to('remove', "#", class: :remove_tag) -%>
-                  <% end %>
-
-              <% end %>
-
-          <% end %>
       <% end %>
 
     </ul>
@@ -44,7 +27,7 @@
         <%= f.fields_for Tag.new do |fp| %>
             <div class="field">
               <%= fp.label :definition %><br>
-              <%= fp.text_area :name, placeholder: "Tag definition", class: :definition, id: "#{f.object.id}_#{fp.index}_tag_definition" %>
+              <%= fp.text_area :keyword_id, placeholder: "Tag definition", class: :definition, id: "#{f.object.id}_#{fp.index}_tag_definition" %>
             </div>
         <% end %>
 

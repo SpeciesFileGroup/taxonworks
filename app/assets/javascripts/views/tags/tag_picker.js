@@ -13,7 +13,7 @@ Object.assign(TW.views.tags.tag_picker, {
     // https://jqueryui.com/autocomplete/
     //
     // all of these should likely be renamed for namespacing purposes
-    this.initialize_tag_autocomplete(form);
+    this.initialize_autocomplete(form);
     //bind_new_link(form);
     //bind_switch_link(form);
     //bind_expand_link(form);
@@ -21,7 +21,7 @@ Object.assign(TW.views.tags.tag_picker, {
     this.bind_remove_section_links(form.find('.remove_tag'));
 
     this.make_tag_list_sortable(form);
-    this.bind_tag_position_handling_to_submit_button(form);
+    this.bind_position_handling_to_submit_button(form);
   },
 
 // Empties search text box and hide new_person div
@@ -38,12 +38,12 @@ Object.assign(TW.views.tags.tag_picker, {
     autocomplete_input.autocomplete({
       source: '/tags/lookup_tag',
       open: function (event, ui) {
-        TW.views.people.tag_picker.bind_hover(form);
+        TW.views.tags.tag_picker.bind_hover(form);
       },
       select: function (event, ui) {    // execute on select event in search text box
-        TW.views.people.tag_picker.insert_existing_tag(form, ui.item.object_id, ui.item.label);
-        TW.views.people.tag_picker.clear_tag_picker(form);
-        TW.views.people.tag_picker.make_tag_list_sortable(form);     // was this inadvertantly lost?
+        TW.views.tags.tag_picker.insert_existing_tag(form, ui.item.object_id, ui.item.label);
+        TW.views.tags.tag_picker.clear_tag_picker(form);
+        TW.views.tags.tag_picker.make_tag_list_sortable(form);     // was this inadvertantly lost?
         return false;
       }
     }).autocomplete("instance")._renderItem = function (ul, item) {
@@ -94,7 +94,7 @@ Object.assign(TW.views.tags.tag_picker, {
       var tag_index;
       form.find('.tag_item').each(function () {
         console.log($(this));
-        tag_index = $(this).data('section-index');
+        tag_index = $(this).data('tag-index');
         $(this).append(
           $('<input hidden name="' + base_class + '[standard_sections_attributes][' + tag_index + '][position]" value="' + i + '" >')
         );
@@ -114,12 +114,12 @@ Object.assign(TW.views.tags.tag_picker, {
     tag_list.append($('<input hidden name="' + base_class + '[standard_sections_attributes][' + random_index + '][tag_id]" value="' + tag_id + '" >'));
 
     // insert visible list item
-    tag_list.append($('<li class="tag_item" data-section-index="' + random_index + '">').append(label).append('&nbsp;').append(remove_tag_link()));
+    tag_list.append($('<li class="tag_item" data-tag-index="' + random_index + '">').append(label).append('&nbsp;').append(remove_tag_link()));
   },
 
   remove_link: function () {
     var link = $('<a href="#" class="remove_tag">remove</a>');
-    TW.views.people.tag_picker.bind_remove_section_links(link);
+    TW.views.tags.tag_picker.bind_remove_section_links(link);
     return link;
   },
 
@@ -127,8 +127,8 @@ Object.assign(TW.views.tags.tag_picker, {
     links.click(function () {
       var list_item = $(this).parent('li');
       var tag_picker = list_item.closest('.tag_picker');
-      var tag_id = list_item.data('section-id');
-      var tag_index = list_item.data('section-index');
+      var tag_id = list_item.data('tag-id');
+      var tag_index = list_item.data('tag-index');
       var base_class = tag_picker.data('base-class');
 
       if (tag_id != undefined) {
@@ -141,12 +141,17 @@ Object.assign(TW.views.tags.tag_picker, {
         tag_list.append($('<input hidden name="' + base_class + '[standard_sections_attributes][' + tag_index + '][_destroy]" value="1" >'));
 
         // Provide a warning that the list must be saved to properly delete the records, tweak if we think necessary
-        warn_for_save(tag_list.siblings('.tag_picker_message'));
+        TW.views.tags.tag_picker.warn_for_save(tag_list.siblings('.tag_picker_message'));
         // }
       }
       list_item.remove();
     });
   },
+
+  warn_for_save: function (msg_div) {
+    msg_div.addClass('warning');
+    msg_div.html('Update tags click required to confirm removal/reorder of tag item.');
+  }
 
 });
 
@@ -155,7 +160,7 @@ var _initialize_tag_picker_widget;
 _initialize_tag_picker_widget = function
   init_tag_picker() {
   $('.tag_picker').each(function () {
-    initialize_tag_picker($(this));
+    TW.views.tags.tag_picker.initialize_tag_picker($(this));
   });
 };
 

@@ -2,6 +2,7 @@ class TagsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_tag, only: [:update, :destroy]
+
   def new
     if !Keyword.for_tags.with_project_id(sessions_current_project_id).any? # if there are none
       @return_path = "/tags/new?tag[tag_object_attribute]=&tag[tag_object_id]=#{params[:tag][:tag_object_id]}&tag[tag_object_type]=#{params[:tag][:tag_object_type]}"
@@ -10,6 +11,16 @@ class TagsController < ApplicationController
 
     @tag = Tag.new(tag_params)
     @taggable_object = @tag.tag_object
+  end
+
+  def new_new
+    if !Keyword.for_tags.with_project_id(sessions_current_project_id).any? # if there are none
+      @return_path = "/tags/new?tag[tag_object_attribute]=&tag[tag_object_id]=#{params[:tag][:tag_object_id]}&tag[tag_object_type]=#{params[:tag][:tag_object_type]}"
+      redirect_to new_controlled_vocabulary_term_path(return_path: @return_path), notice: 'Create a keyword or two first!' and return
+    end
+
+    @taggable_object = @tag.tag_object
+
   end
 
   # GET /tags
@@ -77,6 +88,17 @@ class TagsController < ApplicationController
     else
       redirect_to tag_path(params[:id])
     end
+  end
+
+  def lookup_tag
+    @tags = Tag.find_for_autocomplete(params.merge(poject_id: sessions_current_project_id))
+    render(:json => @tags.collect { |t|
+      {
+          label: t.name,
+          object_id: t.id,
+          definition: t.definition
+      }
+    })
   end
 
   def autocomplete

@@ -63,6 +63,7 @@ class Tag < ActiveRecord::Base
     # todo: @mjy below code is running but not giving results we want
     terms = params[:term].split.collect { |t| "'#{t}%'" }.join(' or ')
     joins(:keyword).where('controlled_vocabulary_terms.name like ?', terms).with_project_id(params[:project_id]) # "#{params[:term]}%" )
+    terms
   end
 
   # @return [TagObject]
