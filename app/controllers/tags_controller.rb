@@ -19,6 +19,7 @@ class TagsController < ApplicationController
       redirect_to new_controlled_vocabulary_term_path(return_path: @return_path), notice: 'Create a keyword or two first!' and return
     end
 
+    @tag = Tag.new(tag_params)
     @taggable_object = @tag.tag_object
 
   end
