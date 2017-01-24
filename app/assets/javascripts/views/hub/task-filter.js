@@ -1,58 +1,93 @@
-var CarrouselTask = function (sec, rows, columns) {
-  // sec = Name of data section, this is for identify div.
-  // rows = This is for the number of rows that will be displayed, if this number is less than the number of items, it will activate the navigation controls
+class CarrouselTask {
 
-  this.childs = [];
-  this.start = 0;
-  this.middleBoxSize = 650;
-  this.boxSize = 500;
-  this.active = [];
-  this.arrayPos = 0;
-  this.maxCards = rows * columns;
-  this.maxColumns = columns;
-  this.childsCount = 0;
-  this.isEmpty;
-  this.sectionTag = "";
-  this.filters = {};
-  this.maxRow = rows;
-  this.sectionTag = sec;
-  this.changeTasks = rows; //Number of new task displayed when the user moves
-  this.resetChildsCount();
-  this.filterChilds();
-  this.injectNavList();
-  this.changeSize();
-};
+  constructor (sec, rows, columns) {
+    // sec = Name of data section, this is for identify div.
+    // rows = This is for the number of rows that will be displayed, if this number is less than the number of items, it will activate the navigation controls
 
-  CarrouselTask.prototype.changeSize = function() {
-    $(this.sectionTag).children(".task-section").css("width",((this.maxColumns*475) + "px"));
-    if(this.maxRow < 99){
-      $(this.sectionTag).children(".task-section").css("height",((this.maxRow*250) + "px"));
-    }
+    this.childs = [];
+    this.start = 0;
+    this.middleBoxSize = 650;
+    this.boxSize = 500;
+    this.active = [];
+    this.arrayPos = 0;
+    this.childsCount = 0;
+    this.isEmpty;
+    this.sectionTag = "";
+    this.filters = {};
+    this.sectionTag = sec;
+    this.that = this;
+    this.filterWords = "";
+    this.changeSize(columns,rows);
+    this.handleEvents(this.that);
   };
 
-  CarrouselTask.prototype.addFilter = function(nameFilter) {
+  handleEvents(that) {
+    $(this.sectionTag + ' .navigation').on('click', 'a', function() {
+        if($(this).attr('data-arrow') == "down") {
+          that.arrayTasks.forEach(function(element) {
+            if($(this).attr('data-arrow') == "down") {            
+              that.loadingDown();
+          }
+            else {
+              that.loadingUp();
+            }
+        });
+      }
+    });
+
+    $(this.sectionTag + ' .more_tasks_nav').on('click',  function() {
+        that.loadingDown();
+        that.changeSelectedNavList(element.arrayPos);
+    });  
+
+    $(this.sectionTag + ' .task-nav-list').on('click', '.task-nav-item', function() {
+      let 
+        itemID = $(this).index();   
+          that.resetView();
+          that.showChilds(itemID);
+    });
+
+  }
+
+  changeSize(maxColumns, maxRow) {
+    this.changeTasks = maxRow;    
+    this.maxRow = maxRow;
+    this.maxCards = maxRow * maxColumns;
+    this.maxColumns = maxColumns;    
+    $(this.sectionTag).children(".task-section").css("width",((maxColumns*475) + "px"));
+    if(maxRow < 99){
+      $(this.sectionTag).children(".task-section").css("height",((maxRow*250) + "px"));
+    }
+
+    this.resetChildsCount();
+    this.filterChilds();
+    this.injectNavList();
+    this.resetFilters();    
+  };
+
+  addFilter(nameFilter) {
     this.filters[nameFilter] = false;
   };
 
-  CarrouselTask.prototype.empty = function() {
+  empty() {
     return this.isEmpty;
   };
 
-  CarrouselTask.prototype.refresh = function() {
+  refresh() {
     this.resetView();
     this.filterChilds();
     this.showChilds(); 
   };  
 
-  CarrouselTask.prototype.resetFilters = function() {
+  resetFilters() {
     for (var key in this.filters) {
       this.filters[key] = false
     }   
     this.refresh();    
   };
 
-  CarrouselTask.prototype.injectNavList = function() {
-    for(i = 0; i < this.childsCount; i++) {
+  injectNavList() {
+    for(var i = 0; i < this.childsCount; i++) {
       if((i - this.maxCards >= 0) && (this.maxCards - i <= 0)) {
         $(this.sectionTag + " .task-nav-list").append('<div class="task-nav-item"></div>');
       }
@@ -62,7 +97,7 @@ var CarrouselTask = function (sec, rows, columns) {
     }
   };
 
-  CarrouselTask.prototype.changeSelectedNavList = function(childIndex) {
+  changeSelectedNavList(childIndex) {
     var
     count = this.maxCards;
 
@@ -79,7 +114,7 @@ var CarrouselTask = function (sec, rows, columns) {
     }
   };
 
-  CarrouselTask.prototype.checkChildFilter = function(childTag) {
+  checkChildFilter(childTag) {
     var find = 0;
     var isTrue = 0;
 
@@ -92,7 +127,7 @@ var CarrouselTask = function (sec, rows, columns) {
           }
         } 
       }
-      if((isTrue == find) && (this.filterKeys(childTag))) {
+      if((isTrue == find) && (this.hasWords(childTag))) {
         return true;
       }
       else {
@@ -101,12 +136,17 @@ var CarrouselTask = function (sec, rows, columns) {
      
   };
 
-  CarrouselTask.prototype.filterKeys = function(child) {
-    if(($(child).find('.task_name a').text().toLowerCase().indexOf($('#search-filter').val().toLowerCase()) >= 0) || ($('#search-filter').val() == "")) {
+  filterKeys(handleKey) {
+    this.filterWords = handleKey;
+    this.refresh();
+  }
+  
+  hasWords(child) {
+    if(($(child).find('.task_name a').text().toLowerCase().indexOf(this.filterWords.toLowerCase()) >= 0) || (this.filterWords == "")) {
       return true;
     }
     else {
-      var words = $('#search-filter').val().toLowerCase().trim().split(" ");
+      var words = this.filterWords.toLowerCase().trim().split(" ");
       for(var i = 0; i < words.length; i++) {
         if ($(child).find('.task_description').text().toLowerCase().indexOf(words[i]) >= 0) {
           return true;
@@ -115,13 +155,13 @@ var CarrouselTask = function (sec, rows, columns) {
       return false;
     }
   }
-
-  CarrouselTask.prototype.checkEmpty = function() {
+  
+  checkEmpty() {
     var
       count = 0;
 
     for(var i = 0; i < this.childsCount; i++) {      
-      child = $(this.sectionTag + ' .task_card:nth-child('+ i +')');
+      let child = $(this.sectionTag + ' .task_card:nth-child('+ i +')');
       if(!$(child).is(":visible")) {      
         count++;
       }
@@ -130,22 +170,22 @@ var CarrouselTask = function (sec, rows, columns) {
     this.noTaskFound();
   }  
 
-  CarrouselTask.prototype.resetChildsCount = function() {
+  resetChildsCount() {
     this.childsCount = $(this.sectionTag + ' .task_card').length;
   };
 
-  CarrouselTask.prototype.setFilterStatus = function(filterTag, value)  {
+  setFilterStatus(filterTag, value)  {
     this.filters[filterTag] = value;
   };
 
-  CarrouselTask.prototype.changeFilter = function(filterTag)  {
+  changeFilter(filterTag)  {
     this.filters[filterTag] = !this.filters[filterTag];
     this.resetView();
     this.filterChilds();
     this.showChilds();
   };
 
-  CarrouselTask.prototype.showChilds = function(childIndex) {
+  showChilds(childIndex) {
     var
     count = 0;
 
@@ -164,7 +204,7 @@ var CarrouselTask = function (sec, rows, columns) {
     }
     for (var i = this.start; i < this.active.length; i++) {
 
-      child = $(this.sectionTag + ' .task_card:nth-child('+ this.active[i] +')');
+      let child = $(this.sectionTag + ' .task_card:nth-child('+ this.active[i] +')');
       if(count < this.maxCards) {
         child.show(250);
       }
@@ -180,7 +220,7 @@ var CarrouselTask = function (sec, rows, columns) {
     this.noTaskFound();
   };
 
-  CarrouselTask.prototype.noTaskFound = function(count) {
+  noTaskFound(count) {
     if(this.isEmpty) {
       $(this.sectionTag + ' .no-tasks').fadeIn(250);
     }
@@ -188,7 +228,7 @@ var CarrouselTask = function (sec, rows, columns) {
       $(this.sectionTag + ' .no-tasks').fadeOut(250);
     }
   };
-  CarrouselTask.prototype.filterChilds = function() {
+  filterChilds() {
     var
     find = 0,
     activeCount = 0;
@@ -197,7 +237,7 @@ var CarrouselTask = function (sec, rows, columns) {
     this.childs = [];
 
     for (var i = 1; i <= this.childsCount; i++) {
-      child = $(this.sectionTag + ' .task_card:nth-child('+ (i) +')');
+      let child = $(this.sectionTag + ' .task_card:nth-child('+ (i) +')');
       if(this.checkChildFilter(child)) {
         this.active[activeCount] = i;
         activeCount++;
@@ -209,11 +249,11 @@ var CarrouselTask = function (sec, rows, columns) {
     this.showMoreNav((find > this.maxCards));
   };
 
-  CarrouselTask.prototype.resetView = function() {
+  resetView() {
     $(this.sectionTag + ' .task_card').css("display","none");
   };
 
-  CarrouselTask.prototype.navigation = function(value) {
+  navigation(value) {
     if(value) {
       $(this.sectionTag + " .navigation a").show(250);
     }
@@ -222,7 +262,7 @@ var CarrouselTask = function (sec, rows, columns) {
     }
   };
 
-  CarrouselTask.prototype.loadingDown = function() {
+  loadingDown() {
     var
     sectionTag = this.sectionTag,
     active = this.active,
@@ -240,7 +280,7 @@ var CarrouselTask = function (sec, rows, columns) {
   };
 
 
-  CarrouselTask.prototype.showMoreNav = function(value) {
+  showMoreNav(value) {
     if(value) {
       $('.more_tasks_nav').fadeIn(250);
     }
@@ -249,12 +289,13 @@ var CarrouselTask = function (sec, rows, columns) {
     }
   };
 
-  CarrouselTask.prototype.loadingUp = function() {
+  loadingUp() {
     var
     sectionTag = this.sectionTag,
-    active = this.active;
-    maxCards = this.maxCards;
+    active = this.active,
+    maxCards = this.maxCards,
     changeTasks = this.changeTasks;
+
     for(var i = 0; i < changeTasks; i++) {
       if(this.arrayPos > 0) {
         this.arrayPos--;
@@ -264,3 +305,4 @@ var CarrouselTask = function (sec, rows, columns) {
     }
     this.changeSelectedNavList(this.arrayPos);
   };
+}

@@ -1,58 +1,4 @@
 
-
-class filterHub {
-
-	constructor() {
-		var
-		arrayData = [],
-		that = this,
-		arrayTasks = [];
-
-		$("[data-section]").each(function(i, element) {
-		    arrayData.push(new CarrouselData($(element).attr("data-section"),99,0));
-		});
-
-		$('#filter [data-filter-category]').on('click', function() {
-		    var
-		    	elementFilter = $(this).attr('data-filter-category');
-
-		    if(elementFilter === "reset") {
-		    	that.changeAllSectionsFilter(arrayData);
-		    }
-		    else {
-		    	arrayData.forEach(function(element) {
-		    		element.changeFilter("data-category-"+ elementFilter);
-		    	});
-		    }
-		    if(that.allEmpty(arrayData)) {
-		    	$('[data-section="Supporting"] .reset-all-filters').fadeIn();
-		    }
-		    else {
-		    	$('.reset-all-filters').fadeOut(0);
-		    }    
-		});		
-	}
-
-	changeAllSectionsFilter(arrayData) {
-	    arrayData.forEach(function(element) {
-	    	element.resetFilters();
-	    	element.filterChilds();
-	    	$('.reset-all-filters').fadeOut(0);
-	    });
-	}	
-
-	allEmpty(arraySection) {
-		let inc = 0;
-
-		arraySection.forEach(function (element) {
-			if(element.empty()) {
-				inc++
-			}
-		});
-		return (inc == arraySection.length);
-	}
-}
-
 class CarrouselData {
 
 	constructor(sec, rows, columns) {
@@ -75,12 +21,15 @@ class CarrouselData {
 		if(this.maxRow >= this.childs) {
 			this.navigation(false);
 		}
-
 		this.handleEvents();
 	};
 
 	handleEvents() {
-
+	  $('.data_card').mousedown(function(event) {
+	  	if((event.which) == 1) {
+	     location.href = $(this).children("a").attr('href');
+	   }
+	 });   		
 	}
 
 	addFilter(nameFilter) {
@@ -111,6 +60,10 @@ class CarrouselData {
 			return false;
 		}		
 	};
+
+	refresh() {
+		this.filterChilds();
+	}
 
 	resetChildsCount() {
 	  	this.childs = $('.data_section[data-section="' + this.sectionTag + '"] > .cards-section > .card-container ').length;
@@ -158,7 +111,7 @@ class CarrouselData {
 			count = 0;
 
 		for(var i = 0; i < this.childs; i++) {			
-			child = $('.data_section[data-section="' + this.sectionTag + '"] > .cards-section > .card-container:nth-child('+ (i) +')');
+			let child = $('.data_section[data-section="' + this.sectionTag + '"] > .cards-section > .card-container:nth-child('+ (i) +')');
 			if(!$(child).is(":visible")) {			
 				count++;
 			}
@@ -232,8 +185,3 @@ class CarrouselData {
     	} 
   	};
   }
-$(document).ready(function() {
-	  if($("#data_cards").length) {
-var prueba = new filterHub();
-}
-});
