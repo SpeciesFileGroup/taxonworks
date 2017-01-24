@@ -1,4 +1,61 @@
-var CarrouselData = function (sec, rows, columns) {
+
+
+class filterHub {
+
+	constructor() {
+		var
+		arrayData = [],
+		that = this,
+		arrayTasks = [];
+
+		$("[data-section]").each(function(i, element) {
+		    arrayData.push(new CarrouselData($(element).attr("data-section"),99,0));
+		});
+
+		$('#filter [data-filter-category]').on('click', function() {
+		    var
+		    	elementFilter = $(this).attr('data-filter-category');
+
+		    if(elementFilter === "reset") {
+		    	that.changeAllSectionsFilter(arrayData);
+		    }
+		    else {
+		    	arrayData.forEach(function(element) {
+		    		element.changeFilter("data-category-"+ elementFilter);
+		    	});
+		    }
+		    if(that.allEmpty(arrayData)) {
+		    	$('[data-section="Supporting"] .reset-all-filters').fadeIn();
+		    }
+		    else {
+		    	$('.reset-all-filters').fadeOut(0);
+		    }    
+		});		
+	}
+
+	changeAllSectionsFilter(arrayData) {
+	    arrayData.forEach(function(element) {
+	    	element.resetFilters();
+	    	element.filterChilds();
+	    	$('.reset-all-filters').fadeOut(0);
+	    });
+	}	
+
+	allEmpty(arraySection) {
+		let inc = 0;
+
+		arraySection.forEach(function (element) {
+			if(element.empty()) {
+				inc++
+			}
+		});
+		return (inc == arraySection.length);
+	}
+}
+
+class CarrouselData {
+
+	constructor(sec, rows, columns) {
 
 	// sec = Name of data section, this is for identify div.
 	// rows = This is for the number of rows that will be displayed, if this number is less than the number of items, it will activate the navigation controls
@@ -18,19 +75,25 @@ var CarrouselData = function (sec, rows, columns) {
 		if(this.maxRow >= this.childs) {
 			this.navigation(false);
 		}
+
+		this.handleEvents();
 	};
 
-	CarrouselData.prototype.addFilter = function (nameFilter) {
+	handleEvents() {
+
+	}
+
+	addFilter(nameFilter) {
 		this.filters[nameFilter] = false;
 	};
 
-	CarrouselData.prototype.resetFilters = function() {
+	resetFilters() {
 		this.filters = {};
 		this.filterChilds();
 	};
 
 
-	CarrouselData.prototype.checkChildFilter = function(childTag) {
+	checkChildFilter(childTag) {
 		var find = 0;
 		var isTrue = 0;
 		for (var key in this.filters) {
@@ -49,15 +112,15 @@ var CarrouselData = function (sec, rows, columns) {
 		}		
 	};
 
-	CarrouselData.prototype.resetChildsCount = function() {
+	resetChildsCount() {
 	  	this.childs = $('.data_section[data-section="' + this.sectionTag + '"] > .cards-section > .card-container ').length;
 	};
 
-	CarrouselData.prototype.empty = function() {
+	empty() {
 		return this.isEmpty;
 	};
 
-	CarrouselData.prototype.showEmptyLabel = function() {
+	showEmptyLabel() {
 		if(this.isEmpty) {
 			$('[data-section="' + this.sectionTag + '"] div[data-attribute="empty"]').show(250);
 		}
@@ -66,18 +129,18 @@ var CarrouselData = function (sec, rows, columns) {
 		}
 	};
 
-	CarrouselData.prototype.changeFilter = function(filterTag)	{
+	changeFilter(filterTag)	{
 		this.filters[filterTag] = !this.filters[filterTag];
 		this.filterChilds();
 	};
 
-	CarrouselData.prototype.setFilterStatus = function(filterTag, value)	{
+	setFilterStatus(filterTag, value)	{
 		this.filters[filterTag] = value;
 	};
 
-	CarrouselData.prototype.filterKeys = function(handleKey) {
+	filterKeys(handleKey) {
 		for(var i = 0; i <= this.childs; i++) {			
-			child = $('.data_section[data-section="' + this.sectionTag + '"] > .cards-section > .card-container:nth-child('+ (i) +')');
+			let child = $('.data_section[data-section="' + this.sectionTag + '"] > .cards-section > .card-container:nth-child('+ (i) +')');
 			if(this.checkChildFilter(child.children().children(".filter_data"))) {
 				if($(child).text().toLowerCase().indexOf(handleKey.toLowerCase()) > 0 || handleKey == "") {
 					child.show();
@@ -90,7 +153,7 @@ var CarrouselData = function (sec, rows, columns) {
 		this.checkEmpty();
 	}
 
-	CarrouselData.prototype.checkEmpty = function() {
+	checkEmpty() {
 		var
 			count = 0;
 
@@ -104,7 +167,7 @@ var CarrouselData = function (sec, rows, columns) {
 		this.showEmptyLabel();
 	}
 
-	CarrouselData.prototype.filterChilds = function() {
+	filterChilds() {
 		var
 		find = 0;
 		if(this.maxRow > this.childs) {
@@ -112,7 +175,7 @@ var CarrouselData = function (sec, rows, columns) {
 		}
 
 		for (var i = 1; i <= this.maxRow; i++) {
-			child = $('.data_section[data-section="' + this.sectionTag + '"] > .cards-section > .card-container:nth-child('+ (i) +')');
+			let child = $('.data_section[data-section="' + this.sectionTag + '"] > .cards-section > .card-container:nth-child('+ (i) +')');
 			if(this.checkChildFilter(child.children().children(".filter_data"))) {
 				child.show(250);
 				find++;
@@ -125,7 +188,7 @@ var CarrouselData = function (sec, rows, columns) {
 		this.showEmptyLabel();
 	};
 
-	CarrouselData.prototype.navigation = function(value) {
+	navigation(value) {
 		if(value) {
 			$('.data_section[data-section="'+ this.sectionTag +'"] div.data-controls').css("display","show");
 		}
@@ -135,7 +198,7 @@ var CarrouselData = function (sec, rows, columns) {
 	};
 
 
-	CarrouselData.prototype.loadingUp = function() {
+	loadingUp() {
     	var
     	  rows = this.maxRow,
     	  posNro = this.nro,
@@ -151,7 +214,7 @@ var CarrouselData = function (sec, rows, columns) {
 	    }  
 	};
 
-    CarrouselData.prototype.loadingDown = function() {
+    loadingDown() {
     	var
     	  rows = this.maxRow,
     	  posNro = this.nro,
@@ -168,3 +231,9 @@ var CarrouselData = function (sec, rows, columns) {
 	      	}          
     	} 
   	};
+  }
+$(document).ready(function() {
+	  if($("#data_cards").length) {
+var prueba = new filterHub();
+}
+});
