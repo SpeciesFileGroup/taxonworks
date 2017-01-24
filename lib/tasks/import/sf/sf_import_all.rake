@@ -41,8 +41,9 @@ namespace :tw do
 
       desc 'time rake tw:project_import:sf_import:run_cites_import_tasks user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
       task :run_cites_import_tasks => [
-          'cites:import_nomenclator_strings',
-          'cites:create_cvts_for_citations'
+          'cites:import_nomenclator_strings'
+          # ,
+          # 'cites:create_cvts_for_citations'
       ] do
         puts 'Ran cites tasks!'
       end

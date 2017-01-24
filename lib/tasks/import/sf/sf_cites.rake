@@ -63,8 +63,12 @@ SF.RefID #{row['RefID']} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}
             # puts new_name_uri if new_name_uri
             # puts type_info_uri if type_info_uri
 
-            new_name_cvt_id = Keyword.where('uri = ? AND project_id = ?', new_name_uri, project_id).limit(1).pluck(:id).first if new_name_uri
-            type_info_cvt_id = Keyword.where('uri = ? AND project_id = ?', type_info_uri, project_id).limit(1).pluck(:id).first if type_info_uri
+#           new_name_cvt_id =  Keyword.where('uri = ? AND project_id = ?', new_name_uri, project_id).limit(1).pluck(:id).first if new_name_uri
+#            type_info_cvt_id = Keyword.where('uri = ? AND project_id = ?', type_info_uri, project_id).limit(1).pluck(:id).first if type_info_uri
+
+            new_name_cvt_id = get_cvt_id[project_id][new_name_uri] #   Keyword.where('uri = ? AND project_id = ?', new_name_uri, project_id).limit(1).pluck(:id).first if new_name_uri
+            type_info_cvt_id =  get_cvt_id[project_id][type_info_uri] #  Keyword.where('uri = ? AND project_id = ?', type_info_uri, project_id).limit(1).pluck(:id).first if type_info_uri
+
 
             ap "NewNameStatusID = #{new_name_cvt_id.to_s}; TypeInfoID = #{type_info_cvt_id.to_s}"   # if new_name_cvt_id
 
@@ -193,7 +197,7 @@ SF.RefID #{row['RefID']} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}
 
               #cite_topic = CitationtTopic.save(
               cite_topic = CitationTopic.new(
-                  topic_id: ControlledVocabularyTerm.where('uri LIKE ? and id = ?', "%/cite_info_flags/#{bit_position}", project_id).pluck(:id).first,
+                  topic_id: ControlledVocabularyTerm.where('uri LIKE ? and project_id = ?', "%/cite_info_flags/#{bit_position}", project_id).pluck(:id).first,
                   citation_id: citation.id,
                   project_id: project_id
               )
@@ -211,6 +215,7 @@ SF.RefID #{row['RefID']} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}
         # @todo Do I really need a data_directory if I'm using a Postgres table? Not that it hurts...
         LoggedTask.define :create_cvts_for_citations => [:data_directory, :environment, :user_id] do |logger|
 
+          get_cvt_id = {}
           # Create controlled vocabulary terms (CVTS) for NewNameStatus, TypeInfo, and CiteInfoFlags; CITES_CVTS below in all caps denotes constant
 
           CITES_CVTS = {
@@ -277,8 +282,11 @@ SF.RefID #{row['RefID']} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}
           Project.all.each do |project|
             next unless project.name.end_with?('species_file')
 
-            logger.info "Working with TW.project_id: #{project.id} = '#{project.name}'"
+            project_id = project.id
 
+            logger.info "Working with TW.project_id: #{project_id} = '#{project.name}'"
+
+            get_cvt_id[project.id] = {}
             ## commented out example using array ??
             # CITES_CVTS.keys.each do |key|
             #   CITES_CVTS[key].each do |params|
@@ -288,7 +296,32 @@ SF.RefID #{row['RefID']} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}
 
             CITES_CVTS.keys.each do |column| # tblCites.ColumnName
               CITES_CVTS[column].each do |params|
-                ControlledVocabularyTerm.create!(params.merge(project_id: project.id))
+               c = ControlledVocabularyTerm.create!(params.merge(project_id: project_id))
+               get_cvt_id[project_id][c.uri] = c.id
+=begin
+                {
+                    1 => {
+                        http://speciesfile.org/legacy/info_flag_status/2' => 22   # where 22 is the cvt.id
+                            ...
+                    }
+
+
+                }
+=end
+
+=begin
+        required values for array/hash?
+            1.  newly created CVT.id
+            2.  flag type [new_name_status, type_info, cite_info_flags, info_flag_status]
+            3.  flag value [1,2, ...]
+            4.  project_id
+=end
+
+
+
+
+
+
               end
             end
 
