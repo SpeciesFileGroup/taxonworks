@@ -1,7 +1,4 @@
-
-class CarrouselData {
-
-	constructor(sec, rows, columns) {
+var CarrouselData = function (sec, rows, columns) {
 
 	// sec = Name of data section, this is for identify div.
 	// rows = This is for the number of rows that will be displayed, if this number is less than the number of items, it will activate the navigation controls
@@ -24,7 +21,7 @@ class CarrouselData {
 		this.handleEvents();
 	};
 
-	handleEvents() {
+	CarrouselData.prototype.handleEvents = function() {
 	  $('.data_card').mousedown(function(event) {
 	  	if((event.which) == 1) {
 	     location.href = $(this).children("a").attr('href');
@@ -32,17 +29,16 @@ class CarrouselData {
 	 });   		
 	}
 
-	addFilter(nameFilter) {
+	CarrouselData.prototype.addFilter = function(nameFilter) {
 		this.filters[nameFilter] = false;
 	};
 
-	resetFilters() {
+	CarrouselData.prototype.resetFilters = function() {
 		this.filters = {};
 		this.filterChilds();
 	};
 
-
-	checkChildFilter(childTag) {
+	CarrouselData.prototype.checkChildFilter = function(childTag) {
 		var find = 0;
 		var isTrue = 0;
 		for (var key in this.filters) {
@@ -61,19 +57,19 @@ class CarrouselData {
 		}		
 	};
 
-	refresh() {
+	CarrouselData.prototype.refresh = function() {
 		this.filterChilds();
 	}
 
-	resetChildsCount() {
+	CarrouselData.prototype.resetChildsCount = function() {
 	  	this.childs = $('.data_section[data-section="' + this.sectionTag + '"] > .cards-section > .card-container ').length;
 	};
 
-	empty() {
+	CarrouselData.prototype.empty = function() {
 		return this.isEmpty;
 	};
 
-	showEmptyLabel() {
+	CarrouselData.prototype.showEmptyLabel = function() {
 		if(this.isEmpty) {
 			$('[data-section="' + this.sectionTag + '"] div[data-attribute="empty"]').show(250);
 		}
@@ -82,18 +78,18 @@ class CarrouselData {
 		}
 	};
 
-	changeFilter(filterTag)	{
+	CarrouselData.prototype.changeFilter = function(filterTag)	{
 		this.filters[filterTag] = !this.filters[filterTag];
 		this.filterChilds();
 	};
 
-	setFilterStatus(filterTag, value)	{
+	CarrouselData.prototype.setFilterStatus = function(filterTag, value)	{
 		this.filters[filterTag] = value;
 	};
 
-	filterKeys(handleKey) {
+	CarrouselData.prototype.filterKeys = function(handleKey) {
 		for(var i = 0; i <= this.childs; i++) {			
-			let child = $('.data_section[data-section="' + this.sectionTag + '"] > .cards-section > .card-container:nth-child('+ (i) +')');
+			child = $('.data_section[data-section="' + this.sectionTag + '"] > .cards-section > .card-container:nth-child('+ (i) +')');
 			if(this.checkChildFilter(child.children().children(".filter_data"))) {
 				if($(child).text().toLowerCase().indexOf(handleKey.toLowerCase()) > 0 || handleKey == "") {
 					child.show();
@@ -106,12 +102,12 @@ class CarrouselData {
 		this.checkEmpty();
 	}
 
-	checkEmpty() {
+	CarrouselData.prototype.checkEmpty = function() {
 		var
 			count = 0;
 
 		for(var i = 0; i < this.childs; i++) {			
-			let child = $('.data_section[data-section="' + this.sectionTag + '"] > .cards-section > .card-container:nth-child('+ (i) +')');
+			child = $('.data_section[data-section="' + this.sectionTag + '"] > .cards-section > .card-container:nth-child('+ (i) +')');
 			if(!$(child).is(":visible")) {			
 				count++;
 			}
@@ -120,7 +116,7 @@ class CarrouselData {
 		this.showEmptyLabel();
 	}
 
-	filterChilds() {
+	CarrouselData.prototype.filterChilds = function() {
 		var
 		find = 0;
 		if(this.maxRow > this.childs) {
@@ -128,7 +124,7 @@ class CarrouselData {
 		}
 
 		for (var i = 1; i <= this.maxRow; i++) {
-			let child = $('.data_section[data-section="' + this.sectionTag + '"] > .cards-section > .card-container:nth-child('+ (i) +')');
+			child = $('.data_section[data-section="' + this.sectionTag + '"] > .cards-section > .card-container:nth-child('+ (i) +')');
 			if(this.checkChildFilter(child.children().children(".filter_data"))) {
 				child.show(250);
 				find++;
@@ -141,7 +137,7 @@ class CarrouselData {
 		this.showEmptyLabel();
 	};
 
-	navigation(value) {
+	CarrouselData.prototype.navigation = function(value) {
 		if(value) {
 			$('.data_section[data-section="'+ this.sectionTag +'"] div.data-controls').css("display","show");
 		}
@@ -151,7 +147,7 @@ class CarrouselData {
 	};
 
 
-	loadingUp() {
+	CarrouselData.prototype.loadingUp = function() {
     	var
     	  rows = this.maxRow,
     	  posNro = this.nro,
@@ -167,7 +163,7 @@ class CarrouselData {
 	    }  
 	};
 
-    loadingDown() {
+    CarrouselData.prototype.loadingDown = function() {
     	var
     	  rows = this.maxRow,
     	  posNro = this.nro,
@@ -184,4 +180,3 @@ class CarrouselData {
 	      	}          
     	} 
   	};
-  }

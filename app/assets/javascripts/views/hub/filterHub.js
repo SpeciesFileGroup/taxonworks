@@ -1,22 +1,19 @@
-
-class FilterHub {
-
-	constructor() {
+var FilterHub = function () {
 
 		this.task_column = ($(window).width() > 1500) ? 3 : 2;
 		this.arrayData = [];
 		this.arrayTasks = [];
 		this.that = this;
 		this.handleEvents(this.that); 
-	}
+	};
 
-	changeTaskSize(row,column) {
+	FilterHub.prototype.changeTaskSize = function(row,column) {
 		this.arrayTasks.forEach(function(element) {
 			element.changeSize(row,column);
 		});		
-	}
+	};
 
-	handleEvents(that) {
+	FilterHub.prototype.handleEvents = function(that) {
 		$("#task_carrousel").each(function(i,element) {		
 			that.arrayTasks.push(new CarrouselTask("#"+$(element).attr("id"), that.task_column, that.task_column));
 		});
@@ -77,9 +74,8 @@ class FilterHub {
 			}    
 		});		
 
-		$('#filter .switch input').on('click', function() {
-			let 
-				switchFilter = this;
+		$('#filter .switch input').on('click', function() { 
+			switchFilter = this;
 			
 			[that.arrayData, that.arrayTasks].forEach(function(element) {
 				element.forEach(function(element) {
@@ -92,7 +88,7 @@ class FilterHub {
 		});  
 	}
 		
-	resetStatusFilter() {
+	FilterHub.prototype.resetStatusFilter = function() {
 		[this.arrayData, this.arrayTasks].forEach(function(element) {
 			element.forEach(function(element) {
 				element.setFilterStatus("data-category-prototype",false);
@@ -103,7 +99,7 @@ class FilterHub {
 		});
 	}
 
-	changeAllSectionsFilter(arrayData) {
+	FilterHub.prototype.changeAllSectionsFilter = function(arrayData) {
 	    arrayData.forEach(function(element) {
 	    	element.resetFilters();
 	    	element.filterChilds();
@@ -111,8 +107,8 @@ class FilterHub {
 	    });
 	}	
 
-	allEmpty(arraySection) {
-		let inc = 0;
+	FilterHub.prototype.allEmpty = function(arraySection) {
+		inc = 0;
 
 		arraySection.forEach(function (element) {
 			if(element.empty()) {
@@ -121,4 +117,3 @@ class FilterHub {
 		});
 		return (inc == arraySection.length);
 	}
-}

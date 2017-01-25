@@ -1,6 +1,5 @@
-class CarrouselTask {
+var CarrouselTask = function (sec, rows, columns) {
 
-  constructor (sec, rows, columns) {
     // sec = Name of data section, this is for identify div.
     // rows = This is for the number of rows that will be displayed, if this number is less than the number of items, it will activate the navigation controls
 
@@ -21,7 +20,7 @@ class CarrouselTask {
     this.handleEvents(this.that);
   };
 
-  handleEvents(that) {
+  CarrouselTask.prototype.handleEvents = function(that) {
     $(this.sectionTag + ' .navigation').on('click', 'a', function() {
         if($(this).attr('data-arrow') == "down") {
           that.arrayTasks.forEach(function(element) {
@@ -40,16 +39,15 @@ class CarrouselTask {
         that.changeSelectedNavList(element.arrayPos);
     });  
 
-    $(this.sectionTag + ' .task-nav-list').on('click', '.task-nav-item', function() {
-      let 
+    $(this.sectionTag + ' .task-nav-list').on('click', '.task-nav-item', function() { 
         itemID = $(this).index();   
-          that.resetView();
-          that.showChilds(itemID);
+        that.resetView();
+        that.showChilds(itemID);
     });
 
   }
 
-  changeSize(maxColumns, maxRow) {
+  CarrouselTask.prototype.changeSize = function(maxColumns, maxRow) {
     this.changeTasks = maxRow;    
     this.maxRow = maxRow;
     this.maxCards = maxRow * maxColumns;
@@ -65,28 +63,28 @@ class CarrouselTask {
     this.resetFilters();    
   };
 
-  addFilter(nameFilter) {
+  CarrouselTask.prototype.addFilter = function(nameFilter) {
     this.filters[nameFilter] = false;
   };
 
-  empty() {
+  CarrouselTask.prototype.empty = function() {
     return this.isEmpty;
   };
 
-  refresh() {
+  CarrouselTask.prototype.refresh = function() {
     this.resetView();
     this.filterChilds();
     this.showChilds(); 
   };  
 
-  resetFilters() {
+  CarrouselTask.prototype.resetFilters = function() {
     for (var key in this.filters) {
       this.filters[key] = false
     }   
     this.refresh();    
   };
 
-  injectNavList() {
+  CarrouselTask.prototype.injectNavList = function() {
     for(var i = 0; i < this.childsCount; i++) {
       if((i - this.maxCards >= 0) && (this.maxCards - i <= 0)) {
         $(this.sectionTag + " .task-nav-list").append('<div class="task-nav-item"></div>');
@@ -97,7 +95,7 @@ class CarrouselTask {
     }
   };
 
-  changeSelectedNavList(childIndex) {
+  CarrouselTask.prototype.changeSelectedNavList = function(childIndex) {
     var
     count = this.maxCards;
 
@@ -114,7 +112,7 @@ class CarrouselTask {
     }
   };
 
-  checkChildFilter(childTag) {
+  CarrouselTask.prototype.checkChildFilter = function(childTag) {
     var find = 0;
     var isTrue = 0;
 
@@ -136,12 +134,12 @@ class CarrouselTask {
      
   };
 
-  filterKeys(handleKey) {
+  CarrouselTask.prototype.filterKeys = function(handleKey) {
     this.filterWords = handleKey;
     this.refresh();
   }
   
-  hasWords(child) {
+  CarrouselTask.prototype.hasWords = function(child) {
     if(($(child).find('.task_name a').text().toLowerCase().indexOf(this.filterWords.toLowerCase()) >= 0) || (this.filterWords == "")) {
       return true;
     }
@@ -156,12 +154,12 @@ class CarrouselTask {
     }
   }
   
-  checkEmpty() {
+  CarrouselTask.prototype.checkEmpty = function() {
     var
       count = 0;
 
     for(var i = 0; i < this.childsCount; i++) {      
-      let child = $(this.sectionTag + ' .task_card:nth-child('+ i +')');
+      child = $(this.sectionTag + ' .task_card:nth-child('+ i +')');
       if(!$(child).is(":visible")) {      
         count++;
       }
@@ -170,22 +168,22 @@ class CarrouselTask {
     this.noTaskFound();
   }  
 
-  resetChildsCount() {
+  CarrouselTask.prototype.resetChildsCount = function() {
     this.childsCount = $(this.sectionTag + ' .task_card').length;
   };
 
-  setFilterStatus(filterTag, value)  {
+  CarrouselTask.prototype.setFilterStatus = function(filterTag, value)  {
     this.filters[filterTag] = value;
   };
 
-  changeFilter(filterTag)  {
+  CarrouselTask.prototype.changeFilter = function(filterTag)  {
     this.filters[filterTag] = !this.filters[filterTag];
     this.resetView();
     this.filterChilds();
     this.showChilds();
   };
 
-  showChilds(childIndex) {
+  CarrouselTask.prototype.showChilds = function(childIndex) {
     var
     count = 0;
 
@@ -204,7 +202,7 @@ class CarrouselTask {
     }
     for (var i = this.start; i < this.active.length; i++) {
 
-      let child = $(this.sectionTag + ' .task_card:nth-child('+ this.active[i] +')');
+      child = $(this.sectionTag + ' .task_card:nth-child('+ this.active[i] +')');
       if(count < this.maxCards) {
         child.show(250);
       }
@@ -220,7 +218,7 @@ class CarrouselTask {
     this.noTaskFound();
   };
 
-  noTaskFound(count) {
+  CarrouselTask.prototype.noTaskFound = function(count) {
     if(this.isEmpty) {
       $(this.sectionTag + ' .no-tasks').fadeIn(250);
     }
@@ -228,7 +226,8 @@ class CarrouselTask {
       $(this.sectionTag + ' .no-tasks').fadeOut(250);
     }
   };
-  filterChilds() {
+
+  CarrouselTask.prototype.filterChilds = function() {
     var
     find = 0,
     activeCount = 0;
@@ -237,7 +236,7 @@ class CarrouselTask {
     this.childs = [];
 
     for (var i = 1; i <= this.childsCount; i++) {
-      let child = $(this.sectionTag + ' .task_card:nth-child('+ (i) +')');
+      child = $(this.sectionTag + ' .task_card:nth-child('+ (i) +')');
       if(this.checkChildFilter(child)) {
         this.active[activeCount] = i;
         activeCount++;
@@ -249,11 +248,11 @@ class CarrouselTask {
     this.showMoreNav((find > this.maxCards));
   };
 
-  resetView() {
+  CarrouselTask.prototype.resetView = function() {
     $(this.sectionTag + ' .task_card').css("display","none");
   };
 
-  navigation(value) {
+  CarrouselTask.prototype.navigation = function(value) {
     if(value) {
       $(this.sectionTag + " .navigation a").show(250);
     }
@@ -262,7 +261,7 @@ class CarrouselTask {
     }
   };
 
-  loadingDown() {
+  CarrouselTask.prototype.loadingDown = function() {
     var
     sectionTag = this.sectionTag,
     active = this.active,
@@ -280,7 +279,7 @@ class CarrouselTask {
   };
 
 
-  showMoreNav(value) {
+  CarrouselTask.prototype.showMoreNav = function(value) {
     if(value) {
       $('.more_tasks_nav').fadeIn(250);
     }
@@ -289,7 +288,7 @@ class CarrouselTask {
     }
   };
 
-  loadingUp() {
+  CarrouselTask.prototype.loadingUp = function() {
     var
     sectionTag = this.sectionTag,
     active = this.active,
@@ -305,4 +304,4 @@ class CarrouselTask {
     }
     this.changeSelectedNavList(this.arrayPos);
   };
-}
+
