@@ -221,13 +221,23 @@ class User < ActiveRecord::Base
     true
   end
 
+  def update_last_seen_at
+    
+    t = Time.now - last_seen_at
+    a = t < 301 ? time_active + t : time_active 
+
+    update_columns(last_seen_at: Time.now, time_active: a)
+
+
+  end
+
   def add_recently_visited_to_footprint(recent_route, recent_object = nil)
     case recent_route
     when /\A\/\Z/ # the root path '/'
     when /\A\/hub/ # any path which starts with '/hub'
     when /\/autocomplete\?/ # any path used for AJAX autocomplete
     else
- 
+
       fp = footprints.dup 
       fp['recently_visited'] ||= [] 
 
