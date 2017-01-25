@@ -317,13 +317,16 @@ SF.RefID #{row['RefID']} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}
             4.  project_id
 =end
 
-
-
-
-
-
               end
             end
+
+
+            import = Import.find_or_create_by(name: 'SpeciesFileData')
+            import.set('', get_cvt_id)
+
+            puts = ''
+            ap get_cvt_id
+
 
           end
         end
