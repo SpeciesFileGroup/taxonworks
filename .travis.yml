@@ -1,6 +1,7 @@
 language: ruby
 cache: bundler
-sudo: false
+dist: trusty
+sudo: required
 rvm:
   - 2.3.1
 bundler_args: --without development
@@ -12,7 +13,7 @@ branches:
     - travis-trusty-beta
     - eyelet 
 addons:
-  postgresql: "9.4"
+  postgresql: "9.5"
   firefox: "46.0"
   apt:
     packages:
