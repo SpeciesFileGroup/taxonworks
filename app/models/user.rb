@@ -222,12 +222,15 @@ class User < ActiveRecord::Base
   end
 
   def update_last_seen_at
-    
-    t = Time.now - last_seen_at
-    a = t < 301 ? time_active + t : time_active 
+   
+    a = 0 
+  
+    if !last_seen_at.nil?
+      t = Time.now - last_seen_at
+      a = t < 301 ? time_active + t : time_active 
+    end
 
     update_columns(last_seen_at: Time.now, time_active: a)
-
 
   end
 
