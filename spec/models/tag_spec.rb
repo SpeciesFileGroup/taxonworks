@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Tag, type: :model, group: :annotators do
+describe Tag, type: :model, group: [:annotators, :tags] do
 
   let(:tag) { Tag.new }
   let(:keyword) { FactoryGirl.create(:valid_keyword) }

@@ -1,0 +1,16 @@
+
+<h1> DWC Occurrence Report </h1>
+
+<p> This report calculates records as requested. DWC Occurrence records are pre-calculated for <%= DwcOccurrence.where(project_id: sessions_current_project_id).count -%> records.  This report currently references collection objects only. <p>
+
+<p> <%= link_to("Download #{ DwcOccurrence.where(project_id: sessions_current_project_id).count} records", download_report_dwc_task_path) -%>.</p>
+
+<p><%= page_entries_info @collection_objects %></p> <%= paginate @collection_objects %> 
+
+<%= content_tag(:table, id: :dwc_occurrence_table) do -%>
+
+  <%= dwc_occurrence_table_header_tag -%>
+  <%= dwc_occurrence_table_body_tag(@collection_objects) %>
+
+<% end %>
+

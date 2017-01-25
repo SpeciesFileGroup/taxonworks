@@ -44,16 +44,19 @@ $.fn.rotationInfo = function() {
 
 	$('#filterBrowse').on('click', '.navigation-item', function(selector) {
 
-		isActive($(this),'active');
-		if($(this).attr('data-filter') === 'reset') {
+		if($(this).attr('data-filter-reset') === 'reset') {
 			$('[data-filter]').each( function() {
+				if($(this).hasClass("active")) {
+					isActive($(this),'active');
+				}
 				$($(this).attr('data-filter')).animate({
-            	fontSize: '100%'
+            		fontSize: '100%'
         		});
 				$($(this).children()).attr('data-icon', 'show');
 			});
 		}
 		else {
+			isActive($(this),'active');
 			if($(this).children().attr('data-icon') == "show") {
 				$($(this).children()).attr('data-icon', 'hide');
 				$($(this).attr('data-filter')).animate({

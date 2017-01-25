@@ -1,5 +1,9 @@
 $(document).ready(function() {
-	$(".alert").on("click", ".alert-close", function() {
-		$(this).parent().fadeOut(250);
+	$(document).on("click", ".alert-close", function() {
+		$(this).parent(".alert").animate({
+    		bottom: "-="+ ($(this).height()*2),
+  		}, 250, function() {
+    		$(this).remove();
+  		});	
 	});
 });

@@ -16,7 +16,7 @@
 #
 # @!attribute respository_id
 #   @return [Integer]
-#   The id of the Repository.  This is the "home" repository, *not* where the specimen currently is located.  Repositories may indicate ownership BUT NOT ALWAYS. The assertion is only that "if this collection object was not being used, then it should be in this repository".
+#   The id of the Repository.  This is the "home" repository, *not* where the specimen currently is located.  Repositories may indicate ownership BUT NOT ALWAYS (this is custody, not ownership). The assertion is only that "if this collection object was not being used, then it should be in this repository".
 #
 # @!attribute project_id
 #   @return [Integer]
@@ -59,9 +59,6 @@
 class CollectionObject < ActiveRecord::Base
 
   include GlobalID::Identification
-
-  # @todo DDA: may be buffered_accession_number should be added.  MJY: This would promote non-"barcoded" data capture, I'm not sure we want to do this?!
-
   include Housekeeping
   include Shared::Citable
   include Shared::Containable
@@ -77,13 +74,34 @@ class CollectionObject < ActiveRecord::Base
   include Shared::IsData
   include SoftValidation
 
-  include Dwca::CollectionObjectExtensions
+  include Shared::IsDwcOccurrence
+  include CollectionObject::DwcExtensions 
 
   is_origin_for :collection_objects
   has_paper_trail
 
   CO_OTU_HEADERS      = %w{OTU OTU\ name Family Genus Species Country State County Locality Latitude Longitude}.freeze
   BUFFERED_ATTRIBUTES = %i{buffered_collecting_event buffered_determinations buffered_other_labels}.freeze
+
+  after_save :add_to_dwc_occurrence
+
+  
+  # Otu delegations
+  delegate :name, to: :current_otu, prefix: :otu, allow_nil: true # could be Otu#otu_name?
+  delegate :id, to: :current_otu, prefix: :otu, allow_nil: true
+
+  # Identifier delegations
+  delegate :cached, to: :preferred_catalog_number, prefix: :catalog_number, allow_nil: true
+
+  # CollectingEvent delegations
+  delegate :map_center, to: :collecting_event, prefix: :collecting_event, allow_nil: true
+
+  # Repository delegations
+  delegate :acronym, to: :repository, prefix: :repository, allow_nil: true
+  delegate :url, to: :repository, prefix: :repository, allow_nil: true 
+
+  # Preparation delegations
+  delegate :name, to: :preparation_type, prefix: :preparation_type, allow_nil: true
 
   has_one :accession_provider_role, class_name: 'AccessionProvider', as: :role_object
   has_one :accession_provider, through: :accession_provider_role, source: :person
@@ -126,7 +144,7 @@ class CollectionObject < ActiveRecord::Base
   soft_validate(:sv_missing_deaccession_fields, set: :missing_deaccession_fields)
 
   def preferred_catalog_number
-    Identifier::Local::CatalogNumber.where(identifier_object: self).first #   self.identifiers.of_type('Local::CatalogNumber').order('identifiers.position ASC').first
+    Identifier::Local::CatalogNumber.where(identifier_object: self).first 
   end
 
   def missing_determination
@@ -184,7 +202,7 @@ class CollectionObject < ActiveRecord::Base
   end
 
   # return [Boolean]
-  #    true if instance is a subclass of BiologicalCollectionObject
+  #    True if instance is a subclass of BiologicalCollectionObject
   def biological?
     self.class <= BiologicalCollectionObject ? true : false
   end
@@ -194,50 +212,11 @@ class CollectionObject < ActiveRecord::Base
     (h['biocuration classifications'] = self.biocuration_classes) if self.biological? && self.biocuration_classifications.any?
     h
   end
-
-  # @return [Otu] if the otu exists, return it
-  def get_otu
-    self.otus.first unless self.otus.empty?
-  end
-
-  # @return [Integer] if the otu exists, return the id
-  def get_otu_id
-    otu = get_otu
-    otu.id unless otu.nil?
-  end
-
-  # @return [String] if the otu exists, return the name
-  def get_otu_name
-    otu = get_otu
-    otu.name unless otu.nil?
-  end
-
-  # @return [String] if the otu exists, return the associated taxon name
-  def get_otu_taxon_name
-    otu = get_otu
-    otu.taxon_name unless otu.nil?
-  end
-
+  
   # @param [String] rank
-  # @return [String] if the otu exists, return the taxon name at the rank supplied
+  # @return [String] if a determination exists, and the Otu in the determination has a taxon name then return the taxon name at the rank supplied
   def name_at_rank_string(rank)
-    retval = nil
-    otu    = get_otu_taxon_name
-    retval = otu.ancestor_at_rank(rank) unless otu.nil?
-    retval.cached_html unless retval.nil?
-  end
-
-
-  # @param [Scope] selected of CollectionObject
-  def self.generate_download(scope)
-    CSV.generate do |csv|
-      csv << column_names
-      scope.order(id: :asc).each do |o|
-        csv << o.attributes.values_at(*column_names).collect { |i|
-          i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
-        }
-      end
-    end
+    current_taxon_name.try(:ancestor_at_rank, rank).try(:cached_html)
   end
 
   # @param [Scope] scope of selected CollectionObjects
@@ -265,8 +244,8 @@ class CollectionObject < ActiveRecord::Base
       csv << row
       if table_data.nil?
         scope.order(id: :asc).each do |c_o|
-          row = [c_o.get_otu_id,
-                 c_o.get_otu_name,
+          row = [c_o.otu_id,
+                 c_o.otu_name,
                  c_o.name_at_rank_string(:family),
                  c_o.name_at_rank_string(:genus),
                  c_o.name_at_rank_string(:species),
@@ -295,6 +274,9 @@ class CollectionObject < ActiveRecord::Base
     end
   end
 
+
+  # TODO: this should be refactored to be collection object centric AFTER 
+  # it is spec'd
   def self.earliest_date(project_id)
     a = CollectingEvent.joins(:collection_objects).where(project_id: project_id).minimum(:start_date_year)
     b = CollectingEvent.joins(:collection_objects).where(project_id: project_id).minimum(:end_date_year)
@@ -313,6 +295,8 @@ class CollectionObject < ActiveRecord::Base
     d.to_s + '/01/01'
   end
 
+  # TODO: this should be refactored to be collection object centric AFTER 
+  # it is spec'd
   def self.latest_date(project_id)
     a = CollectingEvent.joins(:collection_objects).where(project_id: project_id).maximum(:start_date_year)
     b = CollectingEvent.joins(:collection_objects).where(project_id: project_id).maximum(:end_date_year)
@@ -331,9 +315,12 @@ class CollectionObject < ActiveRecord::Base
       d = a || b
     end
 
-      d.to_s + '/12/31'
+    d.to_s + '/12/31'
   end
 
+  # TODO: Clarify this.
+  # CAREFULL - this isn't _in_, this is *with*, if it was in it would be spatial query, not a join(:geographic_items)
+  #
   # Find all collection objects which have collecting events which have georeferences which have geographic_items which
   # are located within the geographic item supplied
   # @param [GeographicItem] geographic_item_id
@@ -354,29 +341,6 @@ class CollectionObject < ActiveRecord::Base
     else
       retval = CollectionObject.joins(:geographic_items).where(GeographicItem.contained_by_where_sql(geographic_item.id)).limit(limit).includes(:data_attributes, :collecting_event)
     end
-    retval
-  end
-
-  # @param [String] geographic_shape as EWKT (TODO: See right side 'draw' of match-georeference for implimentation)
-  # @return [Scope] of CollectionObject
-  def self.in_geographic_shape(geographic_shape, steps = false)
-    # raise 'in_geographic_shape is unfinished'
-    geographic_item_id = geographic_item.id
-    if steps
-      gi     = GeographicItem.find(geographic_item_id)
-      # find the geographic_items inside gi
-      step_1 = GeographicItem.is_contained_by('any', gi) # .pluck(:id)
-      # find the georeferences from the geographic_items
-      step_2 = step_1.map(&:georeferences).uniq.flatten
-      # find the collecting events connected to the georeferences
-      step_3 = step_2.map(&:collecting_event).uniq.flatten
-      # find the collection objects associated with the collecting events
-      step_4 = step_3.map(&:collection_objects).flatten.map(&:id).uniq
-      retval = CollectionObject.where(id: step_4.sort)
-    else
-      retval = CollectionObject.joins(:geographic_items).where(GeographicItem.is_contained_by_sql('any', geographic_item)).includes(:data_attributes, :collecting_event)
-    end
-
     retval
   end
 
@@ -551,15 +515,18 @@ class CollectionObject < ActiveRecord::Base
   def self.from_collecting_events(collecting_event_ids, area_object_ids, area_set, project_id)
     collecting_events_clause = {collecting_event_id: collecting_event_ids, project: project_id}
     area_objects_clause = {id: area_object_ids, project: project_id}
+
     if (collecting_event_ids.empty?)
       collecting_events_clause = {project: project_id}
     end
+
     if (area_object_ids.empty?)
       area_objects_clause = {}
       if (area_set)
         area_objects_clause = 'false'
       end
     end
+    
     retval = CollectionObject.joins(:collecting_event)
                  .where(collecting_events_clause)
                  .where(area_objects_clause)
@@ -569,14 +536,11 @@ class CollectionObject < ActiveRecord::Base
   # @param [Hash] search_start_date string in form 'yyyy/mm/dd'
   # @param [Hash] search_end_date string in form 'yyyy/mm/dd'
   # @param [Hash] partial_overlap 'on' or 'off'
-  # @return [Scope] of selected collection objects through collecting events with georeferences
+  # @return [Scope] of selected collection objects through collecting events with georeferences, remember to scope to project!
   def self.in_date_range(search_start_date: nil, search_end_date: nil, partial_overlap: 'on')
-    collecting_event_ids = CollectingEvent.in_date_range({search_start_date: search_start_date,
-                                                          search_end_date:   search_end_date,
-                                                          partial_overlap:   partial_overlap}).pluck(:id)
-    retval = CollectionObject.joins(:collecting_event)
-                             .where(collecting_event_id: collecting_event_ids, project: $project_id)
-    retval
+    allow_partial = (partial_overlap.downcase == 'off' ? false : true) # TODO: Just get the correct values from the form!
+    where_sql = CollectingEvent.date_sql_from_dates(search_start_date, search_end_date, allow_partial)
+    joins(:collecting_event).where(where_sql)
   end
 
   def sv_missing_accession_fields
@@ -603,6 +567,11 @@ class CollectionObject < ActiveRecord::Base
   end
 
   protected
+
+  def add_to_dwc_occurrence
+    get_dwc_occurrence
+  end
+  handle_asynchronously :add_to_dwc_occurrence, run_at: Proc.new { 20.seconds.from_now }
 
   def check_that_both_of_category_and_total_are_not_present
     errors.add(:ranged_lot_category_id, 'Both ranged_lot_category and total can not be set') if !ranged_lot_category_id.blank? && !total.blank?
@@ -632,10 +601,6 @@ class CollectionObject < ActiveRecord::Base
     end
     false
   end
-
-  # @todo Write this. Changing from one type to another is ONLY allowed via this method, not by updating attributes
-  # def transmogrify_to(new_type)
-  # end
 
   def reject_collecting_event(attributed)
     reject = true

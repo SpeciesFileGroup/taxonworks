@@ -72,8 +72,10 @@ class Georeference < ActiveRecord::Base
   acts_as_list scope: [:collecting_event_id]
 
   belongs_to :error_geographic_item, class_name: 'GeographicItem', foreign_key: :error_geographic_item_id
-  belongs_to :collecting_event
-  belongs_to :geographic_item
+  belongs_to :collecting_event, inverse_of: :georeferences
+  belongs_to :geographic_item, inverse_of: :georeferences
+
+  has_many :collection_objects, through: :collecting_event
 
   validates :geographic_item, presence: true
   validates :type, presence: true
@@ -137,8 +139,6 @@ class Georeference < ActiveRecord::Base
     end
     retval
   end
-
-  # GeographicItem.connection.select_all("select st_dwithin((select point from geographic_items where id = 34820), (select polygon from geographic_items where id = 34809), 6800)").first['st_dwithin']
 
   # @return [Rgeo::polygon, nil]
   #   a polygon representing the buffer

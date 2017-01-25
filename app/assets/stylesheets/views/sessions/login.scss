@@ -14,9 +14,8 @@
 	.box-login {
 		background-color: #FFF;
 		padding:$standard_padding;
-		border-radius:3px;
-		border:1px solid $navigation_border;
-		box-shadow:0 0px 3px 0 $navigation_border;
+		border-radius:2px;
+		box-shadow:0 1px 1px rgba(0,0,0,.2);
 	}
 	.item {
 		padding:3px;

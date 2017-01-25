@@ -1,5 +1,6 @@
 @import 'base/whitespace';
 @import 'base/palette';
+@import 'base/fonts';
 @import 'views/shared_data/show';
 
 .favourite_link {
@@ -43,10 +44,10 @@ a {
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  font-weight: 100;
+  font-weight: 300;
   position: relative;
-  border-bottom: 1px solid $navigation_border;
-  background-color:$body-background;
+  box-shadow: 0px 1px 1px 0px rgba(0,0,0,0.2);
+  background-color:#FFF;
   height: 45px;
   padding-right: $standard_margin;
   .hub-project {
@@ -75,36 +76,31 @@ a {
     position: absolute;
     margin-left: 1em;
     background-image: image-url('hub.svg');
-    background-size:25px;
+    background-size:24px;
     background-repeat:no-repeat;
     background-position: center; 
-    padding:9px;
-    padding-left: 25px;
     z-index: 20;
     font-size: 0px;
-    position: absolute;
     background-color: $panel_background;
-    display: flex;
-    width: 20px;
-    top: -13px;
-    height: 36px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 54px;
+    height: 54px;
     justify-content: center;
     align-items: center;
     border-radius: 100%; 
-    box-shadow: 0 1px 3px 0 $navigation_border;
+    box-shadow: 0 1px 2px 0 rgba(0,0,0,0.2);
  
       transition: background-size 0.3s ease,
                   background-color 0.3s ease,
-                  opacity 0.5s ease,
-                  font-size 0.5s ease;           
-    
+                  opacity 0.5s ease,        
   }
 
   .hub_project_name {
     margin-left: 60px;
     padding: 5px;
-    font-size: 16px;
-    font-weight: 100;
+    font-size: $font_title;
+    font-weight: 300;
   }  
 
   .hub-project:hover {
@@ -112,10 +108,8 @@ a {
       opacity: 1;
       transition: background-size 0.3s ease,
                   background-color 0.3s ease,
-                  font-size 0.5s ease,
-                  opacity 0.5s ease,
-                  padding-left 0.5s ease;
-      background-size:35px;
+                  opacity 0.5s ease;
+      background-size:34px;
       color: $default_text;
     }
   }
@@ -159,7 +153,7 @@ a {
     li a {
         padding-left:0px;
         padding-right:0px;
-        font-size:12px;
+        font-size:$font_small;
         text-decoration:none;
     }
   }
@@ -242,7 +236,7 @@ a {
   list-style: none;
   padding-left:0px;
   margin-top: 0px;
-  font-weight: 100;
+  font-weight: 300;
   
   li {
     display: flex;

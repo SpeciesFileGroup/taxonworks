@@ -13,9 +13,9 @@ describe 'Dashboard' do
     it 'should provide access to sign in' do
       expect(page).to have_selector('h1', text: 'TaxonWorks')
       expect(page).to have_selector('form') { |form|
-        expect(form).to have_selector('input[name=email]')
-        expect(form).to have_selector('input[name=password]')
-        expect(form).to have_selector('input[type=submit]', 'Sign in')
+        expect(form).to have_selector('input[name="session[email]"]')
+        expect(form).to have_selector('input[name="session[password]"]')
+        expect(form).to have_selector('input[type="submit"][value="Sign in"]')
       }
 
       expect(page).to have_link('forgot password?')
@@ -30,7 +30,7 @@ describe 'Dashboard' do
     end
 
     it 'should show user' 's dashboard' do
-      expect(page).to have_selector('h1', text: 'Dashboard')
+      expect(page).to have_selector('h1', text: "Dashboard for #{@user.name}")
       expect(page).to have_selector('.panel .title', text: 'Projects')
 
       # it 'should have user-specific information in horizontal_navbar'

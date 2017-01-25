@@ -421,8 +421,10 @@ TaxonWorks::Application.routes.draw do
 
     scope :accessions do
       scope :report do
-        scope :dwca, controller: 'tasks/accessions/report/dwca' do
-          get '', action: :index, as: 'report_dwca_task'
+        scope :dwc, controller: 'tasks/accessions/report/dwc' do
+          get '', action: :index, as: 'report_dwc_task'
+          get 'row/:id', action: :row
+          get :download, as: 'download_report_dwc_task'
         end
       end
 

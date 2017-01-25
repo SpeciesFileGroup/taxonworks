@@ -17,7 +17,7 @@ module Workbench::NavigationHelper
   end    
 
   def quick_bar
-    render(partial: '/workbench/navigation/quick_bar')  if sessions_current_project 
+    render(partial: '/workbench/navigation/quick_bar')  if sessions_signed_in?
   end
 
   def quick_bar_link(related_model)

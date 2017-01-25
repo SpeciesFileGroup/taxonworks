@@ -2,7 +2,23 @@
   <div>
     <div class="citation_topic_header"> Topics for <%= "foo"  %> <span class='citation_topic_picker_alert' hidden></span> </div>
     <span class="citation_topic_picker_message"></span>
+  </div>
 
+  <div class="citation_topic_selection">
+    <div><%= text_field_tag "citation_topic_autocomplete", nil, class: 'citation_topic_autocomplete', placeholder: "Topic" %></div>
+
+    <div class="new_topic" hidden>
+      <div class="citation_topic_picker_topic_form">
+        <%= f.fields_for Topic.new do |fp| %>
+          <div class="field">
+            <%= fp.label :definition %><br>
+            <%= fp.text_area :name, placeholder: "Topic definition", class: :definition, id: "#{f.object.id}_#{fp.index}_topic_definition" %>
+          </div>
+        <% end %>
+
+        <%= link_to "add new", '#', class: [ :citation_topic_picker_add_new, "circle-button new_plus" ], hidden: true %>
+      </div>
+    </div>
     <ul class="citation_topic_list">
         <%= f.fields_for :citation_topics, @citation.citation_topics do |citation_topic_fields| %>
 
@@ -22,32 +38,18 @@
           <% else %>
 
             <li class="citation_topic_item" data-citation-topic-id="<%= citation_topic_fields.object.id -%>" data-citation-topic-index="<%= citation_topic_fields.index -%>" >
-              <%= citation_topic_fields.text_field :id, hidden: true -%>
-              <%= topic_tag(citation_topic_fields.object.topic) -%>
-              pages: <%= citation_topic_fields.text_field :pages -%> 
-             
-              <%= link_to('remove', "#", class: :remove_citation_topic) -%>
+              <div>
+                <div>
+                <%= citation_topic_fields.text_field :id, hidden: true -%>
+                <%= topic_tag(citation_topic_fields.object.topic) -%>
+                </div>
+                <%= citation_topic_fields.text_field :pages, placeholder: :Pages -%> 
+              </div>
+              <%= link_to('remove', "#", class: [ :remove_citation_topic, "delete-circle" ]) -%>
             </li>
           <% end %>
         <% end %>
 
-    </ul>
-  </div>
-
-  <div class="citation_topic_selection">
-    <div><%= text_field_tag "citation_topic_autocomplete", nil, class: 'citation_topic_autocomplete', placeholder: "Topic" %></div>
-
-    <div class="new_topic" hidden>
-      <div class="citation_topic_picker_topic_form">
-        <%= f.fields_for Topic.new do |fp| %>
-          <div class="field">
-            <%= fp.label :definition %><br>
-            <%= fp.text_area :name, placeholder: "Topic definition", class: :definition, id: "#{f.object.id}_#{fp.index}_topic_definition" %>
-          </div>
-        <% end %>
-
-        <%= link_to "add new", '#', class: :citation_topic_picker_add_new, hidden: true %>
-      </div>
-    </div>
+    </ul>    
   </div>
 </div>

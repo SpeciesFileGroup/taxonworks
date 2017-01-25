@@ -21,12 +21,34 @@ $font_subtitle: 14px;
 $font_title: 16px;
 
 .micro_type {}
-.small_type {}
+.small_type {
+	font-size: $font_small;
+}
+
+.font-light {
+	font-weight: 300;
+}
 .regular_type { font-size: 12px; }
 .large_type { font-size: 13px; }
 
+.normal_type {
+	font-size: $font_normal;
+}
+
+.subtitle_type {
+	font-size: $font_subtitle;
+}
+
+.title_type {
+	font-size: $font_title;
+}
+
 .hide_text {
 	font-size: 0px !important;
+}
+
+.uppercase {
+	text-transform: uppercase;
 }
 
 /*

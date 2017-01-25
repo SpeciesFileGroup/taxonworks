@@ -4,10 +4,13 @@
   <thead>
   <tr>
     <%= fancy_th_tag(name: 'Container') -%>
-    <%= fancy_th_tag(name: 'Position') -%>
     <%= fancy_th_tag(name: 'Contained object') -%>
     <%= fancy_th_tag(name: 'Contained object type') -%>
     <%= fancy_th_tag(name: 'Disposition') -%>
+    <%= fancy_th_tag(name: 'Disposition X') -%>
+    <%= fancy_th_tag(name: 'Disposition Y') -%>
+    <%= fancy_th_tag(name: 'Disposition Z') -%>
+
     <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
     <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
   </tr>
@@ -17,10 +20,12 @@
   <% @container_items.each do |container_item| %>
       <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
           <td><%= container_tag(container_item.container) %></td>
-          <td><%= container_item.position %></td>
           <td><%= object_tag(container_item.contained_object) %></td>
           <td><%= container_item.contained_object_type %></td>
           <td><%= container_item.disposition %></td>
+          <td><%= container_item.disposition_x %></td>
+          <td><%= container_item.disposition_y %></td>
+          <td><%= container_item.disposition_z %></td>
           <%= fancy_metadata_cells_tag(container_item) -%>
       <% end %>
   <% end %>

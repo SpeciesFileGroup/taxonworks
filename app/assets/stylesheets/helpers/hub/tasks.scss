@@ -21,13 +21,16 @@
 
   .task_card {
     cursor: pointer;
-    border: 1px solid $navigation_border;
-    margin: $standard_margin * 0.5;
-    width: 450px;
+    margin-left: 0px; 
+    margin-top:$standard_margin; 
+    margin-right: $standard_margin;
+    width: 468px;
     min-height: 200px;
-    border-radius: 3px;
-    background-color: $color-secondary-2-1;
-    box-shadow: 0 0px 3px 0 $navigation_border;
+    border-radius: 2px;
+    background-color: #FFF;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.2);  
+    transition: transform 0.3s ease,
+                box-shadow 0.3s ease; 
     .task_header {
       opacity: 0.5;
     }
@@ -36,10 +39,10 @@
   .task_card:hover {
     transition: background-color 0.5s ease,
     box-shadow 0.5s ease;
-    background-color: $navigation_background;
-    box-shadow:inset 0px 1px 5px 0px $navigation_border;
+    box-shadow: 0px 3px 5px 0px rgba(0,0,0,.3);
     transition: background-color 0.5s ease,
-    box-shadow 0.5s ease;     
+                transform 0.3s ease,
+                box-shadow 0.3s ease;   
     .filter_data {
       opacity: 1;
     }
@@ -122,18 +125,20 @@
 
   .task_description {
     font-size: 14px;
-    font-weight: 100;
-    line-height: 125%;
-    padding: 0em 2em 1em 2em;
+    font-weight: 300;
+    padding-left: $standard_padding * 1.4;
+    padding-right: $standard_padding * 1.4;
   }
 
   .navigation {
     display: flex;
+    background-color: #FFF;
+    box-shadow: 0px 1px 1px rgba(0,0,0,.2);
     flex-direction:row;
     justify-content:center;
     order:-1;
     align-items:center;
-    min-height: 50px;
+    min-height: 42px;
     min-width: 450px;
   }
 
@@ -173,7 +178,7 @@
 
     .task-nav-item {
       background-color: $navigation_border;
-      border-radius: 3px;
+      border-radius: 2px;
       width: 15px;
       height: 15px;
       margin: 5px;

@@ -1,5 +1,4 @@
 # Documentation: http://www.rubydoc.info/gems/rubocop
-
 AllCops:
   Include:
     - '**/Rakefile'
@@ -16,6 +15,12 @@ Style/EmptyLineBetweenDefs:
   # If true, this parameter means that single line method definitions don't
   # need an empty line between them.
   AllowAdjacentOneLineDefs: true
+
+Style/EmptyLinesAroundClassBody:
+  EnforcedStyle: empty_lines
+
+Style/ClassAndModuleChildren:
+  EnforcedStyle: compact 
 
 Style/CaseIndentation:
   Enabled: false
@@ -39,7 +44,7 @@ Style/SpaceAroundOperators:
   AllowForAlignment: true
 
 Metrics/LineLength:
-  Max: 200
+  Max: 250
 # Use empty lines between defs.
 
 Metrics/MethodLength:

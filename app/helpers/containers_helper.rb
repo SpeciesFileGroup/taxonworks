@@ -29,7 +29,7 @@ module ContainersHelper
 
   def container_collection_item_count(container)
     return content_tag(:em, 'no container provided') if container.blank?
-    v = container.all_collection_objects.count
+    v = container.all_contained_objects.count
     v == 0 ? 'empty' : v
   end
 

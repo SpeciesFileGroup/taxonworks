@@ -10,9 +10,9 @@ module CollectionProfilesHelper
     link_to(collection_profile_tag(collection_profile).html_safe, collection_profile)
   end
 
-  def collection_profiles_search_form
-    render('/collection_profiles/quick_search_form')
-  end
+# def collection_profiles_search_form
+#   render('/collection_profiles/quick_search_form')
+# end
 
   def collection_profile_attribute_status_tag(collection_profile, attribute)
     v = collection_profile.send(attribute)

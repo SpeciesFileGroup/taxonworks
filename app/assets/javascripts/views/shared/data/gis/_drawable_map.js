@@ -6,9 +6,9 @@ _init_drawable_map = function init_drawable_map() {
   var drawable_map_shell = $('#_drawable_map_outer');
   if (drawable_map_shell.length) {
     //drawable_map = initializeGoogleMapWithDrawManager(_drawable_map_form);
-    //drawable_map_shell.attr('hidden', true);
+    //drawable_map_shell.attr('hidden', true);    
 
-    $(".map_toggle").click(function (event) {           // switch to the map
+    function loadDrawableMap() {
       $("#area_selector").attr('hidden', true);         // hide the area selector
       $("#map_selector").removeAttr('hidden');          // reveal the map
       $(".on_selector").removeAttr('hidden');           // expose the other link
@@ -28,14 +28,31 @@ _init_drawable_map = function init_drawable_map() {
           $("#drawn_area_shape").val(JSON.stringify(feature[0]));
         }
       );
-    });
+    }
 
-    $(".on_selector").click(function (event) {          // switch to the area by name selector
+    function hideDrawableMap() {
       $("#map_selector").attr('hidden', true);          // hide the map
       $("#area_selector").removeAttr('hidden');         // reveal the area selector
       $(".map_toggle").removeAttr('hidden');            // expose the other link
       $(".on_selector").attr('hidden', true);
       $("#drawn_area_shape").attr('value', '');
+    }
+
+    $("#toggle_slide_area").click(function (event) {
+      if($("#toggle_slide_area").is(':checked')) {          // switch to the map
+        loadDrawableMap();
+      }
+      else {
+        hideDrawableMap();
+      }
+    });       
+
+    $(".map_toggle").click(function (event) {           // switch to the map
+      loadMap();
+    }); 
+
+    $(".on_selector").click(function (event) {          // switch to the area by name selector
+      hideDrawableMap();
     });
 
     $("send_report_params").click(function (event) {      // register the click handler for the made-from-scratch-button
@@ -43,8 +60,6 @@ _init_drawable_map = function init_drawable_map() {
         $("#drawn_area_shape").val(JSON.stringify(feature[0]));
       }
     );
-
-
   }
 };
 

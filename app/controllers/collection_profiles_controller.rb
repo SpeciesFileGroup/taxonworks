@@ -48,6 +48,11 @@ class CollectionProfilesController < ApplicationController
   # PATCH/PUT /collection_profiles/1.json
   def update
     respond_to do |format|
+      if collection_profile_params['force_update'] == '0'
+        flash['notice'] = 'Collection profile are not updatable unless forced, consider cloning this record or click force.'
+        render :edit and return
+      end
+
       if @collection_profile.update(collection_profile_params)
         format.html { redirect_to @collection_profile, notice: 'Collection profile was successfully updated.' }
         format.json { render :show, status: :ok, location: @collection_profile }
@@ -98,7 +103,7 @@ class CollectionProfilesController < ApplicationController
   private
   # Use callbacks to share common setup or constraints between actions.
   def set_collection_profile
-    @collection_profile = CollectionProfile.with_project_id($project_id).find(params[:id])
+    @collection_profile = CollectionProfile.with_project_id(sessions_current_project_id).find(params[:id])
     @recent_object = @collection_profile
   end
 

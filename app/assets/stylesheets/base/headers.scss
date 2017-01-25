@@ -1,15 +1,14 @@
 @import 'base/palette';
 @import 'base/whitespace';
+@import 'base/fonts';
 
 #header_bar {
 	margin:0 auto;
 	padding-left:$standard_padding;
 	padding-right:$standard_padding;
 	align-items:center;
-	background-color: $navigation_background;
-	border-bottom: 1px solid $navigation_border;
+	background-color: $color-header;	
 	height:50px;
-	font-weight: normal;
 
 	a {
 		padding: $standard_padding;
@@ -17,20 +16,36 @@
 
 	#taxonworks {
 		a {
-			color: $default_text;
+			color: #FFF;
 			padding: 0px;
-			font-size: 22px;
+			font-size: 20px;
+			font-weight: 300;
 			text-decoration: none;
 		}
 	}
 
 	#session_nav {
 		flex-grow: 0;
+		a {  
+			padding: 0px;
+			color: #FFF;
+
+		}
+		li {
+			padding-left: $standard_padding;
+		}
 	}
 }
 
 #header_bar.sandbox {
 	background-color: $color-primary-0;
+	#session_nav a { 
+		color: $color-secondary-2-4;
+	}
+
+	#taxonworks a {
+		color: $default_text;
+	}
 } 
 
 .current_hub_category {

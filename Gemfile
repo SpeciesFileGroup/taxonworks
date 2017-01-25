@@ -19,6 +19,13 @@ gem 'pg', '~> 0.18.4'
 # Postgis
 gem 'activerecord-postgis-adapter', '~> 3.1.4'
 
+gem 'delayed_job_active_record'
+gem 'daemons'
+
+gem 'rubyzip', '~> 1.2.0'
+
+gem 'postgresql_cursor'
+
 # rgeo support
 gem 'ffi-geos'
 gem 'rgeo-shapefile', '~> 0.4.1'
@@ -93,8 +100,6 @@ gem 'acts_as_list', '~> 0.8.0'
 # Versioning
 gem 'paper_trail', '~> 4.0.0.rc'
 
-# DwC-A archive handling
-gem 'dwc-archive', '~> 0.9.11'
 
 gem 'validates_timeliness', '~> 4.0.0'
 
@@ -112,21 +117,22 @@ gem 'modularity', '~> 2.0.1'
 
 gem 'colorize', '~> 0.8.1'
 gem 'term-ansicolor', '~> 1.4.0' # '~> 1.3', '>= 1.3.2' # colorize doesn't seem to be working properly, using this instead.
+gem 'awesome_print', '~> 1.7'
 
 gem 'chartkick', '~> 2.1.3'
 gem 'groupdate', '~> 3.1.1'
-
 gem 'dropzonejs-rails', '~> 0.7.3'
 
-gem 'awesome_print', '~> 1.7'
+# DwC-A archive handling
+gem 'dwc-archive', '~> 0.9.11'
+
+
 
 gem 'redcarpet', '~> 3.3'
 
 # SFG gems
 gem 'taxonifi', '0.4.0'
 gem 'sqed', '0.2.4'
-
-
 
 group :test, :development do
   gem 'faker', '~> 1.6.1'
@@ -147,7 +153,7 @@ group :development do
   gem 'guard-rspec', '~> 4.7', require: false
   gem 'parallel_tests', '~> 2.5.0'
   gem 'web-console', '~> 3.3.0'
-  gem 'rubocop', '~> 0.42.0'
+  gem 'rubocop', '~> 0.46.0'
 end
 
 group :doc do
@@ -157,7 +163,7 @@ end
 group :test do
   gem 'rspec', '~> 3.4'
   gem 'coveralls', '~> 0.8.13', require: false
-  gem 'capybara', '~> 2.10.2'
+  gem 'capybara', '~> 2.11.0'
   gem 'timecop', '~> 0.8.1'
   gem 'webmock', '~> 2.1.0'
   gem 'vcr', '~> 3.0.0'

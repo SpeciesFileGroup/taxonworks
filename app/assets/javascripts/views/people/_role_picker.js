@@ -125,7 +125,7 @@ Object.assign(TW.views.people.role_picker, {
   },
 
 //
-// Binding actions (clicks) to links 
+// Binding actions (clicks) to links
 //
 
   bind_new_link: function (form) {

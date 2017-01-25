@@ -1,6 +1,40 @@
   require 'fileutils'
 
-  ### rake tw:project_import:access3i:import_all data_directory=/Users/proceps/src/3i/TXT/ no_transaction=true
+  ### rake tw:project_import:access3i:import_all data_directory=/Users/proceps/src/sf/import/3i/TXT/ no_transaction=true
+
+  ##### Tables
+  # Authors
+  # BrochCharacters
+  # Brochosomes
+  # Characters
+  # CharTable
+  # Collections-
+  # Countries!
+  # CountrTable!
+  # CountryCodes!
+  # DicotKey
+  # Export
+  # GenBank
+  # Host!
+  # HostPlants!
+  # ImageCharacters
+  # Images
+  # Keys
+  # Links
+  # LitAuthors1!
+  # Literature!
+  # LitTable!
+  # Localities!
+  # Morph
+  # Museums!
+  # Parasitoids!
+  # Rank!
+  # State
+  # Status!
+  # Taxon!
+  # Transl
+  # UnchangedSpeciesNames!
+
 
   namespace :tw do
     namespace :project_import do
@@ -14,7 +48,7 @@
                       :parent_id_index, :statuses, :taxon_index, :citation_to_publication_index, :keywords,
                       :incertae_sedis, :emendation, :original_combination, :unique_host_plant_index,
                       :host_plant_index, :topics, :nouns, :countries, :geographic_areas, :museums, :namespaces, :biocuration_classes,
-                      :people, :source_ay
+                      :people, :source_ay, :source_checked_taxonomy
         def initialize()
           @keywords = {}                  # keyword -> ControlledVocabularyTerm
           @people_index = {}              # PeopleID -> Person object
@@ -41,6 +75,7 @@
           @biocuration_classes = {}
           @people = {}
           @source_ay = {}
+          @source_checked_taxonomy = {}
         end
       end
 
@@ -200,7 +235,6 @@
         }.freeze
 
 
-
         if ENV['no_transaction']
           puts 'Importing without a transaction (data will be left in the database).'
           main_build_loop_3i
@@ -240,8 +274,8 @@
         handle_host_plant_name_dictionary_3i
         handle_host_plants_3i
         handle_distribution_3i
-        handle_localities_3i
         handle_parasitoids_3i
+        handle_localities_3i
 
         print "\n\n !! Success. End time: #{Time.now} \n\n"
       end
@@ -300,6 +334,7 @@
             '3i_imported' => Keyword.find_or_create_by(name: '3i_imported', definition: 'Imported from 3i database.', project_id: $project_id),
             'introduced' => Keyword.find_or_create_by(name: 'Introduced', definition: 'Introduced species.', project_id: $project_id),
             'ZeroTotal' => Keyword.find_or_create_by(name: 'ZeroTotal', definition: 'On import there were 0 total specimens recorded in INHS FileMaker database.', project_id: $project_id),
+            'Allotype' => Keyword.find_or_create_by(name: 'Allotype', definition: 'Allotype.', project_id: $project_id),
             'CallNumberDrMetcalf' => Predicate.find_or_create_by(name: 'call_number_dr_metcalf', definition: 'Call Number from DrMetcalf bibliography database.', project_id: $project_id),
             #'AuthorReference' => Predicate.find_or_create_by(name: 'author_reference', definition: 'Author string as it appears in the nomenclatural reference.', project_id: $project_id),
             #'YearReference' => Predicate.find_or_create_by(name: 'year_reference', definition: 'Year string as it appears in the nomenclatural reference.', project_id: $project_id),
@@ -404,14 +439,12 @@
           else
             person = Person.parse_to_people(row['FullName']).first
           end
-#          if person.valid?
+          unless person.nil?
             person.data_attributes.new(type: 'ImportAttribute', import_predicate: '3i_Author', value: row['Author']) unless row['Author'].blank?
             person.data_attributes.new(type: 'ImportAttribute', import_predicate: 'AuthorDrMetcalf', value: row['FullName']) unless row['FullName'].blank?
             person.save!
             @data.people[row['Author']] = person.id
-#          else
-#            byebug
-#          end
+          end
 
         end
       end
@@ -478,6 +511,7 @@
           if !note.blank? && note.include?('Taxonomy only')
             source.tags.create(keyword: @data.keywords['Taxonomy'])
             note.gsub!('Taxonomy only', '')
+            @data.source_checked_taxonomy[source.id] = true
           end
           if !note.blank? && note.index('T ') == 0
             source.tags.create(keyword: @data.keywords['Typhlocybinae'])
@@ -616,7 +650,9 @@
                   'f' => 'TaxonNameClassification::Latinized::Gender::Feminine',
                   'n' => 'TaxonNameClassification::Latinized::Gender::Neuter' }.freeze
 
-        synonym_statuses = %w(1 6 8 10 11 14 17 22 23 24 26 27 28 29)
+        confidence = ConfidenceLevel.find_or_create_by(name: 'Verified', definition: 'Verified against the original source', project_id: $project_id).id
+
+          synonym_statuses = %w(1 6 8 10 11 14 17 22 23 24 26 27 28 29).freeze
 
           path = @args[:data_directory] + 'taxon.txt'
           print "\nHandling taxonomy\n"
@@ -707,6 +743,10 @@
               taxon.data_attributes.new(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['TypeDepository'].id, value: row['TypeDepository']) unless row['TypeDepository'].blank?
               taxon.data_attributes.new(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['YearRem'].id, value: row['YearRem']) unless row['YearRem'].blank?
               taxon.data_attributes.new(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['PageAuthor'].id, value: row['PageAuthor']) unless row['PageAuthor'].blank?
+
+              if @data.source_checked_taxonomy[source]
+                taxon.confidences.create(position: 1, confidence_level_id: confidence)
+              end
 
               if !row['DescriptEn'].blank? && row['DescriptEn'].include?('<h2>Similar species</h2>')
                 taxon.data_attributes.new(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['SimilarSpecies'].id, value: row['DescriptEn'].gsub('<h2>Similar species</h2>', '').squish)
@@ -1183,6 +1223,9 @@
         raise "file #{path} not found" if not File.exists?(path)
         file = CSV.foreach(path, col_sep: "\t", headers: true)
 
+        confidence = ConfidenceLevel.find_or_create_by(name: 'Verified', definition: 'Verified against the original source', project_id: $project_id).id
+
+
         file.each_with_index do |row, i|
           print "\r#{i}"
 
@@ -1195,8 +1238,11 @@
             byebug if p.nil?
             c = p.citations.find_or_create_by!(source_id: source, project_id: $project_id)
 
+            if row['Descriptions'] == '1' && row['Types'] == '1'
+              c.citation_topics.find_or_create_by(topic: @data.topics['Types'], project_id: $project_id)
+              p.confidences.create(position: 1, confidence_level_id: confidence)
+            end
             c.citation_topics.find_or_create_by(topic: @data.topics['Descriptions'], project_id: $project_id) if row['Descriptions'] == '1' && row['Types'] == '0'
-            c.citation_topics.find_or_create_by(topic: @data.topics['Types'], project_id: $project_id) if row['Descriptions'] == '1' && row['Types'] == '1'
             c.citation_topics.find_or_create_by(topic: @data.topics['Records'], project_id: $project_id) if row['Records'] == '1'
             c.citation_topics.find_or_create_by(topic: @data.topics['Pictures'], project_id: $project_id) if row['Pictures'] == '1'
             c.citation_topics.find_or_create_by(topic: @data.topics['Keys'], project_id: $project_id) if row['Keys'] == '1'
@@ -1355,7 +1401,7 @@
         count_fields = %w{ Specimens Males Females Nymphs }.freeze
 
         file.each_with_index do |row, i|
-          next if i < 1000000 #######################
+          # next if i < 1000000 #######################
           print "\r#{i}"
 
           collecting_event = find_or_create_collecting_event_3i(row)
@@ -1579,6 +1625,7 @@
               unless type.nil?
                 type = type + 's' if o.type == "Lot"
                 tm = TypeMaterial.create(protonym_id: otu.taxon_name_id, material: o, type_type: type )
+                o.tags.find_or_create_by!(keyword: @data.keywords['Allotype']) if row['Type'] == 'Allotype'
                 if tm.id.nil?
                   o.data_attributes.create(type: 'ImportAttribute', import_predicate: 'type_material_error', value: 'Type material was not created. There are some inconsistensies.')
                 end

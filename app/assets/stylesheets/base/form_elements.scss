@@ -10,14 +10,14 @@ input[type=checkbox].increment { display: none; }
   display: inline-block;
   font-size: $font_small;
   cursor: pointer;
-  width: 24px;
-  height:24px;
-  max-width: 24px;
-  max-height:24px;
+  width: 26px;
+  height:26px;
+  max-width: 26px;
+  max-height:26px;
   background-size: 12px;
   background-position: center;
   background-repeat: no-repeat;
-  border-radius: 3px;
+  border-radius: 2px;
   transition: background-color 0.5s ease;
   border: 1px solid $navigation_border;
   background-color: $color-secondary-2-1;    
@@ -35,13 +35,13 @@ input[type=checkbox].increment { display: none; }
 
 input[type=checkbox]:checked + label.lock {
  background-image:image-url('locked.svg');
- box-shadow:inset 0px 1px 3px 0px $navigation_border;
+ box-shadow:inset 0px 1px 2px 0px $navigation_border;
  background-color: $navigation_background;
 }
 
 input[type=checkbox]:checked + label.increment {
  background-image:image-url('inc.svg');
- box-shadow:inset 0px 1px 3px 0px $navigation_border;
+ box-shadow:inset 0px 1px 2px 0px $navigation_border;
  background-color: $navigation_background;
 }
 
@@ -67,27 +67,27 @@ textarea:focus, input:focus{
 }
 
 fieldset {
-  border-radius:3px;
+  border-radius:2px;
   border:1px solid $navigation_border;
-  background-color:$body_background;  
+  background-color:#FFF;  
 }
 
 form input, textarea {
-  font-size: $font_tiny;
+  font-size: $font_small;
 	padding:$standard_padding*0.4;
-	padding-left:$standard_padding;
-	padding-right:$standard_padding;
-	border-radius:3px;
+	padding-left:$standard_padding*0.9;
+	padding-right:$standard_padding*0.9;
+	border-radius:2px;
 	border:1px solid $navigation_border;
-	background-color:$body_background;
+	background-color:#FFF;
 }
 
 input[type="submit"] {
-  color: $body_background;
-  border-radius: 3px;
+  color: #FFF;
+  border-radius: 2px;
   border:1px solid;
   border:transparent;
-  box-shadow: 0px 1px 3px 0px $navigation_border;
+  box-shadow: 0px 1px 2px 0px $navigation_border;
   background-color: #9CCC65;
 }
 
@@ -95,10 +95,10 @@ select {
   padding:$standard_padding*0.5;
   padding-left:$standard_padding;
   padding-right:$standard_padding;
-  border-radius:3px;
+  border-radius:2px;
   border:1px solid $muted_blue;
-  background-color:$body_background;
-  height: 25px;
+  background-color:#FFF;
+  font-size: $font_tiny;
 }
 
 .ui-autocomplete {

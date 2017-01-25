@@ -8,12 +8,13 @@
 		z-index: 900;
 		display: none;
 		position: fixed;
-		bottom: 20px;
-		left: 75px;
+		top:calc(50vh + 68px); 
+		right: 18px;
 		cursor: pointer;
 		font-size: $font_small;
 		background-color: $panel_background;
 		padding: $standard_padding;
+		padding-right: 40px;
 		border-radius: 3px;
 	}
 

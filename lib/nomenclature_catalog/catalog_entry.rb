@@ -27,7 +27,8 @@ module NomenclatureCatalog
     # @return [Array of NomenclatureCatalog::EntryItem]
     #   sorted by date, then taxon name name as rendered for this item
     def ordered_by_nomenclature_date
-      items.sort{|a,b| [(a.nomenclature_date || Time.utc(1)), a.object_class,   a.taxon_name.cached_original_combination.to_s ] <=> [(b.nomenclature_date || Time.utc(1)), b.object_class, b.taxon_name.cached_original_combination.to_s ] }
+      now = Time.now
+      items.sort{|a,b| [(a.nomenclature_date || now), a.object_class, a.taxon_name.cached_original_combination.to_s ] <=> [(b.nomenclature_date || now), b.object_class, b.taxon_name.cached_original_combination.to_s ] }
     end
 
     # @return [Array of EntryItems]

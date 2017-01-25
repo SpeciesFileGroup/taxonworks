@@ -1,9 +1,12 @@
 <%= content_for :associated do -%> <!---- why doesn't this show? ---->
   <h3> Topics </h3>
   <ul>
-    <% @otu_page_layout.topics.each do |t| -%> 
+ 
+    <% @otu_page_layout.otu_page_layout_sections.each do |s| -%> 
       <%= content_tag(:li, topic_tag(t)) -%>
+      <%= content_tag(:li, s.name) -%><%= s.type -%>
     <% end %> 
+
   </ul>
 <% end %>
 

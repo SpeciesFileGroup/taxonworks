@@ -10,16 +10,14 @@
 }
 
 .panel h2, h3, h4, .subtitle {
- font-weight: 100;
+ font-weight: 300;
 }
 
 .panel {
-  border-top-right-radius: 3px;
-  border-top-left-radius: 3px;
   display: flex;
   flex-direction:column;
   justify-content:flex-start;
-  box-shadow: 0 0px 3px 0 $navigation_border;
+  box-shadow: 0 1px 2px rgba(0,0,0,.2);
   background-color: $panel_background;
   a {
     text-decoration: none;
@@ -57,15 +55,19 @@
     position: relative;
   }
 
+  .border-bottom {
+    border-bottom: 1px solid $navigation_border;
+  }
+
   .title {
     display: flex;
-    min-height: 35px;
-    padding-top: 5px;
+    min-height: 42px;
+    //padding-top: 4px;
     font-size: $font_title;
     align-items:center;
     padding-left: $standard_padding;
     padding-right: $standard_padding;
-    border-bottom: 5px solid transparent;
+    border-bottom: 2px solid transparent;
     justify-content:space-between;  
     position: relative; 
     a {
@@ -84,20 +86,20 @@
   }
  
   .nav-line {
-    border-bottom: 3px solid $color-secondary-2-4;
+    border-bottom: 2px solid $color-secondary-2-4;
   } 
 
   .title.shared {
-    border-bottom:3px solid $color-secondary-1-3;
+    border-bottom:2px solid $color-secondary-1-3;
   }
 
   .title.application_defined {
-    border-bottom:3px solid $color-primary-4;
+    border-bottom:2px solid $color-primary-4;
   }
 
 
   .action-line {
-    border-bottom:3px solid $color-complement-3;
+    border-bottom:2px solid $color-complement-3;
   }  
 
   .navigation-bar-right {

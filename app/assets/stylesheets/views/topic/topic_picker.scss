@@ -1,0 +1,43 @@
+@import 'base/palette';
+@import 'base/whitespace';
+
+.citation_topic_picker {
+	position: relative;
+	.citation_topic_picker_topic_form {
+		position: absolute;
+		display: flex;
+		align-items: center;
+		background-color: $panel_background;
+		padding: $standard_padding;
+		box-shadow: 0px 1px 1px 0px rgba(0,0,0,0.2);
+		box-sizing: border-box;
+		.citation_topic_picker_add_new {
+			display: none;
+		}
+	}
+
+	.citation_topic_list {
+		display: inline-block;
+		padding: 0px;
+		list-style: none;
+		box-shadow: 0px 1px 1px 0px rgba(0,0,0,0.2);
+		background-color: $panel_background;
+
+		li {
+			min-width: 250px;
+			display: flex;
+			justify-content: space-between;
+			padding: $standard_padding;
+			margin: 0px;
+			border-bottom:1px solid $navigation_border;
+		}
+		input {
+			width: 50px;
+		}
+
+		.remove_citation_topic {
+			display: block;
+			margin-left: 30px;
+		}
+	}
+}

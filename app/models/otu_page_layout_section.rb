@@ -37,6 +37,30 @@ class OtuPageLayoutSection < ActiveRecord::Base
   validates_presence_of :type
   validates_uniqueness_of :topic_id, scope: [:otu_page_layout_id]
 
+ 
+#  def self.title
+#    'empty' # nil 
+#  end
+#
+#  def title 
+#    self.class.title
+#  end
+#
+#  def self.description
+#    nil
+#  end
+#
+#  def self.preview_image
+#   'sections/xxx.jpg'
+#  end
+#
+#  def content
+#    {partial: '',
+#     locals: {local1: 'value'}
+#    }
+#  end
+
+
 end
 
 

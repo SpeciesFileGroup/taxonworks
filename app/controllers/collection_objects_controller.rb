@@ -129,7 +129,7 @@ class CollectionObjectsController < ApplicationController
 
   # GET /collection_objects/download
   def download
-    send_data CollectionObject.generate_download(CollectionObject.where(project_id: $project_id)), type: 'text', filename: "collection_objects_#{DateTime.now.to_s}.csv"
+    send_data Download.generate_csv(CollectionObject.where(project_id: sessions_current_project_id), header_converters: []), type: 'text', filename: "collection_objects_#{DateTime.now.to_s}.csv"
   end
 
   # GET collection_objects/batch_load

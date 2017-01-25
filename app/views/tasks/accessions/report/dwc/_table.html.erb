@@ -26,15 +26,15 @@
 
       <td> <%= o.preferred_catalog_number.try(:cached) -%> </td>
       <td> <%= repository_tag(o.repository) %></td>
-      <td> <%= o.dwca_family -%> </td>
-      <td> <%= o.dwca_genus -%> </td>
-      <td> <%= o.dwca_species -%> </td>
-      <td> <%= o.dwca_country -%> </td>
-      <td> <%= o.dwca_state -%> </td>
-      <td> <%= o.dwca_county -%> </td>
-      <td> <%= o.dwca_locality -%> </td>
-      <td> <%= o.dwca_latitude -%> </td>
-      <td> <%= o.dwca_longitude -%>  </td>
+      <td> <%= o.dwc_family -%> </td>
+      <td> <%= o.dwc_genus -%> </td>
+      <td> <%= o.dwc_specific_epithet -%> </td>
+      <td> <%= o.dwc_country -%> </td>
+      <td> <%= o.dwc_state_province -%> </td>
+      <td> <%= o.dwc_county -%> </td>
+      <td> <%= o.dwc_locality -%> </td>
+      <td> <%= o.dwc_latitude -%> </td>
+      <td> <%= o.dwc_longitude -%>  </td>
       <td> Precision (m) </td>
       <%= fancy_metadata_cells_tag(o) -%>
     <% end %>

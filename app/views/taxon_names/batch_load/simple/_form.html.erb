@@ -21,9 +21,7 @@
 
         <div class="field">
           <%= label_tag :also_create_otu, 'Also create OTU:' -%>
-          <%= check_box_tag :also_create_otu, true, @result.also_create_otu, disabled: true -%>
-
-          <%= hidden_field_tag :also_create_otu, @result.also_create_otu -%>
+          <%= check_box(nil, :also_create_otu, {checked: @result.also_create_otu, disabled: true}, true, false) -%>
         </div>
 
     <% else %>

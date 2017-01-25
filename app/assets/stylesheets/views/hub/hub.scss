@@ -3,6 +3,7 @@
 
 @import 'base/palette';
 @import 'base/whitespace';
+@import 'base/fonts';
 
 #hub {
   a {
@@ -10,17 +11,17 @@
   }
 
   h1 {
-    font-weight: 100;
+    font-weight: 300;
 
   }
 
   h2 {
-    font-weight: 100;
+    font-weight: 300;
 
   }
 
   h3 {
-    font-weight: 100;
+    font-weight: 300;
   }
 
   .reset-all-filters {
@@ -65,10 +66,11 @@
     justify-content: center; 
     align-items: center;
     z-index: 1;
-    background-color: $body-background;
-    ul {
-      padding-left: 70px;
-    }
+    position: absolute; 
+    top: 50px; 
+    left: 50%;
+    width: auto;
+    transform: translateX(-50%);
 
     .navigation-bar {
       li {
@@ -78,7 +80,7 @@
         justify-content: center;
         align-items: center;
         padding-top: $standard_padding;
-        padding-bottom: $standard_padding*0.25;
+        padding-bottom: $standard_padding*0.8;
         margin-bottom: $standard_padding*0.5;
         margin-right: $standard_padding*2;
 
@@ -86,8 +88,8 @@
         border-top: 2px solid transparent;
       }
       a {
-        font-size:12px;
-        font-weight: 100;
+        font-size:$font_small;
+        font-weight: 300;
         text-transform: uppercase;
       }
     }
@@ -126,7 +128,7 @@
     }
 
     .related-title {
-      font-weight: 100;
+      font-weight: 300;
       font-size: 15px;
       margin: 0;
       padding-bottom: $standard_padding * 0.5;

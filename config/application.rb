@@ -40,6 +40,8 @@ module TaxonWorks
     # Raise error on `after_rollback`/`after_commit` callbacks
     config.active_record.raise_in_transactional_callbacks = true
 
+    config.active_job.queue_adapter = :delayed_job
+
     RGeo::ActiveRecord::SpatialFactoryStore.instance.tap do |config|
       # config.default = RGeo::Geographic.projected_factory(
       #   projection_proj4: '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs',
@@ -53,6 +55,8 @@ module TaxonWorks
         wkb_parser:              {support_ewkb: true},
         wkb_generator:           {hex_format: true, emit_ewkb_srid: true})
     end
+
+
 
   end
 end
