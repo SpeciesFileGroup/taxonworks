@@ -5,7 +5,7 @@
     <span class="tag_picker_message"></span>
 
     <ul class="tag_list">
-      <%= nf.fields_for :tags, @taggable_object.tags do |tag_fields| %>
+      <%= f.fields_for :tags, @taggable_object.tags do |tag_fields| %>
 
               <% inc_index = "#{Time.now.to_i}#{tag_fields.object.first.attributes['id']}" %>
 
