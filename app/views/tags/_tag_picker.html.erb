@@ -5,13 +5,14 @@
     <span class="tag_picker_message"></span>
 
     <ul class="tag_list">
-      <%= f.fields_for :tags, @taggable_object.tags do |tag_fields| %>
+      <%= nf.fields_for :tags, @taggable_object.tags do |tag_fields| %>
 
               <% inc_index = "#{Time.now.to_i}#{tag_fields.object.first.attributes['id']}" %>
 
           <li class="tag_item" data-tag-id="<%= tag_fields.object.first.attributes['id'] -%>" data-tag-index="<%= tag_fields.object.first.attributes['id'] -%>">
             <%= tag_tag(tag_fields.object.first) -%>
             <%= link_to('remove', "#", class: :remove_tag) -%>
+
           </li>
 
       <% end %>
@@ -19,20 +20,4 @@
     </ul>
   </div>
 
-  <div class="tag_selection">
-    <div><%= text_field_tag "tag_autocomplete", nil, class: 'tag_autocomplete', placeholder: "Tag" %></div>
-
-    <div class="new_tag" hidden>
-      <div class="tag_picker_tag_form">
-        <%= f.fields_for Tag.new do |fp| %>
-            <div class="field">
-              <%= fp.label :definition %><br>
-              <%= fp.text_area :keyword_id, placeholder: "Tag definition", class: :definition, id: "#{f.object.id}_#{fp.index}_tag_definition" %>
-            </div>
-        <% end %>
-
-        <%= link_to "add new", '#', class: :tag_picker_add_new, hidden: true %>
-      </div>
-    </div>
-  </div>
 </div>
