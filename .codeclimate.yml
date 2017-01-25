@@ -1,0 +1,9 @@
+engines:
+  rubocop:
+    enabled: true
+exclude_paths:
+- "app/assets/images/"
+- "app/assets/javascript/vendor/src/"
+- "app/assets/stylesheets/vendor/"
+- "log/"
+
