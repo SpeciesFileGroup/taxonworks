@@ -97,7 +97,9 @@ class ApplicationController < ActionController::Base
   private
 
   def notice_user 
-    @sessions_current_user.update_last_seen_at
+    if sessions_current_user
+      sessions_current_user.update_last_seen_at
+    end
   end
 
   def record_not_found
