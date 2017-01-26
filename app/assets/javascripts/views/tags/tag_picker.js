@@ -165,7 +165,7 @@ Object.assign(TW.views.tags.tag_picker, {
     // Add a citation_topic to the list via the add new form
     form.find(".keyword_picker_add_new").click(function () {
       TW.views.tags.tag_picker.insert_new_tag(form);
-      form.find('.new_tag').attr("hidden", true);
+      form.find('.new_keyword').attr("hidden", true);
       TW.views.tags.tag_picker.clear_keyword_picker(form);
     });
   },
@@ -188,11 +188,11 @@ Object.assign(TW.views.tags.tag_picker, {
     var random_index = new Date().getTime();
     var tag_list = form.find(".tag_list");
 
-    var name = form.find('.tag_autocomplete').val();
+    var name = form.find('.keyword_picker_autocomplete').val();
 
     tag_list.append(
       $('<li class="tag_item" data-new-tag="true" data-tag-index="' + random_index + '" >')
-        .append('<div><' + name + '</div>')
+        .append('<div>' + name + '</div>')
         .append($('<input hidden name="' + base_class + '[name]" value="' + name + '" >'))
         .append($('<input hidden name="' + base_class + '[definition]" value="' + form.find(".definition").val() + '" >'))
 
