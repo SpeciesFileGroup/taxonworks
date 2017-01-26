@@ -33,27 +33,6 @@ Object.assign(TW.views.tags.tag_picker, {
     form.find(".new_keyword").attr("hidden", true);
   },
 
-  // initialize_autocomplete: function (form) {
-  //   var autocomplete_input = form.find(".keyword_picker_autocomplete");
-  //
-  //   autocomplete_input.autocomplete({
-  //     source: '/keywords/lookup_keyword',
-  //     open: function (event, ui) {
-  //       TW.views.tags.tag_picker.bind_hover(form);
-  //     },
-  //     select: function (event, ui) {    // execute on select event in search text box
-  //       TW.views.tags.tag_picker.insert_existing_tag(form, ui.item.object_id, ui.item.label);
-  //       TW.views.tags.tag_picker.clear_keyword_picker(form);
-  //       TW.views.tags.tag_picker.make_tag_list_sortable(form);     // was this inadvertantly lost?
-  //       return false;
-  //     }
-  //   }).autocomplete("instance")._renderItem = function (ul, item) {
-  //     return $("<li class='tag'>")
-  //       .append("<a>" + item.label + ' <span class="hoverme" data-tag-id="' + item.object_id + '">...</span></a>')
-  //       .appendTo(ul);
-  //   };
-  // },
-
   initialize_autocomplete: function (form) {
     var autocomplete_input = form.find(".keyword_picker_autocomplete");
 
@@ -71,7 +50,7 @@ Object.assign(TW.views.tags.tag_picker, {
 
     }).autocomplete("instance")._renderItem = function (ul, item) {
       return $("<li class='tag'>")
-        .append("<a>" + item.label + ' <span class="hoverme" data-tag-id="' + item.object_id + '">...</span></a>')
+        .append("<a>" + item.label + ' <span class="hoverme" data-tag-definition="' + item.definition + '" + data-tag-id="' + item.object_id + '">...</span></a>')
         .appendTo(ul);
     };
 
@@ -112,11 +91,8 @@ Object.assign(TW.views.tags.tag_picker, {
       timeout: 200, // number = milliseconds delay before onMouseOut
       over: function () {
         var this_tag_hover;
-        this_tag_hover = $(this);
-        var url = ('/tags/get_definition/' + this_tag_hover.data('tagId'));
-        $.get(url, function (data) {
-          this_tag_hover.html('... ' + data.definition);
-        });
+        this_tag_hover = $(this);   // modified to not do AJAX call, but use attribute already extant
+        this_tag_hover.html('... ' + this_tag_hover.data('tagDefinition'));
       }, // function = onMouseOver callback (REQUIRED)
       out: function () {
         this.textContent = '...';   // how weird is this this?
@@ -186,15 +162,16 @@ Object.assign(TW.views.tags.tag_picker, {
   insert_new_tag: function (form) {
     var base_class = 'taggable_object';
     var random_index = new Date().getTime();
+    var tag_base = base_class + '[tags_attributes][' + random_index + '][keyword_attributes]';
     var tag_list = form.find(".tag_list");
 
     var name = form.find('.keyword_picker_autocomplete').val();
 
     tag_list.append($('<li class="tag_item" data-new-tag="true" data-tag-index="' + random_index + '" >')
       .append(name + "&nbsp;")
-      .append(TW.views.tags.tag_picker.remove_link()));
-    tag_list.append($('<input hidden name="' + base_class + '[name]" value="' + name + '" >'))
-      .append($('<input hidden name="' + base_class + '[definition]" value="' + form.find(".definition").val() + '" >'));
+      .append(TW.views.tags.tag_picker.remove_link())
+      .append($('<input hidden name="' + tag_base + '[name]" value="' + name + '" >'))
+      .append($('<input hidden name="' + tag_base + '[definition]" value="' + form.find(".definition").val() + '" >')));
 
     $(".keyword_picker_add_new").hide();
   },

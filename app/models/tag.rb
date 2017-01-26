@@ -31,7 +31,7 @@ class Tag < ActiveRecord::Base
   include Shared::IsData
   include Shared::AttributeAnnotations
 
-  acts_as_list scope: [:keyword_id]
+  acts_as_list scope: [:tag_object_type, :tag_object_id]
 
   belongs_to :keyword
   belongs_to :tag_object, polymorphic: true

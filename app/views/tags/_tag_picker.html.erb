@@ -5,12 +5,11 @@
     <span class="tag_picker_message"></span>
 
     <ul class="tag_list">
-      <%= f.fields_for :tags, @taggable_object.tags do |tag_fields| %>
+      <%= f.fields_for :tags, @taggable_object.tags.order(:position) do |tag_fields| %>
           <% if tag_fields.object.new_record? %>
               <% inc_index = "#{Time.now.to_i}#{tag_fields.object.id}" %>
 
               <%= content_tag(:li, 'data-tag-index' => inc_index) do -%>
-
                   <%= tag_fields.fields_for :keyword do |keyword_fields| %>
                       <%= keyword_fields.hidden_field :name -%>
                       <%= keyword_fields.hidden_field :definition -%>
@@ -22,6 +21,7 @@
           <% else %>
 
               <li class="tag_item" data-tag-id="<%= tag_fields.object.id -%>" data-tag-index="<%= tag_fields.index -%>">
+                <%= tag_fields.object.position %>
                 <%= tag_tag(tag_fields.object) -%>
             <%= link_to('remove', "#", class: :remove_tag) -%>
 
