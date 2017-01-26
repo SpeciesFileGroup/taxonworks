@@ -190,14 +190,11 @@ Object.assign(TW.views.tags.tag_picker, {
 
     var name = form.find('.keyword_picker_autocomplete').val();
 
-    tag_list.append(
-      $('<li class="tag_item" data-new-tag="true" data-tag-index="' + random_index + '" >')
-        .append('<div>' + name + '</div>')
-        .append($('<input hidden name="' + base_class + '[name]" value="' + name + '" >'))
-        .append($('<input hidden name="' + base_class + '[definition]" value="' + form.find(".definition").val() + '" >'))
-
-        .append(TW.views.tags.tag_picker.remove_link())
-    );
+    tag_list.append($('<li class="tag_item" data-new-tag="true" data-tag-index="' + random_index + '" >')
+      .append(name + "&nbsp;")
+      .append(TW.views.tags.tag_picker.remove_link()));
+    tag_list.append($('<input hidden name="' + base_class + '[name]" value="' + name + '" >'))
+      .append($('<input hidden name="' + base_class + '[definition]" value="' + form.find(".definition").val() + '" >'));
 
     $(".keyword_picker_add_new").hide();
   },
