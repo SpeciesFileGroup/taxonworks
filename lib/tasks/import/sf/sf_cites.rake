@@ -13,9 +13,11 @@ namespace :tw do
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
           get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID')
-          get_tw_otu_id = import.get('SFTaxonNameIDToTWOtuID')
+          get_tw_otu_id = import.get('SFTaxonNameIDToTWOtuID') # Note this is and OTU associated with a SF.TaxonNameID (probably a bad taxon name)
+          get_taxon_name_otu_id = import.get('TWTaxonNameIDToOtuID') # Note this is the OTU offically associated with a real TW.taxon_name_id
           get_tw_source_id = import.get('SFRefIDToTWSourceID')
           get_nomenclator_string = import.get('SFNomenclatorIDToSFNomenclatorString')
+          get_cvt_id = import.get('CvtProjUriID')
 
           # @todo: Temporary "fix" to convert all values to string; will be fixed next time taxon names are imported and following do can be deleted
           get_tw_taxon_name_id.each do |key, value|
@@ -47,7 +49,7 @@ namespace :tw do
               next
             end
 
-            project_id = TaxonName.find(taxon_name_id).project_id.to_i
+            project_id = TaxonName.find(taxon_name_id).project_id.to_i # @todo Should this be int or str?
             source_id = get_tw_source_id[row['RefID']].to_i
 
             next if source_id == 0
@@ -59,18 +61,15 @@ SF.RefID #{row['RefID']} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}
 
             new_name_uri = (base_uri + 'new_name_status/' + row['NewNameStatusID']) unless row['NewNameStatusID'] == '0'
             type_info_uri = (base_uri + 'type_info/' + row['TypeInfoID']) unless row['TypeInfoID'] == '0'
+            info_flag_status_uri = (base_uri + 'info_flag_status/' + row['InfoFlagStatus']) unless row['InfoFlagStatus'] == '0'
 
-            # puts new_name_uri if new_name_uri
-            # puts type_info_uri if type_info_uri
-
-#           new_name_cvt_id =  Keyword.where('uri = ? AND project_id = ?', new_name_uri, project_id).limit(1).pluck(:id).first if new_name_uri
-#            type_info_cvt_id = Keyword.where('uri = ? AND project_id = ?', type_info_uri, project_id).limit(1).pluck(:id).first if type_info_uri
+            # @todo: Verify that tags and confidences will not be created if the cvt_id == 0
 
             new_name_cvt_id = get_cvt_id[project_id][new_name_uri] #   Keyword.where('uri = ? AND project_id = ?', new_name_uri, project_id).limit(1).pluck(:id).first if new_name_uri
-            type_info_cvt_id =  get_cvt_id[project_id][type_info_uri] #  Keyword.where('uri = ? AND project_id = ?', type_info_uri, project_id).limit(1).pluck(:id).first if type_info_uri
+            type_info_cvt_id = get_cvt_id[project_id][type_info_uri] #  Keyword.where('uri = ? AND project_id = ?', type_info_uri, project_id).limit(1).pluck(:id).first if type_info_uri
+            info_flag_status_cvt_id = get_cvt_id[project_id][info_flag_status_uri]
 
-
-            ap "NewNameStatusID = #{new_name_cvt_id.to_s}; TypeInfoID = #{type_info_cvt_id.to_s}"   # if new_name_cvt_id
+            ap "NewNameStatusID = #{new_name_cvt_id.to_s}; TypeInfoID = #{type_info_cvt_id.to_s}" # if new_name_cvt_id
 
             metadata = {
                 ## Note: Add as attribute before save citation
@@ -92,12 +91,10 @@ SF.RefID #{row['RefID']} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}
                 # ],
 
                 tags_attributes: [{keyword_id: new_name_cvt_id, project_id: project_id}, {keyword_id: type_info_cvt_id, project_id: project_id}],
-     
 
                 ## InfoFlagStatus: Add confidence, 1 = partial data or needs review, 2 = complete data
-                confidences_attributes: [{confidence_level_id: (row['InfoFlagStatus'].to_i > 0 ? ControlledVocabularyTerm.where('uri LIKE ? and project_id = ?', "%/info_flag_status/#{row['InfoFlagStatus']}", project_id).limit(1).pluck(:id).first : nil), project_id: project_id}]
-            }
-
+                confidences_attributes: [{confidence_level_id: info_flag_status_cvt_id, project_id: project_id}]
+             }
 
             # Original description citation most likely already exists but pages are source pages, not cite pages
             citation = Citation.where(source_id: source_id, citation_object_type: 'TaxonName', citation_object_id: taxon_name_id, is_original: true).first
@@ -110,20 +107,20 @@ SF.RefID #{row['RefID']} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}
             else # create new citation
               citation = Citation.new(
                   metadata.merge(
-                  source_id: source_id,
-                  pages: cite_pages,
-                  is_original: (row['SeqNum'] == '1' ? true : false),
-                  citation_object_type: 'TaxonName',
-                  citation_object_id: taxon_name_id,
+                      source_id: source_id,
+                      pages: cite_pages,
+                      is_original: (row['SeqNum'] == '1' ? true : false),
+                      citation_object_type: 'TaxonName',
+                      citation_object_id: taxon_name_id,
 
 
-                  # housekeeping for citation
-                  project_id: project_id,
-                  created_at: row['CreatedOn'],
-                  updated_at: row['LastUpdate'],
-                  created_by_id: get_tw_user_id[row['CreatedBy']],
-                  updated_by_id: get_tw_user_id[row['ModifiedBy']]
-              )
+                      # housekeeping for citation
+                      project_id: project_id,
+                      created_at: row['CreatedOn'],
+                      updated_at: row['LastUpdate'],
+                      created_by_id: get_tw_user_id[row['CreatedBy']],
+                      updated_by_id: get_tw_user_id[row['ModifiedBy']]
+                  )
               )
 
               begin
@@ -178,7 +175,9 @@ SF.RefID #{row['RefID']} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}
               next
             end
 
-            otu_id = get_tw_otu_id[taxon_name_id].to_i
+            otu_id = get_taxon_name_otu_id[taxon_name_id].to_i
+
+            # @todo: add error handling for otu not found
 
             otu_citation = citation.dup
             otu_citation.citation_object_type = 'Otu' # OTU is not instantiated (citation.citation_object = my_otu won't work)
@@ -189,17 +188,22 @@ SF.RefID #{row['RefID']} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}
               logger.error "OTU citation ERROR SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id} = otu_id #{otu_id} (#{error_counter += 1}): " + otu_citation.errors.full_messages.join(';')
             end
 
+            base_cite_info_flags_uri = (base_uri + 'cite_info_flags/') # + bit_position below
+
             cite_info_flags_array = Utilities::Numbers.get_bits(info_flags)
 
             cite_info_flags_array.each do |bit_position|
 
               # only need something like tags above, value is simply based on uri
+              # @todo Do we use a base_uri
+              # something like: cite_info_flags_cvt_id = get_cvt_id[project_id][cite_info_flags_uri]
 
               #cite_topic = CitationtTopic.save(
+              # @todo CitationTopic not saved, should it be create! ?
               cite_topic = CitationTopic.new(
-                  topic_id: ControlledVocabularyTerm.where('uri LIKE ? and project_id = ?', "%/cite_info_flags/#{bit_position}", project_id).pluck(:id).first,
+                  topic_id: get_cvt_id[project_id][base_cite_info_flags_uri + bit_position],
                   citation_id: citation.id,
-                  project_id: project_id
+                  project_id: project_id.to_i # @todo: check if int or str
               )
             end
 
@@ -215,7 +219,6 @@ SF.RefID #{row['RefID']} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}
         # @todo Do I really need a data_directory if I'm using a Postgres table? Not that it hurts...
         LoggedTask.define :create_cvts_for_citations => [:data_directory, :environment, :user_id] do |logger|
 
-          get_cvt_id = {}
           # Create controlled vocabulary terms (CVTS) for NewNameStatus, TypeInfo, and CiteInfoFlags; CITES_CVTS below in all caps denotes constant
 
           CITES_CVTS = {
@@ -279,56 +282,31 @@ SF.RefID #{row['RefID']} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}
 
           logger.info 'Running create_cvts_for_citations...'
 
+          get_cvt_id = {} # key = project_id, value = {tag/topic uri, cvt.id.to_s}
+
           Project.all.each do |project|
             next unless project.name.end_with?('species_file')
 
-            project_id = project.id
+            project_id = project.id.to_s
 
             logger.info "Working with TW.project_id: #{project_id} = '#{project.name}'"
 
-            get_cvt_id[project.id] = {}
-            ## commented out example using array ??
-            # CITES_CVTS.keys.each do |key|
-            #   CITES_CVTS[key].each do |params|
-            #     ControlledVocabularyTerm.create!(params.merge(project_id: project_id))
-            #   end
-            # end
+            get_cvt_id[project_id] = {} # initialized for outer loop with project_id
 
             CITES_CVTS.keys.each do |column| # tblCites.ColumnName
               CITES_CVTS[column].each do |params|
-               c = ControlledVocabularyTerm.create!(params.merge(project_id: project_id))
-               get_cvt_id[project_id][c.uri] = c.id
-=begin
-                {
-                    1 => {
-                        http://speciesfile.org/legacy/info_flag_status/2' => 22   # where 22 is the cvt.id
-                            ...
-                    }
-
-
-                }
-=end
-
-=begin
-        required values for array/hash?
-            1.  newly created CVT.id
-            2.  flag type [new_name_status, type_info, cite_info_flags, info_flag_status]
-            3.  flag value [1,2, ...]
-            4.  project_id
-=end
-
+                cvt = ControlledVocabularyTerm.create!(params.merge(project_id: project.id)) # want this to be integer
+                get_cvt_id[project_id][cvt.uri] = cvt.id.to_s
               end
             end
-
-
-            import = Import.find_or_create_by(name: 'SpeciesFileData')
-            import.set('', get_cvt_id)
-
-            puts = ''
-            ap get_cvt_id
-
-
           end
+
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          import.set('CvtProjUriID', get_cvt_id)
+
+          puts = 'CvtProjUriID'
+          ap get_cvt_id
+
         end
 
         desc 'time rake tw:project_import:sf_import:cites:import_nomenclator_strings user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
