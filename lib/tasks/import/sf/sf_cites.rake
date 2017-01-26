@@ -13,18 +13,11 @@ namespace :tw do
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
           get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID')
-          get_tw_otu_id = import.get('SFTaxonNameIDToTWOtuID') # Note this is and OTU associated with a SF.TaxonNameID (probably a bad taxon name)
+          # get_tw_otu_id = import.get('SFTaxonNameIDToTWOtuID') # Note this is and OTU associated with a SF.TaxonNameID (probably a bad taxon name)
           get_taxon_name_otu_id = import.get('TWTaxonNameIDToOtuID') # Note this is the OTU offically associated with a real TW.taxon_name_id
           get_tw_source_id = import.get('SFRefIDToTWSourceID')
           get_nomenclator_string = import.get('SFNomenclatorIDToSFNomenclatorString')
           get_cvt_id = import.get('CvtProjUriID')
-
-          # @todo: Temporary "fix" to convert all values to string; will be fixed next time taxon names are imported and following do can be deleted
-          get_tw_taxon_name_id.each do |key, value|
-            get_tw_taxon_name_id[key] = value.to_s
-          end
-
-          # NOTE: SF RefInRefs were not imported prior to 11 Jan 2017. They should have been handled as verbatim ref. Patch is now in the create_sources task and should be handled once that task is rerun.
 
           path = @args[:data_directory] + 'tblCites.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
@@ -33,6 +26,7 @@ namespace :tw do
           error_counter = 0
           no_taxon_counter = 0
           cite_found_counter = 0
+          otu_not_found_counter = 0
 
           base_uri = 'http://speciesfile.org/legacy/'
 
@@ -49,7 +43,7 @@ namespace :tw do
               next
             end
 
-            project_id = TaxonName.find(taxon_name_id).project_id.to_i # @todo Should this be int or str?
+            project_id = TaxonName.find(taxon_name_id).project_id.to_s # forced to string for hash value
             source_id = get_tw_source_id[row['RefID']].to_i
 
             next if source_id == 0
@@ -62,8 +56,6 @@ SF.RefID #{row['RefID']} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}
             new_name_uri = (base_uri + 'new_name_status/' + row['NewNameStatusID']) unless row['NewNameStatusID'] == '0'
             type_info_uri = (base_uri + 'type_info/' + row['TypeInfoID']) unless row['TypeInfoID'] == '0'
             info_flag_status_uri = (base_uri + 'info_flag_status/' + row['InfoFlagStatus']) unless row['InfoFlagStatus'] == '0'
-
-            # @todo: Verify that tags and confidences will not be created if the cvt_id == 0
 
             new_name_cvt_id = get_cvt_id[project_id][new_name_uri] #   Keyword.where('uri = ? AND project_id = ?', new_name_uri, project_id).limit(1).pluck(:id).first if new_name_uri
             type_info_cvt_id = get_cvt_id[project_id][type_info_uri] #  Keyword.where('uri = ? AND project_id = ?', type_info_uri, project_id).limit(1).pluck(:id).first if type_info_uri
@@ -94,7 +86,7 @@ SF.RefID #{row['RefID']} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}
 
                 ## InfoFlagStatus: Add confidence, 1 = partial data or needs review, 2 = complete data
                 confidences_attributes: [{confidence_level_id: info_flag_status_cvt_id, project_id: project_id}]
-             }
+            }
 
             # Original description citation most likely already exists but pages are source pages, not cite pages
             citation = Citation.where(source_id: source_id, citation_object_type: 'TaxonName', citation_object_id: taxon_name_id, is_original: true).first
@@ -177,34 +169,43 @@ SF.RefID #{row['RefID']} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}
 
             otu_id = get_taxon_name_otu_id[taxon_name_id].to_i
 
-            # @todo: add error handling for otu not found
-
-            otu_citation = citation.dup
-            otu_citation.citation_object_type = 'Otu' # OTU is not instantiated (citation.citation_object = my_otu won't work)
-            otu_citation.citation_object_id = otu_id
-            begin
-              otu_citation.save!
-            rescue ActiveRecord::RecordInvalid # otu_citation not valid
-              logger.error "OTU citation ERROR SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id} = otu_id #{otu_id} (#{error_counter += 1}): " + otu_citation.errors.full_messages.join(';')
+            if otu_id == 0
+              logger.warn "OTU error, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id} (OTU not found: #{otu_not_found_counter += 1})"
+              next
             end
 
             base_cite_info_flags_uri = (base_uri + 'cite_info_flags/') # + bit_position below
-
             cite_info_flags_array = Utilities::Numbers.get_bits(info_flags)
 
-            cite_info_flags_array.each do |bit_position|
+            citation_topics_attributes = cite_info_flags_array.collect { |bit_position|
+              {topic_id: get_cvt_id[project_id][base_cite_info_flags_uri + bit_position.to_s],
+               project_id: project_id,
+               created_at: row['CreatedOn'],
+               updated_at: row['LastUpdate'],
+               created_by_id: get_tw_user_id[row['CreatedBy']],
+               updated_by_id: get_tw_user_id[row['ModifiedBy']]
+              }
+            }
 
-              # only need something like tags above, value is simply based on uri
-              # @todo Do we use a base_uri
-              # something like: cite_info_flags_cvt_id = get_cvt_id[project_id][cite_info_flags_uri]
+            otu_citation = Citation.new(
+                source_id: source_id,
+                pages: cite_pages,
+                is_original: (row['SeqNum'] == '1' ? true : false),
+                citation_object_type: 'Otu',
+                citation_object_id: otu_id,
+                citation_topics_attributes: citation_topics_attributes,
+                project_id: project_id,
+                created_at: row['CreatedOn'],
+                updated_at: row['LastUpdate'],
+                created_by_id: get_tw_user_id[row['CreatedBy']],
+                updated_by_id: get_tw_user_id[row['ModifiedBy']]
+            )
 
-              #cite_topic = CitationtTopic.save(
-              # @todo CitationTopic not saved, should it be create! ?
-              cite_topic = CitationTopic.new(
-                  topic_id: get_cvt_id[project_id][base_cite_info_flags_uri + bit_position],
-                  citation_id: citation.id,
-                  project_id: project_id.to_i # @todo: check if int or str
-              )
+            begin
+              otu_citation.save!
+              puts 'OTU citation created'
+            rescue ActiveRecord::RecordInvalid
+              logger.error "OTU citation ERROR SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id} = otu_id #{otu_id} (#{error_counter += 1}): " + otu_citation.errors.full_messages.join(';')
             end
 
 
