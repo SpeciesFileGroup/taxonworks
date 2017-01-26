@@ -229,7 +229,8 @@ TaxonWorks::Application.routes.draw do
 
   resources :keywords, only: [] do
     collection do
-      get 'autocomplete'
+      get :autocomplete
+      get :lookup_keyword
     end
   end
 
@@ -358,6 +359,8 @@ TaxonWorks::Application.routes.draw do
       get 'get_definition/:id', action: 'get_definition'
       get :autocomplete
       get :new_new
+      post :new_create
+      post :new_update
     end
   end
 

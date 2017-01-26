@@ -16,9 +16,6 @@
       </div>
       <%= f.hidden_field :tag_object_type %>
       <%= f.hidden_field :tag_object_id %>
-      <%= render partial: '/tags/tag_picker',
-                 locals: {tag: Tag.new(), object: @tag, f: f}
-      %>
       <div class="actions">
         <%= f.submit %>
       </div>

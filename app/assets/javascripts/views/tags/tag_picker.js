@@ -14,10 +14,10 @@ Object.assign(TW.views.tags.tag_picker, {
     //
     // all of these should likely be renamed for namespacing purposes
     this.initialize_autocomplete(form);
-    //bind_new_link(form);
-    //bind_switch_link(form);
-    //bind_expand_link(form);
-    //bind_label_mirroring(form);
+    // bind_new_link(form);
+    bind_switch_link(form);
+    bind_expand_link(form);
+    // bind_label_mirroring(form);
     this.bind_remove_section_links(form.find('.remove_tag'));
 
     this.make_tag_list_sortable(form);
@@ -25,27 +25,63 @@ Object.assign(TW.views.tags.tag_picker, {
   },
 
 // Empties search text box and hide new_person div
-  clear_tag_picker: function (form) {
-    var tag_picker;
-    tag_picker = form.find('.tag_picker_autocomplete');
-    $(tag_picker).val("");
-    form.find(".new_tag").attr("hidden", true);
+  clear_keyword_picker: function (form) {
+    var keyword_picker;
+    keyword_picker = form.find('.keyword_picker_autocomplete');
+    $(keyword_picker).val("");
+    form.find(".new_keyword").attr("hidden", true);
   },
 
+  // initialize_autocomplete: function (form) {
+  //   var autocomplete_input = form.find(".keyword_picker_autocomplete");
+  //
+  //   autocomplete_input.autocomplete({
+  //     source: '/keywords/lookup_keyword',
+  //     open: function (event, ui) {
+  //       TW.views.tags.tag_picker.bind_hover(form);
+  //     },
+  //     select: function (event, ui) {    // execute on select event in search text box
+  //       TW.views.tags.tag_picker.insert_existing_tag(form, ui.item.object_id, ui.item.label);
+  //       TW.views.tags.tag_picker.clear_keyword_picker(form);
+  //       TW.views.tags.tag_picker.make_tag_list_sortable(form);     // was this inadvertantly lost?
+  //       return false;
+  //     }
+  //   }).autocomplete("instance")._renderItem = function (ul, item) {
+  //     return $("<li class='tag'>")
+  //       .append("<a>" + item.label + ' <span class="hoverme" data-tag-id="' + item.object_id + '">...</span></a>')
+  //       .appendTo(ul);
+  //   };
+  // },
+
   initialize_autocomplete: function (form) {
-    var autocomplete_input = form.find(".tag_picker_autocomplete");
+    var autocomplete_input = form.find(".keyword_picker_autocomplete");
 
     autocomplete_input.autocomplete({
-      source: '/tags/lookup_tag',
+      source: '/keywords/lookup_keyword',
       open: function (event, ui) {
         TW.views.tags.tag_picker.bind_hover(form);
       },
       select: function (event, ui) {    // execute on select event in search text box
         TW.views.tags.tag_picker.insert_existing_tag(form, ui.item.object_id, ui.item.label);
-        TW.views.tags.tag_picker.clear_tag_picker(form);
+        TW.views.tags.tag_picker.clear_keyword_picker(form);
         TW.views.tags.tag_picker.make_tag_list_sortable(form);     // was this inadvertantly lost?
         return false;
-      }
+      },
+      keyup: (function () {
+        var input_term = autocomplete_input.val();
+        var name = input_term;
+
+        if (input_term.length == 0) {
+          form.find(".new_keyword").attr("hidden", true);
+        }
+        else {
+          form.find(".new_keyword").removeAttr("hidden");
+        }
+        ;
+
+        form.find(".name").val(name).change();
+        form.find(".definition").val("").change();
+      })
     }).autocomplete("instance")._renderItem = function (ul, item) {
       return $("<li class='tag'>")
         .append("<a>" + item.label + ' <span class="hoverme" data-tag-id="' + item.object_id + '">...</span></a>')
@@ -53,12 +89,13 @@ Object.assign(TW.views.tags.tag_picker, {
     };
   },
 
+
   make_tag_list_sortable: function (form) {
     var list_items = form.find(".tag_list");
     list_items.sortable({
       change: function (event, ui) {
         if ($('form[id^="new_"]').length == 0) {
-          warn_for_save(form.find(".tag_picker_message"));
+          TW.views.tags.tag_picker.warn_for_save(form.find(".tag_picker_message"));
         }
       }
     });
@@ -87,7 +124,8 @@ Object.assign(TW.views.tags.tag_picker, {
   },
 
   bind_position_handling_to_submit_button: function (form) {
-    var base_class = form.data('base-class');
+    // var base_class = form.data('base-class');
+    var base_class = 'taggable_object';
 
     form.closest("form").find('input[name="commit"]').click(function () {
       var i = 1;
@@ -96,7 +134,7 @@ Object.assign(TW.views.tags.tag_picker, {
         console.log($(this));
         tag_index = $(this).data('tag-index');
         $(this).append(
-          $('<input hidden name="' + base_class + '[standard_sections_attributes][' + tag_index + '][position]" value="' + i + '" >')
+          $('<input hidden name="' + base_class + '[tags_attributes][' + tag_index + '][position]" value="' + i + '" >')
         );
         i = i + 1;
       });
@@ -104,14 +142,15 @@ Object.assign(TW.views.tags.tag_picker, {
   },
 
   insert_existing_tag: function (form, tag_id, label) {
-    var base_class = form.data('base-class');
+    var base_class;// = form.data('base-class');
+    base_class = 'taggable_object';
     var random_index = new Date().getTime();
     var tag_list = form.find(".tag_list");
 
     // type
 
-    tag_list.append($('<input hidden name="' + base_class + '[standard_sections_attributes][' + random_index + '][type]" value="OtuPageLayoutSection::StandardSection">'));
-    tag_list.append($('<input hidden name="' + base_class + '[standard_sections_attributes][' + random_index + '][tag_id]" value="' + tag_id + '" >'));
+    tag_list.append($('<input hidden name="' + base_class + '[tags_attributes][' + random_index + '][type]" value="OtuPageLayoutSection::StandardSection">'));
+    tag_list.append($('<input hidden name="' + base_class + '[tags_attributes][' + random_index + '][tag_id]" value="' + tag_id + '" >'));
 
     // insert visible list item
     tag_list.append($('<li class="tag_item" data-tag-index="' + random_index + '">').append(label).append('&nbsp;').append(remove_tag_link()));
@@ -129,7 +168,8 @@ Object.assign(TW.views.tags.tag_picker, {
       var tag_picker = list_item.closest('.tag_picker');
       var tag_id = list_item.data('tag-id');
       var tag_index = list_item.data('tag-index');
-      var base_class = tag_picker.data('base-class');
+      var base_class = 'taggable_object';
+      // var base_class = tag_picker.data('base-class');
 
       if (tag_id != undefined) {
         var tag_list = list_item.closest('.tag_list');
@@ -137,8 +177,8 @@ Object.assign(TW.views.tags.tag_picker, {
         // if this is not a new tag
         // if (list_item.data('new-person') != "true")  {
         // if there is an ID from an existing item add the necessary (hidden) _destroy input
-        tag_list.append($('<input hidden name="' + base_class + '[standard_sections_attributes][' + tag_index + '][id]" value="' + tag_id + '" >'));
-        tag_list.append($('<input hidden name="' + base_class + '[standard_sections_attributes][' + tag_index + '][_destroy]" value="1" >'));
+        tag_list.append($('<input hidden name="' + base_class + '[tags_attributes][' + tag_index + '][id]" value="' + tag_id + '" >'));
+        tag_list.append($('<input hidden name="' + base_class + '[tags_attributes][' + tag_index + '][_destroy]" value="1" >'));
 
         // Provide a warning that the list must be saved to properly delete the records, tweak if we think necessary
         TW.views.tags.tag_picker.warn_for_save(tag_list.siblings('.tag_picker_message'));

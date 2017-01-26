@@ -21,6 +21,7 @@ class TagsController < ApplicationController
 
     @tag = Tag.new(tag_params)
     @taggable_object = @tag.tag_object
+    # @taggable_object.tags.build
 
   end
 
@@ -31,6 +32,18 @@ class TagsController < ApplicationController
     render '/shared/data/all/index'
   end
 
+  def new_create
+    foo = 1
+  end
+
+  def new_update # update the tags for the taggable object
+    taggable_object.update(taggable_object_params)
+    redirect_to :back
+  end
+
+  def taggable_object
+    params.require(:tag_object_type).constantize.find(params.require(:tag_object_id))
+  end
   # POST /tags
   # POST /tags.json
   def create
@@ -133,4 +146,15 @@ class TagsController < ApplicationController
   def tag_params
     params.require(:tag).permit(:keyword_id, :tag_object_id, :tag_object_type, :tag_object_attribute)
   end
+
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def taggable_object_params
+    params.require(:taggable_object).permit(
+        tags_attributes: [:_destroy, :id, :keyword_id, :position,
+                          keyword_attributes: [:name, :definition, :uri, :html_color]
+
+        ])
+  end
+
 end
+
