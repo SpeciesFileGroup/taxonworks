@@ -14,14 +14,15 @@ Object.assign(TW.views.tags.tag_picker, {
     //
     // all of these should likely be renamed for namespacing purposes
     this.initialize_autocomplete(form);
-    // bind_new_link(form);
-    bind_switch_link(form);
-    bind_expand_link(form);
-    // bind_label_mirroring(form);
-    this.bind_remove_section_links(form.find('.remove_tag'));
+    this.bind_new_link(form);
+    // this.bind_switch_link(form);
+    // this.bind_expand_link(form);
+    this.bind_label_mirroring(form);
+    this.bind_remove_links(form.find('.remove_tag'));
 
     this.make_tag_list_sortable(form);
     this.bind_position_handling_to_submit_button(form);
+    this.bind_definition_listener(form);
   },
 
 // Empties search text box and hide new_person div
@@ -66,29 +67,30 @@ Object.assign(TW.views.tags.tag_picker, {
         TW.views.tags.tag_picker.clear_keyword_picker(form);
         TW.views.tags.tag_picker.make_tag_list_sortable(form);     // was this inadvertantly lost?
         return false;
-      },
-      keyup: (function () {
-        var input_term = autocomplete_input.val();
-        var name = input_term;
+      }
 
-        if (input_term.length == 0) {
-          form.find(".new_keyword").attr("hidden", true);
-        }
-        else {
-          form.find(".new_keyword").removeAttr("hidden");
-        }
-        ;
-
-        form.find(".name").val(name).change();
-        form.find(".definition").val("").change();
-      })
     }).autocomplete("instance")._renderItem = function (ul, item) {
       return $("<li class='tag'>")
         .append("<a>" + item.label + ' <span class="hoverme" data-tag-id="' + item.object_id + '">...</span></a>')
         .appendTo(ul);
     };
-  },
 
+    autocomplete_input.keyup(function () {
+      var input_term = autocomplete_input.val();
+      var name = input_term;
+
+      if (input_term.length == 0) {
+        form.find(".new_keyword").attr("hidden", true);
+      }
+      else {
+        form.find(".new_keyword").removeAttr("hidden");
+      }
+      ;
+
+      form.find(".name").val(name).change();
+      form.find(".definition").val("").change();
+    })
+  },
 
   make_tag_list_sortable: function (form) {
     var list_items = form.find(".tag_list");
@@ -153,16 +155,68 @@ Object.assign(TW.views.tags.tag_picker, {
     tag_list.append($('<input hidden name="' + base_class + '[tags_attributes][' + random_index + '][tag_id]" value="' + tag_id + '" >'));
 
     // insert visible list item
-    tag_list.append($('<li class="tag_item" data-tag-index="' + random_index + '">').append(label).append('&nbsp;').append(remove_tag_link()));
+    tag_list.append($('<li class="tag_item" data-tag-index="' + random_index + '">').append(label).append('&nbsp;').append(TW.views.tags.tag_picker.remove_link()));
+  },
+
+//
+// Binding actions (clicks) to links
+//
+  bind_new_link: function (form) {
+    // Add a citation_topic to the list via the add new form
+    form.find(".keyword_picker_add_new").click(function () {
+      TW.views.tags.tag_picker.insert_new_tag(form);
+      form.find('.new_tag').attr("hidden", true);
+      TW.views.tags.tag_picker.clear_keyword_picker(form);
+    });
+  },
+
+
+  bind_definition_listener: function (form) {
+    form.find(".definition").keyup(function () {
+      var d = form.find(".definition").val();
+      if (d.length == 0) {
+        $(".keyword_picker_add_new").hide();
+      }
+      else {
+        $(".keyword_picker_add_new").css("display", "flex");
+      }
+    })
+  },
+
+  insert_new_tag: function (form) {
+    var base_class = 'taggable_object';
+    var random_index = new Date().getTime();
+    var tag_list = form.find(".tag_list");
+
+    var name = form.find('.tag_autocomplete').val();
+
+    tag_list.append(
+      $('<li class="tag_item" data-new-tag="true" data-tag-index="' + random_index + '" >')
+        .append('<div><' + name + '</div>')
+        .append($('<input hidden name="' + base_class + '[name]" value="' + name + '" >'))
+        .append($('<input hidden name="' + base_class + '[definition]" value="' + form.find(".definition").val() + '" >'))
+
+        .append(TW.views.tags.tag_picker.remove_link())
+    );
+
+    $(".keyword_picker_add_new").hide();
   },
 
   remove_link: function () {
     var link = $('<a href="#" class="remove_tag">remove</a>');
-    TW.views.tags.tag_picker.bind_remove_section_links(link);
+    TW.views.tags.tag_picker.bind_remove_links(link);
     return link;
   },
 
-  bind_remove_section_links: function (links) {
+  bind_label_mirroring: function (form) {
+    form.find(".keyword_picker_form input").on("change keyup", function () {
+      form.find(".name_label").html(
+        form.find(".name").val()
+      );
+    });
+  },
+
+  bind_remove_links: function (links) {
     links.click(function () {
       var list_item = $(this).parent('li');
       var tag_picker = list_item.closest('.tag_picker');
