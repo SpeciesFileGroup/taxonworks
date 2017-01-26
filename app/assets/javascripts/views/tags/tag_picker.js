@@ -151,7 +151,7 @@ Object.assign(TW.views.tags.tag_picker, {
 
     // type
 
-    tag_list.append($('<input hidden name="' + base_class + '[tags_attributes][' + random_index + '][type]" value="OtuPageLayoutSection::StandardSection">'));
+    tag_list.append($('<input hidden name="' + base_class + '[tags_attributes][' + random_index + '][type]" value="Tag">'));
     tag_list.append($('<input hidden name="' + base_class + '[tags_attributes][' + random_index + '][tag_id]" value="' + tag_id + '" >'));
 
     // insert visible list item
