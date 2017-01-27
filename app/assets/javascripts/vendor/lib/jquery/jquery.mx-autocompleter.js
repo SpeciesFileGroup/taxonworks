@@ -66,6 +66,7 @@
        * but empty
        */
       $this.data( "uiAutocomplete" ).__response = function(a){
+        this.element.removeClass("ui-autocomplete-loading");
         if(!this.options.disabled && a) {
           a=this._normalize(a);
           if (a.length === 0) {
@@ -78,9 +79,6 @@
           this.close();
         }
         this.pending -= 1;
-        if (this.pending === 0) {
-          this.element.removeClass("ui-autocomplete-loading");
-        }
       };
 
       /* The autocompletion select box needs (at times) HTML code.

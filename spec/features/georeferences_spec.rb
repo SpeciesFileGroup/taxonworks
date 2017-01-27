@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe 'Georeferences', :type => :feature do
   let(:index_path) { georeferences_path }
-  let(:page_index_name) { 'georeferences' }
+  let(:page_title) { 'Georeferences' }
 
   it_behaves_like 'a_login_required_and_project_selected_controller'
 
@@ -32,7 +32,7 @@ describe 'Georeferences', :type => :feature do
      describe 'GET /georeferences/list' do
        before { visit list_georeferences_path }
     
-       it_behaves_like 'a_data_model_with_standard_list'
+       it_behaves_like 'a_data_model_with_standard_list_and_records_created'
      end
     
      describe 'GET /georeferences/n' do

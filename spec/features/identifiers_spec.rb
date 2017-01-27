@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 describe 'Identifiers', type: :feature do
-  let(:page_index_name) { 'identifiers' }
+  let(:page_title) { 'Identifiers' }
   let(:index_path) { identifiers_path }
 
   it_behaves_like 'a_login_required_and_project_selected_controller'
@@ -29,7 +29,7 @@ describe 'Identifiers', type: :feature do
     describe 'GET /identifiers/list' do
       before { visit list_identifiers_path }
 
-      it_behaves_like 'a_data_model_with_standard_list'
+      it_behaves_like 'a_data_model_with_standard_list_and_records_created'
     end
 
     context 'creating a new identifier' do

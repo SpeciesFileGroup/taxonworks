@@ -8,7 +8,22 @@ class Tasks::CollectionObjects::FilterController < ApplicationController
 
   # POST
   def find
-    @collection_objects = collection_objects.page(params[:page])
+    @collection_objects = collection_objects.order('collection_objects.id').page(params[:page])
+  end
+
+  def download
+    scope = DwcOccurrence.collection_objects_join
+      .where(dwc_occurrence_object_id: collection_objects.pluck(:id)) # !! see if we can get rid of pluck, shouldn't need it, but maybe complex join is not collapsabele to collection object id 
+      .where(project_id: sessions_current_project_id)
+      .order('dwc_occurrences.id')
+
+    # If failing remove begin/ensure/end to report Raised errors
+    begin
+      data = Dwca::Packer::Data.new(scope)
+      send_data(data.getzip, :type => 'application/zip', filename: data.filename)
+    ensure
+      data.cleanup
+    end
   end
 
   # GET
@@ -39,7 +54,6 @@ class Tasks::CollectionObjects::FilterController < ApplicationController
     Queries::CollectionObjectFilterQuery.new(filter_params)
       .result
       .with_project_id(sessions_current_project_id)
-      .order('collection_objects.id')
       .includes(:repository, {taxon_determinations: [{otu: :taxon_name}]}, :identifiers)
   end
 

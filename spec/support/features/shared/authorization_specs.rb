@@ -2,7 +2,7 @@
 #
 # it_behaves_like 'a_login_required_and_project_selected_controller' do 
 #   let(:index_path) { projects_path }
-#   let(:page_index_name) { 'Dashboard' }
+#   let(:page_title) { 'Dashboard' }
 # end
 #
 shared_examples 'a_login_required_and_project_selected_controller' do
@@ -30,7 +30,7 @@ shared_examples 'a_login_required_and_project_selected_controller' do
         visit index_path
       }
       specify {
-        expect(page).to have_content(page_index_name.capitalize), "can not find '#{page_index_name.capitalize}'"
+        expect(page).to have_content(page_title), "can not find '#{page_title}'"
       }
     end
   end

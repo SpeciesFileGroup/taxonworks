@@ -47,15 +47,6 @@ module Utilities::Strings
     string.gsub("'", "''")
   end
 
-  # @return [Array]
-  #   returns an array of strings that are or() matchable, includes wildcards
-  #   !! Make sure your string is safe !!
-  #   TODO: This should likely get added to Queries, it's too specific for anything else
-  def self.termify(string)
-    return [] if !string || !string.class == String 
-    [string, "%#{string}", "%#{string}%", "%#{string}%"] + string.split(/\s/).collect{|t| [t, "#{t}%"]}.flatten 
-  end
-
   # @return [Boolean]
   #   whether the string is an integer (positive or negative)
   # see http://stackoverflow.com/questions/1235863/test-if-a-string-is-basically-an-integer-in-quotes-using-ruby
@@ -71,6 +62,15 @@ module Utilities::Strings
     return string if string.blank?
     string.to_s.gsub(/\n|\t/, ' ') 
   end
+
+  # @return [String]
+  #   return nil if content.nil?, else wrap and return string if provided
+  def self.nil_wrap(pre = nil, content = nil, post = nil)
+    return nil if content.blank?
+    [pre, content, post].compact.join.html_safe
+  end
+
+
 
 end
 

@@ -1,9 +1,7 @@
 require 'rails_helper'
 
 describe 'TaxonNames', type: :feature do
-  # Capybara.default_wait_time = 15 # change to 15 to see what's happening on form
-
-  let(:page_index_name) { 'taxon names' }
+  let(:page_title) { 'Taxon names' }
   let(:index_path) { taxon_names_path }
 
   it_behaves_like 'a_login_required_and_project_selected_controller'
@@ -45,7 +43,7 @@ describe 'TaxonNames', type: :feature do
 
       describe 'GET /taxon_names/list' do
         before { visit list_taxon_names_path } 
-        it_behaves_like 'a_data_model_with_standard_list'
+        it_behaves_like 'a_data_model_with_standard_list_and_records_created'
       end
 
       describe 'GET /taxon_names/n' do

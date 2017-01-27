@@ -56,6 +56,25 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
   # end
 
 
+  context 'chaining scopes' do
+    let!(:ce1) { CollectingEvent.create!(parse_stubs(a, b).merge(verbatim_label: "#{a} -- #{b}")) }
+    let!(:ce2) { CollectingEvent.create!(parse_stubs(c, d).merge(verbatim_label: "#{c} -- #{d}")) }
+
+    let(:params) {
+      {search_start_date: a, search_end_date: b}
+    }
+
+    specify 'returns one (strict), ordered' do
+      expect(CollectingEvent.in_date_range(params.merge(partial_overlap: 'OfF')).order(:id)).to contain_exactly(ce1)
+    end
+
+    specify 'using just the sql, ordered' do
+      expect(CollectionObject.joins(:collecting_event).where(CollectingEvent.date_sql_from_dates('2015/1/1' , '2015/1/1', 'off' )).where(project_id: 99).order(:id).count).to eq(0)
+    end
+
+  end
+
+
   context 'combined' do
     #       a     b  
     # ------*-----*------
@@ -77,6 +96,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
     specify 'returns one (lenient)' do
       expect(CollectingEvent.in_date_range(params.merge(partial_overlap: 'on'))).to contain_exactly(ce1)
     end
+    
   end
 
   context 'combined (strict)' do

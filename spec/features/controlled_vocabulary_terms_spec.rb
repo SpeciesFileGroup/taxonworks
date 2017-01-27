@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 describe 'ControlledVocabularyTerms', :type => :feature do
-  let(:page_index_name) { 'controlled vocabulary terms' }
+  let(:page_title) { 'Controlled vocabulary terms' }
   let(:index_path) { controlled_vocabulary_terms_path }
 
   it_behaves_like 'a_login_required_and_project_selected_controller' do
@@ -32,7 +32,7 @@ describe 'ControlledVocabularyTerms', :type => :feature do
         visit list_controlled_vocabulary_terms_path
       end
 
-      it_behaves_like 'a_data_model_with_standard_list'
+      it_behaves_like 'a_data_model_with_standard_list_and_records_created'
     end
 
     describe 'GET /controlled_vocabulary_terms/n' do

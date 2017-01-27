@@ -13,7 +13,7 @@ namespace :tw do
 
         i = 0
 
-        puts 'Processing empty sqed depictions'.yellow
+        puts Rainbow('Processing empty sqed depictions').yellow
 
         while i < total
           print "\r #{i}"
@@ -21,7 +21,8 @@ namespace :tw do
           i += 1
         end
         puts
-        puts "Processed #{i} records.".yellow
+
+        puts Rainbow("Processed #{i} records.").yellow
       end
 
 
@@ -52,16 +53,17 @@ namespace :tw do
         @args[:has_border] = (@args[:has_border] == 'true' ? true : false)
         @args[:boundary_color] = @args[:boundary_color].to_sym
 
-        puts "Using attributes:".yellow
+
+        puts Rainbow("Using attributes:").yellow
         print @args
 
-        puts "\nProcessing images: \n".yellow
+        puts Rainbow("\nProcessing images: \n").yellow
 
         begin
           Dir.glob(@args[:data_directory] + "**/*.*").sort.in_groups_of(20, false) do |group| 
             ActiveRecord::Base.transaction do 
               group.each do |f|
-                print f.blue + ": "
+                print Rainbow(f).blue + ": "
 
                 if SqedDepiction.joins(:image).where(images: {image_file_fingerprint: Digest::MD5.file(f).hexdigest }, project_id: $project_id).any?
                   print "exists as depiction, skipping\n"
@@ -97,7 +99,7 @@ namespace :tw do
                 end
               end
 
-              puts "group handled".yellow
+              puts Rainbow("group handled").yellow
             end # end transaction
           end
 

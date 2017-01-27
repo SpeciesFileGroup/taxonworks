@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 describe 'CollectingEvents', :type => :feature do
-  let(:page_index_name) { 'collecting events' }
+  let(:page_title) { 'Collecting events' }
   let(:index_path) { collecting_events_path }
 
   it_behaves_like 'a_login_required_and_project_selected_controller' do
@@ -24,7 +24,7 @@ describe 'CollectingEvents', :type => :feature do
         visit list_collecting_events_path
       end
 
-      it_behaves_like 'a_data_model_with_standard_list'
+      it_behaves_like 'a_data_model_with_standard_list_and_records_created'
     end
 
     describe 'GET /collecting_events/n' do

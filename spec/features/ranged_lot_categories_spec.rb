@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 describe 'RangedLotCategories', :type => :feature do
-  let(:page_index_name) { 'ranged lot categories' }
+  let(:page_title) { 'Ranged lot categories' }
   let(:index_path) { ranged_lot_categories_path }
 
   it_behaves_like 'a_login_required_and_project_selected_controller'
@@ -24,7 +24,7 @@ describe 'RangedLotCategories', :type => :feature do
     describe 'GET /ranged_lot_categories/list' do
       before { visit list_ranged_lot_categories_path }
 
-      it_behaves_like 'a_data_model_with_standard_list'
+      it_behaves_like 'a_data_model_with_standard_list_and_records_created'
     end
 
     describe 'GET /ranged_lot_categories/n' do

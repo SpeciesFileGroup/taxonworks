@@ -4,7 +4,7 @@ RSpec.describe "TypeMaterials", :type => :feature do
   # Capybara.default_wait_time = 15
 
 
-  let(:page_index_name) { 'Type materials' }
+  let(:page_title) { 'Type materials' }
   let(:index_path) { type_materials_path }
 
   it_behaves_like 'a_login_required_and_project_selected_controller'
@@ -41,7 +41,7 @@ RSpec.describe "TypeMaterials", :type => :feature do
         describe 'GET /type_materials/list' do
           before { visit list_type_materials_path }
 
-          it_behaves_like 'a_data_model_with_standard_list'
+          it_behaves_like 'a_data_model_with_standard_list_and_records_created'
         end
 
         describe 'GET /type_materials/n' do

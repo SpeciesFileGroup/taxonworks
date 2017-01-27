@@ -1,26 +1,24 @@
 /*
 Keyboard shortcuts
 
-Example:
 
-<span data-shortcut-key="e" data-shortcut-description="Example key" data-shortcut-section="Shortcuts for examples"></div>
+Use TW.workbench.keyboard.createShortcut(key, description, section, func) to create a shortcut.
 
-Or using function createShortcut() to register on Mousetrap too.
-
-Example: 
+Create: 
 createShortcut("left", "Move to left", "Lists", function() { do something });
+
+Result: 
+<span data-shortcut-key="left" data-shortcut-description="Move to left" data-shortcut-section="Lists"></div>
 
 */
 
+var TW = TW || {};
+TW.workbench = TW.workbench || {};
+TW.workbench.keyboard = TW.workbench.keyboard || {};
 
-function createShortcut(key, description, section, funcion) {
-  Mousetrap.bind(key, funcion);
-	$('body').append('<span style="display;hidden" data-shortcut-key="'+ key +'" data-shortcut-description="'+ description +'" data-shortcut-section="'+ section +'"></span>');
-}
+Object.assign(TW.workbench.keyboard, {
 
-$(document).ready(function() {
-
-	keyShortcuts = function() {
+	init_keyShortcuts: function() {
 
 		var 
 
@@ -69,57 +67,70 @@ $(document).ready(function() {
 						</div> \
 						');
 
-		createTable();
+		this.createTable();
+		this.handleEvents();
+	},
 
-		function createTable() {
-			$('[data-shortcut-key]').each(function() {
-				addNewShortcut(checkReplaceKeyCode(this));
-			});
+
+	createShortcut: function(key, description, section, func) {
+  		Mousetrap.bind(key, func);
+		$('body').append('<span style="display;hidden" data-shortcut-key="'+ key +'" data-shortcut-description="'+ description +'" data-shortcut-section="'+ section +'"></span>');
+	},
+		
+
+	createTable: function() {
+		$('[data-shortcut-key]').each(function() {
+			TW.workbench.keyboard.addNewShortcut(TW.workbench.keyboard.checkReplaceKeyCode(this));
+		});
+	},
+
+	checkReplaceKeyCode: function(keyShortcut) {
+		var
+			find = $.inArray($(keyShortcut).attr('data-shortcut-key').toUpperCase(),TW.workbench.keyboard.keyCode);
+		
+		if(find > -1) {
+			$(keyShortcut).attr('data-shortcut-key',TW.workbench.keyboard.keyCodeReplace[find]);
 		}
+		return keyShortcut;
+	},
 
-		function checkReplaceKeyCode(keyShortcut) {
-			var
-			find = $.inArray($(keyShortcut).attr('data-shortcut-key').toUpperCase(),keyCode);
-			if(find > -1) {
-				$(keyShortcut).attr('data-shortcut-key',keyCodeReplace[find]);
-			}
-			return keyShortcut;
+	addNewShortcut: function(shortcut) {
+
+		var
+			section = $(shortcut).attr('data-shortcut-section');
+
+		if($('#keyShortcuts .list table tbody[data-shortcut-section="'+section+'"]').length == 0) {
+			$('#keyShortcuts .list .page-shortcuts table').append('<thead><th></th><th>'+ section +'</th></thead><tbody data-shortcut-section="'+ section +'"></tbody>');
 		}
+		$('#keyShortcuts .list table tbody[data-shortcut-section="'+section+'"]').append('<tr><td><div class="key">'+ $(shortcut).attr('data-shortcut-key') +' </div></td><td>'+ $(shortcut).attr('data-shortcut-description')+'</td></tr>');
+	},		
 
-		function addNewShortcut(shortcut) {
+	hideShortcuts: function() {
+		$('#keyShortcuts .keyboard-background-active').fadeOut();
+		$('#keyShortcuts .panel').fadeOut();
+	},
 
-			var
-				section = $(shortcut).attr('data-shortcut-section');
-
-			if($('#keyShortcuts .list table tbody[data-shortcut-section="'+section+'"]').length == 0) {
-				$('#keyShortcuts .list .page-shortcuts table').append('<thead><th></th><th>'+ section +'</th></thead><tbody data-shortcut-section="'+ section +'"></tbody>');
-			}
-			$('#keyShortcuts .list table tbody[data-shortcut-section="'+section+'"]').append('<tr><td><div class="key">'+ $(shortcut).attr('data-shortcut-key') +' </div></td><td>'+ $(shortcut).attr('data-shortcut-description')+'</td></tr>');
-		}		
-
-		function hideShortcuts() {
-			$('#keyShortcuts .keyboard-background-active').fadeOut();
-			$('#keyShortcuts .panel').fadeOut();
-		}
-
+	handleEvents: function() {
 		$('#keyShortcuts').on("click", ".legend", function() {
 			$('#keyShortcuts .keyboard-background-active').fadeIn();
 			$('#keyShortcuts .panel').fadeIn();
 		});
 
 		$('#keyShortcuts').on("click", ".keyboard-background-active", function() {
-			hideShortcuts();
+			TW.workbench.keyboard.hideShortcuts();
 		});		
 
 		$('#keyShortcuts').on("click", ".close", function() {
-			hideShortcuts();
-		});		
-	}
+			TW.workbench.keyboard.hideShortcuts();
+		});	
+	}	
+});
+
+$(document).ready(function() {
 	if($("[data-shortcut-key]").length) {
 	  	if (!$("[data-help]").length) {
-	  		helpSystem();
-	  		helpLoaded = true;
+		    TW.workbench.help.init_helpSystem();
 	  	}
-	    keyShortcuts();	
+	    TW.workbench.keyboard.init_keyShortcuts();	
 	}
 });

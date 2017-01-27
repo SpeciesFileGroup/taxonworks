@@ -1,0 +1,53 @@
+@import 'base/palette';
+
+.arrow-box {
+		border: solid transparent;
+		content: " ";
+		height: 0;
+		width: 0;
+		position: absolute;
+		pointer-events: none;
+		border-width: 6px;
+}
+
+@mixin arrow-box-top($left) {
+	&:after, &:before {
+		@extend .arrow-box;
+		bottom: 100%;
+		left: $left;
+		margin-left: -6px;
+		border-bottom-color: $color-help-description;
+	}
+}
+
+@mixin arrow-box-bottom($left) {
+	&:after, &:before {
+		@extend .arrow-box;
+		top: 100%;
+		left: $left;
+		margin-left: -6px;
+		border-top-color: $color-help-description;
+	}
+}
+
+
+@mixin arrow-box-right($top) {
+	&:after, &:before {
+		@extend .arrow-box;
+		top: $top;
+		left: 100%;
+
+		margin-top: -6px;
+		border-left-color: $color-help-description;
+	}
+}
+
+@mixin arrow-box-left($top) {
+	&:after, &:before {
+		@extend .arrow-box;
+		top: $top;
+		right: 100%;
+		margin-top: -6px;
+		border-right-color: $color-help-description;
+	}
+}

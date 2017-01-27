@@ -150,7 +150,7 @@ module TaxonNames::CatalogHelper
 
   def history_topics(citation)
     return nil if citation.nil?
-    content_tag(:span, nil_wrap(' [', citation.citation_topics.collect{|t| t.topic.name}.join(", "), ']'), class: 'history__citation_topics')
+    content_tag(:span, Utilities::Strings.nil_wrap(' [', citation.citation_topics.collect{|t| t.topic.name}.join(", "), ']'), class: 'history__citation_topics')
   end
 
   def history_type_material(entry_item)

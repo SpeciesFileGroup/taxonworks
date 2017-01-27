@@ -9,7 +9,7 @@ module Dwca::Packer
   #
   # Usage: 
   #  begin
-  #   data = Dwca::Packer::Data.new(sessions_current_project_id)
+  #   data = Dwca::Packer::Data.new(DwcOccurrence.where(project_id: sessions_current_project_id)
   #  ensure
   #   data.cleanup
   #  end
@@ -17,19 +17,20 @@ module Dwca::Packer
   # Always use the ensure/data.cleanup pattern!
   #
   class Data
-    attr_accessor :data, :eml, :meta, :zipfile, :project_id
+    attr_accessor :data, :eml, :meta, :zipfile, :scope, :total
     attr_reader :filename
 
-    def initialize(project_id)
-      raise if project_id.nil?
-      @project_id = project_id 
+    def initialize(record_scope)
+      raise ArgumentError, 'must pass a scope' if !record_scope.kind_of?( ActiveRecord::Relation )
+      @scope = record_scope
+      @total = scope.count('*')
     end
 
     # @return [CSV]
     #   the data as a CSV object
     def csv
       Download.generate_csv(
-        DwcOccurrence.computed_columns.where(project_id: project_id), 
+        scope.computed_columns, 
         trim_columns: true, 
         trim_rows: true,
         header_converters: [:dwc_headers]
@@ -39,6 +40,7 @@ module Dwca::Packer
     # @return [Array]
     #   use the temporarily written, and refined, CSV file to read of the existing headers
     def csv_headers
+      return [] if no_records?
       d = CSV.open(data, headers: true, col_sep: "\t")
       d.read
       h = d.headers 
@@ -47,12 +49,24 @@ module Dwca::Packer
       h
     end
 
+    # @return [Boolean]
+    #   true if provided scope returns no records
+    def no_records?
+      total == 0
+    end
+
     # @return [Tempfile]
     #    the csv data as a tempfile
     def data
       return @data if @data
+      if no_records?
+        content = "\n"
+      else
+        content = csv
+      end
+
       @data = Tempfile.new('data.csv')
-      @data.write(csv)
+      @data.write(content)
       @data.flush
       @data.rewind
       @data
@@ -85,7 +99,7 @@ module Dwca::Packer
         ) {
           xml.dataset {
             xml.alternate_identifier identifier
-            xml.title("xml:lang" => 'eng').text "STUB - #{Project.find(project_id).name}" 
+            xml.title("xml:lang" => 'eng').text "STUB - YOUR TITLE HERE"
             xml.creator {
               xml.individualName {
                 xml.givenName 'STUB'
@@ -137,7 +151,7 @@ module Dwca::Packer
     #   the actual data file
     def meta 
       return @meta if @meta
-     
+
       @meta = Tempfile.new('meta.xml')
 
       builder = Nokogiri::XML::Builder.new do |xml|
@@ -180,26 +194,26 @@ module Dwca::Packer
       @zipfile
     end
 
-   # @return [String]
-   # the name of zipfile 
-   def filename
+    # @return [String]
+    # the name of zipfile 
+    def filename
       @filename ||= "dwc_occurrences_#{DateTime.now.to_s}.zip"
       @filename 
-   end
+    end
 
-   # @return [True]
-   #   close and delete all temporary files
-   def cleanup
-     zipfile.close
-     zipfile.unlink
-     meta.close
-     meta.unlink
-     eml.close
-     eml.unlink
-     data.close
-     data.unlink
-     true
-   end
+    # @return [True]
+    #   close and delete all temporary files
+    def cleanup
+      zipfile.close
+      zipfile.unlink
+      meta.close
+      meta.unlink
+      eml.close
+      eml.unlink
+      data.close
+      data.unlink
+      true
+    end
 
   end
 end

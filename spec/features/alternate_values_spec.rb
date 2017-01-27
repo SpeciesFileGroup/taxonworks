@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe "AlternateValues", type: :feature do
   let(:index_path) { alternate_values_path }
-  let(:page_index_name) { 'alternate values' }
+  let(:page_title) { 'Alternate values' }
 
   it_behaves_like 'a_login_required_and_project_selected_controller'
 
@@ -31,7 +31,7 @@ describe "AlternateValues", type: :feature do
       describe 'GET /alternate_values/list' do
         before { visit list_alternate_values_path }
 
-        it_behaves_like 'a_data_model_with_standard_list'
+        it_behaves_like 'a_data_model_with_standard_list_and_records_created'
       end
 
       context 'create an alternate value for a community object (Source::Bibtex)' do

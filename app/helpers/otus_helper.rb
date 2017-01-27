@@ -2,19 +2,16 @@ module OtusHelper
 
   def otu_tag(otu)
     return nil if otu.nil?
-    strs = []
-    strs.push(otu.name) if !otu.name.nil?
-    strs.push(taxon_name_tag(otu.taxon_name)) if otu.taxon_name_id
-    if strs.size == 2 
-      (strs[0] + " [#{strs[1]}]").html_safe
-    else
-      strs[0]
-    end
+    [  otu.name,
+       Utilities::Strings.nil_wrap('[', full_taxon_name_tag(otu.taxon_name), ']')
+    ].compact.join(' ').html_safe
   end
 
   def otu_autocomplete_selected_tag(otu)
     return nil if otu.nil? || (otu.new_record? && !otu.changed?)
-    [otu.name, (otu.taxon_name.nil? ? nil : "[#{otu.taxon_name.cached}]")].compact.join(" ")
+    [otu.name, 
+     Utilities::Strings.nil_wrap('[',taxon_name_autocomplete_selected_tag(otu.taxon_name), ']')
+    ].compact.join(' ')
   end
 
   def otu_link(otu)

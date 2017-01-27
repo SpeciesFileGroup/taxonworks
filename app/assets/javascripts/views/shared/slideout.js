@@ -1,11 +1,15 @@
 $(document).ready(function() {
 	$('.slide-panel-circle-icon').on('click', function() {		
-		closeHideSlideoutPanel($(this).parent());
+		closeHideSlideoutPanel($(this).closest('.slide-panel'));
 	});
 
 	$('.slide-panel-category-header').on('click', function() {
 		$(this).parent().find('.slide-panel-category-content').toggle(250);
 	});	
+
+	$('.slide-panel').each(function(i) {
+		$(this).find('.slide-panel-description').text($(this).children('.slide-panel-header').text());
+	});
 
 
 	function closeHideSlideoutPanel(panel) {

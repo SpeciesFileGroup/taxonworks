@@ -84,8 +84,11 @@ class CollectionObject < ActiveRecord::Base
   CO_OTU_HEADERS      = %w{OTU OTU\ name Family Genus Species Country State County Locality Latitude Longitude}.freeze
   BUFFERED_ATTRIBUTES = %i{buffered_collecting_event buffered_determinations buffered_other_labels}.freeze
 
-  after_save :add_to_dwc_occurrence
+  # @return [Boolean]
+  #  When true, cached values are not built
+  attr_accessor :no_cached
 
+  after_save :add_to_dwc_occurrence, if: '!self.no_cached'
   
   # Otu delegations
   delegate :name, to: :current_otu, prefix: :otu, allow_nil: true # could be Otu#otu_name?

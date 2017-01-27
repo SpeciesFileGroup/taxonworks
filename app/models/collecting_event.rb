@@ -295,15 +295,8 @@ class CollectingEvent < ActiveRecord::Base
     #                                  false; found range must be completely inside supplied range
     # @return [String] sql for records between the two specific dates
     def date_sql_from_dates(search_start_date, search_end_date, allow_partial = true)
-      date_parts  = search_start_date.split('/')
-      start_year  = date_parts[0].to_i
-      start_month = date_parts[1].to_i
-      start_day   = date_parts[2].to_i
-
-      date_parts = search_end_date.split('/')
-      end_year   = date_parts[0].to_i
-      end_month  = date_parts[1].to_i
-      end_day    = date_parts[2].to_i
+      start_year, start_month, start_day = search_start_date.split('/').map(&:to_i)
+      end_year, end_month, end_day = search_end_date.split('/').map(&:to_i)
 
       t = 'collecting_events'
 
@@ -373,7 +366,7 @@ class CollectingEvent < ActiveRecord::Base
       en_string = '((' + part_1e + select_1_3 + part_3e + ')' + (part_2e.blank? ? '' : ' or ') + part_2e + ')'
 
       sql_string = st_string + (allow_partial ? ' or ' : ' and ') + en_string + special_part
-      sql_string
+      sql_string 
     end
 
     # @param [Hash] search_start_date string in form 'yyyy/mm/dd'
@@ -383,7 +376,7 @@ class CollectingEvent < ActiveRecord::Base
     def in_date_range(search_start_date: nil, search_end_date: nil, partial_overlap: 'on')
       allow_partial = (partial_overlap.downcase == 'off' ? false : true)
       sql_string    = date_sql_from_dates(search_start_date, search_end_date, allow_partial)
-      where(sql_string).uniq
+      where(sql_string).uniq # TODO: uniq should likely not be here
     end
 
     # @param [Hash] of parameters in the style of 'params'
@@ -424,7 +417,7 @@ class CollectingEvent < ActiveRecord::Base
       end
       # find the records
       if sql_string.blank?
-        collecting_events = CollectingEvent.where('false')
+        collecting_events = CollectingEvent.none
       else
         collecting_events = CollectingEvent.where(sql_string).uniq
       end

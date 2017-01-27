@@ -101,20 +101,21 @@ RSpec.configure do |config|
   #
   #
   config.before(:suite) do
-    DatabaseCleaner.clean_with(:truncation, except: %w(spatial_ref_sys))
-
     # See also environments/test.rb
     # if ENV['TAXONWORKS_TEST_WITH_PRECOMPILE']
     #   %x[bundle exec rake assets:precompile]
     # end
     #
-    
+
+    DatabaseCleaner.clean_with(:truncation, except: %w(spatial_ref_sys))
+        
     ActiveRecord::Base.connection.select_all("SELECT PostGIS_version() v").first['v'] =~ /(\d+.\d+)/
     PSQL_VERSION = $1 
   end
 
   config.after(:suite) do
     FileUtils.rm_rf(Dir["#{Rails.root}/spec/test_files/"])
+    Features::Downloads.clear_downloads
   end
 
   config.before(:each) do
@@ -124,6 +125,7 @@ RSpec.configure do |config|
   # Capybara requires truncation strategy!! 
   config.before(:each, js: true) do
     DatabaseCleaner.strategy = :truncation, { except: %w(spatial_ref_sys) }
+    Features::Downloads.clear_downloads
   end
 
   config.before(:each) do

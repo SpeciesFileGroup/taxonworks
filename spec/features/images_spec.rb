@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe "Images", :type => :feature do
   let(:index_path) { images_path }
-  let(:page_index_name) { 'images' }
+  let(:page_title) { 'Images' }
 
   it_behaves_like 'a_login_required_and_project_selected_controller'
 
@@ -21,7 +21,7 @@ describe "Images", :type => :feature do
     describe 'GET /images/list' do
       before { visit list_images_path }
 
-      it_behaves_like 'a_data_model_with_standard_list'
+      it_behaves_like 'a_data_model_with_standard_list_and_records_created'
     end
 
     describe 'GET /images/n' do

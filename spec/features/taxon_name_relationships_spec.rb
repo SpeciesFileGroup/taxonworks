@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 describe 'TaxonNameRelationships', :type => :feature do
-  let(:page_index_name) { 'taxon name relationships' }
+  let(:page_title) { 'Taxon name relationships' }
   let(:index_path) { taxon_name_relationships_path }
 
   it_behaves_like 'a_login_required_and_project_selected_controller'
@@ -37,7 +37,7 @@ describe 'TaxonNameRelationships', :type => :feature do
     describe 'GET /taxon_name_relationships/list' do
       before { visit list_taxon_name_relationships_path }
 
-      it_behaves_like 'a_data_model_with_standard_list'
+      it_behaves_like 'a_data_model_with_standard_list_and_records_created'
     end
 
     describe 'GET /taxon_name_relationships/n' do

@@ -34,8 +34,8 @@ module CollectingEventsHelper
   def elevation_tag(collecting_event)
     return nil if collecting_event.nil?
     [
-      nil_wrap(nil, [collecting_event.minimum_elevation, collecting_event.maximum_elevation].compact.join('-'), 'm'), 
-      nil_wrap(' +/-', collecting_event.elevation_precision, nil)
+      Utilities::Strings.nil_wrap(nil, [collecting_event.minimum_elevation, collecting_event.maximum_elevation].compact.join('-'), 'm'), 
+      Utilities::Strings.nil_wrap(' +/-', collecting_event.elevation_precision, nil)
     ].compact.join.html_safe
   end
 
@@ -52,8 +52,8 @@ module CollectingEventsHelper
     return if collecting_event.nil?
     [collecting_event.verbatim_latitude, 
      collecting_event.verbatim_longitude,
-     nil_wrap(' (+/-', collecting_event.verbatim_geolocation_uncertainty, ')'),
-     nil_wrap(' [via ', collecting_event.verbatim_datum, ']'),
+     Utilities::Strings.nil_wrap(' (+/-', collecting_event.verbatim_geolocation_uncertainty, ')'),
+     Utilities::Strings.nil_wrap(' [via ', collecting_event.verbatim_datum, ']'),
     ].compact.join(', ')
   end
 
