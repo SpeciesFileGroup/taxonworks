@@ -5,6 +5,7 @@
     <span class="tag_picker_message"></span>
 
     <ul class="tag_list">
+
       <%= f.fields_for :tags, @taggable_object.tags.order(:position) do |tag_fields| %>
           <% if tag_fields.object.new_record? %>
               <% inc_index = "#{Time.now.to_i}#{tag_fields.object.id}" %>
@@ -16,7 +17,6 @@
                       <%= tag_tag(keyword_fields.object.tag) -%> <%= link_to('remove', "#", class: :remove_tag) -%>
                   <% end %>
               <% end %>
-
 
           <% else %>
 
@@ -32,6 +32,7 @@
 
     </ul>
   </div>
+
   <div class="keyword_selection">
     <div><%= text_field_tag "keyword_picker_autocomplete", nil, class: 'keyword_picker_autocomplete', placeholder: "Keyword" %></div>
 
@@ -40,13 +41,28 @@
         <%= f.fields_for Keyword.new do |fp| %>
             <div class="field">
               <%= fp.label :definition %><br>
-              <%= fp.text_area :name, placeholder: "Keyword definition", class: :definition, id: "#{f.object.id}_#{fp.index}_keyword_definition" %>
+              <%= fp.text_area :name, placeholder: "Keyword definition", class: :definition, id: "#{f.object.class.name}_#{f.object.id}_new_keyword_definition" %>
             </div>
         <% end %>
 
-        <%= link_to "add new", '#', class: :keyword_picker_add_new, hidden: true %>
+        <%= link_to "add new", '#', id: :keyword_picker_add_new, hidden: true %>
       </div>
     </div>
   </div>
 
 </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

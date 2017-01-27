@@ -59,10 +59,10 @@ Object.assign(TW.views.tags.tag_picker, {
       var name = input_term;
 
       if (input_term.length == 0) {
-        form.find(".new_keyword").attr("hidden", true);
+        form.find(".new_keyword").hide(); // attr("hidden", true);
       }
       else {
-        form.find(".new_keyword").removeAttr("hidden");
+        form.find(".new_keyword").show(); // removeAttr("hidden");
       }
       ;
 
@@ -138,9 +138,9 @@ Object.assign(TW.views.tags.tag_picker, {
 //
   bind_new_link: function (form) {
     // Add a citation_topic to the list via the add new form
-    form.find(".keyword_picker_add_new").click(function () {
+    form.find("#keyword_picker_add_new").click(function () {
       TW.views.tags.tag_picker.insert_new_tag(form);
-      form.find('.new_keyword').attr("hidden", true);
+      form.find('.new_keyword').show(); // attr("hidden", true);
       TW.views.tags.tag_picker.clear_keyword_picker(form);
     });
   },
@@ -149,11 +149,12 @@ Object.assign(TW.views.tags.tag_picker, {
   bind_definition_listener: function (form) {
     form.find(".definition").keyup(function () {
       var d = form.find(".definition").val();
+
       if (d.length == 0) {
-        $(".keyword_picker_add_new").hide();
+        $("#keyword_picker_add_new").hide();
       }
       else {
-        $(".keyword_picker_add_new").css("display", "flex");
+        $("#keyword_picker_add_new").css("display", "flex");
       }
     })
   },
@@ -172,7 +173,7 @@ Object.assign(TW.views.tags.tag_picker, {
       .append($('<input hidden name="' + tag_base + '[name]" value="' + name + '" >'))
       .append($('<input hidden name="' + tag_base + '[definition]" value="' + form.find(".definition").val() + '" >')));
 
-    $(".keyword_picker_add_new").hide();
+    $(".keyword_picker_form").hide();
   },
 
   remove_link: function () {

@@ -6,13 +6,10 @@ module TagsHelper
   end
 
   def new_tag_tag(taggable_object) # tag_object is to be tagged
-    # TODO: new_tag_tag has to take an object and return a string to use as a link to the tags/new page
-    # also TODO: We need to be able to accommodate multiple tag_splats on a given, page, each with a
-    # different object type (i.e. anything which includes Taggable.
-    # visitation = "/tags/new?tag_object_id=#{taggable_object.id}&tag_object_type=#{taggable_object.class}"
-
-    link_to('Tag', new_tag_path(tag_object_id: taggable_object.id, tag_object_type: taggable_object.class.name),
-            id: "_#{taggable_object.class}_#{taggable_object.id}")
+    link_to('Tag', 
+            new_tag_path(tag_object_id: taggable_object.id, tag_object_type: taggable_object.class.name),
+            id: "_#{taggable_object.class}_#{taggable_object.id}"
+           )
   end
 
   def tags_search_form
@@ -40,10 +37,11 @@ module TagsHelper
   end
 
   def add_tag_link(object: nil, attribute: nil)
-    link_to('Add tag', new_tag_path(tag: {
-                                      tag_object_type:      object.class.base_class.name,
-                                      tag_object_id:        object.id,
-                                      tag_object_attribute: attribute})) if object.has_tags?
+    link_to('Add tag', 
+            new_tag_path(
+              tag_object_type: object.class.base_class.name,
+              tag_object_id: object.id,
+              tag_object_attribute: attribute)) if object.has_tags?
   end
 
   def destroy_tag_link(tag)
