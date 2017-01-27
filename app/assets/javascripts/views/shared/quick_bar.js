@@ -22,7 +22,6 @@ Object.assign(TW.views.shared.quick_bar, {
 		});			
 
 		if((window.location.href).indexOf('/tasks/') > 0) {		
-			//hideBar = true;
 			this.hideShowBars(0);				
 		}
 
@@ -68,7 +67,6 @@ Object.assign(TW.views.shared.quick_bar, {
 
 	checkHover: function() {
 		if($('#quick_bar').is(':hover') || $('.button-collapse-header').is(':hover') || $('#header_bar').is(':hover')) {
-			//alert();
 			return true;
 		}
 		return false;
