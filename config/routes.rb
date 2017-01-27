@@ -358,9 +358,8 @@ TaxonWorks::Application.routes.draw do
       get :lookup_tag
       get 'get_definition/:id', action: 'get_definition'
       get :autocomplete
-      get :new_new
       post :new_create
-      post :new_update
+      post :tag_object_update
     end
   end
 

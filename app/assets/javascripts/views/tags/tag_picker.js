@@ -42,7 +42,7 @@ Object.assign(TW.views.tags.tag_picker, {
         TW.views.tags.tag_picker.bind_hover(form);
       },
       select: function (event, ui) {    // execute on select event in search text box
-        TW.views.tags.tag_picker.insert_existing_tag(form, ui.item.object_id, ui.item.label);
+        TW.views.tags.tag_picker.insert_existing_keyword(form, ui.item.object_id, ui.item.label);
         TW.views.tags.tag_picker.clear_keyword_picker(form);
         TW.views.tags.tag_picker.make_tag_list_sortable(form);     // was this inadvertantly lost?
         return false;
@@ -119,7 +119,7 @@ Object.assign(TW.views.tags.tag_picker, {
     });
   },
 
-  insert_existing_tag: function (form, tag_id, label) {
+  insert_existing_keyword: function (form, keyword_id, label) {
     var base_class;// = form.data('base-class');
     base_class = 'taggable_object';
     var random_index = new Date().getTime();
@@ -127,8 +127,7 @@ Object.assign(TW.views.tags.tag_picker, {
 
     // type
 
-    tag_list.append($('<input hidden name="' + base_class + '[tags_attributes][' + random_index + '][type]" value="Tag">'));
-    tag_list.append($('<input hidden name="' + base_class + '[tags_attributes][' + random_index + '][tag_id]" value="' + tag_id + '" >'));
+    tag_list.append($('<input hidden name="' + base_class + '[tags_attributes][' + random_index + '][keyword_id]" value="' + keyword_id + '" >'));
 
     // insert visible list item
     tag_list.append($('<li class="tag_item" data-tag-index="' + random_index + '">').append(label).append('&nbsp;').append(TW.views.tags.tag_picker.remove_link()));
