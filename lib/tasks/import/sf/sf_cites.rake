@@ -167,7 +167,7 @@ SF.RefID #{row['RefID']} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}
               next
             end
 
-            otu_id = get_taxon_name_otu_id[taxon_name_id].to_i
+            otu_id = get_taxon_name_otu_id[taxon_name_id.to_s].to_i
 
             if otu_id == 0
               logger.warn "OTU error, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id} (OTU not found: #{otu_not_found_counter += 1})"
