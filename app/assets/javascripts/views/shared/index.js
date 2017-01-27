@@ -1,7 +1,12 @@
-$(document).ready(function() {
+var TW = TW || {};
+TW.views = TW.views || {};
+TW.views.shared = TW.views.shared || {};
+TW.views.shared.index = TW.views.shared.index || {};
 
-	if($('#model_index').length) {
 
+Object.assign(TW.views.shared.index, {
+
+	init: function() {
 		TW.workbench.keyboard.createShortcut("shift+alt+n","Create a new record", "Data index", function() {
 			if($('[data-icon="new"]').length) {
 				$(location).attr('href', $('[data-icon="new"]').parent().attr('href'));
@@ -25,7 +30,12 @@ $(document).ready(function() {
 				$(location).attr('href', $('[data-icon="batch"]').attr('href'));
 			}
 		});					
-
-	}
+	}	
 });
 
+$(document).ready(function() {
+	if($('#model_index').length) {
+		var _init_index = TW.views.shared.index;
+		_init_index.init();
+	}
+});
