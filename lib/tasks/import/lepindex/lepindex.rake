@@ -160,7 +160,7 @@ namespace :tw do
 
         @data.user_index['0'] = user
         @data.user_index[''] = user
-        @data.user_index[nil] => user
+        @data.user_index[nil] = user
       end
 
       def handle_references_lepindex
