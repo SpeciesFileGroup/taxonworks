@@ -134,7 +134,6 @@ namespace :tw do
         @data = ImportedDataUcd.new
 
         handle_projects_and_users_ucd
-        raise '$project_id or $user_id not set.'  if $project_id.nil? || $user_id.nil?
 
         handle_countries_ucd
         handle_collections_ucd
@@ -205,6 +204,8 @@ namespace :tw do
 
         $project_id = @data.project_id 
         $user_id = @data.user_id
+
+        raise '$project_id or $user_id not set.'  if $project_id.nil? || $user_id.nil?
 
         @root = Protonym.find_or_create_by(name: 'Root', rank_class: 'NomenclaturalRank', project_id: $project_id)
         @order = Protonym.find_or_create_by(name: 'Hymenoptera', parent: @root, rank_class: 'NomenclaturalRank::Iczn::HigherClassificationGroup::Order', project_id: $project_id)

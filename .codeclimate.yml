@@ -33,11 +33,11 @@ ratings:
   - "**.module"
   - "**.es6"
 exclude_paths:
-- db/
-- spec/
-- vendor/
-- app/assets/images/
-- app/assets/javascript/vendor/src/
-- app/assets/stylesheets/vendor/
+- "db/"
+- "spec/"
+- "vendor/"
+- "app/assets/images/"
+- "app/assets/javascripts/vendor/src/"
+- "app/assets/stylesheets/vendor/"
 
 

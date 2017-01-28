@@ -12,17 +12,18 @@ namespace :tw do
       class ImportedData
         attr_accessor :people_index, :user_index, :publications_index, :citations_index, :genera_index, :images_index,
                       :parent_id_index, :statuses, :taxonno_index, :citation_to_publication_index
+       
         def initialize()
-          @people_index = {}              # PeopleID -> Person object
-          @user_index = {}                # PeopleID -> User object
-          @publications_index = {}        # unique_fields hash -> Surce object
-          @citations_index = {}           # NEW_REF_ID -> row
+          @people_index = {}                  # PeopleID -> Person object
+          @user_index = {}                    # PeopleID -> User object
+          @publications_index = {}            # unique_fields hash -> Surce object
+          @citations_index = {}               # NEW_REF_ID -> row
           @citation_to_publication_index = {} # NEW_REF_ID -> source.id
-          @genera_index = {}              # GENUS_NUMBER -> row
-          @images_index = {}              # TaxonNo -> row
-          @parent_id_index = {}           # Rank:TaxonName -> Taxon.id
-          @statuses = {}
-          @taxonno_index = {}             #TaxonNo -> Taxon.id
+          @genera_index = {}                  # GENUS_NUMBER -> row
+          @images_index = {}                  # TaxonNo -> row
+          @parent_id_index = {}               # Rank:TaxonName -> Taxon.id
+          @statuses = {}                    
+          @taxonno_index = {}                 #TaxonNo -> Taxon.id
         end
       end
 
@@ -89,33 +90,38 @@ namespace :tw do
             ActiveRecord::Base.transaction do
               begin
 
-              main_build_loop_lepindex
+                main_build_loop_lepindex
 
               rescue
                 raise
               end
             end
 
+          end
         end
-      end
 
       def main_build_loop_lepindex
-        print "\nStart time: #{Time.now}\n"
+        puts Rainbow("\nStart time: #{Time.now}\n").yellow
 
         @import = Import.find_or_create_by(name: @import_name)
         @import.metadata ||= {}
+
         @data =  ImportedData.new
-        puts @args
+        
+        puts Raingow(@args).grey
+
         Utilities::Files.lines_per_file(Dir["#{@args[:data_directory]}/**/*.txt"])
         handle_projects_and_users_lepindex
-        raise '$project_id or $user_id not set.'  if $project_id.nil? || $user_id.nil?
+        
+
+        
         handle_references_lepindex
         handle_list_of_genera_lepindex
         handle_images_lepindex
         handle_species_lepindex
         soft_validations_lepindex
 
-        print "\n\n !! Success. End time: #{Time.now} \n\n"
+        puts Rainbow("\n\n !! Success. End time: #{Time.now} \n\n").yellow
       end
 
       def handle_projects_and_users_lepindex
@@ -124,47 +130,37 @@ namespace :tw do
         email = 'lepindex@import.net'
         project_name = 'Lepindex'
         user_name = 'Lepindex Import'
+       
         $user_id, $project_id = nil, nil
+
+        user = User.where(email: email).first
+        user ||= User.create(email: email, password: '3242341aas', password_confirmation: '3242341aas', name: user_name, self_created: true)
+        $user_id = user.id
+
         if @import.metadata['project_and_users']
           print "from database.\n"
           project = Project.where(name: project_name).first
-          user = User.where(email: email).first
-          $project_id = project.id
-          $user_id = user.id
         else
           print "as newly parsed.\n"
 
-          user = User.where(email: email)
-          if user.empty?
-            user = User.create(email: email, password: '3242341aas', password_confirmation: '3242341aas', name: user_name, self_created: true)
-          else
-            user = user.first
-          end
-          $user_id = user.id # set for project line below
-
-          project = nil
-          #project = Project.where(name: project_name).first #################### Comment fot creating a new one
-          if project.nil?
-            project = Project.create(name: project_name)
-          end
-
-          $project_id = project.id
-          pm = ProjectMember.new(user: user, project: project, is_project_administrator: true)
-          pm.save! if pm.valid?
+          project = Project.create!(name: project_name)
+          pm = ProjectMember.create!(user: user, project: project, is_project_administrator: true)
 
           @import.metadata['project_and_users'] = true
         end
+
+        $project_id = project.id
+
+        raise Rainbow('$project_id or $user_id not set.').red  if $project_id.nil? || $user_id.nil?
+
         root = Protonym.find_or_create_by(name: 'Root', rank_class: 'NomenclaturalRank', project_id: $project_id)
         @lepidoptera = Protonym.find_or_create_by(name: 'Lepidoptera', parent_id: root.id, rank_class: 'NomenclaturalRank::Iczn::HigherClassificationGroup::Order', project_id: $project_id)
 
-
         @lepindex_imported = Keyword.find_or_create_by(name: 'Lepindex_imported', definition: 'Imported from Lepindex database.')
 
-
-        @data.user_index.merge!('0' => user)
-        @data.user_index.merge!('' => user)
-        @data.user_index.merge!(nil => user)
-
+        @data.user_index['0'] = user
+        @data.user_index[''] = user
+        @data.user_index[nil] => user
       end
 
       def handle_references_lepindex
