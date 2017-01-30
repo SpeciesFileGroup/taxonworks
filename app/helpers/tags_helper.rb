@@ -6,9 +6,9 @@ module TagsHelper
   end
 
   def new_tag_tag(taggable_object) # tag_object is to be tagged
-    link_to('Tag', 
+    link_to('Tag',
             new_tag_path(tag_object_id: taggable_object.id, tag_object_type: taggable_object.class.name),
-            id: "_#{taggable_object.class}_#{taggable_object.id}"
+            id: "tag_splat_#{taggable_object.class}_#{taggable_object.id}"
            )
   end
 
