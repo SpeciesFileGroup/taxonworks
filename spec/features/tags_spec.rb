@@ -107,11 +107,11 @@ describe 'Tags', type: :feature do
         visit("#{ce.class.name.tableize}/#{ce.id}")
         find("#tag_splat_#{ce.class.name}_#{ce.id}").click
       end
-      describe 'find existing keyword' do
+      describe 'find existing keyword' do # this test probably only works for one keyword due to simple canonical selector definition
         before do
           k = Keyword.find(1)
-          fill_autocomplete('keyword_picker_autocomplete', with: 'slo', select: k.id)
-          wait_for_ajax
+          fill_keyword_autocomplete('keyword_picker_autocomplete', with: 'slo', select: k.id)
+          # choose_autocomplete_result('slow', '#keyword_picker_autocomplete' )
           click_button('Update')
         end
         specify do

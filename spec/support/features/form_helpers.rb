@@ -54,6 +54,15 @@ module Features
       page.execute_script(%Q{ $('#{css_selector}').trigger('mouseenter').click(); })
     end
 
+    # TODO: refine selector to find generalized existing item
+    def fill_keyword_autocomplete(field, options = {})
+      css_selector = %Q{li.ui-menu-item a}
+      fill_in field, with: options[:with]
+      wait_for_ajax
+      expect(page).to have_css(css_selector)
+      page.execute_script(%Q{ $('#{css_selector}').trigger('mouseenter').click(); })
+    end
+
   end
 end
 
