@@ -64,7 +64,7 @@ describe 'Tags', type: :feature do
 
           specify 'and the tag is added' do
             expect(o.tags.count).to eq(4) # since 3 already existed with reference to let!(:tags)
-            expect(o.tags.first.keyword.name).to eq(tag_name)
+            expect(o.tags.last.keyword.name).to eq(tag_name) # since no reordering has been done
           end
 
         end
@@ -76,11 +76,11 @@ describe 'Tags', type: :feature do
 
     # pending 'clicking a tag link anywhere renders the tagged object in <some> view'
 
-    describe 'the structure of tag_splat' do
+    describe 'the structure of tag_splat', js: true do
       specify 'has a splat' do
         # ce = CollectingEvent.first
         visit("#{ce.class.name.tableize}/#{ce.id}")
-        expect(find("#tag_splat_#{ce.class.name}_#{ce.id}").value).to have_text('Tag')
+        expect(find("#tag_splat_#{ce.class.name}_#{ce.id}").text).to have_text('Tag')
       end
     end
 
@@ -109,8 +109,8 @@ describe 'Tags', type: :feature do
       end
       describe 'find existing keyword' do # this test probably only works for one keyword due to simple canonical selector definition
         before do
-          k = Keyword.find(1)
-          fill_keyword_autocomplete('keyword_picker_autocomplete', with: 'slo', select: k.id)
+          k = Keyword.where(name: 'medium').first
+          fill_keyword_autocomplete('keyword_picker_autocomplete', with: 'me', select: k.id)
           # choose_autocomplete_result('slow', '#keyword_picker_autocomplete' )
           click_button('Update')
         end
