@@ -11,11 +11,21 @@ Object.assign(TW.workbench.alert, {
 	  		}, 250, function() {
 	    		$(this).remove();
 	  		});	
-		});		
+		});	
+
+		if($(".alert").length) {
+			this.play('<%= asset_path("notify.wav") %>');
+		};
 	},
 
 	create: function(text) {
 		$("body").append('<div class="alert alert-error"><div class="message">' + text + '</div><div class="alert-close"></div></div>');
+		this.play('<%= asset_path("notify.wav") %>');
+	},
+
+	play: function(file) {
+		var sound = new Audio(file);
+		sound.play();		
 	}
 });
 

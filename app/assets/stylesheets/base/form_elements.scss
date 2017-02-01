@@ -2,6 +2,8 @@
 @import 'base/fonts';
 @import 'base/whitespace';
 
+$big-input-size: 40px;
+$normal-input-size: 28px;
 
 input[type=checkbox].locked { display: none; }
 input[type=checkbox].increment { display: none; }
@@ -10,10 +12,10 @@ input[type=checkbox].increment { display: none; }
   display: inline-block;
   font-size: $font_small;
   cursor: pointer;
-  width: 28px;
-  height:28px;
-  max-width: 28px;
-  max-height:28px;
+  width: $normal-input-size;
+  height:$normal-input-size;
+  max-width: $normal-input-size;
+  max-height:$normal-input-size;
   background-size: 12px;
   background-position: center;
   background-repeat: no-repeat;
@@ -81,7 +83,7 @@ form input, textarea {
 	border-radius:2px;
 	border:1px solid $navigation_border;
 	background-color:#FFF;
-  min-height: 28px;
+  min-height: $normal-input-size;
   box-sizing: border-box;
 }
 
@@ -89,10 +91,11 @@ input[type="submit"] {
   position: relative;
   background-color: $color-button-default;
   cursor: pointer;
+  font-weight: 500;
   color: #444;
   border-radius: 3px;
   border: 1px solid $navigation_border;
-  box-shadow: 0px 1px 1px 0px rgba(0,0,0,0.075);
+  border-bottom: 2px solid rgba(0,0,0,0.2);  
 }
 
 
@@ -169,4 +172,13 @@ h4 {
 
 .inline_div {
   padding-left: $standard_padding * 2;
+}
+
+
+.big-input {
+  height: $big-input-size;
+}
+
+.normal-input {
+  height: $normal-input-size;
 }

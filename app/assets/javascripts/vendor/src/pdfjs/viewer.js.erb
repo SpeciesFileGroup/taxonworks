@@ -1,7 +1,13 @@
+var TW = TW || {};
+TW.views = TW.views || {};
+TW.views.shared = TW.views.shared || {};
+TW.views.shared.slideout = TW.views.shared.slideout || {};
+TW.views.shared.slideout.pdf = TW.views.shared.slideout.pdf || {};
 
-$(document).ready(function() {
+Object.assign(TW.views.shared.slideout.pdf, {
+  init: function() {
 
-'use strict';
+  'use strict';
 
     var pdfDocument = void 0;
     var PAGE_HEIGHT = void 0;
@@ -199,4 +205,9 @@ $(document).ready(function() {
         }
         return '';
     }
+  }
+});
+
+$(document).ready(function() {
+  TW.views.shared.slideout.pdf.init();
 });
