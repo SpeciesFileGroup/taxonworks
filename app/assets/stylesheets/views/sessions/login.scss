@@ -1,6 +1,7 @@
 /* Login Screen */
 @import 'base/palette';
 @import 'base/whitespace';
+@import 'base/fonts';
 
 #login-container {
 	position: absolute;
@@ -28,30 +29,21 @@
 	}
 	.item {
 		display:flex;
-		justify-content:space-between;
-		align-items:center;
-		
+		justify-content: space-between;
 	}
 	.item a {
 		padding-top:$standard_padding;
 		text-decoration:none;
 	}
-	.item a:first-letter {
-		text-transform:uppercase;
-	}
+
 	input {
 		border-radius: 0px;
 		width:100%;
-		font-size: 14px;
+		font-size: $font_normal;
 	}
 	
 	input[type="submit"] {
-		font-weight: 500;
-		width: 100%;
 		margin-top: 20px;
-		box-shadow: none;
-	}
-	input[type="password"] {
-		width:100%;
+		border-radius: 3px;
 	}
 }

@@ -11,11 +11,11 @@
         <div class="field">
           <%= f.password_field :password, "placeholder" => "Password", "class" => "big-input" %>
         </div>
-        <%= f.submit 'Sign in', id: :sign_in, "class" => "big-input button-default" %>
+        <%= f.submit 'Sign in', id: :sign_in, "class" => "big-input button button-request" %>
       </div>
           <div class="item">
-      <%= link_to('forgot password?', forgot_password_path) -%>
-      <%= link_to('find out more', 'http://taxonworks.org') -%>
+      <%= link_to('Forgot password?', forgot_password_path) -%>
+      <%= link_to('Find out more', 'http://taxonworks.org') -%>
     </div> 
     <% end %>
   </div>
