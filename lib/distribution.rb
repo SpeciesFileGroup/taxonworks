@@ -44,7 +44,7 @@ class Distribution
   def build_map_source_objects
     @map_source_objects = {} if @map_source_objects.nil?
     otus.each do |o|
-      @map_source_objects.merge!(o.id => [])
+      @map_source_objects[o.id] = []
       source_object_types.each do |t|
         insert_source_objects(o, t)
       end

@@ -85,7 +85,7 @@ module BatchLoad
           rp = @processed_rows[i]
         else
           rp = BatchLoad::RowParse.new
-          @processed_rows.merge!(i => rp)
+          @processed_rows[i] = rp
         end
 
         p = Protonym.new(
@@ -104,7 +104,7 @@ module BatchLoad
         rp.objects[:protonyms] ||= []
         rp.objects[:protonyms].push(p)
 
-        parents.merge!(n.id => p)
+        parents[n.id] = p
 
         total_lines = i if total_lines < i
       end

@@ -91,7 +91,7 @@ namespace :tw do
         end
         
         def done!(lookup)
-          done.merge!(lookup => 1)
+          done[lookup] = 1
         end
 
         def redo!

@@ -174,8 +174,8 @@ class Tasks::Gis::MatchGeoreferenceController < ApplicationController
           end
         }
 
-        arguments.merge!(georeference_id: params['georeference_id'])
-        arguments.merge!(checked_ids: checked_ids)
+        arguments[:georeference_id] = params['georeference_id']
+        arguments[:checked_ids] = checked_ids
 
         results = Georeference.batch_create_from_georeference_matcher(arguments)
 

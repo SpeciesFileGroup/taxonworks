@@ -29,7 +29,7 @@ module GeographicItemsHelper
   # A little ugly
   def geographic_item_parent_nav_links(geographic_item)
     data =   geographic_item.parent_geographic_areas.inject({}) { |hsh,a|
-      hsh.merge!(a => a.geographic_items)
+      hsh[a] = a.geographic_items
     }
     content_tag(:div,
                 data.collect { |k, v| [
@@ -43,7 +43,7 @@ module GeographicItemsHelper
     data = {}
     geographic_item.geographic_areas.each do |a| 
       a.children.collect{ |c|
-        data.merge!(c =>  c.geographic_items.all)
+        data[c] = c.geographic_items.all
       }
     end 
 

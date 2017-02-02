@@ -179,7 +179,7 @@ class SourcesController < ApplicationController
   end
 
   def source_params
-    params['source'].merge!(project_sources_attributes: [{project_id: sessions_current_project_id.to_s}])
+    params['source'][:project_sources_attributes] = [{project_id: sessions_current_project_id.to_s}]
     params.require(:source).permit(
       :serial_id, :address, :annote, :author, :booktitle, :chapter,
       :crossref, :edition, :editor, :howpublished, :institution,
