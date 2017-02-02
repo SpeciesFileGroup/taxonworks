@@ -132,8 +132,6 @@ class Protonym < TaxonName
     where("taxon_names.id NOT IN (SELECT subject_taxon_name_id FROM taxon_name_relationships WHERE type ILIKE 'TaxonNameRelationship::Iczn::Invalidating%' OR type ILIKE 'TaxonNameRelationship::Icn::Unaccepting%')")
   }
 
-
-
   # @return [Array of Strings]
   #   genera where the species was placed
   def all_generic_placements
@@ -328,41 +326,37 @@ class Protonym < TaxonName
     FAMILY_RANK_NAMES.include?(rank_string)
   end
 
-    # TODO: Why protected?  What does it do?
-    def genus_suggested_gender
-      return nil unless rank_string =~/Genus/
-      TAXON_NAME_CLASSIFICATION_GENDER_CLASSES.each do |g|
-        g.possible_genus_endings.each do |e|
-          return g.name.demodulize.underscore.humanize.downcase if self.name =~ /^[a-zA-Z]*#{e}$/
-        end
+  # TODO: Why protected?  What does it do?
+  def genus_suggested_gender
+    return nil unless rank_string =~/Genus/
+    TAXON_NAME_CLASSIFICATION_GENDER_CLASSES.each do |g|
+      g.possible_genus_endings.each do |e|
+        return g.name.demodulize.underscore.humanize.downcase if self.name =~ /^[a-zA-Z]*#{e}$/
       end
-      nil
     end
+    nil
+  end
 
+  # TODO: why protected?
+  def species_questionable_ending(g, n)
+    return nil unless rank_string =~ /Species/
+    g.questionable_species_endings.each do |e|
+      return e if n =~ /^[a-z]*#{e}$/
+    end
+    nil
+  end
 
-
-    # why protected
-    def species_questionable_ending(g, n)
-      return nil unless rank_string =~ /Species/
-      g.questionable_species_endings.each do |e|
-        return e if n =~ /^[a-z]*#{e}$/
+  def reduce_list_of_synonyms(list)
+    return [] if list.empty?
+    list1 = list.select{|s| s.id == s.lowest_rank_coordinated_taxon.id}
+    unless list1.empty?
+      date1 = self.nomenclature_date
+      unless date1.nil?
+        list1.reject!{|s| date1 < (s.year_of_publication ? s.nomenclature_date : Time.utc(1))}
       end
-      nil
     end
-
-
-
-    def reduce_list_of_synonyms(list)
-      return [] if list.empty?
-      list1 = list.select{|s| s.id == s.lowest_rank_coordinated_taxon.id}
-      unless list1.empty?
-        date1 = self.nomenclature_date
-        unless date1.nil?
-          list1.reject!{|s| date1 < (s.year_of_publication ? s.nomenclature_date : Time.utc(1))}
-        end
-      end
-      list1
-    end
+    list1
+  end
 
   protected
 
