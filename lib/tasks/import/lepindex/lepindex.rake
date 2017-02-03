@@ -1,5 +1,6 @@
 require 'fileutils'
-require 'ruby-prof'
+
+# require 'ruby-prof'
 
 ### rake tw:project_import:lepindex:import_all data_directory=/Users/proceps/src/lep_index/ no_transaction=true
 
@@ -113,9 +114,9 @@ namespace :tw do
         Utilities::Files.lines_per_file(Dir["#{@args[:data_directory]}/**/*.txt"])
 
         handle_projects_and_users_lepindex
-     #  handle_references_lepindex
+        handle_references_lepindex
         handle_list_of_genera_lepindex
-     #  handle_images_lepindex
+        handle_images_lepindex
         handle_species_lepindex
      #  soft_validations_lepindex
 
@@ -356,7 +357,7 @@ namespace :tw do
         data_attribute_fields = %w{TaxonNo Original_Genus OrigSubgen Original_Species Original_Subspecies Original_Infrasubspecies Availability valid_parent_id ButmothNo}.freeze 
         original_combination_fields =  %w{Original_Genus OrigSubgen Original_Species Original_Subspecies Original_Infrasubspecies}.freeze
 
-        result = RubyProf.profile do
+#        result = RubyProf.profile do
 
           ['GENUS', 'SUBGENUS', 'SPECIES', 'SUBSPECIES'].each do |rank|
             GC.start
@@ -584,10 +585,10 @@ namespace :tw do
               end
             end
           end
-        end # End RubyProf
+#        end # End RubyProf
 
-        printer = RubyProf::GraphHtmlPrinter.new(result)
-        printer.print(STDOUT, {})
+#        printer = RubyProf::GraphHtmlPrinter.new(result)
+#        printer.print(STDOUT, {})
 
         puts Rainbow('All invalid (unrecognized) relationships:').red 
         ap Rainbow(@invalid_relationships).red
