@@ -109,13 +109,14 @@ describe 'Tags', type: :feature do
       end
       describe 'find existing keyword' do # this test probably only works for one keyword due to simple canonical selector definition
         before do
-          k = Keyword.where(name: 'medium').first
-          fill_keyword_autocomplete('keyword_picker_autocomplete', with: 'me', select: k.id)
-          # choose_autocomplete_result('slow', '#keyword_picker_autocomplete' )
+          m = Keyword.where(name: 'medium').first
+          s = Keyword.where(name: 'slow').first
+          fill_keyword_autocomplete('keyword_picker_autocomplete', with: 'me', select: m.id)
+          fill_keyword_autocomplete('keyword_picker_autocomplete', with: 'sl', select: s.id)
           click_button('Update')
         end
         specify do
-          expect(ce.tags.count).to eq(1)
+          expect(ce.tags.count).to eq(2)
         end
       end
     end
