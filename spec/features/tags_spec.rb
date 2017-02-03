@@ -66,12 +66,8 @@ describe 'Tags', type: :feature do
             expect(o.tags.count).to eq(4) # since 3 already existed with reference to let!(:tags)
             expect(o.tags.last.keyword.name).to eq(tag_name) # since no reordering has been done
           end
-
         end
-
       end
-
-
     end
 
     # pending 'clicking a tag link anywhere renders the tagged object in <some> view'
@@ -84,75 +80,39 @@ describe 'Tags', type: :feature do
       end
     end
 
-    # context 'using the splat old', js: true do
-    #
-    #   specify 'invoke the splat action' do
-    #     visit("#{ce.class.name.tableize}/#{ce.id}")
-    #     find("#tag_splat_#{ce.class.name}_#{ce.id}").click
-    #   end
-    #   before do
-    #     fill_in('keyword_picker_autocomplete', with: 'slow')
-    #     find('#keyword_picker_add_new').click
-    #     click_button('Update')
-    #   end
-    #
-    #   specify 'the collecting event should have a tag' do
-    #     expect(ce.tags.count).to eq(1)
-    #   end
-    # end
-
-
     context 'using the splat', js: true do
       context 'adding two tags to untagged collecting event' do
+        let(:m) { Keyword.where(name: 'medium').first }
+        let(:s) { Keyword.where(name: 'slow').first }
         before do
           visit("#{ce.class.name.tableize}/#{ce.id}")
           find("#tag_splat_#{ce.class.name}_#{ce.id}").click
+          fill_keyword_autocomplete('keyword_picker_autocomplete', with: 'me', select: m.id)
+          fill_keyword_autocomplete('keyword_picker_autocomplete', with: 'sl', select: s.id)
+          click_button('Update')
         end
-        describe 'find existing keyword' do # this test fixed to select the designated keyword
-          before do
-            m = Keyword.where(name: 'medium').first
-            s = Keyword.where(name: 'slow').first
-            fill_keyword_autocomplete('keyword_picker_autocomplete', with: 'me', select: m.id)
-            fill_keyword_autocomplete('keyword_picker_autocomplete', with: 'sl', select: s.id)
-            click_button('Update')
-          end
-          specify do
-            expect(ce.tags.count).to eq(2)
-          end
+        specify 'two tags were created' do
+          expect(ce.tags.count).to eq(2)
         end
-      end
 
-      context 'removing one of two tags from tagged collecting event' do
-        before do
-          visit("#{ce.class.name.tableize}/#{ce.id}")
-          find("#tag_splat_#{ce.class.name}_#{ce.id}").click
-        end
-        describe 'remove existing tag' do
-          let(:m) { Keyword.where(name: 'medium').first }
-          let(:s) { Keyword.where(name: 'slow').first }
+        context 'removing one of two tags from tagged collecting event' do
           before do
-            fill_keyword_autocomplete('keyword_picker_autocomplete', with: 'me', select: m.id)
-            fill_keyword_autocomplete('keyword_picker_autocomplete', with: 'sl', select: s.id)
-            click_button('Update')
-
+            visit("#{ce.class.name.tableize}/#{ce.id}")
+            find("#tag_splat_#{ce.class.name}_#{ce.id}").click
             find(%Q{li[data-tag-id="#{ce.tags.where(keyword: s).first.id}"] a}).click # 'data-tag-id=' +
 
             click_button('Update')
           end
-          specify do
+
+          specify 'remove existing tag' do
             expect(ce.tags.count).to eq(1)
             expect(ce.tags.first.keyword_id).to eq(m.id)
           end
         end
       end
-
     end
-    # describe do
-    #   specify do
-    #
-    #   end
-    # end
   end
-
 end
+
+
 
