@@ -18,8 +18,8 @@ describe 'Dashboard' do
         expect(form).to have_selector('input[type="submit"][value="Sign in"]')
       }
 
-      expect(page).to have_link('forgot password?')
-      expect(page).to have_link('find out more')
+      expect(page).to have_link('Forgot password?')
+      expect(page).to have_link('Find out more')
     end
 
   end
