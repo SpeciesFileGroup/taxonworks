@@ -20,17 +20,28 @@ Object.assign(TW.views.shared.slideout.pdf, {
 
     function loadPDF(pdfUrl) {
       $('#viewer').empty();
+      var createPDF = PDFJS.getDocument(pdfUrl);
 
-      PDFJS.getDocument(pdfUrl).then(function (pdf) {
-        pdfDocument = pdf;
+        createPDF.onProgress = function(obj) {
+          $("#viewer").parent().addClass('spinner');
+          $("#pdfViewerContainer").addClass('box-spinner');
+          $("#pdfViewerContainer").append('<span style="color:#444; margin-top:80px; text-align: center;">Loading, please wait.</span');
+        }
 
-        var viewer = document.getElementById('viewer');
-        for (var i = 0; i < pdf.pdfInfo.numPages; i++) {
-          var page = createEmptyPage(i + 1);
-          viewer.appendChild(page);
+        createPDF.then(function (pdf) {
+          $("#pdfViewerContainer span").remove();
+          $("#pdfViewerContainer").removeClass('box-spinner');
+          $("#viewer").parent().removeClass('spinner');          
+          pdfDocument = pdf;
+
+          var viewer = document.getElementById('viewer');
+          for (var i = 0; i < pdf.pdfInfo.numPages; i++) {
+            var page = createEmptyPage(i + 1);
+            viewer.appendChild(page);
         }
         actualPage = 1;
         loadPage(actualPage);
+
       });
     }
 
