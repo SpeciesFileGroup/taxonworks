@@ -99,7 +99,7 @@ describe 'Tags', type: :feature do
           before do
             visit("#{ce.class.name.tableize}/#{ce.id}")
             find("#tag_splat_#{ce.class.name}_#{ce.id}").click
-            find(%Q{li[data-tag-id="#{ce.tags.where(keyword: s).first.id}"] a}).click # 'data-tag-id=' +
+            find(%Q{li[data-tag-id="#{ce.tags.where(keyword: s).first.id}"] a}).click
 
             click_button('Update')
           end
