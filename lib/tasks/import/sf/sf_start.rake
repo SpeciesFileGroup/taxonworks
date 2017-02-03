@@ -334,7 +334,7 @@ namespace :tw do
             website_name = row['WebsiteName'].downcase # want to be lower case
 
             project = Project.new(
-                name: "#{website_name}_species_file",
+                name: "#{website_name}_species_file(#{Time.now})",
             )
 
             if project.save

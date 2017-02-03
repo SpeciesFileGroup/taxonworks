@@ -222,6 +222,9 @@ SF.RefID #{row['RefID']} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}
 
           # Create controlled vocabulary terms (CVTS) for NewNameStatus, TypeInfo, and CiteInfoFlags; CITES_CVTS below in all caps denotes constant
 
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          get_tw_project_id = import.get('SFFileIDToTWProjectID')
+
           CITES_CVTS = {
 
               new_name_status: [
@@ -285,10 +288,11 @@ SF.RefID #{row['RefID']} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}
 
           get_cvt_id = {} # key = project_id, value = {tag/topic uri, cvt.id.to_s}
 
-          Project.all.each do |project|
-            next unless project.name.end_with?('species_file')
+          # Project.all.each do |project|
+            get_tw_project_id.values.each do |project_id|
+            # next unless project.name.end_with?('species_file')
 
-            project_id = project.id.to_s
+            # project_id = project.id.to_s
 
             logger.info "Working with TW.project_id: #{project_id} = '#{project.name}'"
 
