@@ -103,22 +103,49 @@ describe 'Tags', type: :feature do
 
 
     context 'using the splat', js: true do
-      before do
-        visit("#{ce.class.name.tableize}/#{ce.id}")
-        find("#tag_splat_#{ce.class.name}_#{ce.id}").click
-      end
-      describe 'find existing keyword' do # this test probably only works for one keyword due to simple canonical selector definition
+      context 'adding two tags to untagged collecting event' do
         before do
-          m = Keyword.where(name: 'medium').first
-          s = Keyword.where(name: 'slow').first
-          fill_keyword_autocomplete('keyword_picker_autocomplete', with: 'me', select: m.id)
-          fill_keyword_autocomplete('keyword_picker_autocomplete', with: 'sl', select: s.id)
-          click_button('Update')
+          visit("#{ce.class.name.tableize}/#{ce.id}")
+          find("#tag_splat_#{ce.class.name}_#{ce.id}").click
         end
-        specify do
-          expect(ce.tags.count).to eq(2)
+        describe 'find existing keyword' do # this test fixed to select the designated keyword
+          before do
+            m = Keyword.where(name: 'medium').first
+            s = Keyword.where(name: 'slow').first
+            fill_keyword_autocomplete('keyword_picker_autocomplete', with: 'me', select: m.id)
+            fill_keyword_autocomplete('keyword_picker_autocomplete', with: 'sl', select: s.id)
+            click_button('Update')
+          end
+          specify do
+            expect(ce.tags.count).to eq(2)
+          end
         end
       end
+
+      context 'removing one of two tags from tagged collecting event' do
+        before do
+          visit("#{ce.class.name.tableize}/#{ce.id}")
+          find("#tag_splat_#{ce.class.name}_#{ce.id}").click
+        end
+        describe 'remove existing tag' do
+          let(:m) { Keyword.where(name: 'medium').first }
+          let(:s) { Keyword.where(name: 'slow').first }
+          before do
+            fill_keyword_autocomplete('keyword_picker_autocomplete', with: 'me', select: m.id)
+            fill_keyword_autocomplete('keyword_picker_autocomplete', with: 'sl', select: s.id)
+            click_button('Update')
+
+            find(%Q{li[data-tag-id="#{ce.tags.where(keyword: s).first.id}"] a}).click # 'data-tag-id=' +
+
+            click_button('Update')
+          end
+          specify do
+            expect(ce.tags.count).to eq(1)
+            expect(ce.tags.first.keyword_id).to eq(m.id)
+          end
+        end
+      end
+
     end
     # describe do
     #   specify do
