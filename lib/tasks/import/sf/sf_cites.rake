@@ -294,13 +294,13 @@ SF.RefID #{row['RefID']} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}
 
             # project_id = project.id.to_s
 
-            logger.info "Working with TW.project_id: #{project_id} = '#{project.name}'"
+            logger.info "Working with TW.project_id: #{project_id}"
 
             get_cvt_id[project_id] = {} # initialized for outer loop with project_id
 
             CITES_CVTS.keys.each do |column| # tblCites.ColumnName
               CITES_CVTS[column].each do |params|
-                cvt = ControlledVocabularyTerm.create!(params.merge(project_id: project.id)) # want this to be integer
+                cvt = ControlledVocabularyTerm.create!(params.merge(project_id: project_id)) # want this to be integer
                 get_cvt_id[project_id][cvt.uri] = cvt.id.to_s
               end
             end
