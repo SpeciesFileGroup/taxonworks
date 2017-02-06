@@ -4,6 +4,7 @@
 .citation_topic_picker {
 	position: relative;
 	.citation_topic_picker_topic_form {
+		z-index: 10;
 		position: absolute;
 		display: flex;
 		align-items: center;
