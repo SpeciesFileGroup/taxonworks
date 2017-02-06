@@ -51,17 +51,6 @@ class Tag < ActiveRecord::Base
     :tag_object_attribute
   end
 
-  def self.generate_download(scope)
-    CSV.generate do |csv|
-      csv << column_names
-      scope.order(id: :asc).find_each do |o|
-        csv << o.attributes.values_at(*column_names).collect { |i|
-          i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
-        }
-      end
-    end
-  end
-
   def tag_object_class
     tag_object.class
   end
@@ -77,7 +66,8 @@ class Tag < ActiveRecord::Base
   def self.find_for_autocomplete(params)
     # TODO: @mjy below code is running but not giving results we want
     terms = params[:term].split.collect { |t| "'#{t}%'" }.join(' or ')
-    joins(:keyword).where('controlled_vocabulary_terms.name like ?', terms).with_project_id(params[:project_id]) # "#{params[:term]}%" )
+    joins(:keyword).where('controlled_vocabulary_terms.name like ?', terms).with_project_id(params[:project_id]) 
+    terms
   end
 
   # @return [TagObject]

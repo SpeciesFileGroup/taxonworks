@@ -1,25 +1,13 @@
-<%= form_for(@tag) do |f| %>
-    <%= render 'shared/errors', object: @tag %>
+<%= form_for(@taggable_object, url: tag_object_update_tags_path(@taggable_object), as: :taggable_object, method: :post) do |f| %>
+    <%= render 'shared/errors', object: @taggable_object %>
 
-    <p><strong><%= @tag.tag_object.class.name %>:</strong> <%= object_tag(@tag.tag_object) -%>  </p>
-
-    <div class="field">
-      <%= f.label :keyword_id %>
-      <%#= f.number_field :keyword_id %>
-      <br>
-      <%= render :partial => 'workbench/elements/forms/ajax_select',
-                 :locals  => {:controller => 'keywords',
-                              :object     => 'tag',
-                              :method     => 'keyword_id',
-                              :tag_id     => 'keyword_id_for_controlled_vocabulary_term',
-                              :display    => object_tag(@tag.keyword)} %>
-    </div>
-
-    <%= f.hidden_field :tag_object_type %>
-
-    <%= f.hidden_field :tag_object_id %>
-
+    <%= hidden_field_tag :tag_object_type, @taggable_object.class.name %>
+    <%= hidden_field_tag :tag_object_id, @taggable_object.id %>
+    <%= render partial: '/tags/tag_picker',
+               locals: {tag: Tag.new, object: @taggable_object, f: f}
+    %>
     <div class="actions">
-      <%= f.submit %>
+      <%= f.submit 'Update' %>
+    </div>
     </div>
 <% end %>

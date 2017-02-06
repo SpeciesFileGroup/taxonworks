@@ -14,10 +14,12 @@ module Features
       raise "fill_autocomplete requires with: 'search term' and an ID to select (e.g. select: 2)" if options[:with].nil? || options[:select].nil?
 
       fill_in field, with: options[:with]
+      wait_for_ajax
 
     # page.execute_script %Q{ $('##{field}').trigger('focus') }
     # page.execute_script %Q{ $('##{field}').trigger('keydown') }
-
+      page_body = page.body
+      sleep 7
       css_selector = %Q{li.ui-menu-item a[data-model-id="#{options[:select]}"]}
       expect(page).to have_css(css_selector)
 
@@ -48,6 +50,14 @@ module Features
     def fill_otu_widget_autocomplete(field, options = {})
       raise "fill_otu_widget_autocomplete requires with: 'search term' and an ID to select (e.g. select: 2)" if options[:with].nil? || options[:select].nil?
       css_selector = %Q{li.ui-menu-item[id=ui-otu-id-#{options[:select]}]}
+      fill_in field, with: options[:with]
+      wait_for_ajax
+      expect(page).to have_css(css_selector)
+      page.execute_script(%Q{ $('#{css_selector}').trigger('mouseenter').click(); })
+    end
+
+    def fill_keyword_autocomplete(field, options = {})
+      css_selector = %Q{li.ui-menu-item a span[data-tag-id="#{options[:select]}"]}
       fill_in field, with: options[:with]
       wait_for_ajax
       expect(page).to have_css(css_selector)

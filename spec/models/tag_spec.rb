@@ -30,18 +30,25 @@ describe Tag, type: :model, group: [:annotators, :tags] do
       expect{tag.keyword = t}.to raise_error(ActiveRecord::AssociationTypeMismatch)
     end
 
+    context 'keyword uniqueness per object' do
+      let(:k) { FactoryGirl.create(:valid_keyword) }
+
     specify 'a tagged object is only tagged once per keyword' do
-      b = FactoryGirl.build(:valid_otu)
-      k = FactoryGirl.create(:valid_keyword)
-      tag.tag_object = b
+        tag.tag_object = otu
       tag.keyword = k
       tag.valid?
       expect(tag.errors.include?(:keyword)).to be_falsey
       expect(tag.errors.include?(:tag_object)).to be_falsey
       tag.save!
-      dupe_tag = FactoryGirl.build(:tag, keyword: k, tag_object: b) 
+        dupe_tag = FactoryGirl.build(:tag, keyword: k, tag_object: otu)
       dupe_tag.valid?
       expect(dupe_tag.errors.include?(:keyword_id)).to be_truthy
+    end
+
+      specify 'a tagged object is only tagged once per keyword using nested attributes' do
+        expect(otu.update(tags_attributes: [{keyword: k}, {keyword: k}])).to be_falsey
+      end
+
     end
 
     specify 'keywords scope can be limited with Keyword#can_tag' do

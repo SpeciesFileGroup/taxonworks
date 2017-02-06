@@ -229,7 +229,8 @@ TaxonWorks::Application.routes.draw do
 
   resources :keywords, only: [] do
     collection do
-      get 'autocomplete'
+      get :autocomplete
+      get :lookup_keyword
     end
   end
 
@@ -353,6 +354,10 @@ TaxonWorks::Application.routes.draw do
 
   resources :tags, except: [:edit, :show] do
     concerns [:data_routes]
+    collection do
+      get :autocomplete
+      post :tag_object_update
+    end
   end
 
   resources :tagged_section_keywords, only: [:create, :update, :destroy]
