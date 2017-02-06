@@ -25,7 +25,7 @@ Object.assign(TW.views.shared.slideout.pdf, {
       $('#viewer').empty();
       $("#viewer").parent().addClass('spinner');
       $("#pdfViewerContainer").addClass('box-spinner');
-      $("#pdfViewerContainer").append('<span style="color:#444; margin-top:80px; text-align: center;">Loading, please wait.</span');
+      $("#pdfViewerContainer").append('<span style="color:#444; margin-top:80px; text-align: center;">Loading, please wait.</span>');
 
         createPDF.then(function (pdf) {
           $("#pdfViewerContainer span").remove();
