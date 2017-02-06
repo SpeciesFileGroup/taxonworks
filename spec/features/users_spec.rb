@@ -252,7 +252,7 @@ describe 'Users' do
     before { visit root_path }
     
     feature 'forgotten password reset' do
-      before { click_link 'forgot password?' }
+      before { click_link 'Forgot password?' }
       
       scenario 'invalid email' do
         fill_in 'Email', with: 'invalid@example.com'
