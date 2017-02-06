@@ -355,10 +355,7 @@ TaxonWorks::Application.routes.draw do
   resources :tags, except: [:edit, :show] do
     concerns [:data_routes]
     collection do
-      get :lookup_tag
-      get 'get_definition/:id', action: 'get_definition'
       get :autocomplete
-      post :new_create
       post :tag_object_update
     end
   end

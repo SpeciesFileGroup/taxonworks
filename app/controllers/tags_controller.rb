@@ -3,7 +3,6 @@ class TagsController < ApplicationController
 
   before_action :set_tag, only: [:update, :destroy]
 
-
   def new
     if !Keyword.with_project_id(sessions_current_project_id).any? # if there are none
       @return_path = "/tags/new?tag[tag_object_attribute]=&tag[tag_object_id]=#{params[:tag][:tag_object_id]}&tag[tag_object_type]=#{params[:tag][:tag_object_type]}"
@@ -11,7 +10,6 @@ class TagsController < ApplicationController
     end
 
     @taggable_object = taggable_object
-
   end
 
   # GET /tags
@@ -21,18 +19,11 @@ class TagsController < ApplicationController
     render '/shared/data/all/index'
   end
 
-  def new_create
-    foo = 1
-  end
-
-  def tag_object_update # update the tags for the taggable object
+  def tag_object_update 
     taggable_object.update(taggable_object_params)
     redirect_to :back
   end
 
-  def taggable_object
-    params.require(:tag_object_type).constantize.find(params.require(:tag_object_id))
-  end
   # POST /tags
   # POST /tags.json
   def create
@@ -44,11 +35,7 @@ class TagsController < ApplicationController
         format.json { render json: @tag, status: :created, location: @tag }
       else
         format.html {
-          # if redirect_url == :back
           redirect_to :back, notice: 'Tag was NOT successfully created.'
-          # else
-          #   render :new
-          # end
         }
         format.json { render json: @tag.errors, status: :unprocessable_entity }
       end
@@ -72,7 +59,6 @@ class TagsController < ApplicationController
   # DELETE /tags/1
   # DELETE /tags/1.json
   def destroy
-    # redirect_url = (request.env['HTTP_REFERER'].include?("tags/#{@tag.id}") ? tags_url : :back)
     @tag.destroy
     respond_to do |format|
       format.html { redirect_to :back, notice: 'Tag was successfully destroyed.' }
@@ -81,7 +67,7 @@ class TagsController < ApplicationController
   end
 
   def list
-    @tags = Tag.where(project_id: sessions_current_project_id).order(:tag_object_type).page(params[:page])
+    @tags = Tag.where(project_id: sessions_current_project_id).order(:id).page(params[:page])
   end
 
   # GET /tags/search
@@ -93,19 +79,8 @@ class TagsController < ApplicationController
     end
   end
 
-  def lookup_tag
-    @tags = Tag.find_for_autocomplete(params.merge(poject_id: sessions_current_project_id))
-    render(:json => @tags.collect { |t|
-      {
-          label: t.name,
-          object_id: t.id,
-          definition: t.definition
-      }
-    })
-  end
-
   def autocomplete
-    @tags = Tag.find_for_autocomplete(params)
+    @tags = Queries::TagAutocompleteQuery.new(params.require(:term), project_id: sessions_current_project_id).all
 
     data = @tags.collect do |t|
       {id: t.id,
@@ -122,28 +97,30 @@ class TagsController < ApplicationController
 
   # GET /tags/download
   def download
-    send_data Tag.generate_download(Tag.where(project_id: $project_id)), type: 'text', filename: "tags_#{DateTime.now.to_s}.csv"
+    send_data Download.generate_csv(Tag.where(project_id: sessions_current_project_id)), type: 'text', filename: "tags_#{DateTime.now.to_s}.csv"
   end
 
   private
-  # Use callbacks to share common setup or constraints between actions.
+
   def set_tag
-    @tag = Tag.with_project_id($project_id).find(params[:id])
+    @tag = Tag.with_project_id(sessions_current_project_id).find(params[:id])
   end
 
-  # Never trust parameters from the scary internet, only allow the white list through.
   def tag_params
     params.require(:tag).permit(:keyword_id, :tag_object_id, :tag_object_type, :tag_object_attribute)
   end
 
-  # Never trust parameters from the scary internet, only allow the white list through.
   def taggable_object_params
     params.require(:taggable_object).permit(
-        tags_attributes: [:_destroy, :id, :keyword_id, :position,
-                          keyword_attributes: [:name, :definition, :uri, :html_color]
+      tags_attributes: [:_destroy, :id, :keyword_id, :position,
+                        keyword_attributes: [:name, :definition, :uri, :html_color]
 
-        ])
+    ])
   end
 
+  def taggable_object
+    params.require(:tag_object_type).constantize.find(params.require(:tag_object_id))
+  end
+ 
 end
 

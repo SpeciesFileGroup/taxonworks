@@ -1,26 +1,12 @@
 require 'rails_helper'
 
-describe 'Tags', type: :feature do
+describe 'Tags', type: :feature, group: :tags do
   let(:index_path) { tags_path }
   let(:page_title) { 'Tags' }
 
   it_behaves_like 'a_login_required_and_project_selected_controller'
 
   context 'signed in as a user, with some records created' do
-    let(:o) { Otu.create!(name: 'Cow', by: @user, project: @project) }
-    let(:ce) {
-      retval = CollectingEvent.create!(verbatim_label: 'Collecting a cow', by: @user, project: @project)
-      retval
-    }
-
-    let(:keywords) do
-      keywords = []
-      ['slow', 'medium', 'fast'].each do |n|
-        keywords.push FactoryGirl.create(:valid_keyword, name: n, by: @user, project: @project)
-      end
-      keywords
-    end
-
     before do
       sign_in_user_and_select_project
     end
@@ -33,6 +19,17 @@ describe 'Tags', type: :feature do
       tags
     end
 
+    let(:o) { Otu.create!(name: 'Cow', by: @user, project: @project) }
+    let(:ce) { CollectingEvent.create!(verbatim_label: 'Collecting a cow', by: @user, project: @project) }
+
+    let(:keywords) do
+      keywords = []
+      ['slow', 'medium', 'fast'].each do |n|
+        keywords.push FactoryGirl.create(:valid_keyword, name: n, by: @user, project: @project)
+      end
+      keywords
+    end
+
     describe 'GET /tags' do
       before { visit tags_path }
       it_behaves_like 'a_data_model_with_annotations_index'
@@ -40,7 +37,6 @@ describe 'Tags', type: :feature do
 
     describe 'GET /tags/list' do
       before { visit list_tags_path }
-
       it_behaves_like 'a_data_model_with_standard_list_and_records_created'
     end
 
@@ -65,7 +61,7 @@ describe 'Tags', type: :feature do
 
           specify 'and the tag is added' do
             expect(o.tags.count).to eq(4) # since 3 already existed with reference to let!(:tags)
-            expect(o.tags.last.keyword.name).to eq(tag_name) # since no reordering has been done
+            expect(o.tags.order(:position).last.keyword.name).to eq(tag_name) # since no user reordering has been done
           end
         end
       end
@@ -75,41 +71,46 @@ describe 'Tags', type: :feature do
 
     describe 'the structure of tag_splat', js: true do
       specify 'has a splat' do
-        # ce = CollectingEvent.first
-        visit("#{ce.class.name.tableize}/#{ce.id}")
-        expect(find("#tag_splat_#{ce.class.name}_#{ce.id}").text).to have_text('Tag')
-  end
-end
+        visit collecting_event_path(ce) 
+        find('#show_annotate_dropdown').click
+        expect(find("#tag_splat_#{ce.class.name}_#{ce.id}").text).to have_text('Add tag')
+      end
+    end
 
     context 'using the splat', js: true do
       context 'adding two tags to untagged collecting event' do
+
         let(:m) { Keyword.where(name: 'medium').first }
         let(:s) { Keyword.where(name: 'slow').first }
+
         before do
-          visit("#{ce.class.name.tableize}/#{ce.id}")
+          visit collecting_event_path(ce) 
+          find('#show_annotate_dropdown').click
           find("#tag_splat_#{ce.class.name}_#{ce.id}").click
           fill_keyword_autocomplete('keyword_picker_autocomplete', with: 'me', select: m.id)
           fill_keyword_autocomplete('keyword_picker_autocomplete', with: 'sl', select: s.id)
           click_button('Update')
         end
+
         specify 'two tags were created' do
           expect(ce.tags.count).to eq(2)
         end
 
         context 'removing one of two tags from tagged collecting event' do
           before do
-            visit("#{ce.class.name.tableize}/#{ce.id}")
+            visit collecting_event_path(ce) 
+            find('#show_annotate_dropdown').click
             find("#tag_splat_#{ce.class.name}_#{ce.id}").click
             find(%Q{li[data-tag-id="#{ce.tags.where(keyword: s).first.id}"] a}).click
-
             click_button('Update')
           end
 
           specify 'remove existing tag' do
             expect(ce.tags.count).to eq(1)
-            expect(ce.tags.first.keyword_id).to eq(m.id)
+            expect(ce.tags.order(:position).first.keyword_id).to eq(m.id)
           end
         end
+
       end
     end
   end
