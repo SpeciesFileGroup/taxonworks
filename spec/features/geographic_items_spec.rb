@@ -5,7 +5,7 @@ describe 'GeographicItems', :type => :feature do
   # skip 'until the view pages of GeographicItems are more clearly specified.'
   # it_behaves_like 'a_login_required_and_project_selected_controller' do
   #   let(:index_path) { geographic_items_path }
-  #   let(:page_index_name) { 'Geographic Items' }
+  #   let(:page_title) { 'Geographic Items' }
   # end
 
   # describe 'GET /geographic_items' do

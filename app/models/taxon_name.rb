@@ -206,7 +206,7 @@ class TaxonName < ActiveRecord::Base
   # this is subtly different, it includes self in present form, it also doesn't order
   scope :ancestors_and_descendants_of, -> (taxon_name) { 
     joins('LEFT OUTER JOIN taxon_name_hierarchies a ON taxon_names.id = a.descendant_id
-             LEFT JOIN taxon_name_hierarchies b ON taxon_names.id = b.ancestor_id').
+          LEFT JOIN taxon_name_hierarchies b ON taxon_names.id = b.ancestor_id').
     where("(a.ancestor_id = ?) OR (b.descendant_id = ?)", taxon_name.id, taxon_name.id ).uniq }
 
   scope :with_rank_class, -> (rank_class_name) { where(rank_class: rank_class_name) }
@@ -223,24 +223,27 @@ class TaxonName < ActiveRecord::Base
   scope :as_object_with_taxon_name_relationship, -> (taxon_name_relationship) { includes(:related_taxon_name_relationships).where(taxon_name_relationships: {type: taxon_name_relationship}) }
   scope :as_object_with_taxon_name_relationship_base, -> (taxon_name_relationship) { includes(:related_taxon_name_relationships).where('taxon_name_relationships.type LIKE ?', "#{taxon_name_relationship}%").references(:related_taxon_name_relationships) }
   scope :as_object_with_taxon_name_relationship_containing, -> (taxon_name_relationship) { includes(:related_taxon_name_relationships).where('taxon_name_relationships.type LIKE ?', "%#{taxon_name_relationship}%").references(:related_taxon_name_relationships) }
+
   scope :with_taxon_name_relationship, -> (relationship) {
     joins('LEFT OUTER JOIN taxon_name_relationships tnr1 ON taxon_names.id = tnr1.subject_taxon_name_id').
-      joins('LEFT OUTER JOIN taxon_name_relationships tnr2 ON taxon_names.id = tnr2.object_taxon_name_id').
-      where('tnr1.type = ? OR tnr2.type = ?', relationship, relationship)
+    joins('LEFT OUTER JOIN taxon_name_relationships tnr2 ON taxon_names.id = tnr2.object_taxon_name_id').
+    where('tnr1.type = ? OR tnr2.type = ?', relationship, relationship)
   }
 
   # *Any* relationship where there IS a relationship for a subject/object/both
   scope :with_taxon_name_relationships_as_subject, -> { joins(:taxon_name_relationships) }
   scope :with_taxon_name_relationships_as_object, -> { joins(:related_taxon_name_relationships) }
+
   scope :with_taxon_name_relationships, -> {
     joins('LEFT OUTER JOIN taxon_name_relationships tnr1 ON taxon_names.id = tnr1.subject_taxon_name_id').
-      joins('LEFT OUTER JOIN taxon_name_relationships tnr2 ON taxon_names.id = tnr2.object_taxon_name_id').
-      where('tnr1.subject_taxon_name_id IS NOT NULL OR tnr2.object_taxon_name_id IS NOT NULL')
+    joins('LEFT OUTER JOIN taxon_name_relationships tnr2 ON taxon_names.id = tnr2.object_taxon_name_id').
+    where('tnr1.subject_taxon_name_id IS NOT NULL OR tnr2.object_taxon_name_id IS NOT NULL')
   }
 
   # *Any* relationship where there is NOT a relationship for a subject/object/both
   scope :without_subject_taxon_name_relationships, -> { includes(:taxon_name_relationships).where(taxon_name_relationships: {subject_taxon_name_id: nil}) }
   scope :without_object_taxon_name_relationships, -> { includes(:related_taxon_name_relationships).where(taxon_name_relationships: {object_taxon_name_id: nil}) }
+
   scope :without_taxon_name_relationships, -> {
     joins('LEFT OUTER JOIN taxon_name_relationships tnr1 ON taxon_names.id = tnr1.subject_taxon_name_id').
     joins('LEFT OUTER JOIN taxon_name_relationships tnr2 ON taxon_names.id = tnr2.object_taxon_name_id').
@@ -269,17 +272,30 @@ class TaxonName < ActiveRecord::Base
   #   all relationships where this taxon is an object or subject.
   def all_taxon_name_relationships
     # !! If self relationships are ever made possible this needs a DISTINCT clause
-    TaxonNameRelationship.find_by_sql("SELECT taxon_name_relationships.* FROM taxon_name_relationships WHERE taxon_name_relationships.subject_taxon_name_id = #{self.id} UNION
-                         SELECT taxon_name_relationships.* FROM taxon_name_relationships WHERE taxon_name_relationships.object_taxon_name_id = #{self.id}")
+    TaxonNameRelationship.find_by_sql(
+      "SELECT taxon_name_relationships.* 
+         FROM taxon_name_relationships 
+         WHERE taxon_name_relationships.subject_taxon_name_id = #{self.id} 
+       UNION
+       SELECT taxon_name_relationships.* 
+         FROM taxon_name_relationships 
+         WHERE taxon_name_relationships.object_taxon_name_id = #{self.id}")
   end
 
   # @return [Array of TaxonName]
   #   all taxon_names which have relationships to this taxon as an object or subject.
   def related_taxon_names
-    TaxonName.find_by_sql("SELECT DISTINCT tn.* FROM taxon_names tn
-                      LEFT JOIN taxon_name_relationships tnr1 ON tn.id = tnr1.subject_taxon_name_id
-                      LEFT JOIN taxon_name_relationships tnr2 ON tn.id = tnr2.object_taxon_name_id
-                      WHERE tnr1.object_taxon_name_id = #{self.id} OR tnr2.subject_taxon_name_id = #{self.id};")
+       # This was *not* good (3 orders of magnitude slower on big tables):
+       # TaxonName.find_by_sql(
+       #   "SELECT DISTINCT tn.* FROM taxon_names tn
+       #                   LEFT JOIN taxon_name_relationships tnr1 ON tn.id = tnr1.subject_taxon_name_id
+       #                   LEFT JOIN taxon_name_relationships tnr2 ON tn.id = tnr2.object_taxon_name_id
+       #                   WHERE tnr1.object_taxon_name_id = #{self.id} OR tnr2.subject_taxon_name_id = #{self.id};")
+    TaxonName.find_by_sql(
+      "SELECT tn.* from taxon_names tn join taxon_name_relationships tnr1 on tn.id = tnr1.subject_taxon_name_id and tnr1.object_taxon_name_id = #{self.id} 
+      UNION
+      SELECT tn.* from taxon_names tn join taxon_name_relationships tnr2 on tn.id = tnr2.object_taxon_name_id and tnr2.subject_taxon_name_id = #{self.id}"
+    )
   end
   
   # @return [String]
@@ -514,6 +530,7 @@ class TaxonName < ActiveRecord::Base
 
   # @return [Array of TaxonName]
   #  returns list of invalid names for a given taxon.
+  # TODO: Can't we just use #valid_id now?
   def list_of_invalid_taxon_names
     first_pass = true
     list = {}
@@ -1451,6 +1468,7 @@ class TaxonName < ActiveRecord::Base
     false
   end
 
+  # TODO: does this make sense now, with #valid_taxon_name_id in place?
   def sv_not_synonym_of_self
     if list_of_invalid_taxon_names.include?(self)
       soft_validations.add(:base, "Taxon has two conflicting relationships (invalidating and validating). To resolve a conflict, add a status 'valid' to a valid taxon.")

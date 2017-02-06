@@ -83,7 +83,7 @@ class OtusController < ApplicationController
   end
 
   def autocomplete
-    @otus = Otu.find_for_autocomplete(params.merge(project_id: sessions_current_project_id)).includes(:taxon_name)
+    @otus = Queries::OtuAutocompleteQuery.new(params.require(:term), project_id: sessions_current_project_id).all
 
     data = @otus.collect do |t|
       {id:              t.id,
@@ -111,10 +111,6 @@ class OtusController < ApplicationController
       flash[:notice] = 'No file provided!'
       redirect_to action: :batch_load
     end
-
-    # @otus = Otu.batch_preview(file: params[:file].tempfile)
-    # @file = params[:file].read
-    # render 'otus/batch_load/batch_preview'
   end
 
   def create_simple_batch_load
@@ -128,13 +124,6 @@ class OtusController < ApplicationController
       end
       render(:batch_load)
     end
-    # if @otus = Otu.batch_create(params.symbolize_keys.to_h)
-    #   flash[:notice] = "Successfully batch created #{@otus.count} OTUs."
-    # else
-    #   # TODOne: more response
-    #   flash[:notice] = 'Failed to create the Otus.'
-    # end
-    # redirect_to otus_path
   end
 
   # GET /otus/download
@@ -142,59 +131,16 @@ class OtusController < ApplicationController
     send_data Download.generate_csv(Otu.where(project_id: sessions_current_project_id)), type: 'text', filename: "otus_#{DateTime.now.to_s}.csv"
   end
 
-  # GET /api/v1/otus/by_name/"name"
-  # TODO: @MJY The searches of taxon_names in otu autocomplete (on which this query is modeled) do not
-  # TODO: include project_id. Is this intentional?
+  # GET api/v1/otus/by_name/:name?token=:token&project_id=:id
   def by_name
-    @otu_name   = params[:name]
-    # @otu_ids  = Otu.find_for_autocomplete(params.merge(term: @otu_name))
-    #               .includes(:taxon_name).pluck(:id)
-    where_query = where_sql
-    @otu_ids    = Otu.includes(:taxon_name)
-                    .where(where_query) # project_id is accounted for in each of the sub-queries
-                    .references(:taxon_names)
-                    .order(name: :asc) # since, as a rule (observed), otu name is empty, this does not really mean much.
-                    .pluck(:id)
+    @otu_name = params.require(:name)
+    @otu_ids = Queries::OtuAutocompleteQuery.new(@otu_name, project_id: params.require(:project_id)).all.pluck(:id)
   end
 
   private
 
-  def where_sql
-    named.or(taxon_name_cached).or(taxon_name_cached_author_year).to_sql
-  end
-
-  # SELECT "otus"."id" FROM "otus"
-  # LEFT OUTER JOIN "taxon_names" ON "taxon_names"."id" = "otus"."taxon_name_id"
-  # WHERE ((("otus"."name" ILIKE '(Bigot, 1884)' AND "otus"."project_id" = 1
-  # OR "taxon_names"."cached" ILIKE '(Bigot, 1884)' AND "taxon_names"."project_id" = 1)
-  # OR "taxon_names"."cached_author_year" ILIKE '(Bigot, 1884)' AND "taxon_names"."project_id" = 1))
-  # ORDER BY "otus"."name" ASC
-
-  def named
-    table[:name].eq(@otu_name).and(table[:project_id].eq(params[:project_id]))
-  end
-
-  def table
-    Otu.arel_table
-  end
-
-  def taxon_name_cached
-    taxon_name_table[:cached].eq(@otu_name).and(taxon_name_table[:project_id].eq(params[:project_id]))
-  end
-
-  # concat("taxon_names".cached, ' ', taxon_names.cached_author_year) = params[:name]
-  def taxon_name_cached_author_year
-    sql = "concat(\"taxon_names\".\"cached\", \' \', \"taxon_names\".\"cached_author_year\") = \'#{@otu_name}\' " +
-      "and \"taxon_names\".\"project_id\" = #{params[:project_id]}"
-    Arel::Nodes::SqlLiteral.new(sql)
-  end
-
-  def taxon_name_table
-    TaxonName.arel_table
-  end
-
   def set_otu
-    @otu           = Otu.with_project_id(sessions_current_project_id).find(params[:id])
+    @otu = Otu.with_project_id(sessions_current_project_id).find(params[:id])
     @recent_object = @otu
   end
 
@@ -203,7 +149,7 @@ class OtusController < ApplicationController
   end
 
   def batch_params
-    params.permit(:name, :file, :import_level).merge(user_id: sessions_current_user_id, project_id: $project_id).symbolize_keys
+    params.permit(:name, :file, :import_level).merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).symbolize_keys
   end
 
   def user_map

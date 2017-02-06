@@ -118,6 +118,23 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
     end
   end
 
+  context 'after save' do
+    let!(:c) { Delayed::Job.count }
+    context 'without no_cached = true' do
+      before { Specimen.create! } 
+      specify 'a delayed_job is added' do
+        expect(Delayed::Job.count).to eq(c + 1)
+      end
+    end
+
+    context 'with no_cached = true' do
+      before { Specimen.create!(no_cached: true) } 
+      specify 'a delayed_job not added' do
+        expect(Delayed::Job.count).to eq(c )
+      end
+    end
+  end
+
   context 'associations' do
     context 'belongs_to' do
       specify 'preparation_type' do
@@ -243,23 +260,6 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
       after(:all) {
         clean_slate_geo
       }
-
-      # let(:params) {
-      #   {search_start_date: '1981/01/01',
-      #    search_end_date: '1981/1/1',
-      #    drawn_area_shape: GeographicArea
-      #                          .where(name: 'Great Northern Land Mass')
-      #                          .first
-      #                          .default_geographic_item
-      #                          .to_geo_json_feature}
-      # }
-      # it 'spans a single day' do
-      #   xhr(:get, :find, params)
-      #   result = JSON.parse(response.body)
-      #   expect(result['collection_objects_count']).to eq('1')
-      #   georeference_id = result['feature_collection']['features'][0]['properties']['georeference']['id']
-      #   expect(Georeference.find(georeference_id).collecting_event.verbatim_label).to eq('@ce_m3')
-      # end
       
       describe 'spanning a single day' do
         specify "should find 1 record" do
@@ -268,22 +268,7 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
           expect(collection_objects.map(&:collecting_event).map(&:verbatim_label)).to contain_exactly('@ce_m3')
         end
       end
-# let(:params) {
-#   {search_start_date: '1974/04/01',
-#    search_end_date: '1974/4/30',
-#    drawn_area_shape: GeographicArea
-#                          .where(name: 'Great Northern Land Mass')
-#                          .first
-#                          .default_geographic_item
-#                          .to_geo_json_feature}
-# }
-# it 'spans a single month' do
-#   xhr(:get, :find, params)
-#   result = JSON.parse(response.body)
-#   expect(result['collection_objects_count']).to eq('1')
-#   georeference_id = result['feature_collection']['features'][0]['properties']['georeference']['id']
-#   expect(Georeference.find(georeference_id).collecting_event.verbatim_label).to eq('@ce_p1')
-# end
+
       describe 'spanning a single month' do
         specify "should find 1 record" do
           collection_objects = CollectionObject.in_date_range({search_start_date: '1974/04/01', search_end_date: '1974/4/30'})
@@ -292,25 +277,6 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
         end
       end
 
-#
-# it 'spans a single year' do
-#   let(:params) {
-#     {search_start_date: '1971/01/01',
-#      search_end_date: '1971/12/31',
-#      drawn_area_shape: GeographicArea
-#                            .where(name: 'Great Northern Land Mass')
-#                            .first
-#                            .default_geographic_item
-#                            .to_geo_json_feature}
-#   }
-#   xhr(:get, :find, params)
-#   result = JSON.parse(response.body)
-#   expect(result['collection_objects_count']).to eq('2')
-#   georeference_id = result['feature_collection']['features'][0]['properties']['georeference']['id']
-#   expect(Georeference.find(georeference_id).collecting_event.verbatim_label).to eq('@ce_m1')
-#   georeference_id = result['feature_collection']['features'][1]['properties']['georeference']['id']
-#   expect(Georeference.find(georeference_id).collecting_event.verbatim_label).to eq('@ce_m1a')
-# end
       describe 'spanning a single year' do
         specify "should find 2 records" do
           collection_objects = CollectionObject.in_date_range({search_start_date: '1971/01/01', search_end_date: '1971/12/31'})
@@ -319,22 +285,6 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
         end
       end
 
-# let (:params) {
-#   {search_start_date: '1971/05/01',
-#    search_end_date: '1971/8/31',
-#    drawn_area_shape: GeographicArea
-#                          .where(name: 'Great Northern Land Mass')
-#                          .first
-#                          .default_geographic_item
-#                          .to_geo_json_feature}
-# }
-# it 'spans four months of a year' do
-#   xhr(:get, :find, params)
-#   result = JSON.parse(response.body)
-#   expect(result['collection_objects_count']).to eq('1')
-#   georeference_id = result['feature_collection']['features'][0]['properties']['georeference']['id']
-#   expect(Georeference.find(georeference_id).collecting_event.verbatim_label).to eq('@ce_m1a')
-# end
       describe 'spanning four months of a year' do
         specify "should find 1 record" do
           collection_objects = CollectionObject.in_date_range({search_start_date: '1971/05/01', search_end_date: '1971/8/31'})
@@ -342,25 +292,7 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
           expect(collection_objects.map(&:collecting_event).map(&:verbatim_label)).to contain_exactly('@ce_m1a')
         end
       end
-#
-# let (:params) {
-#   {search_start_date: '1971/01/01',
-#    search_end_date: '1971/08/31',
-#    drawn_area_shape: GeographicArea
-#                          .where(name: 'Great Northern Land Mass')
-#                          .first
-#                          .default_geographic_item
-#                          .to_geo_json_feature}
-# }
-# it 'spans a partial year' do
-#   xhr(:get, :find, params)
-#   result = JSON.parse(response.body)
-#   expect(result['collection_objects_count']).to eq('2')
-#   georeference_id = result['feature_collection']['features'][0]['properties']['georeference']['id']
-#   expect(Georeference.find(georeference_id).collecting_event.verbatim_label).to eq('@ce_m1')
-#   georeference_id = result['feature_collection']['features'][1]['properties']['georeference']['id']
-#   expect(Georeference.find(georeference_id).collecting_event.verbatim_label).to eq('@ce_m1a')
-# end
+
       describe 'spanning a partial year' do
         specify "should find 2 records" do
           collection_objects = CollectionObject.in_date_range({search_start_date: '1971/01/01', search_end_date: '1971/08/31'})
@@ -368,27 +300,7 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
           expect(collection_objects.map(&:collecting_event).map(&:verbatim_label)).to contain_exactly('@ce_m1', '@ce_m1a')
         end
       end
-#
-# let (:params) {
-#   {search_start_date: '1974/03/01',
-#    search_end_date: '1975/6/30',
-#    drawn_area_shape: GeographicArea
-#                          .where(name: 'Great Northern Land Mass')
-#                          .first
-#                          .default_geographic_item
-#                          .to_geo_json_feature}
-# }
-# it 'spans parts of two years' do
-#   xhr(:get, :find, params)
-#   result = JSON.parse(response.body)
-#   expect(result['collection_objects_count']).to eq('2')
-#   features          = result['feature_collection']['features']
-#   georeference_id   = features[0]['properties']['georeference']['id']
-#   collecting_events = [Georeference.find(georeference_id).collecting_event.verbatim_label]
-#   georeference_id   = features[1]['properties']['georeference']['id']
-#   collecting_events.push(Georeference.find(georeference_id).collecting_event.verbatim_label)
-#   expect(collecting_events).to include('@ce_m2 in Big Boxia', '@ce_p1')
-# end
+
       describe 'spanning parts of two years' do
         specify "should find 2 records" do
           collection_objects = CollectionObject.in_date_range({search_start_date: '1974/03/01', search_end_date: '1975/06/30'})
@@ -396,34 +308,7 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
           expect(collection_objects.map(&:collecting_event).map(&:verbatim_label)).to contain_exactly('@ce_m2 in Big Boxia', '@ce_p1')
         end
       end
-#
-# let (:params) {
-#   {search_start_date: '1974/03/01',
-#    search_end_date: '1976/08/31',
-#    drawn_area_shape: GeographicArea
-#                          .where(name: 'Great Northern Land Mass')
-#                          .first
-#                          .default_geographic_item
-#                          .to_geo_json_feature}
-# }
-#
-#
-# it 'spans parts of several years' do
-#   xhr(:get, :find, params)
-#   result = JSON.parse(response.body)
-#   expect(result['collection_objects_count']).to eq('4')
-#   features          = result['feature_collection']['features']
-#   georeference_id   = features[0]['properties']['georeference']['id']
-#   collecting_events = [Georeference.find(georeference_id).collecting_event.verbatim_label]
-#   georeference_id   = features[1]['properties']['georeference']['id']
-#   collecting_events.push(Georeference.find(georeference_id).collecting_event.verbatim_label)
-#   georeference_id = features[2]['properties']['georeference']['id']
-#   collecting_events.push(Georeference.find(georeference_id).collecting_event.verbatim_label)
-#   georeference_id = features[3]['properties']['georeference']['id']
-#   collecting_events.push(Georeference.find(georeference_id).collecting_event.verbatim_label)
-#   expect(collecting_events).to include('@ce_m2 in Big Boxia', '@ce_p1', '@ce_n2', '@ce_n2')
-# end
-#
+
       describe 'spanning parts of several years' do
         specify "should find 4 records" do
           collection_objects = CollectionObject.in_date_range({search_start_date: '1974/03/01', search_end_date: '1976/08/31'})
@@ -431,21 +316,7 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
           expect(collection_objects.map(&:collecting_event).map(&:verbatim_label)).to contain_exactly('@ce_m2 in Big Boxia', '@ce_p1', '@ce_n2', '@ce_n2')
         end
       end
-# # following two tests obviated by ambiguity in comparison of ranges
-# xit 'excludes parts of two years in a non-greedy search for 1982/02/02-1984/09/15' do
-#
-#   xhr(:get, :find, {search_start_date: '1982/02/01',
-#                     search_end_date: '1984/6/30',
-#                     greedy:           'off',
-#                     drawn_area_shape: GeographicArea
-#                                           .where(name: 'Great Northern Land Mass')
-#                                           .first
-#                                           .default_geographic_item
-#                                           .to_geo_json_feature})
-#   result = JSON.parse(response.body)
-#   expect(result['collection_objects_count']).to eq('0')
-# end
-#
+
       describe 'excludes parts of two years in a non-greedy search for 1982/02/02-1984/09/15' do
         specify 'should find no records' do
           collection_objects = CollectionObject.in_date_range({search_start_date: '1982/02/01', search_end_date: '1983/01/31', partial_overlap: 'Off'})
@@ -453,23 +324,7 @@ describe CollectionObject, type: :model, group: [:geo, :collection_objects] do
           expect(collection_objects.map(&:collecting_event).map(&:verbatim_label)).to contain_exactly()
         end
       end
-# let (:params) {
-#   {search_start_date: '1982/02/01',
-#    search_end_date: '1984/9/30',
-#    greedy: 'off',
-#    drawn_area_shape: GeographicArea
-#                          .where(name: 'Great Northern Land Mass')
-#                          .first
-#                          .default_geographic_item
-#                          .to_geo_json_feature}
-# }
-# xit 'spans parts of two years in a non-greedy search' do
-#   xhr(:get, :find, params)
-#   result = JSON.parse(response.body)
-#   expect(result['collection_objects_count']).to eq('1')
-#   georeference_id = result['feature_collection']['features'][0]['properties']['georeference']['id']
-#   expect(Georeference.find(georeference_id).collecting_event.verbatim_label).to eq('@ce_n3')
-# end
+
       describe 'spanning parts of two years in a non-greedy search for 1982/02/02-1984/09/15' do
         specify 'should find 1 record' do
           collection_objects = CollectionObject.in_date_range({search_start_date: '1982/02/01', search_end_date: '1984/06/30', partial_overlap: 'Off'})

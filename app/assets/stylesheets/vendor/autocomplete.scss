@@ -6,6 +6,17 @@
 	border: 1px solid #AED581;
 }
 
+.ui-autocomplete-input {
+	background-image: image-url("search.svg");
+	background-position: right 4px center;
+	background-repeat: no-repeat;
+	padding-right: $standard_padding;
+	display: inline-block;
+	box-sizing: border-box;
+	padding-right: 24px;
+	background-size: 18px;
+}
+
 .ui-autocomplete-loading { 
 	background-image: image-url("spinner.gif"); 
 	background-repeat: no-repeat;
@@ -15,7 +26,7 @@
 .injected_new_header {
 	margin-bottom: $standard_margin;
 	padding-bottom: 5px;
-	border-bottom: 1px solid  $navigation_background;
+	border-bottom: 1px solid $navigation_background;
 }
 
 .ui-menu {

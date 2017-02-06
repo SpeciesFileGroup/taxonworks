@@ -706,6 +706,7 @@ namespace :tw do
           get_sf_name_status = {} # key = SF.TaxonNameID, value = SF.NameStatus
           get_sf_status_flags = {} # key = SF.TaxonNameID, value = SF.StatusFlags
           get_tw_otu_id = {} # key = SF.TaxonNameID, value = TW.otu.id; used for temporary or bad valid SF taxa
+          get_taxon_name_otu_id = {}  # key = TW.TaxonName.id, value TW.OTU.id just created for newly added taxon_name
 
           project_id = 1 # default value, will be updated before keyword is used
           keyword = Keyword.find_or_create_by(
@@ -847,11 +848,12 @@ namespace :tw do
               begin
                 taxon_name.save!
                 # logger.info "taxon_name.id = #{taxon_name.id}"
-                get_tw_taxon_name_id[row['TaxonNameID']] = taxon_name.id.to_s
-                get_sf_name_status[row['TaxonNameID']] = name_status
-                get_sf_status_flags[row['TaxonNameID']] = status_flags
+              #  get_tw_taxon_name_id[row['TaxonNameID']] = taxon_name.id.to_s
+              #  get_sf_name_status[row['TaxonNameID']] = name_status
+              #  get_sf_status_flags[row['TaxonNameID']] = status_flags
+              #  get_taxon_name_otu_id[taxon_name.id.to_s] = taxon_name.otus.last.id.to_s
 
-              # if one of anticipated import errors, add classification, then try to save again...
+                  # if one of anticipated import errors, add classification, then try to save again...
               rescue ActiveRecord::RecordInvalid
                 taxon_name.taxon_name_classifications.new(
                     type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin',
@@ -870,11 +872,16 @@ namespace :tw do
               end
 
               begin
-                taxon_name.save! # taxon won't be saved if something wrong with classifications_attributes, read about !
+                if taxon_name.new_record?
+                  taxon_name.save!
+                end
+
+                # taxon_name.save! # taxon won't be saved if something wrong with classifications_attributes, read about !
                 # @todo: Make sure get_tw_taxon_name_id.value is string
                 get_tw_taxon_name_id[row['TaxonNameID']] = taxon_name.id.to_s # original import made this an integer
                 get_sf_name_status[row['TaxonNameID']] = name_status
                 get_sf_status_flags[row['TaxonNameID']] = status_flags
+                get_taxon_name_otu_id[taxon_name.id.to_s] = taxon_name.otus.last.id.to_s
 
               rescue ActiveRecord::RecordInvalid
                 logger.error "TaxonName ERROR (#{error_counter += 1}) AFTER synonym test (SF.TaxonNameID = #{taxon_name_id}, parent_id = #{parent_id}): " + taxon_name.errors.full_messages.join(';')
@@ -886,6 +893,7 @@ namespace :tw do
           import.set('SFTaxonNameIDToSFNameStatus', get_sf_name_status)
           import.set('SFTaxonNameIDToSFStatusFlags', get_sf_status_flags)
           import.set('SFTaxonNameIDToTWOtuID', get_tw_otu_id)
+          import.set('TWTaxonNameIDToOtuID', get_taxon_name_otu_id)
 
           puts 'SFTaxonNameIDToTWTaxonNameID'
           ap get_tw_taxon_name_id
@@ -895,6 +903,8 @@ namespace :tw do
           ap get_sf_status_flags
           puts 'SFTaxonNameIDToTWOtuID'
           ap get_tw_otu_id
+          puts 'TWTaxonNameIDToOtuID'
+          ap get_taxon_name_otu_id
 
         end
 

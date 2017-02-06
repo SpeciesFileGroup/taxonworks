@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe 'Repositories', :type => :feature do
   let(:index_path) { repositories_path }
-  let(:page_index_name) { 'repositories' }
+  let(:page_title) { 'Repositories' }
 
   it_behaves_like 'a_login_required_controller'
 
@@ -23,7 +23,7 @@ describe 'Repositories', :type => :feature do
         visit list_repositories_path
       }
 
-      it_behaves_like 'a_data_model_with_standard_list'
+      it_behaves_like 'a_data_model_with_standard_list_and_records_created'
     end
 
     describe 'GET /repositories/n' do

@@ -1,9 +1,9 @@
 # Test basic functionality of data models with shared views, e.g., forward/back, list, download, etc.
+
 shared_examples 'a_data_model_with_standard_index' do | no_new_link |
-  
   specify 'has model name' do
-  expect(page).to have_content(page_index_name.capitalize)
-  end
+    expect(page).to have_content(page_title)
+   end
 
   if no_new_link
     specify "does not have new link" do
@@ -29,8 +29,9 @@ end
 # annotations_index does not have 'new'
 shared_examples 'a_data_model_with_annotations_index' do
   specify 'has model name' do
-    expect(page).to have_content(page_index_name.capitalize)
+    expect(page).to have_content(page_title)
   end
+
   specify "has list link" do
     expect(page).to have_link('List')
   end
@@ -42,13 +43,9 @@ shared_examples 'a_data_model_with_annotations_index' do
   end
 end
 
-shared_examples 'a_data_model_with_standard_list' do
-  specify 'renders without error' do
-    expect(page).to have_content "#{page_index_name}"
-  end
-
+shared_examples 'a_data_model_with_standard_list_and_records_created' do
   specify 'displays the total' do
-    expect(page).to have_css("div", text: /Displaying.*#{page_index_name}/)
+    expect(page).to have_css("div", text: /Displaying.*#{page_title.downcase}/)
     expect(page).to have_css("div", text: /Displaying.*\d+/)
   end
 end

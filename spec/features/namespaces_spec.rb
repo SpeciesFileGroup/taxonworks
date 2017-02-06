@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 describe 'Namespaces', :type => :feature do
-  let(:page_index_name) { 'namespaces' }
+  let(:page_title) { 'Namespaces' }
   let(:index_path) { namespaces_path }
 
   it_behaves_like 'a_login_required_controller'
@@ -26,7 +26,7 @@ describe 'Namespaces', :type => :feature do
           visit list_namespaces_path
          } 
 
-        it_behaves_like 'a_data_model_with_standard_list'
+        it_behaves_like 'a_data_model_with_standard_list_and_records_created'
       end
 
       describe 'GET /namespaces/n' do

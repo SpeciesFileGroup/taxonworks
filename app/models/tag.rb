@@ -25,26 +25,42 @@
 #   @return [Integer]
 #     a user definable sort code on the tags on an object, handled by acts_as_list
 #      
-#
 class Tag < ActiveRecord::Base
   include Housekeeping
   include Shared::IsData
   include Shared::AttributeAnnotations
 
-  acts_as_list scope: [:tag_object_type, :tag_object_id]
+  acts_as_list scope: [:tag_object_id, :tag_object_type]
 
-  belongs_to :keyword
+  belongs_to :keyword, inverse_of: :tags, validate: true
   belongs_to :tag_object, polymorphic: true
 
   # Not all tagged subclasses are keyword based, use this object for display
-  belongs_to :controlled_vocabulary_term, foreign_key: :keyword_id 
+  belongs_to :controlled_vocabulary_term, foreign_key: :keyword_id, inverse_of: :tags
 
   validates :keyword, presence: true
-  validate :keyword_is_allowed_on_object, :object_can_be_tagged_with_keyword
+  validate :keyword_is_allowed_on_object
+  validate :object_can_be_tagged_with_keyword
 
   validates_uniqueness_of :keyword_id, scope: [:tag_object_id, :tag_object_type]
 
   accepts_nested_attributes_for :keyword, reject_if: :reject_keyword, allow_destroy: true
+
+  # The column name containing the attribute name being annotated
+  def self.annotated_attribute_column
+    :tag_object_attribute
+  end
+
+  def self.generate_download(scope)
+    CSV.generate do |csv|
+      csv << column_names
+      scope.order(id: :asc).find_each do |o|
+        csv << o.attributes.values_at(*column_names).collect { |i|
+          i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
+        }
+      end
+    end
+  end
 
   def tag_object_class
     tag_object.class
@@ -59,8 +75,7 @@ class Tag < ActiveRecord::Base
   end
 
   def self.find_for_autocomplete(params)
-    # where('name LIKE ?', "#{params[:term]}%")
-    # todo: @mjy below code is running but not giving results we want
+    # TODO: @mjy below code is running but not giving results we want
     terms = params[:term].split.collect { |t| "'#{t}%'" }.join(' or ')
     joins(:keyword).where('controlled_vocabulary_terms.name like ?', terms).with_project_id(params[:project_id]) # "#{params[:term]}%" )
     terms
@@ -70,22 +85,6 @@ class Tag < ActiveRecord::Base
   #   alias to simplify reference across classes 
   def annotated_object
     tag_object
-  end
-
-  # the column name containing the attribute name being annotated
-  def self.annotated_attribute_column
-    :tag_object_attribute
-  end
-
-  def self.generate_download(scope)
-    CSV.generate do |csv|
-      csv << column_names
-      scope.order(id: :asc).find_each do |o|
-        csv << o.attributes.values_at(*column_names).collect { |i|
-          i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
-        }
-      end
-    end
   end
 
   protected

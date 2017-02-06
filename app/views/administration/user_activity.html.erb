@@ -18,6 +18,25 @@
   </div>
 
   <div class="item item2">
+    <h2> Recently seen </h2>
+    <ol>
+      <% User.limit(20).order(last_seen_at: :desc).where('last_seen_at IS NOT NULL').each do |u| -%>
+        <li> <%= user_link(u) %> <%= content_tag :span, time_ago_in_words(u.last_seen_at) + " ago", class: :subtle -%> </li> 
+      <% end %> 
+    </ol>
+  </div>
+
+  <div class="item item3">
+    <h2> Most active </h2>
+    <p> Estimate. If sequential requests are less than 5 minutes appart time between requests is summed to total. <p>
+    <ol>
+      <% User.limit(20).order(time_active: :desc).where('time_active IS NOT NULL').each do |u| -%>
+        <li> <%= user_link(u) %> <%= distance_of_time_in_words(u.time_active) -%> </li> 
+      <% end %> 
+    </ol>
+  </div>
+
+  <div class="item item4">
     <h2> By last sign in</h2>
     <%= line_chart User.group_by_day(:last_sign_in_at).count %>
 

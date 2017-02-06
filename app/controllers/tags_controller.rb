@@ -5,7 +5,7 @@ class TagsController < ApplicationController
 
 
   def new
-    if !Keyword.for_tags.with_project_id(sessions_current_project_id).any? # if there are none
+    if !Keyword.with_project_id(sessions_current_project_id).any? # if there are none
       @return_path = "/tags/new?tag[tag_object_attribute]=&tag[tag_object_id]=#{params[:tag][:tag_object_id]}&tag[tag_object_type]=#{params[:tag][:tag_object_type]}"
       redirect_to new_controlled_vocabulary_term_path(return_path: @return_path), notice: 'Create a keyword or two first!' and return
     end

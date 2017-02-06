@@ -10,10 +10,12 @@
 case Rails.env
 
   when 'development'
-    u = User.where(id: 1).first
-    if !u
+    FactoryGirl.create(:administrator, email: 'admin@example.com') unless User.where(is_administrator: true).first
+
+    u = User.where(is_administrator: [false, nil]).first
+    unless u
     # Creates 1,1 project/users
-      u = FactoryGirl.create(:valid_user)
+      u = FactoryGirl.create(:valid_user, email: 'user@example.com')
     end
    
     p = FactoryGirl.create(:valid_project, creator: u, updater: u)

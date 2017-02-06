@@ -1,15 +1,13 @@
 class Keyword < ControlledVocabularyTerm 
 
-  has_many :tags, foreign_key: :keyword_id, dependent: :destroy
-
-  scope :for_tags, -> { where(type: 'Keyword') }
+  has_many :tags, foreign_key: :keyword_id, dependent: :destroy, inverse_of: :keyword, validate: true
 
   def tagged_objects
-    self.tags.collect{|t| t.tag_object}
+    tags.collect{|t| t.tag_object}
   end
 
   def tagged_object_class_names
-    Tag.where(keyword: self).pluck(:tag_object_type)
+    tags.pluck(:tag_object_type)
   end
 
 end

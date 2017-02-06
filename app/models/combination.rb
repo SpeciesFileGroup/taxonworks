@@ -250,7 +250,6 @@ class Combination < TaxonName
     d = full_name_hash
 
     elements = []
-    #d.merge!('genus' => [nil, '[GENUS UNKNOWN]']) unless d['genus']
 
     elements.push("#{eo}#{d['genus'][1]}#{ec}") if d['genus']
     elements.push ['(', %w{subgenus section subsection series subseries}.collect { |r| d[r] ? [d[r][0], "#{eo}#{d[r][1]}#{ec}"] : nil }, ')']

@@ -46,6 +46,10 @@ class DwcOccurrence < ActiveRecord::Base
 
   belongs_to :dwc_occurrence_object, polymorphic: true 
 
+  def self.collection_objects_join
+    joins("JOIN collection_objects c on c.id = dwc_occurrences.dwc_occurrence_object_id AND dwc_occurrence_object_type = 'CollectionObject'") 
+  end
+
   before_validation :set_basis_of_record
   validates_presence_of :basisOfRecord
 

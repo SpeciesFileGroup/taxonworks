@@ -1,13 +1,13 @@
-$(document).ready(function () {
-  if ($("table").length) {
-    list();
-  }
-});
+var TW = TW || {};
+TW.views = TW.views || {};
+TW.views.shared = TW.views.shared || {};
+TW.views.shared.list = TW.views.shared.list || {};
 
-function list() {
+Object.assign(TW.views.shared.list, {
+
+  init: function() {
   var
       animationTime = 250;
-
 
   function showAll() {
     $('th, td').not('.table-options').show(animationTime);
@@ -84,13 +84,13 @@ function list() {
     $(elementObject.parents('table').find('th:nth-child(' + ($(elementObject).index() + 1) + ')')).toggle(250);
   }
 
-createShortcut("left", "Go to previous page", "Lists", function () {
+  TW.workbench.keyboard.createShortcut("left", "Go to previous page", "Lists", function () {
     if ($('.page-navigator a[rel="previous"]').length > 0) {
       location.href = $('.page-navigator a[rel="previous"]').attr('href');
     }
   });
 
- createShortcut('right', "Go to next page", "Lists", function () {
+  TW.workbench.keyboard.createShortcut('right', "Go to next page", "Lists", function () {
     if ($('.page-navigator a[rel="next"]').length > 0) {
       location.href = $('.page-navigator a[rel="next"]').attr('href');
     }
@@ -163,3 +163,11 @@ createShortcut("left", "Go to previous page", "Lists", function () {
     });
   }
 }
+});
+
+$(document).ready(function () {
+  if ($("table").length) {
+    var lists = TW.views.shared.list
+    lists.init();
+  }
+});

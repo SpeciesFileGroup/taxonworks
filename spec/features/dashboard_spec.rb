@@ -4,7 +4,7 @@ describe 'Dashboard' do
 
   it_behaves_like 'a_login_required_controller' do
     let(:index_path) { dashboard_path }
-    let(:page_index_name) { 'Dashboard' }
+    let(:page_title) { 'Dashboard' }
   end
 
   context 'when user is not signed in' do
@@ -18,8 +18,8 @@ describe 'Dashboard' do
         expect(form).to have_selector('input[type="submit"][value="Sign in"]')
       }
 
-      expect(page).to have_link('forgot password?')
-      expect(page).to have_link('find out more')
+      expect(page).to have_link('Forgot password?')
+      expect(page).to have_link('Find out more')
     end
 
   end

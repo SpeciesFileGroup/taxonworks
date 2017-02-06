@@ -78,10 +78,6 @@ class Otu < ActiveRecord::Base
 
   #region class methods
 
-  def self.find_for_autocomplete(params)
-    Queries::OtuAutocompleteQuery.new(params[:term]).all.where(project_id: params[:project_id])
-  end
-
   # return [Scope] the otus bound to that taxon name and its descendants
   def self.for_taxon_name(taxon_name)
     if taxon_name.kind_of?(String) || taxon_name.kind_of?(Integer) 

@@ -11,8 +11,8 @@
           <%= next_link(object) -%>
         </div> 
        
-        <div class="navigation-controls">
-          <div class="navigation-item">
+        <div class="navigation-controls border-bottom">
+          <div class="content">
             <%= search_form_for_model(@data_model) %>
           </div>
         </div>
@@ -44,7 +44,7 @@
           <%= edit_object_link(object) if controller.respond_to?(:edit) -%>
           <%= destroy_object_link(object) if controller.respond_to?(:destroy) -%>  
           <div class="navigation-item menu-drop">
-            <span id="show_annotate_dropdown" class="small-icon" data-icon="annotate">Annotate</span>
+            <span id="show_annotate_dropdown" class="small-icon" data-icon="add">Annotate</span>
             <ul class="dropdown">
               <%= annotate_links(object: object) -%>
             </ul>
@@ -62,7 +62,7 @@
             </ul>
           </div>     
           <div id="show_report_dropdown" class="navigation-item menu-drop">
-            <span data-icon="add" class="small-icon">Report</span>
+            <span data-icon="annotate" class="small-icon">Report</span>
             <ul class="dropdown">
               <%= related_data_link_tag(object) -%>
               <%= papertrail_link_tag(object) -%>

@@ -4,7 +4,7 @@ describe 'DataAttributes', :type => :feature do
   # Capybara.default_wait_time = 15  # slows down Capybara enough to see what's happening on the form
 
   let(:index_path) { data_attributes_path }
-  let(:page_index_name) { 'data attributes' }
+  let(:page_title) { 'Data attributes' }
 
   it_behaves_like 'a_login_required_and_project_selected_controller'
 
@@ -34,7 +34,7 @@ describe 'DataAttributes', :type => :feature do
       describe 'GET /data_attributes/list' do
         before { visit list_data_attributes_path }
 
-        it_behaves_like 'a_data_model_with_standard_list'
+        it_behaves_like 'a_data_model_with_standard_list_and_records_created'
       end
 
     specify 'add a data attribute', js: true do

@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe 'TaxonNameClassifications', :type => :feature do
   let(:index_path) { taxon_name_classifications_path }
-  let(:page_index_name) { 'taxon name classifications' }
+  let(:page_title) { 'Taxon name classifications' }
 
   it_behaves_like 'a_login_required_and_project_selected_controller'
 
@@ -31,7 +31,7 @@ describe 'TaxonNameClassifications', :type => :feature do
     describe 'GET /taxon_name_classifications/list' do
       before { visit list_taxon_name_classifications_path }
 
-      it_behaves_like 'a_data_model_with_standard_list'
+      it_behaves_like 'a_data_model_with_standard_list_and_records_created'
     end
 
     # There is no GET /taxon_name_classifications, context is to TaxonName

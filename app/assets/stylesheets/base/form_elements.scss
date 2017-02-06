@@ -2,6 +2,8 @@
 @import 'base/fonts';
 @import 'base/whitespace';
 
+$big-input-size: 40px;
+$normal-input-size: 28px;
 
 input[type=checkbox].locked { display: none; }
 input[type=checkbox].increment { display: none; }
@@ -10,10 +12,10 @@ input[type=checkbox].increment { display: none; }
   display: inline-block;
   font-size: $font_small;
   cursor: pointer;
-  width: 26px;
-  height:26px;
-  max-width: 26px;
-  max-height:26px;
+  width: $normal-input-size;
+  height:$normal-input-size;
+  max-width: $normal-input-size;
+  max-height:$normal-input-size;
   background-size: 12px;
   background-position: center;
   background-repeat: no-repeat;
@@ -73,23 +75,34 @@ fieldset {
 }
 
 form input, textarea {
+  position: relative;
   font-size: $font_small;
-	padding:$standard_padding*0.4;
+	padding:0px;
 	padding-left:$standard_padding*0.9;
 	padding-right:$standard_padding*0.9;
 	border-radius:2px;
 	border:1px solid $navigation_border;
 	background-color:#FFF;
+  min-height: $normal-input-size;
+  box-sizing: border-box;
 }
 
 input[type="submit"] {
-  color: #FFF;
-  border-radius: 2px;
-  border:1px solid;
-  border:transparent;
-  box-shadow: 0px 1px 2px 0px $navigation_border;
-  background-color: #9CCC65;
+  position: relative;
+  cursor: pointer;
+  font-weight: 500;
+  border-radius: 3px;
+  border: 1px solid rgba(0,0,0,0.1);
+  border-bottom: 2px solid rgba(0,0,0,0.2);  
 }
+
+input[type="submit"][disabled] {
+  color: #000;
+  opacity: 0.5;
+  background-color: $navigation_border;
+}
+
+
 
 select {
   padding:$standard_padding*0.5;
@@ -152,4 +165,13 @@ h4 {
 
 .inline_div {
   padding-left: $standard_padding * 2;
+}
+
+
+.big-input {
+  height: $big-input-size;
+}
+
+.normal-input {
+  height: $normal-input-size;
 }

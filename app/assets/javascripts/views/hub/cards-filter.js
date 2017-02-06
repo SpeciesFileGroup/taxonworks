@@ -18,9 +18,18 @@ var CarrouselData = function (sec, rows, columns) {
 		if(this.maxRow >= this.childs) {
 			this.navigation(false);
 		}
+		this.handleEvents();
 	};
 
-	CarrouselData.prototype.addFilter = function (nameFilter) {
+	CarrouselData.prototype.handleEvents = function() {
+	  $('.data_card').mousedown(function(event) {
+	  	if((event.which) == 1) {
+	     location.href = $(this).children("a").attr('href');
+	   }
+	 });   		
+	}
+
+	CarrouselData.prototype.addFilter = function(nameFilter) {
 		this.filters[nameFilter] = false;
 	};
 
@@ -28,7 +37,6 @@ var CarrouselData = function (sec, rows, columns) {
 		this.filters = {};
 		this.filterChilds();
 	};
-
 
 	CarrouselData.prototype.checkChildFilter = function(childTag) {
 		var find = 0;
@@ -48,6 +56,10 @@ var CarrouselData = function (sec, rows, columns) {
 			return false;
 		}		
 	};
+
+	CarrouselData.prototype.refresh = function() {
+		this.filterChilds();
+	}
 
 	CarrouselData.prototype.resetChildsCount = function() {
 	  	this.childs = $('.data_section[data-section="' + this.sectionTag + '"] > .cards-section > .card-container ').length;

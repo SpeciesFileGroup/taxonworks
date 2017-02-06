@@ -1,6 +1,7 @@
 @import 'base/palette';
 @import 'base/fonts';
 @import 'base/whitespace';
+@import 'base/buttons';
 
 #co_by_area_and_date {
 	position: relative;
@@ -14,9 +15,19 @@
 		color: #666;
 	}
 
-	#filter-button {
+	.filter-button {
 		background-color: green;
 		background-image: image-url("filter.svg");
+	}
+
+	#find_area_and_date_commit {
+		@extend .button-default;
+		top:15px;
+		right: 20px;
+		opacity: 1;
+		background-image: none;
+		border-radius: 3px;
+		height: 30px;
 	}
 
 	#result_view, .range-label {
@@ -26,14 +37,15 @@
 	#reset_slider, #set_area, #set_otu {
 		margin-top: $standard_margin;
 	}
+	#result_span {
+		display: none;
+	}
+
 
 	#filter-collection-objects {
-		width: 100%;
-		position: absolute;
-		top: 150px;
-		left: 0px;
 
-		.panel {
+		.panel, .slide-panel {
+			box-sizing: border-box;
 			width: 590px;
 			min-width: 590px;	
 		}
@@ -52,40 +64,6 @@
 			border-bottom: 1px solid $navigation-border;
 		}
 	}
-
-
-
-	.slide-filter {
-		position: absolute;
-		top: 50px;
-
-		#geographic_area_id_for_by_area {
-			background-image: image-url("search.svg");
-			background-repeat: no-repeat;
-			background-position: left;
-			padding-left: 20px;
-			background-size: 18px;			
-			border: 0px;
-			border-radius: 0px;
-		}
-		.slide-panel-header {
-			background-color: #fff;
-			color: #000;
-			font-size: $font_normal;
-		}
-		.slide-panel-circle-icon {
-			top:calc(50vh - 120px);
-			background-color: #558b2f;
-			background-image: image-url('recent_slide.svg');
-		}
-		.slide-panel-category-header {
-			border: none;
-			background-color: transparent;
-			text-transform: uppercase;
-			font-size: $font_normal;
-		}
-	}
-
 
 
 	#set_area_form {

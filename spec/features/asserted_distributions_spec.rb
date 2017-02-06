@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 describe "AssertedDistributions", :type => :feature do
-  let(:page_index_name) { 'asserted distributions' }
+  let(:page_title) { 'Asserted distributions' }
   let(:index_path) { asserted_distributions_path }
   let(:a) { FactoryGirl.create(:valid_geographic_area_type, by: @user) }
   let(:g) { FactoryGirl.create(:valid_geographic_area, geographic_area_type: a, by: @user) }
@@ -43,7 +43,7 @@ describe "AssertedDistributions", :type => :feature do
         visit list_asserted_distributions_path
       }
 
-      it_behaves_like 'a_data_model_with_standard_list'
+      it_behaves_like 'a_data_model_with_standard_list_and_records_created'
     end
 
     describe 'GET /asserted_distributions/n' do

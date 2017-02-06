@@ -1027,7 +1027,7 @@ namespace :tw do
           f.each do |row|             #f.first(500).each_with_index
             i += 1
             name = row['Name']
-            author = (row['Parens'] ? "(#{row['Author']})" : row['Author']) unless row['Author'].blank?
+            author = (row['Parens'] == '1' ? "(#{row['Author']})" : row['Author']) unless row['Author'].blank?
             author ||= nil
             code = :icn if code == :iczn && row['Name'] == 'Fungi'
             rank = Ranks.lookup(code, row['Rank'])

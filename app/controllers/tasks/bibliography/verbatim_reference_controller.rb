@@ -56,7 +56,7 @@ class Tasks::Bibliography::VerbatimReferenceController <ApplicationController
   end
 
   def source_params
-    params['source'].merge!(project_sources_attributes: [{project_id: sessions_current_project_id.to_s}])
+    params['source'][:project_sources_attributes] =  [{project_id: sessions_current_project_id.to_s}]
     params.require(:source).permit(:verbatim,
                                    :type,
                                    project_sources_attributes: [:project_id]

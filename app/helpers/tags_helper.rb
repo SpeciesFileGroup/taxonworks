@@ -2,7 +2,7 @@ module TagsHelper
 
   def tag_tag(tag)
     return nil if tag.nil?
-    tag.controlled_vocabulary_term.name
+    tag.keyword.name
   end
 
   def new_tag_tag(taggable_object) # tag_object is to be tagged

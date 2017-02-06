@@ -1,5 +1,7 @@
 <div class="slide-panel <%= yield :header_class %>" data-panel-name="<%= yield :panel_name_data %>" data-panel-open="false">
   <div class="slide-panel-header"><%= yield :panel_title -%> </div>
     <%= yield :panel_contents -%>
-  <div class="slide-panel-circle-icon"></div>
+  <div class="slide-panel-circle-icon">
+  	  <div class="slide-panel-description"></div>
+  </div>
 </div>

@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 describe 'TaxonDeterminations', :type => :feature do
-  let(:page_index_name) { 'taxon determinations' }
+  let(:page_title) { 'Taxon determinations' }
   let(:index_path) { taxon_determinations_path }
 
   it_behaves_like 'a_login_required_and_project_selected_controller'
@@ -29,7 +29,7 @@ describe 'TaxonDeterminations', :type => :feature do
 
     describe 'GET /taxon_determinations/list' do
       before { visit list_taxon_determinations_path }
-      it_behaves_like 'a_data_model_with_standard_list'
+      it_behaves_like 'a_data_model_with_standard_list_and_records_created'
     end
 
     describe 'GET /taxon_determinations/n' do

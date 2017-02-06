@@ -10,7 +10,13 @@ module TaxonNamesHelper
   end
 
   # @return [String]
-  #   the taxon name in original combiantion, without author year, with HTML
+  #    no HTML inside <input>
+  def taxon_name_autocomplete_selected_tag(taxon_name)
+    [taxon_name.cached, taxon_name.cached_author_year].compact.join(' ') 
+  end
+
+  # @return [String]
+  #   the taxon name in original combination, without author year, with HTML
   def original_taxon_name_tag(taxon_name)
     return nil if taxon_name.nil?
     taxon_name.cached_original_combination.nil? ? taxon_name.cached_html.html_safe || taxon_name.name : taxon_name.cached_original_combination.html_safe

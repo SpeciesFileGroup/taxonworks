@@ -25,6 +25,8 @@ class ApplicationController < ActionController::Base
 
   before_action :set_project_and_user_variables
 
+  before_action :notice_user
+
   after_action :log_user_recent_route
   after_action :clear_project_and_user_variables
 
@@ -93,6 +95,12 @@ class ApplicationController < ActionController::Base
   end
 
   private
+
+  def notice_user 
+    if sessions_current_user
+      sessions_current_user.update_last_seen_at
+    end
+  end
 
   def record_not_found
     respond_to do |format|

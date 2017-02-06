@@ -1,5 +1,49 @@
 @import 'base/palette';
 
+/* Button forms */
+
+.button {
+    position: relative;
+    cursor: pointer;
+    color: #444;
+    border:1px solid transparent;
+    background-color:  $color-action-button;
+    border-bottom: 2px solid rgba(0,0,0,0.2);
+    border-radius: 3px;
+}
+
+.button-default {
+    color: #FFF;
+    background-color: $color-secondary-2-4; 
+    &:disabled {
+      color: #999;
+      background-color: $color-button-disabled; 
+    }   
+}
+
+.button-submit {
+    color: #FFF;
+    background-color: $color-action-button;  
+}
+
+.button-request {
+    color: #FFF;
+    background-color: $color-request-button;  
+    &:hover { 
+        color: #FFF;
+        background-color: $color-request-button; 
+        opacity: 0.9;
+    }
+}
+
+.actions {
+  input[type="submit"] {
+    @extend .button;
+    @extend .button-submit;
+  }
+}
+/* -------- */
+
 .button-collapse-header {
 	cursor:pointer;
     opacity: 0.6;
@@ -90,14 +134,14 @@
 
 .new_plus, .add_total_row {
 	@extend .circle-button;
-        @extend .circle-button-big;
+    @extend .circle-button-big;
 	background-color: #AED581;
 	background-image: image-url("bplus.svg");
 }
 
 .delete-circle, .remove_row  {
 	@extend .circle-button;
-        @extend .circle-button-big;
+    @extend .circle-button-big;
 	background-color: #F44336;
 	background-image: image-url("trash.svg");
 }

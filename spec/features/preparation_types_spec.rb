@@ -1,8 +1,7 @@
 require 'rails_helper'
 
 describe 'PreparationTypes', :type => :feature do
-  let(:page_index_name) { 'preparation types' }
-
+  let(:page_title) { 'Preparation types' }
   it_behaves_like 'a_login_required_controller' do
     let(:index_path) { preparation_types_path }
   end
@@ -26,7 +25,7 @@ describe 'PreparationTypes', :type => :feature do
         visit list_preparation_types_path
       end
 
-      it_behaves_like 'a_data_model_with_standard_list'
+      it_behaves_like 'a_data_model_with_standard_list_and_records_created'
     end
 
     describe 'GET /preparation_types/n' do

@@ -1,33 +1,66 @@
 var CarrouselTask = function (sec, rows, columns) {
-  // sec = Name of data section, this is for identify div.
-  // rows = This is for the number of rows that will be displayed, if this number is less than the number of items, it will activate the navigation controls
 
-  this.childs = [];
-  this.start = 0;
-  this.middleBoxSize = 650;
-  this.boxSize = 500;
-  this.active = [];
-  this.arrayPos = 0;
-  this.maxCards = rows * columns;
-  this.maxColumns = columns;
-  this.childsCount = 0;
-  this.isEmpty;
-  this.sectionTag = "";
-  this.filters = {};
-  this.maxRow = rows;
-  this.sectionTag = sec;
-  this.changeTasks = rows; //Number of new task displayed when the user moves
-  this.resetChildsCount();
-  this.filterChilds();
-  this.injectNavList();
-  this.changeSize();
-};
+    // sec = Name of data section, this is for identify div.
+    // rows = This is for the number of rows that will be displayed, if this number is less than the number of items, it will activate the navigation controls
 
-  CarrouselTask.prototype.changeSize = function() {
-    $(this.sectionTag).children(".task-section").css("width",((this.maxColumns*475) + "px"));
-    if(this.maxRow < 99){
-      $(this.sectionTag).children(".task-section").css("height",((this.maxRow*250) + "px"));
+    this.childs = [];
+    this.start = 0;
+    this.middleBoxSize = 650;
+    this.boxSize = 500;
+    this.active = [];
+    this.arrayPos = 0;
+    this.childsCount = 0;
+    this.isEmpty;
+    this.sectionTag = "";
+    this.filters = {};
+    this.sectionTag = sec;
+    this.that = this;
+    this.filterWords = "";
+    this.changeSize(columns,rows);
+    this.handleEvents(this.that);
+  };
+
+  CarrouselTask.prototype.handleEvents = function(that) {
+    $(this.sectionTag + ' .navigation').on('click', 'a', function() {
+        if($(this).attr('data-arrow') == "down") {
+          that.arrayTasks.forEach(function(element) {
+            if($(this).attr('data-arrow') == "down") {            
+              that.loadingDown();
+          }
+            else {
+              that.loadingUp();
+            }
+        });
+      }
+    });
+
+    $(this.sectionTag + ' .more_tasks_nav').on('click',  function() {
+        that.loadingDown();
+        that.changeSelectedNavList(element.arrayPos);
+    });  
+
+    $(this.sectionTag + ' .task-nav-list').on('click', '.task-nav-item', function() { 
+        itemID = $(this).index();   
+        that.resetView();
+        that.showChilds(itemID);
+    });
+
+  }
+
+  CarrouselTask.prototype.changeSize = function(maxColumns, maxRow) {
+    this.changeTasks = maxRow;    
+    this.maxRow = maxRow;
+    this.maxCards = maxRow * maxColumns;
+    this.maxColumns = maxColumns;    
+    $(this.sectionTag).children(".task-section").css("width",((maxColumns*475) + "px"));
+    if(maxRow < 99){
+      $(this.sectionTag).children(".task-section").css("height",((maxRow*250) + "px"));
     }
+
+    this.resetChildsCount();
+    this.filterChilds();
+    this.injectNavList();
+    this.resetFilters();    
   };
 
   CarrouselTask.prototype.addFilter = function(nameFilter) {
@@ -52,7 +85,7 @@ var CarrouselTask = function (sec, rows, columns) {
   };
 
   CarrouselTask.prototype.injectNavList = function() {
-    for(i = 0; i < this.childsCount; i++) {
+    for(var i = 0; i < this.childsCount; i++) {
       if((i - this.maxCards >= 0) && (this.maxCards - i <= 0)) {
         $(this.sectionTag + " .task-nav-list").append('<div class="task-nav-item"></div>');
       }
@@ -92,7 +125,7 @@ var CarrouselTask = function (sec, rows, columns) {
           }
         } 
       }
-      if((isTrue == find) && (this.filterKeys(childTag))) {
+      if((isTrue == find) && (this.hasWords(childTag))) {
         return true;
       }
       else {
@@ -101,12 +134,17 @@ var CarrouselTask = function (sec, rows, columns) {
      
   };
 
-  CarrouselTask.prototype.filterKeys = function(child) {
-    if(($(child).find('.task_name a').text().toLowerCase().indexOf($('#search-filter').val().toLowerCase()) >= 0) || ($('#search-filter').val() == "")) {
+  CarrouselTask.prototype.filterKeys = function(handleKey) {
+    this.filterWords = handleKey;
+    this.refresh();
+  }
+  
+  CarrouselTask.prototype.hasWords = function(child) {
+    if(($(child).find('.task_name a').text().toLowerCase().indexOf(this.filterWords.toLowerCase()) >= 0) || (this.filterWords == "")) {
       return true;
     }
     else {
-      var words = $('#search-filter').val().toLowerCase().trim().split(" ");
+      var words = this.filterWords.toLowerCase().trim().split(" ");
       for(var i = 0; i < words.length; i++) {
         if ($(child).find('.task_description').text().toLowerCase().indexOf(words[i]) >= 0) {
           return true;
@@ -115,7 +153,7 @@ var CarrouselTask = function (sec, rows, columns) {
       return false;
     }
   }
-
+  
   CarrouselTask.prototype.checkEmpty = function() {
     var
       count = 0;
@@ -188,6 +226,7 @@ var CarrouselTask = function (sec, rows, columns) {
       $(this.sectionTag + ' .no-tasks').fadeOut(250);
     }
   };
+
   CarrouselTask.prototype.filterChilds = function() {
     var
     find = 0,
@@ -252,9 +291,10 @@ var CarrouselTask = function (sec, rows, columns) {
   CarrouselTask.prototype.loadingUp = function() {
     var
     sectionTag = this.sectionTag,
-    active = this.active;
-    maxCards = this.maxCards;
+    active = this.active,
+    maxCards = this.maxCards,
     changeTasks = this.changeTasks;
+
     for(var i = 0; i < changeTasks; i++) {
       if(this.arrayPos > 0) {
         this.arrayPos--;
@@ -264,3 +304,4 @@ var CarrouselTask = function (sec, rows, columns) {
     }
     this.changeSelectedNavList(this.arrayPos);
   };
+
