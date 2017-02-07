@@ -24,10 +24,10 @@ Object.assign(TW.views.tasks.collection_objects, {
 
         $("#toggle-list-map").on("click", function() {
           if($(this).is(":checked")) {
-            switchMap();
+            that.switchMap();
           } 
           else {
-            switchList();
+            that.switchList();
           }
         });
 
