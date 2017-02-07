@@ -21,10 +21,6 @@ Object.assign(TW.views.shared.quick_bar, {
 			window.location = "/hub";
 		});			
 
-		if((window.location.href).indexOf('/tasks/') > 0) {		
-			this.hideShowBars(0);				
-		}
-
 		$('.button-collapse-header').on("mouseenter", function() {
 			if($("#quick_bar").attr("data-hide-quickbar-active")) {
 		        if(timer) {
