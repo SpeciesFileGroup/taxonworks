@@ -4,7 +4,7 @@
 
 <div id="area_selector">
   <span id="geographic_areaError" style="color: #DD0000"></span>
-  <%= render(:partial => 'workbench/elements/forms/ajax_select',
+  <%= render(:partial => 'area_picker',
              :locals  => {:controller => '/geographic_areas',
                           :object     => '',
                           :method     => 'geographic_area_id',
