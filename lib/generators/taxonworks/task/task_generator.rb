@@ -1,7 +1,8 @@
-class TwTaskGenerator < Rails::Generators::Base
-  source_root File.expand_path('../templates', __FILE__)
-
+# Generate new TaxonWorks tasks
+class Taxonworks::TaskGenerator < Rails::Generators::Base
   desc 'Used to stub out a TaxonWorks task'
+
+  source_root File.expand_path('../templates', __FILE__)
 
   argument :controller_base_name, type: 'string', required: true, banner: '<controller_base_name>'
   argument :path_to_controller, type: 'string', required: true, banner: '<"path/to/controller_folder/">'

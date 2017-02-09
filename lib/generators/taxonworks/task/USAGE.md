@@ -2,7 +2,7 @@ Description:
     Stubs out the basic needed files for creating a TaxonWorks task
 
 Example:
-    rails generate tw_task fasta_load "sequence/" index:get:get_fast_load verify:post:verify_task_name replace:put
+    rails generate taxonworks:task fasta_load "sequence/" index:get:get_fast_load verify:post:verify_task_name replace:put
 
     controller_base_name = fasta_load
 
