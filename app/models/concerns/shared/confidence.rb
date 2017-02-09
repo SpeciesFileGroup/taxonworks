@@ -14,10 +14,6 @@ module Shared::Confidence
     accepts_nested_attributes_for :confidences, reject_if: :reject_confidences, allow_destroy: true
   end
 
-  def has_confidences?
-    self.confidences.any?
-  end
-
   module ClassMethods
     def with_confidence_level(confidence_level)
       joins(:confidence_levels).where(confidences: {confidence_level: confidence_level})

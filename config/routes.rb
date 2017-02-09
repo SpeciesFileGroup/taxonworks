@@ -102,11 +102,14 @@ TaxonWorks::Application.routes.draw do
 
   resources :confidences do # , except: [:edit, :show]
     concerns [:data_routes]
+    collection do
+      post :confidence_object_update
+    end
   end
 
   resources :confidence_levels, only: [] do
     collection do
-      get 'autocomplete'
+      get 'lookup'
     end
   end
 

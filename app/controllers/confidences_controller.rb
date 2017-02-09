@@ -1,7 +1,7 @@
 class ConfidencesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_confidence, only: [:show, :edit, :update, :destroy]
+  before_action :set_confidence, only: [:edit, :update, :destroy]
 
   # GET /confidences
   # GET /confidences.json
@@ -10,24 +10,19 @@ class ConfidencesController < ApplicationController
     render '/shared/data/all/index'
   end
 
-  # # GET /confidences/1
-  # # GET /confidences/1.json
-  # def show
-  # end
-
   # GET /confidences/new
   def new
     # uggg-ish
-    if !ConfidenceLevel.for_confidences.with_project_id(sessions_current_project_id).any? # if there are none
-      @return_path = "/confidences/new?confidence[confidence_object_id]=#{params[:confidence][:confidence_object_id]}&confidence[confidence_object_type]=#{params[:confidence][:confidence_object_type]}"
-      redirect_to new_controlled_vocabulary_term_path(return_path: @return_path), notice: 'Create a confidence level or two first!' and return
-    end
-    @confidence = Confidence.new(confidence_params)
+    #if !ConfidenceLevel.for_confidences.with_project_id(sessions_current_project_id).any? # if there are none
+    #  @return_path = "/confidences/new?confidence[confidence_object_id]=#{params[:confidence][:confidence_object_id]}&confidence[confidence_object_type]=#{params[:confidence][:confidence_object_type]}"
+    #  redirect_to new_controlled_vocabulary_term_path(return_path: @return_path), notice: 'Create a confidence level or two first!' and return
+    #end
+    @confidence_object = confidence_object
   end
 
-  # # GET /confidences/1/edit
-  # def edit
-  # end
+  # GET /confidences/1/edit
+  def edit
+  end
 
   def list
     @confidences = Confidence.with_project_id(sessions_current_project_id).page(params[:page])
@@ -65,6 +60,15 @@ class ConfidencesController < ApplicationController
     end
   end
 
+  def confidence_object_update 
+    if confidence_object.update(confidences_params)
+      flash[:notice] = 'Successfully updated record.'
+    else
+      flash[:error] = 'Error updating record.'
+    end
+    redirect_to new_confidence_path(confidence_object_type: confidence_object.class.name, confidence_object_id: confidence_object.id.to_s)
+  end
+
   # DELETE /confidences/1
   # DELETE /confidences/1.json
   def destroy
@@ -83,6 +87,11 @@ class ConfidencesController < ApplicationController
     end
   end
 
+  # GET /confidences/download
+  def download
+    send_data Download.generate_csv(Confidence.where(project_id: sessions_current_project_id)), type: 'text', filename: "confidences_#{DateTime.now.to_s}.csv"
+  end
+
   private
   # Use callbacks to share common setup or constraints between actions.
   def set_confidence
@@ -93,4 +102,16 @@ class ConfidencesController < ApplicationController
   def confidence_params
     params.require(:confidence).permit(:confidence_level_id, :confidence_object_id, :confidence_object_type)
   end
+
+  def confidence_object
+    params.require(:confidence_object_type).constantize.find(params.require(:confidence_object_id))
+  end
+
+  def confidences_params
+    params.require(:confidence_object).permit(
+      confidences_attributes: [:_destroy, :id, :confidence_level_id])
+  end
+
+
+
 end

@@ -1,0 +1,33 @@
+<div class="confidence_level_picker">
+ 
+  <div class="confidence_level_picker_alert" hidden></div>
+
+  <ul class="confidence_list">
+    <%= f.fields_for :confidences, @confidence_object.confidences do |confidence_fields| %>
+      <li class="confidence_item" data-confidence-id="<%= confidence_fields.object.id -%>" data-confidence-index="<%= confidence_fields.index -%>">
+        <%= object_tag(confidence_fields.object) -%>
+        <%= link_to('remove', "#", class: :remove_confidence) -%>
+      </li>
+    <% end %>
+  </ul>
+
+  <div class="confidence_level_selection">
+    <div><%= text_field_tag "confidence_level_picker_autocomplete", nil, class: 'confidence_level_picker_autocomplete', placeholder: "Confidence level" %></div>
+  </div>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

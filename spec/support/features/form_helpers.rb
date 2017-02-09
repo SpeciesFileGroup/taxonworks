@@ -64,6 +64,20 @@ module Features
       page.execute_script(%Q{ $('#{css_selector}').trigger('mouseenter').click(); })
     end
 
+    # @param [field] selector provided to fill_in 
+    # @param [with] text to fill in
+    # @param [select_id] id of the object to select
+    # @param [object_type] type of the object to select, object-case-id
+    def fill_autocomplete_and_select(field, with: nil, select_id: nil, object_type: nil)
+      raise(ArgumentError, 'missing arguments') if with.nil? || select_id.nil? || object_type.nil?
+      css_selector = %Q{li.ui-menu-item a span[data-#{object_type}-id="#{select_id}"]}
+      fill_in field, with: with
+      wait_for_ajax
+      expect(page).to have_css(css_selector)
+      page.execute_script(%Q{ $('#{css_selector}').trigger('mouseenter').click(); })
+    end
+
+
   end
 end
 
