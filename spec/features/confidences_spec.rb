@@ -55,7 +55,7 @@ describe 'Confidences', type: :feature, group: :annotations do
         end
 
         specify 'confidence is added', js: true do
-          expect(o.confidences.map(&:confidence_level)).to contain_exactly(*confidence_levels)
+          expect(o.confidence_levels).to contain_exactly(*confidence_levels)
         end
       end
     end
