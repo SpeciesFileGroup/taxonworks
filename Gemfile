@@ -24,12 +24,12 @@ gem 'activerecord-postgis-adapter', '~> 3.1.4'
 gem 'delayed_job_active_record'
 gem 'daemons'
 
-gem 'rubyzip', '~> 1.2.0'
+gem 'rubyzip', '~> 1.2.1'
 
 gem 'postgresql_cursor'
 
 # rgeo support
-gem 'ffi-geos'
+gem 'ffi-geos', '~> 1.1.1'
 gem 'rgeo-shapefile', '~> 0.4.1'
 gem 'rgeo-geojson', '~> 0.4.3'
 
@@ -57,6 +57,8 @@ gem 'uglifier', '~> 3.0.02'
 # Use jquery as the JavaScript library
 gem 'jquery-rails', '~> 4.1.1'
 gem 'jquery-ui-rails', '~> 5.0.5'
+
+gem 'vuejs-rails', '~> 2.1.10'
 
 gem 'rails-jquery-autocomplete'
 gem 'best_in_place', '~> 3.1.0'
