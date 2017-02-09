@@ -408,6 +408,12 @@ TaxonWorks::Application.routes.draw do
 
   scope :tasks do
 
+    scope :content do
+      scope :editor, controller: 'tasks/content/editor' do
+        get 'index', as: 'index_editor_task'
+      end
+    end
+
     scope :collection_objects do
       scope :filter, controller: 'tasks/collection_objects/filter' do
         get 'index', as: 'collection_objects_filter_task' #'index_area_and_date_task'

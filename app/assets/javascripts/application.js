@@ -30,5 +30,6 @@
 //= require_tree ./views
 //= require_tree ./utilities
 //= require_tree ./workbench
+//= require vue
 //= require turbolinks
 

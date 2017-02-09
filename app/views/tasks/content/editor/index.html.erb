@@ -1,0 +1,45 @@
+<!--- Rough struture- seems like make id="" could be turned into components --->
+
+<div id="content_editor">
+
+  <div id="subjects"> 
+    <recent></recent>
+
+    <div id="current">
+      <div id="subject_type"></div>
+      <div id="subject_search"></div>
+    </div>
+
+  </div>
+
+  <div class="flexbox">
+
+    <div id="topics" class="item item1" >
+   
+      <new-topic></new-topic>
+      <ol>
+        <topic-list v-for="item in foo" v-bind:topic="item"></topic-list>
+      </ol>
+    
+    </div>
+
+    <div id="core" class="item item2">
+
+      <div id="configure">
+        <subject> </subject>
+        <topic> </topic>
+      </div> 
+
+      <div id="content">
+        <text> </text>
+        <text-options></text-options>
+      </div>
+
+      <div id="metadata">
+        <div id="figures"></div>
+        <div id="citations"</div>
+      </div>
+    </div>
+  </div>
+</div>
+

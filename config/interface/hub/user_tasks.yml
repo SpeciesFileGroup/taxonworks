@@ -174,3 +174,10 @@ collection_objects_filter_task:
     - collection_object
   status: prototype
   description: 'Find collection objects using an area, date range, or taxon determination (OTU).'
+index_editor_task:
+  hub: true
+  name: 'Content editor'
+  related:
+  categories:
+  status: prototype
+  description: 'Edit content per subject'
