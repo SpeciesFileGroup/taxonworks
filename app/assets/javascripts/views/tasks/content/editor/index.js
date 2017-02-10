@@ -25,7 +25,6 @@ Object.assign(TW.views.tasks.content.editor, {
           url: '/topics/list',
           success: function(res) {
             that.topics = res;
-            console.log(res);
           },
           error: function(data,status,error){
             console.log(error);
