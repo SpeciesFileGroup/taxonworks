@@ -10,19 +10,29 @@ Object.assign(TW.views.tasks.content.editor, {
 
     Vue.component('topic-list', {
       props: ['topic'],
-      template: '<li>{{ topic.text }}</li>'
+      template: '<li>{{ topic.label }}</li>'
     }); 
 
-    var topic_list = new Vue({
-      el: '#topics', 
+    var topic = new Vue({
+      el: '#topics',
       data: {
-        foo: [
-          {text: 'Yabba dabba do!'},
-          {text: 'Yabba dibba da!'},
-          {text: 'Yabba dabba doh!'}
-        ]
+        topics: []
+      },
+      mounted: function() {
+        var that;
+        that = this;
+        $.ajax({
+          url: '/topics/list',
+          success: function(res) {
+            that.topics = res;
+            console.log(res);
+          },
+          error: function(data,status,error){
+            console.log(error);
+          }          
+        });
       }
-    });
+    });    
 
   }
 

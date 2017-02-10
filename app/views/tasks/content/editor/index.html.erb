@@ -1,4 +1,4 @@
-<!--- Rough struture- seems like make id="" could be turned into components --->
+<!-- Rough struture- seems like make id="" could be turned into components -->
 
 <div id="content_editor">
 
@@ -18,7 +18,8 @@
    
       <new-topic></new-topic>
       <ol>
-        <topic-list v-for="item in foo" v-bind:topic="item"></topic-list>
+        <topic-list v-for="item in topics" v-bind:topic="item">
+        </topic-list>
       </ol>
     
     </div>
