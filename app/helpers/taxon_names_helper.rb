@@ -10,8 +10,9 @@ module TaxonNamesHelper
   end
 
   # @return [String]
-  #    no HTML inside <input>
+  #   no HTML inside <input>
   def taxon_name_autocomplete_selected_tag(taxon_name)
+    return nil if taxon_name.nil?
     [taxon_name.cached, taxon_name.cached_author_year].compact.join(' ') 
   end
 
@@ -64,11 +65,6 @@ module TaxonNamesHelper
 
   def cached_classified_as_tag(taxon_name)
     taxon_name.cached_classified_as ? taxon_name.cached_classified_as.strip.html_safe : ''
-  end
-
-  def taxon_name_autocomplete_selected_tag(taxon_name)
-    return nil if taxon_name.nil?
-    taxon_name.cached
   end
 
   def taxon_name_latinization_tag(taxon_name)

@@ -129,19 +129,21 @@ class TaxonName < ActiveRecord::Base
   include SoftValidation
   include Shared::AlternateValues
 
-  # Class constants
   ALTERNATE_VALUES_FOR = [:rank_class].freeze # don't even think about putting this on #name
 
-  EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS = ['TaxonNameClassification::Iczn::Unavailable::NotLatin',
-                                              'TaxonNameClassification::Iczn::Unavailable::LessThanTwoLetters',
-                                              'TaxonNameClassification::Iczn::Unavailable::NotLatinizedAfter1899',
-                                              'TaxonNameClassification::Iczn::Unavailable::NotLatinizedBefore1900AndNotAccepted',
-                                              'TaxonNameClassification::Iczn::Unavailable::NonBinomial',
-                                              'TaxonNameClassification::Iczn::Available::Invalid::FamilyGroupNameForm'].freeze
+  EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS = [
+    'TaxonNameClassification::Iczn::Unavailable::NotLatin',
+    'TaxonNameClassification::Iczn::Unavailable::LessThanTwoLetters',
+    'TaxonNameClassification::Iczn::Unavailable::NotLatinizedAfter1899',
+    'TaxonNameClassification::Iczn::Unavailable::NotLatinizedBefore1900AndNotAccepted',
+    'TaxonNameClassification::Iczn::Unavailable::NonBinomial',
+    'TaxonNameClassification::Iczn::Available::Invalid::FamilyGroupNameForm'
+  ].freeze
 
   NO_CACHED_MESSAGE = 'PROJECT REQUIRES TAXON NAME CACHE REBUILD'.freeze
+  
   SPECIES_EPITHET_RANKS = %w{species subspecies variety subvariety form subform}.freeze
-
+ 
   NOT_LATIN = Regexp.new(/[^a-zA-Z|\-]/).freeze # Dash is allowed?
 
   delegate :nomenclatural_code, to: :rank_class
@@ -152,18 +154,20 @@ class TaxonName < ActiveRecord::Base
   attr_accessor :also_create_otu
 
   # @return [Boolean]
-  #  When true, also cached values are not built
+  #   When true, also cached values are not built
   attr_accessor :no_cached
 
   before_validation :set_type_if_empty
+
   before_save :set_cached_names
   after_save :create_new_combination_if_absent, unless: 'self.no_cached'
   after_save :set_cached_names_for_dependants_and_self, unless: 'self.no_cached' # !!! do we run set cached names 2 x !?!
   after_save :set_cached_valid_taxon_name_id
+  
   before_destroy :check_for_children
 
   validate :validate_rank_class_class,
-   # :check_format_of_name,
+    # :check_format_of_name,
     :validate_parent_rank_is_higher,
     :validate_parent_is_set,
     :check_new_rank_class,
@@ -1195,17 +1199,6 @@ class TaxonName < ActiveRecord::Base
   end
 
   #endregion
-
-  def self.generate_download(scope)
-    CSV.generate do |csv|
-      csv << column_names
-      scope.order(id: :asc).find_each do |o|
-        csv << o.attributes.values_at(*column_names).collect { |i|
-          i.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
-        }
-      end
-    end
-  end
 
   def parent_is_set?
     !self.parent_id.nil? || (self.parent && self.parent.persisted?)
