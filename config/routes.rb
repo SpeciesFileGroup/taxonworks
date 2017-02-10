@@ -388,7 +388,7 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
   end
 
-  resources :topics do
+  resources :topics, only: [:create] do
     collection do
       get :lookup_topic
       get 'get_definition/:id', action: 'get_definition'
