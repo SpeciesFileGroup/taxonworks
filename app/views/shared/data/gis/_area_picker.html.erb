@@ -1,53 +1,12 @@
 <div class="area_picker">
-  <div>
-    <div class="area_header"> areas for <%= object_tag(@areagable_object) %>
-      <span class='area_picker_alert' hidden></span></div>
-    <span class="area_picker_message"></span>
 
-    <ul class="area_list">
+  <div class="area_picker_alert" hidden></div>
 
-      <%= f.fields_for :areas, @areagable_object.areas.order(:position) do |area_fields| %>
-          <% if area_fields.object.new_record? %>
-              <% inc_index = "#{Time.now.to_i}#{area_fields.object.id}" %>
+  <ul class="area_list">
+  </ul>
 
-              <%= content_tag(:li, 'data-area-index' => inc_index) do -%>
-                  <%= area_fields.fields_for :keyword do |keyword_fields| %>
-                      <%= keyword_fields.hidden_field :name -%>
-                      <%= keyword_fields.hidden_field :definition -%>
-                      <%= area_tag(keyword_fields.object.area) -%> <%= link_to('remove', "#", class: :remove_area) -%>
-                  <% end %>
-              <% end %>
-
-          <% else %>
-
-              <li class="area_item" data-area-id="<%= area_fields.object.id -%>" data-area-index="<%= area_fields.index -%>">
-                <%= area_fields.object.position %>
-                <%= area_tag(area_fields.object) -%>
-                <%= link_to('remove', "#", class: :remove_area) -%>
-
-              </li>
-
-          <% end %>
-      <% end %>
-
-    </ul>
-  </div>
-
-  <div class="keyword_selection">
-    <div><%= text_field_tag "area_picker_autocomplete", nil, class: 'area_picker_autocomplete', placeholder: "Area" %></div>
-
-    <div class="new_keyword" hidden>
-      <div class="keyword_picker_form">
-        <%= f.fields_for Keyword.new do |fp| %>
-            <div class="field">
-              <%= fp.label :definition %><br>
-              <%= fp.text_area :name, placeholder: "Keyword definition", class: :definition, id: "#{f.object.class.name}_#{f.object.id}_new_keyword_definition" %>
-            </div>
-        <% end %>
-
-        <%= link_to "add new", '#', id: :keyword_picker_add_new, hidden: true %>
-      </div>
-    </div>
+  <div class="area_selection">
+    <div><%= text_field_tag "area_picker_autocomplete", nil, class: 'area_picker_autocomplete', placeholder: "type to search for area" %></div>
   </div>
 
 </div>
