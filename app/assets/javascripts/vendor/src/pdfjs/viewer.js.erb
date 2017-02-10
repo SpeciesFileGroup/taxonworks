@@ -177,6 +177,10 @@ Object.assign(TW.views.shared.slideout.pdf, {
       }, 500);
     }            
 
+    function viewerActive() {
+      return ($('[data-panel-name="pdfviewer"]').attr('data-panel-open') == 'true');
+    }
+
     //pdf.js end
 
     // Events
@@ -185,8 +189,10 @@ Object.assign(TW.views.shared.slideout.pdf, {
         cursorPosition = 0;
 
     $("input").on("click", function(e) {
-      if(this.selectionStart === this.selectionEnd) { 
-        cursorPosition = $(this).getCursorPosition();
+      if(viewerActive()) {
+        if(this.selectionStart === this.selectionEnd) { 
+          cursorPosition = $(this).getCursorPosition();
+        }
       }
     });       
 
@@ -195,7 +201,7 @@ Object.assign(TW.views.shared.slideout.pdf, {
     });
 
     $("textarea, input").dblclick(function() {
-      if($('[data-panel-name="pdfviewer"]').attr('data-panel-open') == 'true') {
+      if(viewerActive()) {
         $(this).val(insertStringInPosition($(this).val(),textCopy, cursorPosition));
       }
     });
