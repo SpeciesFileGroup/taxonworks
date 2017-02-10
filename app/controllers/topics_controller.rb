@@ -1,11 +1,26 @@
 class TopicsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-# @todo This format very different, should it be made same as other autocompletes?
-  def autocomplete
-    predicates = Topic.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
+  def list
+    topics = Topic.order(:name).where(project_id: sessions_current_project_id).all
 
-    data = predicates.collect do |t|
+    data = topics.collect do |t|
+      str = t.name + ": " + t.definition
+      { id: t.id,
+        label:  t.name,
+        definition: t.definition, 
+        color: t.css_color 
+      }
+    end
+
+    render :json => data
+  end
+
+  # @todo This format very different, should it be made same as other autocompletes?
+  def autocomplete
+    topics = Topic.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
+
+    data = topics.collect do |t|
       str = t.name + ": " + t.definition
       {id:              t.id,
        label:           str,

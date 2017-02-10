@@ -393,6 +393,7 @@ TaxonWorks::Application.routes.draw do
       get :lookup_topic
       get 'get_definition/:id', action: 'get_definition'
       get :autocomplete
+      get :list
     end
   end
 
