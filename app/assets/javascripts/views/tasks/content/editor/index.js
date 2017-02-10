@@ -13,7 +13,7 @@ Object.assign(TW.views.tasks.content.editor, {
       template: '<li>{{ topic.label }}</li>'
     }); 
 
-    var topic = new Vue({
+    var topic_list = new Vue({
       el: '#topics',
       data: {
         topics: []
