@@ -8,13 +8,78 @@ Object.assign(TW.views.tasks.content.editor, {
 
   init: function() {
 
-    Vue.component('topic-list', {
-      props: ['topic'],
-      template: '<li>{{ topic.label }}</li>'
+    Vue.component('text-options', {
+      template: '<div></div>'
+    });
+
+    Vue.component('subject', {
+      template: '<div></div>'
+    });   
+
+    Vue.component('recent', {
+      template: '<div></div>'
     }); 
 
-    var topic_list = new Vue({
-      el: '#topics',
+    Vue.component('topic', {
+      template: '<div></div>'
+    });      
+
+    Vue.component('topic-list', {
+      props: ['topic'],
+      template: '<li v-on:click="loadTopic">{{ topic.label }}</li>',
+
+      methods: {
+        loadTopic: function() {
+          console.log(this.topic.id);
+        }
+      }      
+    });                 
+
+    Vue.component('new-topic', {
+      template: '#new-topic',
+      data: function() { return {
+        creating: false,
+        topic: {
+          name: '',
+          definition: '',
+          }
+        }
+      },
+      methods: {
+        openWindow: function() {
+          this.creating = true;
+        },
+        createNewTopic: function() {
+          console.log("New topic created"); // Ajax in this place
+          this.creating = false;
+        }        
+      }
+    }); 
+
+    Vue.component('text-editor', {
+      props: ['topic'],
+      data: function() { return {
+          textfield: '',
+          autosave: 0,
+        }
+      },
+      template: '<textarea v-model="textfield" v-on:input="autoSave"></textarea>',
+      methods: {
+        autoSave: function() {
+          if(this.autosave) {
+            clearTimeout(this.autosave);
+            this.autosave = null
+          }   
+          this.autosave = setTimeout( function() {    
+            console.log('Autosaving event'); //When replace this line, probably we should make a method for ajax.
+          }, 5000);           
+        }        
+      }
+    });  
+            
+
+    var content_editor = new Vue({
+      el: '#content_editor',
       data: {
         topics: []
       },
@@ -31,10 +96,9 @@ Object.assign(TW.views.tasks.content.editor, {
           }          
         });
       }
-    });    
+    });
 
   }
-
 });
 
 $(document).ready( function() {

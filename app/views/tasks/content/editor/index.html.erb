@@ -18,8 +18,7 @@
    
       <new-topic></new-topic>
       <ol>
-        <topic-list v-for="item in topics" v-bind:topic="item">
-        </topic-list>
+        <topic-list v-for="item in topics" v-bind:topic="item"></topic-list>
       </ol>
     
     </div>
@@ -32,15 +31,38 @@
       </div> 
 
       <div id="content">
-        <text> </text>
+        <text-editor></text-editor>
         <text-options></text-options>
       </div>
 
       <div id="metadata">
         <div id="figures"></div>
-        <div id="citations"</div>
+        <div id="citations"></div>
       </div>
+
     </div>
   </div>
 </div>
 
+<template>
+  <div class="flexbox">
+    <form action="">
+      <input type="radio" name="gender" value="male"> Add topic<br>
+      <input type="radio" name="gender" value="female"> Select OTU
+    </form> 
+  </div>
+</template>
+
+<template id="new-topic">
+  <form v-if="creating" class="panel" action="">
+    <div class="field">
+      <input type="text" v-model="topic.name" placeholder="Name" />
+    </div>
+    <div class="field">
+      <input type="text" v-model="topic.definition" placeholder="Definition" />
+    </div>
+    <button type="submit" v-on:click.prevent="createNewTopic" :disabled="((topic.name.length < 2) || (topic.definition.length < 2)) ? true : false">Create</button>    
+  </form>
+
+  <div v-on:click="openWindow" v-else>Add new</div>  
+</template>
