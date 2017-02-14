@@ -6,7 +6,7 @@ TW.views.tasks.content.editor = TW.views.tasks.content.editor || {};
 
 Object.assign(TW.views.tasks.content.editor, {
 
-  init: function() {
+  init: function() { 
 
     Vue.component('text-options', {
       template: '<div></div>'
@@ -30,6 +30,7 @@ Object.assign(TW.views.tasks.content.editor, {
 
       methods: {
         loadTopic: function() {
+          bus.$emit('test', this.topic)
           console.log(this.topic.id);
         }
       }      
@@ -56,32 +57,17 @@ Object.assign(TW.views.tasks.content.editor, {
       }
     }); 
 
-    Vue.component('text-editor', {
-      props: ['topic'],
-      data: function() { return {
-          textfield: '',
-          autosave: 0,
+    Vue.component('topic-section', {
+      template: '<div id="topics"> \
+                  <new-topic></new-topic> \
+                  <ol> \
+                    <topic-list v-for="item in topics" v-bind:topic="item"></topic-list> \
+                  </ol> \
+                </div>', 
+      data: function() { 
+        return {
+          topics: []
         }
-      },
-      template: '<textarea v-model="textfield" v-on:input="autoSave"></textarea>',
-      methods: {
-        autoSave: function() {
-          if(this.autosave) {
-            clearTimeout(this.autosave);
-            this.autosave = null
-          }   
-          this.autosave = setTimeout( function() {    
-            console.log('Autosaving event'); //When replace this line, probably we should make a method for ajax.
-          }, 5000);           
-        }        
-      }
-    });  
-            
-
-    var content_editor = new Vue({
-      el: '#content_editor',
-      data: {
-        topics: []
       },
       mounted: function() {
         var that;
@@ -96,6 +82,39 @@ Object.assign(TW.views.tasks.content.editor, {
           }          
         });
       }
+    });
+
+    Vue.component('text-editor', {
+      props: ['topic'],
+      data: function() { return {
+          value: '',
+          autosave: 0,
+        }
+      },
+      created: function() {
+        var that = this;
+
+        bus.$on('test', function (topic) {
+          that.value = topic.label;
+        })
+      },
+      template: '<textarea v-model="value" v-on:input="autoSave"></textarea>',
+      methods: {
+        autoSave: function() {
+          if(this.autosave) {
+            clearTimeout(this.autosave);
+            this.autosave = null
+          }   
+          this.autosave = setTimeout( function() {    
+            console.log('Autosaving event'); //When replace this line, probably we should make a method for ajax.
+          }, 5000);           
+        }        
+      }
+    });  
+            
+    var bus = new Vue(); //Used to communicate between components
+    var content_editor = new Vue({
+      el: '#content_editor',
     });
 
   }
