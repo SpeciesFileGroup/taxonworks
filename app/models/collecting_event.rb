@@ -433,7 +433,7 @@ class CollectingEvent < ActiveRecord::Base
       en_string = '((' + part_1e + select_1_3 + part_3e + ')' + (part_2e.blank? ? '' : ' or ') + part_2e + ')'
 
       sql_string = st_string + (allow_partial ? ' or ' : ' and ') + en_string + special_part
-      sql_string 
+      sql_string
     end
 
     # @param [Hash] search_start_date string in form 'yyyy/mm/dd'
@@ -540,6 +540,10 @@ class CollectingEvent < ActiveRecord::Base
 
     def data_attributes
       column_names.reject { |c| %w{id project_id created_by_id updated_by_id created_at updated_at project_id}.include?(c) || c =~ /^cached/ }
+    end
+
+    def next_need_parse
+      CollectingEvent.where('verbatim_label is not null and (verbatim_latitude is null or verbatim_longitude is null) and (latitude is null or longitude is null)')
     end
 
   end # << end class methods
