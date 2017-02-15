@@ -14,7 +14,7 @@
 
   <div class="flexbox">
 
-    <topic-section class="item item1">
+    <topic-section class="panel topic-panel">
     </topic-section>
 
     <div id="core" class="item item2">
@@ -24,10 +24,7 @@
         <topic> </topic>
       </div> 
 
-      <div id="content">
-        <text-editor></text-editor>
-        <text-options></text-options>
-      </div>
+      <panel-editor></panel-editor>
 
       <div id="metadata">
         <div id="figures"></div>
@@ -45,18 +42,4 @@
       <input type="radio" name="gender" value="female"> Select OTU
     </form> 
   </div>
-</template>
-
-<template id="new-topic">
-  <form v-if="creating" class="panel" action="">
-    <div class="field">
-      <input type="text" v-model="topic.name" placeholder="Name" />
-    </div>
-    <div class="field">
-      <input type="text" v-model="topic.definition" placeholder="Definition" />
-    </div>
-    <button type="submit" v-on:click.prevent="createNewTopic" :disabled="((topic.name.length < 2) || (topic.definition.length < 2)) ? true : false">Create</button>    
-  </form>
-
-  <div v-on:click="openWindow" v-else>Add new</div>  
 </template>

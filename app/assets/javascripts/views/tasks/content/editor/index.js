@@ -9,8 +9,78 @@ Object.assign(TW.views.tasks.content.editor, {
   init: function() { 
 
     Vue.component('text-options', {
-      template: '<div></div>'
+      template: '<div class="navigation-controls horizontal-center-content"> \
+                  <itemOption name="Save"></itemOption> \
+                  <itemOption name="Preview" :callMethod="preview"></itemOption> \
+                  <itemOption name="Help" :callMethod="help"></itemOption> \
+                  <itemOption name="Clone" :callMethod="clone"></itemOption> \
+                  <itemOption name="Compare" :callMethod="compare"></itemOption> \
+                  <itemOption name="Citation" :callMethod="citation"></itemOption> \
+                  <itemOption name="Figure" :callMethod="figure"></itemOption> \
+                  <itemOption name="Drag new figure" :callMethod="drag"></itemOption> \
+                </div>',
+      methods: {
+        preview: function() {
+          console.log("preview method!");
+        },
+        clone: function() {
+          console.log("clone method!");
+        },
+        help: function() {
+          console.log("help method!");
+        },        
+        compare: function() {
+          console.log("compare method!");
+        },
+        citation: function() {
+          console.log("citation method!");
+        },
+        figure: function() {
+          console.log("figure method!");
+        },
+        drag: function() {
+          console.log("drag and drop method!");
+        }                                              
+      }
     });
+
+    Vue.component('itemOption', {
+      props: ['name', 'callMethod'],
+      data: function() { 
+        return {
+          disabled: false
+        }
+      },
+      template: '<div v-if="!disabled" class="navigation-item" v-on:click="action">{{ name }}</div>',
+      methods: {
+        action: function (){
+          if(!this.disabled && this.callMethod !== undefined) {
+            this.callMethod()
+          }
+        }
+      }
+    });  
+
+
+    Vue.component('panel-editor', {
+      data: function() { 
+        return {
+          topic: undefined
+        }
+      },
+      template: '<div v-if="topic !== undefined" class="panel panel-editor"> \
+                  <div class="title" v-text="topic.label"></div> \
+                  <text-editor :topic="topic"></text-editor> \
+                  <text-options></text-options>\
+                </div>',
+      created: function() {
+        var that = this;
+
+        bus.$on('sendTopic', function (topic) {
+          that.topic = topic;
+        })
+      },                
+    }); 
 
     Vue.component('subject', {
       template: '<div></div>'
@@ -30,14 +100,23 @@ Object.assign(TW.views.tasks.content.editor, {
 
       methods: {
         loadTopic: function() {
-          bus.$emit('test', this.topic)
+          bus.$emit('sendTopic', this.topic)
           console.log(this.topic.id);
         }
       }      
     });                 
 
     Vue.component('new-topic', {
-      template: '#new-topic',
+      template: ' <form v-if="creating" class="panel content" action=""> \
+                    <div class="field"> \
+                      <input type="text" v-model="topic.name" placeholder="Name" /> \
+                    </div> \
+                    <div class="field"> \
+                      <input type="text" v-model="topic.definition" placeholder="Definition" /> \
+                    </div> \
+                    <button class="button" type="submit" v-on:click.prevent="createNewTopic" :disabled="((topic.name.length < 2) || (topic.definition.length < 2)) ? true : false">Create</button> \
+                  </form> \
+                  <button class="button button-default" v-on:click="openWindow" v-else>Add new</button>',
       data: function() { return {
         creating: false,
         topic: {
@@ -48,6 +127,8 @@ Object.assign(TW.views.tasks.content.editor, {
       },
       methods: {
         openWindow: function() {
+          this.topic.name = '';
+          this.topic.definition = '';
           this.creating = true;
         },
         createNewTopic: function() {
@@ -60,9 +141,9 @@ Object.assign(TW.views.tasks.content.editor, {
     Vue.component('topic-section', {
       template: '<div id="topics"> \
                   <new-topic></new-topic> \
-                  <ol> \
+                  <ul> \
                     <topic-list v-for="item in topics" v-bind:topic="item"></topic-list> \
-                  </ol> \
+                  </ul> \
                 </div>', 
       data: function() { 
         return {
@@ -87,18 +168,11 @@ Object.assign(TW.views.tasks.content.editor, {
     Vue.component('text-editor', {
       props: ['topic'],
       data: function() { return {
-          value: '',
           autosave: 0,
         }
       },
-      created: function() {
-        var that = this;
 
-        bus.$on('test', function (topic) {
-          that.value = topic.label;
-        })
-      },
-      template: '<textarea v-model="value" v-on:input="autoSave"></textarea>',
+      template: '<textarea v-model="topic.definition" v-on:input="autoSave"></textarea>',
       methods: {
         autoSave: function() {
           if(this.autosave) {
@@ -113,6 +187,7 @@ Object.assign(TW.views.tasks.content.editor, {
     });  
             
     var bus = new Vue(); //Used to communicate between components
+
     var content_editor = new Vue({
       el: '#content_editor',
     });
