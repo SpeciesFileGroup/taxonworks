@@ -7,7 +7,29 @@
       <!--<h2>CollectingEvent#VerbatimLabel</h2>-->
     </div>
     <div class="item item2">
-
+      <table border="1" align="center">
+        <tbody>
+        <tr>
+          <th>Recognized string</th>
+          <th>Latitude</th>
+          <th>Longitude</th>
+          <th>Select</th>
+        </tr>
+        <tr>
+          <td><%= 'what I found' %></td>
+          <td><%= 22.23 %></td>
+          <td><%= -43.42 %></td>
+          <td><%= 'radio button' %></td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="item item3">
+      <%#= form_for(@collecting_event) do |f| -%>
+      <%#= f.text_field :verbatim_label -%>
+      <%#= f.select :type, options_for_select(%w{Specimen Lot}) %>
+      <%#= f.submit('Create Collecting Event') -%>
+      <%# end %>
     </div>
   </div>
 </div>
