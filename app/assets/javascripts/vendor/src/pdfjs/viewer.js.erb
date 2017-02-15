@@ -188,7 +188,7 @@ Object.assign(TW.views.shared.slideout.pdf, {
     var textCopy = '',
         cursorPosition = 0;
 
-    $("input").on("click", function(e) {
+    $("body").on("click", "input, textarea", function(e) {
       if(viewerActive()) {
         if(this.selectionStart === this.selectionEnd) { 
           cursorPosition = $(this).getCursorPosition();
@@ -200,7 +200,7 @@ Object.assign(TW.views.shared.slideout.pdf, {
       textCopy = getSelectedText();
     });
 
-    $("textarea, input").dblclick(function() {
+    $("body").on("dblclick", "textarea, input", function() {
       if(viewerActive()) {
         $(this).val(insertStringInPosition($(this).val(),textCopy, cursorPosition));
       }
