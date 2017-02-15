@@ -107,16 +107,16 @@ Object.assign(TW.views.tasks.content.editor, {
     });                 
 
     Vue.component('new-topic', {
-      template: ' <form v-if="creating" class="panel content" action=""> \
+      template: ' <form v-if="creating" id="new-topic" class="panel content" action=""> \
                     <div class="field"> \
                       <input type="text" v-model="topic.name" placeholder="Name" /> \
                     </div> \
                     <div class="field"> \
-                      <input type="text" v-model="topic.definition" placeholder="Definition" /> \
+                      <textarea v-model="topic.definition" placeholder="Definition"></textarea> \
                     </div> \
-                    <button class="button" type="submit" v-on:click.prevent="createNewTopic" :disabled="((topic.name.length < 2) || (topic.definition.length < 2)) ? true : false">Create</button> \
+                    <input class="button" type="submit" v-on:click.prevent="createNewTopic" :disabled="((topic.name.length < 2) || (topic.definition.length < 2)) ? true : false" value="Create"/> \
                   </form> \
-                  <button class="button button-default" v-on:click="openWindow" v-else>Add new</button>',
+                  <input type="button" value="New topic" class="button button-default normal-input" v-on:click="openWindow" v-else/>',
       data: function() { return {
         creating: false,
         topic: {
