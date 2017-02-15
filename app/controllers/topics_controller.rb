@@ -7,10 +7,10 @@ class TopicsController < ApplicationController
     data = topics.collect do |t|
       str = t.name + ": " + t.definition
       { id: t.id,
-        name: t.name
+        name: t.name,
         definition: t.definition, 
-        color: t.css_color 
-        label:  t.name, # TODO: referenced in picker, refactor
+        color: t.css_color,
+        label:  t.name # TODO: referenced in js picker, refactor to use name rather than label
       }
     end
 
