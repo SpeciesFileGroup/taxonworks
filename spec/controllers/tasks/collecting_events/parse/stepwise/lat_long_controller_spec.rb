@@ -1,17 +1,17 @@
 require 'rails_helper'
 
-describe Tasks::CollectingEvents::Parse::Stepwise::LatLongController type: :controller do
+describe Tasks::CollectingEvents::Parse::Stepwise::LatLongController, type: :controller do
   before(:each) { sign_in }
 
   let(:ce_find) {
-    FactoryGirl.create!(:valid_collecting_event,
-                        verbatim_label: 'Strange verbatim_label #1')
+    FactoryGirl.create(:valid_collecting_event,
+                       verbatim_label: 'Strange verbatim_label #1')
   }
   let(:ce_dont_find) {
-    FactoryGirl.create!(:valid_collecting_event,
-                        verbatim_label:     'Don\'t find me!',
-                        verbatim_latitude:  "n40º5'31.4412\"",
-                        verbatim_longitude: 'w88∫11′43.3″')
+    FactoryGirl.create(:valid_collecting_event,
+                       verbatim_label:     'Don\'t find me!',
+                       verbatim_latitude:  "n40º5'31.4412\"",
+                       verbatim_longitude: 'w88∫11′43.3″')
   }
   let(:valid_session) { {} }
 

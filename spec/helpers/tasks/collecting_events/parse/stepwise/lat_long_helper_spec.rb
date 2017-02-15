@@ -1,5 +1,5 @@
 require 'rails_helper'
 
-describe Tasks::CollectingEvemtsParseStepwise::LatLongHelper, type: :helper do
+describe Tasks::CollectingEvents::Parse::Stepwise::LatLongHelper, type: :helper do
 
 end

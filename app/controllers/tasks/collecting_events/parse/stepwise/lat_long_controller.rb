@@ -3,7 +3,7 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
 
   # GET
   def index
-    @collecting_event = CollectionEvent.next_need_parse
+    @collecting_event = CollectingEvent.next_need_parse
   end
 
 end

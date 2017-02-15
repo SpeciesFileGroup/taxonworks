@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'tasks/gis/collection_objects/filter', type: :feature, group: [:geo, :collection_objects] do
+describe 'tasks/collection_objects/filter', type: :feature, group: [:geo, :collection_objects] do
   context 'with properly built collection of objects' do
     let(:page_title) { 'Collection objects by area and date' }
     let(:index_path) { collection_objects_filter_task_path }
@@ -98,7 +98,7 @@ describe 'tasks/gis/collection_objects/filter', type: :feature, group: [:geo, :c
           it 'renders count of objects and table found using a drawn area and date range' do
             visit(collection_objects_filter_task_path)
             execute_script("document.getElementById('search_start_date').value = '1971/01/01'")
-            execute_script("document.getElementById('search_end_date').value = '1980/12/31'")            
+            execute_script("document.getElementById('search_end_date').value = '1980/12/31'")
             find('#search_start_date').set '1971/01/01'
             find('#search_end_date').set '1980/12/31'
             find('#label_toggle_slide_area').click

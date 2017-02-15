@@ -1,4 +1,4 @@
-module Tasks::CollectingEvents::Parse::LatLongHelper
+module Tasks::CollectingEvents::Parse::Stepwise::LatLongHelper
 
   def show_ce_vl(collecting_event)
     if collecting_event.nil?

@@ -543,7 +543,7 @@ class CollectingEvent < ActiveRecord::Base
     end
 
     def next_need_parse
-      CollectingEvent.where('verbatim_label is not null and (verbatim_latitude is null or verbatim_longitude is null) and (latitude is null or longitude is null)')
+      CollectingEvent.where('verbatim_label is not null and (verbatim_latitude is null or verbatim_longitude is null)').first
     end
 
   end # << end class methods

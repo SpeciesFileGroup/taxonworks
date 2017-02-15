@@ -175,7 +175,7 @@ collection_objects_filter_task:
   status: prototype
   description: 'Find collection objects using an area, date range, or taxon determination (OTU).'
 
-index_lat_long_task:
+collecting_event_lat_long_task:
   hub: true
   name: 'Stepwise collecting event parser - Latitude/Longitude'
   related:

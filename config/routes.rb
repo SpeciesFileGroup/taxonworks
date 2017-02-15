@@ -407,16 +407,16 @@ TaxonWorks::Application.routes.draw do
   ### End of resources except user related located below scopes ###
 
   scope :tasks do
+
     scope :collecting_events do
       scope :parse do
         scope :stepwise do
           scope :lat_long, controller: 'tasks/collecting_events/parse/stepwise/lat_long' do
-            get 'index', as: 'index_lat_long_task'
+            get 'index', as: 'collecting_event_lat_long_task'
           end
         end
       end
     end
-
 
     scope :collection_objects do
       scope :filter, controller: 'tasks/collection_objects/filter' do
