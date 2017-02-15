@@ -96,7 +96,7 @@ Object.assign(TW.views.tasks.content.editor, {
 
     Vue.component('topic-list', {
       props: ['topic'],
-      template: '<li v-on:click="loadTopic">{{ topic.label }}</li>',
+      template: '<li v-on:click="loadTopic">{{ topic.label }} {{ topic.name }}</li>',
 
       methods: {
         loadTopic: function() {
@@ -142,6 +142,9 @@ Object.assign(TW.views.tasks.content.editor, {
             dataType: 'json',
             method: 'POST',
             success: function(res) {
+              TW.workbench.alert.create(res.name+ " was successfully created.", "notice");
+              var temp = res;
+              that.$parent.topics.push(res);
               console.log(res);
             },
             error: function(data,status,error){
