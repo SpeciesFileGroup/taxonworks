@@ -137,11 +137,12 @@ Object.assign(TW.views.tasks.content.editor, {
         createNewTopic: function() {
           var that = this;
           $.ajax({
-            url: '/controlled_vocabulary_terms',
+            url: '/controlled_vocabulary_terms.json',
             data: that.topic,
+            dataType: 'json',
             method: 'POST',
-            success: function() {
-              console.log("Created");
+            success: function(res) {
+              console.log(res);
             },
             error: function(data,status,error){
               console.log(error);
@@ -167,17 +168,22 @@ Object.assign(TW.views.tasks.content.editor, {
         }
       },
       mounted: function() {
-        var that;
-        that = this;
-        $.ajax({
-          url: '/topics/list',
-          success: function(res) {
-            that.topics = res;
-          },
-          error: function(data,status,error){
-            console.log(error);
-          }          
-        });
+        this.loadList();
+      },
+      methods: {
+        loadList: function() {
+          var that;
+          that = this;
+          $.ajax({
+            url: '/topics/list',
+            success: function(res) {
+              that.topics = res;
+            },
+            error: function(data,status,error){
+              console.log(error);
+            }          
+          });          
+        }
       }
     });
 
