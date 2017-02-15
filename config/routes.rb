@@ -166,6 +166,9 @@ TaxonWorks::Application.routes.draw do
 
   resources :contents do
     concerns [:data_routes]
+    collection do
+      get :filter
+    end
   end
 
   resources :controlled_vocabulary_terms do

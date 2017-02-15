@@ -7,7 +7,7 @@ class ContentsController < ApplicationController
   # GET /contents
   # GET /contents.json
   def index
-    @recent_objects = Content.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
+    @recent_objects = Content.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
     render '/shared/data/all/index'
   end
 
@@ -66,7 +66,7 @@ class ContentsController < ApplicationController
   end
 
   def list
-    @contents = Content.with_project_id($project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
+    @contents = Content.with_project_id(sessions_current_project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
   end
 
   def search
@@ -75,6 +75,14 @@ class ContentsController < ApplicationController
     else
       redirect_to content_path(params[:id])
     end
+  end
+
+  # GET /contents/filter.json
+  def filter
+    @contents = Queries::ContentFilterQuery.new(
+      params.permit(:otu_id, :topic_id, :hours_ago).to_h.symbolize_keys
+    ).all
+    render json: @contents 
   end
 
   def autocomplete
@@ -101,7 +109,7 @@ class ContentsController < ApplicationController
   
   # Use callbacks to share common setup or constraints between actions.
   def set_content
-    @content = Content.with_project_id($project_id).find(params[:id])
+    @content = Content.with_project_id(session_current_project_id).find(params[:id])
     @recent_object = @content
   end
 
