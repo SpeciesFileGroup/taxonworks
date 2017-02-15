@@ -31,32 +31,18 @@ class ControlledVocabularyTermsController < ApplicationController
     @controlled_vocabulary_term = ControlledVocabularyTerm.new(controlled_vocabulary_term_params)
     respond_to do |format|
       if @controlled_vocabulary_term.save
-        msg = "#{@controlled_vocabulary_term.type} '#{@controlled_vocabulary_term.name}' was successfully created."
-
-        if !params.permit(:return_path)[:return_path].blank?
-          # case - coming from otu -> new tag -> new cvt -> back to tag/new
-          redirect_url = params.permit(:return_path)[:return_path] + "&tag[keyword_id]=#{@controlled_vocabulary_term.to_param}"
-        elsif request.env['HTTP_REFERER'].include?('controlled_vocabulary_terms/new')
-          # case - coming from cvt index -> cvt/new
-          redirect_url = controlled_vocabulary_term_path(@controlled_vocabulary_term)
-        else
-          # case - coming from task -> return to task
-          redirect_url = :back
-        end
-
-        format.html { redirect_to redirect_url, notice: msg } # !! new behaviour to test
-        format.json { render action: 'show', status: :created, location: @controlled_vocabulary_term.metamorphosize }
-
+        format.html { redirect_to @controlled_vocabulary_term.metamorphosize, notice: "#{@controlled_vocabulary_term.type} '#{@controlled_vocabulary_term.name}' was successfully created."}
+        format.json { 
+          render action: 'show', status: :created, location: @controlled_vocabulary_term.metamorphosize 
+        }
       else
         format.html {
           flash[:notice] = 'Controlled vocabulary term NOT successfully created.'
-          if redirect_url == :back
-            redirect_to :back
-          else
-            render action: 'new'
-          end
+          render action: 'new'
         }
-        format.json { render json: @controlled_vocabulary_term.errors, status: :unprocessable_entity }
+        format.json { 
+          render json: @controlled_vocabulary_term.errors, status: :unprocessable_entity
+        }
       end
     end
   end

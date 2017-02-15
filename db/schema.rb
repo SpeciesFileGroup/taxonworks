@@ -16,8 +16,8 @@ ActiveRecord::Schema.define(version: 20170210033821) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
-  enable_extension "fuzzystrmatch"
   enable_extension "hstore"
+  enable_extension "fuzzystrmatch"
 
   create_table "alternate_values", force: :cascade do |t|
     t.text     "value",                            null: false
@@ -39,6 +39,12 @@ ActiveRecord::Schema.define(version: 20170210033821) do
   add_index "alternate_values", ["project_id"], name: "index_alternate_values_on_project_id", using: :btree
   add_index "alternate_values", ["type"], name: "index_alternate_values_on_type", using: :btree
   add_index "alternate_values", ["updated_by_id"], name: "index_alternate_values_on_updated_by_id", using: :btree
+
+  create_table "ar_internal_metadata", primary_key: "key", force: :cascade do |t|
+    t.string   "value"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
 
   create_table "asserted_distributions", force: :cascade do |t|
     t.integer  "otu_id",             null: false
@@ -785,7 +791,7 @@ ActiveRecord::Schema.define(version: 20170210033821) do
   create_table "extracts", force: :cascade do |t|
     t.decimal  "quantity_value",             null: false
     t.string   "quantity_unit",              null: false
-    t.string   "verbatim_anatomical_origin"
+    t.string   "verbatim_anatomical_origin", null: false
     t.integer  "year_made",                  null: false
     t.integer  "month_made",                 null: false
     t.integer  "day_made",                   null: false
