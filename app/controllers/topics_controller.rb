@@ -10,6 +10,7 @@ class TopicsController < ApplicationController
         name: t.name,
         definition: t.definition, 
         color: t.css_color,
+        css_color: t.css_color,
         label:  t.name # TODO: referenced in js picker, refactor to use name rather than label
       }
     end
