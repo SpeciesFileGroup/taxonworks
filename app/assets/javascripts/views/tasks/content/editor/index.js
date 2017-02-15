@@ -109,27 +109,29 @@ Object.assign(TW.views.tasks.content.editor, {
     Vue.component('new-topic', {
       template: ' <form v-if="creating" id="new-topic" class="panel content" action=""> \
                     <div class="field"> \
-                      <input type="text" v-model="topic.name" placeholder="Name" /> \
+                      <input type="text" v-model="topic.controlled_vocabulary_term.name" placeholder="Name" /> \
                     </div> \
                     <div class="field"> \
-                      <textarea v-model="topic.definition" placeholder="Definition"></textarea> \
+                      <textarea v-model="topic.controlled_vocabulary_term.definition" placeholder="Definition"></textarea> \
                     </div> \
-                    <input class="button" type="submit" v-on:click.prevent="createNewTopic" :disabled="((topic.name.length < 2) || (topic.definition.length < 2)) ? true : false" value="Create"/> \
+                    <input class="button" type="submit" v-on:click.prevent="createNewTopic" :disabled="((topic.controlled_vocabulary_term.name.length < 2) || (topic.controlled_vocabulary_term.definition.length < 2)) ? true : false" value="Create"/> \
                   </form> \
                   <input type="button" value="New topic" class="button button-default normal-input" v-on:click="openWindow" v-else/>',
       data: function() { return {
         creating: false,
         topic: {
-          name: '',
-          definition: '',
-          type: 'Topic'
+          controlled_vocabulary_term: {
+            name: '',
+            definition: '',
+            type: 'Topic'
+            }
           }
         }
       },
       methods: {
         openWindow: function() {
-          this.topic.name = '';
-          this.topic.definition = '';
+          this.topic.controlled_vocabulary_term.name = '';
+          this.topic.controlled_vocabulary_term.definition = '';
           this.creating = true;
         },
         createNewTopic: function() {
