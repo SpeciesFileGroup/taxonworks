@@ -109,30 +109,43 @@ Object.assign(TW.views.tasks.content.editor, {
     Vue.component('new-topic', {
       template: ' <form v-if="creating" id="new-topic" class="panel content" action=""> \
                     <div class="field"> \
-                      <input type="text" v-model="topic.name" placeholder="Name" /> \
+                      <input type="text" v-model="topic.label" placeholder="Name" /> \
                     </div> \
                     <div class="field"> \
                       <textarea v-model="topic.definition" placeholder="Definition"></textarea> \
                     </div> \
-                    <input class="button" type="submit" v-on:click.prevent="createNewTopic" :disabled="((topic.name.length < 2) || (topic.definition.length < 2)) ? true : false" value="Create"/> \
+                    <input class="button" type="submit" v-on:click.prevent="createNewTopic" :disabled="((topic.label.length < 2) || (topic.definition.length < 2)) ? true : false" value="Create"/> \
                   </form> \
                   <input type="button" value="New topic" class="button button-default normal-input" v-on:click="openWindow" v-else/>',
       data: function() { return {
         creating: false,
         topic: {
-          name: '',
+          label: '',
           definition: '',
           }
         }
       },
       methods: {
         openWindow: function() {
-          this.topic.name = '';
+          this.topic.label = '';
           this.topic.definition = '';
           this.creating = true;
         },
         createNewTopic: function() {
-          console.log("New topic created"); // Ajax in this place
+          var that = this;
+          $.ajax({
+            url: '/controlled_vocabulary_terms',
+            data: that.topic,
+            method: 'POST',
+            success: function() {
+              console.log("Created");
+            },
+            error: function(data,status,error){
+              console.log(error);
+              console.log(status);
+              console.log(data);              
+            }                    
+          });
           this.creating = false;
         }        
       }
