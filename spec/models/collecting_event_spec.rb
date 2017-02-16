@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
+describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
   let(:collecting_event) { CollectingEvent.new }
   let(:county) { FactoryGirl.create(:valid_geographic_area_stack) }
   let(:state) { county.parent }
@@ -177,11 +177,11 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
       collecting_event.start_date_month = "6"
       collecting_event.start_date_year  = "1970"
 
-      collecting_event.end_date_day   = "24" 
+      collecting_event.end_date_day = "24"
       collecting_event.end_date_month = "7"
       collecting_event.end_date_year  = "1970"
 
-      expect(collecting_event.valid?).to be_truthy 
+      expect(collecting_event.valid?).to be_truthy
       expect(collecting_event.errors[:base].include?(message)).to be_falsey
     end
 
@@ -240,7 +240,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_event] do
       context 'contents of cached' do
         context 'with geographic_area set' do
           before{
-            collecting_event.save! 
+            collecting_event.save!
             collecting_event.update_attribute(:geographic_area_id, county.id)
           }
 

@@ -4,6 +4,7 @@
     <div class="item item1">
       <h1><%= @collecting_event.id unless @collecting_event.nil? %></h1>
       <%= show_ce_vl(@collecting_event) %>
+      <%= hidden_field_tag(:next_record, set_next) -%>
       <!--<h2>CollectingEvent#VerbatimLabel</h2>-->
     </div>
     <div class="item item2">
@@ -19,7 +20,7 @@
           <td><%= 'what I found' %></td>
           <td><%= 22.23 %></td>
           <td><%= -43.42 %></td>
-          <td><%= 'radio button' %></td>
+          <td><%= radio_button_tag('select', 0, false) %></td>
         </tr>
         </tbody>
       </table>
