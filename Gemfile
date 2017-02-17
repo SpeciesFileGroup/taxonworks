@@ -45,6 +45,7 @@ gem 'sprockets-rails'
 gem 'sprockets', '~> 3.0'
 gem 'sprockets-es6', require: 'sprockets/es6'
 
+gem 'browserify-rails'
 # gem 'babel-transpiler'
 
 
