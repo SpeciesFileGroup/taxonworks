@@ -6,13 +6,33 @@ class DepictionsController < ApplicationController
   # GET /depictions
   # GET /depictions.json
   def index
-    @recent_objects = Depiction.where(project_id: $project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+    respond_to do |format|
+      format.html {
+        @recent_objects = Depiction.where(project_id: sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      }
+      format.json {
+        @depictions = Depiction.where(project_id: sessions_current_project_id).where(filter_params)
+      }
+    end
   end
 
+  # handle the polymorphic resource
+  def filter_params
+    h = params.permit(:content_id).to_h
+    if h.size > 1 
+      respond_to do |format|
+        format.html { render plain: '404 Not Found', status: :unprocessable_entity and return }
+        format.json { render json: {success: false}, status: :unprocessable_entity and return }
+      end
+    end
+
+    model = h.keys.first.split('_').first.classify
+    return {depiction_object_type: model, depiction_object_id: h.values.first}
+  end
 
   def list
-    @depictions = Depiction.where(project_id: $project_id).page(params[:page])
+    @depictions = Depiction.where(project_id: sessions_current_project_id).page(params[:page])
   end
 
   # GET /depictions/1
