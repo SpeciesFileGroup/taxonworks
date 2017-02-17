@@ -70,6 +70,10 @@ GEM
       parallel (~> 1.4)
       treetop (~> 1.4.1)
       unicode_utils (~> 1.4)
+    browserify-rails (4.0.0)
+      addressable (>= 2.4.0)
+      railties (>= 4.0.0, < 5.1)
+      sprockets (>= 3.6.0)
     builder (3.2.3)
     byebug (9.0.6)
     capybara (2.11.0)
@@ -448,6 +452,7 @@ DEPENDENCIES
   bibtex-ruby (~> 4.4.2)
   binding_of_caller
   biodiversity
+  browserify-rails
   byebug (~> 9.0.5)
   capybara (~> 2.11.0)
   chartkick (~> 2.1.3)
