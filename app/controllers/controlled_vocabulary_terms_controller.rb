@@ -1,7 +1,7 @@
 class ControlledVocabularyTermsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_controlled_vocabulary_term, only: [:show, :edit, :update, :destroy]
+  before_action :set_controlled_vocabulary_term, only: [:show, :edit, :update, :destroy, :depictions, :citations, :confidences]
 
   # GET /controlled_vocabulary_terms
   # GET /controlled_vocabulary_terms.json
@@ -82,6 +82,18 @@ class ControlledVocabularyTermsController < ApplicationController
 
   def list
     @controlled_vocabulary_terms = ControlledVocabularyTerm.with_project_id($project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
+  end
+
+  def depictions
+    render json: @controlled_vocabulary_terms.depictions
+  end
+
+  def citations
+    render json: @controlled_vocabulary_terms.citations
+  end
+
+  def confidences
+    render json: @controlled_vocabulary_terms.confidences
   end
 
   def autocomplete
