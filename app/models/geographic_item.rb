@@ -114,7 +114,7 @@ class GeographicItem < ActiveRecord::Base
 
 
     # TODO: * remove pagination, do that at the controller
-    #       * rename to reflect either/or and what is being returned 
+    #       * rename to reflect either/or and what is being returned
     # @param [Integer] geographic_area_id
     # @param [String] shape_in in JSON (TODO: what kind? / details on specification)
     # @param [String] search_object_class
@@ -141,7 +141,7 @@ class GeographicItem < ActiveRecord::Base
 
     # @param [geo_object]
     # @param [String] search_object_class
-    # @return [Scope] 
+    # @return [Scope]
     #    all objects of search_object_class contained by the geo_object geometry
     def objects_contained_by_geo_object(geo_object, search_object_class)
       finding = search_object_class.constantize
@@ -151,7 +151,7 @@ class GeographicItem < ActiveRecord::Base
 
     # @param [String] feature in JSON
     # @param [String] search_object_class
-    # @return [Scope] of the requested search_object_type 
+    # @return [Scope] of the requested search_object_type
     #   This function takes a feature, i.e. a string that is the result
     #   of drawing on a Google map, and submited as a form variable,
     #   and translates that to a scope for a provided search_object_class.
@@ -945,12 +945,12 @@ class GeographicItem < ActiveRecord::Base
     (containing_geographic_areas
       .joins(:geographic_areas_geographic_items)
       .merge(GeographicAreasGeographicItem.ordered_by_data_origin)
-      .order('geographic_areas.name') + 
+       .order('geographic_areas.name') +
     geographic_areas
       .joins(:geographic_areas_geographic_items)
       .merge(GeographicAreasGeographicItem
       .ordered_by_data_origin)
-      .order('geographic_areas.name').limit(1)).each do |a| 
+      .order('geographic_areas.name').limit(1)).each do |a|
       v.merge!(a.categorize)
     end
     v
