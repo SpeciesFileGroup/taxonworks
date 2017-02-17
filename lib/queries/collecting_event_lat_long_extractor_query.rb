@@ -24,10 +24,10 @@ module Queries
 
     def where_sql
       clauses = [
-        :d_dm,
-        :degrees,
-        :minutes,
-        :seconds
+        :d_dm #,
+      # :degrees,
+      # :minutes,
+      # :seconds
       ].compact
 
       scope = regex(clauses.shift)
