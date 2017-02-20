@@ -62,6 +62,13 @@ module Queries
       fun
     end
 
+    # t2.project(t2[:id], t2[:verbatim_label]).where(Arel.sql('length(verbatim_data)').gt(0).and(Arel.sql('verbatim_label ~ \'(\d+\s\d+\.\d+''*)\s.*(\d+\s\d+\.\d+''*)\''))).to_sql
+    def trial(filter)
+      table.project(t2[:id], t2[:verbatim_label])
+        .where(Arel.sql('length(verbatim_data)').gt(0)
+                 .and(Arel.sql("verbatim_label ~ " + filter))).to_sql
+    end
+
   end
 
 end
