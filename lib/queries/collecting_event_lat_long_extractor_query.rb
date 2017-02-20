@@ -4,7 +4,7 @@ module Queries
   # Country.select([name, func]).to_sql
 
   FILTERS = {
-    d_dm:    '(\d+\s\d+\.\d+\'*)\s.*(\d+\s\d+\.\d+\'*)',
+    d_dm:    '\'(\d+\s\d+\.\d+\'*)\s.*(\d+\s\d+\.\d+\'*)\'',
     degrees: '([o*\u00b0\u00ba\u02DA\u030a\u221e\u222b\uc2ba])',
     minutes: '([\'\u00a5\u00b4\u02b9\u02bb\u02bc\u02ca\u2032\uc2ba])',
     seconds: '([\'\u00a5\u00b4\u02b9\u02ba\u02bb\u02bc\u02ca\u02ee\u2032\u2033\uc2ba"])'
@@ -23,18 +23,22 @@ module Queries
     end
 
     def where_sql
-      clauses = [
+      filter_keys = [
         :d_dm #,
       # :degrees,
       # :minutes,
       # :seconds
       ].compact
 
-      scope = regex(clauses.shift)
-      clauses.each do |clause|
-        scope = scope.and(clause)
+      scope = regex(FILTERS[filter_keys.shift])
+      filter_keys.each do |clause|
+        scope = scope.or(clause)
       end
       scope.to_sql
+    end
+
+    def table
+      CollectingEvent.arel_table
     end
 
     # @return [Scope]
@@ -42,12 +46,15 @@ module Queries
       CollectingEvent.where(where_sql)
     end
 
-    def table
-      CollectingEvent.arel_table
+    # @param [String] filter regex pattern for matching lat_lomg
+    # @return [Scope]
+    def regex(filter)
+      verbatim_label_not_empty
+      # trial(filter)
     end
 
-    def regex(filter)
-      table[:verbatim_label].matches(function(filter))
+    def verbatim_label_not_empty
+      Arel.sql('length(verbatim_label)').gt(0)
     end
 
     # d =  Arel::Attribute.new(Arel::Table.new(:sources), :cached_nomenclature_date)
@@ -56,17 +63,23 @@ module Queries
     #
     # func = Arel::Nodes::NamedFunction.new('COALESCE', [d, f1])
     # where(Arel::Nodes::NamedFunction.new('date_part', ['year', arel_table[:due_date]]).eq(year).to_sql)
-    def function(filter)
+    def functionX(filter)
       vl  = Arel::Attribute.new(table, :verbatim_label)
       fun = Arel::Nodes::NamedFunction.new('regexp_matches', [vl, FILTERS[filter]])
       fun
     end
 
-    # t2.project(t2[:id], t2[:verbatim_label]).where(Arel.sql('length(verbatim_data)').gt(0).and(Arel.sql('verbatim_label ~ \'(\d+\s\d+\.\d+''*)\s.*(\d+\s\d+\.\d+''*)\''))).to_sql
+    def function(filter)
+      # verbatim_label_not_empty
+      Arel.sql("verbatim_label ~ '" + filter + "'")
+    end
+
+    # table.project(table[:id], table[:verbatim_label]).where(Arel.sql('length(verbatim_data)').gt(0).and(Arel.sql('verbatim_label ~ \'(\d+\s\d+\.\d+''*)\s.*(\d+\s\d+\.\d+''*)\''))).to_sql
     def trial(filter)
-      table.project(t2[:id], t2[:verbatim_label])
-        .where(Arel.sql('length(verbatim_data)').gt(0)
-                 .and(Arel.sql("verbatim_label ~ " + filter))).to_sql
+      table.project(Arel.star).where(verbatim_label_not_empty().and(function(filter)))
+      # table.project(Arel.star).where(function(filter).and(verbatim_label_not_empty))
+      # .project(table[:id], table[:verbatim_label])
+      # .where(Arel.sql("verbatim_label ~ " + filter))
     end
 
   end
