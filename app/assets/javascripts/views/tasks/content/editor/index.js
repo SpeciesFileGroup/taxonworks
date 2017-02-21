@@ -45,55 +45,6 @@ Object.assign(TW.views.tasks.content.editor, {
     });
 
 
-  Vue.component('autocomplete', { 
-    template: '<div> \
-                <input type="text" v-on:input="update" v-model="input" /> \
-              </div>',
-    data: function () {
-      return {
-        showList: false,
-        type: "",
-        json: [],
-        focusList: "",
-        input: ""
-      };
-    },
-
-    props: {
-      url: {
-        type: String,
-        required: true
-      },
-      min: {
-        type: Number,
-        default: 0
-      },
-
-      limit: {
-        type: String,
-        default: ''
-      }, 
-    // TODO: Add custom parameters
-      param: {
-        type: String,
-        default: "value"
-      }       
-    },
-  
-      methods: {
-        update: function() {
-          var ajaxUrl = this.url + '?' + this.param + '=' + this.input;                
-          this.$http.get(ajaxUrl).then(response => {
-            this.json = response.body;
-            console.log(this.json);
-
-          }, response => {
-            // error callback
-          });
-        },
-      }
-    });
-
     Vue.component('itemOption', {
       props: ['name', 'callMethod'],
       data: function() { 

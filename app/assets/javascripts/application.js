@@ -24,13 +24,13 @@
 //= require autocomplete-rails
 //= require best_in_place
 //= require dropzone
+//= require vue
+//= require vue-resource
 //= require_tree ./vendor/src
 //= require_tree ./vendor/lib
 //= require_tree ./vendor/lib/jquery
 //= require_tree ./views
 //= require_tree ./utilities
 //= require_tree ./workbench
-//= require vue
-//= require vue-resource
 //= require turbolinks
 
