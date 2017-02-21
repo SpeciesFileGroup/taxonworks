@@ -3,8 +3,10 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
 
   # GET
   def index
-    @collecting_event = CollectingEvent.next_needs_parse(params[:next_record]) # defaults to first found
-    @collecting_event
+    @collecting_events = Queries::CollectingEventLatLongExtractorQuery.new(collecting_event_id: nil,
+                                                                           filters:             [:dd]).all.limit(5)
+    # defaults to first found
+    @collecting_events
   end
 
 end

@@ -1,12 +1,12 @@
 module Tasks::CollectingEvents::Parse::Stepwise::LatLongHelper
 
-  # @param [Object] collecting_event
+  # @param [Scope] collecting_events, usually the first five
   # @return [String] for collecting event, or failure text
-  def show_ce_vl(collecting_event)
-    if collecting_event.blank?
+  def show_ce_vl(collecting_events)
+    if collecting_events.empty?
       'No collecting event available.'
     else
-      collecting_event.verbatim_label
+      collecting_events.first.verbatim_label
     end
     end
 
