@@ -37,6 +37,7 @@ Object.assign(TW.views.filter.area_picker, {
     var autocomplete_input = form.find(".area_picker_autocomplete");
     autocomplete_input.autocomplete({
       source: '/geographic_areas/autocomplete',
+      appendTo: autocomplete_input.parent(),
       open: function (event, ui) {
         TW.views.filter.area_picker.bind_hover(form);
       },
