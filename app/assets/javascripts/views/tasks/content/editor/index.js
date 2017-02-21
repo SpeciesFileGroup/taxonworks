@@ -44,6 +44,72 @@ Object.assign(TW.views.tasks.content.editor, {
       }
     });
 
+
+
+  Vue.component('itemOption', Vue2Autocomplete );
+
+  Vue.component('autocomplete', { 
+    template: '<div> \
+                <input type="text" v-on:input="update" v-model="input" /> \
+              </div>',
+    data: function () {
+      return {
+        showList: false,
+        type: "",
+        json: [],
+        focusList: "",
+        input: ""
+      };
+    },
+
+    props: {
+      url: {
+        type: String,
+        required: true
+      },
+      min: {
+        type: Number,
+        default: 0
+      },
+
+      limit: {
+        type: String,
+        default: ''
+      }, 
+
+      param: {
+        type: String,
+        default: ""
+      }       
+    },
+     computed: {
+          errors: function() {
+              for (var key in this.newProduct) {
+                  if ( ! this.newProduct[key]) return true;
+              }
+              return false;
+          }
+      },    
+      methods: {
+        update: function() {
+          var param = this.param;     
+               
+          this.$http.get('/contents/filter.json', { params: { hours_ago: this.input }} ).then(response => {
+
+            // get body data
+            this.someData = response.body;
+            console.log(this.someData);
+
+          }, response => {
+            // error callback
+          });
+        },
+        fetch: function() {
+
+        }
+      }
+    });
+
     Vue.component('itemOption', {
       props: ['name', 'callMethod'],
       data: function() { 

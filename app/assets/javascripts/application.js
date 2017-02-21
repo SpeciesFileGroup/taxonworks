@@ -31,5 +31,6 @@
 //= require_tree ./utilities
 //= require_tree ./workbench
 //= require vue
+//= require vue-resource
 //= require turbolinks
 
