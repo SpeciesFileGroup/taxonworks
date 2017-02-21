@@ -36,12 +36,12 @@ Object.assign(TW.views.filter.area_picker, {
   initialize_autocomplete: function (form) {
     var autocomplete_input = form.find(".area_picker_autocomplete");
     autocomplete_input.autocomplete({
-      source: '/geographic_areas/search',
+      source: '/geographic_areas/autocomplete',
       open: function (event, ui) {
         TW.views.filter.area_picker.bind_hover(form);
       },
       select: function (event, ui) {    // execute on select event in search text box
-        TW.views.filter.area_picker.insert_existing_area(form, ui.item.object_id, ui.item.label);
+        TW.views.filter.area_picker.insert_existing_area(form, ui.item.id, ui.item.label_html);
         TW.views.filter.area_picker.clear_area_picker(form);
         //   TW.views.filter.area_picker.make_list_sortable(form);     // was this inadvertantly lost?
         return false;
@@ -49,7 +49,7 @@ Object.assign(TW.views.filter.area_picker, {
 
     }).autocomplete("instance")._renderItem = function (ul, item) {
       return $("<li class='area'>")
-        .append("<a>" + item.label + ' <span class="hoverme" data-area-definition="' + item.definition + '" + data-area-id="' + item.object_id + '">...</span></a>')
+        .append("<a>" + item.label + ' <span class="hoverme" data-area-label_html="' + item.label_html + '" + data-area-id="' + item.id + '">...</span></a>')
         .appendTo(ul);
     };
 
@@ -91,7 +91,7 @@ Object.assign(TW.views.filter.area_picker, {
       over: function () {
         var this_area_hover;
         this_area_hover = $(this);   // modified to not do AJAX call, but use attribute already extant
-        this_area_hover.html('... ' + this_area_hover.data('areaDefinition'));
+        this_area_hover.html('... ' + this_area_hover.data('area-label_html'));
       }, // function = onMouseOver callback (REQUIRED)
       out: function () {
         this.textContent = '...';   // how weird is this this?
@@ -120,7 +120,7 @@ Object.assign(TW.views.filter.area_picker, {
 
   insert_existing_area: function (form, area_id, label) {
     var base_class;// = form.data('base-class');
-    base_class = 'areagable_object';
+    base_class = 'area_object';
     var random_index = new Date().getTime();
     var area_list = form.find(".area_list");
 
@@ -150,10 +150,10 @@ Object.assign(TW.views.filter.area_picker, {
       var d = form.find(".definition").val();
 
       if (d.length == 0) {
-        $("#keyword_picker_add_new").hide();
+        $("#area_picker_add_new").hide();
       }
       else {
-        $("#keyword_picker_add_new").css("display", "flex");
+        $("#area_picker_add_new").css("display", "flex");
       }
     })
   },
@@ -195,7 +195,7 @@ Object.assign(TW.views.filter.area_picker, {
       var area_picker = list_item.closest('.area_picker');
       var area_id = list_item.data('area-id');
       var area_index = list_item.data('area-index');
-      var base_class = 'areagable_object';
+      var base_class = 'area_object';
       // var base_class = tag_picker.data('base-class');
 
       if (area_id != undefined) {
