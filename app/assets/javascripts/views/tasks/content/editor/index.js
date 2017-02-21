@@ -45,9 +45,6 @@ Object.assign(TW.views.tasks.content.editor, {
     });
 
 
-
-  Vue.component('itemOption', Vue2Autocomplete );
-
   Vue.component('autocomplete', { 
     template: '<div> \
                 <input type="text" v-on:input="update" v-model="input" /> \
@@ -76,37 +73,24 @@ Object.assign(TW.views.tasks.content.editor, {
         type: String,
         default: ''
       }, 
-
+    // TODO: Add custom parameters
       param: {
         type: String,
-        default: ""
+        default: "value"
       }       
     },
-     computed: {
-          errors: function() {
-              for (var key in this.newProduct) {
-                  if ( ! this.newProduct[key]) return true;
-              }
-              return false;
-          }
-      },    
+  
       methods: {
         update: function() {
-          var param = this.param;     
-               
-          this.$http.get('/contents/filter.json', { params: { hours_ago: this.input }} ).then(response => {
-
-            // get body data
-            this.someData = response.body;
-            console.log(this.someData);
+          var ajaxUrl = this.url + '?' + this.param + '=' + this.input;                
+          this.$http.get(ajaxUrl).then(response => {
+            this.json = response.body;
+            console.log(this.json);
 
           }, response => {
             // error callback
           });
         },
-        fetch: function() {
-
-        }
       }
     });
 
