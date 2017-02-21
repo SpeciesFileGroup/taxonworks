@@ -21,6 +21,8 @@ module Queries
 # @param [Array] of symbolized filter names
     def initialize(collecting_event_id: nil, filters: [])
 
+      collecting_event_id = 0 if collecting_event_id.nil?
+
       @collecting_event_id = collecting_event_id
       @filters             = filters
     end
@@ -49,7 +51,7 @@ module Queries
     end
 
     def where_sql
-      verbatim_label_not_empty.and(verbatim_lat_long_not_empty).and(filter_scopes).to_sql
+      verbatim_label_not_empty.and(verbatim_lat_long_not_empty).and(starting_after).and(filter_scopes).to_sql
     end
 
     def table
@@ -76,6 +78,11 @@ module Queries
 
     def verbatim_lat_long_not_empty
       Arel.sql('(verbatim_latitude is not null and verbatim_longitude is not null)')
+    end
+
+    def starting_after
+      start_id = Arel::Attribute.new(Arel::Table.new(:collecting_events), :id)
+      start_id.gt(@collecting_event_id)
     end
 
 # d =  Arel::Attribute.new(Arel::Table.new(:sources), :cached_nomenclature_date)

@@ -542,11 +542,11 @@ class CollectingEvent < ActiveRecord::Base
       column_names.reject { |c| %w{id project_id created_by_id updated_by_id created_at updated_at project_id}.include?(c) || c =~ /^cached/ }
     end
 
-    def next_needs_parse(start = nil)
-      start  = 0 if start.blank?
-      retval = CollectingEvent.where('verbatim_label is not null and (verbatim_latitude is null or verbatim_longitude is null) and id > ?', start).first
-      retval
-    end
+    # def next_needs_parse(start = nil)
+    #   start  = 0 if start.blank?
+    #   retval = CollectingEvent.where('verbatim_label is not null and (verbatim_latitude is null or verbatim_longitude is null) and id > ?', start).first
+    #   retval
+    # end
 
   end # << end class methods
 
