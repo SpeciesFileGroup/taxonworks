@@ -2,8 +2,9 @@
 Parameters: 
 
           mim: Minimum input length needed before make a search query
-          url: ajax url request
-  placeholder: input placeholder
+          url: Ajax url request
+  placeholder: Input placeholder
+        label: name of the propierty displayed on the list
   
   Example:
     <autocomplete 
@@ -16,11 +17,12 @@ Vue.component('autocomplete', {
     template: '<div class="vue-autocomplete"> \
                 <input class="vue-autocomplete-input normal-input" type="text" v-on:input="update" v-model="type" /> \
                 <ul v-show="showList"> \
-                  <li v-for="(item, index) in json" :class="activeClass(index)" @mouseover="itemActive(index)" @click="itemSelected(index)"> \
-                    <span v-text="item.text"></span> \
+                  <li v-for="(item, index) in json" :class="activeClass(index)" @mouseover="itemActive(index)" @click="itemClicked" @click.prevent="$emit(\'itemSelect\', item)"> \
+                      <span> {{ item[label] }} </span> \
                   </li> \
                 </ul> \
-                </div>',
+              </div>',
+
     data: function () {
       return {
         showList: false,
@@ -35,8 +37,11 @@ Vue.component('autocomplete', {
         type: String,
         required: true
       },
+
+      label: String,
+
       min: {
-        type: Number,
+        type: String,
         default: 1
       },
 
@@ -55,10 +60,8 @@ Vue.component('autocomplete', {
           this.json = [];
         },
 
-        itemSelected: function(index) {
-          console.log(index)
+        itemClicked function() {
           this.showList = false;
-          this.current = index;
         },
 
         itemActive: function(index) {
@@ -66,7 +69,7 @@ Vue.component('autocomplete', {
         },        
 
         update: function() {
-          if(this.type.length > this.min) return;
+          if(this.type.length < Number(this.min)) return;
           
           var ajaxUrl = this.url + '?' + this.param + '=' + this.type;  
 
