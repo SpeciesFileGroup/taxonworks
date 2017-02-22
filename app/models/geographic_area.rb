@@ -368,6 +368,29 @@ class GeographicArea < ActiveRecord::Base
     end
   end
 
+  # @return [Hash]
+  #   query_line => [Array of GeographicArea]
+  # @params [text] 
+  #   one result set per line (\r\n)
+  #   lines can have child:parent:parent name patterns
+  def self.matching(text, has_shape = false)
+    if text.nil? || text.length == 0
+      return Hash.new('No query provided!' => []) 
+    end
+
+    text.gsub!(/\r\n/, "\n")
+
+    result = {} 
+    queries = text.split("\n")
+    queries.each do |q|
+      names = q.strip.split(':').collect{|s| s.strip}
+      r = GeographicArea.with_name_and_parent_names(names)
+      r = r.joins(:geographic_items) if has_shape
+      result[q] = r 
+    end 
+    result
+  end
+
   protected
 
   before_destroy :check_for_children

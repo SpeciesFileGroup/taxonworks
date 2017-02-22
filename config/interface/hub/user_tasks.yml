@@ -174,3 +174,11 @@ collection_objects_filter_task:
     - collection_object
   status: prototype
   description: 'Find collection objects using an area, date range, or taxon determination (OTU).'
+geographic_area_lookup_task:
+  hub: true
+  name: 'Geographic area lookup'
+  related:
+  categories:
+    - collecting_event
+  status: prototype
+  description: 'Check the geographic area gazetteer to see if there are records matching a particular name with queries like "Illinois", or "Illinois:Champaign" or "Canada:Saskatchewan.'

@@ -1,0 +1,28 @@
+<h3> Details </h3>
+<h4> <%= query -%> </h4>
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Parent</th>
+    <th>Country</th>
+    <th>State</th>
+    <th>County</th>
+    <th>Longitude</th>
+    <th>Latitude</th>
+    <th>Has shape?</th>
+    <th>ID</th>
+  </tr>
+  <% results.each do |r| -%>
+    <tr>
+      <%= content_tag(:td, object_link(r)) -%>
+      <%= content_tag(:td, r.parent.try(:name)) -%>
+      <%= content_tag(:td, r.geolocate_attributes['country']) -%>
+      <%= content_tag(:td, r.geolocate_attributes['state']) -%>
+      <%= content_tag(:td, r.geolocate_attributes['county']) -%>
+      <%= content_tag(:td, r.geolocate_attributes['Longitude']) -%>
+      <%= content_tag(:td, r.id) -%>
+      <%= content_tag(:td, r.geolocate_attributes['Latitude']) -%>
+      <%= content_tag(:td, r.has_shape?) -%>
+    </tr>
+  <% end %>
+</table>
