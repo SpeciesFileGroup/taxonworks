@@ -6,6 +6,8 @@ Parameters:
   placeholder: Input placeholder
         label: name of the propierty displayed on the list
    event-send: event name used to pass item selected
+
+   :add-param: Send custom parameters
   
   Example:
     <autocomplete 
@@ -48,10 +50,14 @@ Vue.component('autocomplete', {
         default: 1
       },
 
+      addParams: {
+        type: Object
+      },
+
       limit: {
         type: String,
         default: ''
-      }, 
+      },       
 
       param: {
         type: String,
@@ -66,7 +72,7 @@ Vue.component('autocomplete', {
   
       methods: {
         sendItem: function(item) {
-          this.$emit(this.eventSend, item);
+          this.$parent.$emit(this.eventSend, item);
         },
 
         clearResults: function() {
@@ -80,20 +86,28 @@ Vue.component('autocomplete', {
 
         itemActive: function(index) {
           this.current = index;
-        },        
+        },     
+
+        ajaxUrl: function() {
+          var tempUrl = this.url + '?' + this.param + '=' + this.type; 
+          var params = '';
+          if(this.addParams) {
+            Object.keys(this.addParams).forEach((key) => {
+              params += `&${key}=${this.addParams[key]}`
+            })
+          }   
+          return tempUrl + params;           
+        },   
 
         update: function() {
           if(this.type.length < Number(this.min)) return;
           
-          var ajaxUrl = this.url + '?' + this.param + '=' + this.type;  
-
           this.spinner = true;
           this.clearResults();   
 
-          this.$http.get(ajaxUrl).then(response => {
+          this.$http.get(this.ajaxUrl()).then(response => {
             this.json = response.body;
             this.showList = (this.json.length > 0)
-            console.log(this.json);
             this.spinner = false;
           }, response => {
             // error callback
