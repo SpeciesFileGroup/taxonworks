@@ -77,7 +77,7 @@ module Queries
     end
 
     def verbatim_lat_long_not_empty
-      Arel.sql('(verbatim_latitude is not null and verbatim_longitude is not null)')
+      Arel.sql('(verbatim_latitude is null or verbatim_longitude is null)')
     end
 
     def starting_after
