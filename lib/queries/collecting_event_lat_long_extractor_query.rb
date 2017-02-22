@@ -12,19 +12,24 @@ module Queries
   }.freeze
 
   # TODO: This needs cleaning up (@tuckerjd, @mjy)
-  class CollectingEventLatLongExtractorQuery
+  class CollectingEventLatLongExtractorQuery # < Queries::Query
     include Arel::Nodes
 
     attr_accessor :collecting_event_id
     attr_accessor :filters
+    attr_accessor :project_id
+
 # @param [Integer] collecting_event_id
+# @param [Integer] project_id
 # @param [Array] of symbolized filter names
-    def initialize(collecting_event_id: nil, filters: [])
+# @param [Object] filters
+    def initialize(collecting_event_id: nil, project_id: nil, filters: [])
 
       collecting_event_id = 0 if collecting_event_id.nil?
 
       @collecting_event_id = collecting_event_id
       @filters             = filters
+      @project_id         = project_id
     end
 
 # TODO: use passed filter symbols to build filter_keys
@@ -51,7 +56,8 @@ module Queries
     end
 
     def where_sql
-      verbatim_label_not_empty.and(verbatim_lat_long_not_empty).and(starting_after).and(filter_scopes).to_sql
+      # with_project_id.and
+      (verbatim_label_not_empty).and(verbatim_lat_long_not_empty).and(starting_after).and(filter_scopes).to_sql
     end
 
     def table
