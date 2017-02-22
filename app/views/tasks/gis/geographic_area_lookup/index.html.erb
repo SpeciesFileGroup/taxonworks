@@ -14,15 +14,7 @@
       <%= text_area_tag :terms, '', 
         cols: 40,  
         rows: 6, 
-        placeholder: "like 'Illinois' or 'Champaign:Illinois'",
-        data: { 
-          help: 'Each line is a new search. Refine searches by parent by using :, like: 
-                  <ul>
-                    <li> Champaign </li>
-                    <li> Champaign:Illinois</li>
-                    <li> Canada:Quebec</li>
-                  </ul>'.html_safe 
-        } -%>
+        placeholder: "like 'Illinois' or 'Champaign:Illinois'" -%>
         </div>
         <br>
       <%= check_box_tag :has_shape  -%> Return only records that have GIS shapes? <br>
