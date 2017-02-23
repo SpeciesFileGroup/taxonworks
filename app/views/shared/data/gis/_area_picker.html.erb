@@ -2,10 +2,10 @@
 
   <div class="area_picker_alert" hidden></div>
 
-  <ul class="area_list">
-  </ul>
-
   <div class="area_selection">
+    <ul class="area_list">
+    </ul>
+    <input type="hidden" id="geographic_area_id" , name="geographic_area_id">
     <div>
       <%= text_field_tag "area_picker_autocomplete", nil, class: 'area_picker_autocomplete', placeholder: "type to search for area" %>
     </div>

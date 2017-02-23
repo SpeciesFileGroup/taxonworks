@@ -50,7 +50,7 @@ Object.assign(TW.views.filter.area_picker, {
 
     }).autocomplete("instance")._renderItem = function (ul, item) {
       return $("<li class='area'>")
-        .append("<a>" + item.label + ' <span class="hoverme" data-area-label_html="' + item.label_html + '" + data-area-id="' + item.id + '">...</span></a>')
+        .append("<a>" + item.label + ' <span class="hoverme" data-area-label_html="' + item.label_html + '" + data-geographic_area_id="' + item.id + '">...</span></a>')
         .appendTo(ul);
     };
 
@@ -127,7 +127,7 @@ Object.assign(TW.views.filter.area_picker, {
 
     // type
 
-    area_list.append($('<input hidden name="' + base_class + '[areas_attributes][' + random_index + '][area_id]" value="' + area_id + '" >'));
+    area_list.append($('<input hidden name="' + base_class + '[geographic_area_id]" value="' + area_id + '" >'));
 
     // insert visible list item
     area_list.append($('<li class="area_item" data-area-index="' + random_index + '">').append(label).append('&nbsp;').append(TW.views.filter.area_picker.remove_link()));

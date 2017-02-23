@@ -47,7 +47,20 @@ Object.assign(TW.views.tasks.collection_objects, {
         $("#set_area").click(function (event) {      // register the click handler for the made-from-scratch-button
           $("#area_count").text('????');
             //var geo_id = $("input[name='[geographic_area_id]']").val();
+            // for each list item (<li>) in area_list <ul>, make an array entry of geographic_area_id s
+            var area_list = $(".area_list");
+            var area_list_hiddens = $("input[name*='area_object']");
+            var geo_area_ids = '[';
+            for (i = 0; i < area_list_hiddens.length; i++) {
+              geo_area_ids += +area_list_hiddens[i].value;
+              if (i < area_list_hiddens.length - 1) {
+                geo_area_ids += ','
+              }
+            }
+            geo_area_ids += ']';
+            $("#geographic_area_id").val(geo_area_ids);
             $("#select_area").mx_spinner('show');
+            // $.get('set_area', geo_area_ids, function (local_data) {
             $.get('set_area', $("#set_area_form").serialize(), function (local_data) {
               var popcorn = local_data;
               $("#area_count").text(local_data.html);
