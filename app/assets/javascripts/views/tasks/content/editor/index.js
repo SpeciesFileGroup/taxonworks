@@ -4,9 +4,14 @@ TW.views.tasks = TW.views.tasks || {};
 TW.views.tasks.content = TW.views.tasks.content || {};
 TW.views.tasks.content.editor = TW.views.tasks.content.editor || {};
 
+
+
 Object.assign(TW.views.tasks.content.editor, {
 
   init: function() { 
+
+    // JOSE - we can make this more generalized I think, but this works
+    Vue.http.headers.common['X-CSRF-Token'] = $('[name="csrf-token"]').attr('content');
 
     Vue.component('text-options', {
       template: '<div class="navigation-controls horizontal-center-content"> \
@@ -111,11 +116,12 @@ Object.assign(TW.views.tasks.content.editor, {
 
         update: function() {
           //Here Matt
-          var
-            ajaxUrl = `/contents/${this.record.content.id}` 
-            this.record.content._method = "patch"
+          var ajaxUrl = `/contents/${this.record.content.id}`;
 
-          this.$http.get(ajaxUrl, this.content).then(response => {
+          console.log(this.content);
+
+          this.$http.patch(ajaxUrl, this.record).then(
+            response => {
             console.log("Updated");
           }, response => {
             // error callback
