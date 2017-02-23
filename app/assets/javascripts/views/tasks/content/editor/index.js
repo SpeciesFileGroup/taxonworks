@@ -97,7 +97,6 @@ Object.assign(TW.views.tasks.content.editor, {
 
         bus.$on('sendOtu', function (otu) {
           that.otu = otu;
-          that.loadContent();
         })    
       },
       watch: {
@@ -128,7 +127,9 @@ Object.assign(TW.views.tasks.content.editor, {
           var ajaxUrl = `/contents/${this.record.content.id}`;
 
           if(this.record.content.id == '') {
-            this.$http.post(ajaxUrl, this.record);            
+            this.$http.post(ajaxUrl, this.record).then(response => {
+              this.record.content.id = response.body.id;
+             });            
           }
           else {
             this.$http.patch(ajaxUrl, this.record);
