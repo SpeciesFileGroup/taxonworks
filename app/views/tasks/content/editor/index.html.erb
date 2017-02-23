@@ -1,7 +1,7 @@
 <!-- Rough struture- seems like make id="" could be turned into components -->
 
 <div id="content_editor">
-
+<panel-top></panel-top>
   <div id="subjects"> 
     <recent></recent>
 
@@ -13,13 +13,6 @@
   </div>
 
   <div class="flexbox">
-    <autocomplete 
-      url="/otus/autocomplete"
-      min="3"
-      param="term"
-      event-send="picker"
-      label="label">
-    </autocomplete>
     <topic-section class="panel topic-panel">
     </topic-section>
 
@@ -30,7 +23,7 @@
         <topic> </topic>
       </div> 
 
-      <panel-editor></panel-editor>
+      <content-editor></content-editor>
 
       <div id="metadata">
         <div id="figures"></div>

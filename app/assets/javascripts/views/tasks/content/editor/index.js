@@ -63,15 +63,25 @@ Object.assign(TW.views.tasks.content.editor, {
     });  
 
 
-    Vue.component('panel-editor', {
+    Vue.component('content-editor', {
       data: function() { 
         return {
-          topic: undefined
+          topic: undefined,
+          otu: undefined,
+          autosave: 0,
+          new: false,
+          record: { 
+              content: {
+              otu_id: '',
+              topic_id: '',
+              text: '',
+            }
+          }
         }
       },
-      template: '<div v-if="topic !== undefined" class="panel panel-editor"> \
-                  <div class="title" v-text="topic.label"></div> \
-                  <text-editor :topic="topic"></text-editor> \
+      template: '<div v-if="topic !== undefined && otu !== undefined" class="panel panel-editor"> \
+                  <div class="title">{{ topic.label }} - {{ otu.label }} </div> \
+                  <textarea v-on:input="autoSave"> {{ record.content.text }} </textarea> \
                   <text-options></text-options>\
                 </div>',
       created: function() {
@@ -80,7 +90,57 @@ Object.assign(TW.views.tasks.content.editor, {
         bus.$on('sendTopic', function (topic) {
           that.topic = topic;
         })
-      },                
+
+        bus.$on('sendOtu', function (otu) {
+          that.otu = otu;
+          that.loadContent();
+        })    
+      },
+      methods: {
+        autoSave: function() {
+          var that = this;
+          if(this.autosave) {
+            clearTimeout(this.autosave);
+            this.autosave = null
+          }   
+          this.autosave = setTimeout( function() {    
+            console.log('Autosaving event');
+            that.update();
+          }, 500);           
+        },
+
+        update: function() {
+          //Here Matt
+          var
+            ajaxUrl = `/contents/${this.record.content.id}` 
+            this.record.content._method = "patch"
+
+          this.$http.post(ajaxUrl, this.content).then(response => {
+            console.log("Updated");
+          }, response => {
+            // error callback
+          });          
+        },
+
+        loadContent: function() {
+          var
+            ajaxUrl = `/contents/filter.json?otu_id=${this.otu.id}&topic_id=${this.topic.id}`
+
+          this.$http.get(ajaxUrl).then(response => {
+            if(response.body.length > 0) {
+              this.record.content.id = response.body[0].id;
+              this.record.content.text = response.body[0].text;
+              this.record.content.topic_id = response.body[0].topic_id;
+              this.record.content.otu_id = response.body[0].otu_id;
+            }
+            else {
+              this.new = true;
+            }
+          }, response => {
+            // error callback
+          });
+        }
+      }                
     }); 
 
     Vue.component('subject', {
@@ -97,12 +157,12 @@ Object.assign(TW.views.tasks.content.editor, {
 
     Vue.component('topic-list', {
       props: ['topic'],
-      template: '<li v-on:click="loadTopic">{{ topic.label }} {{ topic.name }}</li>',
+      template: '<li v-on:click="loadTopic">{{ topic.name }}</li>',
 
       methods: {
         loadTopic: function() {
-          bus.$emit('sendTopic', this.topic)
-          console.log(this.topic.id);
+          bus.$emit('sendTopic', this.topic);
+          bus.$emit('showPanelTop');
         }
       }      
     });                 
@@ -191,33 +251,41 @@ Object.assign(TW.views.tasks.content.editor, {
       }
     });
 
-    Vue.component('text-editor', {
-      props: ['topic'],
-      data: function() { return {
-          autosave: 0,
+    Vue.component('panel-top', {
+      data: function() {
+        return {
+          display: false
         }
       },
+      template: '<div v-if="display" class="panel content separate-bottom"> \
+                  <autocomplete \
+                    url="/otus/autocomplete" \
+                    min="3" \
+                    param="term" \
+                    event-send="otu_picker" \
+                    label="label"> \
+                  </autocomplete> \
+                 </div>',
+      mounted: function() {
+        var
+          that = this;
 
-      template: '<textarea v-model="topic.definition" v-on:input="autoSave"></textarea>',
-      methods: {
-        autoSave: function() {
-          if(this.autosave) {
-            clearTimeout(this.autosave);
-            this.autosave = null
-          }   
-          this.autosave = setTimeout( function() {    
-            console.log('Autosaving event'); //When replace this line, probably we should make a method for ajax.
-          }, 5000);           
-        }        
+        bus.$on('showPanelTop', function () {
+          that.display = true
+        })        
+
+        this.$on('otu_picker', function (item) {
+          console.log('2345');
+          bus.$emit("sendOtu", item)
+        })                  
       }
-    });  
+    });
             
     var bus = new Vue(); //Used to communicate between components
 
     var content_editor = new Vue({
       el: '#content_editor',
-    });
-
+    });  
   }
 });
 
