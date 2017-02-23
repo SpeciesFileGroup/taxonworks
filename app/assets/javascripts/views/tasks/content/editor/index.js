@@ -74,9 +74,8 @@ Object.assign(TW.views.tasks.content.editor, {
           topic: undefined,
           otu: undefined,
           autosave: 0,
-          new: false,
           record: { 
-              content: {
+            content: {
               otu_id: '',
               topic_id: '',
               text: '',
@@ -101,6 +100,18 @@ Object.assign(TW.views.tasks.content.editor, {
           that.loadContent();
         })    
       },
+      watch: {
+        otu: function(val, oldVal) {
+          if (JSON.stringify(val) !== JSON.stringify(oldVal)) {
+            this.loadContent();
+          }
+        },
+        topic: function(val, oldVal) {
+          if (JSON.stringify(val) !== JSON.stringify(oldVal)) {
+            this.loadContent();
+          }
+        }        
+      },
       methods: {
         autoSave: function() {
           var that = this;
@@ -109,26 +120,24 @@ Object.assign(TW.views.tasks.content.editor, {
             this.autosave = null
           }   
           this.autosave = setTimeout( function() {    
-            console.log('Autosaving event');
-            that.update();
-          }, 2000);           
+            that.update();  
+          }, 1000);           
         },
 
         update: function() {
-          //Here Matt
           var ajaxUrl = `/contents/${this.record.content.id}`;
 
-          console.log(this.content);
-
-          this.$http.patch(ajaxUrl, this.record).then(
-            response => {
-            console.log("Updated");
-          }, response => {
-            // error callback
-          });          
-        },
+          if(this.record.content.id == '') {
+            this.$http.post(ajaxUrl, this.record);            
+          }
+          else {
+            this.$http.patch(ajaxUrl, this.record);
+          }          
+        },       
 
         loadContent: function() {
+          if(this.otu == undefined || this.topic == undefined) return
+
           var
             ajaxUrl = `/contents/filter.json?otu_id=${this.otu.id}&topic_id=${this.topic.id}`
 
@@ -140,7 +149,10 @@ Object.assign(TW.views.tasks.content.editor, {
               this.record.content.otu_id = response.body[0].otu_id;
             }
             else {
-              this.new = true;
+              this.record.content.text = '';
+              this.record.content.id = '';              
+              this.record.content.topic_id = this.topic.id;
+              this.record.content.otu_id = this.otu.id;
             }
           }, response => {
             // error callback
@@ -209,7 +221,7 @@ Object.assign(TW.views.tasks.content.editor, {
             dataType: 'json',
             method: 'POST',
             success: function(res) {
-              TW.workbench.alert.create(res.name+ " was successfully created.", "notice");
+              TW.workbench.alert.create(res.name + " was successfully created.", "notice");
               var temp = res;
               that.$parent.topics.push(res);
               console.log(res);
