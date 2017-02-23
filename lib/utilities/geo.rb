@@ -24,7 +24,7 @@ To add a new (discovered) symbol:
 
     SPECIAL_LATLONG_SYMBOLS = "do*\u00b0\u00ba\u02DA\u030a\u221e\u222b\u0027\u00b4\u02B9\u02BA\u02BB\u02BC\u02CA\u02EE\u2032\u2033\u0022".freeze
 
-    LAT_LON_REGEXP = Regexp.new(/(?<lon>-?\d+\.?\d*),?\s*(?<lat>-?\d+\.?\d*)/)
+    LAT_LON_REGEXP = Regexp.new(/(?<lat>-?\d+\.?\d*),?\s*(?<long>-?\d+\.?\d*)/)
 
     # DMS_REGEX = "(?<degrees>-*\d+)[do*\u00b0\u00ba\u02DA\u030a\u221e\u222b]\s*(?<minutes>\d+\.*\d*)
     # [\u0027\u00a5\u00b4\u02b9\u02bb\u02bc\u02ca\u2032]*\s*((?<seconds>\d+\.*\d*)
@@ -89,6 +89,54 @@ To add a new (discovered) symbol:
       elev = value * scale
 
       elev
+    end
+
+    def self.hunt_lat_long(label, how = ' ')
+      pieces   = label.split(how)
+      lat_long = {}
+      pieces.each do |piece|
+        /(?<lat>\d+\.\d+\s(?<ca>[NS]))\s(?<long>\d+\.\d+\s(?<co>[EW]))/i =~ piece
+        if $&.nil?
+          piece.each_char do |c|
+            next unless SPECIAL_LATLONG_SYMBOLS.include?(c)
+            test = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(piece)
+            unless test.nil?
+              if test.to_f.is_a? Numeric
+                # might be a lat/long
+                if lat_long[:lat].nil?
+                  lat_long.merge!({lat: piece})
+                else
+                  lat_long.merge!({long: piece})
+                end
+              end
+            end
+            break
+          end
+        else
+          parts = $&
+          lat_long.merge!({lat: lat})
+          lat_long.merge!({long: long})
+        end
+      end
+      lat_long
+    end
+
+    def self.hunt_wrapper(label)
+      trials = {}
+      ' ,;'.each_char { |sep|
+        trial = self.hunt_lat_long(label, sep)
+        trials.merge!("#{trial[:lat]} #{trial[:long]}" => trial)
+      }
+      trials
+    end
+
+    def self.is_lat_long_special(c)
+      SPECIAL_LATLONG_SYMBOLS.include?(c)
+    end
+
+    def self.guess_lat_long(source_string = '')
+
+      # /(?<degrees>-*\d{0,3}(\.\d+)*)[do*\u00b0\u00ba\u02DA\u030a\u221e\u222b\uc2ba]*\s*(?<minutes>\d+\.*\d*)*['\u00a5\u00b4\u02b9\u02bb\u02bc\u02ca\u2032\uc2ba]*\s*((?<seconds>\d+\.*\d*)['\u00a5\u00b4\u02b9\u02ba\u02bb\u02bc\u02ca\u02ee\u2032\u2033\uc2ba"]+)*/x
     end
 
     # 42∞5'18.1"S88∞11'43.3"W

@@ -2,10 +2,15 @@
   <h1>Task Stepwise collecting event parser - Latitude/Longitude</h1>
   <div class="flex_wrap-row">
     <div class="item item1">
-      <h1><%= @collecting_events.first.id unless @collecting_events.empty? %></h1>
-      <%= show_ce_vl(@collecting_events) %>
-      <%= hidden_field_tag(:next_record, set_next) -%>
-      <!--<h2>CollectingEvent#VerbatimLabel</h2>-->
+      <%= show_ce_vl(@collecting_events).html_safe %>
+      <h2><%= @collecting_events.first.id unless @collecting_events.empty? %></h2>
+      <%= form_tag(lat_long_skip_record_path(collecting_event_id: @collecting_events.first.id)) do |f| -%>
+
+          <%#= hidden_field_tag(:next_record, set_next) -%><br>
+          <!--<h2>CollectingEvent#VerbatimLabel</h2>-->
+          <%= button_tag('Skip to next record') %>
+      <% end %>
+
     </div>
     <div class="item item2">
       <table border="1" align="center">
@@ -16,14 +21,41 @@
           <th>Longitude</th>
           <th>Select</th>
         </tr>
-        <tr>
-          <td><%= 'what I found' %></td>
-          <td><%= 22.23 %></td>
-          <td><%= -43.42 %></td>
-          <td><%= radio_button_tag('select', 0, false) %></td>
-        </tr>
+        <%= make_rows(@collecting_events.first.verbatim_label).html_safe %>
         </tbody>
       </table>
+      <div align="center">
+        <%= form_tag(lat_long_convert_path) do %>
+            <table border="1" align="center">
+              <tbody>
+              <tr>
+                <th></th>
+                <th style="text-align:center">Latitude</th>
+                <th></th>
+                <th style="text-align:center">Longitude</th>
+              </tr>
+              <tr>
+                <td>Verbatim</td>
+                <td><%= text_field_tag('verbatim_latitude', test_lat) %></td>
+                <td></td>
+                <td><%= text_field_tag('verbatim_longitude', test_long) %></td>
+              </tr>
+              <tr>
+                <td></td>
+                <td></td>
+                <td><%= button_tag('Convert') %></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>Decimal</td>
+                <td><%= text_field_tag('latitude') %></td>
+                <td></td>
+                <td><%= text_field_tag('longitude') %></td>
+              </tr>
+              </tbody>
+            </table>
+        <% end %>
+      </div>
     </div>
     <div class="item item3">
       <%#= form_for(@collecting_event) do |f| -%>
