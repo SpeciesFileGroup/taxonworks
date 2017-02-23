@@ -32,6 +32,8 @@ class Content < ActiveRecord::Base
   belongs_to :topic, inverse_of: :contents
   has_one :public_content
 
+  validates_uniqueness_of :topic, scope: [:otu]
+
   validates_presence_of :text
   validates :topic, presence: true
   validates :otu, presence: true
