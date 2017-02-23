@@ -115,7 +115,7 @@ Object.assign(TW.views.tasks.content.editor, {
             ajaxUrl = `/contents/${this.record.content.id}` 
             this.record.content._method = "patch"
 
-          this.$http.post(ajaxUrl, this.content).then(response => {
+          this.$http.get(ajaxUrl, this.content).then(response => {
             console.log("Updated");
           }, response => {
             // error callback
