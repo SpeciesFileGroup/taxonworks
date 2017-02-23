@@ -86,7 +86,7 @@ Object.assign(TW.views.tasks.content.editor, {
       },
       template: '<div v-if="topic !== undefined && otu !== undefined" class="panel panel-editor"> \
                   <div class="title">{{ topic.label }} - {{ otu.label }} </div> \
-                  <textarea v-on:input="autoSave"> {{ record.content.text }} </textarea> \
+                  <textarea v-on:input="autoSave" v-model="record.content.text"></textarea> \
                   <text-options></text-options>\
                 </div>',
       created: function() {
@@ -111,7 +111,7 @@ Object.assign(TW.views.tasks.content.editor, {
           this.autosave = setTimeout( function() {    
             console.log('Autosaving event');
             that.update();
-          }, 500);           
+          }, 2000);           
         },
 
         update: function() {
