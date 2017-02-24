@@ -169,10 +169,10 @@ TaxonWorks::Application.routes.draw do
     collection do
       get :filter
     end
-    resources :depictions,  defaults: { format: :json }
-    resources :citations,  defaults: { format: :json }
-    resources :confidencs, defaults: { format: :json }
-
+  
+    resources :depictions,  defaults: { format: :json }, shallow: true
+    resources :citations,  defaults: { format: :json }, shallow: true
+    resources :confidences, defaults: { format: :json }, shallow: true
   end
 
   resources :controlled_vocabulary_terms do

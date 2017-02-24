@@ -24,6 +24,9 @@
 #
 class Content < ActiveRecord::Base
   include Housekeeping
+  include Shared::Depictions
+  include Shared::Confidence
+  include Shared::Citable 
   include Shared::IsData
 
   has_paper_trail

@@ -4,6 +4,20 @@ class CitationsController < ApplicationController
   before_action :require_sign_in_and_project_selection
   before_action :set_citation, only: [:update, :destroy, :show]
 
+  # GET /citations
+  # GET /citations.json
+  def index
+    respond_to do |format|
+     format.html {
+        @recent_objects = Citation.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      }
+      format.json {
+        @citations = Citation.where(project_id: sessions_current_project_id).where(filter_params)
+      }
+    end
+  end
+
   def new
     @citation = Citation.new(citation_params)
     # @citation.citation_topics.build
@@ -18,12 +32,6 @@ class CitationsController < ApplicationController
     redirect_to @citation.annotated_object.metamorphosize
   end
 
-  # GET /citations
-  # GET /citations.json
-  def index
-    @recent_objects = Citation.recent_from_project_id($project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
-  end
 
   # POST /citations
   # POST /citations.json
@@ -66,7 +74,7 @@ class CitationsController < ApplicationController
   end
 
   def list
-    @citations = Citation.with_project_id($project_id).order(:citation_object_type).page(params[:page]) #.per(10) #.per(3)
+    @citations = Citation.with_project_id(sessions_current_project_id).order(:citation_object_type).page(params[:page]) #.per(10) #.per(3)
   end
 
   def search
@@ -95,16 +103,33 @@ class CitationsController < ApplicationController
 
   # GET /citations/download
   def download
-    send_data Citation.generate_download( Citation.where(project_id: $project_id) ), type: 'text', filename: "citations_#{DateTime.now.to_s}.csv"
+    send_data Citation.generate_download( Citation.where(project_id: sessions_current_project_id) ), type: 'text', filename: "citations_#{DateTime.now.to_s}.csv"
   end
 
   private
-  # Use callbacks to share common setup or constraints between actions.
-  def set_citation
-    @citation = Citation.with_project_id($project_id).find(params[:id])
+
+  def filter_params
+    # we should only ever get here from a shallow resource
+    h = params.permit(
+      :content_id,
+      # add other polymorphic references here as implementd, e.g. taxon_name_id for citations on TaxonNames
+    ).to_h 
+
+    if h.size > 1 
+      respond_to do |format|
+        format.html { render plain: '404 Not Found', status: :unprocessable_entity and return }
+        format.json { render json: {success: false}, status: :unprocessable_entity and return }
+      end
+    end
+
+    model = h.keys.first.split('_').first.classify
+    return {citation_object_type: model, citation_object_id: h.values.first}
   end
 
-  # Never trust parameters from the scary internet, only allow the white list through.
+  def set_citation
+    @citation = Citation.with_project_id(sessions_current_project_id).find(params[:id])
+  end
+
   def citation_params
     params.require(:citation).permit(
       :citation_object_type, :citation_object_id, :source_id, :pages, :is_original,
