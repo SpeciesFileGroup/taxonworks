@@ -52,7 +52,7 @@ var CarrouselTask = function (sec, rows, columns) {
     this.maxRow = maxRow;
     this.maxCards = maxRow * maxColumns;
     this.maxColumns = maxColumns;    
-    $(this.sectionTag).children(".task-section").css("width",((maxColumns*427) + "px"));
+    $(this.sectionTag).children(".task-section").css("width",((maxColumns*427.5) + "px"));
     if(maxRow < 99){
       $(this.sectionTag).children(".task-section").css("height",((maxRow*160) + "px"));
     }
