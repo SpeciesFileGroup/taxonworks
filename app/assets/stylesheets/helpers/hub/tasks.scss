@@ -35,7 +35,7 @@
     transition: transform 0.3s ease,
                 box-shadow 0.3s ease; 
     .task_header {
-      opacity: 0.5;
+      opacity: 0.2;
     }
   }
 
@@ -126,8 +126,9 @@
   .task_name {
     font-size: 18px;
     max-width: 330px;
-    padding: $standard_padding * 0.5; 
+    padding: $standard_padding * 0.25; 
     padding-left: $standard_padding; 
+    padding-top: $standard_padding; 
     a {
       color: $color-secondary-2-4;
     }
