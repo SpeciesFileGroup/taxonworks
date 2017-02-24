@@ -18,17 +18,16 @@ module Tasks::CollectingEvents::Parse::Stepwise::LatLongHelper
   def make_rows(label)
     tests  = Utilities::Geo.hunt_wrapper(label)
     retval = ''
-    tests.keys.each { |kee|
+    tests.keys.collect do |kee|
       trial = tests[kee]
-      next if tests.empty?
-      retval = '<tr>'
-      retval += "<td>#{kee}</td>"
-      retval += "<td>#{Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(trial[:lat])}</td>"
-      retval += "<td>#{Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(trial[:long])}</td>"
-      retval += "<td>#{radio_button_tag('select', 0, false)}</td>"
-      retval += '</tr>'
-    }
-    retval
+      next if trial.blank? 
+      content_tag(:tr, class: :extract_row ) do
+        content_tag(:td, kee) +
+          content_tag(:td, Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(trial[:lat]), class: :latitude_value) + 
+          content_tag(:td, Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(trial[:long]), class: :longitude_value) + 
+          content_tag(:td, radio_button_tag('select', 0, false, class: :select_lat_long))
+      end 
+    end.join.html_safe 
   end
 
   def test_lat
