@@ -13,42 +13,6 @@ Object.assign(TW.views.tasks.content.editor, {
     // JOSE - we can make this more generalized I think, but this works
     Vue.http.headers.common['X-CSRF-Token'] = $('[name="csrf-token"]').attr('content');
 
-    Vue.component('text-options', {
-      template: '<div class="navigation-controls horizontal-center-content"> \
-                  <itemOption name="Save"></itemOption> \
-                  <itemOption name="Preview" :callMethod="preview"></itemOption> \
-                  <itemOption name="Help" :callMethod="help"></itemOption> \
-                  <itemOption name="Clone" :callMethod="clone"></itemOption> \
-                  <itemOption name="Compare" :callMethod="compare"></itemOption> \
-                  <itemOption name="Citation" :callMethod="citation"></itemOption> \
-                  <itemOption name="Figure" :callMethod="figure"></itemOption> \
-                  <itemOption name="Drag new figure" :callMethod="drag"></itemOption> \
-                </div>',
-      methods: {
-        preview: function() {
-          console.log("preview method!");
-        },
-        clone: function() {
-          console.log("clone method!");
-        },
-        help: function() {
-          console.log("help method!");
-        },        
-        compare: function() {
-          console.log("compare method!");
-        },
-        citation: function() {
-          console.log("citation method!");
-        },
-        figure: function() {
-          console.log("figure method!");
-        },
-        drag: function() {
-          console.log("drag and drop method!");
-        }                                              
-      }
-    });
-
 
     Vue.component('itemOption', {
       props: ['name', 'callMethod'],
@@ -74,6 +38,7 @@ Object.assign(TW.views.tasks.content.editor, {
           topic: undefined,
           otu: undefined,
           autosave: 0,
+          saving: false,
           record: { 
             content: {
               otu_id: '',
@@ -86,7 +51,16 @@ Object.assign(TW.views.tasks.content.editor, {
       template: '<div v-if="topic !== undefined && otu !== undefined" class="panel panel-editor"> \
                   <div class="title">{{ topic.label }} - {{ otu.label }} </div> \
                   <textarea v-on:input="autoSave" v-model="record.content.text"></textarea> \
-                  <text-options></text-options>\
+                  <div class="navigation-controls horizontal-center-content"> \
+                    <itemOption name="Save" :callMethod="update" :class="{ saving : saving }"></itemOption> \
+                    <itemOption name="Preview" ></itemOption> \
+                    <itemOption name="Help" ></itemOption> \
+                    <itemOption name="Clone" ></itemOption> \
+                    <itemOption name="Compare" ></itemOption> \
+                    <itemOption name="Citation"></itemOption> \
+                    <itemOption name="Figure" ></itemOption> \
+                    <itemOption name="Drag new figure"></itemOption> \
+                  </div> \
                 </div>',
       created: function() {
         var that = this;
@@ -120,19 +94,28 @@ Object.assign(TW.views.tasks.content.editor, {
           }   
           this.autosave = setTimeout( function() {    
             that.update();  
-          }, 1000);           
+          }, 5000);           
         },
 
         update: function() {
           var ajaxUrl = `/contents/${this.record.content.id}`;
 
+          this.saving = true;
+
           if(this.record.content.id == '') {
             this.$http.post(ajaxUrl, this.record).then(response => {
               this.record.content.id = response.body.id;
+              this.saving = false;
+             }, response => {
+              this.saving = false;
              });            
           }
           else {
-            this.$http.patch(ajaxUrl, this.record);
+            this.$http.patch(ajaxUrl, this.record).then(response => {
+              this.saving = false;
+             }, response => {
+              this.saving = false;
+             });
           }          
         },       
 

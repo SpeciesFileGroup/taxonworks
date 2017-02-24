@@ -1,19 +1,25 @@
-.panel-editor {
-	width: 700px;
-	textarea {
-		width: 100%;
-		min-height:500px;
+#content_editor {
+	.panel-editor {
+		width: 700px;
+		textarea {
+			width: 100%;
+			min-height:500px;
+		}
 	}
-}
 
-#new-topic {
-	textarea {
-		padding: 10px;
-		width: 100%;
-		height:100px; 
+	#new-topic {
+		textarea {
+			padding: 10px;
+			width: 100%;
+			height:100px; 
+		}
 	}
-}
 
-.topic-panel {
-	max-width: 400px;
+	.topic-panel {
+		max-width: 400px;
+	}
+
+	.saving {
+		background-color: red;
+	}
 }
