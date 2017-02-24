@@ -95,14 +95,16 @@ To add a new (discovered) symbol:
       pieces   = label.split(how)
       lat_long = {}
       pieces.each do |piece|
-        /(?<lat>\d+\.\d+\s(?<ca>[NS]))\s(?<long>\d+\.\d+\s(?<co>[EW]))/i =~ piece
-        if $&.nil?
+        # group of possible regex configurations
+        m = (/(?<lat>\d+\.\d+\s*(?<ca>[NS]))\s(?<long>\d+\.\d+\s*(?<co>[EW]))/i =~ piece)
+        if m.nil?
           piece.each_char do |c|
             next unless SPECIAL_LATLONG_SYMBOLS.include?(c)
             test = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(piece)
             unless test.nil?
               if test.to_f.is_a? Numeric
                 # might be a lat/long
+                lat_long.merge!({piece: piece})
                 if lat_long[:lat].nil?
                   lat_long.merge!({lat: piece})
                 else
@@ -113,7 +115,7 @@ To add a new (discovered) symbol:
             break
           end
         else
-          parts = $&
+          lat_long.merge!({piece: piece})
           lat_long.merge!({lat: lat})
           lat_long.merge!({long: long})
         end
@@ -123,9 +125,9 @@ To add a new (discovered) symbol:
 
     def self.hunt_wrapper(label)
       trials = {}
-      ' ,;'.each_char { |sep|
-        trial = self.hunt_lat_long(label, sep)
-        trials.merge!("#{trial[:lat]} #{trial[:long]}" => trial)
+      ';, '.each_char { |sep|
+        trial                               = self.hunt_lat_long(label, sep)
+        trials["(#{sep}) #{trial[:piece]}"] = trial
       }
       trials
     end

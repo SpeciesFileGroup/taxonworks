@@ -6,7 +6,7 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
     @collecting_events = Queries::CollectingEventLatLongExtractorQuery
                            .new(collecting_event_id: collecting_event_id_param,
                                 project_id:          sessions_current_project_id,
-                                filters:             []).all.limit(5)
+                                filters:             [:dd, :d_dm]).all.limit(5)
 
   end
 

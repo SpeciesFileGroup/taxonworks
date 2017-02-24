@@ -14,14 +14,16 @@
     </div>
     <div class="item item2">
       <table border="1" align="center">
-        <tbody>
+        <thead>
         <tr>
           <th>Recognized string</th>
           <th>Latitude</th>
           <th>Longitude</th>
           <th>Select</th>
         </tr>
-        <%= make_rows(@collecting_events.first.verbatim_label).html_safe %>
+        </thead>
+        <tbody>
+        <%= make_rows(@collecting_events.first.verbatim_label) %>
         </tbody>
       </table>
       <div align="center">
