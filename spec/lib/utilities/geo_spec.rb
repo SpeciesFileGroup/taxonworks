@@ -139,26 +139,63 @@ describe 'Geo', group: :geo do
       end
     end
 
+    context 'multiple use cases for hunt_wrapper' do
+      use_cases = {
+        'Hancock Agricultural; Res. Station,, Hancock; Waushara County, WI; 43.836 N 89.258 W'           =>
 
-    context 'multiple use cases' do
+          {"(;)  43.836 N 89.258 W"     => {:piece => " 43.836 N 89.258 W",
+                                            :lat   => "43.836 N",
+                                            :long  => "89.258 W"},
+           "(,)  WI; 43.836 N 89.258 W" => {:piece => " WI; 43.836 N 89.258 W",
+                                            :lat   => "43.836 N",
+                                            :long  => "89.258 W"},
+           "( ) "                       => {}
+          },
+        'KREIS ILLUKSTE; ♀ GEMEINDE PRODE; MANELI. 23.V 1923; LATVIA. O.CONDE'                           =>
+          {"(;) " => {},
+           "(,) " => {},
+           "( ) " => {}
+          },
+        "Kazakhstan 14.VI.2001; 100 km N. Taldy-Kurgan; Dunes around Mataj; 45 54'N, 78 43'E; M. Hauser" =>
+          {"(;) " => {},
+           "(,) " => {},
+           "( ) " => {}
+          }
+      }
+      @entry    = 0
 
-      use_cases = {'58.0520oW,'     => '-58.052', # tolerate the trailing comma
-                   '28.01795o"S'    => '-28.01795',
-                   'N41.87734º'     => '41.87734',
-                   'W89.34677º'     => '-89.34677',
-                   ' N18º '         => '18.0',
-                   'W76.8º '        => '-76.8',
-                   '-88.241121º'    => '-88.241121', # current test case ['-88.241121°']
-                   'W88.241121º'    => '-88.241121', # current test case ['-88.241121°']
-                   'w88∫11′43.4″'   => '-88.195389',
-                   '40º26\'46"N'    => '40.446111', # using MAC-native symbols
-                   '079º58\'56"W'   => '-79.982222', # using MAC-native symbols
-                   '40:26:46.302N'  => '40.446195',
-                   '079:58:55.903W' => '-79.982195',
-                   '40°26′46″N'     => '40.446111',
-                   '079°58′56″W'    => '-79.982222',
-                   '40d 26′ 46″ N'  => '40.446111',
-                   '079d 58′ 56″ W' => '-79.982222',
+      use_cases.each { |label, result|
+        @entry += 1
+        specify "case #{@entry}: #{label} should yield #{result}" do
+          use_case = Utilities::Geo.hunt_wrapper(label)
+          expect(use_case).to eq(result)
+        end
+      }
+
+    end
+
+    context 'multiple use cases of degrees_minutes_seconds_to_decimal_degrees' do
+
+      use_cases = {'45 54\'N'                      => '45.9',
+                   '78 43\'E'                      => '78.716667',
+                   '78 43\'w'                      => '-78.716667',
+                   '58.0520oW,'                    => '-58.052', # tolerate the trailing comma
+                   '28.01795o"S'                   => '-28.01795',
+                   'N41.87734º'                    => '41.87734',
+                   'W89.34677º'                    => '-89.34677',
+                   ' N18º '                        => '18.0',
+                   'W76.8º '                       => '-76.8',
+                   '-88.241121º'                   => '-88.241121', # current test case ['-88.241121°']
+                   'W88.241121º'                   => '-88.241121', # current test case ['-88.241121°']
+                   'w88∫11′43.4″'                  => '-88.195389',
+                   '40º26\'46"N'                   => '40.446111', # using MAC-native symbols
+                   '079º58\'56"W'                  => '-79.982222', # using MAC-native symbols
+                   '40:26:46.302N'                 => '40.446195',
+                   '079:58:55.903W'                => '-79.982195',
+                   '40°26′46″N'                    => '40.446111',
+                   '079°58′56″W'                   => '-79.982222',
+                   '40d 26′ 46″ N'                 => '40.446111',
+                   '079d 58′ 56″ W'                => '-79.982222',
                    '40.446195N'                    => '40.446195',
                    '79.982195W'                    => '-79.982195',
                    '40.446195'                     => '40.446195',
@@ -244,7 +281,6 @@ describe 'Geo', group: :geo do
       use_cases.each { |co_ordinate, result|
         @entry += 1
         specify "case #{@entry}: #{co_ordinate} should yield #{result}" do
-          # pending 'full construction of the use_case hash'
           expect(Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(co_ordinate)).to eq(result)
         end
       }

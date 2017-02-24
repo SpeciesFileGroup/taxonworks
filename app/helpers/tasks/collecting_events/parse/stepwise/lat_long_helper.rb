@@ -16,11 +16,13 @@ module Tasks::CollectingEvents::Parse::Stepwise::LatLongHelper
   end
 
   def make_rows(label)
-    tests  = Utilities::Geo.hunt_wrapper(label)
+    tests = Utilities::Geo.hunt_wrapper(label)
     tests.keys.collect do |kee|
-      trial = tests[kee]
+      trial  = tests[kee]
+      method = trial.delete(:method)
       next if trial.blank?
-      content_tag(:tr, class: :extract_row ) do
+      content_tag(:tr, class: :extract_row) do
+        content_tag(:td, method) +
         content_tag(:td, kee) +
           content_tag(:td, Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(trial[:lat]), class: :latitude_value) +
           content_tag(:td, Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(trial[:long]), class: :longitude_value) +

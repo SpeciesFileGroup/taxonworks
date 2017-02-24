@@ -91,12 +91,22 @@ To add a new (discovered) symbol:
       elev
     end
 
+    REGEXP_COORD = [
+      DD1 = /(?<lat>\d+\.\d+\s*(?<ca>[NS]))\s(?<long>\d+\.\d+\s*(?<co>[EW]))/i,
+      DD2 = /(?<lat>\d+[\. ]\d+'?\s*(?<ca>[NS])),?\s*(?<long>\d+[\. ]\d+'?\s*(?<co>[EW]))/,
+      DM1 = /\D(\d+) ?[\*°ººo\u02DA ] ?(\d+[\.|,]\d+|\d+) ?[ '´\u02B9\u02BC\u02CA]? ?([nN]|[sS])[\.,;]? ?(\d+) ?[\*°ººo\u02DA ] ?(\d+[\.|,]\d+|\d+) ?[ '´\u02B9\u02BC\u02CA]? ?([wW]|[eE])\W/
+    ]
+
     def self.hunt_lat_long(label, how = ' ')
-      pieces   = label.split(how)
+      if how.nil?
+        pieces = [label]
+      else
+        pieces = label.split(how)
+      end
       lat_long = {}
       pieces.each do |piece|
         # group of possible regex configurations
-        m = (/(?<lat>\d+\.\d+\s*(?<ca>[NS]))\s(?<long>\d+\.\d+\s*(?<co>[EW]))/i =~ piece)
+        m = (DD1 =~ piece)
         if m.nil?
           piece.each_char do |c|
             next unless SPECIAL_LATLONG_SYMBOLS.include?(c)
@@ -104,11 +114,11 @@ To add a new (discovered) symbol:
             unless test.nil?
               if test.to_f.is_a? Numeric
                 # might be a lat/long
-                lat_long.merge!({piece: piece})
+                lat_long[:piece] = piece
                 if lat_long[:lat].nil?
-                  lat_long.merge!({lat: piece})
+                  lat_long[:lat] = piece
                 else
-                  lat_long.merge!({long: piece})
+                  lat_long[:long] = piece
                 end
               end
             end
@@ -124,10 +134,16 @@ To add a new (discovered) symbol:
     end
 
     def self.hunt_wrapper(label)
-      trials = {}
+      trials                = {}
+      trials['(full text)'] = self.hunt_lat_long(label, nil).merge!(method: 'text')
       ';, '.each_char { |sep|
         trial                               = self.hunt_lat_long(label, sep)
-        trials["(#{sep}) #{trial[:piece]}"] = trial
+        if !trial[:lat].nil? and !trial[:long].nil?
+          found = "#{trial[:lat]} #{trial[:long]}"
+        else
+          found = "#{trial[:piece]}"
+        end
+        trials["#{found}"]                  = trial.merge!(method: "(#{sep}) ")
       }
       trials
     end
