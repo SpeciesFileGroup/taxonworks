@@ -127,10 +127,14 @@ Object.assign(TW.views.filter.area_picker, {
 
     // type
 
-    area_list.append($('<input hidden name="' + base_class + '[geographic_area_id]" value="' + area_id + '" >'));
+    // area_list.append($('<input hidden name="' + base_class + '[geographic_area_id]" value="' + area_id + '" >'));
 
     // insert visible list item
-    area_list.append($('<li class="area_item" data-area-index="' + random_index + '">').append(label).append('&nbsp;').append(TW.views.filter.area_picker.remove_link()));
+    area_list.append($('<li class="area_item" data-area-index="' + random_index + '">')
+      .append(label).append('&nbsp;')
+      .append(TW.views.filter.area_picker.remove_link())
+      .append($('<input hidden name="' + base_class + '[geographic_area_id]" value="' + area_id + '" >'))
+    );
   },
 
 //
