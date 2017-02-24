@@ -27,8 +27,8 @@
     margin-left: 0px; 
     margin-top:$standard_margin; 
     margin-right: $standard_margin;
-    width: 468px;
-    min-height: 120px;
+    width: 420px;
+    min-height: 140px;
     border-radius: 2px;
     background-color: #FFF;
     box-shadow: 0 1px 2px rgba(0,0,0,0.2);  
@@ -121,7 +121,7 @@
 
   .task_name {
     font-size: 18px;
-    max-width: 380px;
+    max-width: 330px;
     padding: $standard_padding * 0.5; 
     padding-left: $standard_padding; 
     a {
@@ -149,6 +149,7 @@
   .task_description {
     font-size: 14px;
     font-weight: 300;
+    line-height: 20px;
     padding-left: $standard_padding * 1.4;
     padding-right: $standard_padding * 1.4;
   }
