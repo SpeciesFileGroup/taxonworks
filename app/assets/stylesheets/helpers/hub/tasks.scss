@@ -28,7 +28,7 @@
     margin-top:$standard_margin; 
     margin-right: $standard_margin;
     width: 420px;
-    min-height: 140px;
+    min-height: 160px;
     border-radius: 2px;
     background-color: #FFF;
     box-shadow: 0 1px 2px rgba(0,0,0,0.2);  
@@ -152,7 +152,8 @@
   }
 
   .task_description {
-    font-weight: 300;
+    font-size: 14px;
+    font-weight: 400;
     line-height: 20px;
     padding-left: $standard_padding * 1.4;
     padding-right: $standard_padding * 1.4;
