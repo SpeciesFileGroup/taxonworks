@@ -54,7 +54,7 @@ var CarrouselTask = function (sec, rows, columns) {
     this.maxColumns = maxColumns;    
     $(this.sectionTag).children(".task-section").css("width",((maxColumns*475) + "px"));
     if(maxRow < 99){
-      $(this.sectionTag).children(".task-section").css("height",((maxRow*250) + "px"));
+      $(this.sectionTag).children(".task-section").css("height",((maxRow*140) + "px"));
     }
 
     this.resetChildsCount();
