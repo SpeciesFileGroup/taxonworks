@@ -53,22 +53,6 @@ Object.assign(TW.views.filter.area_picker, {
         .append("<a>" + item.label + ' <span class="hoverme" data-area-label_html="' + item.label_html + '" + data-geographic_area_id="' + item.id + '">...</span></a>')
         .appendTo(ul);
     };
-
-    //   autocomplete_input.keyup(function () {
-    //     var input_term = autocomplete_input.val();
-    //     var name = input_term;
-    //
-    //     if (input_term.length == 0) {
-    //       form.find(".new_keyword").hide(); // attr("hidden", true);
-    //     }
-    //     else {
-    //       form.find(".new_keyword").show(); // removeAttr("hidden");
-    //     }
-    //     ;
-    //
-    //     form.find(".name").val(name).change();
-    //     form.find(".definition").val("").change();
-    //   })
   },
   //
   // make_list_sortable: function (form) {
@@ -125,14 +109,11 @@ Object.assign(TW.views.filter.area_picker, {
     var random_index = new Date().getTime();
     var area_list = form.find(".area_list");
 
-    // type
-
-    // area_list.append($('<input hidden name="' + base_class + '[geographic_area_id]" value="' + area_id + '" >'));
-
     // insert visible list item
     area_list.append($('<li class="area_item" data-area-index="' + random_index + '">')
       .append(label).append('&nbsp;')
       .append(TW.views.filter.area_picker.remove_link())
+      // nest hidden geographic_area_id in <li>
       .append($('<input hidden name="' + base_class + '[geographic_area_id]" value="' + area_id + '" >'))
     );
   },
@@ -209,7 +190,7 @@ Object.assign(TW.views.filter.area_picker, {
         // if this is not a new area
         // if (list_item.data('new-person') != "true")  {
         // if there is an ID from an existing item add the necessary (hidden) _destroy input
-        area_list.append($('<input hidden name="' + base_class + '[areas_attributes][' + area_index + '][id]" value="' + area_id + '" >'));
+        area_list.append($('<input hidden name="' + base_class + '[areas_attributes][' + area_index + '][geographic_area_id]" value="' + area_id + '" >'));
         area_list.append($('<input hidden name="' + base_class + '[areas_attributes][' + area_index + '][_destroy]" value="1" >'));
 
         // Provide a warning that the list must be saved to properly delete the records, tweak if we think necessary
