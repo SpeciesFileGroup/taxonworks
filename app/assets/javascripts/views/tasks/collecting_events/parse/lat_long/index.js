@@ -14,9 +14,10 @@ Object.assign(TW.views.tasks.collecting_events.parse, {
   bind_radio_buttons: function () {
     $('.select_lat_long').click( function() {
       // selector not working
-      var long = $(this).parent('.extract_row').children('.longitude_value').eq(0).text;
-      var lat =  $(this).parent('.extract_row').children('.latitude_value').text('asfasdf');
-      alert(lat);  
+      var long = $(this).parent().parent('.extract_row').children('.longitude_value').text();
+      var lat = $(this).parent().parent('.extract_row').children('.latitude_value').text();
+      $('#verbatim_latitude').val(lat);
+      $('#verbatim_longitude').val(long);
     });
   }
 }
