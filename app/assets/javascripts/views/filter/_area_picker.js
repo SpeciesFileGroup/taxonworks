@@ -114,7 +114,7 @@ Object.assign(TW.views.filter.area_picker, {
       .append(label).append('&nbsp;')
       .append(TW.views.filter.area_picker.remove_link())
       // nest hidden geographic_area_id in <li>
-      .append($('<input hidden name="' + base_class + '[geographic_area_id]" value="' + area_id + '" >'))
+      .append($('<input hidden name="' + base_class + '[geographic_area_ids][]" value="' + area_id + '" >'))
     );
   },
 
