@@ -31,6 +31,31 @@ Object.assign(TW.views.tasks.content.editor, {
       }
     });  
 
+    Vue.component('citation-list', {
+      props: ['citations'],
+      template: '<ul> \
+                  <li v-for="item in citations">{{ item.source_id }} {{ item.source }} </li> \
+                <ul>',
+    });
+
+    Vue.component('citation-modal', {
+      template: '<div class="panel content"> \
+                  <span>Source ID: {{ citation.source_id }} </span> \
+                  <input class="normal-input" placeholder="Pages" v-model="citation.pages"/> \
+                </div>',
+      data: function() {
+        return {
+          citation: {
+            pages: '',
+            source_id: '',
+            citation_object_type: null,
+            citation_object_id: null,
+            is_original: null
+          } 
+        }
+      }
+    });
+
 
     Vue.component('content-editor', {
       data: function() { 
@@ -39,6 +64,8 @@ Object.assign(TW.views.tasks.content.editor, {
           otu: undefined,
           autosave: 0,
           saving: false,
+          citationModal: false,
+          citations: [],
           record: { 
             content: {
               otu_id: '',
@@ -50,20 +77,24 @@ Object.assign(TW.views.tasks.content.editor, {
       },
       template: '<div v-if="topic !== undefined && otu !== undefined" class="panel panel-editor"> \
                   <div class="title">{{ topic.label }} - {{ otu.label }} </div> \
-                  <textarea v-on:input="autoSave" v-model="record.content.text"></textarea> \
+                  <textarea v-on:input="autoSave" v-model="record.content.text" v-on:dblclick="addCitation"></textarea> \
                   <div class="navigation-controls horizontal-center-content"> \
                     <itemOption name="Save" :callMethod="update" :class="{ saving : saving }"></itemOption> \
-                    <itemOption name="Preview" ></itemOption> \
-                    <itemOption name="Help" ></itemOption> \
-                    <itemOption name="Clone" ></itemOption> \
-                    <itemOption name="Compare" ></itemOption> \
-                    <itemOption name="Citation"></itemOption> \
-                    <itemOption name="Figure" ></itemOption> \
+                    <itemOption name="Preview"></itemOption> \
+                    <itemOption name="Help"></itemOption> \
+                    <itemOption name="Clone"></itemOption> \
+                    <itemOption name="Compare"></itemOption> \
+                    <itemOption name="Citation" :callMethod="openCitation"></itemOption> \
+                    <itemOption name="Figure"></itemOption> \
                     <itemOption name="Drag new figure"></itemOption> \
                   </div> \
+                  <citation-modal v-if="citationModal"></citation-modal> \
+                  <citation-list :citations="citations"></citation-list> \
                 </div>',
       created: function() {
         var that = this;
+
+        this.getSourceID();
 
         bus.$on('sendTopic', function (topic) {
           that.topic = topic;
@@ -86,6 +117,24 @@ Object.assign(TW.views.tasks.content.editor, {
         }        
       },
       methods: {
+        addCitation: function() {
+
+          var citations = {
+            pages: '',
+            citation_object_type: 'Content',  
+            citation_object_id: this.record.content.id,          
+            source_id: 1037
+          }
+          this.citations.push(citations);
+            this.$http.post('/citations', citations).then(response => {
+
+             }, response => {
+
+             });            
+        },        
+        openCitation: function() {
+          this.citationModal = !this.citationModal;
+        },
         autoSave: function() {
           var that = this;
           if(this.autosave) {
@@ -96,6 +145,14 @@ Object.assign(TW.views.tasks.content.editor, {
             that.update();  
           }, 5000);           
         },
+
+        getSourceID: function() {
+          var that = this;
+          document.getElementById("pinboard").addEventListener("click", function(e){
+            that.citation.source_id = e.target.dataset.sourceid;
+            console.log(e.target);
+          });
+        },        
 
         update: function() {
           var ajaxUrl = `/contents/${this.record.content.id}`;
@@ -118,7 +175,16 @@ Object.assign(TW.views.tasks.content.editor, {
              });
           }          
         },       
+        loadCitationList: function() {
+          var ajaxUrl;
 
+          ajaxUrl = `/contents/${this.record.content.id}/citations`;
+          this.$http.get(ajaxUrl, this.record).then(response => {
+            this.citations = response.body;
+          }, response => {
+
+          }); 
+        },
         loadContent: function() {
           if(this.otu == undefined || this.topic == undefined) return
 
@@ -131,6 +197,7 @@ Object.assign(TW.views.tasks.content.editor, {
               this.record.content.text = response.body[0].text;
               this.record.content.topic_id = response.body[0].topic_id;
               this.record.content.otu_id = response.body[0].otu_id;
+              this.loadCitationList();
             }
             else {
               this.record.content.text = '';
@@ -277,7 +344,6 @@ Object.assign(TW.views.tasks.content.editor, {
         })        
 
         this.$on('otu_picker', function (item) {
-          console.log('2345');
           bus.$emit("sendOtu", item)
         })                  
       }
