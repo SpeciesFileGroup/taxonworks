@@ -106,7 +106,7 @@ To add a new (discovered) symbol:
       lat_long = {}
       pieces.each do |piece|
         # group of possible regex configurations
-        m = (DD1 =~ piece)
+        m = /\D(?<lat>\d+\.\d+\s*(?<ca>[NS]))\s(?<long>\d+\.\d+\s*(?<co>[EW]))/i =~ piece
         if m.nil?
           piece.each_char do |c|
             next unless SPECIAL_LATLONG_SYMBOLS.include?(c)
@@ -137,13 +137,12 @@ To add a new (discovered) symbol:
       trials                = {}
       trials['(full text)'] = self.hunt_lat_long(label, nil).merge!(method: 'text')
       ';, '.each_char { |sep|
-        trial                               = self.hunt_lat_long(label, sep)
-        if !trial[:lat].nil? and !trial[:long].nil?
-          found = "#{trial[:lat]} #{trial[:long]}"
-        else
-          found = "#{trial[:piece]}"
+        trial = self.hunt_lat_long(label, sep)
+        found = "#{trial[:piece]}"
+        unless trial[:lat].nil? and !trial[:long].nil?
+          found = "(#{sep})" if found.blank?
         end
-        trials["#{found}"]                  = trial.merge!(method: "(#{sep}) ")
+        trials["#{found}"] = trial.merge!(method: "(#{sep})")
       }
       trials
     end

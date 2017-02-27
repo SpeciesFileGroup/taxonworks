@@ -142,24 +142,38 @@ describe 'Geo', group: :geo do
     context 'multiple use cases for hunt_wrapper' do
       use_cases = {
         'Hancock Agricultural; Res. Station,, Hancock; Waushara County, WI; 43.836 N 89.258 W'           =>
-
-          {"(;)  43.836 N 89.258 W"     => {:piece => " 43.836 N 89.258 W",
-                                            :lat   => "43.836 N",
-                                            :long  => "89.258 W"},
-           "(,)  WI; 43.836 N 89.258 W" => {:piece => " WI; 43.836 N 89.258 W",
-                                            :lat   => "43.836 N",
-                                            :long  => "89.258 W"},
-           "( ) "                       => {}
+          {'(full text)'            => {:piece  => 'Hancock Agricultural; Res. Station,, Hancock; Waushara County, WI; 43.836 N 89.258 W',
+                                        :lat    => '43.836 N',
+                                        :long   => '89.258 W',
+                                        :method => 'text'},
+           ' 43.836 N 89.258 W'     => {:piece  => ' 43.836 N 89.258 W',
+                                        :lat    => '43.836 N',
+                                        :long   => '89.258 W',
+                                        :method => '(;)'},
+           ' WI; 43.836 N 89.258 W' => {:piece  => ' WI; 43.836 N 89.258 W',
+                                        :lat    => '43.836 N',
+                                        :long   => '89.258 W',
+                                        :method => '(,)'},
+           '( )'                    => {:method => '( )'}
           },
         'KREIS ILLUKSTE; ♀ GEMEINDE PRODE; MANELI. 23.V 1923; LATVIA. O.CONDE'                           =>
-          {"(;) " => {},
-           "(,) " => {},
-           "( ) " => {}
+          {"(full text)" => {:method => "text"},
+           "(;)"         => {:method => "(;)"},
+           "(,)"         => {:method => "(,)"},
+           "( )"         => {:method => "( )"}
           },
         "Kazakhstan 14.VI.2001; 100 km N. Taldy-Kurgan; Dunes around Mataj; 45 54'N, 78 43'E; M. Hauser" =>
-          {"(;) " => {},
-           "(,) " => {},
-           "( ) " => {}
+          {"(full text)"         => {:method => "text"},
+           " 45 54'N, 78 43'E"   => {:piece  => " 45 54'N, 78 43'E",
+                                     :lat    => " 45 54'N, 78 43'E",
+                                     :method => "(;)"},
+           " 78 43'E; M. Hauser" => {:piece  => " 78 43'E; M. Hauser",
+                                     :lat    => " 78 43'E; M. Hauser",
+                                     :method => "(,)"},
+           "43'E;"               => {:piece  => "43'E;",
+                                     :lat    => "54'N,",
+                                     :long   => "43'E;",
+                                     :method => "( )"}
           }
       }
       @entry    = 0
