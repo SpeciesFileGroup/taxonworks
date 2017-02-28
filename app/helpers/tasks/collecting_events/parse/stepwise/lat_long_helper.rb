@@ -23,10 +23,10 @@ module Tasks::CollectingEvents::Parse::Stepwise::LatLongHelper
       # next if trial.blank?
       content_tag(:tr, class: :extract_row) do
         content_tag(:td, method) +
-        content_tag(:td, kee) +
-          content_tag(:td, Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(trial[:lat]), class: :latitude_value) +
-          content_tag(:td, Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(trial[:long]), class: :longitude_value) +
-            content_tag(:td, radio_button_tag('select', dex, false, class: :select_lat_long))
+          content_tag(:td, kee) +
+          content_tag(:td, trial[:lat], class: :latitude_value) +
+          content_tag(:td, trial[:long], class: :longitude_value) +
+          content_tag(:td, radio_button_tag('select', dex, false, class: :select_lat_long))
       end
     end.join.html_safe
   end

@@ -157,23 +157,23 @@ describe 'Geo', group: :geo do
            '( )'                    => {:method => '( )'}
           },
         'KREIS ILLUKSTE; ♀ GEMEINDE PRODE; MANELI. 23.V 1923; LATVIA. O.CONDE'                           =>
-          {"(full text)" => {:method => "text"},
-           "(;)"         => {:method => "(;)"},
-           "(,)"         => {:method => "(,)"},
-           "( )"         => {:method => "( )"}
+          {'(full text)' => {:method => 'text'},
+           '(;)'         => {:method => '(;)'},
+           '(,)'         => {:method => '(,)'},
+           '( )'         => {:method => '( )'}
           },
         "Kazakhstan 14.VI.2001; 100 km N. Taldy-Kurgan; Dunes around Mataj; 45 54'N, 78 43'E; M. Hauser" =>
-          {"(full text)"         => {:method => "text"},
+          {'(full text)'         => {:method => 'text'},
            " 45 54'N, 78 43'E"   => {:piece  => " 45 54'N, 78 43'E",
                                      :lat    => " 45 54'N, 78 43'E",
-                                     :method => "(;)"},
+                                     :method => '(;)'},
            " 78 43'E; M. Hauser" => {:piece  => " 78 43'E; M. Hauser",
                                      :lat    => " 78 43'E; M. Hauser",
-                                     :method => "(,)"},
+                                     :method => '(,)'},
            "43'E;"               => {:piece  => "43'E;",
                                      :lat    => "54'N,",
                                      :long   => "43'E;",
-                                     :method => "( )"}
+                                     :method => '( )'}
           }
       }
       @entry    = 0
@@ -190,14 +190,18 @@ describe 'Geo', group: :geo do
 
     context 'multiple use cases of degrees_minutes_seconds_to_decimal_degrees' do
 
-      use_cases = {'45 54\'N'                      => '45.9',
-                   '78 43\'E'                      => '78.716667',
-                   '78 43\'w'                      => '-78.716667',
-                   '58.0520oW,'                    => '-58.052', # tolerate the trailing comma
-                   '28.01795o"S'                   => '-28.01795',
-                   'N41.87734º'                    => '41.87734',
-                   'W89.34677º'                    => '-89.34677',
-                   ' N18º '                        => '18.0',
+      use_cases = {'22deg10\'34"S,' => '-22.176111', # convert deg to º
+                   '166deg30\'17"E' => '166.504722',
+                   '22dg10\'34"S,'  => '-22.176111', # convert deg to º
+                   '166dg30\'17"E'  => '166.504722',
+                   '45 54\'N'       => '45.9',
+                   '78 43\'E'       => '78.716667',
+                   '78 43\'w'       => '-78.716667',
+                   '58.0520oW,'     => '-58.052', # tolerate the trailing comma
+                   '28.01795o"S'    => '-28.01795',
+                   'N41.87734º'     => '41.87734',
+                   'W89.34677º'     => '-89.34677',
+                   ' N18º '         => '18.0',
                    'W76.8º '                       => '-76.8',
                    '-88.241121º'                   => '-88.241121', # current test case ['-88.241121°']
                    'W88.241121º'                   => '-88.241121', # current test case ['-88.241121°']
@@ -295,7 +299,8 @@ describe 'Geo', group: :geo do
       use_cases.each { |co_ordinate, result|
         @entry += 1
         specify "case #{@entry}: #{co_ordinate} should yield #{result}" do
-          expect(Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(co_ordinate)).to eq(result)
+          use_case = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(co_ordinate)
+          expect(use_case).to eq(result)
         end
       }
     end

@@ -11,12 +11,18 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
   end
 
   def convert
+    retval              = {}
+    retval[:lat_piece]  = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(params[:verbatim_latitude])
+    retval[:long_piece] = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(params[:verbatim_longitude])
+    render :json => retval
+  end
 
+  def update
+
+    redirect_to(lat_long_skip_record_path)
   end
 
   def skip_record
-    # TODO: (@tuckerjd) Need a mechanism for marking records as skipped
-
     redirect_to(collecting_event_lat_long_task_path(collecting_event_id: CollectingEvent
                                                                            .with_project_id(sessions_current_project_id)
                                                                            .where('id > ?',

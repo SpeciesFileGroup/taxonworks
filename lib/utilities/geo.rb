@@ -125,9 +125,9 @@ To add a new (discovered) symbol:
             break
           end
         else
-          lat_long.merge!({piece: piece})
-          lat_long.merge!({lat: lat})
-          lat_long.merge!({long: long})
+          lat_long[:piece] = piece
+          lat_long[:lat]   = lat
+          lat_long[:long]  = long
         end
       end
       lat_long
@@ -179,6 +179,7 @@ To add a new (discovered) symbol:
       # make SURE it is a string! Watch out for dms_in == -10
       dms_in       = dms_in.to_s
       dms          = dms_in.dup.upcase
+      dms          = dms.gsub('DEG', 'º').gsub('DG', 'º')
       dms =~ /[NSEW]/i
       cardinal = $LAST_MATCH_INFO.to_s
       # return "#{dms}: Too many letters (#{cardinal})" if cardinal.length > 1
