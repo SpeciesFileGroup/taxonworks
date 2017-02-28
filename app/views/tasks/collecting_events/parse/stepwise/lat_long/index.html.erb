@@ -28,7 +28,7 @@
         </tbody>
       </table>
       <div align="center">
-        <%= form_tag(lat_long_convert_path) do %>
+        <%= form_tag(lat_long_convert_path, id: 'lat_long_convert_form', method: 'get', remote: true) do %>
             <table border="1" align="center">
               <tbody>
               <tr>
@@ -46,7 +46,7 @@
               <tr>
                 <td></td>
                 <td></td>
-                <td><%= button_tag('Convert') %></td>
+                <td><%= submit_tag('Convert', id: 'lat_long_convert') %></td>
                 <td></td>
               </tr>
               <tr>
@@ -62,8 +62,8 @@
     </div>
     <div class="item item3">
       <div id="action_blok" align="right">
-        <%= form_tag(lat_long_update_record_path) do %>
-            <%= button_tag('Update record') %>
+        <%= form_tag(lat_long_update_record_path, remote: true) do %>
+            <%= submit_tag('Update record', id: 'lat_long_update_record') %>
         <% end %>
 
       </div>
