@@ -207,6 +207,7 @@ Object.assign(TW.views.shared.slideout.pdf, {
     });
 
     $('[data-pdfviewer]').on("click", function() {
+      $('#pdfViewerContainer').attr("data-sourceid", $(this).attr("data-sourceid"));
       loadPDF($(this).attr("data-pdfviewer"));
     });    
 

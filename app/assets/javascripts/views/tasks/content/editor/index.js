@@ -33,9 +33,17 @@ Object.assign(TW.views.tasks.content.editor, {
 
     Vue.component('citation-list', {
       props: ['citations'],
-      template: '<ul> \
-                  <li v-for="item in citations">{{ item.source_id }} {{ item.source }} </li> \
-                <ul>',
+      template: '<ul v-if="citations.length > 0"> \
+                  <li class="flex-separate" v-for="item, index in citations">{{ item.source_id }} {{ item.source }} <div @click="removeItem(index, item)">Remove</div> </li> \
+                </ul>',
+
+      methods: {
+        removeItem: function(index, item) {
+          this.$http.delete("/citations/"+item.id).then( response => {
+            this.citations.splice(index,1);
+          });
+        }
+      }
     });
 
     Vue.component('citation-modal', {
@@ -66,6 +74,8 @@ Object.assign(TW.views.tasks.content.editor, {
           saving: false,
           citationModal: false,
           citations: [],
+          currentSourceID: '',
+          newRecord: true,
           record: { 
             content: {
               otu_id: '',
@@ -94,8 +104,6 @@ Object.assign(TW.views.tasks.content.editor, {
       created: function() {
         var that = this;
 
-        this.getSourceID();
-
         bus.$on('sendTopic', function (topic) {
           that.topic = topic;
         })
@@ -117,24 +125,62 @@ Object.assign(TW.views.tasks.content.editor, {
         }        
       },
       methods: {
+        existCitation: function(citation) {
+          var exist = false;
+          this.citations.forEach(function(item, index) {
+
+          if(item['source_id'] == citation.source_id) {
+              exist = true;
+            }
+          }); 
+          return exist;
+        },
+
         addCitation: function() {
+
+            if(this.newRecord) {
+              var ajaxUrl = `/contents/${this.record.content.id}`;
+              if(this.record.content.id == '') {
+                this.$http.post(ajaxUrl, this.record).then(response => {
+                  this.record.content.id = response.body.id;
+                  this.saving = false;
+                  this.createCitation();
+                 }, response => {
+                  this.saving = false;
+                 });            
+              }
+            }
+            else {
+              this.createCitation();
+            }
+          
+        },
+        createCitation: function() {
+          var
+            sourcePDF = document.getElementById("pdfViewerContainer").dataset.sourceid;          
+          if(sourcePDF == undefined) return
+          
+          this.currentSourceID = sourcePDF;          
 
           var citations = {
             pages: '',
             citation_object_type: 'Content',  
             citation_object_id: this.record.content.id,          
-            source_id: 1037
+            source_id: this.currentSourceID
           }
-          this.citations.push(citations);
-            this.$http.post('/citations', citations).then(response => {
+          if(this.existCitation(citations)) return
 
-             }, response => {
+          this.$http.post('/citations', citations).then(response => {
+            this.citations.push(response.body);
+          }, response => {
 
-             });            
+          });            
         },        
+
         openCitation: function() {
           this.citationModal = !this.citationModal;
         },
+
         autoSave: function() {
           var that = this;
           if(this.autosave) {
@@ -144,15 +190,7 @@ Object.assign(TW.views.tasks.content.editor, {
           this.autosave = setTimeout( function() {    
             that.update();  
           }, 5000);           
-        },
-
-        getSourceID: function() {
-          var that = this;
-          document.getElementById("pinboard").addEventListener("click", function(e){
-            that.citation.source_id = e.target.dataset.sourceid;
-            console.log(e.target);
-          });
-        },        
+        },    
 
         update: function() {
           var ajaxUrl = `/contents/${this.record.content.id}`;
@@ -174,7 +212,8 @@ Object.assign(TW.views.tasks.content.editor, {
               this.saving = false;
              });
           }          
-        },       
+        },
+
         loadCitationList: function() {
           var ajaxUrl;
 
@@ -185,6 +224,7 @@ Object.assign(TW.views.tasks.content.editor, {
 
           }); 
         },
+
         loadContent: function() {
           if(this.otu == undefined || this.topic == undefined) return
 
@@ -197,6 +237,7 @@ Object.assign(TW.views.tasks.content.editor, {
               this.record.content.text = response.body[0].text;
               this.record.content.topic_id = response.body[0].topic_id;
               this.record.content.otu_id = response.body[0].otu_id;
+              this.newRecord = false;
               this.loadCitationList();
             }
             else {
@@ -204,6 +245,7 @@ Object.assign(TW.views.tasks.content.editor, {
               this.record.content.id = '';              
               this.record.content.topic_id = this.topic.id;
               this.record.content.otu_id = this.otu.id;
+              this.newRecord = true;
             }
           }, response => {
             // error callback
