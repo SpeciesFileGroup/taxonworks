@@ -164,7 +164,7 @@ Object.assign(TW.views.tasks.content.editor, {
 
           var citations = {
             pages: '',
-            citation_object_type: 'content',  
+            citation_object_type: 'Content',  
             citation_object_id: this.record.content.id,          
             source_id: this.currentSourceID
           }
