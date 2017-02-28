@@ -17,12 +17,11 @@ Object.assign(TW.views.filter.area_picker, {
     // this.bind_new_link(form);
     // this.bind_switch_link(form);
     // this.bind_expand_link(form);
-    // this.bind_label_mirroring(form);
     this.bind_remove_links(form.find('.remove_area'));
 
     // this.make_list_sortable(form);
     // this.bind_position_handling_to_submit_button(form);
-    this.bind_definition_listener(form);
+    // this.bind_definition_listener(form);
   },
 
 // Empties search text box and hide new_person div
@@ -54,18 +53,6 @@ Object.assign(TW.views.filter.area_picker, {
         .appendTo(ul);
     };
   },
-  //
-  // make_list_sortable: function (form) {
-  //   var list_items = form.find(".area_list");
-  //   list_items.sortable({
-  //     change: function (event, ui) {
-  //       if ($('form[id^="new_"]').length == 0) {
-  //         TW.views.filter.area_picker.warn_for_save(form.find(".area_picker_message"));
-  //       }
-  //     }
-  //   });
-  //   list_items.disableSelection();
-  // },
 
 // bind a hover event to an ellipsis
   bind_hover: function (form) {
@@ -85,24 +72,6 @@ Object.assign(TW.views.filter.area_picker, {
     $('.hoverme').hoverIntent(hiConfig);
   },
 
-  // bind_position_handling_to_submit_button: function (form) {
-  //   // var base_class = form.data('base-class');
-  //   var base_class = 'areagable_object';
-  //
-  //   form.closest("form").find('input[name="commit"]').click(function () {
-  //     var i = 1;
-  //     var area_index;
-  //     form.find('.area_item').each(function () {
-  //       console.log($(this));
-  //       area_index = $(this).data('area-index');
-  //       $(this).append(
-  //         $('<input hidden name="' + base_class + '[areas_attributes][' + area_index + '][position]" value="' + i + '" >')
-  //       );
-  //       i = i + 1;
-  //     });
-  //   });
-  // },
-
   insert_existing_area: function (form, area_id, label) {
     var base_class;// = form.data('base-class');
     base_class = 'area_object';
@@ -121,59 +90,12 @@ Object.assign(TW.views.filter.area_picker, {
 //
 // Binding actions (clicks) to links
 //
-  bind_new_link: function (form) {
-    // Add a citation_topic to the list via the add new form
-    form.find("#area_picker_add_new").click(function () {
-      TW.views.filter.area_picker.insert_new_area(form);
-      // form.find('.new_area').show(); // attr("hidden", true);
-      TW.views.filter.area_picker.clear_area_picker(form);
-    });
-  },
-
-
-  bind_definition_listener: function (form) {
-    form.find(".definition").keyup(function () {
-      var d = form.find(".definition").val();
-
-      if (d.length == 0) {
-        $("#area_picker_add_new").hide();
-      }
-      else {
-        $("#area_picker_add_new").css("display", "flex");
-      }
-    })
-  },
-
-  // insert_new_area: function (form) {
-  //   var base_class = 'areagable_object';
-  //   var random_index = new Date().getTime();
-  //   var area_base = base_class + '[filter_attributes][' + random_index + '][keyword_attributes]';
-  //   var area_list = form.find(".area_list");
-  //
-  //   var name = form.find('.keyword_picker_autocomplete').val();
-  //
-  //   area_list.append($('<li class="area_item" data-new-area="true" data-area-index="' + random_index + '" >')
-  //     .append(name + "&nbsp;")
-  //     .append(TW.views.filter.area_picker.remove_link())
-  //     .append($('<input hidden name="' + area_base + '[name]" value="' + name + '" >'))
-  //     .append($('<input hidden name="' + area_base + '[definition]" value="' + form.find(".definition").val() + '" >')));
-  //
-  //   $(".keyword_picker_form").hide();
-  // },
 
   remove_link: function () {
     var link = $('<a href="#" class="remove_area">remove</a>');
     TW.views.filter.area_picker.bind_remove_links(link);
     return link;
   },
-
-  // bind_label_mirroring: function (form) {
-  //   form.find(".keyword_picker_form input").on("change keyup", function () {
-  //     form.find(".name_label").html(
-  //       form.find(".name").val()
-  //     );
-  //   });
-  // },
 
   bind_remove_links: function (links) {
     links.click(function () {

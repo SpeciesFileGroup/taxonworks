@@ -51,7 +51,7 @@ class Tasks::CollectionObjects::FilterController < ApplicationController
   protected
 
   def collection_objects
-    Queries::CollectionObjectFilterQuery.new(filter_params)
+    Queries::CollectionObjectFilterQuery.new(params)
       .result
       .with_project_id(sessions_current_project_id)
       .includes(:repository, {taxon_determinations: [{otu: :taxon_name}]}, :identifiers)
