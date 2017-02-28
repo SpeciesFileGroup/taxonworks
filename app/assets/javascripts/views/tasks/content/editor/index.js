@@ -34,7 +34,7 @@ Object.assign(TW.views.tasks.content.editor, {
     Vue.component('citation-list', {
       props: ['citations'],
       template: '<ul v-if="citations.length > 0"> \
-                  <li class="flex-separate" v-for="item, index in citations">{{ item.source_id }} {{ item.source }} <div @click="removeItem(index, item)">Remove</div> </li> \
+                  <li class="flex-separate" v-for="item, index in citations">{{ item.source.author_year }} <div @click="removeItem(index, item)">Remove</div> </li> \
                 </ul>',
 
       methods: {
@@ -164,7 +164,7 @@ Object.assign(TW.views.tasks.content.editor, {
 
           var citations = {
             pages: '',
-            citation_object_type: 'Content',  
+            citation_object_type: 'content',  
             citation_object_id: this.record.content.id,          
             source_id: this.currentSourceID
           }
