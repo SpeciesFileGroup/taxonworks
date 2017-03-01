@@ -51,14 +51,14 @@ class Tasks::CollectionObjects::FilterController < ApplicationController
   protected
 
   def collection_objects
-    Queries::CollectionObjectFilterQuery.new(params)
+    Queries::CollectionObjectFilterQuery.new(filter_params)
       .result
       .with_project_id(sessions_current_project_id)
       .includes(:repository, {taxon_determinations: [{otu: :taxon_name}]}, :identifiers)
   end
 
   def filter_params
-    params.permit(:drawn_area_shape, :search_start_date, :search_end_date, :partial_overlap, :otu_id, :descendants, :page, geographic_area_ids: j/[])
+    params.permit(:drawn_area_shape, :search_start_date, :search_end_date, :partial_overlap, :otu_id, :descendants, :page, geographic_area_ids: [])
   end
 
 end
