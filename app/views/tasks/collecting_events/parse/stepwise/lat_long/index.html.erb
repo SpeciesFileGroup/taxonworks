@@ -3,7 +3,9 @@
   <div class="flex_wrap-row">
     <div class="item item1">
       <%= show_ce_vl(@collecting_events).html_safe %>
-      <h2><%= @collecting_events.first.id unless @collecting_events.empty? %></h2>
+      <h2>
+        <%= content_tag(:this_collecting_event, @collecting_events.first.id) unless @collecting_events.empty? %>
+      </h2>
       <%= form_tag(lat_long_skip_record_path(collecting_event_id: @collecting_events.first.id)) do |f| -%>
 
           <%#= hidden_field_tag(:next_record, set_next) -%><br>
@@ -32,7 +34,7 @@
             <table border="1" align="center">
               <tbody>
               <tr>
-                <th></th>
+                <th><%= hidden_field_tag(:collecting_event_d) %></th>
                 <th style="text-align:center">Latitude</th>
                 <th></th>
                 <th style="text-align:center">Longitude</th>

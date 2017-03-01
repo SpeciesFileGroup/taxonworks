@@ -24,6 +24,7 @@ Object.assign(TW.views.tasks.collecting_events.parse, {
     );
 
     $('#lat_long_update_record').click(function (event) {
+      $('#collecting_evewnt_id').val()
       $.post('update', $("#lat_long_convert_form").serialize());
     })
   },
@@ -36,7 +37,7 @@ Object.assign(TW.views.tasks.collecting_events.parse, {
       $('#verbatim_latitude').val(lat);
       $('#verbatim_longitude').val(long);
     });
-  },
+  }
 
 });
 

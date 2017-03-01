@@ -47,4 +47,8 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
     CollectingEvent.find(collecting_event_id_param)
   end
 
+  def lat_long_params
+    params.permit(:verbatim_latitude, :verbatim_longitude, :collecting_event_id)
+  end
+
 end
