@@ -34,6 +34,9 @@ Object.assign(TW.views.filter.area_picker, {
 
   initialize_autocomplete: function (form) {
     var autocomplete_input = form.find(".area_picker_autocomplete");
+    var param_name = autocomplete_input.data('paramName');
+    alert(param_name);
+
     autocomplete_input.autocomplete({
       source: '/geographic_areas/autocomplete',
       appendTo: autocomplete_input.parent(),
@@ -41,7 +44,7 @@ Object.assign(TW.views.filter.area_picker, {
         TW.views.filter.area_picker.bind_hover(form);
       },
       select: function (event, ui) {    // execute on select event in search text box
-        TW.views.filter.area_picker.insert_existing_area(form, ui.item.id, ui.item.label_html);
+        TW.views.filter.area_picker.insert_existing_area(form, ui.item.id, ui.item.label_html, param_name);
         TW.views.filter.area_picker.clear_area_picker(form);
         //   TW.views.filter.area_picker.make_list_sortable(form);     // was this inadvertantly lost?
         return false;
@@ -49,7 +52,7 @@ Object.assign(TW.views.filter.area_picker, {
 
     }).autocomplete("instance")._renderItem = function (ul, item) {
       return $("<li class='area'>")
-        .append("<a>" + item.label + ' <span class="hoverme" data-area-label_html="' + item.label_html + '" + data-geographic_area_id="' + item.id + '">...</span></a>')
+        .append("<a data-geographic_area_id= '" +  item.id + "'>" + item.label_html + '<span>...</span></a>')
         .appendTo(ul);
     };
   },
@@ -72,7 +75,7 @@ Object.assign(TW.views.filter.area_picker, {
     $('.hoverme').hoverIntent(hiConfig);
   },
 
-  insert_existing_area: function (form, area_id, label) {
+  insert_existing_area: function (form, area_id, label, param_name) {
     var base_class;// = form.data('base-class');
     base_class = 'area_object';
     var random_index = new Date().getTime();
@@ -83,9 +86,17 @@ Object.assign(TW.views.filter.area_picker, {
       .append(label).append('&nbsp;')
       .append(TW.views.filter.area_picker.remove_link())
       // nest hidden geographic_area_id in <li>
-      .append($('<input hidden name="' + base_class + '[geographic_area_ids][]" value="' + area_id + '" >'))
+      .append($('<input hidden name="' + param_name + '[]" value="' + area_id + '" >'))
     );
   },
+
+  /*
+    ... name="area[foo]" value="10"       # => params[:area][:foo] == 10
+    ... name="area[foo][]" value="10"     # => params[:area][:foo] == [10]
+    <input name="area[foo][bar]" value="10">  # params[:area][:foo] =  {bar: 10} 
+    <input name="area[foo][][bar][stuff]" value="10">  # params[:area][:foo] = [ {bar: { stuff: 10}} ]
+  */
+
 
 //
 // Binding actions (clicks) to links

@@ -13,7 +13,7 @@ module Queries
     def initialize(params)
       params.reject!{|k, v| v.blank?}
 
-      @query_geographic_area_ids = params[:area_object][:geographic_area_ids]
+      @query_geographic_area_ids = params[:geographic_area_ids]
       @query_shape = params[:drawn_area_shape]
       @query_start_date = params[:search_start_date] # TODO: sync key names
       @query_end_date = params[:search_end_date]

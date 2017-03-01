@@ -58,7 +58,7 @@ class Tasks::CollectionObjects::FilterController < ApplicationController
   end
 
   def filter_params
-    params.permit(:drawn_area_shape, :search_start_date, :search_end_date, :partial_overlap, :otu_id, :descendants, :page, area_object: [:geographic_area_ids])
+    params.permit(:drawn_area_shape, :search_start_date, :search_end_date, :partial_overlap, :otu_id, :descendants, :page, geographic_area_ids: j/[])
   end
 
 end
