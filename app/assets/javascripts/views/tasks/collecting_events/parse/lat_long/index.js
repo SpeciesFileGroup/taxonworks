@@ -24,7 +24,8 @@ Object.assign(TW.views.tasks.collecting_events.parse, {
     );
 
     $('#lat_long_update_record').click(function (event) {
-      $('#collecting_evewnt_id').val()
+      // put the this id into the form before serializatiun
+      $('#collecting_event_id').text().value = $('this_collecting_event').text();
       $.post('update', $("#lat_long_convert_form").serialize());
     })
   },

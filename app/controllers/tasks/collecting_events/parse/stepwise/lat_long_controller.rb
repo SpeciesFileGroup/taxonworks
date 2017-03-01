@@ -18,6 +18,12 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
   end
 
   def update
+    ce = CollectingEvent.find(lat_long_params[:collecting_event_id])
+    unless ce.nil?
+      ce.verbatim_latitude  = lat_long_params[:verbatim_latitude]
+      ce.verbatim_longitude = lat_long_params[:verbatim_longitude]
+      ce.save!
+    end
 
     redirect_to(lat_long_skip_record_path)
   end
