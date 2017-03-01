@@ -1,3 +1,8 @@
+@import 'base/palette';
+@import 'base/fonts';
+@import 'base/whitespace';
+@import 'base/form_elements';
+
 #content_editor {
 	.panel-editor {
 		width: 700px;
@@ -16,7 +21,24 @@
 	}
 
 	.topic-panel {
-		max-width: 400px;
+		max-width: 300px;
+	}
+
+	#topics {
+		ul {
+			padding: 0px;
+			margin: 0px;
+			list-style: none;
+		}
+		li {
+			border-top: 1px solid #F5F5F5;
+			padding: 0.5em;
+			padding-left: 1em;
+			cursor: pointer;
+		}
+		.selected {
+			background-color: $color-complement-2;
+		}
 	}
 
 	.saving {

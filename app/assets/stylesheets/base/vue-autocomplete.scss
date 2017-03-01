@@ -17,6 +17,7 @@
 }
 
 .vue-autocomplete {
+	z-index: 100;
 	ul {
 		background-color: #FFF;
 		margin:0px;

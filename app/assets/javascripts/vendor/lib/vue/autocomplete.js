@@ -18,7 +18,7 @@ Parameters:
 
 Vue.component('autocomplete', { 
     template: '<div class="vue-autocomplete"> \
-                <input class="vue-autocomplete-input normal-input" type="text" v-on:input="update" v-model="type" v-bind:class="{ \'ui-autocomplete-loading\' : spinner } " /> \
+                <input class="vue-autocomplete-input normal-input" type="text" v-bind:placeholder="placeholder" v-on:input="update" v-model="type" v-bind:class="{ \'ui-autocomplete-loading\' : spinner } " /> \
                 <ul v-show="showList"> \
                   <li v-for="(item, index) in json" :class="activeClass(index)" @mouseover="itemActive(index)" @click.prevent="{ itemClicked(item[label]), sendItem(item) }" > \
                       <span> {{ item[label] }} </span> \
@@ -57,7 +57,12 @@ Vue.component('autocomplete', {
       limit: {
         type: String,
         default: ''
-      },       
+      },   
+
+      placeholder: {
+        type: String,
+        default: ''
+      },             
 
       param: {
         type: String,

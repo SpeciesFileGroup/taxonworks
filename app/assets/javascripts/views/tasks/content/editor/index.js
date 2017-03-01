@@ -85,8 +85,8 @@ Object.assign(TW.views.tasks.content.editor, {
           }
         }
       },
-      template: '<div v-if="topic !== undefined && otu !== undefined" class="panel panel-editor"> \
-                  <div class="title">{{ topic.label }} - {{ otu.label }} </div> \
+      template: '<div v-if="topic !== undefined && otu !== undefined" class="panel panel-editor separate-left separate-right"> \
+                  <div class="title action-line">{{ topic.label }} - {{ otu.label }} </div> \
                   <textarea v-on:input="autoSave" v-model="record.content.text" ref="contentText" v-on:dblclick="addCitation()"></textarea> \
                   <div class="navigation-controls horizontal-center-content"> \
                     <itemOption name="Save" :callMethod="update" :class="{ saving : saving }"></itemOption> \
@@ -142,11 +142,12 @@ Object.assign(TW.views.tasks.content.editor, {
           setTimeout(function(){
             that.record.content.text = that.$refs.contentText.value;
             if(that.newRecord) {
-              var ajaxUrl = `/contents/${this.record.content.id}`;
+              var ajaxUrl = `/contents/${that.record.content.id}`;
               if(that.record.content.id == '') {
                 that.$http.post(ajaxUrl, that.record).then(response => {
                   that.record.content.id = response.body.id;
                   that.saving = false;
+                  that.newRecord = false;
                   that.createCitation();
                  }, response => {
                   that.saving = false;
@@ -268,19 +269,7 @@ Object.assign(TW.views.tasks.content.editor, {
 
     Vue.component('topic', {
       template: '<div></div>'
-    });      
-
-    Vue.component('topic-list', {
-      props: ['topic'],
-      template: '<li v-on:click="loadTopic">{{ topic.name }}</li>',
-
-      methods: {
-        loadTopic: function() {
-          bus.$emit('sendTopic', this.topic);
-          bus.$emit('showPanelTop');
-        }
-      }      
-    });                 
+    });                   
 
     Vue.component('new-topic', {
       template: ' <form v-if="creating" id="new-topic" class="panel content" action=""> \
@@ -292,7 +281,9 @@ Object.assign(TW.views.tasks.content.editor, {
                     </div> \
                     <input class="button" type="submit" v-on:click.prevent="createNewTopic" :disabled="((topic.controlled_vocabulary_term.name.length < 2) || (topic.controlled_vocabulary_term.definition.length < 2)) ? true : false" value="Create"/> \
                   </form> \
-                  <input type="button" value="New topic" class="button button-default normal-input" v-on:click="openWindow" v-else/>',
+                  <div class="panel content no-shadow" v-else> \
+                    <input type="button" value="New topic" class="button button-default normal-input" v-on:click="openWindow"/> \
+                  </div>',
       data: function() { return {
         creating: false,
         topic: {
@@ -336,13 +327,15 @@ Object.assign(TW.views.tasks.content.editor, {
 
     Vue.component('topic-section', {
       template: '<div id="topics"> \
+                  <div class="content nav-line">Topics</div> \
                   <new-topic></new-topic> \
                   <ul> \
-                    <topic-list v-for="item in topics" v-bind:topic="item"></topic-list> \
+                    <li v-for="item, index in topics" :class="{ selected : (index == selected) }"v-on:click="loadTopic(item,index)"> {{ item.name }}</li> \
                   </ul> \
                 </div>', 
       data: function() { 
         return {
+          selected: -1,
           topics: []
         }
       },
@@ -350,6 +343,11 @@ Object.assign(TW.views.tasks.content.editor, {
         this.loadList();
       },
       methods: {
+        loadTopic: function(item, index) {
+          this.selected = index
+          bus.$emit('sendTopic', item);
+          bus.$emit('showPanelTop');
+        },       
         loadList: function() {
           var that;
           that = this;
@@ -377,6 +375,7 @@ Object.assign(TW.views.tasks.content.editor, {
                     url="/otus/autocomplete" \
                     min="3" \
                     param="term" \
+                    placeholder="Find OTU" \
                     event-send="otu_picker" \
                     label="label"> \
                   </autocomplete> \
