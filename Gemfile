@@ -45,6 +45,7 @@ gem 'sprockets-rails'
 gem 'sprockets', '~> 3.0'
 gem 'sprockets-es6', require: 'sprockets/es6'
 
+gem 'browserify-rails'
 # gem 'babel-transpiler'
 
 
@@ -74,7 +75,7 @@ gem 'jquery-turbolinks', '~> 2.1'
 gem 'jbuilder', '~> 2.5.0'
 gem 'chronic', '~> 0.10'
 
-gem 'closure_tree', '~> 6.2.0'
+gem 'closure_tree', '~> 6.3.0'
 
 # BibTex handling
 gem 'csl', '~> 1.4.3' # git: 'https://github.com/inkshuk/csl-ruby'
@@ -98,6 +99,8 @@ gem 'paperclip-meta', '~> 2.0'
 
 # Ordering records
 gem 'acts_as_list', '~> 0.8.0'
+
+gem 'capistrano-npm'
 
 # Versioning
 gem 'paper_trail', '~> 4.0.0.rc'

@@ -16,7 +16,13 @@ describe 'TaxonNames', type: :feature do
     context 'with some records created' do
       before(:each) {
         5.times {
-          FactoryGirl.create(:iczn_family, user_project_attributes(@user, @project).merge(parent: root, source: nil))
+          Protonym.create(
+            user_project_attributes(@user, @project).merge(
+              parent: root,
+              source: nil,
+              rank_class: Ranks.lookup(:iczn, :family), name: 'Fooidae'
+            )
+          )
         } 
       }
 

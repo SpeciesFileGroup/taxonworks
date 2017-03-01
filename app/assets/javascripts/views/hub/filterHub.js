@@ -1,6 +1,7 @@
 var FilterHub = function () {
 
 		this.task_column = ($(window).width() > 1500) ? 3 : 2;
+		this.task_row = ($(window).width() > 1500) ? 4 : 3;
 		this.arrayData = [];
 		this.arrayTasks = [];
 		this.that = this;
@@ -15,7 +16,7 @@ var FilterHub = function () {
 
 	FilterHub.prototype.handleEvents = function(that) {
 		$("#task_carrousel").each(function(i,element) {		
-			that.arrayTasks.push(new CarrouselTask("#"+$(element).attr("id"), that.task_column, that.task_column));
+			that.arrayTasks.push(new CarrouselTask("#"+$(element).attr("id"), that.task_row, that.task_column));
 		});
 
 		$("[data-section]").each(function(i, element) {

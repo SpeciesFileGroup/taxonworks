@@ -1,0 +1,11 @@
+$('#result').html('');
+
+r = $('<%= j(render(partial: 'summary', locals: {matches: @matches} )) %>');
+$("#result").append(r);
+  <% @matches.each do |query, results| -%>
+    <% if !results.empty? %>
+      r = $('<%= j(render(partial: 'result', locals: {results: results, query: query})) %>');
+      $("#result").append(r);
+    <% end %>
+<% end %>
+
