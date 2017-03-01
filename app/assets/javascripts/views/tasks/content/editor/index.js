@@ -71,7 +71,7 @@ Object.assign(TW.views.tasks.content.editor, {
           topic: undefined,
           otu: undefined,
           autosave: 0,
-          saving: false,
+          unsave: false,
           citationModal: false,
           citations: [],
           currentSourceID: '',
@@ -89,7 +89,7 @@ Object.assign(TW.views.tasks.content.editor, {
                   <div class="title action-line">{{ topic.label }} - {{ otu.label }} </div> \
                   <textarea v-on:input="autoSave" v-model="record.content.text" ref="contentText" v-on:dblclick="addCitation()"></textarea> \
                   <div class="navigation-controls horizontal-center-content"> \
-                    <itemOption name="Save" :callMethod="update" :class="{ saving : saving }"></itemOption> \
+                    <itemOption name="Save" :callMethod="update" :class="{ saving : unsave }"></itemOption> \
                     <itemOption name="Preview"></itemOption> \
                     <itemOption name="Help"></itemOption> \
                     <itemOption name="Clone"></itemOption> \
@@ -146,11 +146,8 @@ Object.assign(TW.views.tasks.content.editor, {
               if(that.record.content.id == '') {
                 that.$http.post(ajaxUrl, that.record).then(response => {
                   that.record.content.id = response.body.id;
-                  that.saving = false;
                   that.newRecord = false;
                   that.createCitation();
-                 }, response => {
-                  that.saving = false;
                  });            
               }
             }
@@ -167,15 +164,15 @@ Object.assign(TW.views.tasks.content.editor, {
           
           this.currentSourceID = sourcePDF;          
 
-          var citations = {
+          var citation = {
             pages: '',
             citation_object_type: 'Content',  
             citation_object_id: this.record.content.id,          
             source_id: this.currentSourceID
           }
-          if(this.existCitation(citations)) return
+          if(this.existCitation(citation)) return
 
-          this.$http.post('/citations', citations).then(response => {
+          this.$http.post('/citations', citation).then(response => {
             this.citations.push(response.body);
           }, response => {
 
@@ -188,6 +185,7 @@ Object.assign(TW.views.tasks.content.editor, {
 
         autoSave: function() {
           var that = this;
+          this.unsave = true;
           if(this.autosave) {
             clearTimeout(this.autosave);
             this.autosave = null
@@ -200,21 +198,15 @@ Object.assign(TW.views.tasks.content.editor, {
         update: function() {
           var ajaxUrl = `/contents/${this.record.content.id}`;
 
-          this.saving = true;
-
           if(this.record.content.id == '') {
             this.$http.post(ajaxUrl, this.record).then(response => {
               this.record.content.id = response.body.id;
-              this.saving = false;
-             }, response => {
-              this.saving = false;
+              this.unsave = false;
              });            
           }
           else {
             this.$http.patch(ajaxUrl, this.record).then(response => {
-              this.saving = false;
-             }, response => {
-              this.saving = false;
+              this.unsave = false;
              });
           }          
         },
