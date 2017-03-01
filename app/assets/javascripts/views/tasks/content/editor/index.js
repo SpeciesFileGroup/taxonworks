@@ -34,7 +34,7 @@ Object.assign(TW.views.tasks.content.editor, {
     Vue.component('citation-list', {
       props: ['citations'],
       template: '<ul v-if="citations.length > 0"> \
-                  <li class="flex-separate" v-for="item, index in citations">{{ item.source.author_year }} <div @click="removeItem(index, item)">Remove</div> </li> \
+                  <li class="flex-separate" v-for="item, index in citations">{{ item.id }} <div @click="removeItem(index, item)">Remove</div> </li> \
                 </ul>',
 
       methods: {
@@ -87,7 +87,7 @@ Object.assign(TW.views.tasks.content.editor, {
       },
       template: '<div v-if="topic !== undefined && otu !== undefined" class="panel panel-editor"> \
                   <div class="title">{{ topic.label }} - {{ otu.label }} </div> \
-                  <textarea v-on:input="autoSave" v-model="record.content.text" v-on:dblclick="addCitation"></textarea> \
+                  <textarea v-on:input="autoSave" v-model="record.content.text" ref="contentText" v-on:dblclick="addCitation()"></textarea> \
                   <div class="navigation-controls horizontal-center-content"> \
                     <itemOption name="Save" :callMethod="update" :class="{ saving : saving }"></itemOption> \
                     <itemOption name="Preview"></itemOption> \
@@ -122,7 +122,7 @@ Object.assign(TW.views.tasks.content.editor, {
           if (JSON.stringify(val) !== JSON.stringify(oldVal)) {
             this.loadContent();
           }
-        }        
+        }            
       },
       methods: {
         existCitation: function(citation) {
@@ -136,25 +136,29 @@ Object.assign(TW.views.tasks.content.editor, {
           return exist;
         },
 
-        addCitation: function() {
+        addCitation: function(datas) {
 
-            if(this.newRecord) {
+          var that = this;
+          setTimeout(function(){
+            that.record.content.text = that.$refs.contentText.value;
+            if(that.newRecord) {
               var ajaxUrl = `/contents/${this.record.content.id}`;
-              if(this.record.content.id == '') {
-                this.$http.post(ajaxUrl, this.record).then(response => {
-                  this.record.content.id = response.body.id;
-                  this.saving = false;
-                  this.createCitation();
+              if(that.record.content.id == '') {
+                that.$http.post(ajaxUrl, that.record).then(response => {
+                  that.record.content.id = response.body.id;
+                  that.saving = false;
+                  that.createCitation();
                  }, response => {
-                  this.saving = false;
+                  that.saving = false;
                  });            
               }
             }
             else {
-              this.createCitation();
+              that.update();
+              that.createCitation();
             }
           
-        },
+        },100)},
         createCitation: function() {
           var
             sourcePDF = document.getElementById("pdfViewerContainer").dataset.sourceid;          
