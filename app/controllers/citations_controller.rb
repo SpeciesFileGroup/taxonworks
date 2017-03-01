@@ -20,7 +20,6 @@ class CitationsController < ApplicationController
 
   def new
     @citation = Citation.new(citation_params)
-    # @citation.citation_topics.build
   end
 
   def edit
@@ -32,16 +31,14 @@ class CitationsController < ApplicationController
     redirect_to @citation.annotated_object.metamorphosize
   end
 
-
   # POST /citations
   # POST /citations.json
   def create
     @citation = Citation.new(citation_params)
-
     respond_to do |format|
       if @citation.save
         format.html { redirect_to @citation.citation_object.metamorphosize, notice: 'Citation was successfully created.' }
-        format.json { render json: @citation, status: :created, location: @citation }
+        format.json { render :show, status: :created, location: @citation }
       else
         format.html { redirect_to :back, notice: 'Citation was NOT successfully created.' }
         format.json { render json: @citation.errors, status: :unprocessable_entity }
@@ -55,7 +52,7 @@ class CitationsController < ApplicationController
     respond_to do |format|
       if @citation.update(citation_params)
         format.html { redirect_to @citation.citation_object.metamorphosize, notice: 'Citation was successfully updated.' }
-        format.json { head :no_content }
+        format.json { render :show, location: @citation }
       else
         format.html { redirect_to :back, notice: 'Citation was NOT successfully updated.' }
         format.json { render json: @citation.errors, status: :unprocessable_entity }
@@ -133,8 +130,10 @@ class CitationsController < ApplicationController
   def citation_params
     params.require(:citation).permit(
       :citation_object_type, :citation_object_id, :source_id, :pages, :is_original,
-      citation_topics_attributes: [:id, :_destroy, :pages, :topic_id,
-                                   topic_attributes: [:id, :_destroy, :name, :definition]]
+      citation_topics_attributes: [
+        :id, :_destroy, :pages, :topic_id,
+        topic_attributes: [:id, :_destroy, :name, :definition]
+      ]
     )
   end
 end
