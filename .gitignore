@@ -64,3 +64,5 @@ spec/test_files/
 *.orig
 
 REVISION
+
+node_modules/
