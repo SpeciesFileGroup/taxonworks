@@ -5,11 +5,11 @@ TW.views.tasks.collecting_events = TW.views.tasks.collecting_events || {};
 TW.views.tasks.collecting_events.parse = TW.views.tasks.collecting_events.parse || {};
 
 Object.assign(TW.views.tasks.collecting_events.parse, {
-
+  
   init: function () {
     var start_next = 0;
     TW.views.tasks.collecting_events.parse.bind_radio_buttons();
-
+    
     $('#lat_long_convert').click(function (event) {
         // $("#select_area").mx_spinner('show');
         $.get('convert', $("#lat_long_convert_form").serialize(), function (local_data) {
@@ -22,14 +22,14 @@ Object.assign(TW.views.tasks.collecting_events.parse, {
         event.preventDefault();
       }
     );
-
+    
     $('#lat_long_update_record').click(function (event) {
       // put the this id into the form before serializatiun
-      $('#collecting_event_id').text().value = $('this_collecting_event').text();
-      $.post('update', $("#lat_long_convert_form").serialize());
+      // $('#collecting_event_id').val($('this_collecting_event').text());
+      $.post('update', $("#lat_long_convert_form").serialize() + "&" + $("#gen_georef_box").serialize());
     })
   },
-
+  
   bind_radio_buttons: function () {
     $('.select_lat_long').click(function () {
       // selector not working
@@ -37,9 +37,11 @@ Object.assign(TW.views.tasks.collecting_events.parse, {
       var lat = $(this).parent().parent('.extract_row').children('.latitude_value').text();
       $('#verbatim_latitude').val(lat);
       $('#verbatim_longitude').val(long);
+      $("#dd_latitude").val('');
+      $("#dd_longitude").val('');
     });
   }
-
+  
 });
 
 $(document).ready(function () {

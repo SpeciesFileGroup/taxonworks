@@ -4,7 +4,8 @@
     <div class="item item1">
       <%= show_ce_vl(@collecting_events).html_safe %>
       <h2>
-        <%= content_tag(:this_collecting_event, @collecting_events.first.id) unless @collecting_events.empty? %>
+        <%= content_tag(:span, @collecting_events.first.id, id: 'this_collecting_event', value: @collecting_events.first.id) unless @collecting_events.empty? %>
+        <%#= content_tag(:this_collecting_event, @collecting_events.first.id) unless @collecting_events.empty? %>
       </h2>
       <%= form_tag(lat_long_skip_record_path(collecting_event_id: @collecting_events.first.id)) do |f| -%>
 
@@ -34,7 +35,10 @@
             <table border="1" align="center">
               <tbody>
               <tr>
-                <th><%= hidden_field_tag(:collecting_event_id) %></th>
+                <th>
+                  <%= hidden_field_tag(:collecting_event_id, (@collecting_events.first.id unless @collecting_events.empty?)) %>
+                  <%#= hidden_field_tag(:gen_georef) %>
+                </th>
                 <th style="text-align:center">Latitude</th>
                 <th></th>
                 <th style="text-align:center">Longitude</th>
@@ -65,9 +69,9 @@
     <div class="item item3">
       <div id="action_blok" align="right">
         <%= form_tag(lat_long_update_record_path, remote: true) do %>
-            <%= submit_tag('Update record', id: 'lat_long_update_record') %>
+            <%= submit_tag('Save', id: 'lat_long_update_record') %><br>
+            <%= check_box_tag(:gen_georef_box) %> Also create Georeference
         <% end %>
-
       </div>
     </div>
   </div>
