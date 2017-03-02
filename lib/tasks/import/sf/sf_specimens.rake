@@ -9,12 +9,16 @@ namespace :tw do
 
         desc 'time rake tw:project_import:sf_import:specimens:collecting_events user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         LoggedTask.define :collecting_events => [:data_directory, :environment, :user_id] do |logger|
-          logger.info 'Building new collecting events (hash, array)...'
+
+          logger.info 'Building new collecting events...'
+
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          get_tw_project_id = import.get('SFFileIDToTWProjectID')
+
+          get_tw_collecting_event_id = {} # key = sfUniqueLocColEvents.UniqueID, value = TW.collecting_event_id
 
           path = @args[:data_directory] + 'sfUniqueLocColEvents.txt'
           file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
-
-          sf_unique_id_to_tw_collecting_event_id = {}
 
           # FileID
           # Level1ID	Level2ID	Level3ID	Level4ID
@@ -23,7 +27,7 @@ namespace :tw do
           # TimePeriodID
           # LocalityDetail
           # TimeDetail
-          # DataFlags
+          # DataFlags: bitwise, 1 = ecological relationship, 2 = character data (not implemented?), 4 = image, 8 = sound, 16 = include specimen locality in maps, 32 = image of specimen label
           # Country	State	County
           # BodyOfWater
           # PrecisionRadius
@@ -33,11 +37,13 @@ namespace :tw do
           # DaysToEnd
           # UniqueID
 
-          import = Import.find_or_create_by(name: 'SpeciesFileData')
-          get_tw_project_id = import.get('SFFileIDToTWProjectID')
+          counter = 0
 
           file.each do |row|
-            project_id = get_tw_project_id(row[0]) # TODO: REVIEW
+            project_id = get_tw_project_id(row['FileID']).to_i
+
+            logger.info "Working with TW.project_id = #{project_id}, UniqueID = #{row['UniqueID']} (count #{counter += 1}) \n"
+
 
             # TODO: review
             end_date = nil
@@ -52,35 +58,54 @@ namespace :tw do
 
 
             # TODO:
-            #  handle TimePeriodID as data attribute
-            #  handle TimeDetail as data attribute
-            #  handle DataFlags as ?
-            #  handle BodyOfWater as data attribute?
+            #  PrecisionCode?  integer
+            #  handle TimePeriodID as data attribute  integer (bitwise)
+            #  handle TimeDetail as data attribute  string
+            #  handle DataFlags as (import predicate)? integer (bitwise)
+            #  handle BodyOfWater as data attribute?   string
             #
             #
             #  handle PrecisionRadius as Georeference precision
-            #  handle LatLongFrom
+            #  handle LatLongFrom   of type Verbatim GeoReference
+
+           #  some_precisions_radius_conversion   = row['PrecisionRadius'].to_i  * 10 # METERS
 
             begin
-              c = CollectingEvent.create!(
-                  verbatim_latitude:  row['Latitude'],
-                  verbatim_longitude: row['Longitude'],
-                  maximum_elevation: row['MaxElevation'],
-                  collectors: row['CollectoName'],
-                  start_date_day: row['day'],
-                  start_date_month: row['month'],
-                  start_date_year: row['year'],
-                  end_date_day: (end_date ? end_date.day : nil),
-                  end_date_month: (end_date ? end_date.month : nil),
-                  end_date_year: (end_date ? end_date.year : nil),
-                  geographic_area: get_tw_geographic_area(row),
+              # c = CollectingEvent.create!(
+              #     verbatim_latitude: row['Latitude'],
+              #     verbatim_longitude: row['Longitude'],
+              #     maximum_elevation: row['MaxElevation'],
+              #     collectors: row['CollectoName'],
+              #     start_date_day: row['day'],
+              #     start_date_month: row['month'],
+              #     start_date_year: row['year'],
+              #     end_date_day: (end_date ? end_date.day : nil),
+              #     end_date_month: (end_date ? end_date.month : nil),
+              #     end_date_year: (end_date ? end_date.year : nil),
+              #     geographic_area: get_tw_geographic_area(row),
+              #
+              #     project_id: project_id
+              #
+              #     # add in data attributes, import_predicate,
+              #     # georeferences_attributes: [
+              #      {
+              #          type: 'Georeference::VerbatimGeoreference',
+              #          error_radius: some_precisions_radius_conversion,
+              #          geographic_item_attributes: {
+              #              # JIM WILL HELP YOU WITH THE Rgeo::Point construction
+              #              # basically, the lat long values go here
+              #          }
+              #
+              #      }
+              #     # ],
+              #
+              #
+              #
+              # )
 
-                  project_id: project_id
-              )
+              get_tw_collecting_event_id[row['UniqueID']] = c.id.to_s
 
-              sf_unique_id_to_tw_collecting_event_id[row['UniqueID']] = c.id
-
-              logger.info "UniqID #{row['UniqueID']} written"
+              logger.info "UniqueID #{row['UniqueID']} written"
             rescue ActiveRecord::RecordInvalid
 
               logger.info "Failed on UniqueID #{row['UniqueID']}"
@@ -88,7 +113,8 @@ namespace :tw do
             end
           end
 
-          # Write import
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          import.set('SFUniqueIDToTWCollectingEventID', get_tw_collecting_event_id)
 
         end
 
@@ -100,7 +126,7 @@ namespace :tw do
               row['Level2ID'],
               row['Level3ID'],
               row['Level4ID'] # TODO: we have to pad dashes here to match off values
-          ].select{|a| a.lenght > 0}.join
+          ].select { |a| a.length > 0 }.join
 
           logger.info "target tdwg id: #{tdwg_id}"
 
@@ -112,7 +138,7 @@ namespace :tw do
               row['country'],
               row['state'],
               row['county']
-          ].select{|a| !a.blank?}
+          ].select { |a| !a.blank? }
 
           # If there is no value, just return the tdwg based match
           if finest_sf_level.empty?
@@ -128,7 +154,6 @@ namespace :tw do
           end
 
         end
-
 
 
         desc 'time rake tw:project_import:sf_import:specimens:import_two_specimen_lists user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
