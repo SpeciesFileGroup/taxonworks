@@ -37,7 +37,7 @@ class OtusController < ApplicationController
       if @otu.save
         format.html { redirect_to @otu,
                       notice: "Otu '#{@otu.name}' was successfully created." }
-        format.json { render action: 'show', status: :created, location: @otu }
+        format.json { render action: :show, status: :created, location: @otu }
       else
         format.html { render action: 'new' }
         format.json { render json: @otu.errors, status: :unprocessable_entity }
@@ -51,7 +51,7 @@ class OtusController < ApplicationController
     respond_to do |format|
       if @otu.update(otu_params)
         format.html { redirect_to @otu, notice: 'Otu was successfully updated.' }
-        format.json { head :no_content }
+        format.json { render :show, location: @otu }
       else
         format.html { render action: 'edit' }
         format.json { render json: @otu.errors, status: :unprocessable_entity }
