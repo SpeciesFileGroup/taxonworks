@@ -20,22 +20,26 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
   def update
     ce = CollectingEvent.find(lat_long_params[:collecting_event_id])
     unless ce.nil?
-      ce.verbatim_latitude  = lat_long_params[:verbatim_latitude]
-      ce.verbatim_longitude = lat_long_params[:verbatim_longitude]
-      unless lat_long_params[:gen_georef_box].nil?
-        ce.with_verbatim_data_georeference = lat_long_params[:gen_georef_box]
+      p_lat                 = lat_long_params[:verbatim_latitude]
+      p_long                = lat_long_params[:verbatim_longitude]
+      g_g                   = lat_long_params[:gen_georef_box]
+      ce.verbatim_latitude  = (p_lat.blank? ? nil : p_lat)
+      ce.verbatim_longitude = (p_long.blank? ? nil : p_long)
+      unless g_g.nil?
+        ce.with_verbatim_data_georeference = true
+        ce.generate_verbatim_data_georeference(true) if ce.with_verbatim_data_georeference
       end
       unless ce.id == 167457
-        ce.generate_verbatim_data_georeference(true) if ce.with_verbatim_data_georeference
         ce.save!
       end
     end
-    redirect_to(lat_long_skip_record_path(collecting_event_id: next_record))
+    skip_record
+      # redirect_to(collecting_event_lat_long_task_path(collecting_event_id: next_record))
+    # redirect_to(lat_long_skip_record_path(collecting_event_id: next_record))
   end
 
   def next_record
-    CollectingEvent.with_project_id(sessions_current_project_id)
-      .where('id > ?', collecting_event_id_param).limit(1).pluck(:id)[0]
+    CollectingEvent.with_project_id(sessions_current_project_id).where('id > ?', collecting_event_id_param).limit(1).pluck(:id)[0]
   end
 
   def skip_record
