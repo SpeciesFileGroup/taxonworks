@@ -18,7 +18,8 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
   end
 
   def update
-    ce = CollectingEvent.find(lat_long_params[:collecting_event_id])
+    collecting_event_id = lat_long_params[:collecting_event_id]
+    ce                  = CollectingEvent.find(collecting_event_id)
     unless ce.nil?
       p_lat                 = lat_long_params[:verbatim_latitude]
       p_long                = lat_long_params[:verbatim_longitude]
@@ -33,8 +34,8 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
         ce.save!
       end
     end
-    skip_record
-      # redirect_to(collecting_event_lat_long_task_path(collecting_event_id: next_record))
+    # skip_record
+    redirect_to(collecting_event_lat_long_task_path(collecting_event_id: collecting_event_id))
     # redirect_to(lat_long_skip_record_path(collecting_event_id: next_record))
   end
 
@@ -47,7 +48,7 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
   end
 
   def similar_labels
-    @similar_labels = CollectingEvent.where('id > ?', next_record).limit(5)
+    # @similar_labels = CollectingEvent.where('id > ?', next_record).limit(5)
   end
 
   protected
