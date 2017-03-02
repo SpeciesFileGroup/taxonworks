@@ -31,7 +31,7 @@
         </tbody>
       </table>
       <div align="center">
-        <%= form_tag(lat_long_convert_path, id: 'lat_long_convert_form', method: 'get', remote: true) do %>
+        <%= form_tag(lat_long_update_record_path, id: 'lat_long_convert_form', remote: true) do %>
             <table border="1" align="center">
               <tbody>
               <tr>
@@ -63,14 +63,16 @@
               </tr>
               </tbody>
             </table>
+            <span>
+              <%= submit_tag('Save', id: 'lat_long_update_record') %><br>
+              <%= check_box_tag(:gen_georef_box) %> Also create Georeference
+            </span>
         <% end %>
       </div>
     </div>
     <div class="item item3">
       <div id="action_blok" align="right">
         <%= form_tag(lat_long_update_record_path) do %>
-            <%= submit_tag('Save', id: 'lat_long_update_record') %><br>
-            <%= check_box_tag(:gen_georef_box) %> Also create Georeference
         <% end %>
       </div>
     </div>
