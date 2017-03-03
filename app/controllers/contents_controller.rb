@@ -80,7 +80,7 @@ class ContentsController < ApplicationController
   # GET /contents/filter.json
   def filter
     @contents = Queries::ContentFilterQuery.new(
-      params.permit(:otu_id, :topic_id, :hours_ago).to_h.symbolize_keys
+      params.permit(:otu_id, :topic_id, :hours_ago, :most_recent_updates).to_h.symbolize_keys
     ).all
     render json: @contents 
   end
