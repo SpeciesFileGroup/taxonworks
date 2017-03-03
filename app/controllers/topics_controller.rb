@@ -54,8 +54,6 @@ class TopicsController < ApplicationController
     end
   end
 
-
-
   # TODO: This format very different, should it be made same as other autocompletes?
   def autocomplete
     topics = Topic.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))

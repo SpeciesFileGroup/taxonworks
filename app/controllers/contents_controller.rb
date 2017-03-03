@@ -7,7 +7,7 @@ class ContentsController < ApplicationController
   # GET /contents
   # GET /contents.json
   def index
-    @recent_objects = Content.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+    @recent_objects = Content.recent_from_project_id(sessions_current_project_id).recently_updated(10)
     render '/shared/data/all/index'
   end
 
@@ -66,7 +66,7 @@ class ContentsController < ApplicationController
   end
 
   def list
-    @contents = Content.with_project_id(sessions_current_project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
+    @contents = Content.with_project_id(sessions_current_project_id).order(:id).page(params[:page]) 
   end
 
   def search

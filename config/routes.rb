@@ -408,17 +408,17 @@ TaxonWorks::Application.routes.draw do
     concerns [:data_routes]
   end
 
-
   match '/favorite_page/:kind/:name', to: 'user_preferences#favorite_page', as: :favorite_page, via: :post
   match '/unfavorite_page/:kind/:name', to: 'user_preferences#unfavorite_page', as: :unfavorite_page, via: :post
 
   ### End of resources except user related located below scopes ###
 
   scope :tasks do
-
     scope :content do
       scope :editor, controller: 'tasks/content/editor' do
         get 'index', as: 'index_editor_task'
+        get 'recent_topics', as: 'content_editor_recent_topics_task'
+        get 'recent_otus', as: 'content_editor_recent_otus_task'
       end
     end
 
