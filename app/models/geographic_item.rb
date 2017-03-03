@@ -128,9 +128,15 @@ class GeographicItem < ActiveRecord::Base
           finding = search_object_class.constantize
           found = finding.none
         else
-          shape_in = GeographicArea.joins(:geographic_items)
-                         .find(geographic_area_id)
-                         .default_geographic_item.geo_object
+          # shape_in = []
+          # geographic_area_id.each do |gaid|
+          #   shape_in.push(GeographicArea.joins(:geographic_items)
+          #                     .find(gaid)
+          #                     .default_geographic_item.geo_object.to_s)
+          # end
+          shape_in = (GeographicArea.joins(:geographic_items)
+                          .find(geographic_area_id[0].to_s)
+                          .default_geographic_item.geo_object)
           found = objects_contained_by_geo_object(shape_in, search_object_class)
         end
       else
@@ -145,6 +151,10 @@ class GeographicItem < ActiveRecord::Base
     #    all objects of search_object_class contained by the geo_object geometry
     def objects_contained_by_geo_object(geo_object, search_object_class)
       finding = search_object_class.constantize
+      # geometry = []
+      # geo_object.each do |go|
+      # geometry.push([go.to_s])
+      # end
       geometry = geo_object.to_s
       finding.joins(:geographic_items).where(GeographicItem.contained_by_wkt_sql(geometry))
     end

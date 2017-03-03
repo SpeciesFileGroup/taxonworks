@@ -28,7 +28,7 @@ class Tasks::Gis::LocalityController < ApplicationController
   def list
     case params[:commit]
     when 'Show'
-      geographic_area_id = params[:geographic_area_id]
+      geographic_area_id = params[:geographic_area_ids]
       shape_in = params['drawn_area_shape']
       finding = params['selection_object']
 
