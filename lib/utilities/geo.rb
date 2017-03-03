@@ -118,7 +118,8 @@ To add a new (discovered) symbol:
                 if lat_long[:lat].nil?
                   lat_long[:lat] = piece
                 else
-                  lat_long[:long] = piece
+                  lat_long[:long]  = piece
+                  lat_long[:piece] = [lat_long[:lat], piece].join(', ')
                 end
               end
             end

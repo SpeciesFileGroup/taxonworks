@@ -14,7 +14,7 @@ module Tasks::CollectingEvents::Parse::Stepwise::LatLongHelper
       # next if trial.blank?
       content_tag(:tr, class: :extract_row) do
         content_tag(:td, method) +
-          content_tag(:td, kee) +
+          content_tag(:td, kee == method ? '' : kee) +
           content_tag(:td, trial[:lat], class: :latitude_value) +
           content_tag(:td, trial[:long], class: :longitude_value) +
           content_tag(:td, radio_button_tag('select', dex, false, class: :select_lat_long))
@@ -23,11 +23,11 @@ module Tasks::CollectingEvents::Parse::Stepwise::LatLongHelper
   end
 
   def test_lat
-    ''
+    @collecting_event.verbatim_latitude unless @collecting_event.nil?
   end
 
   def test_long
-    ''
+    @collecting_event.verbatim_longitude unless @collecting_event.nil?
   end
 
   def parse_lat_long_skip_link(current_collecting_event_id)

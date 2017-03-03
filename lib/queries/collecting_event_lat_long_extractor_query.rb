@@ -57,7 +57,8 @@ module Queries
 
     def where_sql
       # with_project_id.and
-      (verbatim_label_not_empty).and(verbatim_lat_long_not_empty).and(starting_after).and(filter_scopes).to_sql
+      (verbatim_label_not_empty).and(verbatim_lat_long_empty).and(starting_after).and(filter_scopes).to_sql
+        # (verbatim_label_not_empty).and(starting_after).and(filter_scopes).to_sql
     end
 
     def table
@@ -82,7 +83,7 @@ module Queries
       Arel::Nodes::NamedFunction.new('length', [vl]).gt(0)
     end
 
-    def verbatim_lat_long_not_empty
+    def verbatim_lat_long_empty
       Arel.sql('(verbatim_latitude is null or verbatim_longitude is null)')
     end
 
