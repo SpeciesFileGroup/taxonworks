@@ -48,7 +48,7 @@ _init_drawable_map = function init_drawable_map() {
     });       
 
     $(".map_toggle").click(function (event) {           // switch to the map
-      loadMap();
+      loadDrawableMap();
     }); 
 
     $(".on_selector").click(function (event) {          // switch to the area by name selector
