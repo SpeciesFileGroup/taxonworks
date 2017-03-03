@@ -7,8 +7,16 @@ class ContentsController < ApplicationController
   # GET /contents
   # GET /contents.json
   def index
-    @recent_objects = Content.recent_from_project_id(sessions_current_project_id).recently_updated(10)
-    render '/shared/data/all/index'
+    @recent_objects = Content.where(project_id: sessions_current_project_id).recently_updated(10)
+    respond_to do |format| 
+      format.html { 
+        render '/shared/data/all/index'
+      }
+      format.json {
+        @contents = @recent_objects   
+        render '/contents/index'
+      }
+    end
   end
 
   # GET /contents/1
