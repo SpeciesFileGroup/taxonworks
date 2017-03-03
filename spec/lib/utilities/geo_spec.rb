@@ -141,7 +141,7 @@ describe 'Geo', group: :geo do
 
     context 'multiple use cases for hunt_wrapper' do
       use_cases = {
-        'Hancock Agricultural; Res. Station,, Hancock; Waushara County, WI; 43.836 N 89.258 W'           =>
+        'Hancock Agricultural; Res. Station,, Hancock; Waushara County, WI; 43.836 N 89.258 W'                                         =>
           {'(full text)'            => {:piece  => 'Hancock Agricultural; Res. Station,, Hancock; Waushara County, WI; 43.836 N 89.258 W',
                                         :lat    => '43.836 N',
                                         :long   => '89.258 W',
@@ -156,13 +156,13 @@ describe 'Geo', group: :geo do
                                         :method => '(,)'},
            '( )'                    => {:method => '( )'}
           },
-        'KREIS ILLUKSTE; ♀ GEMEINDE PRODE; MANELI. 23.V 1923; LATVIA. O.CONDE'                           =>
+        'KREIS ILLUKSTE; ♀ GEMEINDE PRODE; MANELI. 23.V 1923; LATVIA. O.CONDE'                                                         =>
           {'(full text)' => {:method => 'text'},
            '(;)'         => {:method => '(;)'},
            '(,)'         => {:method => '(,)'},
            '( )'         => {:method => '( )'}
           },
-        "Kazakhstan 14.VI.2001; 100 km N. Taldy-Kurgan; Dunes around Mataj; 45 54'N, 78 43'E; M. Hauser" =>
+        "Kazakhstan 14.VI.2001; 100 km N. Taldy-Kurgan; Dunes around Mataj; 45 54'N, 78 43'E; M. Hauser"                               =>
           {'(full text)'         => {:method => 'text'},
            " 45 54'N, 78 43'E"   => {:piece  => " 45 54'N, 78 43'E",
                                      :lat    => " 45 54'N, 78 43'E",
@@ -170,10 +170,21 @@ describe 'Geo', group: :geo do
            " 78 43'E; M. Hauser" => {:piece  => " 78 43'E; M. Hauser",
                                      :lat    => " 78 43'E; M. Hauser",
                                      :method => '(,)'},
-           "43'E;"               => {:piece  => "43'E;",
+           "54'N,, 43'E;"        => {:piece  => "54'N,, 43'E;",
                                      :lat    => "54'N,",
                                      :long   => "43'E;",
                                      :method => '( )'}
+          },
+        'ARGENTINA: Corrientes, P.N. Mburucuyá, 1.8 km W campgd., 80m, 28.01566o"S58.01970oW, 8 Jan 2008 C.H.Dietrich, vacuum, AR9-10' =>
+          {'(full text)'                                => {:method => 'text'},
+           '(;)'                                        => {:method => '(;)'},
+           " 1.8 km W campgd.,  28.01566o\"S58.01970oW" => {:piece  => " 1.8 km W campgd.,  28.01566o\"S58.01970oW",
+                                                            :lat    => " 1.8 km W campgd.",
+                                                            :long   => " 28.01566o\"S58.01970oW",
+                                                            :method => "(,)"},
+           "28.01566o\"S58.01970oW,"                    => {:piece  => "28.01566o\"S58.01970oW,",
+                                                            :lat    => "28.01566o\"S58.01970oW,",
+                                                            :method => "( )"}
           }
       }
       @entry    = 0
@@ -202,12 +213,12 @@ describe 'Geo', group: :geo do
                    'N41.87734º'     => '41.87734',
                    'W89.34677º'     => '-89.34677',
                    ' N18º '         => '18.0',
-                   'W76.8º '                       => '-76.8',
-                   '-88.241121º'                   => '-88.241121', # current test case ['-88.241121°']
-                   'W88.241121º'                   => '-88.241121', # current test case ['-88.241121°']
-                   'w88∫11′43.4″'                  => '-88.195389',
-                   '40º26\'46"N'                   => '40.446111', # using MAC-native symbols
-                   '079º58\'56"W'                  => '-79.982222', # using MAC-native symbols
+                   'W76.8º '        => '-76.8',
+                   '-88.241121º'    => '-88.241121', # current test case ['-88.241121°']
+                   'W88.241121º'    => '-88.241121', # current test case ['-88.241121°']
+                   'w88∫11′43.4″'   => '-88.195389',
+                   '40º26\'46"N'    => '40.446111', # using MAC-native symbols
+                   '079º58\'56"W'   => '-79.982222', # using MAC-native symbols
                    '40:26:46.302N'                 => '40.446195',
                    '079:58:55.903W'                => '-79.982195',
                    '40°26′46″N'                    => '40.446111',
