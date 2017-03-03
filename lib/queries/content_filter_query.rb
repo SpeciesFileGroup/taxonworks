@@ -57,7 +57,7 @@ module Queries
     end
 
     def recently_updated
-      if most_recent_updates
+      if most_recent_updates.nonzero?
         table['id'].eq_any( 
                            Content.order(table['updated_at']).take(most_recent_updates)
                           )
