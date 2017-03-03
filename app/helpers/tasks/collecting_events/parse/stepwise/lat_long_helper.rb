@@ -1,23 +1,12 @@
 module Tasks::CollectingEvents::Parse::Stepwise::LatLongHelper
 
-  # @param [Scope] collecting_events, usually the first five
-  # @return [String] for collecting event, or failure text
-  def show_ce_vl(collecting_events)
-    # display_string = ''
-    if collecting_events.empty?
-      display_string = 'No collecting event available.'
-    else
-      display_string = "#{collecting_events.first.verbatim_label}"
-    end
-    display_string
-  end
-
   def parse_label(label)
     retval = Utilities::Geo.hunt_wrapper(label)
     retval
   end
 
   def make_rows(label)
+    return nil if label.nil?
     tests = Utilities::Geo.hunt_wrapper(label)
     tests.keys.collect.with_index do |kee, dex|
       trial  = tests[kee]
@@ -40,4 +29,17 @@ module Tasks::CollectingEvents::Parse::Stepwise::LatLongHelper
   def test_long
     ''
   end
+
+  def parse_lat_long_skip_link(current_collecting_event_id)
+    # TODO: Now this has to be bound to next hit
+    next_id = Queries::CollectingEventLatLongExtractorQuery.new(
+      collecting_event_id: current_collecting_event_id,
+      filters: [:dd, :d_dm]).all.with_project_id(sessions_current_project_id).first.try(:id)
+    if next_id
+      link_to('Skip to next record', collecting_event_lat_long_task_path(collecting_event_id: next_id))
+    else
+      content_tag(:span, 'no more matches')
+    end
+  end
+
 end

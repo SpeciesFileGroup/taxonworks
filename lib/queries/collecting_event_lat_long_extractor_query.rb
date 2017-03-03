@@ -19,10 +19,10 @@ module Queries
     attr_accessor :filters
     attr_accessor :project_id
 
-# @param [Integer] collecting_event_id
-# @param [Integer] project_id
-# @param [Array] of symbolized filter names
-# @param [Object] filters
+    # @param [Integer] collecting_event_id
+    # @param [Integer] project_id
+    # @param [Array] of symbolized filter names
+    # @param [Object] filters
     def initialize(collecting_event_id: nil, project_id: nil, filters: [])
 
       collecting_event_id = 0 if collecting_event_id.nil?
@@ -32,13 +32,13 @@ module Queries
       @project_id         = project_id
     end
 
-# TODO: use passed filter symbols to build filter_keys
-# @return [String] of all of the regexs available at this time
+    # TODO: use passed filter symbols to build filter_keys
+    # @return [String] of all of the regexs available at this time
     def filter_scopes
-      if @filters.empty?
+      if filters.empty?
         filter_keys = FILTERS.keys.compact
       else
-        filter_keys = @filters
+        filter_keys = filters
       end
 
       all_filters = filter_keys.collect do |k|
@@ -64,17 +64,17 @@ module Queries
       CollectingEvent.arel_table
     end
 
-# @return [Scope]
+    # @return [Scope]
     def all
       CollectingEvent.where(where_sql)
     end
 
-# @param [String] filter regex pattern for matching lat_lomg
-# @return [Scope]
-# def regex(filter)
-#   verbatim_label_not_empty
-# trial(filter)
-# end
+    # @param [String] filter regex pattern for matching lat_lomg
+    # @return [Scope]
+    # def regex(filter)
+    #   verbatim_label_not_empty
+    # trial(filter)
+    # end
 
     def verbatim_label_not_empty
       # Arel.sql('length(verbatim_label)').gt(0)
@@ -88,23 +88,23 @@ module Queries
 
     def starting_after
       start_id = Arel::Attribute.new(Arel::Table.new(:collecting_events), :id)
-      start_id.gt(@collecting_event_id)
+      start_id.gt(collecting_event_id)
     end
 
-# d =  Arel::Attribute.new(Arel::Table.new(:sources), :cached_nomenclature_date)
-# r  = Arel::Attribute.new(Arel::Table.new(related_table_name), :id)
-# f1 = Arel::Nodes::NamedFunction.new('Now', [] )
-#
-# func = Arel::Nodes::NamedFunction.new('COALESCE', [d, f1])
-# where(Arel::Nodes::NamedFunction.new('date_part', ['year', arel_table[:due_date]]).eq(year).to_sql)
-# def functionX(filter)
-#   vl  = Arel::Attribute.new(table, :verbatim_label)
-#   fun = Arel::Nodes::NamedFunction.new('regexp_matches', [vl, FILTERS[filter]])
-#   fun
-# end
+    # d =  Arel::Attribute.new(Arel::Table.new(:sources), :cached_nomenclature_date)
+    # r  = Arel::Attribute.new(Arel::Table.new(related_table_name), :id)
+    # f1 = Arel::Nodes::NamedFunction.new('Now', [] )
+    #
+    # func = Arel::Nodes::NamedFunction.new('COALESCE', [d, f1])
+    # where(Arel::Nodes::NamedFunction.new('date_part', ['year', arel_table[:due_date]]).eq(year).to_sql)
+    # def functionX(filter)
+    #   vl  = Arel::Attribute.new(table, :verbatim_label)
+    #   fun = Arel::Nodes::NamedFunction.new('regexp_matches', [vl, FILTERS[filter]])
+    #   fun
+    # end
 
-# @param [String] key to FILTERS regex string
-# @return [Scope]
+    # @param [String] key to FILTERS regex string
+    # @return [Scope]
     def function(filter)
       # verbatim_label_not_empty
       # Arel.sql("verbatim_label ~ '" + FILTERS[filter] + "'")

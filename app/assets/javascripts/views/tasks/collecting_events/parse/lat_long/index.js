@@ -23,11 +23,11 @@ Object.assign(TW.views.tasks.collecting_events.parse, {
       }
     );
     
-    $('#lat_long_update_record').click(function (event) {
+  //  $('#lat_long_update_record').click(function (event) {
       // put the this id into the form before serializatiun
       // $('#collecting_event_id').val($('this_collecting_event').text());
-      $.post('update', $("#lat_long_convert_form").serialize() + "&" + $("#gen_georef_box").serialize());
-    })
+  //   $.post('update', $("#lat_long_convert_form").serialize() + "&" + $("#gen_georef_box").serialize());
+  //  })
   },
   
   bind_radio_buttons: function () {

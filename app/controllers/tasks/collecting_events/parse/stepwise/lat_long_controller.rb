@@ -3,48 +3,31 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
 
   # GET
   def index
-    @collecting_events = Queries::CollectingEventLatLongExtractorQuery
-                           .new(collecting_event_id: collecting_event_id_param,
-                                project_id:          sessions_current_project_id,
-                                filters:             [:dd, :d_dm]).all.limit(5)
-
-  end
-
-  def convert
-    retval              = {}
-    retval[:lat_piece]  = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(params[:verbatim_latitude])
-    retval[:long_piece] = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(params[:verbatim_longitude])
-    render :json => retval
+    @collecting_event = current_collecting_event 
+    if @collecting_event.nil?
+      flash['notice'] = 'No collecting events with parsable records found.'
+      redirect_to hub_path and return
+    end
   end
 
   def update
-    collecting_event_id = lat_long_params[:collecting_event_id]
-    ce                  = CollectingEvent.find(collecting_event_id)
-    unless ce.nil?
-      p_lat                 = lat_long_params[:verbatim_latitude]
-      p_long                = lat_long_params[:verbatim_longitude]
-      g_g                   = lat_long_params[:gen_georef_box]
-      ce.verbatim_latitude  = (p_lat.blank? ? nil : p_lat)
-      ce.verbatim_longitude = (p_long.blank? ? nil : p_long)
-      unless g_g.nil?
-        ce.with_verbatim_data_georeference = true
-        ce.generate_verbatim_data_georeference(true) if ce.with_verbatim_data_georeference
-      end
-      unless ce.id == 167457
-        ce.save!
-      end
+    if current_collecting_event.update_attributes(collecting_event_params)
+      collecting_event.generate_verbatim_data_georeference(true) if generate_georeference? 
+      flash['notice'] = 'Updated.'
+    else
+      flash['alert'] = 'Failed to update the collecting event.'
+      redirect_to collecting_event_lat_long_task_path(collecting_event_id: current_collecting_event.id) and return
     end
-    # skip_record
-    redirect_to(collecting_event_lat_long_task_path(collecting_event_id: collecting_event_id))
-    # redirect_to(lat_long_skip_record_path(collecting_event_id: next_record))
+
+    # TODO: pass in next as determined in view
+    redirect_to collecting_event_lat_long_task_path(collecting_event_id: next_collecting_event_id)
   end
 
-  def next_record
-    CollectingEvent.with_project_id(sessions_current_project_id).where('id > ?', collecting_event_id_param).limit(1).pluck(:id)[0]
-  end
-
-  def skip_record
-    redirect_to(collecting_event_lat_long_task_path(collecting_event_id: next_record))
+  def convert
+    retval = {}
+    retval[:lat_piece] = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(params[:verbatim_latitude])
+    retval[:long_piece] = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(params[:verbatim_longitude])
+    render json: retval
   end
 
   def similar_labels
@@ -57,16 +40,28 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
     begin
       params.require(:collecting_event_id)
     rescue ActionController::ParameterMissing
+      # nothing provided, get the first possible one 
       return CollectingEvent.with_project_id(sessions_current_project_id).order(:id).limit(1).pluck(:id)[0]
     end
+  end
+
+  # TODO: deprecate for valud from view/helper 
+  def next_collecting_event_id
+    Queries::CollectingEventLatLongExtractorQuery.new(
+      collecting_event_id: collecting_event_id_param,
+      filters: [:dd, :d_dm]).all.with_project_id(sessions_current_project_id).first.id
   end
 
   def current_collecting_event
     CollectingEvent.find(collecting_event_id_param)
   end
 
-  def lat_long_params
-    params.permit(:verbatim_latitude, :verbatim_longitude, :collecting_event_id, :gen_georef_box)
+  def collecting_event_params
+    params.permit(:verbatim_latitude, :verbatim_longitude)
+  end
+
+  def generate_georeference?
+    !params[:generate_georeference].blank?
   end
 
 end
