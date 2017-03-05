@@ -419,7 +419,7 @@ GEM
     validates_timeliness (4.0.2)
       timeliness (~> 0.3.7)
     vcr (3.0.3)
-    vuejs-rails (2.1.10)
+    vuejs (1.0.37)
     web-console (3.3.0)
       activemodel (>= 4.2)
       debug_inspector
@@ -521,7 +521,7 @@ DEPENDENCIES
   uglifier (~> 3.0.02)
   validates_timeliness (~> 4.0.0)
   vcr (~> 3.0.0)
-  vuejs-rails (~> 2.1.10)
+  vuejs
   web-console (~> 3.3.0)
   webmock (~> 2.1.0)
 
