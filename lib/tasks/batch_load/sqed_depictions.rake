@@ -37,7 +37,7 @@ namespace :tw do
       desc 'import sqed formated collection object depictions'
       task import: [:environment, :project_id, :user_id, :data_directory] do |t|
 
-        @args.merge!(transaction_total: ENV['transaction_total'] || 20))
+        @args.merge!(transaction_total: ENV['transaction_total'] || 20)
 
         # These match sqed and sqed_depiction extraction_metadata patterns
         @args.merge!(target_layout: (ENV['target_layout'] || :cross))
