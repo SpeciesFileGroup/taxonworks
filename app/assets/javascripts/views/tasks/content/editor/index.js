@@ -5,7 +5,6 @@ TW.views.tasks.content = TW.views.tasks.content || {};
 TW.views.tasks.content.editor = TW.views.tasks.content.editor || {};
 
 
-
 Object.assign(TW.views.tasks.content.editor, {
 
   init: function() { 
@@ -13,6 +12,57 @@ Object.assign(TW.views.tasks.content.editor, {
     // JOSE - we can make this more generalized I think, but this works
     Vue.http.headers.common['X-CSRF-Token'] = $('[name="csrf-token"]').attr('content');
 
+    const store = new Vuex.Store({
+      state: {    
+        selected: {
+          topic: undefined,
+          otu: undefined
+        },
+        panels: {
+          otu: false,
+          topic: true,
+          recent: true
+        }
+      },
+      getters: {
+        activeTopicPanel(state) {          
+          return state.panels.topic
+        },
+        activeOtuPanel(state) {
+          return state.panels.otu
+        },
+        activeRecentPanel(state) {
+          return state.panels.recent
+        },        
+        getTopicSelected(state) {
+          return state.selected.topic
+        },
+        getOtuSelected(state) {
+          return state.selected.otu
+        }        
+      },
+      mutations: {
+        setTopicSelected(state, newTopic) {
+          state.selected.topic = newTopic;
+        },
+        setOtuSelected(state, newOtu) {
+          state.selected.otu = newOtu;
+        },
+        setContentSelected(state, newContent) {
+          state.selected.otu = newContent.otu;
+          state.selected.topic = newContent.topic;
+        },        
+        openOtuPanel(state, value) {
+          state.panels.otu = value;
+        },
+        openTopicPanel(state, value) {
+          state.panels.topic = value;
+        },     
+        openRecentPanel(state, value) {
+          state.panels.recent = value;
+        }        
+      }
+    });
 
     Vue.component('itemOption', {
       props: ['name', 'callMethod'],
@@ -34,7 +84,7 @@ Object.assign(TW.views.tasks.content.editor, {
     Vue.component('citation-list', {
       props: ['citations'],
       template: '<ul v-if="citations.length > 0"> \
-                  <li class="flex-separate" v-for="item, index in citations">{{ item.id }} <div @click="removeItem(index, item)">Remove</div> </li> \
+                  <li class="flex-separate" v-for="item, index in citations">{{ item.source.author_year }} <div @click="removeItem(index, item)">Remove</div> </li> \
                 </ul>',
 
       methods: {
@@ -45,6 +95,60 @@ Object.assign(TW.views.tasks.content.editor, {
         }
       }
     });
+
+    Vue.component('recent-list', {
+      props: { url: String, saveState: String, label: String, objects: {
+        type: Array,
+        default: function() { return [] }
+      }} ,
+      data: function() {
+        return {
+          items: [],
+        }
+      },
+ 
+      template: '<div> \
+                    <ul> \
+                      <li v-for="item in items" v-on:click="save(item)" v-html="createString(item)"></li> \
+                    </ul> \
+                  </div>',
+      
+      mounted: function() {
+        this.$http.get(this.url).then( response => {
+          this.items = response.body;
+        }); 
+      },
+      methods: {
+        save: function(item) {
+          this.$store.commit(this.saveState, item);
+          this.$store.commit('openOtuPanel', true);
+        },
+        createString: function(item) {
+          if (this.objects.length < 1) return item[this.label];
+
+          var resultString = '',
+              that = this;
+          this.objects.forEach(function(object, index) {
+            resultString += item[object][that.label] + " ";
+          });
+          return resultString;
+        }
+      }
+    });    
+
+    Vue.component('recent', {
+      template: '<div> \
+                  <div class="content nav-line">Recent</div> \
+                  <div class="content"> \
+                    <span class="subtitle">Contents</span> \
+                    <recent-list url="/contents.json" saveState="setContentSelected" v-bind:objects="[\'topic\', \'otu\']" label="object_tag"></recent-list> \
+                    <span class="subtitle">Topics</span> \
+                    <recent-list url="/tasks/content/editor/recent_topics.json?" saveState="setTopicSelected" label="name"></recent-list> \
+                    <span class="subtitle">OTUs</span> \
+                    <recent-list url="/tasks/content/editor/recent_otus.json" saveState="setOtuSelected" label="name"></recent-list> \
+                  </div> \
+                </div>',
+    });      
 
     Vue.component('citation-modal', {
       template: '<div class="panel content"> \
@@ -68,8 +172,6 @@ Object.assign(TW.views.tasks.content.editor, {
     Vue.component('content-editor', {
       data: function() { 
         return {
-          topic: undefined,
-          otu: undefined,
           autosave: 0,
           unsave: false,
           citationModal: false,
@@ -85,8 +187,16 @@ Object.assign(TW.views.tasks.content.editor, {
           }
         }
       },
+      computed: {
+        topic() {
+          return this.$store.getters.getTopicSelected
+        },
+        otu() {
+          return this.$store.getters.getOtuSelected
+        }          
+      },      
       template: '<div v-if="topic !== undefined && otu !== undefined" class="panel panel-editor separate-left separate-right"> \
-                  <div class="title action-line">{{ topic.label }} - {{ otu.label }} </div> \
+                  <div class="title action-line">{{ topic.name }} - {{ otu.name }} </div> \
                   <textarea v-on:input="autoSave" v-model="record.content.text" ref="contentText" v-on:dblclick="addCitation()"></textarea> \
                   <div class="navigation-controls horizontal-center-content"> \
                     <itemOption name="Save" :callMethod="update" :class="{ saving : unsave }"></itemOption> \
@@ -101,17 +211,6 @@ Object.assign(TW.views.tasks.content.editor, {
                   <citation-modal v-if="citationModal"></citation-modal> \
                   <citation-list :citations="citations"></citation-list> \
                 </div>',
-      created: function() {
-        var that = this;
-
-        bus.$on('sendTopic', function (topic) {
-          that.topic = topic;
-        })
-
-        bus.$on('sendOtu', function (otu) {
-          that.otu = otu;
-        })    
-      },
       watch: {
         otu: function(val, oldVal) {
           if (JSON.stringify(val) !== JSON.stringify(oldVal)) {
@@ -255,10 +354,6 @@ Object.assign(TW.views.tasks.content.editor, {
       template: '<div></div>'
     });   
 
-    Vue.component('recent', {
-      template: '<div></div>'
-    }); 
-
     Vue.component('topic', {
       template: '<div></div>'
     });                   
@@ -295,22 +390,9 @@ Object.assign(TW.views.tasks.content.editor, {
         },
         createNewTopic: function() {
           var that = this;
-          $.ajax({
-            url: '/controlled_vocabulary_terms.json',
-            data: that.topic,
-            dataType: 'json',
-            method: 'POST',
-            success: function(res) {
-              TW.workbench.alert.create(res.name + " was successfully created.", "notice");
-              var temp = res;
-              that.$parent.topics.push(res);
-              console.log(res);
-            },
-            error: function(data,status,error){
-              console.log(error);
-              console.log(status);
-              console.log(data);              
-            }                    
+          this.$http.post('/controlled_vocabulary_terms.json', this.topic).then( response => {
+              TW.workbench.alert.create(response.body.name + " was successfully created.", "notice");
+              that.$parent.topics.push(response.body);
           });
           this.creating = false;
         }        
@@ -318,7 +400,7 @@ Object.assign(TW.views.tasks.content.editor, {
     }); 
 
     Vue.component('topic-section', {
-      template: '<div id="topics"> \
+      template: '<div id="topics" v-if="active"> \
                   <div class="content nav-line">Topics</div> \
                   <new-topic></new-topic> \
                   <ul> \
@@ -331,38 +413,37 @@ Object.assign(TW.views.tasks.content.editor, {
           topics: []
         }
       },
+      computed: {
+        active() {
+          return this.$store.getters.activeTopicPanel;
+        }
+      },
       mounted: function() {
         this.loadList();
       },
       methods: {
         loadTopic: function(item, index) {
           this.selected = index
-          bus.$emit('sendTopic', item);
-          bus.$emit('showPanelTop');
+          this.$store.commit('setTopicSelected', item);
+          this.$store.commit('openOtuPanel', true);
         },       
         loadList: function() {
           var that;
           that = this;
-          $.ajax({
-            url: '/topics/list',
-            success: function(res) {
-              that.topics = res;
-            },
-            error: function(data,status,error){
-              console.log(error);
-            }          
-          });          
+          this.$http.get('/topics/list').then( response => {
+            that.topics = response.body;
+          });         
         }
       }
     });
 
     Vue.component('panel-top', {
-      data: function() {
-        return {
-          display: false
+      computed: {
+        display() {
+          return this.$store.getters.activeOtuPanel
         }
       },
-      template: '<div v-if="display" class="panel content separate-bottom"> \
+      template: '<div v-if="display" id="otu_panel" class="panel content separate-bottom"> \
                   <autocomplete \
                     url="/otus/autocomplete" \
                     min="3" \
@@ -373,23 +454,16 @@ Object.assign(TW.views.tasks.content.editor, {
                   </autocomplete> \
                  </div>',
       mounted: function() {
-        var
-          that = this;
-
-        bus.$on('showPanelTop', function () {
-          that.display = true
-        })        
-
+        var that = this;
         this.$on('otu_picker', function (item) {
-          bus.$emit("sendOtu", item)
+          that.$store.commit('setOtuSelected', item); 
         })                  
       }
     });
-            
-    var bus = new Vue(); //Used to communicate between components
 
     var content_editor = new Vue({
       el: '#content_editor',
+      store: store      
     });  
   }
 });

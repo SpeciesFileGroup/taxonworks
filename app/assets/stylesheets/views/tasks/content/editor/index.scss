@@ -4,6 +4,7 @@
 @import 'base/form_elements';
 
 #content_editor {
+	margin-top: $standard_margin;
 	.panel-editor {
 		width: 700px;
 		textarea {
@@ -20,11 +21,16 @@
 		}
 	}
 
-	.topic-panel {
-		max-width: 300px;
+	#recent_panel {
+		width: 300px;
+	}
+
+	#otu_panel {
+		margin-top: -$standard_margin;
 	}
 
 	#topics {
+		width: 300px;
 		ul {
 			padding: 0px;
 			margin: 0px;
@@ -32,8 +38,8 @@
 		}
 		li {
 			border-top: 1px solid #F5F5F5;
-			padding: 0.5em;
-			padding-left: 1em;
+			padding: $standard_padding * 0.5;
+			padding-left: $standard_padding;
 			cursor: pointer;
 		}
 		.selected {
