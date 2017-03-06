@@ -11,10 +11,11 @@ module Tasks::CollectingEvents::Parse::Stepwise::LatLongHelper
     tests.keys.collect.with_index do |kee, dex|
       trial  = tests[kee]
       method = trial.delete(:method)
-      # next if trial.blank?
+      next if trial.blank?
       content_tag(:tr, class: :extract_row) do
         content_tag(:td, method) +
-          content_tag(:td, kee == method ? '' : kee) +
+          # content_tag(:td, kee == method ? '' : kee) +
+          content_tag(:td, trial[:piece]) +
           content_tag(:td, trial[:lat], class: :latitude_value) +
           content_tag(:td, trial[:long], class: :longitude_value) +
           content_tag(:td, radio_button_tag('select', dex, false, class: :select_lat_long))

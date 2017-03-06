@@ -57,8 +57,8 @@ module Queries
 
     def where_sql
       # with_project_id.and
-      (verbatim_label_not_empty).and(verbatim_lat_long_empty).and(starting_after).and(filter_scopes).to_sql
-        # (verbatim_label_not_empty).and(starting_after).and(filter_scopes).to_sql
+      # (verbatim_label_not_empty).and(verbatim_lat_long_empty).and(starting_after).and(filter_scopes).to_sql
+      (verbatim_label_not_empty).and(starting_after).and(filter_scopes).to_sql
     end
 
     def table
