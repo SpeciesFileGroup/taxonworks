@@ -95,7 +95,7 @@ To add a new (discovered) symbol:
       DD1 = /(?<lat>\d+\.\d+\s*(?<ca>[NS]))\s(?<long>\d+\.\d+\s*(?<co>[EW]))/i,
       DD2 = /(?<lat>\d+[\. ]\d+'?\s*(?<ca>[NS])),?\s*(?<long>\d+[\. ]\d+'?\s*(?<co>[EW]))/,
       DM1 = /\D(\d+) ?[\*°ººo\u02DA ] ?(\d+[\.|,]\d+|\d+) ?[ '´\u02B9\u02BC\u02CA]? ?([nN]|[sS])[\.,;]? ?(\d+) ?[\*°ººo\u02DA ] ?(\d+[\.|,]\d+|\d+) ?[ '´\u02B9\u02BC\u02CA]? ?([wW]|[eE])\W/
-    ]
+    ].freeze
 
     def self.hunt_lat_long(label, how = ' ')
       if how.nil?
@@ -119,7 +119,7 @@ To add a new (discovered) symbol:
                   lat_long[:lat] = piece
                 else
                   lat_long[:long]  = piece
-                  lat_long[:piece] = [lat_long[:lat], piece].join(', ')
+                  lat_long[:piece] = [lat_long[:lat], piece].join(how)
                 end
               end
             end

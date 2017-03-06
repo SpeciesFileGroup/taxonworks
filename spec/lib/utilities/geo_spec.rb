@@ -141,7 +141,13 @@ describe 'Geo', group: :geo do
 
     context 'multiple use cases for hunt_wrapper' do
       use_cases = {
-        'Hancock Agricultural; Res. Station,, Hancock; Waushara County, WI; 43.836 N 89.258 W'                                         =>
+        "#32, USA, California, Guatay, 35 mi E San Diego, N 32o35'45\" W 116o32'27\" 5 V 2003 D. Dmitriev" =>
+          {'(full text)' => {:method => 'text'},
+           '(;)'         => {:method => '(;)'},
+           '(,)'         => {:method => '(,)'},
+           '( )'         => {:method => '( )'}
+          },
+        'Hancock Agricultural; Res. Station,, Hancock; Waushara County, WI; 43.836 N 89.258 W'             =>
           {'(full text)'            => {:piece  => 'Hancock Agricultural; Res. Station,, Hancock; Waushara County, WI; 43.836 N 89.258 W',
                                         :lat    => '43.836 N',
                                         :long   => '89.258 W',
