@@ -26,6 +26,11 @@
     background-color: $color-action-button;  
 }
 
+.button-delete, .button-close { 
+    color: #FFF;
+    background-color: #F44336;
+ }
+
 .button-request {
     color: #FFF;
     background-color: $color-request-button;  
@@ -95,8 +100,18 @@
 	background-repeat: no-repeat;
 	box-shadow: 0px 1px 2px 0px $navigation_border;
 	margin: 5px;
-    cursor: pointer;
+    cursor: pointer;  
 }
+
+.btn-add {
+    background-color: #AED581;
+    background-image: image-url("bplus.svg");
+} 
+
+.btn-delete {
+    background-color: #F44336;
+    background-image: image-url("trash.svg");
+} 
 
 .circle-button-big {
     width: 30px;

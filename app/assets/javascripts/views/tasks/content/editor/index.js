@@ -84,7 +84,7 @@ Object.assign(TW.views.tasks.content.editor, {
     Vue.component('citation-list', {
       props: ['citations'],
       template: '<ul v-if="citations.length > 0"> \
-                  <li class="flex-separate" v-for="item, index in citations">{{ item.source.author_year }} <div @click="removeItem(index, item)">Remove</div> </li> \
+                  <li class="flex-separate middle" v-for="item, index in citations">{{ item.source.author_year }} <div @click="removeItem(index, item)" class="circle-button btn-delete">Remove</div> </li> \
                 </ul>',
 
       methods: {
@@ -97,7 +97,7 @@ Object.assign(TW.views.tasks.content.editor, {
     });
 
     Vue.component('recent-list', {
-      props: { url: String, saveState: String, label: String, objects: {
+      props: { url: String, nameList: String, saveState: String, label: String, objects: {
         type: Array,
         default: function() { return [] }
       }} ,
@@ -106,12 +106,13 @@ Object.assign(TW.views.tasks.content.editor, {
           items: [],
         }
       },
- 
       template: '<div> \
-                    <ul> \
-                      <li v-for="item in items" v-on:click="save(item)" v-html="createString(item)"></li> \
+                  <div class="slide-panel-category-header"> {{ nameList }}</div> \
+                    <ul class="slide-panel-category-content"> \
+                      <li v-for="item in items" v-on:click="save(item)" class="slide-panel-category-item"><span v-html="createString(item)"></span></li> \
                     </ul> \
-                  </div>',
+                  </div> \
+                </div>',
       
       mounted: function() {
         this.$http.get(this.url).then( response => {
@@ -137,17 +138,21 @@ Object.assign(TW.views.tasks.content.editor, {
     });    
 
     Vue.component('recent', {
-      template: '<div> \
-                  <div class="content nav-line">Recent</div> \
-                  <div class="content"> \
-                    <span class="subtitle">Contents</span> \
-                    <recent-list url="/contents.json" saveState="setContentSelected" v-bind:objects="[\'topic\', \'otu\']" label="object_tag"></recent-list> \
-                    <span class="subtitle">Topics</span> \
-                    <recent-list url="/tasks/content/editor/recent_topics.json?" saveState="setTopicSelected" label="name"></recent-list> \
-                    <span class="subtitle">OTUs</span> \
-                    <recent-list url="/tasks/content/editor/recent_otus.json" saveState="setOtuSelected" label="name"></recent-list> \
+      template: '<div id="recent-list" class="slide-panel slide-recent " data-panel-open="false" data-panel-name="recent_list"> \
+                  <div class="slide-panel-header">Recent list</div> \
+                  <div class="slide-panel-content"> \
+                    <recent-list url="/contents.json" name-list="Contents" saveState="setContentSelected" v-bind:objects="[\'topic\', \'otu\']" label="object_tag"></recent-list> \
+                    <recent-list url="/tasks/content/editor/recent_topics.json?" name-list="Topics" saveState="setTopicSelected" label="name"></recent-list> \
+                    <recent-list url="/tasks/content/editor/recent_otus.json" name-list="OTUs" saveState="setOtuSelected" label="name"></recent-list> \
+                  </div> \
+                  <div class="slide-panel-circle-icon"> \
+                    <div class="slide-panel-description">Recent created</div> \
+                  </div> \
                   </div> \
                 </div>',
+      mounted: function() {
+      //  TW.views.shared.slideout.closeHideSlideoutPanel('[data-panel-name="recent_list"]');
+      }
     });      
 
     Vue.component('citation-modal', {
@@ -209,7 +214,7 @@ Object.assign(TW.views.tasks.content.editor, {
                     <itemOption name="Drag new figure"></itemOption> \
                   </div> \
                   <citation-modal v-if="citationModal"></citation-modal> \
-                  <citation-list :citations="citations"></citation-list> \
+                  <citation-list :citations="citations" class="citation-list"></citation-list> \
                 </div>',
       watch: {
         otu: function(val, oldVal) {
@@ -348,31 +353,29 @@ Object.assign(TW.views.tasks.content.editor, {
           });
         }
       }                
-    }); 
-
-    Vue.component('subject', {
-      template: '<div></div>'
-    });   
-
-    Vue.component('topic', {
-      template: '<div></div>'
-    });                   
+    });                 
 
     Vue.component('new-topic', {
-      template: ' <form v-if="creating" id="new-topic" class="panel content" action=""> \
-                    <div class="field"> \
-                      <input type="text" v-model="topic.controlled_vocabulary_term.name" placeholder="Name" /> \
-                    </div> \
-                    <div class="field"> \
-                      <textarea v-model="topic.controlled_vocabulary_term.definition" placeholder="Definition"></textarea> \
-                    </div> \
-                    <input class="button" type="submit" v-on:click.prevent="createNewTopic" :disabled="((topic.controlled_vocabulary_term.name.length < 2) || (topic.controlled_vocabulary_term.definition.length < 2)) ? true : false" value="Create"/> \
-                  </form> \
-                  <div class="panel content no-shadow" v-else> \
-                    <input type="button" value="New topic" class="button button-default normal-input" v-on:click="openWindow"/> \
-                  </div>',
+      template: '<div> \
+                  <button v-on:click="openWindow" class="button normal-input">New</button> \
+                    <modal v-if="showModal" @close="showModal = false"> \
+                      <h3 slot="header">New topic</h3> \
+                      <form  id="new-topic" action="" slot="body"> \
+                        <div class="field"> \
+                          <input type="text" v-model="topic.controlled_vocabulary_term.name" placeholder="Name" /> \
+                        </div> \
+                        <div class="field"> \
+                          <textarea v-model="topic.controlled_vocabulary_term.definition" placeholder="Definition"></textarea> \
+                        </div> \
+                      </form> \
+                      <div slot="footer" class="flex-separate"> \
+                        <input class="button normal-input" type="submit" v-on:click.prevent="createNewTopic" :disabled="((topic.controlled_vocabulary_term.name.length < 2) || (topic.controlled_vocabulary_term.definition.length < 2)) ? true : false" value="Create"/> \
+                        <button class="button button-close normal-input" @click="showModal = false">Close</button> \
+                      </div> \
+                    </modal> \
+                  <div>',
       data: function() { return {
-        creating: false,
+        showModal: false,
         topic: {
           controlled_vocabulary_term: {
             name: '',
@@ -386,7 +389,7 @@ Object.assign(TW.views.tasks.content.editor, {
         openWindow: function() {
           this.topic.controlled_vocabulary_term.name = '';
           this.topic.controlled_vocabulary_term.definition = '';
-          this.creating = true;
+          this.showModal = true;          
         },
         createNewTopic: function() {
           var that = this;
@@ -394,18 +397,24 @@ Object.assign(TW.views.tasks.content.editor, {
               TW.workbench.alert.create(response.body.name + " was successfully created.", "notice");
               that.$parent.topics.push(response.body);
           });
-          this.creating = false;
+          this.showModal = false;
         }        
       }
     }); 
 
     Vue.component('topic-section', {
-      template: '<div id="topics" v-if="active"> \
-                  <div class="content nav-line">Topics</div> \
-                  <new-topic></new-topic> \
-                  <ul> \
-                    <li v-for="item, index in topics" :class="{ selected : (index == selected) }"v-on:click="loadTopic(item,index)"> {{ item.name }}</li> \
-                  </ul> \
+      template: '<div id="topics" class="slide-panel slide-left" v-if="active" data-panel-open="false" data-panel-name="topic_list"> \
+                  <div class="slide-panel-header flex-separate">Topic list<new-topic></new-topic></div> \
+                  <div class="slide-panel-content"> \
+                    <div class="slide-panel-category"> \
+                      <ul class="slide-panel-category-content"> \
+                        <li v-for="item, index in topics" class="slide-panel-category-item" :class="{ selected : (index == selected) }"v-on:click="loadTopic(item,index)"> {{ item.name }}</li> \
+                      </ul> \
+                    </div> \
+                  </div> \
+                  <div class="slide-panel-circle-icon"> \
+                    <div class="slide-panel-description">Pinboard </div> \
+                  </div> \
                 </div>', 
       data: function() { 
         return {
@@ -419,6 +428,7 @@ Object.assign(TW.views.tasks.content.editor, {
         }
       },
       mounted: function() {
+        TW.views.shared.slideout.closeHideSlideoutPanel('[data-panel-name="recent_list"]');
         this.loadList();
       },
       methods: {
@@ -426,6 +436,7 @@ Object.assign(TW.views.tasks.content.editor, {
           this.selected = index
           this.$store.commit('setTopicSelected', item);
           this.$store.commit('openOtuPanel', true);
+          TW.views.shared.slideout.closeHideSlideoutPanel('[data-panel-name="topic_list"]');
         },       
         loadList: function() {
           var that;

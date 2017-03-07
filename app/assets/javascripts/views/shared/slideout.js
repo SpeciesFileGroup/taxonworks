@@ -5,12 +5,12 @@ TW.views.shared.slideout = TW.views.shared.slideout || {};
 
 Object.assign(TW.views.shared.slideout, {
 	init: function() {
-
-		$('.slide-panel-circle-icon').on('click', function() {		
-			closeHideSlideoutPanel($(this).closest('.slide-panel'));
+		var that = this;
+		$(document).on('click', '.slide-panel-circle-icon', function() {		
+			that.closeHideSlideoutPanel($(this).closest('.slide-panel'));
 		});
 
-		$('.slide-panel-category-header').on('click', function() {
+		$(document).on('click', '.slide-panel-category-header', function() {
 			$(this).parent().find('.slide-panel-category-content').toggle(250);
 		});	
 
@@ -18,8 +18,13 @@ Object.assign(TW.views.shared.slideout, {
 			$(this).find('.slide-panel-description').text($(this).children('.slide-panel-header').text());
 		});
 
+		$('[data-pdfviewer]').on("click", function() {
+	      	that.closeHideSlideoutPanel($('[data-panel-name="pinboard"]'));
+	      	that.closeHideSlideoutPanel($('[data-panel-name="pdfviewer"]'));
+	  	});
+	},
 
-		function closeHideSlideoutPanel(panel) {
+	closeHideSlideoutPanel: function(panel) {
 			if($(panel).hasClass("slide-left")){
 				$(panel).css("right", "");		
 				if($(panel).css('left') == '0px') {
@@ -47,11 +52,6 @@ Object.assign(TW.views.shared.slideout, {
 				}
 			}		
 		}
-		$('[data-pdfviewer]').on("click", function() {
-	      	closeHideSlideoutPanel($('[data-panel-name="pinboard"]'));
-	      	closeHideSlideoutPanel($('[data-panel-name="pdfviewer"]'));
-	  	});
-	}
 });
 
 $(document).ready(function() {

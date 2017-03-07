@@ -21,33 +21,70 @@
 		}
 	}
 
-	#recent_panel {
-		width: 300px;
-	}
-
 	#otu_panel {
 		margin-top: -$standard_margin;
+	}
+		.slide-panel-header {
+			font-weight: 500;
+			color: #555;
+			height: 50px;
+			background-color: #FFF;
+			box-shadow: 0px 1px 1px 0px #AAA;
+			padding-right: $standard_padding*2;
+		}	
+	#recent-list {
+		width: 300px;
+		.slide-panel-circle-icon {
+			top:calc(100vh - 120px);
+			background-color: #00838F;
+			background-image: image-url('recent_slide.svg');
+		}		
 	}
 
 	#topics {
 		width: 300px;
-		ul {
-			padding: 0px;
-			margin: 0px;
-			list-style: none;
-		}
-		li {
-			border-top: 1px solid #F5F5F5;
-			padding: $standard_padding * 0.5;
-			padding-left: $standard_padding;
-			cursor: pointer;
-		}
+
 		.selected {
 			background-color: $color-complement-2;
+		}
+		.slide-panel-category-content {
+			padding: 0px;
+			margin:0px;
+		}
+		.slide-panel-category-item {
+			position: relative;
+			border-bottom: 1px solid #FAFAFA;
+			border-left:5px solid transparent;
+			display: flex;
+			align-items: center;
+			justify-content:space-between;
+			padding: $standard_padding*0.5;
+			padding-left: $standard_padding*2;		
+		}	
+
+		.slide-panel-circle-icon {
+			top:calc(100vh - 120px);
+			background-color: #00838F;
+			background-image: image-url('recent_slide.svg');
+		}				
+	}
+
+	.citation-list {
+		margin: 0px;
+		padding: 0px;
+		li {
+			padding: $standard_padding * 0.5;
+			padding-left: $standard_padding;
+			padding-right: $standard_padding;
+			border-bottom: 1px solid $navigation_border;
 		}
 	}
 
 	.saving {
 		background-color: red;
+	}
+
+	#new-topic {
+		width: 300px;
 	}
 }
