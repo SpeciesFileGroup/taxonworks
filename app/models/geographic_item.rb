@@ -128,15 +128,15 @@ class GeographicItem < ActiveRecord::Base
           finding = search_object_class.constantize
           found = finding.none
         else
-          # shape_in = []
-          # geographic_area_id.each do |gaid|
-          #   shape_in.push(GeographicArea.joins(:geographic_items)
-          #                     .find(gaid)
-          #                     .default_geographic_item.geo_object.to_s)
-          # end
-          shape_in = (GeographicArea.joins(:geographic_items)
-                          .find(geographic_area_id[0].to_s)
-                          .default_geographic_item.geo_object)
+          shape_in = []
+          geographic_area_id.each do |gaid|
+            shape_in.push(GeographicArea.joins(:geographic_items)
+                              .find(gaid)
+                              .default_geographic_item.geo_object.to_s)
+          end
+          # shape_in = (GeographicArea.joins(:geographic_items)
+          #                 .find(geographic_area_id[0].to_s)
+          #                 .default_geographic_item.geo_object)
           found = objects_contained_by_geo_object(shape_in, search_object_class)
         end
       else
@@ -151,12 +151,16 @@ class GeographicItem < ActiveRecord::Base
     #    all objects of search_object_class contained by the geo_object geometry
     def objects_contained_by_geo_object(geo_object, search_object_class)
       finding = search_object_class.constantize
-      # geometry = []
-      # geo_object.each do |go|
-      # geometry.push([go.to_s])
-      # end
-      geometry = geo_object.to_s
-      finding.joins(:geographic_items).where(GeographicItem.contained_by_wkt_sql(geometry))
+      geometry = []
+      geo_object.each do |go|
+        geometry.push(go.to_s)
+      end
+      # geometry = geo_object.to_s
+      found_items = [] # finding.joins(:geographic_items).none
+      geometry.each do |geom|
+        found_items += finding.joins(:geographic_items).where(GeographicItem.contained_by_wkt_sql(geom)).map(&:id)
+      end
+      finding.where(id: found_items)
     end
 
     # @param [String] feature in JSON
@@ -170,7 +174,7 @@ class GeographicItem < ActiveRecord::Base
     def gather_map_data(feature, search_object_class)
       finding = search_object_class.constantize
       feature = RGeo::GeoJSON.decode(feature, json_parser: :json)
-      geometry = feature.geometry       # isolate the WKT
+      geometry = feature.geometry # isolate the WKT
       shape_type = geometry.geometry_type.to_s.downcase
       geometry = geometry.as_text
       radius = feature['radius']
@@ -178,12 +182,12 @@ class GeographicItem < ActiveRecord::Base
       query = finding.joins(:geographic_items)
 
       case shape_type
-      when 'point'
-        query.where(GeographicItem.within_radius_of_wkt_sql(geometry, radius))
-      when 'polygon', 'multipolygon'
-        query.where(GeographicItem.contained_by_wkt_sql(geometry))
-      else
-        query
+        when 'point'
+          query.where(GeographicItem.within_radius_of_wkt_sql(geometry, radius))
+        when 'polygon', 'multipolygon'
+          query.where(GeographicItem.contained_by_wkt_sql(geometry))
+        else
+          query
       end
     end
 
@@ -953,14 +957,14 @@ class GeographicItem < ActiveRecord::Base
     # !! The real solution here is to add a sort to prioritize by gazeteer.
     # !! This ordering basically means that if two areas with country (for example) level are found, the first in the alphabet is selected, then sorting by id if equally named
     (containing_geographic_areas
-      .joins(:geographic_areas_geographic_items)
-      .merge(GeographicAreasGeographicItem.ordered_by_data_origin)
-      .order('geographic_areas.name') + 
-    geographic_areas
-      .joins(:geographic_areas_geographic_items)
-      .merge(GeographicAreasGeographicItem
-      .ordered_by_data_origin)
-      .order('geographic_areas.name').limit(1)).each do |a| 
+         .joins(:geographic_areas_geographic_items)
+         .merge(GeographicAreasGeographicItem.ordered_by_data_origin)
+         .order('geographic_areas.name') +
+        geographic_areas
+            .joins(:geographic_areas_geographic_items)
+            .merge(GeographicAreasGeographicItem
+                       .ordered_by_data_origin)
+            .order('geographic_areas.name').limit(1)).each do |a|
       v.merge!(a.categorize)
     end
     v
