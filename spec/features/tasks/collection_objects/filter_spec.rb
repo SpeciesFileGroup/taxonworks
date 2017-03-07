@@ -30,7 +30,7 @@ describe 'tasks/gis/collection_objects/filter', type: :feature, group: [:geo, :c
             # {geographic_area_id: GeographicArea.where(name: 'Great Northern Land Mass').first.id})
             # expect(response).to have_http_status(:success)
             # expect(JSON.parse(response.body)['html']).to eq('16')
-            fill_autocomplete('geographic_area_id_for_by_area', with: 'Great Northern', select: gnlm.id)
+            fill_area_picker_autocomplete('area_picker_autocomplete', with: 'Great Northern', select: gnlm.id)
             # expect(page).to have_content('Land Mass')
             click_button('Set area')
             expect(find('#area_count')).to have_text('16')

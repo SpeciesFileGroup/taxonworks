@@ -51,7 +51,7 @@ Object.assign(TW.views.filter.area_picker, {
 
     }).autocomplete("instance")._renderItem = function (ul, item) {
       return $("<li class='area'>")
-        .append("<a data-geographic_area_id= '" +  item.id + "'>" + item.label_html + '<span>...</span></a>')
+        .append("<a data-geographic-area-id= '" + item.id + "'>" + item.label_html + '<span>...</span></a>')
         .appendTo(ul);
     };
   },
