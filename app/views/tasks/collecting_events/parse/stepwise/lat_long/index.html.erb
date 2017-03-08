@@ -5,8 +5,8 @@
   <div class="flexbox">
     <div class="item item1 one_third_width">
       Collecting event id:  <%= link_to(@collecting_event.id, collecting_event_path(@collecting_event), target: :_blank) %>
-      <%= collecting_event_label_tag( @collecting_event.verbatim_label ) %>
       <%= parse_lat_long_skip_link(@collecting_event.id) %>
+      <%= collecting_event_label_tag(@collecting_event.verbatim_label) %>
     </div>
 
     <div class="item item2">

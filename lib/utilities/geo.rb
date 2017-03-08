@@ -92,8 +92,9 @@ To add a new (discovered) symbol:
     end
 
     REGEXP_COORD = {
-      # DD1: /(?<lat>\d+\.\d+\s*(?<ca>[NS]))\s(?<long>\d+\.\d+\s*(?<co>[EW]))/i,
-      # DD2: /(?<lat>\d+[\. ]\d+'?\s*(?<ca>[NS])),?\s*(?<long>\d+[\. ]\d+'?\s*(?<co>[EW]))/,
+      # tt1: /\D?(?<lat>\d+\.\d+\s*(?<ca>[NS])*)\s(?<long>\d+\.\d+\s*(?<co>[EW])*)/i,
+      dd1: /(?<lat>\d+\.\d+\s*(?<ca>[NS]))\s(?<long>\d+\.\d+\s*(?<co>[EW]))/i,
+      dd2: /(?<lat>\d+[\. ]\d+'?\s*(?<ca>[NS]))[, ]?\s*(?<long>\d+[\. ]\d+'?\s*(?<co>[EW]))/i,
       dm1: /\D(\d+) ?[\*°ººo\u02DA ] ?(\d+[\.|,]\d+|\d+) ?[ '´\u02B9\u02BC\u02CA]? ?([nN]|[sS])[\.,;]? ?(\d+) ?[\*°ººo\u02DA ] ?(\d+[\.|,]\d+|\d+) ?[ '´\u02B9\u02BC\u02CA]? ?([wW]|[eE])\W/,
       dm2: /\W([nN]|[sS])\.? ?(\d+) ?[\*°ººo\u02DA ] ?(\d+) ?[ '´\u02B9\u02BC\u02CA] ?(\d+[\.|,]\d+|\d+) ?[ ""\u02BA\u02EE'´\u02B9\u02BC\u02CA]['´\u02B9\u02BC\u02CA]?[\.,;]? ?([wW]|[eE])\.? ?(\d+) ?[\*°ººo\u02DA ] ?(\d+) ?[ '´\u02B9\u02BC\u02CA] ?(\d+[\.|,]\d+|\d+) ?[ ""\u02BA\u02EE'´\u02B9\u02BC\u02CA]?['´\u02B9\u02BC\u02CA]?\D/,
       dm3: /\W([nN]|[sS])\.? ?(\d+) ?[\*°ººo\u02DA ] ?(\d+[\.|,]\d+|\d+) ?[ '´\u02B9\u02BC\u02CA][\.,;]? ?([wW]|[eE])\.? ?(\d+) ?[\*°ººo\u02DA ] ?(\d+[\.|,]\d+|\d+) ?[ '´\u02B9\u02BC\u02CA]?\D/,
@@ -155,6 +156,12 @@ To add a new (discovered) symbol:
               long                       = $2.to_f
               ord                        = (long < 0) ? 'W' : 'E'
               trials[kee_string][:long]  = "#{ord}#{long.abs}º"
+            when :dd1, :dd2
+              # lat                        = "#{$1}#{$2}º"
+              # long                       = "#{$3}#{$4}º"
+              trials[kee_string][:piece] = $&
+              trials[kee_string][:lat]   = $1
+              trials[kee_string][:long]  = $3
             else
               retval = 1
           end
@@ -173,7 +180,8 @@ To add a new (discovered) symbol:
       lat_long = {}
       pieces.each do |piece|
         # group of possible regex configurations
-        m = /\D(?<lat>\d+\.\d+\s*(?<ca>[NS])*)\s(?<long>\d+\.\d+\s*(?<co>[EW])*)/i =~ piece
+        # m = /(?<lat>\d+\.\d+\s*(?<ca>[NS])*)\s(?<long>\d+\.\d+\s*(?<co>[EW])*)/i =~ piece
+        m = REGEXP_COORD[:dd1] =~ piece
         if m.nil?
           piece.each_char do |c|
             next unless SPECIAL_LATLONG_SYMBOLS.include?(c)
@@ -194,8 +202,8 @@ To add a new (discovered) symbol:
           end
         else
           lat_long[:piece] = piece
-          lat_long[:lat]   = lat
-          lat_long[:long]  = long
+          lat_long[:lat]   = $1
+          lat_long[:long]  = $3
         end
       end
       lat_long
