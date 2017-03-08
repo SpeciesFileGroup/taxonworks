@@ -97,7 +97,10 @@ Object.assign(TW.views.tasks.content.editor, {
         openRecentPanel(state, value) {
           state.panels.recent = value;
         },
-        addToRecentList(state, content) {
+        addToRecentTopics(state, item) {
+          state.recent.topics.unshift(item);
+        },
+        addToRecentContents(state, content) {
           var position = state.recent.contents.findIndex(item => {
                 if(content.id === item.id) {
                   return true;
@@ -302,7 +305,7 @@ Object.assign(TW.views.tasks.content.editor, {
               var ajaxUrl = `/contents/${that.record.content.id}`;
               if(that.record.content.id == '') {
                 that.$http.post(ajaxUrl, that.record).then(response => {
-                  this.$store.commit('addToRecentList', response.body);
+                  this.$store.commit('addToRecentContents', response.body);
                   that.record.content.id = response.body.id;
                   that.newRecord = false;
                   that.createCitation();
@@ -360,12 +363,12 @@ Object.assign(TW.views.tasks.content.editor, {
             this.$http.post(ajaxUrl, this.record).then(response => {
               this.record.content.id = response.body.id;
               this.unsave = false;
-              this.$store.commit('addToRecentList', response.body);
+              this.$store.commit('addToRecentContents', response.body);
              });            
           }
           else {
             this.$http.patch(ajaxUrl, this.record).then(response => {
-              this.$store.commit('addToRecentList', response.body);
+              this.$store.commit('addToRecentContents', response.body);
               this.unsave = false;
              });
           }          
@@ -452,6 +455,7 @@ Object.assign(TW.views.tasks.content.editor, {
           this.$http.post('/controlled_vocabulary_terms.json', this.topic).then( response => {
               TW.workbench.alert.create(response.body.name + " was successfully created.", "notice");
               that.$parent.topics.push(response.body);
+              this.$store.commit('addToRecentTopics', response.body)
           });
           this.showModal = false;
         }        
