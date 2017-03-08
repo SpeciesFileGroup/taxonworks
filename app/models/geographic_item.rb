@@ -128,16 +128,8 @@ class GeographicItem < ActiveRecord::Base
           finding = search_object_class.constantize
           found = finding.none
         else
+          # now use method from collection_object_filter_query
           target_geographic_area_ids = []
-          # geographic_area_id.each do |gaid|
-          #   shape_in.push(GeographicArea.joins(:geographic_items)
-          #                     .find(gaid)
-          #                     .default_geographic_item.geo_object.to_s)
-          # end
-          # shape_in = (GeographicArea.joins(:geographic_items)
-          #                 .find(geographic_area_id[0].to_s)
-          #                 .default_geographic_item.geo_object)
-          # found = objects_contained_by_geo_object(shape_in, search_object_class)
           geographic_area_id.each do |gaid|
             target_geographic_area_ids.push(GeographicArea.joins(:geographic_items)
                                                 .find(gaid)
@@ -151,26 +143,13 @@ class GeographicItem < ActiveRecord::Base
       found
     end
 
+    # @param [Array] target_geographic_item_ids
+    # @param [String] search_object_class
+    # @return [Scope]
+    #    all objects of search_object_class contained by the geo_object geometry
     def geographic_area_scope(target_geographic_item_ids, search_object_class)
       finding = search_object_class.constantize
       finding.joins(:geographic_items).where(GeographicItem.contained_by_where_sql(target_geographic_item_ids))
-    end
-    # @param [geo_object]
-    # @param [String] search_object_class
-    # @return [Scope] 
-    #    all objects of search_object_class contained by the geo_object geometry
-    def objects_contained_by_geo_object(geo_object, search_object_class)
-      finding = search_object_class.constantize
-      geometry = []
-      geo_object.each do |go|
-        geometry.push(go.to_s)
-      end
-      # geometry = geo_object.to_s
-      found_items = [] # finding.joins(:geographic_items).none
-      geometry.each do |geom|
-        found_items += finding.joins(:geographic_items).where(GeographicItem.contained_by_wkt_sql(geom)).map(&:id)
-      end
-      finding.where(id: found_items)
     end
 
     # @param [String] feature in JSON
