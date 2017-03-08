@@ -25,16 +25,23 @@ Object.assign(TW.views.shared.slideout, {
 	},
 
 	closeHideSlideoutPanel: function(panel) {
+			if($(panel).attr('data-panel-position') == 'relative') {
+				$(panel).css('position','absolute');
+			}
 			if($(panel).hasClass("slide-left")){
 				$(panel).css("right", "");		
 				if($(panel).css('left') == '0px') {
 					$(panel).attr('data-panel-open','false');
-					$(panel).animate({left: "-" + $(panel).css("width")}, 500);
-					$(panel).css('z-index',"1000");
+					$(panel).animate({left: "-" + $(panel).css("width")}, 500, function() {
+						$(panel).css('position','fixed');
+					});
+					$(panel).css('z-index',"1000");					
 				}
 				else {
 					$(panel).attr('data-panel-open','true');
-					$(panel).animate({left: "0px"}, 500);
+					$(panel).animate({left: "0px"}, 500, function() {
+						$(panel).css('position','relative');
+					});
 					$(panel).css('z-index',"1100");
 				}
 			}
@@ -42,12 +49,20 @@ Object.assign(TW.views.shared.slideout, {
 				$(panel).css("left", "");		
 				if($(panel).css('right') == '0px') {
 					$(panel).attr('data-panel-open','false');
-					$(panel).animate({right: "-" + $(panel).css("width")}, 500);
+					$(panel).animate({right: "-" + $(panel).css("width")}, 500, function() {
+						if($(panel).attr('data-panel-position') == 'relative') {
+							$(panel).css('position','fixed');
+						}
+					});
 					$(panel).css('z-index',"1000");
 				}
 				else {
 					$(panel).attr('data-panel-open','true');
-					$(panel).animate({right: "0px"}, 500);
+					$(panel).animate({right: "0px"}, 500, function() {
+						if($(panel).attr('data-panel-position') == 'relative') {
+							$(panel).css('position','relative');
+						}
+					});
 					$(panel).css('z-index',"1100");
 				}
 			}		
