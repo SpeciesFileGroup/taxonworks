@@ -22,7 +22,8 @@ Object.assign(TW.views.tasks.content.editor, {
           otu: false,
           topic: true,
           recent: true
-        }
+        },
+        citations: []
       },
       getters: {
         activeTopicPanel(state) {          
@@ -39,15 +40,27 @@ Object.assign(TW.views.tasks.content.editor, {
         },
         getOtuSelected(state) {
           return state.selected.otu
+        },
+        getCitationsList(state) {
+          return state.citations;
         }        
       },
       mutations: {
+        removeCitation(state, index) {
+          state.citations.splice(index,1);
+        },
+        addCitationToList(state, citation) {
+          state.citations.push(citation);
+        },
         setTopicSelected(state, newTopic) {
           state.selected.topic = newTopic;
         },
         setOtuSelected(state, newOtu) {
           state.selected.otu = newOtu;
         },
+        setCitationList(state, list) {
+          state.citations = list;
+        },        
         setContentSelected(state, newContent) {
           state.selected.otu = newContent.otu;
           state.selected.topic = newContent.topic;
@@ -82,15 +95,21 @@ Object.assign(TW.views.tasks.content.editor, {
     });  
 
     Vue.component('citation-list', {
-      props: ['citations'],
-      template: '<ul v-if="citations.length > 0"> \
-                  <li class="flex-separate middle" v-for="item, index in citations">{{ item.source.author_year }} <div @click="removeItem(index, item)" class="circle-button btn-delete">Remove</div> </li> \
-                </ul>',
+      computed: {
+        citations() {
+          return this.$store.getters.getCitationsList
+        }
+      },
+      template: '<div> \
+                  <ul v-if="citations.length > 0"> \
+                    <li class="flex-separate middle" v-for="item, index in citations">{{ item.source.author_year }} <div @click="removeItem(index, item)" class="circle-button btn-delete">Remove</div> </li> \
+                  </ul> \
+                </div>',
 
       methods: {
         removeItem: function(index, item) {
           this.$http.delete("/citations/"+item.id).then( response => {
-            this.citations.splice(index,1);
+            this.$store.commit('removeCitation', index);
           });
         }
       }
@@ -138,7 +157,7 @@ Object.assign(TW.views.tasks.content.editor, {
     });    
 
     Vue.component('recent', {
-      template: '<div id="recent-list" class="slide-panel slide-recent " data-panel-open="false" data-panel-name="recent_list"> \
+      template: '<div id="recent-list" class="slide-panel slide-recent" data-panel-position="relative" data-panel-open="false" data-panel-name="recent_list"> \
                   <div class="slide-panel-header">Recent list</div> \
                   <div class="slide-panel-content"> \
                     <recent-list url="/contents.json" name-list="Contents" saveState="setContentSelected" v-bind:objects="[\'topic\', \'otu\']" label="object_tag"></recent-list> \
@@ -150,9 +169,6 @@ Object.assign(TW.views.tasks.content.editor, {
                   </div> \
                   </div> \
                 </div>',
-      mounted: function() {
-      //  TW.views.shared.slideout.closeHideSlideoutPanel('[data-panel-name="recent_list"]');
-      }
     });      
 
     Vue.component('citation-modal', {
@@ -180,7 +196,6 @@ Object.assign(TW.views.tasks.content.editor, {
           autosave: 0,
           unsave: false,
           citationModal: false,
-          citations: [],
           currentSourceID: '',
           newRecord: true,
           record: { 
@@ -200,10 +215,10 @@ Object.assign(TW.views.tasks.content.editor, {
           return this.$store.getters.getOtuSelected
         }          
       },      
-      template: '<div v-if="topic !== undefined && otu !== undefined" class="panel panel-editor separate-left separate-right"> \
-                  <div class="title action-line">{{ topic.name }} - {{ otu.name }} </div> \
+      template: '<div v-if="topic !== undefined && otu !== undefined" class="panel" id="panel-editor"> \
+                  <div class="title">{{ topic.name }} - {{ otu.name }} </div> \
                   <textarea v-on:input="autoSave" v-model="record.content.text" ref="contentText" v-on:dblclick="addCitation()"></textarea> \
-                  <div class="navigation-controls horizontal-center-content"> \
+                  <div class="navigation-controls"> \
                     <itemOption name="Save" :callMethod="update" :class="{ saving : unsave }"></itemOption> \
                     <itemOption name="Preview"></itemOption> \
                     <itemOption name="Help"></itemOption> \
@@ -213,8 +228,6 @@ Object.assign(TW.views.tasks.content.editor, {
                     <itemOption name="Figure"></itemOption> \
                     <itemOption name="Drag new figure"></itemOption> \
                   </div> \
-                  <citation-modal v-if="citationModal"></citation-modal> \
-                  <citation-list :citations="citations" class="citation-list"></citation-list> \
                 </div>',
       watch: {
         otu: function(val, oldVal) {
@@ -231,7 +244,7 @@ Object.assign(TW.views.tasks.content.editor, {
       methods: {
         existCitation: function(citation) {
           var exist = false;
-          this.citations.forEach(function(item, index) {
+          this.$store.getters.getCitationsList.forEach(function(item, index) {
 
           if(item['source_id'] == citation.source_id) {
               exist = true;
@@ -277,7 +290,7 @@ Object.assign(TW.views.tasks.content.editor, {
           if(this.existCitation(citation)) return
 
           this.$http.post('/citations', citation).then(response => {
-            this.citations.push(response.body);
+            this.$store.commit('addCitationToList', response.body);
           }, response => {
 
           });            
@@ -320,7 +333,8 @@ Object.assign(TW.views.tasks.content.editor, {
 
           ajaxUrl = `/contents/${this.record.content.id}/citations`;
           this.$http.get(ajaxUrl, this.record).then(response => {
-            this.citations = response.body;
+            console.log( response.body);
+            this.$store.commit('setCitationList', response.body);
           }, response => {
 
           }); 
@@ -403,7 +417,7 @@ Object.assign(TW.views.tasks.content.editor, {
     }); 
 
     Vue.component('topic-section', {
-      template: '<div id="topics" class="slide-panel slide-left" v-if="active" data-panel-open="false" data-panel-name="topic_list"> \
+      template: '<div id="topics" class="slide-panel slide-left slide-recent" v-if="active" data-panel-open="false" data-panel-name="topic_list"> \
                   <div class="slide-panel-header flex-separate">Topic list<new-topic></new-topic></div> \
                   <div class="slide-panel-content"> \
                     <div class="slide-panel-category"> \
@@ -413,7 +427,7 @@ Object.assign(TW.views.tasks.content.editor, {
                     </div> \
                   </div> \
                   <div class="slide-panel-circle-icon"> \
-                    <div class="slide-panel-description">Pinboard </div> \
+                    <div class="slide-panel-description">Topic list</div> \
                   </div> \
                 </div>', 
       data: function() { 
@@ -454,7 +468,7 @@ Object.assign(TW.views.tasks.content.editor, {
           return this.$store.getters.activeOtuPanel
         }
       },
-      template: '<div v-if="display" id="otu_panel" class="panel content separate-bottom"> \
+      template: '<div v-if="display" id="otu_panel" class="panel content"> \
                   <autocomplete \
                     url="/otus/autocomplete" \
                     min="3" \

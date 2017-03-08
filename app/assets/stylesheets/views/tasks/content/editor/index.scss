@@ -4,74 +4,90 @@
 @import 'base/form_elements';
 
 #content_editor {
-	margin-top: $standard_margin;
-	.panel-editor {
-		width: 700px;
-		textarea {
-			width: 100%;
-			min-height:500px;
-		}
-	}
-
+	margin-left: $standard_margin * -2;
+	margin-top: 0px;
+	box-sizing: border-box;
 	#new-topic {
 		textarea {
 			padding: 10px;
 			width: 100%;
-			height:100px; 
+			height:100%; 
 		}
 	}
 
-	#otu_panel {
-		margin-top: -$standard_margin;
+	#panels-content {
+		width: 100%;
+		margin: $standard_margin;
+		display: flexbox;	
+		position: relative;
+		.item2 {
+			margin-left: 1em;
+			margin-right: 1em;
+		}
 	}
-		.slide-panel-header {
-			font-weight: 500;
-			color: #555;
-			height: 50px;
-			background-color: #FFF;
-			box-shadow: 0px 1px 1px 0px #AAA;
-			padding-right: $standard_padding*2;
-		}	
+
+	#panel-editor {
+		padding-left: $standard_padding;
+		padding-right: $standard_padding;
+		textarea {
+			border: 1px solid $navigation_border;
+			font-size: 14px;
+			padding: $standard_margin*0.5; 			
+			min-height:500px;
+		}
+		.title {
+			align-items: center;
+			padding: 0px;
+			color: #42b983;
+			height: 60px;
+		}		
+	}		
+
 	#recent-list {
-		width: 300px;
 		.slide-panel-circle-icon {
-			top:calc(100vh - 120px);
-			background-color: #00838F;
+			top:calc(80vh - 120px);
+			background-color: #42b983;
 			background-image: image-url('recent_slide.svg');
 		}		
 	}
 
+	#otu_panel {
+		margin-right: -1em;
+		margin-left: 1em;
+	}
+	.slide-panel {
+		top:0px;
+		max-width: 300px;
+		position: relative;
+		.slide-panel-header {
+			font-weight: 500;
+			color: #42b983;
+			background-color: #FFF;
+			border-bottom: 1px solid $navigation_border;
+			padding-right: $standard_padding;
+		}
+		.slide-panel-category-item:hover {
+			cursor: pointer;
+		}			
+	}
 	#topics {
-		width: 300px;
-
 		.selected {
 			background-color: $color-complement-2;
 		}
-		.slide-panel-category-content {
-			padding: 0px;
-			margin:0px;
-		}
-		.slide-panel-category-item {
-			position: relative;
-			border-bottom: 1px solid #FAFAFA;
-			border-left:5px solid transparent;
-			display: flex;
-			align-items: center;
-			justify-content:space-between;
-			padding: $standard_padding*0.5;
-			padding-left: $standard_padding*2;		
-		}	
-
 		.slide-panel-circle-icon {
-			top:calc(100vh - 120px);
-			background-color: #00838F;
-			background-image: image-url('recent_slide.svg');
+			top:calc(80vh - 120px);
+			background-color: #42b983;
+			background-image: image-url('w_list.svg');
 		}				
 	}
 
 	.citation-list {
-		margin: 0px;
+		margin-top: $standard_margin;
 		padding: 0px;
+		ul {
+			margin: 0px;
+			padding: 0px;
+		}
 		li {
 			padding: $standard_padding * 0.5;
 			padding-left: $standard_padding;

@@ -1,14 +1,16 @@
 <!-- Rough struture- seems like make id="" could be turned into components -->
 
 <div id="content_editor">
-<panel-top></panel-top>
 
-  <div class="horizontal-center-content">
-    <topic-section ></topic-section>
-    <div>
-      <content-editor></content-editor>
+  <panel-top></panel-top>
+  <div class="flex-separate" id="panels-content">
+    <topic-section class="item item1 column-tiny"></topic-section>
+    <div class="item item2 column-big">
+
+      <content-editor ></content-editor>
+      <citation-list class="citation-list panel"></citation-list>   
     </div>
-    <recent></recent>
+    <recent class="item item3 column-tiny"></recent>
   </div>
 </div>
 
