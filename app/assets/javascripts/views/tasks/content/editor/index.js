@@ -18,6 +18,11 @@ Object.assign(TW.views.tasks.content.editor, {
           topic: undefined,
           otu: undefined
         },
+        recent: {
+          contents: [],
+          topics: [],
+          otus: []
+        },
         panels: {
           otu: false,
           topic: true,
@@ -34,7 +39,7 @@ Object.assign(TW.views.tasks.content.editor, {
         },
         activeRecentPanel(state) {
           return state.panels.recent
-        },        
+        },
         getTopicSelected(state) {
           return state.selected.topic
         },
@@ -43,7 +48,16 @@ Object.assign(TW.views.tasks.content.editor, {
         },
         getCitationsList(state) {
           return state.citations;
-        }        
+        },
+        getRecentContents(state) {
+          return state.recent.contents;
+        },
+        getRecentTopics(state) {
+          return state.recent.topics;
+        },
+        getRecentOtus(state) {
+          return state.recent.otus;
+        },
       },
       mutations: {
         removeCitation(state, index) {
@@ -60,7 +74,16 @@ Object.assign(TW.views.tasks.content.editor, {
         },
         setCitationList(state, list) {
           state.citations = list;
-        },        
+        }, 
+        setRecentContents(state, list) {
+          state.recent.contents = list;
+        }, 
+        setRecentTopics(state, list) {
+          state.recent.topics = list;
+        }, 
+        setRecentOtus(state, list) {
+          state.recent.otus = list;
+        },
         setContentSelected(state, newContent) {
           state.selected.otu = newContent.otu;
           state.selected.topic = newContent.topic;
@@ -73,7 +96,20 @@ Object.assign(TW.views.tasks.content.editor, {
         },     
         openRecentPanel(state, value) {
           state.panels.recent = value;
-        }        
+        },
+        addToRecentList(state, content) {
+          var position = state.recent.contents.findIndex(item => {
+                if(content.id === item.id) {
+                  return true;
+                }
+              });
+          if(position < 0) {
+            state.recent.contents.unshift(content);
+          }
+          else {
+            state.recent.contents.unshift(state.recent.contents.splice(position, 1)[0]);
+          }          
+        }
       }
     });
 
@@ -115,60 +151,64 @@ Object.assign(TW.views.tasks.content.editor, {
       }
     });
 
-    Vue.component('recent-list', {
-      props: { url: String, nameList: String, saveState: String, label: String, objects: {
-        type: Array,
-        default: function() { return [] }
-      }} ,
-      data: function() {
-        return {
-          items: [],
-        }
-      },
-      template: '<div> \
-                  <div class="slide-panel-category-header"> {{ nameList }}</div> \
-                    <ul class="slide-panel-category-content"> \
-                      <li v-for="item in items" v-on:click="save(item)" class="slide-panel-category-item"><span v-html="createString(item)"></span></li> \
-                    </ul> \
-                  </div> \
-                </div>',
-      
-      mounted: function() {
-        this.$http.get(this.url).then( response => {
-          this.items = response.body;
-        }); 
-      },
-      methods: {
-        save: function(item) {
-          this.$store.commit(this.saveState, item);
-          this.$store.commit('openOtuPanel', true);
-        },
-        createString: function(item) {
-          if (this.objects.length < 1) return item[this.label];
-
-          var resultString = '',
-              that = this;
-          this.objects.forEach(function(object, index) {
-            resultString += item[object][that.label] + " ";
-          });
-          return resultString;
-        }
-      }
-    });    
-
     Vue.component('recent', {
+      computed: {
+        recentContents() {
+          return this.$store.getters.getRecentContents
+        },
+        recentTopics() {
+          return this.$store.getters.getRecentTopics
+        },
+        recentOtus() {
+          return this.$store.getters.getRecentOtus
+        }                
+      },      
       template: '<div id="recent-list" class="slide-panel slide-recent" data-panel-position="relative" data-panel-open="false" data-panel-name="recent_list"> \
                   <div class="slide-panel-header">Recent list</div> \
                   <div class="slide-panel-content"> \
-                    <recent-list url="/contents.json" name-list="Contents" saveState="setContentSelected" v-bind:objects="[\'topic\', \'otu\']" label="object_tag"></recent-list> \
-                    <recent-list url="/tasks/content/editor/recent_topics.json?" name-list="Topics" saveState="setTopicSelected" label="name"></recent-list> \
-                    <recent-list url="/tasks/content/editor/recent_otus.json" name-list="OTUs" saveState="setOtuSelected" label="name"></recent-list> \
+                    <div> \
+                      <div class="slide-panel-category-header">Contents</div> \
+                      <ul class="slide-panel-category-content"> \
+                        <li v-for="item in recentContents" @click="save(\'setContentSelected\', item)" class="slide-panel-category-item"><span v-html="createContentString(item)"></span></li> \
+                      </ul> \
+                    </div> \
+                    <div> \
+                      <div class="slide-panel-category-header">Topics</div> \
+                      <ul class="slide-panel-category-content"> \
+                        <li v-for="item in recentTopics" @click="save(\'setTopicSelected\', item)"  class="slide-panel-category-item"><span v-html="item.name"></span></li> \
+                      </ul> \
+                    </div> \
+                    <div> \
+                      <div class="slide-panel-category-header">OTUs</div> \
+                      <ul class="slide-panel-category-content"> \
+                        <li v-for="item in recentOtus" @click="save(\'setOtuSelected\', item)" class="slide-panel-category-item"><span v-html="item.name"></span></li> \
+                      </ul> \
+                    </div> \
                   </div> \
                   <div class="slide-panel-circle-icon"> \
                     <div class="slide-panel-description">Recent created</div> \
                   </div> \
-                  </div> \
                 </div>',
+      mounted: function() {
+        this.$http.get("/contents.json").then(response => {
+          this.$store.commit('setRecentContents', response.body);
+        });
+        this.$http.get("/tasks/content/editor/recent_topics.json?").then(response => {
+          this.$store.commit('setRecentTopics', response.body);
+        });
+        this.$http.get("/tasks/content/editor/recent_otus.json").then(response => {
+          this.$store.commit('setRecentOtus', response.body);
+        });                                    
+      },
+      methods: {
+        createContentString: function(item) {
+          return item.topic.object_tag + " " + item.otu.object_tag
+        },
+        save: function(saveMethod, item) {
+          this.$store.commit(saveMethod, item);
+          this.$store.commit('openOtuPanel', true);
+        },        
+      }
     });      
 
     Vue.component('citation-modal', {
@@ -262,6 +302,7 @@ Object.assign(TW.views.tasks.content.editor, {
               var ajaxUrl = `/contents/${that.record.content.id}`;
               if(that.record.content.id == '') {
                 that.$http.post(ajaxUrl, that.record).then(response => {
+                  this.$store.commit('addToRecentList', response.body);
                   that.record.content.id = response.body.id;
                   that.newRecord = false;
                   that.createCitation();
@@ -319,10 +360,12 @@ Object.assign(TW.views.tasks.content.editor, {
             this.$http.post(ajaxUrl, this.record).then(response => {
               this.record.content.id = response.body.id;
               this.unsave = false;
+              this.$store.commit('addToRecentList', response.body);
              });            
           }
           else {
             this.$http.patch(ajaxUrl, this.record).then(response => {
+              this.$store.commit('addToRecentList', response.body);
               this.unsave = false;
              });
           }          
@@ -333,7 +376,6 @@ Object.assign(TW.views.tasks.content.editor, {
 
           ajaxUrl = `/contents/${this.record.content.id}/citations`;
           this.$http.get(ajaxUrl, this.record).then(response => {
-            console.log( response.body);
             this.$store.commit('setCitationList', response.body);
           }, response => {
 
