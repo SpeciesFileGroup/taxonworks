@@ -94,69 +94,72 @@ To add a new (discovered) symbol:
     REGEXP_COORD = {
       # DD1: /(?<lat>\d+\.\d+\s*(?<ca>[NS]))\s(?<long>\d+\.\d+\s*(?<co>[EW]))/i,
       # DD2: /(?<lat>\d+[\. ]\d+'?\s*(?<ca>[NS])),?\s*(?<long>\d+[\. ]\d+'?\s*(?<co>[EW]))/,
-      DM1: /\D(\d+) ?[\*°ººo\u02DA ] ?(\d+[\.|,]\d+|\d+) ?[ '´\u02B9\u02BC\u02CA]? ?([nN]|[sS])[\.,;]? ?(\d+) ?[\*°ººo\u02DA ] ?(\d+[\.|,]\d+|\d+) ?[ '´\u02B9\u02BC\u02CA]? ?([wW]|[eE])\W/,
-      DM2: /\W([nN]|[sS])\.? ?(\d+) ?[\*°ººo\u02DA ] ?(\d+) ?[ '´\u02B9\u02BC\u02CA] ?(\d+[\.|,]\d+|\d+) ?[ ""\u02BA\u02EE'´\u02B9\u02BC\u02CA]['´\u02B9\u02BC\u02CA]?[\.,;]? ?([wW]|[eE])\.? ?(\d+) ?[\*°ººo\u02DA ] ?(\d+) ?[ '´\u02B9\u02BC\u02CA] ?(\d+[\.|,]\d+|\d+) ?[ ""\u02BA\u02EE'´\u02B9\u02BC\u02CA]?['´\u02B9\u02BC\u02CA]?\D/,
-      DM3: /\W([nN]|[sS])\.? ?(\d+) ?[\*°ººo\u02DA ] ?(\d+[\.|,]\d+|\d+) ?[ '´\u02B9\u02BC\u02CA][\.,;]? ?([wW]|[eE])\.? ?(\d+) ?[\*°ººo\u02DA ] ?(\d+[\.|,]\d+|\d+) ?[ '´\u02B9\u02BC\u02CA]?\D/,
-      DM4: /\D(\d+) ?[\*°ººo\u02DA ] ?(\d+[\.|,]\d+|\d+) ?[ '´\u02B9\u02BC\u02CA]? ?([nN]|[sS])[\.,;]? ?(\d+) ?[\*°ººo\u02DA ] ?(\d+[\.|,]\d+|\d+) ?[ '´\u02B9\u02BC\u02CA]? ?([wW]|[eE])\W/,
-      DM5: /\W([nN]|[sS])\.? ?(\d+[\.|,]\d+|\d+) ?[\*°ººo\u02DA ][\.,;]? ?([wW]|[eE])\.? ?(\d+[\.|,]\d+|\d+) ?[\*°ººo\u02DA ]?\D/,
-      DM6: /\D(\d+[\.|,]\d+|\d+) ?[\*°ººo\u02DA ] ?([nN]|[sS])[\.,;]? ?(\d+[\.|,]\d+|\d+) ?[\*°ººo\u02DA ] ?([wW]|[eE])\W/,
-      DM7: /\D\[(-?\d+[\.|,]\d+|\-?d+),.*?(-?\d+[\.|,]\d+|\-?d+)\]\D/
+      dm1: /\D(\d+) ?[\*°ººo\u02DA ] ?(\d+[\.|,]\d+|\d+) ?[ '´\u02B9\u02BC\u02CA]? ?([nN]|[sS])[\.,;]? ?(\d+) ?[\*°ººo\u02DA ] ?(\d+[\.|,]\d+|\d+) ?[ '´\u02B9\u02BC\u02CA]? ?([wW]|[eE])\W/,
+      dm2: /\W([nN]|[sS])\.? ?(\d+) ?[\*°ººo\u02DA ] ?(\d+) ?[ '´\u02B9\u02BC\u02CA] ?(\d+[\.|,]\d+|\d+) ?[ ""\u02BA\u02EE'´\u02B9\u02BC\u02CA]['´\u02B9\u02BC\u02CA]?[\.,;]? ?([wW]|[eE])\.? ?(\d+) ?[\*°ººo\u02DA ] ?(\d+) ?[ '´\u02B9\u02BC\u02CA] ?(\d+[\.|,]\d+|\d+) ?[ ""\u02BA\u02EE'´\u02B9\u02BC\u02CA]?['´\u02B9\u02BC\u02CA]?\D/,
+      dm3: /\W([nN]|[sS])\.? ?(\d+) ?[\*°ººo\u02DA ] ?(\d+[\.|,]\d+|\d+) ?[ '´\u02B9\u02BC\u02CA][\.,;]? ?([wW]|[eE])\.? ?(\d+) ?[\*°ººo\u02DA ] ?(\d+[\.|,]\d+|\d+) ?[ '´\u02B9\u02BC\u02CA]?\D/,
+      dm4: /\D(\d+) ?[\*°ººo\u02DA ] ?(\d+[\.,]\d+|\d+) ?[ '´\u02B9\u02BC\u02CA]? ?(\d+)"? ?([NS])(\d+) ?[\*°ººo\u02DA ] ?(\d+[\.,]\d+|\d+) ?[ '´\u02B9\u02BC\u02CA]? ?(\d+)"? ?([EW])/,
+      dm5: /\W([nN]|[sS])\.? ?(\d+[\.|,]\d+|\d+) ?[\*°ººo\u02DA ][\.,;]? ?([wW]|[eE])\.? ?(\d+[\.|,]\d+|\d+) ?[\*°ººo\u02DA ]?\D/,
+      dm6: /\D(\d+[\.|,]\d+|\d+) ?[\*°ººo\u02DA ] ?([nN]|[sS])[\.,;]? ?(\d+[\.|,]\d+|\d+) ?[\*°ººo\u02DA ] ?([wW]|[eE])\W/,
+      dm7: /\[(-?\d+[\.|,]\d+|\-?d+),.*?(-?\d+[\.|,]\d+|\-?d+)\]/
     }.freeze
 
     def self.hunt_lat_long_full(label)
       trials = {}
       REGEXP_COORD.keys.each_with_index { |kee, dex|
-        testval     = REGEXP_COORD[kee] =~ label
-        trials[kee] = {}
+        testval            = REGEXP_COORD[kee] =~ label
+        kee_string         = kee.to_s.upcase
+        trials[kee_string] = {}
         if testval.class == Fixnum
           case kee
-            when :DM1
-              lat                 = "#{$3}#{$1}º#{$2}'"
-              long                = "#{$6}#{$4}º#{$5}'"
-              trials[kee][:piece] = $&
-              trials[kee][:lat]   = lat
-              trials[kee][:long]  = long
-            when :DM2
-              lat                 = "#{$1}#{$2}º#{$3}'#{$4}\""
-              long                = "#{$5}#{$6}º#{$7}'#{$8}\""
-              trials[kee][:piece] = $&
-              trials[kee][:lat]   = lat
-              trials[kee][:long]  = long
-            when :DM3
-              lat                 = "#{$1}#{$2}º#{$3}'"
-              long                = "#{$4}#{$5}º#{$6}'"
-              trials[kee][:piece] = $&
-              trials[kee][:lat]   = lat
-              trials[kee][:long]  = long
-            when :DM4
-              lat                 = "#{$3}#{$1}º#{$3}'"
-              long                = "#{$6}#{$4}º#{$5}'"
-              trials[kee][:piece] = $&
-              trials[kee][:lat]   = lat
-              trials[kee][:long]  = long
-            when :DM5
-              lat                 = "#{$1}#{$2}º#{$3}'#{$4}\""
-              long                = "#{$5}#{$6}º#{$7}'#{$8}\""
-              trials[kee][:piece] = $&
-              trials[kee][:lat]   = lat
-              trials[kee][:long]  = long
-            when :DM6
-              lat                 = "#{$1}#{$2}º#{$3}'#{$4}\""
-              long                = "#{$5}#{$6}º#{$7}'#{$8}\""
-              trials[kee][:piece] = $&
-              trials[kee][:lat]   = lat
-              trials[kee][:long]  = long
-            when :DM7
-              lat                 = "#{$1}#{$2}º#{$3}'#{$4}\""
-              long                = "#{$5}#{$6}º#{$7}'#{$8}\""
-              trials[kee][:piece] = $&
-              trials[kee][:lat]   = lat
-              trials[kee][:long]  = long
+            when :dm1
+              lat                        = "#{$3}#{$1}º#{$2}'"
+              long                       = "#{$6}#{$4}º#{$5}'"
+              trials[kee_string][:piece] = $&
+              trials[kee_string][:lat]   = lat
+              trials[kee_string][:long]  = long
+            when :dm2
+              lat                        = "#{$1}#{$2}º#{$3}'#{$4}\""
+              long                       = "#{$5}#{$6}º#{$7}'#{$8}\""
+              trials[kee_string][:piece] = $&
+              trials[kee_string][:lat]   = lat
+              trials[kee_string][:long]  = long
+            when :dm3
+              lat                        = "#{$1}#{$2}º#{$3}'"
+              long                       = "#{$4}#{$5}º#{$6}'"
+              trials[kee_string][:piece] = $&
+              trials[kee_string][:lat]   = lat
+              trials[kee_string][:long]  = long
+            when :dm4
+              lat                        = "#{$4}#{$1}º#{$2}'#{$3}\""
+              long                       = "#{$8}#{$5}º#{$6}'#{$7}\""
+              trials[kee_string][:piece] = $&
+              trials[kee_string][:lat]   = lat
+              trials[kee_string][:long]  = long
+            when :dm5
+              lat                        = "#{$1}#{$2}º"
+              long                       = "#{$3}#{$4}º"
+              trials[kee_string][:piece] = $&
+              trials[kee_string][:lat]   = lat
+              trials[kee_string][:long]  = long
+            when :dm6
+              lat                        = "#{$1}#{$2}º"
+              long                       = "#{$3}#{$4}º"
+              trials[kee_string][:piece] = $&
+              trials[kee_string][:lat]   = lat
+              trials[kee_string][:long]  = long
+            when :dm7
+              trials[kee_string][:piece] = $&
+              lat                        = $1.to_f
+              ord                        = (lat < 0) ? 'S' : 'N'
+              trials[kee_string][:lat]   = "#{ord}#{lat.abs}º"
+              long                       = $2.to_f
+              ord                        = (long < 0) ? 'W' : 'E'
+              trials[kee_string][:long]  = "#{ord}#{long.abs}º"
             else
               retval = 1
           end
         end
-        trials[kee][:method] = "text, #{kee.to_s}"
+        trials[kee_string][:method] = "text, #{kee_string}"
       }
       trials
     end
@@ -170,7 +173,7 @@ To add a new (discovered) symbol:
       lat_long = {}
       pieces.each do |piece|
         # group of possible regex configurations
-        m = /\D(?<lat>\d+\.\d+\s*(?<ca>[NS]))\s(?<long>\d+\.\d+\s*(?<co>[EW]))/i =~ piece
+        m = /\D(?<lat>\d+\.\d+\s*(?<ca>[NS])*)\s(?<long>\d+\.\d+\s*(?<co>[EW])*)/i =~ piece
         if m.nil?
           piece.each_char do |c|
             next unless SPECIAL_LATLONG_SYMBOLS.include?(c)
@@ -205,14 +208,14 @@ To add a new (discovered) symbol:
       # trials['(full text)'] = self.hunt_lat_long(label, nil).merge!(method: 'text')
 
       ';, '.each_char { |sep|
-        trial              = self.hunt_lat_long(label, sep)
-        found              = "#{trial[:piece]}"
+        trial = self.hunt_lat_long(label, sep)
+        found = "#{trial[:piece]}"
         unless trial[:lat].nil? and !trial[:long].nil?
           found = "(#{sep})" if found.blank?
         end
         trials["(#{sep})"] = trial.merge!(method: "(#{sep})")
       }
-      trials.stringify_keys
+      trials
     end
 
     def self.is_lat_long_special(c)

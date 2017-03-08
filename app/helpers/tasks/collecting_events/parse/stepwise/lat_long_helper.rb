@@ -43,4 +43,15 @@ module Tasks::CollectingEvents::Parse::Stepwise::LatLongHelper
     end
   end
 
+  def scan_c_e
+    pile = Queries::CollectingEventLatLongExtractorQuery.new(
+      collecting_event_id: 0,
+      filters:             []).all.with_project_id(sessions_current_project_id).order(:id)
+    pile.each { |c_e|
+      trials = Utilities::Geo.hunt_lat_long_full(c_e.verbatim_label)
+      puts(c_e.id)
+    }
+    pile
+  end
+
 end

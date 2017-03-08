@@ -3,7 +3,7 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
 
   # GET
   def index
-    @collecting_event = current_collecting_event 
+    @collecting_event = current_collecting_event
     if @collecting_event.nil?
       flash['notice'] = 'No collecting events with parsable records found.'
       redirect_to hub_path and return
@@ -12,7 +12,7 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
 
   def update
     if current_collecting_event.update_attributes(collecting_event_params)
-      collecting_event.generate_verbatim_data_georeference(true) if generate_georeference? 
+      collecting_event.generate_verbatim_data_georeference(true) if generate_georeference?
       flash['notice'] = 'Updated.'
     else
       flash['alert'] = 'Failed to update the collecting event.'
@@ -40,12 +40,12 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
     begin
       params.require(:collecting_event_id)
     rescue ActionController::ParameterMissing
-      # nothing provided, get the first possible one 
+      # nothing provided, get the first possible one
       return CollectingEvent.with_project_id(sessions_current_project_id).order(:id).limit(1).pluck(:id)[0]
     end
   end
 
-  # TODO: deprecate for valud from view/helper 
+  # TODO: deprecate for valud from view/helper
   def next_collecting_event_id
     Queries::CollectingEventLatLongExtractorQuery.new(
       collecting_event_id: collecting_event_id_param,
