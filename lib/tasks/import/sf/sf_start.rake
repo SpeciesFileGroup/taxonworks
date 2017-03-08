@@ -158,10 +158,6 @@ namespace :tw do
         end
 
 
-
-
-
-
         desc 'time rake tw:project_import:sf_import:start:create_sources user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         LoggedTask.define :create_sources => [:data_directory, :environment, :user_id] do |logger|
           # @todo: See :create_sf_book_hash and :update_sources_with_book_info above. Should be incorporated here.
@@ -195,22 +191,36 @@ namespace :tw do
           path = @args[:data_directory] + 'tblRefs.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
+          # First Ref loop: Create sources for SF.tblRefs.ContainingRefID = 0
+          #   Make a ContainingRefID/PubType hash for lookup when creating contained refs
+          # Second Ref loop: Create sources for SF.tblRefs.ContainingRefID > 0
+          #   How to treat secondary title (based on pub_type?), bibtex_type is inbook or article, skip pages (will be created by citation), add URL if available
+
           file.each_with_index do |row, i|
             # break if i == 20
-            next if (row['Title'].empty? and row['PubID'] == '0' and row['Series'].empty? and row['Volume'].empty? and row['Issue'].empty? and row['ActualYear'].empty? and row['StatedYear'].empty? and row['ContainingRefID'] == '0') or row['AccessCode'] == '4'
+            next if row['ContainingRefID > 0'] # Create source in second loop
+            next if (row['Title'].empty? and row['PubID'] == '0' and row['Series'].empty? and row['Volume'].empty? and row['Issue'].empty? and row['ActualYear'].empty? and row['StatedYear'].empty?) or row['AccessCode'] == '4'
             ref_id = row['RefID']
 
             logger.info "working with SF.RefID = #{ref_id}, SF.FileID = #{row['FileID']} \n"
 
             pub_type = get_sf_pub_type[row['PubID']]
+            pub_id = row['PubID']
+
+            booktitle = nil
+            publisher = nil
+            city = nil
+
+            if get_sf_booktitle_publisher_address(pub_id).has_key?
+              booktitle = get_sf_booktitle_publisher_address[pub_id][booktitle]
+              publisher = get_sf_booktitle_publisher_address[pub_id][publisher]
+              city = get_sf_booktitle_publisher_address[pub_id][city]
+            end
 
             actual_year = row['ActualYear']
             stated_year = row['StatedYear']
 
-            # why am I testing for '0'?
-            # Do not create sources where ContainingRefID > 0:  Will be done once taxa are in and we know if the source is used as an original taxon description
-            if row['ContainingRefID'].to_i > 0 or actual_year == '0' or stated_year == '0' or actual_year.include?('-') or stated_year.include?('-') or pub_type == 'unpublished'
-              # create a verbatim source
+            if actual_year.include?('-') or stated_year.include?('-') or pub_type == 'unpublished'
               source = Source::Verbatim.new(
                   verbatim: get_sf_verbatim_ref[ref_id],
                   created_at: row['CreatedOn'],
@@ -222,6 +232,9 @@ namespace :tw do
               source = Source::Bibtex.new(
                   bibtex_type: pub_type,
                   title: row['Title'],
+                  booktitle: booktitle.empty? ? nil : booktitle,
+                  publisher: publisher.empty? ? nil : publisher,
+                  city: city.empty? ? nil : city,
                   serial_id: get_tw_serial_id[row['PubID']],
                   series: row['Series'],
                   volume: row['Volume'],
@@ -234,11 +247,6 @@ namespace :tw do
                   updated_at: row['LastUpdate'],
                   created_by_id: get_tw_user_id[row['CreatedBy']],
                   updated_by_id: get_tw_user_id[row['ModifiedBy']]
-
-                  # if pub_type == 'book' and get_sf_booktitle_publisher_address[row['PubID']].(not)nil? (empty?, present?), add fields booktitle, publisher, address
-                                         #             next if get_sf_booktitle_publisher_address[row['PubID']].nil?
-
-
               )
             end
 
@@ -259,6 +267,38 @@ namespace :tw do
               logger.info "Source ERROR (#{error_counter += 1}): " + source.errors.full_messages.join(';')
             end
           end
+
+
+=begin
+
+Dealing with ref in ref (not yet assigned as object source), therefore, cannot create e.g., taxon_name_author
+
+If in ref is article and ref in ref has a separate title, treat ref title as attribute?
+
+First create all Refs where ContainingRefID = 0, then create Refs where ContainingRefID > 0 and use get_tw_source_id(SF.RefID) to get info about containing ref.
+When creating citations for refinref, should be able to access source_author_roles (editor, too) for containing ref, then add taxon_author_roles for contained if original description.  If it's not orig desc, too bad about people in people.
+Look up table between PubID and PubType already exists; check when creating bibtex_type.
+
+Could create source + some notes
+  source for contained ref:
+    title
+    bibtex_type (inbook, article based on Pub_Type of containing ref)
+    [skip pages: will be created by citation]
+    url?
+
+  info for containing ref [can be shared by several contained refs]:
+    bibtex_type (book or journal)
+    booktitle
+    serial_id?
+    series
+    volume
+    number
+    pages
+    year
+    stated_year
+
+=end
+
 
           import.set('SFRefIDToTWSourceID', get_tw_source_id)
 
@@ -296,11 +336,7 @@ namespace :tw do
         end
 
 
-
-
-
         ### source related above here
-
 
 
         desc 'time rake tw:project_import:sf_import:start:create_projects user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
