@@ -256,11 +256,14 @@ Object.assign(TW.views.tasks.content.editor, {
         },
         otu() {
           return this.$store.getters.getOtuSelected
-        }          
+        },
+        disabled() {
+          return (this.topic == undefined || this.otu == undefined)
+        }         
       },      
-      template: '<div v-if="topic !== undefined && otu !== undefined" class="panel" id="panel-editor"> \
-                  <div class="title">{{ topic.name }} - {{ otu.name }} </div> \
-                  <textarea v-on:input="autoSave" v-model="record.content.text" ref="contentText" v-on:dblclick="addCitation()"></textarea> \
+      template: '<div v-if="topic !== undefined || otu !== undefined" class="panel" id="panel-editor"> \
+                  <div class="title"> <span><span v-if="topic">{{ topic.name }}</span> - <span v-if="otu" v-html="otu.object_tag"></span></span> </div> \
+                  <textarea v-on:input="autoSave" :disabled="disabled"  v-model="record.content.text" ref="contentText" v-on:dblclick="addCitation()"></textarea> \
                   <div class="navigation-controls"> \
                     <itemOption name="Save" :callMethod="update" :class="{ saving : unsave }"></itemOption> \
                     <itemOption name="Preview"></itemOption> \
@@ -357,6 +360,7 @@ Object.assign(TW.views.tasks.content.editor, {
         },    
 
         update: function() {
+          if ((this.disabled) || (this.record.content.text == "")) return
           var ajaxUrl = `/contents/${this.record.content.id}`;
 
           if(this.record.content.id == '') {
@@ -386,7 +390,7 @@ Object.assign(TW.views.tasks.content.editor, {
         },
 
         loadContent: function() {
-          if(this.otu == undefined || this.topic == undefined) return
+          if (this.disabled) return
 
           var
             ajaxUrl = `/contents/filter.json?otu_id=${this.otu.id}&topic_id=${this.topic.id}`
@@ -463,7 +467,7 @@ Object.assign(TW.views.tasks.content.editor, {
     }); 
 
     Vue.component('topic-section', {
-      template: '<div id="topics" class="slide-panel slide-left slide-recent" v-if="active" data-panel-open="false" data-panel-name="topic_list"> \
+      template: '<div id="topics" class="slide-panel slide-left slide-recent" data-panel-position="relative" v-if="active" data-panel-open="false" data-panel-name="topic_list"> \
                   <div class="slide-panel-header flex-separate">Topic list<new-topic></new-topic></div> \
                   <div class="slide-panel-content"> \
                     <div class="slide-panel-category"> \
@@ -527,9 +531,11 @@ Object.assign(TW.views.tasks.content.editor, {
       mounted: function() {
         var that = this;
         this.$on('otu_picker', function (item) {
-          that.$store.commit('setOtuSelected', item); 
+          that.$http.get("/otus/" + item.id).then( response => {
+            that.$store.commit('setOtuSelected', response.body); 
+          }) 
         })                  
-      }
+      },
     });
 
     var content_editor = new Vue({
