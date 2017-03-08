@@ -61,6 +61,9 @@ _init_drawable_map = function init_drawable_map() {
       }
     );
   }
+  if ($('#_drawable_map_form').data('feature-collection').features.length > 1) {
+    loadDrawableMap();
+  }
 };
 
 $(document).ready(_init_drawable_map);

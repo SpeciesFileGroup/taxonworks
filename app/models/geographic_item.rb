@@ -128,16 +128,22 @@ class GeographicItem < ActiveRecord::Base
           finding = search_object_class.constantize
           found = finding.none
         else
-          shape_in = []
-          geographic_area_id.each do |gaid|
-            shape_in.push(GeographicArea.joins(:geographic_items)
-                              .find(gaid)
-                              .default_geographic_item.geo_object.to_s)
-          end
+          target_geographic_area_ids = []
+          # geographic_area_id.each do |gaid|
+          #   shape_in.push(GeographicArea.joins(:geographic_items)
+          #                     .find(gaid)
+          #                     .default_geographic_item.geo_object.to_s)
+          # end
           # shape_in = (GeographicArea.joins(:geographic_items)
           #                 .find(geographic_area_id[0].to_s)
           #                 .default_geographic_item.geo_object)
-          found = objects_contained_by_geo_object(shape_in, search_object_class)
+          # found = objects_contained_by_geo_object(shape_in, search_object_class)
+          geographic_area_id.each do |gaid|
+            target_geographic_area_ids.push(GeographicArea.joins(:geographic_items)
+                                                .find(gaid)
+                                                .default_geographic_item.id)
+          end
+          found = geographic_area_scope(target_geographic_area_ids, search_object_class)
         end
       else
         found = gather_map_data(shape_in, search_object_class)
@@ -145,6 +151,10 @@ class GeographicItem < ActiveRecord::Base
       found
     end
 
+    def geographic_area_scope(target_geographic_item_ids, search_object_class)
+      finding = search_object_class.constantize
+      finding.joins(:geographic_items).where(GeographicItem.contained_by_where_sql(target_geographic_item_ids))
+    end
     # @param [geo_object]
     # @param [String] search_object_class
     # @return [Scope] 
