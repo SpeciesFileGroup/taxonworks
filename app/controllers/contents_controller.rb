@@ -90,7 +90,7 @@ class ContentsController < ApplicationController
     @contents = Queries::ContentFilterQuery.new(
       params.permit(:otu_id, :topic_id, :hours_ago, :most_recent_updates).to_h.symbolize_keys
     ).all
-    render json: @contents 
+    render '/contents/index'
   end
 
   def autocomplete
