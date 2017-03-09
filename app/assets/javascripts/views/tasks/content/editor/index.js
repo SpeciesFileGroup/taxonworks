@@ -178,13 +178,13 @@ Object.assign(TW.views.tasks.content.editor, {
                     <div> \
                       <div class="slide-panel-category-header">Topics</div> \
                       <ul class="slide-panel-category-content"> \
-                        <li v-for="item in recentTopics" @click="save(\'setTopicSelected\', item)"  class="slide-panel-category-item"><span v-html="item.name"></span></li> \
+                        <li v-for="item in recentTopics" @click="save(\'setTopicSelected\', item)"  class="slide-panel-category-item"><span v-html="item.object_tag"></span></li> \
                       </ul> \
                     </div> \
                     <div> \
                       <div class="slide-panel-category-header">OTUs</div> \
                       <ul class="slide-panel-category-content"> \
-                        <li v-for="item in recentOtus" @click="save(\'setOtuSelected\', item)" class="slide-panel-category-item"><span v-html="item.name"></span></li> \
+                        <li v-for="item in recentOtus" @click="save(\'setOtuSelected\', item)" class="slide-panel-category-item"><span v-html="item.object_tag"></span></li> \
                       </ul> \
                     </div> \
                   </div> \
@@ -550,5 +550,3 @@ $(document).ready( function() {
     TW.views.tasks.content.editor.init();
   }
 });
-
-
