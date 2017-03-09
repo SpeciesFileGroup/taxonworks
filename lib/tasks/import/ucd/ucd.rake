@@ -283,7 +283,8 @@ namespace :tw do
           file.each_with_index do |row, i|
             print "\r#{i}"
             definition = row['Meaning'].to_s.length < 4 ? row['Meaning'] + '.' : row['Meaning']
-            topic = Topic.find_or_create_by(name: row['KeyWords'], definition: definition, project_id: $project_id)
+            definition = definition + '(' + row['KeyWords'] + ')'
+            topic = Topic.find_or_create_by(name: definition, definition: definition, project_id: $project_id)
             topic.tags.find_or_create_by(keyword: tags[row['Category']]) unless row['Category'].blank?
             @data.topics[row['KeyWords']] = topic
           end

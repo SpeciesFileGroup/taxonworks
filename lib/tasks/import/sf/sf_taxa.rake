@@ -687,6 +687,8 @@ namespace :tw do
         ### ---------------------------------------------------------------------------------------------------------------------------------------------
 
 
+        ############ check if taxon description requires a source where ContainingRefID > 0
+
         desc 'time rake tw:project_import:sf_import:taxa:create_all_sf_taxa_pass1 user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         LoggedTask.define :create_all_sf_taxa_pass1 => [:data_directory, :environment, :user_id] do |logger|
 

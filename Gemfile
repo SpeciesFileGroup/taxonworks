@@ -45,6 +45,7 @@ gem 'sprockets-rails'
 gem 'sprockets', '~> 3.0'
 gem 'sprockets-es6', require: 'sprockets/es6'
 
+gem 'browserify-rails'
 # gem 'babel-transpiler'
 
 
@@ -98,6 +99,8 @@ gem 'paperclip-meta', '~> 2.0'
 
 # Ordering records
 gem 'acts_as_list', '~> 0.8.0'
+
+gem 'capistrano-npm'
 
 # Versioning
 gem 'paper_trail', '~> 4.0.0.rc'

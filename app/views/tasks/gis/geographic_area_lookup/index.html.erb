@@ -1,0 +1,29 @@
+<h1> Geographic area lookup </h1>
+<div class="flexbox">
+  <div class="item item1">
+    <h2> Search </h2>
+
+    <%= form_tag(geographic_area_lookup_resolve_task_path, method: :get, remote: true) do -%>
+      <div data-help='Each line is a new search. Refine searches by parent by using :, like: 
+                  <ul>
+                    <li> Champaign </li>
+                    <li> Champaign:Illinois</li>
+                    <li> Canada:Quebec</li>
+                  </ul>'
+      >
+      <%= text_area_tag :terms, '', 
+        cols: 40,  
+        rows: 6, 
+        placeholder: "like 'Illinois' or 'Champaign:Illinois'" -%>
+        </div>
+        <br>
+      <%= check_box_tag :has_shape  -%> Return only records that have GIS shapes? <br>
+      <%= submit_tag :search -%>
+    <% end %> 
+  </div>
+
+  <div class="item item2">
+    <h2> Result </h2>
+    <div id="result"></div>
+  </div>
+</div>

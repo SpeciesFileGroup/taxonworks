@@ -519,6 +519,11 @@ TaxonWorks::Application.routes.draw do
     end
 
     scope :gis do
+      scope :geographic_area_lookup, controller: 'tasks/gis/geographic_area_lookup' do
+        get 'index', as: 'geographic_area_lookup_task'
+        get 'resolve', as: 'geographic_area_lookup_resolve_task', format: :js
+      end
+
       scope :asserted_distribution, controller: 'tasks/gis/asserted_distribution' do
         get 'new', action: 'new', as: 'new_asserted_distribution_task'
         post 'create', action: 'create', as: 'create_asserted_distribution_task'

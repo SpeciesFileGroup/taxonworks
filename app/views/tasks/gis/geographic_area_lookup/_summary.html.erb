@@ -1,0 +1,10 @@
+<h3> Summary </h3>
+<table>
+  <tr><th>Query</th><th>First matching ID</th></tr>
+  <% matches.each do |m, results| -%>
+    <tr>
+      <%= content_tag(:td, m) -%>
+      <%= content_tag(:td, results.first.nil? ? 'no match' : results.first.id) -%>
+    </tr>
+  <% end %>
+</table>
