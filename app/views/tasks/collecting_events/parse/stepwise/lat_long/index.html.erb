@@ -4,30 +4,40 @@
 
   <div class="flexbox">
     <div class="item item1 one_third_width">
-      Collecting event id:  <%= link_to(@collecting_event.id, collecting_event_path(@collecting_event), target: :_blank) %>
+      Collecting event
+      id:  <%= link_to(@collecting_event.id, collecting_event_path(@collecting_event), target: :_blank) %>
       <%= parse_lat_long_skip_link(@collecting_event.id) %>
       <%= collecting_event_label_tag(@collecting_event.verbatim_label) %>
     </div>
 
     <div class="item item2">
-      <table border="1" >
-        <thead>
-          <tr>
-            <th>Method</th>
-            <th>Recognized string</th>
-            <th>Latitude</th>
-            <th>Longitude</th>
-            <th>Select</th>
-          </tr>
-        </thead>
-        <tbody>
-          <%= make_rows(@collecting_event.verbatim_label) %>
-        </tbody>
-      </table>
-
       <%= form_tag(lat_long_update_record_path(collecting_event_id: @collecting_event.id), id: 'lat_long_convert_form') do %>
-        <table border="1">
-          <tbody>
+          <table border="1">
+            <tbody>
+            <tr>
+              <%= make_method_headers %>
+            </tr>
+            <tr>
+              <%= make_method_boxes %>
+            </tr>
+            </tbody>
+          </table>
+          <table border="1">
+            <thead>
+            <tr>
+              <th>Method</th>
+              <th>Recognized string</th>
+              <th>Latitude</th>
+              <th>Longitude</th>
+              <th>Select</th>
+            </tr>
+            </thead>
+            <tbody>
+            <%= make_rows(@collecting_event.verbatim_label) %>
+            </tbody>
+          </table>
+          <table border="1">
+            <tbody>
             <tr>
               <th></th>
               <th style="text-align:center">Latitude</th>
@@ -52,11 +62,11 @@
               <td></td>
               <td><%= text_field_tag('dd_longitude') %></td>
             </tr>
-          </tbody>
-        </table>
+            </tbody>
+          </table>
 
-        <%= submit_tag('Save', id: 'lat_long_update_record') %><br>
-        <%= check_box_tag(:generate_georeference) %> Also create Georeference?
+          <%= submit_tag('Save', id: 'lat_long_update_record') %><br>
+          <%= check_box_tag(:generate_georeference) %> Also create Georeference?
       <% end %>
     </div>
   </div>

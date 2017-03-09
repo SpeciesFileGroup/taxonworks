@@ -94,15 +94,15 @@ To add a new (discovered) symbol:
     #  ' = \u0027, converted so that the regex can be used for SQL
     REGEXP_COORD = {
       # tt1: /\D?(?<lat>\d+\.\d+\s*(?<ca>[NS])*)\s(?<long>\d+\.\d+\s*(?<co>[EW])*)/i,
-      dd1: /(\d+\.\d+\s*([NS]))\s*(\d+\.\d+\s*([EW]))/i,
-      dd2: /(\d+[\. ]\d+\u0027?\s*([NS]))[, ]?\s*(\d+[\. ]\d+\u0027?\s*([EW]))/i,
-      dm1: /\D(\d+) ?[\*°ººo\u02DA ] ?(\d+[\.|,]\d+|\d+) ?[ ´\u0027\u02B9\u02BC\u02CA]? ?([NS])[\.,;]? ?(\d+) ?[\*°ººo\u02DA ] ?(\d+[\.|,]\d+|\d+) ?[ ´\u0027\u02B9\u02BC\u02CA]? ?([WE])\W/i,
-      dm2: /\W([NS])\.? ?(\d+) ?[\*°ººo\u02DA ] ?(\d+) ?[ ´\u0027\u02B9\u02BC\u02CA] ?(\d+[\.|,]\d+|\d+) ?[ ""´\u02BA\u02EE\u0027\u02B9\u02BC\u02CA][´\u0027\u02B9\u02BC\u02CA]?[\.,;]? ?([WE])\.? ?(\d+) ?[\*°ººo\u02DA ] ?(\d+) ?[ \u0027´\u02B9\u02BC\u02CA] ?(\d+[\.|,]\d+|\d+) ?[ ""´\u02BA\u02EE\u0027\u02B9\u02BC\u02CA]?[´\u0027\u02B9\u02BC\u02CA]?\D/i,
-      dm3: /\W([NS])\.? ?(\d+) ?[\*°ººo\u02DA ] ?(\d+[\.|,]\d+|\d+) ?[ ´\u0027\u02B9\u02BC\u02CA][\.,;]? ?([WE])\.? ?(\d+) ?[\*°ººo\u02DA ] ?(\d+[\.|,]\d+|\d+) ?[ ´\u0027\u02B9\u02BC\u02CA]?\D/i,
-      dm4: /\D(\d+) ?[\*°ººo\u02DA ] ?(\d+[\.,]\d+|\d+) ?[ ´\u0027\u02B9\u02BC\u02CA]? ?(\d+)"? ?([NS])(\d+) ?[\*°ººo\u02DA ] ?(\d+[\.,]\d+|\d+) ?[ ´\u0027\u02B9\u02BC\u02CA]? ?(\d+)"? ?([EW])/i,
-      dm5: /\W([NS])\.? ?(\d+[\.|,]\d+|\d+) ?[\*°ººo\u02DA ][\.,;]? ?([WE])\.? ?(\d+[\.|,]\d+|\d+) ?[\*°ººo\u02DA ]?\D/i,
-      dm6: /\D(\d+[\.|,]\d+|\d+) ?[\*°ººo\u02DA ] ?([NS])[\.,;]? ?(\d+[\.|,]\d+|\d+) ?[\*°ººo\u02DA ] ?([WE])\W/i,
-      dm7: /\[(-?\d+[\.|,]\d+|\-?d+),.*?(-?\d+[\.|,]\d+|\-?d+)\]/i
+      dd1:  /(\d+\.\d+\s*([NS]))\s*(\d+\.\d+\s*([EW]))/i,
+      dd2:  /(\d+[\. ]\d+\u0027?\s*([NS]))[, ]?\s*(\d+[\. ]\d+\u0027?\s*([EW]))/i,
+      dm1:  /\D(\d+) ?[\*°ººo\u02DA ] ?(\d+[\.|,]\d+|\d+) ?[ ´\u0027\u02B9\u02BC\u02CA]? ?([NS])[\.,;]? ?(\d+) ?[\*°ººo\u02DA ] ?(\d+[\.|,]\d+|\d+) ?[ ´\u0027\u02B9\u02BC\u02CA]? ?([WE])\W/i,
+      dms2: /\W([NS])\.? ?(\d+) ?[\*°ººo\u02DA ] ?(\d+) ?[ ´\u0027\u02B9\u02BC\u02CA] ?(\d+[\.|,]\d+|\d+) ?[ ""´\u02BA\u02EE\u0027\u02B9\u02BC\u02CA][´\u0027\u02B9\u02BC\u02CA]?[\.,;]? ?([WE])\.? ?(\d+) ?[\*°ººo\u02DA ] ?(\d+) ?[ \u0027´\u02B9\u02BC\u02CA] ?(\d+[\.|,]\d+|\d+) ?[ ""´\u02BA\u02EE\u0027\u02B9\u02BC\u02CA]?[´\u0027\u02B9\u02BC\u02CA]?\D/i,
+      dm3:  /\W([NS])\.? ?(\d+) ?[\*°ººo\u02DA ] ?(\d+[\.|,]\d+|\d+) ?[ ´\u0027\u02B9\u02BC\u02CA][\.,;]? ?([WE])\.? ?(\d+) ?[\*°ººo\u02DA ] ?(\d+[\.|,]\d+|\d+) ?[ ´\u0027\u02B9\u02BC\u02CA]?\D/i,
+      dms4: /\D(\d+) ?[\*°ººo\u02DA ] ?(\d+[\.,]\d+|\d+) ?[ ´\u0027\u02B9\u02BC\u02CA]? ?(\d+)"? ?([NS])(\d+) ?[\*°ººo\u02DA ] ?(\d+[\.,]\d+|\d+) ?[ ´\u0027\u02B9\u02BC\u02CA]? ?(\d+)"? ?([EW])/i,
+      dd5:  /\W([NS])\.? ?(\d+[\.|,]\d+|\d+) ?[\*°ººo\u02DA ][\.,;]? ?([WE])\.? ?(\d+[\.|,]\d+|\d+) ?[\*°ººo\u02DA ]?\D/i,
+      dd6:  /\D(\d+[\.|,]\d+|\d+) ?[\*°ººo\u02DA ] ?([NS])[\.,;]? ?(\d+[\.|,]\d+|\d+) ?[\*°ººo\u02DA ] ?([WE])\W/i,
+      dd7:  /\[(-?\d+[\.|,]\d+|\-?d+),.*?(-?\d+[\.|,]\d+|\-?d+)\]/i
     }.freeze
 
     def self.hunt_lat_long_full(label)
@@ -119,7 +119,7 @@ To add a new (discovered) symbol:
               trials[kee_string][:piece] = $&
               trials[kee_string][:lat]   = lat
               trials[kee_string][:long]  = long
-            when :dm2
+            when :dms2
               lat                        = "#{$1}#{$2}º#{$3}'#{$4}\""
               long                       = "#{$5}#{$6}º#{$7}'#{$8}\""
               trials[kee_string][:piece] = $&
@@ -143,7 +143,7 @@ To add a new (discovered) symbol:
               trials[kee_string][:piece] = $&
               trials[kee_string][:lat]   = lat
               trials[kee_string][:long]  = long
-            when :dm6
+            when :dd6
               lat                        = "#{$1}#{$2}º"
               long                       = "#{$3}#{$4}º"
               trials[kee_string][:piece] = $&

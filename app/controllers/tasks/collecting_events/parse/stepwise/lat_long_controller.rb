@@ -1,4 +1,4 @@
-DEFAULT_SQL_REGEXS = [:dd1, :dd2, :dm1, :dm2, :dm3, :dm4, :dm5, :dm6, :dm7]
+DEFAULT_SQL_REGEXS = []
 class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationController
   include TaskControllerConfiguration
 
@@ -48,7 +48,7 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
 
   # TODO: deprecate for valud from view/helper
   def next_collecting_event_id
-    filters = []
+    filters = DEFAULT_SQL_REGEXS
     Queries::CollectingEventLatLongExtractorQuery.new(
       collecting_event_id: collecting_event_id_param,
       filters:             filters).all.with_project_id(sessions_current_project_id).first.id

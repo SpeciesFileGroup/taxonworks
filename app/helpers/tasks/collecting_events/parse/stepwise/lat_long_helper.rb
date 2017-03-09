@@ -5,6 +5,24 @@ module Tasks::CollectingEvents::Parse::Stepwise::LatLongHelper
     retval
   end
 
+  def make_method_headers
+    list         = Utilities::Geo::REGEXP_COORD
+    selector_row = ""
+    list.keys.each { |kee|
+      selector_row += content_tag(:th, kee.to_s.upcase)
+    }
+    selector_row.html_safe
+  end
+
+  def make_method_boxes
+    list    = Utilities::Geo::REGEXP_COORD
+    box_row = ""
+    list.keys.each { |kee|
+      box_row += content_tag(:td, check_box_tag("select_#{kee.to_s.upcase}", nil, true))
+    }
+    box_row.html_safe
+  end
+
   def make_rows(label)
     return nil if label.nil?
     tests = Utilities::Geo.hunt_wrapper(label)
@@ -33,7 +51,7 @@ module Tasks::CollectingEvents::Parse::Stepwise::LatLongHelper
 
   def parse_lat_long_skip_link(current_collecting_event_id)
     # TODO: Now this has to be bound to next hit
-    filters = []
+    filters = DEFAULT_SQL_REGEXS
     next_id = Queries::CollectingEventLatLongExtractorQuery.new(
       collecting_event_id: current_collecting_event_id,
       filters:             filters).all.with_project_id(sessions_current_project_id).first.try(:id)
