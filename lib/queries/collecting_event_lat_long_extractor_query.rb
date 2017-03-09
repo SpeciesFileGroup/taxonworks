@@ -3,13 +3,13 @@ module Queries
   # func = Arel::Nodes::NamedFunction.new 'zomg', [name]
   # Country.select([name, func]).to_sql
 
-  FILTERS = {
-    d_dm:    '(\d+\s\d+\.\d+\'\'*)\s.*(\d+\s\d+\.\d+\'\'*)',
-    dd:      '\d*\.\d*',
-    degrees: '[o*\u00b0\u00ba\u02DA\u030a\u221e\u222b\uc2ba]',
-    minutes: '[\'\'\u00a5\u00b4\u02b9\u02bb\u02bc\u02ca\u2032\uc2ba]',
-    seconds: '[\'\'\u00a5\u00b4\u02b9\u02ba\u02bb\u02bc\u02ca\u02ee\u2032\u2033\uc2ba"]'
-  }.freeze
+  # FILTERS = {
+  #   d_dm:    '(\d+\s\d+\.\d+\'\'*)\s.*(\d+\s\d+\.\d+\'\'*)',
+  #   dd:      '\d*\.\d*',
+  #   degrees: '[o*\u00b0\u00ba\u02DA\u030a\u221e\u222b\uc2ba]',
+  #   minutes: '[\'\'\u00a5\u00b4\u02b9\u02bb\u02bc\u02ca\u2032\uc2ba]',
+  #   seconds: '[\'\'\u00a5\u00b4\u02b9\u02ba\u02bb\u02bc\u02ca\u02ee\u2032\u2033\uc2ba"]'
+  # }.freeze
 
   # TODO: This needs cleaning up (@tuckerjd, @mjy)
   class CollectingEventLatLongExtractorQuery # < Queries::Query
@@ -36,14 +36,14 @@ module Queries
     # @return [String] of all of the regexs available at this time
     def filter_scopes
       if filters.empty?
-        filter_keys = FILTERS.keys.compact
+        filter_keys = Utilities::Geo::REGEXP_COORD.keys.compact
       else
         filter_keys = filters
       end
 
-      all_filters = filter_keys.collect do |k|
+      all_filters = filter_keys.collect do |kee|
         # attach 'verbatim_label ~ ' to each regex
-        function(k)
+        regex_function(kee)
       end.join(' OR ')
       Arel.sql("(#{all_filters})")
       # start with the first scope
@@ -57,8 +57,8 @@ module Queries
 
     def where_sql
       # with_project_id.and
-      # (verbatim_label_not_empty).and(verbatim_lat_long_empty).and(starting_after).and(filter_scopes).to_sql
-      (verbatim_label_not_empty).and(starting_after).and(filter_scopes).to_sql
+      (verbatim_label_not_empty).and(verbatim_lat_long_empty).and(starting_after).and(filter_scopes).to_sql
+        # (verbatim_label_not_empty).and(starting_after).and(filter_scopes).to_sql
     end
 
     def table
@@ -106,10 +106,12 @@ module Queries
 
     # @param [String] key to FILTERS regex string
     # @return [Scope]
-    def function(filter)
+    def regex_function(filter)
       # verbatim_label_not_empty
       # Arel.sql("verbatim_label ~ '" + FILTERS[filter] + "'")
-      "verbatim_label ~ '" + FILTERS[filter] + "'"
+      # ~* is cased-insensitive match
+      regex = Utilities::Geo::REGEXP_COORD[filter].to_s.gsub('(?i-mx:', '').chomp(')')
+      "verbatim_label ~* '" + regex + "'"
     end
 
     # table.project(table[:id], table[:verbatim_label]).where(Arel.sql('length(verbatim_data)').gt(0).and(Arel.sql('verbatim_label ~ \'(\d+\s\d+\.\d+''*)\s.*(\d+\s\d+\.\d+''*)\''))).to_sql

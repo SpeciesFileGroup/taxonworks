@@ -33,9 +33,10 @@ module Tasks::CollectingEvents::Parse::Stepwise::LatLongHelper
 
   def parse_lat_long_skip_link(current_collecting_event_id)
     # TODO: Now this has to be bound to next hit
+    filters = []
     next_id = Queries::CollectingEventLatLongExtractorQuery.new(
       collecting_event_id: current_collecting_event_id,
-      filters: [:dd, :d_dm]).all.with_project_id(sessions_current_project_id).first.try(:id)
+      filters:             filters).all.with_project_id(sessions_current_project_id).first.try(:id)
     if next_id
       link_to('Skip to next record', collecting_event_lat_long_task_path(collecting_event_id: next_id))
     else
@@ -46,7 +47,7 @@ module Tasks::CollectingEvents::Parse::Stepwise::LatLongHelper
   def scan_c_e
     pile = Queries::CollectingEventLatLongExtractorQuery.new(
       collecting_event_id: 0,
-      filters:             []).all.with_project_id(sessions_current_project_id).order(:id)
+      filters:             DEFAULT_SQL_REGEXS).all.with_project_id(sessions_current_project_id).order(:id)
     pile.each { |c_e|
       trials = Utilities::Geo.hunt_lat_long_full(c_e.verbatim_label)
       puts(c_e.id)

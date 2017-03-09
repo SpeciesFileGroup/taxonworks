@@ -1,3 +1,4 @@
+DEFAULT_SQL_REGEXS = [:dd1, :dd2, :dm1, :dm2, :dm3, :dm4, :dm5, :dm6, :dm7]
 class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationController
   include TaskControllerConfiguration
 
@@ -24,8 +25,8 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
   end
 
   def convert
-    retval = {}
-    retval[:lat_piece] = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(params[:verbatim_latitude])
+    retval              = {}
+    retval[:lat_piece]  = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(params[:verbatim_latitude])
     retval[:long_piece] = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(params[:verbatim_longitude])
     render json: retval
   end
@@ -47,9 +48,10 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
 
   # TODO: deprecate for valud from view/helper
   def next_collecting_event_id
+    filters = []
     Queries::CollectingEventLatLongExtractorQuery.new(
       collecting_event_id: collecting_event_id_param,
-      filters: [:dd, :d_dm]).all.with_project_id(sessions_current_project_id).first.id
+      filters:             filters).all.with_project_id(sessions_current_project_id).first.id
   end
 
   def current_collecting_event
