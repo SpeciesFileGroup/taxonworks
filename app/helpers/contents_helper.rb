@@ -3,7 +3,9 @@ module ContentsHelper
   # Note disambiguation from Rails' content_tag()
   def taxon_works_content_tag(content)
     return nil if content.nil?
-    content.text
+    content_tag(:span) do
+      topic_tag(content.topic) + ' - ' + otu_tag(content.otu)
+    end.html_safe
   end
 
   def content_link(content)
