@@ -238,7 +238,7 @@ Object.assign(TW.views.tasks.content.editor, {
 
           this.$http.get(ajaxUrl).then( response => {
             that.contents = response.body;
-            that.showModal = true;            
+            that.showModal = (response.body.length > 0);            
           });          
         },
         cloneCitation: function(text) {
