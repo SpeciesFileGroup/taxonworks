@@ -124,32 +124,23 @@ class GeographicItem < ActiveRecord::Base
     def gather_selected_data(geographic_area_id, shape_in, search_object_class)
       if shape_in.blank?
         # get the shape from the geographic area, if possible
+        finding = search_object_class.constantize
+        target_geographic_item_ids = []
         if geographic_area_id.blank?
-          finding = search_object_class.constantize
           found = finding.none
         else
           # now use method from collection_object_filter_query
-          target_geographic_area_ids = []
           geographic_area_id.each do |gaid|
-            target_geographic_area_ids.push(GeographicArea.joins(:geographic_items)
+            target_geographic_item_ids.push(GeographicArea.joins(:geographic_items)
                                                 .find(gaid)
                                                 .default_geographic_item.id)
           end
-          found = geographic_area_scope(target_geographic_area_ids, search_object_class)
+          found = finding.joins(:geographic_items).where(GeographicItem.contained_by_where_sql(target_geographic_item_ids))
         end
       else
         found = gather_map_data(shape_in, search_object_class)
       end
       found
-    end
-
-    # @param [Array] target_geographic_item_ids
-    # @param [String] search_object_class
-    # @return [Scope]
-    #    all objects of search_object_class contained by the geo_object geometry
-    def geographic_area_scope(target_geographic_item_ids, search_object_class)
-      finding = search_object_class.constantize
-      finding.joins(:geographic_items).where(GeographicItem.contained_by_where_sql(target_geographic_item_ids))
     end
 
     # @param [String] feature in JSON
