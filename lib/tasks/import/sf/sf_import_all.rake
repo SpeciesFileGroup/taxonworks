@@ -11,7 +11,7 @@ namespace :tw do
        #  'start:list_verbatim_refs',
        #  'start:create_projects',
        #  'start:create_sf_book_hash',
-       #  'start:map_pub_types',
+       #  'start:map_pub_type',
        #  'start:create_sources',
        #  'start:create_source_editor_array',
        #  'start:create_source_roles',
