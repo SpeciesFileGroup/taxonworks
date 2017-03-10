@@ -6,19 +6,20 @@
     <div class="item item1 one_third_width">
       Collecting event
       id:  <%= link_to(@collecting_event.id, collecting_event_path(@collecting_event), target: :_blank) %>
-      <%= parse_lat_long_skip_link(@collecting_event.id) %>
+      <%#= parse_lat_long_skip_link(@collecting_event.id) %>
       <%= collecting_event_label_tag(@collecting_event.verbatim_label) %>
     </div>
 
     <div class="item item2">
       <%= form_tag(lat_long_update_record_path(collecting_event_id: @collecting_event.id), id: 'lat_long_convert_form') do %>
+          <%= parse_lat_long_skip(@collecting_event.id, @filters) %>
           <table border="1">
             <tbody>
             <tr>
               <%= make_method_headers %>
             </tr>
             <tr>
-              <%= make_method_boxes %>
+              <%= make_selected_method_boxes(@filters) %>
             </tr>
             </tbody>
           </table>

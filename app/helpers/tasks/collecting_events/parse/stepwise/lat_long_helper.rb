@@ -14,11 +14,14 @@ module Tasks::CollectingEvents::Parse::Stepwise::LatLongHelper
     selector_row.html_safe
   end
 
-  def make_method_boxes
+
+  # @param [Array] must be array of symbols from Utilities::Geo::REGEXP_COORD
+  def make_selected_method_boxes(filters = Utilities::Geo::REGEXP_COORD.keys)
     list    = Utilities::Geo::REGEXP_COORD
     box_row = ""
     list.keys.each { |kee|
-      box_row += content_tag(:td, check_box_tag("select_#{kee.to_s.upcase}", nil, true))
+      checked = filters.include?(kee)
+      box_row += content_tag(:td, check_box_tag("filters[]", kee.to_s, checked))
     }
     box_row.html_safe
   end
@@ -49,14 +52,15 @@ module Tasks::CollectingEvents::Parse::Stepwise::LatLongHelper
     @collecting_event.verbatim_longitude unless @collecting_event.nil?
   end
 
-  def parse_lat_long_skip_link(current_collecting_event_id)
+  def parse_lat_long_skip(current_collecting_event_id, filters)
     # TODO: Now this has to be bound to next hit
-    filters = DEFAULT_SQL_REGEXS
+    # filters = Utilities::Geo::REGEXP_COORD.keys
     next_id = Queries::CollectingEventLatLongExtractorQuery.new(
       collecting_event_id: current_collecting_event_id,
       filters:             filters).all.with_project_id(sessions_current_project_id).first.try(:id)
     if next_id
-      link_to('Skip to next record', collecting_event_lat_long_task_path(collecting_event_id: next_id))
+      button_tag('Skip to next record', value: 'skip')
+      # link_to('Skip to next record', collecting_event_lat_long_task_path(collecting_event_id: next_id))
     else
       content_tag(:span, 'no more matches')
     end
