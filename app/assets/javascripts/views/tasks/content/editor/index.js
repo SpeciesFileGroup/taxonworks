@@ -284,7 +284,6 @@ Object.assign(TW.views.tasks.content.editor, {
                   <div class="flex-separate menu-content-editor"> \
                     <div class="item flex-wrap-column middle menu-item" @click="update" :class="{ saving : unsave }"><span data-icon="savedb" class="big-icon"></span><span class="tiny_space">Save</span></div> \
                     <div class="item flex-wrap-column middle menu-item"><span data-icon="preview" class="big-icon"></span><span class="tiny_space">Preview</span></div> \
-                    <div class="item flex-wrap-column middle menu-item"><span data-icon="b_help" class="big-icon"></span><span class="tiny_space">Help</span></div> \
                     <clone class="item menu-item"></clone> \
                     <div class="item flex-wrap-column middle menu-item"><span data-icon="compare" class="big-icon"></span><span class="tiny_space">Compare</span></div> \
                     <div class="item flex-wrap-column middle menu-item"><span data-icon="citation" class="big-icon"></span><span class="tiny_space">Citation</span></div> \
