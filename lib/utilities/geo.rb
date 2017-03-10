@@ -113,6 +113,12 @@ To add a new (discovered) symbol:
         trials[kee_string] = {}
         if testval.class == Fixnum
           case kee
+            when :dd1, :dd2
+              # lat                        = "#{$1}#{$2}º"
+              # long                       = "#{$3}#{$4}º"
+              trials[kee_string][:piece] = $&
+              trials[kee_string][:lat]   = $1
+              trials[kee_string][:long]  = $3
             when :dm1
               lat                        = "#{$3}#{$1}º#{$2}'"
               long                       = "#{$6}#{$4}º#{$5}'"
@@ -131,13 +137,13 @@ To add a new (discovered) symbol:
               trials[kee_string][:piece] = $&
               trials[kee_string][:lat]   = lat
               trials[kee_string][:long]  = long
-            when :dm4
+            when :dms4
               lat                        = "#{$4}#{$1}º#{$2}'#{$3}\""
               long                       = "#{$8}#{$5}º#{$6}'#{$7}\""
               trials[kee_string][:piece] = $&
               trials[kee_string][:lat]   = lat
               trials[kee_string][:long]  = long
-            when :dm5
+            when :dd5
               lat                        = "#{$1}#{$2}º"
               long                       = "#{$3}#{$4}º"
               trials[kee_string][:piece] = $&
@@ -149,7 +155,7 @@ To add a new (discovered) symbol:
               trials[kee_string][:piece] = $&
               trials[kee_string][:lat]   = lat
               trials[kee_string][:long]  = long
-            when :dm7
+            when :dd7
               trials[kee_string][:piece] = $&
               lat                        = $1.to_f
               ord                        = (lat < 0) ? 'S' : 'N'
@@ -157,12 +163,6 @@ To add a new (discovered) symbol:
               long                       = $2.to_f
               ord                        = (long < 0) ? 'W' : 'E'
               trials[kee_string][:long]  = "#{ord}#{long.abs}º"
-            when :dd1, :dd2
-              # lat                        = "#{$1}#{$2}º"
-              # long                       = "#{$3}#{$4}º"
-              trials[kee_string][:piece] = $&
-              trials[kee_string][:lat]   = $1
-              trials[kee_string][:long]  = $3
             else
               retval = 1
           end
