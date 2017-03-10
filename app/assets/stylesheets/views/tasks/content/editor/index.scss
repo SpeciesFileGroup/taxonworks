@@ -2,6 +2,7 @@
 @import 'base/fonts';
 @import 'base/whitespace';
 @import 'base/form_elements';
+@import 'base/arrow-box';
 
 #content_editor {
 	margin-left: $standard_margin * -2;
@@ -24,6 +25,58 @@
 			margin-left: 1em;
 			margin-right: 1em;
 		}
+	}
+	#clone-modal {
+		font-size: 16px;
+		li {
+			cursor: pointer;
+		}
+		.clone-content-text {
+			@include arrow-box-top(17px);
+			display: none;
+			position: absolute;
+			padding: $standard_padding*0.5;
+			padding-left: $standard_padding;
+			padding-right: $standard_padding;			
+			background-color: $color-help-description;
+			color:#FFF;
+			box-shadow: 0px 1px 1px 0px rgba(0,0,0,0.2);
+			left:-10px;
+			top:20px;
+			white-space: pre;
+			border-radius: 3px;		
+		}	
+
+		[data-icon="show"] {
+			position: relative;
+		}
+
+		[data-icon="show"]:hover {
+			.clone-content-text {
+				z-index: 1200;
+				display: flex;
+			}
+		}
+	}
+
+	.menu-content-editor {
+		.menu-item {
+			margin-bottom: $standard_margin;
+			cursor: pointer;
+			padding: 12px;
+			padding-bottom: 6px;
+			border-left: 1px solid $navigation_border;
+			border-bottom: 1px solid $navigation_border;
+			.big-icon {
+				opacity: 0.8;
+			}			
+		}
+		.menu-item:last-child {
+			border-right:1px solid $navigation_border;
+		}
+		.menu-item:hover {
+			background-color: $color-complement-2;
+		}	
 	}
 
 	#panel-editor {
@@ -52,12 +105,9 @@
 	}
 
 	#otu_panel {
-		margin-top: 1em;
-		margin-right: -2em;
-		margin-left: 1em;
-		display: flex;
-		flex-direction: row;
-		justify-content: center;
+		margin-top: $standard_margin;
+		margin-right: $standard_margin * -1;
+		margin-left: $standard_margin;
 	}
 	.slide-panel {
 		top:0px;
@@ -105,6 +155,6 @@
 	}
 
 	#new-topic {
-		width: 300px;
+		min-width: 300px;
 	}
 }

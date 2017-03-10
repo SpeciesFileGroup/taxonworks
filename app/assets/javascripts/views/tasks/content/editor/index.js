@@ -16,7 +16,7 @@ Object.assign(TW.views.tasks.content.editor, {
       state: {    
         selected: {
           topic: undefined,
-          otu: undefined
+          otu: undefined,
         },
         recent: {
           contents: [],
@@ -45,7 +45,7 @@ Object.assign(TW.views.tasks.content.editor, {
         },
         getOtuSelected(state) {
           return state.selected.otu
-        },
+        },     
         getCitationsList(state) {
           return state.citations;
         },
@@ -116,23 +116,6 @@ Object.assign(TW.views.tasks.content.editor, {
       }
     });
 
-    Vue.component('itemOption', {
-      props: ['name', 'callMethod'],
-      data: function() { 
-        return {
-          disabled: false
-        }
-      },
-      template: '<div v-if="!disabled" class="navigation-item" v-on:click="action">{{ name }}</div>',
-      methods: {
-        action: function (){
-          if(!this.disabled && this.callMethod !== undefined) {
-            this.callMethod()
-          }
-        }
-      }
-    });  
-
     Vue.component('citation-list', {
       computed: {
         citations() {
@@ -172,7 +155,7 @@ Object.assign(TW.views.tasks.content.editor, {
                     <div> \
                       <div class="slide-panel-category-header">Contents</div> \
                       <ul class="slide-panel-category-content"> \
-                        <li v-for="item in recentContents" @click="save(\'setContentSelected\', item)" class="slide-panel-category-item"><span v-html="createContentString(item)"></span></li> \
+                        <li v-for="item in recentContents" @click="save(\'setContentSelected\', item)" class="slide-panel-category-item"><span v-html="item.object_tag"></span></li> \
                       </ul> \
                     </div> \
                     <div> \
@@ -214,23 +197,57 @@ Object.assign(TW.views.tasks.content.editor, {
       }
     });      
 
-    Vue.component('citation-modal', {
-      template: '<div class="panel content"> \
-                  <span>Source ID: {{ citation.source_id }} </span> \
-                  <input class="normal-input" placeholder="Pages" v-model="citation.pages"/> \
+    Vue.component('clone', {
+      template: '<div> \
+                  <div @click="loadContent" class="item flex-wrap-column middle"><span data-icon="clone" class="big-icon"></span><span class="tiny_space">Clone</span></div> \
+                  <modal v-if="showModal" id="clone-modal"> \
+                    <h3 slot="header">Clone</h3> \
+                    <div slot="body"> \
+                      <ul class="no_bullets"> \
+                        <li v-for="item in contents" @click="cloneCitation(item.text)"><span data-icon="show"><div class="clone-content-text">{{ item.text }}</div></span><span v-html="item.object_tag"></span></li> \
+                      </ul> \
+                    </div> \
+                    <div slot="footer" class="flex-separate"> \
+                      <button class="button button-close normal-input" @click="showModal = false">Close</button> \
+                    </div> \
+                  </modal> \
                 </div>',
       data: function() {
         return {
-          citation: {
-            pages: '',
-            source_id: '',
-            citation_object_type: null,
-            citation_object_id: null,
-            is_original: null
-          } 
+          contents: [],
+          showModal: false
+        }
+      },
+      computed: {
+        disabled() {
+          return (this.$store.getters.getTopicSelected == undefined || this.$store.getters.getOtuSelected == undefined)
+        },  
+        topic() {
+          return this.$store.getters.getTopicSelected
+        },
+        otu() {
+          return this.$store.getters.getOtuSelected
+        }        
+      },
+      methods: {
+        loadContent: function() {
+          if (this.disabled) return
+          
+          var that = this;
+          ajaxUrl = `/contents/filter.json?topic_id=${this.topic.id}`
+
+          this.$http.get(ajaxUrl).then( response => {
+            that.contents = response.body;
+            that.showModal = true;            
+          });          
+        },
+        cloneCitation: function(text) {
+          this.$parent.$emit('addCloneCitation', text);
+          this.showModal = false;
         }
       }
-    });
+
+    })
 
 
     Vue.component('content-editor', {
@@ -256,7 +273,7 @@ Object.assign(TW.views.tasks.content.editor, {
         },
         otu() {
           return this.$store.getters.getOtuSelected
-        },
+        },       
         disabled() {
           return (this.topic == undefined || this.otu == undefined)
         }         
@@ -264,17 +281,24 @@ Object.assign(TW.views.tasks.content.editor, {
       template: '<div v-if="topic !== undefined || otu !== undefined" class="panel" id="panel-editor"> \
                   <div class="title"> <span><span v-if="topic">{{ topic.name }}</span> - <span v-if="otu" v-html="otu.object_tag"></span></span> </div> \
                   <textarea v-on:input="autoSave" :disabled="disabled"  v-model="record.content.text" ref="contentText" v-on:dblclick="addCitation()"></textarea> \
-                  <div class="navigation-controls"> \
-                    <itemOption name="Save" :callMethod="update" :class="{ saving : unsave }"></itemOption> \
-                    <itemOption name="Preview"></itemOption> \
-                    <itemOption name="Help"></itemOption> \
-                    <itemOption name="Clone"></itemOption> \
-                    <itemOption name="Compare"></itemOption> \
-                    <itemOption name="Citation" :callMethod="openCitation"></itemOption> \
-                    <itemOption name="Figure"></itemOption> \
-                    <itemOption name="Drag new figure"></itemOption> \
+                  <div class="flex-separate menu-content-editor"> \
+                    <div class="item flex-wrap-column middle menu-item" @click="update" :class="{ saving : unsave }"><span data-icon="savedb" class="big-icon"></span><span class="tiny_space">Save</span></div> \
+                    <div class="item flex-wrap-column middle menu-item"><span data-icon="preview" class="big-icon"></span><span class="tiny_space">Preview</span></div> \
+                    <div class="item flex-wrap-column middle menu-item"><span data-icon="b_help" class="big-icon"></span><span class="tiny_space">Help</span></div> \
+                    <clone class="item menu-item"></clone> \
+                    <div class="item flex-wrap-column middle menu-item"><span data-icon="compare" class="big-icon"></span><span class="tiny_space">Compare</span></div> \
+                    <div class="item flex-wrap-column middle menu-item"><span data-icon="citation" class="big-icon"></span><span class="tiny_space">Citation</span></div> \
+                    <div class="item flex-wrap-column middle menu-item"><span data-icon="new" class="big-icon"></span><span class="tiny_space">Figure</span></div> \
+                    <div class="item flex-wrap-column middle menu-item"><span data-icon="image" class="big-icon"></span><span class="tiny_space">Drag new figure</span></div> \
                   </div> \
                 </div>',
+      created: function() {
+        var that = this;
+        this.$on('addCloneCitation', function(itemText) {
+          this.record.content.text += itemText;
+          this.update();
+        });
+      },
       watch: {
         otu: function(val, oldVal) {
           if (JSON.stringify(val) !== JSON.stringify(oldVal)) {
@@ -342,10 +366,6 @@ Object.assign(TW.views.tasks.content.editor, {
 
           });            
         },        
-
-        openCitation: function() {
-          this.citationModal = !this.citationModal;
-        },
 
         autoSave: function() {
           var that = this;
@@ -420,7 +440,7 @@ Object.assign(TW.views.tasks.content.editor, {
 
     Vue.component('new-topic', {
       template: '<div> \
-                  <button v-on:click="openWindow" class="button normal-input">New</button> \
+                  <button v-on:click="openWindow" class="button button-default normal-input">New</button> \
                     <modal v-if="showModal" @close="showModal = false"> \
                       <h3 slot="header">New topic</h3> \
                       <form  id="new-topic" action="" slot="body"> \
