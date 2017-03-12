@@ -354,7 +354,7 @@ namespace :tw do
 
         desc 'time rake tw:project_import:sf_import:start:map_pub_type user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         # map SF.PubID by SF.PubType
-        LoggedTask.define :map_pub_types => [:data_directory, :environment, :user_id] do |logger|
+        LoggedTask.define :map_pub_type => [:data_directory, :environment, :user_id] do |logger|
           # Can be run independently at any time
 
           logger.info 'Running map_pub_types...'
