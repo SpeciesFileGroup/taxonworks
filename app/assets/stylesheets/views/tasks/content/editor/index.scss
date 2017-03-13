@@ -26,7 +26,7 @@
 			margin-right: 1em;
 		}
 	}
-	#clone-modal {
+	#clone-modal, #compare-modal {
 		font-size: 16px;
 		li {
 			cursor: pointer;
@@ -80,13 +80,17 @@
 	}
 
 	#panel-editor {
+		position: relative;
+		flex-grow: 1;
 		padding-left: $standard_padding;
 		padding-right: $standard_padding;
-		textarea {
+		textarea, .compare, .preview {
 			border: 1px solid $navigation_border;
 			font-size: 14px;
 			padding: $standard_margin*0.5; 			
 			min-height:500px;
+			width: 100%;
+			flex-grow: 1;
 		}
 		.title {
 			align-items: center;
@@ -112,6 +116,7 @@
 	.slide-panel {
 		top:0px;
 		max-width: 300px;
+		min-width: 300px;
 		position: relative;
 		.slide-panel-header {
 			font-weight: 500;

@@ -197,7 +197,7 @@ Object.assign(TW.views.tasks.content.editor, {
       }
     });      
 
-    Vue.component('clone', {
+    Vue.component('clone-content', {
       template: '<div> \
                   <div @click="loadContent" class="item flex-wrap-column middle"><span data-icon="clone" class="big-icon"></span><span class="tiny_space">Clone</span></div> \
                   <modal v-if="showModal" id="clone-modal"> \
@@ -238,6 +238,7 @@ Object.assign(TW.views.tasks.content.editor, {
 
           this.$http.get(ajaxUrl).then( response => {
             that.contents = response.body;
+            console.log("asdfaa");
             that.showModal = (response.body.length > 0);            
           });          
         },
@@ -249,6 +250,60 @@ Object.assign(TW.views.tasks.content.editor, {
 
     })
 
+    Vue.component('compare-content', {
+      template: '<div> \
+                  <div class="flex-wrap-column middle"><span data-icon="compare" @click="loadContent()" class="big-icon"></span><span class="tiny_space">Compare</span></div> \
+                  <modal v-if="showModal" id="compare-modal"> \
+                    <h3 slot="header">Compare content</h3> \
+                    <ul slot="body" class="no_bullets"> \
+                      <li v-for="item in contents" @click="compareContent(item)"><span data-icon="show"><div class="clone-content-text">{{ item.text }}</div></span><span v-html="item.topic.object_tag + \' - \' + item.otu.object_tag"></span></li> \
+                    </ul> \
+                    <div slot="footer" class="flex-separate"> \
+                      <button class="button button-close normal-input" @click="showModal = false">Close</button> \
+                    </div> \
+                  </modal> \
+                 </div>',
+      data: function() {
+        return {
+          contents: [],
+          showModal: false
+        }
+      },
+      computed: {
+        topic() {
+            return this.$store.getters.getTopicSelected
+        }
+      },
+      methods: {      
+        loadContent: function() {
+          if (this.disabled) return
+            
+          var that = this;
+          ajaxUrl = `/contents/filter.json?topic_id=${this.topic.id}`
+
+          this.$http.get(ajaxUrl).then( response => {
+            that.contents = response.body;
+            that.showModal = (response.body.length > 0);            
+          });          
+        },
+        compareContent: function(content) {
+          this.$parent.$emit('showCompareContent', content);
+          this.showModal = false;
+        }        
+      }
+    });
+
+    Vue.component('preview-content', {
+      template: '<div v-html="compiledMarkdown"> \
+                </div>',
+      props: ['text'],
+      computed: {
+        compiledMarkdown: function() {
+          return marked(this.text, { sanitize: true })
+        }
+      },
+    })
+
 
     Vue.component('content-editor', {
       data: function() { 
@@ -258,6 +313,9 @@ Object.assign(TW.views.tasks.content.editor, {
           citationModal: false,
           currentSourceID: '',
           newRecord: true,
+          textCompare: '',
+          preview: false,
+          compareContent: undefined,
           record: { 
             content: {
               otu_id: '',
@@ -279,13 +337,24 @@ Object.assign(TW.views.tasks.content.editor, {
         }         
       },      
       template: '<div v-if="topic !== undefined || otu !== undefined" class="panel" id="panel-editor"> \
-                  <div class="title"> <span><span v-if="topic">{{ topic.name }}</span> - <span v-if="otu" v-html="otu.object_tag"></span></span> </div> \
-                  <textarea v-on:input="autoSave" :disabled="disabled"  v-model="record.content.text" ref="contentText" v-on:dblclick="addCitation()"></textarea> \
+                  <div class="flex-separate"> \
+                    <div class="flex-wrap-column item"> \
+                      <div class="title"><span><span v-if="topic">{{ topic.name }}</span> - <span v-if="otu" v-html="otu.object_tag"></span></span></div> \
+                      <div class="flex-separate"> \
+                        <textarea v-on:input="autoSave" v-if="!preview" :disabled="disabled"  v-model="record.content.text" ref="contentText" v-on:dblclick="addCitation()"></textarea> \
+                        <preview-content v-if="preview" class="item preview" :text="this.record.content.text"></preview-content> \
+                      </div> \
+                    </div> \
+                    <div v-if="compareContent && !preview" class="flex-wrap-column item"> \
+                      <div class="title"><span><span>{{ compareContent.topic.object_tag }}</span> - <span v-html="compareContent.otu.object_tag"></span></span><button class="button button-close" @click="compareContent = undefined">Close compare</button></div> \
+                      <textarea class="compare" @mouseup="copyCompareContent" readonly>{{ compareContent.text }}</textarea> \
+                    </div> \
+                  </div> \
                   <div class="flex-separate menu-content-editor"> \
                     <div class="item flex-wrap-column middle menu-item" @click="update" :class="{ saving : unsave }"><span data-icon="savedb" class="big-icon"></span><span class="tiny_space">Save</span></div> \
-                    <div class="item flex-wrap-column middle menu-item"><span data-icon="preview" class="big-icon"></span><span class="tiny_space">Preview</span></div> \
-                    <clone class="item menu-item"></clone> \
-                    <div class="item flex-wrap-column middle menu-item"><span data-icon="compare" class="big-icon"></span><span class="tiny_space">Compare</span></div> \
+                    <div class="item flex-wrap-column middle menu-item" @click="preview = !preview"><span data-icon="preview" class="big-icon"></span><span class="tiny_space">Preview</span></div> \
+                    <clone-content class="item menu-item"></clone-content> \
+                    <compare-content class="item menu-item"></compare-content> \
                     <div class="item flex-wrap-column middle menu-item"><span data-icon="citation" class="big-icon"></span><span class="tiny_space">Citation</span></div> \
                     <div class="item flex-wrap-column middle menu-item"><span data-icon="new" class="big-icon"></span><span class="tiny_space">Figure</span></div> \
                     <div class="item flex-wrap-column middle menu-item"><span data-icon="image" class="big-icon"></span><span class="tiny_space">Drag new figure</span></div> \
@@ -295,7 +364,11 @@ Object.assign(TW.views.tasks.content.editor, {
         var that = this;
         this.$on('addCloneCitation', function(itemText) {
           this.record.content.text += itemText;
-          this.update();
+          this.autoSave();
+        });
+        this.$on('showCompareContent', function(content){
+          this.compareContent = content;
+          this.preview = false;
         });
       },
       watch: {
@@ -320,6 +393,13 @@ Object.assign(TW.views.tasks.content.editor, {
             }
           }); 
           return exist;
+        },
+
+        copyCompareContent: function() {
+          if (window.getSelection().toString().length > 0) {
+            this.record.content.text += window.getSelection().toString();
+            this.autoSave();            
+          }                   
         },
 
         addCitation: function(datas) {
