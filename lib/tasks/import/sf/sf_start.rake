@@ -192,6 +192,7 @@ namespace :tw do
           get_sf_verbatim_ref = import.get('RefIDToVerbatimRef') # key is SF.RefID, value is verbatim string
           get_tw_project_id = import.get('SFFileIDToTWProjectID')
           get_sf_booktitle_publisher_address = import.get('SFPubIDTitlePublisherAddress') # key = SF.PubID, value = hash of booktitle, publisher, address
+          get_sf_pub_type_string = import.get('SFPubIDToPubTypeString')
 
           get_tw_source_id = {} # key = SF.RefID, value = TW.source_id
           get_containing_source_id = {} # key = TW.contained_source_id, value = TW.containing_source_id # use for containing auths/eds
@@ -217,23 +218,23 @@ namespace :tw do
 
             logger.info "working with SF.RefID = #{ref_id}, SF.FileID = #{row['FileID']} \n"
 
-            pub_type_string = get_sf_pub_type[row['PubID']]
             pub_id = row['PubID']
+            pub_type_string = get_sf_pub_type_string[pub_id]
 
             booktitle = nil
             publisher = nil
-            city = nil
+            address = nil
 
-            if get_sf_booktitle_publisher_address(pub_id).has_key?
+            if get_sf_booktitle_publisher_address.has_key?(pub_id)
               booktitle = get_sf_booktitle_publisher_address[pub_id][booktitle]
               publisher = get_sf_booktitle_publisher_address[pub_id][publisher]
-              city = get_sf_booktitle_publisher_address[pub_id][city]
+              address = get_sf_booktitle_publisher_address[pub_id][address]
             end
 
             actual_year = row['ActualYear']
             stated_year = row['StatedYear']
 
-            if actual_year.include?('-') or stated_year.include?('-') or pub_type == 'unpublished'
+            if actual_year.include?('-') or stated_year.include?('-') or pub_type_string == 'unpublished'
               source = Source::Verbatim.new(
                   verbatim: get_sf_verbatim_ref[ref_id],
                   created_at: row['CreatedOn'],
@@ -245,9 +246,9 @@ namespace :tw do
               source = Source::Bibtex.new(
                   bibtex_type: pub_type_string,
                   title: row['Title'],
-                  booktitle: booktitle.empty? ? nil : booktitle,
-                  publisher: publisher.empty? ? nil : publisher,
-                  city: city.empty? ? nil : city,
+                  booktitle: booktitle.blank? ? nil : booktitle,
+                  publisher: publisher.blank? ? nil : publisher,
+                  address: address.blank? ? nil : address,
                   serial_id: get_tw_serial_id[row['PubID']],
                   series: row['Series'],
                   volume: row['Volume'],
@@ -289,9 +290,11 @@ namespace :tw do
           file.each_with_index do |row, i|
             next if row['ContainingRefID'].to_i == 0 # Creating only contained references in this pass
 
-            logger.info "working with contained SF.RefID = #{ref_id}, SF.FileID = #{row['FileID']} \n"
-
+            ref_id = row['RefID']
+            containing_ref_id = row['ContainingRefID']
             containing_source_id = get_tw_source_id[row['ContainingRefID']]
+
+            logger.info "working with contained SF.RefID = #{ref_id}, containing SF.RefID = #{containing_ref_id}, tw.containing_source_id = #{containing_source_id}, SF.FileID = #{row['FileID']} \n"
 
             begin
               containing_source = Source.find(containing_source_id)
@@ -311,11 +314,11 @@ namespace :tw do
                 title: row['Title'],
                 booktitle: containing_source.booktitle,
                 publisher: containing_source.publisher,
-                city: containing_source.city,
+                address: containing_source.address,
                 serial_id: containing_source.serial_id,
                 series: containing_source.series,
                 volume: containing_source.volume,
-                number: containing_source.issue,
+                number: containing_source.number,
                 pages: row['RefPages'],
                 year: containing_source.year,
                 stated_year: containing_source.stated_year,
@@ -360,7 +363,7 @@ namespace :tw do
           logger.info 'Running map_pub_types...'
 
 
-          get_sf_pub_type = {} # key = SF.PubID, value = SF.PubType
+          get_sf_pub_type_string = {} # key = SF.PubID, value = SF.PubType
 
           path = @args[:data_directory] + 'tblPubs.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
@@ -378,14 +381,14 @@ namespace :tw do
               pub_type_string = '**ERROR**'
             end
 
-            get_sf_pub_type[row['PubID']] = pub_type_string
+            get_sf_pub_type_string[row['PubID']] = pub_type_string
           end
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
-          import.set('SFPubIDToPubTypeString', get_sf_pub_type)
+          import.set('SFPubIDToPubTypeString', get_sf_pub_type_string)
 
-          puts 'SFPubIDToPubType'
-          ap get_sf_pub_type
+          puts 'SFPubIDToPubTypeString'
+          ap get_sf_pub_type_string
         end
 
         desc 'time rake tw:project_import:sf_import:start:create_sf_book_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
