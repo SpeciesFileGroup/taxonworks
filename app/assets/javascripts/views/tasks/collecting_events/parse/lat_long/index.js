@@ -22,12 +22,12 @@ Object.assign(TW.views.tasks.collecting_events.parse, {
         event.preventDefault();
       }
     );
-    
-  //  $('#lat_long_update_record').click(function (event) {
-      // put the this id into the form before serializatiun
-      // $('#collecting_event_id').val($('this_collecting_event').text());
-  //   $.post('update', $("#lat_long_convert_form").serialize() + "&" + $("#gen_georef_box").serialize());
-  //  })
+  
+    //  $('#lat_long_update_record').click(function (event) {
+    // put the this id into the form before serializatiun
+    // $('#collecting_event_id').val($('this_collecting_event').text());
+    //   $.post('update', $("#lat_long_convert_form").serialize() + "&" + $("#gen_georef_box").serialize());
+    //  })
   },
   
   bind_radio_buttons: function () {
@@ -35,10 +35,14 @@ Object.assign(TW.views.tasks.collecting_events.parse, {
       // selector not working
       var long = $(this).parent().parent('.extract_row').children('.longitude_value').text();
       var lat = $(this).parent().parent('.extract_row').children('.latitude_value').text();
+      var piece = $(this).parent().parent('.extract_row').children('.piece_value').text();
       $('#verbatim_latitude').val(lat);
       $('#verbatim_longitude').val(long);
       $("#dd_latitude").val('');
       $("#dd_longitude").val('');
+      $.get('similar_labels', 'piece=' + piece.replace(/ /g, '%20') + '&lat=' + lat.replace(/ /g, '%20') + '&long=' + long.replace(/ /g, '%20'), function (local_data) {
+        $("#matching_span").val(local_data.table)
+      })
     });
   }
   

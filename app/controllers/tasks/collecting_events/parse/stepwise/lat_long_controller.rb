@@ -10,6 +10,7 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
       flash['notice'] = 'No collecting events with parsable records found.'
       redirect_to hub_path and return
     end
+    @matching_items   = []
   end
 
   def parse_filters(params)
@@ -48,14 +49,22 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
   end
 
   def convert
+    lat                 = params[:verbatim_latitude]
+    long                = params[:verbatim_longitude]
     retval              = {}
-    retval[:lat_piece]  = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(params[:verbatim_latitude])
-    retval[:long_piece] = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(params[:verbatim_longitude])
+    retval[:lat_piece]  = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(lat)
+    retval[:long_piece] = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(long)
     render json: retval
   end
 
   def similar_labels
-    # @similar_labels = CollectingEvent.where('id > ?', next_record).limit(5)
+    retval         = {}
+    lat            = params[:lat]
+    long           = params[:long]
+    piece          = params[:piece]
+    selected_items = CollectingEvent.where("(verbatim_lable LIKE '%#{lat}%' and verbatim_label LIKE '%#{long}%')")
+    retval[:table] = make_matching_table(piece, selected_items)
+    render json: retval
   end
 
   protected
@@ -90,7 +99,7 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
   end
 
   def collecting_event_params
-    params.permit(:verbatim_latitude, :verbatim_longitude)
+    params.permit(:verbatim_latitude, :verbatim_longitude, :piece, :lat, :long)
   end
 
   def generate_georeference?

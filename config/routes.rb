@@ -415,6 +415,7 @@ TaxonWorks::Application.routes.draw do
             get 'index', as: 'collecting_event_lat_long_task'
             post 'update', as: 'lat_long_update_record'
             get 'convert', as: 'lat_long_convert'
+            get 'similar_labels', as: 'lat_long_similar_labels'
           end
         end
       end

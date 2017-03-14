@@ -26,6 +26,19 @@ module Tasks::CollectingEvents::Parse::Stepwise::LatLongHelper
     box_row.html_safe
   end
 
+  #{"DD1"=>{},
+  # "DD2"=>{},
+  # "DM1"=>{},
+  # "DMS2"=>{},
+  # "DM3"=>{:piece=>" N41o42.781' W87o34.498' ", :lat=>"N41º42.781'", :long=>"W87º34.498'"},
+  # "DMS4"=>{},
+  # "DD5"=>{},
+  # "DD6"=>{},
+  # "DD7"=>{},
+  # "(;)"=>{},
+  # "(,)"=>{},
+  # "( )"=>{:piece=>"N41o42.781' W87o34.498'", :lat=>"N41o42.781'", :long=>"W87o34.498'"}}
+
   def make_rows(label)
     return nil if label.nil?
     tests = Utilities::Geo.hunt_wrapper(label)
@@ -36,12 +49,61 @@ module Tasks::CollectingEvents::Parse::Stepwise::LatLongHelper
       content_tag(:tr, class: :extract_row) do
         content_tag(:td, method) +
           # content_tag(:td, kee == method ? '' : kee) +
-          content_tag(:td, trial[:piece]) +
+          content_tag(:td, trial[:piece], class: :piece_value) +
           content_tag(:td, trial[:lat], class: :latitude_value) +
           content_tag(:td, trial[:long], class: :longitude_value) +
           content_tag(:td, radio_button_tag('select', dex, false, class: :select_lat_long))
       end
     end.join.html_safe
+    # tests.keys.each { |kee|
+    # next if tests[kee]
+    # }
+    # @matching_items = {@collecting_event.id.to_s => tests.first[:piece]}
+  end
+
+  def make_matching_table(piece, collection)
+    columns = ['CEID', 'Match', 'Verbatim Lat', 'Verbatim Long',
+               'Decimal lat', 'Decimal long', 'Is georeferenced?', 'Select']
+
+    thead = content_tag(:thead) do
+      content_tag(:tr) do
+        columns.collect { |column| concat content_tag(:th, column) }.join.html_safe
+      end
+    end
+
+    tbody = content_tag (:tbody) do
+      collection.collect { |item|
+        content_tag (:tr) do
+          item_data = ''
+          columns.collect.with_index { |column, dex|
+            case column
+              when 'CEID'
+                item_data = link_to(item.id, item)
+              when 'Match'
+                item_data = piece
+              when 'Verbatim Lat'
+                item_data = item.verbatim_latitude
+              when 'Verbatim Long'
+                item_data = item.verbatim_longitude
+              when 'Decimal lat'
+                item_data = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(item.verbatim_latitude)
+              when 'Decimal long'
+                item_data = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(item.verbatim_longitude)
+              when 'Is georeferenced?'
+                item_data = item.georeferences.any? ? 'yes' : 'no'
+              when 'Select'
+                item_data = check_box_tag("disabled[]", item.id, false)
+            end
+            concat content_tag(:td, item_data)
+          }.to_s.html_safe
+          # item.attributes.collect { |column|
+          #   concat content_tag(:td, item.attributes[column])
+          # }.to_s.html_safe
+        end
+      }.join().html_safe
+    end
+
+    content_tag(:table, thead.concat(tbody), {id: 'matching_table', border: '1', align: 'center'})
   end
 
   def test_lat

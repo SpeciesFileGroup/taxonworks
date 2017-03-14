@@ -1,6 +1,5 @@
-<h1>Task Stepwise collecting event parser - Latitude/Longitude</h1>
-
 <div id="ce_parse_lat_long">
+  <h1>Task Stepwise collecting event parser - Latitude/Longitude</h1>
 
   <div class="flexbox">
     <div class="item item1 one_third_width">
@@ -68,7 +67,14 @@
 
           <%= submit_tag('Save', id: 'lat_long_update_record') %><br>
           <%= check_box_tag(:generate_georeference) %> Also create Georeference?
-      <% end %>
+      <% end %><br>
+      <div id="matching_events" class="item item2">
+        <h1>Identical matches <span id="match_count">(#)</span></h1>
+        <%= check_box_tag(:include_values) %>Include already set values
+        <span id="matching_span">
+        <%#= make_matching_table([@collecting_event]) %>
+      </span>
+      </div>
     </div>
   </div>
 </div>
