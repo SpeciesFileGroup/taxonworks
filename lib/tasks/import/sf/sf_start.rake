@@ -201,6 +201,7 @@ namespace :tw do
           # Namespace for Identifier
           # source_namespace = Namespace.find_or_create_by(institution: 'Species File', name: 'tblRefs', short_name: 'SF RefID')
 
+          count_found = 0
           error_counter = 0
           contained_error_counter = 0
           source_not_found_error = 0
@@ -216,7 +217,7 @@ namespace :tw do
             next if (row['Title'].empty? and row['PubID'] == '0' and row['Series'].empty? and row['Volume'].empty? and row['Issue'].empty? and row['ActualYear'].empty? and row['StatedYear'].empty?) or row['AccessCode'] == '4'
             ref_id = row['RefID']
 
-            logger.info "working with SF.RefID = #{ref_id}, SF.FileID = #{row['FileID']} \n"
+            logger.info "working with SF.RefID = #{ref_id}, SF.FileID = #{row['FileID']} (count = #{count_found += 1}) \n"
 
             pub_id = row['PubID']
             pub_type_string = get_sf_pub_type_string[pub_id]
@@ -294,12 +295,12 @@ namespace :tw do
             containing_ref_id = row['ContainingRefID']
             containing_source_id = get_tw_source_id[row['ContainingRefID']]
 
-            logger.info "working with contained SF.RefID = #{ref_id}, containing SF.RefID = #{containing_ref_id}, tw.containing_source_id = #{containing_source_id}, SF.FileID = #{row['FileID']} \n"
+            logger.info "working with contained SF.RefID = #{ref_id}, containing SF.RefID = #{containing_ref_id}, tw.containing_source_id = #{containing_source_id}, SF.FileID = #{row['FileID']} (count = #{count_found += 1}) \n"
 
             begin
               containing_source = Source.find(containing_source_id)
             rescue
-              logger.info "Source ERROR: containing source not found for RefID = #{containing_source_id} (#{source_not_found_error += 1})"
+              logger.info "Source ERROR: containing source not found for RefID = #{containing_source_id} (source not found = #{source_not_found_error += 1})"
               next
             end
 
@@ -329,20 +330,20 @@ namespace :tw do
                 updated_by_id: get_tw_user_id[row['ModifiedBy']]
             )
 
-          end
+            begin
+              source.save!
 
-          begin
-            source.save!
+              source_id = source.id.to_s
+              get_tw_source_id[ref_id] = source_id
+              get_containing_source_id[source_id] = containing_source_id
 
-            source_id = source.id.to_s
-            get_tw_source_id[ref_id] = source_id
-            get_containing_source_id[source_id] = containing_source_id
+              # Also keep db record of containing_source_id for future reference
+              source.data_attributes << ImportAttribute.new(import_predicate: 'containing_source_id', value: containing_source_id)
 
-            # Also keep db record of containing_source_id for future reference
-            source.data_attributes << ImportAttribute.new(import_predicate: 'containing_source_id', value: containing_source_id)
+            rescue
+              logger.info "Source (Containing_ref_id > 0) ERROR (#{contained_error_counter += 1}): " + source.errors.full_messages.join(';')
+            end
 
-          rescue
-            logger.info "Source (Containing_ref_id > 0) ERROR (#{contained_error_counter += 1}): " + source.errors.full_messages.join(';')
           end
 
           import.set('SFRefIDToTWSourceID', get_tw_source_id)
