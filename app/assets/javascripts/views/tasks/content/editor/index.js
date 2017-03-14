@@ -238,7 +238,6 @@ Object.assign(TW.views.tasks.content.editor, {
 
           this.$http.get(ajaxUrl).then( response => {
             that.contents = response.body;
-            console.log("asdfaa");
             that.showModal = (response.body.length > 0);            
           });          
         },
@@ -290,6 +289,45 @@ Object.assign(TW.views.tasks.content.editor, {
           this.$parent.$emit('showCompareContent', content);
           this.showModal = false;
         }        
+      }
+    });
+
+    Vue.component('citation-otu', {
+      template: '<div> \
+                  <div class="flex-wrap-column middle"><span data-icon="citation" @click="loadContent()" class="big-icon"></span><span class="tiny_space">Citation OTU</span></div> \
+                  <modal v-if="showModal"> \
+                    <h3 slot="header">Citation OTU</h3> \
+                    <ul slot="body"> \
+                      <li v-for="item in citations"></li> \
+                    </ul> \
+                  </modal> \
+                </div>',
+      computed: {
+        otu() {
+          return this.$store.getters.getOtuSelected
+        },
+        topic() {
+          return this.$store.getters.getTopicSelected
+        }        
+      },
+      data: function() {
+        return {
+          showModal: false,
+          citations: []
+        }
+      },
+      methods: {
+        loadContent: function() {
+          if (this.disabled) return
+
+          var that = this;
+          ajaxUrl = `/otus/${this.otu.id}/citations.json?topic=${this.topic.id}`
+
+          this.$http.get(ajaxUrl).then( response => {
+            that.contents = response.body;
+            that.showModal = (response.body.length > 0);            
+          });          
+        },
       }
     });
 
@@ -352,10 +390,12 @@ Object.assign(TW.views.tasks.content.editor, {
                   </div> \
                   <div class="flex-separate menu-content-editor"> \
                     <div class="item flex-wrap-column middle menu-item" @click="update" :class="{ saving : unsave }"><span data-icon="savedb" class="big-icon"></span><span class="tiny_space">Save</span></div> \
-                    <div class="item flex-wrap-column middle menu-item" @click="preview = !preview"><span data-icon="preview" class="big-icon"></span><span class="tiny_space">Preview</span></div> \
+                    <div class="item flex-wrap-column middle menu-item" v-if="!preview" @click="preview = !preview"><span data-icon="preview" class="big-icon"></span><span class="tiny_space">Preview</span></div> \
+                    <div class="item flex-wrap-column middle menu-item" v-else @click="preview = !preview"><span data-icon="edit" class="big-icon"></span><span class="tiny_space">Edit</span></div> \
                     <clone-content class="item menu-item"></clone-content> \
                     <compare-content class="item menu-item"></compare-content> \
                     <div class="item flex-wrap-column middle menu-item"><span data-icon="citation" class="big-icon"></span><span class="tiny_space">Citation</span></div> \
+                    <citation-otu class="item menu-item"></citation-otu> \
                     <div class="item flex-wrap-column middle menu-item"><span data-icon="new" class="big-icon"></span><span class="tiny_space">Figure</span></div> \
                     <div class="item flex-wrap-column middle menu-item"><span data-icon="image" class="big-icon"></span><span class="tiny_space">Drag new figure</span></div> \
                   </div> \
