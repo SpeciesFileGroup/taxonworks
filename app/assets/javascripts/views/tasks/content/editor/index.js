@@ -138,6 +138,7 @@ Object.assign(TW.views.tasks.content.editor, {
     });
 
     Vue.component('recent', {
+      //TODO: Separate each recent list into a generic component
       computed: {
         recentContents() {
           return this.$store.getters.getRecentContents
@@ -187,9 +188,6 @@ Object.assign(TW.views.tasks.content.editor, {
         });                                    
       },
       methods: {
-        createContentString: function(item) {
-          return item.topic.object_tag + " " + item.otu.object_tag
-        },
         save: function(saveMethod, item) {
           this.$store.commit(saveMethod, item);
           this.$store.commit('openOtuPanel', true);
@@ -375,17 +373,15 @@ Object.assign(TW.views.tasks.content.editor, {
         }         
       },      
       template: '<div v-if="topic !== undefined || otu !== undefined" class="panel" id="panel-editor"> \
-                  <div class="flex-separate"> \
-                    <div class="flex-wrap-column item"> \
+                  <div class="flexbox"> \
+                    <div class="left"> \
                       <div class="title"><span><span v-if="topic">{{ topic.name }}</span> - <span v-if="otu" v-html="otu.object_tag"></span></span></div> \
-                      <div class="flex-separate"> \
-                        <textarea v-on:input="autoSave" v-if="!preview" :disabled="disabled"  v-model="record.content.text" ref="contentText" v-on:dblclick="addCitation()"></textarea> \
-                        <preview-content v-if="preview" class="item preview" :text="this.record.content.text"></preview-content> \
-                      </div> \
+                      <textarea class="edit-content" v-on:input="autoSave" v-if="!preview" :disabled="disabled"  v-model="record.content.text" ref="contentText" v-on:dblclick="addCitation()"></textarea> \
+                      <preview-content v-if="preview" class="item preview" :text="this.record.content.text"></preview-content> \
                     </div> \
-                    <div v-if="compareContent && !preview" class="flex-wrap-column item"> \
+                    <div v-if="compareContent && !preview" class="right"> \
                       <div class="title"><span><span>{{ compareContent.topic.object_tag }}</span> - <span v-html="compareContent.otu.object_tag"></span></span><button class="button button-close" @click="compareContent = undefined">Close compare</button></div> \
-                      <textarea class="compare" @mouseup="copyCompareContent" readonly>{{ compareContent.text }}</textarea> \
+                      <div class="compare" @mouseup="copyCompareContent">{{ compareContent.text }}</div> \
                     </div> \
                   </div> \
                   <div class="flex-separate menu-content-editor"> \
@@ -436,10 +432,12 @@ Object.assign(TW.views.tasks.content.editor, {
         },
 
         copyCompareContent: function() {
-          if (window.getSelection().toString().length > 0) {
-            this.record.content.text += window.getSelection().toString();
-            this.autoSave();            
-          }                   
+          if(window.getSelection) {
+            if (window.getSelection().toString().length > 0) {
+              this.record.content.text += window.getSelection().toString();
+              this.autoSave();            
+            }
+          }        
         },
 
         addCitation: function(datas) {

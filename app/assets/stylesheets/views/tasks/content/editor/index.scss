@@ -81,16 +81,34 @@
 
 	#panel-editor {
 		position: relative;
-		flex-grow: 1;
 		padding-left: $standard_padding;
 		padding-right: $standard_padding;
-		textarea, .compare, .preview {
+		display: flex;
+		align-items: stretch;
+
+		.left, .right {
+			display: flex;
+			flex-direction: column;
+			flex: 1;
+		}
+		.edit-content {
+			resize: none;
+		}
+		.edit-content ,.compare, .preview {
+			margin: 0px;
+			flex: 1;
 			border: 1px solid $navigation_border;
 			font-size: 14px;
 			padding: $standard_margin*0.5; 			
 			min-height:500px;
-			width: 100%;
-			flex-grow: 1;
+			white-space: pre-wrap;
+			word-break: break-all;
+			word-wrap: break-word;			
+		}		
+		.compare {
+			background-color: #F5F5F5;
+			border-left:none;
+			box-sizing: border-box;		
 		}
 		.title {
 			align-items: center;
