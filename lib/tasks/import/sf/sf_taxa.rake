@@ -692,6 +692,17 @@ namespace :tw do
         desc 'time rake tw:project_import:sf_import:taxa:create_all_sf_taxa_pass1 user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         LoggedTask.define :create_all_sf_taxa_pass1 => [:data_directory, :environment, :user_id] do |logger|
 
+          # real	310m28.726s
+          # user	207m23.957s
+          # sys	6m50.530s
+
+          # [INFO]2017-03-15 15:43:39.366: Logged task tw:project_import:sf_import:taxa:create_all_sf_taxa_pass1 completed!
+          # [INFO]2017-03-15 15:43:39.367: All tasks completed. Dumping summary for each task...
+          # === Summary of warnings and errors for task tw:project_import:sf_import:taxa:create_all_sf_taxa_pass1 ===
+          #     [ERROR]2017-03-15 13:11:40.264: TaxonName ERROR (1) AFTER synonym test (SF.TaxonNameID = 1225991, parent_id = 68332): Parent The parent rank (subspecies) is not higher than subspecies
+          # [ERROR]2017-03-15 13:20:22.621: TaxonName ERROR (2) AFTER synonym test (SF.TaxonNameID = 1170406, parent_id = 71920): Parent The parent rank (subspecies) is not higher than subspecies
+
+
           logger.info 'Creating all SF taxa (pass 1)...'
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
