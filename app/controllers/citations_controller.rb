@@ -109,6 +109,7 @@ class CitationsController < ApplicationController
     # we should only ever get here from a shallow resource
     h = params.permit(
       :content_id,
+      :otu_id
       # add other polymorphic references here as implementd, e.g. taxon_name_id for citations on TaxonNames
     ).to_h 
 
