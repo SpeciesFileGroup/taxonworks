@@ -35,7 +35,7 @@ namespace :tw do
             # Reloop if TW.source record is verbatim
             # next if Source.find(source_id).try(:class) == Source::Verbatim # << Hernán's, Source.find(source_id).type == 'Source::Verbatim'
             next if Source.where(id: source_id).pluck(:type)[0] == 'Source::Verbatim' # faster per Matt
-            next if get_containing_source_id[source_id].has_key? # is contained_source
+            next if get_containing_source_id.has_key?(source_id) # is contained_source
 
             print "working with SF.RefID = #{row['RefID']}, TW.source_id = #{source_id}, position = #{row['SeqNum']} \n"
 
@@ -89,7 +89,7 @@ namespace :tw do
             source_id = get_tw_source_id[row['RefID']]
             next if source_id.nil?
             next if Source.where(id: source_id).pluck(:type)[0] == 'Source::Verbatim' # faster per Matt
-            next unless get_containing_source_id[source_id].has_key? # only contained_sources wanted
+            next unless get_containing_source_id.has_key?(source_id) # only contained_sources wanted
 
             print "working with SF.RefID = #{row['RefID']}, TW.source_id = #{source_id}, position = #{row['SeqNum']} \n"
 
