@@ -49,8 +49,8 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
   end
 
   def convert
-    lat                 = params[:verbatim_latitude]
-    long                = params[:verbatim_longitude]
+    lat                 = collecting_event_params[:verbatim_latitude]
+    long                = collecting_event_params[:verbatim_longitude]
     retval              = {}
     retval[:lat_piece]  = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(lat)
     retval[:long_piece] = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(long)
@@ -59,15 +59,26 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
 
   def similar_labels
     retval         = {}
-    lat            = params[:lat]
-    long           = params[:long]
-    piece          = params[:piece]
-    selected_items = CollectingEvent.where("(verbatim_lable LIKE '%#{lat}%' and verbatim_label LIKE '%#{long}%')")
-    retval[:table] = make_matching_table(piece, selected_items)
-    render json: retval
+    lat            = collecting_event_params[:lat]
+    long           = collecting_event_params[:long]
+    piece          = collecting_event_params[:piece]
+    sql            = "verbatim_label LIKE '%#{sql_fix(lat)}%' and verbatim_label LIKE '%#{sql_fix(long)}%'"
+    selected_items = CollectingEvent.where(sql).except(@collecting_event)
+    retval[:count] = selected_items.count.to_s
+    retval[:table] = render_to_string(partial: 'matching_table',
+                                      locals:  {
+                                        lat:            lat,
+                                        long:           long,
+                                        selected_items: selected_items
+                                      }) #([lat, long], selected_items)
+    render(json: retval)
   end
 
   protected
+  def sql_fix(item)
+    retval = item.gsub("'", "''")
+    retval
+  end
 
   def collecting_event_id_param
     begin

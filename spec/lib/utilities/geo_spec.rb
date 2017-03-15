@@ -138,11 +138,86 @@ describe 'Geo', group: :geo do
         end
       end
     end
+    context 'single use case for hunt_wrapper' do
+      use_case = {"  N 23.23  W 44.44  " => {"DD1A" => {:method => "text, DD1A"},
+                                             "DD1B" => {:piece  => "N 23.23 W 44.44 ",
+                                                        :lat    => "N 23.23",
+                                                        :long   => "W 44.44 ",
+                                                        :method => "text, DD1B"},
+                                             "DD2"  => {:method => "text, DD2"},
+                                             "DM1"  => {:method => "text, DM1"},
+                                             "DMS2" => {:method => "text, DMS2"},
+                                             "DM3"  => {:method => "text, DM3"},
+                                             "DMS4" => {:method => "text, DMS4"},
+                                             "DD5"  => {:piece  => " N 23.23 W 44.44 ",
+                                                        :lat    => "N23.23º",
+                                                        :long   => "W44.44º",
+                                                        :method => "text, DD5"},
+                                             "DD6"  => {:method => "text, DD6"},
+                                             "DD7"  => {:method => "text, DD7"},
+                                             "(;)"  => {:method => "(;)"},
+                                             "(,)"  => {:method => "(,)"},
+                                             "( )"  => {:method => "( )"}}
+      }
+      @entry   = 0
+
+      use_case.each { |label, result|
+        @entry += 1
+        specify "case #{@entry}: #{label} should yield #{result}" do
+          this_case = Utilities::Geo.hunt_wrapper(label)
+          expect(this_case).to eq(result)
+        end
+      }
+    end
 
     context 'multiple use cases for hunt_wrapper' do
       use_cases = {
+        "  N 23.23  W 44.44  "                                                                                                                            =>
+          {"DD1A" => {:method => "text, DD1A"},
+           "DD1B" => {:piece  => "N 23.23  W 44.44  ",
+                      :lat    => "N 23.23",
+                      :long   => "W 44.44  ",
+                      :method => "text, DD1B"},
+           "DD2"  => {:method => "text, DD2"},
+           "DM1"  => {:method => "text, DM1"},
+           "DMS2" => {:method => "text, DMS2"},
+           "DM3"  => {:method => "text, DM3"},
+           "DMS4" => {:method => "text, DMS4"},
+           "DD5"  => {:piece  => " N 23.23  W 44.44  ",
+                      :lat    => "N23.23º",
+                      :long   => "W44.44º",
+                      :method => "text, DD5"},
+           "DD6"  => {:method => "text, DD6"},
+           "DD7"  => {:method => "text, DD7"},
+           "(;)"  => {:method => "(;)"},
+           "(,)"  => {:method => "(,)"},
+           "( )"  => {:method => "( )"}},
+        "   23.23 N  44.44 W "                                                                                                                            =>
+          {"DD1A" => {:piece  => "23.23 N  44.44 W",
+                      :lat    => "23.23 N",
+                      :long   => "44.44 W",
+                      :method => "text, DD1A"},
+           "DD1B" => {:method => "text, DD1B"},
+           "DD2"  => {:piece  => "23.23 N  44.44 W",
+                      :lat    => "23.23 N",
+                      :long   => "44.44 W",
+                      :method => "text, DD2"},
+           "DM1"  => {:method => "text, DM1"},
+           "DMS2" => {:method => "text, DMS2"},
+           "DM3"  => {:method => "text, DM3"},
+           "DMS4" => {:method => "text, DMS4"},
+           "DD5"  => {:method => "text, DD5"},
+           "DD6"  => {:piece  => " 23.23 N  44.44 W ",
+                      :lat    => "23.23Nº",
+                      :long   => "44.44Wº",
+                      :method => "text, DD6"},
+           "DD7"  => {:method => "text, DD7"},
+           "(;)"  => {:method => "(;)"},
+           "(,)"  => {:method => "(,)"},
+           "( )"  => {:method => "( )"}},
         "c_e_485: ARGENTINA: Jujuy, rt 9, km 1706, Finca Yala, 1500m, 24o7'2\"S65o24'13\"W, 16 Jan 2008 C.H.Dietrich, Hg vapor lights, AR13-1"            =>
-          {"DD1"  => {:method => "text, DD1"},
+          {"DD1A" => {:method => "text, DD1A"},
+           "DD1B" => {:method => "text, DD1B"},
            "DD2"  => {:method => "text, DD2"},
            "DM1"  => {:method => "text, DM1"},
            "DMS2" => {:method => "text, DMS2"},
@@ -162,7 +237,11 @@ describe 'Geo', group: :geo do
                       :lat    => "24o7'2\"S65o24'13\"W,",
                       :method => "( )"}},
         "c_e_171 prairie # 1 N 41.87734 W 89.34677 2 VIII"                                                                                                =>
-          {"DD1"  => {:method => "text, DD1"},
+          {"DD1A" => {:method => "text, DD1A"},
+           "DD1B" => {:piece  => "N 41.87734 W 89.34677 ",
+                      :lat    => "N 41.87734",
+                      :long   => "W 89.34677 ",
+                      :method => "text, DD1B"},
            "DD2"  => {:method => "text, DD2"},
            "DM1"  => {:method => "text, DM1"},
            "DMS2" => {:method => "text, DMS2"},
@@ -181,7 +260,8 @@ describe 'Geo', group: :geo do
            "(,)"  => {:method => "(,)"},
            "( )"  => {:method => "( )"}},
         " 42°5'18.1\"S 88°11'43.3\"W"                                                                                                                     =>
-          {"DD1"  => {:method => "text, DD1"},
+          {"DD1A" => {:method => "text, DD1A"},
+           "DD1B" => {:method => "text, DD1B"},
            "DD2"  => {:method => "text, DD2"},
            "DM1"  => {:method => "text, DM1"},
            "DMS2" => {:method => "text, DMS2"},
@@ -202,7 +282,8 @@ describe 'Geo', group: :geo do
                       :method => "( )"}
           },
         "  S42°5'18.1\" W88°11'43.3\""                                                                                                                    =>
-          {"DD1"  => {:method => "text, DD1"},
+          {"DD1A" => {:method => "text, DD1A"},
+           "DD1B" => {:method => "text, DD1B"},
            "DD2"  => {:method => "text, DD2"},
            "DM1"  => {:method => "text, DM1"},
            "DMS2" => {:piece  => " S42°5'18.1\" W88°11'43.3\"",
@@ -226,7 +307,8 @@ describe 'Geo', group: :geo do
                       :method => "( )"}
           },
         "  S42°5.18' W88°11.43'"                                                                                                                          =>
-          {"DD1"  => {:method => "text, DD1"},
+          {"DD1A" => {:method => "text, DD1A"},
+           "DD1B" => {:method => "text, DD1B"},
            "DD2"  => {:method => "text, DD2"},
            "DM1"  => {:method => "text, DM1"},
            "DMS2" => {:method => "text, DMS2"},
@@ -250,7 +332,8 @@ describe 'Geo', group: :geo do
                       :method => "( )"}
           },
         "42°5.18'S 88°11.43'W"                                                                                                                            =>
-          {"DD1"  => {:method => "text, DD1"},
+          {"DD1A" => {:method => "text, DD1A"},
+           "DD1B" => {:method => "text, DD1B"},
            "DD2"  => {:method => "text, DD2"},
            "DM1"  => {:method => "text, DM1"},
            "DMS2" => {:method => "text, DMS2"},
@@ -270,7 +353,8 @@ describe 'Geo', group: :geo do
                       :long   => "88°11.43'W",
                       :method => "( )"}},
         "S42.18° W88.34°"                                                                                                                                 =>
-          {"DD1"  => {:method => "text, DD1"},
+          {"DD1A" => {:method => "text, DD1A"},
+           "DD1B" => {:method => "text, DD1B"},
            "DD2"  => {:method => "text, DD2"},
            "DM1"  => {:method => "text, DM1"},
            "DMS2" => {:method => "text, DMS2"},
@@ -291,7 +375,8 @@ describe 'Geo', group: :geo do
                       :method => "( )"}
           },
         "42.18°S 88.43°W"                                                                                                                                 =>
-          {"DD1"  => {:method => "text, DD1"},
+          {"DD1A" => {:method => "text, DD1A"},
+           "DD1B" => {:method => "text, DD1B"},
            "DD2"  => {:method => "text, DD2"},
            "DM1"  => {:method => "text, DM1"},
            "DMS2" => {:method => "text, DMS2"},
@@ -312,7 +397,8 @@ describe 'Geo', group: :geo do
                       :method => "( )"}
           },
         "[-12.263, 49.398]"                                                                                                                               =>
-          {"DD1"  => {:method => "text, DD1"},
+          {"DD1A" => {:method => "text, DD1A"},
+           "DD1B" => {:method => "text, DD1B"},
            "DD2"  => {:method => "text, DD2"},
            "DM1"  => {:method => "text, DM1"},
            "DMS2" => {:method => "text, DMS2"},
@@ -329,7 +415,8 @@ describe 'Geo', group: :geo do
            "( )"  => {:method => "( )"}
           },
         "[12.263, -49.398]"                                                                                                                               =>
-          {"DD1"  => {:method => "text, DD1"},
+          {"DD1A" => {:method => "text, DD1A"},
+           "DD1B" => {:method => "text, DD1B"},
            "DD2"  => {:method => "text, DD2"},
            "DM1"  => {:method => "text, DM1"},
            "DMS2" => {:method => "text, DMS2"},
@@ -346,7 +433,8 @@ describe 'Geo', group: :geo do
            "( )"  => {:method => "( )"}
           },
         "DDA03-001 (1) U.S.A. IL, Cook Co., Calumet, Powder Horn Lake East forest, vacuuming N41o38.395' W87o31.72' 23 V 2003 (C. Dietrich, D. Dmitriev)" =>
-          {"DD1"  => {:method => "text, DD1"},
+          {"DD1A" => {:method => "text, DD1A"},
+           "DD1B" => {:method => "text, DD1B"},
            "DD2"  => {:method => "text, DD2"},
            "DM1"  => {:method => "text, DM1"},
            "DMS2" => {:method => "text, DMS2"},
@@ -366,7 +454,8 @@ describe 'Geo', group: :geo do
                       :method => "( )"}
           },
         "#32, USA, California, Guatay, 35 mi E San Diego, N 32o35'45\" W 116o32'27\" 5 V 2003 D. Dmitriev"                                                =>
-          {"DD1"  => {:method => "text, DD1"},
+          {"DD1A" => {:method => "text, DD1A"},
+           "DD1B" => {:method => "text, DD1B"},
            "DD2"  => {:method => "text, DD2"},
            "DM1"  => {:method => "text, DM1"},
            "DMS2" => {:piece  => " N 32o35'45\" W 116o32'27\" ",
@@ -389,10 +478,11 @@ describe 'Geo', group: :geo do
                       :method => "( )"}
           },
         'Hancock Agricultural; Res. Station,, Hancock; Waushara County, WI; 43.836 N 89.258 W'                                                            =>
-          {"DD1"  => {:piece  => "43.836 N 89.258 W",
+          {"DD1A" => {:piece  => "43.836 N 89.258 W",
                       :lat    => "43.836 N",
                       :long   => "89.258 W",
-                      :method => "text, DD1"},
+                      :method => "text, DD1A"},
+           "DD1B" => {:method => "text, DD1B"},
            "DD2"  => {:piece  => "43.836 N 89.258 W",
                       :lat    => "43.836 N",
                       :long   => "89.258 W",
@@ -404,18 +494,13 @@ describe 'Geo', group: :geo do
            "DD5"  => {:method => "text, DD5"},
            "DD6"  => {:method => "text, DD6"},
            "DD7"  => {:method => "text, DD7"},
-           "(;)"  => {:piece  => " 43.836 N 89.258 W",
-                      :lat    => "43.836 N",
-                      :long   => "89.258 W",
-                      :method => "(;)"},
-           "(,)"  => {:piece  => " WI; 43.836 N 89.258 W",
-                      :lat    => "43.836 N",
-                      :long   => "89.258 W",
-                      :method => "(,)"},
+           "(;)"  => {:method => "(;)"},
+           "(,)"  => {:method => "(,)"},
            "( )"  => {:method => "( )"}
           },
         'KREIS ILLUKSTE; ♀ GEMEINDE PRODE; MANELI. 23.V 1923; LATVIA. O.CONDE'                                                                            =>
-          {"DD1"  => {:method => "text, DD1"},
+          {"DD1A" => {:method => "text, DD1A"},
+           "DD1B" => {:method => "text, DD1B"},
            "DD2"  => {:method => "text, DD2"},
            "DM1"  => {:method => "text, DM1"},
            "DMS2" => {:method => "text, DMS2"},
@@ -429,7 +514,8 @@ describe 'Geo', group: :geo do
            "( )"  => {:method => "( )"}
           },
         "Kazakhstan 14.VI.2001; 100 km N. Taldy-Kurgan; Dunes around Mataj; 45 54'N, 78 43'E; M. Hauser"                                                  =>
-          {"DD1"  => {:method => "text, DD1"},
+          {"DD1A" => {:method => "text, DD1A"},
+           "DD1B" => {:method => "text, DD1B"},
            "DD2"  => {:piece  => "45 54'N, 78 43'E",
                       :lat    => "45 54'N",
                       :long   => "78 43'E",
@@ -455,7 +541,8 @@ describe 'Geo', group: :geo do
                       :long   => "43'E;",
                       :method => "( )"}},
         'ARGENTINA: Corrientes, P.N. Mburucuyá, 1.8 km W campgd., 80m, 28.01566o"S58.01970oW, 8 Jan 2008 C.H.Dietrich, vacuum, AR9-10'                    =>
-          {"DD1"  => {:method => "text, DD1"},
+          {"DD1A" => {:method => "text, DD1A"},
+           "DD1B" => {:method => "text, DD1B"},
            "DD2"  => {:method => "text, DD2"},
            "DM1"  => {:method => "text, DM1"},
            "DMS2" => {:method => "text, DMS2"},
@@ -487,46 +574,47 @@ describe 'Geo', group: :geo do
 
     context 'multiple use cases of degrees_minutes_seconds_to_decimal_degrees' do
 
-      use_cases = {'22deg10\'34"S,' => '-22.176111', # convert deg to º
-                   '166deg30\'17"E' => '166.504722',
-                   '22dg10\'34"S,'  => '-22.176111', # convert deg to º
-                   '166dg30\'17"E'  => '166.504722',
-                   '45 54\'N'       => '45.9',
-                   '78 43\'E'       => '78.716667',
-                   '78 43\'w'       => '-78.716667',
-                   '58.0520oW,'     => '-58.052', # tolerate the trailing comma
-                   '28.01795o"S'    => '-28.01795',
-                   'N41.87734º'     => '41.87734',
-                   'W89.34677º'     => '-89.34677',
-                   ' N18º '         => '18.0',
-                   'W76.8º '        => '-76.8',
-                   '-88.241121º'    => '-88.241121', # current test case ['-88.241121°']
-                   'W88.241121º'    => '-88.241121', # current test case ['-88.241121°']
-                   'w88∫11′43.4″'   => '-88.195389',
-                   'w88∫11´43.4″'   => '-88.195389',
-                   '40º26\'46"N'    => '40.446111', # using MAC-native symbols
-                   '079º58\'56"W'   => '-79.982222', # using MAC-native symbols
-                   '40:26:46.302N'  => '40.446195',
-                   '079:58:55.903W' => '-79.982195',
-                   '40°26′46″N'     => '40.446111',
-                   '079°58′56″W'    => '-79.982222',
-                   '40d 26′ 46″ N'  => '40.446111',
-                   '40o 26′ 46″ N'  => '40.446111',
-                   '079d 58′ 56″ W' => '-79.982222',
-                   '40.446195N'     => '40.446195',
-                   '79.982195W'     => '-79.982195',
-                   '40.446195'      => '40.446195',
-                   '-79.982195'     => '-79.982195',
-                   '40° 26.7717'    => '40.446195',
-                   '-79° 58.93172'  => '-79.982195',
-                   'N40:26:46.302'  => '40.446195',
-                   'W079:58:55.903' => '-79.982195',
-                   'N40°26′46″'     => '40.446111',
-                   'W079°58′56″'    => '-79.982222',
-                   'N40d 26′ 46″'   => '40.446111',
-                   'W079d 58′ 56″'  => '-79.982222',
-                   'N40.446195'     => '40.446195',
-                   'W79.982195'     => '-79.982195',
+      use_cases = {#' 3rd ridge prairie'            => '3.0',
+                   '22deg10\'34"S,'                => '-22.176111', # convert deg to º
+                   '166deg30\'17"E'                => '166.504722',
+                   '22dg10\'34"S,'                 => '-22.176111', # convert deg to º
+                   '166dg30\'17"E'                 => '166.504722',
+                   '45 54\'N'                      => '45.9',
+                   '78 43\'E'                      => '78.716667',
+                   '78 43\'w'                      => '-78.716667',
+                   '58.0520oW,'                    => '-58.052', # tolerate the trailing comma
+                   '28.01795o"S'                   => '-28.01795',
+                   'N41.87734º'                    => '41.87734',
+                   'W89.34677º'                    => '-89.34677',
+                   ' N18º '                        => '18.0',
+                   'W76.8º '                       => '-76.8',
+                   '-88.241121º'                   => '-88.241121', # current test case ['-88.241121°']
+                   'W88.241121º'                   => '-88.241121', # current test case ['-88.241121°']
+                   'w88∫11′43.4″'                  => '-88.195389',
+                   'w88∫11´43.4″'                  => '-88.195389',
+                   '40º26\'46"N'                   => '40.446111', # using MAC-native symbols
+                   '079º58\'56"W'                  => '-79.982222', # using MAC-native symbols
+                   '40:26:46.302N'                 => '40.446195',
+                   '079:58:55.903W'                => '-79.982195',
+                   '40°26′46″N'                    => '40.446111',
+                   '079°58′56″W'                   => '-79.982222',
+                   '40d 26′ 46″ N'                 => '40.446111',
+                   '40o 26′ 46″ N'                 => '40.446111',
+                   '079d 58′ 56″ W'                => '-79.982222',
+                   '40.446195N'                    => '40.446195',
+                   '79.982195W'                    => '-79.982195',
+                   '40.446195'                     => '40.446195',
+                   '-79.982195'                    => '-79.982195',
+                   '40° 26.7717'                   => '40.446195',
+                   '-79° 58.93172'                 => '-79.982195',
+                   'N40:26:46.302'                 => '40.446195',
+                   'W079:58:55.903'                => '-79.982195',
+                   'N40°26′46″'                    => '40.446111',
+                   'W079°58′56″'                   => '-79.982222',
+                   'N40d 26′ 46″'                  => '40.446111',
+                   'W079d 58′ 56″'                 => '-79.982222',
+                   'N40.446195'                    => '40.446195',
+                   'W79.982195'                    => '-79.982195',
                    # some special characters for Dmitry
                    "  40\u02da26¥46¥S"             => '-40.446111',
                    '42∞5\'18.1"S'                  => '-42.088361',

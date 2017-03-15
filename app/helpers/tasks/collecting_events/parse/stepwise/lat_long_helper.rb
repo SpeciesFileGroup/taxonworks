@@ -61,7 +61,9 @@ module Tasks::CollectingEvents::Parse::Stepwise::LatLongHelper
     # @matching_items = {@collecting_event.id.to_s => tests.first[:piece]}
   end
 
-  def make_matching_table(piece, collection)
+  # @param [String] pieces is either piece, or lat, long
+  # @param [Scope] collection is a scope of CollectingEvent
+  def make_matching_table(*pieces, collection)
     columns = ['CEID', 'Match', 'Verbatim Lat', 'Verbatim Long',
                'Decimal lat', 'Decimal long', 'Is georeferenced?', 'Select']
 
@@ -76,22 +78,22 @@ module Tasks::CollectingEvents::Parse::Stepwise::LatLongHelper
         content_tag (:tr) do
           item_data = ''
           columns.collect.with_index { |column, dex|
-            case column
-              when 'CEID'
+            case dex
+              when 0 #'CEID'
                 item_data = link_to(item.id, item)
-              when 'Match'
-                item_data = piece
-              when 'Verbatim Lat'
+              when 1 #'Match'
+                item_data = pieces.join(' ')
+              when 2 #'Verbatim Lat'
                 item_data = item.verbatim_latitude
-              when 'Verbatim Long'
+              when 3 #'Verbatim Long'
                 item_data = item.verbatim_longitude
-              when 'Decimal lat'
+              when 4 #'Decimal lat'
                 item_data = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(item.verbatim_latitude)
-              when 'Decimal long'
+              when 5 #'Decimal long'
                 item_data = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(item.verbatim_longitude)
-              when 'Is georeferenced?'
+              when 6 #'Is georeferenced?'
                 item_data = item.georeferences.any? ? 'yes' : 'no'
-              when 'Select'
+              when 7 #'Select'
                 item_data = check_box_tag("disabled[]", item.id, false)
             end
             concat content_tag(:td, item_data)
@@ -103,7 +105,7 @@ module Tasks::CollectingEvents::Parse::Stepwise::LatLongHelper
       }.join().html_safe
     end
 
-    content_tag(:table, thead.concat(tbody), {id: 'matching_table', border: '1', align: 'center'})
+    content_tag(:table, thead.concat(tbody), {id: 'matching_table', border: '1', align: 'center'}).html_safe
   end
 
   def test_lat

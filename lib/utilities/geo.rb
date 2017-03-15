@@ -94,14 +94,15 @@ To add a new (discovered) symbol:
     #  ' = \u0027, converted so that the regex can be used for SQL
     REGEXP_COORD = {
       # tt1: /\D?(?<lat>\d+\.\d+\s*(?<ca>[NS])*)\s(?<long>\d+\.\d+\s*(?<co>[EW])*)/i,
-      dd1:  /(\d+\.\d+\s*([NS]))\s*(\d+\.\d+\s*([EW]))/i,
+      dd1a: /(\d+\.\d+\s*([NS]))\s*(\d+\.\d+\s*([EW]))/i,
+      dd1b: /(([NS])\s*\d+\.\d+)\s*(([EW])\s*\d+\.\d+\s*)/i,
       dd2:  /(\d+[\. ]\d+\u0027?\s*([NS]))[, ]?\s*(\d+[\. ]\d+\u0027?\s*([EW]))/i,
       dm1:  /\D(\d+) ?[\*°ººo\u02DA ] ?(\d+[\.|,]\d+|\d+) ?[ ´\u0027\u02B9\u02BC\u02CA]? ?([NS])[\.,;]? ?(\d+) ?[\*°ººo\u02DA ] ?(\d+[\.|,]\d+|\d+) ?[ ´\u0027\u02B9\u02BC\u02CA]? ?([WE])\W/i,
       dms2: /\W([NS])\.? ?(\d+) ?[\*°ººo\u02DA ] ?(\d+) ?[ ´\u0027\u02B9\u02BC\u02CA] ?(\d+[\.|,]\d+|\d+) ?[ ""´\u02BA\u02EE\u0027\u02B9\u02BC\u02CA][´\u0027\u02B9\u02BC\u02CA]?[\.,;]? ?([WE])\.? ?(\d+) ?[\*°ººo\u02DA ] ?(\d+) ?[ \u0027´\u02B9\u02BC\u02CA] ?(\d+[\.|,]\d+|\d+) ?[ ""´\u02BA\u02EE\u0027\u02B9\u02BC\u02CA]?[´\u0027\u02B9\u02BC\u02CA]?\D/i,
       dm3:  /\W([NS])\.? ?(\d+) ?[\*°ººo\u02DA ] ?(\d+[\.|,]\d+|\d+) ?[ ´\u0027\u02B9\u02BC\u02CA][\.,;]? ?([WE])\.? ?(\d+) ?[\*°ººo\u02DA ] ?(\d+[\.|,]\d+|\d+) ?[ ´\u0027\u02B9\u02BC\u02CA]?\D/i,
       dms4: /\D(\d+) ?[\*°ººo\u02DA ] ?(\d+[\.,]\d+|\d+) ?[ ´\u0027\u02B9\u02BC\u02CA]? ?(\d+)"? ?([NS])(\d+) ?[\*°ººo\u02DA ] ?(\d+[\.,]\d+|\d+) ?[ ´\u0027\u02B9\u02BC\u02CA]? ?(\d+)"? ?([EW])/i,
-      dd5:  /\W([NS])\.? ?(\d+[\.|,]\d+|\d+) ?[\*°ººo\u02DA ][\.,;]? ?([WE])\.? ?(\d+[\.|,]\d+|\d+) ?[\*°ººo\u02DA ]?\D/i,
-      dd6:  /\D(\d+[\.|,]\d+|\d+) ?[\*°ººo\u02DA ] ?([NS])[\.,;]? ?(\d+[\.|,]\d+|\d+) ?[\*°ººo\u02DA ] ?([WE])\W/i,
+      dd5:  /\W([NS])\.? ?(\d+[\.|,]\d+|\d+) ?[\*°ººo\u02DA ][\.,;]?\s*([WE])\.? ?(\d+[\.|,]\d+|\d+) ?[\*°ººo\u02DA ]?\D/i,
+      dd6:  /\D(\d+[\.|,]\d+|\d+) ?[\*°ººo\u02DA ] ?([NS])[\.,;]?\s*(\d+[\.|,]\d+|\d+) ?[\*°ººo\u02DA ] ?([WE])\W/i,
       dd7:  /\[(-?\d+[\.|,]\d+|\-?d+),.*?(-?\d+[\.|,]\d+|\-?d+)\]/i
     }.freeze
 
@@ -113,7 +114,15 @@ To add a new (discovered) symbol:
         trials[kee_string] = {}
         if testval.class == Fixnum
           case kee
-            when :dd1, :dd2
+            when :dd1a
+              trials[kee_string][:piece] = $&
+              trials[kee_string][:lat]   = $1
+              trials[kee_string][:long]  = $3
+            when :dd1b
+              trials[kee_string][:piece] = $&
+              trials[kee_string][:lat]   = $1
+              trials[kee_string][:long]  = $3
+            when :dd2
               # lat                        = "#{$1}#{$2}º"
               # long                       = "#{$3}#{$4}º"
               trials[kee_string][:piece] = $&
@@ -261,10 +270,10 @@ To add a new (discovered) symbol:
       dms          = dms_in.dup.upcase
       dms          = dms.gsub('DEG', 'º').gsub('DG', 'º')
       dms =~ /[NSEW]/i
-      cardinal = $LAST_MATCH_INFO.to_s
-      # return "#{dms}: Too many letters (#{cardinal})" if cardinal.length > 1
-      # return nil if cardinal.length > 1
-      dms      = dms.gsub!(cardinal, '').strip.downcase
+      ordinal = $LAST_MATCH_INFO.to_s
+      # return "#{dms}: Too many letters (#{ordinal})" if ordinal.length > 1
+      # return nil if ordinal.length > 1
+      dms     = dms.gsub!(ordinal, '').strip.downcase
 
       if dms.include? '.'
         no_point = false
@@ -297,7 +306,7 @@ To add a new (discovered) symbol:
 
       # @match_string = $&
       degrees = degrees.to_f
-      case cardinal
+      case ordinal
         when 'W', 'S'
           sign = -1.0
         else
@@ -309,7 +318,7 @@ To add a new (discovered) symbol:
       end
       frac = ((minutes.to_f * 60.0) + seconds.to_f) / 3600.0
       dd   = (degrees + frac) * sign
-      case cardinal
+      case ordinal
         when 'N', 'S'
           limit = 90.0
         else

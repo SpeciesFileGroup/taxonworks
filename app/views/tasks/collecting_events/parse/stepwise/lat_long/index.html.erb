@@ -69,11 +69,11 @@
           <%= check_box_tag(:generate_georeference) %> Also create Georeference?
       <% end %><br>
       <div id="matching_events" class="item item2">
-        <h1>Identical matches <span id="match_count">(#)</span></h1>
+        <h1>Identical matches (<span id="match_count">#</span>)</h1>
         <%= check_box_tag(:include_values) %>Include already set values
         <span id="matching_span">
-        <%#= make_matching_table([@collecting_event]) %>
-      </span>
+          <%#= make_matching_table([0, 0], [@collecting_event]) %>
+        </span>
       </div>
     </div>
   </div>

@@ -41,7 +41,8 @@ Object.assign(TW.views.tasks.collecting_events.parse, {
       $("#dd_latitude").val('');
       $("#dd_longitude").val('');
       $.get('similar_labels', 'piece=' + piece.replace(/ /g, '%20') + '&lat=' + lat.replace(/ /g, '%20') + '&long=' + long.replace(/ /g, '%20'), function (local_data) {
-        $("#matching_span").val(local_data.table)
+        $("#match_count").text(local_data.count);
+        $("#matching_span").html(local_data.table);
       })
     });
   }
