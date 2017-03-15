@@ -91,25 +91,26 @@
 			flex-direction: column;
 			flex: 1;
 		}
-		.edit-content {
-			resize: none;
-		}
-		.edit-content ,.compare, .preview {
+		.compare {
 			margin: 0px;
 			flex: 1;
 			border: 1px solid $navigation_border;
+			border-top: none;
 			font-size: 14px;
 			padding: $standard_margin*0.5; 			
-			min-height:500px;
 			white-space: pre-wrap;
 			word-break: break-all;
 			word-wrap: break-word;			
-		}		
-		.compare {
 			background-color: #F5F5F5;
 			border-left:none;
 			box-sizing: border-box;		
 		}
+		.compare-toolbar {
+			border: 1px solid $navigation_border;
+			border-left: none;
+			height: 50px;
+			padding:0 10px;
+		}		
 		.title {
 			align-items: center;
 			padding: 0px;

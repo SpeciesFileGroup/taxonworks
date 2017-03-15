@@ -345,6 +345,7 @@ Object.assign(TW.views.tasks.content.editor, {
       data: function() { 
         return {
           autosave: 0,
+          firstInput: true,
           unsave: false,
           citationModal: false,
           currentSourceID: '',
@@ -361,7 +362,7 @@ Object.assign(TW.views.tasks.content.editor, {
           },
           config: {
             status: false,
-            toolbar: ["bold", "italic", "heading", "|", "quote", "unordered-list", "ordered-list", "|", "link", "table", "preview"],
+            toolbar: ["bold", "italic", "code", "heading", "|", "quote", "unordered-list", "ordered-list", "|", "link", "table", "preview"],
             spellChecker: false,
           }
         }
@@ -381,17 +382,16 @@ Object.assign(TW.views.tasks.content.editor, {
                   <div class="flexbox"> \
                     <div class="left"> \
                       <div class="title"><span><span v-if="topic">{{ topic.name }}</span> - <span v-if="otu" v-html="otu.object_tag"></span></span></div> \
-                      <markdown-editor v-model="record.content.text" :configs="config" v-on:input.native="autoSave" ref="contentText" v-on:dblclick.native="addCitation()"></markdown-editor> \
+                      <markdown-editor class="edit-content" v-model="record.content.text" :configs="config" @input="handleInput" ref="contentText" v-on:dblclick.native="addCitation()"></markdown-editor> \
                     </div> \
                     <div v-if="compareContent && !preview" class="right"> \
-                      <div class="title"><span><span>{{ compareContent.topic.object_tag }}</span> - <span v-html="compareContent.otu.object_tag"></span></span><button class="button button-close" @click="compareContent = undefined">Close compare</button></div> \
+                      <div class="title"><span><span>{{ compareContent.topic.object_tag }}</span> - <span v-html="compareContent.otu.object_tag"></span></span></div> \
+                      <div class="compare-toolbar middle"><button class="button button-close" @click="compareContent = undefined">Close compare</button></div> \
                       <div class="compare" @mouseup="copyCompareContent">{{ compareContent.text }}</div> \
                     </div> \
                   </div> \
                   <div class="flex-separate menu-content-editor"> \
                     <div class="item flex-wrap-column middle menu-item" @click="update" :class="{ saving : unsave }"><span data-icon="savedb" class="big-icon"></span><span class="tiny_space">Save</span></div> \
-                    <div class="item flex-wrap-column middle menu-item" v-if="!preview" @click="preview = !preview"><span data-icon="preview" class="big-icon"></span><span class="tiny_space">Preview</span></div> \
-                    <div class="item flex-wrap-column middle menu-item" v-else @click="preview = !preview"><span data-icon="edit" class="big-icon"></span><span class="tiny_space">Edit</span></div> \
                     <clone-content class="item menu-item"></clone-content> \
                     <compare-content class="item menu-item"></compare-content> \
                     <div class="item flex-wrap-column middle menu-item"><span data-icon="citation" class="big-icon"></span><span class="tiny_space">Citation</span></div> \
@@ -485,7 +485,16 @@ Object.assign(TW.views.tasks.content.editor, {
           }, response => {
 
           });            
-        },        
+        },
+
+        handleInput: function() {
+          if (this.firstInput) {
+            this.firstInput = false;
+          }
+          else {
+            this.autoSave();
+          }
+        },      
 
         autoSave: function() {
           var that = this;
@@ -534,7 +543,8 @@ Object.assign(TW.views.tasks.content.editor, {
 
           var
             ajaxUrl = `/contents/filter.json?otu_id=${this.otu.id}&topic_id=${this.topic.id}`
-
+          
+          this.firstInput = true;
           this.$http.get(ajaxUrl).then(response => {
             if(response.body.length > 0) {
               this.record.content.id = response.body[0].id;
@@ -553,7 +563,7 @@ Object.assign(TW.views.tasks.content.editor, {
             }
           }, response => {
             // error callback
-          });
+          });          
         }
       }                
     });                 
