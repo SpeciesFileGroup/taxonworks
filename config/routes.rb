@@ -276,6 +276,7 @@ TaxonWorks::Application.routes.draw do
 
   resources :otus do
     concerns [:data_routes]
+    resources :contents, only: [:index]
     collection do
       post :preview_simple_batch_load # should be get
       post :create_simple_batch_load

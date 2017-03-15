@@ -13,7 +13,7 @@ class ContentsController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @contents = @recent_objects   
+        @contents = filtered_content
         render '/contents/index'
       }
     end
@@ -87,9 +87,7 @@ class ContentsController < ApplicationController
 
   # GET /contents/filter.json
   def filter
-    @contents = Queries::ContentFilterQuery.new(
-      params.permit(:otu_id, :topic_id, :hours_ago, :most_recent_updates).to_h.symbolize_keys
-    ).all
+    @contents = filtered_content
     render '/contents/index'
   end
 
@@ -114,7 +112,15 @@ class ContentsController < ApplicationController
   end
 
   private
-  
+ 
+  def filtered_content
+    p =  params.permit(:otu_id, :topic_id, :hours_ago, :most_recent_updates).to_h.symbolize_keys
+    p[:most_recent_updates] = 10 if p.empty? 
+    Queries::ContentFilterQuery.new(p)
+      .all 
+      .with_project_id(sessions_current_project_id)
+  end
+
   # Use callbacks to share common setup or constraints between actions.
   def set_content
     @content = Content.with_project_id(sessions_current_project_id).find(params[:id])
