@@ -5,6 +5,9 @@ TW.views.shared.slideout = TW.views.shared.slideout || {};
 TW.views.shared.slideout.pdf = TW.views.shared.slideout.pdf || {};
 
 Object.assign(TW.views.shared.slideout.pdf, {
+
+  textCopy: '',
+
   init: function() {
 
   'use strict';
@@ -185,7 +188,7 @@ Object.assign(TW.views.shared.slideout.pdf, {
 
     // Events
 
-    var textCopy = '',
+    var that = this, 
         cursorPosition = 0;
 
     $("body").on("click", "input, textarea", function(e) {
@@ -197,12 +200,13 @@ Object.assign(TW.views.shared.slideout.pdf, {
     });       
 
     $('#viewer').mouseup(function() {
-      textCopy = getSelectedText();
+      that.textCopy = getSelectedText();
     });
 
     $("body").on("dblclick", "textarea, input", function() {
+      alert();
       if(viewerActive()) {
-        $(this).val(insertStringInPosition($(this).val(),textCopy, cursorPosition));
+        $(this).val(insertStringInPosition($(this).val(),that.textCopy, cursorPosition));
       }
     });
 

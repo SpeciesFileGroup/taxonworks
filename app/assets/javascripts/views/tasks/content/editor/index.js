@@ -358,6 +358,11 @@ Object.assign(TW.views.tasks.content.editor, {
               topic_id: '',
               text: '',
             }
+          },
+          config: {
+            status: false,
+            toolbar: ["bold", "italic", "heading", "|", "quote", "unordered-list", "ordered-list", "|", "link", "table", "preview"],
+            spellChecker: false,
           }
         }
       },
@@ -376,8 +381,7 @@ Object.assign(TW.views.tasks.content.editor, {
                   <div class="flexbox"> \
                     <div class="left"> \
                       <div class="title"><span><span v-if="topic">{{ topic.name }}</span> - <span v-if="otu" v-html="otu.object_tag"></span></span></div> \
-                      <textarea class="edit-content" v-on:input="autoSave" v-if="!preview" :disabled="disabled"  v-model="record.content.text" ref="contentText" v-on:dblclick="addCitation()"></textarea> \
-                      <preview-content v-if="preview" class="item preview" :text="this.record.content.text"></preview-content> \
+                      <markdown-editor v-model="record.content.text" :configs="config" v-on:input.native="autoSave" ref="contentText" v-on:dblclick.native="addCitation()"></markdown-editor> \
                     </div> \
                     <div v-if="compareContent && !preview" class="right"> \
                       <div class="title"><span><span>{{ compareContent.topic.object_tag }}</span> - <span v-html="compareContent.otu.object_tag"></span></span><button class="button button-close" @click="compareContent = undefined">Close compare</button></div> \
@@ -440,28 +444,27 @@ Object.assign(TW.views.tasks.content.editor, {
           }        
         },
 
-        addCitation: function(datas) {
-
+        addCitation: function() {
           var that = this;
-          setTimeout(function(){
-            that.record.content.text = that.$refs.contentText.value;
-            if(that.newRecord) {
-              var ajaxUrl = `/contents/${that.record.content.id}`;
-              if(that.record.content.id == '') {
-                that.$http.post(ajaxUrl, that.record).then(response => {
-                  this.$store.commit('addToRecentContents', response.body);
-                  that.record.content.id = response.body.id;
-                  that.newRecord = false;
-                  that.createCitation();
-                 });            
-              }
+
+          that.record.content.text = that.$refs.contentText.value + TW.views.shared.slideout.pdf.textCopy;
+          if(that.newRecord) {
+            var ajaxUrl = `/contents/${that.record.content.id}`;
+            if(that.record.content.id == '') {
+              that.$http.post(ajaxUrl, that.record).then(response => {
+                this.$store.commit('addToRecentContents', response.body);
+                that.record.content.id = response.body.id;
+                that.newRecord = false;
+                that.createCitation();
+               });            
             }
-            else {
-              that.update();
-              that.createCitation();
-            }
-          
-        },100)},
+          }
+          else {
+            that.update();
+            that.createCitation();
+          }
+        },
+
         createCitation: function() {
           var
             sourcePDF = document.getElementById("pdfViewerContainer").dataset.sourceid;          
