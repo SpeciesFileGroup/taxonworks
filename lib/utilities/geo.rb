@@ -95,14 +95,23 @@ To add a new (discovered) symbol:
     REGEXP_COORD = {
       # tt1: /\D?(?<lat>\d+\.\d+\s*(?<ca>[NS])*)\s(?<long>\d+\.\d+\s*(?<co>[EW])*)/i,
       dd1a: /(\d+\.\d+\s*([NS]))\s*(\d+\.\d+\s*([EW]))/i,
+
       dd1b: /(([NS])\s*\d+\.\d+)\s*(([EW])\s*\d+\.\d+\s*)/i,
-      dd2:  /(\d+[\. ]\d+\u0027?\s*([NS]))[, ]?\s*(\d+[\. ]\d+\u0027?\s*([EW]))/i,
-      dm1:  /\D(\d+) ?[\*°ººo\u02DA ] ?(\d+[\.|,]\d+|\d+) ?[ ´\u0027\u02B9\u02BC\u02CA]? ?([NS])[\.,;]? ?(\d+) ?[\*°ººo\u02DA ] ?(\d+[\.|,]\d+|\d+) ?[ ´\u0027\u02B9\u02BC\u02CA]? ?([WE])\W/i,
-      dms2: /\W([NS])\.? ?(\d+) ?[\*°ººo\u02DA ] ?(\d+) ?[ ´\u0027\u02B9\u02BC\u02CA] ?(\d+[\.|,]\d+|\d+) ?[ ""´\u02BA\u02EE\u0027\u02B9\u02BC\u02CA][´\u0027\u02B9\u02BC\u02CA]?[\.,;]? ?([WE])\.? ?(\d+) ?[\*°ººo\u02DA ] ?(\d+) ?[ \u0027´\u02B9\u02BC\u02CA] ?(\d+[\.|,]\d+|\d+) ?[ ""´\u02BA\u02EE\u0027\u02B9\u02BC\u02CA]?[´\u0027\u02B9\u02BC\u02CA]?\D/i,
+
+      dd2:  /(\d+[\. ]\d+(\u0027?)\s*([NS]))[, ]?\s*(\d+[\. ]\d+(\u0027?)\s*([EW]))/i,
+
+      dm1:  /\D(\d+) ?([\*°ººo\u02DA ]) ?(\d+[\.|,]\d+|\d+) ?([ ´\u0027\u02B9\u02BC\u02CA])? ?([NS])[\.,;]? ?(\d+) ?([\*°ººo\u02DA ]) ?(\d+[\.|,]\d+|\d+) ?([ ´\u0027\u02B9\u02BC\u02CA])? ?([WE])\W/i,
+
+      dms2: /\W([NS])\.? ?(\d+) ?([\*°ººo\u02DA ]) ?(\d+) ?([ ´\u0027\u02B9\u02BC\u02CA]) ?(\d+[\.|,]\d+|\d+) ?([ ""´\u02BA\u02EE\u0027\u02B9\u02BC\u02CA])([´\u0027\u02B9\u02BC\u02CA])?[\.,;]? ?([WE])\.? ?(\d+) ?([\*°ººo\u02DA ]) ?(\d+) ?([ \u0027´\u02B9\u02BC\u02CA]) ?(\d+[\.|,]\d+|\d+) ?([ ""´\u02BA\u02EE\u0027\u02B9\u02BC\u02CA])?([´\u0027\u02B9\u02BC\u02CA])?/i,
+
       dm3:  /\W([NS])\.? ?(\d+) ?[\*°ººo\u02DA ] ?(\d+[\.|,]\d+|\d+) ?[ ´\u0027\u02B9\u02BC\u02CA][\.,;]? ?([WE])\.? ?(\d+) ?[\*°ººo\u02DA ] ?(\d+[\.|,]\d+|\d+) ?[ ´\u0027\u02B9\u02BC\u02CA]?\D/i,
+
       dms4: /\D(\d+) ?[\*°ººo\u02DA ] ?(\d+[\.,]\d+|\d+) ?[ ´\u0027\u02B9\u02BC\u02CA]? ?(\d+)"? ?([NS])(\d+) ?[\*°ººo\u02DA ] ?(\d+[\.,]\d+|\d+) ?[ ´\u0027\u02B9\u02BC\u02CA]? ?(\d+)"? ?([EW])/i,
+
       dd5:  /\W([NS])\.? ?(\d+[\.|,]\d+|\d+) ?[\*°ººo\u02DA ][\.,;]?\s*([WE])\.? ?(\d+[\.|,]\d+|\d+) ?[\*°ººo\u02DA ]?\D/i,
+
       dd6:  /\D(\d+[\.|,]\d+|\d+) ?[\*°ººo\u02DA ] ?([NS])[\.,;]?\s*(\d+[\.|,]\d+|\d+) ?[\*°ººo\u02DA ] ?([WE])\W/i,
+
       dd7:  /\[(-?\d+[\.|,]\d+|\-?d+),.*?(-?\d+[\.|,]\d+|\-?d+)\]/i
     }.freeze
 
@@ -127,40 +136,40 @@ To add a new (discovered) symbol:
               # long                       = "#{$3}#{$4}º"
               trials[kee_string][:piece] = $&
               trials[kee_string][:lat]   = $1
-              trials[kee_string][:long]  = $3
+              trials[kee_string][:long]  = $4
             when :dm1
-              lat                        = "#{$3}#{$1}º#{$2}'"
-              long                       = "#{$6}#{$4}º#{$5}'"
+              lat                        = "#{$1}#{$2}#{$3}#{$4}#{$5}"
+              long                       = "#{$6}#{$7}#{$8}#{$9}#{$10}"
               trials[kee_string][:piece] = $&
               trials[kee_string][:lat]   = lat
               trials[kee_string][:long]  = long
             when :dms2
-              lat                        = "#{$1}#{$2}º#{$3}'#{$4}\""
-              long                       = "#{$5}#{$6}º#{$7}'#{$8}\""
+              lat                        = "#{$1}#{$2}#{$3}#{$4}#{$5}#{$6}#{$7}#{$8}"
+              long                       = "#{$9}#{$10}#{$11}#{$12}#{$13}#{$14}#{$15}#{$16}"
               trials[kee_string][:piece] = $&
               trials[kee_string][:lat]   = lat
               trials[kee_string][:long]  = long
             when :dm3
-              lat                        = "#{$1}#{$2}º#{$3}'"
-              long                       = "#{$4}#{$5}º#{$6}'"
+              lat                        = "#{$1}#{$2}#{$3}"
+              long                       = "#{$4}#{$5}#{$6}"
               trials[kee_string][:piece] = $&
               trials[kee_string][:lat]   = lat
               trials[kee_string][:long]  = long
             when :dms4
-              lat                        = "#{$4}#{$1}º#{$2}'#{$3}\""
-              long                       = "#{$8}#{$5}º#{$6}'#{$7}\""
+              lat                        = "#{$4}#{$1}#{$2}#{$3}"
+              long                       = "#{$8}#{$5}#{$6}#{$7}"
               trials[kee_string][:piece] = $&
               trials[kee_string][:lat]   = lat
               trials[kee_string][:long]  = long
             when :dd5
-              lat                        = "#{$1}#{$2}º"
-              long                       = "#{$3}#{$4}º"
+              lat                        = "#{$1}#{$2}"
+              long                       = "#{$3}#{$4}"
               trials[kee_string][:piece] = $&
               trials[kee_string][:lat]   = lat
               trials[kee_string][:long]  = long
             when :dd6
-              lat                        = "#{$1}#{$2}º"
-              long                       = "#{$3}#{$4}º"
+              lat                        = "#{$1}#{$2}"
+              long                       = "#{$3}#{$4}"
               trials[kee_string][:piece] = $&
               trials[kee_string][:lat]   = lat
               trials[kee_string][:long]  = long
@@ -168,10 +177,10 @@ To add a new (discovered) symbol:
               trials[kee_string][:piece] = $&
               lat                        = $1.to_f
               ord                        = (lat < 0) ? 'S' : 'N'
-              trials[kee_string][:lat]   = "#{ord}#{lat.abs}º"
+              trials[kee_string][:lat]   = "#{ord}#{lat.abs}"
               long                       = $2.to_f
               ord                        = (long < 0) ? 'W' : 'E'
-              trials[kee_string][:long]  = "#{ord}#{long.abs}º"
+              trials[kee_string][:long]  = "#{ord}#{long.abs}"
             else
               retval = 1
           end
