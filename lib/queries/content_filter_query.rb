@@ -25,8 +25,9 @@ module Queries
         for_topic,
         for_otu,
         recent,
-        recently_updated
       ].compact
+
+      return nil if clauses.empty?
 
       scope = clauses.shift
       clauses.each do |c|
@@ -37,7 +38,11 @@ module Queries
 
     # @return [Scope]
     def all 
-      t = Content.includes(:otu, :topic).where(where_sql).references(:topics, :otus)
+      q = Content.includes(:otu, :topic)
+      s = where_sql
+      q = q.where(s).references(:topics, :otus) if s
+      q = q.order(:updated_at).limit(most_recent_updates) if most_recent_updates
+      q
     end
 
     def table
@@ -56,13 +61,13 @@ module Queries
       table[:updated_at].gt(hours_ago.hours.ago) if hours_ago
     end
 
-    def recently_updated
-      if most_recent_updates.nonzero?
-        table['id'].eq_any( 
-                           Content.order(table['updated_at']).take(most_recent_updates)
-                          )
-      end
-    end
+   #def recently_updated
+   #  if most_recent_updates.nonzero?
+   #    table['id'].eq_any( 
+   #                       Content.order(table['updated_at']).take(most_recent_updates)
+   #                      )
+   #  end
+   #end
 
   end
 
