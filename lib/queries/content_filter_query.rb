@@ -41,7 +41,7 @@ module Queries
       q = Content.includes(:otu, :topic)
       s = where_sql
       q = q.where(s).references(:topics, :otus) if s
-      q = q.order(:updated_at).limit(most_recent_updates) if most_recent_updates
+      q = q.order(:updated_at).limit(most_recent_updates) unless most_recent_updates.zero?
       q
     end
 
