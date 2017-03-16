@@ -104,13 +104,13 @@ To add a new (discovered) symbol:
 
       dms2: /\W([NS])\.? ?(\d+) ?([\*°ººo\u02DA ]) ?(\d+) ?([ ´\u0027\u02B9\u02BC\u02CA]) ?(\d+[\.|,]\d+|\d+) ?([ ""´\u02BA\u02EE\u0027\u02B9\u02BC\u02CA])([´\u0027\u02B9\u02BC\u02CA])?[\.,;]? ?([WE])\.? ?(\d+) ?([\*°ººo\u02DA ]) ?(\d+) ?([ \u0027´\u02B9\u02BC\u02CA]) ?(\d+[\.|,]\d+|\d+) ?([ ""´\u02BA\u02EE\u0027\u02B9\u02BC\u02CA])?([´\u0027\u02B9\u02BC\u02CA])?/i,
 
-      dm3:  /\W([NS])\.? ?(\d+) ?[\*°ººo\u02DA ] ?(\d+[\.|,]\d+|\d+) ?[ ´\u0027\u02B9\u02BC\u02CA][\.,;]? ?([WE])\.? ?(\d+) ?[\*°ººo\u02DA ] ?(\d+[\.|,]\d+|\d+) ?[ ´\u0027\u02B9\u02BC\u02CA]?\D/i,
+      dm3:  /\W([NS])\.? ?(\d+) ?([\*°ººo\u02DA ]) ?(\d+[\.|,]\d+|\d+) ?([ ´\u0027\u02B9\u02BC\u02CA])[\.,;]? ?([WE])\.? ?(\d+) ?([\*°ººo\u02DA ]) ?(\d+[\.|,]\d+|\d+) ?([ ´\u0027\u02B9\u02BC\u02CA])?/i,
 
-      dms4: /\D(\d+) ?[\*°ººo\u02DA ] ?(\d+[\.,]\d+|\d+) ?[ ´\u0027\u02B9\u02BC\u02CA]? ?(\d+)"? ?([NS])(\d+) ?[\*°ººo\u02DA ] ?(\d+[\.,]\d+|\d+) ?[ ´\u0027\u02B9\u02BC\u02CA]? ?(\d+)"? ?([EW])/i,
+      dms4: /\D(\d+) ?([\*°ººo\u02DA ]) ?(\d+[\.,]\d+|\d+) ?([ ´\u0027\u02B9\u02BC\u02CA])? ?(\d+)(")? ?([NS])(\d+) ?([\*°ººo\u02DA ]) ?(\d+[\.,]\d+|\d+) ?([ ´\u0027\u02B9\u02BC\u02CA])? ?(\d+)(["'])? ?([EW])/i,
 
-      dd5:  /\W([NS])\.? ?(\d+[\.|,]\d+|\d+) ?[\*°ººo\u02DA ][\.,;]?\s*([WE])\.? ?(\d+[\.|,]\d+|\d+) ?[\*°ººo\u02DA ]?\D/i,
+      dd5:  /\W([NS])\.? ?(\d+[\.|,]\d+|\d+) ?([\*°ººo\u02DA ])[\.,;]?\s*([WE])\.? ?(\d+[\.|,]\d+|\d+) ?([\*°ººo\u02DA ])?/i,
 
-      dd6:  /\D(\d+[\.|,]\d+|\d+) ?[\*°ººo\u02DA ] ?([NS])[\.,;]?\s*(\d+[\.|,]\d+|\d+) ?[\*°ººo\u02DA ] ?([WE])\W/i,
+      dd6:  /\D(\d+[\.|,]\d+|\d+) ?([\*°ººo\u02DA ]) ?([NS])[\.,;]?\s*(\d+[\.|,]\d+|\d+) ?([\*°ººo\u02DA ]) ?([WE])\W/i,
 
       dd7:  /\[(-?\d+[\.|,]\d+|\-?d+),.*?(-?\d+[\.|,]\d+|\-?d+)\]/i
     }.freeze
@@ -150,37 +150,41 @@ To add a new (discovered) symbol:
               trials[kee_string][:lat]   = lat
               trials[kee_string][:long]  = long
             when :dm3
-              lat                        = "#{$1}#{$2}#{$3}"
-              long                       = "#{$4}#{$5}#{$6}"
+              lat                        = "#{$1}#{$2}#{$3}#{$4}#{$5}"
+              long                       = "#{$6}#{$7}#{$8}#{$9}#{$10}"
               trials[kee_string][:piece] = $&
               trials[kee_string][:lat]   = lat
               trials[kee_string][:long]  = long
             when :dms4
-              lat                        = "#{$4}#{$1}#{$2}#{$3}"
-              long                       = "#{$8}#{$5}#{$6}#{$7}"
+              lat                        = "#{$1}#{$2}#{$3}#{$4}#{$5}#{$6}#{$7}"
+              long                       = "#{$8}#{$9}#{$10}#{$11}#{$12}#{$13}#{$14}"
               trials[kee_string][:piece] = $&
               trials[kee_string][:lat]   = lat
               trials[kee_string][:long]  = long
             when :dd5
               lat                        = "#{$1}#{$2}"
-              long                       = "#{$3}#{$4}"
+              long                       = "#{$4}#{$5}"
               trials[kee_string][:piece] = $&
               trials[kee_string][:lat]   = lat
               trials[kee_string][:long]  = long
             when :dd6
-              lat                        = "#{$1}#{$2}"
-              long                       = "#{$3}#{$4}"
+              lat                        = "#{$1}#{$2}#{$3}"
+              long                       = "#{$4}#{$5}#{$6}"
               trials[kee_string][:piece] = $&
               trials[kee_string][:lat]   = lat
               trials[kee_string][:long]  = long
             when :dd7
               trials[kee_string][:piece] = $&
-              lat                        = $1.to_f
-              ord                        = (lat < 0) ? 'S' : 'N'
-              trials[kee_string][:lat]   = "#{ord}#{lat.abs}"
-              long                       = $2.to_f
-              ord                        = (long < 0) ? 'W' : 'E'
-              trials[kee_string][:long]  = "#{ord}#{long.abs}"
+              # lat                        = $1.to_f
+              # ord                        = (lat < 0) ? 'S' : 'N'
+              # trials[kee_string][:lat]   = "#{ord}#{lat.abs}"
+              # long                       = $2.to_f
+              # ord                        = (long < 0) ? 'W' : 'E'
+              # trials[kee_string][:long]  = "#{ord}#{long.abs}"
+              lat                        = $1
+              long                       = $2
+              trials[kee_string][:lat]   = "#{lat}"
+              trials[kee_string][:long]  = "#{long}"
             else
               retval = 1
           end
@@ -200,7 +204,7 @@ To add a new (discovered) symbol:
       pieces.each do |piece|
         # group of possible regex configurations
         # m = /(?<lat>\d+\.\d+\s*(?<ca>[NS])*)\s(?<long>\d+\.\d+\s*(?<co>[EW])*)/i =~ piece
-        m = REGEXP_COORD[:dd1] =~ piece
+        m = REGEXP_COORD[:dd1a] =~ piece
         if m.nil?
           piece.each_char do |c|
             next unless SPECIAL_LATLONG_SYMBOLS.include?(c)
