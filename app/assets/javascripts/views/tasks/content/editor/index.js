@@ -546,6 +546,8 @@ Object.assign(TW.views.tasks.content.editor, {
           
           this.firstInput = true;
           this.$http.get(ajaxUrl).then(response => {
+            console.log("Ajax URL: " + ajaxUrl);
+            console.log("Array size: " + response.body.length);            
             if(response.body.length > 0) {
               this.record.content.id = response.body[0].id;
               this.record.content.text = response.body[0].text;
