@@ -54,7 +54,7 @@ GENUS_RANK_NAMES_ICN = NomenclaturalRank::Icn::GenusGroup.descendants.collect{|i
 SPECIES_RANK_NAMES_ICZN = NomenclaturalRank::Iczn::SpeciesGroup.descendants.collect{|i| i.to_s}.freeze
 
 # All assignable ranks for species groups, for both ICN
-SPECIES_RANK_NAMES_ICN = NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup.descendants.collect{|i| i.to_s}.freeze
+SPECIES_RANK_NAMES_ICN = NomenclaturalRank::Icn::SpeciesGroup.descendants.collect{|i| i.to_s}.freeze
 
 # All assignable ranks for genus and species groups, for both ICZN
 GENUS_AND_SPECIES_RANK_NAMES_ICZN = ( GENUS_RANK_NAMES_ICZN + SPECIES_RANK_NAMES_ICZN ).freeze
