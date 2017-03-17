@@ -18,6 +18,7 @@ namespace :tw do
           get_tw_source_id = import.get('SFRefIDToTWSourceID')
           get_nomenclator_string = import.get('SFNomenclatorIDToSFNomenclatorString')
           get_cvt_id = import.get('CvtProjUriID')
+          get_containing_source_id = import.get('TWSourceIDToContainingSourceID') # use to determine if taxon_name_author must be created (orig desc only)
 
           path = @args[:data_directory] + 'tblCites.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
@@ -95,6 +96,9 @@ SF.RefID #{row['RefID']} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}
               # citation.update_column(:pages, cite_pages) # update pages to cite_pages
               citation.update(metadata.merge(pages: cite_pages))
               logger.info "Citation found: citation.id = #{citation.id}, taxon_name_id = #{taxon_name_id}, cite_pages = '#{cite_pages}' (cite_found_counter = #{cite_found_counter += 1}"
+              if get_containing_source_id.has_key?(source_id) # create taxon_name_author
+
+              end
 
             else # create new citation
               citation = Citation.new(
@@ -215,137 +219,169 @@ SF.RefID #{row['RefID']} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}
           end
         end
 
+        desc 'time rake tw:project_import:sf_import:cites:create_sf_taxon_authors user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        LoggedTask.define :create_sf_taxon_name_authors => [:data_directory, :environment, :user_id] do |logger|
 
-        desc 'time rake tw:project_import:sf_import:cites:create_cvts_for_citations user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        # @todo Do I really need a data_directory if I'm using a Postgres table? Not that it hurts...
-        LoggedTask.define :create_cvts_for_citations => [:data_directory, :environment, :user_id] do |logger|
+          logger.info 'Running create_sf_taxon_name_authors...'
 
-          # Create controlled vocabulary terms (CVTS) for NewNameStatus, TypeInfo, and CiteInfoFlags; CITES_CVTS below in all caps denotes constant
+          get_sf_taxon_name_authors = {} # key = SF.RefID (contained ref), value = array of SF.Person.IDs (ordered)
 
-          import = Import.find_or_create_by(name: 'SpeciesFileData')
-          get_tw_project_id = import.get('SFFileIDToTWProjectID')
+          path = @args[:data_directory] + 'sfRefsPeople.txt'
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
-          CITES_CVTS = {
+          previous_ref_id = ''
 
-              new_name_status: [
-                  {name: 'unchanged', definition: 'Status of name did not change', uri: 'http://speciesfile.org/legacy/new_name_status/1', uri_relation: 'skos:closeMatch', type: 'Keyword'},
-                  {name: 'new name', definition: 'New name, unneeded emendation or subsequent mispelling', uri: 'http://speciesfile.org/legacy/new_name_status/2', uri_relation: 'skos:closeMatch', type: 'Keyword'},
-                  {name: 'made synonym', definition: 'Status of name changed to synonym', uri: 'http://speciesfile.org/legacy/new_name_status/3', uri_relation: 'skos:closeMatch', type: 'Keyword'},
-                  {name: 'made valid or temporary', definition: 'Name treated as valid or temporary', uri: 'http://speciesfile.org/legacy/new_name_status/4', uri_relation: 'skos:closeMatch', type: 'Keyword'},
-                  {name: 'new combination', definition: 'Remains valid in new combination', uri: 'http://speciesfile.org/legacy/new_name_status/5', uri_relation: 'skos:closeMatch', type: 'Keyword'},
-                  {name: 'new nomen nudum', definition: 'Name is a new nomen nudum', uri: 'http://speciesfile.org/legacy/new_name_status/6', uri_relation: 'skos:closeMatch', type: 'Keyword'},
-                  {name: 'nomen dubium', definition: 'Name treated as nomen dubium', uri: 'http://speciesfile.org/legacy/new_name_status/7', uri_relation: 'skos:closeMatch', type: 'Keyword'},
-                  {name: 'missed previous change', definition: 'Apparently missed a previous change', uri: 'http://speciesfile.org/legacy/new_name_status/8', uri_relation: 'skos:closeMatch', type: 'Keyword'},
-                  {name: 'still synonym, but of different taxon', definition: 'Name remains a synonym , but of different taxon', uri: 'http://speciesfile.org/legacy/new_name_status/9', uri_relation: 'skos:closeMatch', type: 'Keyword'},
-                  {name: 'gender change', definition: 'Name changed to match gender of genus', uri: 'http://speciesfile.org/legacy/new_name_status/10', uri_relation: 'skos:closeMatch', type: 'Keyword'},
-                  {name: 'new corrected name', definition: 'Justified emendation, corrected lapsus, or nomen nudum made available', uri: 'http://speciesfile.org/legacy/new_name_status/17', uri_relation: 'skos:closeMatch', type: 'Keyword'},
-                  {name: 'different combination', definition: 'Remains valid in restored combination', uri: 'http://speciesfile.org/legacy/new_name_status/18', uri_relation: 'skos:closeMatch', type: 'Keyword'},
-                  {name: 'made valid in new combination', definition: 'Made valid in new or different combination', uri: 'http://speciesfile.org/legacy/new_name_status/19', uri_relation: 'skos:closeMatch', type: 'Keyword'},
-                  {name: 'incorrect name before correct', definition: 'Nomen nudum, incorrect spelling or lapsus before proper name', uri: 'http://speciesfile.org/legacy/new_name_status/20', uri_relation: 'skos:closeMatch', type: 'Keyword'},
-                  {name: 'misapplied name', definition: 'Misapplied name used for misidentified specimen', uri: 'http://speciesfile.org/legacy/new_name_status/22', uri_relation: 'skos:closeMatch', type: 'Keyword'},
-              ],
+          file.each_with_index do |row, i|
+            ref_id = row['RefID']
 
-              type_info: [
-                  {name: 'unspecified type information', definition: 'unspecified type information', uri: 'http://speciesfile.org/legacy/type_info/1', uri_relation: 'skos:closeMatch', type: 'Keyword'},
-                  {name: 'ruling by Commission', definition: 'ruling by Commission', uri: 'http://speciesfile.org/legacy/type_info/2', uri_relation: 'skos:closeMatch', type: 'Keyword'},
-                  {name: 'designated syntypes', definition: 'designated syntypes', uri: 'http://speciesfile.org/legacy/type_info/11', uri_relation: 'skos:closeMatch', type: 'Keyword'},
-                  {name: 'designated holotype', definition: 'designated holotype', uri: 'http://speciesfile.org/legacy/type_info/12', uri_relation: 'skos:closeMatch', type: 'Keyword'},
-                  {name: 'designated lectotype', definition: 'designated lectotype', uri: 'http://speciesfile.org/legacy/type_info/13', uri_relation: 'skos:closeMatch', type: 'Keyword'},
-                  {name: 'designated neotype', definition: 'designated neotype', uri: 'http://speciesfile.org/legacy/type_info/14', uri_relation: 'skos:closeMatch', type: 'Keyword'},
-                  {name: 'removed syntype(s)', definition: 'removed syntype(s)', uri: 'http://speciesfile.org/legacy/type_info/15', uri_relation: 'skos:closeMatch', type: 'Keyword'},
-                  {name: 'original monotypy', definition: 'original monotypy', uri: 'http://speciesfile.org/legacy/type_info/21', uri_relation: 'skos:closeMatch', type: 'Keyword'},
-                  {name: 'original designation', definition: 'original designation', uri: 'http://speciesfile.org/legacy/type_info/22', uri_relation: 'skos:closeMatch', type: 'Keyword'},
-                  {name: 'subsequent designation', definition: 'subsequent designation', uri: 'http://speciesfile.org/legacy/type_info/23', uri_relation: 'skos:closeMatch', type: 'Keyword'},
-                  {name: 'monotypy and original designation', definition: 'monotypy and original designation', uri: 'http://speciesfile.org/legacy/type_info/24', uri_relation: 'skos:closeMatch', type: 'Keyword'},
-                  {name: 'removed potential type(s)', definition: 'removed potential type(s)', uri: 'http://speciesfile.org/legacy/type_info/25', uri_relation: 'skos:closeMatch', type: 'Keyword'},
-                  {name: 'absolute tautonomy', definition: 'absolute tautonomy', uri: 'http://speciesfile.org/legacy/type_info/26', uri_relation: 'skos:closeMatch', type: 'Keyword'},
-                  {name: 'Linnaean tautonomy', definition: 'Linnaean tautonomy', uri: 'http://speciesfile.org/legacy/type_info/27', uri_relation: 'skos:closeMatch', type: 'Keyword'},
-                  {name: 'inherited from replaced name', definition: 'inherited from replaced name', uri: 'http://speciesfile.org/legacy/type_info/29', uri_relation: 'skos:closeMatch', type: 'Keyword'},
-              ],
+            logger.info "working with (contained) RefID #{ref_id}"
 
-              # uri end number represents bit position, not value
-              cite_info_flags: [
-                  {name: 'Image or description', definition: 'An image or description is included', uri: 'http://speciesfile.org/legacy/cite_info_flags/0', uri_relation: 'skos:closeMatch', type: 'Topic'},
-                  {name: 'Phylogeny or classification', definition: 'An evolutionary relationship or hierarchical position is presented or discussed', uri: 'http://speciesfile.org/legacy/cite_info_flags/1', uri_relation: 'skos:closeMatch', type: 'Topic'},
-                  {name: 'Ecological data', definition: 'Ecological data are included', uri: 'http://speciesfile.org/legacy/cite_info_flags/2', uri_relation: 'skos:closeMatch', type: 'Topic'},
-                  {name: 'Specimen or distribution', definition: 'Specimen or distribution information is included', uri: 'http://speciesfile.org/legacy/cite_info_flags/3', uri_relation: 'skos:closeMatch', type: 'Topic'},
-                  {name: 'Key', definition: 'A key for identification is included', uri: 'http://speciesfile.org/legacy/cite_info_flags/4', uri_relation: 'skos:closeMatch', type: 'Topic'},
-                  {name: 'Life history', definition: 'Life history information is included', uri: 'http://speciesfile.org/legacy/cite_info_flags/5', uri_relation: 'skos:closeMatch', type: 'Topic'},
-                  {name: 'Behavior', definition: 'Behavior information is included', uri: 'http://speciesfile.org/legacy/cite_info_flags/6', uri_relation: 'skos:closeMatch', type: 'Topic'},
-                  {name: 'Economic matters', definition: 'Economic matters are included', uri: 'http://speciesfile.org/legacy/cite_info_flags/7', uri_relation: 'skos:closeMatch', type: 'Topic'},
-                  {name: 'Physiology', definition: 'Physiology is included', uri: 'http://speciesfile.org/legacy/cite_info_flags/8', uri_relation: 'skos:closeMatch', type: 'Topic'},
-                  {name: 'Structure', definition: 'Anatomy, cytology, genetic or other structural information is included', uri: 'http://speciesfile.org/legacy/cite_info_flags/9', uri_relation: 'skos:closeMatch', type: 'Topic'},
-              ],
+            if ref_id == previous_ref_id # this is the same RefID as last row, add another author
+              get_sf_taxon_name_authors[ref_id].push(row['PersonID'])
 
-              info_flag_status: [
-                  {name: 'partial data or needs review', definition: 'partial data or needs review', uri: 'http://speciesfile.org/legacy/info_flag_status/1', uri_relation: 'skos:closeMatch', type: 'ConfidenceLevel'},
-                  {name: 'complete data', definition: 'complete data', uri: 'http://speciesfile.org/legacy/info_flag_status/2', uri_relation: 'skos:closeMatch', type: 'ConfidenceLevel'},
-              ]
-
-          }
-
-          logger.info 'Running create_cvts_for_citations...'
-
-          get_cvt_id = {} # key = project_id, value = {tag/topic uri, cvt.id.to_s}
-
-          # Project.all.each do |project|
-            get_tw_project_id.values.each do |project_id|
-            # next unless project.name.end_with?('species_file')
-
-            # project_id = project.id.to_s
-
-            logger.info "Working with TW.project_id: #{project_id}"
-
-            get_cvt_id[project_id] = {} # initialized for outer loop with project_id
-
-            CITES_CVTS.keys.each do |column| # tblCites.ColumnName
-              CITES_CVTS[column].each do |params|
-                cvt = ControlledVocabularyTerm.create!(params.merge(project_id: project_id)) # want this to be integer
-                get_cvt_id[project_id][cvt.uri] = cvt.id.to_s
-              end
+            else # this is a new RefID, start a new author array
+              get_sf_taxon_name_authors[ref_id] = [row['PersonID']]
+              previous_ref_id = ref_id
             end
           end
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
-          import.set('CvtProjUriID', get_cvt_id)
+          import.set('SFRefIDToTaxonNameAuthors', get_sf_taxon_name_authors)
 
-          puts = 'CvtProjUriID'
-          ap get_cvt_id
-
+          puts 'SFRefIDToTaxonNameAuthors'
+          ap get_sf_taxon_name_authors
         end
 
-        desc 'time rake tw:project_import:sf_import:cites:import_nomenclator_strings user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        LoggedTask.define :import_nomenclator_strings => [:data_directory, :environment, :user_id] do |logger|
-          # Can be run independently at any time
+      desc 'time rake tw:project_import:sf_import:cites:create_cvts_for_citations user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+      # @todo Do I really need a data_directory if I'm using a Postgres table? Not that it hurts...
+      LoggedTask.define :create_cvts_for_citations => [:data_directory, :environment, :user_id] do |logger|
 
-          logger.info 'Running import_nomenclator_strings...'
+        # Create controlled vocabulary terms (CVTS) for NewNameStatus, TypeInfo, and CiteInfoFlags; CITES_CVTS below in all caps denotes constant
 
-          get_nomenclator_string = {} # key = SF.NomenclatorID, value = SF.nomenclator_string
+        import = Import.find_or_create_by(name: 'SpeciesFileData')
+        get_tw_project_id = import.get('SFFileIDToTWProjectID')
 
-          count_found = 0
+        CITES_CVTS = {
 
-          path = @args[:data_directory] + 'sfNomenclatorStrings.txt'
-          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
+            new_name_status: [
+                {name: 'unchanged', definition: 'Status of name did not change', uri: 'http://speciesfile.org/legacy/new_name_status/1', uri_relation: 'skos:closeMatch', type: 'Keyword'},
+                {name: 'new name', definition: 'New name, unneeded emendation or subsequent mispelling', uri: 'http://speciesfile.org/legacy/new_name_status/2', uri_relation: 'skos:closeMatch', type: 'Keyword'},
+                {name: 'made synonym', definition: 'Status of name changed to synonym', uri: 'http://speciesfile.org/legacy/new_name_status/3', uri_relation: 'skos:closeMatch', type: 'Keyword'},
+                {name: 'made valid or temporary', definition: 'Name treated as valid or temporary', uri: 'http://speciesfile.org/legacy/new_name_status/4', uri_relation: 'skos:closeMatch', type: 'Keyword'},
+                {name: 'new combination', definition: 'Remains valid in new combination', uri: 'http://speciesfile.org/legacy/new_name_status/5', uri_relation: 'skos:closeMatch', type: 'Keyword'},
+                {name: 'new nomen nudum', definition: 'Name is a new nomen nudum', uri: 'http://speciesfile.org/legacy/new_name_status/6', uri_relation: 'skos:closeMatch', type: 'Keyword'},
+                {name: 'nomen dubium', definition: 'Name treated as nomen dubium', uri: 'http://speciesfile.org/legacy/new_name_status/7', uri_relation: 'skos:closeMatch', type: 'Keyword'},
+                {name: 'missed previous change', definition: 'Apparently missed a previous change', uri: 'http://speciesfile.org/legacy/new_name_status/8', uri_relation: 'skos:closeMatch', type: 'Keyword'},
+                {name: 'still synonym, but of different taxon', definition: 'Name remains a synonym , but of different taxon', uri: 'http://speciesfile.org/legacy/new_name_status/9', uri_relation: 'skos:closeMatch', type: 'Keyword'},
+                {name: 'gender change', definition: 'Name changed to match gender of genus', uri: 'http://speciesfile.org/legacy/new_name_status/10', uri_relation: 'skos:closeMatch', type: 'Keyword'},
+                {name: 'new corrected name', definition: 'Justified emendation, corrected lapsus, or nomen nudum made available', uri: 'http://speciesfile.org/legacy/new_name_status/17', uri_relation: 'skos:closeMatch', type: 'Keyword'},
+                {name: 'different combination', definition: 'Remains valid in restored combination', uri: 'http://speciesfile.org/legacy/new_name_status/18', uri_relation: 'skos:closeMatch', type: 'Keyword'},
+                {name: 'made valid in new combination', definition: 'Made valid in new or different combination', uri: 'http://speciesfile.org/legacy/new_name_status/19', uri_relation: 'skos:closeMatch', type: 'Keyword'},
+                {name: 'incorrect name before correct', definition: 'Nomen nudum, incorrect spelling or lapsus before proper name', uri: 'http://speciesfile.org/legacy/new_name_status/20', uri_relation: 'skos:closeMatch', type: 'Keyword'},
+                {name: 'misapplied name', definition: 'Misapplied name used for misidentified specimen', uri: 'http://speciesfile.org/legacy/new_name_status/22', uri_relation: 'skos:closeMatch', type: 'Keyword'},
+            ],
 
-          file.each_with_index do |row, i|
-            nomenclator_id = row['NomenclatorID']
-            next if nomenclator_id == '0'
+            type_info: [
+                {name: 'unspecified type information', definition: 'unspecified type information', uri: 'http://speciesfile.org/legacy/type_info/1', uri_relation: 'skos:closeMatch', type: 'Keyword'},
+                {name: 'ruling by Commission', definition: 'ruling by Commission', uri: 'http://speciesfile.org/legacy/type_info/2', uri_relation: 'skos:closeMatch', type: 'Keyword'},
+                {name: 'designated syntypes', definition: 'designated syntypes', uri: 'http://speciesfile.org/legacy/type_info/11', uri_relation: 'skos:closeMatch', type: 'Keyword'},
+                {name: 'designated holotype', definition: 'designated holotype', uri: 'http://speciesfile.org/legacy/type_info/12', uri_relation: 'skos:closeMatch', type: 'Keyword'},
+                {name: 'designated lectotype', definition: 'designated lectotype', uri: 'http://speciesfile.org/legacy/type_info/13', uri_relation: 'skos:closeMatch', type: 'Keyword'},
+                {name: 'designated neotype', definition: 'designated neotype', uri: 'http://speciesfile.org/legacy/type_info/14', uri_relation: 'skos:closeMatch', type: 'Keyword'},
+                {name: 'removed syntype(s)', definition: 'removed syntype(s)', uri: 'http://speciesfile.org/legacy/type_info/15', uri_relation: 'skos:closeMatch', type: 'Keyword'},
+                {name: 'original monotypy', definition: 'original monotypy', uri: 'http://speciesfile.org/legacy/type_info/21', uri_relation: 'skos:closeMatch', type: 'Keyword'},
+                {name: 'original designation', definition: 'original designation', uri: 'http://speciesfile.org/legacy/type_info/22', uri_relation: 'skos:closeMatch', type: 'Keyword'},
+                {name: 'subsequent designation', definition: 'subsequent designation', uri: 'http://speciesfile.org/legacy/type_info/23', uri_relation: 'skos:closeMatch', type: 'Keyword'},
+                {name: 'monotypy and original designation', definition: 'monotypy and original designation', uri: 'http://speciesfile.org/legacy/type_info/24', uri_relation: 'skos:closeMatch', type: 'Keyword'},
+                {name: 'removed potential type(s)', definition: 'removed potential type(s)', uri: 'http://speciesfile.org/legacy/type_info/25', uri_relation: 'skos:closeMatch', type: 'Keyword'},
+                {name: 'absolute tautonomy', definition: 'absolute tautonomy', uri: 'http://speciesfile.org/legacy/type_info/26', uri_relation: 'skos:closeMatch', type: 'Keyword'},
+                {name: 'Linnaean tautonomy', definition: 'Linnaean tautonomy', uri: 'http://speciesfile.org/legacy/type_info/27', uri_relation: 'skos:closeMatch', type: 'Keyword'},
+                {name: 'inherited from replaced name', definition: 'inherited from replaced name', uri: 'http://speciesfile.org/legacy/type_info/29', uri_relation: 'skos:closeMatch', type: 'Keyword'},
+            ],
 
-            nomenclator_string = row['NomenclatorString']
+            # uri end number represents bit position, not value
+            cite_info_flags: [
+                {name: 'Image or description', definition: 'An image or description is included', uri: 'http://speciesfile.org/legacy/cite_info_flags/0', uri_relation: 'skos:closeMatch', type: 'Topic'},
+                {name: 'Phylogeny or classification', definition: 'An evolutionary relationship or hierarchical position is presented or discussed', uri: 'http://speciesfile.org/legacy/cite_info_flags/1', uri_relation: 'skos:closeMatch', type: 'Topic'},
+                {name: 'Ecological data', definition: 'Ecological data are included', uri: 'http://speciesfile.org/legacy/cite_info_flags/2', uri_relation: 'skos:closeMatch', type: 'Topic'},
+                {name: 'Specimen or distribution', definition: 'Specimen or distribution information is included', uri: 'http://speciesfile.org/legacy/cite_info_flags/3', uri_relation: 'skos:closeMatch', type: 'Topic'},
+                {name: 'Key', definition: 'A key for identification is included', uri: 'http://speciesfile.org/legacy/cite_info_flags/4', uri_relation: 'skos:closeMatch', type: 'Topic'},
+                {name: 'Life history', definition: 'Life history information is included', uri: 'http://speciesfile.org/legacy/cite_info_flags/5', uri_relation: 'skos:closeMatch', type: 'Topic'},
+                {name: 'Behavior', definition: 'Behavior information is included', uri: 'http://speciesfile.org/legacy/cite_info_flags/6', uri_relation: 'skos:closeMatch', type: 'Topic'},
+                {name: 'Economic matters', definition: 'Economic matters are included', uri: 'http://speciesfile.org/legacy/cite_info_flags/7', uri_relation: 'skos:closeMatch', type: 'Topic'},
+                {name: 'Physiology', definition: 'Physiology is included', uri: 'http://speciesfile.org/legacy/cite_info_flags/8', uri_relation: 'skos:closeMatch', type: 'Topic'},
+                {name: 'Structure', definition: 'Anatomy, cytology, genetic or other structural information is included', uri: 'http://speciesfile.org/legacy/cite_info_flags/9', uri_relation: 'skos:closeMatch', type: 'Topic'},
+            ],
 
-            logger.info "Working with SF.NomenclatorID '#{nomenclator_id}', SF.NomenclatorString '#{nomenclator_string}' (count #{count_found += 1}) \n"
+            info_flag_status: [
+                {name: 'partial data or needs review', definition: 'partial data or needs review', uri: 'http://speciesfile.org/legacy/info_flag_status/1', uri_relation: 'skos:closeMatch', type: 'ConfidenceLevel'},
+                {name: 'complete data', definition: 'complete data', uri: 'http://speciesfile.org/legacy/info_flag_status/2', uri_relation: 'skos:closeMatch', type: 'ConfidenceLevel'},
+            ]
 
-            get_nomenclator_string[nomenclator_id] = nomenclator_string
+        }
+
+        logger.info 'Running create_cvts_for_citations...'
+
+        get_cvt_id = {} # key = project_id, value = {tag/topic uri, cvt.id.to_s}
+
+        # Project.all.each do |project|
+        get_tw_project_id.values.each do |project_id|
+          # next unless project.name.end_with?('species_file')
+
+          # project_id = project.id.to_s
+
+          logger.info "Working with TW.project_id: #{project_id}"
+
+          get_cvt_id[project_id] = {} # initialized for outer loop with project_id
+
+          CITES_CVTS.keys.each do |column| # tblCites.ColumnName
+            CITES_CVTS[column].each do |params|
+              cvt = ControlledVocabularyTerm.create!(params.merge(project_id: project_id)) # want this to be integer
+              get_cvt_id[project_id][cvt.uri] = cvt.id.to_s
+            end
           end
-
-          import = Import.find_or_create_by(name: 'SpeciesFileData')
-          import.set('SFNomenclatorIDToSFNomenclatorString', get_nomenclator_string)
-
-          puts = 'SFNomenclatorIDToSFNomenclatorString'
-          ap get_nomenclator_string
         end
+
+        import = Import.find_or_create_by(name: 'SpeciesFileData')
+        import.set('CvtProjUriID', get_cvt_id)
+
+        puts = 'CvtProjUriID'
+        ap get_cvt_id
 
       end
+
+      desc 'time rake tw:project_import:sf_import:cites:import_nomenclator_strings user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+      LoggedTask.define :import_nomenclator_strings => [:data_directory, :environment, :user_id] do |logger|
+        # Can be run independently at any time
+
+        logger.info 'Running import_nomenclator_strings...'
+
+        get_nomenclator_string = {} # key = SF.NomenclatorID, value = SF.nomenclator_string
+
+        count_found = 0
+
+        path = @args[:data_directory] + 'sfNomenclatorStrings.txt'
+        file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
+
+        file.each_with_index do |row, i|
+          nomenclator_id = row['NomenclatorID']
+          next if nomenclator_id == '0'
+
+          nomenclator_string = row['NomenclatorString']
+
+          logger.info "Working with SF.NomenclatorID '#{nomenclator_id}', SF.NomenclatorString '#{nomenclator_string}' (count #{count_found += 1}) \n"
+
+          get_nomenclator_string[nomenclator_id] = nomenclator_string
+        end
+
+        import = Import.find_or_create_by(name: 'SpeciesFileData')
+        import.set('SFNomenclatorIDToSFNomenclatorString', get_nomenclator_string)
+
+        puts = 'SFNomenclatorIDToSFNomenclatorString'
+        ap get_nomenclator_string
+      end
+
     end
   end
+end
 end

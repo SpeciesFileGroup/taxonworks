@@ -93,7 +93,7 @@ namespace :tw do
 
             print "working with SF.RefID = #{row['RefID']}, TW.source_id = #{source_id}, position = #{row['SeqNum']} \n"
 
-            # if get_containing_source_id[get_tw_source_id[row['RefID']]].has_key? is true, use source_id of containing source for author and editor roles (taxon_author_roles will be assigned as taxa are created)
+            # if get_containing_source_id[get_tw_source_id.has_key?(row['RefID']) is true, use source_id of containing source for author and editor roles (taxon_author_roles will be assigned as taxa are created)
             containing_source_id = get_containing_source_id[source_id]
 
             ordered_authors = SourceAuthor.where(role_object_id: :containing_source_id).order(:position).pluck(:person_id)

@@ -7,6 +7,10 @@ namespace :tw do
 
         desc 'time rake tw:project_import:sf_import:taxa:create_status_flag_relationships user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         #  real	~1 hour, 62.5 minutes, 256 errors (a little > 234 before today's changes)
+        # 15 March 2017
+        # real	75m28.781s
+        # user	57m35.616s
+        # sys	2m26.810s
 
         LoggedTask.define :create_status_flag_relationships => [:data_directory, :environment, :user_id] do |logger|
 
@@ -719,7 +723,7 @@ namespace :tw do
           get_sf_name_status = {} # key = SF.TaxonNameID, value = SF.NameStatus
           get_sf_status_flags = {} # key = SF.TaxonNameID, value = SF.StatusFlags
           get_tw_otu_id = {} # key = SF.TaxonNameID, value = TW.otu.id; used for temporary or bad valid SF taxa
-          get_taxon_name_otu_id = {}  # key = TW.TaxonName.id, value TW.OTU.id just created for newly added taxon_name
+          get_taxon_name_otu_id = {} # key = TW.TaxonName.id, value TW.OTU.id just created for newly added taxon_name
 
           project_id = 1 # default value, will be updated before keyword is used
           keyword = Keyword.find_or_create_by(
@@ -860,11 +864,11 @@ namespace :tw do
 
               begin
                 taxon_name.save!
-                # logger.info "taxon_name.id = #{taxon_name.id}"
-              #  get_tw_taxon_name_id[row['TaxonNameID']] = taxon_name.id.to_s
-              #  get_sf_name_status[row['TaxonNameID']] = name_status
-              #  get_sf_status_flags[row['TaxonNameID']] = status_flags
-              #  get_taxon_name_otu_id[taxon_name.id.to_s] = taxon_name.otus.last.id.to_s
+                  # logger.info "taxon_name.id = #{taxon_name.id}"
+                  #  get_tw_taxon_name_id[row['TaxonNameID']] = taxon_name.id.to_s
+                  #  get_sf_name_status[row['TaxonNameID']] = name_status
+                  #  get_sf_status_flags[row['TaxonNameID']] = status_flags
+                  #  get_taxon_name_otu_id[taxon_name.id.to_s] = taxon_name.otus.last.id.to_s
 
                   # if one of anticipated import errors, add classification, then try to save again...
               rescue ActiveRecord::RecordInvalid
