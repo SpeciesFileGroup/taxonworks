@@ -136,7 +136,7 @@ To add a new (discovered) symbol:
 
       dd6:  /(?<lat>(\d+[\.,]\d+|\d+)\s*[\*°ººo\u02DA ]\s*[NS])[\.,;]?\s*(?<long>(\d+[\.|,]\d+|\d+)\s*[\*°ººo\u02DA ]\s*[WE])/i,
 
-      dd7:  /\[(-?\d+[\.|,]\d+|\-?d+),.*?(-?\d+[\.|,]\d+|\-?d+)\]/i
+      dd7:  /\[(?<lat>-?\d+[\.,]\d+|\-?d+),.*?(?<long>-?\d+[\.,]\d+|\-?d+)\]/i
     }.freeze
 
     def self.hunt_lat_long_full(label)
@@ -146,72 +146,72 @@ To add a new (discovered) symbol:
         kee_string         = kee.to_s.upcase
         trials[kee_string] = {}
         if testval.class == Fixnum
-          case kee
-            when :dd1a
-              trials[kee_string][:piece] = $&
-              trials[kee_string][:lat]   = $1
-              trials[kee_string][:long]  = $3
-            when :dd1b
-              trials[kee_string][:piece] = $&
-              trials[kee_string][:lat]   = $1
-              trials[kee_string][:long]  = $3
-            when :dd2
-              # lat                        = "#{$1}#{$2}º"
-              # long                       = "#{$3}#{$4}º"
-              trials[kee_string][:piece] = $&
-              trials[kee_string][:lat]   = $1
-              trials[kee_string][:long]  = $4
-            when :dm1
-              lat                        = "#{$1}#{$2}#{$3}#{$4}#{$5}"
-              long                       = "#{$6}#{$7}#{$8}#{$9}#{$10}"
-              trials[kee_string][:piece] = $&
-              trials[kee_string][:lat]   = lat
-              trials[kee_string][:long]  = long
-            when :dms2
-              lat                        = "#{$1}#{$2}#{$3}#{$4}#{$5}#{$6}#{$7}#{$8}"
-              long                       = "#{$9}#{$10}#{$11}#{$12}#{$13}#{$14}#{$15}#{$16}"
-              trials[kee_string][:piece] = $&
-              trials[kee_string][:lat]   = lat
-              trials[kee_string][:long]  = long
-            when :dm3
-              lat                        = "#{$1}#{$2}#{$3}#{$4}#{$5}"
-              long                       = "#{$6}#{$7}#{$8}#{$9}#{$10}"
-              trials[kee_string][:piece] = $&
-              trials[kee_string][:lat]   = lat
-              trials[kee_string][:long]  = long
-            when :dms4
-              lat                        = "#{$1}#{$2}#{$3}#{$4}#{$5}#{$6}#{$7}"
-              long                       = "#{$8}#{$9}#{$10}#{$11}#{$12}#{$13}#{$14}"
-              trials[kee_string][:piece] = $&
-              trials[kee_string][:lat]   = lat
-              trials[kee_string][:long]  = long
-            when :dd5
-              lat                        = "#{$1}#{$2}"
-              long                       = "#{$4}#{$5}"
-              trials[kee_string][:piece] = $&
-              trials[kee_string][:lat]   = lat
-              trials[kee_string][:long]  = long
-            when :dd6
-              lat                        = "#{$1}#{$2}#{$3}"
-              long                       = "#{$4}#{$5}#{$6}"
-              trials[kee_string][:piece] = $&
-              trials[kee_string][:lat]   = lat
-              trials[kee_string][:long]  = long
-            when :dd7
-              trials[kee_string][:piece] = $&
-              # lat                        = $1.to_f
-              # ord                        = (lat < 0) ? 'S' : 'N'
-              # trials[kee_string][:lat]   = "#{ord}#{lat.abs}"
-              # long                       = $2.to_f
-              # ord                        = (long < 0) ? 'W' : 'E'
-              # trials[kee_string][:long]  = "#{ord}#{long.abs}"
-              lat                        = $1
-              long                       = $2
-              trials[kee_string][:lat]   = "#{lat}"
-              trials[kee_string][:long]  = "#{long}"
-            else
-              retval = 1
-          end
+          # case kee
+          #   when :dd1a
+          #     trials[kee_string][:piece] = $&
+          #     trials[kee_string][:lat]   = $1
+          #     trials[kee_string][:long]  = $3
+          #   when :dd1b
+          #     trials[kee_string][:piece] = $&
+          #     trials[kee_string][:lat]   = $1
+          #     trials[kee_string][:long]  = $3
+          #   when :dd2
+          #     # lat                        = "#{$1}#{$2}º"
+          #     # long                       = "#{$3}#{$4}º"
+          #     trials[kee_string][:piece] = $&
+          #     trials[kee_string][:lat]   = $1
+          #     trials[kee_string][:long]  = $4
+          #   when :dm1
+          #     lat                        = "#{$1}#{$2}#{$3}#{$4}#{$5}"
+          #     long                       = "#{$6}#{$7}#{$8}#{$9}#{$10}"
+          #     trials[kee_string][:piece] = $&
+          #     trials[kee_string][:lat]   = lat
+          #     trials[kee_string][:long]  = long
+          #   when :dms2
+          #     lat                        = "#{$1}#{$2}#{$3}#{$4}#{$5}#{$6}#{$7}#{$8}"
+          #     long                       = "#{$9}#{$10}#{$11}#{$12}#{$13}#{$14}#{$15}#{$16}"
+          #     trials[kee_string][:piece] = $&
+          #     trials[kee_string][:lat]   = lat
+          #     trials[kee_string][:long]  = long
+          #   when :dm3
+          #     lat                        = "#{$1}#{$2}#{$3}#{$4}#{$5}"
+          #     long                       = "#{$6}#{$7}#{$8}#{$9}#{$10}"
+          #     trials[kee_string][:piece] = $&
+          #     trials[kee_string][:lat]   = lat
+          #     trials[kee_string][:long]  = long
+          #   when :dms4
+          #     lat                        = "#{$1}#{$2}#{$3}#{$4}#{$5}#{$6}#{$7}"
+          #     long                       = "#{$8}#{$9}#{$10}#{$11}#{$12}#{$13}#{$14}"
+          #     trials[kee_string][:piece] = $&
+          #     trials[kee_string][:lat]   = lat
+          #     trials[kee_string][:long]  = long
+          #   when :dd5
+          #     lat                        = "#{$1}#{$2}"
+          #     long                       = "#{$4}#{$5}"
+          #     trials[kee_string][:piece] = $&
+          #     trials[kee_string][:lat]   = lat
+          #     trials[kee_string][:long]  = long
+          #   when :dd6
+          #     lat                        = "#{$1}#{$2}#{$3}"
+          #     long                       = "#{$4}#{$5}#{$6}"
+          #     trials[kee_string][:piece] = $&
+          #     trials[kee_string][:lat]   = lat
+          #     trials[kee_string][:long]  = long
+          #   when :dd7
+          #     trials[kee_string][:piece] = $&
+          #     # lat                        = $1.to_f
+          #     # ord                        = (lat < 0) ? 'S' : 'N'
+          #     # trials[kee_string][:lat]   = "#{ord}#{lat.abs}"
+          #     # long                       = $2.to_f
+          #     # ord                        = (long < 0) ? 'W' : 'E'
+          #     # trials[kee_string][:long]  = "#{ord}#{long.abs}"
+          #     lat                        = $1
+          #     long                       = $2
+          #     trials[kee_string][:lat]   = "#{lat}"
+          #     trials[kee_string][:long]  = "#{long}"
+          #   else
+          #     retval = 1
+          # end
           named                      = REGEXP_COORD[kee].match(lable)
           trials[kee_string][:piece] = named[0]
           trials[kee_string][:lat]   = named[:lat]
