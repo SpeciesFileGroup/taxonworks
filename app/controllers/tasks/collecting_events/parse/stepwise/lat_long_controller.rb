@@ -58,19 +58,23 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
   end
 
   def similar_labels
-    retval         = {}
-    lat            = collecting_event_params[:lat]
-    long           = collecting_event_params[:long]
-    piece          = collecting_event_params[:piece]
-    sql            = "verbatim_label LIKE '%#{sql_fix(lat)}%' and verbatim_label LIKE '%#{sql_fix(long)}%'"
-    selected_items = CollectingEvent.where(sql).except(@collecting_event)
-    retval[:count] = selected_items.count.to_s
-    retval[:table] = render_to_string(partial: 'matching_table',
-                                      locals:  {
-                                        lat:            lat,
-                                        long:           long,
-                                        selected_items: selected_items
-                                      }) #([lat, long], selected_items)
+    retval              = {}
+    lat                 = collecting_event_params[:lat]
+    long                = collecting_event_params[:long]
+    piece               = collecting_event_params[:piece]
+    collecting_event_id = collecting_event_params[:collecting_event_id]
+    include_values      = (collecting_event_params[:include_values].nil?) ? false : true
+    sql_1               = "verbatim_label LIKE '%#{sql_fix(lat)}%' or verbatim_label LIKE '%#{sql_fix(long)}%'"
+    sql_2               = "verbatim_label LIKE '%#{sql_fix(piece)}%'"
+    selected_items      = CollectingEvent.where(sql_1).where.not(id: collecting_event_id) +
+      CollectingEvent.where(sql_2).where.not(id: collecting_event_id)
+    retval[:count]      = selected_items.count.to_s
+    retval[:table]      = render_to_string(partial: 'matching_table',
+                                           locals:  {
+                                             lat:            lat,
+                                             long:           long,
+                                             selected_items: selected_items
+                                           }) #([lat, long], selected_items)
     render(json: retval)
   end
 
@@ -110,7 +114,7 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
   end
 
   def collecting_event_params
-    params.permit(:verbatim_latitude, :verbatim_longitude, :piece, :lat, :long)
+    params.permit(:include_values, :collecting_event_id, :verbatim_latitude, :verbatim_longitude, :piece, :lat, :long)
   end
 
   def generate_georeference?

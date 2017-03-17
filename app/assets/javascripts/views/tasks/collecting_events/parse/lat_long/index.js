@@ -36,11 +36,20 @@ Object.assign(TW.views.tasks.collecting_events.parse, {
       var long = $(this).parent().parent('.extract_row').children('.longitude_value').text();
       var lat = $(this).parent().parent('.extract_row').children('.latitude_value').text();
       var piece = $(this).parent().parent('.extract_row').children('.piece_value').text();
+      var params = '';
+      var checck = $('#include_values').serialize();
       $('#verbatim_latitude').val(lat);
       $('#verbatim_longitude').val(long);
-      $("#dd_latitude").val('');
-      $("#dd_longitude").val('');
-      $.get('similar_labels', 'piece=' + piece.replace(/ /g, '%20') + '&lat=' + lat.replace(/ /g, '%20') + '&long=' + long.replace(/ /g, '%20'), function (local_data) {
+      $('#dd_latitude').val('');
+      $('#dd_longitude').val('');
+      params += 'piece=' + encodeURI(piece) /* piece.replace(/ /g, '%20') */;
+      params += '&lat=' + encodeURI(lat) /* lat.replace(/ /g, '%20') */;
+      params += '&long=' + encodeURI(long) /* long.replace(/ /g, '%20') */;
+      params += '&collecting_event_id=' + $('#collecting_event_id').val();
+      if (checck.length) {
+        params += '&' + checck;
+      }
+      $.get('similar_labels', params, function (local_data) {
         $("#match_count").text(local_data.count);
         $("#matching_span").html(local_data.table);
       })

@@ -172,7 +172,7 @@ describe 'Geo', group: :geo do
 
     context 'multiple use cases for hunt_wrapper' do
       use_cases = {
-        "  N 23.23  W 44.44  "                                                                                                                            =>
+        "Here is some extra text: N 23.23  W 44.44  More stuff at the end"                                                                     =>
           {"DD1A" => {:method => "text, DD1A"},
            "DD1B" => {:piece  => "N 23.23  W 44.44  ",
                       :lat    => "N 23.23",
@@ -192,7 +192,7 @@ describe 'Geo', group: :geo do
            "(;)"  => {:method => "(;)"},
            "(,)"  => {:method => "(,)"},
            "( )"  => {:method => "( )"}},
-        "   23.23 N  44.44 W "                                                                                                                            =>
+        "Here is some extra text:,;    23.23 N  44.44 W,; More stuff at the end"                                                               =>
           {"DD1A" => {:piece  => "23.23 N  44.44 W",
                       :lat    => "23.23 N",
                       :long   => "44.44 W",
@@ -207,21 +207,21 @@ describe 'Geo', group: :geo do
            "DM3"  => {:method => "text, DM3"},
            "DMS4" => {:method => "text, DMS4"},
            "DD5"  => {:method => "text, DD5"},
-           "DD6"  => {:piece  => " 23.23 N  44.44 W ",
+           "DD6"  => {:piece  => " 23.23 N  44.44 W,",
                       :lat    => "23.23 N",
                       :long   => "44.44 W",
                       :method => "text, DD6"},
            "DD7"  => {:method => "text, DD7"},
-           "(;)"  => {:piece  => "   23.23 N  44.44 W ",
+           "(;)"  => {:piece  => "    23.23 N  44.44 W,",
                       :lat    => "23.23 N",
                       :long   => "44.44 W",
                       :method => "(;)"},
-           "(,)"  => {:piece  => "   23.23 N  44.44 W ",
+           "(,)"  => {:piece  => ";    23.23 N  44.44 W",
                       :lat    => "23.23 N",
                       :long   => "44.44 W",
                       :method => "(,)"},
            "( )"  => {:method => "( )"}},
-        "c_e_485: ARGENTINA: Jujuy, rt 9, km 1706, Finca Yala, 1500m, 24o7'2\"S65o24'13\"W, 16 Jan 2008 C.H.Dietrich, Hg vapor lights, AR13-1"            =>
+        "c_e_485: ARGENTINA: Jujuy, rt 9, km 1706, Finca Yala, 1500m, 24o7'2\"S65o24'13\"W, 16 Jan 2008 C.H.Dietrich, Hg vapor lights, AR13-1" =>
           {"DD1A" => {:method => "text, DD1A"},
            "DD1B" => {:method => "text, DD1B"},
            "DD2"  => {:method => "text, DD2"},

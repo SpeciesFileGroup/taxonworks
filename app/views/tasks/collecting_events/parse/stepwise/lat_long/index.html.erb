@@ -7,6 +7,7 @@
       id:  <%= link_to(@collecting_event.id, collecting_event_path(@collecting_event), target: :_blank) %>
       <%#= parse_lat_long_skip_link(@collecting_event.id) %>
       <%= collecting_event_label_tag(@collecting_event.verbatim_label) %>
+      <%= hidden_field_tag(:collecting_event_id) %>
     </div>
 
     <div class="item item2">
