@@ -92,7 +92,7 @@ To add a new (discovered) symbol:
     end
 
     #  ' = \u0027, converted so that the regex can be used for SQL
-    REGEXP_COORD = {
+    REGEXP_COORD_1 = {
       # tt1: /\D?(?<lat>\d+\.\d+\s*(?<ca>[NS])*)\s(?<long>\d+\.\d+\s*(?<co>[EW])*)/i,
       dd1a: /(\d+\.\d+\s*([NS]))\s*(\d+\.\d+\s*([EW]))/i,
 
@@ -101,6 +101,30 @@ To add a new (discovered) symbol:
       dd2:  /(\d+[\. ]\d+(\u0027?)\s*([NS]))[, ]?\s*(\d+[\. ]\d+(\u0027?)\s*([EW]))/i,
 
       dm1:  /\D(\d+) ?([\*°ººo\u02DA ]) ?(\d+[\.|,]\d+|\d+) ?([ ´\u0027\u02B9\u02BC\u02CA])? ?([NS])[\.,;]? ?(\d+) ?([\*°ººo\u02DA ]) ?(\d+[\.|,]\d+|\d+) ?([ ´\u0027\u02B9\u02BC\u02CA])? ?([WE])\W/i,
+
+      dms2: /\W([NS])\.? ?(\d+) ?([\*°ººo\u02DA ]) ?(\d+) ?([ ´\u0027\u02B9\u02BC\u02CA]) ?(\d+[\.|,]\d+|\d+) ?([ ""´\u02BA\u02EE\u0027\u02B9\u02BC\u02CA])([´\u0027\u02B9\u02BC\u02CA])?[\.,;]? ?([WE])\.? ?(\d+) ?([\*°ººo\u02DA ]) ?(\d+) ?([ \u0027´\u02B9\u02BC\u02CA]) ?(\d+[\.|,]\d+|\d+) ?([ ""´\u02BA\u02EE\u0027\u02B9\u02BC\u02CA])?([´\u0027\u02B9\u02BC\u02CA])?/i,
+
+      dm3:  /\W([NS])\.? ?(\d+) ?([\*°ººo\u02DA ]) ?(\d+[\.|,]\d+|\d+) ?([ ´\u0027\u02B9\u02BC\u02CA])[\.,;]? ?([WE])\.? ?(\d+) ?([\*°ººo\u02DA ]) ?(\d+[\.|,]\d+|\d+) ?([ ´\u0027\u02B9\u02BC\u02CA])?/i,
+
+      dms4: /\D(\d+) ?([\*°ººo\u02DA ]) ?(\d+[\.,]\d+|\d+) ?([ ´\u0027\u02B9\u02BC\u02CA])? ?(\d+)(")? ?([NS])(\d+) ?([\*°ººo\u02DA ]) ?(\d+[\.,]\d+|\d+) ?([ ´\u0027\u02B9\u02BC\u02CA])? ?(\d+)(["\u0027])? ?([EW])/i,
+
+      dd5:  /\W([NS])\.? ?(\d+[\.|,]\d+|\d+) ?([\*°ººo\u02DA ])[\.,;]?\s*([WE])\.? ?(\d+[\.|,]\d+|\d+) ?([\*°ººo\u02DA ])?/i,
+
+      dd6:  /\D(\d+[\.|,]\d+|\d+) ?([\*°ººo\u02DA ]) ?([NS])[\.,;]?\s*(\d+[\.|,]\d+|\d+) ?([\*°ººo\u02DA ]) ?([WE])\W/i,
+
+      dd7:  /\[(-?\d+[\.|,]\d+|\-?d+),.*?(-?\d+[\.|,]\d+|\-?d+)\]/i
+    }.freeze
+
+    #  ' = \u0027, converted so that the regex can be used for SQL
+    REGEXP_COORD   = {
+      # tt1: /\D?(?<lat>\d+\.\d+\s*(?<ca>[NS])*)\s(?<long>\d+\.\d+\s*(?<co>[EW])*)/i,
+      dd1a: /(?<lat>\d+\.\d+\s*[NS])\s*(?<long>\d+\.\d+\s*[EW])/i,
+
+      dd1b: /(?<lat>[NS]\s*\d+\.\d+)\s*(?<long>[EW]\s*\d+\.\d+)/i,
+
+      dd2:  /(?<lat>\d+[\. ]\d+\u0027?\s*[NS]),?\s*(?<long>\d+[\. ]\d+\u0027?\s*[EW])/i,
+
+      dm1:  /(?<lat>\d+ ?[\*°ººo\u02DA ] ?(\d+[\.|,]\d+|\d+) ?([ ´\u0027\u02B9\u02BC\u02CA])? ?([NS]))[\.,;]? ?(\d+) ?([\*°ººo\u02DA ]) ?(\d+[\.|,]\d+|\d+) ?([ ´\u0027\u02B9\u02BC\u02CA])? ?([WE])\W/i,
 
       dms2: /\W([NS])\.? ?(\d+) ?([\*°ººo\u02DA ]) ?(\d+) ?([ ´\u0027\u02B9\u02BC\u02CA]) ?(\d+[\.|,]\d+|\d+) ?([ ""´\u02BA\u02EE\u0027\u02B9\u02BC\u02CA])([´\u0027\u02B9\u02BC\u02CA])?[\.,;]? ?([WE])\.? ?(\d+) ?([\*°ººo\u02DA ]) ?(\d+) ?([ \u0027´\u02B9\u02BC\u02CA]) ?(\d+[\.|,]\d+|\d+) ?([ ""´\u02BA\u02EE\u0027\u02B9\u02BC\u02CA])?([´\u0027\u02B9\u02BC\u02CA])?/i,
 
@@ -188,6 +212,11 @@ To add a new (discovered) symbol:
             else
               retval = 1
           end
+          named                      = REGEXP_COORD[kee].match(lable)
+          trials[kee_string][:piece] = named[0]
+          trials[kee_string][:lat]   = named[:lat]
+          trials[kee_string][:long]  = named[:long]
+          named
         end
         trials[kee_string][:method] = "text, #{kee_string}"
       }
