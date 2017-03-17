@@ -287,7 +287,7 @@ describe 'Geo', group: :geo do
                       :long   => "88°11'43.3\"W",
                       :method => "( )"}
           },
-        "  S42°5'18.1\" W88o11'43.3\""                                                                                                                    =>
+        "  S42°5'18.1\" W88o11'43.3\"" =>
           {"DD1A" => {:method => "text, DD1A"},
            "DD1B" => {:method => "text, DD1B"},
            "DD2"  => {:method => "text, DD2"},
@@ -312,7 +312,7 @@ describe 'Geo', group: :geo do
                       :long   => "W88o11'43.3\"",
                       :method => "( )"}
           },
-        "  S42o5.18' W88°11.43'"                                                                                                                          =>
+        "  S42o5.18' W88°11,43'"       =>
           {"DD1A" => {:method => "text, DD1A"},
            "DD1B" => {:method => "text, DD1B"},
            "DD2"  => {:method => "text, DD2"},
