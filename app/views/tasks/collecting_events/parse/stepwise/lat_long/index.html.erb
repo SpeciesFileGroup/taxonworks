@@ -7,7 +7,7 @@
       id:  <%= link_to(@collecting_event.id, collecting_event_path(@collecting_event), target: :_blank) %>
       <%#= parse_lat_long_skip_link(@collecting_event.id) %>
       <%= collecting_event_label_tag(@collecting_event.verbatim_label) %>
-      <%= hidden_field_tag(:collecting_event_id) %>
+      <%= hidden_field_tag(:collecting_event_id, @collecting_event.id) %>
     </div>
 
     <div class="item item2">
@@ -68,14 +68,18 @@
 
           <%= submit_tag('Save', id: 'lat_long_update_record') %><br>
           <%= check_box_tag(:generate_georeference) %> Also create Georeference?
-      <% end %><br>
-      <div id="matching_events" class="item item2">
-        <h1>Identical matches (<span id="match_count">#</span>)</h1>
-        <%= check_box_tag(:include_values) %>Include already set values
-        <span id="matching_span">
+          <div id="matching_events" class="item item2">
+            <h1>Identical matches (<span id="match_count">#</span>)</h1>
+            <%#= form_for(lat_long_similar_labels_path) do %>
+            <%= check_box_tag(:include_values) %>Include already set values
+            <%= button_tag('Select all', value: 'select_all') %>
+            <%= button_tag('Save', value: 'save_selected') %>
+            <%#= end %>
+            <span id="matching_span">
           <%#= make_matching_table([0, 0], [@collecting_event]) %>
         </span>
-      </div>
+          </div>
+      <% end %><br>
     </div>
   </div>
 </div>

@@ -45,7 +45,8 @@ module Queries
         # attach 'verbatim_label ~ ' to each regex
         regex_function(kee)
       end.join(' OR ')
-      Arel.sql("(#{all_filters})")
+      # remove the names from the named groups
+      Arel.sql("(#{all_filters.gsub('?<lat>', '').gsub('?<long>', '')})")
       # start with the first scope
       # scopes      = function(filter_keys.shift)
       # filter_keys.each do |filter|

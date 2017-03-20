@@ -64,10 +64,13 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
     piece               = collecting_event_params[:piece]
     collecting_event_id = collecting_event_params[:collecting_event_id]
     include_values      = (collecting_event_params[:include_values].nil?) ? false : true
-    sql_1               = "verbatim_label LIKE '%#{sql_fix(lat)}%' or verbatim_label LIKE '%#{sql_fix(long)}%'"
-    sql_2               = "verbatim_label LIKE '%#{sql_fix(piece)}%'"
-    selected_items      = CollectingEvent.where(sql_1).where.not(id: collecting_event_id) +
-      CollectingEvent.where(sql_2).where.not(id: collecting_event_id)
+    sql_1          = "(verbatim_label LIKE '%#{sql_fix(lat)}%' or verbatim_label LIKE '%#{sql_fix(long)}%'"
+    sql_1          += " or verbatim_label LIKE '%#{sql_fix(piece)}%')"
+    sql_1          += ' and (verbatim_latitude is null or verbatim_longitude is null)' unless include_values
+    selected_items = CollectingEvent.where(sql_1)
+                       .with_project_id(sessions_current_project_id)
+                       .where.not(id: collecting_event_id).distinct
+
     retval[:count]      = selected_items.count.to_s
     retval[:table]      = render_to_string(partial: 'matching_table',
                                            locals:  {
