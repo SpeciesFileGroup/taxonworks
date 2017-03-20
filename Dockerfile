@@ -68,9 +68,5 @@ CMD ["rails", "s"]
 # Edit /etc/nginx/nginx.conf and uncomment passenger_root and passenger_ruby. 
 # sudo service nginx restart
 
-[text](link){data-otu_id: URI, b: 2}
-
-the [head](uri) (purl//) is purple
-the [head|hd]
 
 
