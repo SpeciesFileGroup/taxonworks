@@ -35,7 +35,7 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
       when 'skip'
       else
         if current_collecting_event.update_attributes(collecting_event_params)
-          collecting_event.generate_verbatim_data_georeference(true) if generate_georeference?
+          current_collecting_event.generate_verbatim_data_georeference(true) if generate_georeference?
           flash['notice'] = 'Updated.'
         else
           flash['alert'] = 'Failed to update the collecting event.'
@@ -58,26 +58,30 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
   end
 
   def similar_labels
-    retval              = {}
-    lat                 = collecting_event_params[:lat]
-    long                = collecting_event_params[:long]
-    piece               = collecting_event_params[:piece]
-    collecting_event_id = collecting_event_params[:collecting_event_id]
-    include_values      = (collecting_event_params[:include_values].nil?) ? false : true
-    sql_1          = "(verbatim_label LIKE '%#{sql_fix(lat)}%' or verbatim_label LIKE '%#{sql_fix(long)}%'"
-    sql_1          += " or verbatim_label LIKE '%#{sql_fix(piece)}%')"
+    retval         = {}
+    lat            = collecting_event_params[:lat]
+    long           = collecting_event_params[:long]
+    piece          = collecting_event_params[:piece]
+    # collecting_event_id = collecting_event_params[:collecting_event_id]
+    include_values = (collecting_event_params[:include_values].nil?) ? false : true
+    sql_1          = '('
+    sql_1          += "verbatim_label LIKE '%#{sql_fix(lat)}%'" unless lat.blank?
+    sql_1          += " or verbatim_label LIKE '%#{sql_fix(long)}%'" unless long.blank?
+    sql_1          += " or verbatim_label LIKE '%#{sql_fix(piece)}%'" unless piece.blank?
+    sql_1          += ')'
     sql_1          += ' and (verbatim_latitude is null or verbatim_longitude is null)' unless include_values
     selected_items = CollectingEvent.where(sql_1)
                        .with_project_id(sessions_current_project_id)
-                       .where.not(id: collecting_event_id).distinct
+                       .order(:id)
+                       .where.not(id: params[:collecting_event_id]).distinct
 
-    retval[:count]      = selected_items.count.to_s
-    retval[:table]      = render_to_string(partial: 'matching_table',
-                                           locals:  {
-                                             lat:            lat,
-                                             long:           long,
-                                             selected_items: selected_items
-                                           }) #([lat, long], selected_items)
+    retval[:count] = selected_items.count.to_s
+    retval[:table] = render_to_string(partial: 'matching_table',
+                                      locals:  {
+                                        lat:            lat,
+                                        long:           long,
+                                        selected_items: selected_items
+                                      }) #([lat, long], selected_items)
     render(json: retval)
   end
 
@@ -89,18 +93,18 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
 
   def collecting_event_id_param
     begin
-      this_id = params.require(:collecting_event_id)
+      params.require(:collecting_event_id)
+    rescue ActionController::ParameterMissing
+      # nothing provided, get the first possible one
+      # return CollectingEvent.with_project_id(sessions_current_project_id).order(:id).limit(1).pluck(:id)[0]
       return Queries::CollectingEventLatLongExtractorQuery.new(
-        collecting_event_id: this_id,
+        collecting_event_id: nil,
         filters:             parse_filters(params))
                .all
                .with_project_id(sessions_current_project_id)
                .order(:id)
                .limit(1)
                .pluck(:id)[0]
-    rescue ActionController::ParameterMissing
-      # nothing provided, get the first possible one
-      return CollectingEvent.with_project_id(sessions_current_project_id).order(:id).limit(1).pluck(:id)[0]
     end
   end
 
@@ -109,7 +113,12 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
     filters = parse_filters(params)
     Queries::CollectingEventLatLongExtractorQuery.new(
       collecting_event_id: collecting_event_id_param,
-      filters:             filters).all.with_project_id(sessions_current_project_id).first.id
+      filters:             filters)
+      .all
+      .with_project_id(sessions_current_project_id)
+      .order(:id)
+      .limit(1)
+      .pluck(:id)[0]
   end
 
   def current_collecting_event
@@ -117,11 +126,11 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
   end
 
   def collecting_event_params
-    params.permit(:include_values, :collecting_event_id, :verbatim_latitude, :verbatim_longitude, :piece, :lat, :long)
+    params.permit(:include_values, :verbatim_latitude, :verbatim_longitude, :piece, :lat, :long)
   end
 
   def generate_georeference?
-    !params[:generate_georeference].blank?
+    params[:generate_georeference].blank? ? false : true
   end
 
 end
