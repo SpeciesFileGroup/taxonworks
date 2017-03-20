@@ -5,13 +5,16 @@ services:
     volumes: # mount root directory from this machine to the container itself (live development, e.g. Rails sees changes to files without rebuilding container0
       - .:/app
     ports: 
-      - "0.0.0.0:9292:9292" # local:docker
+      - "0.0.0.0:3000:3000" # local:docker
         #    env_file: 
         #- "config/env.sh"
     links:
       - db
     command:
-       - rackup
+       - rails
+       - server
+       - "--binding"
+       - "0.0.0.0"
   db:
     image: mdillon/postgis:9.5
     ports: 
