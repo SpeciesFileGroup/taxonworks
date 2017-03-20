@@ -19,6 +19,7 @@ namespace :tw do
           get_nomenclator_string = import.get('SFNomenclatorIDToSFNomenclatorString')
           get_cvt_id = import.get('CvtProjUriID')
           get_containing_source_id = import.get('TWSourceIDToContainingSourceID') # use to determine if taxon_name_author must be created (orig desc only)
+          get_sf_taxon_name_authors = import.get('SFRefIDToTaxonNameAuthors') # contains ordered array of SF.PeopleIDs
 
           path = @args[:data_directory] + 'tblCites.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
@@ -97,6 +98,46 @@ SF.RefID #{row['RefID']} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}
               citation.update(metadata.merge(pages: cite_pages))
               logger.info "Citation found: citation.id = #{citation.id}, taxon_name_id = #{taxon_name_id}, cite_pages = '#{cite_pages}' (cite_found_counter = #{cite_found_counter += 1}"
               if get_containing_source_id.has_key?(source_id) # create taxon_name_author
+
+                # loop through taxon_name_author array associated with SF.RefID (contained Refs only)
+
+                ##==================================
+
+                # file.each_with_index do |row, i|
+                #   source_id = get_tw_source_id[row['RefID']]
+                #   next if source_id.nil?
+                #   # Reloop if TW.source record is verbatim
+                #   # next if Source.find(source_id).try(:class) == Source::Verbatim # << Hernán's, Source.find(source_id).type == 'Source::Verbatim'
+                #   next if Source.where(id: source_id).pluck(:type)[0] == 'Source::Verbatim' # faster per Matt
+                #   next if get_containing_source_id.has_key?(source_id) # is contained_source
+                #
+                #   print "working with SF.RefID = #{row['RefID']}, TW.source_id = #{source_id}, position = #{row['SeqNum']} \n"
+                #
+                #   role = Role.new(
+                #       person_id: get_tw_person_id[row['PersonID']],
+                #       type: 'SourceAuthor',
+                #       role_object_id: source_id,
+                #       role_object_type: 'Source',
+                #       # position: row['SeqNum'],
+                #       # project_id: project_id,   # don't use for SourceAuthor or SourceEditor
+                #       created_at: row['CreatedOn'],
+                #       updated_at: row['LastUpdate'],
+                #       created_by_id: get_tw_user_id[row['CreatedBy']],
+                #       updated_by_id: get_tw_user_id[row['ModifiedBy']]
+                #   )
+                #
+                #   if role.save
+                #     is_editor = source_editor_array.include?(source_id)
+
+
+                    ##==================================
+
+                # [3/20/17, 5:02:33 PM] diapriid no: your_hash.keys.each do |k|
+                #   [3/20/17, 5:02:39 PM] diapriid no: k.each do |v|
+                #     [3/20/17, 5:02:52 PM] diapriid no: v # is your ID
+                #     [3/20/17, 5:02:54 PM] diapriid no: end
+                #   [3/20/17, 5:02:54 PM] diapriid no: end
+
 
               end
 
@@ -219,7 +260,7 @@ SF.RefID #{row['RefID']} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}
           end
         end
 
-        desc 'time rake tw:project_import:sf_import:cites:create_sf_taxon_authors user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        desc 'time rake tw:project_import:sf_import:cites:create_sf_taxon_name_authors user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         LoggedTask.define :create_sf_taxon_name_authors => [:data_directory, :environment, :user_id] do |logger|
 
           logger.info 'Running create_sf_taxon_name_authors...'
@@ -229,12 +270,13 @@ SF.RefID #{row['RefID']} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}
           path = @args[:data_directory] + 'sfRefsPeople.txt'
           file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
+          counter = 0
           previous_ref_id = ''
 
           file.each_with_index do |row, i|
             ref_id = row['RefID']
 
-            logger.info "working with (contained) RefID #{ref_id}"
+            logger.info "working with (contained) RefID #{ref_id} (counter #{counter += 1})"
 
             if ref_id == previous_ref_id # this is the same RefID as last row, add another author
               get_sf_taxon_name_authors[ref_id].push(row['PersonID'])
