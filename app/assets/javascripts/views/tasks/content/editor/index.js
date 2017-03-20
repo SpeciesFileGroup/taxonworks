@@ -346,7 +346,6 @@ Object.assign(TW.views.tasks.content.editor, {
         return {
           autosave: 0,
           firstInput: true,
-          unsave: false,
           citationModal: false,
           currentSourceID: '',
           newRecord: true,
@@ -391,7 +390,7 @@ Object.assign(TW.views.tasks.content.editor, {
                     </div> \
                   </div> \
                   <div class="flex-separate menu-content-editor"> \
-                    <div class="item flex-wrap-column middle menu-item" @click="update" :class="{ saving : unsave }"><span data-icon="savedb" class="big-icon"></span><span class="tiny_space">Save</span></div> \
+                    <div class="item flex-wrap-column middle menu-item" @click="update" :class="{ saving : autosave != null }"><span data-icon="savedb" class="big-icon"></span><span class="tiny_space">Save</span></div> \
                     <clone-content class="item menu-item"></clone-content> \
                     <compare-content class="item menu-item"></compare-content> \
                     <div class="item flex-wrap-column middle menu-item"><span data-icon="citation" class="big-icon"></span><span class="tiny_space">Citation</span></div> \
@@ -494,14 +493,16 @@ Object.assign(TW.views.tasks.content.editor, {
           else {
             this.autoSave();
           }
-        },      
+        },
+        resetAutoSave: function() {
+          clearTimeout(this.autosave);
+          this.autosave = null          
+        },  
 
         autoSave: function() {
           var that = this;
-          this.unsave = true;
           if(this.autosave) {
-            clearTimeout(this.autosave);
-            this.autosave = null
+            this.resetAutoSave();
           }   
           this.autosave = setTimeout( function() {    
             that.update();  
@@ -509,20 +510,20 @@ Object.assign(TW.views.tasks.content.editor, {
         },    
 
         update: function() {
+          this.resetAutoSave()
+
           if ((this.disabled) || (this.record.content.text == "")) return
           var ajaxUrl = `/contents/${this.record.content.id}`;
 
           if(this.record.content.id == '') {
             this.$http.post(ajaxUrl, this.record).then(response => {
               this.record.content.id = response.body.id;
-              this.unsave = false;
               this.$store.commit('addToRecentContents', response.body);
              });            
           }
           else {
             this.$http.patch(ajaxUrl, this.record).then(response => {
               this.$store.commit('addToRecentContents', response.body);
-              this.unsave = false;
              });
           }          
         },
@@ -545,6 +546,7 @@ Object.assign(TW.views.tasks.content.editor, {
             ajaxUrl = `/contents/filter.json?otu_id=${this.otu.id}&topic_id=${this.topic.id}`
           
           this.firstInput = true;
+          this.resetAutoSave();
           this.$http.get(ajaxUrl).then(response => {      
             if(response.body.length > 0) {
               this.record.content.id = response.body[0].id;
