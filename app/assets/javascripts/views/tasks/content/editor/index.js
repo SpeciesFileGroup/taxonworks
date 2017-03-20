@@ -49,15 +49,9 @@ Object.assign(TW.views.tasks.content.editor, {
         getCitationsList(state) {
           return state.citations;
         },
-        getRecentContents(state) {
-          return state.recent.contents;
-        },
-        getRecentTopics(state) {
-          return state.recent.topics;
-        },
-        getRecentOtus(state) {
-          return state.recent.otus;
-        },
+        getRecent: (state) => (items) => {
+          return state.recent[items];
+        },        
       },
       mutations: {
         removeCitation(state, index) {
@@ -137,63 +131,31 @@ Object.assign(TW.views.tasks.content.editor, {
       }
     });
 
-    Vue.component('recent', {
-      //TODO: Separate each recent list into a generic component
+    Vue.component('recent-list', {
+      props: ['ajaxUrl','setItems', 'select', 'getItems', 'title'],
       computed: {
-        recentContents() {
-          return this.$store.getters.getRecentContents
-        },
-        recentTopics() {
-          return this.$store.getters.getRecentTopics
-        },
-        recentOtus() {
-          return this.$store.getters.getRecentOtus
-        }                
-      },      
-      template: '<div id="recent-list" class="slide-panel slide-recent" data-panel-position="relative" data-panel-open="false" data-panel-name="recent_list"> \
-                  <div class="slide-panel-header">Recent list</div> \
-                  <div class="slide-panel-content"> \
-                    <div> \
-                      <div class="slide-panel-category-header">Contents</div> \
-                      <ul class="slide-panel-category-content"> \
-                        <li v-for="item in recentContents" @click="save(\'setContentSelected\', item)" class="slide-panel-category-item"><span v-html="item.object_tag"></span></li> \
-                      </ul> \
-                    </div> \
-                    <div> \
-                      <div class="slide-panel-category-header">Topics</div> \
-                      <ul class="slide-panel-category-content"> \
-                        <li v-for="item in recentTopics" @click="save(\'setTopicSelected\', item)"  class="slide-panel-category-item"><span v-html="item.object_tag"></span></li> \
-                      </ul> \
-                    </div> \
-                    <div> \
-                      <div class="slide-panel-category-header">OTUs</div> \
-                      <ul class="slide-panel-category-content"> \
-                        <li v-for="item in recentOtus" @click="save(\'setOtuSelected\', item)" class="slide-panel-category-item"><span v-html="item.object_tag"></span></li> \
-                      </ul> \
-                    </div> \
-                  </div> \
-                  <div class="slide-panel-circle-icon"> \
-                    <div class="slide-panel-description">Recent created</div> \
-                  </div> \
+        items() {
+          return this.$store.getters.getRecent(this.getItems);
+        }
+      },
+      template: '<div> \
+                  <div class="slide-panel-category-header">{{ title }}</div> \
+                  <ul class="slide-panel-category-content"> \
+                    <li v-for="item in items" @click="save(select, item)" class="slide-panel-category-item"><span v-html="item.object_tag"></span></li> \
+                  </ul> \
                 </div>',
       mounted: function() {
-        this.$http.get("/contents.json").then(response => {
-          this.$store.commit('setRecentContents', response.body);
+        this.$http.get(this.ajaxUrl).then(response => {
+          this.$store.commit(this.setItems, response.body);
         });
-        this.$http.get("/tasks/content/editor/recent_topics.json?").then(response => {
-          this.$store.commit('setRecentTopics', response.body);
-        });
-        this.$http.get("/tasks/content/editor/recent_otus.json").then(response => {
-          this.$store.commit('setRecentOtus', response.body);
-        });                                    
-      },
+      },                
       methods: {
         save: function(saveMethod, item) {
           this.$store.commit(saveMethod, item);
           this.$store.commit('openOtuPanel', true);
         },        
-      }
-    });      
+      }                
+    });  
 
     Vue.component('clone-content', {
       template: '<div> \
@@ -319,7 +281,7 @@ Object.assign(TW.views.tasks.content.editor, {
           if (this.disabled) return
 
           var that = this;
-          ajaxUrl = `/otus/${this.otu.id}/citations.json?topic=${this.topic.id}`
+          ajaxUrl = `/otus/${this.otu.id}/citations.json?topic_id=${this.topic.id}`
 
           this.$http.get(ajaxUrl).then( response => {
             that.contents = response.body;
@@ -328,18 +290,6 @@ Object.assign(TW.views.tasks.content.editor, {
         },
       }
     });
-
-    Vue.component('preview-content', {
-      template: '<div v-html="compiledMarkdown"> \
-                </div>',
-      props: ['text'],
-      computed: {
-        compiledMarkdown: function() {
-          return marked(this.text, { sanitize: true })
-        }
-      },
-    })
-
 
     Vue.component('content-editor', {
       data: function() { 
@@ -390,7 +340,7 @@ Object.assign(TW.views.tasks.content.editor, {
                     </div> \
                   </div> \
                   <div class="flex-separate menu-content-editor"> \
-                    <div class="item flex-wrap-column middle menu-item" @click="update" :class="{ saving : autosave != null }"><span data-icon="savedb" class="big-icon"></span><span class="tiny_space">Save</span></div> \
+                    <div class="item flex-wrap-column middle menu-item" @click="update" :class="{ saving : autosave }"><span data-icon="savedb" class="big-icon"></span><span class="tiny_space">Save</span></div> \
                     <clone-content class="item menu-item"></clone-content> \
                     <compare-content class="item menu-item"></compare-content> \
                     <div class="item flex-wrap-column middle menu-item"><span data-icon="citation" class="big-icon"></span><span class="tiny_space">Citation</span></div> \
