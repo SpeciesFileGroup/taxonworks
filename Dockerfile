@@ -2,13 +2,16 @@ FROM ubuntu:16.04
 MAINTAINER Matt Yoder
 ENV LAST_FULL_REBUILD 2017-03-19
 
+# postgis* postgresql # Check star
+
 RUN apt-get update && \
     apt-get install -y software-properties-common && \ 
-    apt-get install -y  git gcc nodejs build-essential libffi-dev libgdbm-dev libncurses5-dev libreadline-dev libssl-dev libyaml-dev zlib1g-dev libcurl4-openssl-dev  && \
-    apt-get install -y libpq-dev libproj-dev libgeos-dev libgeos++-dev postgis* postgresql && \
+    apt-get install -y git gcc nodejs build-essential libffi-dev libgdbm-dev libncurses5-dev libreadline-dev libssl-dev libyaml-dev zlib1g-dev libcurl4-openssl-dev  && \
     apt-get install -y pkg-config imagemagick libmagickcore-dev libmagickwand-dev  && \
     apt-get install -y tesseract-ocr && \
-    apt-get install -y cmake 
+    apt-get install -y cmake   
+
+RUN apt-get install -y libpq-dev libproj-dev libgeos-dev libgeos++-dev 
 
 RUN apt-add-repository ppa:brightbox/ruby-ng && \
     apt-get update && \
@@ -39,24 +42,27 @@ RUN gem install bundler && \
     mkdir /app
 
 # COPY config/docker/files/nginx-sites.conf /etc/nginx/sites-enabled/default
-
-
 # COPY config/docker/files/supervisord.conf /etc/supercisor/conf.d/supervisord.conf
 
+# CMD are executed in /app
 WORKDIR /app
 
 ENV BUNDLE_APP_CONFIG $GEM_HOME
 
 # At this point /app is empty
 COPY Gemfile /app/
+COPY Gemfile /app/
 COPY Gemfile.lock /app/
 RUN bundle install  
 
+# 
 COPY . /app
 # TODO: make a variable
 # RUN bundle exec rake assets:precompile RAILS_ENV=development
 
-CMD ["rails", "server"]
+CMD ["rails", "server"] # there is only one
+
+# CMD rackup
 
 # sudo chown root: /etc/apt/sources.list.d/passenger.list
 # sudo chmod 655 /etc/apt/sources.list.d/passenger.list

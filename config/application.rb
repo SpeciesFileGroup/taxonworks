@@ -60,6 +60,9 @@ module TaxonWorks
     end
 
 
+    # debug
+    config.logger = Logger.new(STDOUT)
+#    config.logger = Log4r::Logger.new('Application Log')
 
   end
 end
