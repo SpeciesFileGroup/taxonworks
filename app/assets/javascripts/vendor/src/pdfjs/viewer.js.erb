@@ -204,7 +204,6 @@ Object.assign(TW.views.shared.slideout.pdf, {
     });
 
     $("body").on("dblclick", "textarea, input", function() {
-      alert();
       if(viewerActive()) {
         $(this).val(insertStringInPosition($(this).val(),that.textCopy, cursorPosition));
       }
