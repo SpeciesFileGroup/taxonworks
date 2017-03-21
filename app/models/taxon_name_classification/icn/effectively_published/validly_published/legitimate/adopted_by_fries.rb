@@ -1,4 +1,4 @@
-class TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Legitimate::AdoptedByFries < TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Legitimate
+class TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Legitimate::OfficialList < TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Legitimate
 
   NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000021'
 
