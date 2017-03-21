@@ -1,0 +1,34 @@
+
+<h1> Cite OTUs </h1> 
+
+<%= form_for(@citation, remote: true, data: {type: :json}  ) do |f| %>
+
+  <%= f.hidden_field :citation_object_type, value: 'Otu' -%>
+
+  <%= render '/otus/otu_picker', 
+    otu: @citation.citation_object, 
+    f: f, 
+    field_name: 'citation_object_id', 
+    object_method: 'citation_object' %>
+
+  <%= f.label :source -%><br>
+    <%= render(
+    'workbench/elements/forms/ajax_select', 
+    controller: '/sources',
+    related_object: @citation.source,
+    object: 'citation',
+    method: 'source_id',
+    tag_id: 'source_id_for_citation',
+    size: '50%',
+    display: source_tag(@citation.source)) 
+  %>
+
+<br/>
+
+<% Topic.order(:name).where(project_id: sessions_current_project_id).each do |t| %>
+   <%= check_box_tag('citation[citation_topics_attributes][topic_id][]', t.id ) %> <%= label_tag t.name -%> <br >
+<% end %>
+
+  <%= submit_tag -%>
+
+<% end %>

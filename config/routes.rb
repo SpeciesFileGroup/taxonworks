@@ -416,6 +416,12 @@ TaxonWorks::Application.routes.draw do
   ### End of resources except user related located below scopes ###
 
   scope :tasks do
+    scope :citations do
+      scope :otus, controller: 'tasks/citations/otus' do
+        get 'index', as: 'cite_otus_task_task'
+      end
+    end
+
     scope :content do
       scope :editor, controller: 'tasks/content/editor' do
         get 'index', as: 'index_editor_task'
