@@ -126,15 +126,23 @@ Object.assign(TW.views.tasks.content.editor, {
     });
     Vue.component('select-topic-otu', {
       template: '<div> \
-                  <div @click="showModal = true" class="item flex-wrap-column middle"><span data-icon="clone" class="big-icon"></span><span class="tiny_space">Select</span></div> \
+                  <button @click="showModal = true" class="button normal-input button-default">Select</button> \
                   <modal v-if="showModal" id="clone-modal"> \
-                    <h3 slot="header">Content editor</h3> \
+                    <h3 slot="header">Select</h3> \
                     <div slot="body"> \
-                      <ul class="no_bullets"> \
-                        <li><label @click="closeAll(), topicPanel()"><h3><input type="radio" name="selectmodal" value="male">Select Topic</h3></label></li> \
-                        <li><label @click="closeAll(), otuPanel()"><h3><input type="radio" name="selectmodal" value="male">Select OTU</h3></label></li> \
-                        <li><label @click="closeAll(), recentPanel()"><h3><input type="radio" name="selectmodal" value="male">Select Recent</h3></label></li> \
-                      </ul> \
+                    <div class="flex-wrap-column"> \
+                            <button @click="closeAll(), topicPanel()" class="button normal-input button-default">\
+                              <span v-if="topic">Change Topic</span> \
+                              <span v-else>Topic</span> \
+                            </button> \
+                          <button @click="closeAll(), otuPanel()" class="button normal-input button-default separate-top"> \
+                              <span v-if="otu">Change OTU</span> \
+                              <span v-else>OTU</span> \
+                          </button> \
+                          <button @click="closeAll(), recentPanel()" class="button normal-input button-default separate-top"> \
+                              <span>Recent</span> \
+                          </button> \
+                    </div> \
                     </div> \
                     <div slot="footer" class="flex-separate"> \
                       <button class="button button-close normal-input" @click="closeAll(), showModal = false">Close</button> \
@@ -290,7 +298,10 @@ Object.assign(TW.views.tasks.content.editor, {
       computed: {
         topic() {
             return this.$store.getters.getTopicSelected
-        }
+        },
+        disabled() {
+          return (this.$store.getters.getTopicSelected == undefined || this.$store.getters.getOtuSelected == undefined)
+        }        
       },
       methods: {      
         loadContent: function() {
@@ -327,7 +338,10 @@ Object.assign(TW.views.tasks.content.editor, {
         },
         topic() {
           return this.$store.getters.getTopicSelected
-        }        
+        },
+        disabled() {
+          return (this.$store.getters.getTopicSelected == undefined || this.$store.getters.getOtuSelected == undefined)
+        },              
       },
       data: function() {
         return {
@@ -389,7 +403,7 @@ Object.assign(TW.views.tasks.content.editor, {
       template: '<div class="panel" id="panel-editor"> \
                   <div class="flexbox"> \
                     <div class="left"> \
-                      <div class="title"><span><span v-if="topic">{{ topic.name }}</span> - <span v-if="otu" v-html="otu.object_tag"></span></span></div> \
+                      <div class="title"><span><span v-if="topic">{{ topic.name }}</span> - <span v-if="otu" v-html="otu.object_tag"></span></span> <select-topic-otu></select-topic-otu></div> \
                       <div v-if="disabled" class="CodeMirror cm-s-paper CodeMirror-wrap"></div> \
                       <markdown-editor v-else class="edit-content" v-model="record.content.text" :configs="config" @input="handleInput" ref="contentText" v-on:dblclick.native="addCitation()"></markdown-editor> \
                     </div> \
@@ -399,13 +413,12 @@ Object.assign(TW.views.tasks.content.editor, {
                       <div class="compare" @mouseup="copyCompareContent">{{ compareContent.text }}</div> \
                     </div> \
                   </div> \
-                  <div class="flex-separate menu-content-editor"> \
+                  <div  class="flex-separate menu-content-editor"> \
                     <div class="item flex-wrap-column middle menu-item" @click="update" :class="{ saving : autosave }"><span data-icon="savedb" class="big-icon"></span><span class="tiny_space">Save</span></div> \
                     <clone-content class="item menu-item"></clone-content> \
                     <compare-content class="item menu-item"></compare-content> \
                     <div class="item flex-wrap-column middle menu-item"><span data-icon="citation" class="big-icon"></span><span class="tiny_space">Citation</span></div> \
                     <citation-otu class="item menu-item"></citation-otu> \
-                    <select-topic-otu class="item menu-item"></select-topic-otu> \
                     <div class="item flex-wrap-column middle menu-item"><span data-icon="new" class="big-icon"></span><span class="tiny_space">Figure</span></div> \
                     <div class="item flex-wrap-column middle menu-item"><span data-icon="image" class="big-icon"></span><span class="tiny_space">Drag new figure</span></div> \
                   </div> \
