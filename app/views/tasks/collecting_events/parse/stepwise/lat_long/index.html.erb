@@ -11,7 +11,7 @@
     </div>
 
     <div class="item item2">
-      <%= form_tag(lat_long_update_record_path(collecting_event_id: @collecting_event.id), id: 'lat_long_convert_form') do %>
+      <%= form_tag(lat_long_update_record_path(collecting_event_id: @collecting_event.id), id: 'lat_long_convert_form', remote: true) do %>
           <%= parse_lat_long_skip(@collecting_event.id, @filters) %>
           <table border="1">
             <tbody>
@@ -65,19 +65,18 @@
             </tr>
             </tbody>
           </table>
-
-          <%= submit_tag('Save', id: 'lat_long_update_record') %><br>
+          <%= button_tag('Save this one', value: 'save_one', id: 'lat_long_update_record') %><br>
           <%= check_box_tag(:generate_georeference) %> Also create Georeference?
+          <div id="matching_events" class="item item2">
+            <h1>Identical matches (<span id="match_count">#</span>)</h1>
+            <%= check_box_tag(:include_values) %>Include already set values
+            <%= button_tag('Select all', value: 'select_all', id: 'select_all') %>
+            <%= button_tag('Save matches', value: 'save_selected', id: 'save_selected') %>
+            <span id="matching_span"></span>
+          </div>
       <% end %><br>
-      <div id="matching_events" class="item item2">
-        <h1>Identical matches (<span id="match_count">#</span>)</h1>
-        <%#= form_tag(lat_long_similar_labels_path) do %>
-        <%= check_box_tag(:include_values) %>Include already set values
-        <%= button_tag('Select all', value: 'select_all') %>
-        <%= button_tag('Save', value: 'save_selected') %>
-        <span id="matching_span"></span>
-        <%#= end %>
-      </div>
+      <%= form_tag(lat_long_process_similar_path, remote: true) do %>
+      <% end %>
     </div>
   </div>
 </div>

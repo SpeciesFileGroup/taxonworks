@@ -31,21 +31,47 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
 
   # both  the Skip and the Show buttons come here, so we first have to look at the button value
   def update
+    prevention = ['39605', '103244', '57187', '103255']
+    success    = false
+    message    = 'Failed to update '
     case params['button']
       when 'skip'
-      else
-        if current_collecting_event.update_attributes(collecting_event_params)
-          current_collecting_event.generate_verbatim_data_georeference(true) if generate_georeference?
-          flash['notice'] = 'Updated.'
-        else
-          flash['alert'] = 'Failed to update the collecting event.'
-          redirect_to collecting_event_lat_long_task_path(collecting_event_id: current_collecting_event.id) and return
+        redirect_to collecting_event_lat_long_task_path(collecting_event_id: next_collecting_event_id,
+                                                        filters:             parse_filters(params)) and return
+      when 'save_selected'
+        selected = params[:selected]
+        unless selected.blank?
+          selected.each { |item_id|
+            ce = CollectingEvent.find(item_id)
+            unless ce.nil?
+              unless prevention.include?(params[:collecting_event_id])
+                if ce.update_attributes(collecting_event_params)
+                  ce.generate_verbatim_data_georeference(true) if generate_georeference?
+                  success = true
+                else
+                  message += 'one or more of the collecting events.'
+                end
+              end
+            end
+          }
         end
-
+      when 'save_one'
+        unless prevention.include?(params[:collecting_event_id])
+          if current_collecting_event.update_attributes(collecting_event_params)
+            current_collecting_event.generate_verbatim_data_georeference(true) if generate_georeference?
+            success = true
+          else
+            message += 'the collecting event.'
+          end
+        end
     end
-    # TODO: pass in next as determined in view
-    redirect_to collecting_event_lat_long_task_path(collecting_event_id: next_collecting_event_id,
-                                                    filters:             parse_filters(params))
+
+    if success
+      flash['notice'] = 'Updated.'
+    else
+      flash['alert'] = message
+      redirect_to collecting_event_lat_long_task_path(collecting_event_id: current_collecting_event.id)
+    end
   end
 
   def convert
@@ -86,6 +112,7 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
   end
 
   protected
+
   def sql_fix(item)
     retval = item.gsub("'", "''")
     retval
@@ -123,6 +150,19 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
 
   def current_collecting_event
     CollectingEvent.find(collecting_event_id_param)
+  end
+
+  def process_params
+    params.permit(:matched_ids, :button, :matched_latitude, :matched_longitude, selected: [])
+  end
+
+  def matched_params
+    retval = {
+      verbatim_latitude:     process_params[:matched_latitude],
+      verbatim_longitude:    process_params[:matched_longitude],
+      generate_georeference: process_params[:match_gen_georeference]
+    }
+    retval
   end
 
   def collecting_event_params

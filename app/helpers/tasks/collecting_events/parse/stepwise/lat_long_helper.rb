@@ -21,7 +21,7 @@ module Tasks::CollectingEvents::Parse::Stepwise::LatLongHelper
     box_row = ""
     list.keys.each { |kee|
       checked = filters.include?(kee)
-      box_row += content_tag(:td, check_box_tag("filters[]", kee.to_s, checked))
+      box_row += content_tag(:td, check_box_tag("filters[]", kee.to_s, checked), align: 'center')
     }
     box_row.html_safe
   end
@@ -47,12 +47,12 @@ module Tasks::CollectingEvents::Parse::Stepwise::LatLongHelper
       method = trial.delete(:method)
       next if trial.blank?
       content_tag(:tr, class: :extract_row) do
-        content_tag(:td, method) +
+        content_tag(:td, method, align: 'center') +
           # content_tag(:td, kee == method ? '' : kee) +
-          content_tag(:td, trial[:piece], class: :piece_value) +
-          content_tag(:td, trial[:lat], class: :latitude_value) +
-          content_tag(:td, trial[:long], class: :longitude_value) +
-          content_tag(:td, radio_button_tag('select', dex, false, class: :select_lat_long))
+          content_tag(:td, trial[:piece], class: :piece_value, align: 'center') +
+          content_tag(:td, trial[:lat], class: :latitude_value, align: 'center') +
+          content_tag(:td, trial[:long], class: :longitude_value, align: 'center') +
+          content_tag(:td, radio_button_tag('select', dex, false, class: :select_lat_long), align: 'center')
       end
     end.join.html_safe
     # tests.keys.each { |kee|
@@ -77,6 +77,7 @@ module Tasks::CollectingEvents::Parse::Stepwise::LatLongHelper
       collection.collect { |item|
         content_tag (:tr) do
           item_data = ''
+          georef = false
           columns.collect.with_index { |column, dex|
             case dex
               when 0 #'CEID'
@@ -88,15 +89,21 @@ module Tasks::CollectingEvents::Parse::Stepwise::LatLongHelper
               when 3 #'Verbatim Long'
                 item_data = item.verbatim_longitude
               when 4 #'Decimal lat'
-                item_data = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(item.verbatim_latitude)
+                item_data = item.latitude
               when 5 #'Decimal long'
-                item_data = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(item.verbatim_longitude)
+                item_data = item.longitude
               when 6 #'Is georeferenced?'
-                item_data = item.georeferences.any? ? 'yes' : 'no'
+                if item.georeferences.any?
+                  item_data = 'yes'
+                  georef    = true
+                else
+                  item_data = 'no'
+                end
               when 7 #'Select'
-                item_data = check_box_tag("disabled[]", item.id, false)
+                # check_box_tag(name, value = "1", checked = false, options = {}) public
+                item_data = check_box_tag("selected[]", item.id, false, {disabled: georef})
             end
-            concat content_tag(:td, item_data)
+            concat content_tag(:td, item_data, align: 'center')
           }.to_s.html_safe
           # item.attributes.collect { |column|
           #   concat content_tag(:td, item.attributes[column])

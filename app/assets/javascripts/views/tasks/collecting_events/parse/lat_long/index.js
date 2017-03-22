@@ -30,6 +30,16 @@ Object.assign(TW.views.tasks.collecting_events.parse, {
     //  })
   },
   
+  bind_similar_buttons: function () {
+    $('#disable_all').click(function (event) {
+      // find all the checkboxes in the 'matching_span' and set them to 'checked'
+      event.preventDefault();
+    });
+    $('#save_selected').click(function (event) {
+      // don't know exactly what to do here
+    })
+  },
+  
   bind_radio_buttons: function () {
     $('.select_lat_long').click(function () {
       // selector not working
@@ -52,7 +62,11 @@ Object.assign(TW.views.tasks.collecting_events.parse, {
       $.get('similar_labels', params, function (local_data) {
         $("#match_count").text(local_data.count);
         $("#matching_span").html(local_data.table);
-      })
+        $("#matched_latitude").val(lat);
+        $("#matched_longitude").val(long);
+        $("#match_gen_georeference").val($("#generate_georeference").serialize());
+        TW.views.tasks.collecting_events.parse.bind_similar_buttons();
+      });
     });
   }
   
