@@ -1012,11 +1012,11 @@ class CollectingEvent < ActiveRecord::Base
   end
 
   def latitude
-    verbatim_map_center.try(:x)
+    map_center.try(:x)
   end
 
   def longitude
-    verbatim_map_center.try(:y)
+    map_center.try(:y)
   end
 
   # @return [Hash]
