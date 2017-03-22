@@ -12,6 +12,10 @@ ICZN_TAXON_NAME_CLASSIFICATION_NAMES  = TaxonNameClassification::Iczn.descendant
 # Array of all ICN TaxonNameClassifications classes, as Strings
 ICN_TAXON_NAME_CLASSIFICATION_NAMES = TaxonNameClassification::Icn.descendants.collect{|d| d.to_s}.freeze
 
+# Array of all ICNB TaxonNameClassifications classes, as Strings
+ICNB_TAXON_NAME_CLASSIFICATION_NAMES = TaxonNameClassification::Icnb.descendants.collect{|d| d.to_s}.freeze
+
+
 TAXON_NAME_CLASSIFICATION_GENDER_CLASSES = TaxonNameClassification::Latinized::Gender.descendants.freeze
 
 ICZN_TAXON_NAME_CLASSIFICATION_HASH = (ICZN_TAXON_NAME_CLASSIFICATION_NAMES + LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES).inject({}) {
@@ -22,8 +26,12 @@ ICN_TAXON_NAME_CLASSIFICATION_HASH = (ICN_TAXON_NAME_CLASSIFICATION_NAMES + LATI
   |hsh, klass| hsh.merge(klass.constantize.name => klass)
 }.freeze
 
+ICNB_TAXON_NAME_CLASSIFICATION_HASH = (ICNB_TAXON_NAME_CLASSIFICATION_NAMES + LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES).inject({}) {
+    |hsh, klass| hsh.merge(klass.constantize.name => klass)
+}.freeze
+
 # Array of all TaxonNameClassifications classes, as Strings
-TAXON_NAME_CLASSIFICATION_NAMES = (ICN_TAXON_NAME_CLASSIFICATION_NAMES + ICZN_TAXON_NAME_CLASSIFICATION_NAMES + LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES).freeze
+TAXON_NAME_CLASSIFICATION_NAMES = (ICN_TAXON_NAME_CLASSIFICATION_NAMES + ICNB_TAXON_NAME_CLASSIFICATION_NAMES + ICZN_TAXON_NAME_CLASSIFICATION_NAMES + LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES).freeze
 
 # Array of all Unavailable and Invalid TaxonNameClassifications classes, as Strings
 TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID = [
@@ -36,14 +44,22 @@ TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID = [
   TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished,
   TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished.descendants,
   TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Illegitimate,
-  TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Illegitimate.descendants
+  TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Illegitimate.descendants,
+  TaxonNameClassification::Icnb::NotEffectivelyPublished,
+  TaxonNameClassification::Icnb::NotEffectivelyPublished.descendants,
+  TaxonNameClassification::Icnb::EffectivelyPublished::InvalidlyPublished,
+  TaxonNameClassification::Icnb::EffectivelyPublished::InvalidlyPublished.descendants,
+  TaxonNameClassification::Icnb::EffectivelyPublished::ValidlyPublished::Illegitimate,
+  TaxonNameClassification::Icnb::EffectivelyPublished::ValidlyPublished::Illegitimate.descendants,
 ].flatten.map(&:to_s).freeze
 
 TAXON_NAME_CLASS_NAMES_VALID = [
     TaxonNameClassification::Iczn::Available::Valid,
     TaxonNameClassification::Iczn::Available::Valid.descendants,
     TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Legitimate::Correct,
-    TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Legitimate::Correct.descendants
+    TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Legitimate::Correct.descendants,
+    TaxonNameClassification::Icnb::EffectivelyPublished::ValidlyPublished::Legitimate::Correct,
+    TaxonNameClassification::Icnb::EffectivelyPublished::ValidlyPublished::Legitimate::Correct.descendants
 ].flatten.map(&:to_s).freeze
 
 

@@ -72,7 +72,6 @@ namespace :tw do
         end
 
         def initialize()
-
           @import = Import.find_or_create_by(name: 'UCD IMPORT')
 
           LOOKUPS.each do |l|
@@ -134,6 +133,8 @@ namespace :tw do
         @data = ImportedDataUcd.new
 
         handle_projects_and_users_ucd
+        #$user_id = 1
+        #$project_id = 1
 
         handle_countries_ucd
         handle_collections_ucd
@@ -226,7 +227,7 @@ namespace :tw do
       def handle_fgnames_ucd
         handle = 'handle_fgnames_ucd'
         print "\nHandling FGNAMES "
-        
+
         if !@data.done?(handle)
           puts 'as new'
           #FamCode
@@ -1476,7 +1477,7 @@ namespace :tw do
           page = row['PageRef'].blank? ? nil : row['PageRef']
           if !ref.nil? && !taxon.nil?
             c = taxon.citations.find_or_create_by(source_id: ref, pages: page)
-            c.citation_topics.find_or_create_by(topic: @data.topics[row['Keyword']], project_id: $project_id) unless row['Keywords'].blank?
+            c.citation_topics.find_or_create_by(topic: @data.topics[row['Keyword']], project_id: $project_id) unless row['Keyword'].blank?
             c.notes.find_or_create_by(text: row['Notes'].gsub('|','_')) unless row['Notes'].blank?
           end
         end

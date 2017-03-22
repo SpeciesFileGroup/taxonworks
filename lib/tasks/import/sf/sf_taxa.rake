@@ -7,6 +7,10 @@ namespace :tw do
 
         desc 'time rake tw:project_import:sf_import:taxa:create_status_flag_relationships user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         #  real	~1 hour, 62.5 minutes, 256 errors (a little > 234 before today's changes)
+        # 15 March 2017
+        # real	75m28.781s
+        # user	57m35.616s
+        # sys	2m26.810s
 
         LoggedTask.define :create_status_flag_relationships => [:data_directory, :environment, :user_id] do |logger|
 
@@ -692,6 +696,17 @@ namespace :tw do
         desc 'time rake tw:project_import:sf_import:taxa:create_all_sf_taxa_pass1 user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         LoggedTask.define :create_all_sf_taxa_pass1 => [:data_directory, :environment, :user_id] do |logger|
 
+          # real	310m28.726s
+          # user	207m23.957s
+          # sys	6m50.530s
+
+          # [INFO]2017-03-15 15:43:39.366: Logged task tw:project_import:sf_import:taxa:create_all_sf_taxa_pass1 completed!
+          # [INFO]2017-03-15 15:43:39.367: All tasks completed. Dumping summary for each task...
+          # === Summary of warnings and errors for task tw:project_import:sf_import:taxa:create_all_sf_taxa_pass1 ===
+          #     [ERROR]2017-03-15 13:11:40.264: TaxonName ERROR (1) AFTER synonym test (SF.TaxonNameID = 1225991, parent_id = 68332): Parent The parent rank (subspecies) is not higher than subspecies
+          # [ERROR]2017-03-15 13:20:22.621: TaxonName ERROR (2) AFTER synonym test (SF.TaxonNameID = 1170406, parent_id = 71920): Parent The parent rank (subspecies) is not higher than subspecies
+
+
           logger.info 'Creating all SF taxa (pass 1)...'
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
@@ -708,7 +723,7 @@ namespace :tw do
           get_sf_name_status = {} # key = SF.TaxonNameID, value = SF.NameStatus
           get_sf_status_flags = {} # key = SF.TaxonNameID, value = SF.StatusFlags
           get_tw_otu_id = {} # key = SF.TaxonNameID, value = TW.otu.id; used for temporary or bad valid SF taxa
-          get_taxon_name_otu_id = {}  # key = TW.TaxonName.id, value TW.OTU.id just created for newly added taxon_name
+          get_taxon_name_otu_id = {} # key = TW.TaxonName.id, value TW.OTU.id just created for newly added taxon_name
 
           project_id = 1 # default value, will be updated before keyword is used
           keyword = Keyword.find_or_create_by(
@@ -849,11 +864,11 @@ namespace :tw do
 
               begin
                 taxon_name.save!
-                # logger.info "taxon_name.id = #{taxon_name.id}"
-              #  get_tw_taxon_name_id[row['TaxonNameID']] = taxon_name.id.to_s
-              #  get_sf_name_status[row['TaxonNameID']] = name_status
-              #  get_sf_status_flags[row['TaxonNameID']] = status_flags
-              #  get_taxon_name_otu_id[taxon_name.id.to_s] = taxon_name.otus.last.id.to_s
+                  # logger.info "taxon_name.id = #{taxon_name.id}"
+                  #  get_tw_taxon_name_id[row['TaxonNameID']] = taxon_name.id.to_s
+                  #  get_sf_name_status[row['TaxonNameID']] = name_status
+                  #  get_sf_status_flags[row['TaxonNameID']] = status_flags
+                  #  get_taxon_name_otu_id[taxon_name.id.to_s] = taxon_name.otus.last.id.to_s
 
                   # if one of anticipated import errors, add classification, then try to save again...
               rescue ActiveRecord::RecordInvalid
