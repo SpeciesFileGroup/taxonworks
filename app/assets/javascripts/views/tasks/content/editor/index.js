@@ -145,7 +145,7 @@ Object.assign(TW.views.tasks.content.editor, {
                     </div> \
                     </div> \
                     <div slot="footer" class="flex-separate"> \
-                      <button class="button button-close normal-input" @click="closeAll(), showModal = false">Close</button> \
+                      <button v-if="topic && otu" class="button button-close normal-input" @click="closeAll(), showModal = false">Close</button> \
                     </div> \
                   </modal> \
                 </div>',
