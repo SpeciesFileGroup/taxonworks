@@ -1,6 +1,13 @@
 class TopicsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
+  # get /topics.json
+  def index
+    @controlled_vocabulary_terms = Topic.order(:name).where(project_id: sessions_current_project_id).all
+    render '/controlled_vocabulary_terms/index'
+  end
+
+  # TODO: deprecate for index?  List should be paginated.
   def list
     topics = Topic.order(:name).where(project_id: sessions_current_project_id).all
 
