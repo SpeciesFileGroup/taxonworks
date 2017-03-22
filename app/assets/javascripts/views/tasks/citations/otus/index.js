@@ -36,8 +36,7 @@ Object.assign(TW.views.tasks.citations.otus, {
           return state.citations
         },
         objectsSelected(state) {
-          alert('here');
-          if (this.getOtusSelected && this.getSourceSelected) {
+          if (state.selected.otu == undefined || state.selected.source == undefined) {
             return true
           }
             else {
@@ -62,12 +61,6 @@ Object.assign(TW.views.tasks.citations.otus, {
           state.citations = list;
         }
       },
-
-      methods: {
-        setTopic: function(topic) {
-          console.log(topic);
-        }
-      } 
     });
 
     Vue.component('otu-picker', {
@@ -130,9 +123,12 @@ Object.assign(TW.views.tasks.citations.otus, {
       computed: {
         items() {
           return this.$store.getters.getTopicsList
+        },
+        disabled() {
+          return this.$store.getters.objectsSelected
         }
       },
-      template: '<div> Topics \
+      template: '<div v-if="!disabled"> Topics \
         <ul > \
           <li v-for="item in items"><topic-checkbox v-bind:topic=item> </topic-checkbox> </li> \
         </ul> \
@@ -140,10 +136,24 @@ Object.assign(TW.views.tasks.citations.otus, {
     });
 
     Vue.component('topic-checkbox', {
+      template: '<div> \
+                  <input v-model="checked" type="checkbox" value="999" v-on:click="setTopic()" :disabled="disable"> \
+                    <span>{{ topic.name }}</span> | checked: {{checked}} \
+                </div>',
+                
+      computed: {
+        disable() {
+          return this.$store.getters.objectsSelected;
+        } 
+      },
+      props: {
+        topic: {
+          type: Object
+        } 
+      },
       data: function() { 
         return {
           checked: false,
-          disabled: true 
         }
       },
 
@@ -157,20 +167,6 @@ Object.assign(TW.views.tasks.citations.otus, {
           }
         }); 
       },
-
-      computed: {
-        disable() {
-          return this.$store.getters.objectsSelected;
-        } 
-      },
-
-      props: {
-        topic: {
-          type: Object
-        } 
-      },
-
-      template: '<div><input v-model="checked" type="checkbox" value="999" v-on:click="setTopic()" :disabled="disable ? false : true"><span>{{ topic.name }}</span> | checked: {{checked}}</div>'
     });
 
     var foo = new Vue({
