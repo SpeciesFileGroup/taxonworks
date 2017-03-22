@@ -19,7 +19,7 @@ namespace :tw do
           get_nomenclator_string = import.get('SFNomenclatorIDToSFNomenclatorString')
           get_cvt_id = import.get('CvtProjUriID')
           get_containing_source_id = import.get('TWSourceIDToContainingSourceID') # use to determine if taxon_name_author must be created (orig desc only)
-          get_sf_taxon_name_authors = import.get('SFRefIDToTaxonNameAuthors') # contains ordered array of SF.PeopleIDs
+          get_sf_taxon_name_authors = import.get('SFRefIDToTaxonNameAuthors') # contains ordered array of SF.PersonIDs
 
           path = @args[:data_directory] + 'tblCites.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
@@ -46,12 +46,13 @@ namespace :tw do
             end
 
             project_id = TaxonName.find(taxon_name_id).project_id.to_s # forced to string for hash value
-            source_id = get_tw_source_id[row['RefID']].to_i
+            sf_ref_id = row['RefID']
+            source_id = get_tw_source_id[sf_ref_id].to_i
 
             next if source_id == 0
 
             logger.info "Working with TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id},
-SF.RefID #{row['RefID']} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (count #{count_found += 1}) \n"
+SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (count #{count_found += 1}) \n"
 
             cite_pages = row['CitePages']
 
@@ -97,48 +98,24 @@ SF.RefID #{row['RefID']} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}
               # citation.update_column(:pages, cite_pages) # update pages to cite_pages
               citation.update(metadata.merge(pages: cite_pages))
               logger.info "Citation found: citation.id = #{citation.id}, taxon_name_id = #{taxon_name_id}, cite_pages = '#{cite_pages}' (cite_found_counter = #{cite_found_counter += 1}"
-              if get_containing_source_id.has_key?(source_id) # create taxon_name_author
 
-                # loop through taxon_name_author array associated with SF.RefID (contained Refs only)
+              if get_containing_source_id.has_key?(source_id) # create taxon_name_author role for contained Refs only
 
-                ##==================================
+                 get_sf_taxon_name_authors[sf_ref_id].each do |sf_person_id|   # person_id from author_array
 
-                # file.each_with_index do |row, i|
-                #   source_id = get_tw_source_id[row['RefID']]
-                #   next if source_id.nil?
-                #   # Reloop if TW.source record is verbatim
-                #   # next if Source.find(source_id).try(:class) == Source::Verbatim # << Hernán's, Source.find(source_id).type == 'Source::Verbatim'
-                #   next if Source.where(id: source_id).pluck(:type)[0] == 'Source::Verbatim' # faster per Matt
-                #   next if get_containing_source_id.has_key?(source_id) # is contained_source
-                #
-                #   print "working with SF.RefID = #{row['RefID']}, TW.source_id = #{source_id}, position = #{row['SeqNum']} \n"
-                #
-                #   role = Role.new(
-                #       person_id: get_tw_person_id[row['PersonID']],
-                #       type: 'SourceAuthor',
-                #       role_object_id: source_id,
-                #       role_object_type: 'Source',
-                #       # position: row['SeqNum'],
-                #       # project_id: project_id,   # don't use for SourceAuthor or SourceEditor
-                #       created_at: row['CreatedOn'],
-                #       updated_at: row['LastUpdate'],
-                #       created_by_id: get_tw_user_id[row['CreatedBy']],
-                #       updated_by_id: get_tw_user_id[row['ModifiedBy']]
-                #   )
-                #
-                #   if role.save
-                #     is_editor = source_editor_array.include?(source_id)
-
-
-                    ##==================================
-
-                # [3/20/17, 5:02:33 PM] diapriid no: your_hash.keys.each do |k|
-                #   [3/20/17, 5:02:39 PM] diapriid no: k.each do |v|
-                #     [3/20/17, 5:02:52 PM] diapriid no: v # is your ID
-                #     [3/20/17, 5:02:54 PM] diapriid no: end
-                #   [3/20/17, 5:02:54 PM] diapriid no: end
-
-
+                    role = Role.create!(
+                        person_id: get_tw_person_id[sf_person_id],
+                        type: 'TaxonNameAuthor',
+                        role_object_id: source_id,
+                        role_object_type: 'Source',
+                        # position: row['SeqNum'],
+                        # project_id: project_id,   # don't use for roles
+                        # created_at: row['CreatedOn'],
+                        # updated_at: row['LastUpdate'],
+                        # created_by_id: get_tw_user_id[row['CreatedBy']],
+                        # updated_by_id: get_tw_user_id[row['ModifiedBy']]
+                    )
+                end
               end
 
             else # create new citation
@@ -149,7 +126,6 @@ SF.RefID #{row['RefID']} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}
                       is_original: (row['SeqNum'] == '1' ? true : false),
                       citation_object_type: 'TaxonName',
                       citation_object_id: taxon_name_id,
-
 
                       # housekeeping for citation
                       project_id: project_id,
