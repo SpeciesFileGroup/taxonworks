@@ -1,7 +1,7 @@
 <!-- Rough struture- seems like make id="" could be turned into components -->
 
 <div id="content_editor">
-
+  
   <panel-top class="horizontal-center-content"></panel-top>
   <div class="flex-separate" id="panels-content">
     <topic-section class="item item1 column-tiny"></topic-section>
@@ -16,10 +16,7 @@
         <recent-list ajax-url="/contents.json" get-items="contents" select="setContentSelected" set-items="setRecentContents" title="Contents" ></recent-list> 
         <recent-list ajax-url="/tasks/content/editor/recent_topics.json" select="setTopicSelected" get-items="topics" set-items="setRecentTopics" title="Topics" ></recent-list> 
         <recent-list ajax-url="/tasks/content/editor/recent_otus.json" select="setOtuSelected" get-items="otus" set-items="setRecentOtus" title="OTUs" ></recent-list> 
-      </div> 
-      <div class="slide-panel-circle-icon"> 
-        <div class="slide-panel-description">Recent created</div> 
-      </div> 
+      </div>  
     </div>    
   </div>
 </div>

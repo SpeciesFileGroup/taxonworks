@@ -85,12 +85,6 @@ Object.assign(TW.views.tasks.content.editor, {
         openOtuPanel(state, value) {
           state.panels.otu = value;
         },
-        openTopicPanel(state, value) {
-          state.panels.topic = value;
-        },     
-        openRecentPanel(state, value) {
-          state.panels.recent = value;
-        },
         addToRecentTopics(state, item) {
           state.recent.topics.unshift(item);
         },
@@ -130,6 +124,72 @@ Object.assign(TW.views.tasks.content.editor, {
         }
       }
     });
+    Vue.component('select-topic-otu', {
+      template: '<div> \
+                  <div @click="showModal = true" class="item flex-wrap-column middle"><span data-icon="clone" class="big-icon"></span><span class="tiny_space">Select</span></div> \
+                  <modal v-if="showModal" id="clone-modal"> \
+                    <h3 slot="header">Content editor</h3> \
+                    <div slot="body"> \
+                      <ul class="no_bullets"> \
+                        <li><label @click="closeAll(), topicPanel()"><h3><input type="radio" name="selectmodal" value="male">Select Topic</h3></label></li> \
+                        <li><label @click="closeAll(), otuPanel()"><h3><input type="radio" name="selectmodal" value="male">Select OTU</h3></label></li> \
+                        <li><label @click="closeAll(), recentPanel()"><h3><input type="radio" name="selectmodal" value="male">Select Recent</h3></label></li> \
+                      </ul> \
+                    </div> \
+                    <div slot="footer" class="flex-separate"> \
+                      <button class="button button-close normal-input" @click="closeAll(), showModal = false">Close</button> \
+                    </div> \
+                  </modal> \
+                </div>',
+      data: function() {
+        return {
+          showModal: true,
+          selectedPanel: '',
+        }
+      },
+      computed: {
+        topic() {
+          return this.$store.getters.getTopicSelected
+        },
+        otu() {
+          return this.$store.getters.getOtuSelected
+        }        
+      },
+      watch: {
+        topic: function(val, oldVal) {
+          if(val !== oldVal) {
+            if(this.otu) {
+              this.showModal = false;
+            }
+          }
+          this.closeAll();          
+        },
+        otu: function(val, oldVal) {
+          if(val !== oldVal) {            
+            if(this.topic) {
+              this.showModal = false;
+            }
+          }          
+          this.closeAll();
+        }
+      },
+      methods: {
+        closeAll: function() {
+          TW.views.shared.slideout.closeSlideoutPanel('[data-panel-name="recent_list"]');
+          TW.views.shared.slideout.closeSlideoutPanel('[data-panel-name="topic_list"]');
+          this.$store.commit('openOtuPanel', false);
+        },
+        topicPanel: function() {
+          TW.views.shared.slideout.openSlideoutPanel('[data-panel-name="topic_list"]');
+        },
+        recentPanel: function() {
+          TW.views.shared.slideout.openSlideoutPanel('[data-panel-name="recent_list"]');          
+        },
+        otuPanel: function() {
+          this.$store.commit('openOtuPanel', true);         
+        }        
+      }
+    });
 
     Vue.component('recent-list', {
       props: ['ajaxUrl','setItems', 'select', 'getItems', 'title'],
@@ -152,7 +212,6 @@ Object.assign(TW.views.tasks.content.editor, {
       methods: {
         save: function(saveMethod, item) {
           this.$store.commit(saveMethod, item);
-          this.$store.commit('openOtuPanel', true);
         },        
       }                
     });  
@@ -327,11 +386,12 @@ Object.assign(TW.views.tasks.content.editor, {
           return (this.topic == undefined || this.otu == undefined)
         }         
       },      
-      template: '<div v-if="topic !== undefined || otu !== undefined" class="panel" id="panel-editor"> \
+      template: '<div class="panel" id="panel-editor"> \
                   <div class="flexbox"> \
                     <div class="left"> \
                       <div class="title"><span><span v-if="topic">{{ topic.name }}</span> - <span v-if="otu" v-html="otu.object_tag"></span></span></div> \
-                      <markdown-editor class="edit-content" v-model="record.content.text" :configs="config" @input="handleInput" ref="contentText" v-on:dblclick.native="addCitation()"></markdown-editor> \
+                      <div v-if="disabled" class="CodeMirror cm-s-paper CodeMirror-wrap"></div> \
+                      <markdown-editor v-else class="edit-content" v-model="record.content.text" :configs="config" @input="handleInput" ref="contentText" v-on:dblclick.native="addCitation()"></markdown-editor> \
                     </div> \
                     <div v-if="compareContent && !preview" class="right"> \
                       <div class="title"><span><span>{{ compareContent.topic.object_tag }}</span> - <span v-html="compareContent.otu.object_tag"></span></span></div> \
@@ -345,6 +405,7 @@ Object.assign(TW.views.tasks.content.editor, {
                     <compare-content class="item menu-item"></compare-content> \
                     <div class="item flex-wrap-column middle menu-item"><span data-icon="citation" class="big-icon"></span><span class="tiny_space">Citation</span></div> \
                     <citation-otu class="item menu-item"></citation-otu> \
+                    <select-topic-otu class="item menu-item"></select-topic-otu> \
                     <div class="item flex-wrap-column middle menu-item"><span data-icon="new" class="big-icon"></span><span class="tiny_space">Figure</span></div> \
                     <div class="item flex-wrap-column middle menu-item"><span data-icon="image" class="big-icon"></span><span class="tiny_space">Drag new figure</span></div> \
                   </div> \
@@ -456,7 +517,7 @@ Object.assign(TW.views.tasks.content.editor, {
           }   
           this.autosave = setTimeout( function() {    
             that.update();  
-          }, 5000);           
+          }, 3000);           
         },    
 
         update: function() {
@@ -569,7 +630,7 @@ Object.assign(TW.views.tasks.content.editor, {
     }); 
 
     Vue.component('topic-section', {
-      template: '<div id="topics" class="slide-panel slide-left slide-recent" data-panel-position="relative" v-if="active" data-panel-open="false" data-panel-name="topic_list"> \
+      template: '<div id="topics" class="slide-panel slide-left slide-recent" data-panel-position="relative" v-if="active" data-panel-open="true" data-panel-name="topic_list"> \
                   <div class="slide-panel-header flex-separate">Topic list<new-topic></new-topic></div> \
                   <div class="slide-panel-content"> \
                     <div class="slide-panel-category"> \
@@ -577,9 +638,6 @@ Object.assign(TW.views.tasks.content.editor, {
                         <li v-for="item, index in topics" class="slide-panel-category-item" :class="{ selected : (index == selected) }"v-on:click="loadTopic(item,index)"> {{ item.name }}</li> \
                       </ul> \
                     </div> \
-                  </div> \
-                  <div class="slide-panel-circle-icon"> \
-                    <div class="slide-panel-description">Topic list</div> \
                   </div> \
                 </div>', 
       data: function() { 
@@ -594,14 +652,13 @@ Object.assign(TW.views.tasks.content.editor, {
         }
       },
       mounted: function() {
-        TW.views.shared.slideout.closeHideSlideoutPanel('[data-panel-name="recent_list"]');
+        //TW.views.shared.slideout.closeHideSlideoutPanel('[data-panel-name="recent_list"]');
         this.loadList();
       },
       methods: {
         loadTopic: function(item, index) {
           this.selected = index
           this.$store.commit('setTopicSelected', item);
-          this.$store.commit('openOtuPanel', true);
           TW.views.shared.slideout.closeHideSlideoutPanel('[data-panel-name="topic_list"]');
         },       
         loadList: function() {

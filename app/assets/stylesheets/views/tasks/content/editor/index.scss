@@ -128,6 +128,8 @@
 	}
 
 	#otu_panel {
+		position: relative;
+		z-index: 2000 !important;
 		margin-top: $standard_margin;
 		margin-right: $standard_margin * -1;
 		margin-left: $standard_margin;
@@ -135,8 +137,8 @@
 	.slide-panel {
 		top:0px;
 		max-width: 300px;
-		min-width: 300px;
-		position: relative;
+		min-width: 300px;		
+		//position: relative;
 		.slide-panel-header {
 			font-weight: 500;
 			color: #42b983;
@@ -149,6 +151,7 @@
 		}			
 	}
 	#topics {
+		left:-300px;
 		.selected {
 			background-color: $color-complement-2;
 		}

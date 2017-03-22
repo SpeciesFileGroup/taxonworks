@@ -25,48 +25,61 @@ Object.assign(TW.views.shared.slideout, {
 	},
 
 	closeHideSlideoutPanel: function(panel) {
-			if($(panel).attr('data-panel-position') == 'relative') {
-				$(panel).css('position','absolute');
+			this.closeSlideoutPanel(panel);	
+			this.openSlideoutPanel(panel);
+	},
+	closeSlideoutPanel: function(panel) {
+		if($(panel).hasClass("slide-left")) {
+			$(panel).css("right", "");		
+			if($(panel).css('left') == '0px') {
+				$(panel).attr('data-panel-open','false');
+				$(panel).css('z-index',"1000");					
+				$(panel).animate({left: "-" + $(panel).css("width")}, 500, function() {
+					$(panel).css('position','fixed');
+				});			
 			}
-			if($(panel).hasClass("slide-left")){
-				$(panel).css("right", "");		
-				if($(panel).css('left') == '0px') {
-					$(panel).attr('data-panel-open','false');
-					$(panel).animate({left: "-" + $(panel).css("width")}, 500, function() {
-						$(panel).css('position','fixed');
-					});
-					$(panel).css('z-index',"1000");					
-				}
-				else {
-					$(panel).attr('data-panel-open','true');
-					$(panel).animate({left: "0px"}, 500, function() {
-						$(panel).css('position','relative');
-					});
-					$(panel).css('z-index',"1100");
-				}
-			}
-			else {
-				$(panel).css("left", "");		
-				if($(panel).css('right') == '0px') {
-					$(panel).attr('data-panel-open','false');
-					$(panel).animate({right: "-" + $(panel).css("width")}, 500, function() {
-						if($(panel).attr('data-panel-position') == 'relative') {
-							$(panel).css('position','fixed');
-						}
-					});
-					$(panel).css('z-index',"1000");
-				}
-				else {
-					$(panel).attr('data-panel-open','true');
-					$(panel).animate({right: "0px"}, 500, function() {
-						if($(panel).attr('data-panel-position') == 'relative') {
-							$(panel).css('position','relative');
-						}
-					});
-					$(panel).css('z-index',"1100");
-				}
-			}		
 		}
+		else {
+			$(panel).css("left", "");		
+			if($(panel).css('right') == '0px') {
+				$(panel).attr('data-panel-open','false');
+				$(panel).css('z-index',"1000");						
+				$(panel).animate({right: "-" + $(panel).css("width")}, 500, function() {
+					$(panel).css('position','fixed');
+				});
+			}
+		}
+	},
+	openSlideoutPanel: function(panel) {
+		if($(panel).hasClass("slide-left")){
+			$(panel).css("right", "");		
+			if($(panel).css('left') != '0px') {
+		if($(panel).attr('data-panel-position') == 'relative') {
+			$(panel).css('position','absolute');
+		}				
+				$(panel).attr('data-panel-open','true');
+				$(panel).animate({left: "0px"}, 500, function() {
+					$(panel).css('position','relative');
+				});
+				$(panel).css('z-index',"1100");
+			}
+		}
+		else {
+			$(panel).css("left", "");		
+			if($(panel).css('right') != '0px') {
+		if($(panel).attr('data-panel-position') == 'relative') {
+			$(panel).css('position','absolute');
+		}				
+				$(panel).attr('data-panel-open','true');
+				$(panel).animate({right: "0px"}, 500, function() {
+					if($(panel).attr('data-panel-position') == 'relative') {
+						$(panel).css('position','relative');
+					}
+				});
+				$(panel).css('z-index',"1100");
+			}
+		}		
+	}				
 });
 
 $(document).ready(function() {
