@@ -13,9 +13,20 @@ class CitationsController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @citations = Citation.where(project_id: sessions_current_project_id).where(filter_params)
+        @citations = Citation.where(project_id: sessions_current_project_id).where(shallow_filter_params)
       }
     end
+  end
+
+  # GET filter(/citation_object_type/:citation_object_type)(/citation_object_id/:citation_object_id)(/source_id/:source_id)
+  # JSON only
+  def filter
+    @citations = Citation.where(filter_params)
+    render '/citations/index'
+  end
+
+  def filter_params
+    params.permit(:citation_object_type, :citation_object_id, :source_id).merge(project_id: sessions_current_project_id)
   end
 
   def new
@@ -105,8 +116,8 @@ class CitationsController < ApplicationController
 
   private
 
-  def filter_params
-    # we should only ever get here from a shallow resource
+  def shallow_filter_params
+    # !! We should only ever get here from a shallow resource
     h = params.permit(
       :content_id,
       :otu_id
