@@ -3,7 +3,7 @@ json.url citation_url(citation, format: :json)
 json.object_tag citation_tag(citation)
 
 json.citation_topics do |ct|
-  ct.array! citation.citation_topics.collect{|b| b.topic}, partial: '/controlled_vocabulary_terms/attributes', as: :controlled_vocabulary_term
+  ct.array! citation.citation_topics, partial: '/citation_topics/attributes', as: :citation_topic
 end
 
 json.source do
