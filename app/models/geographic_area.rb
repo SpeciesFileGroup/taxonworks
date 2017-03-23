@@ -373,7 +373,7 @@ class GeographicArea < ActiveRecord::Base
   # @params [text] 
   #   one result set per line (\r\n)
   #   lines can have child:parent:parent name patterns
-  def self.matching(text, has_shape = false)
+  def self.matching(text, has_shape = false, invert = false)
     if text.nil? || text.length == 0
       return Hash.new('No query provided!' => []) 
     end
@@ -383,7 +383,9 @@ class GeographicArea < ActiveRecord::Base
     result = {} 
     queries = text.split("\n")
     queries.each do |q|
-      names = q.strip.split(':').collect{|s| s.strip}
+      names = q.strip.split(':')
+      names.reverse! if invert 
+      names.collect{|s| s.strip}
       r = GeographicArea.with_name_and_parent_names(names)
       r = r.joins(:geographic_items) if has_shape
       result[q] = r 
