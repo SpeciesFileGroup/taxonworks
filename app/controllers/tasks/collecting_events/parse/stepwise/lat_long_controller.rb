@@ -119,20 +119,22 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
   end
 
   def collecting_event_id_param
+    retval = nil
     begin
-      params.require(:collecting_event_id)
+      retval = params.require(:collecting_event_id)
     rescue ActionController::ParameterMissing
       # nothing provided, get the first possible one
       # return CollectingEvent.with_project_id(sessions_current_project_id).order(:id).limit(1).pluck(:id)[0]
-      return Queries::CollectingEventLatLongExtractorQuery.new(
+      retval = Queries::CollectingEventLatLongExtractorQuery.new(
         collecting_event_id: nil,
         filters:             parse_filters(params))
-               .all
-               .with_project_id(sessions_current_project_id)
-               .order(:id)
-               .limit(1)
-               .pluck(:id)[0]
+                 .all
+                 .with_project_id(sessions_current_project_id)
+                 .order(:id)
+                 .limit(1)
+                 .pluck(:id)[0]
     end
+    retval
   end
 
   # TODO: deprecate for valud from view/helper
@@ -149,7 +151,12 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
   end
 
   def current_collecting_event
-    CollectingEvent.find(collecting_event_id_param)
+    finding = collecting_event_id_param
+    if finding.nil?
+      CollectingEvent.first
+    else
+      CollectingEvent.find(finding)
+    end
   end
 
   def process_params
@@ -172,5 +179,4 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
   def generate_georeference?
     params[:generate_georeference].blank? ? false : true
   end
-
 end

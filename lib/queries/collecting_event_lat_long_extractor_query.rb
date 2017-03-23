@@ -123,7 +123,5 @@ module Queries
     # .project(table[:id], table[:verbatim_label])
     # .where(Arel.sql("verbatim_label ~ " + filter))
     # end
-
   end
-
 end
