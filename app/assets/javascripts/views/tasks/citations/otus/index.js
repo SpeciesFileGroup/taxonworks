@@ -112,15 +112,15 @@ Object.assign(TW.views.tasks.citations.otus, {
 
     Vue.component('source-picker', {
       template: '<div id="source_panel"> Source: <br>\
-        <autocomplete \
-      url="/sources/autocomplete" \
-      min="3" \
-      param="term" \
-      placeholder="Find source" \
-      event-send="source_picker" \
-      label="label"> \
-        </autocomplete> \
-        </div>',
+                  <autocomplete \
+                    url="/sources/autocomplete" \
+                    min="3" \
+                    param="term" \
+                    placeholder="Find source" \
+                    event-send="source_picker" \
+                    label="label"> \
+                  </autocomplete> \
+                </div>',
       mounted: function() {
         var that = this;
         this.$on('source_picker', function (item) {
@@ -135,15 +135,6 @@ Object.assign(TW.views.tasks.citations.otus, {
       computed: {
         items() {
           return this.$store.getters.getCitationsList
-        },
-        otu() {
-          return this.$store.getters.getOtuSelected
-        },
-        source() {
-          return this.$store.getters.getSourceSelected
-        },        
-        disabled() {
-          return this.$store.getters.objectsSelected
         }
       },
 
@@ -153,59 +144,6 @@ Object.assign(TW.views.tasks.citations.otus, {
                   </ul> \
                 </div>',
 
-      watch: {
-        otu: function(val, oldVal) {
-          if (val !== oldVal) { 
-            if(!this.disabled) {
-              this.loadCitations()
-            }
-           }
-        },
-        source: function(val, oldVal) {
-          if (val !== oldVal) { 
-            if(!this.disabled) {
-              this.loadCitations()
-            }
-           }
-        }
-      },
-
-      created: function() {
-        this.loadCitations();
-      },                
-
-      methods: {
-        loadCitations: function() {
-        var that = this,
-            filterUrl = `/citations/filter?source_id=${that.$store.getters.getSourceSelected.id}&citation_object_type=Otu&citation_object_id=${that.$store.getters.getOtuSelected.id}`;
-console.log(filterUrl);
-        this.$http.get('/otus/' + that.$store.getters.getOtuSelected + '/citations').then(response => {
-          that.$store.commit('setCitationsList', response.body);
-        }); 
-
-        this.$http.get(filterUrl).then(response => {
-          if(response.body.length) {
-            that.$store.commit('setCurrentCitation', response.body[0]);
-            that.$store.commit('addCitation', response.body[0]);
-            that.$store.commit('setTopicsSelected', response.body[0].citation_topics);            
-          }
-          else {
-            var citation = {
-
-              citation_object_type: 'Otu',  
-              citation_object_id: that.$store.getters.getOtuSelected.id,          
-              source_id: that.$store.getters.getSourceSelected.id            
-            }
-
-            this.$http.post('/citations', citation).then( response => {
-              that.$store.commit('setCurrentCitation', response.body);
-              that.$store.commit('addCitation', response.body);
-              that.$store.commit('setTopicsSelected', response.body.citation_topics); 
-            })            
-          }
-        });            
-        }
-      }
     });
 
     Vue.component('topics-checklist', {
@@ -255,7 +193,6 @@ console.log(filterUrl);
 
       watch: {
         topicsSelected: function() {
-          console.log("Watch");
           this.checkTopics();          
         }
       },
@@ -289,7 +226,7 @@ console.log(filterUrl);
               topic_id: this.topic.id,
               citation_id: this.$store.getters.getCitationSelected.id
             }
-          
+
           this.$http.post("/citation_topics.json", citation_topic).then(response => {
             this.$store.commit('addTopicSelected', response.body);
           }) 
@@ -302,21 +239,71 @@ console.log(filterUrl);
       }
     });
 
-    var foo = new Vue({
+    var cite_otus = new Vue({
       el: '#cite_otus',
       store: store, 
 
       computed: {
+        otu() {
+          return this.$store.getters.getOtuSelected
+        },
+        source() {
+          return this.$store.getters.getSourceSelected
+        },        
         disabled() {
           return this.$store.getters.objectsSelected
-        }        
+        }      
       },
 
-      methods: {
-        enableTopics: function() {
-          alert('enabled'); 
+      watch: {
+        otu: function(val, oldVal) {
+          if (val !== oldVal) { 
+            if(!this.disabled) {
+              this.loadCitations()
+            }
+           }
+        },
+        source: function(val, oldVal) {
+          if (val !== oldVal) { 
+            if(!this.disabled) {
+              this.loadCitations()
+            }
+           }
         }
-      },
+      },         
+
+      methods: {
+        loadCitations: function() {
+          var that = this,
+              filterUrl = `/citations/filter?source_id=${that.$store.getters.getSourceSelected.id}&citation_object_type=Otu&citation_object_id=${that.$store.getters.getOtuSelected.id}`;
+
+          this.$http.get('/otus/' + that.$store.getters.getOtuSelected + '/citations').then(response => {
+            that.$store.commit('setCitationsList', response.body);
+          }); 
+
+          this.$http.get(filterUrl).then(response => {
+            if(response.body.length) {
+              that.$store.commit('setCurrentCitation', response.body[0]);
+              that.$store.commit('addCitation', response.body[0]);
+              that.$store.commit('setTopicsSelected', response.body[0].citation_topics);            
+            }
+            else {
+              var citation = {
+
+                citation_object_type: 'Otu',  
+                citation_object_id: that.$store.getters.getOtuSelected.id,          
+                source_id: that.$store.getters.getSourceSelected.id            
+              }
+
+              this.$http.post('/citations', citation).then( response => {
+                that.$store.commit('setCurrentCitation', response.body);
+                that.$store.commit('addCitation', response.body);
+                that.$store.commit('setTopicsSelected', response.body.citation_topics); 
+              })            
+            }
+          });            
+        }
+      },        
 
       beforeCreate: function() {
         this.$http.get('/topics.json').then(response => {
