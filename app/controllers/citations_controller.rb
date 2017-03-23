@@ -25,10 +25,6 @@ class CitationsController < ApplicationController
     render '/citations/index'
   end
 
-  def filter_params
-    params.permit(:citation_object_type, :citation_object_id, :source_id).merge(project_id: sessions_current_project_id)
-  end
-
   def new
     @citation = Citation.new(citation_params)
   end
@@ -133,6 +129,10 @@ class CitationsController < ApplicationController
 
     model = h.keys.first.split('_').first.classify
     return {citation_object_type: model, citation_object_id: h.values.first}
+  end
+
+  def filter_params
+    params.permit(:citation_object_type, :citation_object_id, :source_id).merge(project_id: sessions_current_project_id)
   end
 
   def set_citation
