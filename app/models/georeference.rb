@@ -314,8 +314,16 @@ class Georeference < ActiveRecord::Base
   def check_obj_inside_err_radius
     # case 2
     retval = true
-    if !error_radius.blank? && geographic_item && geographic_item.geo_object
-      retval = error_box.contains?(geographic_item.geo_object)
+    # if !error_radius.blank? && geographic_item && geographic_item.geo_object
+    unless error_radius.blank?
+      unless geographic_item.blank?
+        unless geographic_item.geo_object.blank?
+          val = error_box
+          unless val.blank?
+            retval = val.contains?(geographic_item.geo_object)
+          end
+        end
+      end
     end
     retval
   end
