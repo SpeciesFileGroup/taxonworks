@@ -123,6 +123,14 @@ module Tasks::CollectingEvents::Parse::Stepwise::LatLongHelper
     @collecting_event.verbatim_longitude unless @collecting_event.nil?
   end
 
+  def show_ce_vl(collecting_event)
+    message = 'No collecting event available.'
+    unless collecting_event.nil?
+      message = collecting_event.verbatim_label
+    end
+    collecting_event_label_tag(message)
+  end
+
   def parse_lat_long_skip(current_collecting_event_id, filters)
     # TODO: Now this has to be bound to next hit
     # filters = Utilities::Geo::REGEXP_COORD.keys

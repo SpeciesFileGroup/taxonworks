@@ -5,7 +5,7 @@ describe Tasks::CollectingEvents::Parse::Stepwise::LatLongController, type: :con
 
   let(:ce_find) {
     FactoryGirl.create(:valid_collecting_event,
-                       verbatim_label:     'Strange verbatim_label #1 > 40.092067 -88.249519',
+                       verbatim_label: 'Strange verbatim_label #1. Matched by DD7 [40.092067, -88.249519]',
                        verbatim_latitude:  nil,
                        verbatim_longitude: nil,
                        verbatim_elevation: nil)
