@@ -2,6 +2,12 @@ json.extract! citation, :id, :citation_object_id, :citation_object_type, :source
 json.url citation_url(citation, format: :json)
 json.object_tag citation_tag(citation)
 
+json.citation_topics do
+  citation.citation_topics.each do |ct|
+    json.partial! '/controlled_vocabulary_terms/attributes', controlled_vocabulary_term: ct.topic
+  end
+end
+
 json.source do
   json.partial! '/sources/attributes', source: citation.source 
 
