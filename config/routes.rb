@@ -99,7 +99,7 @@ TaxonWorks::Application.routes.draw do
   resources :citations do # except: [:show]
     concerns [:data_routes]
     collection do
-      get 'filter(/citation_object_type/:citation_object_type)(/citation_object_id/:citation_object_id)(/source_id/:source_id)', action: :filter, as: :filter, defaults: {format: :json}
+      get 'filter', defaults: {format: :json}
     end
   end
 
