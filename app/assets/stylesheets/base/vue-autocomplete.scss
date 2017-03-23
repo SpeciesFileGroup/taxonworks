@@ -19,6 +19,7 @@
 .vue-autocomplete {
 	z-index: 2000;
 	ul {
+		display: none;
 		background-color: #FFF;
 		margin:0px;
 		padding: 0px;
@@ -37,4 +38,11 @@
 		background-color: $navigation_border;
 	}
 
+}
+
+.vue-autocomplete input:focus ~ ul {
+	display: block;
+}
+.vue-autocomplete ul:hover {
+	display: block;
 }
