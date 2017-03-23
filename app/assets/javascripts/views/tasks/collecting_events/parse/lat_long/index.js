@@ -23,6 +23,10 @@ Object.assign(TW.views.tasks.collecting_events.parse, {
       }
     );
   
+    $('#skip').click(function (event) {
+    
+    });
+  
     //  $('#lat_long_update_record').click(function (event) {
     // put the this id into the form before serializatiun
     // $('#collecting_event_id').val($('this_collecting_event').text());
@@ -30,14 +34,14 @@ Object.assign(TW.views.tasks.collecting_events.parse, {
     //  })
   },
   
-  bind_similar_buttons: function () {
+  bind_sequence_buttons: function () {
     $('#disable_all').click(function (event) {
       // find all the checkboxes in the 'matching_span' and set them to 'checked'
       event.preventDefault();
     });
     $('#save_selected').click(function (event) {
       // don't know exactly what to do here
-    })
+    });
   },
   
   bind_radio_buttons: function () {
@@ -65,7 +69,7 @@ Object.assign(TW.views.tasks.collecting_events.parse, {
         $("#matched_latitude").val(lat);
         $("#matched_longitude").val(long);
         $("#match_gen_georeference").val($("#generate_georeference").serialize());
-        TW.views.tasks.collecting_events.parse.bind_similar_buttons();
+        TW.views.tasks.collecting_events.parse.bind_sequence_buttons();
       });
     });
   }

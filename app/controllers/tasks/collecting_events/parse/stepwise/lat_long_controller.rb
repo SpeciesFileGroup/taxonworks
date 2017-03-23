@@ -37,7 +37,8 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
     case params['button']
       when 'skip'
         redirect_to collecting_event_lat_long_task_path(collecting_event_id: next_collecting_event_id,
-                                                        filters:             parse_filters(params)) and return
+                                                        filters:             parse_filters(params))
+        return
       when 'save_selected'
         selected = params[:selected]
         unless selected.blank?

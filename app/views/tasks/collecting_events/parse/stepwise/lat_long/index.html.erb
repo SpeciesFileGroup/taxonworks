@@ -10,7 +10,7 @@
     </div>
 
     <div class="item item2">
-      <%= form_tag(lat_long_update_record_path(collecting_event_id: @collecting_event.id), id: 'lat_long_convert_form', remote: true) do %>
+      <%= form_tag(lat_long_update_record_path(collecting_event_id: @collecting_event.id), id: 'lat_long_convert_form',) do %>
           <%= parse_lat_long_skip(@collecting_event.id, @filters) %>
           <table border="1">
             <tbody>

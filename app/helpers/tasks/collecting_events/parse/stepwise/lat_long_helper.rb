@@ -138,7 +138,7 @@ module Tasks::CollectingEvents::Parse::Stepwise::LatLongHelper
       collecting_event_id: current_collecting_event_id,
       filters:             filters).all.with_project_id(sessions_current_project_id).first.try(:id)
     if next_id
-      button_tag('Skip to next record', value: 'skip')
+      button_tag('Skip to next record', value: 'skip', id: 'skip')
       # link_to('Skip to next record', collecting_event_lat_long_task_path(collecting_event_id: next_id))
     else
       content_tag(:span, 'no more matches')
