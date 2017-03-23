@@ -208,17 +208,15 @@ namespace :tw do
         $project_id = @data.project_id 
         $user_id = @data.user_id
 
-        raise '$project_id or $user_id not set.'  if $project_id.nil? || $user_id.nil?
+        raise '$project_id or $user_id not set.' if $project_id.nil? || $user_id.nil?
 
         @root = Protonym.find_or_create_by(name: 'Root', rank_class: 'NomenclaturalRank', project_id: $project_id)
         @order = Protonym.find_or_create_by(name: 'Hymenoptera', parent: @root, rank_class: 'NomenclaturalRank::Iczn::HigherClassificationGroup::Order', project_id: $project_id)
 
-
-
         @data.superfamilies['1'] = Protonym.find_or_create_by(name: 'Serphitoidea', parent: @order, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Superfamily', project_id: $project_id).id
         @data.superfamilies['2'] = Protonym.find_or_create_by(name: 'Chalcidoidea', parent: @order, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Superfamily', project_id: $project_id).id
         @data.superfamilies['3'] = Protonym.find_or_create_by(name: 'Mymarommatoidea', parent: @order, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Superfamily', project_id: $project_id).id
-        @data.families[''] = @order.id
+        @data.families[''] = @order.id # Use the order ID as a parent if no family is provided
 
         @data.keywords['ucd_imported'] = Keyword.find_or_create_by(name: 'UCD_imported', definition: 'Imported from UCD database.').id
         @data.keywords['taxon_id'] = Namespace.find_or_create_by(name: 'UCD_Taxon_ID', short_name: 'UCD_Taxon_ID').id
@@ -336,15 +334,18 @@ namespace :tw do
         file.each do |row|
           i += 1
           print "\r#{i}"
+
           if row['ValGenus'].blank?
             name = row['ValAuthor'].split(' ').first
             author = row['ValAuthor'].gsub(name + ' ', '')
 
             taxon = Protonym.find_or_create_by(name: name, project_id: $project_id)
+          
             taxon.parent = @order if taxon.parent_id.nil?
 
             taxon.year_of_publication = row['ValDate'] if taxon.year_of_publication.nil?
             taxon.verbatim_author = author if taxon.verbatim_author.nil?
+
             taxon.rank_class = 'NomenclaturalRank::Iczn::FamilyGroup::Superfamily' if taxon.rank_class.nil? && name.include?('oidea')
             taxon.rank_class = 'NomenclaturalRank::Iczn::FamilyGroup::Family' if taxon.rank_class.nil? && name.include?('idae')
             taxon.rank_class = 'NomenclaturalRank::Iczn::FamilyGroup::Subfamily' if taxon.rank_class.nil? && name.include?('inae')
@@ -1251,6 +1252,7 @@ namespace :tw do
         print "\nHandling H-FAM\n"
         raise "file #{path} not found" if not File.exists?(path)
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
+
         file.each_with_index do |row, i|
           print "\r#{i}"
           name = row['Order'].to_s.gsub('.', '')
@@ -1516,19 +1518,35 @@ namespace :tw do
 
         file.each_with_index do |row, i|
           print "\r#{i}"
-          taxon = find_taxon_ucd(row['TaxonCode'])
-          print "\n TaxonCode: #{row['TaxonCode']} not found \n" if row['TaxonCode'].blank? || taxon.nil?
+
+          #  taxon = find_taxon_ucd(row['TaxonCode'])
+          otu = @data.otus[row['TaxonCode'].to_s]
+ 
+          print "\n TaxonCode: #{row['TaxonCode']} not found \n" if row['TaxonCode'].blank?
+          print "\n No corresponding OTU for TaxonCode: [#{row['TaxonCode']]} \n" if otu.nil? #  taxon.nil?
+
+          next if otu.nil?
 
           ref = find_source_id_ucd(row['RefCode'])
-          page = row['PageRef'].blank? ? nil : row['PageRef']
-          if !ref.nil? && !taxon.nil?
 
-            c = taxon.citations.find_or_create_by(source_id: ref, pages: page)
-           
-            c.citation_topics.find_or_create_by(topic_id: @data.topics[row['Keyword']]) unless row['Keyword'].blank?
-            
-            c.notes.find_or_create_by(text: row['Notes'].gsub('|','_')) unless row['Notes'].blank?
+          if ref.nil?
+            print "\n No reference found for #{row['RefCode']} \n"
+            next
           end
+
+          page = row['PageRef'].blank? ? nil : row['PageRef']
+
+          # c = taxon.citations.find_or_create_by(source_id: ref, pages: page)
+          c = Citation.find_or_create_by(citation_object: otu, source_id: ref, pages: page)
+
+          # c.citation_topics.find_or_create_by(topic_id: @data.topics[row['Keyword']]) unless row['Keyword'].blank?
+          CitationTopic.find_or_create_by(topic_id: @data.topics[row['Keyword']], citation: c) unless row['Keyword'].blank?
+         
+          # c.notes.find_or_create_by(text: row['Notes'].gsub('|','_')) unless row['Notes'].blank?
+          Note.find_or_create_by(
+            note_object: c, 
+            text: row['Notes'].gsub('|','_')
+          ) unless row['Notes'].blank?
         end
       end
 
@@ -1771,14 +1789,17 @@ namespace :tw do
         end
       end
 
+      # All valid names go through this indexing
       # Takes a Protonym, and UCD taxon code
       # * maps the taxon code to the taxon.id
       # * creates a local import identifier
+      # * creates (findy) a related OTU
       # * maps the taxon code to the otu.id
+      #
       def set_data_for_taxon(taxon, taxon_code)
         @data.taxon_codes[taxon_code] = taxon.id
         Identifier::Local::Import.create!(identifier_object: taxon, namespace_id: @data.keywords['taxon_id'], identifier: taxon_code)
-        @data.otus[taxon_code] = taxon.otus.first.id if taxon.otus.any?
+        @data.otus[taxon_code] = Otu.find_or_create_by(taxon_name: taxon, project_id: $project_id).id 
       end
 
       # Return a TW TaxonName id 
