@@ -1,14 +1,12 @@
 class CitationsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
-
-  before_action :require_sign_in_and_project_selection
   before_action :set_citation, only: [:update, :destroy, :show]
 
   # GET /citations
   # GET /citations.json
   def index
     respond_to do |format|
-     format.html {
+      format.html {
         @recent_objects = Citation.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
         render '/shared/data/all/index'
       }
