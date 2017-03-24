@@ -2,6 +2,7 @@
 @import 'base/whitespace';
 @import 'base/fonts';
 @import 'base/arrow-box';
+@import 'base/animations';
 
 .help-button {
 	cursor: pointer;
@@ -26,9 +27,8 @@
 				width 0.5s ease, 
 				height 0.5s ease, 
 				opacity 0.5s ease;
-
-
 }
+
 .help-button:hover {
 	opacity: 1;
 	background-size: 40px;
@@ -37,6 +37,10 @@
 	.help-button-description {
 		display: block;
 	}	
+}
+
+.help-button-present {
+	animation:shining 0.5s infinite alternate;
 }		
 
 .help-button-active {
