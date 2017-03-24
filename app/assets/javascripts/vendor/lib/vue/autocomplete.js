@@ -2,6 +2,7 @@
 Parameters: 
 
           mim: Minimum input length needed before make a search query
+         time: Minimum time needed after a key pressed to make a search query          
           url: Ajax url request
   placeholder: Input placeholder
         label: name of the propierty displayed on the list
@@ -18,8 +19,8 @@ Parameters:
 
 Vue.component('autocomplete', { 
     template: '<div class="vue-autocomplete"> \
-                <input class="vue-autocomplete-input normal-input" type="text" v-bind:placeholder="placeholder" v-on:input="update" v-model="type" v-bind:class="{ \'ui-autocomplete-loading\' : spinner } " /> \
-                <ul v-show="showList" v-if="type"> \
+                <input class="vue-autocomplete-input normal-input" type="text" v-bind:placeholder="placeholder" v-on:input="checkTime" v-model="type" v-bind:class="{ \'ui-autocomplete-loading\' : spinner } " /> \
+                <ul v-show="showList" v-if="type && json.length"> \
                   <li v-for="(item, index) in json" :class="activeClass(index)" @mouseover="itemActive(index)" @click.prevent="{ itemClicked(item[label]), sendItem(item) }" > \
                       <span> {{ item[label] }} </span> \
                   </li> \
@@ -30,10 +31,19 @@ Vue.component('autocomplete', {
       return {
         spinner: false,
         showList: false,
+        getRequest: 0,
         type: "",
         json: [],
         current: -1
       };
+    },
+
+    watch: {
+      type: function() {
+        if(this.type.length < Number(this.min)) {
+          this.json = [];
+        }
+      }
     },
 
     props: {
@@ -44,6 +54,11 @@ Vue.component('autocomplete', {
       },
 
       label: String,
+
+      time: {
+        type: String,
+        default: "500"
+      },
 
       min: {
         type: String,
@@ -91,7 +106,7 @@ Vue.component('autocomplete', {
 
         itemActive: function(index) {
           this.current = index;
-        },     
+        },             
 
         ajaxUrl: function() {
           var tempUrl = this.url + '?' + this.param + '=' + this.type; 
@@ -104,9 +119,18 @@ Vue.component('autocomplete', {
           return tempUrl + params;           
         },   
 
+        checkTime: function() {
+          var that = this;
+          if(this.getRequest) {
+            clearTimeout(this.getRequest);
+          }   
+          this.getRequest = setTimeout( function() {    
+            that.update();  
+          }, that.time);           
+        }, 
+
         update: function() {
           if(this.type.length < Number(this.min)) return;
-          
           this.spinner = true;
           this.clearResults();   
 

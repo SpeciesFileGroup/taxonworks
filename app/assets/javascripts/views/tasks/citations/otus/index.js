@@ -338,7 +338,6 @@ Object.assign(TW.views.tasks.citations.otus, {
           this.$http.get(filterUrl).then(response => {
             if(response.body.length) {
               that.$store.commit('setOtuCitationsList', response.body);
-              console.log(response.body);
             }
           })
         },
