@@ -64,7 +64,11 @@ spec:
             - name: NGINX_SECRET_KEY
               value: secret!
             - name: SECRET_KEY_BASE
-              value: 169d48d8fbed4afeee626014caf67b036b11c30e00de424ba35e0d34ff29b358e635b25291c93ac674ebf76063d09ef1d8d153ade9de6e7c26b4120eeb35f8e4
+              valueFrom:
+                secretKeyRef:
+                  name: taxonworks
+                  key: secret_key_base
+
           ports:
             - containerPort: 80
               name: http
