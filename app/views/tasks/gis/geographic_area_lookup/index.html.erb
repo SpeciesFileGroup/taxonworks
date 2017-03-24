@@ -13,11 +13,12 @@
       >
       <%= text_area_tag :terms, '', 
         cols: 40,  
-        rows: 6, 
-        placeholder: "like 'Illinois' or 'Champaign:Illinois'" -%>
+        rows: 40, 
+        placeholder: "like 'Illinois' or 'Champaign:Illinois' (Child:Parent by default)" -%>
         </div>
         <br>
       <%= check_box_tag :has_shape  -%> Return only records that have GIS shapes? <br>
+      <%= check_box_tag :invert  -%> Parent at start (Canada:Saskatchewan, rather than Saskatchewan:Canada) <br>
       <%= submit_tag :search -%>
     <% end %> 
   </div>

@@ -27,7 +27,7 @@ require 'fileutils'
 # TRAN.txt          not needed
 # TSTAT.txt         Done
 # WWWIMAOK.txt      image related
-
+#
 namespace :tw do
   namespace :project_import do
     namespace :ucd do
@@ -37,7 +37,7 @@ namespace :tw do
 
         #  attr_accessor :publications_index, :genera_index, :species_index, :keywords, :family_groups, :superfamilies, :families, :hostfamilies,
         #    :taxon_codes, :languages, :references, :countries, :collections, :all_genera_index, :all_species_index, :topics, :combinations,
-        #    :reliable, :ptype, :import, :done
+        #    :reliable, :ptype, :import, :data, :otus, :done
 
         attr_accessor :import
 
@@ -64,6 +64,7 @@ namespace :tw do
           new_combinations 
           reliable 
           ptype
+          otus 
           done
         }.freeze 
 
@@ -104,14 +105,18 @@ namespace :tw do
 
       end
 
-      desc 'import UCD data, data_directory=/foo/ no_transaction=true'
+      desc 'import UCD data, data_directory=/foo/ no_transaction=true reset=true'
       task :import_ucd => [:data_directory, :environment] do |t|
 
+        if ENV['reset'] == 'true'
+          Import.where(name: 'UCD IMPORT').destroy
+          puts 'Resetting import.' 
+        end
+
         if ENV['no_transaction']
-          puts 'Importing without a transaction (data will be left in the database).'
+          puts 'Importing without a transaction (data will be left in the database on fail).'
           main_build_loop_ucd
         else
-
           ActiveRecord::Base.transaction do
             begin
               main_build_loop_ucd
@@ -119,7 +124,6 @@ namespace :tw do
               raise
             end
           end
-          
         end
       end
 
@@ -133,8 +137,6 @@ namespace :tw do
         @data = ImportedDataUcd.new
 
         handle_projects_and_users_ucd
-        #$user_id = 1
-        #$project_id = 1
 
         handle_countries_ucd
         handle_collections_ucd
@@ -206,20 +208,22 @@ namespace :tw do
         $project_id = @data.project_id 
         $user_id = @data.user_id
 
-        raise '$project_id or $user_id not set.'  if $project_id.nil? || $user_id.nil?
+        raise '$project_id or $user_id not set.' if $project_id.nil? || $user_id.nil?
 
         @root = Protonym.find_or_create_by(name: 'Root', rank_class: 'NomenclaturalRank', project_id: $project_id)
         @order = Protonym.find_or_create_by(name: 'Hymenoptera', parent: @root, rank_class: 'NomenclaturalRank::Iczn::HigherClassificationGroup::Order', project_id: $project_id)
+
         @data.superfamilies['1'] = Protonym.find_or_create_by(name: 'Serphitoidea', parent: @order, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Superfamily', project_id: $project_id).id
         @data.superfamilies['2'] = Protonym.find_or_create_by(name: 'Chalcidoidea', parent: @order, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Superfamily', project_id: $project_id).id
         @data.superfamilies['3'] = Protonym.find_or_create_by(name: 'Mymarommatoidea', parent: @order, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Superfamily', project_id: $project_id).id
-        @data.families[''] = @order.id
+        @data.families[''] = @order.id # Use the order ID as a parent if no family is provided
 
         @data.keywords['ucd_imported'] = Keyword.find_or_create_by(name: 'UCD_imported', definition: 'Imported from UCD database.').id
         @data.keywords['taxon_id'] = Namespace.find_or_create_by(name: 'UCD_Taxon_ID', short_name: 'UCD_Taxon_ID').id
         @data.keywords['family_id'] = Namespace.find_or_create_by(name: 'UCD_Family_ID', short_name: 'UCD_Family_ID').id
         @data.keywords['host_family_id'] = Namespace.find_or_create_by(name: 'UCD_Host_Family_ID', short_name: 'UCD_Host_Family_ID').id
         @data.keywords['hos_number'] = Namespace.find_or_create_by(name: 'UCD_Hos_Number', short_name: 'UCD_Hos_Number').id
+
         @data.done!(handle)
         @data.persist!
       end
@@ -241,9 +245,11 @@ namespace :tw do
           raise "file #{path} not found" if not File.exists?(path)
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
           i = 0
+
           file.each do |row|
             i += 1
             print "\r#{i}"
+
             family = row['Family'].blank? ? nil : Protonym.find_or_create_by!(name: row['Family'], parent_id: @data.superfamilies[row['SuperfamFK']], rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Family', project_id: $project_id)
             subfamily = row['Subfam'].blank? ? nil : Protonym.find_or_create_by!(name: row['Subfam'], parent: family, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Subfamily', project_id: $project_id)
             tribe = row['Tribe'].blank? ? nil : Protonym.find_or_create_by!(name: row['Tribe'], parent: subfamily, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Tribe', project_id: $project_id)
@@ -270,24 +276,31 @@ namespace :tw do
       def handle_keywords_ucd
         handle = 'handle_keywords_ucd'
         print "\nHandling KEYWORDS "
+
         if !@data.done?(handle)
           puts 'as new'
 
-          tags = {'1' => Keyword.find_or_create_by(name: '1', definition: 'Taxonomic', project_id: $project_id),
-                  '2' => Keyword.find_or_create_by(name: '2', definition: 'Biological', project_id: $project_id),
-                  '3' => Keyword.find_or_create_by(name: '3', definition: 'Economic', project_id: $project_id),
+          tags = {'1' => Keyword.find_or_create_by(name: '1', definition: 'Taxonomic'),
+                  '2' => Keyword.find_or_create_by(name: '2', definition: 'Biological'),
+                  '3' => Keyword.find_or_create_by(name: '3', definition: 'Economic'),
           }.freeze
+          
           path = @args[:data_directory] + 'KEYWORDS.txt'
 
           raise "file #{path} not found" if not File.exists?(path)
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
+
           file.each_with_index do |row, i|
             print "\r#{i}"
+           
             definition = row['Meaning'].to_s.length < 4 ? row['Meaning'] + '.' : row['Meaning']
             definition = definition + '(' + row['KeyWords'] + ')'
-            topic = Topic.find_or_create_by(name: definition, definition: definition, project_id: $project_id)
-            topic.tags.find_or_create_by(keyword: tags[row['Category']]) unless row['Category'].blank?
-            @data.topics[row['KeyWords']] = topic
+          
+            topic = Topic.create!(name: definition, definition: definition)
+
+            topic.tags.create(keyword: tags[row['Category']]) unless row['Category'].blank?
+            
+            @data.topics[row['KeyWords']] = topic.id
           end
 
           @data.done!(handle)
@@ -317,18 +330,22 @@ namespace :tw do
         raise "file #{path} not found" if not File.exists?(path)
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
         i = 0
+
         file.each do |row|
           i += 1
           print "\r#{i}"
+
           if row['ValGenus'].blank?
             name = row['ValAuthor'].split(' ').first
             author = row['ValAuthor'].gsub(name + ' ', '')
 
             taxon = Protonym.find_or_create_by(name: name, project_id: $project_id)
+          
             taxon.parent = @order if taxon.parent_id.nil?
 
             taxon.year_of_publication = row['ValDate'] if taxon.year_of_publication.nil?
             taxon.verbatim_author = author if taxon.verbatim_author.nil?
+
             taxon.rank_class = 'NomenclaturalRank::Iczn::FamilyGroup::Superfamily' if taxon.rank_class.nil? && name.include?('oidea')
             taxon.rank_class = 'NomenclaturalRank::Iczn::FamilyGroup::Family' if taxon.rank_class.nil? && name.include?('idae')
             taxon.rank_class = 'NomenclaturalRank::Iczn::FamilyGroup::Subfamily' if taxon.rank_class.nil? && name.include?('inae')
@@ -340,8 +357,12 @@ namespace :tw do
             end
 
             if row['ValAuthor'] == row['CitAuthor']
-              @data.taxon_codes[row['TaxonCode']] = taxon.id
-              taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace_id: @data.keywords['taxon_id'], identifier: row['TaxonCode'].to_s)
+
+              # !! Create identifier
+              set_data_for_taxon(taxon, row['TaxonCode'].to_s)
+              # @data.taxon_codes[row['TaxonCode']] = taxon.id
+              # taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace_id: @data.keywords['taxon_id'], identifier: row['TaxonCode'].to_s)
+            
             else
               name = row['CitAuthor'].split(' ').first
               author = row['CitAuthor'].gsub(name + ' ', '')
@@ -374,17 +395,13 @@ namespace :tw do
                 end
               end
 
-            # if taxon1.valid?
-            #   taxon1.save!
-            # elsif !taxon1.errors.messages[:name].blank?
-            #   taxon1.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin')
-            #   taxon1.save!
-            # else
-            #   byebug
-            # end
+              # !! create identifier
+              set_data_for_taxon(taxon1, row['TaxonCode'].to_s)
 
-              @data.taxon_codes[row['TaxonCode']] = taxon1.id
-              taxon1.identifiers.create!(type: 'Identifier::Local::Import', namespace_id: @data.keywords['taxon_id'], identifier: row['TaxonCode'].to_s)
+              # @data.taxon_codes[row['TaxonCode']] = taxon1.id
+              # taxon1.identifiers.create!(type: 'Identifier::Local::Import', namespace_id: @data.keywords['taxon_id'], identifier: row['TaxonCode'].to_s)
+
+
               taxon1.data_attributes.create!(type: 'ImportAttribute', import_predicate: 'HomCode', value: row['HomCode']) unless row['HomCode'].blank?
               TaxonNameRelationship.create!(subject_taxon_name: taxon1, object_taxon_name: taxon, type: 'TaxonNameRelationship::Iczn::Invalidating')
             end
@@ -421,8 +438,12 @@ namespace :tw do
 
             if row['ValGenus'].to_s == row['CitGenus'] && row['CitSubgen'].blank? && row['ValSpecies'].blank?  && row['CitSpecies'].blank? && @data.combinations['TaxonCode'].blank?
               @data.genera_index[name] = taxon.id
-              @data.taxon_codes[row['TaxonCode']] = taxon.id
-              taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace_id: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
+
+              # !! create identifier
+              set_data_for_taxon(taxon, row['TaxonCode'].to_s)
+              # @data.taxon_codes[row['TaxonCode']] = taxon.id
+              # taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace_id: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
+
             end
           end
         end
@@ -468,8 +489,11 @@ namespace :tw do
                 c.save!
                 taxon = c
               end
-              @data.taxon_codes[row['TaxonCode']] = taxon.id
-              taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace_id: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
+
+              # !! Create identifier
+              set_data_for_taxon(taxon, row['TaxonCode'].to_s)
+              # @data.taxon_codes[row['TaxonCode']] = taxon.id
+              # taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace_id: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
             end
           end
         end
@@ -521,8 +545,11 @@ namespace :tw do
             else
               @data.genera_index[name] = taxon.id
             end
-            @data.taxon_codes[row['TaxonCode']] = taxon.id
-            taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace_id: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
+
+            # !! create identifier
+            set_data_for_taxon(taxon, row['TaxonCode'].to_s)
+            # @data.taxon_codes[row['TaxonCode']] = taxon.id
+            # taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace_id: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
           end
         end
       end
@@ -558,8 +585,12 @@ namespace :tw do
             @data.all_species_index[row['ValGenus'].to_s + ' ' + name] = taxon.id
             if row['ValSpecies'].to_s == row['CitSpecies'] && row['ValAuthor'] == '(' + row['CitAuthor'] + ')' && row['ValDate'] == row['CitDate'] && row['CitSubsp'].blank? && @data.combinations['TaxonCode'].blank?
               @data.species_index[row['ValGenus'].to_s + ' ' + name] = taxon.id
-              @data.taxon_codes[row['TaxonCode']] = taxon.id
-              taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace_id: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
+             
+              # !! Create identifier 
+              set_data_for_taxon(taxon, row['TaxonCode'].to_s)
+              # @data.taxon_codes[row['TaxonCode']] = taxon.id
+              # taxon.identifiers.create!(type: 'Identifier::Local::Import', namespace_id: @data.keywords['taxon_id'], identifier: row['TaxonCode'])
+              
               origsubgen = @data.all_genera_index[row['CitSubgen']]
               TaxonNameRelationship.create!(subject_taxon_name: taxon, object_taxon_name: taxon, type: 'TaxonNameRelationship::OriginalCombination::OriginalSpecies')
               TaxonNameRelationship.create!(subject_taxon_name_id: parent_id, object_taxon_name: taxon, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus') if taxon.original_genus.nil?
@@ -595,9 +626,11 @@ namespace :tw do
               taxon.save!
             end
 
+            # !?! DON'T Create identifier ... (invalid)
             @data.taxon_codes[row['TaxonCode']] = taxon.id
             #@data.species_index[row['ValGenus'].to_s + ' ' + name] = taxon.id
             taxon1 = @data.all_species_index[row['ValGenus'].to_s + ' ' + row['ValSpecies'].to_s]
+
             byebug if taxon1.nil?
             if (taxon.id == taxon1 || !taxon.original_genus.nil?)
               if @data.combinations['TaxonCode'].blank?
@@ -653,9 +686,11 @@ namespace :tw do
               taxon.save!
             end
 
+            # !! don't create identifier, invalid!!
             @data.taxon_codes[row['TaxonCode']] = taxon.id
             #@data.species_index[row['ValGenus'].to_s + ' ' + name] = taxon.id
             taxon1 = @data.all_species_index[row['ValGenus'].to_s + ' ' + row['ValSpecies'].to_s]
+
             byebug if taxon1.nil?
             if (taxon.id == taxon1 || !taxon.original_genus.nil?)
               if @data.combinations['TaxonCode'].blank?
@@ -1048,9 +1083,11 @@ namespace :tw do
         file.each do |row|
           i += 1
           print "\r#{i}"
+         
           taxon = find_taxon_ucd(row['TaxonCode'])
           genus = find_taxon_id_ucd(row['Code'])
           ref = find_source_id_ucd(row['RefCode'])
+
           print "\n TaxonCode: #{row['TaxonCode']} not found \n" if !row['TaxonCode'].blank? && taxon.nil?
           print "\n Genus Code: #{row['Code']} not found \n" if !row['Code'].blank? && genus.nil?
           unless taxon.nil?
@@ -1215,6 +1252,7 @@ namespace :tw do
         print "\nHandling H-FAM\n"
         raise "file #{path} not found" if not File.exists?(path)
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
+
         file.each_with_index do |row, i|
           print "\r#{i}"
           name = row['Order'].to_s.gsub('.', '')
@@ -1323,18 +1361,18 @@ namespace :tw do
                'Parasitoid' => BiologicalProperty.find_or_create_by(name: 'Parasitoid', definition:'An organism that lives in or on another organism'),
         }
 
-        BiologicalRelationshipType.find_or_create_by(biological_property: bp['Pollinator'], biological_relationship: relation['APL'], type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
-        BiologicalRelationshipType.find_or_create_by(biological_property: bp['Pollinated plant'], biological_relationship: relation['APL'], type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
-        BiologicalRelationshipType.find_or_create_by(biological_property: bp['Attendant'], biological_relationship: relation['AST'], type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
-        BiologicalRelationshipType.find_or_create_by(biological_property: bp['Attended insect'], biological_relationship: relation['AST'], type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
-        BiologicalRelationshipType.find_or_create_by(biological_property: bp['Host'], biological_relationship: relation['HYP'], type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
-        BiologicalRelationshipType.find_or_create_by(biological_property: bp['Parasitoid'], biological_relationship: relation['HYP'], type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
-        BiologicalRelationshipType.find_or_create_by(biological_property: bp['Parasitoid'], biological_relationship: relation['PAH'], type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
-        BiologicalRelationshipType.find_or_create_by(biological_property: bp['Host'], biological_relationship: relation['PAH'], type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
-        BiologicalRelationshipType.find_or_create_by(biological_property: bp['Parasitoid'], biological_relationship: relation['PLH'], type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
-        BiologicalRelationshipType.find_or_create_by(biological_property: bp['Host'], biological_relationship: relation['PLH'], type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
-        BiologicalRelationshipType.find_or_create_by(biological_property: bp['Parasitoid'], biological_relationship: relation['PRH'], type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType')
-        BiologicalRelationshipType.find_or_create_by(biological_property: bp['Host'], biological_relationship: relation['PRH'], type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType')
+        BiologicalRelationshipType::BiologicalRelationshipSubjectType.find_or_create_by(project_id: $project_id, biological_property: bp['Pollinator'], biological_relationship: relation['APL'])
+        BiologicalRelationshipType::BiologicalRelationshipObjectType.find_or_create_by(project_id: $project_id, biological_property: bp['Pollinated plant'], biological_relationship: relation['APL'])
+        BiologicalRelationshipType::BiologicalRelationshipSubjectType.find_or_create_by(project_id: $project_id, biological_property: bp['Attendant'], biological_relationship: relation['AST'])
+        BiologicalRelationshipType::BiologicalRelationshipObjectType.find_or_create_by(project_id: $project_id, biological_property: bp['Attended insect'], biological_relationship: relation['AST'])
+        BiologicalRelationshipType::BiologicalRelationshipSubjectType.find_or_create_by(project_id: $project_id, biological_property: bp['Host'], biological_relationship: relation['HYP'])
+        BiologicalRelationshipType::BiologicalRelationshipObjectType.find_or_create_by(project_id: $project_id, biological_property: bp['Parasitoid'], biological_relationship: relation['HYP'])
+        BiologicalRelationshipType::BiologicalRelationshipSubjectType.find_or_create_by(project_id: $project_id, biological_property: bp['Parasitoid'], biological_relationship: relation['PAH'])
+        BiologicalRelationshipType::BiologicalRelationshipObjectType.find_or_create_by(project_id: $project_id, biological_property: bp['Host'], biological_relationship: relation['PAH'], type: '')
+        BiologicalRelationshipType::BiologicalRelationshipSubjectType.find_or_create_by(project_id: $project_id, biological_property: bp['Parasitoid'], biological_relationship: relation['PLH'])
+        BiologicalRelationshipType::BiologicalRelationshipObjectType.find_or_create_by(project_id: $project_id, biological_property: bp['Host'], biological_relationship: relation['PLH'])
+        BiologicalRelationshipType::BiologicalRelationshipSubjectType.find_or_create_by(project_id: $project_id, biological_property: bp['Parasitoid'], biological_relationship: relation['PRH'])
+        BiologicalRelationshipType::BiologicalRelationshipObjectType.find_or_create_by(project_id: $project_id, biological_property: bp['Host'], biological_relationship: relation['PRH'])
 
         keywords = {
           'ParTypeA' => Predicate.find_or_create_by(name: 'Hosts:ParTypeA', definition: 'The verbatim value in Hosts#ParTypeA.', project_id: $project_id),
@@ -1352,17 +1390,24 @@ namespace :tw do
         raise "file #{path} not found" if not File.exists?(path)
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
         i = 0
+
         file.each do |row|
           i += 1
           print "\r#{i}"
+        
           taxon = find_taxon_id_ucd(row['TaxonCode'])
           host = find_host_id_ucd(row['HosNumber'])
+         
           host = find_host_family_id_ucd(row['PrimHosFam']) if row['HosNumber'].blank?
           ref = find_source_id_ucd(row['RefCode'])
           br = relation[row['Relation']]
+          
           if taxon && host && br
-            subject = Otu.find_or_create_by(taxon_name_id: taxon)
-            object = Otu.find_or_create_by(taxon_name_id: host)
+
+            subject = Otu.find_or_create_by(taxon_name_id: taxon, project_id: $project_id)
+            object = Otu.find_or_create_by(taxon_name_id: host, project_id: $project_id)
+
+
             r = BiologicalAssociation.find_or_create_by!(biological_relationship: br, biological_association_subject: subject, biological_association_object: object, project_id: $project_id)
             r.citations.create(source_id: ref, pages: row['PageRef']) unless ref.nil?
             r.notes.create(text: row['Notes'].gsub('|','_')) unless row['Notes'].blank?
@@ -1407,6 +1452,7 @@ namespace :tw do
           end
 
           taxon = find_taxon_id_ucd(row['TaxonCode'])
+
           otu = Otu.find_or_create_by(taxon_name_id: taxon)
 
           if otu.id.blank? # no point in searching forward, abort - don't check valid, check if ID is there, it has to be valid then
@@ -1467,19 +1513,40 @@ namespace :tw do
         path = @args[:data_directory] + 'HKNEW.txt'
         print "\nHandling HKNEW\n"
         raise "file #{path} not found" if not File.exists?(path)
+        
         file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'iso-8859-1:UTF-8')
+
         file.each_with_index do |row, i|
           print "\r#{i}"
-          taxon = find_taxon_ucd(row['TaxonCode'])
-          print "\n TaxonCode: #{row['TaxonCode']} not found \n" if row['TaxonCode'].blank? || taxon.nil?
+
+          #  taxon = find_taxon_ucd(row['TaxonCode'])
+          otu = @data.otus[row['TaxonCode'].to_s]
+ 
+          print "\n TaxonCode: #{row['TaxonCode']} not found \n" if row['TaxonCode'].blank?
+          print "\n No corresponding OTU for TaxonCode: [#{row['TaxonCode']]} \n" if otu.nil? #  taxon.nil?
+
+          next if otu.nil?
 
           ref = find_source_id_ucd(row['RefCode'])
-          page = row['PageRef'].blank? ? nil : row['PageRef']
-          if !ref.nil? && !taxon.nil?
-            c = taxon.citations.find_or_create_by(source_id: ref, pages: page)
-            c.citation_topics.find_or_create_by(topic: @data.topics[row['Keyword']], project_id: $project_id) unless row['Keyword'].blank?
-            c.notes.find_or_create_by(text: row['Notes'].gsub('|','_')) unless row['Notes'].blank?
+
+          if ref.nil?
+            print "\n No reference found for #{row['RefCode']} \n"
+            next
           end
+
+          page = row['PageRef'].blank? ? nil : row['PageRef']
+
+          # c = taxon.citations.find_or_create_by(source_id: ref, pages: page)
+          c = Citation.find_or_create_by(citation_object: otu, source_id: ref, pages: page)
+
+          # c.citation_topics.find_or_create_by(topic_id: @data.topics[row['Keyword']]) unless row['Keyword'].blank?
+          CitationTopic.find_or_create_by(topic_id: @data.topics[row['Keyword']], citation: c) unless row['Keyword'].blank?
+         
+          # c.notes.find_or_create_by(text: row['Notes'].gsub('|','_')) unless row['Notes'].blank?
+          Note.find_or_create_by(
+            note_object: c, 
+            text: row['Notes'].gsub('|','_')
+          ) unless row['Notes'].blank?
         end
       end
 
@@ -1678,10 +1745,12 @@ namespace :tw do
             valid = TaxonName.find(taxon.cached_valid_taxon_name_id)
             taxon = valid
           end
+
           if !taxon1.nil? && taxon1.type == 'Combination'
             valid = TaxonName.find(taxon1.cached_valid_taxon_name_id)
             taxon1 = valid
           end
+
           if !relationship[row['Status']].nil? && !taxon.nil? && !taxon1.nil?
             if taxon != taxon1
 
@@ -1720,10 +1789,25 @@ namespace :tw do
         end
       end
 
+      # All valid names go through this indexing
+      # Takes a Protonym, and UCD taxon code
+      # * maps the taxon code to the taxon.id
+      # * creates a local import identifier
+      # * creates (findy) a related OTU
+      # * maps the taxon code to the otu.id
+      #
+      def set_data_for_taxon(taxon, taxon_code)
+        @data.taxon_codes[taxon_code] = taxon.id
+        Identifier::Local::Import.create!(identifier_object: taxon, namespace_id: @data.keywords['taxon_id'], identifier: taxon_code)
+        @data.otus[taxon_code] = Otu.find_or_create_by(taxon_name: taxon, project_id: $project_id).id 
+      end
+
+      # Return a TW TaxonName id 
       def find_taxon_id_ucd(key)
         @data.taxon_codes[key.to_s] || Identifier.where(cached: 'UCD_Taxon_ID ' + key.to_s, identifier_object_type: 'TaxonName', project_id: $project_id).limit(1).pluck(:identifier_object_id).first
       end
 
+      # Return a TW TaxonName id 
       def find_family_id_ucd(key)
         @data.families[key.to_s] || Identifier.where(cached: 'UCD_Family_ID ' + key.to_s, identifier_object_type: 'TaxonName', project_id: $project_id).limit(1).pluck(:identifier_object_id).first
       end
@@ -1736,24 +1820,22 @@ namespace :tw do
         @data.taxon_codes[key.to_s] || Identifier.where(cached: 'UCD_Hos_Number ' + key.to_s, identifier_object_type: 'TaxonName', project_id: $project_id).limit(1).pluck(:identifier_object_id).first
       end
 
-
       # TODO: This should pluck an :id not, return the object?
       def find_taxon_ucd(key)
         Identifier.find_by(cached: 'UCD_Taxon_ID ' + key.to_s, identifier_object_type: 'TaxonName', project_id: $project_id).try(:identifier_object)
       end
 
-
       # TODO: This should pluck an :id not, return the object?
       # Not used?!
-      def find_host_ucd(key)
-        Identifier.find_by(cached: 'UCD_Hos_Number ' + key.to_s, identifier_object_type: 'TaxonName', project_id: $project_id).try(:identifier_object)
-      end
+      # def find_host_ucd(key)
+      #  Identifier.find_by(cached: 'UCD_Hos_Number ' + key.to_s, identifier_object_type: 'TaxonName', project_id: $project_id).try(:identifier_object)
+      # end
 
       # TODO: This should pluck an :id not, return the object?
       # NOT used?!
-      def find_source_ucd(key)
-        Identifier.find_by(cached: 'UCD_RefCode ' + key.to_s, identifier_object_type: 'Source', project_id: $project_id).try(:identifier_object)
-      end
+      # def find_source_ucd(key)
+      #   Identifier.find_by(cached: 'UCD_RefCode ' + key.to_s, identifier_object_type: 'Source', project_id: $project_id).try(:identifier_object)
+      # end
 
       def find_source_id_ucd(key)
         @data.references[key.to_s] || Identifier.where(cached: 'UCD_RefCode ' + key.to_s, identifier_object_type: 'Source', project_id: $project_id).limit(1).pluck(:identifier_object_id).first
@@ -1781,8 +1863,10 @@ namespace :tw do
             fixed += 1  if f.fixed?
           end
         end
+      
         print "\nApply soft validation fixes to relationships \n"
         i = 0
+     
         TaxonNameRelationship.where(project_id: $project_id).find_each do |t|
           i += 1
           print "\r#{i}    Fixes applied: #{fixed}"
@@ -1793,6 +1877,7 @@ namespace :tw do
           end
         end
         print "\nApply soft validation fixes to taxa 2nd pass \n"
+
         i = 0
         TaxonName.where(project_id: $project_id).find_each do |t|
           i += 1
