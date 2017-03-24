@@ -90,6 +90,12 @@ Object.assign(TW.views.tasks.citations.otus, {
         addCitation(state, citation) {
           state.citations.push(citation);
         },
+        addToSourceList(state, citation) {
+          state.source_citations.push(citation);
+        },  
+        addToOtuList(state, citation) {
+          state.otu_citations.push(citation);
+        },                
         removeTopicSelected(state, id) {
           var position = state.selected.topics.findIndex(item => {
                 if(id === item.id) {
@@ -167,7 +173,7 @@ Object.assign(TW.views.tasks.citations.otus, {
       },
 
       template: '<ul> \
-                    <li v-for="item in items" v-html="item.source.object_tag"></li> \
+                    <li v-for="item in items" v-html="item.citation_object_tag"></li> \
                 </ul>',
     });
 
@@ -179,7 +185,7 @@ Object.assign(TW.views.tasks.citations.otus, {
       },
 
       template: '<ul> \
-                  <li v-for="item in items" v-html="item.citation_object_tag"></li> \
+                  <li v-for="item in items" v-html="item.source.object_tag"></li> \
                 </ul>',
     });
 
@@ -361,6 +367,9 @@ Object.assign(TW.views.tasks.citations.otus, {
               this.$http.post('/citations', citation).then( response => {
                 that.$store.commit('setCurrentCitation', response.body);
                 that.$store.commit('addCitation', response.body);
+                that.$store.commit('addToSourceList',response.body);
+                that.$store.commit('addToOtuList',response.body);
+                console.log(response.body);
                 that.$store.commit('setTopicsSelected', response.body.citation_topics); 
               })            
             }
