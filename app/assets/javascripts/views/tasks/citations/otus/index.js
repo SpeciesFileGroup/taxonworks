@@ -105,7 +105,32 @@ Object.assign(TW.views.tasks.citations.otus, {
           if(position >= 0) {
             state.selected.topics.splice(position, 1);
           }        
-        }
+        },
+        removeOtuFormCitationList(state, id) {
+          var position = state.otu_citations.findIndex(item => {
+                if(id === item.id) {
+                  return true;
+                }
+              });
+          if(position >= 0) {
+            state.otu_citations.splice(position, 1);
+          }        
+        },
+        removeSourceFormCitationList(state, id) {
+          var position = state.source_citations.findIndex(item => {
+                if(id === item.id) {
+                  return true;
+                }
+              });
+          if(position >= 0) {
+            state.source_citations.splice(position, 1);
+          }        
+        },
+        removeCitationSelected(state) {
+          state.selected.otu = undefined,
+          state.selected.citation = undefined,
+          state.citations = []
+        }                        
       },
     });
 
@@ -158,35 +183,60 @@ Object.assign(TW.views.tasks.citations.otus, {
         }
       },
 
-      template: '<div> This citation \
+      template: '<div v-if="items"> This citation \
                   <ul> \
-                    <li v-for="item in items" v-html="item.object_tag"></li> \
+                    <li v-for="item in items"><span v-html="item.object_tag"></span><span data-icon="trash" @click="removeCitation(item)"></span></li> \
                   </ul> \
                 </div>',
+      methods: {
+        removeCitation: function(item) { 
+          this.$http.delete("/citations/" + item.id).then(response => {
+            this.$store.commit('removeCitationSelected');
+              this.$store.commit('removeSourceFormCitationList', item.id);
+              this.$store.commit('removeOtuFormCitationList', item.id);
+          });
+        }
+      }                
     });
 
     Vue.component('source-citations', {
       computed: {
         items() {
           return this.$store.getters.getSourceCitationsList
-        }
+        },  
       },
 
       template: '<ul> \
-                    <li v-for="item in items" v-html="item.citation_object_tag"></li> \
+                    <li v-for="item in items"><span v-html="item.citation_object_tag"></span><span data-icon="trash" @click="removeCitation(item)"></span></li> \
                 </ul>',
+      methods: {
+          removeCitation: function(item) { 
+            this.$http.delete("/citations/" + item.id).then(response => {
+              this.$store.commit('removeSourceFormCitationList', item.id);
+              this.$store.commit('removeOtuFormCitationList', item.id);
+            });
+          }
+        }                
     });
 
     Vue.component('otu-citations', {
       computed: {
         items() {
           return this.$store.getters.getOtuCitationsList
-        }
+        },     
       },
 
       template: '<ul> \
-                  <li v-for="item in items" v-html="item.source.object_tag"></li> \
+                  <li v-for="item in items"><span v-html="item.source.object_tag"></span><span data-icon="trash" @click="removeCitation(item)"></span></li> \
                 </ul>',
+      methods: {
+          removeCitation: function(item) { 
+            this.$http.delete("/citations/" + item.id).then(response => {
+              this.$store.commit('removeOtuFormCitationList', item.id);
+              this.$store.commit('removeSourceFormCitationList', item.id);
+            });
+          }
+        }
     });
 
 
@@ -303,6 +353,7 @@ Object.assign(TW.views.tasks.citations.otus, {
       watch: {
         otu: function(val, oldVal) {
           if (val !== oldVal) { 
+            if(val != undefined)
             this.loadOtuCitations();
             if(!this.disabled) {
               this.loadCitations();              
