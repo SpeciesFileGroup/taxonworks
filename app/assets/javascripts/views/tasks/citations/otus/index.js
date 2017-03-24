@@ -167,8 +167,8 @@ Object.assign(TW.views.tasks.citations.otus, {
       },
 
       template: '<ul> \
-            <li v-for="item in items" v-html="item.object_tag"></li> \
-        </ul>',
+                    <li v-for="item in items" v-html="item.object_tag"></li> \
+                </ul>',
     });
 
     Vue.component('otu-citations', {
@@ -179,8 +179,8 @@ Object.assign(TW.views.tasks.citations.otus, {
       },
 
       template: '<ul> \
-        <li v-for="item in items" v-html="item.object_tag"></li> \
-        </ul>',
+                  <li v-for="item in items" v-html="item.object_tag"></li> \
+                </ul>',
     });
 
 
@@ -320,7 +320,7 @@ Object.assign(TW.views.tasks.citations.otus, {
 
           this.$http.get(filterUrl).then(response => {
             if(response.body.length) {
-              that.$store.commit('setSourceCitationsList', response.body[0]);
+              that.$store.commit('setSourceCitationsList', response.body);
             }
           })
         },
@@ -331,7 +331,7 @@ Object.assign(TW.views.tasks.citations.otus, {
 
           this.$http.get(filterUrl).then(response => {
             if(response.body.length) {
-              that.$store.commit('setOtuCitationsList', response.body[0]);
+              that.$store.commit('setOtuCitationsList', response.body);
             }
           })
         },
