@@ -725,9 +725,6 @@ namespace :tw do
           get_tw_otu_id = {} # key = SF.TaxonNameID, value = TW.otu.id; used for temporary or bad valid SF taxa
           get_taxon_name_otu_id = {} # key = TW.TaxonName.id, value TW.OTU.id just created for newly added taxon_name
 
-          project_id = 1 # default value, will be updated before keyword is used
-          keyword = Keyword.find_or_create_by(
-              name: 'Taxon name validation failed', definition: 'Taxon name validation failed', project_id: project_id)
 
           path = @args[:data_directory] + 'sfTaxaByTaxonNameStr.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
@@ -735,6 +732,16 @@ namespace :tw do
           error_counter = 0
           count_found = 0
           no_parent_counter = 0
+
+          invalid_name_keywords = {}
+          get_tw_project_id.keys.each do |project_id|
+
+            k = Keyword.find_or_create_by(
+                name: 'Taxon name validation failed',
+                definition: 'Taxon name validation failed',
+                project_id: project_id)
+            invalid_name_keywords[project_id] = k
+            end
 
           file.each_with_index do |row, i|
 
@@ -880,7 +887,7 @@ namespace :tw do
                     created_by_id: get_tw_user_id[row['CreatedBy']],
                     updated_by_id: get_tw_user_id[row['ModifiedBy']])
 
-                taxon_name.tags.new(keyword: keyword,
+                taxon_name.tags.new(keyword: invalid_name_keywords[project_id],
                                     project_id: project_id,
                                     created_at: row['CreatedOn'],
                                     updated_at: row['LastUpdate'],
