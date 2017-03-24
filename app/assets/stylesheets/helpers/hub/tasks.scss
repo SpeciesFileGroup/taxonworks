@@ -156,8 +156,9 @@
     font-size: 14px;
     font-weight: 400;
     line-height: 20px;
+    max-width: 350px;
+    color: $default_text;
     padding-left: $standard_padding * 1.4;
-    padding-right: $standard_padding * 1.4;
   }
 
   .navigation {
