@@ -35,12 +35,32 @@ Object.assign(TW.views.tasks.collecting_events.parse, {
   },
   
   bind_sequence_buttons: function () {
-    $('#disable_all').click(function (event) {
+    var sel_all = $('#select_all');
+    var des_all = $('#deselect_all');
+    var sav_sel = $('#save_selected');
+    var selectable = $('.selectable_select'); // al array
+  
+    sel_all.removeAttr('disabled');
+    sel_all.click(function (event) {
       // find all the checkboxes in the 'matching_span' and set them to 'checked'
+      // class is selectable_select
+      for (var i = 0; i < selectable.length; i++) {
+        selectable[i].setAttribute('checked', true)
+      }
       event.preventDefault();
     });
-    $('#save_selected').click(function (event) {
-      // don't know exactly what to do here
+    des_all.removeAttr('disabled');
+    des_all.click(function (event) {
+      // find all the checkboxes in the 'matching_span' and set them to 'checked'
+      // class is selectable_select
+      for (var i = 0; i < selectable.length; i++) {
+        selectable[i].removeAttribute('checked')
+      }
+      event.preventDefault();
+    });
+    sav_sel.removeAttr('disabled');
+    sav_sel.click(function (event) {
+      // don't know exactly what we need to do here
     });
   },
   

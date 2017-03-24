@@ -29,16 +29,19 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
     # filters
   end
 
-  # both  the Skip and the Show buttons come here, so we first have to look at the button value
-  def update
+  # all buttons come here, so we first have to look at the button value
+  def process_buttons
     prevention = ['39605', '103244', '57187', '103255']
+    no_flash = false
     success    = false
     message    = 'Failed to update '
+    next_id  = next_collecting_event_id
     case params['button']
+      when 'select_all', 'deselect_all'
+        raise '\'select_all\', and \'deselect_all\' should be preempted by javascript'
       when 'skip'
-        redirect_to collecting_event_lat_long_task_path(collecting_event_id: next_collecting_event_id,
-                                                        filters:             parse_filters(params))
-        return
+        success  = true # slide right along
+        no_flash = true # don't need no stinkin' flashes
       when 'save_selected'
         selected = params[:selected]
         unless selected.blank?
@@ -61,18 +64,20 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
           if current_collecting_event.update_attributes(collecting_event_params)
             current_collecting_event.generate_verbatim_data_georeference(true) if generate_georeference?
             success = true
-          else
-            message += 'the collecting event.'
           end
         end
+        message += 'the collecting event.'
     end
 
     if success
-      flash['notice'] = 'Updated.'
+      flash['notice'] = 'Updated.' unless no_flash # if we skipped, there is no flash
     else
       flash['alert'] = message
-      redirect_to collecting_event_lat_long_task_path(collecting_event_id: current_collecting_event.id)
+      next_id        = current_collecting_event.id
     end
+    # where do we go from here?
+    redirect_to collecting_event_lat_long_task_path(collecting_event_id: next_id,
+                                                    filters:             parse_filters(params))
   end
 
   def convert

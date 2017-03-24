@@ -413,7 +413,7 @@ TaxonWorks::Application.routes.draw do
         scope :stepwise do
           scope :lat_long, controller: 'tasks/collecting_events/parse/stepwise/lat_long' do
             get 'index', as: 'collecting_event_lat_long_task'
-            post 'update', as: 'lat_long_update_record'
+            post 'process_buttons', as: 'lat_long_process_buttons'
             get 'convert', as: 'lat_long_convert'
             get 'similar_labels', as: 'lat_long_similar_labels'
           end

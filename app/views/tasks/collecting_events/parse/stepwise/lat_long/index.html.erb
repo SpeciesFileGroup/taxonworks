@@ -10,7 +10,8 @@
     </div>
 
     <div class="item item2">
-      <%= form_tag(lat_long_update_record_path(collecting_event_id: @collecting_event.id), id: 'lat_long_convert_form',) do %>
+      <%= form_tag(lat_long_process_buttons_path(collecting_event_id: @collecting_event.id),
+                   id: 'lat_long_convert_form') do %>
           <%= parse_lat_long_skip(@collecting_event.id, @filters) %>
           <table border="1">
             <tbody>
@@ -65,12 +66,13 @@
             </tbody>
           </table>
           <%= button_tag('Save this one', value: 'save_one', id: 'lat_long_update_record') %><br>
-          <%= check_box_tag(:generate_georeference) %> Also create Georeference?
+          <%= check_box_tag(:generate_georeference, nil, true) %> Also create Georeference?
           <div id="matching_events" class="item item2">
             <h1>Identical matches (<span id="match_count">#</span>)</h1>
-            <%= check_box_tag(:include_values) %>Include already set values
-            <%= button_tag('Select all', value: 'select_all', id: 'select_all') %>
-            <%= button_tag('Save matches', value: 'save_selected', id: 'save_selected') %>
+            <%= check_box_tag(:include_values, nil, true) %>Include already set values
+            <%= button_tag('Select all', value: 'select_all', id: 'select_all', disabled: true) %>
+            <%= button_tag('Deselect all', value: 'deselect_all', id: 'deselect_all', disabled: true) %>
+            <%= button_tag('Save matches', value: 'save_selected', id: 'save_selected', disabled: true) %>
             <span id="matching_span"></span>
           </div>
       <% end %><br>

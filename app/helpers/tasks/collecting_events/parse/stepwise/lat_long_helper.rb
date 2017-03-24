@@ -77,7 +77,7 @@ module Tasks::CollectingEvents::Parse::Stepwise::LatLongHelper
       collection.collect { |item|
         content_tag (:tr) do
           item_data = ''
-          georef = false
+          no_georef = false
           columns.collect.with_index { |column, dex|
             case dex
               when 0 #'CEID'
@@ -95,13 +95,15 @@ module Tasks::CollectingEvents::Parse::Stepwise::LatLongHelper
               when 6 #'Is georeferenced?'
                 if item.georeferences.any?
                   item_data = 'yes'
-                  georef    = true
+                  no_georef = true
                 else
                   item_data = 'no'
                 end
               when 7 #'Select'
                 # check_box_tag(name, value = "1", checked = false, options = {}) public
-                item_data = check_box_tag("selected[]", item.id, false, {disabled: georef})
+                options_for         = {disabled: no_georef}
+                options_for[:class] = 'selectable_select' unless no_georef
+                item_data           = check_box_tag('selected[]', item.id, false, options_for)
             end
             concat content_tag(:td, item_data, align: 'center')
           }.to_s.html_safe
