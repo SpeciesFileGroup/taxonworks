@@ -1,4 +1,4 @@
-GapiVersion: v1
+apiVersion: v1
 kind: Service
 metadata:
   namespace: tw
@@ -42,18 +42,13 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: taxonworks
-                  key: root.password
-            - name: DB_USERNAME
+                  key: db.user.password
+            - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:
                   name: taxonworks
                   key: db.user
-            - name: DB_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: taxonworks
-                  key: db.user.password
-            - name: DB_DATABASE
+            - name: POSTGRES_DB
               valueFrom:
                 configMapKeyRef:
                   name: taxonworks
