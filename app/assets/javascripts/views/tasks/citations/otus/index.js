@@ -297,17 +297,17 @@ Object.assign(TW.views.tasks.citations.otus, {
       watch: {
         otu: function(val, oldVal) {
           if (val !== oldVal) { 
+            this.loadOtuCitations();
             if(!this.disabled) {
-              this.loadCitations();
-              this.loadOtuCitations()
+              this.loadCitations();              
             }
            }
         },
         source: function(val, oldVal) {
           if (val !== oldVal) { 
+            this.loadSourceCitations()            
             if(!this.disabled) {
               this.loadCitations();
-              this.loadSourceCitations()
             }
            }
         }
