@@ -511,6 +511,7 @@ DEPENDENCIES
   rails (~> 4.2.7.1)
   rails-jquery-autocomplete
   rainbow
+  rake (~> 11.1)
   redcarpet (~> 3.3)
   redis (~> 3.3.1)
   ref2bibtex (~> 0.0.3)

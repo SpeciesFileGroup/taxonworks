@@ -21,9 +21,10 @@ production:
   encoding: utf8 
   postgis_extension: true
   pool: 5
-  database: <%= ENV['DB_DATABASE'] -%>
-  username: <%= ENV['DB_USERNAME'] -%>
-  password: <%= ENV['DB_PASSWORD'] -%>
+  host: <%= ENV['POSTGRES_HOST'] %>
+  database: <%= ENV['POSTGRES_DB'] %>
+  username: <%= ENV['POSTGRES_USER'] %>
+  password: <%= ENV['POSTGRES_PASSWORD'] %>
 
 
 
