@@ -42,6 +42,8 @@ class Citation < ActiveRecord::Base
 
   before_destroy :prevent_if_required
 
+  after_create :add_source_to_project
+
   def prevent_if_required
     if !marked_for_destruction? && !new_record? && citation_object.requires_citation? && citation_object.citations(true).count == 1
       errors.add(:base, 'at least one citation is required')
@@ -83,6 +85,13 @@ class Citation < ActiveRecord::Base
   end
 
   protected
+
+  def add_source_to_project
+    if !ProjectSource.where(source: source).any?
+      ProjectSource.create(project: project, source: source)
+    end
+    true
+  end
 
   def reject_citation_topics(attributed)
     attributes['id'].blank? && attributed['topic_id'].blank? && attributed['topic'].blank? && attributed['topic_attributes'].blank?
