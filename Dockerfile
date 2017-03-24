@@ -60,6 +60,10 @@ COPY . /app
 # TODO: make a variable
 # RUN bundle exec rake assets:precompile RAILS_ENV=development
 
+COPY ./config/database.yml.example /app/config/database.yml
+
+COPY ./config/application_settings.yml.example /app/config/application_settings.yml
+
 CMD ["rails", "server"] # there is only one
 
 # CMD rackup
