@@ -30,17 +30,20 @@ Object.assign(TW.views.shared.slideout.pdf, {
       $("#pdfViewerContainer").addClass('box-spinner');
       $("#pdfViewerContainer").append('<span style="color:#444; margin-top:80px; text-align: center;">Loading, please wait.</span>');
 
-        createPDF.then(function (pdf) {
-          $("#pdfViewerContainer span").remove();
-          $("#pdfViewerContainer").removeClass('box-spinner');
-          $("#viewer").parent().removeClass('spinner');          
-          pdfDocument = pdf;
+      createPDF.then(function (pdf) {
+        $("#pdfViewerContainer span").remove();
+        $("#pdfViewerContainer").removeClass('box-spinner');
+        $("#viewer").parent().removeClass('spinner');          
+        pdfDocument = pdf;
 
-          var viewer = document.getElementById('viewer');
-          for (var i = 0; i < pdf.pdfInfo.numPages; i++) {
-            var page = createEmptyPage(i + 1);
-            viewer.appendChild(page);
+        var viewer = document.getElementById('viewer');
+        for (var i = 0; i < pdf.pdfInfo.numPages; i++) {
+          var page = createEmptyPage(i + 1);
+          viewer.appendChild(page);
         }
+        updatePageNumber(1)
+        $("#numPages").text('of ' + pdf.pdfInfo.numPages);
+
         actualPage = 1;
         loadPage(actualPage);
 
@@ -53,6 +56,12 @@ Object.assign(TW.views.shared.slideout.pdf, {
       var wrapper = document.createElement('div');
       var textLayer = document.createElement('div');
 
+      pdfDocument.getPage(num).then(function (pdfPage) {
+        var viewport = pdfPage.getViewport(actualScale);
+        page.style.width = viewport.width  + 'px';
+        page.style.height = viewport.height + 'px';
+      });
+      
       page.className = 'page';
       wrapper.className = 'canvasWrapper';
       textLayer.className = 'textLayer';
@@ -62,9 +71,10 @@ Object.assign(TW.views.shared.slideout.pdf, {
       page.setAttribute('data-page-number', num);
 
       canvas.setAttribute('id', 'page' + num);
-
+      
+        
       page.appendChild(wrapper);
-      page.appendChild(textLayer);
+      page.appendChild(textLayer);   
       wrapper.appendChild(canvas);
 
       return page;
@@ -125,10 +135,28 @@ Object.assign(TW.views.shared.slideout.pdf, {
       var visiblePageNum = Math.round(scrollPosition / PAGE_HEIGHT) + 1;
       actualPage = visiblePageNum;
       var visiblePage = $('.page[data-page-number="' + visiblePageNum + '"][data-loaded="false"]');
+      updatePageNumber(actualPage);
       if ($(visiblePage).attr('data-loaded') == 'false') {
         $(visiblePage).attr('data-loaded', 'true');
         loadPage(visiblePageNum);
       }
+    }
+    $("#pageNumber").keypress(function(e) {
+        if(e.which == 13) {
+            scrollToPage($("#pageNumber").val());
+        }
+    });
+
+    function scrollToPage(num) {
+        event.preventDefault(); 
+        $('#pdfViewerContainer').scrollTop( 0 );
+        $('#pdfViewerContainer').animate({ 
+            scrollTop: $( '[data-page-number="' + num + '"]').offset().top-92
+        }, 0);        
+    };
+
+    function updatePageNumber(num) {
+      $('#pageNumber').val(num);
     }
 
     function resetLoadedStatus(num) {
