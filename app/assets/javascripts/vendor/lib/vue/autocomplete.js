@@ -110,7 +110,14 @@ Vue.component('autocomplete', {
           this.spinner = true;
           this.clearResults();   
 
-          this.$http.get(this.ajaxUrl()).then(response => {
+          this.$http.get(this.ajaxUrl(), {
+            before(request) {
+              if (this.previousRequest) {
+                this.previousRequest.abort();
+              }
+              this.previousRequest = request;
+            }            
+          }).then(response => {
             this.json = response.body;
             this.showList = (this.json.length > 0)
             this.spinner = false;
