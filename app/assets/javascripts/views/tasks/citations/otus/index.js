@@ -167,7 +167,7 @@ Object.assign(TW.views.tasks.citations.otus, {
       },
 
       template: '<ul> \
-                    <li v-for="item in items" v-html="item.object_tag"></li> \
+                    <li v-for="item in items" v-html="item.source.object_tag"></li> \
                 </ul>',
     });
 
@@ -179,7 +179,7 @@ Object.assign(TW.views.tasks.citations.otus, {
       },
 
       template: '<ul> \
-                  <li v-for="item in items" v-html="item.object_tag"></li> \
+                  <li v-for="item in items" v-html="item.citation_object_tag"></li> \
                 </ul>',
     });
 
