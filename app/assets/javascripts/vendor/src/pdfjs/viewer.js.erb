@@ -41,7 +41,8 @@ Object.assign(TW.views.shared.slideout.pdf, {
           var page = createEmptyPage(i + 1);
           viewer.appendChild(page);
         }
-        updatePageNumber(1)
+        updatePageNumber(1);
+        $('#pageNumber').attr('max', pdf.pdfInfo.numPages);
         $("#numPages").text('of ' + pdf.pdfInfo.numPages);
 
         actualPage = 1;
@@ -143,7 +144,17 @@ Object.assign(TW.views.shared.slideout.pdf, {
     }
     $("#pageNumber").keypress(function(e) {
         if(e.which == 13) {
-            scrollToPage($("#pageNumber").val());
+          var
+            min = $("#pageNumber").attr('min'),
+            max = $("#pageNumber").attr('max'),
+            num = $("#pageNumber").val();
+            
+          if(num > max) {
+            num = $("#pageNumber").val(max)
+          } else if(num < min) {
+            num = $("#pageNumber").val(min)
+          }
+          scrollToPage($("#pageNumber").val());
         }
     });
 
