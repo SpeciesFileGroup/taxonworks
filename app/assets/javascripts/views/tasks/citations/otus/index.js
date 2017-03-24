@@ -20,7 +20,9 @@ Object.assign(TW.views.tasks.citations.otus, {
           topics: []
         },
         topics: [],
-        citations: []
+        citations: [],
+        source_citations: [],
+        otu_citations: []
       },
       
       getters: {
@@ -49,6 +51,12 @@ Object.assign(TW.views.tasks.citations.otus, {
           },
         getSetTopics(state) {
           return state.selected.topics
+        },
+        getSourceCitationsList(state) {
+           return state.source_citations 
+        },
+        getOtuCitationsList(state) {
+          return state.otu_citations 
         }
       },
       mutations: {
@@ -72,7 +80,13 @@ Object.assign(TW.views.tasks.citations.otus, {
         },        
         setCitationsList(state, list) {
           state.citations = list;
-        },      
+        },
+        setSourceCitationsList(state, list) {
+          state.source_citations = list;
+        },
+        setOtuCitationsList(state, list) {
+          state.otu_citations = list;
+        },
         addCitation(state, citation) {
           state.citations.push(citation);
         },
@@ -90,10 +104,10 @@ Object.assign(TW.views.tasks.citations.otus, {
     });
 
     Vue.component('otu-picker', {
-      template: '<div id="otu_panel"> OTU: <br> \
+      template: '<div id="otu_panel"> OTU <br> \
                   <autocomplete \
                     url="/otus/autocomplete" \
-                    min="3" \
+                    min="2" \
                     param="term" \
                     placeholder="Find OTU" \
                     event-send="otu_picker" \
@@ -111,10 +125,10 @@ Object.assign(TW.views.tasks.citations.otus, {
     });
 
     Vue.component('source-picker', {
-      template: '<div id="source_panel"> Source: <br>\
+      template: '<div id="source_panel"> Source <br>\
                   <autocomplete \
                     url="/sources/autocomplete" \
-                    min="3" \
+                    min="2" \
                     param="term" \
                     placeholder="Find source" \
                     event-send="source_picker" \
@@ -143,8 +157,33 @@ Object.assign(TW.views.tasks.citations.otus, {
                     <li v-for="item in items" v-html="item.object_tag"></li> \
                   </ul> \
                 </div>',
-
     });
+
+    Vue.component('source-citations', {
+      computed: {
+        items() {
+          return this.$store.getters.getSourceCitationsList
+        }
+      },
+
+      template: '<ul> \
+            <li v-for="item in items" v-html="item.object_tag"></li> \
+        </ul>',
+    });
+
+    Vue.component('otu-citations', {
+      computed: {
+        items() {
+          return this.$store.getters.getOtuCitationsList
+        }
+      },
+
+      template: '<ul> \
+        <li v-for="item in items" v-html="item.object_tag"></li> \
+        </ul>',
+    });
+
+
 
     Vue.component('topics-checklist', {
       computed: {
@@ -165,7 +204,7 @@ Object.assign(TW.views.tasks.citations.otus, {
     Vue.component('topic-checkbox', {
       template: '<div> \
                   <input v-model="checked" type="checkbox" v-on:click="setOrRemoveTopic()" :disabled="disable"> \
-                    <span>{{ topic.name }}</span> | checked: {{checked}} \
+                    <span>{{ topic.name }}</span> \
                 </div>',
                 
       computed: {
@@ -259,20 +298,45 @@ Object.assign(TW.views.tasks.citations.otus, {
         otu: function(val, oldVal) {
           if (val !== oldVal) { 
             if(!this.disabled) {
-              this.loadCitations()
+              this.loadCitations();
+              this.loadOtuCitations()
             }
            }
         },
         source: function(val, oldVal) {
           if (val !== oldVal) { 
             if(!this.disabled) {
-              this.loadCitations()
+              this.loadCitations();
+              this.loadSourceCitations()
             }
            }
         }
       },         
 
       methods: {
+        loadSourceCitations: function() {
+          var that = this,
+            filterUrl = `/citations/filter?source_id=${that.$store.getters.getSourceSelected.id}&citation_object_type=Otu`;
+
+          this.$http.get(filterUrl).then(response => {
+            if(response.body.length) {
+              that.$store.commit('setSourceCitationsList', response.body[0]);
+            }
+          })
+        },
+
+        loadOtuCitations: function() {
+          var that = this,
+            filterUrl = `/citations/filter?citation_object_type=Otu&citation_object_id=${that.$store.getters.getOtuSelected.id}`;
+
+          this.$http.get(filterUrl).then(response => {
+            if(response.body.length) {
+              that.$store.commit('setSourceCitationsList', response.body[0]);
+            }
+          })
+        },
+
+
         loadCitations: function() {
           var that = this,
               filterUrl = `/citations/filter?source_id=${that.$store.getters.getSourceSelected.id}&citation_object_type=Otu&citation_object_id=${that.$store.getters.getOtuSelected.id}`;
@@ -289,7 +353,6 @@ Object.assign(TW.views.tasks.citations.otus, {
             }
             else {
               var citation = {
-
                 citation_object_type: 'Otu',  
                 citation_object_id: that.$store.getters.getOtuSelected.id,          
                 source_id: that.$store.getters.getSourceSelected.id            
