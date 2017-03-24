@@ -158,7 +158,7 @@ Object.assign(TW.views.tasks.citations.otus, {
         }
       },
 
-      template: '<div> Existing Citations \
+      template: '<div> This citation \
                   <ul> \
                     <li v-for="item in items" v-html="item.object_tag"></li> \
                   </ul> \
