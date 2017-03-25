@@ -1523,7 +1523,7 @@ namespace :tw do
           otu = @data.otus[row['TaxonCode'].to_s]
  
           print "\n TaxonCode: #{row['TaxonCode']} not found \n" if row['TaxonCode'].blank?
-          print "\n No corresponding OTU for TaxonCode: [#{row['TaxonCode']]} \n" if otu.nil? #  taxon.nil?
+          print "\n No corresponding OTU for TaxonCode: [#{row['TaxonCode']}] \n" if otu.nil? #  taxon.nil?
 
           next if otu.nil?
 
