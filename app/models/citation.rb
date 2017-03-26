@@ -31,7 +31,7 @@ class Citation < ActiveRecord::Base
   belongs_to :citation_object, polymorphic: :true
   belongs_to :source, inverse_of: :citations
 
-  has_many :citation_topics, inverse_of: :citation
+  has_many :citation_topics, inverse_of: :citation, dependent: :destroy
   has_many :topics, through: :citation_topics
 
   validates_presence_of  :source_id
