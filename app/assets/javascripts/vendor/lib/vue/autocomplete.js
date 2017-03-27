@@ -22,7 +22,7 @@ Vue.component('autocomplete', {
                 <input class="vue-autocomplete-input normal-input" type="text" v-bind:placeholder="placeholder" v-on:input="checkTime" v-model="type" v-bind:class="{ \'ui-autocomplete-loading\' : spinner } " /> \
                 <ul v-show="showList" v-if="type && json.length"> \
                   <li v-for="(item, index) in json" :class="activeClass(index)" @mouseover="itemActive(index)" @click.prevent="{ itemClicked(item[label]), sendItem(item) }" > \
-                      <span> {{ item[label] }} </span> \
+                      <span v-html="item[label]"></span> \
                   </li> \
                 </ul> \
               </div>',

@@ -135,7 +135,8 @@ Object.assign(TW.views.tasks.citations.otus, {
     });
 
     Vue.component('otu-picker', {
-      template: '<div id="otu_panel"> OTU <br> \
+      template: '<div id="otu_panel" class="field"> \
+                  <label>OTU</label> \
                   <autocomplete \
                     url="/otus/autocomplete" \
                     min="2" \
@@ -156,7 +157,8 @@ Object.assign(TW.views.tasks.citations.otus, {
     });
 
     Vue.component('source-picker', {
-      template: '<div id="source_panel"> Source <br>\
+      template: '<div id="source_panel" class="field"> \
+                  <label>Source</label>\
                   <autocomplete \
                     url="/sources/autocomplete" \
                     min="2" \
@@ -178,15 +180,16 @@ Object.assign(TW.views.tasks.citations.otus, {
 
     Vue.component('existing-citations', {
       computed: {
-        items() {
-          return this.$store.getters.getCitationsList
+        citation() {
+          return this.$store.getters.getCitationSelected
         }
       },
 
-      template: '<div v-if="items"> This citation \
-                  <ul> \
-                    <li v-for="item in items"><span v-html="item.object_tag"></span><span data-icon="trash" @click="removeCitation(item)"></span></li> \
-                  </ul> \
+      template: '<div v-if="citation"> \
+                  <div class="slide-panel-category-header">Current citation</div> \
+                  <div class="slide-panel-category-content"> \
+                    <b><span class="slide-panel-category-item no_bullets"><span v-html="citation.object_tag"></span><span data-icon="trash" @click="removeCitation(citation)"></span></span></b> \
+                  </div> \
                 </div>',
       methods: {
         removeCitation: function(item) { 
@@ -206,9 +209,12 @@ Object.assign(TW.views.tasks.citations.otus, {
         },  
       },
 
-      template: '<ul> \
+      template: '<div v-if="items.length"> \
+                  <h3>Source citations</h3> \
+                  <ul> \
                     <li v-for="item in items"><span v-html="item.citation_object_tag"></span><span data-icon="trash" @click="removeCitation(item)"></span></li> \
-                </ul>',
+                  </ul> \
+                </div>',
       methods: {
           removeCitation: function(item) { 
             this.$http.delete("/citations/" + item.id).then(response => {
@@ -226,9 +232,12 @@ Object.assign(TW.views.tasks.citations.otus, {
         },     
       },
 
-      template: '<ul> \
-                  <li v-for="item in items"><span v-html="item.source.object_tag"></span><span data-icon="trash" @click="removeCitation(item)"></span></li> \
-                </ul>',
+      template: '<div v-if="items.length"> \
+                  <h3>Otu citations</h3> \
+                  <ul> \
+                    <li v-for="item in items"><span v-html="item.source.object_tag"></span><span data-icon="trash" @click="removeCitation(item)"></span></li> \
+                  </ul> \
+                </div>',
       methods: {
           removeCitation: function(item) { 
             this.$http.delete("/citations/" + item.id).then(response => {
@@ -250,17 +259,20 @@ Object.assign(TW.views.tasks.citations.otus, {
           return this.$store.getters.objectsSelected
         }
       },
-      template: '<div v-if="!disabled"> Topics \
-        <ul > \
-          <li v-for="item in items"><topic-checkbox v-bind:topic=item> </topic-checkbox> </li> \
-        </ul> \
-        </div>',
+      template: '<div v-if="!disabled"> \
+                  <div class="slide-panel-category-header"> Topics </div>\
+                  <ul class="slide-panel-category-content"> \
+                    <li v-for="item in items" class="slide-panel-category-item no_bullets"><topic-checkbox v-bind:topic=item> </topic-checkbox> </li> \
+                  </ul> \
+                </div>',
     });
+  
 
     Vue.component('topic-checkbox', {
       template: '<div> \
+                  <label> \
                   <input v-model="checked" type="checkbox" v-on:click="setOrRemoveTopic()" :disabled="disable"> \
-                    <span>{{ topic.name }}</span> \
+                    {{ topic.name }}</label> \
                 </div>',
                 
       computed: {
@@ -333,6 +345,26 @@ Object.assign(TW.views.tasks.citations.otus, {
         }
       }
     });
+
+    Vue.component('select-citation', {
+      template: '<div><button class="button button-default normal-input" @click="showModal = true">Select</button>\
+                <modal v-if="showModal" id="select-citation"> \
+                  <h3 slot="header">Select citation</h3>\
+                  <div slot="body"> \
+                    <otu-picker> </otu-picker> \
+                    <source-picker> </source-picker> \
+                  </div> \
+                  <div slot="footer"> \
+                    <button class="button normal-input button-close" @click="showModal = false">Close</button> \
+                  </div> \
+                 </modal></div>',
+
+      data: function() {
+        return {
+          showModal: true
+        }
+      },
+    })
 
     var cite_otus = new Vue({
       el: '#cite_otus',

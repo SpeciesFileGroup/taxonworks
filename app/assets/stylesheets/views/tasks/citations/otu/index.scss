@@ -1,0 +1,34 @@
+@import 'base/palette';
+@import 'base/fonts';
+@import 'base/whitespace';
+@import 'base/form_elements';
+
+#cite_otus {
+	margin-left: -1em;
+	position: relative;
+	#select-citation {
+		color: $default_text;
+		label {
+			font-size: $font_normal;
+		}
+		input {
+			width: 100%;
+		}
+	}
+	.slide-panel {
+		top:0px;
+		position: relative;
+		max-width: 300px;
+		min-width: 300px;		
+		.slide-panel-header {
+			font-weight: 500;
+			color: #42b983;
+			background-color: #FFF;
+			border-bottom: 1px solid $navigation_border;
+			padding-right: $standard_padding;
+		}
+		.slide-panel-category-item:hover {
+			cursor: pointer;
+		}			
+	}	
+}

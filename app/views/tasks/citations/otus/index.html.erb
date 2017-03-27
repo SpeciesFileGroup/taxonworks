@@ -2,23 +2,16 @@
 
 <div id="cite_otus">
   <div class="flexbox">
-    
-    <div class="item item1">
-      <h3 data-help="asdfasdf"> Create </h3>
-      <otu-picker> </otu-picker>
-      <source-picker> </source-picker>
-      <topics-checklist> </topics-checklist>
-      <existing-citations v-if="!disabled"> </existing-citations>
+    <div id="topics" class="slide-panel separate-right slide-left slide-recent item item1 column-tiny" data-panel-position="relative" data-panel-open="true" data-panel-name="topic_list">
+      <div class="slide-panel-header flex-separate"><span>OTU Citation</span><div><select-citation></select-citation></div></div>
+      <div class="slide-panel-content">
+          <existing-citations> </existing-citations>
+          <topics-checklist></topics-checklist> 
+      </div>        
     </div>
-
-    <div class="item item2">
-      <h3> Source citations </h3>
-      <source-citations> </source-citations>
-    </div>
-
-    <div class="item item3">
-      <h3> Otu citations </h3>
-        <otu-citations> </otu-citations>
+    <div class="item2 panel content separate-left">
+      <source-citations></source-citations>
+      <otu-citations></otu-citations>
     </div>
   </div>
 
