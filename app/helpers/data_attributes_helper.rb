@@ -11,13 +11,7 @@ module DataAttributesHelper
                                         attribute_subject_type: object.class.base_class.name,
                                         attribute_subject_id: object.id})) if object.has_data_attributes?
   end
-
-  # TODO: add a cached?
-# def data_attribute_tag(data_attribute)
-#   return nil if data_attribute.nil?
-#   data_attribute.predicate_name + ": " + data_attribute.value 
-# end
-
+  
   def data_attribute_link(data_attribute)
     return nil if data_attribute.nil?
     link_to(object_tag(data_attribute).html_safe, data_attribute.annotated_object.metamorphosize)
@@ -54,7 +48,5 @@ module DataAttributesHelper
       end
     end
   end
-
-
 
 end

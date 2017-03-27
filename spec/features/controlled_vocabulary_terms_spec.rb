@@ -96,41 +96,6 @@ describe 'ControlledVocabularyTerms', :type => :feature do
           expect(page).to have_content('Objects with keyword "TestKeyword"')
         end
 
-        context 'use newly created keyword as a tag' do
-          # Create an otu
-          before {
-            visit otus_path
-            click_link('New')
-            fill_in 'Name', with: 'OtusTestName'
-            click_button 'Create Otu'
-          }
-
-          specify 'tag the otu with newly created keyword' do
-            # Click on 'Annotate' header to show 'Add Tag' link
-            find('span', text: 'Annotate').click
-            click_link('Add tag')
-
-            # Fill in the tag info
-            fill_in 'keyword_id_for_controlled_vocabulary_term', with: 'TestKeyword'
-            find('a', text: "TestKeyword: TestKeyword definition").click
-            click_button 'Create Tag'
-
-            # Should have 'TestKeyword' under 'Tag' in the 'Annotations' box
-            expect(page).to have_content('TestKeyword')
-
-            # Go back to the 'TestKeyword' cvt
-            visit controlled_vocabulary_terms_path
-            click_link('TestKeyword')
-
-            # Go to the 'Tagged Objects' link
-            find('span', text: 'Report').click
-            click_link('Tagged Objects')
-
-            # Page should now list 'OtusTestName' under the 'Otu' category
-            expect(page).to have_content('Otu (1)')
-            expect(page).to have_content('OtusTestName')
-          end
-        end
       end
     end
   end

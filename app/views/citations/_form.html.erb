@@ -1,42 +1,41 @@
 <%= form_for(@citation) do |f| %>
-    <%= render 'shared/errors', object: @citation %>
+   <%= render 'shared/errors', object: @citation %>
 
-    <p><strong><%= @citation.citation_object.class.name %>:</strong> <%= object_tag(@citation.citation_object) -%>  </p>
+   <p><strong><%= @citation.citation_object.class.name %>:</strong> <%= object_tag(@citation.citation_object) -%>  </p>
 
-    <%= f.hidden_field :citation_object_type %>
-    <%= f.hidden_field :citation_object_id %>
+   <%= f.hidden_field :citation_object_type %>
+   <%= f.hidden_field :citation_object_id %>
 
-    <div class="field">
-      <%= f.label :source_id %>
-      <br>
-      <%= render :partial => 'workbench/elements/forms/ajax_select',
-                 :locals  => {:controller => 'sources',
-                              :object     => 'citation',
-                              :method     => 'source_id',
-                              :tag_id     => 'source_id_for_citation',
-                              :display    => source_tag(@citation.source)} %>
-    </div>
+   <div class="field">
+     <%= f.label :source_id %>
+     <br>
+     <%= render :partial => 'workbench/elements/forms/ajax_select',
+                :locals  => {:controller => 'sources',
+                             :object     => 'citation',
+                             :method     => 'source_id',
+                             :tag_id     => 'source_id_for_citation',
+                             :display    => source_tag(@citation.source)} %>
+   </div>
 
-    <div class="field">
-      <%= f.label :pages %>
-      <br>
-      <%= f.text_field :pages %>
-    </div>
+   <div class="field">
+     <%= f.label :pages %>
+     <br>
+     <%= f.text_field :pages %>
+   </div>
 
-    <div class="field">
-      <%= f.label :is_original %>
-      <br>
-      <%= f.check_box :is_original %>
-    </div>
+   <div class="field">
+     <%= f.label :is_original %>
+     <br>
+     <%= f.check_box :is_original %>
+   </div>
 
-    <%= render partial: '/citation_topics/citation_topic_picker',
-      locals: {citation_topic: CitationTopic.new(), object: @citation, f: f} 
-    %>
+   <%= render partial: '/citation_topics/citation_topic_picker',
+     locals: {citation_topic: CitationTopic.new(), object: @citation, f: f} 
+   %>
 
-
-    <div class="actions">
-      <%= f.submit %>
-    </div>
+   <div class="actions">
+     <%= f.submit %>
+   </div>
 <% end %>
 
 

@@ -33,7 +33,7 @@ module BatchLoad
         # creation of the possible-objects list
         parse_result.objects.merge!(co: [], otu: [], td: [], ce: [])
         # attach the results to the row
-        @processed_rows.merge!(i => parse_result)
+        @processed_rows[i] = parse_result
 
         # hot-wire the project into the row
         temp_row               = row
@@ -63,7 +63,7 @@ module BatchLoad
           otu_match      = Digest::SHA256.digest(otu_attributes.to_s)
           otu            = build_objects[otu_match] if otu.blank?
           otu            = Otu.new(otu_attributes) if otu.blank?
-          build_objects.merge!(otu_match => otu)
+          build_objects[otu_match] = otu # .merge!(otu_match => otu)
           parse_result.objects[:otu].push(otu)
         end
 

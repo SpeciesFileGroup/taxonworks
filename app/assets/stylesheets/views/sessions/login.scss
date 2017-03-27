@@ -1,48 +1,49 @@
 /* Login Screen */
 @import 'base/palette';
 @import 'base/whitespace';
+@import 'base/fonts';
 
 #login-container {
 	position: absolute;
     top: 50%;
     left: 50%;
-    margin-top: -150px;
-    margin-left: -150px;
-    width: 300px;
+    transform: translateY(-125%) translateX(-50%);
+    width: 400px;
     height: 200px;
+    text-align:center;
+    h1 {
+    	font-size: 200%;
+    	margin-bottom: $standard_margin;
+    }
+
+    h3 {
+    	text-align:center;
+    	padding: $standard_margin;
+    }
 	
 	.box-login {
 		background-color: #FFF;
-		padding:$standard_padding;
-		border-radius:2px;
-		box-shadow:0 1px 1px rgba(0,0,0,.2);
+		padding:$standard_padding *2;
+		padding-top: $standard_padding*0.5;		
+		box-shadow: 0px 1px 1px 0px rgba(0,0,0,0.2);
 	}
 	.item {
-		padding:3px;
 		display:flex;
-		justify-content:space-between;
-		align-items:center;
-		
+		justify-content: space-between;
 	}
 	.item a {
-		padding-top:10px;
+		padding-top:$standard_padding;
 		text-decoration:none;
 	}
-	.item a:first-letter {
-		text-transform:uppercase;
-	}
-	input[type="text"] {
-		width:240px;
+
+	input {
+		border-radius: 0px;
+		width:100%;
+		font-size: $font_normal;
 	}
 	
 	input[type="submit"] {
-		margin:0px;
-	}
-	
-	h1 {
-		text-align:center;
-	}
-	input[type="password"] {
-		width:240px;
+		margin-top: 20px;
+		border-radius: 3px;
 	}
 }

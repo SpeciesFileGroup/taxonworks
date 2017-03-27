@@ -32,7 +32,7 @@ module BatchLoad
         row.push('project_id' => @project_id)
 
         rp = BatchLoad::RowParse.new
-        @processed_rows.merge!(i => rp)
+        @processed_rows[i] = rp
 
         o = BatchLoad::ColumnResolver.otu(row)
         s = BatchLoad::ColumnResolver.source(row)

@@ -1,0 +1,68 @@
+<div class="tag_picker">
+  <div>
+    <div class="tag_header"> Tags for <%= object_tag(@taggable_object) %>
+      <span class='tag_picker_alert' hidden></span></div>
+    <span class="tag_picker_message"></span>
+
+    <ul class="tag_list">
+
+      <%= f.fields_for :tags, @taggable_object.tags.order(:position) do |tag_fields| %>
+          <% if tag_fields.object.new_record? %>
+              <% inc_index = "#{Time.now.to_i}#{tag_fields.object.id}" %>
+
+              <%= content_tag(:li, 'data-tag-index' => inc_index) do -%>
+                  <%= tag_fields.fields_for :keyword do |keyword_fields| %>
+                      <%= keyword_fields.hidden_field :name -%>
+                      <%= keyword_fields.hidden_field :definition -%>
+                      <%= tag_tag(keyword_fields.object.tag) -%> <%= link_to('remove', "#", class: :remove_tag) -%>
+                  <% end %>
+              <% end %>
+
+          <% else %>
+
+              <li class="tag_item" data-tag-id="<%= tag_fields.object.id -%>" data-tag-index="<%= tag_fields.index -%>">
+                <%= tag_fields.object.position %>
+                <%= tag_tag(tag_fields.object) -%>
+            <%= link_to('remove', "#", class: :remove_tag) -%>
+
+          </li>
+
+          <% end %>
+      <% end %>
+
+    </ul>
+  </div>
+
+  <div class="keyword_selection">
+    <div><%= text_field_tag "keyword_picker_autocomplete", nil, class: 'keyword_picker_autocomplete', placeholder: "Keyword" %></div>
+
+    <div class="new_keyword" hidden>
+      <div class="keyword_picker_form">
+        <%= f.fields_for Keyword.new do |fp| %>
+            <div class="field">
+              <%= fp.label :definition %><br>
+              <%= fp.text_area :name, placeholder: "Keyword definition", class: :definition, id: "#{f.object.class.name}_#{f.object.id}_new_keyword_definition" %>
+            </div>
+        <% end %>
+
+        <%= link_to "add new", '#', id: :keyword_picker_add_new, hidden: true %>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

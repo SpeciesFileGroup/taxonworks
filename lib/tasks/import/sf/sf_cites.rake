@@ -13,16 +13,13 @@ namespace :tw do
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
           get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID')
-          get_tw_otu_id = import.get('SFTaxonNameIDToTWOtuID')
+          get_tw_otu_id = import.get('SFTaxonNameIDToTWOtuID') # Note this is an OTU associated with a SF.TaxonNameID (probably a bad taxon name)
+          get_taxon_name_otu_id = import.get('TWTaxonNameIDToOtuID') # Note this is the OTU offically associated with a real TW.taxon_name_id
           get_tw_source_id = import.get('SFRefIDToTWSourceID')
           get_nomenclator_string = import.get('SFNomenclatorIDToSFNomenclatorString')
-
-          # @todo: Temporary "fix" to convert all values to string; will be fixed next time taxon names are imported and following do can be deleted
-          get_tw_taxon_name_id.each do |key, value|
-            get_tw_taxon_name_id[key] = value.to_s
-          end
-
-          # NOTE: SF RefInRefs were not imported prior to 11 Jan 2017. They should have been handled as verbatim ref. Patch is now in the create_sources task and should be handled once that task is rerun.
+          get_cvt_id = import.get('CvtProjUriID')
+          get_containing_source_id = import.get('TWSourceIDToContainingSourceID') # use to determine if taxon_name_author must be created (orig desc only)
+          get_sf_taxon_name_authors = import.get('SFRefIDToTaxonNameAuthors') # contains ordered array of SF.PersonIDs
 
           path = @args[:data_directory] + 'tblCites.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
@@ -31,6 +28,9 @@ namespace :tw do
           error_counter = 0
           no_taxon_counter = 0
           cite_found_counter = 0
+          otu_not_found_counter = 0
+          orig_desc_source_id = 0 # make sure only first cite to original description is handled as such (when more than one cite to same source)
+          otu_only_counter = 0
 
           base_uri = 'http://speciesfile.org/legacy/'
 
@@ -41,32 +41,33 @@ namespace :tw do
             if !TaxonName.where(id: taxon_name_id).exists?
               logger.warn "SF.TaxonNameID = #{row['TaxonNameID']} was not created in TW (no_taxon_counter = #{no_taxon_counter += 1})"
 
-              # @todo: Test if OTU exists? Add citation to OTU?
-
-
+              # @todo: Test if OTU exists? Add citation to OTU? Also add notes, nomenclator, tags, confidences?
+              if get_tw_otu_id.has_key?(row['TaxonNameID'])
+                logger.warn "SF.TaxonNameID = #{row['TaxonNameID']} created as OTU (otu_only_counter = #{otu_only_counter += 1})"
+              end
               next
             end
 
-            project_id = TaxonName.find(taxon_name_id).project_id.to_i
-            source_id = get_tw_source_id[row['RefID']].to_i
+            project_id = TaxonName.find(taxon_name_id).project_id.to_s # forced to string for hash value
+            sf_ref_id = row['RefID']
+            source_id = get_tw_source_id[sf_ref_id].to_i
 
             next if source_id == 0
 
             logger.info "Working with TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id},
-SF.RefID #{row['RefID']} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (count #{count_found += 1}) \n"
+SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (count #{count_found += 1}) \n"
 
             cite_pages = row['CitePages']
 
             new_name_uri = (base_uri + 'new_name_status/' + row['NewNameStatusID']) unless row['NewNameStatusID'] == '0'
             type_info_uri = (base_uri + 'type_info/' + row['TypeInfoID']) unless row['TypeInfoID'] == '0'
+            info_flag_status_uri = (base_uri + 'info_flag_status/' + row['InfoFlagStatus']) unless row['InfoFlagStatus'] == '0'
 
-            # puts new_name_uri if new_name_uri
-            # puts type_info_uri if type_info_uri
+            new_name_cvt_id = get_cvt_id[project_id][new_name_uri] #   Keyword.where('uri = ? AND project_id = ?', new_name_uri, project_id).limit(1).pluck(:id).first if new_name_uri
+            type_info_cvt_id = get_cvt_id[project_id][type_info_uri] #  Keyword.where('uri = ? AND project_id = ?', type_info_uri, project_id).limit(1).pluck(:id).first if type_info_uri
+            info_flag_status_cvt_id = get_cvt_id[project_id][info_flag_status_uri]
 
-            new_name_cvt_id = Keyword.where('uri = ? AND project_id = ?', new_name_uri, project_id).limit(1).pluck(:id).first if new_name_uri
-            type_info_cvt_id = Keyword.where('uri = ? AND project_id = ?', type_info_uri, project_id).limit(1).pluck(:id).first if type_info_uri
-
-            ap "NewNameStatusID = #{new_name_cvt_id.to_s}; TypeInfoID = #{type_info_cvt_id.to_s}"   # if new_name_cvt_id
+            ap "NewNameStatusID = #{new_name_cvt_id.to_s}; TypeInfoID = #{type_info_cvt_id.to_s}" # if new_name_cvt_id
 
             metadata = {
                 ## Note: Add as attribute before save citation
@@ -88,38 +89,55 @@ SF.RefID #{row['RefID']} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}
                 # ],
 
                 tags_attributes: [{keyword_id: new_name_cvt_id, project_id: project_id}, {keyword_id: type_info_cvt_id, project_id: project_id}],
-     
 
                 ## InfoFlagStatus: Add confidence, 1 = partial data or needs review, 2 = complete data
-                confidences_attributes: [{confidence_level_id: (row['InfoFlagStatus'].to_i > 0 ? ControlledVocabularyTerm.where('uri LIKE ? and project_id = ?', "%/info_flag_status/#{row['InfoFlagStatus']}", project_id).limit(1).pluck(:id).first : nil), project_id: project_id}]
+                confidences_attributes: [{confidence_level_id: info_flag_status_cvt_id, project_id: project_id}]
             }
-
 
             # Original description citation most likely already exists but pages are source pages, not cite pages
             citation = Citation.where(source_id: source_id, citation_object_type: 'TaxonName', citation_object_id: taxon_name_id, is_original: true).first
-            if citation != nil
+            if citation != nil and orig_desc_source_id != source_id
+              orig_desc_source_id = source_id # prevents duplicate citation to same source being processed as original description
               citation.notes << Note.new(text: row['Note'], project_id: project_id) unless row['Note'].blank? # project_id? ; what is << ?
               # citation.update_column(:pages, cite_pages) # update pages to cite_pages
               citation.update(metadata.merge(pages: cite_pages))
               logger.info "Citation found: citation.id = #{citation.id}, taxon_name_id = #{taxon_name_id}, cite_pages = '#{cite_pages}' (cite_found_counter = #{cite_found_counter += 1}"
 
+              if get_containing_source_id.has_key?(source_id) # create taxon_name_author role for contained Refs only
+
+                get_sf_taxon_name_authors[sf_ref_id].each do |sf_person_id| # person_id from author_array
+
+                  role = Role.create!(
+                      person_id: get_tw_person_id[sf_person_id],
+                      type: 'TaxonNameAuthor',
+                      role_object_id: source_id,
+                      role_object_type: 'Source',
+                  # position: row['SeqNum'],
+                  # project_id: project_id,   # don't use for roles
+                  # created_at: row['CreatedOn'],
+                  # updated_at: row['LastUpdate'],
+                  # created_by_id: get_tw_user_id[row['CreatedBy']],
+                  # updated_by_id: get_tw_user_id[row['ModifiedBy']]
+                  )
+                end
+              end
+
             else # create new citation
               citation = Citation.new(
                   metadata.merge(
-                  source_id: source_id,
-                  pages: cite_pages,
-                  is_original: (row['SeqNum'] == '1' ? true : false),
-                  citation_object_type: 'TaxonName',
-                  citation_object_id: taxon_name_id,
+                      source_id: source_id,
+                      pages: cite_pages,
+                      is_original: (row['SeqNum'] == '1' ? true : false),
+                      citation_object_type: 'TaxonName',
+                      citation_object_id: taxon_name_id,
 
-
-                  # housekeeping for citation
-                  project_id: project_id,
-                  created_at: row['CreatedOn'],
-                  updated_at: row['LastUpdate'],
-                  created_by_id: get_tw_user_id[row['CreatedBy']],
-                  updated_by_id: get_tw_user_id[row['ModifiedBy']]
-              )
+                      # housekeeping for citation
+                      project_id: project_id,
+                      created_at: row['CreatedOn'],
+                      updated_at: row['LastUpdate'],
+                      created_by_id: get_tw_user_id[row['CreatedBy']],
+                      updated_by_id: get_tw_user_id[row['ModifiedBy']]
+                  )
               )
 
               begin
@@ -152,7 +170,7 @@ SF.RefID #{row['RefID']} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}
                 da.save!
                 puts 'DataAttribute Nomenclator created'
               rescue ActiveRecord::RecordInvalid # da not valid
-                logger.error "DataAttribute Nomenclator ERROR NomenclatorID = #{row['NomenclatorID']}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id} (#{error_counter += 1}): " + da.errors.full_messages.join(';')
+                logger.error "DataAttribute Nomenclator ERROR NomenclatorID = #{row['NomenclatorID']}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id} (error_counter = #{error_counter += 1}): " + da.errors.full_messages.join(';')
               end
             end
 
@@ -174,29 +192,45 @@ SF.RefID #{row['RefID']} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}
               next
             end
 
-            otu_id = get_tw_otu_id[taxon_name_id].to_i
+            otu_id = get_taxon_name_otu_id[taxon_name_id.to_s].to_i
 
-            otu_citation = citation.dup
-            otu_citation.citation_object_type = 'Otu' # OTU is not instantiated (citation.citation_object = my_otu won't work)
-            otu_citation.citation_object_id = otu_id
-            begin
-              otu_citation.save!
-            rescue ActiveRecord::RecordInvalid # otu_citation not valid
-              logger.error "OTU citation ERROR SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id} = otu_id #{otu_id} (#{error_counter += 1}): " + otu_citation.errors.full_messages.join(';')
+            if otu_id == 0
+              logger.warn "OTU error, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id} (OTU not found: #{otu_not_found_counter += 1})"
+              next
             end
 
+            base_cite_info_flags_uri = (base_uri + 'cite_info_flags/') # + bit_position below
             cite_info_flags_array = Utilities::Numbers.get_bits(info_flags)
 
-            cite_info_flags_array.each do |bit_position|
+            citation_topics_attributes = cite_info_flags_array.collect { |bit_position|
+              {topic_id: get_cvt_id[project_id][base_cite_info_flags_uri + bit_position.to_s],
+               project_id: project_id,
+               created_at: row['CreatedOn'],
+               updated_at: row['LastUpdate'],
+               created_by_id: get_tw_user_id[row['CreatedBy']],
+               updated_by_id: get_tw_user_id[row['ModifiedBy']]
+              }
+            }
 
-              # only need something like tags above, value is simply based on uri
+            otu_citation = Citation.new(
+                source_id: source_id,
+                pages: cite_pages,
+                is_original: (row['SeqNum'] == '1' ? true : false),
+                citation_object_type: 'Otu',
+                citation_object_id: otu_id,
+                citation_topics_attributes: citation_topics_attributes,
+                project_id: project_id,
+                created_at: row['CreatedOn'],
+                updated_at: row['LastUpdate'],
+                created_by_id: get_tw_user_id[row['CreatedBy']],
+                updated_by_id: get_tw_user_id[row['ModifiedBy']]
+            )
 
-              #cite_topic = CitationtTopic.save(
-              cite_topic = CitationTopic.new(
-                  topic_id: ControlledVocabularyTerm.where('uri LIKE ? and id = ?', "%/cite_info_flags/#{bit_position}", project_id).pluck(:id).first,
-                  citation_id: citation.id,
-                  project_id: project_id
-              )
+            begin
+              otu_citation.save!
+              puts 'OTU citation created'
+            rescue ActiveRecord::RecordInvalid
+              logger.error "OTU citation ERROR SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id} = otu_id #{otu_id} (error_counter = #{error_counter += 1}): " + otu_citation.errors.full_messages.join(';')
             end
 
 
@@ -206,12 +240,48 @@ SF.RefID #{row['RefID']} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}
           end
         end
 
+        desc 'time rake tw:project_import:sf_import:cites:create_sf_taxon_name_authors user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        LoggedTask.define :create_sf_taxon_name_authors => [:data_directory, :environment, :user_id] do |logger|
+
+          logger.info 'Running create_sf_taxon_name_authors...'
+
+          get_sf_taxon_name_authors = {} # key = SF.RefID (contained ref), value = array of SF.Person.IDs (ordered)
+
+          path = @args[:data_directory] + 'sfRefsPeople.txt'
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
+
+          counter = 0
+          previous_ref_id = ''
+
+          file.each_with_index do |row, i|
+            ref_id = row['RefID']
+
+            logger.info "working with (contained) RefID #{ref_id} (counter #{counter += 1})"
+
+            if ref_id == previous_ref_id # this is the same RefID as last row, add another author
+              get_sf_taxon_name_authors[ref_id].push(row['PersonID'])
+
+            else # this is a new RefID, start a new author array
+              get_sf_taxon_name_authors[ref_id] = [row['PersonID']]
+              previous_ref_id = ref_id
+            end
+          end
+
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          import.set('SFRefIDToTaxonNameAuthors', get_sf_taxon_name_authors)
+
+          puts 'SFRefIDToTaxonNameAuthors'
+          ap get_sf_taxon_name_authors
+        end
 
         desc 'time rake tw:project_import:sf_import:cites:create_cvts_for_citations user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         # @todo Do I really need a data_directory if I'm using a Postgres table? Not that it hurts...
         LoggedTask.define :create_cvts_for_citations => [:data_directory, :environment, :user_id] do |logger|
 
           # Create controlled vocabulary terms (CVTS) for NewNameStatus, TypeInfo, and CiteInfoFlags; CITES_CVTS below in all caps denotes constant
+
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          get_tw_project_id = import.get('SFFileIDToTWProjectID')
 
           CITES_CVTS = {
 
@@ -274,25 +344,32 @@ SF.RefID #{row['RefID']} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}
 
           logger.info 'Running create_cvts_for_citations...'
 
-          Project.all.each do |project|
-            next unless project.name.end_with?('species_file')
+          get_cvt_id = {} # key = project_id, value = {tag/topic uri, cvt.id.to_s}
 
-            logger.info "Working with TW.project_id: #{project.id} = '#{project.name}'"
+          # Project.all.each do |project|
+          get_tw_project_id.values.each do |project_id|
+            # next unless project.name.end_with?('species_file')
 
-            ## commented out example using array ??
-            # CITES_CVTS.keys.each do |key|
-            #   CITES_CVTS[key].each do |params|
-            #     ControlledVocabularyTerm.create!(params.merge(project_id: project_id))
-            #   end
-            # end
+            # project_id = project.id.to_s
+
+            logger.info "Working with TW.project_id: #{project_id}"
+
+            get_cvt_id[project_id] = {} # initialized for outer loop with project_id
 
             CITES_CVTS.keys.each do |column| # tblCites.ColumnName
               CITES_CVTS[column].each do |params|
-                ControlledVocabularyTerm.create!(params.merge(project_id: project.id))
+                cvt = ControlledVocabularyTerm.create!(params.merge(project_id: project_id)) # want this to be integer
+                get_cvt_id[project_id][cvt.uri] = cvt.id.to_s
               end
             end
-
           end
+
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          import.set('CvtProjUriID', get_cvt_id)
+
+          puts = 'CvtProjUriID'
+          ap get_cvt_id
+
         end
 
         desc 'time rake tw:project_import:sf_import:cites:import_nomenclator_strings user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'

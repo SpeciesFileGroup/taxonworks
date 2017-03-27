@@ -1,6 +1,7 @@
 language: ruby
 cache: bundler
-sudo: false
+dist: trusty
+sudo: required
 rvm:
   - 2.3.1
 bundler_args: --without development
@@ -12,12 +13,13 @@ branches:
     - travis-trusty-beta
     - eyelet 
 addons:
-  postgresql: "9.4"
-  firefox: "46.0"
-  apt:
-    packages:
-      - libgeos-dev
-      - libproj-dev
+  postgresql: "9.5"
+  firefox: "47.0.1"
+before_install:
+  - sudo apt-get install -y postgresql-9.5 postgresql-contrib-9.5 libgeos-dev libproj-dev postgresql-9.5-postgis-2.2 postgresql-9.5-postgis-2.2-scripts 
+install:
+  - bundle install
+  - npm install
 before_script:
   - export DISPLAY=:99.0
   - sh -e /etc/init.d/xvfb start

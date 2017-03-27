@@ -6,108 +6,7 @@ namespace :tw do
       namespace :start do
 
         # Anyone who runs these tasks:  Substitute Your id as user_id, not user_id=1
-
-        ## check out default user_id if SF.FileUserID < 1
-
-        # Outstanding issues for ProjectSources
-        #   Add data_attribute to ProjectSources from sfVerbatimRefs (this is instead of dealing with tblRefs.ContainingRefID)
-        #   Add tblRefs.Note as?
-        #   Currently ProjectSources do not allow data_attributes or notes
-        #   Incorporate :create_sf_book_hash and :update_sources_with_book_info into :create_sources
-
-        desc 'time rake tw:project_import:sf_import:start:update_sources_with_booktitle_publisher_address user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        # for bibtex books
-        LoggedTask.define :update_sources_with_booktitle_publisher_address => [:data_directory, :environment, :user_id] do |logger|
-          # should have combined this into original source creation
-          # @todo Not found: Slater, J.A. Date unknown. A Catalogue of the Lygaeidae of the world. << RefID = 44058, PubID = 21898
-
-          logger.info 'Running update sources with booktitle, publisher, address'
-
-          import = Import.find_or_create_by(name: 'SpeciesFileData')
-          get_sf_booktitle_publisher_address = import.get('SFPubIDTitlePublisherAddress')
-          get_tw_source_id = import.get('SFRefIDToTWSourceID')
-
-          # Read each RefID:PubID; if PubID is included in Book hash, update source record.
-
-          path = @args[:data_directory] + 'tblRefs.txt'
-          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
-
-          error_counter = 0
-          successful_update_counter = 0
-
-          file.each_with_index do |row, i|
-            next if get_sf_booktitle_publisher_address[row['PubID']].nil?
-            next if (row['Title'].empty? and row['PubID'] == '0' and row['Series'].empty? and row['Volume'].empty? and row['Issue'].empty? and row['ActualYear'].empty? and row['StatedYear'].empty? and row['ContainingRefID'] == '0') or row['AccessCode'] == '4'
-
-            logger.info "working with SF.RefID #{row['RefID']} = TW.source_id #{get_tw_source_id[row['RefID']]}, SF.PubID = #{row['PubID']}"
-
-            source = Source.find_by(id: get_tw_source_id[row['RefID']].to_i)
-            if source.nil? # can't find
-              logger.error "Source not found (RefID = #{row['RefID']}), Error #{error_counter += 1}"
-            elsif source.class == Source::Verbatim
-              logger.info "Verbatim source, skipping"
-            elsif not source.update(get_sf_booktitle_publisher_address[row['PubID']])
-              logger.error "Failed to update, Error #{error_counter += 1}", {msg: source.errors.messages}
-            else
-              successful_update_counter += 1
-            end
-
-          end
-          logger.info "Books processed = #{successful_update_counter}, Errors = #{error_counter}"
-        end
-
-        desc 'time rake tw:project_import:sf_import:start:create_sf_book_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        # consists of book_title:, publisher:, and place_published: (address)'
-        LoggedTask.define :create_sf_book_hash => [:data_directory, :environment, :user_id] do |logger|
-          # Can be run independently at any time
-
-          logger.info 'Running create_sf_book_hash...'
-
-          get_sf_booktitle_publisher_address = {} # key = SF.PubID, value = booktitle, publisher, and address from tblPubs
-
-          path = @args[:data_directory] + 'tblPubs.txt'
-          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
-
-          file.each_with_index do |row, i|
-            next unless row['PubType'] == '3' # book
-
-            logger.info "working with PubID #{row['PubID']}"
-
-            get_sf_booktitle_publisher_address[row['PubID']] = {booktitle: row['ShortName'], publisher: row['Publisher'], address: row['PlacePublished']}
-          end
-
-          import = Import.find_or_create_by(name: 'SpeciesFileData')
-          import.set('SFPubIDTitlePublisherAddress', get_sf_booktitle_publisher_address)
-
-          puts 'SFPubIDTitlePublisherAddress'
-          ap get_sf_booktitle_publisher_address
-        end
-
-        #################### UNUSED #########################
-        # desc 'create RefIDToPubID hash      UNUSED!!'
-        # task :create_ref_id_to_pub_id_hash => [:data_directory, :environment, :user_id] do
-        #   ### time rake tw:project_import:species_file:create_ref_id_to_pub_id_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/
-        #
-        #   species_file_data = Import.find_or_create_by(name: 'SpeciesFileData')
-        #   sf_ref_id_to_sf_pub_id_hash = {}
-        #
-        #   path = @args[:data_directory] + 'tblRefs.txt'
-        #   file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
-        #
-        #   file.each do |row|
-        #     sf_ref_id_to_sf_pub_id_hash[row['RefID']] = row['PubID']
-        #   end
-        #
-        #   species_file_data.set('SFRefIDToPubID', sf_ref_id_to_sf_pub_id_hash)
-        #   puts 'SF.RefID to SF.PubID'
-        #   ap sf_ref_id_to_sf_pub_id_hash
-        #
-        # end
-
-        desc 'time rake tw:project_import:sf_import:start:run_tasks_between_sources_and_source_roles user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        LoggedTask.define :run_tasks_between_sources_and_source_roles => [:create_source_editor_array, :create_source_roles] do |logger|
-          logger.info 'Done with :create_source_editor_array, :create_source_roles'
-        end
+        # check out default user_id if SF.FileUserID < 1 ??
 
         desc 'time rake tw:project_import:sf_import:start:create_source_roles user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         LoggedTask.define :create_source_roles => [:data_directory, :environment, :user_id] do |logger|
@@ -119,9 +18,13 @@ namespace :tw do
           get_tw_source_id = import.get('SFRefIDToTWSourceID')
           get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
           source_editor_array = import.get('TWSourceEditorList') # if source.id is in array
+          get_containing_source_id = import.get('TWSourceIDToContainingSourceID')
 
-          path = @args[:data_directory] + 'tblRefAuthors.txt'
-          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          path = @args[:data_directory] + 'sfRefAuthorsOrdered.txt'
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
+
+          # Must be done in two passes, 1) where ContainingRefID = 0, 2) where ContainingRefID > 0
+          ## First pass, includes ContainingRefIDs
 
           author_error_counter = 0
           editor_error_counter = 0
@@ -132,6 +35,7 @@ namespace :tw do
             # Reloop if TW.source record is verbatim
             # next if Source.find(source_id).try(:class) == Source::Verbatim # << Hernán's, Source.find(source_id).type == 'Source::Verbatim'
             next if Source.where(id: source_id).pluck(:type)[0] == 'Source::Verbatim' # faster per Matt
+            next if get_containing_source_id.has_key?(source_id) # is contained_source
 
             print "working with SF.RefID = #{row['RefID']}, TW.source_id = #{source_id}, position = #{row['SeqNum']} \n"
 
@@ -140,7 +44,7 @@ namespace :tw do
                 type: 'SourceAuthor',
                 role_object_id: source_id,
                 role_object_type: 'Source',
-                position: row['SeqNum'],
+                # position: row['SeqNum'],
                 # project_id: project_id,   # don't use for SourceAuthor or SourceEditor
                 created_at: row['CreatedOn'],
                 updated_at: row['LastUpdate'],
@@ -157,7 +61,7 @@ namespace :tw do
                     type: 'SourceEditor',
                     role_object_id: source_id,
                     role_object_type: 'Source',
-                    position: row['SeqNum'],
+                    # position: row['SeqNum'],
                     # project_id: project_id,
                     created_at: row['CreatedOn'],
                     updated_at: row['LastUpdate'],
@@ -174,7 +78,67 @@ namespace :tw do
               logger.info "Author role ERROR (#{author_error_counter += 1}): " + role.errors.full_messages.join(';')
             end
           end
-          logger.info "author_error_counter = #{author_error_counter}, editor_error_counter = #{editor_error_counter}"
+
+
+          ## Second pass, for refs/sources contained in first pass sources
+
+          author_error_counter = 0
+          editor_error_counter = 0
+
+          file.each_with_index do |row, i|
+            source_id = get_tw_source_id[row['RefID']]
+            next if source_id.nil?
+            next if Source.where(id: source_id).pluck(:type)[0] == 'Source::Verbatim' # faster per Matt
+            next unless get_containing_source_id.has_key?(source_id) # only contained_sources wanted
+
+            print "working with SF.RefID = #{row['RefID']}, TW.source_id = #{source_id}, position = #{row['SeqNum']} \n"
+
+            # if get_containing_source_id[get_tw_source_id.has_key?(row['RefID']) is true, use source_id of containing source for author and editor roles (taxon_author_roles will be assigned as taxa are created)
+            containing_source_id = get_containing_source_id[source_id]
+
+            ordered_authors = SourceAuthor.where(role_object_id: :containing_source_id).order(:position).pluck(:person_id)
+            ordered_editors = SourceEditor.where(role_object_id: :containing_source_id).order(:position).pluck(:person_id)
+
+            ordered_authors.each do |person_id|
+              role = SourceAuthor.new(
+                  person_id: person_id,
+                  # type: 'SourceAuthor',
+                  role_object_id: source_id,
+                  role_object_type: 'Source',
+                  # position: row['SeqNum'],
+                  # project_id: project_id,   # don't use for SourceAuthor or SourceEditor
+                  created_at: row['CreatedOn'],
+                  updated_at: row['LastUpdate'],
+                  created_by_id: get_tw_user_id[row['CreatedBy']],
+                  updated_by_id: get_tw_user_id[row['ModifiedBy']]
+              )
+              begin
+                role.save!
+              rescue
+                "Author role ERROR person_id = #{person_id} (#{author_error_counter += 1}): " + role.errors.full_messages.join(';')
+              end
+            end
+
+            ordered_editors.each do |person_id|
+              role = SourceEditor.new(
+                  person_id: get_tw_person_id[row['PersonID']],
+                  # type: 'SourceEditor',
+                  role_object_id: source_id,
+                  role_object_type: 'Source',
+                  # position: row['SeqNum'],
+                  # project_id: project_id,
+                  created_at: row['CreatedOn'],
+                  updated_at: row['LastUpdate'],
+                  created_by_id: get_tw_user_id[row['CreatedBy']],
+                  updated_by_id: get_tw_user_id[row['ModifiedBy']]
+              )
+              begin
+                role.save!
+              rescue
+                "Editor role ERROR person_id = #{person_id} (#{editor_error_counter += 1}): " + role.errors.full_messages.join(';')
+              end
+            end
+          end
         end
 
         desc 'time rake tw:project_import:sf_import:start:create_source_editor_array user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
@@ -209,13 +173,6 @@ namespace :tw do
           ap tw_source_id_editor_list
         end
 
-        desc 'time rake tw:project_import:sf_import:start:run_tasks_through_sources user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        # without no_ref_list
-        LoggedTask.define :run_tasks_through_sources => [:create_users, :create_people, :map_serials, :map_pub_type,
-                                                         :map_ref_links, :list_verbatim_refs, :create_projects, :create_sources] do |logger|
-          logger.info 'Ran create_users, create_people, map_serials, map_pub_type, map_ref_links, list_verbatim_refs, create_projects, create_sources'
-        end
-
         desc 'time rake tw:project_import:sf_import:start:create_sources user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         LoggedTask.define :create_sources => [:data_directory, :environment, :user_id] do |logger|
           # @todo: See :create_sf_book_hash and :update_sources_with_book_info above. Should be incorporated here.
@@ -231,37 +188,54 @@ namespace :tw do
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
           get_tw_serial_id = import.get('SFPubIDToTWSerialID') # for FK
-          get_sf_pub_type = import.get('SFPubIDToPubType') # = bibtex_type (1=journal=>article, 2=unused, 3=book or cd=>book, 4=unpublished source=>unpublished)
           get_sf_ref_link = import.get('RefIDToRefLink') # key is SF.RefID, value is URL string
           get_sf_verbatim_ref = import.get('RefIDToVerbatimRef') # key is SF.RefID, value is verbatim string
           get_tw_project_id = import.get('SFFileIDToTWProjectID')
+          get_sf_booktitle_publisher_address = import.get('SFPubIDTitlePublisherAddress') # key = SF.PubID, value = hash of booktitle, publisher, address
+          get_sf_pub_type_string = import.get('SFPubIDToPubTypeString')
 
           get_tw_source_id = {} # key = SF.RefID, value = TW.source_id
-
+          get_containing_source_id = {} # key = TW.contained_source_id, value = TW.containing_source_id # use for containing auths/eds
           # byebug
 
           # Namespace for Identifier
           # source_namespace = Namespace.find_or_create_by(institution: 'Species File', name: 'tblRefs', short_name: 'SF RefID')
 
+          count_found = 0
           error_counter = 0
+          contained_error_counter = 0
+          source_not_found_error = 0
 
           path = @args[:data_directory] + 'tblRefs.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
+          ##### First Ref loop: Create sources for SF.tblRefs.ContainingRefID = 0
+
           file.each_with_index do |row, i|
             # break if i == 20
-            next if (row['Title'].empty? and row['PubID'] == '0' and row['Series'].empty? and row['Volume'].empty? and row['Issue'].empty? and row['ActualYear'].empty? and row['StatedYear'].empty? and row['ContainingRefID'] == '0') or row['AccessCode'] == '4'
+            next if row['ContainingRefID'].to_i > 0 # Create source in second loop
+            next if (row['Title'].empty? and row['PubID'] == '0' and row['Series'].empty? and row['Volume'].empty? and row['Issue'].empty? and row['ActualYear'].empty? and row['StatedYear'].empty?) or row['AccessCode'] == '4'
             ref_id = row['RefID']
 
-            logger.info "working with SF.RefID = #{ref_id}, SF.FileID = #{row['FileID']} \n"
+            logger.info "working with SF.RefID = #{ref_id}, SF.FileID = #{row['FileID']} (count = #{count_found += 1}) \n"
 
-            pub_type = get_sf_pub_type[row['PubID']]
+            pub_id = row['PubID']
+            pub_type_string = get_sf_pub_type_string[pub_id]
+
+            booktitle = nil
+            publisher = nil
+            address = nil
+
+            if get_sf_booktitle_publisher_address.has_key?(pub_id)
+              booktitle = get_sf_booktitle_publisher_address[pub_id][booktitle]
+              publisher = get_sf_booktitle_publisher_address[pub_id][publisher]
+              address = get_sf_booktitle_publisher_address[pub_id][address]
+            end
 
             actual_year = row['ActualYear']
             stated_year = row['StatedYear']
 
-            if row['ContainingRefID'].to_i > 0 or actual_year == '0' or stated_year == '0' or actual_year.include?('-') or stated_year.include?('-') or pub_type == 'unpublished'
-              # create a verbatim source
+            if actual_year.include?('-') or stated_year.include?('-') or pub_type_string == 'unpublished'
               source = Source::Verbatim.new(
                   verbatim: get_sf_verbatim_ref[ref_id],
                   created_at: row['CreatedOn'],
@@ -271,8 +245,11 @@ namespace :tw do
               )
             else
               source = Source::Bibtex.new(
-                  bibtex_type: pub_type,
+                  bibtex_type: pub_type_string,
                   title: row['Title'],
+                  booktitle: booktitle.blank? ? nil : booktitle,
+                  publisher: publisher.blank? ? nil : publisher,
+                  address: address.blank? ? nil : address,
                   serial_id: get_tw_serial_id[row['PubID']],
                   series: row['Series'],
                   volume: row['Volume'],
@@ -288,9 +265,11 @@ namespace :tw do
               )
             end
 
-            if source.save
+            begin
+              source.save!
 
-              get_tw_source_id[ref_id] = source.id.to_s
+              source_id = source.id.to_s
+              get_tw_source_id[ref_id] = source_id
 
               ProjectSource.create!(
                   project_id: get_tw_project_id[row['FileID']],
@@ -301,17 +280,143 @@ namespace :tw do
                   updated_by_id: get_tw_user_id[row['ModifiedBy']]
               )
 
-            else
-              logger.info "Source ERROR (#{error_counter += 1}): " + source.errors.full_messages.join(';')
+            rescue
+              logger.info "Source (ContainingRefID = 0) ERROR (#{error_counter += 1}): " + source.errors.full_messages.join(';')
+              # @todo Not found: Slater, J.A. Date unknown. A Catalogue of the Lygaeidae of the world. << RefID = 44058, PubID = 21898
             end
           end
 
+          ##### Second Ref loop: Create sources for SF.tblRefs.ContainingRefID > 0
+
+          file.each_with_index do |row, i|
+            next if row['ContainingRefID'].to_i == 0 # Creating only contained references in this pass
+
+            ref_id = row['RefID']
+            containing_ref_id = row['ContainingRefID']
+            containing_source_id = get_tw_source_id[row['ContainingRefID']]
+
+            logger.info "working with contained SF.RefID = #{ref_id}, containing SF.RefID = #{containing_ref_id}, tw.containing_source_id = #{containing_source_id}, SF.FileID = #{row['FileID']} (count = #{count_found += 1}) \n"
+
+            begin
+              containing_source = Source.find(containing_source_id)
+            rescue
+              logger.info "Source ERROR: containing source not found for RefID = #{containing_source_id} (source not found = #{source_not_found_error += 1})"
+              next
+            end
+
+            if containing_source.bibtex_type == 'book'
+              pub_type_string = 'inbook'
+            else
+              pub_type_string = 'misc' # per Matt, parent source is 'article'
+            end
+
+            source = Source::Bibtex.new(
+                bibtex_type: pub_type_string,
+                title: row['Title'],
+                booktitle: containing_source.booktitle,
+                publisher: containing_source.publisher,
+                address: containing_source.address,
+                serial_id: containing_source.serial_id,
+                series: containing_source.series,
+                volume: containing_source.volume,
+                number: containing_source.number,
+                pages: row['RefPages'],
+                year: containing_source.year,
+                stated_year: containing_source.stated_year,
+                url: row['LinkID'].to_i > 0 ? get_sf_ref_link[ref_id] : nil,
+                created_at: row['CreatedOn'],
+                updated_at: row['LastUpdate'],
+                created_by_id: get_tw_user_id[row['CreatedBy']],
+                updated_by_id: get_tw_user_id[row['ModifiedBy']]
+            )
+
+            begin
+              source.save!
+
+              source_id = source.id.to_s
+              get_tw_source_id[ref_id] = source_id
+              get_containing_source_id[source_id] = containing_source_id
+
+              # Also keep db record of containing_source_id for future reference
+              source.data_attributes << ImportAttribute.new(import_predicate: 'containing_source_id', value: containing_source_id)
+
+            rescue
+              logger.info "Source (Containing_ref_id > 0) ERROR (#{contained_error_counter += 1}): " + source.errors.full_messages.join(';')
+            end
+
+          end
+
           import.set('SFRefIDToTWSourceID', get_tw_source_id)
+          import.set('TWSourceIDToContainingSourceID', get_containing_source_id)
 
           puts 'SFRefIDToTWSourceID'
           ap get_tw_source_id
 
-          logger.info "error_counter = #{error_counter}"
+          puts 'TWSourceIDToContainingSourceID'
+          ap get_containing_source_id
+        end
+
+        desc 'time rake tw:project_import:sf_import:start:map_pub_type user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        # map SF.PubID by SF.PubType
+        LoggedTask.define :map_pub_type => [:data_directory, :environment, :user_id] do |logger|
+          # Can be run independently at any time
+
+          logger.info 'Running map_pub_types...'
+
+
+          get_sf_pub_type_string = {} # key = SF.PubID, value = SF.PubType
+
+          path = @args[:data_directory] + 'tblPubs.txt'
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+
+          file.each_with_index do |row|
+
+            pub_type = row['PubType']
+            if pub_type == '1'
+              pub_type_string = 'article'
+            elsif pub_type == '3'
+              pub_type_string = 'book'
+            elsif pub_type == '4'
+              pub_type_string = 'unpublished'
+            else
+              pub_type_string = '**ERROR**'
+            end
+
+            get_sf_pub_type_string[row['PubID']] = pub_type_string
+          end
+
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          import.set('SFPubIDToPubTypeString', get_sf_pub_type_string)
+
+          puts 'SFPubIDToPubTypeString'
+          ap get_sf_pub_type_string
+        end
+
+        desc 'time rake tw:project_import:sf_import:start:create_sf_book_hash user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        # consists of book_title:, publisher:, and place_published: (address)'
+        LoggedTask.define :create_sf_book_hash => [:data_directory, :environment, :user_id] do |logger|
+          # Can be run independently at any time
+
+          logger.info 'Running create_sf_book_hash...'
+
+          get_sf_booktitle_publisher_address = {} # key = SF.PubID, value = booktitle, publisher, and address from tblPubs
+
+          path = @args[:data_directory] + 'tblPubs.txt'
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+
+          file.each_with_index do |row, i|
+            next unless row['PubType'] == '3' # book
+
+            logger.info "working with PubID #{row['PubID']}"
+
+            get_sf_booktitle_publisher_address[row['PubID']] = {booktitle: row['ShortName'], publisher: row['Publisher'], address: row['PlacePublished']}
+          end
+
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          import.set('SFPubIDTitlePublisherAddress', get_sf_booktitle_publisher_address)
+
+          puts 'SFPubIDTitlePublisherAddress'
+          ap get_sf_booktitle_publisher_address
         end
 
         desc 'time rake tw:project_import:sf_import:start:create_projects user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
@@ -321,8 +426,8 @@ namespace :tw do
 
           get_tw_project_id = {} # key = SF.FileID, value = TW.project_id
 
-          # create mb as project member for each project -- commented out for Sandbox
-          # user = User.find_by_email('mbeckman@illinois.edu')
+          # create mb as project member for each project -- comment out for Sandbox
+          user = User.find_by_email('mbeckman@illinois.edu')
 
           path = @args[:data_directory] + 'tblFiles.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
@@ -334,15 +439,15 @@ namespace :tw do
             website_name = row['WebsiteName'].downcase # want to be lower case
 
             project = Project.new(
-                name: "#{website_name}_species_file",
+                name: "#{website_name}_species_file(#{Time.now})",
             )
 
             if project.save
 
               get_tw_project_id[file_id] = project.id.to_s
 
-              # commented out project_member for Sandbox use
-              # ProjectMember.create!(user_id: user.id, project: project, is_project_administrator: true)
+              # comment out project_member for Sandbox use
+              ProjectMember.create!(user_id: user.id, project: project, is_project_administrator: true)
 
             else
               logger.info "ERROR (#{error_counter += 1}): " + source.errors.full_messages.join(';')
@@ -433,42 +538,6 @@ namespace :tw do
         #   ap sf_no_ref_list
         #
         # end
-
-        desc 'time rake tw:project_import:sf_import:start:map_pub_type user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
-        # map SF.PubID by SF.PubType
-        LoggedTask.define :map_pub_type => [:data_directory, :environment, :user_id] do |logger|
-          # Can be run independently at any time
-
-          logger.info 'Running map_pub_type...'
-
-          get_sf_pub_type = {} # key = SF.PubID, value = SF.PubType
-
-          path = @args[:data_directory] + 'tblPubs.txt'
-          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
-
-          file.each_with_index do |row|
-
-            pub_type = row['PubType']
-            if pub_type == '1'
-              pub_type_string = 'article'
-            elsif pub_type == '3'
-              pub_type_string = 'book'
-            elsif pub_type == '4'
-              pub_type_string = 'unpublished'
-            else
-              pub_type_string = '**ERROR**'
-            end
-
-            get_sf_pub_type[row['PubID']] = pub_type_string
-          end
-
-          import = Import.find_or_create_by(name: 'SpeciesFileData')
-          import.set('SFPubIDToPubType', get_sf_pub_type)
-
-          puts 'SFPubIDToPubType'
-          ap get_sf_pub_type
-
-        end
 
         desc 'time rake tw:project_import:sf_import:start:map_serials user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         # map SF.PubID to TW.serial_id
@@ -563,7 +632,8 @@ namespace :tw do
                 # cached: '?'
             )
 
-            if person.save
+            begin
+              person.save!
 
               person.data_attributes << ImportAttribute.new(import_predicate: 'FileID', value: row['FileID'])
               person.data_attributes << ImportAttribute.new(import_predicate: 'Role', value: row['Role'])
@@ -572,7 +642,7 @@ namespace :tw do
 
               get_tw_person_id[sf_person_id] = person.id.to_s
 
-            else
+            rescue
               logger.info "Person ERROR (#{person_error_counter += 1}): " + person.errors.full_messages.join(';')
             end
 
@@ -740,6 +810,3 @@ namespace :tw do
     end
   end
 end
-
-
-

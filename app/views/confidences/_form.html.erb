@@ -1,23 +1,15 @@
-<%= form_for(@confidence) do |f| %>
-    <%= render 'shared/errors', object: @confidence %>
+<%= form_for(@confidence_object, url: confidence_object_update_confidences_path(@confidence_object), as: :confidence_object, method: :post, html: { class: :confidence_level_form }) do |f| %>
+  <%= render 'shared/errors', object: @confidence_object %>
 
-    <p><strong><%= @confidence.confidence_object.class.name %>:</strong> <%= object_tag(@confidence.confidence_object) -%>  </p>
+  <%= hidden_field_tag :confidence_object_type, @confidence_object.class.name %>
+  <%= hidden_field_tag :confidence_object_id, @confidence_object.id %>
 
-    <div class="field">
-      <%= f.label :confidence_level_id %>
-      <br>
-      <%= render partial: 'workbench/elements/forms/ajax_select',
-                 locals:  {controller: 'confidence_levels',
-                              object:  'confidence',
-                              method:  'confidence_level_id',
-                              tag_id: 'confidence_level_id_for_controlled_vocabulary_term',
-                              display: object_tag(@confidence.confidence_level)} %>
-    </div>
+  <%= render partial: '/confidence_levels/confidence_level_picker',
+    locals: {object: @confidence_object, f: f}
+  %>
 
-    <%= f.hidden_field :confidence_object_type %>
-    <%= f.hidden_field :confidence_object_id %>
+  <div class="actions">
+    <%= f.submit 'Update' %>
+  </div>
 
-    <div class="actions">
-      <%= f.submit %>
-    </div>
 <% end %>

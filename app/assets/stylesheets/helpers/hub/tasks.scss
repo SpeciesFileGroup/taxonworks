@@ -21,18 +21,21 @@
 
   .task_card {
     cursor: pointer;
+    display: flex;
+    flex-direction: row;
+    position: relative;
     margin-left: 0px; 
     margin-top:$standard_margin; 
     margin-right: $standard_margin;
-    width: 468px;
-    min-height: 200px;
+    width: 420px;
+    min-height: 160px;
     border-radius: 2px;
     background-color: #FFF;
     box-shadow: 0 1px 2px rgba(0,0,0,0.2);  
     transition: transform 0.3s ease,
                 box-shadow 0.3s ease; 
     .task_header {
-      opacity: 0.5;
+      opacity: 0.2;
     }
   }
 
@@ -47,16 +50,34 @@
       opacity: 1;
     }
     .task_header {
+      transition: opacity 0.5s ease;
       opacity: 1;
     }
 
   }  
 
+  .status {
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    border-radius: 0px;
+  }
+
+  .task-information {
+    margin-left: 30px;
+    width: 100%;
+  }
+
+  .fav-link {
+    position: absolute;
+    right: 14px;
+    top:$standard_margin * 0.5;
+  }
 
   .task_header {
+    width: 34px;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    position: absolute;
     border-bottom: 1px solid $navigation_border;
     padding: $standard_padding * 0.5;
     padding-left: $standard_padding;
@@ -64,14 +85,15 @@
 
     .status:first-letter {
       text-transform: uppercase;
-      
     } 
 
+
     .categories {
-      margin: 5px;
+      margin: 8px;
+      margin-top: 12px;
       font-size: 0px !important;
-      width: 14px;
-      height: 14px;
+      width: 18px;
+      height: 18px;
       background-repeat: no-repeat;
       background-size: 14px;
     }
@@ -96,11 +118,18 @@
       background-image: image-url("picking.svg");
     }
 
+    .nomenclature {
+      background-image: image-url("new.svg");
+    }    
+
   }
 
   .task_name {
     font-size: 18px;
-    padding: $standard_padding; 
+    max-width: 330px;
+    padding: $standard_padding * 0.25; 
+    padding-left: $standard_padding; 
+    padding-top: $standard_padding; 
     a {
       color: $color-secondary-2-4;
     }
@@ -115,7 +144,7 @@
 
   .task-header-right {
     display: flex;
-    flex-direction:row;
+    flex-direction:column;
     align-items:center;
     justify-content:flex-end;
     a {
@@ -125,9 +154,11 @@
 
   .task_description {
     font-size: 14px;
-    font-weight: 300;
+    font-weight: 400;
+    line-height: 20px;
+    max-width: 350px;
+    color: $default_text;
     padding-left: $standard_padding * 1.4;
-    padding-right: $standard_padding * 1.4;
   }
 
   .navigation {

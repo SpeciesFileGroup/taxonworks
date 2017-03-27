@@ -598,7 +598,7 @@ class CollectionObject < ActiveRecord::Base
 
   def reject_taxon_determinations(attributed)
     if attributed['otu_id'].blank?
-      return true if attributed['otu_attributes'].empty?
+      return true if attributed['otu_attributes'].nil?  || attributed['otu_attributes'].empty?
 
       h = attributed['otu_attributes']
       return true if h['name'].blank? && h['taxon_name_id'].blank?

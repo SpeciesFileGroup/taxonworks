@@ -1,13 +1,13 @@
-$(document).ready(function () {
-  if ($("table").length) {
-    list();
-  }
-});
+var TW = TW || {};
+TW.views = TW.views || {};
+TW.views.shared = TW.views.shared || {};
+TW.views.shared.list = TW.views.shared.list || {};
 
-function list() {
+Object.assign(TW.views.shared.list, {
+
+  init: function() {
   var
       animationTime = 250;
-
 
   function showAll() {
     $('th, td').not('.table-options').show(animationTime);
@@ -163,3 +163,11 @@ function list() {
     });
   }
 }
+});
+
+$(document).ready(function () {
+  if ($("table").length) {
+    var lists = TW.views.shared.list
+    lists.init();
+  }
+});

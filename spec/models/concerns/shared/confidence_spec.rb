@@ -47,14 +47,6 @@ describe 'Confidence', type: :model, group: :confidence do
   end
 
   context 'methods' do
-    specify 'has_confidences? with no confidences' do
-      expect(class_with_confidences.has_confidences?).to eq(false)
-    end
-
-    specify 'has_confidences? with a confidence' do
-      class_with_confidences.confidences << Confidence.new(confidence_level: FactoryGirl.create(:valid_confidence_level))
-      expect(class_with_confidences.has_confidences?).to eq(true)
-    end
     context 'object with notes on destroy' do
       specify 'attached notes are destroyed' do
         expect(Confidence.count).to eq(0)

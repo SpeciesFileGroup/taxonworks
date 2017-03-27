@@ -4,11 +4,12 @@ class TagsController < ApplicationController
   before_action :set_tag, only: [:update, :destroy]
 
   def new
-    if !Keyword.for_tags.with_project_id(sessions_current_project_id).any? # if there are none
+    if !Keyword.with_project_id(sessions_current_project_id).any? # if there are none
       @return_path = "/tags/new?tag[tag_object_attribute]=&tag[tag_object_id]=#{params[:tag][:tag_object_id]}&tag[tag_object_type]=#{params[:tag][:tag_object_type]}"
       redirect_to new_controlled_vocabulary_term_path(return_path: @return_path), notice: 'Create a keyword or two first!' and return
     end
-    @tag = Tag.new(tag_params)
+
+    @taggable_object = taggable_object
   end
 
   # GET /tags
@@ -16,6 +17,11 @@ class TagsController < ApplicationController
   def index
     @recent_objects = Tag.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
     render '/shared/data/all/index'
+  end
+
+  def tag_object_update 
+    taggable_object.update(taggable_object_params)
+    redirect_to :back
   end
 
   # POST /tags
@@ -29,11 +35,7 @@ class TagsController < ApplicationController
         format.json { render json: @tag, status: :created, location: @tag }
       else
         format.html {
-          # if redirect_url == :back
           redirect_to :back, notice: 'Tag was NOT successfully created.'
-          # else
-          #   render :new
-          # end
         }
         format.json { render json: @tag.errors, status: :unprocessable_entity }
       end
@@ -57,7 +59,6 @@ class TagsController < ApplicationController
   # DELETE /tags/1
   # DELETE /tags/1.json
   def destroy
-    # redirect_url = (request.env['HTTP_REFERER'].include?("tags/#{@tag.id}") ? tags_url : :back)
     @tag.destroy
     respond_to do |format|
       format.html { redirect_to :back, notice: 'Tag was successfully destroyed.' }
@@ -66,7 +67,7 @@ class TagsController < ApplicationController
   end
 
   def list
-    @tags = Tag.where(project_id: sessions_current_project_id).order(:tag_object_type).page(params[:page])
+    @tags = Tag.where(project_id: sessions_current_project_id).order(:id).page(params[:page])
   end
 
   # GET /tags/search
@@ -79,7 +80,7 @@ class TagsController < ApplicationController
   end
 
   def autocomplete
-    @tags = Tag.find_for_autocomplete(params)
+    @tags = Queries::TagAutocompleteQuery.new(params.require(:term), project_id: sessions_current_project_id).all
 
     data = @tags.collect do |t|
       {id: t.id,
@@ -96,17 +97,30 @@ class TagsController < ApplicationController
 
   # GET /tags/download
   def download
-    send_data Tag.generate_download(Tag.where(project_id: $project_id)), type: 'text', filename: "tags_#{DateTime.now.to_s}.csv"
+    send_data Download.generate_csv(Tag.where(project_id: sessions_current_project_id)), type: 'text', filename: "tags_#{DateTime.now.to_s}.csv"
   end
 
   private
-  # Use callbacks to share common setup or constraints between actions.
+
   def set_tag
-    @tag = Tag.with_project_id($project_id).find(params[:id])
+    @tag = Tag.with_project_id(sessions_current_project_id).find(params[:id])
   end
 
-  # Never trust parameters from the scary internet, only allow the white list through.
   def tag_params
     params.require(:tag).permit(:keyword_id, :tag_object_id, :tag_object_type, :tag_object_attribute)
   end
+
+  def taggable_object_params
+    params.require(:taggable_object).permit(
+      tags_attributes: [:_destroy, :id, :keyword_id, :position,
+                        keyword_attributes: [:name, :definition, :uri, :html_color]
+
+    ])
+  end
+
+  def taggable_object
+    params.require(:tag_object_type).constantize.find(params.require(:tag_object_id))
+  end
+ 
 end
+

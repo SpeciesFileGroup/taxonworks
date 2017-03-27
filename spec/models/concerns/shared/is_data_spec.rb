@@ -27,6 +27,10 @@ describe 'Shared::IsData', type: :model do
       expect(is_data_instance.has_tags?).to eq(false)
     end
 
+    specify 'has_confidences?' do
+      expect(is_data_instance.has_confidences?).to eq(false)
+    end
+
     specify 'is_in_use?' do
       expect(is_data_instance.is_in_use?).to eq(false)
     end

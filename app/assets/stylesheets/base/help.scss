@@ -2,12 +2,13 @@
 @import 'base/whitespace';
 @import 'base/fonts';
 @import 'base/arrow-box';
+@import 'base/animations';
 
 .help-button {
 	cursor: pointer;
 	position: fixed;
 	z-index: 999;
-	top:calc(50vh + 60px); 
+	top:calc(50vh + 65px); 
 	right:-27px;
 	width: 55px;
 	height: 55px;
@@ -26,9 +27,8 @@
 				width 0.5s ease, 
 				height 0.5s ease, 
 				opacity 0.5s ease;
-
-
 }
+
 .help-button:hover {
 	opacity: 1;
 	background-size: 40px;
@@ -37,6 +37,10 @@
 	.help-button-description {
 		display: block;
 	}	
+}
+
+.help-button-present {
+	animation:shining 0.5s infinite alternate;
 }		
 
 .help-button-active {
@@ -126,7 +130,7 @@
 	box-shadow: 0px 1px 1px 0px rgba(0,0,0,0.2);
 	opacity: 0.8;
 	transition: transform 0.1s ease;
-	z-index:999;
+	z-index:9999;
 }
 
 .help-bubble-tip:hover {

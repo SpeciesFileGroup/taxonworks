@@ -105,11 +105,14 @@ TaxonWorks::Application.routes.draw do
 
   resources :confidences do # , except: [:edit, :show]
     concerns [:data_routes]
+    collection do
+      post :confidence_object_update
+    end
   end
 
   resources :confidence_levels, only: [] do
     collection do
-      get 'autocomplete'
+      get 'lookup'
     end
   end
 
@@ -244,7 +247,8 @@ TaxonWorks::Application.routes.draw do
 
   resources :keywords, only: [] do
     collection do
-      get 'autocomplete'
+      get :autocomplete
+      get :lookup_keyword
     end
   end
 
@@ -403,6 +407,10 @@ TaxonWorks::Application.routes.draw do
 
   resources :tags, except: [:edit, :show] do
     concerns [:data_routes]
+    collection do
+      get :autocomplete
+      post :tag_object_update
+    end
   end
 
   resources :tagged_section_keywords, only: [:create, :update, :destroy]
@@ -549,6 +557,11 @@ TaxonWorks::Application.routes.draw do
     end
 
     scope :gis do
+      scope :geographic_area_lookup, controller: 'tasks/gis/geographic_area_lookup' do
+        get 'index', as: 'geographic_area_lookup_task'
+        get 'resolve', as: 'geographic_area_lookup_resolve_task', format: :js
+      end
+
       scope :asserted_distribution, controller: 'tasks/gis/asserted_distribution' do
         get 'new', action: 'new', as: 'new_asserted_distribution_task'
         post 'create', action: 'create', as: 'create_asserted_distribution_task'

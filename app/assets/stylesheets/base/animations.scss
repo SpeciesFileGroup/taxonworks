@@ -9,14 +9,18 @@
 } 
 
 @keyframes alert-show {
-	0%  { 
-		
-		opacity: 0;
+	0%  { 		
+		opacity: 0.50;
 		transform: translateY(100%) translateX(-50%);
 	}
 	25% { 
 		transform: translateY(0%) translateX(-50%);
-		opacity: 0.75; 
+		opacity: 1; 
 		
 	} 	
+}
+
+@keyframes shining {
+  from { box-shadow:0px 0px 5px 2px #0066cc; }
+  to { box-shadow:0px 0px 5px 2px #0066cc; }
 }

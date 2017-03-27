@@ -3,16 +3,18 @@
 /* Button forms */
 
 .button {
-  position: relative;
-  cursor: pointer;
-  color: #444;
-  border-radius: 3px;
-  border: 1px solid $navigation_border;  
+    position: relative;
+    cursor: pointer;
+    color: #444;
+    border:1px solid transparent;
+    background-color:  $color-action-button;
+    border-bottom: 2px solid rgba(0,0,0,0.2);
+    border-radius: 3px;
 }
 
 .button-default {
-    color: #000;
-    background-color: $color-button-default;
+    color: #FFF;
+    background-color: $color-secondary-2-4; 
     &:disabled {
       color: #999;
       background-color: $color-button-disabled; 
@@ -26,7 +28,12 @@
 
 .button-request {
     color: #FFF;
-    background-color: $color-action-button;  
+    background-color: $color-request-button;  
+    &:hover { 
+        color: #FFF;
+        background-color: $color-request-button; 
+        opacity: 0.9;
+    }
 }
 
 .actions {

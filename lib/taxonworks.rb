@@ -1,4 +1,4 @@
-module TaxonWorks
+module Taxonworks
   # Internal TODO: Necessary in 4.1?
   require 'activerecord_utilities'
 

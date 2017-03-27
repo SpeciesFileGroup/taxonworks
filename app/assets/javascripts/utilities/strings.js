@@ -4,3 +4,6 @@ function capitalize(string) {
  return string.charAt(0).toUpperCase() + string.substring(1);
 }
 
+function insertStringInPosition(string, addString, index) {
+    return string.substring(0, index) + addString + string.substring(index);
+}

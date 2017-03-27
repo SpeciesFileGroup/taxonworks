@@ -21,11 +21,6 @@ Object.assign(TW.views.shared.quick_bar, {
 			window.location = "/hub";
 		});			
 
-		if((window.location.href).indexOf('/tasks/') > 0) {		
-			//hideBar = true;
-			this.hideShowBars(0);				
-		}
-
 		$('.button-collapse-header').on("mouseenter", function() {
 			if($("#quick_bar").attr("data-hide-quickbar-active")) {
 		        if(timer) {
@@ -68,7 +63,6 @@ Object.assign(TW.views.shared.quick_bar, {
 
 	checkHover: function() {
 		if($('#quick_bar').is(':hover') || $('.button-collapse-header').is(':hover') || $('#header_bar').is(':hover')) {
-			//alert();
 			return true;
 		}
 		return false;

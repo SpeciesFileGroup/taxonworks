@@ -8,48 +8,29 @@ module Shared::DataAttributes
     accepts_nested_attributes_for :data_attributes
   end
 
+  # TODO: move these scopes to has_many relationships
+
+  # @return [Scope]
   def internal_attributes
     data_attributes.where(type: 'InternalAttribute')
   end
 
+  # @return [Scope]
   def import_attributes
     data_attributes.where(type: 'ImportAttribute')
   end
 
-  # to find if a record has attributes associated with it do  object.data_attributes.any?
-
+  # @return [Hash]
+  #   all data attributes in String (name) -> value format
   def keyword_value_hash
     self.data_attributes.inject({}) do |hsh, a|
-      if a.class == ImportAttribute
-        hsh.merge!(a.import_predicate => a.value)
-      else # there are only two
-        hsh.merge!(a.predicate.name => a.value)
+      if a.kind_of?(ImportAttribute)
+        hsh[a.import_predicate] = a.value
+      else # If not an ImportAttribute then it's an InternalAttribute
+        hsh[a.predicate.name] = a.value
       end
+      hsh
     end
   end
-
-=begin
-
-  # all data attributes with type, predicate or predicate.name, value
-  # if type == InternalAttribute, then pred ==  ControlledVocabularyID
-  # if type == ImportAttribute, then pred == import_predicate (char(255))
-  # value is always a string
-  def all_data_attr(type, pred, value)
-
-  end
-
-
-
-foo.data_attributes.includes(:predicate).where(type: a, value: b,
-    controlled_vocabulary_terms: {name: c})
-
-def foo(a, b)
-    .includes(:predicate).where('controlled_vocabulary_terms.name =
-? or import_predicate = ?', a, b)
- end
-
-
-=end
-
 
 end

@@ -12,10 +12,19 @@ module Shared::Confidence
     scope :without_confidences, -> { includes(:confidences).where(confidences: {id: nil}) }
 
     accepts_nested_attributes_for :confidences, reject_if: :reject_confidences, allow_destroy: true
-  end
 
-  def has_confidences?
-    self.confidences.any?
+    validate :identical_new_confidences_are_prevented
+
+    protected
+
+    def identical_new_confidences_are_prevented
+      a = []
+      confidences.each do |c| 
+        errors.add(:base, 'identical confidence level') if a.include?(c.confidence_level.attributes)
+        a.push c.confidence_level.attributes
+      end
+    end
+
   end
 
   module ClassMethods

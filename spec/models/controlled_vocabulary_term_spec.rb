@@ -4,9 +4,7 @@ describe ControlledVocabularyTerm, :type => :model do
   let(:controlled_vocabulary_term) { FactoryGirl.build(:controlled_vocabulary_term) }
 
   context 'validation' do
-    before(:each) {
-      controlled_vocabulary_term.valid?
-    }
+    before(:each) { controlled_vocabulary_term.valid? }
 
     context 'required' do
       specify 'name' do
@@ -20,6 +18,17 @@ describe ControlledVocabularyTerm, :type => :model do
       specify 'type' do
         expect(controlled_vocabulary_term.errors.include?(:type)).to be_truthy
       end
+    end
+  end
+
+  context 'name and definition ' do
+    let(:name) { 'Name should be unique' }
+    let(:definition) { 'Never before seen!' }
+    
+    before { Keyword.create!(name: name, definition: definition) } 
+
+    specify 'are unique' do
+      expect(Keyword.new(name: name, definition: definition).valid?).to be_falsey 
     end
   end
 
