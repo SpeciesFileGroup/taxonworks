@@ -43,7 +43,7 @@ namespace :tw do
 
               # @todo: Test if OTU exists? Add citation to OTU? Also add notes, nomenclator, tags, confidences?
               if get_tw_otu_id.has_key?(row['TaxonNameID'])
-                logger.warn "SF.TaxonNameID = #{row['TaxonNameID']} created as OTU (otu_only_counter = #{otu_only_counter += 1})"
+                logger.warn "SF.TaxonNameID = #{row['TaxonNameID']} created as OTU; todo add citation (otu_only_counter = #{otu_only_counter += 1})"
               end
               next
             end
