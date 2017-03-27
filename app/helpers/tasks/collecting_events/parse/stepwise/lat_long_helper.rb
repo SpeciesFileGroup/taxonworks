@@ -144,7 +144,7 @@ module Tasks::CollectingEvents::Parse::Stepwise::LatLongHelper
       # link_to('Skip to next record', collecting_event_lat_long_task_path(collecting_event_id: next_id))
     else
       content_tag(:span, 'no more matches')
-    end
+    end + button_tag('Re-evaluate', value: 're-eval', id: 're-eval')
   end
 
   def scan_c_e

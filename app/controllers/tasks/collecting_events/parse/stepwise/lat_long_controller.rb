@@ -37,6 +37,10 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
     message    = 'Failed to update '
     next_id  = next_collecting_event_id
     case params['button']
+      when 're-eval'
+        next_id  = current_collecting_event.id
+        success  = true # slide right along
+        no_flash = true # don't need no stinkin' flashes
       when 'select_all', 'deselect_all'
         raise '\'select_all\', and \'deselect_all\' should be preempted by javascript'
       when 'skip'
@@ -44,20 +48,25 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
         no_flash = true # don't need no stinkin' flashes
       when 'save_selected'
         selected = params[:selected]
-        unless selected.blank?
+        if selected.blank?
+          message = 'Nothing to save.'
+          success = false
+        else
+          any_failed = false
           selected.each { |item_id|
             ce = CollectingEvent.find(item_id)
             unless ce.nil?
               unless prevention.include?(params[:collecting_event_id])
                 if ce.update_attributes(collecting_event_params)
                   ce.generate_verbatim_data_georeference(true) if generate_georeference?
-                  success = true
                 else
-                  message += 'one or more of the collecting events.'
+                  any_failed = true
+                  message    += 'one or more of the collecting events.'
                 end
               end
             end
           }
+          success = any_failed ? false : true
         end
       when 'save_one'
         unless prevention.include?(params[:collecting_event_id])
@@ -81,8 +90,8 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
   end
 
   def convert
-    lat                 = collecting_event_params[:verbatim_latitude]
-    long                = collecting_event_params[:verbatim_longitude]
+    lat                 = convert_params[:verbatim_latitude]
+    long                = convert_params[:verbatim_longitude]
     retval              = {}
     retval[:lat_piece]  = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(lat)
     retval[:long_piece] = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(long)
@@ -179,6 +188,10 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
   end
 
   def collecting_event_params
+    params.permit(:verbatim_latitude, :verbatim_longitude)
+  end
+
+  def convert_params
     params.permit(:include_values, :verbatim_latitude, :verbatim_longitude, :piece, :lat, :long)
   end
 
