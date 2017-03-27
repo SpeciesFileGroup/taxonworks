@@ -1,6 +1,11 @@
 DEFAULT_SQL_REGEXS = []
 class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationController
   include TaskControllerConfiguration
+  before_filter :set_force_no_cache
+
+  def set_force_no_cache
+    expires_now
+  end
 
   # GET
   def index

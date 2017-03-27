@@ -39,9 +39,9 @@ module Tasks::CollectingEvents::Parse::Stepwise::LatLongHelper
   # "(,)"=>{},
   # "( )"=>{:piece=>"N41o42.781' W87o34.498'", :lat=>"N41o42.781'", :long=>"W87o34.498'"}}
 
-  def make_rows(label)
+  def make_rows(label, filters)
     return nil if label.nil?
-    tests = Utilities::Geo.hunt_wrapper(label)
+    tests = Utilities::Geo.hunt_wrapper(label, filters)
     tests.keys.collect.with_index do |kee, dex|
       trial  = tests[kee]
       method = trial.delete(:method)

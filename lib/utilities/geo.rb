@@ -139,9 +139,9 @@ To add a new (discovered) symbol:
       dd7:  /\[(?<lat>-?\d+[\.,]\d+|\-?d+),.*?(?<long>-?\d+[\.,]\d+|\-?d+)\]/i
     }.freeze
 
-    def self.hunt_lat_long_full(label)
+    def self.hunt_lat_long_full(label, filters = REGEXP_COORD.keys)
       trials = {}
-      REGEXP_COORD.keys.each_with_index { |kee, dex|
+      filters.each_with_index { |kee, dex|
         kee_string         = kee.to_s.upcase
         trials[kee_string] = {}
         named = REGEXP_COORD[kee].match(label)
@@ -194,9 +194,9 @@ To add a new (discovered) symbol:
       lat_long
     end
 
-    def self.hunt_wrapper(label)
+    def self.hunt_wrapper(label, filters = [])
 
-      trials = self.hunt_lat_long_full(label)
+      trials = self.hunt_lat_long_full(label, filters)
       # trials                = {}
       # trials['(full text)'] = self.hunt_lat_long(label, nil).merge!(method: 'text')
 
