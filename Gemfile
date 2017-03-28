@@ -87,6 +87,11 @@ gem 'csl-styles', '~> 1.0.1.6'
 gem 'ref2bibtex', '~> 0.0.3'
 gem 'latex-decode', '~> 0.2.2'
 
+
+# PDF
+#
+gem 'pdf-reader', '~> 2.0'
+
 # gem 'anystyle-parser' # use when we stabilize
 
 gem 'indefinite_article'

@@ -11,7 +11,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
+<<<<<<< Updated upstream
 ActiveRecord::Schema.define(version: 20170210033821) do
+=======
+ActiveRecord::Schema.define(version: 20170326143108) do
+>>>>>>> Stashed changes
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -591,15 +595,17 @@ ActiveRecord::Schema.define(version: 20170210033821) do
   add_index "documentation", ["updated_by_id"], name: "index_documentation_on_updated_by_id", using: :btree
 
   create_table "documents", force: :cascade do |t|
-    t.string   "document_file_file_name",    null: false
-    t.string   "document_file_content_type", null: false
-    t.integer  "document_file_file_size",    null: false
-    t.datetime "document_file_updated_at",   null: false
-    t.integer  "project_id",                 null: false
-    t.integer  "created_by_id",              null: false
-    t.integer  "updated_by_id",              null: false
-    t.datetime "created_at",                 null: false
-    t.datetime "updated_at",                 null: false
+    t.string   "document_file_file_name",                 null: false
+    t.string   "document_file_content_type",              null: false
+    t.integer  "document_file_file_size",                 null: false
+    t.datetime "document_file_updated_at",                null: false
+    t.integer  "project_id",                              null: false
+    t.integer  "created_by_id",                           null: false
+    t.integer  "updated_by_id",                           null: false
+    t.datetime "created_at",                              null: false
+    t.datetime "updated_at",                              null: false
+    t.jsonb    "page_map",                   default: {}
+    t.integer  "page_total"
   end
 
   add_index "documents", ["document_file_content_type"], name: "index_documents_on_document_file_content_type", using: :btree

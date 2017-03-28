@@ -1,6 +1,7 @@
 GEM
   remote: https://rubygems.org/
   specs:
+    Ascii85 (1.0.2)
     actionmailer (4.2.7.1)
       actionpack (= 4.2.7.1)
       actionview (= 4.2.7.1)
@@ -43,6 +44,7 @@ GEM
       activerecord (>= 3.0)
     addressable (2.5.0)
       public_suffix (~> 2.0, >= 2.0.2)
+    afm (0.2.2)
     archive-tar-minitar (0.6.1)
       minitar (~> 0.6)
       minitar-cli (~> 0.6)
@@ -168,6 +170,7 @@ GEM
       guard-compat (~> 1.1)
       rspec (>= 2.99.0, < 4.0)
     hashdiff (0.3.2)
+    hashery (2.1.2)
     hashie (3.5.1)
     hiredis (0.6.1)
     i18n (0.8.0)
@@ -248,6 +251,12 @@ GEM
     passenger (5.0.30)
       rack
       rake (>= 0.8.1)
+    pdf-reader (2.0.0)
+      Ascii85 (~> 1.0.0)
+      afm (~> 0.2.1)
+      hashery (~> 2.0)
+      ruby-rc4
+      ttfunk
     pg (0.18.4)
     polyglot (0.3.5)
     postgresql_cursor (0.6.1)
@@ -349,6 +358,7 @@ GEM
       unicode-display_width (~> 1.0, >= 1.0.1)
     ruby-prof (0.16.2)
     ruby-progressbar (1.8.1)
+    ruby-rc4 (0.1.5)
     ruby_dep (1.5.0)
     rubyzip (1.2.1)
     safe_yaml (1.0.4)
@@ -406,6 +416,7 @@ GEM
     treetop (1.4.15)
       polyglot
       polyglot (>= 0.3.1)
+    ttfunk (1.5.0)
     tunemygc (1.0.69)
     turbolinks (2.5.3)
       coffee-rails
@@ -485,6 +496,7 @@ DEPENDENCIES
   paperclip-meta (~> 2.0)
   parallel_tests (~> 2.5.0)
   passenger (~> 5.0.30)
+  pdf-reader (~> 2.0)
   pg (~> 0.18.4)
   postgresql_cursor
   psych (~> 2.0.16)
