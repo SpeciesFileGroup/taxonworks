@@ -1,7 +1,7 @@
 <div id="_drawable_map_outer">
   <div id="_drawable_map_form"
 
-       data-feature-collection="<%= Gis::GeoJSON.feature_collection(map_objects).to_json -%>"
+       new_list data-feature-collection="<%= Gis::GeoJSON.feature_collection(map_objects).to_json -%>"
        data-map-center='POINT (0.0 0.0 0.0)'
        data-map-canvas="drawable_map_canvas"
        data-map-drawing-modes="<%= drawing_modes %>"

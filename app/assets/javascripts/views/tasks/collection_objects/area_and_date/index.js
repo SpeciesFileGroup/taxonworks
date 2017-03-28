@@ -46,7 +46,6 @@ Object.assign(TW.views.tasks.collection_objects, {
         
         $("#set_area").click(function (event) {      // register the click handler for the made-from-scratch-button
           $("#area_count").text('????');
-            //var geo_id = $("input[name='[geographic_area_id]']").val();
             $("#select_area").mx_spinner('show');
             $.get('set_area', $("#set_area_form").serialize(), function (local_data) {
               var popcorn = local_data;
@@ -183,8 +182,8 @@ Object.assign(TW.views.tasks.collection_objects, {
       $("#show_list").hide();         // hide the list view
       $("#show_map").show();          // reveal the map
       $(".result_list_toggle").removeAttr('hidden');           // expose the other link
-      $(".result_map_toggle").attr('hidden', true);
-      $("[name='[geographic_area_id]']").attr('value', '');        
+      $(".result_map_toggle").attr('hidden', 'hidden');
+      $("[name='[geographic_area_id]']").attr('value', '');
       this.result_map = _init_simple_map();
       this.result_map = TW.vendor.lib.google.maps.initializeMap('simple_map_canvas', result_collection);
     },
@@ -193,7 +192,7 @@ Object.assign(TW.views.tasks.collection_objects, {
       $("#show_map").hide();          // hide the map
       $("#show_list").show();         // reveal the area selector
       $(".result_map_toggle").removeAttr('hidden');            // expose the other link
-      $(".result_list_toggle").attr('hidden', true);
+      $(".result_list_toggle").attr('hidden', 'hidden');
       $("#drawn_area_shape").attr('value', '');  
       $("#paging_span").show();
     },    
