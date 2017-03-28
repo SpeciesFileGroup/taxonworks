@@ -13,11 +13,13 @@ namespace :tw do
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
           get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID')
-          # get_tw_otu_id = import.get('SFTaxonNameIDToTWOtuID') # Note this is and OTU associated with a SF.TaxonNameID (probably a bad taxon name)
+          get_tw_otu_id = import.get('SFTaxonNameIDToTWOtuID') # Note this is an OTU associated with a SF.TaxonNameID (probably a bad taxon name)
           get_taxon_name_otu_id = import.get('TWTaxonNameIDToOtuID') # Note this is the OTU offically associated with a real TW.taxon_name_id
           get_tw_source_id = import.get('SFRefIDToTWSourceID')
           get_nomenclator_string = import.get('SFNomenclatorIDToSFNomenclatorString')
           get_cvt_id = import.get('CvtProjUriID')
+          get_containing_source_id = import.get('TWSourceIDToContainingSourceID') # use to determine if taxon_name_author must be created (orig desc only)
+          get_sf_taxon_name_authors = import.get('SFRefIDToTaxonNameAuthors') # contains ordered array of SF.PersonIDs
 
           path = @args[:data_directory] + 'tblCites.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
@@ -27,6 +29,8 @@ namespace :tw do
           no_taxon_counter = 0
           cite_found_counter = 0
           otu_not_found_counter = 0
+          orig_desc_source_id = 0 # make sure only first cite to original description is handled as such (when more than one cite to same source)
+          otu_only_counter = 0
 
           base_uri = 'http://speciesfile.org/legacy/'
 
@@ -37,19 +41,21 @@ namespace :tw do
             if !TaxonName.where(id: taxon_name_id).exists?
               logger.warn "SF.TaxonNameID = #{row['TaxonNameID']} was not created in TW (no_taxon_counter = #{no_taxon_counter += 1})"
 
-              # @todo: Test if OTU exists? Add citation to OTU?
-
-
+              # @todo: Test if OTU exists? Add citation to OTU? Also add notes, nomenclator, tags, confidences?
+              if get_tw_otu_id.has_key?(row['TaxonNameID'])
+                logger.warn "SF.TaxonNameID = #{row['TaxonNameID']} created as OTU; todo add citation (otu_only_counter = #{otu_only_counter += 1})"
+              end
               next
             end
 
             project_id = TaxonName.find(taxon_name_id).project_id.to_s # forced to string for hash value
-            source_id = get_tw_source_id[row['RefID']].to_i
+            sf_ref_id = row['RefID']
+            source_id = get_tw_source_id[sf_ref_id].to_i
 
             next if source_id == 0
 
             logger.info "Working with TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id},
-SF.RefID #{row['RefID']} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (count #{count_found += 1}) \n"
+SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (count #{count_found += 1}) \n"
 
             cite_pages = row['CitePages']
 
@@ -90,11 +96,31 @@ SF.RefID #{row['RefID']} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}
 
             # Original description citation most likely already exists but pages are source pages, not cite pages
             citation = Citation.where(source_id: source_id, citation_object_type: 'TaxonName', citation_object_id: taxon_name_id, is_original: true).first
-            if citation != nil
+            if citation != nil and orig_desc_source_id != source_id
+              orig_desc_source_id = source_id # prevents duplicate citation to same source being processed as original description
               citation.notes << Note.new(text: row['Note'], project_id: project_id) unless row['Note'].blank? # project_id? ; what is << ?
               # citation.update_column(:pages, cite_pages) # update pages to cite_pages
               citation.update(metadata.merge(pages: cite_pages))
               logger.info "Citation found: citation.id = #{citation.id}, taxon_name_id = #{taxon_name_id}, cite_pages = '#{cite_pages}' (cite_found_counter = #{cite_found_counter += 1}"
+
+              if get_containing_source_id.has_key?(source_id) # create taxon_name_author role for contained Refs only
+
+                get_sf_taxon_name_authors[sf_ref_id].each do |sf_person_id| # person_id from author_array
+
+                  role = Role.create!(
+                      person_id: get_tw_person_id[sf_person_id],
+                      type: 'TaxonNameAuthor',
+                      role_object_id: source_id,
+                      role_object_type: 'Source',
+                  # position: row['SeqNum'],
+                  # project_id: project_id,   # don't use for roles
+                  # created_at: row['CreatedOn'],
+                  # updated_at: row['LastUpdate'],
+                  # created_by_id: get_tw_user_id[row['CreatedBy']],
+                  # updated_by_id: get_tw_user_id[row['ModifiedBy']]
+                  )
+                end
+              end
 
             else # create new citation
               citation = Citation.new(
@@ -104,7 +130,6 @@ SF.RefID #{row['RefID']} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}
                       is_original: (row['SeqNum'] == '1' ? true : false),
                       citation_object_type: 'TaxonName',
                       citation_object_id: taxon_name_id,
-
 
                       # housekeeping for citation
                       project_id: project_id,
@@ -145,7 +170,7 @@ SF.RefID #{row['RefID']} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}
                 da.save!
                 puts 'DataAttribute Nomenclator created'
               rescue ActiveRecord::RecordInvalid # da not valid
-                logger.error "DataAttribute Nomenclator ERROR NomenclatorID = #{row['NomenclatorID']}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id} (#{error_counter += 1}): " + da.errors.full_messages.join(';')
+                logger.error "DataAttribute Nomenclator ERROR NomenclatorID = #{row['NomenclatorID']}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id} (error_counter = #{error_counter += 1}): " + da.errors.full_messages.join(';')
               end
             end
 
@@ -205,7 +230,7 @@ SF.RefID #{row['RefID']} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}
               otu_citation.save!
               puts 'OTU citation created'
             rescue ActiveRecord::RecordInvalid
-              logger.error "OTU citation ERROR SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id} = otu_id #{otu_id} (#{error_counter += 1}): " + otu_citation.errors.full_messages.join(';')
+              logger.error "OTU citation ERROR SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{taxon_name_id} = otu_id #{otu_id} (error_counter = #{error_counter += 1}): " + otu_citation.errors.full_messages.join(';')
             end
 
 
@@ -215,6 +240,39 @@ SF.RefID #{row['RefID']} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}
           end
         end
 
+        desc 'time rake tw:project_import:sf_import:cites:create_sf_taxon_name_authors user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
+        LoggedTask.define :create_sf_taxon_name_authors => [:data_directory, :environment, :user_id] do |logger|
+
+          logger.info 'Running create_sf_taxon_name_authors...'
+
+          get_sf_taxon_name_authors = {} # key = SF.RefID (contained ref), value = array of SF.Person.IDs (ordered)
+
+          path = @args[:data_directory] + 'sfRefsPeople.txt'
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
+
+          counter = 0
+          previous_ref_id = ''
+
+          file.each_with_index do |row, i|
+            ref_id = row['RefID']
+
+            logger.info "working with (contained) RefID #{ref_id} (counter #{counter += 1})"
+
+            if ref_id == previous_ref_id # this is the same RefID as last row, add another author
+              get_sf_taxon_name_authors[ref_id].push(row['PersonID'])
+
+            else # this is a new RefID, start a new author array
+              get_sf_taxon_name_authors[ref_id] = [row['PersonID']]
+              previous_ref_id = ref_id
+            end
+          end
+
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          import.set('SFRefIDToTaxonNameAuthors', get_sf_taxon_name_authors)
+
+          puts 'SFRefIDToTaxonNameAuthors'
+          ap get_sf_taxon_name_authors
+        end
 
         desc 'time rake tw:project_import:sf_import:cites:create_cvts_for_citations user_id=1 data_directory=/Users/mbeckman/src/onedb2tw/working/'
         # @todo Do I really need a data_directory if I'm using a Postgres table? Not that it hurts...
@@ -289,7 +347,7 @@ SF.RefID #{row['RefID']} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}
           get_cvt_id = {} # key = project_id, value = {tag/topic uri, cvt.id.to_s}
 
           # Project.all.each do |project|
-            get_tw_project_id.values.each do |project_id|
+          get_tw_project_id.values.each do |project_id|
             # next unless project.name.end_with?('species_file')
 
             # project_id = project.id.to_s

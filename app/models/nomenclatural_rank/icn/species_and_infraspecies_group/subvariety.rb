@@ -1,11 +1,11 @@
-class NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup::Subvariety < NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup
+class NomenclaturalRank::Icn::SpeciesGroup::Subvariety < NomenclaturalRank::Icn::SpeciesGroup
 
   def self.parent_rank
-    NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup::Variety
+    NomenclaturalRank::Icn::SpeciesGroup::Variety
   end
 
   def self.valid_parents
-    [NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup::Variety.to_s]
+    [NomenclaturalRank::Icn::SpeciesGroup::Variety.to_s]
   end
 
   def self.abbreviation

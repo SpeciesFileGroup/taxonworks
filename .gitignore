@@ -67,3 +67,5 @@ spec/test_files/
 *.orig
 
 REVISION
+
+public/images/tmp

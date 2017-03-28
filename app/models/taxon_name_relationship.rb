@@ -282,7 +282,7 @@ class TaxonNameRelationship < ActiveRecord::Base
   def validate_subject_and_object_ranks
     tname = self.type_name
 
-    if tname =~ /TaxonNameRelationship::(Icn|Iczn)/ && tname != 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement'
+    if tname =~ /TaxonNameRelationship::(Icnb|Icn|Iczn)/ && tname != 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement'
       rank_group = self.subject_taxon_name.rank_class.parent
       unless rank_group == self.object_taxon_name.rank_class.parent
         errors.add(:object_taxon_name_id, "Rank of related taxon should be in the #{rank_group.rank_name}")
@@ -479,7 +479,7 @@ class TaxonNameRelationship < ActiveRecord::Base
   end
 
   def sv_objective_synonym_relationship
-    if self.type_name =~ /TaxonNameRelationship::(Iczn::Invalidating::Synonym::Objective|Icn::Unaccepting::Synonym::Homotypic)/
+    if self.type_name =~ /TaxonNameRelationship::(Iczn::Invalidating::Synonym::Objective|Icn::Unaccepting::Synonym::Homotypic|Icnb::Unaccepting::Synonym::Objective)/
       s = self.subject_taxon_name
       o = self.object_taxon_name
       if (s.type_taxon_name != o.type_taxon_name ) || !s.has_same_primary_type(o)
@@ -518,6 +518,9 @@ class TaxonNameRelationship < ActiveRecord::Base
       when 'TaxonNameRelationship::Icn::Unaccepting::Synonym'
         soft_validations.add(:type, 'Please specify if this is a homotypic or heterotypic synonym',
             fix: :sv_fix_specify_synonymy_type, success_message: 'Synonym updated to being homotypic or heterotypic')
+      when 'TaxonNameRelationship::Icnb::Unaccepting::Synonym'
+        soft_validations.add(:type, 'Please specify if this is a objective or subjective synonym',
+                             fix: :sv_fix_specify_synonymy_type, success_message: 'Synonym updated to being objective or subjective')
       when 'TaxonNameRelationship::Iczn::Invalidating'
         soft_validations.add(:type, 'Please specify the reason for the name being Invalid') unless self.subject_taxon_name.classification_invalid_or_unavailable?
       when 'TaxonNameRelationship::Iczn::Invalidating::Homonym'
@@ -683,7 +686,7 @@ class TaxonNameRelationship < ActiveRecord::Base
   def sv_coordinated_taxa
     s = self.subject_taxon_name
     o = self.object_taxon_name
-    if self.type_name =~ /TaxonNameRelationship::(Iczn|Icn)/
+    if self.type_name =~ /TaxonNameRelationship::(Iczn|Icnb|Icn)/
       s_new = s.lowest_rank_coordinated_taxon
       o_new = o.lowest_rank_coordinated_taxon
 

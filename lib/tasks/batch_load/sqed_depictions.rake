@@ -33,9 +33,11 @@ namespace :tw do
       # Basic format: 
       #   rake tw:batch_load:sqed_depiction:import total=1 data_directory=/Users/matt/Desktop/images/ project_id=1 user_id=1 
       # Extended format:
-      #   rake tw:batch_load:sqed_depiction:import total=1 target_layout=cross metadata_map="{"0": "curator_metadata", "1": "identifier", "2": "image_registration", "3": "annotated_specimen"}" boundary_Finder='Sqed::BoundaryFinder::ColorLineFinder' data_directory=/Users/matt/Desktop/images/ preprocess_result=false project_id=1 user_id=1 
+      #   rake tw:batch_load:sqed_depiction:import total=1 target_layout=cross metadata_map="{"0": "curator_metadata", "1": "identifier", "2": "image_registration", "3": "annotated_specimen"}" boundary_finder='Sqed::BoundaryFinder::ColorLineFinder' data_directory=/Users/matt/Desktop/images/ preprocess_result=false project_id=1 user_id=1 
       desc 'import sqed formated collection object depictions'
       task import: [:environment, :project_id, :user_id, :data_directory] do |t|
+
+        @args.merge!(transaction_total: ENV['transaction_total'] || 20)
 
         # These match sqed and sqed_depiction extraction_metadata patterns
         @args.merge!(target_layout: (ENV['target_layout'] || :cross))
@@ -60,7 +62,7 @@ namespace :tw do
         puts Rainbow("\nProcessing images: \n").yellow
 
         begin
-          Dir.glob(@args[:data_directory] + "**/*.*").sort.in_groups_of(20, false) do |group| 
+          Dir.glob(@args[:data_directory] + "**/*.*").sort.in_groups_of(@args[:transaction_total], false) do |group| 
             ActiveRecord::Base.transaction do 
               group.each do |f|
                 print Rainbow(f).blue + ": "

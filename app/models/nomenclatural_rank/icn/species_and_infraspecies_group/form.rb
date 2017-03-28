@@ -1,11 +1,11 @@
-class NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup::Form < NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup
+class NomenclaturalRank::Icn::SpeciesGroup::Form < NomenclaturalRank::Icn::SpeciesGroup
 
   def self.parent_rank
-    NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup::Subvariety
+    NomenclaturalRank::Icn::SpeciesGroup::Subvariety
   end
 
   def self.valid_parents
-    [NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup::Species.to_s] + [NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup::Subspecies.to_s] + [NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup::Variety.to_s] + [NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup::Subvariety.to_s]
+    [NomenclaturalRank::Icn::SpeciesGroup::Species.to_s] + [NomenclaturalRank::Icn::SpeciesGroup::Subspecies.to_s] + [NomenclaturalRank::Icn::SpeciesGroup::Variety.to_s] + [NomenclaturalRank::Icn::SpeciesGroup::Subvariety.to_s]
   end
 
 
