@@ -194,7 +194,7 @@ To add a new (discovered) symbol:
       lat_long
     end
 
-    def self.hunt_wrapper(label, filters = [])
+    def self.hunt_wrapper(label, filters = REGEXP_COORD.keys)
 
       trials = self.hunt_lat_long_full(label, filters)
       # trials                = {}
