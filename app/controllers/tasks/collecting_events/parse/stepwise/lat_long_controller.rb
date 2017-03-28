@@ -1,11 +1,11 @@
 DEFAULT_SQL_REGEXS = []
 class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationController
   include TaskControllerConfiguration
-  before_filter :set_force_no_cache
-
-  def set_force_no_cache
-    expires_now
-  end
+  # before_filter :set_force_no_cache
+  #
+  # def set_force_no_cache
+  #   expires_now
+  # end
 
   # GET
   def index
@@ -105,11 +105,11 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
 
   def similar_labels
     retval         = {}
-    lat            = collecting_event_params[:lat]
-    long           = collecting_event_params[:long]
-    piece          = collecting_event_params[:piece]
+    lat            = similar_params[:lat]
+    long           = similar_params[:long]
+    piece          = similar_params[:piece]
     # collecting_event_id = collecting_event_params[:collecting_event_id]
-    include_values = (collecting_event_params[:include_values].nil?) ? false : true
+    include_values = (similar_params[:include_values].nil?) ? false : true
     sql_1          = '('
     sql_1          += "verbatim_label LIKE '%#{sql_fix(lat)}%'" unless lat.blank?
     sql_1          += " or verbatim_label LIKE '%#{sql_fix(long)}%'" unless long.blank?
@@ -181,6 +181,10 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
 
   def process_params
     params.permit(:matched_ids, :button, :matched_latitude, :matched_longitude, selected: [])
+  end
+
+  def similar_params
+    params.permit(:include_values, :piece, :lat, :long)
   end
 
   def matched_params
