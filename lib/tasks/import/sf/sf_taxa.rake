@@ -734,14 +734,13 @@ namespace :tw do
           no_parent_counter = 0
 
           invalid_name_keywords = {}
-          get_tw_project_id.keys.each do |project_id|
-
+          get_tw_project_id.values.each do |project_id|
             k = Keyword.find_or_create_by(
                 name: 'Taxon name validation failed',
                 definition: 'Taxon name validation failed',
                 project_id: project_id)
             invalid_name_keywords[project_id] = k
-            end
+          end
 
           file.each_with_index do |row, i|
 
@@ -908,7 +907,7 @@ namespace :tw do
                 get_taxon_name_otu_id[taxon_name.id.to_s] = taxon_name.otus.last.id.to_s
 
               rescue ActiveRecord::RecordInvalid
-                logger.error "TaxonName ERROR (#{error_counter += 1}) AFTER synonym test (SF.TaxonNameID = #{taxon_name_id}, parent_id = #{parent_id}): " + taxon_name.errors.full_messages.join(';')
+                logger.error "TaxonName ERROR (count = #{error_counter += 1}) AFTER synonym test (SF.TaxonNameID = #{taxon_name_id}, parent_id = #{parent_id}): " + taxon_name.errors.full_messages.join(';')
               end
             end
           end
