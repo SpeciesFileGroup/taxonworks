@@ -1,35 +1,20 @@
-var TW = TW || {};                      // TW "namespacing" object
-TW.views = TW.views || {};            // mimic directory structure in app/assets/javascripts
+var TW = TW || {};
+TW.views = TW.views || {};
 TW.views.filter = TW.views.filter || {};
 TW.views.filter.area_picker = TW.views.filter.area_picker || {};
 
 Object.assign(TW.views.filter.area_picker, {
 
-//
-// Initialize the widget
-//
   initialize_area_picker: function (form, area_type) {
-    // turn the input into an jQuery autocompleter
-    // https://jqueryui.com/autocomplete/
-    //
-    // all of these should likely be renamed for namespacing purposes
     this.initialize_autocomplete(form);
-    // this.bind_new_link(form);
-    // this.bind_switch_link(form);
-    // this.bind_expand_link(form);
     this.bind_remove_links(form.find('.remove_area'));
-
-    // this.make_list_sortable(form);
-    // this.bind_position_handling_to_submit_button(form);
-    // this.bind_definition_listener(form);
   },
 
-// Empties search text box and hide new_person div
+  // Empties search text box and hide new_person div
   clear_area_picker: function (form) {
     var area_picker;
     area_picker = form.find('.area_picker_autocomplete');
     $(area_picker).val("");
-    // form.find(".new_area").attr("hidden", true);
   },
 
   initialize_autocomplete: function (form) {
@@ -45,7 +30,6 @@ Object.assign(TW.views.filter.area_picker, {
       select: function (event, ui) {    // execute on select event in search text box
         TW.views.filter.area_picker.insert_existing_area(form, ui.item.id, ui.item.label_html, param_name);
         TW.views.filter.area_picker.clear_area_picker(form);
-        //   TW.views.filter.area_picker.make_list_sortable(form);     // was this inadvertantly lost?
         return false;
       }
 
@@ -56,27 +40,26 @@ Object.assign(TW.views.filter.area_picker, {
     };
   },
 
-// bind a hover event to an ellipsis
+  // bind a hover event to an ellipsis
   bind_hover: function (form) {
     var hiConfig = {
       sensitivity: 3, // number = sensitivity threshold (must be 1 or higher)
-      interval: 400, // number = milliseconds for onMouseOver polling interval
-      timeout: 200, // number = milliseconds delay before onMouseOut
+      interval: 400,  // number = milliseconds for onMouseOver polling interval
+      timeout: 200,   // number = milliseconds delay before onMouseOut
       over: function () {
         var this_area_hover;
         this_area_hover = $(this);   // modified to not do AJAX call, but use attribute already extant
         this_area_hover.html('... ' + this_area_hover.data('area-label_html'));
       }, // function = onMouseOver callback (REQUIRED)
       out: function () {
-        this.textContent = '...';   // how weird is this this?
+        this.textContent = '...'; 
       } // function = onMouseOut callback (REQUIRED)
     };
     $('.hoverme').hoverIntent(hiConfig);
   },
 
   insert_existing_area: function (form, area_id, label, param_name) {
-    var base_class;// = form.data('base-class');
-    base_class = 'area_object';
+    var base_class = 'area_object';
     var random_index = new Date().getTime();
     var area_list = form.find(".area_list");
 
@@ -84,23 +67,13 @@ Object.assign(TW.views.filter.area_picker, {
     area_list.append($('<li class="area_item" data-area-index="' + random_index + '">')
       .append(label).append('&nbsp;')
       .append(TW.views.filter.area_picker.remove_link())
-      // nest hidden geographic_area_id in <li>
       .append($('<input hidden name="' + param_name + '[]" value="' + area_id + '" >'))
     );
   },
 
-  /*
-    ... name="area[foo]" value="10"       # => params[:area][:foo] == 10
-    ... name="area[foo][]" value="10"     # => params[:area][:foo] == [10]
-    <input name="area[foo][bar]" value="10">  # params[:area][:foo] =  {bar: 10} 
-    <input name="area[foo][][bar][stuff]" value="10">  # params[:area][:foo] = [ {bar: { stuff: 10}} ]
-  */
-
-
-//
-// Binding actions (clicks) to links
-//
-
+  //
+  // Binding actions (clicks) to links
+  //
   remove_link: function () {
     var link = $('<a href="#" class="remove_area">remove</a>');
     TW.views.filter.area_picker.bind_remove_links(link);
@@ -114,20 +87,15 @@ Object.assign(TW.views.filter.area_picker, {
       var area_id = list_item.data('area-id');
       var area_index = list_item.data('area-index');
       var base_class = 'area_object';
-      // var base_class = tag_picker.data('base-class');
 
       if (area_id != undefined) {
         var area_list = list_item.closest('.area_list');
 
-        // if this is not a new area
-        // if (list_item.data('new-person') != "true")  {
-        // if there is an ID from an existing item add the necessary (hidden) _destroy input
         area_list.append($('<input hidden name="' + base_class + '[areas_attributes][' + area_index + '][geographic_area_id]" value="' + area_id + '" >'));
         area_list.append($('<input hidden name="' + base_class + '[areas_attributes][' + area_index + '][_destroy]" value="1" >'));
 
         // Provide a warning that the list must be saved to properly delete the records, tweak if we think necessary
         TW.views.filter.area_picker.warn_for_save(area_list.siblings('.area_picker_message'));
-        // }
       }
       list_item.remove();
     });
@@ -149,6 +117,5 @@ _initialize_area_picker_widget = function
   });
 };
 
-// Initialize the script on page load
 $(document).ready(_initialize_area_picker_widget);
 
