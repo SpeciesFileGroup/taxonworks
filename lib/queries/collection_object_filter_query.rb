@@ -3,7 +3,7 @@ module Queries
   class CollectionObjectFilterQuery < Queries::Query 
 
     # Query variables
-    attr_accessor :query_geographic_area_id, :query_shape
+    attr_accessor :query_geographic_area_ids, :query_shape
     attr_accessor :query_date_partial_overlap, :query_start_date, :query_end_date
     attr_accessor :query_otu_id, :query_otu_descendants
 
@@ -13,7 +13,7 @@ module Queries
     def initialize(params)
       params.reject!{|k, v| v.blank?}
 
-      @query_geographic_area_id = params[:geographic_area_id]
+      @query_geographic_area_ids = params[:geographic_area_ids]
       @query_shape = params[:drawn_area_shape]
       @query_start_date = params[:search_start_date] # TODO: sync key names
       @query_end_date = params[:search_end_date]
@@ -32,7 +32,7 @@ module Queries
     end
 
     def area_set?
-      !query_geographic_area_id.nil?
+      !query_geographic_area_ids.nil?
     end
 
     def date_set?
@@ -63,8 +63,11 @@ module Queries
     # @return [Scope]
     def geographic_area_scope
       # This could be simplified if the AJAX selector returned a geographic_item_id rather than a GeographicAreaId
-      target_geographic_item_id = GeographicArea.joins(:geographic_items).find(query_geographic_area_id).default_geographic_item.to_param
-      CollectionObject.joins(:geographic_items).where(GeographicItem.contained_by_where_sql(target_geographic_item_id))     
+      target_geographic_item_ids = []
+      query_geographic_area_ids.each do |gaid|
+        target_geographic_item_ids.push(GeographicArea.joins(:geographic_items).find(gaid).default_geographic_item.id)
+      end
+      CollectionObject.joins(:geographic_items).where(GeographicItem.contained_by_where_sql(target_geographic_item_ids))
     end
 
     # @return [Scope]
