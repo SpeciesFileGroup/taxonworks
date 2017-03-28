@@ -192,3 +192,11 @@ collecting_event_lat_long_task:
     - collecting_event
   status: prototype
   description: 'Parse the verbatim label for possible lat/long combinations.'
+
+dates_index_task:
+  hub: true
+  name: 'Stepwise collecting event parser - Dates'
+  related:
+  categories:
+  status: prototype
+  description: "Parse the collecting_events table's verbatim label for possible date combinations."
