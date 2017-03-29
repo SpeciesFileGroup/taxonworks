@@ -328,8 +328,11 @@ Object.assign(TW.views.tasks.content.editor, {
                   <modal v-if="showModal"> \
                     <h3 slot="header">Citation OTU</h3> \
                     <ul slot="body"> \
-                      <li v-for="item in citations"></li> \
+                      <li v-for="item in citations"><span @click="pinItem(item)">ASD</span><span v-html="item.object_tag"></span></li> \
                     </ul> \
+                    <div slot="footer" class="flex-separate"> \
+                      <button class="button button-close normal-input" @click="showModal = false">Close</button> \
+                    </div> \
                   </modal> \
                 </div>',
       computed: {
@@ -350,6 +353,18 @@ Object.assign(TW.views.tasks.content.editor, {
         }
       },
       methods: {
+        pinItem: function(item) {
+          var pinboard_item = {
+            pinned_object_id: item.source.id,
+            pinned_object_type: "Source"
+          }
+
+          this.$http.post("/pinboard_items.json", pinboard_item).then( response => {
+            TW.workbench.alert.create("Pinboard item was successfully created.", "notice");
+          }, response => {
+            TW.workbench.alert.create(item.source.object_tag + " already pinned.", "alert");
+          });            
+        },
         loadContent: function() {
           if (this.disabled) return
 
@@ -357,7 +372,8 @@ Object.assign(TW.views.tasks.content.editor, {
           ajaxUrl = `/otus/${this.otu.id}/citations.json?topic_id=${this.topic.id}`
 
           this.$http.get(ajaxUrl).then( response => {
-            that.contents = response.body;
+            that.citations = response.body;
+            console.log(response.body);
             that.showModal = (response.body.length > 0);            
           });          
         },
