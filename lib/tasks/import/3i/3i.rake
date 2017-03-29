@@ -48,7 +48,7 @@ namespace :tw do
                       :parent_id_index, :statuses, :taxon_index, :citation_to_publication_index, :keywords,
                       :incertae_sedis, :emendation, :original_combination, :unique_host_plant_index,
                       :host_plant_index, :topics, :nouns, :countries, :geographic_areas, :museums, :namespaces, :biocuration_classes,
-                      :people, :source_ay, :source_checked_taxonomy, :keyn, :morph
+                      :people, :source_ay, :source_checked_taxonomy, :keyn, :char, :state
         def initialize()
           @keywords = {}                  # keyword -> ControlledVocabularyTerm
           @people_index = {}              # PeopleID -> Person object
@@ -77,7 +77,8 @@ namespace :tw do
           @source_ay = {}
           @source_checked_taxonomy = {}
           @keyn = {}
-          @morph = {}
+          @char = {}
+          @state ={}
         end
       end
 
@@ -265,20 +266,20 @@ namespace :tw do
         handle_projects_and_users_3i
         raise '$project_id or $user_id not set.'  if $project_id.nil? || $user_id.nil?
 
-        $project_id = 1
+        #$project_id = 1
         handle_controlled_vocabulary_3i
-        #handle_litauthors_3i
-        #handle_references_3i
-        #handle_transl_3i
-        #handle_taxonomy_3i
-        #handle_taxon_name_relationships_3i
-        #handle_citation_topics_3i
-        #index_collecting_events_from_accessions_new_3i
-        #handle_host_plant_name_dictionary_3i
-        #handle_host_plants_3i
-        #handle_distribution_3i
-        #handle_parasitoids_3i
-        #handle_localities_3i
+        handle_litauthors_3i
+        handle_references_3i
+        handle_transl_3i
+        handle_taxonomy_3i
+        handle_taxon_name_relationships_3i
+        handle_citation_topics_3i
+        index_collecting_events_from_accessions_new_3i
+        handle_host_plant_name_dictionary_3i
+        handle_host_plants_3i
+        handle_distribution_3i
+        handle_parasitoids_3i
+        handle_localities_3i
 
         handle_characters_3i
 
@@ -343,7 +344,7 @@ namespace :tw do
             'CallNumberDrMetcalf' => Predicate.find_or_create_by(name: 'call_number_dr_metcalf', definition: 'Call Number from DrMetcalf bibliography database.', project_id: $project_id),
             #'AuthorReference' => Predicate.find_or_create_by(name: 'author_reference', definition: 'Author string as it appears in the nomenclatural reference.', project_id: $project_id),
             #'YearReference' => Predicate.find_or_create_by(name: 'year_reference', definition: 'Year string as it appears in the nomenclatural reference.', project_id: $project_id),
-            'Ethymology' => Predicate.find_or_create_by(name: 'ethymology', definition: 'Ethymology.', project_id: $project_id),
+            'Etymology' => Predicate.find_or_create_by(name: 'etymology', definition: 'Etymology.', project_id: $project_id),
             'TypeDepository' => Predicate.find_or_create_by(name: 'type_depository', definition: 'Type depository.', project_id: $project_id),
             'HostPlant' => Predicate.find_or_create_by(name: 'host_plant', definition: 'Host plant.', project_id: $project_id),
             'YearRem' => Predicate.find_or_create_by(name: 'nomenclatural_string', definition: 'Nomenclatural remarks.', project_id: $project_id),
@@ -354,6 +355,8 @@ namespace :tw do
             'IDDrMetcalf' => Namespace.find_or_create_by(name: 'DrMetcalf_Source_ID', short_name: 'DrMetcalf_ID'),
             'KeyN' => Namespace.find_or_create_by(name: '3i_KeyN_ID', short_name: '3i_KeyN_ID'),
             'Key3' => Namespace.find_or_create_by(name: '3i_Source_ID', short_name: '3i_Source_ID'),
+            'Key1' => Namespace.find_or_create_by(name: '3i_Character_ID', short_name: '3i_Character_ID'),
+            'Key2' => Namespace.find_or_create_by(name: '3i_State_ID', short_name: '3i_State_ID'),
             'Key' => Namespace.find_or_create_by(name: '3i_Taxon_ID', short_name: '3i_Taxon_ID'),
             'FLOW-ID' => Namespace.find_or_create_by(name: 'FLOW_Source_ID', short_name: 'FLOW_Source_ID'),
             'DelphacidaeID' => Namespace.find_or_create_by(name: 'Delphacidae_Source_ID', short_name: 'Delphacidae_ID'),
@@ -722,7 +725,7 @@ namespace :tw do
 
             #rank = row['Rank'] == '0' ? parent.rank_class : @ranks[row['Rank'].to_i]
             source = row['Key3'].blank? ? nil : @data.publications_index[row['Key3']] # Source.with_identifier('3i_Source_ID ' + row['Key3']).first
-            source_id = Identifier.where(cached: '3i_KeyN_ID ' + row['KeyN'].to_s).limit(1).first if source.nil? && !row['KeyN'].blank?
+            source_id = Identifier.where(cached: '3i_Source_ID ' + row['Key3'].to_s).limit(1).first if source.nil? && !row['Key3'].blank?
             source = source_id.object if source.nil? && !source_id.nil?
             if row['Rank'] == '0'
               byebug if parent.parent.nil?
@@ -747,7 +750,7 @@ namespace :tw do
             #              taxon.citations.new(source_id: source, pages: row['Page'], is_original: true) unless source.blank?
             taxon.identifiers.new(type: 'Identifier::Local::Import', namespace: @data.keywords['Key'], identifier: row['Key'])
             taxon.notes.new(text: row['Remarks']) unless row['Remarks'].blank?
-            taxon.data_attributes.new(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['Ethymology'].id, value: row['Ethymology']) unless row['Ethymology'].blank?
+            taxon.data_attributes.new(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['Etymology'].id, value: row['Ethymology'].gsub(' (participle)', '') ) unless row['Ethymology'].blank?
             taxon.data_attributes.new(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['TypeDepository'].id, value: row['TypeDepository']) unless row['TypeDepository'].blank?
             taxon.data_attributes.new(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['YearRem'].id, value: row['YearRem']) unless row['YearRem'].blank?
             taxon.data_attributes.new(type: 'InternalAttribute', controlled_vocabulary_term_id: @data.keywords['PageAuthor'].id, value: row['PageAuthor']) unless row['PageAuthor'].blank?
@@ -768,7 +771,11 @@ namespace :tw do
               elsif row['Name'].ends_with?('i') || row['Name'].ends_with?('ae') || row['Name'].ends_with?('arum') || row['Name'].ends_with?('orum')
                 taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Latinized::PartOfSpeech::NounInGenitiveCase')
               elsif !row['nameM'].blank?
-                taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective')
+                if row['Ethymology'] =~ /participle/
+                  taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Latinized::PartOfSpeech::Participle')
+                else
+                  taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective')
+                end
               end
             end
 
@@ -1832,13 +1839,12 @@ namespace :tw do
             matrix = Identifier.where(cached: '3i_KeyN_ID ' + row['KeyN']).limit(1).first.identifier_object
             lng = Language.where(alpha_2: row['Abr'].downcase).limit(1).first
             a = AlternateValue.create(type: 'AlternateValue::Translation', value: row['Title'], alternate_value_object: matrix, alternate_value_object_attribute: 'name', language_id:lng.id)
-            byebug unless a.valid?
+            byebug if a.id.nil?
           end
         end
       end
 
       def handle_characters_3i
-        handle_morph_3i
         # Key1
         # # KeyN
         # # Char
@@ -1859,50 +1865,44 @@ namespace :tw do
         # # DescrSp
         # # DescrZh
         path = @args[:data_directory] + 'characters.txt'
-        print "\nHandling characters\n"
+        print "\nHandling transl\n"
         raise "file #{path} not found" if not File.exists?(path)
         file = CSV.foreach(path, col_sep: "\t", headers: true)
 
+        lngru = Language.where(alpha_2: 'ru').limit(1).first.id
+        lngsp = Language.where(alpha_2: 'sp').limit(1).first.id
+        lngzh = Language.where(alpha_2: 'zh').limit(1).first.id
+
         file.each_with_index do |row, i|
           print "\r#{i}"
-          if row['Numeric'] == 1
-            dtype = 'Observation::Continuous'
+
+          if row['Numeric'] == '1'
+            t = 'Descriptor::Sample'
           else
-            dtype = 'Observation::Qualitative'
+            t = 'Descriptor::Qualitative'
           end
 
-          descriptor = Descriptor.create(name: row['CharEn'], type: dtype)
+          descriptor = Descriptor.create!(name: row['CharEn'], short_name: row['CharEn'], type: t)
+          a = AlternateValue.create(type: 'AlternateValue::Translation', value: row['CharRu'], alternate_value_object: descriptor, alternate_value_object_attribute: 'name', language_id:lngru) unless row['CharRu'].blank?
+          byebug if a.id.nil?
+          a = AlternateValue.create(type: 'AlternateValue::Translation', value: row['CharSp'], alternate_value_object: descriptor, alternate_value_object_attribute: 'name', language_id:lngsp) unless row['CharSp'].blank?
+          byebug if a.id.nil?
+          a = AlternateValue.create(type: 'AlternateValue::Translation', value: row['CharZh'], alternate_value_object: descriptor, alternate_value_object_attribute: 'name', language_id:lngzh) unless row['CharZh'].blank?
+          byebug if a.id.nil?
 
-          byebug if descriptor.id.nil?
-          unless row['Morph'].blank?
-            descriptor.data_attributes.new(type: 'ImportAttribute', import_predicate: '3i_MorphID', value: row['Morph'])
-            descriptor.data_attributes.new(type: 'ImportAttribute', import_predicate: '3i_MorphEn', value: @data.morph[row['Morph']]['MorphEn']) unless @data.morph[row['Morph']]['MorphEn'].blank?
-            descriptor.data_attributes.new(type: 'ImportAttribute', import_predicate: '3i_MorphRu', value: @data.morph[row['Morph']]['MorphRu']) unless @data.morph[row['Morph']]['MorphRu'].blank?
-            descriptor.data_attributes.new(type: 'ImportAttribute', import_predicate: '3i_MorphSp', value: @data.morph[row['Morph']]['MorphSp']) unless @data.morph[row['Morph']]['MorphSp'].blank?
-            descriptor.data_attributes.new(type: 'ImportAttribute', import_predicate: '3i_MorphZh', value: @data.morph[row['Morph']]['MorphZh']) unless @data.morph[row['Morph']]['MorphZn'].blank?
-          end
+          descriptor.identifiers.create!(type: 'Identifier::Local::Import', namespace: @data.keywords['Key1'], identifier: row['Key1'])
+          descriptor.data_attributes.new(type: 'ImportAttribute', import_predicate: '3i_KeyN', value: row['KeyN']) unless row['KeyN'].blank?
+          descriptor.data_attributes.new(type: 'ImportAttribute', import_predicate: 'Char_sequence_number', value: row['Char']) unless row['Char'].blank?
+          descriptor.data_attributes.new(type: 'ImportAttribute', import_predicate: 'Char_M_or_F_or_N', value: row['Type']) unless row['Type'].blank?
+          descriptor.data_attributes.new(type: 'ImportAttribute', import_predicate: 'Char_Morph', value: row['Morph']) unless row['Morph'].blank?
+          descriptor.data_attributes.new(type: 'ImportAttribute', import_predicate: 'Char_DescrEn', value: row['DescrEn']) unless row['DescrEn'].blank?
+          descriptor.data_attributes.new(type: 'ImportAttribute', import_predicate: 'Char_DescrRu', value: row['DescrRu']) unless row['DescrRu'].blank?
+          descriptor.data_attributes.new(type: 'ImportAttribute', import_predicate: 'Char_DescrSp', value: row['DescrSp']) unless row['DescrSp'].blank?
+          descriptor.data_attributes.new(type: 'ImportAttribute', import_predicate: 'Char_DescrZh', value: row['DescrZh']) unless row['DescrZh'].blank?
 
-
+          @data.char[row['Key1']] = descriptor.id
 
         end
-      end
-
-      def handle_morph_3i
-        # Morph
-        # MorphEn
-        # MorphRu
-        # MorphSp
-        # MorphZh
-        path = @args[:data_directory] + 'morph.txt'
-        print "\nHandling morph\n"
-        raise "file #{path} not found" if not File.exists?(path)
-        file = CSV.foreach(path, col_sep: "\t", headers: true)
-
-        file.each_with_index do |row, i|
-          print "\r#{i}"
-          @data.morph[row['Morph']] = {'MorphEn' => row['MorphEn'], 'MorphRu' => row['MorphRu'], 'MorphSp' => row['MorphSp'], 'MorphZh' => row['MorphZh']}
-        end
-
       end
 
 
