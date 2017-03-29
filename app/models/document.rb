@@ -56,16 +56,15 @@ class Document < ActiveRecord::Base
 
   before_save :set_pdf_metadata, if: 'changed_attributes.include?("document_file_file_size") && document_file_content_type =~ /pdf/'
 
-
   def set_pages_by_start(sp = 1)
     update_attribute(:page_map, get_page_map(sp))
   end
 
   def get_page_map(sp = 1)
     m = {}
-    if page_total
+    if page_total && sp
       (0..(page_total - 1)).each do |p|
-        m[p + 1] = (p + sp).to_s
+        m[p + 1] = (p + sp.to_i).to_s
       end
     end
     m
@@ -116,6 +115,7 @@ class Document < ActiveRecord::Base
     rescue MalformedPDFError
       errors.add(:base, 'pdf is malformed')
     end
+    set_pages_by_start(initialize_start_page) if initialize_start_page
   end
 
   def reject_documentation(attributed)
