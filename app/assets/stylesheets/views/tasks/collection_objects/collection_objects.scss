@@ -45,7 +45,10 @@
 		display: none;
 	}
 
-
+	.area_list {
+		padding-left: $standard_padding;
+		list-style: none;
+	}
 	#filter-collection-objects {
 
 		.panel, .slide-panel {
