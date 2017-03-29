@@ -81,6 +81,7 @@ var CarrouselTask = function (sec, rows, columns) {
     for (var key in this.filters) {
       this.filters[key] = false
     }   
+    this.filterWords = "";
     this.refresh();    
   };
 

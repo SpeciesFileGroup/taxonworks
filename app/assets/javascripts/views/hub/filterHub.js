@@ -102,6 +102,7 @@ var FilterHub = function () {
 
 	FilterHub.prototype.changeAllSectionsFilter = function(arrayData) {
 	    arrayData.forEach(function(element) {
+	    	$("#search-filter").val("");
 	    	element.resetFilters();
 	    	element.filterChilds();
 	    	$('.reset-all-filters').fadeOut(0);
