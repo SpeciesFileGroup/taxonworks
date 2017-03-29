@@ -59,16 +59,18 @@ Object.assign(TW.views.filter.area_picker, {
   },
 
   insert_existing_area: function (form, area_id, label, param_name) {
-    var base_class = 'area_object';
-    var random_index = new Date().getTime();
-    var area_list = form.find(".area_list");
+    var base_class = 'area_object',
+        random_index = new Date().getTime(),
+        area_list = form.find(".area_list"),
+        label_text = document.createElement("span");
 
     // insert visible list item
-    area_list.append($('<li class="area_item" data-area-index="' + random_index + '">')
-      .append(label).append('&nbsp;')
-      .append(TW.views.filter.area_picker.remove_link())
-      .append($('<input hidden name="' + param_name + '[]" value="' + area_id + '" >'))
-    );
+        label_text.innerHTML = label;
+        area_list.append($('<li class="area_item" data-area-index="' + random_index + '">')
+          .append(jQuery(label_text).text()).append('&nbsp;')
+          .append(TW.views.filter.area_picker.remove_link())
+          .append($('<input hidden name="' + param_name + '[]" value="' + area_id + '" >'))
+        );
   },
 
   //
