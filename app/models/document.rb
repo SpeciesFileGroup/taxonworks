@@ -56,22 +56,6 @@ class Document < ActiveRecord::Base
 
   before_save :set_pdf_metadata, if: 'changed_attributes.include?("document_file_file_size") && document_file_content_type =~ /pdf/'
 
-  def set_pdf_metadata
-    begin
-      File.open(document_file.staged_path, "rb") do |io| 
-        reader = PDF::Reader.new(io)
-        write_attribute(:page_total, reader.page_count)
-        byebug
-        write_attribute(:page_map, get_page_map(initialize_start_page)) if initialize_start_page
-      end
-    rescue MalformedPDFError
-      errors.add(:base, 'pdf is malformed')
-    end
-  end
-
-  def initialize_start_page=(value)
-    write_attribute(:initialize_start_page, value)
-  end
 
   def set_pages_by_start(sp = 1)
     update_attribute(:page_map, get_page_map(sp))
@@ -113,15 +97,26 @@ class Document < ActiveRecord::Base
     update_attribute(:page_map, p)
   end
 
-  def printed_page_for(pdf_page)
-
-  end
-
   def self.find_for_autocomplete(params)
     Queries::DocumentAutocompleteQuery.new(params[:term]).all.where(project_id: params[:project_id])
   end
-  
+ 
+  def initialize_start_page=(value)
+    write_attribute(:page_map, get_page_map(value)) 
+  end
+
   protected
+
+  def set_pdf_metadata
+    begin
+      File.open(document_file.staged_path, "rb") do |io| 
+        reader = PDF::Reader.new(io)
+        write_attribute(:page_total, reader.page_count)
+      end
+    rescue MalformedPDFError
+      errors.add(:base, 'pdf is malformed')
+    end
+  end
 
   def reject_documentation(attributed)
     attributed['type'].blank? || attributed['documentation_object'].blank? && (attributed['documentation_object_id'].blank? && attributed['documentation_object_type'].blank?)
