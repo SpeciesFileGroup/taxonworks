@@ -61,7 +61,9 @@ _init_drawable_map = function init_drawable_map() {
       }
     );
   }
-  if ($('#_drawable_map_form').data('feature-collection').features.length > 1) {
+  if (typeof $('#_drawable_map_form').data('feature-collection') === "object" &&
+      $('#_drawable_map_form').data('feature-collection').hasOwnProperty("features") && 
+      $('#_drawable_map_form').data('feature-collection').features.length > 0) {
     loadDrawableMap();
   }
 };
