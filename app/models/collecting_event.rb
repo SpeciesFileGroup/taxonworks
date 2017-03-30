@@ -433,7 +433,7 @@ class CollectingEvent < ActiveRecord::Base
       en_string = '((' + part_1e + select_1_3 + part_3e + ')' + (part_2e.blank? ? '' : ' or ') + part_2e + ')'
 
       sql_string = st_string + (allow_partial ? ' or ' : ' and ') + en_string + special_part
-      sql_string 
+      sql_string
     end
 
     # @param [Hash] search_start_date string in form 'yyyy/mm/dd'
@@ -1005,11 +1005,11 @@ class CollectingEvent < ActiveRecord::Base
   end
 
   def latitude
-    verbatim_map_center.try(:x)
+    verbatim_map_center.try(:y)
   end
 
   def longitude
-    verbatim_map_center.try(:y)
+    verbatim_map_center.try(:x)
   end
 
   # @return [Hash]
