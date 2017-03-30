@@ -75,8 +75,9 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
         end
       when 'save_one'
         unless prevention.include?(params[:collecting_event_id])
-          if current_collecting_event.update_attributes(collecting_event_params)
-            current_collecting_event.generate_verbatim_data_georeference(true) if generate_georeference?
+          ce = current_collecting_event
+          if ce.update_attributes(collecting_event_params)
+            ce.generate_verbatim_data_georeference(true) if generate_georeference?
             success = true
           end
         end
