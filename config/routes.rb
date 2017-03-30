@@ -169,13 +169,14 @@ TaxonWorks::Application.routes.draw do
 
   resources :contents do
     concerns [:data_routes]
+    member do
+      get :depictions, param: :content_id, to: 'depictions#index', defaults: {format: :json}
+      get :citations, param: :content_id, to: 'citations#index', defaults: {format: :json}
+      get :confidences, param: :content_id, to: 'confidences#index', defaults: {format: :json}
+    end
     collection do
       get :filter
     end
-  
-    resources :depictions,  defaults: { format: :json }, shallow: true
-    resources :citations,  defaults: { format: :json }, shallow: true
-    resources :confidences, defaults: { format: :json }, shallow: true
   end
 
   resources :controlled_vocabulary_terms do

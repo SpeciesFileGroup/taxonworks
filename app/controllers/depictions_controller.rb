@@ -96,6 +96,6 @@ class DepictionsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def depiction_params
-     params.require(:depiction).permit(:depiction_object_id, :depiction_object_type, image_attributes: [:image_file])
+     params.require(:depiction).permit(:depiction_object_id, :depiction_object_type, :caption, :figure_label, image_attributes: [:image_file])
     end
 end
