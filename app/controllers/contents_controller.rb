@@ -1,7 +1,6 @@
 class ContentsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :require_sign_in_and_project_selection
   before_action :set_content, only: [:show, :edit, :update, :destroy]
 
   # GET /contents
@@ -12,7 +11,9 @@ class ContentsController < ApplicationController
         @recent_objects = Content.where(project_id: sessions_current_project_id).recently_updated(10)
         render '/shared/data/all/index'
       end 
-      format.json { @contents = filtered_content }
+      format.json { 
+        @contents = filtered_content 
+      }
     end
   end
 
@@ -118,13 +119,11 @@ class ContentsController < ApplicationController
       .with_project_id(sessions_current_project_id)
   end
 
-  # Use callbacks to share common setup or constraints between actions.
   def set_content
     @content = Content.with_project_id(sessions_current_project_id).find(params[:id])
     @recent_object = @content
   end
 
-  # Never trust parameters from the scary internet, only allow the white list through.
   def content_params
     params.require(:content).permit(:text, :otu_id, :topic_id, :type)
   end

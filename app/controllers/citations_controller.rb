@@ -118,7 +118,7 @@ class CitationsController < ApplicationController
       # add other polymorphic references here as implementd, e.g. taxon_name_id for citations on TaxonNames
     ).to_h 
 
-    if h.size > 1 
+    if h.size > 1 || h.size == 0 
       respond_to do |format|
         format.html { render plain: '404 Not Found', status: :unprocessable_entity and return }
         format.json { render json: {success: false}, status: :unprocessable_entity and return }
