@@ -48,7 +48,7 @@ _init_drawable_map = function init_drawable_map() {
     });       
 
     $(".map_toggle").click(function (event) {           // switch to the map
-      loadMap();
+      loadDrawableMap();
     }); 
 
     $(".on_selector").click(function (event) {          // switch to the area by name selector
@@ -60,6 +60,11 @@ _init_drawable_map = function init_drawable_map() {
         $("#drawn_area_shape").val(JSON.stringify(feature[0]));
       }
     );
+  }
+  if (typeof $('#_drawable_map_form').data('feature-collection') === "object" &&
+      $('#_drawable_map_form').data('feature-collection').hasOwnProperty("features") && 
+      $('#_drawable_map_form').data('feature-collection').features.length > 0) {
+    loadDrawableMap();
   }
 };
 

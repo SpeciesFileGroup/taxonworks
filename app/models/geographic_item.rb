@@ -112,9 +112,7 @@ class GeographicItem < ActiveRecord::Base
       ).first.r
     end
 
-
-    # TODO: * remove pagination, do that at the controller
-    #       * rename to reflect either/or and what is being returned
+    # TODO: * rename to reflect either/or and what is being returned
     # @param [Integer] geographic_area_id
     # @param [String] shape_in in JSON (TODO: what kind? / details on specification)
     # @param [String] search_object_class
@@ -124,29 +122,23 @@ class GeographicItem < ActiveRecord::Base
     def gather_selected_data(geographic_area_id, shape_in, search_object_class)
       if shape_in.blank?
         # get the shape from the geographic area, if possible
+        finding = search_object_class.constantize
+        target_geographic_item_ids = []
         if geographic_area_id.blank?
-          finding = search_object_class.constantize
           found = finding.none
         else
-          shape_in = GeographicArea.joins(:geographic_items)
-                         .find(geographic_area_id)
-                         .default_geographic_item.geo_object
-          found = objects_contained_by_geo_object(shape_in, search_object_class)
+          # now use method from collection_object_filter_query
+          geographic_area_id.each do |gaid|
+            target_geographic_item_ids.push(GeographicArea.joins(:geographic_items)
+                                                .find(gaid)
+                                                .default_geographic_item.id)
+          end
+          found = finding.joins(:geographic_items).where(GeographicItem.contained_by_where_sql(target_geographic_item_ids))
         end
       else
         found = gather_map_data(shape_in, search_object_class)
       end
       found
-    end
-
-    # @param [geo_object]
-    # @param [String] search_object_class
-    # @return [Scope]
-    #    all objects of search_object_class contained by the geo_object geometry
-    def objects_contained_by_geo_object(geo_object, search_object_class)
-      finding = search_object_class.constantize
-      geometry = geo_object.to_s
-      finding.joins(:geographic_items).where(GeographicItem.contained_by_wkt_sql(geometry))
     end
 
     # @param [String] feature in JSON
@@ -943,14 +935,14 @@ class GeographicItem < ActiveRecord::Base
     # !! The real solution here is to add a sort to prioritize by gazeteer.
     # !! This ordering basically means that if two areas with country (for example) level are found, the first in the alphabet is selected, then sorting by id if equally named
     (containing_geographic_areas
-      .joins(:geographic_areas_geographic_items)
-      .merge(GeographicAreasGeographicItem.ordered_by_data_origin)
-       .order('geographic_areas.name') +
-    geographic_areas
-      .joins(:geographic_areas_geographic_items)
-      .merge(GeographicAreasGeographicItem
-      .ordered_by_data_origin)
-      .order('geographic_areas.name').limit(1)).each do |a|
+         .joins(:geographic_areas_geographic_items)
+         .merge(GeographicAreasGeographicItem.ordered_by_data_origin)
+         .order('geographic_areas.name') +
+        geographic_areas
+            .joins(:geographic_areas_geographic_items)
+            .merge(GeographicAreasGeographicItem
+                       .ordered_by_data_origin)
+            .order('geographic_areas.name').limit(1)).each do |a|
       v.merge!(a.categorize)
     end
     v
