@@ -8,14 +8,11 @@ class ContentsController < ApplicationController
   # GET /contents.json
   def index
     respond_to do |format| 
-      format.html { 
+      format.html do 
         @recent_objects = Content.where(project_id: sessions_current_project_id).recently_updated(10)
         render '/shared/data/all/index'
-      }
-      format.json {
-        @contents = filtered_content
-        render '/contents/index'
-      }
+      end 
+      format.json { @contents = filtered_content }
     end
   end
 

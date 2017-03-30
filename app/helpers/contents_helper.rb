@@ -4,8 +4,11 @@ module ContentsHelper
   def taxon_works_content_tag(content)
     return nil if content.nil?
     content_tag(:span) do
-      topic_tag(content.topic) + ' - ' + otu_tag(content.otu)
-    end.html_safe
+      [
+        topic_tag(content.topic).html_safe,
+        otu_tag(content.otu).html_safe
+      ].join(' - ').html_safe
+    end
   end
 
   def content_link(content)
