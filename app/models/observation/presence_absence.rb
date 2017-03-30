@@ -1,7 +1,7 @@
 class Observation::PresenceAbsence < Observation 
 
-  validates_presence_of :presence
+  validates :presence, :inclusion => {in:  [true, false]}
 
   protected
- 
+
 end

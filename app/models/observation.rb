@@ -8,9 +8,9 @@ class Observation < ActiveRecord::Base
   include Shared::IsData
   include Shared::Depictions
 
-  belongs_to :descriptor
-  belongs_to :otu
-  belongs_to :collection_object
+  belongs_to :descriptor, inverse_of: :observations
+  belongs_to :otu, inverse_of: :observations
+  belongs_to :collection_object, inverse_of: :observations
  
   validates_presence_of :descriptor_id
 
@@ -19,7 +19,6 @@ class Observation < ActiveRecord::Base
   def self.human_name
       'YAY'
   end
-
 
   protected
 
