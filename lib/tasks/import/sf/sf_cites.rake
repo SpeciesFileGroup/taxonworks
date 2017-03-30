@@ -12,16 +12,15 @@ namespace :tw do
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
-          get_tw_project_id = get('SFFileIDToTWProjectID')
-          get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID')
+          # get_tw_project_id = get('SFFileIDToTWProjectID')
+          # get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID')
           get_tw_otu_id = import.get('SFTaxonNameIDToTWOtuID') # Note this is an OTU associated with a SF.TaxonNameID (probably a bad taxon name)
-          get_taxon_name_otu_id = import.get('TWTaxonNameIDToOtuID') # Note this is the OTU offically associated with a real TW.taxon_name_id
+          # get_taxon_name_otu_id = import.get('TWTaxonNameIDToOtuID') # Note this is the OTU offically associated with a real TW.taxon_name_id
           get_tw_source_id = import.get('SFRefIDToTWSourceID')
           get_nomenclator_string = import.get('SFNomenclatorIDToSFNomenclatorString')
           get_cvt_id = import.get('CvtProjUriID')
-          get_containing_source_id = import.get('TWSourceIDToContainingSourceID') # use to determine if taxon_name_author must be created (orig desc only)
-          get_sf_taxon_name_authors = import.get('SFRefIDToTaxonNameAuthors') # contains ordered array of SF.PersonIDs
-          get_cvt_id = import.get('CvtProjUriID')
+          # get_containing_source_id = import.get('TWSourceIDToContainingSourceID') # use to determine if taxon_name_author must be created (orig desc only)
+          # get_sf_taxon_name_authors = import.get('SFRefIDToTaxonNameAuthors') # contains ordered array of SF.PersonIDs
 
           path = @args[:data_directory] + 'tblCites.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
@@ -32,12 +31,12 @@ namespace :tw do
 
 
           count_found = 0
-          error_counter = 0
-          no_taxon_counter = 0
-          cite_found_counter = 0
-          otu_not_found_counter = 0
+          # error_counter = 0
+          # no_taxon_counter = 0
+          # cite_found_counter = 0
+          # otu_not_found_counter = 0
           orig_desc_source_id = 0 # make sure only first cite to original description is handled as such (when more than one cite to same source)
-          otu_only_counter = 0
+          # otu_only_counter = 0
 
           base_uri = 'http://speciesfile.org/legacy/'
 
@@ -50,10 +49,12 @@ namespace :tw do
 
             next if source_id == 0
 
-            otu_id = get_tw_otu_id[sf_taxon_name_id]
-            project_id = Otu.find(otu_id).project_id
+            otu = Otu.find(get_tw_otu_id[sf_taxon_name_id]) # need otu object for project_id and
 
-            logger.info "Working with TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.otu_id #{otu_id},
+            # otu_id = get_tw_otu_id[sf_taxon_name_id]
+            project_id = otu.project_id.to_s
+
+            logger.info "Working with TW.project_id: #{project_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.otu_id #{otu.id},
 SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (count #{count_found += 1}) \n"
 
             cite_pages = row['CitePages']
@@ -67,7 +68,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
             info_flag_status_cvt_id = get_cvt_id[project_id][info_flag_status_uri]
 
             info_flags = row['InfoFlags'].to_i
-            citation_topics_attributes = nil
+            citation_topics_attributes = []
 
             if info_flags > 0
               base_cite_info_flags_uri = (base_uri + 'cite_info_flags/') # + bit_position below
@@ -83,6 +84,8 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
                 }
               }
             end
+
+            citation_topics_attributes ||= []
 
             metadata = {
                 ## Note: Add as attribute before save citation
@@ -106,18 +109,23 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
                 tags_attributes: [{keyword_id: new_name_cvt_id, project_id: project_id}, {keyword_id: type_info_cvt_id, project_id: project_id}],
 
                 ## InfoFlagStatus: Add confidence, 1 = partial data or needs review, 2 = complete data
-                confidences_attributes: [{confidence_level_id: info_flag_status_cvt_id, project_id: project_id}]
+                confidences_attributes: [{confidence_level_id: info_flag_status_cvt_id, project_id: project_id}],
+                citation_topics_attributes: citation_topics_attributes
             }
 
-            citation = Citation.create!(
+            # byebug
+
+            # if citation != nil and orig_desc_source_id != source_id
+            #   orig_desc_source_id = source_id # prevents duplicate citation to same source being processed as original description
+
+              citation = Citation.create!(
                 metadata.merge(
                     source_id: source_id,
                     pages: cite_pages,
                     # is_original: (row['SeqNum'] == '1' ? true : false),
-                    citation_object_type: 'Otu',
-                    citation_object_id: otu_id,
-
-                    citation_topics_attributes: citation_topics_attributes,
+                    citation_object: otu, # this one line replaces the next two lines
+                    # citation_object_type: 'Otu',
+                    # citation_object_id: otu_id,
 
                     # housekeeping for citation
                     project_id: project_id,
@@ -133,9 +141,9 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
             ## Nomenclator: DataAttribute of citation, NomenclatorID > 0
             if row['NomenclatorID'] != '0' # OR could value: be evaluated below based on NomenclatorID?
               da = DataAttribute.create!(type: 'ImportAttribute',
-                                         attribute_subject_id: citation.id,
-                                         attribute_subject_type: 'Citation',
-                                         # attribute_subject: citation,        replaces two lines above
+                                         attribute_subject: citation, # replaces next two lines
+                                         # attribute_subject_id: citation.id,
+                                         # attribute_subject_type: 'Citation',
                                          import_predicate: 'Nomenclator',
                                          value: get_nomenclator_string[row['NomenclatorID']],
                                          project_id: project_id,
