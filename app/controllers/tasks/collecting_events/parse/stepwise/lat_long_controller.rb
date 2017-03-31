@@ -1,11 +1,6 @@
 DEFAULT_SQL_REGEXS = []
 class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationController
   include TaskControllerConfiguration
-  # before_filter :set_force_no_cache
-  #
-  # def set_force_no_cache
-  #   expires_now
-  # end
 
   # GET
   def index
@@ -15,31 +10,15 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
       flash['notice'] = 'No collecting events with parsable records found.'
       redirect_to hub_path and return
     end
-    @matching_items   = []
+    @matching_items = []
   end
 
-  def parse_filters(params)
-    # default filter is is all filters
-    if params['filters'].blank?
-      Utilities::Geo::REGEXP_COORD.keys
-    else
-      params.permit(filters: [])[:filters].map(&:to_sym)
-    end
-    # filters = []
-    # params.keys.each { |kee|
-    #   if kee.start_with?('select_')
-    #     filters.push(kee.gsub('select_', '').downcase.to_sym)
-    #   end
-    # }
-    # filters
-  end
-
+  # POST
   # all buttons come here, so we first have to look at the button value
   def process_buttons
-    prevention = ['39605', '103244', '57187', '103255']
     no_flash = false
-    success    = false
-    message    = 'Failed to update '
+    success  = false
+    message  = 'Failed to update '
     next_id  = next_collecting_event_id
     case params['button']
       when 're-eval'
@@ -61,24 +40,21 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
           selected.each { |item_id|
             ce = CollectingEvent.find(item_id)
             unless ce.nil?
-              unless prevention.include?(params[:collecting_event_id])
-                if ce.update_attributes(collecting_event_params)
-                  ce.generate_verbatim_data_georeference(true) if generate_georeference?
-                else
-                  any_failed = true
-                  message    += 'one or more of the collecting events.'
-                end
+              if ce.update_attributes(collecting_event_params)
+                ce.generate_verbatim_data_georeference(true) if generate_georeference?
+              else
+                any_failed = true
+                message    += 'one or more of the collecting events.'
               end
             end
           }
           success = any_failed ? false : true
         end
       when 'save_one'
-        unless prevention.include?(params[:collecting_event_id])
-          if current_collecting_event.update_attributes(collecting_event_params)
-            current_collecting_event.generate_verbatim_data_georeference(true) if generate_georeference?
-            success = true
-          end
+        ce = current_collecting_event
+        if ce.update_attributes(collecting_event_params)
+          ce.generate_verbatim_data_georeference(true) if generate_georeference?
+          success = true
         end
         message += 'the collecting event.'
     end
@@ -108,18 +84,9 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
     lat            = similar_params[:lat]
     long           = similar_params[:long]
     piece          = similar_params[:piece]
-    # collecting_event_id = collecting_event_params[:collecting_event_id]
     include_values = (similar_params[:include_values].nil?) ? false : true
-    sql_1          = '('
-    sql_1          += "verbatim_label LIKE '%#{sql_fix(lat)}%'" unless lat.blank?
-    sql_1          += " or verbatim_label LIKE '%#{sql_fix(long)}%'" unless long.blank?
-    sql_1          += " or verbatim_label LIKE '%#{sql_fix(piece)}%'" unless piece.blank?
-    sql_1          += ')'
-    sql_1          += ' and (verbatim_latitude is null or verbatim_longitude is null)' unless include_values
-    selected_items = CollectingEvent.where(sql_1)
-                       .with_project_id(sessions_current_project_id)
-                       .order(:id)
-                       .where.not(id: params[:collecting_event_id]).distinct
+    ce             = CollectingEvent.find(similar_params[:collecting_event_id])
+    selected_items = ce.similar_lat_longs(lat, long, piece, include_values)
 
     retval[:count] = selected_items.count.to_s
     retval[:table] = render_to_string(partial: 'matching_table',
@@ -132,11 +99,6 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
   end
 
   protected
-
-  def sql_fix(item)
-    retval = item.gsub("'", "''")
-    retval
-  end
 
   def collecting_event_id_param
     retval = nil
@@ -179,21 +141,17 @@ class Tasks::CollectingEvents::Parse::Stepwise::LatLongController < ApplicationC
     end
   end
 
-  def process_params
-    params.permit(:matched_ids, :button, :matched_latitude, :matched_longitude, selected: [])
-  end
-
   def similar_params
-    params.permit(:include_values, :piece, :lat, :long)
+    params.permit(:collecting_event_id, :include_values, :piece, :lat, :long)
   end
 
-  def matched_params
-    retval = {
-      verbatim_latitude:     process_params[:matched_latitude],
-      verbatim_longitude:    process_params[:matched_longitude],
-      generate_georeference: process_params[:match_gen_georeference]
-    }
-    retval
+  # default filter set is all filters
+  def parse_filters(params)
+    if params['filters'].blank?
+      Utilities::Geo::REGEXP_COORD.keys
+    else
+      params.permit(filters: [])[:filters].map(&:to_sym)
+    end
   end
 
   def collecting_event_params

@@ -197,8 +197,6 @@ To add a new (discovered) symbol:
     def self.hunt_wrapper(label, filters = REGEXP_COORD.keys)
 
       trials = self.hunt_lat_long_full(label, filters)
-      # trials                = {}
-      # trials['(full text)'] = self.hunt_lat_long(label, nil).merge!(method: 'text')
 
       ';, '.each_char { |sep|
         trial = self.hunt_lat_long(label, sep)
@@ -215,10 +213,6 @@ To add a new (discovered) symbol:
       SPECIAL_LATLONG_SYMBOLS.include?(c)
     end
 
-    def self.guess_lat_long(source_string = '')
-
-      # /(?<degrees>-*\d{0,3}(\.\d+)*)[do*\u00b0\u00ba\u02DA\u030a\u221e\u222b\uc2ba]*\s*(?<minutes>\d+\.*\d*)*['\u00a5\u00b4\u02b9\u02bb\u02bc\u02ca\u2032\uc2ba]*\s*((?<seconds>\d+\.*\d*)['\u00a5\u00b4\u02b9\u02ba\u02bb\u02bc\u02ca\u02ee\u2032\u2033\uc2ba"]+)*/x
-    end
 
     # 42∞5'18.1"S88∞11'43.3"W
     # S42∞5'18.1"W88∞11'43.3"
@@ -231,7 +225,7 @@ To add a new (discovered) symbol:
     # 42:5:18.1N
     # 88:11:43.3W
     #
-    # no limit test, unless there is a letter included
+    # no limit test, unless there is a ordinal letter included
     #
     def self.degrees_minutes_seconds_to_decimal_degrees(dms_in) # rubocop:disable Metrics/PerceivedComplexity !! But this is too complex :)
       match_string = nil
