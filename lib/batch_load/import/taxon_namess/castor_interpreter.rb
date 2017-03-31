@@ -44,6 +44,7 @@ module BatchLoad
         i += 1
 
         parse_result = BatchLoad::RowParse.new
+        parse_result.objects[:original_taxon_name] = []
         parse_result.objects[:taxon_name] = []
         parse_result.objects[:taxon_name_relationship] = []
 
@@ -53,8 +54,9 @@ module BatchLoad
           next if row['rank'] == "complex"
           next if row['rank'] == "species group"
           next if row['rank'] == "series"
+          next if row['rank'] == "variety"
           next if row['taxon_name'] == "unidentified"
-      
+
           taxon_name_identifier_castor_text = row["guid"]
           taxon_name_identifier_castor = { namespace: namespace_castor,
                                            type: "Identifier::Local::TaxonConcept",
@@ -72,9 +74,38 @@ module BatchLoad
             also_create_otu: @also_create_otu,
             project: @project,
             verbatim_author: verbatim_author(row['author_year']),
-            taxon_name_authors_attributes: taxon_name_authors_attributes(verbatim_author(row['author_year'])),
-            identifiers_attributes: taxon_name_identifiers
+            taxon_name_authors_attributes: taxon_name_authors_attributes(verbatim_author(row['author_year']))
+            #identifiers_attributes: taxon_name_identifiers
           }
+            
+          if row['original_name']
+            original_protonym_attributes = {
+              verbatim_name: row['original_name'],
+              name: row['original_name'].split(' ')[-1],
+              year_of_publication: year_of_publication(row['author_year']),
+              rank_class: Ranks.lookup(@nomenclature_code.to_sym, row['original_rank']),
+              parent: parent_taxon_name,
+              by: @user,
+              also_create_otu: @also_create_otu,
+              project: @project,
+              verbatim_author: verbatim_author(row['author_year']),
+              taxon_name_authors_attributes: taxon_name_authors_attributes(verbatim_author(row['author_year']))
+            }
+
+            original_protonym = Protonym.new(original_protonym_attributes)
+
+            if row['original_rank'] == 'genus'
+              protonym_attributes[:original_genus] = original_protonym
+            elsif row['original_rank'] == 'subgenus'
+              protonym_attributes[:original_subgenus] = original_protonym
+            elsif row['original_rank'] == 'species'
+              protonym_attributes[:original_species] = original_protonym
+            elsif row['original_rank'] == 'subspecies'
+              protonym_attributes[:original_subspecies] = original_protonym
+            end
+
+            parse_result.objects[:original_taxon_name].push original_protonym
+          end
 
           p = Protonym.new(protonym_attributes)
           taxon_name_id = row['id']
@@ -87,9 +118,6 @@ module BatchLoad
             p.parent = taxon_names[parent_taxon_name_id]
           end
           
-          parse_result.objects[:taxon_name].push p
-          @total_data_lines += 1 if p.present?
-
           # TaxonNameRelationship
           related_name_id = row['related_name_id']
 
@@ -100,6 +128,8 @@ module BatchLoad
               related_name_nomen_class = row['related_name_nomen_class'].constantize
 
               if related_name_nomen_class.ancestors.include?(TaxonNameRelationship)
+                p.name = row['taxon_name'].split(' ')[-1]
+                p.verbatim_name = row['taxon_name']
                 taxon_name_relationship = related_name_nomen_class.new(subject_taxon_name: p, object_taxon_name: taxon_names[related_name_id])
                 parse_result.objects[:taxon_name_relationship].push taxon_name_relationship
               end
@@ -110,6 +140,9 @@ module BatchLoad
           # TaxonNameClassification
           name_nomen_classification = row['name_nomen_classification']
           p.taxon_name_classifications.new(type: name_nomen_classification) if TaxonName::EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS.include?(name_nomen_classification)
+
+          parse_result.objects[:taxon_name].push p
+          @total_data_lines += 1 if p.present?
         end
       end
 
