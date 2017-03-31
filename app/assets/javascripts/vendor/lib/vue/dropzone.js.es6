@@ -1,5 +1,5 @@
 Vue.component("dropzone", {
-	template: '<form :action="url" class="dropzone" :id="id"></form>',
+	template: '<form :action="url" class="dropzone vue-dropzone" :id="id"></form>',
     props: {
       id: {
         type: String,

@@ -10,9 +10,10 @@ Object.assign(TW.views.tasks.content.editor, {
   init: function() { 
 
     var
-    token = $('[name="csrf-token"]').attr('content');
+      token = $('[name="csrf-token"]').attr('content');
+
     // JOSE - we can make this more generalized I think, but this works
-    Vue.http.headers.common['X-CSRF-Token'] = $('[name="csrf-token"]').attr('content');
+    Vue.http.headers.common['X-CSRF-Token'] = token;
 
     const store = new Vuex.Store({
       state: {    
@@ -411,7 +412,7 @@ Object.assign(TW.views.tasks.content.editor, {
               url: "/depictions",
               headers: {
                 'X-CSRF-Token' : token
-              }
+              },
           }
         }
       },
