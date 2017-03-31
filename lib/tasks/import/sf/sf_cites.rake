@@ -85,7 +85,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
               }
             end
 
-            citation_topics_attributes ||= []
+            # citation_topics_attributes ||= [] # or or equals
 
             metadata = {
                 ## Note: Add as attribute before save citation
@@ -118,7 +118,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
             # if citation != nil and orig_desc_source_id != source_id
             #   orig_desc_source_id = source_id # prevents duplicate citation to same source being processed as original description
 
-              citation = Citation.create!(
+            citation = Citation.create!(
                 metadata.merge(
                     source_id: source_id,
                     pages: cite_pages,
@@ -173,6 +173,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
           get_cvt_id = import.get('CvtProjUriID')
           get_containing_source_id = import.get('TWSourceIDToContainingSourceID') # use to determine if taxon_name_author must be created (orig desc only)
           get_sf_taxon_name_authors = import.get('SFRefIDToTaxonNameAuthors') # contains ordered array of SF.PersonIDs
+          get_tw_person_id = import.get('SFPersonIDToTWPersonID')
 
           path = @args[:data_directory] + 'tblCites.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
@@ -257,9 +258,11 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
               citation.notes << Note.new(text: row['Note'], project_id: project_id) unless row['Note'].blank? # project_id? ; what is << ?
               # citation.update_column(:pages, cite_pages) # update pages to cite_pages
               citation.update(metadata.merge(pages: cite_pages))
-              logger.info "Citation found: citation.id = #{citation.id}, taxon_name_id = #{taxon_name_id}, cite_pages = '#{cite_pages}' (cite_found_counter = #{cite_found_counter += 1}"
+              logger.info "Citation found: citation.id = #{citation.id}, taxon_name_id = #{taxon_name_id}, cite_pages = '#{cite_pages}' (cite_found_counter = #{cite_found_counter += 1})"
 
-              if get_containing_source_id.has_key?(source_id) # create taxon_name_author role for contained Refs only
+              if get_containing_source_id.has_key?(source_id.to_s) # create taxon_name_author role for contained Refs only
+
+                # byebug
 
                 get_sf_taxon_name_authors[sf_ref_id].each do |sf_person_id| # person_id from author_array
 
@@ -269,7 +272,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']} (c
                       role_object_id: source_id,
                       role_object_type: 'Source',
                   # position: row['SeqNum'],
-                  # project_id: project_id,   # don't use for roles
+                  project_id: project_id,   # role is project_role
                   # created_at: row['CreatedOn'],
                   # updated_at: row['LastUpdate'],
                   # created_by_id: get_tw_user_id[row['CreatedBy']],
