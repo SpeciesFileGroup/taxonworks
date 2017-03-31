@@ -23,6 +23,7 @@ class Tasks::CollectingEvents::Parse::Stepwise::DatesController < ApplicationCon
 
   # POST
   def update
+    process_buttons
   end
 
   # all buttons come here, so we first have to look at the button value
@@ -81,8 +82,8 @@ class Tasks::CollectingEvents::Parse::Stepwise::DatesController < ApplicationCon
       next_id = current_collecting_event.id
     end
     # where do we go from here?
-    redirect_to collecting_event_lat_long_task_path(collecting_event_id: next_id,
-                                                    filters: parse_filters(params))
+    redirect_to dates_index_task_path(collecting_event_id: next_id,
+                                      filters: parse_filters(params))
   end
 
   def convert
